@@ -1,0 +1,92 @@
+/* CSS for RP forms      */
+/* Created by Dayan Paez */
+
+body * {
+    font-size: 12px;
+    font-family: arial;
+    color: blue;
+}
+
+div.two-div {
+    background-image: url('../../img/ICSA-RP-AB.png');
+    background-repeat: no-repeat;
+    background-position: top left;
+    /*border: 1px solid #CCCCCC;*/
+    width: 612px;
+    height: 792px;
+    page-break-after: always;
+}
+
+table.eventtable {
+    /* border: 1px solid yellow; */
+    width: 516px;
+    margin-left: 46px;
+    height: 26px;
+}
+
+td.tdevent {
+    padding-left: 84px;
+    width: 142px;
+}
+
+td.tdhost {
+    padding-left: 42px;
+    width: 130px;
+}
+
+td.tddate {
+    padding-left: 40px;
+}
+
+table.teamtable {
+    /* border: 1px solid red; */
+    width: 516px;
+    margin-left: 46px;
+    height: 40px;
+}
+
+td.tdcollege {
+    padding-left: 40px;
+    height: 10px;
+    width: 195;
+}
+
+td.tdrep {
+    padding-left: 140px;
+    padding-top: -3px
+}
+
+table.skipcrewtable {
+    /* border: 1px solid green; */
+    width: 516px;
+    margin-left: 46px;
+    margin-bottom: 11px;
+}
+
+tr.trskipcrew td {
+    height: 20px;
+}
+
+td.teamheadsp {
+    height: 16px;
+}
+
+td.tdnameA {
+    width: 143px;
+}
+
+td.tdnameB {
+    width: 134px;
+}
+
+td.tdyear {
+    width: 22px;
+}
+
+td.tdrace {
+    width: 82px;
+}
+
+td {
+    overflow: hidden;
+}

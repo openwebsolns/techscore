@@ -1,0 +1,7 @@
+syntax: glob
+
+# Documentation HTML files
+www/help/*
+lib/doc/*
+*~
+*.svg

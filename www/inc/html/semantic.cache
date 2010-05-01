@@ -1,0 +1,86 @@
+;; Object html/
+;; SEMANTICDB Tags save file
+(semanticdb-project-database-file "html/"
+  :tables (list 
+   (semanticdb-table "head.php"
+    :major-mode 'php-mode
+    :tags '(("$HEAD_STR" variable (:default-value "'
+<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" 
+	  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">
+<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\">
+<head>
+  <title>Techscore v0.6 | MIT</title>
+  <link rel=\"stylesheet\" type=\"text/css\"
+	href=\"inc/css/layout.css\"/>
+  <link rel=\"stylesheet\" type=\"text/css\" media=\"screen\"
+        href=\"inc/css/AutoComplete.css\"/>
+  <link rel=\"stylesheet\" type=\"text/css\" media=\"print\"
+	href=\"inc/css/print.css\"/>
+  <link rel=\"shortcut icon\" href=\"img/t.ico\" type=\"image/x-icon\"/>
+  <script type=\"text/javascript\" src=\"inc/js/form.js\"></script>
+  <script type=\"text/javascript\" language=\"javascript\" src=\"inc/js/AutoComplete.js\"></script>
+  <script type=\"text/javascript\"
+	  src=\"inc/js/jquery-1.3.min.js\"></script> 
+  <script type=\"text/javascript\">
+    $(document).ready(function(){
+    
+      $(\"#bottom-grab\").click( function(){ 
+        if($(\"#headdiv\").is(\":hidden\")) {
+          $(\"#headdiv\").show();
+        }
+        else {
+          $(\"#headdiv\").slideUp();
+        }
+      });
+
+    });
+
+  </script>'" :type ("php" type (:type "class") nil nil)) nil [3 1108]))
+    :file "head.php"
+    :pointmax 1111
+    :unmatched-syntax 'nil
+    )
+   (semanticdb-table "cal.php"
+    :major-mode 'php-mode
+    :tags '(("ready" function (:prototype-flag t :arguments (("" variable (:type ("function" type (:type "class") nil nil)) (reparse-symbol arg-sub-list) [57 67])) :type "int") nil [51 198]))
+    :file "cal.php"
+    :pointmax 413
+    :unmatched-syntax 'nil
+    )
+   (semanticdb-table "penalty_menu.php"
+    :major-mode 'php-mode
+    :tags 'nil
+    :file "penalty_menu.php"
+    )
+   (semanticdb-table "index_menu.php"
+    :major-mode 'php-mode
+    :tags 'nil
+    :file "index_menu.php"
+    )
+   (semanticdb-table "reg_menu.php"
+    :major-mode 'html-mode
+    :tags '(("Main menu" section (:members (("Regatta" section (:members (("Home" section nil nil [177 262]) ("Races" section nil nil [262 350]) ("-->Reports<!--" section nil nil [350 450]) ("Finalize" section nil nil [450 543]))) nil [131 543]) ("Schools" section (:members (("Invites" section nil nil [591 678]) ("Sign-in Teams" section nil nil [678 772]))) nil [543 772]) ("RP Forms" section (:members (("RP Forms" section nil nil [817 901]) ("Sailors" section nil nil [901 991]))) nil [772 991]) ("Rotations" section (:members (("Setup" section nil nil [1043 1134]) ("View/print" section nil nil [1134 1238]))) nil [991 1238]) ("Scores" section (:members (("Finishes" section nil nil [1285 1373]) ("Penalties" section nil nil [1373 1471]) ("Results" section nil nil [1471 1474]))) nil [1238 1241]))) nil [76 79]))
+    :file "reg_menu.php"
+    :pointmax 1595
+    :unmatched-syntax 'nil
+    )
+   (semanticdb-table "rp_menu.php"
+    :major-mode 'php-mode
+    :tags 'nil
+    :file "rp_menu.php"
+    )
+   (semanticdb-table "team_menu.php"
+    :major-mode 'php-mode
+    :tags 'nil
+    :file "team_menu.php"
+    )
+    (semanticdb-table "compass.php"
+    :major-mode 'php-mode
+    :tags 'nil
+    :file "compass.php"
+    )
+   )
+  :file "semantic.cache"
+  :semantic-tag-version "2.0pre4"
+  :semanticdb-version "2.0pre4"
+  )

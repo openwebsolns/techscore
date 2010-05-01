@@ -1,0 +1,22 @@
+.autocomplete {
+    font-size: 0.8em;
+    background-color: white;
+    border: 1px solid black;
+    position: absolute;
+    cursor: default;
+    overflow: auto;
+    overflow-x: hidden;
+}
+
+.autocomplete_item {
+    padding: 0.25em;
+    padding-right: 1em;
+    color: black;
+}
+
+.autocomplete_item_highlighted {
+    padding: 0.25em;
+    padding-right: 1em;
+    color: white;
+    background-color: navy;
+}

@@ -1,0 +1,35 @@
+* Explain tiebreakers (d o n e)
+
+* Inactive editing panes (d o n e)
+- Create menu at the TScorePage level, since the menu is always to be
+   displayed the same way except that inactive pages would be grayed
+   out. Note that dialogs are always to be displayed.
+
+* Preferences API for users
+- Timezone settings
+- Stylesheet to use
+
+* Dialog CSS, etc
+
+* Javascript COOKIE (d o n e)
+
+* Access keys
+
+* FIX CSS Table Styles
+
+* FIX Announcements Div on TScorePage
+- Both CSS positioning and placement within page
+
+* FIX CSS for Preference pages
+
+* Messenging mechanism (d o n e)
+
+* Implement scripts
+
+* Improve the public site!!!
+
+* FIX Help files
+
+* Scorers vs. Hosts (d o n e)
+
+* Admin side
