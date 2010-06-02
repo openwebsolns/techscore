@@ -9,10 +9,10 @@
 
 define("VERSION", "2.0");
 define("NAME",    "TechScore Development");
-// define("ROOT",    "http://paez.mit.edu/ts2");
-// define("HOME",    "http://paez.mit.edu/ts2");
-define("ROOT",    "http://paez/ts2");
-define("HOME",    "http://paez/ts2");
+define("ROOT",    "https://techscore.mit.edu/ts2");
+define("HOME",    "https://techscore.mit.edu/ts2");
+// define("ROOT",    "http://paez/ts2");
+// define("HOME",    "http://paez/ts2");
 define("ADMIN_MAIL", "dpv140@gmail.com");
 
 // MySQL connection
@@ -23,8 +23,8 @@ define('SQL_PASS', "sailor1");
 define('SQL_DB',   "ts_140");
 */
 define('SQL_HOST', "localhost");
-define('SQL_USER', "dayan");
-define('SQL_PASS', "sailor1");
+define('SQL_USER', "ts2user");
+define('SQL_PASS', '#@Yla^| s');
 define('SQL_DB',   "ts2");
 
 define('TS_PATH', dirname(__FILE__));
