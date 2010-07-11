@@ -80,18 +80,23 @@ function __mail_exception_handler(Exception $e) {
   $body .= sprintf($fmt, "Trace",  $e->getTraceAsString());
   $body .= "====================\n";
 
-  mail("dpv140@gmail.com", "[TS2 EXCEPTION]", $body, "From: ts-admin@techscore.mit.edu");
-
-  print <<<END
+  $sent = mail(ADMIN_MAIL, "[TS2 EXCEPTION]", $body, "From: ts-admin@techscore.mit.edu");
+  if ($sent) {
+    print <<<END
 There was an error while handling your request. Administrators
 have been notified of the problem and it will be addressed as
 soon as possible.
 
 Sorry for the inconvenience.
 END;
+  }
+  else {
+    print <<<END
+There was an error while handling your request. Please excuse the inconvenience.
+END;
+  }
   die();
 }
-// set_exception_handler("__mail_exception_handler");
 
 require_once(TS_PATH . '/conf.local.php');
 ?>

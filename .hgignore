@@ -3,7 +3,12 @@ syntax: glob
 # Documentation HTML files
 www/help/*
 doc/*
+
+# Backup and image sources
 *~
 *.svg
+
+# Errors and local files
 _errors.log
 conf.local.php
+apache.conf
