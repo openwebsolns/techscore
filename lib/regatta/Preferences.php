@@ -346,7 +346,7 @@ class Preferences {
    */
   public static function approveUser($id, $pass) {
     $con = self::getConnection();
-    $q = sprintf('select * from account where username like "%s" and password = sha("%s")',
+    $q = sprintf('select * from account where username like "%s" and password = sha1("%s")',
 		 $id, $pass);
     $q = $con->query($q);
     if ($q->num_rows == 0) {

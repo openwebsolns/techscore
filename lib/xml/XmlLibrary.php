@@ -12,7 +12,7 @@
  */
 interface HTMLElement
 {
-  public function toHTML($ind = 0);
+  public function toHTML();
 }
 
 
@@ -77,9 +77,8 @@ class GenericElement implements HTMLElement
   }
 
   // Generic toHTML method
-  // If element has no children, then close tag: <img/>
-  public function toHTML($ind = 0) {
-    $str = "\n" . str_repeat(" ", $ind) . "<" . $this->elemName;
+  public function toHTML() {
+    $str = "<" . $this->elemName;
     // Process attributes
     foreach ($this->getAttrs() as $attr => $value) {
       if (!empty($value)) {
@@ -94,15 +93,10 @@ class GenericElement implements HTMLElement
     $child_str = "";
     // Process children
     foreach ($this->getChildren() as $child) {
-      $child_str .= $child->toHTML($ind+2);
+      $str .= $child->toHTML();
     }
     // Close tag
-    if (strlen($child_str) < 30)
-      $str .= $child_str . sprintf("</%s>", $this->elemName);
-    else
-      $str .= $child_str . "\n" . str_repeat(" ", $ind) . 
-	sprintf("</%s>", $this->elemName);
-
+    $str .= sprintf("</%s>", $this->elemName);
     return $str;
   }
 
@@ -152,10 +146,9 @@ class WebPage extends GenericElement
     $this->body->addChild($e);
   }
 
-  public function toHTML($ind = 0) {
-    $str = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
-	  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">';
-    $str .= parent::toHTML(0);
+  public function toHTML() {
+    $str = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">';
+    $str .= parent::toHTML();
     return $str;
   }
 }
@@ -396,7 +389,7 @@ class Text implements HTMLElement
   public function __construct($v = "") {
     $this->value = $v;
   }
-  public function toHTML($ind=0) {
+  public function toHTML() {
     return $this->value;
   }
 }

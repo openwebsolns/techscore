@@ -5,3 +5,5 @@ www/help/*
 doc/*
 *~
 *.svg
+_errors.log
+conf.local.php

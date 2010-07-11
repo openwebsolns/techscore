@@ -26,7 +26,9 @@ class TScorePage extends WebPage {
   private $menu;
   private $content;
   private $announce;
-  
+
+  private $mobile;
+
   /**
    * Creates a new page with the given title
    *
@@ -35,9 +37,15 @@ class TScorePage extends WebPage {
    */
   public function __construct($title) {
     parent::__construct();
+    $this->mobile = $this->isMobile();
+
     $this->fillHead($title);
 
     // Menu
+    if ($this->mobile) {
+      $this->addBody(new GenericElement("button", array(new Text("Menu")),
+					array("onclick"=>"toggleMenu()")));
+    }
     $this->menu = new Div();
     $this->menu->addAttr("id", "menudiv");
     $this->addBody($this->menu);
@@ -71,6 +79,16 @@ class TScorePage extends WebPage {
   }
 
   /**
+   * Determines whether the page is being accessed through a mobile
+   * device
+   *
+   */
+  private function isMobile() {
+    return (strpos($_SERVER['HTTP_USER_AGENT'], "Android") !== false ||
+	    strpos($_SERVER['HTTP_USER_AGENT'], "iPhone")  !== false);
+  }
+
+  /**
    * Fills up the head element of this page
    *
    */
@@ -99,13 +117,23 @@ class TScorePage extends WebPage {
 						   "media"=>"screen",
 						   "href"=>"inc/css/tech.css")));
     */
-    $this->head->addChild(new GenericElement("link",
+    if ($this->mobile) {
+      $this->head->addChild(new GenericElement("link",
+					       array(),
+					       array("rel"=>"stylesheet",
+						     "type"=>"text/css",
+						     "media"=>"screen",
+						     "href"=>"inc/css/mobile.css")));
+    }
+    else {
+      $this->head->addChild(new GenericElement("link",
 					     array(),
 					     array("rel"=>"stylesheet",
 						   "type"=>"text/css",
 						   "title"=>"Modern Tech",
 						   "media"=>"screen",
 						   "href"=>"inc/css/modern.css")));
+    }
     $this->head->addChild(new GenericElement("link",
 					     array(),
 					     array("rel"=>"stylesheet",
@@ -138,13 +166,23 @@ class TScorePage extends WebPage {
 		   "jquery.tablehover.min.js",
 		   "jquery.columnmanager.min.js",
 		   "ui.datepicker.js",
-		   "AutoComplete.js",
-		   "form.js",
-		   "ui.frames.js") as $scr) {
+		   "AutoComplete.js") as $scr) {
       $this->head->addChild(new GenericElement("script",
 					       array(new Text("")),
 					       array("type"=>"text/javascript",
 						     "src"=>"inc/js/" . $scr)));
+    }
+    if ($this->mobile) {
+      $this->head->addChild(new GenericElement("script", array(new Text("")),
+					       array("type"=>"text/javascript",
+						     "src"=>"inc/js/mobile.js")));
+    }
+    else {
+      foreach (array("form.js", "ui.frames.js") as $scr) {
+	$this->head->addChild(new GenericElement("script", array(new Text("")),
+						 array("type"=>"text/javascript",
+						       "src"=>"inc/js/" . $scr)));
+      }
     }
   }
 

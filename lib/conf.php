@@ -7,26 +7,6 @@
    * @created 2009-10-04
    */
 
-define("VERSION", "2.0");
-define("NAME",    "TechScore Development");
-define("ROOT",    "https://techscore.mit.edu/ts2");
-define("HOME",    "https://techscore.mit.edu/ts2");
-// define("ROOT",    "http://paez/ts2");
-// define("HOME",    "http://paez/ts2");
-define("ADMIN_MAIL", "dpv140@gmail.com");
-
-// MySQL connection
-/*
-define('SQL_HOST', "ts.xvm.mit.edu");
-define('SQL_USER', "dayan");
-define('SQL_PASS', "sailor1");
-define('SQL_DB',   "ts_140");
-*/
-define('SQL_HOST', "localhost");
-define('SQL_USER', "ts2user");
-define('SQL_PASS', '#@Yla^| s');
-define('SQL_DB',   "ts2");
-
 define('TS_PATH', dirname(__FILE__));
 function __autoload($name) {
   $dirs = explode(":", TS_PATH);
@@ -84,13 +64,6 @@ Sorry for the inconvenience.
 END;
   die();
 }
-/*
-$old_error_handler = set_error_handler("__mail_error_handler", (E_ERROR | E_WARNING | E_PARSE |
-								E_CORE_ERROR | E_CORE_WARNING |
-								E_COMPILE_ERROR | E_COMPILE_WARNING |
-								E_USER_ERROR | E_USER_WARNING |
-								E_STRICT | E_RECOVERBLE_ERROR));
-*/
 
 /**
  * Exception reporting: send mail
@@ -120,7 +93,5 @@ END;
 }
 // set_exception_handler("__mail_exception_handler");
 
-// Set timezone setting
-date_default_timezone_set("America/New_York");
-
+require_once(TS_PATH . '/conf.local.php');
 ?>

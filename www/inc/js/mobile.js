@@ -1,3 +1,21 @@
+/**
+ * JS for mobile devices: hide and show the menu, for one
+ *
+ */
+
+// Toggle checkboxes with the provided className
+// according to the checkbox with the same ID
+function toggleMenu () {
+    // Get menu class
+    var m = document.getElementById("menudiv");
+    if (m.className.indexOf("hidden") >= 0) {
+	m.className = "";
+    }
+    else {
+	m.className = "hidden";
+    }
+}
+
 // Javascript for form handling
 // Dayan Paez
 // August 17, 2008
@@ -63,16 +81,6 @@ function parseRange(str) {
     return list;
 }
 
-/**
- * Opens the dialog box
- *
- */
-function open_dialog(loc) {
-    window.open(loc,
-		loc,
-		'height=600px,width=400px,location=no,menubar=no,status=no,toolbar=no,scrollbars=yes');
-}
-
 // Global jQuery and user interface scripts
 //
 // February 3, 2009
@@ -123,11 +131,7 @@ $(document).ready(function(){
 		    gotoCurrent: true,
 		    currentText: 'Current'
 		    });
-
-	// Dialogs
-	$(".dialog").removeAttr("href");
-        $(".dialog").click(function() {
-		open_dialog($(this).attr("title"));
-	    });
-
+        
+	toggleMenu();
     });
+
