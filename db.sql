@@ -2,7 +2,7 @@
 --
 -- Host: localhost    Database: ts2
 -- ------------------------------------------------------
--- Server version	5.0.51a-3ubuntu5.5
+-- Server version	5.0.51a-3ubuntu5.7
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -409,6 +409,39 @@ CREATE TABLE `rp` (
 SET character_set_client = @saved_cs_client;
 
 --
+-- Table structure for table `rp_form`
+--
+
+DROP TABLE IF EXISTS `rp_form`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `rp_form` (
+  `regatta` int(11) NOT NULL,
+  `filedata` mediumblob NOT NULL,
+  `created_at` timestamp NOT NULL default CURRENT_TIMESTAMP,
+  PRIMARY KEY  (`regatta`),
+  CONSTRAINT `rp_form_ibfk_1` FOREIGN KEY (`regatta`) REFERENCES `regatta` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `rp_log`
+--
+
+DROP TABLE IF EXISTS `rp_log`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `rp_log` (
+  `id` int(11) NOT NULL auto_increment,
+  `regatta` int(11) NOT NULL,
+  `updated_at` timestamp NOT NULL default CURRENT_TIMESTAMP,
+  PRIMARY KEY  (`id`),
+  KEY `regatta` (`regatta`),
+  CONSTRAINT `rp_log_ibfk_1` FOREIGN KEY (`regatta`) REFERENCES `regatta` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+SET character_set_client = @saved_cs_client;
+
+--
 -- Table structure for table `sailor`
 --
 
@@ -646,4 +679,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2010-06-02  0:50:55
+-- Dump completed on 2010-07-12  0:57:04
