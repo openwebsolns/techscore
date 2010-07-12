@@ -6,6 +6,7 @@
  * @author Dayan Paez
  * @package regatta
  */
+
 require_once('conf.php');
 
 /**
@@ -117,6 +118,9 @@ class RpManager {
 	$this->regatta->query($q);
       } catch (Exception $e) {}
     }
+    // Update the log
+    $q = sprintf('replace into rp_log (regatta) values (%d)', $this->regatta->id());
+    $this->regatta->query($q);
   }
 
   // Static variable and functions
@@ -131,15 +135,10 @@ class RpManager {
    * query
    */
   private static function query($query) {
-    if (self::$con == null) {
-      self::$con = new mysqli(SQL_HOST,
-			      SQL_USER,
-			      SQL_PASS,
-			      SQL_DB);
-    }
-    if ($q = self::$con->query($query)) {
+    if (self::$con == null)
+      self::$con = Preferences::getConnection();
+    if ($q = self::$con->query($query))
       return $q;
-    }
     throw new BadFunctionCallException($q->error . ":" . $query);
   }
 
@@ -255,6 +254,57 @@ class RpManager {
     if ($q->num_rows == 0)
       throw InvalidArgumentException(sprintf("No sailor with id (%s).", $id));
     return $q->fetch_object("Sailor");
+  }
+
+  // RP form functions
+
+  /**
+   * Returns the RP form data if there exists a current RP form in the
+   * database for this manager's regatta, false otherwise
+   *
+   * @return String|false the data, or <pre>false</pre> otherwise
+   */
+  public function getForm() {
+    $q = sprintf('select filedata from rp_form where regatta = %d', $this->regatta->id());
+    $q = $this->regatta->query($q);
+    if ($q->num_rows == 0)
+      return false;
+    return base64_decode($q->fetch_object()->filedata);
+  }
+
+  /**
+   * Sets the RP form (PDF) for the given regatta
+   *
+   * @param mixed $data the file contents
+   */
+  public function setForm($data) {
+    $q = sprintf('replace into rp_form (regatta, filedata) values (%d, "%s")',
+		 $this->regatta->id(), base64_encode($data));
+    $this->regatta->query($q);
+  }
+
+  /**
+   * Determines whether there is an RP form in the database and
+   * whether it is up to date.
+   *
+   * @return boolean true if there exists a form for this regatta and
+   * it has a timestamp later than the update timestamp on the RP
+   */
+  public function isFormRecent() {
+    $q = sprintf('select created_at from rp_form where regatta = %d', $this->regatta->id());
+    $q = $this->regatta->query($q);
+    if ($q->num_rows == 0)
+      return false;
+    $c = strtotime($q->fetch_object()->created_at);
+
+    // Get updated timestamp
+    $q = sprintf('select updated_at from rp_log where regatta = %d', $this->regatta->id());
+    $q = $this->regatta->query($q);
+    if ($q->num_rows == 0)
+      return true;
+
+    $u = strtotime($q->fetch_object()->updated_at);
+    return ($c >= $u);
   }
 }
 ?>

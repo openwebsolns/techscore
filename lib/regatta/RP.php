@@ -6,6 +6,7 @@
  * @author Dayan Paez
  * @package regatta
  */
+
 require_once('conf.php');
 
 /**

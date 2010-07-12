@@ -298,15 +298,22 @@ else {
   case "rpform":
   case "rps":
     $name = sprintf("%s-%s-rp", $st->format("Y"), $nn);
-    $writer = new RpFormWriter($REG);
-    $writer->makePDF("$name");
+
+    $rp = $REG->getRpManager();
+    if ($rp->isFormRecent())
+      $data = $rp->getForm();
+    else {
+      $writer = new RpFormWriter($REG);
+      $writer->makePDF("$name");
+      $data = file_get_contents("$name.pdf");
+      unlink("$name.pdf");
+      $rp->setForm($data);
+    }
 
     header('Content-type: application/pdf');
     header(sprintf('Content-Disposition: attachment; filename="%s.pdf"', $name));
-    readfile("$name.pdf");
-    unlink("$name.pdf");
+    echo $data;
     break;
-
     
     // --------------- default ---------------//
   default:

@@ -195,7 +195,7 @@ class Regatta implements RaceListener, FinishListener {
     $res = $this->query($q);
     if ($res->num_rows == 0)
       return '';
-    return $res->fetch_object()->summary;
+    return stripslashes($res->fetch_object()->summary);
   }
 
   /**
