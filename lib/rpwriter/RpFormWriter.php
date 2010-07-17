@@ -89,7 +89,8 @@ class RpFormWriter {
     $output = array();
     exec($command, $output, $value);
     if ($value != 0)
-      throw new RuntimeException("Unable to generate PDF file. Exit code $value");
+      throw new RuntimeException(sprintf("Unable to generate PDF file. Exit code $value:\nCommand: %s\nArgument%s",
+					 $command, $arg));
 
     // clean up
     unlink($filename . ".aux");

@@ -19,6 +19,7 @@ class TweakSailsPane extends AbstractPane {
 
   public function __construct(User $user, Regatta $reg) {
     parent::__construct("Tweak sails", $user, $reg);
+    $this->urls[] = "tweak";
   }
 
   protected function fillHTML(Array $args) {

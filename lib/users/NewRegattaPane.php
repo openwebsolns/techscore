@@ -25,7 +25,9 @@ class NewRegattaPane extends AbstractUserPane {
 
   protected function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new Port("Create"));
-    $p->addChild(new Para("Coming soon..."));
+    $p->addChild($f = new Form("edit/create"));
+    
+    // $f->add(new FItem("Name:",
   }
 
   /**

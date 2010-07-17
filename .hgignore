@@ -13,3 +13,4 @@ _errors.log
 conf.local.php
 apache.conf
 sync-up
+Makefile.local
