@@ -165,8 +165,8 @@ class Preferences {
    */
   public static function getSchoolsInConference(Conference $conf) {
     $con = self::getConnection();
-    $q = sprintf('select %s from school where conference = "%s"',
-		 School::FIELDS, $conf->id);
+    $q = sprintf('select %s from %s where conference = "%s"',
+		 School::FIELDS, School::TABLES, $conf->id);
     $q = $con->query($q);
     $list = array();
     while ($obj = $q->fetch_object("School")) {
@@ -182,8 +182,8 @@ class Preferences {
    */
   public static function getSchool($id) {
     $con = self::getConnection();
-    $q = sprintf('select %s from school where id like "%s"',
-		 School::FIELDS, $id);
+    $q = sprintf('select %s from %s where id like "%s"',
+		 School::FIELDS, School::TABLES, $id);
     $q = $con->query($q);
     if ($q->num_rows == 0) {
       return null;
@@ -194,7 +194,9 @@ class Preferences {
   }
 
   /**
-   * Updates the field for a school in the database
+   * Updates the field for a school in the database. If the field is
+   * null, then this method will update the entire school object,
+   * except for the burgee itself.
    *
    * @param School $school the school to update
    * @param String $field the name of the field to update. Looks at
@@ -203,18 +205,29 @@ class Preferences {
    */
   public static function updateSchool(School $school, $field = null) {
     $con = self::getConnection();
-    if ($field != null)
+    if ($field != null && $field != "burgee")
       $q = sprintf('update school set %s = "%s" where id = "%s"',
 		   $field, $school->$field, $school->id);
+    elseif ($field == "burgee") {
+      $q = sprintf('replace into burgee (school, filedata, last_updated, updated_by) ' .
+		   'values ("%s", "%s", "%s", "%s")',
+		   $school->id,
+		   $school->burgee->filedata,
+		   $school->burgee->last_updated->format('Y-m-d H:i:s'),
+		   $_SESSION['user']);
+    }
     else {
       $upd = array();
       foreach (get_class_vars("School") as $key => $val) {
-	$upd[] = sprintf('%s = "%s"', $key, $school->$key);
+	if ($key != "burgee")
+	  $upd[] = sprintf('%s = "%s"', $key, $school->$key);
       }
       $q = sprintf('update school set %s where id = "%s"',
 		   implode(', ', $upd), $school->id);
     }
     $q = $con->query($q);
+    if (!empty($con->error))
+      trigger_error($con->error, E_USER_ERROR);
     return (empty($con->error));
   }
 
@@ -486,12 +499,4 @@ class Preferences {
 }
 
 // Main
-if (basename($argv[0]) == basename(__FILE__)) {
-  $acc = Preferences::getAccount("paez@mit.edu");
-  // Preferences::queueMessage($acc, "Hello World");
-
-  $mes = Preferences::getUnreadMessages($acc);
-  Preferences::markRead($mes[0]);
-  print_r(Preferences::getUnreadMessages($acc));
-}
 ?>

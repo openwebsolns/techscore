@@ -37,3 +37,5 @@
 * Cache RP form creation
 
 * Separation of apache.conf
+
+* libcurl for notification system!

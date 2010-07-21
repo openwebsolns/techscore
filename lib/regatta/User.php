@@ -200,8 +200,4 @@ class User {
 
 }
 
-if (basename(__FILE__) == basename($argv[0])) {
-  $user = new User("paez@mit.edu");
-  print_r($user->asAccount());
-}
 ?>

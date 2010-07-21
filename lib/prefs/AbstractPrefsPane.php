@@ -215,20 +215,4 @@ abstract class AbstractPrefsPane {
    */
   abstract public function process(Array $args);
 }
-
-
-// Main method
-if (basename($argv[0]) == basename(__FILE__)) {
-
-  class TestPane extends AbstractPrefsPane {
-    public function __construct(User $user, School $sch) {
-      parent::__construct("Test", $user, $sch);
-    }
-    public function fillHTML() {}
-  }
-  
-  $u = Preferences::getUser("paez@mit.edu");
-  $p = new TestPane($u, $u->school);
-  print($p->getHTML());
-}
 ?>

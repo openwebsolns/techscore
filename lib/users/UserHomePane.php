@@ -55,14 +55,18 @@ class UserHomePane extends AbstractUserPane {
     $regattas = $this->USER->getRegattas($startint, $startint + self::NUM_PER_PAGE);
     usort($regattas, "RegattaSummary::cmpStartDesc");
 
-    // Create table of regattas
-    $p->addChild($tab = new Table());
-    $tab->addAttr("style", "width: 100%");
-    $tab->addHeader(new Row(array(Cell::th("Name"),
-				  Cell::th("Date"),
-				  Cell::th("Type"),
-				  Cell::th("Finalized"))));
-
+    // Create table of regattas, if applicable
+    if (count($regattas) > 0) {
+      $p->addChild($tab = new Table());
+      $tab->addAttr("style", "width: 100%");
+      $tab->addHeader(new Row(array(Cell::th("Name"),
+				    Cell::th("Date"),
+				    Cell::th("Type"),
+				    Cell::th("Finalized"))));
+    }
+    else {
+      $p->addChild(new Para("You have no regattas. Go create one!"));
+    }
     $row = 0;
     foreach ($regattas as $reg) {
       $link = new Link("score/" . $reg->id, $reg->name);
@@ -88,8 +92,6 @@ class UserHomePane extends AbstractUserPane {
       $div->addChild(new Text(" "));
       $div->addChild(new Link("home|" . $last, "last"));
     }
-
-    return $this->PAGE->toHTML();
   }
 
   /**

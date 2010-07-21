@@ -8,5 +8,28 @@
 
 require_once('conf.php');
 
+/**
+ * Issues the page 404 not found error and exits
+ *
+ */
+function header_404() {
+  header("HTTP/1.0 404 Not Found");
+  exit;
+}
 
+if (empty($_GET['school'])) {
+  header_404();
+}
+
+$school = Preferences::getSchool(addslashes($_GET['school']));
+if ($school == null || $school->burgee === null)
+  header_404();
+
+// Cache headings
+header("Cache-Control: public");
+header("Pragma: public");
+header("Expires: Wed, 31 Dec 1969 19:00:00 -0500");
+header(sprintf("Last-Modified: %s", $school->burgee->last_updated->format('r')));
+header("Content-type: image/png");
+echo base64_decode($school->burgee->filedata);
 ?>

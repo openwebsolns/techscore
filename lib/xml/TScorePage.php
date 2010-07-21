@@ -68,7 +68,7 @@ class TScorePage extends WebPage {
     // Footer
     $this->addBody($footer = new Div());
     $footer->addAttr("id", "footdiv");
-    $footer->addChild(new Para(sprintf("TechScore v%s &copy; Day&aacute;n P&aacute;ez 2008-9",
+    $footer->addChild(new Para(sprintf("TechScore v%s &copy; Day&aacute;n P&aacute;ez 2008-11",
 				       VERSION)));
 
     // Fill announcement
@@ -200,7 +200,7 @@ class TScorePage extends WebPage {
     
     $this->header->addChild($this->navigation = new Div());
     $this->navigation->addAttr("id", "topnav");
-    $this->navigation->addChild(new Link("../help", "Help?",
+    $this->navigation->addChild(new Link("help", "Help?",
 					 array("id"=>"help",
 					       "target"=>"_blank",
 					       "accesskey"=>"h")));

@@ -23,7 +23,15 @@ class School {
   public $state;
   public $burgee;
 
-  const FIELDS = 'school.id, school.nick_name, school.name, school.conference, school.city, school.state, school.burgee';
+  const FIELDS = 'school.id, school.nick_name, school.name, school.conference, school.city, school.state, burgee.filedata, burgee.last_updated';
+  const TABLES = 'school left join burgee on (burgee.school = school.id)';
+
+  public function __construct() {
+    if (!empty($this->filedata)) {
+      $this->burgee = new Burgee($this->filedata, new DateTime($this->last_updated));
+      unset($this->filedata, $this->last_updated);
+    }
+  }
 
   public function __toString() {
     return $this->name;

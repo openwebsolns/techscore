@@ -37,12 +37,11 @@ class EditLogoPane extends AbstractPrefsPane {
 			  "use an image with a transparent background, by " .
 			  "either using a PNG or GIF file format."));
     // Current logo
-    if ($url = $this->SCHOOL->burgee) {
-      $p->addChild(new Para(sprintf("The current logo for %s:",
-				    $_SESSION['USER']['schoolname'])));
+    if ($this->SCHOOL->burgee) {
+      $url = sprintf("img/schools/%s.png", $this->SCHOOL->id);
+      $p->addChild(new Para(sprintf("The current logo for %s:", $this->SCHOOL->name)));
       $p->addChild(new GenericElement("center",
-				      array(new Image($url,
-						      array("alt"=>$_SESSION['USER']['school_nick'])))));
+				      array(new Image($url, array("alt"=>$this->SCHOOL->nick_name)))));
     }
     else {
       $p->addChild(new Para("There is currently no logo for this school on file."));
@@ -81,33 +80,26 @@ class EditLogoPane extends AbstractPrefsPane {
       return;
     }
 
-    // Copy existing file, if it exists
-    $filename = sprintf("img/schools/%s.png", strtolower($this->SCHOOL->id));
-    $file_from_here = $filename;
-    if (file_exists($file_from_here)) {
-      // Copy it
-      copy($file_from_here, $file_from_here . ".orig");
-    }
-
     // Create thumbnail
+    $th = $_FILES["logo_file"]["tmp_name"].".thumb";
     $tn = new Thumbnailer(100, 100);
-    if (!$tn->resize($_FILES["logo_file"]["tmp_name"], $file_from_here)) {
+    if (!$tn->resize($_FILES["logo_file"]["tmp_name"], $th)) {
       $this->announce(new Announcement("Invalid image file.", Announcement::ERROR));
-      // Copy it back
       return;
     }
 
-    // Update database, if necessary
-    $this->SCHOOL->burgee = $filename;
+    // Update database
+    $this->SCHOOL->burgee = new Burgee(base64_encode(file_get_contents($th)), new DateTime("now"));;
     if (Preferences::updateSchool($this->SCHOOL, "burgee")) {
       $this->announce(new Announcement("Updated school logo."));
     }
     else {
       $mes = "Unable to update school logo in database.";
-      $this->announce($mes, Announcement::ERROR);
+      $this->announce(new Announcement($mes, Announcement::ERROR));
     }
 
-    // Notify
+    // Notify, this needs to change!
+    /*
     $url = sprintf('%s/%s', HOME, $filename);
     $command = sprintf('/usr/bin/php ' .
 		       '/var/local/ts/_notify_school.cli.php %s %s',
@@ -115,6 +107,7 @@ class EditLogoPane extends AbstractPrefsPane {
 		       $url);
     exec("date >> /var/local/ts/_notify_school.log; $command >> /var/local/ts/_notify_school.log &");
     return;
+    */
   }
 }
 ?>

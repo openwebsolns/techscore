@@ -1,12 +1,13 @@
 <?php
-  /**
-   * Gateway to the program TechScore. Manage all session information
-   * and direct traffic.
-   *
-   * @author Dayan Paez
-   * @version 2.0
-   * @created 2009-10-16
-   */
+/**
+ * Gateway to the program TechScore. Manage all session information
+ * and direct traffic.
+ *
+ * @author Dayan Paez
+ * @version 2.0
+ * @created 2009-10-16
+ */
+
 require_once("../lib/conf.php");
 session_start();
 
