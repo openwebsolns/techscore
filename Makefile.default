@@ -1,0 +1,5 @@
+# Default configuration for makefile
+# Copy this file into Makefile.local
+
+DB_DB = ts2
+DB_USER = dayan

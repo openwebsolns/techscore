@@ -72,7 +72,7 @@ class TScorePage extends WebPage {
 				       VERSION)));
 
     // Fill announcement
-    if (is_array($_SESSION['ANNOUNCE'])) {
+    if (isset($_SESSION['ANNOUNCE']) && is_array($_SESSION['ANNOUNCE'])) {
       while (count($_SESSION['ANNOUNCE']) > 0)
 	$this->addAnnouncement(array_shift($_SESSION['ANNOUNCE']));
     }
