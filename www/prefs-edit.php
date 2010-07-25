@@ -25,14 +25,13 @@ catch (Exception $e) {
   WebServer::go(HOME);
 }
 
-$HOME = sprintf("%s/prefs/%s", HOME, $USER->get(User::SCHOOL)->id);
+$HOME = sprintf("prefs/%s", $USER->get(User::SCHOOL)->id);
 
 //
 // School
 //
 if (!isset($_REQUEST['school'])) {
-  header("Location: $HOME");
-  return;
+  WebServer::go($HOME);
 }
 
 $SCHOOL = Preferences::getSchool(strtoupper($_REQUEST['school']));
@@ -40,14 +39,12 @@ $SCHOOL = Preferences::getSchool(strtoupper($_REQUEST['school']));
 if ($SCHOOL == null) {
   $mes = sprintf("No such school (%s).", $_REQUEST['school']);
   $_SESSION['ANNOUNCE'][] = new Announcement($mes, Announcement::ERROR);
-  header("Location: $HOME");
-  return;
+  WebServer::go($HOME);
 }
 elseif ($SCHOOL != $USER->get(User::SCHOOL) && !$USER->get(User::ADMIN)) {
   $mes = sprintf("No permission to edit school (%s).", $SCHOOL);
   $_SESSION['ANNOUNCE'][] = new Announcement($mes, Announcement::ERROR);
-  header("Location: $HOME");
-  return;
+  WebServer::go($HOME);
 }
 
 switch ($_REQUEST['p']) {
@@ -78,8 +75,7 @@ case "names":
 default:
   $mes = sprintf("No such page (%s).", $_REQUEST['p']);
   $_SESSION['ANNOUNCE'][] = new Announcement($mes, Announcement::ERROR);
-  header("Location: $HOME");
-  return;
+  WebServer::go($HOME);
 }
 
 $PAGE->process($_POST);

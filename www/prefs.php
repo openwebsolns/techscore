@@ -25,28 +25,25 @@ catch (Exception $e) {
   WebServer::go(HOME);
 }
 
-$HOME = sprintf("%s/prefs/%s", HOME, $USER->get(User::SCHOOL)->id);
+$HOME = sprintf("prefs/%s", $USER->get(User::SCHOOL)->id);
 
 //
 // School
 //
 if (!isset($_REQUEST['school'])) {
   // Redirect to the user's school
-  header("Location: $HOME");
-  return;
+  WebServer::go($HOME);
 }
 $SCHOOL = Preferences::getSchool(strtoupper($_REQUEST['school']));
 if ($SCHOOL == null) {
   $mes = sprintf("No such school (%s).", $_REQUEST['school']);
   $_SESSION['ANNOUNCE'][] = new Announcement($mes, Announcement::ERROR);
-  header("Location: $HOME");
-  return;
+  WebServer::go($HOME);
 }
 if (!$USER->get(User::ADMIN) && $SCHOOL != $USER->get(User::SCHOOL)) {
   $mes = sprintf("No permissions to edit school (%s).", $SCHOOL);
   $_SESSION['ANNOUNCE'][] = new Announcement($mes, Announcement::ERROR);
-  header("Location: $HOME");
-  return;
+  WebServer::go($HOME);
 }
 
 //
@@ -85,8 +82,7 @@ else {
   default:
     $mes = sprintf("No such page (%s).", $_REQUEST['p']);
     $_SESSION['ANNOUNCE'][] = new Announcement($mes, Announcement::ERROR);
-    header("Location: $HOME");
-    return;
+    WebServer::go($HOME);
   }
 }
 

@@ -16,8 +16,7 @@ session_start();
 if (isset($_REQUEST['dir']) && $_REQUEST['dir'] == "out") {
   unset($_SESSION['user']);
   session_destroy();
-  header("Location: " . HOME);
-  exit(0);
+  WebServer::go(HOME);
 }
 
 //

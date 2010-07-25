@@ -61,8 +61,7 @@ else {
 
   default:
     $_SESSION['ANNOUNCE'][] = new Announcement("No such page.", Announcement::ERROR);
-    header("Location: .");
-    exit;
+    WebServer::go(HOME);
   }
 }
 

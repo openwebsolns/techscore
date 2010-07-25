@@ -64,12 +64,8 @@ abstract class AbstractUserPane {
    */
   public function redirect($url = null) {
     if ($url !== null)
-      header("Location: $url");
-    elseif (isset($_SESSION['HTTP_REFERER']))
-      header("Location: " . $_SESSION['HTTP_REFERER']);
-    else
-      header("Location: . ");
-    exit;
+      WebServer::go($url);
+    WebServer::goBack();
   }
 
   /**

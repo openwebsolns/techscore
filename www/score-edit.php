@@ -27,14 +27,12 @@ catch (Exception $e) {
 // Regatta
 //
 if (!isset($_REQUEST['reg']) || !is_numeric($_REQUEST['reg'])) {
-  header("Location: " . HOME);
-  return;
+  WebServer::go(HOME);
 }
 $reg_id = (int)$_REQUEST['reg'];
 if (!Preferences::getObjectWithProperty($USER->getRegattas(), "id", $reg_id)) {
   // No jurisdiction
-  header("Location: " . HOME);
-  return;
+  WebServer::go(HOME);
 }
 $REG = new Regatta($reg_id);
 
