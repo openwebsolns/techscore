@@ -23,24 +23,13 @@ if (isset($_REQUEST['dir']) && $_REQUEST['dir'] == "out") {
 // Log-in
 //
 
-/**
- * Return from whence you were called or to where you used to be
- *
- */
-function goBack() {
-  $loc = (isset($_SESSION['last_page'])) ?
-    $_SESSION['last_page'] : $_SERVER['HTTP_REFERER'];
-  header(sprintf("Location: %s", $loc));
-  exit(0);
-}
-
-
 $userid = (isset($_POST['userid'])) ? trim($_POST['userid']) : goBack();
 $passwd = (isset($_POST['pass']))   ? $_POST['pass'] : goBack();
 
-$user = Preferences::approveUser($userid, $passwd);
+$user = AccountManager::approveUser($userid, $passwd);
 if ($user) {
   $_SESSION['user'] = $user->username();
 }
-goBack();
+$def = (isset($_SESSION['last_page'])) ? $_SESSION['last_page'] : HOME;
+WebServer::goBack($def);
 ?>

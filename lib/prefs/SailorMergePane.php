@@ -36,14 +36,15 @@ class SailorMergePane extends AbstractPrefsPane {
     
     $p->addChild(new Para("It is the school's responsibilities to " .
 			  "match the temporary sailors with the actual sailor from " .
-			  "the ICSA database once they missing sailor has been approved."));
+			  "the ICSA database once the missing sailor has been approved."));
 
     $p->addChild(new Para("Use this form to update the database by matching the " .
 			  "temporary sailor with the actual one from the ICSA database. " .
 			  "If the sailor does not appear, he/she may have to be approved " .
 			  "by ICSA before the changes are reflected in <strong>TechScore" .
-			  "</strong>. Also, <strong>TechScore</strong>'s copy of the ICSA " .
-			  "membership database lags ICSA's copy by as much as a week."));
+			  "</strong>. Also, bear in mind that " .
+			  "<strong>TechScore</strong>'s copy of the ICSA " .
+			  "membership database might lag ICSA's copy by as much as a week."));
 
     // Get all the temporary sailors
     $temp = RpManager::getUnregisteredSailors($this->SCHOOL);
@@ -116,15 +117,5 @@ class SailorMergePane extends AbstractPrefsPane {
       $this->announce(new Announcement("No sailors updated.", Announcement::WARNING));
     }
   }
-}
-
-// Main
-if (basename($argv[0]) == basename(__FILE__)) {
-  $school = new School();
-  $school->id = "MIT";
-  $sailors = RpManager::getSailors($school);
-
-  // ID = 13220
-  var_dump(Preferences::getObjectWithProperty($sailors, "id", "foo"));
 }
 ?>

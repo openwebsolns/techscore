@@ -35,12 +35,13 @@ class WelcomePage extends TScorePage {
    * Fills the menu
    *
    */
-  private function fillMenu() {
+  protected function fillMenu() {
     // Access to registration, ICSA, offline TS
     $this->addMenu($menu = new Div());
     $menu->addAttr("class", "menu");
     $menu->addChild(new Heading("Useful Links"));
     $menu->addChild($l = new Itemize());
+    $l->addChild(new LItem(new Link(".", "Sign-in")));
     $l->addChild(new LItem(new Link("register", "Register")));
     $l->addChild(new LItem(new Link("http://www.collegesailing.org", "ICSA Website")));
     $l->addChild(new LItem(new Link("http://techscore.sourceforge.net", "Offline TechScore")));
@@ -50,10 +51,10 @@ class WelcomePage extends TScorePage {
    * Sets up the body of this page
    *
    */
-  private function fillContent() {
+  protected function fillContent() {
     // LOGIN MENU
     $this->addContent($p = new Port("Sign-in"));
-    $p->addChild($form = new Form("login", "post", array(), false));
+    $p->addChild($form = new Form("login", "post"));
     $form->addChild(new FItem(new Label("uname", "Username: "),
 			      new FText("userid", "",   array("id"=>"uname", "maxlength"=>"40"))));
     $form->addChild(new FItem(new Label("passw", "Password: "),
@@ -63,14 +64,16 @@ class WelcomePage extends TScorePage {
 
     // Announcements
     $this->addContent($p = new Port("Announcements"));
-    $p->addChild(new Text(file_get_contents(dirname(__FILE__) . "/announcements.html")));
+    $file = sprintf("%s/announcements.html", dirname(__FILE__));
+    if (file_exists($file))
+      $p->addChild(new Text(file_get_contents($file)));
 
     $this->addContent($p = new Port("Register for TechScore"));
 
     $str = '
      If you are affiliated with <a
      href="http://www.collegesailing.org">ICSA</a> and would like an
-     account for TechScore, you can <a href="../register">register
+     account for TechScore, you can <a href="./register">register
      here</a>.';
     $p->addChild(new Para($str));
 

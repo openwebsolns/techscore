@@ -15,6 +15,13 @@ session_start();
 // Logged-in?
 //
 if (!(isset($_SESSION['user']))) {
+  // Registration?
+  if (isset($_GET['p']) && $_GET['p'] == "register") {
+    $PAGE = new RegisterPane();
+    echo $PAGE->toHTML();
+    exit;
+  }
+
   // Create page
   $PAGE = new WelcomePage();
   echo $PAGE->toHTML();
@@ -51,7 +58,8 @@ else {
     break;
 
   default:
-    $_SESSION['ANNOUNCE'][] = new Announcement("No such page.", Announcement::ERROR);
+    $_SESSION['ANNOUNCE'][] = new Announcement(sprintf("Invalid page requested (%s).", $_REQUEST['p']),
+					       Announcement::ERROR);
     header("Location: .");
     exit;
   }

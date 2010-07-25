@@ -353,7 +353,7 @@ class RegattaIO {
     // ------------------------------------------------------------
     // @TODO: what about principal vs. secondary scorers?
     foreach ($root->Scorers->Scorer as $scorer) {
-      if (($acc = Preferences::getAccount($scorer['id'])) != null) {
+      if (($acc = AccountManager::getAccount($scorer['id'])) != null) {
 	$regatta->addScorer($acc);
       }
       print($scorer['id'] . "\n");

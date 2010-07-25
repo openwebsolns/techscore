@@ -84,5 +84,5 @@ default:
 }
 
 $PAGE->process($_POST);
-header("Location: " . $_SERVER['HTTP_REFERER']);
+WebServer::goBack();
 ?>

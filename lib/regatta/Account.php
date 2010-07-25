@@ -19,40 +19,47 @@ class Account {
   public $first_name;
   public $last_name;
   public $username;
-  public $school;
   public $role;
   public $admin;
+  public $status;
+  private $school;
 
-  const FIELDS = "account.first_name, account.last_name, 
-                  account.username, account.role,
-                  is_admin as admin,
-                  school.id, school.nick_name, school.name, school.conference,
-                  school.city, school.state, school.burgee";
-  const TABLES = "account inner join school on (account.school = school.id)";
+  const FIELDS = "account.first_name, account.last_name, account.school,
+                  account.username, account.role, account.status, is_admin as admin";
+  const TABLES = "account";
 
-  public function __construct() {
-    // Create school object, and delete all temporary fields
-    $school = new School();
-    $school->id         = $this->id;
-    $school->nick_name  = $this->nick_name;
-    $school->name       = $this->name;
-    $school->conference = $this->conference;
-    $school->city       = $this->city;
-    $school->state      = $this->state;
-    $school->burgee     = $this->burgee;
-
-    $this->school = $school;
-    unset($this->id,
-	  $this->nick_name,
-	  $this->name,
-	  $this->conference,
-	  $this->city,
-	  $this->state,
-	  $this->burgee);
-
-  }
   public function __toString() {
     return $this->getName();
+  }
+
+  /**
+   * One-time de-serializes the "school", the only private property
+   * for this object
+   *
+   * @param String $key must be "school"
+   * @throws InvalidArgumentException if key is not "school"
+   */
+  public function __get($key) {
+    if ($key != "school") throw new InvalidArgumentException("Invalid value requested from Account");
+    if (!($this->school instanceof School))
+      $this->school = Preferences::getSchool($this->school);
+    return $this->school;
+  }
+
+  /**
+   * To be used to set the school. Anything else generates an error
+   *
+   * @param String $key == "school"
+   * @param School $value the school to set
+   * @throw InvalidArgumentException if attempting to set any other
+   * property or invalid value provided
+   */
+  public function __set($key, $value) {
+    if ($key != "school")
+      throw new InvalidArgumentException("Only the school property can be altered for Account.");
+    if (!($value instanceof School))
+      throw new InvalidArgumentException("Account school property must be School object.");
+    $this->school = $value;
   }
 
   /**

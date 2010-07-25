@@ -52,17 +52,24 @@ RewriteRule ^inbox/?$ index.php?p=inbox
 RewriteRule ^inbox/([0-9]+)$ index.php?p=inbox&message=$1
 RewriteRule ^inbox-edit/?$ index-edit.php?p=inbox
 
+# for approving registration request
+RewriteRule ^register/acc=([A-Za-z0-9]{32})/?$ index-edit.php?p=register&acc=$1
+
+# for creating regattas, pending, registration, etc
+RewriteRule ^([^.]+)-edit/?$ index-edit.php?p=$1
+RewriteRule ^([^.]+)/?$ index.php?p=$1
+
 # for creating regattas
-RewriteRule ^create/?$ index.php?p=create
-RewriteRule ^create-edit/?$ index-edit.php?p=create
+# RewriteRule ^create/?$ index.php?p=create
+# RewriteRule ^create-edit/?$ index-edit.php?p=create
 
 # for pending
-RewriteRule ^pending/?$ index.php?p=pending
-RewriteRule ^pending-edit/?$ index-edit.php?p=ending
+# RewriteRule ^pending/?$ index.php?p=pending
+# RewriteRule ^pending-edit/?$ index-edit.php?p=ending
 
 # force refresh of css and javascripts
-RewriteRule ^inc/js/(.*)\.[0-9]+\.js$ inc/js/$1.js
-RewriteRule ^inc/css/(.*)\.[0-9]+\.css$ inc/css/$1.css
+# RewriteRule ^inc/js/(.*)\.[0-9]+\.js$ inc/js/$1.js
+# RewriteRule ^inc/css/(.*)\.[0-9]+\.css$ inc/css/$1.css
 
 # Caching
 Header unset Pragma

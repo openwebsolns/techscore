@@ -26,13 +26,12 @@ class User {
   const SCHOOL     = "school";
   const ROLE       = "role";
   const ADMIN      = "admin";
+  const STATUS     = "status";
 
   const FIELDS = "account.first_name, account.last_name, 
-                  account.username, account.role,
-                  is_admin as admin,
-                  school.id, school.nick_name, school.name, school.conference,
-                  school.city, school.state, school.burgee";
-  const TABLES = "account inner join school on (account.school = school.id)";
+                  account.username, account.role, account.status,
+                  account.school, is_admin as admin";
+  const TABLES = "account";
 
   /**
    * Creates (retrieves) the user from the database with the given
@@ -41,7 +40,7 @@ class User {
    * @throws InvalidArgumentException if invalid username
    */
   public function __construct($username) {
-    $this->con = new MySQLi(SQL_HOST, SQL_USER, SQL_PASS, SQL_DB);
+    $this->con = Preferences::getConnection();
 
     $this->username = $username;
     $q = sprintf('select %s from %s where username = "%s"',
@@ -49,26 +48,6 @@ class User {
     $result = $this->query($q);
     if ($result->num_rows > 0) {
       $this->properties = $result->fetch_assoc();
-      
-      // Create school object, and delete all temporary fields
-      $school = new School();
-      $school->id         = $this->properties['id'];
-      $school->nick_name  = $this->properties['nick_name'];
-      $school->name       = $this->properties['name'];
-      $school->conference = Preferences::getConference($this->properties['conference']);
-      $school->city       = $this->properties['city'];
-      $school->state      = $this->properties['state'];
-      $school->burgee     = $this->properties['burgee'];
-
-      $this->properties['school'] = $school;
-      unset($this->properties['id'],
-	    $this->properties['nick_name'],
-	    $this->properties['name'],
-	    $this->properties['conference'],
-	    $this->properties['city'],
-	    $this->properties['state'],
-	    $this->properties['burgee']);
-
       $this->properties['admin'] = ($this->properties['admin'] > 0);
     }
     else {
@@ -99,7 +78,36 @@ class User {
     if (!in_array($key, array_keys($this->properties))) {
       throw new InvalidArgumentException("No such property " . $key);
     }
+    if ($key == "school")
+      return Preferences::getSchool($this->properties["school"]);
+
     return $this->properties[$key];
+  }
+
+  /**
+   * Commits the given property value to database
+   *
+   * @param Const $key the property name, one of the class constants
+   * @param mixed $value the appropriate value. For school, this
+   * should be a School object. For status, this should be one of the
+   * approved status: 'pending', 'accepted', 'rejected', 'active', and
+   * 'inactive'.
+   *
+   * @throw InvalidArgumentException
+   */
+  public function set($key, $value) {
+    if (!isset($this->properties[$key])) {
+      throw new InvalidArgumentException("Invalid User property to update " . $key);
+    }
+    if ($key == "school") {
+      if (!($value instanceof School))
+	throw new InvalidArgumentException("User school property must be School object.");
+
+      $value = $value->id;
+    }
+    $q = sprintf('update account set %s = "%s" where username = "%s"',
+		 $key, $value, $this->username);
+    $this->query($q);
   }
 
   /**
@@ -195,7 +203,7 @@ class User {
    * @return Account the account
    */
   public function asAccount() {
-    return Preferences::getAccount($this->username);
+    return AccountManager::getAccount($this->username);
   }
 
 }

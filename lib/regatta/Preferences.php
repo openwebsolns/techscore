@@ -315,60 +315,6 @@ class Preferences {
   }
 
   /**
-   * Returns user with the given username
-   *
-   * @return User with the given username, null otherwise
-   */
-  public static function getUser($id) {
-    $con = self::getConnection();
-    $q = sprintf('select %s from %s where username like "%s"',
-		 User::FIELDS, User::TABLES, $id);
-    $q = $con->query($q);
-    if ($q->num_rows == 0) {
-      return null;
-    }
-    return $q->fetch_object("User");
-  }
-
-  /**
-   * Returns the account with the given username
-   *
-   * @return Account the account with the given username, null if none
-   * exist
-   */
-  public static function getAccount($id) {
-    $con = self::getConnection();
-    $q = sprintf('select %s from %s where username like "%s"',
-		 Account::FIELDS, Account::TABLES, $id);
-    $q = $con->query($q);
-    if ($q->num_rows == 0) {
-      return null;
-    }
-    return $q->fetch_object("Account");
-  }
-
-  /**
-   * Returns the user with the specified id if the password matches,
-   * or null otherwise
-   *
-   * @param string $id the user id
-   * @param string $pass the password in the system
-   *
-   * @return User the user object
-   * @return null if invalid userid or password
-   */
-  public static function approveUser($id, $pass) {
-    $con = self::getConnection();
-    $q = sprintf('select * from account where username like "%s" and password = sha1("%s")',
-		 $id, $pass);
-    $q = $con->query($q);
-    if ($q->num_rows == 0) {
-      return null;
-    }
-    return new User($id);
-  }
-
-  /**
    * Registers the new sailor into the temporary database. Returns a
    * new Sailor object with the appropriate ID.
    *
@@ -494,7 +440,25 @@ class Preferences {
 		    $mes->account->username,
 		    $mes->content,
 		    $reply);
-    $res = mail(ADMIN_MAIL, "[TechScore] Message reply", $body, "From: no-reply@techscore.mit.edu");
+    $res = self::mail(ADMIN_MAIL, "[TechScore] Message reply", $body);
+  }
+
+  /**
+   * Sends a generic mail message to the given user with the given
+   * subject, appending the correct headers (i.e., the "from"
+   * field). This method uses the standard PHP mail function
+   *
+   * @param String $to the e-mail address to send to
+   * @param String $subject the subject
+   * @param String $body the body of the message, will be wrapped to
+   * 72 characters
+   * @return boolean the result, as returned by mail
+   */
+  public static function mail($to, $subject, $body) {
+    return mail($to,
+		$subject,
+		wordwrap($body, 72),
+		sprintf('From: %s', TS_FROM_MAIL));
   }
 }
 

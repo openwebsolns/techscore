@@ -13,10 +13,17 @@ session_start();
 // Logged-in?
 //
 if (!(isset($_SESSION['user']))) {
-  // Create page
-  $PAGE = new WelcomePage();
-  echo $PAGE->toHTML();
-  return;
+  // Registration?
+  if (isset($_GET['p']) && $_GET['p'] == "register") {
+    $PAGE = new RegisterPane();
+    $_SESSION['POST'] = $PAGE->process($_REQUEST);
+    WebServer::goBack();
+    exit;
+  }
+  
+  // Send home instead
+  header("Location: .");
+  exit;
 }
 $USER = null;
 try {
@@ -51,7 +58,6 @@ else {
   }
 }
 
-$_SESSION['POST'] = $PAGE->process($_POST);
-
-header("Location: " . $_SERVER['HTTP_REFERER']);
+$_SESSION['POST'] = $PAGE->process($_REQUEST);
+WebServer::goBack();
 ?>

@@ -319,7 +319,7 @@ else {
   default:
     $mes = sprintf("Invalid download requested (%s)", $_REQUEST['d']);
     $_SESSION['ANNOUNCE'][] = new Announcement($mes, Announcement::WARNING);
-    header(sprintf("Location: %s", $_SERVER['HTTP_REFERER']));
+    WebServer::goBack();
   }
   exit;
 }

@@ -207,12 +207,4 @@ class DetailsPane extends AbstractPane {
 
   public function isActive() { return true; }
 }
-
-// Main method
-if (basename($argv[0]) == basename(__FILE__)) {
-  $reg = new Regatta(96);
-  $user = Preferences::getUser("paez@mit.edu");
-  $p = new DetailsPane($user, $reg);
-  file_put_contents("/tmp/test.html", $p->getHTML());
-}
 ?>

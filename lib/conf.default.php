@@ -13,6 +13,7 @@ define("NAME",    "TechScore");
 define("ROOT",    sprintf("http://%s", $_SERVER['HTTP_HOST']));
 define("HOME",    ROOT);
 define("ADMIN_MAIL", "admin@" . $_SERVER['HTTP_HOST']);
+define("TS_FROM_MAIL", ADMIN_MAIL);
 
 // MySQL connection
 define('SQL_HOST', "localhost");

@@ -19,6 +19,12 @@ body {
     line-height: 1.25em;
 }
 
+#footdiv {
+    color: #555;
+    font-size: 70%;
+    margin-bottom: 0px;
+}
+
 #bodydiv {
     background: white;
 }
