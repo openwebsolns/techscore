@@ -51,6 +51,10 @@ else {
     $PAGE = new NewRegattaPane($USER);
     break;
 
+  case "pending":
+    $PAGE = new PendingAccountsPane($USER);
+    break;
+
   default:
     $_SESSION['ANNOUNCE'][] = new Announcement("No such page.", Announcement::ERROR);
     header("Location: .");

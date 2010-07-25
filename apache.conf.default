@@ -55,11 +55,15 @@ RewriteRule ^inbox-edit/?$ index-edit.php?p=inbox
 # for approving registration request
 RewriteRule ^register/acc=([A-Za-z0-9]{32})/?$ index-edit.php?p=register&acc=$1
 
+# pagination for pending
+RewriteRule ^pending\|([0-9]+)$ index.php?p=pending&page=$1
+
+RewriteRule ^pending-edit/?$ index-edit.php?p=pending
+
 # for creating regattas, pending, registration, etc
 RewriteRule ^([^.]+)-edit/?$ index-edit.php?p=$1
 RewriteRule ^([^.]+)/?$ index.php?p=$1
 
-# for creating regattas
 # RewriteRule ^create/?$ index.php?p=create
 # RewriteRule ^create-edit/?$ index-edit.php?p=create
 
@@ -67,12 +71,19 @@ RewriteRule ^([^.]+)/?$ index.php?p=$1
 # RewriteRule ^pending/?$ index.php?p=pending
 # RewriteRule ^pending-edit/?$ index-edit.php?p=ending
 
+# for registering
+# RewriteRule ^register/?$ index.php?p=register
+# RewriteRule ^register-edit/?$ index-edit.php?p=register
+
 # force refresh of css and javascripts
-# RewriteRule ^inc/js/(.*)\.[0-9]+\.js$ inc/js/$1.js
-# RewriteRule ^inc/css/(.*)\.[0-9]+\.css$ inc/css/$1.css
+RewriteRule ^inc/js/(.*)\.[0-9]+\.js$ inc/js/$1.js
+RewriteRule ^inc/css/(.*)\.[0-9]+\.css$ inc/css/$1.css
+
+# for burgees
+RewriteRule ^img/schools/(.*)\.png$ img.php?school=$1
 
 # Caching
-Header unset Pragma
+# Header unset Pragma
 FileETag None
 Header unset ETag
  
@@ -81,7 +92,7 @@ Header unset ETag
 <FilesMatch "\.(jpg|jpeg|png|gif|js|css)$">
 Header set Cache-Control "public"
 Header set Expires "Thu, 15 Apr 2025 20:00:00 GMT"
-Header unset Last-Modified
+# Header unset Last-Modified
 </FilesMatch>
 
 </DirectoryMatch>

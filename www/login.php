@@ -30,6 +30,6 @@ $user = AccountManager::approveUser($userid, $passwd);
 if ($user) {
   $_SESSION['user'] = $user->username();
 }
-$def = (isset($_SESSION['last_page'])) ? $_SESSION['last_page'] : HOME;
+$def = (isset($_SESSION['last_page'])) ? $_SESSION['last_page'] : ".";
 WebServer::goBack($def);
 ?>

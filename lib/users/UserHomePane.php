@@ -31,8 +31,10 @@ class UserHomePane extends AbstractUserPane {
    * @return String the HTML code
    */
   protected function fillHTML(Array $args) {
-    $pageset  = (isset($args['page'])) ? (int)$args['page'] : 0;
-    $startint = self::NUM_PER_PAGE * $pageset;
+    $pageset  = (isset($args['page'])) ? (int)$args['page'] : 1;
+    if ($pageset < 1)
+      WebServer::go("home");
+    $startint = self::NUM_PER_PAGE * ($pageset - 1);
 
     // ------------------------------------------------------------
     // Messages
@@ -76,22 +78,8 @@ class UserHomePane extends AbstractUserPane {
 				      new Cell($reg->finalized->format("Y-m-d")))));
       $r->addAttr("class", sprintf("row%d", $row++ % 2));
     }
-
-    // Navigation links
-    $p->addChild($div = new Div());
-    $div->addAttr("class", "navlinks");
-    if ($pageset > 0) {
-      $div->addChild(new Link("home", "first"));
-      $div->addChild(new Text(" "));
-      $div->addChild(new Link("home|" . ($pageset - 1), "prev"));
-      $div->addChild(new Text(" "));
-    }
     $last = (int)($num_regattas / self::NUM_PER_PAGE);
-    if ($pageset < $last) {
-      $div->addChild(new Link("home|" . ($pageset + 1), "next"));
-      $div->addChild(new Text(" "));
-      $div->addChild(new Link("home|" . $last, "last"));
-    }
+    $p->addChild(new PageDiv($last, $pageset, "home"));
   }
 
   /**

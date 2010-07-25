@@ -33,6 +33,10 @@ class WebServer {
    * @param String $addr the address to navigate to
    */
   public static function go($addr) {
+    if (preg_match('/^https?:\/\//', $addr)) {
+      header("Location: $addr");
+      exit;
+    }
     header(sprintf("Location: %s/%s", ROOT, $addr));
     exit;
   }

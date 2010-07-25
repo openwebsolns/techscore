@@ -973,4 +973,34 @@ class PageTitle extends GenericElement {
   }
 }
 
+/**
+ * Pagination links
+ *
+ * @author Dayan Paez
+ * @version 2010-07-24
+ */
+class PageDiv extends Div {
+
+  /**
+   * Creates a smart pagination div for the give number of pages,
+   * using the prefix in the links. Pagination is 1-based
+   *
+   * @param int $num_pages the total number of pages
+   * @param int $current the current page number
+   * @param String $prefix the prefix for the links
+   */
+  public function __construct($num_pages, $current, $prefix) {
+    parent::__construct(array(), array("class"=>"navlinks"));
+    
+    // for now, list all the pages
+    for ($i = 1; $i <= $num_pages; $i++) {
+      $this->addChild($l = new Link(sprintf("%s|%d", $prefix, $i), $i));
+      $this->addChild(new XText(" "));
+      if ($i == $current) {
+	$l->addAttr("class", "current");
+      }
+    }
+  }
+}
+
 ?>
