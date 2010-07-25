@@ -25,22 +25,30 @@ if (!(isset($_SESSION['user']))) {
   // Create page
   $PAGE = new WelcomePage();
   echo $PAGE->toHTML();
-  return;
+  exit;
 }
 $USER = null;
 try {
   $USER = new User($_SESSION['user']);
 }
 catch (Exception $e) {
-  print(new WelcomePage());
+  $w = new WelcomePage();
+  echo $w->toHTML();
   return;
 }
 
+$page = "home";
+if (isset($_REQUEST['p']))
+  $page = $_REQUEST['p'];
+  
+// Check for license request
 $PAGE = null;
-if (!isset($_REQUEST['p']))
-  $PAGE = new UserHomePane($USER);
+if ($page == "license") {
+  $PAGE = new EULAPane($USER);
+}
 else {
-  switch ($_REQUEST['p']) {
+  AccountManager::requireActive($USER);
+  switch ($page) {
   case "home":
     $PAGE = new UserHomePane($USER);
     break;
@@ -60,11 +68,9 @@ else {
   default:
     $_SESSION['ANNOUNCE'][] = new Announcement(sprintf("Invalid page requested (%s).", $_REQUEST['p']),
 					       Announcement::ERROR);
-    header("Location: .");
-    exit;
+    WebServer::go(HOME);
   }
 }
 
 print($PAGE->getHTML($_GET));
-return;
 ?>

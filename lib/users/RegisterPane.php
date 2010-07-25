@@ -184,7 +184,7 @@ class RegisterPane extends WelcomePage {
       }
 
       // 5. Create account with status "requested";
-      $res = Preferences::mail($to->username, '[TechScore] New account request', $this->getMessage($to));
+      $res = Preferences::mail($acc->username, '[TechScore] New account request', $this->getMessage($acc));
       if ($res !== false) {
 	AccountManager::setAccount($acc);
 	$_SESSION['ANNOUNCE'][] = new Announcement("Account successfully created.");

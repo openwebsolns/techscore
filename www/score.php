@@ -11,31 +11,28 @@ session_start();
 //
 if (!(isset($_SESSION['user']))) {
   $_SESSION['last_page'] = $_SERVER['REQUEST_URI'];
-  header("Location: " . HOME);
-  return;
+  WebServer::go(HOME);
 }
 $USER = null;
 try {
   $USER = new User($_SESSION['user']);
+  AccountManager::requireActive($USER);
 }
 catch (Exception $e) {
   $_SESSION['last_page'] = $_SERVER['REQUEST_URI'];
-  header("Location: " . HOME);
-  return;
+  WebServer::go(HOME);
 }
 
 //
 // Regatta
 //
 if (!isset($_REQUEST['reg']) || !is_numeric($_REQUEST['reg'])) {
-  header("Location: " . HOME);
-  return;
+  WebServer::go(HOME);
 }
 $reg_id = (int)$_REQUEST['reg'];
 if (!Preferences::getObjectWithProperty($USER->getRegattas(), "id", $reg_id)) {
   // No jurisdiction
-  header("Location: " . HOME);
-  return;
+  WebServer::go(HOME);
 }
 $REG = new Regatta($reg_id);
 
@@ -48,8 +45,7 @@ if (!isset($_REQUEST['p']) &&
     !isset($_REQUEST['d'])) {
   $mes = "No page requested.";
   $_SESSION['ANNOUNCE'][] = new Announcement($mes, Announcement::WARNING);
-  header(sprintf("Location: %s/score/%s", HOME, $reg_id));
-  exit;
+  WebServer::go("score/".$reg_id);
 }
 
 //
@@ -85,118 +81,15 @@ elseif (isset($_REQUEST['p'])) {
 	else {
 	  $title = $pane->getTitle();
 	  $_SESSION['ANNOUNCE'][] = new Announcement("$title is not available.", Announcement::WARNING);
-	  header(sprintf("Location: score/%s", $REG->id()));
-	  exit;
+	  WebServer::go("score/".$reg_id);
 	}
       }
     }
     if ($PAGE === null) {
       $mes = sprintf("Invalid page requested (%s)", $_REQUEST['p']);
       $_SESSION['ANNOUNCE'][] = new Announcement($mes, Announcement::WARNING);
-      header(sprintf("Location: %s/score/%s", HOME, $reg_id));
-      exit;
+      WebServer::go("score/".$reg_id);
     }
-    /*
-    switch ($_REQUEST['p']) {
-
-      // --------------- HOME    ---------------//
-    case "home":
-    case "details":
-      $PAGE = new DetailsPane($USER, $REG);
-      break;
-
-      // --------------- SUMMARIES -------------//
-    case "summary":
-    case "summaries":
-    case "comment":
-    case "comments":
-      $PAGE = new SummaryPane($USER, $REG);
-      break;
-
-      // --------------- RACES   ---------------//
-    case "race":
-    case "races":
-      $PAGE = new RacesPane($USER, $REG);
-      break;
-
-      // --------------- TEAMS   ---------------//
-    case "school":
-    case "schools":
-    case "team":
-    case "teams":
-      $PAGE = new TeamsPane($USER, $REG);
-      break;
-
-      // --------------- NOTES   ---------------//
-    case "note":
-    case "notes":
-      $PAGE = new NotesPane($USER, $REG);
-      break;
-  
-      // --------------- ROTATIONS   ---------------//
-    case "sail":
-    case "sails":
-      $PAGE = new SailsPane($USER, $REG);
-      break;
-
-      // --------------- TWEAK SAILS ---------------//
-    case "tweak":
-      $PAGE = new TweakSailsPane($USER, $REG);
-      break;
-
-      // --------------- MANUAL TWEAK -------------//
-    case "manual-tweak":
-      $PAGE = new ManualTweakPane($USER, $REG);
-      break;
-
-      // --------------- RP FORMS -----------------//
-    case "rp":
-      $PAGE = new RpEnterPane($USER, $REG);
-      break;
-
-      // --------------- UNREG SAILORS-------------//
-    case "temp":
-      $PAGE = new UnregisteredSailorPane($USER, $REG);
-      break;
-    
-
-      // --------------- SCORERS ---------------//
-    case "scorer":
-      $PAGE = new ScorersPane($USER, $REG);
-      break;
-
-      // --------------- ENTER FINISH--------------//
-    case "finish":
-    case "finishes":
-      $PAGE = new EnterFinishPane($USER, $REG);
-      break;
-
-      // --------------- DROP FINISH --------------//
-    case "current":
-    case "drop-finish":
-      $PAGE = new DropFinishPane($USER, $REG);
-      break;
-
-
-      // --------------- ENTER PENALTY ------------//
-    case "penalty":
-      $PAGE = new EnterPenaltyPane($USER, $REG);
-      break;
-
-      // --------------- DROP PENALTY ------------//
-    case "drop":
-      $PAGE = new DropPenaltyPane($USER, $REG);
-      break;
-
-      // --------------- TEAM PENALTY ------------//
-    case "team-penalty":
-      $PAGE = new TeamPenaltyPane($USER, $REG);
-      break;
-
-      // --------------- Redirect HOME ---------- //
-    default:
-    }
-    */
   }
 }
 
@@ -268,8 +161,7 @@ elseif (isset($_REQUEST['v'])) {
     default:
       $mes = sprintf("Unknown dialog requested (%s).", $_REQUEST['v']);
       $_SESSION['ANNOUNCE'][] = new Announcement($mes, Announcement::WARNING);
-      header(sprintf("Location: %s/view/%s/rotation", HOME, $REG->id()));
-      exit;
+      WebServer::go(sprintf("view/%d/rotation", $reg_id));
     }
   }
 }

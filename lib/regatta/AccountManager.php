@@ -129,7 +129,8 @@ class AccountManager {
 
   /**
    * Returns the user with the specified id if the password matches,
-   * or null otherwise
+   * or null otherwise. The user account status must be either
+   * accepted or active.
    *
    * @param string $id the user id
    * @param string $pass the password in the system
@@ -138,7 +139,9 @@ class AccountManager {
    * @return null if invalid userid or password
    */
   public static function approveUser($id, $pass) {
-    $q = sprintf('select * from account where username like "%s" and password = sha1("%s")',
+    $q = sprintf('select * from account ' .
+		 'where username like "%s" and password = sha1("%s")' .
+		 '  and status in ("accepted", "active")',
 		 $id, $pass);
     $q = self::query($q);
     if ($q->num_rows == 0) {
@@ -166,6 +169,26 @@ class AccountManager {
 		 $acc->school->id,
 		 $acc->status);
     self::query($q);
+  }
+
+  /**
+   * Checks that the account holder is active. Otherwise, redirect to
+   * license. Otherwise, redirect out
+   *
+   * @param User $user the user to check
+   * @throws InvalidArgumentException if invalid parameter
+   */
+  public static function requireActive(User $user) {
+    switch ($user->get(User::STATUS)) {
+    case "active":
+      return;
+
+    case "accepted":
+      WebServer::go("license");
+
+    default:
+      WebServer::go(HOME);
+    }
   }
 }
 ?>

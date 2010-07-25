@@ -22,23 +22,27 @@ if (!(isset($_SESSION['user']))) {
   }
   
   // Send home instead
-  header("Location: .");
-  exit;
+  WebServer::go(HOME);
 }
 $USER = null;
 try {
   $USER = new User($_SESSION['user']);
 }
 catch (Exception $e) {
-  print(new WelcomePage());
-  return;
+  WebServer::go(HOME);
 }
 
+$page = "home";
+if (isset($_REQUEST['p']))
+  $page = $_REQUEST['p'];
+  
 $PAGE = null;
-if (!isset($_REQUEST['p']))
-  $PAGE = new UserHomePane($USER);
+if ($page == "license") {
+  $PAGE = new EULAPane($USER);
+}
 else {
-  switch ($_REQUEST['p']) {
+  AccountManager::requireActive($USER);
+  switch ($page) {
   case "home":
     $PAGE = new UserHomePane($USER);
     break;

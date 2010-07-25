@@ -29,8 +29,8 @@ RewriteRule ^view/([0-9]+)/(.*)/?$ score.php?reg=$1&v=$2
 # for downloads
 RewriteRule ^download/([0-9]+)/(.*)/?$ score.php?reg=$1&d=$2
 
-RewriteRule ^edit/([0-9]+)/?$ edit.php?reg=$1
-RewriteRule ^edit/([0-9]+)/(.*)/?$ edit.php?reg=$1&p=$2
+RewriteRule ^edit/([0-9]+)/?$ score-edit.php?reg=$1
+RewriteRule ^edit/([0-9]+)/(.*)/?$ score-edit.php?reg=$1&p=$2
 RewriteRule ^login/?$ login.php?dir=in
 RewriteRule ^logout/?$ login.php?dir=out
 
@@ -64,16 +64,9 @@ RewriteRule ^pending-edit/?$ index-edit.php?p=pending
 RewriteRule ^([^.]+)-edit/?$ index-edit.php?p=$1
 RewriteRule ^([^.]+)/?$ index.php?p=$1
 
-# RewriteRule ^create/?$ index.php?p=create
-# RewriteRule ^create-edit/?$ index-edit.php?p=create
-
-# for pending
-# RewriteRule ^pending/?$ index.php?p=pending
-# RewriteRule ^pending-edit/?$ index-edit.php?p=ending
-
-# for registering
-# RewriteRule ^register/?$ index.php?p=register
-# RewriteRule ^register-edit/?$ index-edit.php?p=register
+# for license
+RewriteRule ^license/?$ index.php?p=license
+RewriteRule ^license-edit/?$ index-edit.php?p=license
 
 # force refresh of css and javascripts
 RewriteRule ^inc/js/(.*)\.[0-9]+\.js$ inc/js/$1.js

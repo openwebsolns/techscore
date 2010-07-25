@@ -13,17 +13,16 @@ session_start();
 //
 if (!(isset($_SESSION['user']))) {
   $_SESSION['last_page'] = $_SERVER['REQUEST_URI'];
-  header("Location: " . HOME);
-  return;
+  WebServer::go(HOME);
 }
 $USER = null;
 try {
   $USER = new User($_SESSION['user']);
+  AccountManager::requireActive($USER);
 }
 catch (Exception $e) {
   $_SESSION['last_page'] = $_SERVER['REQUEST_URI'];
-  header("Location: " . HOME);
-  return;
+  WebServer::go(HOME);
 }
 
 $HOME = sprintf("%s/prefs/%s", HOME, $USER->get(User::SCHOOL)->id);
