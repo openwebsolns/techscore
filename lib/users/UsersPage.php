@@ -86,6 +86,7 @@ class UsersPage extends TScorePage {
    * Creates the header of this page
    *
    */
+  /*
   private function fillPageHeader() {
     $this->header->addChild($div = new Div());
     $div->addAttr("id", "topnav");
@@ -107,6 +108,7 @@ class UsersPage extends TScorePage {
     $div->addAttr("id", "bottom-grab");
     $div->addChild(new Text());
   }
+  */
 
   /**
    * Fills the menu
@@ -124,8 +126,7 @@ class UsersPage extends TScorePage {
     $div->addChild($list = new GenericList());
     $list->addItems(new LItem(new Link(".",      "My regattas")),
 		    new LItem(new Link("create", "New regatta")),
-		    new LItem($l = new Link("logout", "Logout")));
-    $l->addAttr("accesskey", "l");
+		    new LItem($l = new Link("logout", "Logout", array("accesskey"=>"l"))));
 
     // School setup
     $this->addMenu($div = new Div());

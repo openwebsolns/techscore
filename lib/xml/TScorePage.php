@@ -197,12 +197,15 @@ class TScorePage extends WebPage {
     $g->addChild(new Image("img/techscore.png", array("id"=>"headimg",
 						      "alt"=>"TechScore")));
     $div->addChild(new Heading(date("D M j, Y"), array("id"=>"date")));
+    if (isset($_SESSION['user'])) {
+      $div->addChild(new Heading($_SESSION['user'], array("id"=>"user")));
+    }
     
     $this->header->addChild($this->navigation = new Div());
     $this->navigation->addAttr("id", "topnav");
-    $this->navigation->addChild(new Link("help", "Help?",
+    $this->navigation->addChild(new Link("help", '<span style="text-decoration:underline">H</span>elp?',
 					 array("id"=>"help",
-					       "target"=>"_blank",
+					       "target"=>"help",
 					       "accesskey"=>"h")));
   }
 
