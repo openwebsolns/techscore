@@ -65,6 +65,15 @@ else {
     $PAGE = new PendingAccountsPane($USER);
     break;
 
+  case "venues":
+  case "venue":
+    $PAGE = new VenueManagement($USER);
+    break;
+
+  case "edit-venue":
+    $PAGE = new VenueManagement($USER, VenueManagement::TYPE_EDIT);
+    break;
+
   default:
     $_SESSION['ANNOUNCE'][] = new Announcement(sprintf("Invalid page requested (%s).", $_REQUEST['p']),
 					       Announcement::ERROR);
@@ -72,5 +81,6 @@ else {
   }
 }
 
-print($PAGE->getHTML($_GET));
+$args = array_merge($_GET, (isset($_SESSION['POST'])) ? $_SESSION['POST'] : array());
+print($PAGE->getHTML($args));
 ?>

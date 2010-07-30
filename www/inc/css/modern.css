@@ -57,6 +57,8 @@ div#menudiv div.menu {
     margin: 0px;
     margin-right: -5px;
 }
+input {font-size: 1em; padding: 0.15em}
+input[type="text"], input[type="password"], select {font-size: 1em; min-width: 15em; padding: 0.15em}
 
 div#menudiv h4 {
     font-weight: normal;

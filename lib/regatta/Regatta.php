@@ -1125,29 +1125,30 @@ class Regatta implements RaceListener, FinishListener {
    *
    * @throws InvalidArgumentException if illegal regatta type
    */
-  protected static function addRegatta($db,
-				       $name,
-				       DateTime $start_time,
-				       DateTime $end_date,
-				       $type,
-				       $comments = "") {
+  private static function addRegatta($db,
+				     $name,
+				     DateTime $start_time,
+				     DateTime $end_date,
+				     $type,
+				     $scoring) {
     if (!in_array($type, array_keys(Preferences::getRegattaTypeAssoc())))
       throw new InvalidArgumentException("No such regatta type $type.");
+    if (!in_array($scoring, array_keys(Preferences::getRegattaScoringAssoc())))
+      throw new InvalidArgumentException("No such regatta scoring $scoring.");
 
     $q = sprintf('insert into regatta ' .
-		 '(name, start_time, end_date, type, comments) values ' .
+		 '(name, start_time, end_date, type, scoring) values ' .
 		 '("%s", "%s", "%s", "%s", "%s")',
 		 addslashes((string)$name),
 		 $start_time->format("Y-m-d H:i:s"),
 		 $end_date->format("Y-m-d"),
 		 $type,
-		 addslashes($comments));
+		 $scoring);
 
     $res = self::static_query($q);
     
     // Fetch the regatta back
-    $last_id = self::static_query('select last_insert_id() as id');
-    return $last_id->fetch_object()->id;
+    return self::$static_con->insert_id;
   }
 
   /**
@@ -1157,6 +1158,7 @@ class Regatta implements RaceListener, FinishListener {
    * @param DateTime $start_time the start time of the regatta
    * @param DateTime $end_date the end_date
    * @param String $type one of those listed in Preferences::getRegattaTypesAssoc()
+   * @param String $scoring one of those listed in Preferences::getRegattaScoringAssoc()
    * @param String $comments the comments (default empty)
    *
    * @throws InvalidArgumentException if illegal regatta type
@@ -1165,8 +1167,8 @@ class Regatta implements RaceListener, FinishListener {
 				       DateTime $start_time,
 				       DateTime $end_date,
 				       $type,
-				       $comments = "") {
-    $id = self::addRegatta(SQL_DB, $name, $start_time, $end_date, $type, $comments);
+				       $scoring) {
+    $id = self::addRegatta(SQL_DB, $name, $start_time, $end_date, $type, $scoring);
     return new Regatta($id);
   }
 }

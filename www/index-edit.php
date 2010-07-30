@@ -59,6 +59,10 @@ else {
     $PAGE = new PendingAccountsPane($USER);
     break;
 
+  case "venue":
+    $PAGE = new VenueManagement($USER);
+    break;
+
   default:
     $_SESSION['ANNOUNCE'][] = new Announcement("No such page.", Announcement::ERROR);
     WebServer::go(HOME);

@@ -23,5 +23,9 @@ class Venue {
   // Constants
   const FIELDS = "venue.id, venue.name, venue.address, venue.city, venue.state, venue.zipcode";
   const TABLES = "venue";
+
+  public function __toString() {
+    return $this->name;
+  }
 }
 ?>

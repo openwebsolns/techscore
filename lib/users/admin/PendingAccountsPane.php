@@ -10,7 +10,7 @@ require_once("conf.php");
  * Pane to edit (approve/reject) pending accounts
  *
  */
-class PendingAccountsPane extends AbstractUserPane {
+class PendingAccountsPane extends AbstractAdminUserPane {
 
   const NUM_PER_PAGE = 10;
 

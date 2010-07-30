@@ -67,7 +67,7 @@ class UserHomePane extends AbstractUserPane {
 				    Cell::th("Finalized"))));
     }
     else {
-      $p->addChild(new Para("You have no regattas. Go create one!"));
+      $p->addChild(new Para('You have no regattas. Go <a href="create">create one</a>!'));
     }
     $row = 0;
     foreach ($regattas as $reg) {

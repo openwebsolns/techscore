@@ -42,10 +42,10 @@ class Preferences {
    * @return Array a dict of regatta types
    */
   public static function getRegattaTypeAssoc() {
-    return array("personal"=>"Personal",
-		 "conference"=>"Conference",
+    return array("conference"=>"Conference",
 		 "intersectional"=>"Intersectional",
-		 "championship"=>"Championship");
+		 "championship"=>"Championship",
+		 "personal"=>"Personal");
   }
 
   /**
@@ -75,6 +75,30 @@ class Preferences {
   }
 
   /**
+   * Adds a venue to the database
+   *
+   * @param Venue $venue the venue to set to the database
+   */
+  public static function setVenue(Venue $venue) {
+    $con = self::getConnection();
+    $exist = self::getVenue((int)$venue->id);
+    if ($exist === null) {
+      $q = sprintf('insert into venue (name, address, city, state, zipcode) ' .
+		   'values ("%s", "%s", "%s", "%s", "%s")',
+		   $venue->name, $venue->address, $venue->city, $venue->state, $venue->zipcode);
+      $con->query($q);
+      $venue->id = $con->insert_id;
+    }
+    else {
+      $q = sprintf('update venue set name = "%s", address = "%s", ' .
+		   'city = "%s", state = "%s", zipcode = "%s" where id = %d',
+		   $venue->name, $venue->address, $venue->city,
+		   $venue->state, $venue->zipcode, $exist->id);
+      $con->query($q);
+    }
+  }
+
+  /**
    * Returns the venue object with the given ID
    *
    * @param String $id the id of the object
@@ -92,19 +116,47 @@ class Preferences {
   }
 
   /**
-   * Get a list of registered venues
+   * Get a list of registered venues.
    *
+   * @see 
    * @return Array of Venue objects
    */
-  public static function getVenues() {
+  public static function getVenues($start = null, $end = null) {
+    $limit = "";
+    if ($start === null)
+      $limit = "";
+    else {
+      $start = (int)$start;
+      if ($start < 0)
+	throw new InvalidArgumentException("Start index ($start) must be greater than zero.");
+    
+      if ($end === null)
+	$limit = "limit $start";
+      elseif ((int)$end < $start)
+	throw new InvalidArgumentException("End index ($end) must be greater than start ($start).");
+      else {
+	$range = (int)$end - $start;
+	$limit = "limit $start, $range";
+      }
+    }
+    
     $con = self::getConnection();
-    $q = sprintf('select %s from %s', Venue::FIELDS, Venue::TABLES);
+    $q = sprintf('select %s from %s %s', Venue::FIELDS, Venue::TABLES, $limit);
     $q = $con->query($q);
     
     $list = array();
     while ($obj = $q->fetch_object("Venue"))
       $list[] = $obj;
     return $list;
+  }
+
+  public static function getNumVenues() {
+    $con = self::getConnection();
+    $q = sprintf('select * from %s', Venue::TABLES);
+    $q = $con->query($q);
+    $n = $q->num_rows;
+    $q->free();
+    return $n;
   }
 
   /**

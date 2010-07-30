@@ -151,7 +151,9 @@ class UsersPage extends TScorePage {
       $div->addAttr("class", "menu");
       $div->addChild(new Heading("Admin"));
       $div->addChild($list = new GenericList());
-      $list->addItems(new LItem(new Link("pending", "Pending users")));
+      $list->addItems(new LItem(new Link("pending",   "Pending users")));
+      $list->addItems(new LItem(new Link("venue",     "Venues")));
+      $list->addItems(new LItem(new Link("venue-add", "Add Venues")));
     }
   }
 }
