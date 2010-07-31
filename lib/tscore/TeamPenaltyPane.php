@@ -90,7 +90,7 @@ class TeamPenaltyPane extends AbstractPane {
 				   new Cell($p->type),
 				   new Cell($p->comments, array("width"=>"10em",
 								"style"=>"text-align: left")),
-				   new Cell($form = $this->createForm());
+				   new Cell($form = $this->createForm()))));
 
 	$form->addChild(new FHidden("r_team", $p->team->id));
 	$form->addChild(new FHidden("r_div",  $p->division));
