@@ -24,6 +24,7 @@ define('SQL_DB',   "ts2");
 // Timezone setting: set this to the timezone of the server (for the
 // purpose of DateTime objects)
 date_default_timezone_set("America/New_York");
+define('LOG_MEMORY', '0');
 
 // ERROR and EXCEPTION handlers. Mail error and exception handlers are
 // provided. In order to use them, uncomment the following lines

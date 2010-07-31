@@ -221,5 +221,6 @@ if (isset($_SESSION['POST']))
   $args = array_merge($args,$_SESSION['POST']);
 print($PAGE->getHTML($args));
 
-error_log(sprintf("%s:\t%d\n", $_SERVER['REQUEST_URI'], memory_get_peak_usage()), 3, "../log/memory.log");
+if (LOG_MEMORY)
+  error_log(sprintf("%s:\t%d\n", $_SERVER['REQUEST_URI'], memory_get_peak_usage()), 3, "../log/memory.log");
 ?>
