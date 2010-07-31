@@ -100,5 +100,18 @@ class Division {
       throw new IllegalArgumentError("Invalid division value");
     }
   }
+
+  /**
+   * Fetches an associative array indexed by the value of the division
+   * mapping to the division object
+   *
+   * @return Array
+   */
+  public static function getAssoc() {
+    return array("A"=>Division::A(),
+		 "B"=>Division::B(),
+		 "C"=>Division::C(),
+		 "D"=>Division::D());
+  }
 }
 ?>

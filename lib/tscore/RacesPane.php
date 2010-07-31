@@ -12,6 +12,14 @@ require_once('conf.php');
 /**
  * Page for editing races in a regatta and their boats.
  *
+ * @version 2010-07-31: Starting with this version, only the number of
+ * races and division is chosen, with appropriate warning messages if
+ * there are already rotations or finishes in place.
+ *
+ * @TODO For the boats in the race, provide a mechanism similar to rotation
+ * creation, where the user can choose a range of races in each
+ * division to assign a boat at a time. Provide an extra box for every
+ * new division.
  */
 class RacesPane extends AbstractPane {
 
@@ -28,62 +36,51 @@ class RacesPane extends AbstractPane {
     }
 
     //------------------------------------------------------------
-    // Add races
-    
-    if (!$this->REGATTA->get(Regatta::FINALIZED)) {
-      $this->PAGE->addContent($p = new Port("Races and divisions"));
-      $p->addChild($form = $this->createForm());
-      $form->addChild(new FItem("Divisions:",
-				$f_sel = new FSelect("division")));
-      $f_sel->addOptions(array("A"=>"A",
-			       "B"=>"B",
-			       "C"=>"C",
-			       "D"=>"D"));
+    // Number of races and divisions
+    // ------------------------------------------------------------
+    $final = $this->REGATTA->get(Regatta::FINALIZED);
+    $this->PAGE->addContent($p = new Port("Races and divisions"));
+    $p->addChild($form = $this->createForm());
+    $form->addChild(new FItem("Number of divisions:",
+			      $f_div = new FSelect("num_divisions", array(count($divisions)))));
+    $form->addChild(new FItem("Number of races:",
+			      $f_rac = new FText("num_races",
+						 count($this->REGATTA->getRaces(Division::A())))));
+    if ($final) {
+      $f_div->addAttr("disabled", "disabled");
+      $f_rac->addAttr("disabled", "disabled");
+    }
+    elseif (count($this->REGATTA->getRotation()->getRaces()) > 0 ||
+	    count($this->REGATTA->getScoredRaces()) > 0) {
+      $form->addChild(new Para('<strong>Warning: </strong>Adding races or divisions to this regatta ' .
+			       'will require that you also edit the rotations (if any). Removing races ' .
+			       'or divisions will also remove the finishes and rotations (if any) for ' .
+			       'the removed races!'));
+    }
+    $form->addChild(new Para('<strong>Note: </strong>Extra races are automatically removed when ' .
+			     'the regatta is finalized.'));
+    $form->addChild($f_sub = new FSubmit("set-races", "Set races"));
+    if ($final) $f_sub->addAttr("disabled", "disabled");
 
-      $form->addChild(new FItem("Amount:",
-				new FText("races", 
-					  "18",
-					  array("size"=>"3"))));
-
-      $form->addChild(new FItem("Boat:",
-				$f_sel = new FSelect("boat",
-						     array())));
-      $f_sel->addOptions($boatOptions);
-
-      $form->addChild(new FSubmit("addraces", "Add races"));
+    // Fill the select boxes
+    for ($i = 1; $i <= 4; $i++) {
+      $f_div->addChild(new Option($i, $i));
     }
 
     //------------------------------------------------------------
-    // Delete empty divisions
-    if (!$this->REGATTA->get(Regatta::FINALIZED)) {
-
-      $p->addChild(new Heading("Remove a division"));
-
-      if (count($divisions) == 0)
-	$p->addChild(new Para("There are no divisions to drop."));
-      foreach ($divisions as $div) {
-	if (count($this->REGATTA->getScoredRaces($div)) == 0) {
-	  $p->addChild($form = $this->createForm());
-	  $form->addChild(new FHidden("division", $div));
-	  $form->addChild(new FItem(new FSubmit("delete_div", "Drop", array("class"=>"thin")),
-				    new FSpan("Division " . $div)));
-
-	}
-	else {
-	  $p->addChild(new Para("Cannot drop Division $div because at least " .
-				"one of its races has been scored."));
-	}
-      }
-    }
-
-    //------------------------------------------------------------
-    // Edit existing races
+    // Edit existing boats
     
-    $p = new Port("Current races");
-    $p->addChild(new Para("Here you can edit the boat associated with each race. " .
+    $this->PAGE->addContent($p = new Port("Boat assignments"));
+    $p->addChild(new Para("Edit the boat associated with each race. This is necessary " .
+			  "at the time of entering RP information. " .
 			  "Races that are not sailed are automatically removed " .
 			  "when finalizing the regatta."));
     $p->addChild($form = $this->createForm());
+
+    // Add input elements
+    $form->addChild($para = new Para(""));
+    $para->addChild(new FSubmit("editboats", "Edit boats"));
+
 
     // Table of races: columns are divisions; rows are race numbers
     $form->addChild($tab = new Table());
@@ -97,6 +94,18 @@ class RacesPane extends AbstractPane {
       $max = max($max, count($races[(string)$div]));
     }
     $tab->addHeader(new Row($head));
+
+    //  - Global boat
+    $row = array(Cell::th("All"));
+    foreach ($divisions as $div) {
+      $c = new Cell();
+      $c->addChild(new FHidden("div-value[]", $div));
+      $c->addChild($f_sel = new FSelect("div-boat[]", array()));
+      $f_sel->addChild(new Option("", "[Use table]"));
+      $f_sel->addOptions($boatOptions);
+      $row[] = $c;
+    }
+    $tab->addRow(new Row($row));
 
     //  - Table content
     for ($i = 0; $i < $max; $i++) {
@@ -117,14 +126,6 @@ class RacesPane extends AbstractPane {
       }
       $tab->addRow(new Row($row));
     }
-
-    // Add input elements
-    $form->addChild(new FReset("", "Reset boats"));
-    $form->addChild(new FSubmit("editboats", "Edit boats"));
-
-    if (count($this->REGATTA->getRaces()) > 0) {
-      $this->PAGE->addContent($p);
-    }
   }
 
   /**
@@ -132,69 +133,102 @@ class RacesPane extends AbstractPane {
    */
   public function process(Array $args) {
     // ------------------------------------------------------------
-    // Add races
-    if (isset($args['addraces'])) {
-
-      // Validate divisions
-      if (isset($args['division']) &&
-	  in_array($args['division'], array("A", "B", "C", "D"))) {
-	$division = $args['division'];
-      }
-      else {
-	$this->announce(new Announcement('Missing or invalid division.'), Announcement::ERROR);
-	return;
-      }
+    // Set races
+    // ------------------------------------------------------------
+    if (isset($args['set-races']) && !$this->REGATTA->get(Regatta::FINALIZED)) {
+      // ------------------------------------------------------------
+      // Add new divisions
+      //   1. Get host's preferred boat
+      $host = array_shift($this->REGATTA->getHosts());
+      $boat = Preferences::getPreferredBoat($host->school);
       
-      // Validate amount
-      if (isset($args['races']) &&
-	  is_numeric($args['races']) &&
-	  $args['races'] > 0)
-	$amount = $args['races'];
-      else {
-	$mes = sprintf('Invalid number of races (%s)', $args['races']);
-	$this->announce(new Announcement($mes), Announcement::ERROR);
-	return;
+      $cur_divisions = $this->REGATTA->getDivisions();
+      $cur_races     = count($this->REGATTA->getRaces(Division::A()));
+      if (isset($args['num_divisions'])) {
+	$pos_divisions = Division::getAssoc();
+	$num_divisions = (int)$args['num_divisions'];
+	if ($num_divisions < 1 || $num_divisions > count($pos_divisions)) {
+	  $this->announce(new Announcement("Invalid number of divisions.", Announcement::ERROR));
+	  return $args;
+	}
+	$pos_divisions_list = array_values($pos_divisions);
+	for ($i = count($cur_divisions); $i < $num_divisions; $i++) {
+	  $div = $pos_divisions_list[$i];
+	  for ($j = 0; $j < $cur_races; $j++) {
+	    $race = new Race();
+	    $race->division = $div;
+	    $race->boat = $boat;
+	    $this->REGATTA->addRace($race);
+	  }
+	}
+
+	// ------------------------------------------------------------
+	// Subtract extra divisions
+	for ($i = count($cur_divisions); $i > $num_divisions; $i--) {
+	  $this->REGATTA->removeDivision($pos_divisions_list[$i - 1]);
+	}
       }
 
-      // Validate boat
-      if (!isset($args['boat']) ||
-	  !($boat = Preferences::getObjectWithProperty(Preferences::getBoats(),
-						       "id",
-						       $args['boat']))) {
-	$mes = 'Missing boat type.';
-	$this->announce(new Announcement($mes, Announcement::ERROR));
-	return;
+      if (isset($args['num_races'])) {
+	$num_races = (int)$args['num_races'];
+	if ($num_races < 1 || $num_races > 99) {
+	  $this->announce(new Announcement("Invalid number of races.", Announcement::ERROR));
+	  return $args;
+	}
+	// Add
+	
+	for ($i = $cur_races; $i < $num_races; $i++) {
+	  foreach ($cur_divisions as $div) {
+	    $race = new Race();
+	    $race->division = $div;
+	    $race->boat = $boat;
+	    $this->REGATTA->addRace($race);
+	  }
+	}
+
+	// Remove
+	for ($i = $cur_races; $i > $num_races; $i--) {
+	  foreach ($cur_divisions as $div) {
+	    $this->REGATTA->removeRace($this->REGATTA->getRace($div, $i));
+	  }
+	}
       }
 
-      // Insert races
-      for ($i = 0; $i < $amount; $i++) {
-	$race = new Race();
-	$race->division = $division;
-	$race->boat = $boat;
-	$this->REGATTA->addRace($race);
-      }
-      $this->announce(new Announcement("Added $amount races for division $division."));
+      $this->announce(new Announcement("Set number of races."));
     }
 
-    
     // ------------------------------------------------------------
-    // Drop division
+    // Update boats
 
-    $divisions = $this->REGATTA->getDivisions();
-    if (isset($args['delete_div']) &&
-	isset($args['division']) &&
-	in_array($args['division'], $divisions)) {
-      $div = new Division($args['division']);
-      $this->REGATTA->removeDivision($div);
-      $this->announce(new Announcement(sprintf("Removed division %s.", $div)));
-    }
-
-    
-    // ------------------------------------------------------------
-    // Update races
-
+    $completed_divisions = array();
     if (isset($args['editboats'])) {
       unset($args['editboats']);
+      $boats = Preferences::getBoats();
+
+      // Is there an assignment for all the races in the division?
+      if (isset($args['div-value']) && is_array($args['div-value']) &&
+	  isset($args['div-boat'])  && is_array($args['div-boat']) &&
+	  count($args['div-value']) == count($args['div-boat'])) {
+	foreach ($args['div-value'] as $i => $d) {
+	  try {
+	    $div = Division::get($d);
+	    if (!empty($args['div-boat'][$i]) &&
+		($boat = Preferences::getObjectWithProperty($boats, "id", $args['div-boat'][$i])) !== null) {
+	      // Assign
+	      $completed_divisions[] = $div;
+	      foreach ($this->REGATTA->getRaces($div) as $race) {
+		$race->boat = $boat;
+	      }
+	    }
+	  }
+	  catch (Exception $e) {
+	    $this->announce(new Announcement(sprintf("Invalid division (%s) chosen for boat assignment.",
+						     $d),
+					     Announcement::WARNING));
+	  }
+	}
+	unset($args['div-value'], $args['div-boat']);
+      }
       
       // Let the database decide whether the values are valid to begin
       // with. Just keep track of whether there were errors.
@@ -202,10 +236,11 @@ class RacesPane extends AbstractPane {
       foreach ($args as $key => $value) {
 	try {
 	  $race = Race::parse($key);
-	  $race = $this->REGATTA->getRace($race->division, $race->number);
-	  $boat = Preferences::getObjectWithProperty(Preferences::getBoats(),
-						     "id", $value);
-	  $race->boat = $boat;
+	  if (!in_array($race->division, $completed_divisions)) {
+	    $race = $this->REGATTA->getRace($race->division, $race->number);
+	    $boat = Preferences::getObjectWithProperty($boats, "id", $value);
+	    $race->boat = $boat;
+	  }
 	}
 	catch (Exception $e) {
 	  $errors = true;
@@ -219,6 +254,7 @@ class RacesPane extends AbstractPane {
       else
 	$this->announce(new Announcement("Updated races."));
     }
+    return array();
   }
 
   public function isActive() { return true; }

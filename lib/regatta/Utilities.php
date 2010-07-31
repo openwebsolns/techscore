@@ -172,9 +172,4 @@ class Utilities {
     return $new_name;
   }
 }
-
-if (basename(__FILE__) == $argv[0]) {
-  print_r(Utilities::parseRange("0-4, 5-10"));
-  print_r(Utilities::parseRange("1-6, 4-8"));
-}
 ?>

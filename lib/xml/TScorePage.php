@@ -138,13 +138,6 @@ class TScorePage extends WebPage {
 					     array(),
 					     array("rel"=>"stylesheet",
 						   "type"=>"text/css",
-						   "media"=>"screen",
-						   "href"=>"inc/css/" . 
-						   "AutoComplete.css")));
-    $this->head->addChild(new GenericElement("link",
-					     array(),
-					     array("rel"=>"stylesheet",
-						   "type"=>"text/css",
 						   "media"=>"print",
 						   "href"=>"inc/css/print.css")));
     $this->head->addChild(new GenericElement("link",
@@ -165,8 +158,7 @@ class TScorePage extends WebPage {
     foreach (array("jquery-1.3.min.js",
 		   "jquery.tablehover.min.js",
 		   "jquery.columnmanager.min.js",
-		   "ui.datepicker.js",
-		   "AutoComplete.js") as $scr) {
+		   "ui.datepicker.js") as $scr) {
       $this->head->addChild(new GenericElement("script",
 					       array(new Text("")),
 					       array("type"=>"text/javascript",

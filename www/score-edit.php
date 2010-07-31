@@ -187,5 +187,6 @@ else {
 */
 
 $_SESSION['POST'] = $PAGE->process($_POST);
+error_log(sprintf("%s:\t%d\n", $_SERVER['REQUEST_URI'], memory_get_peak_usage()), 3, "../log/memory.log");
 WebServer::goBack();
 ?>

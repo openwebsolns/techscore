@@ -19,7 +19,7 @@ class Boat {
   public $name;
   public $occupants;
 
-  const FIELDS = "boat.id, boat.name, occupants";
+  const FIELDS = "boat.id, boat.name, boat.occupants";
   const TABLES = "boat";
 }
 ?>

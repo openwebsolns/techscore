@@ -399,6 +399,18 @@ class Regatta implements RaceListener, FinishListener {
   }
 
   /**
+   * Removes the specific race from this regatta. Note that the race
+   * is removed by ID, and due to the nature of race objects, that may
+   * mean that other races' numbers will be affected as a result. In
+   * general, it is a good idea to remove races from the end first.
+   *
+   * @param Race $race the race to remove
+   */
+  public function removeRace(Race $race) {
+    $this->query(sprintf('delete from race where id = %d', $race->id));
+  }
+
+  /**
    * Removes all the races from the given division
    *
    * @param Division $div the division whose races to remove

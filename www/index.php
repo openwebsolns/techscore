@@ -74,6 +74,11 @@ else {
     $PAGE = new VenueManagement($USER, VenueManagement::TYPE_EDIT);
     break;
 
+  case "boat":
+  case "boats":
+    $PAGE = new BoatManagement($USER);
+  break;
+
   default:
     $_SESSION['ANNOUNCE'][] = new Announcement(sprintf("Invalid page requested (%s).", $_REQUEST['p']),
 					       Announcement::ERROR);

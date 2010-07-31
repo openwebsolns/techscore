@@ -9,7 +9,11 @@
 require_once('conf.php');
 
 /**
- * Encapsulates a race
+ * Encapsulates a race. Changes to the attributes of this object are
+ * broadcast to its notifiers, or listeners. If this race was created
+ * by a Regatta object, then that regatta object is notified of
+ * changes made to this race's properties. Note that race number is
+ * not available for editing as it is automatically calculated.
  *
  */
 class Race {

@@ -363,3 +363,4 @@ table#conftable td ul {
     overflow: auto;
     margin: 0px;
 }
+table.coordinate td:hover { background: #3465a4; color: white; }

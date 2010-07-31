@@ -135,7 +135,7 @@ class NewRegattaPane extends AbstractUserPane {
 				    $args['scoring']);
 
       $reg->addScorer($this->USER->asAccount(), true);
-      $divs = array_values(Preferences::getDivisionAssoc());
+      $divs = array_values(Division::getAssoc());
       for ($i = 0; $i < $args['num_divisions']; $i++) {
 	$div = $divs[$i];
 	for ($j = 1; $j <= $args['num_races']; $j++) {

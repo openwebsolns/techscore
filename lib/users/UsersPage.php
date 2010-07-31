@@ -58,13 +58,6 @@ class UsersPage extends TScorePage {
 					     array(),
 					     array("rel"=>"stylesheet",
 						   "type"=>"text/css",
-						   "media"=>"screen",
-						   "href"=>"inc/css/" . 
-						   "AutoComplete.css")));
-    $this->head->addChild(new GenericElement("link",
-					     array(),
-					     array("rel"=>"stylesheet",
-						   "type"=>"text/css",
 						   "media"=>"print",
 						   "href"=>"inc/css/print.css")));
     $this->head->addChild(new GenericElement("link",
@@ -81,34 +74,6 @@ class UsersPage extends TScorePage {
 						   "media"=>"screen",
 						   "href"=>"inc/css/cal.css")));
   }
-
-  /**
-   * Creates the header of this page
-   *
-   */
-  /*
-  private function fillPageHeader() {
-    $this->header->addChild($div = new Div());
-    $div->addAttr("id", "topnav");
-    $div->addChild(new Link("../help", "Help?", array("id"=>"help",
-						      "target"=>"_blank",
-						      "accesskey"=>"h")));
-    // User information
-    $div->addChild($d3 = new Div(array(), array("id"=>"user")));
-    $d3->addChild(new Text($this->user->getName()));
-    $d3->addChild(new Link("logout", "[logout]"));
-
-    $role = sprintf('%s at %s',
-		    ucfirst($this->user->get(User::ROLE)),
-		    $this->user->get(User::SCHOOL)->nick_name);
-    $d3->addChild(new Itemize(array(new LItem($this->user->username()),
-				    new LItem($role))));
-    
-    $div->addChild($div = new Div());
-    $div->addAttr("id", "bottom-grab");
-    $div->addChild(new Text());
-  }
-  */
 
   /**
    * Fills the menu
@@ -154,6 +119,7 @@ class UsersPage extends TScorePage {
       $list->addItems(new LItem(new Link("pending",   "Pending users")));
       $list->addItems(new LItem(new Link("venue",     "Venues")));
       $list->addItems(new LItem(new Link("edit-venue", "Add Venues")));
+      $list->addItems(new LItem(new Link("boats",     "Boats")));
     }
   }
 }

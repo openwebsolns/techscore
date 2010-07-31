@@ -165,7 +165,7 @@ class EnterFinishPane extends AbstractPane {
       }
 
       // Submit buttom
-      $form->addChild(new FReset("reset_finish", "Reset"));
+      //$form->addChild(new FReset("reset_finish", "Reset"));
       $form->addChild(new FSubmit("f_places",
 				  sprintf("Enter finish for race %s", $race->number),
 				  array("id"=>"submitfinish")));
@@ -360,7 +360,7 @@ class EnterFinishPane extends AbstractPane {
       }
 
       // Submit buttom
-      $form->addChild(new FReset("reset_finish", "Reset"));
+      // $form->addChild(new FReset("reset_finish", "Reset"));
       $form->addChild(new FSubmit("f_places",
 				  sprintf("Enter finish for %s", $race),
 				  array("id"=>"submitfinish")));

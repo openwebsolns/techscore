@@ -91,6 +91,27 @@ class Preferences {
   }
 
   /**
+   * Sets the given boat in the database, whether that is inserting a
+   * new boat (the argument will be updated with the database ID), or
+   * updating an existing one.
+   *
+   * @param Boat $boat the boat to either add or update
+   */
+  public static function setBoat(Boat $boat) {
+    $con = self::getConnection();
+    $exist = Preferences::getBoat($boat->id);
+    if ($exist === null) {
+      $con->query(sprintf('insert into boat (name, occupants) values ("%s", %d)',
+			  $boat->name, $boat->occupants));
+      $boat->id = $con->insert_id;
+    }
+    else {
+      $con->query(sprintf('update boat set name = "%s", occupants = %d where id = %d limit 1',
+			  $boat->name, $boat->occupants, $exist->id));
+    }
+  }
+
+  /**
    * Adds a venue to the database
    *
    * @param Venue $venue the venue to set to the database
@@ -408,13 +429,6 @@ class Preferences {
     $res = $con->query(sprintf('select %s from %s where id = "%s"',
 			       Sailor::FIELDS, Sailor::TABLES, $id));
     return $res->fetch_object("Sailor");
-  }
-
-  public static function getDivisionAssoc() {
-    return array("A"=>Division::A(),
-		 "B"=>Division::B(),
-		 "C"=>Division::C(),
-		 "D"=>Division::D());
   }
 
   /**
