@@ -24,7 +24,7 @@ class SummaryPane extends AbstractPane {
   protected function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new Port("Daily summaries"));
 
-    $p->addChild($form = new Form(sprintf("edit/%s/summary", $this->REGATTA->id())));
+    $p->addChild($form = $this->createForm());
     $start = $this->REGATTA->get(Regatta::START_TIME);
     for ($i = 0; $i < $this->REGATTA->get(Regatta::DURATION); $i++) {
       $today = new DateTime(sprintf("%s + %d days", $start->format('Y-m-d'), $i));

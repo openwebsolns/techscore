@@ -39,8 +39,7 @@ class TeamPenaltyPane extends AbstractPane {
       return;
     }
 
-    $url = sprintf("edit/%s/team-penalty", $this->REGATTA->id());
-    $p->addChild($form = new Form($url));
+    $p->addChild($form = $this->createForm());
     $form->addChild(new FItem("Team:",
 			      $f_sel = new FSelect("team", array(""))));
     $f_sel->addOptions($teams);
@@ -91,7 +90,7 @@ class TeamPenaltyPane extends AbstractPane {
 				   new Cell($p->type),
 				   new Cell($p->comments, array("width"=>"10em",
 								"style"=>"text-align: left")),
-				   new Cell($form = new Form($url)))));
+				   new Cell($form = $this->createForm());
 
 	$form->addChild(new FHidden("r_team", $p->team->id));
 	$form->addChild(new FHidden("r_div",  $p->division));

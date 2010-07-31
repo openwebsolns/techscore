@@ -25,7 +25,7 @@ class NewRegattaPane extends AbstractUserPane {
   
   private function defaultRegatta() {
     $day = new DateTime('next Saturday');
-    return array("name"=>"", "start_date"=>$day->format('Y/m/d'), "start_time" => "10:00", "duration"=>2,
+    return array("name"=>"", "start_date"=>$day->format('m/d/Y'), "start_time" => "10:00", "duration"=>2,
 		 "venue"=>"", "scoring"=>"standard", "type"=>"conference",
 		 "num_divisions"=>2, "num_races"=>"18");
   }
@@ -43,7 +43,7 @@ class NewRegattaPane extends AbstractUserPane {
 
     $f->addChild(new FItem("Name:", new FText("name", $r["name"])));
     $f->addChild(new FItem("Start date:", new FText("start_date", $r["start_date"])));
-    $f->addChild(new FItem("Start time:", new FText("start_time", $r["start_time"])));
+    $f->addChild(new FItem("On the water:", new FText("start_time", $r["start_time"])));
     $f->addChild(new FItem("Duration (days):", new FText("duration", $r["duration"])));
     $f->addChild(new FItem("Venue:",   $sel = new FSelect("venue", array($r["venue"]))));
     $f->addChild(new FItem("Scoring:", $sco = new FSelect("scoring", array($r["scoring"]))));
@@ -77,12 +77,12 @@ class NewRegattaPane extends AbstractUserPane {
 	$error = true;
       }
       // 2. Check date
-      if (!isset($args['start_date']) || strtotime($args['start_date']) === false) {
+      if (!isset($args['start_date']) || ($sd = strtotime($args['start_date'])) === false) {
 	$_SESSION['ANNOUNCE'][] = new Announcement("Invalid date given.", Announcement::ERROR);
 	$error = true;
       }
       // 3. Check time
-      if (!isset($args['start_time']) ||strtotime($args['start_time']) === false) {
+      if (!isset($args['start_time']) || ($st = strtotime($args['start_time'])) === false) {
 	$_SESSION['ANNOUNCE'][] = new Announcement("Invalid start time.", Announcement::ERROR);
 	$error = true;
       }
@@ -126,7 +126,28 @@ class NewRegattaPane extends AbstractUserPane {
       if ($error)
 	return $args;
 
+      $str = sprintf("%s %s", date('Y-m-d', $sd), date('H:i:s', $st));
+      $end = date('Y-m-d', $sd + (int)$args['duration'] * 86400);
+      $reg = Regatta::createRegatta(addslashes($args['name']),
+				    new DateTime($str),
+				    new DateTime($end),
+				    $args['type'],
+				    $args['scoring']);
+
+      $reg->addScorer($this->USER->asAccount(), true);
+      $divs = array_values(Preferences::getDivisionAssoc());
+      for ($i = 0; $i < $args['num_divisions']; $i++) {
+	$div = $divs[$i];
+	for ($j = 1; $j <= $args['num_races']; $j++) {
+	  $race = new Race();
+	  $race->division = $div;
+	  $race->boat = Preferences::getPreferredBoat($this->USER->get(User::SCHOOL));
+	  $reg->addRace($race);
+	}
+      }
+				    
       // Move to new regatta
+      WebServer::go("score/".$reg->id());
     }
     return array();
   }

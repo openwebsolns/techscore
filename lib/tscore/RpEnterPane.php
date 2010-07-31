@@ -60,7 +60,7 @@ class RpEnterPane extends AbstractPane {
     // ------------------------------------------------------------
     // Change team
     // ------------------------------------------------------------
-    $p->addChild($form = new Form(sprintf("edit/%s/enter-rp", $this->REGATTA->id())));
+    $p->addChild($form = $this->createForm());
     $form->addChild(new FItem("Team:",
 			      $f_sel = new FSelect("chosen_team",
 						   array($chosen_team->id),
@@ -83,7 +83,7 @@ class RpEnterPane extends AbstractPane {
 					  array("class"=>"nonprint")));
     // Representative
     $rep = $rpManager->getRepresentative($chosen_team);
-    $p->addChild($form = new Form(sprintf("edit/%s/enter-rp", $this->REGATTA->id())));
+    $p->addChild($form = $this->createForm());
     $form->addChild(new FHidden("chosen_team", $chosen_team->id));
     $form->addChild(new FItem("Representative:",
 			      $f_sel = new FSelect("rep", array($rep->id))));
@@ -380,15 +380,5 @@ class RpEnterPane extends AbstractPane {
   public function isActive() {
     return count($this->REGATTA->getTeams()) > 0;
   }
-}
-
-if (basename(__FILE__) == $argv[0]) {
-  $reg  = new Regatta(9);
-  $user = new User("paez@mit.edu");
-
-  $p = new RpEnterPane($user, $reg);
-
-  $opts = array("chosen_team" => 377);
-  file_put_contents("/tmp/test.html", $p->getHTML($opts));
 }
 ?>

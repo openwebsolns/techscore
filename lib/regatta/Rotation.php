@@ -537,6 +537,7 @@ class Rotation {
   }
 }
 
+/*
 if (basename(__FILE__) == $argv[0]) {
   $reg = new Regatta(115);
   $rot = $reg->getRotation();
@@ -569,4 +570,5 @@ if (basename(__FILE__) == $argv[0]) {
   foreach ($rot->createSwapTable($sails, 10, 1) as $team)
     print(sprintf("%s\n", implode(" ", $team)));
 }
+*/
 ?>

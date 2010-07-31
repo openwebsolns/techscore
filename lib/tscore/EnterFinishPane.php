@@ -56,7 +56,7 @@ class EnterFinishPane extends AbstractPane {
     // ------------------------------------------------------------
     // Choose race
     // ------------------------------------------------------------
-    $p->addChild($form = new Form(sprintf("edit/%s/finish", $this->REGATTA->id())));
+    $p->addChild($form = $this->createForm());
     $form->addAttr("id", "race_form");
     $form->addChild(new Para("This regatta is being scored with combined divisions. " .
 			     "Please enter any race in any division to enter finishes " .
@@ -109,7 +109,7 @@ class EnterFinishPane extends AbstractPane {
 
     $title = sprintf("Add/edit finish for race %s across all divisions", $race->number);
     $this->PAGE->addContent($p = new Port($title));
-    $p->addChild($form = new Form(sprintf("edit/%s/finish", $this->REGATTA->id())));
+    $p->addChild($form = $this->createForm());
     $form->addAttr("id", "finish_form");
 
     $form->addChild(new FHidden("race", $race->id));
@@ -268,7 +268,7 @@ class EnterFinishPane extends AbstractPane {
     // ------------------------------------------------------------
     // Choose race
     // ------------------------------------------------------------
-    $p->addChild($form = new Form(sprintf("edit/%s/finish", $this->REGATTA->id())));
+    $p->addChild($form = $this->createForm());
     $form->addAttr("id", "race_form");
 
     $form->addChild($fitem = new FItem("Race:", 
@@ -307,7 +307,7 @@ class EnterFinishPane extends AbstractPane {
     // Enter finishes
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new Port("Add/edit finish for " . $race));
-    $p->addChild($form = new Form(sprintf("edit/%s/finish", $this->REGATTA->id())));
+    $p->addChild($form = $this->createForm());
     $form->addAttr("id", "finish_form");
 
     $form->addChild(new FHidden("race", $race->id));
@@ -734,12 +734,4 @@ class EnterFinishPane extends AbstractPane {
   }
 }
 
-if (basename(__FILE__) == $argv[0]) {
-  $reg = new Regatta(115);
-  $p = new EnterFinishPane(new User("paez@mit.edu"), $reg);
-
-  $opts = array("chosen_race"  => $reg->getRace(Division::A(), 3),
-		"finish_using" => "ROT");
-
-  file_put_contents("/tmp/finish.html", $p->getHTML($opts));
-}
+?>

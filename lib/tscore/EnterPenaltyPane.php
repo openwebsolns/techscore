@@ -39,14 +39,13 @@ class EnterPenaltyPane extends AbstractPane {
 
     $divisions = $this->REGATTA->getDivisions();
 
-    $url = sprintf("edit/%s/penalty", $this->REGATTA->id());
     if ($p_type == null) {
 
       // ------------------------------------------------------------
       // 1. Chosen race
       // ------------------------------------------------------------
       $this->PAGE->addContent($p = new Port("1. Individual penalties and breakdowns"));
-      $p->addChild($form = new Form($url));
+      $p->addChild($form = $this->createForm());
       $form->addChild(new FItem("Possible races:",
 				$tab = new Table()));
 

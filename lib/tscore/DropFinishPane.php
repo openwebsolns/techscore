@@ -28,7 +28,6 @@ class DropFinishPane extends AbstractPane {
   private function fillCombined(Array $args) {
     $divisions = $this->REGATTA->getDivisions();
     $rotation = $this->REGATTA->getRotation();
-    $url = sprintf("edit/%s/drop-finish", $this->REGATTA->id());
     
     $this->PAGE->addContent($p = new Port("All divisions"));
     $races = $this->REGATTA->getCombinedScoredRaces();
@@ -53,7 +52,7 @@ class DropFinishPane extends AbstractPane {
 				   Cell::td($sail))));
       }
       // add form
-      $tab->addRow(new Row(array(new Cell($form = new Form($url),
+      $tab->addRow(new Row(array(new Cell($form = $this->createForm(),
 					  array("colspan"=>"2")))));
       $form->addChild(new FHidden("race", $race->id));
       $form->addChild($submit = new FSubmit("removerace", "Remove"));
@@ -100,7 +99,7 @@ class DropFinishPane extends AbstractPane {
 				     Cell::td($sail))));
 	}
 	// add form
-	$tab->addRow(new Row(array(new Cell($form = new Form($url),
+	$tab->addRow(new Row(array(new Cell($form = $this->createForm(),
 					    array("colspan"=>"2")))));
 	$form->addChild(new FHidden("race", $race->id));
 	$form->addChild($submit = new FSubmit("removerace", "Remove"));

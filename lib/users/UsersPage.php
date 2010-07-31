@@ -125,7 +125,7 @@ class UsersPage extends TScorePage {
     $div->addChild(new Heading("TechScore"));
     $div->addChild($list = new GenericList());
     $list->addItems(new LItem(new Link(".",      "My regattas")),
-		    new LItem(new Link("create", "New regatta")),
+		    new LItem(new Link("create", "New regatta", array("accesskey"=>"n"))),
 		    new LItem($l = new Link("logout", "Logout", array("accesskey"=>"l"))));
 
     // School setup
@@ -153,7 +153,7 @@ class UsersPage extends TScorePage {
       $div->addChild($list = new GenericList());
       $list->addItems(new LItem(new Link("pending",   "Pending users")));
       $list->addItems(new LItem(new Link("venue",     "Venues")));
-      $list->addItems(new LItem(new Link("venue-add", "Add Venues")));
+      $list->addItems(new LItem(new Link("edit-venue", "Add Venues")));
     }
   }
 }

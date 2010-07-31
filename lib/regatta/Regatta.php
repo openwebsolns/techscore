@@ -67,7 +67,7 @@ class Regatta implements RaceListener, FinishListener {
     if ($q = $this->con->query($string)) {
       return $q;
     }
-    throw new BadFunctionCallException($q->error . ": " . $string);
+    throw new BadFunctionCallException($this->con->error . ": " . $string);
   }
 
   /**
@@ -1171,11 +1171,5 @@ class Regatta implements RaceListener, FinishListener {
     $id = self::addRegatta(SQL_DB, $name, $start_time, $end_date, $type, $scoring);
     return new Regatta($id);
   }
-}
-
-// Main function
-if ($argv[0] == basename(__FILE__)) {
-  $reg = new Regatta(115);
-  print_r($reg->getCombinedUnscoredRaces());
 }
 ?>

@@ -43,7 +43,7 @@ class SailsPane extends AbstractPane {
     // one division (or combined), the type of rotation can be chosen
     // ahead of time
     $this->PAGE->addContent($p = new Port("Create a rotation"));
-    $p->addChild($form = new Form(sprintf("edit/%s/sail", $this->REGATTA->id())));
+    $p->addChild($form = $this->createForm());
 
     $form->addChild(new FItem("Type of rotation:",
 			      $f_sel = new FSelect("rottype", array("STD"))));
@@ -164,7 +164,7 @@ class SailsPane extends AbstractPane {
     if ($chosen_rot == null) {
       $this->PAGE->addContent($p = new Port("1. Create a rotation"));
 
-      $p->addChild($form = new Form(sprintf("edit/%s/sail", $this->REGATTA->id())));
+      $p->addChild($form = $this->createForm());
       $form->addAttr("id", "sail_setup");
 
       $form->addChild(new FItem("Type of rotation:",
@@ -198,7 +198,7 @@ class SailsPane extends AbstractPane {
 						    $chosen_rot_desc[0],
 						    implode(", ", $chosen_div))));
       $p->addHelp("node13.html");
-      $p->addChild($form = new Form(sprintf("edit/%s/sail", $this->REGATTA->id())));
+      $p->addChild($form = $this->createForm());
 
       $form->addChild(new FHidden("rottype", $chosen_rot));
       foreach ($chosen_div as $div) {
@@ -761,10 +761,5 @@ class SailsPane extends AbstractPane {
     return (count($this->REGATTA->getRaces()) > 0 &&
 	    count($this->REGATTA->getTeams()) > 1);
   }
-}
-
-if (basename($argv[0]) == basename(__FILE__)) {
-  $p = new SailsPane(new User("paez@mit.edu"), new Regatta(20));
-  file_put_contents("/tmp/setup.html", $p->getHTML(array()));
 }
 ?>

@@ -141,6 +141,7 @@ div#menudiv {
     -moz-border-radius: 0.25em;
     -webkit-border-radius: 0.25em;
 }
+div#menudiv li.inactive { color: #777; }
 div#menudiv.show {
     display: block;
 }
@@ -195,6 +196,7 @@ div#headdiv {
 div#user, h4#date, div#regatta ul {
     display: none;
 }
+h4#user { float: right; color: #ccc; position: absolute; top: -30px; left: 12em; text-align: right;}
 div#regatta {
     position: absolute;
     top: 0px;

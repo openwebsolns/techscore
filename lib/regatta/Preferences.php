@@ -75,6 +75,22 @@ class Preferences {
   }
 
   /**
+   * Fetches the boat with the given ID
+   *
+   * @param int $id the ID of the boat
+   * @return Boat|null
+   */
+  public static function getBoat($id) {
+    $con = self::getConnection();
+    $q = sprintf('select %s from %s where id = %d limit 1',
+		 Boat::FIELDS, Boat::TABLES, $id);
+    $q = $con->query($q);
+    if ($q->num_rows == 0)
+      return null;
+    return $q->fetch_object("Boat");
+  }
+
+  /**
    * Adds a venue to the database
    *
    * @param Venue $venue the venue to set to the database
@@ -167,7 +183,8 @@ class Preferences {
    */
   public static function getUsersFromConference(Conference $conf) {
     $con = self::getConnection();
-    $q = sprintf('select %s from %s where school.conference = "%s" order by account.last_name',
+    $q = sprintf('select %s from %s where school in (select id from school where conference = %d) ' .
+		 'order by account.last_name',
 		 Account::FIELDS, Account::TABLES, $conf->id);
     $q = $con->query($q);
     $list = array();
@@ -391,6 +408,24 @@ class Preferences {
     $res = $con->query(sprintf('select %s from %s where id = "%s"',
 			       Sailor::FIELDS, Sailor::TABLES, $id));
     return $res->fetch_object("Sailor");
+  }
+
+  public static function getDivisionAssoc() {
+    return array("A"=>Division::A(),
+		 "B"=>Division::B(),
+		 "C"=>Division::C(),
+		 "D"=>Division::D());
+  }
+
+  /**
+   * Returns the boat that designated as the default for the school
+   *
+   * @param School $school the school whose default boat to fetch
+   * @return Boat the boat
+   */
+  public static function getPreferredBoat(School $school) {
+    // @TODO
+    return Preferences::getBoat(1);    
   }
 
   // ------------------------------------------------------------

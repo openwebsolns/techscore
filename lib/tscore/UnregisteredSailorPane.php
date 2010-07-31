@@ -38,7 +38,7 @@ class UnregisteredSailorPane extends AbstractPane {
 						   "cols"=>"40",
 						   "readonly"=>"readonly"))));
 
-    $p->addChild($form = new Form(sprintf("edit/%s/temp", $this->REGATTA->id())));
+    $p->addChild($form = $this->createForm());
 
     // Create set of schools
     $schools = array();

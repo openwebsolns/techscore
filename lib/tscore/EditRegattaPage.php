@@ -79,7 +79,7 @@ class EditRegattaPage extends TScorePage {
 	if ($pane->isActive())
 	  $m_list->addItems(new LItem(new Link("score/$id/$url", $pane->getTitle())));
 	else
-	  $m_list->addItems(new LItem($pane->getTitle()));
+	  $m_list->addItems(new LItem($pane->getTitle(), array("class"=>"inactive")));
       }
       $this->addMenu($menu);
     }
@@ -89,9 +89,14 @@ class EditRegattaPage extends TScorePage {
     $menu->addAttr("class", "menu");
     $menu->addChild(new Heading("Download"));
     $menu->addChild($m_list = new GenericList());
-    $m_list->addItems(new LItem(new Link("download/$id/regatta", "Regatta")));
-    if (count($r->getTeams()) > 0 && count($r->getDivisions()) > 0)
+    if (count($r->getTeams()) > 0 && count($r->getDivisions()) > 0) {
+      $m_list->addItems(new LItem(new Link("download/$id/regatta", "Regatta")));
       $m_list->addItems(new LItem(new Link("download/$id/rp", "RP Forms")));
+    }
+    else {
+      $m_list->addItems(new LItem("Regatta", array("class"=>"inactive")));
+      $m_list->addItems(new LItem("RP Forms", array("class"=>"inactive")));
+    }
     $this->addMenu($menu);
 
     // Dialogs

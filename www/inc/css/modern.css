@@ -104,6 +104,7 @@ div#menudiv li:hover {
     background: #b89f7e;
     color: white;
 }
+div#menudiv li.inactive { color: #777; }
 
 /* Header */
 div#headdiv {

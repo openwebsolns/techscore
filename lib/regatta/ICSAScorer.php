@@ -572,12 +572,4 @@ class ICSAScorer {
   }
   
 }
-
-if (basename(__FILE__) == $argv[0]) {
-
-  // $reg->doScore();
-  $reg = new Regatta(96);
-  foreach ($reg->scorer->rank($reg) as $rank)
-    print(sprintf("%6s | %s\n", $rank->team->school->id, $rank->explanation));
-}
 ?>

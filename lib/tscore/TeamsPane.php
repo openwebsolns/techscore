@@ -24,11 +24,12 @@ class TeamsPane extends AbstractPane {
     
     // Edit team names
     if (count($teams) > 0) {
-      $this->PAGE->addContent($p = new Port("Edit team names"));
-      $link = new Link(sprintf("%s/score/%s/school#add", HOME, $this->REGATTA->id()),
-		       "Add schools.");
-      $p->addChild($para = new Para(""));
-      $para->addChild($link);
+      $this->PAGE->addContent($p = new Para(""));
+      $p->addChild(new Link(sprintf("%s/score/%s/teams#add",
+				    HOME,
+				    $this->REGATTA->id()),
+			    "Add schools."));
+      $this->PAGE->addContent($p = new Port("Edit present teams"));
       $p->addChild($tab = new Table(array(), array("class"=>"narrow")));
     
       $tab->addHeader(new Row(array(Cell::th(""),
@@ -49,7 +50,7 @@ class TeamsPane extends AbstractPane {
 	$c_edt->addAttr("class", "left");
 
 	// Delete
-	$c_del->addChild($form = new Form(sprintf("edit/%s/school", $this->REGATTA->id())));
+	$c_del->addChild($form = $this->createForm());
 	$form->addChild(new FHidden("team", $aTeam->id));
 	$form->addChild(new FSubmit("delete", "Delete", array("class"=>"thin")));
       }
@@ -62,7 +63,7 @@ class TeamsPane extends AbstractPane {
 			  "Hold down <kbd>Ctrl</kbd> to select multiple schools.",
 			  array("style"=>"max-width:35em")));
 
-    $p->addChild($form = new Form(sprintf("edit/%s/school", $this->REGATTA->id())));
+    $p->addChild($form = $this->createForm());
     $form->addChild(new FItem("Schools:",
 			      $f_sel = new FSelect("addschool[]",
 						   array(),
@@ -160,16 +161,6 @@ class TeamsPane extends AbstractPane {
   }
 
   public function isActive() { return true; }
-}
-
-if (basename($argv[0]) == basename(__FILE__)) {
-  $reg = new Regatta(20);
-  foreach ($reg->getTeams() as $team)
-    print(sprintf("%s, %s\n", $team->school->id, $team));
-
-  $p = new TeamsPane(new User("paez@mit.edu"), $reg);
-  $p->process(array("invite"=>"",
-		    "addschool"=>array("AMH", "MIT")));
 }
 
 ?>

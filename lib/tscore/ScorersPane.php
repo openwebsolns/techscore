@@ -35,34 +35,27 @@ class ScorersPane extends AbstractPane {
 				  Cell::th(""))));
     foreach ($scorers as $s) {
       // Create form to change scorer's host status
-      $f1 = new Form(sprintf("edit/%s/scorers", $this->REGATTA->id()));
+      $f1 = $this->createForm();
       if (Preferences::getObjectWithProperty($hosts, "username", $s->username) === null) {
-	$button = new GenericElement("button",
-				     array(new Text("Add as host")),
-				     array("type"=>"submit",
-					   "name"=>"set_host",
-					   "value"=>$s->username));
+	$hidden = new FHidden("host", $s->username);
+	$button = new FSubmit("set_host", "Add as host", array("style"=>"width:100%"));
       }
       else {
-	$button = new GenericElement("button",
-				     array(new Text("Remove as host")),
-				     array("type"=>"submit",
-					   "name"=>"unset_host",
-					   "value"=>$s->username));
+	$hidden = new FHidden("host", $s->username);
+	$button = new FSubmit("unset_host", "Remove as host", array("style"=>"width:100%"));
 	if (count($hosts) == 1) $button->addAttr("disabled", "disabled");
       }
 
+      $f1->addChild($hidden);
       $f1->addChild($button);
       // Create form to delete scorer
-      $f2 = new Form(sprintf("edit/%s/scorers", $this->REGATTA->id()));
-      $button = new GenericElement("button",
-				   array(new Text("Remove scorer")),
-				   array("type"=>"submit",
-					 "name"=>"delete_scorer",
-					 "value"=>$s->username));
+      $f2 = $this->createForm();
+      $hidden = new FHidden("scorer", $s->username);
+      $button = new FSubmit("delete_scorer", "Remove scorer", array("style"=>"width:100%"));
       if ($s->username === $this->USER->username() ||
 	  (count($hosts) == 1 && $hosts[0] == $s))
 	$button->addAttr("disabled", "disabled");
+      $f2->addChild($hidden);
       $f2->addChild($button);
 
       // Fill row
@@ -75,7 +68,7 @@ class ScorersPane extends AbstractPane {
     // Form to add scorers
     $this->PAGE->addContent($p = new Port("Add scorers"));
     $p->addHelp("node9.html#SECTION00522100000000000000");
-    $p->addChild($s_form = new Form(sprintf("edit/%s/scorer", $this->REGATTA->id())));
+    $p->addChild($s_form = $this->createForm());
     // Conferences
     //   -Get chosen_conference
     $chosen_conf = (isset($args['conference'])) ? 
@@ -96,20 +89,21 @@ class ScorersPane extends AbstractPane {
     $s_form->addChild(new FSubmitAccessible("update_conf"));
 
     // Accounts form
-    $p->addChild($s_form = new Form(sprintf("edit/%s/scorer", $this->REGATTA->id()), "post"));
+    $p->addChild($s_form = $this->createForm());
 
     // Get accounts for this conference
     $s_form->addChild(new FItem("Account:",
 				$sel = new FSelect("account[]",
 						   array())));
     $sel->addAttr("multiple","multiple");
-    $scorers = array();
+    $pot_scorers = array();
     foreach (Preferences::getUsersFromConference($chosen_conf) as $user) {
-      if ($user->username != $this->USER->username()) {
-	$scorers[$user->username] = $user->getName();
+      if (Preferences::getObjectWithProperty($scorers, "username", $user->username) === null &&
+	  Preferences::getObjectWithProperty($hosts,   "username", $user->username) === null) {
+	$pot_scorers[$user->username] = $user->getName();
       }
     }
-    $sel->addOptions($scorers);
+    $sel->addOptions($pot_scorers);
 
     // Is host?
     $s_form->addChild(new FItem(new FCheckbox("is_host", "1", array("id"=>"is_host")),
@@ -141,7 +135,7 @@ class ScorersPane extends AbstractPane {
     if (isset($args['delete_scorer']) &&
 	isset($args['scorer'])) {
       $account = AccountManager::getAccount(addslashes($args['scorer']));
-      if ($account && $account->username !== $this->USER->username) {
+      if ($account !== null && $account->username !== $this->USER->username()) {
 	$this->REGATTA->removeScorer($account);
 	$mes = sprintf("Removed scorer %s.", $account->getName());
 	$this->announce(new Announcement($mes));
@@ -187,7 +181,7 @@ class ScorersPane extends AbstractPane {
     // ------------------------------------------------------------
     if (isset($args["set_host"])) {
       $scorers = $this->REGATTA->getScorers();
-      $scorer  = Preferences::getObjectWithProperty($scorers, "username", $args["set_host"]);
+      $scorer  = Preferences::getObjectWithProperty($scorers, "username", $args["host"]);
       if ($scorer !== null) {
 	$this->REGATTA->addScorer($scorer, true);
 	$mes = sprintf("Set %s as host of the regatta.", $scorer->username);
@@ -205,7 +199,7 @@ class ScorersPane extends AbstractPane {
     // ------------------------------------------------------------
     if (isset($args["unset_host"])) {
       $scorers = $this->REGATTA->getScorers();
-      $scorer  = Preferences::getObjectWithProperty($scorers, "username", $args["unset_host"]);
+      $scorer  = Preferences::getObjectWithProperty($scorers, "username", $args["host"]);
       if ($scorer !== null) {
 	$this->REGATTA->addScorer($scorer, false);
 	$mes = sprintf("Unset %s as host of the regatta.", $scorer->username);

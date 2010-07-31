@@ -32,7 +32,7 @@ class RacesPane extends AbstractPane {
     
     if (!$this->REGATTA->get(Regatta::FINALIZED)) {
       $this->PAGE->addContent($p = new Port("Races and divisions"));
-      $p->addChild($form = new Form(sprintf("edit/%s/race", $this->REGATTA->id())));
+      $p->addChild($form = $this->createForm());
       $form->addChild(new FItem("Divisions:",
 				$f_sel = new FSelect("division")));
       $f_sel->addOptions(array("A"=>"A",
@@ -63,7 +63,7 @@ class RacesPane extends AbstractPane {
 	$p->addChild(new Para("There are no divisions to drop."));
       foreach ($divisions as $div) {
 	if (count($this->REGATTA->getScoredRaces($div)) == 0) {
-	  $p->addChild($form = new Form(sprintf("edit/%s/race", $this->REGATTA->id())));
+	  $p->addChild($form = $this->createForm());
 	  $form->addChild(new FHidden("division", $div));
 	  $form->addChild(new FItem(new FSubmit("delete_div", "Drop", array("class"=>"thin")),
 				    new FSpan("Division " . $div)));
@@ -83,7 +83,7 @@ class RacesPane extends AbstractPane {
     $p->addChild(new Para("Here you can edit the boat associated with each race. " .
 			  "Races that are not sailed are automatically removed " .
 			  "when finalizing the regatta."));
-    $p->addChild($form = new Form(sprintf("edit/%s/race", $this->REGATTA->id())));
+    $p->addChild($form = $this->createForm());
 
     // Table of races: columns are divisions; rows are race numbers
     $form->addChild($tab = new Table());
@@ -223,10 +223,4 @@ class RacesPane extends AbstractPane {
 
   public function isActive() { return true; }
 }
-
-if (basename($argv[0]) == basename(__FILE__)) {
-  $p = new RacesPane(new User("paez@mit.edu"), new Regatta(20));
-  print($p->getHTML());
-}
-
 ?>

@@ -52,7 +52,7 @@ class TweakSailsPane extends AbstractPane {
       // ------------------------------------------------------------
       $this->PAGE->addContent($p = new Port("Edit sail numbers"));
       $p->addChild(new Heading("1. Choose action and division"));
-      $p->addChild($form = new Form(sprintf("edit/%s/tweak", $this->REGATTA->id())));
+      $p->addChild($form = $this->createForm());
 
       // Action
       $form->addChild(new FItem("Action:",
@@ -79,7 +79,7 @@ class TweakSailsPane extends AbstractPane {
       $this->PAGE->addContent($p = new Port(sprintf("2. %s for Division %s",
 					      $this->ACTIONS[$edittype],
 					      implode(", ", $chosen_div))));
-      $p->addChild($form = new Form(sprintf("edit/%s/tweak", $this->REGATTA->id())));
+      $p->addChild($form = $this->createForm());
 
       // Write in this form the options from above
       foreach ($chosen_div as $div) {
@@ -290,19 +290,5 @@ class TweakSailsPane extends AbstractPane {
     $rot = $this->REGATTA->getRotation();
     return count($rot->getSails()) > 0;
   }
-}
-
-// Main method
-if (basename($argv[0]) == basename(__FILE__)) {
-  $reg = new Regatta(115);
-  $user = new User("paez@mit.edu");
-  $p = new TweakSailsPane($user, $reg);
-  $info = array("addsails"  => "",
-		"addamount" => "5",
-		"division"  => array("B"),
-		"races"     => "1-4");
-  // file_put_contents("/tmp/test.html",
-  // $p->getHTML(array("edittype"=>"REP")));
-  print_r($p->process($info));
 }
 ?>

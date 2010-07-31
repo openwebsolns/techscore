@@ -29,7 +29,7 @@ class DetailsPane extends AbstractPane {
     $this->PAGE->addContent($p = new Port('Regatta details'));
     $p->addHelp("node9.html#SECTION00521000000000000000");
 
-    $p->addChild($reg_form = new Form(sprintf("edit/%s", $this->REGATTA->id())));
+    $p->addChild($reg_form = $this->createForm());
     // Name
     $value = $this->REGATTA->get(Regatta::NAME);
     $reg_form->addChild(new FItem("Name:",
@@ -62,7 +62,10 @@ class DetailsPane extends AbstractPane {
 						  "size"     =>8))));
 
     // Venue
-    $value = $this->REGATTA->get(Regatta::VENUE)->id;
+    $value = "";
+    $venue = $this->REGATTA->get(Regatta::VENUE);
+    if ($venue !== null)
+      $value = $venue->id;
     $reg_form->addChild(new FItem("Venue:", $r_type = new FSelect("venue", array($value))));
     $r_type->addOptions(array("" => ""));
     $venues = array();
@@ -104,7 +107,7 @@ class DetailsPane extends AbstractPane {
         although you may still be able to edit existing information.';
       $p->addChild(new Para($para));
   
-      $p->addChild($form = new Form(sprintf("edit/%s", $this->REGATTA->id())));
+      $p->addChild($form = new Form($this->createForm()));
 
       $form->addChild(new FItem(new FCheckbox("approve",
 					      "on",

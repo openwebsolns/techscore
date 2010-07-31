@@ -167,15 +167,4 @@ class Race {
     return ord((string)$r1->division) - ord((string)$r2->division);
   }
 }
-
-// Main method
-if (basename(__FILE__) == basename($argv[0])) {
-  $reg = new Regatta(115);
-  $rac = $reg->getRaces();
-  usort($rac, "Race::compareNumber");
-
-  foreach ($rac as $r)
-    print("$r\n");
-}
-
 ?>

@@ -67,6 +67,8 @@ class WelcomePage extends TScorePage {
     $file = sprintf("%s/announcements.html", dirname(__FILE__));
     if (file_exists($file))
       $p->addChild(new Text(file_get_contents($file)));
+    else
+      $p->addChild(new Para("No announcements at this time."));
 
     $this->addContent($p = new Port("Register for TechScore"));
 

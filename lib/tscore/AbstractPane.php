@@ -66,7 +66,7 @@ abstract class AbstractPane {
 			     $this->USER->get(User::ROLE),
 			     $this->USER->get(User::SCHOOL)->nick_name));
     $this->PAGE->addNavigation($d3 = new Div(array(), array("id"=>"user")));
-    $d3->addChild(new Text($this->USER->getName()));
+    // $d3->addChild(new Text($this->USER->getName()));
     $d3->addChild(new Link("logout", "[logout]"));
     $d3->addChild(new Itemize(array(new LItem($this->USER->username()),
 				    new LItem($title))));
@@ -74,7 +74,7 @@ abstract class AbstractPane {
     //   -Regatta info
     $this->PAGE->addNavigation($d3 = new Div(array(), array("id"=>"regatta")));
     $d3->addChild(new Text(stripslashes($this->REGATTA->get(Regatta::NAME))));
-    $d3->addChild(new Link("./", "[close]"));
+    $d3->addChild(new Link("./", "[close]", array("accesskey"=>"w")));
     $d3->addChild(new Itemize(array(new LItem(date_format($this->REGATTA->get(Regatta::START_TIME),
 							  "M. j, Y")),
 				    new LItem(ucfirst($this->REGATTA->get(Regatta::TYPE))))));
@@ -181,6 +181,17 @@ abstract class AbstractPane {
    * @return boolean true if pane is active
    */
   abstract public function isActive();
+
+  /**
+   * Creates a new Form HTML element using the standard URL for this
+   * pane. The optional $method is by default post
+   *
+   * @param $method "post" or "get"
+   * @return Form element
+   */
+  protected function createForm($method = "post") {
+    return new Form(sprintf("edit/%d/%s", $this->REGATTA->id(), $this->getMainURL()), $method);
+  }
 }
 
 ?>

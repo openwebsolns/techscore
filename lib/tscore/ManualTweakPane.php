@@ -34,7 +34,7 @@ class ManualTweakPane extends AbstractPane {
 
     // OUTPUT
     $this->PAGE->addContent($p = new Port("Tweak current rotation"));
-    $p->addChild($form = new Form(sprintf("edit/%s/manual-tweak", $this->REGATTA->id())));
+    $p->addChild($form = $this->createForm());
 
     $form->addChild(new FItem("Pick a division:",
 			      $f_sel = new FSelect("division", array($chosen_div))));
@@ -43,7 +43,7 @@ class ManualTweakPane extends AbstractPane {
     $form->addChild(new FSubmitAccessible("boatupdate", "Update"));
 
     $p->addChild(new Heading("Replace sail numbers"));
-    $p->addChild($form = new Form(sprintf("edit/%s/manual-tweak", $this->REGATTA->id())));
+    $p->addChild($form = $this->createForm());
     
     $races = $this->REGATTA->getRaces($chosen_div);
     $form->addChild(new FItem("Edit on a boat-by-boat basis.",

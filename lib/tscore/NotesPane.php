@@ -26,7 +26,7 @@ class NotesPane extends AbstractPane {
     $this->PAGE->addContent($p = new Portlet("Enter observation"));
 
     // Form
-    $p->addChild($form = new Form(sprintf("edit/%s/notes", $this->REGATTA->id())));
+    $p->addChild($form = $this->createForm());
     $form->addChild($fitem = new FItem("Race:", 
 				       new FText("chosen_race",
 						 $theRace['num'],
@@ -72,13 +72,12 @@ class NotesPane extends AbstractPane {
 				    Cell::th("Observer"),
 				    Cell::th())));
 
-      $form_location = sprintf("edit/%s/notes", $this->REGATTA->id());
       foreach ($notes as $note) {
 	$tab->addRow(new Row(array(new Cell($note->race),
 				   new Cell($note->observation,
 					    array("style"=>"max-width: 25em")),
 				   new Cell($note->observer),
-				   new Cell($form = new Form($form_location)))));
+				   new Cell($form = $this->createForm()))));
 
 	$form->addChild(new FHidden("observation", $note->id));
 	$form->addChild(new FSubmit("remove", "Remove",
