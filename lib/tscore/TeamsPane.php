@@ -124,6 +124,8 @@ class TeamsPane extends AbstractPane {
 	try {
 	  $school = Preferences::getSchool($id);
 	  $names  = Preferences::getTeamNames($school);
+	  if (count($names) == 0)
+	    $names[] = $school->nick_name;
 
 	  $num_teams = 0;
 	  foreach ($this->REGATTA->getTeams() as $team) {

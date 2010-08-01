@@ -59,7 +59,7 @@ class AccountManager {
    * @return Array<Account>
    * @throws InvalidArgumentException if one of the parameters is wrong
    */
-  public function getPendingUsers($start = null, $end = null) {
+  public static function getPendingUsers($start = null, $end = null) {
     $limit = "";
     if ($start === null)
       $limit = "";

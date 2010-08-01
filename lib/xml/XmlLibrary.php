@@ -995,7 +995,7 @@ class PageDiv extends Div {
     // for now, list all the pages
     for ($i = 1; $i <= $num_pages; $i++) {
       $this->addChild($l = new Link(sprintf("%s|%d", $prefix, $i), $i));
-      $this->addChild(new XText(" "));
+      $this->addChild(new Text(" "));
       if ($i == $current) {
 	$l->addAttr("class", "current");
       }
