@@ -1,0 +1,32 @@
+This version of TechScore is a licensed product for the Intercollegiate Sailing
+Association (ICSA). It is meant to be used EXCLUSIVELY by ICSA and the coaches
+and staff of any of the schools in any of the conferences associated with it. As
+an approved user of TechScore, you must consider the following points:
+
+1. TechScore is a PUBLIC scoring system. Any actions you take are publicly
+published to the world via the Internet in real time. As such, it is every
+user's responsibility to make sure that TechScore as a whole reflects the utmost
+professionalism.
+
+2. ONLY SCORE OFFICIAL REGATTAS. To score non-official regattas, use any offline
+based scoring software, such as TechScore-Desktop, available for free at
+http://techscore.sourceforge.net.
+
+3. Personal regattas are only meant for training. If you would like to test a
+feature without publishing to the web, you can create a personal regatta in this
+version of TechScore. Please note, however, that personal regattas will be
+automatically deleted after every season. The TechScore administration reserves
+the right to delete personal regattas without prior notice, although every
+attempt will be made to notify the scorers ahead of time.
+
+4. Every user (you) is RESPONSIBLE FOR THEIR SCHOOL'S DATA. It is assumed that
+you or someone from your school will actively maintain the information specific
+to your school, including merging temporary sailors (those not found in the ICSA
+database at the time of the events), uploading a clean copy of the team burgee
+to use, and assigning the correct team names to be used at different
+events. Failure to do so affects TechScore as a whole under the provisions of
+rule 1 above.
+
+In order to make this project a success, you are asked to score EVERY fleet
+racing college regatta using this program. Any questions about TechScore, you
+can remit to ICSA.
