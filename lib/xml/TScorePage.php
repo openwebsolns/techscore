@@ -195,7 +195,8 @@ class TScorePage extends WebPage {
     
     $this->header->addChild($this->navigation = new Div());
     $this->navigation->addAttr("id", "topnav");
-    $this->navigation->addChild(new Link("help", '<span style="text-decoration:underline">H</span>elp?',
+    $hlink = sprintf("%s/ts-help", ROOT);
+    $this->navigation->addChild(new Link($hlink, '<span style="text-decoration:underline">H</span>elp?',
 					 array("id"=>"help",
 					       "target"=>"help",
 					       "accesskey"=>"h")));

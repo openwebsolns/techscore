@@ -225,7 +225,7 @@ class RegisterPane extends WelcomePage {
 		   "instructions, your account request will be sent to the registration committee for " .
 		   "approval. You will be notified as soon as your account is activated.\n\n" .
 		   "%s/register/acc=%s\n\nThank you,\n\nTechScore Administration",
-		   $to->first_name, ROOT, AccountManager::getHash($to));
+		   $to->first_name, HOME, AccountManager::getHash($to));
   }
   public function getAdminMessage(Account $about) {
     return sprintf("Dear Administrators,\n\nThere is a new account request at TechScore. Please login " .

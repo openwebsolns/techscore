@@ -37,7 +37,7 @@ class WebServer {
       header("Location: $addr");
       exit;
     }
-    header(sprintf("Location: %s/%s", ROOT, $addr));
+    header(sprintf("Location: %s/%s", HOME, $addr));
     exit;
   }
 }
