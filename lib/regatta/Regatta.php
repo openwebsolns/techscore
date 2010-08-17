@@ -430,8 +430,10 @@ class Regatta implements RaceListener, FinishListener {
   public function getUnscoredRaces(Division $div = null) {
     if ($div == null) {
       $list = array();
-      foreach ($this->getDivisions() as $div)
-	$list = array_merge($list, $this->getUnscoredRaces($div));
+      foreach ($this->getDivisions() as $div) {
+	$next = $this->getUnscoredRaces($div);
+	$list = array_merge($list, $next);
+      }
       return $list;
     }
     

@@ -50,6 +50,8 @@ function __mail_error_handler($errno, $errstr, $errfile, $errline, $context) {
   $body .= sprintf($fmt, "File",   $errfile);
   $body .= sprintf($fmt, "Line",   $errline);
   $body .= "--------------------\n";
+  $body .= print_r($_SESSION, true);
+  $body .= "--------------------\n";
   $body .= print_r($context, true);
   $body .= "====================\n";
 
@@ -76,6 +78,8 @@ function __mail_exception_handler(Exception $e) {
   $body .= sprintf($fmt, "String", $e->getMessage());
   $body .= sprintf($fmt, "File",   $e->getFile());
   $body .= sprintf($fmt, "Line",   $e->getLine());
+  $body .= "--------------------\n";
+  $body .= print_r($_SESSION, true);
   $body .= "--------------------\n";
   $body .= sprintf($fmt, "Trace",  $e->getTraceAsString());
   $body .= "====================\n";

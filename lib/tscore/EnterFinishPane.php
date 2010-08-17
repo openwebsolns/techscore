@@ -250,7 +250,10 @@ class EnterFinishPane extends AbstractPane {
     // unscored race, or the last race
     $race = null;
     if (isset($args['chosen_race'])) $race = $args['chosen_race'];
-    if ($race == null) $race = array_shift($this->REGATTA->getUnscoredRaces());
+    if ($race == null) {
+      $races = $this->REGATTA->getUnscoredRaces();
+      $race = array_shift($races);
+    }
     if ($race == null) {
       $this->announce(new Announcement("No new races to score.", Announcement::WARNING));
       $this->redirect();
