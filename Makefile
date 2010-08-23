@@ -1,6 +1,9 @@
 include Makefile.local
 
-.PHONY:	sql, doc
+apache.conf: apache.conf.default
+	sed 's:{DIRECTORY}:'"`pwd`"':g' apache.conf.default > apache.conf
+
+.PHONY:	sql doc
 sql:
 	echo "SET FOREIGN_KEY_CHECKS=0;" \
 		`mysqldump $(DB_DB) -u $(DB_USER) -p --compact --no-data | \

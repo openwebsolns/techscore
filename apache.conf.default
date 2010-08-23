@@ -4,9 +4,10 @@
 # @author Dayan Paez
 # @date   2010-03-31
 
-Alias /ts2 /home/dayan/ts/techscore-web/www
+Alias /ts2 {DIRECTORY}/www
+Alias /scores {DIRECTORY}/html
 
-<DirectoryMatch "/home/dayan/ts/techscore-web/www">
+<Directory "{DIRECTORY}/www">
 Order allow,deny
 Allow from all
 Options All
@@ -16,7 +17,7 @@ AllowOverride None
 	DirectoryIndex index.php
 </IfModule>
 
-php_value include_path ".:/home/dayan/ts/techscore-web/lib"
+php_value include_path ".:{DIRECTORY}/lib"
 
 RewriteEngine on
 RewriteBase /ts2
@@ -62,7 +63,7 @@ RewriteRule ^pending-edit/?$ index-edit.php?p=pending
 
 # for creating regattas, pending, registration, etc
 RewriteRule ^([^.]+)-edit/?$ index-edit.php?p=$1
-RewriteRule ^([^.]+)/?$ index.php?p=$1
+RewriteRule ^([^.]+)/?$ index.php?p=$1 [qsa]
 
 # for license
 RewriteRule ^license/?$ index.php?p=license
@@ -88,4 +89,10 @@ Header set Expires "Thu, 15 Apr 2025 20:00:00 GMT"
 # Header unset Last-Modified
 </FilesMatch>
 
-</DirectoryMatch>
+</Directory>
+
+#------------------------------------------------------------
+# PUBLIC
+<Directory {DIRECTORY}/html>
+DirectoryIndex index.html
+</Directory>

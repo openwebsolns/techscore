@@ -1139,12 +1139,12 @@ class Regatta implements RaceListener, FinishListener {
    *
    * @throws InvalidArgumentException if illegal regatta type
    */
-  private static function addRegatta($db,
-				     $name,
-				     DateTime $start_time,
-				     DateTime $end_date,
-				     $type,
-				     $scoring) {
+  protected static function addRegatta($db,
+				       $name,
+				       DateTime $start_time,
+				       DateTime $end_date,
+				       $type,
+				       $scoring) {
     if (!in_array($type, array_keys(Preferences::getRegattaTypeAssoc())))
       throw new InvalidArgumentException("No such regatta type $type.");
     if (!in_array($scoring, array_keys(Preferences::getRegattaScoringAssoc())))

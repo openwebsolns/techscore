@@ -297,7 +297,8 @@ class RegattaIO {
     // Edit main details
     // ------------------------------------------------------------
     $regatta->set(Regatta::NAME,     addslashes($root->RegattaName));
-    $regatta->set(Regatta::COMMENTS, addslashes($root->Blurb));
+    $regatta->set(Regatta::SCORING,  $root->Scoring);
+    // $regatta->set(Regatta::COMMENTS, addslashes($root->Blurb));
     try {
       $start = new DateTime($root->StartTime, new DateTimeZone("America/New_York"));
     } catch (Exception $e) {
@@ -335,7 +336,7 @@ class RegattaIO {
 
     /**************************************************************
      * The properties below are of no concern to offline programs *
-     * and are no longer imported changed by uploading.           *
+     * and are no longer imported or changed by uploading.        *
      *                                                            *
      **************************************************************
     // ------------------------------------------------------------
@@ -717,12 +718,16 @@ class RegattaIO {
 
 if (basename(__FILE__) == $argv[0]) {
   $filename = "/tmp/test.tsr";
-  file_put_contents("/tmp/test.tsr", RegattaIO::toXML(new Regatta(115)));
+  /*
+  file_put_contents("/tmp/test.tsr", RegattaIO::toXML(new Regatta(1)));
   exit;
+  */
   
   $io = new RegattaIO();
   $reg = $io->fromXML(file_get_contents($filename));
   foreach ($io->getWarnings() as $w)
     print(sprintf("- %s\n\n", $w));
+  
+  print_r($reg);
 }
 ?>
