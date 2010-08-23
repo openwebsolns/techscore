@@ -167,7 +167,7 @@ class UpdateSailorsDB {
   }
 }
 
-if (basename(__FILE__) == $argv[0]) {
+if (isset($argv) && basename(__FILE__) == $argv[0]) {
   $db = new UpdateSailorsDB();
   $db->update();
 }
