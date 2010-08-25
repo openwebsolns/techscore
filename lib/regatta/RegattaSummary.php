@@ -18,13 +18,14 @@ class RegattaSummary {
   // Variables
   public $id;
   public $name;
+  public $nick;
   public $start_time;
   public $end_date;
   public $type;
   public $finalized;
 
-  const FIELDS = "regatta.id, regatta.name, regatta.start_time, regatta.type,
-                  regatta,end_date, regatta.finalized";
+  const FIELDS = "regatta.id, regatta.name, regatta.nick, regatta.start_time, regatta.type,
+                  regatta.end_date, regatta.finalized";
   const TABLES = "regatta";
 
   public function __construct() {
@@ -32,6 +33,7 @@ class RegattaSummary {
     try {
       $this->start_time = new DateTime($this->start_time);
       $this->finalized  = new DateTime($this->finalized);
+      $this->season = new Season($this->start_time);
     }
     catch (Exception $e) {
       throw new InvalidArgumentException("Invalid start time.");

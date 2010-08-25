@@ -62,6 +62,7 @@ class UserHomePane extends AbstractUserPane {
       $p->addChild($tab = new Table());
       $tab->addAttr("style", "width: 100%");
       $tab->addHeader(new Row(array(Cell::th("Name"),
+				    Cell::th("Season"),
 				    Cell::th("Date"),
 				    Cell::th("Type"),
 				    Cell::th("Finalized"))));
@@ -73,6 +74,7 @@ class UserHomePane extends AbstractUserPane {
     foreach ($regattas as $reg) {
       $link = new Link("score/" . $reg->id, $reg->name);
       $tab->addRow($r = new Row(array(new Cell($link, array("class"=>"left", "style"=>"padding-left: 1em")),
+				      new Cell(strtoupper($reg->season)),
 				      new Cell($reg->start_time->format("Y-m-d")),
 				      new Cell(ucfirst($reg->type)),
 				      new Cell($reg->finalized->format("Y-m-d")))));

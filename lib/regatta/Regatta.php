@@ -34,6 +34,7 @@ class Regatta implements RaceListener, FinishListener {
 
   // Keys for data
   const NAME       = "name";
+  const NICK_NAME  = "nick";
   const START_TIME = "start_time";
   const END_DATE   = "end_date";
   const DURATION   = "duration";
@@ -41,6 +42,7 @@ class Regatta implements RaceListener, FinishListener {
   const TYPE       = "type";
   const VENUE      = "venue";
   const SCORING    = "scoring";
+  const SEASON     = "season";
 
   /**
    * Standard scoring
@@ -86,7 +88,7 @@ class Regatta implements RaceListener, FinishListener {
     $this->scorer = new ICSAScorer();
 
     // Update the properties
-    $q = sprintf('select regatta.id, regatta.name, ' .
+    $q = sprintf('select regatta.id, regatta.name, regatta.nick, ' .
 		 'regatta.start_time, regatta.end_date, regatta.venue, ' .
 		 'regatta.type, regatta.finalized, regatta.scoring ' .
 		 'from regatta ' .
@@ -113,6 +115,9 @@ class Regatta implements RaceListener, FinishListener {
       // Venue
       $this->properties[Regatta::VENUE] =
 	Preferences::getVenue($this->properties[Regatta::VENUE]);
+
+      // Season
+      $this->properties[Regatta::SEASON] = new Season($this->properties[Regatta::START_TIME]);
     }
     else {
       $m = "Invalid ID for regatta: " . $this->con->error;
@@ -160,6 +165,8 @@ class Regatta implements RaceListener, FinishListener {
       $m = "Property $property not supported in regattas.";
       throw new InvalidArgumentException($m);
     }
+    if ($property == Regatta::SEASON)
+      throw new InvalidArgumentException("Cannot set season directly. Set START_TIME instead.");
     if ($value == null)
       $strvalue = 'NULL';
     elseif (in_array($property, array(Regatta::START_TIME, Regatta::END_DATE))) {
@@ -1183,7 +1190,68 @@ class Regatta implements RaceListener, FinishListener {
 				       $type,
 				       $scoring) {
     $id = self::addRegatta(SQL_DB, $name, $start_time, $end_date, $type, $scoring);
-    return new Regatta($id);
+    $r = new Regatta($id);
+    $r->set(Regatta::NICK_NAME, $r->createNick());
+    return $r;
   }
+
+  /**
+   * Creates a regatta nick name for this regatta based on this
+   * regatta's name
+   *
+   * @return String the nick name
+   */
+  public function createNick() {
+    $name = strtolower($this->get(Regatta::NAME));
+    // list of regatta names in the same season as this one
+    $prohibit = array();
+    foreach ($this->get(Regatta::SEASON)->getRegattas() as $n)
+      $prohibit[] = $n->nick;
+
+    // Remove 's from
+    $name = preg_replace('/\'s/', '', $name);
+
+    // White list permission
+    $name = preg_replace('/[^0-9a-z\s-_+]+/', '', $name);
+
+    // Remove '80th'
+    $name = preg_replace('/[0-9]+th/', '', $name);
+    $name = preg_replace('/[0-9]*1st/', '', $name);
+    $name = preg_replace('/[0-9]*2nd/', '', $name);
+    $name = preg_replace('/[0-9]*3rd/', '', $name);
+
+    // Trim spaces
+    $name = trim($name);
+    $name = preg_replace('/\s+/', '-', $name);
+
+    $tokens = explode("-", $name);
+    $blacklist = array("the", "of", "for", "and", "an", "in", "is", "at",
+		       "trophy", "championship", "intersectional",
+		       "college", "university",
+		       "professor");
+    $tok_copy = $tokens;
+    foreach ($tok_copy as $i => $t)
+      if (in_array($t, $blacklist))
+	unset($tokens[$i]);
+    $name = implode("-", $tokens);
+
+    // eastern -> east
+    $name = str_replace("eastern", "east", $name);
+    $name = str_replace("western", "west", $name);
+    $name = str_replace("northern", "north", $name);
+    $name = str_replace("southern", "south", $name);
+
+    // semifinals -> semis
+    $name = str_replace("semifinals", "semis", $name);
+    $name = str_replace("semifinal",  "semis", $name);
+
+    $i = 1;
+    $new_name = $name;
+    while (in_array($new_name, $prohibit))
+      $new_name = $name . "-" . ($i++);
+  
+    return $new_name;
+  }
+
 }
 ?>
