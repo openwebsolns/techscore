@@ -25,18 +25,19 @@ class ReportMaker {
   private function fill() {
     if ($this->page !== null) return;
 
-    $this->page = new TPublicPage();
+    $this->page = new TPublicPage($this->regatta->get(Regatta::NAME));
+    $this->page->addSection(new GenericElement("h1", array(new Text($this->regatta->get(Regatta::NAME)))));
   }
 
   /**
-   * Generates and returns the report for the given regatta. Note that
-   * this happens only once per report maker.
+   * Generates and returns the HTML code for the given regatta. Note that
+   * the report is only generated once per report maker
    *
    * @return TPublicPage
    */
   public function getPage() {
     $this->fill();
-    return $this->page;
+    return $this->page->toHTML();
   }
 }
 ?>

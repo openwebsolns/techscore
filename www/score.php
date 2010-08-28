@@ -71,7 +71,8 @@ elseif (isset($_REQUEST['p'])) {
 		   new DropFinishPane($USER, $REG),
 		   new EnterPenaltyPane($USER, $REG),
 		   new DropPenaltyPane($USER, $REG),
-		   new TeamPenaltyPane($USER, $REG));
+		   new TeamPenaltyPane($USER, $REG),
+		   new ReportPane($USER, $REG));
     foreach ($panes as $pane) {
       if (in_array($_REQUEST['p'], $pane->getURLs())) {
 	if ($pane->isActive()) {

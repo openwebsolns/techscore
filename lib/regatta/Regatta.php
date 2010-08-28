@@ -1253,5 +1253,37 @@ class Regatta implements RaceListener, FinishListener {
     return $new_name;
   }
 
+  // ------------------------------------------------------------
+  // Reports
+  // ------------------------------------------------------------
+
+  /**
+   * Returns a list of all the reports associated with this regatta
+   *
+   * @return Array<Report> the list
+   */
+  public function getReports() {
+    $q = sprintf('select id, account, name, nick from report where regatta = %d', $this->id);
+    $r = $this->query($q);
+    $list = array();
+    while ($obj = $r->fetch_object("Report"))
+      $list[] = $obj;
+    return $list;
+  }
+
+  /**
+   * Fetches the first report filed for this regatta, null if none
+   *
+   * @param int $id the ID
+   * @return Report|null the report
+   */
+  public function getReport() {
+    $q = sprintf('select id, account, name, nick from report where regatta = %d and id = %d limit 1',
+		 $this->id, $id);
+    $r = $this->query($q);
+    if ($r->num_rows == 0)
+      return null;
+    return $r->fetch_object("Report");
+  }
 }
 ?>

@@ -561,6 +561,32 @@ class Preferences {
 		wordwrap($body, 72),
 		sprintf('From: %s', TS_FROM_MAIL));
   }
+
+  // ------------------------------------------------------------
+  // Reports
+  // ------------------------------------------------------------
+
+  public static function createReport(Regatta $reg, User $user) {
+    $con = Preferences::getConnection();
+
+    $report = $reg->getReport();
+    if ($report === null) {
+      $q = sprintf('insert into report (name, nick, account) values ("default", "default", "%s")',
+		   $user->username());
+      $con->query($q);
+      $id = $con->insert_id;
+    }
+    else
+      $id = $report->id;
+    $items = array("($id, \"regatta_comms\", 1)",
+		   "($id, \"score_total\",   2)");
+    $num = 3;
+    foreach ($reg->getDivisions() as $div)
+      $items[] = sprintf("($id, \"%s\", %d)", strtolower("score_$div"), $num++);
+    $q = sprintf('replace into report_struct values %s', implode(", ", $items));
+    $con->query("delete from report_struct where regatta = $id");
+    $con->query($q);
+  }
 }
 
 // Main
