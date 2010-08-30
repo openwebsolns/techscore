@@ -61,6 +61,24 @@ class Season {
     return sprintf("$v%s", substr($this->getYear(), 2));
   }
 
+  public function fullString() {
+    $v = null;
+    switch ($this->getSeason()) {
+    case self::FALL:
+      $v = "Fall";
+      break;
+    case self::WINTER:
+      $v = "Winter";
+      break;
+    case self::SPRING:
+      $v = "Spring";
+      break;
+    default:
+      $v = "Summer";
+    }
+    return sprintf("$v %s", substr($this->getYear(), 2));
+  }
+
   // ------------------------------------------------------------
   // Regattas
   // ------------------------------------------------------------

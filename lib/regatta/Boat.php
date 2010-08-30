@@ -21,5 +21,13 @@ class Boat {
 
   const FIELDS = "boat.id, boat.name, boat.occupants";
   const TABLES = "boat";
+
+  /**
+   * The name of the boat
+   *
+   */
+  public function __toString() {
+    return $this->name;
+  }
 }
 ?>

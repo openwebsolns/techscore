@@ -109,7 +109,7 @@ class TScorePage extends WebPage {
 
     // CSS Stylesheets
     /*
-    $this->head->addChild(new GenericElement("link",
+      $this->head->addChild(new GenericElement("link",
 					     array(),
 					     array("rel"=>"stylesheet",
 						   "type"=>"text/css",

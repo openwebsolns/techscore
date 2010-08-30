@@ -96,3 +96,13 @@ Header set Expires "Thu, 15 Apr 2025 20:00:00 GMT"
 <Directory {DIRECTORY}/html>
 DirectoryIndex index.html
 </Directory>
+
+#------------------------------------------------------------
+# LIVE SCORES, for development, uncomment this line to activate
+# Alias /live-scores {DIRECTORY}/live-scores
+# <Directory {DIRECTORY}/live-scores>
+# php_value include_path ".:{DIRECTORY}/lib"
+# RewriteEngine on
+# RewriteBase /live-scores
+# RewriteRule ^([0-9]+)/?$ index.php?d=$1
+# </Directory>

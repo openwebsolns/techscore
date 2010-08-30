@@ -351,6 +351,34 @@ class Regatta implements RaceListener, FinishListener {
   }
 
   /**
+   * Returns the unique boats being used in this regatta. Note that
+   * this is much faster than going through all the races manually and
+   * keeping track of the boats.
+   *
+   * @param Division $div the division whose boats to retrieve.
+   * If null, return all of them instead.
+   * @return Array<Boat> the boats
+   */
+  public function getBoats(Division $div = null) {
+    if ($div === null) {
+      $list = array();
+      foreach ($this->getDivisions() as $div) {
+	$list = array_merge($list, $this->getBoats($div));
+      }
+      return array_unique($list);
+    }
+
+    $q = sprintf('select distinct %s from %s ' .
+		 'where id in (select boat from race where regatta = %d and division = "%s")',
+		 Boat::FIELDS, Boat::TABLES, $this->id, $div);
+    $r = $this->query($q);
+    $list = array();
+    while ($obj = $r->fetch_object("Boat"))
+      $list[] = $obj;
+    return $list;
+  }
+
+  /**
    * Returns an array of all the race objects in this regatta ordered
    * by division and number within the division
    *
