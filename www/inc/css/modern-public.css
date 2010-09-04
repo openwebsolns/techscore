@@ -214,10 +214,6 @@ table thead {
 thead th {
     padding: 0px 1em;
 }
-table.narrow {
-    display: inline-block;
-    vertical-align: top;
-}
 
 /* Table fixes */
 th.noborder, td.noborder {
@@ -324,3 +320,12 @@ padding: 0px;
     list-style-type: none;
     color: #666666; line-height: 1.35em;
 }
+table#results tbody * {
+    border: none;
+}
+table#results tr.totalrow {
+    border-bottom: 1px solid #bbbbbb;
+    color: #555555;
+    background: #f3ebe0;
+}
+table#results tbody { border: 1px solid #bbb; }

@@ -66,7 +66,32 @@ class ReportMaker {
 		 new LItem($date),
 		 new LItem($type),
 		 new LItem(implode("/", $reg->getBoats())));
-    
+
+    // Summary
+    $items = array();
+    for ($i = 0; $i < $reg->get(Regatta::DURATION); $i++) {
+      $today = new DateTime(sprintf("%s + %d days", $stime->format('Y-m-d'), $i));
+      $comms = $reg->getSummary($today);
+      if (strlen($comms) > 0) {
+	$items[] = new Heading($today->format('l, F j:'));
+	$items [] = new Para($comms);
+      }
+    }
+    if (count($items) > 0) {
+      $this->page->addSection($p = new Port("Summary"));
+      foreach ($items as $i)
+	$p->addChild($i);
+    }
+
+    // Divisional scores
+
+
+    // Total scores
+    $maker = new ScoresFullDialog($reg);
+    $this->page->addSection($p = new Port("Full scores"));
+    foreach ($maker->getTable() as $elem)
+      $p->addChild($elem);
+
   }
 
   /**

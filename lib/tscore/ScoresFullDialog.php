@@ -37,6 +37,21 @@ class ScoresFullDialog extends AbstractDialog {
     $p->addAttr("content", date('Y-m-d H:i:s'));
 
     $this->PAGE->addContent($p = new Port("Team results"));
+    $ELEMS = $this->getTable();
+    $p->addChild(array_shift($ELEMS));
+    if (count($ELEMS) > 0) {
+      $this->PAGE->addContent($p = new Port("Legend"));
+      $p->addChild($ELEMS[0]);
+    }
+  }
+
+  /**
+   * Fetches just the table of results
+   *
+   * @return Array the table element
+   */
+  public function getTable() {
+    $ELEMS = array();
 
     $divisions = $this->REGATTA->getDivisions();
     $num_divs  = count($divisions);
@@ -51,7 +66,8 @@ class ScoresFullDialog extends AbstractDialog {
 	$largest_num = max($largest_num, $race->number);
     }
 
-    $p->addChild($tab = new Table());
+    $tab = new Table();
+    $ELEMS[] = $tab;
     $tab->addAttr("id", "results");
     $tab->addAttr("class", "narrow coordinate");
     $tab->addHeader($r = new Row(array(Cell::th(),
@@ -193,18 +209,15 @@ class ScoresFullDialog extends AbstractDialog {
 
     // Print legend, if necessary
     if (count($tiebreakers) > 1) {
-      $this->PAGE->addContent($p = new Port("Tiebreaker legend"));
-      $p->addChild($list = new GenericElement("dl"));
+      $list = new GenericElement("dl");
+      $ELEMS[] = $list;
       array_shift($tiebreakers);
       foreach ($tiebreakers as $exp => $ast) {
 	$list->addChild(new GenericElement("dt", array(new Text($ast))));
 	$list->addChild(new GenericElement("dd", array(new Text($exp))));
       }
     }
+    return $ELEMS;
   }
 }
-
-if (basename(__FILE__) == $argv[0]) {
-  $p = new ScoresFullDialog(new Regatta(115));
-  file_put_contents("/tmp/score.html", $p->getHTML(array()));
-}
+?>
