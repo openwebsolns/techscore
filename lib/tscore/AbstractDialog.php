@@ -38,7 +38,7 @@ abstract class AbstractDialog {
     $title = sprintf("%s | %s | TS",
 		     $this->name,
 		     $this->REGATTA->get(Regatta::NAME));
-    $this->PAGE = new TScoreDialog($name);
+    $this->PAGE = new TScoreDialog($this->name);
     $this->PAGE->addContent(new PageTitle($this->name));
 
     // Menu

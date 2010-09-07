@@ -309,7 +309,7 @@ class Regatta implements RaceListener, FinishListener {
   public function getRace(Division $div, $num) {
     $q = sprintf('select %s from %s ' .
 		 'where (regatta, division, number) = ' .
-		 '      ("%s",    "%s",     "%s") limit 1',
+		 '      ("%s",    "%s",     "%d") limit 1',
 		 Race::FIELDS, Race::TABLES,
 		 $this->id, $div, $num);
     $q = $this->query($q);
@@ -707,7 +707,7 @@ class Regatta implements RaceListener, FinishListener {
   public function getTeamPenalty(Team $team, Division $div) {
     $q = sprintf('select %s from %s where team = "%s" and division = "%s"',
 		 TeamPenalty::FIELDS, TeamPenalty::TABLES,
-		 $team->id, $division);
+		 $team->id, $div);
     $q = $this->query($q);
     if ($q->num_rows == 0)
       return null;

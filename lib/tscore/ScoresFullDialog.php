@@ -11,7 +11,7 @@ require_once('conf.php');
  * only one division, omits the division column.
  *
  */
-class ScoresFullDialog extends AbstractDialog {
+class ScoresFullDialog extends AbstractScoresDialog {
 
   /**
    * Create a new rotation dialog for the given regatta
@@ -27,15 +27,6 @@ class ScoresFullDialog extends AbstractDialog {
    *
    */
   public function fillHTML(Array $args) {
-    // Add some menu
-    $this->PAGE->addMenu($ul = new GenericList());
-    $ul->addItems(new LItem(new Link("scores/A", "A Division")));
-
-    // Add meta tag
-    $this->PAGE->addHead($p = new GenericElement("meta"));
-    $p->addAttr("name", "timestamp");
-    $p->addAttr("content", date('Y-m-d H:i:s'));
-
     $this->PAGE->addContent($p = new Port("Team results"));
     $ELEMS = $this->getTable();
     $p->addChild(array_shift($ELEMS));

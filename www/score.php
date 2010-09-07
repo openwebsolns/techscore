@@ -144,6 +144,11 @@ elseif (isset($_REQUEST['v'])) {
       }
       break;
 
+    case "div-score":
+    case "div-scores":
+      $PAGE = new ScoresDivisionalDialog($REG);
+    break;
+
       // --------------- BOAT SCORE --------------//
     case "boat":
     case "boats":

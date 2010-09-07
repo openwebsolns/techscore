@@ -679,7 +679,7 @@ class EnterFinishPane extends AbstractPane {
     // Enter finish by team
     // ------------------------------------------------------------
     if (isset($args['f_teams'])) {
-      $race = Preferences::getObjectWithProperty($rotation->getRaces(),
+      $race = Preferences::getObjectWithProperty($this->REGATTA->getRaces(),
 						 "id",
 						 $args['race']);
       if ($race == null) {

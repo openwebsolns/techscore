@@ -69,8 +69,3 @@ class RotationDialog extends AbstractDialog {
     }
   }
 }
-
-if (basename(__FILE__) == $argv[0]) {
-  $p = new RotationDialog(new Regatta(115));
-  file_put_contents("/tmp/rot.html", $p->getHTML(array()));
-}

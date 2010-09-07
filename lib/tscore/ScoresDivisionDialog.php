@@ -12,7 +12,7 @@ require_once('conf.php');
  * @author Dayan Paez
  * @created 2010-02-01
  */
-class ScoresDivisionDialog extends AbstractDialog {
+class ScoresDivisionDialog extends AbstractScoresDialog {
 
   private $division;
 
@@ -37,12 +37,22 @@ class ScoresDivisionDialog extends AbstractDialog {
    *
    */
   public function fillHTML(Array $args) {
-    $rpManager = $this->REGATTA->getRpManager();
     $division  = $this->division;
 
     $this->PAGE->addContent($p = new Port("Division $division results"));
+    $elems = $this->getTable();
+    $p->addChild(array_shift($elems));
+    if (count($elems) > 0) {
+      $p->addChild(new Heading("Tiebreaker legend"));
+      $p->addChild($elems[0]);
+    }
+  }
 
-    $p->addChild($tab = new Table());
+  public function getTable() {
+    $rpManager = $this->REGATTA->getRpManager();
+    $division = $this->division;
+
+    $ELEM = array($tab = new Table());
     $tab->addAttr("id", "results");
     $tab->addAttr("class", "narrow");
 
@@ -165,8 +175,8 @@ class ScoresDivisionDialog extends AbstractDialog {
 
     // Print tiebreakers $table
     if (count($tiebreakers) > 1) {
-      $p->addChild(new Heading("Tiebreaker legend"));
-      $p->addChild($tab = new Table());
+      $tab = new Table();
+      $ELEM[] = $tab;
       $tab->addHeader(new Row(array(Cell::th("Sym."),
 				    Cell::th("Explanation"))));
 
@@ -176,10 +186,6 @@ class ScoresDivisionDialog extends AbstractDialog {
 				   new Cell($exp))));
       }
     }
+    return $ELEM;
   }
-}
-
-if (basename(__FILE__) == $argv[0]) {
-  $p = new ScoresDivisionDialog(new Regatta(115));
-  file_put_contents("/tmp/score.html", $p->getHTML(array("B")));
 }

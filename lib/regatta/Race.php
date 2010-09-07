@@ -135,8 +135,8 @@ class Race {
 	// Move division letter to end of string
 	$race = substr($race, 1) . substr($race, 0, 1);
       }
-      if (in_array($race[strlen($race)-1],
-		   array("A", "B", "C", "D"))) {
+
+      if (in_array($race[strlen($race)-1], array("A", "B", "C", "D"))) {
 	$race_a = sscanf($race, "%d%s");
       }
       else
