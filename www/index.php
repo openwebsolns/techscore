@@ -8,7 +8,7 @@
  * @created 2009-10-16
  */
 
-require_once("../lib/conf.php");
+require_once("conf.php");
 session_start();
 
 //
