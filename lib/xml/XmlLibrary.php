@@ -146,6 +146,11 @@ class WebPage extends GenericElement
     $this->body->addChild($e);
   }
 
+  public function __get($e) {
+    if ($e == "body" || $e == "head")
+      return $this->$e;
+  }
+
   public function toHTML() {
     $str = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">';
     $str .= parent::toHTML();

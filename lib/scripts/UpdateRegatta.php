@@ -39,9 +39,16 @@ if (!file_exists($dirname) && mkdir($dirname) === false) {
   exit(8);
 }
 $filename = "$dirname/index.html";
-if (file_put_contents($filename, $M->getPage()) === false) {
+if (file_put_contents($filename, $M->getScoresPage()) === false) {
   printf("Unable to make the regatta report: %s\n", $filename);
   exit(16);
+}
+if ($M->hasRotation()) {
+  $filename = "$dirname/rotations.html";
+  if (file_put_contents($filename, $M->getRotationPage()) === false) {
+    printf("Unable to make the regatta rotation: %s\n", $filename);
+    exit(16);
+  }
 }
 
 ?>

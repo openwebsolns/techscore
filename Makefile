@@ -1,7 +1,14 @@
 include Makefile.local
 
+default: apache.conf changes.current.sql
+
 apache.conf: apache.conf.default
 	sed 's:{DIRECTORY}:'"`pwd`"':g' apache.conf.default > apache.conf
+
+changes.current.sql: changes.history.sql
+	touch changes.current.sql && \
+	comm -12 changes.current.sql changes.history.sql | mysql -u $(DB_USER) -p $(DB_DB) && \
+	cp changes.history.sql changes.current.sql
 
 .PHONY:	sql doc
 sql:

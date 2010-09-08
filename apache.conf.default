@@ -94,7 +94,9 @@ Header set Expires "Thu, 15 Apr 2025 20:00:00 GMT"
 #------------------------------------------------------------
 # PUBLIC
 <Directory {DIRECTORY}/html>
+Options +MultiViews
 DirectoryIndex index.html
+ForceType text/html
 </Directory>
 
 #------------------------------------------------------------
@@ -105,4 +107,5 @@ DirectoryIndex index.html
 # RewriteEngine on
 # RewriteBase /live-scores
 # RewriteRule ^([0-9]+)/?$ index.php?d=$1
+# RewriteRule ^([0-9]+)/rotations/?$ rotation.php?d=$1
 # </Directory>

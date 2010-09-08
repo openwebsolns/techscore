@@ -98,7 +98,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
     $order = 1;
     foreach ($ranks as $rank) {
       $scoreTeam   = 0;
-      $scoreRace   = array();
+      $scoreRace   = array_fill(0, $largest_num, 0);
       $penaltyTeam = 0;
 
       // For each division... and race...
