@@ -105,6 +105,7 @@ class ReportMaker {
     // Menu
     if ($this->hasRotation)
       $page->addMenu(new Link("rotations", "Rotations"));
+    $page->addMenu(new Link(".", "Report"));
 
     // Regatta information
     $page->addSection($div = new Div());

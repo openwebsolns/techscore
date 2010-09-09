@@ -104,4 +104,8 @@ END;
 ini_set('error_log', '../log/errors.log');
 
 require_once(TS_PATH . '/conf.local.php');
+
+// LOG FILES
+define("LOG_SCORE",    realpath(TS_PATH.'/../log/score.log'));
+define("LOG_ROTATION", realpath(TS_PATH.'/../log/rotation.log'));
 ?>
