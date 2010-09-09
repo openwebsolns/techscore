@@ -8,7 +8,7 @@
 PORTS = Array();
 
 /**
- * Collapse
+ * Collapses all ports and displays the desired one from the anchor list, if available in the URL
  */
 function collapse() {
     var div = document.getElementById("menudiv");
@@ -28,8 +28,10 @@ function collapse() {
 	    PORTS.push(all_divs[i]);
 	}
     }
-    for (i = 0; i < PORTS.length; i++)
-	PORTS[i].setAttribute("style", "display: none;");
+    var chosen = null;
+    if (document.location.hash.length > 0)
+	chosen = document.location.hash.substring(1);
+    displayPort(chosen);
 }
 
 /**

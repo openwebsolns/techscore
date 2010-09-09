@@ -159,7 +159,9 @@ class ICSAScorer {
 
 	// Get each finish in order and set the score
 	$score = 1;
-	foreach ($reg->getFinishes($race) as $finish) {
+	$finishes = $reg->getFinishes($race);
+	usort($finishes, "Finish::compareEntered");
+	foreach ($finishes as $finish) {
 	  if (!isset($div_scores[$finish->team->id]))
 	    $div_scores[$finish->team->id] = array();
 
