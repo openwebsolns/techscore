@@ -15,6 +15,7 @@ conf.local.php
 apache.conf
 sync-up
 Makefile.local
+changes.current.sql
 
 # Public files
 html/*
