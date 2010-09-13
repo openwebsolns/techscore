@@ -85,13 +85,14 @@ div#menudiv div.menu:hover ul {
     background-image: url('img/menu_bg_bot.png');
     background-repeat: repeat-x;
     background-position: 0px 100%;
+padding: 0px;                               
 }
 
 div#menudiv li {
     display: block;
     margin: 0.25em 0px;
-    margin-left: -3em;
     padding: 0.1em;
+list-style-type: none;
 }
 
 div#menudiv li a {
