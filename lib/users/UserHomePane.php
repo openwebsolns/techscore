@@ -72,12 +72,13 @@ class UserHomePane extends AbstractUserPane {
     }
     $row = 0;
     foreach ($regattas as $reg) {
+      $finalized = ($reg->finalized === null) ? "--" : $reg->finalized->format("Y-m-d");
       $link = new Link("score/" . $reg->id, $reg->name);
       $tab->addRow($r = new Row(array(new Cell($link, array("class"=>"left", "style"=>"padding-left: 1em")),
 				      new Cell(strtoupper($reg->season)),
 				      new Cell($reg->start_time->format("Y-m-d")),
 				      new Cell(ucfirst($reg->type)),
-				      new Cell($reg->finalized->format("Y-m-d")))));
+				      new Cell($finalized))));
       $r->addAttr("class", sprintf("row%d", $row++ % 2));
     }
     $last = (int)($num_regattas / self::NUM_PER_PAGE);

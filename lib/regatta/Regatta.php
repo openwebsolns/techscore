@@ -118,6 +118,10 @@ class Regatta implements RaceListener, FinishListener {
 
       // Season
       $this->properties[Regatta::SEASON] = new Season($this->properties[Regatta::START_TIME]);
+
+      // Finalized
+      if (($p = $this->properties[Regatta::FINALIZED]) !== null)
+	$this->properties[Regatta::FINALIZED] = new DateTime($p);
     }
     else {
       $m = "Invalid ID for regatta: " . $this->con->error;
@@ -757,70 +761,14 @@ class Regatta implements RaceListener, FinishListener {
   }
 
   /**
-   * Gets the winning team for this regatta.
-   * TODO: implement this perhaps in Scorer?
+   * Gets the winning team for this regatta. That is, the team with
+   * the lowest score thus far
    *
-   * @return the winning team object
+   * @return Team the winning team object
    */
-  public function getWinningTeamID() {
-    // Select all
-    $q = sprintf('select race.division, race_num.number, race.id, finish.team, ' .
-		 'score.place, score.score, score.explanation ' .
-		 'from score ' .
-		 'inner join finish on (finish.id = score.finish) ' .
-		 'inner join race on (race.id = finish.race) ' .
-		 'inner join race_num on (race.id = race_num.id) ' .
-		 'where race.regatta = "%s"',
-		 $this->id);
-    
-    $scores = $this->query($q);
-    
-    // Select team scores
-    $q = sprintf('select score_team.team, score_team.division, score_team.score ' .
-		 'from score_team inner join team on (team.id = score_team.team) ' .
-		 'where regatta = "%s"',
-		 $this->id);
-    $scores_team = $this->query($q);
-
-    // Select team penalties
-    $q = sprintf('select team, division, type ' .
-		 'from penalty_team ' .
-		 'inner join team on (team.id = penalty_team.team) ' .
-		 'where team.regatta = "%s"',
-		 $this->id);
-    $penalties_team = $this->query($q);
-
-    /*
-    // Check that there are scores to list
-    if ($scores->num_rows > 0) {
-
-      // Parse
-      $rd = mysql_column($scores,0);
-      $rn = mysql_column($scores,1);
-      $ri = mysql_column($scores,2);
-      $ts = mysql_column($scores,3);
-      $ps = mysql_column($scores,4);
-      $ss = mysql_column($scores,5);
-      $se = mysql_column($scores,6);
-
-      $ut = mysql_column($scores_team,0);    // scores_team['team']
-      $ud = mysql_column($scores_team,1);    // scores_team['division']
-      $us = mysql_column($scores_team,2);    // scores_team['score']
-
-      $vt = mysql_column($penalties_team,0); // penalties_team['team']
-      $vd = mysql_column($penalties_team,1); // penalties_team['division']
-      $vp = mysql_column($penalties_team,2); // penalties_team['type']_
-
-      // Rank
-      $ranks = getRankings($ri, $ts, $ss, $ut, $us);
-      foreach ($ranks as $team => $score) {
-	return $team; // return the first one only
-      }
-    }
-    else {
-      return false;
-    }
-    */
+  public function getWinningTeam() {
+    $ranks = $this->__get("scorer")->rank($this);
+    return $ranks[0]->team;
   }
 
   // ------------------------------------------------------------

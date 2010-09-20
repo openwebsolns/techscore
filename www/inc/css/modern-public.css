@@ -190,6 +190,7 @@ table {
     border-spacing: 0px;
     border-collapse: collapse;
     font-size: 0.9em;
+        margin: 1em auto;
 }
 table td {
     border: 1px solid #bbbbbb;
@@ -295,3 +296,7 @@ table#results tr.totalrow {
     background: #f3ebe0;
 }
 table#results tbody { border: 1px solid #bbb; }
+
+/* Stats */
+div.stat { font-size: 105%; }
+div.stat .prefix { display: inline-block; zoom: 1; *display: inline; width: 40%; text-align: right; color: #555; font-weight: bold; margin-right: 2%; margin-top: 0.5em;}

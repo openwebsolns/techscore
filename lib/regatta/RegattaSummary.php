@@ -32,7 +32,8 @@ class RegattaSummary {
     $this->name = stripslashes($this->name);
     try {
       $this->start_time = new DateTime($this->start_time);
-      $this->finalized  = new DateTime($this->finalized);
+      if ($this->finalized !== null)
+	$this->finalized  = new DateTime($this->finalized);
       $this->season = new Season($this->start_time);
     }
     catch (Exception $e) {

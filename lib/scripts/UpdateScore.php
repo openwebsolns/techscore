@@ -23,6 +23,12 @@ class UpdateScore {
     $filename = "$dirname/index.html";
     if (file_put_contents($filename, $M->getScoresPage()) === false)
       throw new RuntimeException(sprintf("Unable to make the regatta report: %s\n", $filename), 8);
+
+    // Do season
+    $dirname = "$R/$season";
+    $M = new SeasonSummaryMaker($season);
+    if (file_put_contents("$dirname/index.html", $M->getPage()) === false)
+      throw new RuntimeException(sprintf("Unable to make the season summary: %s\n", $filename), 8);
   }
 }
 

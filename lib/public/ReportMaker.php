@@ -141,7 +141,7 @@ class ReportMaker {
    * Generates and returns the HTML code for the given regatta. Note that
    * the report is only generated once per report maker
    *
-   * @return TPublicPage
+   * @return String
    */
   public function getScoresPage() {
     $this->fill();
@@ -151,7 +151,7 @@ class ReportMaker {
   /**
    * Generates the rotation page, if applicable
    *
-   * @return TPublicPage
+   * @return String
    * @throws InvalidArgumentException should there be no rotation available
    */
   public function getRotationPage() {
