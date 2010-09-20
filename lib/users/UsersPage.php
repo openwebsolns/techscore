@@ -91,14 +91,15 @@ class UsersPage extends TScorePage {
     $div->addChild($list = new GenericList());
     $list->addItems(new LItem(new Link(".",      "My regattas")),
 		    new LItem(new Link("create", "New regatta", array("accesskey"=>"n"))),
+		    new LItem(new Link("account","My account")),
 		    new LItem($l = new Link("logout", "Logout", array("accesskey"=>"l"))));
 
     // School setup
     $this->addMenu($div = new Div());
     $div->addAttr("class", "menu");
-    $div->addChild(new Heading("School setup"));
+    $div->addChild(new Heading("My School"));
     $div->addChild($list = new GenericList());
-    $list->addItems(new LItem(new Link("prefs/$SCHOOL",        "Pref. Home")),
+    $list->addItems(new LItem(new Link("prefs/$SCHOOL",        "Instructions")),
 		    new LItem(new Link("prefs/$SCHOOL/logo",   "School logo")),
 		    new LItem(new Link("prefs/$SCHOOL/team",   "Team names")),
 		    new LItem(new Link("prefs/$SCHOOL/sailor", "Sailors")));

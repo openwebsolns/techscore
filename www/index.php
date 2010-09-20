@@ -79,6 +79,11 @@ else {
     $PAGE = new BoatManagement($USER);
   break;
 
+  case "account":
+  case "accounts":
+    $PAGE = new AccountPane($USER);
+  break;
+
   default:
     $_SESSION['ANNOUNCE'][] = new Announcement(sprintf("Invalid page requested (%s).", $_REQUEST['p']),
 					       Announcement::ERROR);
