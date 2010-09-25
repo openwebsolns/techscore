@@ -83,10 +83,11 @@ class RpEnterPane extends AbstractPane {
 					  array("class"=>"nonprint")));
     // Representative
     $rep = $rpManager->getRepresentative($chosen_team);
+    $rep_id = ($rep === null) ? "" : $rep->id;
     $p->addChild($form = $this->createForm());
     $form->addChild(new FHidden("chosen_team", $chosen_team->id));
     $form->addChild(new FItem("Representative:",
-			      $f_sel = new FSelect("rep", array($rep->id))));
+			      $f_sel = new FSelect("rep", array($rep_id))));
 
     // ------------------------------------------------------------
     // - Create option lists
@@ -155,17 +156,16 @@ class RpEnterPane extends AbstractPane {
 	if ($spot < count($cur_sk))
 	  $value = Utilities::makeRange($cur_sk[$spot]->races_nums);
 
-	$select_cell = new Cell($f_sel = new FSelect("sk" .
-						     $div .
-						     $spot,
-						     array($cur_sk[$spot]->sailor->id),
+	$cur_sk_id = (isset($cur_sk[$spot])) ? $cur_sk[$spot]->sailor->id : "";
+	$select_cell = new Cell($f_sel = new FSelect("sk$div$spot",
+						     array($cur_sk_id),
 						     array("onchange"=>"check()")));
+	
 	$tab_skip->addRow(new Row(array($select_cell,
-					new Cell(new FText("rsk" . 
-							   $div .
-							   $spot,
+					new Cell(new FText("rsk$div$spot",
 							   $value,
 							   array("size"=>"8",
+								 "class"=>"race_text",
 								 "onchange"=>
 								 "check()"))),
 					new Cell(new Image("img/question.png",
@@ -181,7 +181,7 @@ class RpEnterPane extends AbstractPane {
 
       $num_crews = max(array_keys($occ));
       // Print table only if there is room in the boat for crews
-      if ( $num_crews > 0 ) {
+      if ( $num_crews > 1 ) {
 	// update crew table
 	$form->addChild($tab_crew = new Table());
 	$tab_crew->addAttr("class", "narrow");
@@ -197,10 +197,11 @@ class RpEnterPane extends AbstractPane {
 	  if ($spot < count($cur_cr))
 	    $value = Utilities::makeRange($cur_cr[$spot]->races_nums);
 
+	  $cur_cr_id = (isset($cur_cr[$spot])) ? $cur_cr[$spot]->sailor->id : "";
 	  $select_cell = new Cell($f_sel = new FSelect("cr" .
 						       $div .
 						       $spot,
-						       array($cur_cr[$spot]->sailor->id),
+						       array($cur_cr_id),
 						       array("onchange"=>"check()")));
 	  $tab_crew->addRow(new Row(array($select_cell,
 					  new Cell(new FText("rcr" . 
@@ -208,6 +209,7 @@ class RpEnterPane extends AbstractPane {
 							     $spot,
 							     $value,
 							     array("size"=>"8",
+								   "class"=>"race_text",
 								   "onchange"=>
 								   "check()"))),
 					  new Cell(new Image("img/question.png",
@@ -224,8 +226,9 @@ class RpEnterPane extends AbstractPane {
 
     // ------------------------------------------------------------
     // - Add submit
-    $form->addChild(new FReset("reset", "Reset"));
-    $form->addChild(new FSubmit("rpform", "Submit form",
+    $form->addChild($para = new Para(""));
+    $para->addChild(new FReset("reset", "Reset"));
+    $para->addChild(new FSubmit("rpform", "Submit form",
 				array("id"=>"rpsubmit")));
     $p->addChild(new GenericElement("script",
 				    array(new Text("check()")),
@@ -313,6 +316,7 @@ class RpEnterPane extends AbstractPane {
 	  $s_div  = substr($s,2,1);
 	  $s_race = Utilities::parseRange($args["r" . $s]);
 	  $s_obj  = Preferences::getObjectWithProperty($sailors, "id", $s_value);
+
 	  if (in_array($s_div, $divisions) &&
 	      $s_race !== null &&
 	      $s_obj  !== null) {
@@ -340,7 +344,8 @@ class RpEnterPane extends AbstractPane {
 	  }
 	}
       }
-
+      $rpManager->updateLog();
+      
       // Announce
       if ($errors) {
 	$mes = "Registered, but with errors.";

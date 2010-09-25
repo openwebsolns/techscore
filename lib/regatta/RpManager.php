@@ -110,7 +110,7 @@ class RpManager {
     foreach ($rp->races_nums as $num) {
       try {
 	$race = $this->regatta->getRace($rp->division, $num);
-	$q = sprintf('replace into rp values ("%s", "%s", "%s", "%s")',
+	$q = sprintf('replace into rp (race, sailor, team, boat_role) values ("%s", "%s", "%s", "%s")',
 		     $race->id,
 		     $rp->sailor->id,
 		     $rp->team->id,
@@ -118,7 +118,9 @@ class RpManager {
 	$this->regatta->query($q);
       } catch (Exception $e) {}
     }
-    // Update the log
+  }
+
+  public function updateLog() {
     $q = sprintf('replace into rp_log (regatta) values (%d)', $this->regatta->id());
     $this->regatta->query($q);
   }

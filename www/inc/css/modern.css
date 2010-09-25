@@ -59,6 +59,7 @@ div#menudiv div.menu {
 }
 input {font-size: 1em; padding: 0.15em}
 input[type="text"], input[type="password"], select {font-size: 1em; min-width: 15em; padding: 0.15em}
+input.race_text { min-width: 2em; }
 
 div#menudiv h4 {
     font-weight: normal;

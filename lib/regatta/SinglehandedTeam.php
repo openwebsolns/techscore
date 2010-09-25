@@ -78,14 +78,7 @@ class SinglehandedTeam extends Team {
    * @return String the string representation of the team
    */
   public function __toString() {
-    return sprintf("%s %s", $this->school->name, $this->name);
+    return sprintf("%s %s", $this->school->name, $this->getQualifiedName());
   }
-}
-
-if (basename(__FILE__) == $argv[0]) {
-  $reg = new Regatta(110);
-
-  foreach ($reg->getTeams() as $team)
-    print $team . "\n";
 }
 ?>

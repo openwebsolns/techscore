@@ -109,7 +109,13 @@ class ScoresFullDialog extends AbstractScoresDialog {
 	$tab->addRow($r = new Row());
 	$r->addAttr("class", "div" . $div);
 
-	if ($div == "A") {
+	if ($num_divs == 1) {
+	  $r->addCell(new Cell(sprintf('<sub>%s</sub>', $tiebreakers[$rank->explanation])),
+		      new Cell($order++, array("title" => $rank->explanation)),
+		      new Cell($rank->team->name . '<br/>' . $rank->team->school->nick_name,
+			       array("class"=>"strong")));
+	}
+	elseif ($div == "A") {
 	  $r->addCell(new Cell(sprintf('<sub>%s</sub>', $tiebreakers[$rank->explanation])),
 		      new Cell($order++, array("title" => $rank->explanation)),
 		      new Cell($rank->team->name,
