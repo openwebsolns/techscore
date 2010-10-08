@@ -397,8 +397,10 @@ class Regatta implements RaceListener, FinishListener {
 		 $this->id);
     $q = $this->query($q);
     $races = array();
-    while ($race = $q->fetch_object("Race"))
+    while ($race = $q->fetch_object("Race")) {
       $races[] = $race;
+      $race->addListener($this);
+    }
     return $races;
   }
 
@@ -487,6 +489,7 @@ class Regatta implements RaceListener, FinishListener {
     $list = array();
     while ($obj = $q->fetch_object("Race")) {
       $list[] = $obj;
+      $obj->addListener($this);
     }
     return $list;
   }
@@ -516,6 +519,7 @@ class Regatta implements RaceListener, FinishListener {
     $list = array();
     while ($obj = $q->fetch_object("Race")) {
       $list[] = $obj;
+      $obj->addListener($this);
     }
     return $list;
   }
@@ -558,6 +562,30 @@ class Regatta implements RaceListener, FinishListener {
       $nums = ($nums == null) ? $set : array_intersect($nums, $set);
     }
     return $nums;
+  }
+
+  /**
+   * Fetches the race that was last scored in the regatta, or the
+   * specific division if one is provided. This method will look at
+   * the timestamp of the first finish in each race to determine which
+   * is the latest to be scored.
+   *
+   * @param Division $div (optional) only look in this division
+   * @return Race|null the race or null if none yet scored
+   */
+  public function getLastScoredRace(Division $div = null) {
+    $w = ($div === null) ? "" : sprintf('and division = "%s"', $div);
+    $q = sprintf('select race.id from race inner join (select race, min(entered) as entered from finish group by race) as f1 on race.id = f1.race where race.regatta = %d %s order by entered desc limit 1',
+		 $this->id, $w);
+    $r = $this->query($q);
+    if ($r->num_rows == 0)
+      return null;
+    $r = $r->fetch_object();
+    $q = sprintf('select %s from %s where race.id = %d limit 1', Race::FIELDS, Race::TABLES, $r->id);
+    $r = $this->query($q);
+    $r = $r->fetch_object("Race");
+    $r->addListener($this);
+    return $r;
   }
 
 

@@ -13,14 +13,14 @@
 
 * Javascript COOKIE (d o n e)
 
-* Access keys
+* Access keys (d o n e)
 
 * FIX CSS Table Styles
 
 * FIX Announcements Div on TScorePage
 - Both CSS positioning and placement within page
 
-* FIX CSS for Preference pages
+* FIX CSS for Preference pages (d o n e)
 
 * Messenging mechanism (d o n e)
 
@@ -34,14 +34,40 @@
 
 * Admin side
 
-* Cache RP form creation
+* Cache RP form creation (d o n e)
 
-* Separation of apache.conf
+* Separation of apache.conf (d o n e)
 
 * libcurl for notification system!
+  - no longer necessary since notification happens on same server from now on.
 
-* When registering for new accounts, an EULA would be nice
+* When registering for new accounts, an EULA would be nice (d o n e)
 
-* Add boats
+* Add boats (d o n e)
 
 * Admin panes should get similar URL treatment to Editing panes
+
+* Custom 404 page (in progress)
+
+------------------------------------------------------------
+
+Public side structure
+
+/
+ - inc
+ - f10
+ - s10
+ - f11
+ - ...
+
+ - schools
+   - MIT
+   - HAR
+   - ...
+
+ - confs
+   - NEISA
+   - SAISA
+   - ...
+
+ - sailors (perhaps this should be PHP-based?)

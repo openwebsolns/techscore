@@ -75,8 +75,8 @@ class SeasonSummaryMaker {
       foreach ($sailing as $reg) {
 	$reg = new Regatta($reg->id);
 	$num_teams += count($reg->getTeams());
-	$races = $reg->getScoredRaces();
-	$last_race = (count($races) == 0) ? "--" : array_pop($races);
+	$last_race = $reg->getLastScoredRace();
+	$last_race = ($last_race === null) ? "--" : (string)$last_race;
 	$hosts = array();
 	$confs = array();
 	foreach ($reg->getHosts() as $host) {
