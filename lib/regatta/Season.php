@@ -137,5 +137,42 @@ class Season {
       $list[] = $obj;
     return $list;
   }
+
+  /**
+   * Parses the given season into a season object. The string should
+   * have the form '[fswm][0-9]{2}'
+   *
+   * @param String $text the string to parse
+   * @return Season|null the season object or null
+   */
+  public static function parse($text) {
+    // Check first character for allowable type
+    $text = strtolower($text);
+    if (!in_array($text[0], array("f", "s", "w", "m")))
+      return null;
+
+    $s = null;
+    switch ($text[0]) {
+    case "f": $s = "fall";   break;
+    case "s": $s = "spring"; break;
+    case "m": $s = "summer"; break;
+    case "w": $s = "winter"; break;
+    }
+    $y = substr($text, 1);
+    if (!is_numeric($y)) return null;
+
+    $y = (int)$y;
+    $y += ($y < 90) ? 2000 : 1900;
+
+    // fetch the correct start_date for this season
+    $con = Preferences::getConnection();
+    $q = sprintf('select start_date from season where season = "%s" and year(start_date) = "%s" limit 1',
+		 $s, $y);
+    $r = $con->query($q);
+    if ($r->num_rows == 0)
+      return null;
+    $r = $r->fetch_object();
+    return new Season(new DateTime($r->start_date));
+  }
 }
 ?>
