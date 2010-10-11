@@ -74,12 +74,10 @@ class UpdateDaemon {
     $requests = UpdateManager::getPendingRequests();
     if (count($requests) == 0) self::cleanup();
 
-    // Sort the requests by regatta and season
-    $seasons = array();  // set of seasons affected
+    // Sort the requests by regatta
     $regattas = array(); // assoc list of regatta id => list of requests
     foreach ($requests as $r) {
       $reg = new Regatta($r->regatta);
-      $seasons[(string)$reg->getSeason()] = $reg->getSeason();
       if (!isset($regattas[$r->regatta]))
 	$regattas[$r->regatta] = array();
       $regattas[$r->regatta][] = $r;
@@ -87,16 +85,46 @@ class UpdateDaemon {
 
     // For each unique regatta, only execute the last version of each
     // unique activity in the queue, but claim that you did them all
-    // anyways (lest they should remain pending later on). In the
-    // special case that the last activity is 'delete', do not execute
-    // any previous ones. Otherwise, execute either 'score' or
-    // 'rotation' as needed.
+    // anyways (lest they should remain pending later on).
+    $seasons = array();  // set of seasons affected
     foreach ($regattas as $id => $requests) {
-      $last = array_pop($requests);
-      if ($last->activity == 'delete') {
-	
+      $actions = array("score" => "score", "rotation" => "rotation");
+      while (count($requests) > 0) {
+	$last = array_pop($requests);
+	if (isset($actions[$last])) {
+	  // Do the action itself
+	  unset($actions[$last]);
+	  try {
+	    $reg = new Regatta($id);
+	    if ($last->activity == "score")
+	      UpdateRegatta::runScore($reg);
+	    elseif ($last->activity == "rotation") // only other activity supported
+	      UpdateRegatta::runRotation($reg);
+
+	    $seasons[(string)$reg->getSeason()] = $reg->getSeason();
+	    // Log the successful execution
+	    UpdateManager::log($last, 0);
+	  }
+	  catch (Exception $e) {
+	    // Error: log that too
+	    UpdateManager::log($last, $e->getCode());
+	  }
+	}
+	else {
+	  // Log the action as having taken place by "assumption"
+	  UpdateManager::log($last, -1);
+	}
       }
     }
+
+    // Deal now with each affected season.
+    foreach ($seasons as $season) {
+      UpdateSeason::run($season);
+      UpdateManager::logSeason($season);
+    }
+
+    // Deal with home page
+    // @TODO
 
     // Remove lock
     self::cleanup();
@@ -110,6 +138,9 @@ class UpdateDaemon {
 // ------------------------------------------------------------
 // When run as a script
 if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
+  // Make sure, if nothing else, that you at least run cleanup
+  // @TODO
+
   $_SERVER['HTTP_HOST'] = $argv[0];
   ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
   require_once('conf.php');
