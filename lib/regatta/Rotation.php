@@ -273,7 +273,6 @@ class Rotation {
 	}
       }
     }
-    $this->commit();
   }
 
   /**
@@ -377,7 +376,6 @@ class Rotation {
 	}
       }
     }
-    $this->commit();
   }
 
   /**
@@ -499,7 +497,6 @@ class Rotation {
 		 $todiv,
 		 implode('", "', $nums));
     $this->regatta->query($q);
-    $this->commit();
   }
 
   /**
@@ -541,12 +538,11 @@ class Rotation {
 
   /**
    * For now, this function merely notifies the update manager that a
-   * rotation change has happened. This function is automatically
-   * called when using any of the 'create' methods. Client code should
-   * take care of calling this method after all individual changes to
-   * sails have happened. It is possible that in the future a call to
-   * this method will be required in order to actually commit the
-   * changes to the database. At the moment, however, each call to
+   * rotation change has happened. Client code should take care of
+   * calling this method after all individual changes to sails have
+   * happened. It is possible that in the future a call to this method
+   * will be required in order to actually commit the changes to the
+   * database. At the moment, however, each call to
    * <pre>replaceSail</pre> and its brethren issues a SQL query on its
    * own.
    *

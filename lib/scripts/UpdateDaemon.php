@@ -63,7 +63,7 @@ class UpdateDaemon {
   public static function run() {
     // Check file lock
     self::$lock_file = sprintf("%s/%s", sys_get_temp_dir(), self::$lock_file_template);
-    if (file_exists($filename)) {
+    if (file_exists(self::$lock_file)) {
       die("Remove lockfile to proceed! (Created: " . file_get_contents(self::$lock_file) . ")\n");
     }
 
@@ -91,9 +91,9 @@ class UpdateDaemon {
       $actions = UpdateRequest::getTypes();
       while (count($requests) > 0) {
 	$last = array_pop($requests);
-	if (isset($actions[$last])) {
+	if (isset($actions[$last->activity])) {
 	  // Do the action itself
-	  unset($actions[$last]);
+	  unset($actions[$last->activity]);
 	  try {
 	    $reg = new Regatta($id);
 	    if ($last->activity == UpdateRequest::ACTIVITY_SCORE)
@@ -101,7 +101,8 @@ class UpdateDaemon {
 	    elseif ($last->activity == UpdateRequest::ACTIVITY_ROTATION)
 	      UpdateRegatta::runRotation($reg);
 
-	    $seasons[(string)$reg->getSeason()] = $reg->getSeason();
+	    $season = $reg->get(Regatta::SEASON);
+	    $seasons[(string)$season->getSeason()] = $season;
 	    // Log the successful execution
 	    UpdateManager::log($last, 0);
 	  }

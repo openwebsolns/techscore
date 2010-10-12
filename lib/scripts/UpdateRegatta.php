@@ -57,7 +57,7 @@ class UpdateRegatta {
       throw new RuntimeException("Unable to make regatta directory: $dirname\n", 4);
     
     $filename = "$dirname/index.html";
-    if (file_put_contents($filename, $M->getScoresPage()) === false)
+    if (@file_put_contents($filename, $M->getScoresPage()) === false)
       throw new RuntimeException(sprintf("Unable to make the regatta report: %s\n", $filename), 8);
   }
 
@@ -71,11 +71,11 @@ class UpdateRegatta {
       self::runDelete($reg);
       return;
     }
-    
+
     $M = new ReportMaker($reg);
     if (!$M->hasRotation()) {
       throw new RuntimeException(sprintf("Regatta %s (%d) does not have a rotation!",
-					 $reg->get(Regatta::NAME), $argv[1]), 8);
+					 $reg->get(Regatta::NAME), $reg->id()), 8);
     }
 
     $R = realpath(dirname(__FILE__).'/../../html');
@@ -88,7 +88,7 @@ class UpdateRegatta {
       throw new RuntimeException("Unable to make regatta directory: $dirname\n", 4);
     
     $filename = "$dirname/rotations.html";
-    if (file_put_contents($filename, $M->getRotationPage()) === false)
+    if (@file_put_contents($filename, $M->getRotationPage()) === false)
       throw new RuntimeException(sprintf("Unable to make the regatta report: %s\n", $filename), 8);
   }
 }
@@ -125,7 +125,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
     exit(2);
   }
   foreach ($action as $act) {
-    if ($act == "score") {
+    if ($act == UpdateRequest::ACTIVITY_SCORE) {
       try {
 	UpdateRegatta::runScore($REGATTA);
 	error_log(sprintf("I/0/%s\t(%d): Successful!\n", date('r'), $REGATTA->id()), 3, LOG_SCORE);
@@ -135,7 +135,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
 		  3, LOG_SCORE);
       }
     }
-    elseif ($act == "rotation") {
+    elseif ($act == UpdateRequest::ACTIVITY_ROTATION) {
       try {
 	UpdateRegatta::runRotation($REGATTA);
 	error_log(sprintf("I/0/%s\t(%d): Successful!\n", date('r'), $REGATTA->id()), 3, LOG_ROTATION);

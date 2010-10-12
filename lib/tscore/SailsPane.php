@@ -405,6 +405,7 @@ class SailsPane extends AbstractPane {
     }
 
     // reset
+    $rotation->commit();
     $this->announce(new Announcement("New rotation successfully created."));
     unset($args['rottype']);
     return $args;
@@ -666,6 +667,7 @@ class SailsPane extends AbstractPane {
       }
 
       // Reset
+      $rotation->commit();
       $this->announce(new Announcement("New rotation successfully created."));
       unset($args['rottype']);
     }
