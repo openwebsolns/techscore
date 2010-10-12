@@ -781,13 +781,13 @@ class Regatta implements RaceListener, FinishListener {
    * @return DateTime, or null if no update found
    */
   public function getLastScoreUpdate() {
-    $q = sprintf('select last_update from score_update where regatta = "%s"',
-		 $this->id);
+    $q = sprintf('select request_time from %s where regatta = %d and activity = "%s"',
+		 UpdateRequest::TABLES, $this->id(), UpdateRequest::ACTIVITY_SCORE);
     $q = $this->query($q);
     if ($q->num_rows == 0)
       return null;
 
-    return new DateTime($q->fetch_object()->last_update);
+    return new DateTime($q->fetch_object()->request_time);
   }
 
   /**
