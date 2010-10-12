@@ -983,15 +983,8 @@ class Regatta implements RaceListener, FinishListener {
 
     $this->scorer->score($this);
 
-    // Update last score
-    $q = sprintf('replace into score_update (regatta) values ("%s")',
-		 $this->id);
-    $this->query($q);
-
-    // Trigger updates
-    $path = __search_path(TS_PATH, "UpdateScore.php");
-    $id   = $this->id();
-    exec("php $path $id &");
+    // Queue public score update
+    UpdateManager::queueRequest($this, UpdateRequest::ACTIVITY_SCORE);
   }
 
   // ------------------------------------------------------------

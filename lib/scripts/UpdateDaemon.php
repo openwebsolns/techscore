@@ -88,7 +88,7 @@ class UpdateDaemon {
     // anyways (lest they should remain pending later on).
     $seasons = array();  // set of seasons affected
     foreach ($regattas as $id => $requests) {
-      $actions = array("score" => "score", "rotation" => "rotation");
+      $actions = UpdateRequest::getTypes();
       while (count($requests) > 0) {
 	$last = array_pop($requests);
 	if (isset($actions[$last])) {
@@ -96,9 +96,9 @@ class UpdateDaemon {
 	  unset($actions[$last]);
 	  try {
 	    $reg = new Regatta($id);
-	    if ($last->activity == "score")
+	    if ($last->activity == UpdateRequest::ACTIVITY_SCORE)
 	      UpdateRegatta::runScore($reg);
-	    elseif ($last->activity == "rotation") // only other activity supported
+	    elseif ($last->activity == UpdateRequest::ACTIVITY_ROTATION)
 	      UpdateRegatta::runRotation($reg);
 
 	    $seasons[(string)$reg->getSeason()] = $reg->getSeason();

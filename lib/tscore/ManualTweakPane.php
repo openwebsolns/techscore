@@ -107,6 +107,7 @@ class ManualTweakPane extends AbstractPane {
 	  }
 	}
       }
+      $rotation->commit();
       $this->announce(new Announcement('Sails updated.'));
       // notify();
     }

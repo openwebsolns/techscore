@@ -273,6 +273,7 @@ class Rotation {
 	}
       }
     }
+    $this->commit();
   }
 
   /**
@@ -376,6 +377,7 @@ class Rotation {
 	}
       }
     }
+    $this->commit();
   }
 
   /**
@@ -425,7 +427,7 @@ class Rotation {
    * @param boolean $updir whether to go up (default) or down
    * @return Array<Array<int>> a table of [team][race] sails
    */
-  public function createSwapTable(Array $sails, $num_races, $repeats = 1, $updir = true) {
+  private function createSwapTable(Array $sails, $num_races, $repeats = 1, $updir = true) {
 
     $updir = ($updir) ? 1 : -1;
 
@@ -497,6 +499,7 @@ class Rotation {
 		 $todiv,
 		 implode('", "', $nums));
     $this->regatta->query($q);
+    $this->commit();
   }
 
   /**
@@ -535,40 +538,21 @@ class Rotation {
 		 (int)$repl, (int)$orig, $race->id);
     $this->regatta->query($q);
   }
-}
 
-/*
-if (basename(__FILE__) == $argv[0]) {
-  $reg = new Regatta(115);
-  $rot = $reg->getRotation();
-  $reg->set(Regatta::SCORING, Regatta::SCORING_COMBINED);
-
-
-  $races = array();
-  for ($num = 0; $num < 5; $num++) {
-    $races[] = $num + 1;
+  /**
+   * For now, this function merely notifies the update manager that a
+   * rotation change has happened. This function is automatically
+   * called when using any of the 'create' methods. Client code should
+   * take care of calling this method after all individual changes to
+   * sails have happened. It is possible that in the future a call to
+   * this method will be required in order to actually commit the
+   * changes to the database. At the moment, however, each call to
+   * <pre>replaceSail</pre> and its brethren issues a SQL query on its
+   * own.
+   *
+   */
+  public function commit() {
+    UpdateManager::queueRequest($this->regatta, UpdateRequest::ACTIVITY_ROTATION);
   }
-
-  $num = 1;
-  $sails = array();
-  $divs  = array();
-  $teams = array();
-  $divisions = $reg->getDivisions();
-  foreach ($reg->getTeams() as $team) {
-    foreach ($divisions as $div) {
-      $sails[] = "MIT" . $num++;
-      $divs[]  = $div;
-      $teams[] = $team;
-    }
-  }
-
-  // $rot->createSwap($teams, $sails, $races, 1);
-  // $rot->createSwap($teams, $uncombined, $races, 2);
-  // $rot->createStandard($teams, $sails, $races, 2);
-  // $rot->createStandard($sails, $teams, $divs, $races, 2);
-
-  foreach ($rot->createSwapTable($sails, 10, 1) as $team)
-    print(sprintf("%s\n", implode(" ", $team)));
 }
-*/
 ?>
