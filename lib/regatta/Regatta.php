@@ -475,6 +475,8 @@ class Regatta implements RaceListener, FinishListener {
 	$next = $this->getUnscoredRaces($div);
 	$list = array_merge($list, $next);
       }
+      // sort by number, then division
+      usort($list, "Race::compareNumber");
       return $list;
     }
     

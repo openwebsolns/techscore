@@ -41,8 +41,14 @@ class EnterFinishPane extends AbstractPane {
     // unscored race, or the last race.
     $race = null;
     if (isset($args['chosen_race'])) $race = $args['chosen_race'];
-    if ($race == null) $race = array_shift($this->REGATTA->getUnscoredRaces());
-    if ($race == null) $race = array_pop($this->REGATTA->getScoredRaces());
+    if ($race == null) {
+      $races = $this->REGATTA->getUnscoredRaces();
+      $race = array_shift($races);
+    }
+    if ($race == null) {
+      $races = $this->REGATTA->getScoredRaces();
+      $race = array_pop($races);
+    }
 
     $rotation = $this->REGATTA->getRotation();
 
