@@ -1,0 +1,17 @@
+# Cron job for updating the public site
+#
+# To install: This file should be copied and modified as 'crontab' and
+# then linked to the appropriate cron.d folder (/etc/cron.d perhaps)
+
+# DO NOT send mail
+MAILTO = ""
+
+#--------------------------------
+# On weekends, let's update every 5 minutes, every other day, from
+# 9h-22h, let's update every half hour
+*/5  9-22 * * 0,1,6 www-data php {DIRECTORY}/lib/scripts/UpdateDaemon.php
+*/30 9-22 * * 2-5   www-data php {DIRECTORY}/lib/scripts/UpdateDaemon.php
+
+
+#--------------------------------
+# @TODO: Other updates like sailor database, backups, etc

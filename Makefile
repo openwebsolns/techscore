@@ -1,6 +1,9 @@
 include Makefile.local
 
-default: apache.conf changes.current.sql
+default: apache.conf changes.current.sql crontab
+
+crontab: crontab.default
+	sed 's:{DIRECTORY}:'"`pwd`"':g' crontab.default > crontab
 
 apache.conf: apache.conf.default
 	sed 's:{DIRECTORY}:'"`pwd`"':g' apache.conf.default > apache.conf

@@ -19,3 +19,6 @@ changes.current.sql
 
 # Public files
 html/*
+
+# Crontab
+crontab
