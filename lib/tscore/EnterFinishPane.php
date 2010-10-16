@@ -91,6 +91,11 @@ class EnterFinishPane extends AbstractPane {
     $using = (isset($args['finish_using'])) ?
       $args['finish_using'] : "ROT";
 
+    if (count($rotation->getRaces()) == 0) {
+      unset($this->ACTIONS["ROT"]);
+      $using = "TMS";
+    }
+    
     $form->addChild(new FItem("Using:",
 			      $fsel = new FSelect("finish_using",
 						  array($using))));

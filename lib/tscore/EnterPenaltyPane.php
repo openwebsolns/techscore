@@ -91,7 +91,7 @@ class EnterPenaltyPane extends AbstractPane {
       // ------------------------------------------------------------
       $title = sprintf("2. %s in race %s", $p_type, $theRace);
       $this->PAGE->addContent($p = new Port($title));
-      $p->addChild($form = new Form($url));
+      $p->addChild($form = $this->createForm());
       $form->addChild(new FHidden("p_type", $p_type));
       $form->addChild(new FItem("Team:",
 				$f_sel = new FSelect("finish", array(""))));
@@ -108,7 +108,7 @@ class EnterPenaltyPane extends AbstractPane {
       $form->addChild(new FItem("Comments:",
 				new FTextarea("p_comments", "",
 					      array("rows"=>"2",
-						    "cols"=>"15"))));
+						    "cols"=>"50"))));
       // - Amount, or average, if necessary
       if ( $p_type == "RDG" || $p_type == "BKD") {
 	$new_score = new FItem("New score:",
