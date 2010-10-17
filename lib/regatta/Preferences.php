@@ -178,7 +178,7 @@ class Preferences {
     }
     
     $con = self::getConnection();
-    $q = sprintf('select %s from %s %s', Venue::FIELDS, Venue::TABLES, $limit);
+    $q = sprintf('select %s from %s order by name, state %s', Venue::FIELDS, Venue::TABLES, $limit);
     $q = $con->query($q);
     
     $list = array();
