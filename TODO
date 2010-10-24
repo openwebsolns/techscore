@@ -71,3 +71,14 @@ Public side structure
    - ...
 
  - sailors (perhaps this should be PHP-based?)
+
+*
+
+* PUBLIC side: display results on a "weekend" basis
+  
+** Season page: organize by each weekend
+
+Play off regattas that have not been finalized by not displaying the
+winning burgees.
+
+** Home page: latest weekend, and other seasons, and others

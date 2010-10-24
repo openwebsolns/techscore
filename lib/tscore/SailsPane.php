@@ -131,8 +131,16 @@ class SailsPane extends AbstractPane {
     $chosen_rot = (isset($args['rottype'])) ?
       $args['rottype'] : null;
 
-    $chosen_div = (isset($args['division'])) ?
-      $args['division'] : $divisions;
+    $chosen_div = $divisions;
+    if (isset($args['division'])) {
+      try {
+	$chosen_div = array();
+	foreach ($args['division'] as $div)
+	  $chosen_div[$div] = Division::get($div);
+      } catch (Exception $e) {
+	$this->announce(new Announcement("Invalid division(s) specified. Using all.", Announcement::WARNING));
+	$chosen_div = $divisions;
+      }
 
     $repeats = (isset($args['repeat']) && is_numeric($args['repeat'])) ?
       $args['repeat'] : 2;
