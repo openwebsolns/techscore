@@ -9,7 +9,7 @@
 - Timezone settings
 - Stylesheet to use
 
-* Dialog CSS, etc
+* Dialog CSS, etc (d o n e)
 
 * Javascript COOKIE (d o n e)
 
@@ -17,7 +17,7 @@
 
 * FIX CSS Table Styles
 
-* FIX Announcements Div on TScorePage
+* FIX Announcements Div on TScorePage (d o n e)
 - Both CSS positioning and placement within page
 
 * FIX CSS for Preference pages (d o n e)
@@ -26,19 +26,19 @@
 
 * Implement scripts
 
-* Improve the public site!!!
+* Improve the public site!!!!
 
-* FIX Help files
+* FIX Help files!
 
 * Scorers vs. Hosts (d o n e)
 
-* Admin side
+* Admin side (d o n e)
 
 * Cache RP form creation (d o n e)
 
 * Separation of apache.conf (d o n e)
 
-* libcurl for notification system!
+* libcurl for notification system! (d o n e)
   - no longer necessary since notification happens on same server from now on.
 
 * When registering for new accounts, an EULA would be nice (d o n e)
