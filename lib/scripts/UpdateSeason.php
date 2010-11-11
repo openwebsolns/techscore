@@ -42,15 +42,24 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
 
   try {
     UpdateSeason::run($season);
-    error_log(sprintf("I/0/%s\t(%d): Successful!\n", date('r'), $REGATTA->id()), 3, LOG_SEASON);
+    error_log(sprintf("I:0:%s\t(%s): Successful!\n", date('r'), $season), 3, LOG_SEASON);
   }
+  /*
   catch (InvalidArgumentException $e) {
     printf("Invalid regatta ID provided: %s\n", $argv[1]);
     exit(2);
   }
-  catch (RuntimeException $e) {
-    error_log(sprintf("E/%d/%s\t(%d): %s\n", $e->getCode(), date('r'), $argv[1], $e->getMessage()),
+  */
+  catch (Exception $e) {
+    error_log(sprintf("E:%d:L%d:F%s:%s\t(%d): %s\n",
+		      $e->getCode(),
+		      $e->getLine(),
+		      $e->getFile(),
+		      date('r'),
+		      $argv[1],
+		      $e->getMessage()),
 	      3, LOG_SEASON);
+    print_r($e->getTrace());
   }
 }
 ?>

@@ -32,18 +32,31 @@ class SeasonSummaryMaker {
     $this->page = new TPublicPage($season->fullString() . ' ' . $season->getYear());
 
     // Separate the regattas into three sections: sailing now, sailing
-    // soon, and finalized
+    // soon, and finalized.
+    // 2010-11-11: Determine regatta status based on time, and not on
+    // "finalized" status. That is, ignore user's habits to never
+    // finalize regattas, as necessary. Instead, simply signal them as
+    // "Pending" (perhaps with a big orange button).
+    $now = date('U');
     $regattas = $season->getRegattas();
     $sailing = array();
     $coming  = array();
     $final   = array();
     foreach ($regattas as $reg) {
+      if ($reg->end_date->format('U') <= $now)
+	$final[] = $reg;
+      elseif ($reg->start_time->format('U') > $now)
+	$coming[] = $reg;
+      else
+	$sailing[] = $reg;
+      /*
       if ($reg->finalized !== null)
 	$final[] = $reg;
       elseif ($reg->start_time->format('U') < date('U'))
 	$sailing[] = $reg;
       else
 	$coming[] = $reg;
+      */
     }
 
     // SETUP navigation
@@ -131,7 +144,7 @@ class SeasonSummaryMaker {
     if (count($final) > 0) {
       $winning_school = array();
 
-      $this->page->addSection($p = new Port("Finalized regattas"));
+      $this->page->addSection($p = new Port("Past regattas"));
       $p->addAttr("id", "all");
       $p->addChild($tab = new Table());
       $tab->addAttr("style", "width: 100%");
@@ -147,6 +160,7 @@ class SeasonSummaryMaker {
 	$num_teams += count($reg->getTeams());
 	$hosts = array();
 	$confs = array();
+	$status = ($reg->get(Regatta::FINALIZED) === null) ? 'Pending' : 'Final';
 	foreach ($reg->getHosts() as $host) {
 	  $hosts[$host->school->id] = $host->school->nick_name;
 	  $confs[$host->school->conference->id] = $host->school->conference;
@@ -157,7 +171,7 @@ class SeasonSummaryMaker {
 					new Cell(implode("/", $hosts)),
 					new Cell(ucfirst($reg->get(Regatta::TYPE))),
 					new Cell($wt = $reg->getWinningTeam()),
-					new Cell($reg->get(Regatta::FINALIZED)->format('F j, Y'))
+					new Cell($status)
 					)));
 	$r->addAttr("class", sprintf("row%d", $row++ % 2));
 	if (!isset($winning_school[$wt->school->id]))

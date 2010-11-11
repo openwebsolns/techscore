@@ -7,7 +7,7 @@
    * @created 2009-10-04
    */
 
-define('TS_PATH', dirname(__FILE__));
+define("TS_PATH", dirname(__FILE__));
 function __autoload($name) {
   $dirs = explode(":", TS_PATH);
   foreach ($dirs as $dirname) {
