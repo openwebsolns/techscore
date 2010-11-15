@@ -1,0 +1,768 @@
+/* Layout for Fleetrack */
+/* Created by Dayan Paez */
+
+/* Import */
+@import url('Auto_Complete.css');
+
+/* General properties */
+
+body {
+    background: #EEEEEE;
+    font-family: "Verdana", sans-serif;
+    generic-family: sans-serif;
+    font-size: 0.9em;
+    }
+
+pre {
+    font-size: 1.1em;
+}
+
+P {
+    line-height: 1.25em;
+    }
+
+h1 {
+    font-size: 3em;
+    padding: 0em;
+    margin: 0em;
+    margin-bottom: 0.5em;
+    color: #993333;
+    background: none;
+}
+
+h1 a {
+    color: #993333;
+    text-decoration: none;
+}
+h1 a:hover {
+    text-decoration: underline
+    }
+
+h2 {
+    color: #993333;
+    padding: 0em;
+    padding-right: 1em;
+    text-align: right;
+    font-size: 1.8em;
+    margin-bottom: 0.3em;
+    margin-top: -0.5em;
+    clear: right;
+    z-index: 10;
+    width: auto;
+    border-bottom: 1px solid #993333;
+    }
+
+h4  {
+    padding-right: 1em;
+}
+
+h5  {
+    padding-right: 1.5em;
+    margin-left: 1.5em;
+}
+
+div#header h1 {
+    margin-bottom: 0em;
+}
+
+h4#date {
+    text-align: center;
+    border: 1px inset #993333;
+    background: #CCCCCC;
+    margin-top: -1em;
+    margin-bottom: 0.5em;
+    padding-top: 0em;
+    border-radius: 0.5em;
+    -moz-border-radius: 0.5em;
+    -webkit-border-radius: 0.5em;
+}
+
+/* Divs */
+div#headdiv{
+    padding-left: 1em;
+    margin-left: 11em;
+    margin-bottom: 0em;
+}
+
+div#bottom-grab {
+    clear: left;
+    height: 8px;
+/*    background: url('../../img/grab.png'); */
+}
+
+div#right-grab {
+    width: 16px;
+    height: 100%;
+    background: none;
+    position: fixed;
+    top: 0em;
+    left: 10em;
+    cursor: default;
+}
+div#right-grab.scriptenabled {
+    background: url('../../img/grab2.png');
+    background-repeat: repeat-y;
+    background-position: 50% 0%;
+    cursor: w-resize;
+    z-index: 2;
+    display: none;
+}
+
+
+div#menudiv {
+    position: fixed;
+    top: 0em;
+    left: 0em;
+    height: 85%;
+    padding: 0.5em;
+    width: 9.5em;
+    height: 100%;
+    overflow: auto;
+    background: #DDDDDD;
+    border-right: 1px solid #993333;
+}
+
+div#announcediv {
+    padding: 1em;
+    margin: 0em;
+    margin-bottom: 1em;
+    margin-left: 11em;
+}
+div#announcediv p {
+    background: cornsilk;
+    font-size: 0.8em;
+    border: 1px solid #993333;
+    padding: 0.4em;
+    margin: 0em;
+    margin-bottom: 0.5em;
+}
+
+div#menulink {
+    z-index: 2;
+    position: fixed;
+    top: 0.75em;
+    margin-left: 0.5em;
+    width: 9em;
+}
+
+div#menulink.tiny {
+    width: 1em;
+}
+
+div#menulink button {
+    padding: 0em;
+}
+
+div#bodydiv{
+    margin-left: 11em;
+    margin-top: 0em;
+    }
+
+div#bodydiv.fullscreen, 
+div#headdiv.fullscreen,
+div#bottom-grab.fullscreen {
+    margin-left: 2.5em;
+}
+
+div#right-grab.fullscreen {
+    left: 0em;
+}
+
+div#header {
+    float: left;
+}
+
+div#topnav {
+    position: relative;
+
+    padding: 0.25em;
+}
+
+div#user, div#regatta, div#weather, #help {
+    float: right;
+    background: #CCCCCC;
+    font-size: 0.8em;
+    color: #993333;
+    font-weight: bold;
+    margin-right: 1em;
+    margin-bottom: 0.2em;
+    padding: 0.3em;
+}
+
+div#user *[type="submit"] {
+    padding: 0em;
+    margin: 0em;
+}
+
+div#user .form_h {
+    margin-left: 0em;
+    padding-left: 0em;
+}
+
+div#user ul, div#regatta ul, div#weather ul {
+    font-weight: normal;
+    margin: 0em;
+    margin-left: 1.5em;
+    padding: 0em;
+}
+
+div#footdiv {
+    clear: left;
+    font-size: 80%;
+    text-align: right;
+    padding-top: 2em;
+    color: #666666;
+}
+
+/* Menu list decorations */
+ul#homelist {
+    background-image: url('../../img/home.png');
+    background-repeat: no-repeat;
+    background-position: bottom right;
+}
+ul#schoollist {
+    background-image: url('../../img/schools.png');
+    background-repeat: no-repeat;
+    background-position: bottom right;
+}
+ul#rplist {
+    background-image: url('../../img/rp.png');
+    background-repeat: no-repeat;
+    background-position: bottom right;
+}
+ul#rotationlist {
+    background-image: url('../../img/rotations.png');
+    background-repeat: no-repeat;
+    background-position: bottom right;
+}
+ul#finishlist {
+    background-image: url('../../img/finish.png');
+    background-repeat: no-repeat;
+    background-position: bottom right;
+}
+
+/* Menu */
+div#menudiv a {
+    color: white;
+}
+
+div#menudiv h4 {
+    color: #993333;
+    border-top: 1px solid #993333;
+    margin: 0.2em;
+    text-align: right;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+div#menudiv ul, div#menudiv ol {
+    margin-top: 0em;
+    }
+
+div#menudiv ul li {
+    text-align: right;
+    margin-left: -1.5em;
+    padding-right: 1em;
+    list-style-type: none;
+}
+
+div#menudiv a {
+    color: black;
+    text-decoration: none;
+}
+
+div#menudiv li.current {
+    background: #EEEEEE;
+    color: #993333;
+    margin-right: -1em;
+    z-index: 20;
+    padding-left: 1em;
+    margin-left: -2.5em;
+    border-radius: 0.25em;
+    -moz-border-radius: 0.25em;
+}
+
+div#menudiv {
+    border-top: #CCCCCC;
+    }
+
+div#menudiv a:hover {
+    background: #993333;
+    color: white;
+}
+
+div.port {
+    margin-bottom: 1em;
+    margin-right: 1em;
+    border: 1px solid #DDDDDD;
+    border-right: 2px solid #DDDDDD;
+    border-bottom: 2px solid #DDDDDD;
+    border-radius: 0.5em;
+    -moz-border-radius: 0.5em;
+    -webkit-border-radius: 0.5em;
+    padding-bottom: 1em;
+    clear: left;
+    overflow: auto;
+    background: white;
+    padding: 0.2em;
+    padding-bottom: 1em;
+    }
+
+div#winning {
+    max-width: 20em;
+}
+
+div#winning {
+    position: relative;
+    margin: 0 auto;
+    max-width: 20em;
+}
+
+div.small {
+    float: left;
+    width: auto;
+    display: block;
+    margin-right: 0.5em;
+    vertical-align: top;
+    clear: none;
+    }
+
+div.port li {
+    line-height: 1.5em;
+    padding-right: 1em;
+}
+
+div.port p {
+    padding-right: 1em;
+}
+
+div.port h3 {
+    color: #993333;
+    background: #CCCCCC;
+    padding-left: 1em;
+    padding-right: 1em;
+    -moz-border-radius: 0.25em;
+    -webkit-border-radius: 0.25em;
+    border-radius: 0.25em;
+    margin-top: 0em;
+    border: 1px groove #666666;
+    }
+
+.hlink {
+    float: right;
+    margin-top: -1.5em;
+    font-size: 80%;
+}
+
+.hlink a {
+    text-decoration: none;
+}
+
+.hlink a:hover {
+    background: #993333;
+    color: white;
+}
+
+div.port h4 {
+    padding-left: 1em;
+    color: #993333;
+    margin-bottom: 1em;
+    }
+
+div.form_entry {
+    margin-bottom: 0.5em;
+    margin-right: 1em;
+    }
+
+div.form_h {
+    display: inline-block;
+    text-align: right;
+    width: 8em;
+    font-style: italic;
+    vertical-align: top;
+    padding-right: 1em;
+    }
+div.form_b {
+    display: inline-block;
+    vertical-align: top;
+    }
+
+div.form_b ul {
+    margin-top: 0em;
+    margin-left: 1.5em;
+    padding-top: 0em;
+    padding-left: 0em;
+    list-style: none;
+}
+
+div#compass {
+    display: inline-block;
+    vertical-align: top;
+    width:100px;
+    height:100px;
+    background: url('../../img/compass.png');
+    background-repeat: no-repeat;
+}
+
+span.form_h {
+    display: inline-block;
+    text-align: right;
+    width: 8em;
+    font-style: italic;
+    vertical-align: top;
+    padding-right: 1em;
+    padding-left: 1em;
+}
+
+/* Tables */
+table {
+    border-spacing: 0em;
+    border-collapse: collapse;
+    border: 1px solid #DDDDDD;
+    margin: 1.5em;
+    padding: 0.5em;
+    border-radius: 0.25em;
+    -moz-border-radius: 0.25em;
+    -webkit-border-radius: 0.25em;
+    font-size: 100%;
+    width: auto;
+    }
+
+table.form_h {
+    margin-right: 1em;
+    margin-left: 1em;
+}
+
+
+tr.totalrow {
+    /* background: #DDDDDD; */
+    color: #666666;
+    border-bottom: 2px solid #BBBBBB;
+}
+tr.totalrow td {
+    vertical-align: top;
+}
+
+tr.row0 {
+    background: white;
+}
+tr.row1 {
+    background: #EEEEEE;
+}
+
+
+tr.skipper td {
+    background: #EEEEEE;
+}
+
+td.namescell {
+    max-width: 20em;
+}
+
+th {
+    background: #DDDDDD;
+    color: #993333;
+    text-align: right;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    font-size: 0.9em;
+    vertical-align: bottom;
+    padding-right: 0.5em;
+    min-width: 2em;
+    }
+
+TD {
+    generic-family: monospace;
+    font-size: 0.9em;
+    text-align: right;
+    min-width: 2.2em;
+    vertical-align: bottom;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    padding-right: 0.5em;
+    }
+
+thead {
+    border-bottom: 2px solid #DDDDDD;
+}
+
+col#teamcol {
+    border-right: 1px solid #DDDDDD;
+    text-align: left;
+}
+
+col#totalcol {
+    border-left: 1px solid #DDDDDD;
+}
+
+div.small table {
+    margin: 0.5em;
+    margin-top: 0em;
+    padding: 0.2em;
+}
+
+span.races {
+    width: 5em;
+    color: #666666;
+    text-align: left;
+    display: inline-block;
+    font-size: 90%;
+}
+
+/* Forms */
+input {
+    margin-left: 1em;
+}
+
+input[type="submit"], input[type="reset"] {
+    padding: 0.5em;
+    margin-top: 0.5em;
+    margin-left: 1em;
+    }
+
+input[disabled] {
+    background: #DDDDDD;
+}
+
+input.thin {
+    padding: 0em;
+    margin: 0em;
+}
+
+select[multiple="multiple"] {
+    padding: 0.5em;
+    border: 1px solid #DDDDDD;
+    border-radius: 0.5em;
+    -moz-border-radius: 0.5em;
+    -webkit-border-radius: 0.5em;
+    }
+
+optgroup {
+    font-style: normal;
+    border-bottom: 1px solid #DDDDDD;
+    padding-bottom: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+option {
+    margin-bottom: 0.3em;
+}
+
+noscript input {
+    position: relative;
+    left: 75%;
+}
+
+select, input[type="submit"], textarea {
+    margin-right: 1em;
+    margin-left:  1em;
+}
+
+textarea {
+    width: 70%;
+}
+
+p {
+    margin-left: 1em;
+}
+
+/* Imgs */
+td img {
+    max-height: 5em;
+}
+
+img {
+    border: none;
+}
+
+/* Winning team burgee */
+img.background {
+    display: block;
+    text-align: center;
+    margin: auto;
+}
+
+/* Classes */
+
+.hidden {
+    display: none;
+    }
+
+.warning {
+    color: maroon;
+    }
+
+.draggable {
+    border: 1px dotted #993333;
+    background: #EEEEEE;
+    cursor: move;
+    padding-left: 0.25em;
+    padding-right: 0.25em;
+}
+
+.warn {
+    border-color: red;
+    color: maroon;
+    border-radius: 0.35em;
+    -moz-border-radius: 0.35em;
+    -webkit-border-radius: 0.35em;
+    }
+
+.narrow {
+    display: inline-block;
+    vertical-align: top;
+    margin-left: 1em;
+    }
+
+.sum {
+    font-weight: normal;
+}
+
+.total {
+    background: #CCCCCC;
+    font-weight: bold;
+}
+
+.skip {
+    font-weight: bold;
+    padding-right: 0.5em;
+}
+
+.crew {
+    padding-right: 0.5em;
+}
+
+.use_columns {
+    column-width: 16em;
+    column-gap: 0.5em;
+    column-rule: 1px solid black;
+    -moz-column-width: 16em;
+}
+
+.left {
+    text-align: left;
+}
+
+.left * {
+    text-align: left;
+}
+
+.inline {
+    display: inline;
+}
+
+.strong {
+    font-weight: bold;
+}
+
+.large {
+    font-size: 120%;
+    font-weight: bold;
+}
+
+.help {
+    font-size: 80%;
+}
+    
+#name-valid {
+    display: inline-block;
+    vertical-align: top;
+    text-align: left;
+}
+#name-valid * {
+    text-align: left;
+}
+
+/* Hover colors */
+.hover {
+    background: #CCCCCC;
+}
+
+.hovercell {
+    background: #993333;
+    color: white;
+}
+
+.click {
+    background: #DDDDDD;
+}
+
+.borderleft {
+    border-left: 1px solid #CCCCCC;
+}
+
+.dialog {
+    cursor: ne-resize;
+}
+
+img {
+    display: inline;
+}
+
+/* Reports */
+#report {
+    padding: 1em;
+}
+
+#report table {
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    width: auto;
+}
+
+#report h4 {
+    margin-left: 1em;
+    margin-right: 1em;
+    padding-left: 0em;
+    border-bottom: 1px solid #993333;
+}
+
+#report h2 {
+    border-bottom: none;
+}
+
+#report h1, #report h2 {
+    text-align: center;
+}
+
+#report p#reg-comments {
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    width: auto;
+    max-width: 40em;
+    padding-left: 5em;
+    padding-right: 5em;
+}
+
+#report .narrow {
+    position: relative;
+    display: table;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: auto;
+}
+
+/* Definition lists */
+dl {
+    counter-reset: faq;
+}
+dd {
+    font-weight: bold;
+    margin-bottom: 0.8em;
+    margin-top: 2em;
+}
+dd:before {
+    content: counter(faq) ". ";
+    counter-increment: faq;
+}
+dt {
+    padding-right: 3em;
+    padding-left:  4em;
+}
+
+/* Narrow paragraphs */
+div.small p, div.small li {
+    max-width: 30em;
+}
