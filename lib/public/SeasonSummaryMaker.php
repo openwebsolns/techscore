@@ -31,97 +31,71 @@ class SeasonSummaryMaker {
     $season = $this->season;
     $this->page = new TPublicPage($season->fullString() . ' ' . $season->getYear());
 
-    // Separate the regattas into three sections: sailing now, sailing
-    // soon, and finalized.
-    // 2010-11-11: Determine regatta status based on time, and not on
-    // "finalized" status. That is, ignore user's habits to never
-    // finalize regattas, as necessary. Instead, simply signal them as
-    // "Pending" (perhaps with a big orange button).
-    $now = date('U');
+    // 2010-11-14: Separate regattas into "weekends", descending by
+    // timestamp, based solely on the start_time, assuming that the
+    // week ends on a Sunday.
+    $weeks = array();
     $regattas = $season->getRegattas();
-    $sailing = array();
-    $coming  = array();
-    $final   = array();
     foreach ($regattas as $reg) {
-      if ($reg->end_date->format('U') <= $now)
-	$final[] = $reg;
-      elseif ($reg->start_time->format('U') > $now)
-	$coming[] = $reg;
-      else
-	$sailing[] = $reg;
-      /*
-      if ($reg->finalized !== null)
-	$final[] = $reg;
-      elseif ($reg->start_time->format('U') < date('U'))
-	$sailing[] = $reg;
-      else
-	$coming[] = $reg;
-      */
+      $week = $reg->start_time->format('W');
+      if (!isset($weeks[$week]))
+	$weeks[$week] = array();
+      $weeks[$week][] = $reg;
     }
 
     // SETUP navigation
     $this->page->addNavigation(new Link(".", $season->fullString(), array("class"=>"nav")));
-    if (count($sailing) > 0)
-      $this->page->addMenu(new Link("#now",  "Sailing now"));
-    if (count($coming)  > 0)
-      $this->page->addMenu(new Link("#soon", "Sailing soon"));
-    if (count($final)   > 0)
-      $this->page->addMenu(new Link("#all", "Finalized"));
+    $this->page->addMenu(new Link("#summary", "Summary"));
+    $this->page->addMenu(new Link("#all", "Weekends"));
 
     // SEASON summary
-    $this->page->addSection($summary_port = new Port("Season summary"));
+    $this->page->addSection($summary_port = new Port("Season summary", array(), array("id"=>"summary")));
     $num_teams    = 0;
 
-    // Sailing NOW
-    if (count($sailing) > 0) {
-      $this->page->addSection($p = new Port("Sailing now"));
-      $p->addAttr("id", "now");
-      $p->addChild($tab = new Table());
-      $tab->addAttr("style", "width: 100%");
-      $tab->addHeader(new Row(array(Cell::th("Name"),
-				    Cell::th("Host"),
-				    Cell::th("Type"),
-				    Cell::th("Conference"),
-				    Cell::th("Latest race")
-				    )));
-      $row = 0;
-      foreach ($sailing as $reg) {
-	$reg = new Regatta($reg->id);
-	$num_teams += count($reg->getTeams());
-	$last_race = $reg->getLastScoredRace();
-	$last_race = ($last_race === null) ? "--" : (string)$last_race;
-	$hosts = array();
-	$confs = array();
-	foreach ($reg->getHosts() as $host) {
-	  $hosts[$host->school->id] = $host->school->nick_name;
-	  $confs[$host->school->conference->id] = $host->school->conference;
-	}
-	$link = new Link($reg->get(Regatta::NICK_NAME), $reg->get(Regatta::NAME));
-	$tab->addRow($r = new Row(array(new Cell($link, array("class"=>"left")),
-					new Cell(implode("/", $hosts)),
-					new Cell(ucfirst($reg->get(Regatta::TYPE))),
-					new Cell(implode("/", $confs)),
-					new Cell($last_race)
-					)));
-	$r->addAttr("class", sprintf("row%d", $row++ % 2));
-      }
+    // WEEKENDS
+    $count = count($weeks);
+    if ($count == 0) {
+      // Should this section even exist?
+      $this->page->addSection(new Para("There are no regattas to report on yet."));
     }
-
-    // Sailing SOON
-    if (count($coming) > 0) {
-      $this->page->addSection($p = new Port("Sailing soon"));
-      $p->addAttr("id", "soon");
+    // stats
+    $total = 0;
+    $winning_school  = array();
+    $now = date('U');
+    foreach ($weeks as $week => $list) {
+      $title = "Week $count";
+      $this->page->addSection($p = new Port($title));
+      $count--;
       $p->addChild($tab = new Table());
       $tab->addAttr("style", "width: 100%");
       $tab->addHeader(new Row(array(Cell::th("Name"),
 				    Cell::th("Host"),
 				    Cell::th("Type"),
 				    Cell::th("Conference"),
-				    Cell::th("On the water")
+				    Cell::th("Start date"),
+				    Cell::th("Status")
 				    )));
       $row = 0;
-      foreach ($coming as $reg) {
+      foreach ($list as $reg) {
+	$total++;
 	$reg = new Regatta($reg->id);
+	$start_time = $reg->get(Regatta::START_TIME);
+	if ($reg->get(Regatta::FINALIZED) !== null) {
+	  $wt = $reg->getWinningTeam();
+	  $status = "Winner: " . $wt;
+	  if (!isset($winning_school[$wt->school->id]))
+	    $winning_school[$wt->school->id] = 0;
+	  $winning_school[$wt->school->id] += 1;
+	}
+	elseif ($start_time->format('U') > $now)
+	  $status = "Coming soon";
+	else {
+	  // pending
+	  $last_race = $reg->getLastScoredRace();
+	  $last_race = ($last_race === null) ? "--" : (string)$last_race;
+	  $status = "In progress: $last_race";
+	}
+	
 	$num_teams += count($reg->getTeams());
 	$hosts = array();
 	$confs = array();
@@ -134,68 +108,42 @@ class SeasonSummaryMaker {
 					new Cell(implode("/", $hosts)),
 					new Cell(ucfirst($reg->get(Regatta::TYPE))),
 					new Cell(implode("/", $confs)),
-					new Cell($reg->get(Regatta::START_TIME)->format('Y-m-d H:i'))
-					)));
-	$r->addAttr("class", sprintf("row%d", $row++ % 2));
-      }
-    }
-
-    // ALL sailing
-    if (count($final) > 0) {
-      $winning_school = array();
-
-      $this->page->addSection($p = new Port("Past regattas"));
-      $p->addAttr("id", "all");
-      $p->addChild($tab = new Table());
-      $tab->addAttr("style", "width: 100%");
-      $tab->addHeader(new Row(array(Cell::th("Name"),
-				    Cell::th("Host"),
-				    Cell::th("Type"),
-				    Cell::th("Winner"),
-				    Cell::th("Finalized")
-				    )));
-      $row = 0;
-      foreach ($final as $reg) {
-	$reg = new Regatta($reg->id);
-	$num_teams += count($reg->getTeams());
-	$hosts = array();
-	$confs = array();
-	$status = ($reg->get(Regatta::FINALIZED) === null) ? 'Pending' : 'Final';
-	foreach ($reg->getHosts() as $host) {
-	  $hosts[$host->school->id] = $host->school->nick_name;
-	  $confs[$host->school->conference->id] = $host->school->conference;
-	}
-
-	$link = new Link($reg->get(Regatta::NICK_NAME), $reg->get(Regatta::NAME));
-	$tab->addRow($r = new Row(array(new Cell($link, array("class"=>"left")),
-					new Cell(implode("/", $hosts)),
-					new Cell(ucfirst($reg->get(Regatta::TYPE))),
-					new Cell($wt = $reg->getWinningTeam()),
+					new Cell($start_time->format('m/d/Y')),
 					new Cell($status)
 					)));
 	$r->addAttr("class", sprintf("row%d", $row++ % 2));
-	if (!isset($winning_school[$wt->school->id]))
-	  $winning_school[$wt->school->id] = 0;
-	$winning_school[$wt->school->id] += 1;
       }
     }
 
     // Complete SUMMARY
     $summary_port->addChild(new Div(array(new Span(array(new Text("Number of Regattas:")),
 						   array("class"=>"prefix")),
-					  new Text(count($sailing) + count($coming) + count($final))),
+					  new Text($total)),
 				    array("class"=>"stat")));
     $summary_port->addChild(new Div(array(new Span(array(new Text("Number of Teams:")),
 						   array("class"=>"prefix")),
 					  new Text($num_teams)),
 				    array("class"=>"stat")));
-    // Sort the winning school to determine winningest
-    if (isset($winning_school)) {
-      asort($winning_school, SORT_NUMERIC);
-      $school = Preferences::getSchool(array_shift(array_keys($winning_school)));
-      $summary_port->addChild(new Div(array(new Span(array(new Text("Winningest School:")),
+    // Sort the winning school to determine winningest, and only print
+    // this stat if there is a something to have won. Also, print all
+    // the tied teams for winningest spot.
+    arsort($winning_school, SORT_NUMERIC);
+    if (count($winning_school) > 0) {
+      $school_codes = array_keys($winning_school);
+      if ($winning_school[$school_codes[0]] != 0) {
+	// tied teams
+	$tied_number = array_shift($winning_school);
+	$tied_schools = array();
+	$tied_schools[] = Preferences::getSchool(array_shift($school_codes));
+	while (count($school_codes) > 0) {
+	  $next_num = array_shift($winning_school);
+	  if ($next_num != $tied_number) break;
+	  $tied_schools = Preferences::getSchool(array_shift($school_codes));
+	}
+      }
+      $summary_port->addChild(new Div(array(new Span(array(new Text("Winningest School(s):")),
 						     array("class"=>"prefix")),
-					    new Text($school)),
+					    new Text(implode(', ', $tied_schools))),
 				      array("class"=>"stat")));
     }
   }

@@ -139,6 +139,23 @@ class Season {
   }
 
   /**
+   * Returns a list of week numbers in this season. Note that weeks go
+   * Monday through Sunday.
+   *
+   * @return Array:int the week number in the year
+   */
+  public function getWeeks() {
+    $this->getSeason();
+    $weeks = array();
+    for ($i = $this->season->start_date->format('W');
+	 $i < $this->season->end_date->format('W');
+	 $i++) {
+      $weeks[] = $i;
+    }
+    return $weeks;
+  }
+
+  /**
    * Parses the given season into a season object. The string should
    * have the form '[fswm][0-9]{2}'
    *
