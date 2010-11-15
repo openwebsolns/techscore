@@ -55,7 +55,7 @@ class UpdateRegatta {
     $dirname = "$R/$season/".$reg->get(Regatta::NICK_NAME);
     if (!file_exists($dirname) && mkdir($dirname) === false)
       throw new RuntimeException("Unable to make regatta directory: $dirname\n", 4);
-    
+
     $filename = "$dirname/index.html";
     if (@file_put_contents($filename, $M->getScoresPage()) === false)
       throw new RuntimeException(sprintf("Unable to make the regatta report: %s\n", $filename), 8);
@@ -101,7 +101,12 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
     printf("usage: %s <regatta-id> [score|rotation]\n", $_SERVER['PHP_SELF']);
     exit(1);
   }
-  $action = array("score", "rotation");
+  // SETUP PATHS and other CONSTANTS
+  $_SERVER['HTTP_HOST'] = $argv[0];
+  ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
+  require_once('conf.php');
+
+  $action = UpdateRequest::getTypes();
   if (isset($argv[2])) {
     if (!in_array($argv[2], $action)) {
       printf("Invalid update action requested: %s\n\n", $argv[2]);
@@ -110,11 +115,6 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
     }
     $action = array($argv[2]);
   }
-
-  // SETUP PATHS and other CONSTANTS
-  $_SERVER['HTTP_HOST'] = $argv[0];
-  ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
-  require_once('conf.php');
 
   // GET REGATTA
   try {
