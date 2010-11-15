@@ -117,7 +117,6 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
 			  new Cell($total)));
       $r1->addAttr("class", "row" . $rowIndex%2);
       $ord->addAttr("title", $rank->explanation);
-      $img->addAttr("height", "30px");
       $sch->addAttr("class", "strong");
       $sch->addAttr("align", "left");
       if ($penalty != null) {

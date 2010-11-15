@@ -140,6 +140,7 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
 	$list->addChild(new GenericElement("dd", array(new Text($exp))));
       }
     }
+
     return $ELEMS;
   }
 }

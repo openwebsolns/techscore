@@ -72,8 +72,9 @@ class ReportMaker {
     foreach ($reg->getDivisions() as $div) {
       $maker = new ScoresDivisionDialog($reg, $div);
       $this->page->addSection($p = new Port("Scores for $div"));
-      foreach ($maker->getTable() as $elem)
+      foreach ($maker->getTable() as $elem) {
 	$p->addChild($elem);
+      }
     }
   }
 
