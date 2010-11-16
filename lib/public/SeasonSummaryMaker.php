@@ -64,10 +64,10 @@ class SeasonSummaryMaker {
     $now = date('U');
     foreach ($weeks as $week => $list) {
       $title = "Week $count";
-      $this->page->addSection($p = new Port($title));
+      $this->page->addSection($p = new Portlet($title));
       $count--;
       $p->addChild($tab = new Table());
-      $tab->addAttr("style", "width: 100%");
+      // $tab->addAttr("style", "width: 100%");
       $tab->addHeader(new Row(array(Cell::th("Name"),
 				    Cell::th("Host"),
 				    Cell::th("Type"),

@@ -4,8 +4,12 @@
 # @author Dayan Paez
 # @date   2010-03-31
 
+NameVirtualHost *:80
+
+<VirtualHost *:80>
+ServerName {HOSTNAME}
+ServerAlias www.{HOSTNAME}
 Alias /ts2 {DIRECTORY}/www
-Alias /scores {DIRECTORY}/html
 
 <Directory "{DIRECTORY}/www">
 Order allow,deny
@@ -88,24 +92,31 @@ Header set Cache-Control "public"
 Header set Expires "Thu, 15 Apr 2025 20:00:00 GMT"
 # Header unset Last-Modified
 </FilesMatch>
-
 </Directory>
+</VirtualHost>
 
 #------------------------------------------------------------
 # PUBLIC
-<Directory {DIRECTORY}/html>
-Options +MultiViews
-DirectoryIndex index.html
-ForceType text/html
-</Directory>
+<VirtualHost *:80>
+ServerName scores.{HOSTNAME}
+ServerAlias live.{HOSTNAME}
+ErrorLog {DIRECTORY}/log/scores-access.log
+DocumentRoot {DIRECTORY}/html
 
-#------------------------------------------------------------
-# LIVE SCORES, for development, uncomment this line to activate
-# Alias /live-scores {DIRECTORY}/live-scores
-# <Directory {DIRECTORY}/live-scores>
-# php_value include_path ".:{DIRECTORY}/lib"
-# RewriteEngine on
-# RewriteBase /live-scores
-# RewriteRule ^([0-9]+)/?$ index.php?d=$1
-# RewriteRule ^([0-9]+)/rotations/?$ rotation.php?d=$1
-# </Directory>
+<Directory {DIRECTORY}/html>
+DirectoryIndex index.html
+
+RewriteEngine on
+RewriteRule \.(html|png|js|css)$ - [L]
+RewriteRule ^$      index.html [L]
+RewriteRule ^(.*)/$ $1/index.html [L]
+RewriteRule ^(.*)$  $1.html [L]
+
+# Cache forever
+<FilesMatch "\.(jpg|jpeg|png|gif|js|css)$">
+Header set Cache-Control "public"
+Header set Expires "Thu, 15 Apr 2025 20:00:00 GMT"
+# Header unset Last-Modified
+</FilesMatch>
+</Directory>
+</VirtualHost>

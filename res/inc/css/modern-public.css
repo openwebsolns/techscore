@@ -29,7 +29,7 @@ body {
     background: white;
 }
 
-div#menudiv {
+#menudiv {
     width: 100%;
     position: absolute;
     top: 40px;
@@ -43,7 +43,7 @@ div#menudiv {
     border-top: 1px solid #555555;
 }
 
-div#menudiv div.menu {
+#menudiv div.menu {
     display: inline-block;
     zoom: 1;
     *display: inline;
@@ -60,12 +60,12 @@ div#menudiv div.menu {
 input {font-size: 1em; padding: 0.15em}
 input[type="text"], input[type="password"], select {font-size: 1em; min-width: 15em; padding: 0.15em}
 
-div#menudiv { padding: 0px; }
+#menudiv { padding: 0px; }
 
-div#menudiv a { display: inline-block; text-decoration: none; color: black; padding: 2px 1em; height: 100%;}
-div#menudiv a:hover { background: #dadada; background-image: url('img/menu_bg_top.png'); }
+#menudiv a { display: inline-block; text-decoration: none; color: black; padding: 2px 1em; height: 100%;}
+#menudiv a:hover { background: #dadada; background-image: url('img/menu_bg_top.png'); }
 
-div#menudiv h4 {
+#menudiv h4 {
     font-weight: normal;
     margin-top: 0px;
     margin-bottom: 0px;
@@ -73,46 +73,46 @@ div#menudiv h4 {
     font-size: 0.9em;
 }
 
-div#menudiv ul {
+#menudiv ul {
     margin: 0px;
     display: none;
     font-size: 0.9em;
 }
 
-div#menudiv div.menu:hover {
+#menudiv div.menu:hover {
     background: #dadada;
     background-image: url('img/menu_bg_top.png');
     background-repeat: repeat-x;
     background-position: 0px 0px;
 }
-div#menudiv div.menu:hover ul {
+#menudiv div.menu:hover ul {
     display: block;
     background-image: url('img/menu_bg_bot.png');
     background-repeat: repeat-x;
     background-position: 0px 100%;
 }
 
-div#menudiv li {
+#menudiv li {
     display: block;
     margin: 0.25em 0px;
     margin-left: -3em;
     padding: 0.1em;
 }
 
-div#menudiv li a {
+#menudiv li a {
     text-decoration: none;
     color: inherit;
     display: block;
     width: 100%;
 }
-div#menudiv li:hover {
+#menudiv li:hover {
     background: #b89f7e;
     color: white;
 }
-div#menudiv li.inactive { color: #777; }
+#menudiv li.inactive { color: #777; }
 
 /* Header */
-div#headdiv {
+#headdiv {
     position: absolute;
     top: 0px;
     height: 40px;
@@ -122,15 +122,15 @@ div#headdiv {
     border-top: 1px solid #555555;
 }
 
-div#headdiv h1 {
+#headdiv h1 {
     margin: 0px 10px;
     float: left;
 }
-div#headdiv img {
+#headdiv img {
     height: 40px;
     margin-top: 5px;
 }
-div#headdiv h4 {
+#headdiv h4 {
     float: left;
     color: white;
     font-size: 0.9em;
@@ -149,7 +149,7 @@ a.nav {
 }
 
 /* Body div */
-div#body {
+#body {
     position: absolute;
     top: 70px;
            width: 100%;
@@ -157,7 +157,7 @@ div#body {
     border-bottom: 1px solid #555555;
     margin-bottom: 20px;
 }
-div#body, div#menudiv, div#headdiv {
+#body, #menudiv, #headdiv {
     border-left: 1px solid #555555;
     border-right: 1px solid #555555;
 }
@@ -168,6 +168,11 @@ div.port {
     padding-top: 0em;
     padding-bottom: 1em;
     margin-bottom: 1.5em;
+}
+div.small
+{
+  display: inline-block;
+  width: auto;      
 }
 div.port h3 {
     color: #555555;
@@ -242,14 +247,14 @@ div.form_entry {
 }
 
 /* Announce */
-div#announcediv {
+#announcediv {
     background: #f3ebe0;
     margin: auto;
     margin-bottom: 20px;
     font-size: 0.9em;
                   width: 100%;
 }
-div#announcediv p {
+#announcediv p {
     margin: 15px;
     margin-top: 5px;
     margin-bottom: 5px;
@@ -267,35 +272,35 @@ table.left * {
 }
 
 /* Conferences table */
-table#conftable {
+#conftable {
     width: 100%;
 }
-table#conftable td {
+#conftable td {
     padding: 0px;
 }
-table#conftable td ul {
+#conftable td ul {
     height: 10em;
     overflow: auto;
     margin: 0px;
 }
 table.coordinate td:hover { background: #3465a4; color: white; }
 
-div#reg-details ul {
+#reg-details ul {
 margin-top: 0.5em;
 padding: 0px;
     font-size: 110%;
     list-style-type: none;
     color: #666666; line-height: 1.35em;
 }
-table#results tbody * {
+#results tbody * {
     border: none;
 }
-table#results tr.totalrow {
+#results tr.totalrow {
     border-bottom: 1px solid #bbbbbb;
     color: #555555;
     background: #f3ebe0;
 }
-table#results tbody { border: 1px solid #bbb; }
+#results tbody { border: 1px solid #bbb; }
 
 /* Stats */
 div.stat { font-size: 105%; }

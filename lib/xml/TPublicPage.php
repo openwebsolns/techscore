@@ -30,14 +30,13 @@ class TPublicPage extends WebPage {
     parent::__construct($title);
 
     // Setup head
-    // $this->addHead(new GenericElement("base", array(), array("href"=>HOME."/")));
     $this->addHead(new GenericElement("link",
 				      array(),
 				      array("rel"=>"stylesheet",
 					    "type"=>"text/css",
 					    "title"=>"Modern Tech",
 					    "media"=>"screen",
-					    "href"=>HOME."/inc/css/modern-public.css")));
+					    "href"=>PUB_HOME."/inc/css/mp.css")));
 
     // Setup body
     $this->addBody($div = new Div(array(), array("class"=>"hidden")));

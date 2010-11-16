@@ -22,3 +22,7 @@ sql:
 
 doc:
 	phpdoc --ignore conf.php --target doc --title "TechScore Documentation" --directory lib
+
+css:
+	mkdir -p html/inc/css;\
+	cat res/inc/css/modern-public.css | tr "\n" " " | tr "\t" " " | tr -s " " | sed -e 's:/\*[^\*]*\*/::g' -e 's/: \+/:/g' -e 's/; \+/;/g' -e 's/ *{ */{/g' -e 's/ *} */}/g' > html/inc/css/mp.css
