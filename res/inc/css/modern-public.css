@@ -43,6 +43,7 @@ body {
     border-top: 1px solid #555555;
 }
 
+/*
 #menudiv div.menu {
     display: inline-block;
     zoom: 1;
@@ -59,12 +60,13 @@ body {
 }
 input {font-size: 1em; padding: 0.15em}
 input[type="text"], input[type="password"], select {font-size: 1em; min-width: 15em; padding: 0.15em}
+*/
 
 #menudiv { padding: 0px; }
 
 #menudiv a { display: inline-block; text-decoration: none; color: black; padding: 2px 1em; height: 100%;}
 #menudiv a:hover { background: #dadada; background-image: url('img/menu_bg_top.png'); }
-
+/*
 #menudiv h4 {
     font-weight: normal;
     margin-top: 0px;
@@ -78,7 +80,7 @@ input[type="text"], input[type="password"], select {font-size: 1em; min-width: 1
     display: none;
     font-size: 0.9em;
 }
-
+*/
 #menudiv div.menu:hover {
     background: #dadada;
     background-image: url('img/menu_bg_top.png');
@@ -219,14 +221,17 @@ thead th {
 }
 
 /* Table fixes */
+/*
 th.noborder, td.noborder {
     border: none;
 }
-
+*/
 /* Forms */
+/*
 div.form_entry {
     margin-bottom: 1em;
 }
+
 .form_h {
     display: inline-block;
     zoom: 1;
@@ -245,6 +250,7 @@ div.form_entry {
     vertical-align: top;
     margin-left: 1em;
 }
+*/
 
 /* Announce */
 #announcediv {
@@ -272,6 +278,7 @@ table.left * {
 }
 
 /* Conferences table */
+/*
 #conftable {
     width: 100%;
 }
@@ -283,6 +290,7 @@ table.left * {
     overflow: auto;
     margin: 0px;
 }
+*/
 table.coordinate td:hover { background: #3465a4; color: white; }
 
 #reg-details ul {
