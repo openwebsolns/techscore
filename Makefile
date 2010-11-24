@@ -6,7 +6,7 @@ crontab: crontab.default
 	touch crontab; cp crontab crontab.orig; sed 's:{DIRECTORY}:'"`pwd`"':g' crontab.default > crontab
 
 apache.conf: apache.conf.default
-	sed 's:{DIRECTORY}:'"`pwd`"':g' apache.conf.default > apache.conf
+	sed -e 's:{DIRECTORY}:'"`pwd`"':g' -e 's/{DIRECTORY}/'"$(hostname)"'/g' apache.conf.default > apache.conf
 
 changes.current.sql: changes.history.sql
 	touch changes.current.sql && \
