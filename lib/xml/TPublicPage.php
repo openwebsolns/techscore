@@ -36,7 +36,7 @@ class TPublicPage extends WebPage {
 					    "type"=>"text/css",
 					    "title"=>"Modern Tech",
 					    "media"=>"screen",
-					    "href"=>PUB_HOME."/inc/css/mp.css")));
+					    "href"=>"/inc/css/mp.css")));
 
     // Setup body
     $this->addBody($div = new Div(array(), array("class"=>"hidden")));
