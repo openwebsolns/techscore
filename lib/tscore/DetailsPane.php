@@ -92,11 +92,11 @@ class DetailsPane extends AbstractPane {
 					       "Edit"));
     // If finalized, disable submit
     $finalized = $this->REGATTA->get(Regatta::FINALIZED);
-    if ($finalized)
+    if ($finalized != null)
       $reg_sub->addAttr("disabled","disabled");
 
     // -------------------- Finalize regatta -------------------- //
-    if (!$finalized) {
+    if ($finalized === null) {
       $this->PAGE->addContent($p = new Port("Finalize regatta"));
       $p->addHelp("node9.html#SECTION00521100000000000000");
 
@@ -121,7 +121,7 @@ class DetailsPane extends AbstractPane {
     }
     else {
       $para = sprintf("This regatta was finalized on %s.",
-		      date("l, F j Y", strtotime($finalized)));
+		      $finalized->format("l, F j Y"));
       $p->addChild(new Para($para, array("class"=>"strong")));
     }
     
