@@ -92,14 +92,4 @@ class IcsaRpFormSingles extends AbstractIcsaRpForm {
     return str_replace("&", "\&", $body);
   }
 }
-
-if (basename(__FILE__) == $argv[0]) {
-  $reg = new Regatta(76);
-  $rpm = $reg->getRpManager();
-  $form = new IcsaRpFormSingles("Test Regatta", "MIT", "2010-02-07");
-  foreach ($reg->getTeams() as $team) {
-    $form->append(array_shift($rpm->getRP($team, Division::A(), RP::SKIPPER)));
-  }
-  file_put_contents("master.tex", $form->toLatex());
-}
 ?>

@@ -202,9 +202,9 @@ else {
       $data = $rp->getForm();
     else {
       $writer = new RpFormWriter($REG);
-      $writer->makePDF("$name");
-      $data = file_get_contents("$name.pdf");
-      unlink("$name.pdf");
+      $path = $writer->makePDF();
+      $data = file_get_contents($path);
+      unlink($path);
       $rp->setForm($data);
     }
 

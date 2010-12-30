@@ -35,12 +35,13 @@ class RpFormWriter {
   }
 
   /**
-   * Generates a PDF file with the given basename
+   * Generates a PDF file with a random name, and returns the filename
    *
-   * @param string $filename the basename of the file (sans extension)
+   * @param string $tmpbase the basename of the random file
+   * @return string $path the path to the generated PDF
    * @throws RuntimeException should something go wrong
    */
-  public function makePDF($filename) {
+  public function makePDF($tmpbase = 'ts2') {
     $divisions = $this->reg->getDivisions();
     $rp        = $this->reg->getRpManager();
 
@@ -84,18 +85,24 @@ class RpFormWriter {
     }
 
     // generate PDF
-    $arg = escapeshellarg($form->toLatex());
-    $command = sprintf("pdflatex -jobname='%s' %s", $filename, $arg);
+    $tmp = sys_get_temp_dir();
+    $filename = tempnam($tmp, $tmpbase);
+    $lat = $form->toLatex();
+    $command = sprintf("pdflatex -output-directory='%s' -interaction=nonstopmode -jobname='%s' %s",
+		       escapeshellarg($tmp),
+		       escapeshellarg(basename($filename)),
+		       escapeshellarg($lat));
     $output = array();
     exec($command, $output, $value);
-    if ($value != 0)
-      throw new RuntimeException(sprintf("Unable to generate PDF file. Exit code $value:\nCommand: %s\nArgument%s",
-					 $command, $arg));
+    if ($value != 0) {
+      throw new RuntimeException(sprintf("Unable to generate PDF file. Exit code $value:\nValue: %s\nOutput%s",
+					 $value, implode("\n", $output)));
+    }
 
-    // clean up
-    unlink($filename . ".aux");
-    unlink($filename . ".log");
-    return $filename . ".pdf";
+    // clean up (including base created by tempnam call (last in list)
+    foreach (array('.aux', '.log', '') as $suffix)
+      unlink(sprintf('%s%s', $filename, $suffix));
+    return sprintf('%s.pdf', $filename);
   }
 
 
@@ -116,7 +123,7 @@ class RpFormWriter {
 }
 
 
-if (basename(__FILE__) == basename($argv[0])) {
+if (isset($argv) && basename(__FILE__) == basename($argv[0])) {
   // 132: four divisions
   // 101: sloops
   //  76: single-handed
