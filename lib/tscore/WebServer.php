@@ -28,7 +28,8 @@ class WebServer {
   }
 
   /**
-   * Moves to the given address
+   * Moves to the given address relative to HOME, unless a full URL
+   * (starting with http/s) is given.
    *
    * @param String $addr the address to navigate to
    */

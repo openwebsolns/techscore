@@ -99,11 +99,7 @@ abstract class AbstractPane {
    *
    */
   protected function redirect($page = null) {
-    header(sprintf("Location: %s/score/%s/%s",
-		   HOME,
-		   $this->REGATTA->id(),
-		   $page));
-    exit;
+    WebServer::go(sprintf('%s/%s', $this->REGATTA->id(), $page));
   }
 
   /**

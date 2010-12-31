@@ -69,122 +69,16 @@ else {
       else {
 	$title = $pane->getTitle();
 	$_SESSION['ANNOUNCE'][] = new Announcement("$title is not available.", Announcement::WARNING);
-	header(sprintf("Location: score/%s", $REG->id()));
-	exit;
+	WebServer::go('score/'.$REG->id());
       }
     }
   }
   if ($PAGE === null) {
     $mes = sprintf("Invalid page requested (%s)", $_REQUEST['p']);
     $_SESSION['ANNOUNCE'][] = new Announcement($mes, Announcement::WARNING);
-    header(sprintf("Location: %s/score/%s", HOME, $reg_id));
-    exit;
+    WebServer::go('score/'.$reg_id);
   }
 }
-/*
-if (empty($_REQUEST['p']))
-  $PAGE = new DetailsPane($USER, new Regatta($reg_id));
-else {
-  switch ($_REQUEST['p']) {
-
-    // --------------- SUMMARIES -------------//
-  case "summary":
-  case "summaries":
-  case "comment":
-  case "comments":
-    $PAGE = new SummaryPane($USER, new Regatta($reg_id));
-    break;
-
-    // --------------- RACES   ---------------//
-  case race:
-  case races:
-    $PAGE = new RacesPane($USER, new Regatta($reg_id));
-    break;
-
-    // --------------- TEAMS   ---------------//
-  case school:
-  case schools:
-  case team:
-  case teams:
-    $PAGE = new TeamsPane($USER, new Regatta($reg_id));
-    break;
-  
-    // --------------- NOTES   ---------------//
-  case "note":
-  case "notes":
-    $PAGE = new NotesPane($USER, new Regatta($reg_id));
-    break;
-  
-    // --------------- ROTATIONS   ---------------//
-  case sail:
-  case sails:
-    $PAGE = new SailsPane($USER, new Regatta($reg_id));
-    break;
-  
-    // --------------- TWEAK SAILS ---------------//
-  case tweak:
-    $PAGE = new TweakSailsPane($USER, new Regatta($reg_id));
-    break;
-
-    // --------------- MANUAL TWEAK -------------//
-  case "manual-tweak":
-    $PAGE = new ManualTweakPane($USER, new Regatta($reg_id));
-    break;
-
-    // --------------- RP FORMS -----------------//
-  case "rp":
-    $PAGE = new RpEnterPane($USER, new Regatta($reg_id));
-    break;
-
-    // --------------- UNREG SAILORS-------------//
-  case "temp":
-    $PAGE = new UnregisteredSailorPane($USER, new Regatta($reg_id));
-    break;
-
-    
-    // --------------- ENTER FINISH--------------//
-  case "finish":
-  case "finishes":
-    $PAGE = new EnterFinishPane($USER, new Regatta($reg_id));
-    break;
-
-    // --------------- DROP FINISH --------------//
-  case "current":
-  case "drop-finish":
-    $PAGE = new DropFinishPane($USER, new Regatta($reg_id));
-    break;
-
-
-    // --------------- ENTER PENALTY ------------//
-  case "penalty":
-    $PAGE = new EnterPenaltyPane($USER, new Regatta($reg_id));
-    break;
-
-    // --------------- DROP PENALTY ------------//
-  case "drop":
-    $PAGE = new DropPenaltyPane($USER, new Regatta($reg_id));
-    break;
-
-    // --------------- TEAM PENALTY ------------//
-  case "team-penalty":
-    $PAGE = new TeamPenaltyPane($USER, new Regatta($reg_id));
-    break;
-
-
-    // --------------- SCORERS ---------------//
-  case scorer:
-    $PAGE = new ScorersPane($USER, new Regatta($reg_id));
-    break;
-
-    // --------------- Redirect HOME ---------- //
-  default:
-    $mes = sprintf("Invalid page requested (%s)", $_REQUEST['p']);
-    $_SESSION['ANNOUNCE'][] = new Announcement($mes, Announcement::WARNING);
-    header(sprintf("Location: %s/score/%s", HOME, $reg_id));
-    exit;
-  }
-}
-*/
 
 $_SESSION['POST'] = $PAGE->process($_POST);
 if (LOG_MEMORY)
