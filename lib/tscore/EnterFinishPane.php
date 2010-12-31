@@ -26,6 +26,7 @@ class EnterFinishPane extends AbstractPane {
     $this->title = "Enter/edit";
     $this->urls[] = "finish";
     $this->urls[] = "finishes";
+    $this->urls[] = "enter-finish";
   }
 
 

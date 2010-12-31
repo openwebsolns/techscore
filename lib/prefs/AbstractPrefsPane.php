@@ -59,8 +59,10 @@ abstract class AbstractPrefsPane {
     $this->fillHTML();
     
     // fill announcements
-    while (count($_SESSION['ANNOUNCE']) > 0) {
-      $this->ANNOUNCE->addChild(array_shift($_SESSION['ANNOUNCE']));
+    if (isset($_SESSION['ANNOUNCE'])) {
+      while (count($_SESSION['ANNOUNCE']) > 0) {
+	$this->ANNOUNCE->addChild(array_shift($_SESSION['ANNOUNCE']));
+      }
     }
     return $this->PAGE->toHTML();
   }
