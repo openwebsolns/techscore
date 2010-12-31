@@ -59,20 +59,20 @@ class ReportMaker {
     // Divisional scores
     $maker = new ScoresDivisionalDialog($reg);
     $this->page->addSection($p = new Port("Score summary"));
-    foreach ($maker->getTable() as $elem)
+    foreach ($maker->getTable('/inc') as $elem)
       $p->addChild($elem);
 
     // Total scores
     $maker = new ScoresFullDialog($reg);
     $this->page->addSection($p = new Port("Full scores"));
-    foreach ($maker->getTable() as $elem)
+    foreach ($maker->getTable('/inc') as $elem)
       $p->addChild($elem);
 
     // Individual division scores
     foreach ($reg->getDivisions() as $div) {
       $maker = new ScoresDivisionDialog($reg, $div);
       $this->page->addSection($p = new Port("Scores for $div"));
-      foreach ($maker->getTable() as $elem) {
+      foreach ($maker->getTable('/inc') as $elem) {
 	$p->addChild($elem);
       }
     }
