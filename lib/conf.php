@@ -50,9 +50,7 @@ function __mail_error_handler($errno, $errstr, $errfile, $errline, $context) {
   $body .= sprintf($fmt, "File",   $errfile);
   $body .= sprintf($fmt, "Line",   $errline);
   $body .= "--------------------\n";
-  $body .= print_r($_SESSION, true);
-  $body .= "--------------------\n";
-  $body .= print_r($context, true);
+  $body .= print_r(debug_backtrace(), true);
   $body .= "====================\n";
 
   mail("dpv140@gmail.com", "[TS2 ERROR]", $body, "From: ts-admin@techscore.mit.edu");
