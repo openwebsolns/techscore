@@ -77,8 +77,6 @@ function __mail_exception_handler(Exception $e) {
   $body .= sprintf($fmt, "File",   $e->getFile());
   $body .= sprintf($fmt, "Line",   $e->getLine());
   $body .= "--------------------\n";
-  $body .= print_r($_SESSION, true);
-  $body .= "--------------------\n";
   $body .= sprintf($fmt, "Trace",  $e->getTraceAsString());
   $body .= "====================\n";
 
