@@ -104,7 +104,7 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
 				      new Cell($rank->team->school->name, array("class"=>array("strong"))),
 				      new Cell($rank->team->name))));
       $url = sprintf("%s/img/schools/%s.png", $PREFIX, $rank->team->school->id);
-      $bc->addChild(new Image($url));
+      $bc->addChild(new Image($url, array("height"=>"30px")));
 
       $scoreTeam    = 0;
       // For each division
@@ -119,7 +119,7 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
 	$r->addCell($p_cell = new Cell());
 	if ($pen !== null) {
 	  $scoreDiv += 20;
-	  $p_cell->addChild(new Image("img/error.png", array("alt" => "X", "height"=>"30px")));
+	  $p_cell->addChild(new Image("img/error.png", array("alt" => "X")));
 	  $p_cell->addAttr("title", sprintf("%s (+20 points)", $pen->type));
 	}
 	$s_cell->addChild(new Text($scoreDiv));
