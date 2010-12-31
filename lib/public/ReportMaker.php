@@ -36,7 +36,7 @@ class ReportMaker {
     // ADD JS
     $this->page->addHead(new GenericElement("script", array(new Text()),
 					    array("type"=>"text/javascript",
-						  "src" =>HOME."/inc/js/report.js")));
+						  "src" =>"/inc/js/report.js")));
     $this->page->body->addAttr("onload", "collapse()");
 
     // Summary
