@@ -21,16 +21,34 @@ class School {
   public $conference;
   public $city;
   public $state;
-  public $burgee;
 
-  const FIELDS = 'school.id, school.nick_name, school.name, school.conference, school.city, school.state, burgee.filedata, burgee.last_updated';
-  const TABLES = 'school left join burgee on (burgee.school = school.id)';
+  /**
+   * @var Burgee|null upon request, this variable will serialize the
+   * appropriate burgee object from the database. If uninitialized,
+   * the value will be false.
+   */
+  private $burgee = false;
 
-  public function __construct() {
-    if (!empty($this->filedata)) {
-      $this->burgee = new Burgee($this->filedata, new DateTime($this->last_updated));
-      unset($this->filedata, $this->last_updated);
-    }
+  const FIELDS = 'school.id, school.nick_name, school.name, school.conference, school.city, school.state';
+  const TABLES = 'school';
+
+  /**
+   * Used to retrieve the burgee intelligently.
+   */
+  public function __get($name) {
+    if ($name != "burgee")
+      throw new InvalidArgumentException("No such property in School: $name.");
+    // attempt to fetch it
+    if ($this->burgee === false)
+      $this->burgee = Preferences::getBurgee($this);
+    return $this->burgee;
+  }
+  public function __set($name, $value) {
+    if ($name != "burgee")
+      throw new InvalidArgumentException("No such property to set in School: $name.");
+    if (!($value instanceof Burgee) && $value !== null)
+      throw new InvalidArgumentException("Burgee must be Burgee object. Get it?");
+    $this->burgee = $value;
   }
 
   public function __toString() {

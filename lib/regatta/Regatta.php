@@ -247,12 +247,7 @@ class Regatta implements RaceListener, FinishListener {
    *
    */
   public function getTeams() {
-    $q = sprintf('select team.id, team.name, ' .
-		 'school.id as school_id, school.name as school_name, ' .
-		 'school.nick_name as school_nick_name, ' .
-		 'school.conference as school_conference, ' .
-		 'school.city as school_city, school.state as school_state, ' .
-		 'school.burgee as school_burgee ' .
+    $q = sprintf('select team.id, team.name, team.school ' .
 		 'from team inner join school on (school.id = team.school) ' .
 		 'where regatta = "%s" order by school, id',
 		 $this->id);

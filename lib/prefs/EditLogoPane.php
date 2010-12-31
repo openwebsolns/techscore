@@ -89,7 +89,9 @@ class EditLogoPane extends AbstractPrefsPane {
     }
 
     // Update database
-    $this->SCHOOL->burgee = new Burgee(base64_encode(file_get_contents($th)), new DateTime("now"));;
+    $this->SCHOOL->burgee = new Burgee();
+    $this->SCHOOL->burgee->filedata = base64_encode(file_get_contents($th));
+    $this->SCHOOL->burgee->last_updated = new DateTime("now");
     if (Preferences::updateSchool($this->SCHOOL, "burgee")) {
       $this->announce(new Announcement("Updated school logo."));
     }

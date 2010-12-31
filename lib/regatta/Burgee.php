@@ -4,18 +4,20 @@
  *
  */
 class Burgee {
+
+  const FIELDS = "burgee.last_updated, burgee.filedata";
+  const TABLES = "burgee";
+
   public $filedata;
   public $last_updated;
 
   /**
-   * Creates a new burgee
+   * Creates a new burgee after serialization
    *
-   * @param String $filedata the base 64 encoded data
-   * @param DateTime $last_updated the last time the filedata was changed
    */
-  public function __construct($filedata, DateTime $last_updated) {
-    $this->filedata = (string)$filedata;
-    $this->last_updated = $last_updated;
+  public function __construct() {
+    if ($this->last_updated !== null)
+      $this->last_updated = new DateTime($this->last_updated);
   }
 }
 ?>

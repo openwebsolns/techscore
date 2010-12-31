@@ -19,38 +19,29 @@ class Team {
   private $id;
   private $name;
   /**
-   * School object for this team
+   * School object for this team. The initial value of false means
+   * that it is yet to be serialized from database. After that it will
+   * contain either null or a School object, as returned by
+   * Preferences class.
    */
-  private $school;
-  
-  protected $school_id;
-  protected $school_name;
-  protected $school_nick_name;
-  protected $school_conference;
-  protected $school_city;
-  protected $school_state;
-  protected $school_burgee;
-
-  public function __construct() {
-    $this->school = new School();
-    $this->school->id         = $this->school_id;
-    $this->school->name       = $this->school_name;
-    $this->school->nick_name  = $this->school_nick_name;
-    $this->school->conference = $this->school_conference;
-    $this->school->city       = $this->school_city;
-    $this->school->state      = $this->school_state;
-    $this->school->burgee     = $this->school_burgee;
-
-    unset($this->school_id, $this->school_name, $this->school_nick_name,
-	  $this->school_conference, $this->school_city,
-	  $this->school_state, $this->school_burgee);
-  }
+  private $school = false;
 
   /**
-   * Getter method
+   * Getter method: delays creation of school object until deemed
+   * absolutely necessary by code (i.e. the first time it is requested).
    *
+   * @param String $name the name of the variable to fetch
    */
   public function __get($name) {
+    // intercept call for school
+    if ($name == "school") {
+      if ($this->school === false)
+	return null;
+      if (!($this->school instanceof School) && $this->school !== null)
+	$this->school = Preferences::getSchool($this->school);
+      return $this->school;
+    }
+    // return what once was there
     if (isset($this->$name) && substr($name, 0, 1) != "_")
       return $this->$name;
     throw new InvalidArgumentException(sprintf("Invalid Team property (%s).", $name));

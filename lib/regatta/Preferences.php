@@ -284,6 +284,23 @@ class Preferences {
   }
 
   /**
+   * Fetches the burgee, if any, for the given school. This method is
+   * called internally by the School class when retrieving its burgee.
+   *
+   * @param School $school the school whose burgee to return
+   * @return Burgee|null
+   */
+  public static function getBurgee(School $school) {
+    $con = self::getConnection();
+    $sql = sprintf('select %s from %s where school = "%s" order by last_updated desc limit 1',
+		   Burgee::FIELDS, Burgee::TABLES, $school->id);
+    $res = $con->query($sql);
+    if ($res->num_rows == 0)
+      return null;
+    return $res->fetch_object("Burgee");
+  }
+
+  /**
    * Updates the field for a school in the database. If the field is
    * null, then this method will update the entire school object,
    * except for the burgee itself.
