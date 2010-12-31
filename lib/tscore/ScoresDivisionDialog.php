@@ -40,7 +40,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
     $division  = $this->division;
 
     $this->PAGE->addContent($p = new Port("Division $division results"));
-    $elems = $this->getTable();
+    $elems = $this->getTable(HOME);
     $p->addChild(array_shift($elems));
     if (count($elems) > 0) {
       $p->addChild(new Heading("Tiebreaker legend"));
@@ -48,7 +48,13 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
     }
   }
 
-  public function getTable() {
+  /**
+   * Fetches just the table of results
+   *
+   * @param String $PREFIX the prefix to add to image resource URLs
+   * @return Array the table element
+   */
+  public function getTable($PREFIX = "") {
     $rpManager = $this->REGATTA->getRpManager();
     $division = $this->division;
 
@@ -107,7 +113,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
 
       // fill the two header rows up until the sailor names column
       $img = ($rank->team->school->burgee == null) ? '' :
-	new Image(sprintf('img/schools/%s.png', $rank->team->school->id),
+	new Image(sprintf('%s/img/schools/%s.png', $PREFIX, $rank->team->school->id),
 		  array('alt' => $rank->team->school->id, 'height'=>'30px'));
       $r1 = new Row(array(new Cell($sym),
 			  $ord = new Cell($order++),

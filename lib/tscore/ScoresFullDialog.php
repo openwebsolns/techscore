@@ -28,7 +28,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
    */
   public function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new Port("Team results"));
-    $ELEMS = $this->getTable();
+    $ELEMS = $this->getTable(HOME);
     $p->addChild(array_shift($ELEMS));
     if (count($ELEMS) > 0) {
       $this->PAGE->addContent($p = new Port("Legend"));
@@ -39,9 +39,10 @@ class ScoresFullDialog extends AbstractScoresDialog {
   /**
    * Fetches just the table of results
    *
+   * @param String $PREFIX the prefix to add to image resource URLs
    * @return Array the table element
    */
-  public function getTable() {
+  public function getTable($PREFIX = "") {
     $ELEMS = array();
 
     $divisions = $this->REGATTA->getDivisions();
@@ -179,7 +180,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
       $r->addCell($burgee_cell = new Cell());
 
       if ($rank->team->school->burgee !== null) {
-	$url = sprintf("%s/img/schools/%s.png", HOME, $rank->team->school->id);
+	$url = sprintf("%s/img/schools/%s.png", $PREFIX, $rank->team->school->id);
 	$burgee_cell->addChild(new Image($url, array("alt"=>$rank->team->school->id, "height"=>"30px")));
       }
       if ($num_divs > 1)

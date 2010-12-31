@@ -30,7 +30,7 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
    */
   public function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new Port("Team results"));
-    $ELEMS = $this->getTable();
+    $ELEMS = $this->getTable(HOME);
     $p->addChild(array_shift($ELEMS));
     if (count($ELEMS) > 0) {
       $this->PAGE->addContent($p = new Port("Legend"));
@@ -41,9 +41,10 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
   /**
    * Fetches just the table of results
    *
+   * @param String $PREFIX the prefix to add to the image URL
    * @return Array the table element
    */
-  public function getTable() {
+  public function getTable($PREFIX = "") {
     $ELEMS = array();
 
     $divisions = $this->REGATTA->getDivisions();
@@ -102,7 +103,7 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
 				      $bc = new Cell(),
 				      new Cell($rank->team->school->name, array("class"=>array("strong"))),
 				      new Cell($rank->team->name))));
-      $url = sprintf("img/schools/%s.png", $rank->team->school->id);
+      $url = sprintf("%s/img/schools/%s.png", $PREFIX, $rank->team->school->id);
       $bc->addChild(new Image($url));
 
       $scoreTeam    = 0;
