@@ -101,15 +101,6 @@ class EditLogoPane extends AbstractPrefsPane {
     }
 
     // Notify, this needs to change!
-    /*
-    $url = sprintf('%s/%s', HOME, $filename);
-    $command = sprintf('/usr/bin/php ' .
-		       '/var/local/ts/_notify_school.cli.php %s %s',
-		       $this->SCHOOL->id,
-		       $url);
-    exec("date >> /var/local/ts/_notify_school.log; $command >> /var/local/ts/_notify_school.log &");
-    return;
-    */
   }
 }
 ?>
