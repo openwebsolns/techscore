@@ -97,7 +97,7 @@ END;
   }
   die();
 }
-ini_set('error_log', '../log/errors.log');
+ini_set('error_log', realpath(TS_PATH.'/../log/errors.log'));
 
 require_once(TS_PATH . '/conf.local.php');
 
