@@ -1196,7 +1196,12 @@ class Regatta implements RaceListener, FinishListener {
 
   /**
    * Creates a regatta nick name for this regatta based on this
-   * regatta's name
+   * regatta's name. Nick names are guaranteed to be a unique per
+   * season. As such, this function looks at all the regattas in the
+   * same season as this regatta before creating a new nick name.
+   *
+   * Nicknames are all lower case, separated by dashes, and devoid of
+   * filler words, including 'trophy', 'championship', and the like.
    *
    * @return String the nick name
    */
@@ -1207,11 +1212,16 @@ class Regatta implements RaceListener, FinishListener {
     foreach ($this->get(Regatta::SEASON)->getRegattas() as $n)
       $prohibit[] = $n->nick;
 
-    // Remove 's from
-    $name = preg_replace('/\'s/', '', $name);
+    // Remove 's from words
+    $name = str_replace('\'s', '', $name);
+
+    // Convert dashes, slashes and underscores into spaces
+    $name = str_replace('-', ' ', $name);
+    $name = str_replace('/', ' ', $name);
+    $name = str_replace('_', ' ', $name);
 
     // White list permission
-    $name = preg_replace('/[^0-9a-z\s-_+]+/', '', $name);
+    $name = preg_replace('/[^0-9a-z\s_+]+/', '', $name);
 
     // Remove '80th'
     $name = preg_replace('/[0-9]+th/', '', $name);
@@ -1219,7 +1229,7 @@ class Regatta implements RaceListener, FinishListener {
     $name = preg_replace('/[0-9]*2nd/', '', $name);
     $name = preg_replace('/[0-9]*3rd/', '', $name);
 
-    // Trim spaces
+    // Trim and squeeze spaces
     $name = trim($name);
     $name = preg_replace('/\s+/', '-', $name);
 
