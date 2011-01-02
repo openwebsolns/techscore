@@ -4,14 +4,18 @@
 # then installed by a user that can actually update the site
 
 # DO NOT send mail
-MAILTO = ""
+# MAILTO = ""
 
 #--------------------------------
 # On weekends, let's update every 5 minutes, every other day, from
 # 9h-22h, let's update every half hour
-*/5  9-22 * * 0,1,6 /usr/bin/php5 {DIRECTORY}/lib/scripts/UpdateDaemon.php
-*/30 9-22 * * 2-5   /usr/bin/php5 {DIRECTORY}/lib/scripts/UpdateDaemon.php
+*/5  9-22 * * 0,1,6 /usr/bin/php {DIRECTORY}/lib/scripts/UpdateDaemon.php
+*/30 9-22 * * 2-5   /usr/bin/php {DIRECTORY}/lib/scripts/UpdateDaemon.php
 
+#--------------------------------
+# Update school burgees: this is relatively a cheap operation. Do it
+# then, every 8 hours. Feel free to adjust.
+13 7,15,23 * * * /usr/bin/php {DIRECTORY}/lib/scripts/UpdateBurgee.php
 
 #--------------------------------
 # @TODO: Other updates like sailor database, backups, etc
