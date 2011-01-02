@@ -108,7 +108,7 @@ class UpdateDaemon {
 	  }
 	  catch (Exception $e) {
 	    // Error: log that too
-	    UpdateManager::log($last, $e->getCode());
+	    UpdateManager::log($last, $e->getCode(), $e->getMessage());
 	  }
 	}
 	else {

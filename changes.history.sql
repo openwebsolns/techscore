@@ -25,3 +25,5 @@ CREATE TABLE `pub_update_log` (
   KEY `request` (`request`),
   CONSTRAINT `pub_update_log_ibfk_1` FOREIGN KEY (`request`) REFERENCES `pub_update_request` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
+
+alter table pub_update_log add column return_mess varchar(255) default "";

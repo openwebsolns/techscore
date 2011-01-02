@@ -67,9 +67,9 @@ class UpdateManager {
    * @param UpdateRequest $req the update request to log
    * @param int $code the code to use (0 = pending, -1 = good, -2 = "assumed", > 0: error
    */
-  public static function log(UpdateRequest $req, $code = -1) {
-    self::query(sprintf('insert into pub_update_log (request, return_code) values ("%s", %d)',
-			$req->id, $code));
+  public static function log(UpdateRequest $req, $code = -1, $mes = "") {
+    self::query(sprintf('insert into pub_update_log (request, return_code, return_mess) values ("%s", %d, "%s")',
+			$req->id, $code, $mes));
   }
 
   /**
