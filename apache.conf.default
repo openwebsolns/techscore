@@ -4,7 +4,7 @@
 # @author Dayan Paez
 # @date   2010-03-31
 
-NameVirtualHost *:80
+# NameVirtualHost *:80
 
 <VirtualHost *:80>
 ServerName {HOSTNAME}
@@ -102,15 +102,15 @@ ServerName scores.{HOSTNAME}
 ServerAlias live.{HOSTNAME}
 ErrorLog {DIRECTORY}/log/scores-access.log
 DocumentRoot {DIRECTORY}/html
-
-<Directory {DIRECTORY}/html>
-DirectoryIndex index.html
+DirectoryIndex index.html rotations.html
 
 RewriteEngine on
-RewriteRule \.(html|png|js|css)$ - [L]
-RewriteRule ^$      index.html [L]
-RewriteRule ^(.*)/$ $1/index.html [L]
-RewriteRule ^(.*)$  $1.html [L]
+RewriteCond %{SCRIPT_FILENAME} -d [OR]
+RewriteCond %{SCRIPT_FILENAME} -f
+RewriteRule . - [L]
+
+RewriteCond %{SCRIPT_FILENAME}\.html -f
+RewriteRule ^(.*)$ $1.html [L]
 
 # Cache forever
 <FilesMatch "\.(jpg|jpeg|png|gif|js|css)$">
