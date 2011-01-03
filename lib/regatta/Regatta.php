@@ -200,8 +200,18 @@ class Regatta implements RaceListener, FinishListener {
 	throw new InvalidArgumentException("Invalid regatta type \"$value\".");
       // re-create the nick name, and let that method determine if it
       // is valid (this would throw an exception otherwise)
-      if ($value != Preferences::TYPE_PERSONAL)
+      if ($value != Preferences::TYPE_PERSONAL) {
 	$this->set(Regatta::NICK_NAME, $this->createNick());
+	// If it used to be personal, we need to queue for public site
+	// as well, since it is now publicly viewable
+	if ($this->get(Regatta::TYPE) == Preferences::TYPE_PERSONAL)
+	  UpdateManager::queueRequest($this, UpdateRequest::ACTIVITY_SCORE);
+      }
+      else {
+	// Queue public "score" update: this will result in deletion
+	UpdateManager::queueRequest($this, UpdateRequest::ACTIVITY_SCORE);
+      }
+
       $strvalue = sprintf('"%s"', $value);
     }
     else

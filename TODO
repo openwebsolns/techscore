@@ -101,4 +101,6 @@ Each conference page will show be organized as follows:
 
 * Migrate to using WebServer class for redirects
 
-* Specify regatta types as constants
+* Specify regatta types as constants (d o n e)
+
+* Fix rotation pane, again!

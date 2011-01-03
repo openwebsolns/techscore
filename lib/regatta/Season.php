@@ -42,7 +42,13 @@ class Season {
     }
     return $this->season->season;
   }
-  public function getYear() { return $this->date->format('Y'); }
+  /**
+   * The year is based on when the season ENDS, and not when it begins
+   */
+  public function getYear() {
+    $this->getSeason();
+    return substr($this->season->end_date, 0, 4);
+  }
   public function __toString() {
     $v = null;
     switch ($this->getSeason()) {
@@ -183,8 +189,9 @@ class Season {
 
     // fetch the correct start_date for this season
     $con = Preferences::getConnection();
-    $q = sprintf('select start_date from season where season = "%s" and year(start_date) = "%s" limit 1',
-		 $s, $y);
+    $q = sprintf('select start_date from season where season = "%s" and ' .
+		 '(year(start_date) = "%s" or year(end_date) = "%s") limit 1',
+		 $s, $y, $y);
     $r = $con->query($q);
     if ($r->num_rows == 0)
       return null;
