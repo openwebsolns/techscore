@@ -141,147 +141,147 @@ class SailsPane extends AbstractPane {
 	$this->announce(new Announcement("Invalid division(s) specified. Using all.", Announcement::WARNING));
 	$chosen_div = $divisions;
       }
+    }
 
-      $repeats = (isset($args['repeat']) && is_numeric($args['repeat'])) ?
-	$args['repeat'] : 2;
+    $repeats = (isset($args['repeat']) && is_numeric($args['repeat'])) ?
+      $args['repeat'] : 2;
 
-      // Edittype
-      $edittype = (isset($args['edittype']))
-	? $args['edittype'] : "ADD";
+    // Edittype
+    $edittype = (isset($args['edittype']))
+      ? $args['edittype'] : "ADD";
 
-      // Range of races
-      $range_races = $this->REGATTA->getCombinedUnscoredRaces($chosen_div);
+    // Range of races
+    $range_races = $this->REGATTA->getCombinedUnscoredRaces($chosen_div);
 
-      // Existing divisions with rotations
-      // Get divisions to choose from
-      $rotation = $this->REGATTA->getRotation();
+    // Existing divisions with rotations
+    // Get divisions to choose from
+    $rotation = $this->REGATTA->getRotation();
     
-      $exist_div = $rotation->getDivisions();
+    $exist_div = $rotation->getDivisions();
+    if (count($exist_div) == 0)
+      $exist_div = array();
+    else
+      $exist_div = array_combine($exist_div, $exist_div);
+
+
+    // Get signed in teams
+    $p_teams = $this->REGATTA->getTeams();
+
+    // ------------------------------------------------------------
+    // 1. Choose a rotation type
+    // ------------------------------------------------------------
+    if ($chosen_rot === null) {
+      $this->PAGE->addContent($p = new Port("1. Create a rotation"));
+
+      $p->addChild($form = $this->createForm());
+      $form->addAttr("id", "sail_setup");
+
+      $form->addChild(new FItem("Type of rotation:",
+				$f_sel = new FSelect("rottype", array($chosen_rot))));
+
+      $the_rots = $this->ROTS;
       if (count($exist_div) == 0)
-	$exist_div = array();
-      else
-	$exist_div = array_combine($exist_div, $exist_div);
+	unset($the_rots["OFF"]);
+      if (count($p_teams) % 2 == 1)
+	unset($the_rots["SWP"]);
+      $f_sel->addOptions($the_rots);
 
+      $form->addChild(new FItem("Divisions to affect:",
+				$f_sel = new FSelect("division[]", $chosen_div,
+						     array("multiple"=>"multiple"))));
 
-      // Get signed in teams
-      $p_teams = $this->REGATTA->getTeams();
+      $div_opts = array();
+      foreach ($divisions as $div)
+	$div_opts[(string)$div] = (string)$div;
+      $f_sel->addOptions($div_opts);
+      $form->addChild(new FSubmit("choose_rot", "Next >>"));
+    }
 
-      // ------------------------------------------------------------
-      // 1. Choose a rotation type
-      // ------------------------------------------------------------
-      if ($chosen_rot == null) {
-	$this->PAGE->addContent($p = new Port("1. Create a rotation"));
+    // ------------------------------------------------------------
+    // 2. Starting sails
+    // ------------------------------------------------------------
+    else {
+      // Divisions
+      $chosen_rot_desc = explode(":", $this->ROTS[$chosen_rot]);
+      $this->PAGE->addContent($p = new Port(sprintf("2. %s for Div. %s",
+						    $chosen_rot_desc[0],
+						    implode(", ", $chosen_div))));
+      $p->addHelp("node13.html");
+      $p->addChild($form = $this->createForm());
 
-	$p->addChild($form = $this->createForm());
-	$form->addAttr("id", "sail_setup");
-
-	$form->addChild(new FItem("Type of rotation:",
-				  $f_sel = new FSelect("rottype", array($chosen_rot))));
-
-	$the_rots = $this->ROTS;
-	if (count($exist_div) == 0)
-	  unset($the_rots["OFF"]);
-	if (count($p_teams) % 2 == 1)
-	  unset($the_rots["SWP"]);
-	$f_sel->addOptions($the_rots);
-
-	$form->addChild(new FItem("Divisions to affect:",
-				  $f_sel = new FSelect("division[]", $chosen_div,
-						       array("multiple"=>"multiple"))));
-
-	$div_opts = array();
-	foreach ($divisions as $div)
-	  $div_opts[(string)$div] = (string)$div;
-	$f_sel->addOptions($div_opts);
-	$form->addChild(new FSubmit("choose_rot", "Next >>"));
+      $form->addChild(new FHidden("rottype", $chosen_rot));
+      foreach ($chosen_div as $div) {
+	$form->addChild(new FHidden("division[]", $div));
       }
 
-      // ------------------------------------------------------------
-      // 2. Starting sails
-      // ------------------------------------------------------------
+      // Suggest Navy/Franny special
+      if (count($chosen_div) > 1 &&
+	  $chosen_rot != "NOR" &&
+	  $chosen_rot != "OFF") {
+	$form->addChild($f_item = new FItem("Style:",
+					    $f_sel = new FSelect("style",
+								 array("copy"))));
+	$f_sel->addOptions($this->STYLES);
+      }
       else {
-	// Divisions
-	$chosen_rot_desc = explode(":", $this->ROTS[$chosen_rot]);
-	$this->PAGE->addContent($p = new Port(sprintf("2. %s for Div. %s",
-						      $chosen_rot_desc[0],
-						      implode(", ", $chosen_div))));
-	$p->addHelp("node13.html");
-	$p->addChild($form = $this->createForm());
+	$form->addChild(new FHidden("style", "copy"));
+      }
 
-	$form->addChild(new FHidden("rottype", $chosen_rot));
-	foreach ($chosen_div as $div) {
-	  $form->addChild(new FHidden("division[]", $div));
+      // Races
+      $form->addChild($f_item = new FItem("Races:",
+					  new FText("races", Utilities::makeRange($range_races),
+						    array("id"=>"frace"))));
+      $f_item->addChild($tab = new Table());
+      $tab->addAttr("class", "narrow");
+      $tab->addHeader(new Row(array(Cell::th("Possible"))));
+      $tab->addRow(new Row(array(new Cell(Utilities::makeRange($range_races),
+					  array("id"=>"range_races")))));
+
+      // For Offset rotations, print only the 
+      // current divisions for which there are rotations entered
+      // and the offset amount
+      if ($chosen_rot == "OFF") {
+	$form->addChild(new FItem("Copy rotation from:",
+				  $f_sel = new FSelect("from_div", array())));
+	$f_sel->addOptions($exist_div);
+	$form->addChild(new FItem("Amount to offset (+/-):",
+				  new FText("offset", "6",
+					    array("size"=>"2",
+						  "maxlength"=>"2"))));
+
+	$form->addChild(new FSubmit("restart",   "<< Start over"));
+	$form->addChild(new FSubmit("offsetrot", "Offset"));
+      }
+      else {
+	if ($chosen_rot != "NOR") {
+	  $form->addChild(new FItem("Races in set:",
+				    $f_text = new FText("repeat", $repeats,
+							array("size"=>"2",
+							      "id"=>"repeat"))));
 	}
 
-	// Suggest Navy/Franny special
-	if (count($chosen_div) > 1 &&
-	    $chosen_rot != "NOR" &&
-	    $chosen_rot != "OFF") {
-	  $form->addChild($f_item = new FItem("Style:",
-					      $f_sel = new FSelect("style",
-								   array("copy"))));
-	  $f_sel->addOptions($this->STYLES);
-	}
-	else {
-	  $form->addChild(new FHidden("style", "copy"));
-	}
-
-	// Races
-	$form->addChild($f_item = new FItem("Races:",
-					    new FText("races", Utilities::makeRange($range_races),
-						      array("id"=>"frace"))));
-	$f_item->addChild($tab = new Table());
+	$form->addChild(new FItem(sprintf("Enter sail numbers in first " .
+					  "race of div. <strong>%s</strong>:",
+					  $chosen_div[0]),
+				  $tab = new Table()));
 	$tab->addAttr("class", "narrow");
-	$tab->addHeader(new Row(array(Cell::th("Possible"))));
-	$tab->addRow(new Row(array(new Cell(Utilities::makeRange($range_races),
-					    array("id"=>"range_races")))));
 
-	// For Offset rotations, print only the 
-	// current divisions for which there are rotations entered
-	// and the offset amount
-	if ($chosen_rot == "OFF") {
-	  $form->addChild(new FItem("Copy rotation from:",
-				    $f_sel = new FSelect("from_div", array())));
-	  $f_sel->addOptions($exist_div);
-	  $form->addChild(new FItem("Amount to offset (+/-):",
-				    new FText("offset", "6",
-					      array("size"=>"2",
-						    "maxlength"=>"2"))));
-
-	  $form->addChild(new FSubmit("restart",   "<< Start over"));
-	  $form->addChild(new FSubmit("offsetrot", "Offset"));
+	$i = 1;
+	foreach ($p_teams as $team) {
+	  $tab->addRow(new Row(array(Cell::th($team),
+				     new Cell(new FText($team->id, $i++,
+							array("size"=>"2",
+							      "maxlength"=>"8"))))));
 	}
-	else {
-	  if ($chosen_rot != "NOR") {
-	    $form->addChild(new FItem("Races in set:",
-				      $f_text = new FText("repeat", $repeats,
-							  array("size"=>"2",
-								"id"=>"repeat"))));
-	  }
 
-	  $form->addChild(new FItem(sprintf("Enter sail numbers in first " .
-					    "race of div. <strong>%s</strong>:",
-					    $chosen_div[0]),
-				    $tab = new Table()));
-	  $tab->addAttr("class", "narrow");
+	// order
+	$form->addChild(new FItem("Order sails in first race:",
+				  $f_sel = new FSelect("sort", array("num"))));
+	$f_sel->addOptions($this->SORT);
 
-	  $i = 1;
-	  foreach ($p_teams as $team) {
-	    $tab->addRow(new Row(array(Cell::th($team),
-				       new Cell(new FText($team->id, $i++,
-							  array("size"=>"2",
-								"maxlength"=>"8"))))));
-	  }
-
-	  // order
-	  $form->addChild(new FItem("Order sails in first race:",
-				    $f_sel = new FSelect("sort", array("num"))));
-	  $f_sel->addOptions($this->SORT);
-
-	  // Submit form
-	  $form->addChild(new FSubmit("restart",   "<< Start over"));
-	  $form->addChild(new FSubmit("createrot", "Create rotation"));
-	}
+	// Submit form
+	$form->addChild(new FSubmit("restart",   "<< Start over"));
+	$form->addChild(new FSubmit("createrot", "Create rotation"));
       }
 
       // FAQ's
@@ -464,10 +464,13 @@ class SailsPane extends AbstractPane {
 	is_array($args['division']) &&
 	$this->validateDivisions($args['division'])) {
       $divisions = array();
+      $div_string = array();
       foreach ($args['division'] as $div) {
 	$divisions[] = new Division($div);
+	$div_string[] = $div;
       }
-      $args['division'] = $divisions;
+      $args['division'] = $div_string;
+      unset($div_string);
     }
     else {
       $mes = "Invalid or missing division[s].";
