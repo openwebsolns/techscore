@@ -90,6 +90,10 @@ class UpdateRegatta {
     $filename = "$dirname/rotations.html";
     if (@file_put_contents($filename, $M->getRotationPage()) === false)
       throw new RuntimeException(sprintf("Unable to make the regatta report: %s\n", $filename), 8);
+
+    // If there's already in index.html, update that one too.
+    if (file_exists("$dirname/index.html"))
+      self::runScore($reg);
   }
 }
 
