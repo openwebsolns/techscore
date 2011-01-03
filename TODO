@@ -99,8 +99,8 @@ Each conference page will show be organized as follows:
 * Move scoring side to ts.hostname VirtualHost?
 
 
-* Migrate to using WebServer class for redirects
-
+* Migrate to using WebServer class for redirects (d o n e)
+ 
 * Specify regatta types as constants (d o n e)
 
 * Fix rotation pane, again!
