@@ -146,9 +146,16 @@ class DetailsPane extends AbstractPane {
     if ( isset($args['edit_reg']) ) {
 
       // Type
-      if (isset($args['type']) &&
-	  in_array($args['type'], array_keys(Preferences::getRegattaTypeAssoc()))) {
-	$this->REGATTA->set(Regatta::TYPE, $args['type']);
+      if (isset($args['type'])) {
+	// this may throw an error for two reasons: illegal type or
+	// invalid nick name
+	try {
+	  $this->REGATTA->set(Regatta::TYPE, $args['type']);
+	}
+	catch (InvalidArgumentException $e) {
+	  $this->announce(new Announcement("Unable to change the type of regatta. Either an invalid type was specified, or more likely you attempted to activate a regatta that is under the same name as another already-activated regatta for the current season. Before you can do that, please make sure that the other regatta with the same name as this one is removed or de-activated (made personal) before proceeding.", Announcement::WARNING));
+	  return;
+	}
       }
 
       // Name

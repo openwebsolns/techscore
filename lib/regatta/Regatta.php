@@ -11,11 +11,23 @@ require_once('conf.php');
 /**
  * Class for regatta objects. Each object is responsible for
  * communicating with the database and retrieving all sorts of
- * pertinent informations.
+ * pertinent informations. Only one global connection to the database
+ * is necessary and shared by all regatta objects.
  *
  * 2010-02-16: Created TempRegatta which extends this class.
  *
  * 2010-03-07: Provided for combined divisions
+ *
+ * 2011-01-03: Regatta nick names offer a special challenge in that
+ * they (a) need to be unique per season (as this is how they are
+ * identified in the public site), and (b) only for those that are
+ * published. As such, special care must be taken for regattas which
+ * change their status either by being deactivated or possibly
+ * re-activated. Of course, although this note appears here, the
+ * orchestration needs to be done elsewhere. For this moment, this
+ * class will now throw an error when attempting to set a name for
+ * which a nick-name would no longer be unique among active regattas
+ * in that season!
  *
  * @author Dayan Paez
  * @created 2009-10-01
@@ -163,6 +175,9 @@ class Regatta implements RaceListener, FinishListener {
    * used for the given property
    *
    * @throws InvalidArgumentException if the property is invalid.
+   *
+   * @version 2011-01-03: if the regatta is (re)activated, then check
+   * if the nick name is valid.
    */
   public function set($property, $value) {
     if (!array_key_exists($property, $this->properties)) {
@@ -179,6 +194,15 @@ class Regatta implements RaceListener, FinishListener {
 	throw new InvalidArgumentException($m);
       }
       $strvalue = sprintf('"%s"', $value->format("Y-m-d H:i:s"));
+    }
+    elseif ($property == Regatta::TYPE) {
+      if (!in_array($value, array_keys(Preferences::getRegattaTypeAssoc())))
+	throw new InvalidArgumentException("Invalid regatta type \"$value\".");
+      // re-create the nick name, and let that method determine if it
+      // is valid (this would throw an exception otherwise)
+      if ($value != Preferences::TYPE_PERSONAL)
+	$this->set(Regatta::NICK_NAME, $this->createNick());
+      $strvalue = sprintf('"%s"', $value);
     }
     else
       $strvalue = sprintf('"%s"', $value);
@@ -1138,7 +1162,7 @@ class Regatta implements RaceListener, FinishListener {
    * @param String $name the name of the regatta
    * @param DateTime $start_time the start time of the regatta
    * @param DateTime $end_date the end_date
-   * @param String $type one of those listed in Preferences::getRegattaTypesAssoc()
+   * @param String $type one of those listed in Preferences::getRegattaTypeAssoc()
    * @param String $comments the comments (default empty)
    *
    * @return int the ID of the regatta
@@ -1177,11 +1201,11 @@ class Regatta implements RaceListener, FinishListener {
    * @param String $name the name of the regatta
    * @param DateTime $start_time the start time of the regatta
    * @param DateTime $end_date the end_date
-   * @param String $type one of those listed in Preferences::getRegattaTypesAssoc()
+   * @param String $type one of those listed in Preferences::getRegattaTypeAssoc()
    * @param String $scoring one of those listed in Preferences::getRegattaScoringAssoc()
    * @param String $comments the comments (default empty)
    *
-   * @throws InvalidArgumentException if illegal regatta type
+   * @throws InvalidArgumentException if illegal regatta type or name
    */
   public static function createRegatta($name,
 				       DateTime $start_time,
@@ -1190,28 +1214,30 @@ class Regatta implements RaceListener, FinishListener {
 				       $scoring) {
     $id = self::addRegatta(SQL_DB, $name, $start_time, $end_date, $type, $scoring);
     $r = new Regatta($id);
-    $r->set(Regatta::NICK_NAME, $r->createNick());
+    // do not create nick names for personal regattas (nick name
+    // creation is delayed until the regatta is made active)
+    if ($type != Preferences::TYPE_PERSONAL)
+      $r->set(Regatta::NICK_NAME, $r->createNick());
     return $r;
   }
 
   /**
    * Creates a regatta nick name for this regatta based on this
    * regatta's name. Nick names are guaranteed to be a unique per
-   * season. As such, this function looks at all the regattas in the
-   * same season as this regatta before creating a new nick name.
+   * season. As such, this function will throw an error if there is
+   * already a regatta with the same nick name as this one. This is
+   * meant to establish some order from users who fail to read
+   * instructions and create mutliple regattas all with the same name,
+   * leaving behind "phantom" regattas.
    *
    * Nicknames are all lower case, separated by dashes, and devoid of
    * filler words, including 'trophy', 'championship', and the like.
    *
    * @return String the nick name
+   * @throw InvalidArgumentException if the nick name is not unique
    */
   public function createNick() {
     $name = strtolower($this->get(Regatta::NAME));
-    // list of regatta names in the same season as this one
-    $prohibit = array();
-    foreach ($this->get(Regatta::SEASON)->getRegattas() as $n)
-      $prohibit[] = $n->nick;
-
     // Remove 's from words
     $name = str_replace('\'s', '', $name);
 
@@ -1254,12 +1280,13 @@ class Regatta implements RaceListener, FinishListener {
     $name = str_replace("semifinals", "semis", $name);
     $name = str_replace("semifinal",  "semis", $name);
 
-    $i = 1;
-    $new_name = $name;
-    while (in_array($new_name, $prohibit))
-      $new_name = $name . "-" . ($i++);
-  
-    return $new_name;
+    // list of regatta names in the same season as this one
+    foreach ($this->get(Regatta::SEASON)->getRegattas() as $n) {
+      if ($n->nick == $name && $n->id != $this->id)
+	throw new InvalidArgumentException(sprintf("Nick name \"%s\" already in use by (%d).",
+						   $name, $n->id));
+    }
+    return $name;
   }
 
   // ------------------------------------------------------------

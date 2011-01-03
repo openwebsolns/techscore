@@ -42,11 +42,15 @@ class Preferences {
    * @return Array a dict of regatta types
    */
   public static function getRegattaTypeAssoc() {
-    return array("conference"=>"Conference",
-		 "intersectional"=>"Intersectional",
-		 "championship"=>"Championship",
-		 "personal"=>"Personal");
+    return array(Preferences::TYPE_CONFERENCE=>"Conference",
+		 Preferences::TYPE_INTERSECTIONAL=>"Intersectional",
+		 Preferences::TYPE_CHAMPIONSHIP=>"Championship",
+		 Preferences::TYPE_PERSONAL=>"Personal");
   }
+  const TYPE_PERSONAL = "personal";
+  const TYPE_CONFERENCE = "conference";
+  const TYPE_CHAMPIONSHIP = "championship";
+  const TYPE_INTERSECTIONAL = "intersectional";
 
   /**
    * Gets an assoc. array of the possible scoring rules
