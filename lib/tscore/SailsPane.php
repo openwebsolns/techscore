@@ -91,7 +91,7 @@ class SailsPane extends AbstractPane {
       $num_teams = count($teams);
       $tab->addHeader($row = new Row(array(Cell::th("Team"))));
       foreach ($divisions as $div)
-	$row->addChild(Cell::th($div));
+	$row->addChild(Cell::th("Div. $div"));
       foreach ($teams as $team) {
 	$tab->addRow($row = new Row(array(new Cell($team))));
 	$off = 0;

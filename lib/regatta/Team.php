@@ -73,7 +73,7 @@ class Team {
   }
 
   public function __toString() {
-    return sprintf("%s %s", $this->school->nick_name, $this->name);
+    return sprintf("%s %s", $this->__get('school')->nick_name, $this->name);
   }
 
   // ------------------------------------------------------------
