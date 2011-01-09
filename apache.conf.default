@@ -1,15 +1,38 @@
 # Configuration for Apache. This file is under version control. Copy
-# this file to 'apache.conf' and edit accordingly
+# this file to 'apache.conf' and edit accordingly.
 #
 # @author Dayan Paez
 # @date   2010-03-31
 
+# Listen 80
+# Listen 443
 # NameVirtualHost *:80
+# NameVirtualHost *:443
+ServerTokens ProductOnly
 
+# Dummy SCORING virtualhost to forward traffic to port 443
 <VirtualHost *:80>
-ServerName {HOSTNAME}
-ServerAlias www.{HOSTNAME}
-Alias /ts2 {DIRECTORY}/www
+ServerName ts2.{HOSTNAME}
+ServerAdmin dayan@localhost
+CustomLog /dev/null combined
+
+# forward traffic accordingly
+RewriteEngine on
+RewriteRule ^(.*)$ https://ts2.{HOSTNAME}/$1
+</VirtualHost>
+
+# TechScore SCORING virtualhost setup
+<VirtualHost *:443>
+ServerName ts2.{HOSTNAME}
+ServerAdmin dayan@localhost
+DocumentRoot {DIRECTORY}/www
+ErrorLog /var/log/apache2/ts2.{HOSTNAME}-error.log
+
+# SSL setup
+SSLEngine on
+SSLCertificateFile /etc/apache2/certs/ts2.crt
+SSLCertificateKeyFile /etc/apache2/certs/ts2.key
+SetEnvIf User-Agent ".*MSIE.*" nokeepalive ssl-unclean-shutdown
 
 <Directory "{DIRECTORY}/www">
 Order allow,deny
@@ -17,14 +40,11 @@ Allow from all
 Options All
 AllowOverride None
 
-<IfModule mod_dir.c>
-	DirectoryIndex index.php
-</IfModule>
-
+DirectoryIndex index.php
 php_value include_path ".:{DIRECTORY}/lib"
 
+# Rewrite rules
 RewriteEngine on
-RewriteBase /ts2
 RewriteRule ^score/([0-9]+)/?$ score.php?reg=$1&p=home
 RewriteRule ^score/([0-9]+)/(.*)/?$ score.php?reg=$1&p=$2
 
@@ -88,10 +108,11 @@ Header unset ETag
 # Cache forever
 # MOD_REWRITE TO RENAME EVERY CHANGE
 <FilesMatch "\.(jpg|jpeg|png|gif|js|css)$">
-Header set Cache-Control "public"
+Header set Cache-Control "public,maxage=2500000"
 Header set Expires "Thu, 15 Apr 2025 20:00:00 GMT"
 # Header unset Last-Modified
 </FilesMatch>
+
 </Directory>
 </VirtualHost>
 
@@ -100,8 +121,12 @@ Header set Expires "Thu, 15 Apr 2025 20:00:00 GMT"
 <VirtualHost *:80>
 ServerName scores.{HOSTNAME}
 ServerAlias live.{HOSTNAME}
-ErrorLog {DIRECTORY}/log/scores-access.log
+ErrorLog /var/log/apache2/scores.{HOSTNAME}-error.log
 DocumentRoot {DIRECTORY}/html
+
+<Directory {DIRECTORY}/html>
+# ErrorDocument 404 /error/404.html
+Options -Indexes
 DirectoryIndex index.html rotations.html
 
 RewriteEngine on
@@ -118,5 +143,6 @@ Header set Cache-Control "public"
 Header set Expires "Thu, 15 Apr 2025 20:00:00 GMT"
 # Header unset Last-Modified
 </FilesMatch>
+
 </Directory>
 </VirtualHost>
