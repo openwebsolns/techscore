@@ -106,7 +106,7 @@ class EditRegattaPage extends TScorePage {
     $menu->addChild(new Heading("Windows"));
     $menu->addChild($m_list = new GenericList());
     foreach ($dial_i as $url => $title) {
-      $link = new Link("view/$id/$url", $title);
+      $link = new Link("/view/$id/$url", $title);
       $link->addAttr("class", "frame-toggle");
       $link->addAttr("target", "_blank");
       $m_list->addItems(new LItem($link));

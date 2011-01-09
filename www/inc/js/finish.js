@@ -110,7 +110,7 @@ function checkSails () {
 
 	// Check that it is a possible sail to begin with
 	// If indeed, it's not blank, and a decision hasn't been made
-	if ( input.value != "") {
+	if (input.value != "") {
 	    var possible = false;
 	    for (var j = 0; j < pos_sails.length; j++) {
 		if (pos_sails[j].innerHTML == input.value) {

@@ -180,7 +180,7 @@ class EnterFinishPane extends AbstractPane {
       //$form->addChild(new FReset("reset_finish", "Reset"));
       $form->addChild(new FSubmit("f_places",
 				  sprintf("Enter finish for race %s", $race->number),
-				  array("id"=>"submitfinish")));
+				  array("id"=>"submitfinish", "tabindex"=>($i+1))));
     }
     else {
       // ------------------------------------------------------------
@@ -244,7 +244,7 @@ class EnterFinishPane extends AbstractPane {
       // Submit buttom
       $form->addChild(new FSubmit("f_teams",
 				  sprintf("Enter finish for race %s", $race->number),
-				  array("id"=>"submitfinish")));
+				  array("id"=>"submitfinish", "tabindex"=>($i+1))));
     }
   }
 
@@ -378,7 +378,7 @@ class EnterFinishPane extends AbstractPane {
       // $form->addChild(new FReset("reset_finish", "Reset"));
       $form->addChild(new FSubmit("f_places",
 				  sprintf("Enter finish for %s", $race),
-				  array("id"=>"submitfinish")));
+				  array("id"=>"submitfinish", "tabindex"=>($i+1))));
     }
     else {
       // ------------------------------------------------------------
@@ -433,7 +433,7 @@ class EnterFinishPane extends AbstractPane {
       // Submit buttom
       $form->addChild(new FSubmit("f_teams",
 				  sprintf("Enter finish for %s", $race),
-				  array("id"=>"submitfinish")));
+				  array("id"=>"submitfinish", "tabindex"=>($i+1))));
     }
   }
 

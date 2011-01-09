@@ -45,7 +45,7 @@ if (!isset($_REQUEST['p']) &&
     !isset($_REQUEST['d'])) {
   $mes = "No page requested.";
   $_SESSION['ANNOUNCE'][] = new Announcement($mes, Announcement::WARNING);
-  WebServer::go("score/".$reg_id);
+  WebServer::go("/score/".$reg_id);
 }
 
 //
@@ -82,14 +82,14 @@ elseif (isset($_REQUEST['p'])) {
 	else {
 	  $title = $pane->getTitle();
 	  $_SESSION['ANNOUNCE'][] = new Announcement("$title is not available.", Announcement::WARNING);
-	  WebServer::go("score/".$reg_id);
+	  WebServer::go("/score/".$reg_id);
 	}
       }
     }
     if ($PAGE === null) {
       $mes = sprintf("Invalid page requested (%s)", $_REQUEST['p']);
       $_SESSION['ANNOUNCE'][] = new Announcement($mes, Announcement::WARNING);
-      WebServer::go("score/".$reg_id);
+      WebServer::go("/score/".$reg_id);
     }
   }
 }
@@ -167,7 +167,7 @@ elseif (isset($_REQUEST['v'])) {
     default:
       $mes = sprintf("Unknown dialog requested (%s).", $_REQUEST['v']);
       $_SESSION['ANNOUNCE'][] = new Announcement($mes, Announcement::WARNING);
-      WebServer::go(sprintf("view/%d/rotation", $reg_id));
+      WebServer::go(sprintf("/view/%d/rotation", $reg_id));
     }
   }
 }
