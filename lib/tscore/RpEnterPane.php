@@ -43,7 +43,7 @@ class RpEnterPane extends AbstractPane {
     $this->PAGE->addHead(new GenericElement("script",
 					    array(new Text()),
 					    array("type"=>"text/javascript",
-					    "src"=>"inc/js/rp.js")));
+					    "src"=>"/inc/js/rp.js")));
     
     $this->PAGE->addContent($p = new Port("Choose a team",
 					  array(),

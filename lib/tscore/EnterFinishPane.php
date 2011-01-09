@@ -56,7 +56,7 @@ class EnterFinishPane extends AbstractPane {
     $this->PAGE->addHead(new GenericElement("script",
 					    array(new Text()),
 					    array("type"=>"text/javascript",
-						  "src"=>"inc/js/finish.js")));
+						  "src"=>"/inc/js/finish.js")));
 
     $this->PAGE->addContent($p = new Port("Choose race number"));
 
@@ -276,7 +276,7 @@ class EnterFinishPane extends AbstractPane {
     $this->PAGE->addHead(new GenericElement("script",
 					    array(new Text()),
 					    array("type"=>"text/javascript",
-						  "src"=>"inc/js/finish.js")));
+						  "src"=>"/inc/js/finish.js")));
 
     $this->PAGE->addContent($p = new Port("Choose race"));
 

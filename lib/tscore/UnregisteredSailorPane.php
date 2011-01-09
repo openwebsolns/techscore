@@ -24,7 +24,7 @@ class UnregisteredSailorPane extends AbstractPane {
     $this->PAGE->addHead(new GenericElement("script",
 					    array(new Text()),
 					    array("type"=>"text/javascript",
-						  "src"=>"inc/js/rp.js")));
+						  "src"=>"/inc/js/rp.js")));
 
     $this->PAGE->addContent($p = new Port("Add sailor to temporary list"));
     $p->addChild(new Para("Choose the school from the list below and enter the 
