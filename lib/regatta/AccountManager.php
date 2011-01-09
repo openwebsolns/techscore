@@ -187,7 +187,7 @@ class AccountManager {
       WebServer::go("license");
 
     default:
-      WebServer::go(HOME);
+      WebServer::go('/');
     }
   }
 }

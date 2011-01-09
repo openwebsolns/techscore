@@ -87,7 +87,7 @@ else {
   default:
     $_SESSION['ANNOUNCE'][] = new Announcement(sprintf("Invalid page requested (%s).", $_REQUEST['p']),
 					       Announcement::ERROR);
-    WebServer::go(HOME);
+    WebServer::go('/');
   }
 }
 

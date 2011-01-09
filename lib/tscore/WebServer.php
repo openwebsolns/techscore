@@ -21,24 +21,28 @@ class WebServer {
    * @param String $default the page to move if no valid referer
    * found
    */
-  public static function goBack($default = ".") {
-    if (isset($_SERVER['HTTP_REFERER']))
+  public static function goBack($default = "/") {
+    if (isset($_SERVER['HTTP_REFERER']) &&
+	strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) >= 0)
       self::go($_SERVER['HTTP_REFERER']);
     self::go($default);
   }
 
   /**
-   * Moves to the given address relative to HOME, unless a full URL
-   * (starting with http/s) is given.
+   * Moves to the given address, issuing the appropriate location
+   * header and exiting.
    *
    * @param String $addr the address to navigate to
    */
   public static function go($addr) {
+    /*
     if (preg_match('/^https?:\/\//', $addr)) {
       header("Location: $addr");
       exit;
     }
     header(sprintf("Location: %s/%s", HOME, $addr));
+    */
+    header(sprintf("Location: %s", $addr));
     exit;
   }
 }

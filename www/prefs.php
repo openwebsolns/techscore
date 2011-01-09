@@ -13,7 +13,7 @@ session_start();
 //
 if (!(isset($_SESSION['user']))) {
   $_SESSION['last_page'] = $_SERVER['REQUEST_URI'];
-  WebServer::go(HOME);
+  WebServer::go('/');
 }
 $USER = null;
 try {
@@ -22,10 +22,10 @@ try {
 }
 catch (Exception $e) {
   $_SESSION['last_page'] = $_SERVER['REQUEST_URI'];
-  WebServer::go(HOME);
+  WebServer::go('/');
 }
 
-$HOME = sprintf("prefs/%s", $USER->get(User::SCHOOL)->id);
+$HOME = sprintf("/prefs/%s", $USER->get(User::SCHOOL)->id);
 
 //
 // School

@@ -40,7 +40,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
     $division  = $this->division;
 
     $this->PAGE->addContent($p = new Port("Division $division results"));
-    $elems = $this->getTable(HOME);
+    $elems = $this->getTable();
     $p->addChild(array_shift($elems));
     if (count($elems) > 0) {
       $p->addChild(new Heading("Tiebreaker legend"));

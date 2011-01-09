@@ -51,7 +51,7 @@ class EULAPane extends AbstractUserPane {
       if (isset($args['agree']) && $args['agree']) {
 	$this->USER->set(User::STATUS, "active");
 	$_SESSION['ANNOUNCE'][] = new Announcement("Thank you for activatating your account!");
-	WebServer::go(HOME);
+	WebServer::go('/');
       }
       else {
 	$_SESSION['ANNOUNCE'][] = new Announcement("You must sign checkbox to continue.",

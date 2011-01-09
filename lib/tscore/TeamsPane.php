@@ -25,10 +25,7 @@ class TeamsPane extends AbstractPane {
     // Edit team names
     if (count($teams) > 0) {
       $this->PAGE->addContent($p = new Para(""));
-      $p->addChild(new Link(sprintf("%s/score/%s/teams#add",
-				    HOME,
-				    $this->REGATTA->id()),
-			    "Add schools."));
+      $p->addChild(new Link("#add", "Add schools."));
       $this->PAGE->addContent($p = new Port("Edit present teams"));
       $p->addChild($tab = new Table(array(), array("class"=>"narrow")));
     

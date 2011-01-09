@@ -10,8 +10,7 @@
 // and the web environment
 define("VERSION", "2.0");
 define("NAME",    "TechScore");
-define("ROOT",    sprintf("http://%s", $_SERVER['HTTP_HOST']));
-define("HOME",    ROOT);
+define("HOME",    sprintf("http://%s", $_SERVER['HTTP_HOST']));
 define("PUB_HOME", sprintf("http://scores.%s", $_SERVER['HTTP_HOST']));
 define("ADMIN_MAIL", "admin@" . $_SERVER['HTTP_HOST']);
 define("TS_FROM_MAIL", ADMIN_MAIL);

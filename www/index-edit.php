@@ -22,14 +22,14 @@ if (!(isset($_SESSION['user']))) {
   }
   
   // Send home instead
-  WebServer::go(HOME);
+  WebServer::go('/');
 }
 $USER = null;
 try {
   $USER = new User($_SESSION['user']);
 }
 catch (Exception $e) {
-  WebServer::go(HOME);
+  WebServer::go('/');
 }
 
 $page = "home";
@@ -70,7 +70,7 @@ else {
 
   default:
     $_SESSION['ANNOUNCE'][] = new Announcement("No such page.", Announcement::ERROR);
-    WebServer::go(HOME);
+    WebServer::go('/');
   }
 }
 

@@ -11,7 +11,7 @@ session_start();
 //
 if (!(isset($_SESSION['user']))) {
   $_SESSION['last_page'] = $_SERVER['REQUEST_URI'];
-  WebServer::go(HOME);
+  WebServer::go('/');
 }
 $USER = null;
 try {
@@ -20,19 +20,19 @@ try {
 }
 catch (Exception $e) {
   $_SESSION['last_page'] = $_SERVER['REQUEST_URI'];
-  WebServer::go(HOME);
+  WebServer::go('/');
 }
 
 //
 // Regatta
 //
 if (!isset($_REQUEST['reg']) || !is_numeric($_REQUEST['reg'])) {
-  WebServer::go(HOME);
+  WebServer::go('/');
 }
 $reg_id = (int)$_REQUEST['reg'];
 if (!Preferences::getObjectWithProperty($USER->getRegattas(), "id", $reg_id)) {
   // No jurisdiction
-  WebServer::go(HOME);
+  WebServer::go('/');
 }
 $REG = new Regatta($reg_id);
 

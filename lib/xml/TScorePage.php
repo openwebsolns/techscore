@@ -95,35 +95,21 @@ class TScorePage extends WebPage {
   private function fillHead($title) {
     $this->head->addChild(new GenericElement("title",
 					     array(new Text($title))));
-    $base = new GenericElement("base",
-			       array(),
-			       array("href"=>(HOME . "/")));
-    $this->head->addChild($base);
-
     // Shortcut icon
     $this->head->addChild(new GenericElement("link",
 					     array(),
 					     array("rel"=>"shortcut icon",
-						   "href"=>"img/t.ico",
+						   "href"=>"/img/t.ico",
 						   "type"=>"image/x-icon")));
 
     // CSS Stylesheets
-    /*
-      $this->head->addChild(new GenericElement("link",
-					     array(),
-					     array("rel"=>"stylesheet",
-						   "type"=>"text/css",
-						   "title"=>"Tech",
-						   "media"=>"screen",
-						   "href"=>"inc/css/tech.css")));
-    */
     if ($this->mobile) {
       $this->head->addChild(new GenericElement("link",
 					       array(),
 					       array("rel"=>"stylesheet",
 						     "type"=>"text/css",
 						     "media"=>"screen",
-						     "href"=>"inc/css/mobile.css")));
+						     "href"=>"/inc/css/mobile.css")));
     }
     else {
       $this->head->addChild(new GenericElement("link",
@@ -132,27 +118,20 @@ class TScorePage extends WebPage {
 						   "type"=>"text/css",
 						   "title"=>"Modern Tech",
 						   "media"=>"screen",
-						   "href"=>"inc/css/modern.css")));
+						   "href"=>"/inc/css/modern.css")));
     }
     $this->head->addChild(new GenericElement("link",
 					     array(),
 					     array("rel"=>"stylesheet",
 						   "type"=>"text/css",
 						   "media"=>"print",
-						   "href"=>"inc/css/print.css")));
-    $this->head->addChild(new GenericElement("link",
-					     array(),
-					     array("rel"=>"alternate stylesheet",
-						   "type"=>"text/css",
-						   "title"=>"Plain Text",
-						   "media"=>"screen",
-						   "href"=>"inc/css/plain.css")));
+						   "href"=>"/inc/css/print.css")));
     $this->head->addChild(new GenericElement("link",
 					     array(),
 					     array("rel"=>"stylesheet",
 						   "type"=>"text/css",
 						   "media"=>"screen",
-						   "href"=>"inc/css/cal.css")));
+						   "href"=>"/inc/css/cal.css")));
 
     // Javascript
     foreach (array("jquery-1.3.min.js",
@@ -162,18 +141,18 @@ class TScorePage extends WebPage {
       $this->head->addChild(new GenericElement("script",
 					       array(new Text("")),
 					       array("type"=>"text/javascript",
-						     "src"=>"inc/js/" . $scr)));
+						     "src"=>"/inc/js/" . $scr)));
     }
     if ($this->mobile) {
       $this->head->addChild(new GenericElement("script", array(new Text("")),
 					       array("type"=>"text/javascript",
-						     "src"=>"inc/js/mobile.js")));
+						     "src"=>"/inc/js/mobile.js")));
     }
     else {
       foreach (array("form.js", "ui.frames.js") as $scr) {
 	$this->head->addChild(new GenericElement("script", array(new Text("")),
 						 array("type"=>"text/javascript",
-						       "src"=>"inc/js/" . $scr)));
+						       "src"=>"/inc/js/" . $scr)));
       }
     }
   }
@@ -195,8 +174,7 @@ class TScorePage extends WebPage {
     
     $this->header->addChild($this->navigation = new Div());
     $this->navigation->addAttr("id", "topnav");
-    $hlink = sprintf("%s/ts-help", ROOT);
-    $this->navigation->addChild(new Link($hlink, '<span style="text-decoration:underline">H</span>elp?',
+    $this->navigation->addChild(new Link(HELP_HOME, '<span style="text-decoration:underline">H</span>elp?',
 					 array("id"=>"help",
 					       "target"=>"help",
 					       "accesskey"=>"h")));

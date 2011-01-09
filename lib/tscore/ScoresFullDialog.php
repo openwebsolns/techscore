@@ -28,7 +28,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
    */
   public function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new Port("Team results"));
-    $ELEMS = $this->getTable(HOME);
+    $ELEMS = $this->getTable();
     $p->addChild(array_shift($ELEMS));
     if (count($ELEMS) > 0) {
       $this->PAGE->addContent($p = new Port("Legend"));

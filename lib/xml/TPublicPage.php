@@ -87,7 +87,6 @@ class TPublicPage extends WebPage {
     
     $this->header->addChild($this->navigation = new Div());
     $this->navigation->addAttr("id", "topnav");
-    $hlink = sprintf("%s/ts-help", ROOT);
   }
 
   /**

@@ -8,7 +8,7 @@
 require_once("conf.php");
 
 /**
- * User's home page, subclasses WebPage
+ * User's home page, subclasses TScorePage
  *
  */
 class UsersPage extends TScorePage {
@@ -34,16 +34,12 @@ class UsersPage extends TScorePage {
   private function fillHead() {
     $this->head->addChild(new GenericElement("title",
 					     array(new Text($this->title))));
-    $base = new GenericElement("base",
-			       array(),
-			       array("href"=>(HOME . "/")));
-    $this->head->addChild($base);
 
     // Shortcut icon
     $this->head->addChild(new GenericElement("link",
 					     array(),
 					     array("rel"=>"shortcut icon",
-						   "href"=>"img/t.ico",
+						   "href"=>"/img/t.ico",
 						   "type"=>"image/x-icon")));
 
     // CSS Stylesheets
@@ -53,26 +49,20 @@ class UsersPage extends TScorePage {
 						   "type"=>"text/css",
 						   "title"=>"Modern",
 						   "media"=>"screen",
-						   "href"=>"inc/css/modern.css")));
+						   "href"=>"/inc/css/modern.css")));
     $this->head->addChild(new GenericElement("link",
 					     array(),
 					     array("rel"=>"stylesheet",
 						   "type"=>"text/css",
 						   "media"=>"print",
-						   "href"=>"inc/css/print.css")));
+						   "href"=>"/inc/css/print.css")));
     $this->head->addChild(new GenericElement("link",
 					     array(),
 					     array("rel"=>"alternate stylesheet",
 						   "type"=>"text/css",
 						   "title"=>"Plain Text",
 						   "media"=>"screen",
-						   "href"=>"inc/css/plain.css")));
-    $this->head->addChild(new GenericElement("link",
-					     array(),
-					     array("rel"=>"stylesheet",
-						   "type"=>"text/css",
-						   "media"=>"screen",
-						   "href"=>"inc/css/cal.css")));
+						   "href"=>"/inc/css/plain.css")));
   }
 
   /**

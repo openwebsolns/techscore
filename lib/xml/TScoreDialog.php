@@ -68,16 +68,11 @@ class TScoreDialog extends WebPage {
   private function fillHead($title) {
     $this->head->addChild(new GenericElement("title",
 					     array(new Text($title))));
-    $base = new GenericElement("base",
-			       array(),
-			       array("href"=>(HOME . "/")));
-    $this->head->addChild($base);
-
     // Shortcut icon
     $this->head->addChild(new GenericElement("link",
 					     array(),
 					     array("rel"=>"shortcut icon",
-						   "href"=>"img/t.ico",
+						   "href"=>"/img/t.ico",
 						   "type"=>"image/x-icon")));
 
     // CSS Stylesheets
@@ -87,13 +82,13 @@ class TScoreDialog extends WebPage {
 						   "type"=>"text/css",
 						   "title"=>"Modern Tech",
 						   "media"=>"screen",
-						   "href"=>"inc/css/modern-dialog.css")));
+						   "href"=>"/inc/css/modern-dialog.css")));
     $this->head->addChild(new GenericElement("link",
 					     array(),
 					     array("rel"=>"stylesheet",
 						   "type"=>"text/css",
 						   "media"=>"print",
-						   "href"=>"inc/css/print.css")));
+						   "href"=>"/inc/css/print.css")));
     // Javascript
     foreach (array("jquery-1.3.min.js",
 		   "jquery.tablehover.min.js",
@@ -102,7 +97,7 @@ class TScoreDialog extends WebPage {
       $this->head->addChild(new GenericElement("script",
 					       array(new Text("")),
 					       array("type"=>"text/javascript",
-						     "src"=>"inc/js/" . $scr)));
+						     "src"=>"/inc/js/" . $scr)));
     }
   }
 
