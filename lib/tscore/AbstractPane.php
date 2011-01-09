@@ -74,7 +74,7 @@ abstract class AbstractPane {
     //   -Regatta info
     $this->PAGE->addNavigation($d3 = new Div(array(), array("id"=>"regatta")));
     $d3->addChild(new Text(stripslashes($this->REGATTA->get(Regatta::NAME))));
-    $d3->addChild(new Link("./", "[close]", array("accesskey"=>"w")));
+    $d3->addChild(new Link("/", "[close]", array("accesskey"=>"w")));
     $d3->addChild(new Itemize(array(new LItem(date_format($this->REGATTA->get(Regatta::START_TIME),
 							  "M. j, Y")),
 				    new LItem(ucfirst($this->REGATTA->get(Regatta::TYPE))))));
