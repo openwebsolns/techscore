@@ -54,7 +54,7 @@ class SailorMergePane extends AbstractPrefsPane {
       return;
     }
 
-    $p->addChild($form = new Form(sprintf("pedit/%s/sailor", $this->SCHOOL->id), "post"));
+    $p->addChild($form = new Form(sprintf("/pedit/%s/sailor", $this->SCHOOL->id), "post"));
     $form->addChild($tab = new Table());
     $tab->addAttr("class", "narrow");
     $tab->addHeader(new Row(array(Cell::th("Temporary sailor"),

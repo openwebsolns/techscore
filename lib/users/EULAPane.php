@@ -39,7 +39,7 @@ class EULAPane extends AbstractUserPane {
 							  "style"=>"width:100%;",
 							  "cols"=>"80",
 							  "rows"=>"8")));
-    $p->addChild($f = new Form("license-edit"));
+    $p->addChild($f = new Form("/license-edit"));
     $f->addChild($i = new FItem(new FCheckBox("agree", "1", array("id"=>"agree")),
 				new Label("agree", "I agree with the terms above")));
     $i->addAttr("style", "margin:1em 0em;background:#ccc;border:black;padding:0.25em;font-size:110%;");

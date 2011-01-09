@@ -50,7 +50,7 @@ class TeamNamePrefsPane extends AbstractPrefsPane {
 		    new LItem("<em>Mascot 2</em>"),
 		    new LItem("<em>Mascot 3</em>"));
 
-    $p->addChild($form = new Form(sprintf("pedit/%s/team", $this->SCHOOL->id), "post"));
+    $p->addChild($form = new Form(sprintf("/pedit/%s/team", $this->SCHOOL->id), "post"));
 
     // Fill form
     $form->addChild($tab = new Table());

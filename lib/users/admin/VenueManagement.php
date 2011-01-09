@@ -70,7 +70,7 @@ class VenueManagement extends AbstractAdminUserPane {
     // 1. Add new venue
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new Port("Add venue"));
-    $p->addChild($f = new Form("venue-edit"));
+    $p->addChild($f = new Form("/venue-edit"));
     $f->addChild(new FItem("Name:", new FText("name", $name, array("maxlength"=>40))));
     $f->addChild(new FItem("Address:", new FText("address", $addr, array("maxlength"=>40))));
     $f->addChild(new FItem("City:", new FText("city", $city, array("maxlength"=>20))));

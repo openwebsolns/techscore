@@ -47,7 +47,7 @@ class MessagePane extends AbstractUserPane {
       $p->addChild($cont = new Div());
       $cont->addAttr("class", "message");
       $cont->addChild(new Text($message->content));
-      $p->addChild($form = new Form("inbox-edit"));
+      $p->addChild($form = new Form("/inbox-edit"));
 
       // Fill out form
       $form->addChild(new GenericElement("button",
@@ -57,7 +57,7 @@ class MessagePane extends AbstractUserPane {
 					       "value"=>$message->id)));
       $form->addChild(new Link("inbox", "Close"));
       
-      $p->addChild($form = new Form("inbox-edit"));
+      $p->addChild($form = new Form("/inbox-edit"));
       $form->addChild(new FTextarea("text", "", array("style"=>"width: 100%", "rows" =>"3")));
       $form->addChild(new GenericElement("button",
 					 array(new Text("Reply")),

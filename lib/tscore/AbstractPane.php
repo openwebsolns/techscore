@@ -186,7 +186,7 @@ abstract class AbstractPane {
    * @return Form element
    */
   protected function createForm($method = "post") {
-    return new Form(sprintf("edit/%d/%s", $this->REGATTA->id(), $this->getMainURL()), $method);
+    return new Form(sprintf("/edit/%d/%s", $this->REGATTA->id(), $this->getMainURL()), $method);
   }
 }
 

@@ -48,7 +48,7 @@ class PendingAccountsPane extends AbstractAdminUserPane {
     else {
       $p->addChild(new Para("Use the checkboxes below to select the accounts, and then click " .
 			    "on the appropriate button to approve/reject."));
-      $p->addChild($f = new Form("pending-edit"));
+      $p->addChild($f = new Form("/pending-edit"));
       $f->addChild($para = new Para("With selected: "));
       $para->addChild(new FSubmit("approve", "Approve"));
       $para->addChild(new Text(" "));

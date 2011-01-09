@@ -48,7 +48,7 @@ class EditLogoPane extends AbstractPrefsPane {
     }
 
     // Form
-    $p->addChild($form = new Form(sprintf("pedit/%s/logo", $this->SCHOOL->id), "post",
+    $p->addChild($form = new Form(sprintf("/pedit/%s/logo", $this->SCHOOL->id), "post",
 				  array("enctype"=>"multipart/form-data")));
     $form->addChild(new FHidden("MAX_FILE_SIZE","200000"));
     $form->addChild(new FItem("Picture:", new FFile("logo_file")));
