@@ -168,7 +168,7 @@ class RpEnterPane extends AbstractPane {
 								 "class"=>"race_text",
 								 "onchange"=>
 								 "check()"))),
-					new Cell(new Image("img/question.png",
+					new Cell(new Image("/img/question.png",
 							   array("alt"=>
 								 "Waiting to verify")),
 						 array("id"=>"csk" . $div . $spot))),
@@ -212,7 +212,7 @@ class RpEnterPane extends AbstractPane {
 								   "class"=>"race_text",
 								   "onchange"=>
 								   "check()"))),
-					  new Cell(new Image("img/question.png",
+					  new Cell(new Image("/img/question.png",
 							     array("alt"=>
 								   "Waiting to verify")),
 						   array("id"=>"ccr" . $div . $spot)))));

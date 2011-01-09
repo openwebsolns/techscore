@@ -38,7 +38,7 @@ class EditLogoPane extends AbstractPrefsPane {
 			  "either using a PNG or GIF file format."));
     // Current logo
     if ($this->SCHOOL->burgee) {
-      $url = sprintf("img/schools/%s.png", $this->SCHOOL->id);
+      $url = sprintf("/img/schools/%s.png", $this->SCHOOL->id);
       $p->addChild(new Para(sprintf("The current logo for %s:", $this->SCHOOL->name)));
       $p->addChild(new GenericElement("center",
 				      array(new Image($url, array("alt"=>$this->SCHOOL->nick_name)))));

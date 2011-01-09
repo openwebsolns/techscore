@@ -171,7 +171,7 @@ class EnterFinishPane extends AbstractPane {
 					"tabindex"=>($i+1),
 					"onchange"=>"checkSails()",
 					"size"=>"2")));
-	$item->addChild(new Image("img/question.png",
+	$item->addChild(new Image("/img/question.png",
 				  array("alt"=>"Waiting for input",
 					"id"=>"check" . $i)));
       }
@@ -236,7 +236,7 @@ class EnterFinishPane extends AbstractPane {
 						 "tabindex"=>($i+1),
 						 "onchange"=>"checkTeams()")));
 	$sel->addOptions($team_opts);
-	$item->addChild(new Image("img/question.png",
+	$item->addChild(new Image("/img/question.png",
 				  array("alt"=>"Waiting for input",
 					"id"=>"check" . $i)));
       }
@@ -369,7 +369,7 @@ class EnterFinishPane extends AbstractPane {
 					"tabindex"=>($i+1),
 					"onchange"=>"checkSails()",
 					"size"=>"2")));
-	$item->addChild(new Image("img/question.png",
+	$item->addChild(new Image("/img/question.png",
 				  array("alt"=>"Waiting for input",
 					"id"=>"check" . $i)));
       }
@@ -425,7 +425,7 @@ class EnterFinishPane extends AbstractPane {
 						 "tabindex"=>($i+1),
 						 "onchange"=>"checkTeams()")));
 	$sel->addOptions($team_opts);
-	$item->addChild(new Image("img/question.png",
+	$item->addChild(new Image("/img/question.png",
 				  array("alt"=>"Waiting for input",
 					"id"=>"check" . $i)));
       }

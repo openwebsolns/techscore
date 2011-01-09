@@ -78,7 +78,7 @@ class EditRegattaPage extends TScorePage {
       foreach ($panes as $pane) {
 	$url = $pane->getMainURL();
 	if ($pane->isActive())
-	  $m_list->addItems(new LItem(new Link("score/$id/$url", $pane->getTitle())));
+	  $m_list->addItems(new LItem(new Link("/score/$id/$url", $pane->getTitle())));
 	else
 	  $m_list->addItems(new LItem($pane->getTitle(), array("class"=>"inactive")));
       }
