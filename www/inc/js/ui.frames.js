@@ -73,7 +73,7 @@ function showFrame(id) {
 
     // close button
     elem = document.createElement("img");
-    elem.setAttribute("src", "img/error.png");
+    elem.setAttribute("src", "/img/error.png");
     elem.setAttribute("style", "cursor: pointer; position: absolute; top: 5px; left: 5px;");
     elem.setAttribute("onclick", "javascript:closeFrame(" + id + ")");
     elem.setAttribute("title", "Close dialog");
@@ -84,7 +84,7 @@ function showFrame(id) {
     elem = document.createElement("img");
     elem.setAttribute("onclick", "javascript:maximizeFrame('frames" + id + "')");
     // elem.appendChild(document.createTextNode("Maximize"));
-    elem.setAttribute("src", "img/max.png");
+    elem.setAttribute("src", "/img/max.png");
     elem.setAttribute("style", "cursor: nw-resize; position: absolute; top: 5px; left: 20px;");
     elem.setAttribute("alt", "Maximize");
     elem.setAttribute("title", "Maximize");
@@ -96,7 +96,7 @@ function showFrame(id) {
     elem.setAttribute("style", "cursor: se-resize; position: absolute; top: 5px; left: 35px;");
     elem.setAttribute("onclick", "javascript:minimizeFrame('frames" + id + "')");
     // elem.appendChild(document.createTextNode("Minimize"));
-    elem.setAttribute("src", "img/min.png");
+    elem.setAttribute("src", "/img/min.png");
     elem.setAttribute("alt", "Minimize");
     elem.setAttribute("title", "Minimize");
     div.appendChild(elem);
@@ -106,7 +106,7 @@ function showFrame(id) {
     elem = document.createElement("img");
     elem.setAttribute("style", "cursor: ne-resize; position: absolute; top: 5px; left: 50px;");
     elem.setAttribute("onclick", "javascript:breakFrame(" + id + ")");
-    elem.setAttribute("src", "img/break.png");
+    elem.setAttribute("src", "/img/break.png");
     elem.setAttribute("alt", "Break out");
     elem.setAttribute("title", "Open in a new window");
     // elem.appendChild(document.createTextNode("Break out"));

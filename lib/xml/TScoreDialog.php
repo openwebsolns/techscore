@@ -129,10 +129,7 @@ class TScoreDialog extends WebPage {
    * @param HTMLElement $elem to add to the menu of this page
    */
   public function addMenu(HTMLElement $elem) {
-    $div = new Div();
-    $div->addAttr("class", "menu");
-    $div->addChild($elem);
-    $this->menu->addChild($div);
+    $this->menu->addChild($elem);
   }
 
   /**
