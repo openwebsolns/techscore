@@ -609,6 +609,4 @@ class Preferences {
     $con->query($q);
   }
 }
-
-// Main
 ?>

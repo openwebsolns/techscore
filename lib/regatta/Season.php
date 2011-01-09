@@ -9,6 +9,7 @@
  *
  * @author Dayan Paez
  * @version 2010-08-24
+ * @package regatta
  */
 class Season {
   const FALL = "fall";
@@ -85,6 +86,23 @@ class Season {
     return sprintf("$v %s", substr($this->getYear(), 2));
   }
 
+  /**
+   * Returns a list of week numbers in this season. Note that weeks go
+   * Monday through Sunday.
+   *
+   * @return Array:int the week number in the year
+   */
+  public function getWeeks() {
+    $this->getSeason();
+    $weeks = array();
+    for ($i = $this->season->start_date->format('W');
+	 $i < $this->season->end_date->format('W');
+	 $i++) {
+      $weeks[] = $i;
+    }
+    return $weeks;
+  }
+
   // ------------------------------------------------------------
   // Regattas
   // ------------------------------------------------------------
@@ -145,20 +163,26 @@ class Season {
   }
 
   /**
-   * Returns a list of week numbers in this season. Note that weeks go
-   * Monday through Sunday.
+   * Get a list of regattas in this season in which the given
+   * school participated. This is a convenience method.
    *
-   * @return Array:int the week number in the year
+   * @param School $school the school whose participation to verify
+   * @param Season $season the season to check
+   * @return Array:RegattaSummary
    */
-  public function getWeeks() {
+  public function getParticipation(School $school) {
+    $con = Preferences::getConnection();
     $this->getSeason();
-    $weeks = array();
-    for ($i = $this->season->start_date->format('W');
-	 $i < $this->season->end_date->format('W');
-	 $i++) {
-      $weeks[] = $i;
-    }
-    return $weeks;
+    
+    $q = sprintf('select %s from %s where id in (select distinct regatta from team where school = "%s")'.
+		 ' and start_time <= "%s" and start_time >= "%s"',
+		 RegattaSummary::FIELDS, RegattaSummary::TABLES,
+		 $school->id, $this->season->start_date, $this->season->end_date);
+    $res = $con->query($q) or trigger_error("Query error: $q.", E_USER_ERROR);
+    $list = array();
+    while ($obj = $res->fetch_object("RegattaSummary"))
+      $list[] = $obj;
+    return $list;
   }
 
   /**

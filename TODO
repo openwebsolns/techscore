@@ -51,7 +51,7 @@
 
 ------------------------------------------------------------
 
-Public side structure
+* Public side structure
 
 /
  - inc
@@ -61,8 +61,8 @@ Public side structure
  - ...
 
    schools
- .    IT
-   - H
+   - MIT
+   - HAR
    - ...
 
  - confs
@@ -72,7 +72,15 @@ Public side structure
 
  - sailors (perhaps this should be PHP-based?)
 
-*
+** Schools
+
+For each school, provide a summary of regattas participated in and
+average overall place finish among finished regattas.
+
+Provide a list of current regattas participating in.
+
+Provide a link to the collegesailing.info information page for that
+school.
 
 * PUBLIC side: display results on a "weekend" basis
 
@@ -103,4 +111,4 @@ Each conference page will show be organized as follows:
  
 * Specify regatta types as constants (d o n e)
 
-* Fix rotation pane, again!
+* Fix rotation pane, again! (d o n e)

@@ -160,10 +160,4 @@ class SeasonSummaryMaker {
   }
 }
 
-if (isset($argv[0]) && $argv[0] == basename(__FILE__)) {
-  ini_set('include_path', '.:/home/dayan/ts/techscore-web/lib');
-  require_once('conf.php');
-  $maker = new SeasonSummaryMaker(new Season(new DateTime()));
-  file_put_contents("/tmp/season.html", $maker->getPage());
-}
 ?>

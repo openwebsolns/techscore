@@ -105,4 +105,5 @@ require_once(TS_PATH . '/conf.local.php');
 define("LOG_SCORE",    realpath(TS_PATH.'/../log/score.log'));
 define("LOG_ROTATION", realpath(TS_PATH.'/../log/rotation.log'));
 define("LOG_SEASON",   realpath(TS_PATH.'/../log/season.log'));
+define("LOG_SCHOOL",   realpath(TS_PATH.'/../log/school.log'));
 ?>

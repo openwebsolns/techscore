@@ -830,6 +830,29 @@ class Regatta implements RaceListener, FinishListener {
     return $ranks[0]->team;
   }
 
+  /**
+   * Like getWinningTeam, this more generic method returns a list of
+   * where did every team belonging to the given school finish in this
+   * regatta (or is currently finishing). Returns a list because a
+   * school can have more than one team per regatta.
+   *
+   * An empty array means that the school had no teams in this
+   * regatta (something which can be known ahead of time using the
+   * Season::getParticipation function.
+   *
+   * @param School $school the school
+   * @return Array:int the current or final place finish for all teams
+   */
+  public function getPlaces(School $school) {
+    $ranks = $this->__get("scorer")->rank($this);
+    $places = array();
+    foreach ($ranks as $i => $rank) {
+      if ($rank->team->school->id = $school->id)
+	$places[] = ($i + 1);
+    }
+    return $places;
+  }
+
   // ------------------------------------------------------------
   // Scorers
   // ------------------------------------------------------------

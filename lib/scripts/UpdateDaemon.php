@@ -43,6 +43,9 @@
  * "library" call from a different script, by using the class's 'run'
  * method.
  *
+ * 2011-01-03: When a regatta is updated, also update all the info
+ * pages for the schools associated with that regatta.
+ *
  * @author Dayan Paez
  * @version 2010-10-08
  * @package scripts
@@ -83,6 +86,8 @@ class UpdateDaemon {
       $regattas[$r->regatta][] = $r;
     }
 
+    $schools = array(); // list of unique schools
+
     // For each unique regatta, only execute the last version of each
     // unique activity in the queue, but claim that you did them all
     // anyways (lest they should remain pending later on).
@@ -105,6 +110,9 @@ class UpdateDaemon {
 	    $seasons[(string)$season->getSeason()] = $season;
 	    // Log the successful execution
 	    UpdateManager::log($last, 0);
+
+	    foreach ($reg->getTeams() as $team)
+	      $schools[$team->school->id] = $team->school;
 	  }
 	  catch (Exception $e) {
 	    // Error: log that too
@@ -126,6 +134,10 @@ class UpdateDaemon {
 
     // Deal with home page
     // @TODO
+
+    // Deal with affected schools
+    foreach ($schools as $school)
+      UpdateSchool::run($school);
 
     // Remove lock
     self::cleanup();
