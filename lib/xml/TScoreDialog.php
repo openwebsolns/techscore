@@ -68,12 +68,6 @@ class TScoreDialog extends WebPage {
   private function fillHead($title) {
     $this->head->addChild(new GenericElement("title",
 					     array(new Text($title))));
-    // Shortcut icon
-    $this->head->addChild(new GenericElement("link",
-					     array(),
-					     array("rel"=>"shortcut icon",
-						   "href"=>"/img/t.ico",
-						   "type"=>"image/x-icon")));
 
     // CSS Stylesheets
     $this->head->addChild(new GenericElement("link",
