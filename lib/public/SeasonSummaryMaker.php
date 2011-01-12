@@ -82,10 +82,12 @@ class SeasonSummaryMaker {
 	$start_time = $reg->get(Regatta::START_TIME);
 	if ($reg->get(Regatta::FINALIZED) !== null) {
 	  $wt = $reg->getWinningTeam();
-	  $status = "Winner: " . $wt;
-	  if (!isset($winning_school[$wt->school->id]))
-	    $winning_school[$wt->school->id] = 0;
-	  $winning_school[$wt->school->id] += 1;
+          if ($wt !== null) {
+	    $status = "Winner: " . $wt;
+	    if (!isset($winning_school[$wt->school->id]))
+	      $winning_school[$wt->school->id] = 0;
+	    $winning_school[$wt->school->id] += 1;
+          }
 	}
 	elseif ($start_time->format('U') > $now)
 	  $status = "Coming soon";

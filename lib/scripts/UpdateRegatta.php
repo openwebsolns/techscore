@@ -26,7 +26,7 @@ class UpdateRegatta {
     $R = realpath(dirname(__FILE__).'/../../html');
     $season = $reg->get(Regatta::SEASON);
     $dirname = "$R/$season/" . $reg->get(Regatta::NICK_NAME);
-    if ($dir = opendir($dirname)) {
+    if (is_dir($dirname) && $dir = @opendir($dirname)) {
       // Delete contents of dir
       while (false !== ($file = readdir($dir)))
 	@unlink(sprintf('%s/%s', $dirname, $file));

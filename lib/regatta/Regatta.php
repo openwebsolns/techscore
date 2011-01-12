@@ -827,6 +827,7 @@ class Regatta implements RaceListener, FinishListener {
    */
   public function getWinningTeam() {
     $ranks = $this->__get("scorer")->rank($this);
+    if (count($ranks) == 0) return null;
     return $ranks[0]->team;
   }
 
