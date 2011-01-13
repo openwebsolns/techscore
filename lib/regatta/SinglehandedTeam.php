@@ -70,7 +70,7 @@ class SinglehandedTeam extends Team {
    * @return String the string representation of the team
    */
   public function __toString() {
-    return sprintf("%s %s", $this->school->name, $this->getQualifiedName());
+    return sprintf("%s %s", $this->__get('school')->name, $this->getQualifiedName());
   }
 }
 ?>
