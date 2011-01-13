@@ -24,7 +24,7 @@ class Team {
    * contain either null or a School object, as returned by
    * Preferences class.
    */
-  private $school = false;
+  protected $school = false;
 
   /**
    * Getter method: delays creation of school object until deemed
