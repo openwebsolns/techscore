@@ -21,14 +21,6 @@ class SinglehandedTeam extends Team {
   private $rp = null;
 
   /**
-   * Creates a new SinglehandedTeam Team
-   *
-   */
-  public function __construct() {
-    parent::__construct();
-  }
-
-  /**
    * Sets the RP manager to use to pull the sailor information. If
    * none specified, then the Team's class behavior is simulated in
    * __toString()
