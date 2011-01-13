@@ -175,7 +175,7 @@ class Season {
     $this->getSeason();
     
     $q = sprintf('select %s from %s where id in (select distinct regatta from team where school = "%s")'.
-		 ' and start_time <= "%s" and start_time >= "%s"',
+		 ' and start_time >= "%s" and start_time <= "%s"',
 		 RegattaSummary::FIELDS, RegattaSummary::TABLES,
 		 $school->id, $this->season->start_date, $this->season->end_date);
     $res = $con->query($q) or trigger_error("Query error: $q.", E_USER_ERROR);

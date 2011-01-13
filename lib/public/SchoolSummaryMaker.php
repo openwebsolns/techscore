@@ -22,7 +22,7 @@ class SchoolSummaryMaker {
    * @var String the sprintf-format for generating school's permanent
    * summary page
    */
-  private $link_fmt = 'http://collegesailing.info/schools/%s';
+  private $link_fmt = 'http://collegesailing.info/blog/teams/%s';
 
   /**
    * @var School the school to write about
@@ -43,6 +43,10 @@ class SchoolSummaryMaker {
     $this->school = $school;
   }
 
+  private function getBlogLink() {
+    return sprintf($this->link_fmt, str_replace(' ', '-', strtolower($this->school->name)));
+  }
+
   private function fill() {
     if ($this->page !== null) return;
 
@@ -51,11 +55,15 @@ class SchoolSummaryMaker {
 
     // SETUP navigation
     $this->page->addNavigation(new Link("..", "Schools", array("class"=>"nav")));
-    $this->page->addMenu(new Link(sprintf($this->link_fmt, $school->id), "ICSA Info"));
+    $this->page->addMenu(new Link($this->getBlogLink(), "ICSA Info"));
     $this->page->addSection($d = new Div());
     $d->addChild(new GenericElement("h2", array(new Text($school))));
     $d->addChild($l = new Itemize());
     $l->addItems(new LItem($school->conference . ' Conference'));
+
+    $burgee = sprintf('%s/../../html/inc/img/schools/%s.png', dirname(__FILE__), $this->school->id);
+    if (file_exists($burgee))
+      $l->addItems(new LItem(new Image(sprintf('/inc/img/schools/%s.png', $this->school->id))));
     $d->addAttr("align", "center");
     $d->addAttr("id", "reg-details");
 
@@ -88,7 +96,6 @@ class SchoolSummaryMaker {
 					array("class"=>"prefix")),
 			       new Text($avg)),
 			 array("class"=>"stat")));
-    
   }
 
   /**
