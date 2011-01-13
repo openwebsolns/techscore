@@ -53,21 +53,10 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
       $races[(string)$div] = $this->REGATTA->getScoredRaces($div);
     $num_divs  = count($divisions);
 
-    /*
-    // Get finished race array: div => Array<Race>, and determine
-    // largest scored race number
-    $largest_num = 0;
-    $races = array();
-    foreach ($divisions as $division) {
-      $races[(string)$division] = $this->REGATTA->getScoredRaces($division);
-      foreach ($races[(string)$division] as $race)
-	$largest_num = max($largest_num, $race->number);
-    }
-    */
-
     $tab = new Table();
     $ELEMS[] = $tab;
-    $tab->addAttr("id", "div-results");
+    $tab->addAttr("class", "results");
+    $tab->addAttr("class", "coordinate");
     $tab->addHeader($r = new Row(array(Cell::th(),
 				       Cell::th(),
 				       Cell::th("School"),

@@ -60,7 +60,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
 
     $tab = new Table();
     $ELEMS[] = $tab;
-    $tab->addAttr("id", "results");
+    $tab->addAttr("class", "results");
     $tab->addAttr("class", "coordinate");
     $tab->addHeader($r = new Row(array(Cell::th(),
 				       Cell::th(),

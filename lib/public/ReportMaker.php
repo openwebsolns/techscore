@@ -52,6 +52,7 @@ class ReportMaker {
     }
     if (count($items) > 0) {
       $this->page->addSection($p = new Port("Summary"));
+      $p->addAttr("id", "summary");
       foreach ($items as $i)
 	$p->addChild($i);
     }

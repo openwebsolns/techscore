@@ -201,7 +201,6 @@ table {
 }
 table td {
     border: 1px solid #bbbbbb;
-    text-align: right;
     margin: 0px;
     padding: 2.5px;
 }
@@ -300,15 +299,16 @@ padding: 0px;
     list-style-type: none;
     color: #666666; line-height: 1.35em;
 }
-#results tbody * {
+.results tbody * {
     border: none;
+    text-align: right;
 }
-#results tr.totalrow {
+.results tr.totalrow {
     border-bottom: 1px solid #bbbbbb;
     color: #555555;
     background: #f3ebe0;
 }
-#results tbody { border: 1px solid #bbb; }
+.results tbody { border: 1px solid #bbb; }
 
 /* Stats */
 div.stat { font-size: 105%; }

@@ -59,7 +59,8 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
     $division = $this->division;
 
     $ELEM = array($tab = new Table());
-    $tab->addAttr("id", "results");
+    $tab->addAttr("class", "results");
+    $tab->addAttr("class", "coordinate");
     $tab->addAttr("class", "narrow");
 
     $tab->addHeader(new Row(array(Cell::th(), // superscript
