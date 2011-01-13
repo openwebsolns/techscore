@@ -34,12 +34,6 @@ require_once('conf.php');
  */
 class Regatta implements RaceListener, FinishListener {
 
-  /**
-   * To allow for multiple regatta databases, the following maps the
-   * database name to the prefix
-   */
-  protected $DB = SQL_DB;
-
   private $id;
   private $con; // MySQL connection object
   private $scorer;
@@ -96,7 +90,7 @@ class Regatta implements RaceListener, FinishListener {
       throw new InvalidArgumentException(sprintf("Illegal regatta id value (%s).", $id));
 
     $this->id  = (int)$id;
-    $this->con = new MySQLi(SQL_HOST, SQL_USER, SQL_PASS, $this->DB);
+    $this->con = Preferences::getConnection();
     $this->scorer = new ICSAScorer();
 
     // Update the properties

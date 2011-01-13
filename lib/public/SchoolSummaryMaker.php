@@ -53,10 +53,11 @@ class SchoolSummaryMaker {
     $this->page->addNavigation(new Link("..", "Schools", array("class"=>"nav")));
     $this->page->addMenu(new Link(sprintf($this->link_fmt, $school->id), "ICSA Info"));
     $this->page->addSection($d = new Div());
-    $d->addChild(new GenericElement("h2", array(new XText($school))));
+    $d->addChild(new GenericElement("h2", array(new Text($school))));
     $d->addChild($l = new Itemize());
-    $l->addItems(new LItem($school->conference));
+    $l->addItems(new LItem($school->conference . ' Conference'));
     $d->addAttr("align", "center");
+    $d->addAttr("id", "reg-details");
 
     // SCHOOL season summary
     $season = new Season(new DateTime());
