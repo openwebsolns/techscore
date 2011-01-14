@@ -67,10 +67,16 @@ class SchoolSummaryMaker {
     $d->addAttr("align", "center");
     $d->addAttr("id", "reg-details");
 
-    // SCHOOL season summary
     $season = new Season(new DateTime());
-    $this->page->addSection($p = new Port(sprintf("Season summary for %s", $season->fullString()),
-					  array(), array("id"=>"summary")));
+    // ------------------------------------------------------------
+    // SCHOOL sailing now
+    
+
+    // ------------------------------------------------------------
+    // SCHOOL season summary
+    $this->page->addSection($p = new Port("Season summary for ",
+					  array(new Link('/'.(string)$season, $season->fullString())),
+					  array("id"=>"summary")));
 
     $regs = $season->getParticipation($school);
     $total = count($regs);
