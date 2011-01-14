@@ -167,7 +167,6 @@ class Season {
    * school participated. This is a convenience method.
    *
    * @param School $school the school whose participation to verify
-   * @param Season $season the season to check
    * @return Array:RegattaSummary
    */
   public function getParticipation(School $school) {

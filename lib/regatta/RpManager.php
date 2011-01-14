@@ -67,7 +67,7 @@ class RpManager {
    * @param Team $team the team
    * @param Division $div the division
    * @param string $role the role (one of the sailor constants)
-   * @return Array<RP> $rp a list of races, the sailor object, the
+   * @return Array:RP a list of races, the sailor object, the
    * team, and the boat role
    */
   public function getRP(Team $team, Division $div, $role) {

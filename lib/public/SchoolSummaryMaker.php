@@ -67,41 +67,170 @@ class SchoolSummaryMaker {
     $d->addAttr("align", "center");
     $d->addAttr("id", "reg-details");
 
-    $season = new Season(new DateTime());
-    // ------------------------------------------------------------
-    // SCHOOL sailing now
-    
-
-    // ------------------------------------------------------------
-    // SCHOOL season summary
-    $this->page->addSection($p = new Port("Season summary for ",
-					  array(new Link('/'.(string)$season, $season->fullString())),
-					  array("id"=>"summary")));
-
+    // current season
+    $now = new DateTime();
+    $season = new Season($now);
     $regs = $season->getParticipation($school);
     $total = count($regs);
-    $p->addChild(new Div(array(new Span(array(new Text("Number of Regattas:")),
-					array("class"=>"prefix")),
-			       new Text($total)),
-			 array("class"=>"stat")));
-
+    $current = array(); // regattas happening NOW
+    $past = array();    // past regattas from the current season
+    
+    $skippers = array(); // associative array of sailor id => num times participating
+    $skip_objs = array();
+    $crews = array();
+    $crew_objs = array();
     // get average placement
-    $place = 0;
-    $total = 0;
+    $places = 0;
+    $avg_total = 0;
     foreach ($regs as $reg) {
       $reg = new Regatta($reg->id);
       if ($reg->get(Regatta::FINALIZED) !== null) {
 	foreach ($reg->getPlaces($school) as $pl) {
 	  $places += $pl;
-	  $total ++;
+	  $avg_total++;
+	}
+      }
+      if ($reg->get(Regatta::START_TIME) <= $now &&
+	  $reg->get(Regatta::END_DATE) >= $now) {
+	$current[] = $reg;
+      }
+      if ($reg->get(Regatta::END_DATE) < $now) {
+	$past[] = $reg;
+      }
+
+      $rpm = $reg->getRpManager();
+      foreach ($reg->getTeams($school) as $team) {
+	foreach ($reg->getDivisions() as $div) {
+	  foreach ($rpm->getRP($team, $div, RP::SKIPPER) as $rp) {
+	    if (!isset($skippers[$rp->sailor->id])) {
+	      $skippers[$rp->sailor->id] = 0;
+	      $skip_objs[$rp->sailor->id] = $rp->sailor;
+	    }
+	    $skippers[$rp->sailor->id] += count($rp->races_nums);
+	  }
+	  foreach ($rpm->getRP($team, $div, RP::CREW) as $rp) {
+	    if (!isset($crews[$rp->sailor->id])) {
+	      $crews[$rp->sailor->id] = 0;
+	      $crew_objs[$rp->sailor->id] = $rp->sailor;
+	    }
+	    $crews[$rp->sailor->id] += 1;
+	  }
 	}
       }
     }
-    $avg = ($total == 0) ? "Not applicable" : ($places / $total);
+    $avg = ($avg_total == 0) ? "Not applicable" : ($places / $total);
+    // ------------------------------------------------------------
+    // SCHOOL sailing now
+    if (count($current) > 0) {
+      $this->page->addSection($p = new Port("Sailing now", array(), array("id"=>"sailing")));
+      $p->addChild($tab = new Table());
+      // $tab->addAttr("style", "width: 100%");
+      $tab->addHeader(new Row(array(Cell::th("Name"),
+				    Cell::th("Host"),
+				    Cell::th("Type"),
+				    Cell::th("Conference"),
+				    Cell::th("Last race"),
+				    Cell::th("Place(s)")
+				    )));
+      foreach ($current as $reg) {
+	// borrowed from SeasonSummaryMaker
+	$last_race = $reg->getLastScoredRace();
+	$last_race = ($last_race === null) ? "--" : (string)$last_race;
+	$status = "$last_race";
+	foreach ($reg->getHosts() as $host) {
+	  $hosts[$host->school->id] = $host->school->nick_name;
+	  $confs[$host->school->conference->id] = $host->school->conference;
+	}
+	$places = $reg->getPlaces($school);
+	$link = new Link(sprintf('/%s/%s', $season, $reg->get(Regatta::NICK_NAME)), $reg->get(Regatta::NAME));
+	$tab->addRow($r = new Row(array(new Cell($link, array("class"=>"left")),
+					new Cell(implode("/", $hosts)),
+					new Cell(ucfirst($reg->get(Regatta::TYPE))),
+					new Cell(implode("/", $confs)),
+					new Cell($status),
+					new Cell(sprintf('%s/%d', implode(',', $places), count($reg->getTeams())))
+					)));
+      }
+    }
+
+    // ------------------------------------------------------------
+    // SCHOOL season summary
+    $season_link = new Link('/'.(string)$season, $season->fullString());
+    $this->page->addSection($p = new Port("Season summary for ", array($season_link),
+					  array("id"=>"summary")));
+
+    $p->addChild(new Div(array(new Span(array(new Text("Number of Regattas:")),
+					array("class"=>"prefix")),
+			       new Text($total)),
+			 array("class"=>"stat")));
+
     $p->addChild(new Div(array(new Span(array(new Text("Average finish:")),
 					array("class"=>"prefix")),
 			       new Text($avg)),
 			 array("class"=>"stat")));
+    // most active sailor?
+    arsort($skippers, SORT_NUMERIC);
+    arsort($crews, SORT_NUMERIC);
+    if (count($skippers) > 0) {
+      $txt = array();
+      $i = 0;
+      foreach ($skippers as $id => $num) {
+	$txt[] = sprintf('%s (%d races)', $skip_objs[$id], $num);
+	if ($i++ >= 2)
+	  break;
+      }
+      $p->addChild(new Div(array(new Span(array(new Text("Most active skipper:")),
+					  array("class"=>"prefix")),
+				 new Text(implode(", ", $txt))),
+			   array("class"=>"stat")));
+    }
+    if (count($crews) > 0) {
+      $txt = array();
+      $i = 0;
+      foreach ($crews as $id => $num) {
+	$txt[] = sprintf('%s (%d)', $crew_objs[$id], $num);
+	if ($i++ >= 2)
+	  break;
+      }
+      $p->addChild(new Div(array(new Span(array(new Text("Most active crew:")),
+					  array("class"=>"prefix")),
+				 new Text(implode(", ", $txt)))));
+    }
+
+    // ------------------------------------------------------------
+    // SCHOOL past regattas
+    if (count($past) > 0) {
+      $this->page->addSection($p = new Port("Season history for ", array($season_link),
+					    array("id"=>"history")));
+      $p->addChild($tab = new Table());
+      // $tab->addAttr("style", "width: 100%");
+      $tab->addHeader(new Row(array(Cell::th("Name"),
+				    Cell::th("Host"),
+				    Cell::th("Type"),
+				    Cell::th("Conference"),
+				    Cell::th("Date"),
+				    Cell::th("Status"),
+				    Cell::th("Place(s)")
+				    )));
+      foreach ($past as $reg) {
+	$date = $reg->get(Regatta::START_TIME);
+	$status = ($reg->get(Regatta::FINALIZED) === null) ? "Pending" : "Official";
+	foreach ($reg->getHosts() as $host) {
+	  $hosts[$host->school->id] = $host->school->nick_name;
+	  $confs[$host->school->conference->id] = $host->school->conference;
+	}
+	$places = $reg->getPlaces($school);
+	$link = new Link(sprintf('/%s/%s', $season, $reg->get(Regatta::NICK_NAME)), $reg->get(Regatta::NAME));
+	$tab->addRow($r = new Row(array(new Cell($link, array("class"=>"left")),
+					new Cell(implode("/", $hosts)),
+					new Cell(ucfirst($reg->get(Regatta::TYPE))),
+					new Cell(implode("/", $confs)),
+					new Cell($date->format('m/d/Y')),
+					new Cell($status),
+					new Cell(sprintf('%s/%d', implode(',', $places), count($reg->getTeams())))
+					)));
+      }
+    }
   }
 
   /**

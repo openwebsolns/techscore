@@ -271,14 +271,15 @@ class Regatta implements RaceListener, FinishListener {
   /**
    * Gets a list of team objects for this regatta.
    *
+   * @param School $school the optional school whose teams to return
    * @return array of team objects
-   *
    */
-  public function getTeams() {
+  public function getTeams(School $school = null) {
     $q = sprintf('select team.id, team.name, team.school ' .
 		 'from team inner join school on (school.id = team.school) ' .
-		 'where regatta = "%s" order by school, id',
-		 $this->id);
+		 'where regatta = "%s" %s order by school, id',
+		 $this->id,
+		 ($school === null) ? '' : sprintf('and school = "%s"', $school->id));
     $q = $this->query($q);
 
     $teams = array();
