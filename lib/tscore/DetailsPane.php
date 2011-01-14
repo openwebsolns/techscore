@@ -197,18 +197,12 @@ class DetailsPane extends AbstractPane {
     }
 
     // ------------------------------------------------------------
-    // Comments
-    if (isset($args['comments'])) {
-      $this->REGATTA->set(Regatta::COMMENTS, addslashes($args['comments']));
-      $this->announce(new Announcement("Edited regatta comments."));
-    }
-
-    // ------------------------------------------------------------
     // Finalize
     if (isset($args['finalize'])) {
       if (isset($args['approve'])) {
-	$this->REGATTA->set(Regatta::FINALIZED, date("Y-m-d H:m:i"));
+	$this->REGATTA->set(Regatta::FINALIZED, new DateTime());
 	$this->announce(new Announcement("Regatta has been finalized."));
+	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
       }
       else
 	$this->announce(new Announcement("Please check the box to finalize.", Announcement::ERROR));

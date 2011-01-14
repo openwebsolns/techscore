@@ -182,7 +182,7 @@ class Regatta implements RaceListener, FinishListener {
       throw new InvalidArgumentException("Cannot set season directly. Set START_TIME instead.");
     if ($value == null)
       $strvalue = 'NULL';
-    elseif (in_array($property, array(Regatta::START_TIME, Regatta::END_DATE))) {
+    elseif (in_array($property, array(Regatta::START_TIME, Regatta::END_DATE, Regatta::FINALIZED))) {
       if (!($value instanceof DateTime)) {
 	$m = sprintf("Property %s must be a valid DateTime object.", $property);
 	throw new InvalidArgumentException($m);
