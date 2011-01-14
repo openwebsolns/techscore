@@ -259,10 +259,10 @@ class SailsPane extends AbstractPane {
 							array("size"=>"2",
 							      "id"=>"repeat"))));
 	}
-
+	$divs = array_values($chosen_div);
 	$form->addChild(new FItem(sprintf("Enter sail numbers in first " .
 					  "race of div. <strong>%s</strong>:",
-					  $chosen_div[0]),
+					  $divs[0]),
 				  $tab = new Table()));
 	$tab->addAttr("class", "narrow");
 
