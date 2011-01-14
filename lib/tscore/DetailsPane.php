@@ -107,7 +107,7 @@ class DetailsPane extends AbstractPane {
         although you may still be able to edit existing information.';
       $p->addChild(new Para($para));
   
-      $p->addChild($form = new Form($this->createForm()));
+      $p->addChild($form = $this->createForm());
 
       $form->addChild(new FItem(new FCheckbox("approve",
 					      "on",
