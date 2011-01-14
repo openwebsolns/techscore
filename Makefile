@@ -21,7 +21,7 @@ sql:
 		"SET FOREIGN_KEY_CHECKS=1;" > db.sql
 
 doc:
-	phpdoc --ignore conf.php --target doc --title "TechScore Documentation" --directory lib --output "HTML:Smarty:*"
+	phpdoc --ignore conf.php --target doc --title "TechScore Documentation" --directory lib --output "HTML:Smarty:PHP"
 
 css:
 	mkdir -p html/inc/css;\
