@@ -175,7 +175,7 @@ class SchoolSummaryMaker {
 
     $p->addChild(new Div(array(new Span(array(new Text("Average finish:")),
 					array("class"=>"prefix")),
-			       new Text($avg)),
+			       new Text(sprintf('%0.2f', $avg))),
 			 array("class"=>"stat")));
     // most active sailor?
     arsort($skippers, SORT_NUMERIC);
