@@ -90,10 +90,11 @@ class SchoolSummaryMaker {
     $avg_total = 0;
     foreach ($regs as $reg) {
       $reg = new Regatta($reg->id);
+      $num = count($reg->getTeams());
       if ($reg->get(Regatta::FINALIZED) !== null) {
 	foreach ($reg->getPlaces($school) as $pl) {
 	  $places += $pl;
-	  $avg_total++;
+	  $avg_total += $num;
 	}
       }
       if ($reg->get(Regatta::START_TIME) <= $now &&
@@ -183,9 +184,9 @@ class SchoolSummaryMaker {
       $txt = array();
       $i = 0;
       foreach ($skippers as $id => $num) {
-	$txt[] = sprintf('%s (%d races)', $skip_objs[$id], $num);
 	if ($i++ >= 2)
 	  break;
+	$txt[] = sprintf('%s (%d races)', $skip_objs[$id], $num);
       }
       $p->addChild(new Div(array(new Span(array(new Text("Most active skipper:")),
 					  array("class"=>"prefix")),
@@ -196,13 +197,14 @@ class SchoolSummaryMaker {
       $txt = array();
       $i = 0;
       foreach ($crews as $id => $num) {
-	$txt[] = sprintf('%s (%d)', $crew_objs[$id], $num);
 	if ($i++ >= 2)
 	  break;
+	$txt[] = sprintf('%s (%d)', $crew_objs[$id], $num);
       }
       $p->addChild(new Div(array(new Span(array(new Text("Most active crew:")),
 					  array("class"=>"prefix")),
-				 new Text(implode(", ", $txt)))));
+				 new Text(implode(", ", $txt))),
+			   array("class"=>"stat")));
     }
 
     // ------------------------------------------------------------

@@ -843,7 +843,7 @@ class Regatta implements RaceListener, FinishListener {
     $ranks = $this->__get("scorer")->rank($this);
     $places = array();
     foreach ($ranks as $i => $rank) {
-      if ($rank->team->school->id = $school->id)
+      if ($rank->team->school->id == $school->id)
 	$places[] = ($i + 1);
     }
     return $places;
