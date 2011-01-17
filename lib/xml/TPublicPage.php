@@ -81,8 +81,9 @@ class TPublicPage extends WebPage {
     $this->header->addChild($div = new Div());
     $div->addAttr("id", "header");
     $div->addChild($g = new GenericElement("h1"));
-    $g->addChild(new Image("/inc/img/techscore.png", array("id"=>"headimg",
-							   "alt"=>"TechScore")));
+    $g->addChild(new Link(PUB_HOME,
+			  new Image("/inc/img/techscore.png", array("id"=>"headimg",
+								    "alt"=>"TechScore"))));
     $div->addChild(new Heading(date("M j, Y @ H:i:s"), array("id"=>"date")));
     
     $this->header->addChild($this->navigation = new Div());

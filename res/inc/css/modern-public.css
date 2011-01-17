@@ -131,6 +131,7 @@ input[type="text"], input[type="password"], select {font-size: 1em; min-width: 1
 #headdiv img {
     height: 40px;
     margin-top: 5px;
+    border: none;
 }
 #headdiv h4 {
     float: left;

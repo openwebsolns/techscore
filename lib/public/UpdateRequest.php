@@ -24,6 +24,7 @@ class UpdateRequest {
   const FIELDS = "pub_update_request.id, pub_update_request.regatta, pub_update_request.activity, pub_update_request.request_time";
   const TABLES = "pub_update_request";
 
+  const ACTIVITY_RP = "rp";
   const ACTIVITY_SCORE = "score";
   const ACTIVITY_ROTATION = "rotation";
 
@@ -34,7 +35,8 @@ class UpdateRequest {
    */
   public static function getTypes() {
     return array(self::ACTIVITY_SCORE => self::ACTIVITY_SCORE,
-		 self::ACTIVITY_ROTATION => self::ACTIVITY_ROTATION);
+		 self::ACTIVITY_ROTATION => self::ACTIVITY_ROTATION,
+		 self::ACTIVITY_RP => self::ACTIVITY_RP);
   }
 
   public function __construct() {
