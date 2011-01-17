@@ -143,6 +143,8 @@ class SchoolSummaryMaker {
 	$last_race = $reg->getLastScoredRace();
 	$last_race = ($last_race === null) ? "--" : (string)$last_race;
 	$status = "$last_race";
+	$hosts = array();
+	$confs = array();
 	foreach ($reg->getHosts() as $host) {
 	  $hosts[$host->school->id] = $host->school->nick_name;
 	  $confs[$host->school->conference->id] = $host->school->conference;
@@ -221,6 +223,8 @@ class SchoolSummaryMaker {
       foreach ($past as $reg) {
 	$date = $reg->get(Regatta::START_TIME);
 	$status = ($reg->get(Regatta::FINALIZED) === null) ? "Pending" : "Official";
+	$hosts = array();
+	$confs = array();
 	foreach ($reg->getHosts() as $host) {
 	  $hosts[$host->school->id] = $host->school->nick_name;
 	  $confs[$host->school->conference->id] = $host->school->conference;
