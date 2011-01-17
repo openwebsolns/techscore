@@ -7,12 +7,23 @@
  * @package scripts
  */
 class UpdateSchool {
-  public static function run(School $school) {
+  public static function run(School $school, Season $season) {
     $R = realpath(dirname(__FILE__).'/../../html/schools');
 
+    // Create directory if one does not exist for that school
+    $dirname = sprintf('%s/%s', $R, $school->id);
+    if (!file_exists($dirname) && mkdir($dirname) === false)
+      throw new RuntimeException("Unable to make school directory: $dirname\n", 4);
+
     // Do season
-    $filename = sprintf("%s/%s.html", $R, $school->id);
-    $M = new SchoolSummaryMaker($school);
+    $today = new Season(new DateTime());
+    $base = 'index';
+    // is this current season
+    if ((string)$today != (string)$season)
+      $base = (string)$season;
+
+    $filename = "$dirname/$base.html";
+    $M = new SchoolSummaryMaker($school, $season);
     if (file_put_contents($filename, $M->getPage()) === false)
       throw new RuntimeException(sprintf("Unable to make the school summary: %s\n", $filename), 8);
   }
@@ -22,8 +33,8 @@ class UpdateSchool {
 // When run as a script
 if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
   // Arguments
-  if (count($argv) != 2) {
-    printf("usage: %s <school-id>\n", $_SERVER['PHP_SELF']);
+  if (count($argv) < 2) {
+    printf("usage: %s <school-id> [season]\n", $_SERVER['PHP_SELF']);
     exit(1);
   }
 
@@ -39,9 +50,20 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
     printf("usage: %s <school-id>\n", $_SERVER['PHP_SELF']);
     exit(1);
   }
+  // season?
+  if (count($argv) == 3) {
+    $season = Season::parse($argv[2]);
+    if ($season == null) {
+      printf("Invalid season given: %s\n\n", $argv[1]);
+      printf("usage: %s <season>\n", $_SERVER['PHP_SELF']);
+      exit(1);
+    }
+  }
+  else
+    $season = new Season(new DateTime());
 
   try {
-    UpdateSchool::run($school);
+    UpdateSchool::run($school, $season);
     error_log(sprintf("I:0:%s\t(%s): Successful!\n", date('r'), $school->id), 3, LOG_SCHOOL);
   }
   catch (Exception $e) {

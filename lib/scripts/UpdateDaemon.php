@@ -71,7 +71,7 @@ class UpdateDaemon {
     }
 
     // Create file lock
-    file_put_contents(self::$lock_file, time());
+    file_put_contents(self::$lock_file, date('r'));
 
     // Check queueu
     $requests = UpdateManager::getPendingRequests();

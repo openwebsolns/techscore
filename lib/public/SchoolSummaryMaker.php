@@ -30,6 +30,11 @@ class SchoolSummaryMaker {
   protected $school;
 
   /**
+   * @var Season the season to summarize
+   */
+  protected $season;
+
+  /**
    * @var TPublicPage the public page in which to write content
    */
   protected $page;
@@ -39,8 +44,9 @@ class SchoolSummaryMaker {
    *
    * @param Season $season the season
    */
-  public function __construct(School $school) {
+  public function __construct(School $school, Season $season) {
     $this->school = $school;
+    $this->season = $season;
   }
 
   private function getBlogLink() {
@@ -69,7 +75,7 @@ class SchoolSummaryMaker {
 
     // current season
     $now = new DateTime();
-    $season = new Season($now);
+    $season = $this->season;
     $regs = $season->getParticipation($school);
     $total = count($regs);
     $current = array(); // regattas happening NOW

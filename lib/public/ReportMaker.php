@@ -57,24 +57,29 @@ class ReportMaker {
 	$p->addChild($i);
     }
 
+    $link_schools = PUB_HOME.'/schools';
+
     // Divisional scores
     $maker = new ScoresDivisionalDialog($reg);
     $this->page->addSection($p = new Port("Score summary"));
-    foreach ($maker->getTable('/inc') as $elem)
+    foreach ($maker->getTable('/inc', $link_schools) as $elem)
       $p->addChild($elem);
 
     // Total scores
     $maker = new ScoresFullDialog($reg);
-    $this->page->addSection($p = new Port("Full scores"));
-    foreach ($maker->getTable('/inc') as $elem)
+    $this->page->addSection($p = new Port("Race by race"));
+    foreach ($maker->getTable('/inc', $link_schools) as $elem)
       $p->addChild($elem);
 
-    // Individual division scores
-    foreach ($reg->getDivisions() as $div) {
-      $maker = new ScoresDivisionDialog($reg, $div);
-      $this->page->addSection($p = new Port("Scores for $div"));
-      foreach ($maker->getTable('/inc') as $elem) {
-	$p->addChild($elem);
+    // Individual division scores (do not include if singlehanded as
+    // this is redundant)
+    if (!$reg->isSingleHanded()) {
+      foreach ($reg->getDivisions() as $div) {
+	$maker = new ScoresDivisionDialog($reg, $div);
+	$this->page->addSection($p = new Port("Scores for $div"));
+	foreach ($maker->getTable('/inc', $link_schools) as $elem) {
+	  $p->addChild($elem);
+	}
       }
     }
   }

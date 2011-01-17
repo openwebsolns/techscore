@@ -52,9 +52,12 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
    * Fetches just the table of results
    *
    * @param String $PREFIX the prefix to add to image resource URLs
+   * @param String $link_schools if not null, the prefix to add to a
+   * link from the school's name using the school's ID
+   *
    * @return Array the table element
    */
-  public function getTable($PREFIX = "") {
+  public function getTable($PREFIX = "", $link_schools = null) {
     $rpManager = $this->REGATTA->getRpManager();
     $division = $this->division;
 
@@ -109,6 +112,10 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
 	$total += 20;
       }
 
+      $ln = $rank->team->school->name;
+      if ($link_schools !== null)
+	$ln = new Link(sprintf('%s/%s', $link_schools, $rank->team->school->id), $ln);
+
       // deal with explanations
       $sym = sprintf("<sup>%s</sup>", $tiebreakers[$rank->explanation]);
 
@@ -119,7 +126,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
       $r1 = new Row(array(new Cell($sym),
 			  $ord = new Cell($order++),
 			  new Cell($img),
-			  $sch = new Cell($rank->team->school->name),
+			  $sch = new Cell($ln),
 			  $pen = new Cell(),
 			  new Cell($total)));
       $r1->addAttr("class", "row" . $rowIndex%2);

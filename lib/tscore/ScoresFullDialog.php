@@ -40,9 +40,10 @@ class ScoresFullDialog extends AbstractScoresDialog {
    * Fetches just the table of results
    *
    * @param String $PREFIX the prefix to add to image resource URLs
+   * @param String $link_schools if not null, the prefix for linking schools
    * @return Array the table element
    */
-  public function getTable($PREFIX = "") {
+  public function getTable($PREFIX = "", $link_schools = null) {
     $ELEMS = array();
 
     $divisions = $this->REGATTA->getDivisions();
@@ -111,10 +112,14 @@ class ScoresFullDialog extends AbstractScoresDialog {
 	$r->addAttr("class", "div" . $div);
 
 	if ($num_divs == 1) {
+	  $ln = $rank->team->name . '<br/>' . $rank->team->school->nick_name;
+	  if ($link_schools !== null)
+	    $ln = new Span(array(new Text($rank->team->name), new Text('<br/>'),
+				 new Link(sprintf('%s/%s', $link_schools, $rank->team->school->id),
+					  $rank->team->school->nick_name)));
 	  $r->addCell(new Cell(sprintf('<sub>%s</sub>', $tiebreakers[$rank->explanation])),
 		      new Cell($order++, array("title" => $rank->explanation)),
-		      new Cell($rank->team->name . '<br/>' . $rank->team->school->nick_name,
-			       array("class"=>"strong")));
+		      new Cell($ln, array("class"=>"strong")));
 	}
 	elseif ($div == "A") {
 	  $r->addCell(new Cell(sprintf('<sub>%s</sub>', $tiebreakers[$rank->explanation])),
@@ -123,9 +128,12 @@ class ScoresFullDialog extends AbstractScoresDialog {
 			       array("class"=>"strong")));
 	}
 	elseif ($div == "B") {
+	  $ln = $rank->team->school->nick_name;
+	  if ($link_schools !== null)
+	    $ln = new Link(sprintf('%s/%s', $link_schools, $rank->team->school->id), $ln);
 	  $r->addCell(new Cell(),
 		      new Cell(),
-		      new Cell($rank->team->school->nick_name));
+		      new Cell($ln));
 	}
 	else {
 	  $r->addCell(new Cell(), new Cell(), new Cell());
