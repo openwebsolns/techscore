@@ -11,7 +11,7 @@
  */
 
 ini_set('include_path', '.:'.realpath(dirname(__FILE__).'/../lib'));
-require_once('../lib/conf.php');
+require_once('conf.php');
 
 $con = Preferences::getConnection();
 // get all finalized, non-personal regattas and go to town!
