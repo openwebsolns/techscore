@@ -35,7 +35,10 @@ while ($obj = $res->fetch_object()) {
   $divs = $reg->getDivisions();
   $races = $reg->getScoredRaces();
   $data['num_divisions'] = count($divs);
-  $data['num_races'] = count($races) / $data['num_divisions'];
+  if ($data['num_divisions'] == 0)
+    $data['num_races'] = 0;
+  else
+    $data['num_races'] = count($races) / $data['num_divisions'];
 
   // hosts and conferences
   $confs = array();
