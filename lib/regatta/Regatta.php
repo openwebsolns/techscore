@@ -538,7 +538,7 @@ class Regatta implements RaceListener, FinishListener {
 		 'where race.division = "%s" ' .
 		 '  and race.regatta = "%s" ' .
 		 '  and race.id in ' .
-		 '  (select race from finish) ' .
+		 '  (select distinct race from finish) ' .
 		 'order by number',
 		 Race::FIELDS, Race::TABLES, $div, $this->id);
     $q = $this->query($q);

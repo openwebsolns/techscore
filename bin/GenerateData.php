@@ -24,11 +24,14 @@ while ($obj = $res->fetch_object()) {
   $data['nick'] = $reg->get(Regatta::NICK_NAME);
   $data['start_time'] = $reg->get(Regatta::START_TIME)->format('Y-m-d H:i:s');
   $data['end_date']   = $reg->get(Regatta::END_DATE)->format('Y-m-d');
-  $data['venue'] = $reg->get(Regatta::VENUE)->id;
   $data['type'] = $reg->get(Regatta::TYPE);
   $data['finalized'] = $reg->get(Regatta::FINALIZED)->format('Y-m-d H:i:s');
   $data['scoring'] = $reg->get(Regatta::SCORING);
 
+  $data['venue'] = $reg->get(Regatta::VENUE);
+  if ($data['venue'] != null)
+    $data['venue'] = $data['venue']->id;
+  
   $divs = $reg->getDivisions();
   $races = $reg->getScoredRaces();
   $data['num_divisions'] = count($divs);
@@ -86,19 +89,21 @@ while ($obj = $res->fetch_object()) {
   foreach ($teams as $team) {
     foreach ($races as $race) {
       $finish = $reg->getFinish($race, $team);
-      $data = array();
-      $data['dt_team'] = $team->id;
-      $data['race_num'] = $race->number;
-      $data['division'] = $race->division;
-      $data['place'] = $finish->score->place;
-      $data['score'] = $finish->score->score;
-      $data['explanation'] = $finish->score->explanation;
+      if ($finish !== null) {
+	$data = array();
+	$data['dt_team'] = $team->id;
+	$data['race_num'] = $race->number;
+	$data['division'] = $race->division;
+	$data['place'] = $finish->score->place;
+	$data['score'] = $finish->score->score;
+	$data['explanation'] = $finish->score->explanation;
 
-      $cols = array_keys($data);
-      $q = sprintf('replace into dt_score (%s) values ("%s")',
-		   implode(',', $cols),
-		   implode('","', $data));
-      $con->query($q);
+	$cols = array_keys($data);
+	$q = sprintf('replace into dt_score (%s) values ("%s")',
+		     implode(',', $cols),
+		     implode('","', $data));
+	$con->query($q);
+      }
     }
   }
 
