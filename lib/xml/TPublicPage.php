@@ -27,9 +27,10 @@ class TPublicPage extends WebPage {
   private $mobile;
 
   public function __construct($title) {
-    parent::__construct($title);
+    parent::__construct();
 
     // Setup head
+    $this->addHead(new GenericElement("title", array(new Text($title . ' | TechScore: Real-Time Regatta Results'))));
     $this->addHead(new GenericElement("link",
 				      array(),
 				      array("rel"=>"stylesheet",

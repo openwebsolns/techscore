@@ -29,7 +29,7 @@ class SeasonSummaryMaker {
     if ($this->page !== null) return;
 
     $season = $this->season;
-    $this->page = new TPublicPage($season->fullString() . ' ' . $season->getYear());
+    $this->page = new TPublicPage(ucfirst($season->getSeason()) . ' ' . $season->getYear());
 
     // 2010-11-14: Separate regattas into "weekends", descending by
     // timestamp, based solely on the start_time, assuming that the
