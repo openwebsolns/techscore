@@ -255,7 +255,7 @@ class ICSAScorer {
       $total = 0;
       foreach ($races as $race) {
 	$f = $reg->getFinish($race, $team);
-	$total += $f->score->score;
+	$total += $f->score;
       }
       foreach ($divisions as $division) {
 	foreach ($reg->getTeamPenalties($team, $division) as $pen) {
@@ -430,7 +430,7 @@ class ICSAScorer {
 
       foreach ($races as $race) {
 	$finish = $reg->getFinish($race, $rank->team);
-	if ($finish->score->score == $placeFinish)
+	if ($finish->score == $placeFinish)
 	  $numHighFinishes[$t]++;
       }
     }
@@ -506,7 +506,7 @@ class ICSAScorer {
 	foreach ($divisions as $div) {
 	  $race = $reg->getRace($div, $lastNum);
 	  $finish = $reg->getFinish($race, $rank->team);
-	  $total += $finish->score->score;
+	  $total += $finish->score;
 	  $rank->explanation = sprintf("According to last race across all divisions (%s)", $lastNum);
 	}
 	$scoreList[] = $total;
@@ -517,7 +517,7 @@ class ICSAScorer {
 
       foreach ($ranks as $rank) {
 	$finish = $reg->getFinish($lastRace, $rank->team);
-	$scoreList[] = $finish->score->score;
+	$scoreList[] = $finish->score;
 	$rank->explanation = sprintf("According to last race (%s)", $lastRace);
       }
     }

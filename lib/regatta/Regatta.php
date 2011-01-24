@@ -624,13 +624,12 @@ class Regatta implements RaceListener, FinishListener {
    */
   public function getFinish(Race $race, Team $team) {
     $q = sprintf('select finish.id, finish.race, finish.team, finish.entered, ' .
+		 'finish.score, finish.place, finish.explanation, ' .
 		 'handicap.type as handicap, handicap.amount as h_amt, handicap.comments as h_com, ' .
-		 'penalty.type  as penalty,  penalty.comments as p_com, ' .
-		 'score.score, score.place, score.explanation ' .
+		 'penalty.type  as penalty,  penalty.comments as p_com ' .
 		 'from finish ' .
 		 'left join handicap on (finish.id = handicap.finish) ' .
 		 'left join penalty  on (finish.id = penalty.finish) ' .
-		 'left join score    on (finish.id = score.finish) ' .
 		 'where (race, team) = ("%s", "%s")',
 		 $race->id, $team->id);
     $q = $this->query($q);
@@ -649,13 +648,6 @@ class Regatta implements RaceListener, FinishListener {
       $penalty = new Penalty($fin->penalty, $fin->p_com);
     }
     $finish->penalty   = $penalty;
-
-    // score
-    $score = null;
-    if ($fin->place != null) {
-      $score = new Score($fin->place, $fin->score, $fin->explanation);
-    }
-    $finish->score = $score;
 
     $finish->addListener($this);
     return $finish;
@@ -1086,11 +1078,11 @@ class Regatta implements RaceListener, FinishListener {
 
     // Scores
     elseif ($type == FinishListener::SCORE) {
-      $q = sprintf('replace into score values ("%s", "%s", "%s", "%s")',
-		   $finish->id,
-		   $finish->score->place,
-		   $finish->score->score,
-		   $finish->score->explanation);
+      $q = sprintf('update finish set place = "%s", score = "%s", explanation = "%s" where id = %d',
+		   $finish->place,
+		   $finish->score,
+		   $finish->explanation,
+		   $finish->id);
       $this->query($q);
     }
 

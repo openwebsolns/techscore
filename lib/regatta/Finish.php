@@ -20,7 +20,10 @@ class Finish {
   private $team;
   private $entered = null;
   private $penalty = null;
-  private $score = 0;
+
+  private $place;
+  private $score;
+  private $explanation;
 
   private $listeners;
 
@@ -54,7 +57,9 @@ class Finish {
     case "score":
       if ($value == null ||
 	  $value instanceof Score) {
-	$this->score = $value;
+	$this->score = $value->score;
+	$this->place = $value->place;
+	$this->explanation = $value->explanation;
 	$this->fireChange(FinishListener::SCORE);
       }
       else

@@ -34,7 +34,12 @@ class SeasonSummaryMaker {
     // 2010-11-14: Separate regattas into "weekends", descending by
     // timestamp, based solely on the start_time, assuming that the
     // week ends on a Sunday.
+    /*
+    require_once('mysqli/DB.php');
+    DBME::setConn(Preferences::getConnection());
     $weeks = array();
+    $regattas = DBME::getAll(DBME::$REGATTA, new MyCond('season', $season));
+    */
     $regattas = $season->getRegattas();
     foreach ($regattas as $reg) {
       $week = $reg->start_time->format('W');

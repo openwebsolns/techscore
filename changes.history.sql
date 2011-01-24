@@ -31,3 +31,9 @@ alter table pub_update_log add column return_mess varchar(255) default "";
 -- great for public regatta synchronization
 alter table pub_update_request change column activity activity enum('rotation', 'score', 'rp', 'finalized') not null default 'score';
 alter table dt_score change column explanation explanation text default null;
+alter table dt_regatta change column season season varchar(3) not null;
+alter table finish add column `place` text default NULL,
+  add column `score` int(3) default NULL,
+  add column `explanation` text default null;
+update finish, score set finish.place = score.place, finish.score = score.score, finish.explanation = score.explanation where finish.id = score.finish;
+drop table score;

@@ -107,7 +107,7 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
 	$scoreDiv = 0;
 	foreach ($races[(string)$div] as $race) {
 	  $finish = $this->REGATTA->getFinish($race, $rank->team);
-	  $scoreDiv += $finish->score->score;
+	  $scoreDiv += $finish->score;
 	}
 	$pen = $this->REGATTA->getTeamPenalty($rank->team, $div);
 	$r->addCell($s_cell = new Cell());

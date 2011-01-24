@@ -151,12 +151,12 @@ class ScoresFullDialog extends AbstractScoresDialog {
 
 	    // add score for this race to running team score
 	    $finish = $this->REGATTA->getFinish($race, $rank->team);
-	    $scoreDiv        += $finish->score->score;
-	    $scoreTeam       += $finish->score->score;
-	    $scoreRace[$i-1] += $finish->score->score;
+	    $scoreDiv        += $finish->score;
+	    $scoreTeam       += $finish->score;
+	    $scoreRace[$i-1] += $finish->score;
 
-	    $cell->addChild(new Text($finish->score->place));
-	    $cell->addAttr("title", $finish->score->explanation);
+	    $cell->addChild(new Text($finish->place));
+	    $cell->addAttr("title", $finish->explanation);
 	    $cell->addAttr("align", "right");
 	  }
 	  $r->addCell($cell);

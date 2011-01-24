@@ -151,7 +151,7 @@ class UpdateRegatta {
     if ($reg->isSingleHanded())
       $dreg->singlehanded = 1;
     
-    $dreg->season = $reg->get(Regatta::SEASON)->getSeason();
+    $dreg->season = (string)$reg->get(Regatta::SEASON);
     DBME::set($dreg);
 
     // ------------------------------------------------------------
@@ -184,9 +184,9 @@ class UpdateRegatta {
 	  $dfin->dt_team = $team;
 	  $dfin->race_num = $race->number;
 	  $dfin->division = $race->division;
-	  $dfin->place = $finish->score->place;
-	  $dfin->score = $finish->score->score;
-	  $dfin->explanation = $finish->score->explanation;
+	  $dfin->place = $finish->place;
+	  $dfin->score = $finish->score;
+	  $dfin->explanation = $finish->explanation;
 
 	  DBME::set($dfin);
 	}
