@@ -280,7 +280,7 @@ class DBM {
    * and values for the given object.
    *
    */
-    private static function prepSet(DBObject $obj, MySQLi_Query $q) {
+  private static function prepSet(DBObject $obj, MySQLi_Query $q) {
     $fields = $obj->db_fields();
     $values = array();
     foreach ($fields as $field) {
@@ -407,7 +407,7 @@ class DBM {
    * @see get
    * @since 2010-08-23
    */
-  protected static function prepGet(DBObject $obj, $id) {
+  public static function prepGet(DBObject $obj, $id) {
     $q = self::createQuery();
     $q->fields($obj->db_fields(), $obj->db_name());
     $q->where(new MyBoolean(array($obj->db_where(), new MyCond("id", $id))));
@@ -425,7 +425,7 @@ class DBM {
    * @since 2010-08-23
    * @see prepGet
    */
-  protected static function prepGetAll(DBObject $obj, MyExpression $where = null) {
+  public static function prepGetAll(DBObject $obj, MyExpression $where = null) {
     $q = self::createQuery();
     $q->fields($obj->db_fields(), $obj->db_name());
     $q->order_by($obj->db_order_by(), $obj->db_order());

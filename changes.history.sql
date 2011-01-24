@@ -27,3 +27,7 @@ CREATE TABLE `pub_update_log` (
 ) ENGINE=InnoDB;
 
 alter table pub_update_log add column return_mess varchar(255) default "";
+
+-- great for public regatta synchronization
+alter table pub_update_request change column activity activity enum('rotation', 'score', 'rp', 'finalized') not null default 'score';
+alter table dt_score change column explanation explanation text default null;

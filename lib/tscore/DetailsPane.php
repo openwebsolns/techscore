@@ -202,7 +202,7 @@ class DetailsPane extends AbstractPane {
       if (isset($args['approve'])) {
 	$this->REGATTA->set(Regatta::FINALIZED, new DateTime());
 	$this->announce(new Announcement("Regatta has been finalized."));
-	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
+	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SYNC);
       }
       else
 	$this->announce(new Announcement("Please check the box to finalize.", Announcement::ERROR));

@@ -25,6 +25,7 @@ class UpdateRequest {
   const TABLES = "pub_update_request";
 
   const ACTIVITY_RP = "rp";
+  const ACTIVITY_SYNC = "sync";
   const ACTIVITY_SCORE = "score";
   const ACTIVITY_ROTATION = "rotation";
 
@@ -36,7 +37,8 @@ class UpdateRequest {
   public static function getTypes() {
     return array(self::ACTIVITY_SCORE => self::ACTIVITY_SCORE,
 		 self::ACTIVITY_ROTATION => self::ACTIVITY_ROTATION,
-		 self::ACTIVITY_RP => self::ACTIVITY_RP);
+		 self::ACTIVITY_RP => self::ACTIVITY_RP,
+		 self::ACTIVITY_SYNC => self::ACTIVITY_SYNC);
   }
 
   public function __construct() {

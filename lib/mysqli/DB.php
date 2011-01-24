@@ -8,6 +8,10 @@
  * @package mysql
  */
 
+require_once('DBC.php');
+require_once('MySQLi_delegate.php');
+require_once('MySQLi_Query.php');
+
 /**
  * Provides some more functionality
  *
@@ -16,14 +20,28 @@ class DBME extends DBM {
   /**
    * Empty objects to serve as prototypes
    */
-  public static $REGATTA = new Dt_Regatta();
-  public static $SCHOOL = new Dt_School();
-  public static $SAILOR = new Dt_Sailor();
-  public static $SCORE = new Dt_Score();
-  public static $VENUE = new Dt_Venue();
-  public static $TEAM = new Dt_Team();
-  public static $NOW = new DateTime();
-  public static $RP = new Dt_Rp();
+  public static $REGATTA = null;
+  public static $SCHOOL = null;
+  public static $SAILOR = null;
+  public static $SCORE = null;
+  public static $VENUE = null;
+  public static $TEAM = null;
+  public static $NOW = null;
+  public static $RP = null;
+  
+  // use this method to initialize the different objects as well
+  public static function setConn(MySQLi $con) {
+    self::$REGATTA = new Dt_Regatta();
+    self::$SCHOOL = new Dt_School();
+    self::$SAILOR = new Dt_Sailor();
+    self::$SCORE = new Dt_Score();
+    self::$VENUE = new Dt_Venue();
+    self::$TEAM = new Dt_Team();
+    self::$NOW = new DateTime();
+    self::$RP = new Dt_Rp();
+
+    self::setConnection($con);
+  }
 }
 
 class Dt_Regatta extends DBObject {
@@ -109,7 +127,7 @@ class Dt_Score extends DBObject {
 
   public function db_type($field) {
     if ($field == 'dt_team')
-      return DBME::$TEAM:
+      return DBME::$TEAM;
     return parent::db_type($field);
   }
 }
@@ -118,14 +136,16 @@ class Dt_Rp extends DBObject {
   protected $dt_team;
   public $race_num;
   public $division;
-  protected $sailor;
+  public $sailor;
   public $boat_role;
 
   public function db_type($field) {
     if ($field == 'dt_team')
       return DBME::$TEAM;
+    /*
     if ($field == 'sailor')
       return DBME::$SAILOR;
+    */
     return parent::db_type($field);
   }
 }

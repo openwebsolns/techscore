@@ -105,6 +105,8 @@ class UpdateDaemon {
 	      UpdateRegatta::runScore($reg);
 	    elseif ($last->activity == UpdateRequest::ACTIVITY_ROTATION)
 	      UpdateRegatta::runRotation($reg);
+	    elseif ($last->activity == UpdateRequest::ACTIVITY_SYNC)
+	      UpdateRegatta::runSync($reg);
 
 	    $season = $reg->get(Regatta::SEASON);
 	    $seasons[(string)$season->getSeason()] = $season;

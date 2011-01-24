@@ -41,7 +41,7 @@ class UpdateRegatta {
    *
    */
   public static function runScore(Regatta $reg) {
-    if ($reg->get(Regatta::TYPE) == "personal") {
+    if ($reg->get(Regatta::TYPE) == Preferences::TYPE_PERSONAL) {
       self::runDelete($reg);
       return;
     }
@@ -67,7 +67,7 @@ class UpdateRegatta {
    *
    */
   public static function runRotation(Regatta $reg) {
-    if ($reg->get(Regatta::TYPE) == "personal") {
+    if ($reg->get(Regatta::TYPE) == Preferences::TYPE_PERSONAL) {
       self::runDelete($reg);
       return;
     }
@@ -94,6 +94,133 @@ class UpdateRegatta {
     // If there's already in index.html, update that one too.
     if (file_exists("$dirname/index.html"))
       self::runScore($reg);
+  }
+
+  /**
+   * Synchronizes the regatta's detail with the data information
+   * (those fields in the database prefixed with dt_). Note this will
+   * not run for personal regattas, even if requested.
+   *
+   * @param Regatta $reg the regatta to synchronize 
+   */
+  public static function runSync(Regatta $reg) {
+    if ($reg->get(Regatta::TYPE) == Preferences::TYPE_PERSONAL)
+      return;
+
+    require_once('mysqli/DB.php');
+    DBME::setConn(Preferences::getConnection());
+    $dreg = new Dt_Regatta();
+    $dreg->id = $reg->id();
+    $dreg->name = $reg->get(Regatta::NAME);
+    $dreg->nick = $reg->get(Regatta::NICK_NAME);
+    $dreg->start_time = $reg->get(Regatta::START_TIME);
+    $dreg->end_date   = $reg->get(Regatta::END_DATE);
+    $dreg->type = $reg->get(Regatta::TYPE);
+    $dreg->finalized = $reg->get(Regatta::FINALIZED);
+    $dreg->scoring = $reg->get(Regatta::SCORING);
+    
+    $dreg->venue = $reg->get(Regatta::VENUE);
+    if ($dreg->venue !== null)
+      $dreg->venue = $dreg->venue->id;
+    
+    $divs = $reg->getDivisions();
+    $races = $reg->getScoredRaces();
+    $dreg->num_divisions = count($divs);
+    if ($dreg->num_divisions == 0)
+      $dreg->num_races = 0;
+    else
+      $dreg->num_races = count($races) / $dreg->num_divisions;
+    
+    // hosts and conferences
+    $confs = array();
+    $hosts = array();
+    foreach ($reg->getHosts() as $host) {
+      $confs[$host->school->conference->id] = $host->school->conference->nick;
+      $hosts[$host->school->id] = $host->school->id;
+    }
+    $dreg->hosts = implode(',', $hosts);
+    $dreg->confs = implode(',', $confs);
+    unset($hosts, $confs);
+
+    // boats
+    $boats = array();
+    foreach ($reg->getBoats() as $boat)
+      $boats[$boat->id] = $boat->name;
+    $dreg->boats = implode(',', $boats);
+    
+    if ($reg->isSingleHanded())
+      $dreg->singlehanded = 1;
+    
+    $dreg->season = $reg->get(Regatta::SEASON)->getSeason();
+    DBME::set($dreg);
+
+    // ------------------------------------------------------------
+    // do the teams
+    // teams
+    $teams = array();
+    $dteams = array();
+    foreach ($reg->scorer->rank($reg) as $i => $rank) {
+      $team = new Dt_Team();
+      $dteams[] = $team;
+      $teams[] = $rank->team;
+
+      $team->id = $rank->team->id;
+      $team->regatta = $dreg;
+      $team->school = DBME::get(DBME::$SCHOOL, $rank->team->school->id);
+      $team->name = $rank->team->name;
+      $team->rank = $i + 1;
+      $team->rank_explanation = $rank->explanation;
+      DBME::set($team);
+    }
+
+    // ------------------------------------------------------------
+    // do the scores
+    foreach ($dteams as $tid => $team) {
+      foreach ($races as $race) {
+	$finish = $reg->getFinish($race, $teams[$tid]);
+	if ($finish !== null) {
+	  $dfin = new Dt_Score();
+	  $dfin->id = $finish->id;
+	  $dfin->dt_team = $team;
+	  $dfin->race_num = $race->number;
+	  $dfin->division = $race->division;
+	  $dfin->place = $finish->score->place;
+	  $dfin->score = $finish->score->score;
+	  $dfin->explanation = $finish->score->explanation;
+
+	  DBME::set($dfin);
+	}
+      }
+    }
+
+    // ------------------------------------------------------------
+    // rp
+    // clear old RP info for this regatta first
+    $r = DBME::prepGetAll(DBME::$TEAM, new MyCond('regatta', $dreg->id));
+    $r->fields(array('id'), DBME::$TEAM->db_name());
+    $q = DBME::createQuery(MySQLi_Query::DELETE);
+    $q->fields(array(), DBME::$RP->db_name());
+    $q->where(new MyCondIn('dt_team', $r));
+    DBME::query($q);
+    $man = $reg->getRpManager();
+    foreach ($dteams as $tid => $team) {
+      foreach ($divs as $div) {
+	foreach (array(RP::SKIPPER, RP::CREW) as $role) {
+	  foreach ($man->getRP($teams[$tid], $div, $role) as $rp) {
+	    foreach ($rp->races_nums as $race_num) {
+	      $drp = new Dt_Rp();
+	      $drp->dt_team = $team;
+	      $drp->race_num = $race_num;
+	      $drp->division = $div;
+	      $drp->sailor = $rp->sailor->id;
+	      $drp->boat_role = $role;
+
+	      DBME::set($drp);
+	    }
+	  }
+	}
+      }
+    }
   }
 }
 
@@ -147,6 +274,16 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
       catch (RuntimeException $e) {
 	error_log(sprintf("E/%d/%s\t(%d): %s\n", $e->getCode(), date('r'), $argv[1], $e->getMessage()),
 		  3, LOG_ROTATION);
+      }
+    }
+    elseif ($act == UpdateRequest::ACTIVITY_SYNC) {
+      try {
+	UpdateRegatta::runSync($REGATTA);
+	error_log(sprintf("I/0/%s\t(%d): Successful!\n", date('r'), $REGATTA->id()), 3, LOG_SYNC);
+      }
+      catch (RuntimeException $e) {
+	error_log(sprintf("E/%d/%s\t(%d): %s\n", $e->getCode(), date('r'), $argv[1], $e->getMessage()),
+		  3, LOG_SYNC);
       }
     }
   }
