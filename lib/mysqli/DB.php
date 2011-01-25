@@ -78,6 +78,17 @@ class Dt_Regatta extends DBObject {
   public function db_cache() { return true; }
   public function db_order() { return 'start_time'; }
   public function db_order_by() { return false; }
+
+  public function getTeams() {
+    return DBME::getAll(DBME::$TEAM, new MyCond('regatta', $this->id));
+  }
+
+  public function getHosts() {
+    $list = array();
+    foreach (explode(',', $this->hosts) as $id)
+      $list[] = DBME::get(DBME::$SCHOOL, $id);
+    return $list;
+  }
 }
 
 class Dt_Venue extends DBObject {
@@ -106,6 +117,11 @@ class Dt_Team extends DBObject {
     default:
       return parent::db_type($field);
     }
+  }
+  public function db_order() { return 'rank'; }
+
+  public function __toString() {
+    return sprintf("%s %s", $this->__get('school')->nick_name, $this->name);
   }
 }
 

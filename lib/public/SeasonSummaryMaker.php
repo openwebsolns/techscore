@@ -81,39 +81,42 @@ class SeasonSummaryMaker {
       $row = 0;
       foreach ($list as $reg) {
 	$total++;
-	$reg = new Regatta($reg->id);
-	$start_time = $reg->get(Regatta::START_TIME);
-	if ($reg->get(Regatta::FINALIZED) !== null) {
-	  $wt = $reg->getWinningTeam();
-          if ($wt !== null) {
-	    $status = "Winner: " . $wt;
-	    if (!isset($winning_school[$wt->school->id]))
-	      $winning_school[$wt->school->id] = 0;
-	    $winning_school[$wt->school->id] += 1;
-          }
-	}
-	elseif ($start_time->format('U') > $now)
+	$status = null;
+	$teams = $reg->getTeams();
+	switch ($reg->status) {
+	case 'coming':
 	  $status = "Coming soon";
-	else {
-	  // pending
-	  $last_race = $reg->getLastScoredRace();
-	  $last_race = ($last_race === null) ? "--" : (string)$last_race;
-	  $status = "In progress: $last_race";
+	  break;
+
+	case 'finished':
+	  $status = "Pending";
+	  break;
+
+	case 'final':
+	  $wt = $teams[0];
+	  $status = "Winner: " . $wt;
+	  if (!isset($winning_school[$wt->school->id]))
+	    $winning_school[$wt->school->id] = 0;
+	  $winning_school[$wt->school->id] += 1;
+	  break;
+
+	default:
+	  $status = "In progress: " . $reg->status;
 	}
 	
-	$num_teams += count($reg->getTeams());
+	$num_teams += count($teams);
 	$hosts = array();
 	$confs = array();
 	foreach ($reg->getHosts() as $host) {
-	  $hosts[$host->school->id] = $host->school->nick_name;
-	  $confs[$host->school->conference->id] = $host->school->conference;
+	  $hosts[$host->id] = $host->nick_name;
+	  $confs[$host->conference] = $host->conference;
 	}
-	$link = new Link($reg->get(Regatta::NICK_NAME), $reg->get(Regatta::NAME));
+	$link = new Link($reg->nick, $reg->name);
 	$tab->addRow($r = new Row(array(new Cell($link, array("class"=>"left")),
 					new Cell(implode("/", $hosts)),
-					new Cell(ucfirst($reg->get(Regatta::TYPE))),
+					new Cell(ucfirst($reg->type)),
 					new Cell(implode("/", $confs)),
-					new Cell($start_time->format('m/d/Y')),
+					new Cell($reg->start_time->format('m/d/Y')),
 					new Cell($status)
 					)));
 	$r->addAttr("class", sprintf("row%d", $row++ % 2));

@@ -15,7 +15,6 @@
  */
 class Conference {
   public $id;
-  public $nick;
   public $name;
 
   public function __toString() {

@@ -226,7 +226,7 @@ class Preferences {
    */
   public static function getConference($id) {
     $con = self::getConnection();
-    $q = sprintf('select conference.id, conference.name, conference.nick ' .
+    $q = sprintf('select conference.id, conference.name ' .
 		 'from conference where id = "%s"', $id);
     $q = $con->query($q);
     if ($q->num_rows == 0) {
@@ -243,8 +243,7 @@ class Preferences {
    */
   public static function getConferences() {
     $con = self::getConnection();
-    $q = $con->query('select conference.id, conference.name, ' .
-		     'conference.nick from conference');
+    $q = $con->query('select conference.id, conference.name, from conference');
     $list = array();
     while ($conf = $q->fetch_object("Conference"))
       $list[] = $conf;

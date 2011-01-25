@@ -38,3 +38,12 @@ alter table finish add column `place` text default NULL,
 update finish, score set finish.place = score.place, finish.score = score.score, finish.explanation = score.explanation where finish.id = score.finish;
 drop table score;
 alter table dt_regatta add column status varchar(10) default null;
+-- redo the conferences table --
+alter table school drop foreign key school_ibfk_1;
+alter table conference drop primary key, change column id id varchar(8) not null, add primary key (id), add column old_id int;
+update conference set old_id = id;
+update conference set id = nick;
+alter table school change column conference conference varchar(8) not null;
+update school, conference set school.conference = conference.id where school.conference = conference.old_id;
+alter table school add foreign key (conference) references conference(id) on delete cascade on update cascade;
+ alter table conference drop column old_id, drop column nick;

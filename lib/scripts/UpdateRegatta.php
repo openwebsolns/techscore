@@ -154,10 +154,13 @@ class UpdateRegatta {
     $dreg->season = (string)$reg->get(Regatta::SEASON);
 
     // status
+    $now = new DateTime();
     if ($dreg->finalized !== null)
       $dreg->status = 'final';
-    elseif ($dreg->end_date < new DateTime()) {
-      $dreg->status = 'pending';
+    elseif ($dreg->start_time > $now)
+      $dreg->status = 'coming';
+    elseif ($dreg->end_date < $now) {
+      $dreg->status = 'finished';
     }
     else {
       $dreg->status = $reg->getLastScoredRace();
