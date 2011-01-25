@@ -638,7 +638,7 @@ class Regatta implements RaceListener, FinishListener {
     
     $fin = $q->fetch_object();
     $finish = new Finish($fin->id, $race, $team);
-    $finish->entered = new DateTime($fin->entered, new DateTimeZone("America/New_York"));;
+    $finish->entered = new DateTime($fin->entered);
       
     $penalty = null;
     if ($fin->handicap != null) {
@@ -648,6 +648,7 @@ class Regatta implements RaceListener, FinishListener {
       $penalty = new Penalty($fin->penalty, $fin->p_com);
     }
     $finish->penalty   = $penalty;
+    $finish->score = new Score($fin->place, $fin->score, $fin->explanation);
 
     $finish->addListener($this);
     return $finish;

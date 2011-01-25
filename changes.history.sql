@@ -37,3 +37,4 @@ alter table finish add column `place` text default NULL,
   add column `explanation` text default null;
 update finish, score set finish.place = score.place, finish.score = score.score, finish.explanation = score.explanation where finish.id = score.finish;
 drop table score;
+alter table dt_regatta add column status varchar(10) default null;

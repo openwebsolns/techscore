@@ -60,6 +60,7 @@ class Dt_Regatta extends DBObject {
   public $boats;
   public $singlehanded;
   public $season;
+  public $status;
 
   public function db_type($field) {
     switch ($field) {
@@ -75,6 +76,8 @@ class Dt_Regatta extends DBObject {
     }
   }
   public function db_cache() { return true; }
+  public function db_order() { return 'start_time'; }
+  public function db_order_by() { return false; }
 }
 
 class Dt_Venue extends DBObject {

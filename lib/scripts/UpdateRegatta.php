@@ -129,7 +129,7 @@ class UpdateRegatta {
     if ($dreg->num_divisions == 0)
       $dreg->num_races = 0;
     else
-      $dreg->num_races = count($races) / $dreg->num_divisions;
+      $dreg->num_races = count($reg->getRaces()) / $dreg->num_divisions;
     
     // hosts and conferences
     $confs = array();
@@ -152,6 +152,16 @@ class UpdateRegatta {
       $dreg->singlehanded = 1;
     
     $dreg->season = (string)$reg->get(Regatta::SEASON);
+
+    // status
+    if ($dreg->finalized !== null)
+      $dreg->status = 'final';
+    elseif ($dreg->end_date < new DateTime()) {
+      $dreg->status = 'pending';
+    }
+    else {
+      $dreg->status = $reg->getLastScoredRace();
+    }
     DBME::set($dreg);
 
     // ------------------------------------------------------------

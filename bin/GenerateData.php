@@ -15,7 +15,7 @@ require_once('conf.php');
 
 $con = Preferences::getConnection();
 // get all finalized, non-personal regattas and go to town!
-$res = $con->query('select id from regatta where type <> "personal" and finalized is not null');
+$res = $con->query('select id from regatta where type <> "personal"');
 while ($obj = $res->fetch_object()) {
   $reg = new Regatta($obj->id);
   UpdateRegatta::runSync($reg);
