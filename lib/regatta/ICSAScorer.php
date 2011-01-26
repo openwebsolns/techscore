@@ -255,8 +255,7 @@ class ICSAScorer {
       $total = 0;
       foreach ($races as $race) {
 	$f = $reg->getFinish($race, $team);
-        if ($f !== null)
-          $total += $f->score;
+	$total += $f->score;
       }
       foreach ($divisions as $division) {
 	foreach ($reg->getTeamPenalties($team, $division) as $pen) {
@@ -571,7 +570,7 @@ class ICSAScorer {
     }
     if ($num == 0)
       return null;
-    return $num / $total;
+    return round($total / $num);
   }
   
 }
