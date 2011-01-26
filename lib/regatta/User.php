@@ -169,12 +169,12 @@ class User {
     }
 
     // Setup the query
-    $q = sprintf('select %s from %s inner join host on (regatta.id = host.regatta) ' .
-		 'where host.account = "%s" order by start_time desc %s',
-		 RegattaSummary::FIELDS,
-		 RegattaSummary::TABLES,
-		 $this->username,
-		 $limit);
+    $q = sprintf('select %s from %s ', RegattaSummary::FIELDS, RegattaSummary::TABLES);
+    if ($this->get(User::ADMIN) == 0) // not admin
+      $q .= sprintf('inner join host on (regatta.id = host.regatta) ' .
+		    'where host.account = "%s" order by start_time desc ',
+		    $this->username);
+    $q .= $limit;
     $q = $this->query($q);
     $list = array();
     while ($obj = $q->fetch_object("RegattaSummary"))
