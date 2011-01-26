@@ -72,27 +72,27 @@ class UsersPage extends TScorePage {
     $div->addAttr("class", "menu");
     $div->addChild(new Heading("TechScore"));
     $div->addChild($list = new GenericList());
-    $list->addItems(new LItem(new Link(".",      "My regattas")),
-		    new LItem(new Link("create", "New regatta", array("accesskey"=>"n"))),
-		    new LItem(new Link("account","My account")),
-		    new LItem($l = new Link("logout", "Logout", array("accesskey"=>"l"))));
+    $list->addItems(new LItem(new Link("/",      "My regattas")),
+		    new LItem(new Link("/create", "New regatta", array("accesskey"=>"n"))),
+		    new LItem(new Link("/account","My account")),
+		    new LItem($l = new Link("/logout", "Logout", array("accesskey"=>"l"))));
 
     // School setup
     $this->addMenu($div = new Div());
     $div->addAttr("class", "menu");
     $div->addChild(new Heading("My School"));
     $div->addChild($list = new GenericList());
-    $list->addItems(new LItem(new Link("prefs/$SCHOOL",        "Instructions")),
-		    new LItem(new Link("prefs/$SCHOOL/logo",   "School logo")),
-		    new LItem(new Link("prefs/$SCHOOL/team",   "Team names")),
-		    new LItem(new Link("prefs/$SCHOOL/sailor", "Sailors")));
+    $list->addItems(new LItem(new Link("/prefs/$SCHOOL",        "Instructions")),
+		    new LItem(new Link("/prefs/$SCHOOL/logo",   "School logo")),
+		    new LItem(new Link("/prefs/$SCHOOL/team",   "Team names")),
+		    new LItem(new Link("/prefs/$SCHOOL/sailor", "Sailors")));
     
     // Messages
     $this->addMenu($div = new Div());
     $div->addAttr("class", "menu");
     $div->addChild(new Heading("Messages"));
     $div->addChild($list = new GenericList());
-    $list->addItems(new LItem(new Link("inbox", "Inbox")));
+    $list->addItems(new LItem(new Link("/inbox", "Inbox")));
 
     // Admin
     if ($this->user->get(User::ADMIN)) {
@@ -100,10 +100,10 @@ class UsersPage extends TScorePage {
       $div->addAttr("class", "menu");
       $div->addChild(new Heading("Admin"));
       $div->addChild($list = new GenericList());
-      $list->addItems(new LItem(new Link("pending",   "Pending users")));
-      $list->addItems(new LItem(new Link("venue",     "Venues")));
-      $list->addItems(new LItem(new Link("edit-venue", "Add Venues")));
-      $list->addItems(new LItem(new Link("boats",     "Boats")));
+      $list->addItems(new LItem(new Link("/pending",   "Pending users")));
+      $list->addItems(new LItem(new Link("/venue",     "Venues")));
+      $list->addItems(new LItem(new Link("/edit-venue", "Add Venues")));
+      $list->addItems(new LItem(new Link("/boats",     "Boats")));
     }
   }
 }

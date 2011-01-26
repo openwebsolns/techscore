@@ -243,7 +243,7 @@ class Preferences {
    */
   public static function getConferences() {
     $con = self::getConnection();
-    $q = $con->query('select conference.id, conference.name, from conference');
+    $q = $con->query('select conference.id, conference.name from conference');
     $list = array();
     while ($conf = $q->fetch_object("Conference"))
       $list[] = $conf;

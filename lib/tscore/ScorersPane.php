@@ -77,7 +77,7 @@ class ScorersPane extends AbstractPane {
 
     $confs = array();
     foreach (Preferences::getConferences() as $conf)
-      $confs[$conf->id] = $conf->nick;
+      $confs[$conf->id] = $conf;
         
     $s_form->addChild(new FItem("Conference:",
 				$sel = new FSelect("conference",

@@ -73,7 +73,7 @@ class TeamsPane extends AbstractPane {
       foreach ($schools as $school) {
 	$schoolOptions[$school->id] = $school->name;
       }
-      $f_sel->addOptionGroup($conf->nick, $schoolOptions);
+      $f_sel->addOptionGroup($conf, $schoolOptions);
     }
     $form->addChild(new FSubmit("invite", "Register teams"));
   }

@@ -60,11 +60,11 @@ class PrefsHomePane extends AbstractPrefsPane {
 	$col = 0;
 	while (($col + 4 * $row) < $count && $col < 4) {
 	  $conf = $conferences[4 * $row + $col];
-	  $h->addCell(Cell::th($conf->nick));
+	  $h->addCell(Cell::th($conf));
 	  $b->addCell(new Cell($list = new Itemize()));
 	  foreach (Preferences::getSchoolsInConference($conf) as $school) {
 	    if ($school != $this->SCHOOL)
-	      $link = sprintf("prefs/%s", $school->id);
+	      $link = sprintf("/prefs/%s", $school->id);
 	    $list->addItems(new LItem(new Link($link, $school->nick_name)));
 	  }
 	  $col++;
