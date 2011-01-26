@@ -123,9 +123,13 @@ Also a fourth one, called 'sync' when the regatta is finalized?
 
 * Why are there "errors" when submitting RP?
 
-* When syncing...
+* When syncing (d o n e)...
 
 The num_races is the total number of races planned for in the system
 for that regatta. The 'status' field delimits either the last race
 sailed if ongoing, 'Pending' if already 'over' (due to time or all
 races sailed), or 'Final' if finalized.
+
+* Bring the update school script to the new data tables
+
+This means using dt_regatta, etc.

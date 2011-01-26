@@ -138,6 +138,10 @@ class Dt_School extends DBObject {
 
   public function db_name() { return 'school'; }
   public function db_cache() { return true; }
+
+  public function __toString() {
+    return $this->name;
+  }
 }
 
 class Dt_Score extends DBObject {
