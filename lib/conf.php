@@ -51,9 +51,10 @@ function __mail_error_handler($errno, $errstr, $errfile, $errline, $context) {
   $body .= sprintf($fmt, "Line",   $errline);
   foreach (debug_backtrace() as $list) {
     $body .= "--------------------\n";
-    $body .= sprintf($fmt, "File", $list['file']);
-    $body .= sprintf($fmt, "Line", $list['line']);
-    $body .= sprintf($fmt, "Function", $list['function']);
+    foreach (array('file', 'line', 'function') as $index) {
+      if (isset($list[$index]))
+	$body .= sprintf($fmt, ucfirst($index), $list[$index]);
+    }
   }
 
   mail("dpv140@gmail.com", "[TS2 ERROR]", $body, "From: ts-admin@techscore.mit.edu");

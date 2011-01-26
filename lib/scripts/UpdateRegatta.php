@@ -118,10 +118,11 @@ class UpdateRegatta {
     $dreg->type = $reg->get(Regatta::TYPE);
     $dreg->finalized = $reg->get(Regatta::FINALIZED);
     $dreg->scoring = $reg->get(Regatta::SCORING);
-    
-    $dreg->venue = $reg->get(Regatta::VENUE);
-    if ($dreg->venue !== null)
-      $dreg->venue = DBME::get(DBME::$VENUE, $dreg->venue->id);
+
+    $venue = $reg->get(Regatta::VENUE);
+    if ($venue !== null)
+      $dreg->venue = DBME::get(DBME::$VENUE, $venue->id);
+    unset($venue);
     
     $divs = $reg->getDivisions();
     $races = $reg->getScoredRaces();
