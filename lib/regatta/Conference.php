@@ -18,7 +18,7 @@ class Conference {
   public $name;
 
   public function __toString() {
-    return $this->nick;
+    return $this->id;
   }
 }
 
