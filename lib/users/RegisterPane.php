@@ -70,12 +70,11 @@ class RegisterPane extends WelcomePage {
    */
   private function fillDefault() {
     $this->addContent($p = new Port("Request new account"));
-    $p->addChild(new Para("Please note that TechScore is an online scoring program specifically " .
+    $p->addChild(new Para(sprintf("Please note that TechScore is an online scoring program specifically " .
 			  "designed for College Sailing regattas. As such, account access is given " .
 			  "only to valid ICSA users, or as approved by the registration committee. " .
 			  "If you are not affiliated with ICSA, you might be more interested in " .
-			  "accessing the public site at <a href=\"http://regatta.mit.edu\">" .
-			  "http://regatta.mit.edu</a>."));
+			  "accessing the public site at <a href=\"%s\">%s</a>.", PUB_HOME, PUB_HOME)));
     
     $p->addChild(new Para("Through this form you will be allowed to petition for an account on " .
 			  "TechScore. Every field is mandatory. Please enter a " .
