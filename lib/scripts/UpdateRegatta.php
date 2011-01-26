@@ -127,10 +127,9 @@ class UpdateRegatta {
     $divs = $reg->getDivisions();
     $races = $reg->getScoredRaces();
     $dreg->num_divisions = count($divs);
-    if ($dreg->num_divisions == 0)
-      $dreg->num_races = 0;
-    else
-      $dreg->num_races = count($reg->getRaces()) / $dreg->num_divisions;
+    if ($dreg->num_divisions == 0) // don't update at all!
+      return;
+    $dreg->num_races = count($reg->getRaces()) / $dreg->num_divisions;
     
     // hosts and conferences
     $confs = array();
