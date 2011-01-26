@@ -139,7 +139,7 @@ class UpdateDaemon {
 
     // Deal with affected schools
     foreach ($schools as $school)
-      UpdateSchool::run($school);
+      UpdateSchool::run($school, new Season(new DateTime()));
 
     // Remove lock
     self::cleanup();
