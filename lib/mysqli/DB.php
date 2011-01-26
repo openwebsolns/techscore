@@ -86,8 +86,11 @@ class Dt_Regatta extends DBObject {
 
   public function getHosts() {
     $list = array();
-    foreach (explode(',', $this->hosts) as $id)
-      $list[] = DBME::get(DBME::$SCHOOL, $id);
+    foreach (explode(',', $this->hosts) as $id) {
+      $sch = DBME::get(DBME::$SCHOOL, $id);
+      if ($sch !== null)
+        $list[] = $sch;
+    }
     return $list;
   }
 }

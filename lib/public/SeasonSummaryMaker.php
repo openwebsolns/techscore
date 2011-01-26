@@ -146,7 +146,7 @@ class SeasonSummaryMaker {
 	while (count($school_codes) > 0) {
 	  $next_num = array_shift($winning_school);
 	  if ($next_num != $tied_number) break;
-	  $tied_schools = Preferences::getSchool(array_shift($school_codes));
+	  $tied_schools[] = Preferences::getSchool(array_shift($school_codes));
 	}
       }
       $summary_port->addChild(new Div(array(new Span(array(new Text("Winningest School(s):")),
