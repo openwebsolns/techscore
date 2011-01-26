@@ -66,6 +66,7 @@ class Dt_Regatta extends DBObject {
     switch ($field) {
     case 'start_time':
     case 'end_date':
+    case 'finalized':
       return DBME::$NOW;
 
     case 'venue':

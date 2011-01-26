@@ -36,9 +36,7 @@ class Score {
    *
    */
   public function __get($name) {
-    if (isset($this->$name))
-      return $this->$name;
-    throw new BadFunctionCallException(sprintf("No such score property (%s).", $name));
+    return $this->$name;
   }
 }
 ?>

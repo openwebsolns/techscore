@@ -299,7 +299,9 @@ class MySQLi_Query {
     if (count($this->tables) != 1)
       throw new MySQLi_Query_Exception("Insert statements only support single table");
 
-    $table = array_shift(array_values($this->tables));
+    $tables = array_values($this->tables);
+    $table = array_shift($tables);
+    unset($tables);
 
     $fields = array();
     foreach ($this->fields as $alias => $list) {
@@ -339,7 +341,10 @@ class MySQLi_Query {
     if (count($this->tables) != 1)
       throw new MySQLi_Query_Exception("Insert statements only support single table");
 
-    $table = array_shift(array_values($this->tables));
+    $tables = array_values($this->tables);
+    $table = array_shift($tables);
+    unset($tables);
+
     $where = ($this->where === null) ? new MyBoolean() : $this->where;
     if (($where = $where->toSQL($this->con)) === null)
       $where = "";

@@ -17,9 +17,15 @@ $con = Preferences::getConnection();
 // get all finalized, non-personal regattas and go to town!
 $res = $con->query('select id from regatta where type <> "personal"');
 while ($obj = $res->fetch_object()) {
-  $reg = new Regatta($obj->id);
-  UpdateRegatta::runSync($reg);
-  printf("(%3d) Imported regatta %s\n", $reg->id(), $reg->get(Regatta::NAME));
+  try {
+    $reg = new Regatta($obj->id);
+    $reg->scorer->score($reg);
+    UpdateRegatta::runSync($reg);
+    printf("(%3d) Imported regatta %s\n", $reg->id(), $reg->get(Regatta::NAME));
+  }
+  catch (Exception $e) {
+    printf("(%3d) ERROR regatta %s\n", $reg->id(), $reg->get(Regatta::NAME)); 
+  }
 }
 printf("\nPeak memory usage: %s\n",
        memory_get_peak_usage());
