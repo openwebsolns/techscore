@@ -181,7 +181,11 @@ elseif (isset($_REQUEST['v'])) {
 //
 else {
   $st = $REG->get(Regatta::START_TIME);
-  $nn = Utilities::createNick($REG->get(Regatta::NAME));
+  $nn = $REG->get(Regatta::NICK_NAME);
+  if (count($REG->getTeams()) == 0 || count($REG->getDivisions()) == 0) {
+    $_SESSION['ANNOUNCE'][] = new Announcement("First create teams and divisions before downloading.", Announcement::WARNING);
+    WebServer::go(sprintf('/score/%d', $REG->id()));
+  }
   switch ($_REQUEST['d']) {
 
     // --------------- REGATTA ---------------//
