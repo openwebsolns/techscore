@@ -139,15 +139,28 @@ class AccountManager {
    * @return null if invalid userid or password
    */
   public static function approveUser($id, $pass) {
-    $q = sprintf('select * from account ' .
-		 'where username like "%s" and password = sha1("%s")' .
+    $q = sprintf('select password from account where username like "%s"' .
 		 '  and status in ("accepted", "active")',
-		 $id, $pass);
+		 $id);
     $q = self::query($q);
-    if ($q->num_rows == 0) {
+    if ($q->num_rows == 0)
       return null;
-    }
-    return new User($id);
+    $r = $q->fetch_object();
+    if ($r->password == sha1($pass))
+      return new User($id);
+    return null;
+  }
+
+  /**
+   * Resets the password for the given user
+   *
+   * @param User $user the user whose password to reset
+   * @param String $new_pass the password to set it to.
+   */
+  public static function resetPassword(User $user, $new_pass) {
+    $q = sprintf('update account set password = sha1("%s") where username = "%s"',
+		 addslashes($new_pass), $user->username());
+    self::query($q);
   }
 
   /**

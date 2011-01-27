@@ -68,6 +68,11 @@ else {
     $PAGE = new BoatManagement($USER);
   break;
 
+    case "account":
+  case "accounts":
+    $PAGE = new AccountPane($USER);
+  break;
+
   default:
     $_SESSION['ANNOUNCE'][] = new Announcement("No such page.", Announcement::ERROR);
     WebServer::go('/');
