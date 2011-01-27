@@ -108,7 +108,7 @@ class UpdateRegatta {
       return;
 
     require_once('mysqli/DB.php');
-    DBME::setConn(Preferences::getConnection());
+    DBME::setConnection(Preferences::getConnection());
     $dreg = new Dt_Regatta();
     $dreg->id = $reg->id();
     $dreg->name = $reg->get(Regatta::NAME);

@@ -17,7 +17,6 @@ class RpManager {
 
   // Private variables
   private $regatta;
-  private static $con;
 
   /**
    * Instantiate a new rotation object
@@ -128,23 +127,6 @@ class RpManager {
   // Static variable and functions
 
   /**
-   * Sends a query to the database connection and returns the result
-   * object.
-   *
-   * @param string $query the query to send to the database
-   * @return the mysqli_result object
-   * @throws BadFunctionCallException if there was an error with the
-   * query
-   */
-  private static function query($query) {
-    if (self::$con == null)
-      self::$con = Preferences::getConnection();
-    if ($q = self::$con->query($query))
-      return $q;
-    throw new BadFunctionCallException($q->error . ":" . $query);
-  }
-
-  /**
    * Returns a list of coaches as sailor objects for the specified
    * school
    *
@@ -156,7 +138,7 @@ class RpManager {
 		 'and role = "coach" ' .
 		 'order by last_name',
 		 Sailor::FIELDS, Sailor::TABLES, $school->id);
-    $q = self::query($q);
+    $q = Preferences::query($q);
     $list = array();
     while ($obj = $q->fetch_object("Sailor")) {
       $obj->school = $school;
@@ -178,7 +160,7 @@ class RpManager {
 		 'and icsa_id is not null ' .
 		 'order by last_name',
 		 Sailor::FIELDS, Sailor::TABLES, $school->id);
-    $q = self::query($q);
+    $q = Preferences::query($q);
     $list = array();
     while ($obj = $q->fetch_object("Sailor")) {
       $obj->school = $school;
@@ -199,7 +181,7 @@ class RpManager {
 		 'and icsa_id is null ' .
 		 'order by last_name',
 		 Sailor::FIELDS, Sailor::TABLES, $school->id);
-    $q = self::query($q);
+    $q = Preferences::query($q);
     $list = array();
     while ($obj = $q->fetch_object("Sailor")) {
       $obj->school = $school;
@@ -218,16 +200,13 @@ class RpManager {
   public static function replaceTempActual(Sailor $key, Sailor $replace) {
     $q = sprintf('update rp set sailor = "%s" where sailor = "%s"',
 		 $replace->id, $key->id);
-    self::query($q);
+    Preferences::query($q);
 
     // Delete if temporary sailor
-    $success = empty(self::$con->error);
-    if ($success && !$key->registered) {
+    if (!$key->registered) {
       $q = sprintf('delete from sailor where id = "%s"', $key->id);
-      self::query($q);
-      return empty(self::$con->error);
+      Preferences::query($q);
     }
-    return $success;
   }
 
   /**

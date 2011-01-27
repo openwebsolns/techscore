@@ -30,7 +30,7 @@ class DBME extends DBM {
   public static $RP = null;
   
   // use this method to initialize the different objects as well
-  public static function setConn(MySQLi $con) {
+  public static function setConnection(MySQLi $con) {
     self::$REGATTA = new Dt_Regatta();
     self::$SCHOOL = new Dt_School();
     self::$SAILOR = new Dt_Sailor();
@@ -40,7 +40,7 @@ class DBME extends DBM {
     self::$NOW = new DateTime();
     self::$RP = new Dt_Rp();
 
-    self::setConnection($con);
+    DBM::setConnection($con);
   }
 }
 

@@ -37,6 +37,20 @@ class Preferences {
   }
 
   /**
+   * Sends the requested query to the database, throwing an Exception
+   * if something went wrong.
+   *
+   * @param String $query the query to send
+   * @return MySQLi_Result the result set
+   */
+  public static function query($query) {
+    if ($q = self::getConnection()->query($query)) {
+      return $q;
+    }
+    throw new BadFunctionCallException(self::$con->error . ": " . $query);
+  }
+
+  /**
    * Gets an assoc. array of the possible regatta types
    *
    * @return Array a dict of regatta types
@@ -68,9 +82,8 @@ class Preferences {
    * @return Array<Boat> list of boats
    */
   public static function getBoats() {
-    $con = self::getConnection();
     $q = sprintf('select %s from %s', Boat::FIELDS, Boat::TABLES);
-    $q = $con->query($q);
+    $q = self::query($q);
     
     $list = array();
     while ($obj = $q->fetch_object("Boat"))
@@ -85,10 +98,9 @@ class Preferences {
    * @return Boat|null
    */
   public static function getBoat($id) {
-    $con = self::getConnection();
     $q = sprintf('select %s from %s where id = %d limit 1',
 		 Boat::FIELDS, Boat::TABLES, $id);
-    $q = $con->query($q);
+    $q = self::query($q);
     if ($q->num_rows == 0)
       return null;
     return $q->fetch_object("Boat");
@@ -102,15 +114,14 @@ class Preferences {
    * @param Boat $boat the boat to either add or update
    */
   public static function setBoat(Boat $boat) {
-    $con = self::getConnection();
     $exist = Preferences::getBoat($boat->id);
     if ($exist === null) {
-      $con->query(sprintf('insert into boat (name, occupants) values ("%s", %d)',
+      self::query(sprintf('insert into boat (name, occupants) values ("%s", %d)',
 			  $boat->name, $boat->occupants));
-      $boat->id = $con->insert_id;
+      $boat->id = self::$con->insert_id;
     }
     else {
-      $con->query(sprintf('update boat set name = "%s", occupants = %d where id = %d limit 1',
+      self::query(sprintf('update boat set name = "%s", occupants = %d where id = %d limit 1',
 			  $boat->name, $boat->occupants, $exist->id));
     }
   }
@@ -121,21 +132,20 @@ class Preferences {
    * @param Venue $venue the venue to set to the database
    */
   public static function setVenue(Venue $venue) {
-    $con = self::getConnection();
     $exist = self::getVenue((int)$venue->id);
     if ($exist === null) {
       $q = sprintf('insert into venue (name, address, city, state, zipcode) ' .
 		   'values ("%s", "%s", "%s", "%s", "%s")',
 		   $venue->name, $venue->address, $venue->city, $venue->state, $venue->zipcode);
-      $con->query($q);
-      $venue->id = $con->insert_id;
+      self::query($q);
+      $venue->id = self::$con->insert_id;
     }
     else {
       $q = sprintf('update venue set name = "%s", address = "%s", ' .
 		   'city = "%s", state = "%s", zipcode = "%s" where id = %d',
 		   $venue->name, $venue->address, $venue->city,
 		   $venue->state, $venue->zipcode, $exist->id);
-      $con->query($q);
+      self::query($q);
     }
   }
 
@@ -146,10 +156,9 @@ class Preferences {
    * @return Venue the venue object, or null
    */
   public static function getVenue($id) {
-    $con = self::getConnection();
     $q = sprintf('select %s from %s where id = "%s"',
 		 Venue::FIELDS, Venue::TABLES, $id);
-    $q = $con->query($q);
+    $q = self::query($q);
     if ($q->num_rows == 0) {
       return null;
     }
@@ -181,9 +190,8 @@ class Preferences {
       }
     }
     
-    $con = self::getConnection();
     $q = sprintf('select %s from %s order by name, state %s', Venue::FIELDS, Venue::TABLES, $limit);
-    $q = $con->query($q);
+    $q = self::query($q);
     
     $list = array();
     while ($obj = $q->fetch_object("Venue"))
@@ -192,9 +200,8 @@ class Preferences {
   }
 
   public static function getNumVenues() {
-    $con = self::getConnection();
     $q = sprintf('select * from %s', Venue::TABLES);
-    $q = $con->query($q);
+    $q = self::query($q);
     $n = $q->num_rows;
     $q->free();
     return $n;
@@ -207,11 +214,10 @@ class Preferences {
    * @return Array<Account> list of users
    */
   public static function getUsersFromConference(Conference $conf) {
-    $con = self::getConnection();
     $q = sprintf('select %s from %s where school in (select id from school where conference = %d) ' .
 		 'order by account.last_name',
 		 Account::FIELDS, Account::TABLES, $conf->id);
-    $q = $con->query($q);
+    $q = self::query($q);
     $list = array();
     while ($obj = $q->fetch_object("Account"))
       $list[] = $obj;
@@ -225,10 +231,9 @@ class Preferences {
    * @return Conference the conference object
    */
   public static function getConference($id) {
-    $con = self::getConnection();
     $q = sprintf('select conference.id, conference.name ' .
 		 'from conference where id = "%s"', $id);
-    $q = $con->query($q);
+    $q = self::query($q);
     if ($q->num_rows == 0) {
       return null;
     }
@@ -242,8 +247,7 @@ class Preferences {
    * @return a list of conferences
    */
   public static function getConferences() {
-    $con = self::getConnection();
-    $q = $con->query('select conference.id, conference.name from conference');
+    $q = self::query('select conference.id, conference.name from conference');
     $list = array();
     while ($conf = $q->fetch_object("Conference"))
       $list[] = $conf;
@@ -257,10 +261,9 @@ class Preferences {
    * @return a list of schools in the conference
    */
   public static function getSchoolsInConference(Conference $conf) {
-    $con = self::getConnection();
     $q = sprintf('select %s from %s where conference = "%s"',
 		 School::FIELDS, School::TABLES, $conf->id);
-    $q = $con->query($q);
+    $q = self::query($q);
     $list = array();
     while ($obj = $q->fetch_object("School")) {
       $list[] = $obj;
@@ -274,10 +277,9 @@ class Preferences {
    * @return School $school with the given ID
    */
   public static function getSchool($id) {
-    $con = self::getConnection();
     $q = sprintf('select %s from %s where id like "%s"',
 		 School::FIELDS, School::TABLES, $id);
-    $q = $con->query($q);
+    $q = self::query($q);
     if ($q->num_rows == 0) {
       return null;
     }
@@ -294,10 +296,9 @@ class Preferences {
    * @return Burgee|null
    */
   public static function getBurgee(School $school) {
-    $con = self::getConnection();
     $sql = sprintf('select %s from %s where school = "%s" order by last_updated desc limit 1',
 		   Burgee::FIELDS, Burgee::TABLES, $school->id);
-    $res = $con->query($sql);
+    $res = self::query($sql);
     if ($res->num_rows == 0)
       return null;
     return $res->fetch_object("Burgee");
@@ -314,7 +315,6 @@ class Preferences {
    * updates the entire record
    */
   public static function updateSchool(School $school, $field = null) {
-    $con = self::getConnection();
     if ($field != null && $field != "burgee")
       $q = sprintf('update school set %s = "%s" where id = "%s"',
 		   $field, $school->$field, $school->id);
@@ -335,10 +335,7 @@ class Preferences {
       $q = sprintf('update school set %s where id = "%s"',
 		   implode(', ', $upd), $school->id);
     }
-    $q = $con->query($q);
-    if (!empty($con->error))
-      trigger_error($con->error, E_USER_ERROR);
-    return (empty($con->error));
+    $q = self::query($q);
   }
 
   /**
@@ -348,10 +345,9 @@ class Preferences {
    * @return Array ordered list of the school names
    */
   public static function getTeamNames(School $school) {
-    $con = self::getConnection();
     $q = sprintf('select name from team_name_prefs where school = "%s" order by rank desc',
 		 $school->id);
-    $q = $con->query($q);
+    $q = self::query($q);
     $list = array();
     while ($obj = $q->fetch_object())
       $list[] = $obj->name;
@@ -365,11 +361,10 @@ class Preferences {
    * @param Array $names an ordered list of team names
    */
   public static function setTeamNames(School $school, Array $names) {
-    $con = self::getConnection();
 
     // 1. Remove existing names
     $q = sprintf('delete from team_name_prefs where school = "%s"', $school->id);
-    $con->query($q);
+    self::query($q);
 
     // 2. Add new names
     $q = array();
@@ -377,9 +372,7 @@ class Preferences {
     foreach ($names as $name) {
       $q[] = sprintf('("%s", "%s", %s)', $school->id, $name, $rank--);
     }
-    $con->query(sprintf('insert into team_name_prefs values %s',
-			implode(', ', $q)));
-    return (empty($con->error));
+    self::query(sprintf('insert into team_name_prefs values %s', implode(', ', $q)));
   }
 
   /**
@@ -412,12 +405,11 @@ class Preferences {
     // 2009-10-14: Return the school from this user
     return array($user->school);
 
-    $con = self::getConnection();
     $q = sprintf('select %s from school inner join account ' .
 		 'on (account.school = school.id) ' .
 		 'where account.username like "%s"',
 		 School::FIELDS, $user->username);
-    $q = $con->query($q);
+    $q = self::query($q);
     $list = array();
     while ($obj = $q->fetch_object("School"))
       $list[] = $obj;
@@ -432,7 +424,6 @@ class Preferences {
    * @return Sailor the new unregistered sailor, backed by the database
    */
   public static function addTempSailor(Sailor $sailor) {
-    $con = self::getConnection();
     $q = sprintf('insert into sailor ' .
 		 '(school, first_name, last_name, year) values ' .
 		 '("%s", "%s", "%s", "%s")',
@@ -440,13 +431,13 @@ class Preferences {
 		 $sailor->first_name,
 		 $sailor->last_name,
 		 $sailor->year);
-    $con->query($q);
+    self::query($q);
 
     // fetch the last ID
-    $res = $con->query('select last_insert_id() as id');
+    $res = self::query('select last_insert_id() as id');
     $id  = $res->fetch_object()->id;
 
-    $res = $con->query(sprintf('select %s from %s where id = "%s"',
+    $res = self::query(sprintf('select %s from %s where id = "%s"',
 			       Sailor::FIELDS, Sailor::TABLES, $id));
     return $res->fetch_object("Sailor");
   }
@@ -474,8 +465,7 @@ class Preferences {
   public static function getMessages(Account $acc) {
     $q = sprintf('select %s from %s where account = "%s" and active = 1 order by created desc',
 		 Message::FIELDS, Message::TABLES, $acc->username);
-    $con = self::getConnection();
-    $res = $con->query($q);
+    $res = self::query($q);
     $list = array();
     while ($obj = $res->fetch_object("Message", array($acc)))
       $list[] = $obj;
@@ -491,8 +481,7 @@ class Preferences {
     $q = sprintf('select %s from %s where account = "%s" ' .
 		 'and read_time is null and active = 1 order by created',
 		 Message::FIELDS, Message::TABLES, $acc->username);
-    $con = self::getConnection();
-    $res = $con->query($q);
+    $res = self::query($q);
     $list = array();
     while ($obj = $res->fetch_object("Message", array($acc)))
       $list[] = $obj;
@@ -509,15 +498,14 @@ class Preferences {
   public static function queueMessage(Account $acc, $mes) {
     $q = sprintf('insert into message (account, content) values ("%s", "%s")',
 		 $acc->username, (string)$mes);
-    $con = self::getConnection();
-    $con->query($q);
+    self::query($q);
 
     // fetch the last message
-    $id = $con->query('select last_insert_id() as id');
+    $id = self::query('select last_insert_id() as id');
     $id = $id->fetch_object()->id;
     $q = sprintf('select %s from %s where id = "%s"',
 		 Message::FIELDS, Message::TABLES, $id);
-    $re = $con->query($q);
+    $re = self::query($q);
     return $re->fetch_object("Message", array($acc));
   }
 
@@ -534,8 +522,7 @@ class Preferences {
 
     $q = sprintf('update message set read_time = "%s" where id = "%s"',
 		 $time->format('Y-m-d H:i:s'), $mes->id);
-    $con = self::getConnection();
-    $con->query($q);
+    self::query($q);
     $mes->read_time = $time;
   }
 
@@ -546,8 +533,7 @@ class Preferences {
    */
   public static function deleteMessage(Message $mes) {
     $q = sprintf('update message set active = 0 where id = "%s"', $mes->id);
-    $con = self::getConnection();
-    $con->query($q);
+    self::query($q);
   }
 
   /**

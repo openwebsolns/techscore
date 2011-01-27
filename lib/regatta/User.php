@@ -16,7 +16,6 @@ require_once('conf.php');
 class User {
 
   // Private variables
-  private $con;
   private $username;
   private $properties;
 
@@ -40,31 +39,18 @@ class User {
    * @throws InvalidArgumentException if invalid username
    */
   public function __construct($username) {
-    $this->con = Preferences::getConnection();
-
     $this->username = $username;
     $q = sprintf('select %s from %s where username = "%s"',
 		 self::FIELDS, self::TABLES, $username);
-    $result = $this->query($q);
+    $result = Preferences::query($q);
     if ($result->num_rows > 0) {
       $this->properties = $result->fetch_assoc();
       $this->properties['admin'] = ($this->properties['admin'] > 0);
     }
     else {
-      $m = sprintf("Invalid username (%s) for user: %s", $username, $this->con->error);
+      $m = sprintf("Invalid username (%s) for user.", $username);
       throw new InvalidArgumentException($m);
     }
-  }
-
-  /**
-   * Sends the query to the database and handles errors. Returns the
-   * resultant mysqli_result object
-   */
-  private function query($string) {
-    if ($q = $this->con->query($string)) {
-      return $q;
-    }
-    throw new BadFunctionCallException($q->error . ": " . $string);
   }
 
   /**
@@ -107,7 +93,7 @@ class User {
     }
     $q = sprintf('update account set %s = "%s" where username = "%s"',
 		 $key, $value, $this->username);
-    $this->query($q);
+    Preferences::query($q);
   }
 
   /**
@@ -175,7 +161,7 @@ class User {
 		    'where host.account = "%s" order by start_time desc ',
 		    $this->username);
     $q .= $limit;
-    $q = $this->query($q);
+    $q = Preferences::query($q);
     $list = array();
     while ($obj = $q->fetch_object("RegattaSummary"))
       $list[] = $obj;
@@ -193,7 +179,7 @@ class User {
 		 'inner join host on (regatta.id = host.regatta) ' .
 		 'where host.account = "%s"',
 		 RegattaSummary::TABLES, $this->username);
-    $q = $this->query($q);
+    $q = Preferences::query($q);
     return (int)$q->fetch_object()->count;
   }
 

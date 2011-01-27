@@ -35,7 +35,7 @@ class SeasonSummaryMaker {
     // timestamp, based solely on the start_time, assuming that the
     // week ends on a Sunday.
     require_once('mysqli/DB.php');
-    DBME::setConn(Preferences::getConnection());
+    DBME::setConnection(Preferences::getConnection());
     $weeks = array();
     $regattas = DBME::getAll(DBME::$REGATTA, new MyCond('season', $season));
     // $regattas = $season->getRegattas();

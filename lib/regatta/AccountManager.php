@@ -13,22 +13,6 @@
  */
 class AccountManager {
 
-  private static $con;
-
-  /**
-   * Sends query. Returns result object
-   *
-   */
-  private static function query($q) {
-    if (self::$con === null)
-      self::$con = Preferences::getConnection();
-    
-    $res = self::$con->query($q);
-    if (!empty(self::$con->error))
-      throw new BadFunctionCallException(sprintf("MySQL error (%s): %s", $q, self::$con->error));
-    return $res;
-  }
-
   /**
    * Returns the account with the given username
    *
@@ -38,7 +22,7 @@ class AccountManager {
   public static function getAccount($id) {
     $q = sprintf('select %s from %s where username like "%s"',
 		 Account::FIELDS, Account::TABLES, $id);
-    $q = self::query($q);
+    $q = Preferences::query($q);
     if ($q->num_rows == 0) {
       return null;
     }
@@ -81,7 +65,7 @@ class AccountManager {
     // Setup the query
     $q = sprintf('select %s from %s where status = "pending" %s',
 		 Account::FIELDS, Account::TABLES, $limit);
-    $q = self::query($q);
+    $q = Preferences::query($q);
     $list = array();
     while ($obj = $q->fetch_object("Account"))
       $list[] = $obj;
@@ -95,7 +79,7 @@ class AccountManager {
    * @see getPendingUsers
    */
   public static function getNumPendingUsers() {
-    $q = self::query('select username from account where status = "pending"');
+    $q = Preferences::query('select username from account where status = "pending"');
     return $q->num_rows;
   }
 
@@ -120,7 +104,7 @@ class AccountManager {
   public static function getAccountFromHash($hash) {
     $q = sprintf('select %s from %s where md5(concat(last_name, username, first_name)) like "%s"',
 		 Account::FIELDS, Account::TABLES, $hash);
-    $q = self::query($q);
+    $q = Preferences::query($q);
     if ($q->num_rows == 0) {
       return null;
     }
@@ -142,7 +126,7 @@ class AccountManager {
     $q = sprintf('select password from account where username like "%s"' .
 		 '  and status in ("accepted", "active")',
 		 $id);
-    $q = self::query($q);
+    $q = Preferences::query($q);
     if ($q->num_rows == 0)
       return null;
     $r = $q->fetch_object();
@@ -160,7 +144,7 @@ class AccountManager {
   public static function resetPassword(User $user, $new_pass) {
     $q = sprintf('update account set password = sha1("%s") where username = "%s"',
 		 addslashes($new_pass), $user->username());
-    self::query($q);
+    Preferences::query($q);
   }
 
   /**
@@ -181,7 +165,7 @@ class AccountManager {
 		 $acc->role,
 		 $acc->school->id,
 		 $acc->status);
-    self::query($q);
+    Preferences::query($q);
   }
 
   /**

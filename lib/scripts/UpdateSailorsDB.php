@@ -26,11 +26,6 @@ class UpdateSailorsDB {
   public $COACH_URL = 'http://www.collegesailing.org/directory/individual/coachapi.asp';
   
   /**
-   * MySQLi connection
-   */
-  private $con;
-
-  /**
    * Errors encountered
    */
   private $errors;
@@ -41,13 +36,18 @@ class UpdateSailorsDB {
   private $warnings;
 
   /**
+   * @var MySQLi the connection
+   */
+  private $con;
+
+  /**
    * Creates a new UpdateSailorsDB object
    *
    */
   public function __construct() {
-    $this->con = new MySQLi(SQL_HOST, SQL_USER, SQL_PASS, SQL_DB);
     $this->errors = array();
     $this->warnings = array();
+    $this->con = Preferences::getConnection();
   }
 
   /**
@@ -74,7 +74,7 @@ class UpdateSailorsDB {
 
     // Determine if the icsa_id exists already
     $q = sprintf('select id from sailor where icsa_id = "%s"', $sailor->icsa_id);
-    $q = $this->con->query($q);
+    $q = Preferences::query($q);
     
     if ($q->num_rows == 0) {
       // new sailor
@@ -86,7 +86,7 @@ class UpdateSailorsDB {
 		    $sailor->first_name,
 		    $sailor->year,
 		    $s);
-      $this->con->query($q2);
+      Preferences::query($q2);
     }
     else {
       $id = $q->fetch_object();
@@ -98,7 +98,7 @@ class UpdateSailorsDB {
 		    $sailor->year,
 		    $s,
 		    $id->id);
-      $this->con->query($q2);
+      Preferences::query($q2);
     }
   }
 

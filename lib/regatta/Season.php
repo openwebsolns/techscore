@@ -35,10 +35,9 @@ class Season {
   public function getTime() { return $this->date; }
   public function getSeason() {
     if ($this->season === null) {
-      $con = Preferences::getConnection();
       $q = sprintf('select * from season where start_date <= "%1$s" and end_date >= "%1$s"',
 		   $this->date->format('Y-m-d'));
-      $r = $con->query($q);
+      $r = Preferences::query($q);
       $this->season = $r->fetch_object();
     }
     return $this->season->season;
@@ -123,8 +122,6 @@ class Season {
    * @throws InvalidArgumentException if one of the parameters is wrong
    */
   public function getRegattas($start = null, $end = null) {
-    $con = Preferences::getConnection();
-    
     $limit = "";
     if ($start === null)
       $limit = "";
@@ -155,7 +152,7 @@ class Season {
 		 $this->season->start_date,
 		 $this->season->end_date,
 		 $limit);
-    $q = $con->query($q);
+    $q = Preferences::query($q);
     $list = array();
     while ($obj = $q->fetch_object("RegattaSummary"))
       $list[] = $obj;
@@ -170,14 +167,13 @@ class Season {
    * @return Array:RegattaSummary
    */
   public function getParticipation(School $school) {
-    $con = Preferences::getConnection();
     $this->getSeason();
     
     $q = sprintf('select %s from %s where id in (select distinct regatta from team where school = "%s")'.
 		 ' and start_time >= "%s" and start_time <= "%s"',
 		 RegattaSummary::FIELDS, RegattaSummary::TABLES,
 		 $school->id, $this->season->start_date, $this->season->end_date);
-    $res = $con->query($q) or trigger_error("Query error: $q.", E_USER_ERROR);
+    $res = Preferences::query($q);
     $list = array();
     while ($obj = $res->fetch_object("RegattaSummary"))
       $list[] = $obj;
@@ -211,11 +207,10 @@ class Season {
     $y += ($y < 90) ? 2000 : 1900;
 
     // fetch the correct start_date for this season
-    $con = Preferences::getConnection();
     $q = sprintf('select start_date from season where season = "%s" and ' .
 		 '(year(start_date) = "%s" or year(end_date) = "%s") limit 1',
 		 $s, $y, $y);
-    $r = $con->query($q);
+    $r = Preferences::query($q);
     if ($r->num_rows == 0)
       return null;
     $r = $r->fetch_object();

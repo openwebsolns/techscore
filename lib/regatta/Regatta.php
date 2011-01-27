@@ -72,10 +72,7 @@ class Regatta implements RaceListener, FinishListener {
    * resultant mysqli_result object
    */
   public function query($string) {
-    if ($q = $this->con->query($string)) {
-      return $q;
-    }
-    throw new BadFunctionCallException($this->con->error . ": " . $string);
+    Preferences::query($string);
   }
 
   /**
@@ -90,7 +87,6 @@ class Regatta implements RaceListener, FinishListener {
       throw new InvalidArgumentException(sprintf("Illegal regatta id value (%s).", $id));
 
     $this->id  = (int)$id;
-    $this->con = Preferences::getConnection();
     $this->scorer = new ICSAScorer();
 
     // Update the properties
@@ -130,8 +126,7 @@ class Regatta implements RaceListener, FinishListener {
 	$this->properties[Regatta::FINALIZED] = new DateTime($p);
     }
     else {
-      $m = "Invalid ID for regatta: " . $this->con->error;
-      throw new InvalidArgumentException($m);
+      throw new InvalidArgumentException("Invalid ID for regatta.");
     }
 
     // Managers
@@ -917,13 +912,6 @@ class Regatta implements RaceListener, FinishListener {
    * @return int the regatta's ID
    */
   public function id() { return $this->id; }
-
-  /**
-   * Get the MySQLi connection object registered with this regatta
-   *
-   * @return the MySQLi connection
-   */
-  public function getConnection() { return $this->con; }
 
   /**
    * Gets the rotation object that manages this regatta's rotation
