@@ -54,7 +54,7 @@ class UpdateManager {
    */
   public static function log(UpdateRequest $req, $code = -1, $mes = "") {
     Preferences::query(sprintf('insert into pub_update_log (request, return_code, return_mess) values ("%s", %d, "%s")',
-			       $req->id, $code, $mes));
+			       $req->id, $code, addslashes($mes)));
   }
 
   /**

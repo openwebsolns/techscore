@@ -767,22 +767,24 @@ class Regatta implements RaceListener, FinishListener {
    * @param Division $div the division to fetch, or all if null
    * @return Array<TeamPenalty> list of team penalties
    */
-  public function getTeamPenalties(Team $team = null) {
+  public function getTeamPenalties(Team $team = null, Division $div = null) {
     if ($team == null) {
       $list = array();
       foreach ($this->getTeams() as $team)
-	$list = array_merge($list, $this->getTeamPenalties($team, $division));
+	$list = array_merge($list, $this->getTeamPenalties($team, $div));
       return $list;
     }
-
-    $list = array();
-    foreach ($this->getDivisions() as $division) {
-      $pen = $this->getTeamPenalty($team, $division);
-      if ($pen != null) {
-	$list[] = $pen;
+    if ($div == null) {
+      $list = array();
+      foreach ($this->getDivisions() as $division) {
+        $pen = $this->getTeamPenalty($team, $division);
+        if ($pen != null) {
+          $list[] = $pen;
+        }
       }
+      return $list;
     }
-    return $list;
+    return $this->getTeamPenalty($team, $div);
   }
 
   /**

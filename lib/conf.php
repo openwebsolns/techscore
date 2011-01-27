@@ -49,6 +49,7 @@ function __mail_error_handler($errno, $errstr, $errfile, $errline, $context) {
   $body .= sprintf($fmt, "String", $errstr);
   $body .= sprintf($fmt, "File",   $errfile);
   $body .= sprintf($fmt, "Line",   $errline);
+  $body .= sprintf($fmt, "Request", $_SERVER['REQUEST_URI']);
   foreach (debug_backtrace() as $list) {
     $body .= "--------------------\n";
     foreach (array('file', 'line', 'function') as $index) {

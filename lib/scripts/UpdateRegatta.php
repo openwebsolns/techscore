@@ -23,9 +23,11 @@ class UpdateRegatta {
    * @param Regatta $reg the regatta whose information to delete.
    */
   public static function runDelete(Regatta $reg) {
+    return; // TODO fix me!
+
     $R = realpath(dirname(__FILE__).'/../../html');
     $season = $reg->get(Regatta::SEASON);
-    if ($season === null)
+    if ((string)$season == "")
       return;
     $dirname = "$R/$season/" . $reg->get(Regatta::NICK_NAME);
     if (is_dir($dirname) && $dir = @opendir($dirname)) {

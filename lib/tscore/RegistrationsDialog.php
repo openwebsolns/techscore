@@ -51,10 +51,14 @@ class RegistrationsDialog extends AbstractDialog {
 
 	if ($is_first) {
 	  $is_first = false;
-	  $row->addCell($c = new Cell(new Image($team->school->burgee,
+          // Removed burgee printing to be fixed later TODO
+	  $row->addCell($c = new Cell(""));
+          /*
+          new Image($team->school->burgee,
 						array("alt"   =>$team->school->nick_name,
 						      "height"=>"30px")),
 				      array("class"=>array("vertical", "strong"))));
+          */
 	  $c->addChild(new Text(sprintf("<br/>%s", $team)));
 	}
 	else {

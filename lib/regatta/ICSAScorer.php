@@ -258,10 +258,8 @@ class ICSAScorer {
 	$total += $f->score;
       }
       foreach ($divisions as $division) {
-	foreach ($reg->getTeamPenalties($team, $division) as $pen) {
-	  if (count($pen) > 0) {
-	    $total += 20;
-	  }
+        if ($reg->getTeamPenalty($team, $division) !== null) {
+	  $total += 20;
 	}
       }
       $totalList[] = $total;

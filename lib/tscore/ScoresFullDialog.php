@@ -163,9 +163,8 @@ class ScoresFullDialog extends AbstractScoresDialog {
 	}
 
 	// print penalty, should it exist
-	$team_pen = $this->REGATTA->getTeamPenalties($rank->team, new Division($div));
-	if (count($team_pen) > 0) {
-	  $team_pen = array_shift($team_pen);
+	$team_pen = $this->REGATTA->getTeamPenalty($rank->team, new Division($div));
+	if ($team_pen !== null) {
 	  $r->addCell(new Cell($team_pen->type,
 			       array("title"=>$team_pen->comments,
 				     "align"=>"right")));
