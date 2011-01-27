@@ -246,21 +246,28 @@ class Regatta implements RaceListener, FinishListener {
   }
 
   /**
+   * @var Array:Division an attempt at caching
+   */
+  private $divisions = null;
+  /**
    * Returns an array of the divisions in this regatta
    *
    * @return list of divisions in this regatta
    */
   public function getDivisions() {
+    if ($this->divisions !== null)
+      return $this->divisions;
+    
     $q = sprintf('select distinct division from race ' .
 		 'where regatta = "%s" ' . 
 		 'order by division',
 		 $this->id);
     $q = $this->query($q);
-    $divs = array();
+    $this->divisions = array();
     while ($row = $q->fetch_object()) {
-      $divs[] = Division::get($row->division);
+      $this->divisions[] = Division::get($row->division);
     }
-    return $divs;
+    return $this->divisions;
   }
 
   /**
@@ -271,8 +278,7 @@ class Regatta implements RaceListener, FinishListener {
    */
   public function getTeams(School $school = null) {
     $q = sprintf('select team.id, team.name, team.school ' .
-		 'from team inner join school on (school.id = team.school) ' .
-		 'where regatta = "%s" %s order by school, id',
+		 'from team where regatta = "%s" %s order by school, id',
 		 $this->id,
 		 ($school === null) ? '' : sprintf('and school = "%s"', $school->id));
     $q = $this->query($q);
@@ -457,6 +463,8 @@ class Regatta implements RaceListener, FinishListener {
    */
   public function removeRace(Race $race) {
     $this->query(sprintf('delete from race where id = %d', $race->id));
+    if (isset($this->races[(string)$race->division]))
+      unset($this->races[(string)$race->division]);
   }
 
   /**
@@ -468,6 +476,7 @@ class Regatta implements RaceListener, FinishListener {
     $q = sprintf('delete from race where (regatta, division) = ("%s", "%s")',
 		 $this->id, $div);
     $this->query($q);
+    $this->divisions = null;
   }
 
   /**
