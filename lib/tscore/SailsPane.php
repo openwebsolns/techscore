@@ -404,7 +404,13 @@ class SailsPane extends AbstractPane {
     break;
 
     case "SWP":
-      $rotation->createSwap($sails, $tlist, $divs, $races, $repeats);
+      try {
+	$rotation->createSwap($sails, $tlist, $divs, $races, $repeats);
+      }
+      catch (Exception $e) {
+	echo "We are aware of this issue and are currently aware of this problem. For the time being, please enter finishes using the team names instead of the rotation while we address this issue.\n\n";
+	throw new Exception('REGATTA: ' . $this->REGATTA->id());
+      }
       break;
 
     default:
