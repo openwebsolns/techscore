@@ -120,7 +120,7 @@ class UpdateSailorsDB {
 	  $s->icsa_id = (int)$sailor->id;
 
 	  // keep cache of schools
-	  $school_id = (string)$sailor->school;	  
+	  $school_id = trim((string)$sailor->school);	  
 	  if (!isset($schools[$school_id]))
 	    $schools[$school_id] = Preferences::getSchool($school_id);
 
