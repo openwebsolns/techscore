@@ -38,7 +38,7 @@ class School {
   public function __get($name) {
     if ($name == 'conference') {
       if (!($this->conference instanceof Conference))
-	$this->conference = Preference::getConnection($this->conference);
+	$this->conference = Preferences::getConference($this->conference);
       return $this->conference;
     }
     if ($name == "burgee") {
