@@ -44,6 +44,8 @@ class Preferences {
    * @return MySQLi_Result the result set
    */
   public static function query($query) {
+    if (defined('LOG_QUERIES'))
+      @error_log($query."\n", 3, LOG_QUERIES);
     if ($q = self::getConnection()->query($query)) {
       return $q;
     }
