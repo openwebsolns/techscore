@@ -72,7 +72,7 @@ class Regatta implements RaceListener, FinishListener {
    * resultant mysqli_result object
    */
   public function query($string) {
-    Preferences::query($string);
+    return Preferences::query($string);
   }
 
   /**
@@ -346,6 +346,10 @@ class Regatta implements RaceListener, FinishListener {
   }
 
   /**
+   * @var Array indexed array of races. An attempt at efficiency through caching
+   */
+  private $races = array();
+  /**
    * Returns an array of race objects within the specified division
    * ordered by the race number. If no division specified, returns all
    * the races in the regatta ordered by division, then number.
@@ -355,22 +359,29 @@ class Regatta implements RaceListener, FinishListener {
    */
   public function getRaces(Division $div = null) {
     if ($div == null) {
-      return $this->getAllRaces();
+      $list = array();
+      foreach ($this->getDivisions() as $div)
+	$list = array_merge($list, $this->getRaces($div));
+      return $list;
     }
-    
+    // cache?
+    $divs = (string)$div;
+    if (isset($this->races[$divs]))
+      return $this->races[$divs];
+
     $q = sprintf('select %s from %s ' .
 		 'where (regatta, division) = ' .
 		 '      ("%s",    "%s") order by number',
 		 Race::FIELDS, Race::TABLES,
-		 $this->id, $div);
+		 $this->id, $divs);
     $q = $this->query($q);
-    $races = array();
+    $this->races[$divs] = array();
 
     while ($race = $q->fetch_object("Race")) {
-      $races[] = $race;
+      $this->races[$divs][] = $race;
       $race->addListener($this);
     }
-    return $races;
+    return $this->races[$divs];
   }
 
   /**
@@ -399,28 +410,6 @@ class Regatta implements RaceListener, FinishListener {
     while ($obj = $r->fetch_object("Boat"))
       $list[] = $obj;
     return $list;
-  }
-
-  /**
-   * Returns an array of all the race objects in this regatta ordered
-   * by division and number within the division
-   *
-   * @return list of races in this regatta: (1A, 2A, 1B, 2B, ...)
-   *
-   */
-  private function getAllRaces() {
-    $q = sprintf('select %s from %s ' .
-		 'where regatta = "%s" ' .
-		 'order by division, number',
-		 Race::FIELDS, Race::TABLES,
-		 $this->id);
-    $q = $this->query($q);
-    $races = array();
-    while ($race = $q->fetch_object("Race")) {
-      $races[] = $race;
-      $race->addListener($this);
-    }
-    return $races;
   }
 
   /**
