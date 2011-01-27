@@ -28,8 +28,10 @@ class UpdateRegatta {
     $dirname = "$R/$season/" . $reg->get(Regatta::NICK_NAME);
     if (is_dir($dirname) && $dir = @opendir($dirname)) {
       // Delete contents of dir
-      while (false !== ($file = readdir($dir)))
-	@unlink(sprintf('%s/%s', $dirname, $file));
+      while (false !== ($file = readdir($dir))) {
+	if ($file != '.' && $file != '..')
+	  @unlink(sprintf('%s/%s', $dirname, $file));
+      }
       // Delete directory
       closedir($dir);
       rmdir($dirname);
