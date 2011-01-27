@@ -5,7 +5,6 @@
  * @version 2.0
  * @package scripts
  */
-require_once('../conf.php');
 
 /**
  * Pulls information from the ICSA database and updates the local
@@ -124,15 +123,19 @@ class UpdateSailorsDB {
 	  $school_id = (string)$sailor->school;	  
 	  if (!isset($schools[$school_id]))
 	    $schools[$school_id] = Preferences::getSchool($school_id);
-	  
-	  $s->school = $schools[$school_id];
-	  $s->last_name  = $this->con->real_escape_string($sailor->last_name);
-	  $s->first_name = $this->con->real_escape_string($sailor->first_name);
-	  $s->year = (int)$sailor->year;
 
-	  $this->updateSailor($s);
+	  if ($schools[$school_id] !== null) {
+	    $s->school = $schools[$school_id];
+	    $s->last_name  = $this->con->real_escape_string($sailor->last_name);
+	    $s->first_name = $this->con->real_escape_string($sailor->first_name);
+	    $s->year = (int)$sailor->year;
+
+	    $this->updateSailor($s);
+	  }
+	  else
+	    $this->warnings[$school_id] = "Missing school $school_id.";
 	} catch (Exception $e) {
-	  $warnings[] = "Invalid sailor information: " . str_replace("\n", "/", print_r($sailor, true));
+	  $this->warnings[] = "Invalid sailor information: " . str_replace("\n", "/", print_r($sailor, true));
 	}
       }
     }
@@ -167,8 +170,23 @@ class UpdateSailorsDB {
   }
 }
 
-if (isset($argv) && basename(__FILE__) == $argv[0]) {
+if (isset($argv) && basename(__FILE__) == basename($argv[0])) {
+  ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
+  require_once('conf.php');
+  
   $db = new UpdateSailorsDB();
   $db->update();
+  $err = $db->errors();
+  if (count($err) > 0) {
+    echo "----------Error(s)\n";
+    foreach ($err as $mes)
+      printf("  %s\n", $mes);
+  }
+  $err = $db->warnings();
+  if (count($err) > 0) {
+    echo "----------Warning(s)\n";
+    foreach ($err as $mes)
+      printf("  %s\n", $mes);
+  }
 }
 ?>

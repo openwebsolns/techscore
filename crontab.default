@@ -18,4 +18,8 @@
 13 7,15,23 * * * /usr/bin/php {DIRECTORY}/lib/scripts/UpdateBurgee.php
 
 #--------------------------------
-# @TODO: Other updates like sailor database, backups, etc
+# Update sailor information: do this every day around 5AM
+18 4 * * * /usr/bin/php {DIRECTORY}/lib/scripts/UpdateSailorsDB.php
+
+#--------------------------------
+# @TODO: Other updates like backups, etc
