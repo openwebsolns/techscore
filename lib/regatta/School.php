@@ -18,7 +18,7 @@ class School {
   public $id;
   public $nick_name;
   public $name;
-  public $conference;
+  protected $conference;
   public $city;
   public $state;
 
@@ -36,12 +36,18 @@ class School {
    * Used to retrieve the burgee intelligently.
    */
   public function __get($name) {
-    if ($name != "burgee")
-      throw new InvalidArgumentException("No such property in School: $name.");
-    // attempt to fetch it
-    if ($this->burgee === false)
-      $this->burgee = Preferences::getBurgee($this);
-    return $this->burgee;
+    if ($name == 'conference') {
+      if (!($this->conference instanceof Conference))
+	$this->conference = Preference::getConnection($this->conference);
+      return $this->conference;
+    }
+    if ($name == "burgee") {
+      // attempt to fetch it
+      if ($this->burgee === false)
+	$this->burgee = Preferences::getBurgee($this);
+      return $this->burgee;
+    }
+    throw new InvalidArgumentException("No such property in School: $name.");
   }
   public function __set($name, $value) {
     if ($name != "burgee")

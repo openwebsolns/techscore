@@ -286,7 +286,6 @@ class Preferences {
       return null;
     }
     $s = $q->fetch_object("School");
-    $s->conference = self::getConference($s->conference);
     return $s;
   }
 
