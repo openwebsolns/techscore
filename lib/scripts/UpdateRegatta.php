@@ -25,6 +25,8 @@ class UpdateRegatta {
   public static function runDelete(Regatta $reg) {
     $R = realpath(dirname(__FILE__).'/../../html');
     $season = $reg->get(Regatta::SEASON);
+    if ($season === null)
+      return;
     $dirname = "$R/$season/" . $reg->get(Regatta::NICK_NAME);
     if (is_dir($dirname) && $dir = @opendir($dirname)) {
       // Delete contents of dir
