@@ -47,7 +47,7 @@ class Sailor {
 		    $this->first_name,
 		    $this->last_name,
 		    $year);
-    if (!$this->registered)
+    if (!$this->__get('registered'))
       $name .= " *";
     return stripslashes($name);
   }

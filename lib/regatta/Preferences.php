@@ -434,8 +434,8 @@ class Preferences {
   public static function addTempSailor(Sailor $sailor) {
     $con = self::getConnection();
     $q = sprintf('insert into sailor ' .
-		 '(school, first_name, last_name, year, registered) values ' .
-		 '("%s", "%s", "%s", "%s", "0")',
+		 '(school, first_name, last_name, year) values ' .
+		 '("%s", "%s", "%s", "%s")',
 		 $sailor->school->id,
 		 $sailor->first_name,
 		 $sailor->last_name,
