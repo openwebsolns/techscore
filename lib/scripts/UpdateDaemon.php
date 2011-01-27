@@ -101,8 +101,10 @@ class UpdateDaemon {
 	  unset($actions[$last->activity]);
 	  try {
 	    $reg = new Regatta($id);
-	    if ($last->activity == UpdateRequest::ACTIVITY_SCORE)
+	    if ($last->activity == UpdateRequest::ACTIVITY_SCORE) {
+	      UpdateRegatta::runSync($reg);
 	      UpdateRegatta::runScore($reg);
+	    }
 	    elseif ($last->activity == UpdateRequest::ACTIVITY_ROTATION)
 	      UpdateRegatta::runRotation($reg);
 	    elseif ($last->activity == UpdateRequest::ACTIVITY_SYNC)
