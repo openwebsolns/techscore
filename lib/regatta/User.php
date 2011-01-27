@@ -158,9 +158,9 @@ class User {
     $q = sprintf('select %s from %s ', RegattaSummary::FIELDS, RegattaSummary::TABLES);
     if ($this->get(User::ADMIN) == 0) // not admin
       $q .= sprintf('inner join host on (regatta.id = host.regatta) ' .
-		    'where host.account = "%s" order by start_time desc ',
+		    'where host.account = "%s" ',
 		    $this->username);
-    $q .= $limit;
+    $q .= "order by start_time desc $limit";
     $q = Preferences::query($q);
     $list = array();
     while ($obj = $q->fetch_object("RegattaSummary"))
