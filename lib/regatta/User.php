@@ -169,6 +169,22 @@ class User {
   }
 
   /**
+   * Determines whether the given regatta is in this user's scoring
+   * jurisdiction
+   *
+   * @param Regatta $reg the regatta to check
+   */
+  public function hasJurisdiction(Regatta $reg) {
+    if ($this->get(User::ADMIN) > 0) return true;
+    $q = sprintf('select * from host where (account, regatta) = ("%s", %d) limit 1',
+		 $this->username(), $reg->id());
+    $q = Preferences::query($q);
+    $r = ($q->num_rows > 0);
+    $q->free();
+    return $r;
+  }
+
+  /**
    * Returns just the number of regattas this user is registered as a
    * scorer
    *

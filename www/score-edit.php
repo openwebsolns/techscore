@@ -29,12 +29,17 @@ catch (Exception $e) {
 if (!isset($_REQUEST['reg']) || !is_numeric($_REQUEST['reg'])) {
   WebServer::go('/');
 }
-$reg_id = (int)$_REQUEST['reg'];
-if (!Preferences::getObjectWithProperty($USER->getRegattas(), "id", $reg_id)) {
+try {
+  $REG = new Regatta((int)$_REQUEST['reg']);
+}
+catch (Exception $e) {
+  $_SESSION['ANNOUNCE'][] = new Announcement("No such regatta.", Announcement::WARNING);
+  WebServer::go('/');
+}
+if (!$USER->hasJurisdiction($REG)) {
   // No jurisdiction
   WebServer::go('/');
 }
-$REG = new Regatta($reg_id);
 
 //
 // Content
