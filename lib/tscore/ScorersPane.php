@@ -72,8 +72,14 @@ class ScorersPane extends AbstractPane {
     // Conferences
     //   -Get chosen_conference
     $chosen_conf = (isset($args['conference'])) ? 
-      $args['conference'] : 
+      Preferences::getConference($args['conference']) : 
       $this->USER->get(User::SCHOOL)->conference;
+
+    if ($chosen_conf === null) {
+      $this->announce(new Announcement("Invalid conference chosen. Defaulting to your own.", Announcement::WARNING));
+      $chosen_conf = $this->USER->get(User::SCHOOL)->conference;
+    }
+      
 
     $confs = array();
     foreach (Preferences::getConferences() as $conf)
