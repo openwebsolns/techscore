@@ -81,7 +81,7 @@ class SailsPane extends AbstractPane {
     $i = 1;
     if (count($divisions) == 1) {
       foreach ($teams as $team) {
-	$name = sprintf("%s,%s", $div, $team->id);
+	$name = sprintf("%s,%s", $divisions[0], $team->id);
 	$tab->addRow(new Row(array(Cell::th($team),
 				   new Cell(new FText($name, $i++,
 						      array("size"=>"2"))))));
