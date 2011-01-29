@@ -163,8 +163,8 @@ class Rotation {
    * @param Sail $sail the sail to commit
    */
   public function setSail(Sail $sail) {
-    $q = sprintf('replace into rotation (race, team, sail) values ("%s", "%s", "%s")',
-		 $sail->race->id, $sail->team->id, $sail->sail);
+    $q = sprintf('insert into rotation (race, team, sail) values ("%s", "%s", "%s") on duplicate key update sail="%s"',
+		 $sail->race->id, $sail->team->id, $sail->sail, $sail->sail);
     $this->regatta->query($q);
   }
 
@@ -235,7 +235,6 @@ class Rotation {
       // enforce correspondence between division and races
       if ($num_divisions != $num_races)
 	throw new InvalidArgumentException("The list of divisions must be of the same size as the list of races.");
-
       $table = $this->createStandardTable($sails, $num_races, $repeats, $updir);
       foreach ($races as $r => $num) {
 	$race = $this->regatta->getRace($divisions[$r], $num);
