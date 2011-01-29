@@ -7,6 +7,9 @@
    * @created 2009-10-04
    */
 
+// attempt to make files easier to find
+ini_set('include_path', sprintf('.:%s:%s', dirname(__FILE__), get_include_path()));
+
 define("TS_PATH", dirname(__FILE__));
 function __autoload($name) {
   $dirs = explode(":", TS_PATH);
