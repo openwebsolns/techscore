@@ -114,13 +114,7 @@ class Regatta implements RaceListener, FinishListener {
 
       $this->properties[Regatta::DURATION] = $duration;
 
-      // Venue
-      $this->properties[Regatta::VENUE] =
-	Preferences::getVenue($this->properties[Regatta::VENUE]);
-
-      // Season
-      $this->properties[Regatta::SEASON] = new Season($this->properties[Regatta::START_TIME]);
-
+      // Venue and Season shall not be serialized until they are requested
       // Finalized
       if (($p = $this->properties[Regatta::FINALIZED]) !== null)
 	$this->properties[Regatta::FINALIZED] = new DateTime($p);
@@ -145,6 +139,16 @@ class Regatta implements RaceListener, FinishListener {
     if (!array_key_exists($property, $this->properties)) {
       $m = "Property $property not supported in regattas.";
       throw new InvalidArgumentException($m);
+    }
+    if ($property == Regatta::VENUE) {
+      if ($this->property[$property] !== null &&
+	  !($this->property[$property] instanceof Venue))
+	$this->properties[$property] = Preferences::getVenue($this->properties[$property]);
+    }
+    elseif ($property == Regatta::SEASON) {
+      if ($this->property[$property] !== null &&
+	  !($this->property[$property] instanceof Season))
+	$this->properties[$property] = new Season($this->properties[$property]);
     }
     return $this->properties[$property];
   }
