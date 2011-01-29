@@ -476,12 +476,8 @@ class Rotation {
                     inner join (select 
                                   r2.id as race, 
                                   r1.id as old_race 
-                                from (select * from race
-                                       inner join race_num using (id)
-                                     ) as r1
-                                inner join (select * from race
-                                       inner join race_num using (id)
-                                     ) as r2
+                                from (select * from race) as r1
+                                inner join (select * from race) as r2
                                 using (regatta, number)
                                 where (r1.regatta, r1.division) =
                                   ("%s", "%s")
