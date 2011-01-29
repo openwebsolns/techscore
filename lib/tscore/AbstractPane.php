@@ -57,20 +57,10 @@ abstract class AbstractPane {
 		     $this->name,
 		     $this->REGATTA->get(Regatta::NAME));
 
-    $this->PAGE = new EditRegattaPage($title, $this->USER, $this->REGATTA);
+    $this->PAGE = new TScorePage($title, $this->USER, $this->REGATTA);
     $this->PAGE->addContent(new PageTitle($this->name));
 
-    // Header
-    //   -User info
-    $title = ucfirst(sprintf("%s at %s",
-			     $this->USER->get(User::ROLE),
-			     $this->USER->get(User::SCHOOL)->nick_name));
-    $this->PAGE->addNavigation($d3 = new Div(array(), array("id"=>"user")));
-    // $d3->addChild(new Text($this->USER->getName()));
-    $d3->addChild(new Link("logout", "[logout]"));
-    $d3->addChild(new Itemize(array(new LItem($this->USER->username()),
-				    new LItem($title))));
-
+    /*
     //   -Regatta info
     $this->PAGE->addNavigation($d3 = new Div(array(), array("id"=>"regatta")));
     $d3->addChild(new Text(stripslashes($this->REGATTA->get(Regatta::NAME))));
@@ -78,9 +68,71 @@ abstract class AbstractPane {
     $d3->addChild(new Itemize(array(new LItem(date_format($this->REGATTA->get(Regatta::START_TIME),
 							  "M. j, Y")),
 				    new LItem(ucfirst($this->REGATTA->get(Regatta::TYPE))))));
+    */
 
+    // ------------------------------------------------------------
+    // Menu
+    $score_i = array("Regatta"   => array(new DetailsPane($this->USER, $this->REGATTA),
+					  new SummaryPane($this->USER, $this->REGATTA),
+					  new ScorersPane($this->USER, $this->REGATTA),
+					  new RacesPane($this->USER, $this->REGATTA),
+					  new TeamsPane($this->USER, $this->REGATTA),
+					  new NotesPane($this->USER, $this->REGATTA)),
+		     "Rotations" => array(new SailsPane($this->USER, $this->REGATTA),
+					  new TweakSailsPane($this->USER, $this->REGATTA),
+					  new ManualTweakPane($this->USER, $this->REGATTA)),
+		     "RP Forms"  => array(new RpEnterPane($this->USER, $this->REGATTA),
+					  new UnregisteredSailorPane($this->USER, $this->REGATTA)),
+		     "Finishes"  => array(new EnterFinishPane($this->USER, $this->REGATTA),
+					  new DropFinishPane($this->USER, $this->REGATTA)),
+		     "Penalties" => array(new EnterPenaltyPane($this->USER, $this->REGATTA),
+					  new DropPenaltyPane($this->USER, $this->REGATTA),
+					  new TeamPenaltyPane($this->USER, $this->REGATTA)));
+
+
+    $dial_i  = array("rotation" => "Rotation",
+		     "scores"   => "Scores",
+		     "sailors"  => "Sailors");
+
+    // Fill panes menu
+    $id = $this->REGATTA->id();
+    foreach ($score_i as $title => $panes) {
+      $menu = new Div();
+      $menu->addAttr("class", "menu");
+      $menu->addChild(new Heading($title));
+      $menu->addChild($m_list = new GenericList());
+      foreach ($panes as $pane) {
+	$url = $pane->getMainURL();
+	// if ($pane->isActive())
+	$m_list->addItems(new LItem(new Link("/score/$id/$url", $pane->getTitle())));
+	// else
+	// $m_list->addItems(new LItem($pane->getTitle(), array("class"=>"inactive")));
+      }
+      $this->PAGE->addMenu($menu);
+    }
+
+    // Downloads
+    $menu = new Div();
+    $menu->addAttr("class", "menu");
+    $menu->addChild(new Heading("Download"));
+    $menu->addChild($m_list = new GenericList());
+    $m_list->addItems(new LItem(new Link("/download/$id/regatta", "Regatta")));
+    $m_list->addItems(new LItem(new Link("/download/$id/rp", "RP Forms")));
+    $this->PAGE->addMenu($menu);
+
+    // Dialogs
+    $menu = new Div();
+    $menu->addAttr("class", "menu");
+    $menu->addChild(new Heading("Windows"));
+    $menu->addChild($m_list = new GenericList());
+    foreach ($dial_i as $url => $title) {
+      $link = new Link("/view/$id/$url", $title);
+      $link->addAttr("class", "frame-toggle");
+      $link->addAttr("target", "_blank");
+      $m_list->addItems(new LItem($link));
+    }
+    $this->PAGE->addMenu($menu);
   }
-
 
   /**
    * Add the announcements saved in session
@@ -156,7 +208,7 @@ abstract class AbstractPane {
   /**
    * Children of this class must implement this method to be used when
    * displaying the page. The method should fill the protected
-   * variable $PAGE, which is an instance of EditRegattaPage
+   * variable $PAGE, which is an instance of TScorePage
    *
    * @param Array $args arguments to customize the display of the page
    */

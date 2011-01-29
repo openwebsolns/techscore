@@ -78,13 +78,6 @@ class WelcomePage extends TScorePage {
      account for TechScore, you can <a href="./register">register
      here</a>.';
     $p->addChild(new Para($str));
-
-    // Process announcements
-    if (isset($_SESSION['ANNOUNCE'])) {
-      foreach ($_SESSION['ANNOUNCE'] as $mes) {
-	$this->addAnnouncement(new Announcement($mes, Announcement::WARNING));
-      }
-    }
   }
 }
 

@@ -33,9 +33,11 @@ class TScorePage extends WebPage {
    * Creates a new page with the given title
    *
    * @param String $title the title of the page
-   * @param Regatta $reg the regatta in question
+   * @param User $user the possible logged-in user
+   * @param Regatta $reg the possible regatta in use. This affects the
+   * menu that is displayed.
    */
-  public function __construct($title) {
+  public function __construct($title, User $user = null, Regatta $reg = null) {
     parent::__construct();
     $this->mobile = $this->isMobile();
 
@@ -54,7 +56,7 @@ class TScorePage extends WebPage {
 
     // Header
     $this->header->addAttr("id", "headdiv");
-    $this->fillPageHeader();
+    $this->fillPageHeader($user, $reg);
 
     // Content
     $this->addBody($this->content = new Div());
@@ -155,7 +157,7 @@ class TScorePage extends WebPage {
    * Creates the header of this page
    *
    */
-  private function fillPageHeader() {
+  private function fillPageHeader(User $user = null, Regatta $reg = null) {
     $this->header->addChild($div = new Div());
     $div->addAttr("id", "header");
     $div->addChild($g = new GenericElement("h1"));
@@ -172,6 +174,18 @@ class TScorePage extends WebPage {
 					 array("id"=>"help",
 					       "target"=>"help",
 					       "accesskey"=>"h")));
+    if ($user !== null) {
+      $this->navigation->addChild($d3 = new Div(array(), array("id"=>"user")));
+      $d3->addChild(new Link("/logout", "[logout]"));
+      $d3->addChild(new Itemize(array(new LItem($user->username()))));
+    }
+    if ($reg !== null) {
+      $this->navigation->addChild($d3 = new Div(array(), array("id"=>"regatta")));
+      $d3->addChild(new Text($reg->get(Regatta::NAME)));
+      $d3->addChild(new Link("/", "[close]", array("accesskey"=>"w")));
+      $d3->addChild(new Itemize(array(new LItem($reg->get(Regatta::START_TIME)->format("M. j, Y")),
+				      new LItem(ucfirst($reg->get(Regatta::TYPE))))));
+    }
   }
 
   /**

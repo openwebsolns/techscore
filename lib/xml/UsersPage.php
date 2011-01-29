@@ -22,7 +22,7 @@ class UsersPage extends TScorePage {
    * @param User $user the user whose page to load
    */
   public function __construct($title, User $user) {
-    parent::__construct($title);
+    parent::__construct($title, $user);
     $this->user = $user;
     $this->fillMenu();
   }
@@ -74,8 +74,7 @@ class UsersPage extends TScorePage {
     $div->addChild($list = new GenericList());
     $list->addItems(new LItem(new Link("/",      "My regattas")),
 		    new LItem(new Link("/create", "New regatta", array("accesskey"=>"n"))),
-		    new LItem(new Link("/account","My account")),
-		    new LItem($l = new Link("/logout", "Logout", array("accesskey"=>"l"))));
+		    new LItem(new Link("/account","My account")));
 
     // School setup
     $this->addMenu($div = new Div());
