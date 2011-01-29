@@ -188,10 +188,13 @@ class RacesPane extends AbstractPane {
 	  }
 	}
 
-	// Remove
+	// Remove (from the end, of course!)
 	for ($i = $cur_races; $i > $num_races; $i--) {
 	  foreach ($cur_divisions as $div) {
-	    $this->REGATTA->removeRace($this->REGATTA->getRace($div, $i));
+	    $race = new Race();
+	    $race->division = $div;
+	    $race->number = $i;
+	    $this->REGATTA->removeRace($race);
 	  }
 	}
       }

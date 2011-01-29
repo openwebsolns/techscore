@@ -466,17 +466,30 @@ class Regatta implements RaceListener, FinishListener {
   }
 
   /**
-   * Removes the specific race from this regatta. Note that the race
-   * is removed by ID, and due to the nature of race objects, that may
-   * mean that other races' numbers will be affected as a result. In
-   * general, it is a good idea to remove races from the end first.
+   * Removes the specific race from this regatta. Note that in this
+   * version, the race is removed by regatta, division, number
+   * identifier instead of by ID. This means that it is not necessary
+   * to first serialize the race object in order to remove it from the
+   * database.
+   *
+   * It is the client code's responsibility to make sure that there
+   * aren't any empty race numbers in the middle of a division, as
+   * this could have less than humorous results in the rest of the
+   * application.
    *
    * @param Race $race the race to remove
+   * @return boolean true if something was removed.
    */
   public function removeRace(Race $race) {
-    $this->query(sprintf('delete from race where id = %d', $race->id));
-    if (isset($this->races[(string)$race->division]))
-      unset($this->races[(string)$race->division]);
+    $this->query(sprintf('delete from race where (regatta, division, number) = (%d, "%s", %d)',
+			 $this->id, $race->division, $race->number));
+    $con = Preferences::getConnection();
+    if ($con->affected_rows > 0) {
+      if (isset($this->races[(string)$race->division]))
+	unset($this->races[(string)$race->division]);
+      return true;
+    }
+    return false;
   }
 
   /**
