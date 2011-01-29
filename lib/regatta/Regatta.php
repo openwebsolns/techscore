@@ -141,13 +141,13 @@ class Regatta implements RaceListener, FinishListener {
       throw new InvalidArgumentException($m);
     }
     if ($property == Regatta::VENUE) {
-      if ($this->property[$property] !== null &&
-	  !($this->property[$property] instanceof Venue))
+      if ($this->properties[$property] !== null &&
+	  !($this->properties[$property] instanceof Venue))
 	$this->properties[$property] = Preferences::getVenue($this->properties[$property]);
     }
     elseif ($property == Regatta::SEASON) {
-      if ($this->property[$property] !== null &&
-	  !($this->property[$property] instanceof Season))
+      if ($this->properties[$property] !== null &&
+	  !($this->properties[$property] instanceof Season))
 	$this->properties[$property] = new Season($this->properties[$property]);
     }
     return $this->properties[$property];
