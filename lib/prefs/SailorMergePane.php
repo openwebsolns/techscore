@@ -12,7 +12,7 @@
  * @author Dayan Paez
  * @created 2009-10-14
  */
-class SailorMergePane extends AbstractPrefsPane {
+class SailorMergePane extends AbstractUserPane {
 
   /**
    * Creates a new editor for the specified school

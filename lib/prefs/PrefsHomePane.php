@@ -11,7 +11,7 @@
  * @author Dayan Paez
  * @created 2009-10-14
  */
-class PrefsHomePane extends AbstractPrefsPane {
+class PrefsHomePane extends AbstractUserPane {
 
   /**
    * Creates a new editor for the specified school

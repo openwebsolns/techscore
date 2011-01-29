@@ -11,7 +11,7 @@
  * @author Dayan Paez
  * @created 2009-10-14
  */
-class EditLogoPane extends AbstractPrefsPane {
+class EditLogoPane extends AbstractUserPane {
 
   /**
    * Creates a new editor for the specified school
