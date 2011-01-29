@@ -137,13 +137,16 @@ class NewRegattaPane extends AbstractUserPane {
 
 	$reg->addScorer($this->USER->asAccount(), true);
 	$divs = array_values(Division::getAssoc());
+	$boat = Preferences::getPreferredBoat($this->USER->get(User::SCHOOL));
 	for ($i = 0; $i < $args['num_divisions']; $i++) {
 	  $div = $divs[$i];
 	  for ($j = 1; $j <= $args['num_races']; $j++) {
 	    $race = new Race();
 	    $race->division = $div;
-	    $race->boat = Preferences::getPreferredBoat($this->USER->get(User::SCHOOL));
-	    $reg->addRace($race);
+	    $race->boat = $boat;
+	    $race->number = $j;
+	    
+	    $reg->setRace($race);
 	  }
 	}
       } catch (InvalidArgumentException $e) {

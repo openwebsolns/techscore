@@ -159,7 +159,8 @@ class RacesPane extends AbstractPane {
 	    $race = new Race();
 	    $race->division = $div;
 	    $race->boat = $boat;
-	    $this->REGATTA->addRace($race);
+	    $race->number = ($j + 1);
+	    $this->REGATTA->setRace($race);
 	  }
 	}
 
@@ -177,13 +178,13 @@ class RacesPane extends AbstractPane {
 	  return $args;
 	}
 	// Add
-	
 	for ($i = $cur_races; $i < $num_races; $i++) {
 	  foreach ($cur_divisions as $div) {
 	    $race = new Race();
 	    $race->division = $div;
 	    $race->boat = $boat;
-	    $this->REGATTA->addRace($race);
+	    $race->number = ($i + 1);
+	    $this->REGATTA->setRace($race);
 	  }
 	}
 

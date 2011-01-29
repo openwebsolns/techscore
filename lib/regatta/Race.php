@@ -25,34 +25,18 @@ class Race {
   private $boat;
   private $_notify = array();
 
-  /**
-   * Temporary property
-   */
-  private $boat_name;
-  /**
-   * Temporary property
-   */
-  private $boat_occupants;
-
-
   // Race fields
-  const FIELDS = "race.id, race.division, race_num.number, 
-                  boat.id as boat, boat.name as boat_name, 
-                  boat.occupants as boat_occupants";
-  const TABLES = "race inner join race_num using(id) inner join boat on race.boat = boat.id";
+  const FIELDS = "race.id, race.division, race.number, race.boat";
+  const TABLES = "race";
 
-  public function __construct() {
-    $boat = new Boat();
-    $boat->id = $this->boat;
-    $boat->name = $this->boat_name;
-    $boat->occupants = (int)$this->boat_occupants;
-
-    $this->boat = $boat;
-
-    unset($this->boat_name, $this->boat_occupants);
-  }
+  public function __construct() {}
 
   public function __get($name) {
+    if ($name == "boat") {
+      if ($this->boat !== null && !($this->boat instanceof Boat))
+	$this->boat = Preferences::getBoat($this->boat);
+      return $this->boat;
+    }
     if (isset($this->$name))
       return $this->$name;
     throw new InvalidArgumentException(sprintf("Invalid Race property (%s).", $name));
@@ -66,6 +50,12 @@ class Race {
 
     case "boat":
       $this->setBoat($value);
+      break;
+
+    case "number":
+      if ($value <= 0)
+	throw new BadFunctionCallException("Race number must be positive.");
+      $this->number = (int)$value;
       break;
 
     default:

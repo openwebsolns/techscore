@@ -380,6 +380,7 @@ class RegattaIO {
 	  $race = new Race();
 	  $race->division = $d;
 	  $race->boat     = $b;
+	  $race->number   = $num;
 	  $race_list[$div][$num - 1] = $race;
 	}
       } catch (Exception $e) {
@@ -389,7 +390,7 @@ class RegattaIO {
     // At this point, all the boats should be in the list
     foreach ($race_list as $list) {
       foreach ($list as $race)
-	$regatta->addRace($race);
+	$regatta->setRace($race);
     }
 
     // ------------------------------------------------------------

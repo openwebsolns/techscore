@@ -444,16 +444,24 @@ class Regatta implements RaceListener, FinishListener {
   }
 
   /**
-   * Adds the specified race to this regatta. This operation always
-   * results in new races being created. The 'id' and 'number'
-   * property of the Race object is ignored.
+   * Adds the specified race to this regatta. Unlike in previous
+   * versions, the user needs to specify the race number. As a result,
+   * if the race already exists, the code will attempt to update the
+   * race instead of adding a new one.
    *
-   * @param Race $race the new race to register with this regatta
+   * @param Race $race the race to register with this regatta
    */
-  public function addRace(Race $race) {
-    $q = sprintf('insert into race (regatta, division, boat) ' .
-		 'values ("%s", "%s", "%s")',
-		 $this->id, $race->division, $race->boat->id);
+  public function setRace(Race $race) {
+    $q = sprintf('insert ignore into race (regatta, division, boat, number) ' .
+		 'values ("%s", "%s", "%s", %d)',
+		 $this->id, $race->division, $race->boat->id, $race->number);
+    $this->query($q);
+    $con = Preferences::getConnection();
+    if ($con->affected_rows > 0) return;
+
+    // attempt to update, because one already exists!
+    $q = sprintf('update race set boat = "%s" where (regatta, division, number) = (%d, "%s", %d)',
+		 $race->boat->id, $this->id, $race->division, $race->number);
     $this->query($q);
   }
 

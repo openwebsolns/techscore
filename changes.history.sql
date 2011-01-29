@@ -47,3 +47,9 @@ alter table school change column conference conference varchar(8) not null;
 update school, conference set school.conference = conference.id where school.conference = conference.old_id;
 alter table school add foreign key (conference) references conference(id) on delete cascade on update cascade;
  alter table conference drop column old_id, drop column nick;
+
+-- make races better to avoid joins --
+alter table race drop column wind_mph, drop column wind_gust_mph, drop column wind_dir, drop column temp_f;
+alter table race add column number tinyint unsigned not null after division;
+update race, race_num set race.number = race_num.number where race.id = race_num.id;
+alter table race add unique key (regatta, division, number);
