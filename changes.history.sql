@@ -53,3 +53,6 @@ alter table race drop column wind_mph, drop column wind_gust_mph, drop column wi
 alter table race add column number tinyint unsigned not null after division;
 update race, race_num set race.number = race_num.number where race.id = race_num.id;
 alter table race add unique key (regatta, division, number);
+
+-- fix issues with rp --
+alter table rp drop foreign key rp_ibfk_3;

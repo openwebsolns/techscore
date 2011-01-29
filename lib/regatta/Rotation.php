@@ -501,20 +501,8 @@ class Rotation {
    * @param int  $amount the amount to add/subtract
    */
   public function addAmount(Race $race, $amount) {
-    // 1. Create temp table with current rotation
-    // 2. Insert into temp the augmented version of current rotation
-    // 3. Replace the current rotation with the temp values
-    $q1 = 'create temporary table if not exists rot_temp (race int(7), team int(7), sail int(4))';
-    $q2 = 'delete from rot_temp';
-    $q3 = sprintf('insert into rot_temp (select race, team, (sail + (%d)) from rotation ' .
-		  'where race = "%s")',
-		  $amount, $race->id);
-    $q4 = sprintf('replace into rotation (select race, team, sail from rot_temp)');
-
-    $this->regatta->query($q1);
-    $this->regatta->query($q2);
-    $this->regatta->query($q3);
-    $this->regatta->query($q4);
+    $q = sprintf('update rotation set sail = (sail + %d) where race = "%s"', $amount, $race->id);
+    $this->regatta->query($q);
   }
 
   /**

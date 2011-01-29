@@ -46,7 +46,8 @@ class TweakSailsPane extends AbstractPane {
     // the tweaking process
     if (!isset($args['edittype']) ||
 	!in_array($args['edittype'], array_keys($this->ACTIONS))) {
-      
+
+      $edittype = "ADD";
       // ------------------------------------------------------------
       // 1. Select edit type
       // ------------------------------------------------------------
