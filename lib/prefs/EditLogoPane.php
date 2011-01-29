@@ -26,7 +26,7 @@ class EditLogoPane extends AbstractPrefsPane {
    * Sets up the page
    *
    */
-  public function fillHTML() {
+  public function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new Port("School logo"));
     $p->addChild(new Para("Use this function to upload a new logo to use " .
 			  "with your school. This logo will replace all " .

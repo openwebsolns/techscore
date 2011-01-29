@@ -17,13 +17,7 @@ __autoload("XmlLibrary");
  * AbstractPane defined for editing regatta pages
  *
  */
-abstract class AbstractPrefsPane {
-
-  // Private variables
-  private $name;
-  protected $USER;
-  protected $SCHOOL;
-  protected $PAGE;
+abstract class AbstractPrefsPane extends AbstractUserPane {
 
   /**
    * Create a new preferences editing pane with the given name
@@ -33,9 +27,7 @@ abstract class AbstractPrefsPane {
    * @param School $school the school for this page
    */
   public function __construct($name, User $user, School $school) {
-    $this->name   = $name;
-    $this->USER   = $user;
-    $this->SCHOOL = $school;
+    parent::__construct($name, $user, $school);
   }
 
   /**
@@ -46,7 +38,11 @@ abstract class AbstractPrefsPane {
     $title = sprintf("%s | %s | TS",
 		     $this->name,
 		     $this->SCHOOL->name);
-    $this->PAGE = new UsersPage($title, $this->USER);
+    $this->PAGE = new TScorePage($title, $this->USER);
+
+    // ------------------------------------------------------------
+    // menu
+    
   }
 
   /**
@@ -54,6 +50,7 @@ abstract class AbstractPrefsPane {
    *
    * @return String HTML page
    */
+  /*
   public function getHTML() {
     $this->setupPage();
     $this->fillHTML();
@@ -66,15 +63,18 @@ abstract class AbstractPrefsPane {
     }
     return $this->PAGE->toHTML();
   }
+  */
 
   /**
    * Queues the given annnouncement
    *
    * @param Announcement $a the announcement
    */
+  /*
   protected function announce(Announcement $a) {
     $_SESSION['ANNOUNCE'][] = $a;
   }
+  */
 
   /**
    * Children of this class must implement this method to be used when
@@ -82,13 +82,17 @@ abstract class AbstractPrefsPane {
    * variable $PAGE, using possibly the page's content variable, $CON.
    *
    */
+  /*
   abstract protected function fillHTML();
+  */
 
   /**
    * Process the edits described in the EventArgs array.
    *
    * @param Array EventArgs the event arguments to process
    */
+  /*
   abstract public function process(Array $args);
+  */
 }
 ?>

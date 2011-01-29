@@ -27,7 +27,7 @@ class PrefsHomePane extends AbstractPrefsPane {
    * Sets up the page
    *
    */
-  public function fillHTML() {
+  public function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new Port(sprintf("Edit %s", $this->SCHOOL->nick_name)));
     $p->addChild(new Para("This is the portal for editing details about your school. " .
 			  "Navigate around using the menu to the left. When you are " .
@@ -63,9 +63,10 @@ class PrefsHomePane extends AbstractPrefsPane {
 	  $h->addCell(Cell::th($conf));
 	  $b->addCell(new Cell($list = new Itemize()));
 	  foreach (Preferences::getSchoolsInConference($conf) as $school) {
-	    if ($school != $this->SCHOOL)
+	    if ($school != $this->SCHOOL) {
 	      $link = sprintf("/prefs/%s", $school->id);
-	    $list->addItems(new LItem(new Link($link, $school->nick_name)));
+	      $list->addItems(new LItem(new Link($link, $school->nick_name)));
+	    }
 	  }
 	  $col++;
 	}

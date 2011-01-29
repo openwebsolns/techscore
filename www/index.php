@@ -11,9 +11,9 @@
 require_once("conf.php");
 session_start();
 
-//
-// Logged-in?
-//
+// ------------------------------------------------------------
+// Not logged-in?
+// ------------------------------------------------------------
 if (!(isset($_SESSION['user']))) {
   // Registration?
   if (isset($_GET['p']) && $_GET['p'] == "register") {
@@ -27,16 +27,22 @@ if (!(isset($_SESSION['user']))) {
   echo $PAGE->toHTML();
   exit;
 }
+
+// ------------------------------------------------------------
+// Invalid login?
+// ------------------------------------------------------------
 $USER = null;
 try {
   $USER = new User($_SESSION['user']);
 }
 catch (Exception $e) {
-  $w = new WelcomePage();
-  echo $w->toHTML();
-  return;
+  unset($_SESSION['user']);
+  WebServer::go('/');
 }
 
+// ------------------------------------------------------------
+// Process requested page
+// ------------------------------------------------------------
 $page = "home";
 if (isset($_REQUEST['p']))
   $page = $_REQUEST['p'];

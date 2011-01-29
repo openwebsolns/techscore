@@ -18,7 +18,8 @@ abstract class AbstractUserPane {
 
   protected $USER;
   protected $PAGE;
-  private $title;
+  protected $SCHOOL;
+  protected $title;
 
   /**
    * Creates a new User editing pane with the given title
@@ -26,9 +27,12 @@ abstract class AbstractUserPane {
    * @param String $title the title of the page
    * @param User $user the user to whom this applies
    */
-  public function __construct($title, User $user) {
+  public function __construct($title, User $user, School $school = null) {
     $this->title = (string)$title;
     $this->USER  = $user;
+    $this->SCHOOL = $school;
+    if ($this->SCHOOL === null)
+      $this->SCHOOL = $this->USER->get(User::SCHOOL);
   }
 
   /**
@@ -38,7 +42,49 @@ abstract class AbstractUserPane {
    * @return String the HTML code
    */
   public function getHTML(Array $args) {
-    $this->PAGE = new UsersPage($this->title, $this->USER);
+    $this->PAGE = new TScorePage($this->title, $this->USER);
+
+    // ------------------------------------------------------------
+    // menu
+    
+    // User Preferences
+    $this->PAGE->addMenu($div = new Div());
+    $div->addAttr("class", "menu");
+    $div->addChild(new Heading("TechScore"));
+    $div->addChild($list = new GenericList());
+    $list->addItems(new LItem(new Link("/",      "My regattas")),
+		    new LItem(new Link("/create", "New regatta", array("accesskey"=>"n"))),
+		    new LItem(new Link("/account","My account")));
+
+    // School setup
+    $S = $this->SCHOOL->id;
+    $this->PAGE->addMenu($div = new Div());
+    $div->addAttr("class", "menu");
+    $div->addChild(new Heading("My School"));
+    $div->addChild($list = new GenericList());
+    $list->addItems(new LItem(new Link("/prefs/$S",        "Instructions")),
+		    new LItem(new Link("/prefs/$S/logo",   "School logo")),
+		    new LItem(new Link("/prefs/$S/team",   "Team names")),
+		    new LItem(new Link("/prefs/$S/sailor", "Sailors")));
+    
+    // Messages
+    $this->PAGE->addMenu($div = new Div());
+    $div->addAttr("class", "menu");
+    $div->addChild(new Heading("Messages"));
+    $div->addChild($list = new GenericList());
+    $list->addItems(new LItem(new Link("/inbox", "Inbox")));
+
+    // Admin
+    if ($this->USER->get(User::ADMIN)) {
+      $this->PAGE->addMenu($div = new Div());
+      $div->addAttr("class", "menu");
+      $div->addChild(new Heading("Admin"));
+      $div->addChild($list = new GenericList());
+      $list->addItems(new LItem(new Link("/pending",   "Pending users")));
+      $list->addItems(new LItem(new Link("/venue",     "Venues")));
+      $list->addItems(new LItem(new Link("/edit-venue", "Add Venues")));
+      $list->addItems(new LItem(new Link("/boats",     "Boats")));
+    }
     $this->PAGE->addContent(new PageTitle($this->title));
     $this->fillHTML($args);
     return $this->PAGE->toHTML();

@@ -26,7 +26,7 @@ class TeamNamePrefsPane extends AbstractPrefsPane {
    * Sets up the page
    *
    */
-  public function fillHTML() {
+  public function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new Port("Choose teams"));
     $p->addChild(new Para("Edit the team names (mascot) that can be used for this school " .
 			  "in the regattas. <strong>TechScore</strong> allows you to choose " .

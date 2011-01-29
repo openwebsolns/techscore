@@ -86,5 +86,5 @@ else {
   }
 }
 
-print($PAGE->getHTML());
+print($PAGE->getHTML(array()));
 ?>

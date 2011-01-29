@@ -27,7 +27,7 @@ class SailorMergePane extends AbstractPrefsPane {
    * Sets up the page
    *
    */
-  public function fillHTML() {
+  public function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new Port("Merge temporary sailors"));
     $p->addChild(new Para("When a sailor is not found in the database, the scorers " .
 			  "can add the sailor temporarily. These temporary sailors " .
