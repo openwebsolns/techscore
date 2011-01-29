@@ -54,8 +54,8 @@ class RpManager {
    * @param Sailor $sailor the sailor
    */
   public function setRepresentative(Team $team, Sailor $sailor) {
-    $q = sprintf('replace into representative values ("%s", "%s")',
-		 $team->id, $sailor->id);
+    $q = sprintf('insert into representative values ("%s", "%s") on duplicate key update sailor = "%s"',
+		 $team->id, $sailor->id, $sailor->id);
     $this->regatta->query($q);
   }
 
@@ -72,11 +72,10 @@ class RpManager {
   public function getRP(Team $team, Division $div, $role) {
     $role = RP::parseRole($role);
     $q = sprintf('select rp.sailor, ' .
-		 'group_concat(race_num.number ' .
-		 '             order by race_num.number ' .
+		 'group_concat(race.number ' .
+		 '             order by race.number ' .
 		 '             separator ",") as races_nums ' .
 		 'from race ' .
-		 'inner join race_num using (id) ' .
 		 'inner join rp on (race.id = rp.race) ' .
 		 'where rp.team       = "%s" ' .
 		 '  and race.division = "%s" ' .
@@ -109,7 +108,7 @@ class RpManager {
     foreach ($rp->races_nums as $num) {
       try {
 	$race = $this->regatta->getRace($rp->division, $num);
-	$q = sprintf('replace into rp (race, sailor, team, boat_role) values ("%s", "%s", "%s", "%s")',
+	$q = sprintf('insert into rp (race, sailor, team, boat_role) values ("%s", "%s", "%s", "%s")',
 		     $race->id,
 		     $rp->sailor->id,
 		     $rp->team->id,
@@ -120,7 +119,7 @@ class RpManager {
   }
 
   public function updateLog() {
-    $q = sprintf('replace into rp_log (regatta) values (%d)', $this->regatta->id());
+    $q = sprintf('insert into rp_log (regatta) values (%d)', $this->regatta->id());
     $this->regatta->query($q);
   }
 
@@ -259,8 +258,8 @@ class RpManager {
    * @param mixed $data the file contents
    */
   public function setForm($data) {
-    $q = sprintf('replace into rp_form (regatta, filedata) values (%d, "%s")',
-		 $this->regatta->id(), base64_encode($data));
+    $q = sprintf('insert into rp_form (regatta, filedata) values (%d, "%1$s") on duplicate key update filedata = "%2$s", created_at = "%3$s"',
+		 $this->regatta->id(), base64_encode($data), date('Y-m-d H:i:s'));
     $this->regatta->query($q);
   }
 
