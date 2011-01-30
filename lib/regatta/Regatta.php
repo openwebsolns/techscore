@@ -114,7 +114,10 @@ class Regatta implements RaceListener, FinishListener {
 
       $this->properties[Regatta::DURATION] = $duration;
 
-      // Venue and Season shall not be serialized until they are requested
+      // Venue and Season shall not be serialized until they are
+      // requested
+      $this->properties[Regatta::SEASON] = null;
+
       // Finalized
       if (($p = $this->properties[Regatta::FINALIZED]) !== null)
 	$this->properties[Regatta::FINALIZED] = new DateTime($p);
@@ -146,9 +149,8 @@ class Regatta implements RaceListener, FinishListener {
 	$this->properties[$property] = Preferences::getVenue($this->properties[$property]);
     }
     elseif ($property == Regatta::SEASON) {
-      if ($this->properties[$property] !== null &&
-	  !($this->properties[$property] instanceof Season))
-	$this->properties[$property] = new Season($this->properties[$property]);
+      if ($this->properties[$property] === null)
+	$this->properties[$property] = new Season($this->properties[Regatta::START_TIME]);
     }
     return $this->properties[$property];
   }
@@ -934,7 +936,7 @@ class Regatta implements RaceListener, FinishListener {
    * for the regatta (default: false)
    */
   public function addScorer(Account $acc, $is_host = false) {
-    $q = sprintf('insert into host values ("%s", "%s", %d) on duplicate key set principal = %3$d',
+    $q = sprintf('insert into host values ("%s", "%s", %d) on duplicate key update principal = %3$d',
 		 $acc->username, $this->id, ($is_host) ? 1 : 0);
     $this->query($q);
   }
@@ -1246,10 +1248,11 @@ class Regatta implements RaceListener, FinishListener {
 		 $type,
 		 $scoring);
 
-    $res = self::static_query($q);
-    
+    $res = Preferences::query($q);
+
     // Fetch the regatta back
-    return self::$static_con->insert_id;
+    $con = Preferences::getConnection();
+    return $con->insert_id;
   }
 
   /**
