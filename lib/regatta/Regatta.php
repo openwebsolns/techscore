@@ -274,6 +274,8 @@ class Regatta implements RaceListener, FinishListener {
     return $this->divisions;
   }
 
+  // attempt to cache teams
+  private $teams = null;
   /**
    * Gets a list of team objects for this regatta.
    *
@@ -281,6 +283,9 @@ class Regatta implements RaceListener, FinishListener {
    * @return array of team objects
    */
   public function getTeams(School $school = null) {
+    if ($school === null && $this->teams !== null)
+      return $this->teams;
+    
     $q = sprintf('select team.id, team.name, team.school ' .
 		 'from team where regatta = "%s" %s order by school, id',
 		 $this->id,
@@ -299,6 +304,8 @@ class Regatta implements RaceListener, FinishListener {
 	$teams[] = $team;
       }
     }
+    if ($school === null)
+      $this->teams = $teams;
     return $teams;
   }
 
@@ -316,6 +323,8 @@ class Regatta implements RaceListener, FinishListener {
     $this->query($q);
     $res = $this->query('select last_insert_id() as id');
     $team->id = $res->fetch_object()->id;
+    if ($this->teams !== null)
+      $this->teams[] = $team;
   }
 
   /**
@@ -326,6 +335,7 @@ class Regatta implements RaceListener, FinishListener {
   public function removeTeam(Team $team) {
     $q = sprintf('delete from team where id = "%s" and regatta = "%s"', $team->id, $this->id);
     $this->query($q);
+    $this->teams = null;
   }
 
   /**

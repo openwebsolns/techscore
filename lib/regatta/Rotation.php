@@ -34,11 +34,18 @@ class Rotation {
    * @param int  $sail the sail number
    */
   public function getTeam(Race $race, $sail) {
+    $q = sprintf('select team from rotation where (race, sail) = ("%s", "%s")', $race->id, $sail);
+    $r = $this->regatta->query($q);
+    if ($r->num_rows == 0) {
+      $r->free();
+      return null;
+    }
+    $r = $r->fetch_object();
     foreach ($this->regatta->getTeams() as $team) {
-      if ($this->getSail($race, $team) == $sail)
+      if ($team->id == $r->team)
 	return $team;
     }
-    return $null;
+    return null;
   }
 
   /**
