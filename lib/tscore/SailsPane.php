@@ -17,7 +17,7 @@ class SailsPane extends AbstractPane {
   // Options for rotation types
   private $ROTS = array("STD"=>"Standard: +1 each set",
 			"SWP"=>"Swap:  Odds up, evens down",
-			"OFF"=>"Offset by (+/-) amount from current",
+			"OFF"=>"Offset by (+/-) amount from existing division",
 			"NOR"=>"No rotation");
   private $STYLES = array("navy"=>"Navy Special",
 			  "copy"=>"Copy-cat",
@@ -245,7 +245,7 @@ class SailsPane extends AbstractPane {
 				  $f_sel = new FSelect("from_div", array())));
 	$f_sel->addOptions($exist_div);
 	$form->addChild(new FItem("Amount to offset (+/-):",
-				  new FText("offset", "6",
+				  new FText("offset", (int)(count($p_teams) / count($exist_div)),
 					    array("size"=>"2",
 						  "maxlength"=>"2"))));
 
@@ -607,7 +607,7 @@ class SailsPane extends AbstractPane {
 	$offset = count($teams) / count($divisions);
 	
 	$template = array_shift($divisions);
-	$ordered_races = array();
+	$ordered_races = $races;
 	$ordered_divs  = array();
 	foreach ($races as $num)
 	  $ordered_divs[] = $template;
@@ -631,13 +631,12 @@ class SailsPane extends AbstractPane {
 
 	// Offset subsequent divisions
 	$num_teams = count($teams);
-	$index = 1;
+	$index = 0;
 	foreach ($divisions as $div) {
 	  $rotation->createOffset($template,
 				  $div,
 				  $races,
-				  $offset * ($index++) - 1,
-				  $num_teams);
+				  $offset * (++$index));
 	}
 
 	// Reset
@@ -715,7 +714,7 @@ class SailsPane extends AbstractPane {
       // 4b. validate offset amount
       if (isset($args['offset']) &&
 	  is_numeric($args['offset'])) {
-	$offset = (int)($args['offset']) - 1;
+	$offset = (int)($args['offset']);
       }
       else {
 	$mes = sprintf("Invalid offset amount (%s)", $args['offset']);
@@ -724,16 +723,11 @@ class SailsPane extends AbstractPane {
       }
 
       $num_teams = count($this->REGATTA->getTeams());
-      if ($offset < 0) {
-	$offset = ($offset % $num_teams) + $num_teams;
-      }
-
       foreach ($divisions as $div) {
 	$rotation->createOffset($from_div,
 				$div,
 				$races,
-				$offset,
-				$num_teams);
+				$offset);
       }
 
       // Reset

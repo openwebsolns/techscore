@@ -457,41 +457,35 @@ class Rotation {
 
 
   /**
-   * Offset rotation: A division's sail numbers and orders are the
-   * same as another but offset by a value (positive/negative).
+   * Offset rotation: set the sails in the 'to' races to be in the
+   * same order as those in the 'from' races (one at a time,
+   * respectively), but offset by a given number of places.
    *
-   * @param Division $fromdiv division to offset from
-   * @param Division $todiv   division to offset
-   * @param Array<int> $nums  the race numbers
-   * @param int $offset       the offset amount
-   * @param int $upper        the upper bound for the numbers
+   * This method works by working through each race in 'fromrace' at a
+   * time, and shifting the sails for that race by the offset amount
+   * before placing it in the corresponding index of the 'torace'
+   * array. This means that both lists must have the same size.
+   *
+   * @param Array:Race $fromraces list of template races
+   * @param Array:Race $toraces matching list of races to affect
+   * @param int $offset the number of places to shift
+   * @throws InvalidArgumentException if the array sizes do not match
    */
-  public function createOffset(Division $fromdiv, Division $todiv, $nums, $offset, $upper) {
-    $q = sprintf('replace into rotation (race, team, sail) ' .
-		 '(select 
-                      new_rot.race, 
-                      rotation.team, 
-                      (mod(rotation.sail+%s, %s)+1) as sail 
-                    from rotation 
-                    inner join (select 
-                                  r2.id as race, 
-                                  r1.id as old_race 
-                                from (select * from race) as r1
-                                inner join (select * from race) as r2
-                                using (regatta, number)
-                                where (r1.regatta, r1.division) =
-                                  ("%s", "%s")
-                                  and r2.division = "%s"
-                                  and r2.number in
-                                     ("%s")) as new_rot 
-                    on (rotation.race = new_rot.old_race))',
-		 (int)$offset,
-		 (int)$upper,
-		 $this->regatta->id(),
-		 $fromdiv,
-		 $todiv,
-		 implode('", "', $nums));
-    $this->regatta->query($q);
+  public function createOffset(Division $fromdiv, Division $todiv, Array $nums, $offset) {
+    foreach ($nums as $num) {
+      $from = $this->regatta->getRace($fromdiv, $num);
+      $to = $this->regatta->getRace($todiv, $num);
+      $sails = $this->getSails($from);
+      $upper = count($sails);
+      foreach ($sails as $j => $sail) {
+	$new_sail = new Sail();
+	$new_sail->race = $to;
+	$new_sail->team = $this->getTeam($from, $sail);
+	$new_sail->sail = $sails[($j + $offset + $upper) % $upper];
+
+	$this->setSail($new_sail);
+      }
+    }
   }
 
   /**

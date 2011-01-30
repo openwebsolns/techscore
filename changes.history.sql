@@ -56,3 +56,4 @@ alter table race add unique key (regatta, division, number);
 
 -- fix issues with rp --
 alter table rp drop foreign key rp_ibfk_3;
+alter table rotation drop key race_sail;
