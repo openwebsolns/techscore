@@ -306,20 +306,20 @@ class RpEnterPane extends AbstractPane {
 
       // Process each input, which is of the form:
       // ttDp, where tt = sk/cr, D=A/B/C/D (division) and p is position
-      $errors = false;
+      $errors = array();
       $rp = new RP();
       $rp->team = $team;
       foreach ($args as $s => $s_value) {
-	if (preg_match('/(cr|sk)[ABCD][0-9]+/', $s) > 0) {
+	if (preg_match('/^(cr|sk)[ABCD][0-9]+/', $s) > 0) {
 	  // We have a sailor request upon us
 	  $s_role = (substr($s, 0, 2) == "sk") ? RP::SKIPPER : RP::CREW;
 	  $s_div  = substr($s,2,1);
 	  $s_race = Utilities::parseRange($args["r" . $s]);
 	  $s_obj  = Preferences::getObjectWithProperty($sailors, "id", $s_value);
 
-	  if (in_array($s_div, $divisions) &&
-	      $s_race !== null &&
-	      $s_obj  !== null) {
+	  if (!in_array($s_div, $divisions))
+	    $errors[] = "Invalid division requested: $s_div.";
+	  elseif ($s_race !== null && $s_obj  !== null) {
 	    
 	    // Eliminate those races from $s_race for which there is
 	    // no space for a crew
@@ -339,17 +339,14 @@ class RpEnterPane extends AbstractPane {
 	    $rp->sailor     = $s_obj;
 	    $rpManager->setRP($rp);
 	  }
-	  else {
-	    $errors = true;
-	  }
 	}
       }
       $rpManager->updateLog();
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
       
       // Announce
-      if ($errors) {
-	$mes = "Registered, but with errors.";
+      if (count($errors) > 0) {
+	$mes = "Encountered these errors: " . implode(' ', $errors);;
 	$this->announce(new Announcement($mes, Announcement::WARNING));
       }
       else {

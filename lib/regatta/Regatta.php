@@ -723,15 +723,17 @@ class Regatta implements RaceListener, FinishListener {
    * @param Array<Finish> $finishes the list of finishes
    */
   public function setFinishes(Array $finishes) {
-    $fmt = 'insert into finish (race, team, entered) ' .
-      'values ("%s", "%s", "%s") on duplicate key update entered = "%3$s"';
+    if (count($finishes) == 0) return;
+    
+    $fmt = '("%s", "%s", "%s")';
+    $txt = array();
     foreach ($finishes as $finish) {
-      $q = sprintf($fmt,
-		   $finish->race->id,
-		   $finish->team->id,
-		   $finish->entered->format("Y-m-d H:i:s"));
-      $this->query($q);
+      $txt[] = sprintf($fmt,
+		       $finish->race->id,
+		       $finish->team->id,
+		       $finish->entered->format("Y-m-d H:i:s"));
     }
+    $this->query(sprintf('insert into finish (race, team, entered) values %s on duplicate key update entered=values(entered)', implode(',', $txt)));
 
     $this->doScore();
   }

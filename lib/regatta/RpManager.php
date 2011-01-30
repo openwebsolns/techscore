@@ -105,17 +105,21 @@ class RpManager {
    * @param RP $rp the RP to register
    */
   public function setRP(RP $rp) {
+    $txt = array();
     foreach ($rp->races_nums as $num) {
-      try {
-	$race = $this->regatta->getRace($rp->division, $num);
-	$q = sprintf('insert into rp (race, sailor, team, boat_role) values ("%s", "%s", "%s", "%s")',
-		     $race->id,
-		     $rp->sailor->id,
-		     $rp->team->id,
-		     $rp->boat_role);
-	$this->regatta->query($q);
-      } catch (Exception $e) {}
+      $race = $this->regatta->getRace($rp->division, $num);
+      if ($race !== null)
+	$txt[] = sprintf('("%s", "%s", "%s", "%s")',
+			 $race->id,
+			 $rp->sailor->id,
+			 $rp->team->id,
+			 $rp->boat_role);
     }
+    if (count($txt) == 0)
+      return;
+
+    $q = sprintf('insert into rp (race, sailor, team, boat_role) values %s', implode(',', $txt));
+    $this->regatta->query($q);
   }
 
   public function updateLog() {
@@ -217,7 +221,7 @@ class RpManager {
     $q1 = sprintf('delete from rp where team = "%s"', $team->id);
     $q2 = sprintf('delete from representative where team = "%s"',
 		  $team->id);
-    $this->regatta->query($q1);
+    // $this->regatta->query($q1);
     $this->regatta->query($q2);
   }
 

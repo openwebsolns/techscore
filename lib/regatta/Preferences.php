@@ -44,9 +44,11 @@ class Preferences {
    * @return MySQLi_Result the result set
    */
   public static function query($query) {
-    if (defined('LOG_QUERIES'))
-      @error_log($query."\n", 3, LOG_QUERIES);
-    if ($q = self::getConnection()->query($query)) {
+    $con = self::getConnection();
+    // $t = microtime(true);
+    if ($q = $con->query($query)) {
+      if (defined('LOG_QUERIES'))
+	@error_log(sprintf("(%7.5f) %s\n", microtime(true) - $t, $query), 3, LOG_QUERIES);
       return $q;
     }
     throw new BadFunctionCallException(self::$con->error . ": " . $query);
@@ -93,6 +95,8 @@ class Preferences {
     return $list;
   }
 
+  // attempt to cache boats
+  private static $boats = array();
   /**
    * Fetches the boat with the given ID
    *
@@ -100,12 +104,16 @@ class Preferences {
    * @return Boat|null
    */
   public static function getBoat($id) {
+    if (isset(self::$boats[$id]))
+      return self::$boats[$id];
+    
     $q = sprintf('select %s from %s where id = %d limit 1',
 		 Boat::FIELDS, Boat::TABLES, $id);
     $q = self::query($q);
     if ($q->num_rows == 0)
       return null;
-    return $q->fetch_object("Boat");
+    self::$boats[$id] = $q->fetch_object("Boat");
+    return self::$boats[$id];
   }
 
   /**
@@ -121,6 +129,7 @@ class Preferences {
       self::query(sprintf('insert into boat (name, occupants) values ("%s", %d)',
 			  $boat->name, $boat->occupants));
       $boat->id = self::$con->insert_id;
+      self::$boats[$boat->id] = $boat;
     }
     else {
       self::query(sprintf('update boat set name = "%s", occupants = %d where id = %d limit 1',
