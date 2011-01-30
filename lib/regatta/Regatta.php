@@ -350,6 +350,11 @@ class Regatta implements RaceListener, FinishListener {
    * @throws InvalidArgumentException if such a race does not exist
    */
   public function getRace(Division $div, $num) {
+    $sdiv = (string)$div;
+    if (isset($this->races[$sdiv]) &&
+	isset($this->races[$sdiv][$num - 1]))
+      return $this->races[$sdiv][$num - 1];
+    
     $q = sprintf('select %s from %s ' .
 		 'where (regatta, division, number) = ' .
 		 '      ("%s",    "%s",     "%d") limit 1',
@@ -362,11 +367,15 @@ class Regatta implements RaceListener, FinishListener {
     }
     $race = $q->fetch_object("Race");
     $race->addListener($this);
+    if (!isset($this->races[$sdiv]))
+      $this->races[$sdiv] = array();
+    $this->races[$sdiv][$num - 1] = $race;
     return $race;
   }
 
   /**
-   * @var Array indexed array of races. An attempt at efficiency through caching
+   * @var Array an associative array of divisions => list of races,
+   * for those times when the races per division are requested
    */
   private $races = array();
   /**
@@ -385,23 +394,23 @@ class Regatta implements RaceListener, FinishListener {
       return $list;
     }
     // cache?
-    $divs = (string)$div;
-    if (isset($this->races[$divs]))
-      return $this->races[$divs];
+    $sdiv = (string)$div;
+    if (isset($this->races[$sdiv]))
+      return $this->races[$sdiv];
 
     $q = sprintf('select %s from %s ' .
 		 'where (regatta, division) = ' .
 		 '      ("%s",    "%s") order by number',
 		 Race::FIELDS, Race::TABLES,
-		 $this->id, $divs);
+		 $this->id, $sdiv);
     $q = $this->query($q);
-    $this->races[$divs] = array();
+    $this->races[$sdiv] = array();
 
     while ($race = $q->fetch_object("Race")) {
-      $this->races[$divs][] = $race;
+      $this->races[$sdiv][] = $race;
       $race->addListener($this);
     }
-    return $this->races[$divs];
+    return $this->races[$sdiv];
   }
 
   /**
@@ -714,8 +723,8 @@ class Regatta implements RaceListener, FinishListener {
    * @param Array<Finish> $finishes the list of finishes
    */
   public function setFinishes(Array $finishes) {
-    $fmt = 'replace into finish (race, team, entered) ' .
-      'values ("%s", "%s", "%s")';
+    $fmt = 'insert into finish (race, team, entered) ' .
+      'values ("%s", "%s", "%s") on duplicate key update entered = "%3$s"';
     foreach ($finishes as $finish) {
       $q = sprintf($fmt,
 		   $finish->race->id,
@@ -755,7 +764,8 @@ class Regatta implements RaceListener, FinishListener {
    * @param TeamPenalty $penalty the penalty to register
    */
   public function setTeamPenalty(TeamPenalty $penalty) {
-    $q = sprintf('replace into %s values ("%s", "%s", "%s", "%s")',
+    $q = sprintf('insert into %s values ("%1$s", "%2$s", "%3$s", "%4$s") ' .
+		 'on duplicate key update type = "%3$s", comments = "%4$s"',
 		 TeamPenalty::TABLES,
 		 $penalty->team->id,
 		 $penalty->division,
@@ -922,7 +932,7 @@ class Regatta implements RaceListener, FinishListener {
    * for the regatta (default: false)
    */
   public function addScorer(Account $acc, $is_host = false) {
-    $q = sprintf('replace into host values ("%s", "%s", %d)',
+    $q = sprintf('insert into host values ("%s", "%s", %d) on duplicate key set principal = %3$d',
 		 $acc->username, $this->id, ($is_host) ? 1 : 0);
     $this->query($q);
   }
