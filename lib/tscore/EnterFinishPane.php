@@ -169,7 +169,7 @@ class EnterFinishPane extends AbstractPane {
 	$item->addChild(new FText("p" . $i, $current_sail,
 				  array("id"=>"sail" . $i,
 					"tabindex"=>($i+1),
-					"onchange"=>"checkSails()",
+					"onkeyup"=>"checkSails()",
 					"size"=>"2")));
 	$item->addChild(new Image("/img/question.png",
 				  array("alt"=>"Waiting for input",
@@ -367,7 +367,7 @@ class EnterFinishPane extends AbstractPane {
 	$item->addChild(new FText("p" . $i, $current_sail,
 				  array("id"=>"sail" . $i,
 					"tabindex"=>($i+1),
-					"onchange"=>"checkSails()",
+					"onkeyup"=>"checkSails()",
 					"size"=>"2")));
 	$item->addChild(new Image("/img/question.png",
 				  array("alt"=>"Waiting for input",
