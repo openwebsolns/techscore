@@ -191,10 +191,13 @@ class User {
    * @return int the total number of regattas
    */
   public function getNumRegattas() {
-    $q = sprintf('select count(*) as count from %s ' .
-		 'inner join host on (regatta.id = host.regatta) ' .
-		 'where host.account = "%s"',
-		 RegattaSummary::TABLES, $this->username);
+    if ($this->get(User::ADMIN))
+      $q = sprintf('select count(*) as count from %s', RegattaSummary::TABLES);
+    else
+      $q = sprintf('select count(*) as count from %s ' .
+		   'inner join host on (regatta.id = host.regatta) ' .
+		   'where host.account = "%s"',
+		   RegattaSummary::TABLES, $this->username);
     $q = Preferences::query($q);
     return (int)$q->fetch_object()->count;
   }
