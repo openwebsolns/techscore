@@ -157,11 +157,12 @@ class AccountManager {
    * @see getAccount
    */
   public static function setAccount(Account $acc) {
-    $q = sprintf('replace into account (first_name, last_name, username, role, school, status) ' .
-		 'values ("%s", "%s", "%s", "%s", "%s", "%s")',
+    $q = sprintf('insert into account (username, first_name, last_name, role, school, status) ' .
+		 'values ("%s", "%2$s", "%3$s", "%4$s", "%5$s", "%6$s") on duplicate key update ' .
+		 'first_name = "%2$s", last_name = "%3$s", role = "%4$s, school = "%5$s", status = "%6$s"',
+		 $acc->username,
 		 $acc->first_name,
 		 $acc->last_name,
-		 $acc->username,
 		 $acc->role,
 		 $acc->school->id,
 		 $acc->status);
