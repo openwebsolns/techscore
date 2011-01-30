@@ -133,3 +133,8 @@ races sailed), or 'Final' if finalized.
 * Bring the update school script to the new data tables
 
 This means using dt_regatta, etc.
+
+
+* Make score updates happen in one giant query of awesomeness
+
+Perhaps as big as one race full at a time?
