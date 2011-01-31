@@ -57,3 +57,10 @@ alter table race add unique key (regatta, division, number);
 -- fix issues with rp --
 alter table rp drop foreign key rp_ibfk_3;
 alter table rotation drop key race_sail;
+
+-- meld the finish, penalty, and handicap tables --
+alter table finish add column penalty enum('DSQ', 'RAF', 'OCS', 'DNF', 'DNS', 'BKD', 'RDG', 'BYE') default null after entered, add column amount tinyint not null default 0 comment "Non-positive for assigned, otherwise as appropriate for the penalty" after penalty, add column comments text default null after amount;
+update finish, handicap set finish.penalty = handicap.type, finish.amount = handicap.amount, finish.comments = handicap.comments where finish.id = handicap.finish;
+update finish, penalty set finish.penalty = penalty.type, finish.amount = -1, finish.comments = penalty.comments where finish.id = penalty.finish;
+alter table finish drop column place;
+drop table penalty; drop table handicap;
