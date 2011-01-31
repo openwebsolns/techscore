@@ -21,7 +21,6 @@ class Finish {
   private $entered = null;
   private $penalty = null;
 
-  private $place;
   private $score;
   private $explanation;
 
@@ -58,7 +57,6 @@ class Finish {
       if ($value == null ||
 	  $value instanceof Score) {
 	$this->score = $value->score;
-	$this->place = $value->place;
 	$this->explanation = $value->explanation;
 	$this->fireChange(FinishListener::SCORE);
       }
@@ -83,6 +81,11 @@ class Finish {
   }
 
   public function __get($name) {
+    if ($name == 'place') {
+      if ($this->penalty === null)
+	return $this->score;
+      return $this->penalty->type;
+    }
     return $this->$name;
   }
 

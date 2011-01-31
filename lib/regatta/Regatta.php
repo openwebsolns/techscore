@@ -693,7 +693,7 @@ class Regatta implements RaceListener, FinishListener {
 	$finish->penalty = new Breakdown($fin->penalty, $fin->amount, $fin->comments);
       }
     }
-    $finish->score = new Score($fin->place, $fin->score, $fin->explanation);
+    $finish->score = new Score($fin->score, $fin->explanation);
 
     $finish->addListener($this);
     $this->finishes[$id] = $finish;

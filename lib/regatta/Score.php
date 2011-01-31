@@ -14,19 +14,16 @@
  */
 class Score {
 
-  private $place;
   private $score;
   private $explanation;
 
   /**
    * Create a score with the given parameters
    *
-   * @param String $place the place (integer, or penalty descriptor)
    * @param int $score the numerical score
    * @param String $exp the explanation
    */
-  public function __construct($place, $score, $exp = "") {
-    $this->place = (string)$place;
+  public function __construct($score, $exp = "") {
     $this->score = (int)$score;
     $this->explanation = $exp;
   }
