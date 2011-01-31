@@ -65,14 +65,12 @@ class Finish {
       break;
 
     case "penalty":
-      if ($value == null ||
-	  $value instanceof Penalty ||
-	  $value instanceof Breakdown) {
+      if ($value == null || $value instanceof FinishModifier) {
 	$this->penalty = $value;
 	$this->fireChange(FinishListener::PENALTY);
       }
       else
-	throw new InvalidArgumentException("Object not a Penalty or Breakdown.");
+	throw new InvalidArgumentException("Penalty object not a valid FinishModifier.");
       break;
 
     default:

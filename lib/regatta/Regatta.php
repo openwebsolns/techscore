@@ -672,7 +672,7 @@ class Regatta implements RaceListener, FinishListener {
     
     $q = sprintf('select finish.id, finish.race, finish.team, finish.entered, ' .
 		 'finish.score, finish.explanation, ' .
-		 'finish.penalty, finish.amount, finish.comments, ' .
+		 'finish.penalty, finish.amount, finish.comments ' .
 		 'from finish where (race, team) = ("%s", "%s")',
 		 $race->id, $team->id);
     $q = $this->query($q);
@@ -1118,7 +1118,8 @@ class Regatta implements RaceListener, FinishListener {
       $q = sprintf('update finish set penalty = "%s", amount = %d, comments = "%s" where id = %d',
 		   $finish->penalty->type,
 		   $finish->penalty->amount,
-		   $con->real_escape_string($finish->penalty->comments));
+		   $con->real_escape_string($finish->penalty->comments),
+		   $finish->id);
       $this->query($q);
       $this->doScore();
     }
