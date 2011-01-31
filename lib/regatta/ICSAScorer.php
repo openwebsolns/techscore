@@ -23,6 +23,11 @@ require_once('conf.php');
  * which are not finished in ALL divisions) are gracefully ignored
  * from the scoring process.
  *
+ * 2011-01-30: When scoring a regatta, optionally score only the given
+ * races, instead of all the races, for speed sake. Note that when
+ * scoring select races, ICSAScorer will still update those finishes
+ * in other races whose score depends on averages.
+ *
  * @author Dayan Paez
  * @created 2010-01-28
  */
@@ -76,14 +81,13 @@ class ICSAScorer {
 	// no penalties or breakdown
 	if ($finish->penalty == null) {
 	  $div_scores[$div_index][$finish->team->id][] = $score;
-	  $finish->score = new Score($score, $score);
+	  $finish->score = new Score($score);
 	  $score++;
 	}
 	// penalty
 	elseif ($finish->penalty instanceof Penalty) {
 	  $div_scores[$div_index][$finish->team->id][] = $FLEET + 1;
-	  $finish->score = new Score($finish->penalty->type,
-				     $FLEET + 1,
+	  $finish->score = new Score($FLEET + 1,
 				     sprintf("(%d, Fleet + 1)", $FLEET + 1));
 	}
 	// breakdown
@@ -99,7 +103,7 @@ class ICSAScorer {
 			     $amount, $finish->penalty->amount);
 	    }
 	    $div_scores[$div_index][$finish->team->id][] = $amount;
-	    $finish->score = new Score($finish->penalty->type, $amount, $exp);
+	    $finish->score = new Score($amount, $exp);
 	  }
 	  else {
 	    $avg_finishes[] = $finish;
@@ -114,19 +118,16 @@ class ICSAScorer {
     foreach ($avg_finishes as $finish) {
       $avg = ICSAScorer::average($div_scores[(string)$finish->race->division][$finish->team->id]);
       if ($avg == null) {
-	$finish->score = new Score($finish->penalty->type,
-				   $avg_finishes_real[$finish->id],
+	$finish->score = new Score($avg_finishes_real[$finish->id],
 				   sprintf("(Actual: %d, no other scores to average)",
 					   $avg_finishes_real[$finish->id]));
       }
       elseif ($avg < $avg_finishes_real[$finish->id]) {
-	$finish->score = new Score($finish->penalty->type,
-				   $avg,
+	$finish->score = new Score($avg,
 				   sprintf("(%d, average within division)", $avg));
       }
       else {
-	$finish->score = new Score($finish->penalty->type,
-				   $avg_finishes_real[$finish->id],
+	$finish->score = new Score($avg_finishes_real[$finish->id],
 				   sprintf("(Actual: %d, average (%d) no better)",
 					   $avg_finishes_real[$finish->id],
 					   $avg));
@@ -138,8 +139,11 @@ class ICSAScorer {
    * Scores the given regatta
    *
    * @param Regatta $reg the regatta to score
+   * @param Array:Races the optional list of races to score. Leave
+   * empty to score the entire regatta. Yes, the races should belong
+   * to the regatta you pass.
    */
-  public function score(Regatta $reg) {
+  public function score(Regatta $reg, Array $races = array()) {
 
     if ($reg->get(Regatta::SCORING) == Regatta::SCORING_COMBINED) {
       $this->scoreCombined($reg);
@@ -149,13 +153,27 @@ class ICSAScorer {
     $teams = $reg->getTeams();
     $FLEET = count($teams);
 
+    // separate the list of races into division => races
+    if (count($races) == 0) {
+      $races = $reg->getRaces();
+      if (count($races) == 0) // nothing to score
+	return;
+    }
+    $divisions = array();
+    foreach ($races as $race) {
+      $div = (string)$race->division;
+      if (!isset($divisions[$div]))
+	$divisions[$div] = array();
+      $divisions[$div][] = $race;
+    }
+
     // Go through all the races, one division at a time, while keeping
     // track of average scores for each team
-    foreach ($reg->getDivisions() as $division) {
+    foreach ($divisions as $division => $races) {
       $div_scores = array();
       $avg_finishes = array();
       $avg_finishes_real = array(); // keep track of would-be score
-      foreach ($reg->getRaces($division) as $race) {
+      foreach ($races as $race) {
 
 	// Get each finish in order and set the score
 	$score = 1;
@@ -168,14 +186,13 @@ class ICSAScorer {
 	  // no penalties or breakdown
 	  if ($finish->penalty == null) {
 	    $div_scores[$finish->team->id][] = $score;
-	    $finish->score = new Score($score, $score);
+	    $finish->score = new Score($score);
 	    $score++;
 	  }
 	  // penalty
 	  elseif ($finish->penalty instanceof Penalty) {
 	    $div_scores[$finish->team->id][] = $FLEET + 1;
-	    $finish->score = new Score($finish->penalty->type,
-				       $FLEET + 1,
+	    $finish->score = new Score($FLEET + 1,
 				       sprintf("(%d, Fleet + 1)", $FLEET + 1));
 	  }
 	  // breakdown
@@ -191,7 +208,7 @@ class ICSAScorer {
 			       $amount, $finish->penalty->amount);
 	      }
 	      $div_scores[$finish->team->id][] = $amount;
-	      $finish->score = new Score($finish->penalty->type, $amount, $exp);
+	      $finish->score = new Score($amount, $exp);
 	    }
 	    else {
 	      $avg_finishes[] = $finish;
@@ -202,23 +219,22 @@ class ICSAScorer {
 	}
       }
 
+      // Average scores for other races inside this division matter, too!
+      
       // Deal with average scores
       foreach ($avg_finishes as $finish) {
 	$avg = ICSAScorer::average($div_scores[$finish->team->id]);
 	if ($avg == null) {
-	  $finish->score = new Score($finish->penalty->type,
-				     $avg_finishes_real[$finish->id],
+	  $finish->score = new Score($avg_finishes_real[$finish->id],
 				     sprintf("(Actual: %d, no other scores to average)",
 					     $avg_finishes_real[$finish->id]));
 	}
 	elseif ($avg < $avg_finishes_real[$finish->id]) {
-	  $finish->score = new Score($finish->penalty->type,
-				     $avg,
+	  $finish->score = new Score($avg,
 				     sprintf("(%d, average within division)", $avg));
 	}
 	else {
-	  $finish->score = new Score($finish->penalty->type,
-				     $avg_finishes_real[$finish->id],
+	  $finish->score = new Score($avg_finishes_real[$finish->id],
 				     sprintf("(Actual: %d, average (%d) no better)",
 					     $avg_finishes_real[$finish->id],
 					     $avg));

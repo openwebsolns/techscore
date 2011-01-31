@@ -137,4 +137,13 @@ This means using dt_regatta, etc.
 
 * Make score updates happen in one giant query of awesomeness
 
-Perhaps as big as one race full at a time?
+Perhaps as big as one race full at a time? Also, and perhaps more
+importantly, attempt to update scores intelligently: that is, do not
+rescore races which have no penalty or breakdowns.
+
+Also, consider merging breakdowns penalties and finish into one
+awesomer table.
+
+** Deprecate the finish listener interface
+
+Instead, use the Regatta::setFinishes method to do your bidding.
