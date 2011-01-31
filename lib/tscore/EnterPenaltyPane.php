@@ -18,6 +18,7 @@ class EnterPenaltyPane extends AbstractPane {
   public function __construct(User $user, Regatta $reg) {
     parent::__construct("Individual penalties and breakdowns", $user, $reg);
     $this->title = "Add penalty";
+    array_unshift($this->urls, 'penalties');
   }
 
   protected function fillHTML(Array $args) {
@@ -115,7 +116,7 @@ class EnterPenaltyPane extends AbstractPane {
 			       new FText("p_amount", "",
 					 array("size"=>"2", "id"=>"p_amount")));
 	$form->addChild($new_score);
-	$new_score->addChild($cb = new FCheckbox("average", array("yes"), array("id"=>"avg_box")));
+	$new_score->addChild($cb = new FCheckbox("average", "yes", array("id"=>"avg_box")));
 	$new_score->addChild(new Label("avg_box", "Use average within division"));
 	$cb->addAttr("onclick", "document.getElementById('p_amount').disabled = this.checked;");
 	$new_score->addChild($sc = new GenericElement("script"));
@@ -127,7 +128,6 @@ class EnterPenaltyPane extends AbstractPane {
       // Submit
       $form->addChild(new FSubmit("p_cancel", "Cancel"));
       $form->addChild(new FSubmit("p_submit", "Enter $p_type"));
-
     }
   }
 
