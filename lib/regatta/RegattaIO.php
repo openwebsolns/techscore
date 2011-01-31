@@ -523,7 +523,7 @@ class RegattaIO {
 	  ($race != null) &&
 	  in_array($type, $penalty_types) &&
 	  ($finish = $regatta->getFinish($race, $teams[$team_id])) != null) {
-	$finish->penalty = new Penalty($type, (string)$elem);
+	$finish->penalty = new Penalty($type, -1, (string)$elem);
       }
       else
 	$penalty_errors = true;

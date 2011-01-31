@@ -35,7 +35,6 @@ require_once('conf.php');
 class Regatta implements RaceListener, FinishListener {
 
   private $id;
-  private $con; // MySQL connection object
   private $scorer;
 
   // Keys for data
@@ -654,6 +653,11 @@ class Regatta implements RaceListener, FinishListener {
   }
 
 
+  
+  /**
+   * @var Array attempt to cache finishes, index is 'race-team_id'
+   */
+  private $finishes = array();
   /**
    * Returns the finish for the given race and team, or null
    *
@@ -662,34 +666,37 @@ class Regatta implements RaceListener, FinishListener {
    * @return the finish object
    */
   public function getFinish(Race $race, Team $team) {
+    $id = sprintf('%s-%d', $race, $team->id);
+    if (isset($this->finishes[$id]))
+      return $this->finishes[$id];
+    
     $q = sprintf('select finish.id, finish.race, finish.team, finish.entered, ' .
-		 'finish.score, finish.place, finish.explanation, ' .
-		 'handicap.type as handicap, handicap.amount as h_amt, handicap.comments as h_com, ' .
-		 'penalty.type  as penalty,  penalty.comments as p_com ' .
-		 'from finish ' .
-		 'left join handicap on (finish.id = handicap.finish) ' .
-		 'left join penalty  on (finish.id = penalty.finish) ' .
-		 'where (race, team) = ("%s", "%s")',
+		 'finish.score, finish.explanation, ' .
+		 'finish.penalty, finish.amount, finish.comments, ' .
+		 'from finish where (race, team) = ("%s", "%s")',
 		 $race->id, $team->id);
     $q = $this->query($q);
     if ($q->num_rows == 0)
       return null;
     
     $fin = $q->fetch_object();
+    $q->free();
     $finish = new Finish($fin->id, $race, $team);
     $finish->entered = new DateTime($fin->entered);
-      
-    $penalty = null;
-    if ($fin->handicap != null) {
-      $penalty = new Breakdown($fin->handicap, $fin->h_amt, $fin->h_com);
+
+    // penalty
+    if ($fin->penalty !== null) {
+      try {
+	$finish->penalty = new Penalty($fin->penalty, $fin->amount, $fin->comments);
+      }
+      catch (InvalidArgumentException $e) {
+	$finish->penalty = new Breakdown($fin->penalty, $fin->amount, $fin->comments);
+      }
     }
-    if ($fin->penalty != null) {
-      $penalty = new Penalty($fin->penalty, $fin->p_com);
-    }
-    $finish->penalty   = $penalty;
     $finish->score = new Score($fin->place, $fin->score, $fin->explanation);
 
     $finish->addListener($this);
+    $this->finishes[$id] = $finish;
     return $finish;
   }
 
@@ -717,6 +724,20 @@ class Regatta implements RaceListener, FinishListener {
     }
     
     return $finishes;
+  }
+
+  /**
+   * Returns a list of those finishes in the given division which are
+   * set to be scored as average of the other finishes in the same
+   * division. Confused, read the procedural rules for breakdowns, etc.
+   *
+   * @param Division $div the division whose average-scored finishes
+   * to fetch
+   *
+   * @return Array:Finish the finishes
+   */
+  public function getAverageFinishes(Division $div) {
+
   }
 
   /**
@@ -1091,35 +1112,22 @@ class Regatta implements RaceListener, FinishListener {
    * @param Finish $finish the finish
    */
   public function finishChanged($type, Finish $finish) {
-
+    $con = Preferences::getConnection();
     // Penalties
     if ($type == FinishListener::PENALTY) {
-      $q1 = sprintf('delete from penalty  where finish = "%s"', $finish->id);
-      $q2 = sprintf('delete from handicap where finish = "%s"', $finish->id);
-      $this->query($q1);
-      $this->query($q2);
-
-      if ($finish->penalty instanceof Breakdown)
-	$q = sprintf('replace into handicap values ("%s", "%s", "%s", "%s")',
-		     $finish->id,
-		     $finish->penalty->type,
-		     $finish->penalty->amount,
-		     $finish->penalty->comments);
-      else
-	$q = sprintf('replace into penalty values ("%s", "%s", "%s")',
-		     $finish->id,
-		     $finish->penalty->type,
-		     $finish->penalty->comments);
+      $q = sprintf('update finish set penalty = "%s", amount = %d, comments = "%s" where id = %d',
+		   $finish->penalty->type,
+		   $finish->penalty->amount,
+		   $con->real_escape_string($finish->penalty->comments));
       $this->query($q);
       $this->doScore();
     }
 
     // Scores
     elseif ($type == FinishListener::SCORE) {
-      $q = sprintf('update finish set place = "%s", score = "%s", explanation = "%s" where id = %d',
-		   $finish->place,
+      $q = sprintf('update finish set score = "%s", explanation = "%s" where id = %d',
 		   $finish->score,
-		   $finish->explanation,
+		   $con->real_escape_string($finish->explanation),
 		   $finish->id);
       $this->query($q);
     }

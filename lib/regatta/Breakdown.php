@@ -14,18 +14,14 @@
  * @author Dayan Paez
  * @created 2010-01-25
  */
-class Breakdown {
-
-  public $type;
-  public $amount;
-  public $comments;
+class Breakdown extends Penalty {
 
   // Constants
   const RDG = "RDG";
   const BKD = "BKD";
   const BYE = "BYE";
 
-  public static function getList() {
+  public function getList() {
     return array(Breakdown::BKD => "BKD: Breakdown",
 		 Breakdown::RDG => "RDG: Yacht Given Redress",
 		 Breakdown::BYE => "BYE: Team is awarded average");
@@ -43,20 +39,7 @@ class Breakdown {
    * value
    */
   public function __construct($type, $amount, $comments = "") {
-    if (!in_array($type, array_keys(self::getList())))
-      throw new InvalidArgumentException(sprintf("Invalid breakdown type %s.", $this->type));
-    $this->type = $type;
-    $this->amount = (int)$amount;
-    $this->comments = $comments;
-  }
-
-  /**
-   * String representation, really useful for debugging purposes
-   *
-   * @return String string representation
-   */
-  public function __toString() {
-    return sprintf("%s|%s|%s", $this->type, $this->amount, $this->comments);
+    parent::__construct($type, $amount, $comments);
   }
 }
 ?>

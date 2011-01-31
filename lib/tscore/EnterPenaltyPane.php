@@ -193,7 +193,7 @@ class EnterPenaltyPane extends AbstractPane {
 
       if ($theFinish != null &&
 	  in_array($thePen, array_keys(Penalty::getList()))) {
-	$theFinish->penalty = new Penalty($thePen, $theComm);
+	$theFinish->penalty = new Penalty($thePen, -1, $theComm);
       }
       else if ($thePen == Breakdown::BYE) {
 	// Average scoring
