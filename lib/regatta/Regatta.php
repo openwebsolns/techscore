@@ -1266,26 +1266,6 @@ class Regatta implements RaceListener, FinishListener {
   // Static methods and properties
   // ------------------------------------------------------------
 
-  private static $static_con;
-
-  /**
-   * Sends the given request to the database
-   *
-   * @param String $query the query to send
-   * @return MySQLi_Result the result
-   * @throws BadFunctionCallException should the query be unsuccessful.
-   */
-  protected static function static_query($query) {
-    if (!isset(self::$static_con))
-      self::$static_con = new MySQLi(SQL_HOST, SQL_USER, SQL_PASS, SQL_DB);
-    
-    $res = self::$static_con->query($query);
-    $error = self::$static_con->error;
-    if (!empty($error))
-      throw new BadFunctionCallException("Invalid query: $error.");
-    return $res;
-  }
-  
   /**
    * Creates a new regatta with the given specs
    *
