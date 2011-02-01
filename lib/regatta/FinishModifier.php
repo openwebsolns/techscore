@@ -32,7 +32,7 @@ abstract class FinishModifier {
    *
    * @return Array<Penalty::Const,String> the different penalties
    */
-  abstract public function getList();
+  abstract public static function getList();
 
   /**
    * Creates a new penalty, of empty type by default
@@ -45,11 +45,10 @@ abstract class FinishModifier {
    * value
    */
   public function __construct($type, $amount = -1, $comments = "", $displace = 0) {
-    if (!in_array($type, array_keys($this->getList())))
-      throw new InvalidArgumentException(sprintf("Invalid penalty type %s.", $this->type));
     $this->type = $type;
     $this->amount = (int)$amount;
     $this->comments = $comments;
+    $this->displace = $displace;
   }
 
   /**

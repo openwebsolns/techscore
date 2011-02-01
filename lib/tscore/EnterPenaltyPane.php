@@ -19,6 +19,7 @@ class EnterPenaltyPane extends AbstractPane {
     parent::__construct("Individual penalties and breakdowns", $user, $reg);
     $this->title = "Add penalty";
     array_unshift($this->urls, 'penalties');
+    $this->urls[] = 'penalty';
   }
 
   protected function fillHTML(Array $args) {
@@ -98,10 +99,11 @@ class EnterPenaltyPane extends AbstractPane {
 				$f_sel = new FSelect("finish", array(""))));
       $options = array();
       foreach ($this->REGATTA->getTeams() as $team) {
-	$finish = $this->REGATTA->getFinish($theRace, $team);
-	$options[$finish->id] = sprintf("%s (%s)",
-				      $team,
-				      $rotation->getSail($theRace, $team));
+	// $finish = $this->REGATTA->getFinish($theRace, $team);
+	$id = sprintf('%s,%s', $theRace, $team->id);
+	$options[$id] = sprintf("%s (%s)",
+				$team,
+				$rotation->getSail($theRace, $team));
       }
       $f_sel->addOptions($options);
 
@@ -111,23 +113,39 @@ class EnterPenaltyPane extends AbstractPane {
 					      array("rows"=>"2",
 						    "cols"=>"50"))));
       // - Amount, or average, if necessary
-      if ( $p_type == "RDG" || $p_type == "BKD") {
-	$new_score = new FItem("New score:",
-			       new FText("p_amount", "",
-					 array("size"=>"2", "id"=>"p_amount")));
-	$form->addChild($new_score);
-	$new_score->addChild($cb = new FCheckbox("average", "yes", array("id"=>"avg_box")));
-	$new_score->addChild(new Label("avg_box", "Use average within division"));
-	$cb->addAttr("onclick", "document.getElementById('p_amount').disabled = this.checked;");
-	$new_score->addChild($sc = new GenericElement("script"));
-	$sc->addAttr("type", "text/javascript");
-	$sc->addChild(new Text("document.getElementById('p_amount').disabled = true;"));
-	$sc->addChild(new Text("document.getElementById('avg_box').checked   = true;"));
-      }
+      $b = Breakdown::getList();
+      if (in_array($p_type, array_keys($b)))
+	$average = "Use average within division";
+      else
+	$average = "Use standard scoring (FLEET + 1).";
+      $new_score = new FItem("New score:",
+			     $cb = new FCheckbox("average", "yes", array("id"=>"avg_box")));
+      $cb->addAttr("onclick", "document.getElementById('p_amount').disabled = this.checked;document.getElementById('displace_box').disabled = this.checked;");
+      // $cb->addAttr("checked", "checked");
+      $new_score->addChild(new Label("avg_box", $average));
+      $form->addChild($new_score);
+
+      $new_score = new FItem("OR Assign score:",
+			     new FText("p_amount", "", array("size"=>"2", "id"=>"p_amount")));
+      $new_score->addChild(new FCheckbox("displace", "yes", array("id"=>"displace_box")));
+      $new_score->addChild(new Label('displace_box', 'Displace finishes'));
+      $form->addChild($new_score);
+
+      // script to turn off the two by default
+      $form->addChild($sc = new GenericElement("script"));
+      $sc->addAttr("type", "text/javascript");
+      $sc->addChild(new Text("document.getElementById('p_amount').disabled = true;"));
+      $sc->addChild(new Text("document.getElementById('displace_box').disabled = true;"));
+      $sc->addChild(new Text("document.getElementById('avg_box').checked   = true;"));
     
       // Submit
       $form->addChild(new FSubmit("p_cancel", "Cancel"));
       $form->addChild(new FSubmit("p_submit", "Enter $p_type"));
+
+      // FAQ's
+      $this->PAGE->addContent($p = new Port("FAQ"));
+      $fname = sprintf("%s/faq/penalty.html", dirname(__FILE__));
+      $p->addChild(new Text(file_get_contents($fname)));
     }
   }
 
@@ -184,42 +202,60 @@ class EnterPenaltyPane extends AbstractPane {
     // ------------------------------------------------------------
     if (isset($args['p_submit']) ) {
       // Validate input
-      $finishes = $this->REGATTA->getFinishes();
-      $theFinish = Preferences::getObjectWithProperty($finishes,
-						      "id",
-						      $args['finish']);
+      $tokens = explode(',', $args['finish']);
+      if (count($tokens) != 2) {
+	$this->announce(new Announcement("No valid finish provided.", Announcement::ERROR));
+	return $args;
+      }
+      try {
+	$race = Race::parse($tokens[0]);
+	$race = $this->REGATTA->getRace($race->division, $race->number);
+	if ($race === null)
+	  throw new InvalidArgumentException("No such race!");
+      }
+      catch (InvalidArgumentException $e) {
+	$this->announce(new Announcement("Invalid race for finish.", Announcement::ERROR));
+	return $args;
+      }
+      $team = $this->REGATTA->getTeam($tokens[1]);
+      if ($team === null) {
+	$this->announce(new Announcement("Invalid team for finish.", Announcement::ERROR));
+	return $args;
+      }
+      $theFinish = $this->REGATTA->getFinish($race, $team);
+      if ($theFinish === null) {
+	$this->announce(new Announcement("Invalid finish for penalty/breakdown.", Announcement::ERROR));
+	return $args;
+      }
       $thePen  = $args['p_type'];
-      $theComm = addslashes(htmlspecialchars($args['p_comments']));
+      $theComm = addslashes($args['p_comments']);
 
-      if ($theFinish != null &&
-	  in_array($thePen, array_keys(Penalty::getList()))) {
-	$theFinish->penalty = new Penalty($thePen, -1, $theComm);
+      // Get amount, checkbox has preference
+      if (isset($args['average'])) {
+	$theAmount = -1;
       }
-      else if ($thePen == Breakdown::BYE) {
-	// Average scoring
-	$theFinish->penalty = new Breakdown(Breakdown::BYE, -1, $theComm);
-      }
-      else if ($thePen == Breakdown::RDG ||
-	       $thePen == Breakdown::BKD) {
-	// Get amount, checkbox has preference
-	if (isset($args['average'])) {
-	  $h_amount = -1;
-	}
-	else if (is_numeric($args['p_amount']) &&
-		 (int)($args['p_amount']) > 0) {
-	  $h_amount = (int)($args['p_amount']);
-	}
-	else {
-	  $mes = sprintf("Invalid breakdown amount (%s).", $args['p_amount']);
-	  $this->announce(new Announcement($mes, Announcement::ERROR));
-	  return $args;
-	}
-	$theFinish->penalty = new Breakdown($thePen, $h_amount, $theComm);
+      else if (is_numeric($args['p_amount']) &&
+	       (int)($args['p_amount']) > 0) {
+	$theAmount = (int)($args['p_amount']);
       }
       else {
-	$mes = sprintf("Illegal penalty/breakdown type (%s).", $thePen);
+	$mes = sprintf("Invalid penalty/breakdown amount (%s).", $args['p_amount']);
 	$this->announce(new Announcement($mes, Announcement::ERROR));
+	return $args;
       }
+
+      // Based on the amount, honor the displace option
+      $theDisplace = 0;
+      if ($theAmount > 0 && isset($args['displace'])) {
+	$theDisplace = 1;
+      }
+
+      // give the users the flexibility to do things wrong, if they so choose
+      $breakdowns = Breakdown::getList();
+      if (in_array($thePen, array_keys($breakdowns)))
+	$theFinish->penalty = new Penalty($thePen, $theAmount, $theComm, $theDisplace);
+      else
+	$theFinish->penalty = new Breakdown($thePen, $theAmount, $theComm, $theDisplace);
       $mes = sprintf("Added %s for %s.", $thePen, $theFinish->team);
       $this->announce(new Announcement($mes));
       unset($args['p_type']);

@@ -278,6 +278,34 @@ class Regatta implements RaceListener, FinishListener {
   // attempt to cache teams
   private $teams = null;
   /**
+   * Fetches the team with the given ID, or null
+   *
+   * @param int $id the id of the team
+   * @return Team|null if the team exists
+   */
+  public function getTeam($id) {
+    if ($this->teams !== null) {
+      if (isset($this->teams[$id]))
+	return $this->teams[$id];
+      return null;
+    }
+
+    $q = sprintf('select team.id team.name, team.school from team where regatta = %d and id = %d limit 1',
+		 $this->id, $id);
+    $q = $this->query($q);
+    if ($q->num_rows == 0)
+      return null;
+
+    if ($this->isSingleHanded()) {
+      $team = $q->fetch_object('SinglehandedTeam');
+      $team->setRpManager($this->rp);
+    }
+    else
+      $team = $q->fetch_object('Team');
+    return $team;
+  }
+
+  /**
    * Gets a list of team objects for this regatta.
    *
    * @param School $school the optional school whose teams to return
@@ -285,7 +313,7 @@ class Regatta implements RaceListener, FinishListener {
    */
   public function getTeams(School $school = null) {
     if ($school === null && $this->teams !== null)
-      return $this->teams;
+      return array_values($this->teams);
     
     $q = sprintf('select team.id, team.name, team.school ' .
 		 'from team where regatta = "%s" %s order by school, id',
@@ -296,13 +324,13 @@ class Regatta implements RaceListener, FinishListener {
     $teams = array();
     if ($this->isSingleHanded()) {
       while ($team = $q->fetch_object("SinglehandedTeam")) {
-	$teams[] = $team;
+	$teams[$team->id] = $team;
 	$team->setRpManager($this->rp);
       }
     }
     else {
       while ($team = $q->fetch_object("Team")) {
-	$teams[] = $team;
+	$teams[$team->id] = $team;
       }
     }
     if ($school === null)

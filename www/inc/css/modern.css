@@ -366,3 +366,13 @@ table#conftable td ul {
     margin: 0px;
 }
 table.coordinate td:hover { background: #3465a4; color: white; }
+
+dd { 
+     font-weight: bold;
+     margin-left: 1em;
+}
+
+dt { 
+     margin-left: 3em;
+     margin-bottom: 1em;
+ }

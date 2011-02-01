@@ -27,7 +27,7 @@ class Penalty extends FinishModifier {
    *
    * @return Array<Penalty::Const,String> the different penalties
    */
-  public function getList() {
+  public static function getList() {
     return array(Penalty::DSQ => "DSQ: Disqualification",
 		 Penalty::RAF => "RAF: Retire After Finishing",
 		 Penalty::OCS => "OCS: On Course Side after start",

@@ -14,14 +14,14 @@
  * @author Dayan Paez
  * @created 2010-01-25
  */
-class Breakdown extends Penalty {
+class Breakdown extends FinishModifier {
 
   // Constants
   const RDG = "RDG";
   const BKD = "BKD";
   const BYE = "BYE";
 
-  public function getList() {
+  public static function getList() {
     return array(Breakdown::BKD => "BKD: Breakdown",
 		 Breakdown::RDG => "RDG: Yacht Given Redress",
 		 Breakdown::BYE => "BYE: Team is awarded average");
