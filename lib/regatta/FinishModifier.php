@@ -18,6 +18,14 @@ abstract class FinishModifier {
   public $amount;
   public $type;
   public $comments;
+  /**
+   * @var boolean when scoring penalty or breakdown, should the score
+   * displace other finishers behind this one? Note that for penalty,
+   * this is usually 'yes', which leads to everyone else being bumped
+   * up. For breakdowns, however, this is usually 'no'. Note that this
+   * is invalid if the 'amount' is non-positive.
+   */
+  public $displace;
   
   /**
    * Fetches an associative list of the different penalty types
@@ -36,7 +44,7 @@ abstract class FinishModifier {
    * @throws InvalidArgumentException if the type is set to an illegal
    * value
    */
-  public function __construct($type, $amount = -1, $comments = "") {
+  public function __construct($type, $amount = -1, $comments = "", $displace = 0) {
     if (!in_array($type, array_keys($this->getList())))
       throw new InvalidArgumentException(sprintf("Invalid penalty type %s.", $this->type));
     $this->type = $type;

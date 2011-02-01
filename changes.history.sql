@@ -64,3 +64,4 @@ update finish, handicap set finish.penalty = handicap.type, finish.amount = hand
 update finish, penalty set finish.penalty = penalty.type, finish.amount = -1, finish.comments = penalty.comments where finish.id = penalty.finish;
 alter table finish drop column place;
 drop table penalty; drop table handicap;
+alter table finish add column displace bit default null after amount;

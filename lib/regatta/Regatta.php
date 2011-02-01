@@ -672,7 +672,7 @@ class Regatta implements RaceListener, FinishListener {
     
     $q = sprintf('select finish.id, finish.race, finish.team, finish.entered, ' .
 		 'finish.score, finish.explanation, ' .
-		 'finish.penalty, finish.amount, finish.comments ' .
+		 'finish.penalty, finish.amount, finish.comments, finish.displace ' .
 		 'from finish where (race, team) = ("%s", "%s")',
 		 $race->id, $team->id);
     $q = $this->query($q);
@@ -687,10 +687,10 @@ class Regatta implements RaceListener, FinishListener {
     // penalty
     if ($fin->penalty !== null) {
       try {
-	$finish->penalty = new Penalty($fin->penalty, $fin->amount, $fin->comments);
+	$finish->penalty = new Penalty($fin->penalty, $fin->amount, $fin->comments, $fin->displace);
       }
       catch (InvalidArgumentException $e) {
-	$finish->penalty = new Breakdown($fin->penalty, $fin->amount, $fin->comments);
+	$finish->penalty = new Breakdown($fin->penalty, $fin->amount, $fin->comments, $fin->displace);
       }
     }
     $finish->score = new Score($fin->score, $fin->explanation);
@@ -1115,9 +1115,10 @@ class Regatta implements RaceListener, FinishListener {
     $con = Preferences::getConnection();
     // Penalties
     if ($type == FinishListener::PENALTY) {
-      $q = sprintf('update finish set penalty = "%s", amount = %d, comments = "%s" where id = %d',
+      $q = sprintf('update finish set penalty = "%s", amount = %d, displace = %d, comments = "%s" where id = %d',
 		   $finish->penalty->type,
 		   $finish->penalty->amount,
+		   $finish->penalty->displace,
 		   $con->real_escape_string($finish->penalty->comments),
 		   $finish->id);
       $this->query($q);
