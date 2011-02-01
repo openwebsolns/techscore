@@ -261,7 +261,7 @@ class Regatta implements RaceListener, FinishListener {
    */
   public function getDivisions() {
     if ($this->divisions !== null)
-      return $this->divisions;
+      return array_values($this->divisions);
     
     $q = sprintf('select distinct division from race ' .
 		 'where regatta = "%s" ' . 
@@ -270,9 +270,9 @@ class Regatta implements RaceListener, FinishListener {
     $q = $this->query($q);
     $this->divisions = array();
     while ($row = $q->fetch_object()) {
-      $this->divisions[] = Division::get($row->division);
+      $this->divisions[$row->division] = Division::get($row->division);
     }
-    return $this->divisions;
+    return array_values($this->divisions);
   }
 
   // attempt to cache teams
@@ -379,7 +379,7 @@ class Regatta implements RaceListener, FinishListener {
   public function removeTeam(Team $team) {
     $q = sprintf('delete from team where id = "%s" and regatta = "%s"', $team->id, $this->id);
     $this->query($q);
-    $this->teams = null;
+    unset($this->teams[$team->id]);
   }
 
   /**
@@ -418,10 +418,27 @@ class Regatta implements RaceListener, FinishListener {
   }
 
   /**
+   * Return the total number of races participating, for efficiency
+   * purposes
+   *
+   * @return int the number of races
+   */
+  public function getRacesCount() {
+    if ($this->total_races !== null)
+      return $this->total_races;
+    
+    $q = $this->query(sprintf('select id from race where regatta = %d', $this->id));
+    $this->total_races = $q->num_rows;
+    $q->free();
+    return $this->total_races;
+  }
+
+  /**
    * @var Array an associative array of divisions => list of races,
    * for those times when the races per division are requested
    */
   private $races = array();
+  private $total_races = null;
   /**
    * Returns an array of race objects within the specified division
    * ordered by the race number. If no division specified, returns all
@@ -515,17 +532,15 @@ class Regatta implements RaceListener, FinishListener {
    * @param Race $race the race to register with this regatta
    */
   public function setRace(Race $race) {
-    $q = sprintf('insert ignore into race (regatta, division, boat, number) ' .
-		 'values ("%s", "%s", "%s", %d)',
-		 $this->id, $race->division, $race->boat->id, $race->number);
+    $q = sprintf('insert into race (regatta, division, number, boat) ' .
+		 'values ("%s", "%s", "%s", %d) ' .
+		 'on duplicate key update boat = %4$d',
+		 $this->id, $race->division, $race->number, $race->boat->id);
     $this->query($q);
     $con = Preferences::getConnection();
-    if ($con->affected_rows > 0) return;
-
-    // attempt to update, because one already exists!
-    $q = sprintf('update race set boat = "%s" where (regatta, division, number) = (%d, "%s", %d)',
-		 $race->boat->id, $this->id, $race->division, $race->number);
-    $this->query($q);
+     // amounts to an insert
+    if ($con->affected_rows > 1 && $this->total_races !== null)
+      $this->total_races++;
   }
 
   /**
@@ -550,6 +565,8 @@ class Regatta implements RaceListener, FinishListener {
     if ($con->affected_rows > 0) {
       if (isset($this->races[(string)$race->division]))
 	unset($this->races[(string)$race->division]);
+      if ($this->total_races !== null)
+	$this->total_races--;
       return true;
     }
     return false;
@@ -564,7 +581,11 @@ class Regatta implements RaceListener, FinishListener {
     $q = sprintf('delete from race where (regatta, division) = ("%s", "%s")',
 		 $this->id, $div);
     $this->query($q);
-    $this->divisions = null;
+    unset($this->divisions[(string)$div]);
+    if ($this->total_races !== null) {
+      $con = Preferences::getConnection();
+      $this->total_races -= $con->affected_rows;
+    }
   }
 
   /**
