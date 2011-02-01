@@ -99,11 +99,13 @@ class EnterPenaltyPane extends AbstractPane {
 				$f_sel = new FSelect("finish", array(""))));
       $options = array();
       foreach ($this->REGATTA->getTeams() as $team) {
-	// $finish = $this->REGATTA->getFinish($theRace, $team);
-	$id = sprintf('%s,%s', $theRace, $team->id);
-	$options[$id] = sprintf("%s (%s)",
-				$team,
-				$rotation->getSail($theRace, $team));
+	$fin = $this->REGATTA->getFinish($theRace, $team);
+	if ($fin->penalty === null) {
+	  $id = sprintf('%s,%s', $theRace, $team->id);
+	  $options[$id] = sprintf("%s (%s)",
+				  $team,
+				  $rotation->getSail($theRace, $team));
+	}
       }
       $f_sel->addOptions($options);
 
@@ -252,10 +254,29 @@ class EnterPenaltyPane extends AbstractPane {
 
       // give the users the flexibility to do things wrong, if they so choose
       $breakdowns = Breakdown::getList();
-      if (in_array($thePen, array_keys($breakdowns)))
+      if (in_array($thePen, array_keys($breakdowns))) {
+	if ($theFinish->score !== null && $theAmount >= $theFinish->score) {
+	  $this->announce(new Announcement("The assigned score is no better than the actual score; ignoring.",
+					   Announcement::WARNING));
+	  return $args;
+	}
 	$theFinish->penalty = new Penalty($thePen, $theAmount, $theComm, $theDisplace);
-      else
+      }
+      else {
+	if ($theFinish->score !== null &&
+	    $theAmount > 0 &&
+	    $theAmount <= $theFinish->score) {
+	  $this->announce(new Announcement("The assigned penalty score is no worse than their actual score; ignoring.",
+					   Announcement::WARNING));
+	  return $args;
+	}
+	elseif ($theAmount > ($fleet = $this->REGATTA->getFleetSize() + 1)) {
+	  $this->announce(new Announcement(sprintf("The assigned penalty is greater than the maximum penalty of FLEET + 1 (%d); ignoring.", $fleet),
+					   Announcement::WARNING));
+	  return $args;
+	}
 	$theFinish->penalty = new Breakdown($thePen, $theAmount, $theComm, $theDisplace);
+      }
       $mes = sprintf("Added %s for %s.", $thePen, $theFinish->team);
       $this->announce(new Announcement($mes));
       unset($args['p_type']);

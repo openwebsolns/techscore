@@ -306,6 +306,21 @@ class Regatta implements RaceListener, FinishListener {
   }
 
   /**
+   * Just get the number of teams, which is slightly quicker than
+   * serializing all those teams.
+   *
+   * @return int the fleet size
+   */
+  public function getFleetSize() {
+    if ($this->teams !== null)
+      return count($this->teams);
+    $q = $this->query(sprintf('select id from team where regatta = %d', $this->id));
+    $n = $q->num_rows;
+    $q->free();
+    return $n;
+  }
+
+  /**
    * Gets a list of team objects for this regatta.
    *
    * @param School $school the optional school whose teams to return
@@ -714,12 +729,11 @@ class Regatta implements RaceListener, FinishListener {
 
     // penalty
     if ($fin->penalty !== null) {
-      try {
+      $penalties = Penalty::getList();
+      if (isset($penalties[$fin->penalty]))
 	$finish->penalty = new Penalty($fin->penalty, $fin->amount, $fin->comments, $fin->displace);
-      }
-      catch (InvalidArgumentException $e) {
+      else
 	$finish->penalty = new Breakdown($fin->penalty, $fin->amount, $fin->comments, $fin->displace);
-      }
     }
     $finish->score = new Score($fin->score, $fin->explanation);
 
