@@ -27,6 +27,26 @@ class Rotation {
   }
 
   /**
+   * @var boolean attempt to cache whether or not there is a rotation
+   */
+  private $has_sails = null;
+  /**
+   * Determines whether there is a rotation assigned: i.e. if there
+   * are sails in the database
+   *
+   * @return boolean has sails or not. Simple, no?
+   */
+  public function isAssigned() {
+    if ($this->has_sails !== null)
+      return $this->has_sails;
+
+    $q = $this->regatta->query(sprintf('select id from rotation where race in (select id from race where regatta = %d)', $this->regatta->id()));
+    $this->has_sails = ($q->num_rows > 0);
+    $q->free();
+    return $this->has_sails;
+  }
+
+  /**
    * Fetches the team with the given sail in the given race, or null
    * if no such team exists
    *
@@ -279,6 +299,7 @@ class Rotation {
 	}
       }
     }
+    $this->has_sails = true;
   }
 
   /**
@@ -382,6 +403,7 @@ class Rotation {
 	}
       }
     }
+    $this->has_sails = true;
   }
 
   /**
@@ -493,6 +515,7 @@ class Rotation {
 	$this->setSail($new_sail);
       }
     }
+    $this->has_sails = true;
   }
 
   /**
@@ -518,6 +541,7 @@ class Rotation {
 		 'where sail = "%s" and race = "%s"',
 		 (int)$repl, (int)$orig, $race->id);
     $this->regatta->query($q);
+    $this->has_sails = true;
   }
 
   /**

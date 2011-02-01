@@ -760,6 +760,7 @@ class Regatta implements RaceListener, FinishListener {
 
     $finish->addListener($this);
     $this->finishes[$id] = $finish;
+    $this->has_finish = true;
     return $finish;
   }
 
@@ -787,6 +788,22 @@ class Regatta implements RaceListener, FinishListener {
     }
     
     return $finishes;
+  }
+
+  private $has_finishes = null;
+  /**
+   * Are there finishes for this regatta?
+   *
+   * @return boolean
+   */
+  public function hasFinishes() {
+    if ($this->has_finishes !== null)
+      return $this->has_finishes;
+
+    $q = $this->query('select id from finish where race in (select id from race where regatta = %d)', $this->id);
+    $this->has_finishes = ($q->num_rows > 0);
+    $q->free();
+    return $this->has_finishes;
   }
 
   /**
@@ -820,8 +837,8 @@ class Regatta implements RaceListener, FinishListener {
 		       $finish->entered->format("Y-m-d H:i:s"));
     }
     $this->query(sprintf('insert into finish (race, team, entered) values %s on duplicate key update entered=values(entered)', implode(',', $txt)));
-
     $this->doScore();
+    $this->has_finishes = true;
   }
 
   /**
@@ -833,6 +850,7 @@ class Regatta implements RaceListener, FinishListener {
   protected function deleteFinishes(Race $race) {
     $q = sprintf('delete from finish where race = "%s"', $race->id);
     $this->query($q);
+    $this->has_finishes = null;
   }
 
   /**
