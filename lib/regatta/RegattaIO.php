@@ -466,7 +466,8 @@ class RegattaIO {
     // Finishes
     // ------------------------------------------------------------
     $finish_errors = false;
-    $finishes = array();
+    $finishes = array(); // alist of race_id => array(Finish)
+    $races = array();    // alist of race_id => Race
     foreach ($root->Finishes->Finish as $finish) {
       $team_id = (string)$finish['team'];
       if (empty($finish))
@@ -482,9 +483,12 @@ class RegattaIO {
 	if (isset($teams[$team_id]) && ($r != null)) {
 	  try {
 	    $race = $regatta->getRace($r->division, $r->number);
-	    $f = new Finish(0, $race, $teams[$team_id]);
+	    $f = new Finish(0, $teams[$team_id]);
 	    $f->entered = $entered;
-	    $finishes[] = $f;
+	    if (isset($finishes[$race->id]))
+	      $finishes[$race->id] = array();
+	    $finishes[$race->id][] = $f;
+	    $races[$race->id] = $race;
 	  }
 	  catch (Exception $e) {
 	    $warnings[] = "Missing race $r while importing finishes.";
@@ -497,7 +501,8 @@ class RegattaIO {
     if ($finish_errors)
       $warnings[] = "Problems with one or more finishes.";
 
-    $regatta->setFinishes($finishes);
+    foreach ($finishes as $rid => $list)
+      $regatta->setFinishes($races[$rid], $list);
 
 
     // ------------------------------------------------------------

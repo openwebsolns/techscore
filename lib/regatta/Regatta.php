@@ -738,7 +738,7 @@ class Regatta implements RaceListener, FinishListener {
     if ($fin === false)
       return null;
     
-    $finish = new Finish($fin->id, $race, $team);
+    $finish = new Finish($fin->id, $this->getTeam($fin->team));
     $finish->entered = new DateTime($fin->entered);
 
     // penalty
@@ -793,7 +793,6 @@ class Regatta implements RaceListener, FinishListener {
       if (($f = $this->getFinish($race, $team)) !== null)
 	$finishes[] = $f;
     }
-    
     return $finishes;
   }
 
@@ -845,23 +844,23 @@ class Regatta implements RaceListener, FinishListener {
   }
 
   /**
-   * Adds the finishes to the regatta, then checks for completeness
+   * Adds the finishes to the regatta, no longer scores the race!
    *
+   * @param Race $race the race for which to enter finishes
    * @param Array<Finish> $finishes the list of finishes
    */
-  public function setFinishes(Array $finishes) {
+  public function setFinishes(Race $race, Array $finishes) {
     if (count($finishes) == 0) return;
     
     $fmt = '("%s", "%s", "%s")';
     $txt = array();
     foreach ($finishes as $finish) {
       $txt[] = sprintf($fmt,
-		       $finish->race->id,
+		       $race->id,
 		       $finish->team->id,
 		       $finish->entered->format("Y-m-d H:i:s"));
     }
     $this->query(sprintf('insert into finish (race, team, entered) values %s on duplicate key update entered=values(entered)', implode(',', $txt)));
-    $this->doScore();
     $this->has_finishes = true;
   }
 
@@ -1138,7 +1137,21 @@ class Regatta implements RaceListener, FinishListener {
   }
 
   /**
-   * Scores itself
+   * Calls the 'score' method on this regatta's scorer, feeding it the
+   * given race. This new method should be used during scoring, as it
+   * updates only the one affected race at a time. Whereas the doScore
+   * method is more appropriate for input data that needs to be
+   * checked first for possible errors.
+   *
+   * @param Race $race the race to run the score
+   */
+  public function runScore(Race $race) {
+    $this->scorer->score($this, $race);
+  }
+
+  /**
+   * Scores itself completely, checking the integrity of the data
+   * first.
    *
    */
   public function doScore() {
