@@ -23,8 +23,6 @@ class Finish {
   private $score;
   private $explanation;
 
-  private $listeners;
-
   const FIELDS = 'finish.id, finish.team, finish.entered, finish.score, finish.explanation, finish.penalty, finish.amount, finish.comments, finish.displace';
   const TABLES = 'finish';
 
@@ -38,7 +36,6 @@ class Finish {
   public function __construct($id, Team $team) {
     $this->id = (int)$id;
     $this->team = $team;
-    $this->listeners = array();
   }
   
   public function __set($name, $value) {
@@ -46,7 +43,6 @@ class Finish {
     case "entered":
       if ($value instanceof DateTime) {
 	$this->entered = $value;
-	$this->fireChange(FinishListener::ENTERED);
       }
       else
 	throw new InvalidArgumentException("Entered property must be DateTime object.");
@@ -57,7 +53,6 @@ class Finish {
 	  $value instanceof Score) {
 	$this->score = $value->score;
 	$this->explanation = $value->explanation;
-	$this->fireChange(FinishListener::SCORE);
       }
       else
 	throw new InvalidArgumentException("Score property must be Score object.");
@@ -66,7 +61,6 @@ class Finish {
     case "penalty":
       if ($value == null || $value instanceof FinishModifier) {
 	$this->penalty = $value;
-	$this->fireChange(FinishListener::PENALTY);
       }
       else
 	throw new InvalidArgumentException("Penalty object not a valid FinishModifier.");
@@ -99,30 +93,5 @@ class Finish {
   public static function compareEntered(Finish $f1, Finish $f2) {
     return $f1->entered->format("U") - $f2->entered->format("U");
   }
-
-  //
-  // Listeners
-  //
-
-  /**
-   * Registers the listener
-   *
-   * @param FinishListener $listener the listener
-   */
-  public function addListener(FinishListener $listener) {
-    $this->listeners[] = $listener;
-  }
-
-  /**
-   * Fire finish change
-   *
-   * @param FinishListener::CONST $type the type of change
-   */
-  private function fireChange($type) {
-    foreach ($this->listeners as $listener) {
-      $listener->finishChanged($type, $this);
-    }
-  }
 }
-
 ?>

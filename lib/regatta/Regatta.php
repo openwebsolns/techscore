@@ -32,7 +32,7 @@ require_once('conf.php');
  * @author Dayan Paez
  * @created 2009-10-01
  */
-class Regatta implements RaceListener, FinishListener {
+class Regatta implements RaceListener {
 
   private $id;
   private $scorer;
@@ -726,6 +726,19 @@ class Regatta implements RaceListener, FinishListener {
   private $finishes = array();
 
   /**
+   * Helper method to serialize to the database a finish objec. This
+   * merely creates the query that should be executed for the given
+   * finish object
+   *
+   * @param Finish $fin the finish object to serialize
+   * @return String the query
+   */
+  private function serializeFunction(Finish $fin) {
+    // @TODO
+    return "";
+  }
+
+  /**
    * Helper method creates the finish object from the MySQLi_Result object
    *
    * @param MySQLi_Result $sql the result of a query that returns the
@@ -733,7 +746,7 @@ class Regatta implements RaceListener, FinishListener {
    *
    * @return Finish|null the first finish object from the result set
    */
-  private function serializeFinish(MySQLi_Result $res) {
+  private function deserializeFinish(MySQLi_Result $res) {
     $fin = $res->fetch_object();
     if ($fin === false)
       return null;
@@ -750,7 +763,6 @@ class Regatta implements RaceListener, FinishListener {
 	$finish->penalty = new Breakdown($fin->penalty, $fin->amount, $fin->comments, $fin->displace);
     }
     $finish->score = new Score($fin->score, $fin->explanation);
-    $finish->addListener($this);
     return $finish;
   }
 
@@ -772,7 +784,7 @@ class Regatta implements RaceListener, FinishListener {
     if ($q->num_rows == 0)
       return null;
     
-    $this->finishes[$id] = $this->serializeFinish($q);
+    $this->finishes[$id] = $this->deserializeFinish($q);
     $q->free();
     $this->has_finish = true;
     return $finish;
@@ -807,7 +819,7 @@ class Regatta implements RaceListener, FinishListener {
 		 Finish::FIELDS, Finish::TABLES, $this->id);
     $q = $this->query($q);
     $list = array();
-    while (($fin = $this->serializeFinish($q)) !== null)
+    while (($fin = $this->deserializeFinish($q)) !== null)
       $list[] = $fin;
     $q->free();
     return $list;
