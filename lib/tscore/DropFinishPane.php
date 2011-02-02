@@ -141,6 +141,6 @@ class DropFinishPane extends AbstractPane {
   }
 
   public function isActive() {
-    return count($this->REGATTA->getScoredRaces()) > 0;
+    return $this->REGATTA->hasFinishes();
   }
 }

@@ -26,6 +26,9 @@ class Finish {
 
   private $listeners;
 
+  const FIELDS = 'finish.id, finish.race, finish.team, finish.entered, finish.score, finish.explanation, finish.penalty, finish.amount, finish.comments, finish.displace';
+  const TABLES = 'finish';
+
   /**
    * Creates a new finish with the give id, race, team and regatta
    *

@@ -286,6 +286,6 @@ class EnterPenaltyPane extends AbstractPane {
   }
 
   public function isActive() {
-    return count($this->REGATTA->getFinishes()) > 0;
+    return $this->REGATTA->hasFinishes();
   }
 }

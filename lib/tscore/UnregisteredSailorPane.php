@@ -122,7 +122,7 @@ class UnregisteredSailorPane extends AbstractPane {
   }
 
   public function isActive() {
-    return count($this->REGATTA->getTeams()) > 1;
+    return count($this->REGATTA->getFleetSize()) > 0;
   }
 }
 ?>

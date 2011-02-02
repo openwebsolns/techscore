@@ -716,35 +716,28 @@ class Regatta implements RaceListener, FinishListener {
     return $r;
   }
 
-
+  // ------------------------------------------------------------
+  // FINISHES
+  // ------------------------------------------------------------
   
   /**
    * @var Array attempt to cache finishes, index is 'race-team_id'
    */
   private $finishes = array();
+
   /**
-   * Returns the finish for the given race and team, or null
+   * Helper method creates the finish object from the MySQLi_Result object
    *
-   * @param $race the race object
-   * @param $team the team object
-   * @return the finish object
+   * @param MySQLi_Result $sql the result of a query that returns the
+   * finish object's parameters
+   *
+   * @return Finish|null the first finish object from the result set
    */
-  public function getFinish(Race $race, Team $team) {
-    $id = sprintf('%s-%d', $race, $team->id);
-    if (isset($this->finishes[$id]))
-      return $this->finishes[$id];
-    
-    $q = sprintf('select finish.id, finish.race, finish.team, finish.entered, ' .
-		 'finish.score, finish.explanation, ' .
-		 'finish.penalty, finish.amount, finish.comments, finish.displace ' .
-		 'from finish where (race, team) = ("%s", "%s")',
-		 $race->id, $team->id);
-    $q = $this->query($q);
-    if ($q->num_rows == 0)
+  private function serializeFinish(MySQLi_Result $res) {
+    $fin = $res->fetch_object();
+    if ($fin === false)
       return null;
     
-    $fin = $q->fetch_object();
-    $q->free();
     $finish = new Finish($fin->id, $race, $team);
     $finish->entered = new DateTime($fin->entered);
 
@@ -757,9 +750,30 @@ class Regatta implements RaceListener, FinishListener {
 	$finish->penalty = new Breakdown($fin->penalty, $fin->amount, $fin->comments, $fin->displace);
     }
     $finish->score = new Score($fin->score, $fin->explanation);
-
     $finish->addListener($this);
-    $this->finishes[$id] = $finish;
+    return $finish;
+  }
+
+  /**
+   * Returns the finish for the given race and team, or null
+   *
+   * @param $race the race object
+   * @param $team the team object
+   * @return the finish object
+   */
+  public function getFinish(Race $race, Team $team) {
+    $id = sprintf('%s-%d', $race, $team->id);
+    if (isset($this->finishes[$id]))
+      return $this->finishes[$id];
+    
+    $q = sprintf('select %s from %s where (race, team) = ("%s", "%s")',
+		 Finish::FIELDS, Finish::TABLES, $race->id, $team->id);
+    $q = $this->query($q);
+    if ($q->num_rows == 0)
+      return null;
+    
+    $this->finishes[$id] = $this->serializeFinish($q);
+    $q->free();
     $this->has_finish = true;
     return $finish;
   }
@@ -773,14 +787,7 @@ class Regatta implements RaceListener, FinishListener {
    * all the finishes ordered by race, and timestamp.
    *
    */
-  public function getFinishes(Race $race = null) {
-    if ($race == null) {
-      $list = array();
-      foreach ($this->getRaces() as $race)
-	$list = array_merge($list, $this->getFinishes($race));
-      return $list;
-    }
-    
+  public function getFinishes(Race $race) {
     $finishes = array();
     foreach ($this->getTeams() as $team) {
       if (($f = $this->getFinish($race, $team)) !== null)
@@ -788,6 +795,23 @@ class Regatta implements RaceListener, FinishListener {
     }
     
     return $finishes;
+  }
+
+  /**
+   * Returns all the finishes which have been "penalized" in one way
+   * or another. That is, they have either a penalty or a breakdown
+   *
+   * @return Array:Finish the list of finishes, regardless of race
+   */
+  public function getPenalizedFinishes() {
+    $q = sprintf('select %s from %s where penalty is not null and race in (select id from race where regatta = %d)',
+		 Finish::FIELDS, Finish::TABLES, $this->id);
+    $q = $this->query($q);
+    $list = array();
+    while (($fin = $this->serializeFinish($q)) !== null)
+      $list[] = $fin;
+    $q->free();
+    return $list;
   }
 
   private $has_finishes = null;

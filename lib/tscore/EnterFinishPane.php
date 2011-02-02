@@ -744,8 +744,8 @@ class EnterFinishPane extends AbstractPane {
   }
 
   public function isActive() {
-    return (count($this->REGATTA->getRaces()) > 0 &&
-	    count($this->REGATTA->getTeams()) > 0);
+    return ($this->REGATTA->getRacesCount() > 0 &&
+	    $this->REGATTA->getFleetSize() > 0);
   }
 }
 

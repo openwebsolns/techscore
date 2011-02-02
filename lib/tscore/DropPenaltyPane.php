@@ -21,10 +21,9 @@ class DropPenaltyPane extends AbstractPane {
   }
 
   protected function fillHTML(Array $args) {
-    
     $penalties = array();
     $handicaps = array();
-    foreach ($this->REGATTA->getFinishes() as $finish) {
+    foreach ($this->REGATTA->getPenalizedFinishes() as $finish) {
       if ($finish->penalty instanceof Penalty)
 	$penalties[] = $finish;
       elseif ($finish->penalty instanceof Breakdown)
@@ -100,7 +99,7 @@ class DropPenaltyPane extends AbstractPane {
     if (isset($args['p_remove'])) {
 
       // - validate finish id
-      $finishes = $this->REGATTA->getFinishes();
+      $finishes = $this->REGATTA->getPenalizedFinishes();
       $theFinish = Preferences::getObjectWithProperty($finishes,
 						      "id",
 						      $args['r_finish']);
@@ -120,6 +119,6 @@ class DropPenaltyPane extends AbstractPane {
   }
 
   public function isActive() {
-    return count($this->REGATTA->getScoredRaces()) > 0;
+    return $this->REGATTA->hasFinishes();
   }
 }
