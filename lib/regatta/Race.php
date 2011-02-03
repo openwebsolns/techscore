@@ -29,7 +29,11 @@ class Race {
   const FIELDS = "race.id, race.division, race.number, race.boat";
   const TABLES = "race";
 
-  public function __construct() {}
+  public function __construct() {
+    if ($this->division !== null &&
+	!($this->division instanceof Division))
+      $this->division = Division::get($this->division);
+  }
 
   public function __get($name) {
     if ($name == "boat") {

@@ -65,3 +65,7 @@ update finish, penalty set finish.penalty = penalty.type, finish.amount = -1, fi
 alter table finish drop column place;
 drop table penalty; drop table handicap;
 alter table finish add column displace bit default null after amount;
+
+-- add an earned amount field to finish (rather: score) for average finishes
+-- so that they are not penalized more than they need to be (agh!)
+alter table finish add column earned tinyint unsigned default null comment "Minimum that an average score can earn." after amount;

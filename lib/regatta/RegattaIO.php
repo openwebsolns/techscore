@@ -483,7 +483,7 @@ class RegattaIO {
 	if (isset($teams[$team_id]) && ($r != null)) {
 	  try {
 	    $race = $regatta->getRace($r->division, $r->number);
-	    $f = new Finish(0, $teams[$team_id]);
+	    $f = $regatta->createFinish($r, $teams[$team_id]);
 	    $f->entered = $entered;
 	    if (isset($finishes[$race->id]))
 	      $finishes[$race->id] = array();
@@ -502,7 +502,7 @@ class RegattaIO {
       $warnings[] = "Problems with one or more finishes.";
 
     foreach ($finishes as $rid => $list)
-      $regatta->setFinishes($races[$rid], $list);
+      $regatta->setFinishes($races[$rid]);
 
 
     // ------------------------------------------------------------

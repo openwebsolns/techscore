@@ -23,7 +23,7 @@ class Finish {
   private $score;
   private $explanation;
 
-  const FIELDS = 'finish.id, finish.team, finish.entered, finish.score, finish.explanation, finish.penalty, finish.amount, finish.comments, finish.displace';
+  const FIELDS = 'finish.id, finish.team, finish.entered, finish.score, finish.explanation, finish.penalty, finish.amount, finish.earned, finish.comments, finish.displace';
   const TABLES = 'finish';
 
   /**

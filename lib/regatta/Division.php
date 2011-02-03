@@ -97,7 +97,7 @@ class Division {
     case "D":
       return self::D();
     default:
-      throw new IllegalArgumentError("Invalid division value");
+      throw new IllegalArgumentException("Invalid division value");
     }
   }
 

@@ -260,7 +260,7 @@ class EnterPenaltyPane extends AbstractPane {
 					   Announcement::WARNING));
 	  return $args;
 	}
-	$theFinish->penalty = new Penalty($thePen, $theAmount, $theComm, $theDisplace);
+	$theFinish->penalty = new Breakdown($thePen, $theAmount, $theComm, $theDisplace);
       }
       else {
 	if ($theFinish->score !== null &&
@@ -275,8 +275,11 @@ class EnterPenaltyPane extends AbstractPane {
 					   Announcement::WARNING));
 	  return $args;
 	}
-	$theFinish->penalty = new Breakdown($thePen, $theAmount, $theComm, $theDisplace);
+	$theFinish->penalty = new Penalty($thePen, $theAmount, $theComm, $theDisplace);
       }
+      $this->REGATTA->runScore($race);
+      $this->REGATTA->setFinishes($race);
+      
       $mes = sprintf("Added %s for %s.", $thePen, $theFinish->team);
       $this->announce(new Announcement($mes));
       unset($args['p_type']);

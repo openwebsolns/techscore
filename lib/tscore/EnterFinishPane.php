@@ -527,7 +527,7 @@ class EnterFinishPane extends AbstractPane {
 	}
 	$race = $races[$sail];
 
-	$finish = new Finish(null, $sails[$sail]);
+	$finish = $this->REGATTA->createFinish($race, $sails[$sail]);
 	$finish->entered = new DateTime(sprintf($now_fmt, 3 * $i));
 
 	if (!isset($finishes[$race->id]))
@@ -536,10 +536,10 @@ class EnterFinishPane extends AbstractPane {
 	unset($sails[$sail]);
       }
 
-      foreach ($finishes as $rid => $list)
-	$this->REGATTA->setFinishes($race_ids[$rid], $list);
       // remember: any race from any division should do for combined scoring
       $this->REGATTA->runScore($race);
+      foreach ($finishes as $rid => $list)
+	$this->REGATTA->setFinishes($race_ids[$rid]);
 
       // Reset
       unset($args['chosen_race']);
@@ -600,7 +600,7 @@ class EnterFinishPane extends AbstractPane {
 	  return $args;
 	}
 	$race = $races[$team_id];
-	$finish = new Finish(null, $sails[$team_id]);
+	$finish = $this->REGATTA->createFinish($race, $sails[$team_id]);
 	$finish->entered = new DateTime(sprintf($now_fmt, 3 * $i));
 
 	if (!isset($finishes[$race->id]))
@@ -608,10 +608,10 @@ class EnterFinishPane extends AbstractPane {
 	$finishes[$race->id][] = $finish;
 	unset($sails[$team_id]);
       }
-      foreach ($finishes as $rid => $list)
-	$this->REGATTA->setFinishes($race_ids[$rid], $list);
       // remember: any race from any division should do for combined scoring
       $this->REGATTA->runScore($race);
+      foreach ($finishes as $rid => $list)
+	$this->REGATTA->setFinishes($race_ids[$rid]);
 
       // Reset
       unset($args['chosen_race']);
@@ -679,7 +679,7 @@ class EnterFinishPane extends AbstractPane {
       // participating in this regatta (every team has a finish). Make
       // associative array of sail numbers => teams
       $teams = array(); // alist: sail => Team
-      foreach ($sails as $sail) {
+      foreach ($sails as $sail)
 	$teams[$sail] = $rotation->getTeam($race, $sail);
 
       $count = count($sails);
@@ -700,14 +700,14 @@ class EnterFinishPane extends AbstractPane {
 	  return $args;
 	}
 	
-	$finish = new Finish(null, $teams[$sail]);
+	$finish = $this->REGATTA->createFinish($race, $teams[$sail]);
 	$finish->entered = new DateTime(sprintf($now_fmt, 3 * $i));
 	$finishes[] = $finish;
 	unset($sails[$sail]);
       }
 
-      $this->REGATTA->setFinishes($race, $finishes);
       $this->REGATTA->runScore($race);
+      $this->REGATTA->setFinishes($race);
 
       // Reset
       unset($args['chosen_race']);
@@ -754,14 +754,14 @@ class EnterFinishPane extends AbstractPane {
 	  return $args;
 	}
 
-	$finish = new Finish(null, $teams[$team_id], $this->REGATTA);
+	$finish = $this->REGATTA->createFinish($race, $teams[$team_id]);
 	$finish->entered = new DateTime(sprintf($now_fmt, 3 * $i));
 	$finishes[] = $finish;
 	unset($teams[$team_id]);
       }
 
-      $this->REGATTA->setFinishes($race, $finishes);
       $this->REGATTA->runScore($race);
+      $this->REGATTA->setFinishes($race);
 
       // Reset
       unset($args['chosen_race']);

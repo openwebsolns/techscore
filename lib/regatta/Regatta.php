@@ -290,7 +290,7 @@ class Regatta implements RaceListener {
       return null;
     }
 
-    $q = sprintf('select team.id team.name, team.school from team where regatta = %d and id = %d limit 1',
+    $q = sprintf('select team.id, team.name, team.school from team where regatta = %d and id = %d limit 1',
 		 $this->id, $id);
     $q = $this->query($q);
     if ($q->num_rows == 0)
@@ -733,9 +733,37 @@ class Regatta implements RaceListener {
    * @param Finish $fin the finish object to serialize
    * @return String the query
    */
-  private function serializeFunction(Finish $fin) {
-    // @TODO
-    return "";
+  private function serializeFinish(Race $race, Finish $fin) {
+    $fields = array('id', 'race', 'team', 'entered');
+    $values = array($fin->id, $race->id, $fin->team->id, $fin->entered->format('Y-m-d H:i:s'));
+    $update = array('entered=values(entered)');
+
+    if ($fin->score !== null) {
+      $fields[] = 'score';
+      $fields[] = 'explanation';
+      $values[] = $fin->score;
+      $values[] = $fin->explanation;
+      $update[] = 'score=values(score),explanation=values(explanation)';
+    }
+    if ($fin->penalty !== null) {
+      $fields[] = 'amount';
+      $fields[] = 'penalty';
+      $fields[] = 'comments';
+      $values[] = $fin->penalty->amount;
+      $values[] = $fin->penalty->type;
+      $values[] = $fin->penalty->comments;
+      $update[] = 'amount=values(amount),penalty=values(penalty),comments=values(comments)';
+      if ($fin->penalty instanceof Breakdown) {
+	$fields[] = 'earned';
+	$values[] = $fin->penalty->earned;
+	$update[] = 'earned=values(earned)';
+      }
+    }
+    
+    return sprintf('insert into finish (%s) values ("%s") on duplicate key update %s',
+		   implode(',', $fields),
+		   implode('","', $values),
+		   implode(',', $update));
   }
 
   /**
@@ -759,11 +787,31 @@ class Regatta implements RaceListener {
       $penalties = Penalty::getList();
       if (isset($penalties[$fin->penalty]))
 	$finish->penalty = new Penalty($fin->penalty, $fin->amount, $fin->comments, $fin->displace);
-      else
+      else {
 	$finish->penalty = new Breakdown($fin->penalty, $fin->amount, $fin->comments, $fin->displace);
+	$finish->penalty->earned = $fin->earned;
+      }
     }
     $finish->score = new Score($fin->score, $fin->explanation);
     return $finish;
+  }
+
+  /**
+   * Creates a new finish for the given race and team, and returns the
+   * object. Note that this clobbers the existing finish, if any,
+   * although the information is not saved in the database until it is
+   * saved with 'setFinishes'
+   *
+   * @param Race $race the race
+   * @param Team $team the team
+   * @return Finish
+   */
+  public function createFinish(Race $race, Team $team) {
+    $id = sprintf('%s-%d', $race, $team->id);
+    $fin = new Finish(null, $team);
+    $this->finishes[$id] = $fin;
+    $this->has_finishes = true;
+    return $fin;
   }
 
   /**
@@ -777,7 +825,7 @@ class Regatta implements RaceListener {
     $id = sprintf('%s-%d', $race, $team->id);
     if (isset($this->finishes[$id]))
       return $this->finishes[$id];
-    
+
     $q = sprintf('select %s from %s where (race, team) = ("%s", "%s")',
 		 Finish::FIELDS, Finish::TABLES, $race->id, $team->id);
     $q = $this->query($q);
@@ -787,7 +835,7 @@ class Regatta implements RaceListener {
     $this->finishes[$id] = $this->deserializeFinish($q);
     $q->free();
     $this->has_finish = true;
-    return $finish;
+    return $this->finishes[$id];
   }
 
   /**
@@ -815,12 +863,51 @@ class Regatta implements RaceListener {
    * @return Array:Finish the list of finishes, regardless of race
    */
   public function getPenalizedFinishes() {
-    $q = sprintf('select %s from %s where penalty is not null and race in (select id from race where regatta = %d)',
-		 Finish::FIELDS, Finish::TABLES, $this->id);
+    $q = sprintf('select race.id, race.division, race.number, finish.team from finish ' .
+		 'inner join race on finish.race = race.id ' .
+		 'where finish.penalty is not null and race.regatta = %d',
+		 $this->id);
+
     $q = $this->query($q);
     $list = array();
-    while (($fin = $this->deserializeFinish($q)) !== null)
-      $list[] = $fin;
+    while ($obj = $q->fetch_object()) {
+      $rc = new Race();
+      $rc->id = $q->id;
+      $rc->division = Division::get($q->division);
+      $rc->number   = $q->number;
+      
+      $tm = new Team();
+      $tm->id = $q->team;
+      $list[] = $this->getFinish($rc, $tm);
+    }
+    $q->free();
+    return $list;
+  }
+
+  /**
+   * Returns a list of those finishes in the given division which are
+   * set to be scored as average of the other finishes in the same
+   * division. Confused, read the procedural rules for breakdowns, etc.
+   *
+   * @param Division $div the division whose average-scored finishes
+   * to fetch
+   *
+   * @return Array:Finish the finishes
+   */
+  public function getAverageFinishes(Division $div) {
+    $q = sprintf('select race.division, race.number, finish.team from finish ' .
+		 'inner join race on finish.race = race.id ' .
+		 'where finish.penalty in ("BKD", "RDG", "BYE") and finish.amount <= 0 ' .
+		 '  and race.regatta = %d and race.division = "%s"',
+		 $this->id, $div);
+
+    $q = $this->query($q);
+    $list = array();
+    while ($obj = $q->fetch_object()) {
+      $rc = $this->getRace(Division::get($obj->division), $obj->number);
+      $tm = $this->getTeam($obj->team);
+      $list[] = $this->getFinish($rc, $tm);
+    }
     $q->free();
     return $list;
   }
@@ -835,45 +922,25 @@ class Regatta implements RaceListener {
     if ($this->has_finishes !== null)
       return $this->has_finishes;
 
-    $q = $this->query('select id from finish where race in (select id from race where regatta = %d)', $this->id);
+    $q = $this->query(sprintf('select id from finish ' .
+			      'where race in (select id from race where regatta = %d)', $this->id));
     $this->has_finishes = ($q->num_rows > 0);
     $q->free();
     return $this->has_finishes;
   }
 
   /**
-   * Returns a list of those finishes in the given division which are
-   * set to be scored as average of the other finishes in the same
-   * division. Confused, read the procedural rules for breakdowns, etc.
-   *
-   * @param Division $div the division whose average-scored finishes
-   * to fetch
-   *
-   * @return Array:Finish the finishes
-   */
-  public function getAverageFinishes(Division $div) {
-
-  }
-
-  /**
-   * Adds the finishes to the regatta, no longer scores the race!
+   * Commits the finishes given to the database. Note that the
+   * finishes must have been registered ahead of time with the
+   * regatta, either through getFinish or createFinish.
    *
    * @param Race $race the race for which to enter finishes
    * @param Array<Finish> $finishes the list of finishes
    */
-  public function setFinishes(Race $race, Array $finishes) {
-    if (count($finishes) == 0) return;
-    
-    $fmt = '("%s", "%s", "%s")';
-    $txt = array();
-    foreach ($finishes as $finish) {
-      $txt[] = sprintf($fmt,
-		       $race->id,
-		       $finish->team->id,
-		       $finish->entered->format("Y-m-d H:i:s"));
+  public function setFinishes(Race $race) {
+    foreach ($this->getFinishes($race) as $finish) {
+      $this->query($this->serializeFinish($race, $finish));
     }
-    $this->query(sprintf('insert into finish (race, team, entered) values %s on duplicate key update entered=values(entered)', implode(',', $txt)));
-    $this->has_finishes = true;
   }
 
   /**
@@ -896,7 +963,7 @@ class Regatta implements RaceListener {
    */
   public function dropFinishes(Race $race) {
     $this->deleteFinishes($race);
-    $this->doScore();
+    $this->runScore($race);
   }
 
   /**
@@ -1211,8 +1278,10 @@ class Regatta implements RaceListener {
       }
     }
 
-
-    $this->scorer->score($this);
+    foreach ($divisions as $div) {
+      foreach ($this->getScoredRaces($div) as $race)
+	$this->scorer->score($this, $race);
+    }
 
     // Queue public score update
     UpdateManager::queueRequest($this, UpdateRequest::ACTIVITY_SCORE);
