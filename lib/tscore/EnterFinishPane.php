@@ -479,7 +479,7 @@ class EnterFinishPane extends AbstractPane {
     $rotation = $this->REGATTA->getRotation();
     if (isset($args['f_places'])) {
       try {
-	$race = Parse::race($args['race']);
+	$race = Race::parse($args['race']);
 	$race = $this->REGATTA->getRace($race->division, $race->number);
 	if ($race === null)
 	  throw new Exception(sprintf("No such race (%s) in this regatta.", $race));
@@ -538,8 +538,9 @@ class EnterFinishPane extends AbstractPane {
 
       // remember: any race from any division should do for combined scoring
       $this->REGATTA->runScore($race);
-      foreach ($finishes as $rid => $list)
+      foreach ($finishes as $rid => $list) {
 	$this->REGATTA->setFinishes($race_ids[$rid]);
+      }
 
       // Reset
       unset($args['chosen_race']);

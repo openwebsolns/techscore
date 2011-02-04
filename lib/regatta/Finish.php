@@ -16,6 +16,7 @@ class Finish {
 
   // Parameters
   private $id;
+  private $race;
   private $team;
   private $entered = null;
   private $penalty = null;
@@ -23,7 +24,7 @@ class Finish {
   private $score;
   private $explanation;
 
-  const FIELDS = 'finish.id, finish.team, finish.entered, finish.score, finish.explanation, finish.penalty, finish.amount, finish.earned, finish.comments, finish.displace';
+  const FIELDS = 'finish.id, finish.race, finish.team, finish.entered, finish.score, finish.explanation, finish.penalty, finish.amount, finish.earned, finish.comments, finish.displace';
   const TABLES = 'finish';
 
   /**
@@ -31,10 +32,12 @@ class Finish {
    *
    * @param int $id the id of the finish
    * @param Team $team the team
+   * @param Race $race the race
    * @param Regatta $reg the regatta
    */
-  public function __construct($id, Team $team) {
+  public function __construct($id, Race $race, Team $team) {
     $this->id = (int)$id;
+    $this->race = $race;
     $this->team = $team;
   }
   

@@ -82,7 +82,7 @@ class DropPenaltyPane extends AbstractPane {
 				   new Cell($finish->team,
 					    array("class"=>"strong")),
 				   new Cell($finish->penalty->type),
-				   new Cell($form = new Form($this->createForm())))));
+				   new Cell($form = $this->createForm()))));
 
 	$form->addChild(new FHidden("r_finish", $finish->id));
 	$form->addChild($sub = new FSubmit("p_remove", "Drop/Reinstate",
@@ -109,6 +109,8 @@ class DropPenaltyPane extends AbstractPane {
 	return $args;
       }
       $theFinish->penalty = null;
+      $this->REGATTA->runScore($theFinish->race);
+      $this->REGATTA->setFinishes($theFinish->race);
 
       // Announce
       $mes = sprintf("Dropped penalty for %s in race %s.",

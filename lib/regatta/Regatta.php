@@ -772,14 +772,17 @@ class Regatta implements RaceListener {
    * @param MySQLi_Result $sql the result of a query that returns the
    * finish object's parameters
    *
+   * @param Race $race the race
+   * @param Team $team the team
+   *
    * @return Finish|null the first finish object from the result set
    */
-  private function deserializeFinish(MySQLi_Result $res) {
+  private function deserializeFinish(MySQLi_Result $res, Race $race, Team $team) {
     $fin = $res->fetch_object();
     if ($fin === false)
       return null;
     
-    $finish = new Finish($fin->id, $this->getTeam($fin->team));
+    $finish = new Finish($fin->id, $race, $team);
     $finish->entered = new DateTime($fin->entered);
 
     // penalty
@@ -808,7 +811,7 @@ class Regatta implements RaceListener {
    */
   public function createFinish(Race $race, Team $team) {
     $id = sprintf('%s-%d', $race, $team->id);
-    $fin = new Finish(null, $team);
+    $fin = new Finish(null, $race, $team);
     $this->finishes[$id] = $fin;
     $this->has_finishes = true;
     return $fin;
@@ -832,7 +835,7 @@ class Regatta implements RaceListener {
     if ($q->num_rows == 0)
       return null;
     
-    $this->finishes[$id] = $this->deserializeFinish($q);
+    $this->finishes[$id] = $this->deserializeFinish($q, $race, $team);
     $q->free();
     $this->has_finish = true;
     return $this->finishes[$id];
@@ -871,14 +874,8 @@ class Regatta implements RaceListener {
     $q = $this->query($q);
     $list = array();
     while ($obj = $q->fetch_object()) {
-      $rc = new Race();
-      $rc->id = $q->id;
-      $rc->division = Division::get($q->division);
-      $rc->number   = $q->number;
-      
-      $tm = new Team();
-      $tm->id = $q->team;
-      $list[] = $this->getFinish($rc, $tm);
+      $list[] = $this->getFinish($this->getRace(Division::get($obj->division), $obj->number),
+				 $this->getTeam($obj->team));
     }
     $q->free();
     return $list;
@@ -1226,6 +1223,7 @@ class Regatta implements RaceListener {
    */
   public function runScore(Race $race) {
     $this->scorer->score($this, $race);
+    UpdateManager::queueRequest($this, UpdateRequest::ACTIVITY_SCORE);
   }
 
   /**

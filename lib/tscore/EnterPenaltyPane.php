@@ -182,7 +182,7 @@ class EnterPenaltyPane extends AbstractPane {
 	$args['p_race'] = $theRace;
       }
       catch (InvalidArgumentException $e) {
-	$mes = sprintf("Invalid race (%s).", $args['chosen_race']);
+	$mes = sprintf("Invalid race (%s).", $args['p_race']);
 	$this->announce(new Announcement($mes, Announcement::ERROR));
 	unset($args['p_race']);
 	unset($args['p_type']);
@@ -258,6 +258,7 @@ class EnterPenaltyPane extends AbstractPane {
 	if ($theFinish->score !== null && $theAmount >= $theFinish->score) {
 	  $this->announce(new Announcement("The assigned score is no better than the actual score; ignoring.",
 					   Announcement::WARNING));
+	  $args['p_race'] = $race;
 	  return $args;
 	}
 	$theFinish->penalty = new Breakdown($thePen, $theAmount, $theComm, $theDisplace);
