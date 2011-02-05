@@ -13,6 +13,7 @@ if (!(isset($_SESSION['user']))) {
   $_SESSION['last_page'] = preg_replace(':^/edit/:', '/', $_SERVER['REQUEST_URI']);
 
   // provide the login page
+  $_SESSION['ANNOUNCE'][] = new Announcement("Please login to proceed.", Announcement::WARNING);
   $PAGE = new WelcomePage();
   echo $PAGE->toHTML();
   exit;

@@ -12,8 +12,13 @@ session_start();
 // Is logged-in
 //
 if (!(isset($_SESSION['user']))) {
-  $_SESSION['last_page'] = $_SERVER['REQUEST_URI'];
-  WebServer::go('/');
+  $_SESSION['last_page'] = preg_replace(':^/pedit/:', '/', $_SERVER['REQUEST_URI']);
+
+  // provide the login page
+  $_SESSION['ANNOUNCE'][] = new Announcement("Please login to proceed.", Announcement::WARNING);
+  $PAGE = new WelcomePage();
+  echo $PAGE->toHTML();
+  exit;
 }
 $USER = null;
 try {

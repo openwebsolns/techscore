@@ -27,6 +27,7 @@ if (!(isset($_SESSION['user']))) {
   }
 
   // Create page
+  $_SESSION['ANNOUNCE'][] = new Announcement("Please login to proceed.", Announcement::WARNING);
   $PAGE = new WelcomePage();
   echo $PAGE->toHTML();
   exit;
