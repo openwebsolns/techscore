@@ -10,8 +10,12 @@ session_start();
 // Is logged-in
 //
 if (!(isset($_SESSION['user']))) {
-  $_SESSION['last_page'] = $_SERVER['REQUEST_URI'];
-  WebServer::go('/');
+  $_SESSION['last_page'] = preg_replace(':^/edit/:', '/', $_SERVER['REQUEST_URI']);
+
+  // provide the login page
+  $PAGE = new WelcomePage();
+  echo $PAGE->toHTML();
+  exit;
 }
 $USER = null;
 try {
@@ -95,6 +99,13 @@ elseif (isset($_REQUEST['p'])) {
       $_SESSION['ANNOUNCE'][] = new Announcement($mes, Announcement::WARNING);
       WebServer::go("/score/".$REG->id());
     }
+  }
+  // process, if so requested
+  if (isset($_GET['_action']) && $_GET['_action'] == 'edit') {
+    $_SESSION['POST'] = $PAGE->process($_POST);
+    if (LOG_MEMORY)
+      error_log(sprintf("%s:\t%d\n", $_SERVER['REQUEST_URI'], memory_get_peak_usage()), 3, "../log/memory.log");
+    WebServer::goBack();
   }
 }
 
@@ -233,7 +244,7 @@ else {
 $args = $_REQUEST;
 if (isset($_SESSION['POST']))
   $args = array_merge($args,$_SESSION['POST']);
-print($PAGE->getHTML($args));
+echo $PAGE->getHTML($args);
 
 if (LOG_MEMORY)
   error_log(sprintf("%s:\t%d\n", $_SERVER['REQUEST_URI'], memory_get_peak_usage()), 3, "../log/memory.log");

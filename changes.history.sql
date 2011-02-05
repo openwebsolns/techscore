@@ -69,3 +69,7 @@ alter table finish add column displace bit default null after amount;
 -- add an earned amount field to finish (rather: score) for average finishes
 -- so that they are not penalized more than they need to be (agh!)
 alter table finish add column earned tinyint unsigned default null comment "Minimum that an average score can earn." after amount;
+
+-- make dt_regatta independent from rest of schema
+alter table dt_regatta drop foreign key dt_regatta_ibfk_1;
+alter table dt_regatta change column id id int not null;

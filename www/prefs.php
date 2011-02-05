@@ -86,5 +86,9 @@ else {
   }
 }
 
-print($PAGE->getHTML(array()));
+if (isset($_GET['_action']) && $_GET['_action'] == 'edit') {
+  $PAGE->process($_POST);
+  WebServer::goBack();
+}
+echo $PAGE->getHTML(array());
 ?>
