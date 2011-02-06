@@ -89,6 +89,10 @@ class UpdateDaemon {
     // For each unique regatta, only execute the last version of each
     // unique activity in the queue, but claim that you did them all
     // anyways (lest they should remain pending later on).
+    $UPD_SEASON = array(UpdateRequest::ACTIVITY_SCORE, UpdateRequest::ACTIVITY_DETAILS);
+    $UPD_SCHOOL = array(UpdateRequest::ACTIVITY_SCORE,
+			UpdateRequest::ACTIVITY_DETAILS,
+			UpdateRequest::ACTIVITY_RP);
     $seasons = array();  // set of seasons affected
     $schools = array(); // list of unique schools
     $sync = array();     // set of regattas to also sync
@@ -102,24 +106,21 @@ class UpdateDaemon {
 	  try {
 	    $reg = new Regatta($id);
 	    UpdateRegatta::run($reg, $last->activity);
-	    if (in_array($last->activity,
-			 array(UpdateRequest::ACTIVITY_SCORE,
-			       UpdateRequest::ACTIVITY_DETAILS)))
+	    if (in_array($last->activity, $UPD_SEASON)) {
 	      $sync[$reg->id()] = $reg;
-
-	    // Affected seasons
-	    $season = $reg->get(Regatta::SEASON);
-	    $seasons[(string)$season->getSeason()] = $season;
+	      $season = $reg->get(Regatta::SEASON);
+	      $seasons[(string)$season->getSeason()] = $season;
+	    }
 
 	    // Affected schools
-	    foreach ($reg->getTeams() as $team)
-	      $schools[$team->school->id] = $team->school;
+	    if (in_array($last->activity, $UPD_SCHOOL)) {
+	      foreach ($reg->getTeams() as $team)
+		$schools[$team->school->id] = $team->school;
+	    }
 	    
-	    // Log the successful execution
 	    UpdateManager::log($last, 0);
 	  }
 	  catch (Exception $e) {
-	    // Error: log that too
 	    UpdateManager::log($last, $e->getCode(), $e->getMessage());
 	  }
 	}

@@ -14,7 +14,7 @@
  * public regattas and utilizies the new MySQL-DP-0.5 libraries.
  *
  */
-class SeasonSummaryMaker {
+class UpdateSeason {
   private $season;
   private $page;
 
@@ -32,6 +32,10 @@ class SeasonSummaryMaker {
 
     $season = $this->season;
     $this->page = new TPublicPage(ucfirst($season->getSeason()) . ' ' . $season->getYear());
+    $this->page->head->addChild(new GenericElement('script',
+						   array(new Text("")),
+						   array('type'=>'text/javascript',
+							 'src'=>'/inc/js/refresh.js')));
 
     // 2010-11-14: Separate regattas into "weekends", descending by
     // timestamp, based solely on the start_time, assuming that the
@@ -181,7 +185,7 @@ class SeasonSummaryMaker {
 
     // Do season
     $dirname = "$R/$season";
-    $M = new SeasonSummaryMaker($season);
+    $M = new UpdateSeason($season);
     if (file_put_contents("$dirname/index.html", $M->getPage()) === false)
       throw new RuntimeException(sprintf("Unable to make the season summary: %s\n", $filename), 8);
   }
@@ -210,7 +214,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   }
 
   try {
-    SeasonSummaryMaker::run($season);
+    UpdateSeason::run($season);
     error_log(sprintf("I:0:%s\t(%s): Successful!\n", date('r'), $season), 3, LOG_SEASON);
   }
   /*

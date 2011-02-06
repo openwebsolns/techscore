@@ -93,6 +93,7 @@ class UpdateRegatta {
 
     // status
     $now = new DateTime();
+    $now->setTime(0, 0);
     if ($dreg->finalized !== null)
       $dreg->status = 'final';
     elseif ($dreg->start_time > $now)
