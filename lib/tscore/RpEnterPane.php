@@ -243,11 +243,7 @@ class RpEnterPane extends AbstractPane {
     // ------------------------------------------------------------
     $team = null;
     if (isset($args['chosen_team'])) {
-      $teams = $this->REGATTA->getTeams();
-      $team = Preferences::getObjectWithProperty($teams,
-						 "id",
-						 $args['chosen_team']);
-
+      $team = $this->REGATTA->getTeam($args['chosen_team']);
       if ($team == null) {
 	$mes = sprintf("Invalid team choice (%s).", $args['chosen_team']);
 	$this->announce(new Announcement($mes, Announcement::ERROR));
@@ -352,7 +348,7 @@ class RpEnterPane extends AbstractPane {
       else {
 	$this->announce(new Announcement("RP info updated."));
       }
-      // notify();
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RP);
     }
 
     return $args;
