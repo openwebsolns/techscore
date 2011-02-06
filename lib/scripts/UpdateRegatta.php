@@ -1,155 +1,47 @@
 <?php
 /**
- * Update the given regatta, given as an argument. This update entails
- * checking the regatta against the database and updating either its
- * rotation, its score or both. In addition, if the regatta is not
- * meant to be published, this will also attempt to delete that
- * regatta's folder and contents. In short, a full update.
+ * Update the given regatta, given as an argument.
  *
- * e.g.: php UpdateScore 491 score
- * e.g.: php UpdateScore 490 # which does both
+ * This update entails checking the regatta against the database and
+ * updating either its rotation, its score or both. In addition, if
+ * the regatta is not meant to be published, this will also attempt to
+ * delete that regatta's folder and contents. In short, a full update.
+ *
+ * e.g.:
+ * <code>
+ * php UpdateScore 491 score
+ * php UpdateScore 490 # which does both
+ * </code>
+ *
+ * 2011-02-06: For the purpose of efficiency, granularize the regatta
+ * update request to handle either detail changes, summary changes,
+ * score changes, RP changes, or rotation changes, separately.
+ * Depending on the change, UpdateRegatta will rewrite the correct
+ * page(s) for that regatta.
+ *
+ * For example, a scores change would affect the different scores
+ * pages and the front page but not the rotation page. A sumary change
+ * affects only the front page, but no other pages. An RP change
+ * affects the Divisional scores, or if single handed, the full scores
+ * and the rotation. Finally, a settings change affects all pages.
  *
  * @author Dayan Paez
  * @version 2010-08-27
+ * @package scripts
  */
 class UpdateRegatta {
-
-  /**
-   * Deletes the given regatta's information from the public site.
-   * Note that this method is automatically called from
-   * <pre>runScore</pre> and <pre>runRotation</pre> if the rotation
-   * type is "personal". This method does not touch the season page.
-   *
-   * @param Regatta $reg the regatta whose information to delete.
-   */
-  public static function runDelete(Regatta $reg) {
-    return; // TODO fix me!
-
-    $R = realpath(dirname(__FILE__).'/../../html');
-    $season = $reg->get(Regatta::SEASON);
-    if ((string)$season == "")
-      return;
-    $dirname = "$R/$season/" . $reg->get(Regatta::NICK_NAME);
-    if (is_dir($dirname) && $dir = @opendir($dirname)) {
-      // Delete contents of dir
-      while (false !== ($file = readdir($dir))) {
-	if ($file != '.' && $file != '..')
-	  @unlink(sprintf('%s/%s', $dirname, $file));
-      }
-      // Delete directory
-      closedir($dir);
-      rmdir($dirname);
-    }
-  }
-
-  /**
-   * Updates the score page(s) for the given regatta.
-   *
-   */
-  public static function runScore(Regatta $reg) {
-    if ($reg->get(Regatta::TYPE) == Preferences::TYPE_PERSONAL) {
-      self::runDelete($reg);
-      return;
-    }
-
-    $R = realpath(dirname(__FILE__).'/../../html');
-    $M = new ReportMaker($reg);
-    $season = $reg->get(Regatta::SEASON);
-    if (!file_exists("$R/$season") && mkdir("$R/$season") === false)
-      throw new RuntimeException(sprintf("Unable to make the season folder: %s\n", $season), 2);
-
-    $dirname = "$R/$season/".$reg->get(Regatta::NICK_NAME);
-    if (!file_exists($dirname) && mkdir($dirname) === false)
-      throw new RuntimeException("Unable to make regatta directory: $dirname\n", 4);
-
-    // Make the different files
-    $filename = "$dirname/index.html";
-    $page = $M->getScoresPage();
-    UpdateRegatta::prepMenu($reg, $page);
-      if (@file_put_contents($filename, $page->toHTML()) === false)
-      throw new RuntimeException(sprintf("Unable to make the regatta report: %s\n", $filename), 8);
-
-    $filename = "$dirname/full-scores.html";
-    $page = $M->getFullPage();
-    UpdateRegatta::prepMenu($reg, $page);
-    if (@file_put_contents($filename, $page->toHTML()) === false)
-      throw new RuntimeException(sprintf("Unable to make the regatta full scores: %s\n", $filename), 8);
-
-    // Individual division scores (do not include if singlehanded as
-    // this is redundant)
-    if (!$reg->isSingleHanded()) {
-      foreach ($reg->getDivisions() as $div) {
-	$filename = strtolower("$dirname/$div.html");
-	$page = $M->getDivisionPage($div);
-	UpdateRegatta::prepMenu($reg, $page);
-	if (@file_put_contents($filename, $page->toHTML()) === false)
-	  throw new RuntimeException(sprintf("Unable to make the regatta full scores: %s\n", $filename), 8);
-      }
-    }
-  }
-
-  /**
-   * Adds the menu for the given page
-   *
-   */
-  private static function prepMenu(Regatta $reg, TPublicPage $page) {
-    // Menu
-    $rot = $reg->getRotation();
-    if ($rot->isAssigned())
-      $page->addMenu(new Link("rotations", "Rotations"));
-    $page->addMenu(new Link(".", "Report"));
-    $page->addMenu(new Link("full-scores", "Full Scores"));
-    if (!$reg->isSingleHanded()) {
-      foreach ($reg->getDivisions() as $div)
-	$page->addMenu(new Link(strtolower($div), "$div Scores"));
-    }
-  }
-
-  /**
-   * Updates the rotation page for this regatta. (This might include
-   * deleting an existing one if rotations not available).
-   *
-   */
-  public static function runRotation(Regatta $reg) {
-    if ($reg->get(Regatta::TYPE) == Preferences::TYPE_PERSONAL) {
-      self::runDelete($reg);
-      return;
-    }
-
-    $M = new ReportMaker($reg);
-    if (!$M->hasRotation()) {
-      throw new RuntimeException(sprintf("Regatta %s (%d) does not have a rotation!",
-					 $reg->get(Regatta::NAME), $reg->id()), 8);
-    }
-
-    $R = realpath(dirname(__FILE__).'/../../html');
-    $season = $reg->get(Regatta::SEASON);
-    if (!file_exists("$R/$season") && mkdir("$R/$season") === false)
-      throw new RuntimeException(sprintf("Unable to make the season folder: %s\n", $season), 2);
-
-    $dirname = "$R/$season/".$reg->get(Regatta::NICK_NAME);
-    if (!file_exists($dirname) && mkdir($dirname) === false)
-      throw new RuntimeException("Unable to make regatta directory: $dirname\n", 4);
-    
-    $filename = "$dirname/rotations.html";
-    $page = $M->getRotationPage();
-    UpdateRegatta::prepMenu($reg, $page);
-    if (@file_put_contents($filename, $page->toHTML()) === false)
-      throw new RuntimeException(sprintf("Unable to make the regatta report: %s\n", $filename), 8);
-
-    // If there's already in index.html, update that one too.
-    if (file_exists("$dirname/index.html"))
-      self::runScore($reg);
-  }
 
   /**
    * Synchronizes the regatta's detail with the data information
    * (those fields in the database prefixed with dt_). Note this will
    * not run for personal regattas, even if requested.
    *
-   * @param Regatta $reg the regatta to synchronize 
+   * @param Regatta $reg the regatta to synchronize
+   * @param boolean $full set this to false to only update information
+   * about the regatta and not about the ranks (this creates slight
+   * efficiency incrase)
    */
-  public static function runSync(Regatta $reg) {
+  public static function runSync(Regatta $reg, $full = true) {
     if ($reg->get(Regatta::TYPE) == Preferences::TYPE_PERSONAL)
       return;
 
@@ -215,6 +107,8 @@ class UpdateRegatta {
 
     // ------------------------------------------------------------
     // do the teams: first delete all the old teams
+    if ($full === false)
+      return;
     $dreg->deleteTeams();
 
     // add teams
@@ -232,6 +126,220 @@ class UpdateRegatta {
       $team->rank = $i + 1;
       $team->rank_explanation = $rank->explanation;
       DBME::set($team);
+    }
+  }
+
+  /**
+   * Deletes the given regatta's information from the public site.
+   * Note that this method is automatically called from
+   * <pre>runScore</pre> and <pre>runRotation</pre> if the rotation
+   * type is "personal". This method does not touch the season page.
+   *
+   * @param Regatta $reg the regatta whose information to delete.
+   */
+  public static function runDelete(Regatta $reg) {
+    return; // TODO fix me!
+
+    $R = realpath(dirname(__FILE__).'/../../html');
+    $season = $reg->get(Regatta::SEASON);
+    if ((string)$season == "")
+      return;
+    $dirname = "$R/$season/" . $reg->get(Regatta::NICK_NAME);
+    if (is_dir($dirname) && $dir = @opendir($dirname)) {
+      // Delete contents of dir
+      while (false !== ($file = readdir($dir))) {
+	if ($file != '.' && $file != '..')
+	  @unlink(sprintf('%s/%s', $dirname, $file));
+      }
+      // Delete directory
+      closedir($dir);
+      rmdir($dirname);
+    }
+  }
+
+  /**
+   * Updates the regatta's pages according to the activity
+   * requested.
+   *
+   * @param Regatta $reg the regatta to update
+   * @param UpdateRequest::Constant the activity
+   */
+  public static function run(Regatta $reg, $activity) {
+    if ($reg->get(Regatta::TYPE) == Preferences::TYPE_PERSONAL) {
+      self::runDelete($reg);
+      return;
+    }
+    $D = UpdateRegatta::createDir($reg);
+    $M = new ReportMaker($reg);
+
+    switch ($activity) {
+    case UpdateRequest::ACTIVITY_SCORE:
+      self::createFront($D, $M);
+      self::createFull($D, $M);
+
+      // Individual division scores (do not include if singlehanded as
+      // this is redundant)
+      if (!$reg->isSingleHanded()) {
+	foreach ($reg->getDivisions() as $div)
+	  self::createDivision($D, $M, $div);
+      }
+      break;
+      // ------------------------------------------------------------
+    case UpdateRequest::ACTIVITY_ROTATION:
+      $rot = $reg->getRotation();
+      if (!$rot->isAssigned())
+	throw new RuntimeException(sprintf("Regatta %s (%d) does not have a rotation!",
+					   $reg->get(Regatta::NAME), $reg->id()), 8);
+
+      self::createRotation($D, $M);
+      break;
+      // ------------------------------------------------------------
+    case UpdateRequest::ACTIVITY_RP:
+      if ($reg->isSinglehanded()) {
+	self::createRotation($D, $M);
+	self::createFront($D, $M);
+	self::createFull($D, $M);
+      }
+      else {
+	foreach ($reg->getDivisions() as $div)
+	  self::createDivision($D, $M, $div);
+      }
+      break;
+      // ------------------------------------------------------------
+    case UpdateRequest::ACTIVITY_SUMMARY:
+      self::createFront($D, $M);
+      break;
+      // ------------------------------------------------------------
+    case UpdateRequest::ACTIVITY_DETAILS:
+      // do them all!
+      $rot = $reg->getRotation();
+      if ($rot->isAssigned())
+	self::createRotation($D, $M);
+      self::createFront();
+      self::createFull();
+      
+      // Individual division scores (do not include if singlehanded as
+      // this is redundant)
+      if (!$reg->isSingleHanded()) {
+	foreach ($reg->getDivisions() as $div)
+	  self::createDivision($D, $M, $div);
+      }
+      break;
+      // ------------------------------------------------------------
+    case UpdateRequest::ACTIVITY_SYNC:
+      self::runSync($reg);
+      break;
+
+    default:
+      throw new RuntimeException("Activity $activity not supported.");
+    }
+  }
+
+  // ------------------------------------------------------------
+  // Helper methods for standardized file creation
+  // ------------------------------------------------------------
+
+  /**
+   * Creates the necessary folders for the given regatta
+   *
+   * @param Regatta $reg the regatta
+   * @return String the filepath root of the regatta's pages
+   * @throws RuntimeException when something goes bad
+   */
+  private static function createDir(Regatta $reg) {
+    $R = realpath(dirname(__FILE__).'/../../html');
+    if ($R === false)
+      throw new RuntimeException("Public folder does not exist.");
+
+    $season = $reg->get(Regatta::SEASON);
+    if (!file_exists("$R/$season") && mkdir("$R/$season") === false)
+      throw new RuntimeException(sprintf("Unable to make the season folder: %s\n", $season), 2);
+
+    $dirname = "$R/$season/".$reg->get(Regatta::NICK_NAME);
+    if (!file_exists($dirname) && mkdir($dirname) === false)
+      throw new RuntimeException("Unable to make regatta directory: $dirname\n", 4);
+
+    return $dirname;
+  }
+
+  /**
+   * Creates and writes the front page (index) in the given directory
+   *
+   * @param String $dirname the directory
+   * @param ReportMaker $maker the maker
+   * @throws RuntimeException when writing is no good
+   */
+  private static function createFront($dirname, ReportMaker $maker) {
+    $filename = "$dirname/index.html";
+    $page = $maker->getScoresPage();
+    self::prepMenu($maker->reg, $page);
+    if (@file_put_contents($filename, $page->toHTML()) === false)
+      throw new RuntimeException(sprintf("Unable to make the regatta report: %s\n", $filename), 8);
+  }
+
+  /**
+   * Creates and writes the full scores page in the given directory
+   *
+   * @param String $dirname the directory
+   * @param ReportMaker $maker the maker
+   * @throws RuntimeException when writing is no good
+   * @see createFront
+   */
+  private static function createFull($dirname, ReportMaker $maker) {
+    $filename = "$dirname/full-scores.html";
+    $page = $maker->getFullPage();
+    self::prepMenu($maker->reg, $page);
+    if (@file_put_contents($filename, $page->toHTML()) === false)
+      throw new RuntimeException(sprintf("Unable to make the regatta full scores: %s\n", $filename), 8);
+  }
+
+  /**
+   * Creates and writes the division summary page in the given directory
+   *
+   * @param String $dirname the directory
+   * @param ReportMaker $maker the maker
+   * @param Division $div the division to write about
+   * @throws RuntimeException when writing is no good
+   * @see createFront
+   */
+  private static function createDivision($dirname, ReportMaker $maker, Division $div) {
+    $filename = "$dirname/$div.html";
+    $page = $maker->getDivisionPage($div);
+    self::prepMenu($maker->reg, $page);
+    if (@file_put_contents($filename, $page->toHTML()) === false)
+      throw new RuntimeException(sprintf("Unable to make the regatta division score page: %s\n", $filename), 8);
+  }
+
+  /**
+   * Creates and writes the rotation page in the given directory
+   *
+   * @param String $dirname the directory
+   * @param ReportMaker $maker the maker
+   * @throws RuntimeException when writing is no good
+   * @see createFront
+   */
+  private static function createRotation($dirname, ReportMaker $maker) {
+    $filename = "$dirname/rotations.html";
+    $page = $maker->getRotationPage();
+    self::prepMenu($maker->reg, $page);
+    if (@file_put_contents($filename, $page->toHTML()) === false)
+      throw new RuntimeException(sprintf("Unable to make the regatta rotation: %s\n", $filename), 8);
+  }
+
+  /**
+   * Adds the menu for the given page
+   *
+   */
+  private static function prepMenu(Reatta $reg, TPublicPage $page) {
+    // Menu
+    $rot = $reg->getRotation();
+    if ($rot->isAssigned())
+      $page->addMenu(new Link("rotations", "Rotations"));
+    $page->addMenu(new Link(".", "Report"));
+    $page->addMenu(new Link("full-scores", "Full Scores"));
+    if (!$reg->isSingleHanded()) {
+      foreach ($reg->getDivisions() as $div)
+	$page->addMenu(new Link(strtolower($div), "$div Scores"));
     }
   }
 }
@@ -268,35 +376,13 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
     exit(2);
   }
   foreach ($action as $act) {
-    if ($act == UpdateRequest::ACTIVITY_SCORE) {
-      try {
-	UpdateRegatta::runScore($REGATTA);
-	error_log(sprintf("I/0/%s\t(%d): Successful!\n", date('r'), $REGATTA->id()), 3, LOG_SCORE);
-      }
-      catch (RuntimeException $e) {
-	error_log(sprintf("E/%d/%s\t(%d): %s\n", $e->getCode(), date('r'), $argv[1], $e->getMessage()),
-		  3, LOG_SCORE);
-      }
+    try {
+      UpdateRegatta::run($REGATTA, $act);
+      error_log(sprintf("I/0/%s\t(%d)\t%s: Successful!\n", date('r'), $REGATTA->id(), $act), 3, LOG_UPDATE);
     }
-    elseif ($act == UpdateRequest::ACTIVITY_ROTATION) {
-      try {
-	UpdateRegatta::runRotation($REGATTA);
-	error_log(sprintf("I/0/%s\t(%d): Successful!\n", date('r'), $REGATTA->id()), 3, LOG_ROTATION);
-      }
-      catch (RuntimeException $e) {
-	error_log(sprintf("E/%d/%s\t(%d): %s\n", $e->getCode(), date('r'), $argv[1], $e->getMessage()),
-		  3, LOG_ROTATION);
-      }
-    }
-    elseif ($act == UpdateRequest::ACTIVITY_SYNC) {
-      try {
-	UpdateRegatta::runSync($REGATTA);
-	error_log(sprintf("I/0/%s\t(%d): Successful!\n", date('r'), $REGATTA->id()), 3, LOG_SYNC);
-      }
-      catch (RuntimeException $e) {
-	error_log(sprintf("E/%d/%s\t(%d): %s\n", $e->getCode(), date('r'), $argv[1], $e->getMessage()),
-		  3, LOG_SYNC);
-      }
+    catch (RuntimeException $e) {
+      error_log(sprintf("E/%d/%s\t(%d)\t%s: %s\n", $e->getCode(), date('r'), $argv[1], $act, $e->getMessage()),
+		3, LOG_UPDATE);
     }
   }
 }

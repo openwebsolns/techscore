@@ -11,14 +11,12 @@
  *
  */
 class ReportMaker {
-  private $regatta;
+  public $regatta;
   
   private $page;
   private $rotPage;
   private $fullPage;
   private $divPage = array();
-
-  private $hasRotation;
 
   /**
    * Creates a new report for the given regatta
@@ -26,8 +24,6 @@ class ReportMaker {
    */
   public function __construct(Regatta $reg) {
     $this->regatta = $reg;
-    $rot = $this->regatta->getRotation();
-    $this->hasRotation = $rot->isAssigned();
   }
 
   protected function fill() {
@@ -98,8 +94,6 @@ class ReportMaker {
 
   protected function fillRotation() {
     if ($this->rotPage !== null) return;
-    if (!$this->hasRotation)
-      throw new InvalidArgumentException("There is no rotation!");
 
     $reg = $this->regatta;
     $this->rotPage = new TPublicPage(sprintf("%s Rotations", $reg->get(Regatta::NAME)));
@@ -201,15 +195,6 @@ class ReportMaker {
   public function getRotationPage() {
     $this->fillRotation();
     return $this->rotPage;
-  }
-
-  /**
-   * Returns whether or not a rotation page is available
-   *
-   * @return boolean
-   */
-  public function hasRotation() {
-    return $this->hasRotation;
   }
 }
 ?>

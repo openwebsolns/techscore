@@ -194,18 +194,8 @@ class Regatta implements RaceListener {
 	throw new InvalidArgumentException("Invalid regatta type \"$value\".");
       // re-create the nick name, and let that method determine if it
       // is valid (this would throw an exception otherwise)
-      if ($value != Preferences::TYPE_PERSONAL) {
+      if ($value != Preferences::TYPE_PERSONAL)
 	$this->set(Regatta::NICK_NAME, $this->createNick());
-	// If it used to be personal, we need to queue for public site
-	// as well, since it is now publicly viewable
-	if ($this->get(Regatta::TYPE) == Preferences::TYPE_PERSONAL)
-	  UpdateManager::queueRequest($this, UpdateRequest::ACTIVITY_SCORE);
-      }
-      else {
-	// Queue public "score" update: this will result in deletion
-	UpdateManager::queueRequest($this, UpdateRequest::ACTIVITY_SCORE);
-      }
-
       $strvalue = sprintf('"%s"', $value);
     }
     else
@@ -1260,7 +1250,6 @@ class Regatta implements RaceListener {
    */
   public function runScore(Race $race) {
     $this->scorer->score($this, $race);
-    UpdateManager::queueRequest($this, UpdateRequest::ACTIVITY_SCORE);
   }
 
   /**
@@ -1318,9 +1307,6 @@ class Regatta implements RaceListener {
       foreach ($this->getScoredRaces($div) as $race)
 	$this->scorer->score($this, $race);
     }
-
-    // Queue public score update
-    UpdateManager::queueRequest($this, UpdateRequest::ACTIVITY_SCORE);
   }
 
   // ------------------------------------------------------------
@@ -1338,44 +1324,6 @@ class Regatta implements RaceListener {
 		 'where id = "%s"',
 		 $race->boat->id, $race->division, $race->id);
     $this->query($q);
-  }
-
-  /**
-   * Commits the changes to the finish
-   *
-   * @param FinishListener::CONST $type the type of change
-   * @param Finish $finish the finish
-   */
-  public function finishChanged($type, Finish $finish) {
-    $con = Preferences::getConnection();
-    // Penalties
-    if ($type == FinishListener::PENALTY) {
-      $q = sprintf('update finish set penalty = "%s", amount = %d, displace = %d, comments = "%s" where id = %d',
-		   $finish->penalty->type,
-		   $finish->penalty->amount,
-		   $finish->penalty->displace,
-		   $con->real_escape_string($finish->penalty->comments),
-		   $finish->id);
-      $this->query($q);
-      $this->doScore();
-    }
-
-    // Scores
-    elseif ($type == FinishListener::SCORE) {
-      $q = sprintf('update finish set score = "%s", explanation = "%s" where id = %d',
-		   $finish->score,
-		   $con->real_escape_string($finish->explanation),
-		   $finish->id);
-      $this->query($q);
-    }
-
-    // Entered
-    elseif ($type == FinishListener::ENTERED) {
-      $q = sprintf('update finish set entered = "%s" where id = "%s"',
-		   $finish->entered->format("Y-m-d H:i:s"),
-		   $finish->id);
-      $this->regatta->query($q);
-    }
   }
 
   /**

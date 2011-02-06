@@ -538,6 +538,7 @@ class EnterFinishPane extends AbstractPane {
 
       // remember: any race from any division should do for combined scoring
       $this->REGATTA->runScore($race);
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
 
       // Reset
       unset($args['chosen_race']);
@@ -608,6 +609,7 @@ class EnterFinishPane extends AbstractPane {
       }
       // remember: any race from any division should do for combined scoring
       $this->REGATTA->runScore($race);
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
 
       // Reset
       unset($args['chosen_race']);
@@ -703,6 +705,7 @@ class EnterFinishPane extends AbstractPane {
       }
 
       $this->REGATTA->runScore($race);
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
 
       // Reset
       unset($args['chosen_race']);
@@ -756,6 +759,7 @@ class EnterFinishPane extends AbstractPane {
       }
 
       $this->REGATTA->runScore($race);
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
 
       // Reset
       unset($args['chosen_race']);

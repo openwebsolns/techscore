@@ -110,9 +110,7 @@ ini_set('error_log', realpath(TS_PATH.'/../log/errors.log'));
 require_once(TS_PATH . '/conf.local.php');
 
 // LOG FILES
-define("LOG_SCORE",    realpath(TS_PATH.'/../log/score.log'));
-define("LOG_ROTATION", realpath(TS_PATH.'/../log/rotation.log'));
+define("LOG_UPDATE",   realpath(TS_PATH.'/../log/score.log'));
 define("LOG_SEASON",   realpath(TS_PATH.'/../log/season.log'));
 define("LOG_SCHOOL",   realpath(TS_PATH.'/../log/school.log'));
-define("LOG_SYNC",     realpath(TS_PATH.'/../log/sync.log'));
 ?>

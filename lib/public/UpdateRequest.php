@@ -27,6 +27,8 @@ class UpdateRequest {
   const ACTIVITY_RP = "rp";
   const ACTIVITY_SYNC = "sync";
   const ACTIVITY_SCORE = "score";
+  const ACTIVITY_DETAILS = "details";
+  const ACTIVITY_SUMMARY = "summary";
   const ACTIVITY_ROTATION = "rotation";
 
   /**
