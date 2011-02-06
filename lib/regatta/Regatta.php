@@ -1252,63 +1252,6 @@ class Regatta implements RaceListener {
     $this->scorer->score($this, $race);
   }
 
-  /**
-   * Scores itself completely, checking the integrity of the data
-   * first.
-   *
-   * @deprecated 2011-02-05: please use runScore
-   */
-  public function doScore() {
-    
-    // Check that all races are complete:
-    $count     = count($this->getTeams());
-    $divisions = $this->getDivisions();
-
-    // When scoring combined, the same race number must be scored
-    // across all divisions.
-    if ($this->get(Regatta::SCORING) == Regatta::SCORING_COMBINED) {
-
-      // start with a list of all the race numbers available. Assumes
-      // that each division has the same race numbers. Then remove
-      // those race numbers for which any race in any division does
-      // not equal the total number of teams
-      $numbers = array();
-      foreach ($this->getRaces($divisions[0]) as $race)
-	$numbers[] = $race->number;
-
-      $faulty = array();
-      foreach ($numbers as $num) {
-	foreach ($divisions as $div) {
-	  $f = $this->getFinishes($this->getRace($div, $num));
-	  if (count($f) != $count) {
-	    $faulty[] = $num;
-	    break;
-	  }
-	}
-      }
-
-      // delete finishes for faulty races
-      foreach ($faulty as $num) {
-	foreach ($divisions as $div)
-	  $this->deleteFinishes($this->getRace($div, $num));
-      }
-    }
-    // With standard scoring, each race is counted individually
-    else {
-      foreach ($divisions as $div) {
-	foreach ($this->getScoredRaces($div) as $race) {
-	  if (count($this->getFinishes($race)) != $count)
-	    $this->deleteFinishes($race);
-	}
-      }
-    }
-
-    foreach ($divisions as $div) {
-      foreach ($this->getScoredRaces($div) as $race)
-	$this->scorer->score($this, $race);
-    }
-  }
-
   // ------------------------------------------------------------
   // Listeners
 
