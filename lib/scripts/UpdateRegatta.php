@@ -272,7 +272,7 @@ class UpdateRegatta {
   private static function createFront($dirname, ReportMaker $maker) {
     $filename = "$dirname/index.html";
     $page = $maker->getScoresPage();
-    self::prepMenu($maker->reg, $page);
+    self::prepMenu($maker->regatta, $page);
     if (@file_put_contents($filename, $page->toHTML()) === false)
       throw new RuntimeException(sprintf("Unable to make the regatta report: %s\n", $filename), 8);
   }
@@ -288,7 +288,7 @@ class UpdateRegatta {
   private static function createFull($dirname, ReportMaker $maker) {
     $filename = "$dirname/full-scores.html";
     $page = $maker->getFullPage();
-    self::prepMenu($maker->reg, $page);
+    self::prepMenu($maker->regatta, $page);
     if (@file_put_contents($filename, $page->toHTML()) === false)
       throw new RuntimeException(sprintf("Unable to make the regatta full scores: %s\n", $filename), 8);
   }
@@ -305,7 +305,7 @@ class UpdateRegatta {
   private static function createDivision($dirname, ReportMaker $maker, Division $div) {
     $filename = "$dirname/$div.html";
     $page = $maker->getDivisionPage($div);
-    self::prepMenu($maker->reg, $page);
+    self::prepMenu($maker->regatta, $page);
     if (@file_put_contents($filename, $page->toHTML()) === false)
       throw new RuntimeException(sprintf("Unable to make the regatta division score page: %s\n", $filename), 8);
   }
@@ -321,7 +321,7 @@ class UpdateRegatta {
   private static function createRotation($dirname, ReportMaker $maker) {
     $filename = "$dirname/rotations.html";
     $page = $maker->getRotationPage();
-    self::prepMenu($maker->reg, $page);
+    self::prepMenu($maker->regatta, $page);
     if (@file_put_contents($filename, $page->toHTML()) === false)
       throw new RuntimeException(sprintf("Unable to make the regatta rotation: %s\n", $filename), 8);
   }
@@ -330,7 +330,7 @@ class UpdateRegatta {
    * Adds the menu for the given page
    *
    */
-  private static function prepMenu(Reatta $reg, TPublicPage $page) {
+  private static function prepMenu(Regatta $reg, TPublicPage $page) {
     // Menu
     $rot = $reg->getRotation();
     if ($rot->isAssigned())

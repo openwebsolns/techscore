@@ -545,18 +545,16 @@ class Rotation {
   }
 
   /**
-   * For now, this function merely notifies the update manager that a
-   * rotation change has happened. Client code should take care of
-   * calling this method after all individual changes to sails have
-   * happened. It is possible that in the future a call to this method
-   * will be required in order to actually commit the changes to the
-   * database. At the moment, however, each call to
-   * <pre>replaceSail</pre> and its brethren issues a SQL query on its
-   * own.
+   * As of 2011-02-06, this function no longer notifies the update
+   * manager that a rotation change has happened. Instead, client code
+   * is responsible for doing so. This function, which is currently
+   * empty, should be called anyways, because it is possible that in
+   * the future a call to this method will be required in order to
+   * actually commit the changes to the database. At the moment,
+   * however, each call to <pre>replaceSail</pre> and its brethren
+   * issues a SQL query on its own.
    *
    */
-  public function commit() {
-    UpdateManager::queueRequest($this->regatta, UpdateRequest::ACTIVITY_ROTATION);
-  }
+  public function commit() {}
 }
 ?>

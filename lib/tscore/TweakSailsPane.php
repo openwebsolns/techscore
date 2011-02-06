@@ -240,6 +240,7 @@ class TweakSailsPane extends AbstractPane {
 	$rotation->addAmount($race, $amount);
 
       $rotation->commit();
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       $this->announce(new Announcement("Added value to sails."));
       unset($args['edittype']);
     }
@@ -282,6 +283,7 @@ class TweakSailsPane extends AbstractPane {
 	$rotation->replaceSail($race, $fromsail, $tosail);
 
       $rotation->commit();
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       $this->announce(new Announcement("Sail replaced successfully."));
       unset($args['edittype']);
     }
