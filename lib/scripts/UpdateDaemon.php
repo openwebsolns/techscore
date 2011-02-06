@@ -86,12 +86,12 @@ class UpdateDaemon {
       $regattas[$r->regatta][] = $r;
     }
 
-    $schools = array(); // list of unique schools
-
     // For each unique regatta, only execute the last version of each
     // unique activity in the queue, but claim that you did them all
     // anyways (lest they should remain pending later on).
     $seasons = array();  // set of seasons affected
+    $schools = array(); // list of unique schools
+    $sync = array();     // set of regattas to also sync
     foreach ($regattas as $id => $requests) {
       $actions = UpdateRequest::getTypes();
       while (count($requests) > 0) {
@@ -101,22 +101,22 @@ class UpdateDaemon {
 	  unset($actions[$last->activity]);
 	  try {
 	    $reg = new Regatta($id);
-	    if ($last->activity == UpdateRequest::ACTIVITY_SCORE) {
-	      UpdateRegatta::runSync($reg);
-	      UpdateRegatta::runScore($reg);
-	    }
-	    elseif ($last->activity == UpdateRequest::ACTIVITY_ROTATION)
-	      UpdateRegatta::runRotation($reg);
-	    elseif ($last->activity == UpdateRequest::ACTIVITY_SYNC)
-	      UpdateRegatta::runSync($reg);
+	    UpdateRegatta::run($reg, $last->activity);
+	    if (in_array($last->activity,
+			 array(UpdateRequest::ACTIVITY_SCORE,
+			       UpdateRequest::ACTIVITY_DETAILS)))
+	      $sync[$reg->id()] = $reg;
 
+	    // Affected seasons
 	    $season = $reg->get(Regatta::SEASON);
 	    $seasons[(string)$season->getSeason()] = $season;
-	    // Log the successful execution
-	    UpdateManager::log($last, 0);
 
+	    // Affected schools
 	    foreach ($reg->getTeams() as $team)
 	      $schools[$team->school->id] = $team->school;
+	    
+	    // Log the successful execution
+	    UpdateManager::log($last, 0);
 	  }
 	  catch (Exception $e) {
 	    // Error: log that too
@@ -129,6 +129,10 @@ class UpdateDaemon {
 	}
       }
     }
+
+    // Sync regattas
+    foreach ($sync as $regatta)
+      UpdateRegatta::runSync($regatta);
 
     // Deal now with each affected season.
     foreach ($seasons as $season) {

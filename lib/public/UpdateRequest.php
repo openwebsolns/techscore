@@ -37,10 +37,12 @@ class UpdateRequest {
    * @return Array type constants as const => const
    */
   public static function getTypes() {
-    return array(self::ACTIVITY_SCORE => self::ACTIVITY_SCORE,
-		 self::ACTIVITY_ROTATION => self::ACTIVITY_ROTATION,
-		 self::ACTIVITY_RP => self::ACTIVITY_RP,
-		 self::ACTIVITY_SYNC => self::ACTIVITY_SYNC);
+    return array(self::ACTIVITY_RP => self::ACTIVITY_RP,
+		 self::ACTIVITY_SYNC => self::ACTIVITY_SYNC,
+		 self::ACTIVITY_SCORE => self::ACTIVITY_SCORE,
+		 self::ACTIVITY_DETAILS => self::ACTIVITY_DETAILS,
+		 self::ACTIVITY_SUMMARY => self::ACTIVITY_SUMMARY,
+		 self::ACTIVITY_ROTATION => self::ACTIVITY_ROTATION);
   }
 
   public function __construct() {

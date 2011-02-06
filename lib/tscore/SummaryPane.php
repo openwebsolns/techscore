@@ -47,9 +47,9 @@ class SummaryPane extends AbstractPane {
 	try {
 	  $today = new DateTime($day);
 	  $this->REGATTA->setSummary($today, addslashes(trim($value)));
-	  UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SUMMARY);
 	} catch (Exception $e) {}
       }
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SUMMARY);
       $this->announce(new Announcement("Updated summaries"));
     }
     return $args;
