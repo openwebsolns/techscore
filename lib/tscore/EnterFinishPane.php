@@ -538,9 +538,6 @@ class EnterFinishPane extends AbstractPane {
 
       // remember: any race from any division should do for combined scoring
       $this->REGATTA->runScore($race);
-      foreach ($finishes as $rid => $list) {
-	$this->REGATTA->setFinishes($race_ids[$rid]);
-      }
 
       // Reset
       unset($args['chosen_race']);
@@ -611,8 +608,6 @@ class EnterFinishPane extends AbstractPane {
       }
       // remember: any race from any division should do for combined scoring
       $this->REGATTA->runScore($race);
-      foreach ($finishes as $rid => $list)
-	$this->REGATTA->setFinishes($race_ids[$rid]);
 
       // Reset
       unset($args['chosen_race']);
@@ -708,7 +703,6 @@ class EnterFinishPane extends AbstractPane {
       }
 
       $this->REGATTA->runScore($race);
-      $this->REGATTA->setFinishes($race);
 
       // Reset
       unset($args['chosen_race']);
@@ -762,7 +756,6 @@ class EnterFinishPane extends AbstractPane {
       }
 
       $this->REGATTA->runScore($race);
-      $this->REGATTA->setFinishes($race);
 
       // Reset
       unset($args['chosen_race']);

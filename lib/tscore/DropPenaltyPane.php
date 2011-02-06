@@ -110,7 +110,6 @@ class DropPenaltyPane extends AbstractPane {
       }
       $theFinish->penalty = null;
       $this->REGATTA->runScore($theFinish->race);
-      $this->REGATTA->setFinishes($theFinish->race);
 
       // Announce
       $mes = sprintf("Dropped penalty for %s in race %s.",

@@ -20,7 +20,8 @@ ini_set('include_path', '.:'.realpath(dirname(__FILE__).'/../lib'));
 require_once('conf.php');
 try {
   $reg = new Regatta($argv[1]);
-  $reg->scorer->score($reg);
+  foreach ($reg->getScoredRaces() as $race)
+    $reg->scorer->score($reg, $race);
 }
 catch (Exception $e) {
   printf("Invalid regatta ID provided: %s\n\n", $argv[1]);

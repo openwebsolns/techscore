@@ -372,6 +372,28 @@ class Regatta implements RaceListener {
   }
 
   /**
+   * Returns the simple rank of the teams in the database, by
+   * totalling their score across the division given (or all
+   * divisions). A tiebreaker procedure should be used after that if
+   * multiple teams share the same score.
+   *
+   * @param Array:Division $divs the divisions to use for the ranking
+   */
+  public function getRanks(Array $divs) {
+    $q = sprintf('select team, sum(score) as total from finish ' .
+		 'where race in (select id from race where regatta = %d and division in ("%s")) ' .
+		 'group by team order by total',
+		 $this->id,
+		 implode('","', $divs));
+    $q = $this->query($q);
+    $ranks = array();
+    while ($obj = $q->fetch_object())
+      $ranks[] = new Rank($this->getTeam($obj->team), $obj->total);
+    $q->free();
+    return $ranks;
+  }
+
+  /**
    * Remove the given team from this regatta
    *
    * @param Team $team the team to remove
@@ -932,12 +954,23 @@ class Regatta implements RaceListener {
    * regatta, either through getFinish or createFinish.
    *
    * @param Race $race the race for which to enter finishes
-   * @param Array<Finish> $finishes the list of finishes
+   * @param Array:Finish $finishes the list of finishes
    */
   public function setFinishes(Race $race) {
     foreach ($this->getFinishes($race) as $finish) {
       $this->query($this->serializeFinish($race, $finish));
     }
+  }
+
+  /**
+   * Commits the given finishes to the database.
+   *
+   * @param Array:Finish $finishes the finishes to commit
+   * @see setFinishes
+   */
+  public function commitFinishes(Array $finishes) {
+    foreach ($this->finishes as $finish)
+      $this->query($this->serializeFinish($finish->race, $finish));
   }
 
   /**
@@ -1219,6 +1252,10 @@ class Regatta implements RaceListener {
    * method is more appropriate for input data that needs to be
    * checked first for possible errors.
    *
+   * Note that the scorer is responsible for committing the affected
+   * finishes back to the database, and so there is no need to
+   * explicitly call 'setFinishes' after calling this function.
+   *
    * @param Race $race the race to run the score
    */
   public function runScore(Race $race) {
@@ -1230,6 +1267,7 @@ class Regatta implements RaceListener {
    * Scores itself completely, checking the integrity of the data
    * first.
    *
+   * @deprecated 2011-02-05: please use runScore
    */
   public function doScore() {
     

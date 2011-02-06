@@ -40,7 +40,7 @@ class Rotation {
     if ($this->has_sails !== null)
       return $this->has_sails;
 
-    $q = $this->regatta->query(sprintf('select id from rotation where race in (select id from race where regatta = %d)', $this->regatta->id()));
+    $q = $this->regatta->query(sprintf('select race from rotation where race in (select id from race where regatta = %d)', $this->regatta->id()));
     $this->has_sails = ($q->num_rows > 0);
     $q->free();
     return $this->has_sails;

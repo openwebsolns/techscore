@@ -62,9 +62,47 @@ class UpdateRegatta {
     if (!file_exists($dirname) && mkdir($dirname) === false)
       throw new RuntimeException("Unable to make regatta directory: $dirname\n", 4);
 
+    // Make the different files
     $filename = "$dirname/index.html";
-    if (@file_put_contents($filename, $M->getScoresPage()) === false)
+    $page = $M->getScoresPage();
+    UpdateRegatta::prepMenu($reg, $page);
+      if (@file_put_contents($filename, $page->toHTML()) === false)
       throw new RuntimeException(sprintf("Unable to make the regatta report: %s\n", $filename), 8);
+
+    $filename = "$dirname/full-scores.html";
+    $page = $M->getFullPage();
+    UpdateRegatta::prepMenu($reg, $page);
+    if (@file_put_contents($filename, $page->toHTML()) === false)
+      throw new RuntimeException(sprintf("Unable to make the regatta full scores: %s\n", $filename), 8);
+
+    // Individual division scores (do not include if singlehanded as
+    // this is redundant)
+    if (!$reg->isSingleHanded()) {
+      foreach ($reg->getDivisions() as $div) {
+	$filename = strtolower("$dirname/$div.html");
+	$page = $M->getDivisionPage($div);
+	UpdateRegatta::prepMenu($reg, $page);
+	if (@file_put_contents($filename, $page->toHTML()) === false)
+	  throw new RuntimeException(sprintf("Unable to make the regatta full scores: %s\n", $filename), 8);
+      }
+    }
+  }
+
+  /**
+   * Adds the menu for the given page
+   *
+   */
+  private static function prepMenu(Regatta $reg, TPublicPage $page) {
+    // Menu
+    $rot = $reg->getRotation();
+    if ($rot->isAssigned())
+      $page->addMenu(new Link("rotations", "Rotations"));
+    $page->addMenu(new Link(".", "Report"));
+    $page->addMenu(new Link("full-scores", "Full Scores"));
+    if (!$reg->isSingleHanded()) {
+      foreach ($reg->getDivisions() as $div)
+	$page->addMenu(new Link(strtolower($div), "$div Scores"));
+    }
   }
 
   /**
@@ -94,7 +132,9 @@ class UpdateRegatta {
       throw new RuntimeException("Unable to make regatta directory: $dirname\n", 4);
     
     $filename = "$dirname/rotations.html";
-    if (@file_put_contents($filename, $M->getRotationPage()) === false)
+    $page = $M->getRotationPage();
+    UpdateRegatta::prepMenu($reg, $page);
+    if (@file_put_contents($filename, $page->toHTML()) === false)
       throw new RuntimeException(sprintf("Unable to make the regatta report: %s\n", $filename), 8);
 
     // If there's already in index.html, update that one too.
@@ -174,8 +214,10 @@ class UpdateRegatta {
     DBME::set($dreg);
 
     // ------------------------------------------------------------
-    // do the teams
-    // teams
+    // do the teams: first delete all the old teams
+    $dreg->deleteTeams();
+
+    // add teams
     $teams = array();
     $dteams = array();
     foreach ($reg->scorer->rank($reg) as $i => $rank) {
@@ -190,55 +232,6 @@ class UpdateRegatta {
       $team->rank = $i + 1;
       $team->rank_explanation = $rank->explanation;
       DBME::set($team);
-    }
-
-    // ------------------------------------------------------------
-    // do the scores
-    foreach ($dteams as $tid => $team) {
-      foreach ($races as $race) {
-	$finish = $reg->getFinish($race, $teams[$tid]);
-	if ($finish !== null) {
-	  $dfin = new Dt_Score();
-	  $dfin->id = $finish->id;
-	  $dfin->dt_team = $team;
-	  $dfin->race_num = $race->number;
-	  $dfin->division = $race->division;
-	  $dfin->place = $finish->place;
-	  $dfin->score = $finish->score;
-	  $dfin->explanation = $finish->explanation;
-
-	  DBME::set($dfin);
-	}
-      }
-    }
-
-    // ------------------------------------------------------------
-    // rp
-    // clear old RP info for this regatta first
-    $r = DBME::prepGetAll(DBME::$TEAM, new MyCond('regatta', $dreg->id));
-    $r->fields(array('id'), DBME::$TEAM->db_name());
-    $q = DBME::createQuery(MySQLi_Query::DELETE);
-    $q->fields(array(), DBME::$RP->db_name());
-    $q->where(new MyCondIn('dt_team', $r));
-    DBME::query($q);
-    $man = $reg->getRpManager();
-    foreach ($dteams as $tid => $team) {
-      foreach ($divs as $div) {
-	foreach (array(RP::SKIPPER, RP::CREW) as $role) {
-	  foreach ($man->getRP($teams[$tid], $div, $role) as $rp) {
-	    foreach ($rp->races_nums as $race_num) {
-	      $drp = new Dt_Rp();
-	      $drp->dt_team = $team;
-	      $drp->race_num = $race_num;
-	      $drp->division = $div;
-	      $drp->sailor = $rp->sailor->id;
-	      $drp->boat_role = $role;
-
-	      DBME::set($drp);
-	    }
-	  }
-	}
-      }
     }
   }
 }

@@ -279,7 +279,6 @@ class EnterPenaltyPane extends AbstractPane {
 	$theFinish->penalty = new Penalty($thePen, $theAmount, $theComm, $theDisplace);
       }
       $this->REGATTA->runScore($race);
-      $this->REGATTA->setFinishes($race);
       
       $mes = sprintf("Added %s for %s.", $thePen, $theFinish->team);
       $this->announce(new Announcement($mes));

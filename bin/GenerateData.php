@@ -19,7 +19,6 @@ $res = $con->query('select id from regatta where type <> "personal"');
 while ($obj = $res->fetch_object()) {
   try {
     $reg = new Regatta($obj->id);
-    $reg->scorer->score($reg);
     UpdateRegatta::runSync($reg);
     printf("(%3d) Imported regatta %s\n", $reg->id(), $reg->get(Regatta::NAME));
   }

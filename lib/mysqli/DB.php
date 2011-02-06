@@ -26,6 +26,7 @@ class DBME extends DBM {
   public static $SCORE = null;
   public static $VENUE = null;
   public static $TEAM = null;
+  public static $RACE = null;
   public static $NOW = null;
   public static $RP = null;
   
@@ -37,6 +38,7 @@ class DBME extends DBM {
     self::$SCORE = new Dt_Score();
     self::$VENUE = new Dt_Venue();
     self::$TEAM = new Dt_Team();
+    self::$RACE = new Dt_Race();
     self::$NOW = new DateTime();
     self::$RP = new Dt_Rp();
 
@@ -79,6 +81,16 @@ class Dt_Regatta extends DBObject {
   public function db_cache() { return true; }
   public function db_order() { return 'start_time'; }
   public function db_order_by() { return false; }
+
+  /**
+   * Deletes all data about my teams
+   */
+  public function deleteTeams() {
+    $q = DBME::createQuery(MySQLi_Query::DELETE);
+    $q->fields(array(), DBME::$TEAM->db_name());
+    $q->where(new MyCond('regatta', $this->id));
+    DBME::query($q);
+  }
 
   public function getTeams() {
     return DBME::getAll(DBME::$TEAM, new MyCond('regatta', $this->id));
@@ -129,6 +141,18 @@ class Dt_Team extends DBObject {
   }
 }
 
+class Dt_Race extends DBObject {
+  protected $regatta;
+  public $division;
+  public $number;
+
+  public function db_name() { return 'race'; }
+  public function db_type($field) {
+    if ($field == 'regatta') return DBME::$REGATTA;
+    return parent::db_type($field);
+  }
+}
+
 class Dt_School extends DBObject {
   public $name;
   public $nick_name;
@@ -145,36 +169,38 @@ class Dt_School extends DBObject {
 }
 
 class Dt_Score extends DBObject {
-  protected $dt_team;
-  public $race_num;
-  public $division;
-  public $place;
+  protected $team;
+  protected $race;
+
+  public $penalty;
   public $score;
   public $explanation;
 
   public function db_type($field) {
-    if ($field == 'dt_team')
+    if ($field == 'team')
       return DBME::$TEAM;
+    if ($field == 'race')
+      return DBME::$RACE;
     return parent::db_type($field);
   }
+  public function db_name() { return 'score'; }
 }
 
 class Dt_Rp extends DBObject {
-  protected $dt_team;
+  protected $team;
+  protected $race;
   public $race_num;
   public $division;
   public $sailor;
   public $boat_role;
 
   public function db_type($field) {
-    if ($field == 'dt_team')
-      return DBME::$TEAM;
-    /*
-    if ($field == 'sailor')
-      return DBME::$SAILOR;
-    */
+    if ($field == 'team')   return DBME::$TEAM;
+    if ($field == 'race')   return DBME::$RACE;
+    if ($field == 'sailor') return DBME::$SAILOR;
     return parent::db_type($field);
   }
+  public function dt_name() { return 'rp'; }
 }
 
 class Dt_Sailor extends DBObject {
@@ -192,5 +218,4 @@ class Dt_Sailor extends DBObject {
     return parent::db_type($field);
   }
 }
-
 ?>

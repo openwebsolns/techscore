@@ -12,8 +12,12 @@
  */
 class ReportMaker {
   private $regatta;
+  
   private $page;
   private $rotPage;
+  private $fullPage;
+  private $divPage = array();
+
   private $hasRotation;
 
   /**
@@ -23,21 +27,15 @@ class ReportMaker {
   public function __construct(Regatta $reg) {
     $this->regatta = $reg;
     $rot = $this->regatta->getRotation();
-    $this->hasRotation = count($rot->getRaces()) > 0;
+    $this->hasRotation = $rot->isAssigned();
   }
 
-  private function fill() {
+  protected function fill() {
     if ($this->page !== null) return;
 
     $reg = $this->regatta;
     $this->page = new TPublicPage($reg->get(Regatta::NAME));
     $this->prepare($this->page);
-
-    // ADD JS
-    $this->page->addHead(new GenericElement("script", array(new Text()),
-					    array("type"=>"text/javascript",
-						  "src" =>"/inc/js/report.js")));
-    $this->page->body->addAttr("onload", "collapse()");
 
     // Summary
     $stime = $reg->get(Regatta::START_TIME);
@@ -64,27 +62,41 @@ class ReportMaker {
     $this->page->addSection($p = new Port("Score summary"));
     foreach ($maker->getTable('/inc', $link_schools) as $elem)
       $p->addChild($elem);
+  }
 
-    // Total scores
-    $maker = new ScoresFullDialog($reg);
-    $this->page->addSection($p = new Port("Race by race"));
-    foreach ($maker->getTable('/inc', $link_schools) as $elem)
+  protected function fillDivision(Division $div) {
+    if (isset($this->divPage[(string)$div])) return;
+
+    $reg = $this->regatta;
+    $page = new TPublicPage("Scores for division $div | " . $reg->get(Regatta::NAME));
+    $this->divPage[(string)$div] = $page;
+    $this->prepare($page);
+    
+    $link_schools = PUB_HOME.'/schools';
+    $maker = new ScoresDivisionDialog($reg, $div);
+    $page->addSection($p = new Port("Scores for $div"));
+    foreach ($maker->getTable('/inc', $link_schools) as $elem) {
       $p->addChild($elem);
-
-    // Individual division scores (do not include if singlehanded as
-    // this is redundant)
-    if (!$reg->isSingleHanded()) {
-      foreach ($reg->getDivisions() as $div) {
-	$maker = new ScoresDivisionDialog($reg, $div);
-	$this->page->addSection($p = new Port("Scores for $div"));
-	foreach ($maker->getTable('/inc', $link_schools) as $elem) {
-	  $p->addChild($elem);
-	}
-      }
     }
   }
 
-  private function fillRotation() {
+  protected function fillFull() {
+    if ($this->fullPage !== null) return;
+    
+    $reg = $this->regatta;
+    $this->fullPage = new TPublicPage("Full scores | " . $reg->get(Regatta::NAME));
+    $this->prepare($this->fullPage);
+    
+    $link_schools = PUB_HOME.'/schools';
+    
+    // Total scores
+    $maker = new ScoresFullDialog($reg);
+    $this->fullPage->addSection($p = new Port("Race by race"));
+    foreach ($maker->getTable('/inc', $link_schools) as $elem)
+      $p->addChild($elem);
+  }
+
+  protected function fillRotation() {
     if ($this->rotPage !== null) return;
     if (!$this->hasRotation)
       throw new InvalidArgumentException("There is no rotation!");
@@ -100,7 +112,7 @@ class ReportMaker {
     }
   }
 
-  private function prepare(TPublicPage $page) {
+  protected function prepare(TPublicPage $page) {
     $reg = $this->regatta;
     $page->addNavigation(new Link(".", $reg->get(Regatta::NAME), array("class"=>"nav")));
     
@@ -109,10 +121,14 @@ class ReportMaker {
     $page->addNavigation(new Link("..", $season->fullString(),
 				  array("class"=>"nav", "accesskey"=>"u")));
 
-    // Menu
-    if ($this->hasRotation)
-      $page->addMenu(new Link("rotations", "Rotations"));
-    $page->addMenu(new Link(".", "Report"));
+    // Javascript?
+    $now = new DateTime('today');
+    if ($reg->get(Regatta::START_TIME) <= $now &&
+	$reg->get(Regatta::END_DATE)   >= $now) {
+      $page->head->addChild(new GenericElement('script', array(new Text("")),
+					       array('type'=>'text/javascript',
+						     'src'=>'/inc/js/refresh.js')));
+    }
 
     // Regatta information
     $page->addSection($div = new Div());
@@ -148,22 +164,43 @@ class ReportMaker {
    * Generates and returns the HTML code for the given regatta. Note that
    * the report is only generated once per report maker
    *
-   * @return String
+   * @return TPublicPage
    */
   public function getScoresPage() {
     $this->fill();
-    return $this->page->toHTML();
+    return $this->page;
+  }
+
+  /**
+   * Generates and returns the HTML code for the full scores
+   *
+   * @return TPublicPage
+   */
+  public function getFullPage() {
+    $this->fillFull();
+    return $this->fullPage;
+  }
+
+  /**
+   * Generates and returns the HTML code for the given division
+   *
+   * @param Division $div
+   * @return TPublicPage
+   */
+  public function getDivisionPage(Division $div) {
+    $this->fillDivision($div);
+    return $this->divPage[(string)$div];
   }
 
   /**
    * Generates the rotation page, if applicable
    *
-   * @return String
+   * @return TPublicPage
    * @throws InvalidArgumentException should there be no rotation available
    */
   public function getRotationPage() {
     $this->fillRotation();
-    return $this->rotPage->toHTML();
+    return $this->rotPage;
   }
 
   /**

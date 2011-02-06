@@ -73,3 +73,6 @@ alter table finish add column earned tinyint unsigned default null comment "Mini
 -- make dt_regatta independent from rest of schema
 alter table dt_regatta drop foreign key dt_regatta_ibfk_1;
 alter table dt_regatta change column id id int not null;
+
+-- improve public site, again
+drop table dt_score;

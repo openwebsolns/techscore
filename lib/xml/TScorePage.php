@@ -63,21 +63,20 @@ class TScorePage extends WebPage {
     $this->content->addAttr("id", "bodydiv");
 
     // Announcement
-    $this->content->addChild($this->announce = new Div());
-    $this->announce->addAttr("id", "announcediv");
-    $this->announce->addChild(new Text());
+    // Fill announcement
+    if (isset($_SESSION['ANNOUNCE']) && is_array($_SESSION['ANNOUNCE']) &&
+	count($_SESSION['ANNOUNCE']) > 0) {
+      $this->content->addChild($this->announce = new Div());
+      $this->announce->addAttr("id", "announcediv");
+      while (count($_SESSION['ANNOUNCE']) > 0)
+	$this->addAnnouncement(array_shift($_SESSION['ANNOUNCE']));
+    }
 
     // Footer
     $this->addBody($footer = new Div());
     $footer->addAttr("id", "footdiv");
     $footer->addChild(new Para(sprintf("TechScore v%s &copy; Day&aacute;n P&aacute;ez 2008-11",
 				       VERSION)));
-
-    // Fill announcement
-    if (isset($_SESSION['ANNOUNCE']) && is_array($_SESSION['ANNOUNCE'])) {
-      while (count($_SESSION['ANNOUNCE']) > 0)
-	$this->addAnnouncement(array_shift($_SESSION['ANNOUNCE']));
-    }
   }
 
   /**
@@ -176,7 +175,7 @@ class TScorePage extends WebPage {
 					       "accesskey"=>"h")));
     if ($user !== null) {
       $this->navigation->addChild($d3 = new Div(array(), array("id"=>"user")));
-      $d3->addChild(new Link("/logout", "[logout]"));
+      $d3->addChild(new Link("/logout", "Logout", array('accesskey'=>'l')));
       $d3->addChild(new Itemize(array(new LItem($user->username()))));
     }
     if ($reg !== null) {
