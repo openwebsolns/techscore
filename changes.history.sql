@@ -77,3 +77,4 @@ alter table dt_regatta change column id id int not null;
 -- improve public site, again
 drop table dt_score;
 alter table pub_update_request change column activity activity enum('rotation', 'score', 'rp', 'details', 'summary') default 'score' comment "What changed and needs to be updated?";
+drop table dt_rp;

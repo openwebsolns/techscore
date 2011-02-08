@@ -189,9 +189,7 @@ class Dt_Score extends DBObject {
 class Dt_Rp extends DBObject {
   protected $team;
   protected $race;
-  public $race_num;
-  public $division;
-  public $sailor;
+  protected $sailor;
   public $boat_role;
 
   public function db_type($field) {
@@ -200,7 +198,7 @@ class Dt_Rp extends DBObject {
     if ($field == 'sailor') return DBME::$SAILOR;
     return parent::db_type($field);
   }
-  public function dt_name() { return 'rp'; }
+  public function db_name() { return 'rp'; }
 }
 
 class Dt_Sailor extends DBObject {
@@ -216,6 +214,14 @@ class Dt_Sailor extends DBObject {
     if ($field == 'school')
       return DBME::$SCHOOL;
     return parent::db_type($field);
+  }
+  public function __toString() {
+    $suffix = ($this->icsa_id === null) ? ' *' : '';
+    return sprintf('%s %s \'%s%s',
+		   $this->first_name,
+		   $this->last_name,
+		   substr($this->year, 2),
+		   $suffix);
   }
 }
 ?>

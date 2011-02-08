@@ -73,10 +73,18 @@ class SchoolSummaryMaker {
     $d->addAttr("align", "center");
     $d->addAttr("id", "reg-details");
 
+    require_once('mysqli/DB.php');
+    DBME::setConnection(Preferences::getConnection());
+
     // current season
     $now = new DateTime();
+    $now->setTime(0, 0);
     $season = $this->season;
-    $regs = $season->getParticipation($school);
+
+    $q = DBME::prepGetAll(DBME::$TEAM, new MyCond('school', $school->id));
+    $q->fields(array('regatta'), DBME::$TEAM->db_name());
+    $regs = DBME::getAll(DBME::$REGATTA, new MyBoolean(array(new MyCond('season', $season),
+							     new MyCondIn('id', $q))));
     $total = count($regs);
     $current = array(); // regattas happening NOW
     $past = array();    // past regattas from the current season
@@ -89,43 +97,47 @@ class SchoolSummaryMaker {
     $places = 0;
     $avg_total = 0;
     foreach ($regs as $reg) {
-      $reg = new Regatta($reg->id);
-      $num = count($reg->getTeams());
-      if ($reg->get(Regatta::FINALIZED) !== null) {
-	foreach ($reg->getPlaces($school) as $pl) {
-	  $places += $pl;
-	  $avg_total += $num;
+      $teams = $reg->getTeams();
+      $num = count($teams);
+      if ($reg->finalized !== null) {
+	foreach ($teams as $pl => $team) {
+	  if ($team->school->id == $school->id) {
+	    // track placement
+	    $places += ($pl + 1);
+	    $avg_total += $num;
+
+	    // track participation
+	    $sk = DBME::getAll(DBME::$RP, new MyBoolean(array(new MyCond('team', $team->id),
+							      new MyCond('boat_role', 'skipper'))));
+	    $cr = DBME::getAll(DBME::$RP, new MyBoolean(array(new MyCond('team', $team->id),
+							      new MyCond('boat_role', 'crew'))));
+	    foreach ($sk as $rp) {
+	      if (!isset($skippers[$rp->sailor->id])) {
+		$skippers[$rp->sailor->id] = 0;
+		$skip_objs[$rp->sailor->id] = $rp->sailor;
+	      }
+	      $skippers[$rp->sailor->id]++;
+	    }
+	    foreach ($cr as $rp) {
+	      if (!isset($crews[$rp->sailor->id])) {
+		$crews[$rp->sailor->id] = 0;
+		$crew_objs[$rp->sailor->id] = $sailor;
+	      }
+	      $crews[$rp->sailor->id]++;
+	    }
+	  }
 	}
       }
-      if ($reg->get(Regatta::START_TIME) <= $now &&
-	  $reg->get(Regatta::END_DATE) >= $now) {
+      if ($reg->start_time <= $now &&
+	  $reg->end_date >= $now) {
 	$current[] = $reg;
       }
-      if ($reg->get(Regatta::END_DATE) < $now) {
+      if ($reg->end_date < $now) {
 	$past[] = $reg;
-      }
-
-      $rpm = $reg->getRpManager();
-      foreach ($reg->getTeams($school) as $team) {
-	foreach ($reg->getDivisions() as $div) {
-	  foreach ($rpm->getRP($team, $div, RP::SKIPPER) as $rp) {
-	    if (!isset($skippers[$rp->sailor->id])) {
-	      $skippers[$rp->sailor->id] = 0;
-	      $skip_objs[$rp->sailor->id] = $rp->sailor;
-	    }
-	    $skippers[$rp->sailor->id] += count($rp->races_nums);
-	  }
-	  foreach ($rpm->getRP($team, $div, RP::CREW) as $rp) {
-	    if (!isset($crews[$rp->sailor->id])) {
-	      $crews[$rp->sailor->id] = 0;
-	      $crew_objs[$rp->sailor->id] = $rp->sailor;
-	    }
-	    $crews[$rp->sailor->id] += 1;
-	  }
-	}
       }
     }
     $avg = ($avg_total == 0) ? "Not applicable" : ($places / $total);
+    
     // ------------------------------------------------------------
     // SCHOOL sailing now
     if (count($current) > 0) {
@@ -140,25 +152,46 @@ class SchoolSummaryMaker {
 				    Cell::th("Place(s)")
 				    )));
       foreach ($current as $reg) {
-	// borrowed from SeasonSummaryMaker
-	$last_race = $reg->getLastScoredRace();
-	$last_race = ($last_race === null) ? "--" : (string)$last_race;
-	$status = "$last_race";
+	// borrowed from UpdateSeason
+	$status = null;
+	$teams = $reg->getTeams();
+	switch ($reg->status) {
+	case 'coming':
+	  $status = "Coming soon";
+	  break;
+
+	case 'finished':
+	  $status = "Pending";
+	  break;
+
+	case 'final':
+	  $wt = $teams[0];
+	  $status = "Winner: " . $wt;
+	  if (!isset($winning_school[$wt->school->id]))
+	    $winning_school[$wt->school->id] = 0;
+	  $winning_school[$wt->school->id] += 1;
+	  break;
+
+	default:
+	  $status = "In progress: " . $reg->status;
+	}
+	
+	$num_teams += count($teams);
 	$hosts = array();
 	$confs = array();
 	foreach ($reg->getHosts() as $host) {
-	  $hosts[$host->school->id] = $host->school->nick_name;
-	  $confs[$host->school->conference->id] = $host->school->conference;
+	  $hosts[$host->id] = $host->nick_name;
+	  $confs[$host->conference] = $host->conference;
 	}
-	$places = $reg->getPlaces($school);
-	$link = new Link(sprintf('/%s/%s', $season, $reg->get(Regatta::NICK_NAME)), $reg->get(Regatta::NAME));
+	$link = new Link(sprintf('/%s/%s', $season, $reg->nick), $reg->name);
 	$tab->addRow($r = new Row(array(new Cell($link, array("class"=>"left")),
 					new Cell(implode("/", $hosts)),
-					new Cell(ucfirst($reg->get(Regatta::TYPE))),
+					new Cell(ucfirst($reg->type)),
 					new Cell(implode("/", $confs)),
-					new Cell($status),
-					new Cell(sprintf('%s/%d', implode(',', $places), count($reg->getTeams())))
+					new Cell($reg->start_time->format('m/d/Y')),
+					new Cell($status)
 					)));
+	$r->addAttr("class", sprintf("row%d", $row++ % 2));
       }
     }
 
@@ -223,23 +256,28 @@ class SchoolSummaryMaker {
 				    Cell::th("Place(s)")
 				    )));
       foreach ($past as $reg) {
-	$date = $reg->get(Regatta::START_TIME);
-	$status = ($reg->get(Regatta::FINALIZED) === null) ? "Pending" : "Official";
+	$date = $reg->start_time;
+	$status = ($reg->finalized === null) ? "Pending" : "Official";
 	$hosts = array();
 	$confs = array();
 	foreach ($reg->getHosts() as $host) {
-	  $hosts[$host->school->id] = $host->school->nick_name;
-	  $confs[$host->school->conference->id] = $host->school->conference;
+	  $hosts[$host->id] = $host->nick_name;
+	  $confs[$host->conference] = $host->conference;
 	}
-	$places = $reg->getPlaces($school);
-	$link = new Link(sprintf('/%s/%s', $season, $reg->get(Regatta::NICK_NAME)), $reg->get(Regatta::NAME));
+	$places = array();
+	$teams = $reg->getTeams();
+	foreach ($teams as $rank => $team) {
+	  if ($team->school->id == $school->id)
+	    $places[] = ($rank + 1);
+	}
+	$link = new Link(sprintf('/%s/%s', $season, $reg->nick), $reg->name);
 	$tab->addRow($r = new Row(array(new Cell($link, array("class"=>"left")),
 					new Cell(implode("/", $hosts)),
-					new Cell(ucfirst($reg->get(Regatta::TYPE))),
+					new Cell(ucfirst($reg->type)),
 					new Cell(implode("/", $confs)),
 					new Cell($date->format('m/d/Y')),
 					new Cell($status),
-					new Cell(sprintf('%s/%d', implode(',', $places), count($reg->getTeams())))
+					new Cell(sprintf('%s/%d', implode(',', $places), count($teams)))
 					)));
       }
     }
