@@ -32,7 +32,9 @@ abstract class FinishModifier {
    *
    * @return Array<Penalty::Const,String> the different penalties
    */
-  abstract public static function getList();
+  public static function getList() {
+    return array();
+  }
 
   /**
    * Creates a new penalty, of empty type by default

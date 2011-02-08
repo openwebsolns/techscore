@@ -273,10 +273,6 @@ div.message {
     padding: 1em;
 }
 
-table.left * {
-    text-align: left;
-}
-
 /* Conferences table */
 /*
 #conftable {
@@ -300,7 +296,7 @@ padding: 0px;
     list-style-type: none;
     color: #666666; line-height: 1.35em;
 }
-.results tbody * {
+.results td {
     border: none;
     text-align: right;
 }
@@ -310,6 +306,9 @@ padding: 0px;
     background: #f3ebe0;
 }
 .results tbody { border: 1px solid #bbb; }
+
+td.left { text-align: left; }
+td.races { color: #555; font-size: 85%; }
 
 /* Stats */
 div.stat { font-size: 105%; }

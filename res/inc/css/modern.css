@@ -266,6 +266,8 @@ thead th {
 }
 table.narrow {
     display: inline-block;
+    zoom: 1;
+    *display: inline;
     vertical-align: top;
 }
 

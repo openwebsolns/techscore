@@ -97,7 +97,7 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
       $tab->addRow($r = new Row(array(new Cell($tID + 1),
 				      $bc = new Cell(),
 				      new Cell($ln, array("class"=>"strong")),
-				      new Cell($rank->team->name))));
+				      new Cell($rank->team->name, array("class"=>"left")))));
       $url = sprintf("%s/img/schools/%s.png", $PREFIX, $rank->team->school->id);
       $bc->addChild(new Image($url, array("height"=>"30px")));
 

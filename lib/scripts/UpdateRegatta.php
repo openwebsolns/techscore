@@ -216,8 +216,8 @@ class UpdateRegatta {
       $rot = $reg->getRotation();
       if ($rot->isAssigned())
 	self::createRotation($D, $M);
-      self::createFront();
-      self::createFull();
+      self::createFront($D, $M);
+      self::createFull($D, $M);
       
       // Individual division scores (do not include if singlehanded as
       // this is redundant)
@@ -340,7 +340,7 @@ class UpdateRegatta {
     $page->addMenu(new Link("full-scores", "Full Scores"));
     if (!$reg->isSingleHanded()) {
       foreach ($reg->getDivisions() as $div)
-	$page->addMenu(new Link(strtolower($div), "$div Scores"));
+	$page->addMenu(new Link($div, "$div Scores"));
     }
   }
 }
