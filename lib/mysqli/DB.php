@@ -20,6 +20,7 @@ class DBME extends DBM {
   /**
    * Empty objects to serve as prototypes
    */
+  public static $CONFERENCE = null;
   public static $REGATTA = null;
   public static $SCHOOL = null;
   public static $SAILOR = null;
@@ -32,6 +33,7 @@ class DBME extends DBM {
   
   // use this method to initialize the different objects as well
   public static function setConnection(MySQLi $con) {
+    self::$CONFERENCE = new Dt_Conference();
     self::$REGATTA = new Dt_Regatta();
     self::$SCHOOL = new Dt_School();
     self::$SAILOR = new Dt_Sailor();
@@ -166,6 +168,12 @@ class Dt_School extends DBObject {
   public function __toString() {
     return $this->name;
   }
+}
+
+class Dt_Conference extends DBObject {
+  public $name;
+  public function db_name() { return 'conference'; }
+  public function __toString() { return $this->id; }
 }
 
 class Dt_Score extends DBObject {
