@@ -10,6 +10,8 @@ require_once("conf.php");
 /**
  * Add, edit, and display individual penalties
  *
+ * 2011-02-09: Allow for multiple penalty entry at a time
+ *
  * @author Dayan Paez
  * @created 2010-01-25
  */
@@ -96,7 +98,7 @@ class EnterPenaltyPane extends AbstractPane {
       $p->addChild($form = $this->createForm());
       $form->addChild(new FHidden("p_type", $p_type));
       $form->addChild(new FItem("Team:",
-				$f_sel = new FSelect("finish", array(""))));
+				$f_sel = new FSelect("finish[]", array(""))));
       $options = array();
       foreach ($this->REGATTA->getTeams() as $team) {
 	$fin = $this->REGATTA->getFinish($theRace, $team);
@@ -107,6 +109,7 @@ class EnterPenaltyPane extends AbstractPane {
 				  $rotation->getSail($theRace, $team));
 	}
       }
+      $f_sel->addAttr('multiple', 'multiple');
       $f_sel->addOptions($options);
 
       // - comments
@@ -204,29 +207,41 @@ class EnterPenaltyPane extends AbstractPane {
     // ------------------------------------------------------------
     if (isset($args['p_submit']) ) {
       // Validate input
-      $tokens = explode(',', $args['finish']);
-      if (count($tokens) != 2) {
-	$this->announce(new Announcement("No valid finish provided.", Announcement::ERROR));
+      if (!isset($args['finish']) || !is_array($args['finish'])) {
+	$this->announce(new Announcement("Finish must be a list.", Announcement::ERROR));
 	return $args;
       }
-      try {
-	$race = Race::parse($tokens[0]);
-	$race = $this->REGATTA->getRace($race->division, $race->number);
-	if ($race === null)
-	  throw new InvalidArgumentException("No such race!");
+      $finishes = array();
+      $teams = array();
+      foreach ($args['finish'] as $f) {
+	$tokens = explode(',', $f);
+	if (count($tokens) != 2) {
+	  $this->announce(new Announcement("Invalid finish provided ($f).", Announcement::ERROR));
+	  return $args;
+	}
+	try {
+	  $race = Race::parse($tokens[0]);
+	  $race = $this->REGATTA->getRace($race->division, $race->number);
+	  if ($race === null)
+	    throw new InvalidArgumentException("No such race!");
+	}
+	catch (InvalidArgumentException $e) {
+	  $this->announce(new Announcement("Invalid race for finish.", Announcement::ERROR));
+	  return $args;
+	}
+	$team = $this->REGATTA->getTeam($tokens[1]);
+	if ($team === null) {
+	  $this->announce(new Announcement("Invalid team for finish.", Announcement::ERROR));
+	  return $args;
+	}
+	$finish = $this->REGATTA->getFinish($race, $team);
+	if ($finish !== null) {
+	  $finishes[] = $finish;
+	  $teams[] = $team;
+	}
       }
-      catch (InvalidArgumentException $e) {
-	$this->announce(new Announcement("Invalid race for finish.", Announcement::ERROR));
-	return $args;
-      }
-      $team = $this->REGATTA->getTeam($tokens[1]);
-      if ($team === null) {
-	$this->announce(new Announcement("Invalid team for finish.", Announcement::ERROR));
-	return $args;
-      }
-      $theFinish = $this->REGATTA->getFinish($race, $team);
-      if ($theFinish === null) {
-	$this->announce(new Announcement("Invalid finish for penalty/breakdown.", Announcement::ERROR));
+      if (count($finishes) == 0) {
+	$this->announce(new Announcement("No finishes for penalty/breakdown.", Announcement::ERROR));
 	return $args;
       }
       $thePen  = $args['p_type'];
@@ -254,34 +269,36 @@ class EnterPenaltyPane extends AbstractPane {
 
       // give the users the flexibility to do things wrong, if they so choose
       $breakdowns = Breakdown::getList();
-      if (in_array($thePen, array_keys($breakdowns))) {
-	if ($theFinish->score !== null && $theAmount >= $theFinish->score) {
-	  $this->announce(new Announcement("The assigned score is no better than the actual score; ignoring.",
-					   Announcement::WARNING));
-	  $args['p_race'] = $race;
-	  return $args;
+      foreach ($finishes as $theFinish) {
+	if (in_array($thePen, array_keys($breakdowns))) {
+	  if ($theFinish->score !== null && $theAmount >= $theFinish->score) {
+	    $this->announce(new Announcement("The assigned score is no better than the actual score; ignoring.",
+					     Announcement::WARNING));
+	    $args['p_race'] = $race;
+	    return $args;
+	  }
+	  $theFinish->penalty = new Breakdown($thePen, $theAmount, $theComm, $theDisplace);
 	}
-	$theFinish->penalty = new Breakdown($thePen, $theAmount, $theComm, $theDisplace);
-      }
-      else {
-	if ($theFinish->score !== null &&
-	    $theAmount > 0 &&
-	    $theAmount <= $theFinish->score) {
-	  $this->announce(new Announcement("The assigned penalty score is no worse than their actual score; ignoring.",
-					   Announcement::WARNING));
-	  return $args;
+	else {
+	  if ($theFinish->score !== null &&
+	      $theAmount > 0 &&
+	      $theAmount <= $theFinish->score) {
+	    $this->announce(new Announcement("The assigned penalty score is no worse than their actual score; ignoring.",
+					     Announcement::WARNING));
+	    return $args;
+	  }
+	  elseif ($theAmount > ($fleet = $this->REGATTA->getFleetSize() + 1)) {
+	    $this->announce(new Announcement(sprintf("The assigned penalty is greater than the maximum penalty of FLEET + 1 (%d); ignoring.", $fleet),
+					     Announcement::WARNING));
+	    return $args;
+	  }
+	  $theFinish->penalty = new Penalty($thePen, $theAmount, $theComm, $theDisplace);
 	}
-	elseif ($theAmount > ($fleet = $this->REGATTA->getFleetSize() + 1)) {
-	  $this->announce(new Announcement(sprintf("The assigned penalty is greater than the maximum penalty of FLEET + 1 (%d); ignoring.", $fleet),
-					   Announcement::WARNING));
-	  return $args;
-	}
-	$theFinish->penalty = new Penalty($thePen, $theAmount, $theComm, $theDisplace);
       }
       $this->REGATTA->runScore($race);
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
       
-      $mes = sprintf("Added %s for %s.", $thePen, $theFinish->team);
+      $mes = sprintf("Added %s for %s.", $thePen, implode(', ', $teams));
       $this->announce(new Announcement($mes));
       unset($args['p_type']);
     }

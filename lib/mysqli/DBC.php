@@ -248,6 +248,8 @@ class DBM {
    * separate call to this method. In conclusion, client scripts
    * should stick to calling this method with only the first argument.
    *
+   * @return boolean true if an update was done, false otherwise
+   *
    * @see get
    * @version 2010-12-02: Added second parameter
    */
@@ -262,8 +264,7 @@ class DBM {
     else {
       // guess?
       $exist = self::get($obj, $obj->id);
-      self::set($obj, ($exist instanceof DBObject));
-      return;
+      return self::set($obj, ($exist instanceof DBObject));
     }
     self::prepSet($obj, $q);
     $q->limit(1);
@@ -273,6 +274,7 @@ class DBM {
     if ($update === false && $obj->id == null) // then it must be auto-increment!
       $obj->id = self::connection()->insert_id;
     $obj->db_set_hook();
+    return $update;
   }
 
   /**

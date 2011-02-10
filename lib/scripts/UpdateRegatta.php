@@ -40,6 +40,8 @@ class UpdateRegatta {
    * @param boolean $full set this to false to only update information
    * about the regatta and not about the ranks (this creates slight
    * efficiency incrase)
+   *
+   * @return boolean true if a new regatta was inserted
    */
   public static function runSync(Regatta $reg, $full = true) {
     if ($reg->get(Regatta::TYPE) == Preferences::TYPE_PERSONAL)
@@ -104,7 +106,7 @@ class UpdateRegatta {
     else {
       $dreg->status = $reg->getLastScoredRace();
     }
-    DBME::set($dreg);
+    $added = !DBME::set($dreg);
 
     // ------------------------------------------------------------
     // do the teams: first delete all the old teams
@@ -128,19 +130,19 @@ class UpdateRegatta {
       $team->rank_explanation = $rank->explanation;
       DBME::set($team);
     }
+    return $added;
   }
 
   /**
-   * Deletes the given regatta's information from the public site.
-   * Note that this method is automatically called from
+   * Deletes the given regatta's information from the public site and
+   * the database.  Note that this method is automatically called from
    * <pre>runScore</pre> and <pre>runRotation</pre> if the rotation
-   * type is "personal". This method does not touch the season page.
+   * type is "personal". This method does not touch the season page or
+   * any other pages.
    *
    * @param Regatta $reg the regatta whose information to delete.
    */
   public static function runDelete(Regatta $reg) {
-    return; // TODO fix me!
-
     $R = realpath(dirname(__FILE__).'/../../html');
     $season = $reg->get(Regatta::SEASON);
     if ((string)$season == "")
@@ -156,6 +158,14 @@ class UpdateRegatta {
       closedir($dir);
       rmdir($dirname);
     }
+
+    // Delete from database
+    require_once('mysqli/DB.php');
+    DBME::setConnection(Preferences::getConnection());
+    
+    $r = DBME::get(DBME::$REGATTA, $reg->id());
+    if ($r !== null)
+      DBME::remove($r);
   }
 
   /**
@@ -168,6 +178,8 @@ class UpdateRegatta {
   public static function run(Regatta $reg, $activity) {
     if ($reg->get(Regatta::TYPE) == Preferences::TYPE_PERSONAL) {
       self::runDelete($reg);
+      UpdateSeason::run($reg->get(Regatta::SEASON));
+      UpdateSchoolsSummary::run();
       return;
     }
     $D = UpdateRegatta::createDir($reg);
@@ -228,7 +240,8 @@ class UpdateRegatta {
       break;
       // ------------------------------------------------------------
     case UpdateRequest::ACTIVITY_SYNC:
-      self::runSync($reg);
+      if (self::runSync($reg))
+	UpdateSchoolsSummary::run();
       break;
 
     default:

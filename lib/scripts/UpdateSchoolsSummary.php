@@ -7,23 +7,19 @@
  * @created 2011-02-08
  * @package www
  */
-require_once(dirname(__FILE__).'/../conf.php');
-class SchoolsPage extends TPublicPage {
-  
-  /**
-   * Create the new school summary page
-   */
-  public function __construct() {
-    parent::__construct("All Schools");
+class UpdateSchoolsSummary {
 
+  public static function run() {
+    $page = new TPublicPage("All Schools");
+    
     require_once('mysqli/DB.php');
     DBME::setConnection(Preferences::getConnection());
 
-    $this->addNavigation(new Link('http://collegesailing.info/teams', 'ICSA Info', array('class'=>'nav')));
+    $page->addNavigation(new Link('http://collegesailing.info/teams', 'ICSA Info', array('class'=>'nav')));
     $confs = DBME::getAll(DBME::$CONFERENCE);
     foreach ($confs as $conf)
-      $this->addMenu(new Link('#'.$conf, $conf));
-    $this->addSection($d = new Div());
+      $page->addMenu(new Link('#'.$conf, $conf));
+    $page->addSection($d = new Div());
     $d->addChild(new GenericElement('h2', array(new Text("ICSA Conferences"))));
     $d->addChild($l = new Itemize());
     $l->addItems(new LItem(new Image(sprintf('/inc/img/icsa.png'), array('alt'=>"ICSA Burgee"))));
@@ -36,7 +32,7 @@ class SchoolsPage extends TPublicPage {
     $q = DBME::prepGetAll(DBME::$TEAM);
     $q->fields(array('regatta'), DBME::$TEAM->db_name());
     foreach ($confs as $conf) {
-      $this->addSection($p = new Port($conf));
+      $page->addSection($p = new Port($conf));
       $p->addAttr('id', $conf);
       $p->addChild($tab = new Table());
       $tab->addHeader(new Row(array(Cell::th("Mascot"),
@@ -64,15 +60,17 @@ class SchoolsPage extends TPublicPage {
 				   new Cell($cnt))));
       }
     }
+
+    // Write to file!
+    $f = sprintf('%s/../../html/schools/index.html', dirname(__FILE__));
+    file_put_contents($f, $page->toHTML());
   }
 }
 
 if (isset($argv) && basename($argv[0]) == basename(__FILE__)) {
   $_SERVER['HTTP_HOST'] = 'cli';
-  require_once('../conf.php');
+  require_once(dirname(__FILE__) . '/../conf.php');
 
-  $p = new SchoolsPage();
-  $f = sprintf('%s/../../html/schools/index.html', dirname(__FILE__));
-  file_put_contents($f, $p->toHTML());
+  UpdateSchoolsSummary::run();
 }
 ?>
