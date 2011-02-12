@@ -154,15 +154,16 @@ class RpManager {
    * Returns a list of sailors for the specified school
    *
    * @param School $school the school object
+   * @param RP::const $gender null for both or the gender code
    * @return Array<Sailor> list of sailors
    */
-  public static function getSailors(School $school) {
-    $q = sprintf('select %s from %s ' .
-		 'where school = "%s" ' .
+  public static function getSailors(School $school, $gender = null) {
+    $g = ($gender === null) ? '' : sprintf('and gender = "%s" ', $gender);
+    $q = sprintf('select %s from %s where school = "%s" ' .
 		 'and role = "student" ' .
-		 'and icsa_id is not null ' .
+		 'and icsa_id is not null %s' .
 		 'order by last_name',
-		 Sailor::FIELDS, Sailor::TABLES, $school->id);
+		 Sailor::FIELDS, Sailor::TABLES, $school->id, $g);
     $q = Preferences::query($q);
     $list = array();
     while ($obj = $q->fetch_object("Sailor")) {
@@ -176,14 +177,16 @@ class RpManager {
    * Returns a list of unregistered sailors for the specified school
    *
    * @param School $school the school object
+   * @param RP::const $gender null for both or the gender code
    * @return Array<Sailor> list of sailors
    */
-  public static function getUnregisteredSailors(School $school) {
+  public static function getUnregisteredSailors(School $school, $gender = null) {
+    $g = ($gender === null) ? '' : sprintf('and gender = "%s" ', $gender);
     $q = sprintf('select %s from %s where school = "%s" ' .
 		 'and role = "student" ' .
-		 'and icsa_id is null ' .
+		 'and icsa_id is null %s' .
 		 'order by last_name',
-		 Sailor::FIELDS, Sailor::TABLES, $school->id);
+		 Sailor::FIELDS, Sailor::TABLES, $school->id, $g);
     $q = Preferences::query($q);
     $list = array();
     while ($obj = $q->fetch_object("Sailor")) {

@@ -26,7 +26,7 @@ class NewRegattaPane extends AbstractUserPane {
   private function defaultRegatta() {
     $day = new DateTime('next Saturday');
     return array("name"=>"", "start_date"=>$day->format('m/d/Y'), "start_time" => "10:00", "duration"=>2,
-		 "venue"=>"", "scoring"=>"standard", "type"=>"conference",
+		 "venue"=>"", "scoring"=>"standard", "type"=>"conference", "participant"=>"coed",
 		 "num_divisions"=>2, "num_races"=>"18");
   }
 
@@ -48,6 +48,7 @@ class NewRegattaPane extends AbstractUserPane {
     $f->addChild(new FItem("Venue:",   $sel = new FSelect("venue", array($r["venue"]))));
     $f->addChild(new FItem("Scoring:", $sco = new FSelect("scoring", array($r["scoring"]))));
     $f->addChild(new FItem("Type:",    $typ = new FSelect("type", array($r["type"]))));
+    $f->addChild(new FItem("Participation:", $par = new FSelect("participant", array($r["participant"]))));
     $f->addChild(new FItem("Divisions:",$div = new FSelect("num_divisions",  array($r["num_divisions"]))));
     $f->addChild(new FItem("Number of races:", new FText("num_races", $r["num_races"])));
     $f->addChild(new FSubmit("new-regatta", "Create"));
@@ -60,6 +61,8 @@ class NewRegattaPane extends AbstractUserPane {
       $sco->addChild(new Option($key, $value));
     foreach (Preferences::getRegattaTypeAssoc() as $key => $value)
       $typ->addChild(new Option($key, $value));
+    foreach (Preferences::getRegattaParticipantAssoc() as $key => $value)
+      $par->addChild(new Option($key, $value));
     for ($i = 1; $i <= 4; $i++)
       $div->addChild(new Option($i, $i));
   }
@@ -111,12 +114,20 @@ class NewRegattaPane extends AbstractUserPane {
 	$_SESSION['ANNOUNCE'][] = new Announcement("Invalid regatta type.", Announcement::ERROR);
 	$error = true;
       }
-      // 8. Divisions
+      // 8. Participation
+      $part = Preferences::getRegattaParticipantAssoc();
+      if (!isset($args['participant']) ||
+	  !isset($part[$args['participant']])) {
+	$_SESSION['ANNOUNCE'][] = new Announcement("Invalid regatta participation.", Announcement::ERROR);
+	$error = true;
+      }
+
+      // 9. Divisions
       if (!isset($args['num_divisions']) || $args['num_divisions'] < 1 || $args['num_divisions'] > 4) {
 	$_SESSION['ANNOUNCE'][] = new Announcement("Invalid number of divisions.", Announcement::ERROR);
 	$error = true;
       }
-      // 9. Races
+      // 10. Races
       if (!isset($args['num_races']) || $args['num_races'] < 1 || $args['num_races'] > 99) {
 	$_SESSION['ANNOUNCE'][] = new Announcement("Invalid number of races.", Announcement::ERROR);
 	$error = true;
@@ -133,7 +144,8 @@ class NewRegattaPane extends AbstractUserPane {
 				      new DateTime($str),
 				      new DateTime($end),
 				      $args['type'],
-				      $args['scoring']);
+				      $args['scoring'],
+				      $args['participant']);
 
 	$reg->addScorer($this->USER->asAccount(), true);
 	$divs = array_values(Division::getAssoc());

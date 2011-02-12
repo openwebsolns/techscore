@@ -81,6 +81,16 @@ class Preferences {
   }
 
   /**
+   * Gets an assoc. array of the possible participant values
+   *
+   * @return Array a dict of scoring rules
+   */
+  public static function getRegattaParticipantAssoc() {
+    return array(Regatta::PARTICIPANT_COED => "Coed",
+		 Regatta::PARTICIPANT_WOMEN => "Women");
+  }
+
+  /**
    * Returns a list of available boats
    *
    * @return Array<Boat> list of boats

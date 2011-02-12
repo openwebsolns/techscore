@@ -25,6 +25,9 @@ class RP {
   const SKIPPER = "skipper";
   const CREW    = "crew";
 
+  const MALE = "M";
+  const FEMALE = "F";
+
   public function __construct() {
     $this->races_nums = explode(",", $this->races_nums);
   }

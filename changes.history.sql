@@ -78,3 +78,8 @@ alter table dt_regatta change column id id int not null;
 drop table dt_score;
 alter table pub_update_request change column activity activity enum('rotation', 'score', 'rp', 'details', 'summary') default 'score' comment "What changed and needs to be updated?";
 drop table dt_rp;
+
+-- sailor api
+alter table sailor add column gender enum('M','F') not null default 'M';
+alter table regatta add column participant enum('women', 'coed') not null default 'coed';
+alter table dt_regatta add column participant enum('women', 'coed') not null default 'coed';

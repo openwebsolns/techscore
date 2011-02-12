@@ -48,6 +48,7 @@ class Regatta implements RaceListener {
   const VENUE      = "venue";
   const SCORING    = "scoring";
   const SEASON     = "season";
+  const PARTICIPANT = "participant";
 
   /**
    * Standard scoring
@@ -58,6 +59,16 @@ class Regatta implements RaceListener {
    * Combined scoring
    */   
   const SCORING_COMBINED = "combined";
+
+  /**
+   * Women's regatta
+   */
+  const PARTICIPANT_WOMEN = "women";
+  
+  /**
+   * Coed regatta (default)
+   */
+  const PARTICIPANT_COED = "coed";
 
   // Properties
   private $properties = null;
@@ -91,7 +102,7 @@ class Regatta implements RaceListener {
     // Update the properties
     $q = sprintf('select regatta.id, regatta.name, regatta.nick, ' .
 		 'regatta.start_time, regatta.end_date, regatta.venue, ' .
-		 'regatta.type, regatta.finalized, regatta.scoring ' .
+		 'regatta.type, regatta.finalized, regatta.scoring, regatta.participant ' .
 		 'from regatta ' .
 		 'where regatta.id = "%s"',
 		 $this->id);
@@ -1338,8 +1349,7 @@ class Regatta implements RaceListener {
    * @param DateTime $start_time the start time of the regatta
    * @param DateTime $end_date the end_date
    * @param String $type one of those listed in Preferences::getRegattaTypeAssoc()
-   * @param String $comments the comments (default empty)
-   *
+   * @param String $participant one of those listed in Preferences::getRegattaParticipantAssoc()
    * @return int the ID of the regatta
    *
    * @throws InvalidArgumentException if illegal regatta type
@@ -1349,20 +1359,24 @@ class Regatta implements RaceListener {
 				       DateTime $start_time,
 				       DateTime $end_date,
 				       $type,
-				       $scoring) {
+				       $scoring,
+				       $participant = Regatta::PARTICIPANT_COED) {
     if (!in_array($type, array_keys(Preferences::getRegattaTypeAssoc())))
       throw new InvalidArgumentException("No such regatta type $type.");
     if (!in_array($scoring, array_keys(Preferences::getRegattaScoringAssoc())))
       throw new InvalidArgumentException("No such regatta scoring $scoring.");
+    if (!in_array($participant, array_keys(Preferences::getRegattaParticipantAssoc())))
+      throw new InvalidArgumentException("No such regatta scoring $scoring.");
 
     $q = sprintf('insert into regatta ' .
-		 '(name, start_time, end_date, type, scoring) values ' .
-		 '("%s", "%s", "%s", "%s", "%s")',
+		 '(name, start_time, end_date, type, scoring, participant) values ' .
+		 '("%s", "%s", "%s", "%s", "%s", "%s")',
 		 addslashes((string)$name),
 		 $start_time->format("Y-m-d H:i:s"),
 		 $end_date->format("Y-m-d"),
 		 $type,
-		 $scoring);
+		 $scoring,
+		 $participant);
 
     $res = Preferences::query($q);
 
@@ -1379,7 +1393,7 @@ class Regatta implements RaceListener {
    * @param DateTime $end_date the end_date
    * @param String $type one of those listed in Preferences::getRegattaTypeAssoc()
    * @param String $scoring one of those listed in Preferences::getRegattaScoringAssoc()
-   * @param String $comments the comments (default empty)
+   * @param String $participant one of those listed in Preferences::getRegattaParticipantAssoc()
    *
    * @throws InvalidArgumentException if illegal regatta type or name
    */
@@ -1387,8 +1401,9 @@ class Regatta implements RaceListener {
 				       DateTime $start_time,
 				       DateTime $end_date,
 				       $type,
-				       $scoring) {
-    $id = self::addRegatta(SQL_DB, $name, $start_time, $end_date, $type, $scoring);
+				       $scoring,
+				       $participant = Regatta::PARTICIPANT_COED) {
+    $id = self::addRegatta(SQL_DB, $name, $start_time, $end_date, $type, $scoring, $participant);
     $r = new Regatta($id);
     // do not create nick names for personal regattas (nick name
     // creation is delayed until the regatta is made active)

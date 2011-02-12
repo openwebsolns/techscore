@@ -50,7 +50,7 @@ class TempRegatta extends Regatta {
 
     $res = $res->fetch_object();
     $this->original = new Regatta($res->original);
-    $this->expires  = new DateTime($res->expires, new DateTimeZone("America/New_York"));
+    $this->expires  = new DateTime($res->expires);
   }
 
   /**

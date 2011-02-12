@@ -65,6 +65,7 @@ class Dt_Regatta extends DBObject {
   public $singlehanded;
   public $season;
   public $status;
+  public $participant;
 
   public function db_type($field) {
     switch ($field) {

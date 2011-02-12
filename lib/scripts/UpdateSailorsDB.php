@@ -72,34 +72,20 @@ class UpdateSailorsDB {
   private function updateSailor(Sailor $sailor) {
     $s = ($sailor instanceof Coach) ? "coach" : "student";
 
-    // Determine if the icsa_id exists already
-    $q = sprintf('select id from sailor where icsa_id = "%s"', $sailor->icsa_id);
-    $q = Preferences::query($q);
+    // One query to rule them all
+    $q = sprintf('insert into sailor (icsa_id, school, last_name, first_name, year, role, gender) ' .
+		 'values ("%s", "%s", "%s", "%s", "%s", "%s", "%s") on duplicate key update ' .
+		 'school = values(school), last_name = values(last_name), first_name = values(first_name), ' .
+		 'year = values(year), role = values(role), gender = values(gender)',
+		 $sailor->icsa_id,
+		 $sailor->school->id,
+		 $sailor->last_name,
+		 $sailor->first_name,
+		 $sailor->year,
+		 $s,
+		 $sailor->gender);
     
-    if ($q->num_rows == 0) {
-      // new sailor
-      $q2 = sprintf('insert into sailor (icsa_id, school, last_name, first_name, year, role) ' .
-		    'values ("%s", "%s", "%s", "%s", "%s", "%s")',
-		    $sailor->icsa_id,
-		    $sailor->school->id,
-		    $sailor->last_name,
-		    $sailor->first_name,
-		    $sailor->year,
-		    $s);
-      Preferences::query($q2);
-    }
-    else {
-      $id = $q->fetch_object();
-      $q2 = sprintf('update sailor set school = "%s", last_name = "%s", first_name = "%s", year = "%s", role = "%s" ' .
-		    'where id = "%s"',
-		    $sailor->school->id,
-		    $sailor->last_name,
-		    $sailor->first_name,
-		    $sailor->year,
-		    $s,
-		    $id->id);
-      Preferences::query($q2);
-    }
+    Preferences::query($q);
   }
 
   /**
@@ -129,13 +115,14 @@ class UpdateSailorsDB {
 	    $s->last_name  = $this->con->real_escape_string($sailor->last_name);
 	    $s->first_name = $this->con->real_escape_string($sailor->first_name);
 	    $s->year = (int)$sailor->year;
+	    $s->gender = $sailor->gender;
 
 	    $this->updateSailor($s);
 	  }
 	  else
 	    $this->warnings[$school_id] = "Missing school $school_id.";
 	} catch (Exception $e) {
-	  $this->warnings[] = "Invalid sailor information: " . str_replace("\n", "/", print_r($sailor, true));
+	  $this->warnings[] = "Invalid sailor information: " . print_r($sailor, true);
 	}
       }
     }
@@ -160,10 +147,11 @@ class UpdateSailorsDB {
 	  $s->last_name  = $this->con->real_escape_string($sailor->last_name);
 	  $s->first_name = $this->con->real_escape_string($sailor->first_name);
 	  $s->year = (int)$sailor->year;
+	  $s->gender = $sailor->gender;
 
 	  $this->updateSailor($s);
 	} catch (Exception $e) {
-	  $warnings[] = "Invalid coach information: " . str_replace("\n", "/", print_r($sailor, true));
+	  $warnings[] = "Invalid coach information: " . print_r($sailor, true);
 	}
       }
     }

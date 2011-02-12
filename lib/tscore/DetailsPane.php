@@ -80,6 +80,13 @@ class DetailsPane extends AbstractPane {
 						       array($value))));
     $f_sel->addOptions(Preferences::getRegattaTypeAssoc());
 
+    // Regatta participation
+    $value = $this->REGATTA->get(Regatta::PARTICIPANT);
+    $reg_form->addChild(new FItem("Participation:",
+				  $f_sel = new FSelect("participant",
+						       array($value))));
+    $f_sel->addOptions(Preferences::getRegattaParticipantAssoc());
+
     // Scoring rules
     $value = $this->REGATTA->get(Regatta::SCORING);
     $reg_form->addChild(new FItem("Scoring:",
@@ -191,6 +198,12 @@ class DetailsPane extends AbstractPane {
       if (isset($args['scoring']) &&
 	  in_array($args['scoring'], array_keys(Preferences::getRegattaScoringAssoc()))) {
 	$this->REGATTA->set(Regatta::SCORING, $args['scoring']);
+      }
+
+      // Participation
+      if (isset($args['participant']) &&
+	  in_array($args['participant'], array_keys(Preferences::getRegattaParticipantAssoc()))) {
+	$this->REGATTA->set(Regatta::PARTICIPANT, $args['participant']);
       }
 
       $this->announce(new Announcement("Edited regatta details."));
