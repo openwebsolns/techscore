@@ -22,7 +22,7 @@ class UpdateSchoolsSummary {
     $page->addSection($d = new Div());
     $d->addChild(new GenericElement('h2', array(new Text("ICSA Conferences"))));
     $d->addChild($l = new Itemize());
-    $l->addItems(new LItem(new Image(sprintf('/inc/img/icsa.png'), array('alt'=>"ICSA Burgee"))));
+    $l->addItems(new LItem(new Image('/inc/img/icsa.png', array('alt'=>"ICSA Burgee"))));
     $d->addAttr('align', 'center');
     $d->addAttr('id', 'reg-details');
 
@@ -45,7 +45,7 @@ class UpdateSchoolsSummary {
 	$link = sprintf('/schools/%s', $school->id);
 	$cnt  = count(DBME::getAll(DBME::$REGATTA, new MyCondIn('id', $q)));
 
-	$burg = new Text("");
+	$burg = "";
 	$path = sprintf('%s/../../html/inc/img/schools/%s.png', dirname(__FILE__), $school->id);
 	if (file_exists($path))
 	  $burg = new Image(sprintf('/inc/img/schools/%s.png', $school->id),

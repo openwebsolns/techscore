@@ -513,7 +513,7 @@ class ICSAScorer {
 
       foreach ($races as $race) {
 	$finish = $reg->getFinish($race, $rank->team);
-	if ($finish->score == $placeFinish)
+	if ($finish !== null && $finish->score == $placeFinish)
 	  $numHighFinishes[$t]++;
       }
     }
