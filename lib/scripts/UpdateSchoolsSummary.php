@@ -29,8 +29,6 @@ class UpdateSchoolsSummary {
     // ------------------------------------------------------------
     // Summary of each conference
     // count the number of regattas this school has teams in
-    $q = DBME::prepGetAll(DBME::$TEAM);
-    $q->fields(array('regatta'), DBME::$TEAM->db_name());
     foreach ($confs as $conf) {
       $page->addSection($p = new Port($conf));
       $p->addAttr('id', $conf);
@@ -42,6 +40,10 @@ class UpdateSchoolsSummary {
 				    Cell::th("State"),
 				    Cell::th("# Regattas"))));
       foreach (DBME::getAll(DBME::$SCHOOL, new MyCond('conference', $conf->id)) as $school) {
+        $q = DBME::prepGetAll(DBME::$TEAM);
+        $q->fields(array('regatta'), DBME::$TEAM->db_name());
+        $q->where(new MyCond('school', $school->id));
+
 	$link = sprintf('/schools/%s', $school->id);
 	$cnt  = count(DBME::getAll(DBME::$REGATTA, new MyCondIn('id', $q)));
 
