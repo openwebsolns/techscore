@@ -152,12 +152,11 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
     error_log(sprintf("I:0:%s\t: Successful!\n", date('r')), 3, LOG_FRONT);
   }
   catch (Exception $e) {
-    error_log(sprintf("E:%d:L%d:F%s:%s\t(%d): %s\n",
+    error_log(sprintf("E:%d:L%d:F%s:%s: %s\n",
 		      $e->getCode(),
 		      $e->getLine(),
 		      $e->getFile(),
 		      date('r'),
-		      $argv[1],
 		      $e->getMessage()),
 	      3, LOG_FRONT);
     print_r($e->getTrace());
