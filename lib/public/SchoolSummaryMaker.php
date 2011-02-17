@@ -121,7 +121,7 @@ class SchoolSummaryMaker {
 	    foreach ($cr as $rp) {
 	      if (!isset($crews[$rp->sailor->id])) {
 		$crews[$rp->sailor->id] = 0;
-		$crew_objs[$rp->sailor->id] = $sailor;
+		$crew_objs[$rp->sailor->id] = $rp->sailor;
 	      }
 	      $crews[$rp->sailor->id]++;
 	    }

@@ -160,6 +160,7 @@ class UpdateSailorsDB {
 
 if (isset($argv) && basename(__FILE__) == basename($argv[0])) {
   ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
+  $_SERVER['HTTP_HOST'] = 'cli';
   require_once('conf.php');
   
   $db = new UpdateSailorsDB();

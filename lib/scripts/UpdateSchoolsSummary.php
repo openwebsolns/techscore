@@ -22,15 +22,13 @@ class UpdateSchoolsSummary {
     $page->addSection($d = new Div());
     $d->addChild(new GenericElement('h2', array(new Text("ICSA Conferences"))));
     $d->addChild($l = new Itemize());
-    $l->addItems(new LItem(new Image(sprintf('/inc/img/icsa.png'), array('alt'=>"ICSA Burgee"))));
+    $l->addItems(new LItem(new Image('/inc/img/icsa.png', array('alt'=>"ICSA Burgee"))));
     $d->addAttr('align', 'center');
     $d->addAttr('id', 'reg-details');
 
     // ------------------------------------------------------------
     // Summary of each conference
     // count the number of regattas this school has teams in
-    $q = DBME::prepGetAll(DBME::$TEAM);
-    $q->fields(array('regatta'), DBME::$TEAM->db_name());
     foreach ($confs as $conf) {
       $page->addSection($p = new Port($conf));
       $p->addAttr('id', $conf);
@@ -42,10 +40,14 @@ class UpdateSchoolsSummary {
 				    Cell::th("State"),
 				    Cell::th("# Regattas"))));
       foreach (DBME::getAll(DBME::$SCHOOL, new MyCond('conference', $conf->id)) as $school) {
+        $q = DBME::prepGetAll(DBME::$TEAM);
+        $q->fields(array('regatta'), DBME::$TEAM->db_name());
+        $q->where(new MyCond('school', $school->id));
+
 	$link = sprintf('/schools/%s', $school->id);
 	$cnt  = count(DBME::getAll(DBME::$REGATTA, new MyCondIn('id', $q)));
 
-	$burg = new Text("");
+	$burg = "";
 	$path = sprintf('%s/../../html/inc/img/schools/%s.png', dirname(__FILE__), $school->id);
 	if (file_exists($path))
 	  $burg = new Image(sprintf('/inc/img/schools/%s.png', $school->id),

@@ -78,11 +78,11 @@ class ScoresFullDialog extends AbstractScoresDialog {
     // In order to print the ranks, go through each ranked team once,
     // and collect the different tiebreaking categories, giving each
     // one a successive symbol.
-    $tiebreakers = array("Natural order" => "");
+    $tiebreakers = array("" => "");
     $ranks = $this->REGATTA->scorer->rank($this->REGATTA);
 
     foreach ($ranks as $rank) {
-      if ($rank->explanation != "Natural order" && !isset($tiebreakers[$rank->explanation])) {
+      if (!empty($rank->explanation) && !isset($tiebreakers[$rank->explanation])) {
 	$count = count($tiebreakers);
 	switch ($count) {
 	case 1:

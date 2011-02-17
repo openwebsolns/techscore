@@ -848,16 +848,19 @@ class Regatta implements RaceListener {
    * @return the finish object
    */
   public function getFinish(Race $race, Team $team) {
-    $id = sprintf('%s-%d', $race, $team->id);
-    if (isset($this->finishes[$id]))
+    // $id = sprintf('%s-%s', $race, $team->id);
+    $id = (string)$race . '-' . $team->id;
+    if (isset($this->finishes[$id])) {
       return $this->finishes[$id];
+    }
 
     $q = sprintf('select %s from %s where (race, team) = ("%s", "%s")',
 		 Finish::FIELDS, Finish::TABLES, $race->id, $team->id);
+
     $q = $this->query($q);
     if ($q->num_rows == 0)
       return null;
-    
+
     $this->finishes[$id] = $this->deserializeFinish($q, $race, $team);
     $q->free();
     $this->has_finish = true;
@@ -1261,6 +1264,14 @@ class Regatta implements RaceListener {
    */
   public function runScore(Race $race) {
     $this->scorer->score($this, $race);
+  }
+
+  /**
+   * Scores the entire regatta
+   */
+  public function doScore() {
+    foreach ($this->getScoredRaces() as $race)
+      $this->scorer->score($this, $race);
   }
 
   // ------------------------------------------------------------
