@@ -25,7 +25,8 @@ doc:
 
 css:
 	mkdir -p html/inc/css;\
-	cat res/inc/css/modern-public.css | tr "\n" " " | tr "\t" " " | tr -s " " | sed -e 's:/\*[^\*]*\*/::g' -e 's/: \+/:/g' -e 's/; \+/;/g' -e 's/ *{ */{/g' -e 's/ *} */}'"\n"'/g' -e 's/^ *//' > html/inc/css/mp.css
+	cat res/inc/css/modern-public.css | tr "\n" " " | tr "\t" " " | tr -s " " | sed -e 's:/\*[^\*]*\*/::g' -e 's/: \+/:/g' -e 's/; \+/;/g' -e 's/ *{ */{/g' -e 's/ *} */}'"\n"'/g' -e 's/^ *//' > html/inc/css/mp.css;\
+	cat res/inc/css/mp-front.css | tr "\n" " " | tr "\t" " " | tr -s " " | sed -e 's:/\*[^\*]*\*/::g' -e 's/: \+/:/g' -e 's/; \+/;/g' -e 's/ *{ */{/g' -e 's/ *} */}'"\n"'/g' -e 's/^ *//' > html/inc/css/mp-front.css
 
 js:
 	mkdir -p html/inc/js; cp res/inc/js/report.js html/inc/js

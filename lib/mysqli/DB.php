@@ -22,6 +22,7 @@ class DBME extends DBM {
    */
   public static $CONFERENCE = null;
   public static $REGATTA = null;
+  public static $SEASON = null;
   public static $SCHOOL = null;
   public static $SAILOR = null;
   public static $SCORE = null;
@@ -35,6 +36,7 @@ class DBME extends DBM {
   public static function setConnection(MySQLi $con) {
     self::$CONFERENCE = new Dt_Conference();
     self::$REGATTA = new Dt_Regatta();
+    self::$SEASON = new Dt_Season();
     self::$SCHOOL = new Dt_School();
     self::$SAILOR = new Dt_Sailor();
     self::$SCORE = new Dt_Score();
@@ -45,6 +47,40 @@ class DBME extends DBM {
     self::$RP = new Dt_Rp();
 
     DBM::setConnection($con);
+  }
+}
+
+class Dt_Season extends DBObject {
+  public $season;
+  protected $start_date;
+  protected $end_date;
+
+  public function db_name() { return 'season'; }
+  public function db_type($field) {
+    switch ($field) {
+    case 'start_date':
+    case 'end_date':
+      return DBME::$NOW;
+    default:
+      return parent::db_type($field);
+    }
+  }
+  public function db_order() { return 'start_date'; }
+  public function db_order_by() { return false; }
+  public function db_cache() { return true; }
+
+  public function __toString() {
+    switch ($this->season) {
+    case 'fall':   $t = 'f'; break;
+    case 'winter': $t = 'w'; break;
+    case 'spring': $t = 's'; break;
+    case 'summer': $t = 'm'; break;
+    default: $t = '_';
+    }
+    return sprintf('%s%s', $t, substr($this->end_date->format('Y'), 2));
+  }
+  public function fullString() {
+    return sprintf('%s %s', ucfirst($this->season), $this->end_date->format('Y'));
   }
 }
 

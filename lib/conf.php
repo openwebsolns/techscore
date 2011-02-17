@@ -113,4 +113,5 @@ require_once(TS_PATH . '/conf.local.php');
 define("LOG_UPDATE",   realpath(TS_PATH.'/../log/update.log'));
 define("LOG_SEASON",   realpath(TS_PATH.'/../log/season.log'));
 define("LOG_SCHOOL",   realpath(TS_PATH.'/../log/school.log'));
+define("LOG_FRONT",    realpath(TS_PATH.'/../log/front.log'));
 ?>
