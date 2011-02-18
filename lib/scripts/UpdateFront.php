@@ -78,10 +78,20 @@ class UpdateFront {
 				    Cell::th("Type"),
 				    Cell::th("Conference"),
 				    Cell::th("Start date"),
-				    Cell::th("Winner")
+				    Cell::th("Status"),
+				    Cell::th("Leading")
 				    )));
       foreach ($regs as $reg) {
-	$label = ($reg->status == 'final') ? 'Final' : 'Pending';
+	$label = null;
+	switch ($reg->status) {
+	case 'final':
+	  $label = '<strong>Final</strong>'; break;
+	case 'finished':
+	  $label = 'Pending'; break;
+	default:
+	  $label = $reg->status;
+	}
+
 	$teams = $reg->getTeams();
 	if (count($teams) > 0) {
 	  $winner = $teams[0];
@@ -103,7 +113,8 @@ class UpdateFront {
 					  new Cell(ucfirst($reg->type)),
 					  new Cell(implode("/", $confs)),
 					  new Cell($reg->start_time->format('m/d/Y')),
-					  new Cell($status, array('title'=>$label))
+					  new Cell($label),
+					  new Cell($status)
 					  )));
 	  $r->addAttr("class", sprintf("row%d", $row++ % 2));
 	}
