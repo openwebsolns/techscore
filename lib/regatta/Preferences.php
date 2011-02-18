@@ -45,7 +45,7 @@ class Preferences {
    */
   public static function query($query) {
     $con = self::getConnection();
-    // $t = microtime(true);
+    $t = microtime(true);
     if ($q = $con->query($query)) {
       if (defined('LOG_QUERIES'))
 	@error_log(sprintf("(%7.5f) %s\n", microtime(true) - $t, $query), 3, LOG_QUERIES);

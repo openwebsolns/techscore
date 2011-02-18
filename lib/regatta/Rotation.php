@@ -185,13 +185,16 @@ class Rotation {
 
 
   /**
-   * Commits the given sail into this rotation
+   * Commits the given sail into this rotation, except for those from ByeTeam
    *
    * @param Sail $sail the sail to commit
    */
   public function setSail(Sail $sail) {
-    $q = sprintf('insert into rotation (race, team, sail) values ("%s", "%s", "%s") on duplicate key update sail="%s"',
-		 $sail->race->id, $sail->team->id, $sail->sail, $sail->sail);
+    if ($sail->team instanceof ByeTeam) return;
+
+    $con = Preferences::getConnection();
+    $q = sprintf('insert into rotation (race, team, sail) values ("%s", "%s", "%s") on duplicate key update sail=values(sail)',
+		 $sail->race->id, $sail->team->id, $con->real_escape_string($sail->sail));
     $this->regatta->query($q);
   }
 

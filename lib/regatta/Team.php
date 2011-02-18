@@ -16,8 +16,8 @@ require_once('conf.php');
 class Team {
 
   // Variables
-  private $id;
-  private $name;
+  protected $id;
+  protected $name;
   /**
    * School object for this team. The initial value of false means
    * that it is yet to be serialized from database. After that it will
@@ -69,47 +69,10 @@ class Team {
     default:
       throw new BadFunctionCallException(sprintf("Property (%s) not editable for Team.", $name));
     }
-    $this->fireTeamChange();
   }
 
   public function __toString() {
     return sprintf("%s %s", $this->__get('school')->nick_name, $this->name);
   }
-
-  // ------------------------------------------------------------
-  // Listeners
-
-  private $_notify = array();
-
-  /**
-   * Registers the given listener with this object
-   *
-   * @param TeamListener $obj the race listener
-   */
-  public function addListener(TeamListener $obj) {
-    $this->_notify[] = $obj;
-  }
-
-  /**
-   * Removes the given listener from this object
-   *
-   * @param TeamListener $obj the race listener
-   */
-  public function removeListener(TeamListener $obj) {
-    if (($key = array_search($obj, $this->_notify)) !== false) {
-      unset($this->_notify[$key]);
-    }
-  }
-  
-
-  /**
-   * Broadcast message to listeners
-   *
-   */
-  private function fireTeamChange() {
-    foreach ($this->_notify as $listener)
-      $listener->changedTeam($this);
-  }
 }
-
 ?>

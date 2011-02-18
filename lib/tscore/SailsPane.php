@@ -9,6 +9,8 @@ require_once('conf.php');
 /**
  * Pane to create the rotations
  *
+ * 2011-02-18: Only one BYE team is allowed per rotation
+ *
  * @author Dayan Paez
  * @created 2009-10-04
  */
@@ -19,9 +21,9 @@ class SailsPane extends AbstractPane {
 			"SWP"=>"Swap:  Odds up, evens down",
 			"OFF"=>"Offset by (+/-) amount from existing division",
 			"NOR"=>"No rotation");
-  private $STYLES = array("navy"=>"Navy Special",
-			  "copy"=>"Copy-cat",
-			  "fran"=>"Franny Special");
+  private $STYLES = array("navy"=>"Navy: rotate on division change",
+			  "fran"=>"Franny: automatic offset",
+			  "copy"=>"All divisions similar");
   private $SORT   = array("none"=>"Order as shown",
 			  "num" =>"Numerically",
 			  "alph"=>"Alpha-numerically");
@@ -29,6 +31,11 @@ class SailsPane extends AbstractPane {
   public function __construct(User $user, Regatta $reg) {
     parent::__construct("Setup rotations", $user, $reg);
     $this->title = "Setup";
+    $this->urls[] = 'rotation';
+    $this->urls[] = 'rotations';
+    $this->urls[] = 'create-rotation';
+    $this->urls[] = 'create-rotations';
+    $this->urls[] = 'setup-rotation';
   }
 
   /**
@@ -143,8 +150,9 @@ class SailsPane extends AbstractPane {
       }
     }
 
-    $repeats = (isset($args['repeat']) && is_numeric($args['repeat'])) ?
-      $args['repeat'] : 2;
+    $repeats = 2;
+    if (isset($args['repeat']) && $args['repeat'] >= 1)
+      $repeats = (int)$args['repeat'];
 
     // Edittype
     $edittype = (isset($args['edittype']))
@@ -163,18 +171,18 @@ class SailsPane extends AbstractPane {
     else
       $exist_div = array_combine($exist_div, $exist_div);
 
-
     // Get signed in teams
     $p_teams = $this->REGATTA->getTeams();
 
     // ------------------------------------------------------------
-    // 1. Choose a rotation type
+    // 1. Choose a rotation type: SWAP rotations are allowed due to
+    // the presence of a possible BYE team
     // ------------------------------------------------------------
     if ($chosen_rot === null) {
       $this->PAGE->addContent($p = new Port("1. Create a rotation"));
-
       $p->addChild($form = $this->createForm());
       $form->addAttr("id", "sail_setup");
+      $form->addChild(new Para("Swap divisions require an even number of total teams at the time of creation. If you choose swap division, TechScore will add a \"BYE Team\" as needed to make the total number of teams even. This will produce an unused boat in every race."));
 
       $form->addChild(new FItem("Type of rotation:",
 				$f_sel = new FSelect("rottype", array($chosen_rot))));
@@ -182,8 +190,6 @@ class SailsPane extends AbstractPane {
       $the_rots = $this->ROTS;
       if (count($exist_div) == 0)
 	unset($the_rots["OFF"]);
-      if (count($p_teams) % 2 == 1)
-	unset($the_rots["SWP"]);
       $f_sel->addOptions($the_rots);
 
       $form->addChild(new FItem("Divisions to affect:",
@@ -268,6 +274,15 @@ class SailsPane extends AbstractPane {
 
 	$i = 1;
 	foreach ($p_teams as $team) {
+	  $tab->addRow(new Row(array(Cell::th($team),
+				     new Cell(new FText($team->id, $i++,
+							array("size"=>"2",
+							      "maxlength"=>"8"))))));
+	}
+	// require a BYE team if the total number of teams
+	// (divisions * number of teams) is not even
+	if (count($p_teams) * count($divs) % 2 > 0) {
+	  $team = new ByeTeam();
 	  $tab->addRow(new Row(array(Cell::th($team),
 				     new Cell(new FText($team->id, $i++,
 							array("size"=>"2",
@@ -368,7 +383,7 @@ class SailsPane extends AbstractPane {
 	$id = sprintf("%s,%s", $div, $team->id);
 	if (in_array($id, $keys) &&
 	    !empty($args[$id])) {
-	  $sails[] = addslashes($args[$id]);
+	  $sails[] = $args[$id];
 	  $tlist[] = $team;
 	  $divs[]  = $div;
 	}
@@ -569,13 +584,17 @@ class SailsPane extends AbstractPane {
       $missing = array();
       foreach ($teams as $team) {
 	$id = $team->id;
-	if (in_array($id, $keys) &&
-	    !empty($args[$id])) {
-	  $sails[] = addslashes($args[$id]);
+	if (isset($args[$id]) && !empty($args[$id])) {
+	  $sails[] = $args[$id];
 	}
 	else {
 	  $missing[] = (string)$team;
 	}
+      }
+      // Add BYE team if requested
+      if (isset($args['BYE'])) {
+	$teams[] = new ByeTeam();
+	$sails[] = $args['BYE'];
       }
       if (count($missing) > 0) {
 	$mes = sprintf("Missing team or sail for %s.", implode(", ", $missing));
@@ -605,7 +624,7 @@ class SailsPane extends AbstractPane {
       //   3-1 Franny-style rotations
       // ------------------------------------------------------------
       if ($style === "fran") {
-	$offset = count($teams) / count($divisions);
+	$offset = (int)(count($teams) / count($divisions));
 	
 	$template = array_shift($divisions);
 	$ordered_races = $races;
@@ -621,6 +640,12 @@ class SailsPane extends AbstractPane {
 	break;
 
 	case "SWP":
+	  // ascertain that there are an even number of teams
+	  if (count($teams) % 2 > 0) {
+	    $mes = "There must be an even number of teams for swap rotation.";
+	    $this->announce(new Announcement($mes, Announcement::ERROR));
+	    return $args;
+	  }
 	  $rotation->createSwap($sails, $teams, $ordered_divs, $ordered_races, $repeats);
 	  break;
 
@@ -675,6 +700,12 @@ class SailsPane extends AbstractPane {
       break;
 
       case "SWP":
+	// ascertain that there are an even number of teams
+	if (count($teams) % 2 > 0) {
+	  $mes = "There must be an even number of teams for swap rotation.";
+	    $this->announce(new Announcement($mes, Announcement::ERROR));
+	  return $args;
+	}
 	$rotation->createSwap($sails, $teams, $ordered_divs, $ordered_races, $repeats);
 	break;
 	
