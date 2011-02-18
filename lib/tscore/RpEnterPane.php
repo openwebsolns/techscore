@@ -56,6 +56,7 @@ class RpEnterPane extends AbstractPane {
      in the <a href="%s/temp">Unregistered form</a>.',
 		   $this->REGATTA->id());
     $p->addChild(new Para($mes));
+    $p->addChild(new Para('<strong>NOTE:</strong> You may only submit up to two sailors in the same role in the same division at a time. To add a third or more skipper or crew in a given division, submit the form multiple times.'));
 
     // ------------------------------------------------------------
     // Change team

@@ -23,7 +23,7 @@ class EnterFinishPane extends AbstractPane {
 
   public function __construct(User $user, Regatta $reg) {
     parent::__construct("Enter finishes", $user, $reg);
-    $this->title = "Enter/edit";
+    $this->title = "Enter finish";
     $this->urls[] = "finish";
     $this->urls[] = "finishes";
     $this->urls[] = "enter-finish";

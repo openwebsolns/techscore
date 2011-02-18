@@ -29,7 +29,7 @@ body {
     background: white;
 }
 
-div#menudiv {
+#menudiv {
     width: 850px;
     position: absolute;
     top: 40px;
@@ -43,20 +43,23 @@ div#menudiv {
     border-top: 1px solid #555555;
 }
 
-div#menudiv div.menu {
+#menudiv div.menu {
     display: inline-block;
     zoom: 1;
     *display: inline;
     vertical-align: top;
-    padding: 0.25em;
-    padding-left: 0.5em;
-    min-width: 100px;
+    padding: 0.25em 0.1em;
+    min-width: 106px;
     max-width: 150px;
     font-size: 1em;
     height: auto;
     margin: 0px;
-    margin-right: -5px;
 }
+
+#menudiv div.menu:first-child {
+    margin-left: 5px;
+}
+
 input {font-size: 1em; padding: 0.15em}
 input[type="text"], input[type="password"], select {font-size: 1em; min-width: 15em; padding: 0.15em}
 input.race_text { min-width: 2em; }
@@ -80,6 +83,8 @@ div#menudiv div.menu:hover {
     background-image: url('img/menu_bg_top.png');
     background-repeat: repeat-x;
     background-position: 0px 0px;
+    border: 1px solid #aaa;
+    border-top: none;
 }
 div#menudiv div.menu:hover ul {
     display: block;

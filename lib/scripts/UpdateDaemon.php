@@ -117,7 +117,7 @@ class UpdateDaemon {
 	      foreach ($reg->getTeams() as $team)
 		$schools[$team->school->id] = $team->school;
 	    }
-	    
+
 	    UpdateManager::log($last, 0);
 	  }
 	  catch (Exception $e) {
@@ -136,13 +136,15 @@ class UpdateDaemon {
       UpdateRegatta::runSync($regatta);
 
     // Deal now with each affected season.
+    $current = new Season(new DateTime());
     foreach ($seasons as $season) {
       UpdateSeason::run($season);
       UpdateManager::logSeason($season);
-    }
 
-    // Deal with home page
-    // @TODO
+      // Deal with home page
+      if ((string)$season == (string)$current)
+	UpdateFront::run();
+    }
 
     // Deal with affected schools
     foreach ($schools as $school)
