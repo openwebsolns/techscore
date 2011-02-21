@@ -151,6 +151,7 @@ class SchoolSummaryMaker {
 				    Cell::th("Last race"),
 				    Cell::th("Place(s)")
 				    )));
+      $row = 0;
       foreach ($current as $reg) {
 	// borrowed from UpdateSeason
 	$status = null;
@@ -176,7 +177,6 @@ class SchoolSummaryMaker {
 	  $status = "In progress: " . $reg->status;
 	}
 	
-	$num_teams += count($teams);
 	$hosts = array();
 	$confs = array();
 	foreach ($reg->getHosts() as $host) {
