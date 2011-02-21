@@ -123,14 +123,13 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
       $img = ($rank->team->school->burgee == null) ? '' :
 	new Image(sprintf('%s/img/schools/%s.png', $PREFIX, $rank->team->school->id),
 		  array('alt' => $rank->team->school->id, 'height'=>'30px'));
-      $r1 = new Row(array(new Cell($sym),
+      $r1 = new Row(array(new Cell($sym, array('title'=>$rank->explanation, 'class'=>'tiebreaker')),
 			  $ord = new Cell($order++),
 			  new Cell($img),
 			  $sch = new Cell($ln),
 			  $pen = new Cell(),
 			  new Cell($total)));
-      $r1->addAttr("class", "row" . $rowIndex%2);
-      $ord->addAttr("title", $rank->explanation);
+      $r1->addAttr("class", "row" . $rowIndex % 2);
       $sch->addAttr("class", "strong");
       $sch->addAttr("align", "left");
       if ($penalty != null) {
@@ -142,6 +141,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
       $r2 = new Row(array(new Cell(), new Cell(), new Cell(),
 			  $sch = new Cell($rank->team->name),
 			  new Cell(), new Cell()));
+      $r2->addAttr("class", "row" . $rowIndex % 2);
       $sch->addAttr("align", "left");
 
       $headerRows = array($r1, $r2);
@@ -187,21 +187,12 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
 	foreach ($s_rows as $r)
 	  $tab->addRow($r);
       }
+      $rowIndex++;
     } // end of table
 
     // Print tiebreakers $table
-    if (count($tiebreakers) > 1) {
-      $tab = new Table();
-      $ELEM[] = $tab;
-      $tab->addHeader(new Row(array(Cell::th("Sym."),
-				    Cell::th("Explanation"))));
-
-      array_shift($tiebreakers);
-      foreach ($tiebreakers as $exp => $ast) {
-	$tab->addRow(new Row(array(new Cell($ast),
-				   new Cell($exp))));
-      }
-    }
+    if (count($tiebreakers) > 1)
+      $ELEMS[] = $this->getLegend($tiebreakers);
     return $ELEM;
   }
 }

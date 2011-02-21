@@ -62,6 +62,7 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
     $tab->addAttr("class", "coordinate");
     $tab->addHeader($r = new Row(array(Cell::th(),
 				       Cell::th(),
+				       Cell::th(),
 				       Cell::th("School"),
 				       Cell::th("Team"))));
     foreach ($divisions as $div)
@@ -90,14 +91,19 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
       }
     }
 
+    $row = 0;
     foreach ($ranks as $tID => $rank) {
       $ln = $rank->team->school->name;
       if ($link_schools !== null)
 	$ln = new Link(sprintf('%s/%s', $link_schools, $rank->team->school->id), $ln);
-      $tab->addRow($r = new Row(array(new Cell($tID + 1),
+      $tab->addRow($r = new Row(array(new Cell($tiebreakers[$rank->explanation],
+					       array('title'=>$rank->explanation,
+						     'class'=>'tiebreaker')),
+				      new Cell($tID + 1),
 				      $bc = new Cell(),
 				      new Cell($ln, array("class"=>"strong")),
 				      new Cell($rank->team->name, array("class"=>"left")))));
+      $r->addAttr('class', 'row' . ($row++%2));
       $url = sprintf("%s/img/schools/%s.png", $PREFIX, $rank->team->school->id);
       $bc->addChild(new Image($url, array("height"=>"30px")));
 
@@ -127,16 +133,8 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
       $penalty_th->addText("P");
 
     // Print legend, if necessary
-    if (count($tiebreakers) > 1) {
-      $list = new GenericElement("dl");
-      $ELEMS[] = $list;
-      array_shift($tiebreakers);
-      foreach ($tiebreakers as $exp => $ast) {
-	$list->addChild(new GenericElement("dt", array(new Text($ast))));
-	$list->addChild(new GenericElement("dd", array(new Text($exp))));
-      }
-    }
-
+    if (count($tiebreakers) > 1)
+      $ELEMS[] = $this->getLegend($tiebreakers);
     return $ELEMS;
   }
 }

@@ -70,7 +70,7 @@ class ReportMaker {
     
     $link_schools = PUB_HOME.'/schools';
     $maker = new ScoresDivisionDialog($reg, $div);
-    $page->addSection($p = new Port("Scores for $div"));
+    $page->addSection($p = new Port("Scores for Division $div"));
     foreach ($maker->getTable('/inc', $link_schools) as $elem) {
       $p->addChild($elem);
     }

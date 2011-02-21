@@ -43,9 +43,10 @@ class RotationDialog extends AbstractDialog {
     foreach ($races as $race)
       $r->addCell(Cell::th($race));
 
-    foreach ($this->REGATTA->getTeams() as $row => $team) {
+    $row = 0;
+    foreach ($this->REGATTA->getTeams() as $team) {
       $tab->addRow($r = new Row());
-      $r->addAttr("class", "row" . ($row++%2));
+      $r->addAttr("class", "row" . ($row++ % 2));
       $r->addCell(Cell::td($team->school->name), Cell::th($team->name));
 
       foreach ($races as $race) {

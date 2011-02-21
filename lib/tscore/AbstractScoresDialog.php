@@ -34,6 +34,21 @@ abstract class AbstractScoresDialog extends AbstractDialog {
     $p->addAttr("name", "timestamp");
     $p->addAttr("content", date('Y-m-d H:i:s'));
   }
+
+  /**
+   * Prepares the tiebreakers legend element (now a table) and returns it.
+   *
+   * @param Array $tiebreaker the associative array of symbol => explanation
+   * @return GenericElement probably a table
+   */
+  protected function getLegend($tiebreakers) {
+    $tab = new Table();
+    array_shift($tiebreakers);
+    $tab->addHeader(new Row(array(Cell::th("Sym."), Cell::th("Explanation"))));
+    foreach ($tiebreakers as $exp => $ast)
+      $tab->addRow(new Row(array(new Cell($ast), new Cell($exp))));
+    return $tab;
+  }
 }
 
 ?>

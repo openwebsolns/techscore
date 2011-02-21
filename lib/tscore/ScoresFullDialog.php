@@ -117,13 +117,14 @@ class ScoresFullDialog extends AbstractScoresDialog {
 	    $ln = new Span(array(new Text($rank->team->name), new Text('<br/>'),
 				 new Link(sprintf('%s/%s', $link_schools, $rank->team->school->id),
 					  $rank->team->school->nick_name)));
-	  $r->addCell(new Cell(sprintf('<sub>%s</sub>', $tiebreakers[$rank->explanation])),
-		      new Cell($order++, array("title" => $rank->explanation)),
+	  $r->addCell(new Cell($tiebreakers[$rank->explanation], array("title" => $rank->explanation,
+								       "class" => "tiebreaker")),
+		      new Cell($order++),
 		      new Cell($ln, array("class"=>"strong")));
 	}
 	elseif ($div == "A") {
-	  $r->addCell(new Cell(sprintf('<sub>%s</sub>', $tiebreakers[$rank->explanation])),
-		      new Cell($order++, array("title" => $rank->explanation)),
+	  $r->addCell(new Cell($tiebreakers[$rank->explanation], array("title" => $rank->explanation)),
+		      new Cell($order++),
 		      new Cell($rank->team->name,
 			       array("class"=>"strong")));
 	}
@@ -214,15 +215,8 @@ class ScoresFullDialog extends AbstractScoresDialog {
     }
 
     // Print legend, if necessary
-    if (count($tiebreakers) > 1) {
-      $list = new GenericElement("dl");
-      $ELEMS[] = $list;
-      array_shift($tiebreakers);
-      foreach ($tiebreakers as $exp => $ast) {
-	$list->addChild(new GenericElement("dt", array(new Text($ast))));
-	$list->addChild(new GenericElement("dd", array(new Text($exp))));
-      }
-    }
+    if (count($tiebreakers) > 1)
+      $ELEMS[] = $this->getLegend($tiebreakers);
     return $ELEMS;
   }
 }
