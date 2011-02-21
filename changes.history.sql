@@ -83,3 +83,6 @@ drop table dt_rp;
 alter table sailor add column gender enum('M','F') not null default 'M';
 alter table regatta add column participant enum('women', 'coed') not null default 'coed';
 alter table dt_regatta add column participant enum('women', 'coed') not null default 'coed';
+
+-- removes pesky backslashes from names. Make sure to identify the affected ones before doing this
+update regatta set name = replace(name, '\\', '');

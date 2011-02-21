@@ -140,7 +140,7 @@ class NewRegattaPane extends AbstractUserPane {
       $str = sprintf("%s %s", date('Y-m-d', $sd), date('H:i:s', $st));
       $end = date('Y-m-d', $sd + (int)$args['duration'] * 86400);
       try {
-	$reg = Regatta::createRegatta(addslashes($args['name']),
+	$reg = Regatta::createRegatta($args['name'],
 				      new DateTime($str),
 				      new DateTime($end),
 				      $args['type'],
@@ -163,12 +163,13 @@ class NewRegattaPane extends AbstractUserPane {
 	}
       } catch (InvalidArgumentException $e) {
 	// This should be reached ONLY because of a nick-name mismatch
-	$_SESSION['ANNOUNCE'][] = new Announcement("It seems that there is already an active regatta with this name for the current season. This is likely the result of a previous regatta that was not deleted or demoted to \"Personal\" status. If you are a scorer for the other regatta, please delete it or de-activate it before creating this one. Otherwise, you may need to create the current only under a different name.", Announcement::WARNING);
+	$this->announce(new Announcement("It seems that there is already an active regatta with this name for the current season. This is likely the result of a previous regatta that was not deleted or demoted to \"Personal\" status. If you are a scorer for the other regatta, please delete it or de-activate it before creating this one. Otherwise, you may need to create the current only under a different name.", Announcement::WARNING));
 	return $args;
       }
 				    
       // Move to new regatta
-      WebServer::go("score/".$reg->id());
+      $this->announce(new Announcement(sprintf("Created new regatta \"%s\". Please add teams now.", $reg->get(Regatta::NAME))));
+      WebServer::go("score/".$reg->id()."/teams");
     }
     return array();
   }

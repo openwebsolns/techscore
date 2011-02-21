@@ -1379,10 +1379,12 @@ class Regatta implements RaceListener {
     if (!in_array($participant, array_keys(Preferences::getRegattaParticipantAssoc())))
       throw new InvalidArgumentException("No such regatta scoring $scoring.");
 
+    // Fetch the regatta back
+    $con = Preferences::getConnection();
     $q = sprintf('insert into regatta ' .
 		 '(name, start_time, end_date, type, scoring, participant) values ' .
 		 '("%s", "%s", "%s", "%s", "%s", "%s")',
-		 addslashes((string)$name),
+		 $con->real_escape_string($name),
 		 $start_time->format("Y-m-d H:i:s"),
 		 $end_date->format("Y-m-d"),
 		 $type,
@@ -1391,8 +1393,6 @@ class Regatta implements RaceListener {
 
     $res = Preferences::query($q);
 
-    // Fetch the regatta back
-    $con = Preferences::getConnection();
     return $con->insert_id;
   }
 
