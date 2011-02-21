@@ -40,28 +40,21 @@ class SailsPane extends AbstractPane {
 
   /**
    * Presents options when there are combined divisions or only one
-   * division
+   * division. This function takes care of only the second step in
+   * creating rotations below in fillHTML
    *
    * @param Array $args the arguments
+   * @see fillHTML
    */
-  private function fillCombined(Array $args) {
-
-    // This page does not have requests to listen to. By having only
-    // one division (or combined), the type of rotation can be chosen
-    // ahead of time
-    $this->PAGE->addContent($p = new Port("Create a rotation"));
+  private function fillCombined($chosen_rot, $chosen_div) {
+    
+    $chosen_rot_desc = explode(":", $this->ROTS[$chosen_rot]);
+    $this->PAGE->addContent($p = new Port(sprintf("2. %s for all division(s)", $chosen_rot_desc[0])));
     $p->addChild($form = $this->createForm());
-
-    $form->addChild(new FItem("Type of rotation:",
-			      $f_sel = new FSelect("rottype", array("STD"))));
-
+    $form->addChild(new FHidden("rottype", $chosen_rot));
+    
     $teams = $this->REGATTA->getTeams();
     $divisions = $this->REGATTA->getDivisions();
-    $the_rots = $this->ROTS;
-    unset($the_rots["OFF"]);
-    if ((count($teams) * count($divisions)) % 2 != 0)
-      unset($the_rots["SWP"]);
-    $f_sel->addOptions($the_rots);
 
     // Races
     $range_races = $this->REGATTA->getCombinedUnscoredRaces();
@@ -81,6 +74,11 @@ class SailsPane extends AbstractPane {
     $f_text->addAttr("id",  "repeat");
 
     // Teams table
+    $bye_team = null;
+    if (count($divisions) * count($teams) % 2 > 0) {
+      $bye_team = new ByeTeam();
+      $form->addChild(new Para("Swap divisions require an even number of total teams at the time of creation. If you choose swap division, TechScore will add a \"BYE Team\" as needed to make the total number of teams even. This will produce an unused boat in every race."));
+    }
     $form->addChild(new FItem("Enter sail numbers in first race:",
 			      $tab = new Table()));
     $tab->addAttr("class", "narrow");
@@ -91,8 +89,16 @@ class SailsPane extends AbstractPane {
 	$name = sprintf("%s,%s", $divisions[0], $team->id);
 	$tab->addRow(new Row(array(Cell::th($team),
 				   new Cell(new FText($name, $i++,
-						      array("size"=>"2"))))));
+						      array("size"=>"2",
+							    "maxlength"=>"8",
+							    "class"=>"small"))))));
       }
+      if ($bye_team !== null)
+	$tab->addRow(new Row(array(Cell::th($bye_team),
+				   new Cell(new FText($bye_team->id, $i++,
+						      array("size"=>"2",
+							    "maxlength"=>"8",
+							    "class"=>"small"))))));
     }
     else {
       $num_teams = count($teams);
@@ -105,18 +111,33 @@ class SailsPane extends AbstractPane {
 	foreach ($divisions as $div) {
 	  $num = $i + $off * $num_teams;
 	  $name = sprintf("%s,%s", $div, $team->id);
-	  $row->addChild(new Cell(new FText($name, $num, array("size"=>"2", "maxlength"=>"8"))));
+	  $row->addChild(new Cell(new FText($name, $num, array("size"=>"2",
+							       "class"=>"small",
+							       "maxlength"=>"8"))));
 	  $off++;
 	}
 	$i++;
       }
+      // add bye team, if necessary
+      if ($bye_team !== null) {
+	$num = $i + ($off - 1) * $num_teams;
+	$tab->addRow($row = new Row(array(new Cell($bye_team))));
+	$row->addChild(new Cell(new FText($bye_team->id, $num, array("size"=>"2",
+								     "class"=>"small",
+								     "maxlength"=>"8"))));
+	for ($i = 1; $i < count($divisions); $i++) {
+	  $row->addChild(new Cell());
+	}
+      }
     }
+
     // order
     $form->addChild(new FItem("Order sails in first race:",
 			      $f_sel = new FSelect("sort", array("num"))));
     $f_sel->addOptions($this->SORT);
 
     // Submit form
+    $form->addChild(new FSubmit("restart",   "<< Start over"));
     $form->addChild(new FSubmit("createrot", "Create rotation"));
   }
 
@@ -127,12 +148,8 @@ class SailsPane extends AbstractPane {
   protected function fillHTML(Array $args) {
 
     $divisions = $this->REGATTA->getDivisions();
-
-    if ($this->REGATTA->get(Regatta::SCORING) == Regatta::SCORING_COMBINED ||
-	count($divisions) == 1) {
-      $this->fillCombined($args);
-      return;
-    }
+    $combined = ($this->REGATTA->get(Regatta::SCORING) == Regatta::SCORING_COMBINED ||
+		 count($divisions) == 1);
 
     // Listen to requests
     $chosen_rot = (isset($args['rottype'])) ?
@@ -176,7 +193,9 @@ class SailsPane extends AbstractPane {
 
     // ------------------------------------------------------------
     // 1. Choose a rotation type: SWAP rotations are allowed due to
-    // the presence of a possible BYE team
+    // the presence of a possible BYE team. Because of this, even for
+    // combined scoring, the user must be given the choice of rotation
+    // to use FIRST, which is this step here.
     // ------------------------------------------------------------
     if ($chosen_rot === null) {
       $this->PAGE->addContent($p = new Port("1. Create a rotation"));
@@ -192,14 +211,17 @@ class SailsPane extends AbstractPane {
 	unset($the_rots["OFF"]);
       $f_sel->addOptions($the_rots);
 
-      $form->addChild(new FItem("Divisions to affect:",
-				$f_sel = new FSelect("division[]", $chosen_div,
-						     array("multiple"=>"multiple"))));
+      // No need for this choice if combined
+      if (!$combined) {
+	$form->addChild(new FItem("Divisions to affect:",
+				  $f_sel = new FSelect("division[]", $chosen_div,
+						       array("multiple"=>"multiple"))));
 
-      $div_opts = array();
-      foreach ($divisions as $div)
-	$div_opts[(string)$div] = (string)$div;
-      $f_sel->addOptions($div_opts);
+	$div_opts = array();
+	foreach ($divisions as $div)
+	  $div_opts[(string)$div] = (string)$div;
+	$f_sel->addOptions($div_opts);
+      }
       $form->addChild(new FSubmit("choose_rot", "Next >>"));
     }
 
@@ -207,6 +229,12 @@ class SailsPane extends AbstractPane {
     // 2. Starting sails
     // ------------------------------------------------------------
     else {
+      // This part is inherently different for combined
+      if ($combined) {
+	$this->fillCombined($chosen_rot, $chosen_div);
+	return;
+      }
+
       // Divisions
       $chosen_rot_desc = explode(":", $this->ROTS[$chosen_rot]);
       $this->PAGE->addContent($p = new Port(sprintf("2. %s for Div. %s",
@@ -272,20 +300,16 @@ class SailsPane extends AbstractPane {
 				  $tab = new Table()));
 	$tab->addAttr("class", "narrow");
 
+	// require a BYE team if the total number of teams
+	// (divisions * number of teams) is not even
+	if ($chosen_rot == "SWP" && count($p_teams) * count($divs) % 2 > 0)
+	  $p_teams[] = new ByeTeam();
 	$i = 1;
 	foreach ($p_teams as $team) {
 	  $tab->addRow(new Row(array(Cell::th($team),
 				     new Cell(new FText($team->id, $i++,
 							array("size"=>"2",
-							      "maxlength"=>"8"))))));
-	}
-	// require a BYE team if the total number of teams
-	// (divisions * number of teams) is not even
-	if (count($p_teams) * count($divs) % 2 > 0) {
-	  $team = new ByeTeam();
-	  $tab->addRow(new Row(array(Cell::th($team),
-				     new Cell(new FText($team->id, $i++,
-							array("size"=>"2",
+							      "class"=>"small",
 							      "maxlength"=>"8"))))));
 	}
 
@@ -308,24 +332,13 @@ class SailsPane extends AbstractPane {
 
   /**
    * Sets up rotation in the case of combined divisions or only one
-   * division
+   * division. Note that the rotation type and divisions must already
+   * have been chosen
    *
    * @param Array $args the arguments
    * @param Array the processed arguments
    */
-  private function processCombined(Array $args) {
-
-    // validate rotation type
-    $rottype = null;
-    if (isset($args['rottype']) &&
-	$this->validateRotation($args['rottype'])) {
-      $rottype = $args['rottype'];
-    }
-    else {
-      $mes = "Invalid or missing rotation type.";
-      $this->announce(new Announcement($mes, Announcement::ERROR));
-      return array();
-    }
+  private function processCombined(Array $args, $rottype) {
 
     // validate races
     $divisions = $this->REGATTA->getDivisions();
@@ -397,6 +410,18 @@ class SailsPane extends AbstractPane {
       $this->announce(new Announcement($mes, Announcement::ERROR));
       return $args;
     }
+    // require BYE team, when applicable
+    if ($rottype == "SWP" && count($divisions) * count($teams) % 2 > 0) {
+      $team = new ByeTeam();
+      if (!isset($args[$team->id])) {
+	$mes = "Missing BYE team.";
+	$this->announce(new Announcement($mes, Announcement::ERROR));
+	return $args;
+      }
+      $sails[] = $args[$team->id];
+      $tlist[] = $team;
+      $divs[]  = Division::A();
+    }
 
     // 3c. sorting
     $sort = "none";
@@ -419,13 +444,7 @@ class SailsPane extends AbstractPane {
     break;
 
     case "SWP":
-      try {
-	$rotation->createSwap($sails, $tlist, $divs, $races, $repeats);
-      }
-      catch (Exception $e) {
-	echo "We are aware of this issue and are currently aware of this problem. For the time being, please enter finishes using the team names instead of the rotation while we address this issue.\n\n";
-	throw new Exception('REGATTA: ' . $this->REGATTA->id());
-      }
+      $rotation->createSwap($sails, $tlist, $divs, $races, $repeats);
       break;
 
     default:
@@ -452,11 +471,6 @@ class SailsPane extends AbstractPane {
    */
   public function process(Array $args) {
 
-    if (count($this->REGATTA->getDivisions()) == 1 ||
-	$this->REGATTA->get(Regatta::SCORING) == Regatta::SCORING_COMBINED) {
-      return $this->processCombined($args);
-    }
-
     // ------------------------------------------------------------
     // Reset
     // ------------------------------------------------------------
@@ -480,24 +494,29 @@ class SailsPane extends AbstractPane {
       return array();
     }
 
-    //   b. validate division
-    $divisions = null;
-    if (isset($args['division'])    &&
-	is_array($args['division']) &&
-	$this->validateDivisions($args['division'])) {
-      $divisions = array();
-      $div_string = array();
-      foreach ($args['division'] as $div) {
-	$divisions[] = new Division($div);
-	$div_string[] = $div;
+    $combined = (count($this->REGATTA->getDivisions()) == 1 ||
+		 $this->REGATTA->get(Regatta::SCORING) == Regatta::SCORING_COMBINED);
+
+    //   b. validate division, only if not combined division
+    if (!$combined) {
+      $divisions = null;
+      if (isset($args['division'])    &&
+	  is_array($args['division']) &&
+	  $this->validateDivisions($args['division'])) {
+	$divisions = array();
+	$div_string = array();
+	foreach ($args['division'] as $div) {
+	  $divisions[] = new Division($div);
+	  $div_string[] = $div;
+	}
+	$args['division'] = $div_string;
+	unset($div_string);
       }
-      $args['division'] = $div_string;
-      unset($div_string);
-    }
-    else {
-      $mes = "Invalid or missing division[s].";
-      $this->announce(new Announcement($mes, Announcement::ERROR));
-      return array();
+      else {
+	$mes = "Invalid or missing division[s].";
+	$this->announce(new Announcement($mes, Announcement::ERROR));
+	return array();
+      }
     }
     
     // ------------------------------------------------------------
@@ -509,6 +528,10 @@ class SailsPane extends AbstractPane {
     // ------------------------------------------------------------
     // 2. Validate other variables
     // ------------------------------------------------------------
+    // call for combined helper method
+    if ($combined)
+      return $this->processCombined($args, $rottype);
+
     //   c. validate rotation style
     $style = null;
     if (isset($args['style']) &&
