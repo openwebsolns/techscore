@@ -254,8 +254,7 @@ table.coordinate tbody td:hover, table.coordinate tbody td:hover a { background:
     list-style-type: none;
     color: #666666; line-height: 1.35em;
 }
-.results td {
-    border: none;
+.results td, .results th {
     text-align: right;
 }
 .results tr.totalrow {
@@ -281,6 +280,7 @@ table th, table td {
 
 
 td.left { text-align: left; }
+th.left { text-align: right; }
 td.races { color: #555; font-size: 85%; }
 
 /* Stats */
