@@ -31,10 +31,7 @@ class RotationDialog extends AbstractDialog {
    * @return Rotation $rot
    */
   public function getTable(Division $div) {
-    $tab = new Table(array(),
-		     array("id"=>"rotation",
-			   "class"=>array("narrow",
-					  "coordinate")));
+    $tab = new Table(array(), array("class"=>"narrow coordinate rotation"));
     $r = new Row(array(Cell::th(),
 		       Cell::th()));
     $tab->addHeader($r);

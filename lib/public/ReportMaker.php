@@ -127,7 +127,6 @@ class ReportMaker {
     // Regatta information
     $page->addSection($div = new Div());
     $div->addChild(new GenericElement("h2", array(new Text($reg->get(Regatta::NAME)))));
-    $div->addAttr("align", "center");
     $div->addAttr("id",    "reg-details");
     
     $stime = $reg->get(Regatta::START_TIME);

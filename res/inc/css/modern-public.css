@@ -253,6 +253,7 @@ table.coordinate tbody td:hover, table.coordinate tbody td:hover a { background:
     font-size: 110%;
     list-style-type: none;
     color: #666666; line-height: 1.35em;
+    text-align: center;
 }
 .results td, .results th {
     text-align: right;
