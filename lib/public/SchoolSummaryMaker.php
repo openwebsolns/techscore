@@ -103,8 +103,8 @@ class SchoolSummaryMaker {
 	foreach ($teams as $pl => $team) {
 	  if ($team->school->id == $school->id) {
 	    // track placement
-	    $places += ($pl + 1);
-	    $avg_total += $num;
+	    $places += (1 - $pl / (1 + $num));
+	    $avg_total++;
 
 	    // track participation
 	    $sk = DBME::getAll(DBME::$RP, new MyBoolean(array(new MyCond('team', $team->id),
@@ -136,7 +136,7 @@ class SchoolSummaryMaker {
 	$past[] = $reg;
       }
     }
-    $avg = ($avg_total == 0) ? "Not applicable" : ($places / $total);
+    $avg = ($avg_total == 0) ? "Not applicable" : ($places / $avg_total);
     
     // ------------------------------------------------------------
     // SCHOOL sailing now
@@ -206,7 +206,7 @@ class SchoolSummaryMaker {
 			       new Text($total)),
 			 array("class"=>"stat")));
 
-    $p->addChild(new Div(array(new Span(array(new Text("Average finish:")),
+    $p->addChild(new Div(array(new Span(array(new Text("Finish percentile:")),
 					array("class"=>"prefix")),
 			       new Text(sprintf('%0.2f', $avg))),
 			 array("class"=>"stat")));
