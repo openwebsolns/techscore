@@ -107,13 +107,14 @@ class RpManager {
   public function setRP(RP $rp) {
     $txt = array();
     foreach ($rp->races_nums as $num) {
-      $race = $this->regatta->getRace($rp->division, $num);
-      if ($race !== null)
+      try {
+	$race = $this->regatta->getRace($rp->division, $num);
 	$txt[] = sprintf('("%s", "%s", "%s", "%s")',
 			 $race->id,
 			 $rp->sailor->id,
 			 $rp->team->id,
 			 $rp->boat_role);
+      } catch (Exception $e) {}
     }
     if (count($txt) == 0)
       return;
@@ -124,6 +125,33 @@ class RpManager {
 
   public function updateLog() {
     $q = sprintf('insert into rp_log (regatta) values (%d)', $this->regatta->id());
+    $this->regatta->query($q);
+  }
+
+  /**
+   * Returns true if the regatta has gender of the variety given,
+   * which should be one of the regatta participant constants
+   *
+   * @param Sailor::MALE|FEMALE $gender the gender to check
+   * @return boolean true if it has any
+   */
+  public function hasGender($gender) {
+    $q = sprintf('select id from rp where race in (select id from race where regatta = "%s") and sailor in (select id from sailor where gender = "%s")', $this->regatta->id(), $gender);
+
+    $r = $this->regatta->query($q);
+    $b = ($r->num_rows > 0);
+    $r->free();
+    return $b;
+  }
+
+  /**
+   * Removes all the RP information for this regatta where the sailor
+   * is of the given gender
+   *
+   * @param Sailor::MALE|FEMALE $gender the gender
+   */
+  public function removeGender($gender) {
+    $q = sprintf('delete from rp where race in (select id from race where regatta = "%s") and sailor in (select id from sailor where gender = "%s")', $this->regatta->id(), $gender);
     $this->regatta->query($q);
   }
 
@@ -154,7 +182,7 @@ class RpManager {
    * Returns a list of sailors for the specified school
    *
    * @param School $school the school object
-   * @param RP::const $gender null for both or the gender code
+   * @param Sailor::const $gender null for both or the gender code
    * @return Array<Sailor> list of sailors
    */
   public static function getSailors(School $school, $gender = null) {

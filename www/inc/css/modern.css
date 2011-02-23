@@ -380,4 +380,10 @@ dd {
 dt { 
      margin-left: 3em;
      margin-bottom: 1em;
- }
+}
+
+.message {
+    font-size: 90%;
+    color: #555;
+    margin-left: 1em;
+}

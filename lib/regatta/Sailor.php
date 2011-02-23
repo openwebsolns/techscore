@@ -27,6 +27,8 @@ class Sailor {
   const FIELDS = "id, icsa_id, last_name, first_name, year, role, gender";
   const TABLES = "sailor";
 
+  const MALE = 'M';
+  const FEMALE = 'F';
 
   /**
    * Oversees variable acquisition. Provides for determining whether

@@ -82,10 +82,17 @@ class DetailsPane extends AbstractPane {
 
     // Regatta participation
     $value = $this->REGATTA->get(Regatta::PARTICIPANT);
-    $reg_form->addChild(new FItem("Participation:",
-				  $f_sel = new FSelect("participant",
-						       array($value))));
+    $reg_form->addChild($item = new FItem("Participation:",
+					  $f_sel = new FSelect("participant", array($value))));
     $f_sel->addOptions(Preferences::getRegattaParticipantAssoc());
+    // will changing this value affect the RP information?
+    if ($value == Regatta::PARTICIPANT_COED) {
+      $rp = $this->REGATTA->getRpManager();
+      if ($rp->hasGender(Sailor::MALE)) {
+	$item->addChild(new Span(array(new Text("Changing this value will affect RP info")),
+				 array('class'=>'message')));
+      }
+    }
 
     // Scoring rules
     $value = $this->REGATTA->get(Regatta::SCORING);
@@ -204,6 +211,14 @@ class DetailsPane extends AbstractPane {
       if (isset($args['participant']) &&
 	  in_array($args['participant'], array_keys(Preferences::getRegattaParticipantAssoc()))) {
 	$this->REGATTA->set(Regatta::PARTICIPANT, $args['participant']);
+	// affect RP accordingly
+	if ($args['participant'] == Regatta::PARTICIPANT_WOMEN) {
+	  $rp = $this->REGATTA->getRpManager();
+	  if ($rp->hasGender(Sailor::MALE)) {
+	    $rp->removeGender(Sailor::MALE);
+	    $this->announce(new Announcement("Removed sailors from RP.", Announcement::WARNING));
+	  }
+	}
       }
 
       $this->announce(new Announcement("Edited regatta details."));
