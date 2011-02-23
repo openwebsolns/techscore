@@ -103,7 +103,7 @@ class SchoolSummaryMaker {
 	foreach ($teams as $pl => $team) {
 	  if ($team->school->id == $school->id) {
 	    // track placement
-	    $places += (1 - $pl / (1 + $num));
+	    $places += (1 - (1 + $pl) / (1 + $num));
 	    $avg_total++;
 
 	    // track participation
@@ -136,7 +136,9 @@ class SchoolSummaryMaker {
 	$past[] = $reg;
       }
     }
-    $avg = ($avg_total == 0) ? "Not applicable" : ($places / $avg_total);
+    $avg = "Not applicable";
+    if ($avg_total > 0)
+      $avg = sprintf('%3.1f%%', 100 * ($places / $avg_total));
     
     // ------------------------------------------------------------
     // SCHOOL sailing now
@@ -208,7 +210,7 @@ class SchoolSummaryMaker {
 
     $p->addChild(new Div(array(new Span(array(new Text("Finish percentile:")),
 					array("class"=>"prefix")),
-			       new Text(sprintf('%0.2f', $avg))),
+			       new Text($avg)),
 			 array("class"=>"stat")));
     // most active sailor?
     arsort($skippers, SORT_NUMERIC);
