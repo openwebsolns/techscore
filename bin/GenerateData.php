@@ -20,7 +20,7 @@ require_once('conf.php');
 
 $con = Preferences::getConnection();
 // get all finalized, non-personal regattas and go to town!
-$res = $con->query('select id from regatta where type <> "personal" and id = 372');
+$res = $con->query('select id from regatta where type <> "personal"');
 $lst = array();
 while ($obj = $res->fetch_object()) {
   $lst[] = $obj->id;
