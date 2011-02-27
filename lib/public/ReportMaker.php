@@ -107,6 +107,7 @@ class ReportMaker {
   }
 
   protected function prepare(TPublicPage $page) {
+    // $page->addAttr('xmlns:ts', 'http://collegesailing.info');
     $reg = $this->regatta;
     $page->addNavigation(new Link(".", $reg->get(Regatta::NAME), array("class"=>"nav")));
     

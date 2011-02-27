@@ -252,7 +252,7 @@ class RpManager {
     $q1 = sprintf('delete from rp where team = "%s"', $team->id);
     $q2 = sprintf('delete from representative where team = "%s"',
 		  $team->id);
-    // $this->regatta->query($q1);
+    $this->regatta->query($q1);
     $this->regatta->query($q2);
   }
 

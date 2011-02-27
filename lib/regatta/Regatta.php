@@ -369,7 +369,27 @@ class Regatta implements RaceListener {
     $res = $this->query('select last_insert_id() as id');
     $team->id = $res->fetch_object()->id;
     if ($this->teams !== null)
-      $this->teams[] = $team;
+      $this->teams[$team->id] = $team;
+  }
+
+  /**
+   * Replaces the given team's school information with the team
+   * given. Note that this changes the old team's object's
+   * information. The new team does not become part of this
+   * regatta.
+   *
+   * @param Team $old the team to replace
+   * @param Team $new the team to replace with
+   * @throws InvalidArgumentException if old team is not part of this
+   * regatta to begin with!
+   */
+  public function replaceTeam(Team $old, Team $new) {
+    $this->getTeams();
+    if (!isset($this->teams[$old->id]))
+      throw new InvalidArgumentException("Team \"$old\" is not part of this regatta.");
+    
+    $this->query(sprintf('update team set school = "%s", name = "%s" where id = "%s"',
+			 $new->school->id, $new->name, $old->id));
   }
 
   /**

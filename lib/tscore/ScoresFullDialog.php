@@ -27,6 +27,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
    *
    */
   public function fillHTML(Array $args) {
+    // $this->PAGE->addAttr('xmlns:ts', 'http://collegesailing.info');
     $this->PAGE->addContent($p = new Port("Team results"));
     $ELEMS = $this->getTable();
     $p->addChild(array_shift($ELEMS));
@@ -159,6 +160,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
 	    $cell->addChild(new Text($finish->place));
 	    $cell->addAttr("title", $finish->explanation);
 	    $cell->addAttr("align", "right");
+	    $cell->addAttr("ts:score", $finish->score);
 	  }
 	  $r->addCell($cell);
 	}
