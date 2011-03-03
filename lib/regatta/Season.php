@@ -47,7 +47,7 @@ class Season {
    */
   public function getYear() {
     $this->getSeason();
-    return substr($this->season->end_date, 0, 4);
+    return substr($this->season->start_date, 0, 4);
   }
   public function __toString() {
     $v = null;
