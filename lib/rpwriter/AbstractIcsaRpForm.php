@@ -198,7 +198,10 @@ abstract class AbstractIcsaRpForm {
    * @return String the LaTeX code
    */
   public function toLatex() {
-    return sprintf("%s %s %s", $this->HEAD, $this->getBody(), $this->TAIL);
+    return sprintf("%s %s %s", 
+                   str_replace('#', '\#', $this->HEAD), 
+                   str_replace('#', '\#', $this->getBody()), 
+                   str_replace('#', '\#', $this->TAIL));
   }
 }
 ?>
