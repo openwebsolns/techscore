@@ -78,13 +78,17 @@ div#menudiv ul {
     font-size: 0.9em;
 }
 
+#menudiv .menu {
+    border-right: 1px solid #ccc;
+}
+
 div#menudiv div.menu:hover {
     background: #dadada;
     background-image: url('img/menu_bg_top.png');
     background-repeat: repeat-x;
     background-position: 0px 0px;
-    border: 1px solid #aaa;
-    border-top: none;
+    border-right: 1px solid #aaa;
+    border-bottom: 1px solid #aaa;
 }
 div#menudiv div.menu:hover ul {
     display: block;
