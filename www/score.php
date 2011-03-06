@@ -122,7 +122,6 @@ elseif (isset($_REQUEST['v'])) {
   }
   else {
     switch ($_REQUEST['v']) {
-
       // --------------- ROT DIALOG ---------------//
     case "rotation":
     case "rotations":
@@ -207,7 +206,6 @@ else {
     $name = sprintf("%s-%s.tsr", $st->format("Y"), $nn);
     header("Content-type: text/xml");
     header(sprintf('Content-disposition: attachment; filename="%s"', $name));
-    echo '<?xml version="1.0" encoding="utf-8"?>';
     echo RegattaIO::toXML($REG);
     break;
 
@@ -242,7 +240,6 @@ else {
   }
   exit;
 }
-
 $args = $_REQUEST;
 if (isset($_SESSION['POST']))
   $args = array_merge($args,$_SESSION['POST']);

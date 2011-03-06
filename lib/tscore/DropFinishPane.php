@@ -73,13 +73,13 @@ class DropFinishPane extends AbstractPane {
     // ------------------------------------------------------------
     // Print finishes for each division
     // ------------------------------------------------------------
-    foreach ($this->REGATTA->getDivisions() as $div) {
-      $this->PAGE->addContent($p = new Port("Division " . $div));
+    foreach ($this->REGATTA->getDivisions() as $division) {
+      $this->PAGE->addContent($p = new Port("Division " . $division));
 
-      $races = $this->REGATTA->getScoredRaces($div);
+      $races = $this->REGATTA->getScoredRaces($division);
       $div = new Div();
       if (count($races) == 0)
-	$p->addChild(new Para("No race finishes for $div division."));
+	$p->addChild(new Para("No race finishes for $division division."));
       else
 	$p->addChild($div);
 

@@ -668,7 +668,7 @@ class EnterFinishPane extends AbstractPane {
 	  throw new Exception(sprintf("No rotation has been created for the chosen race (%s).", $race));
       }
       catch (Exception $e) {
-	$this->announce(new Announcement($e->getMessage(), Announcemen::ERROR));
+	$this->announce(new Announcement($e->getMessage(), Announcement::ERROR));
 	unset($args['race']);
 	return $args;
       }
