@@ -72,7 +72,7 @@ class Utilities {
       return "";
 
     // and sorted
-    sort($list);
+    sort($list, SORT_NUMERIC);
   
     $mid_range = false;
     $last  = $list[0];

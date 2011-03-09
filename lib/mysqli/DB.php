@@ -20,6 +20,7 @@ class DBME extends DBM {
   /**
    * Empty objects to serve as prototypes
    */
+  public static $TEAM_DIVISION = null;
   public static $CONFERENCE = null;
   public static $REGATTA = null;
   public static $SEASON = null;
@@ -34,6 +35,7 @@ class DBME extends DBM {
   
   // use this method to initialize the different objects as well
   public static function setConnection(MySQLi $con) {
+    self::$TEAM_DIVISION = new Dt_Team_Division();
     self::$CONFERENCE = new Dt_Conference();
     self::$REGATTA = new Dt_Regatta();
     self::$SEASON = new Dt_Season();
@@ -122,6 +124,20 @@ class Dt_Regatta extends DBObject {
   public function db_order_by() { return false; }
 
   /**
+   * How many days is the regatta worth
+   *
+   * @return int number of days
+   */
+  public function duration() {
+    $end = new DateTime($this->end_time->format('Y-m-d'));
+    $str = new DateTime($this->start_time->format('Y-m-d'));
+    $str->setTime(0, 0);
+    $end->setTime(0, 0);
+    
+    return (int)($end->format('U') - $str->format('U')) / 86400;
+  }
+
+  /**
    * Deletes all data about my teams
    */
   public function deleteTeams() {
@@ -135,6 +151,20 @@ class Dt_Regatta extends DBObject {
     return DBME::getAll(DBME::$TEAM, new MyCond('regatta', $this->id));
   }
 
+  /**
+   * Return the teams ranked in the given division
+   *
+   * @param String $div the division
+   * @return Array:Dt_Team_Division
+   */
+  public function getRanks($div) {
+    $q = DBME::prepGetAll(DBME::$TEAM, new MyCond('regatta', $this->id));
+    $q->fields(array('id'), DBME::$TEAM->db_name());
+
+    return DBME::getAll(DBME::$TEAM_DIVISION, new MyBoolean(array(new MyCond('division', $div),
+								  new MyCondIn('team', $q))));
+  }
+
   public function getHosts() {
     $list = array();
     foreach (explode(',', $this->hosts) as $id) {
@@ -144,6 +174,49 @@ class Dt_Regatta extends DBObject {
     }
     return $list;
   }
+
+  // SCORING
+
+  /**
+   * Returns a list of all the races that have been scored in the
+   * given division
+   *
+   * @param String $division the division to fetch
+   * @return Array:Race the scored races
+   */
+  public function getScoredRaces($division) {
+    $p = DBME::$SCORE;
+    $q = DBME::prepGetAll($p);
+    $q->fields(array('race'), $p->db_name());
+    $q->distinct(true);
+
+    return DBME::getAll(DBME::$RACE, new MyBoolean(array(new MyCond('regatta', $this->id),
+							 new MyCond('division', $division),
+							 new MyCondIn('id', $q))));
+  }
+
+  /**
+   * Gets the finish from this regatta for the given team in the given race
+   *
+   * @param Dt_Race $race the particular race
+   * @param Dt_Team $team the particular team
+   * @return Dt_Score|null the particular score
+   */
+  public function getFinish(Dt_Race $race, Dt_Team $team) {
+    $id = $race . '-' . $team->id;
+    if (isset($this->finishes[$id]))
+      return $this->finishes[$id];
+
+    $r = DBME::getAll(DBME::$SCORE, new MyBoolean(array(new MyCond('race', $race->id),
+							new MyCond('team', $team->id))));
+    if (count($r) == 0)
+      $this->finishes[$id] = null;
+    else
+      $this->finishes[$id] = $r[0];
+    unset($r);
+    return $this->finishes[$id];
+  }
+  private $finishes = array();
 }
 
 class Dt_Venue extends DBObject {
@@ -178,6 +251,43 @@ class Dt_Team extends DBObject {
   public function __toString() {
     return sprintf("%s %s", $this->__get('school')->nick_name, $this->name);
   }
+
+  /**
+   * Returns this team's rank within the given division, if one exists
+   *
+   * @param String $division the possible division
+   * @return Dt_Team_Division|null the rank
+   */
+  public function getRank($division) {
+    $r = DBME::getAll(DBME::$TEAM_DIVISION, new MyBoolean(array(new MyCond('team', $this->id),
+								new MyCond('division', $division))));
+    $b;
+    if (count($r) == 0) $b = null;
+    else $b = $r[0];
+    unset($r);
+    return $b;
+  }
+
+  // ------------------------------------------------------------
+  // RP
+  // ------------------------------------------------------------
+
+  /**
+   * Gets the RP for this team in the given division and role
+   *
+   * @param String $div the division
+   * @param String $role 'skipper', or 'crew'
+   * @return Array:Dt_RP the rp for that team
+   */
+  public function getRP($div, $role) {
+    $q = DBME::prepGetAll(DBME::$RACE, new MyCond('division', $div));
+    $q->fields(array('id'), DBME::$RACE->db_name());
+
+    return DBME::getAll(DBME::$RP, new MyBoolean(array(new MyCond('boat_role', $role),
+						       new MyCond('team', $this->id),
+						       new MyCondIn('race', $q))));
+  }
+
 }
 
 class Dt_Race extends DBObject {
@@ -189,6 +299,10 @@ class Dt_Race extends DBObject {
   public function db_type($field) {
     if ($field == 'regatta') return DBME::$REGATTA;
     return parent::db_type($field);
+  }
+
+  public function __toString() {
+    return $this->number . $this->division;
   }
 }
 
@@ -219,6 +333,7 @@ class Dt_Score extends DBObject {
 
   public $penalty;
   public $score;
+  
   public $explanation;
 
   public function db_type($field) {
@@ -228,7 +343,12 @@ class Dt_Score extends DBObject {
       return DBME::$RACE;
     return parent::db_type($field);
   }
-  public function db_name() { return 'score'; }
+  public function db_name() { return 'finish'; }
+  public function __get($name) {
+    if ($name == 'place')
+      return ($this->penalty === null) ? $this->score : $this->penalty;
+    return parent::__get($name);
+  }
 }
 
 class Dt_Rp extends DBObject {
@@ -255,6 +375,7 @@ class Dt_Sailor extends DBObject {
   public $role;
 
   public function db_name() { return 'sailor'; }
+  public function db_cache() { return true; }
   public function db_type($field) {
     if ($field == 'school')
       return DBME::$SCHOOL;
@@ -268,5 +389,27 @@ class Dt_Sailor extends DBObject {
 		   substr($this->year, 2),
 		   $suffix);
   }
+}
+
+/**
+ * Team rank within division, and possible penalty
+ *
+ * @author Dayan Paez
+ * @version 2011-03-06
+ */
+class Dt_Team_Division extends DBObject {
+  protected $team;
+  public $division;
+  public $rank;
+  public $explanation;
+  public $penalty;
+  public $comments;
+
+  public function db_name() { return 'dt_team_division'; }
+  public function db_type($field) {
+    if ($field == 'team') return DBME::$TEAM;
+    return parent::db_type($field);
+  }
+  public function db_order() { return 'division, rank'; }
 }
 ?>

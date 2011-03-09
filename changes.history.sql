@@ -86,3 +86,17 @@ alter table dt_regatta add column participant enum('women', 'coed') not null def
 
 -- removes pesky backslashes from names. Make sure to identify the affected ones before doing this
 update regatta set name = replace(name, '\\', '');
+
+-- to further complicate myself, keep track of team ranks within divisions --
+CREATE TABLE `dt_team_division` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `team` int(11) NOT NULL,
+  `division` enum('A','B','C','D') DEFAULT NULL,
+  `rank` tinyint(3) unsigned NOT NULL,
+  `explanation` tinytext,
+  `penalty` enum('MRP','PFD','LOP','GDQ') DEFAULT NULL,
+  `comments` text,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `team` (`team`,`division`),
+  CONSTRAINT `dt_team_division_ibfk_3` FOREIGN KEY (`team`) REFERENCES `dt_team` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Rank teams within divisions, and account for possible penalt'

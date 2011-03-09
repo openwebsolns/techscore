@@ -12,6 +12,7 @@
  */
 class ReportMaker {
   public $regatta;
+  public $dt_regatta;
   
   private $page;
   private $rotPage;
@@ -24,6 +25,7 @@ class ReportMaker {
    */
   public function __construct(Regatta $reg) {
     $this->regatta = $reg;
+    $this->dt_regatta = DBME::get(DBME::$REGATTA, $reg->id());
   }
 
   protected function fill() {
@@ -31,7 +33,7 @@ class ReportMaker {
 
     $reg = $this->regatta;
     $this->page = new TPublicPage($reg->get(Regatta::NAME));
-    $this->prepare($this->page);
+    $this->prepare2($this->page);
 
     // Summary
     $stime = $reg->get(Regatta::START_TIME);
@@ -40,24 +42,29 @@ class ReportMaker {
       $today = new DateTime(sprintf("%s + %d days", $stime->format('Y-m-d'), $i));
       $comms = $reg->getSummary($today);
       if (strlen($comms) > 0) {
+	$items[] = new XH4($today->format('l, F j:'));
+	$items[] = new XP(array(), $comms);
+	/*
 	$items[] = new Heading($today->format('l, F j:'));
 	$items [] = new Para($comms);
+	*/
       }
     }
     if (count($items) > 0) {
-      $this->page->addSection($p = new Port("Summary"));
-      $p->addAttr("id", "summary");
+      $this->page->addSection($p = new XDiv(array('class'=>'port'), array(new XH3("Summary"))));
+      $p->set('id', 'summary');
       foreach ($items as $i)
-	$p->addChild($i);
+	$p->add($i);
     }
 
     $link_schools = PUB_HOME.'/schools';
 
     // Divisional scores
-    $maker = new ScoresDivisionalDialog($reg);
-    $this->page->addSection($p = new Port("Score summary"));
-    foreach ($maker->getTable('/inc', $link_schools) as $elem)
-      $p->addChild($elem);
+    // $maker = new ScoresDivisionalDialog($reg);
+    $maker = new TScoresTables($this->dt_regatta);
+    $this->page->addSection($p = new XDiv(array('class'=>'port'), array(new XH3("Score summary"))));
+    foreach ($maker->getSummaryTables() as $elem)
+      $p->add($elem);
   }
 
   protected function fillDivision(Division $div) {
@@ -66,14 +73,14 @@ class ReportMaker {
     $reg = $this->regatta;
     $page = new TPublicPage("Scores for division $div | " . $reg->get(Regatta::NAME));
     $this->divPage[(string)$div] = $page;
-    $this->prepare($page);
+    $this->prepare2($page);
     
     $link_schools = PUB_HOME.'/schools';
-    $maker = new ScoresDivisionDialog($reg, $div);
-    $page->addSection($p = new Port("Scores for Division $div"));
-    foreach ($maker->getTable('/inc', $link_schools) as $elem) {
-      $p->addChild($elem);
-    }
+    // $maker = new ScoresDivisionDialog($reg, $div);
+    $maker = new TScoresTables($this->dt_regatta);
+    $page->addSection($p = new XDiv(array('class'=>'port'), array(new XH3("Scores for Division $div"))));
+    foreach ($maker->getDivisionTables((string)$div) as $elem)
+      $p->add($elem);
   }
 
   protected function fillFull() {
@@ -81,15 +88,16 @@ class ReportMaker {
     
     $reg = $this->regatta;
     $this->fullPage = new TPublicPage("Full scores | " . $reg->get(Regatta::NAME));
-    $this->prepare($this->fullPage);
+    $this->prepare2($this->fullPage);
     
     $link_schools = PUB_HOME.'/schools';
     
     // Total scores
-    $maker = new ScoresFullDialog($reg);
-    $this->fullPage->addSection($p = new Port("Race by race"));
-    foreach ($maker->getTable('/inc', $link_schools) as $elem)
-      $p->addChild($elem);
+    // $maker = new ScoresFullDialog($reg);
+    $maker = new TScoresTables($this->dt_regatta);
+    $this->fullPage->addSection($p = new XDiv(array('class'=>'port'), array(new XH3("Race by race"))));
+    foreach ($maker->getFullTables() as $elem)
+      $p->add($elem);
   }
 
   protected function fillRotation() {
@@ -97,17 +105,16 @@ class ReportMaker {
 
     $reg = $this->regatta;
     $this->rotPage = new TPublicPage(sprintf("%s Rotations", $reg->get(Regatta::NAME)));
-    $this->prepare($this->rotPage);
+    $this->prepare2($this->rotPage);
 
     $maker = new RotationDialog($reg);
     foreach ($reg->getRotation()->getDivisions() as $div) {
-      $this->rotPage->addSection($p = new Port("$div Division"));
-      $p->addChild($maker->getTable($div));
+      $this->rotPage->addSection($p = new XDiv(array('class'=>'port'), array(new XH3("$div Division"))));
+      $p->add(new XRawText($maker->getTable($div)->toHTML()));
     }
   }
 
   protected function prepare(TPublicPage $page) {
-    // $page->addAttr('xmlns:ts', 'http://collegesailing.info');
     $reg = $this->regatta;
     $page->addNavigation(new Link(".", $reg->get(Regatta::NAME), array("class"=>"nav")));
     
@@ -152,6 +159,49 @@ class ReportMaker {
 		 new LItem($date),
 		 new LItem($type),
 		 new LItem(implode("/", $reg->getBoats())));
+  }
+
+  protected function prepare2(TPublicPage $page) {
+    $reg = $this->regatta;
+    $page->addNavigation(new XA('.', $reg->get(Regatta::NAME), array('class'=>'nav')));
+    
+    // Links to season
+    $season = $reg->get(Regatta::SEASON);
+    $page->addNavigation(new XA('..', $season->fullString(), array('class'=>'nav', 'accesskey'=>'u')));
+
+    // Javascript?
+    $now = new DateTime('today');
+    if ($reg->get(Regatta::START_TIME) <= $now &&
+	$reg->get(Regatta::END_DATE)   >= $now) {
+      // $page->head->add(new XScript('text/javascript', '/inc/js/refresh.js'));
+    }
+
+    // Regatta information
+    $page->addSection($div = new XDiv(array('id'=>'reg-details')));
+    $div->add(new XH2($reg->get(Regatta::NAME)));
+    
+    $stime = $reg->get(Regatta::START_TIME);
+    $etime = $reg->get(Regatta::END_DATE);
+    if ($stime->format('Y-m-d') == $etime->format('Y-m-d')) // same day
+      $date = $stime->format('F j, Y');
+    elseif ($stime->format('Y-m') == $etime->format('Y-m')) // same month
+      $date = sprintf("%s-%s", $stime->format('F j'), $etime->format('j, Y'));
+    elseif ($stime->format('Y') == $etime->format('Y')) // same year
+      $date = sprintf('%s - %s', $stime->format('F j'), $etime->format('F j, Y'));
+    else // different year
+      $date = $stime->format('F j, Y') . ' - ' . $etime->format('F y, Y');
+
+    $hosts = $reg->getHosts();
+    $schools = array();
+    foreach ($hosts as $host)
+      $schools[$host->school->id] = $host->school->nick_name;
+
+    $type = sprintf('%s Regatta', ucfirst($reg->get(Regatta::TYPE)));
+    $div->add(new XUl(array(),
+		      array(new XLi(implode("/", $schools)),
+			    new XLi($date),
+			    new XLi($type),
+			    new XLi(implode("/", $reg->getBoats())))));
   }
 
   /**

@@ -246,6 +246,7 @@ div.message {
 
 table.coordinate tbody tr:hover { background: #8caeda; }
 table.coordinate tbody td:hover, table.coordinate tbody td:hover a { background: #3465a4; color: white;}
+table.coordinate tbody td.empty:hover { background: none; }
 
 #reg-details ul {
     margin-top: 0.5em;

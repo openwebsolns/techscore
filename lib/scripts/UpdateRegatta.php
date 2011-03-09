@@ -1,5 +1,15 @@
 <?php
 /**
+ * This file is part of TechScore
+ *
+ * @package tscore/scripts
+ */
+
+require_once(dirname(__FILE__).'/../conf.php');
+require_once('mysqli/DB.php');
+DBME::setConnection(Preferences::getConnection());
+
+/**
  * Update the given regatta, given as an argument.
  *
  * This update entails checking the regatta against the database and
@@ -25,6 +35,11 @@
  * affects the Divisional scores, or if single handed, the full scores
  * and the rotation. Finally, a settings change affects all pages.
  *
+ * 2011-03-06: If a regatta has no finishes, do not generate score
+ * pages, even if requested.
+ *
+ * 2011-03-06: Use Dt_Regatta for every action except Sync, obviously
+ *
  * @author Dayan Paez
  * @version 2010-08-27
  * @package scripts
@@ -47,8 +62,6 @@ class UpdateRegatta {
     if ($reg->get(Regatta::TYPE) == Preferences::TYPE_PERSONAL)
       return;
 
-    require_once('mysqli/DB.php');
-    DBME::setConnection(Preferences::getConnection());
     $dreg = new Dt_Regatta();
     $dreg->id = $reg->id();
     $dreg->name = $reg->get(Regatta::NAME);
@@ -116,12 +129,10 @@ class UpdateRegatta {
     $dreg->deleteTeams();
 
     // add teams
-    $teams = array();
     $dteams = array();
     foreach ($reg->scorer->rank($reg) as $i => $rank) {
       $team = new Dt_Team();
-      $dteams[] = $team;
-      $teams[] = $rank->team;
+      $dteams[$rank->team->id] = $team;
 
       $team->id = $rank->team->id;
       $team->regatta = $dreg;
@@ -130,6 +141,24 @@ class UpdateRegatta {
       $team->rank = $i + 1;
       $team->rank_explanation = $rank->explanation;
       DBME::set($team);
+    }
+
+    // do the team divisions
+    foreach ($divs as $div) {
+      foreach ($reg->scorer->rank($reg, $div) as $i => $rank) {
+	$team_division = new Dt_Team_Division();
+	$team_division->team = $dteams[$rank->team->id];
+	$team_division->division = $div;
+	$team_division->rank = ($i + 1);
+	$team_division->explanation = $rank->explanation;
+
+	// Penalty?
+	if (($pen = $reg->getTeamPenalty($rank->team, $div)) !== null) {
+	  $team_division->penalty = $pen->type;
+	  $team_division->comments = $pen->comments;
+	}
+	DBME::set($team_division);
+      }
     }
     return $added;
   }
@@ -171,7 +200,7 @@ class UpdateRegatta {
 
   /**
    * Updates the regatta's pages according to the activity
-   * requested.
+   * requested. Will not create scores page if no finishes are registered!
    *
    * @param Regatta $reg the regatta to update
    * @param UpdateRequest::Constant the activity
@@ -183,11 +212,14 @@ class UpdateRegatta {
       UpdateSchoolsSummary::run();
       return;
     }
+
     $D = UpdateRegatta::createDir($reg);
     $M = new ReportMaker($reg);
 
     switch ($activity) {
     case UpdateRequest::ACTIVITY_SCORE:
+      if (!$reg->hasFinishes()) return;
+      
       self::createFront($D, $M);
       self::createFull($D, $M);
 
@@ -211,12 +243,16 @@ class UpdateRegatta {
     case UpdateRequest::ACTIVITY_RP:
       if ($reg->isSinglehanded()) {
 	self::createRotation($D, $M);
-	self::createFront($D, $M);
-	self::createFull($D, $M);
+	if ($reg->hasFinishes()) {
+	  self::createFront($D, $M);
+	  self::createFull($D, $M);
+	}
       }
       else {
-	foreach ($reg->getDivisions() as $div)
-	  self::createDivision($D, $M, $div);
+	if ($reg->hasFinishes()) {
+	  foreach ($reg->getDivisions() as $div)
+	    self::createDivision($D, $M, $div);
+	}
       }
       break;
       // ------------------------------------------------------------
@@ -229,20 +265,21 @@ class UpdateRegatta {
       $rot = $reg->getRotation();
       if ($rot->isAssigned())
 	self::createRotation($D, $M);
-      self::createFront($D, $M);
-      self::createFull($D, $M);
+      if ($reg->hasFinishes()) {
+	self::createFront($D, $M);
+	self::createFull($D, $M);
       
-      // Individual division scores (do not include if singlehanded as
-      // this is redundant)
-      if (!$reg->isSingleHanded()) {
-	foreach ($reg->getDivisions() as $div)
-	  self::createDivision($D, $M, $div);
+	// Individual division scores (do not include if singlehanded as
+	// this is redundant)
+	if (!$reg->isSingleHanded()) {
+	  foreach ($reg->getDivisions() as $div)
+	    self::createDivision($D, $M, $div);
+	}
       }
       break;
       // ------------------------------------------------------------
     case UpdateRequest::ACTIVITY_SYNC:
-      if (self::runSync($reg))
-	UpdateSchoolsSummary::run();
+      UpdateRegatta::runSync($reg);
       break;
 
     default:
@@ -288,7 +325,7 @@ class UpdateRegatta {
     $filename = "$dirname/index.html";
     $page = $maker->getScoresPage();
     self::prepMenu($maker->regatta, $page);
-    if (@file_put_contents($filename, $page->toHTML()) === false)
+    if (@file_put_contents($filename, $page->toXML()) === false)
       throw new RuntimeException(sprintf("Unable to make the regatta report: %s\n", $filename), 8);
   }
 
@@ -304,7 +341,7 @@ class UpdateRegatta {
     $filename = "$dirname/full-scores.html";
     $page = $maker->getFullPage();
     self::prepMenu($maker->regatta, $page);
-    if (@file_put_contents($filename, $page->toHTML()) === false)
+    if (@file_put_contents($filename, $page->toXML()) === false)
       throw new RuntimeException(sprintf("Unable to make the regatta full scores: %s\n", $filename), 8);
   }
 
@@ -321,7 +358,7 @@ class UpdateRegatta {
     $filename = "$dirname/$div.html";
     $page = $maker->getDivisionPage($div);
     self::prepMenu($maker->regatta, $page);
-    if (@file_put_contents($filename, $page->toHTML()) === false)
+    if (@file_put_contents($filename, $page->toXML()) === false)
       throw new RuntimeException(sprintf("Unable to make the regatta division score page: %s\n", $filename), 8);
   }
 
@@ -337,7 +374,8 @@ class UpdateRegatta {
     $filename = "$dirname/rotations.html";
     $page = $maker->getRotationPage();
     self::prepMenu($maker->regatta, $page);
-    if (@file_put_contents($filename, $page->toHTML()) === false)
+
+    if (@file_put_contents($filename, $page->toXML()) === false)
       throw new RuntimeException(sprintf("Unable to make the regatta rotation: %s\n", $filename), 8);
   }
 
@@ -349,6 +387,16 @@ class UpdateRegatta {
     // Menu
     $rot = $reg->getRotation();
     if ($rot->isAssigned())
+      $page->addMenu(new XA('rotations', "Rotations"));
+    $page->addMenu(new XA('.', "Report"));
+    $page->addMenu(new XA('full-scores', "Full Scores"));
+    if (!$reg->isSingleHanded()) {
+      foreach ($reg->getDivisions() as $div)
+	$page->addMenu(new XA($div, "$div Scores"));
+    }
+
+    /*
+    if ($rot->isAssigned())
       $page->addMenu(new Link("rotations", "Rotations"));
     $page->addMenu(new Link(".", "Report"));
     $page->addMenu(new Link("full-scores", "Full Scores"));
@@ -356,6 +404,7 @@ class UpdateRegatta {
       foreach ($reg->getDivisions() as $div)
 	$page->addMenu(new Link($div, "$div Scores"));
     }
+    */
   }
 }
 
@@ -382,7 +431,8 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
     $action = array($argv[2]);
   }
 
-  // GET REGATTA
+  // GET REGATTA: first, check if the regatta exists in Dt_Regatta. If
+  // it does not, attempt to find it in Regatta, and run sync, automatically.
   try {
     $REGATTA = new Regatta($argv[1]);
   }
