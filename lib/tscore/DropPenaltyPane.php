@@ -109,6 +109,7 @@ class DropPenaltyPane extends AbstractPane {
 	return $args;
       }
       $theFinish->penalty = null;
+      $this->REGATTA->commitFinishes(array($theFinish));
       $this->REGATTA->runScore($theFinish->race);
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
 
