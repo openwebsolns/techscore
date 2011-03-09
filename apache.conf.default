@@ -129,7 +129,15 @@ DocumentRoot {DIRECTORY}/html
 Options -Indexes
 DirectoryIndex index.html rotations.html
 
+<Files *.html>
+ForceType application/xhtml+xml
+</Files>
+
 RewriteEngine on
+# Correct MIME type, lest you be IE
+RewriteCond %{HTTP_USER_AGENT} (.*MSIE.*|^Lynx)
+RewriteRule . - [T=text/html]
+
 RewriteCond %{SCRIPT_FILENAME} -d [OR]
 RewriteCond %{SCRIPT_FILENAME} -f
 RewriteRule . - [L]
