@@ -26,13 +26,13 @@ class UpdateFront {
     $seasons = DBME::getAll(DBME::$SEASON, new MyCond('start_date', date('Y-m-d'), MyCond::LE));
     foreach ($seasons as $season) {
       if (($success = $this->fillSeason($season))) {
-	$this->page->addMenu(new Link("/$season", $season->fullString()));
+	$this->page->addMenu(new XA("/$season", $season->fullString()));
 	break;
       }
     }
     if (!$success) {
       // Wow! There is NO information to report!
-      $this->page->addSection(new Port("Nothing to show!", array(new Para("We are sorry, but there are no regattas in the system! Please come back later. Happy sailing!"))));
+      $this->page->addSection(new XPort("Nothing to show!", array(new XP(array(), "We are sorry, but there are no regattas in the system! Please come back later. Happy sailing!"))));
     }
   }
 
@@ -44,13 +44,15 @@ class UpdateFront {
     $row = 0;
     if (count($regs) > 0) {
       $current_season_is_active = true;
-      $this->page->addSection(new Port("Coming soon", array($tab = new Table()), array("id"=>"coming")));
-      $tab->addHeader(new Row(array(Cell::th("Name"),
-				    Cell::th("Host"),
-				    Cell::th("Type"),
-				    Cell::th("Conference"),
-				    Cell::th("Start date")
-				    )));
+      $this->page->addSection(new XPort("Coming soon", array($tab = new XTable()), array('id'=>'coming')));
+      $tab->add(new XTHead(array(),
+			   array(new XTR(array(),
+					 array(new XTH(array(), "Name"),
+					       new XTH(array(), "Host"),
+					       new XTH(array(), "Type"),
+					       new XTH(array(), "Conference"),
+					       new XTH(array(), "Start date"))))));
+      $tab->add($bod = new XTBody());
       foreach ($regs as $reg) {
 	$hosts = array();
 	$confs = array();
@@ -58,13 +60,13 @@ class UpdateFront {
 	  $hosts[$host->id] = $host->nick_name;
 	  $confs[$host->conference] = $host->conference;
 	}
-	$link = new Link(sprintf('/%s/%s', $reg->season, $reg->nick), $reg->name);
-	$tab->addRow($r = new Row(array(new Cell($link, array("class"=>"left")),
-					new Cell(implode("/", $hosts)),
-					new Cell(ucfirst($reg->type)),
-					new Cell(implode("/", $confs)),
-					new Cell($reg->start_time->format('m/d/Y')))));
-	$r->addAttr("class", sprintf("row%d", $row++ % 2));
+	$link = new XA(sprintf('/%s/%s', $reg->season, $reg->nick), $reg->name);
+	$bod->add(new XTR(array('class' => sprintf("row%d", $row++ % 2)),
+			  array(new XTD(array('class'=>'left'), $link),
+				new XTD(array(), implode("/", $hosts)),
+				new XTD(array(), ucfirst($reg->type)),
+				new XTD(array(), implode("/", $confs)),
+				new XTD(array(), $reg->start_time->format('m/d/Y')))));
       }
     }
 
@@ -72,20 +74,22 @@ class UpdateFront {
     $regs = DBME::getAll(DBME::$REGATTA, new MyBoolean(array(new MyCond('status', 'coming', MyCond::NE), $cond)));
     if (count($regs) > 0) {
       $current_season_is_active = true;
-      $this->page->addSection(new Port("Past regattas", array($tab = new Table()), array("id"=>"past")));
-      $tab->addHeader(new Row(array(Cell::th("Name"),
-				    Cell::th("Host"),
-				    Cell::th("Type"),
-				    Cell::th("Conference"),
-				    Cell::th("Start date"),
-				    Cell::th("Status"),
-				    Cell::th("Leading")
-				    )));
+      $this->page->addSection(new XPort("Past regattas", array($tab = new XTable()), array('id'=>'past')));
+      $tab->add(new XTHead(array(),
+			   array(new XTR(array(),
+					 new XTH(array(), "Name"),
+					 new XTH(array(), "Host"),
+					 new XTH(array(), "Type"),
+					 new XTH(array(), "Conference"),
+					 new XTH(array(), "Start date"),
+					 new XTH(array(), "Status"),
+					 new XTH(array(), "Leading")))));
+      $tab->add($bod = new XTBody());
       foreach ($regs as $reg) {
 	$label = null;
 	switch ($reg->status) {
 	case 'final':
-	  $label = '<strong>Final</strong>'; break;
+	  $label = new XStrong("Final"); break;
 	case 'finished':
 	  $label = 'Pending'; break;
 	default:
@@ -98,8 +102,8 @@ class UpdateFront {
 	  $path = realpath(sprintf('%s/../../html/inc/img/schools/%s.png', dirname(__FILE__), $winner->school->id));
 	  $status = $winner;
 	  if ($path !== null)
-	    $status = new Image(sprintf('/inc/img/schools/%s.png', $winner->school->id),
-				array('alt'=>$winner->school, 'height'=>'40px'));
+	    $status = new XImg(sprintf('/inc/img/schools/%s.png', $winner->school->id), $winner->school,
+			       array('height'=>40));
 	
 	  $hosts = array();
 	  $confs = array();
@@ -108,15 +112,14 @@ class UpdateFront {
 	    $confs[$host->conference] = $host->conference;
 	  }
 	  $link = new Link(sprintf('/%s/%s', $reg->season, $reg->nick), $reg->name);
-	  $tab->addRow($r = new Row(array(new Cell($link, array("class"=>"left")),
-					  new Cell(implode("/", $hosts)),
-					  new Cell(ucfirst($reg->type)),
-					  new Cell(implode("/", $confs)),
-					  new Cell($reg->start_time->format('m/d/Y')),
-					  new Cell($label),
-					  new Cell($status)
-					  )));
-	  $r->addAttr("class", sprintf("row%d", $row++ % 2));
+	  $bod->add(new XTR(array('class' => sprintf("row%d", $row++ % 2)),
+			    array(new XTD(array('class'=>'left'), $link),
+				  new XTD(array(), implode("/", $hosts)),
+				  new XTD(array(), ucfirst($reg->type)),
+				  new XTD(array(), implode("/", $confs)),
+				  new XTD(array(), $reg->start_time->format('m/d/Y')),
+				  new XTD(array(), $label),
+				  new XTD(array(), $status))));
 	}
       }
     }
@@ -131,7 +134,7 @@ class UpdateFront {
    */
   public function getPage() {
     $this->fill();
-    return $this->page->toHTML();
+    return $this->page->toXML();
   }
 
   // ------------------------------------------------------------

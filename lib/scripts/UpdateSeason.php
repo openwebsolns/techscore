@@ -32,10 +32,7 @@ class UpdateSeason {
 
     $season = $this->season;
     $this->page = new TPublicPage(ucfirst($season->getSeason()) . ' ' . $season->getYear());
-    $this->page->head->addChild(new GenericElement('script',
-						   array(new Text("")),
-						   array('type'=>'text/javascript',
-							 'src'=>'/inc/js/refresh.js')));
+    // $this->page->head->add(new XScript('text/javascript', '/inc/js/refresh.js'));
 
     // 2010-11-14: Separate regattas into "weekends", descending by
     // timestamp, based solely on the start_time, assuming that the
@@ -52,19 +49,20 @@ class UpdateSeason {
     }
 
     // SETUP navigation
-    $this->page->addNavigation(new Link(".", $season->fullString(), array("class"=>"nav")));
-    $this->page->addMenu(new Link("#summary", "Summary"));
-    $this->page->addMenu(new Link("#all", "Weekends"));
+    $this->page->addNavigation(new XA('.', $season->fullString(), array('class'=>'nav')));
+    $this->page->addMenu(new XA('#summary', "Summary"));
+    $this->page->addMenu(new XA('#all', "Weekends"));
 
     // SEASON summary
-    $this->page->addSection($summary_port = new Port("Season summary", array(), array("id"=>"summary")));
-    $num_teams    = 0;
+    $this->page->addSection($summary_port = new XPort("Season summary"));
+    $summary_port->set('id', 'summary');
+    $num_teams = 0;
 
     // WEEKENDS
     $count = count($weeks);
     if ($count == 0) {
       // Should this section even exist?
-      $this->page->addSection(new Para("There are no regattas to report on yet."));
+      $this->page->addSection(new XP(array(), "There are no regattas to report on yet."));
     }
     // stats
     $total = 0;
@@ -72,17 +70,15 @@ class UpdateSeason {
     $now = date('U');
     foreach ($weeks as $week => $list) {
       $title = "Week $count";
-      $this->page->addSection($p = new Port($title));
+      $this->page->addSection($p = new XPort($title));
       $count--;
-      $p->addChild($tab = new Table());
-      // $tab->addAttr("style", "width: 100%");
-      $tab->addHeader(new Row(array(Cell::th("Name"),
-				    Cell::th("Host"),
-				    Cell::th("Type"),
-				    Cell::th("Conference"),
-				    Cell::th("Start date"),
-				    Cell::th("Status")
-				    )));
+      $p->add($tab = new XQuickTable(array(),
+				     array("Name",
+					   "Host",
+					   "Type",
+					   "Conference",
+					   "Start date",
+					   "Status")));
       $row = 0;
       foreach ($list as $reg) {
 	$total++;
@@ -116,27 +112,23 @@ class UpdateSeason {
 	  $hosts[$host->id] = $host->nick_name;
 	  $confs[$host->conference] = $host->conference;
 	}
-	$link = new Link($reg->nick, $reg->name);
-	$tab->addRow($r = new Row(array(new Cell($link, array("class"=>"left")),
-					new Cell(implode("/", $hosts)),
-					new Cell(ucfirst($reg->type)),
-					new Cell(implode("/", $confs)),
-					new Cell($reg->start_time->format('m/d/Y')),
-					new Cell($status)
-					)));
-	$r->addAttr("class", sprintf("row%d", $row++ % 2));
+	$link = new XA($reg->nick, $reg->name);
+	$tab->addRow(array($link,
+			   implode("/", $hosts),
+			   ucfirst($reg->type),
+			   implode("/", $confs),
+			   $reg->start_time->format('m/d/Y'),
+			   $status),
+		     array('class' => sprintf("row%d", $row++ % 2)));
       }
     }
 
     // Complete SUMMARY
-    $summary_port->addChild(new Div(array(new Span(array(new Text("Number of Regattas:")),
-						   array("class"=>"prefix")),
-					  new Text($total)),
-				    array("class"=>"stat")));
-    $summary_port->addChild(new Div(array(new Span(array(new Text("Number of Teams:")),
-						   array("class"=>"prefix")),
-					  new Text($num_teams)),
-				    array("class"=>"stat")));
+    $summary_port->add(new XDiv(array('class'=>'stat'),
+				array(new XSpan("Number of Regattas:", array('class'=>'prefix')), $total)));
+    $summary_port->add(new XDiv(array('class'=>'stat'),
+				array(new XSpan("Number of Teams:", array('class'=>'prefix')), $num_teams)));
+    
     // Sort the winning school to determine winningest, and only print
     // this stat if there is a something to have won. Also, print all
     // the tied teams for winningest spot.
@@ -154,10 +146,9 @@ class UpdateSeason {
 	  $tied_schools[] = DBME::get(DBME::$SCHOOL, array_shift($school_codes));
 	}
       }
-      $summary_port->addChild(new Div(array(new Span(array(new Text("Winningest School(s):")),
-						     array("class"=>"prefix")),
-					    new Text(implode(', ', $tied_schools))),
-				      array("class"=>"stat")));
+      $summary_port->add(new XDiv(array('class'=>'stat'),
+				  array(new XSpan("Winningest School(s):", array('class'=>'prefix')),
+					implode('/', $tied_schools))));
     }
   }
 
@@ -169,7 +160,7 @@ class UpdateSeason {
    */
   public function getPage() {
     $this->fill();
-    return $this->page->toHTML();
+    return $this->page->toXML();
   }
 
   // ------------------------------------------------------------

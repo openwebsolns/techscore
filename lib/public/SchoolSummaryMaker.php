@@ -60,16 +60,16 @@ class SchoolSummaryMaker {
     $this->page = new TPublicPage($school);
 
     // SETUP navigation
-    $this->page->addNavigation(new Link("..", "Schools", array("class"=>"nav")));
-    $this->page->addMenu(new Link($this->getBlogLink(), "ICSA Info"));
-    $this->page->addSection($d = new Div());
-    $d->addChild(new GenericElement("h2", array(new Text($school))));
-    $d->addChild($l = new Itemize());
-    $l->addItems(new LItem($school->conference . ' Conference'));
+    $this->page->addNavigation(new XA("..", "Schools", array("class"=>"nav")));
+    $this->page->addMenu(new XA($this->getBlogLink(), "ICSA Info"));
+    $this->page->addSection($d = new XDiv(array('id'=>'reg-details')));
+    $d->add(new XH2($school));
+    $d->add($l = new XUl());
+    $l->add(new XLI($school->conference . ' Conference'));
 
     $burgee = sprintf('%s/../../html/inc/img/schools/%s.png', dirname(__FILE__), $this->school->id);
     if (file_exists($burgee))
-      $l->addItems(new LItem(new Image(sprintf('/inc/img/schools/%s.png', $this->school->id))));
+      $l->add(new XLI(new XImg(sprintf('/inc/img/schools/%s.png', $this->school->id), $this->school->id)));
     $d->addAttr("align", "center");
     $d->addAttr("id", "reg-details");
 
@@ -143,16 +143,17 @@ class SchoolSummaryMaker {
     // ------------------------------------------------------------
     // SCHOOL sailing now
     if (count($current) > 0) {
-      $this->page->addSection($p = new Port("Sailing now", array(), array("id"=>"sailing")));
-      $p->addChild($tab = new Table());
-      // $tab->addAttr("style", "width: 100%");
-      $tab->addHeader(new Row(array(Cell::th("Name"),
-				    Cell::th("Host"),
-				    Cell::th("Type"),
-				    Cell::th("Conference"),
-				    Cell::th("Last race"),
-				    Cell::th("Place(s)")
-				    )));
+      $this->page->addSection($p = new XPort("Sailing now", array(), array('id'=>'sailing')));
+      $p->add(new XTable(array(),
+			 array(new XTHead(array(),
+					  array(new XTR(array(),
+							array(new XTH(array(), "Name"),
+							      new XTH(array(), "Host"),
+							      new XTH(array(), "Type"),
+							      new XTH(array(), "Conference"),
+							      new XTH(array(), "Last race"),
+							      new XTH(array(), "Place(s)"))))),
+			       $tab = new XTBody())));
       $row = 0;
       foreach ($current as $reg) {
 	// borrowed from UpdateSeason
@@ -185,33 +186,28 @@ class SchoolSummaryMaker {
 	  $hosts[$host->id] = $host->nick_name;
 	  $confs[$host->conference] = $host->conference;
 	}
-	$link = new Link(sprintf('/%s/%s', $season, $reg->nick), $reg->name);
-	$tab->addRow($r = new Row(array(new Cell($link, array("class"=>"left")),
-					new Cell(implode("/", $hosts)),
-					new Cell(ucfirst($reg->type)),
-					new Cell(implode("/", $confs)),
-					new Cell($reg->start_time->format('m/d/Y')),
-					new Cell($status)
-					)));
-	$r->addAttr("class", sprintf("row%d", $row++ % 2));
+	$link = new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name);
+	$tab->add(new XTR(array('class' => sprintf("row%d", $row++ % 2)),
+			  array(new XTD(array('class'=>'left'), $link),
+				new XTD(array(), implode("/", $hosts)),
+				new XTD(array(), ucfirst($reg->type)),
+				new XTD(array(), implode("/", $confs)),
+				new XTD(array(), $reg->start_time->format('m/d/Y')),
+				new XTD(array(), $status))));
       }
     }
 
     // ------------------------------------------------------------
     // SCHOOL season summary
-    $season_link = new Link('/'.(string)$season, $season->fullString());
-    $this->page->addSection($p = new Port("Season summary for ", array($season_link),
-					  array("id"=>"summary")));
+    $season_link = new XA('/'.(string)$season, $season->fullString());
+    $this->page->addSection($p = new XPort(array("Season summary for ", $season_link)));
+    $p->set('id', 'summary');
 
-    $p->addChild(new Div(array(new Span(array(new Text("Number of Regattas:")),
-					array("class"=>"prefix")),
-			       new Text($total)),
-			 array("class"=>"stat")));
-
-    $p->addChild(new Div(array(new Span(array(new Text("Finish percentile:")),
-					array("class"=>"prefix")),
-			       new Text($avg)),
-			 array("class"=>"stat")));
+    $p->add(new XDiv(array('class'=>'stat'),
+		     array(new XSpan("Number of Regattas:", array("class"=>"prefix")), $total)));
+    $p->add(new Div(array('class'=>'stat'),
+		    array(new XSpan("Finish percentile:", array("class"=>"prefix")), $avg)));
+    
     // most active sailor?
     arsort($skippers, SORT_NUMERIC);
     arsort($crews, SORT_NUMERIC);
@@ -223,10 +219,8 @@ class SchoolSummaryMaker {
 	  break;
 	$txt[] = sprintf('%s (%d races)', $skip_objs[$id], $num);
       }
-      $p->addChild(new Div(array(new Span(array(new Text("Most active skipper:")),
-					  array("class"=>"prefix")),
-				 new Text(implode(", ", $txt))),
-			   array("class"=>"stat")));
+      $p->add(new XDiv(array('class'=>'stat'),
+		       array(new XSpan("Most active skipper:", array('class'=>'prefix')), implode(", ", $txt))));
     }
     if (count($crews) > 0) {
       $txt = array();
@@ -236,27 +230,28 @@ class SchoolSummaryMaker {
 	  break;
 	$txt[] = sprintf('%s (%d)', $crew_objs[$id], $num);
       }
-      $p->addChild(new Div(array(new Span(array(new Text("Most active crew:")),
-					  array("class"=>"prefix")),
-				 new Text(implode(", ", $txt))),
-			   array("class"=>"stat")));
+      $p->add(new XDiv(array('class'=>'stat'),
+		       array(new XSpan("Most active crew:", array('class'=>'prefix')), $txt)));
     }
 
     // ------------------------------------------------------------
     // SCHOOL past regattas
     if (count($past) > 0) {
-      $this->page->addSection($p = new Port("Season history for ", array($season_link),
-					    array("id"=>"history")));
-      $p->addChild($tab = new Table());
-      // $tab->addAttr("style", "width: 100%");
-      $tab->addHeader(new Row(array(Cell::th("Name"),
-				    Cell::th("Host"),
-				    Cell::th("Type"),
-				    Cell::th("Conference"),
-				    Cell::th("Date"),
-				    Cell::th("Status"),
-				    Cell::th("Place(s)")
-				    )));
+      $this->page->addSection($p = new XPort(array("Season history for ", $season_link)));
+      $p->set('id', 'history');
+      
+      $p->add(new XTable(array(),
+			 array(new XTHead(array(),
+					  array(new XTR(array(),
+							array(new XTH(array(), "Name"),
+							      new XTH(array(), "Host"),
+							      new XTH(array(), "Type"),
+							      new XTH(array(), "Conference"),
+							      new XTH(array(), "Date"),
+							      new XTH(array(), "Status"),
+							      new XTH(array(), "Place(s)"))))),
+			       $tab = new XTBody())));
+
       foreach ($past as $reg) {
 	$date = $reg->start_time;
 	$status = ($reg->finalized === null) ? "Pending" : "Official";
@@ -272,15 +267,15 @@ class SchoolSummaryMaker {
 	  if ($team->school->id == $school->id)
 	    $places[] = ($rank + 1);
 	}
-	$link = new Link(sprintf('/%s/%s', $season, $reg->nick), $reg->name);
-	$tab->addRow($r = new Row(array(new Cell($link, array("class"=>"left")),
-					new Cell(implode("/", $hosts)),
-					new Cell(ucfirst($reg->type)),
-					new Cell(implode("/", $confs)),
-					new Cell($date->format('m/d/Y')),
-					new Cell($status),
-					new Cell(sprintf('%s/%d', implode(',', $places), count($teams)))
-					)));
+	$link = new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name);
+	$tab->add(new XTR(array('class' => sprintf("row%d", $row++ % 2)),
+			  array(new XTD(array('class'=>'left'), $link),
+				new XTD(array(), implode("/", $hosts)),
+				new XTD(array(), ucfirst($reg->type)),
+				new XTD(array(), implode("/", $confs)),
+				new XTD(array(), $date->format('m/d/Y')),
+				new XTD(array(), $status),
+				new XTD(array(), sprintf('%s/%d', implode(',', $places), count($teams))))));
       }
     }
   }

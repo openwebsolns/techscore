@@ -947,30 +947,28 @@ class XQuickTable extends XTable {
   }
 }
 
-if (isset($argv) && __FILE__ == $argv[0]) {
-  $a = new XFieldSet("Details", array(), array("Shoes"));
-  $a = new XForm("this.php", XForm::POST, array(), $a);
+// ------------------------------------------------------------
+// Particular TechScore objects
+// ------------------------------------------------------------
 
-  $a->add(new XSelect("test", array(),
-		      array(new XOption("shoes", array(), "Shoes"),
-			    new XOption("boots", array(), "Boots"),
-			    new XOptionGroup("Sandals", array(),
-					     array(new XOption("toes", array(), "Toes"))))));
+/**
+ * A div with class Port and an H3 heading
+ *
+ * @author Dayan Paez
+ * @version 2011-03-09
+ */
+class XPort extends XDiv {
 
-  $a = new XStyle("text/css", "body: {background: red;}");
-  $a = new XTable(array(),
-		  array(new XTHead(array(),
-				   array(new XTR(array(),
-						 array(new XTH(array(), "Name"),
-						       new XTH(array(), "Phone"))))),
-			new XTBody(array(),
-				   array(new XTR(array(),
-						 array(new XTD(array(), "Alex"),
-						       new XTD(array(), "305-555-3821")))))));
-
-  $a = new XQuickTable();
-  $a->addRow(array("Shoes", "Boots"));
-  $a->printXML();
-  // file_put_contents("/tmp/test.html", $a->toXML());
+  /**
+   * Create a port with the given title
+   *
+   * @param String $title the title
+   */
+  public function __construct($title, Array $children = array(), Array $attrs = array()) {
+    parent::__construct($attrs, array(new XH3($title)));
+    $this->set('class', 'port');
+    foreach ($children as $child)
+      $this->add($child);
+  }
 }
 ?>
