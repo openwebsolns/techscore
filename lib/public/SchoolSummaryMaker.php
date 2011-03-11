@@ -250,6 +250,7 @@ class SchoolSummaryMaker {
 							      new XTH(array(), "Place(s)"))))),
 			       $tab = new XTBody())));
 
+      $row = 0;
       foreach ($past as $reg) {
 	$date = $reg->start_time;
 	$status = ($reg->finalized === null) ? "Pending" : "Official";
