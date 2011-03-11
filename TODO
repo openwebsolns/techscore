@@ -15,7 +15,7 @@
 
 * Access keys (d o n e)
 
-* FIX CSS Table Styles
+* FIX CSS Table Styles (d o n e)
 
 * FIX Announcements Div on TScorePage (d o n e)
 - Both CSS positioning and placement within page
@@ -24,7 +24,7 @@
 
 * Messenging mechanism (d o n e)
 
-* Implement scripts
+* Implement scripts (d o n e)
 
 * Improve the public site!!!!
 
@@ -104,8 +104,8 @@ Each conference page will show be organized as follows:
   2. Current sailing regattas
 
 
-* Move scoring side to ts.hostname VirtualHost?
-
+* Move scoring side to ts.hostname VirtualHost? (d o n e)
+ 
 
 * Migrate to using WebServer class for redirects (d o n e)
  
@@ -113,7 +113,7 @@ Each conference page will show be organized as follows:
 
 * Fix rotation pane, again! (d o n e)
 
-* A third update type perhaps: RP
+* A third update type perhaps: RP (d o n e)
 
 RP updates would affect the score and the rotation pages, but not
 the season summary, while affecting the school summary. Just a
@@ -121,7 +121,7 @@ thought.
 
 Also a fourth one, called 'sync' when the regatta is finalized?
 
-* Why are there "errors" when submitting RP?
+* Why are there "errors" when submitting RP? (d o n e)
 
 * When syncing (d o n e)...
 
@@ -130,12 +130,12 @@ for that regatta. The 'status' field delimits either the last race
 sailed if ongoing, 'Pending' if already 'over' (due to time or all
 races sailed), or 'Final' if finalized.
 
-* Bring the update school script to the new data tables
+* Bring the update school script to the new data tables (d o n e)
 
 This means using dt_regatta, etc.
 
 
-* Make score updates happen in one giant query of awesomeness
+* Make score updates happen in one giant query of awesomeness (d o n e)!
 
 Perhaps as big as one race full at a time? Also, and perhaps more
 importantly, attempt to update scores intelligently: that is, do not

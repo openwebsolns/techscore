@@ -70,8 +70,6 @@ class SchoolSummaryMaker {
     $burgee = sprintf('%s/../../html/inc/img/schools/%s.png', dirname(__FILE__), $this->school->id);
     if (file_exists($burgee))
       $l->add(new XLI(new XImg(sprintf('/inc/img/schools/%s.png', $this->school->id), $this->school->id)));
-    $d->addAttr("align", "center");
-    $d->addAttr("id", "reg-details");
 
     require_once('mysqli/DB.php');
     DBME::setConnection(Preferences::getConnection());
@@ -205,7 +203,7 @@ class SchoolSummaryMaker {
 
     $p->add(new XDiv(array('class'=>'stat'),
 		     array(new XSpan("Number of Regattas:", array("class"=>"prefix")), $total)));
-    $p->add(new Div(array('class'=>'stat'),
+    $p->add(new XDiv(array('class'=>'stat'),
 		    array(new XSpan("Finish percentile:", array("class"=>"prefix")), $avg)));
     
     // most active sailor?
@@ -288,7 +286,7 @@ class SchoolSummaryMaker {
    */
   public function getPage() {
     $this->fill();
-    return $this->page->toHTML();
+    return $this->page->toXML();
   }
 }
 ?>

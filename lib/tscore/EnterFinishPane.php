@@ -88,11 +88,12 @@ class EnterFinishPane extends AbstractPane {
     if (empty($cont)) $cont = "--";
     $tab->addRow(new Row(array(new Cell($cont))));
 
-    // Using?
+    // Using? If there is a rotation, use it by default
+    
     $using = (isset($args['finish_using'])) ?
       $args['finish_using'] : "ROT";
 
-    if (count($rotation->getRaces()) == 0) {
+    if (!$rotation->isAssigned()) {
       unset($this->ACTIONS["ROT"]);
       $using = "TMS";
     }
@@ -310,6 +311,12 @@ class EnterFinishPane extends AbstractPane {
     // Using?
     $using = (isset($args['finish_using'])) ?
       $args['finish_using'] : "ROT";
+
+    if (!$rotation->isAssigned()) {
+      unset($this->ACTIONS["ROT"]);
+      $using = "TMS";
+    }
+    
     $form->addChild(new FItem("Using:",
 			      $fsel = new FSelect("finish_using",
 						  array($using))));

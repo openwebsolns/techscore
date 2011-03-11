@@ -176,9 +176,14 @@ class UpdateSeason {
 
     // Do season
     $dirname = "$R/$season";
+
+    // create folder, if necessary
+    if (!file_exists($dirname) && mkdir($dirname) === false)
+      throw new RuntimeException(sprintf("Unable to make the season folder: %s\n", $dirname), 2);
+
     $M = new UpdateSeason($season);
     if (file_put_contents("$dirname/index.html", $M->getPage()) === false)
-      throw new RuntimeException(sprintf("Unable to make the season summary: %s\n", $filename), 8);
+      throw new RuntimeException(sprintf("Unable to make the season summary: %s\n", $dirname), 8);
   }
 }
 

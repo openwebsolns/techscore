@@ -965,7 +965,13 @@ class XPort extends XDiv {
    * @param String $title the title
    */
   public function __construct($title, Array $children = array(), Array $attrs = array()) {
-    parent::__construct($attrs, array(new XH3($title)));
+    parent::__construct($attrs, array($h3 = new XH3("")));
+    if (is_array($title)) {
+      foreach ($title as $item)
+	$h3->add($item);
+    }
+    else
+      $h3->add($title);
     $this->set('class', 'port');
     foreach ($children as $child)
       $this->add($child);
