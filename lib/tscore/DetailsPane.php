@@ -109,27 +109,29 @@ class DetailsPane extends AbstractPane {
 
     // -------------------- Finalize regatta -------------------- //
     if ($finalized === null) {
-      $this->PAGE->addContent($p = new Port("Finalize regatta"));
-      $p->addHelp("node9.html#SECTION00521100000000000000");
+      if ($this->REGATTA->hasFinishes()) {
+	$this->PAGE->addContent($p = new Port("Finalize regatta"));
+	$p->addHelp("node9.html#SECTION00521100000000000000");
 
-      $para = '
+	$para = '
         Once <strong>finalized</strong>, all the information (including rp,
         and rotation) about unscored regattas will be removed from the
         database. No <strong>new</strong> information can be entered,
         although you may still be able to edit existing information.';
-      $p->addChild(new Para($para));
+	$p->addChild(new Para($para));
   
-      $p->addChild($form = $this->createForm());
+	$p->addChild($form = $this->createForm());
 
-      $form->addChild(new FItem(new FCheckbox("approve",
-					      "on",
-					      array("id"=>"approve")),
-				new Label("approve",
-					  "I wish to finalize this regatta.",
-					  array("class"=>"strong"))));
+	$form->addChild(new FItem(new FCheckbox("approve",
+						"on",
+						array("id"=>"approve")),
+				  new Label("approve",
+					    "I wish to finalize this regatta.",
+					    array("class"=>"strong"))));
 
-      $form->addChild(new FSubmit("finalize",
-				  "Finalize!"));
+	$form->addChild(new FSubmit("finalize",
+				    "Finalize!"));
+      }
     }
     else {
       $para = sprintf("This regatta was finalized on %s.",
@@ -216,7 +218,10 @@ class DetailsPane extends AbstractPane {
     // ------------------------------------------------------------
     // Finalize
     if (isset($args['finalize'])) {
-      if (isset($args['approve'])) {
+      if (!$this->REGATTA->hasFinishes()) {
+	$this->announce(new Announcement("You cannot finalize a project with no finishes. To delete the regatta, please mark it as \"personal\".", Announcement::ERROR));
+      }
+      elseif (isset($args['approve'])) {
 	$this->REGATTA->set(Regatta::FINALIZED, new DateTime());
 	$this->announce(new Announcement("Regatta has been finalized."));
 	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DETAILS);
