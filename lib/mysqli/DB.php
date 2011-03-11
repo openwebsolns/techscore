@@ -30,6 +30,7 @@ class DBME extends DBM {
   public static $VENUE = null;
   public static $TEAM = null;
   public static $RACE = null;
+  public static $SAIL = null;
   public static $NOW = null;
   public static $RP = null;
   
@@ -45,6 +46,7 @@ class DBME extends DBM {
     self::$VENUE = new Dt_Venue();
     self::$TEAM = new Dt_Team();
     self::$RACE = new Dt_Race();
+    self::$SAIL = new Dt_Sail();
     self::$NOW = new DateTime();
     self::$RP = new Dt_Rp();
 
@@ -175,7 +177,9 @@ class Dt_Regatta extends DBObject {
     return $list;
   }
 
+  // ------------------------------------------------------------
   // SCORING
+  // ------------------------------------------------------------
 
   /**
    * Returns a list of all the races that have been scored in the
@@ -217,6 +221,17 @@ class Dt_Regatta extends DBObject {
     return $this->finishes[$id];
   }
   private $finishes = array();
+
+  /**
+   * Returns the races for this regatta
+   *
+   * @param String $division the division
+   * @return Array:Dt_Race the races
+   */
+  public function getRaces($division) {
+    return DBME::getAll(DBME::$RACE, new MyBoolean(array(new MyCond('regatta', $this->id),
+							 new MyCond('division', $division))));
+  }
 }
 
 class Dt_Venue extends DBObject {
@@ -247,6 +262,7 @@ class Dt_Team extends DBObject {
     }
   }
   public function db_order() { return 'rank'; }
+  public function db_cache() { return true; }
 
   public function __toString() {
     return sprintf("%s %s", $this->__get('school')->nick_name, $this->name);
@@ -287,7 +303,6 @@ class Dt_Team extends DBObject {
 						       new MyCond('team', $this->id),
 						       new MyCondIn('race', $q))));
   }
-
 }
 
 class Dt_Race extends DBObject {
@@ -296,6 +311,7 @@ class Dt_Race extends DBObject {
   public $number;
 
   public function db_name() { return 'race'; }
+  public function db_cache() { return true; }
   public function db_type($field) {
     if ($field == 'regatta') return DBME::$REGATTA;
     return parent::db_type($field);
@@ -303,6 +319,35 @@ class Dt_Race extends DBObject {
 
   public function __toString() {
     return $this->number . $this->division;
+  }
+
+  /**
+   * Returns all the sails in this race
+   *
+   * @return Array:Dt_Sail the sails
+   */
+  public function getSails() {
+    return DBME::getAll(DBME::$SAIL, new MyCond('race', $this->id));
+  }
+}
+
+class Dt_Sail extends DBObject {
+  protected $race;
+  protected $team;
+  public $sail;
+
+  public function db_name() { return 'rotation'; }
+  public function db_type($field) {
+    switch ($field) {
+    case 'race': return DBME::$RACE;
+    case 'team': return DBME::$TEAM;
+    default:
+      return parent::db_type($field);
+    }
+  }
+  public function db_order() { return 'sail'; }
+  public function __toString() {
+    return $this->sail;
   }
 }
 
