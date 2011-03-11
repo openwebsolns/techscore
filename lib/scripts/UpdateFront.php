@@ -77,13 +77,13 @@ class UpdateFront {
       $this->page->addSection(new XPort("Past regattas", array($tab = new XTable()), array('id'=>'past')));
       $tab->add(new XTHead(array(),
 			   array(new XTR(array(),
-					 new XTH(array(), "Name"),
-					 new XTH(array(), "Host"),
-					 new XTH(array(), "Type"),
-					 new XTH(array(), "Conference"),
-					 new XTH(array(), "Start date"),
-					 new XTH(array(), "Status"),
-					 new XTH(array(), "Leading")))));
+					 array(new XTH(array(), "Name"),
+					       new XTH(array(), "Host"),
+					       new XTH(array(), "Type"),
+					       new XTH(array(), "Conference"),
+					       new XTH(array(), "Start date"),
+					       new XTH(array(), "Status"),
+					       new XTH(array(), "Leading"))))));
       $tab->add($bod = new XTBody());
       foreach ($regs as $reg) {
 	$label = null;
@@ -111,7 +111,7 @@ class UpdateFront {
 	    $hosts[$host->id] = $host->nick_name;
 	    $confs[$host->conference] = $host->conference;
 	  }
-	  $link = new Link(sprintf('/%s/%s', $reg->season, $reg->nick), $reg->name);
+	  $link = new XA(sprintf('/%s/%s', $reg->season, $reg->nick), $reg->name);
 	  $bod->add(new XTR(array('class' => sprintf("row%d", $row++ % 2)),
 			    array(new XTD(array('class'=>'left'), $link),
 				  new XTD(array(), implode("/", $hosts)),

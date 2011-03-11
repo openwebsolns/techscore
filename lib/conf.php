@@ -55,7 +55,7 @@ function __mail_error_handler($errno, $errstr, $errfile, $errline, $context) {
   $body .= @sprintf($fmt, "Request", $_SERVER['REQUEST_URI']);
   foreach (debug_backtrace() as $list) {
     $body .= "--------------------\n";
-    foreach (array('file', 'line', 'class', 'object', 'function') as $index) {
+    foreach (array('file', 'line', 'class', 'function') as $index) {
       if (isset($list[$index]))
 	$body .= sprintf($fmt, ucfirst($index), $list[$index]);
     }
