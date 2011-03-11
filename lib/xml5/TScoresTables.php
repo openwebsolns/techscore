@@ -414,7 +414,6 @@ class TScoresTables {
 	    $row = new XTR(array('class'=>'row'.$rowIndex % 2),
 			   array(new XTD(array('class'=>'empty')),
 				 new XTD(array('class'=>'empty')),
-				 new XTD(array('class'=>'empty')),
 				 new XTD(array('class'=>'empty'))));
 	    $s_rows[] = $row;
 	  }

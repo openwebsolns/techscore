@@ -229,7 +229,7 @@ class SchoolSummaryMaker {
 	$txt[] = sprintf('%s (%d)', $crew_objs[$id], $num);
       }
       $p->add(new XDiv(array('class'=>'stat'),
-		       array(new XSpan("Most active crew:", array('class'=>'prefix')), $txt)));
+		       array(new XSpan("Most active crew:", array('class'=>'prefix')), implode(", ", $txt))));
     }
 
     // ------------------------------------------------------------
@@ -250,6 +250,7 @@ class SchoolSummaryMaker {
 							      new XTH(array(), "Place(s)"))))),
 			       $tab = new XTBody())));
 
+      $row = 0;
       foreach ($past as $reg) {
 	$date = $reg->start_time;
 	$status = ($reg->finalized === null) ? "Pending" : "Official";
