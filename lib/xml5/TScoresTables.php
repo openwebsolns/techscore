@@ -59,6 +59,11 @@ class TScoresTables {
       }
     }
 
+    if ($largest_num == 0) {
+      $this->full_tables[] = new XP(array(), "No scores have been submitted yet.");
+      return $this->full_tables;
+    }
+
     $this->full_tables[] = new XTable(array('class'=>'results coordinate'),
 				      array(new XTHead(array(),
 						       array($r = new XTR(array(),

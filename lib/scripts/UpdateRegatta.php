@@ -388,23 +388,14 @@ class UpdateRegatta {
     $rot = $reg->getRotation();
     if ($rot->isAssigned())
       $page->addMenu(new XA('rotations', "Rotations"));
-    $page->addMenu(new XA('.', "Report"));
-    $page->addMenu(new XA('full-scores', "Full Scores"));
-    if (!$reg->isSingleHanded()) {
-      foreach ($reg->getDivisions() as $div)
-	$page->addMenu(new XA($div, "$div Scores"));
+    if ($reg->hasFinishes()) {
+      $page->addMenu(new XA('.', "Report"));
+      $page->addMenu(new XA('full-scores', "Full Scores"));
+      if (!$reg->isSingleHanded()) {
+	foreach ($reg->getDivisions() as $div)
+	  $page->addMenu(new XA($div, "$div Scores"));
+      }
     }
-
-    /*
-    if ($rot->isAssigned())
-      $page->addMenu(new Link("rotations", "Rotations"));
-    $page->addMenu(new Link(".", "Report"));
-    $page->addMenu(new Link("full-scores", "Full Scores"));
-    if (!$reg->isSingleHanded()) {
-      foreach ($reg->getDivisions() as $div)
-	$page->addMenu(new Link($div, "$div Scores"));
-    }
-    */
   }
 }
 
