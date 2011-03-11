@@ -229,7 +229,7 @@ class SchoolSummaryMaker {
 	$txt[] = sprintf('%s (%d)', $crew_objs[$id], $num);
       }
       $p->add(new XDiv(array('class'=>'stat'),
-		       array(new XSpan("Most active crew:", array('class'=>'prefix')), $txt)));
+		       array(new XSpan("Most active crew:", array('class'=>'prefix')), implode(", ", $txt))));
     }
 
     // ------------------------------------------------------------
