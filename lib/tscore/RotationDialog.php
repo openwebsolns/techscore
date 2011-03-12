@@ -31,7 +31,7 @@ class RotationDialog extends AbstractDialog {
    * @return Rotation $rot
    */
   public function getTable(Division $div) {
-    $tab = new Table(array(), array("class"=>"narrow coordinate rotation"));
+    $tab = new Table(array(), array("class"=>"coordinate rotation"));
     $r = new Row(array(Cell::th(),
 		       Cell::th()));
     $tab->addHeader($r);
@@ -44,12 +44,12 @@ class RotationDialog extends AbstractDialog {
     foreach ($this->REGATTA->getTeams() as $team) {
       $tab->addRow($r = new Row());
       $r->addAttr("class", "row" . ($row++ % 2));
-      $r->addCell(Cell::td($team->school->name), Cell::th($team->name));
+      $r->addCell(Cell::td(htmlentities($team->school->name)), Cell::th(htmlentities($team->name)));
 
       foreach ($races as $race) {
 	$sail = $this->rotation->getSail($race, $team);
 	$sail = ($sail !== false) ? $sail : "";
-	$r->addCell(new Cell($sail));
+	$r->addCell(new Cell(htmlentities($sail)));
       }
     }
 
