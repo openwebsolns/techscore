@@ -177,8 +177,8 @@ class TScoresTables {
       $tab->add($r = new XTR(array('class'=>'totalrow')));
       $r->add($burgee_cell = new XTD());
 
-      $burgee_root = '../../html/inc/img/schools/';
-      if (file_exists($burgee_root . $team->school->id)) {
+      $burgee_root = dirname(__FILE__).'/../../html/inc/img/schools/';
+      if (file_exists($burgee_root . $team->school->id . '.png')) {
 	$url = sprintf('/inc/img/schools/%s.png', $team->school->id);
 	$burgee_cell->add(new XImg($url, $team->school->id, array('height'=>30)));
       }
