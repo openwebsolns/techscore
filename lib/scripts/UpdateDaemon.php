@@ -94,8 +94,11 @@ class UpdateDaemon {
 			UpdateRequest::ACTIVITY_DETAILS,
 			UpdateRequest::ACTIVITY_RP);
     $seasons = array();  // set of seasons affected
-    $schools = array(); // list of unique schools
-    $sync = array();     // set of regattas to also sync
+    $schools = array();  // list of unique schools
+    $sync = array();     // set of regattas to also sync. Synching
+			 // must happen before either SCORE or DETAILS
+			 // get executed
+    $UPD_REGATTA = array(UpdateRequest::ACTIVITY_SCORE, UpdateRequest::ACTIVITY_DETAILS);
     foreach ($regattas as $id => $requests) {
       $actions = UpdateRequest::getTypes();
       while (count($requests) > 0) {
@@ -105,9 +108,12 @@ class UpdateDaemon {
 	  unset($actions[$last->activity]);
 	  try {
 	    $reg = new Regatta($id);
+	    if (in_array($last->activity, $UPD_REGATTA) && !isset($sync[$id])) {
+	      UpdateRegatta::runSync($reg);
+	      $sync[$id] = $reg;
+	    }
 	    UpdateRegatta::run($reg, $last->activity);
 	    if (in_array($last->activity, $UPD_SEASON)) {
-	      $sync[$reg->id()] = $reg;
 	      $season = $reg->get(Regatta::SEASON);
 	      $seasons[(string)$season->getSeason()] = $season;
 	    }
@@ -130,10 +136,6 @@ class UpdateDaemon {
 	}
       }
     }
-
-    // Sync regattas
-    foreach ($sync as $regatta)
-      UpdateRegatta::runSync($regatta);
 
     // Deal now with each affected season.
     $current = new Season(new DateTime());
