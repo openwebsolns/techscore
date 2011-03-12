@@ -60,23 +60,14 @@ abstract class AbstractPane {
     $this->PAGE = new TScorePage($title, $this->USER, $this->REGATTA);
     $this->PAGE->addContent(new PageTitle($this->name));
 
-    /*
-    //   -Regatta info
-    $this->PAGE->addNavigation($d3 = new Div(array(), array("id"=>"regatta")));
-    $d3->addChild(new Text(stripslashes($this->REGATTA->get(Regatta::NAME))));
-    $d3->addChild(new Link("/", "[close]", array("accesskey"=>"w")));
-    $d3->addChild(new Itemize(array(new LItem(date_format($this->REGATTA->get(Regatta::START_TIME),
-							  "M. j, Y")),
-				    new LItem(ucfirst($this->REGATTA->get(Regatta::TYPE))))));
-    */
-
     // ------------------------------------------------------------
     // Menu
     $score_i = array("Regatta"   => array(new DetailsPane($this->USER, $this->REGATTA),
 					  new SummaryPane($this->USER, $this->REGATTA),
 					  new ScorersPane($this->USER, $this->REGATTA),
 					  new RacesPane($this->USER, $this->REGATTA),
-					  new NotesPane($this->USER, $this->REGATTA)),
+					  new NotesPane($this->USER, $this->REGATTA),
+					  '/' => "Close"),
 		     "Teams"     => array(new TeamsPane($this->USER, $this->REGATTA),
 					  new ReplaceTeamPane($this->USER, $this->REGATTA)),
 		     "Rotations" => array(new SailsPane($this->USER, $this->REGATTA),
@@ -102,10 +93,13 @@ abstract class AbstractPane {
       $menu->addAttr("class", "menu");
       $menu->addChild(new Heading($title));
       $menu->addChild($m_list = new GenericList());
-      foreach ($panes as $pane) {
-	$url = $pane->getMainURL();
-	// if ($pane->isActive())
-	$m_list->addItems(new LItem(new Link("/score/$id/$url", $pane->getTitle())));
+      foreach ($panes as $url => $pane) {
+	if ($pane instanceof AbstractPane) {
+	  $url = $pane->getMainURL();
+	  $pane = $pane->getTitle();
+	  // if ($pane->isActive())
+	}
+	$m_list->addItems(new LItem(new Link("/score/$id/$url", $pane)));
 	// else
 	// $m_list->addItems(new LItem($pane->getTitle(), array("class"=>"inactive")));
       }

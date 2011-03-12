@@ -64,7 +64,7 @@ input {font-size: 1em; padding: 0.15em}
 input[type="text"], input[type="password"], select {font-size: 1em; min-width: 15em; padding: 0.15em}
 input.race_text, input.small { min-width: 3em; }
 
-div#menudiv h4 {
+#menudiv h4 {
     font-weight: normal;
     margin-top: 0px;
     margin-bottom: 0px;
@@ -72,7 +72,7 @@ div#menudiv h4 {
     font-size: 0.9em;
 }
 
-div#menudiv ul {
+#menudiv ul {
     margin: 0px;
     display: none;
     font-size: 0.9em;
@@ -82,7 +82,7 @@ div#menudiv ul {
     border-right: 1px solid #ccc;
 }
 
-div#menudiv div.menu:hover {
+#menudiv div.menu:hover {
     background: #dadada;
     background-image: url('img/menu_bg_top.png');
     background-repeat: repeat-x;
@@ -90,35 +90,35 @@ div#menudiv div.menu:hover {
     border-right: 1px solid #aaa;
     border-bottom: 1px solid #aaa;
 }
-div#menudiv div.menu:hover ul {
+#menudiv div.menu:hover ul {
     display: block;
     background-image: url('img/menu_bg_bot.png');
     background-repeat: repeat-x;
     background-position: 0px 100%;
-padding: 0px;                               
+    padding: 0px;
 }
 
-div#menudiv li {
+#menudiv li {
     display: block;
     margin: 0.25em 0px;
     padding: 0.1em;
-list-style-type: none;
+    list-style-type: none;
 }
 
-div#menudiv li a {
+#menudiv li a {
     text-decoration: none;
     color: inherit;
     display: block;
     width: 100%;
 }
-div#menudiv li:hover {
+#menudiv li:hover {
     background: #b89f7e;
     color: white;
 }
-div#menudiv li.inactive { color: #777; }
+#menudiv li.inactive { color: #777; }
 
 /* Header */
-div#headdiv {
+#headdiv {
     position: absolute;
     top: 0px;
     height: 40px;
@@ -128,22 +128,27 @@ div#headdiv {
     border-top: 1px solid #555555;
 }
 
-div#headdiv h1 {
+#headdiv h1 {
     margin: 0px 10px;
     float: left;
 }
-div#headdiv img {
+#headdiv img {
     height: 40px;
     margin-top: 5px;
 }
-div#headdiv h4 {
+#headdiv h4 {
     float: left;
     color: white;
     font-size: 0.9em;
-    font-weight: bold;
-    margin: 10px 10px;
+    font-weight: normal;
+    padding: 10px 5px;
+    margin: 0;
+    border-left: 1px solid #457dc4;
 }
-a#help {
+h4#regatta {
+    font-weight: bold;
+}
+#help {
     float: right;
     font-size: 0.8em;
     cursor: help;
@@ -154,20 +159,20 @@ a#help {
     background: #f3ebe0;
     border: 1px outset #555555;
 }
-div#user {
+#user {
     float: right;
     color: #eeeeee;
     font-size: 0.8em;
     margin-right: 120px;
     margin-top: 10px;
 }
-div#user ul {
+#user ul {
     margin: 0px;
     margin-left: -2em;
     margin: white;
     display: none;
 }
-div#user a {
+#user a {
     text-decoration: none;
     background: #f3ebe0;
     border: 1px outset #555555;
@@ -177,7 +182,7 @@ div#user a {
     top: 10px;
     font-size: 1em;
 }
-div#regatta {
+#regatta {
     float: right;
     color: #eeeeee;
     font-size: 0.8em;
@@ -185,13 +190,13 @@ div#regatta {
     padding-right: 10px;
     margin-top: 10px;
 }
-div#regatta ul {
+#regatta ul {
     margin: 0px;
     margin-left: -2em;
     margin: white;
     display: none;
 }
-div#regatta a {
+#regatta a {
     position: absolute;
     right: 5px;
     top: 45px;
@@ -203,12 +208,12 @@ div#regatta a {
     background-position: 100% 2px;
     z-index: 25;
 }
-div#bottom-grab {
+#bottom-grab {
     display: none;
 }
 
 /* Body div */
-div#bodydiv {
+#bodydiv {
     position: absolute;
     top: 70px;
     width: 820px;
@@ -217,19 +222,19 @@ div#bodydiv {
     border-bottom: 1px solid #555555;
     margin-bottom: 20px;
 }
-div#bodydiv, div#menudiv, div#headdiv {
+#bodydiv, #menudiv, #headdiv {
     border-left: 1px solid #555555;
     border-right: 1px solid #555555;
 }
 
-div.port {
+.port {
     border: 1px solid #cccccc;
     padding: 1em;
     padding-top: 0em;
     padding-bottom: 1em;
     margin-bottom: 1.5em;
 }
-div.port h3 {
+.port h3 {
     color: #555555;
     margin: 0px;
     background: white;

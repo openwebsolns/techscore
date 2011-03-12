@@ -162,7 +162,7 @@ class TScorePage extends WebPage {
     $div->addChild($g = new GenericElement("h1"));
     $g->addChild(new Image("/img/techscore.png", array("id"=>"headimg",
 						      "alt"=>"TechScore")));
-    $div->addChild(new Heading(date("D M j, Y"), array("id"=>"date")));
+    $div->addChild(new Heading(date("M j, Y"), array("id"=>"date")));
     if (isset($_SESSION['user'])) {
       $div->addChild(new Heading($_SESSION['user'], array("id"=>"user")));
     }
@@ -176,14 +176,19 @@ class TScorePage extends WebPage {
     if ($user !== null) {
       $this->navigation->addChild($d3 = new Div(array(), array("id"=>"user")));
       $d3->addChild(new Link("/logout", "Logout", array('accesskey'=>'l')));
-      $d3->addChild(new Itemize(array(new LItem($user->username()))));
+      // $d3->addChild(new Itemize(array(new LItem($user->username()))));
     }
     if ($reg !== null) {
-      $this->navigation->addChild($d3 = new Div(array(), array("id"=>"regatta")));
-      $d3->addChild(new Text($reg->get(Regatta::NAME)));
+      $div->addChild(new Heading($reg->get(Regatta::NAME), array("id"=>"regatta")));
+      // $this->navigation->addChild($d3 = new Div(array(), array("id"=>"regatta")));
+      // $d3->addChild(new Text($reg->get(Regatta::NAME)));
+      $d3->addChild(new Heading($reg->get(Regatta::NAME)));
+      /*
       $d3->addChild(new Link("/", "[close]", array("accesskey"=>"w")));
       $d3->addChild(new Itemize(array(new LItem($reg->get(Regatta::START_TIME)->format("M. j, Y")),
-				      new LItem(ucfirst($reg->get(Regatta::TYPE))))));
+				      new
+      LItem(ucfirst($reg->get(Regatta::TYPE))))));
+      */
     }
   }
 

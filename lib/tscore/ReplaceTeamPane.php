@@ -13,7 +13,7 @@ class ReplaceTeamPane extends AbstractPane {
 
   public function __construct(User $user, Regatta $reg) {
     parent::__construct("Substitute team", $user, $reg);
-    $this->title = "Substitute team";
+    $this->title = "Sub team";
     $this->urls[] = "substitute";
     $this->urls[] = "replace";
   }
@@ -62,6 +62,7 @@ class ReplaceTeamPane extends AbstractPane {
 	$this->announce(new Announcement("Invalid or missing team to replace.", Announcement::ERROR));
 	return $args;
       }
+
       if (!isset($args['school']) ||
 	  ($school = Preferences::getSchool($args['school'])) === null) {
 	$this->announce(new Announcement("Invalid or missing school with which to replace $team.", Announcement::ERROR));
@@ -80,8 +81,8 @@ class ReplaceTeamPane extends AbstractPane {
 	$names[] = $school->nick_name;
 
       $num_teams = 0;
-      foreach ($this->REGATTA->getTeams() as $team) {
-	if ($team->school == $school)
+      foreach ($this->REGATTA->getTeams() as $t) {
+	if ($t->school == $school)
 	  $num_teams++;
       }
 
@@ -99,6 +100,14 @@ class ReplaceTeamPane extends AbstractPane {
       // delete RP
       $rp = $this->REGATTA->getRpManager();
       $rp->reset($team);
+
+      // request recreation of rotation and scores, if applicable
+      $rotation = $this->REGATTA->getRotation();
+      if ($rotation->isAssigned())
+	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
+      if ($this->REGATTA->hasFinishes())
+	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
+
       $this->announce(new Announcement("Replaced team \"$team\" with one from \"$school.\""));
       return array();
     }

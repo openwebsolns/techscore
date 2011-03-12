@@ -13,7 +13,7 @@ class TeamsPane extends AbstractPane {
 
   public function __construct(User $user, Regatta $reg) {
     parent::__construct("Teams", $user, $reg);
-    $this->title = "Add/edit team";
+    $this->title = "Add/delete";
     $this->urls[] = "team";
   }
 
