@@ -42,8 +42,8 @@ class SummaryPane extends AbstractPane {
    */
   public function process(Array $args) {
     if (isset($args['set_comment'])) {
+      unset($args['set_comment']);
       foreach ($args as $day => $value) {
-        unset($args['set_comment']);
 	try {
 	  $today = new DateTime($day);
 	  $this->REGATTA->setSummary($today, addslashes(trim($value)));
