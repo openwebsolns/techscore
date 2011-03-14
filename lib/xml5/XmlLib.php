@@ -80,7 +80,7 @@ class XElem implements Xmlable {
    * @param String $val the value
    */
   public function set($key, $val) {
-    $this->attrs[htmlentities((string)$key, ENT_QUOTES)] = htmlentities((string)$val, ENT_QUOTES);
+    $this->attrs[htmlspecialchars((string)$key, ENT_QUOTES)] = htmlspecialchars((string)$val, ENT_QUOTES);
   }
 
   /**
@@ -318,7 +318,7 @@ class XText extends XRawText {
    * @param String $value
    */
   public function __construct($value = "") {
-    parent::__construct(htmlentities((string)$value, ENT_QUOTES));
+    parent::__construct(htmlspecialchars((string)$value, ENT_QUOTES));
   }
 }
 
