@@ -32,7 +32,6 @@ class UpdateSeason {
 
     $season = $this->season;
     $this->page = new TPublicPage(ucfirst($season->getSeason()) . ' ' . $season->getYear());
-    // $this->page->head->add(new XScript('text/javascript', '/inc/js/refresh.js'));
 
     // 2010-11-14: Separate regattas into "weekends", descending by
     // timestamp, based solely on the start_time, assuming that the
@@ -58,6 +57,9 @@ class UpdateSeason {
     $summary_port->set('id', 'summary');
     $num_teams = 0;
 
+    // COMING soon
+    $coming_regattas = array();
+
     // WEEKENDS
     $count = count($weeks);
     if ($count == 0) {
@@ -68,60 +70,100 @@ class UpdateSeason {
     $total = 0;
     $winning_school  = array();
     $now = date('U');
+    $ports = array();
     foreach ($weeks as $week => $list) {
       $title = "Week $count";
-      $this->page->addSection($p = new XPort($title));
+      $week_total = 0;
+      $p = new XPort($title);
       $count--;
-      $p->add($tab = new XQuickTable(array(),
-				     array("Name",
-					   "Host",
-					   "Type",
-					   "Conference",
-					   "Start date",
-					   "Status")));
+      $p->add(new XTable(array(),
+			 array(new XTHead(array(),
+					  array(new XTR(array(),
+							array(new XTH(array(), "Name"),
+							      new XTH(array(), "Host"),
+							      new XTH(array(), "Type"),
+							      new XTH(array(), "Conference"),
+							      new XTH(array(), "Start date"),
+							      new XTH(array(), "Status"),
+							      new XTH(array(), "Leading"))))),
+			       $tab = new XTBody())));
       $row = 0;
       foreach ($list as $reg) {
-	$total++;
-	$status = null;
-	$teams = $reg->getTeams();
-	switch ($reg->status) {
-	case 'coming':
-	  $status = "Coming soon";
-	  break;
-
-	case 'finished':
-	  $status = "Pending";
-	  break;
-
-	case 'final':
+	if ($reg->status == 'coming')
+	  $coming_regattas[] = $reg;
+	else {
+	  $week_total++;
+	  $total++;
+	  $status = null;
+	  $teams = $reg->getTeams();
 	  $wt = $teams[0];
-	  $status = "Winner: " . $wt;
-	  if (!isset($winning_school[$wt->school->id]))
-	    $winning_school[$wt->school->id] = 0;
-	  $winning_school[$wt->school->id] += 1;
-	  break;
+	  switch ($reg->status) {
+	  case 'finished':
+	    $status = "Pending";
+	    break;
 
-	default:
-	  $status = "In progress: " . $reg->status;
-	}
+	  case 'final':
+	    $status = new XStrong("Final");
+	    if (!isset($winning_school[$wt->school->id]))
+	      $winning_school[$wt->school->id] = 0;
+	    $winning_school[$wt->school->id] += 1;
+	    break;
+
+	  default:
+	    $status = "In progress: " . $reg->status;
+	  }
 	
-	$num_teams += count($teams);
+	  $num_teams += count($teams);
+	  $hosts = array();
+	  $confs = array();
+	  foreach ($reg->getHosts() as $host) {
+	    $hosts[$host->id] = $host->nick_name;
+	    $confs[$host->conference] = $host->conference;
+	  }
+	  $link = new XA($reg->nick, $reg->name);
+	  $path = realpath(sprintf('%s/../../html/inc/img/schools/%s.png', dirname(__FILE__), $wt->school->id));
+	  $burg = ($path) ?
+	    new XImg(sprintf('/inc/img/schools/%s.png', $wt->school->id), $wt->school) :
+	    $wt->school->id;
+	  $tab->add(new XTR(array('class' => sprintf("row%d", $row++ % 2)),
+			    array(new XTD(array(), $link),
+				  new XTD(array(), implode("/", $hosts)),
+				  new XTD(array(), ucfirst($reg->type)),
+				  new XTD(array(), implode("/", $confs)),
+				  new XTD(array(), $reg->start_time->format('m/d/Y')),
+				  new XTD(array(), $status),
+				  new XTD(array('title' => $wt->name), $burg))));
+	}
+      }
+      if ($week_total > 0)
+	$ports[] = $p;
+    }
+
+    // WRITE coming soon, and weekend summary ports
+    if (count($coming_regattas) > 0) {
+      $this->page->addSection($p = new XPort("Coming soon",
+					     $tab = new XQuickTable(array(),
+								    array("Name",
+									  "Host",
+									  "Type",
+									  "Conference",
+									  "Start time"))));
+      foreach ($coming_regattas as $reg) {
 	$hosts = array();
 	$confs = array();
 	foreach ($reg->getHosts() as $host) {
 	  $hosts[$host->id] = $host->nick_name;
 	  $confs[$host->conference] = $host->conference;
 	}
-	$link = new XA($reg->nick, $reg->name);
-	$tab->addRow(array($link,
+	$tab->addRow(array($reg->name,
 			   implode("/", $hosts),
 			   ucfirst($reg->type),
 			   implode("/", $confs),
-			   $reg->start_time->format('m/d/Y'),
-			   $status),
-		     array('class' => sprintf("row%d", $row++ % 2)));
+			   $reg->start_time->format('m/d/Y @H:i')));
       }
     }
+    foreach ($ports as $p)
+      $this->page->addSection($p);
 
     // Complete SUMMARY
     $summary_port->add(new XDiv(array('class'=>'stat'),

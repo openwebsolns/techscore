@@ -119,7 +119,7 @@ class UpdateFront {
 				  new XTD(array(), implode("/", $confs)),
 				  new XTD(array(), $reg->start_time->format('m/d/Y')),
 				  new XTD(array(), $label),
-				  new XTD(array(), $status))));
+				  new XTD(array('title'=>$winner->name), $status))));
 	}
       }
     }
