@@ -69,6 +69,7 @@ class RegisterPane extends WelcomePage {
    * Create the form for new users to register
    */
   private function fillDefault() {
+    $this->addContent(new PageTitle("Registration"));
     $this->addContent($p = new Port("Request new account"));
     $p->addChild(new Para(sprintf("Please note that TechScore is an online scoring program specifically " .
 			  "designed for College Sailing regattas. As such, account access is given " .
