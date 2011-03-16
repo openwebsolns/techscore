@@ -157,15 +157,16 @@ class AccountManager {
    * @see getAccount
    */
   public static function setAccount(Account $acc) {
-    $q = sprintf('insert into account (username, first_name, last_name, role, school, status) ' .
-		 'values ("%s", "%2$s", "%3$s", "%4$s", "%5$s", "%6$s") on duplicate key update ' .
-		 'first_name = "%2$s", last_name = "%3$s", role = "%4$s", school = "%5$s", status = "%6$s"',
+    $q = sprintf('insert into account (username, first_name, last_name, role, school, status, password) ' .
+		 'values ("%s", "%2$s", "%3$s", "%4$s", "%5$s", "%6$s", "%7$s") on duplicate key update ' .
+		 'first_name = "%2$s", last_name = "%3$s", role = "%4$s", school = "%5$s", status = "%6$s", password = "%7$s"',
 		 $acc->username,
 		 $acc->first_name,
 		 $acc->last_name,
 		 $acc->role,
 		 $acc->school->id,
-		 $acc->status);
+		 $acc->status,
+		 $acc->password);
     Preferences::query($q);
   }
 

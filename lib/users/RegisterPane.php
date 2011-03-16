@@ -186,13 +186,13 @@ class RegisterPane extends WelcomePage {
       }
 
       // 5. Approve password
-      if (!isset($args['password']) || !isset($args['confirm']) ||
-	  $args['password'] != $args['confirm'] ||
-	  strlen($acc->password = trim($args['password'])) < 8) {
+      if (!isset($args['passwd']) || !isset($args['confirm']) ||
+	  $args['passwd'] != $args['confirm'] ||
+	  strlen(trim($args['passwd'])) < 8) {
 	$_SESSION['ANNOUNCE'][] = new Announcement("Invalid or missing password. Make sure the passwords match and that it is at least 8 characters long.", Announcement::ERROR);
 	return $args;
       }
-      $acc->password = sha1($args['password']);
+      $acc->password = sha1(trim($args['passwd']));
 
       // 6. Create account with status "requested";
       $res = Preferences::mail($acc->username, '[TechScore] New account request', $this->getMessage($acc));

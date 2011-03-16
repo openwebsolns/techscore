@@ -22,9 +22,10 @@ class Account {
   public $role;
   public $admin;
   public $status;
+  public $password;
   private $school;
 
-  const FIELDS = "account.first_name, account.last_name, account.school,
+  const FIELDS = "account.first_name, account.last_name, account.school, account.password, 
                   account.username, account.role, account.status, is_admin as admin";
   const TABLES = "account";
 
