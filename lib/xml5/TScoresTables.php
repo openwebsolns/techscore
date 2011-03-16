@@ -129,8 +129,13 @@ class TScoresTables {
 	else {
 	  $r->add(new XTD(array('class'=>'empty')));
 	}
-	if ($num_divs > 1)
-	  $r->add(new XTD(array("class"=>"strong"), $div));
+	$team_pen = $team->getRank($div);
+	if ($num_divs > 1) {
+	  $title = sprintf("Division Rank: %d", $team_pen->rank);
+	  if (!empty($explanation))
+	    $title .= sprintf(' (%s)', $team_pen->explanation);
+	  $r->add(new XTD(array("class"=>"strong", "title"=>$title), $div));
+	}
 
 	// ...for each race
 	for ($i = 1; $i <= $largest_num; $i++) {
@@ -158,7 +163,6 @@ class TScoresTables {
 	}
 
 	// print penalty, should it exist
-	$team_pen = $team->getRank($div);
 	if ($team_pen !== null && $team_pen->penalty !== null) {
 	  $r->add(new XTD(array('align'=>'right', 'title'=>$team_pen->comments), $team_pen->penalty));
 	  $scoreDiv += 20;
@@ -288,12 +292,15 @@ class TScoresTables {
 	// penalty
 	$img = "";
 	$pen = $team->getRank($div);
+	$title = sprintf("Division Rank: %d", $pen->rank);
+	if (!empty($explanation))
+	  $title .= sprintf(' (%s)', $pen->explanation);
 	if ($pen !== null && $pen->penalty !== null) {
 	  $scoreDiv += 20;
 	  $img = new XImg('inc/img/error.png', 'X',
 			  array('title'=>sprintf('(%s, +20 points) %s', $pen->penalty, $pen->comments)));
 	}
-	$r->add(new XTD(array(), $scoreDiv));
+	$r->add(new XTD(array('title'=>$title), $scoreDiv));
 	$r->add(new XTD(array(), $img));
 	$scoreTeam += $scoreDiv;
       }
