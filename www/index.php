@@ -18,7 +18,7 @@ if (!(isset($_SESSION['user']))) {
   // Registration?
   if (isset($_GET['p']) && $_GET['p'] == "register") {
     $PAGE = new RegisterPane();
-    if (isset($_GET['action']) && $_GET['_action'] == 'edit') {
+    if (isset($_GET['_action']) && $_GET['_action'] == 'edit') {
       $_SESSION['POST'] = $PAGE->process($_REQUEST);
       WebServer::goBack();
     }
