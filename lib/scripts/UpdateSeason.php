@@ -141,13 +141,13 @@ class UpdateSeason {
 
     // WRITE coming soon, and weekend summary ports
     if (count($coming_regattas) > 0) {
-      $this->page->addSection($p = new XPort("Coming soon",
-					     $tab = new XQuickTable(array(),
-								    array("Name",
-									  "Host",
-									  "Type",
-									  "Conference",
-									  "Start time"))));
+      $this->page->addSection($p = new XPort("Coming soon"));
+      $p->add($tab = new XQuickTable(array(),
+				     array("Name",
+					   "Host",
+					   "Type",
+					   "Conference",
+					   "Start time"))));
       foreach ($coming_regattas as $reg) {
 	$hosts = array();
 	$confs = array();
