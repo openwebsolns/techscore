@@ -88,6 +88,8 @@ class RegisterPane extends WelcomePage {
     $f->addChild(new FItem("Email:", new FText("email", "")));
     $f->addChild(new FItem("First name:", new FText("first_name", "")));
     $f->addChild(new FItem("Last name:",  new FText("last_name", "")));
+    $f->addChild(new FItem("Password:", new FPassword("passwd", "")));
+    $f->addChild(new FItem("Confirm password:", new FPassword("confirm", "")));
     $f->addChild(new FItem("Affiliation: ", $aff = new FSelect("school")));
     $f->addChild(new FItem("Role: ", $rol = new FSelect("role")));
     $f->addChild(new FSubmit("register", "Request account"));
@@ -182,7 +184,16 @@ class RegisterPane extends WelcomePage {
 	$_SESSION['ANNOUNCE'][] = new Announcement("Invalid role, assumed staff.", Announcement::WARNING);
       }
 
-      // 5. Create account with status "requested";
+      // 5. Approve password
+      if (!isset($args['password']) || !isset($args['confirm']) ||
+	  $args['password'] != $args['confirm'] ||
+	  strlen($acc->password = trim($args['password'])) < 8) {
+	$_SESSION['ANNOUNCE'][] = new Announcement("Invalid or missing password. Make sure the passwords match and that it is at least 8 characters long.", Announcement::ERROR);
+	return $args;
+      }
+      $acc->password = sha1($args['password']);
+
+      // 6. Create account with status "requested";
       $res = Preferences::mail($acc->username, '[TechScore] New account request', $this->getMessage($acc));
       if ($res !== false) {
 	AccountManager::setAccount($acc);
