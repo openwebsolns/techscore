@@ -51,7 +51,7 @@ class UpdateFront {
 					       new XTH(array(), "Host"),
 					       new XTH(array(), "Type"),
 					       new XTH(array(), "Conference"),
-					       new XTH(array(), "Start date"))))));
+					       new XTH(array(), "Start time"))))));
       $tab->add($bod = new XTBody());
       foreach ($regs as $reg) {
 	$hosts = array();
@@ -66,7 +66,7 @@ class UpdateFront {
 				new XTD(array(), implode("/", $hosts)),
 				new XTD(array(), ucfirst($reg->type)),
 				new XTD(array(), implode("/", $confs)),
-				new XTD(array(), $reg->start_time->format('m/d/Y')))));
+				new XTD(array(), $reg->start_time->format('m/d/Y @ H:i')))));
       }
     }
 
@@ -119,7 +119,7 @@ class UpdateFront {
 				  new XTD(array(), implode("/", $confs)),
 				  new XTD(array(), $reg->start_time->format('m/d/Y')),
 				  new XTD(array(), $label),
-				  new XTD(array('title'=>$winner->name), $status))));
+				  new XTD(array('title'=>$winner), $status))));
 	}
       }
     }

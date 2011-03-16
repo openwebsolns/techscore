@@ -3,7 +3,7 @@ syntax: glob
 # Documentation HTML files
 www/help/*
 doc/*
-log/*.log
+log/*.log*
 
 # Backup and image sources
 *~

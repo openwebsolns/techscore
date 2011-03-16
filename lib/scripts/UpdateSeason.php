@@ -123,7 +123,7 @@ class UpdateSeason {
 	  $link = new XA($reg->nick, $reg->name);
 	  $path = realpath(sprintf('%s/../../html/inc/img/schools/%s.png', dirname(__FILE__), $wt->school->id));
 	  $burg = ($path) ?
-	    new XImg(sprintf('/inc/img/schools/%s.png', $wt->school->id), $wt->school) :
+	    new XImg(sprintf('/inc/img/schools/%s.png', $wt->school->id), $wt->school, array('height'=>40)) :
 	    $wt->school->id;
 	  $tab->add(new XTR(array('class' => sprintf("row%d", $row++ % 2)),
 			    array(new XTD(array(), $link),
@@ -132,7 +132,7 @@ class UpdateSeason {
 				  new XTD(array(), implode("/", $confs)),
 				  new XTD(array(), $reg->start_time->format('m/d/Y')),
 				  new XTD(array(), $status),
-				  new XTD(array('title' => $wt->name), $burg))));
+				  new XTD(array('title' => $wt), $burg))));
 	}
       }
       if ($week_total > 0)
@@ -147,7 +147,7 @@ class UpdateSeason {
 					   "Host",
 					   "Type",
 					   "Conference",
-					   "Start time"))));
+					   "Start time")));
       foreach ($coming_regattas as $reg) {
 	$hosts = array();
 	$confs = array();
@@ -159,7 +159,7 @@ class UpdateSeason {
 			   implode("/", $hosts),
 			   ucfirst($reg->type),
 			   implode("/", $confs),
-			   $reg->start_time->format('m/d/Y @H:i')));
+			   $reg->start_time->format('m/d/Y @ H:i')));
       }
     }
     foreach ($ports as $p)
