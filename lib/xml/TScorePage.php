@@ -180,15 +180,6 @@ class TScorePage extends WebPage {
     }
     if ($reg !== null) {
       $div->addChild(new Heading($reg->get(Regatta::NAME), array("id"=>"regatta")));
-      // $this->navigation->addChild($d3 = new Div(array(), array("id"=>"regatta")));
-      // $d3->addChild(new Text($reg->get(Regatta::NAME)));
-      $d3->addChild(new Heading($reg->get(Regatta::NAME)));
-      /*
-      $d3->addChild(new Link("/", "[close]", array("accesskey"=>"w")));
-      $d3->addChild(new Itemize(array(new LItem($reg->get(Regatta::START_TIME)->format("M. j, Y")),
-				      new
-      LItem(ucfirst($reg->get(Regatta::TYPE))))));
-      */
     }
   }
 
