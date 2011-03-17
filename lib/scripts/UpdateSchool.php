@@ -17,15 +17,28 @@ class UpdateSchool {
 
     // Do season
     $today = new Season(new DateTime());
-    $base = 'index';
+    $current = false;
+    $base = (string)$season;
     // is this current season
-    if ((string)$today != (string)$season)
-      $base = (string)$season;
+    if ((string)$today == (string)$season)
+      $current = true;
 
     $filename = "$dirname/$base.html";
     $M = new SchoolSummaryMaker($school, $season);
     if (file_put_contents($filename, $M->getPage()) === false)
       throw new RuntimeException(sprintf("Unable to make the school summary: %s\n", $filename), 8);
+
+    // If current, do we also need to create index page?
+    if ($current) {
+      if (file_exists("$dirname/index.html")) {
+	if (fileinode($filename) != fileinode("$dirname/index.html")) {
+	  unlink("$dirname/index.html");
+	  link($filename, "$dirname/index.html");
+	}
+      }
+      else
+	link($filename, "$dirname/index.html");
+    }
   }
 }
 
@@ -54,7 +67,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   if (count($argv) == 3) {
     $season = Season::parse($argv[2]);
     if ($season == null) {
-      printf("Invalid season given: %s\n\n", $argv[1]);
+      printf("Invalid season given: %s\n\n", $argv[2]);
       printf("usage: %s <season>\n", $_SERVER['PHP_SELF']);
       exit(1);
     }
