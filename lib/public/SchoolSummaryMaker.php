@@ -57,11 +57,25 @@ class SchoolSummaryMaker {
     if ($this->page !== null) return;
 
     $school = $this->school;
+    $season = $this->season;
     $this->page = new TPublicPage($school);
 
     // SETUP navigation
-    $this->page->addNavigation(new XA("..", "Schools", array("class"=>"nav")));
+    $this->page->addNavigation(new XA("/schools", "Schools", array("class"=>"nav")));
+    $this->page->addNavigation(new XA(sprintf("/schools/%s", $school->id), $school->name, array("class"=>"nav")));
     $this->page->addMenu(new XA($this->getBlogLink(), "ICSA Info"));
+    // Add links to last 7 seasons
+    require_once('mysqli/DB.php');
+    DBME::setConnection(Preferences::getConnection());
+    $num = 0;
+    foreach (DBME::getAll(DBME::$SEASON) as $s) {
+      if (file_exists(sprintf('%s/../../html/schools/%s/%s.html', dirname(__FILE__), $school->id, $s))) {
+	$this->page->addMenu(new XA($s, $s->fullString()));
+	if ($num++ >= 6)
+	  break;
+      }
+    }
+
     $this->page->addSection($d = new XDiv(array('id'=>'reg-details')));
     $d->add(new XH2($school));
     $d->add($l = new XUl());
@@ -71,13 +85,9 @@ class SchoolSummaryMaker {
     if (file_exists($burgee))
       $l->add(new XLI(new XImg(sprintf('/inc/img/schools/%s.png', $this->school->id), $this->school->id)));
 
-    require_once('mysqli/DB.php');
-    DBME::setConnection(Preferences::getConnection());
-
     // current season
     $now = new DateTime();
     $now->setTime(0, 0);
-    $season = $this->season;
 
     $q = DBME::prepGetAll(DBME::$TEAM, new MyCond('school', $school->id));
     $q->fields(array('regatta'), DBME::$TEAM->db_name());
