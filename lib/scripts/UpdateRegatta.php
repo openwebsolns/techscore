@@ -325,6 +325,8 @@ class UpdateRegatta {
     $filename = "$dirname/index.html";
     $page = $maker->getScoresPage();
     self::prepMenu($maker->regatta, $page);
+    if (count($maker->regatta->getDivisions()) > 1)
+      $page->head->add(new XScript('text/javascript', '/inc/js/rank.js'));
     if (@file_put_contents($filename, $page->toXML()) === false)
       throw new RuntimeException(sprintf("Unable to make the regatta report: %s\n", $filename), 8);
   }

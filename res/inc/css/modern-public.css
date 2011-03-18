@@ -288,3 +288,29 @@ td.races { color: #555; font-size: 85%; }
 /* Stats */
 div.stat { font-size: 105%; }
 div.stat .prefix { display: inline-block; zoom: 1; *display: inline; width: 40%; text-align: right; color: #555; font-weight: bold; margin-right: 2%; margin-top: 0.5em;}
+
+/* Filter form */
+#rank-filter {
+    margin: 0.25em auto;
+    text-align: center;
+}
+#rank-filter input {
+    display: none;
+}
+#rank-filter label {
+    margin-right: 1em;
+    background: #ccc;
+    border: 1px solid #aaa;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #555;
+    width: 2em;
+    display: inline-block;
+    cursor: pointer;
+    padding: 0.15em 0.25em;
+}
+#rank-filter label.selected {
+    background: #aaa;
+    border: 1px solid #ccc;
+    border-top: 1px solid #888;
+    border-bottom: 1px solid #eee;
+}
