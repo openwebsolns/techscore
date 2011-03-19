@@ -155,7 +155,7 @@ class UpdateSeason {
 	  $hosts[$host->id] = $host->nick_name;
 	  $confs[$host->conference] = $host->conference;
 	}
-	$tab->addRow(array($reg->name,
+	$tab->addRow(array(new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name),
 			   implode("/", $hosts),
 			   ucfirst($reg->type),
 			   implode("/", $confs),

@@ -293,7 +293,7 @@ class TScoresTables {
 	$img = "";
 	$pen = $team->getRank($div);
 	$title = sprintf("Division Rank: %d", $pen->rank);
-	if (!empty($explanation))
+	if (!empty($pen->explanation))
 	  $title .= sprintf(' (%s)', $pen->explanation);
 	if ($pen !== null && $pen->penalty !== null) {
 	  $scoreDiv += 20;

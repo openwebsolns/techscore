@@ -115,8 +115,7 @@ class EnterFinishPane extends AbstractPane {
       $r = $this->REGATTA->getRace($div, $race->number);
       $races[] = $r;
       $f2 = $this->REGATTA->getFinishes($r);
-      
-      $finishes = array_merge($finishes, $this->REGATTA->getFinishes($r));
+      $finishes = array_merge($finishes, $f2);
     }
     usort($finishes, "Finish::compareEntered");
 
@@ -161,8 +160,9 @@ class EnterFinishPane extends AbstractPane {
 			       array("class"=>array("form_b", "fuse_columns"))));
       $enum->addAttr("id", "finish_list");
       for ($i = 0; $i < count($pos_sails); $i++) {
-	if (count($finishes) > 0)
+	if (count($finishes) > 0) {
 	  $current_sail = $rotation->getSail($finishes[$i]->race, $finishes[$i]->team);
+        }
 	else
 	  $current_sail = "";
 
