@@ -66,8 +66,7 @@ abstract class AbstractPane {
 					  new SummaryPane($this->USER, $this->REGATTA),
 					  new ScorersPane($this->USER, $this->REGATTA),
 					  new RacesPane($this->USER, $this->REGATTA),
-					  new NotesPane($this->USER, $this->REGATTA),
-					  '/' => "Close"),
+					  new NotesPane($this->USER, $this->REGATTA)),
 		     "Teams"     => array(new TeamsPane($this->USER, $this->REGATTA),
 					  new ReplaceTeamPane($this->USER, $this->REGATTA)),
 		     "Rotations" => array(new SailsPane($this->USER, $this->REGATTA),
@@ -103,6 +102,9 @@ abstract class AbstractPane {
 	// else
 	// $m_list->addItems(new LItem($pane->getTitle(), array("class"=>"inactive")));
       }
+      if ($title == "Regatta")
+	$m_list->addItems(new LItem(new Link('/', "Close")));
+
       $this->PAGE->addMenu($menu);
     }
 
