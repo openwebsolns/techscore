@@ -57,6 +57,7 @@ class ICSAScorer {
     // Go through all the race numbers, while keeping track of average
     // scores for each team within each division
     $avg_finishes = array();
+    $affected_finishes = array();
     foreach ($reg->getCombinedScoredRaces() as $num) {
 
       // create list of finishes for all races with this number. Also
