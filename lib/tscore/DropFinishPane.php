@@ -136,6 +136,7 @@ class DropFinishPane extends AbstractPane {
       if ($this->REGATTA->get(Regatta::SCORING) == Regatta::SCORING_COMBINED)
 	$mes = sprintf("Removed finishes for race %s.", $race->number);
       $this->announce(new Announcement($mes));
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
     }
     return $args;
   }

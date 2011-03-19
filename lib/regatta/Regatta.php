@@ -967,17 +967,24 @@ class Regatta implements RaceListener {
   /**
    * Are there finishes for this regatta?
    *
+   * @param Race $race optional, if given, returns status for just
+   * that race. Otherwise, the whole regatta
    * @return boolean
    */
-  public function hasFinishes() {
-    if ($this->has_finishes !== null)
+  public function hasFinishes(Race $race = null) {
+    if ($race === null && $this->has_finishes !== null)
       return $this->has_finishes;
 
+    $and = '';
+    if ($race !== null)
+      $and = sprintf('and race = "%s"', $race->id);
     $q = $this->query(sprintf('select id from finish ' .
-			      'where race in (select id from race where regatta = %d)', $this->id));
-    $this->has_finishes = ($q->num_rows > 0);
+			      'where race in (select id from race where regatta = %d) %s', $this->id, $and));
+    $cnt = ($q->num_rows > 0);
     $q->free();
-    return $this->has_finishes;
+    if ($race === null)
+      $this->has_finishes = $cnt;
+    return $cnt;
   }
 
   /**
@@ -1017,12 +1024,17 @@ class Regatta implements RaceListener {
 
   /**
    * Drops all the finishes registered with the given race and
-   * rescores the regatta
+   * rescores the regatta. Respects the regatta scoring option.
    *
    * @param Race $race the race whose finishes to drop
    */
   public function dropFinishes(Race $race) {
-    $this->deleteFinishes($race);
+    if ($this->get(Regatta::SCORING) == Regatta::SCORING_STANDARD)
+      $this->deleteFinishes($race);
+    else {
+      foreach ($this->getDivisions() as $div)
+	$this->deleteFinishes($this->getRace($div, $race->number));
+    }
     $this->runScore($race);
   }
 
