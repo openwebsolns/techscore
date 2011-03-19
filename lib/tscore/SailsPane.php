@@ -156,7 +156,7 @@ class SailsPane extends AbstractPane {
       $args['rottype'] : null;
 
     $chosen_div = $divisions;
-    if (isset($args['division'])) {
+    if (isset($args['division']) && is_array($args['division'])) {
       try {
 	$chosen_div = array();
 	foreach ($args['division'] as $div)
