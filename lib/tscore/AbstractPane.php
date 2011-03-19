@@ -103,7 +103,7 @@ abstract class AbstractPane {
 	// $m_list->addItems(new LItem($pane->getTitle(), array("class"=>"inactive")));
       }
       if ($title == "Regatta")
-	$m_list->addItems(new LItem(new Link('/', "Close")));
+	$m_list->addItems(new LItem(new Link('/', "Close", array('accesskey'=>'w'))));
 
       $this->PAGE->addMenu($menu);
     }
