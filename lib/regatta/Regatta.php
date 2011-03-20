@@ -1044,8 +1044,8 @@ class Regatta implements RaceListener {
    * @param TeamPenalty $penalty the penalty to register
    */
   public function setTeamPenalty(TeamPenalty $penalty) {
-    $q = sprintf('insert into %s values ("%1$s", "%2$s", "%3$s", "%4$s") ' .
-		 'on duplicate key update type = "%3$s", comments = "%4$s"',
+    $q = sprintf('insert into %s values ("%s", "%s", "%s", "%s") ' .
+		 'on duplicate key update type = values(type), comments = values(comments)',
 		 TeamPenalty::TABLES,
 		 $penalty->team->id,
 		 $penalty->division,
@@ -1080,7 +1080,10 @@ class Regatta implements RaceListener {
     $q = $this->query($q);
     if ($q->num_rows == 0)
       return null;
-    return $q->fetch_object("TeamPenalty");
+    $pen = $q->fetch_object("TeamPenalty");
+    $pen->team = $this->getTeam($pen->team);
+    $q->free();
+    return $pen;
   }
   
 
