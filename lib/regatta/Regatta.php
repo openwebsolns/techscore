@@ -1044,13 +1044,14 @@ class Regatta implements RaceListener {
    * @param TeamPenalty $penalty the penalty to register
    */
   public function setTeamPenalty(TeamPenalty $penalty) {
+    $con = Preferences::getConnection();
     $q = sprintf('insert into %s values ("%s", "%s", "%s", "%s") ' .
 		 'on duplicate key update type = values(type), comments = values(comments)',
 		 TeamPenalty::TABLES,
 		 $penalty->team->id,
 		 $penalty->division,
 		 $penalty->type,
-		 $penalty->comments);
+		 $con->real_escape($penalty->comments));
     $this->query($q);
   }
 

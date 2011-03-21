@@ -126,7 +126,7 @@ class TeamPenaltyPane extends AbstractPane {
       }
 
       // - validate division
-      $comm = addslashes(htmlspecialchars($args['comments']));
+      $comm = trim($args['comments']);
       if (isset($args['division']) &&
 	  is_array($args['division']) &&
 	  count($args['division']) > 0) {
@@ -144,6 +144,7 @@ class TeamPenaltyPane extends AbstractPane {
 	  }
 	}
 	$this->announce(new Announcement("Added team penalty."));
+	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
       }
       else {
 	$mes = "Invalid or missing division(s).";
@@ -169,6 +170,7 @@ class TeamPenaltyPane extends AbstractPane {
 
 	$mes = sprintf("Dropped team penalty for %s in %s.", $team, $div);
 	$this->announce(new Announcement($mes));
+	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
       }
       else {
 	$mes = sprintf("Invalid or missing team (%s) or division (%s).",
