@@ -5,19 +5,20 @@
  * @version 2011-03-17
  */
 
-var TABLE;
+var TABLES = {};
 var DIVS = {};
 window.onload = function() {
-    TABLE = document.getElementsByTagName('table')[0];
+    var table = document.getElementsByTagName('table')[0];
     var div = document.createElement('div');
-    TABLE.parentNode.insertBefore(div, TABLE);
+    table.parentNode.insertBefore(div, table);
     div.setAttribute('id', 'rank-filter');
     div.appendChild(document.createTextNode('Order by: '));
-    
+
+    TABLES['All'] = table;
     addInput(div, 'All');
 
     // Get divs
-    var row = TABLE.getElementsByTagName('thead')[0].getElementsByTagName('tr')[0];
+    var row = table.getElementsByTagName('thead')[0].getElementsByTagName('tr')[0];
     for (var i = 0; i < row.childNodes.length; i++) {
 	if (row.childNodes[i].innerHTML == 'A' ||
 	    row.childNodes[i].innerHTML == 'B' ||
@@ -26,6 +27,7 @@ window.onload = function() {
 
 	    DIVS[row.childNodes[i].innerHTML] = i;
 	    addInput(div, row.childNodes[i].innerHTML);
+	    addTable(row.childNodes[i].innerHTML);
 	}
     }
 };
@@ -36,7 +38,7 @@ function addInput(div, value) {
     elem.setAttribute('value', value);
     elem.setAttribute('id', value);
     elem.setAttribute('type', 'radio');
-    elem.onclick = doRank;
+    elem.onclick = hideOthers;
     div.appendChild(elem);
 
     var label = document.createElement('label');
@@ -45,78 +47,73 @@ function addInput(div, value) {
     div.appendChild(label);
 }
 
-function doRank(evt) {
-    value = evt.target.getAttribute('value');
-    // display all cells
-    var cells = TABLE.getElementsByTagName('td');
-    for (var i = 0; i < cells.length; i++)
-	cells[i].style.display = 'table-cell';
-    var cells = TABLE.getElementsByTagName('th');
-    for (var i = 0; i < cells.length; i++)
-	cells[i].style.display = 'table-cell';
+function addTable(value) {
+    // Clone reference table
+    var table = TABLES['All'].cloneNode(true);
+    table.style.display = 'none';
+    TABLES[value] = table;
+    TABLES['All'].parentNode.appendChild(table);
 
-    ROWS = TABLE.getElementsByTagName('tbody')[0].childNodes;
-    if (value != 'All') {
-	// remove the i-th entry from each row
-	var row = TABLE.getElementsByTagName('thead')[0].getElementsByTagName('tr')[0];
-	for (var i = 4; i < row.childNodes.length; i++) {
-	    if (DIVS[value] != i && DIVS[value] + 1 != i)
-		row.childNodes[i].style.display = 'none';
-	}
-	RANK = Array();
-	
-	for (var r = 0; r < ROWS.length; r++) {
-	    row = ROWS[r];
-	    for (var i = 4; i < row.childNodes.length; i++) {
-		if (DIVS[value] == i) {
-		    var rank = row.childNodes[i].getAttribute('title').substring(15);
-		    var exp = rank.indexOf('(');
-		    if (exp > 0)
-			rank = rank.substring(0, exp);
-		    RANK.push(Number(rank));
-		}
-		else if (DIVS[value] + 1 != i)
-		    row.childNodes[i].style.display = 'none';
+    RANK = Array();
+    // remove the i-th entry from each row
+    var rows = table.getElementsByTagName('tr');
+    for (var r = 0; r < rows.length; r++) {
+	var row = rows[r];
+	// remove all rows between index 4 and the div
+	for (var i = 4; i < DIVS[value]; i++)
+	    row.removeChild(row.childNodes[4]);
+	if (row.childNodes[4].nodeName.toLowerCase() != 'th') {
+	    // Keep rank of these for bubble sorting later, but
+	    // only if they are not TH elements
+	    var title = row.childNodes[4].getAttribute('title').substring(15);
+	    var rank = title;
+	    var exp  = "";
+	    
+	    var paren = title.indexOf('(');
+	    if (paren > 0) {
+		rank = title.substring(0, paren);
+		exp  = title.substring(paren);
 	    }
+	    RANK.push(Number(rank));
+	    row.childNodes[0].innerHTML = rank;
+	    row.childNodes[0].setAttribute('title', exp);
+	    row.setAttribute('id', 'r'+rank);
 	}
-
-	// Bubble sort!
-	for (var cycle = 0; cycle < RANK.length - 1; cycle++) {
-	    var swapped = false;
-	    for (var i = 0; i < RANK.length - 1; i++) {
-		if (RANK[i] > RANK[i + 1]) {
-		    swapped = true;
-		    ROWS[i].parentNode.insertBefore(ROWS[i + 1], ROWS[i]);
-		    var temp = RANK[i];
-		    RANK[i] = RANK[i + 1];
-		    RANK[i + 1] = temp;
-		}
-	    }
-	    if (!swapped)
-		break;
-	}
+	while (6 < row.childNodes.length)
+	    row.removeChild(row.childNodes[6]);
     }
-    else {
-	// re-bubble sort, according to first cell
-	// Bubble sort!
-	for (var cycle = 0; cycle < ROWS.length - 1; cycle++) {
-	    var swapped = false;
-	    for (var i = 0; i < ROWS.length - 1; i++) {
-		var rank1 = Number(ROWS[i].childNodes[0].innerHTML);
-		var rank2 = Number(ROWS[i + 1].childNodes[0].innerHTML);
-		if (rank1 > rank2) {
-		    swapped = true;
-		    ROWS[i].parentNode.insertBefore(ROWS[i + 1], ROWS[i]);
-		}
+
+    // Bubble sort! (also need to update the class)
+    var tbody = table.childNodes[1];
+    for (var cycle = 0; cycle < RANK.length - 1; cycle++) {
+	var swapped = false;
+	for (var i = 0; i < RANK.length - 1; i++) {
+	    if (RANK[i] > RANK[i + 1]) {
+		swapped = true;
+		tbody.insertBefore(tbody.childNodes[i + 1], tbody.childNodes[i]);
+		
+		var temp = RANK[i];
+		RANK[i] = RANK[i + 1];
+		RANK[i + 1] = temp;
 	    }
-	    if (!swapped)
-		break;
 	}
+	if (!swapped)
+	    break;
+    }
+}
+
+function hideOthers(evt) {
+    var value = evt.target.getAttribute('value');
+    for (index in TABLES) {
+	if (index != value)
+	    TABLES[index].style.display = 'none';
+	else
+	    TABLES[index].style.removeProperty('display');
     }
     // update attribute of labels
     for (i = 0; i < evt.target.parentNode.childNodes.length; i++) {
 	var elem = evt.target.parentNode.childNodes[i];
-	if (elem.nodeName == 'label') {
+	if (elem.nodeName.toLowerCase() == 'label') {
 	    if (elem.getAttribute('for') == value)
 		elem.setAttribute('class', 'selected');
 	    else
