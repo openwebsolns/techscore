@@ -441,32 +441,6 @@ class Preferences {
   }
 
   /**
-   * Registers the new sailor into the temporary database. Returns a
-   * new Sailor object with the appropriate ID.
-   *
-   * @param Sailor $sailor the new sailor to register
-   * @return Sailor the new unregistered sailor, backed by the database
-   */
-  public static function addTempSailor(Sailor $sailor) {
-    $q = sprintf('insert into sailor ' .
-		 '(school, first_name, last_name, year) values ' .
-		 '("%s", "%s", "%s", "%s")',
-		 $sailor->school->id,
-		 $sailor->first_name,
-		 $sailor->last_name,
-		 $sailor->year);
-    self::query($q);
-
-    // fetch the last ID
-    $res = self::query('select last_insert_id() as id');
-    $id  = $res->fetch_object()->id;
-
-    $res = self::query(sprintf('select %s from %s where id = "%s"',
-			       Sailor::FIELDS, Sailor::TABLES, $id));
-    return $res->fetch_object("Sailor");
-  }
-
-  /**
    * Returns the boat that designated as the default for the school
    *
    * @param School $school the school whose default boat to fetch

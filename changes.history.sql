@@ -100,3 +100,7 @@ CREATE TABLE `dt_team_division` (
   UNIQUE KEY `team` (`team`,`division`),
   CONSTRAINT `dt_team_division_ibfk_3` FOREIGN KEY (`team`) REFERENCES `dt_team` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Rank teams within divisions, and account for possible penalt'
+
+-- temporary sailors --
+alter table sailor add column regatta_added int default null comment "For temp sailors, regatta when it was added.";
+alter table sailor add foreign key (regatta_added) references regatta(id) on delete set null on update cascade;

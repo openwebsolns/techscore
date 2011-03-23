@@ -262,7 +262,7 @@ class RpManager {
    * @param int id the ID of the person
    * @return Sailor the sailor
    */
-  private function getSailor($id) {
+  public function getSailor($id) {
     $q = sprintf('select %s from %s where id = "%s"',
 		 Sailor::FIELDS, Sailor::TABLES, (int)$id);
     $q = $this->regatta->query($q);
@@ -320,6 +320,78 @@ class RpManager {
 
     $u = strtotime($q->fetch_object()->updated_at);
     return ($c >= $u);
+  }
+
+  // ------------------------------------------------------------
+  // Temp sailors
+  // ------------------------------------------------------------
+
+  /**
+   * Registers the new sailor into the temporary database. Updates the
+   * sailor object with the database-given ID.
+   *
+   * @param Sailor $sailor the new sailor to register
+   * @param Regatta $reg the regatta in which this temp sailor was added
+   */
+  public function addTempSailor(Sailor $sailor) {
+    $con = Preferences::getConnection();
+    $q = sprintf('insert into sailor ' .
+		 '(school, first_name, last_name, year, gender, regatta_added) values ' .
+		 '("%s", "%s", "%s", "%s", "%s", "%s")',
+		 $sailor->school->id,
+		 $con->real_escape_string($sailor->first_name),
+		 $con->real_escape_string($sailor->last_name),
+		 $con->real_escape_string($sailor->year),
+		 $sailor->gender,
+		 $this->regatta->id());
+    $this->regatta->query($q);
+
+    // fetch the last ID
+    $sailor->id = $con->insert_id;
+  }
+
+  /**
+   * Removes the given sailor from the regatta. Yes, this will delete
+   * any RPs for that sailor; however only temporary sailors are
+   * removed, and only those that were added in this regatta. Anything
+   * else will silently fail.
+   * thrown
+   *
+   * @param Sailor $temp the temporary sailor
+   */
+  public function removeTempSailor(Sailor $sailor) {
+    $q = sprintf('delete from sailor where id = "%s" and icsa_id is null and regatta_added = "%s"',
+		 $sailor->id, $this->regatta->id());
+    $this->regatta->query($q);
+  }
+
+  /**
+   * Gets all the temporary sailors that have been added to this regatta
+   *
+   * @return Array:Sailor temporary sailor list
+   */
+  public function getAddedSailors() {
+    $q = sprintf('select %s from %s where regatta_added = "%s"',
+		 Sailor::FIELDS, Sailor::TABLES, $this->regatta->id());
+    $res = $this->regatta->query($q);
+    $list = array();
+    while ($obj = $res->fetch_object("Sailor"))
+      $list[] = $obj;
+    return $list;
+  }
+
+  /**
+   * Returns whether the sailor is participating in this regatta
+   *
+   * @param Sailor $sailor the sailor
+   * @return boolean true if the sailor is participating (has RP)
+   */
+  public function isParticipating(Sailor $sailor) {
+    $q = sprintf('select race from rp where sailor = "%s" and race in (select id from race where regatta = "%s")',
+		 $sailor->id,
+		 $this->regatta->id());
+    $q = $this->regatta->query($q);
+    return ($q->num_rows > 0);
   }
 }
 ?>
