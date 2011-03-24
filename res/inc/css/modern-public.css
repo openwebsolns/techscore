@@ -273,7 +273,7 @@ table.coordinate tbody td.empty:hover { background: none; }
     border-left: none;
     border-right: none;
 }
-.row1 {
+tbody tr:nth-child(even) {
     background: #ede4d9;
 }
 table th, table td {
