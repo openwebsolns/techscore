@@ -167,8 +167,7 @@ class TScoreDialog extends WebPage {
     // Footer
     $this->content->addChild($footer = new Div());
     $footer->addAttr("id", "footdiv");
-    $footer->addChild(new Para(sprintf("TechScore v%s &copy; Day&aacute;n P&aacute;ez 2008-9",
-				       VERSION)));
+    $footer->addChild(new Para(sprintf("TechScore v%s © Dayán Páez 2008-%s", VERSION, date('y'))));
 
     return parent::toHTML();
   }
