@@ -74,7 +74,7 @@ class UpdateFront {
     $regs = DBME::getAll(DBME::$REGATTA, new MyBoolean(array(new MyCond('status', 'coming', MyCond::NE), $cond)));
     if (count($regs) > 0) {
       $current_season_is_active = true;
-      $this->page->addSection(new XPort("Past regattas", array($tab = new XTable()), array('id'=>'past')));
+      $this->page->addSection(new XPort("All regattas", array($tab = new XTable()), array('id'=>'past')));
       $tab->add(new XTHead(array(),
 			   array(new XTR(array(),
 					 array(new XTH(array(), "Name"),
