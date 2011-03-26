@@ -190,9 +190,6 @@ class UpdateRegatta {
     }
 
     // Delete from database
-    require_once('mysqli/DB.php');
-    DBME::setConnection(Preferences::getConnection());
-    
     $r = DBME::get(DBME::$REGATTA, $reg->id());
     if ($r !== null)
       DBME::remove($r);
