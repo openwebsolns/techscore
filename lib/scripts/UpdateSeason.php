@@ -112,7 +112,7 @@ class UpdateSeason {
 	  default:
 	    $status = "In progress: " . $reg->status;
 	  }
-	
+
 	  $num_teams += count($teams);
 	  $hosts = array();
 	  $confs = array();

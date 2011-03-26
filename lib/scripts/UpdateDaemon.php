@@ -54,6 +54,34 @@ class UpdateDaemon {
 
   private static $lock_file_template = "ts2-pub.lock";
   private static $lock_file = null; // full path, used below
+  private static $REGATTA = null;
+
+  /**
+   * Error handler which takes care of NOT exiting the script, but
+   * rather print the offending regatta.
+   *
+   */
+  public static function errorHandler($errno, $errstr, $errfile, $errline, $context) {
+    echo "(EE) + ";
+    if (self::$REGATTA !== null)
+      printf("ID:%d (%s)", self::$REGATTA->id(), self::$REGATTA->get(Regatta::NAME));
+    echo "\n";
+    
+    $fmt = "     | %6s: %s\n";
+    printf($fmt, "Time",   date('Y-m-d H:i:s'));
+    printf($fmt, "Number", $errno);
+    printf($fmt, "String", $errstr);
+    printf($fmt, "File",   $errfile);
+    printf($fmt, "Line",   $errline);
+    foreach (debug_backtrace() as $list) {
+      echo "     +--------------------\n";
+      foreach (array('file', 'line', 'class', 'function') as $index) {
+	if (isset($list[$index]))
+	  printf($fmt, ucfirst($index), $list[$index]);
+      }
+    }
+    return true;
+  }
 
   /**
    * Checks for the existance of a file lock. If absent, proceeds to
@@ -80,7 +108,6 @@ class UpdateDaemon {
     // Sort the requests by regatta
     $regattas = array(); // assoc list of regatta id => list of requests
     foreach ($requests as $r) {
-      $reg = new Regatta($r->regatta);
       if (!isset($regattas[$r->regatta]))
 	$regattas[$r->regatta] = array();
       $regattas[$r->regatta][] = $r;
@@ -107,20 +134,20 @@ class UpdateDaemon {
 	  // Do the action itself
 	  unset($actions[$last->activity]);
 	  try {
-	    $reg = new Regatta($id);
+	    self::$REGATTA = new Regatta($id);
 	    if (in_array($last->activity, $UPD_REGATTA) && !isset($sync[$id])) {
-	      UpdateRegatta::runSync($reg);
-	      $sync[$id] = $reg;
+	      UpdateRegatta::runSync(self::$REGATTA);
+	      $sync[$id] = self::$REGATTA;
 	    }
-	    UpdateRegatta::run($reg, $last->activity);
+	    UpdateRegatta::run(self::$REGATTA, $last->activity);
 	    if (in_array($last->activity, $UPD_SEASON)) {
-	      $season = $reg->get(Regatta::SEASON);
+	      $season = self::$REGATTA->get(Regatta::SEASON);
 	      $seasons[(string)$season->getSeason()] = $season;
 	    }
 
 	    // Affected schools
 	    if (in_array($last->activity, $UPD_SCHOOL)) {
-	      foreach ($reg->getTeams() as $team)
+	      foreach (self::$REGATTA->getTeams() as $team)
 		$schools[$team->school->id] = $team->school;
 	    }
 
@@ -164,12 +191,11 @@ class UpdateDaemon {
 // ------------------------------------------------------------
 // When run as a script
 if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  // Make sure, if nothing else, that you at least run cleanup
-  // @TODO
-
   $_SERVER['HTTP_HOST'] = $argv[0];
   ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
   require_once('conf.php');
+  // Make sure, if nothing else, that you at least run cleanup
+  $old = set_error_handler("UpdateDaemon::errorHandler", E_ALL);
   UpdateDaemon::run();
 }
 ?>
