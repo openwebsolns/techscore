@@ -177,16 +177,22 @@ class UpdateRegatta {
     $season = $reg->get(Regatta::SEASON);
     if ((string)$season == "")
       return;
-    $dirname = "$R/$season/" . $reg->get(Regatta::NICK_NAME);
-    if (is_dir($dirname) && $dir = @opendir($dirname)) {
-      // Delete contents of dir
-      while (false !== ($file = readdir($dir))) {
-	if ($file != '.' && $file != '..')
-	  @unlink(sprintf('%s/%s', $dirname, $file));
+
+    // Regatta Nick Name can be empty, if the regatta has always been
+    // personal, in which case there is nothing to delete, right?
+    $nickname = $reg->get(Regatta::NICK_NAME);
+    if (!empty($nickname)) {
+      $dirname = "$R/$season/$nickname";
+      if (is_dir($dirname) && $dir = @opendir($dirname)) {
+        // Delete contents of dir
+        while (false !== ($file = readdir($dir))) {
+	  if ($file != '.' && $file != '..')
+	    @unlink(sprintf('%s/%s', $dirname, $file));
+        }
+        // Delete directory
+        closedir($dir);
+        rmdir($dirname);
       }
-      // Delete directory
-      closedir($dir);
-      rmdir($dirname);
     }
 
     // Delete from database
