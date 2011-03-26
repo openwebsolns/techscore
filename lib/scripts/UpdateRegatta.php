@@ -109,17 +109,15 @@ class UpdateRegatta {
 
     // status
     $now = new DateTime();
-    $now->setTime(0, 0);
+    $now = $now->setTime(0, 0);
     if ($dreg->finalized !== null)
       $dreg->status = 'final';
     elseif ($dreg->start_time > $now)
       $dreg->status = 'coming';
-    elseif ($dreg->end_date < $now) {
+    elseif ($dreg->end_date < $now)
       $dreg->status = 'finished';
-    }
-    else {
+    else
       $dreg->status = $reg->getLastScoredRace();
-    }
     $added = !DBME::set($dreg);
 
     // ------------------------------------------------------------
