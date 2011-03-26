@@ -84,6 +84,7 @@ function __mail_exception_handler(Exception $e) {
   $body .= sprintf($fmt, "String", $e->getMessage());
   $body .= sprintf($fmt, "File",   $e->getFile());
   $body .= sprintf($fmt, "Line",   $e->getLine());
+  $body .= sprintf($fmt, "Request", $_SERVER['REQUEST_URI']);
   $body .= "--------------------\n";
   $body .= sprintf($fmt, "Trace",  $e->getTraceAsString());
   $body .= "====================\n";
