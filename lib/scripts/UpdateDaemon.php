@@ -62,6 +62,8 @@ class UpdateDaemon {
    *
    */
   public static function errorHandler($errno, $errstr, $errfile, $errline, $context) {
+    if ($errno == E_NOTICE)
+      return true; // ignore NOTICES, for now
     echo "(EE) + ";
     if (self::$REGATTA !== null)
       printf("ID:%d (%s)", self::$REGATTA->id(), self::$REGATTA->get(Regatta::NAME));
