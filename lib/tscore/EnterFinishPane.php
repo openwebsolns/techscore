@@ -361,6 +361,7 @@ class EnterFinishPane extends AbstractPane {
 
       // - List of race finishes
       $finishes = $this->REGATTA->getFinishes($race);
+      usort($finishes, "Finish::compareEntered");
       $fitem->addChild(new Div(array($enum = new Enumerate()),
 			       array("class"=>array("form_b", "fuse_columns"))));
       $enum->addAttr("id", "finish_list");
@@ -534,7 +535,9 @@ class EnterFinishPane extends AbstractPane {
 	}
 	$race = $races[$sail];
 
-	$finish = $this->REGATTA->createFinish($race, $sails[$sail]);
+	$finish = $this->REGATTA->getFinish($race, $sails[$sail]);
+	if ($finish === null)
+	  $finish = $this->REGATTA->createFinish($race, $sails[$sail]);
 	$finish->entered = new DateTime(sprintf($now_fmt, 3 * $i));
 
 	if (!isset($finishes[$race->id]))
@@ -606,7 +609,9 @@ class EnterFinishPane extends AbstractPane {
 	  return $args;
 	}
 	$race = $races[$team_id];
-	$finish = $this->REGATTA->createFinish($race, $sails[$team_id]);
+	$finish = $this->REGATTA->getFinish($race, $sails[$team_id]);
+	if ($finish === null)
+	  $finish = $this->REGATTA->createFinish($race, $sails[$team_id]);
 	$finish->entered = new DateTime(sprintf($now_fmt, 3 * $i));
 
 	if (!isset($finishes[$race->id]))
@@ -704,8 +709,10 @@ class EnterFinishPane extends AbstractPane {
 	  $this->announce(new Announcement($mes, Announcement::ERROR));
 	  return $args;
 	}
-	
-	$finish = $this->REGATTA->createFinish($race, $teams[$sail]);
+
+	$finish = $this->REGATTA->getFinish($race, $teams[$sail]);
+	if ($finish === null)
+	  $finish = $this->REGATTA->createFinish($race, $teams[$sail]);
 	$finish->entered = new DateTime(sprintf($now_fmt, 3 * $i));
 	$finishes[] = $finish;
 	unset($sails[$sail]);
@@ -759,7 +766,9 @@ class EnterFinishPane extends AbstractPane {
 	  return $args;
 	}
 
-	$finish = $this->REGATTA->createFinish($race, $teams[$team_id]);
+	$finish = $this->REGATTA->getFinish($race, $teams[$team_id]);
+	if ($finish === null)
+	  $finish = $this->REGATTA->createFinish($race, $teams[$team_id]);
 	$finish->entered = new DateTime(sprintf($now_fmt, 3 * $i));
 	$finishes[] = $finish;
 	unset($teams[$team_id]);

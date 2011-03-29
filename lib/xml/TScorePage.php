@@ -143,7 +143,7 @@ class TScorePage extends WebPage {
 						     "src"=>"/inc/js/mobile.js")));
     }
     else {
-      foreach (array("form.js", "ui.frames.js") as $scr) {
+      foreach (array("form.js") as $scr) {
 	$this->head->addChild(new GenericElement("script", array(new Text("")),
 						 array("type"=>"text/javascript",
 						       "src"=>"/inc/js/" . $scr)));
