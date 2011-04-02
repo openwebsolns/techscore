@@ -95,6 +95,10 @@ else {
     $PAGE = new AccountPane($USER);
   break;
 
+  case "compare-sailors":
+    $PAGE = new CompareSailors($USER);
+    break;
+
   default:
     $_SESSION['ANNOUNCE'][] = new Announcement(sprintf("Invalid page requested (%s).", $_REQUEST['p']),
 					       Announcement::ERROR);

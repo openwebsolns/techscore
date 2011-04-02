@@ -399,3 +399,14 @@ dt {
     color: #555;
     margin-left: 1em;
 }
+
+#cmp-sailor {
+    margin: 1em auto;
+    padding: 0.5em;
+    max-width: 70%;
+    background: #d5d5d5;
+    border: 1px solid #555;
+}
+#cmp-sailor label {
+    margin-left: 0.5em;
+}

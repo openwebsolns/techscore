@@ -92,7 +92,7 @@ class RpManager {
       $obj->division = $div;
       $obj->team = $team;
       $obj->boat_role = $role;
-      $obj->sailor = $this->getSailor($obj->sailor);
+      $obj->sailor = RpManager::getSailor($obj->sailor);
       $obj->sailor->school = $team->school;
     }
     return $list;
@@ -262,10 +262,10 @@ class RpManager {
    * @param int id the ID of the person
    * @return Sailor the sailor
    */
-  public function getSailor($id) {
+  public static function getSailor($id) {
     $q = sprintf('select %s from %s where id = "%s"',
 		 Sailor::FIELDS, Sailor::TABLES, (int)$id);
-    $q = $this->regatta->query($q);
+    $q = Preferences::query($q);
     if ($q->num_rows == 0)
       throw InvalidArgumentException(sprintf("No sailor with id (%s).", $id));
     return $q->fetch_object("Sailor");

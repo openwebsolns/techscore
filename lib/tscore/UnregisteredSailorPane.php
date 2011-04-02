@@ -153,7 +153,7 @@ class UnregisteredSailorPane extends AbstractPane {
 	return $args;
       }
       try {
-	$sailor = $rp->getSailor((int)$args['sailor']);
+	$sailor = RpManager::getSailor((int)$args['sailor']);
 	$rp->removeTempSailor($sailor);
 	$this->announce(new Announcement("Removed temporary sailor."));
       }
