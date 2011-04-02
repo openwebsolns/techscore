@@ -41,7 +41,12 @@ class EnterFinishPane extends AbstractPane {
     // Determine race to display: either as requested or the next
     // unscored race, or the last race.
     $race = null;
-    if (isset($args['chosen_race'])) $race = $args['chosen_race'];
+    if (!empty($args['chosen_race'])) {
+      try {
+	$race = Race::parse($args['chosen_race']);
+	$race = $this->REGATTA->getRace($race->division, $race->number);
+      } catch (Exception $e) { $race = null; }
+    }
     if ($race == null) {
       $races = $this->REGATTA->getUnscoredRaces();
       $race = array_shift($races);
@@ -262,7 +267,12 @@ class EnterFinishPane extends AbstractPane {
     // Determine race to display: either as requested or the next
     // unscored race, or the last race
     $race = null;
-    if (isset($args['chosen_race'])) $race = $args['chosen_race'];
+    if (!empty($args['chosen_race'])) {
+      try {
+	$race = Race::parse($args['chosen_race']);
+	$race = $this->REGATTA->getRace($race->division, $race->number);
+      } catch (Exception $e) { $race = null; }
+    }
     if ($race == null) {
       $races = $this->REGATTA->getUnscoredRaces();
       $race = array_shift($races);
@@ -345,6 +355,7 @@ class EnterFinishPane extends AbstractPane {
 					     array("colspan"=>"3"), 1))));
 
       // - Fill possible sails
+      var_dump($race);
       $pos_sails = $rotation->getSails($race);
       $row = array();
       foreach ($pos_sails as $aPS) {
@@ -459,12 +470,13 @@ class EnterFinishPane extends AbstractPane {
     if (isset($args['chosen_race'])) {
       try {
 	if (is_numeric($args['chosen_race'])) {
-	  $args['chosen_race'] = $this->REGATTA->getRace($divisions[0], (int)$args['chosen_race']);
+	  $therace = $this->REGATTA->getRace($divisions[0], (int)$args['chosen_race']);
+	  $args['chosen_race'] = ($therace === null) ? null : (string)$therace;
 	}
 	else {
 	  $race = Race::parse($args['chosen_race']);
 	  $therace = $this->REGATTA->getRace($race->division, $race->number);
-	  $args['chosen_race'] = $therace;
+	  $args['chosen_race'] = ($therace === null) ? null : (string)$therace;
 	}
       }
       catch (InvalidArgumentException $e) {
@@ -650,7 +662,7 @@ class EnterFinishPane extends AbstractPane {
       try {
 	$race = Race::parse($args['chosen_race']);
 	$therace = $this->REGATTA->getRace($race->division, $race->number);
-	$args['chosen_race'] = $therace;
+	$args['chosen_race'] = ($therace === null) ? null : (string)$therace;
       }
       catch (InvalidArgumentException $e) {
 	$mes = sprintf("Invalid race (%s).", $args['chosen_race']);
