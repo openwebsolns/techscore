@@ -302,7 +302,7 @@ class SailsPane extends AbstractPane {
 
 	// require a BYE team if the total number of teams
 	// (divisions * number of teams) is not even
-	if ($chosen_rot == "SWP" && count($p_teams) * count($divs) % 2 > 0)
+	if ($chosen_rot == "SWP" && count($p_teams) % 2 > 0)
 	  $p_teams[] = new ByeTeam();
 	$i = 1;
 	foreach ($p_teams as $team) {
