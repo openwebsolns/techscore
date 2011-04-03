@@ -355,7 +355,6 @@ class EnterFinishPane extends AbstractPane {
 					     array("colspan"=>"3"), 1))));
 
       // - Fill possible sails
-      var_dump($race);
       $pos_sails = $rotation->getSails($race);
       $row = array();
       foreach ($pos_sails as $aPS) {
