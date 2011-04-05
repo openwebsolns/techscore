@@ -16,8 +16,26 @@ session_start();
 // ------------------------------------------------------------
 if (!(isset($_SESSION['user']))) {
   // Registration?
-  if (isset($_GET['p']) && $_GET['p'] == "register") {
-    $PAGE = new RegisterPane();
+  if (isset($_GET['p'])) {
+    switch ($_GET['p']) {
+    case 'register':
+      $PAGE = new RegisterPane();
+      break;
+      
+    case 'password-recover':
+      $PAGE = new PasswordRecoveryPane();
+      break;
+
+    case 'home':
+      $_SESSION['ANNOUNCE'][] = new Announcement("Please login to proceed.", Announcement::WARNING);
+      $PAGE = new WelcomePage();
+      echo $PAGE->toHTML();
+      exit;
+
+    default:
+      // no such place
+      WebServer::goBack();
+    }
     if (isset($_GET['_action']) && $_GET['_action'] == 'edit') {
       $_SESSION['POST'] = $PAGE->process($_REQUEST);
       WebServer::goBack();
@@ -26,11 +44,6 @@ if (!(isset($_SESSION['user']))) {
     exit;
   }
 
-  // Create page
-  $_SESSION['ANNOUNCE'][] = new Announcement("Please login to proceed.", Announcement::WARNING);
-  $PAGE = new WelcomePage();
-  echo $PAGE->toHTML();
-  exit;
 }
 
 // ------------------------------------------------------------
@@ -109,6 +122,8 @@ if (isset($_GET['_action']) && $_GET['_action'] == 'edit') {
   $_SESSION['POST'] = $PAGE->process($_REQUEST);
   WebServer::goBack();
 }
-$args = array_merge($_GET, (isset($_SESSION['POST'])) ? $_SESSION['POST'] : array());
+$args = array_merge($_GET, (isset($_SESSION['POST']) && is_array($_SESSION['POST'])) ?
+		    $_SESSION['POST'] :
+		    array());
 echo $PAGE->getHTML($args);
 ?>

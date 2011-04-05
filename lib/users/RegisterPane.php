@@ -85,7 +85,7 @@ class RegisterPane extends WelcomePage {
     $p->addChild(new Para("Once your account request has been approved by the registration committee, " .
 			  "you will receive another e-mail from TechScore with instructions on " .
 			  "logging in."));
-    $p->addChild($f = new Form("/register-edit", "post"));
+    $p->addChild($f = new Form("/register-edit"));
     $f->addChild(new FItem("Email:", new FText("email", "")));
     $f->addChild(new FItem("First name:", new FText("first_name", "")));
     $f->addChild(new FItem("Last name:",  new FText("last_name", "")));
@@ -209,7 +209,7 @@ class RegisterPane extends WelcomePage {
 
     // Mail verification
     if (isset($args['acc'])) {
-      $hash = preg_replace('/[^A-Za-z0-9]/', '', $args['acc']);
+      $hash = trim($args['acc']);
       $acc = AccountManager::getAccountFromHash($hash);
 
       if ($acc === null) {

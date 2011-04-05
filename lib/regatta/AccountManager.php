@@ -102,8 +102,9 @@ class AccountManager {
    * @return Account|null the matching account or null if none match
    */
   public static function getAccountFromHash($hash) {
+    $con = Preferences::getConnection();
     $q = sprintf('select %s from %s where md5(concat(last_name, username, first_name)) like "%s"',
-		 Account::FIELDS, Account::TABLES, $hash);
+		 Account::FIELDS, Account::TABLES, $con->escape_string($hash));
     $q = Preferences::query($q);
     if ($q->num_rows == 0) {
       return null;

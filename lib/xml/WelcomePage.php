@@ -57,8 +57,9 @@ class WelcomePage extends TScorePage {
     $p->addChild($form = new Form("/login", "post"));
     $form->addChild(new FItem(new Label("uname", "Username: "),
 			      new FText("userid", "",   array("id"=>"uname", "maxlength"=>"40"))));
-    $form->addChild(new FItem(new Label("passw", "Password: "),
-			      new FPassword("pass", "", array("id"=>"passw", "maxlength"=>"48"))));
+    $form->addChild($fi = new FItem(new Label("passw", "Password: "),
+				    new FPassword("pass", "", array("id"=>"passw", "maxlength"=>"48"))));
+    $fi->addChild(new Span(array(new Link('/password-recover', "Forgot your password?")), array('class'=>'message')));
 
     $form->addChild(new FSubmit("login", "Login"));
 
