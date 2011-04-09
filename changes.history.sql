@@ -104,3 +104,16 @@ CREATE TABLE `dt_team_division` (
 -- temporary sailors --
 alter table sailor add column regatta_added int default null comment "For temp sailors, regatta when it was added.";
 alter table sailor add foreign key (regatta_added) references regatta(id) on delete set null on update cascade;
+
+-- host schools --
+CREATE TABLE `host_school` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `regatta` int(11) NOT NULL,
+  `school` varchar(10) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `regatta` (`regatta`,`school`),
+  KEY `school` (`school`),
+  CONSTRAINT `host_school_ibfk_1` FOREIGN KEY (`regatta`) REFERENCES `regatta` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `host_school_ibfk_2` FOREIGN KEY (`school`) REFERENCES `school` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+insert into host_school (school, regatta) (select distinct account.school, host.regatta from host inner join account on (host.account = account.username) where host.principal > 0);

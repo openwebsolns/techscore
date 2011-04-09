@@ -1176,10 +1176,7 @@ class Regatta implements RaceListener {
    * @return Array<Account> a list of scorers
    */
   public function getScorers() {
-    $q = sprintf('select %s from %s ' .
-		 'inner join host on    (host.account = account.username) ' .
-		 'inner join regatta on (host.regatta = regatta.id) ' .
-		 'where regatta = "%s"',
+    $q = sprintf('select %s from %s where username in (select account from host where regatta = "%s")',
 		 Account::FIELDS, Account::TABLES, $this->id);
     $q = $this->query($q);
     $list = array();
@@ -1195,29 +1192,39 @@ class Regatta implements RaceListener {
    * @return Array<Account> a list of hosts
    */
   public function getHosts() {
-    $q = sprintf('select %s from %s ' .
-		 'inner join host on    (host.account = account.username) ' .
-		 'inner join regatta on (host.regatta = regatta.id) ' .
-		 'where regatta = "%s" and host.principal = 1',
-		 Account::FIELDS, Account::TABLES, $this->id);
+    $q = sprintf('select %s from %s where regatta = "%s"',
+		 Host::FIELDS, Host::TABLES, $this->id);
     $q = $this->query($q);
     $list = array();
-    while ($obj = $q->fetch_object("Account")) {
+    while ($obj = $q->fetch_object("Host")) {
       $list[] = $obj;
     }
     return $list;
+  }
+
+  public function addHost(School $school) {
+    $q = sprintf('insert ignore into host_school (regatta, school) values ("%s", "%s")',
+		 $this->id, $school->id);
+    $this->query($q);
+  }
+
+  /**
+   * Removes all the host from the regatta. Careful! Each regatta must
+   * have at least one host, so do not forget to ::addHost later
+   *
+   */
+  public function resetHosts() {
+    $this->query(sprintf('delete from host_school where regatta = "%s"', $this->id));
   }
 
   /**
    * Registers the given scorer with this regatta
    *
    * @param Account $acc the account to add
-   * @param bool is_host whether or not this account is also a host
-   * for the regatta (default: false)
    */
-  public function addScorer(Account $acc, $is_host = false) {
-    $q = sprintf('insert into host values ("%s", "%s", %d) on duplicate key update principal = %3$d',
-		 $acc->username, $this->id, ($is_host) ? 1 : 0);
+  public function addScorer(Account $acc) {
+    $q = sprintf('insert into host (account, regatta) values ("%s", "%s")',
+		 $acc->username, $this->id);
     $this->query($q);
   }
 
@@ -1228,7 +1235,7 @@ class Regatta implements RaceListener {
    * from this regatta
    */
   public function removeScorer(Account $acc) {
-    $q = sprintf('delete from host where account = "%s"', $acc->username);
+    $q = sprintf('delete from host where account = "%s" and regatta = "%s"', $acc->username, $this->id);
     $q = $this->query($q);
   }
 

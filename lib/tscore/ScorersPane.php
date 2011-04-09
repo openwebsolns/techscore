@@ -40,14 +40,20 @@ class ScorersPane extends AbstractPane {
       $button = new FSubmit("delete_scorer", "Remove scorer", array("style"=>"width:100%"));
       $f2->addChild($hidden);
       $f2->addChild($button);
+      if ($s->username === $this->USER->username()) {
+	$button->addAttr("disabled", "disabled");
+	$button->addAttr("title", "You cannot delete yourself from the regatta.");
+      }
 
       // Fill row
       $tab->addRow(new Row(array(new Cell(new Link("mailto:" . $s->username, $s->getName())),
 				 new Cell($s->school->nick_name),
 				 new Cell($f2)))); 
     }
-    if ($s->username === $this->USER->username() || count($scorers) == 1)
+    if (count($scorers) == 1) {
       $button->addAttr("disabled", "disabled");
+      $button->addAttr("title", "You cannot delete the only scorer in the regatta.");
+    }
 
     // Form to add scorers
     $this->PAGE->addContent($p = new Port("Add scorers"));
@@ -81,18 +87,23 @@ class ScorersPane extends AbstractPane {
     $p->addChild($s_form = $this->createForm());
 
     // Get accounts for this conference
-    $s_form->addChild(new FItem("Account:", $sel = new FSelect("account[]", array())));
-    $sel->addAttr("multiple","multiple");
-    $sel->addAttr("size", 10);
-    $pot_scorers = array();
+    $accounts = Preferences::getUsersFromConference($chosen_conf);
+    if (count($accounts) > 0) {
+      $s_form->addChild(new FItem("Account:", $sel = new FSelect("account[]", array())));
+      $sel->addAttr("multiple","multiple");
+      $sel->addAttr("size", 10);
+      $pot_scorers = array();
 
-    foreach (Preferences::getUsersFromConference($chosen_conf) as $user) {
-      if (!isset($scorers[$user->username]))
-	$pot_scorers[$user->username] = sprintf('%s, %s', $user->last_name, $user->first_name);
+      foreach ($accounts as $user) {
+	if (!isset($scorers[$user->username]))
+	  $pot_scorers[$user->username] = sprintf('%s, %s', $user->last_name, $user->first_name);
+      }
+      $sel->addOptions($pot_scorers);
+      $s_form->addChild(new FSubmit("add_scorer", "Add scorers"));
     }
-    $sel->addOptions($pot_scorers);
-    $s_form->addChild(new FSubmit("add_scorer",
-				  "Add scorers"));
+    else
+      $s_form->addChild(new Para("There are no accounts left to register in this conference Please try a different one.", array('class'=>'message')));
+    
   }
 
   public function process(Array $args) {

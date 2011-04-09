@@ -96,10 +96,32 @@ class DetailsPane extends AbstractPane {
 
     // Scoring rules
     $value = $this->REGATTA->get(Regatta::SCORING);
-    $reg_form->addChild(new FItem("Scoring:",
-				  $f_sel = new FSelect("scoring",
-						       array($value))));
+    $reg_form->addChild(new FItem("Scoring:", $f_sel = new FSelect("scoring", array($value))));
     $f_sel->addOptions(Preferences::getRegattaScoringAssoc());
+
+    // Hosts: first add the current hosts, then the entire list of
+    // schools in the affiliation ordered by conference
+    $hosts = $this->REGATTA->getHosts();
+    $reg_form->addChild(new FItem('Host(s):<br/><small>Hold down <kbd>Ctrl</kbd> to choose more than one</small>', $f_sel = new FSelect("host[]", array($hosts))));
+    $f_sel->addChild($opt_group = new OptionGroup("Current"));
+    $schools = array(); // track these so as not to include them later
+    foreach ($hosts as $host) {
+      $schools[$host->school->id] = $host->school;
+      $opt_group->addChild(new Option($host->school->id, $host->school, array('selected' => 'selected')));
+    }
+
+    // go through each conference
+    foreach (Preferences::getConferences() as $conf) {
+      $opts = array();
+      foreach ($this->USER->getSchools($conf) as $school) {
+	if (!isset($schools[$school->id]))
+	  $opts[$school->id] = $school;
+      }
+      if (count($opts) > 0)
+	$f_sel->addOptionGroup($conf, $opts);
+    }
+    $f_sel->addAttr('multiple', 'multiple');
+    $f_sel->addAttr('size', 10);
 
     // Update button
     $reg_form->addChild($reg_sub = new FSubmit("edit_reg",
@@ -210,6 +232,27 @@ class DetailsPane extends AbstractPane {
 	  }
 	}
       }
+
+      // Host(s): go through the list, ascertaining the validity. Once
+      // we know we have at least one valid host for the regatta,
+      // reset the hosts, and add each school, one at a time
+      if (isset($args['host']) && is_array($args['host'])) {
+	$hosts = array();
+	$schools = $this->USER->getSchools();
+	foreach ($args['host'] as $id) {
+	  $school = Preferences::getSchool($id);
+	  if ($school !== null && isset($schools[$school->id]))
+	    $hosts[] = $school;
+	}
+	if (count($hosts) == 0)
+	  $this->announce(new Announcement("There must be at least one host for each regatta. Left as is.", Announcement::WARNING));
+	else {
+	  $this->REGATTA->resetHosts();
+	  foreach ($hosts as $school)
+	    $this->REGATTA->addHost($school);
+	}
+      }
+      print_r($args);
 
       $this->announce(new Announcement("Edited regatta details."));
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DETAILS);

@@ -235,7 +235,7 @@ class Preferences {
    * @return Array<Account> list of users
    */
   public static function getUsersFromConference(Conference $conf) {
-    $q = sprintf('select %s from %s where school in (select id from school where conference = %d) ' .
+    $q = sprintf('select %s from %s where school in (select id from school where conference = "%s") ' .
 		 'order by account.last_name',
 		 Account::FIELDS, Account::TABLES, $conf->id);
     $q = self::query($q);

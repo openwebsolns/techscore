@@ -169,6 +169,32 @@ class User {
   }
 
   /**
+   * Returns all the schools that this user is affiliated with,
+   * including the one enrolled as.
+   *
+   * @param Conference $conf the possible to conference to narrow down
+   * school list
+   * @return Array:School, indexed by school ID
+   */
+  public function getSchools(Conference $conf = null) {
+    $list = array();
+    $school = $this->get(User::SCHOOL);
+    if ($conf === null || $school->conference == $conf)
+      $list[$school->id] = $school;
+    if ($this->get(User::ADMIN) > 0)
+      $q = sprintf('select id from school');
+    else
+      $q = sprintf('select school from account_school');
+    $q = Preferences::query($q);
+    while ($r = $q->fetch_object()) {
+      $school = Preferences::getSchool($r->id);
+      if ($conf === null || $school->conference == $conf)
+	$list[$school->id] = $school;
+    }
+    return $list;
+  }
+
+  /**
    * Determines whether the given regatta is in this user's scoring
    * jurisdiction
    *

@@ -51,6 +51,17 @@ class NewRegattaPane extends AbstractUserPane {
     $f->addChild(new FItem("Participation:", $par = new FSelect("participant", array($r["participant"]))));
     $f->addChild(new FItem("Divisions:",$div = new FSelect("num_divisions",  array($r["num_divisions"]))));
     $f->addChild(new FItem("Number of races:", new FText("num_races", $r["num_races"])));
+    $f->addChild(new FItem("Host(s)<br/><small>There must be at least one</small>:",
+			   $f_sel = new FSelect("host[]", array(), array('multiple'=>'multiple','size'=>10))));
+    foreach (Preferences::getConferences() as $conf) {
+      $opts = array();
+      foreach ($this->USER->getSchools($conf) as $school) {
+	if (!isset($schools[$school->id]))
+	  $opts[$school->id] = $school;
+      }
+      if (count($opts) > 0)
+	$f_sel->addOptionGroup($conf, $opts);
+    }
     $f->addChild(new FSubmit("new-regatta", "Create"));
 
     // select
@@ -121,7 +132,6 @@ class NewRegattaPane extends AbstractUserPane {
 	$_SESSION['ANNOUNCE'][] = new Announcement("Invalid regatta participation.", Announcement::ERROR);
 	$error = true;
       }
-
       // 9. Divisions
       if (!isset($args['num_divisions']) || $args['num_divisions'] < 1 || $args['num_divisions'] > 4) {
 	$_SESSION['ANNOUNCE'][] = new Announcement("Invalid number of divisions.", Announcement::ERROR);
@@ -131,6 +141,24 @@ class NewRegattaPane extends AbstractUserPane {
       if (!isset($args['num_races']) || $args['num_races'] < 1 || $args['num_races'] > 99) {
 	$_SESSION['ANNOUNCE'][] = new Announcement("Invalid number of races.", Announcement::ERROR);
 	$error = true;
+      }
+      // 11. Host(s)
+      if (!isset($args['host']) || !is_array($args['host'])) {
+	$_SESSION['ANNOUNCE'][] = new Announcement("No hosts supplied.", Announcement::ERROR);
+	$error = true;
+      }
+      else {
+	$hosts = array();
+	$schools = $this->USER->getSchools();
+	foreach ($args['host'] as $id) {
+	  $school = Preferences::getSchool($id);
+	  if ($school !== null && isset($schools[$school->id])) 
+	    $hosts[] = $school;
+	}
+	if (count($hosts) == 0) {
+	  $_SESSION['ANNOUNCE'][] = new Announcement("No valid hosts supplied.", Announcement::ERROR);
+	  $error = true;
+	}
       }
 
       // Submit?
@@ -147,7 +175,10 @@ class NewRegattaPane extends AbstractUserPane {
 				      $args['scoring'],
 				      $args['participant']);
 
-	$reg->addScorer($this->USER->asAccount(), true);
+	$reg->addScorer($this->USER->asAccount());
+	foreach ($hosts as $school)
+	  $reg->addHost($school);
+
 	$divs = array_values(Division::getAssoc());
 	$boat = Preferences::getPreferredBoat($this->USER->get(User::SCHOOL));
 	for ($i = 0; $i < $args['num_divisions']; $i++) {
