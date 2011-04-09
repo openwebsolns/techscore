@@ -241,7 +241,7 @@ else {
   exit;
 }
 $args = $_REQUEST;
-if (isset($_SESSION['POST']))
+if (isset($_SESSION['POST']) && is_array($_SESSION['POST']))
   $args = array_merge($args,$_SESSION['POST']);
 echo $PAGE->getHTML($args);
 
