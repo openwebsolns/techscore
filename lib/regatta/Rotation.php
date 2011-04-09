@@ -261,7 +261,8 @@ class Rotation {
       throw new InvalidArgumentException("The number of races per set ($repeats) must be at least one.");
 
     // standard scoring regatta
-    if ($this->regatta->get(Regatta::SCORING) == Regatta::SCORING_STANDARD) {
+    if ($this->regatta->get(Regatta::SCORING) == Regatta::SCORING_STANDARD &&
+	!$this->regatta->isSinglehanded()) {
       // enforce correspondence between division and races
       if ($num_divisions != $num_races)
 	throw new InvalidArgumentException("The list of divisions must be of the same size as the list of races.");
@@ -280,7 +281,7 @@ class Rotation {
       }
     }
     
-    // combined scoring
+    // combined scoring, or singlehanded regattas
     else {
       // enforce correspondence between divisions and teams
       if ($num_divisions != $num_teams)

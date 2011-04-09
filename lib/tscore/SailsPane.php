@@ -75,7 +75,7 @@ class SailsPane extends AbstractPane {
 
     // Teams table
     $bye_team = null;
-    if (count($divisions) * count($teams) % 2 > 0) {
+    if ($chosen_rot == "SWP" && count($divisions) * count($teams) % 2 > 0) {
       $bye_team = new ByeTeam();
       $form->addChild(new Para("Swap divisions require an even number of total teams at the time of creation. If you choose swap division, TechScore will add a \"BYE Team\" as needed to make the total number of teams even. This will produce an unused boat in every race."));
     }
