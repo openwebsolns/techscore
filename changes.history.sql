@@ -117,3 +117,13 @@ CREATE TABLE `host_school` (
   CONSTRAINT `host_school_ibfk_2` FOREIGN KEY (`school`) REFERENCES `school` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 insert into host_school (school, regatta) (select distinct account.school, host.regatta from host inner join account on (host.account = account.username) where host.principal > 0);
+CREATE TABLE `account_school` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `account` varchar(40) NOT NULL,
+  `school` varchar(10) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `account` (`account`,`school`),
+  KEY `school` (`school`),
+  CONSTRAINT `account_school_ibfk_1` FOREIGN KEY (`account`) REFERENCES `account` (`username`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `account_school_ibfk_2` FOREIGN KEY (`school`) REFERENCES `school` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
