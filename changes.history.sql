@@ -127,3 +127,8 @@ CREATE TABLE `account_school` (
   CONSTRAINT `account_school_ibfk_1` FOREIGN KEY (`account`) REFERENCES `account` (`username`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `account_school_ibfk_2` FOREIGN KEY (`school`) REFERENCES `school` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
+
+-- track regatta creators --
+alter table regatta add column creator varchar(40) default null;
+update regatta, host set regatta.creator = host.account where regatta.id = host.regatta and host.principal > 0;
+select count(*) from regatta where creator = "";

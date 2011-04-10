@@ -1051,7 +1051,7 @@ class Regatta implements RaceListener {
 		 $penalty->team->id,
 		 $penalty->division,
 		 $penalty->type,
-		 $con->real_escape($penalty->comments));
+		 $con->escape_string($penalty->comments));
     $this->query($q);
   }
 
@@ -1237,6 +1237,21 @@ class Regatta implements RaceListener {
   public function removeScorer(Account $acc) {
     $q = sprintf('delete from host where account = "%s" and regatta = "%s"', $acc->username, $this->id);
     $q = $this->query($q);
+  }
+
+  /**
+   * Set the special column in the database for the creator of the
+   * regatta. This should only be called once when the regatta is
+   * created, for example.
+   *
+   * @param Account $acc the account to set as the creator
+   */
+  public function setCreator(Account $acc) {
+    $con = Preferences::getConnection();
+    $q = sprintf('update regatta set creator = "%s" where id = "%s"',
+		 $con->escape_string($acc->username),
+		 $this->id);
+    $this->query($q);
   }
 
   //------------------------------------------------------------
@@ -1433,7 +1448,7 @@ class Regatta implements RaceListener {
     $q = sprintf('insert into regatta ' .
 		 '(name, start_time, end_date, type, scoring, participant) values ' .
 		 '("%s", "%s", "%s", "%s", "%s", "%s")',
-		 $con->real_escape_string($name),
+		 $con->escape_string($name),
 		 $start_time->format("Y-m-d H:i:s"),
 		 $end_date->format("Y-m-d"),
 		 $type,
