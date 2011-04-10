@@ -219,9 +219,14 @@ class RegisterPane extends WelcomePage {
       }
       $acc->status = 'pending';
       AccountManager::setAccount($acc);
-      $_SESSION['ANNOUNCE'][] = new Announcement("Account approved.");
+      $_SESSION['ANNOUNCE'][] = new Announcement("Account verified. Please wait until the account is approved. You will be notified by mail.");
       $_SESSION['POST'] = array('registration-step' => 2);
-      Preferences::mail(ADMIN_MAIL, '[TechScore] New registration', $this->getAdminMessage($acc));
+      // notify all admins
+      $admins = array();
+      foreach (AccountManager::getAdmins() as $admin)
+	$admins[] = sprintf('%s <%s>', $admin->getName(), $admin->username);
+
+      Preferences::mail(implode(',', $admins), '[TechScore] New registration', $this->getAdminMessage($acc));
       WebServer::go("register");
     }
     return $args;
