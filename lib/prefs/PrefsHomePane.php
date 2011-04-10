@@ -38,9 +38,17 @@ class PrefsHomePane extends AbstractUserPane {
 			  "</strong> is still under development."));
 
     // Allow for editing of other schools
-    if ($this->USER->get(User::ADMIN)) {
-      $this->PAGE->addContent($p = new Port("Choose school"));
+    $schools = $this->USER->getSchools();
+    if (count($schools) > 1) {
+      // separate schools into conference list
+      $conferences = array();
+      foreach ($schools as $school) {
+	if (!isset($conferences[$school->conference->id]))
+	  $conferences[$school->conference->id] = array();
+	$conferences[$school->conference->id][$school->id] = $school;
+      }
 
+      $this->PAGE->addContent($p = new Port("Choose school"));
       // Stylesheet fix
       $p->addChild($st = new GenericElement("style"));
       $st->addAttr("type", "text/css");
@@ -49,26 +57,24 @@ class PrefsHomePane extends AbstractUserPane {
       $p->addChild(new Para("Choose a different school to edit from the list below."));
       $p->addChild($tab = new Table());
       $tab->addAttr("id", "conftable");
+      $tab->addAttr("class", "conf");
       
-      $conferences = Preferences::getConferences();
-      $count = count($conferences);
-      for ($row = 0; $row <= count($conferences) / 4; $row++) {
-	$tab->addRow($h = new Row());
-	$tab->addRow($b = new Row());
-	$tab->addAttr("class", "conf");
+      $col = 0;
+      foreach ($conferences as $conf => $schools) {
+	if ($col++ % 4 == 0) {
+	  $tab->addRow($h = new Row());
+	  $tab->addRow($b = new Row());
+	  
+	}
 
-	$col = 0;
-	while (($col + 4 * $row) < $count && $col < 4) {
-	  $conf = $conferences[4 * $row + $col];
-	  $h->addCell(Cell::th($conf));
-	  $b->addCell(new Cell($list = new Itemize()));
-	  foreach (Preferences::getSchoolsInConference($conf) as $school) {
-	    if ($school != $this->SCHOOL) {
-	      $link = sprintf("/prefs/%s", $school->id);
-	      $list->addItems(new LItem(new Link($link, $school->nick_name)));
-	    }
-	  }
-	  $col++;
+	$h->addCell(Cell::th($conf));
+	$b->addCell(new Cell($list = new Itemize()));
+	foreach ($schools as $school) {
+	  if ($school != $this->SCHOOL)
+	    $link = new Link(sprintf("/prefs/%s", $school->id), $school->nick_name);
+	  else
+	    $link = new Span(array(new Text($school->nick_name)));
+	  $list->addItems(new LItem($link));
 	}
       }
     }

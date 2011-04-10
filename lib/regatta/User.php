@@ -182,12 +182,12 @@ class User {
     if ($conf === null || $school->conference == $conf)
       $list[$school->id] = $school;
     if ($this->get(User::ADMIN) > 0)
-      $q = sprintf('select id from school');
+      $q = sprintf('select id as school from school');
     else
       $q = sprintf('select school from account_school');
     $q = Preferences::query($q);
     while ($r = $q->fetch_object()) {
-      $school = Preferences::getSchool($r->id);
+      $school = Preferences::getSchool($r->school);
       if ($conf === null || $school->conference == $conf)
 	$list[$school->id] = $school;
     }

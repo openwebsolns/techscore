@@ -45,7 +45,8 @@ if ($SCHOOL == null) {
   $_SESSION['ANNOUNCE'][] = new Announcement($mes, Announcement::ERROR);
   WebServer::go($HOME);
 }
-if (!$USER->get(User::ADMIN) && $SCHOOL != $USER->get(User::SCHOOL)) {
+$schools = $USER->getSchools();
+if (!isset($schools[$SCHOOL->id])) {
   $mes = sprintf("No permissions to edit school (%s).", $SCHOOL);
   $_SESSION['ANNOUNCE'][] = new Announcement($mes, Announcement::ERROR);
   WebServer::go($HOME);
