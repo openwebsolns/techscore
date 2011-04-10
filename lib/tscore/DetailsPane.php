@@ -102,7 +102,7 @@ class DetailsPane extends AbstractPane {
     // Hosts: first add the current hosts, then the entire list of
     // schools in the affiliation ordered by conference
     $hosts = $this->REGATTA->getHosts();
-    $reg_form->addChild(new FItem('Host(s):<br/><small>Hold down <kbd>Ctrl</kbd> to choose more than one</small>', $f_sel = new FSelect("host[]", array($hosts))));
+    $reg_form->addChild(new FItem('Host(s):<br/><small>Hold down <kbd>Ctrl</kbd> to choose more than one</small>', $f_sel = new FSelect("host[]")));
     $f_sel->addChild($opt_group = new OptionGroup("Current"));
     $schools = array(); // track these so as not to include them later
     foreach ($hosts as $host) {
@@ -124,8 +124,7 @@ class DetailsPane extends AbstractPane {
     $f_sel->addAttr('size', 10);
 
     // Update button
-    $reg_form->addChild($reg_sub = new FSubmit("edit_reg",
-					       "Edit"));
+    $reg_form->addChild($reg_sub = new FSubmit("edit_reg", "Edit"));
     // If finalized, disable submit
     $finalized = $this->REGATTA->get(Regatta::FINALIZED);
 

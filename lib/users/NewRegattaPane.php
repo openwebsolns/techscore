@@ -51,16 +51,24 @@ class NewRegattaPane extends AbstractUserPane {
     $f->addChild(new FItem("Participation:", $par = new FSelect("participant", array($r["participant"]))));
     $f->addChild(new FItem("Divisions:",$div = new FSelect("num_divisions",  array($r["num_divisions"]))));
     $f->addChild(new FItem("Number of races:", new FText("num_races", $r["num_races"])));
-    $f->addChild(new FItem("Host(s)<br/><small>There must be at least one</small>:",
-			   $f_sel = new FSelect("host[]", array(), array('multiple'=>'multiple','size'=>10))));
-    foreach (Preferences::getConferences() as $conf) {
-      $opts = array();
-      foreach ($this->USER->getSchools($conf) as $school) {
-	if (!isset($schools[$school->id]))
-	  $opts[$school->id] = $school;
+    // host: if it has more than one host, otherwise send it hidden
+    $confs = array(); // array of conference choices
+    $schools = $this->USER->getSchools();
+    if (count($schools) == 1) {
+      $school = array_shift($schools);
+      $f->addChild(new FItem("Host:", new Span(array(new Text($school)))));
+      $f->addChild(new FHidden('host[]', $school->id));
+    }
+    else {
+      foreach ($schools as $school) {
+	if (!isset($confs[$school->conference->id]))
+	  $confs[$school->conference->id] = array();
+	$confs[$school->conference->id][$school->id] = $school;
       }
-      if (count($opts) > 0)
-	$f_sel->addOptionGroup($conf, $opts);
+      $f->addChild(new FItem("Host(s)<br/><small>There must be at least one</small>:",
+			     $f_sel = new FSelect('host[]', array(), array('multiple'=>'multiple','size'=>10))));
+      foreach ($confs as $id => $list)
+	$f_sel->addOptionGroup($conf, $list);
     }
     $f->addChild(new FSubmit("new-regatta", "Create"));
 

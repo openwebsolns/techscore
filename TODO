@@ -147,3 +147,6 @@ awesomer table.
 ** Deprecate the finish listener interface
 
 Instead, use the Regatta::setFinishes method to do your bidding.
+
+
+* Since most scorers only have one school, do not display the extra host field for them (d o n e)
