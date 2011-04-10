@@ -188,9 +188,14 @@ class UpdateSeason {
 	  $tied_schools[] = DBME::get(DBME::$SCHOOL, array_shift($school_codes));
 	}
       }
+      // 2011-04-09: feedback compiled by Matt Lindblad from users
+      // that this stat was "confusing"
+      /*
       $summary_port->add(new XDiv(array('class'=>'stat'),
 				  array(new XSpan("Winningest School(s):", array('class'=>'prefix')),
-					implode('/', $tied_schools))));
+					implode('/',
+				  $tied_schools))));
+      */
     }
   }
 
