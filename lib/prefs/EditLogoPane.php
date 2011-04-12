@@ -36,15 +36,18 @@ class EditLogoPane extends AbstractUserPane {
 			  "be no larger than 200 KB in size. For best results " .
 			  "use an image with a transparent background, by " .
 			  "either using a PNG or GIF file format."));
+
+    $p->addChild($para = new Para("Please allow up to 8 hours after uploading for the new logo to appear on the public site."));
     // Current logo
     if ($this->SCHOOL->burgee) {
       $url = sprintf("/img/schools/%s.png", $this->SCHOOL->id);
-      $p->addChild(new Para(sprintf("The current logo for %s:", $this->SCHOOL->name)));
-      $p->addChild(new GenericElement("center",
-				      array(new Image($url, array("alt"=>$this->SCHOOL->nick_name)))));
+      $url = sprintf('data:image/png;base64,%s', $this->SCHOOL->burgee->filedata);
+      $para->addChild(new Text(sprintf("The current logo for %s is shown below. If you do not see an image below, you may need to upgrade your browser.", $this->SCHOOL->name)));
+      $p->addChild($para = new Para("", array('style'=>'text-align:center')));
+      $para->addChild(new Image($url, array("alt"=>$this->SCHOOL->nick_name)));
     }
     else {
-      $p->addChild(new Para("There is currently no logo for this school on file."));
+      $para->addChild(new Text("There is currently no logo for this school on file."));
     }
 
     // Form
