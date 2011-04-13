@@ -150,3 +150,17 @@ Instead, use the Regatta::setFinishes method to do your bidding.
 
 
 * Since most scorers only have one school, do not display the extra host field for them (d o n e)
+
+
+* Pester about teams if there are none
+
+The reasoning here is that a regatta is not ready until there are
+races and teams. The way it is now, the race creation is done at
+regatta creation time, but the teams are created at the scorer's
+discretion.  What we need to do instead is feed the scorer the pane
+where new teams can be added, which is different from the one that
+allows them to "add" a new team after the regatta has happened.
+
+Thus, in addition to this new scoring pane, there's a new one
+specifically for adding a team, which only takes one school at a
+time.

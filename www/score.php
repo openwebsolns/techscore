@@ -62,6 +62,7 @@ if (!isset($_REQUEST['p']) &&
 // - Editing panes
 //
 elseif (isset($_REQUEST['p'])) {
+  $POSTING = (isset($_GET['_action']) && $_GET['_action'] == 'edit');
   if (empty($_REQUEST['p'])) {
     $PAGE = new DetailsPane($USER, $REG);
   }
@@ -70,6 +71,7 @@ elseif (isset($_REQUEST['p'])) {
 		   new SummaryPane($USER, $REG),
 		   new RacesPane($USER, $REG),
 		   new TeamsPane($USER, $REG),
+		   new CreateTeamsPane($USER, $REG),
 		   new NotesPane($USER, $REG),
 		   new SailsPane($USER, $REG),
 		   new TweakSailsPane($USER, $REG),
@@ -85,7 +87,7 @@ elseif (isset($_REQUEST['p'])) {
 		   new ReplaceTeamPane($USER, $REG));
     foreach ($panes as $pane) {
       if (in_array($_REQUEST['p'], $pane->getURLs())) {
-	if ($pane->isActive()) {
+	if ($pane->isActive($POSTING)) {
 	  $PAGE = $pane;
 	  break;
 	}
@@ -103,7 +105,7 @@ elseif (isset($_REQUEST['p'])) {
     }
   }
   // process, if so requested
-  if (isset($_GET['_action']) && $_GET['_action'] == 'edit') {
+  if ($POSTING) {
     $_SESSION['POST'] = $PAGE->process($_POST);
     if (LOG_MEMORY)
       error_log(sprintf("%s:\t%d\n", $_SERVER['REQUEST_URI'], memory_get_peak_usage()), 3, "../log/memory.log");

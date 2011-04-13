@@ -827,7 +827,7 @@ class SailsPane extends AbstractPane {
     return true;
   }
 
-  public function isActive() {
+  public function isActive($posting = false) {
     return (count($this->REGATTA->getRaces()) > 0 &&
 	    count($this->REGATTA->getTeams()) > 1);
   }

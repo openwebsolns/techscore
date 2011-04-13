@@ -121,7 +121,7 @@ class DropPenaltyPane extends AbstractPane {
     return $args;
   }
 
-  public function isActive() {
+  public function isActive($posting = false) {
     return $this->REGATTA->hasFinishes();
   }
 }

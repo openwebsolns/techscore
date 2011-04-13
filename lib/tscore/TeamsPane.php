@@ -161,7 +161,7 @@ class TeamsPane extends AbstractPane {
     }
   }
 
-  public function isActive() { return true; }
+  public function isActive($posting = false) { return true; }
 }
 
 ?>

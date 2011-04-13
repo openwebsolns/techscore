@@ -116,7 +116,7 @@ class ManualTweakPane extends AbstractPane {
     return $args;
   }
 
-  public function isActive() {
+  public function isActive($posting = false) {
     $rot = $this->REGATTA->getRotation();
     return count($rot->getSails()) > 0;
   }

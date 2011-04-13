@@ -381,7 +381,7 @@ class RpEnterPane extends AbstractPane {
     return $list;
   }
 
-  public function isActive() {
+  public function isActive($posting = false) {
     return count($this->REGATTA->getTeams()) > 0;
   }
 }
