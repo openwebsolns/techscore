@@ -291,7 +291,7 @@ class TweakSailsPane extends AbstractPane {
     return $args;
   }
 
-  public function isActive($posting = false) {
+  public function isActive() {
     $rot = $this->REGATTA->getRotation();
     return count($rot->getSails()) > 0;
   }

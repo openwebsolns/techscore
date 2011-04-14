@@ -182,7 +182,7 @@ class TeamPenaltyPane extends AbstractPane {
     return $args;
   }
 
-  public function isActive($posting = false) {
+  public function isActive() {
     return (count($this->REGATTA->getDivisions()) > 0 &&
 	    count($this->REGATTA->getTeams())     > 1);
   }

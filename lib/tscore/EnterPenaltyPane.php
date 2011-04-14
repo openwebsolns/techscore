@@ -306,7 +306,7 @@ class EnterPenaltyPane extends AbstractPane {
     return $args;
   }
 
-  public function isActive($posting = false) {
+  public function isActive() {
     return $this->REGATTA->hasFinishes();
   }
 }

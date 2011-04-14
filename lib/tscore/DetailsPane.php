@@ -273,6 +273,6 @@ class DetailsPane extends AbstractPane {
     }
   }
 
-  public function isActive($posting = false) { return true; }
+  public function isActive() { return true; }
 }
 ?>

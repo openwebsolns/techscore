@@ -98,7 +98,7 @@ class RegistrationsDialog extends AbstractDialog {
     }
   }
 
-  public function isActive($posting = false) {
+  public function isActive() {
     return count($this->REGATTA->getTeams()) > 0;
   }
 

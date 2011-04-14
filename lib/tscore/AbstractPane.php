@@ -223,10 +223,9 @@ abstract class AbstractPane {
    * Determines whether this pane is active given the current state of
    * the regatta
    *
-   * @param direction (optional) true for filling, false for posting
    * @return boolean true if pane is active
    */
-  abstract public function isActive($posting = false);
+  abstract public function isActive();
 
   /**
    * Creates a new Form HTML element using the standard URL for this

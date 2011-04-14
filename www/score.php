@@ -71,7 +71,6 @@ elseif (isset($_REQUEST['p'])) {
 		   new SummaryPane($USER, $REG),
 		   new RacesPane($USER, $REG),
 		   new TeamsPane($USER, $REG),
-		   new CreateTeamsPane($USER, $REG),
 		   new NotesPane($USER, $REG),
 		   new SailsPane($USER, $REG),
 		   new TweakSailsPane($USER, $REG),
@@ -87,7 +86,7 @@ elseif (isset($_REQUEST['p'])) {
 		   new ReplaceTeamPane($USER, $REG));
     foreach ($panes as $pane) {
       if (in_array($_REQUEST['p'], $pane->getURLs())) {
-	if ($pane->isActive($POSTING)) {
+	if ($pane->isActive()) {
 	  $PAGE = $pane;
 	  break;
 	}

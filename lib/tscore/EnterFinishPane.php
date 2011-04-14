@@ -799,7 +799,7 @@ class EnterFinishPane extends AbstractPane {
     return $args;
   }
 
-  public function isActive($posting = false) {
+  public function isActive() {
     return ($this->REGATTA->getRacesCount() > 0 &&
 	    $this->REGATTA->getFleetSize() > 0);
   }

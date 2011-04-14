@@ -113,7 +113,7 @@ class ReplaceTeamPane extends AbstractPane {
     }
   }
 
-  public function isActive($posting = false) {
+  public function isActive() {
     return count($this->REGATTA->getTeams()) > 0;
   }
 }

@@ -262,6 +262,6 @@ class RacesPane extends AbstractPane {
     return array();
   }
 
-  public function isActive($posting = false) { return true; }
+  public function isActive() { return true; }
 }
 ?>

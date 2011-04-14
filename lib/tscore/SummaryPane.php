@@ -55,6 +55,6 @@ class SummaryPane extends AbstractPane {
     return $args;
   }
 
-  public function isActive($posting = false) { return true; }
+  public function isActive() { return true; }
 }
 ?>
