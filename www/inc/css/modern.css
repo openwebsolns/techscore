@@ -362,6 +362,10 @@ div.maximized iframe {
     background: #e0f3e0;
     border: 1px solid green;
 }
+#announcediv p.warning {
+    background: #f3f3bb;
+    border: 1px solid orange;
+}
 #announcediv img {
     margin-right: 0.5em;
 }
@@ -418,7 +422,7 @@ dt {
     margin-left: 0.5em;
 }
 
-/* Fix teh team list */
+/* Fix the team list */
 #teams-list {
     border: 1px solid #aaa;
     max-height: 25em;

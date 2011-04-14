@@ -41,8 +41,7 @@ class Announcement extends Para {
     $this->addChild(new Text($message));
     $this->message = $message;
     $this->type    = $type;
-    if ($type == self::VALID)
-      $this->addAttr('class', 'valid');
+    $this->addAttr('class', $type);
   }
 
   /**
