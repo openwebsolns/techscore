@@ -41,6 +41,7 @@ class Announcement extends Para {
     $this->addChild(new Text($message));
     $this->message = $message;
     $this->type    = $type;
+    $this->addAttr('class', $type);
   }
 
   /**

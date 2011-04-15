@@ -15,8 +15,7 @@ require_once('conf.php');
 class ManualTweakPane extends AbstractPane {
 
   public function __construct(User $user, Regatta $reg) {
-    parent::__construct("Manual rotation", $user, $reg);
-    $this->title = "Manual setup";
+    parent::__construct("Manual setup", $user, $reg);
   }
 
   protected function fillHTML(Array $args) {
@@ -61,7 +60,7 @@ class ManualTweakPane extends AbstractPane {
 	$sail = $rotation->getSail($race, $team);
 	$row[] = new Cell(new FText(sprintf("%s,%s", $race->id, $team->id),
 				    ($sail !== null) ? $sail : "",
-				    array("size"=>"1", "maxlength"=>"3")));
+				    array("size"=>"3", "maxlength"=>"3", "class"=>"small")));
       }
       $tab->addRow(new Row($row));
     }
@@ -114,11 +113,6 @@ class ManualTweakPane extends AbstractPane {
     }
 
     return $args;
-  }
-
-  public function isActive() {
-    $rot = $this->REGATTA->getRotation();
-    return count($rot->getSails()) > 0;
   }
 }
 ?>

@@ -62,48 +62,25 @@ if (!isset($_REQUEST['p']) &&
 // - Editing panes
 //
 elseif (isset($_REQUEST['p'])) {
+  $POSTING = (isset($_GET['_action']) && $_GET['_action'] == 'edit');
   if (empty($_REQUEST['p'])) {
     $PAGE = new DetailsPane($USER, $REG);
   }
   else {
-    $panes = array(new DetailsPane($USER, $REG),
-		   new SummaryPane($USER, $REG),
-		   new RacesPane($USER, $REG),
-		   new TeamsPane($USER, $REG),
-		   new NotesPane($USER, $REG),
-		   new SailsPane($USER, $REG),
-		   new TweakSailsPane($USER, $REG),
-		   new ManualTweakPane($USER, $REG),
-		   new RpEnterPane($USER, $REG),
-		   new UnregisteredSailorPane($USER, $REG),
-		   new ScorersPane($USER, $REG),
-		   new EnterFinishPane($USER, $REG),
-		   new DropFinishPane($USER, $REG),
-		   new EnterPenaltyPane($USER, $REG),
-		   new DropPenaltyPane($USER, $REG),
-		   new TeamPenaltyPane($USER, $REG),
-		   new ReplaceTeamPane($USER, $REG));
-    foreach ($panes as $pane) {
-      if (in_array($_REQUEST['p'], $pane->getURLs())) {
-	if ($pane->isActive()) {
-	  $PAGE = $pane;
-	  break;
-	}
-	else {
-	  $title = $pane->getTitle();
-	  $_SESSION['ANNOUNCE'][] = new Announcement("$title is not available.", Announcement::WARNING);
-	  WebServer::go("/score/".$REG->id());
-	}
-      }
-    }
+    $PAGE = AbstractPane::getPane($_REQUEST['p'], $USER, $REG);
     if ($PAGE === null) {
       $mes = sprintf("Invalid page requested (%s)", $_REQUEST['p']);
       $_SESSION['ANNOUNCE'][] = new Announcement($mes, Announcement::WARNING);
       WebServer::go("/score/".$REG->id());
     }
+    if (!$PAGE->isActive()) {
+      $title = $pane->getTitle();
+      $_SESSION['ANNOUNCE'][] = new Announcement("$title is not available.", Announcement::WARNING);
+      WebServer::go("/score/".$REG->id());
+    }
   }
   // process, if so requested
-  if (isset($_GET['_action']) && $_GET['_action'] == 'edit') {
+  if ($POSTING) {
     $_SESSION['POST'] = $PAGE->process($_POST);
     if (LOG_MEMORY)
       error_log(sprintf("%s:\t%d\n", $_SERVER['REQUEST_URI'], memory_get_peak_usage()), 3, "../log/memory.log");

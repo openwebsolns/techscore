@@ -19,7 +19,6 @@ class TweakSailsPane extends AbstractPane {
 
   public function __construct(User $user, Regatta $reg) {
     parent::__construct("Tweak sails", $user, $reg);
-    $this->urls[] = "tweak";
   }
 
   protected function fillHTML(Array $args) {
@@ -289,11 +288,6 @@ class TweakSailsPane extends AbstractPane {
     }
 
     return $args;
-  }
-
-  public function isActive() {
-    $rot = $this->REGATTA->getRotation();
-    return count($rot->getSails()) > 0;
   }
 }
 ?>

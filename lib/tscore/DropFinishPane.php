@@ -16,8 +16,7 @@ require_once("conf.php");
 class DropFinishPane extends AbstractPane {
 
   public function __construct(User $user, Regatta $reg) {
-    parent::__construct("Current finishes", $user, $reg);
-    $this->title = "All finishes";
+    parent::__construct("All finishes", $user, $reg);
   }
 
   /**
@@ -139,9 +138,5 @@ class DropFinishPane extends AbstractPane {
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
     }
     return $args;
-  }
-
-  public function isActive() {
-    return $this->REGATTA->hasFinishes();
   }
 }

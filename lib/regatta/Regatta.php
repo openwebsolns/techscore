@@ -963,6 +963,26 @@ class Regatta implements RaceListener {
     return $list;
   }
 
+  /**
+   * Like hasFinishes, but checks specifically for finishes
+   *
+   * @param Race $race optional, if given, returns status for only
+   * that race
+   * @return boolean
+   * @see hasFinishes
+   */
+  public function hasPenalties(Race $race = null) {
+    $and = '';
+    if ($race !== null)
+      $and = sprintf('and race = "%s"', $race->id);
+    $q = $this->query(sprintf('select id from finish ' .
+			      'where race in (select id from race where regatta = %d) ' .
+			      '  and finish.penalty is not null %s', $this->id, $and));
+    $cnt = ($q->num_rows > 0);
+    $q->free();
+    return $cnt;
+  }
+
   private $has_finishes = null;
   /**
    * Are there finishes for this regatta?

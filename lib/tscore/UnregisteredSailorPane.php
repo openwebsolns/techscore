@@ -20,7 +20,6 @@ class UnregisteredSailorPane extends AbstractPane {
 
   public function __construct(User $user, Regatta $reg) {
     parent::__construct("Unregistered sailors", $user, $reg);
-    $this->title = "Unregistered";
   }
 
   protected function fillHTML(Array $args) {
@@ -163,10 +162,6 @@ class UnregisteredSailorPane extends AbstractPane {
       }
     }
     return $args;
-  }
-
-  public function isActive() {
-    return count($this->REGATTA->getFleetSize()) > 0;
   }
 }
 ?>

@@ -30,12 +30,6 @@ class SailsPane extends AbstractPane {
 
   public function __construct(User $user, Regatta $reg) {
     parent::__construct("Setup rotations", $user, $reg);
-    $this->title = "Setup";
-    $this->urls[] = 'rotation';
-    $this->urls[] = 'rotations';
-    $this->urls[] = 'create-rotation';
-    $this->urls[] = 'create-rotations';
-    $this->urls[] = 'setup-rotation';
   }
 
   /**
@@ -458,7 +452,7 @@ class SailsPane extends AbstractPane {
     UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
     $this->announce(new Announcement("New rotation successfully created."));
     unset($args['rottype']);
-    return $args;
+    $this->redirect('finishes');
   }
 
   /**
@@ -741,8 +735,11 @@ class SailsPane extends AbstractPane {
       // Reset
       $rotation->commit();
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
-      $this->announce(new Announcement("New rotation successfully created."));
+      $a = new Link(sprintf('/view/%s/rotation', $this->REGATTA->id()), "View");
+      $a->addAttr('target', '_blank');
+      $this->announce(new Announcement("New rotation successfully created. " . $a->toHTML() . "."));
       unset($args['rottype']);
+      $this->redirect('finishes');
     }
 
     // ------------------------------------------------------------
@@ -825,11 +822,6 @@ class SailsPane extends AbstractPane {
 	return false;
     }
     return true;
-  }
-
-  public function isActive() {
-    return (count($this->REGATTA->getRaces()) > 0 &&
-	    count($this->REGATTA->getTeams()) > 1);
   }
 }
 ?>

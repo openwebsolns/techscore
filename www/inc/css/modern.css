@@ -346,17 +346,28 @@ div.maximized iframe {
 }
 
 /* Announce */
-div#announcediv {
-    background: #f3ebe0;
+#announcediv {
     margin: auto;
     margin-bottom: 20px;
     font-size: 0.9em;
     width: 820px;
 }
-div#announcediv p {
-    margin: 15px;
-    margin-top: 5px;
-    margin-bottom: 5px;
+#announcediv p {
+    padding: 0.5em;
+    margin: 1em 15px;
+    background: #eed2c0;
+    border: 1px solid brown;
+}
+#announcediv p.valid {
+    background: #e0f3e0;
+    border: 1px solid green;
+}
+#announcediv p.warning {
+    background: #f3f3bb;
+    border: 1px solid orange;
+}
+#announcediv img {
+    margin-right: 0.5em;
 }
 
 div.message {
@@ -409,4 +420,36 @@ dt {
 }
 #cmp-sailor label {
     margin-left: 0.5em;
+}
+
+/* Fix the team list */
+#teams-list {
+    border: 1px solid #aaa;
+    max-height: 25em;
+    overflow: scroll;
+    overflow-x: auto;
+    padding: 0;
+    background: #eee;
+}
+#teams-list ul {
+    padding: 0.25em;
+    margin: 0;
+}
+#teams-list > li {
+    list-style-type: none;
+    padding: 0;
+    margin: 0.25em 0;
+}
+#teams-list ul li {
+    margin: 0.2em 0;
+}
+#teams-list h4 {
+    margin: 0.5em 0 0.25em;
+    border-bottom: 1px solid #aaa;
+}
+#teams-list input {
+    width: 3em;
+}
+#teams-list label {
+    padding-left: 1em;
 }
