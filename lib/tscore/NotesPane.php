@@ -28,8 +28,7 @@ class NotesPane extends AbstractPane {
     // Form
     $p->addChild($form = $this->createForm());
     $form->addChild($fitem = new FItem("Race:", 
-				       new FText("chosen_race",
-						 $theRace['num'],
+				       new FText("chosen_race", "",
 						 array("size"=>"4",
 						       "maxlength"=>"4",
 						       "id"=>"chosen_race",
@@ -101,7 +100,7 @@ class NotesPane extends AbstractPane {
       } catch (Exception $e) {
 	$mes = sprintf("Invalid or missing race chosen (%s).", $args['chosen_race']);
 	$this->announce(new Announcement($mes, Announcement::ERROR));
-	$this->redirect();
+	return false;
       }
 
       // require an observation
@@ -112,7 +111,7 @@ class NotesPane extends AbstractPane {
       }
       else {
 	$this->announce(new Announcement("No observation found.", Announcement::ERROR));
-	$this->redirect();
+	return false;
       }
 
       // require an observer
@@ -123,7 +122,7 @@ class NotesPane extends AbstractPane {
       }
       else {
 	$this->announce(new Announcement("No observer included.", Announcement::ERROR));
-	$this->redirect();
+	return false;
       }
 
       $note = new Note();

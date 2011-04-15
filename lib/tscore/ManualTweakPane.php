@@ -60,7 +60,7 @@ class ManualTweakPane extends AbstractPane {
 	$sail = $rotation->getSail($race, $team);
 	$row[] = new Cell(new FText(sprintf("%s,%s", $race->id, $team->id),
 				    ($sail !== null) ? $sail : "",
-				    array("size"=>"1", "maxlength"=>"3")));
+				    array("size"=>"3", "maxlength"=>"3", "class"=>"small")));
       }
       $tab->addRow(new Row($row));
     }
