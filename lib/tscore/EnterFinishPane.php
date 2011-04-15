@@ -22,13 +22,8 @@ class EnterFinishPane extends AbstractPane {
 			   "TMS" => "Team names");
 
   public function __construct(User $user, Regatta $reg) {
-    parent::__construct("Enter finishes", $user, $reg);
-    $this->title = "Enter finish";
-    $this->urls[] = "finish";
-    $this->urls[] = "finishes";
-    $this->urls[] = "enter-finish";
+    parent::__construct("Enter finish", $user, $reg);
   }
-
 
   /**
    * Fills the page in the case of a combined division scoring
@@ -798,11 +793,5 @@ class EnterFinishPane extends AbstractPane {
     
     return $args;
   }
-
-  public function isActive() {
-    return ($this->REGATTA->getRacesCount() > 0 &&
-	    $this->REGATTA->getFleetSize() > 0);
-  }
 }
-
 ?>

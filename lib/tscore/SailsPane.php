@@ -30,12 +30,6 @@ class SailsPane extends AbstractPane {
 
   public function __construct(User $user, Regatta $reg) {
     parent::__construct("Setup rotations", $user, $reg);
-    $this->title = "Setup";
-    $this->urls[] = 'rotation';
-    $this->urls[] = 'rotations';
-    $this->urls[] = 'create-rotation';
-    $this->urls[] = 'create-rotations';
-    $this->urls[] = 'setup-rotation';
   }
 
   /**
@@ -825,11 +819,6 @@ class SailsPane extends AbstractPane {
 	return false;
     }
     return true;
-  }
-
-  public function isActive() {
-    return (count($this->REGATTA->getRaces()) > 0 &&
-	    count($this->REGATTA->getTeams()) > 1);
   }
 }
 ?>

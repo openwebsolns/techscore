@@ -17,8 +17,7 @@ class SummaryPane extends AbstractPane {
    *
    */
   public function __construct(User $user, Regatta $reg) {
-    parent::__construct("Daily Summaries", $user, $reg);
-    $this->title = "Summaries";
+    parent::__construct("Summaries", $user, $reg);
   }
 
   protected function fillHTML(Array $args) {
@@ -54,7 +53,5 @@ class SummaryPane extends AbstractPane {
     }
     return $args;
   }
-
-  public function isActive() { return true; }
 }
 ?>

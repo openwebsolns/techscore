@@ -16,8 +16,7 @@ require_once("conf.php");
 class DropPenaltyPane extends AbstractPane {
 
   public function __construct(User $user, Regatta $reg) {
-    parent::__construct("Current penalties and breakdowns", $user, $reg);
-    $this->title = "Drop penalty";
+    parent::__construct("Drop penalty", $user, $reg);
   }
 
   protected function fillHTML(Array $args) {
@@ -119,9 +118,5 @@ class DropPenaltyPane extends AbstractPane {
       $this->announce(new Announcement($mes));
     }
     return $args;
-  }
-
-  public function isActive() {
-    return $this->REGATTA->hasFinishes();
   }
 }

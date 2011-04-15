@@ -18,10 +18,7 @@ require_once("conf.php");
 class EnterPenaltyPane extends AbstractPane {
 
   public function __construct(User $user, Regatta $reg) {
-    parent::__construct("Individual penalties and breakdowns", $user, $reg);
-    $this->title = "Add penalty";
-    array_unshift($this->urls, 'penalties');
-    $this->urls[] = 'penalty';
+    parent::__construct("Add penalty", $user, $reg);
   }
 
   protected function fillHTML(Array $args) {
@@ -304,9 +301,5 @@ class EnterPenaltyPane extends AbstractPane {
     }
 
     return $args;
-  }
-
-  public function isActive() {
-    return $this->REGATTA->hasFinishes();
   }
 }

@@ -156,7 +156,5 @@ class NotesPane extends AbstractPane {
 
     return $args;
   }
-
-  public function isActive() { return true; }
 }
 ?>

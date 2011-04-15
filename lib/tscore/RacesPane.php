@@ -261,7 +261,5 @@ class RacesPane extends AbstractPane {
     }
     return array();
   }
-
-  public function isActive() { return true; }
 }
 ?>

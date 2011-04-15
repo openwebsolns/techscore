@@ -20,8 +20,6 @@ class DetailsPane extends AbstractPane {
 
   public function __construct(User $user, Regatta $reg) {
     parent::__construct("Settings", $user, $reg);
-    $this->urls[] = "home";
-    $this->urls[] = "settings";
   }
 
   protected function fillHTML(Array $args) {
@@ -272,7 +270,5 @@ class DetailsPane extends AbstractPane {
 	$this->announce(new Announcement("Please check the box to finalize.", Announcement::ERROR));
     }
   }
-
-  public function isActive() { return true; }
 }
 ?>

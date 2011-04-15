@@ -13,9 +13,6 @@ class ReplaceTeamPane extends AbstractPane {
 
   public function __construct(User $user, Regatta $reg) {
     parent::__construct("Substitute team", $user, $reg);
-    $this->title = "Sub team";
-    $this->urls[] = "substitute";
-    $this->urls[] = "replace";
   }
 
   protected function fillHTML(Array $args) {
@@ -112,10 +109,5 @@ class ReplaceTeamPane extends AbstractPane {
       return array();
     }
   }
-
-  public function isActive() {
-    return count($this->REGATTA->getTeams()) > 0;
-  }
 }
-
 ?>

@@ -14,9 +14,6 @@ class ScorersPane extends AbstractPane {
 
   public function __construct(User $user, Regatta $reg) {
     parent::__construct("Scorers", $user, $reg);
-    $this->urls[] = "scorer";
-    $this->urls[] = "host";
-    $this->urls[] = "hosts";
   }
 
   protected function fillHTML(Array $args) {
@@ -168,6 +165,4 @@ class ScorersPane extends AbstractPane {
     }
     return $args;
   }
-
-  public function isActive() { return true; }
 }

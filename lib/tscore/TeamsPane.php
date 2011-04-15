@@ -12,9 +12,7 @@ require_once('AbstractPane.php');
 class TeamsPane extends AbstractPane {
 
   public function __construct(User $user, Regatta $reg) {
-    parent::__construct("Teams", $user, $reg);
-    $this->title = "Add/delete";
-    $this->urls[] = "team";
+    parent::__construct("Add Team", $user, $reg);
   }
 
   protected function fillHTML(Array $args) {
@@ -231,8 +229,5 @@ class TeamsPane extends AbstractPane {
       $this->redirect('setup-rotations');
     }
   }
-
-  public function isActive() { return true; }
 }
-
 ?>
