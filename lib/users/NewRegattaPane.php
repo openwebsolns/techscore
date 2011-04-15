@@ -68,7 +68,7 @@ class NewRegattaPane extends AbstractUserPane {
       $f->addChild(new FItem("Host(s)<br/><small>There must be at least one</small>:",
 			     $f_sel = new FSelect('host[]', array(), array('multiple'=>'multiple','size'=>10))));
       foreach ($confs as $id => $list)
-	$f_sel->addOptionGroup($conf, $list);
+	$f_sel->addOptionGroup($id, $list);
     }
     $f->addChild(new FSubmit("new-regatta", "Create"));
 
@@ -78,8 +78,10 @@ class NewRegattaPane extends AbstractUserPane {
       $sel->addChild(new Option($venue->id, $venue));
     foreach (Preferences::getRegattaScoringAssoc() as $key => $value)
       $sco->addChild(new Option($key, $value));
-    foreach (Preferences::getRegattaTypeAssoc() as $key => $value)
-      $typ->addChild(new Option($key, $value));
+    $types = Preferences::getRegattaTypeAssoc();
+    unset($types['personal']);
+    $typ->addOptionGroup("Public", $types);
+    $typ->addOptionGroup("Not-published", array('personal' => "Personal"));
     foreach (Preferences::getRegattaParticipantAssoc() as $key => $value)
       $par->addChild(new Option($key, $value));
     for ($i = 1; $i <= 4; $i++)

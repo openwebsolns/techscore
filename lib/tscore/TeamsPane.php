@@ -223,11 +223,13 @@ class TeamsPane extends AbstractPane {
 	}
       }
     }
-    // what if they only add one team? Would they do that?
-    if ($teams_added > 0) {
+    // need two teams for a regatta
+    if ($teams_added > 1) {
       $this->announce(new Announcement("Added $teams_added teams. Setup rotations, or start adding finishes."));
       $this->redirect('setup-rotations');
     }
+    $this->announce(new Announcement("Please add at least two teams to proceed."));
+    return false;
   }
 }
 ?>

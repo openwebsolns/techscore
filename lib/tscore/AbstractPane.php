@@ -23,6 +23,12 @@ abstract class AbstractPane {
   protected $PAGE;
   protected $USER;
 
+  // variables to determine validity. See doActive()
+  private $has_teams = false;
+  private $has_rots = false;
+  private $has_scores = false;
+  private $has_penalty = false;
+  
   /**
    * Create a new editing pane with the given name
    *
@@ -34,6 +40,12 @@ abstract class AbstractPane {
     $this->name = (string)$name;
     $this->REGATTA = $reg;
     $this->USER = $user;
+
+    $rot = $this->REGATTA->getRotation();
+    $this->has_teams = count($this->REGATTA->getTeams()) > 1;
+    $this->has_rots = $this->has_teams && $rot->isAssigned();
+    $this->has_scores = $this->has_teams && $this->REGATTA->hasFinishes();
+    $this->has_penalty = $this->has_scores && $this->REGATTA->hasPenalties();
   }
 
   /**
@@ -80,11 +92,11 @@ abstract class AbstractPane {
       $menu->addChild(new Heading($title));
       $menu->addChild($m_list = new GenericList());
       foreach ($panes as $url => $pane) {
-	$title = $this->doTitle($pane);
+	$t = $this->doTitle($pane);
 	if ($this->doActive($pane))
-	  $m_list->addItems(new LItem(new Link("/score/$id/$url", $title)));
+	  $m_list->addItems(new LItem(new Link("/score/$id/$url", $t)));
 	else
-	  $m_list->addItems(new LItem($title, array("class"=>"inactive")));
+	  $m_list->addItems(new LItem($t, array("class"=>"inactive")));
       }
       if ($title == "Regatta")
 	$m_list->addItems(new LItem(new Link('/', "Close", array('accesskey'=>'w'))));
@@ -283,30 +295,24 @@ abstract class AbstractPane {
   }
 
   private function doActive($class_name) {
-    $rot = $this->REGATTA->getRotation();
-    $has_teams = count($this->REGATTA->getTeams()) > 0;
-    $has_rots = $has_teams && $rot->isAssigned();
-    $has_scores = $has_teams && $this->REGATTA->hasFinishes();
-    $has_penalty = $has_scores && $this->REGATTA->hasPenalties();
-
     switch ($class_name) {
     case 'DropFinishPane':
     case 'EnterPenaltyPane':
-      return $has_scores;
+      return $this->has_scores;
       
     case 'DropPenaltyPane':
-      return $has_penalty;
+      return $this->has_penalty;
       
     case 'EnterFinishPane':
     case 'ReplaceTeamPane':
     case 'RpEnterPane':
     case 'SailsPane':
     case 'TeamPenaltyPane':
-      return $has_teams;
+      return $this->has_teams;
 
     case 'ManualTeakPane':
     case 'TweakSailsPane':
-      return $has_rots;
+      return $this->has_rots;
 
     default:
       return true;
