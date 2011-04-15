@@ -73,10 +73,15 @@ class DetailsPane extends AbstractPane {
 
     // Regatta type
     $value = $this->REGATTA->get(Regatta::TYPE);
-    $reg_form->addChild(new FItem("Type:",
-				  $f_sel = new FSelect("type",
-						       array($value))));
-    $f_sel->addOptions(Preferences::getRegattaTypeAssoc());
+    $reg_form->addChild($item = new FItem("Type:",
+					  $f_sel = new FSelect("type",
+							       array($value))));
+    $types = Preferences::getRegattaTypeAssoc();
+    unset($types['personal']);
+    $f_sel->addOptionGroup("Public", $types);
+    $f_sel->addOptionGroup("Not-published", array('personal' => "Personal"));
+    $item->addChild(new Span(array(new Text("Choose \"Personal\" to un-publish")),
+			     array('class'=>'message')));
 
     // Regatta participation
     $value = $this->REGATTA->get(Regatta::PARTICIPANT);
