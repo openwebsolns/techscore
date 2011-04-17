@@ -453,3 +453,9 @@ dt {
 #teams-list label {
     padding-left: 1em;
 }
+
+/* Finish */
+.pos_sail:hover, .pos_team:hover {
+    background: #3465a4;
+    color: white;
+}

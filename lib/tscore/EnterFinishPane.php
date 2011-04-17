@@ -129,12 +129,11 @@ class EnterFinishPane extends AbstractPane {
       // ------------------------------------------------------------
       // Rotation-based
       // ------------------------------------------------------------
-      $form->addChild($fitem = new FItem("Enter sail numbers:",
+      $form->addChild($fitem = new FItem("Enter sail numbers:<br/><small>(Click to push)</small>",
 					 $tab = new Table()));
       $tab->addAttr("class", "narrow");
-      $tab->addAttr("class", "coordinate");
-      $tab->addHeader(new Row(array(new Cell("Possible sails",
-					     array("colspan"=>"3"), 1))));
+      $tab->addAttr("id", "finish_table");
+      $tab->addHeader(new Row(array(Cell::th("Sail"), Cell::th("&gt;"), Cell::th("Finish"))));
 
       // - Fill possible sails
       $pos_sails = array();
@@ -143,38 +142,21 @@ class EnterFinishPane extends AbstractPane {
       sort($pos_sails);
       $pos_sails = array_unique($pos_sails);
       $row = array();
-      foreach ($pos_sails as $aPS) {
-	$row[] = new Cell($aPS, array("name"=>"pos_sail",
-				      "class"=>"pos_sail",
-				      "id"=>"pos_sail"));
-	if (count($row) == 3) {
-	  $tab->addRow(new Row($row));
-	  $row = array();
-	}
-      }
-      if (!empty($row))
-	$tab->addRow(new Row($row));
-
-      // - List of race finishes
-      $fitem->addChild(new Div(array($enum = new Enumerate()),
-			       array("class"=>array("form_b", "fuse_columns"))));
-      $enum->addAttr("id", "finish_list");
-      for ($i = 0; $i < count($pos_sails); $i++) {
-	if (count($finishes) > 0) {
-	  $current_sail = $rotation->getSail($finishes[$i]->race, $finishes[$i]->team);
-        }
-	else
-	  $current_sail = "";
-
-	$enum->addChild($item = new LItem());
-	$item->addChild(new FText("p" . $i, $current_sail,
-				  array("id"=>"sail" . $i,
-					"tabindex"=>($i+1),
-					"onkeyup"=>"checkSails()",
-					"size"=>"2")));
-	$item->addChild(new Image("/img/question.png",
-				  array("alt"=>"Waiting for input",
-					"id"=>"check" . $i)));
+      foreach ($pos_sails as $i => $aPS) {
+	$current_sail = (count($finishes) > 0) ?
+	  $rotation->getSail($finishes[$i]->race, $finishes[$i]->team) : "";
+	$tab->addRow(new Row(array(new Cell($aPS, array("name"=>"pos_sail",
+							"class"=>"pos_sail",
+							"id"=>"pos_sail")),
+				   new Cell(new Image("/img/question.png",
+						      array("alt"=>"Waiting for input",
+							    "id"=>"check" . $i))),
+				   new Cell(new FText("p" . $i, $current_sail,
+						      array("id"=>"sail" . $i,
+							    "tabindex"=>($i+1),
+							    "onkeyup"=>"checkSails()",
+							    "class"=>"small",
+							    "size"=>"2"))))));
       }
 
       // Submit buttom
@@ -187,33 +169,14 @@ class EnterFinishPane extends AbstractPane {
       // ------------------------------------------------------------
       // Team lists
       // ------------------------------------------------------------
-      $form->addChild($fitem = new FItem("Enter teams:",
+      $form->addChild($fitem = new FItem("Enter teams:<br/><small>(Click to push)</small>",
 					 $tab = new Table()));
       $tab->addAttr("class", "narrow");
-      $tab->addAttr("class", "ordinate");
-      $tab->addHeader(new Row(array(Cell::th("Teams"))));
+      $tab->addAttr("id", "finish_table");
+      $tab->addHeader(new Row(array(Cell::th("Teams"), Cell::th("&gt;"), Cell::th("Finish"))));
 
-      // - Fill teams
+      // - Fill possible teams and select
       $teams = $this->REGATTA->getTeams();
-      $attrs = array("name" =>"pos_team",
-		     "id"   =>"pos_team",
-		     "class"=>"pos_sail");
-      
-      foreach ($divisions as $div) {
-	foreach ($teams as $team) {
-	  $name = sprintf("%s: %s %s",
-			  $div,
-			  $team->school->nick_name,
-			  $team->name);
-	  $attrs["value"] = sprintf("%s,%s", $div, $team->id);
-	  $tab->addRow(new Row(array(new Cell($name, $attrs))));
-	}
-      }
-
-      // - List of finishes
-      $fitem->addChild(new Div(array($enum = new Enumerate()),
-			       array("class"=>array("form_b", "fuse_columns"))));
-      $enum->addAttr("id", "finish_list");
       $team_opts = array("" => "");
       foreach ($divisions as $div) {
 	foreach ($teams as $team) {
@@ -223,23 +186,29 @@ class EnterFinishPane extends AbstractPane {
 								  $team->name);
 	}
       }
-      for ($i = 0; $i < (count($teams) * count($divisions)); $i++) {
-	if (count($finishes) > 0) {
-	  $current_team = sprintf("%s,%s",
-				  $finishes[$i]->race->division,
-				  $finishes[$i]->team->id);
+      $attrs = array("name" =>"pos_team", "id" =>"pos_team", "class"=>"pos_sail");
+      $i = 0;
+      foreach ($divisions as $div) {
+	foreach ($teams as $team) {
+	  $name = sprintf("%s: %s %s",
+			  $div,
+			  $team->school->nick_name,
+			  $team->name);
+	  $attrs["value"] = sprintf("%s,%s", $div, $team->id);
+
+	  $current_team = (count($finishes) > 0) ?
+	    sprintf("%s,%s", $finishes[$i]->race->division, $finishes[$i]->team->id) : "";
+	  $tab->addRow(new Row(array(new Cell($name, $attrs),
+				     new Cell(new Image("/img/question.png",
+							array("alt"=>"Waiting for input",
+							      "id"=>"check" . $i))),
+				     new Cell($sel = new FSelect("p" . $i, array($current_team),
+								 array("id"=>"team" . $i,
+								       "tabindex"=>($i+1),
+								       "onchange"=>"checkTeams()"))))));
+	  $sel->addOptions($team_opts);
+	  $i++;
 	}
-	else
-	  $current_team = "";
-	$enum->addChild($item = new LItem());
-	$item->addChild($sel = new FSelect("p" . $i, array($current_team),
-					   array("id"=>"team" . $i,
-						 "tabindex"=>($i+1),
-						 "onchange"=>"checkTeams()")));
-	$sel->addOptions($team_opts);
-	$item->addChild(new Image("/img/question.png",
-				  array("alt"=>"Waiting for input",
-					"id"=>"check" . $i)));
       }
 
       // Submit buttom
@@ -342,49 +311,28 @@ class EnterFinishPane extends AbstractPane {
       // ------------------------------------------------------------
       // Rotation-based
       // ------------------------------------------------------------
-      $form->addChild($fitem = new FItem("Enter sail numbers:",
-					 $tab = new Table()));
+      $form->addChild(new FItem("Enter sail numbers:<br/><small>(Click to push)</small>", $tab = new Table()));
       $tab->addAttr("class", "narrow");
-      $tab->addAttr("class", "coordinate");
-      $tab->addHeader(new Row(array(new Cell("Possible sails",
-					     array("colspan"=>"3"), 1))));
+      $tab->addAttr("id", "finish_table");
+      $tab->addHeader(new Row(array(Cell::th("Sail"), Cell::th("&gt;"), Cell::th("Finish"))));
 
-      // - Fill possible sails
+      // - Fill possible sails and input box
       $pos_sails = $rotation->getSails($race);
-      $row = array();
-      foreach ($pos_sails as $aPS) {
-	$row[] = new Cell($aPS, array("name"=>"pos_sail",
-				      "class"=>"pos_sail",
-				      "id"=>"pos_sail"));
-	if (count($row) == 3) {
-	  $tab->addRow(new Row($row));
-	  $row = array();
-	}
-      }
-      if (!empty($row))
-	$tab->addRow(new Row($row));
-
-      // - List of race finishes
       $finishes = $this->REGATTA->getFinishes($race);
       usort($finishes, "Finish::compareEntered");
-      $fitem->addChild(new Div(array($enum = new Enumerate()),
-			       array("class"=>array("form_b", "fuse_columns"))));
-      $enum->addAttr("id", "finish_list");
-      for ($i = 0; $i < count($pos_sails); $i++) {
-	if (count($finishes) > 0) {
-	  $current_sail = $rotation->getSail($race, $finishes[$i]->team);
-	}
-	else
-	  $current_sail = "";
-	$enum->addChild($item = new LItem());
-	$item->addChild(new FText("p" . $i, $current_sail,
-				  array("id"=>"sail" . $i,
-					"tabindex"=>($i+1),
-					"onkeyup"=>"checkSails()",
-					"size"=>"2")));
-	$item->addChild(new Image("/img/question.png",
-				  array("alt"=>"Waiting for input",
-					"id"=>"check" . $i)));
+      foreach ($pos_sails as $i => $aPS) {
+	$current_sail = (count($finishes) > 0) ?
+	  $rotation->getSail($race, $finishes[$i]->team) : "";
+	$tab->addRow(new Row(array(new Cell($aPS,
+					    array('name'=>'pos_sail', 'class'=>'pos_sail','id'=>'pos_sail')),
+				   new Cell(new Image("/img/question.png",
+						      array("alt"=>"Waiting for input", "id"=>"check" . $i))),
+				   new Cell(new FText("p" . $i, $current_sail,
+						      array("id"=>"sail" . $i,
+							    "tabindex"=>($i+1),
+							    "onkeyup"=>"checkSails()",
+							    "class"=>"small",
+							    "size"=>"2"))))));
       }
 
       // Submit buttom
@@ -397,50 +345,36 @@ class EnterFinishPane extends AbstractPane {
       // ------------------------------------------------------------
       // Team lists
       // ------------------------------------------------------------
-      $form->addChild($fitem = new FItem("Enter teams:",
+      $form->addChild($fitem = new FItem("Enter teams:<br/><small>(Click to push)</small>",
 					 $tab = new Table()));
       $tab->addAttr("class", "narrow");
-      $tab->addAttr("class", "ordinate");
-      $tab->addHeader(new Row(array(Cell::th("Teams"))));
+      $tab->addAttr("id", "finish_table");
+      $tab->addHeader(new Row(array(Cell::th("Team"), Cell::th("&gt;"), Cell::th("Finish"))));
 
-      // - Fill teams
+      // - Fill possible teams and select
       $teams = $this->REGATTA->getTeams();
-      $attrs = array("name"=>"pos_team",
-		     "class"=>"pos_sail",
-		     "id"=>"pos_team");
-      foreach ($teams as $team) {
-	$name = sprintf("%s %s",
-			$team->school->nick_name,
-			$team->name);
-	$attrs["value"] = $team->id;
-	$tab->addRow(new Row(array(new Cell($name, $attrs))));
-      }
-
-      // - List of finishes
-      $finishes = $this->REGATTA->getFinishes($race);
-      $fitem->addChild(new Div(array($enum = new Enumerate()),
-			       array("class"=>array("form_b", "fuse_columns"))));
-      $enum->addAttr("id", "finish_list");
       $team_opts = array("" => "");
       foreach ($teams as $team) {
 	$team_opts[$team->id] = sprintf("%s %s",
 					$team->school->nick_name,
 					$team->name);
       }
-      for ($i = 0; $i < count($teams); $i++) {
-	if (count($finishes) > 0)
-	  $current_team = $finishes[$i]->team->id;
-	else
-	  $current_team = "";
-	$enum->addChild($item = new LItem());
-	$item->addChild($sel = new FSelect("p" . $i, array($current_team),
-					   array("id"=>"team" . $i,
-						 "tabindex"=>($i+1),
-						 "onchange"=>"checkTeams()")));
+      $attrs = array("name"=>"pos_team", "class"=>"pos_sail", "id"=>"pos_team");
+      $finishes = $this->REGATTA->getFinishes($race);
+      usort($finishes, "Finish::compareEntered");
+      foreach ($teams as $i => $team) {
+	$name = sprintf("%s %s", $team->school->nick_name, $team->name);
+	$attrs["value"] = $team->id;
+
+	$current_team = (count($finishes) > 0) ? $finishes[$i]->team->id : "";
+	$tab->addRow(new Row(array(new Cell($name, $attrs),
+				   new Cell(new Image("/img/question.png",
+						      array("alt"=>"Waiting for input", "id"=>"check" . $i))),
+				   new Cell($sel = new FSelect("p" . $i, array($current_team),
+							       array("id"=>"team" . $i,
+								     "tabindex"=>($i+1),
+								     "onchange"=>"checkTeams()"))))));
 	$sel->addOptions($team_opts);
-	$item->addChild(new Image("/img/question.png",
-				  array("alt"=>"Waiting for input",
-					"id"=>"check" . $i)));
       }
 
       // Submit buttom

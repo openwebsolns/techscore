@@ -30,8 +30,8 @@ String.prototype.reverse = function(){
 	var can_submit = true;
 
 	// Get all inputs
-	var list   = document.getElementById("finish_list");
-	var inputs = list.getElementsByTagName("select");
+	var table  = document.getElementById("finish_table");
+	var inputs = table.getElementsByTagName("select");
 
 	// Go through each input and check it against the others later
 	// in the list
@@ -98,8 +98,8 @@ function checkSails () {
     var can_submit = true;
 
     // Get all inputs
-    var list   = document.getElementById("finish_list");
-    var inputs = list.getElementsByTagName("input");
+    var table  = document.getElementById("finish_table");
+    var inputs = table.getElementsByTagName("input");
 
     // Go through each input, and check it against the others
     // Handshake problem, extraordinaire
@@ -245,9 +245,9 @@ function checkRace() {
 // Appends the passed value to next available spot in list
 function appendToList(elem) {
     // Get all inputs
-    var list   = document.getElementById("finish_list");
-    var inputs = list.getElementsByTagName("input");
-    var selects = list.getElementsByTagName("select");
+    var table  = document.getElementById("finish_table");
+    var inputs = table.getElementsByTagName("input");
+    var selects = table.getElementsByTagName("select");
 
     for (var i = 0; i < inputs.length; i++) {
 	var input = inputs[i];
