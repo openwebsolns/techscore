@@ -233,7 +233,7 @@ class Table extends GenericElement
     foreach (func_get_args() as $r) {
       // Check for valid entry
       if ( !($r instanceof Row) ) {
-	trigger_error("Variable is not a Row object", E_CORE_WARNING);
+	trigger_error("Variable is not a Row object", E_USER_WARNING);
       }
       else {
 	$this->body->addChild($r);
@@ -247,7 +247,7 @@ class Table extends GenericElement
     foreach (func_get_args() as $r) {
       // Check for valid entry
       if ( !($r instanceof Row) ) {
-	trigger_error("Variable is not a Row object", E_CORE_WARNING);
+	trigger_error("Variable is not a Row object", E_USER_WARNING);
       }
       else {
 	$this->header->addChild($r);
