@@ -94,17 +94,23 @@ class TeamNamePrefsPane extends AbstractUserPane {
       $this->announce(new Announcement($mes, Announcement::ERROR));
       return;
     }
-    $names[] = $pri;
+    $repeats = false;
+    $names[$pri] = $pri;
     foreach ($args['name'] as $name) {
       $name = trim($name);
       if (!empty($name)) {
-	$names[] = $name;
+	if (isset($names[$name]))
+	  $repeats = true;
+	else
+	$names[$name] = $name;
       }
     }
 
     // Update the team names
     Preferences::setTeamNames($this->SCHOOL, $names);
     $this->announce(new Announcement("Update team name preferences."));
+    if ($repeats)
+      $this->announce(new Announcement("Team names cannot be repeated.", Announcement::WARNING));
   }
 }
 ?>
