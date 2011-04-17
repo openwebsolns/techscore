@@ -285,6 +285,10 @@ table.narrow {
     display: inline-block;
     vertical-align: top;
 }
+table.full {
+    width: 100%;
+    margin-bottom: 1em;
+}
 
 /* Table fixes */
 th.noborder, td.noborder {
@@ -379,6 +383,9 @@ div.message {
 
 .left {
     text-align: left;
+}
+.strong {
+    font-weight: bold;
 }
 
 /* Conferences table */

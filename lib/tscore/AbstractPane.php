@@ -24,10 +24,10 @@ abstract class AbstractPane {
   protected $USER;
 
   // variables to determine validity. See doActive()
-  private $has_teams = false;
-  private $has_rots = false;
-  private $has_scores = false;
-  private $has_penalty = false;
+  protected $has_teams = false;
+  protected $has_rots = false;
+  protected $has_scores = false;
+  protected $has_penalty = false;
   
   /**
    * Create a new editing pane with the given name
@@ -68,7 +68,8 @@ abstract class AbstractPane {
 					  "races"      => "RacesPane",
 					  "notes"      => "NotesPane"),
 		     "Teams"     => array("teams"      => "TeamsPane",
-					  "substitute" => "ReplaceTeamPane"),
+					  "substitute" => "ReplaceTeamPane",
+					  "remove-team"=> "DeleteTeamsPane"),
 		     "Rotations" => array("rotations"  => "SailsPane",
 					  "tweak-sails"=> "TweakSailsPane",
 					  "manual-rotation" => "ManualTweakPane"),
@@ -277,6 +278,11 @@ abstract class AbstractPane {
     case 'add-team':
     case 'set-team':
       return new TeamsPane($r, $u);
+    case 'remove-team':
+    case 'remove-teams':
+    case 'delete-team':
+    case 'delete-teams':
+      return new DeleteTeamsPane($r, $u);
     case 'tweak':
     case 'tweak-sails':
     case 'substitute-sails':
@@ -308,6 +314,7 @@ abstract class AbstractPane {
     case 'RpEnterPane':
     case 'SailsPane':
     case 'TeamPenaltyPane':
+    case 'DeleteTeamsPane':
       return $this->has_teams;
 
     case 'ManualTeakPane':
@@ -346,6 +353,7 @@ abstract class AbstractPane {
 			       "RacesPane" => "races",
 			       "NotesPane" => "notes",
 			       "TeamsPane" => "teams",
+			       "DeleteTeamsPane" => "remove-teams",
 			       "ReplaceTeamPane" => "substitute",
 			       "SailsPane" => "rotations",
 			       "TweakSailsPane" => "tweak-sails",
@@ -363,7 +371,8 @@ abstract class AbstractPane {
 				 "ScorersPane" => "Scorers",
 				 "RacesPane" => "Edit races",
 				 "NotesPane" => "Race notes",
-				 "TeamsPane" => "Add/delete",
+				 "TeamsPane" => "Add team",
+				 "DeleteTeamsPane" => "Remove team",
 				 "ReplaceTeamPane" => "Sub team",
 				 "SailsPane" => "Setup",
 				 "TweakSailsPane" => "Tweak sails",
