@@ -167,3 +167,12 @@ time.
 
 
 * Merge the urls, title, etc
+
+
+* When creating rotations for the first time, it is REALLY slow. Fix!
+
+
+* Provide for switching of division order when creating rotations
+
+
+* Update Regatta::addTeam to use $con->insert_id

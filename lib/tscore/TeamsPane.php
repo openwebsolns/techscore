@@ -23,53 +23,13 @@ class TeamsPane extends AbstractPane {
     }
     $confs = Preferences::getConferences();
 
-    // ------------------------------------------------------------
-    // Current teams
-    
-    // Edit team names
-    if (count($teams) > 0) {
-      $this->PAGE->addContent($p = new Para(""));
-      $p->addChild(new Link("#add", "Add schools."));
-      $this->PAGE->addContent($p = new Port("Edit present teams"));
-      $p->addChild($tab = new Table(array(), array("class"=>"narrow")));
-    
-      $tab->addHeader(new Row(array(Cell::th(""),
-				    Cell::th("School"),
-				    Cell::th("Team name"),
-				    Cell::th())));
-
-      // Print a row for each team
-      $row = 0;
-      foreach ($teams as $aTeam) {
-	$tab->addRow(new Row(array(new Cell($row + 1),
-				   new Cell($aTeam->school),
-				   $c_edt = new Cell($aTeam->name),
-				   $c_del = new Cell()),
-			     array("class"=>"row" . ($row++%2))));
-	// Edit
-	$c_edt->addAttr("class", "strong");
-	$c_edt->addAttr("class", "left");
-
-	// Delete
-	$c_del->addChild($form = $this->createForm());
-	$form->addChild(new FHidden("team", $aTeam->id));
-	$form->addChild(new FSubmit("delete", "Delete", array("class"=>"thin")));
-      }
-    }
-
     // Add teams
     $this->PAGE->addContent($p = new Port("Add team from ICSA school"));
     $p->addChild(new Bookmark("add"));
-    $p->addChild(new Para("Choose schools for which to add teams. " .
-			  "Hold down <kbd>Ctrl</kbd> to select multiple schools.",
-			  array("style"=>"max-width:35em")));
+    $p->addChild(new Para("Choose a school from which to add a new team. Because the regatta is under way, you may only add one team at a time."));
 
     $p->addChild($form = $this->createForm());
-    $form->addChild(new FItem("Schools:",
-			      $f_sel = new FSelect("addschool[]",
-						   array(),
-						   array("multiple"=>"multiple",
-							 "size"=>"20"))));
+    $form->addChild(new FItem("Schools:", $f_sel = new FSelect("addschool", array(), array('size'=>20))));
     foreach ($confs as $conf) {
       // Get schools for that conference
       $schools = Preferences::getSchoolsInConference($conf);
@@ -79,7 +39,26 @@ class TeamsPane extends AbstractPane {
       }
       $f_sel->addOptionGroup($conf, $schoolOptions);
     }
-    $form->addChild(new FSubmit("invite", "Register teams"));
+
+    // What to do with rotation?
+    $form->addChild($exp = new Para(""));
+    if ($this->has_rots) {
+      $exp->addChild(new Text("The regatta already has rotations. By adding a team, the rotations will need to be fixed. Choose from the options below."));
+      $form->addChild($fi = new FItem("Delete rotation:",
+				      new FCheckbox('del-rotation', '1',
+						    array('id'=>'del-rot',
+							  'checked'=>'checked'))));
+      $fi->addChild(new Label('del-rot', "Delete current rotation without affecting finishes."));
+    }
+
+    // What to do with scores?
+    if ($this->has_scores) {
+      $exp->addChild(new Text("The regatta already has finishes entered. After adding the new teams, what should their score be?"));
+      $form->addChild(new FItem("New score:", $f_sel = new FSelect('new-score', array())));
+      $f_sel->addChild(new Option('DNS', "DNS", array('selected' => 'selected')));
+      $f_sel->addChild(new Option('BYE', "BYE"));
+    }
+    $form->addChild(new FSubmit("invite", "Register team"));
   }
 
   /**
@@ -91,29 +70,25 @@ class TeamsPane extends AbstractPane {
       return $this->processNewRegatta($args);
 
     // ------------------------------------------------------------
-    // Delete team
-    if (isset($args['delete']) &&
-	isset($args['team'])   &&
-	is_numeric($args['team'])) {
-      $id = (int)$args['team'];
-      $team = Preferences::getObjectWithProperty($teams, "id", $id);
-      if ($team === null) {
-	$mes = sprintf("Invalid team id (%s).", $id);
-	$this->announce(new Announcement($mes, Announcement::ERROR));
-      }
-      else {
-	$this->REGATTA->removeTeam($team);
-	$this->announce(new Announcement(sprintf("Removed team %s", $team)));
-      }
-    }
-
-    // ------------------------------------------------------------
     // Add team
-    if (isset($args['invite'])    &&
-	isset($args['addschool']) &&
-	is_array($args['addschool'])) {
-      $ids = $args['addschool'];
+    if (isset($args['invite'])) {
+      if (!isset($args['addschool']) ||
+	  ($school = Preferences::getSchool($args['addschool'])) === null) {
+	$this->announce(new Announcement("Invalid or missing school to add.", Announcement::ERROR));
+	return array();
+      }
 
+      // Also validate rotation and finish option, if applicable
+      if ($this->has_rots && !isset($args['del-rotation'])) {
+	$this->announce(new Announcement("Please choose an action to take with new rotation.", Announcement::ERROR));
+	return array();
+      }
+      if ($this->has_scores &&
+	  !isset($args['new-score']) || !in_array($args['new-score'], array('DNS', 'BYE'))) {
+	$this->announce(new Announcement("Please choose an appropriate action to take with scores.", Announcement::ERROR));
+	return array();
+      }
+      
       /*
        * Add a team for each school into the regatta, using the data
        * from the preferences regarding allowed team names. If the
@@ -122,48 +97,45 @@ class TeamsPane extends AbstractPane {
        * an appended numeral (2, 3, etc...)
        *
        */
-      $errors = array();
-      $valid  = array();
-      foreach ($ids as $id) {
-	try {
-	  $school = Preferences::getSchool($id);
-	  $names  = Preferences::getTeamNames($school);
-	  if (count($names) == 0)
-	    $names[] = $school->nick_name;
+      $names  = Preferences::getTeamNames($school);
+      if (count($names) == 0)
+	$names[] = $school->nick_name;
 
-	  $num_teams = 0;
-	  foreach ($this->REGATTA->getTeams() as $team) {
-	    if ($team->school == $school)
-	      $num_teams++;
-	  }
+      $num_teams = count($this->REGATTA->getTeams($school));
+      if (count($names) > $num_teams)
+	$name = $names[$num_teams];
+      else
+	$name = sprintf("%s %d", $names[0], count($names) - $num_teams + 2);
 
-	  // Assign team name depending
-	  $surplus = $num_teams - count($names);
+      $team = new Team();
+      $team->school = $school;
+      $team->name   = $name;
 
-	  $team = new Team();
-	  $team->school = $school;
-	  $team->name   = ($surplus < 0) ?
-	    $names[$num_teams] :
-	    sprintf("%s %d", $names[0], $surplus + 2);
+      $this->REGATTA->addTeam($team);
+      if (isset($args['del-rotation'])) {
+	$rot = $this->REGATTA->getRotation();
+	$rot->reset();
+	$this->announce(new Announcement("Rotation has been reset.", Announcement::WARNING));
+	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
+      }
 
-	  $this->REGATTA->addTeam($team);
-	}
-	catch (Exception $e) {
-	  $errors[] = $id;
-	}
-
-      } // end foreach
+      // Scores
+      $finishes = array();
+      foreach ($this->REGATTA->getScoredRaces() as $race) {
+	$finish = $this->REGATTA->createFinish($race, $team);
+	$finish->entered = new DateTime();
+	$finish->penalty = ($args['new-score'] == Penalty::DNS) ?
+	  new Penalty($args['new-score']) : new Penalty($args['new-score']);
+	$finishes[] = $finish;
+      }
+      $this->REGATTA->commitFinishes($finishes);
+      $this->REGATTA->doScore();
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
 
       // Messages
-      if (count($errors) > 0) {
-	$mes = sprintf("Unable to add team for school with id %s.", implode(", ", $errors));
-	$this->announce(new Announcement($mes, Announcement::WARNING));
-      }
-      if (count($valid) > 0) {
-	$mes = sprintf("Added %d teams.", count($ids));
-	$this->announce(new Announcement($mes));
-      }
+      $this->announce(new Announcement("Added team $team."));
     }
+    return array();
   }
 
   // ------------------------------------------------------------
@@ -195,7 +167,7 @@ class TeamsPane extends AbstractPane {
 	!isset($args['number']) || !is_array($args['number']) ||
 	count($args['number']) != count($args['school'])) {
       $this->announce(new Announcement("Bad input. Please try again.", Announcement::ERROR));
-      return false;
+      return array();
     }
     $teams_added = 0;
     foreach ($args['school'] as $i => $id) {
@@ -225,11 +197,11 @@ class TeamsPane extends AbstractPane {
     }
     // need two teams for a regatta
     if ($teams_added > 1) {
-      $this->announce(new Announcement("Added $teams_added teams. Setup rotations, or start adding finishes."));
+      $this->announce(new Announcement("Added $teams_added teams. You can now setup rotations, or start adding finishes."));
       $this->redirect('setup-rotations');
     }
     $this->announce(new Announcement("Please add at least two teams to proceed."));
-    return false;
+    return array();
   }
 }
 ?>

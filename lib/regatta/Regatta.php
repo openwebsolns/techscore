@@ -362,12 +362,12 @@ class Regatta implements RaceListener {
    * needed)
    */
   public function addTeam(Team $team) {
+    $con = Preferences::getConnection();
     $q = sprintf('insert into team (regatta, school, name) ' .
 		 'values ("%s", "%s", "%s")',
 		 $this->id, $team->school->id, $team->name);
     $this->query($q);
-    $res = $this->query('select last_insert_id() as id');
-    $team->id = $res->fetch_object()->id;
+    $team->id = $con->insert_id;
     if ($this->teams !== null)
       $this->teams[$team->id] = $team;
   }

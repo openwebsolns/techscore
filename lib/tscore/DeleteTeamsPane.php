@@ -69,7 +69,14 @@ class DeleteTeamsPane extends AbstractPane {
 	$this->announce(new Announcement("Removed $removed teams."));
       else
 	$this->announce(new Announcement("Please select one or more teams to remove.", Announcement::ERROR));
+
+      if ($this->has_rots)
+	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
+      if ($this->has_scores)
+	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
+
     }
+    return array();
   }
 }
 ?>

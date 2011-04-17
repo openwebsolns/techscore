@@ -561,5 +561,15 @@ class Rotation {
    *
    */
   public function commit() {}
+
+  /**
+   * Deletes the entire rotation
+   *
+   */
+  public function reset() {
+    $q = sprintf('delete from rotation where race in (select id from race where regatta = "%s")',
+		 $this->regatta->id());
+    $this->regatta->query($q);
+  }
 }
 ?>
