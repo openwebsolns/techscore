@@ -74,7 +74,7 @@ elseif (isset($_REQUEST['p'])) {
       WebServer::go("/score/".$REG->id());
     }
     if (!$PAGE->isActive()) {
-      $title = $pane->getTitle();
+      $title = $PAGE->getTitle();
       $_SESSION['ANNOUNCE'][] = new Announcement("$title is not available.", Announcement::WARNING);
       WebServer::go("/score/".$REG->id());
     }
