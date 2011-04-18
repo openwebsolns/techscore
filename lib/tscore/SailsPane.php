@@ -57,7 +57,7 @@ class SailsPane extends AbstractPane {
 						  array("id"=>"frace"))));
     $f_item->addChild($tab = new Table());
     $tab->addAttr("class", "narrow");
-    $tab->addHeader(new Row(array(Cell::th("Possible"))));
+    $tab->addHeader(new Row(array(Cell::th("Unscored races"))));
     $tab->addRow(new Row(array(new Cell(Utilities::makeRange($range_races),
 					array("id"=>"range_races")))));
 
@@ -261,7 +261,7 @@ class SailsPane extends AbstractPane {
 						    array("id"=>"frace"))));
       $f_item->addChild($tab = new Table());
       $tab->addAttr("class", "narrow");
-      $tab->addHeader(new Row(array(Cell::th("Possible"))));
+      $tab->addHeader(new Row(array(Cell::th("Unscored races"))));
       $tab->addRow(new Row(array(new Cell(Utilities::makeRange($range_races),
 					  array("id"=>"range_races")))));
 
@@ -448,7 +448,6 @@ class SailsPane extends AbstractPane {
     }
 
     // reset
-    $rotation->commit();
     UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
     $this->announce(new Announcement("New rotation successfully created."));
     unset($args['rottype']);
@@ -733,7 +732,6 @@ class SailsPane extends AbstractPane {
       }
 
       // Reset
-      $rotation->commit();
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       $a = new Link(sprintf('/view/%s/rotation', $this->REGATTA->id()), "View");
       $a->addAttr('target', '_blank');

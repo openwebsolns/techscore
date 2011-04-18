@@ -27,23 +27,33 @@ class Rotation {
   }
 
   /**
-   * @var boolean attempt to cache whether or not there is a rotation
+   * @var Array let's track races individually. If it's set: it has
+   * rotations. The index is the ID of the race.
    */
-  private $has_sails = null;
+  private $has_sails_race = null;
   /**
    * Determines whether there is a rotation assigned: i.e. if there
    * are sails in the database
    *
+   * @param Race $race the optional race to check
    * @return boolean has sails or not. Simple, no?
    */
-  public function isAssigned() {
-    if ($this->has_sails !== null)
-      return $this->has_sails;
+  public function isAssigned(Race $race = null) {
+    if ($this->has_sails_race !== null) {
+      if ($race === null)
+	return count($this->has_sails_race) > 0;
+      return isset($this->has_sails_race[$race->id]);
+    }
 
     $q = $this->regatta->query(sprintf('select race from rotation where race in (select id from race where regatta = %d)', $this->regatta->id()));
-    $this->has_sails = ($q->num_rows > 0);
+    $this->has_sails_race = array();
+    while ($obj = $q->fetch_object())
+      $this->has_sails_race[$obj->race] = true;
     $q->free();
-    return $this->has_sails;
+
+    if ($race === null)
+      return count($this->has_sails_race) > 0;
+    return isset($this->has_sails_race[$race->id]);
   }
 
   /**
@@ -250,6 +260,8 @@ class Rotation {
     $teams = array_values($teams);
     $races = array_values($races);
 
+    $this->has_sails_race = array();
+
     // verify parameters
     $num_sails = count($sails);
     $num_teams = count($teams);
@@ -276,8 +288,9 @@ class Rotation {
 	  $sail->sail = $table[$t][$r];
 
 	  // print(sprintf("%3s | %2s | %s\n", $sail->race, $sail->sail, $sail->team->name));
-	  $this->setSail($sail);
+	  $this->queue($sail);
 	}
+	$this->has_sails_race[$race->id] = true;
       }
     }
     
@@ -299,11 +312,12 @@ class Rotation {
 	  $sail->sail = $table[$t][$r];
 
 	  // print(sprintf("%3s | %2s | %s\n", $sail->race, $sail->sail, $sail->team->name));
-	  $this->setSail($sail);
+	  $this->queue($sail);
 	}
+	$this->has_sails_race[$race->id] = true;
       }
     }
-    $this->has_sails = true;
+    $this->commit();
   }
 
   /**
@@ -354,6 +368,8 @@ class Rotation {
     $teams = array_values($teams);
     $races = array_values($races);
 
+    $this->has_sails_race = array();
+
     // verify parameters
     $num_sails = count($sails);
     $num_teams = count($teams);
@@ -381,8 +397,9 @@ class Rotation {
 	  $sail->sail = $table[$t][$r];
 
 	  // print(sprintf("%3s | %2s | %s\n", $sail->race, $sail->sail, $sail->team->name));
-	  $this->setSail($sail);
+	  $this->queue($sail);
 	}
+	$this->has_sails_race[$race->id] = true;
       }
     }
     
@@ -404,11 +421,12 @@ class Rotation {
 	  $sail->sail = $table[$t][$r];
 
 	  // print(sprintf("%3s | %2s | %s\n", $sail->race, $sail->sail, $sail->team->name));
-	  $this->setSail($sail);
+	  $this->queue($sail);
 	}
+	$this->has_sails_race[$race->id] = true;
       }
     }
-    $this->has_sails = true;
+    $this->commit();
   }
 
   /**
@@ -506,21 +524,24 @@ class Rotation {
    * @throws InvalidArgumentException if the array sizes do not match
    */
   public function createOffset(Division $fromdiv, Division $todiv, Array $nums, $offset) {
+    $this->has_sails_race = array();
     foreach ($nums as $num) {
       $from = $this->regatta->getRace($fromdiv, $num);
       $to = $this->regatta->getRace($todiv, $num);
       $sails = $this->getSails($from);
       $upper = count($sails);
+
+      $this->has_sails_race[$to->id] = true;
       foreach ($sails as $j => $sail) {
 	$new_sail = new Sail();
 	$new_sail->race = $to;
 	$new_sail->team = $this->getTeam($from, $sail);
 	$new_sail->sail = $sails[($j + $offset + $upper) % $upper];
 
-	$this->setSail($new_sail);
+	$this->queue($new_sail);
       }
     }
-    $this->has_sails = true;
+    $this->commit();
   }
 
   /**
@@ -546,7 +567,6 @@ class Rotation {
 		 'where sail = "%s" and race = "%s"',
 		 (int)$repl, (int)$orig, $race->id);
     $this->regatta->query($q);
-    $this->has_sails = true;
   }
 
   /**
@@ -559,17 +579,48 @@ class Rotation {
    * however, each call to <pre>replaceSail</pre> and its brethren
    * issues a SQL query on its own.
    *
+   * This method is now necessary to use in conjunction with
+   * Rotation::queue
    */
-  public function commit() {}
+  private function commit() {
+    $con = Preferences::getConnection();
+    $list = array();
+    foreach ($this->queued_sails as $sail) {
+      $list[] = sprintf('("%s", "%s", "%s")',
+			$sail->race->id,
+			$sail->team->id,
+			$con->escape_string($sail->sail));
+    }
+    $q = sprintf('insert into rotation (race, team, sail) values %s on duplicate key update sail=values(sail)',
+		 implode(',', $list));
+    $this->regatta->query($q);
+    $this->queued_sails = array();
+  }
 
   /**
-   * Deletes the entire rotation
+   * Prepares the sail to be used later in a commit call. The reason
+   * is that one large query is more efficient than many small
+   * queries.
    *
+   * @param Sail $sail the sail to queue
    */
-  public function reset() {
-    $q = sprintf('delete from rotation where race in (select id from race where regatta = "%s")',
-		 $this->regatta->id());
-    $this->regatta->query($q);
+  private function queue(Sail $sail) {
+    $this->queued_sails[] = $sail;
+  }
+  private $queued_sails = array();
+
+  /**
+   * Deletes the entire rotation, or just the rotation for the given race
+   *
+   * @param Race $race the optional race to reset, or the entire
+   * regatta, otherwise
+   */
+  public function reset(Race $race = null) {
+    $where = ($race === null) ?
+      sprintf('in (select id from race where regatta = "%s")', $this->regatta->id()) :
+      sprintf('= "%s"', $race->id);
+    
+    $this->regatta->query("delete from rotation where race $where");
   }
 }
 ?>

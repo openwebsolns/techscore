@@ -93,7 +93,7 @@ class EnterFinishPane extends AbstractPane {
     $using = (isset($args['finish_using'])) ?
       $args['finish_using'] : "ROT";
 
-    if (!$rotation->isAssigned()) {
+    if (!$rotation->isAssigned($race)) {
       unset($this->ACTIONS["ROT"]);
       $using = "TMS";
     }
@@ -286,7 +286,7 @@ class EnterFinishPane extends AbstractPane {
     $using = (isset($args['finish_using'])) ?
       $args['finish_using'] : "ROT";
 
-    if (!$rotation->isAssigned()) {
+    if (!$rotation->isAssigned($race)) {
       unset($this->ACTIONS["ROT"]);
       $using = "TMS";
     }

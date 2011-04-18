@@ -106,10 +106,8 @@ class ManualTweakPane extends AbstractPane {
 	  }
 	}
       }
-      $rotation->commit();
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       $this->announce(new Announcement('Sails updated.'));
-      // notify();
     }
 
     return $args;
