@@ -122,7 +122,7 @@ abstract class AbstractPane {
     foreach ($dial_i as $url => $title) {
       $link = new Link("/view/$id/$url", $title);
       $link->addAttr("class", "frame-toggle");
-      $link->addAttr("target", "_blank");
+      $link->addAttr("target", $url);
       $m_list->addItems(new LItem($link));
     }
     $this->PAGE->addMenu($menu);
