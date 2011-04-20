@@ -238,8 +238,29 @@ class SailsPane extends AbstractPane {
       $p->addChild($form = $this->createForm());
 
       $form->addChild(new FHidden("rottype", $chosen_rot));
-      foreach ($chosen_div as $div) {
-	$form->addChild(new FHidden("division[]", $div));
+      // Divisions
+      if (count($chosen_div) > 1) {
+	$this->PAGE->head->addChild(new GenericElement("script", array(new Text("")),
+					       array("type"=>"text/javascript",
+						     "src"=>"/inc/js/tablesort.js")));
+
+	$form->addChild(new FItem("Order:", $tab = new Table()));
+	$tab->addAttr('class', 'narrow');
+	$tab->addAttr('id', 'divtable');
+	$tab->addHeader(new Row(array(Cell::th("#"), Cell::th("Div."))));
+	$i = 0;
+	foreach ($chosen_div as $div) {
+	  $tab->addRow(new Row(array(new Cell(new FText("order[]", ++$i, array('class'=>'small',
+									       'size'=>2,
+									       'maxlength'=>1))),
+				     $c = new Cell($div, array('class'=>'drag'))),
+			       array('class'=>'sortable')));
+	  $c->addChild(new FHidden("division[]", $div));
+	}
+      }
+      else {
+	foreach ($chosen_div as $div)
+	  $form->addChild(new FHidden("division[]", $div));
       }
 
       // Suggest Navy/Franny special
@@ -490,12 +511,20 @@ class SailsPane extends AbstractPane {
     $combined = (count($this->REGATTA->getDivisions()) == 1 ||
 		 $this->REGATTA->get(Regatta::SCORING) == Regatta::SCORING_COMBINED);
 
-    //   b. validate division, only if not combined division
+    //   b. validate division, only if not combined division, and
+    //   order by order, if provided
     if (!$combined) {
       $divisions = null;
       if (isset($args['division'])    &&
 	  is_array($args['division']) &&
 	  $this->validateDivisions($args['division'])) {
+	if (isset($args['order'])) {
+	  if (!is_array($args['order']) || count($args['order']) != count($args['division'])) {
+	    $this->announce(new Announcement("Bad division order provided.", Announcement::ERROR));
+	    return $args;
+	  }
+	  array_multisort($args['order'], $args['division'], SORT_NUMERIC);
+	}
 	$divisions = array();
 	$div_string = array();
 	foreach ($args['division'] as $div) {
@@ -684,7 +713,7 @@ class SailsPane extends AbstractPane {
 	// Reset
 	$this->announce(new Announcement("Franny-style rotation successfully created."));
 	unset($args);
-	return $args;
+	$this->redirect('finishes');
       }
 
       // ------------------------------------------------------------

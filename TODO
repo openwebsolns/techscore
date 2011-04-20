@@ -169,10 +169,13 @@ time.
 * Merge the urls, title, etc
 
 
-* When creating rotations for the first time, it is REALLY slow. Fix!
+* When creating rotations for the first time, it is REALLY slow. Fix! (d o n e)
 
+The problem here was multiple one-record inserts. Fixed it with one
+massive insert. Note that updates are fast! But first-time inserts
+were slow.
 
 * Provide for switching of division order when creating rotations
 
 
-* Update Regatta::addTeam to use $con->insert_id
+* Update Regatta::addTeam to use $con->insert_id (d o n e)
