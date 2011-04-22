@@ -120,10 +120,15 @@ abstract class AbstractPane {
     $menu->addChild(new Heading("Windows"));
     $menu->addChild($m_list = new GenericList());
     foreach ($dial_i as $url => $title) {
-      $link = new Link("/view/$id/$url", $title);
-      $link->addAttr("class", "frame-toggle");
-      $link->addAttr("target", $url);
-      $m_list->addItems(new LItem($link));
+      if ($this->doActive($url)) {
+	$link = new Link("/view/$id/$url", $title);
+	$link->addAttr("class", "frame-toggle");
+	$link->addAttr("target", $url);
+	$item = new LItem($link);
+      }
+      else
+	$item = new LItem($title, array("class"=>"inactive"));
+      $m_list->addItems($item);
     }
     $this->PAGE->addMenu($menu);
   }
@@ -304,6 +309,7 @@ abstract class AbstractPane {
     switch ($class_name) {
     case 'DropFinishPane':
     case 'EnterPenaltyPane':
+    case 'scores':
       return $this->has_scores;
       
     case 'DropPenaltyPane':
@@ -320,6 +326,7 @@ abstract class AbstractPane {
 
     case 'ManualTweakPane':
     case 'TweakSailsPane':
+    case 'rotation':
       return $this->has_rots;
 
     default:
