@@ -317,7 +317,7 @@ abstract class AbstractPane {
     case 'DeleteTeamsPane':
       return $this->has_teams;
 
-    case 'ManualTeakPane':
+    case 'ManualTweakPane':
     case 'TweakSailsPane':
       return $this->has_rots;
 
