@@ -84,7 +84,7 @@ class TeamsPane extends AbstractPane {
 	return array();
       }
       if ($this->has_scores &&
-	  !isset($args['new-score']) || !in_array($args['new-score'], array('DNS', 'BYE'))) {
+	  (!isset($args['new-score']) || !in_array($args['new-score'], array('DNS', 'BYE')))) {
 	$this->announce(new Announcement("Please choose an appropriate action to take with scores.", Announcement::ERROR));
 	return array();
       }
