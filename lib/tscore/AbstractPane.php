@@ -315,6 +315,7 @@ abstract class AbstractPane {
     case 'SailsPane':
     case 'TeamPenaltyPane':
     case 'DeleteTeamsPane':
+    case 'UnregisteredSailorPane':
       return $this->has_teams;
 
     case 'ManualTweakPane':
