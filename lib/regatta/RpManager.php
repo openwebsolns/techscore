@@ -393,5 +393,20 @@ class RpManager {
     $q = $this->regatta->query($q);
     return ($q->num_rows > 0);
   }
+
+  // ------------------------------------------------------------
+  // Searching
+  // ------------------------------------------------------------
+
+  public static function searchSailor($str) {
+    $con = Preferences::getConnection();
+    $q = sprintf('select %s from %s where (first_name like "%%%3$s%%" or last_name like "%%%3$s%%" or concat(first_name, " ", last_name) like "%%%3$s%%") and role = "student"',
+		 Sailor::FIELDS, Sailor::TABLES, $con->escape_string($str));
+    $q = Preferences::query($q);
+    $list = array();
+    while ($obj = $q->fetch_object("Sailor"))
+      $list[] = $obj;
+    return $list;
+  }
 }
 ?>

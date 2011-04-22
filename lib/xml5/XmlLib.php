@@ -266,7 +266,7 @@ class XDoc extends XElem {
     header("Content-type: application/xml");
     foreach ($this->headers as $header)
       $header->printXML();
-    parent::toXML();
+    echo parent::toXML();
   }
 }
 

@@ -586,10 +586,12 @@ class Rotation {
     $con = Preferences::getConnection();
     $list = array();
     foreach ($this->queued_sails as $sail) {
-      $list[] = sprintf('("%s", "%s", "%s")',
-			$sail->race->id,
-			$sail->team->id,
-			$con->escape_string($sail->sail));
+      if (!($sail->team instanceof ByeTeam)) {
+	$list[] = sprintf('("%s", "%s", "%s")',
+			  $sail->race->id,
+			  $sail->team->id,
+			  $con->escape_string($sail->sail));
+      }
     }
     $q = sprintf('insert into rotation (race, team, sail) values %s on duplicate key update sail=values(sail)',
 		 implode(',', $list));
