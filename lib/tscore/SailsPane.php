@@ -451,7 +451,7 @@ class SailsPane extends AbstractPane {
       array_multisort($sails, $tlist, SORT_STRING);
       break;
     }
-      
+
     switch ($rottype) {
     case "STD":
     case "NOR":
