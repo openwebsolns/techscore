@@ -13,6 +13,7 @@
 interface HTMLElement
 {
   public function toHTML();
+  public function printHTML();
 }
 
 
@@ -100,6 +101,29 @@ class GenericElement implements HTMLElement
     return $str;
   }
 
+  // Generic printHTML method
+  public function printHTML() {
+    echo "<" . $this->elemName;
+    // Process attributes
+    foreach ($this->getAttrs() as $attr => $value) {
+      if (!empty($value)) {
+	echo " $attr=\"";
+	echo implode(" ", $value) . "\"";
+      }
+    }
+    if (count($this->getChildren()) == 0) {
+      echo "/>";
+      return;
+    }
+    echo ">";
+    // Process children
+    foreach ($this->getChildren() as $child)
+      $child->printHTML();
+
+    // Close tag
+    echo sprintf("</%s>", $this->elemName);
+  }
+
   /**
    * toString representation
    */
@@ -155,6 +179,11 @@ class WebPage extends GenericElement
     $str = '<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
     $str .= parent::toHTML();
     return $str;
+  }
+
+  public function printHTML() {
+    echo '<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
+    parent::printHTML();
   }
 }
 
@@ -396,6 +425,9 @@ class Text implements HTMLElement
   }
   public function toHTML() {
     return $this->value;
+  }
+  public function printHTML() {
+    echo $this->value;
   }
 }
 

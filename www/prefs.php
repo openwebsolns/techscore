@@ -17,7 +17,7 @@ if (!(isset($_SESSION['user']))) {
   // provide the login page
   $_SESSION['ANNOUNCE'][] = new Announcement("Please login to proceed.", Announcement::WARNING);
   $PAGE = new WelcomePage();
-  echo $PAGE->toHTML();
+  $PAGE->printHTML();
   exit;
 }
 $USER = null;
@@ -96,5 +96,5 @@ if (isset($_GET['_action']) && $_GET['_action'] == 'edit') {
   $PAGE->process($_POST);
   WebServer::goBack();
 }
-echo $PAGE->getHTML(array());
+$PAGE->getHTML(array());
 ?>

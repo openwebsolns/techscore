@@ -29,7 +29,7 @@ if (!(isset($_SESSION['user']))) {
     case 'home':
       $_SESSION['ANNOUNCE'][] = new Announcement("Please login to proceed.", Announcement::WARNING);
       $PAGE = new WelcomePage();
-      echo $PAGE->toHTML();
+      $PAGE->printHTML();
       exit;
 
     default:
@@ -40,7 +40,7 @@ if (!(isset($_SESSION['user']))) {
       $_SESSION['POST'] = $PAGE->process($_REQUEST);
       WebServer::goBack();
     }
-    echo $PAGE->toHTML();
+    $PAGE->printHTML();
     exit;
   }
 
@@ -125,5 +125,5 @@ if (isset($_GET['_action']) && $_GET['_action'] == 'edit') {
 $args = array_merge($_GET, (isset($_SESSION['POST']) && is_array($_SESSION['POST'])) ?
 		    $_SESSION['POST'] :
 		    array());
-echo $PAGE->getHTML($args);
+$PAGE->getHTML($args);
 ?>

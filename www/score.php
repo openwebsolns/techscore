@@ -15,7 +15,7 @@ if (!(isset($_SESSION['user']))) {
   // provide the login page
   $_SESSION['ANNOUNCE'][] = new Announcement("Please login to proceed.", Announcement::WARNING);
   $PAGE = new WelcomePage();
-  echo $PAGE->toHTML();
+  $PAGE->printHTML();
   exit;
 }
 $USER = null;
@@ -220,7 +220,7 @@ else {
 $args = $_REQUEST;
 if (isset($_SESSION['POST']) && is_array($_SESSION['POST']))
   $args = array_merge($args,$_SESSION['POST']);
-echo $PAGE->getHTML($args);
+$PAGE->getHTML($args);
 
 if (LOG_MEMORY)
   error_log(sprintf("%s:\t%d\n", $_SERVER['REQUEST_URI'], memory_get_peak_usage()), 3, "../log/memory.log");

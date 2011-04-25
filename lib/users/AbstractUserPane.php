@@ -88,7 +88,7 @@ abstract class AbstractUserPane {
     }
     $this->PAGE->addContent(new PageTitle($this->title));
     $this->fillHTML($args);
-    return $this->PAGE->toHTML();
+    $this->PAGE->printHTML();
   }
 
   /**

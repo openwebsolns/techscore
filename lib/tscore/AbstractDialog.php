@@ -62,10 +62,9 @@ abstract class AbstractDialog {
   }
 
   /**
-   * Returns string reprensentation of the HTML page
+   * Prints string reprensentation of the HTML page
    *
    * @param Array $args the arguments to this page
-   * @return String the HTML code as a string
    */
   final public function getHTML(Array $args) {
     $this->setupPage();
@@ -73,7 +72,7 @@ abstract class AbstractDialog {
     if (isset($_SESSION['ANNOUNCE'])) {
       $this->processAnnouncements();
     }
-    return $this->PAGE->toHTML();
+    $this->PAGE->printHTML();
   }
 
   /**
