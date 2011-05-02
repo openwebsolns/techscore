@@ -56,6 +56,7 @@ class SchoolSummaryMaker {
   private function fill() {
     if ($this->page !== null) return;
 
+    $types = Preferences::getRegattaTypeAssoc();
     $school = $this->school;
     $season = $this->season;
     $this->page = new TPublicPage($school);
@@ -198,7 +199,7 @@ class SchoolSummaryMaker {
 	$tab->add(new XTR(array('class' => sprintf("row%d", $row++ % 2)),
 			  array(new XTD(array('class'=>'left'), $link),
 				new XTD(array(), implode("/", $hosts)),
-				new XTD(array(), ucfirst($reg->type)),
+				new XTD(array(), $types[$reg->type]),
 				new XTD(array(), implode("/", $confs)),
 				new XTD(array(), $reg->start_time->format('m/d/Y')),
 				new XTD(array(), $status))));
@@ -280,7 +281,7 @@ class SchoolSummaryMaker {
 	$tab->add(new XTR(array('class' => sprintf("row%d", $row++ % 2)),
 			  array(new XTD(array('class'=>'left'), $link),
 				new XTD(array(), implode("/", $hosts)),
-				new XTD(array(), ucfirst($reg->type)),
+				new XTD(array(), $types[$reg->type]),
 				new XTD(array(), implode("/", $confs)),
 				new XTD(array(), $date->format('m/d/Y')),
 				new XTD(array(), $status),

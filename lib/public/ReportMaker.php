@@ -149,7 +149,8 @@ class ReportMaker {
     foreach ($hosts as $host)
       $schools[$host->school->id] = $host->school->nick_name;
 
-    $type = sprintf('%s Regatta', ucfirst($reg->get(Regatta::TYPE)));
+    $types = Preferences::getRegattaTypeAssoc();
+    $type = sprintf('%s Regatta', $types[$reg->get(Regatta::TYPE)]);
     $div->add(new XUl(array(),
 		      array(new XLi(implode("/", $schools)),
 			    new XLi($date),

@@ -30,6 +30,7 @@ class UpdateSeason {
   private function fill() {
     if ($this->page !== null) return;
 
+    $types = Preferences::getRegattaTypeAssoc();
     $season = $this->season;
     $this->page = new TPublicPage(ucfirst($season->getSeason()) . ' ' . $season->getYear());
 
@@ -128,7 +129,7 @@ class UpdateSeason {
 	  $tab->add(new XTR(array('class' => sprintf("row%d", $row++ % 2)),
 			    array(new XTD(array(), $link),
 				  new XTD(array(), implode("/", $hosts)),
-				  new XTD(array(), ucfirst($reg->type)),
+				  new XTD(array(), $types[$reg->type]),
 				  new XTD(array(), implode("/", $confs)),
 				  new XTD(array(), $reg->start_time->format('m/d/Y')),
 				  new XTD(array(), $status),
@@ -157,7 +158,7 @@ class UpdateSeason {
 	}
 	$tab->addRow(array(new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name),
 			   implode("/", $hosts),
-			   ucfirst($reg->type),
+			   $types[$reg->type],
 			   implode("/", $confs),
 			   $reg->start_time->format('m/d/Y @ H:i')));
       }

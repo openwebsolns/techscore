@@ -37,6 +37,8 @@ class UpdateFront {
   }
 
   private function fillSeason(Dt_Season $season) {
+    $types = Preferences::getRegattaTypeAssoc();
+
     $cond = new MyCond('season', (string)$season);
     $regs = DBME::getAll(DBME::$REGATTA, new MyBoolean(array(new MyCond('status', 'coming'), $cond)));
 
@@ -64,7 +66,7 @@ class UpdateFront {
 	$bod->add(new XTR(array('class' => sprintf("row%d", $row++ % 2)),
 			  array(new XTD(array('class'=>'left'), $link),
 				new XTD(array(), implode("/", $hosts)),
-				new XTD(array(), ucfirst($reg->type)),
+				new XTD(array(), $types[$reg->type]),
 				new XTD(array(), implode("/", $confs)),
 				new XTD(array(), $reg->start_time->format('m/d/Y @ H:i')))));
       }
@@ -115,7 +117,7 @@ class UpdateFront {
 	  $bod->add(new XTR(array('class' => sprintf("row%d", $row++ % 2)),
 			    array(new XTD(array('class'=>'left'), $link),
 				  new XTD(array(), implode("/", $hosts)),
-				  new XTD(array(), ucfirst($reg->type)),
+				  new XTD(array(), $types[$reg->type]),
 				  new XTD(array(), implode("/", $confs)),
 				  new XTD(array(), $reg->start_time->format('m/d/Y')),
 				  new XTD(array(), $label),

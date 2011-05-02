@@ -132,3 +132,7 @@ CREATE TABLE `account_school` (
 alter table regatta add column creator varchar(40) default null;
 update regatta, host set regatta.creator = host.account where regatta.id = host.regatta and host.principal > 0;
 select count(*) from regatta where creator = "";
+
+-- official regatta types --
+alter table regatta change column type type enum('conference', 'intersectional', 'championship', 'personal', 'two-conference', 'conference-championship', 'promotional') default 'conference';
+alter table dt_regatta change column type type enum('conference', 'intersectional', 'championship', 'personal', 'two-conference', 'conference-championship', 'promotional') default 'conference';
