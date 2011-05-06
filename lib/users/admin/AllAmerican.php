@@ -60,6 +60,7 @@ class AllAmerican extends AbstractAdminUserPane {
       }
       $form->addChild(new Para("Next, choose the sailors to incorporate into the report."));
       $form->addChild(new FSubmit('set-regattas', "Choose sailors >>"));
+      return;
     }
 
     // ------------------------------------------------------------
