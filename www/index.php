@@ -112,6 +112,10 @@ else {
     $PAGE = new CompareSailors($USER);
     break;
 
+  case "aa":
+    $PAGE = new AllAmerican($USER);
+    break;
+
   default:
     $_SESSION['ANNOUNCE'][] = new Announcement(sprintf("Invalid page requested (%s).", $_REQUEST['p']),
 					       Announcement::ERROR);
