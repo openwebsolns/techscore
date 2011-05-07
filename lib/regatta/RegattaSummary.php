@@ -23,9 +23,10 @@ class RegattaSummary {
   public $end_date;
   public $type;
   public $finalized;
+  public $participant;
 
   const FIELDS = "regatta.id, regatta.name, regatta.nick, regatta.start_time, regatta.type,
-                  regatta.end_date, regatta.finalized";
+                  regatta.end_date, regatta.finalized, regatta.participant";
   const TABLES = "regatta";
 
   public function __construct() {

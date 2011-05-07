@@ -33,8 +33,13 @@ if (!(isset($_SESSION['user']))) {
       exit;
 
     default:
-      // no such place
-      WebServer::goBack();
+      $_SESSION['last_page'] = preg_replace(':^/edit/:', '/', $_SERVER['REQUEST_URI']);
+
+      // provide the login page
+      $_SESSION['ANNOUNCE'][] = new Announcement("Please login to proceed.", Announcement::WARNING);
+      $PAGE = new WelcomePage();
+      $PAGE->printHTML();
+      exit;
     }
     if (isset($_GET['_action']) && $_GET['_action'] == 'edit') {
       $_SESSION['POST'] = $PAGE->process($_REQUEST);

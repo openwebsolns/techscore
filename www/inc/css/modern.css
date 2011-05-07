@@ -466,3 +466,8 @@ dt {
     background: #3465a4;
     color: white;
 }
+
+tr.disabled {
+    background: #ddd;
+    color: #555;
+}
