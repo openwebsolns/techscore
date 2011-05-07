@@ -23,10 +23,11 @@ class ScoresAnalyzer {
    * @param Array $reg_ids list of the regatta IDs to consider
    * @param Division $div the division to consider
    * @param int $place the lowest place finish (inclusive) to consider
+   * @param Const $role either 'skipper' (default) or 'crew'
    */
-  public static function getHighFinishers(Array $reg_ids, Division $div, $place) {
-    $q = sprintf('select distinct %s from %s where icsa_id is not null and id in (select sailor from rp where team in (select team from dt_team_division where rank <= %d and division = "%s") and race in (select id from race where regatta in (%s) and division = "%s"))',
-		 Sailor::FIELDS, Sailor::TABLES, $place, $div, implode(',', $reg_ids), $div);
+  public static function getHighFinishers(Array $reg_ids, Division $div, $place, $role = 'skipper') {
+    $q = sprintf('select distinct %s from %s where icsa_id is not null and id in (select sailor from rp where team in (select team from dt_team_division where rank <= %d and division = "%s") and race in (select id from race where regatta in (%s) and division = "%s") and boat_role = "%s")',
+		 Sailor::FIELDS, Sailor::TABLES, $place, $div, implode(',', $reg_ids), $div, $role);
     $q = Preferences::query($q);
     $list = array();
     while ($obj = $q->fetch_object("Sailor"))
