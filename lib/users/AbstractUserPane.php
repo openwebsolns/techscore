@@ -85,6 +85,7 @@ abstract class AbstractUserPane {
       $list->addItems(new LItem(new Link("/edit-venue", "Add Venues")));
       $list->addItems(new LItem(new Link("/boats",     "Boats")));
       $list->addItems(new LItem(new Link("/compare-sailors", "Comp. Sailors")));
+      $list->addItems(new LItem(new Link("/aa", "All-American")));
     }
     $this->PAGE->addContent(new PageTitle($this->title));
     $this->fillHTML($args);
