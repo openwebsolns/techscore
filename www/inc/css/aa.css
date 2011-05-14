@@ -23,3 +23,19 @@
     margin: 0;
     padding: 0.25em;
 }
+
+#aa-table thead {
+    background: #b89f7e;
+}
+
+#aa-table thead th.rotate {
+    width: 3em;
+    max-width: 3em;
+    overflow: hidden;
+    position: relative;
+}
+#aa-table thead th.rotate:hover {
+    width: auto;
+    max-width: none;
+    background: #c8af8e;
+}

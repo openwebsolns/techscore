@@ -384,6 +384,7 @@ class RpManager {
    * Returns whether the sailor is participating in this regatta
    *
    * @param Sailor $sailor the sailor
+   * @deprecated 2011-05-11 use getTeam instead
    * @return boolean true if the sailor is participating (has RP)
    */
   public function isParticipating(Sailor $sailor) {
@@ -391,7 +392,40 @@ class RpManager {
 		 $sailor->id,
 		 $this->regatta->id());
     $q = $this->regatta->query($q);
-    return ($q->num_rows > 0);
+    $part = ($q->num_rows > 0);
+    $q->free();
+    return $part;
+  }
+
+  /**
+   * Returns the list of teams the given sailor is participating in
+   * for this regatta.
+   *
+   * @param Sailor $sailor the sailor
+   * @return Array:RP the teams
+   */
+  public function getParticipation(Sailor $sailor) {
+    $q = sprintf('select rp.sailor, rp.boat_role, ' .
+		 'group_concat(race.number ' .
+		 '             order by race.number ' .
+		 '             separator ",") as races_nums ' .
+		 'from race ' .
+		 'inner join rp on (race.id = rp.race) ' .
+		 'where race.regatta  = "%s" ' .
+		 'group by rp.sailor ' .
+		 'order by races_nums',
+		 $this->regatta->id());
+    $q = $this->regatta->query($q);
+    $list = array();
+    while ($obj = $q->fetch_object("RP")) {
+      $list[] = $obj;
+
+      // Fix properties
+      $obj->division = Division::get($obj->division);
+      $obj->team = $this->regatta->getTeam($obj->team);
+      $obj->sailor = RpManager::getSailor($obj->sailor);
+    }
+    return $list;
   }
 
   // ------------------------------------------------------------

@@ -24,6 +24,7 @@ class ScoresAnalyzer {
    * @param Division $div the division to consider
    * @param int $place the lowest place finish (inclusive) to consider
    * @param Const $role either 'skipper' (default) or 'crew'
+   * @return Array:Sailor
    */
   public static function getHighFinishers(Array $reg_ids, Division $div, $place, $role = 'skipper') {
     $q = sprintf('select distinct %s from %s where icsa_id is not null and id in (select sailor from rp where team in (select team from dt_team_division where rank <= %d and division = "%s") and race in (select id from race where regatta in (%s) and division = "%s") and boat_role = "%s")',
@@ -33,6 +34,39 @@ class ScoresAnalyzer {
     while ($obj = $q->fetch_object("Sailor"))
       $list[] = $obj;
     return $list;
+  }
+
+  /**
+   * Returns a list of high finishes team IDs, in objects which have
+   * two properties: 'regatta' (a regatta ID) and 'team' (a regatta
+   * team).
+   *
+   * @see getHighFinishers
+   * @return Array:TeamDivision
+   */
+  public static function getHighFinishingTeams(Regatta $reg, Division $div, $place) {
+    $q = sprintf('select %s from %s where team in (select id from team where regatta = %d) and rank <= %d and division = "%s"',
+		 TeamDivision::FIELDS, TeamDivision::TABLES, $reg->id(), $place, $div);
+    $q = Preferences::query($q);
+    $list = array();
+    while ($obj = $q->fetch_object("TeamDivision"))
+      $list[] = $obj;
+    return $list;
+  }
+
+  /**
+   * Gets the TeamDivision (that is the rank) for the given RP
+   *
+   */
+  public static function getTeamDivision(Team $team, Division $div) {
+    $q = sprintf('select %s form %s where team = "%s" and division = "%s"',
+		 TeamDivision::FIELDS, TeamDivision::TABLES, $team->id, $div);
+    $q = Preferences::query($q);
+    if ($q->num_rows == 0)
+      return null;
+    $team = $q->fetch_object("TeamDivision");
+    $q->free();
+    return $team;
   }
 
   /**

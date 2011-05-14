@@ -1,0 +1,10 @@
+body {
+    width: auto;
+}
+
+#headdiv, #menudiv, #footdiv {
+    width: 100%;
+}
+#bodydiv {
+    width: auto;
+}
