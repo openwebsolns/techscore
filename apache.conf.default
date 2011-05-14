@@ -85,6 +85,9 @@ RewriteRule ^pending\|([0-9]+)$ index.php?p=pending&page=$1
 
 RewriteRule ^pending-edit/?$ index-edit.php?p=pending
 
+# for searches: needs to be added before the rule below
+RewriteRule ^search$ search.php [L]
+
 # for creating regattas, pending, registration, etc
 RewriteRule ^([^.]+)-edit/?$ index-edit.php?p=$1
 RewriteRule ^([^.]+)/?$ index.php?p=$1 [qsa]
