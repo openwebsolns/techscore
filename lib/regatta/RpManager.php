@@ -402,19 +402,21 @@ class RpManager {
    * for this regatta.
    *
    * @param Sailor $sailor the sailor
+   * @param $role const|null 'skipper', 'crew', or null for either
    * @return Array:RP the teams
    */
-  public function getParticipation(Sailor $sailor) {
+  public function getParticipation(Sailor $sailor, $role = null) {
     $q = sprintf('select rp.sailor, rp.boat_role, ' .
 		 'group_concat(race.number ' .
 		 '             order by race.number ' .
 		 '             separator ",") as races_nums ' .
 		 'from race ' .
 		 'inner join rp on (race.id = rp.race) ' .
-		 'where race.regatta  = "%s" ' .
+		 'where race.regatta  = "%s" %s ' .
 		 'group by rp.sailor ' .
 		 'order by races_nums',
-		 $this->regatta->id());
+		 $this->regatta->id(),
+		 ($role != null) ? sprintf('and rp.boat_role = "%s', $role) : '');
     $q = $this->regatta->query($q);
     $list = array();
     while ($obj = $q->fetch_object("RP")) {

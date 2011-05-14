@@ -48,8 +48,15 @@ class AllAmerican extends AbstractAdminUserPane {
       $_SESSION['aa']['teams'] = array();
       $_SESSION['aa']['sailors'] = array();
 
-      $season = new Season(new DateTime());
+      $now = new DateTime();
+      $season = new Season($now);
       $regattas = $season->getRegattas();
+      // also include fall regattas
+      if ($season->getSeason() == Season::SPRING) {
+	$now->setDate($now->format('Y') - 1, 10, 1);
+	$season = new Season($now);
+	$regattas = array_merge($regattas, $season->getRegattas());
+      }
       $qual_regattas = array();
 
       $this->PAGE->addContent($p1 = new Port("Classified regattas"));
@@ -322,7 +329,7 @@ class AllAmerican extends AbstractAdminUserPane {
 	    foreach ($_SESSION['aa']['regattas'] as $reg_id => $list) {
 	      $regatta = new Regatta($reg_id);
 	      $rpm = $regatta->getRpManager();
-	      $rps = $rpm->getParticipation($sailor);
+	      $rps = $rpm->getParticipation($sailor, 'skipper');
 	      if (count($rps) > 0) $participated = true;
 	      foreach ($rps as $rp) {
 		$team = ScoresAnalayser::getTeamDivision($rp->team, $rp->division);
