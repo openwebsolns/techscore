@@ -33,7 +33,7 @@ class DetailsPane extends AbstractPane {
     $reg_form->addChild(new FItem("Name:",
 				  new FText("reg_name",
 					    stripslashes($value),
-					    array("maxlength"=>35,
+					    array("maxlength"=>40,
 						  "size"     =>20))));
 
     // Date

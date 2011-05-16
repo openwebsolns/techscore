@@ -41,7 +41,7 @@ class NewRegattaPane extends AbstractUserPane {
 	$r[$key] = $args[$key];
     }
 
-    $f->addChild(new FItem("Name:", new FText("name", $r["name"], array('maxlength'=>35))));
+    $f->addChild(new FItem("Name:", new FText("name", $r["name"], array('maxlength'=>40))));
     $f->addChild(new FItem("Start date:", new FText("start_date", $r["start_date"])));
     $f->addChild(new FItem("On the water:", new FText("start_time", $r["start_time"])));
     $f->addChild(new FItem("Duration (days):", new FText("duration", $r["duration"])));
