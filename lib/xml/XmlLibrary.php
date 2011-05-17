@@ -1028,8 +1028,40 @@ class PageDiv extends Div {
    */
   public function __construct($num_pages, $current, $prefix) {
     parent::__construct(array(), array("class"=>"navlinks"));
-    
-    // for now, list all the pages
+
+    // always display the first five, if possible
+    for ($i = 1; $i <= $num_pages && $i < 5; $i++) {
+      $this->addChild($l = new Link(sprintf("%s|%d", $prefix, $i), $i));
+      $this->addChild(new Text(" "));
+      if ($i == $current) {
+	$l->addAttr("class", "current");
+      }
+    }
+    // also print the two before this one
+    if ($i < $current - 2)
+      $i = $current - 2;
+
+    for (; $i < $current; $i++) {
+      $this->addChild($l = new Link(sprintf("%s|%d", $prefix, $i), $i));
+      $this->addChild(new Text(" "));
+    }
+    // also print this one
+    $this->addChild(new Link(sprintf("%s|%d", $prefix, $i), $i, array('class' => 'current')));
+    $this->addChild(new Text(" "));
+    $i++;
+    // also print the two after this one
+    for (; $i < $current + 3 && $i < $num_pages; $i++) {
+      $this->addChild($l = new Link(sprintf("%s|%d", $prefix, $i), $i));
+      $this->addChild(new Text(" "));
+      if ($i == $current) {
+	$l->addAttr("class", "current");
+      }
+    }
+    // also print the last one
+    if ($i < $num_pages) {
+      $this->addChild(new Link(sprintf("%s|%d", $prefix, $num_pages), $num_pages));
+    }
+    /*
     for ($i = 1; $i <= $num_pages; $i++) {
       $this->addChild($l = new Link(sprintf("%s|%d", $prefix, $i), $i));
       $this->addChild(new Text(" "));
@@ -1037,6 +1069,7 @@ class PageDiv extends Div {
 	$l->addAttr("class", "current");
       }
     }
+    */
   }
 }
 
