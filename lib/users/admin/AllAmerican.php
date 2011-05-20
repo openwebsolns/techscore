@@ -12,7 +12,7 @@ require_once('conf.php');
  * @author Dayan Paez
  * @version 2011-03-29
  */
-class AllAmerican extends AbstractAdminUserPane {
+class AllAmerican extends AbstractUserPane {
   /**
    * Creates a new pane
    */
