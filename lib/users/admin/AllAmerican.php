@@ -223,7 +223,7 @@ class AllAmerican extends AbstractUserPane {
 	    $content = $team->rank . $team->division;
 	    $num_races = count($_SESSION['aa']['teams'][$team->id][$sailor->id]->races_nums);
 	    if ($num_races != $_SESSION['aa']['regatta_races'][$reg_id])
-	      $content .= "($num_races)";
+	      $content .= sprintf("(%s)", Utilities::makeRange($_SESSION['aa']['teams'][$team->id][$sailor->id]->races_nums));
 	    $cell[] = $content;
 	  }
 	}
@@ -428,7 +428,7 @@ class AllAmerican extends AbstractUserPane {
 	      $content = $team->rank . $team->division;
 	      $num_races = count($_SESSION['aa']['teams'][$team->id][$sailor->id]->races_nums);
 	      if ($num_races != $_SESSION['aa']['regatta_races'][$reg_id])
-		$content .= "($num_races)";
+		$content .= sprintf("(%s)", Utilities::makeRange($_SESSION['aa']['teams'][$team->id][$sailor->id]->races_nums));
 	      $cell[] = $content;
 	    }
 	  }
