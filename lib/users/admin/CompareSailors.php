@@ -108,29 +108,29 @@ class CompareSailors extends AbstractAdminUserPane {
 
   public function fillHTML(Array $args) {
     // Look for sailors as an array named 'sailors'
-    $complete = false;
-    if (isset($args['sailor']))
-      $complete = $this->doSailors($args);
+    if (isset($args['sailor'])) {
+      if ($this->doSailors($args))
+	return;
+      WebServer::go('/compare-sailors');
+    }
 
     // ------------------------------------------------------------
     // Provide an input box to choose sailors using AJAX
     // ------------------------------------------------------------
-    if (!$complete) {
-      $this->PAGE->addHead(new GenericElement('link', array(new Text("")),
+    $this->PAGE->addHead(new GenericElement('link', array(new Text("")),
 					    array('type'=>'text/css',
 						  'href'=>'/inc/css/aa.css',
 						  'rel'=>'stylesheet')));
-      $this->PAGE->addHead(new GenericElement('script', array(new Text("")), array('src'=>'/inc/js/aa.js')));
-      $this->PAGE->addContent($p = new Port("New sailors"));
-      $p->addChild($form = new Form('/compare-sailors', "get"));
-      $form->addChild(new GenericElement('noscript', array(new Para("Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding."))));
-      $form->addChild(new FItem('Name:', $search = new FText('name-search', "")));
-      $search->addAttr('id', 'name-search');
-      $form->addChild($ul = new Itemize());
-      $ul->addAttr('id', 'aa-input');
-      $ul->addItems(new LItem("No sailors.", array('class' => 'message')));
-      $form->addChild(new FSubmit('set-sailors', "Compare sailors"));
-    }
+    $this->PAGE->addHead(new GenericElement('script', array(new Text("")), array('src'=>'/inc/js/aa.js')));
+    $this->PAGE->addContent($p = new Port("New sailors"));
+    $p->addChild($form = new Form('/compare-sailors', "get"));
+    $form->addChild(new GenericElement('noscript', array(new Para("Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding."))));
+    $form->addChild(new FItem('Name:', $search = new FText('name-search', "")));
+    $search->addAttr('id', 'name-search');
+    $form->addChild($ul = new Itemize());
+    $ul->addAttr('id', 'aa-input');
+    $ul->addItems(new LItem("No sailors.", array('class' => 'message')));
+    $form->addChild(new FSubmit('set-sailors', "Compare sailors"));
   }
 
   public function process(Array $args) {

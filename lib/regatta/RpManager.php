@@ -413,10 +413,12 @@ class RpManager {
 		 'from race ' .
 		 'inner join rp on (race.id = rp.race) ' .
 		 'where race.regatta  = "%s" %s ' .
+		 '  and rp.sailor = "%s" ' .
 		 'group by rp.sailor ' .
 		 'order by races_nums',
 		 $this->regatta->id(),
-		 ($role != null) ? sprintf('and rp.boat_role = "%s"', $role) : '');
+		 ($role != null) ? sprintf('and rp.boat_role = "%s"', $role) : '',
+		 $sailor->id);
     $q = $this->regatta->query($q);
     $list = array();
     while ($obj = $q->fetch_object("RP")) {
