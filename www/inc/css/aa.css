@@ -18,6 +18,21 @@
     list-style-type: none;
 }
 
+#aa-results-one {
+    display: block;
+    margin: 1em auto;
+    background: #ccc;
+    border: 1px solid #888;
+    border-radius: 0.25em;
+    -moz-border-radius: 0.25em;
+    -webkig-border-radius: 0.25em;
+    overflow: scroll;
+    overflow-x: hidden;
+    list-style-type: none;
+    height: 10em;
+    width: 50%;
+}
+
 #aa-results li, #aa-input li {
     background: #ddd;
     margin: 0;

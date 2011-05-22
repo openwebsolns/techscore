@@ -267,7 +267,7 @@ class RpManager {
 		 Sailor::FIELDS, Sailor::TABLES, (int)$id);
     $q = Preferences::query($q);
     if ($q->num_rows == 0)
-      throw InvalidArgumentException(sprintf("No sailor with id (%s).", $id));
+      throw new InvalidArgumentException(sprintf("No sailor with id (%s).", $id));
     return $q->fetch_object("Sailor");
   }
 
@@ -406,7 +406,7 @@ class RpManager {
    * @return Array:RP the teams
    */
   public function getParticipation(Sailor $sailor, $role = null) {
-    $q = sprintf('select rp.sailor, rp.boat_role, ' .
+    $q = sprintf('select rp.sailor, rp.boat_role, race.division, ' .
 		 'group_concat(race.number ' .
 		 '             order by race.number ' .
 		 '             separator ",") as races_nums ' .
@@ -416,7 +416,7 @@ class RpManager {
 		 'group by rp.sailor ' .
 		 'order by races_nums',
 		 $this->regatta->id(),
-		 ($role != null) ? sprintf('and rp.boat_role = "%s', $role) : '');
+		 ($role != null) ? sprintf('and rp.boat_role = "%s"', $role) : '');
     $q = $this->regatta->query($q);
     $list = array();
     while ($obj = $q->fetch_object("RP")) {
