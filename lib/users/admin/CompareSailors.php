@@ -21,23 +21,30 @@ class CompareSailors extends AbstractAdminUserPane {
   }
 
   private function doSailors(Array $args) {
-    if (!is_array($args['sailor'])) {
-      $this->announce(new Announcement("Invalid parameter given for comparison.", Announcement::ERROR));
-      return false;
+    if (isset($args['sailor'])) {
+      if (!is_array($args['sailor'])) {
+	$this->announce(new Announcement("Invalid parameter given for comparison.", Announcement::ERROR));
+	return false;
+      }
+      $list = $args['sailor'];
     }
+    elseif (isset($args['sailors']))
+      $list = explode(',', (string)$args['sailors']);
+
+    // get sailors
     $sailors = array();
-    foreach ($args['sailor'] as $id) {
+    foreach ($list as $id) {
       try {
 	$sailor = RpManager::getSailor($id);
 	if ($sailor->icsa_id !== null)
 	  $sailors[] = $sailor;
       }
       catch (InvalidArgumentException $e) {
-	$this->announce(new Announcement("Invalid sailor id given ($id). Ignoring.", Announcement::WARNING));
+	$this->PAGE->addAnnouncement(new Announcement("Invalid sailor id given ($id). Ignoring.", Announcement::WARNING));
       }
     }
-    if (count($sailors) == 0) {
-      $this->announce(new Announcement("No valid sailors provided for comparison.", Announcement::ERROR));
+    if (count($sailors) < 2) {
+      $this->announce(new Announcement("Need at least two valid sailors for comparison.", Announcement::ERROR));
       return false;
     }
 
@@ -57,39 +64,55 @@ class CompareSailors extends AbstractAdminUserPane {
 
     // the array is organized as $regatta_id => array($div => array($race_num))
     $reg_races = array();
-    foreach ($regattas as $regatta)
-      $reg_races[$regatta->id] = array();
+    $reg_teams = array();
+    // populate the list with the first sailor
+    $first_sailor = array_shift($sailors);
+    foreach ($regattas as $regatta) {
+      $reg = new Regatta($regatta->id);
+      $rpm = $reg->getRpManager();
+      $rps = $rpm->getParticipation($first_sailor, 'skipper');
+      if (count($rps) > 0) {
+	$reg_races[$regatta->id] = array();
+	$reg_teams[$regatta->id] = array();
+	foreach ($rps as $rp) {
+	  $key = (string)$rp->division;
+	  $reg_teams[$regatta->id][$key] = array($rp->sailor->id => $rp->team);
+	  $reg_races[$regatta->id][$key] = array();
+	  foreach ($rp->races_nums as $num)
+	    $reg_races[$regatta->id][$key][$num] = $num;
+	}
+      }
+    }
+    unset($regattas);
     
     // keep only the regattas (and the races within them) where all
-    // the given sailors have participated
+    // the other sailors have also participated
     foreach ($sailors as $sailor) {
-      $copy = $regattas;
-      foreach ($copy as $i => $regatta) {
-	$reg = new Regatta($regatta->id);
+      $copy = $reg_races;
+      foreach ($copy as $regatta_id => $div_list) {
+	$reg = new Regatta($regatta_id);
 	$rpm = $reg->getRpManager();
-	$rps = $rpm->getParticipation($sailor, 'skipper');
-	if (count($rps) == 0) {
-	  unset($reg_races[$regatta->id]);
-	  unset($regattas[$i]);
-	}
-	else {
-	  foreach ($rps as $rp) {
-	    $key = (string)$rp->division;
-	    if (!isset($reg_races[$regatta->id][$key]))
-	      $reg_races[$regatta->id][$key] = $rp->races_nums;
-	    else {
-	      // only keep the ones that we have in common
-	      $race_copy = $reg_races[$regatta->id][$key];
-	      foreach ($race_copy as $j => $num) {
-		if (!in_array($num, $rp->races_nums))
-		  unset($reg_races[$regatta->id][$key][$j]);
-	      }
-	      if (count($reg_races[$regatta->id][$key]) == 0)
-		unset($reg_races[$regatta->id][$key]);
+	foreach ($div_list as $div => $races_nums) {
+	  $rps = $rpm->getParticipation($sailor, 'skipper', Division::get($div));
+	  if (count($rps) == 0) {
+	    unset($reg_races[$regatta_id][$div]);
+	    unset($reg_teams[$regatta_id][$div]);
+	  }
+	  else {
+	    $reg_teams[$regatta_id][$div][$sailor->id] = $rps[0]->team;
+	    foreach ($races_nums as $i => $num) {
+	      if (!in_array($num, $rps[0]->races_nums))
+		unset($reg_races[$regatta_id][$div][$i]);
+	    }
+	    if (count($reg_races[$regatta_id][$div]) == 0) {
+	      unset($reg_races[$regatta_id][$div]);
+	      unset($reg_teams[$regatta_id][$div]);
 	    }
 	  }
-	  if (count($reg_races[$regatta->id]) == 0)
-	    unset($reg_races[$regatta->id]);
+	}
+	if (count($reg_races[$regatta_id]) == 0) {
+	  unset($reg_races[$regatta_id]);
+	  unset($reg_teams[$regatta_id]);
 	}
       }
     }
@@ -100,15 +123,52 @@ class CompareSailors extends AbstractAdminUserPane {
       return false;
     }
 
-    echo "<pre>"; print_r($reg_races); "</pre>";
+    /*
+    echo "<pre>"; print_r($reg_races); print_r($reg_teams); echo "</pre>";
     exit;
-
+    */
+    // push the sailor back
+    array_unshift($sailors, $first_sailor);
+    $scores = array(); // track scores
+    $this->PAGE->addContent($p = new Port("Races sailed head-to-head"));
+    $p->addChild($tab = new Table());
+    $tab->addHeader($head = new Row(array(Cell::th("Regatta"), Cell::th("Race"))));
+    foreach ($sailors as $sailor) {
+      $head->addChild(Cell::th($sailor));
+      $scores[$sailor->id] = 0;
+    }
+    // total row
+    $tab->addHeader($tot = new Row(array(new Cell(""), Cell::th("Total"))));
+    // each race
+    foreach ($reg_races as $reg_id => $div_list) {
+      $regatta = new Regatta($reg_id);
+      foreach ($div_list as $div => $races_nums) {
+	$index = 0;
+	foreach ($races_nums as $num) {
+	  $tab->addRow($row = new Row());
+	  if ($index++ == 0) {
+	    $cell = Cell::th($regatta->get(Regatta::NAME));
+	    $cell->addAttr('rowspan', count($races_nums));
+	    $row->addChild($cell);
+	  }
+	  $row->addChild(Cell::th(sprintf("%d%s", $num, $div)));
+	  foreach ($sailors as $sailor) {
+	    $finish = $regatta->getFinish($regatta->getRace(Division::get($div), $num),
+					  $reg_teams[$reg_id][$div][$sailor->id]);
+	    $row->addChild(new Cell($finish->place));
+	    $scores[$sailor->id] += $finish->score;
+	  }
+	}
+      }
+    }
+    foreach ($sailors as $sailor)
+      $tot->addChild(Cell::th($scores[$sailor->id]));
     return true;
   }
 
   public function fillHTML(Array $args) {
     // Look for sailors as an array named 'sailors'
-    if (isset($args['sailor'])) {
+    if (isset($args['sailor']) || isset($args['sailors'])) {
       if ($this->doSailors($args))
 	return;
       WebServer::go('/compare-sailors');
