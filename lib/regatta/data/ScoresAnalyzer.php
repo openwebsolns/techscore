@@ -59,7 +59,7 @@ class ScoresAnalyzer {
    *
    */
   public static function getTeamDivision(Team $team, Division $div) {
-    $q = sprintf('select %s form %s where team = "%s" and division = "%s"',
+    $q = sprintf('select %s from %s where team = "%s" and division = "%s"',
 		 TeamDivision::FIELDS, TeamDivision::TABLES, $team->id, $div);
     $q = Preferences::query($q);
     if ($q->num_rows == 0)
@@ -78,16 +78,15 @@ class ScoresAnalyzer {
    * @param Sailor $sailor the sailor to consider
    * @return Array the place finishes
    */
-  public static function getPlaces(Regatta $reg, Sailor $sailor) {
+  public static function getPlaces(Regatta $reg, Sailor $sailor, $role = 'skipper') {
     $list = array();
-    foreach ($reg->getDivisions() as $div) {
-      $q = sprintf('select rank from dt_team_division where team in (select id from team where regatta = %d) and division = "%s" and team in (select team from rp where sailor = "%s" and race in (select id from race where division = "%s"))',
-		   $reg->id(), $div, $sailor->id, $div);
+    $rpm = $reg->getRpManager();
+    foreach ($rpm->getParticipation($sailor, $role) as $rp) {
+      $q = sprintf('select %s from %s where team = "%s" and division = "%s"',
+		   TeamDivision::FIELDS, TeamDivision::TABLES, $rp->team->id, $rp->division);
       $q = Preferences::query($q);
-      if ($q->num_rows > 0) {
-	$rank = $q->fetch_object();
-	$list[] = sprintf('%d%s', $rank->rank, $div);
-      }
+      if ($q->num_rows > 0)
+	$list[] = $q->fetch_object("TeamDivision");
     }
     return $list;
   }

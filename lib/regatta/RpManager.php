@@ -421,6 +421,7 @@ class RpManager {
 		 ($role != null) ? sprintf('and rp.boat_role = "%s"', $role) : '',
 		 ($div  != null) ? sprintf('and race.division = "%s"', $div) : '',
 		 $sailor->id);
+
     $q = $this->regatta->query($q);
     $list = array();
     while ($obj = $q->fetch_object("RP")) {

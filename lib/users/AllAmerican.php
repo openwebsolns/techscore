@@ -19,7 +19,8 @@ class AllAmerican extends AbstractUserPane {
   public function __construct(User $user) {
     parent::__construct("All-American", $user);
     if (!isset($_SESSION['aa']))
-      $_SESSION['aa'] = array('regattas' => array(),
+      $_SESSION['aa'] = array('regatta_ids' => array(),
+			      'regattas' => array(),
 			      'regatta_races' => array(),
 			      'teams' => array(),
 			      'sailors' => array(),
@@ -60,11 +61,12 @@ class AllAmerican extends AbstractUserPane {
 						  'rel'=>'stylesheet')));
     
     // ------------------------------------------------------------
-    // 1. Step one: choose schools
+    // 1. Step one: choose regattas
     // ------------------------------------------------------------
     if ($_SESSION['aa']['regattas-set'] === false) {
       // Reset lists
       $_SESSION['aa']['regattas'] = array();
+      $_SESSION['aa']['regatta_ids'] = array();
       $_SESSION['aa']['regatta_races'] = array();
       $_SESSION['aa']['teams'] = array();
       $_SESSION['aa']['sailors'] = array();
@@ -106,11 +108,11 @@ class AllAmerican extends AbstractUserPane {
 	    in_array($reg->type, array(Preferences::TYPE_CHAMPIONSHIP,
 				       Preferences::TYPE_CONF_CHAMPIONSHIP,
 				       Preferences::TYPE_INTERSECTIONAL))) {
-	  $this->populateTable(new Regatta($reg->id));
+	  $this->populateSailors(new Regatta($reg->id));
 	  $qual_regattas[] = $reg;
 	}
 	else {
-	  // present these teams for choosing
+	  // present these regattas for choosing
 	  $id = 'r'.$reg->id;
 	  $r = new Row(array(new Cell($chk = new FCheckbox("regatta[]", $reg->id, array('id'=>$id))),
 			     new Cell(new Label($id, $reg->name),
@@ -189,6 +191,7 @@ class AllAmerican extends AbstractUserPane {
       return;
     }
 
+    ini_set('memory_limit', '128M');
     // ------------------------------------------------------------
     // Review and download
     // ------------------------------------------------------------
@@ -230,11 +233,26 @@ class AllAmerican extends AbstractUserPane {
 	    $cell[] = $content;
 	  }
 	}
+	// fix: if content is empty, then try hard-checking
+	if (count($cell) == 0) {
+	  $reg = new Regatta($_SESSION['aa']['regatta_ids'][$reg_id]);
+	  $rpm = $reg->getRpManager();
+	  $rps = $rpm->getParticipation($sailor, $_SESSION['aa']['report-role']);
+	  foreach ($rps as $rp) {
+	    $team = ScoresAnalyzer::getTeamDivision($rp->team, $rp->division);
+	    $content = $team->rank . $team->division;
+	    $num_races = count($_SESSION['aa']['teams'][$team->id][$sailor->id]->races_nums);
+	    if ($num_races != count($rp->races_nums))
+	      $content .= sprintf("(%s)", Utilities::makeRange($rp->races_nums));
+
+	    $cell[] = $content;
+	  }
+	}
 	$row->addChild(new Cell(implode("/", $cell)));
       }
     }
     return;
-    
+
     $this->PAGE->addContent($p = new Port("Review input for report"));
     $p->addChild(new Para("Please review the information which will be included in the report below. When you are done, click \"Make report\" to generate the report. Because this can be a resource intensive operation, please have patience and do not generate too many reports."));
 
@@ -329,6 +347,7 @@ class AllAmerican extends AbstractUserPane {
 	$_SESSION['aa']['regattas-set'] = true;
 	return false;
       }
+
       $regs = array();
       $errors = 0;
       foreach ($args['regatta'] as $id) {
@@ -337,7 +356,7 @@ class AllAmerican extends AbstractUserPane {
 	  if ($reg->get(Regatta::TYPE) != Preferences::TYPE_PERSONAL &&
 	      $reg->get(Regatta::PARTICIPANT) == $_SESSION['aa']['report-participation'] &&
 	      $reg->get(Regatta::FINALIZED) !== null)
-	    $this->populateTable($reg);
+	    $this->populateSailors($reg);
 	  else
 	    $errors++;
 	}
@@ -408,6 +427,7 @@ class AllAmerican extends AbstractUserPane {
     // Alas! Make the report
     // ------------------------------------------------------------
     if (isset($args['gen-report'])) {
+      ini_set('memory_limit', '128M');
       // is the regatta and sailor list set?
       if (count($_SESSION['aa']['regattas']) == 0 ||
 	  count($_SESSION['aa']['sailors']) == 0) {
@@ -433,6 +453,21 @@ class AllAmerican extends AbstractUserPane {
 	      $num_races = count($_SESSION['aa']['teams'][$team->id][$sailor->id]->races_nums);
 	      if ($num_races != $_SESSION['aa']['regatta_races'][$reg_id])
 		$content .= sprintf("(%s)", Utilities::makeRange($_SESSION['aa']['teams'][$team->id][$sailor->id]->races_nums));
+	      $cell[] = $content;
+	    }
+	  }
+	  // fix: if content is empty, then try hard-checking
+	  if (count($cell) == 0) {
+	    $reg = new Regatta($_SESSION['aa']['regatta_ids'][$reg_id]);
+	    $rpm = $reg->getRpManager();
+	    $rps = $rpm->getParticipation($sailor, $_SESSION['aa']['report-role']);
+	    foreach ($rps as $rp) {
+	      $team = ScoresAnalyzer::getTeamDivision($rp->team, $rp->division);
+	      $content = $team->rank . $team->division;
+	      $num_races = count($_SESSION['aa']['teams'][$team->id][$sailor->id]->races_nums);
+	      if ($num_races != count($rp->races_nums))
+		$content .= sprintf("(%s)", Utilities::makeRange($rp->races_nums));
+
 	      $cell[] = $content;
 	    }
 	  }
@@ -484,10 +519,11 @@ class AllAmerican extends AbstractUserPane {
    * @param Regatta $reg the regatta whose information to incorporate
    * into the table
    */
-  private function populateTable(Regatta $reg) {
+  private function populateSailors(Regatta $reg) {
     // use season/nick-name to sort
     $id = sprintf('%s/%s', $reg->get(Regatta::SEASON), $reg->get(Regatta::NICK_NAME));
     $_SESSION['aa']['regatta_races'][$id] = count($reg->getRaces(Division::A()));
+    $_SESSION['aa']['regatta_ids'][$id] = $reg->id();
 	  
     // get top finishing teams
     $_SESSION['aa']['regattas'][$id] = array();
