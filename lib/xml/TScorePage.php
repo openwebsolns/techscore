@@ -66,6 +66,7 @@ class TScorePage extends WebPage {
     // Fill announcement
     $this->content->addChild($this->announce = new Div());
     $this->announce->addAttr("id", "announcediv");
+    $this->announce->addChild(new Text(""));
     if (isset($_SESSION['ANNOUNCE']) && is_array($_SESSION['ANNOUNCE']) &&
 	count($_SESSION['ANNOUNCE']) > 0) {
       while (count($_SESSION['ANNOUNCE']) > 0)
