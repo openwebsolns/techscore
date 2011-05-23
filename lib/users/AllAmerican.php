@@ -202,10 +202,12 @@ class AllAmerican extends AbstractUserPane {
     
     $this->PAGE->addContent($table = new Table());
     $table->addAttr('id', 'aa-table');
-    $table->addHeader($hrow1 = new Row(array(Cell::th("Sailor"),
+    $table->addHeader($hrow1 = new Row(array(Cell::th("ID"),
+					     Cell::th("Sailor"),
 					     Cell::th("YR"),
 					     Cell::th("School"))));
-    $table->addHeader($hrow2 = new Row(array(Cell::td("# Races/Div"),
+    $table->addHeader($hrow2 = new Row(array(Cell::td(""),
+					     Cell::td("# Races/Div"),
 					     Cell::td(""),
 					     Cell::td(""))));
     foreach ($_SESSION['aa']['regattas'] as $reg_id => $team_list) {
@@ -213,7 +215,8 @@ class AllAmerican extends AbstractUserPane {
       $hrow2->addChild(new Cell($_SESSION['aa']['regatta_races'][$reg_id]));
     }
     foreach ($_SESSION['aa']['sailors'] as $id => $sailor) {
-      $table->addRow($row = new Row(array(new Cell(sprintf("%s %s", $sailor->first_name, $sailor->last_name)),
+      $table->addRow($row = new Row(array(new Cell($sailor->id),
+					  new Cell(sprintf("%s %s", $sailor->first_name, $sailor->last_name)),
 					  new Cell($sailor->year),
 					  new Cell($sailor->school->nick_name))));
       foreach ($_SESSION['aa']['regattas'] as $reg_id => $team_list) {
@@ -412,13 +415,14 @@ class AllAmerican extends AbstractUserPane {
 	return false;
       }
 
-      $header1 = array("Sailor", "YR", "School");
-      $header2 = array("# Races/Div", "", "");
-      $spacer  = array("", "", "");
+      $header1 = array("ID", "Sailor", "YR", "School");
+      $header2 = array("", "# Races/Div", "", "");
+      $spacer  = array("", "", "", "");
       $rows = array();
 
       foreach ($_SESSION['aa']['sailors'] as $id => $sailor) {
-	$row = array(sprintf("%s %s", $sailor->first_name, $sailor->last_name),
+	$row = array($sailor->id,
+		     sprintf("%s %s", $sailor->first_name, $sailor->last_name),
 		     $sailor->year,
 		     $sailor->school->nick_name);
 	foreach ($_SESSION['aa']['regattas'] as $reg_id => $team_list) {
