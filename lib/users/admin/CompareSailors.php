@@ -12,7 +12,7 @@ require_once('conf.php');
  * @author Dayan Paez
  * @version 2011-03-29
  */
-class CompareSailors extends AbstractAdminUserPane {
+class CompareSailors extends AbstractUserPane {
   /**
    * Creates a new pane
    */

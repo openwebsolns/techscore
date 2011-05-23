@@ -66,6 +66,14 @@ abstract class AbstractUserPane {
 		    new LItem(new Link("/prefs/$S/logo",   "School logo")),
 		    new LItem(new Link("/prefs/$S/team",   "Team names")),
 		    new LItem(new Link("/prefs/$S/sailor", "Sailors")));
+
+    // Reports
+    $this->PAGE->addMenu($div = new Div());
+    $div->addAttr("class", "menu");
+    $div->addChild(new Heading("Reports"));
+    $div->addChild($list = new GenericList());
+    $list->addItems(new LItem(new Link("/aa", "All-American")),
+		    new LItem(new Link("/compare-sailors", "Comp. sailors")));
     
     // Messages
     $this->PAGE->addMenu($div = new Div());
@@ -84,8 +92,6 @@ abstract class AbstractUserPane {
       $list->addItems(new LItem(new Link("/venue",     "Venues")));
       $list->addItems(new LItem(new Link("/edit-venue", "Add Venues")));
       $list->addItems(new LItem(new Link("/boats",     "Boats")));
-      $list->addItems(new LItem(new Link("/compare-sailors", "Comp. Sailors")));
-      $list->addItems(new LItem(new Link("/aa", "All-American")));
     }
     $this->PAGE->addContent(new PageTitle($this->title));
     $this->fillHTML($args);
