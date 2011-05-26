@@ -48,6 +48,11 @@ class AllAmerican extends AbstractUserPane {
       $sel->addOptions(array(RP::SKIPPER => "Skipper", RP::CREW    => "Crew"));
 
       $form->addChild(new FSubmit('set-report', "Choose regattas >>"));
+
+      $this->PAGE->addContent($p = new Port("Special crew report"));
+      $p->addChild($form = new Form('/aa-edit'));
+      $form->addChild(new Para("To choose crews from ALL regattas regardless of participation, click the button below."));
+      $form->addChild(new FSubmit('set-special-report', "All crews >>"));
       return;
     }
 
@@ -104,7 +109,8 @@ class AllAmerican extends AbstractUserPane {
 				    Cell::th("Status"))));
       foreach ($regattas as $reg) {
 	if ($reg->finalized !== null &&
-	    $reg->participant == $_SESSION['aa']['report-participation'] &&
+	    ($reg->participant == $_SESSION['aa']['report-participation'] ||
+	     'special' == $_SESSION['aa']['report-participation']) &&
 	    in_array($reg->type, array(Preferences::TYPE_CHAMPIONSHIP,
 				       Preferences::TYPE_CONF_CHAMPIONSHIP,
 				       Preferences::TYPE_INTERSECTIONAL))) {
@@ -124,7 +130,9 @@ class AllAmerican extends AbstractUserPane {
 			     new Cell(new Label($id, $reg->start_time->format('Y/m/d H:i'))),
 			     new Cell(new Label($id, ($reg->finalized) ? "Final" : "Pending"))));
 	  $tab->addRow($r);
-	  if ($reg->finalized === null || $reg->participant != $_SESSION['aa']['report-participation']) {
+	  if ($reg->finalized === null ||
+	      ($reg->participant != $_SESSION['aa']['report-participation'] &&
+	       'special' != $_SESSION['aa']['report-participation'])) {
 	    $r->addAttr('class', 'disabled');
 	    $chk->addAttr("disabled", "disabled");
 	  }
@@ -192,6 +200,7 @@ class AllAmerican extends AbstractUserPane {
     }
 
     ini_set('memory_limit', '128M');
+    ini_set('max_execution_time', 60);
     // ------------------------------------------------------------
     // Review and download
     // ------------------------------------------------------------
@@ -336,6 +345,13 @@ class AllAmerican extends AbstractUserPane {
       }
       $_SESSION['aa']['report-participation'] = $args['participation'];
       $_SESSION['aa']['report-role'] = $args['role'];
+      return false;
+    }
+    // Special report
+    if (isset($args['set-special-report'])) {
+      $_SESSION['aa']['report-participation'] = 'special';
+      $_SESSION['aa']['report-role'] = 'crew';
+      return false;
     }
 
     // ------------------------------------------------------------
