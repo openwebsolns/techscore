@@ -173,8 +173,10 @@ class UpdateDaemon {
       UpdateManager::logSeason($season);
 
       // Deal with home page
-      if ((string)$season == (string)$current)
+      if ((string)$season == (string)$current) {
 	UpdateFront::run();
+	Update404::run();
+      }
     }
 
     // Deal with affected schools
