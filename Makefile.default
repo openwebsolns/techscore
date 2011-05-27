@@ -3,3 +3,16 @@
 
 DB_DB = ts2
 DB_USER = dayan
+
+# Apache configuration
+HTTP_LOGROOT = /var/log/apache2
+HTTP_CERTPATH = /etc/apache2/certs
+
+# Conf settings:
+#
+# MAILTO is the address to send reports
+# DLY: daily update frequency, default is every 5 minutes
+# WKD: weekend update frequency
+CRON_MAILTO = ""
+CRON_DLY_FREQ = */5
+CRON_WKD_FREQ = 13,43

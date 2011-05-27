@@ -2,11 +2,18 @@ include Makefile.local
 
 default: apache.conf changes.current.sql crontab
 
-crontab: crontab.default
-	touch crontab; cp crontab crontab.orig; sed 's:{DIRECTORY}:'"`pwd`"':g' crontab.default > crontab
+crontab: crontab.default Makefile.local
+	sed -e 's:{DIRECTORY}:'"`pwd`"':g' \
+	    -e 's:{CRON_MAILTO}:${CRON_MAILTO}:g' \
+	    -e 's:{CRON_DLY_FREQ}:${CRON_DLY_FREQ}:g' \
+	    -e 's:{CRON_WKD_FREQ}:${CRON_WKD_FREQ}:g' crontab.default > crontab
 
-apache.conf: apache.conf.default
-	sed -e 's:{DIRECTORY}:'"`pwd`"':g' -e 's/{DIRECTORY}/'"$(hostname)"'/g' apache.conf.default > apache.conf
+apache.conf: apache.conf.default Makefile.local
+	sed -e 's:{DIRECTORY}:'"`pwd`"':g' \
+	    -e 's/{HOSTNAME}/'"`hostname`"'/g' \
+	    -e 's:{HTTP_LOGROOT}:${HTTP_LOGROOT}:g' \
+	    -e 's:{HTTP_CERTPATH}:${HTTP_CERTPATH}:g' \
+		apache.conf.default > apache.conf
 
 changes.current.sql: changes.history.sql
 	touch changes.current.sql && \
