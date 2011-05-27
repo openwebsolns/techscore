@@ -314,3 +314,7 @@ div.stat .prefix { display: inline-block; zoom: 1; *display: inline; width: 40%;
     border-top: 1px solid #888;
     border-bottom: 1px solid #eee;
 }
+
+.tt {
+    font-family: courier, monospace;
+}
