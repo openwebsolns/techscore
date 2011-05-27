@@ -5,8 +5,10 @@ DB_DB = ts2
 DB_USER = dayan
 
 # Apache configuration
+HTTP_HOSTNAME = collegesailing.org
 HTTP_LOGROOT = /var/log/apache2
-HTTP_CERTPATH = /etc/apache2/certs
+HTTP_CERTPATH = /etc/apache2/certs/ts2.crt
+HTTP_CERTKEYPATH = /etc/apache2/certs/ts2.key
 
 # Conf settings:
 #

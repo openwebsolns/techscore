@@ -28,8 +28,8 @@ DocumentRoot {DIRECTORY}/www
 
 # SSL setup
 SSLEngine on
-SSLCertificateFile {HTTP_CERTPATH}/ts2.crt
-SSLCertificateKeyFile {HTTP_CERTPATH}/ts2.key
+SSLCertificateFile {HTTP_CERTPATH}
+SSLCertificateKeyFile {HTTP_CERTKEYPATH}
 SetEnvIf User-Agent ".*MSIE.*" nokeepalive ssl-unclean-shutdown
 
 <Directory "{DIRECTORY}/www">
