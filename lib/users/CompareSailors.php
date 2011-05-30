@@ -119,14 +119,10 @@ class CompareSailors extends AbstractUserPane {
 
     // are there any regattas in common?
     if (count($reg_races) == 0) {
-      $this->announce(new Announcement(sprintf("The sailors provided (%s) have not sailed head to head in any race in any regatta in the past year.", implode(", ", $sailors)), Announcement::WARNING));
+      $this->announce(new Announcement(sprintf("The sailors provided (%s, %s) have not sailed head to head in any race in any regatta in the past year.", $first_sailor, implode(", ", $sailors)), Announcement::WARNING));
       return false;
     }
 
-    /*
-    echo "<pre>"; print_r($reg_races); print_r($reg_teams); echo "</pre>";
-    exit;
-    */
     // push the sailor back
     array_unshift($sailors, $first_sailor);
     $scores = array(); // track scores
