@@ -12,9 +12,58 @@
  */
 class Update404 {
   private $page;
+  private $mode;
+
+  /**
+   * Specify 'schools' to create the schools 404 page
+   *
+   * @param String $mode either 'schools' or anything else
+   */
+  public function __construct($mode = 'general') {
+    $this->mode = $mode;
+  }
+
+  private function fillSchools() {
+    $this->page = new TPublicPage('404: School page not found');
+
+    // SETUP navigation
+    $season = new Season(new DateTime());
+    $this->page->addNavigation(new XA('/', "Home", array('class'=>'nav')));
+    $this->page->addMenu(new XA('/schools', "Schools"));
+    $this->page->addMenu(new XA(sprintf('/%s', $season), $season->fullString()));
+
+    $this->page->addSection($p = new XPort("404: School page overboard!"));
+    $p->add(new XP(array(), "We're sorry, but the page you are requesting, or the school you seek, cannot be found. This can happen if:"));
+    $p->add(new XUL(array(),
+		    array(new XLi("the URL misspelled the ID of the school,"),
+			  new XLi("or the school is not recognized by ICSA."))));
+    $p->add(new XP(array(),
+		   array("Make sure the ID of the school is in upper case, as in ",
+			 new XA('/schools/MIT', '/schools/MIT', array('class'=>'tt')), " vs ",
+			 new XSpan("/schools/mit", array('class'=>'tt')), ".")));
+
+    $p->add(new XP(array(),
+		   array("Also make sure the season (if any) is spelled correctly. This should be in lower case and one of ",
+			 new XSpan("f", array('class'=>'tt')),
+			 " for Fall or ",
+			 new XSpan("s", array('class'=>'tt')),
+			 " for Spring; followed by the last two digits of the year.")));
+
+    $p->add(new XP(array(),
+		   array("Of course, your best bet is to visit ",
+			 new XA('/schools', "the schools directory"),
+			 " to view all the schools in the system.")));
+
+    $p->add(new XP(array(), new XStrong("Happy sailing!")));
+  }
 
   private function fill() {
     if ($this->page !== null) return;
+
+    if ($this->mode = 'schools') {
+      $this->fillSchools();
+      return;
+    }
 
     $this->page = new TPublicPage('404: Page not found');
 
@@ -87,6 +136,22 @@ class Update404 {
     if (file_put_contents("$R/404.html", $M->getPage()) === false)
       throw new RuntimeException(sprintf("Unable to make the 404 page: %s/404.html\n", $R), 8);
   }
+
+  /**
+   * Creates a new 404 page for schools
+   *
+   */
+  public static function runSchool() {
+    $R = realpath(dirname(__FILE__).'/../../html');
+
+    $dirname = "$R/schools";
+    if (!file_exists($dirname) && mkdir($dirname) === false)
+      throw new RuntimeException(sprintf("Unable to make the schools folder: %s\n", $dirname), 2);
+    
+    $M = new Update404('schools');
+    if (file_put_contents("$dirname/404.html", $M->getPage()) === false)
+      throw new RuntimeException(sprintf("Unable to make the 404 page: %s/404.html\n", $dirname), 8);
+  }
 }
 
 // ------------------------------------------------------------
@@ -98,9 +163,21 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
   require_once('conf.php');
 
+  $mode = 'general';
+  if (count($argv) > 1) {
+    if ($argv[1] != 'schools') {
+      printf("usage: %s [schools]\n", $argv[0]);
+      exit(1);
+    }
+    $mode = 'schools';
+  }
+
   try {
-    Update404::run();
-    error_log(sprintf("I:0:%s: Successful!\n", date('r')), 3, LOG_FRONT);
+    if ($mode == 'schools')
+      Update404::runSchool();
+    else
+      Update404::run();
+    error_log(sprintf("I:0:%s: Successful (%s)!\n", date('r'), $mode), 3, LOG_FRONT);
   }
   catch (Exception $e) {
     error_log(sprintf("E:%d:L%d:F%s:%s: %s\n",

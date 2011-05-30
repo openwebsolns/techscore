@@ -161,4 +161,9 @@ Header set Expires "Thu, 15 Apr 2025 20:00:00 GMT"
 # Header unset Last-Modified
 </FilesMatch>
 </Directory>
+
+# Special 404 page for schools
+<Directory {DIRECTORY}/html/schools>
+ErrorDocument 404 /schools/404.html
+</Directory>
 </VirtualHost>
