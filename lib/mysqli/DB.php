@@ -354,12 +354,17 @@ class Dt_Sail extends DBObject {
 class Dt_School extends DBObject {
   public $name;
   public $nick_name;
-  public $conference;
   public $city;
   public $state;
+  protected $conference;
 
   public function db_name() { return 'school'; }
   public function db_cache() { return true; }
+  public function db_type($field) {
+    if ($field == 'conference')
+      return DBME::$CONFERENCE;
+    return parent::db_type($field);
+  }
 
   public function __toString() {
     return $this->name;
@@ -369,6 +374,7 @@ class Dt_School extends DBObject {
 class Dt_Conference extends DBObject {
   public $name;
   public function db_name() { return 'conference'; }
+  public function db_cache() { return true; }
   public function __toString() { return $this->id; }
 }
 
