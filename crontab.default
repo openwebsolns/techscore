@@ -25,4 +25,8 @@ MAILTO = {CRON_MAILTO}
 24 3 * * * /usr/bin/php {DIRECTORY}/lib/scripts/UpdateFront.php
 
 #--------------------------------
+# Update the schools 404 page, once a month works for me
+26 4 13 * * /usr/bin/php {DIRECTORY}/lib/scripts/Update404.php schools
+
+#--------------------------------
 # @TODO: Other updates like backups, etc
