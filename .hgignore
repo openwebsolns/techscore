@@ -23,3 +23,6 @@ html/*
 # Crontab
 crontab
 crontab.orig
+
+# Cache
+cache/*.db

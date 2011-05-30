@@ -269,7 +269,7 @@ class SchoolSummaryMaker {
 	$confs = array();
 	foreach ($reg->getHosts() as $host) {
 	  $hosts[$host->id] = $host->nick_name;
-	  $confs[$host->conference] = $host->conference;
+	  $confs[$host->conference->id] = $host->conference;
 	}
 	$places = array();
 	$teams = $reg->getTeams();

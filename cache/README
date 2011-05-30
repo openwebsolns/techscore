@@ -1,0 +1,23 @@
+This directory houses several static databases, which are to be
+periodically updated by a cron-run script. These databases are used,
+if available, to provide a richer navigation experience in the public
+site.
+
+For instance, though the public site rooted at /html does not use PHP
+at all---and is thus very fast and stable---we want to use PHP
+specifically for some 404 pages (certainly /html/sailors/404.php). The
+reason is that if the URL used 'mit' instead of 'MIT', we can redirect
+the user to the correct URL using the correct error code. This is even
+more impressive (and useful) if the user writes 'harvard' instead of
+'HAR'.
+
+We want this functionality, however, without the overhead of
+connecting to the MySQL database that ultimately houses this
+information.  We regard this utility as a luxury of our system, and
+can safely tolerate some stale data, which is why serializing as XML
+files in this directory is a welcome compromise. Furthermore,
+considering that data about schools is apt to not change very
+frequently, this should be no problem at all.
+
+At least as of creation, the files (or tables) that will exist here
+are 'schools.db' and possibly 'sailors.db'.
