@@ -60,7 +60,7 @@ class Update404 {
   private function fill() {
     if ($this->page !== null) return;
 
-    if ($this->mode = 'schools') {
+    if ($this->mode == 'schools') {
       $this->fillSchools();
       return;
     }
