@@ -60,7 +60,7 @@ class UpdateFront {
 	$confs = array();
 	foreach ($reg->getHosts() as $host) {
 	  $hosts[$host->id] = $host->nick_name;
-	  $confs[$host->conference] = $host->conference;
+	  $confs[$host->conference->id] = $host->conference;
 	}
 	$link = new XA(sprintf('/%s/%s', $reg->season, $reg->nick), $reg->name);
 	$bod->add(new XTR(array('class' => sprintf("row%d", $row++ % 2)),
@@ -111,7 +111,7 @@ class UpdateFront {
 	  $confs = array();
 	  foreach ($reg->getHosts() as $host) {
 	    $hosts[$host->id] = $host->nick_name;
-	    $confs[$host->conference] = $host->conference;
+	    $confs[$host->conference->id] = $host->conference;
 	  }
 	  $link = new XA(sprintf('/%s/%s', $reg->season, $reg->nick), $reg->name);
 	  $bod->add(new XTR(array('class' => sprintf("row%d", $row++ % 2)),
