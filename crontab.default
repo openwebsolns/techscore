@@ -19,6 +19,7 @@ MAILTO = {CRON_MAILTO}
 #--------------------------------
 # Update sailor information: do this every day around 5AM
 18 4 * * * /usr/bin/php {DIRECTORY}/lib/scripts/UpdateSailorsDB.php
+21 4 * * * /usr/bin/php {DIRECTORY}/lib/xcache/GenerateSchools.php
 
 #--------------------------------
 # Update the front page every day, 'cause it's cool to do that

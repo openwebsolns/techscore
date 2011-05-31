@@ -7,6 +7,9 @@
  * database to the file '/cache/schools.db', in the hopes that it can
  * be used by the public site's 404 page for better navigation.
  *
+ * Such a database is a tab-delimited file with fields ID, nick name,
+ * and name, all in uppercase
+ *
  * @author Dayan Paez
  * @created 2011-05-30
  * @package cache
@@ -19,30 +22,20 @@ class GenerateSchools {
   /**
    * Generate the local cache document
    *
-   * @return XDoc the XML document
+   * @return String the database
    */
   public static function getCache() {
-    require_once('xml5/XmlLib.php');
     require_once('mysqli/DB.php');
     DBME::setConnection(Preferences::getConnection());
 
-    $doc = new XDoc('SchoolDatabase', array('version' => self::VERSION, 'xmlns' => self::XMLNS));
-    $doc->add($conf_elem = new XElem('Conferences'));
-    $doc->add($schl_elem = new XElem('Schools'));
-    $confs = array();
-    foreach (DBME::getAll(DBME::$SCHOOL) as $school) {
-      if (!isset($confs[$school->conference->id])) {
-	$confs[$school->conference->id] = $school->conference;
-	$conf_elem->add(new XElem('Conference', array('id'=>$school->conference->id),
-				  array(new XText($school->conference->name))));
-      }
-      $schl_elem->add(new XElem('School', array('id'=>$school->id, 'conference' => $school->conference->id),
-				array(new XElem('Name', array(), array(new XText($school->name))),
-				      new XElem('NickName', array(), array(new XText($school->nick_name))),
-				      new XElem('City', array(), array(new XText($school->city))),
-				      new XElem('State', array(), array(new XText($school->state))))));
-    }
-    return $doc;
+    $fmt = "%s\t%s\t%s\n";
+    $txt = "";
+    foreach (DBME::getAll(DBME::$SCHOOL) as $school)
+      $txt .= sprintf($fmt,
+		      strtoupper($school->id),
+		      strtoupper($school->nick_name),
+		      strtoupper($school->name));
+    return $txt;
   }
 
   /**
@@ -57,7 +50,7 @@ class GenerateSchools {
       throw new RuntimeException("Cache folder does not exist.");
 
     $doc = GenerateSchools::getCache();
-    if (@file_put_contents("$R/schools.db", $doc->toXML()) === false)
+    if (@file_put_contents("$R/schools.db", $doc) === false)
       throw new RuntimeException(sprintf("Unable to make the schools database cache: %s\n", $filename), 8);
   }
 }

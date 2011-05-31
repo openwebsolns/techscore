@@ -1,6 +1,6 @@
 include Makefile.local
 
-default: apache.conf changes.current.sql crontab
+default: apache.conf changes.current.sql crontab cache/404-schools.html cache/schools.db
 
 crontab: crontab.default Makefile.local
 	sed -e 's:{DIRECTORY}:'"`pwd`"':g' \
@@ -21,6 +21,12 @@ changes.current.sql: changes.history.sql
 	touch changes.current.sql && \
 	comm -13 changes.current.sql changes.history.sql | mysql -u $(DB_USER) -p $(DB_DB) && \
 	cp changes.history.sql changes.current.sql
+
+cache/404-schools.html: lib/scripts/Update404.php
+	php lib/scripts/Update404.php schools
+
+cache/schools.db: lib/xcache/GenerateSchools.php html/schools/404.php
+	php lib/xcache/GenerateSchools.php
 
 .PHONY:	sql doc
 sql:

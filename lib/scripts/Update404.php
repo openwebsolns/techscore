@@ -142,15 +142,11 @@ class Update404 {
    *
    */
   public static function runSchool() {
-    $R = realpath(dirname(__FILE__).'/../../html');
+    $R = realpath(dirname(__FILE__).'/../../cache');
 
-    $dirname = "$R/schools";
-    if (!file_exists($dirname) && mkdir($dirname) === false)
-      throw new RuntimeException(sprintf("Unable to make the schools folder: %s\n", $dirname), 2);
-    
     $M = new Update404('schools');
-    if (file_put_contents("$dirname/404.html", $M->getPage()) === false)
-      throw new RuntimeException(sprintf("Unable to make the 404 page: %s/404.html\n", $dirname), 8);
+    if (file_put_contents("$R/404-schools.html", $M->getPage()) === false)
+      throw new RuntimeException(sprintf("Unable to make the 404 page: %s/404-schools.html\n", $R), 8);
   }
 }
 
