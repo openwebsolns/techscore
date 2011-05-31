@@ -119,7 +119,7 @@ class UpdateSeason {
 	  $confs = array();
 	  foreach ($reg->getHosts() as $host) {
 	    $hosts[$host->id] = $host->nick_name;
-	    $confs[$host->conference] = $host->conference;
+	    $confs[$host->conference->id] = $host->conference;
 	  }
 	  $link = new XA($reg->nick, $reg->name);
 	  $path = realpath(sprintf('%s/../../html/inc/img/schools/%s.png', dirname(__FILE__), $wt->school->id));
@@ -154,7 +154,7 @@ class UpdateSeason {
 	$confs = array();
 	foreach ($reg->getHosts() as $host) {
 	  $hosts[$host->id] = $host->nick_name;
-	  $confs[$host->conference] = $host->conference;
+	  $confs[$host->conference->id] = $host->conference;
 	}
 	$tab->addRow(array(new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name),
 			   implode("/", $hosts),
