@@ -19,14 +19,17 @@ class UpdateManager {
    *
    * @param Regatta $reg the regatta to queue
    * @param Const $type one of the UpdateRequest activity types
+   * @param String $arg the optional argument to include in the request
    * @throws InvalidArgumentException if type not supported
    */
-  public static function queueRequest(Regatta $reg, $type) {
+  public static function queueRequest(Regatta $reg, $type, $arg = null) {
     if (!in_array($type, UpdateRequest::getTypes()))
       throw new InvalidArgumentException("Illegal update request type $type.");
 
-    Preferences::query(sprintf('insert into %s (regatta, activity) values (%d, "%s")',
-			       UpdateRequest::TABLES, $reg->id(), $type));
+    $con = Preferences::getConnection();
+    $arg = ($arg === null) ? 'NULL' : sprintf('"%s"', $con->real_escape_string($arg));
+    Preferences::query(sprintf('insert into %s (regatta, activity, argument) values (%d, "%s", %s)',
+			       UpdateRequest::TABLES, $reg->id(), $type, $arg));
   }
 
   /**

@@ -15,13 +15,14 @@ class UpdateRequest {
   public $id;
   public $regatta;
   public $activity;
+  public $argument;
   
   /**
    * @var DateTime the time of the request. Leave as null for current timestamp
    */
   public $request_time;
 
-  const FIELDS = "pub_update_request.id, pub_update_request.regatta, pub_update_request.activity, pub_update_request.request_time";
+  const FIELDS = "pub_update_request.id, pub_update_request.regatta, pub_update_request.activity, pub_update_request.request_time, pub_update_request.argument";
   const TABLES = "pub_update_request";
 
   const ACTIVITY_RP = "rp";

@@ -143,3 +143,6 @@ alter table dt_rp add foreign key (team_division) references dt_team_division(id
 insert into dt_rp (team_division, sailor, boat_role, race_nums) (select dt_team_division.id, rp.sailor, rp.boat_role, group_concat(race.number order by number separator ',') as race_nums from rp inner join race on (rp.race = race.id) inner join dt_team_division on (dt_team_division.team = rp.team) group by dt_team_division.id, rp.sailor, rp.boat_role);
 truncate table dt_rp;
 insert into dt_rp (team_division, sailor, boat_role, race_nums) (select dt_team_division.id, rp.sailor, rp.boat_role, group_concat(race.number order by number separator ',') as race_nums from rp inner join race on (rp.race = race.id) inner join dt_team_division on dt_team_division.team = rp.team where dt_team_division.division = race.division group by dt_team_division.id, rp.sailor, rp.boat_role);
+
+-- provide optional argument to update requests --
+alter table pub_update_request add column argument varchar(10) default null comment "Optional activity describer";

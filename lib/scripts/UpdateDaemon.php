@@ -182,8 +182,12 @@ class UpdateDaemon {
 
 	    // Affected schools
 	    if (in_array($last->activity, $UPD_SCHOOL)) {
-	      foreach (self::$REGATTA->getTeams() as $team)
-		$schools[$team->school->id] = $team->school;
+	      if ($last->activity == UpdateRequest::ACTIVITY_RP && $last->argument !== null)
+		$schools[$last->argument] = Preferences::getSchool($last->argument);
+	      else {
+		foreach (self::$REGATTA->getTeams() as $team)
+		  $schools[$team->school->id] = $team->school;
+	      }
 	    }
 
 	    UpdateManager::log($last, 0);

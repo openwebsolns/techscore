@@ -352,7 +352,7 @@ class RpEnterPane extends AbstractPane {
       else {
 	$this->announce(new Announcement("RP info updated."));
       }
-      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RP);
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RP, $team->school->id);
     }
 
     return $args;
