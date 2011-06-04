@@ -33,6 +33,7 @@ class DBME extends DBM {
   public static $SAIL = null;
   public static $NOW = null;
   public static $RP = null;
+  public static $ARRAY = array();
   
   // use this method to initialize the different objects as well
   public static function setConnection(MySQLi $con) {
@@ -296,12 +297,12 @@ class Dt_Team extends DBObject {
    * @return Array:Dt_RP the rp for that team
    */
   public function getRP($div, $role) {
-    $q = DBME::prepGetAll(DBME::$RACE, new MyCond('division', $div));
-    $q->fields(array('id'), DBME::$RACE->db_name());
-
+    $q = DBME::prepGetAll(DBME::$TEAM_DIVISION, new MyBoolean(array(new MyCond('division', $div),
+								    new MyCond('team', $this->id))));
+    $q->fields(array('id'), DBME::$TEAM_DIVISION->db_name());
+    
     return DBME::getAll(DBME::$RP, new MyBoolean(array(new MyCond('boat_role', $role),
-						       new MyCond('team', $this->id),
-						       new MyCondIn('race', $q))));
+						       new MyCondIn('team_division', $q))));
   }
 }
 
@@ -403,18 +404,18 @@ class Dt_Score extends DBObject {
 }
 
 class Dt_Rp extends DBObject {
-  protected $team;
-  protected $race;
+  protected $team_division;
+  protected $race_nums;
   protected $sailor;
   public $boat_role;
 
   public function db_type($field) {
-    if ($field == 'team')   return DBME::$TEAM;
-    if ($field == 'race')   return DBME::$RACE;
+    if ($field == 'team') return DBME::$TEAM_DIVISION;
     if ($field == 'sailor') return DBME::$SAILOR;
+    if ($field == 'race_nums') return DBME::$ARRAY;
     return parent::db_type($field);
   }
-  public function db_name() { return 'rp'; }
+  public function db_order() { return 'race_nums'; }
 }
 
 class Dt_Sailor extends DBObject {

@@ -599,8 +599,10 @@ class DBObject {
       if ($type instanceof DBObject && $this->$field !== null) {
 	$this->$field = new DBM($type, $this->$field);
       }
-      if ($type instanceof DateTime && $this->$field !== null)
+      elseif ($type instanceof DateTime && $this->$field !== null)
 	$this->$field = new DateTime($this->$field);
+      elseif (is_array($type) && $this->$field !== null)
+	$this->$field = explode(',', $this->$field);
     }
   }
 
@@ -726,6 +728,9 @@ class DBObject {
 
     if (in_array($name, $this->db_fields())) {
       $type = $this->db_type($name);
+      if ($value !== null && is_array($type) && !is_array($value))
+	throw new BadFunctionCallException(sprintf("Property %s in class %s must be an array.",
+						   $name, get_class($this)));
       if ($value !== null && is_object($type) && !($value instanceof $type)) {
 	throw new BadFunctionCallException(sprintf("Property %s in class %s must be of type %s",
 						   $name, get_class($this), $type));

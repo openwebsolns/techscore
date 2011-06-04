@@ -399,16 +399,7 @@ class TScoresTables {
       // ------------------------------------------------------------
       // Skippers and crews
       foreach (array('skipper', 'crew') as $index => $role) {
-	$sailors = array();
-	$rpraces = array();
-	foreach ($rank->team->getRP($division, $role) as $rp) {
-	  if (!isset($sailors[$rp->sailor->id])) {
-	    $sailors[$rp->sailor->id] = $rp->sailor;
-	    $rpraces[$rp->sailor->id] = array();
-	  }
-	  $rpraces[$rp->sailor->id][$rp->race->number] = $rp->race->number;
-	}
-	    
+	$sailors = $rank->team->getRP($division, $role);
 	$is_first = true;
 	$s_rows = array();
 	if (count($sailors) == 0) {
@@ -428,11 +419,11 @@ class TScoresTables {
 	    $s_rows[] = $row;
 	  }
 
-	  if (count($rpraces[$id]) == count($races))
+	  if (count($s->race_nums) == count($races))
 	    $amt = "";
 	  else
-	    $amt = $this->makeRange($rpraces[$id]);
-	  $row->add(new XTD(array('align'=>'right'), $s));
+	    $amt = $this->makeRange($s->race_nums);
+	  $row->add(new XTD(array('align'=>'right'), $s->sailor));
 	  $row->add(new XTD(array('align'=>'left', 'class'=>'races'), $amt));
 	}
 

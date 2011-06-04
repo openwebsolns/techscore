@@ -136,3 +136,8 @@ select count(*) from regatta where creator = "";
 -- official regatta types --
 alter table regatta change column type type enum('conference', 'intersectional', 'championship', 'personal', 'two-conference', 'conference-championship', 'promotional') default 'conference';
 alter table dt_regatta change column type type enum('conference', 'intersectional', 'championship', 'personal', 'two-conference', 'conference-championship', 'promotional') default 'conference';
+
+-- data RPs --
+create table dt_rp (id int primary key auto_increment, team_division int not null, sailor int not null, boat_role enum('skipper', 'crew') not null default 'skipper', race_nums text not null);
+alter table dt_rp add foreign key (team_division) references dt_team_division(id) on delete cascade on update cascade;
+insert into dt_rp (team_division, sailor, boat_role, race_nums) (select dt_team_division.id, rp.sailor, rp.boat_role, group_concat(race.number order by number separator ',') as race_nums from rp inner join race on (rp.race = race.id) inner join dt_team_division on (dt_team_division.team = rp.team) group by dt_team_division.id, rp.sailor, rp.boat_role);
