@@ -297,12 +297,11 @@ class Dt_Team extends DBObject {
    * @return Array:Dt_RP the rp for that team
    */
   public function getRP($div, $role) {
-    $q = DBME::prepGetAll(DBME::$TEAM_DIVISION, new MyBoolean(array(new MyCond('division', $div),
-								    new MyCond('team', $this->id))));
-    $q->fields(array('id'), DBME::$TEAM_DIVISION->db_name());
-    
+    $rank = $this->getRank($div);
+    if ($rank === null)
+      return array();
     return DBME::getAll(DBME::$RP, new MyBoolean(array(new MyCond('boat_role', $role),
-						       new MyCondIn('team_division', $q))));
+						       new MyCond('team_division', $rank->id))));
   }
 }
 
@@ -410,9 +409,9 @@ class Dt_Rp extends DBObject {
   public $boat_role;
 
   public function db_type($field) {
-    if ($field == 'team') return DBME::$TEAM_DIVISION;
     if ($field == 'sailor') return DBME::$SAILOR;
     if ($field == 'race_nums') return DBME::$ARRAY;
+    if ($field == 'team_division') return DBME::$TEAM_DIVISION;
     return parent::db_type($field);
   }
   public function db_order() { return 'race_nums'; }
