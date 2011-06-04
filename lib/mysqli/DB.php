@@ -303,6 +303,19 @@ class Dt_Team extends DBObject {
     return DBME::getAll(DBME::$RP, new MyBoolean(array(new MyCond('boat_role', $role),
 						       new MyCond('team_division', $rank->id))));
   }
+
+  /**
+   * Removes all RP entries for this team from the database
+   *
+   * @param String $div the division whose RP info to reset
+   */
+  public function resetRP($div) {
+    $q = DBME::prepGetAll(DBME::$TEAM_DIVISION, new MyBoolean(array(new MyCond('team', $this->id),
+								    new MyCond('division', $div))));
+    $q->fields(array('id'), DBME::$TEAM_DIVISION->db_name());
+    foreach (DBME::getAll(DBME::$RP, new MyCondIn('team_division', $q)) as $rp)
+      DBME::remove($rp);
+  }
 }
 
 class Dt_Race extends DBObject {

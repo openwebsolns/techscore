@@ -52,13 +52,16 @@ class UpdateRegatta {
    * not run for personal regattas, even if requested.
    *
    * @param Regatta $reg the regatta to synchronize
+   *
    * @param boolean $full set this to false to only update information
    * about the regatta and not about the ranks (this creates slight
-   * efficiency incrase)
+   * efficiency improvement)
+   *
+   * @param boolean $rp set this to true to also sync the RP
    *
    * @return boolean true if a new regatta was inserted
    */
-  public static function runSync(Regatta $reg, $full = true) {
+  public static function runSync(Regatta $reg, $full = true, $rp = true) {
     if ($reg->get(Regatta::TYPE) == Preferences::TYPE_PERSONAL)
       return;
 
@@ -124,42 +127,92 @@ class UpdateRegatta {
 
     $added = !DBME::set($dreg);
 
+    if ($full === false && $rp === false)
+      return $added;
+
     // ------------------------------------------------------------
-    // do the teams: first delete all the old teams
-    if ($full === false)
-      return;
-    $dreg->deleteTeams();
+    // Synchronize the teams. Track team_divs which is the list of all
+    // the team divisions so that we can use them when syncing RP
+    // information.  Also track the team objects for the same reason,
+    // with these indexed by the ID of the dt_team_division object
+    $team_divs = array();
+    $team_objs = array();
 
-    // add teams
-    $dteams = array();
-    foreach ($reg->scorer->rank($reg) as $i => $rank) {
-      $team = new Dt_Team();
-      $dteams[$rank->team->id] = $team;
+    if ($full) {
+      $dteams = array();
+      foreach ($dreg->getTeams() as $team)
+	$dteams[$team->id] = $team;
 
-      $team->id = $rank->team->id;
-      $team->regatta = $dreg;
-      $team->school = DBME::get(DBME::$SCHOOL, $rank->team->school->id);
-      $team->name = $rank->team->name;
-      $team->rank = $i + 1;
-      $team->rank_explanation = $rank->explanation;
-      DBME::set($team);
+      // add teams
+      $dteams = array();
+      foreach ($reg->scorer->rank($reg) as $i => $rank) {
+	if (!isset($dteams[$rank->team->id])) {
+	  $team = new Dt_Team();
+	  $dteams[$rank->team->id] = $team;
+	}
+	$team = $dteams[$rank->team->id];
+
+	$team->id = $rank->team->id;
+	$team->regatta = $dreg;
+	$team->school = DBME::get(DBME::$SCHOOL, $rank->team->school->id);
+	$team->name = $rank->team->name;
+	$team->rank = $i + 1;
+	$team->rank_explanation = $rank->explanation;
+	DBME::set($team);
+      }
+
+      // do the team divisions
+      foreach ($divs as $div) {
+	foreach ($reg->scorer->rank($reg, $div) as $i => $rank) {
+	  $team_division = $dteams[$rank->team->id]->getRank($div);
+	  if ($team_division === null)
+	    $team_division = new Dt_Team_Division();
+	  
+	  $team_division->team = $dteams[$rank->team->id];
+	  $team_division->division = $div;
+	  $team_division->rank = ($i + 1);
+	  $team_division->explanation = $rank->explanation;
+
+	  // Penalty?
+	  if (($pen = $reg->getTeamPenalty($rank->team, $div)) !== null) {
+	    $team_division->penalty = $pen->type;
+	    $team_division->comments = $pen->comments;
+	  }
+	  DBME::set($team_division);
+	  $team_divs[] = $team_division;
+	  $team_objs[$team_division->id] = $rank->team;
+	}
+      }
     }
 
-    // do the team divisions
-    foreach ($divs as $div) {
-      foreach ($reg->scorer->rank($reg, $div) as $i => $rank) {
-	$team_division = new Dt_Team_Division();
-	$team_division->team = $dteams[$rank->team->id];
-	$team_division->division = $div;
-	$team_division->rank = ($i + 1);
-	$team_division->explanation = $rank->explanation;
+    if ($rp === false)
+      return $added;
 
-	// Penalty?
-	if (($pen = $reg->getTeamPenalty($rank->team, $div)) !== null) {
-	  $team_division->penalty = $pen->type;
-	  $team_division->comments = $pen->comments;
+    // ------------------------------------------------------------
+    // Also do the RP information
+    // ------------------------------------------------------------
+    if (count($team_divs) == 0) {
+      $team_divs = array();
+      foreach ($divs as $div) {
+	foreach ($dreg->getRanks($div) as $team) {
+	  $team_divs[] = $team;
+	  $team_objs[$team->id] = $reg->getTeam($team->team->id);
 	}
-	DBME::set($team_division);
+      }
+    }
+    $rpm = $reg->getRpManager();
+    foreach ($team_divs as $team) {
+      $team->team->resetRP($team->division);
+      foreach (array(RP::SKIPPER, RP::CREW) as $role) {
+	$rps = $rpm->getRP($team_objs[$team->id], Division::get($team->division), $role);
+	foreach ($rps as $rp) {
+	  $drp = new Dt_Rp();
+	  $drp->sailor = DBME::get(DBME::$SAILOR, $rp->sailor->id);
+	  $drp->team_division = $team;
+	  $drp->boat_role = $role;
+	  $drp->race_nums = $rp->races_nums;
+	  DBME::set($drp);
+	}
       }
     }
     return $added;

@@ -295,6 +295,8 @@ class DBM {
       }
       elseif ($value instanceof DateTime)
 	$values[] = $value->format('Y-m-d H:i:s');
+      elseif (is_array($value))
+	$values[] = implode(',', $value);
       else
 	$values[] = $value;
     }

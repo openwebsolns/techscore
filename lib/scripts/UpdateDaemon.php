@@ -107,12 +107,39 @@ class UpdateDaemon {
     $requests = UpdateManager::getPendingRequests();
     if (count($requests) == 0) self::cleanup();
 
-    // Sort the requests by regatta
-    $regattas = array(); // assoc list of regatta id => list of requests
+    // Sort the requests by regatta, and then by type
+    // assoc list of regatta id => list of unique requests
+    $regattas = array();
+    
+    // Synching: set of regattas to also sync. Syncing must happen
+    // before either SCORE or DETAILS gets executed. Each entry in
+    // this array is indexed by the ID of the regatta and consists of
+    // an array of three arguments, corresponding to the three
+    // possible arguments of UpdateRegatta::runSync.
+    //
+    // The first argument is the boolean value for syncing scores, and
+    // the third is the boolean value for syncing RPs.
+    $sync = array();
     foreach ($requests as $r) {
       if (!isset($regattas[$r->regatta]))
 	$regattas[$r->regatta] = array();
-      $regattas[$r->regatta][] = $r;
+      if ($r->activity == UpdateRequest::SYNC)
+	$sync[$r->regatta] = array($r->regatta, true, true);
+      else {
+	$regattas[$r->regatta][] = $r;
+
+	// handle syncing
+	if ($r->activity == UpdateRequest::ACTIVITY_DETAILS && !isset($sync[$r->regatta]))
+	  $sync[$r->regatta] = array(false, false);
+	elseif ($r->activity == UpdateRequest::ACTIVITY_SCORE) {
+	  if (!isset($sync[$r->regatta])) $sync[$r->regatta] = array(false, false);
+	  $sync[$r->regatta][0] = true;
+	}
+	elseif ($r->activity == UpdateRequest::ACTIVITY_RP) {
+	  if (!isset($sync[$r->regatta])) $sync[$r->regatta] = array(false, false);
+	  $sync[$r->regatta][1] = true;
+	}
+      }
     }
 
     // For each unique regatta, only execute the last version of each
@@ -124,24 +151,20 @@ class UpdateDaemon {
 			UpdateRequest::ACTIVITY_RP);
     $seasons = array();  // set of seasons affected
     $schools = array();  // list of unique schools
-    $sync = array();     // set of regattas to also sync. Synching
-			 // must happen before either SCORE or DETAILS
-			 // get executed
-    $UPD_REGATTA = array(UpdateRequest::ACTIVITY_SCORE, UpdateRequest::ACTIVITY_DETAILS);
+
     foreach ($regattas as $id => $requests) {
-      $actions = UpdateRequest::getTypes();
       while (count($requests) > 0) {
 	$last = array_pop($requests);
 	if (isset($actions[$last->activity])) {
-	  // Do the action itself
+	  // Action is still available, do it
 	  unset($actions[$last->activity]);
 	  try {
 	    self::$REGATTA = new Regatta($id);
-	    if (in_array($last->activity, $UPD_REGATTA) && !isset($sync[$id])) {
-	      UpdateRegatta::runSync(self::$REGATTA);
-	      $sync[$id] = self::$REGATTA;
-	    }
+	    if (isset($sync[$id]))
+	      UpdateRegatta::runSync(self::$REGATTA, $sync[$id][0], $sync[$id][1]);
 	    UpdateRegatta::run(self::$REGATTA, $last->activity);
+
+	    // Cascade update to season
 	    if (in_array($last->activity, $UPD_SEASON)) {
 	      $season = self::$REGATTA->get(Regatta::SEASON);
 	      $seasons[(string)$season->getSeason()] = $season;
