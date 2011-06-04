@@ -12,7 +12,7 @@ html {
 }
 
 body {
-    width: 850px;
+    width: 900px;
     padding: 0px;
     margin: 0px auto;
     font-family: "Lucida Grande", Tahoma, Verdana, sans-serif;
@@ -30,7 +30,7 @@ body {
 }
 
 #menudiv {
-    width: 850px;
+    width: 900px;
     position: absolute;
     top: 40px;
     overflow: auto;
@@ -126,7 +126,7 @@ input, select {font-size: 1em; padding: 0.15em}
     top: 0px;
     height: 40px;
     padding: 0px;
-    width: 850px;
+    width: 900px;
     background: #3465a4;
     border-top: 1px solid #555555;
 }
@@ -219,7 +219,7 @@ h4#regatta {
 #bodydiv {
     position: absolute;
     top: 70px;
-    width: 820px;
+    width: 870px;
     padding: 15px;
     padding-top: 0px;
     border-bottom: 1px solid #555555;
@@ -327,7 +327,7 @@ iframe {
 
 div.frames {
     position: fixed;
-    left: 853px;
+    left: 903px;
     width: 850px;
     border-top: 2px solid #555555;
     background: white;
