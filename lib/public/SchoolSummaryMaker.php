@@ -116,10 +116,8 @@ class SchoolSummaryMaker {
 	    $avg_total++;
 
 	    // track participation
-	    $sk = DBME::getAll(DBME::$RP, new MyBoolean(array(new MyCond('team', $team->id),
-							      new MyCond('boat_role', 'skipper'))));
-	    $cr = DBME::getAll(DBME::$RP, new MyBoolean(array(new MyCond('team', $team->id),
-							      new MyCond('boat_role', 'crew'))));
+	    $sk = $team->getRP(null, 'skipper');
+	    $cr = $team->getRP(null, 'crew');
 	    foreach ($sk as $rp) {
 	      if (!isset($skippers[$rp->sailor->id])) {
 		$skippers[$rp->sailor->id] = 0;

@@ -343,7 +343,6 @@ class RpEnterPane extends AbstractPane {
 	}
       }
       $rpManager->updateLog();
-      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
       
       // Announce
       if (count($errors) > 0) {

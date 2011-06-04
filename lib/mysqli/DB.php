@@ -292,16 +292,22 @@ class Dt_Team extends DBObject {
   /**
    * Gets the RP for this team in the given division and role
    *
-   * @param String $div the division
+   * @param String $div the division, or null for all divisions
    * @param String $role 'skipper', or 'crew'
    * @return Array:Dt_RP the rp for that team
    */
-  public function getRP($div, $role) {
-    $rank = $this->getRank($div);
-    if ($rank === null)
-      return array();
+  public function getRP($div = null, $role = 'skipper') {
+    if ($div !== null) {
+      $rank = $this->getRank($div);
+      if ($rank === null)
+	return array();
+      return DBME::getAll(DBME::$RP, new MyBoolean(array(new MyCond('boat_role', $role),
+							 new MyCond('team_division', $rank->id))));
+    }
+    $q = DBME::prepGetAll(DBME::$TEAM_DIVISION, new MyCond('team', $this->id));
+    $q->fields(array('id'), DBME::$TEAM_DIVISION->db_name());
     return DBME::getAll(DBME::$RP, new MyBoolean(array(new MyCond('boat_role', $role),
-						       new MyCond('team_division', $rank->id))));
+						       new MyCondIn('team_division', $q))));
   }
 
   /**

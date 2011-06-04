@@ -57,6 +57,11 @@ class UpdateDaemon {
   private static $REGATTA = null;
 
   /**
+   * @var boolean true to print out information about what's happening
+   */
+  public static $verbose = false;
+
+  /**
    * Error handler which takes care of NOT exiting the script, but
    * rather print the offending regatta.
    *
@@ -82,6 +87,7 @@ class UpdateDaemon {
 	  printf($fmt, ucfirst($index), $list[$index]);
       }
     }
+    self::cleanup();
     return true;
   }
 
@@ -123,7 +129,7 @@ class UpdateDaemon {
     foreach ($requests as $r) {
       if (!isset($regattas[$r->regatta]))
 	$regattas[$r->regatta] = array();
-      if ($r->activity == UpdateRequest::SYNC)
+      if ($r->activity == UpdateRequest::ACTIVITY_SYNC)
 	$sync[$r->regatta] = array($r->regatta, true, true);
       else {
 	$regattas[$r->regatta][] = $r;
@@ -153,6 +159,7 @@ class UpdateDaemon {
     $schools = array();  // list of unique schools
 
     foreach ($regattas as $id => $requests) {
+      $actions = UpdateRequest::getTypes();
       while (count($requests) > 0) {
 	$last = array_pop($requests);
 	if (isset($actions[$last->activity])) {
@@ -160,9 +167,12 @@ class UpdateDaemon {
 	  unset($actions[$last->activity]);
 	  try {
 	    self::$REGATTA = new Regatta($id);
-	    if (isset($sync[$id]))
+	    if (isset($sync[$id])) {
 	      UpdateRegatta::runSync(self::$REGATTA, $sync[$id][0], $sync[$id][1]);
+	      self::report('synced');
+	    }
 	    UpdateRegatta::run(self::$REGATTA, $last->activity);
+	    self::report(sprintf('performed (%d) %s', $last->id, $last->activity));
 
 	    // Cascade update to season
 	    if (in_array($last->activity, $UPD_SEASON)) {
@@ -185,33 +195,55 @@ class UpdateDaemon {
 	else {
 	  // Log the action as having taken place by "assumption"
 	  UpdateManager::log($last, -1);
+	  self::report(sprintf('assumed (%d) %s', $last->id, $last->activity));
 	}
       }
     }
+    self::$REGATTA = null;
 
     // Deal now with each affected season.
     $current = new Season(new DateTime());
     foreach ($seasons as $season) {
       UpdateSeason::run($season);
       UpdateManager::logSeason($season);
+      self::report('generated ' . $season);
 
       // Deal with home page
       if ((string)$season == (string)$current) {
 	UpdateFront::run();
 	Update404::run();
+	self::report('generate front and 404 page');
       }
     }
 
     // Deal with affected schools
-    foreach ($schools as $school)
+    foreach ($schools as $school) {
       UpdateSchool::run($school, new Season(new DateTime()));
+      self::report(sprintf('generated school (%s) %s', $school->id, $school->nick_name));
+    }
 
     // Remove lock
     self::cleanup();
+    self::report('done OK');
   }
   private static function cleanup() {
     @unlink(self::$lock_file);
     exit(0);
+  }
+
+  /**
+   * Prints the given message, if $verbose is set to true
+   *
+   * @param String $mes the message to print out
+   */
+  private static function report($mes) {
+    if (self::$verbose === false)
+      return;
+
+    if (self::$REGATTA !== null)
+      printf("%4d: %s\n", self::$REGATTA->id(), $mes);
+    else
+      print "$mes\n";
   }
 }
 
@@ -221,8 +253,51 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   $_SERVER['HTTP_HOST'] = $argv[0];
   ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
   require_once('conf.php');
+
+  $opts = getopt('vl', array('verbose', 'list'));
+  // ------------------------------------------------------------
+  // List the pending requests only
+  // ------------------------------------------------------------
+  if (isset($opts['l']) || isset($opts['list'])) {
+    // Merely list the pending requests
+    $requests = UpdateManager::getPendingRequests();
+    $regattas = array();
+    foreach ($requests as $req) {
+      if (!isset($regattas[$req->regatta])) $regattas[$req->regatta] = array();
+      if (!isset($regattas[$req->regatta][$req->activity]))
+	$regattas[$req->regatta][$req->activity] = 0;
+      $regattas[$req->regatta][$req->activity]++;
+    }
+
+    // Print them out and exit
+    foreach ($regattas as $id => $list) {
+      try {
+	$reg = new Regatta($id);
+	printf("--------------------\nRegatta: [%s] %s (%s/%s)\n--------------------\n",
+	       $reg->id(), $reg->get(Regatta::NAME), $reg->get(Regatta::SEASON), $reg->get(Regatta::NICK_NAME));
+	foreach ($list as $activity => $num)
+	  printf("%12s: %d\n", $activity, $num);
+      }
+      catch (Exception $e) {
+	printf("(EE) %s: %s\n.", $id, $e->getMessage());
+      }
+    }
+    exit(0);
+  }
+  
+  // ------------------------------------------------------------
+  // Actually perform the requests
+  // ------------------------------------------------------------
   // Make sure, if nothing else, that you at least run cleanup
   $old = set_error_handler("UpdateDaemon::errorHandler", E_ALL);
-  UpdateDaemon::run();
+  
+  if (isset($opts['v']) || isset($opts['verbose']))
+    UpdateDaemon::$verbose = true;
+  try {
+    UpdateDaemon::run();
+  }
+  catch (Exception $e) {
+    UpdateDaemon::errorHandler($e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine(), 0);
+  }
 }
 ?>
