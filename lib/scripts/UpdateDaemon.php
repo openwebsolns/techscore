@@ -258,11 +258,11 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
   require_once('conf.php');
 
-  $opts = getopt('vl', array('verbose', 'list'));
+  $opts = getopt('vl');
   // ------------------------------------------------------------
   // List the pending requests only
   // ------------------------------------------------------------
-  if (isset($opts['l']) || isset($opts['list'])) {
+  if (isset($opts['l'])) {
     // Merely list the pending requests
     $requests = UpdateManager::getPendingRequests();
     $regattas = array();
@@ -295,7 +295,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   // Make sure, if nothing else, that you at least run cleanup
   $old = set_error_handler("UpdateDaemon::errorHandler", E_ALL);
   
-  if (isset($opts['v']) || isset($opts['verbose']))
+  if (isset($opts['v']))
     UpdateDaemon::$verbose = true;
   try {
     UpdateDaemon::run();
