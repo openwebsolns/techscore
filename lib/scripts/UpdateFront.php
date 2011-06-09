@@ -103,7 +103,7 @@ class UpdateFront {
 	  $winner = $teams[0];
 	  $path = realpath(sprintf('%s/../../html/inc/img/schools/%s.png', dirname(__FILE__), $winner->school->id));
 	  $status = $winner;
-	  if ($path !== null)
+	  if ($path !== false)
 	    $status = new XImg(sprintf('/inc/img/schools/%s.png', $winner->school->id), $winner->school,
 			       array('height'=>40));
 	

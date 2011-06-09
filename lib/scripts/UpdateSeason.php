@@ -123,9 +123,9 @@ class UpdateSeason {
 	  }
 	  $link = new XA($reg->nick, $reg->name);
 	  $path = realpath(sprintf('%s/../../html/inc/img/schools/%s.png', dirname(__FILE__), $wt->school->id));
-	  $burg = ($path) ?
+	  $burg = ($path !== false) ?
 	    new XImg(sprintf('/inc/img/schools/%s.png', $wt->school->id), $wt->school, array('height'=>40)) :
-	    $wt->school->id;
+	    $wt->school->nick_name;
 	  $tab->add(new XTR(array('class' => sprintf("row%d", $row++ % 2)),
 			    array(new XTD(array(), $link),
 				  new XTD(array(), implode("/", $hosts)),
