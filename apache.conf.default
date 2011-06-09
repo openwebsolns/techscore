@@ -112,9 +112,12 @@ RewriteRule ^img/schools/(.*)\.png$ img.php?school=$1
 # Header unset Pragma
 FileETag None
 Header unset ETag
- 
+
+# Cache HTML
+<Files *.html>
+Header set Cache-Control "no-cache; max-age=1800"
+</Files>
 # Cache forever
-# MOD_REWRITE TO RENAME EVERY CHANGE
 <FilesMatch "\.(jpg|jpeg|png|gif|js|css)$">
 Header set Cache-Control "public,maxage=2500000"
 Header set Expires "Thu, 15 Apr 2025 20:00:00 GMT"
