@@ -157,6 +157,10 @@ RewriteRule . - [L]
 RewriteCond %{SCRIPT_FILENAME}\.html -f
 RewriteRule ^(.*)$ $1.html [L]
 
+# Cache HTML
+<Files *.html>
+Header set Cache-Control "no-cache; max-age=1800"
+</Files>
 # Cache forever
 <FilesMatch "\.(jpg|jpeg|png|gif|js|css)$">
 Header set Cache-Control "public"
