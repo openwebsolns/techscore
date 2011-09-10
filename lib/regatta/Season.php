@@ -208,8 +208,8 @@ class Season {
 
     // fetch the correct start_date for this season
     $q = sprintf('select start_date from season where season = "%s" and ' .
-		 '(year(start_date) = "%s" or year(end_date) = "%s") limit 1',
-		 $s, $y, $y);
+		 '(year(start_date) = "%s") limit 1',
+		 $s, $y);
     $r = Preferences::query($q);
     if ($r->num_rows == 0)
       return null;

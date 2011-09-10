@@ -82,10 +82,10 @@ class Dt_Season extends DBObject {
     case 'summer': $t = 'm'; break;
     default: $t = '_';
     }
-    return sprintf('%s%s', $t, substr($this->end_date->format('Y'), 2));
+    return sprintf('%s%s', $t, substr($this->start_date->format('Y'), 2));
   }
   public function fullString() {
-    return sprintf('%s %s', ucfirst($this->season), $this->end_date->format('Y'));
+    return sprintf('%s %s', ucfirst($this->season), $this->start_date->format('Y'));
   }
 }
 
