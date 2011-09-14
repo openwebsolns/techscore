@@ -42,14 +42,17 @@ class UpdateSailorsDB {
    */
   private $con;
 
+  private $verbose = false;
+
   /**
    * Creates a new UpdateSailorsDB object
    *
    */
-  public function __construct() {
+  public function __construct($verbose = false) {
     $this->errors = array();
     $this->warnings = array();
     $this->con = Preferences::getConnection();
+    $this->verbose = $verbose;
   }
 
   /**
@@ -91,18 +94,32 @@ class UpdateSailorsDB {
   }
 
   /**
+   * If verbose output enabled, prints the given message
+   *
+   * @param String $mes the message to output, appending a new line,
+   * prepending a timestamp
+   */
+  private function log($mes) {
+    if ($this->verbose !== false)
+      printf("%s\t%s\n", date('Y-m-d H:i:s'), $mes);
+  }
+
+  /**
    * Runs the update
    *
    */
   public function update() {
+    $this->log("Starting: fetching and parsing sailors " . $this->SAILOR_URL);
     $schools = array();
     
     if (($xml = @simplexml_load_file($this->SAILOR_URL)) === false) {
       $this->errors[] = "Unable to load XML from " . $this->SAILOR_URL;
     }
     else {
+      $this->log("Inactivating sailors");
       // resets all sailors to be inactive
       Preferences::query('update sailor set active = null where role = "student"');
+      $this->log("Sailors deactivated");
       // parse data
       foreach ($xml->sailor as $sailor) {
 	try {
@@ -111,8 +128,10 @@ class UpdateSailorsDB {
 
 	  // keep cache of schools
 	  $school_id = trim((string)$sailor->school);	  
-	  if (!isset($schools[$school_id]))
+	  if (!isset($schools[$school_id])) {
 	    $schools[$school_id] = Preferences::getSchool($school_id);
+	    $this->log(sprintf("Fetched school (%s) %s", $school_id, $schools[$school_id]));
+	  }
 
 	  if ($schools[$school_id] !== null) {
 	    $s->school = $schools[$school_id];
@@ -122,6 +141,7 @@ class UpdateSailorsDB {
 	    $s->gender = $sailor->gender;
 
 	    $this->updateSailor($s);
+	    $this->log("Activated sailor $s");
 	  }
 	  else
 	    $this->warnings[$school_id] = "Missing school $school_id.";
@@ -132,11 +152,14 @@ class UpdateSailorsDB {
     }
 
     // Coaches
+    $this->log("Starting: fetching and parsing sailors " . $this->COACH_URL);
     if (($xml = @simplexml_load_file($this->COACH_URL)) === false) {
       $this->errors[] = "Unable to load XML from " . $this->COACH_URL;
     }
     else {
+      $this->log("Inactivating coaches");
       Preferences::query('update sailor set active = null where role = "coach"');
+      $this->log("Coaches inactivated");
       // parse data
       foreach ($xml->sailor as $sailor) {
 	try {
@@ -145,8 +168,10 @@ class UpdateSailorsDB {
 
 	  // keep cache of schools
 	  $school_id = (string)$sailor->school;	  
-	  if (!isset($schools[$school_id]))
+	  if (!isset($schools[$school_id])) {
 	    $schools[$school_id] = Preferences::getSchool($school_id);
+	    $this->log(sprintf("Fetched school (%s) %s", $school_id, $schools[$school_id]));
+	  }
 	  
 	  $s->school = $schools[$school_id];
 	  $s->last_name  = $this->con->real_escape_string($sailor->last_name);
@@ -155,6 +180,7 @@ class UpdateSailorsDB {
 	  $s->gender = $sailor->gender;
 
 	  $this->updateSailor($s);
+	  $this->log("Activated coach $s");
 	} catch (Exception $e) {
 	  $warnings[] = "Invalid coach information: " . print_r($sailor, true);
 	}
@@ -167,8 +193,9 @@ if (isset($argv) && basename(__FILE__) == basename($argv[0])) {
   ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
   $_SERVER['HTTP_HOST'] = 'cli';
   require_once('conf.php');
-  
-  $db = new UpdateSailorsDB();
+
+  $opt = getopt('v');
+  $db = new UpdateSailorsDB(isset($opt['v']));
   $db->update();
   $err = $db->errors();
   if (count($err) > 0) {
