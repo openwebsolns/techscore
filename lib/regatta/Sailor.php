@@ -23,8 +23,9 @@ class Sailor {
   public $role;
   public $icsa_id;
   public $gender;
+  public $active;
 
-  const FIELDS = "id, icsa_id, school, last_name, first_name, year, role, gender";
+  const FIELDS = "id, icsa_id, school, last_name, first_name, year, role, gender, active";
   const TABLES = "sailor";
 
   const MALE = 'M';

@@ -10,6 +10,8 @@
  * Pulls information from the ICSA database and updates the local
  * sailor database with the data.
  *
+ * 2011-09-12: Sets active flag to true
+ *
  * @author Dayan Paez
  * @created 2010-03-02
  */
@@ -73,10 +75,10 @@ class UpdateSailorsDB {
     $s = ($sailor instanceof Coach) ? "coach" : "student";
 
     // One query to rule them all
-    $q = sprintf('insert into sailor (icsa_id, school, last_name, first_name, year, role, gender) ' .
-		 'values ("%s", "%s", "%s", "%s", "%s", "%s", "%s") on duplicate key update ' .
+    $q = sprintf('insert into sailor (icsa_id, school, last_name, first_name, year, role, gender, active) ' .
+		 'values ("%s", "%s", "%s", "%s", "%s", "%s", "%s", 1) on duplicate key update ' .
 		 'school = values(school), last_name = values(last_name), first_name = values(first_name), ' .
-		 'year = values(year), role = values(role), gender = values(gender)',
+		 'year = values(year), role = values(role), gender = values(gender), active=(active)',
 		 $sailor->icsa_id,
 		 $sailor->school->id,
 		 $sailor->last_name,
@@ -99,6 +101,8 @@ class UpdateSailorsDB {
       $this->errors[] = "Unable to load XML from " . $this->SAILOR_URL;
     }
     else {
+      // resets all sailors to be inactive
+      Preferences::query('update sailor set active = null where role = "student"');
       // parse data
       foreach ($xml->sailor as $sailor) {
 	try {
@@ -132,6 +136,7 @@ class UpdateSailorsDB {
       $this->errors[] = "Unable to load XML from " . $this->COACH_URL;
     }
     else {
+      Preferences::query('update sailor set active = null where role = "coach"');
       // parse data
       foreach ($xml->sailor as $sailor) {
 	try {

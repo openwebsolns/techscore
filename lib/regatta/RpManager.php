@@ -162,13 +162,22 @@ class RpManager {
    * school
    *
    * @param School $school the school object
+   *
+   * @param mixed $active default "all", returns ONLY the active ones,
+   * false to return ONLY the inactive ones, anything else for all.
+   *
    * @return Array<Sailor> list of coaches
    */
-  public static function getCoaches(School $school) {
+  public static function getCoaches(School $school, $active = 'all') {
+    $a = '';
+    if ($active === true)
+      $a = 'and active is not null ';
+    if ($active === false)
+      $a = 'and active is null ';
     $q = sprintf('select %s from %s where school = "%s" ' .
-		 'and role = "coach" ' .
+		 'and role = "coach" %s' .
 		 'order by last_name',
-		 Sailor::FIELDS, Sailor::TABLES, $school->id);
+		 Sailor::FIELDS, Sailor::TABLES, $school->id, $a);
     $q = Preferences::query($q);
     $list = array();
     while ($obj = $q->fetch_object("Sailor")) {
@@ -183,15 +192,24 @@ class RpManager {
    *
    * @param School $school the school object
    * @param Sailor::const $gender null for both or the gender code
+   *
+   * @param mixed $active default "all", returns ONLY the active ones,
+   * false to return ONLY the inactive ones, anything else for all.
+   *
    * @return Array<Sailor> list of sailors
    */
-  public static function getSailors(School $school, $gender = null) {
+  public static function getSailors(School $school, $gender = null, $active = "all") {
+    $a = '';
+    if ($active === true)
+      $a = 'and active is not null ';
+    if ($active === false)
+      $a = 'and active is null ';
     $g = ($gender === null) ? '' : sprintf('and gender = "%s" ', $gender);
     $q = sprintf('select %s from %s where school = "%s" ' .
 		 'and role = "student" ' .
-		 'and icsa_id is not null %s' .
+		 'and icsa_id is not null %s %s' .
 		 'order by last_name',
-		 Sailor::FIELDS, Sailor::TABLES, $school->id, $g);
+		 Sailor::FIELDS, Sailor::TABLES, $school->id, $g, $a);
     $q = Preferences::query($q);
     $list = array();
     while ($obj = $q->fetch_object("Sailor")) {
@@ -206,15 +224,24 @@ class RpManager {
    *
    * @param School $school the school object
    * @param RP::const $gender null for both or the gender code
+   *
+   * @param mixed $active default "all", returns ONLY the active ones,
+   * false to return ONLY the inactive ones, anything else for all.
+   *
    * @return Array<Sailor> list of sailors
    */
-  public static function getUnregisteredSailors(School $school, $gender = null) {
+  public static function getUnregisteredSailors(School $school, $gender = null, $active = "all") {
+    $a = '';
+    if ($active === true)
+      $a = 'and active is not null ';
+    if ($active === false)
+      $a = 'and active is null ';
     $g = ($gender === null) ? '' : sprintf('and gender = "%s" ', $gender);
     $q = sprintf('select %s from %s where school = "%s" ' .
 		 'and role = "student" ' .
-		 'and icsa_id is null %s' .
+		 'and icsa_id is null %s %s' .
 		 'order by last_name',
-		 Sailor::FIELDS, Sailor::TABLES, $school->id, $g);
+		 Sailor::FIELDS, Sailor::TABLES, $school->id, $g, $a);
     $q = Preferences::query($q);
     $list = array();
     while ($obj = $q->fetch_object("Sailor")) {

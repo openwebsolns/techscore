@@ -146,3 +146,6 @@ insert into dt_rp (team_division, sailor, boat_role, race_nums) (select dt_team_
 
 -- provide optional argument to update requests --
 alter table pub_update_request add column argument varchar(10) default null comment "Optional activity describer";
+
+-- active sailors --
+alter table sailor add column active tinyint default null;

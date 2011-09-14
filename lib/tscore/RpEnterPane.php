@@ -92,11 +92,17 @@ class RpEnterPane extends AbstractPane {
 
     // ------------------------------------------------------------
     // - Create option lists
+    //   If the regatta is in the current season, then only choose
+    //   from 'active' sailors
+    $active = 'all';
+    $cur_season = new Season(new DateTime());
+    if ((string)$cur_season ==  (string)$this->REGATTA->get(Regatta::SEASON))
+      $active = true;
     $gender = ($this->REGATTA->get(Regatta::PARTICIPANT) == Regatta::PARTICIPANT_WOMEN) ?
       Sailor::FEMALE : null;
-    $coaches = RpManager::getCoaches($chosen_team->school);
-    $sailors = RpManager::getSailors($chosen_team->school, $gender);
-    $un_slrs = RpManager::getUnregisteredSailors($chosen_team->school, $gender);
+    $coaches = RpManager::getCoaches($chosen_team->school, $active);
+    $sailors = RpManager::getSailors($chosen_team->school, $gender, $active);
+    $un_slrs = RpManager::getUnregisteredSailors($chosen_team->school, $gender, $active);
 
     $coach_optgroup = array();
     foreach ($coaches as $s)
@@ -268,11 +274,14 @@ class RpEnterPane extends AbstractPane {
       $rpManager = $this->REGATTA->getRpManager();
       $rpManager->reset($team);
 
+      $cur_season = new Season(new DateTime());
+      if ((string)$cur_season ==  (string)$this->REGATTA->get(Regatta::SEASON))
+	$active = true;
       $gender = ($this->REGATTA->get(Regatta::PARTICIPANT) == Regatta::PARTICIPANT_WOMEN) ?
 	Sailor::FEMALE : null;
-      $sailors = array_merge(RpManager::getCoaches($team->school),
-			     RpManager::getSailors($team->school, $gender),
-			     RpManager::getUnregisteredSailors($team->school, $gender));
+      $sailors = array_merge(RpManager::getCoaches($team->school, $active),
+			     RpManager::getSailors($team->school, $gender, $active),
+			     RpManager::getUnregisteredSailors($team->school, $gender, $active));
 
       // Insert representative
       if (!empty($args['rep']) ) {
