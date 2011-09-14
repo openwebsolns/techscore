@@ -81,7 +81,7 @@ class UpdateSailorsDB {
     $q = sprintf('insert into sailor (icsa_id, school, last_name, first_name, year, role, gender, active) ' .
 		 'values ("%s", "%s", "%s", "%s", "%s", "%s", "%s", 1) on duplicate key update ' .
 		 'school = values(school), last_name = values(last_name), first_name = values(first_name), ' .
-		 'year = values(year), role = values(role), gender = values(gender), active=(active)',
+		 'year = values(year), role = values(role), gender = values(gender), active = values(active)',
 		 $sailor->icsa_id,
 		 $sailor->school->id,
 		 $sailor->last_name,
