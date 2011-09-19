@@ -102,7 +102,7 @@ class RpEnterPane extends AbstractPane {
       Sailor::FEMALE : null;
     $coaches = RpManager::getCoaches($chosen_team->school, $active);
     $sailors = RpManager::getSailors($chosen_team->school, $gender, $active);
-    $un_slrs = RpManager::getUnregisteredSailors($chosen_team->school, $gender, $active);
+    $un_slrs = RpManager::getUnregisteredSailors($chosen_team->school, $gender);
 
     $coach_optgroup = array();
     foreach ($coaches as $s)
@@ -281,7 +281,7 @@ class RpEnterPane extends AbstractPane {
 	Sailor::FEMALE : null;
       $sailors = array_merge(RpManager::getCoaches($team->school, $active),
 			     RpManager::getSailors($team->school, $gender, $active),
-			     RpManager::getUnregisteredSailors($team->school, $gender, $active));
+			     RpManager::getUnregisteredSailors($team->school, $gender));
 
       // Insert representative
       if (!empty($args['rep']) ) {
