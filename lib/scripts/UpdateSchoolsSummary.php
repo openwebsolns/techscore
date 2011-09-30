@@ -1,6 +1,6 @@
 <?php
 /**
- * The page that summarizes the school's in the system, along with the
+ * The page that summarizes the schools in the system, along with the
  * number of regattas they have participated in.
  *
  * @author Dayan Paez
