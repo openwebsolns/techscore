@@ -127,7 +127,7 @@ class UpdateSailorsDB {
 	  $s->icsa_id = (int)$sailor->id;
 
 	  // keep cache of schools
-	  $school_id = trim((string)$sailor->school);	  
+	  $school_id = trim((string)$sailor->school);
 	  if (!isset($schools[$school_id])) {
 	    $schools[$school_id] = Preferences::getSchool($school_id);
 	    $this->log(sprintf("Fetched school (%s) %s", $school_id, $schools[$school_id]));
@@ -152,7 +152,7 @@ class UpdateSailorsDB {
     }
 
     // Coaches
-    $this->log("Starting: fetching and parsing sailors " . $this->COACH_URL);
+    $this->log("Starting: fetching and parsing coaches " . $this->COACH_URL);
     if (($xml = @simplexml_load_file($this->COACH_URL)) === false) {
       $this->errors[] = "Unable to load XML from " . $this->COACH_URL;
     }
@@ -161,26 +161,30 @@ class UpdateSailorsDB {
       Preferences::query('update sailor set active = null where role = "coach"');
       $this->log("Coaches inactivated");
       // parse data
-      foreach ($xml->sailor as $sailor) {
+      foreach ($xml->coach as $sailor) {
 	try {
 	  $s = new Coach();
 	  $s->icsa_id = (int)$sailor->id;
 
 	  // keep cache of schools
-	  $school_id = (string)$sailor->school;	  
+	  $school_id = trim((string)$sailor->school);
 	  if (!isset($schools[$school_id])) {
 	    $schools[$school_id] = Preferences::getSchool($school_id);
 	    $this->log(sprintf("Fetched school (%s) %s", $school_id, $schools[$school_id]));
 	  }
-	  
-	  $s->school = $schools[$school_id];
-	  $s->last_name  = $this->con->real_escape_string($sailor->last_name);
-	  $s->first_name = $this->con->real_escape_string($sailor->first_name);
-	  $s->year = (int)$sailor->year;
-	  $s->gender = $sailor->gender;
 
-	  $this->updateSailor($s);
-	  $this->log("Activated coach $s");
+	  if ($schools[$school_id] !== null) {
+	    $s->school = $schools[$school_id];
+	    $s->last_name  = $this->con->real_escape_string($sailor->last_name);
+	    $s->first_name = $this->con->real_escape_string($sailor->first_name);
+	    $s->year = (int)$sailor->year;
+	    $s->gender = $sailor->gender;
+
+	    $this->updateSailor($s);
+	    $this->log("Activated coach $s");
+	  }
+	  else
+	    $this->warnings[$school_id] = "Missing school $school_id.";
 	} catch (Exception $e) {
 	  $warnings[] = "Invalid coach information: " . print_r($sailor, true);
 	}

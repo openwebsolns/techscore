@@ -46,8 +46,10 @@ class Sailor {
   }
 
   public function __toString() {
-    $year = ($this->year > 0) ? substr($this->year, -2) : "??";
-    $name = sprintf("%s %s '%s",
+    $year = "";
+    if ($this->role == 'student')
+      $year = " '" . (($this->year > 0) ? substr($this->year, -2) : "??");
+    $name = sprintf("%s %s%s",
 		    $this->first_name,
 		    $this->last_name,
 		    $year);
