@@ -184,7 +184,7 @@ class User {
     if ($this->get(User::ADMIN) > 0)
       $q = sprintf('select id as school from school');
     else
-      $q = sprintf('select school from account_school');
+      $q = sprintf('select school from account_school where account="%s"', $this->username);
     $q = Preferences::query($q);
     while ($r = $q->fetch_object()) {
       $school = Preferences::getSchool($r->school);
