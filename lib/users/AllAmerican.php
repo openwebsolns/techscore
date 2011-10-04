@@ -27,6 +27,7 @@ class AllAmerican extends AbstractUserPane {
 
 			      'report-participation' => null,
 			      'report-role' => null,
+			      'report-year' => null,
 			      
 			      'regattas-set' => false,
 			      'params-set' => false);
@@ -47,11 +48,17 @@ class AllAmerican extends AbstractUserPane {
       $form->addChild(new FItem("Boat role:", $sel = new FSelect('role', array())));
       $sel->addOptions(array(RP::SKIPPER => "Skipper", RP::CREW    => "Crew"));
 
+      $form->addChild(new FItem("Year:", $sel = new FSelect('year', array())));
+      $sel->addOptions(Preferences::getYears());
+
       $form->addChild(new FSubmit('set-report', "Choose regattas >>"));
 
       $this->PAGE->addContent($p = new Port("Special crew report"));
       $p->addChild($form = new Form('/aa-edit'));
       $form->addChild(new Para("To choose crews from ALL regattas regardless of participation, click the button below."));
+
+      $form->addChild(new FItem("Year:", $sel = new FSelect('year', array())));
+      $sel->addOptions(Preferences::getYears());
       $form->addChild(new FSubmit('set-special-report', "All crews >>"));
       return;
     }
@@ -69,6 +76,11 @@ class AllAmerican extends AbstractUserPane {
     // 1. Step one: choose regattas
     // ------------------------------------------------------------
     if ($_SESSION['aa']['regattas-set'] === false) {
+      // Add button to go back
+      $this->PAGE->addContent($p = new Port("Progress"));
+      $p->addChild($form = new Form('/aa-edit'));
+      $form->addChild(new FSubmit('unset-regattas', "<< Start over"));
+
       // Reset lists
       $_SESSION['aa']['regattas'] = array();
       $_SESSION['aa']['regatta_ids'] = array();
@@ -77,6 +89,8 @@ class AllAmerican extends AbstractUserPane {
       $_SESSION['aa']['sailors'] = array();
 
       $now = new DateTime();
+      if ($_SESSION['aa']['report-year'] != $now->format('Y'))
+	$now->setDate($_SESSION['aa']['report-year'], 5, 1);
       $season = new Season($now);
       $regattas = $season->getRegattas();
       // also include fall regattas
@@ -90,8 +104,8 @@ class AllAmerican extends AbstractUserPane {
       $this->PAGE->addContent($p1 = new Port("Classified regattas"));
       $this->PAGE->addContent($p2 = new Port("Additional regattas"));
       if (count($regattas) == 0) {
-	$p1->addChild("There are no regattas in the current season which classify for inclusion.");
-	$p2->addChild("There are no regattas in the current season to add.");
+	$p1->addChild("There are no regattas in the chosen season which classify for inclusion.");
+	$p2->addChild("There are no regattas in the chosen season to add.");
 	return;
       }
 
@@ -343,14 +357,31 @@ class AllAmerican extends AbstractUserPane {
 	$this->announce(new Announcement("Invalid role provided.", Announcement::ERROR));
 	return false;
       }
+      // year: default to this year
+      $years = Preferences::getYears();
+      $year = null;
+      if (isset($args['year']) && isset($years[$args['year']]))
+	$year = $years[$args['year']];
+      if ($year === null)
+	$year = array_shift($years);
       $_SESSION['aa']['report-participation'] = $args['participation'];
       $_SESSION['aa']['report-role'] = $args['role'];
+      $_SESSION['aa']['report-year'] = $year;
       return false;
     }
     // Special report
     if (isset($args['set-special-report'])) {
+      // year: default to this year
+      $years = Preferences::getYears();
+      $year = null;
+      if (isset($args['year']) && isset($years[$args['year']]))
+	$year = $years[$args['year']];
+      if ($year === null)
+	$year = array_shift($years);
+      
       $_SESSION['aa']['report-participation'] = 'special';
       $_SESSION['aa']['report-role'] = 'crew';
+      $_SESSION['aa']['report-year'] = $year;
       return false;
     }
 
