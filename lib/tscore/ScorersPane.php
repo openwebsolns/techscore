@@ -29,21 +29,21 @@ class ScorersPane extends AbstractPane {
 				  Cell::th(""))));
     $scorers = array();
     foreach ($this->REGATTA->getScorers() as $s) {
-      $scorers[$s->username] = $s;
+      $scorers[$s->id] = $s;
 
       // Create form to delete scorer
       $f2 = $this->createForm();
-      $hidden = new FHidden("scorer", $s->username);
+      $hidden = new FHidden("scorer", $s->id);
       $button = new FSubmit("delete_scorer", "Remove scorer", array("style"=>"width:100%"));
       $f2->addChild($hidden);
       $f2->addChild($button);
-      if ($s->username === $this->USER->username()) {
+      if ($s->id === $this->USER->username()) {
 	$button->addAttr("disabled", "disabled");
 	$button->addAttr("title", "You cannot delete yourself from the regatta.");
       }
 
       // Fill row
-      $tab->addRow(new Row(array(new Cell(new Link("mailto:" . $s->username, $s->getName())),
+      $tab->addRow(new Row(array(new Cell(new Link("mailto:" . $s->id, $s->getName())),
 				 new Cell($s->school->nick_name),
 				 new Cell($f2)))); 
     }
@@ -92,8 +92,8 @@ class ScorersPane extends AbstractPane {
       $pot_scorers = array();
 
       foreach ($accounts as $user) {
-	if (!isset($scorers[$user->username]))
-	  $pot_scorers[$user->username] = sprintf('%s, %s', $user->last_name, $user->first_name);
+	if (!isset($scorers[$user->id]))
+	  $pot_scorers[$user->id] = sprintf('%s, %s', $user->last_name, $user->first_name);
       }
       $sel->addOptions($pot_scorers);
       $s_form->addChild(new FSubmit("add_scorer", "Add scorers"));
@@ -124,7 +124,7 @@ class ScorersPane extends AbstractPane {
     if (isset($args['delete_scorer']) &&
 	isset($args['scorer'])) {
       $account = AccountManager::getAccount(addslashes($args['scorer']));
-      if ($account !== null && $account->username !== $this->USER->username()) {
+      if ($account !== null && $account->id !== $this->USER->username()) {
 	$this->REGATTA->removeScorer($account);
 	$mes = sprintf("Removed scorer %s.", $account->getName());
 	$this->announce(new Announcement($mes));

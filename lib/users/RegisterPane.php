@@ -152,7 +152,7 @@ class RegisterPane extends WelcomePage {
       }
       $acc = new Account();
       $acc->status = "requested";
-      $acc->username = $email;
+      $acc->id = $email;
       
       // 2. Approve first and last name
       $acc->last_name  = trim(addslashes($args['last_name']));
@@ -195,7 +195,7 @@ class RegisterPane extends WelcomePage {
       $acc->password = sha1(trim($args['passwd']));
 
       // 6. Create account with status "requested";
-      $res = Preferences::mail($acc->username, '[TechScore] New account request', $this->getMessage($acc));
+      $res = Preferences::mail($acc->id, '[TechScore] New account request', $this->getMessage($acc));
       if ($res !== false) {
 	AccountManager::setAccount($acc);
 	$_SESSION['ANNOUNCE'][] = new Announcement("Account successfully created.");
@@ -224,7 +224,7 @@ class RegisterPane extends WelcomePage {
       // notify all admins
       $admins = array();
       foreach (AccountManager::getAdmins() as $admin)
-	$admins[] = sprintf('%s <%s>', $admin->getName(), $admin->username);
+	$admins[] = sprintf('%s <%s>', $admin->getName(), $admin->id);
 
       Preferences::mail(implode(',', $admins), '[TechScore] New registration', $this->getAdminMessage($acc));
       WebServer::go("register");
@@ -250,7 +250,7 @@ class RegisterPane extends WelcomePage {
 		   " Email: %s\n" .
 		   "School: %s\n" .
 		   "  Role: %s\n",
-		   $about->first_name, $about->last_name, $about->username,
+		   $about->first_name, $about->last_name, $about->id,
 		   $about->school->nick_name, $about->role);
   }
 }

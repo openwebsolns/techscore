@@ -64,13 +64,13 @@ class PendingAccountsPane extends AbstractAdminUserPane {
       $row = 0;
       foreach ($list as $acc) {
 	$tab->addRow($r = new Row(array(new Cell(new FCheckBox("accounts[]",
-							       $acc->username,
-							       array("id"=>$acc->username))),
-					new Cell(new Label($acc->username, $acc->getName())),
-					new Cell(new Link(sprintf("mailto:%s", $acc->username),
-							  $acc->username)),
-					new Cell(new Label($acc->username, $acc->school->nick_name)),
-					new Cell(new Label($acc->username, $acc->role)))));
+							       $acc->id,
+							       array("id"=>$acc->id))),
+					new Cell(new Label($acc->id, $acc->getName())),
+					new Cell(new Link(sprintf("mailto:%s", $acc->id),
+							  $acc->id)),
+					new Cell(new Label($acc->id, $acc->school->nick_name)),
+					new Cell(new Label($acc->id, $acc->role)))));
       }
       if ($num_pages > 1)
 	$p->addChild(new PageDiv($num_pages, $pageset, "pending"));
@@ -105,7 +105,7 @@ class PendingAccountsPane extends AbstractAdminUserPane {
 	  else {
 	    $acc->status = $legend[$action]["status"];
 	    AccountManager::setAccount($acc);
-	    $success[] = $acc->username;
+	    $success[] = $acc->id;
 	  }
 	}
 

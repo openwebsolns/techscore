@@ -1196,7 +1196,7 @@ class Regatta implements RaceListener {
    * @return Array<Account> a list of scorers
    */
   public function getScorers() {
-    $q = sprintf('select %s from %s where username in (select account from host where regatta = "%s")',
+    $q = sprintf('select %s from %s where id in (select account from host where regatta = "%s")',
 		 Account::FIELDS, Account::TABLES, $this->id);
     $q = $this->query($q);
     $list = array();
@@ -1244,7 +1244,7 @@ class Regatta implements RaceListener {
    */
   public function addScorer(Account $acc) {
     $q = sprintf('insert into host (account, regatta) values ("%s", "%s")',
-		 $acc->username, $this->id);
+		 $acc->id, $this->id);
     $this->query($q);
   }
 
@@ -1255,7 +1255,7 @@ class Regatta implements RaceListener {
    * from this regatta
    */
   public function removeScorer(Account $acc) {
-    $q = sprintf('delete from host where account = "%s" and regatta = "%s"', $acc->username, $this->id);
+    $q = sprintf('delete from host where account = "%s" and regatta = "%s"', $acc->id, $this->id);
     $q = $this->query($q);
   }
 
@@ -1269,7 +1269,7 @@ class Regatta implements RaceListener {
   public function setCreator(Account $acc) {
     $con = Preferences::getConnection();
     $q = sprintf('update regatta set creator = "%s" where id = "%s"',
-		 $con->escape_string($acc->username),
+		 $con->escape_string($acc->id),
 		 $this->id);
     $this->query($q);
   }

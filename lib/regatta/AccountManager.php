@@ -20,7 +20,7 @@ class AccountManager {
    * exist
    */
   public static function getAccount($id) {
-    $q = sprintf('select %s from %s where username like "%s"',
+    $q = sprintf('select %s from %s where id like "%s"',
 		 Account::FIELDS, Account::TABLES, $id);
     $q = Preferences::query($q);
     if ($q->num_rows == 0) {
@@ -79,7 +79,7 @@ class AccountManager {
    * @see getPendingUsers
    */
   public static function getNumPendingUsers() {
-    $q = Preferences::query('select username from account where status = "pending"');
+    $q = Preferences::query('select id from account where status = "pending"');
     return $q->num_rows;
   }
 
@@ -106,7 +106,7 @@ class AccountManager {
    * @see getAccountFromHash
    */
   public static function getHash(Account $acc) {
-    return md5($acc->last_name.$acc->username.$acc->first_name);
+    return md5($acc->last_name.$acc->id.$acc->first_name);
   }
 
   /**
@@ -118,7 +118,7 @@ class AccountManager {
    */
   public static function getAccountFromHash($hash) {
     $con = Preferences::getConnection();
-    $q = sprintf('select %s from %s where md5(concat(last_name, username, first_name)) like "%s"',
+    $q = sprintf('select %s from %s where md5(concat(last_name, id, first_name)) like "%s"',
 		 Account::FIELDS, Account::TABLES, $con->escape_string($hash));
     $q = Preferences::query($q);
     if ($q->num_rows == 0) {
@@ -139,7 +139,7 @@ class AccountManager {
    * @return null if invalid userid or password
    */
   public static function approveUser($id, $pass) {
-    $q = sprintf('select password from account where username like "%s"' .
+    $q = sprintf('select password from account where id like "%s"' .
 		 '  and status in ("accepted", "active")',
 		 $id);
     $q = Preferences::query($q);
@@ -158,7 +158,7 @@ class AccountManager {
    * @param String $new_pass the password to set it to.
    */
   public static function resetPassword(User $user, $new_pass) {
-    $q = sprintf('update account set password = sha1("%s") where username = "%s"',
+    $q = sprintf('update account set password = sha1("%s") where id = "%s"',
 		 addslashes($new_pass), $user->username());
     Preferences::query($q);
   }
@@ -173,10 +173,10 @@ class AccountManager {
    * @see getAccount
    */
   public static function setAccount(Account $acc) {
-    $q = sprintf('insert into account (username, first_name, last_name, role, school, status, password) ' .
+    $q = sprintf('insert into account (id, first_name, last_name, role, school, status, password) ' .
 		 'values ("%s", "%2$s", "%3$s", "%4$s", "%5$s", "%6$s", "%7$s") on duplicate key update ' .
 		 'first_name = "%2$s", last_name = "%3$s", role = "%4$s", school = "%5$s", status = "%6$s", password = "%7$s"',
-		 $acc->username,
+		 $acc->id,
 		 $acc->first_name,
 		 $acc->last_name,
 		 $acc->role,

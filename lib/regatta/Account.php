@@ -18,7 +18,7 @@ class Account {
   // Variables
   public $first_name;
   public $last_name;
-  public $username;
+  public $id;
   public $role;
   public $admin;
   public $status;
@@ -26,7 +26,7 @@ class Account {
   private $school;
 
   const FIELDS = "account.first_name, account.last_name, account.school, account.password, 
-                  account.username, account.role, account.status, is_admin as admin";
+                  account.id, account.role, account.status, is_admin as admin";
   const TABLES = "account";
 
   public function __toString() {

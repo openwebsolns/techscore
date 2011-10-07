@@ -90,7 +90,7 @@ class RegattaIO {
     $root->addChild($tag = new GenericElement("Scorers"));
     foreach ($reg->getScorers() as $user) {
       $tag->addChild($sub = new GenericElement("Scorer"));
-      $sub->addAttr("id", htmlspecialchars($user->username));
+      $sub->addAttr("id", htmlspecialchars($user->id));
       $sub->addChild(new Text(htmlspecialchars($user)));
     }
 

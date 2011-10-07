@@ -149,3 +149,19 @@ alter table pub_update_request add column argument varchar(10) default null comm
 
 -- active sailors --
 alter table sailor add column active tinyint default null;
+
+-- rename account ID field from username to id --
+alter table account_school drop foreign key account_school_ibfk_1;
+alter table burgee drop foreign key burgee_ibfk_2;
+alter table host drop foreign key host_ibfk_1;
+alter table message drop foreign key message_ibfk_1;
+alter table race drop foreign key race_ibfk_3;
+
+alter table account drop primary key;
+alter table account change column username id varchar(40) not null primary key;
+
+alter table account_school add foreign key (account) references account(id) on delete cascade on update cascade;
+alter table burgee add foreign key (updated_by) references account(id) on delete set null on update cascade;
+alter table host add foreign key (account) references account(id) on delete cascade on update cascade;
+alter table message add foreign key (account) references account(id) on delete cascade on update cascade;
+alter table race add foreign key (scored_by) references account(id) on delete set null on update cascade;

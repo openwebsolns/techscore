@@ -28,7 +28,7 @@ class User {
   const STATUS     = "status";
 
   const FIELDS = "account.first_name, account.last_name, 
-                  account.username, account.role, account.status,
+                  account.id, account.role, account.status,
                   account.school, is_admin as admin";
   const TABLES = "account";
 
@@ -40,7 +40,7 @@ class User {
    */
   public function __construct($username) {
     $this->username = $username;
-    $q = sprintf('select %s from %s where username = "%s"',
+    $q = sprintf('select %s from %s where id = "%s"',
 		 self::FIELDS, self::TABLES, $username);
     $result = Preferences::query($q);
     if ($result->num_rows > 0) {
@@ -91,7 +91,7 @@ class User {
 
       $value = $value->id;
     }
-    $q = sprintf('update account set %s = "%s" where username = "%s"',
+    $q = sprintf('update account set %s = "%s" where id = "%s"',
 		 $key, $value, $this->username);
     Preferences::query($q);
   }

@@ -437,8 +437,8 @@ class Preferences {
 
     $q = sprintf('select %s from school inner join account ' .
 		 'on (account.school = school.id) ' .
-		 'where account.username like "%s"',
-		 School::FIELDS, $user->username);
+		 'where account.id like "%s"',
+		 School::FIELDS, $user->id);
     $q = self::query($q);
     $list = array();
     while ($obj = $q->fetch_object("School"))
@@ -468,7 +468,7 @@ class Preferences {
    */
   public static function getMessages(Account $acc) {
     $q = sprintf('select %s from %s where account = "%s" and active = 1 order by created desc',
-		 Message::FIELDS, Message::TABLES, $acc->username);
+		 Message::FIELDS, Message::TABLES, $acc->id);
     $res = self::query($q);
     $list = array();
     while ($obj = $res->fetch_object("Message", array($acc)))
@@ -484,7 +484,7 @@ class Preferences {
   public static function getUnreadMessages(Account $acc) {
     $q = sprintf('select %s from %s where account = "%s" ' .
 		 'and read_time is null and active = 1 order by created',
-		 Message::FIELDS, Message::TABLES, $acc->username);
+		 Message::FIELDS, Message::TABLES, $acc->id);
     $res = self::query($q);
     $list = array();
     while ($obj = $res->fetch_object("Message", array($acc)))
@@ -501,7 +501,7 @@ class Preferences {
    */
   public static function queueMessage(Account $acc, $mes) {
     $q = sprintf('insert into message (account, content) values ("%s", "%s")',
-		 $acc->username, (string)$mes);
+		 $acc->id, (string)$mes);
     self::query($q);
 
     // fetch the last message
@@ -548,7 +548,7 @@ class Preferences {
    */
   public static function reply(Message $mes, $reply) {
     $body = sprintf("Reply from: %s\n---------------------\n%s\n-------------------\n%s",
-		    $mes->account->username,
+		    $mes->account->id,
 		    $mes->content,
 		    $reply);
     $res = self::mail(ADMIN_MAIL, "[TechScore] Message reply", $body);
