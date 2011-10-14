@@ -263,6 +263,10 @@ class AllAmerican extends AbstractUserPane {
 	  $rps = $rpm->getParticipation($sailor, $_SESSION['aa']['report-role']);
 	  foreach ($rps as $rp) {
 	    $team = ScoresAnalyzer::getTeamDivision($rp->team, $rp->division);
+	    if ($team === null || !isset($_SESSION['aa']['teams'][$team->id])) {
+	      $cell[] = "";
+	      continue;
+	    }
 	    $content = $team->rank . $team->division;
 	    $num_races = count($_SESSION['aa']['teams'][$team->id][$sailor->id]->races_nums);
 	    if ($num_races != count($rp->races_nums))
@@ -431,6 +435,7 @@ class AllAmerican extends AbstractUserPane {
 
       // Add sailors, if not already in the 'sailors' list
       $errors = 0;
+      $non_pt = array();
       foreach ($args['sailor'] as $id) {
 	try {
 	  if (!isset($_SESSION['aa']['sailors'][$id])) {
@@ -439,17 +444,20 @@ class AllAmerican extends AbstractUserPane {
 	    // sailor even participated in any of the chosen regattas
 	    $participated = false;
 
-	    foreach ($_SESSION['aa']['regattas'] as $reg_id => $list) {
-	      $regatta = new Regatta($reg_id);
+	    foreach ($_SESSION['aa']['regatta_ids'] as $reg_id => $rid) {
+	      $regatta = new Regatta($rid);
 	      $rpm = $regatta->getRpManager();
-	      $rps = $rpm->getParticipation($sailor, $_SESSION['aa']['report-participation']);
-	      if (count($rps) > 0) $participated = true;
+	      $rps = $rpm->getParticipation($sailor, $_SESSION['aa']['report-role']);
+	      if (count($rps) > 0)
+		$participated = true;
 	      foreach ($rps as $rp) {
-		$team = ScoresAnalayser::getTeamDivision($rp->team, $rp->division);
+		$team = ScoresAnalyzer::getTeamDivision($rp->team, $rp->division);
 		if (!isset($_SESSION['aa']['teams'][$team->id])) {
 		  $_SESSION['aa']['teams'][$team->id] = array();
-		  $_SESSION['aa']['regattas'][$regatta->id()][] = $team;
+		  $_SESSION['aa']['regattas'][$reg_id][] = $team;
 		}
+		if (!isset($_SESSION['aa']['teams'][$team->id]))
+		  $_SESSION['aa']['teams'][$team->id] = array();
 		if (!isset($_SESSION['aa']['teams'][$team->id][$sailor->id]))
 		  $_SESSION['aa']['teams'][$team->id][$sailor->id] = $rp;
 	      }
@@ -457,14 +465,17 @@ class AllAmerican extends AbstractUserPane {
 	    if ($participated)
 	      $_SESSION['aa']['sailors'][$sailor->id] = $sailor;
 	    else
-	      $errors++;
+	      $non_pt[] = $sailor;
 	  }
 	} catch (Exception $e) {
 	  $errors++;
+	  $this->announce(new Announcement($e->getMessage(), Announcement::ERROR));
 	}
       }
       if ($errors > 0)
 	$this->announce(new Announcement("Some invalid sailors were provided and ignored.", Announcement::WARNING));
+      if (count($non_pt) > 0)
+	$this->announce(new Announcement("The following additional sailor(s) requested did not participate in any of the chosen regattas and were ignored: " . implode(", ", $non_pt), Announcement::WARNING));
       $this->announce(new Announcement("Set sailors for report."));
       $_SESSION['aa']['params-set'] = true;
       return false;
