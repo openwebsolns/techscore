@@ -295,7 +295,9 @@ class RpManager {
     $q = Preferences::query($q);
     if ($q->num_rows == 0)
       throw new InvalidArgumentException(sprintf("No sailor with id (%s).", $id));
-    return $q->fetch_object("Sailor");
+    $obj = $q->fetch_object("Sailor");
+    $obj->school = Preferences::getSchool($obj->school);
+    return $obj;
   }
 
   // RP form functions

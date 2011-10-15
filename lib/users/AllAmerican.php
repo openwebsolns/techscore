@@ -19,10 +19,9 @@ class AllAmerican extends AbstractUserPane {
   public function __construct(User $user) {
     parent::__construct("All-American", $user);
     if (!isset($_SESSION['aa']))
-      $_SESSION['aa'] = array('regatta_ids' => array(),
+      $_SESSION['aa'] = array('table' => array(),
 			      'regattas' => array(),
 			      'regatta_races' => array(),
-			      'teams' => array(),
 			      'sailors' => array(),
 
 			      'report-participation' => null,
@@ -82,10 +81,9 @@ class AllAmerican extends AbstractUserPane {
       $form->addChild(new FSubmit('unset-regattas', "<< Start over"));
 
       // Reset lists
+      $_SESSION['aa']['table'] = array();
       $_SESSION['aa']['regattas'] = array();
-      $_SESSION['aa']['regatta_ids'] = array();
       $_SESSION['aa']['regatta_races'] = array();
-      $_SESSION['aa']['teams'] = array();
       $_SESSION['aa']['sailors'] = array();
 
       $now = new DateTime();
@@ -110,8 +108,7 @@ class AllAmerican extends AbstractUserPane {
       }
 
       $p2->addChild($form = new Form("/aa-edit"));
-      $form->addChild(new Para("Choose the regattas you wish to include in the report from the list below."));
-      $form->addChild($tab = new Table());
+      $tab = new Table();
       $tab->addAttr('id', 'regtable');
 
       $types = Preferences::getRegattaTypeAssoc();
@@ -121,6 +118,7 @@ class AllAmerican extends AbstractUserPane {
 				    Cell::th("Part."),
 				    Cell::th("Date"),
 				    Cell::th("Status"))));
+      $addt_regattas = 0;
       foreach ($regattas as $reg) {
 	if ($reg->finalized !== null &&
 	    ($reg->participant == $_SESSION['aa']['report-participation'] ||
@@ -150,8 +148,15 @@ class AllAmerican extends AbstractUserPane {
 	    $r->addAttr('class', 'disabled');
 	    $chk->addAttr("disabled", "disabled");
 	  }
+	  $addt_regattas++;
 	}
       }
+      if ($addt_regattas > 0) {
+	$form->addChild(new Para("Choose the regattas you wish to include in the report from the list below."));
+	$form->addChild($tab);
+      }
+      else
+	$form->addChild(new Para("There are no other possible regattas to add to the report from for the chosen season."));
       $form->addChild(new Para("Next, choose the sailors to incorporate into the report."));
       $form->addChild(new FSubmit('set-regattas', sprintf("Choose %ss >>", $_SESSION['aa']['report-role'])));
 
@@ -180,7 +185,7 @@ class AllAmerican extends AbstractUserPane {
     }
 
     // ------------------------------------------------------------
-    // Choose sailors
+    // 2. Step two: Choose sailors
     // ------------------------------------------------------------
     if ($_SESSION['aa']['params-set'] === false) {
       // Add button to go back
@@ -216,13 +221,13 @@ class AllAmerican extends AbstractUserPane {
     ini_set('memory_limit', '128M');
     ini_set('max_execution_time', 60);
     // ------------------------------------------------------------
-    // Review and download
+    // 3. Step three: Review and download
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new Port("Report"));
     $p->addChild($form = new Form('/aa-edit'));
     $form->addChild(new Para("Please click only once:"));
     $form->addChild(new FSubmit('gen-report', "Download as CSV"));
-    
+
     $p->addChild($form = new Form('/aa-edit'));
     $form->addChild(new FSubmit('unset-sailors', "<< Go back"));
     
@@ -236,97 +241,22 @@ class AllAmerican extends AbstractUserPane {
 					     Cell::td("# Races/Div"),
 					     Cell::td(""),
 					     Cell::td(""))));
-    foreach ($_SESSION['aa']['regattas'] as $reg_id => $team_list) {
+    foreach ($_SESSION['aa']['regatta_races'] as $reg_id => $num) {
       $hrow1->addChild(new Cell($reg_id, array('class'=>'rotate'), 1));
-      $hrow2->addChild(new Cell($_SESSION['aa']['regatta_races'][$reg_id]));
+      $hrow2->addChild(new Cell($num));
     }
     foreach ($_SESSION['aa']['sailors'] as $id => $sailor) {
       $table->addRow($row = new Row(array(new Cell($sailor->id),
 					  new Cell(sprintf("%s %s", $sailor->first_name, $sailor->last_name)),
 					  new Cell($sailor->year),
 					  new Cell($sailor->school->nick_name))));
-      foreach ($_SESSION['aa']['regattas'] as $reg_id => $team_list) {
-	$cell = array();
-	foreach ($team_list as $team) {
-	  if (isset($_SESSION['aa']['teams'][$team->id][$sailor->id])) {
-	    $content = $team->rank . $team->division;
-	    $num_races = count($_SESSION['aa']['teams'][$team->id][$sailor->id]->races_nums);
-	    if ($num_races != $_SESSION['aa']['regatta_races'][$reg_id])
-	      $content .= sprintf("(%s)", Utilities::makeRange($_SESSION['aa']['teams'][$team->id][$sailor->id]->races_nums));
-	    $cell[] = $content;
-	  }
-	}
-	// fix: if content is empty, then try hard-checking
-	if (count($cell) == 0) {
-	  $reg = new Regatta($_SESSION['aa']['regatta_ids'][$reg_id]);
-	  $rpm = $reg->getRpManager();
-	  $rps = $rpm->getParticipation($sailor, $_SESSION['aa']['report-role']);
-	  foreach ($rps as $rp) {
-	    $team = ScoresAnalyzer::getTeamDivision($rp->team, $rp->division);
-	    if ($team === null || !isset($_SESSION['aa']['teams'][$team->id])) {
-	      $cell[] = "";
-	      continue;
-	    }
-	    $content = $team->rank . $team->division;
-	    $num_races = count($_SESSION['aa']['teams'][$team->id][$sailor->id]->races_nums);
-	    if ($num_races != count($rp->races_nums))
-	      $content .= sprintf("(%s)", Utilities::makeRange($rp->races_nums));
-
-	    $cell[] = $content;
-	  }
-	}
-	$row->addChild(new Cell(implode("/", $cell)));
+      foreach ($_SESSION['aa']['table'] as $reg_id => $sailor_list) {
+	if (isset($sailor_list[$id]))
+	  $row->addChild(new Cell(implode("/", $sailor_list[$id])));
+	else
+	  $row->addChild(new Cell(""));
       }
     }
-    return;
-
-    $this->PAGE->addContent($p = new Port("Review input for report"));
-    $p->addChild(new Para("Please review the information which will be included in the report below. When you are done, click \"Make report\" to generate the report. Because this can be a resource intensive operation, please have patience and do not generate too many reports."));
-
-    $p->addChild(new Heading("Regattas"));
-    $p->addChild($tab = new Table());
-    $tab->addHeader(new Row(array(Cell::th("Name"),
-				  Cell::th("Type"),
-				  Cell::th("Part."),
-				  Cell::th("Date"),
-				  Cell::th("Status"))));
-    $types = Preferences::getRegattaTypeAssoc();
-    foreach (array_merge($_SESSION['aa']['regattas'],
-			 $_SESSION['aa']['added_regattas']) as $id) {
-      try {
-	$reg = new Regatta($id);
-	$tab->addRow(new Row(array(new Cell($reg->get(Regatta::NAME), array('class'=>'left')),
-				   new Cell($types[$reg->get(Regatta::TYPE)]),
-				   new Cell(($reg->get(Regatta::PARTICIPANT) == Regatta::PARTICIPANT_WOMEN) ?
-					    "Women" : "Coed"),
-				   new Cell($reg->get(Regatta::START_TIME)->format('Y/m/d H:i')),
-				   new Cell("Final"))));
-      } catch (Exception $e) {}
-    }
-
-    $p->addChild(new Heading("Sailors"));
-    $p->addChild($tab = new Table());
-    $tab->addHeader(new Row(array(Cell::th("Name"),
-				  Cell::th("School"),
-				  Cell::th("Year"),
-				  Cell::th("Gender"))));
-    foreach (array_merge($_SESSION['aa']['sailors'],
-			 $_SESSION['aa']['added_sailors']) as $id) {
-      try {
-	$sailor = RpManager::getSailor($id);
-	$tab->addRow(new Row(array(new Cell($sailor),
-				   new Cell(Preferences::getSchool($sailor->school)->nick_name),
-				   new Cell($sailor->year),
-				   new Cell($sailor->gender))));
-      }
-      catch (Exception $e) {}
-    }
-    $p->addChild($form = new Form('/aa-edit'));
-    $form->addChild(new Para("Please click only once:"));
-    $form->addChild(new FSubmit('gen-report', "Make report"));
-    
-    $this->PAGE->addContent($form = new Form('/aa-edit'));
-    $form->addChild(new FSubmit('unset-sailors', "<< Go back"));
   }
 
   public function process(Array $args) {
@@ -438,35 +368,36 @@ class AllAmerican extends AbstractUserPane {
       $non_pt = array();
       foreach ($args['sailor'] as $id) {
 	try {
-	  if (!isset($_SESSION['aa']['sailors'][$id])) {
-	    $sailor = RpManager::getSailor($id);
-	    // reverse populate tables, after determining that this
-	    // sailor even participated in any of the chosen regattas
-	    $participated = false;
+	  if (isset($_SESSION['aa']['sailors'][$id]))
+	    continue;
+	  
+	  $sailor = RpManager::getSailor($id);
+	  // reverse populate tables, determining if the sailor even
+	  // participated in any of the regattas
+	  $participated = false;
 
-	    foreach ($_SESSION['aa']['regatta_ids'] as $reg_id => $rid) {
-	      $regatta = new Regatta($rid);
-	      $rpm = $regatta->getRpManager();
-	      $rps = $rpm->getParticipation($sailor, $_SESSION['aa']['report-role']);
-	      if (count($rps) > 0)
-		$participated = true;
-	      foreach ($rps as $rp) {
-		$team = ScoresAnalyzer::getTeamDivision($rp->team, $rp->division);
-		if (!isset($_SESSION['aa']['teams'][$team->id])) {
-		  $_SESSION['aa']['teams'][$team->id] = array();
-		  $_SESSION['aa']['regattas'][$reg_id][] = $team;
-		}
-		if (!isset($_SESSION['aa']['teams'][$team->id]))
-		  $_SESSION['aa']['teams'][$team->id] = array();
-		if (!isset($_SESSION['aa']['teams'][$team->id][$sailor->id]))
-		  $_SESSION['aa']['teams'][$team->id][$sailor->id] = $rp;
-	      }
+	  foreach ($_SESSION['aa']['regattas'] as $reg_id => $rid) {
+	    $regatta = new Regatta($rid);
+	    $rpm = $regatta->getRpManager();
+	    $rps = $rpm->getParticipation($sailor, $_SESSION['aa']['report-role']);
+
+	    if (count($rps) > 0)
+	      $participated = true;
+	    foreach ($rps as $rp) {
+	      $team = ScoresAnalyzer::getTeamDivision($rp->team, $rp->division);
+	      $content = sprintf('%d%s', $team->rank, $team->division);
+	      if (count($rp->races_nums) != $_SESSION['aa']['regatta_races'][$reg_id])
+		$content .= sprintf(' (%s)', Utilities::makeRange($rp->races_nums));
+
+	      if (!isset($_SESSION['aa']['table'][$reg_id][$sailor->id]))
+		$_SESSION['aa']['table'][$reg_id][$sailor->id] = array();
+	      $_SESSION['aa']['table'][$reg_id][$sailor->id][] = $content;
 	    }
-	    if ($participated)
-	      $_SESSION['aa']['sailors'][$sailor->id] = $sailor;
-	    else
-	      $non_pt[] = $sailor;
 	  }
+	  if ($participated)
+	    $_SESSION['aa']['sailors'][$sailor->id] = $sailor;
+	  else
+	    $non_pt[] = $sailor;
 	} catch (Exception $e) {
 	  $errors++;
 	  $this->announce(new Announcement($e->getMessage(), Announcement::ERROR));
@@ -485,13 +416,19 @@ class AllAmerican extends AbstractUserPane {
     // Alas! Make the report
     // ------------------------------------------------------------
     if (isset($args['gen-report'])) {
-      ini_set('memory_limit', '128M');
       // is the regatta and sailor list set?
-      if (count($_SESSION['aa']['regattas']) == 0 ||
+      if (count($_SESSION['aa']['table']) == 0 ||
 	  count($_SESSION['aa']['sailors']) == 0) {
 	$this->announce(new Announcement("No regattas or sailors for report.", Announcement::ERROR));
 	return false;
       }
+
+      $filename = sprintf('%s-aa-%s-%s.csv',
+			  date('Y'),
+			  $_SESSION['aa']['report-participation'],
+			  $_SESSION['aa']['report-role']);
+      header("Content-type: application/octet-stream");
+      header("Content-Disposition: attachment; filename=$filename");
 
       $header1 = array("ID", "Sailor", "YR", "School");
       $header2 = array("", "# Races/Div", "", "");
@@ -503,35 +440,13 @@ class AllAmerican extends AbstractUserPane {
 		     sprintf("%s %s", $sailor->first_name, $sailor->last_name),
 		     $sailor->year,
 		     $sailor->school->nick_name);
-	foreach ($_SESSION['aa']['regattas'] as $reg_id => $team_list) {
-	  $cell = array();
-	  foreach ($team_list as $team) {
-	    if (isset($_SESSION['aa']['teams'][$team->id][$sailor->id])) {
-	      $content = $team->rank . $team->division;
-	      $num_races = count($_SESSION['aa']['teams'][$team->id][$sailor->id]->races_nums);
-	      if ($num_races != $_SESSION['aa']['regatta_races'][$reg_id])
-		$content .= sprintf("(%s)", Utilities::makeRange($_SESSION['aa']['teams'][$team->id][$sailor->id]->races_nums));
-	      $cell[] = $content;
-	    }
-	  }
-	  // fix: if content is empty, then try hard-checking
-	  if (count($cell) == 0) {
-	    $reg = new Regatta($_SESSION['aa']['regatta_ids'][$reg_id]);
-	    $rpm = $reg->getRpManager();
-	    $rps = $rpm->getParticipation($sailor, $_SESSION['aa']['report-role']);
-	    foreach ($rps as $rp) {
-	      $team = ScoresAnalyzer::getTeamDivision($rp->team, $rp->division);
-	      $content = $team->rank . $team->division;
-	      $num_races = count($_SESSION['aa']['teams'][$team->id][$sailor->id]->races_nums);
-	      if ($num_races != count($rp->races_nums))
-		$content .= sprintf("(%s)", Utilities::makeRange($rp->races_nums));
-
-	      $cell[] = $content;
-	    }
-	  }
+	foreach ($_SESSION['aa']['table'] as $reg_id => $sailor_list) {
+	  if (isset($sailor_list[$id]))
+	    $row[] = implode("/", $sailor_list[$id]);
+	  else
+	    $row[] = "";
 	  $header1[$reg_id] = $reg_id;
 	  $header2[$reg_id] = $_SESSION['aa']['regatta_races'][$reg_id];
-	  $row[] = implode('/', $cell);
 	}
 	$rows[] = $row;
       }
@@ -543,12 +458,6 @@ class AllAmerican extends AbstractUserPane {
       foreach ($rows as $row)
 	$this->rowCSV($row);
 
-      $filename = sprintf('%s-aa-%s-%s.csv',
-			  date('Y'),
-			  $_SESSION['aa']['report-participation'],
-			  $_SESSION['aa']['report-role']);
-      header("Content-type: application/octet-stream");
-      header("Content-Disposition: attachment; filename=$filename");
       header("Content-Length: " . strlen($this->csv));
       echo $this->csv;
       exit;
@@ -581,26 +490,34 @@ class AllAmerican extends AbstractUserPane {
     // use season/nick-name to sort
     $id = sprintf('%s/%s', $reg->get(Regatta::SEASON), $reg->get(Regatta::NICK_NAME));
     $_SESSION['aa']['regatta_races'][$id] = count($reg->getRaces(Division::A()));
-    $_SESSION['aa']['regatta_ids'][$id] = $reg->id();
+    $_SESSION['aa']['regattas'][$id] = $reg->id();
+    if (!isset($_SESSION['aa']['table'][$id]))
+      $_SESSION['aa']['table'][$id] = array();
 	  
-    // get top finishing teams
-    $_SESSION['aa']['regattas'][$id] = array();
+    // grab a list of lucky teams
+    $teams = array(); 
     foreach ($reg->getDivisions() as $div) {
       $place = ($div == Division::A()) ? 5 : 4;
-      $teams = ScoresAnalyzer::getHighFinishingTeams($reg, $div, $place);
-      $_SESSION['aa']['regattas'][$id] = array_merge($_SESSION['aa']['regattas'][$id], $teams);
+      foreach (ScoresAnalyzer::getHighFinishingTeams($reg, $div, $place) as $team)
+	$teams[] = $team;
     }
 
     // get sailors participating in those lucky teams
     $rpm = $reg->getRpManager();
-    foreach ($_SESSION['aa']['regattas'][$id] as $team) {
-      $_SESSION['aa']['teams'][$team->id] = array();
+    foreach ($teams as $team) {
       foreach ($rpm->getRP($reg->getTeam($team->team),
 			   $team->division,
 			   $_SESSION['aa']['report-role']) as $rp) {
 	
 	if ($rp->sailor->icsa_id !== null) {
-	  $_SESSION['aa']['teams'][$team->id][$rp->sailor->id] = $rp;
+	  $content = sprintf('%d%s', $team->rank, $team->division);
+	  if (count($rp->races_nums) != $_SESSION['aa']['regatta_races'][$id])
+	    $content .= sprintf(' (%s)', Utilities::makeRange($rp->races_nums));
+
+	  if (!isset($_SESSION['aa']['table'][$id][$rp->sailor->id]))
+	    $_SESSION['aa']['table'][$id][$rp->sailor->id] = array();
+	  $_SESSION['aa']['table'][$id][$rp->sailor->id][] = $content;
+	  
 	  if (!isset($_SESSION['aa']['sailors'][$rp->sailor->id]))
 	    $_SESSION['aa']['sailors'][$rp->sailor->id] = $rp->sailor;
 	}
