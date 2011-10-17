@@ -48,17 +48,26 @@ class CompareSailors extends AbstractUserPane {
       return false;
     }
 
-    // select all the pertinent regattas
-    $now = new DateTime();
-    $season = new Season($now);
-    $regattas = $season->getRegattas();
-    if ($season->getSeason() == Season::SPRING) {
-      $now->setDate($now->format('Y') - 1, 10, 1);
+    // seasons. If none provided, choose the default
+    $regattas = array();
+    if (isset($args['seasons']) && is_array($args['seasons'])) {
+      foreach ($args['seasons'] as $s) {
+	if (($season = Season::parse($s)) !== null)
+	  $regattas = array_merge($regattas, $season->getRegattas());
+      }
+    }
+    else {
+      $now = new DateTime();
       $season = new Season($now);
-      $regattas = array_merge($regattas, $season->getRegattas());
+      $regattas = $season->getRegattas();
+      if ($season->getSeason() == Season::SPRING) {
+	$now->setDate($now->format('Y') - 1, 10, 1);
+	$season = new Season($now);
+	$regattas = array_merge($regattas, $season->getRegattas());
+      }
     }
     if (count($regattas) == 0) {
-      $this->announce(new Announcement("There are no regattas in the past year to consider for comparison.", Announcement::ERROR));
+      $this->announce(new Announcement("There are no regattas in the given seasons to consider for comparison.", Announcement::ERROR));
       return false;
     }
 
@@ -119,7 +128,7 @@ class CompareSailors extends AbstractUserPane {
 
     // are there any regattas in common?
     if (count($reg_races) == 0) {
-      $this->announce(new Announcement(sprintf("The sailors provided (%s, %s) have not sailed head to head in any race in any regatta in the past year.", $first_sailor, implode(", ", $sailors)), Announcement::WARNING));
+      $this->announce(new Announcement(sprintf("The sailors provided (%s, %s) have not sailed head to head in any race in any regatta in the seasons specified.", $first_sailor, implode(", ", $sailors)), Announcement::WARNING));
       return false;
     }
 
@@ -143,7 +152,7 @@ class CompareSailors extends AbstractUserPane {
 	foreach ($races_nums as $num) {
 	  $tab->addRow($row = new Row());
 	  if ($index++ == 0) {
-	    $cell = Cell::th($regatta->get(Regatta::NAME));
+	    $cell = Cell::th(sprintf('%s (%s)', $regatta->get(Regatta::NAME), $regatta->get(Regatta::SEASON)->fullString()));
 	    $cell->addAttr('rowspan', count($races_nums));
 	    $row->addChild($cell);
 	  }
@@ -178,12 +187,33 @@ class CompareSailors extends AbstractUserPane {
 						  'href'=>'/inc/css/aa.css',
 						  'rel'=>'stylesheet')));
     $this->PAGE->addHead(new GenericElement('script', array(new Text("")), array('src'=>'/inc/js/aa.js')));
-    $this->PAGE->addContent($p = new Port("New sailors"));
-    $p->addChild($form = new Form('/compare-sailors', "get"));
-    $form->addChild(new GenericElement('noscript', array(new Para("Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding."))));
-    $form->addChild(new FItem('Name:', $search = new FText('name-search', "")));
+    $this->PAGE->addContent($form = new Form('/compare-sailors', "get"));
+
+    // Season selection
+    $form->addChild($p = new Port("Seasons to compare"));
+    $p->addChild(new Para("Choose at least one season to compare from the list below, then choose the sailors in the next panel."));
+    $p->addChild($ul = new Itemize());
+    $ul->addAttr('style', 'list-style-type:none');
+
+    $now = new Season(new DateTime());
+    $then = null;
+    if ($now->getSeason() == Season::SPRING)
+      $then = Season::parse(sprintf('f%0d', ($now->getTime()->format('Y') - 1)));
+    foreach (Preferences::getActiveSeasons() as $season) {
+      $ul->addChild($li = new LItem());
+      $li->addChild($chk = new FCheckbox('seasons[]', $season, array('id' => $season)));
+      $li->addChild(new Label($season, $season->fullString()));
+
+      if ((string)$season == (string)$now || (string)$season == (string)$then)
+	$chk->addAttr('checked', 'checked');
+    }
+
+    // Sailor search
+    $form->addChild($p = new Port("New sailors"));
+    $p->addChild(new GenericElement('noscript', array(new Para("Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding."))));
+    $p->addChild(new FItem('Name:', $search = new FText('name-search', "")));
     $search->addAttr('id', 'name-search');
-    $form->addChild($ul = new Itemize());
+    $p->addChild($ul = new Itemize());
     $ul->addAttr('id', 'aa-input');
     $ul->addItems(new LItem("No sailors.", array('class' => 'message')));
     $form->addChild(new FSubmit('set-sailors', "Compare sailors"));

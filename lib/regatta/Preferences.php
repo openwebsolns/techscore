@@ -586,5 +586,18 @@ class Preferences {
       $l[$i->year] = $i->year;
     return $l;
   }
+
+  /**
+   * Returns a list of the seasons for which there are public regattas
+   *
+   * @return Array:Season the list
+   */
+  public static function getActiveSeasons() {
+    $r = self::query('select distinct season from dt_regatta order by start_time desc');
+    $l = array();
+    while ($i = $r->fetch_object())
+      $l[] = Season::parse($i->season);
+    return $l;
+  }
 }
 ?>
