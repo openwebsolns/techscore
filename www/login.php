@@ -23,8 +23,8 @@ if (isset($_REQUEST['dir']) && $_REQUEST['dir'] == "out") {
 // Log-in
 //
 
-$userid = (isset($_POST['userid'])) ? trim($_POST['userid']) : goBack();
-$passwd = (isset($_POST['pass']))   ? $_POST['pass'] : goBack();
+$userid = (isset($_POST['userid'])) ? trim($_POST['userid']) : WebServer::goBack();
+$passwd = (isset($_POST['pass']))   ? $_POST['pass'] : WebServer::goBack();
 
 $user = AccountManager::approveUser($userid, $passwd);
 if ($user !== null) {

@@ -585,7 +585,7 @@ class SailsPane extends AbstractPane {
       if (count($diff = array_diff($races_copy, $races)) > 0) {
 	$mes = sprintf("Ignored races %s in divisions %s.",
 		       Utilities::makeRange($diff),
-		       implde(", ", $divisions));
+		       implode(", ", $divisions));
 	$this->announce(new Announcement($mes, Announcement::WARNING));
       }
       unset($races_copy, $diff);
