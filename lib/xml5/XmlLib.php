@@ -43,9 +43,9 @@ interface Xmlable {
  */
 class XElem implements Xmlable {
 
-  private $name;
-  private $child;
-  private $attrs;
+  protected $name;
+  protected $child;
+  protected $attrs;
 
   /**
    * Should never be empty, i.e. <td></td> vs. <td/>. Default false
@@ -80,7 +80,7 @@ class XElem implements Xmlable {
    * @param String $val the value
    */
   public function set($key, $val) {
-    $this->attrs[htmlspecialchars((string)$key, ENT_QUOTES)] = htmlspecialchars((string)$val, ENT_QUOTES);
+    $this->attrs[htmlspecialchars((string)$key, ENT_QUOTES, 'UTF-8')] = htmlspecialchars((string)$val, ENT_QUOTES, 'UTF-8');
   }
 
   /**
@@ -90,7 +90,7 @@ class XElem implements Xmlable {
    */
   public function add($child) {
     if (!($child instanceof Xmlable))
-      throw new InvalidArgumentException("Child must be Xmlable, instead of " . get_class($child));
+      throw new InvalidArgumentException("Child must be instance of Xmlable");
     $this->child[] = $child;
   }
 
@@ -147,6 +147,26 @@ class XElem implements Xmlable {
       $c->printXML();
 
     printf('</%s>', $this->name);
+  }
+
+  /**
+   * Retrieves an array of the children for this object.  This needs
+   * to be overridden by those objects which delay their creation
+   * until either <pre>toXML</pre> or <pre>printXML</pre> is called.
+   *
+   * @return Array<Xmlable> children
+   */
+  public function children() {
+    return $this->child;
+  }
+
+  /**
+   * Fetches the tag name for this element
+   *
+   * @return String the name
+   */
+  public function name() {
+    return $this->name;
   }
 }
 
@@ -225,6 +245,11 @@ class XDoc extends XElem {
   private $headers;
 
   /**
+   * @var MIME the content type whose header to issue in printXML
+   */
+  protected $ct = 'application/xml';
+
+  /**
    * Creates a new page with the given tag as root node
    *
    * @param String $tag the root tag name
@@ -263,10 +288,10 @@ class XDoc extends XElem {
    *
    */
   public function printXML() {
-    header("Content-type: application/xml");
+    header("Content-type: " . $this->ct);
     foreach ($this->headers as $header)
       $header->printXML();
-    echo parent::toXML();
+    parent::printXML();
   }
 }
 
@@ -303,6 +328,20 @@ class XRawText implements Xmlable {
   }
 }
 
+class XCData extends XRawText {
+  public function __construct($value = "") {
+    parent::__construct($value);
+  }
+  public function toXML() {
+    return sprintf('<![CDATA[ %s ]]>', parent::toXML());
+  }
+  public function printXML() {
+    echo '<![CDATA[ ';
+    parent::printXML();
+    echo ']]>';
+  }
+}
+
 /**
  * Text node for XML. Prints itself, making sure to escape the content
  * appropriately.
@@ -318,7 +357,7 @@ class XText extends XRawText {
    * @param String $value
    */
   public function __construct($value = "") {
-    parent::__construct(htmlspecialchars((string)$value, ENT_QUOTES));
+    parent::__construct(htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8'));
   }
 }
 
@@ -348,14 +387,15 @@ class XPage extends XElem {
   /**
    * Creates a new page with the given title
    *
-   * @param String $title the title
+   * @param XRawText|String $title the title. If not a XRawText, will be cast into a XText
    */
   public function __construct($title) {
     parent::__construct("html");
-    
+
+    if (!($title instanceof XRawText))
+      $title = new XText($title);
     $this->head = new XElem("head", array(),
-			    array(new XElem("title", array(),
-					    array(new XText($title)))));
+			    array(new XElem("title", array(), array($title))));
     $this->body = new XElem("body");
     $this->body->non_empty = true;
 
@@ -405,7 +445,10 @@ class XPage extends XElem {
    *
    */
   public function printXML() {
-    header("Content-type: text/html");
+    if (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/xhtml+xml') !== false)
+      header("Content-type: application/xhtml+xml");
+    else
+      header("Content-type: text/html");
     if ($this->doctype == XPage::XHTML_1) {
       $this->set("xmlns", "http://www.w3.org/1999/xhtml");
       $this->set("xml:lang", "en");

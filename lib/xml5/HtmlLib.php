@@ -13,7 +13,8 @@
  * @version 2010-07-26
  * @package html
  */
-require_once('XmlLib.php');
+
+require_once(dirname(__FILE__).'/XmlLib.php');
 
 /**
  * Super class for HTML tags to distinguish them from other possible
@@ -416,14 +417,10 @@ class XLink extends XAbstractHtml {
   /**
    * Creates a new link with the given type, rel, and href values
    *
-   * @param String $type "text/css"
-   * @param String $href "inc/css/default.css"
    * @param Array $attrs other attributes
    */
-  public function __construct($type, $href, Array $attrs = array()) {
+  public function __construct(Array $attrs = array()) {
     parent::__construct("link", $attrs);
-    $this->set("type", $type);
-    $this->set("href", $href);
   }
 }
 
@@ -436,7 +433,7 @@ class XLinkCSS extends XLink {
    * Specifiy the media type and the "rel" attribute (optional)
    */
   public function __construct($type, $href, $media, $rel = null) {
-    parent::__construct($type, $href, array("media" => $media));
+    parent::__construct(array("media" => $media, "type"=>$type, "href"=>$href));
     if ($rel !== null)
       $this->set("rel", $rel);
   }
@@ -457,7 +454,7 @@ class XOl extends XAbstractHtml {
   }
   public function add($item) {
     if (!($item instanceof XLi))
-      throw new InvalidArgumentException("Item must be one of XLi.");
+      throw new InvalidArgumentException("Child must be instance of XLi");
     parent::add($item);
   }
 }
@@ -635,8 +632,37 @@ class XSpan extends XAbstractHtml {
  *
  */
 class XStrong extends XAbstractHtml {
-  public function __construct($content) {
-    parent::__construct("strong", array(), array($content));
+  public function __construct($content, $attrs = array()) {
+    parent::__construct("strong", $attrs, array($content));
+  }
+}
+
+/**
+ * Emphasis element
+ *
+ */
+class XEm extends XAbstractHtml {
+  public function __construct($content, $attrs = array()) {
+    parent::__construct("em", $attrs, array($content));
+  }
+}
+
+/**
+ * Indicates an instance of a computer code variable or program argument.
+ */
+class XVar extends XAbstractHTML {
+  public function __construct($content, $attrs = array()) {
+    parent::__construct('var', $attrs, array($content));
+  }
+}
+    
+/**
+ * Strikethrough (deleted) element
+ *
+ */
+class XDel extends XAbstractHtml {
+  public function __construct($content, $attrs = array()) {
+    parent::__construct("del", $attrs, array($content));
   }
 }
 
@@ -663,9 +689,8 @@ class XStyle extends XAbstractHtml {
  *
  */
 class XTable extends XAbstractHtml {
-  private $attrs;
   private $caption;
-  private $children;
+
   /**
    * Creates a new table with the given attributes and children
    *
@@ -673,9 +698,7 @@ class XTable extends XAbstractHtml {
    * @param Array $items the children, must be valid type
    */
   public function __construct(Array $attrs = array(), Array $items = array()) {
-    // parent::__construct("table");
-    $this->attrs = $attrs;
-    $this->children = array();
+    parent::__construct("table", $attrs);
     foreach ($items as $item)
       $this->add($item);
   }
@@ -694,7 +717,7 @@ class XTable extends XAbstractHtml {
 	$elem instanceof XTHead ||
 	$elem instanceof XTBody ||
 	$elem instanceof XTFoot) {
-      $this->children[] = $elem;
+      parent::add($elem);
       return;
     }
     throw new InvaldArgumentException("XTable children must be one of XHead|XBody|XTR");
@@ -702,14 +725,20 @@ class XTable extends XAbstractHtml {
   public function toXML() {
     $e = new XElem("table", $this->attrs);
     if ($this->caption !== null)    $e->add($this->caption);
-    foreach ($this->children as $c) $e->add($c);
+    foreach ($this->child as $c) $e->add($c);
     return $e->toXML();
   }
   public function printXML() {
     $e = new XElem("table", $this->attrs);
     if ($this->caption !== null)    $e->add($this->caption);
-    foreach ($this->children as $c) $e->add($c);
+    foreach ($this->child as $c) $e->add($c);
     $e->printXML();
+  }
+  public function children() {
+    $a = $this->child;
+    if ($this->caption !== null)
+      array_unshift($a, $this->caption);
+    return $a;
   }
 }
 
@@ -727,7 +756,7 @@ class XTBody extends XAbstractHtml {
    */
   public function add($elem) {
     if (!($elem instanceof XTR))
-      throw new InvalidArgumentException("Element must be one of XTR");
+      throw new InvalidArgumentException("Child must be instance of XTR");
     parent::add($elem);
   }
 }
@@ -737,14 +766,14 @@ class XTBody extends XAbstractHtml {
  *
  */
 class XTD extends XAbstractHtml {
-  public function __construct(Array $attrs = array(), $item = null) {
+  public function __construct(Array $attrs = array(), $item = "") {
     parent::__construct("td", $attrs);
     $this->non_empty = true;
     if (is_array($item)) {
       foreach ($item as $i)
 	$this->add($i);
     }
-    elseif ($item !== null)
+    else
       $this->add($item);
   }
 }
@@ -785,7 +814,7 @@ class XTFoot extends XAbstractHtml {
    */
   public function add($elem) {
     if (!($elem instanceof XTR))
-      throw new InvalidArgumentException("Element must be one of XTR");
+      throw new InvalidArgumentException("Child must be instance of XTR");
     parent::add($elem);
   }
 }
@@ -820,10 +849,16 @@ class XTHead extends XAbstractHtml {
   /**
    * Adds XTR element
    *
+   * @param XTR|XRawText the latter was added so that client users
+   * could dynamically build up rows by replacing <td> with <th> for
+   * instance. See the DPEditor for inspiration. If using XRawText,
+   * make sure you know what you are doing!
+   *
+   * @throws InvalidArgumentException if invalid children provided
    */
   public function add($elem) {
-    if (!($elem instanceof XTR))
-      throw new InvalidArgumentException("Element must be one of XTR");
+    if (!($elem instanceof XTR || $elem instanceof XRawText))
+      throw new InvalidArgumentException("Child must be instance of XTR");
     parent::add($elem);
   }
 }
@@ -850,11 +885,16 @@ class XTR extends XAbstractHtml {
     parent::__construct("tr", $attrs, $cells);
   }
   /**
+   * @param XTD|XTH|XRawText the latter was added so that client users
+   * could dynamically build up rows by replacing <td> with <th> for
+   * instance. See the DPEditor for inspiration. If using XRawText,
+   * make sure you know what you are doing!
+   *
    * @throws InvalidArgumentException if the parameter is not of the
-   * right type
+   * right type, 
    */
   public function add($cell) {
-    if ($cell instanceof XTD || $cell instanceof XTH) {
+    if ($cell instanceof XTD || $cell instanceof XTH || $cell instanceof XRawText) {
       parent::add($cell);
       return;
     }
@@ -878,7 +918,7 @@ class XUl extends XAbstractHtml {
   }
   public function add($item) {
     if (!($item instanceof XLi))
-      throw new InvalidArgumentException("Item must be one of XLi");
+      throw new InvalidArgumentException("Child must be instance of XLi");
     parent::add($item);
   }
 }
@@ -947,34 +987,97 @@ class XQuickTable extends XTable {
   }
 }
 
-// ------------------------------------------------------------
-// Particular TechScore objects
-// ------------------------------------------------------------
+/**
+ * An embedded object
+ *
+ */
+class XObject extends XAbstractHtml {
+  public function __construct($data, $type, $width, $height, Array $attrs = array(), Array $children = array()) {
+    parent::__construct("object", $attrs, $children);
+    $this->set("data", $data);
+    $this->set("type", $type);
+    $this->set("width",  $width);
+    $this->set("height", $height);
+  }
+}
+
+if (isset($argv) && __FILE__ == $argv[0]) {
+  $a = new XFieldSet("Details", array(), array("Shoes"));
+  $a = new XForm("this.php", XForm::POST, array(), $a);
+
+  $a->add(new XSelect("test", array(),
+		      array(new XOption("shoes", array(), "Shoes"),
+			    new XOption("boots", array(), "Boots"),
+			    new XOptionGroup("Sandals", array(),
+					     array(new XOption("toes", array(), "Toes"))))));
+
+  $a = new XStyle("text/css", "body: {background: red;}");
+  $a = new XTable(array(),
+		  array(new XTHead(array(),
+				   array(new XTR(array(),
+						 array(new XTH(array(), "Name"),
+						       new XTH(array(), "Phone"))))),
+			new XTBody(array(),
+				   array(new XTR(array(),
+						 array(new XTD(array(), "Alex"),
+						       new XTD(array(), "305-555-3821")))))));
+
+  $a = new XQuickTable();
+  $a->addRow(array("Shoes", "Boots"));
+  $a->printXML();
+  // file_put_contents("/tmp/test.html", $a->toXML());
+}
 
 /**
- * A div with class Port and an H3 heading
+ * Base element for pages
  *
  * @author Dayan Paez
- * @version 2011-03-09
+ * @version 2010-11-03
  */
-class XPort extends XDiv {
-
+class XBase extends XAbstractHtml {
   /**
-   * Create a port with the given title
+   * Creates a new base element, to be added to the head of an XPage.
    *
-   * @param String $title the title
+   * @param String $href the reference of the page
    */
-  public function __construct($title, Array $children = array(), Array $attrs = array()) {
-    parent::__construct($attrs, array($h3 = new XH3("")));
-    if (is_array($title)) {
-      foreach ($title as $item)
-	$h3->add($item);
-    }
-    else
-      $h3->add($title);
-    $this->set('class', 'port');
-    foreach ($children as $child)
-      $this->add($child);
+  public function __construct($href) {
+    parent::__construct("base", array("href" => $href));
+  }
+}
+
+/**
+ * Address field, alas
+ *
+ * @author Dayan Paez
+ * @version 2011-03-31
+ */
+class XAddress extends XAbstractHtml {
+  /**
+   * Creates a new address with the given text or other inline element
+   *
+   * @param Array $attrs optional attributes
+   * @param Array:String|Array:XAbstractHtml content optional
+   */
+  public function __construct(Array $attrs = array(), Array $content = array()) {
+    parent::__construct('address', $attrs, $content);
+  }
+}
+
+/**
+ * Meta tag, takes in a name and content, no other attributes, no children
+ *
+ * @author Dayan Paez
+ * @version 2011-04-11
+ */
+class XMeta extends XAbstractHtml {
+  public function __construct($name, $content) {
+    parent::__construct('meta', array('name'=>$name, 'content'=>$content));
+  }
+}
+
+class XMetaHTTP extends XAbstractHTML {
+  public function __construct($http_equiv, $content) {
+    parent::__construct('meta', array('http-equiv' => $http_equiv, 'content' => $content));
   }
 }
 ?>
