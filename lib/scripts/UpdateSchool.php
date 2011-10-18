@@ -8,7 +8,14 @@
  */
 class UpdateSchool {
   public static function run(School $school, Season $season) {
-    $R = realpath(dirname(__FILE__).'/../../html/schools');
+    $path = dirname(__FILE__).'/../../html/schools';
+    $R = realpath($path);
+
+    // Create schools directory if necessary
+    if ($R === false && !mkdir($path)) {
+      throw new RuntimeException("Unable to make directory for all schools.");
+    }
+    $R = realpath($path);
 
     // Create directory if one does not exist for that school
     $dirname = sprintf('%s/%s', $R, $school->id);

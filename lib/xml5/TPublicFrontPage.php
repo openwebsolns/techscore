@@ -47,6 +47,9 @@ class TPublicFrontPage extends XPage {
     if ($this->filled) return;
 
     // Stylesheets
+    $this->head->add(new XMeta('description', "TechScore is the official source for live regatta results of the Intercollegiate Sailing Association."));
+    $this->head->add(new XMeta('author', "Dayán Páez"));
+    $this->head->add(new XMeta('keywords', "regatta,results,scores,icsa,sailing"));
     $this->head->add(new XLinkCSS('text/css', '/inc/css/mp-front.css', 'screen', 'stylesheet'));
 
     // Navigation
