@@ -1,5 +1,9 @@
 <?php
 /**
+ * 2011-02-07: Allow for prepared fields, which are only good for
+ * select statements. Introduced MySQLi_Field object and also the
+ * escapedFields method.
+ *
  * 2010-08-20: Prepared queries for MySQL. In this version, the
  * 'where' clauses need to be appropriate MyCond objects, such that
  * their value can too be escaped when creating the queries (plugs
@@ -57,7 +61,13 @@ class MySQLi_Query {
    */
   private $tables;
   private $fields;
+  private $escapedFields;
   private $values;
+
+  /**
+   * @var Array the array to use for multiple inserts/replaces in one query
+   */
+  private $multipleValues;
 
   private $where;
   private $order;
@@ -78,7 +88,11 @@ class MySQLi_Query {
     
     $this->tables  = array();
     $this->fields  = array();
+    $this->escapedFields = array();
     $this->distinct = false;
+
+    if ($axis == MySQLi_Query::INSERT || $axis == MySQLi_Query::REPLACE)
+      $this->multipleValues = array();
   }
 
   /**
@@ -134,6 +148,22 @@ class MySQLi_Query {
   }
 
   /**
+   * Like 'fields', but the array must be MySQLi_Field objects, which
+   * helps with the process of serializing the fields correctly
+   *
+   * @param Array<String> $fields the fields in that table
+   * @param String $table the table to select from
+   * @param String $alias the optional alias to use for teh table
+   */
+  public function escapedFields(Array $fields, $table, $alias = null) {
+    $table = (string)$table;
+    $alias = ($alias === null) ? $table : (string)$alias;
+
+    $this->tables[$alias] = $table;
+    $this->escapedFields[$alias] = $fields;
+  }
+
+  /**
    * The fields and values to set. This is appropriate for
    * INSERT/REPLACE/UPDATE calls. Note that if using the
    * <code>fields</code> method instead for update calls, then the
@@ -151,6 +181,46 @@ class MySQLi_Query {
     $this->tables[$alias] = $table;
     $this->fields[$alias] = $fields;
     $this->values[$alias] = $values;
+  }
+
+  /**
+   * When INSERT/REPLACEing multiple items in one query---a desirable
+   * effect when using InnoDB due to row-level locking---use this
+   * method to queue the different set of values, one for each
+   * row. Thus, issue multiple calls to this method, one for each set
+   * to add.
+   *
+   * In such a case, you would first issue a call to 'fields' to
+   * indicate which fields (and in which order) to insert/replace.
+   * Then, issue as many calls to this method as necessary to get the
+   * job done. Make sure to use the same $table (and $alias where
+   * appropriate) when doing so.
+   *
+   * When using this method, DO NOT use 'values', which is meant for
+   * single queries only.
+   *
+   * @param Array $values ONE set of values to queue
+   * @param String $table the table name
+   * @param String|null $alias the optional alias to use
+   *
+   * @see fields
+   *
+   * @throws MySQLi_Query_Exception if attempting to use this query
+   * for non-insert/replace queries, or if $values does not match the
+   * size of $fields.
+   */
+  public function multipleValues(Array $values, $table, $alias = null) {
+    $table = (string)$table;
+    $alias = ($alias === null) ? $table : (string)$alias;
+    if ($this->multipleValues === null)
+      throw new MySQLi_Query_Exception("multipleValues only applies to insert/replace queries.");
+    if ($this->fields === null || !isset($this->fields[$alias]) ||
+	count($values) != count($this->fields[$alias]))
+      throw new MySQLi_Query_Exception("# of values differs from # of fields for given table ($alias)");
+    
+    if (!isset($this->multipleValues[$alias]))
+      $this->multipleValues[$alias] = array();
+    $this->multipleValues[$alias][] = $values;
   }
 
   /**
@@ -238,6 +308,11 @@ class MySQLi_Query {
 	$fields[] = sprintf("%s.%s", $alias, $field);
       }
     }
+    foreach ($this->escapedFields as $alias => $list) {
+      foreach ($list as $field) {
+	$fields[] = $field->toSQL($alias);
+      }
+    }
     $fields = implode(", ", $fields);
     
     $tables = array();
@@ -266,26 +341,38 @@ class MySQLi_Query {
 
     $values = array_values($this->tables);
     $table = array_shift($values);
+    $values = array_keys($this->tables);
+    $alias = array_shift($values);
 
+    $the_values = (isset($this->multipleValues[$alias])) ?
+      $this->multipleValues[$alias] : array($this->values[$alias]);
+    $list = $this->fields[$alias];
     $fields = array();
-    $values = array();
-    foreach ($this->fields as $alias => $list) {
-      foreach ($list as $i => $field) {
-	$fields[] = $field;
-	if (empty($this->values[$alias][$i]))
-	  $values[] = "NULL";
-	else
-	  $values[] = sprintf('"%s"', $this->con->real_escape_string($this->values[$alias][$i]));
-      }
-    }
-    $fields = implode(", ", $fields);
-    $values = implode(", ", $values);
+    foreach ($list as $i => $field)
+      $fields[] = $field;
 
-    return sprintf("%s into %s (%s) values (%s)",
-		   $this->axis,
-		   $table,
-		   $fields,
-		   $values);
+    // The following code used to use sprintf and implodes, but for
+    // performance reason (such as when a column contains a large
+    // amount of data), it has been rewritten to be built by
+    // concatenatenation [Dayan Paez, Josiah Bradley].
+    $v_i = 0;
+    $values = '';
+    foreach ($the_values as $instance) {
+      if ($v_i++ > 0)
+	  $values .= ',';
+      $s_i = 0;
+      $values .= '(';
+      foreach ($instance as $unit) {
+	if ($s_i++ > 0)
+	  $values .= ',';
+	if ($unit === null)
+	  $values .= 'NULL';
+	else
+	  $values .= '"' . $this->con->real_escape_string($unit) . '"';
+      }
+      $values .= ')';
+    }
+    return $this->axis . ' into ' . $table . ' (' . implode(',', $fields) . ') values ' . $values;
   }
 
   /**
@@ -303,17 +390,18 @@ class MySQLi_Query {
     $table = array_shift($tables);
     unset($tables);
 
-    $fields = array();
+    $fields = '';
+    $f_i = 0;
     foreach ($this->fields as $alias => $list) {
       foreach ($list as $i => $field) {
+	if ($f_i++ > 0)
+	  $fields .= ',';
 	if (empty($this->values[$alias][$i]))
-	  $value = "NULL";
+	  $fields .= ($field . '=NULL');
 	else
-	  $value = sprintf('"%s"', $this->con->real_escape_string($this->values[$alias][$i]));
-	$fields[] = sprintf('%s = %s', $field, $value);
+	  $fields .= ($field . '="'. $this->con->real_escape_string($this->values[$alias][$i]) . '"');
       }
     }
-    $fields = implode(", ", $fields);
     $where = ($this->where === null) ? new MyBoolean() : $this->where;
     if (($where = $where->toSQL($this->con)) === null)
       $where = "";
@@ -322,12 +410,7 @@ class MySQLi_Query {
     // $where = ($this->where === null) ? "" : "where " . $this->where->toSQL($this->con);
     $limit = ($this->limit === null) ? "" : $this->limit;
 
-    return sprintf("%s %s set %s %s %s",
-		   $this->axis,
-		   $table,
-		   $fields,
-		   $where,
-		   $limit);
+    return ($this->axis . ' ' . $table . ' set ' . $fields . ' ' . $where . ' ' . $limit);
   }
 
   /**
@@ -344,7 +427,7 @@ class MySQLi_Query {
     $tables = array_values($this->tables);
     $table = array_shift($tables);
     unset($tables);
-
+    
     $where = ($this->where === null) ? new MyBoolean() : $this->where;
     if (($where = $where->toSQL($this->con)) === null)
       $where = "";
@@ -558,6 +641,52 @@ class MyCondIn extends MyExpression {
     else
       $val = $this->values->query();
     return sprintf("(%s %s (%s))", $this->field, $this->operator, $val);
+  }
+}
+
+/**
+ * Field for a query
+ *
+ * @author Dayan Paez
+ * @version 2011-02-07
+ */
+class MySQLi_Field {
+  /**
+   * @var const the function to use, leave null for no function
+   */
+  public $function;
+  public $field;
+  public $alias;
+
+  /**
+   * Creates a new field with the given name and optional
+   * function. For instance, if you want year(date_time),
+   *
+   * <code>
+   * $obj = new MySQLi_Field('date_time', 'year', 'year');
+   * </code>
+   *
+   * @param String $field the field to choose
+   * @param String $func the function to use. Null for no function
+   * @param String $alias the alias for the field (especially useful
+   * with func
+   */
+  public function __construct($field, $func = null, $alias = null) {
+    $this->field = $field;
+    $this->function = $func;
+    $this->alias = ($alias === null) ? $this->field : $alias;
+  }
+
+  /**
+   * Formats the field for the given table name
+   *
+   * @param String $table the table name for the field
+   * @return String the query-safe version
+   */
+  public function toSQL($table) {
+    if ($this->function === null)
+      return sprintf('%s.%s as %s', $table, $this->field, $this->alias);
+    return sprintf('%s(%s.%s) as %s', $this->function, $table, $this->field, $this->alias);
   }
 }
 ?>
