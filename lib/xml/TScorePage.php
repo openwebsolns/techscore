@@ -41,6 +41,7 @@ class TScorePage extends WebPage {
     parent::__construct();
     $this->mobile = $this->isMobile();
 
+    $this->addHead(new GenericElement('meta', array(), array('name'=>'robots', 'content'=>'noindex, nofollow')));
     $this->fillHead($title);
 
     // Menu
