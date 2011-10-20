@@ -32,7 +32,9 @@ class UpdateSeason {
 
     $types = Preferences::getRegattaTypeAssoc();
     $season = $this->season;
-    $this->page = new TPublicPage(ucfirst($season->getSeason()) . ' ' . $season->getYear());
+    $name = ucfirst($season->getSeason()) . ' ' . $season->getYear();
+    $this->page = new TPublicPage($name);
+    $this->page->head->add(new XMeta('description', sprintf("Summary of ICSA regattas for %s", $name)));
 
     // 2010-11-14: Separate regattas into "weekends", descending by
     // timestamp, based solely on the start_time, assuming that the
@@ -93,11 +95,15 @@ class UpdateSeason {
 	if ($reg->status == 'coming')
 	  $coming_regattas[] = $reg;
 	else {
+	  $teams = $reg->getTeams();
+	  if (count($teams) == 0)
+	    continue;
+	  
 	  $week_total++;
 	  $total++;
 	  $status = null;
-	  $teams = $reg->getTeams();
 	  $wt = $teams[0];
+
 	  switch ($reg->status) {
 	  case 'finished':
 	    $status = "Pending";
@@ -121,6 +127,7 @@ class UpdateSeason {
 	    $hosts[$host->id] = $host->nick_name;
 	    $confs[$host->conference->id] = $host->conference;
 	  }
+
 	  $link = new XA($reg->nick, $reg->name);
 	  $path = realpath(sprintf('%s/../../html/inc/img/schools/%s.png', dirname(__FILE__), $wt->school->id));
 	  $burg = ($path !== false) ?
