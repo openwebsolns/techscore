@@ -171,11 +171,11 @@ class UpdateDaemon {
 	      UpdateRegatta::runSync(self::$REGATTA, $sync[$id][0], $sync[$id][1]);
 	      self::report('synced');
 	    }
-	    UpdateRegatta::run(self::$REGATTA, $last->activity);
+	    $new = UpdateRegatta::run(self::$REGATTA, $last->activity);
 	    self::report(sprintf('performed (%d) %s', $last->id, $last->activity));
 
 	    // Cascade update to season
-	    if (in_array($last->activity, $UPD_SEASON)) {
+	    if (in_array($last->activity, $UPD_SEASON) || $new) {
 	      $season = self::$REGATTA->get(Regatta::SEASON);
 	      $seasons[(string)$season->getSeason()] = $season;
 	    }

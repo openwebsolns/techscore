@@ -46,6 +46,8 @@ DBME::setConnection(Preferences::getConnection());
  */
 class UpdateRegatta {
 
+  private static $new_reg = false;
+
   /**
    * Synchronizes the regatta's detail with the data information
    * (those fields in the database prefixed with dt_). Note this will
@@ -262,13 +264,14 @@ class UpdateRegatta {
    *
    * @param Regatta $reg the regatta to update
    * @param UpdateRequest::Constant the activity
+   * @return boolean true if new regatta
    */
   public static function run(Regatta $reg, $activity) {
     if ($reg->get(Regatta::TYPE) == Preferences::TYPE_PERSONAL) {
       self::runDelete($reg);
       UpdateSeason::run($reg->get(Regatta::SEASON));
       UpdateSchoolsSummary::run();
-      return;
+      return false;
     }
 
     $D = UpdateRegatta::createDir($reg);
@@ -277,6 +280,10 @@ class UpdateRegatta {
     switch ($activity) {
     case UpdateRequest::ACTIVITY_SCORE:
       if (!$reg->hasFinishes()) return;
+      
+      // Re-do rotation if this is the first time:
+      $rot = $reg->getRotation();
+      $redo_rot = ($rot->isAssigned() && realpath("$D/index.html") === false);
       
       self::createFront($D, $M);
       self::createFull($D, $M);
@@ -287,6 +294,9 @@ class UpdateRegatta {
 	foreach ($reg->getDivisions() as $div)
 	  self::createDivision($D, $M, $div);
       }
+
+      if ($redo_rot)
+	self::createRotation($D, $M);
       break;
       // ------------------------------------------------------------
     case UpdateRequest::ACTIVITY_ROTATION:
@@ -343,6 +353,7 @@ class UpdateRegatta {
     default:
       throw new RuntimeException("Activity $activity not supported.");
     }
+    return self::$new_reg;
   }
 
   // ------------------------------------------------------------
@@ -366,9 +377,11 @@ class UpdateRegatta {
       throw new RuntimeException(sprintf("Unable to make the season folder: %s\n", $season), 2);
 
     $dirname = "$R/$season/".$reg->get(Regatta::NICK_NAME);
-    if (!file_exists($dirname) && mkdir($dirname) === false)
-      throw new RuntimeException("Unable to make regatta directory: $dirname\n", 4);
-
+    if (!file_exists($dirname)) {
+      self::$new_reg = true;
+      if (mkdir($dirname) === false)
+	throw new RuntimeException("Unable to make regatta directory: $dirname\n", 4);
+    }
     return $dirname;
   }
 

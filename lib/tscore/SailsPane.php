@@ -813,7 +813,6 @@ class SailsPane extends AbstractPane {
       // Reset
       unset($args['rottype']);
       $this->announce(new Announcement('Offset rotation created.'));
-      // notify();
     }
 
     return $args;
