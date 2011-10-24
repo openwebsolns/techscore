@@ -19,6 +19,8 @@ class ReportMaker {
   private $fullPage;
   private $divPage = array();
 
+  private $summary = array();
+
   /**
    * Creates a new report for the given regatta
    *
@@ -36,25 +38,13 @@ class ReportMaker {
     $this->prepare($this->page);
 
     // Summary
-    $stime = $reg->get(Regatta::START_TIME);
-    $items = array();
-    for ($i = 0; $i < $reg->get(Regatta::DURATION); $i++) {
-      $today = new DateTime(sprintf("%s + %d days", $stime->format('Y-m-d'), $i));
-      $comms = $reg->getSummary($today);
-      if (strlen($comms) > 0) {
-	$items[] = new XH4($today->format('l, F j:'));
-	$items[] = new XP(array(), $comms);
-	/*
-	$items[] = new Heading($today->format('l, F j:'));
-	$items [] = new Para($comms);
-	*/
-      }
-    }
-    if (count($items) > 0) {
+    if (count($this->summary) > 0) {
       $this->page->addSection($p = new XPort("Summary"));
       $p->set('id', 'summary');
-      foreach ($items as $i)
-	$p->add($i);
+      foreach ($this->summary as $h => $i) {
+	$p->add(new XH4($h));
+	$p->add(new XP(array(), $i));
+      }
     }
 
     $link_schools = PUB_HOME.'/schools';
@@ -117,6 +107,27 @@ class ReportMaker {
   protected function prepare(TPublicPage $page) {
     $reg = $this->regatta;
     $page->addNavigation(new XA('.', $reg->get(Regatta::NAME), array('class'=>'nav')));
+
+    // Add description
+    $desc = "";
+    $stime = $reg->get(Regatta::START_TIME);
+    $this->summary = array();
+    for ($i = 0; $i < $reg->get(Regatta::DURATION); $i++) {
+      $today = new DateTime(sprintf("%s + %d days", $stime->format('Y-m-d'), $i));
+      $comms = $reg->getSummary($today);
+      if (strlen($comms) > 0) {
+	$this->summary[$today->format('l, F j:')] = $comms;
+	$desc .= $comms;
+      }
+    }
+    $meta_desc = "";
+    $desc = explode(" ", $desc);
+    while (count($desc) > 0 && strlen($meta_desc) < 150)
+      $meta_desc .= (' ' . array_shift($desc));
+    if (count($desc) > 0)
+      $meta_desc .= '...';
+    if (strlen($meta_desc) > 0)
+      $page->head->add(new XMeta('description', $meta_desc));
     
     // Links to season
     $season = $reg->get(Regatta::SEASON);
