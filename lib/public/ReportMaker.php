@@ -126,7 +126,7 @@ class ReportMaker {
       $meta_desc .= (' ' . array_shift($desc));
     if (count($desc) > 0)
       $meta_desc .= '...';
-    if (strlen($meta_desc) > 0)
+    if (strlen($meta_desc) > 1)
       $page->head->add(new XMeta('description', $meta_desc));
     
     // Links to season
