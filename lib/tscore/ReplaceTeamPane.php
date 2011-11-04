@@ -19,7 +19,7 @@ class ReplaceTeamPane extends AbstractPane {
     $confs = Preferences::getConferences();
     $teams = $this->REGATTA->getTeams();
 
-    $this->PAGE->addContent($p = new Para("Substitute team"));
+    $this->PAGE->addContent($p = new Port("Substitute team"));
     $p->addChild(new Para("Use this space to substitute a team from one school for one from another. The new team will inherit the rotations and place finishes of the old team. Note that the RP information for the old team will be removed!"));
 
     $p->addChild($form = $this->createForm());
