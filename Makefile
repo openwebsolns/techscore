@@ -1,6 +1,6 @@
 include Makefile.local
 
-default: apache.conf changes.current.sql crontab cache/404-schools.html cache/schools.db
+default: apache.conf changes.current.sql crontab cache/404-schools.html cache/schools.db css-admin
 
 crontab: crontab.default Makefile.local
 	sed -e 's:{DIRECTORY}:'"`pwd`"':g' \
@@ -37,6 +37,15 @@ sql:
 
 doc:
 	phpdoc --ignore conf.php --target doc --title "TechScore Documentation" --directory lib --output "HTML:Smarty:PHP"
+
+# Admin CSS
+css-admin: www/inc/css/aa.css www/inc/css/mobile.css www/inc/css/modern.css www/inc/css/print.css www/inc/css/modern-dialog.css
+
+www/inc/css/%.css: res/inc/css/%.css
+	tr "\n" " " < $^ | \
+	tr -s " " | \
+	sed -e 's:/\*[^(\*/)]*\*/::g' -e 's/\(;\|:\|}\|{\)[ 	]*/\1/g' \
+	    -e 's/[ 	]*{/{/g'      -e 's/^[ 	]*//' > $@
 
 css:
 	mkdir -p html/inc/css;\

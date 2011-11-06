@@ -15,7 +15,6 @@ html
 
 body 
 {
-  width: 850px;
   padding: 0px;
   margin: 0px auto;
   font-family: "Lucida Grande", Tahoma, Verdana, sans-serif;
@@ -25,18 +24,14 @@ body
 #bodydiv 
 {
   background: white;
-  overflow: scroll;
-  overflow-y: hidden;
-  }
+}
 
 div#menudiv 
 {
-  width: 850px;
   position: absolute;
   top: 0px;
   overflow: hidden;
   height: 20px;
-  z-index: 10;
   background: none;
   background-image: url('img/menu_bg.png');
   background-repeat: repeat-x;
@@ -75,13 +70,13 @@ div.menu ul
 {
   margin: 0px;
   font-size: 0.9em;
-  z-index: -1;
+  z-index: 15;
   position: relative;
 }
 
 div.menu:hover ul 
 {
-  z-index: 10;
+  z-index: 15;
   }
 
 div#menudiv li 
@@ -114,7 +109,6 @@ div#headdiv
   top: 20px;
   height: 25px;
   padding: 0px;
-  width: 850px;
   background: #3465a4;
   border-top: 1px solid #555555;
   }
@@ -214,7 +208,6 @@ div#bodydiv
 {
   position: absolute;
   top: 45px;
-  width: 820px;
   padding: 15px;
   padding-top: 0px;
   border-bottom: 1px solid #555555;
@@ -222,6 +215,7 @@ div#bodydiv
   }
 div#bodydiv, div#menudiv, div#headdiv 
 {
+    width: 100%;
   border-left: 1px solid #555555;
   border-right: 1px solid #555555;
   }
