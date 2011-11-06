@@ -8,8 +8,8 @@ MAILTO = {CRON_MAILTO}
 #--------------------------------
 # On weekends, let's update every 5 minutes, every other day, from
 # 9h-22h, let's update every half hour
-{CRON_DLY_FREQ} 9-23 * * 0,1,6 /usr/bin/php {DIRECTORY}/lib/scripts/UpdateDaemon.php
-{CRON_WKD_FREQ} 9-23 * * 2-5   /usr/bin/php {DIRECTORY}/lib/scripts/UpdateDaemon.php
+{CRON_DLY_FREQ} * * * 0,1,6 /usr/bin/php {DIRECTORY}/lib/scripts/UpdateDaemon.php
+{CRON_WKD_FREQ} * * * 2-5   /usr/bin/php {DIRECTORY}/lib/scripts/UpdateDaemon.php
 
 #--------------------------------
 # Update school burgees: this is relatively a cheap operation. Do it
