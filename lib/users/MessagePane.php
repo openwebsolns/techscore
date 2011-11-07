@@ -45,8 +45,8 @@ class MessagePane extends AbstractUserPane {
       $sub = (empty($message->subject)) ? "[No subject]" : $message->subject;
       $this->PAGE->addContent($p = new Port($sub));
       $p->addChild($cont = new Div());
-      $cont->addAttr("class", "message");
-      $cont->addChild(new Text($message->content));
+      $cont->addAttr("class", "email-message");
+      $cont->addChild(new GenericElement('pre', array(new Text(wordwrap($message->content, 90)))));
       $p->addChild($form = new Form("/inbox-edit"));
 
       // Fill out form
@@ -55,6 +55,7 @@ class MessagePane extends AbstractUserPane {
 					 array("name" =>"delete",
 					       "type"=>"submit",
 					       "value"=>$message->id)));
+      $form->addChild(new Text(" "));
       $form->addChild(new Link("inbox", "Close"));
       
       $p->addChild($form = new Form("/inbox-edit"));
@@ -81,8 +82,8 @@ class MessagePane extends AbstractUserPane {
 				  new Cell("Sent",    array("width"=>"20%"), 1))));
     foreach ($messages as $mes) {
       $sub = (empty($mes->subject)) ? "[No subject]" : $mes->subject;
-      $con = (strlen($mes->content) > 25) ?
-	substr($mes->content, 0, 25) . "..." :
+      $con = (strlen($mes->content) > 50) ?
+	substr($mes->content, 0, 50) . "..." :
 	$mes->content;
 
       if (!$mes->read_time)

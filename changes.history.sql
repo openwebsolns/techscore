@@ -165,3 +165,5 @@ alter table burgee add foreign key (updated_by) references account(id) on delete
 alter table host add foreign key (account) references account(id) on delete cascade on update cascade;
 alter table message add foreign key (account) references account(id) on delete cascade on update cascade;
 alter table race add foreign key (scored_by) references account(id) on delete set null on update cascade;
+
+alter table message change column created created timestamp default current_timestamp;

@@ -81,6 +81,9 @@ abstract class AbstractUserPane {
     $div->addChild(new Heading("Messages"));
     $div->addChild($list = new GenericList());
     $list->addItems(new LItem(new Link("/inbox", "Inbox")));
+    if ($this->USER->get(User::ADMIN)) {
+      $list->addItems(new LItem(new Link("/send-message", "Send message")));
+    }
 
     // Admin
     if ($this->USER->get(User::ADMIN)) {

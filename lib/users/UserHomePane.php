@@ -42,7 +42,7 @@ class UserHomePane extends AbstractUserPane {
     $num_messages = count(Preferences::getUnreadMessages($this->USER->asAccount()));
     if ($num_messages > 0) {
       $this->PAGE->addContent($p = new Port("Messages"));
-      $p->addChild($para = new Para("You have"));
+      $p->addChild($para = new Para("You have "));
       if ($num_messages == 1)
 	$para->addChild(new Link("inbox", "1 unread message."));
       else

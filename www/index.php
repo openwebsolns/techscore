@@ -121,6 +121,13 @@ else {
     $PAGE = new AllAmerican($USER);
     break;
 
+  case "send-message":
+  case "send-messages":
+  case "send-email":
+  case "send-emails":
+    $PAGE = new SendMessage($USER);
+  break;
+
   default:
     $_SESSION['ANNOUNCE'][] = new Announcement(sprintf("Invalid page requested (%s).", $_REQUEST['p']),
 					       Announcement::ERROR);

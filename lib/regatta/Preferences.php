@@ -496,13 +496,21 @@ class Preferences {
    * Adds the given message for the given user
    *
    * @param Account the user
+   * @param String $sub the subject of the message
    * @param String $mes the message
+   * @param boolean $email true to send e-mail message
    * @return Message the queued message
    */
-  public static function queueMessage(Account $acc, $mes) {
-    $q = sprintf('insert into message (account, content) values ("%s", "%s")',
-		 $acc->id, (string)$mes);
+  public static function queueMessage(Account $acc, $sub, $mes, $email = false) {
+    $con = self::getConnection();
+    $q = sprintf('insert into message (account, subject, content) values ("%s", "%s", "%s")',
+		 $acc->id,
+		 $con->real_escape_string($sub),
+		 $con->real_escape_string($mes));
     self::query($q);
+
+    if ($email !== false)
+      Preferences::mail($acc->id, $sub, $mes);
 
     // fetch the last message
     $id = self::query('select last_insert_id() as id');

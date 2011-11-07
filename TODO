@@ -179,3 +179,9 @@ were slow.
 
 
 * Update Regatta::addTeam to use $con->insert_id (d o n e)
+
+* Update public regattas when merging sailors
+
+You see, we want users to merge temporary sailors with their real
+identities, but this is only useful if we, in turn, recreate those
+regattas in which the temporary sailors sailed.
