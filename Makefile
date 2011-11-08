@@ -6,7 +6,11 @@ crontab: crontab.default Makefile.local
 	sed -e 's:{DIRECTORY}:'"`pwd`"':g' \
 	    -e 's:{CRON_MAILTO}:${CRON_MAILTO}:g' \
 	    -e 's:{CRON_DLY_FREQ}:${CRON_DLY_FREQ}:g' \
-	    -e 's:{CRON_WKD_FREQ}:${CRON_WKD_FREQ}:g' crontab.default > crontab && \
+	    -e 's:{CRON_WKD_FREQ}:${CRON_WKD_FREQ}:g' \
+	    -e 's:{CRON_BUP_TIME}:${CRON_BUP_TIME}:g' \
+	    -e 's:{CRON_BUP_USER}:${CRON_BUP_USER}:g' \
+	    -e 's:{CRON_BUP_RECIP}:${CRON_BUP_RECIP}:g' \
+		crontab.default > crontab && \
 	crontab crontab && echo "Crontab installed"
 
 apache.conf: apache.conf.default Makefile.local

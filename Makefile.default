@@ -18,3 +18,6 @@ HTTP_CERTKEYPATH = /etc/apache2/certs/ts2.key
 CRON_MAILTO = ""
 CRON_DLY_FREQ = */5
 CRON_WKD_FREQ = 13,43
+CRON_BUP_TIME = "3 5 1,8,15,22 * *"
+CRON_BUP_USER = backup
+CRON_BUP_RECIP = dpv140@gmail.com

@@ -30,4 +30,9 @@ MAILTO = {CRON_MAILTO}
 26 4 13 * * /usr/bin/php {DIRECTORY}/lib/scripts/Update404.php schools
 
 #--------------------------------
+# Send back-ups
+{CRON_BUP_TIME} mysqldump ts2 -u {CRON_BUP_USER} --skip-lock-tables | bzip2 > /tmp/backup.bz2; uuencode /tmp/backup.bz2 backup.bz2 | mail -s "TSB $(date +\%F)" {CRON_BUP_RECIP}; rm /tmp/backup.bz2
+
+
+#--------------------------------
 # @TODO: Other updates like backups, etc
