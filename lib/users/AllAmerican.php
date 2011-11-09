@@ -100,8 +100,10 @@ class AllAmerican extends AbstractUserPane {
       $_SESSION['aa']['sailors'] = array();
 
       $regattas = array();
-      foreach ($_SESSION['aa']['report-seasons'] as $season)
-	$regattas = array_merge($regattas, $season->getRegattas());
+      foreach ($_SESSION['aa']['report-seasons'] as $season) {
+	$s = Season::parse($season);
+	$regattas = array_merge($regattas, $s->getRegattas());
+      }
       $qual_regattas = array();
 
       $this->PAGE->addContent($p1 = new Port("Classified regattas"));
@@ -302,16 +304,16 @@ class AllAmerican extends AbstractUserPane {
       if (isset($args['seasons']) && is_array($args['seasons'])) {
 	foreach ($args['seasons'] as $s) {
 	  if (($season = Season::parse($s)) !== null)
-	    $_SESSION['aa']['report-seasons'][] = $season;
+	    $_SESSION['aa']['report-seasons'][] = (string)$season;
 	}
       }
       if (count($_SESSION['aa']['report-seasons']) == 0) {
 	$now = new DateTime();
 	$season = new Season($now);
-	$_SESSION['aa']['report-seasons'][] = $season;
+	$_SESSION['aa']['report-seasons'][] = (string)$season;
 	if ($season->getSeason() == Season::SPRING) {
 	  $now->setDate($now->format('Y') - 1, 10, 1);
-	  $_SESSION['aa']['report-seasons'][] = $season;
+	  $_SESSION['aa']['report-seasons'][] = (string)$season;
 	}
       }
       
@@ -326,7 +328,7 @@ class AllAmerican extends AbstractUserPane {
       if (isset($args['seasons']) && is_array($args['seasons'])) {
 	foreach ($args['seasons'] as $s) {
 	  if (($season = Season::parse($s)) !== null)
-	    $_SESSION['aa']['report-seasons'][] = $season;
+	    $_SESSION['aa']['report-seasons'][] = (string)$season;
 	}
       }
       if (count($_SESSION['aa']['report-seasons']) == 0) {
@@ -335,7 +337,7 @@ class AllAmerican extends AbstractUserPane {
 	$_SESSION['aa']['report-seasons'][] = $season;
 	if ($season->getSeason() == Season::SPRING) {
 	  $now->setDate($now->format('Y') - 1, 10, 1);
-	  $_SESSION['aa']['report-seasons'][] = $season;
+	  $_SESSION['aa']['report-seasons'][] = (string)$season;
 	}
       }
       
