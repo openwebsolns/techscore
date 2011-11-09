@@ -26,7 +26,7 @@ class AllAmerican extends AbstractUserPane {
 
 			      'report-participation' => null,
 			      'report-role' => null,
-			      'report-year' => null,
+			      'report-seasons' => null,
 			      
 			      'regattas-set' => false,
 			      'params-set' => false);
@@ -47,8 +47,21 @@ class AllAmerican extends AbstractUserPane {
       $form->addChild(new FItem("Boat role:", $sel = new FSelect('role', array())));
       $sel->addOptions(array(RP::SKIPPER => "Skipper", RP::CREW    => "Crew"));
 
-      $form->addChild(new FItem("Year:", $sel = new FSelect('year', array())));
-      $sel->addOptions(Preferences::getYears());
+      $form->addChild(new FItem("Seasons:", $ul = new Itemize()));
+      $ul->addAttr('style', 'list-style-type:none;display:inline-block;zoom:1;*display:inline;margin:0;padding:0;');
+      
+      $now = new Season(new DateTime());
+      $then = null;
+      if ($now->getSeason() == Season::SPRING)
+	$then = Season::parse(sprintf('f%0d', ($now->getTime()->format('Y') - 1)));
+      foreach (Preferences::getActiveSeasons() as $season) {
+	$ul->addChild($li = new LItem());
+	$li->addChild($chk = new FCheckbox('seasons[]', $season, array('id' => $season)));
+	$li->addChild(new Label($season, $season->fullString()));
+
+	if ((string)$season == (string)$now || (string)$season == (string)$then)
+	  $chk->addAttr('checked', 'checked');
+      }
 
       $form->addChild(new FSubmit('set-report', "Choose regattas >>"));
 
@@ -86,17 +99,9 @@ class AllAmerican extends AbstractUserPane {
       $_SESSION['aa']['regatta_races'] = array();
       $_SESSION['aa']['sailors'] = array();
 
-      $now = new DateTime();
-      if ($_SESSION['aa']['report-year'] != $now->format('Y'))
-	$now->setDate($_SESSION['aa']['report-year'], 5, 1);
-      $season = new Season($now);
-      $regattas = $season->getRegattas();
-      // also include fall regattas
-      if ($season->getSeason() == Season::SPRING) {
-	$now->setDate($now->format('Y') - 1, 10, 1);
-	$season = new Season($now);
+      $regattas = array();
+      foreach ($_SESSION['aa']['report-seasons'] as $season)
 	$regattas = array_merge($regattas, $season->getRegattas());
-      }
       $qual_regattas = array();
 
       $this->PAGE->addContent($p1 = new Port("Classified regattas"));
@@ -291,31 +296,51 @@ class AllAmerican extends AbstractUserPane {
 	$this->announce(new Announcement("Invalid role provided.", Announcement::ERROR));
 	return false;
       }
-      // year: default to this year
-      $years = Preferences::getYears();
-      $year = null;
-      if (isset($args['year']) && isset($years[$args['year']]))
-	$year = $years[$args['year']];
-      if ($year === null)
-	$year = array_shift($years);
+      
+      // seasons. If none provided, choose the default
+      $_SESSION['aa']['report-seasons'] = array();
+      if (isset($args['seasons']) && is_array($args['seasons'])) {
+	foreach ($args['seasons'] as $s) {
+	  if (($season = Season::parse($s)) !== null)
+	    $_SESSION['aa']['report-seasons'][] = $season;
+	}
+      }
+      if (count($_SESSION['aa']['report-seasons']) == 0) {
+	$now = new DateTime();
+	$season = new Season($now);
+	$_SESSION['aa']['report-seasons'][] = $season;
+	if ($season->getSeason() == Season::SPRING) {
+	  $now->setDate($now->format('Y') - 1, 10, 1);
+	  $_SESSION['aa']['report-seasons'][] = $season;
+	}
+      }
+      
       $_SESSION['aa']['report-participation'] = $args['participation'];
       $_SESSION['aa']['report-role'] = $args['role'];
-      $_SESSION['aa']['report-year'] = $year;
       return false;
     }
     // Special report
     if (isset($args['set-special-report'])) {
-      // year: default to this year
-      $years = Preferences::getYears();
-      $year = null;
-      if (isset($args['year']) && isset($years[$args['year']]))
-	$year = $years[$args['year']];
-      if ($year === null)
-	$year = array_shift($years);
+      // seasons. If none provided, choose the default
+      $_SESSION['aa']['report-seasons'] = array();
+      if (isset($args['seasons']) && is_array($args['seasons'])) {
+	foreach ($args['seasons'] as $s) {
+	  if (($season = Season::parse($s)) !== null)
+	    $_SESSION['aa']['report-seasons'][] = $season;
+	}
+      }
+      if (count($_SESSION['aa']['report-seasons']) == 0) {
+	$now = new DateTime();
+	$season = new Season($now);
+	$_SESSION['aa']['report-seasons'][] = $season;
+	if ($season->getSeason() == Season::SPRING) {
+	  $now->setDate($now->format('Y') - 1, 10, 1);
+	  $_SESSION['aa']['report-seasons'][] = $season;
+	}
+      }
       
       $_SESSION['aa']['report-participation'] = 'special';
       $_SESSION['aa']['report-role'] = 'crew';
-      $_SESSION['aa']['report-year'] = $year;
       return false;
     }
 
