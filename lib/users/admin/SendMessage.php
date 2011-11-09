@@ -128,7 +128,7 @@ class SendMessage extends AbstractAdminUserPane {
       if ($args['recipients'] == 'all') {
 	foreach (Preferences::getConferences() as $conf) {
 	  foreach (Preferences::getUsersFromConference($conf) as $acc) {
-	    $this->sendMessage($acc, $sub, $cnt);
+	    $this->send($acc, $sub, $cnt);
 	    if ($acc->id == $this->USER->username())
 	      $sent_to_me = true;
 	  }
@@ -136,14 +136,14 @@ class SendMessage extends AbstractAdminUserPane {
 
 	// send me a copy?
 	if (isset($args['copy-me']) && !$sent_to_me)
-	  $this->sendMessage($this->USER->asAccount(), "COPY OF: ".$sub, $cnt);
+	  $this->send($this->USER->asAccount(), "COPY OF: ".$sub, $cnt);
 	$this->announce(new Announcement("Successfully sent message to all recipients."));
 	return array();
       }
     }
   }
 
-  private function sendMessage(Account $to, $subject, $content) {
+  private function send(Account $to, $subject, $content) {
     Preferences::queueMessage($to, $this->keywordReplace($to, $subject), $this->keywordReplace($to, $content));
   }
   private function keywordReplace(Account $to, $mes) {
