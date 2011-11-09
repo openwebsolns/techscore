@@ -35,14 +35,14 @@ class SendMessage extends AbstractAdminUserPane {
 
     $p->addChild($f = new Form("/send-message-edit"));
     $f->addChild($fi = new FItem(sprintf("All %s users:", NAME), new FHidden('all-recipients', 1)));
-    $fi->addChild(new FSubmit('choose-recipients', "Send message"));
+    $fi->addChild(new FSubmit('choose-recipients', "Write message >"));
     $fi->addChild(new FSpan("Broadcast general message to all users. Use sparingly.", array('class'=>'message')));
 
     // conference
     $p->addChild($f = new Form("/send-message-edit"));
     $f->addChild($fi = new FItem("All users in conference:", $sel = new FSelect('conferences[]')));
     $fi->addChild(new Text(" "));
-    $fi->addChild(new FSubmit('choose-recipients', "Send message"));
+    $fi->addChild(new FSubmit('choose-recipients', "Write message >"));
     $opts = array();
     foreach (Preferences::getConferences() as $conf)
       $opts[$conf->id] = $conf;
@@ -54,7 +54,7 @@ class SendMessage extends AbstractAdminUserPane {
     $p->addChild($f = new Form("/send-message-edit"));
     $f->addChild($fi = new FItem("All users with role:", $sel = new FSelect('roles[]')));
     $fi->addChild(new Text(" "));
-    $fi->addChild(new FSubmit('choose-recipients', "Send message"));
+    $fi->addChild(new FSubmit('choose-recipients', "Write message >"));
     $sel->addOptions(array('coach'=>"Coaches",
 			   'staff'=>"Staff",
 			   'student'=>"Students"));
