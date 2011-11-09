@@ -61,7 +61,7 @@ function __mail_error_handler($errno, $errstr, $errfile, $errline, $context) {
     }
   }
 
-  mail("dpv140@gmail.com", "[TS2 ERROR]", $body, "From: ts-admin@techscore.mit.edu");
+  mail("dpv140@gmail.com", "[TS2 ERROR]", $body, "From: " . TS_FROM_MAIL);
 
   print <<<END
 There was an error while handling your request. Administrators
@@ -89,7 +89,7 @@ function __mail_exception_handler(Exception $e) {
   $body .= sprintf($fmt, "Trace",  $e->getTraceAsString());
   $body .= "====================\n";
 
-  $sent = mail(ADMIN_MAIL, "[TS2 EXCEPTION]", $body, "From: ts-admin@techscore.mit.edu");
+  $sent = mail(ADMIN_MAIL, "[TS2 EXCEPTION]", $body, "From: " . TS_FROM_MAIL);
   if ($sent) {
     print <<<END
 There was an error while handling your request. Administrators
