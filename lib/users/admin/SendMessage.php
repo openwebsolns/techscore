@@ -72,21 +72,29 @@ class SendMessage extends AbstractAdminUserPane {
     $tab->addRow(new Row(array(new Cell("{FULL_NAME}"), new Cell("Full name of user"), new Cell($this->USER->getName()))));
     $tab->addRow(new Row(array(new Cell("{SCHOOL}"), new Cell("User's ICSA school"), new Cell($this->USER->get(User::SCHOOL)))));
     $tab->addAttr('style', 'margin:0 auto 2em;');
+    $f = new Form('/send-message-edit');
     switch ($args['recipients']) {
     case 'all':
       $this->PAGE->addContent($p = new Port("2. Send message to all users"));
-      $p->addChild($f = new Form('/send-message-edit'));
+      $p->addChild($f);
       $f->addChild(new FItem("Recipients:", new FSpan("All users", array('class'=>'strong'))));
-      $f->addChild($fi = new FItem("Subject:", new FText('subject', "")));
-      $fi->addChild(new FSpan("Less than 100 characters", array('class'=>'message')));
+      break;
 
-      $f->addChild(new FItem("Message body:", new FTextarea('content', "", array('rows'=>16, 'cols'=>75))));
-      $f->addChild($fi = new FItem("Copy me:", new FCheckbox('copy-me', 1)));
-      $fi->addChild(new FSpan("Send me a copy of message, whether or not I would otherwise receive one.", array('class'=>'message')));
-      $f->addChild(new FHidden('recipients', 'all'));
-      $f->addChild(new FSubmit('send-message', "Send message now"));
+      // conference
+    case 'conferences':
+      $this->PAGE->addContent($p = new Port("2. Send message to users from conference(s)"));
+      $p->addChild($f);
+      $f->addChild(new FItem("Recipients:", new FSpan(implode(", ", $args['conferences']), array('class'=>'strong'))));
       break;
     }
+    
+    $f->addChild($fi = new FItem("Subject:", new FText('subject', "")));
+    $fi->addChild(new FSpan("Less than 100 characters", array('class'=>'message')));
+
+    $f->addChild(new FItem("Message body:", new FTextarea('content', "", array('rows'=>16, 'cols'=>75))));
+    $f->addChild($fi = new FItem("Copy me:", new FCheckbox('copy-me', 1)));
+    $fi->addChild(new FSpan("Send me a copy of message, whether or not I would otherwise receive one.", array('class'=>'message')));
+    $f->addChild(new FSubmit('send-message', "Send message now"));
   }
 
   public function process(Array $args) {
@@ -104,28 +112,45 @@ class SendMessage extends AbstractAdminUserPane {
       if (isset($args['all-recipients']) && $args['all-recipients'] > 0) {
 	return array('recipients'=>'all');
       }
+      if (isset($args['conferences'])) {
+	if (!is_array($args['conferences']) || count($args['conferences']) == 0) {
+	  $this->announce(new Announcement("No conferences provided. Please try again.", Announcement::WARNING));
+	  return array();
+	}
+	$confs = array();
+	foreach ($args['conferences'] as $conf) {
+	  $c = Preferences::getConference($conf);
+	  if ($c !== null)
+	    $confs[$c->id] = $c;
+	}
+	if (count($confs) == 0) {
+	  $this->announce(new Announcement("No conferences provided. Please try again.", Announcement::WARNING));
+	  return array();
+	}
+	return array('recipients'=>'conferences', 'conferences'=>$confs);
+      }
     }
 
     // ------------------------------------------------------------
     // Send message
     // ------------------------------------------------------------
     if (isset($args['send-message'])) {
-      if (!isset($args['recipients'])) {
+      if (!isset($_SESSION['POST']['recipients'])) {
 	$this->announce(new Announcement("No recipients found.", Announcement::ERROR));
 	return array();
       }
       // require non-empty subject and content
       if (!isset($args['subject']) || ($sub = trim($args['subject'])) == "") {
 	$this->announce(new Announcement("Subject must not be empty.", Announcement::ERROR));
-	return array('recipients' => $args['recipients']);
+	return $_SESSION;
       }
       if (!isset($args['content']) || ($cnt = trim($args['content'])) == "") {
 	$this->announce(new Announcement("Message body must not be empty.", Announcement::ERROR));
-	return array('recipients' => $args['recipients']);
+	return $_SESSION;
       }
 
       $sent_to_me = false;
-      if ($args['recipients'] == 'all') {
+      if ($_SESSION['POST']['recipients'] == 'all') {
 	foreach (Preferences::getConferences() as $conf) {
 	  foreach (Preferences::getUsersFromConference($conf) as $acc) {
 	    $this->send($acc, $sub, $cnt);
@@ -133,18 +158,28 @@ class SendMessage extends AbstractAdminUserPane {
 	      $sent_to_me = true;
 	  }
 	}
-
-	// send me a copy?
-	if (isset($args['copy-me']) && !$sent_to_me)
-	  $this->send($this->USER->asAccount(), "COPY OF: ".$sub, $cnt);
 	$this->announce(new Announcement("Successfully sent message to all recipients."));
-	return array();
       }
+      if ($_SESSION['POST']['recipients'] == 'conferences') {
+	foreach ($_SESSION['POST']['conferences'] as $conf) {
+	  foreach (Preferences::getUsersFromConference($conf) as $acc) {
+	    $this->send($acc, $sub, $cnt);
+	    if ($acc->id == $this->USER->username())
+	      $sent_to_me = true;
+	  }
+	}
+	$this->announce(new Announcement(sprintf("Successfully sent message to %s users.", implode(", ", $_SESSION['POST']['conferences']))));
+      }
+
+      // send me a copy?
+      if (isset($args['copy-me']) && !$sent_to_me)
+	$this->send($this->USER->asAccount(), "COPY OF: ".$sub, $cnt);
+      return array();
     }
   }
 
   private function send(Account $to, $subject, $content) {
-    Preferences::queueMessage($to, $this->keywordReplace($to, $subject), $this->keywordReplace($to, $content));
+    Preferences::queueMessage($to, $this->keywordReplace($to, $subject), $this->keywordReplace($to, $content), true);
   }
   private function keywordReplace(Account $to, $mes) {
     $mes = str_replace('{FULL_NAME}', $to->getName(), $mes);

@@ -574,6 +574,11 @@ class Preferences {
    * @return boolean the result, as returned by mail
    */
   public static function mail($to, $subject, $body) {
+    if (defined('DIVERT_MAIL')) {
+      $to = DIVERT_MAIL;
+      $subject = 'DIVERTED: ' . $subject;
+      $body = "Messant meant for $o\n\n" . $body;
+    }
     return mail($to,
 		$subject,
 		wordwrap($body, 72),
