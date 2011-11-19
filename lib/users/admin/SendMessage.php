@@ -161,7 +161,7 @@ class SendMessage extends AbstractAdminUserPane {
     }
 
     // ------------------------------------------------------------
-    // Send message
+    // Add message to outbox
     // ------------------------------------------------------------
     if (isset($args['send-message'])) {
       if (!isset($_SESSION['POST']['recipients'])) {
@@ -178,55 +178,31 @@ class SendMessage extends AbstractAdminUserPane {
 	return $_SESSION;
       }
 
-      $sent_to_me = false;
-      // all
-      if ($_SESSION['POST']['recipients'] == 'all') {
-	foreach (Preferences::getConferences() as $conf) {
-	  foreach (Preferences::getUsersFromConference($conf) as $acc) {
-	    $this->send($acc, $sub, $cnt);
-	    if ($acc->id == $this->USER->username())
-	      $sent_to_me = true;
-	  }
-	}
-	$this->announce(new Announcement("Successfully sent message to all recipients."));
-      }
-      // conference
-      if ($_SESSION['POST']['recipients'] == 'conferences') {
-	foreach ($_SESSION['POST']['conferences'] as $conf) {
-	  foreach (Preferences::getUsersFromConference($conf) as $acc) {
-	    $this->send($acc, $sub, $cnt);
-	    if ($acc->id == $this->USER->username())
-	      $sent_to_me = true;
-	  }
-	}
-	$this->announce(new Announcement(sprintf("Successfully sent message to %s users.", implode(", ", $_SESSION['POST']['conferences']))));
-      }
-      // role
-      if ($_SESSION['POST']['recipients'] == 'roles') {
-	foreach ($_SESSION['POST']['roles'] as $role => $title) {
-	  foreach (AccountManager::getAccounts($role) as $acc) {
-	    $this->send($acc, $sub, $cnt);
-	    if ($acc->id == $this->USER->username())
-	      $sent_to_me = true;
-	  }
-	}
-	$this->announce(new Announcement(sprintf("Successfully sent message to %s.", implode(", ", $_SESSION['POST']['roles']))));
+      // recipients and arguments
+      $args = null;
+      switch ($_SESSION['POST']['recipients']) {
+      case 'conferences':
+	$args = implode(',', $_SESSION['POST']['conferences']);
+	break;
+      case 'roles':
+	$args = implode(',', array_keys($_SESSION['POST']['roles']));
+	break;
       }
 
-      // send me a copy?
-      if (isset($args['copy-me']) && !$sent_to_me)
-	$this->send($this->USER->asAccount(), "COPY OF: ".$sub, $cnt);
+      // Add the message to the outbox
+      $out = new Outbox();
+      $out->sender = $this->USER->username();
+      $out->recipients = $_SESSION['POST']['recipients'];
+      $out->arguments = $args;
+      $out->subject = $sub;
+      $out->content = $cnt;
+      if (isset($args['copy-me']))
+	$out->copy_sender =  1;
+
+      Preferences::queueOutgoing($out);
+      $this->announce(new Announcement("Successfully queued message to be sent."));
       return array();
     }
-  }
-
-  private function send(Account $to, $subject, $content) {
-    Preferences::queueMessage($to, $this->keywordReplace($to, $subject), $this->keywordReplace($to, $content), true);
-  }
-  private function keywordReplace(Account $to, $mes) {
-    $mes = str_replace('{FULL_NAME}', $to->getName(), $mes);
-    $mes = str_replace('{SCHOOL}',    $to->school, $mes);
-    return $mes;
   }
 }
 ?>

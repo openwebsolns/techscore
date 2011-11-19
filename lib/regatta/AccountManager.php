@@ -235,7 +235,7 @@ class AccountManager {
     $q = sprintf('select %s from %s where role = "%s"', Account::FIELDS, Account::TABLES, $role);
     $q = Preferences::query($q);
     $list = array();
-    while (($obj = $q->fetch_object("Account")) !== false)
+    while ($obj = $q->fetch_object("Account"))
       $list[] = $obj;
     return $list;
   }

@@ -167,3 +167,18 @@ alter table message add foreign key (account) references account(id) on delete c
 alter table race add foreign key (scored_by) references account(id) on delete set null on update cascade;
 
 alter table message change column created created timestamp default current_timestamp;
+
+-- outbox: for sending message in a more Enterprise-y way --
+CREATE TABLE `outbox` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sender` varchar(40) NOT NULL,
+  `queue_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `recipients` enum('all','conferences','roles') NOT NULL DEFAULT 'all',
+  `arguments` varchar(100) DEFAULT NULL COMMENT 'Comma-delimited arguments pertaining to recipients',
+  `subject` varchar(255) NOT NULL,
+  `content` text NOT NULL,
+  `copy_sender` tinyint(4) DEFAULT NULL,
+  `completion_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `sender` (`sender`)
+) ENGINE=innodb;
