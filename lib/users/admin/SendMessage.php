@@ -12,6 +12,9 @@ require_once('conf.php');
  * Pane for administrators to send messages to one or more users,
  * based on certain criteria
  *
+ * @version 2011-11-18: As of now, this clas will simply queue the
+ * message for delivery in the database's "outbox"; to be run at a
+ * convenient, non-immediate time by a command line script.
  */
 class SendMessage extends AbstractAdminUserPane {
   public function __construct(User $user) {
@@ -55,9 +58,7 @@ class SendMessage extends AbstractAdminUserPane {
     $f->addChild($fi = new FItem("All users with role:", $sel = new FSelect('roles[]')));
     $fi->addChild(new Text(" "));
     $fi->addChild(new FSubmit('choose-recipients', "Write message >"));
-    $sel->addOptions(array('coach'=>"Coaches",
-			   'staff'=>"Staff",
-			   'student'=>"Students"));
+    $sel->addOptions(AccountManager::getRoles());
     $sel->addAttr('multiple', 'multiple');
     $sel->addAttr('size', 3);
   }
@@ -72,22 +73,32 @@ class SendMessage extends AbstractAdminUserPane {
     $tab->addRow(new Row(array(new Cell("{FULL_NAME}"), new Cell("Full name of user"), new Cell($this->USER->getName()))));
     $tab->addRow(new Row(array(new Cell("{SCHOOL}"), new Cell("User's ICSA school"), new Cell($this->USER->get(User::SCHOOL)))));
     $tab->addAttr('style', 'margin:0 auto 2em;');
-    $f = new Form('/send-message-edit');
+    
+    $title = "";
+    $recip = "";
     switch ($args['recipients']) {
     case 'all':
-      $this->PAGE->addContent($p = new Port("2. Send message to all users"));
-      $p->addChild($f);
-      $f->addChild(new FItem("Recipients:", new FSpan("All users", array('class'=>'strong'))));
+      $title = "2. Send message to all users";
+      $recip = "All users";
       break;
 
       // conference
     case 'conferences':
-      $this->PAGE->addContent($p = new Port("2. Send message to users from conference(s)"));
-      $p->addChild($f);
-      $f->addChild(new FItem("Recipients:", new FSpan(implode(", ", $args['conferences']), array('class'=>'strong'))));
+      $title = "2. Send message to users from conference(s)";
+      $recip = implode(", ", $args['conferences']);
+      break;
+
+      // roles
+    case 'roles':
+      $title = "2. Send message ro users with role(s)";
+      $recip = implode(", ", $args['roles']);
       break;
     }
+
+    $this->PAGE->addContent($p = new Port($title));
+    $p->addChild($f = new Form('/send-message-edit'));
     
+    $f->addChild(new FItem("Recipients:", new FSpan($recip, array('class'=>'strong'))));
     $f->addChild($fi = new FItem("Subject:", new FText('subject', "")));
     $fi->addChild(new FSpan("Less than 100 characters", array('class'=>'message')));
 
@@ -129,6 +140,24 @@ class SendMessage extends AbstractAdminUserPane {
 	}
 	return array('recipients'=>'conferences', 'conferences'=>$confs);
       }
+      // By role
+      if (isset($args['roles'])) {
+	if (!is_array($args['roles']) || count($args['roles']) == 0) {
+	  $this->announce(new Announcement("No roles provided. Please try again.", Announcement::WARNING));
+	  return array();
+	}
+	$roles = array();
+	$ROLES = AccountManager::getRoles();
+	foreach ($args['roles'] as $role) {
+	  if (isset($ROLES[$role]))
+	    $roles[$role] = $ROLES[$role];
+	}
+	if (count($roles) == 0) {
+	  $this->announce(new Announcement("No roles provided. Please try again.", Announcement::WARNING));
+	  return array();
+	}
+	return array('recipients'=>'roles', 'roles'=>$roles);
+      }
     }
 
     // ------------------------------------------------------------
@@ -150,6 +179,7 @@ class SendMessage extends AbstractAdminUserPane {
       }
 
       $sent_to_me = false;
+      // all
       if ($_SESSION['POST']['recipients'] == 'all') {
 	foreach (Preferences::getConferences() as $conf) {
 	  foreach (Preferences::getUsersFromConference($conf) as $acc) {
@@ -160,6 +190,7 @@ class SendMessage extends AbstractAdminUserPane {
 	}
 	$this->announce(new Announcement("Successfully sent message to all recipients."));
       }
+      // conference
       if ($_SESSION['POST']['recipients'] == 'conferences') {
 	foreach ($_SESSION['POST']['conferences'] as $conf) {
 	  foreach (Preferences::getUsersFromConference($conf) as $acc) {
@@ -169,6 +200,17 @@ class SendMessage extends AbstractAdminUserPane {
 	  }
 	}
 	$this->announce(new Announcement(sprintf("Successfully sent message to %s users.", implode(", ", $_SESSION['POST']['conferences']))));
+      }
+      // role
+      if ($_SESSION['POST']['recipients'] == 'roles') {
+	foreach ($_SESSION['POST']['roles'] as $role => $title) {
+	  foreach (AccountManager::getAccounts($role) as $acc) {
+	    $this->send($acc, $sub, $cnt);
+	    if ($acc->id == $this->USER->username())
+	      $sent_to_me = true;
+	  }
+	}
+	$this->announce(new Announcement(sprintf("Successfully sent message to %s.", implode(", ", $_SESSION['POST']['roles']))));
       }
 
       // send me a copy?
@@ -187,5 +229,4 @@ class SendMessage extends AbstractAdminUserPane {
     return $mes;
   }
 }
-
 ?>

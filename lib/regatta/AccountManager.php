@@ -205,5 +205,39 @@ class AccountManager {
       WebServer::go('/');
     }
   }
+
+  // ROLE based
+
+  /**
+   * Fetches the different roles allowed by TechScore
+   *
+   * @return Array:String associative map of account role types
+   */
+  public static function getRoles() {
+    return array('coach'=>"Coaches",
+		 'staff'=>"Staff",
+		 'student'=>"Students");
+  }
+
+  /**
+   * Returns a list of accounts fulfilling the given role
+   *
+   * @param String $role an index of getRoles
+   * @return Array:Account the list of accounts
+   * @throws InvalidArgumentException if provided role is invalid
+   * @see getRoles
+   */
+  public static function getAccounts($role) {
+    $roles = self::getRoles();
+    if (!isset($roles[$role]))
+      throw new InvalidArgumentException("Invalid role provided: $role.");
+
+    $q = sprintf('select %s from %s where role = "%s"', Account::FIELDS, Account::TABLES, $role);
+    $q = Preferences::query($q);
+    $list = array();
+    while (($obj = $q->fetch_object("Account")) !== false)
+      $list[] = $obj;
+    return $list;
+  }
 }
 ?>
