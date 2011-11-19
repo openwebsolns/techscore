@@ -531,13 +531,14 @@ class AllAmerican extends AbstractUserPane {
 
     // get sailors participating in those lucky teams
     $rpm = $reg->getRpManager();
+    $sng = $reg->isSingleHanded();
     foreach ($teams as $team) {
       foreach ($rpm->getRP($reg->getTeam($team->team),
 			   $team->division,
 			   $_SESSION['aa']['report-role']) as $rp) {
 	
 	if ($rp->sailor->icsa_id !== null) {
-	  $content = sprintf('%d%s', $team->rank, $team->division);
+	  $content = ($sng) ? $team->rank : sprintf('%d%s', $team->rank, $team->division);
 	  if (count($rp->races_nums) != $_SESSION['aa']['regatta_races'][$id])
 	    $content .= sprintf(' (%s)', Utilities::makeRange($rp->races_nums));
 
