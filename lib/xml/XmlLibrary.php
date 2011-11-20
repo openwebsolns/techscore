@@ -228,7 +228,7 @@ class MenuDiv extends Div
    or otherwise parsed through.
 
    @author Dayan Paez
-   @date   February 3, 2009
+   @version   February 3, 2009
 */
 
 class Table extends GenericElement
@@ -300,7 +300,7 @@ class Table extends GenericElement
    Represents a table row
 
    @author Dayan Paez
-   @date   February 3, 2009
+   @version   February 3, 2009
 */
 
 class Row extends GenericElement
@@ -338,7 +338,7 @@ class Row extends GenericElement
    Encapsulates a table Cell object
 
    @author Dayan Paez
-   @date   February 3, 2009
+   @version   February 3, 2009
 */
 class Cell extends GenericElement
 {

@@ -13,7 +13,7 @@ require_once('conf.php');
  * necessary. This page is modeled after tscore/AbstractPane
  *
  * @author Dayan Paez
- * @date   2010-04-12
+ * @version   2010-04-12
  */
 abstract class AbstractUserPane {
 

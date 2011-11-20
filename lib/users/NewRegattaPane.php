@@ -4,7 +4,7 @@
  *
  * @author Dayan Paez
  * @version 2
- * @date 2010-04-19
+ * @version 2010-04-19
  * @package tscore
  */
 

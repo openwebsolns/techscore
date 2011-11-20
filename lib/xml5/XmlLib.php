@@ -17,7 +17,7 @@
  * Interface for XML objects requires toXML method
  *
  * @author Dayan Paez
- * @date   2010-03-16
+ * @version   2010-03-16
  */
 interface Xmlable {
 
@@ -39,7 +39,7 @@ interface Xmlable {
  * Basic parent class for XML objects
  *
  * @author Dayan Paez
- * @date   2010-03-16
+ * @version   2010-03-16
  */
 class XElem implements Xmlable {
 
@@ -300,7 +300,7 @@ class XDoc extends XElem {
  * as the text content is not escaped!
  *
  * @author Dayan Paez
- * @date   2010-04-22
+ * @version   2010-04-22
  */
 class XRawText implements Xmlable {
 
@@ -347,7 +347,7 @@ class XCData extends XRawText {
  * appropriately.
  *
  * @author Dayan Paez
- * @date   2010-03-16
+ * @version   2010-03-16
  */
 class XText extends XRawText {
 

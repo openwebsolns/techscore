@@ -11,7 +11,7 @@ require_once('conf.php');
  * Manages the user's own account information
  *
  * @author Dayan Paez
- * @date   2010-09-19
+ * @version   2010-09-19
  */
 class AccountPane extends AbstractUserPane {
 

@@ -53,7 +53,7 @@ class Account {
    *
    * @param String $key == "school"
    * @param School $value the school to set
-   * @throw InvalidArgumentException if attempting to set any other
+   * @throws InvalidArgumentException if attempting to set any other
    * property or invalid value provided
    */
   public function __set($key, $value) {

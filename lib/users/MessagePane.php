@@ -11,7 +11,7 @@ require_once('conf.php');
  * Displays and controls the display of messages for the given user
  *
  * @author Dayan Paez
- * @date   2010-04-12
+ * @version   2010-04-12
  */
 class MessagePane extends AbstractUserPane {
 

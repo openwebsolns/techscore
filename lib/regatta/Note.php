@@ -10,7 +10,7 @@
  * Encapsulates a regatta observation
  *
  * @author Dayan Paez
- * @date   2010-02-22
+ * @version   2010-02-22
  */
 class Note {
 

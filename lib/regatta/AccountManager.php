@@ -135,8 +135,7 @@ class AccountManager {
    * @param string $id the user id
    * @param string $pass the password in the system
    *
-   * @return User the user object
-   * @return null if invalid userid or password
+   * @return User|null the user object or null if invalid
    */
   public static function approveUser($id, $pass) {
     $q = sprintf('select password from account where id like "%s"' .

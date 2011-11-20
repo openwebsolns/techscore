@@ -114,7 +114,7 @@ class XMLText extends XMLElement
  * customizing the graph.
  *
  * @author Dayan Paez
- * @date   April 2009
+ * @version   April 2009
  */
 class LineGraph implements SVGWriteable
 {
