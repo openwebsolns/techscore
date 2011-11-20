@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * A different way of serializing and deserializing objects using the
  * DBM class created by Dayan Paez.
  *

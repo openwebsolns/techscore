@@ -41,7 +41,12 @@ sql:
 
 doc:
 	rm -r doc/* && \
-	phpdoc --ignore conf.*php --target doc --title "TechScore Documentation" --directory lib --output "HTML:Smarty:PHP"
+	phpdoc --ignore conf.*php \
+	  --target doc \
+	  --title "TechScore Documentation" \
+	  --directory lib \
+	  --defaultpackagename regatta \
+	  --output "HTML:Smarty:PHP"
 
 # Admin CSS
 css-admin: www/inc/css/aa.css www/inc/css/mobile.css www/inc/css/modern.css www/inc/css/print.css www/inc/css/modern-dialog.css
