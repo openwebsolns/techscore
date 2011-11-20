@@ -1,11 +1,12 @@
 <?php
-/**
+/*
  * This class is part of TechScore
  *
  * @version 2.0
  * @author Dayan Paez
  * @package regatta
  */
+
 require_once('conf.php');
 
 /**

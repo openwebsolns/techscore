@@ -7,6 +7,7 @@
  *
  * @author Dayan Paez
  * @created 2011-11-18
+ * @package scripts
  */
 class ProcessOutbox {
 

@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * This class is part of TechScore
  *
  * @version 2.0

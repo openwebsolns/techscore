@@ -1,9 +1,10 @@
 <?php
-/**
+/*
  * This file is part of TechScore
  *
  * @author Dayan Paez
  * @version 2010-09-18
+ * @package scripts
  */
 
 /**

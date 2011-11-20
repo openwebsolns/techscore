@@ -1,11 +1,12 @@
 <?php
-/**
+/*
  * This file is part of TechScore
  *
  * @author Dayan Paez
  * @version 2.0
  * @package xml
  */
+
 require_once('conf.php');
 __autoload('XmlLibrary');
 

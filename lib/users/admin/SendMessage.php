@@ -1,9 +1,10 @@
 <?php
-/**
+/*
  * This file is part of TechScore
  *
  * @author Dayan Paez
  * @created 2011-11-05
+ * @package users-admin
  */
 
 require_once('conf.php');

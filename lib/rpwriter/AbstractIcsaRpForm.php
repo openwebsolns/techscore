@@ -1,11 +1,11 @@
 <?php
-ini_set('track_errors', '1');
-
-/**
+/*
  * This file is part of TechScore
  *
  * @package rpwriter
  */
+
+ini_set('track_errors', '1');
 
 /**
  * This class is a new visualization of the RP form writing

@@ -1,10 +1,11 @@
 <?php
-/**
+/*
  * This file is part of TechScore
  *
  * @version 2.0
  * @package regatta
  */
+
 require_once('conf.php');
 
 /**

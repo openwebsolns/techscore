@@ -1,8 +1,8 @@
 <?php
-/**
+/*
  * This file is part of TechScore
  *
- * @package tscore
+ * @package tscore-dialog
  */
 
 require_once("conf.php");

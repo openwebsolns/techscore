@@ -1,9 +1,10 @@
 <?php
-/**
+/*
  * This file is part of TechScore
  *
  * @package xml
  */
+
 require_once('conf.php');
 __autoload('XmlLibrary');
 

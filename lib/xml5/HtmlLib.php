@@ -650,7 +650,7 @@ class XEm extends XAbstractHtml {
 /**
  * Indicates an instance of a computer code variable or program argument.
  */
-class XVar extends XAbstractHTML {
+class XVar extends XAbstractHtml {
   public function __construct($content, $attrs = array()) {
     parent::__construct('var', $attrs, array($content));
   }
@@ -1075,7 +1075,7 @@ class XMeta extends XAbstractHtml {
   }
 }
 
-class XMetaHTTP extends XAbstractHTML {
+class XMetaHTTP extends XAbstractHtml {
   public function __construct($http_equiv, $content) {
     parent::__construct('meta', array('http-equiv' => $http_equiv, 'content' => $content));
   }

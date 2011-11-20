@@ -1,6 +1,8 @@
 <?php
-/**
+/*
  * This file is part of TechScore
+ *
+ * @package regatta
  */
 
 /**

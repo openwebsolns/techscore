@@ -1,9 +1,10 @@
 <?php
-/**
+/*
  * This file is part of TechScore
  *
  * @package rpwriter
  */
+
 require_once('conf.php');
 
 /**

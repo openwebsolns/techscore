@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * This file is part of TechScore
  *
  * @author Dayan Paez

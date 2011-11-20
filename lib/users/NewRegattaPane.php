@@ -1,11 +1,13 @@
 <?php
-/**
+/*
  * This file is part of TechScore
  *
  * @author Dayan Paez
  * @version 2
  * @date 2010-04-19
+ * @package tscore
  */
+
 require_once('conf.php');
 
 /**

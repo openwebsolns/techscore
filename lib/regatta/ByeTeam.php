@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * This class is part of TechScore
  *
  * @author Dayan Paez

@@ -2,6 +2,7 @@
 /**
  * Simple representation of burgee
  *
+ * @package regatta
  */
 class Burgee {
 

@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * This file is part of TechScore.
  *
  * This script, which can be run from the command line or

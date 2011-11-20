@@ -2,8 +2,9 @@
 /*
  * This class is part of TechScore
  *
- * @package tscore
+ * @package tscore-dialog
  */
+
 require_once('conf.php');
 __autoload('XmlLibrary');
 

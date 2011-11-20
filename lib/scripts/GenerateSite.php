@@ -4,7 +4,8 @@
  * any old time, unless you NICE it up quite...nicely
  *
  * @author Dayan Paez
- * @created 2011-10-17
+ * @version 2011-10-17
+ * @package scripts
  */
 class GenerateSite {
 
