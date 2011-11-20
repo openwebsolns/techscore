@@ -11,7 +11,7 @@ require_once('conf.php');
  * Changes the daily summaries for the regatta
  *
  * @author Dayan Paez
- * @created 2010-03-24
+ * @version 2010-03-24
  */
 class SummaryPane extends AbstractPane {
 

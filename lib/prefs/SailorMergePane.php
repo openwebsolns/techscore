@@ -10,7 +10,7 @@
  * given school with those in the actual database.
  *
  * @author Dayan Paez
- * @created 2009-10-14
+ * @version 2009-10-14
  */
 class SailorMergePane extends AbstractUserPane {
 

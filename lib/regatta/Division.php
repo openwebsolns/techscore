@@ -14,7 +14,7 @@ require_once('conf.php');
  * for type hinting.
  *
  * @author Dayan Paez
- * @created 2009-10-05
+ * @version 2009-10-05
  */
 class Division {
 

@@ -12,7 +12,7 @@ require_once('conf.php');
  * suppressed due to speed considerations.
  *
  * @author Dayan Paez
- * @created 2009-11-30
+ * @version 2009-11-30
  */
 class RegattaSummary {
 

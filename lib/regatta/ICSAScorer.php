@@ -30,7 +30,7 @@ require_once('conf.php');
  * in other races whose score depends on averages.
  *
  * @author Dayan Paez
- * @created 2010-01-28
+ * @version 2010-01-28
  */
 class ICSAScorer {
 

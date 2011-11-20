@@ -9,7 +9,7 @@
  * PrefsHomePane: the gateway to preferences editing
  *
  * @author Dayan Paez
- * @created 2009-10-14
+ * @version 2009-10-14
  */
 class PrefsHomePane extends AbstractUserPane {
 

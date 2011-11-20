@@ -11,7 +11,7 @@
  * Encapsulates a penalty
  *
  * @author Dayan Paez
- * @created 2010-01-25
+ * @version 2010-01-25
  */
 class Penalty extends FinishModifier {
 

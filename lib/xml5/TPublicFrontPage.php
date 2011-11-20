@@ -11,7 +11,7 @@ require_once('HtmlLib.php');
  * Specific page for front page, written in the new and improved HtmlLib
  *
  * @author Dayan Paez
- * @created 2011-03-06
+ * @version 2011-03-06
  */
 class TPublicFrontPage extends XPage {
 

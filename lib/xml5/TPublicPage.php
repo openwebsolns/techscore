@@ -11,7 +11,7 @@ require_once('HtmlLib.php');
  * Public page for scores, written in the new and improved HtmlLib
  *
  * @author Dayan Paez
- * @created 2011-03-06
+ * @version 2011-03-06
  */
 class TPublicPage extends XPage {
 

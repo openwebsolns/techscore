@@ -14,7 +14,7 @@ require_once("conf.php");
  * at a time
  *
  * @author Dayan Paez
- * @created 2010-01-23
+ * @version 2010-01-23
  */
 class UnregisteredSailorPane extends AbstractPane {
 

@@ -12,7 +12,7 @@ require_once('conf.php');
  * often the reason in case of tie-breakers.
  *
  * @author Dayan Paez
- * @created 2010-01-31
+ * @version 2010-01-31
  */
 class Rank {
 

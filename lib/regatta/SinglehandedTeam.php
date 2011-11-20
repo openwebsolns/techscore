@@ -15,7 +15,7 @@ require_once('conf.php');
  * instead. This is useful when printing the "name"
  *
  * @author  Dayan Paez
- * @created 2010-02-24
+ * @version 2010-02-24
  */
 class SinglehandedTeam extends Team {
 

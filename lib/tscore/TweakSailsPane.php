@@ -11,7 +11,7 @@ require_once('conf.php');
  * Pane to tweak the rotations
  *
  * @author Dayan Paez
- * @created 2010-01-20
+ * @version 2010-01-20
  */
 class TweakSailsPane extends AbstractPane {
 

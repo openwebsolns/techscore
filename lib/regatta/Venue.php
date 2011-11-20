@@ -11,7 +11,7 @@
  *
  * @author Dayan Paez
  * @version 2.0
- * @created 2009-10-21
+ * @version 2009-10-21
  */
 class Venue {
   public $id;

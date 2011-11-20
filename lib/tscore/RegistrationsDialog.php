@@ -11,7 +11,7 @@ require_once("conf.php");
  * Displays a list of all the registered sailors.
  *
  * @author Dayan Paez
- * @created 2010-01-23
+ * @version 2010-01-23
  */
 class RegistrationsDialog extends AbstractDialog {
 

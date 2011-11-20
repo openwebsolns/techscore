@@ -12,7 +12,7 @@ require_once('conf.php');
  * 2011-02-18: Only one BYE team is allowed per rotation
  *
  * @author Dayan Paez
- * @created 2009-10-04
+ * @version 2009-10-04
  */
 class SailsPane extends AbstractPane {
 

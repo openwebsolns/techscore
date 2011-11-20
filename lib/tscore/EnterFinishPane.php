@@ -14,7 +14,7 @@ require_once("conf.php");
  * the team name entry as well as rotation
  *
  * @author Dayan Paez
- * @created 2010-01-24
+ * @version 2010-01-24
  */
 class EnterFinishPane extends AbstractPane {
 

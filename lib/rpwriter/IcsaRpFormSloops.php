@@ -11,7 +11,7 @@ require_once('conf.php');
  * Class for writing RP forms for sloops
  *
  * @author Dayan Paez
- * @created 2010-02-08
+ * @version 2010-02-08
  */
 class IcsaRpFormSloops extends AbstractIcsaRpForm {
 

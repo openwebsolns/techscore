@@ -11,7 +11,7 @@ require_once("conf.php");
  * Controls the entry of RP information
  *
  * @author Dayan Paez
- * @created 2010-01-21
+ * @version 2010-01-21
  */
 class RpEnterPane extends AbstractPane {
 

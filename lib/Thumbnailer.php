@@ -9,7 +9,7 @@
  * Provides a method for resizing images using ImageMagick
  *
  * @author Dayan Paez
- * @created 2010-03-05
+ * @version 2010-03-05
  */
 class Thumbnailer
 {

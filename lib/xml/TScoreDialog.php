@@ -16,7 +16,7 @@ __autoload('XmlLibrary');
  *
  * @author Dayan Paez
  * @version 2.0
- * @created 2010-01-13
+ * @version 2010-01-13
  */
 class TScoreDialog extends WebPage {
 

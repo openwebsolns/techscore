@@ -10,7 +10,7 @@
  * Encapsulates a coach, which is just a sailor
  *
  * @author Dayan Paez
- * @created 2010-03-02
+ * @version 2010-03-02
  */
 class Coach extends Sailor {
   // Nothing special here

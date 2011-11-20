@@ -3,7 +3,7 @@
  * This file is part of Techscore
  *
  * @author Dayan Paez
- * @created 2011-05-05
+ * @version 2011-05-05
  * @package regatta
  */
 

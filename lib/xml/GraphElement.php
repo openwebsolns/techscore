@@ -5,7 +5,7 @@
  * 
  * @package xml
  * @author  Dayan Paez
- * @created 2009-05-22
+ * @version 2009-05-22
  */
 
 /**

@@ -15,7 +15,7 @@ __autoload('XmlLibrary');
  * and loading one back from file
  *
  * @author Dayan Paez
- * @created 2010-01-26
+ * @version 2010-01-26
  */
 class RegattaIO {
 

@@ -13,7 +13,7 @@ require_once("conf.php");
  * 2011-02-09: Allow for multiple penalty entry at a time
  *
  * @author Dayan Paez
- * @created 2010-01-25
+ * @version 2010-01-25
  */
 class EnterPenaltyPane extends AbstractPane {
 

@@ -10,7 +10,7 @@
  * skippers and crews
  *
  * @author Dayan Paez
- * @created 2010-02-08
+ * @version 2010-02-08
  */ 
 class RpBlock {
   public $skipper_A = array();

@@ -12,7 +12,7 @@ __autoload('XmlLibrary');
  * Parent class of all editing panes. Requires USER and REGATTA.
  *
  * @author Dayan Paez
- * @created 2009-09-27
+ * @version 2009-09-27
  */
 abstract class AbstractPane {
 

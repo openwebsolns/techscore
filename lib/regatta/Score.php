@@ -10,7 +10,7 @@
  * attributes are not setable after that.
  *
  * @author Dayan Paez
- * @created 2010-01-30
+ * @version 2010-01-30
  */
 class Score {
 

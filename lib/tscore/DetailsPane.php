@@ -14,7 +14,7 @@ require_once('conf.php');
  * 2010-02-24: Allowed scoring rules change
  *
  * @author Dayan Paez
- * @created 2009-09-27
+ * @version 2009-09-27
  */
 class DetailsPane extends AbstractPane {
 

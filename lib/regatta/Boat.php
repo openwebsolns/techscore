@@ -12,7 +12,7 @@
  * occupants.
  *
  * @author Dayan Paez
- * @created 2009-10-04
+ * @version 2009-10-04
  */
 class Boat {
   public $id;

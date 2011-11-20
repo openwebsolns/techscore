@@ -10,7 +10,7 @@ require_once('conf.php');
  * Displays the scores table for a given regatta's division
  *
  * @author Dayan Paez
- * @created 2010-02-01
+ * @version 2010-02-01
  */
 class ScoresDivisionDialog extends AbstractScoresDialog {
 

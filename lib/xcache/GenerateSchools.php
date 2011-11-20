@@ -11,7 +11,7 @@
  * and name, all in uppercase
  *
  * @author Dayan Paez
- * @created 2011-05-30
+ * @version 2011-05-30
  * @package cache
  */
 class GenerateSchools {

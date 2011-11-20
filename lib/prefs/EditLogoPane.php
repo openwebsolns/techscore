@@ -9,7 +9,7 @@
  * EditLogoPane: an editor for a school's logo.
  *
  * @author Dayan Paez
- * @created 2009-10-14
+ * @version 2009-10-14
  */
 class EditLogoPane extends AbstractUserPane {
 

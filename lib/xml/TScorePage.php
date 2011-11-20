@@ -17,7 +17,7 @@ __autoload('XmlLibrary');
  *
  * @author Dayan Paez
  * @version 2.0
- * @created 2009-10-19
+ * @version 2009-10-19
  */
 class TScorePage extends WebPage {
 

@@ -11,7 +11,7 @@ require_once("conf.php");
  * Displays and drops existing finishes
  *
  * @author Dayan Paez
- * @created 2010-01-25
+ * @version 2010-01-25
  */
 class DropFinishPane extends AbstractPane {
 

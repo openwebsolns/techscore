@@ -4,7 +4,7 @@
    * from both the web server and the development team.
    *
    * @author Dayan Paez
-   * @created 2009-10-04
+   * @version 2009-10-04
    */
 
 // attempt to make files easier to find

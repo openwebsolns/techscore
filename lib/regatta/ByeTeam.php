@@ -3,7 +3,7 @@
  * This class is part of TechScore
  *
  * @author Dayan Paez
- * @created 2011-02-18
+ * @version 2011-02-18
  * @package regatta
  */
 

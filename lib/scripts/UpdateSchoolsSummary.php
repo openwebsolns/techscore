@@ -4,7 +4,7 @@
  * number of regattas they have participated in.
  *
  * @author Dayan Paez
- * @created 2011-02-08
+ * @version 2011-02-08
  * @package www
  */
 class UpdateSchoolsSummary {

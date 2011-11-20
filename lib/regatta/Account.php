@@ -12,7 +12,7 @@ require_once('conf.php');
  * connection to the database
  *
  * @author Dayan Paez
- * @created 2009-11-30
+ * @version 2009-11-30
  */
 class Account {
 

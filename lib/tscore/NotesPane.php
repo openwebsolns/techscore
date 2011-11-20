@@ -11,7 +11,7 @@ require_once('conf.php');
  * Pane to enter regatta observations
  *
  * @author Dayan Paez
- * @created 2010-02-22
+ * @version 2010-02-22
  */
 class NotesPane extends AbstractPane {
 

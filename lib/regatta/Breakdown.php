@@ -12,7 +12,7 @@
  * Encapsulates a breakdown
  *
  * @author Dayan Paez
- * @created 2010-01-25
+ * @version 2010-01-25
  * @package regatta
  */
 class Breakdown extends FinishModifier {

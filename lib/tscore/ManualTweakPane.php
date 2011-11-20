@@ -11,7 +11,7 @@ require_once('conf.php');
  * Pane to manually specify rotations
  *
  * @author Dayan Paez
- * @created 2010-01-20
+ * @version 2010-01-20
  */
 class ManualTweakPane extends AbstractPane {
 

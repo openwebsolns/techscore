@@ -15,7 +15,7 @@ require_once('conf.php');
  * the LaTeX code on the fly as it was before.
  *
  * @author Dayan Paez
- * @created 2010-02-08
+ * @version 2010-02-08
  */
 class IcsaRpFormAB extends AbstractIcsaRpForm {
 

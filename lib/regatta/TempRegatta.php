@@ -17,7 +17,7 @@ require_once('conf.php');
  * <code>Regatta</code> so all its functions are available.
  *
  * @author Dayan Paez
- * @created 2010-02-16
+ * @version 2010-02-16
  */
 class TempRegatta extends Regatta {
 

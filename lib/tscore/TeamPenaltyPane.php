@@ -11,7 +11,7 @@ require_once("conf.php");
  * Enter and drop team penalties
  *
  * @author Dayan Paez
- * @created 2010-01-25
+ * @version 2010-01-25
  */
 class TeamPenaltyPane extends AbstractPane {
 

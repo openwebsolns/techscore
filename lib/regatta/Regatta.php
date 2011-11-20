@@ -31,7 +31,7 @@ require_once('conf.php');
  * in that season!
  *
  * @author Dayan Paez
- * @created 2009-10-01
+ * @version 2009-10-01
  */
 class Regatta implements RaceListener {
 

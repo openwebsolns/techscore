@@ -5,7 +5,7 @@
  * that describe what is permissible, or not...
  *
  * @author Dayan Paez
- * @created 2009-09-29
+ * @version 2009-09-29
  * @package regatta
  */
 require_once('conf.php');
@@ -15,7 +15,7 @@ require_once('conf.php');
  * parameters.
  *
  * @author Dayan Paez
- * @created 2009-10-04
+ * @version 2009-10-04
  */
 class Preferences {
 

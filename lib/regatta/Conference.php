@@ -11,7 +11,7 @@
  * Encapsulates a conference object: id, nick and name properties
  *
  * @author Dayan Paez
- * @created 2009-10-04
+ * @version 2009-10-04
  */
 class Conference {
   public $id;

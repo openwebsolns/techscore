@@ -9,7 +9,7 @@
  * TeamNamePrefsPane: editing the valid school names to use
  *
  * @author Dayan Paez
- * @created 2009-10-14
+ * @version 2009-10-14
  */
 class TeamNamePrefsPane extends AbstractUserPane {
 

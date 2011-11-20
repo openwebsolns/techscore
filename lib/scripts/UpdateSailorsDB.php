@@ -13,7 +13,7 @@
  * 2011-09-12: Sets active flag to true
  *
  * @author Dayan Paez
- * @created 2010-03-02
+ * @version 2010-03-02
  */
 class UpdateSailorsDB {
 

@@ -3,7 +3,7 @@
  * XML and HTML classes to facilitate the making of HTML pages
  *
  * @author Dayan Paez
- * @created 2009-10-04
+ * @version 2009-10-04
  * @package xml
  */
 

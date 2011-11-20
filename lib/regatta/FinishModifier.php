@@ -11,7 +11,7 @@
  * Encapsulates an immutable penalty or breakdown
  *
  * @author Dayan Paez
- * @created 2011-01-31
+ * @version 2011-01-31
  */
 abstract class FinishModifier {
 

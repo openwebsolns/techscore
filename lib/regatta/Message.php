@@ -9,7 +9,7 @@
  * Message to a user and all that entails
  *
  * @author Dayan Paez
- * @created 2010-03-25
+ * @version 2010-03-25
  */
 class Message {
 

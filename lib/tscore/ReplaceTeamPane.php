@@ -3,7 +3,7 @@
  * Pane for substituting one school for another
  *
  * @author Dayan Paez
- * @created 2009-10-04
+ * @version 2009-10-04
  * @package tscore
  */
 

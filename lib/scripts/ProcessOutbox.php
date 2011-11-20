@@ -6,7 +6,7 @@
  * message to their TechScore inbox.
  *
  * @author Dayan Paez
- * @created 2011-11-18
+ * @version 2011-11-18
  * @package scripts
  */
 class ProcessOutbox {

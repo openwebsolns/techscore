@@ -13,7 +13,7 @@ require_once('conf.php');
  * Encapsulates a sailor
  *
  * @author Dayan Paez
- * @created 2009-10-04
+ * @version 2009-10-04
  */
 class Sailor {
   public $id;

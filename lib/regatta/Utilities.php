@@ -10,7 +10,7 @@ require_once('conf.php');
  * Static utilities
  *
  * @author Dayan Paez
- * @created 2009-12-13
+ * @version 2009-12-13
  */
 class Utilities {
 
