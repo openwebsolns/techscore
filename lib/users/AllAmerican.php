@@ -229,7 +229,7 @@ class AllAmerican extends AbstractUserPane {
     ini_set('memory_limit', '128M');
     ini_set('max_execution_time', 60);
     // ------------------------------------------------------------
-    // 3. Step three: Review and download
+    // 3. Step three: Generate and review
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new Port("Report"));
     $p->addChild($form = new Form('/aa-edit'));
@@ -253,16 +253,31 @@ class AllAmerican extends AbstractUserPane {
       $hrow1->addChild(new Cell($reg_id, array('class'=>'rotate'), 1));
       $hrow2->addChild(new Cell($num));
     }
+    $TABLE = $_SESSION['aa']['table'];
     foreach ($_SESSION['aa']['sailors'] as $id => $sailor) {
       $table->addRow($row = new Row(array(new Cell($sailor->id),
 					  new Cell(sprintf("%s %s", $sailor->first_name, $sailor->last_name)),
 					  new Cell($sailor->year),
 					  new Cell($sailor->school->nick_name))));
-      foreach ($_SESSION['aa']['table'] as $reg_id => $sailor_list) {
-	if (isset($sailor_list[$id]))
-	  $row->addChild(new Cell(implode("/", $sailor_list[$id])));
-	else
-	  $row->addChild(new Cell(""));
+      foreach ($TABLE as $reg_id => $sailor_list) {
+	if (!isset($sailor_list[$id])) {
+	  $_SESSION['aa']['table'][$reg_id][$id] = array();
+
+	  // "Reverse" populate table
+	  $regatta = new Regatta($_SESSION['aa']['regattas'][$reg_id]);
+	  $rpm = $regatta->getRpManager();
+	  $rps = $rpm->getParticipation($sailor, $_SESSION['aa']['report-role']);
+
+	  foreach ($rps as $rp) {
+	    $team = ScoresAnalyzer::getTeamDivision($rp->team, $rp->division);
+	    $content = sprintf('%d%s', $team->rank, $team->division);
+	    if (count($rp->races_nums) != $_SESSION['aa']['regatta_races'][$reg_id])
+	      $content .= sprintf(' (%s)', Utilities::makeRange($rp->races_nums));
+
+	    $_SESSION['aa']['table'][$reg_id][$id][] = $content;
+	  }
+	}
+	$row->addChild(new Cell(implode("/", $_SESSION['aa']['table'][$reg_id][$id])));
       }
     }
   }
@@ -393,39 +408,10 @@ class AllAmerican extends AbstractUserPane {
 
       // Add sailors, if not already in the 'sailors' list
       $errors = 0;
-      $non_pt = array();
       foreach ($args['sailor'] as $id) {
 	try {
-	  if (isset($_SESSION['aa']['sailors'][$id]))
-	    continue;
-	  
 	  $sailor = RpManager::getSailor($id);
-	  // reverse populate tables, determining if the sailor even
-	  // participated in any of the regattas
-	  $participated = false;
-
-	  foreach ($_SESSION['aa']['regattas'] as $reg_id => $rid) {
-	    $regatta = new Regatta($rid);
-	    $rpm = $regatta->getRpManager();
-	    $rps = $rpm->getParticipation($sailor, $_SESSION['aa']['report-role']);
-
-	    if (count($rps) > 0)
-	      $participated = true;
-	    foreach ($rps as $rp) {
-	      $team = ScoresAnalyzer::getTeamDivision($rp->team, $rp->division);
-	      $content = sprintf('%d%s', $team->rank, $team->division);
-	      if (count($rp->races_nums) != $_SESSION['aa']['regatta_races'][$reg_id])
-		$content .= sprintf(' (%s)', Utilities::makeRange($rp->races_nums));
-
-	      if (!isset($_SESSION['aa']['table'][$reg_id][$sailor->id]))
-		$_SESSION['aa']['table'][$reg_id][$sailor->id] = array();
-	      $_SESSION['aa']['table'][$reg_id][$sailor->id][] = $content;
-	    }
-	  }
-	  if ($participated)
-	    $_SESSION['aa']['sailors'][$sailor->id] = $sailor;
-	  else
-	    $non_pt[] = $sailor;
+	  $_SESSION['aa']['sailors'][$sailor->id] = $sailor;
 	} catch (Exception $e) {
 	  $errors++;
 	  $this->announce(new Announcement($e->getMessage(), Announcement::ERROR));
@@ -433,8 +419,6 @@ class AllAmerican extends AbstractUserPane {
       }
       if ($errors > 0)
 	$this->announce(new Announcement("Some invalid sailors were provided and ignored.", Announcement::WARNING));
-      if (count($non_pt) > 0)
-	$this->announce(new Announcement("The following additional sailor(s) requested did not participate in any of the chosen regattas and were ignored: " . implode(", ", $non_pt), Announcement::WARNING));
       $this->announce(new Announcement("Set sailors for report."));
       $_SESSION['aa']['params-set'] = true;
       return false;
@@ -506,10 +490,13 @@ class AllAmerican extends AbstractUserPane {
   }
 
   /**
-   * Merges the information for the given regatta with the rest of the
-   * table data being tracked. Note that somebody else is responsible
-   * for resetting the necessary $_SESSION variables that this
-   * function populates.
+   * Determines the sailors who, based on their performance in the
+   * given regatta, merit inclusion in the report.
+   *
+   * The rules for such a feat include a top 5 finish in A division,
+   * and top 4 in any other. This method will also fill the
+   * appropriate Session variables with the pertinent information
+   * regarding this regatta, such as number of races.
    *
    * @param Regatta $reg the regatta whose information to incorporate
    * into the table
