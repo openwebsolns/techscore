@@ -43,6 +43,7 @@ class TScorePage extends WebPage {
     $this->mobile = $this->isMobile();
 
     $this->addHead(new GenericElement('meta', array(), array('name'=>'robots', 'content'=>'noindex, nofollow')));
+    $this->addHead(new GenericElement('meta', array(), array('http-equiv'=>'Content-Type', 'content'=>'text/html; charset=UTF-8')));
     $this->fillHead($title);
 
     // Menu
