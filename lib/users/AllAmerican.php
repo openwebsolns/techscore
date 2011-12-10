@@ -28,6 +28,7 @@ class AllAmerican extends AbstractUserPane {
 			      'report-participation' => null,
 			      'report-role' => null,
 			      'report-seasons' => null,
+			      'report-confs' => null,
 			      
 			      'regattas-set' => false,
 			      'params-set' => false);
@@ -49,7 +50,11 @@ class AllAmerican extends AbstractUserPane {
       $sel->addOptions(array(RP::SKIPPER => "Skipper", RP::CREW    => "Crew"));
 
       $form->addChild(new FItem("Seasons:", $ul = new Itemize()));
-      $ul->addAttr('style', 'list-style-type:none;display:inline-block;zoom:1;*display:inline;margin:0;padding:0;');
+      $ul->addAttr('class', 'inline-list');
+
+      $form->addChild($fi = new FItem("Conferences:", $ul2 = new Itemize()));
+      $ul2->addAttr('class', 'inline-list');
+      $fi->addAttr('title', "Only choose sailors from selected conference(s) automatically. You can manually choose sailors from other divisions.");
       
       $now = new Season(new DateTime());
       $then = null;
@@ -62,6 +67,14 @@ class AllAmerican extends AbstractUserPane {
 
 	if ((string)$season == (string)$now || (string)$season == (string)$then)
 	  $chk->addAttr('checked', 'checked');
+      }
+
+      // Conferences
+      foreach (Preferences::getConferences() as $conf) {
+	$ul2->addChild($li = new LItem());
+	$li->addChild($chk = new FCheckbox('confs[]', $conf, array('id' => $conf->id)));
+	$li->addChild(new Label($conf->id, $conf));
+	$chk->addAttr('checked', 'checked');
       }
 
       $form->addChild(new FSubmit('set-report', "Choose regattas >>"));
@@ -205,7 +218,8 @@ class AllAmerican extends AbstractUserPane {
       // provide a list of sailors that are already included in the
       // list, and a search box to add new ones
       $this->PAGE->addContent($p = new Port("Sailors in list"));
-      $p->addChild(new Para("The following sailors meet the criteria for All-American inclusion based on the regattas chosen. Note that non-official sailors have been excluded. Use the bottom form to add more sailors to this list."));
+      $p->addChild(new Para(sprintf("%d sailors meet the criteria for All-American inclusion based on the regattas chosen. Note that non-official sailors have been excluded. Use the bottom form to add more sailors to this list.",
+				    count($_SESSION['aa']['sailors']))));
       $p->addChild($item = new Itemize());
       $item->addAttr('id', 'inc-sailors');
       foreach ($_SESSION['aa']['sailors'] as $sailor)
@@ -244,11 +258,13 @@ class AllAmerican extends AbstractUserPane {
     $table->addHeader($hrow1 = new Row(array(Cell::th("ID"),
 					     Cell::th("Sailor"),
 					     Cell::th("YR"),
-					     Cell::th("School"))));
+					     Cell::th("School"),
+					     Cell::th("Conf."))));
     $table->addHeader($hrow2 = new Row(array(Cell::td(""),
-					     Cell::td("# Races/Div"),
 					     Cell::td(""),
-					     Cell::td(""))));
+					     Cell::td(""),
+					     Cell::td(""),
+					     Cell::td("Races/Div"))));
     foreach ($_SESSION['aa']['regatta_races'] as $reg_id => $num) {
       $hrow1->addChild(new Cell($reg_id, array('class'=>'rotate'), 1));
       $hrow2->addChild(new Cell($num));
@@ -258,7 +274,8 @@ class AllAmerican extends AbstractUserPane {
       $table->addRow($row = new Row(array(new Cell($sailor->id),
 					  new Cell(sprintf("%s %s", $sailor->first_name, $sailor->last_name)),
 					  new Cell($sailor->year),
-					  new Cell($sailor->school->nick_name))));
+					  new Cell($sailor->school->nick_name),
+					  new Cell($sailor->school->conference))));
       foreach ($TABLE as $reg_id => $sailor_list) {
 	if (!isset($sailor_list[$id])) {
 	  $_SESSION['aa']['table'][$reg_id][$id] = array();
@@ -331,6 +348,19 @@ class AllAmerican extends AbstractUserPane {
 	  $now->setDate($now->format('Y') - 1, 10, 1);
 	  $_SESSION['aa']['report-seasons'][] = (string)$season;
 	}
+      }
+
+      // conferences. If none provided, choose ALL
+      $_SESSION['aa']['report-confs'] = array();
+      if (isset($args['confs']) && is_array($args['confs'])) {
+	foreach ($args['confs'] as $s) {
+	  if (($conf = Preferences::getConference($s)) !== null)
+	    $_SESSION['aa']['report-confs'][$conf->id] = $conf->id;
+	}
+      }
+      if (count($_SESSION['aa']['report-confs']) == 0) {
+	foreach (Preferences::getConferences() as $conf)
+	  $_SESSION['aa']['report-confs'][$conf->id] = $conf->id;
       }
       
       $_SESSION['aa']['report-participation'] = $args['participation'];
@@ -442,16 +472,17 @@ class AllAmerican extends AbstractUserPane {
       header("Content-type: application/octet-stream");
       header("Content-Disposition: attachment; filename=$filename");
 
-      $header1 = array("ID", "Sailor", "YR", "School");
-      $header2 = array("", "# Races/Div", "", "");
-      $spacer  = array("", "", "", "");
+      $header1 = array("ID", "Sailor", "YR", "School", "Conf");
+      $header2 = array("", "", "", "", "Races/Div");
+      $spacer  = array("", "", "", "", "");
       $rows = array();
 
       foreach ($_SESSION['aa']['sailors'] as $id => $sailor) {
 	$row = array($sailor->id,
 		     sprintf("%s %s", $sailor->first_name, $sailor->last_name),
 		     $sailor->year,
-		     $sailor->school->nick_name);
+		     $sailor->school->nick_name,
+		     $sailor->school->conference);
 	foreach ($_SESSION['aa']['table'] as $reg_id => $sailor_list) {
 	  if (isset($sailor_list[$id]))
 	    $row[] = implode("/", $sailor_list[$id]);
@@ -498,6 +529,8 @@ class AllAmerican extends AbstractUserPane {
    * appropriate Session variables with the pertinent information
    * regarding this regatta, such as number of races.
    *
+   * 2011-12-10: Respect conference membership.
+   *
    * @param Regatta $reg the regatta whose information to incorporate
    * into the table
    */
@@ -525,7 +558,8 @@ class AllAmerican extends AbstractUserPane {
 			   $team->division,
 			   $_SESSION['aa']['report-role']) as $rp) {
 	
-	if ($rp->sailor->icsa_id !== null) {
+	if ($rp->sailor->icsa_id !== null &&
+	    isset($_SESSION['aa']['report-confs'][$rp->sailor->school->conference->id])) {
 	  $content = ($sng) ? $team->rank : sprintf('%d%s', $team->rank, $team->division);
 	  if (count($rp->races_nums) != $_SESSION['aa']['regatta_races'][$id])
 	    $content .= sprintf(' (%s)', Utilities::makeRange($rp->races_nums));
