@@ -71,9 +71,16 @@ class UserHomePane extends AbstractUserPane {
       $p->addChild(new Para('You have no regattas. Go <a href="create">create one</a>!'));
     }
     $row = 0;
+    $now = new DateTime('1 day ago');
     foreach ($regattas as $reg) {
-      $finalized = ($reg->finalized === null) ? "--" : $reg->finalized->format("Y-m-d");
       $link = new Link("score/" . $reg->id, $reg->name);
+      $finalized = '--';
+      if ($reg->finalized !== null)
+	$finalized = $reg->finalized->format("Y-m-d");
+      elseif ($reg->finalized < $now)
+	$finalized = new Link('score/'.$reg->id.'#finalize', 'PENDING',
+			      array('title'=>'Regatta must be finalized!',
+				    'style'=>'color:red;font-weight:bold;font-size:110%;'));
       $tab->addRow($r = new Row(array(new Cell($link, array("class"=>"left", "style"=>"padding-left: 1em")),
 				      new Cell(strtoupper($reg->season)),
 				      new Cell($reg->start_time->format("Y-m-d")),

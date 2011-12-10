@@ -135,6 +135,7 @@ class DetailsPane extends AbstractPane {
     if ($finalized === null) {
       if ($this->REGATTA->hasFinishes()) {
 	$this->PAGE->addContent($p = new Port("Finalize regatta"));
+	$p->addAttr('id', 'finalize');
 	$p->addHelp("node9.html#SECTION00521100000000000000");
 
 	$para = '
