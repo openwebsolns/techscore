@@ -24,7 +24,7 @@ class DetailsPane extends AbstractPane {
 
   protected function fillHTML(Array $args) {
     // Regatta details
-    $this->PAGE->addContent($p = new Port('Regatta details'));
+    $p = new Port('Regatta details');
     $p->addHelp("node9.html#SECTION00521000000000000000");
 
     $p->addChild($reg_form = $this->createForm());
@@ -132,20 +132,21 @@ class DetailsPane extends AbstractPane {
     $finalized = $this->REGATTA->get(Regatta::FINALIZED);
 
     // -------------------- Finalize regatta -------------------- //
+    $p2 = new Text("");
     if ($finalized === null) {
       if ($this->REGATTA->hasFinishes()) {
-	$this->PAGE->addContent($p = new Port("Finalize regatta"));
-	$p->addAttr('id', 'finalize');
-	$p->addHelp("node9.html#SECTION00521100000000000000");
+	$p2 = new Port("Finalize regatta");
+	$p2->addAttr('id', 'finalize');
+	$p2->addHelp("node9.html#SECTION00521100000000000000");
 
 	$para = '
         Once <strong>finalized</strong>, all the information (including rp,
         and rotation) about unscored regattas will be removed from the
         database. No <strong>new</strong> information can be entered,
         although you may still be able to edit existing information.';
-	$p->addChild(new Para($para));
+	$p2->addChild(new Para($para));
   
-	$p->addChild($form = $this->createForm());
+	$p2->addChild($form = $this->createForm());
 
 	$form->addChild(new FItem(new FCheckbox("approve",
 						"on",
@@ -162,6 +163,16 @@ class DetailsPane extends AbstractPane {
       $para = sprintf("This regatta was finalized on %s.",
 		      $finalized->format("l, F j Y"));
       $p->addChild(new Para($para, array("class"=>"strong")));
+    }
+    // If the regatta has already "ended", then the finalize port
+    // should go first to urge the user to take action.
+    if ($this->REGATTA->get(Regatta::END_DATE) < new DateTime()) {
+      $this->PAGE->addContent($p2);
+      $this->PAGE->addContent($p);
+    }
+    else {
+      $this->PAGE->addContent($p);
+      $this->PAGE->addContent($p2);
     }
   }
 
