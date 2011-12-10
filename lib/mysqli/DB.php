@@ -437,12 +437,16 @@ class Dt_Rp extends DBObject {
 }
 
 class Dt_Sailor extends DBObject {
+  const FEMALE = 'F';
+  const MALE = 'M';
+
   public $icsa_id;
   protected $school;
   public $last_name;
   public $first_name;
   public $year;
   public $role;
+  public $gender;
 
   public function db_name() { return 'sailor'; }
   public function db_cache() { return true; }
