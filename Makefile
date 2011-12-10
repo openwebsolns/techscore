@@ -49,7 +49,7 @@ doc:
 	  --output "HTML:Smarty:PHP"
 
 # Admin CSS
-css-admin: www/inc/css/aa.css www/inc/css/mobile.css www/inc/css/modern.css www/inc/css/print.css www/inc/css/modern-dialog.css
+css-admin: www/inc/css/aa.css www/inc/css/mobile.css www/inc/css/modern.css www/inc/css/print.css www/inc/css/modern-dialog.css www/inc/css/widescreen.css
 
 www/inc/css/%.css: res/inc/css/%.css
 	tr "\n" " " < $^ | \
