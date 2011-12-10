@@ -8,7 +8,12 @@
 require_once('conf.php');
 
 /**
- * Generates the all-american report, hopefully
+ * Generates the all-american report. This pane is unlike any other
+ * because, due to the complex nature of the report generation
+ * process, some processing happens in fillHTML, and others in
+ * process. You see, the report is too complex to be generated in one
+ * step. And as such, the report generation process is divided into
+ * multiple steps, each one separated into different subpages.
  *
  * @author Dayan Paez
  * @version 2011-03-29
@@ -99,7 +104,10 @@ class AllAmerican extends AbstractUserPane {
 						  'rel'=>'stylesheet')));
     
     // ------------------------------------------------------------
-    // 1. Step one: choose regattas
+    // 1. Step one: choose regattas. For women's reports, ICSA
+    // requests that non-women's regattas may also be chosen for
+    // inclusion. Note that male sailors should NOT be included in the
+    // list of automatic sailors.
     // ------------------------------------------------------------
     if ($_SESSION['aa']['regattas-set'] === false) {
       // Add button to go back
@@ -165,7 +173,7 @@ class AllAmerican extends AbstractUserPane {
 	  $tab->addRow($r);
 	  if ($reg->finalized === null ||
 	      ($reg->participant != $_SESSION['aa']['report-participation'] &&
-	       'special' != $_SESSION['aa']['report-participation'])) {
+	       Regatta::PARTICIPANT_COED == $_SESSION['aa']['report-participation'])) {
 	    $r->addAttr('class', 'disabled');
 	    $chk->addAttr("disabled", "disabled");
 	  }
@@ -407,8 +415,9 @@ class AllAmerican extends AbstractUserPane {
       foreach ($args['regatta'] as $id) {
 	try {
 	  $reg = new Regatta($id);
-	  if ($reg->get(Regatta::TYPE) != Preferences::TYPE_PERSONAL &&
-	      $reg->get(Regatta::PARTICIPANT) == $_SESSION['aa']['report-participation'] &&
+	  $allow_other_ptcp = ($_SESSION['aa']['report-participation'] != Regatta::PARTICIPANT_COED ||
+			       $reg->get(Regatta::PARTICIPANT) == Regatta::PARTICIPANT_COED);
+	  if ($reg->get(Regatta::TYPE) != Preferences::TYPE_PERSONAL && $allow_other_ptcp &&
 	      $reg->get(Regatta::FINALIZED) !== null)
 	    $this->populateSailors($reg);
 	  else
@@ -559,6 +568,8 @@ class AllAmerican extends AbstractUserPane {
 			   $_SESSION['aa']['report-role']) as $rp) {
 	
 	if ($rp->sailor->icsa_id !== null &&
+	    ($_SESSION['aa']['report-participation'] != Regatta::PARTICIPANT_WOMEN ||
+	     $rp->sailor->gender == Sailor::FEMALE) &&
 	    isset($_SESSION['aa']['report-confs'][$rp->sailor->school->conference->id])) {
 	  $content = ($sng) ? $team->rank : sprintf('%d%s', $team->rank, $team->division);
 	  if (count($rp->races_nums) != $_SESSION['aa']['regatta_races'][$id])
