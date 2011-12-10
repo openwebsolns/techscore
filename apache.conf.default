@@ -133,6 +133,9 @@ CustomLog {HTTP_LOGROOT}/scores.{HOSTNAME}-access.log combined
 DocumentRoot {DIRECTORY}/html
 
 <Directory {DIRECTORY}/html>
+Order allow,deny
+Allow from all
+
 ErrorDocument 404 /404.html
 Options -Indexes
 DirectoryIndex index.html rotations.html
