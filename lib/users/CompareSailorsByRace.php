@@ -8,17 +8,18 @@
 require_once('conf.php');
 
 /**
- * Compares up to three sailors head to head across a season
+ * Compares up to three sailors head to head across a season or more,
+ * and include races in common.
  *
  * @author Dayan Paez
  * @version 2011-03-29
  */
-class CompareSailors extends AbstractUserPane {
+class CompareSailorsByRace extends AbstractUserPane {
   /**
    * Creates a new pane
    */
   public function __construct(User $user) {
-    parent::__construct("Compare sailors", $user);
+    parent::__construct("Compare sailors by race", $user);
   }
 
   private function doSailors(Array $args) {
@@ -177,7 +178,7 @@ class CompareSailors extends AbstractUserPane {
     if (isset($args['sailor']) || isset($args['sailors'])) {
       if ($this->doSailors($args))
 	return;
-      WebServer::go('/compare-sailors');
+      WebServer::go('/compare-by-race');
     }
 
     // ------------------------------------------------------------
@@ -188,7 +189,7 @@ class CompareSailors extends AbstractUserPane {
 						  'href'=>'/inc/css/aa.css',
 						  'rel'=>'stylesheet')));
     $this->PAGE->addHead(new GenericElement('script', array(new Text("")), array('src'=>'/inc/js/aa.js')));
-    $this->PAGE->addContent($form = new Form('/compare-sailors', "get"));
+    $this->PAGE->addContent($form = new Form('/compare-by-race', "get"));
 
     // Season selection
     $form->addChild($p = new Port("Seasons to compare"));

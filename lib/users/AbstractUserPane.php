@@ -74,7 +74,7 @@ abstract class AbstractUserPane {
     $div->addChild(new Heading("Reports"));
     $div->addChild($list = new GenericList());
     $list->addItems(new LItem(new Link("/aa", "All-American")),
-		    new LItem(new Link("/compare-sailors", "Comp. sailors")));
+		    new LItem(new Link("/compare-by-race", "Comp. by race")));
     
     // Messages
     $this->PAGE->addMenu($div = new Div());

@@ -113,8 +113,8 @@ else {
     $PAGE = new AccountPane($USER);
   break;
 
-  case "compare-sailors":
-    $PAGE = new CompareSailors($USER);
+  case "compare-by-race":
+    $PAGE = new CompareSailorsByRace($USER);
     break;
 
   case "aa":
