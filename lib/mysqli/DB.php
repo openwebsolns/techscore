@@ -53,9 +53,44 @@ class DBME extends DBM {
 
     DBM::setConnection($con);
   }
+
+  public static function parseSeason($str) {
+    if (strlen($str) == 0) return null;
+    $s = null;
+    switch (strtolower($str[0])) {
+    case 'f': $s = 'fall'; break;
+    case 'm': $s = 'summer'; break;
+    case 's': $s = 'spring'; break;
+    case 'w': $s = 'winter'; break;
+    default: return null;
+    }
+    $y = substr($str, 1);
+    if (!is_numeric($y)) return null;
+    $y = (int)$y;
+    $y += ($y < 90) ? 2000 : 1900;
+    
+    $res = self::getAll(self::$SEASON, new MyBoolean(array(new MyCond('season', $s),
+							   new MyCond('year(start_date)', $y))));
+    if (count($res) == 0)
+      return null;
+    return $res[0];
+  }
+
+  public static function getSeason(DateTime $t) {
+    $res = self::getAll(self::$SEASON, new MyBoolean(array(new MyCond('start_date', $t, MyCond::LE),
+							   new MyCond('end_date',   $t, MyCond::GE))));
+    if (count($res) == 0)
+      return null;
+    return $res[0];
+  }
 }
 
 class Dt_Season extends DBObject {
+  const FALL = 'fall';
+  const WINTER = 'winter';
+  const SPRING = 'spring';
+  const SUMMER = 'summer';
+
   public $season;
   protected $start_date;
   protected $end_date;
@@ -86,6 +121,15 @@ class Dt_Season extends DBObject {
   }
   public function fullString() {
     return sprintf('%s %s', ucfirst($this->season), $this->start_date->format('Y'));
+  }
+
+  /**
+   * Retrieves all the regattas for this season
+   *
+   * @return Array:Regattas
+   */
+  public function getRegattas() {
+    return DBME::getAll(DBME::$REGATTA, new MyCond('season', (string)$this));
   }
 }
 
@@ -233,6 +277,27 @@ class Dt_Regatta extends DBObject {
     return DBME::getAll(DBME::$RACE, new MyBoolean(array(new MyCond('regatta', $this->id),
 							 new MyCond('division', $division))));
   }
+
+  // ------------------------------------------------------------
+  // RP information
+  // ------------------------------------------------------------
+
+  public function getParticipation(Dt_Sailor $sailor, $division = null, $role = null) {
+    $team = DBME::prepGetAll(DBME::$TEAM, new MyCond('regatta', $this->id));
+    $team->fields(array('id'), DBME::$TEAM->db_name());
+    
+    $cond = new MyBoolean(array(new MyCondIn('team', $team)));
+    if ($division !== null)
+      $cond->add(new MyCond('division', $division));
+    $tdiv = DBME::prepGetAll(DBME::$TEAM_DIVISION, $cond);
+    $tdiv->fields(array('id'), DBME::$TEAM_DIVISION->db_name());
+
+    $cond = new MyBoolean(array(new MyCondIn('team_division', $tdiv),
+				new MyCond('sailor', $sailor->id)));
+    if ($role !== null)
+      $cond->add(new MyCond('boat_role', $role));
+    return DBME::getAll(DBME::$RP, $cond);
+  }
 }
 
 class Dt_Venue extends DBObject {
@@ -301,8 +366,7 @@ class Dt_Team extends DBObject {
       $rank = $this->getRank($div);
       if ($rank === null)
 	return array();
-      return DBME::getAll(DBME::$RP, new MyBoolean(array(new MyCond('boat_role', $role),
-							 new MyCond('team_division', $rank->id))));
+      return $rank->getRP($role);
     }
     $q = DBME::prepGetAll(DBME::$TEAM_DIVISION, new MyCond('team', $this->id));
     $q->fields(array('id'), DBME::$TEAM_DIVISION->db_name());
@@ -422,6 +486,9 @@ class Dt_Score extends DBObject {
 }
 
 class Dt_Rp extends DBObject {
+  const SKIPPER = 'skipper';
+  const CREW = 'crew';
+
   protected $team_division;
   protected $race_nums;
   protected $sailor;
@@ -485,5 +552,10 @@ class Dt_Team_Division extends DBObject {
     return parent::db_type($field);
   }
   public function db_order() { return 'division, rank'; }
+
+  public function getRP($role = 'skipper') {
+    return DBME::getAll(DBME::$RP, new MyBoolean(array(new MyCond('boat_role', $role),
+						       new MyCond('team_division', $this->id))));
+  }
 }
 ?>

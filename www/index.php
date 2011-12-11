@@ -117,6 +117,13 @@ else {
     $PAGE = new CompareSailorsByRace($USER);
     break;
 
+  case "compare-sailors":
+  case "compare-head-to-head":
+  case "compare-head-head":
+  case "head-to-head":
+    $PAGE = new CompareHeadToHead($USER);
+    break;
+
   case "aa":
     $PAGE = new AllAmerican($USER);
     break;
