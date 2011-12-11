@@ -464,6 +464,32 @@ class RpManager {
     return $list;
   }
 
+  /**
+   * Get all the regattas the given sailor has participated in
+   *
+   * @param Sailor $sailor the sailor
+   * @param Const|null $role either SKIPPER or CREW to narrow down
+   * @param Division $div specify one to narrow down
+   * @return Array:RegattaSummary
+   */
+  public static function getRegattas(Sailor $sailor, $role = null, Division $div = null) {
+    $where_role = '';
+    if ($role !== null)
+      $where_role = sprintf('and boat_role="%s"', $role);
+    $where_div = '';
+    if ($div !== null)
+      $where_div = sprintf('division="%s" and ', $div);
+    $q = sprintf('select %s from %s where id in ' .
+		 ' (select regatta from race where %s id in ' .
+		 '  (select race from rp where sailor = "%s" %s))',
+		 RegattaSummary::FIELDS, RegattaSummary::TABLES, $where_div, $sailor->id, $where_role);
+    $res = Preferences::query($q);
+    $list = array();
+    while ($obj = $res->fetch_object('RegattaSummary'))
+      $list[] = $obj;
+    return $list;
+  }
+
   // ------------------------------------------------------------
   // Searching
   // ------------------------------------------------------------

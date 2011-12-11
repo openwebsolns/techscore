@@ -64,7 +64,7 @@ class SailorMergePane extends AbstractUserPane {
     $sailors = RpManager::getSailors($this->SCHOOL);
     $choices = array("" => "");
     foreach ($sailors as $sailor)
-      $choices[$sailor->id] = sprintf("%s %s", $sailor->first_name, $sailor->last_name);
+      $choices[$sailor->id] = (string)$sailor;
 
     foreach ($temp as $sailor) {
       $tab->addRow(new Row(array(new Cell($sailor), $c = new Cell())));
@@ -89,9 +89,11 @@ class SailorMergePane extends AbstractUserPane {
     }
     unset($args['match_sailors']);
 
+    $divs = Division::getAssoc();
     $reals = RpManager::getSailors($this->SCHOOL);
     $temps = RpManager::getUnregisteredSailors($this->SCHOOL);
     $replaced = 0;
+    $affected = array();
     // Process each temp id
     foreach ($args as $id => $value) {
 
@@ -103,6 +105,14 @@ class SailorMergePane extends AbstractUserPane {
 	$temp = Preferences::getObjectWithProperty($temps, "id", $id);
 	if ($real && $temp) {
 
+	  // Notify the affected regattas to redo their RPs
+	  foreach ($divs as $div) {
+	    foreach (RpManager::getRegattas($temp, null, $div) as $reg) {
+	      UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_RP, $div);
+	      $affected[$reg->id] = $reg;
+	    }
+	  }
+
 	  // Replace
 	  RpManager::replaceTempActual($temp, $real);
 	  $replaced++;
@@ -110,8 +120,11 @@ class SailorMergePane extends AbstractUserPane {
 	
       }
     }
+    if (count($affected) > 0) {
+      $this->announce(new Announcement(sprintf("Affected %s regattas retroactively.", count($affected))));
+    }
     if ($replaced > 0) {
-      $this->announce(new Announcement("Updated $replaced temporary sailors."));
+      $this->announce(new Announcement("Updated $replaced temporary sailor(s)."));
     }
     else {
       $this->announce(new Announcement("No sailors updated.", Announcement::WARNING));
