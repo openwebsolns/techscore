@@ -171,6 +171,25 @@ class User {
   }
 
   /**
+   * Searches and returns a list of matching regattas.
+   *
+   * @param String $qry the query to search
+   * @return Array:RegattaSummary the regattas
+   */
+  public function searchRegattas($qry) {
+    $q = sprintf('select %s from %s where name like "%%%s%%" ',
+		 RegattaSummary::FIELDS, RegattaSummary::TABLES, $qry);
+    if ($this->get(User::ADMIN) == 0) // not admin
+      $q .= sprintf('and id in (select regatta from host where host.account = "%s") ', $this->username);
+    $q .= 'order by start_time desc';
+    $q = Preferences::query($q);
+    $list = array();
+    while ($obj = $q->fetch_object("RegattaSummary"))
+      $list[] = $obj;
+    return $list;
+  }
+
+  /**
    * Returns all the schools that this user is affiliated with,
    * including the one enrolled as.
    *

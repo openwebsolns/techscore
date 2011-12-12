@@ -52,10 +52,56 @@ class UserHomePane extends AbstractUserPane {
     // ------------------------------------------------------------
     // Regatta list
     // ------------------------------------------------------------
-    $num_regattas = $this->USER->getNumRegattas();
+
+    // Search?
+    $qry = null;
+    $mes = null;
+    $regattas = array();
+    $num_regattas = 0;
+    if (isset($_GET['q'])) {
+      $qry = trim($_GET['q']);
+      if (strlen($qry) == 0)
+	$mes = "No search query given.";
+      if (strlen($qry) < 3)
+	$mes = "Search string is too short.";
+      else {
+	$regs = $this->USER->searchRegattas($qry);
+	$num_regattas = count($regs);
+	if ($startint > 0 && $startint >= $num_regattas)
+	  WebServer::go('/?q=' . $qry);
+	// Narrow down the list
+	for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < count($regs); $i++)
+	  $regattas[] = $regs[$i];
+      }
+    }
+    else {
+      $num_regattas = $this->USER->getNumRegattas();
+      $regattas = $this->USER->getRegattas($startint, $startint + self::NUM_PER_PAGE);
+    }
+    
     $this->PAGE->addContent($p = new Port("My Regattas"));
-    $regattas = $this->USER->getRegattas($startint, $startint + self::NUM_PER_PAGE);
-    usort($regattas, "RegattaSummary::cmpStartDesc");
+    // usort($regattas, "RegattaSummary::cmpStartDesc");
+
+    // Add search form, if necessary
+    if ($num_regattas > self::NUM_PER_PAGE * 3 || $qry !== null) {
+      $p->addChild($f = new Form('/', 'get'));
+      $f->addChild($pa = new Para(""));
+      $pa->addAttr('id', 'search');
+      $pa->addAttr('title', "Enter part or all of the name");
+      $pa->addChild(new Text("Search your regattas: "));
+      $pa->addChild(new FText('q', $qry, array('size'=>60)));
+      $pa->addChild(new FSubmit('go', "Go"));
+      if ($qry !== null) {
+	$pa->addChild(new Text(" "));
+	$pa->addChild(new Link('/', "Cancel"));
+      }
+      if ($mes !== null) {
+	$f->addChild($pa = new Para(""));
+	$pa->addAttr('class', 'warning');
+	$pa->addAttr('style', 'padding: 0.5em;');
+	$pa->addChild(new Text($mes));
+      }
+    }
 
     // Create table of regattas, if applicable
     if (count($regattas) > 0) {
@@ -67,7 +113,7 @@ class UserHomePane extends AbstractUserPane {
 				    Cell::th("Type"),
 				    Cell::th("Finalized"))));
     }
-    else {
+    elseif ($qry === null) {
       $p->addChild(new Para('You have no regattas. Go <a href="create">create one</a>!'));
     }
     $row = 0;
@@ -89,7 +135,10 @@ class UserHomePane extends AbstractUserPane {
       $r->addAttr("class", sprintf("row%d", $row++ % 2));
     }
     $last = (int)($num_regattas / self::NUM_PER_PAGE);
-    $p->addChild(new PageDiv($last, $pageset, "home"));
+    if ($last > 0) {
+      $suf = ($qry !== null) ? '?q='.$qry : '';
+      $p->addChild(new PageDiv($last, $pageset, 'home', $suf));
+    }
   }
 
   /**

@@ -1026,13 +1026,12 @@ class PageDiv extends Div {
    * @param int $current the current page number
    * @param String $prefix the prefix for the links
    */
-  public function __construct($num_pages, $current, $prefix) {
+  public function __construct($num_pages, $current, $prefix, $suffix = '') {
     parent::__construct(array(), array("class"=>"navlinks"));
 
     // always display the first five, if possible
-    for ($i = 1; $i <= $num_pages && $i < 5; $i++) {
-      $this->addChild($l = new Link(sprintf("%s|%d", $prefix, $i), $i));
-      $this->addChild(new Text(" "));
+    for ($i = 1; $i < $current && $i < 5; $i++) {
+      $this->addChild($l = new Link(sprintf("%s|%d%s", $prefix, $i, $suffix), $i));
       if ($i == $current) {
 	$l->addAttr("class", "current");
       }
@@ -1041,35 +1040,24 @@ class PageDiv extends Div {
     if ($i < $current - 2)
       $i = $current - 2;
 
-    for (; $i < $current; $i++) {
-      $this->addChild($l = new Link(sprintf("%s|%d", $prefix, $i), $i));
-      $this->addChild(new Text(" "));
-    }
+    for (; $i < $current; $i++)
+      $this->addChild($l = new Link(sprintf("%s|%d%s", $prefix, $i, $suffix), $i));
+
     // also print this one
-    $this->addChild(new Link(sprintf("%s|%d", $prefix, $i), $i, array('class' => 'current')));
+    $this->addChild(new Link(sprintf("%s|%d%s", $prefix, $i, $suffix), $i, array('class' => 'current')));
     $this->addChild(new Text(" "));
     $i++;
     // also print the two after this one
     for (; $i < $current + 3 && $i < $num_pages; $i++) {
-      $this->addChild($l = new Link(sprintf("%s|%d", $prefix, $i), $i));
-      $this->addChild(new Text(" "));
+      $this->addChild($l = new Link(sprintf("%s|%d%s", $prefix, $i, $suffix), $i));
       if ($i == $current) {
 	$l->addAttr("class", "current");
       }
     }
     // also print the last one
     if ($i < $num_pages) {
-      $this->addChild(new Link(sprintf("%s|%d", $prefix, $num_pages), $num_pages));
+      $this->addChild(new Link(sprintf("%s|%d%s", $prefix, $num_pages, $suffix), $num_pages));
     }
-    /*
-    for ($i = 1; $i <= $num_pages; $i++) {
-      $this->addChild($l = new Link(sprintf("%s|%d", $prefix, $i), $i));
-      $this->addChild(new Text(" "));
-      if ($i == $current) {
-	$l->addAttr("class", "current");
-      }
-    }
-    */
   }
 }
 

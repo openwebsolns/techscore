@@ -70,9 +70,9 @@ RewriteRule ^prefs/([A-Za-z]+)/(.*)/?$ prefs.php?school=$1&p=$2
 RewriteRule ^pedit/([A-Za-z]+)/(.*)/?$ prefs.php?_action=edit&school=$1&p=$2
 
 # for users home
-RewriteRule ^/?$ index.php?p=home
-RewriteRule ^home/?$ index.php?p=home
-RewriteRule ^home\|([0-9]+)$ index.php?p=home&page=$1
+RewriteRule ^/?$ index.php?p=home [qsa]
+RewriteRule ^home/?$ index.php?p=home [qsa]
+RewriteRule ^home\|([0-9]+)$ index.php?p=home&page=$1 [qsa]
 
 # for messages
 RewriteRule ^inbox/?$ index.php?p=inbox

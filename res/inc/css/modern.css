@@ -54,8 +54,8 @@ div.maximized {position:fixed;top:0px;left:0px;width:100%;height:100%;z-index:10
 div.maximized iframe {width:850px;margin:auto;height:95%;display:block;}
 #announcediv {margin:auto;margin-bottom:20px;font-size:0.9em;width:820px;}
 #announcediv p {padding:0.5em;margin:1em 15px;background:#eed2c0;border:1px solid brown;}
-#announcediv p.valid {background:#e0f3e0;border:1px solid green;}
-#announcediv p.warning {background:#f3f3bb;border:1px solid orange;}
+p.valid {background:#e0f3e0;border:1px solid green;}
+p.warning {background:#f3f3bb;border:1px solid orange;}
 #announcediv img {margin-right:0.5em;}
 .left {text-align:left;}
 .strong {font-weight:bold;}
@@ -83,3 +83,34 @@ dt {margin-left:3em;margin-bottom:1em;}
 .pos_sail:hover, .pos_team:hover {background:#3465a4;color:white;}
 tr.disabled {background:#ddd;color:#555;}
 .inline-list {list-style-type:none;display:inline-block;zoom:1;*display:inline;margin:0;padding:0;}
+
+/* Navigation links */
+.navlinks {
+    margin-top: 0.5em;
+}
+.navlinks a {
+    display: inline-block;
+    zoom: 1;
+    *display: inline;
+    padding: 0.05em 0.35em;
+    background: #3465a4;
+    color: white;
+    text-decoration: none;
+    font-size: 85%;
+    border-right: 1px solid white;
+    border-left: 1px solid #ccc;
+}
+
+.navlinks a.current {
+    background: #002d62;
+    font-weight: bold;
+    margin: 0 1em;
+}
+
+#search  {
+    margin: 0 0 1em;
+    padding: 0;
+}
+#search input {
+    padding: 0;
+}
