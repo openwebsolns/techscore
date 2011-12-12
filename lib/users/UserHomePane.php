@@ -67,6 +67,8 @@ class UserHomePane extends AbstractUserPane {
       else {
 	$regs = $this->USER->searchRegattas($qry);
 	$num_regattas = count($regs);
+	if ($num_regattas == 0)
+	  $mes = "No results found.";
 	if ($startint > 0 && $startint >= $num_regattas)
 	  WebServer::go('/?q=' . $qry);
 	// Narrow down the list
@@ -135,7 +137,7 @@ class UserHomePane extends AbstractUserPane {
       $r->addAttr("class", sprintf("row%d", $row++ % 2));
     }
     $last = (int)($num_regattas / self::NUM_PER_PAGE);
-    if ($last > 0) {
+    if ($last > 1) {
       $suf = ($qry !== null) ? '?q='.$qry : '';
       $p->addChild(new PageDiv($last, $pageset, 'home', $suf));
     }
