@@ -166,14 +166,18 @@ class RpManager {
    * @param mixed $active default "all", returns ONLY the active ones,
    * false to return ONLY the inactive ones, anything else for all.
    *
+   * @param boolean $only_registered true to narrow down to ICSA
+   *
    * @return Array<Sailor> list of coaches
    */
-  public static function getCoaches(School $school, $active = 'all') {
+  public static function getCoaches(School $school, $active = 'all', $only_registered = false) {
     $a = '';
     if ($active === true)
       $a = 'and active is not null ';
     if ($active === false)
       $a = 'and active is null ';
+    if ($only_registered !== false)
+      $a .= 'and icsa_id is not null ';
     $q = sprintf('select %s from %s where school = "%s" ' .
 		 'and role = "coach" %s' .
 		 'order by last_name',

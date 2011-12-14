@@ -62,14 +62,19 @@ class SailorMergePane extends AbstractUserPane {
 
     // Create choices
     $sailors = RpManager::getSailors($this->SCHOOL);
-    $choices = array("" => "");
+    $choices = array();
+    $coaches = array();
     foreach ($sailors as $sailor)
       $choices[$sailor->id] = (string)$sailor;
+    foreach (RpManager::getCoaches($this->SCHOOL, 'all', true) as $sailor)
+      $coaches[$sailor->id] = (string)$sailor;
 
     foreach ($temp as $sailor) {
       $tab->addRow(new Row(array(new Cell($sailor), $c = new Cell())));
       $c->addChild($f_sel = new FSelect($sailor->id));
-      $f_sel->addOptions($choices);
+      $f_sel->addOptions(array("" => ""));
+      $f_sel->addOptionGroup("Sailors", $choices);
+      $f_sel->addOptionGroup("Coaches", $coaches);
     }
 
     // Submit
