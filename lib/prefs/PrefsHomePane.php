@@ -5,6 +5,8 @@
  * @package prefs
  */
 
+require_once('users/AbstractUserPane.php');
+
 /**
  * PrefsHomePane: the gateway to preferences editing
  *

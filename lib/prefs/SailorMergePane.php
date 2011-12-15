@@ -5,6 +5,8 @@
  * @package prefs
  */
 
+require_once('users/AbstractUserPane.php');
+
 /**
  * SailorMergePane: editor pane to merge the unsorted sailors from a
  * given school with those in the actual database.
@@ -87,6 +89,7 @@ class SailorMergePane extends AbstractUserPane {
    * @param Array $args an associative array similar to $_REQUEST
    */
   public function process(Array $args) {
+    require_once('public/UpdateManager.php');
 
     // Check $args
     if (!isset($args['match_sailors'])) {

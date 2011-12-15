@@ -6,6 +6,8 @@
  */
 
 require_once('users/AbstractUserPane.php');
+require_once('regatta/data/ScoresAnalyzer.php');
+require_once('regatta/data/TeamDivision.php');
 
 /**
  * Generates the all-american report. This pane is unlike any other

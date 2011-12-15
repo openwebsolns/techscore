@@ -5,6 +5,8 @@
  * @package prefs
  */
 
+require_once('users/AbstractUserPane.php');
+
 /**
  * EditLogoPane: an editor for a school's logo.
  *
@@ -64,6 +66,7 @@ class EditLogoPane extends AbstractUserPane {
    * @param Array $args an associative array similar to $_REQUEST
    */
   public function process(Array $args) {
+    require_once('Thumbnailer.php');
 
     // Check $args
     if (!isset($args['upload'])) {

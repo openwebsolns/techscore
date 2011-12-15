@@ -18,6 +18,7 @@ if (!(isset($_SESSION['user']))) {
 
   // provide the login page
   $_SESSION['ANNOUNCE'][] = new Announcement("Please login to proceed.", Announcement::WARNING);
+  require_once('xml/WelcomePage.php');
   $PAGE = new WelcomePage();
   $PAGE->printHTML();
   exit;

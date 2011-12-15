@@ -5,6 +5,8 @@
  * @package prefs
  */
 
+require_once('users/AbstractUserPane.php');
+
 /**
  * TeamNamePrefsPane: editing the valid school names to use
  *
