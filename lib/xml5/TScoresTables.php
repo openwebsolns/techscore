@@ -7,7 +7,7 @@
  * @package xml5
  */
 
-require_once('HtmlLib.php');
+require_once('xml5/TS.php');
 
 /**
  * Generates the necessary tables (only once) for the given regatta

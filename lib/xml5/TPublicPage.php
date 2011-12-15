@@ -5,7 +5,7 @@
  * @package xml5
  */
 
-require_once('HtmlLib.php');
+require_once('xml5/TS.php');
 
 /**
  * Public page for scores, written in the new and improved HtmlLib

@@ -5,7 +5,7 @@
  * @package xml5
  */
 
-require_once('HtmlLib.php');
+require_once('xml5/TS.php');
 
 /**
  * Specific page for front page, written in the new and improved HtmlLib
