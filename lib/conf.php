@@ -7,14 +7,9 @@
    * @version 2009-10-04
    */
 
-// attempt to make files easier to find
-ini_set('include_path', sprintf('.:%s:%s', dirname(__FILE__), get_include_path()));
-
 function __autoload($name) {
-  if (false !== ($result = __search_path(dirname(__FILE__), "$name.php"))) {
-    require_once($result);
-    return;
-  }
+  // Check only in the 'regatta' folder
+  require_once("regatta/$name.php");
 }
 
 function __search_path($dirname, $name) {

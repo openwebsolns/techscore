@@ -6,8 +6,7 @@
  * @package xml
  */
 
-require_once('conf.php');
-__autoload('XmlLibrary');
+require_once('xml/XmlLibrary.php');
 
 /**
  * Encapsulates an announcement, which constitutes a message and a

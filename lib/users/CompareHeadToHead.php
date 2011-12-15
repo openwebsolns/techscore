@@ -5,7 +5,7 @@
  * @package users
  */
 
-require_once('conf.php');
+require_once('users/AbstractUserPane.php');
 
 /**
  * Compares up to three sailors head to head across a season or more,

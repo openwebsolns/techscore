@@ -5,7 +5,7 @@
  * @package users
  */
 
-require_once("conf.php");
+require_once('users/AbstractUserPane.php');
 
 /**
  * User's home page, subclasses AbstractUserPane

@@ -5,7 +5,7 @@
  * @package users
  */
 
-require_once('conf.php');
+require_once('users/AbstractUserPane.php');
 
 /**
  * Generates the all-american report. This pane is unlike any other

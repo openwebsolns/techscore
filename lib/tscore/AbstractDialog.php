@@ -5,9 +5,6 @@
  * @package tscore-dialog
  */
 
-require_once('conf.php');
-__autoload('XmlLibrary');
-
 /**
  * Template for all display dialogs. Requires REGATTA.
  *
@@ -36,6 +33,8 @@ abstract class AbstractDialog {
    *
    */
   protected function setupPage() {
+    require_once('xml/TScoreDialog.php');
+
     $title = sprintf("%s | %s | TS",
 		     $this->name,
 		     $this->REGATTA->get(Regatta::NAME));

@@ -5,7 +5,7 @@
  * @package rpwriter
  */
 
-require_once('conf.php');
+require_once('rpwriter/AbstractIcsaRpForm.php');
 
 /**
  * This file is a new visualization of the RP form writing process. In

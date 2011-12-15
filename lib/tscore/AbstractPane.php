@@ -5,8 +5,7 @@
  * @package tscore
  */
 
-require_once('conf.php');
-__autoload('XmlLibrary');
+require_once('xml/XmlLibrary.php');
 
 /**
  * Parent class of all editing panes. Requires USER and REGATTA.
@@ -53,6 +52,8 @@ abstract class AbstractPane {
    *
    */
   protected function setupPage() {
+    require_once('xml/TScorePage.php');
+
     $title = sprintf("%s | %s | TS",
 		     $this->name,
 		     $this->REGATTA->get(Regatta::NAME));
@@ -218,43 +219,53 @@ abstract class AbstractPane {
     case 'home':
     case 'details':
     case 'settings':
+      require_once('tscore/DetailsPane.php');
       return new DetailsPane($r, $u);
     case 'drop-finishes':
     case 'all-finishes':
     case 'current-finishes':
+      require_once('tscore/DropFinishPane.php');
       return new DropFinishPane($r, $u);
     case 'drop-penalty':
     case 'drop-penalties':
+      require_once('tscore/DropPenaltyPane.php');
       return new DropPenaltyPane($r, $u);
     case 'enter-finish':
     case 'enter-finishes':
     case 'finish':
     case 'finishes':
+      require_once('tscore/EnterFinishPane.php');
       return new EnterFinishPane($r, $u);
     case 'add-penalty':
     case 'penalties':
     case 'penalty':
+      require_once('tscore/EnterPenaltyPane.php');
       return new EnterPenaltyPane($r, $u);
     case 'manual-rotation':
+      require_once('tscore/ManualTweakPane.php');
       return new ManualTweakPane($r, $u);
     case 'notes':
     case 'note':
     case 'race-note':
     case 'race-notes':
+      require_once('tscore/NotesPane.php');
       return new NotesPane($r, $u);
     case 'races':
     case 'race':
     case 'edit-race':
     case 'edit-races':
+      require_once('tscore/RacesPane.php');
       return new RacesPane($r, $u);
     case 'substitute':
     case 'substitute-team':
     case 'sub-team':
+      require_once('tscore/ReplaceTeamPane.php');
       return new ReplaceTeamPane($r, $u);
     case 'rp':
     case 'rps':
     case 'enter-rp':
     case 'enter-rps':
+      require_once('tscore/RpEnterPane.php');
       return new RpEnterPane($r, $u);
     case 'setup-rotations':
     case 'setup-rotation':
@@ -263,17 +274,21 @@ abstract class AbstractPane {
     case 'sails':
     case 'create-rotation':
     case 'create-rotations':
+      require_once('tscore/SailsPane.php');
       return new SailsPane($r, $u);
     case 'scorer':
     case 'scorers':
+      require_once('tscore/ScorersPane.php');
       return new ScorersPane($r, $u);
     case 'summaries':
     case 'daily-summaries':
     case 'summary':
     case 'daily-summary':
+      require_once('tscore/SummaryPane.php');
       return new SummaryPane($r, $u);
     case 'team-penalty':
     case 'team-penalties':
+      require_once('tscore/TeamPenaltyPane.php');
       return new TeamPenaltyPane($r, $u);
     case 'team':
     case 'teams':
@@ -281,23 +296,27 @@ abstract class AbstractPane {
     case 'set-teams':
     case 'add-team':
     case 'set-team':
+      require_once('tscore/TeamsPane.php');
       return new TeamsPane($r, $u);
     case 'remove-team':
     case 'remove-teams':
     case 'delete-team':
     case 'delete-teams':
+      require_once('tscore/DeleteTeamsPane.php');
       return new DeleteTeamsPane($r, $u);
     case 'tweak':
     case 'tweak-sails':
     case 'substitute-sails':
     case 'substitute-sail':
     case 'tweak-sail':
+      require_once('tscore/TweakSailsPane.php');
       return new TweakSailsPane($r, $u);
     case 'unregistered':
     case 'unregistered-sailors':
     case 'unregistered-sailor':
     case 'new-sailors':
     case 'new-sailor':
+      require_once('tscore/UnregisteredSailorPane.php');
       return new UnregisteredSailorPane($r, $u);
     default:
       return null;

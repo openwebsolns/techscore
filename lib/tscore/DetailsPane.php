@@ -6,7 +6,7 @@
  * @package tscore
  */
 
-require_once('conf.php');
+require_once('tscore/AbstractPane.php');
 
 /**
  * The "home" pane where the regatta's details are edited.
@@ -35,7 +35,7 @@ class DetailsPane extends AbstractPane {
 					    stripslashes($value),
 					    array("maxlength"=>40,
 						  "size"     =>20))));
-
+    
     // Date
     $start_time = $this->REGATTA->get(Regatta::START_TIME);
     $date = date_format($start_time, 'm/d/Y');
@@ -76,6 +76,7 @@ class DetailsPane extends AbstractPane {
     $reg_form->addChild($item = new FItem("Type:",
 					  $f_sel = new FSelect("type",
 							       array($value))));
+
     $types = Preferences::getRegattaTypeAssoc();
     unset($types['personal']);
     $f_sel->addOptionGroup("Public", $types);
@@ -90,11 +91,8 @@ class DetailsPane extends AbstractPane {
     $f_sel->addOptions(Preferences::getRegattaParticipantAssoc());
     // will changing this value affect the RP information?
     if ($value == Regatta::PARTICIPANT_COED) {
-      $rp = $this->REGATTA->getRpManager();
-      if ($rp->hasGender(Sailor::MALE)) {
-	$item->addChild(new Span(array(new Text("Changing this value will affect RP info")),
-				 array('class'=>'message')));
-      }
+      $item->addChild(new Span(array(new Text("Changing this value may affect RP info")),
+			       array('class'=>'message')));
     }
 
     // Scoring rules
@@ -123,6 +121,7 @@ class DetailsPane extends AbstractPane {
       if (count($opts) > 0)
 	$f_sel->addOptionGroup($conf, $opts);
     }
+
     $f_sel->addAttr('multiple', 'multiple');
     $f_sel->addAttr('size', 10);
 

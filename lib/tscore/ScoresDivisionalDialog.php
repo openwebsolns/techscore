@@ -5,7 +5,7 @@
  * @package tscore-dialog
  */
 
-require_once('conf.php');
+require_once('tscore/AbstractScoresDialog.php');
 
 /**
  * Displays the divisional score table, which summarizes the scores

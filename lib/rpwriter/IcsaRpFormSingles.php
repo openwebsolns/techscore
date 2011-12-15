@@ -5,7 +5,7 @@
  * @package rpwriter
  */
 
-require_once('conf.php');
+require_once('rpwriter/AbstractIcsaRpForm.php');
 
 /**
  * Class for writing RP forms for singlehanded events

@@ -5,7 +5,7 @@
  * @package users
  */
 
-require_once('conf.php');
+require_once('users/AbstractUserPane.php');
 
 /**
  * Displays and controls the display of messages for the given user

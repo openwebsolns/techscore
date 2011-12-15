@@ -5,7 +5,7 @@
  * @package tscore-dialog
  */
 
-require_once('conf.php');
+require_once('tscore/AbstractScoresDialog.php');
 
 /**
  * Displays the full scores table for a given regatta. When there's

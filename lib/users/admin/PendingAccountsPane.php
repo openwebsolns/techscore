@@ -5,7 +5,7 @@
  * @package users-admin
  */
 
-require_once("conf.php");
+require_once('users/admin/AbstractAdminUserPane.php');
 
 /**
  * Pane to edit (approve/reject) pending accounts

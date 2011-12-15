@@ -3,7 +3,11 @@
  * Directs traffic while scoring regattas
  *
  */
-require_once('../lib/conf.php');
+
+require_once('conf.php');
+require_once('xml/Announcement.php');
+require_once('tscore/WebServer.php');
+
 session_start();
 
 //
@@ -35,6 +39,7 @@ if (!isset($_REQUEST['reg']) || !is_numeric($_REQUEST['reg'])) {
   WebServer::go('/');
 }
 try {
+  require_once('regatta/Regatta.php');
   $REG = new Regatta((int)$_REQUEST['reg']);
 }
 catch (Exception $e) {
@@ -64,9 +69,11 @@ if (!isset($_REQUEST['p']) &&
 elseif (isset($_REQUEST['p'])) {
   $POSTING = (isset($_GET['_action']) && $_GET['_action'] == 'edit');
   if (empty($_REQUEST['p'])) {
+    require_once('tscore/DetailsPane.php');
     $PAGE = new DetailsPane($USER, $REG);
   }
   else {
+    require_once('tscore/AbstractPane.php');
     $PAGE = AbstractPane::getPane($_REQUEST['p'], $USER, $REG);
     if ($PAGE === null) {
       $mes = sprintf("Invalid page requested (%s)", $_REQUEST['p']);
@@ -81,6 +88,7 @@ elseif (isset($_REQUEST['p'])) {
   }
   // process, if so requested
   if ($POSTING) {
+    require_once('public/UpdateManager.php');
     $_SESSION['POST'] = $PAGE->process($_POST);
     if (LOG_MEMORY)
       error_log(sprintf("%s:\t%d\n", $_SERVER['REQUEST_URI'], memory_get_peak_usage()), 3, "../log/memory.log");
@@ -93,6 +101,7 @@ elseif (isset($_REQUEST['p'])) {
 //
 elseif (isset($_REQUEST['v'])) {
   if (empty($_REQUEST['v'])) {
+    require_once('tscore/RotationDialog.php');
     $mes = "No dialog selected, defaulting to Rotation.";
     $_SESSION['ANNOUNCE'][] = new Announcement($mes, Announcement::WARNING);
     $PAGE = new RotationDialog($REG);
@@ -102,12 +111,14 @@ elseif (isset($_REQUEST['v'])) {
       // --------------- ROT DIALOG ---------------//
     case "rotation":
     case "rotations":
+      require_once('tscore/RotationDialog.php');
       $PAGE = new RotationDialog($REG);
       break;
   
       // --------------- RP DIALOG ----------------//
     case "sailors":
     case "sailor":
+      require_once('tscore/RegistrationsDialog.php');
       $PAGE = new RegistrationsDialog($REG);
       break;
     
@@ -116,6 +127,7 @@ elseif (isset($_REQUEST['v'])) {
     case "results":
     case "score":
     case "scores":
+      require_once('tscore/ScoresFullDialog.php');
       $PAGE = new ScoresFullDialog($REG);
       break;
 
@@ -130,6 +142,7 @@ elseif (isset($_REQUEST['v'])) {
     case "scores/D":
       $div = substr($_REQUEST['v'], strlen($_REQUEST['v']) - 1);
       try {
+	require_once('tscore/ScoresDivisionDialog.php');
 	$PAGE = new ScoresDivisionDialog($REG, new Division($div));
       } catch (Exception $e) {
 	$_SESSION['ANNOUNCE'][] = new Announcement($e->getMessage(), Announcement::WARNING);
@@ -139,12 +152,14 @@ elseif (isset($_REQUEST['v'])) {
 
     case "div-score":
     case "div-scores":
+      require_once('tscore/ScoresDivisionalDialog.php');
       $PAGE = new ScoresDivisionalDialog($REG);
     break;
 
       // --------------- BOAT SCORE --------------//
     case "boat":
     case "boats":
+      require_once('tscore/ScoresBoatDialog.php');
       $PAGE = new ScoresBoatDialog($REG);
       break;
 
@@ -192,11 +207,11 @@ else {
   case "rpform":
   case "rps":
     $name = sprintf("%s-%s-rp", $st->format("Y"), $nn);
-
     $rp = $REG->getRpManager();
     if ($rp->isFormRecent())
       $data = $rp->getForm();
     else {
+      require_once('rpwriter/RpFormWriter.php');
       $writer = new RpFormWriter($REG);
       $path = $writer->makePDF();
       $data = file_get_contents($path);

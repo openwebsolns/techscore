@@ -5,7 +5,7 @@
  * @package rpwriter
  */
 
-require_once('conf.php');
+require_once('rpwriter/AbstractIcsaRpForm.php');
 
 /**
  * RP Form for (four divisions) {

@@ -5,7 +5,7 @@
  * @package users
  */
 
-require_once('conf.php');
+require_once('users/AbstractUserPane.php');
 
 /**
  * Displays the End-User License Agreement for TechScore and

@@ -5,8 +5,6 @@
  * @package regatta
  */
 
-require_once('conf.php');
-
 /**
  * Encapsulates a (flat) regatta object. Note that comments are
  * suppressed due to speed considerations.

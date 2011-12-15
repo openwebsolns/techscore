@@ -7,8 +7,7 @@
  * @package xml
  */
 
-require_once('conf.php');
-__autoload('XmlLibrary');
+require_once('xml/XmlLibrary.php');
 
 /**
  * The basic HTML page for TechScore files. This page extends the

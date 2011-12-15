@@ -5,7 +5,7 @@
  * @package users-admin
  */
 
-require_once('conf.php');
+require_once('users/AbstractUserPane.php');
 
 /**
  * Only for priviledged users

@@ -8,7 +8,7 @@
  */
 
 require_once('conf.php');
-__autoload('XmlLibrary');
+require_once('xml/XmlLibrary.php');
 
 /**
  * This class provides static methods for dumping a regatta to file
@@ -83,9 +83,11 @@ class RegattaIO {
 
     //   -Venue
     $cont = $reg->get(Regatta::VENUE);
-    $root->addChild($tag = new GenericElement("Venue"));
-    $tag->addAttr("id", $cont->id);
-    $tag->addChild(new Text($cont->name));
+    if ($cont !== null) {
+      $root->addChild($tag = new GenericElement("Venue"));
+      $tag->addAttr("id", $cont->id);
+      $tag->addChild(new Text($cont->name));
+    }
 
     //   -Scorers
     $root->addChild($tag = new GenericElement("Scorers"));
@@ -105,7 +107,7 @@ class RegattaIO {
       $race_set = array();
       foreach ($races[(string)$div] as $race) {
 	$boat_set[$race->boat->id] = $race->boat;
-	if ($race_set[$race->boat->id] == null)
+	if (!isset($race_set[$race->boat->id]))
 	  $race_set[$race->boat->id] = array();
 	$race_set[$race->boat->id][] = $race->number;
       }
@@ -721,20 +723,5 @@ class RegattaIO {
   public function getWarnings() {
     return $this->warnings;
   }
-}
-
-if (basename(__FILE__) == $argv[0]) {
-  $filename = "/tmp/test.tsr";
-  /*
-  file_put_contents("/tmp/test.tsr", RegattaIO::toXML(new Regatta(1)));
-  exit;
-  */
-  
-  $io = new RegattaIO();
-  $reg = $io->fromXML(file_get_contents($filename));
-  foreach ($io->getWarnings() as $w)
-    print(sprintf("- %s\n\n", $w));
-  
-  print_r($reg);
 }
 ?>

@@ -4,7 +4,8 @@
  *
  * @package tscore-dialog
  */
-require_once('conf.php');
+
+require_once('tscore/AbstractScoresDialog.php');
 
 /**
  * Displays the scores table for a given regatta's division

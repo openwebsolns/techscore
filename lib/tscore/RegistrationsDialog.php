@@ -5,7 +5,7 @@
  * @package tscore-dialog
  */
 
-require_once("conf.php");
+require_once('tscore/AbstractDialog.php');
 
 /**
  * Displays a list of all the registered sailors.

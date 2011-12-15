@@ -5,7 +5,7 @@
  * @package users
  */
 
-require_once('conf.php');
+require_once('xml/WelcomePage.php');
 
 /**
  * Allows a user to reset their password. The process requires sending

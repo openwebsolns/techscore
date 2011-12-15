@@ -5,6 +5,8 @@
  * @package tscore-dialog
  */
 
+require_once('tscore/AbstractDialog.php');
+
 /**
  * Parent class for all scores dialog. Sets up the menu with the
  * appropriate links.

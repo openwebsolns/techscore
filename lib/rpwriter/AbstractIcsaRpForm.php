@@ -5,7 +5,8 @@
  * @package rpwriter
  */
 
-ini_set('track_errors', '1');
+require_once('rpwriter/LatexPic.php');
+require_once('rpwriter/RpBlock.php');
 
 /**
  * This class is a new visualization of the RP form writing

@@ -8,7 +8,7 @@
  * @package tscore
  */
 
-require_once('conf.php');
+require_once('users/AbstractUserPane.php');
 
 /**
  * Create a new regatta

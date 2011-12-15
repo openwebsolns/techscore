@@ -7,7 +7,7 @@
  * @package users-admin
  */
 
-require_once('conf.php');
+require_once('users/admin/AbstractAdminUserPane.php');
 
 /**
  * Pane for administrators to send messages to one or more users,

@@ -5,7 +5,7 @@
  * @package users
  */
 
-require_once('conf.php');
+require_once('xml/WelcomePage.php');
 
 /**
  * Allows for web users to petition for an account. In version 2.0 of

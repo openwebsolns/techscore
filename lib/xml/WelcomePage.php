@@ -5,8 +5,8 @@
  * @package tscore
  */
 
-require_once("conf.php");
-__autoload("XmlLibrary");
+require_once('xml/XmlLibrary.php');
+require_once('xml/TScorePage.php');
 
 /**
  * Welcome page, subclasses WebPage
