@@ -10,14 +10,10 @@
 // attempt to make files easier to find
 ini_set('include_path', sprintf('.:%s:%s', dirname(__FILE__), get_include_path()));
 
-define("TS_PATH", dirname(__FILE__));
 function __autoload($name) {
-  $dirs = explode(":", TS_PATH);
-  foreach ($dirs as $dirname) {
-    if (false !== ($result = __search_path($dirname, "$name.php"))) {
-      require_once($result);
-      return;
-    }
+  if (false !== ($result = __search_path(dirname(__FILE__), "$name.php"))) {
+    require_once($result);
+    return;
   }
 }
 
@@ -106,13 +102,13 @@ END;
   }
   die();
 }
-ini_set('error_log', realpath(TS_PATH.'/../log/errors.log'));
+ini_set('error_log', realpath(dirname(__FILE__).'/../log/errors.log'));
 
-require_once(TS_PATH . '/conf.local.php');
+require_once(dirname(__FILE__) . '/conf.local.php');
 
 // LOG FILES
-define("LOG_UPDATE",   realpath(TS_PATH.'/../log/update.log'));
-define("LOG_SEASON",   realpath(TS_PATH.'/../log/season.log'));
-define("LOG_SCHOOL",   realpath(TS_PATH.'/../log/school.log'));
-define("LOG_FRONT",    realpath(TS_PATH.'/../log/front.log'));
+define("LOG_UPDATE",   realpath(dirname(__FILE__).'/../log/update.log'));
+define("LOG_SEASON",   realpath(dirname(__FILE__).'/../log/season.log'));
+define("LOG_SCHOOL",   realpath(dirname(__FILE__).'/../log/school.log'));
+define("LOG_FRONT",    realpath(dirname(__FILE__).'/../log/front.log'));
 ?>
