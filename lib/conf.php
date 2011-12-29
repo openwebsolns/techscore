@@ -12,26 +12,6 @@ function __autoload($name) {
   require_once("regatta/$name.php");
 }
 
-function __search_path($dirname, $name) {
-  // Check this directory
-  $filename = sprintf("%s/%s", $dirname, $name);
-  if (file_exists($filename)) {
-    return $filename;
-  }
-
-  // Recursive check
-  $d = dir($dirname);
-  while (false !== ($entry = $d->read())) {
-    $filename = sprintf("%s/%s", $dirname, $entry);
-    if (is_dir($filename) && $entry !== "." && $entry !== "..") {
-      if (false !== ($result = __search_path($filename, $name))) {
-	return $result;
-      }
-    }
-  }
-  return false;
-}
-
 /**
  * Error reporting function: send mail
  *
