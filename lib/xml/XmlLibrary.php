@@ -539,7 +539,7 @@ class FSelect extends FGenericElement
   }
 
   // Overrides addChild method
-  public function addChild($e) {
+  public function add($e) {
     if (($e instanceof OptionGroup)) { // children MUST be options
       foreach ($e->getChildren() as $option) {
 	if (in_array($option->getOptionValue(),
@@ -564,7 +564,7 @@ class FSelect extends FGenericElement
 		    E_USER_ERROR);
     }
     // Add, finally
-    parent::addChild($e);
+    parent::add($e);
   }
 
 }
