@@ -27,7 +27,7 @@ class PasswordRecoveryPane extends WelcomePage {
 	$_SESSION['ANNOUNCE'][] = new Announcement("Invalid account to reset.", Announcement::ERROR);
 	return $args;
       }
-      $this->addContent(new PageTitle("Recover Password"));
+      $this->addContent(new XPageTitle("Recover Password"));
       $this->addContent($p = new Port("Reset password"));
       $p->add($f = new XForm("/password-recover-edit", XForm::POST));
       $f->add(new Para("Welcome $acc. Please enter the new password for your account."));
@@ -43,7 +43,7 @@ class PasswordRecoveryPane extends WelcomePage {
     // ------------------------------------------------------------
     if (isset($_SESSION['password-recovery-sent'])) {
       unset($_SESSION['password-recovery-sent']);
-      $this->addContent(new PageTitle("Recover Password"));
+      $this->addContent(new XPageTitle("Recover Password"));
       $this->addContent($p = new Port("Message sent"));
       $p->add(new Para("Message sent. Please check your e-mail and follow the directions provided."));
       return;
@@ -52,7 +52,7 @@ class PasswordRecoveryPane extends WelcomePage {
     // ------------------------------------------------------------
     // 3. Default: request message
     // ------------------------------------------------------------
-    $this->addContent(new PageTitle("Recover Password"));
+    $this->addContent(new XPageTitle("Recover Password"));
     $this->addContent($p = new Port("Send e-mail"));
     $p->add(new Para("To reset the password, please enter your username below. You will receive an e-mail at the address provided with a link. Click that link to reset your password."));
     

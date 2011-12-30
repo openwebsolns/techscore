@@ -60,7 +60,7 @@ abstract class AbstractPane {
 		     $this->REGATTA->get(Regatta::NAME));
 
     $this->PAGE = new TScorePage($title, $this->USER, $this->REGATTA);
-    $this->PAGE->addContent(new PageTitle($this->name));
+    $this->PAGE->addContent(new XPageTitle($this->name));
 
     // ------------------------------------------------------------
     // Menu

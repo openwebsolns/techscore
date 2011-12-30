@@ -100,7 +100,7 @@ abstract class AbstractUserPane {
 			      new XLi(new XA("/edit-venue", "Add Venues")),
 			      new XLi(new XA("/boats",     "Boats")))));
     }
-    $this->PAGE->addContent(new PageTitle($this->title));
+    $this->PAGE->addContent(new XPageTitle($this->title));
     $this->fillHTML($args);
     $this->PAGE->printXML();
   }

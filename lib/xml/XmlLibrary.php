@@ -689,23 +689,6 @@ class FPassword extends FGenericElement
 }
 
 /**
- * Encapsulates the page title (h2 element)
- *
- * @author Dayan Paez
- * @version 2.0
- */
-class PageTitle extends GenericElement {
-  
-  /**
-   * Creates a new title object (h2) with the specified text
-   *
-   */
-  public function __construct($text) {
-    parent::__construct("h2", array(new XText($text)));
-  }
-}
-
-/**
  * Pagination links
  *
  * @author Dayan Paez

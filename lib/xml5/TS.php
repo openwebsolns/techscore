@@ -49,6 +49,18 @@ class XMessage extends XSpan {
 }
 
 /**
+ * Encapsulates a page title (using h2)
+ *
+ * @author Dayan Paez
+ * @version 2011-12-30
+ */
+class XPageTitle extends XH2 {
+  public function __construct($title = "", Array $attrs = array()) {
+    parent::__construct($title, $attrs);
+  }
+}
+
+/**
  * Heading (implemented as an H4)
  *
  * @author Dayan Paez
