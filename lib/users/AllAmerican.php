@@ -56,11 +56,9 @@ class AllAmerican extends AbstractUserPane {
       $form->add(new FItem("Boat role:", $sel = new FSelect('role', array())));
       $sel->addOptions(array(RP::SKIPPER => "Skipper", RP::CREW    => "Crew"));
 
-      $form->add(new FItem("Seasons:", $ul = new Itemize()));
-      $ul->set('class', 'inline-list');
+      $form->add(new FItem("Seasons:", $ul = new XUl(array('class'=>'inline-list'))));
 
-      $form->add($fi = new FItem("Conferences:", $ul2 = new Itemize()));
-      $ul2->set('class', 'inline-list');
+      $form->add($fi = new FItem("Conferences:", $ul2 = new XUl(array('class'=>'inline-list'))));
       $fi->set('title', "Only choose sailors from selected conference(s) automatically. You can manually choose sailors from other divisions.");
       
       $now = new Season(new DateTime());
@@ -227,8 +225,7 @@ class AllAmerican extends AbstractUserPane {
       $this->PAGE->addContent($p = new Port("Sailors in list"));
       $p->add(new Para(sprintf("%d sailors meet the criteria for All-American inclusion based on the regattas chosen. Note that non-official sailors have been excluded. Use the bottom form to add more sailors to this list.",
 				    count($_SESSION['aa']['sailors']))));
-      $p->add($item = new Itemize());
-      $item->set('id', 'inc-sailors');
+      $p->add($item = new XUl(array('id', 'inc-sailors')));
       foreach ($_SESSION['aa']['sailors'] as $sailor)
 	$item->add(new XLi($sailor));
 
@@ -239,9 +236,8 @@ class AllAmerican extends AbstractUserPane {
       $form->add(new GenericElement('noscript', array(new Para("Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding."))));
       $form->add(new FItem('Name:', $search = new FText('name-search', "")));
       $search->set('id', 'name-search');
-      $form->add($ul = new Itemize());
-      $ul->set('id', 'aa-input');
-      $ul->add(new XLi("No sailors.", array('class' => 'message')));
+      $form->add($ul = new XUl(array('id', 'aa-input'),
+			       array(new XLi("No sailors.", array('class'=>'message')))));
       $form->add(new FSubmit('set-sailors', "Generate report >>"));
 
       return;

@@ -422,19 +422,6 @@ class GenericList extends GenericElement
 }
 
 /**
- * Itemize: Wrapper for List of type (ul)
- */
-class Itemize extends GenericList
-{
-  public function __construct($items = array(),
-			      $attrs = array()) {
-    parent::__construct("ul",
-			$items,
-			$attrs);
-  }
-}
-
-/**
  * Enumerate: Wrapper for List of type (ol)
  */
 class Enumerate extends GenericList

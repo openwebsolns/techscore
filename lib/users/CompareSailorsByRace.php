@@ -194,8 +194,7 @@ class CompareSailorsByRace extends AbstractUserPane {
     // Season selection
     $form->add($p = new Port("Seasons to compare"));
     $p->add(new Para("Choose at least one season to compare from the list below, then choose the sailors in the next panel."));
-    $p->add($ul = new Itemize());
-    $ul->set('style', 'list-style-type:none');
+    $p->add($ul = new XUl(array('style'=>'list-style-type:none;')));
 
     $now = new Season(new DateTime());
     $then = null;
@@ -213,9 +212,8 @@ class CompareSailorsByRace extends AbstractUserPane {
     $p->add(new GenericElement('noscript', array(new Para("Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding."))));
     $p->add(new FItem('Name:', $search = new FText('name-search', "")));
     $search->set('id', 'name-search');
-    $p->add($ul = new Itemize());
-    $ul->set('id', 'aa-input');
-    $ul->add(new XLi("No sailors.", array('class' => 'message')));
+    $p->add(new XUl(array('id'=>'aa-input'),
+		    array(new XLi("No sailors.", array('class'=>'message')))));
     $form->add(new FSubmit('set-sailors', "Compare sailors"));
   }
 

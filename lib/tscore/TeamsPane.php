@@ -147,10 +147,10 @@ class TeamsPane extends AbstractPane {
     $this->PAGE->addContent($p = new Port("Add team from ICSA school"));
     $p->add(new Para("Choose schools which are participating by indicating how many teams are invited from each school. Use your browser's search function to help you."));
     $p->add($form = $this->createForm());
-    $form->add($list = new Itemize(array(), array('id'=>'teams-list')));
+    $form->add($list = new XUl(array('id'=>'teams-list')));
     
     foreach ($confs as $conf) {
-      $list->add(new XLi($sub = new Itemize(array(new XHeading($conf)))));
+      $list->add(new XLi(array(new XHeading($conf), $sub = new XUl())));
       foreach ($schools = Preferences::getSchoolsInConference($conf) as $school) {
 	$sub->add(new XLi(array(new FHidden('school[]', $school->id),
 				     new FText('number[]', "", array('id'=>$school->id)),
