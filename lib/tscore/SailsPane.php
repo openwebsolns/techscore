@@ -71,7 +71,7 @@ class SailsPane extends AbstractPane {
     $bye_team = null;
     if ($chosen_rot == "SWP" && count($divisions) * count($teams) % 2 > 0) {
       $bye_team = new ByeTeam();
-      $form->add(new Para("Swap divisions require an even number of total teams at the time of creation. If you choose swap division, TechScore will add a \"BYE Team\" as needed to make the total number of teams even. This will produce an unused boat in every race."));
+      $form->add(new XP(array(), "Swap divisions require an even number of total teams at the time of creation. If you choose swap division, TechScore will add a \"BYE Team\" as needed to make the total number of teams even. This will produce an unused boat in every race."));
     }
     $form->add(new FItem("Enter sail numbers in first race:",
 			      $tab = new Table()));
@@ -195,7 +195,7 @@ class SailsPane extends AbstractPane {
       $this->PAGE->addContent($p = new Port("1. Create a rotation"));
       $p->add($form = $this->createForm());
       $form->set("id", "sail_setup");
-      $form->add(new Para("Swap divisions require an even number of total teams at the time of creation. If you choose swap division, TechScore will add a \"BYE Team\" as needed to make the total number of teams even. This will produce an unused boat in every race."));
+      $form->add(new XP(array(), "Swap divisions require an even number of total teams at the time of creation. If you choose swap division, TechScore will add a \"BYE Team\" as needed to make the total number of teams even. This will produce an unused boat in every race."));
 
       $form->add(new FItem("Type of rotation:",
 				$f_sel = new FSelect("rottype", array($chosen_rot))));

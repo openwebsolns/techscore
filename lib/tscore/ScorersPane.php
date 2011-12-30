@@ -100,7 +100,7 @@ class ScorersPane extends AbstractPane {
       $s_form->add(new FSubmit("add_scorer", "Add scorers"));
     }
     else
-      $s_form->add(new Para("There are no accounts left to register in this conference Please try a different one.", array('class'=>'message')));
+      $s_form->add(new XMessage("There are no accounts left to register in this conference Please try a different one."));
     
   }
 

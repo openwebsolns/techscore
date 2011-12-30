@@ -56,13 +56,9 @@ class BoatManagement extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new Port($mess));
     $p->add($form = new XForm("/boat-edit", XForm::POST));
-    $form->add(new Para("The number of occupants will be used when entering RP information to " .
-			     "determine how many crews are allowed in an RP form. If the same boat " .
-			     "class can have multiple number of crews, add separate entries and " .
-			     "distinguish them by adding the number of occupants in the name."));
+    $form->add(new XP(array(), "The number of occupants will be used when entering RP information to determine how many crews are allowed in an RP form. If the same boat class can have multiple number of crews, add separate entries and distinguish them by adding the number of occupants in the name."));
     
-    $form->add(new Para("Keep in mind that the number of occupants includes 1 skipper. Therefore, " .
-			     "the minimum value is 1 for a singlehanded boat class."));
+    $form->add(new XP(array(), "Keep in mind that the number of occupants includes 1 skipper. Therefore, the minimum value is 1 for a singlehanded boat class."));
     
     $form->add(new FItem("Name:", new FText("name", $boat->name, array("maxlength"=>"15"))));
     $form->add(new FItem("Number of occupants:", new FText("occupants", $boat->occupants)));
@@ -74,7 +70,7 @@ class BoatManagement extends AbstractAdminUserPane {
     // 2. Current boat list
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new Port("All boat classes"));
-    $p->add(new Para("Click on the boat name to edit that boat."));
+    $p->add(new XP(array(), "Click on the boat name to edit that boat."));
     $p->add($tab = new Table());
     $tab->addHeader(new Row(array(Cell::th("Name"),
 				  Cell::th("No. Occupants"))));

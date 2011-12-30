@@ -35,7 +35,7 @@ class SendMessage extends AbstractAdminUserPane {
     }
 
     $this->PAGE->addContent($p = new Port("1. Choose recipients"));
-    $p->add(new Para("You may send a message to as many individuals as you'd like at a time. First, select the recipients using this port. Once you have added all recipients, use the form below to send the message."));
+    $p->add(new XP(array(), "You may send a message to as many individuals as you'd like at a time. First, select the recipients using this port. Once you have added all recipients, use the form below to send the message."));
 
     $p->add($f = new XForm("/send-message-edit", XForm::POST));
     $f->add($fi = new FItem(sprintf("All %s users:", NAME), new FHidden('all-recipients', 1)));
@@ -68,7 +68,7 @@ class SendMessage extends AbstractAdminUserPane {
     $this->PAGE->addContent($p = new Port("Instructions"));
     $p->add($f = new XForm('/send-message-edit', XForm::POST));
     $f->add(new FSubmit('reset-recipients', "<< Restart"));
-    $p->add(new Para("When filling out the form, you may use the keywords in the table below to customize each message."));
+    $p->add(new XP(array(), "When filling out the form, you may use the keywords in the table below to customize each message."));
     $p->add($tab = new Table());
     $tab->addHeader(new Row(array(Cell::th("Keyword"), Cell::th("Description"), Cell::th("Example"))));
     $tab->addRow(new Row(array(new Cell("{FULL_NAME}"), new Cell("Full name of user"), new Cell($this->USER->getName()))));

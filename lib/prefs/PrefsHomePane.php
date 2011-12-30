@@ -31,13 +31,12 @@ class PrefsHomePane extends AbstractUserPane {
    */
   public function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new Port(sprintf("Edit %s", $this->SCHOOL->nick_name)));
-    $p->add(new Para("This is the portal for editing details about your school. " .
-			  "Navigate around using the menu to the left. When you are " .
-			  "done, use the <em>Back</em> link to return to your home page."));
+    $p->add(new XP(array(),
+		   array("This is the portal for editing details about your school. Navigate around using the menu to the left. When you are done, use the ",
+			 new XEm("Back"),
+			 " link to return to your home page.")));
 
-    $p->add(new Para("If you have any questions, send them to paez@mit.edu. " .
-			  "Please note that this part of <strong>TechScore" .
-			  "</strong> is still under development."));
+    $p->add(new XP(array(), "If you have any questions, send them to paez@mit.edu. Please note that this part of TechScore is still under development."));
 
     // Allow for editing of other schools
     $schools = $this->USER->getSchools();
@@ -56,7 +55,7 @@ class PrefsHomePane extends AbstractUserPane {
       $st->set("type", "text/css");
       $st->add(new XText('table.conf td { text-align: left; vertical-align: top; }'));
 
-      $p->add(new Para("Choose a different school to edit from the list below."));
+      $p->add(new XP(array(), "Choose a different school to edit from the list below."));
       $p->add($tab = new Table());
       $tab->set("id", "conftable");
       $tab->set("class", "conf");

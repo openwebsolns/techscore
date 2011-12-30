@@ -30,7 +30,7 @@ class PasswordRecoveryPane extends WelcomePage {
       $this->addContent(new XPageTitle("Recover Password"));
       $this->addContent($p = new Port("Reset password"));
       $p->add($f = new XForm("/password-recover-edit", XForm::POST));
-      $f->add(new Para("Welcome $acc. Please enter the new password for your account."));
+      $f->add(new XP(array(), "Welcome $acc. Please enter the new password for your account."));
       $f->add(new FItem("New Password:", new FPassword('new-password', "")));
       $f->add(new FItem("Confirm Password:", new FPassword('confirm-password', "")));
       $f->add(new FHidden('acc', trim($_GET['acc'])));
@@ -45,7 +45,7 @@ class PasswordRecoveryPane extends WelcomePage {
       unset($_SESSION['password-recovery-sent']);
       $this->addContent(new XPageTitle("Recover Password"));
       $this->addContent($p = new Port("Message sent"));
-      $p->add(new Para("Message sent. Please check your e-mail and follow the directions provided."));
+      $p->add(new XP(array(), "Message sent. Please check your e-mail and follow the directions provided."));
       return;
     }
 
@@ -54,7 +54,7 @@ class PasswordRecoveryPane extends WelcomePage {
     // ------------------------------------------------------------
     $this->addContent(new XPageTitle("Recover Password"));
     $this->addContent($p = new Port("Send e-mail"));
-    $p->add(new Para("To reset the password, please enter your username below. You will receive an e-mail at the address provided with a link. Click that link to reset your password."));
+    $p->add(new XP(array(), "To reset the password, please enter your username below. You will receive an e-mail at the address provided with a link. Click that link to reset your password."));
     
     $p->add($f = new XForm("/password-recover-edit", XForm::POST));
     $f->add(new FItem("Email:", new FText("email", "")));

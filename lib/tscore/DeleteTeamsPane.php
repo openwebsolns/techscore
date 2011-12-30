@@ -20,10 +20,15 @@ class DeleteTeamsPane extends AbstractPane {
     
     $this->PAGE->addContent($p = new Port("Remove present teams"));
     if ($this->has_rots || $this->has_scores) {
-      $p->add(new Para("The regatta is currently \"under way\": either the rotation has been created, or finishes have been entered. If you remove a team, you will also remove all information from the rotation and the scores for that team. This will probably result in one or more idle boats in the rotation, and will effectively change the FLEET size for scoring purposes."));
-      $p->add(new Para("Please note: this process is <strong>not</strong> undoable. Are you sure you don't wish to <a href=\"substitute\">substitute a team</a> instead?"));
+      $p->add(new XP(array(), "The regatta is currently \"under way\": either the rotation has been created, or finishes have been entered. If you remove a team, you will also remove all information from the rotation and the scores for that team. This will probably result in one or more idle boats in the rotation, and will effectively change the FLEET size for scoring purposes."));
+      $p->add(new XP(array(),
+		     array("Please note: this process is ",
+			   new XStrong("not"),
+			   " undoable. Are you sure you don't wish to ",
+			   new XA("substitute", "substitute a team"),
+			   " instead?")));
     }
-    $p->add(new Para("To remove one or more teams, check the appropriate box and hit \"Remove\"."));
+    $p->add(new XP(array(), "To remove one or more teams, check the appropriate box and hit \"Remove\"."));
     $p->add($form = $this->createForm());
     $form->add($tab = new Table());
     $tab->set('class', 'full');

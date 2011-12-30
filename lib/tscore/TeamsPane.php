@@ -26,7 +26,7 @@ class TeamsPane extends AbstractPane {
     // Add teams
     $this->PAGE->addContent($p = new Port("Add team from ICSA school"));
     $p->set('id', 'add');
-    $p->add(new Para("Choose a school from which to add a new team. Because the regatta is under way, you may only add one team at a time."));
+    $p->add(new XP(array(), "Choose a school from which to add a new team. Because the regatta is under way, you may only add one team at a time."));
 
     $p->add($form = $this->createForm());
     $form->add(new FItem("Schools:", $f_sel = new FSelect("addschool", array(), array('size'=>20))));
@@ -41,7 +41,7 @@ class TeamsPane extends AbstractPane {
     }
 
     // What to do with rotation?
-    $form->add($exp = new Para(""));
+    $form->add($exp = new XP());
     if ($this->has_rots) {
       $exp->add(new XText("The regatta already has rotations. By adding a team, the rotations will need to be fixed. Choose from the options below."));
       $form->add($fi = new FItem("Delete rotation:",
@@ -145,7 +145,7 @@ class TeamsPane extends AbstractPane {
   private function fillNewRegatta(Array $args) {
     $confs = Preferences::getConferences();
     $this->PAGE->addContent($p = new Port("Add team from ICSA school"));
-    $p->add(new Para("Choose schools which are participating by indicating how many teams are invited from each school. Use your browser's search function to help you."));
+    $p->add(new XP(array(), "Choose schools which are participating by indicating how many teams are invited from each school. Use your browser's search function to help you."));
     $p->add($form = $this->createForm());
     $form->add($list = new XUl(array('id'=>'teams-list')));
     

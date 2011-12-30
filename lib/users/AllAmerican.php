@@ -83,7 +83,7 @@ class AllAmerican extends AbstractUserPane {
 
       $this->PAGE->addContent($p = new Port("Special crew report"));
       $p->add($form = new XForm('/aa-edit', XForm::POST));
-      $form->add(new Para("To choose crews from ALL regattas regardless of participation, click the button below."));
+      $form->add(new XP(array(), "To choose crews from ALL regattas regardless of participation, click the button below."));
 
       $form->add(new FItem("Year:", $sel = new FSelect('year', array())));
       $sel->addOptions(Preferences::getYears());
@@ -178,19 +178,19 @@ class AllAmerican extends AbstractUserPane {
 	}
       }
       if ($addt_regattas > 0) {
-	$form->add(new Para("Choose the regattas you wish to include in the report from the list below."));
+	$form->add(new XP(array(), "Choose the regattas you wish to include in the report from the list below."));
 	$form->add($tab);
       }
       else
-	$form->add(new Para("There are no other possible regattas to add to the report from for the chosen season."));
-      $form->add(new Para("Next, choose the sailors to incorporate into the report."));
+	$form->add(new XP(array(), "There are no other possible regattas to add to the report from for the chosen season."));
+      $form->add(new XP(array(), "Next, choose the sailors to incorporate into the report."));
       $form->add(new FSubmit('set-regattas', sprintf("Choose %ss >>", $_SESSION['aa']['report-role'])));
 
       // are there any qualified regattas?
       if (count($qual_regattas) == 0)
-	$p1->add(new Para("No regattas this season fulfill the requirement for inclusion."));
+	$p1->add(new XP(array(), "No regattas this season fulfill the requirement for inclusion."));
       else {
-	$p1->add(new Para("The following regattas meet the criteria for inclusion in the report."));
+	$p1->add(new XP(array(), "The following regattas meet the criteria for inclusion in the report."));
 	$p1->add($tab = new Table());
 	$tab->addHeader(new Row(array(Cell::th("Name"),
 				      Cell::th("Type"),
@@ -223,7 +223,7 @@ class AllAmerican extends AbstractUserPane {
       // provide a list of sailors that are already included in the
       // list, and a search box to add new ones
       $this->PAGE->addContent($p = new Port("Sailors in list"));
-      $p->add(new Para(sprintf("%d sailors meet the criteria for All-American inclusion based on the regattas chosen. Note that non-official sailors have been excluded. Use the bottom form to add more sailors to this list.",
+      $p->add(new XP(array(), sprintf("%d sailors meet the criteria for All-American inclusion based on the regattas chosen. Note that non-official sailors have been excluded. Use the bottom form to add more sailors to this list.",
 				    count($_SESSION['aa']['sailors']))));
       $p->add($item = new XUl(array('id', 'inc-sailors')));
       foreach ($_SESSION['aa']['sailors'] as $sailor)
@@ -233,7 +233,7 @@ class AllAmerican extends AbstractUserPane {
       $this->PAGE->addHead(new GenericElement('script', array(new XText("")), array('src'=>'/inc/js/aa.js')));
       $this->PAGE->addContent($p = new Port("New sailors"));
       $p->add($form = new XForm('/aa-edit', XForm::POST));
-      $form->add(new GenericElement('noscript', array(new Para("Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding."))));
+      $form->add(new GenericElement('noscript', array(new XP(array(), "Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding."))));
       $form->add(new FItem('Name:', $search = new FText('name-search', "")));
       $search->set('id', 'name-search');
       $form->add($ul = new XUl(array('id', 'aa-input'),
@@ -250,7 +250,7 @@ class AllAmerican extends AbstractUserPane {
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new Port("Report"));
     $p->add($form = new XForm('/aa-edit', XForm::POST));
-    $form->add(new Para("Please click only once:"));
+    $form->add(new XP(array(), "Please click only once:"));
     $form->add(new FSubmit('gen-report', "Download as CSV"));
 
     $p->add($form = new XForm('/aa-edit', XForm::POST));

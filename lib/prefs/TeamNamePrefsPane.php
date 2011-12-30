@@ -30,21 +30,14 @@ class TeamNamePrefsPane extends AbstractUserPane {
    */
   public function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new Port("Choose teams"));
-    $p->add(new Para("Edit the team names (mascot) that can be used for this school " .
-			  "in the regattas. <strong>TechScore</strong> allows you to choose " .
-			  "one primary name and up to four secondary names. The team names " .
-			  "are chosen according to this list, with the primary name chosen " .
-			  "by default for the first team from this school in the regatta."));
+    $p->add(new XP(array(), "Edit the team names (mascot) that can be used for this school in the regattas. TechScore allows you to choose one primary name and up to four secondary names. The team names are chosen according to this list, with the primary name chosen by default for the first team from this school in the regatta."));
 
-    $p->add(new Para("If a second team from this school is added, <strong>TechScore" .
-			  "</strong> will choose the next name from the list. If it runs " .
-			  "out of names, it will append a numeral suffix to the primary " .
-			  "name."));
+    $p->add(new XP(array(), "If a second team from this school is added, TechScore will choose the next name from the list. If it runs out of names, it will append a numeral suffix to the primary name."));
     
-    $p->add(new Para("For instance, suppose there are four teams from a school that " .
-			  "has only two possible team names (primary and one secondary): " .
-			  "<em>Mascot<em>, and <em>Other mascot</em>. Then the teams " .
-			  "will receive the following names when they are added to a regatta:"));
+    $p->add(new XP(array(),
+		   array("For instance, suppose there are four teams from a school that has only two possible team names (primary and one secondary): ",
+			 new XEm("Mascot"), ", and ",
+			 new XEm("Other mascot"), ". Then the teams will receive the following names when they are added to a regatta:")));
 
     $p->add(new XOl(array(),
 		    array(new XLi(new XEm("Mascot")),

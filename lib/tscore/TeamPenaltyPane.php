@@ -29,10 +29,11 @@ class TeamPenaltyPane extends AbstractPane {
       $teams[$team->id] = $team;
     
     $this->PAGE->addContent($p = new Port("Team penalties per division"));
-    $p->add(new Para("These penalties will be added to the final " .
-			  "team score after all race finishes have been " .
-			  "totaled. The penalty is <strong>+20 points " .
-			  "per division</strong>."));
+    $p->add(new XP(array(),
+		   array("These penalties will be added to the final " .
+			 "team score after all race finishes have been " .
+			 "totaled. The penalty is ",
+			 new XStrong("+20 points per division"), ".")));
 
     if (count($teams) == 0) {
       $p->add(new XHeading("No teams have been registered."));
@@ -73,7 +74,7 @@ class TeamPenaltyPane extends AbstractPane {
     $penalties = $this->REGATTA->getTeamPenalties();
 
     if (count($penalties) == 0)
-      $p->add(new Para("There are no team penalties."));
+      $p->add(new XP(array(), "There are no team penalties."));
     else {
       $p->add($tab = new Table());
       $tab->set("class", "narrow");

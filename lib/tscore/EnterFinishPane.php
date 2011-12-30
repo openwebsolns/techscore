@@ -65,9 +65,7 @@ class EnterFinishPane extends AbstractPane {
     // ------------------------------------------------------------
     $p->add($form = $this->createForm());
     $form->set("id", "race_form");
-    $form->add(new Para("This regatta is being scored with combined divisions. " .
-			     "Please enter any race in any division to enter finishes " .
-			     "for that race number across all divisions."));
+    $form->add(new XP(array(), "This regatta is being scored with combined divisions. Please enter any race in any division to enter finishes for that race number across all divisions."));
 
     $form->add($fitem = new FItem("Race:", 
 				       new FText("chosen_race",
@@ -148,7 +146,7 @@ class EnterFinishPane extends AbstractPane {
 	$tab->addRow(new Row(array(new Cell($aPS, array("name"=>"pos_sail",
 							"class"=>"pos_sail",
 							"id"=>"pos_sail")),
-				   new Cell(new XImg("/img/question.png", "alt"=>"Waiting for input",
+				   new Cell(new XImg("/img/question.png", "Waiting for input",
 						     array("id"=>"check" . $i))),
 				   new Cell(new FText("p" . $i, $current_sail,
 						      array("id"=>"sail" . $i,

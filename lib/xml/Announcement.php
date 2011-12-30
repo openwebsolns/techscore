@@ -14,7 +14,7 @@ require_once('xml5/TS.php');
  * message type.
  *
  */
-class Announcement extends Para {
+class Announcement extends XP {
 
   private $message;
   private $type;
@@ -24,7 +24,7 @@ class Announcement extends Para {
   const WARNING = "warning";
 
   public function __construct($message, $type = null) {
-    parent::__construct("");
+    parent::__construct();
     if (!$type) $type = self::VALID;
     $img = null;
     switch ($type) {
@@ -40,7 +40,7 @@ class Announcement extends Para {
       $img = new XImg("/img/warn.png",  "Warning");
     }
     $this->add($img);
-    $this->add(new XText($message));
+    $this->add($message);
     $this->message = $message;
     $this->type    = $type;
     $this->set('class', $type);

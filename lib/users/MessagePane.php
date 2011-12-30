@@ -29,7 +29,7 @@ class MessagePane extends AbstractUserPane {
     // ------------------------------------------------------------
     if (count($messages) == 0) {
       $this->PAGE->addContent($p = new Port("Inbox"));
-      $p->add(new Para("You have no messages."));
+      $p->add(new XP(array(), "You have no messages."));
       return;
     }
 

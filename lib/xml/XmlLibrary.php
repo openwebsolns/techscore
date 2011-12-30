@@ -352,19 +352,6 @@ class Cell extends GenericElement
 }
 
 /**
- * Paragraph element <p>
- */
-class Para extends GenericElement
-{
-  public function __construct($val,
-			      $attrs = array()) {
-    parent::__construct("p",
-			array(new XText($val)),
-			$attrs);
-  }
-}
-
-/**
  * Div object, of CSS class "port" used 
  * to organize pages
  */
@@ -738,5 +725,4 @@ class PageDiv extends Div {
     }
   }
 }
-
 ?>

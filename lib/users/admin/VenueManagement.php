@@ -95,10 +95,10 @@ class VenueManagement extends AbstractAdminUserPane {
     $list = Preferences::getVenues($startint, $startint + self::NUM_PER_PAGE);
     $this->PAGE->addContent($p = new Port("Current venue list"));
     if (count($list) == 0) {
-      $p->add(new Para("There are no venues in the database."));
+      $p->add(new XP(array(), "There are no venues in the database."));
       return;
     }
-    $p->add(new Para("Click on the venue name in the table below to edit."));
+    $p->add(new XP(array(), "Click on the venue name in the table below to edit."));
     $p->add($t = new Table());
     $t->set("style", "width:100%;");
     $t->addHeader(new Row(array(Cell::th("Name"),

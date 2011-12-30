@@ -79,7 +79,7 @@ class TScorePage extends WebPage {
     // Footer
     $this->addBody($footer = new Div());
     $footer->set("id", "footdiv");
-    $footer->add(new Para(sprintf("TechScore v%s © Dayán Páez 2008-%s", VERSION, date('y'))));
+    $footer->add(new XP(array(), sprintf("TechScore v%s © Dayán Páez 2008-%s", VERSION, date('y'))));
   }
 
   /**

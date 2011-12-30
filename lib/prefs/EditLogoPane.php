@@ -30,26 +30,22 @@ class EditLogoPane extends AbstractUserPane {
    */
   public function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new Port("School logo"));
-    $p->add(new Para("Use this function to upload a new logo to use " .
-		     "with your school. This logo will replace all " .
-		     "uses of the logo throughout TechScore."));
+    $p->add(new XP(array(), "Use this function to upload a new logo to use with your school. This logo will replace all uses of the logo throughout TechScore."));
 
-    $p->add(new Para("Most picture formats are allowed, but files can " .
-		     "be no larger than 200 KB in size. For best results " .
-		     "use an image with a transparent background, by " .
-		     "either using a PNG or GIF file format."));
+    $p->add(new XP(array(), "Most picture formats are allowed, but files can be no larger than 200 KB in size. For best results use an image with a transparent background, by either using a PNG or GIF file format."));
 
-    $p->add($para = new Para("Please allow up to 8 hours after uploading for the new logo to appear on the public site."));
+    $p->add($para = new XP(array(), "Please allow up to 8 hours after uploading for the new logo to appear on the public site."));
     // Current logo
     if ($this->SCHOOL->burgee) {
       $url = sprintf("/img/schools/%s.png", $this->SCHOOL->id);
       $url = sprintf('data:image/png;base64,%s', $this->SCHOOL->burgee->filedata);
-      $para->add(new XText(sprintf("The current logo for %s is shown below. If you do not see an image below, you may need to upgrade your browser.", $this->SCHOOL->name)));
-      $p->add($para = new Para("", array('style'=>'text-align:center')));
-      $para->add(new XImg($url, $this->SCHOOL->nick_name));
+      $para->add(sprintf("The current logo for %s is shown below. If you do not see an image below, you may need to upgrade your browser.", $this->SCHOOL->name));
+      
+      $p->add(new XP(array('style'=>'text-align:center;'),
+		     new XImg($url, $this->SCHOOL->nick_name)));
     }
     else {
-      $para->add(new XText("There is currently no logo for this school on file."));
+      $para->add("There is currently no logo for this school on file.");
     }
 
     // Form

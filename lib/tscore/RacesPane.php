@@ -52,13 +52,13 @@ class RacesPane extends AbstractPane {
     }
     elseif (count($this->REGATTA->getRotation()->getRaces()) > 0 ||
 	    count($this->REGATTA->getScoredRaces()) > 0) {
-      $form->add(new Para('<strong>Warning: </strong>Adding races or divisions to this regatta ' .
-			       'will require that you also edit the rotations (if any). Removing races ' .
-			       'or divisions will also remove the finishes and rotations (if any) for ' .
-			       'the removed races!'));
+      $form->add(new XP(array(),
+			array(new XStrong("Warning:"),
+			      " Adding races or divisions to this regatta will require that you also edit the rotations (if any). Removing races or divisions will also remove the finishes and rotations (if any) for the removed races!")));
     }
-    $form->add(new Para('<strong>Note: </strong>Extra races are automatically removed when ' .
-			     'the regatta is finalized.'));
+    $form->add(new XP(array(),
+		      array(new XStrong("Note:"),
+			    " Extra races are automatically removed when the regatta is finalized.")));
     $form->add($f_sub = new FSubmit("set-races", "Set races"));
     if ($final) $f_sub->set("disabled", "disabled");
 
@@ -71,16 +71,11 @@ class RacesPane extends AbstractPane {
     // Edit existing boats
     
     $this->PAGE->addContent($p = new Port("Boat assignments"));
-    $p->add(new Para("Edit the boat associated with each race. This is necessary " .
-			  "at the time of entering RP information. " .
-			  "Races that are not sailed are automatically removed " .
-			  "when finalizing the regatta."));
+    $p->add(new XP(array(), "Edit the boat associated with each race. This is necessary at the time of entering RP information. Races that are not sailed are automatically removed when finalizing the regatta."));
     $p->add($form = $this->createForm());
 
     // Add input elements
-    $form->add($para = new Para(""));
-    $para->add(new FSubmit("editboats", "Edit boats"));
-
+    $form->add(new XP(array(), new FSubmit("editboats", "Edit boats")));
 
     // Table of races: columns are divisions; rows are race numbers
     $form->add($tab = new Table());

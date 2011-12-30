@@ -78,7 +78,7 @@ class DropFinishPane extends AbstractPane {
       $races = $this->REGATTA->getScoredRaces($division);
       $div = new Div();
       if (count($races) == 0)
-	$p->add(new Para("No race finishes for $division division."));
+	$p->add(new XP(array(), "No race finishes for $division division."));
       else
 	$p->add($div);
 

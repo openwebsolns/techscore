@@ -135,13 +135,8 @@ class DetailsPane extends AbstractPane {
 	$p2 = new Port("Finalize regatta");
 	$p2->set('id', 'finalize');
 	$p2->addHelp("node9.html#SECTION00521100000000000000");
-
-	$para = '
-        Once <strong>finalized</strong>, all the information (including rp,
-        and rotation) about unscored regattas will be removed from the
-        database. No <strong>new</strong> information can be entered,
-        although you may still be able to edit existing information.';
-	$p2->add(new Para($para));
+	$p2->add(new XP(array(),
+			array("Once ", new XStrong("finalized"), ", all the information (including rp, and rotation) about unscored regattas will be removed from the database. No ", new XStrong("new"), " information can be entered, although you may still be able to edit existing information.")));
   
 	$p2->add($form = $this->createForm());
 
@@ -157,9 +152,8 @@ class DetailsPane extends AbstractPane {
       }
     }
     else {
-      $para = sprintf("This regatta was finalized on %s.",
-		      $finalized->format("l, F j Y"));
-      $p->add(new Para($para, array("class"=>"strong")));
+      $p->add(new XP(array("class"=>"strong"),
+		     sprintf("This regatta was finalized on %s.", $finalized->format("l, F j Y"))));
     }
     // If the regatta has already "ended", then the finalize port
     // should go first to urge the user to take action.

@@ -31,28 +31,16 @@ class SailorMergePane extends AbstractUserPane {
    */
   public function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new Port("Merge temporary sailors"));
-    $p->add(new Para("When a sailor is not found in the database, the scorers " .
-			  "can add the sailor temporarily. These temporary sailors " .
-			  "appear throughout <strong>TechScore</strong> with an " .
-			  "asterisk next to their name."));
+    $p->add(new XP(array(), "When a sailor is not found in the database, the scorers can add the sailor temporarily. These temporary sailors appear throughout TechScore with an asterisk next to their name."));
     
-    $p->add(new Para("It is the school's responsibilities to " .
-			  "match the temporary sailors with the actual sailor from " .
-			  "the ICSA database once the missing sailor has been approved."));
+    $p->add(new XP(array(), "It is the school's responsibilities to match the temporary sailors with the actual sailor from the ICSA database once the missing sailor has been approved."));
 
-    $p->add(new Para("Use this form to update the database by matching the " .
-			  "temporary sailor with the actual one from the ICSA database. " .
-			  "If the sailor does not appear, he/she may have to be approved " .
-			  "by ICSA before the changes are reflected in <strong>TechScore" .
-			  "</strong>. Also, bear in mind that " .
-			  "<strong>TechScore</strong>'s copy of the ICSA " .
-			  "membership database might lag ICSA's copy by as much as a week."));
+    $p->add(new XP(array(), "Use this form to update the database by matching the temporary sailor with the actual one from the ICSA database. If the sailor does not appear, he/she may have to be approved by ICSA before the changes are reflected in TechScore. Also, bear in mind that TechScore's copy of the ICSA membership database might lag ICSA's copy by as much as a week."));
 
     // Get all the temporary sailors
     $temp = RpManager::getUnregisteredSailors($this->SCHOOL);
     if (empty($temp)) {
-      $p->add(new Para("No temporary sailors for this school.",
-			    array("class"=>array("strong","center"))));
+      $p->add(new XP(array('class'=>'strong center'), "No temporary sailors for this school."));
       return;
     }
 

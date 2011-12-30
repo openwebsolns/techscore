@@ -44,16 +44,15 @@ class PendingAccountsPane extends AbstractAdminUserPane {
     $list = AccountManager::getPendingUsers($startint, $startint + self::NUM_PER_PAGE);
     $this->PAGE->addContent($p = new Port("Pending accounts"));
     if ($count == 0) {
-      $p->add(new Para("There are no pending accounts."));
+      $p->add(new XP(array(), "There are no pending accounts."));
     }
     else {
-      $p->add(new Para("Use the checkboxes below to select the accounts, and then click " .
-			    "on the appropriate button to approve/reject."));
+      $p->add(new XP(array(), "Use the checkboxes below to select the accounts, and then click on the appropriate button to approve/reject."));
       $p->add($f = new XForm("/pending-edit", XForm::POST));
-      $f->add($para = new Para("With selected: "));
-      $para->add(new FSubmit("approve", "Approve"));
-      $para->add(new XText(" "));
-      $para->add(new FSubmit("reject",  "Reject"));
+      $f->add(new XP(array(),
+		     array("With selected: ",
+			   new FSubmit("approve", "Approve"),
+			   " ", new FSubmit("reject",  "Reject"))));
 
       $f->add($tab = new Table());
       $tab->set("style", "width: 100%");

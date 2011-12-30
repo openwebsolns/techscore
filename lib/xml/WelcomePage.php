@@ -69,16 +69,14 @@ class WelcomePage extends TScorePage {
     if (file_exists($file))
       $p->add(new XRawText(file_get_contents($file)));
     else
-      $p->add(new Para("No announcements at this time."));
+      $p->add(new XP(array(), "No announcements at this time."));
 
     $this->addContent($p = new Port("Register for TechScore"));
-
-    $str = '
-     If you are affiliated with <a
-     href="http://www.collegesailing.org">ICSA</a> and would like an
-     account for TechScore, you can <a href="./register">register
-     here</a>.';
-    $p->add(new Para($str));
+    $p->add(new XP(array(),
+		   array("If you are affiliated with ",
+			 new XA("http://www.collegesailing.org", "ICSA"),
+			 " and would like an account with TechScore, you can ",
+			 new XA("/register", "register here"), ".")));
   }
 }
 

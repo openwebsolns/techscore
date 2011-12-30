@@ -42,7 +42,7 @@ class UserHomePane extends AbstractUserPane {
     $num_messages = count(Preferences::getUnreadMessages($this->USER->asAccount()));
     if ($num_messages > 0) {
       $this->PAGE->addContent($p = new Port("Messages"));
-      $p->add($para = new Para("You have "));
+      $p->add($para = new XP(array(), "You have "));
       if ($num_messages == 1)
 	$para->add(new XA("inbox", "1 unread message."));
       else
@@ -87,22 +87,16 @@ class UserHomePane extends AbstractUserPane {
     // Add search form, if necessary
     if ($num_regattas > self::NUM_PER_PAGE * 3 || $qry !== null) {
       $p->add($f = new XForm('/', XForm::GET));
-      $f->add($pa = new Para(""));
-      $pa->set('id', 'search');
-      $pa->set('title', "Enter part or all of the name");
-      $pa->add(new XText("Search your regattas: "));
-      $pa->add(new FText('q', $qry, array('size'=>60)));
-      $pa->add(new FSubmit('go', "Go"));
+      $f->add($pa = new XP(array('id'=>'search', 'title'=>"Enter part or all of the name"),
+			   array("Search your regattas: ",
+				 new FText('q', $qry, array('size'=>60)),
+				 new FSubmit('go', "Go"))));
       if ($qry !== null) {
 	$pa->add(new XText(" "));
 	$pa->add(new XA('/', "Cancel"));
       }
-      if ($mes !== null) {
-	$f->add($pa = new Para(""));
-	$pa->set('class', 'warning');
-	$pa->set('style', 'padding: 0.5em;');
-	$pa->add(new XText($mes));
-      }
+      if ($mes !== null)
+	$f->add(new XP(array('class'=>'warning', 'style'=>'padding:0.5em;'), $mes));
     }
 
     // Create table of regattas, if applicable
@@ -116,7 +110,9 @@ class UserHomePane extends AbstractUserPane {
 				    Cell::th("Finalized"))));
     }
     elseif ($qry === null) {
-      $p->add(new Para('You have no regattas. Go <a href="create">create one</a>!'));
+      $p->add(new XP(array(),
+		     array("You have no regattas. Go ",
+			   new XA("create", "create one"), "!")));
     }
     $row = 0;
     $now = new DateTime('1 day ago');

@@ -25,10 +25,10 @@ class RpEnterPane extends AbstractPane {
 
     if (count($teams) == 0) {
       $this->PAGE->addContent($p = new Port("No teams registered"));
-      $mes = sprintf('In order to register sailors, you will need to ' .
-		     '<a href="score/%s/team">register teams</a> first.',
-		     $this->REGATTA->id());
-      $p->addBody(new Para($mes));
+      $p->add(new XP(array(),
+		     array("In order to register sailors, you will need to ",
+			   new XA(sprintf("score/%s/team", $this->REGATTA->id()), "register teams"),
+			   " first.")));
       return;
     }
     
@@ -49,14 +49,13 @@ class RpEnterPane extends AbstractPane {
 					  array(),
 					  array("class"=>"nonprint")));
 
-    $mes = sprintf('
-     Use the form below to enter RP information. If a sailor does not
-     appear in the selection box, it means they are not in the ICSA
-     database, and they have to be manually added to a temporary list
-     in the <a href="%s/temp">Unregistered form</a>.',
-		   $this->REGATTA->id());
-    $p->add(new Para($mes));
-    $p->add(new Para('<strong>NOTE:</strong> You may only submit up to two sailors in the same role in the same division at a time. To add a third or more skipper or crew in a given division, submit the form multiple times.'));
+    $p->add(new XP(array(),
+		   array("Use the form below to enter RP information. If a sailor does not appear in the selection box, it means they are not in the ICSA database, and they have to be manually added to a temporary list in the ",
+			 new XA(sprintf('/%s/temp', $this->REGATTA->id()), "Unregistered form"),
+			 ".")));
+    $p->add(new XP(array(),
+		   array(new XStrong("Note:"),
+			 " You may only submit up to two sailors in the same role in the same division at a time. To add a third or more skipper or crew in a given division, submit the form multiple times.")));
 
     // ------------------------------------------------------------
     // Change team
@@ -231,10 +230,10 @@ class RpEnterPane extends AbstractPane {
 
     // ------------------------------------------------------------
     // - Add submit
-    $form->add($para = new Para(""));
-    $para->add(new FReset("reset", "Reset"));
-    $para->add(new FSubmit("rpform", "Submit form",
-				array("id"=>"rpsubmit")));
+    $form->add(new XP(array(),
+		      array(new FReset("reset", "Reset"),
+			    new FSubmit("rpform", "Submit form",
+					array("id"=>"rpsubmit")))));
     $p->add(new GenericElement("script",
 				    array(new XText("check()")),
 				    array("type"=>"text/javascript")));
