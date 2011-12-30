@@ -618,17 +618,4 @@ class FReset extends FGenericElement
     $this->set("type","reset");
   }
 }
-
-/**
- * Submit button for accessibility for non-javascript pages
- * Automatically adds class "accessible" to submit button
- */
-class FSubmitAccessible extends FSubmit
-{
-  public function __construct($name="") {
-    parent::__construct($name,
-			"Update",
-			array("class"=>"accessible"));
-  }
-}
 ?>

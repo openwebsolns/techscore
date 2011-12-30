@@ -110,4 +110,14 @@ class FItem extends XDiv {
     $this->add($form_input);
   }
 }
+
+/**
+ * Submit button for accessibility for non-javascript pages
+ * Automatically adds class "accessible" to submit button
+ */
+class XSubmitAccessible extends XSubmitInput {
+  public function __construct($name, $value) {
+    parent::__construct($name, $value, array("class"=>"accessible"));
+  }
+}
 ?>

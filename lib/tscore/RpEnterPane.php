@@ -72,7 +72,7 @@ class RpEnterPane extends AbstractPane {
 				      $team->school->nick_name,
 				      $team->name);
     $f_sel->addOptions($team_opts);
-    $form->add(new FSubmitAccessible("change_team", "Get form"));
+    $form->add(new XSubmitAccessible("change_team", "Get form"));
 
     // ------------------------------------------------------------
     // RP Form

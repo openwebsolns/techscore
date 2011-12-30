@@ -79,7 +79,7 @@ class ScorersPane extends AbstractPane {
     $sel->set("onchange","submit('this')");
 
     // Add accessible submit button
-    $fi->add(new FSubmitAccessible("update_conf"));
+    $fi->add(new XSubmitAccessible("update_conf", "Update"));
 
     // Accounts form
     $p->add($s_form = $this->createForm());

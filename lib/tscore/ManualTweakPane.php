@@ -40,7 +40,7 @@ class ManualTweakPane extends AbstractPane {
 			      $f_sel = new FSelect("division", array($chosen_div))));
     $f_sel->addOptions(array_combine($exist_div, $exist_div));
     $f_sel->set("onchange", "submit()");
-    $form->add(new FSubmitAccessible("boatupdate", "Update"));
+    $form->add(new XSubmitAccessible("boatupdate", "Update"));
 
     $p->add(new XHeading("Replace sail numbers"));
     $p->add($form = $this->createForm());
