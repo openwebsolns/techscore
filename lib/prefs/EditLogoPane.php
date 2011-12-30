@@ -31,13 +31,13 @@ class EditLogoPane extends AbstractUserPane {
   public function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new Port("School logo"));
     $p->add(new Para("Use this function to upload a new logo to use " .
-			  "with your school. This logo will replace all " .
-			  "uses of the logo throughout TechScore."));
+		     "with your school. This logo will replace all " .
+		     "uses of the logo throughout TechScore."));
 
     $p->add(new Para("Most picture formats are allowed, but files can " .
-			  "be no larger than 200 KB in size. For best results " .
-			  "use an image with a transparent background, by " .
-			  "either using a PNG or GIF file format."));
+		     "be no larger than 200 KB in size. For best results " .
+		     "use an image with a transparent background, by " .
+		     "either using a PNG or GIF file format."));
 
     $p->add($para = new Para("Please allow up to 8 hours after uploading for the new logo to appear on the public site."));
     // Current logo
@@ -53,8 +53,7 @@ class EditLogoPane extends AbstractUserPane {
     }
 
     // Form
-    $p->add($form = new XForm(sprintf("/pedit/%s/logo", $this->SCHOOL->id), "post",
-				  array("enctype"=>"multipart/form-data")));
+    $p->add($form = new XFileForm(sprintf("/pedit/%s/logo", $this->SCHOOL->id)));
     $form->add(new FHidden("MAX_FILE_SIZE","200000"));
     $form->add(new FItem("Picture:", new FFile("logo_file")));
     $form->add(new FSubmit("upload", "Upload"));
