@@ -230,7 +230,7 @@ class AllAmerican extends AbstractUserPane {
       $p->add($item = new Itemize());
       $item->set('id', 'inc-sailors');
       foreach ($_SESSION['aa']['sailors'] as $sailor)
-	$item->addItems(new XLi($sailor));
+	$item->add(new XLi($sailor));
 
       // Form to fetch and add sailors
       $this->PAGE->addHead(new GenericElement('script', array(new XText("")), array('src'=>'/inc/js/aa.js')));
@@ -241,7 +241,7 @@ class AllAmerican extends AbstractUserPane {
       $search->set('id', 'name-search');
       $form->add($ul = new Itemize());
       $ul->set('id', 'aa-input');
-      $ul->addItems(new XLi("No sailors.", array('class' => 'message')));
+      $ul->add(new XLi("No sailors.", array('class' => 'message')));
       $form->add(new FSubmit('set-sailors', "Generate report >>"));
 
       return;

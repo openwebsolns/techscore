@@ -97,12 +97,12 @@ abstract class AbstractPane {
       foreach ($panes as $url => $pane) {
 	$t = $this->doTitle($pane);
 	if ($this->doActive($pane))
-	  $m_list->addItems(new XLi(new XA("/score/$id/$url", $t)));
+	  $m_list->add(new XLi(new XA("/score/$id/$url", $t)));
 	else
-	  $m_list->addItems(new XLi($t, array("class"=>"inactive")));
+	  $m_list->add(new XLi($t, array("class"=>"inactive")));
       }
       if ($title == "Regatta")
-	$m_list->addItems(new XLi(new XA('/', "Close", array('accesskey'=>'w'))));
+	$m_list->add(new XLi(new XA('/', "Close", array('accesskey'=>'w'))));
 
       $this->PAGE->addMenu($menu);
     }
@@ -112,8 +112,8 @@ abstract class AbstractPane {
     $menu->set("class", "menu");
     $menu->add(new XH4("Download"));
     $menu->add($m_list = new GenericList());
-    $m_list->addItems(new XLi(new XA("/download/$id/regatta", "Regatta")));
-    $m_list->addItems(new XLi(new XA("/download/$id/rp", "RP Forms")));
+    $m_list->add(new XLi(new XA("/download/$id/regatta", "Regatta")));
+    $m_list->add(new XLi(new XA("/download/$id/rp", "RP Forms")));
     $this->PAGE->addMenu($menu);
 
     // Dialogs
@@ -130,7 +130,7 @@ abstract class AbstractPane {
       }
       else
 	$item = new XLi($title, array("class"=>"inactive"));
-      $m_list->addItems($item);
+      $m_list->add($item);
     }
     $this->PAGE->addMenu($menu);
   }

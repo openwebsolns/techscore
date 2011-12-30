@@ -150,9 +150,9 @@ class TeamsPane extends AbstractPane {
     $form->add($list = new Itemize(array(), array('id'=>'teams-list')));
     
     foreach ($confs as $conf) {
-      $list->addItems(new XLi($sub = new Itemize(array(new XHeading($conf)))));
+      $list->add(new XLi($sub = new Itemize(array(new XHeading($conf)))));
       foreach ($schools = Preferences::getSchoolsInConference($conf) as $school) {
-	$sub->addItems(new XLi(array(new FHidden('school[]', $school->id),
+	$sub->add(new XLi(array(new FHidden('school[]', $school->id),
 				     new FText('number[]', "", array('id'=>$school->id)),
 				     new Label($school->id, $school))));
       }

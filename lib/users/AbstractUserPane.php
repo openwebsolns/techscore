@@ -84,9 +84,9 @@ abstract class AbstractUserPane {
     $div->set("class", "menu");
     $div->add(new XH4("Messages"));
     $div->add($list = new GenericList());
-    $list->addItems(new XLi(new XA("/inbox", "Inbox")));
+    $list->add(new XLi(new XA("/inbox", "Inbox")));
     if ($this->USER->get(User::ADMIN)) {
-      $list->addItems(new XLi(new XA("/send-message", "Send message")));
+      $list->add(new XLi(new XA("/send-message", "Send message")));
     }
 
     // Admin
@@ -95,10 +95,10 @@ abstract class AbstractUserPane {
       $div->set("class", "menu");
       $div->add(new XH4("Admin"));
       $div->add($list = new GenericList());
-      $list->addItems(new XLi(new XA("/pending",   "Pending users")));
-      $list->addItems(new XLi(new XA("/venue",     "Venues")));
-      $list->addItems(new XLi(new XA("/edit-venue", "Add Venues")));
-      $list->addItems(new XLi(new XA("/boats",     "Boats")));
+      $list->add(new XLi(new XA("/pending",   "Pending users")));
+      $list->add(new XLi(new XA("/venue",     "Venues")));
+      $list->add(new XLi(new XA("/edit-venue", "Add Venues")));
+      $list->add(new XLi(new XA("/boats",     "Boats")));
     }
     $this->PAGE->addContent(new PageTitle($this->title));
     $this->fillHTML($args);

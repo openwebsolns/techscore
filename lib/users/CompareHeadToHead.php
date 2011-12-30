@@ -191,7 +191,7 @@ class CompareHeadToHead extends AbstractUserPane {
     $search->set('id', 'name-search');
     $p->add($ul = new Itemize());
     $ul->set('id', 'aa-input');
-    $ul->addItems(new XLi("No sailors.", array('class' => 'message')));
+    $ul->add(new XLi("No sailors.", array('class' => 'message')));
     $form->add(new FSubmit('set-sailors', "Compare sailors"));
   }
 
