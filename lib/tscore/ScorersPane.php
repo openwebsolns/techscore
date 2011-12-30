@@ -34,7 +34,7 @@ class ScorersPane extends AbstractPane {
 
       // Create form to delete scorer
       $f2 = $this->createForm();
-      $hidden = new FHidden("scorer", $s->id);
+      $hidden = new XHidden("scorer", $s->id);
       $button = new FSubmit("delete_scorer", "Remove scorer", array("style"=>"width:100%"));
       $f2->add($hidden);
       $f2->add($button);

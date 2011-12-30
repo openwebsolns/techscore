@@ -79,7 +79,7 @@ class NotesPane extends AbstractPane {
 				   new Cell($note->observer),
 				   new Cell($form = $this->createForm()))));
 
-	$form->add(new FHidden("observation", $note->id));
+	$form->add(new XHidden("observation", $note->id));
 	$form->add(new FSubmit("remove", "Remove",
 				    array("class"=>"thin")));
       }

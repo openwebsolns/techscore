@@ -45,7 +45,7 @@ class SailsPane extends AbstractPane {
     $chosen_rot_desc = explode(":", $this->ROTS[$chosen_rot]);
     $this->PAGE->addContent($p = new Port(sprintf("2. %s for all division(s)", $chosen_rot_desc[0])));
     $p->add($form = $this->createForm());
-    $form->add(new FHidden("rottype", $chosen_rot));
+    $form->add(new XHidden("rottype", $chosen_rot));
     
     $teams = $this->REGATTA->getTeams();
     $divisions = $this->REGATTA->getDivisions();
@@ -237,7 +237,7 @@ class SailsPane extends AbstractPane {
       $p->addHelp("node13.html");
       $p->add($form = $this->createForm());
 
-      $form->add(new FHidden("rottype", $chosen_rot));
+      $form->add(new XHidden("rottype", $chosen_rot));
       // Divisions
       if (count($chosen_div) > 1) {
 	$this->PAGE->head->add(new GenericElement("script", array(new XText("")),
@@ -255,12 +255,12 @@ class SailsPane extends AbstractPane {
 									       'maxlength'=>1))),
 				     $c = new Cell($div, array('class'=>'drag'))),
 			       array('class'=>'sortable')));
-	  $c->add(new FHidden("division[]", $div));
+	  $c->add(new XHidden("division[]", $div));
 	}
       }
       else {
 	foreach ($chosen_div as $div)
-	  $form->add(new FHidden("division[]", $div));
+	  $form->add(new XHidden("division[]", $div));
       }
 
       // Suggest Navy/Franny special
@@ -273,7 +273,7 @@ class SailsPane extends AbstractPane {
 	$f_sel->addOptions($this->STYLES);
       }
       else {
-	$form->add(new FHidden("style", "copy"));
+	$form->add(new XHidden("style", "copy"));
       }
 
       // Races

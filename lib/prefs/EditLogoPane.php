@@ -50,7 +50,7 @@ class EditLogoPane extends AbstractUserPane {
 
     // Form
     $p->add($form = new XFileForm(sprintf("/pedit/%s/logo", $this->SCHOOL->id)));
-    $form->add(new FHidden("MAX_FILE_SIZE","200000"));
+    $form->add(new XHidden("MAX_FILE_SIZE","200000"));
     $form->add(new FItem("Picture:", new FFile("logo_file")));
     $form->add(new FSubmit("upload", "Upload"));
   }

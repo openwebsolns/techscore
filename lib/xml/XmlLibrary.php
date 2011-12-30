@@ -631,18 +631,4 @@ class FSubmitAccessible extends FSubmit
 			array("class"=>"accessible"));
   }
 }
-
-/**
- * Represents a hidden input value <input type="hidden"
- */
-class FHidden extends FGenericElement
-{
-  public function __construct($name,
-			      $value) {
-    parent::__construct("input",
-			$name,
-			array($value),
-			array("type"=>"hidden"));
-  }
-}
 ?>

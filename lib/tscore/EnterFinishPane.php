@@ -122,7 +122,7 @@ class EnterFinishPane extends AbstractPane {
     $p->add($form = $this->createForm());
     $form->set("id", "finish_form");
 
-    $form->add(new FHidden("race", $race));
+    $form->add(new XHidden("race", $race));
     if ($using == "ROT") {
       // ------------------------------------------------------------
       // Rotation-based
@@ -302,7 +302,7 @@ class EnterFinishPane extends AbstractPane {
     $p->add($form = $this->createForm());
     $form->set("id", "finish_form");
 
-    $form->add(new FHidden("race", $race));
+    $form->add(new XHidden("race", $race));
     if ($using == "ROT") {
       // ------------------------------------------------------------
       // Rotation-based

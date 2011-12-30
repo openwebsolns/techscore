@@ -59,7 +59,7 @@ class VenueManagement extends AbstractAdminUserPane {
       $stat = $v->state;
       $code = $v->zipcode;
       $mess = "Edit";
-      $hidd = new FHidden("venue", $v->id);
+      $hidd = new XHidden("venue", $v->id);
     }
 
     if (isset($args['name']))    $name = $args['name'];

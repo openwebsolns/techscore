@@ -152,7 +152,7 @@ class TeamsPane extends AbstractPane {
     foreach ($confs as $conf) {
       $list->add(new XLi(array(new XHeading($conf), $sub = new XUl())));
       foreach ($schools = Preferences::getSchoolsInConference($conf) as $school) {
-	$sub->add(new XLi(array(new FHidden('school[]', $school->id),
+	$sub->add(new XLi(array(new XHidden('school[]', $school->id),
 				     new FText('number[]', "", array('id'=>$school->id)),
 				     new XLabel($school->id, $school))));
       }

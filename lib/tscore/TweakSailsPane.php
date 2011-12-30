@@ -84,7 +84,7 @@ class TweakSailsPane extends AbstractPane {
 
       // Write in this form the options from above
       foreach ($chosen_div as $div) {
-	$form->add(new FHidden("division[]", $div));
+	$form->add(new XHidden("division[]", $div));
       }
 
       $form->add($f_item = new FItem("Races:",

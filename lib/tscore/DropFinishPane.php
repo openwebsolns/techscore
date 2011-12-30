@@ -53,7 +53,7 @@ class DropFinishPane extends AbstractPane {
       // add form
       $tab->addRow(new Row(array(new Cell($form = $this->createForm(),
 					  array("colspan"=>"2")))));
-      $form->add(new FHidden("race", $race->id));
+      $form->add(new XHidden("race", $race->id));
       $form->add($submit = new FSubmit("removerace", "Remove"));
       $submit->set("class", "thin");
     }
@@ -100,7 +100,7 @@ class DropFinishPane extends AbstractPane {
 	// add form
 	$tab->addRow(new Row(array(new Cell($form = $this->createForm(),
 					    array("colspan"=>"2")))));
-	$form->add(new FHidden("race", $race->id));
+	$form->add(new XHidden("race", $race->id));
 	$form->add($submit = new FSubmit("removerace", "Remove"));
 	$submit->set("class", "thin");
       }
