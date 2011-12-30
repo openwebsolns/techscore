@@ -8,12 +8,12 @@
  */
 
 /**
- * Interface for HTML elements: specifies toHTML method
+ * Interface for HTML elements: specifies toXML method
  */
 interface HTMLElement
 {
-  public function toHTML();
-  public function printHTML();
+  public function toXML();
+  public function printXML();
 }
 
 
@@ -73,8 +73,8 @@ class GenericElement implements HTMLElement
     unset($this->elemAttrs[$name]);
   }
 
-  // Generic toHTML method
-  public function toHTML() {
+  // Generic toXML method
+  public function toXML() {
     $str = "<" . $this->elemName;
     // Process attributes
     foreach ($this->getAttrs() as $attr => $value) {
@@ -90,15 +90,15 @@ class GenericElement implements HTMLElement
     $child_str = "";
     // Process children
     foreach ($this->getChildren() as $child) {
-      $str .= $child->toHTML();
+      $str .= $child->toXML();
     }
     // Close tag
     $str .= sprintf("</%s>", $this->elemName);
     return $str;
   }
 
-  // Generic printHTML method
-  public function printHTML() {
+  // Generic printXML method
+  public function printXML() {
     echo "<" . $this->elemName;
     // Process attributes
     foreach ($this->getAttrs() as $attr => $value) {
@@ -114,17 +114,10 @@ class GenericElement implements HTMLElement
     echo ">";
     // Process children
     foreach ($this->getChildren() as $child)
-      $child->printHTML();
+      $child->printXML();
 
     // Close tag
     echo sprintf("</%s>", $this->elemName);
-  }
-
-  public function toXML() {
-    return $this->toHTML();
-  }
-  public function printXML() {
-    $this->printHTML();
   }
 
   /**
@@ -178,15 +171,15 @@ class WebPage extends GenericElement
       return $this->$e;
   }
 
-  public function toHTML() {
+  public function toXML() {
     $str = '<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
-    $str .= parent::toHTML();
+    $str .= parent::toXML();
     return $str;
   }
 
-  public function printHTML() {
+  public function printXML() {
     echo '<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
-    parent::printHTML();
+    parent::printXML();
   }
 }
 

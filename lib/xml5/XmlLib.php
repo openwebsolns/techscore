@@ -326,12 +326,6 @@ class XRawText implements Xmlable {
   public function printXML() {
     echo $this->value;
   }
-  public function toHTML() {
-    return $this->toXML();
-  }
-  public function printHTML() {
-    $this->printXML();
-  }
 }
 
 class XCData extends XRawText {

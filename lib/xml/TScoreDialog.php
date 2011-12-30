@@ -163,13 +163,13 @@ class TScoreDialog extends WebPage {
    * Overrides parent method to include footer
    *
    */
-  public function toHTML($ind = 0) {
+  public function toXML($ind = 0) {
     // Footer
     $this->content->addChild($footer = new Div());
     $footer->addAttr("id", "footdiv");
     $footer->addChild(new Para(sprintf("TechScore v%s © Dayán Páez 2008-%s", VERSION, date('y'))));
 
-    return parent::toHTML();
+    return parent::toXML();
   }
 }
 ?>
