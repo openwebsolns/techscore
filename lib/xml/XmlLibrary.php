@@ -490,40 +490,6 @@ class Form extends GenericElement
 }
 
 /**
- * Form item element. This is comprised of a message and a form
- * input. This form input should be a subclass of FGenericElement
- */
-class FItem extends GenericElement
-{
-  public function __construct($message,
-			      $form_input) {
-    parent::__construct("div",
-			array(),
-			array("class"=>"form_entry"));
-    // Add span form_h
-    if (is_string($message)) {
-      $this->addChild(new GenericElement("span",
-					 array(new XText($message)),
-					 array("class"=>"form_h")));
-    }
-    elseif (($message instanceof GenericElement)) {
-      $this->addChild($message);
-      $message->addAttr("class","form_h");
-    }
-    else {
-      trigger_error("Argument is neither string or GenericElement",
-		    E_USER_ERROR);
-    }
-
-    // Add form_input
-    if ($form_input instanceof GenericElement)
-      $this->addChild($form_input);
-    else
-      trigger_error("Argument is not a valid GenericElement", E_USER_ERROR);
-  }
-}
-
-/**
  * Generic form input
  */
 class FGenericElement extends GenericElement

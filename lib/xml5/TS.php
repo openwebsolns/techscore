@@ -74,4 +74,28 @@ class XHLink extends XSpan
 			array("class"=>"hlink"));
   }
 }
+
+/**
+ * Encapsulates a form entry: a prefix label and some input element
+ * (implemented here as a 'div')
+ *
+ * @author Dayan Paez
+ * @version 2011-12-30
+ */
+class FItem extends XDiv {
+  /**
+   * Creates a new form item with given prefix and form input
+   *
+   * @param mixed $message any possible child of XDiv
+   * @param mixed $form_input ditto.
+   */
+  public function __construct($message, $form_input) {
+    parent::__construct(array('class'=>'form_entry'));
+    if (is_string($message))
+      $this->add(new XSpan($message, array('class'=>'form_h')));
+    else
+      $this->add($message);
+    $this->add($form_input);
+  }
+}
 ?>
