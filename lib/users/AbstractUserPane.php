@@ -101,7 +101,7 @@ abstract class AbstractUserPane {
     }
     $this->PAGE->addContent(new PageTitle($this->title));
     $this->fillHTML($args);
-    $this->PAGE->printHTML();
+    $this->PAGE->printXML();
   }
 
   /**

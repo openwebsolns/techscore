@@ -34,7 +34,7 @@ if (!(isset($_SESSION['user']))) {
       $_SESSION['ANNOUNCE'][] = new Announcement("Please login to proceed.", Announcement::WARNING);
       require_once('xml/WelcomePage.php');
       $PAGE = new WelcomePage();
-      $PAGE->printHTML();
+      $PAGE->printXML();
       exit;
 
     default:
@@ -44,14 +44,14 @@ if (!(isset($_SESSION['user']))) {
       $_SESSION['ANNOUNCE'][] = new Announcement("Please login to proceed.", Announcement::WARNING);
       require_once('xml/WelcomePage.php');
       $PAGE = new WelcomePage();
-      $PAGE->printHTML();
+      $PAGE->printXML();
       exit;
     }
     if (isset($_GET['_action']) && $_GET['_action'] == 'edit') {
       $_SESSION['POST'] = $PAGE->process($_REQUEST);
       WebServer::goBack();
     }
-    $PAGE->printHTML();
+    $PAGE->printXML();
     exit;
   }
 

@@ -20,7 +20,7 @@ if (!(isset($_SESSION['user']))) {
   $_SESSION['ANNOUNCE'][] = new Announcement("Please login to proceed.", Announcement::WARNING);
   require_once('xml/WelcomePage.php');
   $PAGE = new WelcomePage();
-  $PAGE->printHTML();
+  $PAGE->printXML();
   exit;
 }
 $USER = null;

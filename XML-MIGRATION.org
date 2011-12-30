@@ -1,0 +1,15 @@
+Migrating to XML Library
+
+Since the current XmlLibrary and the future HtmlLib have different
+names for the analogous classes (the latter being prefixed with an
+'X'), the best course of action is to migrate each element at a time,
+changing the name and its use from one library to another.
+
+During that migration, both libraries will be loaded into memory, but
+the program will use the class that it can.
+
+This means, however, that the new library will have to be modified to
+temporarily allow anything that has a toXML or printXML (as in duck
+typing). Futhermore, this means that the first course of action is to
+add the new methods to the XmlLibrary.
+

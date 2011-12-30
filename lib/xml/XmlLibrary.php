@@ -124,6 +124,13 @@ class GenericElement implements HTMLElement
     echo sprintf("</%s>", $this->elemName);
   }
 
+  public function toXML() {
+    return $this->toHTML();
+  }
+  public function printXML() {
+    $this->printHTML();
+  }
+
   /**
    * toString representation
    */
@@ -428,6 +435,12 @@ class Text implements HTMLElement
   }
   public function printHTML() {
     echo $this->value;
+  }
+  public function toXML() {
+    return htmlspecialchars($this->value, ENT_QUOTES, 'UTF-8');
+  }
+  public function printXML() {
+    echo htmlspecialchars($this->value, ENT_QUOTES, 'UTF-8');
   }
 }
 

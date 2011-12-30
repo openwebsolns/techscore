@@ -165,7 +165,7 @@ abstract class AbstractPane {
     if (isset($_SESSION['ANNOUNCE'])) {
       $this->processAnnouncements();
     }
-    $this->PAGE->printHTML();
+    $this->PAGE->printXML();
   }
 
   /**
