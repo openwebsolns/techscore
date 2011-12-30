@@ -134,6 +134,7 @@ class UserHomePane extends AbstractUserPane {
     }
     $last = (int)($num_regattas / self::NUM_PER_PAGE);
     if ($last > 1) {
+      require_once('xml5/PageDiv.php');
       $suf = ($qry !== null) ? '?q='.$qry : '';
       $p->add(new PageDiv($last, $pageset, 'home', $suf));
     }

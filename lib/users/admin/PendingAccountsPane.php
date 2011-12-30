@@ -72,8 +72,10 @@ class PendingAccountsPane extends AbstractAdminUserPane {
 					new Cell(new XLabel($acc->id, $acc->school->nick_name)),
 					new Cell(new XLabel($acc->id, $acc->role)))));
       }
-      if ($num_pages > 1)
+      if ($num_pages > 1) {
+	require_once('xml5/PageDiv.php');
 	$p->add(new PageDiv($num_pages, $pageset, "pending"));
+      }
     }
   }
 
