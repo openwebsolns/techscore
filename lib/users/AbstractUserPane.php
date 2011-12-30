@@ -54,30 +54,30 @@ abstract class AbstractUserPane {
     $this->PAGE->addMenu($div = new Div());
     $div->set("class", "menu");
     $div->add(new XH4("TechScore"));
-    $div->add($list = new GenericList());
-    $list->addItems(new XLi(new XA("/",      "My regattas")),
-		    new XLi(new XA("/create", "New regatta", array("accesskey"=>"n"))),
-		    new XLi(new XA("/account","My account")));
+    $div->add(new XUl(array(),
+		      array(new XLi(new XA("/",      "My regattas")),
+			    new XLi(new XA("/create", "New regatta", array("accesskey"=>"n"))),
+			    new XLi(new XA("/account","My account")))));
 
     // School setup
     $S = $this->SCHOOL->id;
     $this->PAGE->addMenu($div = new Div());
     $div->set("class", "menu");
     $div->add(new XH4("My School"));
-    $div->add($list = new GenericList());
-    $list->addItems(new XLi(new XA("/prefs/$S",        "Instructions")),
-		    new XLi(new XA("/prefs/$S/logo",   "School logo")),
-		    new XLi(new XA("/prefs/$S/team",   "Team names")),
-		    new XLi(new XA("/prefs/$S/sailor", "Sailors")));
+    $div->add(new XUl(array(),
+		      array(new XLi(new XA("/prefs/$S",        "Instructions")),
+			    new XLi(new XA("/prefs/$S/logo",   "School logo")),
+			    new XLi(new XA("/prefs/$S/team",   "Team names")),
+			    new XLi(new XA("/prefs/$S/sailor", "Sailors")))));
 
     // Reports
     $this->PAGE->addMenu($div = new Div());
     $div->set("class", "menu");
     $div->add(new XH4("Reports"));
-    $div->add($list = new GenericList());
-    $list->addItems(new XLi(new XA("/aa", "All-American")),
-		    new XLi(new XA("/compare-sailors", "Head to head")),
-		    new XLi(new XA("/compare-by-race", "Comp. by race")));
+    $div->add(new XUl(array(),
+		      array(new XLi(new XA("/aa", "All-American")),
+			    new XLi(new XA("/compare-sailors", "Head to head")),
+			    new XLi(new XA("/compare-by-race", "Comp. by race")))));
     
     // Messages
     $this->PAGE->addMenu($div = new Div());
