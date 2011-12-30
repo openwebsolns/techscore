@@ -6,6 +6,7 @@
  */
 
 require_once('xml/XmlLibrary.php');
+require_once('xml5/TS.php');
 
 /**
  * The basic HTML page for TechScore dialogs. This page is a

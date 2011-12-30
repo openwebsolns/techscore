@@ -31,4 +31,20 @@ class XPort extends XDiv {
       $this->add($child);
   }
 }
+
+/**
+ * A span of class 'message'
+ *
+ */
+class XMessage extends XSpan {
+  /**
+   * Creates a new such message
+   *
+   * @see XSpan::__construct
+   */
+  public function __construct($content, Array $attrs = array()) {
+    parent::__construct($content, $attrs);
+    $this->set('class', 'message');
+  }
+}
 ?>

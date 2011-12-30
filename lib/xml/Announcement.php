@@ -7,6 +7,7 @@
  */
 
 require_once('xml/XmlLibrary.php');
+require_once('xml5/TS.php');
 
 /**
  * Encapsulates an announcement, which constitutes a message and a

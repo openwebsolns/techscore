@@ -8,6 +8,7 @@
  */
 
 require_once('xml/XmlLibrary.php');
+require_once('xml5/TS.php');
 
 /**
  * The basic HTML page for TechScore files. This page extends the
@@ -171,7 +172,8 @@ class TScorePage extends WebPage {
     
     $this->header->addChild($this->navigation = new Div());
     $this->navigation->addAttr("id", "topnav");
-    $this->navigation->addChild(new Link(HELP_HOME, '<span style="text-decoration:underline">H</span>elp?',
+    $this->navigation->addChild(new Link(HELP_HOME,
+					 array(new XSpan("H", array('style'=>"text-decoration:underline")), "elp?"),
 					 array("id"=>"help",
 					       "target"=>"help",
 					       "accesskey"=>"h")));
@@ -191,7 +193,7 @@ class TScorePage extends WebPage {
    * @param HTMLElement $elem an element to append to the body of this
    * page
    */
-  public function addContent(HTMLElement $elem) {
+  public function addContent($elem) {
     $this->content->addChild($elem);
   }
 
@@ -200,7 +202,7 @@ class TScorePage extends WebPage {
    *
    * @param HTMLElement $elem to add to the menu of this page
    */
-  public function addMenu(HTMLElement $elem) {
+  public function addMenu($elem) {
     $this->menu->addChild($elem);
   }
 

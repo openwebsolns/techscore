@@ -89,8 +89,10 @@ class XElem implements Xmlable {
    * @param Xmlable $child the child
    */
   public function add($child) {
+    /*
     if (!($child instanceof Xmlable))
       throw new InvalidArgumentException("Child must be instance of Xmlable");
+    */
     $this->child[] = $child;
   }
 

@@ -81,8 +81,7 @@ class DetailsPane extends AbstractPane {
     unset($types['personal']);
     $f_sel->addOptionGroup("Public", $types);
     $f_sel->addOptionGroup("Not-published", array('personal' => "Personal"));
-    $item->addChild(new Span(array(new XText("Choose \"Personal\" to un-publish")),
-			     array('class'=>'message')));
+    $item->addChild(new XMessage("Choose \"Personal\" to un-publish"));
 
     // Regatta participation
     $value = $this->REGATTA->get(Regatta::PARTICIPANT);
@@ -91,8 +90,7 @@ class DetailsPane extends AbstractPane {
     $f_sel->addOptions(Preferences::getRegattaParticipantAssoc());
     // will changing this value affect the RP information?
     if ($value == Regatta::PARTICIPANT_COED) {
-      $item->addChild(new Span(array(new XText("Changing this value may affect RP info")),
-			       array('class'=>'message')));
+      $item->addChild(new XMessage("Changing this value may affect RP info"));
     }
 
     // Scoring rules

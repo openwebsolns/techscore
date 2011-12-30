@@ -941,9 +941,15 @@ class Link extends GenericElement
     parent::__construct("a",
 			array(),
 			$attrs);
-    if (!($link instanceof HTMLElement))
-      $link = new XText($link);
-    $this->addChild($link);
+    if (!is_array($link))
+      $link = array($link);
+
+    foreach ($link as $l) {
+      if (is_object($l))
+	$this->addChild($l);
+      else
+	$this->addChild(new XText($l));
+    }
     $this->addAttr("href", $href);
   }
 }

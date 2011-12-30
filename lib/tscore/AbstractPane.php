@@ -6,7 +6,7 @@
  */
 
 require_once('xml/XmlLibrary.php');
-require_once('xml5/HtmlLib.php');
+require_once('xml5/TS.php');
 
 /**
  * Parent class of all editing panes. Requires USER and REGATTA.

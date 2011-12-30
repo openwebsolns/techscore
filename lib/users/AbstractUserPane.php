@@ -6,6 +6,7 @@
  */
 
 require_once('xml/XmlLibrary.php');
+require_once('xml5/TS.php');
 
 /**
  * This is the parent class of all user's editing panes. It insures a

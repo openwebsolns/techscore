@@ -75,7 +75,7 @@ class PrefsHomePane extends AbstractUserPane {
 	  if ($school != $this->SCHOOL)
 	    $link = new Link(sprintf("/prefs/%s", $school->id), $school->nick_name);
 	  else
-	    $link = new Span(array(new XText($school->nick_name)));
+	    $link = new XSpan($school->nick_name);
 	  $list->addItems(new LItem($link));
 	}
       }

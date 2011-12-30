@@ -116,9 +116,9 @@ class ScoresFullDialog extends AbstractScoresDialog {
 	if ($num_divs == 1) {
 	  $ln = $rank->team->name . '<br/>' . $rank->team->school->nick_name;
 	  if ($link_schools !== null)
-	    $ln = new Span(array(new XRawText($rank->team->name), new XBr(),
-				 new Link(sprintf('%s/%s', $link_schools, $rank->team->school->id),
-					  $rank->team->school->nick_name)));
+	    $ln = new XSpan(array(new XRawText($rank->team->name), new XBr(),
+				  new Link(sprintf('%s/%s', $link_schools, $rank->team->school->id),
+					   $rank->team->school->nick_name)));
 	  $r->addCell(new Cell($tiebreakers[$rank->explanation], array("title" => $rank->explanation,
 								       "class" => "tiebreaker")),
 		      new Cell($order++),
