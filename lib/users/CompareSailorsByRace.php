@@ -202,7 +202,7 @@ class CompareSailorsByRace extends AbstractUserPane {
       $then = Season::parse(sprintf('f%0d', ($now->getTime()->format('Y') - 1)));
     foreach (Preferences::getActiveSeasons() as $season) {
       $ul->add(new XLi(array($chk = new FCheckbox('seasons[]', $season, array('id' => $season)),
-			     new Label($season, $season->fullString()))));
+			     new XLabel($season, $season->fullString()))));
       if ((string)$season == (string)$now || (string)$season == (string)$then)
 	$chk->set('checked', 'checked');
     }

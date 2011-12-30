@@ -148,7 +148,7 @@ class DetailsPane extends AbstractPane {
 	$form->add(new FItem(new FCheckbox("approve",
 						"on",
 						array("id"=>"approve")),
-				  new Label("approve",
+				  new XLabel("approve",
 					    "I wish to finalize this regatta.",
 					    array("class"=>"strong"))));
 

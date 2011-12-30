@@ -124,13 +124,13 @@ class EnterPenaltyPane extends AbstractPane {
 			     $cb = new FCheckbox("average", "yes", array("id"=>"avg_box")));
       $cb->set("onclick", "document.getElementById('p_amount').disabled = this.checked;document.getElementById('displace_box').disabled = this.checked;");
       // $cb->set("checked", "checked");
-      $new_score->add(new Label("avg_box", $average));
+      $new_score->add(new XLabel("avg_box", $average));
       $form->add($new_score);
 
       $new_score = new FItem("OR Assign score:",
 			     new FText("p_amount", "", array("size"=>"2", "id"=>"p_amount")));
       $new_score->add(new FCheckbox("displace", "yes", array("id"=>"displace_box")));
-      $new_score->add(new Label('displace_box', 'Displace finishes'));
+      $new_score->add(new XLabel('displace_box', 'Displace finishes'));
       $form->add($new_score);
 
       // script to turn off the two by default

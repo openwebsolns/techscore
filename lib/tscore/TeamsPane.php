@@ -48,7 +48,7 @@ class TeamsPane extends AbstractPane {
 				      new FCheckbox('del-rotation', '1',
 						    array('id'=>'del-rot',
 							  'checked'=>'checked'))));
-      $fi->add(new Label('del-rot', "Delete current rotation without affecting finishes."));
+      $fi->add(new XLabel('del-rot', "Delete current rotation without affecting finishes."));
     }
 
     // What to do with scores?
@@ -154,7 +154,7 @@ class TeamsPane extends AbstractPane {
       foreach ($schools = Preferences::getSchoolsInConference($conf) as $school) {
 	$sub->add(new XLi(array(new FHidden('school[]', $school->id),
 				     new FText('number[]', "", array('id'=>$school->id)),
-				     new Label($school->id, $school))));
+				     new XLabel($school->id, $school))));
       }
     }
     $form->add(new FSubmit('set-teams', "Register teams"));

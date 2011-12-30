@@ -67,7 +67,7 @@ class AllAmerican extends AbstractUserPane {
 	$then = Season::parse(sprintf('f%0d', ($now->getTime()->format('Y') - 1)));
       foreach (Preferences::getActiveSeasons() as $season) {
 	$ul->add(new XLi(array($chk = new FCheckbox('seasons[]', $season, array('id' => $season)),
-			       new Label($season, $season->fullString()))));
+			       new XLabel($season, $season->fullString()))));
 	if ((string)$season == (string)$now || (string)$season == (string)$then)
 	  $chk->set('checked', 'checked');
       }
@@ -75,7 +75,7 @@ class AllAmerican extends AbstractUserPane {
       // Conferences
       foreach (Preferences::getConferences() as $conf) {
 	$ul2->add(new XLi(array($chk = new FCheckbox('confs[]', $conf, array('id' => $conf->id)),
-				new Label($conf->id, $conf))));
+				new XLabel($conf->id, $conf))));
 	$chk->set('checked', 'checked');
       }
 
@@ -159,14 +159,14 @@ class AllAmerican extends AbstractUserPane {
 	  // present these regattas for choosing
 	  $id = 'r'.$reg->id;
 	  $r = new Row(array(new Cell($chk = new FCheckbox("regatta[]", $reg->id, array('id'=>$id))),
-			     new Cell(new Label($id, $reg->name),
+			     new Cell(new XLabel($id, $reg->name),
 				      array('class'=>'left')),
-			     new Cell(new Label($id, $types[$reg->type])),
-			     new Cell(new Label($id,
+			     new Cell(new XLabel($id, $types[$reg->type])),
+			     new Cell(new XLabel($id,
 						($reg->participant == Regatta::PARTICIPANT_WOMEN) ?
 						"Women" : "Coed")),
-			     new Cell(new Label($id, $reg->start_time->format('Y/m/d H:i'))),
-			     new Cell(new Label($id, ($reg->finalized) ? "Final" : "Pending"))));
+			     new Cell(new XLabel($id, $reg->start_time->format('Y/m/d H:i'))),
+			     new Cell(new XLabel($id, ($reg->finalized) ? "Final" : "Pending"))));
 	  $tab->addRow($r);
 	  if ($reg->finalized === null ||
 	      ($reg->participant != $_SESSION['aa']['report-participation'] &&

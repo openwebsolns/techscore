@@ -508,22 +508,6 @@ class FCheckbox extends FGenericElement
 }
 
 /**
- * Wrapper for <label for"...">
- */
-class Label extends GenericElement
-{
-  public function __construct($for,
-			      $value = "",
-			      $attrs = array()) {
-    parent::__construct("label",
-			array(new XText($value)),
-			$attrs);
-    $this->set("for", $for);
-  }
-}
-
-
-/**
  * From select input (allows multiple selects)
  */
 class FSelect extends FGenericElement

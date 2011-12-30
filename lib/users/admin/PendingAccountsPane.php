@@ -67,11 +67,11 @@ class PendingAccountsPane extends AbstractAdminUserPane {
 	$tab->addRow($r = new Row(array(new Cell(new FCheckBox("accounts[]",
 							       $acc->id,
 							       array("id"=>$acc->id))),
-					new Cell(new Label($acc->id, $acc->getName())),
+					new Cell(new XLabel($acc->id, $acc->getName())),
 					new Cell(new XA(sprintf("mailto:%s", $acc->id),
 							  $acc->id)),
-					new Cell(new Label($acc->id, $acc->school->nick_name)),
-					new Cell(new Label($acc->id, $acc->role)))));
+					new Cell(new XLabel($acc->id, $acc->school->nick_name)),
+					new Cell(new XLabel($acc->id, $acc->role)))));
       }
       if ($num_pages > 1)
 	$p->add(new PageDiv($num_pages, $pageset, "pending"));
