@@ -179,18 +179,6 @@ class WebPage extends GenericElement
 }
 
 /**
- * Division component, <div>
- */
-class Div extends GenericElement
-{
-  public function __construct($children = array(),
-			      $attrs    = array()) {
-    parent::__construct("div", $children, $attrs);
-  }
-			      
-}
-
-/**
    Holds information in a "table" which can then be printed to HTML,
    or otherwise parsed through.
 
@@ -681,7 +669,7 @@ class FPassword extends FGenericElement
  * @author Dayan Paez
  * @version 2010-07-24
  */
-class PageDiv extends Div {
+class PageDiv extends XDiv {
 
   /**
    * Creates a smart pagination div for the give number of pages,
@@ -692,7 +680,7 @@ class PageDiv extends Div {
    * @param String $prefix the prefix for the links
    */
   public function __construct($num_pages, $current, $prefix, $suffix = '') {
-    parent::__construct(array(), array("class"=>"navlinks"));
+    parent::__construct(array("class"=>"navlinks"));
 
     // always display the first five, if possible
     for ($i = 1; $i < $current && $i < 5; $i++) {

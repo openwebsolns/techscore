@@ -23,9 +23,7 @@ abstract class AbstractScoresDialog extends AbstractDialog {
     parent::setupPage();
 
     // Add some menu
-    $this->PAGE->addMenu($div = new Div());
-    $div->set("class", "menu");
-    $div->add($ul = new XUl());
+    $this->PAGE->addMenu(new XDiv(array('class'=>'menu'), array($ul = new XUl())));
     $ul->add(new XLi(new XA(sprintf("/view/%d/scores",     $this->REGATTA->id()), "All scores")));
     $ul->add(new XLi(new XA(sprintf("/view/%d/div-scores", $this->REGATTA->id()), "Divisional")));
     foreach ($this->REGATTA->getDivisions() as $div)

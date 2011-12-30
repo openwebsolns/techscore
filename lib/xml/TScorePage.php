@@ -51,25 +51,20 @@ class TScorePage extends WebPage {
       $this->addBody(new GenericElement("button", array(new XText("Menu")),
 					array("onclick"=>"toggleMenu()")));
     }
-    $this->menu = new Div();
-    $this->menu->set("id", "menudiv");
+    $this->menu = new XDiv(array('id'=>'menudiv'));
     $this->addBody($this->menu);
-    $this->addBody(new GenericElement("hr", array(), array("class"=>"hidden")));
-    $this->addBody($this->header = new Div());
+    $this->addBody(new XHr(array('class'=>'hidden')));
+    $this->addBody($this->header = new XDiv(array('id'=>'headdiv')));
 
     // Header
-    $this->header->set("id", "headdiv");
     $this->fillPageHeader($user, $reg);
 
     // Content
-    $this->addBody($this->content = new Div());
-    $this->content->set("id", "bodydiv");
+    $this->addBody($this->content = new XDiv(array('id'=>'bodydiv')));
 
     // Announcement
     // Fill announcement
-    $this->content->add($this->announce = new Div());
-    $this->announce->set("id", "announcediv");
-    $this->announce->add(new XText(""));
+    $this->content->add($this->announce = new XDiv(array('id'=>'announcediv')));
     if (isset($_SESSION['ANNOUNCE']) && is_array($_SESSION['ANNOUNCE']) &&
 	count($_SESSION['ANNOUNCE']) > 0) {
       while (count($_SESSION['ANNOUNCE']) > 0)
@@ -77,9 +72,8 @@ class TScorePage extends WebPage {
     }
 
     // Footer
-    $this->addBody($footer = new Div());
-    $footer->set("id", "footdiv");
-    $footer->add(new XP(array(), sprintf("TechScore v%s © Dayán Páez 2008-%s", VERSION, date('y'))));
+    $this->addBody(new XDiv(array('id'=>'footdiv'),
+			    array(new XP(array(), sprintf("TechScore v%s © Dayán Páez 2008-%s", VERSION, date('y'))))));
   }
 
   /**
@@ -160,26 +154,21 @@ class TScorePage extends WebPage {
    *
    */
   private function fillPageHeader(User $user = null, Regatta $reg = null) {
-    $this->header->add($div = new Div());
-    $div->set("id", "header");
-    $div->add($g = new GenericElement("h1"));
-    $g->add(new XImg("/img/techscore.png", "TechScore", array("id"=>"headimg")));
+    $this->header->add($div = new XDiv(array('id'=>'header'),
+				       array(new XH1(new XImg("/img/techscore.png", "TechScore", array("id"=>"headimg"))))));
     $div->add(new XH4(date("M j, Y"), array("id"=>"date")));
-    if (isset($_SESSION['user'])) {
+    if (isset($_SESSION['user']))
       $div->add(new XH4($_SESSION['user'], array("id"=>"user")));
-    }
     
-    $this->header->add($this->navigation = new Div());
-    $this->navigation->set("id", "topnav");
+    $this->header->add($this->navigation = new XDiv(array('id'=>'topnav')));
     $this->navigation->add($a = new XA(HELP_HOME, new XSpan("H", array('style'=>"text-decoration:underline")),
 					    array("id"=>"help",
 						  "target"=>"help",
 						  "accesskey"=>"h")));
     $a->add("elp?");
     if ($user !== null) {
-      $this->navigation->add($d3 = new Div(array(), array("id"=>"user")));
-      $d3->add(new XA("/logout", "Logout", array('accesskey'=>'l')));
-      // $d3->add(new XUl(array(), array(new XLi($user->username()))));
+      $this->navigation->add(new XDiv(array("id"=>"user"),
+				      array(new XA("/logout", "Logout", array('accesskey'=>'l')))));
     }
     if ($reg !== null) {
       $div->add(new XH4($reg->get(Regatta::NAME), array("id"=>"regatta")));

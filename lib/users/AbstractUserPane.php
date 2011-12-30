@@ -51,54 +51,45 @@ abstract class AbstractUserPane {
     // menu
     
     // User Preferences
-    $this->PAGE->addMenu($div = new Div());
-    $div->set("class", "menu");
-    $div->add(new XH4("TechScore"));
-    $div->add(new XUl(array(),
-		      array(new XLi(new XA("/",      "My regattas")),
-			    new XLi(new XA("/create", "New regatta", array("accesskey"=>"n"))),
-			    new XLi(new XA("/account","My account")))));
-
+    $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
+				  array(new XH4("TechScore"),
+					new XUl(array(),
+						array(new XLi(new XA("/",      "My regattas")),
+						      new XLi(new XA("/create", "New regatta", array("accesskey"=>"n"))),
+						      new XLi(new XA("/account","My account")))))));
     // School setup
     $S = $this->SCHOOL->id;
-    $this->PAGE->addMenu($div = new Div());
-    $div->set("class", "menu");
-    $div->add(new XH4("My School"));
-    $div->add(new XUl(array(),
-		      array(new XLi(new XA("/prefs/$S",        "Instructions")),
-			    new XLi(new XA("/prefs/$S/logo",   "School logo")),
-			    new XLi(new XA("/prefs/$S/team",   "Team names")),
-			    new XLi(new XA("/prefs/$S/sailor", "Sailors")))));
-
+    $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
+				  array(new XH4("My School"),
+					new XUl(array(),
+						array(new XLi(new XA("/prefs/$S",        "Instructions")),
+						      new XLi(new XA("/prefs/$S/logo",   "School logo")),
+						      new XLi(new XA("/prefs/$S/team",   "Team names")),
+						      new XLi(new XA("/prefs/$S/sailor", "Sailors")))))));
     // Reports
-    $this->PAGE->addMenu($div = new Div());
-    $div->set("class", "menu");
-    $div->add(new XH4("Reports"));
-    $div->add(new XUl(array(),
-		      array(new XLi(new XA("/aa", "All-American")),
-			    new XLi(new XA("/compare-sailors", "Head to head")),
-			    new XLi(new XA("/compare-by-race", "Comp. by race")))));
-    
+    $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
+				  array(new XH4("Reports"),
+					new XUl(array(),
+						array(new XLi(new XA("/aa", "All-American")),
+						      new XLi(new XA("/compare-sailors", "Head to head")),
+						      new XLi(new XA("/compare-by-race", "Comp. by race")))))));
     // Messages
-    $this->PAGE->addMenu($div = new Div());
-    $div->set("class", "menu");
-    $div->add(new XH4("Messages"));
-    $div->add($list = new XUl());
+    $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
+				  array(new XH4("Messages"),
+					$list = new XUl())));
     $list->add(new XLi(new XA("/inbox", "Inbox")));
-    if ($this->USER->get(User::ADMIN)) {
+    if ($this->USER->get(User::ADMIN))
       $list->add(new XLi(new XA("/send-message", "Send message")));
-    }
 
     // Admin
     if ($this->USER->get(User::ADMIN)) {
-      $this->PAGE->addMenu($div = new Div());
-      $div->set("class", "menu");
-      $div->add(new XH4("Admin"));
-      $div->add(new XUl(array(),
-			array(new XLi(new XA("/pending",   "Pending users")),
-			      new XLi(new XA("/venue",     "Venues")),
-			      new XLi(new XA("/edit-venue", "Add Venues")),
-			      new XLi(new XA("/boats",     "Boats")))));
+      $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
+				    array(new XH4("Admin"),
+					  new XUl(array(),
+						  array(new XLi(new XA("/pending",   "Pending users")),
+							new XLi(new XA("/venue",     "Venues")),
+							new XLi(new XA("/edit-venue", "Add Venues")),
+							new XLi(new XA("/boats",     "Boats")))))));
     }
     $this->PAGE->addContent(new XPageTitle($this->title));
     $this->fillHTML($args);

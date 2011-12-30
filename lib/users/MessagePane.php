@@ -45,9 +45,8 @@ class MessagePane extends AbstractUserPane {
 
       $sub = (empty($message->subject)) ? "[No subject]" : $message->subject;
       $this->PAGE->addContent($p = new Port($sub));
-      $p->add($cont = new Div());
-      $cont->set("class", "email-message");
-      $cont->add(new GenericElement('pre', array(new XText(wordwrap($message->content, 90)))));
+      $p->add(new XDiv(array('class'=>'email-message'),
+		       array(new XPre(wordwrap($message->content, 90)))));
       $p->add($form = new XForm("/inbox-edit", XForm::POST));
 
       // Fill out form

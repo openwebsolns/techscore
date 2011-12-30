@@ -37,29 +37,24 @@ class TScoreDialog extends WebPage {
     $this->fillHead((string)$title);
 
     // Menu
-    $this->menu = new Div();
-    $this->menu->set("id", "menudiv");
+    $this->menu = new XDiv(array('id'=>'menudiv'));
     $this->addBody($this->menu);
-    $this->addBody(new GenericElement("hr", array(), array("class"=>"hidden")));
-    $this->addBody($this->header = new Div());
+    $this->addBody(new XHr(array("class"=>"hidden")));
+    $this->addBody($this->header = new XDiv(array('id'=>'headdiv')));
 
     // Header
-    $this->header->set("id", "headdiv");
     $this->fillPageHeader();
 
     // Bottom grab/spacer
-    $this->addBody($div = new Div());
-    $div->set("id", "bottom-grab");
-    $div->add(new XText());
+    $this->addBody($div = new XDiv(array('id'=>'bottom-grab')));
 
     // Announcement
-    $this->addBody($this->announce = new Div());
-    $this->announce->set("id", "announcediv");
-    $this->announce->add(new XText());
+    $this->addBody($this->announce = new XDiv(array('id'=>'announcediv')));
 
     // Content
-    $this->addBody($this->content = new Div());
-    $this->content->set("id", "bodydiv");
+    $this->addBody($this->content = new XDiv(array('id'=>'bodydiv')));
+    $this->addBody(new XDiv(array('id'=>'footdiv'),
+			    array(new XP(array(), sprintf("TechScore v%s © Dayán Páez 2008-%s", VERSION, date('y'))))));
   }
 
   /**
@@ -101,14 +96,11 @@ class TScoreDialog extends WebPage {
    *
    */
   private function fillPageHeader() {
-    $this->header->add($div = new Div());
-    $div->set("id", "header");
-    $div->add($g = new GenericElement("h1"));
-    $g->add(new XImg("/img/techscore-small.png", "TechScore", array("id"=>"headimg")));
-    $div->add(new XH4(date("D M j, Y"), array("id"=>"date")));
+    $this->header->add(new XDiv(array('id'=>'header'),
+				array(new XH1(new XImg("/img/techscore-small.png", "TechScore", array("id"=>"headimg"))),
+				      new XH4(date("D M j, Y"), array("id"=>"date")))));
     
-    $this->header->add($this->navigation = new Div());
-    $this->navigation->set("id", "topnav");
+    $this->header->add($this->navigation = new XDiv(array('id'=>'topnav')));
     $this->navigation->add(new XA("../help", "Help?",
 					 array("id"=>"help","target"=>"_blank")));
   }
@@ -157,19 +149,6 @@ class TScoreDialog extends WebPage {
    */
   public function addAnnouncement(Announcement $elem) {
     $this->announce->add($elem);
-  }
-
-  /**
-   * Overrides parent method to include footer
-   *
-   */
-  public function toXML($ind = 0) {
-    // Footer
-    $this->content->add($footer = new Div());
-    $footer->set("id", "footdiv");
-    $footer->add(new XP(array(), sprintf("TechScore v%s © Dayán Páez 2008-%s", VERSION, date('y'))));
-
-    return parent::toXML();
   }
 }
 ?>

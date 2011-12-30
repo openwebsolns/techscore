@@ -46,9 +46,9 @@ abstract class AbstractDialog {
     $h->add(new XLi(new XA($_SERVER['REQUEST_URI'], "Refresh")));
 
     //   -Regatta info
-    $this->PAGE->addNavigation($d3 = new Div(array(), array("id"=>"regatta")));
-    $d3->add(new XText($this->REGATTA->get(Regatta::NAME)));
-    $d3->add(new XUl(array(), array(new XLi(ucfirst($this->REGATTA->get(Regatta::TYPE))))));
+    $this->PAGE->addNavigation(new XDiv(array("id"=>"regatta"),
+					array(new XP(array(), $this->REGATTA->get(Regatta::NAME)),
+					      new XUl(array(), array(new XLi(ucfirst($this->REGATTA->get(Regatta::TYPE))))))));
   }
 
   /**
