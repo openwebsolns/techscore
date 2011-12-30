@@ -40,7 +40,7 @@ class SendMessage extends AbstractAdminUserPane {
     $p->add($f = new XForm("/send-message-edit", XForm::POST));
     $f->add($fi = new FItem(sprintf("All %s users:", NAME), new FHidden('all-recipients', 1)));
     $fi->add(new FSubmit('choose-recipients', "Write message >"));
-    $fi->add(new FSpan("Broadcast general message to all users. Use sparingly.", array('class'=>'message')));
+    $fi->add(new XMessage("Broadcast general message to all users. Use sparingly."));
 
     // conference
     $p->add($f = new XForm("/send-message-edit", XForm::POST));
@@ -99,13 +99,13 @@ class SendMessage extends AbstractAdminUserPane {
     $this->PAGE->addContent($p = new Port($title));
     $p->add($f = new XForm('/send-message-edit', XForm::POST));
     
-    $f->add(new FItem("Recipients:", new FSpan($recip, array('class'=>'strong'))));
+    $f->add(new FItem("Recipients:", new XSpan($recip, array('class'=>'strong'))));
     $f->add($fi = new FItem("Subject:", new FText('subject', "")));
-    $fi->add(new FSpan("Less than 100 characters", array('class'=>'message')));
+    $fi->add(new XMessage("Less than 100 characters"));
 
     $f->add(new FItem("Message body:", new FTextarea('content', "", array('rows'=>16, 'cols'=>75))));
     $f->add($fi = new FItem("Copy me:", new FCheckbox('copy-me', 1)));
-    $fi->add(new FSpan("Send me a copy of message, whether or not I would otherwise receive one.", array('class'=>'message')));
+    $fi->add(new XMessage("Send me a copy of message, whether or not I would otherwise receive one."));
     $f->add(new FSubmit('send-message', "Send message now"));
   }
 

@@ -115,7 +115,7 @@ class TweakSailsPane extends AbstractPane {
 					    $f_sel = new FSelect("from_sail",
 								 array())));
 	$f_sel->addOptions($sails);
-	$f_item->add(new FSpan("with"));
+	$f_item->add(" with ");
 	$f_item->add(new FText("to_sail", "",
 				    array("size"=>"3")));
 	$form->add(new FSubmit("cancel", "<< Cancel"));

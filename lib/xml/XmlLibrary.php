@@ -491,26 +491,6 @@ class FTextarea extends FGenericElement
   }
 }
 
-
-/**
- * Span wrapper to include as FGenericElement in FItem
- */
-class FSpan extends FGenericElement
-{
-  public function __construct($value,
-			      $attrs = array()) {
-    parent::__construct("span",
-			"",
-			array(),
-			$attrs);
-    if ($value instanceof GenericElement)
-      $this->add($value);
-    else
-      $this->add(new XText($value));
-  }
-}
-
-
 /**
  * Wrapper for <input type="checkbox"/>
  */
