@@ -387,7 +387,7 @@ class Port extends GenericElement
   }
 
   public function addHelp($href) {
-    $this->title->addChild(new HLink($href));
+    $this->title->add(new XHLink($href));
   }
 }
 
@@ -471,21 +471,6 @@ class LItem extends GenericElement
 			  $attrs);
   }
 }
-
-
-/**
- * Span wrapper to include as FGenericElement in FItem
- */
-class Span extends GenericElement
-{
-  public function __construct($value = array(),
-			      $attrs = array()) {
-    parent::__construct("span",
-			$value,
-			$attrs);
-  }
-}
-
 
 /**
  * Form element. Creates form element for web
@@ -883,18 +868,6 @@ class Link extends GenericElement
     }
     $this->addAttr("href", $href);
   }
-}
-
-class HLink extends Span
-{
-  public function __construct($href) {
-    parent::__construct(array(new XA(sprintf("%s/%s",
-					       "../help/html",
-					       $href), "[ ? ]",
-				       array("target"=>"_blank"))),
-			array("class"=>"hlink"));
-  }
-	 
 }
 
 /**

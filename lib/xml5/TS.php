@@ -62,4 +62,16 @@ class XHeading extends XH4 {
     parent::__construct($title, $attrs);
   }
 }
+
+/**
+ * Link for the user manual. Implemented as a 'span'
+ *
+ */
+class XHLink extends XSpan
+{
+  public function __construct($href) {
+    parent::__construct(array(new XA(sprintf("%s/%s", "../help/html", $href), "[ ? ]", array("target"=>"tshelp"))),
+			array("class"=>"hlink"));
+  }
+}
 ?>
