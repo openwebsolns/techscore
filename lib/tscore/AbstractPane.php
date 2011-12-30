@@ -93,7 +93,7 @@ abstract class AbstractPane {
       $menu = new Div();
       $menu->set("class", "menu");
       $menu->add(new XH4($title));
-      $menu->add($m_list = new GenericList());
+      $menu->add($m_list = new XUl());
       foreach ($panes as $url => $pane) {
 	$t = $this->doTitle($pane);
 	if ($this->doActive($pane))
@@ -111,7 +111,7 @@ abstract class AbstractPane {
     $menu = new Div();
     $menu->set("class", "menu");
     $menu->add(new XH4("Download"));
-    $menu->add($m_list = new GenericList());
+    $menu->add($m_list = new XUl());
     $m_list->add(new XLi(new XA("/download/$id/regatta", "Regatta")));
     $m_list->add(new XLi(new XA("/download/$id/rp", "RP Forms")));
     $this->PAGE->addMenu($menu);
@@ -120,7 +120,7 @@ abstract class AbstractPane {
     $menu = new Div();
     $menu->set("class", "menu");
     $menu->add(new XH4("Windows"));
-    $menu->add($m_list = new GenericList());
+    $menu->add($m_list = new XUl());
     foreach ($dial_i as $url => $title) {
       if ($this->doActive($url)) {
 	$link = new XA("/view/$id/$url", $title);

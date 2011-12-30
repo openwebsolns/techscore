@@ -400,28 +400,6 @@ class Portlet extends Port
 }
 
 /**
- * Generic List
- */
-class GenericList extends GenericElement
-{
-  public function __construct($type = "ul",
-			      $items = array(),
-			      $attrs   = array()) {
-    parent::__construct($type,
-			$items,
-			$attrs);
-  }
-
-  public function addItems($li) {
-    foreach (func_get_args() as $item) {
-      $this->add($item);
-    }
-  }
-
-  public function getItems() { return $this->getChildren(); }
-}
-
-/**
  * Generic form input
  */
 class FGenericElement extends GenericElement
