@@ -689,28 +689,6 @@ class FPassword extends FGenericElement
 }
 
 /**
- * <a> element
- */
-class Link extends GenericElement
-{
-  public function __construct($href, $link, $attrs = array()) {
-    parent::__construct("a",
-			array(),
-			$attrs);
-    if (!is_array($link))
-      $link = array($link);
-
-    foreach ($link as $l) {
-      if (is_object($l))
-	$this->add($l);
-      else
-	$this->add(new XText($l));
-    }
-    $this->set("href", $href);
-  }
-}
-
-/**
  * Bookmark, or empty <a> element with a name
  */
 class Bookmark extends GenericElement
