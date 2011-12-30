@@ -54,7 +54,7 @@ class WelcomePage extends TScorePage {
   protected function fillContent() {
     // LOGIN MENU
     $this->addContent($p = new Port("Sign-in"));
-    $p->add($form = new XForm("/login", "post"));
+    $p->add($form = new XForm("/login", XForm::POST));
     $form->add(new FItem(new Label("uname", "Username: "),
 			      new FText("userid", "",   array("id"=>"uname", "maxlength"=>"40"))));
     $form->add($fi = new FItem(new Label("passw", "Password: "),

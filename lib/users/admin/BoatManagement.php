@@ -55,7 +55,7 @@ class BoatManagement extends AbstractAdminUserPane {
     // 1. Add/edit new boat
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new Port($mess));
-    $p->add($form = new XForm("/boat-edit"));
+    $p->add($form = new XForm("/boat-edit", XForm::POST));
     $form->add(new Para("The number of occupants will be used when entering RP information to " .
 			     "determine how many crews are allowed in an RP form. If the same boat " .
 			     "class can have multiple number of crews, add separate entries and " .

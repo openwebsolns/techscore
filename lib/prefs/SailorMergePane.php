@@ -56,7 +56,7 @@ class SailorMergePane extends AbstractUserPane {
       return;
     }
 
-    $p->add($form = new XForm(sprintf("/pedit/%s/sailor", $this->SCHOOL->id), "post"));
+    $p->add($form = new XForm(sprintf("/pedit/%s/sailor", $this->SCHOOL->id), XForm::POST));
     $form->add($tab = new Table());
     $tab->set("class", "narrow");
     $tab->addHeader(new Row(array(Cell::th("Temporary sailor"),

@@ -202,7 +202,7 @@ abstract class AbstractPane {
    * @param $method "post" or "get"
    * @return Form element
    */
-  protected function createForm($method = "post") {
+  protected function createForm($method = XForm::POST) {
     $i = get_class($this);
     if (isset(self::$URLS[$i]))
       return new XForm(sprintf("/edit/%d/%s", $this->REGATTA->id(), self::$URLS[$i]), $method);
@@ -412,5 +412,4 @@ abstract class AbstractPane {
 				 "DropPenaltyPane" => "Drop penalty",
 				 "TeamPenaltyPane" => "Team penalty");
 }
-
 ?>
