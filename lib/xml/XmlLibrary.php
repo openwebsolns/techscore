@@ -689,16 +689,6 @@ class FPassword extends FGenericElement
 }
 
 /**
- * Bookmark, or empty <a> element with a name
- */
-class Bookmark extends GenericElement
-{
-  public function __construct($name) {
-    parent::__construct("a", array(), array("name"=>$name));
-  }
-}
-
-/**
  * Encapsulates the page title (h2 element)
  *
  * @author Dayan Paez

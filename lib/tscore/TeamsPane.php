@@ -25,7 +25,7 @@ class TeamsPane extends AbstractPane {
 
     // Add teams
     $this->PAGE->addContent($p = new Port("Add team from ICSA school"));
-    $p->add(new Bookmark("add"));
+    $p->set('id', 'add');
     $p->add(new Para("Choose a school from which to add a new team. Because the regatta is under way, you may only add one team at a time."));
 
     $p->add($form = $this->createForm());
