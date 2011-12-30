@@ -43,7 +43,7 @@ abstract class AbstractDialog {
 
     // Menu
     $this->PAGE->addMenu($h = new Heading("Refresh"));
-    $h->addChild(new LItem(new Link($_SERVER['REQUEST_URI'], "Refresh")));
+    $h->addChild(new LItem(new XA($_SERVER['REQUEST_URI'], "Refresh")));
 
     //   -Regatta info
     $this->PAGE->addNavigation($d3 = new Div(array(), array("id"=>"regatta")));

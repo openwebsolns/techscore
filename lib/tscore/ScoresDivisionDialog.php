@@ -115,7 +115,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
 
       $ln = $rank->team->school->name;
       if ($link_schools !== null)
-	$ln = new Link(sprintf('%s/%s', $link_schools, $rank->team->school->id), $ln);
+	$ln = new XA(sprintf('%s/%s', $link_schools, $rank->team->school->id), $ln);
 
       // deal with explanations
       $sym = sprintf("<sup>%s</sup>", $tiebreakers[$rank->explanation]);

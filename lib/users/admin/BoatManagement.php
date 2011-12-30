@@ -42,7 +42,7 @@ class BoatManagement extends AbstractAdminUserPane {
 	WebServer::go("boats");
       }
       $mess = "Edit boat";
-      $link = new Link("boats", "Cancel");
+      $link = new XA("boats", "Cancel");
       $hidd = new FHidden("boat", $boat->id);
     }
 
@@ -79,7 +79,7 @@ class BoatManagement extends AbstractAdminUserPane {
     $tab->addHeader(new Row(array(Cell::th("Name"),
 				  Cell::th("No. Occupants"))));
     foreach (Preferences::getBoats() as $boat) {
-      $tab->addRow(new Row(array(new Cell(new Link(sprintf("boats?b=%d", $boat->id), $boat->name)),
+      $tab->addRow(new Row(array(new Cell(new XA(sprintf("boats?b=%d", $boat->id), $boat->name)),
 				 new Cell($boat->occupants))));
     }
   }

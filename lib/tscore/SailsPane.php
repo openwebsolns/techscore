@@ -762,7 +762,7 @@ class SailsPane extends AbstractPane {
 
       // Reset
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
-      $a = new Link(sprintf('/view/%s/rotation', $this->REGATTA->id()), "View");
+      $a = new XA(sprintf('/view/%s/rotation', $this->REGATTA->id()), "View");
       $a->addAttr('target', '_blank');
       $this->announce(new Announcement("New rotation successfully created. " . $a->toXML() . "."));
       unset($args['rottype']);

@@ -57,7 +57,7 @@ class MessagePane extends AbstractUserPane {
 					       "type"=>"submit",
 					       "value"=>$message->id)));
       $form->addChild(new XText(" "));
-      $form->addChild(new Link("inbox", "Close"));
+      $form->addChild(new XA("inbox", "Close"));
       
       $p->addChild($form = new Form("/inbox-edit"));
       $form->addChild(new FTextarea("text", "", array("style"=>"width: 100%", "rows" =>"3")));
@@ -89,13 +89,13 @@ class MessagePane extends AbstractUserPane {
 
       if (!$mes->read_time)
 	$tab->addRow(new Row(array(new Cell(new GenericElement("strong",
-							       array(new Link("inbox/" . $mes->id, $sub)))),
+							       array(new XA("inbox/" . $mes->id, $sub)))),
 				   new Cell(new GenericElement("strong",
 							       array(new XText($con)))),
 				   new Cell(new GenericElement("strong",
 							       array(new XText($mes->created->format('Y-m-d H:i'))))))));
       else
-	$tab->addRow(new Row(array(new Cell(new Link("inbox/" . $mes->id, $sub)),
+	$tab->addRow(new Row(array(new Cell(new XA("inbox/" . $mes->id, $sub)),
 				   new Cell($con),
 				   new Cell($mes->created->format('Y-m-d H:i')))));
     }

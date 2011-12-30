@@ -172,14 +172,14 @@ class TScorePage extends WebPage {
     
     $this->header->addChild($this->navigation = new Div());
     $this->navigation->addAttr("id", "topnav");
-    $this->navigation->addChild(new Link(HELP_HOME,
-					 array(new XSpan("H", array('style'=>"text-decoration:underline")), "elp?"),
-					 array("id"=>"help",
-					       "target"=>"help",
-					       "accesskey"=>"h")));
+    $this->navigation->addChild($a = new XA(HELP_HOME, new XSpan("H", array('style'=>"text-decoration:underline")),
+					    array("id"=>"help",
+						  "target"=>"help",
+						  "accesskey"=>"h")));
+    $a->add("elp?");
     if ($user !== null) {
       $this->navigation->addChild($d3 = new Div(array(), array("id"=>"user")));
-      $d3->addChild(new Link("/logout", "Logout", array('accesskey'=>'l')));
+      $d3->addChild(new XA("/logout", "Logout", array('accesskey'=>'l')));
       // $d3->addChild(new Itemize(array(new LItem($user->username()))));
     }
     if ($reg !== null) {

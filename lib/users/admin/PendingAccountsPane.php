@@ -68,7 +68,7 @@ class PendingAccountsPane extends AbstractAdminUserPane {
 							       $acc->id,
 							       array("id"=>$acc->id))),
 					new Cell(new Label($acc->id, $acc->getName())),
-					new Cell(new Link(sprintf("mailto:%s", $acc->id),
+					new Cell(new XA(sprintf("mailto:%s", $acc->id),
 							  $acc->id)),
 					new Cell(new Label($acc->id, $acc->school->nick_name)),
 					new Cell(new Label($acc->id, $acc->role)))));

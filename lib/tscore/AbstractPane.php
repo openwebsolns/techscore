@@ -97,12 +97,12 @@ abstract class AbstractPane {
       foreach ($panes as $url => $pane) {
 	$t = $this->doTitle($pane);
 	if ($this->doActive($pane))
-	  $m_list->addItems(new LItem(new Link("/score/$id/$url", $t)));
+	  $m_list->addItems(new LItem(new XA("/score/$id/$url", $t)));
 	else
 	  $m_list->addItems(new LItem($t, array("class"=>"inactive")));
       }
       if ($title == "Regatta")
-	$m_list->addItems(new LItem(new Link('/', "Close", array('accesskey'=>'w'))));
+	$m_list->addItems(new LItem(new XA('/', "Close", array('accesskey'=>'w'))));
 
       $this->PAGE->addMenu($menu);
     }
@@ -112,8 +112,8 @@ abstract class AbstractPane {
     $menu->addAttr("class", "menu");
     $menu->addChild(new Heading("Download"));
     $menu->addChild($m_list = new GenericList());
-    $m_list->addItems(new LItem(new Link("/download/$id/regatta", "Regatta")));
-    $m_list->addItems(new LItem(new Link("/download/$id/rp", "RP Forms")));
+    $m_list->addItems(new LItem(new XA("/download/$id/regatta", "Regatta")));
+    $m_list->addItems(new LItem(new XA("/download/$id/rp", "RP Forms")));
     $this->PAGE->addMenu($menu);
 
     // Dialogs
@@ -123,9 +123,9 @@ abstract class AbstractPane {
     $menu->addChild($m_list = new GenericList());
     foreach ($dial_i as $url => $title) {
       if ($this->doActive($url)) {
-	$link = new Link("/view/$id/$url", $title);
-	$link->addAttr("class", "frame-toggle");
-	$link->addAttr("target", $url);
+	$link = new XA("/view/$id/$url", $title);
+	$link->set("class", "frame-toggle");
+	$link->set("target", $url);
 	$item = new LItem($link);
       }
       else

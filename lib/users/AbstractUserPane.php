@@ -55,9 +55,9 @@ abstract class AbstractUserPane {
     $div->addAttr("class", "menu");
     $div->addChild(new Heading("TechScore"));
     $div->addChild($list = new GenericList());
-    $list->addItems(new LItem(new Link("/",      "My regattas")),
-		    new LItem(new Link("/create", "New regatta", array("accesskey"=>"n"))),
-		    new LItem(new Link("/account","My account")));
+    $list->addItems(new LItem(new XA("/",      "My regattas")),
+		    new LItem(new XA("/create", "New regatta", array("accesskey"=>"n"))),
+		    new LItem(new XA("/account","My account")));
 
     // School setup
     $S = $this->SCHOOL->id;
@@ -65,28 +65,28 @@ abstract class AbstractUserPane {
     $div->addAttr("class", "menu");
     $div->addChild(new Heading("My School"));
     $div->addChild($list = new GenericList());
-    $list->addItems(new LItem(new Link("/prefs/$S",        "Instructions")),
-		    new LItem(new Link("/prefs/$S/logo",   "School logo")),
-		    new LItem(new Link("/prefs/$S/team",   "Team names")),
-		    new LItem(new Link("/prefs/$S/sailor", "Sailors")));
+    $list->addItems(new LItem(new XA("/prefs/$S",        "Instructions")),
+		    new LItem(new XA("/prefs/$S/logo",   "School logo")),
+		    new LItem(new XA("/prefs/$S/team",   "Team names")),
+		    new LItem(new XA("/prefs/$S/sailor", "Sailors")));
 
     // Reports
     $this->PAGE->addMenu($div = new Div());
     $div->addAttr("class", "menu");
     $div->addChild(new Heading("Reports"));
     $div->addChild($list = new GenericList());
-    $list->addItems(new LItem(new Link("/aa", "All-American")),
-		    new LItem(new Link("/compare-sailors", "Head to head")),
-		    new LItem(new Link("/compare-by-race", "Comp. by race")));
+    $list->addItems(new LItem(new XA("/aa", "All-American")),
+		    new LItem(new XA("/compare-sailors", "Head to head")),
+		    new LItem(new XA("/compare-by-race", "Comp. by race")));
     
     // Messages
     $this->PAGE->addMenu($div = new Div());
     $div->addAttr("class", "menu");
     $div->addChild(new Heading("Messages"));
     $div->addChild($list = new GenericList());
-    $list->addItems(new LItem(new Link("/inbox", "Inbox")));
+    $list->addItems(new LItem(new XA("/inbox", "Inbox")));
     if ($this->USER->get(User::ADMIN)) {
-      $list->addItems(new LItem(new Link("/send-message", "Send message")));
+      $list->addItems(new LItem(new XA("/send-message", "Send message")));
     }
 
     // Admin
@@ -95,10 +95,10 @@ abstract class AbstractUserPane {
       $div->addAttr("class", "menu");
       $div->addChild(new Heading("Admin"));
       $div->addChild($list = new GenericList());
-      $list->addItems(new LItem(new Link("/pending",   "Pending users")));
-      $list->addItems(new LItem(new Link("/venue",     "Venues")));
-      $list->addItems(new LItem(new Link("/edit-venue", "Add Venues")));
-      $list->addItems(new LItem(new Link("/boats",     "Boats")));
+      $list->addItems(new LItem(new XA("/pending",   "Pending users")));
+      $list->addItems(new LItem(new XA("/venue",     "Venues")));
+      $list->addItems(new LItem(new XA("/edit-venue", "Add Venues")));
+      $list->addItems(new LItem(new XA("/boats",     "Boats")));
     }
     $this->PAGE->addContent(new PageTitle($this->title));
     $this->fillHTML($args);

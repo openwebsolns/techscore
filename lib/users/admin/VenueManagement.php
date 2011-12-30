@@ -104,7 +104,7 @@ class VenueManagement extends AbstractAdminUserPane {
     $t->addHeader(new Row(array(Cell::th("Name"),
 				Cell::th("Address"))));
     foreach ($list as $venue) {
-      $t->addRow(new Row(array(new Cell(new Link(sprintf("edit-venue?v=%d", $venue->id), $venue)),
+      $t->addRow(new Row(array(new Cell(new XA(sprintf("edit-venue?v=%d", $venue->id), $venue)),
 			       new Cell(sprintf("%s %s, %s %s",
 						$venue->address,
 						$venue->city,

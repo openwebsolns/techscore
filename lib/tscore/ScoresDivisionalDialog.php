@@ -96,7 +96,7 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
     foreach ($ranks as $tID => $rank) {
       $ln = $rank->team->school->name;
       if ($link_schools !== null)
-	$ln = new Link(sprintf('%s/%s', $link_schools, $rank->team->school->id), $ln);
+	$ln = new XA(sprintf('%s/%s', $link_schools, $rank->team->school->id), $ln);
       $tab->addRow($r = new Row(array(new Cell($tiebreakers[$rank->explanation],
 					       array('title'=>$rank->explanation,
 						     'class'=>'tiebreaker')),

@@ -44,9 +44,9 @@ class UserHomePane extends AbstractUserPane {
       $this->PAGE->addContent($p = new Port("Messages"));
       $p->addChild($para = new Para("You have "));
       if ($num_messages == 1)
-	$para->addChild(new Link("inbox", "1 unread message."));
+	$para->addChild(new XA("inbox", "1 unread message."));
       else
-	$para->addChild(new Link("inbox", "$num_messages unread messages."));
+	$para->addChild(new XA("inbox", "$num_messages unread messages."));
     }
 
     // ------------------------------------------------------------
@@ -95,7 +95,7 @@ class UserHomePane extends AbstractUserPane {
       $pa->addChild(new FSubmit('go', "Go"));
       if ($qry !== null) {
 	$pa->addChild(new XText(" "));
-	$pa->addChild(new Link('/', "Cancel"));
+	$pa->addChild(new XA('/', "Cancel"));
       }
       if ($mes !== null) {
 	$f->addChild($pa = new Para(""));
@@ -121,12 +121,12 @@ class UserHomePane extends AbstractUserPane {
     $row = 0;
     $now = new DateTime('1 day ago');
     foreach ($regattas as $reg) {
-      $link = new Link("score/" . $reg->id, $reg->name);
+      $link = new XA("score/" . $reg->id, $reg->name);
       $finalized = '--';
       if ($reg->finalized !== null)
 	$finalized = $reg->finalized->format("Y-m-d");
       elseif ($reg->finalized < $now)
-	$finalized = new Link('score/'.$reg->id.'#finalize', 'PENDING',
+	$finalized = new XA('score/'.$reg->id.'#finalize', 'PENDING',
 			      array('title'=>'Regatta must be finalized!',
 				    'style'=>'color:red;font-weight:bold;font-size:110%;'));
       $tab->addRow($r = new Row(array(new Cell($link, array("class"=>"left", "style"=>"padding-left: 1em")),

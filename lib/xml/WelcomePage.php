@@ -41,10 +41,10 @@ class WelcomePage extends TScorePage {
     $menu->addAttr("class", "menu");
     $menu->addChild(new Heading("Useful Links"));
     $menu->addChild($l = new Itemize());
-    $l->addChild(new LItem(new Link(".", "Sign-in")));
-    $l->addChild(new LItem(new Link("register", "Register")));
-    $l->addChild(new LItem(new Link("http://www.collegesailing.org", "ICSA Website")));
-    $l->addChild(new LItem(new Link("http://techscore.sourceforge.net", "Offline TechScore")));
+    $l->addChild(new LItem(new XA(".", "Sign-in")));
+    $l->addChild(new LItem(new XA("register", "Register")));
+    $l->addChild(new LItem(new XA("http://www.collegesailing.org", "ICSA Website")));
+    $l->addChild(new LItem(new XA("http://techscore.sourceforge.net", "Offline TechScore")));
   }
 
   /**
@@ -59,7 +59,7 @@ class WelcomePage extends TScorePage {
 			      new FText("userid", "",   array("id"=>"uname", "maxlength"=>"40"))));
     $form->addChild($fi = new FItem(new Label("passw", "Password: "),
 				    new FPassword("pass", "", array("id"=>"passw", "maxlength"=>"48"))));
-    $fi->addChild(new XMessage(new Link('/password-recover', "Forgot your password?")));
+    $fi->addChild(new XMessage(new XA('/password-recover', "Forgot your password?")));
 
     $form->addChild(new FSubmit("login", "Login"));
 

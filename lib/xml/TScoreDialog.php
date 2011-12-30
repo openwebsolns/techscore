@@ -110,7 +110,7 @@ class TScoreDialog extends WebPage {
     
     $this->header->addChild($this->navigation = new Div());
     $this->navigation->addAttr("id", "topnav");
-    $this->navigation->addChild(new Link("../help", "Help?",
+    $this->navigation->addChild(new XA("../help", "Help?",
 					 array("id"=>"help","target"=>"_blank")));
   }
 

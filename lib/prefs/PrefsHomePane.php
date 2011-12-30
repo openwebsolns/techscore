@@ -73,7 +73,7 @@ class PrefsHomePane extends AbstractUserPane {
 	$b->addCell(new Cell($list = new Itemize()));
 	foreach ($schools as $school) {
 	  if ($school != $this->SCHOOL)
-	    $link = new Link(sprintf("/prefs/%s", $school->id), $school->nick_name);
+	    $link = new XA(sprintf("/prefs/%s", $school->id), $school->nick_name);
 	  else
 	    $link = new XSpan($school->nick_name);
 	  $list->addItems(new LItem($link));

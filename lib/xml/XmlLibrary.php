@@ -355,7 +355,7 @@ class Cell extends GenericElement
     parent::__construct($t, 
 			array(),
 			$attrs);
-    if (($value instanceof GenericElement))
+    if (is_object($value))
       $this->addChild($value);
     else
       $this->addChild(new XText($value));
@@ -530,7 +530,7 @@ class LItem extends GenericElement
 {
   public function __construct($value = "",
 			      $attrs = array()) {
-    if (($value instanceof GenericElement))
+    if (is_object($value))
       parent::__construct("li",
 			  array($value),
 			  $attrs);
@@ -957,7 +957,7 @@ class Link extends GenericElement
 class HLink extends Span
 {
   public function __construct($href) {
-    parent::__construct(array(new Link(sprintf("%s/%s",
+    parent::__construct(array(new XA(sprintf("%s/%s",
 					       "../help/html",
 					       $href), "[ ? ]",
 				       array("target"=>"_blank"))),
@@ -1014,7 +1014,7 @@ class PageDiv extends Div {
 
     // always display the first five, if possible
     for ($i = 1; $i < $current && $i < 5; $i++) {
-      $this->addChild($l = new Link(sprintf("%s|%d%s", $prefix, $i, $suffix), $i));
+      $this->addChild($l = new XA(sprintf("%s|%d%s", $prefix, $i, $suffix), $i));
       if ($i == $current) {
 	$l->addAttr("class", "current");
       }
@@ -1024,22 +1024,22 @@ class PageDiv extends Div {
       $i = $current - 2;
 
     for (; $i < $current; $i++)
-      $this->addChild($l = new Link(sprintf("%s|%d%s", $prefix, $i, $suffix), $i));
+      $this->addChild($l = new XA(sprintf("%s|%d%s", $prefix, $i, $suffix), $i));
 
     // also print this one
-    $this->addChild(new Link(sprintf("%s|%d%s", $prefix, $i, $suffix), $i, array('class' => 'current')));
+    $this->addChild(new XA(sprintf("%s|%d%s", $prefix, $i, $suffix), $i, array('class' => 'current')));
     $this->addChild(new XText(" "));
     $i++;
     // also print the two after this one
     for (; $i < $current + 3 && $i < $num_pages; $i++) {
-      $this->addChild($l = new Link(sprintf("%s|%d%s", $prefix, $i, $suffix), $i));
+      $this->addChild($l = new XA(sprintf("%s|%d%s", $prefix, $i, $suffix), $i));
       if ($i == $current) {
 	$l->addAttr("class", "current");
       }
     }
     // also print the last one
     if ($i < $num_pages) {
-      $this->addChild(new Link(sprintf("%s|%d%s", $prefix, $num_pages, $suffix), $num_pages));
+      $this->addChild(new XA(sprintf("%s|%d%s", $prefix, $num_pages, $suffix), $num_pages));
     }
   }
 }

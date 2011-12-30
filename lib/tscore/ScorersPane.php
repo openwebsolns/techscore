@@ -44,7 +44,7 @@ class ScorersPane extends AbstractPane {
       }
 
       // Fill row
-      $tab->addRow(new Row(array(new Cell(new Link("mailto:" . $s->id, $s->getName())),
+      $tab->addRow(new Row(array(new Cell(new XA("mailto:" . $s->id, $s->getName())),
 				 new Cell($s->school->nick_name),
 				 new Cell($f2)))); 
     }
