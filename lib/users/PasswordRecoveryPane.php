@@ -31,8 +31,8 @@ class PasswordRecoveryPane extends WelcomePage {
       $this->addContent($p = new Port("Reset password"));
       $p->add($f = new XForm("/password-recover-edit", XForm::POST));
       $f->add(new XP(array(), "Welcome $acc. Please enter the new password for your account."));
-      $f->add(new FItem("New Password:", new FPassword('new-password', "")));
-      $f->add(new FItem("Confirm Password:", new FPassword('confirm-password', "")));
+      $f->add(new FItem("New Password:", new XPasswordInput('new-password', "")));
+      $f->add(new FItem("Confirm Password:", new XPasswordInput('confirm-password', "")));
       $f->add(new FHidden('acc', trim($_GET['acc'])));
       $f->add(new FSubmit('reset-password', "Reset password"));
       return;

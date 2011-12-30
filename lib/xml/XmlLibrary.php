@@ -645,21 +645,4 @@ class FHidden extends FGenericElement
 			array("type"=>"hidden"));
   }
 }
-
-/**
- * Represents a password input <input type="password"
- */
-class FPassword extends FGenericElement
-{
-  public function __construct($name,
-			      $value,
-			      $attrs = array()) {
-    parent::__construct("input",
-			$name,
-			array($value),
-			$attrs);
-
-    $this->set("type", "password");
-  }
-}
 ?>

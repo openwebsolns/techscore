@@ -83,8 +83,8 @@ class RegisterPane extends WelcomePage {
     $f->add(new FItem("Email:", new FText("email", "")));
     $f->add(new FItem("First name:", new FText("first_name", "")));
     $f->add(new FItem("Last name:",  new FText("last_name", "")));
-    $f->add(new FItem("Password:", new FPassword("passwd", "")));
-    $f->add(new FItem("Confirm password:", new FPassword("confirm", "")));
+    $f->add(new FItem("Password:", new XPasswordInput("passwd", "")));
+    $f->add(new FItem("Confirm password:", new XPasswordInput("confirm", "")));
     $f->add(new FItem("Affiliation: ", $aff = new FSelect("school")));
     $f->add(new FItem("Role: ", $rol = new FSelect("role")));
     $f->add(new FSubmit("register", "Request account"));
