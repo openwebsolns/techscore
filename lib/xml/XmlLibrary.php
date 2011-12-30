@@ -196,30 +196,6 @@ class Div extends GenericElement
 }
 
 /**
- * Menu div
- */
-class MenuDiv extends Div
-{
-  public function __construct($name,
-			      $attrs = array()) {
-    parent::__construct(array(), $attrs);
-    $this->addAttr("class","menu");
-    $this->addChild(new PortTitle($name, array("class"=>"hidden")));
-  }
-
-  // Adds list to menu, $list = GenericList
-  public function addSubmenu($title, $list) {
-    if (!$list instanceof GenericList)
-      trigger_error("Submenu is not a valid list", E_CORE_ERROR);
-    else {
-      $this->addChild(new XH4($title));
-      $this->addChild($list);
-    }
-  }
-}
-
-
-/**
    Holds information in a "table" which can then be printed to HTML,
    or otherwise parsed through.
 
@@ -404,7 +380,7 @@ class Port extends GenericElement
 			      $value = array(), 
 			      $attrs = array()) {
     parent::__construct("div",
-			array_merge(array($this->title = new PortTitle($title)),
+			array_merge(array($this->title = new XH3($title)),
 				    $value),
 			$attrs);
     $this->addAttr("class","port");
@@ -425,19 +401,6 @@ class Portlet extends Port
 			      $attrs = array()) {
     parent::__construct($title, $value, $attrs);
     $this->addAttr("class","small");
-  }
-}
-
-/**
- * Title elements (H3)
- */
-class PortTitle extends GenericElement
-{
-  public function __construct($title,
-			      $attrs = array()) {
-    parent::__construct("h3",
-			array(new XText($title)),
-			$attrs);
   }
 }
 
