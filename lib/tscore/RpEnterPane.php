@@ -177,9 +177,7 @@ class RpEnterPane extends AbstractPane {
 								 "class"=>"race_text",
 								 "onchange"=>
 								 "check()"))),
-					new Cell(new Image("/img/question.png",
-							   array("alt"=>
-								 "Waiting to verify")),
+					new Cell(new XImg("/img/question.png", "Waiting to verify"),
 						 array("id"=>"csk" . $div . $spot))),
 				  array("class"=>"skipper")));
 
@@ -221,9 +219,7 @@ class RpEnterPane extends AbstractPane {
 								   "class"=>"race_text",
 								   "onchange"=>
 								   "check()"))),
-					  new Cell(new Image("/img/question.png",
-							     array("alt"=>
-								   "Waiting to verify")),
+					  new Cell(new XImg("/img/question.png", "Waiting to verify"),
 						   array("id"=>"ccr" . $div . $spot)))));
 	  
 	  // Add options to $f_sel

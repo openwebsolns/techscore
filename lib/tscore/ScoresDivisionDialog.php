@@ -122,8 +122,8 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
 
       // fill the two header rows up until the sailor names column
       $img = ($rank->team->school->burgee == null) ? '' :
-	new Image(sprintf('%s/img/schools/%s.png', $PREFIX, $rank->team->school->id),
-		  array('alt' => $rank->team->school->id, 'height'=>'30px'));
+	new XImg(sprintf('%s/img/schools/%s.png', $PREFIX, $rank->team->school->id), $rank->team->school->id,
+		 array('height'=>'30px'));
       $r1 = new Row(array(new Cell($sym, array('title'=>$rank->explanation, 'class'=>'tiebreaker')),
 			  $ord = new Cell($order++),
 			  new Cell($img),

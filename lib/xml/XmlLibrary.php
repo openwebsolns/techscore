@@ -381,21 +381,6 @@ class Cell extends GenericElement
 }
 
 /**
-Placeholder for images
-*/
-class Image extends GenericElement
-{
-  // Variables
-  public function __construct($source = "",
-			      $attrs  = array()) {
-    parent::__construct("img",
-			array(),
-			$attrs);
-    $this->addAttr("src",$source);
-  }
-}
-
-/**
  * Paragraph element <p>
  */
 class Para extends GenericElement

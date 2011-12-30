@@ -29,15 +29,15 @@ class Announcement extends Para {
     $img = null;
     switch ($type) {
     case "valid":
-      $img = new Image("/img/check.png", array("alt"=>"Check!"));
+      $img = new XImg("/img/check.png", "Check!");
       break;
 
     case "error":
-      $img = new Image("/img/error.png", array("alt"=>"Error!"));
+      $img = new XImg("/img/error.png", "Error!");
       break;
 
     default:
-      $img = new Image("/img/warn.png",  array("alt"=>"Warning"));
+      $img = new XImg("/img/warn.png",  "Warning");
     }
     $this->addChild($img);
     $this->addChild(new XText($message));

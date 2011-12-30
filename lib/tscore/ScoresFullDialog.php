@@ -192,7 +192,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
 
       if ($rank->team->school->burgee !== null) {
 	$url = sprintf("%s/img/schools/%s.png", $PREFIX, $rank->team->school->id);
-	$burgee_cell->addChild(new Image($url, array("alt"=>$rank->team->school->id, "height"=>"30px")));
+	$burgee_cell->addChild(new XImg($url, $rank->team->school->id, array("height"=>"30px")));
       }
       if ($num_divs > 1)
 	$r->addCell(new Cell());

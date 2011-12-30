@@ -163,8 +163,7 @@ class TScorePage extends WebPage {
     $this->header->addChild($div = new Div());
     $div->addAttr("id", "header");
     $div->addChild($g = new GenericElement("h1"));
-    $g->addChild(new Image("/img/techscore.png", array("id"=>"headimg",
-						      "alt"=>"TechScore")));
+    $g->addChild(new XImg("/img/techscore.png", "TechScore", array("id"=>"headimg")));
     $div->addChild(new XH4(date("M j, Y"), array("id"=>"date")));
     if (isset($_SESSION['user'])) {
       $div->addChild(new XH4($_SESSION['user'], array("id"=>"user")));

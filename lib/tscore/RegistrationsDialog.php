@@ -54,10 +54,8 @@ class RegistrationsDialog extends AbstractDialog {
           // Removed burgee printing to be fixed later TODO
 	  $row->addCell($c = new Cell(""));
           /*
-          new Image($team->school->burgee,
-						array("alt"   =>$team->school->nick_name,
-						      "height"=>"30px")),
-				      array("class"=>array("vertical", "strong"))));
+          new XImg($team->school->burgee, $team->school->nick_name, array('height'=>'30px'),
+	  array("class"=>array("vertical", "strong"))));
           */
 	  $c->addChild(new XText(sprintf("<br/>%s", $team)));
 	}

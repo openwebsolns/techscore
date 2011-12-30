@@ -148,9 +148,8 @@ class EnterFinishPane extends AbstractPane {
 	$tab->addRow(new Row(array(new Cell($aPS, array("name"=>"pos_sail",
 							"class"=>"pos_sail",
 							"id"=>"pos_sail")),
-				   new Cell(new Image("/img/question.png",
-						      array("alt"=>"Waiting for input",
-							    "id"=>"check" . $i))),
+				   new Cell(new XImg("/img/question.png", "alt"=>"Waiting for input",
+						     array("id"=>"check" . $i))),
 				   new Cell(new FText("p" . $i, $current_sail,
 						      array("id"=>"sail" . $i,
 							    "tabindex"=>($i+1),
@@ -199,9 +198,8 @@ class EnterFinishPane extends AbstractPane {
 	  $current_team = (count($finishes) > 0) ?
 	    sprintf("%s,%s", $finishes[$i]->race->division, $finishes[$i]->team->id) : "";
 	  $tab->addRow(new Row(array(new Cell($name, $attrs),
-				     new Cell(new Image("/img/question.png",
-							array("alt"=>"Waiting for input",
-							      "id"=>"check" . $i))),
+				     new Cell(new XImg("/img/question.png", "Waiting for input",
+						       array("id"=>"check" . $i))),
 				     new Cell($sel = new FSelect("p" . $i, array($current_team),
 								 array("id"=>"team" . $i,
 								       "tabindex"=>($i+1),
@@ -325,8 +323,8 @@ class EnterFinishPane extends AbstractPane {
 	  $rotation->getSail($race, $finishes[$i]->team) : "";
 	$tab->addRow(new Row(array(new Cell($aPS,
 					    array('name'=>'pos_sail', 'class'=>'pos_sail','id'=>'pos_sail')),
-				   new Cell(new Image("/img/question.png",
-						      array("alt"=>"Waiting for input", "id"=>"check" . $i))),
+				   new Cell(new XImg("/img/question.png", "Waiting for input",
+						     array("id"=>"check" . $i))),
 				   new Cell(new FText("p" . $i, $current_sail,
 						      array("id"=>"sail" . $i,
 							    "tabindex"=>($i+1),
@@ -368,8 +366,8 @@ class EnterFinishPane extends AbstractPane {
 
 	$current_team = (count($finishes) > 0) ? $finishes[$i]->team->id : "";
 	$tab->addRow(new Row(array(new Cell($name, $attrs),
-				   new Cell(new Image("/img/question.png",
-						      array("alt"=>"Waiting for input", "id"=>"check" . $i))),
+				   new Cell(new XImg("/img/question.png", "Waiting for input",
+						     array("id"=>"check" . $i))),
 				   new Cell($sel = new FSelect("p" . $i, array($current_team),
 							       array("id"=>"team" . $i,
 								     "tabindex"=>($i+1),
