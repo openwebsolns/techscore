@@ -35,7 +35,7 @@ class TeamPenaltyPane extends AbstractPane {
 			  "per division</strong>."));
 
     if (count($teams) == 0) {
-      $p->addChild(new Heading("No teams have been registered."));
+      $p->addChild(new XHeading("No teams have been registered."));
       return;
     }
 

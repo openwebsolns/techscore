@@ -44,7 +44,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
     $elems = $this->getTable();
     $p->addChild(array_shift($elems));
     if (count($elems) > 0) {
-      $p->addChild(new Heading("Tiebreaker legend"));
+      $p->addChild(new XHeading("Tiebreaker legend"));
       $p->addChild($elems[0]);
     }
   }

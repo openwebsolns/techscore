@@ -53,7 +53,7 @@ abstract class AbstractUserPane {
     // User Preferences
     $this->PAGE->addMenu($div = new Div());
     $div->addAttr("class", "menu");
-    $div->addChild(new Heading("TechScore"));
+    $div->addChild(new XH4("TechScore"));
     $div->addChild($list = new GenericList());
     $list->addItems(new LItem(new XA("/",      "My regattas")),
 		    new LItem(new XA("/create", "New regatta", array("accesskey"=>"n"))),
@@ -63,7 +63,7 @@ abstract class AbstractUserPane {
     $S = $this->SCHOOL->id;
     $this->PAGE->addMenu($div = new Div());
     $div->addAttr("class", "menu");
-    $div->addChild(new Heading("My School"));
+    $div->addChild(new XH4("My School"));
     $div->addChild($list = new GenericList());
     $list->addItems(new LItem(new XA("/prefs/$S",        "Instructions")),
 		    new LItem(new XA("/prefs/$S/logo",   "School logo")),
@@ -73,7 +73,7 @@ abstract class AbstractUserPane {
     // Reports
     $this->PAGE->addMenu($div = new Div());
     $div->addAttr("class", "menu");
-    $div->addChild(new Heading("Reports"));
+    $div->addChild(new XH4("Reports"));
     $div->addChild($list = new GenericList());
     $list->addItems(new LItem(new XA("/aa", "All-American")),
 		    new LItem(new XA("/compare-sailors", "Head to head")),
@@ -82,7 +82,7 @@ abstract class AbstractUserPane {
     // Messages
     $this->PAGE->addMenu($div = new Div());
     $div->addAttr("class", "menu");
-    $div->addChild(new Heading("Messages"));
+    $div->addChild(new XH4("Messages"));
     $div->addChild($list = new GenericList());
     $list->addItems(new LItem(new XA("/inbox", "Inbox")));
     if ($this->USER->get(User::ADMIN)) {
@@ -93,7 +93,7 @@ abstract class AbstractUserPane {
     if ($this->USER->get(User::ADMIN)) {
       $this->PAGE->addMenu($div = new Div());
       $div->addAttr("class", "menu");
-      $div->addChild(new Heading("Admin"));
+      $div->addChild(new XH4("Admin"));
       $div->addChild($list = new GenericList());
       $list->addItems(new LItem(new XA("/pending",   "Pending users")));
       $list->addItems(new LItem(new XA("/venue",     "Venues")));

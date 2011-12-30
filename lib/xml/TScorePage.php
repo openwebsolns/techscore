@@ -165,9 +165,9 @@ class TScorePage extends WebPage {
     $div->addChild($g = new GenericElement("h1"));
     $g->addChild(new Image("/img/techscore.png", array("id"=>"headimg",
 						      "alt"=>"TechScore")));
-    $div->addChild(new Heading(date("M j, Y"), array("id"=>"date")));
+    $div->addChild(new XH4(date("M j, Y"), array("id"=>"date")));
     if (isset($_SESSION['user'])) {
-      $div->addChild(new Heading($_SESSION['user'], array("id"=>"user")));
+      $div->addChild(new XH4($_SESSION['user'], array("id"=>"user")));
     }
     
     $this->header->addChild($this->navigation = new Div());
@@ -183,7 +183,7 @@ class TScorePage extends WebPage {
       // $d3->addChild(new Itemize(array(new LItem($user->username()))));
     }
     if ($reg !== null) {
-      $div->addChild(new Heading($reg->get(Regatta::NAME), array("id"=>"regatta")));
+      $div->addChild(new XH4($reg->get(Regatta::NAME), array("id"=>"regatta")));
     }
   }
 

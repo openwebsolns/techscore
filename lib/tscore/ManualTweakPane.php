@@ -42,7 +42,7 @@ class ManualTweakPane extends AbstractPane {
     $f_sel->addAttr("onchange", "submit()");
     $form->addChild(new FSubmitAccessible("boatupdate", "Update"));
 
-    $p->addChild(new Heading("Replace sail numbers"));
+    $p->addChild(new XHeading("Replace sail numbers"));
     $p->addChild($form = $this->createForm());
     
     $races = $this->REGATTA->getRaces($chosen_div);

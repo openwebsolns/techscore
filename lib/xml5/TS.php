@@ -47,4 +47,19 @@ class XMessage extends XSpan {
     $this->set('class', 'message');
   }
 }
+
+/**
+ * Heading (implemented as an H4)
+ *
+ * @author Dayan Paez
+ * @version 2011-12-30
+ */
+class XHeading extends XH4 {
+  /**
+   * Creates a new heading suitable for a port
+   */
+  public function __construct($title = "", Array $attrs = array()) {
+    parent::__construct($title, $attrs);
+  }
+}
 ?>

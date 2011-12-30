@@ -212,7 +212,7 @@ class MenuDiv extends Div
     if (!$list instanceof GenericList)
       trigger_error("Submenu is not a valid list", E_CORE_ERROR);
     else {
-      $this->addChild(new Heading($title));
+      $this->addChild(new XH4($title));
       $this->addChild($list);
     }
   }
@@ -453,23 +453,6 @@ class PortTitle extends GenericElement
     parent::__construct("h3",
 			array(new XText($title)),
 			$attrs);
-  }
-}
-
-/**
- * Simple heading (H4)
- */
-class Heading extends GenericElement
-{
-  public function __construct($title = "",
-			      $attrs = array()) {
-    parent::__construct("h4",
-			array(new XText($title)),
-			$attrs);
-  }
-  
-  public function addHelp($href) {
-    $this->addChild(new HLink($href));
   }
 }
 

@@ -106,7 +106,7 @@ class TScoreDialog extends WebPage {
     $div->addChild($g = new GenericElement("h1"));
     $g->addChild(new Image("/img/techscore-small.png", array("id"=>"headimg",
 							    "alt"=>"TechScore")));
-    $div->addChild(new Heading(date("D M j, Y"), array("id"=>"date")));
+    $div->addChild(new XH4(date("D M j, Y"), array("id"=>"date")));
     
     $this->header->addChild($this->navigation = new Div());
     $this->navigation->addAttr("id", "topnav");

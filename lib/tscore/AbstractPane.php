@@ -92,7 +92,7 @@ abstract class AbstractPane {
     foreach ($score_i as $title => $panes) {
       $menu = new Div();
       $menu->addAttr("class", "menu");
-      $menu->addChild(new Heading($title));
+      $menu->addChild(new XH4($title));
       $menu->addChild($m_list = new GenericList());
       foreach ($panes as $url => $pane) {
 	$t = $this->doTitle($pane);
@@ -110,7 +110,7 @@ abstract class AbstractPane {
     // Downloads
     $menu = new Div();
     $menu->addAttr("class", "menu");
-    $menu->addChild(new Heading("Download"));
+    $menu->addChild(new XH4("Download"));
     $menu->addChild($m_list = new GenericList());
     $m_list->addItems(new LItem(new XA("/download/$id/regatta", "Regatta")));
     $m_list->addItems(new LItem(new XA("/download/$id/rp", "RP Forms")));
@@ -119,7 +119,7 @@ abstract class AbstractPane {
     // Dialogs
     $menu = new Div();
     $menu->addAttr("class", "menu");
-    $menu->addChild(new Heading("Windows"));
+    $menu->addChild(new XH4("Windows"));
     $menu->addChild($m_list = new GenericList());
     foreach ($dial_i as $url => $title) {
       if ($this->doActive($url)) {

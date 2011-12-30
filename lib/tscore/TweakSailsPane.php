@@ -52,7 +52,7 @@ class TweakSailsPane extends AbstractPane {
       // 1. Select edit type
       // ------------------------------------------------------------
       $this->PAGE->addContent($p = new Port("Edit sail numbers"));
-      $p->addChild(new Heading("1. Choose action and division"));
+      $p->addChild(new XHeading("1. Choose action and division"));
       $p->addChild($form = $this->createForm());
 
       // Action

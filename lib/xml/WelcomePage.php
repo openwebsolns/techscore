@@ -39,7 +39,7 @@ class WelcomePage extends TScorePage {
     // Access to registration, ICSA, offline TS
     $this->addMenu($menu = new Div());
     $menu->addAttr("class", "menu");
-    $menu->addChild(new Heading("Useful Links"));
+    $menu->addChild(new XHeading("Useful Links"));
     $menu->addChild($l = new Itemize());
     $l->addChild(new LItem(new XA(".", "Sign-in")));
     $l->addChild(new LItem(new XA("register", "Register")));
