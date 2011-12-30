@@ -422,19 +422,6 @@ class GenericList extends GenericElement
 }
 
 /**
- * Enumerate: Wrapper for List of type (ol)
- */
-class Enumerate extends GenericList
-{
-  public function __construct($items = array(),
-			      $attrs = array()) {
-    parent::__construct("ol",
-			$items,
-			$attrs);
-  }
-}
-
-/**
  * Generic form input
  */
 class FGenericElement extends GenericElement
