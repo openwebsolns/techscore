@@ -55,27 +55,27 @@ class BoatManagement extends AbstractAdminUserPane {
     // 1. Add/edit new boat
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new Port($mess));
-    $p->addChild($form = new Form("/boat-edit"));
-    $form->addChild(new Para("The number of occupants will be used when entering RP information to " .
+    $p->add($form = new Form("/boat-edit"));
+    $form->add(new Para("The number of occupants will be used when entering RP information to " .
 			     "determine how many crews are allowed in an RP form. If the same boat " .
 			     "class can have multiple number of crews, add separate entries and " .
 			     "distinguish them by adding the number of occupants in the name."));
     
-    $form->addChild(new Para("Keep in mind that the number of occupants includes 1 skipper. Therefore, " .
+    $form->add(new Para("Keep in mind that the number of occupants includes 1 skipper. Therefore, " .
 			     "the minimum value is 1 for a singlehanded boat class."));
     
-    $form->addChild(new FItem("Name:", new FText("name", $boat->name, array("maxlength"=>"15"))));
-    $form->addChild(new FItem("Number of occupants:", new FText("occupants", $boat->occupants)));
-    $form->addChild($hidd);
-    $form->addChild(new FSubmit("set-boat", $mess));
-    $form->addChild($link);
+    $form->add(new FItem("Name:", new FText("name", $boat->name, array("maxlength"=>"15"))));
+    $form->add(new FItem("Number of occupants:", new FText("occupants", $boat->occupants)));
+    $form->add($hidd);
+    $form->add(new FSubmit("set-boat", $mess));
+    $form->add($link);
 
     // ------------------------------------------------------------
     // 2. Current boat list
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new Port("All boat classes"));
-    $p->addChild(new Para("Click on the boat name to edit that boat."));
-    $p->addChild($tab = new Table());
+    $p->add(new Para("Click on the boat name to edit that boat."));
+    $p->add($tab = new Table());
     $tab->addHeader(new Row(array(Cell::th("Name"),
 				  Cell::th("No. Occupants"))));
     foreach (Preferences::getBoats() as $boat) {

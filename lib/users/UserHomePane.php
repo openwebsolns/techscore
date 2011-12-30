@@ -42,11 +42,11 @@ class UserHomePane extends AbstractUserPane {
     $num_messages = count(Preferences::getUnreadMessages($this->USER->asAccount()));
     if ($num_messages > 0) {
       $this->PAGE->addContent($p = new Port("Messages"));
-      $p->addChild($para = new Para("You have "));
+      $p->add($para = new Para("You have "));
       if ($num_messages == 1)
-	$para->addChild(new XA("inbox", "1 unread message."));
+	$para->add(new XA("inbox", "1 unread message."));
       else
-	$para->addChild(new XA("inbox", "$num_messages unread messages."));
+	$para->add(new XA("inbox", "$num_messages unread messages."));
     }
 
     // ------------------------------------------------------------
@@ -86,29 +86,29 @@ class UserHomePane extends AbstractUserPane {
 
     // Add search form, if necessary
     if ($num_regattas > self::NUM_PER_PAGE * 3 || $qry !== null) {
-      $p->addChild($f = new Form('/', 'get'));
-      $f->addChild($pa = new Para(""));
-      $pa->addAttr('id', 'search');
-      $pa->addAttr('title', "Enter part or all of the name");
-      $pa->addChild(new XText("Search your regattas: "));
-      $pa->addChild(new FText('q', $qry, array('size'=>60)));
-      $pa->addChild(new FSubmit('go', "Go"));
+      $p->add($f = new Form('/', 'get'));
+      $f->add($pa = new Para(""));
+      $pa->set('id', 'search');
+      $pa->set('title', "Enter part or all of the name");
+      $pa->add(new XText("Search your regattas: "));
+      $pa->add(new FText('q', $qry, array('size'=>60)));
+      $pa->add(new FSubmit('go', "Go"));
       if ($qry !== null) {
-	$pa->addChild(new XText(" "));
-	$pa->addChild(new XA('/', "Cancel"));
+	$pa->add(new XText(" "));
+	$pa->add(new XA('/', "Cancel"));
       }
       if ($mes !== null) {
-	$f->addChild($pa = new Para(""));
-	$pa->addAttr('class', 'warning');
-	$pa->addAttr('style', 'padding: 0.5em;');
-	$pa->addChild(new XText($mes));
+	$f->add($pa = new Para(""));
+	$pa->set('class', 'warning');
+	$pa->set('style', 'padding: 0.5em;');
+	$pa->add(new XText($mes));
       }
     }
 
     // Create table of regattas, if applicable
     if (count($regattas) > 0) {
-      $p->addChild($tab = new Table());
-      $tab->addAttr("style", "width: 100%");
+      $p->add($tab = new Table());
+      $tab->set("style", "width: 100%");
       $tab->addHeader(new Row(array(Cell::th("Name"),
 				    Cell::th("Season"),
 				    Cell::th("Date"),
@@ -116,7 +116,7 @@ class UserHomePane extends AbstractUserPane {
 				    Cell::th("Finalized"))));
     }
     elseif ($qry === null) {
-      $p->addChild(new Para('You have no regattas. Go <a href="create">create one</a>!'));
+      $p->add(new Para('You have no regattas. Go <a href="create">create one</a>!'));
     }
     $row = 0;
     $now = new DateTime('1 day ago');
@@ -134,12 +134,12 @@ class UserHomePane extends AbstractUserPane {
 				      new Cell($reg->start_time->format("Y-m-d")),
 				      new Cell(ucfirst($reg->type)),
 				      new Cell($finalized))));
-      $r->addAttr("class", sprintf("row%d", $row++ % 2));
+      $r->set("class", sprintf("row%d", $row++ % 2));
     }
     $last = (int)($num_regattas / self::NUM_PER_PAGE);
     if ($last > 1) {
       $suf = ($qry !== null) ? '?q='.$qry : '';
-      $p->addChild(new PageDiv($last, $pageset, 'home', $suf));
+      $p->add(new PageDiv($last, $pageset, 'home', $suf));
     }
   }
 

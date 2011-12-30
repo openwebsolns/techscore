@@ -96,13 +96,6 @@ class XElem implements Xmlable {
     $this->child[] = $child;
   }
 
-  public function addChild($child) {
-    $this->add($child);
-  }
-  public function addAttr($name, $value) {
-    $this->set($name, $value);
-  }
-
   /**
    * Implementation of Xmlable function
    *

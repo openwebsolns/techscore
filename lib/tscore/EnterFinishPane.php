@@ -63,13 +63,13 @@ class EnterFinishPane extends AbstractPane {
     // ------------------------------------------------------------
     // Choose race
     // ------------------------------------------------------------
-    $p->addChild($form = $this->createForm());
-    $form->addAttr("id", "race_form");
-    $form->addChild(new Para("This regatta is being scored with combined divisions. " .
+    $p->add($form = $this->createForm());
+    $form->set("id", "race_form");
+    $form->add(new Para("This regatta is being scored with combined divisions. " .
 			     "Please enter any race in any division to enter finishes " .
 			     "for that race number across all divisions."));
 
-    $form->addChild($fitem = new FItem("Race:", 
+    $form->add($fitem = new FItem("Race:", 
 				       new FText("chosen_race",
 						 $race,
 						 array("size"=>"4",
@@ -81,8 +81,8 @@ class EnterFinishPane extends AbstractPane {
     $race_nums = array();
     foreach ($this->REGATTA->getUnscoredRaces($divisions[0]) as $r)
       $race_nums[] = $r->number;
-    $fitem->addChild($tab = new Table());
-    $tab->addAttr("class", "narrow");
+    $fitem->add($tab = new Table());
+    $tab->set("class", "narrow");
     $tab->addHeader(new Row(array(Cell::th("#"))));
     $cont = Utilities::makeRange($race_nums);
     if (empty($cont)) $cont = "--";
@@ -98,12 +98,12 @@ class EnterFinishPane extends AbstractPane {
       $using = "TMS";
     }
     
-    $form->addChild(new FItem("Using:",
+    $form->add(new FItem("Using:",
 			      $fsel = new FSelect("finish_using",
 						  array($using))));
     $fsel->addOptions($this->ACTIONS);
 
-    $form->addChild(new FSubmit("choose_race",
+    $form->add(new FSubmit("choose_race",
 				"Change race"));
 
     // ------------------------------------------------------------
@@ -121,18 +121,18 @@ class EnterFinishPane extends AbstractPane {
 
     $title = sprintf("Add/edit finish for race %s across all divisions", $race->number);
     $this->PAGE->addContent($p = new Port($title));
-    $p->addChild($form = $this->createForm());
-    $form->addAttr("id", "finish_form");
+    $p->add($form = $this->createForm());
+    $form->set("id", "finish_form");
 
-    $form->addChild(new FHidden("race", $race));
+    $form->add(new FHidden("race", $race));
     if ($using == "ROT") {
       // ------------------------------------------------------------
       // Rotation-based
       // ------------------------------------------------------------
-      $form->addChild($fitem = new FItem("Enter sail numbers:<br/><small>(Click to push)</small>",
+      $form->add($fitem = new FItem("Enter sail numbers:<br/><small>(Click to push)</small>",
 					 $tab = new Table()));
-      $tab->addAttr("class", "narrow");
-      $tab->addAttr("id", "finish_table");
+      $tab->set("class", "narrow");
+      $tab->set("id", "finish_table");
       $tab->addHeader(new Row(array(Cell::th("Sail"), Cell::th("&gt;"), Cell::th("Finish"))));
 
       // - Fill possible sails
@@ -159,8 +159,8 @@ class EnterFinishPane extends AbstractPane {
       }
 
       // Submit buttom
-      //$form->addChild(new FReset("reset_finish", "Reset"));
-      $form->addChild(new FSubmit("f_places",
+      //$form->add(new FReset("reset_finish", "Reset"));
+      $form->add(new FSubmit("f_places",
 				  sprintf("Enter finish for race %s", $race->number),
 				  array("id"=>"submitfinish", "tabindex"=>($i+1))));
     }
@@ -168,10 +168,10 @@ class EnterFinishPane extends AbstractPane {
       // ------------------------------------------------------------
       // Team lists
       // ------------------------------------------------------------
-      $form->addChild($fitem = new FItem("Enter teams:<br/><small>(Click to push)</small>",
+      $form->add($fitem = new FItem("Enter teams:<br/><small>(Click to push)</small>",
 					 $tab = new Table()));
-      $tab->addAttr("class", "narrow");
-      $tab->addAttr("id", "finish_table");
+      $tab->set("class", "narrow");
+      $tab->set("id", "finish_table");
       $tab->addHeader(new Row(array(Cell::th("Teams"), Cell::th("&gt;"), Cell::th("Finish"))));
 
       // - Fill possible teams and select
@@ -210,7 +210,7 @@ class EnterFinishPane extends AbstractPane {
       }
 
       // Submit buttom
-      $form->addChild(new FSubmit("f_teams",
+      $form->add(new FSubmit("f_teams",
 				  sprintf("Enter finish for race %s", $race->number),
 				  array("id"=>"submitfinish", "tabindex"=>($i+1))));
     }
@@ -256,10 +256,10 @@ class EnterFinishPane extends AbstractPane {
     // ------------------------------------------------------------
     // Choose race
     // ------------------------------------------------------------
-    $p->addChild($form = $this->createForm());
-    $form->addAttr("id", "race_form");
+    $p->add($form = $this->createForm());
+    $form->set("id", "race_form");
 
-    $form->addChild($fitem = new FItem("Race:", 
+    $form->add($fitem = new FItem("Race:", 
 				       new FText("chosen_race",
 						 $race,
 						 array("size"=>"4",
@@ -268,8 +268,8 @@ class EnterFinishPane extends AbstractPane {
 						       "class"=>"narrow"))));
 
     // Table of possible races
-    $fitem->addChild($tab = new Table());
-    $tab->addAttr("class", "narrow");
+    $fitem->add($tab = new Table());
+    $tab->set("class", "narrow");
     $tab->addHeader($hrow = new Row(array(), array("id"=>"pos_divs")));
     $tab->addRow($brow = new Row(array(), array("id"=>"pos_races")));
     foreach ($divisions as $div) {
@@ -289,29 +289,29 @@ class EnterFinishPane extends AbstractPane {
       $using = "TMS";
     }
     
-    $form->addChild(new FItem("Using:",
+    $form->add(new FItem("Using:",
 			      $fsel = new FSelect("finish_using",
 						  array($using))));
     $fsel->addOptions($this->ACTIONS);
 
-    $form->addChild(new FSubmit("choose_race",
+    $form->add(new FSubmit("choose_race",
 				"Change race"));
 
     // ------------------------------------------------------------
     // Enter finishes
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new Port("Add/edit finish for " . $race));
-    $p->addChild($form = $this->createForm());
-    $form->addAttr("id", "finish_form");
+    $p->add($form = $this->createForm());
+    $form->set("id", "finish_form");
 
-    $form->addChild(new FHidden("race", $race));
+    $form->add(new FHidden("race", $race));
     if ($using == "ROT") {
       // ------------------------------------------------------------
       // Rotation-based
       // ------------------------------------------------------------
-      $form->addChild(new FItem("Enter sail numbers:<br/><small>(Click to push)</small>", $tab = new Table()));
-      $tab->addAttr("class", "narrow");
-      $tab->addAttr("id", "finish_table");
+      $form->add(new FItem("Enter sail numbers:<br/><small>(Click to push)</small>", $tab = new Table()));
+      $tab->set("class", "narrow");
+      $tab->set("id", "finish_table");
       $tab->addHeader(new Row(array(Cell::th("Sail"), Cell::th("&gt;"), Cell::th("Finish"))));
 
       // - Fill possible sails and input box
@@ -334,8 +334,8 @@ class EnterFinishPane extends AbstractPane {
       }
 
       // Submit buttom
-      // $form->addChild(new FReset("reset_finish", "Reset"));
-      $form->addChild(new FSubmit("f_places",
+      // $form->add(new FReset("reset_finish", "Reset"));
+      $form->add(new FSubmit("f_places",
 				  sprintf("Enter finish for %s", $race),
 				  array("id"=>"submitfinish", "tabindex"=>($i+1))));
     }
@@ -343,10 +343,10 @@ class EnterFinishPane extends AbstractPane {
       // ------------------------------------------------------------
       // Team lists
       // ------------------------------------------------------------
-      $form->addChild($fitem = new FItem("Enter teams:<br/><small>(Click to push)</small>",
+      $form->add($fitem = new FItem("Enter teams:<br/><small>(Click to push)</small>",
 					 $tab = new Table()));
-      $tab->addAttr("class", "narrow");
-      $tab->addAttr("id", "finish_table");
+      $tab->set("class", "narrow");
+      $tab->set("id", "finish_table");
       $tab->addHeader(new Row(array(Cell::th("Team"), Cell::th("&gt;"), Cell::th("Finish"))));
 
       // - Fill possible teams and select
@@ -376,7 +376,7 @@ class EnterFinishPane extends AbstractPane {
       }
 
       // Submit buttom
-      $form->addChild(new FSubmit("f_teams",
+      $form->add(new FSubmit("f_teams",
 				  sprintf("Enter finish for %s", $race),
 				  array("id"=>"submitfinish", "tabindex"=>($i+1))));
     }

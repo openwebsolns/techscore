@@ -27,8 +27,8 @@ class NotesPane extends AbstractPane {
     $this->PAGE->addContent($p = new Portlet("Enter observation"));
 
     // Form
-    $p->addChild($form = $this->createForm());
-    $form->addChild($fitem = new FItem("Race:", 
+    $p->add($form = $this->createForm());
+    $form->add($fitem = new FItem("Race:", 
 				       new FText("chosen_race", "",
 						 array("size"=>"4",
 						       "maxlength"=>"4",
@@ -36,8 +36,8 @@ class NotesPane extends AbstractPane {
 						       "class"=>"narrow"))));
 
     // Table of possible races
-    $fitem->addChild($tab = new Table());
-    $tab->addAttr("class", "narrow");
+    $fitem->add($tab = new Table());
+    $tab->set("class", "narrow");
     $tab->addHeader($hrow = new Row(array(), array("id"=>"pos_divs")));
     $tab->addRow($brow = new Row(array(), array("id"=>"pos_races")));
     foreach ($divisions as $div) {
@@ -46,17 +46,17 @@ class NotesPane extends AbstractPane {
     }
 
     // Observation
-    $form->addChild(new FItem("Observation:",
+    $form->add(new FItem("Observation:",
 			      new FTextArea("observation","",
 					    array("rows"=>3,
 						  "cols"=>30))));
     // Observer
-    $form->addChild(new FItem("Observer:",
+    $form->add(new FItem("Observer:",
 			      new FText("observer",
 					$this->USER->getName(),
 					array("maxlength"=>"50"))));
 
-    $form->addChild(new FSubmit("observe",
+    $form->add(new FSubmit("observe",
 				"Add note"));
 
     // CURRENT NOTES
@@ -65,8 +65,8 @@ class NotesPane extends AbstractPane {
       $this->PAGE->addContent($p = new Portlet("Current notes"));
 
       // Table
-      $p->addChild($tab = new Table());
-      $tab->addAttr("class", "left");
+      $p->add($tab = new Table());
+      $tab->set("class", "left");
       $tab->addHeader(new Row(array(Cell::th("Race"),
 				    Cell::th("Note"),
 				    Cell::th("Observer"),
@@ -79,8 +79,8 @@ class NotesPane extends AbstractPane {
 				   new Cell($note->observer),
 				   new Cell($form = $this->createForm()))));
 
-	$form->addChild(new FHidden("observation", $note->id));
-	$form->addChild(new FSubmit("remove", "Remove",
+	$form->add(new FHidden("observation", $note->id));
+	$form->add(new FSubmit("remove", "Remove",
 				    array("class"=>"thin")));
       }
     }

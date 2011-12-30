@@ -46,12 +46,12 @@ class EnterPenaltyPane extends AbstractPane {
       // 1. Chosen race
       // ------------------------------------------------------------
       $this->PAGE->addContent($p = new Port("1. Individual penalties and breakdowns"));
-      $p->addChild($form = $this->createForm());
-      $form->addChild(new FItem("Possible races:",
+      $p->add($form = $this->createForm());
+      $form->add(new FItem("Possible races:",
 				$tab = new Table()));
 
       // Table of finished races
-      $tab->addAttr("class", "narrow");
+      $tab->set("class", "narrow");
       $row = array();
       foreach ($divisions as $div)
 	$row[] = Cell::th($div);
@@ -65,7 +65,7 @@ class EnterPenaltyPane extends AbstractPane {
 	$row[] = new Cell(Utilities::makeRange($nums));
       }
       $tab->addRow(new Row($row));
-      $form->addChild($fitem = new FItem("Race:", 
+      $form->add($fitem = new FItem("Race:", 
 					 new FText("p_race",
 						   $theRace,
 						   array("size"=>"4",
@@ -74,7 +74,7 @@ class EnterPenaltyPane extends AbstractPane {
 							 "class"=>"narrow"))));
 
       // Penalty type
-      $form->addChild(new FItem("Penalty type:",
+      $form->add(new FItem("Penalty type:",
 				$f_sel = new FSelect("p_type",
 						     array($p_type))));
       // Penalties and breakdown options
@@ -82,7 +82,7 @@ class EnterPenaltyPane extends AbstractPane {
       $f_sel->addOptionGroup("Breakdowns", Breakdown::getList());
 
       // Submit
-      $form->addChild(new FSubmit("c_race", "Next >>"));
+      $form->add(new FSubmit("c_race", "Next >>"));
     }
     else {
       $rotation = $this->REGATTA->getRotation();
@@ -92,9 +92,9 @@ class EnterPenaltyPane extends AbstractPane {
       // ------------------------------------------------------------
       $title = sprintf("2. %s in race %s", $p_type, $theRace);
       $this->PAGE->addContent($p = new Port($title));
-      $p->addChild($form = $this->createForm());
-      $form->addChild(new FHidden("p_type", $p_type));
-      $form->addChild(new FItem("Team:",
+      $p->add($form = $this->createForm());
+      $form->add(new FHidden("p_type", $p_type));
+      $form->add(new FItem("Team:",
 				$f_sel = new FSelect("finish[]", array(""))));
       $options = array();
       foreach ($this->REGATTA->getTeams() as $team) {
@@ -106,11 +106,11 @@ class EnterPenaltyPane extends AbstractPane {
 				  $rotation->getSail($theRace, $team));
 	}
       }
-      $f_sel->addAttr('multiple', 'multiple');
+      $f_sel->set('multiple', 'multiple');
       $f_sel->addOptions($options);
 
       // - comments
-      $form->addChild(new FItem("Comments:",
+      $form->add(new FItem("Comments:",
 				new FTextarea("p_comments", "",
 					      array("rows"=>"2",
 						    "cols"=>"50"))));
@@ -122,32 +122,32 @@ class EnterPenaltyPane extends AbstractPane {
 	$average = "Use standard scoring (FLEET + 1).";
       $new_score = new FItem("New score:",
 			     $cb = new FCheckbox("average", "yes", array("id"=>"avg_box")));
-      $cb->addAttr("onclick", "document.getElementById('p_amount').disabled = this.checked;document.getElementById('displace_box').disabled = this.checked;");
-      // $cb->addAttr("checked", "checked");
-      $new_score->addChild(new Label("avg_box", $average));
-      $form->addChild($new_score);
+      $cb->set("onclick", "document.getElementById('p_amount').disabled = this.checked;document.getElementById('displace_box').disabled = this.checked;");
+      // $cb->set("checked", "checked");
+      $new_score->add(new Label("avg_box", $average));
+      $form->add($new_score);
 
       $new_score = new FItem("OR Assign score:",
 			     new FText("p_amount", "", array("size"=>"2", "id"=>"p_amount")));
-      $new_score->addChild(new FCheckbox("displace", "yes", array("id"=>"displace_box")));
-      $new_score->addChild(new Label('displace_box', 'Displace finishes'));
-      $form->addChild($new_score);
+      $new_score->add(new FCheckbox("displace", "yes", array("id"=>"displace_box")));
+      $new_score->add(new Label('displace_box', 'Displace finishes'));
+      $form->add($new_score);
 
       // script to turn off the two by default
-      $form->addChild($sc = new GenericElement("script"));
-      $sc->addAttr("type", "text/javascript");
-      $sc->addChild(new XText("document.getElementById('p_amount').disabled = true;"));
-      $sc->addChild(new XText("document.getElementById('displace_box').disabled = true;"));
-      $sc->addChild(new XText("document.getElementById('avg_box').checked   = true;"));
+      $form->add($sc = new GenericElement("script"));
+      $sc->set("type", "text/javascript");
+      $sc->add(new XText("document.getElementById('p_amount').disabled = true;"));
+      $sc->add(new XText("document.getElementById('displace_box').disabled = true;"));
+      $sc->add(new XText("document.getElementById('avg_box').checked   = true;"));
     
       // Submit
-      $form->addChild(new FSubmit("p_cancel", "Cancel"));
-      $form->addChild(new FSubmit("p_submit", "Enter $p_type"));
+      $form->add(new FSubmit("p_cancel", "Cancel"));
+      $form->add(new FSubmit("p_submit", "Enter $p_type"));
 
       // FAQ's
       $this->PAGE->addContent($p = new Port("FAQ"));
       $fname = sprintf("%s/faq/penalty.html", dirname(__FILE__));
-      $p->addChild(new XRawText(file_get_contents($fname)));
+      $p->add(new XRawText(file_get_contents($fname)));
     }
   }
 

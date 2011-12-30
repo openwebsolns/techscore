@@ -38,13 +38,13 @@ class GenericElement implements HTMLElement
 
     $this->elemChildren = array();
     foreach ($child as $c)
-      $this->addChild($c);
+      $this->add($c);
     $this->elemAttrs = array();
     foreach ($attrs as $k => $val) {
       if (!is_array($val))
 	$val = array($val);
       foreach ($val as $v)
-	$this->addAttr($k,$v);
+	$this->set($k,$v);
     }
   }
 
@@ -52,21 +52,16 @@ class GenericElement implements HTMLElement
   public function getChildren() { return $this->elemChildren;}
   public function getName() { return $this->elemName; }
 
-  public function addChild($e) {
+  public function add($e) {
     $this->elemChildren[] = $e;
   }
-
-  // Add a new attribute value to the attribute name
-  public function addAttr($name, $value) {
+  public function set($name, $value) {
     $this->elemAttrs[$name][] = $value;
   }
+
   // Like adding attribute, except it does not append
   public function setAttr($name, $value) {
     $this->elemAttrs[$name] = array($value);
-  }
-  // Pops attribute value from list for attribute name
-  public function popAttr($name, $value) {
-    unset($this->elemAttrs[$name][$value]);
   }
   // Removes entire attribute from element
   public function removeAttr($name) {
@@ -155,15 +150,15 @@ class WebPage extends GenericElement
     $this->head = new GenericElement("head");
     $this->body = new GenericElement("body");
 
-    $this->addChild($this->head);
-    $this->addChild($this->body);
+    $this->add($this->head);
+    $this->add($this->body);
   }
 
   public function addHead($e) {
-    $this->head->addChild($e);
+    $this->head->add($e);
   }
   public function addBody($e) {
-    $this->body->addChild($e);
+    $this->body->add($e);
   }
 
   public function __get($e) {
@@ -220,8 +215,8 @@ class Table extends GenericElement
     $this->header = new GenericElement("thead");
     $this->body   = new GenericElement("tbody");
 
-    $this->addChild($this->header);
-    $this->addChild($this->body);
+    $this->add($this->header);
+    $this->add($this->body);
 
     foreach ($rows as $r) {
       $this->addRow($r);
@@ -237,7 +232,7 @@ class Table extends GenericElement
 	trigger_error("Variable is not a Row object", E_USER_WARNING);
       }
       else {
-	$this->body->addChild($r);
+	$this->body->add($r);
       }
     }
   }
@@ -251,7 +246,7 @@ class Table extends GenericElement
 	trigger_error("Variable is not a Row object", E_USER_WARNING);
       }
       else {
-	$this->header->addChild($r);
+	$this->header->add($r);
       }
     }
   }
@@ -296,7 +291,7 @@ class Row extends GenericElement
 	trigger_error("Argument is not a Cell object", E_USER_WARNING);
       }
       else {
-	$this->addChild($c);
+	$this->add($c);
       }
     }
   }
@@ -332,13 +327,13 @@ class Cell extends GenericElement
 			array(),
 			$attrs);
     if (is_object($value))
-      $this->addChild($value);
+      $this->add($value);
     else
-      $this->addChild(new XText($value));
+      $this->add(new XText($value));
   }
 
   public function addText($val) {
-    $this->addChild(new XText($val));
+    $this->add(new XText($val));
   }
   
   public function is_header() {
@@ -383,7 +378,7 @@ class Port extends GenericElement
 			array_merge(array($this->title = new XH3($title)),
 				    $value),
 			$attrs);
-    $this->addAttr("class","port");
+    $this->set("class","port");
   }
 
   public function addHelp($href) {
@@ -400,7 +395,7 @@ class Portlet extends Port
 			      $value = array(),
 			      $attrs = array()) {
     parent::__construct($title, $value, $attrs);
-    $this->addAttr("class","small");
+    $this->set("class","small");
   }
 }
 
@@ -420,7 +415,7 @@ class GenericList extends GenericElement
   public function addItems($li) {
     foreach (func_get_args() as $item) {
       if (($item instanceof LItem))
-	$this->addChild($item);
+	$this->add($item);
     }
   }
 
@@ -484,8 +479,8 @@ class Form extends GenericElement
     parent::__construct("form",
 			array(),
 			$attrs);
-    $this->addAttr("action", $action);
-    $this->addAttr("method", $method);
+    $this->set("action", $action);
+    $this->set("method", $method);
   }
 }
 
@@ -521,11 +516,11 @@ class FGenericElement extends GenericElement
 
   public function setName($n) {
     $this->formName = $n;
-    $this->addAttr("name",$n);
+    $this->set("name",$n);
   }
   public function addValue($v) {
     $this->formValue[] = $v;
-    $this->addAttr("value",$v);
+    $this->set("value",$v);
   }
 
   public function enable($enable = true) {
@@ -549,7 +544,7 @@ class FText extends FGenericElement
 			array($value),
 			$attrs);
 
-    $this->addAttr("type","text");
+    $this->set("type","text");
   }
 }
 
@@ -561,7 +556,7 @@ class FFile extends FGenericElement
 			$name,
 			array(),
 			$attrs);
-    $this->addAttr("type", "file");
+    $this->set("type", "file");
   }
 }
 
@@ -577,7 +572,7 @@ class FTextarea extends FGenericElement
 			$name,
 			array(""),
 			$attrs);
-    $this->addChild(new XText($value));
+    $this->add(new XText($value));
   }
 }
 
@@ -594,9 +589,9 @@ class FSpan extends FGenericElement
 			array(),
 			$attrs);
     if ($value instanceof GenericElement)
-      $this->addChild($value);
+      $this->add($value);
     else
-      $this->addChild(new XText($value));
+      $this->add(new XText($value));
   }
 }
 
@@ -613,7 +608,7 @@ class FCheckbox extends FGenericElement
 			$name,
 			array($value),
 			$attrs);
-    $this->addAttr("type", "checkbox");
+    $this->set("type", "checkbox");
   }
 }
 
@@ -628,7 +623,7 @@ class Label extends GenericElement
     parent::__construct("label",
 			array(new XText($value)),
 			$attrs);
-    $this->addAttr("for", $for);
+    $this->set("for", $for);
   }
 }
 
@@ -651,7 +646,7 @@ class FSelect extends FGenericElement
   // "value" and array value equal to option "label", all strings
   public function addOptions($opt) {
     foreach ($opt as $val => $label) {
-      $this->addChild(new Option($val, $label));
+      $this->add(new Option($val, $label));
     }
   }
 
@@ -659,9 +654,9 @@ class FSelect extends FGenericElement
   public function addOptionGroup($label, $opt) {
     $o = new OptionGroup($label);
     foreach ($opt as $val => $label) {
-      $o->addChild(new Option($val, $label));
+      $o->add(new Option($val, $label));
     }
-    $this->addChild($o);
+    $this->add($o);
   }
 
   // Overrides addChild method
@@ -706,7 +701,7 @@ class OptionGroup extends GenericElement
     parent::__construct("optgroup",
 			$value,
 			$attrs);
-    $this->addAttr("label", $label);
+    $this->set("label", $label);
   }
 
 }
@@ -722,7 +717,7 @@ class Option extends GenericElement
     parent::__construct("option",
 			array(new XText($content)),
 			$attrs);
-    $this->addAttr("value", $value);
+    $this->set("value", $value);
   }
 
   // Selects/deselects this option
@@ -750,7 +745,7 @@ class FSubmit extends FGenericElement
 			$name,
 			array($value),
 			$attrs);
-    $this->addAttr("type", "submit");
+    $this->set("type", "submit");
   }
 }
 
@@ -766,7 +761,7 @@ class FReset extends FGenericElement
 			$name,
 			array($value),
 			$attrs);
-    $this->addAttr("type","reset");
+    $this->set("type","reset");
   }
 }
 
@@ -810,7 +805,7 @@ class FPassword extends FGenericElement
 			array($value),
 			$attrs);
 
-    $this->addAttr("type", "password");
+    $this->set("type", "password");
   }
 }
 
@@ -828,11 +823,11 @@ class Link extends GenericElement
 
     foreach ($link as $l) {
       if (is_object($l))
-	$this->addChild($l);
+	$this->add($l);
       else
-	$this->addChild(new XText($l));
+	$this->add(new XText($l));
     }
-    $this->addAttr("href", $href);
+    $this->set("href", $href);
   }
 }
 
@@ -884,9 +879,9 @@ class PageDiv extends Div {
 
     // always display the first five, if possible
     for ($i = 1; $i < $current && $i < 5; $i++) {
-      $this->addChild($l = new XA(sprintf("%s|%d%s", $prefix, $i, $suffix), $i));
+      $this->add($l = new XA(sprintf("%s|%d%s", $prefix, $i, $suffix), $i));
       if ($i == $current) {
-	$l->addAttr("class", "current");
+	$l->set("class", "current");
       }
     }
     // also print the two before this one
@@ -894,22 +889,22 @@ class PageDiv extends Div {
       $i = $current - 2;
 
     for (; $i < $current; $i++)
-      $this->addChild($l = new XA(sprintf("%s|%d%s", $prefix, $i, $suffix), $i));
+      $this->add($l = new XA(sprintf("%s|%d%s", $prefix, $i, $suffix), $i));
 
     // also print this one
-    $this->addChild(new XA(sprintf("%s|%d%s", $prefix, $i, $suffix), $i, array('class' => 'current')));
-    $this->addChild(new XText(" "));
+    $this->add(new XA(sprintf("%s|%d%s", $prefix, $i, $suffix), $i, array('class' => 'current')));
+    $this->add(new XText(" "));
     $i++;
     // also print the two after this one
     for (; $i < $current + 3 && $i < $num_pages; $i++) {
-      $this->addChild($l = new XA(sprintf("%s|%d%s", $prefix, $i, $suffix), $i));
+      $this->add($l = new XA(sprintf("%s|%d%s", $prefix, $i, $suffix), $i));
       if ($i == $current) {
-	$l->addAttr("class", "current");
+	$l->set("class", "current");
       }
     }
     // also print the last one
     if ($i < $num_pages) {
-      $this->addChild(new XA(sprintf("%s|%d%s", $prefix, $num_pages, $suffix), $num_pages));
+      $this->add(new XA(sprintf("%s|%d%s", $prefix, $num_pages, $suffix), $num_pages));
     }
   }
 }

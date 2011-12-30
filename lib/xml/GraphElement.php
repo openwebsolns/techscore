@@ -38,7 +38,7 @@ class XMLElement
       if (!is_array($val))
 	$val = array($val);
       foreach ($val as $v)
-	$this->addAttr($k,$v);
+	$this->set($k,$v);
     }
   }
 

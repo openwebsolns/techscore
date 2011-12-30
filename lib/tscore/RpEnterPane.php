@@ -55,14 +55,14 @@ class RpEnterPane extends AbstractPane {
      database, and they have to be manually added to a temporary list
      in the <a href="%s/temp">Unregistered form</a>.',
 		   $this->REGATTA->id());
-    $p->addChild(new Para($mes));
-    $p->addChild(new Para('<strong>NOTE:</strong> You may only submit up to two sailors in the same role in the same division at a time. To add a third or more skipper or crew in a given division, submit the form multiple times.'));
+    $p->add(new Para($mes));
+    $p->add(new Para('<strong>NOTE:</strong> You may only submit up to two sailors in the same role in the same division at a time. To add a third or more skipper or crew in a given division, submit the form multiple times.'));
 
     // ------------------------------------------------------------
     // Change team
     // ------------------------------------------------------------
-    $p->addChild($form = $this->createForm());
-    $form->addChild(new FItem("Team:",
+    $p->add($form = $this->createForm());
+    $form->add(new FItem("Team:",
 			      $f_sel = new FSelect("chosen_team",
 						   array($chosen_team->id),
 						   array("onchange"=>
@@ -73,7 +73,7 @@ class RpEnterPane extends AbstractPane {
 				      $team->school->nick_name,
 				      $team->name);
     $f_sel->addOptions($team_opts);
-    $form->addChild(new FSubmitAccessible("change_team", "Get form"));
+    $form->add(new FSubmitAccessible("change_team", "Get form"));
 
     // ------------------------------------------------------------
     // RP Form
@@ -85,9 +85,9 @@ class RpEnterPane extends AbstractPane {
     // Representative
     $rep = $rpManager->getRepresentative($chosen_team);
     $rep_id = ($rep === null) ? "" : $rep->id;
-    $p->addChild($form = $this->createForm());
-    $form->addChild(new FHidden("chosen_team", $chosen_team->id));
-    $form->addChild(new FItem("Representative:",
+    $p->add($form = $this->createForm());
+    $form->add(new FHidden("chosen_team", $chosen_team->id));
+    $form->add(new FItem("Representative:",
 			      $f_sel = new FSelect("rep", array($rep_id))));
 
     // ------------------------------------------------------------
@@ -125,7 +125,7 @@ class RpEnterPane extends AbstractPane {
 			    $u_sailor_optgroup);
 
     foreach ($sailor_options as $option)
-      $f_sel->addChild(clone($option));
+      $f_sel->add(clone($option));
 
     // ------------------------------------------------------------
     // - Fill out form
@@ -137,9 +137,9 @@ class RpEnterPane extends AbstractPane {
       $cur_sk = $rpManager->getRP($chosen_team, $div, RP::SKIPPER);
       $cur_cr = $rpManager->getRP($chosen_team, $div, RP::CREW);
 
-      $form->addChild(new XHeading("Division $div"));
-      $form->addChild($tab_races = new Table());
-      $form->addChild($tab_skip = new Table());
+      $form->add(new XHeading("Division $div"));
+      $form->add($tab_races = new Table());
+      $form->add($tab_skip = new Table());
 
       // Create races table
       $tab_races->addHeader(new Row(array(Cell::th("Races"),
@@ -153,7 +153,7 @@ class RpEnterPane extends AbstractPane {
 
       // ------------------------------------------------------------
       // - Create skipper table
-      $tab_skip->addAttr("class", "narrow");
+      $tab_skip->set("class", "narrow");
       $tab_skip->addHeader(new Row(array(Cell::th("Skippers"),
 					 Cell::th("Races sailed"),
 					 new Cell("", 
@@ -183,15 +183,15 @@ class RpEnterPane extends AbstractPane {
 
 	// Add roster to select element
 	foreach ($sailor_options as $option)
-	  $f_sel->addChild(clone($option));
+	  $f_sel->add(clone($option));
       }
 
       $num_crews = max(array_keys($occ));
       // Print table only if there is room in the boat for crews
       if ( $num_crews > 1 ) {
 	// update crew table
-	$form->addChild($tab_crew = new Table());
-	$tab_crew->addAttr("class", "narrow");
+	$form->add($tab_crew = new Table());
+	$tab_crew->set("class", "narrow");
 	$tab_crew->addHeader(new Row(array(Cell::th("Crews"),
 					   Cell::th("Races sailed"),
 					   new Cell("",
@@ -224,18 +224,18 @@ class RpEnterPane extends AbstractPane {
 	  
 	  // Add options to $f_sel
 	  foreach ($sailor_options as $option)
-	    $f_sel->addChild(clone($option));
+	    $f_sel->add(clone($option));
 	}
       } // end if
     }
 
     // ------------------------------------------------------------
     // - Add submit
-    $form->addChild($para = new Para(""));
-    $para->addChild(new FReset("reset", "Reset"));
-    $para->addChild(new FSubmit("rpform", "Submit form",
+    $form->add($para = new Para(""));
+    $para->add(new FReset("reset", "Reset"));
+    $para->add(new FSubmit("rpform", "Submit form",
 				array("id"=>"rpsubmit")));
-    $p->addChild(new GenericElement("script",
+    $p->add(new GenericElement("script",
 				    array(new XText("check()")),
 				    array("type"=>"text/javascript")));
   }

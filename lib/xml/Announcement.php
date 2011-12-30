@@ -39,11 +39,11 @@ class Announcement extends Para {
     default:
       $img = new XImg("/img/warn.png",  "Warning");
     }
-    $this->addChild($img);
-    $this->addChild(new XText($message));
+    $this->add($img);
+    $this->add(new XText($message));
     $this->message = $message;
     $this->type    = $type;
-    $this->addAttr('class', $type);
+    $this->set('class', $type);
   }
 
   /**

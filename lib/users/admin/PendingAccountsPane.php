@@ -44,19 +44,19 @@ class PendingAccountsPane extends AbstractAdminUserPane {
     $list = AccountManager::getPendingUsers($startint, $startint + self::NUM_PER_PAGE);
     $this->PAGE->addContent($p = new Port("Pending accounts"));
     if ($count == 0) {
-      $p->addChild(new Para("There are no pending accounts."));
+      $p->add(new Para("There are no pending accounts."));
     }
     else {
-      $p->addChild(new Para("Use the checkboxes below to select the accounts, and then click " .
+      $p->add(new Para("Use the checkboxes below to select the accounts, and then click " .
 			    "on the appropriate button to approve/reject."));
-      $p->addChild($f = new Form("/pending-edit"));
-      $f->addChild($para = new Para("With selected: "));
-      $para->addChild(new FSubmit("approve", "Approve"));
-      $para->addChild(new XText(" "));
-      $para->addChild(new FSubmit("reject",  "Reject"));
+      $p->add($f = new Form("/pending-edit"));
+      $f->add($para = new Para("With selected: "));
+      $para->add(new FSubmit("approve", "Approve"));
+      $para->add(new XText(" "));
+      $para->add(new FSubmit("reject",  "Reject"));
 
-      $f->addChild($tab = new Table());
-      $tab->addAttr("style", "width: 100%");
+      $f->add($tab = new Table());
+      $tab->set("style", "width: 100%");
       $tab->addHeader(new Row(array(Cell::th(""), // select all/none checkbox?
 				    Cell::th("Name"),
 				    Cell::th("E-mail"),
@@ -74,7 +74,7 @@ class PendingAccountsPane extends AbstractAdminUserPane {
 					new Cell(new Label($acc->id, $acc->role)))));
       }
       if ($num_pages > 1)
-	$p->addChild(new PageDiv($num_pages, $pageset, "pending"));
+	$p->add(new PageDiv($num_pages, $pageset, "pending"));
     }
   }
 

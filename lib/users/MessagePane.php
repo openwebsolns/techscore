@@ -29,7 +29,7 @@ class MessagePane extends AbstractUserPane {
     // ------------------------------------------------------------
     if (count($messages) == 0) {
       $this->PAGE->addContent($p = new Port("Inbox"));
-      $p->addChild(new Para("You have no messages."));
+      $p->add(new Para("You have no messages."));
       return;
     }
 
@@ -45,23 +45,23 @@ class MessagePane extends AbstractUserPane {
 
       $sub = (empty($message->subject)) ? "[No subject]" : $message->subject;
       $this->PAGE->addContent($p = new Port($sub));
-      $p->addChild($cont = new Div());
-      $cont->addAttr("class", "email-message");
-      $cont->addChild(new GenericElement('pre', array(new XText(wordwrap($message->content, 90)))));
-      $p->addChild($form = new Form("/inbox-edit"));
+      $p->add($cont = new Div());
+      $cont->set("class", "email-message");
+      $cont->add(new GenericElement('pre', array(new XText(wordwrap($message->content, 90)))));
+      $p->add($form = new Form("/inbox-edit"));
 
       // Fill out form
-      $form->addChild(new GenericElement("button",
+      $form->add(new GenericElement("button",
 					 array(new XText("Delete")),
 					 array("name" =>"delete",
 					       "type"=>"submit",
 					       "value"=>$message->id)));
-      $form->addChild(new XText(" "));
-      $form->addChild(new XA("inbox", "Close"));
+      $form->add(new XText(" "));
+      $form->add(new XA("inbox", "Close"));
       
-      $p->addChild($form = new Form("/inbox-edit"));
-      $form->addChild(new FTextarea("text", "", array("style"=>"width: 100%", "rows" =>"3")));
-      $form->addChild(new GenericElement("button",
+      $p->add($form = new Form("/inbox-edit"));
+      $form->add(new FTextarea("text", "", array("style"=>"width: 100%", "rows" =>"3")));
+      $form->add(new GenericElement("button",
 					 array(new XText("Reply")),
 					 array("name" =>"reply",
 					       "type" =>"submit",
@@ -75,9 +75,9 @@ class MessagePane extends AbstractUserPane {
     // Message browser
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new Port("All messages"));
-    $p->addChild($tab = new Table());
-    $tab->addAttr("style", "width: 100%;");
-    $tab->addAttr("class", "left");
+    $p->add($tab = new Table());
+    $tab->set("style", "width: 100%;");
+    $tab->set("class", "left");
     $tab->addHeader(new Row(array(new Cell("Subject", array("width"=>"20%"), 1),
 				  new Cell("Content", array("width"=>"60%"), 1),
 				  new Cell("Sent",    array("width"=>"20%"), 1))));

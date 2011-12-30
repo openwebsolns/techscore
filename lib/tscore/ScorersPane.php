@@ -24,7 +24,7 @@ class ScorersPane extends AbstractPane {
     $p->addHelp("node9.html#SECTION00522000000000000000");
 
     // Get scorers
-    $p->addChild($tab = new Table());
+    $p->add($tab = new Table());
     $tab->addHeader(new Row(array(Cell::th("Name"),
 				  Cell::th("Affiliation"),
 				  Cell::th(""))));
@@ -36,11 +36,11 @@ class ScorersPane extends AbstractPane {
       $f2 = $this->createForm();
       $hidden = new FHidden("scorer", $s->id);
       $button = new FSubmit("delete_scorer", "Remove scorer", array("style"=>"width:100%"));
-      $f2->addChild($hidden);
-      $f2->addChild($button);
+      $f2->add($hidden);
+      $f2->add($button);
       if ($s->id === $this->USER->username()) {
-	$button->addAttr("disabled", "disabled");
-	$button->addAttr("title", "You cannot delete yourself from the regatta.");
+	$button->set("disabled", "disabled");
+	$button->set("title", "You cannot delete yourself from the regatta.");
       }
 
       // Fill row
@@ -49,14 +49,14 @@ class ScorersPane extends AbstractPane {
 				 new Cell($f2)))); 
     }
     if (count($scorers) == 1) {
-      $button->addAttr("disabled", "disabled");
-      $button->addAttr("title", "You cannot delete the only scorer in the regatta.");
+      $button->set("disabled", "disabled");
+      $button->set("title", "You cannot delete the only scorer in the regatta.");
     }
 
     // Form to add scorers
     $this->PAGE->addContent($p = new Port("Add scorers"));
     $p->addHelp("node9.html#SECTION00522100000000000000");
-    $p->addChild($s_form = $this->createForm());
+    $p->add($s_form = $this->createForm());
     // Conferences
     //   -Get chosen_conference
     $chosen_conf = (isset($args['conference'])) ? 
@@ -73,23 +73,23 @@ class ScorersPane extends AbstractPane {
     foreach (Preferences::getConferences() as $conf)
       $confs[$conf->id] = $conf;
         
-    $s_form->addChild($fi = new FItem("Conference:",
+    $s_form->add($fi = new FItem("Conference:",
 				      $sel = new FSelect("conference", array($chosen_conf->id))));
     $sel->addOptions($confs);
-    $sel->addAttr("onchange","submit('this')");
+    $sel->set("onchange","submit('this')");
 
     // Add accessible submit button
-    $fi->addChild(new FSubmitAccessible("update_conf"));
+    $fi->add(new FSubmitAccessible("update_conf"));
 
     // Accounts form
-    $p->addChild($s_form = $this->createForm());
+    $p->add($s_form = $this->createForm());
 
     // Get accounts for this conference
     $accounts = Preferences::getUsersFromConference($chosen_conf);
     if (count($accounts) > 0) {
-      $s_form->addChild(new FItem("Account:", $sel = new FSelect("account[]", array())));
-      $sel->addAttr("multiple","multiple");
-      $sel->addAttr("size", 10);
+      $s_form->add(new FItem("Account:", $sel = new FSelect("account[]", array())));
+      $sel->set("multiple","multiple");
+      $sel->set("size", 10);
       $pot_scorers = array();
 
       foreach ($accounts as $user) {
@@ -97,10 +97,10 @@ class ScorersPane extends AbstractPane {
 	  $pot_scorers[$user->id] = sprintf('%s, %s', $user->last_name, $user->first_name);
       }
       $sel->addOptions($pot_scorers);
-      $s_form->addChild(new FSubmit("add_scorer", "Add scorers"));
+      $s_form->add(new FSubmit("add_scorer", "Add scorers"));
     }
     else
-      $s_form->addChild(new Para("There are no accounts left to register in this conference Please try a different one.", array('class'=>'message')));
+      $s_form->add(new Para("There are no accounts left to register in this conference Please try a different one.", array('class'=>'message')));
     
   }
 

@@ -29,22 +29,22 @@ class TeamPenaltyPane extends AbstractPane {
       $teams[$team->id] = $team;
     
     $this->PAGE->addContent($p = new Port("Team penalties per division"));
-    $p->addChild(new Para("These penalties will be added to the final " .
+    $p->add(new Para("These penalties will be added to the final " .
 			  "team score after all race finishes have been " .
 			  "totaled. The penalty is <strong>+20 points " .
 			  "per division</strong>."));
 
     if (count($teams) == 0) {
-      $p->addChild(new XHeading("No teams have been registered."));
+      $p->add(new XHeading("No teams have been registered."));
       return;
     }
 
-    $p->addChild($form = $this->createForm());
-    $form->addChild(new FItem("Team:",
+    $p->add($form = $this->createForm());
+    $form->add(new FItem("Team:",
 			      $f_sel = new FSelect("team", array(""))));
     $f_sel->addOptions($teams);
 
-    $form->addChild(new FItem("Division(s):<br/>" .
+    $form->add(new FItem("Division(s):<br/>" .
 			      "<small>Hold down <kbd>Ctrl</kbd> " .
 			      "to select multiple</small>",
 			      $f_sel = new FSelect("division[]",
@@ -53,17 +53,17 @@ class TeamPenaltyPane extends AbstractPane {
     $f_sel->addOptions($divisions);
 
     // Penalty type
-    $form->addChild(new FItem("Penalty type:",
+    $form->add(new FItem("Penalty type:",
 			      $f_sel = new FSelect("penalty", array())));
 
     $f_sel->addOptions(array_merge(array(""=>""), TeamPenalty::getList()));
 
-    $form->addChild(new FItem("Comments:",
+    $form->add(new FItem("Comments:",
 			      new FTextarea("comments", "",
 					    array("rows"=>"2",
 						  "cols"=>"15"))));
 
-    $form->addChild(new FSubmit("t_submit", "Enter team penalty"));
+    $form->add(new FSubmit("t_submit", "Enter team penalty"));
 
     
     // ------------------------------------------------------------
@@ -73,10 +73,10 @@ class TeamPenaltyPane extends AbstractPane {
     $penalties = $this->REGATTA->getTeamPenalties();
 
     if (count($penalties) == 0)
-      $p->addChild(new Para("There are no team penalties."));
+      $p->add(new Para("There are no team penalties."));
     else {
-      $p->addChild($tab = new Table());
-      $tab->addAttr("class", "narrow");
+      $p->add($tab = new Table());
+      $tab->set("class", "narrow");
 
       $tab->addHeader(new Row(array(Cell::th("Team name"),
 				    Cell::th("Division"),
@@ -92,9 +92,9 @@ class TeamPenaltyPane extends AbstractPane {
 								"style"=>"text-align: left")),
 				   new Cell($form = $this->createForm()))));
 
-	$form->addChild(new FHidden("r_team", $p->team->id));
-	$form->addChild(new FHidden("r_div",  $p->division));
-	$form->addChild($sub = new FSubmit("t_remove", "Drop",
+	$form->add(new FHidden("r_team", $p->team->id));
+	$form->add(new FHidden("r_div",  $p->division));
+	$form->add($sub = new FSubmit("t_remove", "Drop",
 					   array("class"=>"thin")));
       }
     }

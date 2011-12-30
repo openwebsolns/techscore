@@ -34,21 +34,21 @@ class ManualTweakPane extends AbstractPane {
 
     // OUTPUT
     $this->PAGE->addContent($p = new Port("Tweak current rotation"));
-    $p->addChild($form = $this->createForm());
+    $p->add($form = $this->createForm());
 
-    $form->addChild(new FItem("Pick a division:",
+    $form->add(new FItem("Pick a division:",
 			      $f_sel = new FSelect("division", array($chosen_div))));
     $f_sel->addOptions(array_combine($exist_div, $exist_div));
-    $f_sel->addAttr("onchange", "submit()");
-    $form->addChild(new FSubmitAccessible("boatupdate", "Update"));
+    $f_sel->set("onchange", "submit()");
+    $form->add(new FSubmitAccessible("boatupdate", "Update"));
 
-    $p->addChild(new XHeading("Replace sail numbers"));
-    $p->addChild($form = $this->createForm());
+    $p->add(new XHeading("Replace sail numbers"));
+    $p->add($form = $this->createForm());
     
     $races = $this->REGATTA->getRaces($chosen_div);
-    $form->addChild(new FItem("Edit on a boat-by-boat basis.",
+    $form->add(new FItem("Edit on a boat-by-boat basis.",
 			      $tab = new Table()));
-    $tab->addAttr("class", "narrow");
+    $tab->set("class", "narrow");
     $row = array(Cell::th("Division " . $chosen_div));
     foreach ($races as $race)
       $row[] = Cell::th($race->number);
@@ -65,8 +65,8 @@ class ManualTweakPane extends AbstractPane {
       }
       $tab->addRow(new Row($row));
     }
-    $form->addChild(new FReset("reset", "Reset"));
-    $form->addChild(new FSubmit("editboat", "Edit boat(s)"));
+    $form->add(new FReset("reset", "Reset"));
+    $form->add(new FSubmit("editboat", "Edit boat(s)"));
   }
 
   public function process(Array $args) {

@@ -43,12 +43,12 @@ abstract class AbstractDialog {
 
     // Menu
     $this->PAGE->addMenu($h = new XH4("Refresh"));
-    $h->addChild(new LItem(new XA($_SERVER['REQUEST_URI'], "Refresh")));
+    $h->add(new LItem(new XA($_SERVER['REQUEST_URI'], "Refresh")));
 
     //   -Regatta info
     $this->PAGE->addNavigation($d3 = new Div(array(), array("id"=>"regatta")));
-    $d3->addChild(new XText($this->REGATTA->get(Regatta::NAME)));
-    $d3->addChild(new Itemize(array(new LItem(ucfirst($this->REGATTA->get(Regatta::TYPE))))));
+    $d3->add(new XText($this->REGATTA->get(Regatta::NAME)));
+    $d3->add(new Itemize(array(new LItem(ucfirst($this->REGATTA->get(Regatta::TYPE))))));
   }
 
   /**

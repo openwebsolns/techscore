@@ -44,7 +44,7 @@ class RotationDialog extends AbstractDialog {
     $row = 0;
     foreach ($this->REGATTA->getTeams() as $team) {
       $tab->addRow($r = new Row());
-      $r->addAttr("class", "row" . ($row++ % 2));
+      $r->set("class", "row" . ($row++ % 2));
       $r->addCell(Cell::td(htmlentities($team->school->name)), Cell::th(htmlentities($team->name)));
 
       foreach ($races as $race) {
@@ -64,7 +64,7 @@ class RotationDialog extends AbstractDialog {
   public function fillHTML(Array $args) {
     foreach ($this->REGATTA->getDivisions() as $div) {
       $this->PAGE->addContent($p = new Port(sprintf("Division %s", $div)));
-      $p->addChild($this->getTable($div));
+      $p->add($this->getTable($div));
     }
   }
 }

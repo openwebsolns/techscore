@@ -20,13 +20,13 @@ class ReplaceTeamPane extends AbstractPane {
     $teams = $this->REGATTA->getTeams();
 
     $this->PAGE->addContent($p = new Port("Substitute team"));
-    $p->addChild(new Para("Use this space to substitute a team from one school for one from another. The new team will inherit the rotations and place finishes of the old team. Note that the RP information for the old team will be removed!"));
+    $p->add(new Para("Use this space to substitute a team from one school for one from another. The new team will inherit the rotations and place finishes of the old team. Note that the RP information for the old team will be removed!"));
 
-    $p->addChild($form = $this->createForm());
+    $p->add($form = $this->createForm());
     $props = array('rows'=>10, 'size'=>10);
-    $form->addChild(new FItem("Replace team:", $sel1 = new FSelect('team', array(), $props)));
-    $form->addChild(new FItem("With school:",  $sel2 = new FSelect('school', array(), $props)));
-    $form->addChild(new FSubmit("replace", "Replace"));
+    $form->add(new FItem("Replace team:", $sel1 = new FSelect('team', array(), $props)));
+    $form->add(new FItem("With school:",  $sel2 = new FSelect('school', array(), $props)));
+    $form->add(new FSubmit("replace", "Replace"));
 
     // team select
     foreach ($teams as $team) {

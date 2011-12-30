@@ -25,11 +25,11 @@ class TeamsPane extends AbstractPane {
 
     // Add teams
     $this->PAGE->addContent($p = new Port("Add team from ICSA school"));
-    $p->addChild(new Bookmark("add"));
-    $p->addChild(new Para("Choose a school from which to add a new team. Because the regatta is under way, you may only add one team at a time."));
+    $p->add(new Bookmark("add"));
+    $p->add(new Para("Choose a school from which to add a new team. Because the regatta is under way, you may only add one team at a time."));
 
-    $p->addChild($form = $this->createForm());
-    $form->addChild(new FItem("Schools:", $f_sel = new FSelect("addschool", array(), array('size'=>20))));
+    $p->add($form = $this->createForm());
+    $form->add(new FItem("Schools:", $f_sel = new FSelect("addschool", array(), array('size'=>20))));
     foreach ($confs as $conf) {
       // Get schools for that conference
       $schools = Preferences::getSchoolsInConference($conf);
@@ -41,24 +41,24 @@ class TeamsPane extends AbstractPane {
     }
 
     // What to do with rotation?
-    $form->addChild($exp = new Para(""));
+    $form->add($exp = new Para(""));
     if ($this->has_rots) {
-      $exp->addChild(new XText("The regatta already has rotations. By adding a team, the rotations will need to be fixed. Choose from the options below."));
-      $form->addChild($fi = new FItem("Delete rotation:",
+      $exp->add(new XText("The regatta already has rotations. By adding a team, the rotations will need to be fixed. Choose from the options below."));
+      $form->add($fi = new FItem("Delete rotation:",
 				      new FCheckbox('del-rotation', '1',
 						    array('id'=>'del-rot',
 							  'checked'=>'checked'))));
-      $fi->addChild(new Label('del-rot', "Delete current rotation without affecting finishes."));
+      $fi->add(new Label('del-rot', "Delete current rotation without affecting finishes."));
     }
 
     // What to do with scores?
     if ($this->has_scores) {
-      $exp->addChild(new XText("The regatta already has finishes entered. After adding the new teams, what should their score be?"));
-      $form->addChild(new FItem("New score:", $f_sel = new FSelect('new-score', array())));
-      $f_sel->addChild(new Option('DNS', "DNS", array('selected' => 'selected')));
-      $f_sel->addChild(new Option('BYE', "BYE"));
+      $exp->add(new XText("The regatta already has finishes entered. After adding the new teams, what should their score be?"));
+      $form->add(new FItem("New score:", $f_sel = new FSelect('new-score', array())));
+      $f_sel->add(new Option('DNS', "DNS", array('selected' => 'selected')));
+      $f_sel->add(new Option('BYE', "BYE"));
     }
-    $form->addChild(new FSubmit("invite", "Register team"));
+    $form->add(new FSubmit("invite", "Register team"));
   }
 
   /**
@@ -145,20 +145,20 @@ class TeamsPane extends AbstractPane {
   private function fillNewRegatta(Array $args) {
     $confs = Preferences::getConferences();
     $this->PAGE->addContent($p = new Port("Add team from ICSA school"));
-    $p->addChild(new Para("Choose schools which are participating by indicating how many teams are invited from each school. Use your browser's search function to help you."));
-    $p->addChild($form = $this->createForm());
-    $form->addChild($list = new Itemize(array(), array('id'=>'teams-list')));
+    $p->add(new Para("Choose schools which are participating by indicating how many teams are invited from each school. Use your browser's search function to help you."));
+    $p->add($form = $this->createForm());
+    $form->add($list = new Itemize(array(), array('id'=>'teams-list')));
     
     foreach ($confs as $conf) {
       $list->addItems(new LItem($sub = new Itemize(array(new XHeading($conf)))));
       foreach ($schools = Preferences::getSchoolsInConference($conf) as $school) {
 	$sub->addItems($li = new LItem());
-	$li->addChild(new FHidden('school[]', $school->id));
-	$li->addChild(new FText('number[]', "", array('id'=>$school->id)));
-	$li->addChild(new Label($school->id, $school));
+	$li->add(new FHidden('school[]', $school->id));
+	$li->add(new FText('number[]', "", array('id'=>$school->id)));
+	$li->add(new Label($school->id, $school));
       }
     }
-    $form->addChild(new FSubmit('set-teams', "Register teams"));
+    $form->add(new FSubmit('set-teams', "Register teams"));
   }
 
   public function processNewRegatta(Array $args) {

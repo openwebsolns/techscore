@@ -27,10 +27,10 @@ class DetailsPane extends AbstractPane {
     $p = new Port('Regatta details');
     $p->addHelp("node9.html#SECTION00521000000000000000");
 
-    $p->addChild($reg_form = $this->createForm());
+    $p->add($reg_form = $this->createForm());
     // Name
     $value = $this->REGATTA->get(Regatta::NAME);
-    $reg_form->addChild(new FItem("Name:",
+    $reg_form->add(new FItem("Name:",
 				  new FText("reg_name",
 					    stripslashes($value),
 					    array("maxlength"=>40,
@@ -39,7 +39,7 @@ class DetailsPane extends AbstractPane {
     // Date
     $start_time = $this->REGATTA->get(Regatta::START_TIME);
     $date = date_format($start_time, 'm/d/Y');
-    $reg_form->addChild(new FItem("Date:", 
+    $reg_form->add(new FItem("Date:", 
 				  new FText("sdate",
 					    $date,
 					    array("maxlength"=>30,
@@ -47,14 +47,14 @@ class DetailsPane extends AbstractPane {
 						  "id"=>"datepicker"))));
     // Duration
     $value = $this->REGATTA->get(Regatta::DURATION);
-    $reg_form->addChild(new FItem("Duration (days):",
+    $reg_form->add(new FItem("Duration (days):",
 				  new FText("duration",
 					    $value,
 					    array("maxlength"=>2,
 						  "size"     =>2))));
     // On the water
     $value = date_format($start_time, "H:i");
-    $reg_form->addChild(new FItem("On the water:",
+    $reg_form->add(new FItem("On the water:",
 				  new FText("stime", $value,
 					    array("maxlength"=>8,
 						  "size"     =>8))));
@@ -64,7 +64,7 @@ class DetailsPane extends AbstractPane {
     $venue = $this->REGATTA->get(Regatta::VENUE);
     if ($venue !== null)
       $value = $venue->id;
-    $reg_form->addChild(new FItem("Venue:", $r_type = new FSelect("venue", array($value))));
+    $reg_form->add(new FItem("Venue:", $r_type = new FSelect("venue", array($value))));
     $r_type->addOptions(array("" => ""));
     $venues = array();
     foreach (Preferences::getVenues() as $venue)
@@ -73,7 +73,7 @@ class DetailsPane extends AbstractPane {
 
     // Regatta type
     $value = $this->REGATTA->get(Regatta::TYPE);
-    $reg_form->addChild($item = new FItem("Type:",
+    $reg_form->add($item = new FItem("Type:",
 					  $f_sel = new FSelect("type",
 							       array($value))));
 
@@ -81,32 +81,32 @@ class DetailsPane extends AbstractPane {
     unset($types['personal']);
     $f_sel->addOptionGroup("Public", $types);
     $f_sel->addOptionGroup("Not-published", array('personal' => "Personal"));
-    $item->addChild(new XMessage("Choose \"Personal\" to un-publish"));
+    $item->add(new XMessage("Choose \"Personal\" to un-publish"));
 
     // Regatta participation
     $value = $this->REGATTA->get(Regatta::PARTICIPANT);
-    $reg_form->addChild($item = new FItem("Participation:",
+    $reg_form->add($item = new FItem("Participation:",
 					  $f_sel = new FSelect("participant", array($value))));
     $f_sel->addOptions(Preferences::getRegattaParticipantAssoc());
     // will changing this value affect the RP information?
     if ($value == Regatta::PARTICIPANT_COED) {
-      $item->addChild(new XMessage("Changing this value may affect RP info"));
+      $item->add(new XMessage("Changing this value may affect RP info"));
     }
 
     // Scoring rules
     $value = $this->REGATTA->get(Regatta::SCORING);
-    $reg_form->addChild(new FItem("Scoring:", $f_sel = new FSelect("scoring", array($value))));
+    $reg_form->add(new FItem("Scoring:", $f_sel = new FSelect("scoring", array($value))));
     $f_sel->addOptions(Preferences::getRegattaScoringAssoc());
 
     // Hosts: first add the current hosts, then the entire list of
     // schools in the affiliation ordered by conference
     $hosts = $this->REGATTA->getHosts();
-    $reg_form->addChild(new FItem('Host(s):<br/><small>Hold down <kbd>Ctrl</kbd> to choose more than one</small>', $f_sel = new FSelect("host[]")));
-    $f_sel->addChild($opt_group = new OptionGroup("Current"));
+    $reg_form->add(new FItem('Host(s):<br/><small>Hold down <kbd>Ctrl</kbd> to choose more than one</small>', $f_sel = new FSelect("host[]")));
+    $f_sel->add($opt_group = new OptionGroup("Current"));
     $schools = array(); // track these so as not to include them later
     foreach ($hosts as $host) {
       $schools[$host->school->id] = $host->school;
-      $opt_group->addChild(new Option($host->school->id, $host->school, array('selected' => 'selected')));
+      $opt_group->add(new Option($host->school->id, $host->school, array('selected' => 'selected')));
     }
 
     // go through each conference
@@ -120,11 +120,11 @@ class DetailsPane extends AbstractPane {
 	$f_sel->addOptionGroup($conf, $opts);
     }
 
-    $f_sel->addAttr('multiple', 'multiple');
-    $f_sel->addAttr('size', 10);
+    $f_sel->set('multiple', 'multiple');
+    $f_sel->set('size', 10);
 
     // Update button
-    $reg_form->addChild($reg_sub = new FSubmit("edit_reg", "Edit"));
+    $reg_form->add($reg_sub = new FSubmit("edit_reg", "Edit"));
     // If finalized, disable submit
     $finalized = $this->REGATTA->get(Regatta::FINALIZED);
 
@@ -133,7 +133,7 @@ class DetailsPane extends AbstractPane {
     if ($finalized === null) {
       if ($this->REGATTA->hasFinishes()) {
 	$p2 = new Port("Finalize regatta");
-	$p2->addAttr('id', 'finalize');
+	$p2->set('id', 'finalize');
 	$p2->addHelp("node9.html#SECTION00521100000000000000");
 
 	$para = '
@@ -141,25 +141,25 @@ class DetailsPane extends AbstractPane {
         and rotation) about unscored regattas will be removed from the
         database. No <strong>new</strong> information can be entered,
         although you may still be able to edit existing information.';
-	$p2->addChild(new Para($para));
+	$p2->add(new Para($para));
   
-	$p2->addChild($form = $this->createForm());
+	$p2->add($form = $this->createForm());
 
-	$form->addChild(new FItem(new FCheckbox("approve",
+	$form->add(new FItem(new FCheckbox("approve",
 						"on",
 						array("id"=>"approve")),
 				  new Label("approve",
 					    "I wish to finalize this regatta.",
 					    array("class"=>"strong"))));
 
-	$form->addChild(new FSubmit("finalize",
+	$form->add(new FSubmit("finalize",
 				    "Finalize!"));
       }
     }
     else {
       $para = sprintf("This regatta was finalized on %s.",
 		      $finalized->format("l, F j Y"));
-      $p->addChild(new Para($para, array("class"=>"strong")));
+      $p->add(new Para($para, array("class"=>"strong")));
     }
     // If the regatta has already "ended", then the finalize port
     // should go first to urge the user to take action.

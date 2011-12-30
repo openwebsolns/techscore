@@ -31,11 +31,11 @@ class PrefsHomePane extends AbstractUserPane {
    */
   public function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new Port(sprintf("Edit %s", $this->SCHOOL->nick_name)));
-    $p->addChild(new Para("This is the portal for editing details about your school. " .
+    $p->add(new Para("This is the portal for editing details about your school. " .
 			  "Navigate around using the menu to the left. When you are " .
 			  "done, use the <em>Back</em> link to return to your home page."));
 
-    $p->addChild(new Para("If you have any questions, send them to paez@mit.edu. " .
+    $p->add(new Para("If you have any questions, send them to paez@mit.edu. " .
 			  "Please note that this part of <strong>TechScore" .
 			  "</strong> is still under development."));
 
@@ -52,14 +52,14 @@ class PrefsHomePane extends AbstractUserPane {
 
       $this->PAGE->addContent($p = new Port("Choose school"));
       // Stylesheet fix
-      $p->addChild($st = new GenericElement("style"));
-      $st->addAttr("type", "text/css");
-      $st->addChild(new XText('table.conf td { text-align: left; vertical-align: top; }'));
+      $p->add($st = new GenericElement("style"));
+      $st->set("type", "text/css");
+      $st->add(new XText('table.conf td { text-align: left; vertical-align: top; }'));
 
-      $p->addChild(new Para("Choose a different school to edit from the list below."));
-      $p->addChild($tab = new Table());
-      $tab->addAttr("id", "conftable");
-      $tab->addAttr("class", "conf");
+      $p->add(new Para("Choose a different school to edit from the list below."));
+      $p->add($tab = new Table());
+      $tab->set("id", "conftable");
+      $tab->set("class", "conf");
       
       $col = 0;
       foreach ($conferences as $conf => $schools) {

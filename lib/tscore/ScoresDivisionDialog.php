@@ -42,10 +42,10 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
 
     $this->PAGE->addContent($p = new Port("Division $division results"));
     $elems = $this->getTable();
-    $p->addChild(array_shift($elems));
+    $p->add(array_shift($elems));
     if (count($elems) > 0) {
-      $p->addChild(new XHeading("Tiebreaker legend"));
-      $p->addChild($elems[0]);
+      $p->add(new XHeading("Tiebreaker legend"));
+      $p->add($elems[0]);
     }
   }
 
@@ -63,9 +63,9 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
     $division = $this->division;
 
     $ELEM = array($tab = new Table());
-    $tab->addAttr("class", "results");
-    $tab->addAttr("class", "coordinate");
-    $tab->addAttr("class", "narrow");
+    $tab->set("class", "results");
+    $tab->set("class", "coordinate");
+    $tab->set("class", "narrow");
 
     $tab->addHeader(new Row(array(Cell::th(), // superscript
 				  Cell::th(), // rank
@@ -130,20 +130,20 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
 			  $sch = new Cell($ln),
 			  $pen = new Cell(),
 			  new Cell($total)));
-      $r1->addAttr("class", "row" . $rowIndex % 2);
-      $sch->addAttr("class", "strong");
-      $sch->addAttr("align", "left");
+      $r1->set("class", "row" . $rowIndex % 2);
+      $sch->set("class", "strong");
+      $sch->set("align", "left");
       if ($penalty != null) {
 	$com = sprintf("%s (+20 points)", $penalty->comments);
-	$pen->addChild(new XText($penalty->type));
-	$pen->addAttr("title", $com);
+	$pen->add(new XText($penalty->type));
+	$pen->set("title", $com);
       }
 
       $r2 = new Row(array(new Cell(), new Cell(), new Cell(),
 			  $sch = new Cell($rank->team->name),
 			  new Cell(), new Cell()));
-      $r2->addAttr("class", "row" . $rowIndex % 2);
-      $sch->addAttr("align", "left");
+      $r2->set("class", "row" . $rowIndex % 2);
+      $sch->set("align", "left");
 
       $headerRows = array($r1, $r2);
 
@@ -168,7 +168,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
 				 new Cell(),
 				 new Cell(),
 				 new Cell()));
-	    $row->addAttr("class", "row" . $rowIndex % 2);
+	    $row->set("class", "row" . $rowIndex % 2);
 	    $s_rows[] = $row;
 	  }
 
@@ -178,9 +178,9 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
 	    $amt = Utilities::makeRange($s->races_nums);
 	  $row->addCell($s_cell = new Cell($s->sailor),
 			$r_cell = new Cell($amt));
-	  $s_cell->addAttr("align", "right");
-	  $r_cell->addAttr("align", "left");
-	  $r_cell->addAttr("class", "races");
+	  $s_cell->set("align", "right");
+	  $r_cell->set("align", "left");
+	  $r_cell->set("class", "races");
 	}
 
 	// Add rows

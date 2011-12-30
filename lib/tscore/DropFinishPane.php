@@ -32,8 +32,8 @@ class DropFinishPane extends AbstractPane {
     $races = $this->REGATTA->getCombinedScoredRaces();
 
     foreach ($races as $num) {
-      $p->addChild($tab = new Table());
-      $tab->addAttr("class", "narrow");
+      $p->add($tab = new Table());
+      $tab->set("class", "narrow");
       $tab->addHeader(new Row(array(new Cell("Race " . $num,
 					     array("colspan" => "2"), 1))));
 
@@ -53,9 +53,9 @@ class DropFinishPane extends AbstractPane {
       // add form
       $tab->addRow(new Row(array(new Cell($form = $this->createForm(),
 					  array("colspan"=>"2")))));
-      $form->addChild(new FHidden("race", $race->id));
-      $form->addChild($submit = new FSubmit("removerace", "Remove"));
-      $submit->addAttr("class", "thin");
+      $form->add(new FHidden("race", $race->id));
+      $form->add($submit = new FSubmit("removerace", "Remove"));
+      $submit->set("class", "thin");
     }
   }
 
@@ -78,14 +78,14 @@ class DropFinishPane extends AbstractPane {
       $races = $this->REGATTA->getScoredRaces($division);
       $div = new Div();
       if (count($races) == 0)
-	$p->addChild(new Para("No race finishes for $division division."));
+	$p->add(new Para("No race finishes for $division division."));
       else
-	$p->addChild($div);
+	$p->add($div);
 
       // create table for each race
       foreach ($races as $race) {
-	$div->addChild($tab = new Table());
-	$tab->addAttr("class", "narrow");
+	$div->add($tab = new Table());
+	$tab->set("class", "narrow");
 	$tab->addHeader(new Row(array(new Cell("Race " . $race,
 					       array("colspan" => "2"), 1))));
 
@@ -100,9 +100,9 @@ class DropFinishPane extends AbstractPane {
 	// add form
 	$tab->addRow(new Row(array(new Cell($form = $this->createForm(),
 					    array("colspan"=>"2")))));
-	$form->addChild(new FHidden("race", $race->id));
-	$form->addChild($submit = new FSubmit("removerace", "Remove"));
-	$submit->addAttr("class", "thin");
+	$form->add(new FHidden("race", $race->id));
+	$form->add($submit = new FSubmit("removerace", "Remove"));
+	$submit->set("class", "thin");
       }
     }
   }

@@ -40,51 +40,51 @@ class RacesPane extends AbstractPane {
     // ------------------------------------------------------------
     $final = $this->REGATTA->get(Regatta::FINALIZED);
     $this->PAGE->addContent($p = new Port("Races and divisions"));
-    $p->addChild($form = $this->createForm());
-    $form->addChild(new FItem("Number of divisions:",
+    $p->add($form = $this->createForm());
+    $form->add(new FItem("Number of divisions:",
 			      $f_div = new FSelect("num_divisions", array(count($divisions)))));
-    $form->addChild(new FItem("Number of races:",
+    $form->add(new FItem("Number of races:",
 			      $f_rac = new FText("num_races",
 						 count($this->REGATTA->getRaces(Division::A())))));
     if ($final) {
-      $f_div->addAttr("disabled", "disabled");
-      $f_rac->addAttr("disabled", "disabled");
+      $f_div->set("disabled", "disabled");
+      $f_rac->set("disabled", "disabled");
     }
     elseif (count($this->REGATTA->getRotation()->getRaces()) > 0 ||
 	    count($this->REGATTA->getScoredRaces()) > 0) {
-      $form->addChild(new Para('<strong>Warning: </strong>Adding races or divisions to this regatta ' .
+      $form->add(new Para('<strong>Warning: </strong>Adding races or divisions to this regatta ' .
 			       'will require that you also edit the rotations (if any). Removing races ' .
 			       'or divisions will also remove the finishes and rotations (if any) for ' .
 			       'the removed races!'));
     }
-    $form->addChild(new Para('<strong>Note: </strong>Extra races are automatically removed when ' .
+    $form->add(new Para('<strong>Note: </strong>Extra races are automatically removed when ' .
 			     'the regatta is finalized.'));
-    $form->addChild($f_sub = new FSubmit("set-races", "Set races"));
-    if ($final) $f_sub->addAttr("disabled", "disabled");
+    $form->add($f_sub = new FSubmit("set-races", "Set races"));
+    if ($final) $f_sub->set("disabled", "disabled");
 
     // Fill the select boxes
     for ($i = 1; $i <= 4; $i++) {
-      $f_div->addChild(new Option($i, $i));
+      $f_div->add(new Option($i, $i));
     }
 
     //------------------------------------------------------------
     // Edit existing boats
     
     $this->PAGE->addContent($p = new Port("Boat assignments"));
-    $p->addChild(new Para("Edit the boat associated with each race. This is necessary " .
+    $p->add(new Para("Edit the boat associated with each race. This is necessary " .
 			  "at the time of entering RP information. " .
 			  "Races that are not sailed are automatically removed " .
 			  "when finalizing the regatta."));
-    $p->addChild($form = $this->createForm());
+    $p->add($form = $this->createForm());
 
     // Add input elements
-    $form->addChild($para = new Para(""));
-    $para->addChild(new FSubmit("editboats", "Edit boats"));
+    $form->add($para = new Para(""));
+    $para->add(new FSubmit("editboats", "Edit boats"));
 
 
     // Table of races: columns are divisions; rows are race numbers
-    $form->addChild($tab = new Table());
-    $tab->addAttr("class", "narrow");
+    $form->add($tab = new Table());
+    $tab->set("class", "narrow");
     $head = array(Cell::th("#"));
     $races = array();
     $max   = 0; // the maximum number of races in any given division
@@ -99,9 +99,9 @@ class RacesPane extends AbstractPane {
     $row = array(Cell::th("All"));
     foreach ($divisions as $div) {
       $c = new Cell();
-      $c->addChild(new FHidden("div-value[]", $div));
-      $c->addChild($f_sel = new FSelect("div-boat[]", array()));
-      $f_sel->addChild(new Option("", "[Use table]"));
+      $c->add(new FHidden("div-value[]", $div));
+      $c->add($f_sel = new FSelect("div-boat[]", array()));
+      $f_sel->add(new Option("", "[Use table]"));
       $f_sel->addOptions($boatOptions);
       $row[] = $c;
     }
@@ -118,7 +118,7 @@ class RacesPane extends AbstractPane {
 
 	if (isset($races[(string)$div][$i])) {
 	  $race = $races[(string)$div][$i];
-	  $c->addChild($f_sel = new FSelect($race, array($race->boat->id)));
+	  $c->add($f_sel = new FSelect($race, array($race->boat->id)));
 	  $f_sel->addOptions($boatOptions);
 	}
 

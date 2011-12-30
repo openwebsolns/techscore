@@ -21,13 +21,13 @@ class AccountPane extends AbstractUserPane {
 
   protected function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new Port("My information"));
-    $p->addChild($form = new Form("/account-edit"));
-    $form->addChild(new FItem("First name:", new FText("first_name", $this->USER->get(User::FIRST_NAME))));
-    $form->addChild(new FItem("Last name:",  new FText("last_name",  $this->USER->get(User::LAST_NAME))));
-    $form->addChild(new Para("To leave password as is, leave the two fields below blank:"));
-    $form->addChild(new FItem("New password:",     new FPassword("sake1", "")));
-    $form->addChild(new FItem("Confirm password:", new FPassword("sake2", "")));
-    $form->addChild(new FSubmit('edit-info', "Edit"));
+    $p->add($form = new Form("/account-edit"));
+    $form->add(new FItem("First name:", new FText("first_name", $this->USER->get(User::FIRST_NAME))));
+    $form->add(new FItem("Last name:",  new FText("last_name",  $this->USER->get(User::LAST_NAME))));
+    $form->add(new Para("To leave password as is, leave the two fields below blank:"));
+    $form->add(new FItem("New password:",     new FPassword("sake1", "")));
+    $form->add(new FItem("Confirm password:", new FPassword("sake2", "")));
+    $form->add(new FSubmit('edit-info', "Edit"));
 
     // new FText("username",  $this->USER->get(User::LAST_NAME))));
   }

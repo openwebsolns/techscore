@@ -26,16 +26,16 @@ class SummaryPane extends AbstractPane {
   protected function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new Port("Daily summaries"));
 
-    $p->addChild($form = $this->createForm());
+    $p->add($form = $this->createForm());
     $start = $this->REGATTA->get(Regatta::START_TIME);
     for ($i = 0; $i < $this->REGATTA->get(Regatta::DURATION); $i++) {
       $today = new DateTime(sprintf("%s + %d days", $start->format('Y-m-d'), $i));
       $comms = $this->REGATTA->getSummary($today);
-      $form->addChild(new FItem($today->format('l, F j'),
+      $form->add(new FItem($today->format('l, F j'),
 				new FTextArea($today->format('Y-m-d'), $comms,
 					      array("rows"=>"5", "cols"=>"50"))));
     }
-    $form->addChild(new FSubmit("set_comment", "Add/Update"));
+    $form->add(new FSubmit("set_comment", "Add/Update"));
   }
 
   /**

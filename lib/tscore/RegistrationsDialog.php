@@ -29,8 +29,8 @@ class RegistrationsDialog extends AbstractDialog {
     $rpManager = $this->REGATTA->getRpManager();
 
     $this->PAGE->addContent($p = new Port("Registrations"));
-    $p->addChild($tab = new Table());
-    $tab->addAttr("class", "ordinate");
+    $p->add($tab = new Table());
+    $tab->set("class", "ordinate");
     $tab->addHeader(new Row(array(Cell::th("Team"),
 				  Cell::th("Div."),
 				  Cell::th("Skipper"),
@@ -47,7 +47,7 @@ class RegistrationsDialog extends AbstractDialog {
       // For each division
       foreach ($divisions as $div) {
 	$tab->addRow($row = new Row());
-	$row->addAttr("class", "row" . $row_index%2);
+	$row->set("class", "row" . $row_index%2);
 
 	if ($is_first) {
 	  $is_first = false;
@@ -57,7 +57,7 @@ class RegistrationsDialog extends AbstractDialog {
           new XImg($team->school->burgee, $team->school->nick_name, array('height'=>'30px'),
 	  array("class"=>array("vertical", "strong"))));
           */
-	  $c->addChild(new XText(sprintf("<br/>%s", $team)));
+	  $c->add(new XText(sprintf("<br/>%s", $team)));
 	}
 	else {
 	  $row->addCell(new Cell(""));

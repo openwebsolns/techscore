@@ -20,13 +20,13 @@ class DeleteTeamsPane extends AbstractPane {
     
     $this->PAGE->addContent($p = new Port("Remove present teams"));
     if ($this->has_rots || $this->has_scores) {
-      $p->addChild(new Para("The regatta is currently \"under way\": either the rotation has been created, or finishes have been entered. If you remove a team, you will also remove all information from the rotation and the scores for that team. This will probably result in one or more idle boats in the rotation, and will effectively change the FLEET size for scoring purposes."));
-      $p->addChild(new Para("Please note: this process is <strong>not</strong> undoable. Are you sure you don't wish to <a href=\"substitute\">substitute a team</a> instead?"));
+      $p->add(new Para("The regatta is currently \"under way\": either the rotation has been created, or finishes have been entered. If you remove a team, you will also remove all information from the rotation and the scores for that team. This will probably result in one or more idle boats in the rotation, and will effectively change the FLEET size for scoring purposes."));
+      $p->add(new Para("Please note: this process is <strong>not</strong> undoable. Are you sure you don't wish to <a href=\"substitute\">substitute a team</a> instead?"));
     }
-    $p->addChild(new Para("To remove one or more teams, check the appropriate box and hit \"Remove\"."));
-    $p->addChild($form = $this->createForm());
-    $form->addChild($tab = new Table());
-    $tab->addAttr('class', 'full');
+    $p->add(new Para("To remove one or more teams, check the appropriate box and hit \"Remove\"."));
+    $p->add($form = $this->createForm());
+    $form->add($tab = new Table());
+    $tab->set('class', 'full');
     
     $tab->addHeader(new Row(array(Cell::th(""),
 				  Cell::th(""),
@@ -43,7 +43,7 @@ class DeleteTeamsPane extends AbstractPane {
 				 new Cell(new Label($id, $aTeam->name), array('class'=>'left'))),
 			   array("class"=>"row" . ($row++%2))));
     }
-    $form->addChild(new FSubmit("remove", "Remove"));
+    $form->add(new FSubmit("remove", "Remove"));
   }
 
   /**

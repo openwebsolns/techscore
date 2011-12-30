@@ -24,8 +24,8 @@ abstract class AbstractScoresDialog extends AbstractDialog {
 
     // Add some menu
     $this->PAGE->addMenu($div = new Div());
-    $div->addAttr("class", "menu");
-    $div->addChild($ul = new GenericList());
+    $div->set("class", "menu");
+    $div->add($ul = new GenericList());
     $ul->addItems(new LItem(new XA(sprintf("/view/%d/scores",     $this->REGATTA->id()), "All scores")));
     $ul->addItems(new LItem(new XA(sprintf("/view/%d/div-scores", $this->REGATTA->id()), "Divisional")));
     foreach ($this->REGATTA->getDivisions() as $div)
@@ -34,8 +34,8 @@ abstract class AbstractScoresDialog extends AbstractDialog {
 
     // Add meta tag
     $this->PAGE->addHead($p = new GenericElement("meta"));
-    $p->addAttr("name", "timestamp");
-    $p->addAttr("content", date('Y-m-d H:i:s'));
+    $p->set("name", "timestamp");
+    $p->set("content", date('Y-m-d H:i:s'));
   }
 
   /**

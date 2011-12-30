@@ -72,40 +72,40 @@ class RegisterPane extends WelcomePage {
   private function fillDefault() {
     $this->addContent(new PageTitle("Registration"));
     $this->addContent($p = new Port("Request new account"));
-    $p->addChild(new Para(sprintf("Please note that TechScore is an online scoring program specifically " .
+    $p->add(new Para(sprintf("Please note that TechScore is an online scoring program specifically " .
 			  "designed for College Sailing regattas. As such, account access is given " .
 			  "only to valid ICSA users, or as approved by the registration committee. " .
 			  "If you are not affiliated with ICSA, you might be more interested in " .
 			  "accessing the public site at <a href=\"%s\">%s</a>.", PUB_HOME, PUB_HOME)));
     
-    $p->addChild(new Para("Through this form you will be allowed to petition for an account on " .
+    $p->add(new Para("Through this form you will be allowed to petition for an account on " .
 			  "TechScore. Every field is mandatory. Please enter a " .
 			  "valid e-mail account which you check as you will be sent an e-mail there to " .
 			  "verify your identity."));
 
-    $p->addChild(new Para("Once your account request has been approved by the registration committee, " .
+    $p->add(new Para("Once your account request has been approved by the registration committee, " .
 			  "you will receive another e-mail from TechScore with instructions on " .
 			  "logging in."));
-    $p->addChild($f = new Form("/register-edit"));
-    $f->addChild(new FItem("Email:", new FText("email", "")));
-    $f->addChild(new FItem("First name:", new FText("first_name", "")));
-    $f->addChild(new FItem("Last name:",  new FText("last_name", "")));
-    $f->addChild(new FItem("Password:", new FPassword("passwd", "")));
-    $f->addChild(new FItem("Confirm password:", new FPassword("confirm", "")));
-    $f->addChild(new FItem("Affiliation: ", $aff = new FSelect("school")));
-    $f->addChild(new FItem("Role: ", $rol = new FSelect("role")));
-    $f->addChild(new FSubmit("register", "Request account"));
+    $p->add($f = new Form("/register-edit"));
+    $f->add(new FItem("Email:", new FText("email", "")));
+    $f->add(new FItem("First name:", new FText("first_name", "")));
+    $f->add(new FItem("Last name:",  new FText("last_name", "")));
+    $f->add(new FItem("Password:", new FPassword("passwd", "")));
+    $f->add(new FItem("Confirm password:", new FPassword("confirm", "")));
+    $f->add(new FItem("Affiliation: ", $aff = new FSelect("school")));
+    $f->add(new FItem("Role: ", $rol = new FSelect("role")));
+    $f->add(new FSubmit("register", "Request account"));
 
     // Fill out the selection boxes
     foreach (Preferences::getConferences() as $conf) {
-      $aff->addChild($opt = new OptionGroup($conf));
+      $aff->add($opt = new OptionGroup($conf));
       foreach (Preferences::getSchoolsInConference($conf) as $school) {
-	$opt->addChild(new Option($school->id, $school->name));
+	$opt->add(new Option($school->id, $school->name));
       }
     }
-    $rol->addChild(new Option("coach", "Coach"));
-    $rol->addChild(new Option("staff", "Staff"));
-    $rol->addChild(new Option("student", "Student"));
+    $rol->add(new Option("coach", "Coach"));
+    $rol->add(new Option("staff", "Staff"));
+    $rol->add(new Option("student", "Student"));
   }
 
   /**
@@ -114,9 +114,9 @@ class RegisterPane extends WelcomePage {
    */
   private function fillRequested() {
     $this->addContent($p = new Port("Account requested"));
-    $p->addChild(new Para("Thank you for registering for an account with TechScore. You should " .
+    $p->add(new Para("Thank you for registering for an account with TechScore. You should " .
 			  "receive an e-mail message shortly with a link to verify your account access."));
-    $p->addChild(new Para("If you don't receive an e-mail, please check your junk-mail settings " .
+    $p->add(new Para("If you don't receive an e-mail, please check your junk-mail settings " .
 			  "and enable mail from <em>" . TS_FROM_MAIL . "</em>."));
   }
 
@@ -126,11 +126,11 @@ class RegisterPane extends WelcomePage {
    */
   private function fillPending() {
     $this->addContent($p = new Port("Account pending"));
-    $p->addChild(new Para("Thank you for confirming your account. At this point, the registration " .
+    $p->add(new Para("Thank you for confirming your account. At this point, the registration " .
 			  "committee has been notified of your request. They will review your request " .
 			  "and approve or reject your account accordingly. Please allow up to three " .
 			  "business days for this process."));
-    $p->addChild(new Para("You will be notified of the committee's response to your request with an " .
+    $p->add(new Para("You will be notified of the committee's response to your request with an " .
 			  "e-mail message."));
   }
 

@@ -28,13 +28,13 @@ class ScoresFullDialog extends AbstractScoresDialog {
    *
    */
   public function fillHTML(Array $args) {
-    // $this->PAGE->addAttr('xmlns:ts', 'http://collegesailing.info');
+    // $this->PAGE->set('xmlns:ts', 'http://collegesailing.info');
     $this->PAGE->addContent($p = new Port("Team results"));
     $ELEMS = $this->getTable();
-    $p->addChild(array_shift($ELEMS));
+    $p->add(array_shift($ELEMS));
     if (count($ELEMS) > 0) {
       $this->PAGE->addContent($p = new Port("Legend"));
-      $p->addChild($ELEMS[0]);
+      $p->add($ELEMS[0]);
     }
   }
 
@@ -63,8 +63,8 @@ class ScoresFullDialog extends AbstractScoresDialog {
 
     $tab = new Table();
     $ELEMS[] = $tab;
-    $tab->addAttr("class", "results");
-    $tab->addAttr("class", "coordinate");
+    $tab->set("class", "results");
+    $tab->set("class", "coordinate");
     $tab->addHeader($r = new Row(array(Cell::th(),
 				       Cell::th(),
 				       Cell::th("Team"))));
@@ -72,7 +72,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
       $r->addCell(Cell::th("Div."));
     for ($i = 1; $i <= $largest_num; $i++) {
       $r->addCell($c = Cell::th($i));
-      $c->addAttr("align", "right");
+      $c->set("align", "right");
     }
     $r->addCell($penalty_th = Cell::th(""),
 		new Cell("TOT", array("align"=>"right"), 1));
@@ -111,7 +111,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
 	$scoreDiv = 0;
 
 	$tab->addRow($r = new Row());
-	$r->addAttr("class", "div" . $div);
+	$r->set("class", "div" . $div);
 
 	if ($num_divs == 1) {
 	  $ln = $rank->team->name . '<br/>' . $rank->team->school->nick_name;
@@ -158,10 +158,10 @@ class ScoresFullDialog extends AbstractScoresDialog {
 	    $scoreTeam       += $finish->score;
 	    $scoreRace[$i-1] += $finish->score;
 
-	    $cell->addChild(new XText($finish->place));
-	    $cell->addAttr("title", $finish->explanation);
-	    $cell->addAttr("align", "right");
-	    $cell->addAttr("ts:score", $finish->score);
+	    $cell->add(new XText($finish->place));
+	    $cell->set("title", $finish->explanation);
+	    $cell->set("align", "right");
+	    $cell->set("ts:score", $finish->score);
 	  }
 	  $r->addCell($cell);
 	}
@@ -192,7 +192,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
 
       if ($rank->team->school->burgee !== null) {
 	$url = sprintf("%s/img/schools/%s.png", $PREFIX, $rank->team->school->id);
-	$burgee_cell->addChild(new XImg($url, $rank->team->school->id, array("height"=>"30px")));
+	$burgee_cell->add(new XImg($url, $rank->team->school->id, array("height"=>"30px")));
       }
       if ($num_divs > 1)
 	$r->addCell(new Cell());

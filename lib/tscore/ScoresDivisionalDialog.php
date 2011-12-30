@@ -32,10 +32,10 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
   public function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new Port("Team results"));
     $ELEMS = $this->getTable();
-    $p->addChild(array_shift($ELEMS));
+    $p->add(array_shift($ELEMS));
     if (count($ELEMS) > 0) {
       $this->PAGE->addContent($p = new Port("Legend"));
-      $p->addChild($ELEMS[0]);
+      $p->add($ELEMS[0]);
     }
   }
 
@@ -59,8 +59,8 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
 
     $tab = new Table();
     $ELEMS[] = $tab;
-    $tab->addAttr("class", "results");
-    $tab->addAttr("class", "coordinate");
+    $tab->set("class", "results");
+    $tab->set("class", "coordinate");
     $tab->addHeader($r = new Row(array(Cell::th(),
 				       Cell::th(),
 				       Cell::th(),
@@ -104,9 +104,9 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
 				      $bc = new Cell(),
 				      new Cell($ln, array("class"=>"strong")),
 				      new Cell($rank->team->name, array("class"=>"left")))));
-      $r->addAttr('class', 'row' . ($row++%2));
+      $r->set('class', 'row' . ($row++%2));
       $url = sprintf("%s/img/schools/%s.png", $PREFIX, $rank->team->school->id);
-      $bc->addChild(new XImg($url, $rank->team->school->id, array("height"=>"30px")));
+      $bc->add(new XImg($url, $rank->team->school->id, array("height"=>"30px")));
 
       $scoreTeam    = 0;
       // For each division
@@ -121,11 +121,11 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
 	$r->addCell($p_cell = new Cell());
 	if ($pen !== null) {
 	  $scoreDiv += 20;
-	  $p_cell->addChild(new XImg("$PREFIX/img/error.png", "X"));
-	  $p_cell->addAttr("title", sprintf("%s (+20 points)", $pen->type));
+	  $p_cell->add(new XImg("$PREFIX/img/error.png", "X"));
+	  $p_cell->set("title", sprintf("%s (+20 points)", $pen->type));
 	}
-	$s_cell->addChild(new XText($scoreDiv));
-	$s_cell->addAttr("class", "total");
+	$s_cell->add(new XText($scoreDiv));
+	$s_cell->set("class", "total");
 	$scoreTeam += $scoreDiv;
       }
       $r->addCell(new Cell($scoreTeam, array("class"=>array("total"))));

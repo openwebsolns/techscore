@@ -31,16 +31,16 @@ class SailorMergePane extends AbstractUserPane {
    */
   public function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new Port("Merge temporary sailors"));
-    $p->addChild(new Para("When a sailor is not found in the database, the scorers " .
+    $p->add(new Para("When a sailor is not found in the database, the scorers " .
 			  "can add the sailor temporarily. These temporary sailors " .
 			  "appear throughout <strong>TechScore</strong> with an " .
 			  "asterisk next to their name."));
     
-    $p->addChild(new Para("It is the school's responsibilities to " .
+    $p->add(new Para("It is the school's responsibilities to " .
 			  "match the temporary sailors with the actual sailor from " .
 			  "the ICSA database once the missing sailor has been approved."));
 
-    $p->addChild(new Para("Use this form to update the database by matching the " .
+    $p->add(new Para("Use this form to update the database by matching the " .
 			  "temporary sailor with the actual one from the ICSA database. " .
 			  "If the sailor does not appear, he/she may have to be approved " .
 			  "by ICSA before the changes are reflected in <strong>TechScore" .
@@ -51,14 +51,14 @@ class SailorMergePane extends AbstractUserPane {
     // Get all the temporary sailors
     $temp = RpManager::getUnregisteredSailors($this->SCHOOL);
     if (empty($temp)) {
-      $p->addChild(new Para("No temporary sailors for this school.",
+      $p->add(new Para("No temporary sailors for this school.",
 			    array("class"=>array("strong","center"))));
       return;
     }
 
-    $p->addChild($form = new Form(sprintf("/pedit/%s/sailor", $this->SCHOOL->id), "post"));
-    $form->addChild($tab = new Table());
-    $tab->addAttr("class", "narrow");
+    $p->add($form = new Form(sprintf("/pedit/%s/sailor", $this->SCHOOL->id), "post"));
+    $form->add($tab = new Table());
+    $tab->set("class", "narrow");
     $tab->addHeader(new Row(array(Cell::th("Temporary sailor"),
 				  Cell::th("ICSA Match"))));
 
@@ -73,14 +73,14 @@ class SailorMergePane extends AbstractUserPane {
 
     foreach ($temp as $sailor) {
       $tab->addRow(new Row(array(new Cell($sailor), $c = new Cell())));
-      $c->addChild($f_sel = new FSelect($sailor->id));
+      $c->add($f_sel = new FSelect($sailor->id));
       $f_sel->addOptions(array("" => ""));
       $f_sel->addOptionGroup("Sailors", $choices);
       $f_sel->addOptionGroup("Coaches", $coaches);
     }
 
     // Submit
-    $form->addChild(new FSubmit("match_sailors", "Update database"));
+    $form->add(new FSubmit("match_sailors", "Update database"));
   }
 
   /**

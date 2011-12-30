@@ -38,28 +38,28 @@ class TScoreDialog extends WebPage {
 
     // Menu
     $this->menu = new Div();
-    $this->menu->addAttr("id", "menudiv");
+    $this->menu->set("id", "menudiv");
     $this->addBody($this->menu);
     $this->addBody(new GenericElement("hr", array(), array("class"=>"hidden")));
     $this->addBody($this->header = new Div());
 
     // Header
-    $this->header->addAttr("id", "headdiv");
+    $this->header->set("id", "headdiv");
     $this->fillPageHeader();
 
     // Bottom grab/spacer
     $this->addBody($div = new Div());
-    $div->addAttr("id", "bottom-grab");
-    $div->addChild(new XText());
+    $div->set("id", "bottom-grab");
+    $div->add(new XText());
 
     // Announcement
     $this->addBody($this->announce = new Div());
-    $this->announce->addAttr("id", "announcediv");
-    $this->announce->addChild(new XText());
+    $this->announce->set("id", "announcediv");
+    $this->announce->add(new XText());
 
     // Content
     $this->addBody($this->content = new Div());
-    $this->content->addAttr("id", "bodydiv");
+    $this->content->set("id", "bodydiv");
   }
 
   /**
@@ -67,18 +67,18 @@ class TScoreDialog extends WebPage {
    *
    */
   private function fillHead($title) {
-    $this->head->addChild(new GenericElement("title",
+    $this->head->add(new GenericElement("title",
 					     array(new XText($title))));
 
     // CSS Stylesheets
-    $this->head->addChild(new GenericElement("link",
+    $this->head->add(new GenericElement("link",
 					     array(),
 					     array("rel"=>"stylesheet",
 						   "type"=>"text/css",
 						   "title"=>"Modern Tech",
 						   "media"=>"screen",
 						   "href"=>"/inc/css/modern-dialog.css")));
-    $this->head->addChild(new GenericElement("link",
+    $this->head->add(new GenericElement("link",
 					     array(),
 					     array("rel"=>"stylesheet",
 						   "type"=>"text/css",
@@ -89,7 +89,7 @@ class TScoreDialog extends WebPage {
 		   "jquery.tablehover.min.js",
 		   "jquery.columnmanager.min.js",
 		   "refresher.js") as $scr) {
-      $this->head->addChild(new GenericElement("script",
+      $this->head->add(new GenericElement("script",
 					       array(new XText("")),
 					       array("type"=>"text/javascript",
 						     "src"=>"/inc/js/" . $scr)));
@@ -101,15 +101,15 @@ class TScoreDialog extends WebPage {
    *
    */
   private function fillPageHeader() {
-    $this->header->addChild($div = new Div());
-    $div->addAttr("id", "header");
-    $div->addChild($g = new GenericElement("h1"));
-    $g->addChild(new XImg("/img/techscore-small.png", "TechScore", array("id"=>"headimg")));
-    $div->addChild(new XH4(date("D M j, Y"), array("id"=>"date")));
+    $this->header->add($div = new Div());
+    $div->set("id", "header");
+    $div->add($g = new GenericElement("h1"));
+    $g->add(new XImg("/img/techscore-small.png", "TechScore", array("id"=>"headimg")));
+    $div->add(new XH4(date("D M j, Y"), array("id"=>"date")));
     
-    $this->header->addChild($this->navigation = new Div());
-    $this->navigation->addAttr("id", "topnav");
-    $this->navigation->addChild(new XA("../help", "Help?",
+    $this->header->add($this->navigation = new Div());
+    $this->navigation->set("id", "topnav");
+    $this->navigation->add(new XA("../help", "Help?",
 					 array("id"=>"help","target"=>"_blank")));
   }
 
@@ -120,7 +120,7 @@ class TScoreDialog extends WebPage {
    * page
    */
   public function addContent(HTMLElement $elem) {
-    $this->content->addChild($elem);
+    $this->content->add($elem);
   }
 
   /**
@@ -129,7 +129,7 @@ class TScoreDialog extends WebPage {
    * @param HTMLElement $elem to add to the menu of this page
    */
   public function addMenu(HTMLElement $elem) {
-    $this->menu->addChild($elem);
+    $this->menu->add($elem);
   }
 
   /**
@@ -138,7 +138,7 @@ class TScoreDialog extends WebPage {
    * @param HTMLElement $elem to add to the page header
    */
   public function addHeader(HTMLElement $elem) {
-    $this->header->addChild($elem);
+    $this->header->add($elem);
   }
 
   /**
@@ -147,7 +147,7 @@ class TScoreDialog extends WebPage {
    * @param HTMLElement $elem to add to navigation
    */
   public function addNavigation(HTMLElement $elem) {
-    $this->navigation->addChild($elem);
+    $this->navigation->add($elem);
   }
 
   /**
@@ -156,7 +156,7 @@ class TScoreDialog extends WebPage {
    * @param Announce $elem the announcement to add
    */
   public function addAnnouncement(Announcement $elem) {
-    $this->announce->addChild($elem);
+    $this->announce->add($elem);
   }
 
   /**
@@ -165,9 +165,9 @@ class TScoreDialog extends WebPage {
    */
   public function toXML($ind = 0) {
     // Footer
-    $this->content->addChild($footer = new Div());
-    $footer->addAttr("id", "footdiv");
-    $footer->addChild(new Para(sprintf("TechScore v%s © Dayán Páez 2008-%s", VERSION, date('y'))));
+    $this->content->add($footer = new Div());
+    $footer->set("id", "footdiv");
+    $footer->add(new Para(sprintf("TechScore v%s © Dayán Páez 2008-%s", VERSION, date('y'))));
 
     return parent::toXML();
   }

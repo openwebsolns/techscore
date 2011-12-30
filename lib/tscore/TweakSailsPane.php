@@ -52,20 +52,20 @@ class TweakSailsPane extends AbstractPane {
       // 1. Select edit type
       // ------------------------------------------------------------
       $this->PAGE->addContent($p = new Port("Edit sail numbers"));
-      $p->addChild(new XHeading("1. Choose action and division"));
-      $p->addChild($form = $this->createForm());
+      $p->add(new XHeading("1. Choose action and division"));
+      $p->add($form = $this->createForm());
 
       // Action
-      $form->addChild(new FItem("Action:",
+      $form->add(new FItem("Action:",
 				$f_sel = new FSelect("edittype", array($edittype))));
       $f_sel->addOptions($this->ACTIONS);
 
-      $form->addChild(new FItem("Division(s):",
+      $form->add(new FItem("Division(s):",
 				$f_sel = new FSelect("division[]",
 						     $chosen_div,
 						     array("multiple"=>"multiple"))));
       $f_sel->addOptions(array_combine($exist_div, $exist_div));
-      $form->addChild(new FSubmit("choose_act", "Next >>"));
+      $form->add(new FSubmit("choose_act", "Next >>"));
     }
     else {
 
@@ -80,27 +80,27 @@ class TweakSailsPane extends AbstractPane {
       $this->PAGE->addContent($p = new Port(sprintf("2. %s for Division %s",
 					      $this->ACTIONS[$edittype],
 					      implode(", ", $chosen_div))));
-      $p->addChild($form = $this->createForm());
+      $p->add($form = $this->createForm());
 
       // Write in this form the options from above
       foreach ($chosen_div as $div) {
-	$form->addChild(new FHidden("division[]", $div));
+	$form->add(new FHidden("division[]", $div));
       }
 
-      $form->addChild($f_item = new FItem("Races:",
+      $form->add($f_item = new FItem("Races:",
 					  new FText("races", Utilities::makeRange($range_races),
 						    array("size"=>"12"))));
-      $f_item->addChild($tab = new Table());
-      $tab->addAttr("class", "narrow");
+      $f_item->add($tab = new Table());
+      $tab->set("class", "narrow");
       $tab->addHeader(new Row(array(Cell::th("Possible"))));
       $tab->addRow(new Row(array(new Cell(Utilities::makeRange($range_races)))));
 
       if ( $edittype === "ADD" ) {
-	$form->addChild(new FItem("Add/subtract:",
+	$form->add(new FItem("Add/subtract:",
 				  $f = new FText("addamount", "", array("size"=>"3"))));
-	$f->addAttr("maxlength", "3");
-	$form->addChild(new FSubmit("cancel", "<< Cancel"));
-	$form->addChild(new FSubmit("addsails", "Edit sails"));
+	$f->set("maxlength", "3");
+	$form->add(new FSubmit("cancel", "<< Cancel"));
+	$form->add(new FSubmit("addsails", "Edit sails"));
       }
       elseif ( $edittype == "REP" ) {
 	// Get sails in chosen races
@@ -111,15 +111,15 @@ class TweakSailsPane extends AbstractPane {
 	$sails = $rotation->getCommonSails($races);
 
 	$sails = array_combine($sails, $sails);
-	$form->addChild($f_item = new FItem("Replace sail:",
+	$form->add($f_item = new FItem("Replace sail:",
 					    $f_sel = new FSelect("from_sail",
 								 array())));
 	$f_sel->addOptions($sails);
-	$f_item->addChild(new FSpan("with"));
-	$f_item->addChild(new FText("to_sail", "",
+	$f_item->add(new FSpan("with"));
+	$f_item->add(new FText("to_sail", "",
 				    array("size"=>"3")));
-	$form->addChild(new FSubmit("cancel", "<< Cancel"));
-	$form->addChild(new FSubmit("replacesails", "Replace"));
+	$form->add(new FSubmit("cancel", "<< Cancel"));
+	$form->add(new FSubmit("replacesails", "Replace"));
       }
 
     }

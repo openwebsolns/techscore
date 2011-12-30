@@ -24,9 +24,9 @@ class UnregisteredSailorPane extends AbstractPane {
 
   protected function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new Port("Add sailor to temporary list"));
-    $p->addChild(new Para("Enter unregistered sailors using the table below, up to five at a time."));
+    $p->add(new Para("Enter unregistered sailors using the table below, up to five at a time."));
 
-    $p->addChild($form = $this->createForm());
+    $p->add($form = $this->createForm());
 
     // Create set of schools
     $schools = array();
@@ -34,7 +34,7 @@ class UnregisteredSailorPane extends AbstractPane {
       $schools[$team->school->id] = $team->school->nick_name;
     asort($schools);
 
-    $form->addChild($tab = new Table(array(), array('class'=>'short ')));
+    $form->add($tab = new Table(array(), array('class'=>'short ')));
     $tab->addHeader(new Row(array(Cell::th("School"),
 				  Cell::th("First name"),
 				  Cell::th("Last name"),
@@ -51,17 +51,17 @@ class UnregisteredSailorPane extends AbstractPane {
 				 new Cell(new FText('year[]', "", array('maxlength'=>4, 'size'=>4, 'style'=>'max-width:5em;width:5em;min-width:5em'))),
 				 new Cell($gender))));
     }
-    $form->addChild(new FSubmit("addtemp", "Add sailors"));
+    $form->add(new FSubmit("addtemp", "Add sailors"));
 
     $this->PAGE->addContent($p = new Port("Review current regatta list"));
-    $p->addChild(new Para("Below is a list of all the temporary sailors added in this regatta. You are given the option to delete any sailor that is not currently present in any of the RP forms for this regatta. If you made a mistake about a sailor's identity, remove that sailor and add a new one instead."));
+    $p->add(new Para("Below is a list of all the temporary sailors added in this regatta. You are given the option to delete any sailor that is not currently present in any of the RP forms for this regatta. If you made a mistake about a sailor's identity, remove that sailor and add a new one instead."));
     $rp = $this->REGATTA->getRpManager();
     $temp = $rp->getAddedSailors();
     if (count($temp) == 0) {
-      $p->addChild(new Para("There are no temporary sailors added yet.", array('class'=>'message')));
+      $p->add(new Para("There are no temporary sailors added yet.", array('class'=>'message')));
     }
     else {
-      $p->addChild($tab = new Table());
+      $p->add($tab = new Table());
       $tab->addHeader(new Row(array(Cell::th("School"),
 				    Cell::th("First name"),
 				    Cell::th("Last name"),
@@ -79,9 +79,9 @@ class UnregisteredSailorPane extends AbstractPane {
 	// is this sailor currently in the RP forms? Otherwise, offer
 	// to delete him/her
 	if (!$rp->isParticipating($t)) {
-	  $d->addChild($form = $this->createForm());
-	  $form->addChild(new FHidden('sailor', $t->id));
-	  $form->addChild(new FSubmit('remove-temp', "Remove"));
+	  $d->add($form = $this->createForm());
+	  $form->add(new FHidden('sailor', $t->id));
+	  $form->add(new FSubmit('remove-temp', "Remove"));
 	}
       }
     }

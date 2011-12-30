@@ -35,45 +35,45 @@ class SendMessage extends AbstractAdminUserPane {
     }
 
     $this->PAGE->addContent($p = new Port("1. Choose recipients"));
-    $p->addChild(new Para("You may send a message to as many individuals as you'd like at a time. First, select the recipients using this port. Once you have added all recipients, use the form below to send the message."));
+    $p->add(new Para("You may send a message to as many individuals as you'd like at a time. First, select the recipients using this port. Once you have added all recipients, use the form below to send the message."));
 
-    $p->addChild($f = new Form("/send-message-edit"));
-    $f->addChild($fi = new FItem(sprintf("All %s users:", NAME), new FHidden('all-recipients', 1)));
-    $fi->addChild(new FSubmit('choose-recipients', "Write message >"));
-    $fi->addChild(new FSpan("Broadcast general message to all users. Use sparingly.", array('class'=>'message')));
+    $p->add($f = new Form("/send-message-edit"));
+    $f->add($fi = new FItem(sprintf("All %s users:", NAME), new FHidden('all-recipients', 1)));
+    $fi->add(new FSubmit('choose-recipients', "Write message >"));
+    $fi->add(new FSpan("Broadcast general message to all users. Use sparingly.", array('class'=>'message')));
 
     // conference
-    $p->addChild($f = new Form("/send-message-edit"));
-    $f->addChild($fi = new FItem("All users in conference:", $sel = new FSelect('conferences[]')));
-    $fi->addChild(new XText(" "));
-    $fi->addChild(new FSubmit('choose-recipients', "Write message >"));
+    $p->add($f = new Form("/send-message-edit"));
+    $f->add($fi = new FItem("All users in conference:", $sel = new FSelect('conferences[]')));
+    $fi->add(new XText(" "));
+    $fi->add(new FSubmit('choose-recipients', "Write message >"));
     $opts = array();
     foreach (Preferences::getConferences() as $conf)
       $opts[$conf->id] = $conf;
     $sel->addOptions($opts);
-    $sel->addAttr('multiple', 'multiple');
-    $sel->addAttr('size', 7);
+    $sel->set('multiple', 'multiple');
+    $sel->set('size', 7);
 
     // roles
-    $p->addChild($f = new Form("/send-message-edit"));
-    $f->addChild($fi = new FItem("All users with role:", $sel = new FSelect('roles[]')));
-    $fi->addChild(new XText(" "));
-    $fi->addChild(new FSubmit('choose-recipients', "Write message >"));
+    $p->add($f = new Form("/send-message-edit"));
+    $f->add($fi = new FItem("All users with role:", $sel = new FSelect('roles[]')));
+    $fi->add(new XText(" "));
+    $fi->add(new FSubmit('choose-recipients', "Write message >"));
     $sel->addOptions(AccountManager::getRoles());
-    $sel->addAttr('multiple', 'multiple');
-    $sel->addAttr('size', 3);
+    $sel->set('multiple', 'multiple');
+    $sel->set('size', 3);
   }
 
   private function fillMessage(Array $args) {
     $this->PAGE->addContent($p = new Port("Instructions"));
-    $p->addChild($f = new Form('/send-message-edit'));
-    $f->addChild(new FSubmit('reset-recipients', "<< Restart"));
-    $p->addChild(new Para("When filling out the form, you may use the keywords in the table below to customize each message."));
-    $p->addChild($tab = new Table());
+    $p->add($f = new Form('/send-message-edit'));
+    $f->add(new FSubmit('reset-recipients', "<< Restart"));
+    $p->add(new Para("When filling out the form, you may use the keywords in the table below to customize each message."));
+    $p->add($tab = new Table());
     $tab->addHeader(new Row(array(Cell::th("Keyword"), Cell::th("Description"), Cell::th("Example"))));
     $tab->addRow(new Row(array(new Cell("{FULL_NAME}"), new Cell("Full name of user"), new Cell($this->USER->getName()))));
     $tab->addRow(new Row(array(new Cell("{SCHOOL}"), new Cell("User's ICSA school"), new Cell($this->USER->get(User::SCHOOL)))));
-    $tab->addAttr('style', 'margin:0 auto 2em;');
+    $tab->set('style', 'margin:0 auto 2em;');
     
     $title = "";
     $recip = "";
@@ -97,16 +97,16 @@ class SendMessage extends AbstractAdminUserPane {
     }
 
     $this->PAGE->addContent($p = new Port($title));
-    $p->addChild($f = new Form('/send-message-edit'));
+    $p->add($f = new Form('/send-message-edit'));
     
-    $f->addChild(new FItem("Recipients:", new FSpan($recip, array('class'=>'strong'))));
-    $f->addChild($fi = new FItem("Subject:", new FText('subject', "")));
-    $fi->addChild(new FSpan("Less than 100 characters", array('class'=>'message')));
+    $f->add(new FItem("Recipients:", new FSpan($recip, array('class'=>'strong'))));
+    $f->add($fi = new FItem("Subject:", new FText('subject', "")));
+    $fi->add(new FSpan("Less than 100 characters", array('class'=>'message')));
 
-    $f->addChild(new FItem("Message body:", new FTextarea('content', "", array('rows'=>16, 'cols'=>75))));
-    $f->addChild($fi = new FItem("Copy me:", new FCheckbox('copy-me', 1)));
-    $fi->addChild(new FSpan("Send me a copy of message, whether or not I would otherwise receive one.", array('class'=>'message')));
-    $f->addChild(new FSubmit('send-message', "Send message now"));
+    $f->add(new FItem("Message body:", new FTextarea('content', "", array('rows'=>16, 'cols'=>75))));
+    $f->add($fi = new FItem("Copy me:", new FCheckbox('copy-me', 1)));
+    $fi->add(new FSpan("Send me a copy of message, whether or not I would otherwise receive one.", array('class'=>'message')));
+    $f->add(new FSubmit('send-message', "Send message now"));
   }
 
   public function process(Array $args) {

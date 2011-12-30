@@ -134,15 +134,15 @@ class CompareHeadToHead extends AbstractUserPane {
     // push the sailor back
     array_unshift($sailors, $first_sailor);
     $this->PAGE->addContent($p = new Port("Compare sailors head-to-head"));
-    $p->addChild($tab = new Table());
+    $p->add($tab = new Table());
     $tab->addHeader($row = new Row(array(Cell::th("Regatta"), Cell::th("Season"))));
     foreach ($sailors as $sailor)
-      $row->addChild(Cell::th($sailor));
+      $row->add(Cell::th($sailor));
     foreach ($table as $rid => $divs) {
       foreach ($divs as $list) {
 	$tab->addRow($row = new Row(array(new Cell($regattas[$rid]->name), new Cell($regattas[$rid]->season))));
 	foreach ($sailors as $sailor)
-	  $row->addChild(new Cell($list[$sailor->id]));
+	  $row->add(new Cell($list[$sailor->id]));
       }
     }
     return true;
@@ -168,33 +168,33 @@ class CompareHeadToHead extends AbstractUserPane {
     $this->PAGE->addContent($form = new Form('/compare-sailors', "get"));
 
     // Season selection
-    $form->addChild($p = new Port("Seasons to compare"));
-    $p->addChild(new Para("Choose at least one season to compare from the list below, then choose the sailors in the next panel."));
-    $p->addChild($ul = new Itemize());
-    $ul->addAttr('style', 'list-style-type:none');
+    $form->add($p = new Port("Seasons to compare"));
+    $p->add(new Para("Choose at least one season to compare from the list below, then choose the sailors in the next panel."));
+    $p->add($ul = new Itemize());
+    $ul->set('style', 'list-style-type:none');
 
     $now = new Season(new DateTime());
     $then = null;
     if ($now->getSeason() == Season::SPRING)
       $then = Season::parse(sprintf('f%0d', ($now->getTime()->format('Y') - 1)));
     foreach (Preferences::getActiveSeasons() as $season) {
-      $ul->addChild($li = new LItem());
-      $li->addChild($chk = new FCheckbox('seasons[]', $season, array('id' => $season)));
-      $li->addChild(new Label($season, $season->fullString()));
+      $ul->add($li = new LItem());
+      $li->add($chk = new FCheckbox('seasons[]', $season, array('id' => $season)));
+      $li->add(new Label($season, $season->fullString()));
 
       if ((string)$season == (string)$now || (string)$season == (string)$then)
-	$chk->addAttr('checked', 'checked');
+	$chk->set('checked', 'checked');
     }
 
     // Sailor search
-    $form->addChild($p = new Port("New sailors"));
-    $p->addChild(new GenericElement('noscript', array(new Para("Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding."))));
-    $p->addChild(new FItem('Name:', $search = new FText('name-search', "")));
-    $search->addAttr('id', 'name-search');
-    $p->addChild($ul = new Itemize());
-    $ul->addAttr('id', 'aa-input');
+    $form->add($p = new Port("New sailors"));
+    $p->add(new GenericElement('noscript', array(new Para("Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding."))));
+    $p->add(new FItem('Name:', $search = new FText('name-search', "")));
+    $search->set('id', 'name-search');
+    $p->add($ul = new Itemize());
+    $ul->set('id', 'aa-input');
     $ul->addItems(new LItem("No sailors.", array('class' => 'message')));
-    $form->addChild(new FSubmit('set-sailors', "Compare sailors"));
+    $form->add(new FSubmit('set-sailors', "Compare sailors"));
   }
 
   public function process(Array $args) {

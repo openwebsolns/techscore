@@ -91,9 +91,9 @@ abstract class AbstractPane {
     $id = $this->REGATTA->id();
     foreach ($score_i as $title => $panes) {
       $menu = new Div();
-      $menu->addAttr("class", "menu");
-      $menu->addChild(new XH4($title));
-      $menu->addChild($m_list = new GenericList());
+      $menu->set("class", "menu");
+      $menu->add(new XH4($title));
+      $menu->add($m_list = new GenericList());
       foreach ($panes as $url => $pane) {
 	$t = $this->doTitle($pane);
 	if ($this->doActive($pane))
@@ -109,18 +109,18 @@ abstract class AbstractPane {
 
     // Downloads
     $menu = new Div();
-    $menu->addAttr("class", "menu");
-    $menu->addChild(new XH4("Download"));
-    $menu->addChild($m_list = new GenericList());
+    $menu->set("class", "menu");
+    $menu->add(new XH4("Download"));
+    $menu->add($m_list = new GenericList());
     $m_list->addItems(new LItem(new XA("/download/$id/regatta", "Regatta")));
     $m_list->addItems(new LItem(new XA("/download/$id/rp", "RP Forms")));
     $this->PAGE->addMenu($menu);
 
     // Dialogs
     $menu = new Div();
-    $menu->addAttr("class", "menu");
-    $menu->addChild(new XH4("Windows"));
-    $menu->addChild($m_list = new GenericList());
+    $menu->set("class", "menu");
+    $menu->add(new XH4("Windows"));
+    $menu->add($m_list = new GenericList());
     foreach ($dial_i as $url => $title) {
       if ($this->doActive($url)) {
 	$link = new XA("/view/$id/$url", $title);

@@ -30,34 +30,34 @@ class EditLogoPane extends AbstractUserPane {
    */
   public function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new Port("School logo"));
-    $p->addChild(new Para("Use this function to upload a new logo to use " .
+    $p->add(new Para("Use this function to upload a new logo to use " .
 			  "with your school. This logo will replace all " .
 			  "uses of the logo throughout TechScore."));
 
-    $p->addChild(new Para("Most picture formats are allowed, but files can " .
+    $p->add(new Para("Most picture formats are allowed, but files can " .
 			  "be no larger than 200 KB in size. For best results " .
 			  "use an image with a transparent background, by " .
 			  "either using a PNG or GIF file format."));
 
-    $p->addChild($para = new Para("Please allow up to 8 hours after uploading for the new logo to appear on the public site."));
+    $p->add($para = new Para("Please allow up to 8 hours after uploading for the new logo to appear on the public site."));
     // Current logo
     if ($this->SCHOOL->burgee) {
       $url = sprintf("/img/schools/%s.png", $this->SCHOOL->id);
       $url = sprintf('data:image/png;base64,%s', $this->SCHOOL->burgee->filedata);
-      $para->addChild(new XText(sprintf("The current logo for %s is shown below. If you do not see an image below, you may need to upgrade your browser.", $this->SCHOOL->name)));
-      $p->addChild($para = new Para("", array('style'=>'text-align:center')));
-      $para->addChild(new XImg($url, $this->SCHOOL->nick_name));
+      $para->add(new XText(sprintf("The current logo for %s is shown below. If you do not see an image below, you may need to upgrade your browser.", $this->SCHOOL->name)));
+      $p->add($para = new Para("", array('style'=>'text-align:center')));
+      $para->add(new XImg($url, $this->SCHOOL->nick_name));
     }
     else {
-      $para->addChild(new XText("There is currently no logo for this school on file."));
+      $para->add(new XText("There is currently no logo for this school on file."));
     }
 
     // Form
-    $p->addChild($form = new Form(sprintf("/pedit/%s/logo", $this->SCHOOL->id), "post",
+    $p->add($form = new Form(sprintf("/pedit/%s/logo", $this->SCHOOL->id), "post",
 				  array("enctype"=>"multipart/form-data")));
-    $form->addChild(new FHidden("MAX_FILE_SIZE","200000"));
-    $form->addChild(new FItem("Picture:", new FFile("logo_file")));
-    $form->addChild(new FSubmit("upload", "Upload"));
+    $form->add(new FHidden("MAX_FILE_SIZE","200000"));
+    $form->add(new FItem("Picture:", new FFile("logo_file")));
+    $form->add(new FSubmit("upload", "Upload"));
   }
 
   /**

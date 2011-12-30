@@ -35,11 +35,11 @@ class DropPenaltyPane extends AbstractPane {
     $this->PAGE->addContent($p = new Portlet("Penalties"));
     
     if (count($penalties) == 0) {
-      $p->addChild(new Para("There are currently no penalties."));
+      $p->add(new Para("There are currently no penalties."));
     }
     else {
-      $p->addChild($tab = new Table());
-      $tab->addAttr("class", "narrow");
+      $p->add($tab = new Table());
+      $tab->set("class", "narrow");
 
       $tab->addHeader(new Row(array(Cell::th("Race"),
 				    Cell::th("Team"),
@@ -53,8 +53,8 @@ class DropPenaltyPane extends AbstractPane {
 				   new Cell($finish->penalty->type),
 				   new Cell($form = $this->createForm()))));
 
-	$form->addChild(new FHidden("r_finish", $finish->id));
-	$form->addChild($sub = new FSubmit("p_remove", "Drop/Reinstate",
+	$form->add(new FHidden("r_finish", $finish->id));
+	$form->add($sub = new FSubmit("p_remove", "Drop/Reinstate",
 					   array("class"=>"thin")));
       }
     }
@@ -65,11 +65,11 @@ class DropPenaltyPane extends AbstractPane {
     $this->PAGE->addContent($p = new Portlet("Breakdowns"));
     
     if (count($handicaps) == 0) {
-      $p->addChild(new Para("There are currently no breakdowns."));
+      $p->add(new Para("There are currently no breakdowns."));
     }
     else {
-      $p->addChild($tab = new Table());
-      $tab->addAttr("class", "narrow");
+      $p->add($tab = new Table());
+      $tab->set("class", "narrow");
 
       $tab->addHeader(new Row(array(Cell::th("Race"),
 				    Cell::th("Team"),
@@ -83,8 +83,8 @@ class DropPenaltyPane extends AbstractPane {
 				   new Cell($finish->penalty->type),
 				   new Cell($form = $this->createForm()))));
 
-	$form->addChild(new FHidden("r_finish", $finish->id));
-	$form->addChild($sub = new FSubmit("p_remove", "Drop/Reinstate",
+	$form->add(new FHidden("r_finish", $finish->id));
+	$form->add($sub = new FSubmit("p_remove", "Drop/Reinstate",
 					   array("class"=>"thin")));
       }
     }
