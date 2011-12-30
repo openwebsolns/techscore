@@ -48,7 +48,7 @@ class AllAmerican extends AbstractUserPane {
     // ------------------------------------------------------------
     if ($_SESSION['aa']['report-participation'] === null) {
       $this->PAGE->addContent($p = new Port("Choose report"));
-      $p->add($form = new Form('/aa-edit'));
+      $p->add($form = new XForm('/aa-edit'));
       $form->add(new FItem("Participation:", $sel = new FSelect('participation', array())));
       $sel->addOptions(array(Regatta::PARTICIPANT_COED => "Coed",
 			     Regatta::PARTICIPANT_WOMEN => "Women"));
@@ -87,7 +87,7 @@ class AllAmerican extends AbstractUserPane {
       $form->add(new FSubmit('set-report', "Choose regattas >>"));
 
       $this->PAGE->addContent($p = new Port("Special crew report"));
-      $p->add($form = new Form('/aa-edit'));
+      $p->add($form = new XForm('/aa-edit'));
       $form->add(new Para("To choose crews from ALL regattas regardless of participation, click the button below."));
 
       $form->add(new FItem("Year:", $sel = new FSelect('year', array())));
@@ -114,7 +114,7 @@ class AllAmerican extends AbstractUserPane {
     if ($_SESSION['aa']['regattas-set'] === false) {
       // Add button to go back
       $this->PAGE->addContent($p = new Port("Progress"));
-      $p->add($form = new Form('/aa-edit'));
+      $p->add($form = new XForm('/aa-edit'));
       $form->add(new FSubmit('unset-regattas', "<< Start over"));
 
       // Reset lists
@@ -138,7 +138,7 @@ class AllAmerican extends AbstractUserPane {
 	return;
       }
 
-      $p2->add($form = new Form("/aa-edit"));
+      $p2->add($form = new XForm("/aa-edit"));
       $tab = new Table();
       $tab->set('id', 'regtable');
 
@@ -221,7 +221,7 @@ class AllAmerican extends AbstractUserPane {
     if ($_SESSION['aa']['params-set'] === false) {
       // Add button to go back
       $this->PAGE->addContent($p = new Port("Progress"));
-      $p->add($form = new Form('/aa-edit'));
+      $p->add($form = new XForm('/aa-edit'));
       $form->add(new FSubmit('unset-regattas', "<< Start over"));
       
       $regattas = $_SESSION['aa']['regattas'];
@@ -238,7 +238,7 @@ class AllAmerican extends AbstractUserPane {
       // Form to fetch and add sailors
       $this->PAGE->addHead(new GenericElement('script', array(new XText("")), array('src'=>'/inc/js/aa.js')));
       $this->PAGE->addContent($p = new Port("New sailors"));
-      $p->add($form = new Form('/aa-edit'));
+      $p->add($form = new XForm('/aa-edit'));
       $form->add(new GenericElement('noscript', array(new Para("Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding."))));
       $form->add(new FItem('Name:', $search = new FText('name-search', "")));
       $search->set('id', 'name-search');
@@ -256,11 +256,11 @@ class AllAmerican extends AbstractUserPane {
     // 3. Step three: Generate and review
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new Port("Report"));
-    $p->add($form = new Form('/aa-edit'));
+    $p->add($form = new XForm('/aa-edit'));
     $form->add(new Para("Please click only once:"));
     $form->add(new FSubmit('gen-report', "Download as CSV"));
 
-    $p->add($form = new Form('/aa-edit'));
+    $p->add($form = new XForm('/aa-edit'));
     $form->add(new FSubmit('unset-sailors', "<< Go back"));
     
     $this->PAGE->addContent($table = new Table());

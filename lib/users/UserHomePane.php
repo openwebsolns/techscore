@@ -86,7 +86,7 @@ class UserHomePane extends AbstractUserPane {
 
     // Add search form, if necessary
     if ($num_regattas > self::NUM_PER_PAGE * 3 || $qry !== null) {
-      $p->add($f = new Form('/', 'get'));
+      $p->add($f = new XForm('/', 'get'));
       $f->add($pa = new Para(""));
       $pa->set('id', 'search');
       $pa->set('title', "Enter part or all of the name");

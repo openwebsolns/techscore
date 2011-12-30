@@ -468,23 +468,6 @@ class LItem extends GenericElement
 }
 
 /**
- * Form element. Creates form element for web
- */
-class Form extends GenericElement
-{
-  // Use common provides standard prefixes
-  public function __construct($action,
-			      $method = "post",
-			      $attrs = array()) {
-    parent::__construct("form",
-			array(),
-			$attrs);
-    $this->set("action", $action);
-    $this->set("method", $method);
-  }
-}
-
-/**
  * Generic form input
  */
 class FGenericElement extends GenericElement

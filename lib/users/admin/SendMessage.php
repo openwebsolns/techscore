@@ -37,13 +37,13 @@ class SendMessage extends AbstractAdminUserPane {
     $this->PAGE->addContent($p = new Port("1. Choose recipients"));
     $p->add(new Para("You may send a message to as many individuals as you'd like at a time. First, select the recipients using this port. Once you have added all recipients, use the form below to send the message."));
 
-    $p->add($f = new Form("/send-message-edit"));
+    $p->add($f = new XForm("/send-message-edit"));
     $f->add($fi = new FItem(sprintf("All %s users:", NAME), new FHidden('all-recipients', 1)));
     $fi->add(new FSubmit('choose-recipients', "Write message >"));
     $fi->add(new FSpan("Broadcast general message to all users. Use sparingly.", array('class'=>'message')));
 
     // conference
-    $p->add($f = new Form("/send-message-edit"));
+    $p->add($f = new XForm("/send-message-edit"));
     $f->add($fi = new FItem("All users in conference:", $sel = new FSelect('conferences[]')));
     $fi->add(new XText(" "));
     $fi->add(new FSubmit('choose-recipients', "Write message >"));
@@ -55,7 +55,7 @@ class SendMessage extends AbstractAdminUserPane {
     $sel->set('size', 7);
 
     // roles
-    $p->add($f = new Form("/send-message-edit"));
+    $p->add($f = new XForm("/send-message-edit"));
     $f->add($fi = new FItem("All users with role:", $sel = new FSelect('roles[]')));
     $fi->add(new XText(" "));
     $fi->add(new FSubmit('choose-recipients', "Write message >"));
@@ -66,7 +66,7 @@ class SendMessage extends AbstractAdminUserPane {
 
   private function fillMessage(Array $args) {
     $this->PAGE->addContent($p = new Port("Instructions"));
-    $p->add($f = new Form('/send-message-edit'));
+    $p->add($f = new XForm('/send-message-edit'));
     $f->add(new FSubmit('reset-recipients', "<< Restart"));
     $p->add(new Para("When filling out the form, you may use the keywords in the table below to customize each message."));
     $p->add($tab = new Table());
@@ -97,7 +97,7 @@ class SendMessage extends AbstractAdminUserPane {
     }
 
     $this->PAGE->addContent($p = new Port($title));
-    $p->add($f = new Form('/send-message-edit'));
+    $p->add($f = new XForm('/send-message-edit'));
     
     $f->add(new FItem("Recipients:", new FSpan($recip, array('class'=>'strong'))));
     $f->add($fi = new FItem("Subject:", new FText('subject', "")));

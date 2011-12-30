@@ -29,7 +29,7 @@ class PasswordRecoveryPane extends WelcomePage {
       }
       $this->addContent(new PageTitle("Recover Password"));
       $this->addContent($p = new Port("Reset password"));
-      $p->add($f = new Form("/password-recover-edit"));
+      $p->add($f = new XForm("/password-recover-edit"));
       $f->add(new Para("Welcome $acc. Please enter the new password for your account."));
       $f->add(new FItem("New Password:", new FPassword('new-password', "")));
       $f->add(new FItem("Confirm Password:", new FPassword('confirm-password', "")));
@@ -56,7 +56,7 @@ class PasswordRecoveryPane extends WelcomePage {
     $this->addContent($p = new Port("Send e-mail"));
     $p->add(new Para("To reset the password, please enter your username below. You will receive an e-mail at the address provided with a link. Click that link to reset your password."));
     
-    $p->add($f = new Form("/password-recover-edit"));
+    $p->add($f = new XForm("/password-recover-edit"));
     $f->add(new FItem("Email:", new FText("email", "")));
     $f->add(new FSubmit("send-message", "Send message"));
   }

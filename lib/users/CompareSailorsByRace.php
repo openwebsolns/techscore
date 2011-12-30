@@ -189,7 +189,7 @@ class CompareSailorsByRace extends AbstractUserPane {
 						  'href'=>'/inc/css/aa.css',
 						  'rel'=>'stylesheet')));
     $this->PAGE->addHead(new GenericElement('script', array(new XText("")), array('src'=>'/inc/js/aa.js')));
-    $this->PAGE->addContent($form = new Form('/compare-by-race', "get"));
+    $this->PAGE->addContent($form = new XForm('/compare-by-race', "get"));
 
     // Season selection
     $form->add($p = new Port("Seasons to compare"));

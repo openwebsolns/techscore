@@ -165,7 +165,7 @@ class CompareHeadToHead extends AbstractUserPane {
 						  'rel'=>'stylesheet')));
     $this->PAGE->addHead(new GenericElement('script', array(new XText("")), array('src'=>'/inc/js/aa.js')));
     $this->PAGE->addContent(new Para("Use this form to compare sailors head-to-head, showing the regattas that the sailors have sailed in common, and printing their place finish for each."));
-    $this->PAGE->addContent($form = new Form('/compare-sailors', "get"));
+    $this->PAGE->addContent($form = new XForm('/compare-sailors', "get"));
 
     // Season selection
     $form->add($p = new Port("Seasons to compare"));

@@ -21,7 +21,7 @@ class AccountPane extends AbstractUserPane {
 
   protected function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new Port("My information"));
-    $p->add($form = new Form("/account-edit"));
+    $p->add($form = new XForm("/account-edit"));
     $form->add(new FItem("First name:", new FText("first_name", $this->USER->get(User::FIRST_NAME))));
     $form->add(new FItem("Last name:",  new FText("last_name",  $this->USER->get(User::LAST_NAME))));
     $form->add(new Para("To leave password as is, leave the two fields below blank:"));

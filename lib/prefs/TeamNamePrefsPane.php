@@ -52,7 +52,7 @@ class TeamNamePrefsPane extends AbstractUserPane {
 		    new LItem("<em>Mascot 2</em>"),
 		    new LItem("<em>Mascot 3</em>"));
 
-    $p->add($form = new Form(sprintf("/pedit/%s/team", $this->SCHOOL->id), "post"));
+    $p->add($form = new XForm(sprintf("/pedit/%s/team", $this->SCHOOL->id), "post"));
 
     // Fill form
     $form->add($tab = new Table());
