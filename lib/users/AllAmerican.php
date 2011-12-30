@@ -68,19 +68,16 @@ class AllAmerican extends AbstractUserPane {
       if ($now->getSeason() == Season::SPRING)
 	$then = Season::parse(sprintf('f%0d', ($now->getTime()->format('Y') - 1)));
       foreach (Preferences::getActiveSeasons() as $season) {
-	$ul->add($li = new LItem());
-	$li->add($chk = new FCheckbox('seasons[]', $season, array('id' => $season)));
-	$li->add(new Label($season, $season->fullString()));
-
+	$ul->add(new XLi(array($chk = new FCheckbox('seasons[]', $season, array('id' => $season)),
+			       new Label($season, $season->fullString()))));
 	if ((string)$season == (string)$now || (string)$season == (string)$then)
 	  $chk->set('checked', 'checked');
       }
 
       // Conferences
       foreach (Preferences::getConferences() as $conf) {
-	$ul2->add($li = new LItem());
-	$li->add($chk = new FCheckbox('confs[]', $conf, array('id' => $conf->id)));
-	$li->add(new Label($conf->id, $conf));
+	$ul2->add(new XLi(array($chk = new FCheckbox('confs[]', $conf, array('id' => $conf->id)),
+				new Label($conf->id, $conf))));
 	$chk->set('checked', 'checked');
       }
 
@@ -233,7 +230,7 @@ class AllAmerican extends AbstractUserPane {
       $p->add($item = new Itemize());
       $item->set('id', 'inc-sailors');
       foreach ($_SESSION['aa']['sailors'] as $sailor)
-	$item->addItems(new LItem($sailor));
+	$item->addItems(new XLi($sailor));
 
       // Form to fetch and add sailors
       $this->PAGE->addHead(new GenericElement('script', array(new XText("")), array('src'=>'/inc/js/aa.js')));
@@ -244,7 +241,7 @@ class AllAmerican extends AbstractUserPane {
       $search->set('id', 'name-search');
       $form->add($ul = new Itemize());
       $ul->set('id', 'aa-input');
-      $ul->addItems(new LItem("No sailors.", array('class' => 'message')));
+      $ul->addItems(new XLi("No sailors.", array('class' => 'message')));
       $form->add(new FSubmit('set-sailors', "Generate report >>"));
 
       return;

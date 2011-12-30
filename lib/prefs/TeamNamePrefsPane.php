@@ -47,10 +47,10 @@ class TeamNamePrefsPane extends AbstractUserPane {
 			  "will receive the following names when they are added to a regatta:"));
 
     $p->add($list = new Enumerate());
-    $list->addItems(new LItem("<em>Mascot</em>"),
-		    new LItem("<em>Other mascot</em>"),
-		    new LItem("<em>Mascot 2</em>"),
-		    new LItem("<em>Mascot 3</em>"));
+    $list->addItems(new XLi("<em>Mascot</em>"),
+		    new XLi("<em>Other mascot</em>"),
+		    new XLi("<em>Mascot 2</em>"),
+		    new XLi("<em>Mascot 3</em>"));
 
     $p->add($form = new XForm(sprintf("/pedit/%s/team", $this->SCHOOL->id), "post"));
 

@@ -179,7 +179,7 @@ class TScorePage extends WebPage {
     if ($user !== null) {
       $this->navigation->add($d3 = new Div(array(), array("id"=>"user")));
       $d3->add(new XA("/logout", "Logout", array('accesskey'=>'l')));
-      // $d3->add(new Itemize(array(new LItem($user->username()))));
+      // $d3->add(new Itemize(array(new XLi($user->username()))));
     }
     if ($reg !== null) {
       $div->add(new XH4($reg->get(Regatta::NAME), array("id"=>"regatta")));

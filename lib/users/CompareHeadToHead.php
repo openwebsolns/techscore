@@ -178,10 +178,8 @@ class CompareHeadToHead extends AbstractUserPane {
     if ($now->getSeason() == Season::SPRING)
       $then = Season::parse(sprintf('f%0d', ($now->getTime()->format('Y') - 1)));
     foreach (Preferences::getActiveSeasons() as $season) {
-      $ul->add($li = new LItem());
-      $li->add($chk = new FCheckbox('seasons[]', $season, array('id' => $season)));
-      $li->add(new Label($season, $season->fullString()));
-
+      $ul->add(new XLi(array($chk = new FCheckbox('seasons[]', $season, array('id' => $season)),
+			     new Label($season, $season->fullString()))));
       if ((string)$season == (string)$now || (string)$season == (string)$then)
 	$chk->set('checked', 'checked');
     }
@@ -193,7 +191,7 @@ class CompareHeadToHead extends AbstractUserPane {
     $search->set('id', 'name-search');
     $p->add($ul = new Itemize());
     $ul->set('id', 'aa-input');
-    $ul->addItems(new LItem("No sailors.", array('class' => 'message')));
+    $ul->addItems(new XLi("No sailors.", array('class' => 'message')));
     $form->add(new FSubmit('set-sailors', "Compare sailors"));
   }
 

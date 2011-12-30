@@ -41,10 +41,10 @@ class WelcomePage extends TScorePage {
     $menu->set("class", "menu");
     $menu->add(new XHeading("Useful Links"));
     $menu->add($l = new Itemize());
-    $l->add(new LItem(new XA(".", "Sign-in")));
-    $l->add(new LItem(new XA("register", "Register")));
-    $l->add(new LItem(new XA("http://www.collegesailing.org", "ICSA Website")));
-    $l->add(new LItem(new XA("http://techscore.sourceforge.net", "Offline TechScore")));
+    $l->add(new XLi(new XA(".", "Sign-in")));
+    $l->add(new XLi(new XA("register", "Register")));
+    $l->add(new XLi(new XA("http://www.collegesailing.org", "ICSA Website")));
+    $l->add(new XLi(new XA("http://techscore.sourceforge.net", "Offline TechScore")));
   }
 
   /**

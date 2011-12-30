@@ -76,7 +76,7 @@ class PrefsHomePane extends AbstractUserPane {
 	    $link = new XA(sprintf("/prefs/%s", $school->id), $school->nick_name);
 	  else
 	    $link = new XSpan($school->nick_name);
-	  $list->addItems(new LItem($link));
+	  $list->addItems(new XLi($link));
 	}
       }
     }

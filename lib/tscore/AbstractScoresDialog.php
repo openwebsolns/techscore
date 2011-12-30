@@ -26,10 +26,10 @@ abstract class AbstractScoresDialog extends AbstractDialog {
     $this->PAGE->addMenu($div = new Div());
     $div->set("class", "menu");
     $div->add($ul = new GenericList());
-    $ul->addItems(new LItem(new XA(sprintf("/view/%d/scores",     $this->REGATTA->id()), "All scores")));
-    $ul->addItems(new LItem(new XA(sprintf("/view/%d/div-scores", $this->REGATTA->id()), "Divisional")));
+    $ul->addItems(new XLi(new XA(sprintf("/view/%d/scores",     $this->REGATTA->id()), "All scores")));
+    $ul->addItems(new XLi(new XA(sprintf("/view/%d/div-scores", $this->REGATTA->id()), "Divisional")));
     foreach ($this->REGATTA->getDivisions() as $div)
-      $ul->addItems(new LItem(new XA(sprintf("/view/%d/scores/%s",$this->REGATTA->id(), $div),
+      $ul->addItems(new XLi(new XA(sprintf("/view/%d/scores/%s",$this->REGATTA->id(), $div),
 				       "$div Division")));
 
     // Add meta tag

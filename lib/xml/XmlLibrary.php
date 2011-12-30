@@ -400,7 +400,7 @@ class Portlet extends Port
 }
 
 /**
- * Generic List,  entries must be LItem's
+ * Generic List
  */
 class GenericList extends GenericElement
 {
@@ -414,8 +414,7 @@ class GenericList extends GenericElement
 
   public function addItems($li) {
     foreach (func_get_args() as $item) {
-      if (($item instanceof LItem))
-	$this->add($item);
+      $this->add($item);
     }
   }
 
@@ -445,25 +444,6 @@ class Enumerate extends GenericList
     parent::__construct("ol",
 			$items,
 			$attrs);
-  }
-}
-
-
-/**
- * List item (li)
- */
-class LItem extends GenericElement
-{
-  public function __construct($value = "",
-			      $attrs = array()) {
-    if (is_object($value))
-      parent::__construct("li",
-			  array($value),
-			  $attrs);
-    else
-      parent::__construct("li",
-			  array(new XText($value)),
-			  $attrs);
   }
 }
 
