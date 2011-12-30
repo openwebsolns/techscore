@@ -47,7 +47,7 @@ abstract class AbstractDialog {
 
     //   -Regatta info
     $this->PAGE->addNavigation($d3 = new Div(array(), array("id"=>"regatta")));
-    $d3->addChild(new Text(stripslashes($this->REGATTA->get(Regatta::NAME))));
+    $d3->addChild(new XText($this->REGATTA->get(Regatta::NAME)));
     $d3->addChild(new Itemize(array(new LItem(ucfirst($this->REGATTA->get(Regatta::TYPE))))));
   }
 

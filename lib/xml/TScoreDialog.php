@@ -49,12 +49,12 @@ class TScoreDialog extends WebPage {
     // Bottom grab/spacer
     $this->addBody($div = new Div());
     $div->addAttr("id", "bottom-grab");
-    $div->addChild(new Text());
+    $div->addChild(new XText());
 
     // Announcement
     $this->addBody($this->announce = new Div());
     $this->announce->addAttr("id", "announcediv");
-    $this->announce->addChild(new Text());
+    $this->announce->addChild(new XText());
 
     // Content
     $this->addBody($this->content = new Div());
@@ -67,7 +67,7 @@ class TScoreDialog extends WebPage {
    */
   private function fillHead($title) {
     $this->head->addChild(new GenericElement("title",
-					     array(new Text($title))));
+					     array(new XText($title))));
 
     // CSS Stylesheets
     $this->head->addChild(new GenericElement("link",
@@ -89,7 +89,7 @@ class TScoreDialog extends WebPage {
 		   "jquery.columnmanager.min.js",
 		   "refresher.js") as $scr) {
       $this->head->addChild(new GenericElement("script",
-					       array(new Text("")),
+					       array(new XText("")),
 					       array("type"=>"text/javascript",
 						     "src"=>"/inc/js/" . $scr)));
     }

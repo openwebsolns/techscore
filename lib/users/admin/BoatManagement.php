@@ -30,8 +30,8 @@ class BoatManagement extends AbstractAdminUserPane {
   public function fillHTML(Array $args) {
     $boat = $this->defaultBoat();
     $mess = "Add boat";
-    $hidd = new Text("");
-    $link = new Text("");
+    $hidd = new XText("");
+    $link = new XText("");
     // ------------------------------------------------------------
     // 0a. Editing boat?
     // ------------------------------------------------------------

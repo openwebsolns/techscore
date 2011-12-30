@@ -54,7 +54,7 @@ class EnterFinishPane extends AbstractPane {
     $rotation = $this->REGATTA->getRotation();
 
     $this->PAGE->addHead(new GenericElement("script",
-					    array(new Text()),
+					    array(new XText()),
 					    array("type"=>"text/javascript",
 						  "src"=>"/inc/js/finish.js")));
 
@@ -249,7 +249,7 @@ class EnterFinishPane extends AbstractPane {
     $rotation = $this->REGATTA->getRotation();
 
     $this->PAGE->addHead(new GenericElement("script",
-					    array(new Text()),
+					    array(new XText()),
 					    array("type"=>"text/javascript",
 						  "src"=>"/inc/js/finish.js")));
 

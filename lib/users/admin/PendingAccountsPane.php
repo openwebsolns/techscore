@@ -52,7 +52,7 @@ class PendingAccountsPane extends AbstractAdminUserPane {
       $p->addChild($f = new Form("/pending-edit"));
       $f->addChild($para = new Para("With selected: "));
       $para->addChild(new FSubmit("approve", "Approve"));
-      $para->addChild(new Text(" "));
+      $para->addChild(new XText(" "));
       $para->addChild(new FSubmit("reject",  "Reject"));
 
       $f->addChild($tab = new Table());

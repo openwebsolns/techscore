@@ -54,7 +54,7 @@ class PrefsHomePane extends AbstractUserPane {
       // Stylesheet fix
       $p->addChild($st = new GenericElement("style"));
       $st->addAttr("type", "text/css");
-      $st->addChild(new Text('table.conf td { text-align: left; vertical-align: top; }'));
+      $st->addChild(new XText('table.conf td { text-align: left; vertical-align: top; }'));
 
       $p->addChild(new Para("Choose a different school to edit from the list below."));
       $p->addChild($tab = new Table());
@@ -75,7 +75,7 @@ class PrefsHomePane extends AbstractUserPane {
 	  if ($school != $this->SCHOOL)
 	    $link = new Link(sprintf("/prefs/%s", $school->id), $school->nick_name);
 	  else
-	    $link = new Span(array(new Text($school->nick_name)));
+	    $link = new Span(array(new XText($school->nick_name)));
 	  $list->addItems(new LItem($link));
 	}
       }

@@ -240,7 +240,7 @@ class SailsPane extends AbstractPane {
       $form->addChild(new FHidden("rottype", $chosen_rot));
       // Divisions
       if (count($chosen_div) > 1) {
-	$this->PAGE->head->addChild(new GenericElement("script", array(new Text("")),
+	$this->PAGE->head->addChild(new GenericElement("script", array(new XText("")),
 					       array("type"=>"text/javascript",
 						     "src"=>"/inc/js/tablesort.js")));
 
@@ -341,7 +341,7 @@ class SailsPane extends AbstractPane {
       // FAQ's
       $this->PAGE->addContent($p = new Port("FAQ"));
       $fname = sprintf("%s/faq/sail.html", dirname(__FILE__));
-      $p->addChild(new Text(file_get_contents($fname)));
+      $p->addChild(new XRawText(file_get_contents($fname)));
     }
   }
 

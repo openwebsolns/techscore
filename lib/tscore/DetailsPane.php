@@ -81,7 +81,7 @@ class DetailsPane extends AbstractPane {
     unset($types['personal']);
     $f_sel->addOptionGroup("Public", $types);
     $f_sel->addOptionGroup("Not-published", array('personal' => "Personal"));
-    $item->addChild(new Span(array(new Text("Choose \"Personal\" to un-publish")),
+    $item->addChild(new Span(array(new XText("Choose \"Personal\" to un-publish")),
 			     array('class'=>'message')));
 
     // Regatta participation
@@ -91,7 +91,7 @@ class DetailsPane extends AbstractPane {
     $f_sel->addOptions(Preferences::getRegattaParticipantAssoc());
     // will changing this value affect the RP information?
     if ($value == Regatta::PARTICIPANT_COED) {
-      $item->addChild(new Span(array(new Text("Changing this value may affect RP info")),
+      $item->addChild(new Span(array(new XText("Changing this value may affect RP info")),
 			       array('class'=>'message')));
     }
 
@@ -131,7 +131,7 @@ class DetailsPane extends AbstractPane {
     $finalized = $this->REGATTA->get(Regatta::FINALIZED);
 
     // -------------------- Finalize regatta -------------------- //
-    $p2 = new Text("");
+    $p2 = new XText("");
     if ($finalized === null) {
       if ($this->REGATTA->hasFinishes()) {
 	$p2 = new Port("Finalize regatta");

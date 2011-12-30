@@ -90,18 +90,18 @@ class UserHomePane extends AbstractUserPane {
       $f->addChild($pa = new Para(""));
       $pa->addAttr('id', 'search');
       $pa->addAttr('title', "Enter part or all of the name");
-      $pa->addChild(new Text("Search your regattas: "));
+      $pa->addChild(new XText("Search your regattas: "));
       $pa->addChild(new FText('q', $qry, array('size'=>60)));
       $pa->addChild(new FSubmit('go', "Go"));
       if ($qry !== null) {
-	$pa->addChild(new Text(" "));
+	$pa->addChild(new XText(" "));
 	$pa->addChild(new Link('/', "Cancel"));
       }
       if ($mes !== null) {
 	$f->addChild($pa = new Para(""));
 	$pa->addAttr('class', 'warning');
 	$pa->addAttr('style', 'padding: 0.5em;');
-	$pa->addChild(new Text($mes));
+	$pa->addChild(new XText($mes));
       }
     }
 

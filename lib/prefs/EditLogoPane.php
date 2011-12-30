@@ -44,12 +44,12 @@ class EditLogoPane extends AbstractUserPane {
     if ($this->SCHOOL->burgee) {
       $url = sprintf("/img/schools/%s.png", $this->SCHOOL->id);
       $url = sprintf('data:image/png;base64,%s', $this->SCHOOL->burgee->filedata);
-      $para->addChild(new Text(sprintf("The current logo for %s is shown below. If you do not see an image below, you may need to upgrade your browser.", $this->SCHOOL->name)));
+      $para->addChild(new XText(sprintf("The current logo for %s is shown below. If you do not see an image below, you may need to upgrade your browser.", $this->SCHOOL->name)));
       $p->addChild($para = new Para("", array('style'=>'text-align:center')));
       $para->addChild(new Image($url, array("alt"=>$this->SCHOOL->nick_name)));
     }
     else {
-      $para->addChild(new Text("There is currently no logo for this school on file."));
+      $para->addChild(new XText("There is currently no logo for this school on file."));
     }
 
     // Form

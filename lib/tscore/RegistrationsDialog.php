@@ -59,7 +59,7 @@ class RegistrationsDialog extends AbstractDialog {
 						      "height"=>"30px")),
 				      array("class"=>array("vertical", "strong"))));
           */
-	  $c->addChild(new Text(sprintf("<br/>%s", $team)));
+	  $c->addChild(new XText(sprintf("<br/>%s", $team)));
 	}
 	else {
 	  $row->addCell(new Cell(""));

@@ -124,7 +124,7 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
 	  $p_cell->addChild(new Image("$PREFIX/img/error.png", array("alt" => "X")));
 	  $p_cell->addAttr("title", sprintf("%s (+20 points)", $pen->type));
 	}
-	$s_cell->addChild(new Text($scoreDiv));
+	$s_cell->addChild(new XText($scoreDiv));
 	$s_cell->addAttr("class", "total");
 	$scoreTeam += $scoreDiv;
       }

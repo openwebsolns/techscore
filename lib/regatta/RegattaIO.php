@@ -51,25 +51,25 @@ class RegattaIO {
     // Details
     //   -Name
     $root->addChild($tag = new GenericElement("RegattaName"));
-    $tag->addChild(new Text(htmlspecialchars($reg->get(Regatta::NAME))));
+    $tag->addChild(new XText($reg->get(Regatta::NAME)));
 
     //   -Start time
     $stime = $reg->get(Regatta::START_TIME);
     $root->addChild($tag = new GenericElement("StartTime"));
-    $tag->addChild(new Text($stime->format('F j, Y G:i:s A T')));
+    $tag->addChild(new XText($stime->format('F j, Y G:i:s A T')));
 
     //   -Duration
     $root->addChild($tag = new GenericElement("Duration"));
-    $tag->addChild(new Text($reg->get(Regatta::DURATION)));
+    $tag->addChild(new XText($reg->get(Regatta::DURATION)));
 
     //   -Regatta type
     $root->addChild($tag = new GenericElement("RegattaType"));
-    $tag->addChild(new Text($reg->get(Regatta::TYPE)));
+    $tag->addChild(new XText($reg->get(Regatta::TYPE)));
     $tag->addAttr("class", "ICSA");
 
     //   -Regatta scoring
     $root->addChild($tag = new GenericElement("Scoring"));
-    $tag->addChild(new Text($reg->get(Regatta::SCORING)));
+    $tag->addChild(new XText($reg->get(Regatta::SCORING)));
     $tag->addAttr("class", "ICSA");
 
     //   -Blurb
@@ -78,7 +78,7 @@ class RegattaIO {
       $day = new DateTime(sprintf("%s + %d days", $stime->format('Y-m-d'), $i));
       $tag->addChild($sub = new GenericElement("Comment"));
       $sub->addAttr("day", $i);
-      $sub->addChild(new Text(htmlspecialchars($reg->getSummary($day))));
+      $sub->addChild(new XText($reg->getSummary($day)));
     }
 
     //   -Venue
@@ -86,7 +86,7 @@ class RegattaIO {
     if ($cont !== null) {
       $root->addChild($tag = new GenericElement("Venue"));
       $tag->addAttr("id", $cont->id);
-      $tag->addChild(new Text($cont->name));
+      $tag->addChild(new XText($cont->name));
     }
 
     //   -Scorers
@@ -94,7 +94,7 @@ class RegattaIO {
     foreach ($reg->getScorers() as $user) {
       $tag->addChild($sub = new GenericElement("Scorer"));
       $sub->addAttr("id", htmlspecialchars($user->id));
-      $sub->addChild(new Text(htmlspecialchars($user)));
+      $sub->addChild(new XText($user));
     }
 
     //   -Finalized?
@@ -119,7 +119,7 @@ class RegattaIO {
 	$sub->addAttr("division", $div);
 	$sub->addAttr("races", Utilities::makeRange($set));
 	$sub->addAttr("occupants", $boat->occupants);
-	$sub->addChild(new Text($boat->name));
+	$sub->addChild(new XText($boat->name));
       }
     }
 
@@ -131,9 +131,9 @@ class RegattaIO {
       $subtag->addAttr("id", $team->id);
       $subtag->addAttr("affiliate", $team->school->id);
       $subtag->addChild($sub = new GenericElement("LongName"));
-      $sub->addChild(new Text(htmlspecialchars($team->school->nick_name)));
+      $sub->addChild(new XText($team->school->nick_name));
       $subtag->addChild($sub = new GenericElement("ShortName"));
-      $sub->addChild(new Text(htmlspecialchars($team->name)));
+      $sub->addChild(new XText($team->name));
     }
 
     // Rotations and Finishes:
@@ -162,7 +162,7 @@ class RegattaIO {
 	    $tag2->addChild($sub = new GenericElement("Finish"));
 	    $sub->addAttr("team", $team->id);
 	    $sub->addAttr("race", $race);
-	    $sub->addChild(new Text($finish->entered->format('G:i:s O')));
+	    $sub->addChild(new XText($finish->entered->format('G:i:s O')));
 
 	    // Penalty and breakdown
 	    if ($finish->penalty instanceof Penalty) {
@@ -170,7 +170,7 @@ class RegattaIO {
 	      $sub->addAttr("team", $team->id);
 	      $sub->addAttr("race", $race);
 	      $sub->addAttr("type", $finish->penalty->type);
-	      $sub->addChild(new Text(htmlspecialchars($finish->penalty->comments)));
+	      $sub->addChild(new XText($finish->penalty->comments));
 	    }
 	    elseif ($finish->penalty instanceof Breakdown) {
 	      $tagB->addChild($sub = new GenericElement("Breakdown"));
@@ -178,7 +178,7 @@ class RegattaIO {
 	      $sub->addAttr("race", $race);
 	      $sub->addAttr("type", $finish->penalty->type);
 	      $sub->addAttr("handicap", $finish->penalty->amount);
-	      $sub->addChild(new Text(htmlspecialchars($finish->penalty->comments)));
+	      $sub->addChild(new XText($finish->penalty->comments));
 	    }
 	  }
 	}
@@ -192,7 +192,7 @@ class RegattaIO {
       $sub->addAttr("team",     $penalty->team->id);
       $sub->addAttr("division", $penalty->division);
       $sub->addAttr("penalty",  $penalty->type);
-      $sub->addChild(new Text(htmlspecialchars($penalty->comments)));
+      $sub->addChild(new XText($penalty->comments));
     }
 
     // RP information
@@ -222,7 +222,7 @@ class RegattaIO {
       $sub->addAttr("id",   $note['id']);
       $sub->addAttr("race", $note['number'] . $note['division']);
       $sub->addAttr("observer", $note['observer']);
-      $sub->addChild(new Text($note['observation']));
+      $sub->addChild(new XText($note['observation']));
     }
     */
 
@@ -243,11 +243,11 @@ class RegattaIO {
 	$ssub->addAttr("data", "http://techscore.mit.edu");
 	
 	$ssub->addChild($sssub = new GenericElement("Name"));
-	$sssub->addChild(new Text(sprintf("%s %s",
+	$sssub->addChild(new XText(sprintf("%s %s",
 					  $sailor->first_name,
 					  $sailor->last_name)));
 	$ssub->addChild($sssub = new GenericElement("Year"));
-	$sssub->addChild(new Text($sailor->year));
+	$sssub->addChild(new XText($sailor->year));
       }
       
       foreach (RpManager::getUnregisteredSailors($school) as $sailor) {
@@ -256,12 +256,12 @@ class RegattaIO {
 	$ssub->addAttr("data", "http://techscore.mit.edu");
 	
 	$ssub->addChild($sssub = new GenericElement("Name"));
-	$sssub->addChild(new Text(sprintf("%s %s*",
+	$sssub->addChild(new XText(sprintf("%s %s*",
 					  $sailor->first_name,
 					  $sailor->last_name)));
 
 	$ssub->addChild($sssub = new GenericElement("Year"));
-	$sssub->addChild(new Text($sailor->year));
+	$sssub->addChild(new XText($sailor->year));
       }
     }
 

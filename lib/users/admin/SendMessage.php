@@ -45,7 +45,7 @@ class SendMessage extends AbstractAdminUserPane {
     // conference
     $p->addChild($f = new Form("/send-message-edit"));
     $f->addChild($fi = new FItem("All users in conference:", $sel = new FSelect('conferences[]')));
-    $fi->addChild(new Text(" "));
+    $fi->addChild(new XText(" "));
     $fi->addChild(new FSubmit('choose-recipients', "Write message >"));
     $opts = array();
     foreach (Preferences::getConferences() as $conf)
@@ -57,7 +57,7 @@ class SendMessage extends AbstractAdminUserPane {
     // roles
     $p->addChild($f = new Form("/send-message-edit"));
     $f->addChild($fi = new FItem("All users with role:", $sel = new FSelect('roles[]')));
-    $fi->addChild(new Text(" "));
+    $fi->addChild(new XText(" "));
     $fi->addChild(new FSubmit('choose-recipients', "Write message >"));
     $sel->addOptions(AccountManager::getRoles());
     $sel->addAttr('multiple', 'multiple');

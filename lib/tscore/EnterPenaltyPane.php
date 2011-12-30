@@ -136,9 +136,9 @@ class EnterPenaltyPane extends AbstractPane {
       // script to turn off the two by default
       $form->addChild($sc = new GenericElement("script"));
       $sc->addAttr("type", "text/javascript");
-      $sc->addChild(new Text("document.getElementById('p_amount').disabled = true;"));
-      $sc->addChild(new Text("document.getElementById('displace_box').disabled = true;"));
-      $sc->addChild(new Text("document.getElementById('avg_box').checked   = true;"));
+      $sc->addChild(new XText("document.getElementById('p_amount').disabled = true;"));
+      $sc->addChild(new XText("document.getElementById('displace_box').disabled = true;"));
+      $sc->addChild(new XText("document.getElementById('avg_box').checked   = true;"));
     
       // Submit
       $form->addChild(new FSubmit("p_cancel", "Cancel"));
@@ -147,7 +147,7 @@ class EnterPenaltyPane extends AbstractPane {
       // FAQ's
       $this->PAGE->addContent($p = new Port("FAQ"));
       $fname = sprintf("%s/faq/penalty.html", dirname(__FILE__));
-      $p->addChild(new Text(file_get_contents($fname)));
+      $p->addChild(new XRawText(file_get_contents($fname)));
     }
   }
 

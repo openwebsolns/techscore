@@ -43,7 +43,7 @@ class TeamsPane extends AbstractPane {
     // What to do with rotation?
     $form->addChild($exp = new Para(""));
     if ($this->has_rots) {
-      $exp->addChild(new Text("The regatta already has rotations. By adding a team, the rotations will need to be fixed. Choose from the options below."));
+      $exp->addChild(new XText("The regatta already has rotations. By adding a team, the rotations will need to be fixed. Choose from the options below."));
       $form->addChild($fi = new FItem("Delete rotation:",
 				      new FCheckbox('del-rotation', '1',
 						    array('id'=>'del-rot',
@@ -53,7 +53,7 @@ class TeamsPane extends AbstractPane {
 
     // What to do with scores?
     if ($this->has_scores) {
-      $exp->addChild(new Text("The regatta already has finishes entered. After adding the new teams, what should their score be?"));
+      $exp->addChild(new XText("The regatta already has finishes entered. After adding the new teams, what should their score be?"));
       $form->addChild(new FItem("New score:", $f_sel = new FSelect('new-score', array())));
       $f_sel->addChild(new Option('DNS', "DNS", array('selected' => 'selected')));
       $f_sel->addChild(new Option('BYE', "BYE"));

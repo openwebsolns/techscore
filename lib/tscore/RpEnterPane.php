@@ -41,7 +41,7 @@ class RpEnterPane extends AbstractPane {
     $divisions = $this->REGATTA->getDivisions();
     // Output
     $this->PAGE->addHead(new GenericElement("script",
-					    array(new Text()),
+					    array(new XText()),
 					    array("type"=>"text/javascript",
 					    "src"=>"/inc/js/rp.js")));
     
@@ -240,7 +240,7 @@ class RpEnterPane extends AbstractPane {
     $para->addChild(new FSubmit("rpform", "Submit form",
 				array("id"=>"rpsubmit")));
     $p->addChild(new GenericElement("script",
-				    array(new Text("check()")),
+				    array(new XText("check()")),
 				    array("type"=>"text/javascript")));
   }
 

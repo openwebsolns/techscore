@@ -100,7 +100,7 @@ class AllAmerican extends AbstractUserPane {
 								   'type'=>'text/css',
 								   'media'=>'screen',
 								   'href'=>'/inc/css/widescreen.css')));
-    $this->PAGE->addHead(new GenericElement('link', array(new Text("")),
+    $this->PAGE->addHead(new GenericElement('link', array(new XText("")),
 					    array('type'=>'text/css',
 						  'href'=>'/inc/css/aa.css',
 						  'rel'=>'stylesheet')));
@@ -236,7 +236,7 @@ class AllAmerican extends AbstractUserPane {
 	$item->addItems(new LItem($sailor));
 
       // Form to fetch and add sailors
-      $this->PAGE->addHead(new GenericElement('script', array(new Text("")), array('src'=>'/inc/js/aa.js')));
+      $this->PAGE->addHead(new GenericElement('script', array(new XText("")), array('src'=>'/inc/js/aa.js')));
       $this->PAGE->addContent($p = new Port("New sailors"));
       $p->addChild($form = new Form('/aa-edit'));
       $form->addChild(new GenericElement('noscript', array(new Para("Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding."))));

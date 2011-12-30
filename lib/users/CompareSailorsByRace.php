@@ -184,11 +184,11 @@ class CompareSailorsByRace extends AbstractUserPane {
     // ------------------------------------------------------------
     // Provide an input box to choose sailors using AJAX
     // ------------------------------------------------------------
-    $this->PAGE->addHead(new GenericElement('link', array(new Text("")),
+    $this->PAGE->addHead(new GenericElement('link', array(new XText("")),
 					    array('type'=>'text/css',
 						  'href'=>'/inc/css/aa.css',
 						  'rel'=>'stylesheet')));
-    $this->PAGE->addHead(new GenericElement('script', array(new Text("")), array('src'=>'/inc/js/aa.js')));
+    $this->PAGE->addHead(new GenericElement('script', array(new XText("")), array('src'=>'/inc/js/aa.js')));
     $this->PAGE->addContent($form = new Form('/compare-by-race', "get"));
 
     // Season selection

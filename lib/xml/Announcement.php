@@ -39,7 +39,7 @@ class Announcement extends Para {
       $img = new Image("/img/warn.png",  array("alt"=>"Warning"));
     }
     $this->addChild($img);
-    $this->addChild(new Text($message));
+    $this->addChild(new XText($message));
     $this->message = $message;
     $this->type    = $type;
     $this->addAttr('class', $type);

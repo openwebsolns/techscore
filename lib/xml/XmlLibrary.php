@@ -53,10 +53,6 @@ class GenericElement implements HTMLElement
   public function getName() { return $this->elemName; }
 
   public function addChild($e) {
-    if (!$e instanceof HTMLElement) {
-      trigger_error(sprintf("%s is not a valid HTMLElement", $e),
-		    E_USER_ERROR);
-    }
     $this->elemChildren[] = $e;
   }
 
@@ -369,11 +365,11 @@ class Cell extends GenericElement
     if (($value instanceof GenericElement))
       $this->addChild($value);
     else
-      $this->addChild(new Text($value));
+      $this->addChild(new XText($value));
   }
 
   public function addText($val) {
-    $this->addChild(new Text($val));
+    $this->addChild(new XText($val));
   }
   
   public function is_header() {
@@ -414,33 +410,8 @@ class Para extends GenericElement
   public function __construct($val,
 			      $attrs = array()) {
     parent::__construct("p",
-			array(new Text($val)),
+			array(new XText($val)),
 			$attrs);
-  }
-}
-
-/**
- * Text object
- */
-class Text implements HTMLElement
-{
-  // Private variables
-  private $value;
-  
-  public function __construct($v = "") {
-    $this->value = $v;
-  }
-  public function toHTML() {
-    return $this->value;
-  }
-  public function printHTML() {
-    echo $this->value;
-  }
-  public function toXML() {
-    return htmlspecialchars($this->value, ENT_QUOTES, 'UTF-8');
-  }
-  public function printXML() {
-    echo htmlspecialchars($this->value, ENT_QUOTES, 'UTF-8');
   }
 }
 
@@ -487,7 +458,7 @@ class PortTitle extends GenericElement
   public function __construct($title,
 			      $attrs = array()) {
     parent::__construct("h3",
-			array(new Text($title)),
+			array(new XText($title)),
 			$attrs);
   }
 }
@@ -500,7 +471,7 @@ class Heading extends GenericElement
   public function __construct($title = "",
 			      $attrs = array()) {
     parent::__construct("h4",
-			array(new Text($title)),
+			array(new XText($title)),
 			$attrs);
   }
   
@@ -572,7 +543,7 @@ class LItem extends GenericElement
 			  $attrs);
     else
       parent::__construct("li",
-			  array(new Text($value)),
+			  array(new XText($value)),
 			  $attrs);
   }
 }
@@ -623,7 +594,7 @@ class FItem extends GenericElement
     // Add span form_h
     if (is_string($message)) {
       $this->addChild(new GenericElement("span",
-					 array(new Text($message)),
+					 array(new XText($message)),
 					 array("class"=>"form_h")));
     }
     elseif (($message instanceof GenericElement)) {
@@ -731,7 +702,7 @@ class FTextarea extends FGenericElement
 			$name,
 			array(""),
 			$attrs);
-    $this->addChild(new Text($value));
+    $this->addChild(new XText($value));
   }
 }
 
@@ -750,7 +721,7 @@ class FSpan extends FGenericElement
     if ($value instanceof GenericElement)
       $this->addChild($value);
     else
-      $this->addChild(new Text($value));
+      $this->addChild(new XText($value));
   }
 }
 
@@ -780,7 +751,7 @@ class Label extends GenericElement
 			      $value = "",
 			      $attrs = array()) {
     parent::__construct("label",
-			array(new Text($value)),
+			array(new XText($value)),
 			$attrs);
     $this->addAttr("for", $for);
   }
@@ -874,7 +845,7 @@ class Option extends GenericElement
 			      $content = "",
 			      $attrs = array()) {
     parent::__construct("option",
-			array(new Text($content)),
+			array(new XText($content)),
 			$attrs);
     $this->addAttr("value", $value);
   }
@@ -978,7 +949,7 @@ class Link extends GenericElement
 			array(),
 			$attrs);
     if (!($link instanceof HTMLElement))
-      $link = new Text($link);
+      $link = new XText($link);
     $this->addChild($link);
     $this->addAttr("href", $href);
   }
@@ -1019,7 +990,7 @@ class PageTitle extends GenericElement {
    *
    */
   public function __construct($text) {
-    parent::__construct("h2", array(new Text($text)));
+    parent::__construct("h2", array(new XText($text)));
   }
 }
 
@@ -1058,7 +1029,7 @@ class PageDiv extends Div {
 
     // also print this one
     $this->addChild(new Link(sprintf("%s|%d%s", $prefix, $i, $suffix), $i, array('class' => 'current')));
-    $this->addChild(new Text(" "));
+    $this->addChild(new XText(" "));
     $i++;
     // also print the two after this one
     for (; $i < $current + 3 && $i < $num_pages; $i++) {

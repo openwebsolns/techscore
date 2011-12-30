@@ -47,7 +47,7 @@ class TScorePage extends WebPage {
 
     // Menu
     if ($this->mobile) {
-      $this->addBody(new GenericElement("button", array(new Text("Menu")),
+      $this->addBody(new GenericElement("button", array(new XText("Menu")),
 					array("onclick"=>"toggleMenu()")));
     }
     $this->menu = new Div();
@@ -68,7 +68,7 @@ class TScorePage extends WebPage {
     // Fill announcement
     $this->content->addChild($this->announce = new Div());
     $this->announce->addAttr("id", "announcediv");
-    $this->announce->addChild(new Text(""));
+    $this->announce->addChild(new XText(""));
     if (isset($_SESSION['ANNOUNCE']) && is_array($_SESSION['ANNOUNCE']) &&
 	count($_SESSION['ANNOUNCE']) > 0) {
       while (count($_SESSION['ANNOUNCE']) > 0)
@@ -97,7 +97,7 @@ class TScorePage extends WebPage {
    */
   private function fillHead($title) {
     $this->head->addChild(new GenericElement("title",
-					     array(new Text($title))));
+					     array(new XText($title))));
 
     // CSS Stylesheets
     if ($this->mobile) {
@@ -136,18 +136,18 @@ class TScorePage extends WebPage {
 		   "jquery.columnmanager.min.js",
 		   "ui.datepicker.js") as $scr) {
       $this->head->addChild(new GenericElement("script",
-					       array(new Text("")),
+					       array(new XText("")),
 					       array("type"=>"text/javascript",
 						     "src"=>"/inc/js/" . $scr)));
     }
     if ($this->mobile) {
-      $this->head->addChild(new GenericElement("script", array(new Text("")),
+      $this->head->addChild(new GenericElement("script", array(new XText("")),
 					       array("type"=>"text/javascript",
 						     "src"=>"/inc/js/mobile.js")));
     }
     else {
       foreach (array("form.js") as $scr) {
-	$this->head->addChild(new GenericElement("script", array(new Text("")),
+	$this->head->addChild(new GenericElement("script", array(new XText("")),
 						 array("type"=>"text/javascript",
 						       "src"=>"/inc/js/" . $scr)));
       }

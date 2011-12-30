@@ -67,7 +67,7 @@ class WelcomePage extends TScorePage {
     $this->addContent($p = new Port("Announcements"));
     $file = sprintf("%s/announcements.html", dirname(__FILE__));
     if (file_exists($file))
-      $p->addChild(new Text(file_get_contents($file)));
+      $p->addChild(new XRawText(file_get_contents($file)));
     else
       $p->addChild(new Para("No announcements at this time."));
 

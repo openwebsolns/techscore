@@ -135,7 +135,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
       $sch->addAttr("align", "left");
       if ($penalty != null) {
 	$com = sprintf("%s (+20 points)", $penalty->comments);
-	$pen->addChild(new Text($penalty->type));
+	$pen->addChild(new XText($penalty->type));
 	$pen->addAttr("title", $com);
       }
 

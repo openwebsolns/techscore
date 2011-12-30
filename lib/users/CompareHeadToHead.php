@@ -159,11 +159,11 @@ class CompareHeadToHead extends AbstractUserPane {
     // ------------------------------------------------------------
     // Provide an input box to choose sailors using AJAX
     // ------------------------------------------------------------
-    $this->PAGE->addHead(new GenericElement('link', array(new Text("")),
+    $this->PAGE->addHead(new GenericElement('link', array(new XText("")),
 					    array('type'=>'text/css',
 						  'href'=>'/inc/css/aa.css',
 						  'rel'=>'stylesheet')));
-    $this->PAGE->addHead(new GenericElement('script', array(new Text("")), array('src'=>'/inc/js/aa.js')));
+    $this->PAGE->addHead(new GenericElement('script', array(new XText("")), array('src'=>'/inc/js/aa.js')));
     $this->PAGE->addContent(new Para("Use this form to compare sailors head-to-head, showing the regattas that the sailors have sailed in common, and printing their place finish for each."));
     $this->PAGE->addContent($form = new Form('/compare-sailors', "get"));
 

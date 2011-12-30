@@ -47,22 +47,22 @@ class MessagePane extends AbstractUserPane {
       $this->PAGE->addContent($p = new Port($sub));
       $p->addChild($cont = new Div());
       $cont->addAttr("class", "email-message");
-      $cont->addChild(new GenericElement('pre', array(new Text(wordwrap($message->content, 90)))));
+      $cont->addChild(new GenericElement('pre', array(new XText(wordwrap($message->content, 90)))));
       $p->addChild($form = new Form("/inbox-edit"));
 
       // Fill out form
       $form->addChild(new GenericElement("button",
-					 array(new Text("Delete")),
+					 array(new XText("Delete")),
 					 array("name" =>"delete",
 					       "type"=>"submit",
 					       "value"=>$message->id)));
-      $form->addChild(new Text(" "));
+      $form->addChild(new XText(" "));
       $form->addChild(new Link("inbox", "Close"));
       
       $p->addChild($form = new Form("/inbox-edit"));
       $form->addChild(new FTextarea("text", "", array("style"=>"width: 100%", "rows" =>"3")));
       $form->addChild(new GenericElement("button",
-					 array(new Text("Reply")),
+					 array(new XText("Reply")),
 					 array("name" =>"reply",
 					       "type" =>"submit",
 					       "value"=>$message->id)));
@@ -91,9 +91,9 @@ class MessagePane extends AbstractUserPane {
 	$tab->addRow(new Row(array(new Cell(new GenericElement("strong",
 							       array(new Link("inbox/" . $mes->id, $sub)))),
 				   new Cell(new GenericElement("strong",
-							       array(new Text($con)))),
+							       array(new XText($con)))),
 				   new Cell(new GenericElement("strong",
-							       array(new Text($mes->created->format('Y-m-d H:i'))))))));
+							       array(new XText($mes->created->format('Y-m-d H:i'))))))));
       else
 	$tab->addRow(new Row(array(new Cell(new Link("inbox/" . $mes->id, $sub)),
 				   new Cell($con),

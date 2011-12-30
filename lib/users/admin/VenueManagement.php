@@ -45,7 +45,7 @@ class VenueManagement extends AbstractAdminUserPane {
     $stat = "";
     $code = "";
     $mess = "Add";
-    $hidd = new Text("");
+    $hidd = new XText("");
 
     if (isset($args['v'])) {
       $v = Preferences::getVenue((int)$_GET['v']);

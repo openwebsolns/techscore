@@ -58,7 +58,7 @@ class NewRegattaPane extends AbstractUserPane {
     $schools = $this->USER->getSchools();
     if (count($schools) == 1) {
       $school = array_shift($schools);
-      $f->addChild(new FItem("Host:", new Span(array(new Text($school)))));
+      $f->addChild(new FItem("Host:", new Span(array(new XText($school)))));
       $f->addChild(new FHidden('host[]', $school->id));
     }
     else {
