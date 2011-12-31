@@ -32,7 +32,7 @@ class SummaryPane extends AbstractPane {
       $today = new DateTime(sprintf("%s + %d days", $start->format('Y-m-d'), $i));
       $comms = $this->REGATTA->getSummary($today);
       $form->add(new FItem($today->format('l, F j'),
-				new FTextArea($today->format('Y-m-d'), $comms,
+				new XTextArea($today->format('Y-m-d'), $comms,
 					      array("rows"=>"5", "cols"=>"50"))));
     }
     $form->add(new XSubmitInput("set_comment", "Add/Update"));

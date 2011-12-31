@@ -47,7 +47,7 @@ class NotesPane extends AbstractPane {
 
     // Observation
     $form->add(new FItem("Observation:",
-			      new FTextArea("observation","",
+			      new XTextArea("observation","",
 					    array("rows"=>3,
 						  "cols"=>30))));
     // Observer

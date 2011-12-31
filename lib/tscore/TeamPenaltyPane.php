@@ -60,7 +60,7 @@ class TeamPenaltyPane extends AbstractPane {
     $f_sel->addOptions(array_merge(array(""=>""), TeamPenalty::getList()));
 
     $form->add(new FItem("Comments:",
-			      new FTextarea("comments", "",
+			      new XTextArea("comments", "",
 					    array("rows"=>"2",
 						  "cols"=>"15"))));
 

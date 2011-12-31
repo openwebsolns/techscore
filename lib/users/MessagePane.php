@@ -59,7 +59,7 @@ class MessagePane extends AbstractUserPane {
       $form->add(new XA("inbox", "Close"));
       
       $p->add($form = new XForm("/inbox-edit", XForm::POST));
-      $form->add(new FTextarea("text", "", array("style"=>"width: 100%", "rows" =>"3")));
+      $form->add(new XTextArea("text", "", array("style"=>"width: 100%", "rows" =>"3")));
       $form->add(new GenericElement("button",
 					 array(new XText("Reply")),
 					 array("name" =>"reply",

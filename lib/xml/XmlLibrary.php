@@ -451,22 +451,6 @@ class FFile extends FGenericElement
 }
 
 /**
- * Textarea <textarea>
- */
-class FTextarea extends FGenericElement
-{
-  public function __construct($name,
-			      $value = "",
-			      $attrs = array()) {
-    parent::__construct("textarea",
-			$name,
-			array(""),
-			$attrs);
-    $this->add(new XText($value));
-  }
-}
-
-/**
  * From select input (allows multiple selects)
  */
 class FSelect extends FGenericElement
