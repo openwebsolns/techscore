@@ -467,22 +467,6 @@ class FTextarea extends FGenericElement
 }
 
 /**
- * Wrapper for <input type="checkbox"/>
- */
-class FCheckbox extends FGenericElement
-{
-  public function __construct($name,
-			      $value,
-			      $attrs = array()) {
-    parent::__construct("input",
-			$name,
-			array($value),
-			$attrs);
-    $this->set("type", "checkbox");
-  }
-}
-
-/**
  * From select input (allows multiple selects)
  */
 class FSelect extends FGenericElement

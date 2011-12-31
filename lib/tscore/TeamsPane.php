@@ -45,7 +45,7 @@ class TeamsPane extends AbstractPane {
     if ($this->has_rots) {
       $exp->add(new XText("The regatta already has rotations. By adding a team, the rotations will need to be fixed. Choose from the options below."));
       $form->add($fi = new FItem("Delete rotation:",
-				      new FCheckbox('del-rotation', '1',
+				      new XCheckboxInput('del-rotation', '1',
 						    array('id'=>'del-rot',
 							  'checked'=>'checked'))));
       $fi->add(new XLabel('del-rot', "Delete current rotation without affecting finishes."));

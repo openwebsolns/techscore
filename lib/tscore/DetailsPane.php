@@ -140,7 +140,7 @@ class DetailsPane extends AbstractPane {
   
 	$p2->add($form = $this->createForm());
 
-	$form->add(new FItem(new FCheckbox("approve",
+	$form->add(new FItem(new XCheckboxInput("approve",
 						"on",
 						array("id"=>"approve")),
 				  new XLabel("approve",

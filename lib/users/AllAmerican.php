@@ -66,7 +66,7 @@ class AllAmerican extends AbstractUserPane {
       if ($now->getSeason() == Season::SPRING)
 	$then = Season::parse(sprintf('f%0d', ($now->getTime()->format('Y') - 1)));
       foreach (Preferences::getActiveSeasons() as $season) {
-	$ul->add(new XLi(array($chk = new FCheckbox('seasons[]', $season, array('id' => $season)),
+	$ul->add(new XLi(array($chk = new XCheckboxInput('seasons[]', $season, array('id' => $season)),
 			       new XLabel($season, $season->fullString()))));
 	if ((string)$season == (string)$now || (string)$season == (string)$then)
 	  $chk->set('checked', 'checked');
@@ -74,7 +74,7 @@ class AllAmerican extends AbstractUserPane {
 
       // Conferences
       foreach (Preferences::getConferences() as $conf) {
-	$ul2->add(new XLi(array($chk = new FCheckbox('confs[]', $conf, array('id' => $conf->id)),
+	$ul2->add(new XLi(array($chk = new XCheckboxInput('confs[]', $conf, array('id' => $conf->id)),
 				new XLabel($conf->id, $conf))));
 	$chk->set('checked', 'checked');
       }
@@ -158,7 +158,7 @@ class AllAmerican extends AbstractUserPane {
 	else {
 	  // present these regattas for choosing
 	  $id = 'r'.$reg->id;
-	  $r = new Row(array(new Cell($chk = new FCheckbox("regatta[]", $reg->id, array('id'=>$id))),
+	  $r = new Row(array(new Cell($chk = new XCheckboxInput("regatta[]", $reg->id, array('id'=>$id))),
 			     new Cell(new XLabel($id, $reg->name),
 				      array('class'=>'left')),
 			     new Cell(new XLabel($id, $types[$reg->type])),

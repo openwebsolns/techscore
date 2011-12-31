@@ -121,7 +121,7 @@ class EnterPenaltyPane extends AbstractPane {
       else
 	$average = "Use standard scoring (FLEET + 1).";
       $new_score = new FItem("New score:",
-			     $cb = new FCheckbox("average", "yes", array("id"=>"avg_box")));
+			     $cb = new XCheckboxInput("average", "yes", array("id"=>"avg_box")));
       $cb->set("onclick", "document.getElementById('p_amount').disabled = this.checked;document.getElementById('displace_box').disabled = this.checked;");
       // $cb->set("checked", "checked");
       $new_score->add(new XLabel("avg_box", $average));
@@ -129,7 +129,7 @@ class EnterPenaltyPane extends AbstractPane {
 
       $new_score = new FItem("OR Assign score:",
 			     new FText("p_amount", "", array("size"=>"2", "id"=>"p_amount")));
-      $new_score->add(new FCheckbox("displace", "yes", array("id"=>"displace_box")));
+      $new_score->add(new XCheckboxInput("displace", "yes", array("id"=>"displace_box")));
       $new_score->add(new XLabel('displace_box', 'Displace finishes'));
       $form->add($new_score);
 

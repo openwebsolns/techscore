@@ -104,7 +104,7 @@ class SendMessage extends AbstractAdminUserPane {
     $fi->add(new XMessage("Less than 100 characters"));
 
     $f->add(new FItem("Message body:", new FTextarea('content', "", array('rows'=>16, 'cols'=>75))));
-    $f->add($fi = new FItem("Copy me:", new FCheckbox('copy-me', 1)));
+    $f->add($fi = new FItem("Copy me:", new XCheckboxInput('copy-me', 1)));
     $fi->add(new XMessage("Send me a copy of message, whether or not I would otherwise receive one."));
     $f->add(new XSubmitInput('send-message', "Send message now"));
   }
