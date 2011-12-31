@@ -438,18 +438,6 @@ class FText extends FGenericElement
   }
 }
 
-class FFile extends FGenericElement
-{
-  public function __construct($name,
-			      $attrs = array()) {
-    parent::__construct("input",
-			$name,
-			array(),
-			$attrs);
-    $this->set("type", "file");
-  }
-}
-
 /**
  * From select input (allows multiple selects)
  */
