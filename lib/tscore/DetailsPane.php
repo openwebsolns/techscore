@@ -60,68 +60,72 @@ class DetailsPane extends AbstractPane {
 						  "size"     =>8))));
 
     // Venue
-    $value = "";
     $venue = $this->REGATTA->get(Regatta::VENUE);
-    if ($venue !== null)
-      $value = $venue->id;
-    $reg_form->add(new FItem("Venue:", $r_type = new FSelect("venue", array($value))));
-    $r_type->addOptions(array("" => ""));
-    $venues = array();
-    foreach (Preferences::getVenues() as $venue)
-      $venues[$venue->id] = $venue->name;
-    $r_type->addOptions($venues);
+    $reg_form->add(new FItem("Venue:", $r_type = new Select("venue")));
+    foreach (Preferences::getVenues() as $v) {
+      $r_type->add($opt = new FOption($v->id, $v->name));
+      if ($venue !== null && $venue->id == $v->id)
+	$opt->set('selected', 'selected');
+    }
 
     // Regatta type
     $value = $this->REGATTA->get(Regatta::TYPE);
     $reg_form->add($item = new FItem("Type:",
-					  $f_sel = new FSelect("type",
-							       array($value))));
-
-    $types = Preferences::getRegattaTypeAssoc();
-    unset($types['personal']);
-    $f_sel->addOptionGroup("Public", $types);
-    $f_sel->addOptionGroup("Not-published", array('personal' => "Personal"));
+				     new Select("type", array($f_sel = new FOptionGroup("Public"),
+							      new FOptionGroup("Not-published",
+									      array(new FOption('personal', "Personal")))))));
+    foreach (Preferences::getRegattaTypeAssoc() as $key => $val) {
+      $f_sel->add($opt = new FOption($key, $val));
+      if ($val == $value)
+	$opt->set('selected', 'selected');
+    }
     $item->add(new XMessage("Choose \"Personal\" to un-publish"));
 
     // Regatta participation
     $value = $this->REGATTA->get(Regatta::PARTICIPANT);
-    $reg_form->add($item = new FItem("Participation:",
-					  $f_sel = new FSelect("participant", array($value))));
-    $f_sel->addOptions(Preferences::getRegattaParticipantAssoc());
-    // will changing this value affect the RP information?
-    if ($value == Regatta::PARTICIPANT_COED) {
-      $item->add(new XMessage("Changing this value may affect RP info"));
+    $reg_form->add($item = new FItem("Participation:", $f_sel = new Select("participant")));
+    foreach (Preferences::getRegattaParticipantAssoc() as $key => $val) {
+      $f_sel->add($opt = new FOption($key, $val));
+      if ($val == $value)
+	$opt->set('selected', 'selected');
     }
+    // will changing this value affect the RP information?
+    if ($value == Regatta::PARTICIPANT_COED)
+      $item->add(new XMessage("Changing this value may affect RP info"));
 
     // Scoring rules
     $value = $this->REGATTA->get(Regatta::SCORING);
-    $reg_form->add(new FItem("Scoring:", $f_sel = new FSelect("scoring", array($value))));
-    $f_sel->addOptions(Preferences::getRegattaScoringAssoc());
+    $reg_form->add(new FItem("Scoring:", $f_sel = new Select("scoring")));
+    foreach (Preferences::getRegattaScoringAssoc() as $key => $val) {
+      $f_sel->add($opt = new FOption($key, $val));
+      if ($val == $value)
+	$opt->set('selected', 'selected');
+    }
 
     // Hosts: first add the current hosts, then the entire list of
     // schools in the affiliation ordered by conference
     $hosts = $this->REGATTA->getHosts();
-    $reg_form->add(new FItem('Host(s):<br/><small>Hold down <kbd>Ctrl</kbd> to choose more than one</small>', $f_sel = new FSelect("host[]")));
-    $f_sel->add($opt_group = new OptionGroup("Current"));
+    $reg_form->add($f_item = new FItem('Host(s):', $f_sel = new Select("host[]",
+								       array(),
+								       array('multiple'=>'multiple', 'size'=>10))));
+    $f_sel->add($opt_group = new FOptionGroup("Current"));
     $schools = array(); // track these so as not to include them later
     foreach ($hosts as $host) {
       $schools[$host->school->id] = $host->school;
-      $opt_group->add(new Option($host->school->id, $host->school, array('selected' => 'selected')));
+      $opt_group->add(new FOption($host->school->id, $host->school, array('selected' => 'selected')));
     }
+    $f_item->add(new XMessage("Hold down Ctrl to choose more than one"));
 
     // go through each conference
     foreach (Preferences::getConferences() as $conf) {
       $opts = array();
       foreach ($this->USER->getSchools($conf) as $school) {
 	if (!isset($schools[$school->id]))
-	  $opts[$school->id] = $school;
+	  $opts[] = new FOption($school->id, $school);
       }
       if (count($opts) > 0)
-	$f_sel->addOptionGroup($conf, $opts);
+	$f_sel->add(new FOptionGroup($conf, $opts));
     }
-
-    $f_sel->set('multiple', 'multiple');
-    $f_sel->set('size', 10);
 
     // Update button
     $reg_form->add($reg_sub = new XSubmitInput("edit_reg", "Edit"));

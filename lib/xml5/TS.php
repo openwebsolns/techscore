@@ -159,4 +159,40 @@ class Port extends XDiv {
     $this->title->add(new XHLink($href));
   }
 }
+
+/**
+ * XSelect has its arguments in a weird order. This fixes that.
+ *
+ * @author Dayan Paez
+ * @version 2011-12-30
+ */
+class Select extends XSelect {
+  public function __construct($name, Array $items = array(), Array $attrs = array()) {
+    parent::__construct($name, $attrs, $items);
+  }
+}
+
+/**
+ * XOptionGroup has its arguments in a weird order. This fixes that.
+ *
+ * @author Dayan Paez
+ * @version 2011-12-30
+ */
+class FOptionGroup extends XOptionGroup {
+  public function __construct($label, Array $options = array(), Array $attrs = array()) {
+    parent::__construct($label, $attrs, $options);
+  }
+}
+
+/**
+ * XOption has its arguments in a weird order. This fixes that.
+ *
+ * @author Dayan Paez
+ * @version 2011-12-30
+ */
+class FOption extends XOption {
+  public function __construct($value, $content = "", Array $attrs = array()) {
+    parent::__construct($value, $attrs, (string)$content);
+  }
+}
 ?>
