@@ -12,14 +12,14 @@ require_once('xml5/TS.php');
 
 /**
  * The basic HTML page for TechScore files. This page extends the
- * WebPage class and sets up the necessary structure common to all the
+ * XPage class and sets up the necessary structure common to all the
  * pages: headers, footers, contents, and announcements.
  *
  * @author Dayan Paez
  * @version 2.0
  * @version 2009-10-19
  */
-class TScorePage extends WebPage {
+class TScorePage extends XPage {
 
   // Private variables
   private $header;
@@ -39,28 +39,28 @@ class TScorePage extends WebPage {
    * menu that is displayed.
    */
   public function __construct($title, User $user = null, Regatta $reg = null) {
-    parent::__construct();
+    parent::__construct($title);
     $this->mobile = $this->isMobile();
 
-    $this->addHead(new GenericElement('meta', array(), array('name'=>'robots', 'content'=>'noindex, nofollow')));
-    $this->addHead(new GenericElement('meta', array(), array('http-equiv'=>'Content-Type', 'content'=>'text/html; charset=UTF-8')));
-    $this->fillHead($title);
+    $this->head->add(new GenericElement('meta', array(), array('name'=>'robots', 'content'=>'noindex, nofollow')));
+    $this->head->add(new GenericElement('meta', array(), array('http-equiv'=>'Content-Type', 'content'=>'text/html; charset=UTF-8')));
+    $this->fillHead();
 
     // Menu
     if ($this->mobile) {
-      $this->addBody(new GenericElement("button", array(new XText("Menu")),
-					array("onclick"=>"toggleMenu()")));
+      $this->body->add(new GenericElement("button", array(new XText("Menu")),
+					  array("onclick"=>"toggleMenu()")));
     }
     $this->menu = new XDiv(array('id'=>'menudiv'));
-    $this->addBody($this->menu);
-    $this->addBody(new XHr(array('class'=>'hidden')));
-    $this->addBody($this->header = new XDiv(array('id'=>'headdiv')));
+    $this->body->add($this->menu);
+    $this->body->add(new XHr(array('class'=>'hidden')));
+    $this->body->add($this->header = new XDiv(array('id'=>'headdiv')));
 
     // Header
     $this->fillPageHeader($user, $reg);
 
     // Content
-    $this->addBody($this->content = new XDiv(array('id'=>'bodydiv')));
+    $this->body->add($this->content = new XDiv(array('id'=>'bodydiv')));
 
     // Announcement
     // Fill announcement
@@ -72,8 +72,8 @@ class TScorePage extends WebPage {
     }
 
     // Footer
-    $this->addBody(new XDiv(array('id'=>'footdiv'),
-			    array(new XP(array(), sprintf("TechScore v%s © Dayán Páez 2008-%s", VERSION, date('y'))))));
+    $this->body->add(new XDiv(array('id'=>'footdiv'),
+			      array(new XP(array(), sprintf("TechScore v%s © Dayán Páez 2008-%s", VERSION, date('y'))))));
   }
 
   /**
@@ -90,40 +90,37 @@ class TScorePage extends WebPage {
    * Fills up the head element of this page
    *
    */
-  private function fillHead($title) {
-    $this->head->add(new GenericElement("title",
-					     array(new XText($title))));
-
+  private function fillHead() {
     // CSS Stylesheets
     if ($this->mobile) {
       $this->head->add(new GenericElement("link",
-					       array(),
-					       array("rel"=>"stylesheet",
-						     "type"=>"text/css",
-						     "media"=>"screen",
-						     "href"=>"/inc/css/mobile.css")));
+					  array(),
+					  array("rel"=>"stylesheet",
+						"type"=>"text/css",
+						"media"=>"screen",
+						"href"=>"/inc/css/mobile.css")));
     }
     else {
       $this->head->add(new GenericElement("link",
-					     array(),
-					     array("rel"=>"stylesheet",
-						   "type"=>"text/css",
-						   "title"=>"Modern Tech",
-						   "media"=>"screen",
-						   "href"=>"/inc/css/modern.css")));
+					  array(),
+					  array("rel"=>"stylesheet",
+						"type"=>"text/css",
+						"title"=>"Modern Tech",
+						"media"=>"screen",
+						"href"=>"/inc/css/modern.css")));
     }
     $this->head->add(new GenericElement("link",
-					     array(),
-					     array("rel"=>"stylesheet",
-						   "type"=>"text/css",
-						   "media"=>"print",
-						   "href"=>"/inc/css/print.css")));
+					array(),
+					array("rel"=>"stylesheet",
+					      "type"=>"text/css",
+					      "media"=>"print",
+					      "href"=>"/inc/css/print.css")));
     $this->head->add(new GenericElement("link",
-					     array(),
-					     array("rel"=>"stylesheet",
-						   "type"=>"text/css",
-						   "media"=>"screen",
-						   "href"=>"/inc/css/cal.css")));
+					array(),
+					array("rel"=>"stylesheet",
+					      "type"=>"text/css",
+					      "media"=>"screen",
+					      "href"=>"/inc/css/cal.css")));
 
     // Javascript
     foreach (array("jquery-1.3.min.js",
@@ -131,20 +128,20 @@ class TScorePage extends WebPage {
 		   "jquery.columnmanager.min.js",
 		   "ui.datepicker.js") as $scr) {
       $this->head->add(new GenericElement("script",
-					       array(new XText("")),
-					       array("type"=>"text/javascript",
-						     "src"=>"/inc/js/" . $scr)));
+					  array(new XText("")),
+					  array("type"=>"text/javascript",
+						"src"=>"/inc/js/" . $scr)));
     }
     if ($this->mobile) {
       $this->head->add(new GenericElement("script", array(new XText("")),
-					       array("type"=>"text/javascript",
-						     "src"=>"/inc/js/mobile.js")));
+					  array("type"=>"text/javascript",
+						"src"=>"/inc/js/mobile.js")));
     }
     else {
       foreach (array("form.js") as $scr) {
 	$this->head->add(new GenericElement("script", array(new XText("")),
-						 array("type"=>"text/javascript",
-						       "src"=>"/inc/js/" . $scr)));
+					    array("type"=>"text/javascript",
+						  "src"=>"/inc/js/" . $scr)));
       }
     }
   }
@@ -162,9 +159,9 @@ class TScorePage extends WebPage {
     
     $this->header->add($this->navigation = new XDiv(array('id'=>'topnav')));
     $this->navigation->add($a = new XA(HELP_HOME, new XSpan("H", array('style'=>"text-decoration:underline")),
-					    array("id"=>"help",
-						  "target"=>"help",
-						  "accesskey"=>"h")));
+				       array("id"=>"help",
+					     "target"=>"help",
+					     "accesskey"=>"h")));
     $a->add("elp?");
     if ($user !== null) {
       $this->navigation->add(new XDiv(array("id"=>"user"),

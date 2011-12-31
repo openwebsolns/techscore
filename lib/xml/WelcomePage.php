@@ -9,7 +9,7 @@ require_once('xml/XmlLibrary.php');
 require_once('xml/TScorePage.php');
 
 /**
- * Welcome page, subclasses WebPage
+ * Welcome page
  *
  */
 class WelcomePage extends TScorePage {

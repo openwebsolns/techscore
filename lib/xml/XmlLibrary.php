@@ -133,52 +133,6 @@ class GenericElement implements HTMLElement
 }
 
 /**
- * Generic HTML Page, with head and body elements built in
- */
-class WebPage extends GenericElement
-{
-  // Variables
-  protected $head; // head element
-  protected $body; // body element
-
-  public function __construct() {
-    parent::__construct("html",
-			array(),
-			array("xmlns"=>"http://www.w3.org/1999/xhtml",
-			      "xml:lang"=>"en",
-			      "lang"=>"en"));
-    $this->head = new GenericElement("head");
-    $this->body = new GenericElement("body");
-
-    $this->add($this->head);
-    $this->add($this->body);
-  }
-
-  public function addHead($e) {
-    $this->head->add($e);
-  }
-  public function addBody($e) {
-    $this->body->add($e);
-  }
-
-  public function __get($e) {
-    if ($e == "body" || $e == "head")
-      return $this->$e;
-  }
-
-  public function toXML() {
-    $str = '<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
-    $str .= parent::toXML();
-    return $str;
-  }
-
-  public function printXML() {
-    echo '<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
-    parent::printXML();
-  }
-}
-
-/**
    Holds information in a "table" which can then be printed to HTML,
    or otherwise parsed through.
 
