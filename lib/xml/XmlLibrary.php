@@ -401,7 +401,6 @@ class FGenericElement extends GenericElement
     foreach ($v as $val)
       $this->addValue($val);
   }
-  public function getFormName() { return $this->formName; }
   public function getDefaultValue(){ return $this->formValue;}
 
   public function setName($n) {
@@ -411,13 +410,6 @@ class FGenericElement extends GenericElement
   public function addValue($v) {
     $this->formValue[] = $v;
     $this->set("value",$v);
-  }
-
-  public function enable($enable = true) {
-    if ($enable)
-      $this->removeAttr("disabled");
-    else
-      $this->setAttr("disabled", "disabled");
   }
 }
 
