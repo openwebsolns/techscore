@@ -24,7 +24,7 @@ class NotesPane extends AbstractPane {
     $divisions = $this->REGATTA->getDivisions();
     
     // OUTPUT
-    $this->PAGE->addContent($p = new Portlet("Enter observation"));
+    $this->PAGE->addContent($p = new Port("Enter observation"));
 
     // Form
     $p->add($form = $this->createForm());
@@ -62,7 +62,7 @@ class NotesPane extends AbstractPane {
     // CURRENT NOTES
     $notes = $this->REGATTA->getNotes();
     if (count($notes) > 0) {
-      $this->PAGE->addContent($p = new Portlet("Current notes"));
+      $this->PAGE->addContent($p = new Port("Current notes"));
 
       // Table
       $p->add($tab = new Table());

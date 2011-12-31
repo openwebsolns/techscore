@@ -32,7 +32,7 @@ class DropPenaltyPane extends AbstractPane {
     // ------------------------------------------------------------
     // Existing penalties
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new Portlet("Penalties"));
+    $this->PAGE->addContent($p = new Port("Penalties"));
     
     if (count($penalties) == 0) {
       $p->add(new XP(array(), "There are currently no penalties."));
@@ -62,7 +62,7 @@ class DropPenaltyPane extends AbstractPane {
     // ------------------------------------------------------------
     // Existing breakdowns
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new Portlet("Breakdowns"));
+    $this->PAGE->addContent($p = new Port("Breakdowns"));
     
     if (count($handicaps) == 0) {
       $p->add(new XP(array(), "There are currently no breakdowns."));

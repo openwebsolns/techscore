@@ -132,4 +132,33 @@ class XReset extends XInput {
     parent::__construct('reset', $name, $value, $attrs);
   }
 }
+
+/**
+ * Port for logical separation of information in a page (as a div)
+ *
+ * @author Dayan Paez
+ * @version 2011-12-30
+ */
+class Port extends XDiv {
+  private $title;
+  /**
+   * Creates a new port with the given title (h3)
+   *
+   * @param String $title the title
+   * @param Array $value the list of values
+   * @param Array $attrs the attribute map
+   */
+  public function __construct($title, Array $value = array(), Array $attrs = array()) {
+    parent::__construct(array(), $attrs);
+    $this->set('class', 'port');
+    
+    $this->title = new XH3($title);
+    $this->add($this->title);
+    foreach ($value as $v)
+      $this->add($v);
+  }
+  public function addHelp($href) {
+    $this->title->add(new XHLink($href));
+  }
+}
 ?>

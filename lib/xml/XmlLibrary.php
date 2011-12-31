@@ -340,41 +340,6 @@ class Cell extends GenericElement
 }
 
 /**
- * Div object, of CSS class "port" used 
- * to organize pages
- */
-class Port extends GenericElement
-{
-  private $title;
-  public function __construct($title = "", 
-			      $value = array(), 
-			      $attrs = array()) {
-    parent::__construct("div",
-			array_merge(array($this->title = new XH3($title)),
-				    $value),
-			$attrs);
-    $this->set("class","port");
-  }
-
-  public function addHelp($href) {
-    $this->title->add(new XHLink($href));
-  }
-}
-
-/**
- * Portlets, instead of ports, which have CSS class "small"
- */
-class Portlet extends Port
-{
-  public function __construct($title = "",
-			      $value = array(),
-			      $attrs = array()) {
-    parent::__construct($title, $value, $attrs);
-    $this->set("class","small");
-  }
-}
-
-/**
  * Generic form input
  */
 class FGenericElement extends GenericElement
