@@ -602,20 +602,4 @@ class FSubmit extends FGenericElement
     $this->set("type", "submit");
   }
 }
-
-/**
- * Reset button
- */
-class FReset extends FGenericElement
-{
-  public function __construct($name,
-			      $value,
-			      $attrs = array()) {
-    parent::__construct("input",
-			$name,
-			array($value),
-			$attrs);
-    $this->set("type","reset");
-  }
-}
 ?>

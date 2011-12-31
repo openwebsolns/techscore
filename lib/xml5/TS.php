@@ -120,4 +120,16 @@ class XSubmitAccessible extends XSubmitInput {
     parent::__construct($name, $value, array("class"=>"accessible"));
   }
 }
+
+/**
+ * Encapsulates a Reset button
+ *
+ * @author Dayan Paez
+ * @version 2011-12-30
+ */
+class XReset extends XInput {
+  public function __construct($name, $value, Array $attrs = array()) {
+    parent::__construct('reset', $name, $value, $attrs);
+  }
+}
 ?>
