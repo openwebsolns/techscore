@@ -85,7 +85,7 @@ class RpEnterPane extends AbstractPane {
     $rep = $rpManager->getRepresentative($chosen_team);
     $rep_id = ($rep === null) ? "" : $rep->id;
     $p->add($form = $this->createForm());
-    $form->add(new XHidden("chosen_team", $chosen_team->id));
+    $form->add(new XHiddenInput("chosen_team", $chosen_team->id));
     $form->add(new FItem("Representative:",
 			      $f_sel = new FSelect("rep", array($rep_id))));
 

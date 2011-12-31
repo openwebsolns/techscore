@@ -94,7 +94,7 @@ class RacesPane extends AbstractPane {
     $row = array(Cell::th("All"));
     foreach ($divisions as $div) {
       $c = new Cell();
-      $c->add(new XHidden("div-value[]", $div));
+      $c->add(new XHiddenInput("div-value[]", $div));
       $c->add($f_sel = new FSelect("div-boat[]", array()));
       $f_sel->add(new Option("", "[Use table]"));
       $f_sel->addOptions($boatOptions);

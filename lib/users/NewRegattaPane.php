@@ -59,7 +59,7 @@ class NewRegattaPane extends AbstractUserPane {
     if (count($schools) == 1) {
       $school = array_shift($schools);
       $f->add(new FItem("Host:", new XSpan($school)));
-      $f->add(new XHidden('host[]', $school->id));
+      $f->add(new XHiddenInput('host[]', $school->id));
     }
     else {
       foreach ($schools as $school) {

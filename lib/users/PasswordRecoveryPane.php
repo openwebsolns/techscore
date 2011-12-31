@@ -33,7 +33,7 @@ class PasswordRecoveryPane extends WelcomePage {
       $f->add(new XP(array(), "Welcome $acc. Please enter the new password for your account."));
       $f->add(new FItem("New Password:", new XPasswordInput('new-password', "")));
       $f->add(new FItem("Confirm Password:", new XPasswordInput('confirm-password', "")));
-      $f->add(new XHidden('acc', trim($_GET['acc'])));
+      $f->add(new XHiddenInput('acc', trim($_GET['acc'])));
       $f->add(new FSubmit('reset-password', "Reset password"));
       return;
     }

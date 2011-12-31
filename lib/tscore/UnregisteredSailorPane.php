@@ -80,7 +80,7 @@ class UnregisteredSailorPane extends AbstractPane {
 	// to delete him/her
 	if (!$rp->isParticipating($t)) {
 	  $d->add($form = $this->createForm());
-	  $form->add(new XHidden('sailor', $t->id));
+	  $form->add(new XHiddenInput('sailor', $t->id));
 	  $form->add(new FSubmit('remove-temp', "Remove"));
 	}
       }

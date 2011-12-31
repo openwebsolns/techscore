@@ -93,7 +93,7 @@ class EnterPenaltyPane extends AbstractPane {
       $title = sprintf("2. %s in race %s", $p_type, $theRace);
       $this->PAGE->addContent($p = new Port($title));
       $p->add($form = $this->createForm());
-      $form->add(new XHidden("p_type", $p_type));
+      $form->add(new XHiddenInput("p_type", $p_type));
       $form->add(new FItem("Team:",
 				$f_sel = new FSelect("finish[]", array(""))));
       $options = array();

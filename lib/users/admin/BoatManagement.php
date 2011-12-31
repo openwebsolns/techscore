@@ -43,7 +43,7 @@ class BoatManagement extends AbstractAdminUserPane {
       }
       $mess = "Edit boat";
       $link = new XA("boats", "Cancel");
-      $hidd = new XHidden("boat", $boat->id);
+      $hidd = new XHiddenInput("boat", $boat->id);
     }
 
     // 0b. Process requests from $args

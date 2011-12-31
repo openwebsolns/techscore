@@ -93,8 +93,8 @@ class TeamPenaltyPane extends AbstractPane {
 								"style"=>"text-align: left")),
 				   new Cell($form = $this->createForm()))));
 
-	$form->add(new XHidden("r_team", $p->team->id));
-	$form->add(new XHidden("r_div",  $p->division));
+	$form->add(new XHiddenInput("r_team", $p->team->id));
+	$form->add(new XHiddenInput("r_div",  $p->division));
 	$form->add($sub = new FSubmit("t_remove", "Drop",
 					   array("class"=>"thin")));
       }
