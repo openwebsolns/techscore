@@ -611,6 +611,61 @@ class XSelect extends XAbstractHtml {
       throw new InvalidArgumentException("XSelect must have XOption|XOptionGroup as children");
     parent::add($elem);
   }
+
+  /**
+   * Creates a XSelect element with given name and options.
+   *
+   * The given options must be a map of option value => labels. The
+   * optional $chosen should be an array or a string of the values to
+   * automatically mark as 'selected'.
+   *
+   * The $opts argument could be a nested list to designate
+   * optgroups. Thus, given a "simple map":
+   *
+   * {us: "USA", mex: "Mexico", sp: "Spain"}
+   *
+   * The result is a drop down list with three options:
+   *
+   *   - us:  USA
+   *   - mex: Mexico
+   *   - sp:  Spain
+   *
+   * However, given the following nested map:
+   *
+   * {"North America": {us: "USA", mex: "Mexico"}, sp: "Spain"}
+   *
+   * The output would be:
+   *
+   *    - North America
+   *        - us:  USA
+   *        - mex: Mexico
+   *    - sp: Spain
+   *
+   * @param String $name the name of the select element
+   * @param Array:String $opts a map of option values and labels
+   * @param Array|String $chosen the list or item to select
+   */
+  public static function fromArray($name, Array $opts, $chosen = null) {
+    if (!is_array($chosen))
+      $chosen = array($chosen);
+    $sel = new XSelect($name);
+    foreach ($opts as $k => $v) {
+      if (is_array($v)) {
+	$sel->add($grp = new XOptionGroup($k));
+	foreach ($v as $kk => $vv) {
+	  $grp->add($opt = new XOption($kk, array(), $vv));
+	  if (in_array($kk, $chosen))
+	    $opt->set('selected', 'selected');
+	}
+      }
+      else {
+	$sel->add($opt = new XOption($k, array(), $v));
+	if (in_array($k, $chosen))
+	  $opt->set('selected', 'selected');
+      }
+    }
+    return $sel;
+  }
 }
 
 /**

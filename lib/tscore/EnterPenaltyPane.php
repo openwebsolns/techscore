@@ -74,14 +74,8 @@ class EnterPenaltyPane extends AbstractPane {
 							 "class"=>"narrow"))));
 
       // Penalty type
-      $form->add(new FItem("Penalty type:", new Select("p_type", array($p_sel = new FOptionGroup("Penalties"),
-								       $b_sel = new FOptionGroup("Breakdowns")))));
-      // Penalties and breakdown options
-      foreach (Penalty::getList() as $key => $val)
-	$p_sel->add(new FOption($key, $val));
-      foreach (Breakdown::getList() as $key => $val)
-	$b_sel->add(new FOption($key, $val));
-
+      $form->add(new FItem("Penalty type:", XSelect::fromArray('p_type', array("Penalties" => Penalty::getList(),
+									       "Breakdowns" => Breakdown::getList()))));
       // Submit
       $form->add(new XSubmitInput("c_race", "Next >>"));
     }
@@ -95,7 +89,7 @@ class EnterPenaltyPane extends AbstractPane {
       $this->PAGE->addContent($p = new Port($title));
       $p->add($form = $this->createForm());
       $form->add(new XHiddenInput("p_type", $p_type));
-      $form->add(new FItem("Team:", $f_sel = new Select("finish[]", array(), array('multiple'=>'multiple'))));
+      $form->add(new FItem("Team:", $f_sel = new XSelectM("finish[]")));
       foreach ($this->REGATTA->getTeams() as $team) {
 	$fin = $this->REGATTA->getFinish($theRace, $team);
 	if ($fin->penalty === null) {
