@@ -43,16 +43,16 @@ class NewRegattaPane extends AbstractUserPane {
 	$r[$key] = $args[$key];
     }
 
-    $f->add(new FItem("Name:", new FText("name", $r["name"], array('maxlength'=>40))));
-    $f->add(new FItem("Start date:", new FText("start_date", $r["start_date"])));
-    $f->add(new FItem("On the water:", new FText("start_time", $r["start_time"])));
-    $f->add(new FItem("Duration (days):", new FText("duration", $r["duration"])));
+    $f->add(new FItem("Name:", new XTextInput("name", $r["name"], array('maxlength'=>40))));
+    $f->add(new FItem("Start date:", new XTextInput("start_date", $r["start_date"])));
+    $f->add(new FItem("On the water:", new XTextInput("start_time", $r["start_time"])));
+    $f->add(new FItem("Duration (days):", new XTextInput("duration", $r["duration"])));
     $f->add(new FItem("Venue:",   $sel = new FSelect("venue", array($r["venue"]))));
     $f->add(new FItem("Scoring:", $sco = new FSelect("scoring", array($r["scoring"]))));
     $f->add(new FItem("Type:",    $typ = new FSelect("type", array($r["type"]))));
     $f->add(new FItem("Participation:", $par = new FSelect("participant", array($r["participant"]))));
     $f->add(new FItem("Divisions:",$div = new FSelect("num_divisions",  array($r["num_divisions"]))));
-    $f->add(new FItem("Number of races:", new FText("num_races", $r["num_races"])));
+    $f->add(new FItem("Number of races:", new XTextInput("num_races", $r["num_races"])));
     // host: if it has more than one host, otherwise send it hidden
     $confs = array(); // array of conference choices
     $schools = $this->USER->getSchools();

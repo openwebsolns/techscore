@@ -54,7 +54,7 @@ class WelcomePage extends TScorePage {
     // LOGIN MENU
     $this->addContent($p = new Port("Sign-in"));
     $p->add($form = new XForm("/login", XForm::POST));
-    $form->add(new FItem("Username:", new FText("userid", "", array("maxlength"=>"40"))));
+    $form->add(new FItem("Username:", new XTextInput("userid", "", array("maxlength"=>"40"))));
     $form->add($fi = new FItem("Password:", new XPasswordInput("pass", "", array("maxlength"=>"48"))));
     $fi->add(new XMessage(new XA('/password-recover', "Forgot your password?")));
 

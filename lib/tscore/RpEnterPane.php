@@ -170,7 +170,7 @@ class RpEnterPane extends AbstractPane {
 						     array("onchange"=>"check()")));
 	
 	$tab_skip->addRow(new Row(array($select_cell,
-					new Cell(new FText("rsk$div$spot",
+					new Cell(new XTextInput("rsk$div$spot",
 							   $value,
 							   array("size"=>"8",
 								 "class"=>"race_text",
@@ -210,7 +210,7 @@ class RpEnterPane extends AbstractPane {
 						       array($cur_cr_id),
 						       array("onchange"=>"check()")));
 	  $tab_crew->addRow(new Row(array($select_cell,
-					  new Cell(new FText("rcr" . 
+					  new Cell(new XTextInput("rcr" . 
 							     $div .
 							     $spot,
 							     $value,

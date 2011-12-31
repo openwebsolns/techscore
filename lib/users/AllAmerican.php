@@ -234,7 +234,7 @@ class AllAmerican extends AbstractUserPane {
       $this->PAGE->addContent($p = new Port("New sailors"));
       $p->add($form = new XForm('/aa-edit', XForm::POST));
       $form->add(new GenericElement('noscript', array(new XP(array(), "Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding."))));
-      $form->add(new FItem('Name:', $search = new FText('name-search', "")));
+      $form->add(new FItem('Name:', $search = new XTextInput('name-search', "")));
       $search->set('id', 'name-search');
       $form->add($ul = new XUl(array('id', 'aa-input'),
 			       array(new XLi("No sailors.", array('class'=>'message')))));

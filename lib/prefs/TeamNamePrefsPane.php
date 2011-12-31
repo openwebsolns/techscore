@@ -55,13 +55,13 @@ class TeamNamePrefsPane extends AbstractUserPane {
     $names = Preferences::getTeamNames($this->SCHOOL);
     // First row
     $tab->addRow($row = new Row(array(new Cell("Primary"), $c = new Cell())));
-    $c->add(new FText("name[]", array_shift($names), array("maxlength"=>20)));
+    $c->add(new XTextInput("name[]", array_shift($names), array("maxlength"=>20)));
     $row->set("style", "background:#EEEEEE; font-weight: bold");
 
     // Next four
     for ($i = 0; $i < 4; $i++) {
       $tab->addRow(new Row(array(new Cell(), $c = new Cell())));
-      $c->add(new FText("name[]", array_shift($names), array("maxlength"=>20)));
+      $c->add(new XTextInput("name[]", array_shift($names), array("maxlength"=>20)));
     }
 
     // Submit

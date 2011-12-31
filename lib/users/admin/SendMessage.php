@@ -100,7 +100,7 @@ class SendMessage extends AbstractAdminUserPane {
     $p->add($f = new XForm('/send-message-edit', XForm::POST));
     
     $f->add(new FItem("Recipients:", new XSpan($recip, array('class'=>'strong'))));
-    $f->add($fi = new FItem("Subject:", new FText('subject', "")));
+    $f->add($fi = new FItem("Subject:", new XTextInput('subject', "")));
     $fi->add(new XMessage("Less than 100 characters"));
 
     $f->add(new FItem("Message body:", new XTextArea('content', "", array('rows'=>16, 'cols'=>75))));

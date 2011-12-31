@@ -46,9 +46,9 @@ class UnregisteredSailorPane extends AbstractPane {
     $school->addOptions($schools);
     for ($i = 0; $i < 5; $i++) {
       $tab->addRow(new Row(array(new Cell($school),
-				 new Cell(new FText('first_name[]')),
-				 new Cell(new FText('last_name[]')),
-				 new Cell(new FText('year[]', "", array('maxlength'=>4, 'size'=>4, 'style'=>'max-width:5em;width:5em;min-width:5em'))),
+				 new Cell(new XTextInput('first_name[]')),
+				 new Cell(new XTextInput('last_name[]')),
+				 new Cell(new XTextInput('year[]', "", array('maxlength'=>4, 'size'=>4, 'style'=>'max-width:5em;width:5em;min-width:5em'))),
 				 new Cell($gender))));
     }
     $form->add(new XSubmitInput("addtemp", "Add sailors"));

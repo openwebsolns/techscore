@@ -59,7 +59,7 @@ class ManualTweakPane extends AbstractPane {
       $row = array(Cell::th($team));
       foreach ($races as $race) {
 	$sail = $rotation->getSail($race, $team);
-	$row[] = new Cell(new FText(sprintf("%s,%s", $race->id, $team->id),
+	$row[] = new Cell(new XTextInput(sprintf("%s,%s", $race->id, $team->id),
 				    ($sail !== null) ? $sail : "",
 				    array("size"=>"3", "maxlength"=>"3", "class"=>"small")));
       }

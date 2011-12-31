@@ -422,23 +422,6 @@ class FGenericElement extends GenericElement
 }
 
 /**
- * Form text input
- */
-class FText extends FGenericElement
-{
-  public function __construct($name,
-			      $value = "",
-			      $attrs = array()) {
-    parent::__construct("input",
-			$name,
-			array($value),
-			$attrs);
-
-    $this->set("type","text");
-  }
-}
-
-/**
  * From select input (allows multiple selects)
  */
 class FSelect extends FGenericElement

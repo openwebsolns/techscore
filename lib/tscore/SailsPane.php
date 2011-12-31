@@ -53,7 +53,7 @@ class SailsPane extends AbstractPane {
     // Races
     $range_races = $this->REGATTA->getCombinedUnscoredRaces();
     $form->add($f_item = new FItem("Races:",
-					new FText("races", Utilities::makeRange($range_races),
+					new XTextInput("races", Utilities::makeRange($range_races),
 						  array("id"=>"frace"))));
     $f_item->add($tab = new Table());
     $tab->set("class", "narrow");
@@ -63,7 +63,7 @@ class SailsPane extends AbstractPane {
 
     // Set size
     $form->add(new FItem('Races in set:<br/><small>With "no rotation", value is ignored</small>',
-			      $f_text = new FText("repeat", 2)));
+			      $f_text = new XTextInput("repeat", 2)));
     $f_text->set("size", 2);
     $f_text->set("id",  "repeat");
 
@@ -82,14 +82,14 @@ class SailsPane extends AbstractPane {
       foreach ($teams as $team) {
 	$name = sprintf("%s,%s", $divisions[0], $team->id);
 	$tab->addRow(new Row(array(Cell::th($team),
-				   new Cell(new FText($name, $i++,
+				   new Cell(new XTextInput($name, $i++,
 						      array("size"=>"2",
 							    "maxlength"=>"8",
 							    "class"=>"small"))))));
       }
       if ($bye_team !== null)
 	$tab->addRow(new Row(array(Cell::th($bye_team),
-				   new Cell(new FText($bye_team->id, $i++,
+				   new Cell(new XTextInput($bye_team->id, $i++,
 						      array("size"=>"2",
 							    "maxlength"=>"8",
 							    "class"=>"small"))))));
@@ -105,7 +105,7 @@ class SailsPane extends AbstractPane {
 	foreach ($divisions as $div) {
 	  $num = $i + $off * $num_teams;
 	  $name = sprintf("%s,%s", $div, $team->id);
-	  $row->add(new Cell(new FText($name, $num, array("size"=>"2",
+	  $row->add(new Cell(new XTextInput($name, $num, array("size"=>"2",
 							       "class"=>"small",
 							       "maxlength"=>"8"))));
 	  $off++;
@@ -116,7 +116,7 @@ class SailsPane extends AbstractPane {
       if ($bye_team !== null) {
 	$num = $i + ($off - 1) * $num_teams;
 	$tab->addRow($row = new Row(array(new Cell($bye_team))));
-	$row->add(new Cell(new FText($bye_team->id, $num, array("size"=>"2",
+	$row->add(new Cell(new XTextInput($bye_team->id, $num, array("size"=>"2",
 								     "class"=>"small",
 								     "maxlength"=>"8"))));
 	for ($i = 1; $i < count($divisions); $i++) {
@@ -250,7 +250,7 @@ class SailsPane extends AbstractPane {
 	$tab->addHeader(new Row(array(Cell::th("#"), Cell::th("Div."))));
 	$i = 0;
 	foreach ($chosen_div as $div) {
-	  $tab->addRow(new Row(array(new Cell(new FText("order[]", ++$i, array('class'=>'small',
+	  $tab->addRow(new Row(array(new Cell(new XTextInput("order[]", ++$i, array('class'=>'small',
 									       'size'=>2,
 									       'maxlength'=>1))),
 				     $c = new Cell($div, array('class'=>'drag'))),
@@ -278,7 +278,7 @@ class SailsPane extends AbstractPane {
 
       // Races
       $form->add($f_item = new FItem("Races:",
-					  new FText("races", Utilities::makeRange($range_races),
+					  new XTextInput("races", Utilities::makeRange($range_races),
 						    array("id"=>"frace"))));
       $f_item->add($tab = new Table());
       $tab->set("class", "narrow");
@@ -294,7 +294,7 @@ class SailsPane extends AbstractPane {
 				  $f_sel = new FSelect("from_div", array())));
 	$f_sel->addOptions($exist_div);
 	$form->add(new FItem("Amount to offset (+/-):",
-				  new FText("offset", (int)(count($p_teams) / count($exist_div)),
+				  new XTextInput("offset", (int)(count($p_teams) / count($exist_div)),
 					    array("size"=>"2",
 						  "maxlength"=>"2"))));
 
@@ -304,7 +304,7 @@ class SailsPane extends AbstractPane {
       else {
 	if ($chosen_rot != "NOR") {
 	  $form->add(new FItem("Races in set:",
-				    $f_text = new FText("repeat", $repeats,
+				    $f_text = new XTextInput("repeat", $repeats,
 							array("size"=>"2",
 							      "id"=>"repeat"))));
 	}
@@ -322,7 +322,7 @@ class SailsPane extends AbstractPane {
 	$i = 1;
 	foreach ($p_teams as $team) {
 	  $tab->addRow(new Row(array(Cell::th($team),
-				     new Cell(new FText($team->id, $i++,
+				     new Cell(new XTextInput($team->id, $i++,
 							array("size"=>"2",
 							      "class"=>"small",
 							      "maxlength"=>"8"))))));

@@ -68,7 +68,7 @@ class EnterFinishPane extends AbstractPane {
     $form->add(new XP(array(), "This regatta is being scored with combined divisions. Please enter any race in any division to enter finishes for that race number across all divisions."));
 
     $form->add($fitem = new FItem("Race:", 
-				       new FText("chosen_race",
+				       new XTextInput("chosen_race",
 						 $race,
 						 array("size"=>"4",
 						       "maxlength"=>"3",
@@ -148,7 +148,7 @@ class EnterFinishPane extends AbstractPane {
 							"id"=>"pos_sail")),
 				   new Cell(new XImg("/img/question.png", "Waiting for input",
 						     array("id"=>"check" . $i))),
-				   new Cell(new FText("p" . $i, $current_sail,
+				   new Cell(new XTextInput("p" . $i, $current_sail,
 						      array("id"=>"sail" . $i,
 							    "tabindex"=>($i+1),
 							    "onkeyup"=>"checkSails()",
@@ -258,7 +258,7 @@ class EnterFinishPane extends AbstractPane {
     $form->set("id", "race_form");
 
     $form->add($fitem = new FItem("Race:", 
-				       new FText("chosen_race",
+				       new XTextInput("chosen_race",
 						 $race,
 						 array("size"=>"4",
 						       "maxlength"=>"3",
@@ -323,7 +323,7 @@ class EnterFinishPane extends AbstractPane {
 					    array('name'=>'pos_sail', 'class'=>'pos_sail','id'=>'pos_sail')),
 				   new Cell(new XImg("/img/question.png", "Waiting for input",
 						     array("id"=>"check" . $i))),
-				   new Cell(new FText("p" . $i, $current_sail,
+				   new Cell(new XTextInput("p" . $i, $current_sail,
 						      array("id"=>"sail" . $i,
 							    "tabindex"=>($i+1),
 							    "onkeyup"=>"checkSails()",

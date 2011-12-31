@@ -66,7 +66,7 @@ class EnterPenaltyPane extends AbstractPane {
       }
       $tab->addRow(new Row($row));
       $form->add($fitem = new FItem("Race:", 
-					 new FText("p_race",
+					 new XTextInput("p_race",
 						   $theRace,
 						   array("size"=>"4",
 							 "maxlength"=>"4",
@@ -128,7 +128,7 @@ class EnterPenaltyPane extends AbstractPane {
       $form->add($new_score);
 
       $new_score = new FItem("OR Assign score:",
-			     new FText("p_amount", "", array("size"=>"2", "id"=>"p_amount")));
+			     new XTextInput("p_amount", "", array("size"=>"2", "id"=>"p_amount")));
       $new_score->add(new XCheckboxInput("displace", "yes", array("id"=>"displace_box")));
       $new_score->add(new XLabel('displace_box', 'Displace finishes'));
       $form->add($new_score);

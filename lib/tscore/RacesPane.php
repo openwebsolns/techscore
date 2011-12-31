@@ -44,7 +44,7 @@ class RacesPane extends AbstractPane {
     $form->add(new FItem("Number of divisions:",
 			      $f_div = new FSelect("num_divisions", array(count($divisions)))));
     $form->add(new FItem("Number of races:",
-			      $f_rac = new FText("num_races",
+			      $f_rac = new XTextInput("num_races",
 						 count($this->REGATTA->getRaces(Division::A())))));
     if ($final) {
       $f_div->set("disabled", "disabled");

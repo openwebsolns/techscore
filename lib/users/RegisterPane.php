@@ -80,9 +80,9 @@ class RegisterPane extends WelcomePage {
 
     $p->add(new XP(array(), "Once your account request has been approved by the registration committee, you will receive another e-mail from TechScore with instructions on logging in."));
     $p->add($f = new XForm("/register-edit", XForm::POST));
-    $f->add(new FItem("Email:", new FText("email", "")));
-    $f->add(new FItem("First name:", new FText("first_name", "")));
-    $f->add(new FItem("Last name:",  new FText("last_name", "")));
+    $f->add(new FItem("Email:", new XTextInput("email", "")));
+    $f->add(new FItem("First name:", new XTextInput("first_name", "")));
+    $f->add(new FItem("Last name:",  new XTextInput("last_name", "")));
     $f->add(new FItem("Password:", new XPasswordInput("passwd", "")));
     $f->add(new FItem("Confirm password:", new XPasswordInput("confirm", "")));
     $f->add(new FItem("Affiliation: ", $aff = new FSelect("school")));

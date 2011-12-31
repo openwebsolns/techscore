@@ -89,7 +89,7 @@ class UserHomePane extends AbstractUserPane {
       $p->add($f = new XForm('/', XForm::GET));
       $f->add($pa = new XP(array('id'=>'search', 'title'=>"Enter part or all of the name"),
 			   array("Search your regattas: ",
-				 new FText('q', $qry, array('size'=>60)),
+				 new XTextInput('q', $qry, array('size'=>60)),
 				 new XSubmitInput('go', "Go"))));
       if ($qry !== null) {
 	$pa->add(new XText(" "));

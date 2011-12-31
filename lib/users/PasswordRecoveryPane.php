@@ -57,7 +57,7 @@ class PasswordRecoveryPane extends WelcomePage {
     $p->add(new XP(array(), "To reset the password, please enter your username below. You will receive an e-mail at the address provided with a link. Click that link to reset your password."));
     
     $p->add($f = new XForm("/password-recover-edit", XForm::POST));
-    $f->add(new FItem("Email:", new FText("email", "")));
+    $f->add(new FItem("Email:", new XTextInput("email", "")));
     $f->add(new XSubmitInput("send-message", "Send message"));
   }
 

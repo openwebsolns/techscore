@@ -60,8 +60,8 @@ class BoatManagement extends AbstractAdminUserPane {
     
     $form->add(new XP(array(), "Keep in mind that the number of occupants includes 1 skipper. Therefore, the minimum value is 1 for a singlehanded boat class."));
     
-    $form->add(new FItem("Name:", new FText("name", $boat->name, array("maxlength"=>"15"))));
-    $form->add(new FItem("Number of occupants:", new FText("occupants", $boat->occupants)));
+    $form->add(new FItem("Name:", new XTextInput("name", $boat->name, array("maxlength"=>"15"))));
+    $form->add(new FItem("Number of occupants:", new XTextInput("occupants", $boat->occupants)));
     $form->add($hidd);
     $form->add(new XSubmitInput("set-boat", $mess));
     $form->add($link);

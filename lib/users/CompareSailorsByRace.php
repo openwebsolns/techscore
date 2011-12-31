@@ -210,7 +210,7 @@ class CompareSailorsByRace extends AbstractUserPane {
     // Sailor search
     $form->add($p = new Port("New sailors"));
     $p->add(new GenericElement('noscript', array(new XP(array(), "Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding."))));
-    $p->add(new FItem('Name:', $search = new FText('name-search', "")));
+    $p->add(new FItem('Name:', $search = new XTextInput('name-search', "")));
     $search->set('id', 'name-search');
     $p->add(new XUl(array('id'=>'aa-input'),
 		    array(new XLi("No sailors.", array('class'=>'message')))));

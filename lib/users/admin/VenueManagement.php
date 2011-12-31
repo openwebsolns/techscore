@@ -72,11 +72,11 @@ class VenueManagement extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new Port("Add venue"));
     $p->add($f = new XForm("/venue-edit", XForm::POST));
-    $f->add(new FItem("Name:", new FText("name", $name, array("maxlength"=>40))));
-    $f->add(new FItem("Address:", new FText("address", $addr, array("maxlength"=>40))));
-    $f->add(new FItem("City:", new FText("city", $city, array("maxlength"=>20))));
+    $f->add(new FItem("Name:", new XTextInput("name", $name, array("maxlength"=>40))));
+    $f->add(new FItem("Address:", new XTextInput("address", $addr, array("maxlength"=>40))));
+    $f->add(new FItem("City:", new XTextInput("city", $city, array("maxlength"=>20))));
     $f->add(new FItem("State:", $this->getStateSelect($stat)));
-    $f->add(new FItem("Zipcode:", new FText("zipcode", $code, array("maxlength"=>5))));
+    $f->add(new FItem("Zipcode:", new XTextInput("zipcode", $code, array("maxlength"=>5))));
     $f->add($hidd);
     $f->add(new XSubmitInput("set-venue", $mess));
   }

@@ -88,7 +88,7 @@ class TweakSailsPane extends AbstractPane {
       }
 
       $form->add($f_item = new FItem("Races:",
-					  new FText("races", Utilities::makeRange($range_races),
+					  new XTextInput("races", Utilities::makeRange($range_races),
 						    array("size"=>"12"))));
       $f_item->add($tab = new Table());
       $tab->set("class", "narrow");
@@ -97,7 +97,7 @@ class TweakSailsPane extends AbstractPane {
 
       if ( $edittype === "ADD" ) {
 	$form->add(new FItem("Add/subtract:",
-				  $f = new FText("addamount", "", array("size"=>"3"))));
+				  $f = new XTextInput("addamount", "", array("size"=>"3"))));
 	$f->set("maxlength", "3");
 	$form->add(new XSubmitInput("cancel", "<< Cancel"));
 	$form->add(new XSubmitInput("addsails", "Edit sails"));
@@ -116,7 +116,7 @@ class TweakSailsPane extends AbstractPane {
 								 array())));
 	$f_sel->addOptions($sails);
 	$f_item->add(" with ");
-	$f_item->add(new FText("to_sail", "",
+	$f_item->add(new XTextInput("to_sail", "",
 				    array("size"=>"3")));
 	$form->add(new XSubmitInput("cancel", "<< Cancel"));
 	$form->add(new XSubmitInput("replacesails", "Replace"));
