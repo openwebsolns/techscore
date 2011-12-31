@@ -41,28 +41,18 @@ class TeamPenaltyPane extends AbstractPane {
     }
 
     $p->add($form = $this->createForm());
-    $form->add(new FItem("Team:",
-			      $f_sel = new FSelect("team", array(""))));
-    $f_sel->addOptions($teams);
-
-    $form->add(new FItem("Division(s):<br/>" .
-			      "<small>Hold down <kbd>Ctrl</kbd> " .
-			      "to select multiple</small>",
-			      $f_sel = new FSelect("division[]",
-						   array(),
-						   array("multiple"=>"multiple"))));
-    $f_sel->addOptions($divisions);
+    $form->add(new FItem("Team:", XSelect::fromArray('team', $teams)));
+    $form->add($fi = new FItem("Division(s):", XSelectM::fromArray('division[]', $divisions)));
+    $fi->add(new XMessage("Hold down Ctrl to select multiple"));
 
     // Penalty type
-    $form->add(new FItem("Penalty type:",
-			      $f_sel = new FSelect("penalty", array())));
-
-    $f_sel->addOptions(array_merge(array(""=>""), TeamPenalty::getList()));
+    $opts = array_merge(array(""=>""), TeamPenalty::getList());
+    $form->add(new FItem("Penalty type:", XSelect::fromArray('penalty', $opts)));
 
     $form->add(new FItem("Comments:",
-			      new XTextArea("comments", "",
-					    array("rows"=>"2",
-						  "cols"=>"15"))));
+			 new XTextArea("comments", "",
+				       array("rows"=>"2",
+					     "cols"=>"15"))));
 
     $form->add(new XSubmitInput("t_submit", "Enter team penalty"));
 

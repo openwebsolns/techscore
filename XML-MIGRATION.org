@@ -23,15 +23,6 @@ by running:
 
 % grep --color -nlRi 'FSelect(' lib/ www/ bin/
 
-  - lib/tscore/SailsPane.php
-  - lib/tscore/UnregisteredSailorPane.php
-  - lib/tscore/TeamPenaltyPane.php
-  - lib/tscore/ScorersPane.php
-  - lib/tscore/TeamsPane.php
-  - lib/tscore/RacesPane.php
-  - lib/tscore/TweakSailsPane.php
-  - lib/tscore/EnterFinishPane.php
-  - lib/tscore/ManualTweakPane.php
   - lib/tscore/RpEnterPane.php
   - lib/tscore/ReplaceTeamPane.php
   - lib/prefs/SailorMergePane.php

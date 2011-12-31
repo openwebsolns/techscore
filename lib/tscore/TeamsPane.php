@@ -29,15 +29,12 @@ class TeamsPane extends AbstractPane {
     $p->add(new XP(array(), "Choose a school from which to add a new team. Because the regatta is under way, you may only add one team at a time."));
 
     $p->add($form = $this->createForm());
-    $form->add(new FItem("Schools:", $f_sel = new FSelect("addschool", array(), array('size'=>20))));
+    $form->add(new FItem("Schools:", $f_sel = new XSelect("addschool", array('size'=>20))));
     foreach ($confs as $conf) {
       // Get schools for that conference
-      $schools = Preferences::getSchoolsInConference($conf);
-      $schoolOptions = array();
-      foreach ($schools as $school) {
-	$schoolOptions[$school->id] = $school->name;
-      }
-      $f_sel->addOptionGroup($conf, $schoolOptions);
+      $f_sel->add($f_grp = new FOptionGroup((string)$conf));
+      foreach (Preferences::getSchoolsInConference($conf) as $school)
+	$f_grp->add(new FOption($school->id, $school->name));
     }
 
     // What to do with rotation?
@@ -54,9 +51,7 @@ class TeamsPane extends AbstractPane {
     // What to do with scores?
     if ($this->has_scores) {
       $exp->add(new XText("The regatta already has finishes entered. After adding the new teams, what should their score be?"));
-      $form->add(new FItem("New score:", $f_sel = new FSelect('new-score', array())));
-      $f_sel->add(new Option('DNS', "DNS", array('selected' => 'selected')));
-      $f_sel->add(new Option('BYE', "BYE"));
+      $form->add(new FItem("New score:", XSelect::fromArray('new-score', array('DNS' => 'DNS', 'BYE' => 'BYE'))));
     }
     $form->add(new XSubmitInput("invite", "Register team"));
   }

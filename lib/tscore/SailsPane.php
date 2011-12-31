@@ -126,9 +126,7 @@ class SailsPane extends AbstractPane {
     }
 
     // order
-    $form->add(new FItem("Order sails in first race:",
-			      $f_sel = new FSelect("sort", array("num"))));
-    $f_sel->addOptions($this->SORT);
+    $form->add(new FItem("Order sails in first race:", XSelect::fromArray('sort', $this->SORT)));
 
     // Submit form
     $form->add(new XSubmitInput("restart",   "<< Start over"));
@@ -197,24 +195,17 @@ class SailsPane extends AbstractPane {
       $form->set("id", "sail_setup");
       $form->add(new XP(array(), "Swap divisions require an even number of total teams at the time of creation. If you choose swap division, TechScore will add a \"BYE Team\" as needed to make the total number of teams even. This will produce an unused boat in every race."));
 
-      $form->add(new FItem("Type of rotation:",
-				$f_sel = new FSelect("rottype", array($chosen_rot))));
-
       $the_rots = $this->ROTS;
       if (count($exist_div) == 0)
 	unset($the_rots["OFF"]);
-      $f_sel->addOptions($the_rots);
+      $form->add(new FItem("Type of rotation:", XSelect::fromArray('rottype', $the_rots, $chosen_rot)));
 
       // No need for this choice if combined
       if (!$combined) {
-	$form->add(new FItem("Divisions to affect:",
-				  $f_sel = new FSelect("division[]", $chosen_div,
-						       array("multiple"=>"multiple"))));
-
 	$div_opts = array();
 	foreach ($divisions as $div)
 	  $div_opts[(string)$div] = (string)$div;
-	$f_sel->addOptions($div_opts);
+	$form->add(new FItem("Divisions to affect:", XSelectM::fromArray('division[]', $div_opts, $chosen_div)));
       }
       $form->add(new XSubmitInput("choose_rot", "Next >>"));
     }
@@ -267,10 +258,7 @@ class SailsPane extends AbstractPane {
       if (count($chosen_div) > 1 &&
 	  $chosen_rot != "NOR" &&
 	  $chosen_rot != "OFF") {
-	$form->add($f_item = new FItem("Style:",
-					    $f_sel = new FSelect("style",
-								 array("copy"))));
-	$f_sel->addOptions($this->STYLES);
+	$form->add(new FItem("Style:", XSelect::fromArray('style', $this->STYLES, 'copy')));
       }
       else {
 	$form->add(new XHiddenInput("style", "copy"));
@@ -290,9 +278,7 @@ class SailsPane extends AbstractPane {
       // current divisions for which there are rotations entered
       // and the offset amount
       if ($chosen_rot == "OFF") {
-	$form->add(new FItem("Copy rotation from:",
-				  $f_sel = new FSelect("from_div", array())));
-	$f_sel->addOptions($exist_div);
+	$form->add(new FItem("Copy rotation from:", XSelect::fromArray('from_div', $exist_div)));
 	$form->add(new FItem("Amount to offset (+/-):",
 				  new XTextInput("offset", (int)(count($p_teams) / count($exist_div)),
 					    array("size"=>"2",
@@ -329,9 +315,7 @@ class SailsPane extends AbstractPane {
 	}
 
 	// order
-	$form->add(new FItem("Order sails in first race:",
-				  $f_sel = new FSelect("sort", array("num"))));
-	$f_sel->addOptions($this->SORT);
+	$form->add(new FItem("Order sails in first race:", XSelect::fromArray('sort', $this->SORT, 'num')));
 
 	// Submit form
 	$form->add(new XSubmitInput("restart",   "<< Start over"));

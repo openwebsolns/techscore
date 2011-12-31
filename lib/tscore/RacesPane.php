@@ -30,7 +30,7 @@ class RacesPane extends AbstractPane {
   protected function fillHTML(Array $args) {
     $divisions = $this->REGATTA->getDivisions();
     $boats     = Preferences::getBoats();
-    $boatOptions = array();
+    $boatOptions = array('' => "[Use table]");
     foreach ($boats as $boat) {
       $boatOptions[$boat->id] = $boat->name;
     }
@@ -41,10 +41,9 @@ class RacesPane extends AbstractPane {
     $final = $this->REGATTA->get(Regatta::FINALIZED);
     $this->PAGE->addContent($p = new Port("Races and divisions"));
     $p->add($form = $this->createForm());
-    $form->add(new FItem("Number of divisions:",
-			      $f_div = new FSelect("num_divisions", array(count($divisions)))));
+    $form->add(new FItem("Number of divisions:", $f_div = new XSelect('num_divisions')));
     $form->add(new FItem("Number of races:",
-			      $f_rac = new XTextInput("num_races",
+			 $f_rac = new XTextInput("num_races",
 						 count($this->REGATTA->getRaces(Division::A())))));
     if ($final) {
       $f_div->set("disabled", "disabled");
@@ -63,9 +62,8 @@ class RacesPane extends AbstractPane {
     if ($final) $f_sub->set("disabled", "disabled");
 
     // Fill the select boxes
-    for ($i = 1; $i <= 4; $i++) {
-      $f_div->add(new Option($i, $i));
-    }
+    for ($i = 1; $i <= 4; $i++)
+      $f_div->add(new FOption($i, $i));
 
     //------------------------------------------------------------
     // Edit existing boats
@@ -95,9 +93,7 @@ class RacesPane extends AbstractPane {
     foreach ($divisions as $div) {
       $c = new Cell();
       $c->add(new XHiddenInput("div-value[]", $div));
-      $c->add($f_sel = new FSelect("div-boat[]", array()));
-      $f_sel->add(new Option("", "[Use table]"));
-      $f_sel->addOptions($boatOptions);
+      $c->add(XSelect::fromArray('div-boat[]', $boatOptions));
       $row[] = $c;
     }
     $tab->addRow(new Row($row));
@@ -108,13 +104,13 @@ class RacesPane extends AbstractPane {
       $row = array(Cell::th($i + 1));
 
       // For each division
+      array_shift($boatOptions);
       foreach ($divisions as $div) {
 	$c = new Cell();
 
 	if (isset($races[(string)$div][$i])) {
 	  $race = $races[(string)$div][$i];
-	  $c->add($f_sel = new FSelect($race, array($race->boat->id)));
-	  $f_sel->addOptions($boatOptions);
+	  $c->add(XSelect::fromArray($race, $boatOptions, $race->boat->id));
 	}
 
 	$row[] = $c;

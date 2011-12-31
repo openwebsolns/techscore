@@ -96,11 +96,7 @@ class EnterFinishPane extends AbstractPane {
       $using = "TMS";
     }
     
-    $form->add(new FItem("Using:",
-			      $fsel = new FSelect("finish_using",
-						  array($using))));
-    $fsel->addOptions($this->ACTIONS);
-
+    $form->add(new FItem("Using:", XSelect::fromArray('finish_using', $this->ACTIONS, $using)));
     $form->add(new XSubmitInput("choose_race",
 				"Change race"));
 
@@ -174,13 +170,14 @@ class EnterFinishPane extends AbstractPane {
 
       // - Fill possible teams and select
       $teams = $this->REGATTA->getTeams();
-      $team_opts = array("" => "");
+      $team_opts = array(new FOption("", ""));
       foreach ($divisions as $div) {
 	foreach ($teams as $team) {
-	  $team_opts[sprintf("%s,%s", $div, $team->id)] = sprintf("%s: %s %s",
-								  $div,
-								  $team->school->nick_name,
-								  $team->name);
+	  $team_opts[] = new FOption(sprintf("%s,%s", $div, $team->id),
+				     sprintf("%s: %s %s",
+					     $div,
+					     $team->school->nick_name,
+					     $team->name));
 	}
       }
       $attrs = array("name" =>"pos_team", "id" =>"pos_team", "class"=>"pos_sail");
@@ -198,11 +195,11 @@ class EnterFinishPane extends AbstractPane {
 	  $tab->addRow(new Row(array(new Cell($name, $attrs),
 				     new Cell(new XImg("/img/question.png", "Waiting for input",
 						       array("id"=>"check" . $i))),
-				     new Cell($sel = new FSelect("p" . $i, array($current_team),
-								 array("id"=>"team" . $i,
-								       "tabindex"=>($i+1),
-								       "onchange"=>"checkTeams()"))))));
-	  $sel->addOptions($team_opts);
+				     new Cell(new XSelect("p" . $i, array($current_team),
+							  array("id"=>"team" . $i,
+								"tabindex"=>($i+1),
+								"onchange"=>"checkTeams()"),
+							  $team_opts)))));
 	  $i++;
 	}
       }
@@ -287,11 +284,7 @@ class EnterFinishPane extends AbstractPane {
       $using = "TMS";
     }
     
-    $form->add(new FItem("Using:",
-			      $fsel = new FSelect("finish_using",
-						  array($using))));
-    $fsel->addOptions($this->ACTIONS);
-
+    $form->add(new FItem("Using:", XSelect::fromArray('finish_using', $this->ACTIONS, $using)));
     $form->add(new XSubmitInput("choose_race",
 				"Change race"));
 
@@ -349,12 +342,10 @@ class EnterFinishPane extends AbstractPane {
 
       // - Fill possible teams and select
       $teams = $this->REGATTA->getTeams();
-      $team_opts = array("" => "");
-      foreach ($teams as $team) {
-	$team_opts[$team->id] = sprintf("%s %s",
-					$team->school->nick_name,
-					$team->name);
-      }
+      $team_opts = array(new FOption("", ""));
+      foreach ($teams as $team)
+	$team_opts[] new FOption($team->id, sprintf("%s %s", $team->school->nick_name, $team->name));
+      
       $attrs = array("name"=>"pos_team", "class"=>"pos_sail", "id"=>"pos_team");
       $finishes = $this->REGATTA->getFinishes($race);
       usort($finishes, "Finish::compareEntered");
@@ -366,11 +357,11 @@ class EnterFinishPane extends AbstractPane {
 	$tab->addRow(new Row(array(new Cell($name, $attrs),
 				   new Cell(new XImg("/img/question.png", "Waiting for input",
 						     array("id"=>"check" . $i))),
-				   new Cell($sel = new FSelect("p" . $i, array($current_team),
-							       array("id"=>"team" . $i,
-								     "tabindex"=>($i+1),
-								     "onchange"=>"checkTeams()"))))));
-	$sel->addOptions($team_opts);
+				   new Cell(new XSelect("p" . $i, array($current_team),
+							array("id"=>"team" . $i,
+							      "tabindex"=>($i+1),
+							      "onchange"=>"checkTeams()"),
+							$team_opts)))));
       }
 
       // Submit buttom

@@ -36,9 +36,9 @@ class ManualTweakPane extends AbstractPane {
     $this->PAGE->addContent($p = new Port("Tweak current rotation"));
     $p->add($form = $this->createForm());
 
-    $form->add(new FItem("Pick a division:",
-			      $f_sel = new FSelect("division", array($chosen_div))));
-    $f_sel->addOptions(array_combine($exist_div, $exist_div));
+    $form->add(new FItem("Pick a division:", $f_sel = XSelect::fromArray('division',
+									 array_combine($exist_div, $exist_div),
+									 $chosen_div)));
     $f_sel->set("onchange", "submit()");
     $form->add(new XSubmitAccessible("boatupdate", "Update"));
 

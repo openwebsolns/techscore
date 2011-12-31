@@ -40,10 +40,8 @@ class UnregisteredSailorPane extends AbstractPane {
 				  Cell::th("Last name"),
 				  Cell::th("Year"),
 				  Cell::th("Gender"))));
-    $gender = new FSelect('gender[]');
-    $gender->addOptions(array('M'=>"Male", 'F'=>"Female"));
-    $school = new FSelect('school[]');
-    $school->addOptions($schools);
+    $gender = XSelect::fromArray('gender[]', array('M'=>"Male", 'F'=>"Female"));
+    $school = XSelect::fromArray('school[]', $schools);
     for ($i = 0; $i < 5; $i++) {
       $tab->addRow(new Row(array(new Cell($school),
 				 new Cell(new XTextInput('first_name[]')),

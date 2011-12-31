@@ -73,9 +73,7 @@ class ScorersPane extends AbstractPane {
     foreach (Preferences::getConferences() as $conf)
       $confs[$conf->id] = $conf;
         
-    $s_form->add($fi = new FItem("Conference:",
-				      $sel = new FSelect("conference", array($chosen_conf->id))));
-    $sel->addOptions($confs);
+    $s_form->add($fi = new FItem("Conference:", $sel = XSelect::fromArray('conference', $confs, $chosen_conf->id)));
     $sel->set("onchange","submit('this')");
 
     // Add accessible submit button
@@ -87,16 +85,11 @@ class ScorersPane extends AbstractPane {
     // Get accounts for this conference
     $accounts = Preferences::getUsersFromConference($chosen_conf);
     if (count($accounts) > 0) {
-      $s_form->add(new FItem("Account:", $sel = new FSelect("account[]", array())));
-      $sel->set("multiple","multiple");
-      $sel->set("size", 10);
-      $pot_scorers = array();
-
+      $s_form->add(new FItem("Account:", $sel = new XSelectM("account[]", array('size'=>10))));
       foreach ($accounts as $user) {
 	if (!isset($scorers[$user->id]))
-	  $pot_scorers[$user->id] = sprintf('%s, %s', $user->last_name, $user->first_name);
+	  $sel->add(new FOption($user->id, sprintf('%s, %s', $user->last_name, $user->first_name)));
       }
-      $sel->addOptions($pot_scorers);
       $s_form->add(new XSubmitInput("add_scorer", "Add scorers"));
     }
     else

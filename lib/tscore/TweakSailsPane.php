@@ -56,15 +56,10 @@ class TweakSailsPane extends AbstractPane {
       $p->add($form = $this->createForm());
 
       // Action
-      $form->add(new FItem("Action:",
-				$f_sel = new FSelect("edittype", array($edittype))));
-      $f_sel->addOptions($this->ACTIONS);
-
-      $form->add(new FItem("Division(s):",
-				$f_sel = new FSelect("division[]",
-						     $chosen_div,
-						     array("multiple"=>"multiple"))));
-      $f_sel->addOptions(array_combine($exist_div, $exist_div));
+      $form->add(new FItem("Action:", XSelect::fromArray('edittype', $this->ACTIONS, $edittype)));
+      $form->add(new FItem("Division(s):", XSelectM::fromArray('division[]',
+							       array_combine($exist_div, $exist_div),
+							       $chosen_div)));
       $form->add(new XSubmitInput("choose_act", "Next >>"));
     }
     else {
@@ -111,10 +106,7 @@ class TweakSailsPane extends AbstractPane {
 	$sails = $rotation->getCommonSails($races);
 
 	$sails = array_combine($sails, $sails);
-	$form->add($f_item = new FItem("Replace sail:",
-					    $f_sel = new FSelect("from_sail",
-								 array())));
-	$f_sel->addOptions($sails);
+	$form->add($f_item = new FItem("Replace sail:", XSelect::fromArray('from_sail', $sails)));
 	$f_item->add(" with ");
 	$f_item->add(new XTextInput("to_sail", "",
 				    array("size"=>"3")));
