@@ -90,7 +90,7 @@ class UserHomePane extends AbstractUserPane {
       $f->add($pa = new XP(array('id'=>'search', 'title'=>"Enter part or all of the name"),
 			   array("Search your regattas: ",
 				 new FText('q', $qry, array('size'=>60)),
-				 new FSubmit('go', "Go"))));
+				 new XSubmitInput('go', "Go"))));
       if ($qry !== null) {
 	$pa->add(new XText(" "));
 	$pa->add(new XA('/', "Cancel"));

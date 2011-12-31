@@ -124,7 +124,7 @@ class DetailsPane extends AbstractPane {
     $f_sel->set('size', 10);
 
     // Update button
-    $reg_form->add($reg_sub = new FSubmit("edit_reg", "Edit"));
+    $reg_form->add($reg_sub = new XSubmitInput("edit_reg", "Edit"));
     // If finalized, disable submit
     $finalized = $this->REGATTA->get(Regatta::FINALIZED);
 
@@ -147,7 +147,7 @@ class DetailsPane extends AbstractPane {
 					    "I wish to finalize this regatta.",
 					    array("class"=>"strong"))));
 
-	$form->add(new FSubmit("finalize",
+	$form->add(new XSubmitInput("finalize",
 				    "Finalize!"));
       }
     }

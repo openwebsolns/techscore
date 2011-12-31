@@ -101,7 +101,7 @@ class EnterFinishPane extends AbstractPane {
 						  array($using))));
     $fsel->addOptions($this->ACTIONS);
 
-    $form->add(new FSubmit("choose_race",
+    $form->add(new XSubmitInput("choose_race",
 				"Change race"));
 
     // ------------------------------------------------------------
@@ -158,7 +158,7 @@ class EnterFinishPane extends AbstractPane {
 
       // Submit buttom
       //$form->add(new XReset("reset_finish", "Reset"));
-      $form->add(new FSubmit("f_places",
+      $form->add(new XSubmitInput("f_places",
 				  sprintf("Enter finish for race %s", $race->number),
 				  array("id"=>"submitfinish", "tabindex"=>($i+1))));
     }
@@ -208,7 +208,7 @@ class EnterFinishPane extends AbstractPane {
       }
 
       // Submit buttom
-      $form->add(new FSubmit("f_teams",
+      $form->add(new XSubmitInput("f_teams",
 				  sprintf("Enter finish for race %s", $race->number),
 				  array("id"=>"submitfinish", "tabindex"=>($i+1))));
     }
@@ -292,7 +292,7 @@ class EnterFinishPane extends AbstractPane {
 						  array($using))));
     $fsel->addOptions($this->ACTIONS);
 
-    $form->add(new FSubmit("choose_race",
+    $form->add(new XSubmitInput("choose_race",
 				"Change race"));
 
     // ------------------------------------------------------------
@@ -333,7 +333,7 @@ class EnterFinishPane extends AbstractPane {
 
       // Submit buttom
       // $form->add(new XReset("reset_finish", "Reset"));
-      $form->add(new FSubmit("f_places",
+      $form->add(new XSubmitInput("f_places",
 				  sprintf("Enter finish for %s", $race),
 				  array("id"=>"submitfinish", "tabindex"=>($i+1))));
     }
@@ -374,7 +374,7 @@ class EnterFinishPane extends AbstractPane {
       }
 
       // Submit buttom
-      $form->add(new FSubmit("f_teams",
+      $form->add(new XSubmitInput("f_teams",
 				  sprintf("Enter finish for %s", $race),
 				  array("id"=>"submitfinish", "tabindex"=>($i+1))));
     }

@@ -214,7 +214,7 @@ class CompareSailorsByRace extends AbstractUserPane {
     $search->set('id', 'name-search');
     $p->add(new XUl(array('id'=>'aa-input'),
 		    array(new XLi("No sailors.", array('class'=>'message')))));
-    $form->add(new FSubmit('set-sailors', "Compare sailors"));
+    $form->add(new XSubmitInput('set-sailors', "Compare sailors"));
   }
 
   public function process(Array $args) {

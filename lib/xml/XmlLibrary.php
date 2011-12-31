@@ -586,20 +586,4 @@ class Option extends GenericElement
     return $this->elemAttrs["value"][0];
   }
 }
-
-/**
- * Submit buttons
- */
-class FSubmit extends FGenericElement
-{
-  public function __construct($name,
-			      $value,
-			      $attrs = array()) {
-    parent::__construct("input",
-			$name,
-			array($value),
-			$attrs);
-    $this->set("type", "submit");
-  }
-}
 ?>

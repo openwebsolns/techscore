@@ -48,7 +48,7 @@ class DeleteTeamsPane extends AbstractPane {
 				 new Cell(new XLabel($id, $aTeam->name), array('class'=>'left'))),
 			   array("class"=>"row" . ($row++%2))));
     }
-    $form->add(new FSubmit("remove", "Remove"));
+    $form->add(new XSubmitInput("remove", "Remove"));
   }
 
   /**

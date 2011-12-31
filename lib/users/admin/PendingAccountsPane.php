@@ -51,8 +51,8 @@ class PendingAccountsPane extends AbstractAdminUserPane {
       $p->add($f = new XForm("/pending-edit", XForm::POST));
       $f->add(new XP(array(),
 		     array("With selected: ",
-			   new FSubmit("approve", "Approve"),
-			   " ", new FSubmit("reject",  "Reject"))));
+			   new XSubmitInput("approve", "Approve"),
+			   " ", new XSubmitInput("reject",  "Reject"))));
 
       $f->add($tab = new Table());
       $tab->set("style", "width: 100%");

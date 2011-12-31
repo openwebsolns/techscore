@@ -72,7 +72,7 @@ class NewRegattaPane extends AbstractUserPane {
       foreach ($confs as $id => $list)
 	$f_sel->addOptionGroup($id, $list);
     }
-    $f->add(new FSubmit("new-regatta", "Create"));
+    $f->add(new XSubmitInput("new-regatta", "Create"));
 
     // select
     $sel->add(new Option("", "[No venue]"));

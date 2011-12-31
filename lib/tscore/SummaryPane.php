@@ -35,7 +35,7 @@ class SummaryPane extends AbstractPane {
 				new FTextArea($today->format('Y-m-d'), $comms,
 					      array("rows"=>"5", "cols"=>"50"))));
     }
-    $form->add(new FSubmit("set_comment", "Add/Update"));
+    $form->add(new XSubmitInput("set_comment", "Add/Update"));
   }
 
   /**

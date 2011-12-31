@@ -51,7 +51,7 @@ class UnregisteredSailorPane extends AbstractPane {
 				 new Cell(new FText('year[]', "", array('maxlength'=>4, 'size'=>4, 'style'=>'max-width:5em;width:5em;min-width:5em'))),
 				 new Cell($gender))));
     }
-    $form->add(new FSubmit("addtemp", "Add sailors"));
+    $form->add(new XSubmitInput("addtemp", "Add sailors"));
 
     $this->PAGE->addContent($p = new Port("Review current regatta list"));
     $p->add(new XP(array(), "Below is a list of all the temporary sailors added in this regatta. You are given the option to delete any sailor that is not currently present in any of the RP forms for this regatta. If you made a mistake about a sailor's identity, remove that sailor and add a new one instead."));
@@ -81,7 +81,7 @@ class UnregisteredSailorPane extends AbstractPane {
 	if (!$rp->isParticipating($t)) {
 	  $d->add($form = $this->createForm());
 	  $form->add(new XHiddenInput('sailor', $t->id));
-	  $form->add(new FSubmit('remove-temp', "Remove"));
+	  $form->add(new XSubmitInput('remove-temp', "Remove"));
 	}
       }
     }

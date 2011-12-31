@@ -232,7 +232,7 @@ class RpEnterPane extends AbstractPane {
     // - Add submit
     $form->add(new XP(array(),
 		      array(new XReset("reset", "Reset"),
-			    new FSubmit("rpform", "Submit form",
+			    new XSubmitInput("rpform", "Submit form",
 					array("id"=>"rpsubmit")))));
     $p->add(new GenericElement("script",
 				    array(new XText("check()")),

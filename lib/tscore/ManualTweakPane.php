@@ -66,7 +66,7 @@ class ManualTweakPane extends AbstractPane {
       $tab->addRow(new Row($row));
     }
     $form->add(new XReset("reset", "Reset"));
-    $form->add(new FSubmit("editboat", "Edit boat(s)"));
+    $form->add(new XSubmitInput("editboat", "Edit boat(s)"));
   }
 
   public function process(Array $args) {

@@ -87,7 +87,7 @@ class RegisterPane extends WelcomePage {
     $f->add(new FItem("Confirm password:", new XPasswordInput("confirm", "")));
     $f->add(new FItem("Affiliation: ", $aff = new FSelect("school")));
     $f->add(new FItem("Role: ", $rol = new FSelect("role")));
-    $f->add(new FSubmit("register", "Request account"));
+    $f->add(new XSubmitInput("register", "Request account"));
 
     // Fill out the selection boxes
     foreach (Preferences::getConferences() as $conf) {

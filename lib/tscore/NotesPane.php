@@ -56,7 +56,7 @@ class NotesPane extends AbstractPane {
 					$this->USER->getName(),
 					array("maxlength"=>"50"))));
 
-    $form->add(new FSubmit("observe",
+    $form->add(new XSubmitInput("observe",
 				"Add note"));
 
     // CURRENT NOTES
@@ -80,7 +80,7 @@ class NotesPane extends AbstractPane {
 				   new Cell($form = $this->createForm()))));
 
 	$form->add(new XHiddenInput("observation", $note->id));
-	$form->add(new FSubmit("remove", "Remove",
+	$form->add(new XSubmitInput("remove", "Remove",
 				    array("class"=>"thin")));
       }
     }

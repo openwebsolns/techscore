@@ -58,7 +58,7 @@ class WelcomePage extends TScorePage {
     $form->add($fi = new FItem("Password:", new XPasswordInput("pass", "", array("maxlength"=>"48"))));
     $fi->add(new XMessage(new XA('/password-recover', "Forgot your password?")));
 
-    $form->add(new FSubmit("login", "Login"));
+    $form->add(new XSubmitInput("login", "Login"));
 
     // Announcements
     $this->addContent($p = new Port("Announcements"));

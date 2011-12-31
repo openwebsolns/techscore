@@ -27,7 +27,7 @@ class AccountPane extends AbstractUserPane {
     $form->add(new XP(array(), "To leave password as is, leave the two fields below blank:"));
     $form->add(new FItem("New password:",     new XPasswordInput("sake1", "")));
     $form->add(new FItem("Confirm password:", new XPasswordInput("sake2", "")));
-    $form->add(new FSubmit('edit-info', "Edit"));
+    $form->add(new XSubmitInput('edit-info', "Edit"));
 
     // new FText("username",  $this->USER->get(User::LAST_NAME))));
   }

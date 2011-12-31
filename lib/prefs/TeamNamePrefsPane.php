@@ -65,7 +65,7 @@ class TeamNamePrefsPane extends AbstractUserPane {
     }
 
     // Submit
-    $form->add(new FSubmit("team_names", "Enter names"));
+    $form->add(new XSubmitInput("team_names", "Enter names"));
   }
 
   /**

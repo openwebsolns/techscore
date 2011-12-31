@@ -78,7 +78,7 @@ class VenueManagement extends AbstractAdminUserPane {
     $f->add(new FItem("State:", $this->getStateSelect($stat)));
     $f->add(new FItem("Zipcode:", new FText("zipcode", $code, array("maxlength"=>5))));
     $f->add($hidd);
-    $f->add(new FSubmit("set-venue", $mess));
+    $f->add(new XSubmitInput("set-venue", $mess));
   }
   private function fillList(Array $args) {
     $pageset  = (isset($args['page'])) ? (int)$args['page'] : 1;

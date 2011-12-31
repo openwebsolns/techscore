@@ -58,7 +58,7 @@ class TeamsPane extends AbstractPane {
       $f_sel->add(new Option('DNS', "DNS", array('selected' => 'selected')));
       $f_sel->add(new Option('BYE', "BYE"));
     }
-    $form->add(new FSubmit("invite", "Register team"));
+    $form->add(new XSubmitInput("invite", "Register team"));
   }
 
   /**
@@ -157,7 +157,7 @@ class TeamsPane extends AbstractPane {
 				     new XLabel($school->id, $school))));
       }
     }
-    $form->add(new FSubmit('set-teams', "Register teams"));
+    $form->add(new XSubmitInput('set-teams', "Register teams"));
   }
 
   public function processNewRegatta(Array $args) {

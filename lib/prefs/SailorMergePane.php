@@ -68,7 +68,7 @@ class SailorMergePane extends AbstractUserPane {
     }
 
     // Submit
-    $form->add(new FSubmit("match_sailors", "Update database"));
+    $form->add(new XSubmitInput("match_sailors", "Update database"));
   }
 
   /**

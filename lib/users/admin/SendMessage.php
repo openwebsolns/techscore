@@ -39,14 +39,14 @@ class SendMessage extends AbstractAdminUserPane {
 
     $p->add($f = new XForm("/send-message-edit", XForm::POST));
     $f->add($fi = new FItem(sprintf("All %s users:", NAME), new XHiddenInput('all-recipients', 1)));
-    $fi->add(new FSubmit('choose-recipients', "Write message >"));
+    $fi->add(new XSubmitInput('choose-recipients', "Write message >"));
     $fi->add(new XMessage("Broadcast general message to all users. Use sparingly."));
 
     // conference
     $p->add($f = new XForm("/send-message-edit", XForm::POST));
     $f->add($fi = new FItem("All users in conference:", $sel = new FSelect('conferences[]')));
     $fi->add(new XText(" "));
-    $fi->add(new FSubmit('choose-recipients', "Write message >"));
+    $fi->add(new XSubmitInput('choose-recipients', "Write message >"));
     $opts = array();
     foreach (Preferences::getConferences() as $conf)
       $opts[$conf->id] = $conf;
@@ -58,7 +58,7 @@ class SendMessage extends AbstractAdminUserPane {
     $p->add($f = new XForm("/send-message-edit", XForm::POST));
     $f->add($fi = new FItem("All users with role:", $sel = new FSelect('roles[]')));
     $fi->add(new XText(" "));
-    $fi->add(new FSubmit('choose-recipients', "Write message >"));
+    $fi->add(new XSubmitInput('choose-recipients', "Write message >"));
     $sel->addOptions(AccountManager::getRoles());
     $sel->set('multiple', 'multiple');
     $sel->set('size', 3);
@@ -67,7 +67,7 @@ class SendMessage extends AbstractAdminUserPane {
   private function fillMessage(Array $args) {
     $this->PAGE->addContent($p = new Port("Instructions"));
     $p->add($f = new XForm('/send-message-edit', XForm::POST));
-    $f->add(new FSubmit('reset-recipients', "<< Restart"));
+    $f->add(new XSubmitInput('reset-recipients', "<< Restart"));
     $p->add(new XP(array(), "When filling out the form, you may use the keywords in the table below to customize each message."));
     $p->add($tab = new Table());
     $tab->addHeader(new Row(array(Cell::th("Keyword"), Cell::th("Description"), Cell::th("Example"))));
@@ -106,7 +106,7 @@ class SendMessage extends AbstractAdminUserPane {
     $f->add(new FItem("Message body:", new FTextarea('content', "", array('rows'=>16, 'cols'=>75))));
     $f->add($fi = new FItem("Copy me:", new FCheckbox('copy-me', 1)));
     $fi->add(new XMessage("Send me a copy of message, whether or not I would otherwise receive one."));
-    $f->add(new FSubmit('send-message', "Send message now"));
+    $f->add(new XSubmitInput('send-message', "Send message now"));
   }
 
   public function process(Array $args) {

@@ -41,7 +41,7 @@ class EULAPane extends AbstractUserPane {
     $f->add($i = new FItem(new FCheckBox("agree", "1", array("id"=>"agree")),
 				new XLabel("agree", "I agree with the terms above")));
     $i->set("style", "margin:1em 0em;background:#ccc;border:black;padding:0.25em;font-size:110%;");
-    $f->add(new FSubmit("agree-form", "Sign"));
+    $f->add(new XSubmitInput("agree-form", "Sign"));
   }
 
   public function process(Array $args) {

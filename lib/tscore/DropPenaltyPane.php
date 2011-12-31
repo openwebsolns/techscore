@@ -54,7 +54,7 @@ class DropPenaltyPane extends AbstractPane {
 				   new Cell($form = $this->createForm()))));
 
 	$form->add(new XHiddenInput("r_finish", $finish->id));
-	$form->add($sub = new FSubmit("p_remove", "Drop/Reinstate",
+	$form->add($sub = new XSubmitInput("p_remove", "Drop/Reinstate",
 					   array("class"=>"thin")));
       }
     }
@@ -84,7 +84,7 @@ class DropPenaltyPane extends AbstractPane {
 				   new Cell($form = $this->createForm()))));
 
 	$form->add(new XHiddenInput("r_finish", $finish->id));
-	$form->add($sub = new FSubmit("p_remove", "Drop/Reinstate",
+	$form->add($sub = new XSubmitInput("p_remove", "Drop/Reinstate",
 					   array("class"=>"thin")));
       }
     }

@@ -59,7 +59,7 @@ class RacesPane extends AbstractPane {
     $form->add(new XP(array(),
 		      array(new XStrong("Note:"),
 			    " Extra races are automatically removed when the regatta is finalized.")));
-    $form->add($f_sub = new FSubmit("set-races", "Set races"));
+    $form->add($f_sub = new XSubmitInput("set-races", "Set races"));
     if ($final) $f_sub->set("disabled", "disabled");
 
     // Fill the select boxes
@@ -75,7 +75,7 @@ class RacesPane extends AbstractPane {
     $p->add($form = $this->createForm());
 
     // Add input elements
-    $form->add(new XP(array(), new FSubmit("editboats", "Edit boats")));
+    $form->add(new XP(array(), new XSubmitInput("editboats", "Edit boats")));
 
     // Table of races: columns are divisions; rows are race numbers
     $form->add($tab = new Table());

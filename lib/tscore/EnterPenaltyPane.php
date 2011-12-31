@@ -82,7 +82,7 @@ class EnterPenaltyPane extends AbstractPane {
       $f_sel->addOptionGroup("Breakdowns", Breakdown::getList());
 
       // Submit
-      $form->add(new FSubmit("c_race", "Next >>"));
+      $form->add(new XSubmitInput("c_race", "Next >>"));
     }
     else {
       $rotation = $this->REGATTA->getRotation();
@@ -141,8 +141,8 @@ class EnterPenaltyPane extends AbstractPane {
       $sc->add(new XText("document.getElementById('avg_box').checked   = true;"));
     
       // Submit
-      $form->add(new FSubmit("p_cancel", "Cancel"));
-      $form->add(new FSubmit("p_submit", "Enter $p_type"));
+      $form->add(new XSubmitInput("p_cancel", "Cancel"));
+      $form->add(new XSubmitInput("p_submit", "Enter $p_type"));
 
       // FAQ's
       $this->PAGE->addContent($p = new Port("FAQ"));

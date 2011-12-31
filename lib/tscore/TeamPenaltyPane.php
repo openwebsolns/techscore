@@ -64,7 +64,7 @@ class TeamPenaltyPane extends AbstractPane {
 					    array("rows"=>"2",
 						  "cols"=>"15"))));
 
-    $form->add(new FSubmit("t_submit", "Enter team penalty"));
+    $form->add(new XSubmitInput("t_submit", "Enter team penalty"));
 
     
     // ------------------------------------------------------------
@@ -95,7 +95,7 @@ class TeamPenaltyPane extends AbstractPane {
 
 	$form->add(new XHiddenInput("r_team", $p->team->id));
 	$form->add(new XHiddenInput("r_div",  $p->division));
-	$form->add($sub = new FSubmit("t_remove", "Drop",
+	$form->add($sub = new XSubmitInput("t_remove", "Drop",
 					   array("class"=>"thin")));
       }
     }

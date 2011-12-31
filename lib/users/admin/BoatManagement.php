@@ -63,7 +63,7 @@ class BoatManagement extends AbstractAdminUserPane {
     $form->add(new FItem("Name:", new FText("name", $boat->name, array("maxlength"=>"15"))));
     $form->add(new FItem("Number of occupants:", new FText("occupants", $boat->occupants)));
     $form->add($hidd);
-    $form->add(new FSubmit("set-boat", $mess));
+    $form->add(new XSubmitInput("set-boat", $mess));
     $form->add($link);
 
     // ------------------------------------------------------------

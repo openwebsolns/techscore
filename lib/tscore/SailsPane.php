@@ -131,8 +131,8 @@ class SailsPane extends AbstractPane {
     $f_sel->addOptions($this->SORT);
 
     // Submit form
-    $form->add(new FSubmit("restart",   "<< Start over"));
-    $form->add(new FSubmit("createrot", "Create rotation"));
+    $form->add(new XSubmitInput("restart",   "<< Start over"));
+    $form->add(new XSubmitInput("createrot", "Create rotation"));
   }
 
   /**
@@ -216,7 +216,7 @@ class SailsPane extends AbstractPane {
 	  $div_opts[(string)$div] = (string)$div;
 	$f_sel->addOptions($div_opts);
       }
-      $form->add(new FSubmit("choose_rot", "Next >>"));
+      $form->add(new XSubmitInput("choose_rot", "Next >>"));
     }
 
     // ------------------------------------------------------------
@@ -298,8 +298,8 @@ class SailsPane extends AbstractPane {
 					    array("size"=>"2",
 						  "maxlength"=>"2"))));
 
-	$form->add(new FSubmit("restart",   "<< Start over"));
-	$form->add(new FSubmit("offsetrot", "Offset"));
+	$form->add(new XSubmitInput("restart",   "<< Start over"));
+	$form->add(new XSubmitInput("offsetrot", "Offset"));
       }
       else {
 	if ($chosen_rot != "NOR") {
@@ -334,8 +334,8 @@ class SailsPane extends AbstractPane {
 	$f_sel->addOptions($this->SORT);
 
 	// Submit form
-	$form->add(new FSubmit("restart",   "<< Start over"));
-	$form->add(new FSubmit("createrot", "Create rotation"));
+	$form->add(new XSubmitInput("restart",   "<< Start over"));
+	$form->add(new XSubmitInput("createrot", "Create rotation"));
       }
 
       // FAQ's

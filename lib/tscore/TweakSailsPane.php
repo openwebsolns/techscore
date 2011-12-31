@@ -65,7 +65,7 @@ class TweakSailsPane extends AbstractPane {
 						     $chosen_div,
 						     array("multiple"=>"multiple"))));
       $f_sel->addOptions(array_combine($exist_div, $exist_div));
-      $form->add(new FSubmit("choose_act", "Next >>"));
+      $form->add(new XSubmitInput("choose_act", "Next >>"));
     }
     else {
 
@@ -99,8 +99,8 @@ class TweakSailsPane extends AbstractPane {
 	$form->add(new FItem("Add/subtract:",
 				  $f = new FText("addamount", "", array("size"=>"3"))));
 	$f->set("maxlength", "3");
-	$form->add(new FSubmit("cancel", "<< Cancel"));
-	$form->add(new FSubmit("addsails", "Edit sails"));
+	$form->add(new XSubmitInput("cancel", "<< Cancel"));
+	$form->add(new XSubmitInput("addsails", "Edit sails"));
       }
       elseif ( $edittype == "REP" ) {
 	// Get sails in chosen races
@@ -118,8 +118,8 @@ class TweakSailsPane extends AbstractPane {
 	$f_item->add(" with ");
 	$f_item->add(new FText("to_sail", "",
 				    array("size"=>"3")));
-	$form->add(new FSubmit("cancel", "<< Cancel"));
-	$form->add(new FSubmit("replacesails", "Replace"));
+	$form->add(new XSubmitInput("cancel", "<< Cancel"));
+	$form->add(new XSubmitInput("replacesails", "Replace"));
       }
 
     }

@@ -34,7 +34,7 @@ class PasswordRecoveryPane extends WelcomePage {
       $f->add(new FItem("New Password:", new XPasswordInput('new-password', "")));
       $f->add(new FItem("Confirm Password:", new XPasswordInput('confirm-password', "")));
       $f->add(new XHiddenInput('acc', trim($_GET['acc'])));
-      $f->add(new FSubmit('reset-password', "Reset password"));
+      $f->add(new XSubmitInput('reset-password', "Reset password"));
       return;
     }
 
@@ -58,7 +58,7 @@ class PasswordRecoveryPane extends WelcomePage {
     
     $p->add($f = new XForm("/password-recover-edit", XForm::POST));
     $f->add(new FItem("Email:", new FText("email", "")));
-    $f->add(new FSubmit("send-message", "Send message"));
+    $f->add(new XSubmitInput("send-message", "Send message"));
   }
 
   public function process(Array $args) {
