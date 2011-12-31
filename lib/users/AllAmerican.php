@@ -91,14 +91,14 @@ class AllAmerican extends AbstractUserPane {
       return;
     }
 
-    $this->PAGE->addHead(new GenericElement('link', array(), array('rel'=>'stylesheet',
-								   'type'=>'text/css',
-								   'media'=>'screen',
-								   'href'=>'/inc/css/widescreen.css')));
-    $this->PAGE->addHead(new GenericElement('link', array(new XText("")),
-					    array('type'=>'text/css',
-						  'href'=>'/inc/css/aa.css',
-						  'rel'=>'stylesheet')));
+    $this->PAGE->head->add(new GenericElement('link', array(), array('rel'=>'stylesheet',
+								     'type'=>'text/css',
+								     'media'=>'screen',
+								     'href'=>'/inc/css/widescreen.css')));
+    $this->PAGE->head->add(new GenericElement('link', array(new XText("")),
+					      array('type'=>'text/css',
+						    'href'=>'/inc/css/aa.css',
+						    'rel'=>'stylesheet')));
     
     // ------------------------------------------------------------
     // 1. Step one: choose regattas. For women's reports, ICSA
@@ -163,8 +163,8 @@ class AllAmerican extends AbstractUserPane {
 				      array('class'=>'left')),
 			     new Cell(new XLabel($id, $types[$reg->type])),
 			     new Cell(new XLabel($id,
-						($reg->participant == Regatta::PARTICIPANT_WOMEN) ?
-						"Women" : "Coed")),
+						 ($reg->participant == Regatta::PARTICIPANT_WOMEN) ?
+						 "Women" : "Coed")),
 			     new Cell(new XLabel($id, $reg->start_time->format('Y/m/d H:i'))),
 			     new Cell(new XLabel($id, ($reg->finalized) ? "Final" : "Pending"))));
 	  $tab->addRow($r);
@@ -224,13 +224,13 @@ class AllAmerican extends AbstractUserPane {
       // list, and a search box to add new ones
       $this->PAGE->addContent($p = new Port("Sailors in list"));
       $p->add(new XP(array(), sprintf("%d sailors meet the criteria for All-American inclusion based on the regattas chosen. Note that non-official sailors have been excluded. Use the bottom form to add more sailors to this list.",
-				    count($_SESSION['aa']['sailors']))));
+				      count($_SESSION['aa']['sailors']))));
       $p->add($item = new XUl(array('id', 'inc-sailors')));
       foreach ($_SESSION['aa']['sailors'] as $sailor)
 	$item->add(new XLi($sailor));
 
       // Form to fetch and add sailors
-      $this->PAGE->addHead(new GenericElement('script', array(new XText("")), array('src'=>'/inc/js/aa.js')));
+      $this->PAGE->head->add(new GenericElement('script', array(new XText("")), array('src'=>'/inc/js/aa.js')));
       $this->PAGE->addContent($p = new Port("New sailors"));
       $p->add($form = new XForm('/aa-edit', XForm::POST));
       $form->add(new GenericElement('noscript', array(new XP(array(), "Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding."))));

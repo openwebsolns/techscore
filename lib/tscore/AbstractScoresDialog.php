@@ -31,7 +31,7 @@ abstract class AbstractScoresDialog extends AbstractDialog {
 				   "$div Division")));
 
     // Add meta tag
-    $this->PAGE->addHead($p = new GenericElement("meta"));
+    $this->PAGE->head->add($p = new GenericElement("meta"));
     $p->set("name", "timestamp");
     $p->set("content", date('Y-m-d H:i:s'));
   }

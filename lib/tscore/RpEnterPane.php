@@ -40,10 +40,10 @@ class RpEnterPane extends AbstractPane {
     $rpManager = $this->REGATTA->getRpManager();
     $divisions = $this->REGATTA->getDivisions();
     // Output
-    $this->PAGE->addHead(new GenericElement("script",
-					    array(new XText()),
-					    array("type"=>"text/javascript",
-					    "src"=>"/inc/js/rp.js")));
+    $this->PAGE->head->add(new GenericElement("script",
+					      array(new XText()),
+					      array("type"=>"text/javascript",
+						    "src"=>"/inc/js/rp.js")));
     
     $this->PAGE->addContent($p = new Port("Choose a team",
 					  array(),
@@ -62,10 +62,10 @@ class RpEnterPane extends AbstractPane {
     // ------------------------------------------------------------
     $p->add($form = $this->createForm());
     $form->add(new FItem("Team:",
-			      $f_sel = new FSelect("chosen_team",
-						   array($chosen_team->id),
-						   array("onchange"=>
-							 "submit(this)"))));
+			 $f_sel = new FSelect("chosen_team",
+					      array($chosen_team->id),
+					      array("onchange"=>
+						    "submit(this)"))));
     $team_opts = array();
     foreach ($teams as $team)
       $team_opts[$team->id] = sprintf("%s %s",
@@ -87,7 +87,7 @@ class RpEnterPane extends AbstractPane {
     $p->add($form = $this->createForm());
     $form->add(new XHiddenInput("chosen_team", $chosen_team->id));
     $form->add(new FItem("Representative:",
-			      $f_sel = new FSelect("rep", array($rep_id))));
+			 $f_sel = new FSelect("rep", array($rep_id))));
 
     // ------------------------------------------------------------
     // - Create option lists
@@ -171,11 +171,11 @@ class RpEnterPane extends AbstractPane {
 	
 	$tab_skip->addRow(new Row(array($select_cell,
 					new Cell(new XTextInput("rsk$div$spot",
-							   $value,
-							   array("size"=>"8",
-								 "class"=>"race_text",
-								 "onchange"=>
-								 "check()"))),
+								$value,
+								array("size"=>"8",
+								      "class"=>"race_text",
+								      "onchange"=>
+								      "check()"))),
 					new Cell(new XImg("/img/question.png", "Waiting to verify"),
 						 array("id"=>"csk" . $div . $spot))),
 				  array("class"=>"skipper")));
@@ -211,13 +211,13 @@ class RpEnterPane extends AbstractPane {
 						       array("onchange"=>"check()")));
 	  $tab_crew->addRow(new Row(array($select_cell,
 					  new Cell(new XTextInput("rcr" . 
-							     $div .
-							     $spot,
-							     $value,
-							     array("size"=>"8",
-								   "class"=>"race_text",
-								   "onchange"=>
-								   "check()"))),
+								  $div .
+								  $spot,
+								  $value,
+								  array("size"=>"8",
+									"class"=>"race_text",
+									"onchange"=>
+									"check()"))),
 					  new Cell(new XImg("/img/question.png", "Waiting to verify"),
 						   array("id"=>"ccr" . $div . $spot)))));
 	  
@@ -233,10 +233,10 @@ class RpEnterPane extends AbstractPane {
     $form->add(new XP(array(),
 		      array(new XReset("reset", "Reset"),
 			    new XSubmitInput("rpform", "Submit form",
-					array("id"=>"rpsubmit")))));
+					     array("id"=>"rpsubmit")))));
     $p->add(new GenericElement("script",
-				    array(new XText("check()")),
-				    array("type"=>"text/javascript")));
+			       array(new XText("check()")),
+			       array("type"=>"text/javascript")));
   }
 
   

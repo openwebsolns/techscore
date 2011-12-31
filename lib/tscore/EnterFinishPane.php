@@ -53,10 +53,10 @@ class EnterFinishPane extends AbstractPane {
 
     $rotation = $this->REGATTA->getRotation();
 
-    $this->PAGE->addHead(new GenericElement("script",
-					    array(new XText()),
-					    array("type"=>"text/javascript",
-						  "src"=>"/inc/js/finish.js")));
+    $this->PAGE->head->add(new GenericElement("script",
+					      array(new XText()),
+					      array("type"=>"text/javascript",
+						    "src"=>"/inc/js/finish.js")));
 
     $this->PAGE->addContent($p = new Port("Choose race number"));
 
@@ -68,7 +68,7 @@ class EnterFinishPane extends AbstractPane {
     $form->add(new XP(array(), "This regatta is being scored with combined divisions. Please enter any race in any division to enter finishes for that race number across all divisions."));
 
     $form->add($fitem = new FItem("Race:", 
-				       new XTextInput("chosen_race",
+				  new XTextInput("chosen_race",
 						 $race,
 						 array("size"=>"4",
 						       "maxlength"=>"3",
@@ -124,7 +124,7 @@ class EnterFinishPane extends AbstractPane {
       // Rotation-based
       // ------------------------------------------------------------
       $form->add($fitem = new FItem("Enter sail numbers:<br/><small>(Click to push)</small>",
-					 $tab = new Table()));
+				    $tab = new Table()));
       $tab->set("class", "narrow");
       $tab->set("id", "finish_table");
       $tab->addHeader(new Row(array(Cell::th("Sail"), Cell::th("&gt;"), Cell::th("Finish"))));
@@ -145,11 +145,11 @@ class EnterFinishPane extends AbstractPane {
 				   new Cell(new XImg("/img/question.png", "Waiting for input",
 						     array("id"=>"check" . $i))),
 				   new Cell(new XTextInput("p" . $i, $current_sail,
-						      array("id"=>"sail" . $i,
-							    "tabindex"=>($i+1),
-							    "onkeyup"=>"checkSails()",
-							    "class"=>"small",
-							    "size"=>"2"))))));
+							   array("id"=>"sail" . $i,
+								 "tabindex"=>($i+1),
+								 "onkeyup"=>"checkSails()",
+								 "class"=>"small",
+								 "size"=>"2"))))));
       }
 
       // Submit buttom
@@ -163,7 +163,7 @@ class EnterFinishPane extends AbstractPane {
       // Team lists
       // ------------------------------------------------------------
       $form->add($fitem = new FItem("Enter teams:<br/><small>(Click to push)</small>",
-					 $tab = new Table()));
+				    $tab = new Table()));
       $tab->set("class", "narrow");
       $tab->set("id", "finish_table");
       $tab->addHeader(new Row(array(Cell::th("Teams"), Cell::th("&gt;"), Cell::th("Finish"))));
@@ -241,10 +241,10 @@ class EnterFinishPane extends AbstractPane {
 
     $rotation = $this->REGATTA->getRotation();
 
-    $this->PAGE->addHead(new GenericElement("script",
-					    array(new XText()),
-					    array("type"=>"text/javascript",
-						  "src"=>"/inc/js/finish.js")));
+    $this->PAGE->head->add(new GenericElement("script",
+					      array(new XText()),
+					      array("type"=>"text/javascript",
+						    "src"=>"/inc/js/finish.js")));
 
     $this->PAGE->addContent($p = new Port("Choose race"));
 
@@ -255,7 +255,7 @@ class EnterFinishPane extends AbstractPane {
     $form->set("id", "race_form");
 
     $form->add($fitem = new FItem("Race:", 
-				       new XTextInput("chosen_race",
+				  new XTextInput("chosen_race",
 						 $race,
 						 array("size"=>"4",
 						       "maxlength"=>"3",
@@ -317,11 +317,11 @@ class EnterFinishPane extends AbstractPane {
 				   new Cell(new XImg("/img/question.png", "Waiting for input",
 						     array("id"=>"check" . $i))),
 				   new Cell(new XTextInput("p" . $i, $current_sail,
-						      array("id"=>"sail" . $i,
-							    "tabindex"=>($i+1),
-							    "onkeyup"=>"checkSails()",
-							    "class"=>"small",
-							    "size"=>"2"))))));
+							   array("id"=>"sail" . $i,
+								 "tabindex"=>($i+1),
+								 "onkeyup"=>"checkSails()",
+								 "class"=>"small",
+								 "size"=>"2"))))));
       }
 
       // Submit buttom
@@ -335,7 +335,7 @@ class EnterFinishPane extends AbstractPane {
       // Team lists
       // ------------------------------------------------------------
       $form->add($fitem = new FItem("Enter teams:<br/><small>(Click to push)</small>",
-					 $tab = new Table()));
+				    $tab = new Table()));
       $tab->set("class", "narrow");
       $tab->set("id", "finish_table");
       $tab->addHeader(new Row(array(Cell::th("Team"), Cell::th("&gt;"), Cell::th("Finish"))));
