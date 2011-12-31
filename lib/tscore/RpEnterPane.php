@@ -45,10 +45,7 @@ class RpEnterPane extends AbstractPane {
 					      array("type"=>"text/javascript",
 						    "src"=>"/inc/js/rp.js")));
     
-    $this->PAGE->addContent($p = new Port("Choose a team",
-					  array(),
-					  array("class"=>"nonprint")));
-
+    $this->PAGE->addContent($p = new Port("Choose a team"));
     $p->add(new XP(array(),
 		   array("Use the form below to enter RP information. If a sailor does not appear in the selection box, it means they are not in the ICSA database, and they have to be manually added to a temporary list in the ",
 			 new XA(sprintf('/%s/temp', $this->REGATTA->id()), "Unregistered form"),
@@ -77,10 +74,7 @@ class RpEnterPane extends AbstractPane {
     // ------------------------------------------------------------
     // RP Form
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new Port(sprintf("Fill out form for %s",
-						  $chosen_team),
-					  array(),
-					  array("class"=>"nonprint")));
+    $this->PAGE->addContent($p = new Port(sprintf("Fill out form for %s", $chosen_team)));
     // Representative
     $rep = $rpManager->getRepresentative($chosen_team);
     $rep_id = ($rep === null) ? "" : $rep->id;
