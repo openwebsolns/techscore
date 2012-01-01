@@ -58,31 +58,19 @@ class RpEnterPane extends AbstractPane {
     // Change team
     // ------------------------------------------------------------
     $p->add($form = $this->createForm());
-    $form->add(new FItem("Team:",
-			 $f_sel = new FSelect("chosen_team",
-					      array($chosen_team->id),
-					      array("onchange"=>
-						    "submit(this)"))));
+    $form->add(new FItem("Team:", $f_sel = new XSelect("chosen_team", array("onchange"=>"submit(this)"))));
     $team_opts = array();
-    foreach ($teams as $team)
-      $team_opts[$team->id] = sprintf("%s %s",
-				      $team->school->nick_name,
-				      $team->name);
-    $f_sel->addOptions($team_opts);
+    foreach ($teams as $team) {
+      $f_sel->add($opt = new FOption($team->id, sprintf("%s %s", $team->school->nick_name, $team->name)));
+      if ($team->id == $chosen_team->id)
+	$opt->set('selected', 'selected');
+    }
     $form->add(new XSubmitAccessible("change_team", "Get form"));
 
     // ------------------------------------------------------------
     // RP Form
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new Port(sprintf("Fill out form for %s", $chosen_team)));
-    // Representative
-    $rep = $rpManager->getRepresentative($chosen_team);
-    $rep_id = ($rep === null) ? "" : $rep->id;
-    $p->add($form = $this->createForm());
-    $form->add(new XHiddenInput("chosen_team", $chosen_team->id));
-    $form->add(new FItem("Representative:",
-			 $f_sel = new FSelect("rep", array($rep_id))));
-
     // ------------------------------------------------------------
     // - Create option lists
     //   If the regatta is in the current season, then only choose
@@ -97,28 +85,23 @@ class RpEnterPane extends AbstractPane {
     $sailors = RpManager::getSailors($chosen_team->school, $gender, $active);
     $un_slrs = RpManager::getUnregisteredSailors($chosen_team->school, $gender);
 
-    $coach_optgroup = array();
+    $sailor_options = array("Coaches" => array(), "Sailors" => array(), "Non-ICSA" => array());
     foreach ($coaches as $s)
-      $coach_optgroup[] = new Option($s->id, $s);
-    $coach_optgroup = new OptionGroup("Coaches", $coach_optgroup);
-
-    $sailor_optgroup = array();
+      $sailor_options["Coaches"][$s->id] = (string)$s;
     foreach ($sailors as $s)
-      $sailor_optgroup[] = new Option($s->id, $s);
-    $sailor_optgroup = new OptionGroup("Sailors", $sailor_optgroup);
-
-    $u_sailor_optgroup = array();
+      $sailor_options["Sailors"][$s->id] = (string)$s;
     foreach ($un_slrs as $s)
-      $u_sailor_optgroup[] = new Option($s->id, $s);
-    $u_sailor_optgroup = new OptionGroup("Non-ICSA", $u_sailor_optgroup);
+      $sailor_options["Non-ICSA"][$s->id] = (string)$s;
+    
+    // Representative
+    $rep = $rpManager->getRepresentative($chosen_team);
+    $rep_id = ($rep === null) ? "" : $rep->id;
+    $p->add($form = $this->createForm());
+    $form->add(new XHiddenInput("chosen_team", $chosen_team->id));
+    $form->add(new FItem("Representative:", XSelect::fromArray('rep', $sailor_options, $rep_id)));
 
-    $sailor_options = array(new Option(),
-			    $coach_optgroup,
-			    $sailor_optgroup,
-			    $u_sailor_optgroup);
-
-    foreach ($sailor_options as $option)
-      $f_sel->add(clone($option));
+    // Remove coaches from list
+    unset($sailor_options["Coaches"]);
 
     // ------------------------------------------------------------
     // - Fill out form
@@ -159,10 +142,8 @@ class RpEnterPane extends AbstractPane {
 	  $value = Utilities::makeRange($cur_sk[$spot]->races_nums);
 
 	$cur_sk_id = (isset($cur_sk[$spot])) ? $cur_sk[$spot]->sailor->id : "";
-	$select_cell = new Cell($f_sel = new FSelect("sk$div$spot",
-						     array($cur_sk_id),
-						     array("onchange"=>"check()")));
-	
+	$select_cell = new Cell($f_sel = XSelect::fromArray("sk$div$spot", $sailor_options, $cur_sk_id));
+	$f_sel->set('onchange', 'check()');
 	$tab_skip->addRow(new Row(array($select_cell,
 					new Cell(new XTextInput("rsk$div$spot",
 								$value,
@@ -173,10 +154,6 @@ class RpEnterPane extends AbstractPane {
 					new Cell(new XImg("/img/question.png", "Waiting to verify"),
 						 array("id"=>"csk" . $div . $spot))),
 				  array("class"=>"skipper")));
-
-	// Add roster to select element
-	foreach ($sailor_options as $option)
-	  $f_sel->add(clone($option));
       }
 
       $num_crews = max(array_keys($occ));
@@ -198,11 +175,8 @@ class RpEnterPane extends AbstractPane {
 	    $value = Utilities::makeRange($cur_cr[$spot]->races_nums);
 
 	  $cur_cr_id = (isset($cur_cr[$spot])) ? $cur_cr[$spot]->sailor->id : "";
-	  $select_cell = new Cell($f_sel = new FSelect("cr" .
-						       $div .
-						       $spot,
-						       array($cur_cr_id),
-						       array("onchange"=>"check()")));
+	  $select_cell = new Cell($f_sel = XSelect::fromArray("cr$div$spot", $sailor_options, $cur_cr_id));
+	  $f_sel->set('onchange', 'check()');
 	  $tab_crew->addRow(new Row(array($select_cell,
 					  new Cell(new XTextInput("rcr" . 
 								  $div .
@@ -214,10 +188,6 @@ class RpEnterPane extends AbstractPane {
 									"check()"))),
 					  new Cell(new XImg("/img/question.png", "Waiting to verify"),
 						   array("id"=>"ccr" . $div . $spot)))));
-	  
-	  // Add options to $f_sel
-	  foreach ($sailor_options as $option)
-	    $f_sel->add(clone($option));
 	}
       } // end if
     }
