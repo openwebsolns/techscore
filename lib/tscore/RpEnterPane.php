@@ -40,11 +40,7 @@ class RpEnterPane extends AbstractPane {
     $rpManager = $this->REGATTA->getRpManager();
     $divisions = $this->REGATTA->getDivisions();
     // Output
-    $this->PAGE->head->add(new GenericElement("script",
-					      array(new XText()),
-					      array("type"=>"text/javascript",
-						    "src"=>"/inc/js/rp.js")));
-    
+    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/rp.js'));
     $this->PAGE->addContent($p = new XPort("Choose a team"));
     $p->add(new XP(array(),
 		   array("Use the form below to enter RP information. If a sailor does not appear in the selection box, it means they are not in the ICSA database, and they have to be manually added to a temporary list in the ",
@@ -198,9 +194,7 @@ class RpEnterPane extends AbstractPane {
 		      array(new XReset("reset", "Reset"),
 			    new XSubmitInput("rpform", "Submit form",
 					     array("id"=>"rpsubmit")))));
-    $p->add(new GenericElement("script",
-			       array(new XText("check()")),
-			       array("type"=>"text/javascript")));
+    $p->add(new XScript('text/javascript', null, "check()"));
   }
 
   

@@ -222,10 +222,10 @@ class AllAmerican extends AbstractUserPane {
 	$item->add(new XLi($sailor));
 
       // Form to fetch and add sailors
-      $this->PAGE->head->add(new GenericElement('script', array(new XText("")), array('src'=>'/inc/js/aa.js')));
+      $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/aa.js'));
       $this->PAGE->addContent($p = new XPort("New sailors"));
       $p->add($form = new XForm('/aa-edit', XForm::POST));
-      $form->add(new GenericElement('noscript', array(new XP(array(), "Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding."))));
+      $form->add(new XNoScript(new XP(array(), "Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding.")));
       $form->add(new FItem('Name:', $search = new XTextInput('name-search', "")));
       $search->set('id', 'name-search');
       $form->add($ul = new XUl(array('id', 'aa-input'),

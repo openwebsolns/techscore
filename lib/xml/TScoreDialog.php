@@ -71,10 +71,7 @@ class TScoreDialog extends XPage {
 		   "jquery.tablehover.min.js",
 		   "jquery.columnmanager.min.js",
 		   "refresher.js") as $scr) {
-      $this->head->add(new GenericElement("script",
-					  array(new XText("")),
-					  array("type"=>"text/javascript",
-						"src"=>"/inc/js/" . $scr)));
+      $this->head->add(new XScript('text/javascript', "/inc/js/$scr"));
     }
   }
 

@@ -53,11 +53,7 @@ class EnterFinishPane extends AbstractPane {
 
     $rotation = $this->REGATTA->getRotation();
 
-    $this->PAGE->head->add(new GenericElement("script",
-					      array(new XText()),
-					      array("type"=>"text/javascript",
-						    "src"=>"/inc/js/finish.js")));
-
+    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/finish.js'));
     $this->PAGE->addContent($p = new XPort("Choose race number"));
 
     // ------------------------------------------------------------
@@ -241,11 +237,7 @@ class EnterFinishPane extends AbstractPane {
 
     $rotation = $this->REGATTA->getRotation();
 
-    $this->PAGE->head->add(new GenericElement("script",
-					      array(new XText()),
-					      array("type"=>"text/javascript",
-						    "src"=>"/inc/js/finish.js")));
-
+    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/finish.js'));
     $this->PAGE->addContent($p = new XPort("Choose race"));
 
     // ------------------------------------------------------------

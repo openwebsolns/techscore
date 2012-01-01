@@ -231,9 +231,7 @@ class SailsPane extends AbstractPane {
       $form->add(new XHiddenInput("rottype", $chosen_rot));
       // Divisions
       if (count($chosen_div) > 1) {
-	$this->PAGE->head->add(new GenericElement("script", array(new XText("")),
-					       array("type"=>"text/javascript",
-						     "src"=>"/inc/js/tablesort.js")));
+	$this->PAGE->head->add(new XScript('text/javascript', '/inc/js/tablesort.js'));
 
 	$form->add(new FItem("Order:", $tab = new Table()));
 	$tab->set('class', 'narrow');

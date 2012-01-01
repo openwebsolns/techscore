@@ -125,12 +125,10 @@ class EnterPenaltyPane extends AbstractPane {
       $form->add($new_score);
 
       // script to turn off the two by default
-      $form->add($sc = new GenericElement("script"));
-      $sc->set("type", "text/javascript");
-      $sc->add(new XText("document.getElementById('p_amount').disabled = true;"));
-      $sc->add(new XText("document.getElementById('displace_box').disabled = true;"));
-      $sc->add(new XText("document.getElementById('avg_box').checked   = true;"));
-    
+      $form->add(new XScript('text/javascript', null,
+			     "document.getElementById('p_amount').disabled = true;".
+			     "document.getElementById('displace_box').disabled = true;".
+			     "document.getElementById('avg_box').checked   = true;"));
       // Submit
       $form->add(new XSubmitInput("p_cancel", "Cancel"));
       $form->add(new XSubmitInput("p_submit", "Enter $p_type"));

@@ -106,22 +106,13 @@ class TScorePage extends XPage {
 		   "jquery.tablehover.min.js",
 		   "jquery.columnmanager.min.js",
 		   "ui.datepicker.js") as $scr) {
-      $this->head->add(new GenericElement("script",
-					  array(new XText("")),
-					  array("type"=>"text/javascript",
-						"src"=>"/inc/js/" . $scr)));
+      $this->head->add(new XScript('text/javascript', "/inc/js/$scr"));
     }
     if ($this->mobile) {
-      $this->head->add(new GenericElement("script", array(new XText("")),
-					  array("type"=>"text/javascript",
-						"src"=>"/inc/js/mobile.js")));
+      $this->head->add(new XScript('text/javascript', '/inc/js/mobile.js'));
     }
     else {
-      foreach (array("form.js") as $scr) {
-	$this->head->add(new GenericElement("script", array(new XText("")),
-					    array("type"=>"text/javascript",
-						  "src"=>"/inc/js/" . $scr)));
-      }
+      $this->head->add(new XScript('text/javascript', '/inc/js/form.js'));
     }
   }
 

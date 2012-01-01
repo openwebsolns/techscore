@@ -160,7 +160,7 @@ class CompareHeadToHead extends AbstractUserPane {
     // Provide an input box to choose sailors using AJAX
     // ------------------------------------------------------------
     $this->PAGE->head->add(new XLinkCSS('text/css', '/inc/css/aa.css', 'screen'));
-    $this->PAGE->head->add(new GenericElement('script', array(new XText("")), array('src'=>'/inc/js/aa.js')));
+    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/aa.js'));
     $this->PAGE->addContent(new XP(array(), "Use this form to compare sailors head-to-head, showing the regattas that the sailors have sailed in common, and printing their place finish for each."));
     $this->PAGE->addContent($form = new XForm('/compare-sailors', XForm::GET));
 
@@ -182,7 +182,7 @@ class CompareHeadToHead extends AbstractUserPane {
 
     // Sailor search
     $form->add($p = new XPort("New sailors"));
-    $p->add(new GenericElement('noscript', array(new XP(array(), "Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding."))));
+    $p->add(new XNoScript(new XP(array(), "Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding.")));
     $p->add(new FItem('Name:', $search = new XTextInput('name-search', "")));
     $search->set('id', 'name-search');
     $p->add(new XUl(array('id'=>'aa-input'),
