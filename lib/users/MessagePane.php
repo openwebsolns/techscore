@@ -87,12 +87,9 @@ class MessagePane extends AbstractUserPane {
 	$mes->content;
 
       if (!$mes->read_time)
-	$tab->addRow(new Row(array(new Cell(new GenericElement("strong",
-							       array(new XA("inbox/" . $mes->id, $sub)))),
-				   new Cell(new GenericElement("strong",
-							       array(new XText($con)))),
-				   new Cell(new GenericElement("strong",
-							       array(new XText($mes->created->format('Y-m-d H:i'))))))));
+	$tab->addRow(new Row(array(new Cell(new XStrong(new XA("inbox/" . $mes->id, $sub))),
+				   new Cell(new XStrong($con)),
+				   new Cell(new XStrong($mes->created->format('Y-m-d H:i'))))));
       else
 	$tab->addRow(new Row(array(new Cell(new XA("inbox/" . $mes->id, $sub)),
 				   new Cell($con),
