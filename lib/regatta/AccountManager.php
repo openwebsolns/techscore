@@ -213,9 +213,9 @@ class AccountManager {
    * @return Array:String associative map of account role types
    */
   public static function getRoles() {
-    return array('coach'=>"Coaches",
+    return array('coach'=>"Coach",
 		 'staff'=>"Staff",
-		 'student'=>"Students");
+		 'student'=>"Student");
   }
 
   /**

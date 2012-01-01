@@ -86,9 +86,7 @@ class RegisterPane extends WelcomePage {
     $f->add(new FItem("Password:", new XPasswordInput("passwd", "")));
     $f->add(new FItem("Confirm password:", new XPasswordInput("confirm", "")));
     $f->add(new FItem("Affiliation: ", $aff = new XSelect("school")));
-    $f->add(new FItem("Role: ", XSelect::fromArray('role', array('coach'=>"Coach",
-								 'staff'=>"Staff",
-								 'student'=>"Student"))));
+    $f->add(new FItem("Role: ", XSelect::fromArray('role', AccountManager::getRoles())));
     $f->add(new XSubmitInput("register", "Request account"));
 
     // Fill out the selection boxes
