@@ -48,8 +48,7 @@ class TScorePage extends XPage {
 
     // Menu
     if ($this->mobile) {
-      $this->body->add(new GenericElement("button", array(new XText("Menu")),
-					  array("onclick"=>"toggleMenu()")));
+      $this->body->add(new XButton(array("onclick"=>"toggleMenu()", 'type'=>'button'), array("Menu")));
     }
     $this->menu = new XDiv(array('id'=>'menudiv'));
     $this->body->add($this->menu);

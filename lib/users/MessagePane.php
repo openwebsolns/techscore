@@ -50,21 +50,19 @@ class MessagePane extends AbstractUserPane {
       $p->add($form = new XForm("/inbox-edit", XForm::POST));
 
       // Fill out form
-      $form->add(new GenericElement("button",
-					 array(new XText("Delete")),
-					 array("name" =>"delete",
-					       "type"=>"submit",
-					       "value"=>$message->id)));
+      $form->add(new XButton(array("name" =>"delete",
+				   "type"=>"submit",
+				   "value"=>$message->id),
+			     array("Delete")));
       $form->add(new XText(" "));
       $form->add(new XA("inbox", "Close"));
       
       $p->add($form = new XForm("/inbox-edit", XForm::POST));
       $form->add(new XTextArea("text", "", array("style"=>"width: 100%", "rows" =>"3")));
-      $form->add(new GenericElement("button",
-					 array(new XText("Reply")),
-					 array("name" =>"reply",
-					       "type" =>"submit",
-					       "value"=>$message->id)));
+      $form->add(new XButton(array("name" =>"reply",
+				   "type" =>"submit",
+				   "value"=>$message->id),
+			     array("Reply")));
 
       // Mark the message as read
       Preferences::markRead($message);
