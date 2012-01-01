@@ -31,7 +31,7 @@ class RegattaIO {
     // ------------------------------------------------------------
     // Standard sections
     // ------------------------------------------------------------
-    $root = new GenericElement("Regatta");
+    $root = new XElem("Regatta");
     $root->set("version", VERSION);
     $root->set("xmlns", "http://techscore.mit.edu");
     $root->set("tsid", $reg->id());
@@ -51,33 +51,33 @@ class RegattaIO {
 
     // Details
     //   -Name
-    $root->add($tag = new GenericElement("RegattaName"));
+    $root->add($tag = new XElem("RegattaName"));
     $tag->add(new XText($reg->get(Regatta::NAME)));
 
     //   -Start time
     $stime = $reg->get(Regatta::START_TIME);
-    $root->add($tag = new GenericElement("StartTime"));
+    $root->add($tag = new XElem("StartTime"));
     $tag->add(new XText($stime->format('F j, Y G:i:s A T')));
 
     //   -Duration
-    $root->add($tag = new GenericElement("Duration"));
+    $root->add($tag = new XElem("Duration"));
     $tag->add(new XText($reg->get(Regatta::DURATION)));
 
     //   -Regatta type
-    $root->add($tag = new GenericElement("RegattaType"));
+    $root->add($tag = new XElem("RegattaType"));
     $tag->add(new XText($reg->get(Regatta::TYPE)));
     $tag->set("class", "ICSA");
 
     //   -Regatta scoring
-    $root->add($tag = new GenericElement("Scoring"));
+    $root->add($tag = new XElem("Scoring"));
     $tag->add(new XText($reg->get(Regatta::SCORING)));
     $tag->set("class", "ICSA");
 
     //   -Blurb
-    $root->add($tag = new GenericElement("Comments"));
+    $root->add($tag = new XElem("Comments"));
     for ($i = 0; $i < $reg->get(Regatta::DURATION); $i++) {
       $day = new DateTime(sprintf("%s + %d days", $stime->format('Y-m-d'), $i));
-      $tag->add($sub = new GenericElement("Comment"));
+      $tag->add($sub = new XElem("Comment"));
       $sub->set("day", $i);
       $sub->add(new XText($reg->getSummary($day)));
     }
@@ -85,15 +85,15 @@ class RegattaIO {
     //   -Venue
     $cont = $reg->get(Regatta::VENUE);
     if ($cont !== null) {
-      $root->add($tag = new GenericElement("Venue"));
+      $root->add($tag = new XElem("Venue"));
       $tag->set("id", $cont->id);
       $tag->add(new XText($cont->name));
     }
 
     //   -Scorers
-    $root->add($tag = new GenericElement("Scorers"));
+    $root->add($tag = new XElem("Scorers"));
     foreach ($reg->getScorers() as $user) {
-      $tag->add($sub = new GenericElement("Scorer"));
+      $tag->add($sub = new XElem("Scorer"));
       $sub->set("id", htmlspecialchars($user->id));
       $sub->add(new XText($user));
     }
@@ -102,7 +102,7 @@ class RegattaIO {
     $root->set("finalized", ($reg->get(Regatta::FINALIZED) != null));
 
     // Boats
-    $root->add($tag = new GenericElement("Boats"));
+    $root->add($tag = new XElem("Boats"));
     foreach ($divisions as $div) {
       $boat_set = array();
       $race_set = array();
@@ -115,7 +115,7 @@ class RegattaIO {
 
       foreach ($race_set as $id => $set) {
 	$boat = $boat_set[$id];
-	$tag->add($sub = new GenericElement("Boat"));
+	$tag->add($sub = new XElem("Boat"));
 	$sub->set("id", $id);
 	$sub->set("division", $div);
 	$sub->set("races", Utilities::makeRange($set));
@@ -125,15 +125,15 @@ class RegattaIO {
     }
 
     // Teams
-    $root->add($tag = new GenericElement("Teams"));
+    $root->add($tag = new XElem("Teams"));
     $teams = $reg->getTeams();
     foreach ($teams as $team) {
-      $tag->add($subtag = new GenericElement("Team"));
+      $tag->add($subtag = new XElem("Team"));
       $subtag->set("id", $team->id);
       $subtag->set("affiliate", $team->school->id);
-      $subtag->add($sub = new GenericElement("LongName"));
+      $subtag->add($sub = new XElem("LongName"));
       $sub->add(new XText($team->school->nick_name));
-      $subtag->add($sub = new GenericElement("ShortName"));
+      $subtag->add($sub = new XElem("ShortName"));
       $sub->add(new XText($team->name));
     }
 
@@ -142,16 +142,16 @@ class RegattaIO {
     //   the corresponding sail and finish. When entering finishes,
     //   also track the penalties/breakdown
     $rotation = $reg->getRotation();
-    $root->add($tag  = new GenericElement("Rotations"));
-    $root->add($tag2 = new GenericElement("Finishes"));
-    $root->add($tagP = new GenericElement("Penalties"));
-    $root->add($tagB = new GenericElement("Breakdowns"));
+    $root->add($tag  = new XElem("Rotations"));
+    $root->add($tag2 = new XElem("Finishes"));
+    $root->add($tagP = new XElem("Penalties"));
+    $root->add($tagB = new XElem("Breakdowns"));
     foreach ($divisions as $div) {
       // For each race and team
       foreach ($races[(string)$div] as $race) {
 	foreach ($teams as $team) {
 	  // Sail
-	  $tag->add($sub = new GenericElement("Sail"));
+	  $tag->add($sub = new XElem("Sail"));
 	  $sub->set("team", $team->id);
 	  $sub->set("race", $race);
 	  $sub->set("sail", $rotation->getSail($race, $team));
@@ -160,21 +160,21 @@ class RegattaIO {
 	  $finish = $reg->getFinish($race, $team);
 	  if ($finish != null) {
 
-	    $tag2->add($sub = new GenericElement("Finish"));
+	    $tag2->add($sub = new XElem("Finish"));
 	    $sub->set("team", $team->id);
 	    $sub->set("race", $race);
 	    $sub->add(new XText($finish->entered->format('G:i:s O')));
 
 	    // Penalty and breakdown
 	    if ($finish->penalty instanceof Penalty) {
-	      $tagP->add($sub = new GenericElement("Penalty"));
+	      $tagP->add($sub = new XElem("Penalty"));
 	      $sub->set("team", $team->id);
 	      $sub->set("race", $race);
 	      $sub->set("type", $finish->penalty->type);
 	      $sub->add(new XText($finish->penalty->comments));
 	    }
 	    elseif ($finish->penalty instanceof Breakdown) {
-	      $tagB->add($sub = new GenericElement("Breakdown"));
+	      $tagB->add($sub = new XElem("Breakdown"));
 	      $sub->set("team", $team->id);
 	      $sub->set("race", $race);
 	      $sub->set("type", $finish->penalty->type);
@@ -187,9 +187,9 @@ class RegattaIO {
     }
 
     // Team penalties
-    $root->add($tag = new GenericElement("TeamPenalties"));
+    $root->add($tag = new XElem("TeamPenalties"));
     foreach ($reg->getTeamPenalties() as $penalty) {
-      $tag->add($sub = new GenericElement("TeamPenalty"));
+      $tag->add($sub = new XElem("TeamPenalty"));
       $sub->set("team",     $penalty->team->id);
       $sub->set("division", $penalty->division);
       $sub->set("penalty",  $penalty->type);
@@ -198,13 +198,13 @@ class RegattaIO {
 
     // RP information
     $rp = $reg->getRpManager();
-    $root->add($tag = new GenericElement("RP"));
+    $root->add($tag = new XElem("RP"));
     foreach ($teams as $team) {
       foreach ($divisions as $div) {
 	foreach (array(RP::SKIPPER, RP::CREW) as $role) {
 	  $sailors = $rp->getRP($team, $div, $role);
 	  foreach ($sailors as $cont) {
-	    $tag->add($sub = new GenericElement("Sailor"));
+	    $tag->add($sub = new XElem("Sailor"));
 	    $sub->set("id",   $cont->sailor->id);
 	    $sub->set("team", $team->id);
 	    $sub->set("role", $role);
@@ -217,9 +217,9 @@ class RegattaIO {
 
     // Notes
     /*
-    $root->add($tag = new GenericElement("Notes"));
+    $root->add($tag = new XElem("Notes"));
     foreach (getRegattaNotesAssoc() as $note) {
-      $tag->add($sub = new GenericElement("Note"));
+      $tag->add($sub = new XElem("Note"));
       $sub->set("id",   $note['id']);
       $sub->set("race", $note['number'] . $note['division']);
       $sub->set("observer", $note['observer']);
@@ -230,38 +230,38 @@ class RegattaIO {
     // ------------------------------------------------------------
     // Sailor database
     // ------------------------------------------------------------
-    $root->add($tag = new GenericElement("Membership"));
+    $root->add($tag = new XElem("Membership"));
     $school_set = array();
     foreach ($teams as $team)
       $school_set[$team->school->id] = $team->school;
     foreach ($school_set as $school) {
-      $tag->add($sub = new GenericElement("Affiliate"));
+      $tag->add($sub = new XElem("Affiliate"));
       $sub->set("id", $school->id);
 
       foreach (RpManager::getSailors($school) as $sailor) {
-	$sub->add($ssub = new GenericElement("Member"));
+	$sub->add($ssub = new XElem("Member"));
 	$ssub->set("id", $sailor->id);
 	$ssub->set("data", "http://techscore.mit.edu");
 	
-	$ssub->add($sssub = new GenericElement("Name"));
+	$ssub->add($sssub = new XElem("Name"));
 	$sssub->add(new XText(sprintf("%s %s",
 					  $sailor->first_name,
 					  $sailor->last_name)));
-	$ssub->add($sssub = new GenericElement("Year"));
+	$ssub->add($sssub = new XElem("Year"));
 	$sssub->add(new XText($sailor->year));
       }
       
       foreach (RpManager::getUnregisteredSailors($school) as $sailor) {
-	$sub->add($ssub = new GenericElement("Member"));
+	$sub->add($ssub = new XElem("Member"));
 	$ssub->set("id", $sailor->id);
 	$ssub->set("data", "http://techscore.mit.edu");
 	
-	$ssub->add($sssub = new GenericElement("Name"));
+	$ssub->add($sssub = new XElem("Name"));
 	$sssub->add(new XText(sprintf("%s %s*",
 					  $sailor->first_name,
 					  $sailor->last_name)));
 
-	$ssub->add($sssub = new GenericElement("Year"));
+	$ssub->add($sssub = new XElem("Year"));
 	$sssub->add(new XText($sailor->year));
       }
     }
