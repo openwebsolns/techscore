@@ -51,10 +51,7 @@ class PrefsHomePane extends AbstractUserPane {
 
       $this->PAGE->addContent($p = new XPort("Choose school"));
       // Stylesheet fix
-      $p->add($st = new GenericElement("style"));
-      $st->set("type", "text/css");
-      $st->add(new XText('table.conf td { text-align: left; vertical-align: top; }'));
-
+      $p->add(new XStyle('text/css', 'table.conf td { text-align: left; vertical-align: top; }'));
       $p->add(new XP(array(), "Choose a different school to edit from the list below."));
       $p->add($tab = new Table());
       $tab->set("id", "conftable");
