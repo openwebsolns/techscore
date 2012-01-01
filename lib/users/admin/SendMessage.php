@@ -61,11 +61,9 @@ class SendMessage extends AbstractAdminUserPane {
     $p->add($f = new XForm('/send-message-edit', XForm::POST));
     $f->add(new XSubmitInput('reset-recipients', "<< Restart"));
     $p->add(new XP(array(), "When filling out the form, you may use the keywords in the table below to customize each message."));
-    $p->add($tab = new Table());
-    $tab->addHeader(new Row(array(Cell::th("Keyword"), Cell::th("Description"), Cell::th("Example"))));
-    $tab->addRow(new Row(array(new Cell("{FULL_NAME}"), new Cell("Full name of user"), new Cell($this->USER->getName()))));
-    $tab->addRow(new Row(array(new Cell("{SCHOOL}"), new Cell("User's ICSA school"), new Cell($this->USER->get(User::SCHOOL)))));
-    $tab->set('style', 'margin:0 auto 2em;');
+    $p->add($tab = new XQuickTable(array('style'=>'margin:0 auto 2em;'), array("Keyword", "Description", "Example")));
+    $tab->addRow(array("{FULL_NAME}", "Full name of user",  $this->USER->getName()));
+    $tab->addRow(array("{SCHOOL}",    "User's ICSA school", $this->USER->get(User::SCHOOL)));
     
     $title = "";
     $recip = "";

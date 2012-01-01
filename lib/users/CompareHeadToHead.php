@@ -134,15 +134,19 @@ class CompareHeadToHead extends AbstractUserPane {
     // push the sailor back
     array_unshift($sailors, $first_sailor);
     $this->PAGE->addContent($p = new XPort("Compare sailors head-to-head"));
-    $p->add($tab = new Table());
-    $tab->addHeader($row = new Row(array(Cell::th("Regatta"), Cell::th("Season"))));
+    $p->add(new XTable(array(), array(new XTHead(array(), array($row = new XTR())), $tab = new XTBody())));
+    
+    $row->add(new XTH(array(), "Regatta"));
+    $row->add(new XTH(array(), "Season"));
     foreach ($sailors as $sailor)
-      $row->add(Cell::th($sailor));
+      $row->add(new XTH($sailor));
     foreach ($table as $rid => $divs) {
       foreach ($divs as $list) {
-	$tab->addRow($row = new Row(array(new Cell($regattas[$rid]->name), new Cell($regattas[$rid]->season))));
+	$tab->add($row = new XTR());
+	$row->add(new XTD(array(), $regattas[$rid]->name));
+	$row->add(new XTD(array(), $regattas[$rid]->season));
 	foreach ($sailors as $sailor)
-	  $row->add(new Cell($list[$sailor->id]));
+	  $row->add(new XTD(array(), $list[$sailor->id]));
       }
     }
     return true;

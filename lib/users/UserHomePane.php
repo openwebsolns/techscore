@@ -101,13 +101,15 @@ class UserHomePane extends AbstractUserPane {
 
     // Create table of regattas, if applicable
     if (count($regattas) > 0) {
-      $p->add($tab = new Table());
-      $tab->set("style", "width: 100%");
-      $tab->addHeader(new Row(array(Cell::th("Name"),
-				    Cell::th("Season"),
-				    Cell::th("Date"),
-				    Cell::th("Type"),
-				    Cell::th("Finalized"))));
+      $p->add(new XTable(array('style'=>'width:100%'),
+			 array(new XTHead(array(),
+					  array(new XTR(array(),
+							array(new XTH(array(), "Name"),
+							      new XTH(array(), "Season"),
+							      new XTH(array(), "Date"),
+							      new XTH(array(), "Type"),
+							      new XTH(array(), "Finalized"))))),
+			       $tab = new XTBody())));
     }
     elseif ($qry === null) {
       $p->add(new XP(array(),
@@ -125,12 +127,12 @@ class UserHomePane extends AbstractUserPane {
 	$finalized = new XA('score/'.$reg->id.'#finalize', 'PENDING',
 			      array('title'=>'Regatta must be finalized!',
 				    'style'=>'color:red;font-weight:bold;font-size:110%;'));
-      $tab->addRow($r = new Row(array(new Cell($link, array("class"=>"left", "style"=>"padding-left: 1em")),
-				      new Cell(strtoupper($reg->season)),
-				      new Cell($reg->start_time->format("Y-m-d")),
-				      new Cell(ucfirst($reg->type)),
-				      new Cell($finalized))));
-      $r->set("class", sprintf("row%d", $row++ % 2));
+      $tab->add(new XTR(array('class'=>'row'.($row++ % 2)),
+			array(new XTD(array("class"=>"left", "style"=>"padding-left:1em"), $link),
+			      new XTD(array(), strtoupper($reg->season)),
+			      new XTD(array(), $reg->start_time->format("Y-m-d")),
+			      new XTD(array(), ucfirst($reg->type)),
+			      new XTD(array(), $finalized))));
     }
     $last = (int)($num_regattas / self::NUM_PER_PAGE);
     if ($last > 1) {

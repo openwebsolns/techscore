@@ -138,38 +138,42 @@ class CompareSailorsByRace extends AbstractUserPane {
     array_unshift($sailors, $first_sailor);
     $scores = array(); // track scores
     $this->PAGE->addContent($p = new XPort("Races sailed head-to-head"));
-    $p->add($tab = new Table());
-    $tab->addHeader($head = new Row(array(Cell::th("Regatta"), Cell::th("Race"))));
+    $p->add(new XTable(array(),
+		       array(new XTHead(array(),
+					array($head = new XTR(array(),
+							      array(new XTH(array(), "Regatta"),
+								    new XTH(array(), "Race"))),
+					      $tot  = new XTR(array(),
+							      array(new XTH(array(), ""),
+								    new XTH(array(), "Total"))))),
+			     $tab = new XTBody())));
     foreach ($sailors as $sailor) {
-      $head->add(Cell::th($sailor));
+      $head->add(new XTH(array(), $sailor));
       $scores[$sailor->id] = 0;
     }
-    // total row
-    $tab->addHeader($tot = new Row(array(new Cell(""), Cell::th("Total"))));
     // each race
     foreach ($reg_races as $reg_id => $div_list) {
       $regatta = new Regatta($reg_id);
       foreach ($div_list as $div => $races_nums) {
 	$index = 0;
 	foreach ($races_nums as $num) {
-	  $tab->addRow($row = new Row());
+	  $tab->add($row = new XTR());
 	  if ($index++ == 0) {
-	    $cell = Cell::th(sprintf('%s (%s)', $regatta->get(Regatta::NAME), $regatta->get(Regatta::SEASON)->fullString()));
-	    $cell->set('rowspan', count($races_nums));
-	    $row->add($cell);
+	    $row->add(new XTH(array('rowspan'=>count($races_nums)),
+			      sprintf('%s (%s)', $regatta->get(Regatta::NAME), $regatta->get(Regatta::SEASON)->fullString())));
 	  }
-	  $row->add(Cell::th(sprintf("%d%s", $num, $div)));
+	  $row->add(new XTH(array(), sprintf("%d%s", $num, $div)));
 	  foreach ($sailors as $sailor) {
 	    $finish = $regatta->getFinish($regatta->getRace(Division::get($div), $num),
 					  $reg_teams[$reg_id][$div][$sailor->id]);
-	    $row->add(new Cell($finish->place));
+	    $row->add(new XTD(array(), $finish->place));
 	    $scores[$sailor->id] += $finish->score;
 	  }
 	}
       }
     }
     foreach ($sailors as $sailor)
-      $tot->add(Cell::th($scores[$sailor->id]));
+      $tot->add(new XTH(array(), $scores[$sailor->id]));
     return true;
   }
 

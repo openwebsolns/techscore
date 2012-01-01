@@ -54,27 +54,19 @@ class PendingAccountsPane extends AbstractAdminUserPane {
 			   new XSubmitInput("approve", "Approve"),
 			   " ", new XSubmitInput("reject",  "Reject"))));
 
-      $f->add($tab = new Table());
-      $tab->set("style", "width: 100%");
-      $tab->addHeader(new Row(array(Cell::th(""), // select all/none checkbox?
-				    Cell::th("Name"),
-				    Cell::th("E-mail"),
-				    Cell::th("School"),
-				    Cell::th("Role"))));
+      $f->add($tab = new XQuickTable(array('style'=>'width:100%;'),
+				     array("", "Name", "E-mail", "School", "Role")));
       $row = 0;
       foreach ($list as $acc) {
-	$tab->addRow($r = new Row(array(new Cell(new FCheckBox("accounts[]",
-							       $acc->id,
-							       array("id"=>$acc->id))),
-					new Cell(new XLabel($acc->id, $acc->getName())),
-					new Cell(new XA(sprintf("mailto:%s", $acc->id),
-							  $acc->id)),
-					new Cell(new XLabel($acc->id, $acc->school->nick_name)),
-					new Cell(new XLabel($acc->id, $acc->role)))));
+	$tab->addRow(array(new XCheckboxInput('accounts[]', $acc->d, array('id'=>$acc->id)),
+			   new XLabel($acc->id, $acc->getName()),
+			   new XLabel($acc->id, new XA(sprintf("mailto:%s", $acc->id), $acc->id)),
+			   new XLabel($acc->id, $acc->school->nick_name),
+			   new XLabel($acc->id, $acc->role)));
       }
       if ($num_pages > 1) {
 	require_once('xml5/PageDiv.php');
-	$p->add(new PageDiv($num_pages, $pageset, "pending"));
+	$p->add(new PageDiv($num_pages, $pageset, "/pending"));
       }
     }
   }

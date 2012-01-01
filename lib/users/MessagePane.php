@@ -72,26 +72,24 @@ class MessagePane extends AbstractUserPane {
     // Message browser
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new XPort("All messages"));
-    $p->add($tab = new Table());
-    $tab->set("style", "width: 100%;");
-    $tab->set("class", "left");
-    $tab->addHeader(new Row(array(new Cell("Subject", array("width"=>"20%"), 1),
-				  new Cell("Content", array("width"=>"60%"), 1),
-				  new Cell("Sent",    array("width"=>"20%"), 1))));
+    $p->add(new XTable(array('class'=>'left', 'style'=>'width:100%;'),
+		       array(new XTHead(array(),
+					array(new XTR(array(),
+						      array(new XTH(array('width'=>'20%'), "Subject"),
+							    new XTH(array('width'=>'60%'), "Content"),
+							    new XTH(array('width'=>'20%'), "Sent"))))),
+			     $tab = new XTBody())));
     foreach ($messages as $mes) {
       $sub = (empty($mes->subject)) ? "[No subject]" : $mes->subject;
       $con = (strlen($mes->content) > 50) ?
 	substr($mes->content, 0, 50) . "..." :
 	$mes->content;
 
-      if (!$mes->read_time)
-	$tab->addRow(new Row(array(new Cell(new XStrong(new XA("inbox/" . $mes->id, $sub))),
-				   new Cell(new XStrong($con)),
-				   new Cell(new XStrong($mes->created->format('Y-m-d H:i'))))));
-      else
-	$tab->addRow(new Row(array(new Cell(new XA("inbox/" . $mes->id, $sub)),
-				   new Cell($con),
-				   new Cell($mes->created->format('Y-m-d H:i')))));
+      $attrs = ($mes->read_time === null) ? array('class'=>'strong') : array();
+      $tab->add(new XTR($attrs,
+			array(new XTD(new XA("/inbox/{$mes->id}", $sub)),
+			      new XTD($con),
+			      new XTD($mes->created->format('Y-m-d H:i')))));
     }
   }
 

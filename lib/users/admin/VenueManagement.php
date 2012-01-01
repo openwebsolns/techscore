@@ -99,17 +99,14 @@ class VenueManagement extends AbstractAdminUserPane {
       return;
     }
     $p->add(new XP(array(), "Click on the venue name in the table below to edit."));
-    $p->add($t = new Table());
-    $t->set("style", "width:100%;");
-    $t->addHeader(new Row(array(Cell::th("Name"),
-				Cell::th("Address"))));
+    $p->add($t = new XQuickTable(array('style'=>'width:100%'), array("Name", "Address")));
     foreach ($list as $venue) {
-      $t->addRow(new Row(array(new Cell(new XA(sprintf("edit-venue?v=%d", $venue->id), $venue)),
-			       new Cell(sprintf("%s %s, %s %s",
-						$venue->address,
-						$venue->city,
-						$venue->state,
-						$venue->zipcode)))));
+      $t->addRow(array(new XA(sprintf("edit-venue?v=%d", $venue->id), $venue),
+		       sprintf("%s %s, %s %s",
+			       $venue->address,
+			       $venue->city,
+			       $venue->state,
+			       $venue->zipcode)));
     }
   }
 

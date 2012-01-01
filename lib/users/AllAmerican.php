@@ -126,16 +126,9 @@ class AllAmerican extends AbstractUserPane {
       }
 
       $p2->add($form = new XForm("/aa-edit", XForm::POST));
-      $tab = new Table();
-      $tab->set('id', 'regtable');
-
+      $tab = new XQuickTable(array('id'=>'regtable'), array("", "Name", "Type", "Part.", "Date", "Status"));
+      
       $types = Preferences::getRegattaTypeAssoc();
-      $tab->addHeader(new Row(array(Cell::th(""),
-				    Cell::th("Name"),
-				    Cell::th("Type"),
-				    Cell::th("Part."),
-				    Cell::th("Date"),
-				    Cell::th("Status"))));
       $addt_regattas = 0;
       foreach ($regattas as $reg) {
 	if ($reg->finalized !== null &&
@@ -150,22 +143,21 @@ class AllAmerican extends AbstractUserPane {
 	else {
 	  // present these regattas for choosing
 	  $id = 'r'.$reg->id;
-	  $r = new Row(array(new Cell($chk = new XCheckboxInput("regatta[]", $reg->id, array('id'=>$id))),
-			     new Cell(new XLabel($id, $reg->name),
-				      array('class'=>'left')),
-			     new Cell(new XLabel($id, $types[$reg->type])),
-			     new Cell(new XLabel($id,
-						 ($reg->participant == Regatta::PARTICIPANT_WOMEN) ?
-						 "Women" : "Coed")),
-			     new Cell(new XLabel($id, $reg->start_time->format('Y/m/d H:i'))),
-			     new Cell(new XLabel($id, ($reg->finalized) ? "Final" : "Pending"))));
-	  $tab->addRow($r);
+	  $rattr = array();
+	  $cattr = array('id'=>$id);
 	  if ($reg->finalized === null ||
 	      ($reg->participant != $_SESSION['aa']['report-participation'] &&
 	       Regatta::PARTICIPANT_COED == $_SESSION['aa']['report-participation'])) {
-	    $r->set('class', 'disabled');
-	    $chk->set("disabled", "disabled");
+	    $rattr['class'] = 'disabled';
+	    $cattr['disabled'] = 'disabled';
 	  }
+	  $tab->addRow(array(new XCheckboxInput("regatta[]", $reg->id, $cattr),
+			     new XLabel($id, $reg->name),
+			     new XLabel($id, $types[$reg->type]),
+			     new XLabel($id, ($reg->participant == Regatta::PARTICIPANT_WOMEN) ? "Women" : "Coed"),
+			     new XLabel($id, $reg->start_time->format('Y/m/d H:i')),
+			     new XLabel($id, ($reg->finalized) ? "Final" : "Pending")),
+		       $rattr);
 	  $addt_regattas++;
 	}
       }
@@ -183,20 +175,13 @@ class AllAmerican extends AbstractUserPane {
 	$p1->add(new XP(array(), "No regattas this season fulfill the requirement for inclusion."));
       else {
 	$p1->add(new XP(array(), "The following regattas meet the criteria for inclusion in the report."));
-	$p1->add($tab = new Table());
-	$tab->addHeader(new Row(array(Cell::th("Name"),
-				      Cell::th("Type"),
-				      Cell::th("Part."),
-				      Cell::th("Date"),
-				      Cell::th("Status"))));
-
+	$p1->add($tab = new XQuickTable(array(), array("Name", "Type", "Part.", "Date", "Status")));
 	foreach ($qual_regattas as $reg) {
-	  $tab->addRow(new Row(array(new Cell($reg->name, array('class'=>'left')),
-				     new Cell($types[$reg->type]),
-				     new Cell(($reg->participant == Regatta::PARTICIPANT_WOMEN) ?
-					      "Women" : "Coed"),
-				     new Cell($reg->start_time->format('Y/m/d H:i')),
-				     new Cell("Final"))));
+	  $tab->addRow(array($reg->name,
+			     $types[$reg->type],
+			     ($reg->participant == Regatta::PARTICIPANT_WOMEN) ? "Women" : "Coed",
+			     $reg->start_time->format('Y/m/d H:i'),
+			     "Final"));
 	}
       }
       return;
@@ -248,29 +233,35 @@ class AllAmerican extends AbstractUserPane {
     $p->add($form = new XForm('/aa-edit', XForm::POST));
     $form->add(new XSubmitInput('unset-sailors', "<< Go back"));
     
-    $this->PAGE->addContent($table = new Table());
-    $table->set('id', 'aa-table');
-    $table->addHeader($hrow1 = new Row(array(Cell::th("ID"),
-					     Cell::th("Sailor"),
-					     Cell::th("YR"),
-					     Cell::th("School"),
-					     Cell::th("Conf."))));
-    $table->addHeader($hrow2 = new Row(array(Cell::td(""),
-					     Cell::td(""),
-					     Cell::td(""),
-					     Cell::td(""),
-					     Cell::td("Races/Div"))));
+    $this->PAGE->addContent(new XTable(array('id'=>'aa-table'),
+				       array(new XTHead(array(),
+							array($hrow1 = new XTR(array(),
+									       array(new XTH(array(), "ID"),
+										     new XTH(array(), "Sailor"),
+										     new XTH(array(), "YR"),
+										     new XTH(array(), "School"),
+										     new XTH(array(), "Conf."))),
+							      $hrow2 = new XTR(array(),
+									       array(new XTH(array(), ""),
+										     new XTH(array(), ""),
+										     new XTH(array(), ""),
+										     new XTH(array(), ""),
+										     new XTH(array(), "Races/Div"))))),
+					     $table = new XTBody())));
     foreach ($_SESSION['aa']['regatta_races'] as $reg_id => $num) {
-      $hrow1->add(new Cell($reg_id, array('class'=>'rotate'), 1));
-      $hrow2->add(new Cell($num));
+      $hrow1->add(new XTH(array('class'=>'rotate'), $reg_id));
+      $hrow2->add(new XTH(array(), $num));
     }
     $TABLE = $_SESSION['aa']['table'];
+    $row_num = 0;
     foreach ($_SESSION['aa']['sailors'] as $id => $sailor) {
-      $table->addRow($row = new Row(array(new Cell($sailor->id),
-					  new Cell(sprintf("%s %s", $sailor->first_name, $sailor->last_name)),
-					  new Cell($sailor->year),
-					  new Cell($sailor->school->nick_name),
-					  new Cell($sailor->school->conference))));
+      $table->add($row = new XTR(array('class'=>'row'.($row_num++ % 2)),
+				 array(new XTD(array(), $sailor->id),
+				       new XTD(array(), sprintf("%s %s", $sailor->first_name, $sailor->last_name)),
+				       new XTD(array(), $sailor->year),
+				       new XTD(array(), $sailor->school->nick_name),
+				       new XTD(array(), $sailor->school->conference))));
+      
       foreach ($TABLE as $reg_id => $sailor_list) {
 	if (!isset($sailor_list[$id])) {
 	  $_SESSION['aa']['table'][$reg_id][$id] = array();
@@ -289,7 +280,7 @@ class AllAmerican extends AbstractUserPane {
 	    $_SESSION['aa']['table'][$reg_id][$id][] = $content;
 	  }
 	}
-	$row->add(new Cell(implode("/", $_SESSION['aa']['table'][$reg_id][$id])));
+	$row->add(new XTD(array(), implode("/", $_SESSION['aa']['table'][$reg_id][$id])));
       }
     }
   }

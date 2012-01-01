@@ -71,12 +71,9 @@ class BoatManagement extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new XPort("All boat classes"));
     $p->add(new XP(array(), "Click on the boat name to edit that boat."));
-    $p->add($tab = new Table());
-    $tab->addHeader(new Row(array(Cell::th("Name"),
-				  Cell::th("No. Occupants"))));
+    $p->add($tab = new XQuickTable(array(), array("Name", "No. Occupants")));
     foreach (Preferences::getBoats() as $boat) {
-      $tab->addRow(new Row(array(new Cell(new XA(sprintf("boats?b=%d", $boat->id), $boat->name)),
-				 new Cell($boat->occupants))));
+      $tab->addRow(array(new XA(sprintf("boats?b=%d", $boat->id), $boat->name), $boat->occupants));
     }
   }
   
