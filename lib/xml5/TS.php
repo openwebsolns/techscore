@@ -160,51 +160,6 @@ class Port extends XDiv {
   }
 }
 
-/* /\** */
-/*  * XSelect has its arguments in a weird order. This fixes that. */
-/*  * */
-/*  * @author Dayan Paez */
-/*  * @version 2011-12-30 */
-/*  *\/ */
-/* class Select extends XSelect { */
-/*   public function __construct($name, Array $items = array(), Array $attrs = array()) { */
-/*     parent::__construct($name, $attrs, $items); */
-/*   } */
-/*   /\** */
-/*    * Shortcut to add options to the select */
-/*    * */
-/*    * @param Array $opts associative array of value => label */
-/*    * @param String|Array $chosen (optional) the chosen key(s), if any */
-/*    *\/ */
-/*   public function addOptions(Array $opts, $chosen = null) { */
-/*     if (!is_array($chosen)) */
-/*       $chosen = array($chosen); */
-/*     foreach ($opts as $k => $v) { */
-/*       $this->add($opt = new Option($k, $v)); */
-/*       if (in_array($k, $chosen)) */
-/* 	$opt->set('selected', 'selected'); */
-/*     } */
-/*   } */
-
-/*   /\** */
-/*    * Similar to addOptions, but wrapped inside an OptionGroup */
-/*    * */
-/*    * @param String $optgroup the name of the option group */
-/*    * @param Array $opts the option map (value => label) */
-/*    * @param String $chosen (optional) the chosen option value */
-/*    *\/ */
-/*   public function addOptionGroup($optgroup, Array $opts, $chosen = null) { */
-/*     if (!is_array($chosen)) */
-/*       $chosen = array($chosen); */
-/*     $this->add($grp = new OptionGroup($optgroup)); */
-/*     foreach ($opts as $k => $v) { */
-/*       $grp->add($opt = new Option($k, $v)); */
-/*       if (in_array($k, $chosen)) */
-/* 	$opt->set('selected', 'selected'); */
-/*     } */
-/*   } */
-/* } */
-
 /**
  * Multiple selects
  *

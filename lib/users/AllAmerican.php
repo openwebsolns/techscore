@@ -49,12 +49,11 @@ class AllAmerican extends AbstractUserPane {
     if ($_SESSION['aa']['report-participation'] === null) {
       $this->PAGE->addContent($p = new Port("Choose report"));
       $p->add($form = new XForm('/aa-edit', XForm::POST));
-      $form->add(new FItem("Participation:", $sel = new FSelect('participation', array())));
-      $sel->addOptions(array(Regatta::PARTICIPANT_COED => "Coed",
-			     Regatta::PARTICIPANT_WOMEN => "Women"));
+      $form->add(new FItem("Participation:", XSelect::fromArray('participation',
+								array(Regatta::PARTICIPANT_COED => "Coed",
+								      Regatta::PARTICIPANT_WOMEN => "Women"))));
 
-      $form->add(new FItem("Boat role:", $sel = new FSelect('role', array())));
-      $sel->addOptions(array(RP::SKIPPER => "Skipper", RP::CREW    => "Crew"));
+      $form->add(new FItem("Boat role:", XSelect::fromArray('role', array(RP::SKIPPER => "Skipper", RP::CREW => "Crew"))));
 
       $form->add(new FItem("Seasons:", $ul = new XUl(array('class'=>'inline-list'))));
 
@@ -85,8 +84,7 @@ class AllAmerican extends AbstractUserPane {
       $p->add($form = new XForm('/aa-edit', XForm::POST));
       $form->add(new XP(array(), "To choose crews from ALL regattas regardless of participation, click the button below."));
 
-      $form->add(new FItem("Year:", $sel = new FSelect('year', array())));
-      $sel->addOptions(Preferences::getYears());
+      $form->add(new FItem("Year:", XSelect::fromArray('year', Preferences::getYears())));
       $form->add(new XSubmitInput('set-special-report', "All crews >>"));
       return;
     }

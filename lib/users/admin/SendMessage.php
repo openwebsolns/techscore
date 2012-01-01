@@ -44,23 +44,15 @@ class SendMessage extends AbstractAdminUserPane {
 
     // conference
     $p->add($f = new XForm("/send-message-edit", XForm::POST));
-    $f->add($fi = new FItem("All users in conference:", $sel = new FSelect('conferences[]')));
-    $fi->add(new XText(" "));
-    $fi->add(new XSubmitInput('choose-recipients', "Write message >"));
-    $opts = array();
-    foreach (Preferences::getConferences() as $conf)
-      $opts[$conf->id] = $conf;
-    $sel->addOptions($opts);
-    $sel->set('multiple', 'multiple');
+    $f->add($fi = new FItem("All users in conference:", $sel = XSelectM::fromArray('conferences[]', Preferences::getConferences())));
+    $fi->add(" ");
     $sel->set('size', 7);
 
     // roles
     $p->add($f = new XForm("/send-message-edit", XForm::POST));
-    $f->add($fi = new FItem("All users with role:", $sel = new FSelect('roles[]')));
-    $fi->add(new XText(" "));
+    $f->add($fi = new FItem("All users with role:", $sel = XSelect::fromArray('roles[]', AccountManager::getRoles())));
+    $fi->add(" ");
     $fi->add(new XSubmitInput('choose-recipients', "Write message >"));
-    $sel->addOptions(AccountManager::getRoles());
-    $sel->set('multiple', 'multiple');
     $sel->set('size', 3);
   }
 
