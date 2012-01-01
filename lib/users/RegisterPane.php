@@ -85,20 +85,19 @@ class RegisterPane extends WelcomePage {
     $f->add(new FItem("Last name:",  new XTextInput("last_name", "")));
     $f->add(new FItem("Password:", new XPasswordInput("passwd", "")));
     $f->add(new FItem("Confirm password:", new XPasswordInput("confirm", "")));
-    $f->add(new FItem("Affiliation: ", $aff = new FSelect("school")));
-    $f->add(new FItem("Role: ", $rol = new FSelect("role")));
+    $f->add(new FItem("Affiliation: ", $aff = new XSelect("school")));
+    $f->add(new FItem("Role: ", XSelect::fromArray('role', array('coach'=>"Coach",
+								 'staff'=>"Staff",
+								 'student'=>"Student"))));
     $f->add(new XSubmitInput("register", "Request account"));
 
     // Fill out the selection boxes
     foreach (Preferences::getConferences() as $conf) {
-      $aff->add($opt = new OptionGroup($conf));
+      $aff->add($opt = new FOptionGroup($conf));
       foreach (Preferences::getSchoolsInConference($conf) as $school) {
-	$opt->add(new Option($school->id, $school->name));
+	$opt->add(new FOption($school->id, $school->name));
       }
     }
-    $rol->add(new Option("coach", "Coach"));
-    $rol->add(new Option("staff", "Staff"));
-    $rol->add(new Option("student", "Student"));
   }
 
   /**

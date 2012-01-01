@@ -24,24 +24,21 @@ class ReplaceTeamPane extends AbstractPane {
 
     $p->add($form = $this->createForm());
     $props = array('rows'=>10, 'size'=>10);
-    $form->add(new FItem("Replace team:", $sel1 = new FSelect('team', array(), $props)));
-    $form->add(new FItem("With school:",  $sel2 = new FSelect('school', array(), $props)));
+    $form->add(new FItem("Replace team:", $sel1 = new XSelect('team', $props)));
+    $form->add(new FItem("With school:",  $sel2 = new XSelect('school', $props)));
     $form->add(new XSubmitInput("replace", "Replace"));
 
     // team select
-    foreach ($teams as $team) {
-      $sel1->addOptions(array($team->id => $team));
-    }
+    foreach ($teams as $team)
+      $sel1->add(new FOption($team->id, (string)$team));
 
     // school select
     foreach ($confs as $conf) {
       // Get schools for that conference
       $schools = Preferences::getSchoolsInConference($conf);
-      $schoolOptions = array();
-      foreach ($schools as $school) {
-	$schoolOptions[$school->id] = $school->name;
-      }
-      $sel2->addOptionGroup($conf, $schoolOptions);
+      $sel2->add($grp = new FOptionGroup($conf));
+      foreach ($schools as $school)
+	$grp->add(new FOption($school->id, $school->name));
     }
   }
 
