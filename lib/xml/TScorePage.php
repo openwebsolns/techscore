@@ -42,8 +42,8 @@ class TScorePage extends XPage {
     parent::__construct($title);
     $this->mobile = $this->isMobile();
 
-    $this->head->add(new GenericElement('meta', array(), array('name'=>'robots', 'content'=>'noindex, nofollow')));
-    $this->head->add(new GenericElement('meta', array(), array('http-equiv'=>'Content-Type', 'content'=>'text/html; charset=UTF-8')));
+    $this->head->add(new XMeta('robots', 'noindex, nofollow'));
+    $this->head->add(new XMetaHTTP('http-equiv', 'text/html; charset=UTF-8'));
     $this->fillHead();
 
     // Menu
