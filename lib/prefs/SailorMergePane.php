@@ -30,7 +30,7 @@ class SailorMergePane extends AbstractUserPane {
    *
    */
   public function fillHTML(Array $args) {
-    $this->PAGE->addContent($p = new Port("Merge temporary sailors"));
+    $this->PAGE->addContent($p = new XPort("Merge temporary sailors"));
     $p->add(new XP(array(), "When a sailor is not found in the database, the scorers can add the sailor temporarily. These temporary sailors appear throughout TechScore with an asterisk next to their name."));
     
     $p->add(new XP(array(), "It is the school's responsibilities to match the temporary sailors with the actual sailor from the ICSA database once the missing sailor has been approved."));

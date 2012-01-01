@@ -40,7 +40,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
   public function fillHTML(Array $args) {
     $division  = $this->division;
 
-    $this->PAGE->addContent($p = new Port("Division $division results"));
+    $this->PAGE->addContent($p = new XPort("Division $division results"));
     $elems = $this->getTable();
     $p->add(array_shift($elems));
     if (count($elems) > 0) {

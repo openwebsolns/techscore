@@ -18,7 +18,7 @@ class DeleteTeamsPane extends AbstractPane {
   protected function fillHTML(Array $args) {
     $teams = $this->REGATTA->getTeams();
     
-    $this->PAGE->addContent($p = new Port("Remove present teams"));
+    $this->PAGE->addContent($p = new XPort("Remove present teams"));
     if ($this->has_rots || $this->has_scores) {
       $p->add(new XP(array(), "The regatta is currently \"under way\": either the rotation has been created, or finishes have been entered. If you remove a team, you will also remove all information from the rotation and the scores for that team. This will probably result in one or more idle boats in the rotation, and will effectively change the FLEET size for scoring purposes."));
       $p->add(new XP(array(),

@@ -42,7 +42,7 @@ class PendingAccountsPane extends AbstractAdminUserPane {
       WebServer::go(sprintf("pending|%d", $num_pages));
     
     $list = AccountManager::getPendingUsers($startint, $startint + self::NUM_PER_PAGE);
-    $this->PAGE->addContent($p = new Port("Pending accounts"));
+    $this->PAGE->addContent($p = new XPort("Pending accounts"));
     if ($count == 0) {
       $p->add(new XP(array(), "There are no pending accounts."));
     }

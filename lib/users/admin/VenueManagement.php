@@ -70,7 +70,7 @@ class VenueManagement extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     // 1. Add new venue
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new Port("Add venue"));
+    $this->PAGE->addContent($p = new XPort("Add venue"));
     $p->add($f = new XForm("/venue-edit", XForm::POST));
     $f->add(new FItem("Name:", new XTextInput("name", $name, array("maxlength"=>40))));
     $f->add(new FItem("Address:", new XTextInput("address", $addr, array("maxlength"=>40))));
@@ -93,7 +93,7 @@ class VenueManagement extends AbstractAdminUserPane {
     // 2. Current venues
     // ------------------------------------------------------------
     $list = Preferences::getVenues($startint, $startint + self::NUM_PER_PAGE);
-    $this->PAGE->addContent($p = new Port("Current venue list"));
+    $this->PAGE->addContent($p = new XPort("Current venue list"));
     if (count($list) == 0) {
       $p->add(new XP(array(), "There are no venues in the database."));
       return;

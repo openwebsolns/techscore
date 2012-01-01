@@ -43,7 +43,7 @@ class SailsPane extends AbstractPane {
   private function fillCombined($chosen_rot, $chosen_div) {
     
     $chosen_rot_desc = explode(":", $this->ROTS[$chosen_rot]);
-    $this->PAGE->addContent($p = new Port(sprintf("2. %s for all division(s)", $chosen_rot_desc[0])));
+    $this->PAGE->addContent($p = new XPort(sprintf("2. %s for all division(s)", $chosen_rot_desc[0])));
     $p->add($form = $this->createForm());
     $form->add(new XHiddenInput("rottype", $chosen_rot));
     
@@ -190,7 +190,7 @@ class SailsPane extends AbstractPane {
     // to use FIRST, which is this step here.
     // ------------------------------------------------------------
     if ($chosen_rot === null) {
-      $this->PAGE->addContent($p = new Port("1. Create a rotation"));
+      $this->PAGE->addContent($p = new XPort("1. Create a rotation"));
       $p->add($form = $this->createForm());
       $form->set("id", "sail_setup");
       $form->add(new XP(array(), "Swap divisions require an even number of total teams at the time of creation. If you choose swap division, TechScore will add a \"BYE Team\" as needed to make the total number of teams even. This will produce an unused boat in every race."));
@@ -222,7 +222,7 @@ class SailsPane extends AbstractPane {
 
       // Divisions
       $chosen_rot_desc = explode(":", $this->ROTS[$chosen_rot]);
-      $this->PAGE->addContent($p = new Port(sprintf("2. %s for Div. %s",
+      $this->PAGE->addContent($p = new XPort(sprintf("2. %s for Div. %s",
 						    $chosen_rot_desc[0],
 						    implode(", ", $chosen_div))));
       $p->addHelp("node13.html");
@@ -323,7 +323,7 @@ class SailsPane extends AbstractPane {
       }
 
       // FAQ's
-      $this->PAGE->addContent($p = new Port("FAQ"));
+      $this->PAGE->addContent($p = new XPort("FAQ"));
       $fname = sprintf("%s/faq/sail.html", dirname(__FILE__));
       $p->add(new XRawText(file_get_contents($fname)));
     }

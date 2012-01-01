@@ -51,7 +51,7 @@ class TweakSailsPane extends AbstractPane {
       // ------------------------------------------------------------
       // 1. Select edit type
       // ------------------------------------------------------------
-      $this->PAGE->addContent($p = new Port("Edit sail numbers"));
+      $this->PAGE->addContent($p = new XPort("Edit sail numbers"));
       $p->add(new XHeading("1. Choose action and division"));
       $p->add($form = $this->createForm());
 
@@ -72,7 +72,7 @@ class TweakSailsPane extends AbstractPane {
 
       $range_races = Utilities::getUnscoredRaceNumbers($this->REGATTA, $chosen_div);
 
-      $this->PAGE->addContent($p = new Port(sprintf("2. %s for Division %s",
+      $this->PAGE->addContent($p = new XPort(sprintf("2. %s for Division %s",
 					      $this->ACTIONS[$edittype],
 					      implode(", ", $chosen_div))));
       $p->add($form = $this->createForm());

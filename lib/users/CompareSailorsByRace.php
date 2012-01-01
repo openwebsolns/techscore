@@ -137,7 +137,7 @@ class CompareSailorsByRace extends AbstractUserPane {
     // push the sailor back
     array_unshift($sailors, $first_sailor);
     $scores = array(); // track scores
-    $this->PAGE->addContent($p = new Port("Races sailed head-to-head"));
+    $this->PAGE->addContent($p = new XPort("Races sailed head-to-head"));
     $p->add($tab = new Table());
     $tab->addHeader($head = new Row(array(Cell::th("Regatta"), Cell::th("Race"))));
     foreach ($sailors as $sailor) {
@@ -192,7 +192,7 @@ class CompareSailorsByRace extends AbstractUserPane {
     $this->PAGE->addContent($form = new XForm('/compare-by-race', XForm::GET));
 
     // Season selection
-    $form->add($p = new Port("Seasons to compare"));
+    $form->add($p = new XPort("Seasons to compare"));
     $p->add(new XP(array(), "Choose at least one season to compare from the list below, then choose the sailors in the next panel."));
     $p->add($ul = new XUl(array('style'=>'list-style-type:none;')));
 
@@ -208,7 +208,7 @@ class CompareSailorsByRace extends AbstractUserPane {
     }
 
     // Sailor search
-    $form->add($p = new Port("New sailors"));
+    $form->add($p = new XPort("New sailors"));
     $p->add(new GenericElement('noscript', array(new XP(array(), "Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding."))));
     $p->add(new FItem('Name:', $search = new XTextInput('name-search', "")));
     $search->set('id', 'name-search');

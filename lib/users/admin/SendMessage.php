@@ -34,7 +34,7 @@ class SendMessage extends AbstractAdminUserPane {
       return;
     }
 
-    $this->PAGE->addContent($p = new Port("1. Choose recipients"));
+    $this->PAGE->addContent($p = new XPort("1. Choose recipients"));
     $p->add(new XP(array(), "You may send a message to as many individuals as you'd like at a time. First, select the recipients using this port. Once you have added all recipients, use the form below to send the message."));
 
     $p->add($f = new XForm("/send-message-edit", XForm::POST));
@@ -57,7 +57,7 @@ class SendMessage extends AbstractAdminUserPane {
   }
 
   private function fillMessage(Array $args) {
-    $this->PAGE->addContent($p = new Port("Instructions"));
+    $this->PAGE->addContent($p = new XPort("Instructions"));
     $p->add($f = new XForm('/send-message-edit', XForm::POST));
     $f->add(new XSubmitInput('reset-recipients', "<< Restart"));
     $p->add(new XP(array(), "When filling out the form, you may use the keywords in the table below to customize each message."));
@@ -88,7 +88,7 @@ class SendMessage extends AbstractAdminUserPane {
       break;
     }
 
-    $this->PAGE->addContent($p = new Port($title));
+    $this->PAGE->addContent($p = new XPort($title));
     $p->add($f = new XForm('/send-message-edit', XForm::POST));
     
     $f->add(new FItem("Recipients:", new XSpan($recip, array('class'=>'strong'))));

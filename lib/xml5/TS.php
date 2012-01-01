@@ -12,23 +12,27 @@ require_once(dirname(__FILE__).'/HtmlLib.php');
  * @version 2011-03-09
  */
 class XPort extends XDiv {
-
+  private $title;
   /**
    * Create a port with the given title
    *
    * @param String $title the title
    */
   public function __construct($title, Array $children = array(), Array $attrs = array()) {
-    parent::__construct($attrs, array($h3 = new XH3("")));
+    parent::__construct($attrs);
+    $this->add($this->title = new XH3(""));
     if (is_array($title)) {
       foreach ($title as $item)
-	$h3->add($item);
+	$this->title->add($item);
     }
     else
-      $h3->add($title);
+      $this->title->add($title);
     $this->set('class', 'port');
     foreach ($children as $child)
       $this->add($child);
+  }
+  public function addHelp($href) {
+    $this->title->add(new XHLink($href));
   }
 }
 
@@ -128,35 +132,6 @@ class XSubmitAccessible extends XSubmitInput {
 class XReset extends XInput {
   public function __construct($name, $value, Array $attrs = array()) {
     parent::__construct('reset', $name, $value, $attrs);
-  }
-}
-
-/**
- * Port for logical separation of information in a page (as a div)
- *
- * @author Dayan Paez
- * @version 2011-12-30
- */
-class Port extends XDiv {
-  private $title;
-  /**
-   * Creates a new port with the given title (h3)
-   *
-   * @param String $title the title
-   * @param Array $value the list of values
-   * @param Array $attrs the attribute map
-   */
-  public function __construct($title, Array $value = array(), Array $attrs = array()) {
-    parent::__construct(array(), $attrs);
-    $this->set('class', 'port');
-    
-    $this->title = new XH3($title);
-    $this->add($this->title);
-    foreach ($value as $v)
-      $this->add($v);
-  }
-  public function addHelp($href) {
-    $this->title->add(new XHLink($href));
   }
 }
 

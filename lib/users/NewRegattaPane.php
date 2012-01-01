@@ -33,7 +33,7 @@ class NewRegattaPane extends AbstractUserPane {
   }
 
   protected function fillHTML(Array $args) {
-    $this->PAGE->addContent($p = new Port("Create"));
+    $this->PAGE->addContent($p = new XPort("Create"));
     $p->add($f = new XForm("/create-edit", XForm::POST));
 
     $r = $this->defaultRegatta();

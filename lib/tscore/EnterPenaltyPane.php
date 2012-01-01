@@ -45,7 +45,7 @@ class EnterPenaltyPane extends AbstractPane {
       // ------------------------------------------------------------
       // 1. Chosen race
       // ------------------------------------------------------------
-      $this->PAGE->addContent($p = new Port("1. Individual penalties and breakdowns"));
+      $this->PAGE->addContent($p = new XPort("1. Individual penalties and breakdowns"));
       $p->add($form = $this->createForm());
       $form->add(new FItem("Possible races:",
 				$tab = new Table()));
@@ -86,7 +86,7 @@ class EnterPenaltyPane extends AbstractPane {
       // 2. Penalty details
       // ------------------------------------------------------------
       $title = sprintf("2. %s in race %s", $p_type, $theRace);
-      $this->PAGE->addContent($p = new Port($title));
+      $this->PAGE->addContent($p = new XPort($title));
       $p->add($form = $this->createForm());
       $form->add(new XHiddenInput("p_type", $p_type));
       $form->add(new FItem("Team:", $f_sel = new XSelectM("finish[]")));
@@ -136,7 +136,7 @@ class EnterPenaltyPane extends AbstractPane {
       $form->add(new XSubmitInput("p_submit", "Enter $p_type"));
 
       // FAQ's
-      $this->PAGE->addContent($p = new Port("FAQ"));
+      $this->PAGE->addContent($p = new XPort("FAQ"));
       $fname = sprintf("%s/faq/penalty.html", dirname(__FILE__));
       $p->add(new XRawText(file_get_contents($fname)));
     }

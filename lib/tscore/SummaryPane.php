@@ -24,7 +24,7 @@ class SummaryPane extends AbstractPane {
   }
 
   protected function fillHTML(Array $args) {
-    $this->PAGE->addContent($p = new Port("Daily summaries"));
+    $this->PAGE->addContent($p = new XPort("Daily summaries"));
 
     $p->add($form = $this->createForm());
     $start = $this->REGATTA->get(Regatta::START_TIME);

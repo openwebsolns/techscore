@@ -33,7 +33,7 @@ class ManualTweakPane extends AbstractPane {
       $chosen_div = $exist_div[0];
 
     // OUTPUT
-    $this->PAGE->addContent($p = new Port("Tweak current rotation"));
+    $this->PAGE->addContent($p = new XPort("Tweak current rotation"));
     $p->add($form = $this->createForm());
 
     $form->add(new FItem("Pick a division:", $f_sel = XSelect::fromArray('division',

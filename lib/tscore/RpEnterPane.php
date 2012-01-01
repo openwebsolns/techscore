@@ -24,7 +24,7 @@ class RpEnterPane extends AbstractPane {
     $teams = $this->REGATTA->getTeams();
 
     if (count($teams) == 0) {
-      $this->PAGE->addContent($p = new Port("No teams registered"));
+      $this->PAGE->addContent($p = new XPort("No teams registered"));
       $p->add(new XP(array(),
 		     array("In order to register sailors, you will need to ",
 			   new XA(sprintf("score/%s/team", $this->REGATTA->id()), "register teams"),
@@ -45,7 +45,7 @@ class RpEnterPane extends AbstractPane {
 					      array("type"=>"text/javascript",
 						    "src"=>"/inc/js/rp.js")));
     
-    $this->PAGE->addContent($p = new Port("Choose a team"));
+    $this->PAGE->addContent($p = new XPort("Choose a team"));
     $p->add(new XP(array(),
 		   array("Use the form below to enter RP information. If a sailor does not appear in the selection box, it means they are not in the ICSA database, and they have to be manually added to a temporary list in the ",
 			 new XA(sprintf('/%s/temp', $this->REGATTA->id()), "Unregistered form"),
@@ -70,7 +70,7 @@ class RpEnterPane extends AbstractPane {
     // ------------------------------------------------------------
     // RP Form
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new Port(sprintf("Fill out form for %s", $chosen_team)));
+    $this->PAGE->addContent($p = new XPort(sprintf("Fill out form for %s", $chosen_team)));
     // ------------------------------------------------------------
     // - Create option lists
     //   If the regatta is in the current season, then only choose

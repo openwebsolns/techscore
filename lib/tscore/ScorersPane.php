@@ -20,7 +20,7 @@ class ScorersPane extends AbstractPane {
   protected function fillHTML(Array $args) {
     // ------------------------ Scorers -------------------//
     // Forms to remove scorers
-    $this->PAGE->addContent($p = new Port("Approved Scorers"));
+    $this->PAGE->addContent($p = new XPort("Approved Scorers"));
     $p->addHelp("node9.html#SECTION00522000000000000000");
 
     // Get scorers
@@ -54,7 +54,7 @@ class ScorersPane extends AbstractPane {
     }
 
     // Form to add scorers
-    $this->PAGE->addContent($p = new Port("Add scorers"));
+    $this->PAGE->addContent($p = new XPort("Add scorers"));
     $p->addHelp("node9.html#SECTION00522100000000000000");
     $p->add($s_form = $this->createForm());
     // Conferences

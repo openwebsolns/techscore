@@ -47,7 +47,7 @@ class AllAmerican extends AbstractUserPane {
     // 0. Choose participation and role
     // ------------------------------------------------------------
     if ($_SESSION['aa']['report-participation'] === null) {
-      $this->PAGE->addContent($p = new Port("Choose report"));
+      $this->PAGE->addContent($p = new XPort("Choose report"));
       $p->add($form = new XForm('/aa-edit', XForm::POST));
       $form->add(new FItem("Participation:", XSelect::fromArray('participation',
 								array(Regatta::PARTICIPANT_COED => "Coed",
@@ -80,7 +80,7 @@ class AllAmerican extends AbstractUserPane {
 
       $form->add(new XSubmitInput('set-report', "Choose regattas >>"));
 
-      $this->PAGE->addContent($p = new Port("Special crew report"));
+      $this->PAGE->addContent($p = new XPort("Special crew report"));
       $p->add($form = new XForm('/aa-edit', XForm::POST));
       $form->add(new XP(array(), "To choose crews from ALL regattas regardless of participation, click the button below."));
 
@@ -106,7 +106,7 @@ class AllAmerican extends AbstractUserPane {
     // ------------------------------------------------------------
     if ($_SESSION['aa']['regattas-set'] === false) {
       // Add button to go back
-      $this->PAGE->addContent($p = new Port("Progress"));
+      $this->PAGE->addContent($p = new XPort("Progress"));
       $p->add($form = new XForm('/aa-edit', XForm::POST));
       $form->add(new XSubmitInput('unset-regattas', "<< Start over"));
 
@@ -123,8 +123,8 @@ class AllAmerican extends AbstractUserPane {
       }
       $qual_regattas = array();
 
-      $this->PAGE->addContent($p1 = new Port("Classified regattas"));
-      $this->PAGE->addContent($p2 = new Port("Additional regattas"));
+      $this->PAGE->addContent($p1 = new XPort("Classified regattas"));
+      $this->PAGE->addContent($p2 = new XPort("Additional regattas"));
       if (count($regattas) == 0) {
 	$p1->add("There are no regattas in the chosen season which classify for inclusion.");
 	$p2->add("There are no regattas in the chosen season to add.");
@@ -213,14 +213,14 @@ class AllAmerican extends AbstractUserPane {
     // ------------------------------------------------------------
     if ($_SESSION['aa']['params-set'] === false) {
       // Add button to go back
-      $this->PAGE->addContent($p = new Port("Progress"));
+      $this->PAGE->addContent($p = new XPort("Progress"));
       $p->add($form = new XForm('/aa-edit', XForm::POST));
       $form->add(new XSubmitInput('unset-regattas', "<< Start over"));
       
       $regattas = $_SESSION['aa']['regattas'];
       // provide a list of sailors that are already included in the
       // list, and a search box to add new ones
-      $this->PAGE->addContent($p = new Port("Sailors in list"));
+      $this->PAGE->addContent($p = new XPort("Sailors in list"));
       $p->add(new XP(array(), sprintf("%d sailors meet the criteria for All-American inclusion based on the regattas chosen. Note that non-official sailors have been excluded. Use the bottom form to add more sailors to this list.",
 				      count($_SESSION['aa']['sailors']))));
       $p->add($item = new XUl(array('id', 'inc-sailors')));
@@ -229,7 +229,7 @@ class AllAmerican extends AbstractUserPane {
 
       // Form to fetch and add sailors
       $this->PAGE->head->add(new GenericElement('script', array(new XText("")), array('src'=>'/inc/js/aa.js')));
-      $this->PAGE->addContent($p = new Port("New sailors"));
+      $this->PAGE->addContent($p = new XPort("New sailors"));
       $p->add($form = new XForm('/aa-edit', XForm::POST));
       $form->add(new GenericElement('noscript', array(new XP(array(), "Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding."))));
       $form->add(new FItem('Name:', $search = new XTextInput('name-search', "")));
@@ -246,7 +246,7 @@ class AllAmerican extends AbstractUserPane {
     // ------------------------------------------------------------
     // 3. Step three: Generate and review
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new Port("Report"));
+    $this->PAGE->addContent($p = new XPort("Report"));
     $p->add($form = new XForm('/aa-edit', XForm::POST));
     $form->add(new XP(array(), "Please click only once:"));
     $form->add(new XSubmitInput('gen-report', "Download as CSV"));

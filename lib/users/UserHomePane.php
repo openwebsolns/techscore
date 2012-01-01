@@ -41,7 +41,7 @@ class UserHomePane extends AbstractUserPane {
     // ------------------------------------------------------------
     $num_messages = count(Preferences::getUnreadMessages($this->USER->asAccount()));
     if ($num_messages > 0) {
-      $this->PAGE->addContent($p = new Port("Messages"));
+      $this->PAGE->addContent($p = new XPort("Messages"));
       $p->add($para = new XP(array(), "You have "));
       if ($num_messages == 1)
 	$para->add(new XA("inbox", "1 unread message."));
@@ -81,7 +81,7 @@ class UserHomePane extends AbstractUserPane {
       $regattas = $this->USER->getRegattas($startint, $startint + self::NUM_PER_PAGE);
     }
     
-    $this->PAGE->addContent($p = new Port("My Regattas"));
+    $this->PAGE->addContent($p = new XPort("My Regattas"));
     // usort($regattas, "RegattaSummary::cmpStartDesc");
 
     // Add search form, if necessary

@@ -28,7 +28,7 @@ class MessagePane extends AbstractUserPane {
     // No messages
     // ------------------------------------------------------------
     if (count($messages) == 0) {
-      $this->PAGE->addContent($p = new Port("Inbox"));
+      $this->PAGE->addContent($p = new XPort("Inbox"));
       $p->add(new XP(array(), "You have no messages."));
       return;
     }
@@ -44,7 +44,7 @@ class MessagePane extends AbstractUserPane {
       }
 
       $sub = (empty($message->subject)) ? "[No subject]" : $message->subject;
-      $this->PAGE->addContent($p = new Port($sub));
+      $this->PAGE->addContent($p = new XPort($sub));
       $p->add(new XDiv(array('class'=>'email-message'),
 		       array(new XPre(wordwrap($message->content, 90)))));
       $p->add($form = new XForm("/inbox-edit", XForm::POST));
@@ -73,7 +73,7 @@ class MessagePane extends AbstractUserPane {
     // ------------------------------------------------------------
     // Message browser
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new Port("All messages"));
+    $this->PAGE->addContent($p = new XPort("All messages"));
     $p->add($tab = new Table());
     $tab->set("style", "width: 100%;");
     $tab->set("class", "left");

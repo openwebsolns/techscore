@@ -30,11 +30,11 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
    *
    */
   public function fillHTML(Array $args) {
-    $this->PAGE->addContent($p = new Port("Team results"));
+    $this->PAGE->addContent($p = new XPort("Team results"));
     $ELEMS = $this->getTable();
     $p->add(array_shift($ELEMS));
     if (count($ELEMS) > 0) {
-      $this->PAGE->addContent($p = new Port("Legend"));
+      $this->PAGE->addContent($p = new XPort("Legend"));
       $p->add($ELEMS[0]);
     }
   }

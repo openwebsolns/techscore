@@ -30,7 +30,7 @@ class PrefsHomePane extends AbstractUserPane {
    *
    */
   public function fillHTML(Array $args) {
-    $this->PAGE->addContent($p = new Port(sprintf("Edit %s", $this->SCHOOL->nick_name)));
+    $this->PAGE->addContent($p = new XPort(sprintf("Edit %s", $this->SCHOOL->nick_name)));
     $p->add(new XP(array(),
 		   array("This is the portal for editing details about your school. Navigate around using the menu to the left. When you are done, use the ",
 			 new XEm("Back"),
@@ -49,7 +49,7 @@ class PrefsHomePane extends AbstractUserPane {
 	$conferences[$school->conference->id][$school->id] = $school;
       }
 
-      $this->PAGE->addContent($p = new Port("Choose school"));
+      $this->PAGE->addContent($p = new XPort("Choose school"));
       // Stylesheet fix
       $p->add($st = new GenericElement("style"));
       $st->set("type", "text/css");

@@ -54,7 +54,7 @@ class BoatManagement extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     // 1. Add/edit new boat
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new Port($mess));
+    $this->PAGE->addContent($p = new XPort($mess));
     $p->add($form = new XForm("/boat-edit", XForm::POST));
     $form->add(new XP(array(), "The number of occupants will be used when entering RP information to determine how many crews are allowed in an RP form. If the same boat class can have multiple number of crews, add separate entries and distinguish them by adding the number of occupants in the name."));
     
@@ -69,7 +69,7 @@ class BoatManagement extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     // 2. Current boat list
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new Port("All boat classes"));
+    $this->PAGE->addContent($p = new XPort("All boat classes"));
     $p->add(new XP(array(), "Click on the boat name to edit that boat."));
     $p->add($tab = new Table());
     $tab->addHeader(new Row(array(Cell::th("Name"),

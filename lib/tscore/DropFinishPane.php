@@ -28,7 +28,7 @@ class DropFinishPane extends AbstractPane {
     $divisions = $this->REGATTA->getDivisions();
     $rotation = $this->REGATTA->getRotation();
     
-    $this->PAGE->addContent($p = new Port("All divisions"));
+    $this->PAGE->addContent($p = new XPort("All divisions"));
     $races = $this->REGATTA->getCombinedScoredRaces();
 
     foreach ($races as $num) {
@@ -73,7 +73,7 @@ class DropFinishPane extends AbstractPane {
     // Print finishes for each division
     // ------------------------------------------------------------
     foreach ($this->REGATTA->getDivisions() as $division) {
-      $this->PAGE->addContent($p = new Port("Division " . $division));
+      $this->PAGE->addContent($p = new XPort("Division " . $division));
 
       $races = $this->REGATTA->getScoredRaces($division);
       $div = new XDiv();

@@ -29,7 +29,7 @@ class EditLogoPane extends AbstractUserPane {
    *
    */
   public function fillHTML(Array $args) {
-    $this->PAGE->addContent($p = new Port("School logo"));
+    $this->PAGE->addContent($p = new XPort("School logo"));
     $p->add(new XP(array(), "Use this function to upload a new logo to use with your school. This logo will replace all uses of the logo throughout TechScore."));
 
     $p->add(new XP(array(), "Most picture formats are allowed, but files can be no larger than 200 KB in size. For best results use an image with a transparent background, by either using a PNG or GIF file format."));

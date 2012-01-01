@@ -39,7 +39,7 @@ class RacesPane extends AbstractPane {
     // Number of races and divisions
     // ------------------------------------------------------------
     $final = $this->REGATTA->get(Regatta::FINALIZED);
-    $this->PAGE->addContent($p = new Port("Races and divisions"));
+    $this->PAGE->addContent($p = new XPort("Races and divisions"));
     $p->add($form = $this->createForm());
     $form->add(new FItem("Number of divisions:", $f_div = new XSelect('num_divisions')));
     $form->add(new FItem("Number of races:",
@@ -68,7 +68,7 @@ class RacesPane extends AbstractPane {
     //------------------------------------------------------------
     // Edit existing boats
     
-    $this->PAGE->addContent($p = new Port("Boat assignments"));
+    $this->PAGE->addContent($p = new XPort("Boat assignments"));
     $p->add(new XP(array(), "Edit the boat associated with each race. This is necessary at the time of entering RP information. Races that are not sailed are automatically removed when finalizing the regatta."));
     $p->add($form = $this->createForm());
 

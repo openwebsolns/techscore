@@ -24,7 +24,7 @@ class DetailsPane extends AbstractPane {
 
   protected function fillHTML(Array $args) {
     // Regatta details
-    $p = new Port('Regatta details');
+    $p = new XPort('Regatta details');
     $p->addHelp("node9.html#SECTION00521000000000000000");
 
     $p->add($reg_form = $this->createForm());
@@ -129,7 +129,7 @@ class DetailsPane extends AbstractPane {
     $p2 = new XText("");
     if ($finalized === null) {
       if ($this->REGATTA->hasFinishes()) {
-	$p2 = new Port("Finalize regatta");
+	$p2 = new XPort("Finalize regatta");
 	$p2->set('id', 'finalize');
 	$p2->addHelp("node9.html#SECTION00521100000000000000");
 	$p2->add(new XP(array(),

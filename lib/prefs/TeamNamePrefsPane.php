@@ -29,7 +29,7 @@ class TeamNamePrefsPane extends AbstractUserPane {
    *
    */
   public function fillHTML(Array $args) {
-    $this->PAGE->addContent($p = new Port("Choose teams"));
+    $this->PAGE->addContent($p = new XPort("Choose teams"));
     $p->add(new XP(array(), "Edit the team names (mascot) that can be used for this school in the regattas. TechScore allows you to choose one primary name and up to four secondary names. The team names are chosen according to this list, with the primary name chosen by default for the first team from this school in the regatta."));
 
     $p->add(new XP(array(), "If a second team from this school is added, TechScore will choose the next name from the list. If it runs out of names, it will append a numeral suffix to the primary name."));

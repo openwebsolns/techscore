@@ -58,7 +58,7 @@ class EnterFinishPane extends AbstractPane {
 					      array("type"=>"text/javascript",
 						    "src"=>"/inc/js/finish.js")));
 
-    $this->PAGE->addContent($p = new Port("Choose race number"));
+    $this->PAGE->addContent($p = new XPort("Choose race number"));
 
     // ------------------------------------------------------------
     // Choose race
@@ -114,7 +114,7 @@ class EnterFinishPane extends AbstractPane {
     usort($finishes, "Finish::compareEntered");
 
     $title = sprintf("Add/edit finish for race %s across all divisions", $race->number);
-    $this->PAGE->addContent($p = new Port($title));
+    $this->PAGE->addContent($p = new XPort($title));
     $p->add($form = $this->createForm());
     $form->set("id", "finish_form");
 
@@ -246,7 +246,7 @@ class EnterFinishPane extends AbstractPane {
 					      array("type"=>"text/javascript",
 						    "src"=>"/inc/js/finish.js")));
 
-    $this->PAGE->addContent($p = new Port("Choose race"));
+    $this->PAGE->addContent($p = new XPort("Choose race"));
 
     // ------------------------------------------------------------
     // Choose race
@@ -291,7 +291,7 @@ class EnterFinishPane extends AbstractPane {
     // ------------------------------------------------------------
     // Enter finishes
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new Port("Add/edit finish for " . $race));
+    $this->PAGE->addContent($p = new XPort("Add/edit finish for " . $race));
     $p->add($form = $this->createForm());
     $form->set("id", "finish_form");
 

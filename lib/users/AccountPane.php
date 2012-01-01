@@ -20,7 +20,7 @@ class AccountPane extends AbstractUserPane {
   }
 
   protected function fillHTML(Array $args) {
-    $this->PAGE->addContent($p = new Port("My information"));
+    $this->PAGE->addContent($p = new XPort("My information"));
     $p->add($form = new XForm("/account-edit", XForm::POST));
     $form->add(new FItem("First name:", new XTextInput("first_name", $this->USER->get(User::FIRST_NAME))));
     $form->add(new FItem("Last name:",  new XTextInput("last_name",  $this->USER->get(User::LAST_NAME))));

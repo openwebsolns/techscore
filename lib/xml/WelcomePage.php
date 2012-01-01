@@ -52,7 +52,7 @@ class WelcomePage extends TScorePage {
    */
   protected function fillContent() {
     // LOGIN MENU
-    $this->addContent($p = new Port("Sign-in"));
+    $this->addContent($p = new XPort("Sign-in"));
     $p->add($form = new XForm("/login", XForm::POST));
     $form->add(new FItem("Username:", new XTextInput("userid", "", array("maxlength"=>"40"))));
     $form->add($fi = new FItem("Password:", new XPasswordInput("pass", "", array("maxlength"=>"48"))));
@@ -61,14 +61,14 @@ class WelcomePage extends TScorePage {
     $form->add(new XSubmitInput("login", "Login"));
 
     // Announcements
-    $this->addContent($p = new Port("Announcements"));
+    $this->addContent($p = new XPort("Announcements"));
     $file = sprintf("%s/announcements.html", dirname(__FILE__));
     if (file_exists($file))
       $p->add(new XRawText(file_get_contents($file)));
     else
       $p->add(new XP(array(), "No announcements at this time."));
 
-    $this->addContent($p = new Port("Register for TechScore"));
+    $this->addContent($p = new XPort("Register for TechScore"));
     $p->add(new XP(array(),
 		   array("If you are affiliated with ",
 			 new XA("http://www.collegesailing.org", "ICSA"),

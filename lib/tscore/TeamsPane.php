@@ -24,7 +24,7 @@ class TeamsPane extends AbstractPane {
     $confs = Preferences::getConferences();
 
     // Add teams
-    $this->PAGE->addContent($p = new Port("Add team from ICSA school"));
+    $this->PAGE->addContent($p = new XPort("Add team from ICSA school"));
     $p->set('id', 'add');
     $p->add(new XP(array(), "Choose a school from which to add a new team. Because the regatta is under way, you may only add one team at a time."));
 
@@ -139,7 +139,7 @@ class TeamsPane extends AbstractPane {
 
   private function fillNewRegatta(Array $args) {
     $confs = Preferences::getConferences();
-    $this->PAGE->addContent($p = new Port("Add team from ICSA school"));
+    $this->PAGE->addContent($p = new XPort("Add team from ICSA school"));
     $p->add(new XP(array(), "Choose schools which are participating by indicating how many teams are invited from each school. Use your browser's search function to help you."));
     $p->add($form = $this->createForm());
     $form->add($list = new XUl(array('id'=>'teams-list')));

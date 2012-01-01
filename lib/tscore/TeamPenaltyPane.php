@@ -28,7 +28,7 @@ class TeamPenaltyPane extends AbstractPane {
     foreach ($this->REGATTA->getTeams() as $team)
       $teams[$team->id] = $team;
     
-    $this->PAGE->addContent($p = new Port("Team penalties per division"));
+    $this->PAGE->addContent($p = new XPort("Team penalties per division"));
     $p->add(new XP(array(),
 		   array("These penalties will be added to the final " .
 			 "team score after all race finishes have been " .
@@ -60,7 +60,7 @@ class TeamPenaltyPane extends AbstractPane {
     // ------------------------------------------------------------
     // Existing penalties
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new Port("Team penalties"));
+    $this->PAGE->addContent($p = new XPort("Team penalties"));
     $penalties = $this->REGATTA->getTeamPenalties();
 
     if (count($penalties) == 0)

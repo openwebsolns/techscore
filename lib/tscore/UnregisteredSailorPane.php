@@ -23,7 +23,7 @@ class UnregisteredSailorPane extends AbstractPane {
   }
 
   protected function fillHTML(Array $args) {
-    $this->PAGE->addContent($p = new Port("Add sailor to temporary list"));
+    $this->PAGE->addContent($p = new XPort("Add sailor to temporary list"));
     $p->add(new XP(array(), "Enter unregistered sailors using the table below, up to five at a time."));
 
     $p->add($form = $this->createForm());
@@ -51,7 +51,7 @@ class UnregisteredSailorPane extends AbstractPane {
     }
     $form->add(new XSubmitInput("addtemp", "Add sailors"));
 
-    $this->PAGE->addContent($p = new Port("Review current regatta list"));
+    $this->PAGE->addContent($p = new XPort("Review current regatta list"));
     $p->add(new XP(array(), "Below is a list of all the temporary sailors added in this regatta. You are given the option to delete any sailor that is not currently present in any of the RP forms for this regatta. If you made a mistake about a sailor's identity, remove that sailor and add a new one instead."));
     $rp = $this->REGATTA->getRpManager();
     $temp = $rp->getAddedSailors();

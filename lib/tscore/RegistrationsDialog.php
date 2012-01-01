@@ -28,7 +28,7 @@ class RegistrationsDialog extends AbstractDialog {
     $teams     = $this->REGATTA->getTeams();
     $rpManager = $this->REGATTA->getRpManager();
 
-    $this->PAGE->addContent($p = new Port("Registrations"));
+    $this->PAGE->addContent($p = new XPort("Registrations"));
     $p->add($tab = new Table());
     $tab->set("class", "ordinate");
     $tab->addHeader(new Row(array(Cell::th("Team"),

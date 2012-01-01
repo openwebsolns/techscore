@@ -31,7 +31,7 @@ class EULAPane extends AbstractUserPane {
       file_get_contents($filename) :
       "I agree to use TechScore responsibly.";
 
-    $this->PAGE->addContent($p = new Port("License Agreement"));
+    $this->PAGE->addContent($p = new XPort("License Agreement"));
     $p->add(new XP(array(), "Before using TechScore, you must read and agree to the terms below. These are short terms of usage that outline what we expect of TechScore users and your responsibilities as an official scorer. Please read it carefully before clicking on the checkbox below."));
     $p->add(new XTextArea("license", $license, array("readonly"=>"readonly",
 							  "style"=>"width:100%;",

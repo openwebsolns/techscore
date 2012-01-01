@@ -71,7 +71,7 @@ class RegisterPane extends WelcomePage {
    */
   private function fillDefault() {
     $this->addContent(new XPageTitle("Registration"));
-    $this->addContent($p = new Port("Request new account"));
+    $this->addContent($p = new XPort("Request new account"));
     $p->add(new XP(array(),
 		   array("Please note that TechScore is an online scoring program specifically designed for College Sailing regattas. As such, account access is given only to valid ICSA users, or as approved by the registration committee. If you are not affiliated with ICSA, you might be more interested in accessing the public site at ",
 			 new XA(PUB_HOME, PUB_HOME), ".")));
@@ -103,7 +103,7 @@ class RegisterPane extends WelcomePage {
    *
    */
   private function fillRequested() {
-    $this->addContent($p = new Port("Account requested"));
+    $this->addContent($p = new XPort("Account requested"));
     $p->add(new XP(array(), "Thank you for registering for an account with TechScore. You should receive an e-mail message shortly with a link to verify your account access."));
     $p->add(new XP(array(),
 		   array("If you don't receive an e-mail, please check your junk-mail settings and enable mail from ",
@@ -115,7 +115,7 @@ class RegisterPane extends WelcomePage {
    *
    */
   private function fillPending() {
-    $this->addContent($p = new Port("Account pending"));
+    $this->addContent($p = new XPort("Account pending"));
     $p->add(new XP(array(), "Thank you for confirming your account. At this point, the registration committee has been notified of your request. They will review your request and approve or reject your account accordingly. Please allow up to three business days for this process."));
     $p->add(new XP(array(), "You will be notified of the committee's response to your request with an e-mail message."));
   }

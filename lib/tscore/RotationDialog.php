@@ -63,7 +63,7 @@ class RotationDialog extends AbstractDialog {
    */
   public function fillHTML(Array $args) {
     foreach ($this->REGATTA->getDivisions() as $div) {
-      $this->PAGE->addContent($p = new Port(sprintf("Division %s", $div)));
+      $this->PAGE->addContent($p = new XPort(sprintf("Division %s", $div)));
       $p->add($this->getTable($div));
     }
   }
