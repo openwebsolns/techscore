@@ -36,14 +36,11 @@ class NotesPane extends AbstractPane {
 						       "class"=>"narrow"))));
 
     // Table of possible races
-    $fitem->add($tab = new Table());
-    $tab->set("class", "narrow");
-    $tab->addHeader($hrow = new Row(array(), array("id"=>"pos_divs")));
-    $tab->addRow($brow = new Row(array(), array("id"=>"pos_races")));
-    foreach ($divisions as $div) {
-      $hrow->addCell(Cell::th($div));
-      $brow->addCell(new Cell(count($this->REGATTA->getRaces($div))));
-    }
+    $fitem->add($tab = new XQuickTable(array('class'=>'narrow'), $divisions));
+    $cells = array();
+    foreach ($divisions as $div)
+      $cells[] = count($this->REGATTA->getRaces($div));
+    $tab->addRow($cells);
 
     // Observation
     $form->add(new FItem("Observation:",
@@ -65,23 +62,11 @@ class NotesPane extends AbstractPane {
       $this->PAGE->addContent($p = new XPort("Current notes"));
 
       // Table
-      $p->add($tab = new Table());
-      $tab->set("class", "left");
-      $tab->addHeader(new Row(array(Cell::th("Race"),
-				    Cell::th("Note"),
-				    Cell::th("Observer"),
-				    Cell::th())));
-
+      $p->add($tab = new XQuickTable(array(), array("Race", "Note", "Observer", "")));
       foreach ($notes as $note) {
-	$tab->addRow(new Row(array(new Cell($note->race),
-				   new Cell($note->observation,
-					    array("style"=>"max-width: 25em")),
-				   new Cell($note->observer),
-				   new Cell($form = $this->createForm()))));
-
-	$form->add(new XHiddenInput("observation", $note->id));
-	$form->add(new XSubmitInput("remove", "Remove",
-				    array("class"=>"thin")));
+	$tab->addRow(array($note->race, $note->observation, $note->observer, $form = $this->createForm()));
+	$form->add(new XP(array(), array(new XHiddenInput("observation", $note->id),
+					 new XSubmitInput("remove", "Remove", array("class"=>"thin")))));
       }
     }
   }
