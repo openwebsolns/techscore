@@ -89,14 +89,8 @@ class AllAmerican extends AbstractUserPane {
       return;
     }
 
-    $this->PAGE->head->add(new GenericElement('link', array(), array('rel'=>'stylesheet',
-								     'type'=>'text/css',
-								     'media'=>'screen',
-								     'href'=>'/inc/css/widescreen.css')));
-    $this->PAGE->head->add(new GenericElement('link', array(new XText("")),
-					      array('type'=>'text/css',
-						    'href'=>'/inc/css/aa.css',
-						    'rel'=>'stylesheet')));
+    $this->PAGE->head->add(new XLinkCSS('text/css', '/inc/css/widescreen.css', 'screen'));
+    $this->PAGE->head->add(new XLinkCSS('text/css', '/inc/css/aa.css', 'screen'));
     
     // ------------------------------------------------------------
     // 1. Step one: choose regattas. For women's reports, ICSA
