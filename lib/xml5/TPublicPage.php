@@ -45,7 +45,7 @@ class TPublicPage extends XPage {
     if ($this->filled) return;
 
     // Stylesheets
-    $this->head->add(new XLinkCSS('text/css', '/inc/css/mp.css', 'screen', 'stylesheet'));
+    $this->head->add(new LinkCSS('/inc/css/mp.css'));
 
     // Navigation
     $this->body->add(new XDiv(array('class'=>'hidden'),

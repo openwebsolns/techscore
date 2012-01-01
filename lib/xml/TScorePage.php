@@ -92,13 +92,13 @@ class TScorePage extends XPage {
   private function fillHead() {
     // CSS Stylesheets
     if ($this->mobile) {
-      $this->head->add(new XLinkCSS('text/css', '/inc/css/mobile.css', 'screen'));
+      $this->head->add(new LinkCSS('/inc/css/mobile.css'));
     }
     else {
-      $this->head->add(new XLinkCSS('text/css', '/inc/css/modern.css','screen'));
+      $this->head->add(new LinkCSS('/inc/css/modern.css'));
     }
-    $this->head->add(new XLinkCSS('text/css', '/inc/css/print.css','print'));
-    $this->head->add(new XLinkCSS('text/css', '/inc/css/cal.css','screen'));
+    $this->head->add(new LinkCSS('/inc/css/print.css','print'));
+    $this->head->add(new LinkCSS('/inc/css/cal.css'));
 
     // Javascript
     foreach (array("jquery-1.3.min.js",

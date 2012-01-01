@@ -62,8 +62,8 @@ class TScoreDialog extends XPage {
    */
   private function fillHead() {
     // CSS Stylesheets
-    $this->head->add(new XLinkCSS('text/css', '/inc/css/modern-dialog.css','screen'));
-    $this->head->add(new XLinkCSS('text/css', '/inc/css/print.css','print'));
+    $this->head->add(new LinkCSS('/inc/css/modern-dialog.css'));
+    $this->head->add(new LinkCSS('/inc/css/print.css','print'));
     
     // Javascript
     foreach (array("jquery-1.3.min.js",

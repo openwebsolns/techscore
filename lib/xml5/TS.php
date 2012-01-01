@@ -177,4 +177,16 @@ class FOption extends XOption {
     parent::__construct($value, $attrs, (string)$content);
   }
 }
+
+/**
+ * Link element for CSS: the right way
+ *
+ * @author Dayan Paez
+ * @version 2012-01-01
+ */
+class LinkCSS extends XLinkCSS {
+  public function __construct($href, $media = 'screen', $rel = 'stylesheet') {
+    parent::__construct('text/css', $href, $media, $rel);
+  }
+}
 ?>

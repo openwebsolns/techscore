@@ -184,7 +184,7 @@ class CompareSailorsByRace extends AbstractUserPane {
     // ------------------------------------------------------------
     // Provide an input box to choose sailors using AJAX
     // ------------------------------------------------------------
-    $this->PAGE->head->add(new XLinkCSS('text/css', '/inc/css/aa.css', 'screen'));
+    $this->PAGE->head->add(new LinkCSS('/inc/css/aa.css'));
     $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/aa.js'));
     $this->PAGE->addContent($form = new XForm('/compare-by-race', XForm::GET));
 
