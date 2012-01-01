@@ -30,23 +30,17 @@ class DeleteTeamsPane extends AbstractPane {
     }
     $p->add(new XP(array(), "To remove one or more teams, check the appropriate box and hit \"Remove\"."));
     $p->add($form = $this->createForm());
-    $form->add($tab = new Table());
-    $tab->set('class', 'full');
-    
-    $tab->addHeader(new Row(array(Cell::th(""),
-				  Cell::th(""),
-				  Cell::th("School"),
-				  Cell::th("Team name"))));
+    $form->add($tab = new XQuickTable(array('class'=>'full'), array("", "", "School", "Team name")));
 
     // Print a row for each team
     $row = 0;
     foreach ($teams as $aTeam) {
       $id = 't'.$aTeam->id;
-      $tab->addRow(new Row(array(new Cell(new XCheckboxInput('teams[]', $aTeam->id, array('id'=>$id))),
-				 new Cell(new XLabel($id, $row + 1)),
-				 new Cell(new XLabel($id, $aTeam->school), array('class'=>'left')),
-				 new Cell(new XLabel($id, $aTeam->name), array('class'=>'left'))),
-			   array("class"=>"row" . ($row++%2))));
+      $tab->addRow(array(new XCheckboxInput('teams[]', $aTeam->id, array('id'=>$id)),
+			 new XLabel($id, $row + 1),
+			 new XLabel($id, $aTeam->school), array('class'=>'left'),
+			 new XLabel($id, $aTeam->name), array('class'=>'left')),
+		   array('class'=>'row'.($row++ %2)));
     }
     $form->add(new XSubmitInput("remove", "Remove"));
   }

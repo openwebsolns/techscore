@@ -45,11 +45,8 @@ class SailorMergePane extends AbstractUserPane {
     }
 
     $p->add($form = new XForm(sprintf("/pedit/%s/sailor", $this->SCHOOL->id), XForm::POST));
-    $form->add($tab = new Table());
-    $tab->set("class", "narrow");
-    $tab->addHeader(new Row(array(Cell::th("Temporary sailor"),
-				  Cell::th("ICSA Match"))));
-
+    $form->add($tab = new XQuickTable(array('class'=>'narrow'), array("Temporary sailor", "ICSA Match")));
+    
     // Create choices
     $sailors = RpManager::getSailors($this->SCHOOL);
     $choices = array("" => "", "Sailors"=>array(), "Coaches"=>array());
@@ -59,8 +56,7 @@ class SailorMergePane extends AbstractUserPane {
       $choices["Coaches"][$sailor->id] = (string)$sailor;
 
     foreach ($temp as $sailor) {
-      $tab->addRow(new Row(array(new Cell($sailor), $c = new Cell())));
-      $c->add(XSelect::fromArray($sailor->id, $choices));
+      $tab->addRow(array($sailor, XSelect::fromArray($sailor->id, $choices)));
     }
 
     // Submit

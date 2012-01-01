@@ -48,20 +48,15 @@ class TeamNamePrefsPane extends AbstractUserPane {
     $p->add($form = new XForm(sprintf("/pedit/%s/team", $this->SCHOOL->id), XForm::POST));
 
     // Fill form
-    $form->add($tab = new Table());
-    $tab->set("class", "narrow");
-    $tab->addHeader(new Row(array(Cell::th(), Cell::th("Name"))));
-
+    $form->add($tab = new XQuickTable(array('class'=>'narrow'), array("", "Name")));
     $names = Preferences::getTeamNames($this->SCHOOL);
     // First row
-    $tab->addRow($row = new Row(array(new Cell("Primary"), $c = new Cell())));
-    $c->add(new XTextInput("name[]", array_shift($names), array("maxlength"=>20)));
-    $row->set("style", "background:#EEEEEE; font-weight: bold");
+    $tab->addRow(array("Primary", new XTextInput("name[]", array_shift($names), array("maxlength"=>20))),
+		 array('style'=>'background:#EEEEEE;font-weight:bold'));
 
     // Next four
     for ($i = 0; $i < 4; $i++) {
-      $tab->addRow(new Row(array(new Cell(), $c = new Cell())));
-      $c->add(new XTextInput("name[]", array_shift($names), array("maxlength"=>20)));
+      $tab->addRow(array("", new XTextInput("name[]", array_shift($names), array("maxlength"=>20))));
     }
 
     // Submit

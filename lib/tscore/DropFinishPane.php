@@ -32,11 +32,11 @@ class DropFinishPane extends AbstractPane {
     $races = $this->REGATTA->getCombinedScoredRaces();
 
     foreach ($races as $num) {
-      $p->add($tab = new Table());
-      $tab->set("class", "narrow");
-      $tab->addHeader(new Row(array(new Cell("Race " . $num,
-					     array("colspan" => "2"), 1))));
-
+      $p->add(new XTable(array('class'=>'narrow'),
+			 array(new XTHead(array(),
+					  array(new XTR(array(), array(new XTH(array('colspan' => 2), "Race $num"))))),
+			       $tab = new XTBody())));
+      
       // get finishes in timestamp order
       $place = 1;
       $finishes = array();
@@ -47,15 +47,13 @@ class DropFinishPane extends AbstractPane {
       usort($finishes, "Finish::compareEntered");
       foreach ($finishes as $finish) {
 	$sail = $rotation->getSail($race, $finish->team);
-	$tab->addRow(new Row(array(Cell::th($place++),
-				   Cell::td($sail))));
+	$tab->add(new XTR(array(), array(new XTH(array(), $place++), new XTH(array(), $sail))));
       }
       // add form
-      $tab->addRow(new Row(array(new Cell($form = $this->createForm(),
-					  array("colspan"=>"2")))));
-      $form->add(new XHiddenInput("race", $race->id));
-      $form->add($submit = new XSubmitInput("removerace", "Remove"));
-      $submit->set("class", "thin");
+      $tab->add(new XTR(array(), array(new XTD(array('colspan'=>2), $form = $this->createForm()))));
+      $form->add(new XP(array(),
+			array(new XHiddenInput("race", $race->id),
+			      new XSubmitInput("removerace", "Remove", array('class'=>'thin')))));
     }
   }
 
@@ -84,25 +82,23 @@ class DropFinishPane extends AbstractPane {
 
       // create table for each race
       foreach ($races as $race) {
-	$div->add($tab = new Table());
-	$tab->set("class", "narrow");
-	$tab->addHeader(new Row(array(new Cell("Race " . $race,
-					       array("colspan" => "2"), 1))));
+	$div->add(new XTable(array('class'=>'narrow'),
+			     array(new XTHead(array(),
+					      array(new XTR(array(), array(new XTH(array('colspan'=>2), "Race $race"))))),
+				   $tab = new XTBody())));
 
 	// get finishes in order
 	$place = 1;
 	$finishes = $this->REGATTA->getFinishes($race);
 	foreach ($finishes as $finish) {
 	  $sail = $rotation->getSail($race, $finish->team);
-	  $tab->addRow(new Row(array(Cell::th($place++),
-				     Cell::td($sail))));
+	  $tab->add(new XTR(array(), array(new XTH(array(), $place++), new XTD(array(), $sail))));
 	}
 	// add form
-	$tab->addRow(new Row(array(new Cell($form = $this->createForm(),
-					    array("colspan"=>"2")))));
-	$form->add(new XHiddenInput("race", $race->id));
-	$form->add($submit = new XSubmitInput("removerace", "Remove"));
-	$submit->set("class", "thin");
+	$tab->add(new XTR(array(), array(new XTD(array('colspan'=>2), $form = $this->createForm()))));
+	$form->add(new XP(array(),
+			  array(new XHiddenInput("race", $race->id),
+				new XSubmitInput("removerace", "Remove"), array('class'=>'thin'))));
       }
     }
   }

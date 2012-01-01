@@ -46,24 +46,20 @@ class ManualTweakPane extends AbstractPane {
     $p->add($form = $this->createForm());
     
     $races = $this->REGATTA->getRaces($chosen_div);
-    $form->add(new FItem("Edit on a boat-by-boat basis.",
-			      $tab = new Table()));
-    $tab->set("class", "narrow");
-    $row = array(Cell::th("Division " . $chosen_div));
+    $row = array("Division $chosen_div");
     foreach ($races as $race)
-      $row[] = Cell::th($race->number);
-    $tab->addHeader(new Row($row));
+      $row[] = $race->number;
+    $form->add(new FItem("Edit on a boat-by-boat basis.", $tab = new XQuickTable(array('class'=>'narrow'), $row)));
 
     // Get teams
+    $attrs = array("size"=>"3", "maxlength"=>"3", "class"=>"small");
     foreach($this->REGATTA->getTeams() as $team) {
-      $row = array(Cell::th($team));
+      $row = array($team);
       foreach ($races as $race) {
 	$sail = $rotation->getSail($race, $team);
-	$row[] = new Cell(new XTextInput(sprintf("%s,%s", $race->id, $team->id),
-				    ($sail !== null) ? $sail : "",
-				    array("size"=>"3", "maxlength"=>"3", "class"=>"small")));
+	$row[] = new XTextInput(sprintf("%s,%s", $race->id, $team->id), ($sail !== null) ? $sail : "", $attrs));
       }
-      $tab->addRow(new Row($row));
+      $tab->addRow($row);
     }
     $form->add(new XReset("reset", "Reset"));
     $form->add(new XSubmitInput("editboat", "Edit boat(s)"));
