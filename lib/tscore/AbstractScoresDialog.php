@@ -38,7 +38,7 @@ abstract class AbstractScoresDialog extends AbstractDialog {
    * Prepares the tiebreakers legend element (now a table) and returns it.
    *
    * @param Array $tiebreaker the associative array of symbol => explanation
-   * @return GenericElement probably a table
+   * @return XElem probably a table
    */
   protected function getLegend($tiebreakers) {
     $tab = new Table();

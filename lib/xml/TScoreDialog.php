@@ -9,10 +9,9 @@ require_once('xml/XmlLibrary.php');
 require_once('xml5/TS.php');
 
 /**
- * The basic HTML page for TechScore dialogs. This page is a
- * GenericElement and it extends the XPage class found in the
- * XmlLibrary. It includes facilities for adding items to the menu,
- * and content.
+ * The basic HTML page for TechScore dialogs. This page is an XPage
+ * and it extends the XPage class found in the XmlLibrary. It includes
+ * facilities for adding items to the menu, and content.
  *
  * @author Dayan Paez
  * @version 2.0
