@@ -47,27 +47,19 @@ class EnterPenaltyPane extends AbstractPane {
       // ------------------------------------------------------------
       $this->PAGE->addContent($p = new XPort("1. Individual penalties and breakdowns"));
       $p->add($form = $this->createForm());
-      $form->add(new FItem("Possible races:",
-				$tab = new Table()));
 
       // Table of finished races
-      $tab->set("class", "narrow");
-      $row = array();
-      foreach ($divisions as $div)
-	$row[] = Cell::th($div);
-      $tab->addHeader(new Row($row));
-      $row = array();
+      $hrows = array(array());
+      $brows = array(array());
       foreach ($divisions as $div) {
-	// Get races with finishes
+	$hrows[0][] = (string)$div;
 	$nums = array();
 	foreach ($this->REGATTA->getScoredRaces($div) as $race)
 	  $nums[] = $race->number;
-	$row[] = new Cell(Utilities::makeRange($nums));
+	$brows[0][] = Utilities::makeRange($nums);
       }
-      $tab->addRow(new Row($row));
-      $form->add($fitem = new FItem("Race:", 
-					 new XTextInput("p_race",
-						   $theRace,
+      $form->add(new FItem("Possible races:", XTable::fromArray($brows, $hrows, array('class'=>'narrow'))));
+      $form->add(new FItem("Race:", new XTextInput("p_race", $theRace,
 						   array("size"=>"4",
 							 "maxlength"=>"4",
 							 "id"=>"chosen_race",

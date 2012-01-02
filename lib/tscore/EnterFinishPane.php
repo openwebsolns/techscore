@@ -75,12 +75,11 @@ class EnterFinishPane extends AbstractPane {
     $race_nums = array();
     foreach ($this->REGATTA->getUnscoredRaces($divisions[0]) as $r)
       $race_nums[] = $r->number;
-    $fitem->add($tab = new Table());
-    $tab->set("class", "narrow");
-    $tab->addHeader(new Row(array(Cell::th("#"))));
+    $fitem->add($tab = new XQuickTable(array('class'=>'narrow'), array("#")));
     $cont = Utilities::makeRange($race_nums);
-    if (empty($cont)) $cont = "--";
-    $tab->addRow(new Row(array(new Cell($cont))));
+    if (empty($cont))
+      $cont = "--";
+    $tab->addRow($cont);
 
     // Using? If there is a rotation, use it by default
     
@@ -119,11 +118,10 @@ class EnterFinishPane extends AbstractPane {
       // ------------------------------------------------------------
       // Rotation-based
       // ------------------------------------------------------------
-      $form->add($fitem = new FItem("Enter sail numbers:<br/><small>(Click to push)</small>",
-				    $tab = new Table()));
-      $tab->set("class", "narrow");
-      $tab->set("id", "finish_table");
-      $tab->addHeader(new Row(array(Cell::th("Sail"), Cell::th("&gt;"), Cell::th("Finish"))));
+      $form->add($fitem = new FItem("Enter sail numbers:",
+				    $tab = new XQuickTable(array('id'=>'finish_table', 'class'=>'narrow'),
+							   array("Sail", ">", "Finish"))));
+      $fitem->set('title', 'Click on left column to push to right column');
 
       // - Fill possible sails
       $pos_sails = array();
@@ -135,17 +133,14 @@ class EnterFinishPane extends AbstractPane {
       foreach ($pos_sails as $i => $aPS) {
 	$current_sail = (count($finishes) > 0) ?
 	  $rotation->getSail($finishes[$i]->race, $finishes[$i]->team) : "";
-	$tab->addRow(new Row(array(new Cell($aPS, array("name"=>"pos_sail",
-							"class"=>"pos_sail",
-							"id"=>"pos_sail")),
-				   new Cell(new XImg("/img/question.png", "Waiting for input",
-						     array("id"=>"check" . $i))),
-				   new Cell(new XTextInput("p" . $i, $current_sail,
-							   array("id"=>"sail" . $i,
-								 "tabindex"=>($i+1),
-								 "onkeyup"=>"checkSails()",
-								 "class"=>"small",
-								 "size"=>"2"))))));
+	$tab->addRow(array(new XTD($aPS, array("name"=>"pos_sail", "class"=>"pos_sail",	"id"=>"pos_sail")),
+			   new XImg("/img/question.png", "Waiting for input", array("id"=>"check" . $i)),
+			   new XTextInput("p" . $i, $current_sail,
+					  array("id"=>"sail" . $i,
+						"tabindex"=>($i+1),
+						"onkeyup"=>"checkSails()",
+						"class"=>"small",
+						"size"=>"2"))));
       }
 
       // Submit buttom
@@ -158,22 +153,20 @@ class EnterFinishPane extends AbstractPane {
       // ------------------------------------------------------------
       // Team lists
       // ------------------------------------------------------------
-      $form->add($fitem = new FItem("Enter teams:<br/><small>(Click to push)</small>",
-				    $tab = new Table()));
-      $tab->set("class", "narrow");
-      $tab->set("id", "finish_table");
-      $tab->addHeader(new Row(array(Cell::th("Teams"), Cell::th("&gt;"), Cell::th("Finish"))));
+      $form->add($fitem = new FItem("Enter teams:",
+				    $tab = new XQuickTable(array('id'=>'finish_table', 'class'=>'narrow'),
+							   array("Teams", ">", "Finish"))));
+      $fitem->set('title', "Click on left column to push to right column");
 
       // - Fill possible teams and select
       $teams = $this->REGATTA->getTeams();
-      $team_opts = array(new FOption("", ""));
+      $team_opts = array("" => "");
       foreach ($divisions as $div) {
 	foreach ($teams as $team) {
-	  $team_opts[] = new FOption(sprintf("%s,%s", $div, $team->id),
-				     sprintf("%s: %s %s",
-					     $div,
-					     $team->school->nick_name,
-					     $team->name));
+	  $team_opts[sprintf("%s,%s", $div, $team->id)] = sprintf("%s: %s %s",
+								  $div,
+								  $team->school->nick_name,
+								  $team->name);
 	}
       }
       $attrs = array("name" =>"pos_team", "id" =>"pos_team", "class"=>"pos_sail");
@@ -188,14 +181,12 @@ class EnterFinishPane extends AbstractPane {
 
 	  $current_team = (count($finishes) > 0) ?
 	    sprintf("%s,%s", $finishes[$i]->race->division, $finishes[$i]->team->id) : "";
-	  $tab->addRow(new Row(array(new Cell($name, $attrs),
-				     new Cell(new XImg("/img/question.png", "Waiting for input",
-						       array("id"=>"check" . $i))),
-				     new Cell(new XSelect("p" . $i, array($current_team),
-							  array("id"=>"team" . $i,
-								"tabindex"=>($i+1),
-								"onchange"=>"checkTeams()"),
-							  $team_opts)))));
+	  $tab->addRow(array(new Cell($name, $attrs),
+			     new XImg("/img/question.png", "Waiting for input",  array("id"=>"check" . $i)),
+			     $sel = XSelect::fromArray("p" . $i, $current_team, $team_opts)));
+	  $sel->set('id', "team$i");
+	  $sel->set('tabindex', $i + 1);
+	  $sel->set('onchange', 'checkTeams()');
 	  $i++;
 	}
       }
@@ -255,17 +246,17 @@ class EnterFinishPane extends AbstractPane {
 						       "class"=>"narrow"))));
 
     // Table of possible races
-    $fitem->add($tab = new Table());
-    $tab->set("class", "narrow");
-    $tab->addHeader($hrow = new Row(array(), array("id"=>"pos_divs")));
-    $tab->addRow($brow = new Row(array(), array("id"=>"pos_races")));
+    $hrows = array(array());
+    $brows = array(array());
     foreach ($divisions as $div) {
-      $hrow->addCell(Cell::th($div));
       $race_nums = array();
       foreach ($this->REGATTA->getUnscoredRaces($div) as $r)
 	$race_nums[] = $r->number;
-      $brow->addCell(new Cell(Utilities::makeRange($race_nums)));
+      $hrows[0][] = (string)$div;
+      $brows[0][] = Utilities::makeRange($race_nums);
     }
+    $fitem->add(XTable::fromArray($brows, $hrows, array('class'=>'narrow')));
+    
 
     // Using?
     $using = (isset($args['finish_using'])) ?
@@ -292,10 +283,10 @@ class EnterFinishPane extends AbstractPane {
       // ------------------------------------------------------------
       // Rotation-based
       // ------------------------------------------------------------
-      $form->add(new FItem("Enter sail numbers:<br/><small>(Click to push)</small>", $tab = new Table()));
-      $tab->set("class", "narrow");
-      $tab->set("id", "finish_table");
-      $tab->addHeader(new Row(array(Cell::th("Sail"), Cell::th("&gt;"), Cell::th("Finish"))));
+      $form->add($fitem = new FItem("Enter sail numbers:",
+				    $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'finish_table'),
+							   array("Sail", ">", "Finish"))));
+      $fitem->add(new XMessage("Click on left column to push to right column"));
 
       // - Fill possible sails and input box
       $pos_sails = $rotation->getSails($race);
@@ -304,16 +295,14 @@ class EnterFinishPane extends AbstractPane {
       foreach ($pos_sails as $i => $aPS) {
 	$current_sail = (count($finishes) > 0) ?
 	  $rotation->getSail($race, $finishes[$i]->team) : "";
-	$tab->addRow(new Row(array(new Cell($aPS,
-					    array('name'=>'pos_sail', 'class'=>'pos_sail','id'=>'pos_sail')),
-				   new Cell(new XImg("/img/question.png", "Waiting for input",
-						     array("id"=>"check" . $i))),
-				   new Cell(new XTextInput("p" . $i, $current_sail,
-							   array("id"=>"sail" . $i,
-								 "tabindex"=>($i+1),
-								 "onkeyup"=>"checkSails()",
-								 "class"=>"small",
-								 "size"=>"2"))))));
+	$tab->addRow(array(new XTD(array('name'=>'pos_sail', 'class'=>'pos_sail','id'=>'pos_sail'), $aPS),
+			   new XImg("/img/question.png", "Waiting for input", array("id"=>"check" . $i)),
+			   new XTextInput("p" . $i, $current_sail,
+					  array("id"=>"sail" . $i,
+						"tabindex"=>($i+1),
+						"onkeyup"=>"checkSails()",
+						"class"=>"small",
+						"size"=>"2"))));
       }
 
       // Submit buttom
@@ -326,17 +315,16 @@ class EnterFinishPane extends AbstractPane {
       // ------------------------------------------------------------
       // Team lists
       // ------------------------------------------------------------
-      $form->add($fitem = new FItem("Enter teams:<br/><small>(Click to push)</small>",
-				    $tab = new Table()));
-      $tab->set("class", "narrow");
-      $tab->set("id", "finish_table");
-      $tab->addHeader(new Row(array(Cell::th("Team"), Cell::th("&gt;"), Cell::th("Finish"))));
+      $form->add($fitem = new FItem("Enter teams:",
+				    $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'finish_table'),
+							   array("Team", ">", "Finish"))));
+      $fitem->add(new XMessage("Click on left column to push to right column"));
 
       // - Fill possible teams and select
       $teams = $this->REGATTA->getTeams();
-      $team_opts = array(new FOption("", ""));
+      $team_opts = array("" => "");
       foreach ($teams as $team)
-	$team_opts[] new FOption($team->id, sprintf("%s %s", $team->school->nick_name, $team->name));
+	$team_opts[$team->id] = sprintf("%s %s", $team->school->nick_name, $team->name);
       
       $attrs = array("name"=>"pos_team", "class"=>"pos_sail", "id"=>"pos_team");
       $finishes = $this->REGATTA->getFinishes($race);
@@ -346,14 +334,12 @@ class EnterFinishPane extends AbstractPane {
 	$attrs["value"] = $team->id;
 
 	$current_team = (count($finishes) > 0) ? $finishes[$i]->team->id : "";
-	$tab->addRow(new Row(array(new Cell($name, $attrs),
-				   new Cell(new XImg("/img/question.png", "Waiting for input",
-						     array("id"=>"check" . $i))),
-				   new Cell(new XSelect("p" . $i, array($current_team),
-							array("id"=>"team" . $i,
-							      "tabindex"=>($i+1),
-							      "onchange"=>"checkTeams()"),
-							$team_opts)))));
+	$tab->addRow(array(new XTD($attrs, $name),
+			   new XImg("/img/question.png", "Waiting for input", array("id"=>"check" . $i)),
+			   $sel = XSelect::fromArray("p" . $i, $current_team, $team_opts)));
+	$sel->set('id', "$team$i");
+	$sel->set('tabindex', $i + 1);
+	$sel->set('onchange', 'checkTeams()');
       }
 
       // Submit buttom

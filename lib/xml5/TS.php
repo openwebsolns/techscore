@@ -149,7 +149,7 @@ class XSelectM extends XSelect {
 
   public static function fromArray($name, Array $opts, $chosen = null) {
     $sel = XSelect::fromArray($name, $opts, $chosen);
-    $sel->set('selected', 'selected');
+    $sel->set('multiple', 'multiple');
     return $sel;
   }
 }

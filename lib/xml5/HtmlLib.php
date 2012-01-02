@@ -795,6 +795,32 @@ class XTable extends XAbstractHtml {
       array_unshift($a, $this->caption);
     return $a;
   }
+
+  /**
+   * Creates a new table from the given map(s).
+   *
+   * @param Array $rows a list of lists, i.e. rows of cells
+   * @param Array $headers optional. If provided, the rows for the head
+   * @param Array $attrs the attribute map, as usual
+   */
+  public static function fromArray(Array $rows, Array $headers = array(), Array $attrs = array()) {
+    $t = new XTable($attrs);
+    if (count($headers) > 0) {
+      $t->add($h = new XTHead());
+      foreach ($headers as $h) {
+	$h->add($r = new XTR());
+	foreach ($h as $c)
+	  $r->add(new XTH(array(), $c));
+      }
+    }
+    $t->add($h = new XTBody());
+    foreach ($rows as $h) {
+      $h->add($r = new XTR());
+      foreach ($h as $c)
+	$r->add(new XTD(array(), $c));
+    }
+    return $t;
+  }
 }
 
 /**
@@ -1005,9 +1031,11 @@ class XQuickTable extends XTable {
    */
   public function __construct(Array $attrs = array(), Array $headers = array()) {
     parent::__construct($attrs);
-    $this->add($this->thead = new XTHead(array(), array($tr = new XTR())));
-    foreach ($headers as $head) {
-      $tr->add(new XTH(array(), $head));
+    if (count($headers) > 0) {
+      $this->add($this->thead = new XTHead(array(), array($tr = new XTR())));
+      foreach ($headers as $head) {
+	$tr->add(new XTH(array(), $head));
+      }
     }
     $this->add($this->tbody = new XTBody());
   }
@@ -1020,8 +1048,12 @@ class XQuickTable extends XTable {
    */
   public function addRow(Array $cells, Array $attrs = array()) {
     $this->tbody->add($tr = new XTR($attrs));
-    foreach ($cells as $cell)
-      $tr->add(new XTD(array(), $cell));
+    foreach ($cells as $cell) {
+      if ($cell instanceof XTD || $cell instanceof XTH)
+	$tr->add($cell);
+      else
+	$tr->add(new XTD(array(), $cell));
+    }
   }
 
   /**

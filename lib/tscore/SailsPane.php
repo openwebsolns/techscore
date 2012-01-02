@@ -55,17 +55,13 @@ class SailsPane extends AbstractPane {
     $form->add($f_item = new FItem("Races:",
 					new XTextInput("races", Utilities::makeRange($range_races),
 						  array("id"=>"frace"))));
-    $f_item->add($tab = new Table());
-    $tab->set("class", "narrow");
-    $tab->addHeader(new Row(array(Cell::th("Unscored races"))));
-    $tab->addRow(new Row(array(new Cell(Utilities::makeRange($range_races),
-					array("id"=>"range_races")))));
+    $f_item->add(XTable::fromArray(array(array(Utilities::makeRange($range_races))),
+				   array(array("Unscored races")),
+				   array('class'=>'narrow')));
 
     // Set size
-    $form->add(new FItem('Races in set:<br/><small>With "no rotation", value is ignored</small>',
-			      $f_text = new XTextInput("repeat", 2)));
-    $f_text->set("size", 2);
-    $f_text->set("id",  "repeat");
+    $form->add($fitem = new FItem("Races in set:", $f_text = new XTextInput("repeat", 2, array('size'=>2, 'id'=>'repeat'))));
+    $fitem->add(new XMessage("With \"no rotation\", value is ignored"));
 
     // Teams table
     $bye_team = null;
@@ -74,25 +70,26 @@ class SailsPane extends AbstractPane {
       $form->add(new XP(array(), "Swap divisions require an even number of total teams at the time of creation. If you choose swap division, TechScore will add a \"BYE Team\" as needed to make the total number of teams even. This will produce an unused boat in every race."));
     }
     $form->add(new FItem("Enter sail numbers in first race:",
-			      $tab = new Table()));
-    $tab->set("class", "narrow");
+			 new XTable(array('class'=>'narrow'), array($tab = new XTBody()))));
 
     $i = 1;
     if (count($divisions) == 1) {
       foreach ($teams as $team) {
 	$name = sprintf("%s,%s", $divisions[0], $team->id);
-	$tab->addRow(new Row(array(Cell::th($team),
-				   new Cell(new XTextInput($name, $i++,
-						      array("size"=>"2",
-							    "maxlength"=>"8",
-							    "class"=>"small"))))));
+	$tab->add(new XTR(array(),
+			  array(new XTH(array(), $team),
+				new XTH(array(), new XTextInput($name, $i++,
+								array("size"=>"2",
+								      "maxlength"=>"8",
+								      "class"=>"small"))))));
       }
       if ($bye_team !== null)
-	$tab->addRow(new Row(array(Cell::th($bye_team),
-				   new Cell(new XTextInput($bye_team->id, $i++,
-						      array("size"=>"2",
-							    "maxlength"=>"8",
-							    "class"=>"small"))))));
+	$tab->add(new XTR(array(),
+			  array(new XTH(array(), $bye_team),
+				new XTD(array(), new XTextInput($bye_team->id, $i++,
+								array("size"=>"2",
+								      "maxlength"=>"8",
+								      "class"=>"small"))))));
     }
     else {
       $num_teams = count($teams);
@@ -233,18 +230,12 @@ class SailsPane extends AbstractPane {
       if (count($chosen_div) > 1) {
 	$this->PAGE->head->add(new XScript('text/javascript', '/inc/js/tablesort.js'));
 
-	$form->add(new FItem("Order:", $tab = new Table()));
-	$tab->set('class', 'narrow');
-	$tab->set('id', 'divtable');
-	$tab->addHeader(new Row(array(Cell::th("#"), Cell::th("Div."))));
+	$form->add(new FItem("Order:", $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'divtable'), array("#", "Div."))));
 	$i = 0;
 	foreach ($chosen_div as $div) {
-	  $tab->addRow(new Row(array(new Cell(new XTextInput("order[]", ++$i, array('class'=>'small',
-									       'size'=>2,
-									       'maxlength'=>1))),
-				     $c = new Cell($div, array('class'=>'drag'))),
-			       array('class'=>'sortable')));
-	  $c->add(new XHiddenInput("division[]", $div));
+	  $tab->addRow(array(new XTextInput("order[]", ++$i, array('class'=>'small', 'size'=>2, 'maxlength'=>1)),
+			     new XTD(array('class'=>'drag'), array($div, new XHiddenInput('division[]', $div)))),
+		       array('class'=>'sortable'));
 	}
       }
       else {
@@ -266,11 +257,9 @@ class SailsPane extends AbstractPane {
       $form->add($f_item = new FItem("Races:",
 					  new XTextInput("races", Utilities::makeRange($range_races),
 						    array("id"=>"frace"))));
-      $f_item->add($tab = new Table());
-      $tab->set("class", "narrow");
-      $tab->addHeader(new Row(array(Cell::th("Unscored races"))));
-      $tab->addRow(new Row(array(new Cell(Utilities::makeRange($range_races),
-					  array("id"=>"range_races")))));
+      $f_item->add(XTable::fromArray(array(array(Utilities::makeRange($range_races))),
+				     array(array("Unscored races")),
+				     array('class'=>'narrow')));
 
       // For Offset rotations, print only the 
       // current divisions for which there are rotations entered
@@ -293,11 +282,8 @@ class SailsPane extends AbstractPane {
 							      "id"=>"repeat"))));
 	}
 	$divs = array_values($chosen_div);
-	$form->add(new FItem(sprintf("Enter sail numbers in first " .
-					  "race of div. <strong>%s</strong>:",
-					  $divs[0]),
-				  $tab = new Table()));
-	$tab->set("class", "narrow");
+	$form->add(new FItem("Enter sail numbers in first race of div. " . $divs[0],
+			     $tab = new XQuickTable(array('class'=>'narrow'))));
 
 	// require a BYE team if the total number of teams
 	// (divisions * number of teams) is not even
@@ -305,11 +291,11 @@ class SailsPane extends AbstractPane {
 	  $p_teams[] = new ByeTeam();
 	$i = 1;
 	foreach ($p_teams as $team) {
-	  $tab->addRow(new Row(array(Cell::th($team),
-				     new Cell(new XTextInput($team->id, $i++,
-							array("size"=>"2",
-							      "class"=>"small",
-							      "maxlength"=>"8"))))));
+	  $tab->addRow(array($team,
+			     new XTextInput($team->id, $i++,
+					    array("size"=>"2",
+						  "class"=>"small",
+						  "maxlength"=>"8"))));
 	}
 
 	// order
