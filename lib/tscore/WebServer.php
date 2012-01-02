@@ -37,11 +37,11 @@ class WebServer {
    */
   public static function go($addr) {
     /*
-    if (preg_match('/^https?:\/\//', $addr)) {
+      if (preg_match('/^https?:\/\//', $addr)) {
       header("Location: $addr");
       exit;
-    }
-    header(sprintf("Location: %s/%s", HOME, $addr));
+      }
+      header(sprintf("Location: %s/%s", HOME, $addr));
     */
     header(sprintf("Location: %s", $addr));
     exit;

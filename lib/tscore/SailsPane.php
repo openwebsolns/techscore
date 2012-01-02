@@ -53,7 +53,7 @@ class SailsPane extends AbstractPane {
     // Races
     $range_races = $this->REGATTA->getCombinedUnscoredRaces();
     $form->add($f_item = new FItem("Races:",
-					new XTextInput("races", Utilities::makeRange($range_races),
+				   new XTextInput("races", Utilities::makeRange($range_races),
 						  array("id"=>"frace"))));
     $f_item->add(XTable::fromArray(array(array(Utilities::makeRange($range_races))),
 				   array(array("Unscored races")),
@@ -216,8 +216,8 @@ class SailsPane extends AbstractPane {
       // Divisions
       $chosen_rot_desc = explode(":", $this->ROTS[$chosen_rot]);
       $this->PAGE->addContent($p = new XPort(sprintf("2. %s for Div. %s",
-						    $chosen_rot_desc[0],
-						    implode(", ", $chosen_div))));
+						     $chosen_rot_desc[0],
+						     implode(", ", $chosen_div))));
       $p->addHelp("node13.html");
       $p->add($form = $this->createForm());
 
@@ -251,7 +251,7 @@ class SailsPane extends AbstractPane {
 
       // Races
       $form->add($f_item = new FItem("Races:",
-					  new XTextInput("races", Utilities::makeRange($range_races),
+				     new XTextInput("races", Utilities::makeRange($range_races),
 						    array("id"=>"frace"))));
       $f_item->add(XTable::fromArray(array(array(Utilities::makeRange($range_races))),
 				     array(array("Unscored races")),
@@ -263,7 +263,7 @@ class SailsPane extends AbstractPane {
       if ($chosen_rot == "OFF") {
 	$form->add(new FItem("Copy rotation from:", XSelect::fromArray('from_div', $exist_div)));
 	$form->add(new FItem("Amount to offset (+/-):",
-				  new XTextInput("offset", (int)(count($p_teams) / count($exist_div)),
+			     new XTextInput("offset", (int)(count($p_teams) / count($exist_div)),
 					    array("size"=>"2",
 						  "maxlength"=>"2"))));
 
@@ -273,7 +273,7 @@ class SailsPane extends AbstractPane {
       else {
 	if ($chosen_rot != "NOR") {
 	  $form->add(new FItem("Races in set:",
-				    $f_text = new XTextInput("repeat", $repeats,
+			       $f_text = new XTextInput("repeat", $repeats,
 							array("size"=>"2",
 							      "id"=>"repeat"))));
 	}
@@ -712,7 +712,7 @@ class SailsPane extends AbstractPane {
 	// ascertain that there are an even number of teams
 	if (count($teams) % 2 > 0) {
 	  $mes = "There must be an even number of teams for swap rotation.";
-	    $this->announce(new Announcement($mes, Announcement::ERROR));
+	  $this->announce(new Announcement($mes, Announcement::ERROR));
 	  return $args;
 	}
 	$rotation->createSwap($sails, $teams, $ordered_divs, $ordered_races, $repeats);

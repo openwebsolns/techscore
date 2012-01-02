@@ -42,7 +42,7 @@ class TeamsPane extends AbstractPane {
     if ($this->has_rots) {
       $exp->add(new XText("The regatta already has rotations. By adding a team, the rotations will need to be fixed. Choose from the options below."));
       $form->add($fi = new FItem("Delete rotation:",
-				      new XCheckboxInput('del-rotation', '1',
+				 new XCheckboxInput('del-rotation', '1',
 						    array('id'=>'del-rot',
 							  'checked'=>'checked'))));
       $fi->add(new XLabel('del-rot', "Delete current rotation without affecting finishes."));
@@ -148,8 +148,8 @@ class TeamsPane extends AbstractPane {
       $list->add(new XLi(array(new XHeading($conf), $sub = new XUl())));
       foreach ($schools = Preferences::getSchoolsInConference($conf) as $school) {
 	$sub->add(new XLi(array(new XHiddenInput('school[]', $school->id),
-				     new XTextInput('number[]', "", array('id'=>$school->id)),
-				     new XLabel($school->id, $school))));
+				new XTextInput('number[]', "", array('id'=>$school->id)),
+				new XLabel($school->id, $school))));
       }
     }
     $form->add(new XSubmitInput('set-teams', "Register teams"));

@@ -125,8 +125,8 @@ class UserHomePane extends AbstractUserPane {
 	$finalized = $reg->finalized->format("Y-m-d");
       elseif ($reg->finalized < $now)
 	$finalized = new XA('score/'.$reg->id.'#finalize', 'PENDING',
-			      array('title'=>'Regatta must be finalized!',
-				    'style'=>'color:red;font-weight:bold;font-size:110%;'));
+			    array('title'=>'Regatta must be finalized!',
+				  'style'=>'color:red;font-weight:bold;font-size:110%;'));
       $tab->add(new XTR(array('class'=>'row'.($row++ % 2)),
 			array(new XTD(array("class"=>"left", "style"=>"padding-left:1em"), $link),
 			      new XTD(array(), strtoupper($reg->season)),

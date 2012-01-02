@@ -92,7 +92,7 @@ class TeamNamePrefsPane extends AbstractUserPane {
 	if (isset($names[$name]))
 	  $repeats = true;
 	else
-	$names[$name] = $name;
+	  $names[$name] = $name;
       }
     }
 

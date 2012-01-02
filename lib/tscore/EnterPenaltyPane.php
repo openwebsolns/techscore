@@ -94,9 +94,9 @@ class EnterPenaltyPane extends AbstractPane {
 
       // - comments
       $form->add(new FItem("Comments:",
-				new XTextArea("p_comments", "",
-					      array("rows"=>"2",
-						    "cols"=>"50"))));
+			   new XTextArea("p_comments", "",
+					 array("rows"=>"2",
+					       "cols"=>"50"))));
       // - Amount, or average, if necessary
       $b = Breakdown::getList();
       if (in_array($p_type, array_keys($b)))

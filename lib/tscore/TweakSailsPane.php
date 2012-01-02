@@ -73,8 +73,8 @@ class TweakSailsPane extends AbstractPane {
       $range_races = Utilities::getUnscoredRaceNumbers($this->REGATTA, $chosen_div);
 
       $this->PAGE->addContent($p = new XPort(sprintf("2. %s for Division %s",
-					      $this->ACTIONS[$edittype],
-					      implode(", ", $chosen_div))));
+						     $this->ACTIONS[$edittype],
+						     implode(", ", $chosen_div))));
       $p->add($form = $this->createForm());
 
       // Write in this form the options from above
@@ -83,7 +83,7 @@ class TweakSailsPane extends AbstractPane {
       }
 
       $form->add($f_item = new FItem("Races:",
-					  new XTextInput("races", Utilities::makeRange($range_races),
+				     new XTextInput("races", Utilities::makeRange($range_races),
 						    array("size"=>"12"))));
       $f_item->add(XTable::fromArray(array(array(Utilities::makeRange($range_races))),
 				     array(array("Possible")),
@@ -91,7 +91,7 @@ class TweakSailsPane extends AbstractPane {
 
       if ( $edittype === "ADD" ) {
 	$form->add(new FItem("Add/subtract:",
-				  $f = new XTextInput("addamount", "", array("size"=>"3"))));
+			     $f = new XTextInput("addamount", "", array("size"=>"3"))));
 	$f->set("maxlength", "3");
 	$form->add(new XSubmitInput("cancel", "<< Cancel"));
 	$form->add(new XSubmitInput("addsails", "Edit sails"));
@@ -101,7 +101,7 @@ class TweakSailsPane extends AbstractPane {
 	$races = array();
 	foreach ($chosen_div as $div)
 	  foreach ($range_races as $num)
-	    $races[] = $this->REGATTA->getRace($div, $num);
+	  $races[] = $this->REGATTA->getRace($div, $num);
 	$sails = $rotation->getCommonSails($races);
 
 	$sails = array_combine($sails, $sails);
@@ -196,7 +196,7 @@ class TweakSailsPane extends AbstractPane {
       $races = array();
       foreach ($divisions as $div)
 	foreach ($actual_races as $num)
-	  $races[] = $this->REGATTA->getRace($div, $num);
+	$races[] = $this->REGATTA->getRace($div, $num);
       $sails = $rotation->getCommonSails($races);
     }
     else {

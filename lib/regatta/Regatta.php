@@ -117,7 +117,7 @@ class Regatta implements RaceListener {
 
       // Calculate duration
       $duration = 1 + (date_format($end, "U") -
-		   date_format($this->getDay($start), "U")) /
+		       date_format($this->getDay($start), "U")) /
 	(3600 * 24);
 
       $this->properties[Regatta::DURATION] = $duration;
@@ -579,7 +579,7 @@ class Regatta implements RaceListener {
 		 $this->id, $race->division, $race->number, $race->boat->id);
     $this->query($q);
     $con = Preferences::getConnection();
-     // amounts to an insert
+    // amounts to an insert
     if ($con->affected_rows > 1 && $this->total_races !== null)
       $this->total_races++;
   }

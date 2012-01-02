@@ -216,14 +216,14 @@ class RegattaIO {
 
     // Notes
     /*
-    $root->add($tag = new XElem("Notes"));
-    foreach (getRegattaNotesAssoc() as $note) {
+      $root->add($tag = new XElem("Notes"));
+      foreach (getRegattaNotesAssoc() as $note) {
       $tag->add($sub = new XElem("Note"));
       $sub->set("id",   $note['id']);
       $sub->set("race", $note['number'] . $note['division']);
       $sub->set("observer", $note['observer']);
       $sub->add(new XText($note['observation']));
-    }
+      }
     */
 
     // ------------------------------------------------------------
@@ -244,8 +244,8 @@ class RegattaIO {
 	
 	$ssub->add($sssub = new XElem("Name"));
 	$sssub->add(new XText(sprintf("%s %s",
-					  $sailor->first_name,
-					  $sailor->last_name)));
+				      $sailor->first_name,
+				      $sailor->last_name)));
 	$ssub->add($sssub = new XElem("Year"));
 	$sssub->add(new XText($sailor->year));
       }
@@ -257,8 +257,8 @@ class RegattaIO {
 	
 	$ssub->add($sssub = new XElem("Name"));
 	$sssub->add(new XText(sprintf("%s %s*",
-					  $sailor->first_name,
-					  $sailor->last_name)));
+				      $sailor->first_name,
+				      $sailor->last_name)));
 
 	$ssub->add($sssub = new XElem("Year"));
 	$sssub->add(new XText($sailor->year));
@@ -342,9 +342,9 @@ class RegattaIO {
      * and are no longer imported or changed by uploading.        *
      *                                                            *
      **************************************************************
-    // ------------------------------------------------------------
-    // Venue
-    // ------------------------------------------------------------
+     // ------------------------------------------------------------
+     // Venue
+     // ------------------------------------------------------------
     $venue_id = (int)$root->Venue['id'];
     $venue = Preferences::getVenue($venue_id);
     if ($venue == null)
@@ -352,10 +352,10 @@ class RegattaIO {
     else
       $regatta->set(Regatta::VENUE, $venue);
 
-    // ------------------------------------------------------------
-    // Scorers
-    // ------------------------------------------------------------
-    // @TODO: what about principal vs. secondary scorers?
+      // ------------------------------------------------------------
+      // Scorers
+      // ------------------------------------------------------------
+      // @TODO: what about principal vs. secondary scorers?
     foreach ($root->Scorers->Scorer as $scorer) {
       if (($acc = AccountManager::getAccount($scorer['id'])) != null) {
 	$regatta->addScorer($acc);

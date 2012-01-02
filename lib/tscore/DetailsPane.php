@@ -31,7 +31,7 @@ class DetailsPane extends AbstractPane {
     // Name
     $value = $this->REGATTA->get(Regatta::NAME);
     $reg_form->add(new FItem("Name:",
-				  new XTextInput("reg_name",
+			     new XTextInput("reg_name",
 					    stripslashes($value),
 					    array("maxlength"=>40,
 						  "size"     =>20))));
@@ -40,7 +40,7 @@ class DetailsPane extends AbstractPane {
     $start_time = $this->REGATTA->get(Regatta::START_TIME);
     $date = date_format($start_time, 'm/d/Y');
     $reg_form->add(new FItem("Date:", 
-				  new XTextInput("sdate",
+			     new XTextInput("sdate",
 					    $date,
 					    array("maxlength"=>30,
 						  "size"     =>20,
@@ -48,14 +48,14 @@ class DetailsPane extends AbstractPane {
     // Duration
     $value = $this->REGATTA->get(Regatta::DURATION);
     $reg_form->add(new FItem("Duration (days):",
-				  new XTextInput("duration",
+			     new XTextInput("duration",
 					    $value,
 					    array("maxlength"=>2,
 						  "size"     =>2))));
     // On the water
     $value = date_format($start_time, "H:i");
     $reg_form->add(new FItem("On the water:",
-				  new XTextInput("stime", $value,
+			     new XTextInput("stime", $value,
 					    array("maxlength"=>8,
 						  "size"     =>8))));
 
@@ -140,9 +140,9 @@ class DetailsPane extends AbstractPane {
 	$form->add(new FItem(new XCheckboxInput("approve",
 						"on",
 						array("id"=>"approve")),
-				  new XLabel("approve",
-					    "I wish to finalize this regatta.",
-					    array("class"=>"strong"))));
+			     new XLabel("approve",
+					"I wish to finalize this regatta.",
+					array("class"=>"strong"))));
 
 	$form->add(new XSubmitInput("finalize",
 				    "Finalize!"));

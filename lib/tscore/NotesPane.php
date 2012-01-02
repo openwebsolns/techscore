@@ -29,7 +29,7 @@ class NotesPane extends AbstractPane {
     // Form
     $p->add($form = $this->createForm());
     $form->add($fitem = new FItem("Race:", 
-				       new XTextInput("chosen_race", "",
+				  new XTextInput("chosen_race", "",
 						 array("size"=>"4",
 						       "maxlength"=>"4",
 						       "id"=>"chosen_race",
@@ -44,12 +44,12 @@ class NotesPane extends AbstractPane {
 
     // Observation
     $form->add(new FItem("Observation:",
-			      new XTextArea("observation","",
-					    array("rows"=>3,
-						  "cols"=>30))));
+			 new XTextArea("observation","",
+				       array("rows"=>3,
+					     "cols"=>30))));
     // Observer
     $form->add(new FItem("Observer:",
-			      new XTextInput("observer",
+			 new XTextInput("observer",
 					$this->USER->getName(),
 					array("maxlength"=>"50"))));
 

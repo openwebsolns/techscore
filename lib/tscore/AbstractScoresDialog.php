@@ -28,7 +28,7 @@ abstract class AbstractScoresDialog extends AbstractDialog {
     $ul->add(new XLi(new XA(sprintf("/view/%d/div-scores", $this->REGATTA->id()), "Divisional")));
     foreach ($this->REGATTA->getDivisions() as $div)
       $ul->add(new XLi(new XA(sprintf("/view/%d/scores/%s",$this->REGATTA->id(), $div),
-				   "$div Division")));
+			      "$div Division")));
 
     // Add meta tag
     $this->PAGE->head->add(new XMeta('timestamp', date('Y-m-d H:i:s')));
