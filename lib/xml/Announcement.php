@@ -6,7 +6,6 @@
  * @package xml
  */
 
-require_once('xml/XmlLibrary.php');
 require_once('xml5/TS.php');
 
 /**

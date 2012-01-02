@@ -32,7 +32,7 @@ class XAbstractHtml extends XElem {
    * @param String|Xmlable|Array the item to add
    */
   public function add($item) {
-    if ($item instanceof Xmlable || $item instanceof HTMLElement )
+    if ($item instanceof Xmlable)
       parent::add($item);
     else
       parent::add(new XText($item));

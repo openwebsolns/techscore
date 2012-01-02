@@ -5,12 +5,11 @@
  * @package xml
  */
 
-require_once('xml/XmlLibrary.php');
 require_once('xml5/TS.php');
 
 /**
- * The basic HTML page for TechScore dialogs. This page is an XPage
- * and it extends the XPage class found in the XmlLibrary. It includes
+ * The basic HTML page for TechScore dialogs. This pmage is an XPage
+ * and it extends the XPage class found in the HtmlLib. It includes
  * facilities for adding items to the menu, and content.
  *
  * @author Dayan Paez
@@ -89,39 +88,39 @@ class TScoreDialog extends XPage {
   }
 
   /**
-   * Adds the HTMLElement to the content of this page
+   * Adds the Xmlable to the content of this page
    *
-   * @param HTMLElement $elem an element to append to the body of this
+   * @param Xmlable $elem an element to append to the body of this
    * page
    */
-  public function addContent(HTMLElement $elem) {
+  public function addContent(Xmlable $elem) {
     $this->content->add($elem);
   }
 
   /**
    * Adds the given element to the menu division of this page
    *
-   * @param HTMLElement $elem to add to the menu of this page
+   * @param Xmlable $elem to add to the menu of this page
    */
-  public function addMenu(HTMLElement $elem) {
+  public function addMenu(Xmlable $elem) {
     $this->menu->add($elem);
   }
 
   /**
    * Adds the given element to the page header
    *
-   * @param HTMLElement $elem to add to the page header
+   * @param Xmlable $elem to add to the page header
    */
-  public function addHeader(HTMLElement $elem) {
+  public function addHeader(Xmlable $elem) {
     $this->header->add($elem);
   }
 
   /**
    * Adds the given element to the navigation part
    *
-   * @param HTMLElement $elem to add to navigation
+   * @param Xmlable $elem to add to navigation
    */
-  public function addNavigation(HTMLElement $elem) {
+  public function addNavigation(Xmlable $elem) {
     $this->navigation->add($elem);
   }
 

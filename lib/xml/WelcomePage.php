@@ -5,7 +5,6 @@
  * @package tscore
  */
 
-require_once('xml/XmlLibrary.php');
 require_once('xml/TScorePage.php');
 
 /**

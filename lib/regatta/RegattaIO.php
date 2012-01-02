@@ -8,8 +8,7 @@
  */
 
 require_once('conf.php');
-require_once('xml/XmlLibrary.php');
-require_once('xml5/TS.php');
+require_once('xml5/XmlLib.php');
 
 /**
  * This class provides static methods for dumping a regatta to file
