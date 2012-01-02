@@ -62,19 +62,18 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
     $rpManager = $this->REGATTA->getRpManager();
     $division = $this->division;
 
-    $ELEM = array($tab = new Table());
-    $tab->set("class", "results");
-    $tab->set("class", "coordinate");
-    $tab->set("class", "narrow");
-
-    $tab->addHeader(new Row(array(Cell::th(), // superscript
-				  Cell::th(), // rank
-				  Cell::th(),
-				  Cell::th("Team"),
-				  $penalty_th = Cell::th(""),
-				  Cell::th("Total"),
-				  Cell::th("Sailors"),
-				  Cell::th(""))));
+    $ELEM = array(new XTable(array('class'=>'results coordinate narrow'),
+			     array(new XTHead(array(),
+					      array(new XTR(array(),
+							    array(new XTH(), // superscript
+								  new XTH(), // rank
+								  new XTH(),
+								  new XTH(array(), "Team"),
+								  $penalty_th = new XTH(),
+								  new XTH(array(), "Total"),
+								  new XTH(array(), "Sailors"),
+								  new XTH(""))))),
+				   $tab = new XTBody())));
     $has_penalties = false;
 
     // print each ranked team
@@ -124,27 +123,21 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
       $img = ($rank->team->school->burgee == null) ? '' :
 	new XImg(sprintf('%s/img/schools/%s.png', $PREFIX, $rank->team->school->id), $rank->team->school->id,
 		 array('height'=>'30px'));
-      $r1 = new Row(array(new Cell($sym, array('title'=>$rank->explanation, 'class'=>'tiebreaker')),
-			  $ord = new Cell($order++),
-			  new Cell($img),
-			  $sch = new Cell($ln),
-			  $pen = new Cell(),
-			  new Cell($total)));
-      $r1->set("class", "row" . $rowIndex % 2);
-      $sch->set("class", "strong");
-      $sch->set("align", "left");
+      $r1 = new XTR(array('class'=>'strong row' . $rowIndex % 2, 'align' => 'left'),
+		    array(new XTD(array('title'=>$rank->explanation, 'class'=>'tiebreaker'), $sym),
+			  $ord = new XTD(array(), $order++),
+			  new XTD(array(), $img),
+			  $sch = new XTD(array(), $ln),
+			  $pen = new XTD(),
+			  new XTD(array(), $total)));
       if ($penalty != null) {
-	$com = sprintf("%s (+20 points)", $penalty->comments);
-	$pen->add(new XText($penalty->type));
-	$pen->set("title", $com);
+	$pen->add($penalty->type);
+	$pen->set("title", sprintf("%s (+20 points)", $penalty->comments));
       }
 
-      $r2 = new Row(array(new Cell(), new Cell(), new Cell(),
-			  $sch = new Cell($rank->team->name),
-			  new Cell(), new Cell()));
-      $r2->set("class", "row" . $rowIndex % 2);
-      $sch->set("align", "left");
-
+      $r2 = new XTR(array('class'=>'row'.($rowIndex % 2), 'align'=>'left'),
+		    array(new XTD(), new XTD(), new XTD(), $sch = new XTD($rank->team->name), new XTD(), new XTD()));
+      
       $headerRows = array($r1, $r2);
 
       // ------------------------------------------------------------
@@ -154,21 +147,23 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
 	    
 	$is_first = true;
 	$s_rows = array();
-	if (count($sailors) == 0)
-	  $headerRows[$index]->addCell(new Cell(), new Cell());
+	if (count($sailors) == 0) {
+	  $headerRows[$index]->add(new XTD());
+	  $headerRows[$index]->add(new XTD());
+	}
 	foreach ($sailors as $s) {
 	  if ($is_first) {
 	    $row = $headerRows[$index];
 	    $is_first = false;
 	  }
 	  else {
-	    $row = new Row(array(new Cell(),
-				 new Cell(),
-				 new Cell(),
-				 new Cell(),
-				 new Cell(),
-				 new Cell()));
-	    $row->set("class", "row" . $rowIndex % 2);
+	    $row = new XTR(array('class'=>'row'.($rowIndex % 2)),
+			   array(new XTD(),
+				 new XTD(),
+				 new XTD(),
+				 new XTD(),
+				 new XTD(),
+				 new XTD()));
 	    $s_rows[] = $row;
 	  }
 
@@ -176,17 +171,14 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
 	    $amt = "";
 	  else
 	    $amt = Utilities::makeRange($s->races_nums);
-	  $row->addCell($s_cell = new Cell($s->sailor),
-			$r_cell = new Cell($amt));
-	  $s_cell->set("align", "right");
-	  $r_cell->set("align", "left");
-	  $r_cell->set("class", "races");
+	  $row->add($s_cell = new XTD(array('align'=>'right'), $s->sailor));
+	  $row->add($r_cell = new XTD(array('align'=>'left', 'class'=>'races'), $amt));
 	}
 
 	// Add rows
-	$tab->addRow($headerRows[$index]);
+	$tab->add($headerRows[$index]);
 	foreach ($s_rows as $r)
-	  $tab->addRow($r);
+	  $tab->add($r);
       }
       $rowIndex++;
     } // end of table

@@ -41,11 +41,10 @@ abstract class AbstractScoresDialog extends AbstractDialog {
    * @return XElem probably a table
    */
   protected function getLegend($tiebreakers) {
-    $tab = new Table();
+    $tab = new XQuickTable(array('class'=>'tiebreaker'), array("Sym.", "Explanation"));
     array_shift($tiebreakers);
-    $tab->addHeader(new Row(array(Cell::th("Sym."), Cell::th("Explanation"))));
     foreach ($tiebreakers as $exp => $ast)
-      $tab->addRow(new Row(array(new Cell($ast), new Cell($exp))));
+      $tab->addRow(array($ast, $exp));
     return $tab;
   }
 }

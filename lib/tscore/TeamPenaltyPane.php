@@ -66,27 +66,18 @@ class TeamPenaltyPane extends AbstractPane {
     if (count($penalties) == 0)
       $p->add(new XP(array(), "There are no team penalties."));
     else {
-      $p->add($tab = new Table());
-      $tab->set("class", "narrow");
-
-      $tab->addHeader(new Row(array(Cell::th("Team name"),
-				    Cell::th("Division"),
-				    Cell::th("Penalty"),
-				    Cell::th("Comments"),
-				    Cell::th("Action"))));
-
+      $p->add($tab = new XQuickTable(array('class'=>'narrow'), array("Team name", "Division", "Penalty", "Comments", "Action")));
       foreach ($penalties as $p) {
-	$tab->addRow(new Row(array(new Cell($p->team, array("class"=>"strong")),
-				   new Cell($p->division),
-				   new Cell($p->type),
-				   new Cell($p->comments, array("width"=>"10em",
-								"style"=>"text-align: left")),
-				   new Cell($form = $this->createForm()))));
+	$tab->addRow(array($p->team,
+			   $p->division,
+			   $p->type,
+			   new XTD(array('style'=>'text-align:left;width:10em;'), $p->comments),
+			   $form = $this->createForm()));
 
-	$form->add(new XHiddenInput("r_team", $p->team->id));
-	$form->add(new XHiddenInput("r_div",  $p->division));
-	$form->add($sub = new XSubmitInput("t_remove", "Drop",
-					   array("class"=>"thin")));
+	$form->add(new XP(array(),
+			  array(new XHiddenInput("r_team", $p->team->id),
+				new XHiddenInput("r_div",  $p->division),
+				new XSubmitInput("t_remove", "Drop", array("class"=>"thin")))));
       }
     }
   }

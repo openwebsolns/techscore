@@ -76,46 +76,42 @@ class RacesPane extends AbstractPane {
     $form->add(new XP(array(), new XSubmitInput("editboats", "Edit boats")));
 
     // Table of races: columns are divisions; rows are race numbers
-    $form->add($tab = new Table());
-    $tab->set("class", "narrow");
-    $head = array(Cell::th("#"));
+    $head = array("#");
     $races = array();
     $max   = 0; // the maximum number of races in any given division
     foreach ($divisions as $div) {
-      $head[] = Cell::th("Division " . $div);
+      $head[] = "Division $div";
       $races[(string)$div] = $this->REGATTA->getRaces($div);
       $max = max($max, count($races[(string)$div]));
     }
-    $tab->addHeader(new Row($head));
+    $form->add($tab = new XQuickTable(array('class'=>'narrow'), $head));
 
     //  - Global boat
-    $row = array(Cell::th("All"));
+    $row = array("All");
     foreach ($divisions as $div) {
-      $c = new Cell();
+      $c = new XTD();
       $c->add(new XHiddenInput("div-value[]", $div));
       $c->add(XSelect::fromArray('div-boat[]', $boatOptions));
       $row[] = $c;
     }
-    $tab->addRow(new Row($row));
+    $tab->addRow($row);
 
     //  - Table content
     for ($i = 0; $i < $max; $i++) {
       // Add row
-      $row = array(Cell::th($i + 1));
+      $row = array(new XTH(array(), $i + 1));
 
       // For each division
       array_shift($boatOptions);
       foreach ($divisions as $div) {
-	$c = new Cell();
-
+	$c = "";
 	if (isset($races[(string)$div][$i])) {
 	  $race = $races[(string)$div][$i];
-	  $c->add(XSelect::fromArray($race, $boatOptions, $race->boat->id));
+	  $c = XSelect::fromArray($race, $boatOptions, $race->boat->id);
 	}
-
 	$row[] = $c;
       }
-      $tab->addRow(new Row($row));
+      $tab->addRow($row);
     }
   }
 
