@@ -32,7 +32,7 @@ class XAbstractHtml extends XElem {
    * @param String|Xmlable|Array the item to add
    */
   public function add($item) {
-    if (is_object($item) /*$item instanceof Xmlable*/ )
+    if ($item instanceof Xmlable || $item instanceof HTMLElement )
       parent::add($item);
     else
       parent::add(new XText($item));
@@ -807,16 +807,16 @@ class XTable extends XAbstractHtml {
     $t = new XTable($attrs);
     if (count($headers) > 0) {
       $t->add($h = new XTHead());
-      foreach ($headers as $h) {
+      foreach ($headers as $header) {
 	$h->add($r = new XTR());
-	foreach ($h as $c)
+	foreach ($header as $c)
 	  $r->add(new XTH(array(), $c));
       }
     }
     $t->add($h = new XTBody());
-    foreach ($rows as $h) {
+    foreach ($rows as $header) {
       $h->add($r = new XTR());
-      foreach ($h as $c)
+      foreach ($header as $c)
 	$r->add(new XTD(array(), $c));
     }
     return $t;
