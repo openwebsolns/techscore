@@ -69,8 +69,7 @@ class SailsPane extends AbstractPane {
       $bye_team = new ByeTeam();
       $form->add(new XP(array(), "Swap divisions require an even number of total teams at the time of creation. If you choose swap division, TechScore will add a \"BYE Team\" as needed to make the total number of teams even. This will produce an unused boat in every race."));
     }
-    $form->add(new FItem("Enter sail numbers in first race:",
-			 new XTable(array('class'=>'narrow'), array($tab = new XTBody()))));
+    $form->add(new FItem("Enter sail numbers in first race:", $tab = new XTable(array('class'=>'narrow'))));
 
     $i = 1;
     if (count($divisions) == 1) {
@@ -93,18 +92,17 @@ class SailsPane extends AbstractPane {
     }
     else {
       $num_teams = count($teams);
-      $tab->addHeader($row = new Row(array(Cell::th("Team"))));
+      $tab->add(new XTHead(array(), array($row = new XTR(array(), array(new XTH(array(), "Team"))))));
       foreach ($divisions as $div)
-	$row->add(Cell::th("Div. $div"));
+	$row->add(new XTH(array(), "Div. $div"));
+      $tab->add($bod = new XTBody());
       foreach ($teams as $team) {
-	$tab->addRow($row = new Row(array(new Cell($team))));
+	$bod->add($row = new XTR(array(), array(new XTD(array(), $team))));
 	$off = 0;
 	foreach ($divisions as $div) {
 	  $num = $i + $off * $num_teams;
 	  $name = sprintf("%s,%s", $div, $team->id);
-	  $row->add(new Cell(new XTextInput($name, $num, array("size"=>"2",
-							       "class"=>"small",
-							       "maxlength"=>"8"))));
+	  $row->add(new XTD(array(), new XTextInput($name, $num, array('size'=>'2', 'class'=>'small', 'maxlength'=>'8'))));
 	  $off++;
 	}
 	$i++;
@@ -112,12 +110,10 @@ class SailsPane extends AbstractPane {
       // add bye team, if necessary
       if ($bye_team !== null) {
 	$num = $i + ($off - 1) * $num_teams;
-	$tab->addRow($row = new Row(array(new Cell($bye_team))));
-	$row->add(new Cell(new XTextInput($bye_team->id, $num, array("size"=>"2",
-								     "class"=>"small",
-								     "maxlength"=>"8"))));
+	$bod->add($row = new XTR(array(), array(new XTD(array(), $bye_team))));
+	$row->add(new XTD(array(), new XTextInput($bye_team->id, $num, array('size'=>'2', 'class'=>'small', 'maxlength'=>'8'))));
 	for ($i = 1; $i < count($divisions); $i++) {
-	  $row->add(new Cell());
+	  $row->add(new XTD());
 	}
       }
     }

@@ -110,27 +110,17 @@ class RpEnterPane extends AbstractPane {
       $cur_cr = $rpManager->getRP($chosen_team, $div, RP::CREW);
 
       $form->add(new XHeading("Division $div"));
-      $form->add($tab_races = new Table());
-      $form->add($tab_skip = new Table());
+      $form->add($tab_races = new XQuickTable(array(), array("Races", "Crews")));
+      $form->add($tab_skip = new XQuickTable(array('class'=>'narrow'), array("Skippers", "Races sailed", "")));
 
       // Create races table
-      $tab_races->addHeader(new Row(array(Cell::th("Races"),
-					  Cell::th("Crews"))));
       foreach ($occ as $crews => $races) {
-	$tab_races->addRow(new Row(array(new Cell(Utilities::makeRange($races),
-						  array("name"=>"races" . $div)),
-					 new Cell(((int)$crews) - 1,
-						  array("name"=>"occ" . $div)))));
+	$tab_races->addRow(array(new XTD(array("name"=>"races" . $div), Utilities::makeRange($races)),
+				 new XTD(array("name"=>"occ" . $div),   ((int)$crews) - 1)));
       }
 
       // ------------------------------------------------------------
       // - Create skipper table
-      $tab_skip->set("class", "narrow");
-      $tab_skip->addHeader(new Row(array(Cell::th("Skippers"),
-					 Cell::th("Races sailed"),
-					 new Cell("", 
-						  array("title"=>"Verify"),
-						  1))));
       // Write already filled-in spots + 2 more
       for ($spot = 0; $spot < count($cur_sk) + 2; $spot++) {
 	$value = ""; // value for "races sailed"
@@ -138,31 +128,23 @@ class RpEnterPane extends AbstractPane {
 	  $value = Utilities::makeRange($cur_sk[$spot]->races_nums);
 
 	$cur_sk_id = (isset($cur_sk[$spot])) ? $cur_sk[$spot]->sailor->id : "";
-	$select_cell = new Cell($f_sel = XSelect::fromArray("sk$div$spot", $sailor_options, $cur_sk_id));
-	$f_sel->set('onchange', 'check()');
-	$tab_skip->addRow(new Row(array($select_cell,
-					new Cell(new XTextInput("rsk$div$spot",
-								$value,
-								array("size"=>"8",
-								      "class"=>"race_text",
-								      "onchange"=>
-								      "check()"))),
-					new Cell(new XImg("/img/question.png", "Waiting to verify"),
-						 array("id"=>"csk" . $div . $spot))),
-				  array("class"=>"skipper")));
+	$select_cell = XSelect::fromArray("sk$div$spot", $sailor_options, $cur_sk_id, array('onchange'=>'check()'));
+	$tab_skip->addRow(array($select_cell,
+				new XTextInput("rsk$div$spot", $value,
+					       array("size"=>"8",
+						     "class"=>"race_text",
+						     "onchange"=>
+						     "check()")),
+				new XTD(array('id'=>"csk$div$spot"),
+					new XImg("/img/question.png", "Waiting to verify"))),
+			  array("class"=>"skipper"));
       }
 
       $num_crews = max(array_keys($occ));
       // Print table only if there is room in the boat for crews
       if ( $num_crews > 1 ) {
 	// update crew table
-	$form->add($tab_crew = new Table());
-	$tab_crew->set("class", "narrow");
-	$tab_crew->addHeader(new Row(array(Cell::th("Crews"),
-					   Cell::th("Races sailed"),
-					   new Cell("",
-						    array("title"=>"verify"),
-						    1))));
+	$form->add($tab_crew = new XQuickTable(array('class'=>'narrow'), array("Crews", "Races sailed", "")));
     
 	//    write already filled-in spots + 2 more
 	for ($spot = 0; $spot < count($cur_cr) + 2; $spot++) {
@@ -171,19 +153,15 @@ class RpEnterPane extends AbstractPane {
 	    $value = Utilities::makeRange($cur_cr[$spot]->races_nums);
 
 	  $cur_cr_id = (isset($cur_cr[$spot])) ? $cur_cr[$spot]->sailor->id : "";
-	  $select_cell = new Cell($f_sel = XSelect::fromArray("cr$div$spot", $sailor_options, $cur_cr_id));
-	  $f_sel->set('onchange', 'check()');
-	  $tab_crew->addRow(new Row(array($select_cell,
-					  new Cell(new XTextInput("rcr" . 
-								  $div .
-								  $spot,
-								  $value,
-								  array("size"=>"8",
-									"class"=>"race_text",
-									"onchange"=>
-									"check()"))),
-					  new Cell(new XImg("/img/question.png", "Waiting to verify"),
-						   array("id"=>"ccr" . $div . $spot)))));
+	  $select_cell = XSelect::fromArray("cr$div$spot", $sailor_options, $cur_cr_id, array('onchange'=>'check()'));
+	  $tab_crew->addRow(array($select_cell,
+				  new XTextInput("rcr$div$spot", $value,
+						 array("size"=>"8",
+						       "class"=>"race_text",
+						       "onchange"=>
+						       "check()")),
+				  new XTD(array('id'=>"ccr$div$spot"),
+					  new XImg("/img/question.png", "Waiting to verify"))));
 	}
       } // end if
     }

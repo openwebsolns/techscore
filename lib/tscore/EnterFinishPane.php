@@ -181,7 +181,7 @@ class EnterFinishPane extends AbstractPane {
 
 	  $current_team = (count($finishes) > 0) ?
 	    sprintf("%s,%s", $finishes[$i]->race->division, $finishes[$i]->team->id) : "";
-	  $tab->addRow(array(new Cell($name, $attrs),
+	  $tab->addRow(array(new XTD($attrs, $name),
 			     new XImg("/img/question.png", "Waiting for input",  array("id"=>"check" . $i)),
 			     $sel = XSelect::fromArray("p" . $i, $current_team, $team_opts)));
 	  $sel->set('id', "team$i");

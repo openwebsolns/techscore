@@ -644,11 +644,12 @@ class XSelect extends XAbstractHtml {
    * @param String $name the name of the select element
    * @param Array:String $opts a map of option values and labels
    * @param Array|String $chosen the list or item to select
+   * @param Array $attrs the optional attributes to add
    */
-  public static function fromArray($name, Array $opts, $chosen = null) {
+  public static function fromArray($name, Array $opts, $chosen = null, Array $attrs = array()) {
     if (!is_array($chosen))
       $chosen = array($chosen);
-    $sel = new XSelect($name);
+    $sel = new XSelect($name, $attrs);
     foreach ($opts as $k => $v) {
       if (is_array($v)) {
 	$sel->add($grp = new XOptionGroup($k));
