@@ -38,24 +38,15 @@ class DropPenaltyPane extends AbstractPane {
       $p->add(new XP(array(), "There are currently no penalties."));
     }
     else {
-      $p->add($tab = new Table());
-      $tab->set("class", "narrow");
-
-      $tab->addHeader(new Row(array(Cell::th("Race"),
-				    Cell::th("Team"),
-				    Cell::th("Penalty"),
-				    Cell::th("Action"))));
-
+      $p->add($tab = new XQuickTable(array('class'=>'narrow'), array("Race", "Team", "Penalty", "Action")));
       foreach ($penalties as $finish) {
-	$tab->addRow(new Row(array(new Cell($finish->race),
-				   new Cell($finish->team,
-					    array("class"=>"strong")),
-				   new Cell($finish->penalty->type),
-				   new Cell($form = $this->createForm()))));
+	$tab->addRow(array($finish->race,
+			   $finish->team,
+			   $finish->penalty->type,
+			   $form = $this->createForm()));
 
 	$form->add(new XHiddenInput("r_finish", $finish->id));
-	$form->add($sub = new XSubmitInput("p_remove", "Drop/Reinstate",
-					   array("class"=>"thin")));
+	$form->add($sub = new XSubmitInput("p_remove", "Drop/Reinstate", array("class"=>"thin")));
       }
     }
 
@@ -68,20 +59,12 @@ class DropPenaltyPane extends AbstractPane {
       $p->add(new XP(array(), "There are currently no breakdowns."));
     }
     else {
-      $p->add($tab = new Table());
-      $tab->set("class", "narrow");
-
-      $tab->addHeader(new Row(array(Cell::th("Race"),
-				    Cell::th("Team"),
-				    Cell::th("Breakdown"),
-				    Cell::th("Action"))));
-
+      $p->add($tab = new XQuickTable(array('class'=>'narrow'), array("Race", "Team", "Breakdown", "Action")));
       foreach ($handicaps as $finish) {
-	$tab->addRow(new Row(array(new Cell($finish->race),
-				   new Cell($finish->team,
-					    array("class"=>"strong")),
-				   new Cell($finish->penalty->type),
-				   new Cell($form = $this->createForm()))));
+	$tab->addRow(array($finish->race,
+			   $finish->team,
+			   $finish->penalty->type,
+			   $form = $this->createForm()));
 
 	$form->add(new XHiddenInput("r_finish", $finish->id));
 	$form->add($sub = new XSubmitInput("p_remove", "Drop/Reinstate",

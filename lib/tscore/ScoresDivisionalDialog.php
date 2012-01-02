@@ -57,20 +57,22 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
       $races[(string)$div] = $this->REGATTA->getScoredRaces($div);
     $num_divs  = count($divisions);
 
-    $tab = new Table();
-    $ELEMS[] = $tab;
-    $tab->set("class", "results");
-    $tab->set("class", "coordinate");
-    $tab->addHeader($r = new Row(array(Cell::th(),
-				       Cell::th(),
-				       Cell::th(),
-				       Cell::th("School"),
-				       Cell::th("Team"))));
-    foreach ($divisions as $div)
-      $r->addCell(Cell::th($div), $penalty_th = Cell::th(""));
-    $r->addCell(Cell::th("TOT"));
+    $t = new XTable(array('class'=>'results coordinate'),
+		    array(new XTHead(array(),
+				     array($r = new XTR(array(),
+							array(new XTH(),
+							      new XTH(),
+							      new XTH(),
+							      new XTH(array(), "School"),
+							      new XTH(array(), "Team"))))),
+			  $tab = new XTBody()));
+    $ELEMS[] = $t;
+    foreach ($divisions as $div) {
+      $r->add(new XTH(array(), $div));
+      $r->add(new XTH(array('title'=>'Team penalty'), "P"));
+    }
+    $r->add(new XTH(array(), "TOT"));
 
-    $has_penalties = false;
     // In order to print the ranks, go through each ranked team once,
     // and collect the different tiebreaking categories, giving each
     // one a successive symbol.
@@ -97,14 +99,13 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
       $ln = $rank->team->school->name;
       if ($link_schools !== null)
 	$ln = new XA(sprintf('%s/%s', $link_schools, $rank->team->school->id), $ln);
-      $tab->addRow($r = new Row(array(new Cell($tiebreakers[$rank->explanation],
-					       array('title'=>$rank->explanation,
-						     'class'=>'tiebreaker')),
-				      new Cell($tID + 1),
-				      $bc = new Cell(),
-				      new Cell($ln, array("class"=>"strong")),
-				      new Cell($rank->team->name, array("class"=>"left")))));
-      $r->set('class', 'row' . ($row++%2));
+      $tab->add($r = new XTR(array('class'=>'row' . ($row++ % 2)),
+			     array(new XTD(array('title'=>$rank->explanation, 'class'=>'tiebreaker'),
+					   $tiebreakers[$rank->explanation]),
+				   new XTD(array(), $tID + 1),
+				   $bc = new XTD(),
+				   new XTD(array("class"=>"strong"), $ln),
+				   new XTD(array("class"=>"left"), $rank->team->name))));
       $url = sprintf("%s/img/schools/%s.png", $PREFIX, $rank->team->school->id);
       $bc->add(new XImg($url, $rank->team->school->id, array("height"=>"30px")));
 
@@ -117,8 +118,8 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
 	  $scoreDiv += $finish->score;
 	}
 	$pen = $this->REGATTA->getTeamPenalty($rank->team, $div);
-	$r->addCell($s_cell = new Cell());
-	$r->addCell($p_cell = new Cell());
+	$r->add($s_cell = new XTD());
+	$r->add($p_cell = new XTD());
 	if ($pen !== null) {
 	  $scoreDiv += 20;
 	  $p_cell->add(new XImg("$PREFIX/img/error.png", "X"));
@@ -128,10 +129,8 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
 	$s_cell->set("class", "total");
 	$scoreTeam += $scoreDiv;
       }
-      $r->addCell(new Cell($scoreTeam, array("class"=>array("total"))));
+      $r->add(new XTD(array('class'=>'total'), $scoreTeam));
     }
-    if ($has_penalties)
-      $penalty_th->addText("P");
 
     // Print legend, if necessary
     if (count($tiebreakers) > 1)

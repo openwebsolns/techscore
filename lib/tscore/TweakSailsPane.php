@@ -85,10 +85,9 @@ class TweakSailsPane extends AbstractPane {
       $form->add($f_item = new FItem("Races:",
 					  new XTextInput("races", Utilities::makeRange($range_races),
 						    array("size"=>"12"))));
-      $f_item->add($tab = new Table());
-      $tab->set("class", "narrow");
-      $tab->addHeader(new Row(array(Cell::th("Possible"))));
-      $tab->addRow(new Row(array(new Cell(Utilities::makeRange($range_races)))));
+      $f_item->add(XTable::fromArray(array(array(Utilities::makeRange($range_races))),
+				     array(array("Possible")),
+				     array('class'=>'narrow')));
 
       if ( $edittype === "ADD" ) {
 	$form->add(new FItem("Add/subtract:",

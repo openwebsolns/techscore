@@ -34,20 +34,16 @@ class UnregisteredSailorPane extends AbstractPane {
       $schools[$team->school->id] = $team->school->nick_name;
     asort($schools);
 
-    $form->add($tab = new Table(array(), array('class'=>'short ')));
-    $tab->addHeader(new Row(array(Cell::th("School"),
-				  Cell::th("First name"),
-				  Cell::th("Last name"),
-				  Cell::th("Year"),
-				  Cell::th("Gender"))));
+    $form->add($tab = new XQuickTable(array('class'=>'short'),
+				      array("School", "First name", "Last name", "Year", "Gender")));
     $gender = XSelect::fromArray('gender[]', array('M'=>"Male", 'F'=>"Female"));
     $school = XSelect::fromArray('school[]', $schools);
     for ($i = 0; $i < 5; $i++) {
-      $tab->addRow(new Row(array(new Cell($school),
-				 new Cell(new XTextInput('first_name[]')),
-				 new Cell(new XTextInput('last_name[]')),
-				 new Cell(new XTextInput('year[]', "", array('maxlength'=>4, 'size'=>4, 'style'=>'max-width:5em;width:5em;min-width:5em'))),
-				 new Cell($gender))));
+      $tab->addRow(array($school,
+			 new XTextInput('first_name[]'),
+			 new XTextInput('last_name[]'),
+			 new XTextInput('year[]', "", array('maxlength'=>4, 'size'=>4, 'style'=>'max-width:5em;width:5em;min-width:5em')),
+			 $gender));
     }
     $form->add(new XSubmitInput("addtemp", "Add sailors"));
 
@@ -59,28 +55,23 @@ class UnregisteredSailorPane extends AbstractPane {
       $p->add(new XP(array(), "There are no temporary sailors added yet.", array('class'=>'message')));
     }
     else {
-      $p->add($tab = new Table());
-      $tab->addHeader(new Row(array(Cell::th("School"),
-				    Cell::th("First name"),
-				    Cell::th("Last name"),
-				    Cell::th("Year"),
-				    Cell::th("Gender"),
-				    Cell::th("Action"))));
+      $p->add($tab = new XQuickTable(array(), array("School", "First name", "Last name", "Year", "Gender", "Action"));
       foreach ($temp as $t) {
-	$sch = Preferences::getSchool($t->school);
-	$tab->addRow(new Row(array(new Cell($sch->nick_name),
-				   new Cell($t->first_name),
-				   new Cell($t->last_name),
-				   new Cell($t->year),
-				   new Cell(($t->gender == Sailor::MALE) ? "Male" : "Female"),
-				   $d = new Cell())));
 	// is this sailor currently in the RP forms? Otherwise, offer
 	// to delete him/her
+	$form = "";
 	if (!$rp->isParticipating($t)) {
-	  $d->add($form = $this->createForm());
+	  $form = $this->createForm();
 	  $form->add(new XHiddenInput('sailor', $t->id));
 	  $form->add(new XSubmitInput('remove-temp', "Remove"));
 	}
+	$sch = Preferences::getSchool($t->school);
+	$tab->addRow(array($sch->nick_name,
+			   $t->first_name,
+			   $t->last_name,
+			   $t->year,
+			   ($t->gender == Sailor::MALE) ? "Male" : "Female",
+			   $form));
       }
     }
   }

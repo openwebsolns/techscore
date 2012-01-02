@@ -24,10 +24,7 @@ class ScorersPane extends AbstractPane {
     $p->addHelp("node9.html#SECTION00522000000000000000");
 
     // Get scorers
-    $p->add($tab = new Table());
-    $tab->addHeader(new Row(array(Cell::th("Name"),
-				  Cell::th("Affiliation"),
-				  Cell::th(""))));
+    $p->add($tab = new XQuickTable(array(), array("Name", "Affiliation", "")));
     $scorers = array();
     foreach ($this->REGATTA->getScorers() as $s) {
       $scorers[$s->id] = $s;
@@ -44,9 +41,7 @@ class ScorersPane extends AbstractPane {
       }
 
       // Fill row
-      $tab->addRow(new Row(array(new Cell(new XA("mailto:" . $s->id, $s->getName())),
-				 new Cell($s->school->nick_name),
-				 new Cell($f2)))); 
+      $tab->addRow(array(new XA("mailto:" . $s->id, $s->getName()), $s->school->nick_name, $f2));
     }
     if (count($scorers) == 1) {
       $button->set("disabled", "disabled");
