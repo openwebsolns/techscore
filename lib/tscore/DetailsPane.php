@@ -121,7 +121,7 @@ class DetailsPane extends AbstractPane {
     }
 
     // Update button
-    $reg_form->add($reg_sub = new XSubmitInput("edit_reg", "Edit"));
+    $reg_form->add(new XP(array(), new XSubmitInput("edit_reg", "Edit")));
     // If finalized, disable submit
     $finalized = $this->REGATTA->get(Regatta::FINALIZED);
 

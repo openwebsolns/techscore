@@ -115,7 +115,7 @@ abstract class AbstractPane {
       if ($this->doActive($url)) {
 	$link = new XA("/view/$id/$url", $title);
 	$link->set("class", "frame-toggle");
-	$link->set("target", $url);
+	$link->set("onclick", sprintf('this.target="%s"', $url));
 	$item = new XLi($link);
       }
       else

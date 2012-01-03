@@ -128,11 +128,11 @@ class TScorePage extends XPage {
     $this->header->add($this->navigation = new XDiv(array('id'=>'topnav')));
     $this->navigation->add($a = new XA(HELP_HOME, new XSpan("H", array('style'=>"text-decoration:underline")),
 				       array("id"=>"help",
-					     "target"=>"help",
+					     'onclick'=>'this.target="help"',
 					     "accesskey"=>"h")));
     $a->add("elp?");
     if ($user !== null) {
-      $this->navigation->add(new XDiv(array("id"=>"user"),
+      $this->navigation->add(new XDiv(array("id"=>"logout"),
 				      array(new XA("/logout", "Logout", array('accesskey'=>'l')))));
     }
     if ($reg !== null) {

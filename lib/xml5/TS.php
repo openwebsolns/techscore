@@ -85,7 +85,7 @@ class XHeading extends XH4 {
  */
 class XHLink extends XA {
   public function __construct($href) {
-    parent::__construct("../help/html/$href", "[?]", array("target"=>"tshelp", 'class'=>'hlink'));
+    parent::__construct("../help/html/$href", "[?]", array("onclick"=>"this.target=\"help\"", 'class'=>'hlink'));
   }
 }
 
