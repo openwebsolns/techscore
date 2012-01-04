@@ -5,7 +5,7 @@
  * @package tscore-dialog
  */
 
-require_once("conf.php");
+require_once('tscore/AbstractDialog.php');
 
 /**
  * Displays a list of all the registered sailors.
@@ -28,13 +28,8 @@ class RegistrationsDialog extends AbstractDialog {
     $teams     = $this->REGATTA->getTeams();
     $rpManager = $this->REGATTA->getRpManager();
 
-    $this->PAGE->addContent($p = new Port("Registrations"));
-    $p->addChild($tab = new Table());
-    $tab->addAttr("class", "ordinate");
-    $tab->addHeader(new Row(array(Cell::th("Team"),
-				  Cell::th("Div."),
-				  Cell::th("Skipper"),
-				  Cell::th("Crew"))));
+    $this->PAGE->addContent($p = new XPort("Registrations"));
+    $p->add($tab = new XQuickTable(array('class'=>'ordinate'), array("Team", "Div.", "Skipper", "Crew")));
 
     $races_in_div = array();
     foreach ($divisions as $div)
@@ -46,26 +41,16 @@ class RegistrationsDialog extends AbstractDialog {
       $is_first = true;
       // For each division
       foreach ($divisions as $div) {
-	$tab->addRow($row = new Row());
-	$row->addAttr("class", "row" . $row_index%2);
-
+	$row = array();
 	if ($is_first) {
 	  $is_first = false;
           // Removed burgee printing to be fixed later TODO
-	  $row->addCell($c = new Cell(""));
-          /*
-          new Image($team->school->burgee,
-						array("alt"   =>$team->school->nick_name,
-						      "height"=>"30px")),
-				      array("class"=>array("vertical", "strong"))));
-          */
-	  $c->addChild(new Text(sprintf("<br/>%s", $team)));
+	  $row[] = $team;
 	}
 	else {
-	  $row->addCell(new Cell(""));
+	  $row[] = "";
 	}
-    
-	$row->addCell(new Cell($div));
+	$row[] = $div;
 
 	// Get skipper and crew
 	$skips = $rpManager->getRP($team, $div, RP::SKIPPER);
@@ -74,26 +59,23 @@ class RegistrationsDialog extends AbstractDialog {
 	// Skippers
 	$list = array();
 	foreach ($skips as $s) {
-	  if (count($s->races_nums) == $races_in_div[(string)$div])
-	    $races = "";
-	  else
-	    $races = Utilities::makeRange($s->races_nums);
-	  $list[] = sprintf('%s <span class="races">%s</span>',
-			    $s->sailor, $races);
+	  $li = new XLi($sailor);
+	  if (count($s->races_nums) != $races_in_div[(string)$div])
+	    $li->add(new XSpan(Utilities::makeRange($s->races_nums), array('class'=>'races')));
+	  $list[] = $li;
 	}
-	$row->addCell(new Cell(implode("<br/>", $list)));
+	$row[] = (count($list) > 0) ? new XUl(array(), $list) : "";
 
 	// Crews
 	$list = array();
 	foreach ($crews as $c) {
-	  if (count($c->races_nums) == $races_in_div[(string)$div])
-	    $races = "";
-	  else
-	    $races = Utilities::makeRange($c->races_nums);
-	  $list[] = sprintf('%s <span class="races">%s</span>',
-			    $c->sailor, $races);
+	  $li = new XLi($sailor);
+	  if (count($c->races_nums) != $races_in_div[(string)$div])
+	    $li->add(new XSpan(Utilities::makeRange($c->races_nums), array('class'=>'races')));
+	  $list[] = $li;
 	}
-	$row->addCell(new Cell(implode("<br/>", $list)));
+	$row[] = (count($list) > 0) ? new XUl(array(), $list) : "";
+	$tab->addRow($row, array('class'=>'row' . ($row_index % 2)));
       }
     }
   }

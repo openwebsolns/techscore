@@ -5,7 +5,7 @@
  * @package users
  */
 
-require_once('conf.php');
+require_once('users/AbstractUserPane.php');
 
 /**
  * Compares up to three sailors head to head across a season or more,
@@ -133,16 +133,20 @@ class CompareHeadToHead extends AbstractUserPane {
 
     // push the sailor back
     array_unshift($sailors, $first_sailor);
-    $this->PAGE->addContent($p = new Port("Compare sailors head-to-head"));
-    $p->addChild($tab = new Table());
-    $tab->addHeader($row = new Row(array(Cell::th("Regatta"), Cell::th("Season"))));
+    $this->PAGE->addContent($p = new XPort("Compare sailors head-to-head"));
+    $p->add(new XTable(array(), array(new XTHead(array(), array($row = new XTR())), $tab = new XTBody())));
+    
+    $row->add(new XTH(array(), "Regatta"));
+    $row->add(new XTH(array(), "Season"));
     foreach ($sailors as $sailor)
-      $row->addChild(Cell::th($sailor));
+      $row->add(new XTH($sailor));
     foreach ($table as $rid => $divs) {
       foreach ($divs as $list) {
-	$tab->addRow($row = new Row(array(new Cell($regattas[$rid]->name), new Cell($regattas[$rid]->season))));
+	$tab->add($row = new XTR());
+	$row->add(new XTD(array(), $regattas[$rid]->name));
+	$row->add(new XTD(array(), $regattas[$rid]->season));
 	foreach ($sailors as $sailor)
-	  $row->addChild(new Cell($list[$sailor->id]));
+	  $row->add(new XTD(array(), $list[$sailor->id]));
       }
     }
     return true;
@@ -159,42 +163,35 @@ class CompareHeadToHead extends AbstractUserPane {
     // ------------------------------------------------------------
     // Provide an input box to choose sailors using AJAX
     // ------------------------------------------------------------
-    $this->PAGE->addHead(new GenericElement('link', array(new Text("")),
-					    array('type'=>'text/css',
-						  'href'=>'/inc/css/aa.css',
-						  'rel'=>'stylesheet')));
-    $this->PAGE->addHead(new GenericElement('script', array(new Text("")), array('src'=>'/inc/js/aa.js')));
-    $this->PAGE->addContent(new Para("Use this form to compare sailors head-to-head, showing the regattas that the sailors have sailed in common, and printing their place finish for each."));
-    $this->PAGE->addContent($form = new Form('/compare-sailors', "get"));
+    $this->PAGE->head->add(new LinkCSS('/inc/css/aa.css'));
+    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/aa.js'));
+    $this->PAGE->addContent(new XP(array(), "Use this form to compare sailors head-to-head, showing the regattas that the sailors have sailed in common, and printing their place finish for each."));
+    $this->PAGE->addContent($form = new XForm('/compare-sailors', XForm::GET));
 
     // Season selection
-    $form->addChild($p = new Port("Seasons to compare"));
-    $p->addChild(new Para("Choose at least one season to compare from the list below, then choose the sailors in the next panel."));
-    $p->addChild($ul = new Itemize());
-    $ul->addAttr('style', 'list-style-type:none');
+    $form->add($p = new XPort("Seasons to compare"));
+    $p->add(new XP(array(), "Choose at least one season to compare from the list below, then choose the sailors in the next panel."));
+    $p->add($ul = new XUl(array('style'=>'list-style-type:none')));
 
     $now = new Season(new DateTime());
     $then = null;
     if ($now->getSeason() == Season::SPRING)
       $then = Season::parse(sprintf('f%0d', ($now->getTime()->format('Y') - 1)));
     foreach (Preferences::getActiveSeasons() as $season) {
-      $ul->addChild($li = new LItem());
-      $li->addChild($chk = new FCheckbox('seasons[]', $season, array('id' => $season)));
-      $li->addChild(new Label($season, $season->fullString()));
-
+      $ul->add(new XLi(array($chk = new XCheckboxInput('seasons[]', $season, array('id' => $season)),
+			     new XLabel($season, $season->fullString()))));
       if ((string)$season == (string)$now || (string)$season == (string)$then)
-	$chk->addAttr('checked', 'checked');
+	$chk->set('checked', 'checked');
     }
 
     // Sailor search
-    $form->addChild($p = new Port("New sailors"));
-    $p->addChild(new GenericElement('noscript', array(new Para("Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding."))));
-    $p->addChild(new FItem('Name:', $search = new FText('name-search', "")));
-    $search->addAttr('id', 'name-search');
-    $p->addChild($ul = new Itemize());
-    $ul->addAttr('id', 'aa-input');
-    $ul->addItems(new LItem("No sailors.", array('class' => 'message')));
-    $form->addChild(new FSubmit('set-sailors', "Compare sailors"));
+    $form->add($p = new XPort("New sailors"));
+    $p->add(new XNoScript(new XP(array(), "Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding.")));
+    $p->add(new FItem('Name:', $search = new XTextInput('name-search', "")));
+    $search->set('id', 'name-search');
+    $p->add(new XUl(array('id'=>'aa-input'),
+		    array(new XLi("No sailors.", array('class'=>'message')))));
+    $form->add(new XSubmitInput('set-sailors', "Compare sailors"));
   }
 
   public function process(Array $args) {

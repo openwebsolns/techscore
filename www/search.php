@@ -19,7 +19,7 @@ if (!(isset($_SESSION['user']))) {
   // provide the login page
   $_SESSION['ANNOUNCE'][] = new Announcement("Please login to proceed.", Announcement::WARNING);
   $PAGE = new WelcomePage();
-  $PAGE->printHTML();
+  $PAGE->printXML();
   exit;
 }
 

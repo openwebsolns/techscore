@@ -8,7 +8,6 @@
  * @version 2009-09-29
  * @package regatta
  */
-require_once('conf.php');
 
 /**
  * Connects to database and provides methods for extracting available

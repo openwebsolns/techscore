@@ -5,7 +5,7 @@
  * @package users-admin
  */
 
-require_once("conf.php");
+require_once('users/admin/AbstractAdminUserPane.php');
 
 /**
  * Pane to edit (approve/reject) pending accounts
@@ -42,39 +42,32 @@ class PendingAccountsPane extends AbstractAdminUserPane {
       WebServer::go(sprintf("pending|%d", $num_pages));
     
     $list = AccountManager::getPendingUsers($startint, $startint + self::NUM_PER_PAGE);
-    $this->PAGE->addContent($p = new Port("Pending accounts"));
+    $this->PAGE->addContent($p = new XPort("Pending accounts"));
     if ($count == 0) {
-      $p->addChild(new Para("There are no pending accounts."));
+      $p->add(new XP(array(), "There are no pending accounts."));
     }
     else {
-      $p->addChild(new Para("Use the checkboxes below to select the accounts, and then click " .
-			    "on the appropriate button to approve/reject."));
-      $p->addChild($f = new Form("/pending-edit"));
-      $f->addChild($para = new Para("With selected: "));
-      $para->addChild(new FSubmit("approve", "Approve"));
-      $para->addChild(new Text(" "));
-      $para->addChild(new FSubmit("reject",  "Reject"));
+      $p->add(new XP(array(), "Use the checkboxes below to select the accounts, and then click on the appropriate button to approve/reject."));
+      $p->add($f = new XForm("/pending-edit", XForm::POST));
+      $f->add(new XP(array(),
+		     array("With selected: ",
+			   new XSubmitInput("approve", "Approve"),
+			   " ", new XSubmitInput("reject",  "Reject"))));
 
-      $f->addChild($tab = new Table());
-      $tab->addAttr("style", "width: 100%");
-      $tab->addHeader(new Row(array(Cell::th(""), // select all/none checkbox?
-				    Cell::th("Name"),
-				    Cell::th("E-mail"),
-				    Cell::th("School"),
-				    Cell::th("Role"))));
+      $f->add($tab = new XQuickTable(array('style'=>'width:100%;'),
+				     array("", "Name", "E-mail", "School", "Role")));
       $row = 0;
       foreach ($list as $acc) {
-	$tab->addRow($r = new Row(array(new Cell(new FCheckBox("accounts[]",
-							       $acc->id,
-							       array("id"=>$acc->id))),
-					new Cell(new Label($acc->id, $acc->getName())),
-					new Cell(new Link(sprintf("mailto:%s", $acc->id),
-							  $acc->id)),
-					new Cell(new Label($acc->id, $acc->school->nick_name)),
-					new Cell(new Label($acc->id, $acc->role)))));
+	$tab->addRow(array(new XCheckboxInput('accounts[]', $acc->d, array('id'=>$acc->id)),
+			   new XLabel($acc->id, $acc->getName()),
+			   new XLabel($acc->id, new XA(sprintf("mailto:%s", $acc->id), $acc->id)),
+			   new XLabel($acc->id, $acc->school->nick_name),
+			   new XLabel($acc->id, $acc->role)));
       }
-      if ($num_pages > 1)
-	$p->addChild(new PageDiv($num_pages, $pageset, "pending"));
+      if ($num_pages > 1) {
+	require_once('xml5/PageDiv.php');
+	$p->add(new PageDiv($num_pages, $pageset, "/pending"));
+      }
     }
   }
 

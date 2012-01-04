@@ -8,7 +8,7 @@
  * @package tscore
  */
 
-require_once('conf.php');
+require_once('users/AbstractUserPane.php');
 
 /**
  * Create a new regatta
@@ -33,8 +33,8 @@ class NewRegattaPane extends AbstractUserPane {
   }
 
   protected function fillHTML(Array $args) {
-    $this->PAGE->addContent($p = new Port("Create"));
-    $p->addChild($f = new Form("/create-edit"));
+    $this->PAGE->addContent($p = new XPort("Create"));
+    $p->add($f = new XForm("/create-edit", XForm::POST));
 
     $r = $this->defaultRegatta();
     // Replace with values from $args
@@ -43,51 +43,49 @@ class NewRegattaPane extends AbstractUserPane {
 	$r[$key] = $args[$key];
     }
 
-    $f->addChild(new FItem("Name:", new FText("name", $r["name"], array('maxlength'=>40))));
-    $f->addChild(new FItem("Start date:", new FText("start_date", $r["start_date"])));
-    $f->addChild(new FItem("On the water:", new FText("start_time", $r["start_time"])));
-    $f->addChild(new FItem("Duration (days):", new FText("duration", $r["duration"])));
-    $f->addChild(new FItem("Venue:",   $sel = new FSelect("venue", array($r["venue"]))));
-    $f->addChild(new FItem("Scoring:", $sco = new FSelect("scoring", array($r["scoring"]))));
-    $f->addChild(new FItem("Type:",    $typ = new FSelect("type", array($r["type"]))));
-    $f->addChild(new FItem("Participation:", $par = new FSelect("participant", array($r["participant"]))));
-    $f->addChild(new FItem("Divisions:",$div = new FSelect("num_divisions",  array($r["num_divisions"]))));
-    $f->addChild(new FItem("Number of races:", new FText("num_races", $r["num_races"])));
+    $types = Preferences::getRegattaTypeAssoc();
+    unset($types['personal']);
+
+    $f->add(new FItem("Name:", new XTextInput("name", $r["name"], array('maxlength'=>40))));
+    $f->add(new FItem("Start date:", new XTextInput("start_date", $r["start_date"])));
+    $f->add(new FItem("On the water:", new XTextInput("start_time", $r["start_time"])));
+    $f->add(new FItem("Duration (days):", new XTextInput("duration", $r["duration"])));
+    $f->add(new FItem("Venue:",   $sel = new XSelect("venue")));
+    $f->add(new FItem("Scoring:", XSelect::fromArray("scoring", Preferences::getRegattaScoringAssoc(), $r["scoring"])));
+    $f->add(new FItem("Type:", XSelect::fromArray("type",
+						  array("Public"=>$types, "Not-published"=>array('personal'=>"Personal")),
+						  $r["type"])));
+    $f->add(new FItem("Participation:", XSelect::fromArray("participant", Preferences::getRegattaParticipantAssoc(),
+							   $r["participant"])));
+    $f->add(new FItem("Divisions:",$div = new XSelect("num_divisions", array(1=>1, 2=>2, 3=>3, 4=>4), $r["num_divisions"])));
+    $f->add(new FItem("Number of races:", new XTextInput("num_races", $r["num_races"])));
     // host: if it has more than one host, otherwise send it hidden
     $confs = array(); // array of conference choices
     $schools = $this->USER->getSchools();
     if (count($schools) == 1) {
       $school = array_shift($schools);
-      $f->addChild(new FItem("Host:", new Span(array(new Text($school)))));
-      $f->addChild(new FHidden('host[]', $school->id));
+      $f->add(new FItem("Host:", new XSpan($school)));
+      $f->add(new XHiddenInput('host[]', $school->id));
     }
     else {
+      $confs = array();
       foreach ($schools as $school) {
 	if (!isset($confs[$school->conference->id]))
 	  $confs[$school->conference->id] = array();
 	$confs[$school->conference->id][$school->id] = $school;
       }
-      $f->addChild(new FItem("Host(s)<br/><small>There must be at least one</small>:",
-			     $f_sel = new FSelect('host[]', array(), array('multiple'=>'multiple','size'=>10))));
-      foreach ($confs as $id => $list)
-	$f_sel->addOptionGroup($id, $list);
+      $f->add($fi = new FItem("Host(s):", XSelectM::fromArray('host[]', $confs)));
+      $fi->add(new XMessage("There must be at least one"));
     }
-    $f->addChild(new FSubmit("new-regatta", "Create"));
+    $f->add(new XSubmitInput("new-regatta", "Create"));
 
     // select
-    $sel->addChild(new Option("", "[No venue]"));
-    foreach (Preferences::getVenues() as $venue)
-      $sel->addChild(new Option($venue->id, $venue));
-    foreach (Preferences::getRegattaScoringAssoc() as $key => $value)
-      $sco->addChild(new Option($key, $value));
-    $types = Preferences::getRegattaTypeAssoc();
-    unset($types['personal']);
-    $typ->addOptionGroup("Public", $types);
-    $typ->addOptionGroup("Not-published", array('personal' => "Personal"));
-    foreach (Preferences::getRegattaParticipantAssoc() as $key => $value)
-      $par->addChild(new Option($key, $value));
-    for ($i = 1; $i <= 4; $i++)
-      $div->addChild(new Option($i, $i));
+    $sel->add(new FOption("", "[No venue]"));
+    foreach (Preferences::getVenues() as $venue) {
+      $sel->add($opt = new FOption($venue->id, $venue));
+      if ($venue->id == $r["venue"])
+	$opt->set('selected', 'selected');
+    }
   }
 
   /**

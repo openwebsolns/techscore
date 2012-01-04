@@ -5,6 +5,8 @@
  * @package tscore-dialog
  */
 
+require_once('tscore/AbstractDialog.php');
+
 /**
  * Parent class for all scores dialog. Sets up the menu with the
  * appropriate links.
@@ -21,33 +23,28 @@ abstract class AbstractScoresDialog extends AbstractDialog {
     parent::setupPage();
 
     // Add some menu
-    $this->PAGE->addMenu($div = new Div());
-    $div->addAttr("class", "menu");
-    $div->addChild($ul = new GenericList());
-    $ul->addItems(new LItem(new Link(sprintf("/view/%d/scores",     $this->REGATTA->id()), "All scores")));
-    $ul->addItems(new LItem(new Link(sprintf("/view/%d/div-scores", $this->REGATTA->id()), "Divisional")));
+    $this->PAGE->addMenu(new XDiv(array('class'=>'menu'), array($ul = new XUl())));
+    $ul->add(new XLi(new XA(sprintf("/view/%d/scores",     $this->REGATTA->id()), "All scores")));
+    $ul->add(new XLi(new XA(sprintf("/view/%d/div-scores", $this->REGATTA->id()), "Divisional")));
     foreach ($this->REGATTA->getDivisions() as $div)
-      $ul->addItems(new LItem(new Link(sprintf("/view/%d/scores/%s",$this->REGATTA->id(), $div),
-				       "$div Division")));
+      $ul->add(new XLi(new XA(sprintf("/view/%d/scores/%s",$this->REGATTA->id(), $div),
+			      "$div Division")));
 
     // Add meta tag
-    $this->PAGE->addHead($p = new GenericElement("meta"));
-    $p->addAttr("name", "timestamp");
-    $p->addAttr("content", date('Y-m-d H:i:s'));
+    $this->PAGE->head->add(new XMeta('timestamp', date('Y-m-d H:i:s')));
   }
 
   /**
    * Prepares the tiebreakers legend element (now a table) and returns it.
    *
    * @param Array $tiebreaker the associative array of symbol => explanation
-   * @return GenericElement probably a table
+   * @return XElem probably a table
    */
   protected function getLegend($tiebreakers) {
-    $tab = new Table();
+    $tab = new XQuickTable(array('class'=>'tiebreaker'), array("Sym.", "Explanation"));
     array_shift($tiebreakers);
-    $tab->addHeader(new Row(array(Cell::th("Sym."), Cell::th("Explanation"))));
     foreach ($tiebreakers as $exp => $ast)
-      $tab->addRow(new Row(array(new Cell($ast), new Cell($exp))));
+      $tab->addRow(array($ast, $exp));
     return $tab;
   }
 }

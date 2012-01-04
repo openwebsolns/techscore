@@ -5,7 +5,7 @@
  * @package tscore-dialog
  */
 
-require_once('conf.php');
+require_once('tscore/AbstractScoresDialog.php');
 
 /**
  * Displays the full scores table for a given regatta. When there's
@@ -28,13 +28,13 @@ class ScoresFullDialog extends AbstractScoresDialog {
    *
    */
   public function fillHTML(Array $args) {
-    // $this->PAGE->addAttr('xmlns:ts', 'http://collegesailing.info');
-    $this->PAGE->addContent($p = new Port("Team results"));
+    // $this->PAGE->set('xmlns:ts', 'http://collegesailing.info');
+    $this->PAGE->addContent($p = new XPort("Team results"));
     $ELEMS = $this->getTable();
-    $p->addChild(array_shift($ELEMS));
+    $p->add(array_shift($ELEMS));
     if (count($ELEMS) > 0) {
-      $this->PAGE->addContent($p = new Port("Legend"));
-      $p->addChild($ELEMS[0]);
+      $this->PAGE->addContent($p = new XPort("Legend"));
+      $p->add($ELEMS[0]);
     }
   }
 
@@ -61,21 +61,18 @@ class ScoresFullDialog extends AbstractScoresDialog {
 	$largest_num = max($largest_num, $race->number);
     }
 
-    $tab = new Table();
-    $ELEMS[] = $tab;
-    $tab->addAttr("class", "results");
-    $tab->addAttr("class", "coordinate");
-    $tab->addHeader($r = new Row(array(Cell::th(),
-				       Cell::th(),
-				       Cell::th("Team"))));
+    
+    $ELEMS[] = new XTable(array('class'=>'results coordinate'),
+			  array(new XTHead(array(),
+					   array($r = new XTR(array(), array(new XTH(), new XTH(), new XTH(array(), "Team"))))),
+				$tab = new XTBody()));
     if ($num_divs > 1)
-      $r->addCell(Cell::th("Div."));
+      $r->add(new XTH("Div."));
     for ($i = 1; $i <= $largest_num; $i++) {
-      $r->addCell($c = Cell::th($i));
-      $c->addAttr("align", "right");
+      $r->add(new XTH(array('align'=>'right'), $i));
     }
-    $r->addCell($penalty_th = Cell::th(""),
-		new Cell("TOT", array("align"=>"right"), 1));
+    $r->add($penalty_th = new XTH());
+    $r->add(new XTH(array("align"=>"right"), "TOT"));
 
     // In order to print the ranks, go through each ranked team once,
     // and collect the different tiebreaking categories, giving each
@@ -110,46 +107,45 @@ class ScoresFullDialog extends AbstractScoresDialog {
       foreach ($races as $div => $raceList) {
 	$scoreDiv = 0;
 
-	$tab->addRow($r = new Row());
-	$r->addAttr("class", "div" . $div);
+	$tab->add($r = new XTR(array('class'=>"div$div")));
 
 	if ($num_divs == 1) {
-	  $ln = $rank->team->name . '<br/>' . $rank->team->school->nick_name;
+	  $ln = array($rank->team->name, new XBr(), $rank->team->school->nick_name);
 	  if ($link_schools !== null)
-	    $ln = new Span(array(new Text($rank->team->name), new Text('<br/>'),
-				 new Link(sprintf('%s/%s', $link_schools, $rank->team->school->id),
-					  $rank->team->school->nick_name)));
-	  $r->addCell(new Cell($tiebreakers[$rank->explanation], array("title" => $rank->explanation,
-								       "class" => "tiebreaker")),
-		      new Cell($order++),
-		      new Cell($ln, array("class"=>"strong")));
+	    $ln = array($rank->team->name, new XBr(),
+			new XA(sprintf('%s/%s', $link_schools, $rank->team->school->id),
+			       $rank->team->school->nick_name));
+	  $r->add(new XTD(array("title" => $rank->explanation, "class" => "tiebreaker", $tiebreakers[$rank->explanation])),
+		  new XTD(array(), $order++),
+		  new XTD(array("class"=>"strong"), $ln));
 	}
 	elseif ($div == "A") {
-	  $r->addCell(new Cell($tiebreakers[$rank->explanation], array("title" => $rank->explanation)),
-		      new Cell($order++),
-		      new Cell($rank->team->name,
-			       array("class"=>"strong")));
+	  $r->add(new XTD(array("title" => $rank->explanation), $tiebreakers[$rank->explanation]));
+	  $r->add(new XTD(array(), $order++));
+	  $r->add(new XTD(array('class'=>'strong'), $rank->team->name));
 	}
 	elseif ($div == "B") {
 	  $ln = $rank->team->school->nick_name;
 	  if ($link_schools !== null)
-	    $ln = new Link(sprintf('%s/%s', $link_schools, $rank->team->school->id), $ln);
-	  $r->addCell(new Cell(),
-		      new Cell(),
-		      new Cell($ln));
+	    $ln = new XA(sprintf('%s/%s', $link_schools, $rank->team->school->id), $ln);
+	  $r->add(new XTD());
+	  $r->add(new XTD());
+	  $r->add(new XTD(array(), $ln));
 	}
 	else {
-	  $r->addCell(new Cell(), new Cell(), new Cell());
+	  $r->add(new XTD());
+	  $r->add(new XTD());
+	  $r->add(new XTD());
 	}
 	if ($num_divs > 1)
-	  $r->addCell(new Cell($div, array("class"=>"strong")));
+	  $r->add(new XTD(array("class"=>"strong"), $div));
 
 	// ...for each race
 	for ($i = 1; $i <= $largest_num; $i++) {
 
 	  // finish and score
 	  $race = Preferences::getObjectWithProperty($raceList, "number", $i);
-	  $cell = new Cell();
+	  $r->add($cell = new XTD());
 	  if ($race != null) {
 
 	    // add score for this race to running team score
@@ -158,64 +154,52 @@ class ScoresFullDialog extends AbstractScoresDialog {
 	    $scoreTeam       += $finish->score;
 	    $scoreRace[$i-1] += $finish->score;
 
-	    $cell->addChild(new Text($finish->place));
-	    $cell->addAttr("title", $finish->explanation);
-	    $cell->addAttr("align", "right");
-	    $cell->addAttr("ts:score", $finish->score);
+	    $cell->add($finish->place);
+	    $cell->set("title", $finish->explanation);
+	    $cell->set("align", "right");
+	    $cell->set("ts:score", $finish->score);
 	  }
-	  $r->addCell($cell);
 	}
 
 	// print penalty, should it exist
 	$team_pen = $this->REGATTA->getTeamPenalty($rank->team, new Division($div));
 	if ($team_pen !== null) {
-	  $r->addCell(new Cell($team_pen->type,
-			       array("title"=>$team_pen->comments,
-				     "align"=>"right")));
+	  $r->add(new XTD(array('title'=>$team_pen->comments, 'align'=>'right'), $team_pen->type));
 	  $scoreDiv += 20;
 	  $penaltyTeam += 20;
 	  $has_penalties = true;
 	}
 	else {
-	  $r->addCell(new Cell());
+	  $r->add(new XTD());
 	}
 
 	// print total score for division
-	$r->addCell(new Cell($scoreDiv, array("align"=>"right")));
+	$r->add(new XTD(array('align'=>'right'), $scoreDiv));
       }
 
       // write total row
-      $tab->addRow($r = new Row(array(), array("class"=>"totalrow")));
-      $r->addCell(new Cell());
-      $r->addCell(new Cell());
-      $r->addCell($burgee_cell = new Cell());
-
+      $tab->add($r = new XTR(array("class"=>"totalrow"), array(new XTD(), new XTD(), $burgee_cell = new XTD())));
       if ($rank->team->school->burgee !== null) {
 	$url = sprintf("%s/img/schools/%s.png", $PREFIX, $rank->team->school->id);
-	$burgee_cell->addChild(new Image($url, array("alt"=>$rank->team->school->id, "height"=>"30px")));
+	$burgee_cell->add(new XImg($url, $rank->team->school->id, array("height"=>"30px")));
       }
       if ($num_divs > 1)
-	$r->addCell(new Cell());
+	$r->add(new XTD());
 
       for ($i = 0; $i < $largest_num; $i++) {
 	$value = array_sum(array_slice($scoreRace, 0, $i + 1));
-	$r->addCell(new Cell($value,
-			     array("class"=>"sum",
-				   "align"=>"right")));
+	$r->add(new XTD(array('class'=>'sum', 'align'=>'right'), $value));
       }
 
       // print penalty sum, if they exist
       if ($penaltyTeam == 0)
-	$r->addCell(new Cell());
+	$r->add(new XTD());
       else
-	$r->addCell(new Cell(sprintf("(%s)", $penaltyTeam),
-			     array("title" => "Penalty total")));
+	$r->add(new XTD(array('title' => "Penalty total"), "($penaltyTeam)"));
 
       // print total
-      $r->addCell(new Cell($scoreTeam + $penaltyTeam,
-			   array("class"=>"sum total",
-				 "align"=>"right")));
-    }
+      $r->add(new XTD(array('class'=>'sum total', 'align'=>'right'), $scoreTeam + $penaltyTeam));,
+	}
 
     // Print legend, if necessary
     if (count($tiebreakers) > 1)

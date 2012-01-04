@@ -7,7 +7,7 @@
  * @package xml5
  */
 
-require_once('HtmlLib.php');
+require_once('xml5/TS.php');
 
 /**
  * Generates the necessary tables (only once) for the given regatta
@@ -449,7 +449,7 @@ class TScoresTables {
    * Prepares the tiebreakers legend element (now a table) and returns it.
    *
    * @param Array $tiebreaker the associative array of symbol => explanation
-   * @return GenericElement probably a table
+   * @return XElem probably a table
    */
   protected function getLegend($tiebreakers) {
     $tab = new XQuickTable(array('class'=>'legend'), array("Sym.", "Explanation"));

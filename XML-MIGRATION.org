@@ -1,0 +1,33 @@
+Migrating to XML Library
+
+Since the current XmlLibrary and the future HtmlLib have different
+names for the analogous classes (the latter being prefixed with an
+'X'), the best course of action is to migrate each element at a time,
+changing the name and its use from one library to another.
+
+During that migration, both libraries will be loaded into memory, but
+the program will use the class that it can.
+
+This means, however, that the new library will have to be modified to
+temporarily allow anything that has a toXML or printXML (as in duck
+typing). Futhermore, this means that the first course of action is to
+add the new methods to the XmlLibrary.
+
+* Select
+
+These are hard to do all at once. It must be done manually and
+carefully; and both versions must exist along the way.
+
+As such, these are the files that need to be addresed. I got this list
+by running:
+
+% grep --color -nlRi 'FSelect(' lib/ www/ bin/
+
+  - lib/tscore/RpEnterPane.php
+  - lib/tscore/ReplaceTeamPane.php
+  - lib/prefs/SailorMergePane.php
+  - lib/users/RegisterPane.php
+  - lib/users/NewRegattaPane.php
+  - lib/users/AllAmerican.php
+  - lib/users/admin/VenueManagement.php
+  - lib/users/admin/SendMessage.php

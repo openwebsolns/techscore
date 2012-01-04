@@ -5,7 +5,7 @@
  * @package users
  */
 
-require_once("conf.php");
+require_once('users/AbstractUserPane.php');
 
 /**
  * User's home page, subclasses AbstractUserPane
@@ -41,12 +41,12 @@ class UserHomePane extends AbstractUserPane {
     // ------------------------------------------------------------
     $num_messages = count(Preferences::getUnreadMessages($this->USER->asAccount()));
     if ($num_messages > 0) {
-      $this->PAGE->addContent($p = new Port("Messages"));
-      $p->addChild($para = new Para("You have "));
+      $this->PAGE->addContent($p = new XPort("Messages"));
+      $p->add($para = new XP(array(), "You have "));
       if ($num_messages == 1)
-	$para->addChild(new Link("inbox", "1 unread message."));
+	$para->add(new XA("inbox", "1 unread message."));
       else
-	$para->addChild(new Link("inbox", "$num_messages unread messages."));
+	$para->add(new XA("inbox", "$num_messages unread messages."));
     }
 
     // ------------------------------------------------------------
@@ -81,65 +81,64 @@ class UserHomePane extends AbstractUserPane {
       $regattas = $this->USER->getRegattas($startint, $startint + self::NUM_PER_PAGE);
     }
     
-    $this->PAGE->addContent($p = new Port("My Regattas"));
+    $this->PAGE->addContent($p = new XPort("My Regattas"));
     // usort($regattas, "RegattaSummary::cmpStartDesc");
 
     // Add search form, if necessary
     if ($num_regattas > self::NUM_PER_PAGE * 3 || $qry !== null) {
-      $p->addChild($f = new Form('/', 'get'));
-      $f->addChild($pa = new Para(""));
-      $pa->addAttr('id', 'search');
-      $pa->addAttr('title', "Enter part or all of the name");
-      $pa->addChild(new Text("Search your regattas: "));
-      $pa->addChild(new FText('q', $qry, array('size'=>60)));
-      $pa->addChild(new FSubmit('go', "Go"));
+      $p->add($f = new XForm('/', XForm::GET));
+      $f->add($pa = new XP(array('id'=>'search', 'title'=>"Enter part or all of the name"),
+			   array("Search your regattas: ",
+				 new XTextInput('q', $qry, array('size'=>60)),
+				 new XSubmitInput('go', "Go"))));
       if ($qry !== null) {
-	$pa->addChild(new Text(" "));
-	$pa->addChild(new Link('/', "Cancel"));
+	$pa->add(new XText(" "));
+	$pa->add(new XA('/', "Cancel"));
       }
-      if ($mes !== null) {
-	$f->addChild($pa = new Para(""));
-	$pa->addAttr('class', 'warning');
-	$pa->addAttr('style', 'padding: 0.5em;');
-	$pa->addChild(new Text($mes));
-      }
+      if ($mes !== null)
+	$f->add(new XP(array('class'=>'warning', 'style'=>'padding:0.5em;'), $mes));
     }
 
     // Create table of regattas, if applicable
     if (count($regattas) > 0) {
-      $p->addChild($tab = new Table());
-      $tab->addAttr("style", "width: 100%");
-      $tab->addHeader(new Row(array(Cell::th("Name"),
-				    Cell::th("Season"),
-				    Cell::th("Date"),
-				    Cell::th("Type"),
-				    Cell::th("Finalized"))));
+      $p->add(new XTable(array('style'=>'width:100%'),
+			 array(new XTHead(array(),
+					  array(new XTR(array(),
+							array(new XTH(array(), "Name"),
+							      new XTH(array(), "Season"),
+							      new XTH(array(), "Date"),
+							      new XTH(array(), "Type"),
+							      new XTH(array(), "Finalized"))))),
+			       $tab = new XTBody())));
     }
     elseif ($qry === null) {
-      $p->addChild(new Para('You have no regattas. Go <a href="create">create one</a>!'));
+      $p->add(new XP(array(),
+		     array("You have no regattas. Go ",
+			   new XA("create", "create one"), "!")));
     }
     $row = 0;
     $now = new DateTime('1 day ago');
     foreach ($regattas as $reg) {
-      $link = new Link("score/" . $reg->id, $reg->name);
+      $link = new XA("score/" . $reg->id, $reg->name);
       $finalized = '--';
       if ($reg->finalized !== null)
 	$finalized = $reg->finalized->format("Y-m-d");
       elseif ($reg->finalized < $now)
-	$finalized = new Link('score/'.$reg->id.'#finalize', 'PENDING',
-			      array('title'=>'Regatta must be finalized!',
-				    'style'=>'color:red;font-weight:bold;font-size:110%;'));
-      $tab->addRow($r = new Row(array(new Cell($link, array("class"=>"left", "style"=>"padding-left: 1em")),
-				      new Cell(strtoupper($reg->season)),
-				      new Cell($reg->start_time->format("Y-m-d")),
-				      new Cell(ucfirst($reg->type)),
-				      new Cell($finalized))));
-      $r->addAttr("class", sprintf("row%d", $row++ % 2));
+	$finalized = new XA('score/'.$reg->id.'#finalize', 'PENDING',
+			    array('title'=>'Regatta must be finalized!',
+				  'style'=>'color:red;font-weight:bold;font-size:110%;'));
+      $tab->add(new XTR(array('class'=>'row'.($row++ % 2)),
+			array(new XTD(array("class"=>"left", "style"=>"padding-left:1em"), $link),
+			      new XTD(array(), strtoupper($reg->season)),
+			      new XTD(array(), $reg->start_time->format("Y-m-d")),
+			      new XTD(array(), ucfirst($reg->type)),
+			      new XTD(array(), $finalized))));
     }
     $last = (int)($num_regattas / self::NUM_PER_PAGE);
     if ($last > 1) {
+      require_once('xml5/PageDiv.php');
       $suf = ($qry !== null) ? '?q='.$qry : '';
-      $p->addChild(new PageDiv($last, $pageset, 'home', $suf));
+      $p->add(new PageDiv($last, $pageset, 'home', $suf));
     }
   }
 

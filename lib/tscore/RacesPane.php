@@ -30,7 +30,7 @@ class RacesPane extends AbstractPane {
   protected function fillHTML(Array $args) {
     $divisions = $this->REGATTA->getDivisions();
     $boats     = Preferences::getBoats();
-    $boatOptions = array();
+    $boatOptions = array('' => "[Use table]");
     foreach ($boats as $boat) {
       $boatOptions[$boat->id] = $boat->name;
     }
@@ -39,92 +39,79 @@ class RacesPane extends AbstractPane {
     // Number of races and divisions
     // ------------------------------------------------------------
     $final = $this->REGATTA->get(Regatta::FINALIZED);
-    $this->PAGE->addContent($p = new Port("Races and divisions"));
-    $p->addChild($form = $this->createForm());
-    $form->addChild(new FItem("Number of divisions:",
-			      $f_div = new FSelect("num_divisions", array(count($divisions)))));
-    $form->addChild(new FItem("Number of races:",
-			      $f_rac = new FText("num_races",
+    $this->PAGE->addContent($p = new XPort("Races and divisions"));
+    $p->add($form = $this->createForm());
+    $form->add(new FItem("Number of divisions:", $f_div = new XSelect('num_divisions')));
+    $form->add(new FItem("Number of races:",
+			 $f_rac = new XTextInput("num_races",
 						 count($this->REGATTA->getRaces(Division::A())))));
     if ($final) {
-      $f_div->addAttr("disabled", "disabled");
-      $f_rac->addAttr("disabled", "disabled");
+      $f_div->set("disabled", "disabled");
+      $f_rac->set("disabled", "disabled");
     }
     elseif (count($this->REGATTA->getRotation()->getRaces()) > 0 ||
 	    count($this->REGATTA->getScoredRaces()) > 0) {
-      $form->addChild(new Para('<strong>Warning: </strong>Adding races or divisions to this regatta ' .
-			       'will require that you also edit the rotations (if any). Removing races ' .
-			       'or divisions will also remove the finishes and rotations (if any) for ' .
-			       'the removed races!'));
+      $form->add(new XP(array(),
+			array(new XStrong("Warning:"),
+			      " Adding races or divisions to this regatta will require that you also edit the rotations (if any). Removing races or divisions will also remove the finishes and rotations (if any) for the removed races!")));
     }
-    $form->addChild(new Para('<strong>Note: </strong>Extra races are automatically removed when ' .
-			     'the regatta is finalized.'));
-    $form->addChild($f_sub = new FSubmit("set-races", "Set races"));
-    if ($final) $f_sub->addAttr("disabled", "disabled");
+    $form->add(new XP(array(),
+		      array(new XStrong("Note:"),
+			    " Extra races are automatically removed when the regatta is finalized.")));
+    $form->add($f_sub = new XSubmitInput("set-races", "Set races"));
+    if ($final) $f_sub->set("disabled", "disabled");
 
     // Fill the select boxes
-    for ($i = 1; $i <= 4; $i++) {
-      $f_div->addChild(new Option($i, $i));
-    }
+    for ($i = 1; $i <= 4; $i++)
+      $f_div->add(new FOption($i, $i));
 
     //------------------------------------------------------------
     // Edit existing boats
     
-    $this->PAGE->addContent($p = new Port("Boat assignments"));
-    $p->addChild(new Para("Edit the boat associated with each race. This is necessary " .
-			  "at the time of entering RP information. " .
-			  "Races that are not sailed are automatically removed " .
-			  "when finalizing the regatta."));
-    $p->addChild($form = $this->createForm());
+    $this->PAGE->addContent($p = new XPort("Boat assignments"));
+    $p->add(new XP(array(), "Edit the boat associated with each race. This is necessary at the time of entering RP information. Races that are not sailed are automatically removed when finalizing the regatta."));
+    $p->add($form = $this->createForm());
 
     // Add input elements
-    $form->addChild($para = new Para(""));
-    $para->addChild(new FSubmit("editboats", "Edit boats"));
-
+    $form->add(new XP(array(), new XSubmitInput("editboats", "Edit boats")));
 
     // Table of races: columns are divisions; rows are race numbers
-    $form->addChild($tab = new Table());
-    $tab->addAttr("class", "narrow");
-    $head = array(Cell::th("#"));
+    $head = array("#");
     $races = array();
     $max   = 0; // the maximum number of races in any given division
     foreach ($divisions as $div) {
-      $head[] = Cell::th("Division " . $div);
+      $head[] = "Division $div";
       $races[(string)$div] = $this->REGATTA->getRaces($div);
       $max = max($max, count($races[(string)$div]));
     }
-    $tab->addHeader(new Row($head));
+    $form->add($tab = new XQuickTable(array('class'=>'narrow'), $head));
 
     //  - Global boat
-    $row = array(Cell::th("All"));
+    $row = array("All");
     foreach ($divisions as $div) {
-      $c = new Cell();
-      $c->addChild(new FHidden("div-value[]", $div));
-      $c->addChild($f_sel = new FSelect("div-boat[]", array()));
-      $f_sel->addChild(new Option("", "[Use table]"));
-      $f_sel->addOptions($boatOptions);
+      $c = new XTD();
+      $c->add(new XHiddenInput("div-value[]", $div));
+      $c->add(XSelect::fromArray('div-boat[]', $boatOptions));
       $row[] = $c;
     }
-    $tab->addRow(new Row($row));
+    $tab->addRow($row);
 
     //  - Table content
     for ($i = 0; $i < $max; $i++) {
       // Add row
-      $row = array(Cell::th($i + 1));
+      $row = array(new XTH(array(), $i + 1));
 
       // For each division
+      array_shift($boatOptions);
       foreach ($divisions as $div) {
-	$c = new Cell();
-
+	$c = "";
 	if (isset($races[(string)$div][$i])) {
 	  $race = $races[(string)$div][$i];
-	  $c->addChild($f_sel = new FSelect($race, array($race->boat->id)));
-	  $f_sel->addOptions($boatOptions);
+	  $c = XSelect::fromArray($race, $boatOptions, $race->boat->id);
 	}
-
 	$row[] = $c;
       }
-      $tab->addRow(new Row($row));
+      $tab->addRow($row);
     }
   }
 

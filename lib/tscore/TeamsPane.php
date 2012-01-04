@@ -24,41 +24,36 @@ class TeamsPane extends AbstractPane {
     $confs = Preferences::getConferences();
 
     // Add teams
-    $this->PAGE->addContent($p = new Port("Add team from ICSA school"));
-    $p->addChild(new Bookmark("add"));
-    $p->addChild(new Para("Choose a school from which to add a new team. Because the regatta is under way, you may only add one team at a time."));
+    $this->PAGE->addContent($p = new XPort("Add team from ICSA school"));
+    $p->set('id', 'add');
+    $p->add(new XP(array(), "Choose a school from which to add a new team. Because the regatta is under way, you may only add one team at a time."));
 
-    $p->addChild($form = $this->createForm());
-    $form->addChild(new FItem("Schools:", $f_sel = new FSelect("addschool", array(), array('size'=>20))));
+    $p->add($form = $this->createForm());
+    $form->add(new FItem("Schools:", $f_sel = new XSelect("addschool", array('size'=>20))));
     foreach ($confs as $conf) {
       // Get schools for that conference
-      $schools = Preferences::getSchoolsInConference($conf);
-      $schoolOptions = array();
-      foreach ($schools as $school) {
-	$schoolOptions[$school->id] = $school->name;
-      }
-      $f_sel->addOptionGroup($conf, $schoolOptions);
+      $f_sel->add($f_grp = new FOptionGroup((string)$conf));
+      foreach (Preferences::getSchoolsInConference($conf) as $school)
+	$f_grp->add(new FOption($school->id, $school->name));
     }
 
     // What to do with rotation?
-    $form->addChild($exp = new Para(""));
+    $form->add($exp = new XP());
     if ($this->has_rots) {
-      $exp->addChild(new Text("The regatta already has rotations. By adding a team, the rotations will need to be fixed. Choose from the options below."));
-      $form->addChild($fi = new FItem("Delete rotation:",
-				      new FCheckbox('del-rotation', '1',
+      $exp->add(new XText("The regatta already has rotations. By adding a team, the rotations will need to be fixed. Choose from the options below."));
+      $form->add($fi = new FItem("Delete rotation:",
+				 new XCheckboxInput('del-rotation', '1',
 						    array('id'=>'del-rot',
 							  'checked'=>'checked'))));
-      $fi->addChild(new Label('del-rot', "Delete current rotation without affecting finishes."));
+      $fi->add(new XLabel('del-rot', "Delete current rotation without affecting finishes."));
     }
 
     // What to do with scores?
     if ($this->has_scores) {
-      $exp->addChild(new Text("The regatta already has finishes entered. After adding the new teams, what should their score be?"));
-      $form->addChild(new FItem("New score:", $f_sel = new FSelect('new-score', array())));
-      $f_sel->addChild(new Option('DNS', "DNS", array('selected' => 'selected')));
-      $f_sel->addChild(new Option('BYE', "BYE"));
+      $exp->add(new XText("The regatta already has finishes entered. After adding the new teams, what should their score be?"));
+      $form->add(new FItem("New score:", XSelect::fromArray('new-score', array('DNS' => 'DNS', 'BYE' => 'BYE'))));
     }
-    $form->addChild(new FSubmit("invite", "Register team"));
+    $form->add(new XSubmitInput("invite", "Register team"));
   }
 
   /**
@@ -144,21 +139,20 @@ class TeamsPane extends AbstractPane {
 
   private function fillNewRegatta(Array $args) {
     $confs = Preferences::getConferences();
-    $this->PAGE->addContent($p = new Port("Add team from ICSA school"));
-    $p->addChild(new Para("Choose schools which are participating by indicating how many teams are invited from each school. Use your browser's search function to help you."));
-    $p->addChild($form = $this->createForm());
-    $form->addChild($list = new Itemize(array(), array('id'=>'teams-list')));
+    $this->PAGE->addContent($p = new XPort("Add team from ICSA school"));
+    $p->add(new XP(array(), "Choose schools which are participating by indicating how many teams are invited from each school. Use your browser's search function to help you."));
+    $p->add($form = $this->createForm());
+    $form->add($list = new XUl(array('id'=>'teams-list')));
     
     foreach ($confs as $conf) {
-      $list->addItems(new LItem($sub = new Itemize(array(new Heading($conf)))));
+      $list->add(new XLi(array(new XHeading($conf), $sub = new XUl())));
       foreach ($schools = Preferences::getSchoolsInConference($conf) as $school) {
-	$sub->addItems($li = new LItem());
-	$li->addChild(new FHidden('school[]', $school->id));
-	$li->addChild(new FText('number[]', "", array('id'=>$school->id)));
-	$li->addChild(new Label($school->id, $school));
+	$sub->add(new XLi(array(new XHiddenInput('school[]', $school->id),
+				new XTextInput('number[]', "", array('id'=>$school->id)),
+				new XLabel($school->id, $school))));
       }
     }
-    $form->addChild(new FSubmit('set-teams', "Register teams"));
+    $form->add(new XSubmitInput('set-teams', "Register teams"));
   }
 
   public function processNewRegatta(Array $args) {

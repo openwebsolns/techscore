@@ -5,7 +5,7 @@
  * @package users
  */
 
-require_once('conf.php');
+require_once('users/AbstractUserPane.php');
 
 /**
  * Displays and controls the display of messages for the given user
@@ -28,8 +28,8 @@ class MessagePane extends AbstractUserPane {
     // No messages
     // ------------------------------------------------------------
     if (count($messages) == 0) {
-      $this->PAGE->addContent($p = new Port("Inbox"));
-      $p->addChild(new Para("You have no messages."));
+      $this->PAGE->addContent($p = new XPort("Inbox"));
+      $p->add(new XP(array(), "You have no messages."));
       return;
     }
 
@@ -44,28 +44,25 @@ class MessagePane extends AbstractUserPane {
       }
 
       $sub = (empty($message->subject)) ? "[No subject]" : $message->subject;
-      $this->PAGE->addContent($p = new Port($sub));
-      $p->addChild($cont = new Div());
-      $cont->addAttr("class", "email-message");
-      $cont->addChild(new GenericElement('pre', array(new Text(wordwrap($message->content, 90)))));
-      $p->addChild($form = new Form("/inbox-edit"));
+      $this->PAGE->addContent($p = new XPort($sub));
+      $p->add(new XDiv(array('class'=>'email-message'),
+		       array(new XPre(wordwrap($message->content, 90)))));
+      $p->add($form = new XForm("/inbox-edit", XForm::POST));
 
       // Fill out form
-      $form->addChild(new GenericElement("button",
-					 array(new Text("Delete")),
-					 array("name" =>"delete",
-					       "type"=>"submit",
-					       "value"=>$message->id)));
-      $form->addChild(new Text(" "));
-      $form->addChild(new Link("inbox", "Close"));
+      $form->add(new XButton(array("name" =>"delete",
+				   "type"=>"submit",
+				   "value"=>$message->id),
+			     array("Delete")));
+      $form->add(new XText(" "));
+      $form->add(new XA("inbox", "Close"));
       
-      $p->addChild($form = new Form("/inbox-edit"));
-      $form->addChild(new FTextarea("text", "", array("style"=>"width: 100%", "rows" =>"3")));
-      $form->addChild(new GenericElement("button",
-					 array(new Text("Reply")),
-					 array("name" =>"reply",
-					       "type" =>"submit",
-					       "value"=>$message->id)));
+      $p->add($form = new XForm("/inbox-edit", XForm::POST));
+      $form->add(new XTextArea("text", "", array("style"=>"width: 100%", "rows" =>"3")));
+      $form->add(new XButton(array("name" =>"reply",
+				   "type" =>"submit",
+				   "value"=>$message->id),
+			     array("Reply")));
 
       // Mark the message as read
       Preferences::markRead($message);
@@ -74,30 +71,25 @@ class MessagePane extends AbstractUserPane {
     // ------------------------------------------------------------
     // Message browser
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new Port("All messages"));
-    $p->addChild($tab = new Table());
-    $tab->addAttr("style", "width: 100%;");
-    $tab->addAttr("class", "left");
-    $tab->addHeader(new Row(array(new Cell("Subject", array("width"=>"20%"), 1),
-				  new Cell("Content", array("width"=>"60%"), 1),
-				  new Cell("Sent",    array("width"=>"20%"), 1))));
+    $this->PAGE->addContent($p = new XPort("All messages"));
+    $p->add(new XTable(array('class'=>'left', 'style'=>'width:100%;'),
+		       array(new XTHead(array(),
+					array(new XTR(array(),
+						      array(new XTH(array('width'=>'20%'), "Subject"),
+							    new XTH(array('width'=>'60%'), "Content"),
+							    new XTH(array('width'=>'20%'), "Sent"))))),
+			     $tab = new XTBody())));
     foreach ($messages as $mes) {
       $sub = (empty($mes->subject)) ? "[No subject]" : $mes->subject;
       $con = (strlen($mes->content) > 50) ?
 	substr($mes->content, 0, 50) . "..." :
 	$mes->content;
 
-      if (!$mes->read_time)
-	$tab->addRow(new Row(array(new Cell(new GenericElement("strong",
-							       array(new Link("inbox/" . $mes->id, $sub)))),
-				   new Cell(new GenericElement("strong",
-							       array(new Text($con)))),
-				   new Cell(new GenericElement("strong",
-							       array(new Text($mes->created->format('Y-m-d H:i'))))))));
-      else
-	$tab->addRow(new Row(array(new Cell(new Link("inbox/" . $mes->id, $sub)),
-				   new Cell($con),
-				   new Cell($mes->created->format('Y-m-d H:i')))));
+      $attrs = ($mes->read_time === null) ? array('class'=>'strong') : array();
+      $tab->add(new XTR($attrs,
+			array(new XTD(new XA("/inbox/{$mes->id}", $sub)),
+			      new XTD($con),
+			      new XTD($mes->created->format('Y-m-d H:i')))));
     }
   }
 

@@ -5,7 +5,7 @@
  * @package xml5
  */
 
-require_once('HtmlLib.php');
+require_once('xml5/TS.php');
 
 /**
  * Public page for scores, written in the new and improved HtmlLib
@@ -45,7 +45,7 @@ class TPublicPage extends XPage {
     if ($this->filled) return;
 
     // Stylesheets
-    $this->head->add(new XLinkCSS('text/css', '/inc/css/mp.css', 'screen', 'stylesheet'));
+    $this->head->add(new LinkCSS('/inc/css/mp.css'));
 
     // Navigation
     $this->body->add(new XDiv(array('class'=>'hidden'),

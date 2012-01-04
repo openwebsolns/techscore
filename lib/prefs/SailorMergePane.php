@@ -5,6 +5,8 @@
  * @package prefs
  */
 
+require_once('users/AbstractUserPane.php');
+
 /**
  * SailorMergePane: editor pane to merge the unsorted sailors from a
  * given school with those in the actual database.
@@ -28,57 +30,37 @@ class SailorMergePane extends AbstractUserPane {
    *
    */
   public function fillHTML(Array $args) {
-    $this->PAGE->addContent($p = new Port("Merge temporary sailors"));
-    $p->addChild(new Para("When a sailor is not found in the database, the scorers " .
-			  "can add the sailor temporarily. These temporary sailors " .
-			  "appear throughout <strong>TechScore</strong> with an " .
-			  "asterisk next to their name."));
+    $this->PAGE->addContent($p = new XPort("Merge temporary sailors"));
+    $p->add(new XP(array(), "When a sailor is not found in the database, the scorers can add the sailor temporarily. These temporary sailors appear throughout TechScore with an asterisk next to their name."));
     
-    $p->addChild(new Para("It is the school's responsibilities to " .
-			  "match the temporary sailors with the actual sailor from " .
-			  "the ICSA database once the missing sailor has been approved."));
+    $p->add(new XP(array(), "It is the school's responsibilities to match the temporary sailors with the actual sailor from the ICSA database once the missing sailor has been approved."));
 
-    $p->addChild(new Para("Use this form to update the database by matching the " .
-			  "temporary sailor with the actual one from the ICSA database. " .
-			  "If the sailor does not appear, he/she may have to be approved " .
-			  "by ICSA before the changes are reflected in <strong>TechScore" .
-			  "</strong>. Also, bear in mind that " .
-			  "<strong>TechScore</strong>'s copy of the ICSA " .
-			  "membership database might lag ICSA's copy by as much as a week."));
+    $p->add(new XP(array(), "Use this form to update the database by matching the temporary sailor with the actual one from the ICSA database. If the sailor does not appear, he/she may have to be approved by ICSA before the changes are reflected in TechScore. Also, bear in mind that TechScore's copy of the ICSA membership database might lag ICSA's copy by as much as a week."));
 
     // Get all the temporary sailors
     $temp = RpManager::getUnregisteredSailors($this->SCHOOL);
     if (empty($temp)) {
-      $p->addChild(new Para("No temporary sailors for this school.",
-			    array("class"=>array("strong","center"))));
+      $p->add(new XP(array('class'=>'strong center'), "No temporary sailors for this school."));
       return;
     }
 
-    $p->addChild($form = new Form(sprintf("/pedit/%s/sailor", $this->SCHOOL->id), "post"));
-    $form->addChild($tab = new Table());
-    $tab->addAttr("class", "narrow");
-    $tab->addHeader(new Row(array(Cell::th("Temporary sailor"),
-				  Cell::th("ICSA Match"))));
-
+    $p->add($form = new XForm(sprintf("/pedit/%s/sailor", $this->SCHOOL->id), XForm::POST));
+    $form->add($tab = new XQuickTable(array('class'=>'narrow'), array("Temporary sailor", "ICSA Match")));
+    
     // Create choices
     $sailors = RpManager::getSailors($this->SCHOOL);
-    $choices = array();
-    $coaches = array();
+    $choices = array("" => "", "Sailors"=>array(), "Coaches"=>array());
     foreach ($sailors as $sailor)
-      $choices[$sailor->id] = (string)$sailor;
+      $choices["Sailors"][$sailor->id] = (string)$sailor;
     foreach (RpManager::getCoaches($this->SCHOOL, 'all', true) as $sailor)
-      $coaches[$sailor->id] = (string)$sailor;
+      $choices["Coaches"][$sailor->id] = (string)$sailor;
 
     foreach ($temp as $sailor) {
-      $tab->addRow(new Row(array(new Cell($sailor), $c = new Cell())));
-      $c->addChild($f_sel = new FSelect($sailor->id));
-      $f_sel->addOptions(array("" => ""));
-      $f_sel->addOptionGroup("Sailors", $choices);
-      $f_sel->addOptionGroup("Coaches", $coaches);
+      $tab->addRow(array($sailor, XSelect::fromArray($sailor->id, $choices)));
     }
 
     // Submit
-    $form->addChild(new FSubmit("match_sailors", "Update database"));
+    $form->add(new XSubmitInput("match_sailors", "Update database"));
   }
 
   /**
@@ -87,6 +69,7 @@ class SailorMergePane extends AbstractUserPane {
    * @param Array $args an associative array similar to $_REQUEST
    */
   public function process(Array $args) {
+    require_once('public/UpdateManager.php');
 
     // Check $args
     if (!isset($args['match_sailors'])) {

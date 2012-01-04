@@ -5,7 +5,7 @@
  * @package xml5
  */
 
-require_once('HtmlLib.php');
+require_once('xml5/TS.php');
 
 /**
  * Specific page for front page, written in the new and improved HtmlLib
@@ -50,7 +50,7 @@ class TPublicFrontPage extends XPage {
     $this->head->add(new XMeta('description', "TechScore is the official source for live regatta results of the Intercollegiate Sailing Association."));
     $this->head->add(new XMeta('author', "Dayán Páez"));
     $this->head->add(new XMeta('keywords', "regatta,results,scores,icsa,sailing"));
-    $this->head->add(new XLinkCSS('text/css', '/inc/css/mp-front.css', 'screen', 'stylesheet'));
+    $this->head->add(new LinkCSS('/inc/css/mp-front.css'));
 
     // Navigation
     $this->body->add(new XDiv(array('class'=>'hidden'),

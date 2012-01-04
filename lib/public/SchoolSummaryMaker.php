@@ -214,7 +214,7 @@ class SchoolSummaryMaker {
     $p->add(new XDiv(array('class'=>'stat'),
 		     array(new XSpan("Number of Regattas:", array("class"=>"prefix")), $total)));
     $p->add(new XDiv(array('class'=>'stat'),
-		    array(new XSpan("Finish percentile:", array("class"=>"prefix")), $avg)));
+		     array(new XSpan("Finish percentile:", array("class"=>"prefix")), $avg)));
     
     // most active sailor?
     arsort($skippers, SORT_NUMERIC);

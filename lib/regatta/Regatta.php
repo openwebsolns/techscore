@@ -7,8 +7,6 @@
  * @package regatta
  */
 
-require_once('conf.php');
-
 /**
  * Class for regatta objects. Each object is responsible for
  * communicating with the database and retrieving all sorts of
@@ -98,7 +96,6 @@ class Regatta implements RaceListener {
       throw new InvalidArgumentException(sprintf("Illegal regatta id value (%s).", $id));
 
     $this->id  = (int)$id;
-    $this->scorer = new ICSAScorer();
 
     // Update the properties
     $q = sprintf('select regatta.id, regatta.name, regatta.nick, ' .
@@ -120,7 +117,7 @@ class Regatta implements RaceListener {
 
       // Calculate duration
       $duration = 1 + (date_format($end, "U") -
-		   date_format($this->getDay($start), "U")) /
+		       date_format($this->getDay($start), "U")) /
 	(3600 * 24);
 
       $this->properties[Regatta::DURATION] = $duration;
@@ -136,10 +133,6 @@ class Regatta implements RaceListener {
     else {
       throw new InvalidArgumentException("Invalid ID for regatta.");
     }
-
-    // Managers
-    $this->rotation = new Rotation($this);
-    $this->rp       = new RpManager($this);
   }
 
   /**
@@ -168,6 +161,10 @@ class Regatta implements RaceListener {
 
   public function __get($name) {
     if ($name == "scorer") {
+      if ($this->scorer === null) {
+	require_once('regatta/ICSAScorer.php');
+	$this->scorer = new ICSAScorer();
+      }
       return $this->scorer;
     }
     throw new InvalidArgumentException("No such Regatta property $name.");
@@ -582,7 +579,7 @@ class Regatta implements RaceListener {
 		 $this->id, $race->division, $race->number, $race->boat->id);
     $this->query($q);
     $con = Preferences::getConnection();
-     // amounts to an insert
+    // amounts to an insert
     if ($con->affected_rows > 1 && $this->total_races !== null)
       $this->total_races++;
   }
@@ -1291,6 +1288,10 @@ class Regatta implements RaceListener {
    * @return the rotation object for this regatta
    */
   public function getRotation() {
+    if ($this->rotation === null) {
+      require_once('regatta/Rotation.php');
+      $this->rotation = new Rotation($this);
+    }
     return $this->rotation;
   }
 
@@ -1300,6 +1301,10 @@ class Regatta implements RaceListener {
    * @return RpManager the rp manager
    */
   public function getRpManager() {
+    if ($this->rp === null) {
+      require_once('regatta/RpManager.php');
+      $this->rp = new RpManager($this);
+    }
     return $this->rp;
   }
 
@@ -1348,15 +1353,16 @@ class Regatta implements RaceListener {
    * @param Race $race the race to run the score
    */
   public function runScore(Race $race) {
-    $this->scorer->score($this, $race);
+    $this->__get('scorer')->score($this, $race);
   }
 
   /**
    * Scores the entire regatta
    */
   public function doScore() {
+    $scorer = $this->__get('scorer');
     foreach ($this->getScoredRaces() as $race)
-      $this->scorer->score($this, $race);
+      $scorer->score($this, $race);
   }
 
   // ------------------------------------------------------------

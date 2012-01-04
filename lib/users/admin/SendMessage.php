@@ -7,7 +7,7 @@
  * @package users-admin
  */
 
-require_once('conf.php');
+require_once('users/admin/AbstractAdminUserPane.php');
 
 /**
  * Pane for administrators to send messages to one or more users,
@@ -34,46 +34,36 @@ class SendMessage extends AbstractAdminUserPane {
       return;
     }
 
-    $this->PAGE->addContent($p = new Port("1. Choose recipients"));
-    $p->addChild(new Para("You may send a message to as many individuals as you'd like at a time. First, select the recipients using this port. Once you have added all recipients, use the form below to send the message."));
+    $this->PAGE->addContent($p = new XPort("1. Choose recipients"));
+    $p->add(new XP(array(), "You may send a message to as many individuals as you'd like at a time. First, select the recipients using this port. Once you have added all recipients, use the form below to send the message."));
 
-    $p->addChild($f = new Form("/send-message-edit"));
-    $f->addChild($fi = new FItem(sprintf("All %s users:", NAME), new FHidden('all-recipients', 1)));
-    $fi->addChild(new FSubmit('choose-recipients', "Write message >"));
-    $fi->addChild(new FSpan("Broadcast general message to all users. Use sparingly.", array('class'=>'message')));
+    $p->add($f = new XForm("/send-message-edit", XForm::POST));
+    $f->add($fi = new FItem(sprintf("All %s users:", NAME), new XHiddenInput('all-recipients', 1)));
+    $fi->add(new XSubmitInput('choose-recipients', "Write message >"));
+    $fi->add(new XMessage("Broadcast general message to all users. Use sparingly."));
 
     // conference
-    $p->addChild($f = new Form("/send-message-edit"));
-    $f->addChild($fi = new FItem("All users in conference:", $sel = new FSelect('conferences[]')));
-    $fi->addChild(new Text(" "));
-    $fi->addChild(new FSubmit('choose-recipients', "Write message >"));
-    $opts = array();
-    foreach (Preferences::getConferences() as $conf)
-      $opts[$conf->id] = $conf;
-    $sel->addOptions($opts);
-    $sel->addAttr('multiple', 'multiple');
-    $sel->addAttr('size', 7);
+    $p->add($f = new XForm("/send-message-edit", XForm::POST));
+    $f->add($fi = new FItem("All users in conference:", $sel = XSelectM::fromArray('conferences[]', Preferences::getConferences())));
+    $fi->add(" ");
+    $sel->set('size', 7);
 
     // roles
-    $p->addChild($f = new Form("/send-message-edit"));
-    $f->addChild($fi = new FItem("All users with role:", $sel = new FSelect('roles[]')));
-    $fi->addChild(new Text(" "));
-    $fi->addChild(new FSubmit('choose-recipients', "Write message >"));
-    $sel->addOptions(AccountManager::getRoles());
-    $sel->addAttr('multiple', 'multiple');
-    $sel->addAttr('size', 3);
+    $p->add($f = new XForm("/send-message-edit", XForm::POST));
+    $f->add($fi = new FItem("All users with role:", $sel = XSelect::fromArray('roles[]', AccountManager::getRoles())));
+    $fi->add(" ");
+    $fi->add(new XSubmitInput('choose-recipients', "Write message >"));
+    $sel->set('size', 3);
   }
 
   private function fillMessage(Array $args) {
-    $this->PAGE->addContent($p = new Port("Instructions"));
-    $p->addChild($f = new Form('/send-message-edit'));
-    $f->addChild(new FSubmit('reset-recipients', "<< Restart"));
-    $p->addChild(new Para("When filling out the form, you may use the keywords in the table below to customize each message."));
-    $p->addChild($tab = new Table());
-    $tab->addHeader(new Row(array(Cell::th("Keyword"), Cell::th("Description"), Cell::th("Example"))));
-    $tab->addRow(new Row(array(new Cell("{FULL_NAME}"), new Cell("Full name of user"), new Cell($this->USER->getName()))));
-    $tab->addRow(new Row(array(new Cell("{SCHOOL}"), new Cell("User's ICSA school"), new Cell($this->USER->get(User::SCHOOL)))));
-    $tab->addAttr('style', 'margin:0 auto 2em;');
+    $this->PAGE->addContent($p = new XPort("Instructions"));
+    $p->add($f = new XForm('/send-message-edit', XForm::POST));
+    $f->add(new XSubmitInput('reset-recipients', "<< Restart"));
+    $p->add(new XP(array(), "When filling out the form, you may use the keywords in the table below to customize each message."));
+    $p->add($tab = new XQuickTable(array('style'=>'margin:0 auto 2em;'), array("Keyword", "Description", "Example")));
+    $tab->addRow(array("{FULL_NAME}", "Full name of user",  $this->USER->getName()));
+    $tab->addRow(array("{SCHOOL}",    "User's ICSA school", $this->USER->get(User::SCHOOL)));
     
     $title = "";
     $recip = "";
@@ -96,17 +86,17 @@ class SendMessage extends AbstractAdminUserPane {
       break;
     }
 
-    $this->PAGE->addContent($p = new Port($title));
-    $p->addChild($f = new Form('/send-message-edit'));
+    $this->PAGE->addContent($p = new XPort($title));
+    $p->add($f = new XForm('/send-message-edit', XForm::POST));
     
-    $f->addChild(new FItem("Recipients:", new FSpan($recip, array('class'=>'strong'))));
-    $f->addChild($fi = new FItem("Subject:", new FText('subject', "")));
-    $fi->addChild(new FSpan("Less than 100 characters", array('class'=>'message')));
+    $f->add(new FItem("Recipients:", new XSpan($recip, array('class'=>'strong'))));
+    $f->add($fi = new FItem("Subject:", new XTextInput('subject', "")));
+    $fi->add(new XMessage("Less than 100 characters"));
 
-    $f->addChild(new FItem("Message body:", new FTextarea('content', "", array('rows'=>16, 'cols'=>75))));
-    $f->addChild($fi = new FItem("Copy me:", new FCheckbox('copy-me', 1)));
-    $fi->addChild(new FSpan("Send me a copy of message, whether or not I would otherwise receive one.", array('class'=>'message')));
-    $f->addChild(new FSubmit('send-message', "Send message now"));
+    $f->add(new FItem("Message body:", new XTextArea('content', "", array('rows'=>16, 'cols'=>75))));
+    $f->add($fi = new FItem("Copy me:", new XCheckboxInput('copy-me', 1)));
+    $fi->add(new XMessage("Send me a copy of message, whether or not I would otherwise receive one."));
+    $f->add(new XSubmitInput('send-message', "Send message now"));
   }
 
   public function process(Array $args) {

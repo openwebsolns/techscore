@@ -611,6 +611,62 @@ class XSelect extends XAbstractHtml {
       throw new InvalidArgumentException("XSelect must have XOption|XOptionGroup as children");
     parent::add($elem);
   }
+
+  /**
+   * Creates a XSelect element with given name and options.
+   *
+   * The given options must be a map of option value => labels. The
+   * optional $chosen should be an array or a string of the values to
+   * automatically mark as 'selected'.
+   *
+   * The $opts argument could be a nested list to designate
+   * optgroups. Thus, given a "simple map":
+   *
+   * {us: "USA", mex: "Mexico", sp: "Spain"}
+   *
+   * The result is a drop down list with three options:
+   *
+   *   - us:  USA
+   *   - mex: Mexico
+   *   - sp:  Spain
+   *
+   * However, given the following nested map:
+   *
+   * {"North America": {us: "USA", mex: "Mexico"}, sp: "Spain"}
+   *
+   * The output would be:
+   *
+   *    - North America
+   *        - us:  USA
+   *        - mex: Mexico
+   *    - sp: Spain
+   *
+   * @param String $name the name of the select element
+   * @param Array:String $opts a map of option values and labels
+   * @param Array|String $chosen the list or item to select
+   * @param Array $attrs the optional attributes to add
+   */
+  public static function fromArray($name, Array $opts, $chosen = null, Array $attrs = array()) {
+    if (!is_array($chosen))
+      $chosen = array($chosen);
+    $sel = new XSelect($name, $attrs);
+    foreach ($opts as $k => $v) {
+      if (is_array($v)) {
+	$sel->add($grp = new XOptionGroup($k));
+	foreach ($v as $kk => $vv) {
+	  $grp->add($opt = new XOption($kk, array(), $vv));
+	  if (in_array($kk, $chosen))
+	    $opt->set('selected', 'selected');
+	}
+      }
+      else {
+	$sel->add($opt = new XOption($k, array(), $v));
+	if (in_array($k, $chosen))
+	  $opt->set('selected', 'selected');
+      }
+    }
+    return $sel;
+  }
 }
 
 /**
@@ -739,6 +795,32 @@ class XTable extends XAbstractHtml {
     if ($this->caption !== null)
       array_unshift($a, $this->caption);
     return $a;
+  }
+
+  /**
+   * Creates a new table from the given map(s).
+   *
+   * @param Array $rows a list of lists, i.e. rows of cells
+   * @param Array $headers optional. If provided, the rows for the head
+   * @param Array $attrs the attribute map, as usual
+   */
+  public static function fromArray(Array $rows, Array $headers = array(), Array $attrs = array()) {
+    $t = new XTable($attrs);
+    if (count($headers) > 0) {
+      $t->add($h = new XTHead());
+      foreach ($headers as $header) {
+	$h->add($r = new XTR());
+	foreach ($header as $c)
+	  $r->add(new XTH(array(), $c));
+      }
+    }
+    $t->add($h = new XTBody());
+    foreach ($rows as $header) {
+      $h->add($r = new XTR());
+      foreach ($header as $c)
+	$r->add(new XTD(array(), $c));
+    }
+    return $t;
   }
 }
 
@@ -950,9 +1032,11 @@ class XQuickTable extends XTable {
    */
   public function __construct(Array $attrs = array(), Array $headers = array()) {
     parent::__construct($attrs);
-    $this->add($this->thead = new XTHead(array(), array($tr = new XTR())));
-    foreach ($headers as $head) {
-      $tr->add(new XTH(array(), $head));
+    if (count($headers) > 0) {
+      $this->add($this->thead = new XTHead(array(), array($tr = new XTR())));
+      foreach ($headers as $head) {
+	$tr->add(new XTH(array(), $head));
+      }
     }
     $this->add($this->tbody = new XTBody());
   }
@@ -965,8 +1049,12 @@ class XQuickTable extends XTable {
    */
   public function addRow(Array $cells, Array $attrs = array()) {
     $this->tbody->add($tr = new XTR($attrs));
-    foreach ($cells as $cell)
-      $tr->add(new XTD(array(), $cell));
+    foreach ($cells as $cell) {
+      if ($cell instanceof XTD || $cell instanceof XTH)
+	$tr->add($cell);
+      else
+	$tr->add(new XTD(array(), $cell));
+    }
   }
 
   /**
@@ -999,33 +1087,6 @@ class XObject extends XAbstractHtml {
     $this->set("width",  $width);
     $this->set("height", $height);
   }
-}
-
-if (isset($argv) && __FILE__ == $argv[0]) {
-  $a = new XFieldSet("Details", array(), array("Shoes"));
-  $a = new XForm("this.php", XForm::POST, array(), $a);
-
-  $a->add(new XSelect("test", array(),
-		      array(new XOption("shoes", array(), "Shoes"),
-			    new XOption("boots", array(), "Boots"),
-			    new XOptionGroup("Sandals", array(),
-					     array(new XOption("toes", array(), "Toes"))))));
-
-  $a = new XStyle("text/css", "body: {background: red;}");
-  $a = new XTable(array(),
-		  array(new XTHead(array(),
-				   array(new XTR(array(),
-						 array(new XTH(array(), "Name"),
-						       new XTH(array(), "Phone"))))),
-			new XTBody(array(),
-				   array(new XTR(array(),
-						 array(new XTD(array(), "Alex"),
-						       new XTD(array(), "305-555-3821")))))));
-
-  $a = new XQuickTable();
-  $a->addRow(array("Shoes", "Boots"));
-  $a->printXML();
-  // file_put_contents("/tmp/test.html", $a->toXML());
 }
 
 /**
@@ -1078,37 +1139,6 @@ class XMeta extends XAbstractHtml {
 class XMetaHTTP extends XAbstractHtml {
   public function __construct($http_equiv, $content) {
     parent::__construct('meta', array('http-equiv' => $http_equiv, 'content' => $content));
-  }
-}
-
-// ------------------------------------------------------------
-// Particular TechScore objects
-// ------------------------------------------------------------
-
-/**
- * A div with class Port and an H3 heading
- *
- * @author Dayan Paez
- * @version 2011-03-09
- */
-class XPort extends XDiv {
-
-  /**
-   * Create a port with the given title
-   *
-   * @param String $title the title
-   */
-  public function __construct($title, Array $children = array(), Array $attrs = array()) {
-    parent::__construct($attrs, array($h3 = new XH3("")));
-    if (is_array($title)) {
-      foreach ($title as $item)
-	$h3->add($item);
-    }
-    else
-      $h3->add($title);
-    $this->set('class', 'port');
-    foreach ($children as $child)
-      $this->add($child);
   }
 }
 ?>

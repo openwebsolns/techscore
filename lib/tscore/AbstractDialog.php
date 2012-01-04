@@ -5,9 +5,6 @@
  * @package tscore-dialog
  */
 
-require_once('conf.php');
-__autoload('XmlLibrary');
-
 /**
  * Template for all display dialogs. Requires REGATTA.
  *
@@ -36,20 +33,22 @@ abstract class AbstractDialog {
    *
    */
   protected function setupPage() {
+    require_once('xml/TScoreDialog.php');
+
     $title = sprintf("%s | %s | TS",
 		     $this->name,
 		     $this->REGATTA->get(Regatta::NAME));
     $this->PAGE = new TScoreDialog($this->name);
-    $this->PAGE->addContent(new PageTitle($this->name));
+    $this->PAGE->addContent(new XPageTitle($this->name));
 
     // Menu
-    $this->PAGE->addMenu($h = new Heading("Refresh"));
-    $h->addChild(new LItem(new Link($_SERVER['REQUEST_URI'], "Refresh")));
+    $this->PAGE->addMenu($h = new XH4("Refresh"));
+    $h->add(new XLi(new XA($_SERVER['REQUEST_URI'], "Refresh")));
 
     //   -Regatta info
-    $this->PAGE->addNavigation($d3 = new Div(array(), array("id"=>"regatta")));
-    $d3->addChild(new Text(stripslashes($this->REGATTA->get(Regatta::NAME))));
-    $d3->addChild(new Itemize(array(new LItem(ucfirst($this->REGATTA->get(Regatta::TYPE))))));
+    $this->PAGE->addNavigation(new XDiv(array("id"=>"regatta"),
+					array(new XP(array(), $this->REGATTA->get(Regatta::NAME)),
+					      new XUl(array(), array(new XLi(ucfirst($this->REGATTA->get(Regatta::TYPE))))))));
   }
 
   /**
@@ -73,7 +72,7 @@ abstract class AbstractDialog {
     if (isset($_SESSION['ANNOUNCE'])) {
       $this->processAnnouncements();
     }
-    $this->PAGE->printHTML();
+    $this->PAGE->printXML();
   }
 
   /**

@@ -5,7 +5,7 @@
  * @package users
  */
 
-require_once('conf.php');
+require_once('users/AbstractUserPane.php');
 
 /**
  * Compares up to three sailors head to head across a season or more,
@@ -137,39 +137,43 @@ class CompareSailorsByRace extends AbstractUserPane {
     // push the sailor back
     array_unshift($sailors, $first_sailor);
     $scores = array(); // track scores
-    $this->PAGE->addContent($p = new Port("Races sailed head-to-head"));
-    $p->addChild($tab = new Table());
-    $tab->addHeader($head = new Row(array(Cell::th("Regatta"), Cell::th("Race"))));
+    $this->PAGE->addContent($p = new XPort("Races sailed head-to-head"));
+    $p->add(new XTable(array(),
+		       array(new XTHead(array(),
+					array($head = new XTR(array(),
+							      array(new XTH(array(), "Regatta"),
+								    new XTH(array(), "Race"))),
+					      $tot  = new XTR(array(),
+							      array(new XTH(array(), ""),
+								    new XTH(array(), "Total"))))),
+			     $tab = new XTBody())));
     foreach ($sailors as $sailor) {
-      $head->addChild(Cell::th($sailor));
+      $head->add(new XTH(array(), $sailor));
       $scores[$sailor->id] = 0;
     }
-    // total row
-    $tab->addHeader($tot = new Row(array(new Cell(""), Cell::th("Total"))));
     // each race
     foreach ($reg_races as $reg_id => $div_list) {
       $regatta = new Regatta($reg_id);
       foreach ($div_list as $div => $races_nums) {
 	$index = 0;
 	foreach ($races_nums as $num) {
-	  $tab->addRow($row = new Row());
+	  $tab->add($row = new XTR());
 	  if ($index++ == 0) {
-	    $cell = Cell::th(sprintf('%s (%s)', $regatta->get(Regatta::NAME), $regatta->get(Regatta::SEASON)->fullString()));
-	    $cell->addAttr('rowspan', count($races_nums));
-	    $row->addChild($cell);
+	    $row->add(new XTH(array('rowspan'=>count($races_nums)),
+			      sprintf('%s (%s)', $regatta->get(Regatta::NAME), $regatta->get(Regatta::SEASON)->fullString())));
 	  }
-	  $row->addChild(Cell::th(sprintf("%d%s", $num, $div)));
+	  $row->add(new XTH(array(), sprintf("%d%s", $num, $div)));
 	  foreach ($sailors as $sailor) {
 	    $finish = $regatta->getFinish($regatta->getRace(Division::get($div), $num),
 					  $reg_teams[$reg_id][$div][$sailor->id]);
-	    $row->addChild(new Cell($finish->place));
+	    $row->add(new XTD(array(), $finish->place));
 	    $scores[$sailor->id] += $finish->score;
 	  }
 	}
       }
     }
     foreach ($sailors as $sailor)
-      $tot->addChild(Cell::th($scores[$sailor->id]));
+      $tot->add(new XTH(array(), $scores[$sailor->id]));
     return true;
   }
 
@@ -184,41 +188,34 @@ class CompareSailorsByRace extends AbstractUserPane {
     // ------------------------------------------------------------
     // Provide an input box to choose sailors using AJAX
     // ------------------------------------------------------------
-    $this->PAGE->addHead(new GenericElement('link', array(new Text("")),
-					    array('type'=>'text/css',
-						  'href'=>'/inc/css/aa.css',
-						  'rel'=>'stylesheet')));
-    $this->PAGE->addHead(new GenericElement('script', array(new Text("")), array('src'=>'/inc/js/aa.js')));
-    $this->PAGE->addContent($form = new Form('/compare-by-race', "get"));
+    $this->PAGE->head->add(new LinkCSS('/inc/css/aa.css'));
+    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/aa.js'));
+    $this->PAGE->addContent($form = new XForm('/compare-by-race', XForm::GET));
 
     // Season selection
-    $form->addChild($p = new Port("Seasons to compare"));
-    $p->addChild(new Para("Choose at least one season to compare from the list below, then choose the sailors in the next panel."));
-    $p->addChild($ul = new Itemize());
-    $ul->addAttr('style', 'list-style-type:none');
+    $form->add($p = new XPort("Seasons to compare"));
+    $p->add(new XP(array(), "Choose at least one season to compare from the list below, then choose the sailors in the next panel."));
+    $p->add($ul = new XUl(array('style'=>'list-style-type:none;')));
 
     $now = new Season(new DateTime());
     $then = null;
     if ($now->getSeason() == Season::SPRING)
       $then = Season::parse(sprintf('f%0d', ($now->getTime()->format('Y') - 1)));
     foreach (Preferences::getActiveSeasons() as $season) {
-      $ul->addChild($li = new LItem());
-      $li->addChild($chk = new FCheckbox('seasons[]', $season, array('id' => $season)));
-      $li->addChild(new Label($season, $season->fullString()));
-
+      $ul->add(new XLi(array($chk = new XCheckboxInput('seasons[]', $season, array('id' => $season)),
+			     new XLabel($season, $season->fullString()))));
       if ((string)$season == (string)$now || (string)$season == (string)$then)
-	$chk->addAttr('checked', 'checked');
+	$chk->set('checked', 'checked');
     }
 
     // Sailor search
-    $form->addChild($p = new Port("New sailors"));
-    $p->addChild(new GenericElement('noscript', array(new Para("Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding."))));
-    $p->addChild(new FItem('Name:', $search = new FText('name-search', "")));
-    $search->addAttr('id', 'name-search');
-    $p->addChild($ul = new Itemize());
-    $ul->addAttr('id', 'aa-input');
-    $ul->addItems(new LItem("No sailors.", array('class' => 'message')));
-    $form->addChild(new FSubmit('set-sailors', "Compare sailors"));
+    $form->add($p = new XPort("New sailors"));
+    $p->add(new XNoScript(new XP(array(), "Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding.")));
+    $p->add(new FItem('Name:', $search = new XTextInput('name-search', "")));
+    $search->set('id', 'name-search');
+    $p->add(new XUl(array('id'=>'aa-input'),
+		    array(new XLi("No sailors.", array('class'=>'message')))));
+    $form->add(new XSubmitInput('set-sailors', "Compare sailors"));
   }
 
   public function process(Array $args) {

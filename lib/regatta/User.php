@@ -6,8 +6,6 @@
  * @package regatta
  */
 
-require_once('conf.php');
-
 /**
  * Encapsulates a user of the program. Provides a number of functions
  * for interacting with the database

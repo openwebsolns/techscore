@@ -101,7 +101,7 @@ class ReportMaker {
     $maker = new RotationDialog($reg);
     foreach ($reg->getRotation()->getDivisions() as $div) {
       $this->rotPage->addSection($p = new XPort("$div Division"));
-      $p->add(new XRawText($maker->getTable($div)->toHTML()));
+      $p->add(new XRawText($maker->getTable($div)->toXML()));
     }
   }
 

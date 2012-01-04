@@ -24,11 +24,11 @@ class RpEnterPane extends AbstractPane {
     $teams = $this->REGATTA->getTeams();
 
     if (count($teams) == 0) {
-      $this->PAGE->addContent($p = new Port("No teams registered"));
-      $mes = sprintf('In order to register sailors, you will need to ' .
-		     '<a href="score/%s/team">register teams</a> first.',
-		     $this->REGATTA->id());
-      $p->addBody(new Para($mes));
+      $this->PAGE->addContent($p = new XPort("No teams registered"));
+      $p->add(new XP(array(),
+		     array("In order to register sailors, you will need to ",
+			   new XA(sprintf("score/%s/team", $this->REGATTA->id()), "register teams"),
+			   " first.")));
       return;
     }
     
@@ -40,56 +40,33 @@ class RpEnterPane extends AbstractPane {
     $rpManager = $this->REGATTA->getRpManager();
     $divisions = $this->REGATTA->getDivisions();
     // Output
-    $this->PAGE->addHead(new GenericElement("script",
-					    array(new Text()),
-					    array("type"=>"text/javascript",
-					    "src"=>"/inc/js/rp.js")));
-    
-    $this->PAGE->addContent($p = new Port("Choose a team",
-					  array(),
-					  array("class"=>"nonprint")));
-
-    $mes = sprintf('
-     Use the form below to enter RP information. If a sailor does not
-     appear in the selection box, it means they are not in the ICSA
-     database, and they have to be manually added to a temporary list
-     in the <a href="%s/temp">Unregistered form</a>.',
-		   $this->REGATTA->id());
-    $p->addChild(new Para($mes));
-    $p->addChild(new Para('<strong>NOTE:</strong> You may only submit up to two sailors in the same role in the same division at a time. To add a third or more skipper or crew in a given division, submit the form multiple times.'));
+    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/rp.js'));
+    $this->PAGE->addContent($p = new XPort("Choose a team"));
+    $p->add(new XP(array(),
+		   array("Use the form below to enter RP information. If a sailor does not appear in the selection box, it means they are not in the ICSA database, and they have to be manually added to a temporary list in the ",
+			 new XA(sprintf('/%s/temp', $this->REGATTA->id()), "Unregistered form"),
+			 ".")));
+    $p->add(new XP(array(),
+		   array(new XStrong("Note:"),
+			 " You may only submit up to two sailors in the same role in the same division at a time. To add a third or more skipper or crew in a given division, submit the form multiple times.")));
 
     // ------------------------------------------------------------
     // Change team
     // ------------------------------------------------------------
-    $p->addChild($form = $this->createForm());
-    $form->addChild(new FItem("Team:",
-			      $f_sel = new FSelect("chosen_team",
-						   array($chosen_team->id),
-						   array("onchange"=>
-							 "submit(this)"))));
+    $p->add($form = $this->createForm());
+    $form->add(new FItem("Team:", $f_sel = new XSelect("chosen_team", array("onchange"=>"submit(this)"))));
     $team_opts = array();
-    foreach ($teams as $team)
-      $team_opts[$team->id] = sprintf("%s %s",
-				      $team->school->nick_name,
-				      $team->name);
-    $f_sel->addOptions($team_opts);
-    $form->addChild(new FSubmitAccessible("change_team", "Get form"));
+    foreach ($teams as $team) {
+      $f_sel->add($opt = new FOption($team->id, sprintf("%s %s", $team->school->nick_name, $team->name)));
+      if ($team->id == $chosen_team->id)
+	$opt->set('selected', 'selected');
+    }
+    $form->add(new XSubmitAccessible("change_team", "Get form"));
 
     // ------------------------------------------------------------
     // RP Form
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new Port(sprintf("Fill out form for %s",
-						  $chosen_team),
-					  array(),
-					  array("class"=>"nonprint")));
-    // Representative
-    $rep = $rpManager->getRepresentative($chosen_team);
-    $rep_id = ($rep === null) ? "" : $rep->id;
-    $p->addChild($form = $this->createForm());
-    $form->addChild(new FHidden("chosen_team", $chosen_team->id));
-    $form->addChild(new FItem("Representative:",
-			      $f_sel = new FSelect("rep", array($rep_id))));
-
+    $this->PAGE->addContent($p = new XPort(sprintf("Fill out form for %s", $chosen_team)));
     // ------------------------------------------------------------
     // - Create option lists
     //   If the regatta is in the current season, then only choose
@@ -104,28 +81,23 @@ class RpEnterPane extends AbstractPane {
     $sailors = RpManager::getSailors($chosen_team->school, $gender, $active);
     $un_slrs = RpManager::getUnregisteredSailors($chosen_team->school, $gender);
 
-    $coach_optgroup = array();
+    $sailor_options = array("Coaches" => array(), "Sailors" => array(), "Non-ICSA" => array());
     foreach ($coaches as $s)
-      $coach_optgroup[] = new Option($s->id, $s);
-    $coach_optgroup = new OptionGroup("Coaches", $coach_optgroup);
-
-    $sailor_optgroup = array();
+      $sailor_options["Coaches"][$s->id] = (string)$s;
     foreach ($sailors as $s)
-      $sailor_optgroup[] = new Option($s->id, $s);
-    $sailor_optgroup = new OptionGroup("Sailors", $sailor_optgroup);
-
-    $u_sailor_optgroup = array();
+      $sailor_options["Sailors"][$s->id] = (string)$s;
     foreach ($un_slrs as $s)
-      $u_sailor_optgroup[] = new Option($s->id, $s);
-    $u_sailor_optgroup = new OptionGroup("Non-ICSA", $u_sailor_optgroup);
+      $sailor_options["Non-ICSA"][$s->id] = (string)$s;
+    
+    // Representative
+    $rep = $rpManager->getRepresentative($chosen_team);
+    $rep_id = ($rep === null) ? "" : $rep->id;
+    $p->add($form = $this->createForm());
+    $form->add(new XHiddenInput("chosen_team", $chosen_team->id));
+    $form->add(new FItem("Representative:", XSelect::fromArray('rep', $sailor_options, $rep_id)));
 
-    $sailor_options = array(new Option(),
-			    $coach_optgroup,
-			    $sailor_optgroup,
-			    $u_sailor_optgroup);
-
-    foreach ($sailor_options as $option)
-      $f_sel->addChild(clone($option));
+    // Remove coaches from list
+    unset($sailor_options["Coaches"]);
 
     // ------------------------------------------------------------
     // - Fill out form
@@ -137,28 +109,18 @@ class RpEnterPane extends AbstractPane {
       $cur_sk = $rpManager->getRP($chosen_team, $div, RP::SKIPPER);
       $cur_cr = $rpManager->getRP($chosen_team, $div, RP::CREW);
 
-      $form->addChild(new Heading("Division $div"));
-      $form->addChild($tab_races = new Table());
-      $form->addChild($tab_skip = new Table());
+      $form->add(new XHeading("Division $div"));
+      $form->add($tab_races = new XQuickTable(array(), array("Races", "Crews")));
+      $form->add($tab_skip = new XQuickTable(array('class'=>'narrow'), array("Skippers", "Races sailed", "")));
 
       // Create races table
-      $tab_races->addHeader(new Row(array(Cell::th("Races"),
-					  Cell::th("Crews"))));
       foreach ($occ as $crews => $races) {
-	$tab_races->addRow(new Row(array(new Cell(Utilities::makeRange($races),
-						  array("name"=>"races" . $div)),
-					 new Cell(((int)$crews) - 1,
-						  array("name"=>"occ" . $div)))));
+	$tab_races->addRow(array(new XTD(array("name"=>"races" . $div), Utilities::makeRange($races)),
+				 new XTD(array("name"=>"occ" . $div),   ((int)$crews) - 1)));
       }
 
       // ------------------------------------------------------------
       // - Create skipper table
-      $tab_skip->addAttr("class", "narrow");
-      $tab_skip->addHeader(new Row(array(Cell::th("Skippers"),
-					 Cell::th("Races sailed"),
-					 new Cell("", 
-						  array("title"=>"Verify"),
-						  1))));
       // Write already filled-in spots + 2 more
       for ($spot = 0; $spot < count($cur_sk) + 2; $spot++) {
 	$value = ""; // value for "races sailed"
@@ -166,39 +128,23 @@ class RpEnterPane extends AbstractPane {
 	  $value = Utilities::makeRange($cur_sk[$spot]->races_nums);
 
 	$cur_sk_id = (isset($cur_sk[$spot])) ? $cur_sk[$spot]->sailor->id : "";
-	$select_cell = new Cell($f_sel = new FSelect("sk$div$spot",
-						     array($cur_sk_id),
-						     array("onchange"=>"check()")));
-	
-	$tab_skip->addRow(new Row(array($select_cell,
-					new Cell(new FText("rsk$div$spot",
-							   $value,
-							   array("size"=>"8",
-								 "class"=>"race_text",
-								 "onchange"=>
-								 "check()"))),
-					new Cell(new Image("/img/question.png",
-							   array("alt"=>
-								 "Waiting to verify")),
-						 array("id"=>"csk" . $div . $spot))),
-				  array("class"=>"skipper")));
-
-	// Add roster to select element
-	foreach ($sailor_options as $option)
-	  $f_sel->addChild(clone($option));
+	$select_cell = XSelect::fromArray("sk$div$spot", $sailor_options, $cur_sk_id, array('onchange'=>'check()'));
+	$tab_skip->addRow(array($select_cell,
+				new XTextInput("rsk$div$spot", $value,
+					       array("size"=>"8",
+						     "class"=>"race_text",
+						     "onchange"=>
+						     "check()")),
+				new XTD(array('id'=>"csk$div$spot"),
+					new XImg("/img/question.png", "Waiting to verify"))),
+			  array("class"=>"skipper"));
       }
 
       $num_crews = max(array_keys($occ));
       // Print table only if there is room in the boat for crews
       if ( $num_crews > 1 ) {
 	// update crew table
-	$form->addChild($tab_crew = new Table());
-	$tab_crew->addAttr("class", "narrow");
-	$tab_crew->addHeader(new Row(array(Cell::th("Crews"),
-					   Cell::th("Races sailed"),
-					   new Cell("",
-						    array("title"=>"verify"),
-						    1))));
+	$form->add($tab_crew = new XQuickTable(array('class'=>'narrow'), array("Crews", "Races sailed", "")));
     
 	//    write already filled-in spots + 2 more
 	for ($spot = 0; $spot < count($cur_cr) + 2; $spot++) {
@@ -207,41 +153,26 @@ class RpEnterPane extends AbstractPane {
 	    $value = Utilities::makeRange($cur_cr[$spot]->races_nums);
 
 	  $cur_cr_id = (isset($cur_cr[$spot])) ? $cur_cr[$spot]->sailor->id : "";
-	  $select_cell = new Cell($f_sel = new FSelect("cr" .
-						       $div .
-						       $spot,
-						       array($cur_cr_id),
-						       array("onchange"=>"check()")));
-	  $tab_crew->addRow(new Row(array($select_cell,
-					  new Cell(new FText("rcr" . 
-							     $div .
-							     $spot,
-							     $value,
-							     array("size"=>"8",
-								   "class"=>"race_text",
-								   "onchange"=>
-								   "check()"))),
-					  new Cell(new Image("/img/question.png",
-							     array("alt"=>
-								   "Waiting to verify")),
-						   array("id"=>"ccr" . $div . $spot)))));
-	  
-	  // Add options to $f_sel
-	  foreach ($sailor_options as $option)
-	    $f_sel->addChild(clone($option));
+	  $select_cell = XSelect::fromArray("cr$div$spot", $sailor_options, $cur_cr_id, array('onchange'=>'check()'));
+	  $tab_crew->addRow(array($select_cell,
+				  new XTextInput("rcr$div$spot", $value,
+						 array("size"=>"8",
+						       "class"=>"race_text",
+						       "onchange"=>
+						       "check()")),
+				  new XTD(array('id'=>"ccr$div$spot"),
+					  new XImg("/img/question.png", "Waiting to verify"))));
 	}
       } // end if
     }
 
     // ------------------------------------------------------------
     // - Add submit
-    $form->addChild($para = new Para(""));
-    $para->addChild(new FReset("reset", "Reset"));
-    $para->addChild(new FSubmit("rpform", "Submit form",
-				array("id"=>"rpsubmit")));
-    $p->addChild(new GenericElement("script",
-				    array(new Text("check()")),
-				    array("type"=>"text/javascript")));
+    $form->add(new XP(array(),
+		      array(new XReset("reset", "Reset"),
+			    new XSubmitInput("rpform", "Submit form",
+					     array("id"=>"rpsubmit")))));
+    $p->add(new XScript('text/javascript', null, "check()"));
   }
 
   

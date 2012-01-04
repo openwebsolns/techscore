@@ -5,7 +5,9 @@
  * @package users
  */
 
-require_once('conf.php');
+require_once('users/AbstractUserPane.php');
+require_once('regatta/data/ScoresAnalyzer.php');
+require_once('regatta/data/TeamDivision.php');
 
 /**
  * Generates the all-american report. This pane is unlike any other
@@ -45,63 +47,50 @@ class AllAmerican extends AbstractUserPane {
     // 0. Choose participation and role
     // ------------------------------------------------------------
     if ($_SESSION['aa']['report-participation'] === null) {
-      $this->PAGE->addContent($p = new Port("Choose report"));
-      $p->addChild($form = new Form('/aa-edit'));
-      $form->addChild(new FItem("Participation:", $sel = new FSelect('participation', array())));
-      $sel->addOptions(array(Regatta::PARTICIPANT_COED => "Coed",
-			     Regatta::PARTICIPANT_WOMEN => "Women"));
+      $this->PAGE->addContent($p = new XPort("Choose report"));
+      $p->add($form = new XForm('/aa-edit', XForm::POST));
+      $form->add(new FItem("Participation:", XSelect::fromArray('participation',
+								array(Regatta::PARTICIPANT_COED => "Coed",
+								      Regatta::PARTICIPANT_WOMEN => "Women"))));
 
-      $form->addChild(new FItem("Boat role:", $sel = new FSelect('role', array())));
-      $sel->addOptions(array(RP::SKIPPER => "Skipper", RP::CREW    => "Crew"));
+      $form->add(new FItem("Boat role:", XSelect::fromArray('role', array(RP::SKIPPER => "Skipper", RP::CREW => "Crew"))));
 
-      $form->addChild(new FItem("Seasons:", $ul = new Itemize()));
-      $ul->addAttr('class', 'inline-list');
+      $form->add(new FItem("Seasons:", $ul = new XUl(array('class'=>'inline-list'))));
 
-      $form->addChild($fi = new FItem("Conferences:", $ul2 = new Itemize()));
-      $ul2->addAttr('class', 'inline-list');
-      $fi->addAttr('title', "Only choose sailors from selected conference(s) automatically. You can manually choose sailors from other divisions.");
+      $form->add($fi = new FItem("Conferences:", $ul2 = new XUl(array('class'=>'inline-list'))));
+      $fi->set('title', "Only choose sailors from selected conference(s) automatically. You can manually choose sailors from other divisions.");
       
       $now = new Season(new DateTime());
       $then = null;
       if ($now->getSeason() == Season::SPRING)
 	$then = Season::parse(sprintf('f%0d', ($now->getTime()->format('Y') - 1)));
       foreach (Preferences::getActiveSeasons() as $season) {
-	$ul->addChild($li = new LItem());
-	$li->addChild($chk = new FCheckbox('seasons[]', $season, array('id' => $season)));
-	$li->addChild(new Label($season, $season->fullString()));
-
+	$ul->add(new XLi(array($chk = new XCheckboxInput('seasons[]', $season, array('id' => $season)),
+			       new XLabel($season, $season->fullString()))));
 	if ((string)$season == (string)$now || (string)$season == (string)$then)
-	  $chk->addAttr('checked', 'checked');
+	  $chk->set('checked', 'checked');
       }
 
       // Conferences
       foreach (Preferences::getConferences() as $conf) {
-	$ul2->addChild($li = new LItem());
-	$li->addChild($chk = new FCheckbox('confs[]', $conf, array('id' => $conf->id)));
-	$li->addChild(new Label($conf->id, $conf));
-	$chk->addAttr('checked', 'checked');
+	$ul2->add(new XLi(array($chk = new XCheckboxInput('confs[]', $conf, array('id' => $conf->id)),
+				new XLabel($conf->id, $conf))));
+	$chk->set('checked', 'checked');
       }
 
-      $form->addChild(new FSubmit('set-report', "Choose regattas >>"));
+      $form->add(new XSubmitInput('set-report', "Choose regattas >>"));
 
-      $this->PAGE->addContent($p = new Port("Special crew report"));
-      $p->addChild($form = new Form('/aa-edit'));
-      $form->addChild(new Para("To choose crews from ALL regattas regardless of participation, click the button below."));
+      $this->PAGE->addContent($p = new XPort("Special crew report"));
+      $p->add($form = new XForm('/aa-edit', XForm::POST));
+      $form->add(new XP(array(), "To choose crews from ALL regattas regardless of participation, click the button below."));
 
-      $form->addChild(new FItem("Year:", $sel = new FSelect('year', array())));
-      $sel->addOptions(Preferences::getYears());
-      $form->addChild(new FSubmit('set-special-report', "All crews >>"));
+      $form->add(new FItem("Year:", XSelect::fromArray('year', Preferences::getYears())));
+      $form->add(new XSubmitInput('set-special-report', "All crews >>"));
       return;
     }
 
-    $this->PAGE->addHead(new GenericElement('link', array(), array('rel'=>'stylesheet',
-								   'type'=>'text/css',
-								   'media'=>'screen',
-								   'href'=>'/inc/css/widescreen.css')));
-    $this->PAGE->addHead(new GenericElement('link', array(new Text("")),
-					    array('type'=>'text/css',
-						  'href'=>'/inc/css/aa.css',
-						  'rel'=>'stylesheet')));
+    $this->PAGE->head->add(new LinkCSS('/inc/css/widescreen.css'));
+    $this->PAGE->head->add(new LinkCSS('/inc/css/aa.css'));
     
     // ------------------------------------------------------------
     // 1. Step one: choose regattas. For women's reports, ICSA
@@ -111,9 +100,9 @@ class AllAmerican extends AbstractUserPane {
     // ------------------------------------------------------------
     if ($_SESSION['aa']['regattas-set'] === false) {
       // Add button to go back
-      $this->PAGE->addContent($p = new Port("Progress"));
-      $p->addChild($form = new Form('/aa-edit'));
-      $form->addChild(new FSubmit('unset-regattas', "<< Start over"));
+      $this->PAGE->addContent($p = new XPort("Progress"));
+      $p->add($form = new XForm('/aa-edit', XForm::POST));
+      $form->add(new XSubmitInput('unset-regattas', "<< Start over"));
 
       // Reset lists
       $_SESSION['aa']['table'] = array();
@@ -128,25 +117,18 @@ class AllAmerican extends AbstractUserPane {
       }
       $qual_regattas = array();
 
-      $this->PAGE->addContent($p1 = new Port("Classified regattas"));
-      $this->PAGE->addContent($p2 = new Port("Additional regattas"));
+      $this->PAGE->addContent($p1 = new XPort("Classified regattas"));
+      $this->PAGE->addContent($p2 = new XPort("Additional regattas"));
       if (count($regattas) == 0) {
-	$p1->addChild("There are no regattas in the chosen season which classify for inclusion.");
-	$p2->addChild("There are no regattas in the chosen season to add.");
+	$p1->add("There are no regattas in the chosen season which classify for inclusion.");
+	$p2->add("There are no regattas in the chosen season to add.");
 	return;
       }
 
-      $p2->addChild($form = new Form("/aa-edit"));
-      $tab = new Table();
-      $tab->addAttr('id', 'regtable');
-
+      $p2->add($form = new XForm("/aa-edit", XForm::POST));
+      $tab = new XQuickTable(array('id'=>'regtable'), array("", "Name", "Type", "Part.", "Date", "Status"));
+      
       $types = Preferences::getRegattaTypeAssoc();
-      $tab->addHeader(new Row(array(Cell::th(""),
-				    Cell::th("Name"),
-				    Cell::th("Type"),
-				    Cell::th("Part."),
-				    Cell::th("Date"),
-				    Cell::th("Status"))));
       $addt_regattas = 0;
       foreach ($regattas as $reg) {
 	if ($reg->finalized !== null &&
@@ -161,53 +143,45 @@ class AllAmerican extends AbstractUserPane {
 	else {
 	  // present these regattas for choosing
 	  $id = 'r'.$reg->id;
-	  $r = new Row(array(new Cell($chk = new FCheckbox("regatta[]", $reg->id, array('id'=>$id))),
-			     new Cell(new Label($id, $reg->name),
-				      array('class'=>'left')),
-			     new Cell(new Label($id, $types[$reg->type])),
-			     new Cell(new Label($id,
-						($reg->participant == Regatta::PARTICIPANT_WOMEN) ?
-						"Women" : "Coed")),
-			     new Cell(new Label($id, $reg->start_time->format('Y/m/d H:i'))),
-			     new Cell(new Label($id, ($reg->finalized) ? "Final" : "Pending"))));
-	  $tab->addRow($r);
+	  $rattr = array();
+	  $cattr = array('id'=>$id);
 	  if ($reg->finalized === null ||
 	      ($reg->participant != $_SESSION['aa']['report-participation'] &&
 	       Regatta::PARTICIPANT_COED == $_SESSION['aa']['report-participation'])) {
-	    $r->addAttr('class', 'disabled');
-	    $chk->addAttr("disabled", "disabled");
+	    $rattr['class'] = 'disabled';
+	    $cattr['disabled'] = 'disabled';
 	  }
+	  $tab->addRow(array(new XCheckboxInput("regatta[]", $reg->id, $cattr),
+			     new XLabel($id, $reg->name),
+			     new XLabel($id, $types[$reg->type]),
+			     new XLabel($id, ($reg->participant == Regatta::PARTICIPANT_WOMEN) ? "Women" : "Coed"),
+			     new XLabel($id, $reg->start_time->format('Y/m/d H:i')),
+			     new XLabel($id, ($reg->finalized) ? "Final" : "Pending")),
+		       $rattr);
 	  $addt_regattas++;
 	}
       }
       if ($addt_regattas > 0) {
-	$form->addChild(new Para("Choose the regattas you wish to include in the report from the list below."));
-	$form->addChild($tab);
+	$form->add(new XP(array(), "Choose the regattas you wish to include in the report from the list below."));
+	$form->add($tab);
       }
       else
-	$form->addChild(new Para("There are no other possible regattas to add to the report from for the chosen season."));
-      $form->addChild(new Para("Next, choose the sailors to incorporate into the report."));
-      $form->addChild(new FSubmit('set-regattas', sprintf("Choose %ss >>", $_SESSION['aa']['report-role'])));
+	$form->add(new XP(array(), "There are no other possible regattas to add to the report from for the chosen season."));
+      $form->add(new XP(array(), "Next, choose the sailors to incorporate into the report."));
+      $form->add(new XSubmitInput('set-regattas', sprintf("Choose %ss >>", $_SESSION['aa']['report-role'])));
 
       // are there any qualified regattas?
       if (count($qual_regattas) == 0)
-	$p1->addChild(new Para("No regattas this season fulfill the requirement for inclusion."));
+	$p1->add(new XP(array(), "No regattas this season fulfill the requirement for inclusion."));
       else {
-	$p1->addChild(new Para("The following regattas meet the criteria for inclusion in the report."));
-	$p1->addChild($tab = new Table());
-	$tab->addHeader(new Row(array(Cell::th("Name"),
-				      Cell::th("Type"),
-				      Cell::th("Part."),
-				      Cell::th("Date"),
-				      Cell::th("Status"))));
-
+	$p1->add(new XP(array(), "The following regattas meet the criteria for inclusion in the report."));
+	$p1->add($tab = new XQuickTable(array(), array("Name", "Type", "Part.", "Date", "Status")));
 	foreach ($qual_regattas as $reg) {
-	  $tab->addRow(new Row(array(new Cell($reg->name, array('class'=>'left')),
-				     new Cell($types[$reg->type]),
-				     new Cell(($reg->participant == Regatta::PARTICIPANT_WOMEN) ?
-					      "Women" : "Coed"),
-				     new Cell($reg->start_time->format('Y/m/d H:i')),
-				     new Cell("Final"))));
+	  $tab->addRow(array($reg->name,
+			     $types[$reg->type],
+			     ($reg->participant == Regatta::PARTICIPANT_WOMEN) ? "Women" : "Coed",
+			     $reg->start_time->format('Y/m/d H:i'),
+			     "Final"));
 	}
       }
       return;
@@ -218,32 +192,30 @@ class AllAmerican extends AbstractUserPane {
     // ------------------------------------------------------------
     if ($_SESSION['aa']['params-set'] === false) {
       // Add button to go back
-      $this->PAGE->addContent($p = new Port("Progress"));
-      $p->addChild($form = new Form('/aa-edit'));
-      $form->addChild(new FSubmit('unset-regattas', "<< Start over"));
+      $this->PAGE->addContent($p = new XPort("Progress"));
+      $p->add($form = new XForm('/aa-edit', XForm::POST));
+      $form->add(new XSubmitInput('unset-regattas', "<< Start over"));
       
       $regattas = $_SESSION['aa']['regattas'];
       // provide a list of sailors that are already included in the
       // list, and a search box to add new ones
-      $this->PAGE->addContent($p = new Port("Sailors in list"));
-      $p->addChild(new Para(sprintf("%d sailors meet the criteria for All-American inclusion based on the regattas chosen. Note that non-official sailors have been excluded. Use the bottom form to add more sailors to this list.",
-				    count($_SESSION['aa']['sailors']))));
-      $p->addChild($item = new Itemize());
-      $item->addAttr('id', 'inc-sailors');
+      $this->PAGE->addContent($p = new XPort("Sailors in list"));
+      $p->add(new XP(array(), sprintf("%d sailors meet the criteria for All-American inclusion based on the regattas chosen. Note that non-official sailors have been excluded. Use the bottom form to add more sailors to this list.",
+				      count($_SESSION['aa']['sailors']))));
+      $p->add($item = new XUl(array('id', 'inc-sailors')));
       foreach ($_SESSION['aa']['sailors'] as $sailor)
-	$item->addItems(new LItem($sailor));
+	$item->add(new XLi($sailor));
 
       // Form to fetch and add sailors
-      $this->PAGE->addHead(new GenericElement('script', array(new Text("")), array('src'=>'/inc/js/aa.js')));
-      $this->PAGE->addContent($p = new Port("New sailors"));
-      $p->addChild($form = new Form('/aa-edit'));
-      $form->addChild(new GenericElement('noscript', array(new Para("Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding."))));
-      $form->addChild(new FItem('Name:', $search = new FText('name-search', "")));
-      $search->addAttr('id', 'name-search');
-      $form->addChild($ul = new Itemize());
-      $ul->addAttr('id', 'aa-input');
-      $ul->addItems(new LItem("No sailors.", array('class' => 'message')));
-      $form->addChild(new FSubmit('set-sailors', "Generate report >>"));
+      $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/aa.js'));
+      $this->PAGE->addContent($p = new XPort("New sailors"));
+      $p->add($form = new XForm('/aa-edit', XForm::POST));
+      $form->add(new XNoScript(new XP(array(), "Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding.")));
+      $form->add(new FItem('Name:', $search = new XTextInput('name-search', "")));
+      $search->set('id', 'name-search');
+      $form->add($ul = new XUl(array('id', 'aa-input'),
+			       array(new XLi("No sailors.", array('class'=>'message')))));
+      $form->add(new XSubmitInput('set-sailors', "Generate report >>"));
 
       return;
     }
@@ -253,37 +225,43 @@ class AllAmerican extends AbstractUserPane {
     // ------------------------------------------------------------
     // 3. Step three: Generate and review
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new Port("Report"));
-    $p->addChild($form = new Form('/aa-edit'));
-    $form->addChild(new Para("Please click only once:"));
-    $form->addChild(new FSubmit('gen-report', "Download as CSV"));
+    $this->PAGE->addContent($p = new XPort("Report"));
+    $p->add($form = new XForm('/aa-edit', XForm::POST));
+    $form->add(new XP(array(), "Please click only once:"));
+    $form->add(new XSubmitInput('gen-report', "Download as CSV"));
 
-    $p->addChild($form = new Form('/aa-edit'));
-    $form->addChild(new FSubmit('unset-sailors', "<< Go back"));
+    $p->add($form = new XForm('/aa-edit', XForm::POST));
+    $form->add(new XSubmitInput('unset-sailors', "<< Go back"));
     
-    $this->PAGE->addContent($table = new Table());
-    $table->addAttr('id', 'aa-table');
-    $table->addHeader($hrow1 = new Row(array(Cell::th("ID"),
-					     Cell::th("Sailor"),
-					     Cell::th("YR"),
-					     Cell::th("School"),
-					     Cell::th("Conf."))));
-    $table->addHeader($hrow2 = new Row(array(Cell::td(""),
-					     Cell::td(""),
-					     Cell::td(""),
-					     Cell::td(""),
-					     Cell::td("Races/Div"))));
+    $this->PAGE->addContent(new XTable(array('id'=>'aa-table'),
+				       array(new XTHead(array(),
+							array($hrow1 = new XTR(array(),
+									       array(new XTH(array(), "ID"),
+										     new XTH(array(), "Sailor"),
+										     new XTH(array(), "YR"),
+										     new XTH(array(), "School"),
+										     new XTH(array(), "Conf."))),
+							      $hrow2 = new XTR(array(),
+									       array(new XTH(array(), ""),
+										     new XTH(array(), ""),
+										     new XTH(array(), ""),
+										     new XTH(array(), ""),
+										     new XTH(array(), "Races/Div"))))),
+					     $table = new XTBody())));
     foreach ($_SESSION['aa']['regatta_races'] as $reg_id => $num) {
-      $hrow1->addChild(new Cell($reg_id, array('class'=>'rotate'), 1));
-      $hrow2->addChild(new Cell($num));
+      $hrow1->add(new XTH(array('class'=>'rotate'), $reg_id));
+      $hrow2->add(new XTH(array(), $num));
     }
     $TABLE = $_SESSION['aa']['table'];
+    $row_num = 0;
     foreach ($_SESSION['aa']['sailors'] as $id => $sailor) {
-      $table->addRow($row = new Row(array(new Cell($sailor->id),
-					  new Cell(sprintf("%s %s", $sailor->first_name, $sailor->last_name)),
-					  new Cell($sailor->year),
-					  new Cell($sailor->school->nick_name),
-					  new Cell($sailor->school->conference))));
+      $table->add($row = new XTR(array('class'=>'row'.($row_num++ % 2)),
+				 array(new XTD(array(), $sailor->id),
+				       new XTD(array(), sprintf("%s %s", $sailor->first_name, $sailor->last_name)),
+				       new XTD(array(), $sailor->year),
+				       new XTD(array(), $sailor->school->nick_name),
+				       new XTD(array(), $sailor->school->conference))));
+      
       foreach ($TABLE as $reg_id => $sailor_list) {
 	if (!isset($sailor_list[$id])) {
 	  $_SESSION['aa']['table'][$reg_id][$id] = array();
@@ -302,7 +280,7 @@ class AllAmerican extends AbstractUserPane {
 	    $_SESSION['aa']['table'][$reg_id][$id][] = $content;
 	  }
 	}
-	$row->addChild(new Cell(implode("/", $_SESSION['aa']['table'][$reg_id][$id])));
+	$row->add(new XTD(array(), implode("/", $_SESSION['aa']['table'][$reg_id][$id])));
       }
     }
   }

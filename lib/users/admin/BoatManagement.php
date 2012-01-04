@@ -5,7 +5,7 @@
  * @package users-admin
  */
 
-require_once('conf.php');
+require_once('users/admin/AbstractAdminUserPane.php');
 
 /**
  * Manages (edits, adds, removes) boats from the database
@@ -30,8 +30,8 @@ class BoatManagement extends AbstractAdminUserPane {
   public function fillHTML(Array $args) {
     $boat = $this->defaultBoat();
     $mess = "Add boat";
-    $hidd = new Text("");
-    $link = new Text("");
+    $hidd = new XText("");
+    $link = new XText("");
     // ------------------------------------------------------------
     // 0a. Editing boat?
     // ------------------------------------------------------------
@@ -42,8 +42,8 @@ class BoatManagement extends AbstractAdminUserPane {
 	WebServer::go("boats");
       }
       $mess = "Edit boat";
-      $link = new Link("boats", "Cancel");
-      $hidd = new FHidden("boat", $boat->id);
+      $link = new XA("boats", "Cancel");
+      $hidd = new XHiddenInput("boat", $boat->id);
     }
 
     // 0b. Process requests from $args
@@ -54,33 +54,26 @@ class BoatManagement extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     // 1. Add/edit new boat
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new Port($mess));
-    $p->addChild($form = new Form("/boat-edit"));
-    $form->addChild(new Para("The number of occupants will be used when entering RP information to " .
-			     "determine how many crews are allowed in an RP form. If the same boat " .
-			     "class can have multiple number of crews, add separate entries and " .
-			     "distinguish them by adding the number of occupants in the name."));
+    $this->PAGE->addContent($p = new XPort($mess));
+    $p->add($form = new XForm("/boat-edit", XForm::POST));
+    $form->add(new XP(array(), "The number of occupants will be used when entering RP information to determine how many crews are allowed in an RP form. If the same boat class can have multiple number of crews, add separate entries and distinguish them by adding the number of occupants in the name."));
     
-    $form->addChild(new Para("Keep in mind that the number of occupants includes 1 skipper. Therefore, " .
-			     "the minimum value is 1 for a singlehanded boat class."));
+    $form->add(new XP(array(), "Keep in mind that the number of occupants includes 1 skipper. Therefore, the minimum value is 1 for a singlehanded boat class."));
     
-    $form->addChild(new FItem("Name:", new FText("name", $boat->name, array("maxlength"=>"15"))));
-    $form->addChild(new FItem("Number of occupants:", new FText("occupants", $boat->occupants)));
-    $form->addChild($hidd);
-    $form->addChild(new FSubmit("set-boat", $mess));
-    $form->addChild($link);
+    $form->add(new FItem("Name:", new XTextInput("name", $boat->name, array("maxlength"=>"15"))));
+    $form->add(new FItem("Number of occupants:", new XTextInput("occupants", $boat->occupants)));
+    $form->add($hidd);
+    $form->add(new XSubmitInput("set-boat", $mess));
+    $form->add($link);
 
     // ------------------------------------------------------------
     // 2. Current boat list
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new Port("All boat classes"));
-    $p->addChild(new Para("Click on the boat name to edit that boat."));
-    $p->addChild($tab = new Table());
-    $tab->addHeader(new Row(array(Cell::th("Name"),
-				  Cell::th("No. Occupants"))));
+    $this->PAGE->addContent($p = new XPort("All boat classes"));
+    $p->add(new XP(array(), "Click on the boat name to edit that boat."));
+    $p->add($tab = new XQuickTable(array(), array("Name", "No. Occupants")));
     foreach (Preferences::getBoats() as $boat) {
-      $tab->addRow(new Row(array(new Cell(new Link(sprintf("boats?b=%d", $boat->id), $boat->name)),
-				 new Cell($boat->occupants))));
+      $tab->addRow(array(new XA(sprintf("boats?b=%d", $boat->id), $boat->name), $boat->occupants));
     }
   }
   

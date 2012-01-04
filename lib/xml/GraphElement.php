@@ -38,7 +38,7 @@ class XMLElement
       if (!is_array($val))
 	$val = array($val);
       foreach ($val as $v)
-	$this->addAttr($k,$v);
+	$this->set($k,$v);
     }
   }
 
@@ -47,7 +47,7 @@ class XMLElement
 
   public function add($e) {
     if (!($e instanceof XMLElement))
-      trigger_error(sprintf("%s is not a valid HTMLElement.", $e),
+      trigger_error(sprintf("%s is not a valid XMLElement.", $e),
 		    E_USER_ERROR);
     $this->children[] = $e;
   }

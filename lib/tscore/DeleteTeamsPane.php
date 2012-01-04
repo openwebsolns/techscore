@@ -18,32 +18,31 @@ class DeleteTeamsPane extends AbstractPane {
   protected function fillHTML(Array $args) {
     $teams = $this->REGATTA->getTeams();
     
-    $this->PAGE->addContent($p = new Port("Remove present teams"));
+    $this->PAGE->addContent($p = new XPort("Remove present teams"));
     if ($this->has_rots || $this->has_scores) {
-      $p->addChild(new Para("The regatta is currently \"under way\": either the rotation has been created, or finishes have been entered. If you remove a team, you will also remove all information from the rotation and the scores for that team. This will probably result in one or more idle boats in the rotation, and will effectively change the FLEET size for scoring purposes."));
-      $p->addChild(new Para("Please note: this process is <strong>not</strong> undoable. Are you sure you don't wish to <a href=\"substitute\">substitute a team</a> instead?"));
+      $p->add(new XP(array(), "The regatta is currently \"under way\": either the rotation has been created, or finishes have been entered. If you remove a team, you will also remove all information from the rotation and the scores for that team. This will probably result in one or more idle boats in the rotation, and will effectively change the FLEET size for scoring purposes."));
+      $p->add(new XP(array(),
+		     array("Please note: this process is ",
+			   new XStrong("not"),
+			   " undoable. Are you sure you don't wish to ",
+			   new XA("substitute", "substitute a team"),
+			   " instead?")));
     }
-    $p->addChild(new Para("To remove one or more teams, check the appropriate box and hit \"Remove\"."));
-    $p->addChild($form = $this->createForm());
-    $form->addChild($tab = new Table());
-    $tab->addAttr('class', 'full');
-    
-    $tab->addHeader(new Row(array(Cell::th(""),
-				  Cell::th(""),
-				  Cell::th("School"),
-				  Cell::th("Team name"))));
+    $p->add(new XP(array(), "To remove one or more teams, check the appropriate box and hit \"Remove\"."));
+    $p->add($form = $this->createForm());
+    $form->add($tab = new XQuickTable(array('class'=>'full'), array("", "", "School", "Team name")));
 
     // Print a row for each team
     $row = 0;
     foreach ($teams as $aTeam) {
       $id = 't'.$aTeam->id;
-      $tab->addRow(new Row(array(new Cell(new FCheckbox('teams[]', $aTeam->id, array('id'=>$id))),
-				 new Cell(new Label($id, $row + 1)),
-				 new Cell(new Label($id, $aTeam->school), array('class'=>'left')),
-				 new Cell(new Label($id, $aTeam->name), array('class'=>'left'))),
-			   array("class"=>"row" . ($row++%2))));
+      $tab->addRow(array(new XCheckboxInput('teams[]', $aTeam->id, array('id'=>$id)),
+			 new XLabel($id, $row + 1),
+			 new XLabel($id, $aTeam->school), array('class'=>'left'),
+			 new XLabel($id, $aTeam->name), array('class'=>'left')),
+		   array('class'=>'row'.($row++ %2)));
     }
-    $form->addChild(new FSubmit("remove", "Remove"));
+    $form->add(new XSubmitInput("remove", "Remove"));
   }
 
   /**

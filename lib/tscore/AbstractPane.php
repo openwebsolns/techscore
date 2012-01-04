@@ -5,8 +5,7 @@
  * @package tscore
  */
 
-require_once('conf.php');
-__autoload('XmlLibrary');
+require_once('xml5/TS.php');
 
 /**
  * Parent class of all editing panes. Requires USER and REGATTA.
@@ -53,12 +52,14 @@ abstract class AbstractPane {
    *
    */
   protected function setupPage() {
+    require_once('xml/TScorePage.php');
+
     $title = sprintf("%s | %s | TS",
 		     $this->name,
 		     $this->REGATTA->get(Regatta::NAME));
 
     $this->PAGE = new TScorePage($title, $this->USER, $this->REGATTA);
-    $this->PAGE->addContent(new PageTitle($this->name));
+    $this->PAGE->addContent(new XPageTitle($this->name));
 
     // ------------------------------------------------------------
     // Menu
@@ -88,47 +89,38 @@ abstract class AbstractPane {
     // Fill panes menu
     $id = $this->REGATTA->id();
     foreach ($score_i as $title => $panes) {
-      $menu = new Div();
-      $menu->addAttr("class", "menu");
-      $menu->addChild(new Heading($title));
-      $menu->addChild($m_list = new GenericList());
+      $menu = new XDiv(array('class'=>'menu'), array(new XH4($title), $m_list = new XUl()));
       foreach ($panes as $url => $pane) {
 	$t = $this->doTitle($pane);
 	if ($this->doActive($pane))
-	  $m_list->addItems(new LItem(new Link("/score/$id/$url", $t)));
+	  $m_list->add(new XLi(new XA("/score/$id/$url", $t)));
 	else
-	  $m_list->addItems(new LItem($t, array("class"=>"inactive")));
+	  $m_list->add(new XLi($t, array("class"=>"inactive")));
       }
       if ($title == "Regatta")
-	$m_list->addItems(new LItem(new Link('/', "Close", array('accesskey'=>'w'))));
+	$m_list->add(new XLi(new XA('/', "Close", array('accesskey'=>'w'))));
 
       $this->PAGE->addMenu($menu);
     }
 
     // Downloads
-    $menu = new Div();
-    $menu->addAttr("class", "menu");
-    $menu->addChild(new Heading("Download"));
-    $menu->addChild($m_list = new GenericList());
-    $m_list->addItems(new LItem(new Link("/download/$id/regatta", "Regatta")));
-    $m_list->addItems(new LItem(new Link("/download/$id/rp", "RP Forms")));
+    $menu = new XDiv(array('class'=>'menu'), array(new XH4("Download"), $m_list = new XUl()));
+    $m_list->add(new XLi(new XA("/download/$id/regatta", "Regatta")));
+    $m_list->add(new XLi(new XA("/download/$id/rp", "RP Forms")));
     $this->PAGE->addMenu($menu);
 
     // Dialogs
-    $menu = new Div();
-    $menu->addAttr("class", "menu");
-    $menu->addChild(new Heading("Windows"));
-    $menu->addChild($m_list = new GenericList());
+    $menu = new XDiv(array('class'=>'menu'), array(new XH4("Windows"), $m_list = new XUl()));
     foreach ($dial_i as $url => $title) {
       if ($this->doActive($url)) {
-	$link = new Link("/view/$id/$url", $title);
-	$link->addAttr("class", "frame-toggle");
-	$link->addAttr("target", $url);
-	$item = new LItem($link);
+	$link = new XA("/view/$id/$url", $title);
+	$link->set("class", "frame-toggle");
+	$link->set("onclick", sprintf('this.target="%s"', $url));
+	$item = new XLi($link);
       }
       else
-	$item = new LItem($title, array("class"=>"inactive"));
-      $m_list->addItems($item);
+	$item = new XLi($title, array("class"=>"inactive"));
+      $m_list->add($item);
     }
     $this->PAGE->addMenu($menu);
   }
@@ -164,7 +156,7 @@ abstract class AbstractPane {
     if (isset($_SESSION['ANNOUNCE'])) {
       $this->processAnnouncements();
     }
-    $this->PAGE->printHTML();
+    $this->PAGE->printXML();
   }
 
   /**
@@ -200,10 +192,10 @@ abstract class AbstractPane {
    * @param $method "post" or "get"
    * @return Form element
    */
-  protected function createForm($method = "post") {
+  protected function createForm($method = XForm::POST) {
     $i = get_class($this);
     if (isset(self::$URLS[$i]))
-      return new Form(sprintf("/edit/%d/%s", $this->REGATTA->id(), self::$URLS[$i]), $method);
+      return new XForm(sprintf("/edit/%d/%s", $this->REGATTA->id(), self::$URLS[$i]), $method);
     throw new InvalidArgumentException("Please register URL for pane $i.");
   }
 
@@ -218,43 +210,53 @@ abstract class AbstractPane {
     case 'home':
     case 'details':
     case 'settings':
+      require_once('tscore/DetailsPane.php');
       return new DetailsPane($r, $u);
     case 'drop-finishes':
     case 'all-finishes':
     case 'current-finishes':
+      require_once('tscore/DropFinishPane.php');
       return new DropFinishPane($r, $u);
     case 'drop-penalty':
     case 'drop-penalties':
+      require_once('tscore/DropPenaltyPane.php');
       return new DropPenaltyPane($r, $u);
     case 'enter-finish':
     case 'enter-finishes':
     case 'finish':
     case 'finishes':
+      require_once('tscore/EnterFinishPane.php');
       return new EnterFinishPane($r, $u);
     case 'add-penalty':
     case 'penalties':
     case 'penalty':
+      require_once('tscore/EnterPenaltyPane.php');
       return new EnterPenaltyPane($r, $u);
     case 'manual-rotation':
+      require_once('tscore/ManualTweakPane.php');
       return new ManualTweakPane($r, $u);
     case 'notes':
     case 'note':
     case 'race-note':
     case 'race-notes':
+      require_once('tscore/NotesPane.php');
       return new NotesPane($r, $u);
     case 'races':
     case 'race':
     case 'edit-race':
     case 'edit-races':
+      require_once('tscore/RacesPane.php');
       return new RacesPane($r, $u);
     case 'substitute':
     case 'substitute-team':
     case 'sub-team':
+      require_once('tscore/ReplaceTeamPane.php');
       return new ReplaceTeamPane($r, $u);
     case 'rp':
     case 'rps':
     case 'enter-rp':
     case 'enter-rps':
+      require_once('tscore/RpEnterPane.php');
       return new RpEnterPane($r, $u);
     case 'setup-rotations':
     case 'setup-rotation':
@@ -263,17 +265,21 @@ abstract class AbstractPane {
     case 'sails':
     case 'create-rotation':
     case 'create-rotations':
+      require_once('tscore/SailsPane.php');
       return new SailsPane($r, $u);
     case 'scorer':
     case 'scorers':
+      require_once('tscore/ScorersPane.php');
       return new ScorersPane($r, $u);
     case 'summaries':
     case 'daily-summaries':
     case 'summary':
     case 'daily-summary':
+      require_once('tscore/SummaryPane.php');
       return new SummaryPane($r, $u);
     case 'team-penalty':
     case 'team-penalties':
+      require_once('tscore/TeamPenaltyPane.php');
       return new TeamPenaltyPane($r, $u);
     case 'team':
     case 'teams':
@@ -281,23 +287,27 @@ abstract class AbstractPane {
     case 'set-teams':
     case 'add-team':
     case 'set-team':
+      require_once('tscore/TeamsPane.php');
       return new TeamsPane($r, $u);
     case 'remove-team':
     case 'remove-teams':
     case 'delete-team':
     case 'delete-teams':
+      require_once('tscore/DeleteTeamsPane.php');
       return new DeleteTeamsPane($r, $u);
     case 'tweak':
     case 'tweak-sails':
     case 'substitute-sails':
     case 'substitute-sail':
     case 'tweak-sail':
+      require_once('tscore/TweakSailsPane.php');
       return new TweakSailsPane($r, $u);
     case 'unregistered':
     case 'unregistered-sailors':
     case 'unregistered-sailor':
     case 'new-sailors':
     case 'new-sailor':
+      require_once('tscore/UnregisteredSailorPane.php');
       return new UnregisteredSailorPane($r, $u);
     default:
       return null;
@@ -392,5 +402,4 @@ abstract class AbstractPane {
 				 "DropPenaltyPane" => "Drop penalty",
 				 "TeamPenaltyPane" => "Team penalty");
 }
-
 ?>

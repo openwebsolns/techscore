@@ -5,7 +5,7 @@
  * @package users-admin
  */
 
-require_once('conf.php');
+require_once('users/admin/AbstractAdminUserPane.php');
 
 /**
  * Pane to edit (add/edit/remove) venues. This is yet the most
@@ -45,7 +45,7 @@ class VenueManagement extends AbstractAdminUserPane {
     $stat = "";
     $code = "";
     $mess = "Add";
-    $hidd = new Text("");
+    $hidd = new XText("");
 
     if (isset($args['v'])) {
       $v = Preferences::getVenue((int)$_GET['v']);
@@ -59,7 +59,7 @@ class VenueManagement extends AbstractAdminUserPane {
       $stat = $v->state;
       $code = $v->zipcode;
       $mess = "Edit";
-      $hidd = new FHidden("venue", $v->id);
+      $hidd = new XHiddenInput("venue", $v->id);
     }
 
     if (isset($args['name']))    $name = $args['name'];
@@ -70,15 +70,15 @@ class VenueManagement extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     // 1. Add new venue
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new Port("Add venue"));
-    $p->addChild($f = new Form("/venue-edit"));
-    $f->addChild(new FItem("Name:", new FText("name", $name, array("maxlength"=>40))));
-    $f->addChild(new FItem("Address:", new FText("address", $addr, array("maxlength"=>40))));
-    $f->addChild(new FItem("City:", new FText("city", $city, array("maxlength"=>20))));
-    $f->addChild(new FItem("State:", $this->getStateSelect($stat)));
-    $f->addChild(new FItem("Zipcode:", new FText("zipcode", $code, array("maxlength"=>5))));
-    $f->addChild($hidd);
-    $f->addChild(new FSubmit("set-venue", $mess));
+    $this->PAGE->addContent($p = new XPort("Add venue"));
+    $p->add($f = new XForm("/venue-edit", XForm::POST));
+    $f->add(new FItem("Name:", new XTextInput("name", $name, array("maxlength"=>40))));
+    $f->add(new FItem("Address:", new XTextInput("address", $addr, array("maxlength"=>40))));
+    $f->add(new FItem("City:", new XTextInput("city", $city, array("maxlength"=>20))));
+    $f->add(new FItem("State:", $this->getStateSelect($stat)));
+    $f->add(new FItem("Zipcode:", new XTextInput("zipcode", $code, array("maxlength"=>5))));
+    $f->add($hidd);
+    $f->add(new XSubmitInput("set-venue", $mess));
   }
   private function fillList(Array $args) {
     $pageset  = (isset($args['page'])) ? (int)$args['page'] : 1;
@@ -93,23 +93,20 @@ class VenueManagement extends AbstractAdminUserPane {
     // 2. Current venues
     // ------------------------------------------------------------
     $list = Preferences::getVenues($startint, $startint + self::NUM_PER_PAGE);
-    $this->PAGE->addContent($p = new Port("Current venue list"));
+    $this->PAGE->addContent($p = new XPort("Current venue list"));
     if (count($list) == 0) {
-      $p->addChild(new Para("There are no venues in the database."));
+      $p->add(new XP(array(), "There are no venues in the database."));
       return;
     }
-    $p->addChild(new Para("Click on the venue name in the table below to edit."));
-    $p->addChild($t = new Table());
-    $t->addAttr("style", "width:100%;");
-    $t->addHeader(new Row(array(Cell::th("Name"),
-				Cell::th("Address"))));
+    $p->add(new XP(array(), "Click on the venue name in the table below to edit."));
+    $p->add($t = new XQuickTable(array('style'=>'width:100%'), array("Name", "Address")));
     foreach ($list as $venue) {
-      $t->addRow(new Row(array(new Cell(new Link(sprintf("edit-venue?v=%d", $venue->id), $venue)),
-			       new Cell(sprintf("%s %s, %s %s",
-						$venue->address,
-						$venue->city,
-						$venue->state,
-						$venue->zipcode)))));
+      $t->addRow(array(new XA(sprintf("edit-venue?v=%d", $venue->id), $venue),
+		       sprintf("%s %s, %s %s",
+			       $venue->address,
+			       $venue->city,
+			       $venue->state,
+			       $venue->zipcode)));
     }
   }
 
@@ -145,7 +142,7 @@ class VenueManagement extends AbstractAdminUserPane {
 	return $args;
       }
 
-      if (!isset($args['state']) || !isset($this->states[$args['state']])) {
+      if (!isset($args['state']) || !isset(self::$states[$args['state']])) {
 	$_SESSION['ANNOUNCE'][] = new Announcement("Invalid state field.",
 						   Announcement::ERROR);
 	unset($args['state']);
@@ -183,70 +180,66 @@ class VenueManagement extends AbstractAdminUserPane {
    *
    */
   private function getStateSelect($chosen) {
-    $state_sel = new FSelect("state", array($chosen));
-    foreach ($this->states as $code => $state) {
-      $state_sel->addChild($opt = new Option($code, $state));
-    }
-    return $state_sel;
+    return XSelect::fromArray('state', self::$states, $chosen);
   }
 
-  private $states = array("AL" => "AL - ALABAMA",
-			  "AK" => "AK - ALASKA",
-			  "AS" => "AS - AMERICAN SAMOA",
-			  "AZ" => "AZ - ARIZONA",
-			  "AR" => "AR - ARKANSAS",
-			  "CA" => "CA - CALIFORNIA",
-			  "CO" => "CO - COLORADO",
-			  "CT" => "CT - CONNECTICUT",
-			  "DE" => "DE - DELAWARE",
-			  "DC" => "DC - DISTRICT OF COLUMBIA",
-			  "FL" => "FL - FLORIDA",
-			  "GA" => "GA - GEORGIA",
-			  "GU" => "GU - GUAM",
-			  "HI" => "HI - HAWAII",
-			  "ID" => "ID - IDAHO",
-			  "IL" => "IL - ILLINOIS",
-			  "IN" => "IN - INDIANA",
-			  "IA" => "IA - IOWA",
-			  "KS" => "KS - KANSAS",
-			  "KY" => "KY - KENTUCKY",
-			  "LA" => "LA - LOUISIANA",
-			  "ME" => "ME - MAINE",
-			  "MH" => "MH - MARSHALL ISLANDS",
-			  "MD" => "MD - MARYLAND",
-			  "MA" => "MA - MASSACHUSETTS",
-			  "MI" => "MI - MICHIGAN",
-			  "MN" => "MN - MINNESOTA",
-			  "MS" => "MS - MISSISSIPPI",
-			  "MO" => "MO - MISSOURI",
-			  "MT" => "MT - MONTANA",
-			  "NE" => "NE - NEBRASKA",
-			  "NV" => "NV - NEVADA",
-			  "NH" => "NH - NEW HAMPSHIRE",
-			  "NJ" => "NJ - NEW JERSEY",
-			  "NM" => "NM - NEW MEXICO",
-			  "NY" => "NY - NEW YORK",
-			  "NC" => "NC - NORTH CAROLINA",
-			  "ND" => "ND - NORTH DAKOTA",
-			  "MP" => "MP - NORTHERN MARIANA ISLANDS",
-			  "OH" => "OH - OHIO",
-			  "OK" => "OK - OKLAHOMA",
-			  "OR" => "OR - OREGON",
-			  "PW" => "PW - PALAU",
-			  "PA" => "PA - PENNSYLVANIA",
-			  "PR" => "PR - PUERTO RICO",
-			  "RI" => "RI - RHODE ISLAND",
-			  "SC" => "SC - SOUTH CAROLINA",
-			  "SD" => "SD - SOUTH DAKOTA",
-			  "TN" => "TN - TENNESSEE",
-			  "TX" => "TX - TEXAS",
-			  "UT" => "UT - UTAH",
-			  "VT" => "VT - VERMONT",
-			  "VI" => "VI - VIRGIN ISLANDS",
-			  "VA" => "VA - VIRGINIA",
-			  "WA" => "WA - WASHINGTON",
-			  "WV" => "WV - WEST VIRGINIA",
-			  "WI" => "WI - WISCONSIN",
-			  "WY" => "WY - WYOMING");
+  private static $states = array("AL" => "AL - ALABAMA",
+				 "AK" => "AK - ALASKA",
+				 "AS" => "AS - AMERICAN SAMOA",
+				 "AZ" => "AZ - ARIZONA",
+				 "AR" => "AR - ARKANSAS",
+				 "CA" => "CA - CALIFORNIA",
+				 "CO" => "CO - COLORADO",
+				 "CT" => "CT - CONNECTICUT",
+				 "DE" => "DE - DELAWARE",
+				 "DC" => "DC - DISTRICT OF COLUMBIA",
+				 "FL" => "FL - FLORIDA",
+				 "GA" => "GA - GEORGIA",
+				 "GU" => "GU - GUAM",
+				 "HI" => "HI - HAWAII",
+				 "ID" => "ID - IDAHO",
+				 "IL" => "IL - ILLINOIS",
+				 "IN" => "IN - INDIANA",
+				 "IA" => "IA - IOWA",
+				 "KS" => "KS - KANSAS",
+				 "KY" => "KY - KENTUCKY",
+				 "LA" => "LA - LOUISIANA",
+				 "ME" => "ME - MAINE",
+				 "MH" => "MH - MARSHALL ISLANDS",
+				 "MD" => "MD - MARYLAND",
+				 "MA" => "MA - MASSACHUSETTS",
+				 "MI" => "MI - MICHIGAN",
+				 "MN" => "MN - MINNESOTA",
+				 "MS" => "MS - MISSISSIPPI",
+				 "MO" => "MO - MISSOURI",
+				 "MT" => "MT - MONTANA",
+				 "NE" => "NE - NEBRASKA",
+				 "NV" => "NV - NEVADA",
+				 "NH" => "NH - NEW HAMPSHIRE",
+				 "NJ" => "NJ - NEW JERSEY",
+				 "NM" => "NM - NEW MEXICO",
+				 "NY" => "NY - NEW YORK",
+				 "NC" => "NC - NORTH CAROLINA",
+				 "ND" => "ND - NORTH DAKOTA",
+				 "MP" => "MP - NORTHERN MARIANA ISLANDS",
+				 "OH" => "OH - OHIO",
+				 "OK" => "OK - OKLAHOMA",
+				 "OR" => "OR - OREGON",
+				 "PW" => "PW - PALAU",
+				 "PA" => "PA - PENNSYLVANIA",
+				 "PR" => "PR - PUERTO RICO",
+				 "RI" => "RI - RHODE ISLAND",
+				 "SC" => "SC - SOUTH CAROLINA",
+				 "SD" => "SD - SOUTH DAKOTA",
+				 "TN" => "TN - TENNESSEE",
+				 "TX" => "TX - TEXAS",
+				 "UT" => "UT - UTAH",
+				 "VT" => "VT - VERMONT",
+				 "VI" => "VI - VIRGIN ISLANDS",
+				 "VA" => "VA - VIRGINIA",
+				 "WA" => "WA - WASHINGTON",
+				 "WV" => "WV - WEST VIRGINIA",
+				 "WI" => "WI - WISCONSIN",
+				 "WY" => "WY - WYOMING");
 }
 ?>

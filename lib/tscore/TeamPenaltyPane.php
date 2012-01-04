@@ -28,74 +28,56 @@ class TeamPenaltyPane extends AbstractPane {
     foreach ($this->REGATTA->getTeams() as $team)
       $teams[$team->id] = $team;
     
-    $this->PAGE->addContent($p = new Port("Team penalties per division"));
-    $p->addChild(new Para("These penalties will be added to the final " .
-			  "team score after all race finishes have been " .
-			  "totaled. The penalty is <strong>+20 points " .
-			  "per division</strong>."));
+    $this->PAGE->addContent($p = new XPort("Team penalties per division"));
+    $p->add(new XP(array(),
+		   array("These penalties will be added to the final " .
+			 "team score after all race finishes have been " .
+			 "totaled. The penalty is ",
+			 new XStrong("+20 points per division"), ".")));
 
     if (count($teams) == 0) {
-      $p->addChild(new Heading("No teams have been registered."));
+      $p->add(new XHeading("No teams have been registered."));
       return;
     }
 
-    $p->addChild($form = $this->createForm());
-    $form->addChild(new FItem("Team:",
-			      $f_sel = new FSelect("team", array(""))));
-    $f_sel->addOptions($teams);
-
-    $form->addChild(new FItem("Division(s):<br/>" .
-			      "<small>Hold down <kbd>Ctrl</kbd> " .
-			      "to select multiple</small>",
-			      $f_sel = new FSelect("division[]",
-						   array(),
-						   array("multiple"=>"multiple"))));
-    $f_sel->addOptions($divisions);
+    $p->add($form = $this->createForm());
+    $form->add(new FItem("Team:", XSelect::fromArray('team', $teams)));
+    $form->add($fi = new FItem("Division(s):", XSelectM::fromArray('division[]', $divisions)));
+    $fi->add(new XMessage("Hold down Ctrl to select multiple"));
 
     // Penalty type
-    $form->addChild(new FItem("Penalty type:",
-			      $f_sel = new FSelect("penalty", array())));
+    $opts = array_merge(array(""=>""), TeamPenalty::getList());
+    $form->add(new FItem("Penalty type:", XSelect::fromArray('penalty', $opts)));
 
-    $f_sel->addOptions(array_merge(array(""=>""), TeamPenalty::getList()));
+    $form->add(new FItem("Comments:",
+			 new XTextArea("comments", "",
+				       array("rows"=>"2",
+					     "cols"=>"15"))));
 
-    $form->addChild(new FItem("Comments:",
-			      new FTextarea("comments", "",
-					    array("rows"=>"2",
-						  "cols"=>"15"))));
-
-    $form->addChild(new FSubmit("t_submit", "Enter team penalty"));
+    $form->add(new XSubmitInput("t_submit", "Enter team penalty"));
 
     
     // ------------------------------------------------------------
     // Existing penalties
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new Port("Team penalties"));
+    $this->PAGE->addContent($p = new XPort("Team penalties"));
     $penalties = $this->REGATTA->getTeamPenalties();
 
     if (count($penalties) == 0)
-      $p->addChild(new Para("There are no team penalties."));
+      $p->add(new XP(array(), "There are no team penalties."));
     else {
-      $p->addChild($tab = new Table());
-      $tab->addAttr("class", "narrow");
-
-      $tab->addHeader(new Row(array(Cell::th("Team name"),
-				    Cell::th("Division"),
-				    Cell::th("Penalty"),
-				    Cell::th("Comments"),
-				    Cell::th("Action"))));
-
+      $p->add($tab = new XQuickTable(array('class'=>'narrow'), array("Team name", "Division", "Penalty", "Comments", "Action")));
       foreach ($penalties as $p) {
-	$tab->addRow(new Row(array(new Cell($p->team, array("class"=>"strong")),
-				   new Cell($p->division),
-				   new Cell($p->type),
-				   new Cell($p->comments, array("width"=>"10em",
-								"style"=>"text-align: left")),
-				   new Cell($form = $this->createForm()))));
+	$tab->addRow(array($p->team,
+			   $p->division,
+			   $p->type,
+			   new XTD(array('style'=>'text-align:left;width:10em;'), $p->comments),
+			   $form = $this->createForm()));
 
-	$form->addChild(new FHidden("r_team", $p->team->id));
-	$form->addChild(new FHidden("r_div",  $p->division));
-	$form->addChild($sub = new FSubmit("t_remove", "Drop",
-					   array("class"=>"thin")));
+	$form->add(new XP(array(),
+			  array(new XHiddenInput("r_team", $p->team->id),
+				new XHiddenInput("r_div",  $p->division),
+				new XSubmitInput("t_remove", "Drop", array("class"=>"thin")))));
       }
     }
   }

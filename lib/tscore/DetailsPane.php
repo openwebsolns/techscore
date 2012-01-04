@@ -6,7 +6,7 @@
  * @package tscore
  */
 
-require_once('conf.php');
+require_once('tscore/AbstractPane.php');
 
 /**
  * The "home" pane where the regatta's details are edited.
@@ -24,145 +24,133 @@ class DetailsPane extends AbstractPane {
 
   protected function fillHTML(Array $args) {
     // Regatta details
-    $p = new Port('Regatta details');
+    $p = new XPort('Regatta details');
     $p->addHelp("node9.html#SECTION00521000000000000000");
 
-    $p->addChild($reg_form = $this->createForm());
+    $p->add($reg_form = $this->createForm());
     // Name
     $value = $this->REGATTA->get(Regatta::NAME);
-    $reg_form->addChild(new FItem("Name:",
-				  new FText("reg_name",
+    $reg_form->add(new FItem("Name:",
+			     new XTextInput("reg_name",
 					    stripslashes($value),
 					    array("maxlength"=>40,
 						  "size"     =>20))));
-
+    
     // Date
     $start_time = $this->REGATTA->get(Regatta::START_TIME);
     $date = date_format($start_time, 'm/d/Y');
-    $reg_form->addChild(new FItem("Date:", 
-				  new FText("sdate",
+    $reg_form->add(new FItem("Date:", 
+			     new XTextInput("sdate",
 					    $date,
 					    array("maxlength"=>30,
 						  "size"     =>20,
 						  "id"=>"datepicker"))));
     // Duration
     $value = $this->REGATTA->get(Regatta::DURATION);
-    $reg_form->addChild(new FItem("Duration (days):",
-				  new FText("duration",
+    $reg_form->add(new FItem("Duration (days):",
+			     new XTextInput("duration",
 					    $value,
 					    array("maxlength"=>2,
 						  "size"     =>2))));
     // On the water
     $value = date_format($start_time, "H:i");
-    $reg_form->addChild(new FItem("On the water:",
-				  new FText("stime", $value,
+    $reg_form->add(new FItem("On the water:",
+			     new XTextInput("stime", $value,
 					    array("maxlength"=>8,
 						  "size"     =>8))));
 
     // Venue
-    $value = "";
     $venue = $this->REGATTA->get(Regatta::VENUE);
-    if ($venue !== null)
-      $value = $venue->id;
-    $reg_form->addChild(new FItem("Venue:", $r_type = new FSelect("venue", array($value))));
-    $r_type->addOptions(array("" => ""));
-    $venues = array();
-    foreach (Preferences::getVenues() as $venue)
-      $venues[$venue->id] = $venue->name;
-    $r_type->addOptions($venues);
+    $reg_form->add(new FItem("Venue:", $r_type = new XSelect("venue")));
+    foreach (Preferences::getVenues() as $v) {
+      $r_type->add($opt = new FOption($v->id, $v->name));
+      if ($venue !== null && $venue->id == $v->id)
+	$opt->set('selected', 'selected');
+    }
 
     // Regatta type
     $value = $this->REGATTA->get(Regatta::TYPE);
-    $reg_form->addChild($item = new FItem("Type:",
-					  $f_sel = new FSelect("type",
-							       array($value))));
     $types = Preferences::getRegattaTypeAssoc();
     unset($types['personal']);
-    $f_sel->addOptionGroup("Public", $types);
-    $f_sel->addOptionGroup("Not-published", array('personal' => "Personal"));
-    $item->addChild(new Span(array(new Text("Choose \"Personal\" to un-publish")),
-			     array('class'=>'message')));
+    $reg_form->add($item = new FItem("Type:",
+				     XSelect::fromArray('type',
+							array("Public" => $types,
+							      "Not-published" => array('personal'=>"Personal")),
+							$value)));
+    $item->add(new XMessage("Choose \"Personal\" to un-publish"));
 
     // Regatta participation
     $value = $this->REGATTA->get(Regatta::PARTICIPANT);
-    $reg_form->addChild($item = new FItem("Participation:",
-					  $f_sel = new FSelect("participant", array($value))));
-    $f_sel->addOptions(Preferences::getRegattaParticipantAssoc());
+    $reg_form->add($item = new FItem("Participation:",
+				     XSelect::fromArray('participant',
+							Preferences::getRegattaParticipantAssoc(),
+							$value)));
     // will changing this value affect the RP information?
-    if ($value == Regatta::PARTICIPANT_COED) {
-      $rp = $this->REGATTA->getRpManager();
-      if ($rp->hasGender(Sailor::MALE)) {
-	$item->addChild(new Span(array(new Text("Changing this value will affect RP info")),
-				 array('class'=>'message')));
-      }
-    }
+    if ($value == Regatta::PARTICIPANT_COED)
+      $item->add(new XMessage("Changing this value may affect RP info"));
 
     // Scoring rules
     $value = $this->REGATTA->get(Regatta::SCORING);
-    $reg_form->addChild(new FItem("Scoring:", $f_sel = new FSelect("scoring", array($value))));
-    $f_sel->addOptions(Preferences::getRegattaScoringAssoc());
+    $reg_form->add(new FItem("Scoring:",
+			     XSelect::fromArray('scoring',
+						Preferences::getRegattaParticipantAssoc(),
+						$value)));
 
     // Hosts: first add the current hosts, then the entire list of
     // schools in the affiliation ordered by conference
     $hosts = $this->REGATTA->getHosts();
-    $reg_form->addChild(new FItem('Host(s):<br/><small>Hold down <kbd>Ctrl</kbd> to choose more than one</small>', $f_sel = new FSelect("host[]")));
-    $f_sel->addChild($opt_group = new OptionGroup("Current"));
+    $reg_form->add($f_item = new FItem('Host(s):', $f_sel = new XSelectM("host[]", array('size'=>10))));
+    
+    $f_sel->add($opt_group = new FOptionGroup("Current"));
     $schools = array(); // track these so as not to include them later
     foreach ($hosts as $host) {
       $schools[$host->school->id] = $host->school;
-      $opt_group->addChild(new Option($host->school->id, $host->school, array('selected' => 'selected')));
+      $opt_group->add(new FOption($host->school->id, $host->school, array('selected' => 'selected')));
     }
+    $f_item->add(new XMessage("Hold down Ctrl to choose more than one"));
 
     // go through each conference
     foreach (Preferences::getConferences() as $conf) {
       $opts = array();
       foreach ($this->USER->getSchools($conf) as $school) {
 	if (!isset($schools[$school->id]))
-	  $opts[$school->id] = $school;
+	  $opts[] = new FOption($school->id, $school);
       }
       if (count($opts) > 0)
-	$f_sel->addOptionGroup($conf, $opts);
+	$f_sel->add(new FOptionGroup($conf, $opts));
     }
-    $f_sel->addAttr('multiple', 'multiple');
-    $f_sel->addAttr('size', 10);
 
     // Update button
-    $reg_form->addChild($reg_sub = new FSubmit("edit_reg", "Edit"));
+    $reg_form->add(new XP(array(), new XSubmitInput("edit_reg", "Edit")));
     // If finalized, disable submit
     $finalized = $this->REGATTA->get(Regatta::FINALIZED);
 
     // -------------------- Finalize regatta -------------------- //
-    $p2 = new Text("");
+    $p2 = new XText("");
     if ($finalized === null) {
       if ($this->REGATTA->hasFinishes()) {
-	$p2 = new Port("Finalize regatta");
-	$p2->addAttr('id', 'finalize');
+	$p2 = new XPort("Finalize regatta");
+	$p2->set('id', 'finalize');
 	$p2->addHelp("node9.html#SECTION00521100000000000000");
-
-	$para = '
-        Once <strong>finalized</strong>, all the information (including rp,
-        and rotation) about unscored regattas will be removed from the
-        database. No <strong>new</strong> information can be entered,
-        although you may still be able to edit existing information.';
-	$p2->addChild(new Para($para));
+	$p2->add(new XP(array(),
+			array("Once ", new XStrong("finalized"), ", all the information (including rp, and rotation) about unscored regattas will be removed from the database. No ", new XStrong("new"), " information can be entered, although you may still be able to edit existing information.")));
   
-	$p2->addChild($form = $this->createForm());
+	$p2->add($form = $this->createForm());
 
-	$form->addChild(new FItem(new FCheckbox("approve",
+	$form->add(new FItem(new XCheckboxInput("approve",
 						"on",
 						array("id"=>"approve")),
-				  new Label("approve",
-					    "I wish to finalize this regatta.",
-					    array("class"=>"strong"))));
+			     new XLabel("approve",
+					"I wish to finalize this regatta.",
+					array("class"=>"strong"))));
 
-	$form->addChild(new FSubmit("finalize",
+	$form->add(new XSubmitInput("finalize",
 				    "Finalize!"));
       }
     }
     else {
-      $para = sprintf("This regatta was finalized on %s.",
-		      $finalized->format("l, F j Y"));
-      $p->addChild(new Para($para, array("class"=>"strong")));
+      $p->add(new XP(array("class"=>"strong"),
+		     sprintf("This regatta was finalized on %s.", $finalized->format("l, F j Y"))));
     }
     // If the regatta has already "ended", then the finalize port
     // should go first to urge the user to take action.

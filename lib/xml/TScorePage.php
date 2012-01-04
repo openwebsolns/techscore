@@ -7,19 +7,18 @@
  * @package xml
  */
 
-require_once('conf.php');
-__autoload('XmlLibrary');
+require_once('xml5/TS.php');
 
 /**
  * The basic HTML page for TechScore files. This page extends the
- * WebPage class and sets up the necessary structure common to all the
+ * XPage class and sets up the necessary structure common to all the
  * pages: headers, footers, contents, and announcements.
  *
  * @author Dayan Paez
  * @version 2.0
  * @version 2009-10-19
  */
-class TScorePage extends WebPage {
+class TScorePage extends XPage {
 
   // Private variables
   private $header;
@@ -39,37 +38,31 @@ class TScorePage extends WebPage {
    * menu that is displayed.
    */
   public function __construct($title, User $user = null, Regatta $reg = null) {
-    parent::__construct();
+    parent::__construct($title);
     $this->mobile = $this->isMobile();
 
-    $this->addHead(new GenericElement('meta', array(), array('name'=>'robots', 'content'=>'noindex, nofollow')));
-    $this->addHead(new GenericElement('meta', array(), array('http-equiv'=>'Content-Type', 'content'=>'text/html; charset=UTF-8')));
-    $this->fillHead($title);
+    $this->head->add(new XMeta('robots', 'noindex, nofollow'));
+    $this->head->add(new XMetaHTTP('http-equiv', 'text/html; charset=UTF-8'));
+    $this->fillHead();
 
     // Menu
     if ($this->mobile) {
-      $this->addBody(new GenericElement("button", array(new Text("Menu")),
-					array("onclick"=>"toggleMenu()")));
+      $this->body->add(new XButton(array("onclick"=>"toggleMenu()", 'type'=>'button'), array("Menu")));
     }
-    $this->menu = new Div();
-    $this->menu->addAttr("id", "menudiv");
-    $this->addBody($this->menu);
-    $this->addBody(new GenericElement("hr", array(), array("class"=>"hidden")));
-    $this->addBody($this->header = new Div());
+    $this->menu = new XDiv(array('id'=>'menudiv'));
+    $this->body->add($this->menu);
+    $this->body->add(new XHr(array('class'=>'hidden')));
+    $this->body->add($this->header = new XDiv(array('id'=>'headdiv')));
 
     // Header
-    $this->header->addAttr("id", "headdiv");
     $this->fillPageHeader($user, $reg);
 
     // Content
-    $this->addBody($this->content = new Div());
-    $this->content->addAttr("id", "bodydiv");
+    $this->body->add($this->content = new XDiv(array('id'=>'bodydiv')));
 
     // Announcement
     // Fill announcement
-    $this->content->addChild($this->announce = new Div());
-    $this->announce->addAttr("id", "announcediv");
-    $this->announce->addChild(new Text(""));
+    $this->content->add($this->announce = new XDiv(array('id'=>'announcediv')));
     if (isset($_SESSION['ANNOUNCE']) && is_array($_SESSION['ANNOUNCE']) &&
 	count($_SESSION['ANNOUNCE']) > 0) {
       while (count($_SESSION['ANNOUNCE']) > 0)
@@ -77,9 +70,8 @@ class TScorePage extends WebPage {
     }
 
     // Footer
-    $this->addBody($footer = new Div());
-    $footer->addAttr("id", "footdiv");
-    $footer->addChild(new Para(sprintf("TechScore v%s © Dayán Páez 2008-%s", VERSION, date('y'))));
+    $this->body->add(new XDiv(array('id'=>'footdiv'),
+			      array(new XP(array(), sprintf("TechScore v%s © Dayán Páez 2008-%s", VERSION, date('y'))))));
   }
 
   /**
@@ -96,62 +88,29 @@ class TScorePage extends WebPage {
    * Fills up the head element of this page
    *
    */
-  private function fillHead($title) {
-    $this->head->addChild(new GenericElement("title",
-					     array(new Text($title))));
-
+  private function fillHead() {
     // CSS Stylesheets
     if ($this->mobile) {
-      $this->head->addChild(new GenericElement("link",
-					       array(),
-					       array("rel"=>"stylesheet",
-						     "type"=>"text/css",
-						     "media"=>"screen",
-						     "href"=>"/inc/css/mobile.css")));
+      $this->head->add(new LinkCSS('/inc/css/mobile.css'));
     }
     else {
-      $this->head->addChild(new GenericElement("link",
-					     array(),
-					     array("rel"=>"stylesheet",
-						   "type"=>"text/css",
-						   "title"=>"Modern Tech",
-						   "media"=>"screen",
-						   "href"=>"/inc/css/modern.css")));
+      $this->head->add(new LinkCSS('/inc/css/modern.css'));
     }
-    $this->head->addChild(new GenericElement("link",
-					     array(),
-					     array("rel"=>"stylesheet",
-						   "type"=>"text/css",
-						   "media"=>"print",
-						   "href"=>"/inc/css/print.css")));
-    $this->head->addChild(new GenericElement("link",
-					     array(),
-					     array("rel"=>"stylesheet",
-						   "type"=>"text/css",
-						   "media"=>"screen",
-						   "href"=>"/inc/css/cal.css")));
+    $this->head->add(new LinkCSS('/inc/css/print.css','print'));
+    $this->head->add(new LinkCSS('/inc/css/cal.css'));
 
     // Javascript
     foreach (array("jquery-1.3.min.js",
 		   "jquery.tablehover.min.js",
 		   "jquery.columnmanager.min.js",
 		   "ui.datepicker.js") as $scr) {
-      $this->head->addChild(new GenericElement("script",
-					       array(new Text("")),
-					       array("type"=>"text/javascript",
-						     "src"=>"/inc/js/" . $scr)));
+      $this->head->add(new XScript('text/javascript', "/inc/js/$scr"));
     }
     if ($this->mobile) {
-      $this->head->addChild(new GenericElement("script", array(new Text("")),
-					       array("type"=>"text/javascript",
-						     "src"=>"/inc/js/mobile.js")));
+      $this->head->add(new XScript('text/javascript', '/inc/js/mobile.js'));
     }
     else {
-      foreach (array("form.js") as $scr) {
-	$this->head->addChild(new GenericElement("script", array(new Text("")),
-						 array("type"=>"text/javascript",
-						       "src"=>"/inc/js/" . $scr)));
-      }
+      $this->head->add(new XScript('text/javascript', '/inc/js/form.js'));
     }
   }
 
@@ -160,67 +119,62 @@ class TScorePage extends WebPage {
    *
    */
   private function fillPageHeader(User $user = null, Regatta $reg = null) {
-    $this->header->addChild($div = new Div());
-    $div->addAttr("id", "header");
-    $div->addChild($g = new GenericElement("h1"));
-    $g->addChild(new Image("/img/techscore.png", array("id"=>"headimg",
-						      "alt"=>"TechScore")));
-    $div->addChild(new Heading(date("M j, Y"), array("id"=>"date")));
-    if (isset($_SESSION['user'])) {
-      $div->addChild(new Heading($_SESSION['user'], array("id"=>"user")));
-    }
+    $this->header->add($div = new XDiv(array('id'=>'header'),
+				       array(new XH1(new XImg("/img/techscore.png", "TechScore", array("id"=>"headimg"))))));
+    $div->add(new XH4(date("M j, Y"), array("id"=>"date")));
+    if (isset($_SESSION['user']))
+      $div->add(new XH4($_SESSION['user'], array("id"=>"user")));
     
-    $this->header->addChild($this->navigation = new Div());
-    $this->navigation->addAttr("id", "topnav");
-    $this->navigation->addChild(new Link(HELP_HOME, '<span style="text-decoration:underline">H</span>elp?',
-					 array("id"=>"help",
-					       "target"=>"help",
-					       "accesskey"=>"h")));
+    $this->header->add($this->navigation = new XDiv(array('id'=>'topnav')));
+    $this->navigation->add($a = new XA(HELP_HOME, new XSpan("H", array('style'=>"text-decoration:underline")),
+				       array("id"=>"help",
+					     'onclick'=>'this.target="help"',
+					     "accesskey"=>"h")));
+    $a->add("elp?");
     if ($user !== null) {
-      $this->navigation->addChild($d3 = new Div(array(), array("id"=>"user")));
-      $d3->addChild(new Link("/logout", "Logout", array('accesskey'=>'l')));
-      // $d3->addChild(new Itemize(array(new LItem($user->username()))));
+      $this->navigation->add(new XDiv(array("id"=>"logout"),
+				      array(new XA("/logout", "Logout", array('accesskey'=>'l')))));
     }
     if ($reg !== null) {
-      $div->addChild(new Heading($reg->get(Regatta::NAME), array("id"=>"regatta")));
+      $div->add(new XH4($reg->get(Regatta::NAME), array("id"=>"regatta")));
     }
   }
 
   /**
-   * Adds the HTMLElement to the content of this page
+   * Adds the Xmlable to the content of this page
    *
-   * @param HTMLElement $elem an element to append to the body of this
+   * @param Xmlable $elem an element to append to the body of this
    * page
    */
-  public function addContent(HTMLElement $elem) {
-    $this->content->addChild($elem);
+  public function addContent($elem) {
+    $this->content->add($elem);
   }
 
   /**
    * Adds the given element to the menu division of this page
    *
-   * @param HTMLElement $elem to add to the menu of this page
+   * @param Xmlable $elem to add to the menu of this page
    */
-  public function addMenu(HTMLElement $elem) {
-    $this->menu->addChild($elem);
+  public function addMenu($elem) {
+    $this->menu->add($elem);
   }
 
   /**
    * Adds the given element to the page header
    *
-   * @param HTMLElement $elem to add to the page header
+   * @param Xmlable $elem to add to the page header
    */
-  public function addHeader(HTMLElement $elem) {
-    $this->header->addChild($elem);
+  public function addHeader(Xmlable $elem) {
+    $this->header->add($elem);
   }
 
   /**
    * Adds the given element to the navigation part
    *
-   * @param HTMLElement $elem to add to navigation
+   * @param Xmlable $elem to add to navigation
    */
-  public function addNavigation(HTMLElement $elem) {
-    $this->navigation->addChild($elem);
+  public function addNavigation(Xmlable $elem) {
+    $this->navigation->add($elem);
   }
 
   /**
@@ -229,7 +183,7 @@ class TScorePage extends WebPage {
    * @param Announce $elem the announcement to add
    */
   public function addAnnouncement(Announcement $elem) {
-    $this->announce->addChild($elem);
+    $this->announce->add($elem);
   }
 }
 

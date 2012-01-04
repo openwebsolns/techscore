@@ -24,64 +24,49 @@ class NotesPane extends AbstractPane {
     $divisions = $this->REGATTA->getDivisions();
     
     // OUTPUT
-    $this->PAGE->addContent($p = new Portlet("Enter observation"));
+    $this->PAGE->addContent($p = new XPort("Enter observation"));
 
     // Form
-    $p->addChild($form = $this->createForm());
-    $form->addChild($fitem = new FItem("Race:", 
-				       new FText("chosen_race", "",
+    $p->add($form = $this->createForm());
+    $form->add($fitem = new FItem("Race:", 
+				  new XTextInput("chosen_race", "",
 						 array("size"=>"4",
 						       "maxlength"=>"4",
 						       "id"=>"chosen_race",
 						       "class"=>"narrow"))));
 
     // Table of possible races
-    $fitem->addChild($tab = new Table());
-    $tab->addAttr("class", "narrow");
-    $tab->addHeader($hrow = new Row(array(), array("id"=>"pos_divs")));
-    $tab->addRow($brow = new Row(array(), array("id"=>"pos_races")));
-    foreach ($divisions as $div) {
-      $hrow->addCell(Cell::th($div));
-      $brow->addCell(new Cell(count($this->REGATTA->getRaces($div))));
-    }
+    $fitem->add($tab = new XQuickTable(array('class'=>'narrow'), $divisions));
+    $cells = array();
+    foreach ($divisions as $div)
+      $cells[] = count($this->REGATTA->getRaces($div));
+    $tab->addRow($cells);
 
     // Observation
-    $form->addChild(new FItem("Observation:",
-			      new FTextArea("observation","",
-					    array("rows"=>3,
-						  "cols"=>30))));
+    $form->add(new FItem("Observation:",
+			 new XTextArea("observation","",
+				       array("rows"=>3,
+					     "cols"=>30))));
     // Observer
-    $form->addChild(new FItem("Observer:",
-			      new FText("observer",
+    $form->add(new FItem("Observer:",
+			 new XTextInput("observer",
 					$this->USER->getName(),
 					array("maxlength"=>"50"))));
 
-    $form->addChild(new FSubmit("observe",
+    $form->add(new XSubmitInput("observe",
 				"Add note"));
 
     // CURRENT NOTES
     $notes = $this->REGATTA->getNotes();
     if (count($notes) > 0) {
-      $this->PAGE->addContent($p = new Portlet("Current notes"));
+      $this->PAGE->addContent($p = new XPort("Current notes"));
 
       // Table
-      $p->addChild($tab = new Table());
-      $tab->addAttr("class", "left");
-      $tab->addHeader(new Row(array(Cell::th("Race"),
-				    Cell::th("Note"),
-				    Cell::th("Observer"),
-				    Cell::th())));
-
+      $p->add($tab = new XQuickTable(array(), array("Race", "Note", "Observer", "")));
       foreach ($notes as $note) {
-	$tab->addRow(new Row(array(new Cell($note->race),
-				   new Cell($note->observation,
-					    array("style"=>"max-width: 25em")),
-				   new Cell($note->observer),
-				   new Cell($form = $this->createForm()))));
-
-	$form->addChild(new FHidden("observation", $note->id));
-	$form->addChild(new FSubmit("remove", "Remove",
-				    array("class"=>"thin")));
+	$tab->addRow(array($note->race, $note->observation, $note->observer, $form = $this->createForm()));
+	$form->add(new XP(array(), array(new XHiddenInput("observation", $note->id),
+					 new XSubmitInput("remove", "Remove", array("class"=>"thin")))));
       }
     }
   }

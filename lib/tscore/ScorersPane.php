@@ -20,43 +20,38 @@ class ScorersPane extends AbstractPane {
   protected function fillHTML(Array $args) {
     // ------------------------ Scorers -------------------//
     // Forms to remove scorers
-    $this->PAGE->addContent($p = new Port("Approved Scorers"));
+    $this->PAGE->addContent($p = new XPort("Approved Scorers"));
     $p->addHelp("node9.html#SECTION00522000000000000000");
 
     // Get scorers
-    $p->addChild($tab = new Table());
-    $tab->addHeader(new Row(array(Cell::th("Name"),
-				  Cell::th("Affiliation"),
-				  Cell::th(""))));
+    $p->add($tab = new XQuickTable(array(), array("Name", "Affiliation", "")));
     $scorers = array();
     foreach ($this->REGATTA->getScorers() as $s) {
       $scorers[$s->id] = $s;
 
       // Create form to delete scorer
       $f2 = $this->createForm();
-      $hidden = new FHidden("scorer", $s->id);
-      $button = new FSubmit("delete_scorer", "Remove scorer", array("style"=>"width:100%"));
-      $f2->addChild($hidden);
-      $f2->addChild($button);
+      $hidden = new XHiddenInput("scorer", $s->id);
+      $button = new XSubmitInput("delete_scorer", "Remove scorer", array("style"=>"width:100%"));
+      $f2->add($hidden);
+      $f2->add($button);
       if ($s->id === $this->USER->username()) {
-	$button->addAttr("disabled", "disabled");
-	$button->addAttr("title", "You cannot delete yourself from the regatta.");
+	$button->set("disabled", "disabled");
+	$button->set("title", "You cannot delete yourself from the regatta.");
       }
 
       // Fill row
-      $tab->addRow(new Row(array(new Cell(new Link("mailto:" . $s->id, $s->getName())),
-				 new Cell($s->school->nick_name),
-				 new Cell($f2)))); 
+      $tab->addRow(array(new XA("mailto:" . $s->id, $s->getName()), $s->school->nick_name, $f2));
     }
     if (count($scorers) == 1) {
-      $button->addAttr("disabled", "disabled");
-      $button->addAttr("title", "You cannot delete the only scorer in the regatta.");
+      $button->set("disabled", "disabled");
+      $button->set("title", "You cannot delete the only scorer in the regatta.");
     }
 
     // Form to add scorers
-    $this->PAGE->addContent($p = new Port("Add scorers"));
+    $this->PAGE->addContent($p = new XPort("Add scorers"));
     $p->addHelp("node9.html#SECTION00522100000000000000");
-    $p->addChild($s_form = $this->createForm());
+    $p->add($s_form = $this->createForm());
     // Conferences
     //   -Get chosen_conference
     $chosen_conf = (isset($args['conference'])) ? 
@@ -73,34 +68,27 @@ class ScorersPane extends AbstractPane {
     foreach (Preferences::getConferences() as $conf)
       $confs[$conf->id] = $conf;
         
-    $s_form->addChild($fi = new FItem("Conference:",
-				      $sel = new FSelect("conference", array($chosen_conf->id))));
-    $sel->addOptions($confs);
-    $sel->addAttr("onchange","submit('this')");
+    $s_form->add($fi = new FItem("Conference:", $sel = XSelect::fromArray('conference', $confs, $chosen_conf->id)));
+    $sel->set("onchange","submit('this')");
 
     // Add accessible submit button
-    $fi->addChild(new FSubmitAccessible("update_conf"));
+    $fi->add(new XSubmitAccessible("update_conf", "Update"));
 
     // Accounts form
-    $p->addChild($s_form = $this->createForm());
+    $p->add($s_form = $this->createForm());
 
     // Get accounts for this conference
     $accounts = Preferences::getUsersFromConference($chosen_conf);
     if (count($accounts) > 0) {
-      $s_form->addChild(new FItem("Account:", $sel = new FSelect("account[]", array())));
-      $sel->addAttr("multiple","multiple");
-      $sel->addAttr("size", 10);
-      $pot_scorers = array();
-
+      $s_form->add(new FItem("Account:", $sel = new XSelectM("account[]", array('size'=>10))));
       foreach ($accounts as $user) {
 	if (!isset($scorers[$user->id]))
-	  $pot_scorers[$user->id] = sprintf('%s, %s', $user->last_name, $user->first_name);
+	  $sel->add(new FOption($user->id, sprintf('%s, %s', $user->last_name, $user->first_name)));
       }
-      $sel->addOptions($pot_scorers);
-      $s_form->addChild(new FSubmit("add_scorer", "Add scorers"));
+      $s_form->add(new XSubmitInput("add_scorer", "Add scorers"));
     }
     else
-      $s_form->addChild(new Para("There are no accounts left to register in this conference Please try a different one.", array('class'=>'message')));
+      $s_form->add(new XMessage("There are no accounts left to register in this conference Please try a different one."));
     
   }
 

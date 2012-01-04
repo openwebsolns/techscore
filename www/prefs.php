@@ -5,7 +5,11 @@
  * @author Dayan Paez
  * @created 2010-03-05
  */
-require_once('../lib/conf.php');
+
+require_once('conf.php');
+require_once('xml/Announcement.php');
+require_once('tscore/WebServer.php');
+
 session_start();
 
 //
@@ -16,8 +20,9 @@ if (!(isset($_SESSION['user']))) {
 
   // provide the login page
   $_SESSION['ANNOUNCE'][] = new Announcement("Please login to proceed.", Announcement::WARNING);
+  require_once('xml/WelcomePage.php');
   $PAGE = new WelcomePage();
-  $PAGE->printHTML();
+  $PAGE->printXML();
   exit;
 }
 $USER = null;
@@ -57,23 +62,27 @@ if (!isset($schools[$SCHOOL->id])) {
 //
 if (!isset($_REQUEST['p'])) {
   // Go home by default
+  require_once('prefs/PrefsHomePane.php');
   $PAGE = new PrefsHomePane($USER, $SCHOOL);
 }
 else {
   switch ($_REQUEST['p']) {
   case "home":
+    require_once('prefs/PrefsHomePane.php');
     $PAGE = new PrefsHomePane($USER, $SCHOOL);
     break;
 
     // --------------- LOGO --------------- //
   case "logo":
   case "burgee":
+    require_once('prefs/EditLogoPane.php');
     $PAGE = new EditLogoPane($USER, $SCHOOL);
     break;
 
     // --------------- SAILOR ------------- //
   case "sailor":
   case "sailors":
+    require_once('prefs/SailorMergePane.php');
     $PAGE = new SailorMergePane($USER, $SCHOOL);
     break;
 
@@ -82,6 +91,7 @@ else {
   case "teams":
   case "name":
   case "names":
+    require_once('prefs/TeamNamePrefsPane.php');
     $PAGE = new TeamNamePrefsPane($USER, $SCHOOL);
     break;
 

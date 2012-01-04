@@ -24,9 +24,9 @@ input, select {font-size:1em;padding:0.15em}
 #headdiv h4 {float:left;color:white;font-size:0.9em;font-weight:normal;padding:10px 5px;margin:0;border-left:1px solid #457dc4;}
 h4#regatta {font-weight:bold;}
 #help {float:right;font-size:0.8em;cursor:help;text-decoration:none;margin-top:10px;margin-right:10px;padding:0.2em;background:#f3ebe0;border:1px outset #555555;}
-#user {float:right;color:#eeeeee;font-size:0.8em;margin-right:120px;margin-top:10px;}
+#logout {float:right;color:#eeeeee;font-size:0.8em;margin-right:120px;margin-top:10px;}
 #user ul {margin:0px;margin-left:-2em;margin:white;display:none;}
-#user a {text-decoration:none;background:#f3ebe0;border:1px outset #555555;padding:0.2em;position:absolute;right:60px;top:10px;font-size:1em;}
+#logout a {text-decoration:none;background:#f3ebe0;border:1px outset #555555;padding:0.2em;position:absolute;right:60px;top:10px;font-size:1em;}
 #regatta {float:right;color:#eeeeee;font-size:0.8em;margin-right:10px;padding-right:10px;margin-top:10px;}
 #regatta ul {margin:0px;margin-left:-2em;margin:white;display:none;}
 #regatta a {position:absolute;right:5px;top:45px;height:24px;text-align:right;padding-right:16px;background-image:url('../../img/error.png');background-repeat:no-repeat;background-position:100% 2px;z-index:25;}

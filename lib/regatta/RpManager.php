@@ -137,8 +137,8 @@ class RpManager {
    */
   public function hasGender($gender) {
     $q = sprintf('select id from rp where race in (select id from race where regatta = "%s") and sailor in (select id from sailor where gender = "%s")', $this->regatta->id(), $gender);
-
     $r = $this->regatta->query($q);
+    
     $b = ($r->num_rows > 0);
     $r->free();
     return $b;

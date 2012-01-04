@@ -359,7 +359,7 @@ class MySQLi_Query {
     $values = '';
     foreach ($the_values as $instance) {
       if ($v_i++ > 0)
-	  $values .= ',';
+	$values .= ',';
       $s_i = 0;
       $values .= '(';
       foreach ($instance as $unit) {

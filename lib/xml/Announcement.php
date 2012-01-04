@@ -6,15 +6,14 @@
  * @package xml
  */
 
-require_once('conf.php');
-__autoload('XmlLibrary');
+require_once('xml5/TS.php');
 
 /**
  * Encapsulates an announcement, which constitutes a message and a
  * message type.
  *
  */
-class Announcement extends Para {
+class Announcement extends XP {
 
   private $message;
   private $type;
@@ -24,26 +23,26 @@ class Announcement extends Para {
   const WARNING = "warning";
 
   public function __construct($message, $type = null) {
-    parent::__construct("");
+    parent::__construct();
     if (!$type) $type = self::VALID;
     $img = null;
     switch ($type) {
     case "valid":
-      $img = new Image("/img/check.png", array("alt"=>"Check!"));
+      $img = new XImg("/img/check.png", "Check!");
       break;
 
     case "error":
-      $img = new Image("/img/error.png", array("alt"=>"Error!"));
+      $img = new XImg("/img/error.png", "Error!");
       break;
 
     default:
-      $img = new Image("/img/warn.png",  array("alt"=>"Warning"));
+      $img = new XImg("/img/warn.png",  "Warning");
     }
-    $this->addChild($img);
-    $this->addChild(new Text($message));
+    $this->add($img);
+    $this->add($message);
     $this->message = $message;
     $this->type    = $type;
-    $this->addAttr('class', $type);
+    $this->set('class', $type);
   }
 
   /**

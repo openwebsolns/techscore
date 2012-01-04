@@ -5,7 +5,7 @@
  * @package users
  */
 
-require_once('conf.php');
+require_once('xml/WelcomePage.php');
 
 /**
  * Allows a user to reset their password. The process requires sending
@@ -27,14 +27,14 @@ class PasswordRecoveryPane extends WelcomePage {
 	$_SESSION['ANNOUNCE'][] = new Announcement("Invalid account to reset.", Announcement::ERROR);
 	return $args;
       }
-      $this->addContent(new PageTitle("Recover Password"));
-      $this->addContent($p = new Port("Reset password"));
-      $p->addChild($f = new Form("/password-recover-edit"));
-      $f->addChild(new Para("Welcome $acc. Please enter the new password for your account."));
-      $f->addChild(new FItem("New Password:", new FPassword('new-password', "")));
-      $f->addChild(new FItem("Confirm Password:", new FPassword('confirm-password', "")));
-      $f->addChild(new FHidden('acc', trim($_GET['acc'])));
-      $f->addChild(new FSubmit('reset-password', "Reset password"));
+      $this->addContent(new XPageTitle("Recover Password"));
+      $this->addContent($p = new XPort("Reset password"));
+      $p->add($f = new XForm("/password-recover-edit", XForm::POST));
+      $f->add(new XP(array(), "Welcome $acc. Please enter the new password for your account."));
+      $f->add(new FItem("New Password:", new XPasswordInput('new-password', "")));
+      $f->add(new FItem("Confirm Password:", new XPasswordInput('confirm-password', "")));
+      $f->add(new XHiddenInput('acc', trim($_GET['acc'])));
+      $f->add(new XSubmitInput('reset-password', "Reset password"));
       return;
     }
 
@@ -43,22 +43,22 @@ class PasswordRecoveryPane extends WelcomePage {
     // ------------------------------------------------------------
     if (isset($_SESSION['password-recovery-sent'])) {
       unset($_SESSION['password-recovery-sent']);
-      $this->addContent(new PageTitle("Recover Password"));
-      $this->addContent($p = new Port("Message sent"));
-      $p->addChild(new Para("Message sent. Please check your e-mail and follow the directions provided."));
+      $this->addContent(new XPageTitle("Recover Password"));
+      $this->addContent($p = new XPort("Message sent"));
+      $p->add(new XP(array(), "Message sent. Please check your e-mail and follow the directions provided."));
       return;
     }
 
     // ------------------------------------------------------------
     // 3. Default: request message
     // ------------------------------------------------------------
-    $this->addContent(new PageTitle("Recover Password"));
-    $this->addContent($p = new Port("Send e-mail"));
-    $p->addChild(new Para("To reset the password, please enter your username below. You will receive an e-mail at the address provided with a link. Click that link to reset your password."));
+    $this->addContent(new XPageTitle("Recover Password"));
+    $this->addContent($p = new XPort("Send e-mail"));
+    $p->add(new XP(array(), "To reset the password, please enter your username below. You will receive an e-mail at the address provided with a link. Click that link to reset your password."));
     
-    $p->addChild($f = new Form("/password-recover-edit"));
-    $f->addChild(new FItem("Email:", new FText("email", "")));
-    $f->addChild(new FSubmit("send-message", "Send message"));
+    $p->add($f = new XForm("/password-recover-edit", XForm::POST));
+    $f->add(new FItem("Email:", new XTextInput("email", "")));
+    $f->add(new XSubmitInput("send-message", "Send message"));
   }
 
   public function process(Array $args) {

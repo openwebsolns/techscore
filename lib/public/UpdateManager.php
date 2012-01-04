@@ -5,6 +5,8 @@
  * @package scripts
  */
 
+require_once('public/UpdateRequest.php');
+
 /**
  * Database connectivity for the purpose of updating the public site.
  *
