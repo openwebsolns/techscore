@@ -7,10 +7,7 @@
    * @created 2009-11-30
    */
 
-session_start();
-
 require_once('conf.php');
-require_once('xml/Announcement.php');
 require_once('tscore/WebServer.php');
 
 //

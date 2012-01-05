@@ -8,7 +8,6 @@
  */
 
 require_once('../lib/conf.php');
-session_start();
 
 //
 // Is logged-in

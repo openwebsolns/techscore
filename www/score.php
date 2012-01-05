@@ -5,10 +5,7 @@
  */
 
 require_once('conf.php');
-require_once('xml/Announcement.php');
 require_once('tscore/WebServer.php');
-
-session_start();
 
 //
 // Is logged-in

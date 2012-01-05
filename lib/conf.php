@@ -86,4 +86,11 @@ define("LOG_UPDATE",   realpath(dirname(__FILE__).'/../log/update.log'));
 define("LOG_SEASON",   realpath(dirname(__FILE__).'/../log/season.log'));
 define("LOG_SCHOOL",   realpath(dirname(__FILE__).'/../log/school.log'));
 define("LOG_FRONT",    realpath(dirname(__FILE__).'/../log/front.log'));
+
+// Start the session, if run from the web
+if (isset($_SERVER['HTTP_HOST'])) {
+  require_once('xml5/Session.php');
+  require_once('xml/Announcement.php');
+  Session::init();
+}
 ?>
