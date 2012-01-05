@@ -25,6 +25,7 @@ class Update404 {
   }
 
   private function fillSchools() {
+    require_once('xml5/TPublicPage.php');
     $this->page = new TPublicPage('404: School page not found');
 
     // SETUP navigation
@@ -66,6 +67,7 @@ class Update404 {
       return;
     }
 
+    require_once('xml5/TPublicPage.php');
     $this->page = new TPublicPage('404: Page not found');
 
     // SETUP navigation
