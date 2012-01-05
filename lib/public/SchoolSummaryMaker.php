@@ -7,6 +7,8 @@
  * @package scripts
  */
 
+require_once('xml5/TPublicPage.php');
+
 /**
  * Creates the school's summary page for the given school. Such a page
  * contains a port with information about the school's participation
