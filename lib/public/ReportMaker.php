@@ -7,6 +7,9 @@
  * @package scripts
  */
 
+require_once('xml5/TScoresTables.php');
+require_once('tscore/RotationDialog.php');
+
 /**
  * Creates the report page for the given regatta
  *

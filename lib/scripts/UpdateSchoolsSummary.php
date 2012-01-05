@@ -70,7 +70,6 @@ class UpdateSchoolsSummary {
 }
 
 if (isset($argv) && basename($argv[0]) == basename(__FILE__)) {
-  $_SERVER['HTTP_HOST'] = 'cli';
   require_once(dirname(__FILE__) . '/../conf.php');
 
   UpdateSchoolsSummary::run();

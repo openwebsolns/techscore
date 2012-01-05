@@ -81,7 +81,6 @@ class UpdateBurgee {
 // ------------------------------------------------------------
 // When run as a script
 if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  $_SERVER['HTTP_HOST'] = $argv[0];
   ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
   require_once('conf.php');
   try {

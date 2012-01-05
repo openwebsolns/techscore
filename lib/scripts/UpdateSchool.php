@@ -30,6 +30,7 @@ class UpdateSchool {
     if ((string)$today == (string)$season)
       $current = true;
 
+    require_once('public/SchoolSummaryMaker.php');
     $filename = "$dirname/$base.html";
     $M = new SchoolSummaryMaker($school, $season);
     if (file_put_contents($filename, $M->getPage()) === false)
@@ -59,7 +60,6 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   }
 
   // SETUP PATHS and other CONSTANTS
-  $_SERVER['HTTP_HOST'] = $argv[0];
   ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
   require_once('conf.php');
 

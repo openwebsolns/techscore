@@ -158,6 +158,7 @@ class UpdateDaemon {
     $seasons = array();  // set of seasons affected
     $schools = array();  // list of unique schools
 
+    require_once('scripts/UpdateRegatta.php');
     foreach ($regattas as $id => $requests) {
       $actions = UpdateRequest::getTypes();
       while (count($requests) > 0) {
@@ -206,6 +207,7 @@ class UpdateDaemon {
     self::$REGATTA = null;
 
     // Deal now with each affected season.
+    require_once('scripts/UpdateSeason.php');
     $current = new Season(new DateTime());
     foreach ($seasons as $season) {
       UpdateSeason::run($season);
@@ -214,6 +216,8 @@ class UpdateDaemon {
 
       // Deal with home page
       if ((string)$season == (string)$current) {
+	require_once('scripts/UpdateFront.php');
+	require_once('scripts/Update404.php');
 	UpdateFront::run();
 	Update404::run();
 	self::report('generate front and 404 page');
@@ -221,6 +225,7 @@ class UpdateDaemon {
     }
 
     // Deal with affected schools
+    require_once('scripts/UpdateSchool.php');
     foreach ($schools as $school) {
       UpdateSchool::run($school, new Season(new DateTime()));
       self::report(sprintf('generated school (%s) %s', $school->id, $school->nick_name));
@@ -254,9 +259,9 @@ class UpdateDaemon {
 // ------------------------------------------------------------
 // When run as a script
 if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  $_SERVER['HTTP_HOST'] = $argv[0];
   ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
   require_once('conf.php');
+  require_once('public/UpdateManager.php');
 
   $opts = getopt('vl');
   // ------------------------------------------------------------

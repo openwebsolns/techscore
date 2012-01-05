@@ -7,6 +7,8 @@
 
 require_once(dirname(__FILE__).'/../conf.php');
 require_once('mysqli/DB.php');
+require_once('public/ReportMaker.php');
+require_once('xml5/TPublicPage.php');
 DBME::setConnection(Preferences::getConnection());
 
 /**
@@ -481,7 +483,6 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
     exit(1);
   }
   // SETUP PATHS and other CONSTANTS
-  $_SERVER['HTTP_HOST'] = $argv[0];
   ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
   require_once('conf.php');
 

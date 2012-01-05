@@ -16,7 +16,8 @@ class UpdateFront {
 
   private function fill() {
     if ($this->page !== null) return;
-    
+
+    require_once('xml5/TPublicFrontPage.php');
     $this->page = new TPublicFrontPage();
 
     // Get current season's coming regattas
@@ -160,7 +161,6 @@ class UpdateFront {
 // When run as a script
 if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
   // SETUP PATHS and other CONSTANTS
-  $_SERVER['HTTP_HOST'] = 'cli';
   ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
   require_once('conf.php');
 

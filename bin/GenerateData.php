@@ -15,7 +15,6 @@ ini_set('memory_limit', '128M');
 ini_set('output_buffering', '16384');
 error_reporting(E_ALL | E_STRICT);
 
-$_SERVER['HTTP_HOST'] = 'cli';
 require_once('conf.php');
 
 array_shift($argv);

@@ -488,7 +488,6 @@ class TScoresTables {
 }
 
 if (isset($argv) && basename(__FILE__) == basename($argv[0])) {
-  $_SERVER['HTTP_HOST'] = 'cli';
   require_once('../conf.php');
   require_once('mysqli/DB.php');
   DBME::setConnection(Preferences::getConnection());
