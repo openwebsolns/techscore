@@ -14,7 +14,7 @@ require_once("tscore/WebServer.php");
 // ------------------------------------------------------------
 // Not logged-in?
 // ------------------------------------------------------------
-if (!(isset($_SESSION['user']))) {
+if (!Session::has('user')) {
   // Registration?
   if (isset($_GET['p'])) {
     switch ($_GET['p']) {
@@ -60,10 +60,10 @@ if (!(isset($_SESSION['user']))) {
 // ------------------------------------------------------------
 $USER = null;
 try {
-  $USER = new User($_SESSION['user']);
+  $USER = new User(Session::g('user'));
 }
 catch (Exception $e) {
-  unset($_SESSION['user']);
+  Session::s('user', null);
   WebServer::go('/');
 }
 

@@ -343,7 +343,7 @@ class Preferences {
    * this field in the school object for the new value. If null,
    * updates the entire record
    */
-  public static function updateSchool(School $school, $field = null) {
+  public static function updateSchool(School $school, $field = null, $user = "") {
     if ($field != null && $field != "burgee")
       $q = sprintf('update school set %s = "%s" where id = "%s"',
 		   $field, $school->$field, $school->id);
@@ -353,7 +353,7 @@ class Preferences {
 		   $school->id,
 		   $school->burgee->filedata,
 		   $school->burgee->last_updated->format('Y-m-d H:i:s'),
-		   $_SESSION['user']);
+		   $user);
     }
     else {
       $upd = array();

@@ -12,7 +12,7 @@ require_once('../lib/conf.php');
 //
 // Is logged-in
 //
-if (!(isset($_SESSION['user']))) {
+if (!Session::has('user')) {
   $_SESSION['last_page'] = $_SERVER['REQUEST_URI'];
 
   // provide the login page

@@ -10,7 +10,7 @@ require_once('tscore/WebServer.php');
 //
 // Is logged-in
 //
-if (!(isset($_SESSION['user']))) {
+if (!Session::has('user')) {
   $_SESSION['last_page'] = preg_replace(':^/edit/:', '/', $_SERVER['REQUEST_URI']);
 
   // provide the login page
@@ -22,11 +22,12 @@ if (!(isset($_SESSION['user']))) {
 }
 $USER = null;
 try {
-  $USER = new User($_SESSION['user']);
+  $USER = new User(Session::g('user'));
   AccountManager::requireActive($USER);
 }
 catch (Exception $e) {
   $_SESSION['last_page'] = $_SERVER['REQUEST_URI'];
+  Session::s('user', null);
   WebServer::go('/');
 }
 

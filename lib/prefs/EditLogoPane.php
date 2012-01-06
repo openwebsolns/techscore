@@ -93,7 +93,7 @@ class EditLogoPane extends AbstractUserPane {
     $this->SCHOOL->burgee = new Burgee();
     $this->SCHOOL->burgee->filedata = base64_encode(file_get_contents($th));
     $this->SCHOOL->burgee->last_updated = new DateTime("now");
-    Preferences::updateSchool($this->SCHOOL, "burgee");
+    Preferences::updateSchool($this->SCHOOL, "burgee", Session::g('user'));
     Session::pa(new PA("Updated school logo."));
 
     // Notify, this needs to change!

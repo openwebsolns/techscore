@@ -134,8 +134,8 @@ class TScorePage extends XPage {
     $this->header->add($div = new XDiv(array('id'=>'header'),
 				       array(new XH1(new XImg("/img/techscore.png", "TechScore", array("id"=>"headimg"))))));
     $div->add(new XH4(date("M j, Y"), array("id"=>"date")));
-    if (isset($_SESSION['user']))
-      $div->add(new XH4($_SESSION['user'], array("id"=>"user")));
+    if (Session::has('user'))
+      $div->add(new XH4(Session::g('user'), array("id"=>"user")));
     
     $this->header->add($this->navigation);
     $this->navigation->add($a = new XA(HELP_HOME, new XSpan("H", array('style'=>"text-decoration:underline")),

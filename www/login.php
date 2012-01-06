@@ -14,7 +14,7 @@ require_once('tscore/WebServer.php');
 // Log-out
 //
 if (isset($_REQUEST['dir']) && $_REQUEST['dir'] == "out") {
-  unset($_SESSION['user']);
+  Session::s('user', null);
   session_destroy();
   WebServer::go('/');
 }
@@ -28,7 +28,7 @@ $passwd = (isset($_POST['pass']))   ? $_POST['pass'] : WebServer::goBack();
 
 $user = AccountManager::approveUser($userid, $passwd);
 if ($user !== null) {
-  $_SESSION['user'] = $user->username();
+  Session::s('user', $user->username());
 }
 
 $def = (isset($_SESSION['last_page'])) ? $_SESSION['last_page'] : ".";
