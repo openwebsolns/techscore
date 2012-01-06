@@ -134,14 +134,5 @@ class TScoreDialog extends XPage {
   public function addNavigation(Xmlable $elem) {
     $this->navigation->add($elem);
   }
-
-  /**
-   * Adds the given announcement to the page
-   *
-   * @param Announce $elem the announcement to add
-   */
-  public function addAnnouncement(Announcement $elem) {
-    $this->announce->add($elem);
-  }
 }
 ?>

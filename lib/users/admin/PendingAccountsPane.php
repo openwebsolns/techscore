@@ -86,7 +86,7 @@ class PendingAccountsPane extends AbstractAdminUserPane {
 	if (!isset($args['accounts']) ||
 	    !is_array($args['accounts']) ||
 	    empty($args['accounts'])) {
-	  $_SESSION['ANNOUNCE'][] = new Announcement("No accounts chosen.", Announcement::ERROR);
+	  $_SESSION['ANNOUNCE'][] = new PA("No accounts chosen.", PA::E);
 	  return $args;
 	}
 
@@ -105,12 +105,12 @@ class PendingAccountsPane extends AbstractAdminUserPane {
 
 	// Announce the good news
 	if ($errors > 0) {
-	  $_SESSION['ANNOUNCE'][] = new Announcement(sprintf("%s %d accounts.",
+	  $_SESSION['ANNOUNCE'][] = new PA(sprintf("%s %d accounts.",
 							     $legend[$action]["error"], $errors),
-						     Announcement::WARNING);
+						     PA::I);
 	}
 	if (count($success) > 0) {
-	  $_SESSION['ANNOUNCE'][] = new Announcement(sprintf("%s %s.",
+	  $_SESSION['ANNOUNCE'][] = new PA(sprintf("%s %s.",
 							     $legend[$action]["success"],
 							     implode(", ", $success)));
 	}

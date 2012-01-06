@@ -147,7 +147,7 @@ class SailsPane extends AbstractPane {
 	foreach ($args['division'] as $div)
 	  $chosen_div[$div] = Division::get($div);
       } catch (Exception $e) {
-	$this->announce(new Announcement("Invalid division(s) specified. Using all.", Announcement::WARNING));
+	$this->announce(new PA("Invalid division(s) specified. Using all.", PA::I));
 	$chosen_div = $divisions;
       }
     }
@@ -330,12 +330,12 @@ class SailsPane extends AbstractPane {
     }
     else {
       $mes = "Could not parse range of races.";
-      $this->announce(new Announcement($mes, Announcement::ERROR));
+      $this->announce(new PA($mes, PA::E));
       return $args;
     }
     if (count($races) == 0) {
       $mes = "No races for which to setup rotations.";
-      $this->announce(new Announcement($mes, Announcement::ERROR));
+      $this->announce(new PA($mes, PA::E));
       return $args;
     }
 
@@ -353,13 +353,13 @@ class SailsPane extends AbstractPane {
       $repeats = (int)($args['repeat']);
       if ($repeats < 1) {
 	$mes = sprintf("Changed repeats to 1 from %d.", $repeats);
-	$this->announce(new Announcement($mes, Announcement::WARNING));
+	$this->announce(new PA($mes, PA::I));
 	$repeats = 1;
       }
     }
     else {
       $mes = "Invalid or missing value for repeats.";
-      $this->announce(new Announcement($mes, Announcement::ERROR));
+      $this->announce(new PA($mes, PA::E));
       return $args;
     }
 
@@ -386,7 +386,7 @@ class SailsPane extends AbstractPane {
     }
     if (count($missing) > 0) {
       $mes = sprintf("Missing team or sail for %s.", implode(", ", $missing));
-      $this->announce(new Announcement($mes, Announcement::ERROR));
+      $this->announce(new PA($mes, PA::E));
       return $args;
     }
     // require BYE team, when applicable
@@ -394,7 +394,7 @@ class SailsPane extends AbstractPane {
       $team = new ByeTeam();
       if (!isset($args[$team->id])) {
 	$mes = "Missing BYE team.";
-	$this->announce(new Announcement($mes, Announcement::ERROR));
+	$this->announce(new PA($mes, PA::E));
 	return $args;
       }
       $sails[] = $args[$team->id];
@@ -428,13 +428,13 @@ class SailsPane extends AbstractPane {
 
     default:
       $mes = "Unsupported rotation type.";
-      $this->announce(new Announcement($mes, Announcement::ERROR));
+      $this->announce(new PA($mes, PA::E));
       return $args;
     }
 
     // reset
     UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
-    $this->announce(new Announcement("New rotation successfully created."));
+    $this->announce(new PA("New rotation successfully created."));
     unset($args['rottype']);
     $this->redirect('finishes');
   }
@@ -468,7 +468,7 @@ class SailsPane extends AbstractPane {
     }
     else {
       $mes = "Invalid or missing rotation type.";
-      $this->announce(new Announcement($mes, Announcement::ERROR));
+      $this->announce(new PA($mes, PA::E));
       return array();
     }
 
@@ -484,7 +484,7 @@ class SailsPane extends AbstractPane {
 	  $this->validateDivisions($args['division'])) {
 	if (isset($args['order'])) {
 	  if (!is_array($args['order']) || count($args['order']) != count($args['division'])) {
-	    $this->announce(new Announcement("Bad division order provided.", Announcement::ERROR));
+	    $this->announce(new PA("Bad division order provided.", PA::E));
 	    return $args;
 	  }
 	  array_multisort($args['order'], $args['division'], SORT_NUMERIC);
@@ -500,7 +500,7 @@ class SailsPane extends AbstractPane {
       }
       else {
 	$mes = "Invalid or missing division[s].";
-	$this->announce(new Announcement($mes, Announcement::ERROR));
+	$this->announce(new PA($mes, PA::E));
 	return array();
       }
     }
@@ -526,7 +526,7 @@ class SailsPane extends AbstractPane {
     }
     else {
       $mes = "Invalid or missing rotation style.";
-      $this->announce(new Announcement($mes, Announcement::ERROR));
+      $this->announce(new PA($mes, PA::E));
       return $args;
     }
 
@@ -550,13 +550,13 @@ class SailsPane extends AbstractPane {
 	$mes = sprintf("Ignored races %s in divisions %s.",
 		       Utilities::makeRange($diff),
 		       implode(", ", $divisions));
-	$this->announce(new Announcement($mes, Announcement::WARNING));
+	$this->announce(new PA($mes, PA::I));
       }
       unset($races_copy, $diff);
     }
     else {
       $mes = "Could not parse range of races.";
-      $this->announce(new Announcement($mes, Announcement::ERROR));
+      $this->announce(new PA($mes, PA::E));
       return $args;
     }
 
@@ -576,13 +576,13 @@ class SailsPane extends AbstractPane {
 	$repeats = (int)($args['repeat']);
 	if ($repeats < 1) {
 	  $mes = sprintf("Changed repeats to 1 from %d.", $repeats);
-	  $this->announce(new Announcement($mes, Announcement::WARNING));
+	  $this->announce(new PA($mes, PA::I));
 	  $repeats = 1;
 	}
       }
       else {
 	$mes = "Invalid or missing value for repeats.";
-	$this->announce(new Announcement($mes, Announcement::ERROR));
+	$this->announce(new PA($mes, PA::E));
 	return $args;
       }
 
@@ -607,7 +607,7 @@ class SailsPane extends AbstractPane {
       }
       if (count($missing) > 0) {
 	$mes = sprintf("Missing team or sail for %s.", implode(", ", $missing));
-	$this->announce(new Announcement($mes, Announcement::ERROR));
+	$this->announce(new PA($mes, PA::E));
 	return $args;
       }
 
@@ -652,7 +652,7 @@ class SailsPane extends AbstractPane {
 	  // ascertain that there are an even number of teams
 	  if (count($teams) % 2 > 0) {
 	    $mes = "There must be an even number of teams for swap rotation.";
-	    $this->announce(new Announcement($mes, Announcement::ERROR));
+	    $this->announce(new PA($mes, PA::E));
 	    return $args;
 	  }
 	  $rotation->createSwap($sails, $teams, $ordered_divs, $ordered_races, $repeats);
@@ -660,7 +660,7 @@ class SailsPane extends AbstractPane {
 
 	default:
 	  $mes = "Unsupported rotation type.";
-	  $this->announce(new Announcement($mes, Announcement::ERROR));
+	  $this->announce(new PA($mes, PA::E));
 	  return $args;
 	}
 
@@ -675,7 +675,7 @@ class SailsPane extends AbstractPane {
 	}
 
 	// Reset
-	$this->announce(new Announcement("Franny-style rotation successfully created."));
+	$this->announce(new PA("Franny-style rotation successfully created."));
 	unset($args);
 	$this->redirect('finishes');
       }
@@ -712,7 +712,7 @@ class SailsPane extends AbstractPane {
 	// ascertain that there are an even number of teams
 	if (count($teams) % 2 > 0) {
 	  $mes = "There must be an even number of teams for swap rotation.";
-	  $this->announce(new Announcement($mes, Announcement::ERROR));
+	  $this->announce(new PA($mes, PA::E));
 	  return $args;
 	}
 	$rotation->createSwap($sails, $teams, $ordered_divs, $ordered_races, $repeats);
@@ -720,7 +720,7 @@ class SailsPane extends AbstractPane {
 	
       default:
 	$mes = "Unsupported rotation type.";
-	$this->announce(new Announcement($mes, Announcement::ERROR));
+	$this->announce(new PA($mes, PA::E));
 	return $args;
       }
 
@@ -728,7 +728,7 @@ class SailsPane extends AbstractPane {
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       $a = new XA(sprintf('/view/%s/rotation', $this->REGATTA->id()), "View");
       $a->set('target', '_blank');
-      $this->announce(new Announcement("New rotation successfully created. " . $a->toXML() . "."));
+      $this->announce(new PA("New rotation successfully created. " . $a->toXML() . "."));
       unset($args['rottype']);
       $this->redirect('finishes');
     }
@@ -751,7 +751,7 @@ class SailsPane extends AbstractPane {
       }
       else {
 	$mes = sprintf("Invalid division to offset from (%s).", $args['from_div']);
-	$this->announce(new Announcement($mes, Announcement::ERROR));
+	$this->announce(new PA($mes, PA::E));
 	return $args;
       }
 
@@ -762,7 +762,7 @@ class SailsPane extends AbstractPane {
       }
       else {
 	$mes = sprintf("Invalid offset amount (%s)", $args['offset']);
-	$this->announce(new Announcement($mes, Announcement::ERROR));
+	$this->announce(new PA($mes, PA::E));
 	return $args;
       }
 
@@ -776,7 +776,7 @@ class SailsPane extends AbstractPane {
 
       // Reset
       unset($args['rottype']);
-      $this->announce(new Announcement('Offset rotation created.'));
+      $this->announce(new PA('Offset rotation created.'));
     }
 
     return $args;

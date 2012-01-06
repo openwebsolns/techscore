@@ -71,13 +71,13 @@ class EditLogoPane extends AbstractUserPane {
     // Check that file was uploaded
     if ($_FILES["logo_file"]["error"] > 0) {
       $mes = 'Error while uploading file. Please try again.';
-      $this->announce(new Announcement($mes, Announcement::ERROR));
+      $this->announce(new PA($mes, PA::E));
       return;
     }
 
     // Check size
     if ($_FILES["logo_file"]["size"] > 200000) {
-      $this->announce(new Announcement("File is too large.", Announcement::ERROR));
+      $this->announce(new PA("File is too large.", PA::E));
       return;
     }
 
@@ -85,7 +85,7 @@ class EditLogoPane extends AbstractUserPane {
     $th = $_FILES["logo_file"]["tmp_name"].".thumb";
     $tn = new Thumbnailer(100, 100);
     if (!$tn->resize($_FILES["logo_file"]["tmp_name"], $th)) {
-      $this->announce(new Announcement("Invalid image file.", Announcement::ERROR));
+      $this->announce(new PA("Invalid image file.", PA::E));
       return;
     }
 
@@ -94,7 +94,7 @@ class EditLogoPane extends AbstractUserPane {
     $this->SCHOOL->burgee->filedata = base64_encode(file_get_contents($th));
     $this->SCHOOL->burgee->last_updated = new DateTime("now");
     Preferences::updateSchool($this->SCHOOL, "burgee");
-    $this->announce(new Announcement("Updated school logo."));
+    $this->announce(new PA("Updated school logo."));
 
     // Notify, this needs to change!
   }

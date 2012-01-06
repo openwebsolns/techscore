@@ -59,7 +59,7 @@ class ScorersPane extends AbstractPane {
       $this->USER->get(User::SCHOOL)->conference;
 
     if ($chosen_conf === null) {
-      $this->announce(new Announcement("Invalid conference chosen. Defaulting to your own.", Announcement::WARNING));
+      $this->announce(new PA("Invalid conference chosen. Defaulting to your own.", PA::I));
       $chosen_conf = $this->USER->get(User::SCHOOL)->conference;
     }
       
@@ -100,7 +100,7 @@ class ScorersPane extends AbstractPane {
     if (isset($args['conference']) && is_numeric($args['conference'])) {
       if (!($conf = Preferences::getConference((int)$args['conference']))) {
 	unset($args['conference']);
-	$this->announce(new Announcement("Invalid conference", Announcement::ERROR));
+	$this->announce(new PA("Invalid conference", PA::E));
       }
       else {
 	$args['conference'] = $conf;
@@ -116,11 +116,11 @@ class ScorersPane extends AbstractPane {
       if ($account !== null && $account->id !== $this->USER->username()) {
 	$this->REGATTA->removeScorer($account);
 	$mes = sprintf("Removed scorer %s.", $account->getName());
-	$this->announce(new Announcement($mes));
+	$this->announce(new PA($mes));
       }
       else {
 	$mes = sprintf("Invalid scorer username (%s).", $args['scorer']);
-	$this->announce(new Announcement($mes, Announcement::ERROR));
+	$this->announce(new PA($mes, PA::E));
       }
     }
 
@@ -145,11 +145,11 @@ class ScorersPane extends AbstractPane {
       }
       if (count($success) > 0) {
 	$mes = sprintf('Added scorer(s) %s.', implode(", ", $success));
-	$this->announce(new Announcement($mes));
+	$this->announce(new PA($mes));
       }
       if (count($errors) > 0) {
 	$mes = sprintf('Invalid scorer username(s) (%s).', implode(", ", $errors));
-	$this->announce(new Announcement($mes, Announcement::ERROR));
+	$this->announce(new PA($mes, PA::E));
       }
     }
     return $args;

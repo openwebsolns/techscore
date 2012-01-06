@@ -85,7 +85,7 @@ class NotesPane extends AbstractPane {
 	$race = $this->REGATTA->getRace($race->division, $race->number);
       } catch (Exception $e) {
 	$mes = sprintf("Invalid or missing race chosen (%s).", $args['chosen_race']);
-	$this->announce(new Announcement($mes, Announcement::ERROR));
+	$this->announce(new PA($mes, PA::E));
 	return false;
       }
 
@@ -96,7 +96,7 @@ class NotesPane extends AbstractPane {
 	$mes = addslashes($args['observation']);
       }
       else {
-	$this->announce(new Announcement("No observation found.", Announcement::ERROR));
+	$this->announce(new PA("No observation found.", PA::E));
 	return false;
       }
 
@@ -107,7 +107,7 @@ class NotesPane extends AbstractPane {
 	$observer = addslashes($args['observer']);
       }
       else {
-	$this->announce(new Announcement("No observer included.", Announcement::ERROR));
+	$this->announce(new PA("No observer included.", PA::E));
 	return false;
       }
 
@@ -117,7 +117,7 @@ class NotesPane extends AbstractPane {
       $note->race        = $race;
       $this->REGATTA->addNote($note);
 
-      $this->announce(new Announcement(sprintf("Observation from %s recorded.", $note->observer)));
+      $this->announce(new PA(sprintf("Observation from %s recorded.", $note->observer)));
     }
 
     
@@ -130,11 +130,11 @@ class NotesPane extends AbstractPane {
 						      "id",
 						      $args['observation'])) != null) {
 	$this->REGATTA->deleteNote($note);
-	$this->announce(new Announcement(sprintf("Deleted observation from %s.", $note->observer)));
+	$this->announce(new PA(sprintf("Deleted observation from %s.", $note->observer)));
       }
       else {
 	$mes = sprintf("Invalid or missing observation (%s).", $args['observation']);
-	$this->announce(new Announcement($mes, Announcement::ERROR));
+	$this->announce(new PA($mes, PA::E));
 	$this->redirect();
       }
     }

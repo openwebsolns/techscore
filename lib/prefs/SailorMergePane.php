@@ -109,13 +109,13 @@ class SailorMergePane extends AbstractUserPane {
       }
     }
     if (count($affected) > 0) {
-      $this->announce(new Announcement(sprintf("Affected %s regattas retroactively.", count($affected))));
+      $this->announce(new PA(sprintf("Affected %s regattas retroactively.", count($affected))));
     }
     if ($replaced > 0) {
-      $this->announce(new Announcement("Updated $replaced temporary sailor(s)."));
+      $this->announce(new PA("Updated $replaced temporary sailor(s)."));
     }
     else {
-      $this->announce(new Announcement("No sailors updated.", Announcement::WARNING));
+      $this->announce(new PA("No sailors updated.", PA::I));
     }
   }
 }

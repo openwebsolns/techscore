@@ -29,7 +29,7 @@ if (!(isset($_SESSION['user']))) {
       break;
 
     case 'home':
-      $_SESSION['ANNOUNCE'][] = new Announcement("Please login to proceed.", Announcement::WARNING);
+      $_SESSION['ANNOUNCE'][] = new PA("Please login to proceed.", PA::I);
       require_once('xml/WelcomePage.php');
       $PAGE = new WelcomePage();
       $PAGE->printXML();
@@ -39,7 +39,7 @@ if (!(isset($_SESSION['user']))) {
       $_SESSION['last_page'] = preg_replace(':^/edit/:', '/', $_SERVER['REQUEST_URI']);
 
       // provide the login page
-      $_SESSION['ANNOUNCE'][] = new Announcement("Please login to proceed.", Announcement::WARNING);
+      $_SESSION['ANNOUNCE'][] = new PA("Please login to proceed.", PA::I);
       require_once('xml/WelcomePage.php');
       $PAGE = new WelcomePage();
       $PAGE->printXML();
@@ -153,8 +153,8 @@ else {
   break;
 
   default:
-    $_SESSION['ANNOUNCE'][] = new Announcement(sprintf("Invalid page requested (%s).", $_REQUEST['p']),
-					       Announcement::ERROR);
+    $_SESSION['ANNOUNCE'][] = new PA(sprintf("Invalid page requested (%s).", $_REQUEST['p']),
+					       PA::E);
     WebServer::go('/');
   }
 }

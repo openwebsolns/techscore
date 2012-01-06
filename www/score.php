@@ -14,7 +14,7 @@ if (!(isset($_SESSION['user']))) {
   $_SESSION['last_page'] = preg_replace(':^/edit/:', '/', $_SERVER['REQUEST_URI']);
 
   // provide the login page
-  $_SESSION['ANNOUNCE'][] = new Announcement("Please login to proceed.", Announcement::WARNING);
+  $_SESSION['ANNOUNCE'][] = new PA("Please login to proceed.", PA::I);
   require_once('xml/WelcomePage.php');
   $PAGE = new WelcomePage();
   $PAGE->printXML();
@@ -41,7 +41,7 @@ try {
   $REG = new Regatta((int)$_REQUEST['reg']);
 }
 catch (Exception $e) {
-  $_SESSION['ANNOUNCE'][] = new Announcement("No such regatta.", Announcement::WARNING);
+  $_SESSION['ANNOUNCE'][] = new PA("No such regatta.", PA::I);
   WebServer::go('/');
 }
 if (!$USER->hasJurisdiction($REG)) {
@@ -57,7 +57,7 @@ if (!isset($_REQUEST['p']) &&
     !isset($_REQUEST['v']) &&
     !isset($_REQUEST['d'])) {
   $mes = "No page requested.";
-  $_SESSION['ANNOUNCE'][] = new Announcement($mes, Announcement::WARNING);
+  $_SESSION['ANNOUNCE'][] = new PA($mes, PA::I);
   WebServer::go("/score/".$REG->id());
 }
 
@@ -75,12 +75,12 @@ elseif (isset($_REQUEST['p'])) {
     $PAGE = AbstractPane::getPane($_REQUEST['p'], $USER, $REG);
     if ($PAGE === null) {
       $mes = sprintf("Invalid page requested (%s)", $_REQUEST['p']);
-      $_SESSION['ANNOUNCE'][] = new Announcement($mes, Announcement::WARNING);
+      $_SESSION['ANNOUNCE'][] = new PA($mes, PA::I);
       WebServer::go("/score/".$REG->id());
     }
     if (!$PAGE->isActive()) {
       $title = $PAGE->getTitle();
-      $_SESSION['ANNOUNCE'][] = new Announcement("$title is not available.", Announcement::WARNING);
+      $_SESSION['ANNOUNCE'][] = new PA("$title is not available.", PA::I);
       WebServer::go("/score/".$REG->id());
     }
   }
@@ -101,7 +101,7 @@ elseif (isset($_REQUEST['v'])) {
   if (empty($_REQUEST['v'])) {
     require_once('tscore/RotationDialog.php');
     $mes = "No dialog selected, defaulting to Rotation.";
-    $_SESSION['ANNOUNCE'][] = new Announcement($mes, Announcement::WARNING);
+    $_SESSION['ANNOUNCE'][] = new PA($mes, PA::I);
     $PAGE = new RotationDialog($REG);
   }
   else {
@@ -143,7 +143,7 @@ elseif (isset($_REQUEST['v'])) {
 	require_once('tscore/ScoresDivisionDialog.php');
 	$PAGE = new ScoresDivisionDialog($REG, new Division($div));
       } catch (Exception $e) {
-	$_SESSION['ANNOUNCE'][] = new Announcement($e->getMessage(), Announcement::WARNING);
+	$_SESSION['ANNOUNCE'][] = new PA($e->getMessage(), PA::I);
 	$PAGE = new ScoresFullDialog($REG);
       }
       break;
@@ -172,7 +172,7 @@ elseif (isset($_REQUEST['v'])) {
       // --------------- default ----------------//
     default:
       $mes = sprintf("Unknown dialog requested (%s).", $_REQUEST['v']);
-      $_SESSION['ANNOUNCE'][] = new Announcement($mes, Announcement::WARNING);
+      $_SESSION['ANNOUNCE'][] = new PA($mes, PA::I);
       WebServer::go(sprintf("/view/%d/rotation", $REG->id()));
     }
   }
@@ -185,7 +185,7 @@ else {
   $st = $REG->get(Regatta::START_TIME);
   $nn = $REG->get(Regatta::NICK_NAME);
   if (count($REG->getTeams()) == 0 || count($REG->getDivisions()) == 0) {
-    $_SESSION['ANNOUNCE'][] = new Announcement("First create teams and divisions before downloading.", Announcement::WARNING);
+    $_SESSION['ANNOUNCE'][] = new PA("First create teams and divisions before downloading.", PA::I);
     WebServer::go(sprintf('/score/%d', $REG->id()));
   }
   switch ($_REQUEST['d']) {
@@ -225,7 +225,7 @@ else {
     // --------------- default ---------------//
   default:
     $mes = sprintf("Invalid download requested (%s)", $_REQUEST['d']);
-    $_SESSION['ANNOUNCE'][] = new Announcement($mes, Announcement::WARNING);
+    $_SESSION['ANNOUNCE'][] = new PA($mes, PA::I);
     WebServer::goBack();
   }
   exit;

@@ -136,7 +136,7 @@ class RacesPane extends AbstractPane {
 	$pos_divisions = Division::getAssoc();
 	$num_divisions = (int)$args['num_divisions'];
 	if ($num_divisions < 1 || $num_divisions > count($pos_divisions)) {
-	  $this->announce(new Announcement("Invalid number of divisions.", Announcement::ERROR));
+	  $this->announce(new PA("Invalid number of divisions.", PA::E));
 	  return $args;
 	}
 	$pos_divisions_list = array_values($pos_divisions);
@@ -161,7 +161,7 @@ class RacesPane extends AbstractPane {
       if (isset($args['num_races'])) {
 	$num_races = (int)$args['num_races'];
 	if ($num_races < 1 || $num_races > 99) {
-	  $this->announce(new Announcement("Invalid number of races.", Announcement::ERROR));
+	  $this->announce(new PA("Invalid number of races.", PA::E));
 	  return $args;
 	}
 	// Add
@@ -186,7 +186,7 @@ class RacesPane extends AbstractPane {
 	}
       }
 
-      $this->announce(new Announcement("Set number of races."));
+      $this->announce(new PA("Set number of races."));
     }
 
     // ------------------------------------------------------------
@@ -214,9 +214,9 @@ class RacesPane extends AbstractPane {
 	    }
 	  }
 	  catch (Exception $e) {
-	    $this->announce(new Announcement(sprintf("Invalid division (%s) chosen for boat assignment.",
+	    $this->announce(new PA(sprintf("Invalid division (%s) chosen for boat assignment.",
 						     $d),
-					     Announcement::WARNING));
+					     PA::I));
 	  }
 	}
 	unset($args['div-value'], $args['div-boat']);
@@ -241,10 +241,10 @@ class RacesPane extends AbstractPane {
 
       if ($errors) {
 	$mes = "Not all races updated.";
-	$this->announce(new Announcement($mes, Announcement::WARNING));
+	$this->announce(new PA($mes, PA::I));
       }
       else
-	$this->announce(new Announcement("Updated races."));
+	$this->announce(new PA("Updated races."));
     }
     return array();
   }

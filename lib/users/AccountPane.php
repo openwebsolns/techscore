@@ -37,7 +37,7 @@ class AccountPane extends AbstractUserPane {
       if (isset($args['first_name'])) {
 	$name = trim($args['first_name']);
 	if (empty($name)) {
-	  $this->announce(new Announcement("First name cannot be empty.", Announcement::ERROR));
+	  $this->announce(new PA("First name cannot be empty.", PA::E));
 	  return $args;
 	}
 	$this->USER->set(User::FIRST_NAME, $name);
@@ -45,7 +45,7 @@ class AccountPane extends AbstractUserPane {
       if (isset($args['last_name'])) {
 	$name = trim($args['last_name']);
 	if (empty($name)) {
-	  $this->announce(new Announcement("Last name cannot be empty.", Announcement::ERROR));
+	  $this->announce(new PA("Last name cannot be empty.", PA::E));
 	  return $args;
 	}
 	$this->USER->set(User::LAST_NAME, $name);
@@ -54,17 +54,17 @@ class AccountPane extends AbstractUserPane {
       if (isset($args['sake1']) && isset($args['sake2']) &&
 	  !(empty($args['sake1']) && empty($args['sake2']))) {
 	if ($args['sake1'] != $args['sake2']) {
-	  $this->announce(new Announcement("The passwords do not match.", Announcement::ERROR));
+	  $this->announce(new PA("The passwords do not match.", PA::E));
 	  return $args;
 	}
 	if (strlen($args['sake1']) < 8) {
-	  $this->announce(new Announcement("The password must be at least 8 characters long.", Announcement::ERROR));
+	  $this->announce(new PA("The password must be at least 8 characters long.", PA::E));
 	  return $args;
 	}
 	AccountManager::resetPassword($this->USER, $args['sake1']);
-	$this->announce(new Announcement("Password reset."));
+	$this->announce(new PA("Password reset."));
       }
-      $this->announce(new Announcement("Information updated."));
+      $this->announce(new PA("Information updated."));
     }
     return array();
   }

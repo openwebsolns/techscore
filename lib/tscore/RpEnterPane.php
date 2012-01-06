@@ -186,14 +186,14 @@ class RpEnterPane extends AbstractPane {
       $team = $this->REGATTA->getTeam($args['chosen_team']);
       if ($team == null) {
 	$mes = sprintf("Invalid team choice (%s).", $args['chosen_team']);
-	$this->announce(new Announcement($mes, Announcement::ERROR));
+	$this->announce(new PA($mes, PA::E));
 	unset($args['chosen_team']);
 	return $args;
       }
     }
     else {
       $mes = sprintf("Missing team choice.");
-      $this->announce(new Announcement($mes, Announcement::ERROR));
+      $this->announce(new PA($mes, PA::E));
       return $args;
     }
 
@@ -221,7 +221,7 @@ class RpEnterPane extends AbstractPane {
 	  $rpManager->setRepresentative($team, $rep);
 	else {
 	  $mes = sprintf("Invalid representative ID (%s).", $args['rep']);
-	  $this->announce(new Announcement($mes, Announcement::ERROR));
+	  $this->announce(new PA($mes, PA::E));
 	}
       }
 
@@ -287,10 +287,10 @@ class RpEnterPane extends AbstractPane {
       // Announce
       if (count($errors) > 0) {
 	$mes = "Encountered these errors: " . implode(' ', $errors);;
-	$this->announce(new Announcement($mes, Announcement::WARNING));
+	$this->announce(new PA($mes, PA::I));
       }
       else {
-	$this->announce(new Announcement("RP info updated."));
+	$this->announce(new PA("RP info updated."));
       }
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RP, $team->school->id);
     }

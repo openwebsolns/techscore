@@ -97,64 +97,64 @@ class NewRegattaPane extends AbstractUserPane {
       $error = false;
       // 1. Check name
       if (!isset($args['name']) || addslashes(trim($args['name'])) == "") {
-	$_SESSION['ANNOUNCE'][] = new Announcement("Invalid (empty) name.", Announcement::ERROR);
+	$_SESSION['ANNOUNCE'][] = new PA("Invalid (empty) name.", PA::E);
 	$error = true;
       }
       // 2. Check date
       if (!isset($args['start_date']) || ($sd = strtotime($args['start_date'])) === false) {
-	$_SESSION['ANNOUNCE'][] = new Announcement("Invalid date given.", Announcement::ERROR);
+	$_SESSION['ANNOUNCE'][] = new PA("Invalid date given.", PA::E);
 	$error = true;
       }
       // 3. Check time
       if (!isset($args['start_time']) || ($st = strtotime($args['start_time'])) === false) {
-	$_SESSION['ANNOUNCE'][] = new Announcement("Invalid start time.", Announcement::ERROR);
+	$_SESSION['ANNOUNCE'][] = new PA("Invalid start time.", PA::E);
 	$error = true;
       }
       // 4. Check duration
       if (!isset($args['duration']) || $args['duration'] < 1) {
-	$_SESSION['ANNOUNCE'][] = new Announcement("Invalid duration.", Announcement::ERROR);
+	$_SESSION['ANNOUNCE'][] = new PA("Invalid duration.", PA::E);
 	$error = true;
       }
       // 5. Venue
       if (!empty($args['venue']) &&
 	  Preferences::getVenue((int)$args['venue']) === null) {
-	$_SESSION['ANNOUNCE'][] = new Announcement("Invalid venue.", Announcement::ERROR);
+	$_SESSION['ANNOUNCE'][] = new PA("Invalid venue.", PA::E);
 	$error = true;
       }
       // 6. Scoring
       $scoring = Preferences::getRegattaScoringAssoc();
       if (!isset($args['scoring']) ||
 	  !isset($scoring[$args['scoring']])) {
-	$_SESSION['ANNOUNCE'][] = new Announcement("Invalid regatta type.", Announcement::ERROR);
+	$_SESSION['ANNOUNCE'][] = new PA("Invalid regatta type.", PA::E);
 	$error = true;
       }
       // 7. Type
       $type = Preferences::getRegattaTypeAssoc();
       if (!isset($args['type']) ||
 	  !isset($type[$args['type']])) {
-	$_SESSION['ANNOUNCE'][] = new Announcement("Invalid regatta type.", Announcement::ERROR);
+	$_SESSION['ANNOUNCE'][] = new PA("Invalid regatta type.", PA::E);
 	$error = true;
       }
       // 8. Participation
       $part = Preferences::getRegattaParticipantAssoc();
       if (!isset($args['participant']) ||
 	  !isset($part[$args['participant']])) {
-	$_SESSION['ANNOUNCE'][] = new Announcement("Invalid regatta participation.", Announcement::ERROR);
+	$_SESSION['ANNOUNCE'][] = new PA("Invalid regatta participation.", PA::E);
 	$error = true;
       }
       // 9. Divisions
       if (!isset($args['num_divisions']) || $args['num_divisions'] < 1 || $args['num_divisions'] > 4) {
-	$_SESSION['ANNOUNCE'][] = new Announcement("Invalid number of divisions.", Announcement::ERROR);
+	$_SESSION['ANNOUNCE'][] = new PA("Invalid number of divisions.", PA::E);
 	$error = true;
       }
       // 10. Races
       if (!isset($args['num_races']) || $args['num_races'] < 1 || $args['num_races'] > 99) {
-	$_SESSION['ANNOUNCE'][] = new Announcement("Invalid number of races.", Announcement::ERROR);
+	$_SESSION['ANNOUNCE'][] = new PA("Invalid number of races.", PA::E);
 	$error = true;
       }
       // 11. Host(s)
       if (!isset($args['host']) || !is_array($args['host'])) {
-	$_SESSION['ANNOUNCE'][] = new Announcement("No hosts supplied.", Announcement::ERROR);
+	$_SESSION['ANNOUNCE'][] = new PA("No hosts supplied.", PA::E);
 	$error = true;
       }
       else {
@@ -166,7 +166,7 @@ class NewRegattaPane extends AbstractUserPane {
 	    $hosts[] = $school;
 	}
 	if (count($hosts) == 0) {
-	  $_SESSION['ANNOUNCE'][] = new Announcement("No valid hosts supplied.", Announcement::ERROR);
+	  $_SESSION['ANNOUNCE'][] = new PA("No valid hosts supplied.", PA::E);
 	  $error = true;
 	}
       }
@@ -206,12 +206,12 @@ class NewRegattaPane extends AbstractUserPane {
 	}
       } catch (InvalidArgumentException $e) {
 	// This should be reached ONLY because of a nick-name mismatch
-	$this->announce(new Announcement("It seems that there is already an active regatta with this name for the current season. This is likely the result of a previous regatta that was not deleted or demoted to \"Personal\" status. If you are a scorer for the other regatta, please delete it or de-activate it before creating this one. Otherwise, you may need to create the current only under a different name.", Announcement::WARNING));
+	$this->announce(new PA("It seems that there is already an active regatta with this name for the current season. This is likely the result of a previous regatta that was not deleted or demoted to \"Personal\" status. If you are a scorer for the other regatta, please delete it or de-activate it before creating this one. Otherwise, you may need to create the current only under a different name.", PA::I));
 	return $args;
       }
 				    
       // Move to new regatta
-      $this->announce(new Announcement(sprintf("Created new regatta \"%s\". Please add teams now.", $reg->get(Regatta::NAME))));
+      $this->announce(new PA(sprintf("Created new regatta \"%s\". Please add teams now.", $reg->get(Regatta::NAME))));
       WebServer::go("score/".$reg->id()."/teams");
     }
     return array();

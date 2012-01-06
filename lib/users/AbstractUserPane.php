@@ -96,19 +96,6 @@ abstract class AbstractUserPane {
   }
 
   /**
-   * Queues the given announcement with the session
-   *
-   * @param Announcement $a the announcement
-   */
-  public function announce(Announcement $a) {
-    if (isset($_SESSION)) {
-      if (!isset($_SESSION['ANNOUNCE']))
-	$_SESSION['ANNOUNCE'] = array();
-      $_SESSION['ANNOUNCE'][] = $a;
-    }
-  }
-
-  /**
    * Redirects to the given URL, or back to the referer
    *
    * @param String $url the url to go

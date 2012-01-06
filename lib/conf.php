@@ -90,7 +90,6 @@ define("LOG_FRONT",    realpath(dirname(__FILE__).'/../log/front.log'));
 // Start the session, if run from the web
 if (isset($_SERVER['HTTP_HOST'])) {
   require_once('xml5/Session.php');
-  require_once('xml/Announcement.php');
   Session::init();
 }
 ?>

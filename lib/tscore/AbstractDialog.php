@@ -13,7 +13,6 @@ abstract class AbstractDialog {
   
   // Variables
   private $name;
-  private $announce;
   protected $REGATTA;
   protected $PAGE;
 
@@ -52,16 +51,6 @@ abstract class AbstractDialog {
   }
 
   /**
-   * Add the announcements saved in session
-   */
-  private function processAnnouncements() {
-    while (count($_SESSION['ANNOUNCE']) > 0) {
-      $anc = Announcement::parse(array_shift($_SESSION['ANNOUNCE']));
-      $this->PAGE->addAnnouncement($anc);
-    }
-  }
-
-  /**
    * Prints string reprensentation of the HTML page
    *
    * @param Array $args the arguments to this page
@@ -69,19 +58,7 @@ abstract class AbstractDialog {
   final public function getHTML(Array $args) {
     $this->setupPage();
     $this->fillHTML($args);
-    if (isset($_SESSION['ANNOUNCE'])) {
-      $this->processAnnouncements();
-    }
     $this->PAGE->printXML();
-  }
-
-  /**
-   * Queues the given announcement
-   *
-   * @param Announcement $a the announcement to add
-   */
-  final public function announce(Announcement $a) {
-    $_SESSION['ANNOUNCE'][] = $a;
   }
 
   /**

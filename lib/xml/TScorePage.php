@@ -12,7 +12,7 @@ require_once('xml5/TS.php');
 /**
  * The basic HTML page for TechScore files. This page extends the
  * XPage class and sets up the necessary structure common to all the
- * pages: headers, footers, contents, and announcements.
+ * pages: headers, footers, contents.
  *
  * @author Dayan Paez
  * @version 2.0
@@ -71,7 +71,6 @@ class TScorePage extends XPage {
     $this->body->add($this->content);
 
     // Announcement
-    // Fill announcement
     $this->content->add(Session::getAnnouncements());
 
     // Footer

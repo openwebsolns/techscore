@@ -18,7 +18,6 @@ class WelcomePage extends TScorePage {
   private $navigation;
   private $menu;
   private $content;
-  private $announce;
 
   /**
    * Create a new Welcome webpage, titled "Welcome"

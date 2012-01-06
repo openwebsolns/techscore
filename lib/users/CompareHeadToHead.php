@@ -26,7 +26,7 @@ class CompareHeadToHead extends AbstractUserPane {
   private function doSailors(Array $args) {
     if (isset($args['sailor'])) {
       if (!is_array($args['sailor'])) {
-	$this->announce(new Announcement("Invalid parameter given for comparison.", Announcement::ERROR));
+	Session::pa(new PA("Invalid parameter given for comparison.", PA::E));
 	return false;
       }
       $list = $args['sailor'];
@@ -43,10 +43,10 @@ class CompareHeadToHead extends AbstractUserPane {
       if ($sailor !== null && $sailor->icsa_id !== null)
 	$sailors[] = $sailor;
       else
-	$this->PAGE->addAnnouncement(new Announcement("Invalid sailor id given ($id). Ignoring.", Announcement::WARNING));
+	Session::pa(new PA("Invalid sailor id given ($id). Ignoring.", PA::I));
     }
     if (count($sailors) < 2) {
-      $this->announce(new Announcement("Need at least two valid sailors for comparison.", Announcement::ERROR));
+      Session::pa(new PA("Need at least two valid sailors for comparison.", PA::E));
       return false;
     }
 
@@ -69,7 +69,7 @@ class CompareHeadToHead extends AbstractUserPane {
       }
     }
     if (count($conds) == 0) {
-      $this->announce(new Announcement("There are no seasons provided for comparison.", Announcement::ERROR));
+      Session::pa(new PA("There are no seasons provided for comparison.", PA::E));
       return false;
     }
 
@@ -127,7 +127,7 @@ class CompareHeadToHead extends AbstractUserPane {
 
     // are there any regattas in common?
     if (count($table) == 0) {
-      $this->announce(new Announcement(sprintf("The sailors provided (%s, %s) have not sailed head to head in any division in any of the regattas in the seasons specified.", $first_sailor, implode(", ", $sailors)), Announcement::WARNING));
+      Session::pa(new PA(sprintf("The sailors provided (%s, %s) have not sailed head to head in any division in any of the regattas in the seasons specified.", $first_sailor, implode(", ", $sailors)), PA::I));
       return false;
     }
 

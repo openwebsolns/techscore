@@ -87,7 +87,7 @@ class DropPenaltyPane extends AbstractPane {
 						      $args['r_finish']);
       if ($theFinish == null) {
 	$mes = sprintf("Invalid or missing finish ID (%s).", $args['r_finish']);
-	$this->announce(new Announcement($mes, Announcement::ERROR));
+	$this->announce(new PA($mes, PA::E));
 	return $args;
       }
       $theFinish->penalty = null;
@@ -98,7 +98,7 @@ class DropPenaltyPane extends AbstractPane {
       // Announce
       $mes = sprintf("Dropped penalty for %s in race %s.",
 		     $theFinish->team, $theFinish->race);
-      $this->announce(new Announcement($mes));
+      $this->announce(new PA($mes));
     }
     return $args;
   }

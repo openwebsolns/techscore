@@ -25,7 +25,7 @@ class CompareSailorsByRace extends AbstractUserPane {
   private function doSailors(Array $args) {
     if (isset($args['sailor'])) {
       if (!is_array($args['sailor'])) {
-	$this->announce(new Announcement("Invalid parameter given for comparison.", Announcement::ERROR));
+	Session::pa(new PA("Invalid parameter given for comparison.", PA::E));
 	return false;
       }
       $list = $args['sailor'];
@@ -42,11 +42,11 @@ class CompareSailorsByRace extends AbstractUserPane {
 	  $sailors[] = $sailor;
       }
       catch (InvalidArgumentException $e) {
-	$this->PAGE->addAnnouncement(new Announcement("Invalid sailor id given ($id). Ignoring.", Announcement::WARNING));
+	Session::pa(new PA("Invalid sailor id given ($id). Ignoring.", PA::I));
       }
     }
     if (count($sailors) < 2) {
-      $this->announce(new Announcement("Need at least two valid sailors for comparison.", Announcement::ERROR));
+      Session::pa(new PA("Need at least two valid sailors for comparison.", PA::E));
       return false;
     }
 
@@ -69,7 +69,7 @@ class CompareSailorsByRace extends AbstractUserPane {
       }
     }
     if (count($regattas) == 0) {
-      $this->announce(new Announcement("There are no regattas in the given seasons to consider for comparison.", Announcement::ERROR));
+      Session::pa(new PA("There are no regattas in the given seasons to consider for comparison.", PA::E));
       return false;
     }
 
@@ -130,7 +130,7 @@ class CompareSailorsByRace extends AbstractUserPane {
 
     // are there any regattas in common?
     if (count($reg_races) == 0) {
-      $this->announce(new Announcement(sprintf("The sailors provided (%s, %s) have not sailed head to head in any race in any regatta in the seasons specified.", $first_sailor, implode(", ", $sailors)), Announcement::WARNING));
+      Session::pa(new PA(sprintf("The sailors provided (%s, %s) have not sailed head to head in any race in any regatta in the seasons specified.", $first_sailor, implode(", ", $sailors)), PA::I));
       return false;
     }
 

@@ -81,7 +81,7 @@ class TeamNamePrefsPane extends AbstractUserPane {
     $pri = trim(array_shift($args['name']));
     if (empty($pri)) {
       $mes = "Primary team name must not be empty.";
-      $this->announce(new Announcement($mes, Announcement::ERROR));
+      $this->announce(new PA($mes, PA::E));
       return;
     }
     $repeats = false;
@@ -98,9 +98,9 @@ class TeamNamePrefsPane extends AbstractUserPane {
 
     // Update the team names
     Preferences::setTeamNames($this->SCHOOL, $names);
-    $this->announce(new Announcement("Update team name preferences."));
+    $this->announce(new PA("Update team name preferences."));
     if ($repeats)
-      $this->announce(new Announcement("Team names cannot be repeated.", Announcement::WARNING));
+      $this->announce(new PA("Team names cannot be repeated.", PA::I));
   }
 }
 ?>

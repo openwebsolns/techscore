@@ -116,7 +116,7 @@ class SendMessage extends AbstractAdminUserPane {
       }
       if (isset($args['conferences'])) {
 	if (!is_array($args['conferences']) || count($args['conferences']) == 0) {
-	  $this->announce(new Announcement("No conferences provided. Please try again.", Announcement::WARNING));
+	  $this->announce(new PA("No conferences provided. Please try again.", PA::I));
 	  return array();
 	}
 	$confs = array();
@@ -126,7 +126,7 @@ class SendMessage extends AbstractAdminUserPane {
 	    $confs[$c->id] = $c;
 	}
 	if (count($confs) == 0) {
-	  $this->announce(new Announcement("No conferences provided. Please try again.", Announcement::WARNING));
+	  $this->announce(new PA("No conferences provided. Please try again.", PA::I));
 	  return array();
 	}
 	return array('recipients'=>'conferences', 'conferences'=>$confs);
@@ -134,7 +134,7 @@ class SendMessage extends AbstractAdminUserPane {
       // By role
       if (isset($args['roles'])) {
 	if (!is_array($args['roles']) || count($args['roles']) == 0) {
-	  $this->announce(new Announcement("No roles provided. Please try again.", Announcement::WARNING));
+	  $this->announce(new PA("No roles provided. Please try again.", PA::I));
 	  return array();
 	}
 	$roles = array();
@@ -144,7 +144,7 @@ class SendMessage extends AbstractAdminUserPane {
 	    $roles[$role] = $ROLES[$role];
 	}
 	if (count($roles) == 0) {
-	  $this->announce(new Announcement("No roles provided. Please try again.", Announcement::WARNING));
+	  $this->announce(new PA("No roles provided. Please try again.", PA::I));
 	  return array();
 	}
 	return array('recipients'=>'roles', 'roles'=>$roles);
@@ -156,16 +156,16 @@ class SendMessage extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     if (isset($args['send-message'])) {
       if (!isset($_SESSION['POST']['recipients'])) {
-	$this->announce(new Announcement("No recipients found.", Announcement::ERROR));
+	$this->announce(new PA("No recipients found.", PA::E));
 	return array();
       }
       // require non-empty subject and content
       if (!isset($args['subject']) || ($sub = trim($args['subject'])) == "") {
-	$this->announce(new Announcement("Subject must not be empty.", Announcement::ERROR));
+	$this->announce(new PA("Subject must not be empty.", PA::E));
 	return $_SESSION;
       }
       if (!isset($args['content']) || ($cnt = trim($args['content'])) == "") {
-	$this->announce(new Announcement("Message body must not be empty.", Announcement::ERROR));
+	$this->announce(new PA("Message body must not be empty.", PA::E));
 	return $_SESSION;
       }
 
@@ -191,7 +191,7 @@ class SendMessage extends AbstractAdminUserPane {
 	$out->copy_sender =  1;
 
       Preferences::queueOutgoing($out);
-      $this->announce(new Announcement("Successfully queued message to be sent."));
+      $this->announce(new PA("Successfully queued message to be sent."));
       return array();
     }
   }
