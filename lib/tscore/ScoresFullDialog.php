@@ -198,8 +198,8 @@ class ScoresFullDialog extends AbstractScoresDialog {
 	$r->add(new XTD(array('title' => "Penalty total"), "($penaltyTeam)"));
 
       // print total
-      $r->add(new XTD(array('class'=>'sum total', 'align'=>'right'), $scoreTeam + $penaltyTeam));,
-	}
+      $r->add(new XTD(array('class'=>'sum total', 'align'=>'right'), $scoreTeam + $penaltyTeam));
+    }
 
     // Print legend, if necessary
     if (count($tiebreakers) > 1)

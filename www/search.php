@@ -16,7 +16,7 @@ if (!(isset($_SESSION['user']))) {
   $_SESSION['last_page'] = $_SERVER['REQUEST_URI'];
 
   // provide the login page
-  $_SESSION['ANNOUNCE'][] = new PA("Please login to proceed.", PA::I);
+  Session::pa(new PA("Please login to proceed.", PA::I));
   $PAGE = new WelcomePage();
   $PAGE->printXML();
   exit;
@@ -24,7 +24,7 @@ if (!(isset($_SESSION['user']))) {
 
 // Validate input
 if (!isset($_GET['q']) || strlen($_GET['q']) < 3) {
-  $_SESSION['ANNOUNCE'][] = new PA("Please provide a long enough query to search.", PA::I);
+  Session::pa(new PA("Please provide a long enough query to search.", PA::I));
   WebServer::go('/');
 }
 

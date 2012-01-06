@@ -55,102 +55,102 @@ class UnregisteredSailorPane extends AbstractPane {
       $p->add(new XP(array(), "There are no temporary sailors added yet.", array('class'=>'message')));
     }
     else {
-      $p->add($tab = new XQuickTable(array(), array("School", "First name", "Last name", "Year", "Gender", "Action"));
-	      foreach ($temp as $t) {
-		// is this sailor currently in the RP forms? Otherwise, offer
-		// to delete him/her
-		$form = "";
-		if (!$rp->isParticipating($t)) {
-		  $form = $this->createForm();
-		  $form->add(new XHiddenInput('sailor', $t->id));
-		  $form->add(new XSubmitInput('remove-temp', "Remove"));
-		}
-		$sch = Preferences::getSchool($t->school);
-		$tab->addRow(array($sch->nick_name,
-				   $t->first_name,
-				   $t->last_name,
-				   $t->year,
-				   ($t->gender == Sailor::MALE) ? "Male" : "Female",
-				   $form));
-	      }
-	      }
-    }
-
-  
-    public function process(Array $args) {
-
-      // ------------------------------------------------------------
-      // Add temporary sailor
-      // ------------------------------------------------------------
-      if (isset($args['addtemp'])) {
-	// ------------------------------------------------------------
-	// Realize that this process requires a 5-way map of arrays
-	$cnt = null;
-	foreach (array('school', 'first_name', 'last_name', 'year', 'gender') as $a) {
-	  if (!isset($args[$a]) || !is_array($args[$a])) {
-	    Session::pa(new PA("Data format not valid.", PA::E));
-	    return $args;
-	  }
-	  if ($cnt === null)
-	    $cnt = count($args[$a]);
-	  elseif ($cnt != count($args[$a])) {
-	    Session::pa(new PA("Each data set must be of the same size.", PA::E));
-	    return $args;
-	  }
+      $p->add($tab = new XQuickTable(array(), array("School", "First name", "Last name", "Year", "Gender", "Action")));
+      foreach ($temp as $t) {
+	// is this sailor currently in the RP forms? Otherwise, offer
+	// to delete him/her
+	$form = "";
+	if (!$rp->isParticipating($t)) {
+	  $form = $this->createForm();
+	  $form->add(new XHiddenInput('sailor', $t->id));
+	  $form->add(new XSubmitInput('remove-temp', "Remove"));
 	}
-
-	$rp = $this->REGATTA->getRpManager();
-	$added = 0;
-	while (count($args['school']) > 0) {
-	  $sch = array_shift($args['school']);
-	  $first_name = trim(array_shift($args['first_name']));
-	  $last_name  = trim(array_shift($args['last_name']));
-	  $year = trim(array_shift($args['year']));
-	  $gender = trim(array_shift($args['gender']));
-
-	  $sailor = new Sailor();
-	  if ($first_name != "" && $last_name != "") {
-	    $school = Preferences::getSchool($sch);
-	    if ($school === null) {
-	      Session::pa(new PA(sprintf("School ID provided is invalid (%s).", $sch), PA::E));
-	    }
-	    else {
-	      $sailor->school = $school;
-	      $sailor->registered = false;
-	      $sailor->first_name = $first_name;
-	      $sailor->last_name = $last_name;
-	      $sailor->year = ($year == "") ? null : $year;
-	      $sailor->gender = ($gender == 'F') ? 'F' : 'M';
-
-	      $rp->addTempSailor($sailor);
-	      $added++;
-	    }
-	  }
-	}
-	if ($added > 0)
-	  Session::pa(new PA("Added $added temporary sailor(s)."));
+	$sch = Preferences::getSchool($t->school);
+	$tab->addRow(array($sch->nick_name,
+			   $t->first_name,
+			   $t->last_name,
+			   $t->year,
+			   ($t->gender == Sailor::MALE) ? "Male" : "Female",
+			   $form));
       }
-
-      // ------------------------------------------------------------
-      // Remove temp sailor
-      // ------------------------------------------------------------
-      if (isset($args['remove-temp'])) {
-	$rp = $this->REGATTA->getRpManager();
-	if (!isset($args['sailor'])) {
-	  Session::pa(new PA("No sailor to delete given."));
-	  return $args;
-	}
-	try {
-	  $sailor = RpManager::getSailor((int)$args['sailor']);
-	  $rp->removeTempSailor($sailor);
-	  Session::pa(new PA("Removed temporary sailor."));
-	}
-	catch (Exception $e) {
-	  Session::pa(new PA("Invalid sailor ID provided."));
-	  return $args;
-	}
-      }
-      return $args;
     }
   }
-  ?>
+
+  
+  public function process(Array $args) {
+
+    // ------------------------------------------------------------
+    // Add temporary sailor
+    // ------------------------------------------------------------
+    if (isset($args['addtemp'])) {
+      // ------------------------------------------------------------
+      // Realize that this process requires a 5-way map of arrays
+      $cnt = null;
+      foreach (array('school', 'first_name', 'last_name', 'year', 'gender') as $a) {
+	if (!isset($args[$a]) || !is_array($args[$a])) {
+	  Session::pa(new PA("Data format not valid.", PA::E));
+	  return $args;
+	}
+	if ($cnt === null)
+	  $cnt = count($args[$a]);
+	elseif ($cnt != count($args[$a])) {
+	  Session::pa(new PA("Each data set must be of the same size.", PA::E));
+	  return $args;
+	}
+      }
+
+      $rp = $this->REGATTA->getRpManager();
+      $added = 0;
+      while (count($args['school']) > 0) {
+	$sch = array_shift($args['school']);
+	$first_name = trim(array_shift($args['first_name']));
+	$last_name  = trim(array_shift($args['last_name']));
+	$year = trim(array_shift($args['year']));
+	$gender = trim(array_shift($args['gender']));
+
+	$sailor = new Sailor();
+	if ($first_name != "" && $last_name != "") {
+	  $school = Preferences::getSchool($sch);
+	  if ($school === null) {
+	    Session::pa(new PA(sprintf("School ID provided is invalid (%s).", $sch), PA::E));
+	  }
+	  else {
+	    $sailor->school = $school;
+	    $sailor->registered = false;
+	    $sailor->first_name = $first_name;
+	    $sailor->last_name = $last_name;
+	    $sailor->year = ($year == "") ? null : $year;
+	    $sailor->gender = ($gender == 'F') ? 'F' : 'M';
+
+	    $rp->addTempSailor($sailor);
+	    $added++;
+	  }
+	}
+      }
+      if ($added > 0)
+	Session::pa(new PA("Added $added temporary sailor(s)."));
+    }
+
+    // ------------------------------------------------------------
+    // Remove temp sailor
+    // ------------------------------------------------------------
+    if (isset($args['remove-temp'])) {
+      $rp = $this->REGATTA->getRpManager();
+      if (!isset($args['sailor'])) {
+	Session::pa(new PA("No sailor to delete given."));
+	return $args;
+      }
+      try {
+	$sailor = RpManager::getSailor((int)$args['sailor']);
+	$rp->removeTempSailor($sailor);
+	Session::pa(new PA("Removed temporary sailor."));
+      }
+      catch (Exception $e) {
+	Session::pa(new PA("Invalid sailor ID provided."));
+	return $args;
+      }
+    }
+    return $args;
+  }
+}
+?>

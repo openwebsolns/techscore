@@ -24,7 +24,7 @@ class PasswordRecoveryPane extends WelcomePage {
     if (isset($_GET['acc'])) {
       $acc = AccountManager::getAccountFromHash(trim($_GET['acc']));
       if ($acc === null) {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid account to reset.", PA::E);
+	Session::pa(new PA("Invalid account to reset.", PA::E));
 	return $args;
       }
       $this->addContent(new XPageTitle("Recover Password"));
@@ -68,24 +68,24 @@ class PasswordRecoveryPane extends WelcomePage {
     if (isset($args['reset-password'])) {
       if (!isset($args['acc']) ||
 	  ($acc = AccountManager::getAccountFromHash(trim($args['acc']))) === null) {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid hash provided.", PA::E);
+	Session::pa(new PA("Invalid hash provided.", PA::E));
 	return $args;
       }
       if (!isset($args['new-password']) || !isset($args['confirm-password']) ||
 	  $args['new-password'] != $args['confirm-password'] ||
 	  strlen(trim($args['new-password'])) < 8) {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid or missing password. Make sure the passwords match and that it is at least 8 characters long.", PA::E);
+	Session::pa(new PA("Invalid or missing password. Make sure the passwords match and that it is at least 8 characters long.", PA::E));
 	return $args;
       }
       $acc->password = sha1(trim($args['new-password']));
       $res = Preferences::mail($acc->id, '[TechScore] Account password reset', $this->getSuccessMessage($acc));
       if ($res !== false) {
 	AccountManager::setAccount($acc);
-	$_SESSION['ANNOUNCE'][] = new PA("Account password successfully reset.");
+	Session::pa(new PA("Account password successfully reset."));
 	WebServer::go('/');
       }
       else
-	$_SESSION['ANNOUNCE'][] = new PA("Unable to reset password. Please try again later.", PA::E);
+	Session::pa(new PA("Unable to reset password. Please try again later.", PA::E));
       return $args;
     }
 
@@ -94,16 +94,16 @@ class PasswordRecoveryPane extends WelcomePage {
     // ------------------------------------------------------------
     if (isset($args['send-message'])) {
       if (!isset($args['email']) || ($acc = AccountManager::getAccount(trim($args['email']))) === null) {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid e-mail provided.", PA::E);
+	Session::pa(new PA("Invalid e-mail provided.", PA::E));
 	return false;
       }
       $res = Preferences::mail($acc->id, '[TechScore] Reset password request', $this->getMessage($acc));
       if ($res) {
-	$_SESSION['ANNOUNCE'][] = new PA("Message sent.");
+	Session::pa(new PA("Message sent."));
 	$_SESSION['password-recovery-sent'] = true;
       }
       else
-	$_SESSION['ANNOUNCE'][] = new PA("Unable to send message. Please try again.", PA::I);
+	Session::pa(new PA("Unable to send message. Please try again.", PA::I));
       return true;
     }
   }

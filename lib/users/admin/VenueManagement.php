@@ -50,7 +50,7 @@ class VenueManagement extends AbstractAdminUserPane {
     if (isset($args['v'])) {
       $v = Preferences::getVenue((int)$_GET['v']);
       if ($v === null) {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid venue ID provided.", PA::E);
+	Session::pa(new PA("Invalid venue ID provided.", PA::E));
 	WebServer::go("venue");
       }
       $name = $v->name;
@@ -116,38 +116,38 @@ class VenueManagement extends AbstractAdminUserPane {
       // Check for existing venue
       if (isset($args['venue']) &&
 	  ($venue = Preferences::getVenue((int)$args['venue'])) === null) {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid venue to edit.", PA::E);
+	Session::pa(new PA("Invalid venue to edit.", PA::E));
 	return $args;
       }
 
       if (!isset($args['name']) || empty($args['name'])) {
-	$_SESSION['ANNOUNCE'][] = new PA("Venue name must not be empty.", PA::E);
+	Session::pa(new PA("Venue name must not be empty.", PA::E));
 	unset($args['name']);
 	return $args;
       }
       $name = addslashes($args['name']);
 
       if (!isset($args['address']) || empty($args['address'])) {
-	$_SESSION['ANNOUNCE'][] = new PA("Address field must not be empty.", PA::E);
+	Session::pa(new PA("Address field must not be empty.", PA::E));
 	unset($args['address']);
 	return $args;
       }
 
       if (!isset($args['city']) || empty($args['city'])) {
-	$_SESSION['ANNOUNCE'][] = new PA("City field must not be empty.", PA::E);
+	Session::pa(new PA("City field must not be empty.", PA::E));
 	unset($args['city']);
 	return $args;
       }
 
       if (!isset($args['state']) || !isset(self::$states[$args['state']])) {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid state field.", PA::E);
+	Session::pa(new PA("Invalid state field.", PA::E));
 	unset($args['state']);
 	return $args;
       }
 
       if (!isset($args['zipcode']) ||
 	  !preg_match('/^[0-9]{5}$/', $args['zipcode'])) {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid zipcode entered.", PA::E);
+	Session::pa(new PA("Invalid zipcode entered.", PA::E));
 	unset($args['zipcode']);
 	return $args;
       }
@@ -162,10 +162,10 @@ class VenueManagement extends AbstractAdminUserPane {
       
       Preferences::setVenue($venue);
       if ($old_id == $venue->id) {
-	$_SESSION['ANNOUNCE'][] = new PA(sprintf('Edited venue "%s".', $venue->name));
+	Session::pa(new PA(sprintf('Edited venue "%s".', $venue->name)));
 	WebServer::go("venue");
       }
-      $_SESSION['ANNOUNCE'][] = new PA('Added new venue.');
+      Session::pa(new PA('Added new venue.'));
       return array();
     }
   }

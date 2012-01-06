@@ -16,7 +16,7 @@ if (!(isset($_SESSION['user']))) {
   $_SESSION['last_page'] = preg_replace(':^/pedit/:', '/', $_SERVER['REQUEST_URI']);
 
   // provide the login page
-  $_SESSION['ANNOUNCE'][] = new PA("Please login to proceed.", PA::I);
+  Session::pa(new PA("Please login to proceed.", PA::I));
   require_once('xml/WelcomePage.php');
   $PAGE = new WelcomePage();
   $PAGE->printXML();
@@ -44,13 +44,13 @@ if (!isset($_REQUEST['school'])) {
 $SCHOOL = Preferences::getSchool(strtoupper($_REQUEST['school']));
 if ($SCHOOL == null) {
   $mes = sprintf("No such school (%s).", $_REQUEST['school']);
-  $_SESSION['ANNOUNCE'][] = new PA($mes, PA::E);
+  Session::pa(new PA($mes, PA::E));
   WebServer::go($HOME);
 }
 $schools = $USER->getSchools();
 if (!isset($schools[$SCHOOL->id])) {
   $mes = sprintf("No permissions to edit school (%s).", $SCHOOL);
-  $_SESSION['ANNOUNCE'][] = new PA($mes, PA::E);
+  Session::pa(new PA($mes, PA::E));
   WebServer::go($HOME);
 }
 
@@ -94,7 +94,7 @@ else {
 
   default:
     $mes = sprintf("No such page (%s).", $_REQUEST['p']);
-    $_SESSION['ANNOUNCE'][] = new PA($mes, PA::E);
+    Session::pa(new PA($mes, PA::E));
     WebServer::go($HOME);
   }
 }

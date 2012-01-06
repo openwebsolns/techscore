@@ -97,64 +97,64 @@ class NewRegattaPane extends AbstractUserPane {
       $error = false;
       // 1. Check name
       if (!isset($args['name']) || addslashes(trim($args['name'])) == "") {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid (empty) name.", PA::E);
+	Session::pa(new PA("Invalid (empty) name.", PA::E));
 	$error = true;
       }
       // 2. Check date
       if (!isset($args['start_date']) || ($sd = strtotime($args['start_date'])) === false) {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid date given.", PA::E);
+	Session::pa(new PA("Invalid date given.", PA::E));
 	$error = true;
       }
       // 3. Check time
       if (!isset($args['start_time']) || ($st = strtotime($args['start_time'])) === false) {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid start time.", PA::E);
+	Session::pa(new PA("Invalid start time.", PA::E));
 	$error = true;
       }
       // 4. Check duration
       if (!isset($args['duration']) || $args['duration'] < 1) {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid duration.", PA::E);
+	Session::pa(new PA("Invalid duration.", PA::E));
 	$error = true;
       }
       // 5. Venue
       if (!empty($args['venue']) &&
 	  Preferences::getVenue((int)$args['venue']) === null) {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid venue.", PA::E);
+	Session::pa(new PA("Invalid venue.", PA::E));
 	$error = true;
       }
       // 6. Scoring
       $scoring = Preferences::getRegattaScoringAssoc();
       if (!isset($args['scoring']) ||
 	  !isset($scoring[$args['scoring']])) {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid regatta type.", PA::E);
+	Session::pa(new PA("Invalid regatta type.", PA::E));
 	$error = true;
       }
       // 7. Type
       $type = Preferences::getRegattaTypeAssoc();
       if (!isset($args['type']) ||
 	  !isset($type[$args['type']])) {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid regatta type.", PA::E);
+	Session::pa(new PA("Invalid regatta type.", PA::E));
 	$error = true;
       }
       // 8. Participation
       $part = Preferences::getRegattaParticipantAssoc();
       if (!isset($args['participant']) ||
 	  !isset($part[$args['participant']])) {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid regatta participation.", PA::E);
+	Session::pa(new PA("Invalid regatta participation.", PA::E));
 	$error = true;
       }
       // 9. Divisions
       if (!isset($args['num_divisions']) || $args['num_divisions'] < 1 || $args['num_divisions'] > 4) {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid number of divisions.", PA::E);
+	Session::pa(new PA("Invalid number of divisions.", PA::E));
 	$error = true;
       }
       // 10. Races
       if (!isset($args['num_races']) || $args['num_races'] < 1 || $args['num_races'] > 99) {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid number of races.", PA::E);
+	Session::pa(new PA("Invalid number of races.", PA::E));
 	$error = true;
       }
       // 11. Host(s)
       if (!isset($args['host']) || !is_array($args['host'])) {
-	$_SESSION['ANNOUNCE'][] = new PA("No hosts supplied.", PA::E);
+	Session::pa(new PA("No hosts supplied.", PA::E));
 	$error = true;
       }
       else {
@@ -166,7 +166,7 @@ class NewRegattaPane extends AbstractUserPane {
 	    $hosts[] = $school;
 	}
 	if (count($hosts) == 0) {
-	  $_SESSION['ANNOUNCE'][] = new PA("No valid hosts supplied.", PA::E);
+	  Session::pa(new PA("No valid hosts supplied.", PA::E));
 	  $error = true;
 	}
       }

@@ -129,12 +129,12 @@ class RegisterPane extends WelcomePage {
       // 1. Check for existing account
       $email = trim(addslashes($args['email']));
       if (strlen($email) == 0) {
-	$_SESSION['ANNOUNCE'][] = new PA("Email must not be empty.", PA::E);
+	Session::pa(new PA("Email must not be empty.", PA::E));
 	return $args;
       }
       $acc = AccountManager::getAccount($email);
       if ($acc !== null) {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid email provided.", PA::E);
+	Session::pa(new PA("Invalid email provided.", PA::E));
 	return $args;
       }
       $acc = new Account();
@@ -145,14 +145,14 @@ class RegisterPane extends WelcomePage {
       $acc->last_name  = trim(addslashes($args['last_name']));
       $acc->first_name = trim(addslashes($args['first_name']));
       if (empty($acc->last_name) || empty($acc->first_name)) {
-	$_SESSION['ANNOUNCE'][] = new PA("User first and last name must not be empty.", PA::E);
+	Session::pa(new PA("User first and last name must not be empty.", PA::E));
 	return $args;
       }
 
       // 3. Affiliation
       $acc->school = Preferences::getSchool(trim(addslashes($args['school'])));
       if ($acc->school === null) {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid school affiliation requested.", PA::E);
+	Session::pa(new PA("Invalid school affiliation requested.", PA::E));
 	return $args;
       }
 
@@ -167,14 +167,14 @@ class RegisterPane extends WelcomePage {
       
       default:
 	$acc->role = "staff";
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid role, assumed staff.", PA::I);
+	Session::pa(new PA("Invalid role, assumed staff.", PA::I));
       }
 
       // 5. Approve password
       if (!isset($args['passwd']) || !isset($args['confirm']) ||
 	  $args['passwd'] != $args['confirm'] ||
 	  strlen(trim($args['passwd'])) < 8) {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid or missing password. Make sure the passwords match and that it is at least 8 characters long.", PA::E);
+	Session::pa(new PA("Invalid or missing password. Make sure the passwords match and that it is at least 8 characters long.", PA::E));
 	return $args;
       }
       $acc->password = sha1(trim($args['passwd']));
@@ -183,10 +183,10 @@ class RegisterPane extends WelcomePage {
       $res = Preferences::mail($acc->id, '[TechScore] New account request', $this->getMessage($acc));
       if ($res !== false) {
 	AccountManager::setAccount($acc);
-	$_SESSION['ANNOUNCE'][] = new PA("Account successfully created.");
+	Session::pa(new PA("Account successfully created."));
 	return array("registration-step"=>1);
       }
-      $_SESSION['ANNOUNCE'][] = new PA("There was an error with your request. Please try again later.", PA::E);
+      Session::pa(new PA("There was an error with your request. Please try again later.", PA::E));
       return $args;
     }
 
@@ -196,12 +196,12 @@ class RegisterPane extends WelcomePage {
       $acc = AccountManager::getAccountFromHash($hash);
 
       if ($acc === null) {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid account to approve.", PA::E);
+	Session::pa(new PA("Invalid account to approve.", PA::E));
 	return $args;
       }
       $acc->status = 'pending';
       AccountManager::setAccount($acc);
-      $_SESSION['ANNOUNCE'][] = new PA("Account verified. Please wait until the account is approved. You will be notified by mail.");
+      Session::pa(new PA("Account verified. Please wait until the account is approved. You will be notified by mail."));
       $_SESSION['POST'] = array('registration-step' => 2);
       // notify all admins
       $admins = array();

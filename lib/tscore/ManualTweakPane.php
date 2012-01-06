@@ -57,57 +57,57 @@ class ManualTweakPane extends AbstractPane {
       $row = array($team);
       foreach ($races as $race) {
 	$sail = $rotation->getSail($race, $team);
-	$row[] = new XTextInput(sprintf("%s,%s", $race->id, $team->id), ($sail !== null) ? $sail : "", $attrs));
+	$row[] = new XTextInput(sprintf("%s,%s", $race->id, $team->id), ($sail !== null) ? $sail : "", $attrs);
+      }
+      $tab->addRow($row);
     }
-    $tab->addRow($row);
-  }
-  $form->add(new XReset("reset", "Reset"));
-  $form->add(new XSubmitInput("editboat", "Edit boat(s)"));
-}
-
-public function process(Array $args) {
-
-  $rotation = $this->REGATTA->getRotation();
-
-  // ------------------------------------------------------------
-  // Edit division
-  // ------------------------------------------------------------
-  if (isset($args['division'])) {
-    if (!in_array($args['division'], $rotation->getDivisions())) {
-      $mes = sprintf("Invalid division (%s).", $args['division']);
-      Session::pa(new PA($mes, PA::E));
-      unset($args['division']);
-    }
-    return $args;
+    $form->add(new XReset("reset", "Reset"));
+    $form->add(new XSubmitInput("editboat", "Edit boat(s)"));
   }
 
-  // ------------------------------------------------------------
-  // Boat by boat
-  // ------------------------------------------------------------
-  $races = $this->REGATTA->getRaces();
-  $teams = $this->REGATTA->getTeams();
+  public function process(Array $args) {
+
+    $rotation = $this->REGATTA->getRotation();
+
+    // ------------------------------------------------------------
+    // Edit division
+    // ------------------------------------------------------------
+    if (isset($args['division'])) {
+      if (!in_array($args['division'], $rotation->getDivisions())) {
+	$mes = sprintf("Invalid division (%s).", $args['division']);
+	Session::pa(new PA($mes, PA::E));
+	unset($args['division']);
+      }
+      return $args;
+    }
+
+    // ------------------------------------------------------------
+    // Boat by boat
+    // ------------------------------------------------------------
+    $races = $this->REGATTA->getRaces();
+    $teams = $this->REGATTA->getTeams();
     
-  if (isset($args['editboat'])) {
-    unset($args['editboat']);
-    $sail = new Sail();
-    foreach ($args as $rAndt => $value) {
-      if ( !empty($value) && is_numeric($value) ) {
-	$rAndt = explode(",", $rAndt);
-	$r     = Preferences::getObjectWithProperty($races, "id", $rAndt[0]);
-	$t     = Preferences::getObjectWithProperty($teams, "id", $rAndt[1]);
-	if ($r != null && $t != null) {
-	  $sail->race = $r;
-	  $sail->team = $t;
-	  $sail->sail = $value;
-	  $rotation->setSail($sail);
+    if (isset($args['editboat'])) {
+      unset($args['editboat']);
+      $sail = new Sail();
+      foreach ($args as $rAndt => $value) {
+	if ( !empty($value) && is_numeric($value) ) {
+	  $rAndt = explode(",", $rAndt);
+	  $r     = Preferences::getObjectWithProperty($races, "id", $rAndt[0]);
+	  $t     = Preferences::getObjectWithProperty($teams, "id", $rAndt[1]);
+	  if ($r != null && $t != null) {
+	    $sail->race = $r;
+	    $sail->team = $t;
+	    $sail->sail = $value;
+	    $rotation->setSail($sail);
+	  }
 	}
       }
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
+      Session::pa(new PA('Sails updated.'));
     }
-    UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
-    Session::pa(new PA('Sails updated.'));
-  }
 
-  return $args;
-}
+    return $args;
+  }
 }
 ?>
