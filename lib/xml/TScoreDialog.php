@@ -58,7 +58,7 @@ class TScoreDialog extends XPage {
     $this->body->add($div = new XDiv(array('id'=>'bottom-grab')));
 
     // Announcement
-    $this->body->add(Session::getAnnouncements());
+    $this->body->add(Session::getAnnouncements('/img'));
 
     // Content
     $this->body->add($this->content);

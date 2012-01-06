@@ -74,7 +74,7 @@ class TScorePage extends XPage {
     $this->body->add($c = new XDiv(array('id'=>'bodydiv')));
 
     // Announcement
-    $c->add(Session::getAnnouncements());
+    $c->add(Session::getAnnouncements('/img'));
     foreach ($this->content as $cont)
       $c->add($cont);
 
