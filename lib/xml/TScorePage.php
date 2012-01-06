@@ -25,9 +25,9 @@ class TScorePage extends XPage {
   private $navigation;
   private $menu;
   private $content;
-  private $announce;
 
   private $mobile;
+  private $filled;
 
   /**
    * Creates a new page with the given title
@@ -39,6 +39,17 @@ class TScorePage extends XPage {
    */
   public function __construct($title, User $user = null, Regatta $reg = null) {
     parent::__construct($title);
+    $this->filled = false;
+    $this->menu = new XDiv(array('id'=>'menudiv'));
+    $this->content = new XDiv(array('id'=>'bodydiv'));
+    $this->header = new XDiv(array('id'=>'headdiv'));
+    $this->navigation = new XDiv(array('id'=>'topnav'));
+  }
+
+  private function fill() {
+    if ($this->filled) return;
+    $this->filled = true;
+    
     $this->mobile = $this->isMobile();
 
     $this->head->add(new XMeta('robots', 'noindex, nofollow'));
@@ -49,25 +60,19 @@ class TScorePage extends XPage {
     if ($this->mobile) {
       $this->body->add(new XButton(array("onclick"=>"toggleMenu()", 'type'=>'button'), array("Menu")));
     }
-    $this->menu = new XDiv(array('id'=>'menudiv'));
     $this->body->add($this->menu);
     $this->body->add(new XHr(array('class'=>'hidden')));
-    $this->body->add($this->header = new XDiv(array('id'=>'headdiv')));
+    $this->body->add($this->header);
 
     // Header
     $this->fillPageHeader($user, $reg);
 
     // Content
-    $this->body->add($this->content = new XDiv(array('id'=>'bodydiv')));
+    $this->body->add($this->content);
 
     // Announcement
     // Fill announcement
-    $this->content->add($this->announce = new XDiv(array('id'=>'announcediv')));
-    if (isset($_SESSION['ANNOUNCE']) && is_array($_SESSION['ANNOUNCE']) &&
-	count($_SESSION['ANNOUNCE']) > 0) {
-      while (count($_SESSION['ANNOUNCE']) > 0)
-	$this->addAnnouncement(array_shift($_SESSION['ANNOUNCE']));
-    }
+    $this->content->add(Session::getAnnouncements());
 
     // Footer
     $this->body->add(new XDiv(array('id'=>'footdiv'),
@@ -125,7 +130,7 @@ class TScorePage extends XPage {
     if (isset($_SESSION['user']))
       $div->add(new XH4($_SESSION['user'], array("id"=>"user")));
     
-    $this->header->add($this->navigation = new XDiv(array('id'=>'topnav')));
+    $this->header->add($this->navigation);
     $this->navigation->add($a = new XA(HELP_HOME, new XSpan("H", array('style'=>"text-decoration:underline")),
 				       array("id"=>"help",
 					     'onclick'=>'this.target="help"',
@@ -177,13 +182,13 @@ class TScorePage extends XPage {
     $this->navigation->add($elem);
   }
 
-  /**
-   * Adds the given announcement to the page
-   *
-   * @param Announce $elem the announcement to add
-   */
-  public function addAnnouncement(Announcement $elem) {
-    $this->announce->add($elem);
+  public function toXML() {
+    $this->fill();
+    return parent::toXML();
+  }
+  public function printXML() {
+    $this->fill();
+    return parent::printXML();
   }
 }
 

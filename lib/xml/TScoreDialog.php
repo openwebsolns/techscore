@@ -23,7 +23,8 @@ class TScoreDialog extends XPage {
   private $navigation;
   private $menu;
   private $content;
-  private $announce;
+
+  private $filled;
 
   /**
    * Creates a new page with the given title
@@ -32,13 +33,23 @@ class TScoreDialog extends XPage {
    */
   public function __construct($title) {
     parent::__construct((string)$title);
+    $this->filled = false;
+    $this->menu = new XDiv(array('id'=>'menudiv'));
+    $this->header = new XDiv(array('id'=>'headdiv'));
+    $this->content = new XDiv(array('id'=>'bodydiv'));
+    $this->navigation = new XDiv(array('id'=>'topnav'));
+  }
+
+  private function fill() {
+    if ($this->filled) return;
+    $this->filled = true;
+
     $this->fillHead();
 
     // Menu
-    $this->menu = new XDiv(array('id'=>'menudiv'));
     $this->body->add($this->menu);
     $this->body->add(new XHr(array("class"=>"hidden")));
-    $this->body->add($this->header = new XDiv(array('id'=>'headdiv')));
+    $this->body->add($this->header);
 
     // Header
     $this->fillPageHeader();
@@ -47,10 +58,10 @@ class TScoreDialog extends XPage {
     $this->body->add($div = new XDiv(array('id'=>'bottom-grab')));
 
     // Announcement
-    $this->body->add($this->announce = new XDiv(array('id'=>'announcediv')));
+    $this->body->add(Session::getAnnouncements());
 
     // Content
-    $this->body->add($this->content = new XDiv(array('id'=>'bodydiv')));
+    $this->body->add($this->content);
     $this->body->add(new XDiv(array('id'=>'footdiv'),
 			      array(new XP(array(), sprintf("TechScore v%s © Dayán Páez 2008-%s", VERSION, date('y'))))));
   }
@@ -82,7 +93,7 @@ class TScoreDialog extends XPage {
 				array(new XH1(new XImg("/img/techscore-small.png", "TechScore", array("id"=>"headimg"))),
 				      new XH4(date("D M j, Y"), array("id"=>"date")))));
     
-    $this->header->add($this->navigation = new XDiv(array('id'=>'topnav')));
+    $this->header->add($this->navigation);
     $this->navigation->add(new XA("../help", "Help?",
 				  array("id"=>"help","target"=>"_blank")));
   }
