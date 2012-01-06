@@ -13,7 +13,7 @@ require_once('tscore/WebServer.php');
 // Is logged-in
 //
 if (!Session::has('user')) {
-  $_SESSION['last_page'] = preg_replace(':^/pedit/:', '/', $_SERVER['REQUEST_URI']);
+  Session::s('last_page', preg_replace(':^/pedit/:', '/', $_SERVER['REQUEST_URI']));
 
   // provide the login page
   Session::pa(new PA("Please login to proceed.", PA::I));
@@ -28,7 +28,7 @@ try {
   AccountManager::requireActive($USER);
 }
 catch (Exception $e) {
-  $_SESSION['last_page'] = $_SERVER['REQUEST_URI'];
+  Session::s('last_page', $_SERVER['REQUEST_URI']);
   Session::s('user', null);
   WebServer::go('/');
 }

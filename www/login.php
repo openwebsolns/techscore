@@ -31,6 +31,8 @@ if ($user !== null) {
   Session::s('user', $user->username());
 }
 
-$def = (isset($_SESSION['last_page'])) ? $_SESSION['last_page'] : ".";
+$def = Session::g('last_page');
+if ($def === null)
+  $def = '/';
 WebServer::goBack($def);
 ?>
