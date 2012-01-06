@@ -53,7 +53,7 @@ class DeleteTeamsPane extends AbstractPane {
     // Delete team: this time an array of them is possible
     if (isset($args['remove'])) {
       if (!isset($args['teams']) || !is_array($args['teams']) || count($args['teams']) == 0) {
-	$this->announce(new PA("Please select one or more teams to remove.", PA::E));
+	Session::pa(new PA("Please select one or more teams to remove.", PA::E));
 	return false;
       }
       $removed = 0;
@@ -65,9 +65,9 @@ class DeleteTeamsPane extends AbstractPane {
 	}
       }
       if (count($removed) > 0)
-	$this->announce(new PA("Removed $removed teams."));
+	Session::pa(new PA("Removed $removed teams."));
       else
-	$this->announce(new PA("Please select one or more teams to remove.", PA::E));
+	Session::pa(new PA("Please select one or more teams to remove.", PA::E));
 
       if ($this->has_rots)
 	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);

@@ -95,7 +95,7 @@ class TeamPenaltyPane extends AbstractPane {
       // - validate team
       if ($team == null) {
 	$mes = sprintf("Invalid or missing team (%s).", $args['team']);
-	$this->announce(new PA($mes, PA::E));
+	Session::pa(new PA($mes, PA::E));
 	return $args;
       }
 
@@ -103,7 +103,7 @@ class TeamPenaltyPane extends AbstractPane {
       $pnty = $args['penalty'];
       if (!in_array($pnty, array_keys(TeamPenalty::getList()))) {
 	$mes = sprintf("Invalid or missing penalty (%s).", $args['penalty']);
-	$this->announce(new PA($mes, PA::E));
+	Session::pa(new PA($mes, PA::E));
 	return $args;
       }
 
@@ -125,12 +125,12 @@ class TeamPenaltyPane extends AbstractPane {
 	    $this->REGATTA->setTeamPenalty($penalty);
 	  }
 	}
-	$this->announce(new PA("Added team penalty."));
+	Session::pa(new PA("Added team penalty."));
 	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
       }
       else {
 	$mes = "Invalid or missing division(s).";
-	$this->announce(new PA($mes, PA::E));
+	Session::pa(new PA($mes, PA::E));
       }
     }
 
@@ -151,13 +151,13 @@ class TeamPenaltyPane extends AbstractPane {
 	$this->REGATTA->dropTeamPenalty($team, new Division($args['r_div']));
 
 	$mes = sprintf("Dropped team penalty for %s in %s.", $team, $div);
-	$this->announce(new PA($mes));
+	Session::pa(new PA($mes));
 	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
       }
       else {
 	$mes = sprintf("Invalid or missing team (%s) or division (%s).",
 		       $args['r_team'], $args['r_div']);
-	$this->announce(new PA($mes, PA::E));
+	Session::pa(new PA($mes, PA::E));
       }
     }
 

@@ -309,12 +309,12 @@ class AllAmerican extends AbstractUserPane {
     if (isset($args['set-report'])) {
       if (!isset($args['participation']) ||
 	  !in_array($args['participation'], array(Regatta::PARTICIPANT_COED, Regatta::PARTICIPANT_WOMEN))) {
-	$this->announce(new PA("Invalid participation provided.", PA::E));
+	Session::pa(new PA("Invalid participation provided.", PA::E));
 	return false;
       }
       if (!isset($args['role']) ||
 	  !in_array($args['role'], array(RP::SKIPPER, RP::CREW))) {
-	$this->announce(new PA("Invalid role provided.", PA::E));
+	Session::pa(new PA("Invalid role provided.", PA::E));
 	return false;
       }
       
@@ -383,7 +383,7 @@ class AllAmerican extends AbstractUserPane {
     // ------------------------------------------------------------
     if (isset($args['set-regattas'])) {
       if (!isset($args['regatta']) || !is_array($args['regatta']) || count($args['regatta']) == 0) {
-	$this->announce(new PA("Proceeding with no added regattas."));
+	Session::pa(new PA("Proceeding with no added regattas."));
 	$_SESSION['aa']['regattas-set'] = true;
 	return false;
       }
@@ -406,9 +406,9 @@ class AllAmerican extends AbstractUserPane {
 	}
       }
       if ($errors > 0)
-	$this->announce(new PA("Some regattas specified are not valid.", PA::I));
+	Session::pa(new PA("Some regattas specified are not valid.", PA::I));
       if (count($_SESSION['aa']['regattas']) > 0)
-	$this->announce(new PA("Set regattas for All-American report."));
+	Session::pa(new PA("Set regattas for All-American report."));
       $_SESSION['aa']['regattas-set'] = true;
       return $args;
     }
@@ -418,7 +418,7 @@ class AllAmerican extends AbstractUserPane {
     // ------------------------------------------------------------
     if (isset($args['set-sailors'])) {
       if (!isset($args['sailor']) || !is_array($args['sailor']) || count($args['sailor']) == 0) {
-	$this->announce(new PA("Proceeding with no additional sailors."));
+	Session::pa(new PA("Proceeding with no additional sailors."));
 	$_SESSION['aa']['params-set'] = true;
 	return false;
       }
@@ -431,12 +431,12 @@ class AllAmerican extends AbstractUserPane {
 	  $_SESSION['aa']['sailors'][$sailor->id] = $sailor;
 	} catch (Exception $e) {
 	  $errors++;
-	  $this->announce(new PA($e->getMessage(), PA::E));
+	  Session::pa(new PA($e->getMessage(), PA::E));
 	}
       }
       if ($errors > 0)
-	$this->announce(new PA("Some invalid sailors were provided and ignored.", PA::I));
-      $this->announce(new PA("Set sailors for report."));
+	Session::pa(new PA("Some invalid sailors were provided and ignored.", PA::I));
+      Session::pa(new PA("Set sailors for report."));
       $_SESSION['aa']['params-set'] = true;
       return false;
     }
@@ -448,7 +448,7 @@ class AllAmerican extends AbstractUserPane {
       // is the regatta and sailor list set?
       if (count($_SESSION['aa']['table']) == 0 ||
 	  count($_SESSION['aa']['sailors']) == 0) {
-	$this->announce(new PA("No regattas or sailors for report.", PA::E));
+	Session::pa(new PA("No regattas or sailors for report.", PA::E));
 	return false;
       }
 

@@ -53,19 +53,19 @@ class ReplaceTeamPane extends AbstractPane {
       // require a team and a school
       if (!isset($args['team']) ||
 	  ($team = $this->REGATTA->getTeam($args['team'])) === null) {
-	$this->announce(new PA("Invalid or missing team to replace.", PA::E));
+	Session::pa(new PA("Invalid or missing team to replace.", PA::E));
 	return $args;
       }
 
       if (!isset($args['school']) ||
 	  ($school = Preferences::getSchool($args['school'])) === null) {
-	$this->announce(new PA("Invalid or missing school with which to replace $team.", PA::E));
+	Session::pa(new PA("Invalid or missing school with which to replace $team.", PA::E));
 	return $args;
       }
 
       // is the team to be subsituted from the chosen school?
       if ($school == $team->school) {
-	$this->announce(new PA("It is useless to replace a team from the same school with itself. I'll ignore that.", PA::I));
+	Session::pa(new PA("It is useless to replace a team from the same school with itself. I'll ignore that.", PA::I));
 	return $args;
       }
 
@@ -102,7 +102,7 @@ class ReplaceTeamPane extends AbstractPane {
       if ($this->REGATTA->hasFinishes())
 	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
 
-      $this->announce(new PA("Replaced team \"$team\" with one from \"$school.\""));
+      Session::pa(new PA("Replaced team \"$team\" with one from \"$school.\""));
       return array();
     }
   }

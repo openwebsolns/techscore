@@ -88,13 +88,13 @@ class UnregisteredSailorPane extends AbstractPane {
 	$cnt = null;
 	foreach (array('school', 'first_name', 'last_name', 'year', 'gender') as $a) {
 	  if (!isset($args[$a]) || !is_array($args[$a])) {
-	    $this->announce(new PA("Data format not valid.", PA::E));
+	    Session::pa(new PA("Data format not valid.", PA::E));
 	    return $args;
 	  }
 	  if ($cnt === null)
 	    $cnt = count($args[$a]);
 	  elseif ($cnt != count($args[$a])) {
-	    $this->announce(new PA("Each data set must be of the same size.", PA::E));
+	    Session::pa(new PA("Each data set must be of the same size.", PA::E));
 	    return $args;
 	  }
 	}
@@ -112,7 +112,7 @@ class UnregisteredSailorPane extends AbstractPane {
 	  if ($first_name != "" && $last_name != "") {
 	    $school = Preferences::getSchool($sch);
 	    if ($school === null) {
-	      $this->announce(new PA(sprintf("School ID provided is invalid (%s).", $sch), PA::E));
+	      Session::pa(new PA(sprintf("School ID provided is invalid (%s).", $sch), PA::E));
 	    }
 	    else {
 	      $sailor->school = $school;
@@ -128,7 +128,7 @@ class UnregisteredSailorPane extends AbstractPane {
 	  }
 	}
 	if ($added > 0)
-	  $this->announce(new PA("Added $added temporary sailor(s)."));
+	  Session::pa(new PA("Added $added temporary sailor(s)."));
       }
 
       // ------------------------------------------------------------
@@ -137,16 +137,16 @@ class UnregisteredSailorPane extends AbstractPane {
       if (isset($args['remove-temp'])) {
 	$rp = $this->REGATTA->getRpManager();
 	if (!isset($args['sailor'])) {
-	  $this->announce(new PA("No sailor to delete given."));
+	  Session::pa(new PA("No sailor to delete given."));
 	  return $args;
 	}
 	try {
 	  $sailor = RpManager::getSailor((int)$args['sailor']);
 	  $rp->removeTempSailor($sailor);
-	  $this->announce(new PA("Removed temporary sailor."));
+	  Session::pa(new PA("Removed temporary sailor."));
 	}
 	catch (Exception $e) {
-	  $this->announce(new PA("Invalid sailor ID provided."));
+	  Session::pa(new PA("Invalid sailor ID provided."));
 	  return $args;
 	}
       }

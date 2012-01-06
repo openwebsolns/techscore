@@ -181,7 +181,7 @@ class DetailsPane extends AbstractPane {
 	  $this->REGATTA->set(Regatta::TYPE, $args['type']);
 	}
 	catch (InvalidArgumentException $e) {
-	  $this->announce(new PA("Unable to change the type of regatta. Either an invalid type was specified, or more likely you attempted to activate a regatta that is under the same name as another already-activated regatta for the current season. Before you can do that, please make sure that the other regatta with the same name as this one is removed or de-activated (made personal) before proceeding.", PA::I));
+	  Session::pa(new PA("Unable to change the type of regatta. Either an invalid type was specified, or more likely you attempted to activate a regatta that is under the same name as another already-activated regatta for the current season. Before you can do that, please make sure that the other regatta with the same name as this one is removed or de-activated (made personal) before proceeding.", PA::I));
 	  return;
 	}
       }
@@ -230,7 +230,7 @@ class DetailsPane extends AbstractPane {
 	  $rp = $this->REGATTA->getRpManager();
 	  if ($rp->hasGender(Sailor::MALE)) {
 	    $rp->removeGender(Sailor::MALE);
-	    $this->announce(new PA("Removed sailors from RP.", PA::I));
+	    Session::pa(new PA("Removed sailors from RP.", PA::I));
 	  }
 	}
       }
@@ -247,7 +247,7 @@ class DetailsPane extends AbstractPane {
 	    $hosts[] = $school;
 	}
 	if (count($hosts) == 0)
-	  $this->announce(new PA("There must be at least one host for each regatta. Left as is.", PA::I));
+	  Session::pa(new PA("There must be at least one host for each regatta. Left as is.", PA::I));
 	else {
 	  $this->REGATTA->resetHosts();
 	  foreach ($hosts as $school)
@@ -256,7 +256,7 @@ class DetailsPane extends AbstractPane {
       }
       print_r($args);
 
-      $this->announce(new PA("Edited regatta details."));
+      Session::pa(new PA("Edited regatta details."));
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DETAILS);
     }
 
@@ -264,15 +264,15 @@ class DetailsPane extends AbstractPane {
     // Finalize
     if (isset($args['finalize'])) {
       if (!$this->REGATTA->hasFinishes()) {
-	$this->announce(new PA("You cannot finalize a project with no finishes. To delete the regatta, please mark it as \"personal\".", PA::E));
+	Session::pa(new PA("You cannot finalize a project with no finishes. To delete the regatta, please mark it as \"personal\".", PA::E));
       }
       elseif (isset($args['approve'])) {
 	$this->REGATTA->set(Regatta::FINALIZED, new DateTime());
-	$this->announce(new PA("Regatta has been finalized."));
+	Session::pa(new PA("Regatta has been finalized."));
 	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DETAILS);
       }
       else
-	$this->announce(new PA("Please check the box to finalize.", PA::E));
+	Session::pa(new PA("Please check the box to finalize.", PA::E));
     }
   }
 }

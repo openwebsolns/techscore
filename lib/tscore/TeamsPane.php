@@ -69,18 +69,18 @@ class TeamsPane extends AbstractPane {
     if (isset($args['invite'])) {
       if (!isset($args['addschool']) ||
 	  ($school = Preferences::getSchool($args['addschool'])) === null) {
-	$this->announce(new PA("Invalid or missing school to add.", PA::E));
+	Session::pa(new PA("Invalid or missing school to add.", PA::E));
 	return array();
       }
 
       // Also validate rotation and finish option, if applicable
       if ($this->has_rots && !isset($args['del-rotation'])) {
-	$this->announce(new PA("Please choose an action to take with new rotation.", PA::E));
+	Session::pa(new PA("Please choose an action to take with new rotation.", PA::E));
 	return array();
       }
       if ($this->has_scores &&
 	  (!isset($args['new-score']) || !in_array($args['new-score'], array('DNS', 'BYE')))) {
-	$this->announce(new PA("Please choose an appropriate action to take with scores.", PA::E));
+	Session::pa(new PA("Please choose an appropriate action to take with scores.", PA::E));
 	return array();
       }
       
@@ -110,7 +110,7 @@ class TeamsPane extends AbstractPane {
       if (isset($args['del-rotation'])) {
 	$rot = $this->REGATTA->getRotation();
 	$rot->reset();
-	$this->announce(new PA("Rotation has been reset.", PA::I));
+	Session::pa(new PA("Rotation has been reset.", PA::I));
 	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       }
 
@@ -128,7 +128,7 @@ class TeamsPane extends AbstractPane {
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
 
       // Messages
-      $this->announce(new PA("Added team $team."));
+      Session::pa(new PA("Added team $team."));
     }
     return array();
   }
@@ -160,7 +160,7 @@ class TeamsPane extends AbstractPane {
     if (!isset($args['school']) || !is_array($args['school']) ||
 	!isset($args['number']) || !is_array($args['number']) ||
 	count($args['number']) != count($args['school'])) {
-      $this->announce(new PA("Bad input. Please try again.", PA::E));
+      Session::pa(new PA("Bad input. Please try again.", PA::E));
       return array();
     }
     $teams_added = 0;
@@ -191,10 +191,10 @@ class TeamsPane extends AbstractPane {
     }
     // need two teams for a regatta
     if ($teams_added > 1) {
-      $this->announce(new PA("Added $teams_added teams. You can now setup rotations, or start adding finishes."));
+      Session::pa(new PA("Added $teams_added teams. You can now setup rotations, or start adding finishes."));
       $this->redirect('setup-rotations');
     }
-    $this->announce(new PA("Please add at least two teams to proceed."));
+    Session::pa(new PA("Please add at least two teams to proceed."));
     return array();
   }
 }

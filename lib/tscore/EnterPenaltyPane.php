@@ -26,7 +26,7 @@ class EnterPenaltyPane extends AbstractPane {
     // Default is the last scored race
     $finished_races = $this->REGATTA->getScoredRaces();
     if (count($finished_races) == 0) {
-      $this->announce(new PA("No finishes entered.",
+      Session::pa(new PA("No finishes entered.",
 				       PA::I));
       $this->redirect();
     }
@@ -155,7 +155,7 @@ class EnterPenaltyPane extends AbstractPane {
 	$theRace = Preferences::getObjectWithProperty($races, "id", $race->id);
 	if ($theRace == null) {
 	  $mes = sprintf("No finish recorded for race %s.", $theRace);
-	  $this->announce(new PA($mes, PA::I));
+	  Session::pa(new PA($mes, PA::I));
 	  unset($args['p_race']);
 	  unset($args['p_type']);
 	  return $args;
@@ -164,7 +164,7 @@ class EnterPenaltyPane extends AbstractPane {
       }
       catch (InvalidArgumentException $e) {
 	$mes = sprintf("Invalid race (%s).", $args['p_race']);
-	$this->announce(new PA($mes, PA::E));
+	Session::pa(new PA($mes, PA::E));
 	unset($args['p_race']);
 	unset($args['p_type']);
 	return $args;
@@ -175,7 +175,7 @@ class EnterPenaltyPane extends AbstractPane {
 	  (!in_array($args['p_type'], array_keys(Penalty::getList())) &&
 	   !in_array($args['p_type'], array_keys(Breakdown::getList())))) {
 	$mes = sprintf("Invalid or missing penalty (%s).", $args['p_type']);
-	$this->announce(new PA($mes, PA::E));
+	Session::pa(new PA($mes, PA::E));
       }
       return $args;
     }
@@ -186,7 +186,7 @@ class EnterPenaltyPane extends AbstractPane {
     if (isset($args['p_submit']) ) {
       // Validate input
       if (!isset($args['finish']) || !is_array($args['finish'])) {
-	$this->announce(new PA("Finish must be a list.", PA::E));
+	Session::pa(new PA("Finish must be a list.", PA::E));
 	return $args;
       }
       $finishes = array();
@@ -194,7 +194,7 @@ class EnterPenaltyPane extends AbstractPane {
       foreach ($args['finish'] as $f) {
 	$tokens = explode(',', $f);
 	if (count($tokens) != 2) {
-	  $this->announce(new PA("Invalid finish provided ($f).", PA::E));
+	  Session::pa(new PA("Invalid finish provided ($f).", PA::E));
 	  return $args;
 	}
 	try {
@@ -204,12 +204,12 @@ class EnterPenaltyPane extends AbstractPane {
 	    throw new InvalidArgumentException("No such race!");
 	}
 	catch (InvalidArgumentException $e) {
-	  $this->announce(new PA("Invalid race for finish.", PA::E));
+	  Session::pa(new PA("Invalid race for finish.", PA::E));
 	  return $args;
 	}
 	$team = $this->REGATTA->getTeam($tokens[1]);
 	if ($team === null) {
-	  $this->announce(new PA("Invalid team for finish.", PA::E));
+	  Session::pa(new PA("Invalid team for finish.", PA::E));
 	  return $args;
 	}
 	$finish = $this->REGATTA->getFinish($race, $team);
@@ -219,7 +219,7 @@ class EnterPenaltyPane extends AbstractPane {
 	}
       }
       if (count($finishes) == 0) {
-	$this->announce(new PA("No finishes for penalty/breakdown.", PA::E));
+	Session::pa(new PA("No finishes for penalty/breakdown.", PA::E));
 	return $args;
       }
       $thePen  = $args['p_type'];
@@ -235,7 +235,7 @@ class EnterPenaltyPane extends AbstractPane {
       }
       else {
 	$mes = sprintf("Invalid penalty/breakdown amount (%s).", $args['p_amount']);
-	$this->announce(new PA($mes, PA::E));
+	Session::pa(new PA($mes, PA::E));
 	return $args;
       }
 
@@ -250,7 +250,7 @@ class EnterPenaltyPane extends AbstractPane {
       foreach ($finishes as $theFinish) {
 	if (in_array($thePen, array_keys($breakdowns))) {
 	  if ($theFinish->score !== null && $theAmount >= $theFinish->score) {
-	    $this->announce(new PA("The assigned score is no better than the actual score; ignoring.",
+	    Session::pa(new PA("The assigned score is no better than the actual score; ignoring.",
 					     PA::I));
 	    $args['p_race'] = $race;
 	    return $args;
@@ -261,12 +261,12 @@ class EnterPenaltyPane extends AbstractPane {
 	  if ($theFinish->score !== null &&
 	      $theAmount > 0 &&
 	      $theAmount <= $theFinish->score) {
-	    $this->announce(new PA("The assigned penalty score is no worse than their actual score; ignoring.",
+	    Session::pa(new PA("The assigned penalty score is no worse than their actual score; ignoring.",
 					     PA::I));
 	    return $args;
 	  }
 	  elseif ($theAmount > ($fleet = $this->REGATTA->getFleetSize() + 1)) {
-	    $this->announce(new PA(sprintf("The assigned penalty is greater than the maximum penalty of FLEET + 1 (%d); ignoring.", $fleet),
+	    Session::pa(new PA(sprintf("The assigned penalty is greater than the maximum penalty of FLEET + 1 (%d); ignoring.", $fleet),
 					     PA::I));
 	    return $args;
 	  }
@@ -277,7 +277,7 @@ class EnterPenaltyPane extends AbstractPane {
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
       
       $mes = sprintf("Added %s for %s.", $thePen, implode(', ', $teams));
-      $this->announce(new PA($mes));
+      Session::pa(new PA($mes));
       unset($args['p_type']);
     }
 

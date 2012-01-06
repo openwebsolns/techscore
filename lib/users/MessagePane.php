@@ -39,7 +39,7 @@ class MessagePane extends AbstractUserPane {
     if (isset($args['message'])) {
       $message = Preferences::getObjectWithProperty($messages, "id", $args['message']);
       if ($message === null) {
-	$this->announce(new PA("No such message.", PA::E));
+	Session::pa(new PA("No such message.", PA::E));
 	$this->redirect("../inbox");
       }
 
@@ -102,11 +102,11 @@ class MessagePane extends AbstractUserPane {
       $messages = Preferences::getMessages($this->USER->asAccount());
       $mes = Preferences::getObjectWithProperty($messages, "id", $args['delete']);
       if ($mes === null) {
-	$this->announce(new PA("Invalid message to delete.", PA::E));
+	Session::pa(new PA("Invalid message to delete.", PA::E));
 	$this->redirect();
       }
       Preferences::deleteMessage($mes);
-      $this->announce(new PA("Message deleted."));
+      Session::pa(new PA("Message deleted."));
       $this->redirect("inbox");
     }
 
@@ -117,15 +117,15 @@ class MessagePane extends AbstractUserPane {
       $messages = Preferences::getMessages($this->USER->asAccount());
       $mes = Preferences::getObjectWithProperty($messages, "id", $args['reply']);
       if ($mes === null) {
-	$this->announce(new PA("Invalid message to reply.", PA::E));
+	Session::pa(new PA("Invalid message to reply.", PA::E));
 	$this->redirect();
       }
       if (empty($args['text'])) {
-	$this->announce(new PA("Empty message not sent.", PA::I));
+	Session::pa(new PA("Empty message not sent.", PA::I));
 	$this->redirect();
       }
       Preferences::reply($mes, (string)$args['text']);
-      $this->announce(new PA("Reply sent."));
+      Session::pa(new PA("Reply sent."));
       $this->redirect("inbox");
     }
     return $args;

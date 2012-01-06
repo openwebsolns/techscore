@@ -206,12 +206,12 @@ class NewRegattaPane extends AbstractUserPane {
 	}
       } catch (InvalidArgumentException $e) {
 	// This should be reached ONLY because of a nick-name mismatch
-	$this->announce(new PA("It seems that there is already an active regatta with this name for the current season. This is likely the result of a previous regatta that was not deleted or demoted to \"Personal\" status. If you are a scorer for the other regatta, please delete it or de-activate it before creating this one. Otherwise, you may need to create the current only under a different name.", PA::I));
+	Session::pa(new PA("It seems that there is already an active regatta with this name for the current season. This is likely the result of a previous regatta that was not deleted or demoted to \"Personal\" status. If you are a scorer for the other regatta, please delete it or de-activate it before creating this one. Otherwise, you may need to create the current only under a different name.", PA::I));
 	return $args;
       }
 				    
       // Move to new regatta
-      $this->announce(new PA(sprintf("Created new regatta \"%s\". Please add teams now.", $reg->get(Regatta::NAME))));
+      Session::pa(new PA(sprintf("Created new regatta \"%s\". Please add teams now.", $reg->get(Regatta::NAME))));
       WebServer::go("score/".$reg->id()."/teams");
     }
     return array();

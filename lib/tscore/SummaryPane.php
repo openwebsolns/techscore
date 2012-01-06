@@ -52,7 +52,7 @@ class SummaryPane extends AbstractPane {
 	} catch (Exception $e) {}
       }
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SUMMARY);
-      $this->announce(new PA("Updated summaries"));
+      Session::pa(new PA("Updated summaries"));
     }
     return $args;
   }

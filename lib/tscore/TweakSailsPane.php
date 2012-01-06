@@ -139,13 +139,13 @@ class TweakSailsPane extends AbstractPane {
 	}
 	catch (Exception $e) {
 	  $mes = sprintf("Ignored invalid division (%s).", $div);
-	  $this->announce(new PA($mes, PA::I));
+	  Session::pa(new PA($mes, PA::I));
 	}
       }
     }
     else {
       $mes = "Missing divisions.";
-      $this->announce(new PA($mes, PA::E));
+      Session::pa(new PA($mes, PA::E));
       return $args;
     }
 
@@ -157,7 +157,7 @@ class TweakSailsPane extends AbstractPane {
       if (!isset($args['edittype']) ||
 	  !in_array($args['edittype'], array_keys($this->ACTIONS))) {
 	$mes = sprintf("Invalid tweak type (%s).", $args['edittype']);
-	$this->announce(new PA($mes, PA::E));
+	Session::pa(new PA($mes, PA::E));
 	unset($args['edittype']);
       }
       return $args;
@@ -172,7 +172,7 @@ class TweakSailsPane extends AbstractPane {
 	($races = Utilities::parseRange($args['races'])) !== null) {
       if (!sort($races)) {
 	$mes = sprintf("Unable to understand/sort race range (%s).", $args['races']);
-	$this->announce(new PA($mes, PA::E));
+	Session::pa(new PA($mes, PA::E));
 	return $args;
       }
       // Keep only races that are unscored
@@ -189,7 +189,7 @@ class TweakSailsPane extends AbstractPane {
 	$mes = sprintf('Ignored races %s in divisions %s',
 		       Utilities::makeRange($ignored_races),
 		       implode(", ", $divisions));
-	$this->announce(new PA($mes, PA::I));
+	Session::pa(new PA($mes, PA::I));
       }
 
       // Get sail numbers for all the races
@@ -201,7 +201,7 @@ class TweakSailsPane extends AbstractPane {
     }
     else {
       $mes = sprintf("Invalid range for races (%s).", $args['races']);
-      $this->announce(new PA($mes, PA::E));
+      Session::pa(new PA($mes, PA::E));
       return $args;
     }
 
@@ -217,13 +217,13 @@ class TweakSailsPane extends AbstractPane {
 	$amount = (int)$args['addamount'];
 	if ($amount + min($sails) <= 0) {
 	  $mes = "Sail numbers must be positive.";
-	  $this->announce(new PA($mes, PA::E));
+	  Session::pa(new PA($mes, PA::E));
 	  return $args;
 	}
       }
       else {
 	$mes = "Missing or invalid amount to add to sails.";
-	$this->announce(new PA($mes, PA::E));
+	Session::pa(new PA($mes, PA::E));
 	return $args;
       }
 
@@ -231,7 +231,7 @@ class TweakSailsPane extends AbstractPane {
 	$rotation->addAmount($race, $amount);
 
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
-      $this->announce(new PA("Added value to sails."));
+      Session::pa(new PA("Added value to sails."));
       unset($args['edittype']);
     }
 
@@ -248,7 +248,7 @@ class TweakSailsPane extends AbstractPane {
       }
       else {
 	$mes = sprintf("Invalid sail number to replace (%s).", $args['from_sail']);
-	$this->announce(new PA($mes, PA::E));
+	Session::pa(new PA($mes, PA::E));
 	return $args;
       }
 
@@ -259,13 +259,13 @@ class TweakSailsPane extends AbstractPane {
 	$tosail = (int)$args['to_sail'];
 	if (in_array($tosail, $sails)) {
 	  $mes = "Duplicate value for sail $tosail.";
-	  $this->announce(new PA($mes, PA::E));
+	  Session::pa(new PA($mes, PA::E));
 	  return $args;
 	}
       }
       else {
 	$mes = sprintf("New sail number is invalid or missing (%s).", $args['to_sail']);
-	$this->announce(new PA($mes, PA::E));
+	Session::pa(new PA($mes, PA::E));
 	return $args;
       }
 
@@ -273,7 +273,7 @@ class TweakSailsPane extends AbstractPane {
 	$rotation->replaceSail($race, $fromsail, $tosail);
 
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
-      $this->announce(new PA("Sail replaced successfully."));
+      Session::pa(new PA("Sail replaced successfully."));
       unset($args['edittype']);
     }
 

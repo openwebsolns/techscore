@@ -123,14 +123,14 @@ class DropFinishPane extends AbstractPane {
 						      "id",
 						      $args['race'])) == null) {
 	$mes = sprintf("Invalid or missing race (%s).", $args['race']);
-	$this->announce(new PA($mes, PA::E));
+	Session::pa(new PA($mes, PA::E));
 	return $args;
       }
       $this->REGATTA->dropFinishes($race);
       $mes = sprintf("Removed finishes for race %s.", $race);
       if ($this->REGATTA->get(Regatta::SCORING) == Regatta::SCORING_COMBINED)
 	$mes = sprintf("Removed finishes for race %s.", $race->number);
-      $this->announce(new PA($mes));
+      Session::pa(new PA($mes));
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
     }
     return $args;

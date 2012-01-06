@@ -222,7 +222,7 @@ class EnterFinishPane extends AbstractPane {
       $race = array_shift($races);
     }
     if ($race == null) {
-      $this->announce(new PA("No new races to score.", PA::I));
+      Session::pa(new PA("No new races to score.", PA::I));
       $this->redirect();
     }
 
@@ -374,7 +374,7 @@ class EnterFinishPane extends AbstractPane {
       }
       catch (InvalidArgumentException $e) {
 	$mes = sprintf("Invalid race (%s).", $args['chosen_race']);
-	$this->announce(new PA($mes, PA::E));
+	Session::pa(new PA($mes, PA::E));
 	unset($args['chosen_race']);
       }
 
@@ -398,7 +398,7 @@ class EnterFinishPane extends AbstractPane {
 	  throw new Exception(sprintf("No such race (%s) in this regatta.", $race));
       }
       catch (Exception $e) {
-	$this->announce(new PA($e->getMessage(), PA::E));
+	Session::pa(new PA($e->getMessage(), PA::E));
 	unset($args['race']);
 	return $args;
       }
@@ -428,14 +428,14 @@ class EnterFinishPane extends AbstractPane {
 
 	// Verify
 	if (!isset($args["p$i"])) {
-	  $this->announce(new PA("Missing team(s).", PA::E));
+	  Session::pa(new PA("Missing team(s).", PA::E));
 	  return $args;
 	}
 	$sail = $args["p$i"];
 	// Possible sail
 	if (!isset($sails[$sail])) {
 	  $mes = sprintf('Sail not in this race (%s).', $sail);
-	  $this->announce(new PA($mes, PA::E));
+	  Session::pa(new PA($mes, PA::E));
 	  return $args;
 	}
 	$race = $races[$sail];
@@ -458,7 +458,7 @@ class EnterFinishPane extends AbstractPane {
       // Reset
       unset($args['chosen_race']);
       $mes = sprintf("Finishes entered for race %s.", $race->number);
-      $this->announce(new PA($mes));
+      Session::pa(new PA($mes));
     }
 
     // ------------------------------------------------------------
@@ -472,7 +472,7 @@ class EnterFinishPane extends AbstractPane {
 	  throw new Exception(sprintf("No such race in this regatta (%s).", $args['race']));
       }
       catch (Exception $e) {
-	$this->announce(new PA($e->getMessage(), Announcemen::ERROR));
+	Session::pa(new PA($e->getMessage(), Announcemen::ERROR));
 	unset($args['race']);
 	return $args;
       }
@@ -502,7 +502,7 @@ class EnterFinishPane extends AbstractPane {
 
 	// Verify
 	if (!isset($args["p$i"])) {
-	  $this->announce(new PA("Missing team(s).", PA::E));
+	  Session::pa(new PA("Missing team(s).", PA::E));
 	  return $args;
 	}
 	$team_id = $args["p$i"];
@@ -510,7 +510,7 @@ class EnterFinishPane extends AbstractPane {
 	// Possible team
 	if (!isset($sails[$team_id])) {
 	  $mes = sprintf('Invalid team ID (%s).', $team_id);
-	  $this->announce(new PA($mes, PA::E));
+	  Session::pa(new PA($mes, PA::E));
 	  return $args;
 	}
 	$race = $races[$team_id];
@@ -531,7 +531,7 @@ class EnterFinishPane extends AbstractPane {
       // Reset
       unset($args['chosen_race']);
       $mes = sprintf("Finishes entered for race %s.", $race->number);
-      $this->announce(new PA($mes));
+      Session::pa(new PA($mes));
 
       $args['finish_using'] = "TMS";
     }
@@ -559,7 +559,7 @@ class EnterFinishPane extends AbstractPane {
       }
       catch (InvalidArgumentException $e) {
 	$mes = sprintf("Invalid race (%s).", $args['chosen_race']);
-	$this->announce(new PA($mes, PA::E));
+	Session::pa(new PA($mes, PA::E));
 	unset($args['chosen_race']);
       }
 
@@ -585,7 +585,7 @@ class EnterFinishPane extends AbstractPane {
 	  throw new Exception(sprintf("No rotation has been created for the chosen race (%s).", $race));
       }
       catch (Exception $e) {
-	$this->announce(new PA($e->getMessage(), PA::E));
+	Session::pa(new PA($e->getMessage(), PA::E));
 	unset($args['race']);
 	return $args;
       }
@@ -604,14 +604,14 @@ class EnterFinishPane extends AbstractPane {
 
 	// Verify
 	if (!isset($args["p$i"])) {
-	  $this->announce(new PA("Missing team(s).", PA::E));
+	  Session::pa(new PA("Missing team(s).", PA::E));
 	  return $args;
 	}
 	$sail = $args["p$i"];
 	// Possible sail
 	if (!isset($teams[$sail])) {
 	  $mes = sprintf('Sail not in this race (%s).', $sail);
-	  $this->announce(new PA($mes, PA::E));
+	  Session::pa(new PA($mes, PA::E));
 	  return $args;
 	}
 
@@ -629,7 +629,7 @@ class EnterFinishPane extends AbstractPane {
       // Reset
       unset($args['chosen_race']);
       $mes = sprintf("Finishes entered for race %s.", $race);
-      $this->announce(new PA($mes));
+      Session::pa(new PA($mes));
     }
 
     // ------------------------------------------------------------
@@ -643,7 +643,7 @@ class EnterFinishPane extends AbstractPane {
 	  throw new Exception(sprintf("No such race in this regatta (%s).", $args['race']));
       }
       catch (Exception $e) {
-	$this->announce(new PA($e->getMessage(), Announcemen::ERROR));
+	Session::pa(new PA($e->getMessage(), Announcemen::ERROR));
 	unset($args['race']);
 	return $args;
       }
@@ -660,14 +660,14 @@ class EnterFinishPane extends AbstractPane {
 
 	// Verify
 	if (!isset($args["p$i"])) {
-	  $this->announce(new PA("Missing team(s).", PA::E));
+	  Session::pa(new PA("Missing team(s).", PA::E));
 	  return $args;
 	}
 	$team_id = $args["p$i"];
 	// Possible team
 	if (!isset($teams[$team_id])) {
 	  $mes = sprintf('Invalid team ID (%s).', $team_id);
-	  $this->announce(new PA($mes, PA::E));
+	  Session::pa(new PA($mes, PA::E));
 	  return $args;
 	}
 
@@ -685,7 +685,7 @@ class EnterFinishPane extends AbstractPane {
       // Reset
       unset($args['chosen_race']);
       $mes = sprintf("Finishes entered for race %s.", $race);
-      $this->announce(new PA($mes));
+      Session::pa(new PA($mes));
 
       $args['finish_using'] = "TMS";
     }

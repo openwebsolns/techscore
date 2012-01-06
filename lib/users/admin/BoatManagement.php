@@ -38,7 +38,7 @@ class BoatManagement extends AbstractAdminUserPane {
     if (isset($args['b'])) {
       $boat = Preferences::getBoat($args['b']);
       if ($boat === null) {
-	$this->announce(new PA("Invalid boat to edit."));
+	Session::pa(new PA("Invalid boat to edit."));
 	WebServer::go("boats");
       }
       $mess = "Edit boat";
@@ -87,7 +87,7 @@ class BoatManagement extends AbstractAdminUserPane {
       if (isset($args['boat'])) {
 	$boat = Preferences::getBoat((int)$args['boat']);
 	if ($boat == null) {
-	  $this->announce(new PA("Invalid boat to edit.", PA::E));
+	  Session::pa(new PA("Invalid boat to edit.", PA::E));
 	  unset($args['boat']);
 	  return $args;
 	}
@@ -98,11 +98,11 @@ class BoatManagement extends AbstractAdminUserPane {
 	$boat->occupants = (int)$args['occupants'];
       }
       else {
-	$this->announce(new PA("Invalid value for number of occupants.", PA::E));
+	Session::pa(new PA("Invalid value for number of occupants.", PA::E));
 	return $args;
       }
       Preferences::setBoat($boat);
-      $this->announce(new PA($mess));
+      Session::pa(new PA($mess));
       $_SESSION['POST'] = array();
       WebServer::go("boats");
     }

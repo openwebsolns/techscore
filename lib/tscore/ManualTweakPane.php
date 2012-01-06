@@ -75,7 +75,7 @@ public function process(Array $args) {
   if (isset($args['division'])) {
     if (!in_array($args['division'], $rotation->getDivisions())) {
       $mes = sprintf("Invalid division (%s).", $args['division']);
-      $this->announce(new PA($mes, PA::E));
+      Session::pa(new PA($mes, PA::E));
       unset($args['division']);
     }
     return $args;
@@ -104,7 +104,7 @@ public function process(Array $args) {
       }
     }
     UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
-    $this->announce(new PA('Sails updated.'));
+    Session::pa(new PA('Sails updated.'));
   }
 
   return $args;
