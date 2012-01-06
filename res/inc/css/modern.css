@@ -60,7 +60,7 @@ div.maximized iframe {width:850px;margin:auto;height:95%;display:block;}
 #announcements li {    list-style-type: none; padding: 0.5em;}
 #announcements p {padding:0.5em;margin:1em 15px;background:#eed2c0;border:1px solid brown;}
 p.valid, #announcements .success {background:#e0f3e0;border:1px solid green;}
-p.warning, #announcements .warning {background:#f3f3bb;border:1px solid orange;}
+p.warning, #announcements .warn {background:#f3f3bb;border:1px solid orange;}
 #announcements img {margin-right:0.5em;}
 .left {text-align:left;}
 .strong {font-weight:bold;}
