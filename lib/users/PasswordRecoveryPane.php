@@ -41,8 +41,9 @@ class PasswordRecoveryPane extends WelcomePage {
     // ------------------------------------------------------------
     // 2. Message sent
     // ------------------------------------------------------------
-    if (isset($_SESSION['password-recovery-sent'])) {
-      unset($_SESSION['password-recovery-sent']);
+    $POST = Session::g('POST');
+    if (isset($POST['password-recovery-sent'])) {
+      Session::s('POST', array());
       $this->addContent(new XPageTitle("Recover Password"));
       $this->addContent($p = new XPort("Message sent"));
       $p->add(new XP(array(), "Message sent. Please check your e-mail and follow the directions provided."));
@@ -100,7 +101,7 @@ class PasswordRecoveryPane extends WelcomePage {
       $res = Preferences::mail($acc->id, '[TechScore] Reset password request', $this->getMessage($acc));
       if ($res) {
 	Session::pa(new PA("Message sent."));
-	$_SESSION['password-recovery-sent'] = true;
+	Session::s('POST', array('password-recovery-sent'=>true));
       }
       else
 	Session::pa(new PA("Unable to send message. Please try again.", PA::I));
