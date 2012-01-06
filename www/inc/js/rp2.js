@@ -95,7 +95,7 @@ function check() {
 		}
 		if (conflicting_race.length > 0) {
 		    var conflict = makeRange(conflicting_race);
-		    checkTD.innerHTML = '<img alt="X" title="Too many crews for ' + conflict + '" src="img/error.png"/> ' + conflict;
+		    checkTD.innerHTML = '<img alt="X" title="Too many crews for ' + conflict + '" src="img/e.png"/> ' + conflict;
 		    break;
 		}
 	    }
@@ -122,7 +122,7 @@ function check() {
 			 div_s2 == div_s   &&
 			 com.length > 0 ) {
 			// Repeats, report errors
-			getCheckTD(skcrs[s]).innerHTML = '<img alt="Error" title="Multiple sailors for same race" src="img/error.png"/><strong>' + makeRange(com) + '</strong>';
+			getCheckTD(skcrs[s]).innerHTML = '<img alt="Error" title="Multiple sailors for same race" src="img/e.png"/><strong>' + makeRange(com) + '</strong>';
 			// Stop checking any more for this sailor
 			errors = true;
 			break;
@@ -133,7 +133,7 @@ function check() {
 			 (typ_s2 != typ_s || div_s2 != div_s) &&
 			 com.length > 0 ) {
 			// Alert problem
-			checkTD.innerHTML = '<img alt="Error" title="Only God is omnipresent" src="img/error.png"/>';
+			checkTD.innerHTML = '<img alt="Error" title="Only God is omnipresent" src="img/e.png"/>';
 			checkTD.innerHTML+= '<span><strong> ' + makeRange(com) + ' in ' + div_s2 + '</strong></span>';
 			errors = true;
 			break;
@@ -144,7 +144,7 @@ function check() {
 			 div_s != div_s2 &&
 			 skcrs[s].value == skcrs[s2].value ) {
 			// Warn of problem
-			checkTD.innerHTML += '<img alt="Warning" title="Skippers cannot switch division" src="img/warn.png"/>';
+			checkTD.innerHTML += '<img alt="Warning" title="Skippers cannot switch division" src="img/i.png"/>';
 			warnings = true;
 		    }
 
@@ -184,7 +184,7 @@ function check() {
 			}
 			if ( switches > 2 ) {
 			    // Too many switches, warn
-			    checkTD.innerHTML += '<img alt="Warning" title="Crews can switch divisions only once" src="img/warn.png"/>';
+			    checkTD.innerHTML += '<img alt="Warning" title="Crews can switch divisions only once" src="img/i.png"/>';
 			    warnings = true;
 			}
 		    }
@@ -193,7 +193,7 @@ function check() {
 
 	    // If, after all this, there are no errors, or warnings, type check!
 	    if ( !errors && !warnings ) {
-		checkTD.innerHTML = '<img alt="Check!" src="img/check.png"/>';
+		checkTD.innerHTML = '<img alt="Check!" src="img/s.png"/>';
 	    }
 	    if ( !errors ) {
 		document.getElementById('rpsubmit').disabled = false;

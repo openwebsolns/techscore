@@ -42,7 +42,7 @@ String.prototype.reverse = function(){
 
 	    // Check that it is not blank
 	    if (input.value != "") {
-		cell.src = "/img/check.png";
+		cell.src = "/img/s.png";
 		cell.alt = "Valid";
 
 		// Remove from the list of pos_teams
@@ -58,12 +58,12 @@ String.prototype.reverse = function(){
 		    if (inputs[k].value == input.value) {
 			// Error! Alert both, and stop checking for
 			// errors
-			cell.src = "/img/error.png";
+			cell.src = "/img/e.png";
 			cell.alt = "Error: repeated team";
 
 			var iNum2 = inputs[k].id.replace("team", "");
 			var cell2 = document.getElementById("check" + iNum2);
-			cell2.src = "/img/error.png";
+			cell2.src = "/img/e.png";
 			cell2.alt = "Error: repeated sail";
 			can_submit = false;
 			break;
@@ -124,23 +124,23 @@ function checkSails () {
 	    // If possible, compare to others.
 	    // If not, label as error
 	    if ( !possible ) {
-		cell.src = "/img/error.png";
+		cell.src = "/img/e.png";
 		cell.alt = "Error in sail number";
 		can_submit = false;
 	    }
 	    else {
-		cell.src = "/img/check.png";
+		cell.src = "/img/s.png";
 		cell.alt = "Valid";
 
 		for (var k = 0; k < inputs.length; k++) {
 		    if ( k != i && inputs[k].value == input.value ) {
 			// Error! Alert both boxes, and stop
 			// checking for errors
-			cell.src = "/img/error.png";
+			cell.src = "/img/e.png";
 			cell.alt = "Error: repeated sail";
 
 			var iNum2 = inputs[k].id.replace("sail","");
-			cell.src = "/img/error.png";
+			cell.src = "/img/e.png";
 			cell.alt = "Error: repeated sail";
 			can_submit = false;
 			break;

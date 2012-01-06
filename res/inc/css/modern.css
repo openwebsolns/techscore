@@ -29,7 +29,7 @@ h4#regatta {font-weight:bold;}
 #logout a {text-decoration:none;background:#f3ebe0;border:1px outset #555555;padding:0.2em;position:absolute;right:60px;top:10px;font-size:1em;}
 #regatta {float:right;color:#eeeeee;font-size:0.8em;margin-right:10px;padding-right:10px;margin-top:10px;}
 #regatta ul {margin:0px;margin-left:-2em;margin:white;display:none;}
-#regatta a {position:absolute;right:5px;top:45px;height:24px;text-align:right;padding-right:16px;background-image:url('../../img/error.png');background-repeat:no-repeat;background-position:100% 2px;z-index:25;}
+#regatta a {position:absolute;right:5px;top:45px;height:24px;text-align:right;padding-right:16px;background-image:url('../../img/e.png');background-repeat:no-repeat;background-position:100% 2px;z-index:25;}
 #bottom-grab {display:none;}
 #bodydiv {position:absolute;top:70px;width:870px;padding:15px;padding-top:0px;border-bottom:1px solid #555555;margin-bottom:20px;}
 #bodydiv, #menudiv, #headdiv {border-left:1px solid #555555;border-right:1px solid #555555;}
@@ -52,11 +52,16 @@ iframe {width:850px;border:none;border-left:2px solid ridge;}
 div.frames {position:fixed;left:903px;width:850px;border-top:2px solid #555555;background:white;}
 div.maximized {position:fixed;top:0px;left:0px;width:100%;height:100%;z-index:100;background:black;background-image:url('img/black_bg.png');}
 div.maximized iframe {width:850px;margin:auto;height:95%;display:block;}
-#announcediv {margin:auto;margin-bottom:20px;font-size:0.9em;width:820px;}
-#announcediv p {padding:0.5em;margin:1em 15px;background:#eed2c0;border:1px solid brown;}
-p.valid, #announcediv .valid {background:#e0f3e0;border:1px solid green;}
-p.warning, #announcediv p.warning {background:#f3f3bb;border:1px solid orange;}
-#announcediv img {margin-right:0.5em;}
+#announcements {
+    margin:1em auto;
+    font-size:0.9em;
+    width:820px;
+}
+#announcements li {    list-style-type: none; padding: 0.5em;}
+#announcements p {padding:0.5em;margin:1em 15px;background:#eed2c0;border:1px solid brown;}
+p.valid, #announcements .success {background:#e0f3e0;border:1px solid green;}
+p.warning, #announcements .warning {background:#f3f3bb;border:1px solid orange;}
+#announcements img {margin-right:0.5em;}
 .left {text-align:left;}
 .strong {font-weight:bold;}
 table#conftable {width:100%;}

@@ -73,7 +73,7 @@ function showFrame(id) {
 
     // close button
     elem = document.createElement("img");
-    elem.setAttribute("src", "/img/error.png");
+    elem.setAttribute("src", "/img/e.png");
     elem.setAttribute("style", "cursor: pointer; position: absolute; top: 5px; left: 5px;");
     elem.setAttribute("onclick", "javascript:closeFrame(" + id + ")");
     elem.setAttribute("title", "Close dialog");

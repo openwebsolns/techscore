@@ -21,6 +21,9 @@ require_once('xml5/TS.php');
 class TScorePage extends XPage {
 
   // Private variables
+  private $user;
+  private $reg;
+
   private $header;
   private $navigation;
   private $menu;
@@ -39,9 +42,15 @@ class TScorePage extends XPage {
    */
   public function __construct($title, User $user = null, Regatta $reg = null) {
     parent::__construct($title);
+    $this->user = $user;
+    $this->reg = $reg;
+
+    $this->mobile = $this->isMobile();
+    $this->fillHead();
+
+    $this->content = array();
     $this->filled = false;
     $this->menu = new XDiv(array('id'=>'menudiv'));
-    $this->content = new XDiv(array('id'=>'bodydiv'));
     $this->header = new XDiv(array('id'=>'headdiv'));
     $this->navigation = new XDiv(array('id'=>'topnav'));
   }
@@ -50,12 +59,6 @@ class TScorePage extends XPage {
     if ($this->filled) return;
     $this->filled = true;
     
-    $this->mobile = $this->isMobile();
-
-    $this->head->add(new XMeta('robots', 'noindex, nofollow'));
-    $this->head->add(new XMetaHTTP('http-equiv', 'text/html; charset=UTF-8'));
-    $this->fillHead();
-
     // Menu
     if ($this->mobile) {
       $this->body->add(new XButton(array("onclick"=>"toggleMenu()", 'type'=>'button'), array("Menu")));
@@ -65,13 +68,15 @@ class TScorePage extends XPage {
     $this->body->add($this->header);
 
     // Header
-    $this->fillPageHeader($user, $reg);
+    $this->fillPageHeader($this->user, $this->reg);
 
     // Content
-    $this->body->add($this->content);
+    $this->body->add($c = new XDiv(array('id'=>'bodydiv')));
 
     // Announcement
-    $this->content->add(Session::getAnnouncements());
+    $c->add(Session::getAnnouncements());
+    foreach ($this->content as $cont)
+      $c->add($cont);
 
     // Footer
     $this->body->add(new XDiv(array('id'=>'footdiv'),
@@ -93,6 +98,9 @@ class TScorePage extends XPage {
    *
    */
   private function fillHead() {
+    $this->head->add(new XMeta('robots', 'noindex, nofollow'));
+    $this->head->add(new XMetaHTTP('http-equiv', 'text/html; charset=UTF-8'));
+
     // CSS Stylesheets
     if ($this->mobile) {
       $this->head->add(new LinkCSS('/inc/css/mobile.css'));
@@ -151,7 +159,7 @@ class TScorePage extends XPage {
    * page
    */
   public function addContent($elem) {
-    $this->content->add($elem);
+    $this->content[] = $elem;
   }
 
   /**

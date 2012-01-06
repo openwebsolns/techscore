@@ -108,14 +108,14 @@ table.narrow {
     display: inline-block;
     vertical-align: top;
 }
-div#announcediv {
+#announcements {
     background: #f3ebe0;
     margin: auto;
     margin-bottom: 20px;
     font-size: 0.9em;
     width: 820px;
 }
-div#announcediv p {
+#announcements li {
     margin: 15px;
     margin-top: 5px;
     margin-bottom: 5px;

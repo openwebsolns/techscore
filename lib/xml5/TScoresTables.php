@@ -299,7 +299,7 @@ class TScoresTables {
 	    $title .= sprintf(' (%s)', $pen->explanation);
 	  if ($pen->penalty !== null) {
 	    $scoreDiv += 20;
-	    $img = new XImg('/inc/img/error.png', 'X',
+	    $img = new XImg('/inc/img/e.png', 'X',
 	         	    array('title'=>sprintf('(%s, +20 points) %s', $pen->penalty, $pen->comments)));
           }
 	}
