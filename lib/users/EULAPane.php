@@ -52,8 +52,7 @@ class EULAPane extends AbstractUserPane {
 	WebServer::go('/');
       }
       else {
-	$_SESSION['ANNOUNCE'][] = new PA("You must sign checkbox to continue.",
-						   PA::E);
+	$_SESSION['ANNOUNCE'][] = new PA("You must sign checkbox to continue.", PA::E);
       }
     }
     return $args;

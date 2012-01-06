@@ -105,14 +105,10 @@ class PendingAccountsPane extends AbstractAdminUserPane {
 
 	// Announce the good news
 	if ($errors > 0) {
-	  $_SESSION['ANNOUNCE'][] = new PA(sprintf("%s %d accounts.",
-							     $legend[$action]["error"], $errors),
-						     PA::I);
+	  $_SESSION['ANNOUNCE'][] = new PA(sprintf("%s %d accounts.", $legend[$action]["error"], $errors), PA::I);
 	}
 	if (count($success) > 0) {
-	  $_SESSION['ANNOUNCE'][] = new PA(sprintf("%s %s.",
-							     $legend[$action]["success"],
-							     implode(", ", $success)));
+	  $_SESSION['ANNOUNCE'][] = new PA(sprintf("%s %s.", $legend[$action]["success"], implode(", ", $success)));
 	}
       }
     }

@@ -121,38 +121,33 @@ class VenueManagement extends AbstractAdminUserPane {
       }
 
       if (!isset($args['name']) || empty($args['name'])) {
-	$_SESSION['ANNOUNCE'][] = new PA("Venue name must not be empty.",
-						   PA::E);
+	$_SESSION['ANNOUNCE'][] = new PA("Venue name must not be empty.", PA::E);
 	unset($args['name']);
 	return $args;
       }
       $name = addslashes($args['name']);
 
       if (!isset($args['address']) || empty($args['address'])) {
-	$_SESSION['ANNOUNCE'][] = new PA("Address field must not be empty.",
-						   PA::E);
+	$_SESSION['ANNOUNCE'][] = new PA("Address field must not be empty.", PA::E);
 	unset($args['address']);
 	return $args;
       }
 
       if (!isset($args['city']) || empty($args['city'])) {
-	$_SESSION['ANNOUNCE'][] = new PA("City field must not be empty.",
-						   PA::E);
+	$_SESSION['ANNOUNCE'][] = new PA("City field must not be empty.", PA::E);
 	unset($args['city']);
 	return $args;
       }
 
       if (!isset($args['state']) || !isset(self::$states[$args['state']])) {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid state field.",
-						   PA::E);
+	$_SESSION['ANNOUNCE'][] = new PA("Invalid state field.", PA::E);
 	unset($args['state']);
 	return $args;
       }
 
       if (!isset($args['zipcode']) ||
 	  !preg_match('/^[0-9]{5}$/', $args['zipcode'])) {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid zipcode entered.",
-						   PA::E);
+	$_SESSION['ANNOUNCE'][] = new PA("Invalid zipcode entered.", PA::E);
 	unset($args['zipcode']);
 	return $args;
       }

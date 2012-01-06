@@ -145,16 +145,14 @@ class RegisterPane extends WelcomePage {
       $acc->last_name  = trim(addslashes($args['last_name']));
       $acc->first_name = trim(addslashes($args['first_name']));
       if (empty($acc->last_name) || empty($acc->first_name)) {
-	$_SESSION['ANNOUNCE'][] = new PA("User first and last name must not be empty.",
-						   PA::E);
+	$_SESSION['ANNOUNCE'][] = new PA("User first and last name must not be empty.", PA::E);
 	return $args;
       }
 
       // 3. Affiliation
       $acc->school = Preferences::getSchool(trim(addslashes($args['school'])));
       if ($acc->school === null) {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid school affiliation requested.",
-						   PA::E);
+	$_SESSION['ANNOUNCE'][] = new PA("Invalid school affiliation requested.", PA::E);
 	return $args;
       }
 
@@ -188,9 +186,7 @@ class RegisterPane extends WelcomePage {
 	$_SESSION['ANNOUNCE'][] = new PA("Account successfully created.");
 	return array("registration-step"=>1);
       }
-      $_SESSION['ANNOUNCE'][] = new PA("There was an error with your request. " .
-						 "Please try again later.",
-						 PA::E);
+      $_SESSION['ANNOUNCE'][] = new PA("There was an error with your request. Please try again later.", PA::E);
       return $args;
     }
 
@@ -200,8 +196,7 @@ class RegisterPane extends WelcomePage {
       $acc = AccountManager::getAccountFromHash($hash);
 
       if ($acc === null) {
-	$_SESSION['ANNOUNCE'][] = new PA("Invalid account to approve.",
-						   PA::E);
+	$_SESSION['ANNOUNCE'][] = new PA("Invalid account to approve.", PA::E);
 	return $args;
       }
       $acc->status = 'pending';

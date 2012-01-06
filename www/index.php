@@ -153,8 +153,7 @@ else {
   break;
 
   default:
-    $_SESSION['ANNOUNCE'][] = new PA(sprintf("Invalid page requested (%s).", $_REQUEST['p']),
-					       PA::E);
+    $_SESSION['ANNOUNCE'][] = new PA(sprintf("Invalid page requested (%s).", $_REQUEST['p']), PA::E);
     WebServer::go('/');
   }
 }
