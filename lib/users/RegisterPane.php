@@ -46,8 +46,9 @@ class RegisterPane extends WelcomePage {
    */
   public function fillContent() {
     $step = null;
-    if (isset($_SESSION['POST']['registration-step']))
-      $step = $_SESSION['POST']['registration-step'];
+    $post = Session::g('POST');
+    if (isset($post['registration-step']))
+      $step = $post['registration-step'];
     elseif (isset($_REQUEST['registration-step']))
       $step = $_REQUEST['registration-step'];
 
@@ -63,7 +64,8 @@ class RegisterPane extends WelcomePage {
     default:
       $this->fillDefault();
     }
-    unset($_SESSION['POST']['registration-step']);
+    unset($post['registration-step']);
+    Session::s('POST', $post);
   }
 
   /**
@@ -202,7 +204,7 @@ class RegisterPane extends WelcomePage {
       $acc->status = 'pending';
       AccountManager::setAccount($acc);
       Session::pa(new PA("Account verified. Please wait until the account is approved. You will be notified by mail."));
-      $_SESSION['POST'] = array('registration-step' => 2);
+      Session::s('POST', array('registration-step' => 2));
       // notify all admins
       $admins = array();
       foreach (AccountManager::getAdmins() as $admin)

@@ -103,7 +103,7 @@ class BoatManagement extends AbstractAdminUserPane {
       }
       Preferences::setBoat($boat);
       Session::pa(new PA($mess));
-      $_SESSION['POST'] = array();
+      Session::s('POST', array());
       WebServer::go("boats");
     }
     return $args;

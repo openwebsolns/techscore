@@ -155,7 +155,8 @@ class SendMessage extends AbstractAdminUserPane {
     // Add message to outbox
     // ------------------------------------------------------------
     if (isset($args['send-message'])) {
-      if (!isset($_SESSION['POST']['recipients'])) {
+      $post = Session::g('POST');
+      if (!isset($post['recipients'])) {
 	Session::pa(new PA("No recipients found.", PA::E));
 	return array();
       }
@@ -171,19 +172,19 @@ class SendMessage extends AbstractAdminUserPane {
 
       // recipients and arguments
       $args = null;
-      switch ($_SESSION['POST']['recipients']) {
+      switch ($post['recipients']) {
       case 'conferences':
-	$args = implode(',', $_SESSION['POST']['conferences']);
+	$args = implode(',', $post['conferences']);
 	break;
       case 'roles':
-	$args = implode(',', array_keys($_SESSION['POST']['roles']));
+	$args = implode(',', array_keys($post['roles']));
 	break;
       }
 
       // Add the message to the outbox
       $out = new Outbox();
       $out->sender = $this->USER->username();
-      $out->recipients = $_SESSION['POST']['recipients'];
+      $out->recipients = $post['recipients'];
       $out->arguments = $args;
       $out->subject = $sub;
       $out->content = $cnt;

@@ -46,7 +46,7 @@ if (!Session::has('user')) {
       exit;
     }
     if (isset($_GET['_action']) && $_GET['_action'] == 'edit') {
-      $_SESSION['POST'] = $PAGE->process($_REQUEST);
+      Session::s('POST', $PAGE->process($_REQUEST));
       WebServer::goBack();
     }
     $PAGE->printXML();
@@ -158,11 +158,10 @@ else {
   }
 }
 if (isset($_GET['_action']) && $_GET['_action'] == 'edit') {
-  $_SESSION['POST'] = $PAGE->process($_REQUEST);
+  Session::s('POST', $PAGE->process($_REQUEST));
   WebServer::goBack();
 }
-$args = array_merge($_GET, (isset($_SESSION['POST']) && is_array($_SESSION['POST'])) ?
-		    $_SESSION['POST'] :
-		    array());
+$post = Session::g('POST');
+$args = array_merge($_GET, (is_array($post)) ? $post : array());
 $PAGE->getHTML($args);
 ?>

@@ -88,7 +88,7 @@ elseif (isset($_REQUEST['p'])) {
   // process, if so requested
   if ($POSTING) {
     require_once('public/UpdateManager.php');
-    $_SESSION['POST'] = $PAGE->process($_POST);
+    Session::s('POST', $PAGE->process($_POST));
     if (LOG_MEMORY)
       error_log(sprintf("%s:\t%d\n", $_SERVER['REQUEST_URI'], memory_get_peak_usage()), 3, "../log/memory.log");
     WebServer::goBack();
@@ -232,8 +232,9 @@ else {
   exit;
 }
 $args = $_REQUEST;
-if (isset($_SESSION['POST']) && is_array($_SESSION['POST']))
-  $args = array_merge($args,$_SESSION['POST']);
+$post = Session::g('POST');
+if (is_array($post))
+  $args = array_merge($args, $post);
 $PAGE->getHTML($args);
 
 if (LOG_MEMORY)
