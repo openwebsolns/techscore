@@ -41,7 +41,7 @@ class RegisterPane extends WelcomePage {
 
   /**
    * Fills web page depending on registration status, i.e. the
-   * "registration-step" variable in the $_SESSION
+   * "registration-step" variable in the session.
    *
    */
   public function fillContent() {

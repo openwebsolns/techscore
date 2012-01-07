@@ -44,9 +44,12 @@ class SendMessage extends AbstractAdminUserPane {
 
     // conference
     $p->add($f = new XForm("/send-message-edit", XForm::POST));
-    $f->add($fi = new FItem("All users in conference:", $sel = XSelectM::fromArray('conferences[]', Preferences::getConferences())));
+    $f->add($fi = new FItem("All users in conference:", $sel = new XSelectM('conferences[]')));
     $fi->add(" ");
+    $fi->add(new XSubmitInput('choose-recipients', "Write message >"));
     $sel->set('size', 7);
+    foreach (Preferences::getConferences() as $conf)
+      $sel->add(new FOption($conf->id, $conf));
 
     // roles
     $p->add($f = new XForm("/send-message-edit", XForm::POST));
@@ -163,11 +166,11 @@ class SendMessage extends AbstractAdminUserPane {
       // require non-empty subject and content
       if (!isset($args['subject']) || ($sub = trim($args['subject'])) == "") {
 	Session::pa(new PA("Subject must not be empty.", PA::E));
-	return $_SESSION;
+	return $post;
       }
       if (!isset($args['content']) || ($cnt = trim($args['content'])) == "") {
 	Session::pa(new PA("Message body must not be empty.", PA::E));
-	return $_SESSION;
+	return $post;
       }
 
       // recipients and arguments

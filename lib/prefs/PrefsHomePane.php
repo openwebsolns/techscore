@@ -22,7 +22,6 @@ class PrefsHomePane extends AbstractUserPane {
    */
   public function __construct(User $usr, School $school) {
     parent::__construct("Preferences", $usr, $school);
-    if (is_array($_SESSION)) $_SESSION['SCHOOL'] = $school->id;
   }
 
   /**
