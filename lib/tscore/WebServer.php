@@ -41,7 +41,7 @@ class WebServer {
       header("Location: $addr");
       exit;
       }
-      header(sprintf("Location: %s/%s", HOME, $addr));
+      header(sprintf("Location: %s/%s", Conf::$HOME, $addr));
     */
     header(sprintf("Location: %s", $addr));
     exit;

@@ -76,7 +76,7 @@ class RegisterPane extends WelcomePage {
     $this->addContent($p = new XPort("Request new account"));
     $p->add(new XP(array(),
 		   array("Please note that TechScore is an online scoring program specifically designed for College Sailing regattas. As such, account access is given only to valid ICSA users, or as approved by the registration committee. If you are not affiliated with ICSA, you might be more interested in accessing the public site at ",
-			 new XA(PUB_HOME, PUB_HOME), ".")));
+			 new XA(Conf::$PUB_HOME, Conf::$PUB_HOME), ".")));
     
     $p->add(new XP(array(), "Through this form you will be allowed to petition for an account on TechScore. Every field is mandatory. Please enter a valid e-mail account which you check as you will be sent an e-mail there to verify your identity."));
 
@@ -225,7 +225,7 @@ class RegisterPane extends WelcomePage {
 		   "instructions, your account request will be sent to the registration committee for " .
 		   "approval. You will be notified as soon as your account is activated.\n\n" .
 		   "%s/register/acc=%s\n\nThank you,\n\nTechScore Administration",
-		   $to->first_name, HOME, AccountManager::getHash($to));
+		   $to->first_name, Conf::$HOME, AccountManager::getHash($to));
   }
   public function getAdminMessage(Account $about) {
     return sprintf("Dear Administrators,\n\nThere is a new account request at TechScore. Please login " .

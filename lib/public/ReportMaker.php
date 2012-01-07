@@ -51,7 +51,7 @@ class ReportMaker {
       }
     }
 
-    $link_schools = PUB_HOME.'/schools';
+    $link_schools = Conf::$PUB_HOME.'/schools';
 
     // Divisional scores
     // $maker = new ScoresDivisionalDialog($reg);
@@ -69,7 +69,7 @@ class ReportMaker {
     $this->divPage[(string)$div] = $page;
     $this->prepare($page);
     
-    $link_schools = PUB_HOME.'/schools';
+    $link_schools = Conf::$PUB_HOME.'/schools';
     // $maker = new ScoresDivisionDialog($reg, $div);
     $maker = new TScoresTables($this->dt_regatta);
     $page->addSection($p = new XPort("Scores for Division $div"));
@@ -84,7 +84,7 @@ class ReportMaker {
     $this->fullPage = new TPublicPage("Full scores | " . $reg->get(Regatta::NAME));
     $this->prepare($this->fullPage);
     
-    $link_schools = PUB_HOME.'/schools';
+    $link_schools = Conf::$PUB_HOME.'/schools';
     
     // Total scores
     // $maker = new ScoresFullDialog($reg);

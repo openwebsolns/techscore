@@ -138,7 +138,7 @@ class TScorePage extends XPage {
       $div->add(new XH4(Session::g('user'), array("id"=>"user")));
     
     $this->header->add($this->navigation);
-    $this->navigation->add($a = new XA(HELP_HOME, new XSpan("H", array('style'=>"text-decoration:underline")),
+    $this->navigation->add($a = new XA(Conf::$HELP_HOME, new XSpan("H", array('style'=>"text-decoration:underline")),
 				       array("id"=>"help",
 					     'onclick'=>'this.target="help"',
 					     "accesskey"=>"h")));

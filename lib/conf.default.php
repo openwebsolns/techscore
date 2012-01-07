@@ -10,6 +10,7 @@
 // and the web environment. Take a look at the class Conf in conf.php
 Conf::$HOME = sprintf("http://%s", $_SERVER['HTTP_HOST']);
 Conf::$PUB_HOME = sprintf("http://scores.%s", $_SERVER['HTTP_HOST']);
+Conf::$HELP_HOME = sprintf("http://%s/ts-help", $_SERVER['HTTP_HOST']);
 Conf::$ADMIN_MAIL = "admin@" . $_SERVER['HTTP_HOST'];
 Conf::$TS_FROM_MAIL = Conf::$ADMIN_MAIL;
 
