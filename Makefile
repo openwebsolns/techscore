@@ -1,6 +1,6 @@
 include Makefile.local
 
-default: apache.conf changes.current.sql crontab cache/404-schools.html cache/schools.db css-admin
+default: apache.conf changes.current.sql crontab cache/404-schools.html cache/schools.db css css-admin js js-admin
 
 crontab: crontab.default Makefile.local
 	sed -e 's:{DIRECTORY}:'"`pwd`"':g' \
@@ -48,19 +48,37 @@ doc:
 	  --defaultpackagename regatta \
 	  --output "HTML:Smarty:PHP"
 
-# Admin CSS
-css-admin: www/inc/css/aa.css www/inc/css/cal.css www/inc/css/mobile.css www/inc/css/modern.css www/inc/css/print.css www/inc/css/modern-dialog.css www/inc/css/widescreen.css
+# CSS goodness
+# css-admin: www/inc/css/aa.css www/inc/css/cal.css www/inc/css/mobile.css www/inc/css/modern.css www/inc/css/print.css www/inc/css/modern-dialog.css www/inc/css/widescreen.css
 
-www/inc/css/%.css: res/inc/css/%.css
+html/inc/css/%.css: res/html/inc/css/%.css
+	mkdir -pv html/inc/css && \
 	tr "\n" " " < $^ | \
 	tr -s " " | \
 	sed -e 's:/\*[^(\*/)]*\*/::g' -e 's/\(;\|:\|}\|{\)[ 	]*/\1/g' \
 	    -e 's/[ 	]*{/{/g'      -e 's/^[ 	]*//' > $@
 
-css:
-	mkdir -p html/inc/css;\
-	cat res/inc/css/modern-public.css | tr "\n" " " | tr "\t" " " | tr -s " " | sed -e 's:/\*[^\*]*\*/::g' -e 's/: \+/:/g' -e 's/; \+/;/g' -e 's/ *{ */{/g' -e 's/ *} */}'"\n"'/g' -e 's/^ *//' > html/inc/css/mp.css;\
-	cat res/inc/css/mp-front.css | tr "\n" " " | tr "\t" " " | tr -s " " | sed -e 's:/\*[^\*]*\*/::g' -e 's/: \+/:/g' -e 's/; \+/;/g' -e 's/ *{ */{/g' -e 's/ *} */}'"\n"'/g' -e 's/^ *//' > html/inc/css/mp-front.css
+css:   $(subst res/html,html,$(wildcard res/html/inc/css/%.css))
 
-js:
-	mkdir -p html/inc/js; cp res/inc/js/report.js html/inc/js
+www/inc/css/%.css: res/www/inc/css/%.css
+	mkdir -pv www/inc/css && \
+	tr "\n" " " < $^ | \
+	tr -s " " | \
+	sed -e 's:/\*[^(\*/)]*\*/::g' -e 's/\(;\|:\|}\|{\)[ 	]*/\1/g' \
+	    -e 's/[ 	]*{/{/g'      -e 's/^[ 	]*//' > $@
+
+css-admin:   $(subst res/www,www,$(wildcard res/www/inc/css/%.css))
+
+# Javascript goodness
+
+html/inc/js/%.js: res/html/inc/js/%.js
+	mkdir -p html/inc/js && \
+	minijs.sh < $^ > $@ || cp $^ $@
+
+js:	$(subst res/html,html,$(wildcard res/html/inc/js/*.js))
+
+www/inc/js/%.js: res/www/inc/js/%.js
+	mkdir -pv www/inc/js && \
+	minijs.sh < $^ > $@ || cp $^ $@
+
+js-admin: $(subst res/www,www,$(wildcard res/www/inc/js/*.js))
