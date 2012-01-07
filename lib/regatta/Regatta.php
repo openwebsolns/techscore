@@ -1505,7 +1505,7 @@ class Regatta implements RaceListener {
 				       $type,
 				       $scoring,
 				       $participant = Regatta::PARTICIPANT_COED) {
-    $id = self::addRegatta(SQL_DB, $name, $start_time, $end_date, $type, $scoring, $participant);
+    $id = self::addRegatta(Conf::$SQL_DB, $name, $start_time, $end_date, $type, $scoring, $participant);
     $r = new Regatta($id);
     // do not create nick names for personal regattas (nick name
     // creation is delayed until the regatta is made active)

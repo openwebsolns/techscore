@@ -116,7 +116,7 @@ class TempRegatta extends Regatta {
    * @parma DateTime $expiration lifetime of the temporary regatta information
    */
   public static function createRegatta(Regatta $reg, DateTime $expiration) {
-    $id = self::addRegatta(SQL_DB,
+    $id = self::addRegatta(Conf::$SQL_DB,
 			   $reg->get(Regatta::NAME),
 			   $reg->get(Regatta::START_TIME),
 			   $reg->get(Regatta::END_DATE),

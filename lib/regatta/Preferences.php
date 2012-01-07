@@ -27,10 +27,10 @@ class Preferences {
    */
   public static function getConnection() {
     if (self::$con == null) {
-      self::$con = new MySQLi(SQL_HOST,
-			      SQL_USER,
-			      SQL_PASS,
-			      SQL_DB);
+      self::$con = new MySQLi(Conf::$SQL_HOST,
+			      Conf::$SQL_USER,
+			      Conf::$SQL_PASS,
+			      Conf::$SQL_DB);
     }
     return self::$con;
   }
