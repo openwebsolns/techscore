@@ -63,7 +63,7 @@ class TScoreDialog extends XPage {
     // Content
     $this->body->add($this->content);
     $this->body->add(new XDiv(array('id'=>'footdiv'),
-			      array(new XP(array(), sprintf("TechScore v%s © Dayán Páez 2008-%s", Conf::$VERSION, date('y'))))));
+			      array(new XP(array(), sprintf("%s v%s © Dayán Páez 2008-%s", Conf::$NAME, Conf::$VERSION, date('y'))))));
   }
 
   /**
@@ -90,7 +90,7 @@ class TScoreDialog extends XPage {
    */
   private function fillPageHeader() {
     $this->header->add(new XDiv(array('id'=>'header'),
-				array(new XH1(new XImg("/inc/img/techscore-small.png", "TechScore", array("id"=>"headimg"))),
+				array(new XH1(new XImg("/inc/img/techscore-small.png", Conf::$NAME, array("id"=>"headimg"))),
 				      new XH4(date("D M j, Y"), array("id"=>"date")))));
     
     $this->header->add($this->navigation);

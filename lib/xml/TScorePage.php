@@ -41,7 +41,7 @@ class TScorePage extends XPage {
    * menu that is displayed.
    */
   public function __construct($title, User $user = null, Regatta $reg = null) {
-    parent::__construct($title);
+    parent::__construct($title . " | " . Conf::$NAME);
     $this->user = $user;
     $this->reg = $reg;
 
@@ -80,7 +80,7 @@ class TScorePage extends XPage {
 
     // Footer
     $this->body->add(new XDiv(array('id'=>'footdiv'),
-			      array(new XP(array(), sprintf("TechScore v%s © Dayán Páez 2008-%s", Conf::$VERSION, date('y'))))));
+			      array(new XP(array(), sprintf("%s v%s © Dayán Páez 2008-%s", Conf::$NAME, Conf::$VERSION, date('y'))))));
   }
 
   /**
@@ -132,7 +132,7 @@ class TScorePage extends XPage {
    */
   private function fillPageHeader(User $user = null, Regatta $reg = null) {
     $this->header->add($div = new XDiv(array('id'=>'header'),
-				       array(new XH1(new XImg("/inc/img/techscore.png", "TechScore", array("id"=>"headimg"))))));
+				       array(new XH1(new XImg("/inc/img/techscore.png", Conf::$NAME, array("id"=>"headimg"))))));
     $div->add(new XH4(date("M j, Y"), array("id"=>"date")));
     if (Session::has('user'))
       $div->add(new XH4(Session::g('user'), array("id"=>"user")));

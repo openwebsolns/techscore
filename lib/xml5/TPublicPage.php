@@ -27,7 +27,7 @@ class TPublicPage extends XPage {
    * @param String $title the title of the page
    */
   public function __construct($title) {
-    parent::__construct($title . " | TechScore: Real-Time Regatta Results");
+    parent::__construct($title . " | " . Conf::$NAME . ": Real-Time Regatta Results");
 
     $this->filled = false;
     $this->menu = new XDiv(array('id'=>'menudiv'));
@@ -61,7 +61,7 @@ class TPublicPage extends XPage {
     // Header
     $this->body->add($div = new XDiv(array('id'=>'headdiv')));
     $div->add($sub = new XDiv(array('id'=>'header')));
-    $sub->add(new XH1(new XA(Conf::$PUB_HOME, new XImg('/inc/img/techscore.png', "TechScore", array('id'=>'headimg')))));
+    $sub->add(new XH1(new XA(Conf::$PUB_HOME, new XImg('/inc/img/techscore.png', Conf::$NAME, array('id'=>'headimg')))));
     $sub->add(new XH4(date('M j, Y @ H:i:s'), array('id'=>'date')));
     $div->add($this->navigation);
 
@@ -71,7 +71,7 @@ class TPublicPage extends XPage {
     // Footer
     $this->body->add(new XDiv(array('id'=>'footdiv'),
 			      array(new XP(array(),
-					   sprintf("TechScore v%s © Dayán Páez 2008-%s", Conf::$VERSION, date('y'))))));
+					   sprintf("%s v%s © Dayán Páez 2008-%s", Conf::$NAME, Conf::$VERSION, date('y'))))));
 
     $this->filled = true;
   }
