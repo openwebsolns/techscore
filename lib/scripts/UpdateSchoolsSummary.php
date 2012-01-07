@@ -40,13 +40,13 @@ class UpdateSchoolsSummary {
 							      new XTH(array(), "# Regattas"))))),
 			       $tab = new XTBody())));
       
-      foreach (DBME::getAll(DBME::$SCHOOL, new MyCond('conference', $conf->id)) as $i => $school) {
+      foreach (DBME::getAll(DBME::$SCHOOL, new DBCond('conference', $conf->id)) as $i => $school) {
         $q = DBME::prepGetAll(DBME::$TEAM);
         $q->fields(array('regatta'), DBME::$TEAM->db_name());
-        $q->where(new MyCond('school', $school->id));
+        $q->where(new DBCond('school', $school->id));
 
 	$link = sprintf('/schools/%s', $school->id);
-	$cnt  = count(DBME::getAll(DBME::$REGATTA, new MyCondIn('id', $q)));
+	$cnt  = count(DBME::getAll(DBME::$REGATTA, new DBCondIn('id', $q)));
 
 	$burg = "";
 	$path = sprintf('%s/../../html/inc/img/schools/%s.png', dirname(__FILE__), $school->id);

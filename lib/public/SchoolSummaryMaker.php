@@ -93,10 +93,10 @@ class SchoolSummaryMaker {
     $now = new DateTime();
     $now->setTime(0, 0);
 
-    $q = DBME::prepGetAll(DBME::$TEAM, new MyCond('school', $school->id));
+    $q = DBME::prepGetAll(DBME::$TEAM, new DBCond('school', $school->id));
     $q->fields(array('regatta'), DBME::$TEAM->db_name());
-    $regs = DBME::getAll(DBME::$REGATTA, new MyBoolean(array(new MyCond('season', $season),
-							     new MyCondIn('id', $q))));
+    $regs = DBME::getAll(DBME::$REGATTA, new DBBool(array(new DBCond('season', $season),
+							  new DBCondIn('id', $q))));
     $total = count($regs);
     $current = array(); // regattas happening NOW
     $past = array();    // past regattas from the current season

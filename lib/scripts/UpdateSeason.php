@@ -44,7 +44,7 @@ class UpdateSeason {
     require_once('mysqli/DB.php');
     DBME::setConnection(Preferences::getConnection());
     $weeks = array();
-    $regattas = DBME::getAll(DBME::$REGATTA, new MyCond('season', (string)$season));
+    $regattas = DBME::getAll(DBME::$REGATTA, new DBCond('season', (string)$season));
     foreach ($regattas as $reg) {
       $week = $reg->start_time->format('W');
       if (!isset($weeks[$week]))

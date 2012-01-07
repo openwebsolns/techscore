@@ -1,7 +1,7 @@
 <?php
 /**
  * Utilities for MySQLi convenience and efficiency. The main class in
- * this library, <code>MySQLi_delegate</code>, was born out of a need
+ * this library, <code>DBDelegate</code>, was born out of a need
  * to abstract away the MySQL dependency by giving client code the
  * ability to use the result of a query as if it were a native PHP
  * array, for the most part.
@@ -38,7 +38,7 @@ function ai_implode($glue, $array) {
 }
 
 /**
- * Thin wrapper around a MySQLi_Result object in order to use it as an
+ * Thin wrapper around a DBDelegate object in order to use it as an
  * array. This function makes heavy use of PHP5's SPL extension
  * <code>ArrayIterator</code>, available at
  * <url>http://www.php.net/manual/en/class.arrayiterator.php</url>
@@ -46,7 +46,7 @@ function ai_implode($glue, $array) {
  * @author Dayan Paez
  * @version 2010-05-14
  */
-class MySQLi_Delegate extends ArrayIterator {
+class DBDelegate extends ArrayIterator {
 
   private $row_num;
   private $result;
@@ -55,7 +55,7 @@ class MySQLi_Delegate extends ArrayIterator {
   // Delegate action
   private $action;
   
-  public function __construct(MySQLi_Result $result, MySQLi_Delegatable $action) {
+  public function __construct(MySQLi_Result $result, DBDelegatable $action) {
     $this->result = $result;
     $this->row_num = 0;
     $this->action = $action;
@@ -112,7 +112,7 @@ class MySQLi_Delegate extends ArrayIterator {
     return $this->current();
   }
   public function offsetSet($index, $val) {
-    throw new InvalidArgumentException("MySQLi_delegate does not support setting values");
+    throw new InvalidArgumentException("DBDelegate does not support setting values");
   }
 }
 
@@ -122,16 +122,16 @@ class MySQLi_Delegate extends ArrayIterator {
  * @author Dayan Paez
  * @version 2010-05-14
  */
-interface MySQLi_Delegatable {
+interface DBDelegatable {
   
   /**
    * This method is responsible for fetching the current value from
-   * the MySQLi_Result, formatting it as required, and returning the
+   * the DBDelegate, formatting it as required, and returning the
    * result. Instance methods could, for instance, return the result
    * as an object of a specific type, by calling the appropriate
-   * <code>fetch_object</code> method in MySQLi_Result
+   * <code>fetch_object</code> method in DBDelegate
    *
-   * @param MySQLi_Result $pointer the pointer at which to fetch the
+   * @param DBDelegate $pointer the pointer at which to fetch the
    * current value
    * @return mixed the resulting object or array
    */
@@ -144,7 +144,7 @@ interface MySQLi_Delegatable {
  * @author Dayan Paez
  * @version 2010-05-14
  */
-class MySQLi_Object_Delegate implements MySQLi_Delegatable {
+class DBObject_Delegate implements DBDelegatable {
 
   private $object_type;
   private $object_args;
@@ -178,14 +178,14 @@ class MySQLi_Object_Delegate implements MySQLi_Delegatable {
  * the result of issuing:
  *
  * <pre>
- * $r = MySQLi_Result->fetch_object();
+ * $r = DBDelegate->fetch_object();
  * $M->fetch($type, $r->$field);
  * </pre>
  *
  * @author Dayan Paez
  * @version 2010-05-14
  */
-class MySQLi_Function_Delegate implements MySQLi_Delegatable {
+class DBFunction_Delegate implements DBDelegatable {
 
   private $callback;
   private $args;
@@ -195,7 +195,7 @@ class MySQLi_Function_Delegate implements MySQLi_Delegatable {
    * callback with the given arguments
    *
    * @param callback $function the callback to use
-   * @param Array<MySQLi_Function_Arg> the arguments to issue
+   * @param Array<DBFunction_Arg> the arguments to issue
    */
   public function __construct($callback, Array $args = array()) {
     $this->callback = $callback;
@@ -207,9 +207,9 @@ class MySQLi_Function_Delegate implements MySQLi_Delegatable {
   /**
    * Adds the given argument to the function call
    *
-   * @param MySQLi_Function_Arg $arg the argument to add
+   * @param DBFunction_Arg $arg the argument to add
    */
-  public function addArg(MySQLi_Function_Arg $arg) {
+  public function addArg(DBFunction_Arg $arg) {
     $this->args[] = $arg;
   }
 
@@ -232,13 +232,13 @@ class MySQLi_Function_Delegate implements MySQLi_Delegatable {
 
 /**
  * Interface for creating arguments to a function using the
- * information from a given object. See <code>MySQLi_Static_Arg</code>
- * and <code>MySQLi_Field_Arg</code> for concrete examples
+ * information from a given object. See <code>DBStatic_Arg</code>
+ * and <code>DBField_Arg</code> for concrete examples
  *
  * @author Dayan Paez
  * @version 2010-05-14
  */
-interface MySQLi_Function_Arg {
+interface DBFunction_Arg {
   
   /**
    * Format and return the argument based on the information from the
@@ -256,7 +256,7 @@ interface MySQLi_Function_Arg {
  * @author Dayan Paez
  * @version 2010-05-14
  */
-class MySQLi_Static_Arg implements MySQLi_Function_Arg {
+class DBStatic_Arg implements DBFunction_Arg {
 
   private $value;
 
@@ -286,7 +286,7 @@ class MySQLi_Static_Arg implements MySQLi_Function_Arg {
  * @author Dayan Paez
  * @version 2010-05-14
  */
-class MySQLi_Field_Arg implements MySQLi_Function_Arg {
+class DBField_Arg implements DBFunction_Arg {
 
   private $field;
 

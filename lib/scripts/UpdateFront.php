@@ -25,7 +25,7 @@ class UpdateFront {
     DBME::setConnection(Preferences::getConnection());
 
     $success = false;
-    $seasons = DBME::getAll(DBME::$SEASON, new MyCond('start_date', date('Y-m-d'), MyCond::LE));
+    $seasons = DBME::getAll(DBME::$SEASON, new DBCond('start_date', date('Y-m-d'), DBCond::LE));
     foreach ($seasons as $season) {
       if (($success = $this->fillSeason($season))) {
 	$this->page->addMenu(new XA("/$season", $season->fullString()));
@@ -41,8 +41,8 @@ class UpdateFront {
   private function fillSeason(Dt_Season $season) {
     $types = Preferences::getRegattaTypeAssoc();
 
-    $cond = new MyCond('season', (string)$season);
-    $regs = DBME::getAll(DBME::$REGATTA, new MyBoolean(array(new MyCond('status', 'coming'), $cond)));
+    $cond = new DBCond('season', (string)$season);
+    $regs = DBME::getAll(DBME::$REGATTA, new DBBool(array(new DBCond('status', 'coming'), $cond)));
 
     $current_season_is_active = false;
     $row = 0;
@@ -75,7 +75,7 @@ class UpdateFront {
     }
 
     // get finished ones
-    $regs = DBME::getAll(DBME::$REGATTA, new MyBoolean(array(new MyCond('status', 'coming', MyCond::NE), $cond)));
+    $regs = DBME::getAll(DBME::$REGATTA, new DBBool(array(new DBCond('status', 'coming', DBCond::NE), $cond)));
     if (count($regs) > 0) {
       $current_season_is_active = true;
       $this->page->addSection(new XPort("All regattas", array($tab = new XTable()), array('id'=>'past')));

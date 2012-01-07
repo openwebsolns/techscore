@@ -1,57 +1,19 @@
 <?php
 /**
- * 2011-01-04: Delay database connection until needed by passing the
- * arguments to the setConnectionParams function instead
+ * DBM and DBObject provide a centralized abstraction for serializing
+ * and deserializing objects to a database. DBM is the (M)aster class
+ * which handles the querying of the database (in this case MySQL),
+ * and provides static methods for handling the data.
  *
- * 2010-12-13: New cached version of the libraries introduced.
- * Includes changes so that deserialized objects are kept in memory,
- * rather than being deserialized every time. Note that this library
- * is mutually exclusive to the standard DBM class, and is meant as a
- * drop-in replacement for the same.
- *
- * 2010-08-20: Incompatible changes to the way where clauses are handled.
- *
- * Dealing with and interacting with the database.
- *
- * Assumes existence of MySQLi-like functions. In this reiteration,
- * all objects subclass one abstract parent called DBObject, which is
- * by all means a simple class. Its only function is to provide a list
- * of fields and a database name for each particular subclass. It no
- * longer actually deals with the database and its connections.
- *
- * Instead, the DBM class takes care of any database connections and
- * subsequent calls to it. It provides static methods for general
- * purpose calls (such as retrieving a particular object from the
- * database). The instantiated objects of DBM are useful for
- * dynamically creating object's properties which are in turn
- * deserialized from the database. That way, entire "object trees" can
- * be deserialized from the database, but only when requested by the
- * client code.
- *
- * For instance, the Endowment project has a property called "report"
- * which is in turn a "Report" object. When the DBM static method
- * creates the Endowment object, it will leave a DBM instantiated
- * object as a stand-in for the "report" property. The first time this
- * property is requested by the client code, the DBObject calls the
- * <pre>serialize</pre> method on the DBM object standing in for
- * "report" in order to create the Report object on the fly. This
- * helps reduce bandwidth and unnecessary database calls.
- *
- * To ensure that all this happens, the DBObject class provides the
- * <pre>__get</pre> and <pre>__set</pre> methods, and requires that the
- * objects which need to be serialized with DBM have protected (not
- * public) fields (otherwise, __get and __set would never be
- * called). DBObject returns all of the subclass's public and
- * protected fields as database fields by default. It also provides
- * for an ID field to exist in all cases.
+ * DBM handles DBObject's. Please see the tutorial for more information.
  *
  * @author Dayan Paez
- * @version 2010-06-10
+ * @version 2011-12-07
  * @package mysql
  */
 
-require_once(dirname(__FILE__).'/MySQLi_Query.php');
-require_once(dirname(__FILE__).'/MySQLi_delegate.php');
+require_once(dirname(__FILE__).'/DBQuery.php');
+require_once(dirname(__FILE__).'/DBDelegate.php');
 
 /**
  * Database serialization errors
@@ -103,11 +65,13 @@ class DBM {
    * @return MySQLi connection
    */
   public static function connection() {
-    if (self::$__con === null && self::$__con_host !== null)
+    if (self::$__con === null && self::$__con_host !== null) {
       self::$__con = new MySQLi(self::$__con_host,
 				self::$__con_user,
 				self::$__con_pass,
 				self::$__con_name);
+      self::$__con->set_charset('utf8');
+    }
     return self::$__con;
   }
 
@@ -125,6 +89,9 @@ class DBM {
    * Sets the parameters to use when creating a MySQLi connection, but
    * does not open that connection until necessary.
    *
+   * @version 2011-10-10: This method will "reset" the connection; it
+   * will close whatever open connection is already open.
+   *
    * @param String $host the hostname
    * @param String $user the username
    * @param String $pass the password
@@ -135,6 +102,11 @@ class DBM {
     self::$__con_user = $user;
     self::$__con_pass = $pass;
     self::$__con_name = $name;
+
+    if (self::$__con !== null) {
+      self::$__con->close();
+      self::$__con = null;
+    }
   }
 
   /**
@@ -149,17 +121,14 @@ class DBM {
   /**
    * Sends a query to the database
    *
-   * @param MySQLi_Query $q the query to send
-   * @return MySQLi_Result the result
+   * @param DBQuery $q the query to send
+   * @return DBResult the result
    * @throws BadFunctionCallException if the query reveals errors
    */
-  public static function query(MySQLi_Query $q) {
-    $con = DBM::connection();
-    $res = $con->query($q->query());
-    if ($con->errno > 0)
-      throw new BadFunctionCallException("MySQL error ($q): " . $con->error);
+  public static function query(DBQuery $q) {
+    $res = $q->query();
     if (self::$log_path !== null)
-      @error_log($q->query(). "\n", 3, self::$log_path);
+      @error_log($q->toSQL(). "\n", 3, self::$log_path);
     return $res;
   }
 
@@ -168,13 +137,13 @@ class DBM {
   // ------------------------------------------------------------
 
   /**
-   * Returns an empty MySQLi_Query of the given type
+   * Returns an empty DBQuery of the given type
    *
-   * @param MySQLi_Query::Const $type the argument to the MySQLi_Query constructor
-   * @return MySQLi_Query bound to this object's connection
+   * @param DBQuery::Const $type the argument to the DBQuery constructor
+   * @return DBQuery bound to this object's connection
    */
-  public static function createQuery($type = MySQLi_Query::SELECT) {
-    return new MySQLi_Query(self::connection(), $type);
+  public static function createQuery($type = DBQuery::SELECT) {
+    return new DBQuery(self::connection(), $type);
   }
 
   /**
@@ -185,8 +154,9 @@ class DBM {
    * @return mixed|null the matching object, or null if not found
    */
   public static function get(DBObject $obj, $id) {
+    $id = (string)$id; // make sure NEVER to issue 'id is null'
     $c = get_class($obj);
-    if ($obj->db_cache() && $obj->id !== null) {
+    if ($obj->db_get_cache() && $id !== null) {
       $i = $c.'_'.$id;
       if (!isset(self::$objs[$i])) {
 	$r = self::query(self::prepGet($obj, $id));
@@ -248,59 +218,125 @@ class DBM {
    * separate call to this method. In conclusion, client scripts
    * should stick to calling this method with only the first argument.
    *
-   * @return boolean true if an update was done, false otherwise
-   *
    * @see get
    * @version 2010-12-02: Added second parameter
    */
   public static function set(DBObject $obj, $update = "guess") {
+    self::query(self::prepSet($obj, $update));
+
+    // Update ID if necessary
+    if ($obj->id === null)
+      $obj->id = self::connection()->insert_id;
+  }
+
+  public static function prepSet(DBObject $obj, $update = "guess") {
     if ($update === true) {
-      $q = self::createQuery(MySQLi_Query::UPDATE);
-      $q->where(new MyCond("id", $obj->id));
+      $q = self::createQuery(DBQuery::UPDATE);
+      $q->where(new DBCond("id", $obj->id));
     }
-    elseif ($update === false) {
-      $q = self::createQuery(MySQLi_Query::INSERT);
+    elseif ($update === false || $obj->id === null) {
+      $q = self::createQuery(DBQuery::INSERT);
     }
     else {
       // guess?
       $exist = self::get($obj, $obj->id);
-      return self::set($obj, ($exist instanceof DBObject));
+      return self::prepSet($obj, ($exist instanceof DBObject));
     }
-    self::prepSet($obj, $q);
+    self::fillSetQuery($obj, $q);
     $q->limit(1);
-    self::query($q);
-
-    // Update ID if necessary
-    if ($update === false && $obj->id == null) // then it must be auto-increment!
-      $obj->id = self::connection()->insert_id;
-    $obj->db_set_hook();
-    return $update;
+    return $q;
   }
 
   /**
-   * Helper method prepares the passed mysqli_query with the fields
+   * Helper method prepares the passed DBQuery with the fields
    * and values for the given object.
    *
+   * 2011-06-24: Allow for multipleValues instead of just values
+   *
+   * @param Array $fields provide this flag to use 'multipleValues'
+   * instead of just 'values'
    */
-  private static function prepSet(DBObject $obj, MySQLi_Query $q) {
-    $fields = $obj->db_fields();
+  private static function fillSetQuery(DBObject $obj, DBQuery $q, Array $fields = array()) {
+    $multiple = true;
+    if (count($fields) == 0) {
+      $multiple = false;
+      $fields = $obj->db_fields();
+    }
     $values = array();
+    $types  = array();
     foreach ($fields as $field) {
-      $value = $obj->$field;
+      $value =& $obj->$field;
+      $type = "";
       if ($value instanceof DBObject) {
 	$sub = self::get($value, $value->id);
 	if ($sub === null)
 	  self::set($value, false);
-	$values[] = $value->id;
+	$values[] =& $value->id;
+	$type = $value->db_type('id');
       }
       elseif ($value instanceof DateTime)
 	$values[] = $value->format('Y-m-d H:i:s');
       elseif (is_array($value))
-	$values[] = implode(',', $value);
-      else
-	$values[] = $value;
+	$values[] = implode("\0", $value);
+      elseif (is_object($value))
+	$values[] = serialize($value);
+      else {
+	$values[] =& $value;
+	if ($value !== null)
+	  $type = $obj->db_type($field);
+      }
+      if (strlen($type) != 1)
+	$type = DBQuery::A_STR;
+      $types[] = $type;
     }
-    $q->values($fields, $values, $obj->db_name());
+    if ($multiple)
+      $q->multipleValues($types, $values, $obj->db_name());
+    else
+      $q->values($fields, $types, $values, $obj->db_name());
+  }
+
+  /**
+   * Generates ONE insert query for all the DBObjects in the given
+   * list, which must be an Array or ArrayIterator. The DBObjects are
+   * inserted, never updated, therefore it is very possible for the
+   * query to fail due to primary key failures (this is in contrast to
+   * the 'set' method which deals with those issues for you).
+   *
+   * To be nice and ensure correctness, this method will call 'set' on
+   * any property of a DBObject in $list which is itself a DBObject
+   * and has a NULL 'id'. It is best practice---and you follow best
+   * practices because you are reading this docstring---to set these
+   * property objects PRIOR to calling this method, just in case.
+   *
+   * @param Array|ArrayIterator $list the list of DBObjects to insert
+   * in one giant query
+   *
+   * @throws InvalidArgumentException if argument is not iterable (NOT
+   * iterateable, Josiah!) or ANY of its elements is not a
+   * DBObject. Careful! While the exception is thrown BEFORE the giant
+   * insert query, it could be thrown AFTER a 'set' subquery.
+   */
+  public static function insertAll($list) {
+    if (!is_array($list) && !($list instanceof ArrayIterator))
+      throw new InvalidArgumentException("Argument to insertAll must be iterable.");
+    if (count($list) == 0) return;
+    $tmpl = null;
+    $fields = array();
+    $q = self::createQuery(DBQuery::INSERT);
+    foreach ($list as $i => $obj) {
+      if (!($obj instanceof DBObject))
+	throw new InvalidArgumentException(sprintf("insertAll arguments must be DBObject's; %s found instead.", get_class($obj)));
+      if ($tmpl === null) {
+	$tmpl = $obj;
+	$fields = $tmpl->db_fields();
+	$q->fields($fields, $tmpl->db_name());
+      }
+      elseif (get_class($tmpl) != get_class($obj))
+	throw new InvalidArgumentException(sprintf("Expected element %s to be of type %s, found %s instead.", $i, get_class($tmpl), get_class($obj)));
+
+      self::fillSetQuery($obj, $q, $fields);
+    }
+    self::query($q);
   }
 
   /**
@@ -339,28 +375,14 @@ class DBM {
    * existing one.
    */
   public static function reID(DBObject $obj, $newID) {
-    $fields = $obj->db_fields();
-    $values = array();
-    foreach ($fields as $field) {
-      $value = $obj->$field;
-      if ($field == "id")
-	$values[] = $newID;
-      elseif ($value instanceof DBObject) {
-	self::set($value);
-	$values[] = $value->id;
-      }
-      elseif ($value instanceof DateTime)
-	$values[] = $value->format('Y-m-d H:i:s');
-      else
-	$values[] = $value;
-    }
-
-    $q = self::createQuery(MySQLi_Query::UPDATE);
-    $q->where(new MyCond("id", $obj->id));
-    $q->values($fields, $values, $obj->db_name());
-    $q->limit(1);
-
+    $old_id = $obj->id;
+    $obj->id = $newID;
+    $q = self::createQuery(DBQuery::UPDATE);
+    $q->where(new DBCond('id', $old_id));
+    
+    self::fillSetQuery($obj, $q);
     self::query($q);
+    $obj->id = $newID;
   }
 
   /**
@@ -370,16 +392,23 @@ class DBM {
    * @see set
    */
   public static function remove(DBObject $obj) {
-    $q = self::createQuery(MySQLi_Query::DELETE);
+    $q = self::createQuery(DBQuery::DELETE);
     $q->fields(array(), $obj->db_name());
-    $q->where(new MyCond("id", $obj->id));
+    $q->where(new DBCond("id", $obj->id));
     $q->limit(1);
+    self::query($q);
+  }
+
+  public static function removeAll(DBObject $obj, DBExpression $where = null) {
+    $q = self::createQuery(DBQuery::DELETE);
+    $q->fields(array(), $obj->db_name());
+    $q->where($where);
     self::query($q);
   }
 
   /**
    * Fetches a list of all the objects from the database. Returns a
-   * MySQLi_Delegate object, which behaves much like an
+   * DBDelegate object, which behaves much like an
    * array. Optionally add a where statement (unverified) to filter
    * results
    *
@@ -389,11 +418,11 @@ class DBM {
    * @throws DatabaseException related to an invalid where statement
    * @see filter
    */
-  public static function getAll(DBObject $obj, MyExpression $where = null) {
+  public static function getAll(DBObject $obj, DBExpression $where = null) {
     $r = self::query(self::prepGetAll($obj, $where));
 
-    $del = new MySQLi_Object_Delegate(get_class($obj));
-    return new MySQLi_Delegate($r, $del);
+    $del = new DBObject_Delegate(get_class($obj));
+    return new DBDelegate($r, $del);
   }
 
   // ------------------------------------------------------------
@@ -407,14 +436,14 @@ class DBM {
    *
    * @param DBObject $obj the object whose query to create
    * @param String $id the id to fetch
-   * @return MySQLi_Query the prepared query object
+   * @return DBQuery the prepared query object
    * @see get
    * @since 2010-08-23
    */
   public static function prepGet(DBObject $obj, $id) {
     $q = self::createQuery();
     $q->fields($obj->db_fields(), $obj->db_name());
-    $q->where(new MyBoolean(array($obj->db_where(), new MyCond("id", $id))));
+    $q->where(new DBBool(array($obj->db_where(), new DBCond("id", $id))));
     $q->limit(1);
     return $q;
   }
@@ -424,15 +453,21 @@ class DBM {
    * multiple objects.
    *
    * @param DBObject $obj the object type to retrieve
-   * @param String $where the where statement to add, such as 'field = 4'
+   * @param String $where the where statement to add, e.g. 'field=4'
+   *
+   * @param Array $fields (optional) list of fields to include in
+   * response. This is particularly useful when using DBCondIn. If
+   * empty, prepare the full object.
+   *
    * @return Array<DBObject> the list of objects
    * @since 2010-08-23
    * @see prepGet
    */
-  public static function prepGetAll(DBObject $obj, MyExpression $where = null) {
+  public static function prepGetAll(DBObject $obj, DBExpression $where = null, Array $fields = array()) {
+    $f = (count($fields) == 0) ? $obj->db_fields() : $fields;
     $q = self::createQuery();
-    $q->fields($obj->db_fields(), $obj->db_name());
-    $q->order_by($obj->db_order_by(), $obj->db_order());
+    $q->fields($f, $obj->db_name());
+    $q->order_by($obj->db_get_order());
     $q->where($obj->db_where());
     $q->where($where);
     return $q;
@@ -469,20 +504,28 @@ class DBM {
    * @throws DatabaseException 
    */
   public static function filter(DBObject $obj, $qry, Array $fields = array()) {
-    $name = $obj->db_name();
-    $q = self::filter_query($obj, $qry, $fields);
-    $q->fields($obj->db_fields(), $name);
-    $q->order_by($obj->db_order_by(), $obj->db_order());
-
-    $r = self::query($q);
-    return new MySQLi_Delegate($r, new MySQLi_Object_Delegate($name));
+    $r = self::query(self::prepFilter($obj, $qry, $fields));
+    return new DBDelegate($r, new DBObject_Delegate(get_class($obj)));
   }
 
   /**
-   * Sets up the MySQLi_Query for the given object. This is a helper
+   * Prepares the query that would be executed by filter
+   *
+   * @see filter
+   */
+  public static function prepFilter(DBObject $obj, $qry, Array $fields = array()) {
+    $name = $obj->db_name();
+    $q = self::filter_query($obj, $qry, $fields);
+    $q->fields($obj->db_fields(), $name);
+    $q->order_by($obj->db_get_order());
+    return $q;
+  }
+
+  /**
+   * Sets up the DBQuery for the given object. This is a helper
    * method for the filter method above
    *
-   * @return MySQLi_Query the query, sans fields
+   * @return DBQuery the query, sans fields
    */
   private static function filter_query(DBObject $obj, $qry, Array $fields = array()) {
     if (count($fields) == 0)
@@ -495,14 +538,12 @@ class DBM {
       if ($type instanceof DBObject) {
 	$sub = self::filter_query($type, $qry);
 	$sub->fields(array("id"), $type->db_name());
-	$c[] = new MyCondIn($field, $sub);
+	$c[] = new DBCondIn($field, $sub);
       }
       else
-	$c[] = new MyCond($field, $qry, MyCond::LIKE);
+	$c[] = new DBCond($field, $qry, DBCond::LIKE);
     }
-    $q->where(new MyBoolean(array($obj->db_where(),
-				  new MyBoolean($c, MyBoolean::mOR))));
-
+    $q->where(new DBBool(array($obj->db_where(), new DBBool($c, DBBool::mOR))));
     return $q;
   }
 
@@ -534,16 +575,16 @@ class DBM {
    */
   public static function search(DBObject $obj, $qry, Array $fields = array()) {
     $r = self::query(self::prepSearch($obj, $qry, $fields));
-    return new MySQLi_Delegate($r, new MySQLi_Object_Delegate(get_class($obj)));
+    return new DBDelegate($r, new DBObject_Delegate(get_class($obj)));
   }
 
   /**
    * Prepares the query used in the search. This is a helper method
    * for the class, but client users might find them useful if they
-   * need to prepare a query for a MyCondIn condition, for instance.
+   * need to prepare a query for a DBCondIn condition, for instance.
    *
    * @see search
-   * @return MySQLi_Query the prepared query
+   * @return DBQuery the prepared query
    */
   public static function prepSearch(DBObject $obj, $qry, Array $fields = array()) {
     $name = $obj->db_name();
@@ -552,61 +593,32 @@ class DBM {
       $fields = $obj->db_filter();
     $cond = array();
     foreach ($fields as $field)
-      $cond[] = new MyCond($field, sprintf('%%%s%%', $qry), MyCond::LIKE);
-    $q->where(new MyBoolean($cond, MyBoolean::mOR));
+      $cond[] = new DBCond($field, "%{$qry}%", DBCond::LIKE);
+    $q->where(new DBBool($cond, DBBool::mOR));
     return $q;
-  }
-
-  // ------------------------------------------------------------
-  // Instance objects: provides a delegate when DBObjects need to
-  // retrieve properties which are also DBObjects
-  // ------------------------------------------------------------
-
-  private $obj_type;
-  private $obj_id;
-
-  public function __construct(DBObject $type, $id) {
-    $this->obj_type = $type;
-    $this->obj_id   = $id;
-  }
-
-  public function serialize() {
-    return DBM::get($this->obj_type, $this->obj_id);
   }
 }
 
 /**
  * This is the parent class of all objects which are to be serialized
- * and unserialized to an external MySQL database. For simple objects,
- * this class provides almost all the necessary mechanisms for
+ * and unserialized to an external database. For simple objects, this
+ * class provides almost all the necessary mechanisms for
  * synchronizing to the database, purporting to behave as though the
  * object itself was local. However, the final synchronization to the
- * database must occur through an external tool, such as the DBM class.
+ * database must occur through an external tool, such as the DBM
+ * class.
  *
  * @author Dayan Paez
  * @version 2010-06-10
  */
 class DBObject {
-
   /**
    * @var mixed the id of the object
    */
   protected $id;
-
-  public function __construct() {
-    if ($this->id === null) return;
-    
-    foreach ($this->db_fields() as $field) {
-      $type = $this->db_type($field);
-      if ($type instanceof DBObject && $this->$field !== null) {
-	$this->$field = new DBM($type, $this->$field);
-      }
-      elseif ($type instanceof DateTime && $this->$field !== null)
-	$this->$field = new DateTime($this->$field);
-      elseif (is_array($type) && $this->$field !== null)
-	$this->$field = explode(',', $this->$field);
-    }
-  }
+  private $dborder;
+  private $dbcache;
+  public function __construct() {}
 
   // ------------------------------------------------------------
   // Database-dependent parameters
@@ -644,29 +656,7 @@ class DBObject {
    * @param String $field the field name
    */
   public function db_type($field) {
-    return "string";
-  }
-
-  /**
-   * Retrieves the value to be stored in the database for the given
-   * field, presumably one of the <code>db_fields</code>. By default,
-   * this will return the value of the field, unless such a value is
-   * a DBObject, in which case the ID is returned instead, or a
-   * DateTime object in which ase YYYY-MM-DD HH:II:SS is returned
-   * instead.
-   *
-   * @param String $field the field name
-   * @return String|int the value of the object
-   * @throws InvalidArgumentException if the field is bogus
-   * @see __get
-   */
-  public function db_value($field) {
-    $value = $this->__get($field);
-    if ($value instanceof DBObject)
-      return $value->id;
-    elseif ($value instanceof DateTime)
-      return $value->format('Y-m-d H:i:s');
-    return $value;
+    return DBQuery::A_STR;
   }
 
   /**
@@ -701,19 +691,46 @@ class DBObject {
   /**
    * Returns the default ordering, defaults to id
    *
-   * @return String "id"
+   * @return Array array(id=>true);
    */
-  public function db_order() { return "id"; }
-  public function db_order_by() { return true; }
+  protected function db_order() { return array("id"=>true); }
+  /**
+   * Resets the order-by for this class.
+   *
+   * Array should be an ordered map of field names => true/false. Use
+   * true for ascending order in that particular field. If none
+   * provided, this method will reset to the value in db_order
+   *
+   * @param Array $neworder the desired order or none for default
+   * @see db_order
+   */
+  public function db_set_order(Array $neworder = array()) {
+    if (count($neworder) == 0) {
+      $this->dborder = $this->db_order();
+      return;
+    }
+    $this->dborder = $neworder;
+  }
+  public function db_get_order() {
+    if ($this->dborder === null)
+      $this->dborder = $this->db_order();
+    return $this->dborder;
+  }
 
   /**
-   * Optional hook to run after the DBM-like object has been committed
-   * to the database. Useful for tweaking after the fact.
+   * Maintain a copy of this object in memory once serialized.
    *
+   * @return boolean true to cache, false otherwise (default)
    */
-  public function db_set_hook() {}
-
-  public function db_cache() { return false; }
+  protected function db_cache() { return false; }
+  public function db_set_cache($val = false) {
+    $this->dbcache = ($val !== false);
+  }
+  public function db_get_cache() {
+    if ($this->dbcache === null)
+      $this->dbcache = $this->db_cache();
+    return $this->dbcache;
+  }
 
   /**
    * Basic type checking, using db_type
@@ -730,25 +747,27 @@ class DBObject {
 
     if (in_array($name, $this->db_fields())) {
       $type = $this->db_type($name);
-      if ($value !== null && is_array($type) && !is_array($value))
-	throw new BadFunctionCallException(sprintf("Property %s in class %s must be an array.",
-						   $name, get_class($this)));
       if ($value !== null && is_object($type) && !($value instanceof $type)) {
 	throw new BadFunctionCallException(sprintf("Property %s in class %s must be of type %s",
-						   $name, get_class($this), $type));
+						   $name, get_class($this), get_class($type)));
       }
     }
     $this->$name = $value;
   }
 
-  public function __get($name) {
+  public function &__get($name) {
     if (!property_exists($this, $name))
       throw new BadFunctionCallException(sprintf("Class %s does not have property %s.",
 						 get_class($this), $name));
-    if ($this->$name instanceof DBM)
-      $this->$name = $this->$name->serialize();
-    if ($name == "id")
-      return ($this->id === null) ? "" : $this->id;
+    $type = $this->db_type($name);
+    if ($type instanceof DBObject && !($this->$name instanceof DBObject))
+      $this->$name = DBM::get($type, $this->$name);
+    elseif ($type instanceof DateTime && is_string($this->$name))
+      $this->$name = new DateTime($this->$name);
+    elseif (is_array($type) && !is_array($this->$name))
+      $this->$name = explode("\0", $this->$name);
+    elseif (is_object($type) && is_string($this->$name))
+      $this->$name = unserialize($this->$name);
     return $this->$name;
   }
 }

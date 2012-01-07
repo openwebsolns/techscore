@@ -55,17 +55,17 @@ class CompareHeadToHead extends AbstractUserPane {
     if (isset($args['seasons']) && is_array($args['seasons'])) {
       foreach ($args['seasons'] as $s) {
 	if (($season = DBME::parseSeason($s)) !== null)
-	  $conds[] = new MyCond('season', (string)$season);
+	  $conds[] = new DBCond('season', (string)$season);
       }
     }
     else {
       $now = new DateTime();
       $season = DMBE::getSeason($now);
-      $conds[] = new MyCond('season', (string)$season);
+      $conds[] = new DBCond('season', (string)$season);
       if ($season->season == Dt_Season::SPRING) {
 	$now->setDate($now->format('Y') - 1, 10, 1);
 	$season = DBME::getSeason($now);
-	$conds[] = new MyCond('season', (string)$season);
+	$conds[] = new DBCond('season', (string)$season);
       }
     }
     if (count($conds) == 0) {
@@ -75,14 +75,14 @@ class CompareHeadToHead extends AbstractUserPane {
 
     // get first sailor's participation (dt_rp objects)
     $first_sailor = array_shift($sailors);
-    $regatta_cond = DBME::prepGetAll(DBME::$REGATTA, new MyBoolean($conds, MyBoolean::mOR));
+    $regatta_cond = DBME::prepGetAll(DBME::$REGATTA, new DBBool($conds, DBBool::mOR));
     $regatta_cond->fields(array('id'), DBME::$REGATTA->db_name());
-    $team_cond = DBME::prepGetAll(DBME::$TEAM, new MyCondIn('regatta', $regatta_cond));
+    $team_cond = DBME::prepGetAll(DBME::$TEAM, new DBCondIn('regatta', $regatta_cond));
     $team_cond->fields(array('id'), DBME::$TEAM->db_name());
-    $dteam_cond = DBME::prepGetAll(DBME::$TEAM_DIVISION, new MyCondIn('team', $team_cond));
+    $dteam_cond = DBME::prepGetAll(DBME::$TEAM_DIVISION, new DBCondIn('team', $team_cond));
     $dteam_cond->fields(array('id'), DBME::$TEAM_DIVISION->db_name());
-    $first_rps = DBME::getAll(DBME::$RP, new MyBoolean(array(new MyCond('sailor', $first_sailor->id),
-							     new MyCondIn('team_division', $dteam_cond))));
+    $first_rps = DBME::getAll(DBME::$RP, new DBBool(array(new DBCond('sailor', $first_sailor->id),
+							  new DBCondIn('team_division', $dteam_cond))));
 
     // (reg_id => (division => (sailor_id => <rank races>)))
     $table = array();
