@@ -251,36 +251,6 @@ class Preferences {
   }
 
   /**
-   * Returns the conference with the given ID
-   *
-   * @param String $id the id of the conference
-   * @return Conference the conference object
-   */
-  public static function getConference($id) {
-    $q = sprintf('select conference.id, conference.name ' .
-		 'from conference where id = "%s"', $id);
-    $q = self::query($q);
-    if ($q->num_rows == 0) {
-      return null;
-    }
-    return $q->fetch_object("Conference");
-  }
-
-  /**
-   * Returns a list of conference objects, with properties id, name,
-   * and nick
-   *
-   * @return a list of conferences
-   */
-  public static function getConferences() {
-    $q = self::query('select conference.id, conference.name from conference');
-    $list = array();
-    while ($conf = $q->fetch_object("Conference"))
-      $list[] = $conf;
-    return $list;
-  }
-
-  /**
    * Returns a list of school objects which are in the specified
    * conference.
    *

@@ -41,7 +41,7 @@ class UpdateBurgee {
    *
    */
   public static function run() {
-    foreach (Preferences::getConferences() as $conf) {
+    foreach (DB::getConferences() as $conf) {
       foreach (Preferences::getSchoolsInConference($conf) as $school) {
 	self::update($school);
       }

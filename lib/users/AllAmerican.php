@@ -73,7 +73,7 @@ class AllAmerican extends AbstractUserPane {
       }
 
       // Conferences
-      foreach (Preferences::getConferences() as $conf) {
+      foreach (DB::getConferences() as $conf) {
 	$ul2->add(new XLi(array($chk = new XCheckboxInput('confs[]', $conf, array('id' => $conf->id)),
 				new XLabel($conf->id, $conf))));
 	$chk->set('checked', 'checked');
@@ -344,12 +344,12 @@ class AllAmerican extends AbstractUserPane {
       $this->AA['report-confs'] = array();
       if (isset($args['confs']) && is_array($args['confs'])) {
 	foreach ($args['confs'] as $s) {
-	  if (($conf = Preferences::getConference($s)) !== null)
+	  if (($conf = DB::getConference($s)) !== null)
 	    $this->AA['report-confs'][$conf->id] = $conf->id;
 	}
       }
       if (count($this->AA['report-confs']) == 0) {
-	foreach (Preferences::getConferences() as $conf)
+	foreach (DB::getConferences() as $conf)
 	  $this->AA['report-confs'][$conf->id] = $conf->id;
       }
       

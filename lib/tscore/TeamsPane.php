@@ -21,7 +21,7 @@ class TeamsPane extends AbstractPane {
       $this->fillNewRegatta($args);
       return;
     }
-    $confs = Preferences::getConferences();
+    $confs = DB::getConferences();
 
     // Add teams
     $this->PAGE->addContent($p = new XPort("Add team from ICSA school"));
@@ -138,7 +138,7 @@ class TeamsPane extends AbstractPane {
   // ------------------------------------------------------------
 
   private function fillNewRegatta(Array $args) {
-    $confs = Preferences::getConferences();
+    $confs = DB::getConferences();
     $this->PAGE->addContent($p = new XPort("Add team from ICSA school"));
     $p->add(new XP(array(), "Choose schools which are participating by indicating how many teams are invited from each school. Use your browser's search function to help you."));
     $p->add($form = $this->createForm());

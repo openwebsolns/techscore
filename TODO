@@ -197,3 +197,13 @@ changed the 10 races to 11, and C still remained at 10.
 ** Swap ports in Unregistered Sailors
 
 
+   *
+
+
+* Season!
+
+It seems to me that seasons should exist PRIOR to any regattas being
+created. Thus, when an admin logs in, he/she should have
+responsibility for maintaining the different seasons in the
+database. No new regattas will be created if there is no season
+available for them. Capisce?

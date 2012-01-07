@@ -55,7 +55,7 @@ class ScorersPane extends AbstractPane {
     // Conferences
     //   -Get chosen_conference
     $chosen_conf = (isset($args['conference'])) ? 
-      Preferences::getConference($args['conference']) : 
+      DB::getConference($args['conference']) : 
       $this->USER->get(User::SCHOOL)->conference;
 
     if ($chosen_conf === null) {
@@ -65,7 +65,7 @@ class ScorersPane extends AbstractPane {
       
 
     $confs = array();
-    foreach (Preferences::getConferences() as $conf)
+    foreach (DB::getConferences() as $conf)
       $confs[$conf->id] = $conf;
         
     $s_form->add($fi = new FItem("Conference:", $sel = XSelect::fromArray('conference', $confs, $chosen_conf->id)));
@@ -98,7 +98,7 @@ class ScorersPane extends AbstractPane {
     // Change conference
     // ------------------------------------------------------------
     if (isset($args['conference']) && is_numeric($args['conference'])) {
-      if (!($conf = Preferences::getConference((int)$args['conference']))) {
+      if (!($conf = DB::getConference($args['conference']))) {
 	unset($args['conference']);
 	Session::pa(new PA("Invalid conference", PA::E));
       }

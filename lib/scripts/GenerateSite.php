@@ -62,7 +62,7 @@ class GenerateSite {
       if ($seasons === null)
 	$seasons = self::getSeasons();
       
-      foreach (Preferences::getConferences() as $conf) {
+      foreach (DB::getConferences() as $conf) {
 	self::log(sprintf("  - Conference: %s\n", $conf));
 	foreach (Preferences::getSchoolsInConference($conf) as $school) {
 	  self::log(sprintf("    - School: (%8s) %s\n", $school->id, $school));

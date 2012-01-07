@@ -130,4 +130,8 @@ if (isset($_SERVER['HTTP_HOST'])) {
   require_once('xml5/Session.php');
   Session::init();
 }
+
+// Database connection
+require_once('regatta/DB.php');
+DB::setConnectionParams(Conf::$SQL_HOST, Conf::$SQL_USER, Conf::$SQL_PASS, Conf::$SQL_DB);
 ?>

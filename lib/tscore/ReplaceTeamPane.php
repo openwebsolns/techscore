@@ -16,7 +16,7 @@ class ReplaceTeamPane extends AbstractPane {
   }
 
   protected function fillHTML(Array $args) {
-    $confs = Preferences::getConferences();
+    $confs = DB::getConferences();
     $teams = $this->REGATTA->getTeams();
 
     $this->PAGE->addContent($p = new XPort("Substitute team"));

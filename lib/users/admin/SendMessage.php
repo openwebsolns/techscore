@@ -48,7 +48,7 @@ class SendMessage extends AbstractAdminUserPane {
     $fi->add(" ");
     $fi->add(new XSubmitInput('choose-recipients', "Write message >"));
     $sel->set('size', 7);
-    foreach (Preferences::getConferences() as $conf)
+    foreach (DB::getConferences() as $conf)
       $sel->add(new FOption($conf->id, $conf));
 
     // roles
@@ -124,7 +124,7 @@ class SendMessage extends AbstractAdminUserPane {
 	}
 	$confs = array();
 	foreach ($args['conferences'] as $conf) {
-	  $c = Preferences::getConference($conf);
+	  $c = DB::getConference($conf);
 	  if ($c !== null)
 	    $confs[$c->id] = $c;
 	}

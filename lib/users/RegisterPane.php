@@ -92,7 +92,7 @@ class RegisterPane extends WelcomePage {
     $f->add(new XSubmitInput("register", "Request account"));
 
     // Fill out the selection boxes
-    foreach (Preferences::getConferences() as $conf) {
+    foreach (DB::getConferences() as $conf) {
       $aff->add($opt = new FOptionGroup($conf));
       foreach (Preferences::getSchoolsInConference($conf) as $school) {
 	$opt->add(new FOption($school->id, $school->name));

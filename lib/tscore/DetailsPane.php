@@ -110,7 +110,7 @@ class DetailsPane extends AbstractPane {
     $f_item->add(new XMessage("Hold down Ctrl to choose more than one"));
 
     // go through each conference
-    foreach (Preferences::getConferences() as $conf) {
+    foreach (DB::getConferences() as $conf) {
       $opts = array();
       foreach ($this->USER->getSchools($conf) as $school) {
 	if (!isset($schools[$school->id]))
