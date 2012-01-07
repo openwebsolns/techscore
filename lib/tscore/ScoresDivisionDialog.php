@@ -124,7 +124,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
 	new XImg(sprintf('%s/img/schools/%s.png', $PREFIX, $rank->team->school->id), $rank->team->school->id,
 		 array('height'=>'30px'));
       $r1 = new XTR(array('class'=>'strong row' . $rowIndex % 2, 'align' => 'left'),
-		    array(new XTD(array('title'=>$rank->explanation, 'class'=>'tiebreaker'), $sym),
+		    array(new XTD(array('title'=>$rank->explanation, 'class'=>'tiebreaker'), new XRawText($sym)),
 			  $ord = new XTD(array(), $order++),
 			  new XTD(array(), $img),
 			  $sch = new XTD(array(), $ln),

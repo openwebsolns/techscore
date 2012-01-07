@@ -329,13 +329,11 @@ class SailsPane extends AbstractPane {
       $races = array_intersect($races, $this->REGATTA->getCombinedUnscoredRaces());
     }
     else {
-      $mes = "Could not parse range of races.";
-      Session::pa(new PA($mes, PA::E));
+      Session::pa(new PA("Could not parse range of races.", PA::E));
       return $args;
     }
     if (count($races) == 0) {
-      $mes = "No races for which to setup rotations.";
-      Session::pa(new PA($mes, PA::E));
+      Session::pa(new PA("No races for which to setup rotations.", PA::E));
       return $args;
     }
 
@@ -352,14 +350,12 @@ class SailsPane extends AbstractPane {
     elseif (isset($args['repeat']) && is_numeric($args['repeat'])) {
       $repeats = (int)($args['repeat']);
       if ($repeats < 1) {
-	$mes = sprintf("Changed repeats to 1 from %d.", $repeats);
-	Session::pa(new PA($mes, PA::I));
+	Session::pa(new PA(sprintf("Changed repeats to 1 from %d.", $repeats), PA::I));
 	$repeats = 1;
       }
     }
     else {
-      $mes = "Invalid or missing value for repeats.";
-      Session::pa(new PA($mes, PA::E));
+      Session::pa(new PA("Invalid or missing value for repeats.", PA::E));
       return $args;
     }
 
@@ -385,16 +381,14 @@ class SailsPane extends AbstractPane {
       }
     }
     if (count($missing) > 0) {
-      $mes = sprintf("Missing team or sail for %s.", implode(", ", $missing));
-      Session::pa(new PA($mes, PA::E));
+      Session::pa(new PA(sprintf("Missing team or sail for %s.", implode(", ", $missing)), PA::E));
       return $args;
     }
     // require BYE team, when applicable
     if ($rottype == "SWP" && count($divisions) * count($teams) % 2 > 0) {
       $team = new ByeTeam();
       if (!isset($args[$team->id])) {
-	$mes = "Missing BYE team.";
-	Session::pa(new PA($mes, PA::E));
+	Session::pa(new PA("Missing BYE team.", PA::E));
 	return $args;
       }
       $sails[] = $args[$team->id];
@@ -427,8 +421,7 @@ class SailsPane extends AbstractPane {
       break;
 
     default:
-      $mes = "Unsupported rotation type.";
-      Session::pa(new PA($mes, PA::E));
+      Session::pa(new PA("Unsupported rotation type.", PA::E));
       return $args;
     }
 
@@ -467,8 +460,7 @@ class SailsPane extends AbstractPane {
       $rottype = $args['rottype'];
     }
     else {
-      $mes = "Invalid or missing rotation type.";
-      Session::pa(new PA($mes, PA::E));
+      Session::pa(new PA("Invalid or missing rotation type.", PA::E));
       return array();
     }
 
@@ -499,8 +491,7 @@ class SailsPane extends AbstractPane {
 	unset($div_string);
       }
       else {
-	$mes = "Invalid or missing division[s].";
-	Session::pa(new PA($mes, PA::E));
+	Session::pa(new PA("Invalid or missing division[s].", PA::E));
 	return array();
       }
     }
@@ -525,8 +516,7 @@ class SailsPane extends AbstractPane {
       $style = $args['style'];
     }
     else {
-      $mes = "Invalid or missing rotation style.";
-      Session::pa(new PA($mes, PA::E));
+      Session::pa(new PA("Invalid or missing rotation style.", PA::E));
       return $args;
     }
 
@@ -555,8 +545,7 @@ class SailsPane extends AbstractPane {
       unset($races_copy, $diff);
     }
     else {
-      $mes = "Could not parse range of races.";
-      Session::pa(new PA($mes, PA::E));
+      Session::pa(new PA("Could not parse range of races.", PA::E));
       return $args;
     }
 
@@ -575,14 +564,12 @@ class SailsPane extends AbstractPane {
       elseif (isset($args['repeat']) && is_numeric($args['repeat'])) {
 	$repeats = (int)($args['repeat']);
 	if ($repeats < 1) {
-	  $mes = sprintf("Changed repeats to 1 from %d.", $repeats);
-	  Session::pa(new PA($mes, PA::I));
+	  Session::pa(new PA(sprintf("Changed repeats to 1 from %d.", $repeats), PA::I));
 	  $repeats = 1;
 	}
       }
       else {
-	$mes = "Invalid or missing value for repeats.";
-	Session::pa(new PA($mes, PA::E));
+	Session::pa(new PA("Invalid or missing value for repeats.", PA::E));
 	return $args;
       }
 
@@ -606,8 +593,7 @@ class SailsPane extends AbstractPane {
 	$sails[] = $args['BYE'];
       }
       if (count($missing) > 0) {
-	$mes = sprintf("Missing team or sail for %s.", implode(", ", $missing));
-	Session::pa(new PA($mes, PA::E));
+	Session::pa(new PA(sprintf("Missing team or sail for %s.", implode(", ", $missing)), PA::E));
 	return $args;
       }
 
@@ -651,16 +637,14 @@ class SailsPane extends AbstractPane {
 	case "SWP":
 	  // ascertain that there are an even number of teams
 	  if (count($teams) % 2 > 0) {
-	    $mes = "There must be an even number of teams for swap rotation.";
-	    Session::pa(new PA($mes, PA::E));
+	    Session::pa(new PA("There must be an even number of teams for swap rotation.", PA::E));
 	    return $args;
 	  }
 	  $rotation->createSwap($sails, $teams, $ordered_divs, $ordered_races, $repeats);
 	  break;
 
 	default:
-	  $mes = "Unsupported rotation type.";
-	  Session::pa(new PA($mes, PA::E));
+	  Session::pa(new PA("Unsupported rotation type.", PA::E));
 	  return $args;
 	}
 
@@ -711,24 +695,21 @@ class SailsPane extends AbstractPane {
       case "SWP":
 	// ascertain that there are an even number of teams
 	if (count($teams) % 2 > 0) {
-	  $mes = "There must be an even number of teams for swap rotation.";
-	  Session::pa(new PA($mes, PA::E));
+	  Session::pa(new PA("There must be an even number of teams for swap rotation.", PA::E));
 	  return $args;
 	}
 	$rotation->createSwap($sails, $teams, $ordered_divs, $ordered_races, $repeats);
 	break;
 	
       default:
-	$mes = "Unsupported rotation type.";
-	Session::pa(new PA($mes, PA::E));
+	Session::pa(new PA("Unsupported rotation type.", PA::E));
 	return $args;
       }
 
       // Reset
-      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
-      $a = new XA(sprintf('/view/%s/rotation', $this->REGATTA->id()), "View");
-      $a->set('target', '_blank');
-      Session::pa(new PA("New rotation successfully created. " . $a->toXML() . "."));
+      Session::pa(new PA(array("New rotation successfully created. ",
+			       new XA(sprintf('/view/%s/rotation', $this->REGATTA->id()), "View", array('target', '_blank')),
+			       ".")));
       unset($args['rottype']);
       $this->redirect('finishes');
     }
