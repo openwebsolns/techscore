@@ -74,7 +74,7 @@ class TScorePage extends XPage {
     $this->body->add($c = new XDiv(array('id'=>'bodydiv')));
 
     // Announcement
-    $c->add(Session::getAnnouncements('/img'));
+    $c->add(Session::getAnnouncements('/inc/img'));
     foreach ($this->content as $cont)
       $c->add($cont);
 
@@ -132,7 +132,7 @@ class TScorePage extends XPage {
    */
   private function fillPageHeader(User $user = null, Regatta $reg = null) {
     $this->header->add($div = new XDiv(array('id'=>'header'),
-				       array(new XH1(new XImg("/img/techscore.png", "TechScore", array("id"=>"headimg"))))));
+				       array(new XH1(new XImg("/inc/img/techscore.png", "TechScore", array("id"=>"headimg"))))));
     $div->add(new XH4(date("M j, Y"), array("id"=>"date")));
     if (Session::has('user'))
       $div->add(new XH4(Session::g('user'), array("id"=>"user")));

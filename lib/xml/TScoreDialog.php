@@ -58,7 +58,7 @@ class TScoreDialog extends XPage {
     $this->body->add($div = new XDiv(array('id'=>'bottom-grab')));
 
     // Announcement
-    $this->body->add(Session::getAnnouncements('/img'));
+    $this->body->add(Session::getAnnouncements('/inc/img'));
 
     // Content
     $this->body->add($this->content);
@@ -90,7 +90,7 @@ class TScoreDialog extends XPage {
    */
   private function fillPageHeader() {
     $this->header->add(new XDiv(array('id'=>'header'),
-				array(new XH1(new XImg("/img/techscore-small.png", "TechScore", array("id"=>"headimg"))),
+				array(new XH1(new XImg("/inc/img/techscore-small.png", "TechScore", array("id"=>"headimg"))),
 				      new XH4(date("D M j, Y"), array("id"=>"date")))));
     
     $this->header->add($this->navigation);

@@ -136,7 +136,7 @@ class RpEnterPane extends AbstractPane {
 						     "onchange"=>
 						     "check()")),
 				new XTD(array('id'=>"csk$div$spot"),
-					new XImg("/img/question.png", "Waiting to verify"))),
+					new XImg("/inc/img/question.png", "Waiting to verify"))),
 			  array("class"=>"skipper"));
       }
 
@@ -161,7 +161,7 @@ class RpEnterPane extends AbstractPane {
 						       "onchange"=>
 						       "check()")),
 				  new XTD(array('id'=>"ccr$div$spot"),
-					  new XImg("/img/question.png", "Waiting to verify"))));
+					  new XImg("/inc/img/question.png", "Waiting to verify"))));
 	}
       } // end if
     }

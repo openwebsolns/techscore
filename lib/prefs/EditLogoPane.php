@@ -37,7 +37,6 @@ class EditLogoPane extends AbstractUserPane {
     $p->add($para = new XP(array(), "Please allow up to 8 hours after uploading for the new logo to appear on the public site."));
     // Current logo
     if ($this->SCHOOL->burgee) {
-      $url = sprintf("/img/schools/%s.png", $this->SCHOOL->id);
       $url = sprintf('data:image/png;base64,%s', $this->SCHOOL->burgee->filedata);
       $para->add(sprintf("The current logo for %s is shown below. If you do not see an image below, you may need to upgrade your browser.", $this->SCHOOL->name));
       

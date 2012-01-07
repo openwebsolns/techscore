@@ -134,7 +134,7 @@ class EnterFinishPane extends AbstractPane {
 	$current_sail = (count($finishes) > 0) ?
 	  $rotation->getSail($finishes[$i]->race, $finishes[$i]->team) : "";
 	$tab->addRow(array(new XTD($aPS, array("name"=>"pos_sail", "class"=>"pos_sail",	"id"=>"pos_sail")),
-			   new XImg("/img/question.png", "Waiting for input", array("id"=>"check" . $i)),
+			   new XImg("/inc/img/question.png", "Waiting for input", array("id"=>"check" . $i)),
 			   new XTextInput("p" . $i, $current_sail,
 					  array("id"=>"sail" . $i,
 						"tabindex"=>($i+1),
@@ -182,7 +182,7 @@ class EnterFinishPane extends AbstractPane {
 	  $current_team = (count($finishes) > 0) ?
 	    sprintf("%s,%s", $finishes[$i]->race->division, $finishes[$i]->team->id) : "";
 	  $tab->addRow(array(new XTD($attrs, $name),
-			     new XImg("/img/question.png", "Waiting for input",  array("id"=>"check" . $i)),
+			     new XImg("/inc/img/question.png", "Waiting for input",  array("id"=>"check" . $i)),
 			     $sel = XSelect::fromArray("p" . $i, $current_team, $team_opts)));
 	  $sel->set('id', "team$i");
 	  $sel->set('tabindex', $i + 1);
@@ -296,7 +296,7 @@ class EnterFinishPane extends AbstractPane {
 	$current_sail = (count($finishes) > 0) ?
 	  $rotation->getSail($race, $finishes[$i]->team) : "";
 	$tab->addRow(array(new XTD(array('name'=>'pos_sail', 'class'=>'pos_sail','id'=>'pos_sail'), $aPS),
-			   new XImg("/img/question.png", "Waiting for input", array("id"=>"check" . $i)),
+			   new XImg("/inc/img/question.png", "Waiting for input", array("id"=>"check" . $i)),
 			   new XTextInput("p" . $i, $current_sail,
 					  array("id"=>"sail" . $i,
 						"tabindex"=>($i+1),
@@ -335,7 +335,7 @@ class EnterFinishPane extends AbstractPane {
 
 	$current_team = (count($finishes) > 0) ? $finishes[$i]->team->id : "";
 	$tab->addRow(array(new XTD($attrs, $name),
-			   new XImg("/img/question.png", "Waiting for input", array("id"=>"check" . $i)),
+			   new XImg("/inc/img/question.png", "Waiting for input", array("id"=>"check" . $i)),
 			   $sel = XSelect::fromArray("p" . $i, $current_team, $team_opts)));
 	$sel->set('id', "$team$i");
 	$sel->set('tabindex', $i + 1);
