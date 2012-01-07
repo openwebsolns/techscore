@@ -558,7 +558,7 @@ class Preferences {
 		    $mes->account->id,
 		    $mes->content,
 		    $reply);
-    $res = self::mail(ADMIN_MAIL, "[TechScore] Message reply", $body);
+    $res = self::mail(Conf::$ADMIN_MAIL, "[TechScore] Message reply", $body);
   }
 
   /**
@@ -581,7 +581,7 @@ class Preferences {
     return mail($to,
 		$subject,
 		wordwrap($body, 72),
-		sprintf('From: %s', TS_FROM_MAIL));
+		sprintf('From: %s', Conf::$TS_FROM_MAIL));
   }
 
   /**

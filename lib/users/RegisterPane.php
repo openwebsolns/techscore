@@ -109,7 +109,7 @@ class RegisterPane extends WelcomePage {
     $p->add(new XP(array(), "Thank you for registering for an account with TechScore. You should receive an e-mail message shortly with a link to verify your account access."));
     $p->add(new XP(array(),
 		   array("If you don't receive an e-mail, please check your junk-mail settings and enable mail from ",
-			 new XEm(TS_FROM_MAIL), ".")));
+			 new XEm(Conf::$TS_FROM_MAIL), ".")));
   }
 
   /**
