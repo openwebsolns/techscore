@@ -7,32 +7,18 @@
  */
 
 // The following constants are used to identify the TechScore program
-// and the web environment
-define("VERSION", "2.0");
-define("NAME",    "TechScore");
-define("HOME",    sprintf("http://%s", $_SERVER['HTTP_HOST']));
-define("PUB_HOME", sprintf("http://scores.%s", $_SERVER['HTTP_HOST']));
-define("ADMIN_MAIL", "admin@" . $_SERVER['HTTP_HOST']);
-define("TS_FROM_MAIL", ADMIN_MAIL);
+// and the web environment. Take a look at the class Conf in conf.php
+Conf::$HOME = sprintf("http://%s", $_SERVER['HTTP_HOST']);
+Conf::$PUB_HOME = sprintf("http://scores.%s", $_SERVER['HTTP_HOST']);
+Conf::$ADMIN_MAIL = "admin@" . $_SERVER['HTTP_HOST'];
+Conf::$TS_FROM_MAIL = Conf::$ADMIN_MAIL;
 
 // MySQL connection
-define('SQL_HOST', "localhost");
-define('SQL_USER', "user");
-define('SQL_PASS', "password");
-define('SQL_DB',   "ts2");
+Conf::$SQL_HOST = 'localhost';
+Conf::$SQL_USER = 'ts2';
+conf::$SQL_PASS = '';
+conf::$SQL_DB   = 'ts2';
 
-// Timezone setting: set this to the timezone of the server (for the
-// purpose of DateTime objects)
-date_default_timezone_set("America/New_York");
-define('LOG_MEMORY', '0');
-
-// ERROR and EXCEPTION handlers. Mail error and exception handlers are
-// provided. In order to use them, uncomment the following lines
-//
-// set_exception_handler("__mail_exception_handler");
-// set_error_handler("__mail_error_handler", (E_ERROR | E_WARNING | E_PARSE |
-// 					E_CORE_ERROR | E_CORE_WARNING |
-//					E_COMPILE_ERROR | E_COMPILE_WARNING |
-// 					E_USER_ERROR | E_USER_WARNING |
-// 					E_STRICT | E_RECOVERBLE_ERROR));
+// Define any other settings that are local to the production site
+// such as default date_timezone, etc.
 ?>

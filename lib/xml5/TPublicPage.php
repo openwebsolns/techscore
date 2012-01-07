@@ -71,7 +71,7 @@ class TPublicPage extends XPage {
     // Footer
     $this->body->add(new XDiv(array('id'=>'footdiv'),
 			      array(new XP(array(),
-					   sprintf("TechScore v%s © Dayán Páez 2008-%s", VERSION, date('y'))))));
+					   sprintf("TechScore v%s © Dayán Páez 2008-%s", Conf::$VERSION, date('y'))))));
 
     $this->filled = true;
   }

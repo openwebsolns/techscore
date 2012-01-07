@@ -1,6 +1,12 @@
 include Makefile.local
 
-default: apache.conf changes.current.sql crontab cache/404-schools.html cache/schools.db css css-admin js js-admin
+default: Makefile.local lib/conf.local.php apache.conf changes.current.sql crontab cache/404-schools.html cache/schools.db css css-admin js js-admin
+
+Makefile.local: Makefile.default
+	@echo "Manually create Makefile.local from Makefile.default" && exit 2
+
+lib/conf.local.php: lib/conf.default.php
+	@echo "Manually create lib/conf.local.php from lib/conf.default.php" && exit 1
 
 crontab: crontab.default Makefile.local
 	sed -e 's:{DIRECTORY}:'"`pwd`"':g' \
