@@ -21,32 +21,33 @@ require_once('regatta/data/TeamDivision.php');
  * @version 2011-03-29
  */
 class AllAmerican extends AbstractUserPane {
+  private $AA;
   /**
    * Creates a new pane
    */
   public function __construct(User $user) {
     parent::__construct("All-American", $user);
-    if (!isset($_SESSION['aa']))
-      $_SESSION['aa'] = array('table' => array(),
-			      'regattas' => array(),
-			      'regatta_races' => array(),
-			      'sailors' => array(),
+    if (!Session::has('aa'))
+      Session::s('aa', array('table' => array(),
+			     'regattas' => array(),
+			     'regatta_races' => array(),
+			     'sailors' => array(),
 
-			      'report-participation' => null,
-			      'report-role' => null,
-			      'report-seasons' => null,
-			      'report-confs' => null,
+			     'report-participation' => null,
+			     'report-role' => null,
+			     'report-seasons' => null,
+			     'report-confs' => null,
 			      
-			      'regattas-set' => false,
-			      'params-set' => false);
+			     'regattas-set' => false,
+			     'params-set' => false));
+    $this->AA = Session::g('aa');
   }
 
   public function fillHTML(Array $args) {
-    
     // ------------------------------------------------------------
     // 0. Choose participation and role
     // ------------------------------------------------------------
-    if ($_SESSION['aa']['report-participation'] === null) {
+    if ($this->AA['report-participation'] === null) {
       $this->PAGE->addContent($p = new XPort("Choose report"));
       $p->add($form = new XForm('/aa-edit', XForm::POST));
       $form->add(new FItem("Participation:", XSelect::fromArray('participation',
@@ -98,20 +99,21 @@ class AllAmerican extends AbstractUserPane {
     // inclusion. Note that male sailors should NOT be included in the
     // list of automatic sailors.
     // ------------------------------------------------------------
-    if ($_SESSION['aa']['regattas-set'] === false) {
+    if ($this->AA['regattas-set'] === false) {
       // Add button to go back
       $this->PAGE->addContent($p = new XPort("Progress"));
       $p->add($form = new XForm('/aa-edit', XForm::POST));
       $form->add(new XSubmitInput('unset-regattas', "<< Start over"));
 
       // Reset lists
-      $_SESSION['aa']['table'] = array();
-      $_SESSION['aa']['regattas'] = array();
-      $_SESSION['aa']['regatta_races'] = array();
-      $_SESSION['aa']['sailors'] = array();
+      $this->AA['table'] = array();
+      $this->AA['regattas'] = array();
+      $this->AA['regatta_races'] = array();
+      $this->AA['sailors'] = array();
+      Session::s('aa', $this->AA);
 
       $regattas = array();
-      foreach ($_SESSION['aa']['report-seasons'] as $season) {
+      foreach ($this->AA['report-seasons'] as $season) {
 	$s = Season::parse($season);
 	$regattas = array_merge($regattas, $s->getRegattas());
       }
@@ -132,8 +134,8 @@ class AllAmerican extends AbstractUserPane {
       $addt_regattas = 0;
       foreach ($regattas as $reg) {
 	if ($reg->finalized !== null &&
-	    ($reg->participant == $_SESSION['aa']['report-participation'] ||
-	     'special' == $_SESSION['aa']['report-participation']) &&
+	    ($reg->participant == $this->AA['report-participation'] ||
+	     'special' == $this->AA['report-participation']) &&
 	    in_array($reg->type, array(Preferences::TYPE_CHAMPIONSHIP,
 				       Preferences::TYPE_CONF_CHAMPIONSHIP,
 				       Preferences::TYPE_INTERSECTIONAL))) {
@@ -146,8 +148,8 @@ class AllAmerican extends AbstractUserPane {
 	  $rattr = array();
 	  $cattr = array('id'=>$id);
 	  if ($reg->finalized === null ||
-	      ($reg->participant != $_SESSION['aa']['report-participation'] &&
-	       Regatta::PARTICIPANT_COED == $_SESSION['aa']['report-participation'])) {
+	      ($reg->participant != $this->AA['report-participation'] &&
+	       Regatta::PARTICIPANT_COED == $this->AA['report-participation'])) {
 	    $rattr['class'] = 'disabled';
 	    $cattr['disabled'] = 'disabled';
 	  }
@@ -168,7 +170,7 @@ class AllAmerican extends AbstractUserPane {
       else
 	$form->add(new XP(array(), "There are no other possible regattas to add to the report from for the chosen season."));
       $form->add(new XP(array(), "Next, choose the sailors to incorporate into the report."));
-      $form->add(new XSubmitInput('set-regattas', sprintf("Choose %ss >>", $_SESSION['aa']['report-role'])));
+      $form->add(new XSubmitInput('set-regattas', sprintf("Choose %ss >>", $this->AA['report-role'])));
 
       // are there any qualified regattas?
       if (count($qual_regattas) == 0)
@@ -184,26 +186,27 @@ class AllAmerican extends AbstractUserPane {
 			     "Final"));
 	}
       }
+      Session::s('aa', $this->AA);
       return;
     }
 
     // ------------------------------------------------------------
     // 2. Step two: Choose sailors
     // ------------------------------------------------------------
-    if ($_SESSION['aa']['params-set'] === false) {
+    if ($this->AA['params-set'] === false) {
       // Add button to go back
       $this->PAGE->addContent($p = new XPort("Progress"));
       $p->add($form = new XForm('/aa-edit', XForm::POST));
       $form->add(new XSubmitInput('unset-regattas', "<< Start over"));
       
-      $regattas = $_SESSION['aa']['regattas'];
+      $regattas = $this->AA['regattas'];
       // provide a list of sailors that are already included in the
       // list, and a search box to add new ones
       $this->PAGE->addContent($p = new XPort("Sailors in list"));
       $p->add(new XP(array(), sprintf("%d sailors meet the criteria for All-American inclusion based on the regattas chosen. Note that non-official sailors have been excluded. Use the bottom form to add more sailors to this list.",
-				      count($_SESSION['aa']['sailors']))));
-      $p->add($item = new XUl(array('id', 'inc-sailors')));
-      foreach ($_SESSION['aa']['sailors'] as $sailor)
+				      count($this->AA['sailors']))));
+      $p->add($item = new XUl(array('id'=>'inc-sailors')));
+      foreach ($this->AA['sailors'] as $sailor)
 	$item->add(new XLi($sailor));
 
       // Form to fetch and add sailors
@@ -213,7 +216,7 @@ class AllAmerican extends AbstractUserPane {
       $form->add(new XNoScript(new XP(array(), "Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding.")));
       $form->add(new FItem('Name:', $search = new XTextInput('name-search', "")));
       $search->set('id', 'name-search');
-      $form->add($ul = new XUl(array('id', 'aa-input'),
+      $form->add($ul = new XUl(array('id'=>'aa-input'),
 			       array(new XLi("No sailors.", array('class'=>'message')))));
       $form->add(new XSubmitInput('set-sailors', "Generate report >>"));
 
@@ -248,13 +251,13 @@ class AllAmerican extends AbstractUserPane {
 										     new XTH(array(), ""),
 										     new XTH(array(), "Races/Div"))))),
 					     $table = new XTBody())));
-    foreach ($_SESSION['aa']['regatta_races'] as $reg_id => $num) {
+    foreach ($this->AA['regatta_races'] as $reg_id => $num) {
       $hrow1->add(new XTH(array('class'=>'rotate'), $reg_id));
       $hrow2->add(new XTH(array(), $num));
     }
-    $TABLE = $_SESSION['aa']['table'];
+    $TABLE = $this->AA['table'];
     $row_num = 0;
-    foreach ($_SESSION['aa']['sailors'] as $id => $sailor) {
+    foreach ($this->AA['sailors'] as $id => $sailor) {
       $table->add($row = new XTR(array('class'=>'row'.($row_num++ % 2)),
 				 array(new XTD(array(), $sailor->id),
 				       new XTD(array(), sprintf("%s %s", $sailor->first_name, $sailor->last_name)),
@@ -264,23 +267,23 @@ class AllAmerican extends AbstractUserPane {
       
       foreach ($TABLE as $reg_id => $sailor_list) {
 	if (!isset($sailor_list[$id])) {
-	  $_SESSION['aa']['table'][$reg_id][$id] = array();
+	  $this->AA['table'][$reg_id][$id] = array();
 
 	  // "Reverse" populate table
-	  $regatta = new Regatta($_SESSION['aa']['regattas'][$reg_id]);
+	  $regatta = new Regatta($this->AA['regattas'][$reg_id]);
 	  $rpm = $regatta->getRpManager();
-	  $rps = $rpm->getParticipation($sailor, $_SESSION['aa']['report-role']);
+	  $rps = $rpm->getParticipation($sailor, $this->AA['report-role']);
 
 	  foreach ($rps as $rp) {
 	    $team = ScoresAnalyzer::getTeamDivision($rp->team, $rp->division);
 	    $content = sprintf('%d%s', $team->rank, $team->division);
-	    if (count($rp->races_nums) != $_SESSION['aa']['regatta_races'][$reg_id])
+	    if (count($rp->races_nums) != $this->AA['regatta_races'][$reg_id])
 	      $content .= sprintf(' (%s)', Utilities::makeRange($rp->races_nums));
 
-	    $_SESSION['aa']['table'][$reg_id][$id][] = $content;
+	    $this->AA['table'][$reg_id][$id][] = $content;
 	  }
 	}
-	$row->add(new XTD(array(), implode("/", $_SESSION['aa']['table'][$reg_id][$id])));
+	$row->add(new XTD(array(), implode("/", $this->AA['table'][$reg_id][$id])));
       }
     }
   }
@@ -291,7 +294,7 @@ class AllAmerican extends AbstractUserPane {
     // Unset regatta choice (start over)
     // ------------------------------------------------------------
     if (isset($args['unset-regattas'])) {
-      unset($_SESSION['aa']);
+      Session::s('aa', null);
       return false;
     }
 
@@ -299,7 +302,8 @@ class AllAmerican extends AbstractUserPane {
     // Unset sailor choices
     // ------------------------------------------------------------
     if (isset($args['unset-sailors'])) {
-      $_SESSION['aa']['params-set'] = false;
+      $this->AA['params-set'] = false;
+      Session::s('aa', $this->AA);
       return false;
     }
 
@@ -319,62 +323,64 @@ class AllAmerican extends AbstractUserPane {
       }
       
       // seasons. If none provided, choose the default
-      $_SESSION['aa']['report-seasons'] = array();
+      $this->AA['report-seasons'] = array();
       if (isset($args['seasons']) && is_array($args['seasons'])) {
 	foreach ($args['seasons'] as $s) {
 	  if (($season = Season::parse($s)) !== null)
-	    $_SESSION['aa']['report-seasons'][] = (string)$season;
+	    $this->AA['report-seasons'][] = (string)$season;
 	}
       }
-      if (count($_SESSION['aa']['report-seasons']) == 0) {
+      if (count($this->AA['report-seasons']) == 0) {
 	$now = new DateTime();
 	$season = new Season($now);
-	$_SESSION['aa']['report-seasons'][] = (string)$season;
+	$this->AA['report-seasons'][] = (string)$season;
 	if ($season->getSeason() == Season::SPRING) {
 	  $now->setDate($now->format('Y') - 1, 10, 1);
-	  $_SESSION['aa']['report-seasons'][] = (string)$season;
+	  $this->AA['report-seasons'][] = (string)$season;
 	}
       }
 
       // conferences. If none provided, choose ALL
-      $_SESSION['aa']['report-confs'] = array();
+      $this->AA['report-confs'] = array();
       if (isset($args['confs']) && is_array($args['confs'])) {
 	foreach ($args['confs'] as $s) {
 	  if (($conf = Preferences::getConference($s)) !== null)
-	    $_SESSION['aa']['report-confs'][$conf->id] = $conf->id;
+	    $this->AA['report-confs'][$conf->id] = $conf->id;
 	}
       }
-      if (count($_SESSION['aa']['report-confs']) == 0) {
+      if (count($this->AA['report-confs']) == 0) {
 	foreach (Preferences::getConferences() as $conf)
-	  $_SESSION['aa']['report-confs'][$conf->id] = $conf->id;
+	  $this->AA['report-confs'][$conf->id] = $conf->id;
       }
       
-      $_SESSION['aa']['report-participation'] = $args['participation'];
-      $_SESSION['aa']['report-role'] = $args['role'];
+      $this->AA['report-participation'] = $args['participation'];
+      $this->AA['report-role'] = $args['role'];
+      Session::s('aa', $this->AA);
       return false;
     }
     // Special report
     if (isset($args['set-special-report'])) {
       // seasons. If none provided, choose the default
-      $_SESSION['aa']['report-seasons'] = array();
+      $this->AA['report-seasons'] = array();
       if (isset($args['seasons']) && is_array($args['seasons'])) {
 	foreach ($args['seasons'] as $s) {
 	  if (($season = Season::parse($s)) !== null)
-	    $_SESSION['aa']['report-seasons'][] = (string)$season;
+	    $this->AA['report-seasons'][] = (string)$season;
 	}
       }
-      if (count($_SESSION['aa']['report-seasons']) == 0) {
+      if (count($this->AA['report-seasons']) == 0) {
 	$now = new DateTime();
 	$season = new Season($now);
-	$_SESSION['aa']['report-seasons'][] = $season;
+	$this->AA['report-seasons'][] = $season;
 	if ($season->getSeason() == Season::SPRING) {
 	  $now->setDate($now->format('Y') - 1, 10, 1);
-	  $_SESSION['aa']['report-seasons'][] = (string)$season;
+	  $this->AA['report-seasons'][] = (string)$season;
 	}
       }
       
-      $_SESSION['aa']['report-participation'] = 'special';
-      $_SESSION['aa']['report-role'] = 'crew';
+      $this->AA['report-participation'] = 'special';
+      $this->AA['report-role'] = 'crew';
+      Session::s('aa', $this->AA);
       return false;
     }
 
@@ -384,7 +390,8 @@ class AllAmerican extends AbstractUserPane {
     if (isset($args['set-regattas'])) {
       if (!isset($args['regatta']) || !is_array($args['regatta']) || count($args['regatta']) == 0) {
 	Session::pa(new PA("Proceeding with no added regattas."));
-	$_SESSION['aa']['regattas-set'] = true;
+	$this->AA['regattas-set'] = true;
+	Session::s('aa', $this->AA);
 	return false;
       }
 
@@ -393,7 +400,7 @@ class AllAmerican extends AbstractUserPane {
       foreach ($args['regatta'] as $id) {
 	try {
 	  $reg = new Regatta($id);
-	  $allow_other_ptcp = ($_SESSION['aa']['report-participation'] != Regatta::PARTICIPANT_COED ||
+	  $allow_other_ptcp = ($this->AA['report-participation'] != Regatta::PARTICIPANT_COED ||
 			       $reg->get(Regatta::PARTICIPANT) == Regatta::PARTICIPANT_COED);
 	  if ($reg->get(Regatta::TYPE) != Preferences::TYPE_PERSONAL && $allow_other_ptcp &&
 	      $reg->get(Regatta::FINALIZED) !== null)
@@ -407,9 +414,10 @@ class AllAmerican extends AbstractUserPane {
       }
       if ($errors > 0)
 	Session::pa(new PA("Some regattas specified are not valid.", PA::I));
-      if (count($_SESSION['aa']['regattas']) > 0)
+      if (count($this->AA['regattas']) > 0)
 	Session::pa(new PA("Set regattas for All-American report."));
-      $_SESSION['aa']['regattas-set'] = true;
+      $this->AA['regattas-set'] = true;
+      Session::s('aa', $this->AA);
       return $args;
     }
 
@@ -419,7 +427,8 @@ class AllAmerican extends AbstractUserPane {
     if (isset($args['set-sailors'])) {
       if (!isset($args['sailor']) || !is_array($args['sailor']) || count($args['sailor']) == 0) {
 	Session::pa(new PA("Proceeding with no additional sailors."));
-	$_SESSION['aa']['params-set'] = true;
+	$this->AA['params-set'] = true;
+	Session::s('aa', $this->AA);
 	return false;
       }
 
@@ -428,7 +437,7 @@ class AllAmerican extends AbstractUserPane {
       foreach ($args['sailor'] as $id) {
 	try {
 	  $sailor = RpManager::getSailor($id);
-	  $_SESSION['aa']['sailors'][$sailor->id] = $sailor;
+	  $this->AA['sailors'][$sailor->id] = $sailor;
 	} catch (Exception $e) {
 	  $errors++;
 	  Session::pa(new PA($e->getMessage(), PA::E));
@@ -437,7 +446,8 @@ class AllAmerican extends AbstractUserPane {
       if ($errors > 0)
 	Session::pa(new PA("Some invalid sailors were provided and ignored.", PA::I));
       Session::pa(new PA("Set sailors for report."));
-      $_SESSION['aa']['params-set'] = true;
+      $this->AA['params-set'] = true;
+      Session::s('aa', $this->AA);
       return false;
     }
 
@@ -446,16 +456,16 @@ class AllAmerican extends AbstractUserPane {
     // ------------------------------------------------------------
     if (isset($args['gen-report'])) {
       // is the regatta and sailor list set?
-      if (count($_SESSION['aa']['table']) == 0 ||
-	  count($_SESSION['aa']['sailors']) == 0) {
+      if (count($this->AA['table']) == 0 ||
+	  count($this->AA['sailors']) == 0) {
 	Session::pa(new PA("No regattas or sailors for report.", PA::E));
 	return false;
       }
 
       $filename = sprintf('%s-aa-%s-%s.csv',
 			  date('Y'),
-			  $_SESSION['aa']['report-participation'],
-			  $_SESSION['aa']['report-role']);
+			  $this->AA['report-participation'],
+			  $this->AA['report-role']);
       header("Content-type: application/octet-stream");
       header("Content-Disposition: attachment; filename=$filename");
 
@@ -464,19 +474,19 @@ class AllAmerican extends AbstractUserPane {
       $spacer  = array("", "", "", "", "");
       $rows = array();
 
-      foreach ($_SESSION['aa']['sailors'] as $id => $sailor) {
+      foreach ($this->AA['sailors'] as $id => $sailor) {
 	$row = array($sailor->id,
 		     sprintf("%s %s", $sailor->first_name, $sailor->last_name),
 		     $sailor->year,
 		     $sailor->school->nick_name,
 		     $sailor->school->conference);
-	foreach ($_SESSION['aa']['table'] as $reg_id => $sailor_list) {
+	foreach ($this->AA['table'] as $reg_id => $sailor_list) {
 	  if (isset($sailor_list[$id]))
 	    $row[] = implode("/", $sailor_list[$id]);
 	  else
 	    $row[] = "";
 	  $header1[$reg_id] = $reg_id;
-	  $header2[$reg_id] = $_SESSION['aa']['regatta_races'][$reg_id];
+	  $header2[$reg_id] = $this->AA['regatta_races'][$reg_id];
 	}
 	$rows[] = $row;
       }
@@ -524,10 +534,10 @@ class AllAmerican extends AbstractUserPane {
   private function populateSailors(Regatta $reg) {
     // use season/nick-name to sort
     $id = sprintf('%s/%s', $reg->get(Regatta::SEASON), $reg->get(Regatta::NICK_NAME));
-    $_SESSION['aa']['regatta_races'][$id] = count($reg->getRaces(Division::A()));
-    $_SESSION['aa']['regattas'][$id] = $reg->id();
-    if (!isset($_SESSION['aa']['table'][$id]))
-      $_SESSION['aa']['table'][$id] = array();
+    $this->AA['regatta_races'][$id] = count($reg->getRaces(Division::A()));
+    $this->AA['regattas'][$id] = $reg->id();
+    if (!isset($this->AA['table'][$id]))
+      $this->AA['table'][$id] = array();
 	  
     // grab a list of lucky teams
     $teams = array(); 
@@ -543,22 +553,22 @@ class AllAmerican extends AbstractUserPane {
     foreach ($teams as $team) {
       foreach ($rpm->getRP($reg->getTeam($team->team),
 			   $team->division,
-			   $_SESSION['aa']['report-role']) as $rp) {
+			   $this->AA['report-role']) as $rp) {
 	
 	if ($rp->sailor->icsa_id !== null &&
-	    ($_SESSION['aa']['report-participation'] != Regatta::PARTICIPANT_WOMEN ||
+	    ($this->AA['report-participation'] != Regatta::PARTICIPANT_WOMEN ||
 	     $rp->sailor->gender == Sailor::FEMALE) &&
-	    isset($_SESSION['aa']['report-confs'][$rp->sailor->school->conference->id])) {
+	    isset($this->AA['report-confs'][$rp->sailor->school->conference->id])) {
 	  $content = ($sng) ? $team->rank : sprintf('%d%s', $team->rank, $team->division);
-	  if (count($rp->races_nums) != $_SESSION['aa']['regatta_races'][$id])
+	  if (count($rp->races_nums) != $this->AA['regatta_races'][$id])
 	    $content .= sprintf(' (%s)', Utilities::makeRange($rp->races_nums));
 
-	  if (!isset($_SESSION['aa']['table'][$id][$rp->sailor->id]))
-	    $_SESSION['aa']['table'][$id][$rp->sailor->id] = array();
-	  $_SESSION['aa']['table'][$id][$rp->sailor->id][] = $content;
+	  if (!isset($this->AA['table'][$id][$rp->sailor->id]))
+	    $this->AA['table'][$id][$rp->sailor->id] = array();
+	  $this->AA['table'][$id][$rp->sailor->id][] = $content;
 	  
-	  if (!isset($_SESSION['aa']['sailors'][$rp->sailor->id]))
-	    $_SESSION['aa']['sailors'][$rp->sailor->id] = $rp->sailor;
+	  if (!isset($this->AA['sailors'][$rp->sailor->id]))
+	    $this->AA['sailors'][$rp->sailor->id] = $rp->sailor;
 	}
       }
     }
