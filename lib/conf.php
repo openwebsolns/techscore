@@ -38,6 +38,11 @@ class Conf {
   public static $SQL_USER = "ts2";
   public static $SQL_PASS = "";
   public static $SQL_DB   = "ts2";
+
+  /**
+   * Set to non-null path to log queries
+   */
+  public static $LOG_QUERIES = null;
 }
 // LOG FILES
 Conf::$LOG_UPDATE = realpath(dirname(__FILE__).'/../log/update.log');

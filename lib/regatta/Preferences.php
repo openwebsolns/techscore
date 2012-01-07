@@ -46,8 +46,8 @@ class Preferences {
     $con = self::getConnection();
     $t = microtime(true);
     if ($q = $con->query($query)) {
-      if (defined('LOG_QUERIES'))
-	@error_log(sprintf("(%7.5f) %s\n", microtime(true) - $t, $query), 3, LOG_QUERIES);
+      if (Conf::$LOG_QUERIES !== null)
+	@error_log(sprintf("(%7.5f) %s\n", microtime(true) - $t, $query), 3, Conf::$LOG_QUERIES);
       return $q;
     }
     throw new BadFunctionCallException(self::$con->error . ": " . $query);

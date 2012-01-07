@@ -89,7 +89,7 @@ elseif (isset($_REQUEST['p'])) {
   if ($POSTING) {
     require_once('public/UpdateManager.php');
     Session::s('POST', $PAGE->process($_POST));
-    if (LOG_MEMORY)
+    if (Conf::$LOG_MEMORY)
       error_log(sprintf("%s:\t%d\n", $_SERVER['REQUEST_URI'], memory_get_peak_usage()), 3, "../log/memory.log");
     WebServer::goBack();
   }
@@ -237,6 +237,6 @@ if (is_array($post))
   $args = array_merge($args, $post);
 $PAGE->getHTML($args);
 
-if (LOG_MEMORY)
+if (Conf::$LOG_MEMORY)
   error_log(sprintf("%s:\t%d\n", $_SERVER['REQUEST_URI'], memory_get_peak_usage()), 3, "../log/memory.log");
 ?>
