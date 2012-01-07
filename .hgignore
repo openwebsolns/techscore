@@ -28,5 +28,6 @@ crontab.orig
 cache/*.db
 cache/*.html
 
-# CSS
+# CSS and JS
 www/inc/css/*.css
+www/inc/js/*.js

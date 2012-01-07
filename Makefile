@@ -49,7 +49,6 @@ doc:
 	  --output "HTML:Smarty:PHP"
 
 # CSS goodness
-# css-admin: www/inc/css/aa.css www/inc/css/cal.css www/inc/css/mobile.css www/inc/css/modern.css www/inc/css/print.css www/inc/css/modern-dialog.css www/inc/css/widescreen.css
 
 html/inc/css/%.css: res/html/inc/css/%.css
 	mkdir -pv html/inc/css && \
@@ -58,7 +57,7 @@ html/inc/css/%.css: res/html/inc/css/%.css
 	sed -e 's:/\*[^(\*/)]*\*/::g' -e 's/\(;\|:\|}\|{\)[ 	]*/\1/g' \
 	    -e 's/[ 	]*{/{/g'      -e 's/^[ 	]*//' > $@
 
-css:   $(subst res/html,html,$(wildcard res/html/inc/css/%.css))
+css:   $(subst res/html,html,$(wildcard res/html/inc/css/*.css))
 
 www/inc/css/%.css: res/www/inc/css/%.css
 	mkdir -pv www/inc/css && \
@@ -67,7 +66,7 @@ www/inc/css/%.css: res/www/inc/css/%.css
 	sed -e 's:/\*[^(\*/)]*\*/::g' -e 's/\(;\|:\|}\|{\)[ 	]*/\1/g' \
 	    -e 's/[ 	]*{/{/g'      -e 's/^[ 	]*//' > $@
 
-css-admin:   $(subst res/www,www,$(wildcard res/www/inc/css/%.css))
+css-admin:   $(subst res/www,www,$(wildcard res/www/inc/css/*.css))
 
 # Javascript goodness
 
