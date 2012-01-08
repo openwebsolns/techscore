@@ -57,7 +57,7 @@ class NewRegattaPane extends AbstractUserPane {
 						  $r["type"])));
     $f->add(new FItem("Participation:", XSelect::fromArray("participant", Preferences::getRegattaParticipantAssoc(),
 							   $r["participant"])));
-    $f->add(new FItem("Divisions:",$div = new XSelect("num_divisions", array(1=>1, 2=>2, 3=>3, 4=>4), $r["num_divisions"])));
+    $f->add(new FItem("Divisions:",$div = XSelect::fromArray("num_divisions", array(1=>1, 2=>2, 3=>3, 4=>4), $r["num_divisions"])));
     $f->add(new FItem("Number of races:", new XTextInput("num_races", $r["num_races"])));
     // host: if it has more than one host, otherwise send it hidden
     $confs = array(); // array of conference choices

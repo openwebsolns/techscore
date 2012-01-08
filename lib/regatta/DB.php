@@ -192,6 +192,7 @@ class School extends DBObject {
   }
   protected function db_order() { return array('name'=>true); }
   protected function db_cache() { return true; }
+  public function __toString() { return $this->name; }
 }
 
 /**
@@ -222,5 +223,6 @@ class Venue extends DBObject {
   public $zipcode;
 
   protected function db_order() { return array('name'=>true); }
+  public function __toString() { return $this->name; }
 }
 ?>
