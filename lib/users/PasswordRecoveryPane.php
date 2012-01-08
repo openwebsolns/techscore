@@ -79,7 +79,7 @@ class PasswordRecoveryPane extends WelcomePage {
 	return $args;
       }
       $acc->password = sha1(trim($args['new-password']));
-      $res = Preferences::mail($acc->id, '[TechScore] Account password reset', $this->getSuccessMessage($acc));
+      $res = DB::mail($acc->id, '[TechScore] Account password reset', $this->getSuccessMessage($acc));
       if ($res !== false) {
 	AccountManager::setAccount($acc);
 	Session::pa(new PA("Account password successfully reset."));
@@ -98,7 +98,7 @@ class PasswordRecoveryPane extends WelcomePage {
 	Session::pa(new PA("Invalid e-mail provided.", PA::E));
 	return false;
       }
-      $res = Preferences::mail($acc->id, '[TechScore] Reset password request', $this->getMessage($acc));
+      $res = DB::mail($acc->id, '[TechScore] Reset password request', $this->getMessage($acc));
       if ($res) {
 	Session::pa(new PA("Message sent."));
 	Session::s('POST', array('password-recovery-sent'=>true));

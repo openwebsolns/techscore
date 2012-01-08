@@ -104,6 +104,29 @@ class Burgee extends DBObject {
       return parent::db_type($field);
     }
   }
+
+  /**
+   * Sends a generic mail message to the given user with the given
+   * subject, appending the correct headers (i.e., the "from"
+   * field). This method uses the standard PHP mail function
+   *
+   * @param String $to the e-mail address to send to
+   * @param String $subject the subject
+   * @param String $body the body of the message, will be wrapped to
+   * 72 characters
+   * @return boolean the result, as returned by mail
+   */
+  public static function mail($to, $subject, $body) {
+    if (Conf::$DIVERT_MAIL !== null) {
+      $body = "Message meant for $to\n\n" . $body;
+      $to = Conf::$DIVERT_MAIL;
+      $subject = 'DIVERTED: ' . $subject;
+    }
+    return mail($to,
+		$subject,
+		wordwrap($body, 72),
+		sprintf('From: %s', Conf::$TS_FROM_MAIL));
+  }
 }
 
 /**

@@ -182,7 +182,7 @@ class RegisterPane extends WelcomePage {
       $acc->password = sha1(trim($args['passwd']));
 
       // 6. Create account with status "requested";
-      $res = Preferences::mail($acc->id, '[TechScore] New account request', $this->getMessage($acc));
+      $res = DB::mail($acc->id, '[TechScore] New account request', $this->getMessage($acc));
       if ($res !== false) {
 	AccountManager::setAccount($acc);
 	Session::pa(new PA("Account successfully created."));
@@ -210,7 +210,7 @@ class RegisterPane extends WelcomePage {
       foreach (AccountManager::getAdmins() as $admin)
 	$admins[] = sprintf('%s <%s>', $admin->getName(), $admin->id);
 
-      Preferences::mail(implode(',', $admins), '[TechScore] New registration', $this->getAdminMessage($acc));
+      DB::mail(implode(',', $admins), '[TechScore] New registration', $this->getAdminMessage($acc));
       WebServer::go("register");
     }
     return $args;
