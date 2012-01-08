@@ -23,6 +23,7 @@ class DB extends DBM {
   public static $NOW = null;
 
   public static $OUTBOX = null;
+  public static $MESSAGE = null;
 
   public static function setConnectionParams($host, $user, $pass, $db) {
     // Template objects serialization
@@ -141,9 +142,92 @@ class DB extends DBM {
    * @return Array:Outbox the messages
    */
   public static function getPendingOutgoing() {
-    require_once('regatta/Outgoing.php');
     return self::getAll(self::$OUTGOING, new DBCond('completion_time', null));
   }
+
+  // ------------------------------------------------------------
+  // Messages
+  // ------------------------------------------------------------
+
+  /**
+   * Retrieve all messages for the given account in order
+   *
+   * @param Account $acc the account
+   */
+  public static function getMessages(Account $acc) {
+    return self::getAll(self::$MESSAGE, new DBCond('account', $acc->id));
+  }
+
+  /**
+   * Retrieve all messages for the given account in order
+   *
+   * @param Account $acc the account
+   */
+  public static function getUnreadMessages(Account $acc) {
+    self::$MESSAGE->db_set_order(array('created'=>true));
+    $l = self::getAll(self::$MESSAGE, new DBBool(array(new DBCond('account', $acc->id), new DBCond('read_time', null))));
+    self::$MESSAGE->db_set_order();
+    return $l;
+  }
+
+  /**
+   * Adds the given message for the given user
+   *
+   * @param Account the user
+   * @param String $sub the subject of the message
+   * @param String $mes the message
+   * @param boolean $email true to send e-mail message
+   * @return Message the queued message
+   */
+  public static function queueMessage(Account $acc, $sub, $mes, $email = false) {
+    $mes = new Message();
+    $mes->account = $acc->id;
+    $mes->subject = $sub;
+    $mes->content = $mes;
+    self::set($mes);
+
+    if ($email !== false)
+      self::mail($acc->id, $sub, $mes);
+
+    return $mes;
+  }
+
+  /**
+   * Marks the given message as read using the current timestamp or
+   * the one provided. Updates the Message object
+   *
+   * @param Message $mes
+   * @param DateTime $time
+   */
+  public static function markRead(Message $mes, DateTime $time = null) {
+    $mes->read_time = ($time === null) ? self::$NOW : $time;
+    self::set($mes);
+  }
+
+  /**
+   * Deletes the message (actually, marks it as "inactive")
+   *
+   * @param Message $mes the message to "delete"
+   */
+  public static function deleteMessage(Message $mes) {
+    $mes->active = 0;
+    self::set($mes);
+  }
+
+  /**
+   * Sends mail to the authorities on behalf of the user
+   *
+   * @param Message $mes the message being replied
+   * @param String $reply the reply
+   */
+  public static function reply(Message $mes, $reply) {
+    $body = sprintf("Reply from: %s\n---------------------\n%s\n-------------------\n%s",
+		    $mes->account->id,
+		    $mes->content,
+		    $reply);
+    $res = self::mail(Conf::$ADMIN_MAIL, "[TechScore] Message reply", $body);
+  }
+
 }
 
 /**

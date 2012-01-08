@@ -77,7 +77,7 @@ class ProcessOutbox {
   }
 
   private static function send(Account $to, $subject, $content) {
-    Preferences::queueMessage($to, self::keywordReplace($to, $subject), self::keywordReplace($to, $content), true);
+    DB::queueMessage($to, self::keywordReplace($to, $subject), self::keywordReplace($to, $content), true);
     self::$sent++;
   }
   private static function keywordReplace(Account $to, $mes) {

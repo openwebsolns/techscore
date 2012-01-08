@@ -65,7 +65,7 @@ class MessagePane extends AbstractUserPane {
 			     array("Reply")));
 
       // Mark the message as read
-      Preferences::markRead($message);
+      DB::markRead($message);
     }
 
     // ------------------------------------------------------------
@@ -105,7 +105,7 @@ class MessagePane extends AbstractUserPane {
 	Session::pa(new PA("Invalid message to delete.", PA::E));
 	$this->redirect();
       }
-      Preferences::deleteMessage($mes);
+      DB::deleteMessage($mes);
       Session::pa(new PA("Message deleted."));
       $this->redirect("inbox");
     }
@@ -124,7 +124,7 @@ class MessagePane extends AbstractUserPane {
 	Session::pa(new PA("Empty message not sent.", PA::I));
 	$this->redirect();
       }
-      Preferences::reply($mes, (string)$args['text']);
+      DB::reply($mes, (string)$args['text']);
       Session::pa(new PA("Reply sent."));
       $this->redirect("inbox");
     }

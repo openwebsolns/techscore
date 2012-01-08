@@ -11,32 +11,26 @@
  * @author Dayan Paez
  * @version 2010-03-25
  */
-class Message {
+class Message extends DBObject {
 
-  public $id;
-  /**
-   * Account $account
-   */
   public $account;
-  public $created;
-  public $read_time;
+  protected $created;
+  protected $read_time;
   public $content;
   public $subject;
 
-  const FIELDS = "id, created, read_time, content, subject";
-  const TABLES = "message";
-
-  /**
-   * Build a message for the given user
-   *
-   * @param Account $acc the account to which this belongs
-   */
-  public function __construct(Account $acc) {
-    $this->account = $acc;
-    $this->created = new DateTime($this->created);
-    $this->read_time = ($this->read_time !== null)
-      ? new DateTime($this->read_time) : null;
+  public function db_type($field) {
+    switch ($field) {
+    case 'created':
+    case 'read_time':
+      return DB::$NOW;
+    default:
+      return parent::db_type($field);
+    }
   }
+
+  protected function db_order() { return array('created'=>false); }
+  public function db_where() { return new DBCond('active', 1); }
 
   /**
    * Returns just the content
@@ -47,4 +41,6 @@ class Message {
     return $this->content;
   }
 }
+
+DB::$MESSAGE = new Message();
 ?>

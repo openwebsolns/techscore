@@ -18,7 +18,6 @@ class Outbox extends DBObject {
   const R_CONFERENCES = 'conferences';
   const R_ROLES = 'roles';
 
-  public $id;
   public $sender;
   protected $queue_time;
   protected $completion_time;
