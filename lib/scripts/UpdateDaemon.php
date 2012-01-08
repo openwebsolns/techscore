@@ -184,7 +184,7 @@ class UpdateDaemon {
 	    // Affected schools
 	    if (in_array($last->activity, $UPD_SCHOOL)) {
 	      if ($last->activity == UpdateRequest::ACTIVITY_RP && $last->argument !== null)
-		$schools[$last->argument] = Preferences::getSchool($last->argument);
+		$schools[$last->argument] = DB::getSchool($last->argument);
 	      else {
 		foreach (self::$REGATTA->getTeams() as $team)
 		  $schools[$team->school->id] = $team->school;

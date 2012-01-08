@@ -670,7 +670,7 @@ class RegattaIO {
       $new_ids[$rp->sailor->id] = null;
     foreach ($root->Membership->Affiliate as $aff) {
       $school_id = addslashes((string)$aff['id']);
-      $school = Preferences::getSchool($school_id);
+      $school = DB::getSchool($school_id);
       if ($school != null) {
 	foreach ($aff->Member as $member) {
 	  $id = (string)$member['id'];

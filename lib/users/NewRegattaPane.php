@@ -161,7 +161,7 @@ class NewRegattaPane extends AbstractUserPane {
 	$hosts = array();
 	$schools = $this->USER->getSchools();
 	foreach ($args['host'] as $id) {
-	  $school = Preferences::getSchool($id);
+	  $school = DB::getSchool($id);
 	  if ($school !== null && isset($schools[$school->id])) 
 	    $hosts[] = $school;
 	}

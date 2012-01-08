@@ -38,7 +38,7 @@ class Team {
       if ($this->school === false)
 	return null;
       if (!($this->school instanceof School) && $this->school !== null)
-	$this->school = Preferences::getSchool($this->school);
+	$this->school = DB::getSchool($this->school);
       return $this->school;
     }
     // return what once was there

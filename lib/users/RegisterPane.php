@@ -94,7 +94,7 @@ class RegisterPane extends WelcomePage {
     // Fill out the selection boxes
     foreach (DB::getConferences() as $conf) {
       $aff->add($opt = new FOptionGroup($conf));
-      foreach (Preferences::getSchoolsInConference($conf) as $school) {
+      foreach (DB::getSchoolsInConference($conf) as $school) {
 	$opt->add(new FOption($school->id, $school->name));
       }
     }
@@ -152,7 +152,7 @@ class RegisterPane extends WelcomePage {
       }
 
       // 3. Affiliation
-      $acc->school = Preferences::getSchool(trim(addslashes($args['school'])));
+      $acc->school = DB::getSchool(trim(addslashes($args['school'])));
       if ($acc->school === null) {
 	Session::pa(new PA("Invalid school affiliation requested.", PA::E));
 	return $args;

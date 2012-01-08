@@ -300,7 +300,7 @@ class RpManager {
     if ($q->num_rows == 0)
       throw new InvalidArgumentException(sprintf("No sailor with id (%s).", $id));
     $obj = $q->fetch_object("Sailor");
-    $obj->school = Preferences::getSchool($obj->school);
+    $obj->school = DB::getSchool($obj->school);
     return $obj;
   }
 

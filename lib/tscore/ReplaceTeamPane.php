@@ -35,7 +35,7 @@ class ReplaceTeamPane extends AbstractPane {
     // school select
     foreach ($confs as $conf) {
       // Get schools for that conference
-      $schools = Preferences::getSchoolsInConference($conf);
+      $schools = DB::getSchoolsInConference($conf);
       $sel2->add($grp = new FOptionGroup($conf));
       foreach ($schools as $school)
 	$grp->add(new FOption($school->id, $school->name));
@@ -58,7 +58,7 @@ class ReplaceTeamPane extends AbstractPane {
       }
 
       if (!isset($args['school']) ||
-	  ($school = Preferences::getSchool($args['school'])) === null) {
+	  ($school = DB::getSchool($args['school'])) === null) {
 	Session::pa(new PA("Invalid or missing school with which to replace $team.", PA::E));
 	return $args;
       }

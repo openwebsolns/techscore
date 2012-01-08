@@ -33,7 +33,7 @@ class TeamsPane extends AbstractPane {
     foreach ($confs as $conf) {
       // Get schools for that conference
       $f_sel->add($f_grp = new FOptionGroup((string)$conf));
-      foreach (Preferences::getSchoolsInConference($conf) as $school)
+      foreach (DB::getSchoolsInConference($conf) as $school)
 	$f_grp->add(new FOption($school->id, $school->name));
     }
 
@@ -68,7 +68,7 @@ class TeamsPane extends AbstractPane {
     // Add team
     if (isset($args['invite'])) {
       if (!isset($args['addschool']) ||
-	  ($school = Preferences::getSchool($args['addschool'])) === null) {
+	  ($school = DB::getSchool($args['addschool'])) === null) {
 	Session::pa(new PA("Invalid or missing school to add.", PA::E));
 	return array();
       }
@@ -146,7 +146,7 @@ class TeamsPane extends AbstractPane {
     
     foreach ($confs as $conf) {
       $list->add(new XLi(array(new XHeading($conf), $sub = new XUl())));
-      foreach ($schools = Preferences::getSchoolsInConference($conf) as $school) {
+      foreach ($schools = DB::getSchoolsInConference($conf) as $school) {
 	$sub->add(new XLi(array(new XHiddenInput('school[]', $school->id),
 				new XTextInput('number[]', "", array('id'=>$school->id)),
 				new XLabel($school->id, $school))));
@@ -166,7 +166,7 @@ class TeamsPane extends AbstractPane {
     $teams_added = 0;
     foreach ($args['school'] as $i => $id) {
       $number = (int)$args['number'][$i];
-      if ($number > 0 && ($school = Preferences::getSchool($id)) !== null) {
+      if ($number > 0 && ($school = DB::getSchool($id)) !== null) {
 	$names = Preferences::getTeamNames($school);
 	if (count($names) == 0)
 	  $names[] = $school->nick_name;

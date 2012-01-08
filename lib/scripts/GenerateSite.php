@@ -64,7 +64,7 @@ class GenerateSite {
       
       foreach (DB::getConferences() as $conf) {
 	self::log(sprintf("  - Conference: %s\n", $conf));
-	foreach (Preferences::getSchoolsInConference($conf) as $school) {
+	foreach (DB::getSchoolsInConference($conf) as $school) {
 	  self::log(sprintf("    - School: (%8s) %s\n", $school->id, $school));
 	  foreach ($seasons as $season) {
 	    UpdateSchool::run($school, $season);

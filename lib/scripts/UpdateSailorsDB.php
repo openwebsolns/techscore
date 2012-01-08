@@ -129,7 +129,7 @@ class UpdateSailorsDB {
 	  // keep cache of schools
 	  $school_id = trim((string)$sailor->school);
 	  if (!isset($schools[$school_id])) {
-	    $schools[$school_id] = Preferences::getSchool($school_id);
+	    $schools[$school_id] = DB::getSchool($school_id);
 	    $this->log(sprintf("Fetched school (%s) %s", $school_id, $schools[$school_id]));
 	  }
 
@@ -169,7 +169,7 @@ class UpdateSailorsDB {
 	  // keep cache of schools
 	  $school_id = trim((string)$sailor->school);
 	  if (!isset($schools[$school_id])) {
-	    $schools[$school_id] = Preferences::getSchool($school_id);
+	    $schools[$school_id] = DB::getSchool($school_id);
 	    $this->log(sprintf("Fetched school (%s) %s", $school_id, $schools[$school_id]));
 	  }
 

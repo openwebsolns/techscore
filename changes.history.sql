@@ -182,3 +182,11 @@ CREATE TABLE `outbox` (
   PRIMARY KEY (`id`),
   KEY `sender` (`sender`)
 ) ENGINE=innodb;
+
+-- Migrate burgee --
+alter table burgee drop foreign key burgee_ibfk_1, drop primary key;
+alter table burgee add column id int primary key auto_increment first;
+alter table burgee add foreign key (school) references school(id) on delete cascade on update cascade;
+
+update school set burgee = null;
+alter table school change column burgee burgee int default null, add foreign key (burgee) references burgee(id) on delete set null on update cascade;

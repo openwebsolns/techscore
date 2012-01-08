@@ -267,26 +267,6 @@ class Preferences {
     return $list;
   }
 
-  // attempt to cache
-  private static $schools = array();
-  /**
-   * Returns the school with the given ID, or null if none exists
-   *
-   * @return School $school with the given ID
-   */
-  public static function getSchool($id) {
-    if (isset(self::$schools[$id])) return self::$schools[$id];
-    
-    $q = sprintf('select %s from %s where id like "%s"',
-		 School::FIELDS, School::TABLES, $id);
-    $q = self::query($q);
-    if ($q->num_rows == 0) {
-      return null;
-    }
-    self::$schools[$id] = $q->fetch_object("School");
-    return self::$schools[$id];
-  }
-
   /**
    * Fetches the burgee, if any, for the given school. This method is
    * called internally by the School class when retrieving its burgee.

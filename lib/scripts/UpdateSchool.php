@@ -64,7 +64,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   require_once('conf.php');
 
   // GET School
-  $school = Preferences::getSchool($argv[1]);
+  $school = DB::getSchool($argv[1]);
   if ($school == null) {
     printf("Invalid school given: %s\n\n", $argv[1]);
     printf("usage: %s <school-id>\n", $_SERVER['PHP_SELF']);

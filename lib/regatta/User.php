@@ -65,7 +65,7 @@ class User {
       throw new InvalidArgumentException("No such property " . $key);
     }
     if ($key == "school")
-      return Preferences::getSchool($this->properties["school"]);
+      return DB::getSchool($this->properties["school"]);
 
     return $this->properties[$key];
   }
@@ -206,7 +206,7 @@ class User {
       $q = sprintf('select school from account_school where account="%s"', $this->username);
     $q = Preferences::query($q);
     while ($r = $q->fetch_object()) {
-      $school = Preferences::getSchool($r->school);
+      $school = DB::getSchool($r->school);
       if ($conf === null || $school->conference == $conf)
 	$list[$school->id] = $school;
     }

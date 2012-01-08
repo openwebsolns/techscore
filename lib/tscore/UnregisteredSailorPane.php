@@ -65,7 +65,7 @@ class UnregisteredSailorPane extends AbstractPane {
 	  $form->add(new XHiddenInput('sailor', $t->id));
 	  $form->add(new XSubmitInput('remove-temp', "Remove"));
 	}
-	$sch = Preferences::getSchool($t->school);
+	$sch = DB::getSchool($t->school);
 	$tab->addRow(array($sch->nick_name,
 			   $t->first_name,
 			   $t->last_name,
@@ -110,7 +110,7 @@ class UnregisteredSailorPane extends AbstractPane {
 
 	$sailor = new Sailor();
 	if ($first_name != "" && $last_name != "") {
-	  $school = Preferences::getSchool($sch);
+	  $school = DB::getSchool($sch);
 	  if ($school === null) {
 	    Session::pa(new PA(sprintf("School ID provided is invalid (%s).", $sch), PA::E));
 	  }

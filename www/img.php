@@ -21,7 +21,7 @@ if (empty($_GET['school'])) {
   header_404();
 }
 
-$school = Preferences::getSchool(addslashes($_GET['school']));
+$school = DB::getSchool(addslashes($_GET['school']));
 if ($school == null || $school->burgee === null)
   header_404();
 

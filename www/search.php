@@ -32,7 +32,7 @@ $results = RpManager::searchSailor($_GET['q']);
 require_once('xml5/XmlLib.php');
 $P = new XDoc('SailorSearch', array('version'=>'1.0', 'count'=>count($results)));
 foreach ($results as $result) {
-  $school = Preferences::getSchool($result->school);
+  $school = DB::getSchool($result->school);
   $P->add(new XElem('Sailor', array('id'=>$result->id, 'icsa_id'=>$result->icsa_id),
 		    array(new XElem('FirstName', array(), array(new XText($result->first_name))),
 			  new XElem('LastName',  array(), array(new XText($result->last_name))),

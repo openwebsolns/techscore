@@ -44,7 +44,7 @@ class Account {
   public function __get($key) {
     if ($key != "school") throw new InvalidArgumentException("Invalid value requested from Account");
     if (!($this->school instanceof School))
-      $this->school = Preferences::getSchool($this->school);
+      $this->school = DB::getSchool($this->school);
     return $this->school;
   }
 

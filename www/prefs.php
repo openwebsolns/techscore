@@ -42,7 +42,7 @@ if (!isset($_REQUEST['school'])) {
   // Redirect to the user's school
   WebServer::go($HOME);
 }
-$SCHOOL = Preferences::getSchool(strtoupper($_REQUEST['school']));
+$SCHOOL = DB::getSchool(strtoupper($_REQUEST['school']));
 if ($SCHOOL == null) {
   $mes = sprintf("No such school (%s).", $_REQUEST['school']);
   Session::pa(new PA($mes, PA::E));
