@@ -36,7 +36,7 @@ class BoatManagement extends AbstractAdminUserPane {
     // 0a. Editing boat?
     // ------------------------------------------------------------
     if (isset($args['b'])) {
-      $boat = Preferences::getBoat($args['b']);
+      $boat = DB::getBoat($args['b']);
       if ($boat === null) {
 	Session::pa(new PA("Invalid boat to edit."));
 	WebServer::go("boats");
@@ -72,7 +72,7 @@ class BoatManagement extends AbstractAdminUserPane {
     $this->PAGE->addContent($p = new XPort("All boat classes"));
     $p->add(new XP(array(), "Click on the boat name to edit that boat."));
     $p->add($tab = new XQuickTable(array(), array("Name", "No. Occupants")));
-    foreach (Preferences::getBoats() as $boat) {
+    foreach (DB::getBoats() as $boat) {
       $tab->addRow(array(new XA(sprintf("boats?b=%d", $boat->id), $boat->name), $boat->occupants));
     }
   }
@@ -85,7 +85,7 @@ class BoatManagement extends AbstractAdminUserPane {
       $boat = new Boat();
       $mess = "Added new boat.";
       if (isset($args['boat'])) {
-	$boat = Preferences::getBoat((int)$args['boat']);
+	$boat = DB::getBoat((int)$args['boat']);
 	if ($boat == null) {
 	  Session::pa(new PA("Invalid boat to edit.", PA::E));
 	  unset($args['boat']);
@@ -93,7 +93,7 @@ class BoatManagement extends AbstractAdminUserPane {
 	}
 	$mess = "Edited boat.";
       }
-      if (isset($args['name'])) $boat->name = addslashes($args['name']);
+      if (isset($args['name'])) $boat->name = $args['name'];
       if (isset($args['occupants']) && $args['occupants'] >= 1) {
 	$boat->occupants = (int)$args['occupants'];
       }
@@ -101,7 +101,7 @@ class BoatManagement extends AbstractAdminUserPane {
 	Session::pa(new PA("Invalid value for number of occupants.", PA::E));
 	return $args;
       }
-      Preferences::setBoat($boat);
+      DB::set($boat);
       Session::pa(new PA($mess));
       Session::s('POST', array());
       WebServer::go("boats");

@@ -18,6 +18,7 @@ class DB extends DBM {
   public static $CONFERENCE = null;
   public static $SCHOOL = null;
   public static $BURGEE = null;
+  public static $BOAT = null;
   public static $NOW = null;
 
   public static function setConnectionParams($host, $user, $pass, $db) {
@@ -25,6 +26,7 @@ class DB extends DBM {
     self::$CONFERENCE = new Conference();
     self::$SCHOOL = new School();
     self::$BURGEE = new Burgee();
+    self::$BOAT = new Boat();
     self::$NOW = new DateTime();
 
     DBM::setConnectionParams($host, $user, $pass, $db);
@@ -67,6 +69,48 @@ class DB extends DBM {
   public static function getSchool($id) {
     return self::get(self::$SCHOOL, $id);
   }
+
+  /**
+   * Returns a list of available boats
+   *
+   * @return Array<Boat> list of boats
+   */
+  public static function getBoats() {
+    return self::getAll(self::$BOAT);
+  }
+  
+  /**
+   * Fetches the boat with the given ID
+   *
+   * @param int $id the ID of the boat
+   * @return Boat|null
+   */
+  public static function getBoat($id) {
+    return self::get(self::$BOAT, $id);
+  }
+
+  /**
+   * Sends a generic mail message to the given user with the given
+   * subject, appending the correct headers (i.e., the "from"
+   * field). This method uses the standard PHP mail function
+   *
+   * @param String $to the e-mail address to send to
+   * @param String $subject the subject
+   * @param String $body the body of the message, will be wrapped to
+   * 72 characters
+   * @return boolean the result, as returned by mail
+   */
+  public static function mail($to, $subject, $body) {
+    if (Conf::$DIVERT_MAIL !== null) {
+      $body = "Message meant for $to\n\n" . $body;
+      $to = Conf::$DIVERT_MAIL;
+      $subject = 'DIVERTED: ' . $subject;
+    }
+    return mail($to,
+		$subject,
+		wordwrap($body, 72),
+		sprintf('From: %s', Conf::$TS_FROM_MAIL));
+  }
 }
 
 /**
@@ -104,29 +148,6 @@ class Burgee extends DBObject {
       return parent::db_type($field);
     }
   }
-
-  /**
-   * Sends a generic mail message to the given user with the given
-   * subject, appending the correct headers (i.e., the "from"
-   * field). This method uses the standard PHP mail function
-   *
-   * @param String $to the e-mail address to send to
-   * @param String $subject the subject
-   * @param String $body the body of the message, will be wrapped to
-   * 72 characters
-   * @return boolean the result, as returned by mail
-   */
-  public static function mail($to, $subject, $body) {
-    if (Conf::$DIVERT_MAIL !== null) {
-      $body = "Message meant for $to\n\n" . $body;
-      $to = Conf::$DIVERT_MAIL;
-      $subject = 'DIVERTED: ' . $subject;
-    }
-    return mail($to,
-		$subject,
-		wordwrap($body, 72),
-		sprintf('From: %s', Conf::$TS_FROM_MAIL));
-  }
 }
 
 /**
@@ -150,15 +171,19 @@ class School extends DBObject {
   }
   protected function db_order() { return array('name'=>true); }
   protected function db_cache() { return true; }
+}
 
-  /**
-   * Returns this school's burgee, if any
-   *
-   * @return Burgee|null
-   */
-  public function getBurgee() {
-    // @TODO!!
-    return DB::get(DB::$BURGEE, $this->id);
-  }
+/**
+ * A boat class, like Techs and FJs.
+ *
+ * @author Dayan Paez
+ * @version 2012-01-08
+ */
+class Boat extends DBObject {
+  public $name;
+  public $occupants;
+
+  protected function db_cache() { return true; }
+  public function __toString() { return $this->name; }
 }
 ?>

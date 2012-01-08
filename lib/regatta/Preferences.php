@@ -96,63 +96,6 @@ class Preferences {
   }
 
   /**
-   * Returns a list of available boats
-   *
-   * @return Array<Boat> list of boats
-   */
-  public static function getBoats() {
-    $q = sprintf('select %s from %s', Boat::FIELDS, Boat::TABLES);
-    $q = self::query($q);
-    
-    $list = array();
-    while ($obj = $q->fetch_object("Boat"))
-      $list[] = $obj;
-    return $list;
-  }
-
-  // attempt to cache boats
-  private static $boats = array();
-  /**
-   * Fetches the boat with the given ID
-   *
-   * @param int $id the ID of the boat
-   * @return Boat|null
-   */
-  public static function getBoat($id) {
-    if (isset(self::$boats[$id]))
-      return self::$boats[$id];
-    
-    $q = sprintf('select %s from %s where id = %d limit 1',
-		 Boat::FIELDS, Boat::TABLES, $id);
-    $q = self::query($q);
-    if ($q->num_rows == 0)
-      return null;
-    self::$boats[$id] = $q->fetch_object("Boat");
-    return self::$boats[$id];
-  }
-
-  /**
-   * Sets the given boat in the database, whether that is inserting a
-   * new boat (the argument will be updated with the database ID), or
-   * updating an existing one.
-   *
-   * @param Boat $boat the boat to either add or update
-   */
-  public static function setBoat(Boat $boat) {
-    $exist = Preferences::getBoat($boat->id);
-    if ($exist === null) {
-      self::query(sprintf('insert into boat (name, occupants) values ("%s", %d)',
-			  $boat->name, $boat->occupants));
-      $boat->id = self::$con->insert_id;
-      self::$boats[$boat->id] = $boat;
-    }
-    else {
-      self::query(sprintf('update boat set name = "%s", occupants = %d where id = %d limit 1',
-			  $boat->name, $boat->occupants, $exist->id));
-    }
-  }
-
-  /**
    * Adds a venue to the database
    *
    * @param Venue $venue the venue to set to the database
@@ -353,7 +296,7 @@ class Preferences {
    */
   public static function getPreferredBoat(School $school) {
     // @TODO
-    return Preferences::getBoat(1);    
+    return DB::getBoat(1);    
   }
 
   // ------------------------------------------------------------

@@ -39,7 +39,7 @@ class Race {
   public function __get($name) {
     if ($name == "boat") {
       if ($this->boat !== null && !($this->boat instanceof Boat))
-	$this->boat = Preferences::getBoat($this->boat);
+	$this->boat = DB::getBoat($this->boat);
       return $this->boat;
     }
     if (isset($this->$name))

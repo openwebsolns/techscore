@@ -29,7 +29,7 @@ class RacesPane extends AbstractPane {
 
   protected function fillHTML(Array $args) {
     $divisions = $this->REGATTA->getDivisions();
-    $boats     = Preferences::getBoats();
+    $boats     = DB::getBoats();
     $boatOptions = array('' => "[Use table]");
     foreach ($boats as $boat) {
       $boatOptions[$boat->id] = $boat->name;
@@ -195,7 +195,7 @@ class RacesPane extends AbstractPane {
     $completed_divisions = array();
     if (isset($args['editboats'])) {
       unset($args['editboats']);
-      $boats = Preferences::getBoats();
+      $boats = DB::getBoats();
 
       // Is there an assignment for all the races in the division?
       if (isset($args['div-value']) && is_array($args['div-value']) &&

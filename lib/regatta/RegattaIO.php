@@ -367,7 +367,7 @@ class RegattaIO {
     // ------------------------------------------------------------
     // Races and divisions, through boats
     // ------------------------------------------------------------
-    $valid_boats = Preferences::getBoats();
+    $valid_boats = DB::getBoats();
     $race_list   = array(); // associative array of division => race list
     foreach ($root->Boats->Boat as $boat) {
       $id    = (string)$boat['id'];
