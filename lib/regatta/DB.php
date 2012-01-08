@@ -314,6 +314,9 @@ class DB extends DBM {
     return self::getAll(self::$COACH, $cond);
   }
 
+  public static function searchSailors($str) {
+    return self::search(self::$SAILOR, $str, array('first_name', 'last_name', 'concat(first_name, " ", last_name)'));
+  }
 }
 
 /**

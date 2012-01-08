@@ -28,7 +28,7 @@ if (!isset($_GET['q']) || strlen($_GET['q']) < 3) {
   WebServer::go('/');
 }
 
-$results = RpManager::searchSailor($_GET['q']);
+$results = DB::searchSailors($_GET['q']);
 require_once('xml5/XmlLib.php');
 $P = new XDoc('SailorSearch', array('version'=>'1.0', 'count'=>count($results)));
 foreach ($results as $result) {
