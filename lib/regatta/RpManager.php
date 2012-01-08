@@ -92,7 +92,7 @@ class RpManager {
       $obj->division = $div;
       $obj->team = $team;
       $obj->boat_role = $role;
-      $obj->sailor = RpManager::getSailor($obj->sailor);
+      $obj->sailor = DB::getSailor($obj->sailor);
       $obj->sailor->school = $team->school;
     }
     return $list;
@@ -192,70 +192,6 @@ class RpManager {
   }
 
   /**
-   * Returns a list of sailors for the specified school
-   *
-   * @param School $school the school object
-   * @param Sailor::const $gender null for both or the gender code
-   *
-   * @param mixed $active default "all", returns ONLY the active ones,
-   * false to return ONLY the inactive ones, anything else for all.
-   *
-   * @return Array<Sailor> list of sailors
-   */
-  public static function getSailors(School $school, $gender = null, $active = "all") {
-    $a = '';
-    if ($active === true)
-      $a = 'and active is not null ';
-    if ($active === false)
-      $a = 'and active is null ';
-    $g = ($gender === null) ? '' : sprintf('and gender = "%s" ', $gender);
-    $q = sprintf('select %s from %s where school = "%s" ' .
-		 'and role = "student" ' .
-		 'and icsa_id is not null %s %s' .
-		 'order by last_name',
-		 Sailor::FIELDS, Sailor::TABLES, $school->id, $g, $a);
-    $q = Preferences::query($q);
-    $list = array();
-    while ($obj = $q->fetch_object("Sailor")) {
-      $obj->school = $school;
-      $list[] = $obj;
-    }
-    return $list;
-  }
-
-  /**
-   * Returns a list of unregistered sailors for the specified school
-   *
-   * @param School $school the school object
-   * @param RP::const $gender null for both or the gender code
-   *
-   * @param mixed $active default "all", returns ONLY the active ones,
-   * false to return ONLY the inactive ones, anything else for all.
-   *
-   * @return Array<Sailor> list of sailors
-   */
-  public static function getUnregisteredSailors(School $school, $gender = null, $active = "all") {
-    $a = '';
-    if ($active === true)
-      $a = 'and active is not null ';
-    if ($active === false)
-      $a = 'and active is null ';
-    $g = ($gender === null) ? '' : sprintf('and gender = "%s" ', $gender);
-    $q = sprintf('select %s from %s where school = "%s" ' .
-		 'and role = "student" ' .
-		 'and icsa_id is null %s %s' .
-		 'order by last_name',
-		 Sailor::FIELDS, Sailor::TABLES, $school->id, $g, $a);
-    $q = Preferences::query($q);
-    $list = array();
-    while ($obj = $q->fetch_object("Sailor")) {
-      $obj->school = $school;
-      $list[] = $obj;
-    }
-    return $list;
-  }
-
-  /**
    * Replaces every instance of the temporary sailor id with the
    * current sailor id in the RP forms and the database
    *
@@ -268,7 +204,7 @@ class RpManager {
     Preferences::query($q);
 
     // Delete if temporary sailor
-    if (!$key->registered) {
+    if (!$key->isRegistered()) {
       $q = sprintf('delete from sailor where id = "%s"', $key->id);
       Preferences::query($q);
     }
@@ -285,23 +221,6 @@ class RpManager {
 		  $team->id);
     $this->regatta->query($q1);
     $this->regatta->query($q2);
-  }
-
-  /**
-   * Fetches the Sailor with the given ID
-   *
-   * @param int id the ID of the person
-   * @return Sailor the sailor
-   */
-  public static function getSailor($id) {
-    $q = sprintf('select %s from %s where id = "%s"',
-		 Sailor::FIELDS, Sailor::TABLES, (int)$id);
-    $q = Preferences::query($q);
-    if ($q->num_rows == 0)
-      throw new InvalidArgumentException(sprintf("No sailor with id (%s).", $id));
-    $obj = $q->fetch_object("Sailor");
-    $obj->school = DB::getSchool($obj->school);
-    return $obj;
   }
 
   // RP form functions
@@ -463,7 +382,7 @@ class RpManager {
       // Fix properties
       $obj->division = Division::get($obj->division);
       $obj->team = $this->regatta->getTeam($obj->team);
-      $obj->sailor = RpManager::getSailor($obj->sailor);
+      $obj->sailor = DB::getSailor($obj->sailor);
     }
     return $list;
   }

@@ -237,7 +237,7 @@ class RegattaIO {
       $tag->add($sub = new XElem("Affiliate"));
       $sub->set("id", $school->id);
 
-      foreach (RpManager::getSailors($school) as $sailor) {
+      foreach (DB::getSailors($school) as $sailor) {
 	$sub->add($ssub = new XElem("Member"));
 	$ssub->set("id", $sailor->id);
 	$ssub->set("data", "http://techscore.mit.edu");
@@ -250,7 +250,7 @@ class RegattaIO {
 	$sssub->add(new XText($sailor->year));
       }
       
-      foreach (RpManager::getUnregisteredSailors($school) as $sailor) {
+      foreach (DB::getUnregisteredSailors($school) as $sailor) {
 	$sub->add($ssub = new XElem("Member"));
 	$ssub->set("id", $sailor->id);
 	$ssub->set("data", "http://techscore.mit.edu");
@@ -626,8 +626,8 @@ class RegattaIO {
 
       if ($team != null && $role != null && $div != null && $nums != null && !empty($id)) {
 	if (!isset($teams_reg[$team->school->id])) {
-	  $teams_reg[$team->school->id]  = RpManager::getSailors($team->school);
-	  $teams_ureg[$team->school->id] = RpManager::getUnregisteredSailors($team->school);
+	  $teams_reg[$team->school->id]  = DB::getSailors($team->school);
+	  $teams_ureg[$team->school->id] = DB::getUnregisteredSailors($team->school);
 	}
 
 	// Does the sailor exist in the database? As unregistered? As new?

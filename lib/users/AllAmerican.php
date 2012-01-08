@@ -436,7 +436,7 @@ class AllAmerican extends AbstractUserPane {
       $errors = 0;
       foreach ($args['sailor'] as $id) {
 	try {
-	  $sailor = RpManager::getSailor($id);
+	  $sailor = DB::getSailor($id);
 	  $this->AA['sailors'][$sailor->id] = $sailor;
 	} catch (Exception $e) {
 	  $errors++;

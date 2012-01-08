@@ -116,7 +116,7 @@ class UnregisteredSailorPane extends AbstractPane {
 	  }
 	  else {
 	    $sailor->school = $school;
-	    $sailor->registered = false;
+	    $sailor->icsa_id = null;
 	    $sailor->first_name = $first_name;
 	    $sailor->last_name = $last_name;
 	    $sailor->year = ($year == "") ? null : $year;
@@ -141,7 +141,7 @@ class UnregisteredSailorPane extends AbstractPane {
 	return $args;
       }
       try {
-	$sailor = RpManager::getSailor((int)$args['sailor']);
+	$sailor = DB::getSailor((int)$args['sailor']);
 	$rp->removeTempSailor($sailor);
 	Session::pa(new PA("Removed temporary sailor."));
       }

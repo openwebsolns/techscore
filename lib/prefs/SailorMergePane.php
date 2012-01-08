@@ -38,7 +38,7 @@ class SailorMergePane extends AbstractUserPane {
     $p->add(new XP(array(), "Use this form to update the database by matching the temporary sailor with the actual one from the ICSA database. If the sailor does not appear, he/she may have to be approved by ICSA before the changes are reflected in TechScore. Also, bear in mind that TechScore's copy of the ICSA membership database might lag ICSA's copy by as much as a week."));
 
     // Get all the temporary sailors
-    $temp = RpManager::getUnregisteredSailors($this->SCHOOL);
+    $temp = DB::getUnregisteredSailors($this->SCHOOL);
     if (empty($temp)) {
       $p->add(new XP(array('class'=>'strong center'), "No temporary sailors for this school."));
       return;
@@ -48,7 +48,7 @@ class SailorMergePane extends AbstractUserPane {
     $form->add($tab = new XQuickTable(array('class'=>'narrow'), array("Temporary sailor", "ICSA Match")));
     
     // Create choices
-    $sailors = RpManager::getSailors($this->SCHOOL);
+    $sailors = DB::getSailors($this->SCHOOL);
     $choices = array("" => "", "Sailors"=>array(), "Coaches"=>array());
     foreach ($sailors as $sailor)
       $choices["Sailors"][$sailor->id] = (string)$sailor;
@@ -78,8 +78,8 @@ class SailorMergePane extends AbstractUserPane {
     unset($args['match_sailors']);
 
     $divs = Division::getAssoc();
-    $reals = RpManager::getSailors($this->SCHOOL);
-    $temps = RpManager::getUnregisteredSailors($this->SCHOOL);
+    $reals = DB::getSailors($this->SCHOOL);
+    $temps = DB::getUnregisteredSailors($this->SCHOOL);
     $replaced = 0;
     $affected = array();
     // Process each temp id

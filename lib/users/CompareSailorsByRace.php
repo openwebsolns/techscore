@@ -37,7 +37,7 @@ class CompareSailorsByRace extends AbstractUserPane {
     $sailors = array();
     foreach ($list as $id) {
       try {
-	$sailor = RpManager::getSailor($id);
+	$sailor = DB::getSailor($id);
 	if ($sailor->icsa_id !== null)
 	  $sailors[] = $sailor;
       }

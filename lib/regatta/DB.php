@@ -20,6 +20,7 @@ class DB extends DBM {
   public static $BURGEE = null;
   public static $BOAT = null;
   public static $VENUE = null;
+  public static $SAILOR = null;
   public static $NOW = null;
 
   public static $OUTBOX = null;
@@ -32,6 +33,7 @@ class DB extends DBM {
     self::$BURGEE = new Burgee();
     self::$BOAT = new Boat();
     self::$VENUE = new Venue();
+    self::$SAILOR = new Sailor();
     self::$NOW = new DateTime();
 
     DBM::setConnectionParams($host, $user, $pass, $db);
@@ -226,6 +228,64 @@ class DB extends DBM {
 		    $mes->content,
 		    $reply);
     $res = self::mail(Conf::$ADMIN_MAIL, "[TechScore] Message reply", $body);
+  }
+
+  // ------------------------------------------------------------
+  // Sailors
+  // ------------------------------------------------------------
+
+  /**
+   * Fetches the Sailor with the given ID
+   *
+   * @param int id the ID of the person
+   * @return Sailor the sailor
+   */
+  public static function getSailor($id) {
+    return DB::get(DB::$SAILOR, $id);
+  }
+  
+  /**
+   * Returns a list of sailors for the specified school
+   *
+   * @param School $school the school object
+   * @param Sailor::const $gender null for both or the gender code
+   *
+   * @param mixed $active default "all", returns ONLY the active ones,
+   * false to return ONLY the inactive ones, anything else for all.
+   *
+   * @return Array:Sailor list of sailors
+   */
+  public static function getSailors(School $school, $gender = null, $active = "all") {
+    $cond = new DBBool(array(new DBCond('icsa_id', null, DBCond::NE), new DBCond('school', $school)));
+    if ($active === true)
+      $cond->add(new DBCond('active', null, DBCond::NE));
+    if ($active === false)
+      $cond->add(new DBCond('active', null));
+    if ($gender !== null)
+      $cond->add(new DBCond('gender', $gender));
+    return self::getAll(self::$SAILOR, $cond);
+  }
+
+  /**
+   * Returns a list of unregistered sailors for the specified school
+   *
+   * @param School $school the school object
+   * @param RP::const $gender null for both or the gender code
+   *
+   * @param mixed $active default "all", returns ONLY the active ones,
+   * false to return ONLY the inactive ones, anything else for all.
+   *
+   * @return Array<Sailor> list of sailors
+   */
+  public static function getUnregisteredSailors(School $school, $gender = null, $active = "all") {
+    $cond = new DBBool(array(new DBCond('icsa_id', null, DBCond::NE), new DBCond('school', $school)));
+    if ($active === true)
+      $cond->add(new DBCond('active', null, DBCond::NE));
+    if ($active === false)
+      $cond->add(new DBCond('active', null));
+    if ($gender !== null)
+      $cond->add(new DBCond('gender', $gender));
+    return self::getAll(self::$SAILOR, $cond);
   }
 
 }
@@ -425,6 +485,54 @@ class Division {
 		 "B"=>Division::B(),
 		 "C"=>Division::C(),
 		 "D"=>Division::D());
+  }
+}
+
+/**
+ * Encapsulates a sailor, whether registered with ICSA or not.
+ *
+ * @author Dayan Paez
+ * @version 2009-10-04
+ */
+class Sailor extends DBObject {
+  protected $school;
+  public $last_name;
+  public $first_name;
+  public $year;
+  public $role;
+  public $icsa_id;
+  public $gender;
+  public $active;
+
+  const MALE = 'M';
+  const FEMALE = 'F';
+
+  public function db_type($field) {
+    switch ($field) {
+    case 'school': return DB::$SCHOOL;
+    default:
+      return parent::db_type($field);
+    }
+  }
+  protected function db_order() { return array('last_name'=>true, 'first_name'=>true); }
+  protected function db_name() { return 'sailor'; }
+  protected function db_where() { return new DBCond('role', 'student'); }
+
+  public function isRegistered() {
+    return $this->icsa_id !== null;
+  }
+
+  public function __toString() {
+    $year = "";
+    if ($this->role == 'student')
+      $year = " '" . (($this->year > 0) ? substr($this->year, -2) : "??");
+    $name = sprintf("%s %s%s",
+		    $this->first_name,
+		    $this->last_name,
+		    $year);
+    if (!$this->__get('registered'))
+      $name .= " *";
+    return $name;
   }
 }
 
