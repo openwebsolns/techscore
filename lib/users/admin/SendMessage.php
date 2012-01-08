@@ -194,7 +194,7 @@ class SendMessage extends AbstractAdminUserPane {
       if (isset($args['copy-me']))
 	$out->copy_sender =  1;
 
-      Preferences::queueOutgoing($out);
+      DB::set($out);
       Session::pa(new PA("Successfully queued message to be sent."));
       return array();
     }

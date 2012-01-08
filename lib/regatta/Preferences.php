@@ -320,47 +320,7 @@ class Preferences {
 		    $mes->account->id,
 		    $mes->content,
 		    $reply);
-    $res = self::mail(Conf::$ADMIN_MAIL, "[TechScore] Message reply", $body);
-  }
-
-  /**
-   * Queues an outgoing message to be processed by CLI script
-   *
-   * @param Outbox $out the message parameters to send
-   */
-  public static function queueOutgoing(Outbox $out) {
-    $con = self::getConnection();
-    self::query(sprintf('insert into outbox (sender, recipients, arguments, copy_sender, subject, content) values ("%s", "%s", "%s", "%s", "%s", "%s")',
-			$out->sender,
-			$out->recipients,
-			$out->arguments,
-			$out->copy_sender,
-			$con->real_escape_string($out->subject),
-			$con->real_escape_string($out->content)));
-  }
-
-  /**
-   * Marks the given Outbox as completed (updates completion_time with
-   * current time)
-   *
-   * @param Outbox the outgoing message to update
-   */
-  public static function unpendOutgoing(Outbox $out) {
-    $con = self::getConnection();
-    self::query(sprintf('update outbox set completion_time = "%s" where id = "%s"', date('Y-m-d H:i:s'), $out->id));
-  }
-
-  /**
-   * Get all non-completed outgoing messages
-   *
-   * @return Array:Outbox the messages
-   */
-  public static function getPendingOutgoing() {
-    $q = self::query(sprintf('select * from %s where completion_time is null', Outbox::TABLES));
-    $l = array();
-    while ($obj = $q->fetch_object("Outbox"))
-      $l[] = $obj;
-    return $l;
+    $res = DB::mail(Conf::$ADMIN_MAIL, "[TechScore] Message reply", $body);
   }
 
   /**

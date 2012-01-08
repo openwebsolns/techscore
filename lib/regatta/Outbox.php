@@ -5,13 +5,19 @@
  * @package regatta
  */
 
+require_once('regatta/DB.php');
+
 /**
  * Encompasses a request for an outgoing message
  *
  * @author Dayan Paez
  * @version 2011-11-18
  */
-class Outbox {
+class Outbox extends DBObject {
+  const R_ALL = 'all';
+  const R_CONFERENCES = 'conferences';
+  const R_ROLES = 'roles';
+
   public $id;
   public $sender;
   protected $queue_time;
@@ -24,33 +30,16 @@ class Outbox {
 
   const TABLES = 'outbox';
 
-  public function __get($field) {
+  public function db_type($field) {
     switch ($field) {
     case 'queue_time':
     case 'completion_time':
-      if ($this->$field === null) return null;
-      if (!($this->$field instanceof DateTime))
-	$this->$field = new DateTime($this->$field);
+      return DB::$NOW;
+    default:
+      return parent::db_type($field);      
     }
-    return $this->$field;
-  }
-  /**
-   * Ascertains that the time fields are indeed DateTime objects
-   *
-   * @throws InvalidArgumentException if $value is of an invalid type
-   */
-  public function __set($field, $value) {
-    switch ($field) {
-    case 'queue_time':
-    case 'completion_time':
-      if ($value === null) {
-	$this->$field = null;
-	return;
-      }
-      if (!($value instanceof DateTime))
-	throw new InvalidArgumentException("$field must be DateTime.");
-    }
-    $this->$field = $value;
   }
 }
+// Create template item
+DB::$OUTBOX = new Outbox();
 ?>

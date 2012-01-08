@@ -22,6 +22,8 @@ class DB extends DBM {
   public static $VENUE = null;
   public static $NOW = null;
 
+  public static $OUTBOX = null;
+
   public static function setConnectionParams($host, $user, $pass, $db) {
     // Template objects serialization
     self::$CONFERENCE = new Conference();
@@ -131,6 +133,16 @@ class DB extends DBM {
 		$subject,
 		wordwrap($body, 72),
 		sprintf('From: %s', Conf::$TS_FROM_MAIL));
+  }
+
+  /**
+   * Get all non-completed outgoing messages
+   *
+   * @return Array:Outbox the messages
+   */
+  public static function getPendingOutgoing() {
+    require_once('regatta/Outgoing.php');
+    return self::getAll(self::$OUTGOING, new DBCond('completion_time', null));
   }
 }
 
