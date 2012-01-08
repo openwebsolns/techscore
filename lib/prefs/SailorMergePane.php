@@ -52,7 +52,7 @@ class SailorMergePane extends AbstractUserPane {
     $choices = array("" => "", "Sailors"=>array(), "Coaches"=>array());
     foreach ($sailors as $sailor)
       $choices["Sailors"][$sailor->id] = (string)$sailor;
-    foreach (RpManager::getCoaches($this->SCHOOL, 'all', true) as $sailor)
+    foreach (DB::getCoaches($this->SCHOOL, 'all', true) as $sailor)
       $choices["Coaches"][$sailor->id] = (string)$sailor;
 
     foreach ($temp as $sailor) {

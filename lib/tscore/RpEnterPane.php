@@ -77,7 +77,7 @@ class RpEnterPane extends AbstractPane {
       $active = true;
     $gender = ($this->REGATTA->get(Regatta::PARTICIPANT) == Regatta::PARTICIPANT_WOMEN) ?
       Sailor::FEMALE : null;
-    $coaches = RpManager::getCoaches($chosen_team->school, $active);
+    $coaches = DB::getCoaches($chosen_team->school, $active);
     $sailors = DB::getSailors($chosen_team->school, $gender, $active);
     $un_slrs = DB::getUnregisteredSailors($chosen_team->school, $gender);
 
@@ -210,7 +210,7 @@ class RpEnterPane extends AbstractPane {
 	$active = true;
       $gender = ($this->REGATTA->get(Regatta::PARTICIPANT) == Regatta::PARTICIPANT_WOMEN) ?
 	Sailor::FEMALE : null;
-      $sailors = array_merge(RpManager::getCoaches($team->school, $active),
+      $sailors = array_merge(DB::getCoaches($team->school, $active),
 			     DB::getSailors($team->school, $gender, $active),
 			     DB::getUnregisteredSailors($team->school, $gender));
 

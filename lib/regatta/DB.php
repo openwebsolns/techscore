@@ -21,6 +21,7 @@ class DB extends DBM {
   public static $BOAT = null;
   public static $VENUE = null;
   public static $SAILOR = null;
+  public static $COACH = null;
   public static $NOW = null;
 
   public static $OUTBOX = null;
@@ -34,6 +35,7 @@ class DB extends DBM {
     self::$BOAT = new Boat();
     self::$VENUE = new Venue();
     self::$SAILOR = new Sailor();
+    self::$COACH = new Coach();
     self::$NOW = new DateTime();
 
     DBM::setConnectionParams($host, $user, $pass, $db);
@@ -288,6 +290,30 @@ class DB extends DBM {
     return self::getAll(self::$SAILOR, $cond);
   }
 
+  /**
+   * Returns a list of coaches as sailor objects for the specified
+   * school
+   *
+   * @param School $school the school object
+   *
+   * @param mixed $active default "all", returns ONLY the active ones,
+   * false to return ONLY the inactive ones, anything else for all.
+   *
+   * @param boolean $only_registered true to narrow down to ICSA
+   *
+   * @return Array:Coach list of coaches
+   */
+  public static function getCoaches(School $school, $active = 'all', $only_registered = false) {
+    $cond = new DBBool(array(new DBCond('school', $school)));
+    if ($active === true)
+      $cond->add(new DBCond('active', null, DBCond::NE));
+    if ($active === false)
+      $cond->add(new DBCond('active', null));
+    if ($only_registered !== false)
+      $cond->add(new DBCond('icsa_id', null, DBCond::NE));
+    return self::getAll(self::$COACH, $cond);
+  }
+
 }
 
 /**
@@ -536,4 +562,13 @@ class Sailor extends DBObject {
   }
 }
 
+/**
+ * A coach (a sailor with role=coach)
+ *
+ * @author Dayan Paez
+ * @version 2012-01-08
+ */
+class Coach extends Sailor {
+  public function db_where() { return new DBCond('role', 'coach'); }
+}
 ?>

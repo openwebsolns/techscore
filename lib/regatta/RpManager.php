@@ -158,40 +158,6 @@ class RpManager {
   // Static variable and functions
 
   /**
-   * Returns a list of coaches as sailor objects for the specified
-   * school
-   *
-   * @param School $school the school object
-   *
-   * @param mixed $active default "all", returns ONLY the active ones,
-   * false to return ONLY the inactive ones, anything else for all.
-   *
-   * @param boolean $only_registered true to narrow down to ICSA
-   *
-   * @return Array<Sailor> list of coaches
-   */
-  public static function getCoaches(School $school, $active = 'all', $only_registered = false) {
-    $a = '';
-    if ($active === true)
-      $a = 'and active is not null ';
-    if ($active === false)
-      $a = 'and active is null ';
-    if ($only_registered !== false)
-      $a .= 'and icsa_id is not null ';
-    $q = sprintf('select %s from %s where school = "%s" ' .
-		 'and role = "coach" %s' .
-		 'order by last_name',
-		 Sailor::FIELDS, Sailor::TABLES, $school->id, $a);
-    $q = Preferences::query($q);
-    $list = array();
-    while ($obj = $q->fetch_object("Sailor")) {
-      $obj->school = $school;
-      $list[] = $obj;
-    }
-    return $list;
-  }
-
-  /**
    * Replaces every instance of the temporary sailor id with the
    * current sailor id in the RP forms and the database
    *
