@@ -268,56 +268,6 @@ class Preferences {
   }
 
   /**
-   * Fetches the burgee, if any, for the given school. This method is
-   * called internally by the School class when retrieving its burgee.
-   *
-   * @param School $school the school whose burgee to return
-   * @return Burgee|null
-   */
-  public static function getBurgee(School $school) {
-    $sql = sprintf('select %s from %s where school = "%s" order by last_updated desc limit 1',
-		   Burgee::FIELDS, Burgee::TABLES, $school->id);
-    $res = self::query($sql);
-    if ($res->num_rows == 0)
-      return null;
-    return $res->fetch_object("Burgee");
-  }
-
-  /**
-   * Updates the field for a school in the database. If the field is
-   * null, then this method will update the entire school object,
-   * except for the burgee itself.
-   *
-   * @param School $school the school to update
-   * @param String $field the name of the field to update. Looks at
-   * this field in the school object for the new value. If null,
-   * updates the entire record
-   */
-  public static function updateSchool(School $school, $field = null, $user = "") {
-    if ($field != null && $field != "burgee")
-      $q = sprintf('update school set %s = "%s" where id = "%s"',
-		   $field, $school->$field, $school->id);
-    elseif ($field == "burgee") {
-      $q = sprintf('replace into burgee (school, filedata, last_updated, updated_by) ' .
-		   'values ("%s", "%s", "%s", "%s")',
-		   $school->id,
-		   $school->burgee->filedata,
-		   $school->burgee->last_updated->format('Y-m-d H:i:s'),
-		   $user);
-    }
-    else {
-      $upd = array();
-      foreach (get_class_vars("School") as $key => $val) {
-	if ($key != "burgee")
-	  $upd[] = sprintf('%s = "%s"', $key, $school->$key);
-      }
-      $q = sprintf('update school set %s where id = "%s"',
-		   implode(', ', $upd), $school->id);
-    }
-    $q = self::query($q);
-  }
-
-  /**
    * Returns an ordered list of the team names for the given school
    *
    * @param School $school the school whose team names to fetch

@@ -92,12 +92,14 @@ class Conference extends DBObject {
 class Burgee extends DBObject {
   public $filedata;
   protected $last_updated;
-  public $updated_by;  // @TODO
+  protected $school;
+  public $updated_by;
 
   public function db_type($field) {
     switch ($field) {
     case 'filedata': return DBQuery::A_BLOB;
     case 'last_updated': return DB::$NOW;
+    case 'school': return DB::$SCHOOL;
     default:
       return parent::db_type($field);
     }
