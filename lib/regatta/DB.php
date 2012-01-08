@@ -19,6 +19,7 @@ class DB extends DBM {
   public static $SCHOOL = null;
   public static $BURGEE = null;
   public static $BOAT = null;
+  public static $VENUE = null;
   public static $NOW = null;
 
   public static function setConnectionParams($host, $user, $pass, $db) {
@@ -27,6 +28,7 @@ class DB extends DBM {
     self::$SCHOOL = new School();
     self::$BURGEE = new Burgee();
     self::$BOAT = new Boat();
+    self::$VENUE = new Venue();
     self::$NOW = new DateTime();
 
     DBM::setConnectionParams($host, $user, $pass, $db);
@@ -87,6 +89,25 @@ class DB extends DBM {
    */
   public static function getBoat($id) {
     return self::get(self::$BOAT, $id);
+  }
+
+  /**
+   * Returns the venue object with the given ID
+   *
+   * @param String $id the id of the object
+   * @return Venue the venue object, or null
+   */
+  public static function getVenue($id) {
+    return self::get(self::$VENUE, $id);
+  }
+
+  /**
+   * Get a list of registered venues.
+   *
+   * @return Array of Venue objects
+   */
+  public static function getVenues($start = null, $end = null) {
+    return self::getAll(self::$VENUE);
   }
 
   /**
@@ -185,5 +206,21 @@ class Boat extends DBObject {
 
   protected function db_cache() { return true; }
   public function __toString() { return $this->name; }
+}
+
+/**
+ * Location where a regatta might take place
+ *
+ * @author Dayan Paez
+ * @version 2012-01-08
+ */
+class Venue extends DBObject {
+  public $name;
+  public $address;
+  public $city;
+  public $state;
+  public $zipcode;
+
+  protected function db_order() { return array('name'=>true); }
 }
 ?>

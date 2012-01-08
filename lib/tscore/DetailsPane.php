@@ -62,7 +62,7 @@ class DetailsPane extends AbstractPane {
     // Venue
     $venue = $this->REGATTA->get(Regatta::VENUE);
     $reg_form->add(new FItem("Venue:", $r_type = new XSelect("venue")));
-    foreach (Preferences::getVenues() as $v) {
+    foreach (DB::getVenues() as $v) {
       $r_type->add($opt = new FOption($v->id, $v->name));
       if ($venue !== null && $venue->id == $v->id)
 	$opt->set('selected', 'selected');
@@ -212,7 +212,7 @@ class DetailsPane extends AbstractPane {
 
       // Venue
       if (isset($args['venue']) && is_numeric($args['venue']) &&
-	  Preferences::getVenue((int)$args['venue']))
+	  DB::getVenue($args['venue']))
 	$this->REGATTA->set(Regatta::VENUE, (int)$args['venue']);
 
       // Scoring

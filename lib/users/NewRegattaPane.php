@@ -81,7 +81,7 @@ class NewRegattaPane extends AbstractUserPane {
 
     // select
     $sel->add(new FOption("", "[No venue]"));
-    foreach (Preferences::getVenues() as $venue) {
+    foreach (DB::getVenues() as $venue) {
       $sel->add($opt = new FOption($venue->id, $venue));
       if ($venue->id == $r["venue"])
 	$opt->set('selected', 'selected');
@@ -117,7 +117,7 @@ class NewRegattaPane extends AbstractUserPane {
       }
       // 5. Venue
       if (!empty($args['venue']) &&
-	  Preferences::getVenue((int)$args['venue']) === null) {
+	  DB::getVenue($args['venue']) === null) {
 	Session::pa(new PA("Invalid venue.", PA::E));
 	$error = true;
       }

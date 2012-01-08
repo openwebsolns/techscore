@@ -346,7 +346,7 @@ class RegattaIO {
      // Venue
      // ------------------------------------------------------------
     $venue_id = (int)$root->Venue['id'];
-    $venue = Preferences::getVenue($venue_id);
+    $venue = DB::getVenue($venue_id);
     if ($venue == null)
       $warnings[] = sprintf("Ignoring invalid venue ID (%s).", $venue_id);
     else

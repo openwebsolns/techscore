@@ -150,7 +150,7 @@ class Regatta implements RaceListener {
     if ($property == Regatta::VENUE) {
       if ($this->properties[$property] !== null &&
 	  !($this->properties[$property] instanceof Venue))
-	$this->properties[$property] = Preferences::getVenue($this->properties[$property]);
+	$this->properties[$property] = DB::getVenue($this->properties[$property]);
     }
     elseif ($property == Regatta::SEASON) {
       if ($this->properties[$property] === null)
