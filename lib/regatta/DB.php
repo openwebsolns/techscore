@@ -23,11 +23,13 @@ class DB extends DBM {
   public static $SAILOR = null;
   public static $COACH = null;
   public static $SEASON = null;
+  public static $HOST = null;
   public static $NOW = null;
 
   public static $OUTBOX = null;
   public static $MESSAGE = null;
   public static $ACCOUNT = null;
+  public static $ACCOUNT_SCHOOL = null;
 
   public static function setConnectionParams($host, $user, $pass, $db) {
     // Template objects serialization
@@ -39,6 +41,7 @@ class DB extends DBM {
     self::$SAILOR = new Sailor();
     self::$COACH = new Coach();
     // self::$SEASON = new Season();
+    self::$HOST = new Host();
     self::$NOW = new DateTime();
 
     DBM::setConnectionParams($host, $user, $pass, $db);
@@ -716,4 +719,23 @@ class Season extends DBObject {
   protected function db_cache() { return true; }
 }
 */
+
+/**
+ * Host account for a regatta (as just an ID) [many-to-many]
+ *
+ * @author Dayan Paez
+ * @version 2012-01-08
+ */
+class Host extends DBObject {
+  public $regatta;
+  protected $school;
+
+  public function db_type($field) {
+    switch ($field) {
+    case 'school': return DB::$SCHOOL;
+    default:
+      return parent::db_type($field);
+    }
+  }
+}
 ?>
