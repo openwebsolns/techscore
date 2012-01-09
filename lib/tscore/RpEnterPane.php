@@ -77,9 +77,9 @@ class RpEnterPane extends AbstractPane {
       $active = true;
     $gender = ($this->REGATTA->get(Regatta::PARTICIPANT) == Regatta::PARTICIPANT_WOMEN) ?
       Sailor::FEMALE : null;
-    $coaches = DB::getCoaches($chosen_team->school, $active);
-    $sailors = DB::getSailors($chosen_team->school, $gender, $active);
-    $un_slrs = DB::getUnregisteredSailors($chosen_team->school, $gender);
+    $coaches = $chosen_team->school->getCoaches($active);
+    $sailors = $chosen_team->school->getSailors($gender, $active);
+    $un_slrs = $chosen_team->school->getUnregisteredSailors($gender);
 
     $sailor_options = array("Coaches" => array(), "Sailors" => array(), "Non-ICSA" => array());
     foreach ($coaches as $s)
@@ -210,9 +210,9 @@ class RpEnterPane extends AbstractPane {
 	$active = true;
       $gender = ($this->REGATTA->get(Regatta::PARTICIPANT) == Regatta::PARTICIPANT_WOMEN) ?
 	Sailor::FEMALE : null;
-      $sailors = array_merge(DB::getCoaches($team->school, $active),
-			     DB::getSailors($team->school, $gender, $active),
-			     DB::getUnregisteredSailors($team->school, $gender));
+      $sailors = array_merge($team->school->getCoaches($active),
+			     $team->school->getSailors($gender, $active),
+			     $team->school->getUnregisteredSailors($gender));
 
       // Insert representative
       if (!empty($args['rep']) ) {

@@ -252,74 +252,6 @@ class DB extends DBM {
     return DB::get(DB::$SAILOR, $id);
   }
   
-  /**
-   * Returns a list of sailors for the specified school
-   *
-   * @param School $school the school object
-   * @param Sailor::const $gender null for both or the gender code
-   *
-   * @param mixed $active default "all", returns ONLY the active ones,
-   * false to return ONLY the inactive ones, anything else for all.
-   *
-   * @return Array:Sailor list of sailors
-   */
-  public static function getSailors(School $school, $gender = null, $active = "all") {
-    $cond = new DBBool(array(new DBCond('icsa_id', null, DBCond::NE), new DBCond('school', $school)));
-    if ($active === true)
-      $cond->add(new DBCond('active', null, DBCond::NE));
-    if ($active === false)
-      $cond->add(new DBCond('active', null));
-    if ($gender !== null)
-      $cond->add(new DBCond('gender', $gender));
-    return self::getAll(self::$SAILOR, $cond);
-  }
-
-  /**
-   * Returns a list of unregistered sailors for the specified school
-   *
-   * @param School $school the school object
-   * @param RP::const $gender null for both or the gender code
-   *
-   * @param mixed $active default "all", returns ONLY the active ones,
-   * false to return ONLY the inactive ones, anything else for all.
-   *
-   * @return Array<Sailor> list of sailors
-   */
-  public static function getUnregisteredSailors(School $school, $gender = null, $active = "all") {
-    $cond = new DBBool(array(new DBCond('icsa_id', null, DBCond::NE), new DBCond('school', $school)));
-    if ($active === true)
-      $cond->add(new DBCond('active', null, DBCond::NE));
-    if ($active === false)
-      $cond->add(new DBCond('active', null));
-    if ($gender !== null)
-      $cond->add(new DBCond('gender', $gender));
-    return self::getAll(self::$SAILOR, $cond);
-  }
-
-  /**
-   * Returns a list of coaches as sailor objects for the specified
-   * school
-   *
-   * @param School $school the school object
-   *
-   * @param mixed $active default "all", returns ONLY the active ones,
-   * false to return ONLY the inactive ones, anything else for all.
-   *
-   * @param boolean $only_registered true to narrow down to ICSA
-   *
-   * @return Array:Coach list of coaches
-   */
-  public static function getCoaches(School $school, $active = 'all', $only_registered = false) {
-    $cond = new DBBool(array(new DBCond('school', $school)));
-    if ($active === true)
-      $cond->add(new DBCond('active', null, DBCond::NE));
-    if ($active === false)
-      $cond->add(new DBCond('active', null));
-    if ($only_registered !== false)
-      $cond->add(new DBCond('icsa_id', null, DBCond::NE));
-    return self::getAll(self::$COACH, $cond);
-  }
-
   public static function searchSailors($str) {
     return self::search(self::$SAILOR, $str, array('first_name', 'last_name', 'concat(first_name, " ", last_name)'));
   }
@@ -398,6 +330,74 @@ class School extends DBObject {
   }
   protected function db_order() { return array('name'=>true); }
   public function __toString() { return $this->name; }
+  
+  /**
+   * Returns a list of sailors for the specified school
+   *
+   * @param School $school the school object
+   * @param Sailor::const $gender null for both or the gender code
+   *
+   * @param mixed $active default "all", returns ONLY the active ones,
+   * false to return ONLY the inactive ones, anything else for all.
+   *
+   * @return Array:Sailor list of sailors
+   */
+  public function getSailors($gender = null, $active = "all") {
+    $cond = new DBBool(array(new DBCond('icsa_id', null, DBCond::NE), new DBCond('school', $this)));
+    if ($active === true)
+      $cond->add(new DBCond('active', null, DBCond::NE));
+    if ($active === false)
+      $cond->add(new DBCond('active', null));
+    if ($gender !== null)
+      $cond->add(new DBCond('gender', $gender));
+    return self::getAll(self::$SAILOR, $cond);
+  }
+
+  /**
+   * Returns a list of unregistered sailors for the specified school
+   *
+   * @param School $school the school object
+   * @param RP::const $gender null for both or the gender code
+   *
+   * @param mixed $active default "all", returns ONLY the active ones,
+   * false to return ONLY the inactive ones, anything else for all.
+   *
+   * @return Array<Sailor> list of sailors
+   */
+  public function getUnregisteredSailors($gender = null, $active = "all") {
+    $cond = new DBBool(array(new DBCond('icsa_id', null, DBCond::NE), new DBCond('school', $this)));
+    if ($active === true)
+      $cond->add(new DBCond('active', null, DBCond::NE));
+    if ($active === false)
+      $cond->add(new DBCond('active', null));
+    if ($gender !== null)
+      $cond->add(new DBCond('gender', $gender));
+    return self::getAll(self::$SAILOR, $cond);
+  }
+
+  /**
+   * Returns a list of coaches as sailor objects for the specified
+   * school
+   *
+   * @param School $school the school object
+   *
+   * @param mixed $active default "all", returns ONLY the active ones,
+   * false to return ONLY the inactive ones, anything else for all.
+   *
+   * @param boolean $only_registered true to narrow down to ICSA
+   *
+   * @return Array:Coach list of coaches
+   */
+  public function getCoaches($active = 'all', $only_registered = false) {
+    $cond = new DBBool(array(new DBCond('school', $this)));
+    if ($active === true)
+      $cond->add(new DBCond('active', null, DBCond::NE));
+    if ($active === false)
+      $cond->add(new DBCond('active', null));
+    if ($only_registered !== false)
+      $cond->add(new DBCond('icsa_id', null, DBCond::NE));
+    return self::getAll(self::$COACH, $cond);
+  }
 }
 
 /**
