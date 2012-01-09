@@ -14,22 +14,6 @@
 class AccountManager {
 
   /**
-   * Returns the account with the given username
-   *
-   * @return Account the account with the given username, null if none
-   * exist
-   */
-  public static function getAccount($id) {
-    $q = sprintf('select %s from %s where id like "%s"',
-		 Account::FIELDS, Account::TABLES, $id);
-    $q = Preferences::query($q);
-    if ($q->num_rows == 0) {
-      return null;
-    }
-    return $q->fetch_object("Account");
-  }
-
-  /**
    * Returns all the pending users, using the given optional indices
    * to limit the list, like the range function in Python.
    *

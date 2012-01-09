@@ -253,7 +253,7 @@ class User {
    * @return Account the account
    */
   public function asAccount() {
-    return AccountManager::getAccount($this->username);
+    return DB::getAccount($this->username);
   }
 
 }

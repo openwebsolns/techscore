@@ -22,10 +22,12 @@ class DB extends DBM {
   public static $VENUE = null;
   public static $SAILOR = null;
   public static $COACH = null;
+  public static $SEASON = null;
   public static $NOW = null;
 
   public static $OUTBOX = null;
   public static $MESSAGE = null;
+  public static $ACCOUNT = null;
 
   public static function setConnectionParams($host, $user, $pass, $db) {
     // Template objects serialization
@@ -36,6 +38,7 @@ class DB extends DBM {
     self::$VENUE = new Venue();
     self::$SAILOR = new Sailor();
     self::$COACH = new Coach();
+    self::$SEASON = new Season();
     self::$NOW = new DateTime();
 
     DBM::setConnectionParams($host, $user, $pass, $db);
@@ -159,6 +162,7 @@ class DB extends DBM {
    * @param Account $acc the account
    */
   public static function getMessages(Account $acc) {
+    require_once('regatta/Message.php');
     return self::getAll(self::$MESSAGE, new DBCond('account', $acc->id));
   }
 
@@ -168,6 +172,7 @@ class DB extends DBM {
    * @param Account $acc the account
    */
   public static function getUnreadMessages(Account $acc) {
+    require_once('regatta/Message.php');
     self::$MESSAGE->db_set_order(array('created'=>true));
     $l = self::getAll(self::$MESSAGE, new DBBool(array(new DBCond('account', $acc->id), new DBCond('read_time', null))));
     self::$MESSAGE->db_set_order();
@@ -184,6 +189,7 @@ class DB extends DBM {
    * @return Message the queued message
    */
   public static function queueMessage(Account $acc, $sub, $mes, $email = false) {
+    require_once('regatta/Message.php');
     $mes = new Message();
     $mes->account = $acc->id;
     $mes->subject = $sub;
@@ -316,6 +322,21 @@ class DB extends DBM {
 
   public static function searchSailors($str) {
     return self::search(self::$SAILOR, $str, array('first_name', 'last_name', 'concat(first_name, " ", last_name)'));
+  }
+
+  // ------------------------------------------------------------
+  // Account management
+  // ------------------------------------------------------------
+
+  /**
+   * Returns the account with the given username
+   *
+   * @return Account the account with the given username, null if none
+   * exist
+   */
+  public static function getAccount($id) {
+    require_once('regatta/Account.php');
+    return self::get(self::$ACCOUNT, $id);
   }
 }
 
@@ -544,8 +565,8 @@ class Sailor extends DBObject {
     }
   }
   protected function db_order() { return array('last_name'=>true, 'first_name'=>true); }
-  protected function db_name() { return 'sailor'; }
-  protected function db_where() { return new DBCond('role', 'student'); }
+  public function db_name() { return 'sailor'; }
+  public function db_where() { return new DBCond('role', 'student'); }
 
   public function isRegistered() {
     return $this->icsa_id !== null;
@@ -574,4 +595,35 @@ class Sailor extends DBObject {
 class Coach extends Sailor {
   public function db_where() { return new DBCond('role', 'coach'); }
 }
+
+/**
+ * Encapsulates a season
+ *
+ * @author Dayan Paez
+ * @version 2012-01-08
+ */
+/*
+class Season extends DBObject {
+  const FALL = "fall";
+  const SUMMER = "summer";
+  const SPRING = "spring";
+  const WINTER = "winter";
+  
+  public $season;
+  protected $start_date;
+  protected $end_date;
+
+  public function db_type($field) {
+    switch ($field) {
+    case 'start_date':
+    case 'end_date':
+      return DB::$NOW;
+    default:
+      return parent::db_type($field);
+    }
+  }
+  protected function db_order() { return array('start_date'=>true); }
+  protected function db_cache() { return true; }
+}
+*/
 ?>

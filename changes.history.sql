@@ -190,3 +190,5 @@ alter table burgee add foreign key (school) references school(id) on delete casc
 
 update school set burgee = null;
 alter table school change column burgee burgee int default null, add foreign key (burgee) references burgee(id) on delete set null on update cascade;
+
+alter table account change column is_admin admin tinyint not null default 0;

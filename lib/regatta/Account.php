@@ -5,7 +5,7 @@
  * @package regatta
  */
 
-require_once('conf.php');
+require_once('regatta/DB.php');
 
 /**
  * Encapsulates an account: a user devoid of "extra" information and a
@@ -14,54 +14,40 @@ require_once('conf.php');
  * @author Dayan Paez
  * @version 2009-11-30
  */
-class Account {
+class Account extends DBObject {
+  const ROLE_STUDENT = 'student';
+  const ROLE_COACH = 'coach';
+  const ROLE_STAFF = 'staff';
+
+  const STAT_REQUESTED = 'requested';
+  const STAT_PENDING = 'pending';
+  const STAT_ACCEPTED = 'accepted';
+  const STAT_REJECTED = 'rejected';
+  const STAT_ACTIVE = 'active';
+  const STAT_INACTIVE = 'inactive';
 
   // Variables
   public $first_name;
   public $last_name;
-  public $id;
   public $role;
   public $admin;
   public $status;
   public $password;
-  private $school;
+  protected $school;
 
-  const FIELDS = "account.first_name, account.last_name, account.school, account.password, 
-                  account.id, account.role, account.status, is_admin as admin";
-  const TABLES = "account";
+  public function db_type($field) {
+    switch ($field) {
+    case 'school':
+      return DB::$SCHOOL;
+    default:
+      return parent::db_type($field);
+    }
+  }
+
+  protected function db_order() { return array('last_name'=>true, 'first_name'=>true); }
 
   public function __toString() {
     return $this->getName();
-  }
-
-  /**
-   * One-time de-serializes the "school", the only private property
-   * for this object
-   *
-   * @param String $key must be "school"
-   * @throws InvalidArgumentException if key is not "school"
-   */
-  public function __get($key) {
-    if ($key != "school") throw new InvalidArgumentException("Invalid value requested from Account");
-    if (!($this->school instanceof School))
-      $this->school = DB::getSchool($this->school);
-    return $this->school;
-  }
-
-  /**
-   * To be used to set the school. Anything else generates an error
-   *
-   * @param String $key == "school"
-   * @param School $value the school to set
-   * @throws InvalidArgumentException if attempting to set any other
-   * property or invalid value provided
-   */
-  public function __set($key, $value) {
-    if ($key != "school")
-      throw new InvalidArgumentException("Only the school property can be altered for Account.");
-    if (!($value instanceof School))
-      throw new InvalidArgumentException("Account school property must be School object.");
-    $this->school = $value;
   }
 
   /**
@@ -73,4 +59,5 @@ class Account {
     return sprintf("%s %s", $this->first_name, $this->last_name);
   }
 }
+DB::$ACCOUNT = new Account();
 ?>

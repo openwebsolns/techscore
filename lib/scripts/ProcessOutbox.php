@@ -67,7 +67,7 @@ class ProcessOutbox {
 
       // send me a copy?
       if (isset($args['copy-me']) && !$sent_to_me) {
-	self::send(AccountManager::getAccount($outbox->sender), "COPY OF: ".$outbox->subject, $outbox->content);
+	self::send(DB::getAccount($outbox->sender), "COPY OF: ".$outbox->subject, $outbox->content);
 	self::log("Also sent copy to sender {$outbox->sender}\n");
       }
       $outbox->completion_time = DB::$NOW;

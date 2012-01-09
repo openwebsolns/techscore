@@ -112,7 +112,7 @@ class ScorersPane extends AbstractPane {
     // ------------------------------------------------------------
     if (isset($args['delete_scorer']) &&
 	isset($args['scorer'])) {
-      $account = AccountManager::getAccount(addslashes($args['scorer']));
+      $account = DB::getAccount(addslashes($args['scorer']));
       if ($account !== null && $account->id !== $this->USER->username()) {
 	$this->REGATTA->removeScorer($account);
 	$mes = sprintf("Removed scorer %s.", $account->getName());
@@ -134,7 +134,7 @@ class ScorersPane extends AbstractPane {
       $success = array();
       $errors  = array();
       foreach($args['account'] as $id) {
-	$account = AccountManager::getAccount(addslashes($id));
+	$account = DB::getAccount(addslashes($id));
 	if ($account) {
 	  $this->REGATTA->addScorer($account);
 	  $success[] = $account->getName();

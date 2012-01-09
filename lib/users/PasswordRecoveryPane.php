@@ -94,7 +94,7 @@ class PasswordRecoveryPane extends WelcomePage {
     // 1. Send message
     // ------------------------------------------------------------
     if (isset($args['send-message'])) {
-      if (!isset($args['email']) || ($acc = AccountManager::getAccount(trim($args['email']))) === null) {
+      if (!isset($args['email']) || ($acc = DB::getAccount(trim($args['email']))) === null) {
 	Session::pa(new PA("Invalid e-mail provided.", PA::E));
 	return false;
       }

@@ -134,7 +134,7 @@ class RegisterPane extends WelcomePage {
 	Session::pa(new PA("Email must not be empty.", PA::E));
 	return $args;
       }
-      $acc = AccountManager::getAccount($email);
+      $acc = DB::getAccount($email);
       if ($acc !== null) {
 	Session::pa(new PA("Invalid email provided.", PA::E));
 	return $args;
