@@ -25,7 +25,7 @@ if (!Session::has('user')) {
 $USER = null;
 try {
   $USER = new User(Session::g('user'));
-  AccountManager::requireActive($USER);
+  DB::requireActive($USER);
 }
 catch (Exception $e) {
   Session::s('last_page', $_SERVER['REQUEST_URI']);

@@ -81,7 +81,7 @@ if ($page == "license") {
   $PAGE = new EULAPane($USER);
 }
 else {
-  AccountManager::requireActive($USER);
+  DB::requireActive($USER);
   switch ($page) {
   case "home":
     require_once('users/UserHomePane.php');

@@ -339,6 +339,27 @@ class DB extends DBM {
       throw new InvalidArgumentException("Invalid role provided: $role.");
     return self::getAll(self::$ACCOUNT, new DBCond('role', $role));
   }
+  
+  /**
+   * Checks that the account holder is active. Otherwise, redirect to
+   * license. Otherwise, redirect out
+   *
+   * @param User $user the user to check
+   * @throws InvalidArgumentException if invalid parameter
+   * @TODO this should be migrated to using account
+   */
+  public static function requireActive(User $user) {
+    switch ($user->get(User::STATUS)) {
+    case "active":
+      return;
+
+    case "accepted":
+      WebServer::go("license");
+
+    default:
+      WebServer::go('/');
+    }
+  }
 }
 
 /**
