@@ -55,7 +55,7 @@ class ProcessOutbox {
       // role
       if ($outbox->recipients == 'roles') {
 	foreach (explode(',', $outbox->arguments) as $role) {
-	  foreach (AccountManager::getAccounts($role) as $acc) {
+	  foreach (DB::getAccounts($role) as $acc) {
 	    self::send($acc, $outbox->subject, $outbox->content);
 	    if ($acc->id == $outbox->sender)
 	      $sent_to_me = true;

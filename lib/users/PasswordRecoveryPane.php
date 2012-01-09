@@ -81,7 +81,7 @@ class PasswordRecoveryPane extends WelcomePage {
       $acc->password = sha1(trim($args['new-password']));
       $res = DB::mail($acc->id, '[TechScore] Account password reset', $this->getSuccessMessage($acc));
       if ($res !== false) {
-	AccountManager::setAccount($acc);
+	DB::set($acc);
 	Session::pa(new PA("Account password successfully reset."));
 	WebServer::go('/');
       }

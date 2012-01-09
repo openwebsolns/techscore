@@ -88,7 +88,7 @@ class RegisterPane extends WelcomePage {
     $f->add(new FItem("Password:", new XPasswordInput("passwd", "")));
     $f->add(new FItem("Confirm password:", new XPasswordInput("confirm", "")));
     $f->add(new FItem("Affiliation: ", $aff = new XSelect("school")));
-    $f->add(new FItem("Role: ", XSelect::fromArray('role', AccountManager::getRoles())));
+    $f->add(new FItem("Role: ", XSelect::fromArray('role', Account::getRoles())));
     $f->add(new XSubmitInput("register", "Request account"));
 
     // Fill out the selection boxes
@@ -184,7 +184,7 @@ class RegisterPane extends WelcomePage {
       // 6. Create account with status "requested";
       $res = DB::mail($acc->id, '[TechScore] New account request', $this->getMessage($acc));
       if ($res !== false) {
-	AccountManager::setAccount($acc);
+	DB::set($acc);
 	Session::pa(new PA("Account successfully created."));
 	return array("registration-step"=>1);
       }
@@ -202,7 +202,7 @@ class RegisterPane extends WelcomePage {
 	return $args;
       }
       $acc->status = 'pending';
-      AccountManager::setAccount($acc);
+      DB::set($acc);
       Session::pa(new PA("Account verified. Please wait until the account is approved. You will be notified by mail."));
       Session::s('POST', array('registration-step' => 2));
       // notify all admins

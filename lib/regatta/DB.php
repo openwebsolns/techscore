@@ -38,7 +38,7 @@ class DB extends DBM {
     self::$VENUE = new Venue();
     self::$SAILOR = new Sailor();
     self::$COACH = new Coach();
-    self::$SEASON = new Season();
+    // self::$SEASON = new Season();
     self::$NOW = new DateTime();
 
     DBM::setConnectionParams($host, $user, $pass, $db);
@@ -324,6 +324,20 @@ class DB extends DBM {
     $r = (count($res) == 0) ? null : $res[0];
     unset($res);
     return $r;
+  }
+
+  /**
+   * Returns a list of accounts fulfilling the given role
+   *
+   * @param String $role a possible Account role
+   * @return Array:Account the list of accounts
+   * @throws InvalidArgumentException if provided role is invalid
+   */
+  public static function getAccounts($role) {
+    $roles = Account::getRoles();
+    if (!isset($roles[$role]))
+      throw new InvalidArgumentException("Invalid role provided: $role.");
+    return self::getAll(self::$ACCOUNT, new DBCond('role', $role));
   }
 }
 

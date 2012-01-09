@@ -95,11 +95,11 @@ class PendingAccountsPane extends AbstractAdminUserPane {
 	$errors  = 0;
 	foreach ($args['accounts'] as $id) {
 	  $acc = DB::getAccount($id);
-	  if ($acc === null || $acc->status != "pending")
+	  if ($acc === null || $acc->status != Account::STAT_PENDING)
 	    $errors++;
 	  else {
 	    $acc->status = $legend[$action]["status"];
-	    AccountManager::setAccount($acc);
+	    DB::set($acc);
 	    $success[] = $acc->id;
 	  }
 	}

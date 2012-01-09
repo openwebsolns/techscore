@@ -58,6 +58,17 @@ class Account extends DBObject {
   public function getName() {
     return sprintf("%s %s", $this->first_name, $this->last_name);
   }
+
+  /**
+   * Fetches the different roles allowed by TechScore
+   *
+   * @return Array:String associative map of account role types
+   */
+  public static function getRoles() {
+    return array(self::ROLE_COACH=>"Coach",
+		 self::ROLE_STAFF=>"Staff",
+		 self::ROLE_STUDENT=>"Student");
+  }
 }
 DB::$ACCOUNT = new Account();
 ?>

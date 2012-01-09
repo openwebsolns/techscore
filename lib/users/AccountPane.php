@@ -61,7 +61,8 @@ class AccountPane extends AbstractUserPane {
 	  Session::pa(new PA("The password must be at least 8 characters long.", PA::E));
 	  return $args;
 	}
-	AccountManager::resetPassword($this->USER, $args['sake1']);
+	$this->USER->password = sha1($args['sake1']);
+	DB::set($this->USER);
 	Session::pa(new PA("Password reset."));
       }
       Session::pa(new PA("Information updated."));

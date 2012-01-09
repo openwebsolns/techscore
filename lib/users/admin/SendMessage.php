@@ -53,7 +53,7 @@ class SendMessage extends AbstractAdminUserPane {
 
     // roles
     $p->add($f = new XForm("/send-message-edit", XForm::POST));
-    $f->add($fi = new FItem("All users with role:", $sel = XSelect::fromArray('roles[]', AccountManager::getRoles())));
+    $f->add($fi = new FItem("All users with role:", $sel = XSelect::fromArray('roles[]', Account::getRoles())));
     $fi->add(" ");
     $fi->add(new XSubmitInput('choose-recipients', "Write message >"));
     $sel->set('size', 3);
@@ -141,7 +141,7 @@ class SendMessage extends AbstractAdminUserPane {
 	  return array();
 	}
 	$roles = array();
-	$ROLES = AccountManager::getRoles();
+	$ROLES = Account::getRoles();
 	foreach ($args['roles'] as $role) {
 	  if (isset($ROLES[$role]))
 	    $roles[$role] = $ROLES[$role];
