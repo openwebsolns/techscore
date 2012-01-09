@@ -270,6 +270,24 @@ class DB extends DBM {
     require_once('regatta/Account.php');
     return self::get(self::$ACCOUNT, $id);
   }
+  
+  /**
+   * Returns all the pending users, using the given optional indices
+   * to limit the list, like the range function in Python.
+   *
+   * <ul>
+   *   <li>To fetch the first ten: <code>getRegattas(10);</code></li>
+   *   <li>To fetch the next ten:  <code>getRegattas(10, 20);</code><li>
+   * </ul>
+   *
+   * @param int $start the start index (inclusive)
+   * @param int $end   the end index (exclusive)
+   * @return Array:Account
+   */
+  public static function getPendingUsers() {
+    require_once('regatta/Account.php');
+    return self::getAll(self::$ACCOUNT, new DBCond('status', Account::STAT_PENDING));
+  }
 }
 
 /**

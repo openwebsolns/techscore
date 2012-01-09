@@ -14,60 +14,6 @@
 class AccountManager {
 
   /**
-   * Returns all the pending users, using the given optional indices
-   * to limit the list, like the range function in Python.
-   *
-   * <ul>
-   *   <li>To fetch the first ten: <code>getRegattas(10);</code></li>
-   *   <li>To fetch the next ten:  <code>getRegattas(10, 20);</code><li>
-   * </ul>
-   *
-   * @param int $start the start index (inclusive)
-   * @param int $end   the end index (exclusive)
-   * @return Array<Account>
-   * @throws InvalidArgumentException if one of the parameters is wrong
-   */
-  public static function getPendingUsers($start = null, $end = null) {
-    $limit = "";
-    if ($start === null)
-      $limit = "";
-    else {
-      $start = (int)$start;
-      if ($start < 0)
-	throw new InvalidArgumentException("Start index ($start) must be greater than zero.");
-    
-      if ($end === null)
-	$limit = "limit $start";
-      elseif ((int)$end < $start)
-	throw new InvalidArgumentException("End index ($end) must be greater than start ($start).");
-      else {
-	$range = (int)$end - $start;
-	$limit = "limit $start, $range";
-      }
-    }
-
-    // Setup the query
-    $q = sprintf('select %s from %s where status = "pending" %s',
-		 Account::FIELDS, Account::TABLES, $limit);
-    $q = Preferences::query($q);
-    $list = array();
-    while ($obj = $q->fetch_object("Account"))
-      $list[] = $obj;
-    return $list;
-  }
-
-  /**
-   * Returns just the number of total pending users
-   *
-   * @return int the total number of pending users
-   * @see getPendingUsers
-   */
-  public static function getNumPendingUsers() {
-    $q = Preferences::query('select id from account where status = "pending"');
-    return $q->num_rows;
-  }
-
-  /**
    * Returns just the administrative users
    *
    * @return Array:Account

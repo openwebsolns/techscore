@@ -36,12 +36,12 @@ class PendingAccountsPane extends AbstractAdminUserPane {
     if ($pageset < 1)
       WebServer::go("pending");
     $startint = self::NUM_PER_PAGE * ($pageset - 1);
-    $count = AccountManager::getNumPendingUsers();
+    $list = DB::getPendingUsers();
+    $count = count($list);
     $num_pages = ceil($count / self::NUM_PER_PAGE);
     if ($startint > $count)
       WebServer::go(sprintf("pending|%d", $num_pages));
     
-    $list = AccountManager::getPendingUsers($startint, $startint + self::NUM_PER_PAGE);
     $this->PAGE->addContent($p = new XPort("Pending accounts"));
     if ($count == 0) {
       $p->add(new XP(array(), "There are no pending accounts."));
@@ -57,7 +57,8 @@ class PendingAccountsPane extends AbstractAdminUserPane {
       $f->add($tab = new XQuickTable(array('style'=>'width:100%;'),
 				     array("", "Name", "E-mail", "School", "Role")));
       $row = 0;
-      foreach ($list as $acc) {
+      for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < $count; $i++) {
+	$acc = $list[$i];
 	$tab->addRow(array(new XCheckboxInput('accounts[]', $acc->d, array('id'=>$acc->id)),
 			   new XLabel($acc->id, $acc->getName()),
 			   new XLabel($acc->id, new XA(sprintf("mailto:%s", $acc->id), $acc->id)),
