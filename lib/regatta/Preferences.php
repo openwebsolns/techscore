@@ -96,23 +96,6 @@ class Preferences {
   }
 
   /**
-   * Returns a list of users from the given conference
-   *
-   * @param Conference $conf the conference to search
-   * @return Array<Account> list of users
-   */
-  public static function getUsersFromConference(Conference $conf) {
-    $q = sprintf('select %s from %s where school in (select id from school where conference = "%s") ' .
-		 'order by account.last_name',
-		 Account::FIELDS, Account::TABLES, $conf->id);
-    $q = self::query($q);
-    $list = array();
-    while ($obj = $q->fetch_object("Account"))
-      $list[] = $obj;
-    return $list;
-  }
-
-  /**
    * Returns a list of school objects which are in the specified
    * conference.
    *

@@ -363,6 +363,18 @@ class DB extends DBM {
       WebServer::go('/');
     }
   }
+
+  /**
+   * Returns a list of users from the given conference
+   *
+   * @param Conference $conf the conference to search
+   * @return Array:Account list of users
+   */
+  public static function getUsersFromConference(Conference $conf) {
+    require_once('regatta/Account.php');
+    return self::getAll(self::$ACCOUNT,
+			new DBCondIn('school', self::prepGetAll(DB::$SCHOOL, new DBCond('conference', $conf), array('id'))));
+  }
 }
 
 /**

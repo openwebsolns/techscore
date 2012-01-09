@@ -78,7 +78,7 @@ class ScorersPane extends AbstractPane {
     $p->add($s_form = $this->createForm());
 
     // Get accounts for this conference
-    $accounts = Preferences::getUsersFromConference($chosen_conf);
+    $accounts = DB::getUsersFromConference($chosen_conf);
     if (count($accounts) > 0) {
       $s_form->add(new FItem("Account:", $sel = new XSelectM("account[]", array('size'=>10))));
       foreach ($accounts as $user) {
