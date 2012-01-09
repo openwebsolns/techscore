@@ -22,7 +22,7 @@ class PasswordRecoveryPane extends WelcomePage {
     // 3. Request to reset password
     // ------------------------------------------------------------
     if (isset($_GET['acc'])) {
-      $acc = AccountManager::getAccountFromHash(trim($_GET['acc']));
+      $acc = DB::getAccountFromHash(trim($_GET['acc']));
       if ($acc === null) {
 	Session::pa(new PA("Invalid account to reset.", PA::E));
 	return $args;
@@ -68,7 +68,7 @@ class PasswordRecoveryPane extends WelcomePage {
     // ------------------------------------------------------------
     if (isset($args['reset-password'])) {
       if (!isset($args['acc']) ||
-	  ($acc = AccountManager::getAccountFromHash(trim($args['acc']))) === null) {
+	  ($acc = DB::getAccountFromHash(trim($args['acc']))) === null) {
 	Session::pa(new PA("Invalid hash provided.", PA::E));
 	return $args;
       }
@@ -111,7 +111,7 @@ class PasswordRecoveryPane extends WelcomePage {
 
   public function getMessage(Account $to) {
     return sprintf("Dear %s,\n\nYou are receiving this message because you, or someone in your name, has requested to reset the password for this account. If you did not request to reset your password, kindly disregard this message.\n\nTo enter a new password, please follow the link below. You may need to copy and paste the link into your browser's location bar.\n\n%s/password-recover?acc=%s\n\nThank you,\n\nTechScore Administration",
-		   $to->first_name, Conf::$HOME, AccountManager::getHash($to));
+		   $to->first_name, Conf::$HOME, DB::getHash($to));
   }
 
   public function getSuccessMessage(Account $to) {

@@ -299,6 +299,32 @@ class DB extends DBM {
     return self::getAll(self::$ACCOUNT, new DBBool(array(new DBCond('status', Account::STAT_ACTIVE),
 							 new DBCond('admin', 0, DBCond::GT))));
   }
+
+  /**
+   * Returns the unique MD5 hash for the given account
+   *
+   * @param Account $acc the account to hash
+   * @return String the hash
+   * @see getAccountFromHash
+   */
+  public static function getHash(Account $acc) {
+    return md5($acc->last_name.$acc->id.$acc->first_name);
+  }
+
+  /**
+   * Fetches the account which has the hash provided. This hash is
+   * calculated as an MD5 sum of last name, username, and first name
+   *
+   * @param String $hash the hash
+   * @return Account|null the matching account or null if none match
+   */
+  public static function getAccountFromHash($hash) {
+    require_once('regatta/Account.php');
+    $res = self::getAll(self::$ACCOUNT, new DBCond('md5(concat(last_name, id, first_name))', $hash));
+    $r = (count($res) == 0) ? null : $res[0];
+    unset($res);
+    return $r;
+  }
 }
 
 /**
