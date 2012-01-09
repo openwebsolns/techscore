@@ -14,21 +14,6 @@
 class AccountManager {
 
   /**
-   * Returns just the administrative users
-   *
-   * @return Array:Account
-   */
-  public static function getAdmins() {
-    $q = sprintf('select %s from %s where status = "active" and is_admin > 0',
-		 Account::FIELDS, Account::TABLES);
-    $q = Preferences::query($q);
-    $list = array();
-    while ($obj = $q->fetch_object("Account"))
-      $list[] = $obj;
-    return $list;
-  }
-
-  /**
    * Returns the unique MD5 hash for the given account
    *
    * @param Account $acc the account to hash

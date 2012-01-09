@@ -207,7 +207,7 @@ class RegisterPane extends WelcomePage {
       Session::s('POST', array('registration-step' => 2));
       // notify all admins
       $admins = array();
-      foreach (AccountManager::getAdmins() as $admin)
+      foreach (DB::getAdmins() as $admin)
 	$admins[] = sprintf('%s <%s>', $admin->getName(), $admin->id);
 
       DB::mail(implode(',', $admins), '[TechScore] New registration', $this->getAdminMessage($acc));

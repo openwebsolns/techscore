@@ -288,6 +288,17 @@ class DB extends DBM {
     require_once('regatta/Account.php');
     return self::getAll(self::$ACCOUNT, new DBCond('status', Account::STAT_PENDING));
   }
+
+  /**
+   * Returns just the administrative users
+   *
+   * @return Array:Account
+   */
+  public static function getAdmins() {
+    require_once('regatta/Account.php');
+    return self::getAll(self::$ACCOUNT, new DBBool(array(new DBCond('status', Account::STAT_ACTIVE),
+							 new DBCond('admin', 0, DBCond::GT))));
+  }
 }
 
 /**
