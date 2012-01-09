@@ -96,23 +96,6 @@ class Preferences {
   }
 
   /**
-   * Returns a list of school objects which are in the specified
-   * conference.
-   *
-   * @return a list of schools in the conference
-   */
-  public static function getSchoolsInConference(Conference $conf) {
-    $q = sprintf('select %s from %s where conference = "%s"',
-		 School::FIELDS, School::TABLES, $conf->id);
-    $q = self::query($q);
-    $list = array();
-    while ($obj = $q->fetch_object("School")) {
-      $list[] = $obj;
-    }
-    return $list;
-  }
-
-  /**
    * Returns an ordered list of the team names for the given school
    *
    * @param School $school the school whose team names to fetch
@@ -188,17 +171,6 @@ class Preferences {
     while ($obj = $q->fetch_object("School"))
       $list[] = $obj;
     return $list;
-  }
-
-  /**
-   * Returns the boat that designated as the default for the school
-   *
-   * @param School $school the school whose default boat to fetch
-   * @return Boat the boat
-   */
-  public static function getPreferredBoat(School $school) {
-    // @TODO
-    return DB::getBoat(1);    
   }
 
   /**

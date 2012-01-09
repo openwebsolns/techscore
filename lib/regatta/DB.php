@@ -375,6 +375,19 @@ class DB extends DBM {
     return self::getAll(self::$ACCOUNT,
 			new DBCondIn('school', self::prepGetAll(DB::$SCHOOL, new DBCond('conference', $conf), array('id'))));
   }
+
+  /**
+   * Returns the boat that designated as the default for the school
+   *
+   * @param School $school the school whose default boat to fetch
+   * @return Boat the boat
+   */
+  public static function getPreferredBoat(School $school) {
+    $res = self::getAll(self::$BOAT);
+    $r = (count($res) == 0) ? null : $res[0];
+    unset($res);
+    return $r;
+  }
 }
 
 /**

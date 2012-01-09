@@ -192,7 +192,7 @@ class NewRegattaPane extends AbstractUserPane {
 	  $reg->addHost($school);
 
 	$divs = array_values(Division::getAssoc());
-	$boat = Preferences::getPreferredBoat($this->USER->get(User::SCHOOL));
+	$boat = DB::getPreferredBoat($this->USER->get(User::SCHOOL));
 	for ($i = 0; $i < $args['num_divisions']; $i++) {
 	  $div = $divs[$i];
 	  for ($j = 1; $j <= $args['num_races']; $j++) {
