@@ -153,27 +153,6 @@ class Preferences {
   }
 
   /**
-   * Returns a list of schools for which the user has jurisdiction
-   *
-   * @param Account $user the user whose jurisdiction to fetch
-   * @return Array $schools list of School objects
-   */
-  public static function getSchoolsForUser(Account $user) {
-    // 2009-10-14: Return the school from this user
-    return array($user->school);
-
-    $q = sprintf('select %s from school inner join account ' .
-		 'on (account.school = school.id) ' .
-		 'where account.id like "%s"',
-		 School::FIELDS, $user->id);
-    $q = self::query($q);
-    $list = array();
-    while ($obj = $q->fetch_object("School"))
-      $list[] = $obj;
-    return $list;
-  }
-
-  /**
    * Returns a list of the years for which there are regattas in the
    * database
    *
