@@ -100,6 +100,38 @@ class Account extends DBObject {
     unset($res);
     return $r;
   }
+  
+  /**
+   * Returns all the regattas for which this user is registered as a
+   * scorer, using the given optional indices to limit the list, like
+   * the range function in Python.
+   *
+   * <ul>
+   *   <li>To fetch the first ten: <code>getRegattas(10);</code></li>
+   *   <li>To fetch the next ten:  <code>getRegattas(10, 20);</code><li>
+   * </ul>
+   *
+   * @return Array:RegattaSummary
+   */
+  public function getRegattas() {
+    $cond = null;
+    if ($this->status == 0) // regular user
+      $cond = new DBCondIn('id', DB::prepGetAll(DB::$HOST, new DBCond('account', $this), array('regatta')));
+    return DB::getAll(DB::$REGATTA_SUMMARY, $cond);
+  }
+
+  /**
+   * Searches and returns a list of matching regattas.
+   *
+   * @param String $qry the query to search
+   * @return Array:RegattaSummary the regattas
+   */
+  public function searchRegattas($qry) {
+    $cond = new DBCond('name', "%qry%", DBCond::LIKE);
+    if ($this->status == 0) // regular user
+      $cond->add(new DBCondIn('id', DB::prepGetAll(DB::$HOST, new DBCond('account', $this), array('regatta'))));
+    return DB::getAll(DB::$REGATTA_SUMMARY, $cond);
+  }
 }
 
 /**
