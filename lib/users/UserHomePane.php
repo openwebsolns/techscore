@@ -39,7 +39,7 @@ class UserHomePane extends AbstractUserPane {
     // ------------------------------------------------------------
     // Messages
     // ------------------------------------------------------------
-    $num_messages = count(Preferences::getUnreadMessages($this->USER->asAccount()));
+    $num_messages = count(DB::getUnreadMessages($this->USER->asAccount()));
     if ($num_messages > 0) {
       $this->PAGE->addContent($p = new XPort("Messages"));
       $p->add($para = new XP(array(), "You have "));

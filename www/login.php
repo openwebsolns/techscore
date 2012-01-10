@@ -27,9 +27,10 @@ $userid = (isset($_POST['userid'])) ? trim($_POST['userid']) : WebServer::goBack
 $passwd = (isset($_POST['pass']))   ? $_POST['pass'] : WebServer::goBack();
 
 $user = DB::getAccount($userid);
-if ($user !== null && $user->password === sha1($pass)) {
-  Session::s('user', $user->username());
-}
+if ($user !== null && $user->password === sha1($passwd))
+  Session::s('user', $user->id);
+else
+  Session::pa(new PA("Invalid username/password.", PA::E));
 
 $def = Session::g('last_page');
 if ($def === null)

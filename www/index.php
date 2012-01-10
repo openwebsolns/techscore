@@ -29,12 +29,6 @@ if (!Session::has('user')) {
       break;
 
     case 'home':
-      Session::pa(new PA("Please login to proceed.", PA::I));
-      require_once('xml/WelcomePage.php');
-      $PAGE = new WelcomePage();
-      $PAGE->printXML();
-      exit;
-
     default:
       Session::s('last_page', preg_replace(':^/edit/:', '/', $_SERVER['REQUEST_URI']));
 
@@ -52,7 +46,6 @@ if (!Session::has('user')) {
     $PAGE->printXML();
     exit;
   }
-
 }
 
 // ------------------------------------------------------------

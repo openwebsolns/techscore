@@ -29,7 +29,7 @@ class User {
 
   const FIELDS = "account.first_name, account.last_name, 
                   account.id, account.role, account.status,
-                  account.school, is_admin as admin";
+                  account.school, account.admin";
   const TABLES = "account";
 
   /**
