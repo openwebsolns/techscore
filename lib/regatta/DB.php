@@ -30,6 +30,7 @@ class DB extends DBM {
   public static $MESSAGE = null;
   public static $ACCOUNT = null;
   public static $ACCOUNT_SCHOOL = null;
+  public static $REGATTA_SUMMARY = null;
 
   public static function setConnectionParams($host, $user, $pass, $db) {
     // Template objects serialization

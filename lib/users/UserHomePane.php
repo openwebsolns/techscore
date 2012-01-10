@@ -105,7 +105,7 @@ class UserHomePane extends AbstractUserPane {
 			 array(new XTHead(array(),
 					  array(new XTR(array(),
 							array(new XTH(array(), "Name"),
-							      new XTH(array(), "Season"),
+							      // new XTH(array(), "Season"),
 							      new XTH(array(), "Date"),
 							      new XTH(array(), "Type"),
 							      new XTH(array(), "Finalized"))))),
@@ -129,7 +129,7 @@ class UserHomePane extends AbstractUserPane {
 				  'style'=>'color:red;font-weight:bold;font-size:110%;'));
       $tab->add(new XTR(array('class'=>'row'.($row++ % 2)),
 			array(new XTD(array("class"=>"left", "style"=>"padding-left:1em"), $link),
-			      new XTD(array(), strtoupper($reg->season)),
+			      // new XTD(array(), strtoupper($reg->season)),
 			      new XTD(array(), $reg->start_time->format("Y-m-d")),
 			      new XTD(array(), ucfirst($reg->type)),
 			      new XTD(array(), $finalized))));

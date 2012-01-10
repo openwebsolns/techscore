@@ -5,6 +5,8 @@
  * @package regatta
  */
 
+require_once('regatta/DB.php');
+
 /**
  * Encapsulates a (flat) regatta object. Note that comments are
  * suppressed due to speed considerations.
@@ -12,33 +14,51 @@
  * @author Dayan Paez
  * @version 2009-11-30
  */
-class RegattaSummary {
-
-  // Variables
-  public $id;
-  public $name;
-  public $nick;
-  public $start_time;
-  public $end_date;
-  public $type;
-  public $finalized;
-  public $participant;
+class RegattaSummary extends DBObject {
 
   const FIELDS = "regatta.id, regatta.name, regatta.nick, regatta.start_time, regatta.type,
                   regatta.end_date, regatta.finalized, regatta.participant";
   const TABLES = "regatta";
 
-  public function __construct() {
-    $this->name = stripslashes($this->name);
-    try {
-      $this->start_time = new DateTime($this->start_time);
-      $this->end_date   = new DateTime($this->end_date);
-      if ($this->finalized !== null)
-	$this->finalized  = new DateTime($this->finalized);
-      $this->season = new Season($this->start_time);
-    }
-    catch (Exception $e) {
-      throw new InvalidArgumentException("Invalid start time.");
+  /**
+   * Standard scoring
+   */
+  const SCORING_STANDARD = "standard";
+
+  /**
+   * Combined scoring
+   */   
+  const SCORING_COMBINED = "combined";
+
+  /**
+   * Women's regatta
+   */
+  const PARTICIPANT_WOMEN = "women";
+  
+  /**
+   * Coed regatta (default)
+   */
+  const PARTICIPANT_COED = "coed";
+  
+  // Variables
+  public $name;
+  public $nick;
+  protected $start_time;
+  protected $end_date;
+  public $type;
+  protected $finalized;
+  public $participant;
+
+  public function db_name() { return 'regatta'; }
+  protected function db_order() { return array('start_time'=>false); }
+  public function db_type($field) {
+    switch ($field) {
+    case 'start_time':
+    case 'end_date':
+    case 'finalized':
+      return DB::$NOW;
+    default:
+      return parent::db_type($field);
     }
   }
 
@@ -68,4 +88,5 @@ class RegattaSummary {
     return -1 * self::cmpStart($r1, $r2);
   }
 }
+DB::$REGATTA_SUMMARY = new RegattaSummary();
 ?>
