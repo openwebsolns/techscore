@@ -19,7 +19,7 @@ class SummaryPane extends AbstractPane {
    * Creates a new editing pane
    *
    */
-  public function __construct(User $user, Regatta $reg) {
+  public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Summaries", $user, $reg);
   }
 

@@ -22,7 +22,7 @@ class VenueManagement extends AbstractAdminUserPane {
 
   private $type;
 
-  public function __construct(User $user, $type = self::TYPE_LIST) {
+  public function __construct(Account $user, $type = self::TYPE_LIST) {
     parent::__construct("Venue management", $user);
     $this->type = $type;
   }

@@ -70,7 +70,11 @@ class Account extends DBObject {
 		 self::ROLE_STUDENT=>"Student");
   }
 
-    /**
+  public function isAdmin() {
+    return $this->status > 0;
+  }
+
+  /**
    * Returns all the schools that this user is affiliated with,
    * including the one enrolled as.
    *
@@ -114,8 +118,9 @@ class Account extends DBObject {
    * @return Array:RegattaSummary
    */
   public function getRegattas() {
+    require_once('regatta/RegattaSummary.php');
     $cond = null;
-    if ($this->status == 0) // regular user
+    if (!$this->isAdmin()) // regular user
       $cond = new DBCondIn('id', DB::prepGetAll(DB::$HOST, new DBCond('account', $this), array('regatta')));
     return DB::getAll(DB::$REGATTA_SUMMARY, $cond);
   }

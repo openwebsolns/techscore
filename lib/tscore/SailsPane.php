@@ -28,7 +28,7 @@ class SailsPane extends AbstractPane {
 			  "num" =>"Numerically",
 			  "alph"=>"Alpha-numerically");
 
-  public function __construct(User $user, Regatta $reg) {
+  public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Setup rotations", $user, $reg);
   }
 

@@ -348,12 +348,12 @@ class DB extends DBM {
    * Checks that the account holder is active. Otherwise, redirect to
    * license. Otherwise, redirect out
    *
-   * @param User $user the user to check
+   * @param Account $user the user to check
    * @throws InvalidArgumentException if invalid parameter
    * @TODO this should be migrated to using account
    */
-  public static function requireActive(User $user) {
-    switch ($user->get(User::STATUS)) {
+  public static function requireActive(Account $user) {
+    switch ($user->status) {
     case "active":
       return;
 

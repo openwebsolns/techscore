@@ -26,14 +26,14 @@ abstract class AbstractUserPane {
    * Creates a new User editing pane with the given title
    *
    * @param String $title the title of the page
-   * @param User $user the user to whom this applies
+   * @param Account $user the user to whom this applies
    */
-  public function __construct($title, User $user, School $school = null) {
+  public function __construct($title, Account $user, School $school = null) {
     $this->title = (string)$title;
     $this->USER  = $user;
     $this->SCHOOL = $school;
     if ($this->SCHOOL === null)
-      $this->SCHOOL = $this->USER->get(User::SCHOOL);
+      $this->SCHOOL = $this->USER->school;
   }
 
   /**
@@ -77,11 +77,11 @@ abstract class AbstractUserPane {
 				  array(new XH4("Messages"),
 					$list = new XUl())));
     $list->add(new XLi(new XA("/inbox", "Inbox")));
-    if ($this->USER->get(User::ADMIN))
+    if ($this->USER->isAdmin())
       $list->add(new XLi(new XA("/send-message", "Send message")));
 
     // Admin
-    if ($this->USER->get(User::ADMIN)) {
+    if ($this->USER->isAdmin()) {
       $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
 				    array(new XH4("Admin"),
 					  new XUl(array(),

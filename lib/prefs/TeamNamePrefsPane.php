@@ -20,7 +20,7 @@ class TeamNamePrefsPane extends AbstractUserPane {
    *
    * @param School $school the school whose logo to edit
    */
-  public function __construct(User $usr, School $school) {
+  public function __construct(Account $usr, School $school) {
     parent::__construct("Team names", $usr, $school);
   }
 

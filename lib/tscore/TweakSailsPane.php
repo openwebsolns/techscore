@@ -18,7 +18,7 @@ class TweakSailsPane extends AbstractPane {
   private $ACTIONS = array("ADD"=>"Add or subtract value to sails",
 			   "REP"=>"Replace sail with a different one");
 
-  public function __construct(User $user, Regatta $reg) {
+  public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Tweak sails", $user, $reg);
   }
 

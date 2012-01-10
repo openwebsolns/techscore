@@ -18,7 +18,7 @@ require_once('users/admin/AbstractAdminUserPane.php');
  * convenient, non-immediate time by a command line script.
  */
 class SendMessage extends AbstractAdminUserPane {
-  public function __construct(User $user) {
+  public function __construct(Account $user) {
     parent::__construct("Send message", $user);
   }
 
@@ -66,7 +66,7 @@ class SendMessage extends AbstractAdminUserPane {
     $p->add(new XP(array(), "When filling out the form, you may use the keywords in the table below to customize each message."));
     $p->add($tab = new XQuickTable(array('style'=>'margin:0 auto 2em;'), array("Keyword", "Description", "Example")));
     $tab->addRow(array("{FULL_NAME}", "Full name of user",  $this->USER->getName()));
-    $tab->addRow(array("{SCHOOL}",    "User's ICSA school", $this->USER->get(User::SCHOOL)));
+    $tab->addRow(array("{SCHOOL}",    "User's ICSA school", $this->USER->school));
     
     $title = "";
     $recip = "";

@@ -31,10 +31,10 @@ abstract class AbstractPane {
    * Create a new editing pane with the given name
    *
    * @param String $name the name of the editing page
-   * @param User $user the user that is editing
+   * @param Account $user the user that is editing
    * @param Regatta $reg the regatta for this page
    */
-  public function __construct($name, User $user, Regatta $reg) {
+  public function __construct($name, Account $user, Regatta $reg) {
     $this->name = (string)$name;
     $this->REGATTA = $reg;
     $this->USER = $user;
@@ -182,7 +182,7 @@ abstract class AbstractPane {
    * @param $url the URL
    * @return AbstractPane|null
    */
-  public static function getPane($url, User $r, Regatta $u) {
+  public static function getPane($url, Account $r, Regatta $u) {
     switch ($url) {
     case 'home':
     case 'details':

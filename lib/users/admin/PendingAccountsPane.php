@@ -18,11 +18,11 @@ class PendingAccountsPane extends AbstractAdminUserPane {
   /**
    * Creates a new such pane
    *
-   * @param User $user the administrator with access
+   * @param Account $user the administrator with access
    * @throws InvalidArgumentException if the User is not an
    * administrator
    */
-  public function __construct(User $user) {
+  public function __construct(Account $user) {
     parent::__construct("Pending users", $user);
   }
 

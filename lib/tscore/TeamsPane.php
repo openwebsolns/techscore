@@ -11,7 +11,7 @@ require_once('AbstractPane.php');
 
 class TeamsPane extends AbstractPane {
 
-  public function __construct(User $user, Regatta $reg) {
+  public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Add Team", $user, $reg);
   }
 

@@ -12,10 +12,10 @@ require_once('users/AbstractUserPane.php');
  *
  */
 abstract class AbstractAdminUserPane extends AbstractUserPane {
-  public function __construct($title, User $user) {
+  public function __construct($title, Account $user) {
     parent::__construct($title, $user);
 
-    if ($user->get(User::ADMIN) === false)
+    if (!$user->isAdmin())
       WebServer::go('/');
   }
 }

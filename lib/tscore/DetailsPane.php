@@ -18,7 +18,7 @@ require_once('tscore/AbstractPane.php');
  */
 class DetailsPane extends AbstractPane {
 
-  public function __construct(User $user, Regatta $reg) {
+  public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Settings", $user, $reg);
   }
 

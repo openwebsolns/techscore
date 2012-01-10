@@ -17,7 +17,7 @@ require_once("conf.php");
  */
 class EnterPenaltyPane extends AbstractPane {
 
-  public function __construct(User $user, Regatta $reg) {
+  public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Add penalty", $user, $reg);
   }
 

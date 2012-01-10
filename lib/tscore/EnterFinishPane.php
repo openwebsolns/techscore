@@ -21,7 +21,7 @@ class EnterFinishPane extends AbstractPane {
   private $ACTIONS = array("ROT" => "Sail numbers from rotation",
 			   "TMS" => "Team names");
 
-  public function __construct(User $user, Regatta $reg) {
+  public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Enter finish", $user, $reg);
   }
 

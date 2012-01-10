@@ -23,7 +23,7 @@ require_once('conf.php');
  */
 class RacesPane extends AbstractPane {
 
-  public function __construct(User $user, Regatta $reg) {
+  public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Edit Races", $user, $reg);
   }
 

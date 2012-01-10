@@ -13,7 +13,7 @@ require_once('conf.php');
  */
 class ScorersPane extends AbstractPane {
 
-  public function __construct(User $user, Regatta $reg) {
+  public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Scorers", $user, $reg);
   }
 
@@ -56,11 +56,11 @@ class ScorersPane extends AbstractPane {
     //   -Get chosen_conference
     $chosen_conf = (isset($args['conference'])) ? 
       DB::getConference($args['conference']) : 
-      $this->USER->get(User::SCHOOL)->conference;
+      $this->USER->school->conference;
 
     if ($chosen_conf === null) {
       Session::pa(new PA("Invalid conference chosen. Defaulting to your own.", PA::I));
-      $chosen_conf = $this->USER->get(User::SCHOOL)->conference;
+      $chosen_conf = $this->USER->school->conference;
     }
       
 

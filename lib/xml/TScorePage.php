@@ -36,11 +36,11 @@ class TScorePage extends XPage {
    * Creates a new page with the given title
    *
    * @param String $title the title of the page
-   * @param User $user the possible logged-in user
+   * @param Account $user the possible logged-in user
    * @param Regatta $reg the possible regatta in use. This affects the
    * menu that is displayed.
    */
-  public function __construct($title, User $user = null, Regatta $reg = null) {
+  public function __construct($title, Account $user = null, Regatta $reg = null) {
     parent::__construct($title . " | " . Conf::$NAME);
     $this->user = $user;
     $this->reg = $reg;
@@ -130,7 +130,7 @@ class TScorePage extends XPage {
    * Creates the header of this page
    *
    */
-  private function fillPageHeader(User $user = null, Regatta $reg = null) {
+  private function fillPageHeader(Account $user = null, Regatta $reg = null) {
     $this->header->add($div = new XDiv(array('id'=>'header'),
 				       array(new XH1(new XImg("/inc/img/techscore.png", Conf::$NAME, array("id"=>"headimg"))))));
     $div->add(new XH4(date("M j, Y"), array("id"=>"date")));

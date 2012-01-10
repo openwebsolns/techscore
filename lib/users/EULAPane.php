@@ -16,7 +16,7 @@ require_once('users/AbstractUserPane.php');
  */
 class EULAPane extends AbstractUserPane {
 
-  public function __construct(User $user) {
+  public function __construct(Account $user) {
     parent::__construct("Sign agreement", $user);
   }
 
@@ -47,7 +47,8 @@ class EULAPane extends AbstractUserPane {
   public function process(Array $args) {
     if (isset($args['agree-form'])) {
       if (isset($args['agree']) && $args['agree']) {
-	$this->USER->set(User::STATUS, "active");
+	$this->USER->status = Account::STAT_ACTIVE;
+	DB::set($this->USER);
 	Session::pa(new PA("Thank you for activatating your account!"));
 	WebServer::go('/');
       }

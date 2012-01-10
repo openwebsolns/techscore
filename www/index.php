@@ -53,7 +53,7 @@ if (!Session::has('user')) {
 // ------------------------------------------------------------
 $USER = null;
 try {
-  $USER = new User(Session::g('user'));
+  $USER = DB::getAccount(Session::g('user'));
 }
 catch (Exception $e) {
   Session::s('user', null);

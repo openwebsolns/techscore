@@ -13,7 +13,7 @@ require_once('users/admin/AbstractAdminUserPane.php');
  */
 class BoatManagement extends AbstractAdminUserPane {
 
-  public function __construct(User $user) {
+  public function __construct(Account $user) {
     parent::__construct("Boat management", $user);
   }
 

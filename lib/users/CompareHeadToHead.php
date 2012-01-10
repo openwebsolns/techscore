@@ -19,7 +19,7 @@ class CompareHeadToHead extends AbstractUserPane {
   /**
    * Creates a new pane
    */
-  public function __construct(User $user) {
+  public function __construct(Account $user) {
     parent::__construct("Compare sailors head to head", $user);
   }
 

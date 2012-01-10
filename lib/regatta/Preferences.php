@@ -155,10 +155,10 @@ class Preferences {
   /**
    * Returns a list of schools for which the user has jurisdiction
    *
-   * @param User $user the user whose jurisdiction to fetch
+   * @param Account $user the user whose jurisdiction to fetch
    * @return Array $schools list of School objects
    */
-  public static function getSchoolsForUser(User $user) {
+  public static function getSchoolsForUser(Account $user) {
     // 2009-10-14: Return the school from this user
     return array($user->school);
 

@@ -19,9 +19,9 @@ class NewRegattaPane extends AbstractUserPane {
   /**
    * Create a pane for creating regattas
    *
-   * @param User $user the user creating the regatta
+   * @param Account $user the user creating the regatta
    */
-  public function __construct(User $user) {
+  public function __construct(Account $user) {
     parent::__construct("New regatta", $user);
   }
   
@@ -185,14 +185,13 @@ class NewRegattaPane extends AbstractUserPane {
 				      $args['scoring'],
 				      $args['participant']);
 
-	$account = $this->USER->asAccount();
-	$reg->setCreator($account);
-	$reg->addScorer($account);
+	$reg->setCreator($this->USER);
+	$reg->addScorer($this->USER);
 	foreach ($hosts as $school)
 	  $reg->addHost($school);
 
 	$divs = array_values(Division::getAssoc());
-	$boat = DB::getPreferredBoat($this->USER->get(User::SCHOOL));
+	$boat = DB::getPreferredBoat($this->USER->school);
 	for ($i = 0; $i < $args['num_divisions']; $i++) {
 	  $div = $divs[$i];
 	  for ($j = 1; $j <= $args['num_races']; $j++) {

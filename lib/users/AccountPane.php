@@ -15,21 +15,19 @@ require_once('users/AbstractUserPane.php');
  */
 class AccountPane extends AbstractUserPane {
 
-  public function __construct(User $user) {
+  public function __construct(Account $user) {
     parent::__construct("My Account", $user);
   }
 
   protected function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new XPort("My information"));
     $p->add($form = new XForm("/account-edit", XForm::POST));
-    $form->add(new FItem("First name:", new XTextInput("first_name", $this->USER->get(User::FIRST_NAME))));
-    $form->add(new FItem("Last name:",  new XTextInput("last_name",  $this->USER->get(User::LAST_NAME))));
+    $form->add(new FItem("First name:", new XTextInput("first_name", $this->USER->first_name)));
+    $form->add(new FItem("Last name:",  new XTextInput("last_name",  $this->USER->last_name)));
     $form->add(new XP(array(), "To leave password as is, leave the two fields below blank:"));
     $form->add(new FItem("New password:",     new XPasswordInput("sake1", "")));
     $form->add(new FItem("Confirm password:", new XPasswordInput("sake2", "")));
     $form->add(new XSubmitInput('edit-info', "Edit"));
-
-    // new XTextInput("username",  $this->USER->get(User::LAST_NAME))));
   }
 
   public function process(Array $args) {
@@ -40,7 +38,7 @@ class AccountPane extends AbstractUserPane {
 	  Session::pa(new PA("First name cannot be empty.", PA::E));
 	  return $args;
 	}
-	$this->USER->set(User::FIRST_NAME, $name);
+	$this->USER->first_name = $name;
       }
       if (isset($args['last_name'])) {
 	$name = trim($args['last_name']);
@@ -48,7 +46,7 @@ class AccountPane extends AbstractUserPane {
 	  Session::pa(new PA("Last name cannot be empty.", PA::E));
 	  return $args;
 	}
-	$this->USER->set(User::LAST_NAME, $name);
+	$this->USER->last_name = $name;
       }
       // password change?
       if (isset($args['sake1']) && isset($args['sake2']) &&
@@ -62,9 +60,9 @@ class AccountPane extends AbstractUserPane {
 	  return $args;
 	}
 	$this->USER->password = sha1($args['sake1']);
-	DB::set($this->USER);
 	Session::pa(new PA("Password reset."));
       }
+      DB::set($this->USER);
       Session::pa(new PA("Information updated."));
     }
     return array();

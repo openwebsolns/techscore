@@ -17,12 +17,12 @@ class MessagePane extends AbstractUserPane {
 
   const NUM_PER_AGE = 10;
 
-  public function __construct(User $user) {
+  public function __construct(Account $user) {
     parent::__construct("Messages", $user);
   }
 
   protected function fillHTML(Array $args) {
-    $messages = Preferences::getMessages($this->USER->asAccount());
+    $messages = Preferences::getMessages($this->USER);
 
     // ------------------------------------------------------------
     // No messages
@@ -99,7 +99,7 @@ class MessagePane extends AbstractUserPane {
     // Delete
     // ------------------------------------------------------------
     if (isset($args['delete'])) {
-      $messages = Preferences::getMessages($this->USER->asAccount());
+      $messages = Preferences::getMessages($this->USER);
       $mes = Preferences::getObjectWithProperty($messages, "id", $args['delete']);
       if ($mes === null) {
 	Session::pa(new PA("Invalid message to delete.", PA::E));
@@ -114,7 +114,7 @@ class MessagePane extends AbstractUserPane {
     // Reply
     // ------------------------------------------------------------
     if (isset($args['reply'])) {
-      $messages = Preferences::getMessages($this->USER->asAccount());
+      $messages = Preferences::getMessages($this->USER);
       $mes = Preferences::getObjectWithProperty($messages, "id", $args['reply']);
       if ($mes === null) {
 	Session::pa(new PA("Invalid message to reply.", PA::E));

@@ -18,7 +18,7 @@ class CompareSailorsByRace extends AbstractUserPane {
   /**
    * Creates a new pane
    */
-  public function __construct(User $user) {
+  public function __construct(Account $user) {
     parent::__construct("Compare sailors by race", $user);
   }
 

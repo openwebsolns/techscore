@@ -18,9 +18,9 @@ class UserHomePane extends AbstractUserPane {
   /**
    * Create a new User home page for the specified user
    *
-   * @param User $user the user whose page to load
+   * @param Account $user the user whose page to load
    */
-  public function __construct(User $user) {
+  public function __construct(Account $user) {
     parent::__construct("Welcome", $user);
   }
 
@@ -39,7 +39,7 @@ class UserHomePane extends AbstractUserPane {
     // ------------------------------------------------------------
     // Messages
     // ------------------------------------------------------------
-    $num_messages = count(DB::getUnreadMessages($this->USER->asAccount()));
+    $num_messages = count(DB::getUnreadMessages($this->USER));
     if ($num_messages > 0) {
       $this->PAGE->addContent($p = new XPort("Messages"));
       $p->add($para = new XP(array(), "You have "));
@@ -71,18 +71,17 @@ class UserHomePane extends AbstractUserPane {
 	  $mes = "No results found.";
 	if ($startint > 0 && $startint >= $num_regattas)
 	  WebServer::go('/?q=' . $qry);
-	// Narrow down the list
-	for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < count($regs); $i++)
-	  $regattas[] = $regs[$i];
       }
     }
     else {
-      $num_regattas = $this->USER->getNumRegattas();
-      $regattas = $this->USER->getRegattas($startint, $startint + self::NUM_PER_PAGE);
+      $regs = $this->USER->getRegattas();
+      $num_regattas = count($regs);
     }
+    // Narrow down the list
+    for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < count($regs); $i++)
+      $regattas[] = $regs[$i];
     
     $this->PAGE->addContent($p = new XPort("My Regattas"));
-    // usort($regattas, "RegattaSummary::cmpStartDesc");
 
     // Add search form, if necessary
     if ($num_regattas > self::NUM_PER_PAGE * 3 || $qry !== null) {
@@ -110,35 +109,35 @@ class UserHomePane extends AbstractUserPane {
 							      new XTH(array(), "Type"),
 							      new XTH(array(), "Finalized"))))),
 			       $tab = new XTBody())));
+      $row = 0;
+      $now = new DateTime('1 day ago');
+      foreach ($regattas as $reg) {
+	$link = new XA("score/" . $reg->id, $reg->name);
+	$finalized = '--';
+	if ($reg->finalized !== null)
+	  $finalized = $reg->finalized->format("Y-m-d");
+	elseif ($reg->finalized < $now)
+	  $finalized = new XA('score/'.$reg->id.'#finalize', 'PENDING',
+			      array('title'=>'Regatta must be finalized!',
+				    'style'=>'color:red;font-weight:bold;font-size:110%;'));
+	$tab->add(new XTR(array('class'=>'row'.($row++ % 2)),
+			  array(new XTD(array("class"=>"left", "style"=>"padding-left:1em"), $link),
+				// new XTD(array(), strtoupper($reg->season)),
+				new XTD(array(), $reg->start_time->format("Y-m-d")),
+				new XTD(array(), ucfirst($reg->type)),
+				new XTD(array(), $finalized))));
+      }
+      $last = (int)($num_regattas / self::NUM_PER_PAGE);
+      if ($last > 1) {
+	require_once('xml5/PageDiv.php');
+	$suf = ($qry !== null) ? '?q='.$qry : '';
+	$p->add(new PageDiv($last, $pageset, 'home', $suf));
+      }
     }
     elseif ($qry === null) {
       $p->add(new XP(array(),
 		     array("You have no regattas. Go ",
 			   new XA("create", "create one"), "!")));
-    }
-    $row = 0;
-    $now = new DateTime('1 day ago');
-    foreach ($regattas as $reg) {
-      $link = new XA("score/" . $reg->id, $reg->name);
-      $finalized = '--';
-      if ($reg->finalized !== null)
-	$finalized = $reg->finalized->format("Y-m-d");
-      elseif ($reg->finalized < $now)
-	$finalized = new XA('score/'.$reg->id.'#finalize', 'PENDING',
-			    array('title'=>'Regatta must be finalized!',
-				  'style'=>'color:red;font-weight:bold;font-size:110%;'));
-      $tab->add(new XTR(array('class'=>'row'.($row++ % 2)),
-			array(new XTD(array("class"=>"left", "style"=>"padding-left:1em"), $link),
-			      // new XTD(array(), strtoupper($reg->season)),
-			      new XTD(array(), $reg->start_time->format("Y-m-d")),
-			      new XTD(array(), ucfirst($reg->type)),
-			      new XTD(array(), $finalized))));
-    }
-    $last = (int)($num_regattas / self::NUM_PER_PAGE);
-    if ($last > 1) {
-      require_once('xml5/PageDiv.php');
-      $suf = ($qry !== null) ? '?q='.$qry : '';
-      $p->add(new PageDiv($last, $pageset, 'home', $suf));
     }
   }
 

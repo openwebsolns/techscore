@@ -18,7 +18,7 @@ require_once("conf.php");
  */
 class UnregisteredSailorPane extends AbstractPane {
 
-  public function __construct(User $user, Regatta $reg) {
+  public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Unregistered sailors", $user, $reg);
   }
 

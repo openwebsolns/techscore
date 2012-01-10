@@ -25,7 +25,7 @@ class AllAmerican extends AbstractUserPane {
   /**
    * Creates a new pane
    */
-  public function __construct(User $user) {
+  public function __construct(Account $user) {
     parent::__construct("All-American", $user);
     if (!Session::has('aa'))
       Session::s('aa', array('table' => array(),

@@ -22,7 +22,7 @@ if (!Session::has('user')) {
 }
 $USER = null;
 try {
-  $USER = new User(Session::g('user'));
+  $USER = DB::getAccount(Session::g('user'));
   DB::requireActive($USER);
 }
 catch (Exception $e) {
