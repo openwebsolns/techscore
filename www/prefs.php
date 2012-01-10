@@ -12,7 +12,7 @@ require_once('tscore/WebServer.php');
 //
 // Is logged-in
 //
-if (!Session::has('user')) {
+if (Conf::$USER === null) {
   Session::s('last_page', preg_replace(':^/pedit/:', '/', $_SERVER['REQUEST_URI']));
 
   // provide the login page
@@ -22,18 +22,8 @@ if (!Session::has('user')) {
   $PAGE->printXML();
   exit;
 }
-$USER = null;
-try {
-  $USER = DB::getAccount(Session::g('user'));
-  DB::requireActive($USER);
-}
-catch (Exception $e) {
-  Session::s('last_page', $_SERVER['REQUEST_URI']);
-  Session::s('user', null);
-  WebServer::go('/');
-}
 
-$HOME = sprintf("/prefs/%s", $USER->school->id);
+$HOME = sprintf("/prefs/%s", Conf::$USER->school->id);
 
 //
 // School
@@ -48,7 +38,7 @@ if ($SCHOOL == null) {
   Session::pa(new PA($mes, PA::E));
   WebServer::go($HOME);
 }
-$schools = $USER->getSchools();
+$schools = Conf::$USER->getSchools();
 if (!isset($schools[$SCHOOL->id])) {
   $mes = sprintf("No permissions to edit school (%s).", $SCHOOL);
   Session::pa(new PA($mes, PA::E));
@@ -61,27 +51,27 @@ if (!isset($schools[$SCHOOL->id])) {
 if (!isset($_REQUEST['p'])) {
   // Go home by default
   require_once('prefs/PrefsHomePane.php');
-  $PAGE = new PrefsHomePane($USER, $SCHOOL);
+  $PAGE = new PrefsHomePane(Conf::$USER, $SCHOOL);
 }
 else {
   switch ($_REQUEST['p']) {
   case "home":
     require_once('prefs/PrefsHomePane.php');
-    $PAGE = new PrefsHomePane($USER, $SCHOOL);
+    $PAGE = new PrefsHomePane(Conf::$USER, $SCHOOL);
     break;
 
     // --------------- LOGO --------------- //
   case "logo":
   case "burgee":
     require_once('prefs/EditLogoPane.php');
-    $PAGE = new EditLogoPane($USER, $SCHOOL);
+    $PAGE = new EditLogoPane(Conf::$USER, $SCHOOL);
     break;
 
     // --------------- SAILOR ------------- //
   case "sailor":
   case "sailors":
     require_once('prefs/SailorMergePane.php');
-    $PAGE = new SailorMergePane($USER, $SCHOOL);
+    $PAGE = new SailorMergePane(Conf::$USER, $SCHOOL);
     break;
 
     // --------------- TEAMS ------------- //
@@ -90,7 +80,7 @@ else {
   case "name":
   case "names":
     require_once('prefs/TeamNamePrefsPane.php');
-    $PAGE = new TeamNamePrefsPane($USER, $SCHOOL);
+    $PAGE = new TeamNamePrefsPane(Conf::$USER, $SCHOOL);
     break;
 
   default:

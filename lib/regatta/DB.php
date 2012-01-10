@@ -440,12 +440,16 @@ class School extends DBObject {
   public $city;
   public $state;
   protected $conference;
+  protected $burgee;
 
   public function db_name() { return 'school'; }
   public function db_type($field) {
-    if ($field == 'conference')
-      return DB::$CONFERENCE;
-    return parent::db_type($field);
+    switch ($field) {
+    case 'conference': return DB::$CONFERENCE;
+    case 'burgee': return DB::$BURGEE;
+    default:
+      return parent::db_type($field);
+    }
   }
   protected function db_order() { return array('name'=>true); }
   public function __toString() { return $this->name; }

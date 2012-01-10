@@ -10,7 +10,7 @@ require_once('tscore/WebServer.php');
 //
 // Is logged-in
 //
-if (!Session::has('user')) {
+if (Conf::$USER === null) {
   Session::s('last_page', preg_replace(':^/edit/:', '/', $_SERVER['REQUEST_URI']));
 
   // provide the login page
@@ -19,16 +19,6 @@ if (!Session::has('user')) {
   $PAGE = new WelcomePage();
   $PAGE->printXML();
   exit;
-}
-$USER = null;
-try {
-  $USER = DB::getAccount(Session::g('user'));
-  DB::requireActive($USER);
-}
-catch (Exception $e) {
-  Session::s('last_page', $_SERVER['REQUEST_URI']);
-  Session::s('user', null);
-  WebServer::go('/');
 }
 
 //
@@ -45,7 +35,7 @@ catch (Exception $e) {
   Session::pa(new PA("No such regatta.", PA::I));
   WebServer::go('/');
 }
-if (!$USER->hasJurisdiction($REG)) {
+if (!Conf::$USER->hasJurisdiction($REG)) {
   // No jurisdiction
   WebServer::go('/');
 }
@@ -69,11 +59,11 @@ elseif (isset($_REQUEST['p'])) {
   $POSTING = (isset($_GET['_action']) && $_GET['_action'] == 'edit');
   if (empty($_REQUEST['p'])) {
     require_once('tscore/DetailsPane.php');
-    $PAGE = new DetailsPane($USER, $REG);
+    $PAGE = new DetailsPane(Conf::$USER, $REG);
   }
   else {
     require_once('tscore/AbstractPane.php');
-    $PAGE = AbstractPane::getPane($_REQUEST['p'], $USER, $REG);
+    $PAGE = AbstractPane::getPane($_REQUEST['p'], Conf::$USER, $REG);
     if ($PAGE === null) {
       $mes = sprintf("Invalid page requested (%s)", $_REQUEST['p']);
       Session::pa(new PA($mes, PA::I));

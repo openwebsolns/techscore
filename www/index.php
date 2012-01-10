@@ -14,7 +14,7 @@ require_once("tscore/WebServer.php");
 // ------------------------------------------------------------
 // Not logged-in?
 // ------------------------------------------------------------
-if (!Session::has('user')) {
+if (Conf::$USER === null) {
   // Registration?
   if (isset($_GET['p'])) {
     switch ($_GET['p']) {
@@ -49,18 +49,6 @@ if (!Session::has('user')) {
 }
 
 // ------------------------------------------------------------
-// Invalid login?
-// ------------------------------------------------------------
-$USER = null;
-try {
-  $USER = DB::getAccount(Session::g('user'));
-}
-catch (Exception $e) {
-  Session::s('user', null);
-  WebServer::go('/');
-}
-
-// ------------------------------------------------------------
 // Process requested page
 // ------------------------------------------------------------
 $page = "home";
@@ -71,57 +59,57 @@ if (isset($_REQUEST['p']))
 $PAGE = null;
 if ($page == "license") {
   require_once('users/EULAPane.php');
-  $PAGE = new EULAPane($USER);
+  $PAGE = new EULAPane(Conf::$USER);
 }
 else {
-  DB::requireActive($USER);
+  DB::requireActive(Conf::$USER);
   switch ($page) {
   case "home":
     require_once('users/UserHomePane.php');
-    $PAGE = new UserHomePane($USER);
+    $PAGE = new UserHomePane(Conf::$USER);
     break;
 
   case "inbox":
     require_once('users/MessagePane.php');
-    $PAGE = new MessagePane($USER);
+    $PAGE = new MessagePane(Conf::$USER);
     break;
 
   case "create":
     require_once('users/NewRegattaPane.php');
-    $PAGE = new NewRegattaPane($USER);
+    $PAGE = new NewRegattaPane(Conf::$USER);
     break;
 
   case "pending":
     require_once('users/admin/PendingAccountsPane.php');
-    $PAGE = new PendingAccountsPane($USER);
+    $PAGE = new PendingAccountsPane(Conf::$USER);
     break;
 
   case "venues":
   case "venue":
     require_once('users/admin/VenueManagement.php');
-    $PAGE = new VenueManagement($USER);
+    $PAGE = new VenueManagement(Conf::$USER);
     break;
 
   case "edit-venue":
     require_once('users/admin/VenueManagement.php');
-    $PAGE = new VenueManagement($USER, VenueManagement::TYPE_EDIT);
+    $PAGE = new VenueManagement(Conf::$USER, VenueManagement::TYPE_EDIT);
     break;
 
   case "boat":
   case "boats":
     require_once('users/admin/BoatManagement.php');
-    $PAGE = new BoatManagement($USER);
+    $PAGE = new BoatManagement(Conf::$USER);
   break;
 
   case "account":
   case "accounts":
     require_once('users/AccountPane.php');
-    $PAGE = new AccountPane($USER);
+    $PAGE = new AccountPane(Conf::$USER);
   break;
 
   case "compare-by-race":
     require_once('users/CompareSailorsByRace.php');
-    $PAGE = new CompareSailorsByRace($USER);
+    $PAGE = new CompareSailorsByRace(Conf::$USER);
     break;
 
   case "compare-sailors":
@@ -129,12 +117,12 @@ else {
   case "compare-head-head":
   case "head-to-head":
     require_once('users/CompareHeadToHead.php');
-    $PAGE = new CompareHeadToHead($USER);
+    $PAGE = new CompareHeadToHead(Conf::$USER);
     break;
 
   case "aa":
     require_once('users/AllAmerican.php');
-    $PAGE = new AllAmerican($USER);
+    $PAGE = new AllAmerican(Conf::$USER);
     break;
 
   case "send-message":
@@ -142,7 +130,7 @@ else {
   case "send-email":
   case "send-emails":
     require_once('users/admin/SendMessage.php');
-    $PAGE = new SendMessage($USER);
+    $PAGE = new SendMessage(Conf::$USER);
   break;
 
   default:

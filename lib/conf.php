@@ -40,9 +40,14 @@ class Conf {
   public static $SQL_DB   = "ts2";
 
   /**
-   * Set to non-null path to log queries
+   * @var String|null Set to non-null path to log queries
    */
   public static $LOG_QUERIES = null;
+
+  /**
+   * @var Account|null will be set to the logged-in account, if any
+   */
+  public static $USER = null;
 }
 // LOG FILES
 Conf::$LOG_UPDATE = realpath(dirname(__FILE__).'/../log/update.log');
@@ -133,5 +138,6 @@ DB::setConnectionParams(Conf::$SQL_HOST, Conf::$SQL_USER, Conf::$SQL_PASS, Conf:
 if (isset($_SERVER['HTTP_HOST'])) {
   require_once('xml5/Session.php');
   Session::init();
+  Conf::$USER = DB::getAccount(Session::g('user'));
 }
 ?>
