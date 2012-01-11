@@ -24,6 +24,7 @@ class DB extends DBM {
   public static $COACH = null;
   public static $SEASON = null;
   public static $HOST = null;
+  public static $TEAM = null;
   public static $NOW = null;
 
   public static $OUTBOX = null;
@@ -43,6 +44,7 @@ class DB extends DBM {
     self::$COACH = new Coach();
     // self::$SEASON = new Season();
     self::$HOST = new Host();
+    self::$TEAM = new Team();
     self::$NOW = new DateTime();
 
     DBM::setConnectionParams($host, $user, $pass, $db);
@@ -765,6 +767,32 @@ class Host extends DBObject {
     default:
       return parent::db_type($field);
     }
+  }
+}
+
+/**
+ * Encapsulates a team, or a linking table between schools and regattas
+ *
+ * @author Dayan Paez
+ * @version 2012-01-10
+ */
+class Team extends DBObject {
+  public $name;
+  protected $school;
+
+  public function db_name() { return 'team'; }
+  protected function db_order() { return array('school'=>true, 'id'=>true); }
+  protected function db_cache() { return true; }
+  public function db_type($field) {
+    switch ($field) {
+    case 'school': return DB::$SCHOOL;
+    default:
+      return parent::db_type($field);
+    }
+  }
+
+  public function __toString() {
+    return $this->__get('school')->nick_name . ' ' . $this->name;
   }
 }
 ?>
