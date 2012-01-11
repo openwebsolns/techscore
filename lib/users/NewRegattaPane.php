@@ -51,11 +51,11 @@ class NewRegattaPane extends AbstractUserPane {
     $f->add(new FItem("On the water:", new XTextInput("start_time", $r["start_time"])));
     $f->add(new FItem("Duration (days):", new XTextInput("duration", $r["duration"])));
     $f->add(new FItem("Venue:",   $sel = new XSelect("venue")));
-    $f->add(new FItem("Scoring:", XSelect::fromArray("scoring", Preferences::getRegattaScoringAssoc(), $r["scoring"])));
+    $f->add(new FItem("Scoring:", XSelect::fromArray("scoring", Regatta::getScoringOptions(), $r["scoring"])));
     $f->add(new FItem("Type:", XSelect::fromArray("type",
 						  array("Public"=>$types, "Not-published"=>array('personal'=>"Personal")),
 						  $r["type"])));
-    $f->add(new FItem("Participation:", XSelect::fromArray("participant", Preferences::getRegattaParticipantAssoc(),
+    $f->add(new FItem("Participation:", XSelect::fromArray("participant", Regatta::getParticipantOptions(),
 							   $r["participant"])));
     $f->add(new FItem("Divisions:",$div = XSelect::fromArray("num_divisions", array(1=>1, 2=>2, 3=>3, 4=>4), $r["num_divisions"])));
     $f->add(new FItem("Number of races:", new XTextInput("num_races", $r["num_races"])));
@@ -122,7 +122,7 @@ class NewRegattaPane extends AbstractUserPane {
 	$error = true;
       }
       // 6. Scoring
-      $scoring = Preferences::getRegattaScoringAssoc();
+      $scoring = Regatta::getScoringOptions();
       if (!isset($args['scoring']) ||
 	  !isset($scoring[$args['scoring']])) {
 	Session::pa(new PA("Invalid regatta type.", PA::E));
@@ -136,7 +136,7 @@ class NewRegattaPane extends AbstractUserPane {
 	$error = true;
       }
       // 8. Participation
-      $part = Preferences::getRegattaParticipantAssoc();
+      $part = Regatta::getParticipantOptions();
       if (!isset($args['participant']) ||
 	  !isset($part[$args['participant']])) {
 	Session::pa(new PA("Invalid regatta participation.", PA::E));

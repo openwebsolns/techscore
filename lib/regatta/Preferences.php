@@ -37,26 +37,6 @@ class Preferences {
   }
 
   /**
-   * Gets an assoc. array of the possible scoring rules
-   *
-   * @return Array a dict of scoring rules
-   */
-  public static function getRegattaScoringAssoc() {
-    return array(Regatta::SCORING_STANDARD => "Standard",
-		 Regatta::SCORING_COMBINED => "Combined divisions");
-  }
-
-  /**
-   * Gets an assoc. array of the possible participant values
-   *
-   * @return Array a dict of scoring rules
-   */
-  public static function getRegattaParticipantAssoc() {
-    return array(Regatta::PARTICIPANT_COED => "Coed",
-		 Regatta::PARTICIPANT_WOMEN => "Women");
-  }
-
-  /**
    * Returns an ordered list of the team names for the given school
    *
    * @param School $school the school whose team names to fetch

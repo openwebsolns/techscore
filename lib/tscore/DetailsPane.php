@@ -83,7 +83,7 @@ class DetailsPane extends AbstractPane {
     $value = $this->REGATTA->get(Regatta::PARTICIPANT);
     $reg_form->add($item = new FItem("Participation:",
 				     XSelect::fromArray('participant',
-							Preferences::getRegattaParticipantAssoc(),
+							Regatta::getParticipantOptions(),
 							$value)));
     // will changing this value affect the RP information?
     if ($value == Regatta::PARTICIPANT_COED)
@@ -93,7 +93,7 @@ class DetailsPane extends AbstractPane {
     $value = $this->REGATTA->get(Regatta::SCORING);
     $reg_form->add(new FItem("Scoring:",
 			     XSelect::fromArray('scoring',
-						Preferences::getRegattaParticipantAssoc(),
+						Regatta::getParticipantOptions(),
 						$value)));
 
     // Hosts: first add the current hosts, then the entire list of
@@ -217,13 +217,13 @@ class DetailsPane extends AbstractPane {
 
       // Scoring
       if (isset($args['scoring']) &&
-	  in_array($args['scoring'], array_keys(Preferences::getRegattaScoringAssoc()))) {
+	  in_array($args['scoring'], array_keys(Regatta::getScoringOptions()))) {
 	$this->REGATTA->set(Regatta::SCORING, $args['scoring']);
       }
 
       // Participation
       if (isset($args['participant']) &&
-	  in_array($args['participant'], array_keys(Preferences::getRegattaParticipantAssoc()))) {
+	  in_array($args['participant'], array_keys(Regatta::getParticipantOptions()))) {
 	$this->REGATTA->set(Regatta::PARTICIPANT, $args['participant']);
 	// affect RP accordingly
 	if ($args['participant'] == Regatta::PARTICIPANT_WOMEN) {

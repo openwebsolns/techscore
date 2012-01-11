@@ -91,6 +91,26 @@ class Regatta implements RaceListener {
   const TYPE_TWO_CONFERENCE = 'two-conference';
   const TYPE_PROMOTIONAL = 'promotional';
 
+  /**
+   * Gets an assoc. array of the possible scoring rules
+   *
+   * @return Array a dict of scoring rules
+   */
+  public static function getScoringOptions() {
+    return array(Regatta::SCORING_STANDARD => "Standard",
+		 Regatta::SCORING_COMBINED => "Combined divisions");
+  }
+
+  /**
+   * Gets an assoc. array of the possible participant values
+   *
+   * @return Array a dict of scoring rules
+   */
+  public static function getParticipantOptions() {
+    return array(Regatta::PARTICIPANT_COED => "Coed",
+		 Regatta::PARTICIPANT_WOMEN => "Women");
+  }
+  
   // Properties
   private $properties = null;
 
@@ -1459,7 +1479,7 @@ class Regatta implements RaceListener {
    * @param DateTime $start_time the start time of the regatta
    * @param DateTime $end_date the end_date
    * @param String $type one of those listed in Regatta::getTypes()
-   * @param String $participant one of those listed in Preferences::getRegattaParticipantAssoc()
+   * @param String $participant one of those listed in Regatta::getParticipantOptions()
    * @return int the ID of the regatta
    *
    * @throws InvalidArgumentException if illegal regatta type
@@ -1473,9 +1493,9 @@ class Regatta implements RaceListener {
 				       $participant = Regatta::PARTICIPANT_COED) {
     if (!in_array($type, array_keys(Regatta::getTypes())))
       throw new InvalidArgumentException("No such regatta type $type.");
-    if (!in_array($scoring, array_keys(Preferences::getRegattaScoringAssoc())))
+    if (!in_array($scoring, array_keys(Regatta::getScoringOptions())))
       throw new InvalidArgumentException("No such regatta scoring $scoring.");
-    if (!in_array($participant, array_keys(Preferences::getRegattaParticipantAssoc())))
+    if (!in_array($participant, array_keys(Regatta::getParticipantOptions())))
       throw new InvalidArgumentException("No such regatta scoring $scoring.");
 
     // Fetch the regatta back
@@ -1502,8 +1522,8 @@ class Regatta implements RaceListener {
    * @param DateTime $start_time the start time of the regatta
    * @param DateTime $end_date the end_date
    * @param String $type one of those listed in Regatta::getTypes()
-   * @param String $scoring one of those listed in Preferences::getRegattaScoringAssoc()
-   * @param String $participant one of those listed in Preferences::getRegattaParticipantAssoc()
+   * @param String $scoring one of those listed in Regatta::getScoringOptions()
+   * @param String $participant one of those listed in Regatta::getParticipantOptions()
    *
    * @throws InvalidArgumentException if illegal regatta type or name
    */
