@@ -45,7 +45,7 @@ class PageDiv extends XDiv {
       }
     }
     // also print the last one
-    if ($i < $num_pages) {
+    if ($i <= $num_pages) {
       $this->add(new XA(sprintf("%s|%d%s", $prefix, $num_pages, $suffix), $num_pages));
     }
   }

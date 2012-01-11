@@ -78,7 +78,7 @@ class UserHomePane extends AbstractUserPane {
       $num_regattas = count($regs);
     }
     // Narrow down the list
-    for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < count($regs); $i++)
+    for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < $num_regattas; $i++)
       $regattas[] = $regs[$i];
     
     $this->PAGE->addContent($p = new XPort("My Regattas"));
@@ -127,7 +127,7 @@ class UserHomePane extends AbstractUserPane {
 				new XTD(array(), ucfirst($reg->type)),
 				new XTD(array(), $finalized))));
       }
-      $last = (int)($num_regattas / self::NUM_PER_PAGE);
+      $last = ceil($num_regattas / self::NUM_PER_PAGE);
       if ($last > 1) {
 	require_once('xml5/PageDiv.php');
 	$suf = ($qry !== null) ? '?q='.$qry : '';
