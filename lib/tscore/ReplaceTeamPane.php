@@ -35,7 +35,7 @@ class ReplaceTeamPane extends AbstractPane {
     // school select
     foreach ($confs as $conf) {
       // Get schools for that conference
-      $schools = DB::getSchoolsInConference($conf);
+      $schools = $conf->getSchools();
       $sel2->add($grp = new FOptionGroup($conf));
       foreach ($schools as $school)
 	$grp->add(new FOption($school->id, $school->name));

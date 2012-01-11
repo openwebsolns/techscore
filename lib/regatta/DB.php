@@ -66,16 +66,6 @@ class DB extends DBM {
   public static function getConferences() {
     return self::getAll(self::$CONFERENCE);
   }
-
-  /**
-   * Returns a list of school objects which are in the specified
-   * conference.
-   *
-   * @return a list of schools in the conference
-   */
-  public static function getSchoolsInConference(Conference $conf) {
-    return self::getAll(self::$SCHOOL, new DBCond('conference', $conf));
-  }
   
   /**
    * Returns the school with the given ID, or null if none exists
@@ -401,6 +391,16 @@ class Conference extends DBObject {
     require_once('regatta/Account.php');
     return DB::getAll(DB::$ACCOUNT,
 		      new DBCondIn('school', DB::prepGetAll(DB::$SCHOOL, new DBCond('conference', $this), array('id'))));
+  }
+
+  /**
+   * Returns a list of school objects which are in the specified
+   * conference.
+   *
+   * @return a list of schools in the conference
+   */
+  public static function getSchools() {
+    return DB::getAll(DB::$SCHOOL, new DBCond('conference', $this));
   }
 }
 

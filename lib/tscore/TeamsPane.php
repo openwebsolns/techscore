@@ -33,7 +33,7 @@ class TeamsPane extends AbstractPane {
     foreach ($confs as $conf) {
       // Get schools for that conference
       $f_sel->add($f_grp = new FOptionGroup((string)$conf));
-      foreach (DB::getSchoolsInConference($conf) as $school)
+      foreach ($conf->getSchools() as $school)
 	$f_grp->add(new FOption($school->id, $school->name));
     }
 
@@ -146,7 +146,7 @@ class TeamsPane extends AbstractPane {
     
     foreach ($confs as $conf) {
       $list->add(new XLi(array(new XHeading($conf), $sub = new XUl())));
-      foreach ($schools = DB::getSchoolsInConference($conf) as $school) {
+      foreach ($conf->getSchools() as $school) {
 	$sub->add(new XLi(array(new XHiddenInput('school[]', $school->id),
 				new XTextInput('number[]', "", array('id'=>$school->id)),
 				new XLabel($school->id, $school))));

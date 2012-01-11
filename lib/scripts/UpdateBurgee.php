@@ -42,7 +42,7 @@ class UpdateBurgee {
    */
   public static function run() {
     foreach (DB::getConferences() as $conf) {
-      foreach (DB::getSchoolsInConference($conf) as $school) {
+      foreach ($conf->getSchools() as $school) {
 	self::update($school);
       }
     }

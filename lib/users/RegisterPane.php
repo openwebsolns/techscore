@@ -94,7 +94,7 @@ class RegisterPane extends WelcomePage {
     // Fill out the selection boxes
     foreach (DB::getConferences() as $conf) {
       $aff->add($opt = new FOptionGroup($conf));
-      foreach (DB::getSchoolsInConference($conf) as $school) {
+      foreach ($conf->getSchools() as $school) {
 	$opt->add(new FOption($school->id, $school->name));
       }
     }
