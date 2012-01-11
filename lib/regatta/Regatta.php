@@ -1194,14 +1194,7 @@ class Regatta implements RaceListener {
    * @return Array<Account> a list of scorers
    */
   public function getScorers() {
-    $q = sprintf('select %s from %s where id in (select account from host where regatta = "%s")',
-		 Account::FIELDS, Account::TABLES, $this->id);
-    $q = $this->query($q);
-    $list = array();
-    while ($obj = $q->fetch_object("Account")) {
-      $list[] = $obj;
-    }
-    return $list;
+    return DB::getAll(DB::$ACCOUNT, new DBCondIn('id', DB::prepGetAll(DB::$HOST, new DBCond('regatta', $this->id), array('account'))));
   }
 
   /**
@@ -1210,14 +1203,7 @@ class Regatta implements RaceListener {
    * @return Array<Account> a list of hosts
    */
   public function getHosts() {
-    $q = sprintf('select %s from %s where regatta = "%s"',
-		 Host::FIELDS, Host::TABLES, $this->id);
-    $q = $this->query($q);
-    $list = array();
-    while ($obj = $q->fetch_object("Host")) {
-      $list[] = $obj;
-    }
-    return $list;
+    return DB::getAll(DB::$HOST, new DBCond('regatta', $this->id));
   }
 
   public function addHost(School $school) {

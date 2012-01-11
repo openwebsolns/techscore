@@ -133,6 +133,7 @@ require_once(dirname(__FILE__) . '/conf.local.php');
 // Database connection
 require_once('regatta/DB.php');
 DB::setConnectionParams(Conf::$SQL_HOST, Conf::$SQL_USER, Conf::$SQL_PASS, Conf::$SQL_DB);
+// DB::setLogfile(Conf::$LOG_QUERIES);
 
 // Start the session, if run from the web
 if (isset($_SERVER['HTTP_HOST'])) {

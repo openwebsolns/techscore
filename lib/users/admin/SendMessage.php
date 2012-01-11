@@ -186,7 +186,7 @@ class SendMessage extends AbstractAdminUserPane {
 
       // Add the message to the outbox
       $out = new Outbox();
-      $out->sender = $this->USER->username();
+      $out->sender = $this->USER->id;
       $out->recipients = $post['recipients'];
       $out->arguments = $args;
       $out->subject = $sub;

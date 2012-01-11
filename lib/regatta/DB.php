@@ -389,7 +389,7 @@ class Conference extends DBObject {
    *
    * @return Array:Account list of users
    */
-  public static function getUsers() {
+  public function getUsers() {
     require_once('regatta/Account.php');
     return DB::getAll(DB::$ACCOUNT,
 		      new DBCondIn('school', DB::prepGetAll(DB::$SCHOOL, new DBCond('conference', $this), array('id'))));
@@ -401,7 +401,7 @@ class Conference extends DBObject {
    *
    * @return a list of schools in the conference
    */
-  public static function getSchools() {
+  public function getSchools() {
     return DB::getAll(DB::$SCHOOL, new DBCond('conference', $this));
   }
 }
@@ -759,11 +759,12 @@ class Season extends DBObject {
  */
 class Host extends DBObject {
   public $regatta;
-  protected $school;
+  protected $account;
+  public $principal;
 
   public function db_type($field) {
     switch ($field) {
-    case 'school': return DB::$SCHOOL;
+    case 'account': return DB::$ACCOUNT;
     default:
       return parent::db_type($field);
     }

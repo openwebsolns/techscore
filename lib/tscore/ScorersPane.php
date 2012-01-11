@@ -35,7 +35,7 @@ class ScorersPane extends AbstractPane {
       $button = new XSubmitInput("delete_scorer", "Remove scorer", array("style"=>"width:100%"));
       $f2->add($hidden);
       $f2->add($button);
-      if ($s->id === $this->USER->username()) {
+      if ($s->id === $this->USER->id) {
 	$button->set("disabled", "disabled");
 	$button->set("title", "You cannot delete yourself from the regatta.");
       }
@@ -88,7 +88,7 @@ class ScorersPane extends AbstractPane {
       $s_form->add(new XSubmitInput("add_scorer", "Add scorers"));
     }
     else
-      $s_form->add(new XMessage("There are no accounts left to register in this conference Please try a different one."));
+      $s_form->add(new XMessage("There are no accounts left to register in this conference. Please try a different one."));
     
   }
 
@@ -113,7 +113,7 @@ class ScorersPane extends AbstractPane {
     if (isset($args['delete_scorer']) &&
 	isset($args['scorer'])) {
       $account = DB::getAccount($args['scorer']);
-      if ($account !== null && $account->id !== $this->USER->username()) {
+      if ($account !== null && $account->id !== $this->USER->id) {
 	$this->REGATTA->removeScorer($account);
 	$mes = sprintf("Removed scorer %s.", $account->getName());
 	Session::pa(new PA($mes));

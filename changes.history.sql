@@ -192,3 +192,9 @@ update school set burgee = null;
 alter table school change column burgee burgee int default null, add foreign key (burgee) references burgee(id) on delete set null on update cascade;
 
 alter table account change column is_admin admin tinyint not null default 0;
+
+-- Fix host table: add ID PK --
+alter table host add key (account);
+alter table host drop primary key;
+alter table host add column id int auto_increment primary key first;
+alter table host add unique key (account, regatta);

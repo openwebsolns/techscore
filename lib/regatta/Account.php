@@ -71,19 +71,20 @@ class Account extends DBObject {
   }
 
   public function isAdmin() {
-    return $this->status > 0;
+    return $this->admin > 0;
   }
 
   /**
-   * Returns all the schools that this user is affiliated with,
-   * including the one enrolled as.
+   * Returns all the schools that this user is affiliated with
    *
    * @param Conference $conf the possible to conference to narrow down
    * school list
    * @return Array:School, indexed by school ID
    */
   public function getSchools(Conference $conf = null) {
-    $cond = new DBBool(array(new DBCondIn('id', DB::prepGetAll(DB::$ACCOUNT_SCHOOL, new DBCond('account', $this), array('school')))));
+    $cond = new DBBool(array());
+    if (!$this->isAdmin())
+      $cond = new DBBool(array(new DBCondIn('id', DB::prepGetAll(DB::$ACCOUNT_SCHOOL, new DBCond('account', $this), array('school')))));
     if ($conf !== null)
       $cond->add(new DBCond('conference', $conf));
     return DB::getAll(DB::$SCHOOL, $cond);
