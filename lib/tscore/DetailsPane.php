@@ -70,7 +70,7 @@ class DetailsPane extends AbstractPane {
 
     // Regatta type
     $value = $this->REGATTA->get(Regatta::TYPE);
-    $types = Preferences::getRegattaTypeAssoc();
+    $types = Regatta::getTypes();
     unset($types['personal']);
     $reg_form->add($item = new FItem("Type:",
 				     XSelect::fromArray('type',

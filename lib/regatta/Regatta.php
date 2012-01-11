@@ -69,6 +69,28 @@ class Regatta implements RaceListener {
    */
   const PARTICIPANT_COED = "coed";
 
+  /**
+   * Gets an assoc. array of the possible regatta types
+   *
+   * @return Array a dict of regatta types
+   */
+  public static function getTypes() {
+    return array(Regatta::TYPE_CHAMPIONSHIP=>"National Championship",
+		 Regatta::TYPE_CONF_CHAMPIONSHIP=>"Conference Championship",
+		 Regatta::TYPE_INTERSECTIONAL=>"Intersectional",
+		 Regatta::TYPE_TWO_CONFERENCE=>"Two-Conference",
+		 Regatta::TYPE_CONFERENCE=>"In-Conference",
+		 Regatta::TYPE_PROMOTIONAL=>"Promotional",
+		 Regatta::TYPE_PERSONAL=>"Personal");
+  }
+  const TYPE_PERSONAL = 'personal';
+  const TYPE_CONFERENCE = 'conference';
+  const TYPE_CHAMPIONSHIP = 'championship';
+  const TYPE_INTERSECTIONAL = 'intersectional';
+  const TYPE_CONF_CHAMPIONSHIP = 'conference-championship';
+  const TYPE_TWO_CONFERENCE = 'two-conference';
+  const TYPE_PROMOTIONAL = 'promotional';
+
   // Properties
   private $properties = null;
 
@@ -199,11 +221,11 @@ class Regatta implements RaceListener {
       $strvalue = sprintf('"%s"', $value->format("Y-m-d H:i:s"));
     }
     elseif ($property == Regatta::TYPE) {
-      if (!in_array($value, array_keys(Preferences::getRegattaTypeAssoc())))
+      if (!in_array($value, array_keys(Regatta::getTypes())))
 	throw new InvalidArgumentException("Invalid regatta type \"$value\".");
       // re-create the nick name, and let that method determine if it
       // is valid (this would throw an exception otherwise)
-      if ($value != Preferences::TYPE_PERSONAL)
+      if ($value != Regatta::TYPE_PERSONAL)
 	$this->set(Regatta::NICK_NAME, $this->createNick());
       $strvalue = sprintf('"%s"', $value);
     }
@@ -1436,7 +1458,7 @@ class Regatta implements RaceListener {
    * @param String $name the name of the regatta
    * @param DateTime $start_time the start time of the regatta
    * @param DateTime $end_date the end_date
-   * @param String $type one of those listed in Preferences::getRegattaTypeAssoc()
+   * @param String $type one of those listed in Regatta::getTypes()
    * @param String $participant one of those listed in Preferences::getRegattaParticipantAssoc()
    * @return int the ID of the regatta
    *
@@ -1449,7 +1471,7 @@ class Regatta implements RaceListener {
 				       $type,
 				       $scoring,
 				       $participant = Regatta::PARTICIPANT_COED) {
-    if (!in_array($type, array_keys(Preferences::getRegattaTypeAssoc())))
+    if (!in_array($type, array_keys(Regatta::getTypes())))
       throw new InvalidArgumentException("No such regatta type $type.");
     if (!in_array($scoring, array_keys(Preferences::getRegattaScoringAssoc())))
       throw new InvalidArgumentException("No such regatta scoring $scoring.");
@@ -1479,7 +1501,7 @@ class Regatta implements RaceListener {
    * @param String $name the name of the regatta
    * @param DateTime $start_time the start time of the regatta
    * @param DateTime $end_date the end_date
-   * @param String $type one of those listed in Preferences::getRegattaTypeAssoc()
+   * @param String $type one of those listed in Regatta::getTypes()
    * @param String $scoring one of those listed in Preferences::getRegattaScoringAssoc()
    * @param String $participant one of those listed in Preferences::getRegattaParticipantAssoc()
    *
@@ -1495,7 +1517,7 @@ class Regatta implements RaceListener {
     $r = new Regatta($id);
     // do not create nick names for personal regattas (nick name
     // creation is delayed until the regatta is made active)
-    if ($type != Preferences::TYPE_PERSONAL)
+    if ($type != Regatta::TYPE_PERSONAL)
       $r->set(Regatta::NICK_NAME, $r->createNick());
     return $r;
   }

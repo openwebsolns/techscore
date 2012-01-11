@@ -66,7 +66,7 @@ class UpdateRegatta {
    * @return boolean true if a new regatta was inserted
    */
   public static function runSync(Regatta $reg, $full = true, $rp = true) {
-    if ($reg->get(Regatta::TYPE) == Preferences::TYPE_PERSONAL)
+    if ($reg->get(Regatta::TYPE) == Regatta::TYPE_PERSONAL)
       return;
 
     $dreg = new Dt_Regatta();
@@ -269,7 +269,7 @@ class UpdateRegatta {
    * @return boolean true if new regatta
    */
   public static function run(Regatta $reg, $activity) {
-    if ($reg->get(Regatta::TYPE) == Preferences::TYPE_PERSONAL) {
+    if ($reg->get(Regatta::TYPE) == Regatta::TYPE_PERSONAL) {
       self::runDelete($reg);
       UpdateSeason::run($reg->get(Regatta::SEASON));
       UpdateSchoolsSummary::run();

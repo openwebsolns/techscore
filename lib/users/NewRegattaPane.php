@@ -43,7 +43,7 @@ class NewRegattaPane extends AbstractUserPane {
 	$r[$key] = $args[$key];
     }
 
-    $types = Preferences::getRegattaTypeAssoc();
+    $types = Regatta::getTypes();
     unset($types['personal']);
 
     $f->add(new FItem("Name:", new XTextInput("name", $r["name"], array('maxlength'=>40))));
@@ -129,7 +129,7 @@ class NewRegattaPane extends AbstractUserPane {
 	$error = true;
       }
       // 7. Type
-      $type = Preferences::getRegattaTypeAssoc();
+      $type = Regatta::getTypes();
       if (!isset($args['type']) ||
 	  !isset($type[$args['type']])) {
 	Session::pa(new PA("Invalid regatta type.", PA::E));

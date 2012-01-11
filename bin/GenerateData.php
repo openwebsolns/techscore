@@ -22,7 +22,7 @@ foreach ($argv as $id) {
   try {
     $reg = new Regatta($id);
     try {
-      if ($reg->get(Regatta::TYPE) != Preferences::TYPE_PERSONAL) {
+      if ($reg->get(Regatta::TYPE) != Regatta::TYPE_PERSONAL) {
 	UpdateRegatta::runSync($reg);
 	UpdateRegatta::run($reg, UpdateRequest::ACTIVITY_ROTATION);
 	UpdateRegatta::run($reg, UpdateRequest::ACTIVITY_SCORE);

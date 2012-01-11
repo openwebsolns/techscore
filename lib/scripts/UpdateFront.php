@@ -39,7 +39,7 @@ class UpdateFront {
   }
 
   private function fillSeason(Dt_Season $season) {
-    $types = Preferences::getRegattaTypeAssoc();
+    $types = Regatta::getTypes();
 
     $cond = new DBCond('season', (string)$season);
     $regs = DBME::getAll(DBME::$REGATTA, new DBBool(array(new DBCond('status', 'coming'), $cond)));

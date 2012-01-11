@@ -32,7 +32,7 @@ class UpdateSeason {
     if ($this->page !== null) return;
 
     require_once('xml5/TPublicPage.php');
-    $types = Preferences::getRegattaTypeAssoc();
+    $types = Regatta::getTypes();
     $season = $this->season;
     $name = ucfirst($season->getSeason()) . ' ' . $season->getYear();
     $this->page = new TPublicPage($name);

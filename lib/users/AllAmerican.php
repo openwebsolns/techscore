@@ -130,15 +130,15 @@ class AllAmerican extends AbstractUserPane {
       $p2->add($form = new XForm("/aa-edit", XForm::POST));
       $tab = new XQuickTable(array('id'=>'regtable'), array("", "Name", "Type", "Part.", "Date", "Status"));
       
-      $types = Preferences::getRegattaTypeAssoc();
+      $types = Regatta::getTypes();
       $addt_regattas = 0;
       foreach ($regattas as $reg) {
 	if ($reg->finalized !== null &&
 	    ($reg->participant == $this->AA['report-participation'] ||
 	     'special' == $this->AA['report-participation']) &&
-	    in_array($reg->type, array(Preferences::TYPE_CHAMPIONSHIP,
-				       Preferences::TYPE_CONF_CHAMPIONSHIP,
-				       Preferences::TYPE_INTERSECTIONAL))) {
+	    in_array($reg->type, array(Regatta::TYPE_CHAMPIONSHIP,
+				       Regatta::TYPE_CONF_CHAMPIONSHIP,
+				       Regatta::TYPE_INTERSECTIONAL))) {
 	  $this->populateSailors(new Regatta($reg->id));
 	  $qual_regattas[] = $reg;
 	}
@@ -402,7 +402,7 @@ class AllAmerican extends AbstractUserPane {
 	  $reg = new Regatta($id);
 	  $allow_other_ptcp = ($this->AA['report-participation'] != Regatta::PARTICIPANT_COED ||
 			       $reg->get(Regatta::PARTICIPANT) == Regatta::PARTICIPANT_COED);
-	  if ($reg->get(Regatta::TYPE) != Preferences::TYPE_PERSONAL && $allow_other_ptcp &&
+	  if ($reg->get(Regatta::TYPE) != Regatta::TYPE_PERSONAL && $allow_other_ptcp &&
 	      $reg->get(Regatta::FINALIZED) !== null)
 	    $this->populateSailors($reg);
 	  else

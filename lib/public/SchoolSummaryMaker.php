@@ -59,7 +59,7 @@ class SchoolSummaryMaker {
   private function fill() {
     if ($this->page !== null) return;
 
-    $types = Preferences::getRegattaTypeAssoc();
+    $types = Regatta::getTypes();
     $school = $this->school;
     $season = $this->season;
     $this->page = new TPublicPage($school);

@@ -318,7 +318,7 @@ class RegattaIO {
 			new DateTimeZone("America/New_York"));
     $regatta->set(Regatta::END_DATE, $end);
     $regtype = $root->RegattaType;
-    if (!in_array($regtype, array_keys(Preferences::getRegattaTypeAssoc()))) {
+    if (!in_array($regtype, array_keys(Regatta::getTypes()))) {
       $warnings[] = sprintf("Invalid RegattaType (%s), default to 'personal'.", $regtype);
       $regtype = "personal";
     }
