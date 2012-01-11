@@ -360,7 +360,7 @@ class Regatta implements RaceListener {
    * needed)
    */
   public function addTeam(Team $team) {
-    $con = Preferences::getConnection();
+    $con = DB::connection();
     $q = sprintf('insert into team (regatta, school, name) ' .
 		 'values ("%s", "%s", "%s")',
 		 $this->id, $team->school->id, $team->name);
@@ -578,7 +578,7 @@ class Regatta implements RaceListener {
 		 'on duplicate key update boat = %4$d',
 		 $this->id, $race->division, $race->number, $race->boat->id);
     $this->query($q);
-    $con = Preferences::getConnection();
+    $con = DB::connection();
     // amounts to an insert
     if ($con->affected_rows > 1 && $this->total_races !== null)
       $this->total_races++;
@@ -602,7 +602,7 @@ class Regatta implements RaceListener {
   public function removeRace(Race $race) {
     $this->query(sprintf('delete from race where (regatta, division, number) = (%d, "%s", %d)',
 			 $this->id, $race->division, $race->number));
-    $con = Preferences::getConnection();
+    $con = DB::connection();
     if ($con->affected_rows > 0) {
       if (isset($this->races[(string)$race->division]))
 	unset($this->races[(string)$race->division]);
@@ -624,7 +624,7 @@ class Regatta implements RaceListener {
     $this->query($q);
     unset($this->divisions[(string)$div]);
     if ($this->total_races !== null) {
-      $con = Preferences::getConnection();
+      $con = DB::connection();
       $this->total_races -= $con->affected_rows;
     }
   }
@@ -1062,7 +1062,7 @@ class Regatta implements RaceListener {
    * @param TeamPenalty $penalty the penalty to register
    */
   public function setTeamPenalty(TeamPenalty $penalty) {
-    $con = Preferences::getConnection();
+    $con = DB::connection();
     $q = sprintf('insert into %s values ("%s", "%s", "%s", "%s") ' .
 		 'on duplicate key update type = values(type), comments = values(comments)',
 		 TeamPenalty::TABLES,
@@ -1251,7 +1251,7 @@ class Regatta implements RaceListener {
    * @param Account $acc the account to set as the creator
    */
   public function setCreator(Account $acc) {
-    $con = Preferences::getConnection();
+    $con = DB::connection();
     $q = sprintf('update regatta set creator = "%s" where id = "%s"',
 		 $con->escape_string($acc->id),
 		 $this->id);
@@ -1457,7 +1457,7 @@ class Regatta implements RaceListener {
       throw new InvalidArgumentException("No such regatta scoring $scoring.");
 
     // Fetch the regatta back
-    $con = Preferences::getConnection();
+    $con = DB::connection();
     $q = sprintf('insert into regatta ' .
 		 '(name, start_time, end_date, type, scoring, participant) values ' .
 		 '("%s", "%s", "%s", "%s", "%s", "%s")',

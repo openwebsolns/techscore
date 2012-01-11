@@ -13,7 +13,7 @@ class UpdateSchoolsSummary {
     $page = new TPublicPage("All Schools");
     
     require_once('mysqli/DB.php');
-    DBME::setConnection(Preferences::getConnection());
+    DBME::setConnection(DB::connection());
 
     $page->addNavigation(new XA('http://collegesailing.info/teams', 'ICSA Info', array('class'=>'nav')));
     $confs = DBME::getAll(DBME::$CONFERENCE);

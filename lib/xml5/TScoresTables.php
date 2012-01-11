@@ -490,7 +490,7 @@ class TScoresTables {
 if (isset($argv) && basename(__FILE__) == basename($argv[0])) {
   require_once('../conf.php');
   require_once('mysqli/DB.php');
-  DBME::setConnection(Preferences::getConnection());
+  DBME::setConnection(DB::connection());
 
   $t = new TScoresTables(DBME::get(DBME::$REGATTA, 6));
   $r = $t->getFullTable();

@@ -18,41 +18,6 @@
  */
 class Preferences {
 
-  private static $con;
-
-  /**
-   * Returns the one connection to the database that should be used.
-   *
-   * @return MySQLi the connection object
-   */
-  public static function getConnection() {
-    if (self::$con == null) {
-      self::$con = new MySQLi(Conf::$SQL_HOST,
-			      Conf::$SQL_USER,
-			      Conf::$SQL_PASS,
-			      Conf::$SQL_DB);
-    }
-    return self::$con;
-  }
-
-  /**
-   * Sends the requested query to the database, throwing an Exception
-   * if something went wrong.
-   *
-   * @param String $query the query to send
-   * @return MySQLi_Result the result set
-   */
-  public static function query($query) {
-    $con = self::getConnection();
-    $t = microtime(true);
-    if ($q = $con->query($query)) {
-      if (Conf::$LOG_QUERIES !== null)
-	@error_log(sprintf("(%7.5f) %s\n", microtime(true) - $t, $query), 3, Conf::$LOG_QUERIES);
-      return $q;
-    }
-    throw new BadFunctionCallException(self::$con->error . ": " . $query);
-  }
-
   /**
    * Gets an assoc. array of the possible regatta types
    *

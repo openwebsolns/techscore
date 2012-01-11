@@ -29,7 +29,7 @@ class GenerateSite {
   public static function run($do = self::ALL) {
     require_once('mysqli/DB.php');
     require_once('xml5/TS.php');
-    DBME::setConnection(Preferences::getConnection());
+    DBME::setConnection(DB::connection());
 
     if ($do & self::REGATTAS) {
       // Go through all the regattas

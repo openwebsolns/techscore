@@ -26,7 +26,7 @@ class GenerateSchools {
    */
   public static function getCache() {
     require_once('mysqli/DB.php');
-    DBME::setConnection(Preferences::getConnection());
+    DBME::setConnection(DB::connection());
 
     $fmt = "%s\t%s\t%s\n";
     $txt = "";

@@ -9,7 +9,7 @@ require_once(dirname(__FILE__).'/../conf.php');
 require_once('mysqli/DB.php');
 require_once('public/ReportMaker.php');
 require_once('xml5/TPublicPage.php');
-DBME::setConnection(Preferences::getConnection());
+DBME::setConnection(DB::connection());
 
 /**
  * Update the given regatta, given as an argument.

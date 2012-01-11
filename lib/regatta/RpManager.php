@@ -252,7 +252,7 @@ class RpManager {
    * @param Regatta $reg the regatta in which this temp sailor was added
    */
   public function addTempSailor(Sailor $sailor) {
-    $con = Preferences::getConnection();
+    $con = DB::connection();
     $q = sprintf('insert into sailor ' .
 		 '(school, first_name, last_name, year, gender, regatta_added) values ' .
 		 '("%s", "%s", "%s", "%s", "%s", "%s")',

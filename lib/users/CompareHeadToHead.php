@@ -35,7 +35,7 @@ class CompareHeadToHead extends AbstractUserPane {
       $list = explode(',', (string)$args['sailors']);
 
     require_once('mysqli/DB.php');
-    DBME::setConnection(Preferences::getConnection());
+    DBME::setConnection(DB::connection());
     // get sailors
     $sailors = array();
     foreach ($list as $id) {

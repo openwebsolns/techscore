@@ -22,7 +22,7 @@ class UpdateFront {
 
     // Get current season's coming regattas
     require_once('mysqli/DB.php');
-    DBME::setConnection(Preferences::getConnection());
+    DBME::setConnection(DB::connection());
 
     $success = false;
     $seasons = DBME::getAll(DBME::$SEASON, new DBCond('start_date', date('Y-m-d'), DBCond::LE));
@@ -166,7 +166,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
 
   try {
     UpdateFront::run();
-    error_log(sprintf("I:0:%s\t: Successful!\n", date('r')), 3, LOG_FRONT);
+    error_log(sprintf("I:0:%s\t: Successful!\n", date('r')), 3, Conf::$LOG_FRONT);
   }
   catch (Exception $e) {
     error_log(sprintf("E:%d:L%d:F%s:%s: %s\n",
@@ -175,7 +175,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
 		      $e->getFile(),
 		      date('r'),
 		      $e->getMessage()),
-	      3, LOG_FRONT);
+	      3, Conf::$LOG_FRONT);
     print_r($e->getTrace());
   }
 }

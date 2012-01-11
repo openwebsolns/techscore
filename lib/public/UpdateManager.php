@@ -35,7 +35,7 @@ class UpdateManager {
     if (!in_array($type, UpdateRequest::getTypes()))
       throw new InvalidArgumentException("Illegal update request type $type.");
 
-    $con = Preferences::getConnection();
+    $con = DB::connection();
     $arg = ($arg === null) ? 'NULL' : sprintf('"%s"', $con->real_escape_string($arg));
     Preferences::query(sprintf('insert into %s (regatta, activity, argument) values (%d, "%s", %s)',
 			       UpdateRequest::TABLES, $id, $type, $arg));

@@ -51,7 +51,7 @@ class UpdateSailorsDB {
   public function __construct($verbose = false) {
     $this->errors = array();
     $this->warnings = array();
-    $this->con = Preferences::getConnection();
+    $this->con = DB::connection();
     $this->verbose = $verbose;
   }
 

@@ -70,7 +70,7 @@ class SchoolSummaryMaker {
     $this->page->addMenu(new XA($this->getBlogLink(), "ICSA Info"));
     // Add links to last 7 seasons
     require_once('mysqli/DB.php');
-    DBME::setConnection(Preferences::getConnection());
+    DBME::setConnection(DB::connection());
     $num = 0;
     foreach (DBME::getAll(DBME::$SEASON) as $s) {
       if (file_exists(sprintf('%s/../../html/schools/%s/%s.html', dirname(__FILE__), $school->id, $s))) {

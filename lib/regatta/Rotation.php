@@ -203,7 +203,7 @@ class Rotation {
   public function setSail(Sail $sail) {
     if ($sail->team instanceof ByeTeam) return;
 
-    $con = Preferences::getConnection();
+    $con = DB::connection();
     $q = sprintf('insert into rotation (race, team, sail) values ("%s", "%s", "%s") on duplicate key update sail=values(sail)',
 		 $sail->race->id, $sail->team->id, $con->real_escape_string($sail->sail));
     $this->regatta->query($q);
@@ -584,7 +584,7 @@ class Rotation {
    * Rotation::queue
    */
   private function commit() {
-    $con = Preferences::getConnection();
+    $con = DB::connection();
     $list = array();
     foreach ($this->queued_sails as $sail) {
       if (!($sail->team instanceof ByeTeam)) {
