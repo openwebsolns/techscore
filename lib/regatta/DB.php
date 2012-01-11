@@ -366,18 +366,6 @@ class DB extends DBM {
   }
 
   /**
-   * Returns a list of users from the given conference
-   *
-   * @param Conference $conf the conference to search
-   * @return Array:Account list of users
-   */
-  public static function getUsersFromConference(Conference $conf) {
-    require_once('regatta/Account.php');
-    return self::getAll(self::$ACCOUNT,
-			new DBCondIn('school', self::prepGetAll(DB::$SCHOOL, new DBCond('conference', $conf), array('id'))));
-  }
-
-  /**
    * Returns the boat that designated as the default for the school
    *
    * @param School $school the school whose default boat to fetch
@@ -403,6 +391,17 @@ class Conference extends DBObject {
     return $this->id;
   }
   protected function db_cache() { return true; }
+  
+  /**
+   * Returns a list of users from this conference
+   *
+   * @return Array:Account list of users
+   */
+  public static function getUsers() {
+    require_once('regatta/Account.php');
+    return DB::getAll(DB::$ACCOUNT,
+		      new DBCondIn('school', DB::prepGetAll(DB::$SCHOOL, new DBCond('conference', $this), array('id'))));
+  }
 }
 
 /**

@@ -30,7 +30,7 @@ class ProcessOutbox {
       // all
       if ($outbox->recipients == 'all') {
 	foreach (DB::getConferences() as $conf) {
-	  foreach (DB::getUsersFromConference($conf) as $acc) {
+	  foreach ($conf->getUsers() as $acc) {
 	    self::send($acc, $outbox->subject, $outbox->content);
 	    if ($acc->id == $outbox->sender)
 	      $sent_to_me = true;
@@ -43,7 +43,7 @@ class ProcessOutbox {
       if ($outbox->recipients == 'conferences') {
 	foreach (explode(',', $outbox->arguments) as $conf) {
 	  $conf = DB::getConference($conf);
-	  foreach (DB::getUsersFromConference($conf) as $acc) {
+	  foreach ($conf->getUsers() as $acc) {
 	    self::send($acc, $outbox->subject, $outbox->content);
 	    if ($acc->id == $outbox->sender)
 	      $sent_to_me = true;
