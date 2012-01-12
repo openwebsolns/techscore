@@ -70,7 +70,7 @@ class ReplaceTeamPane extends AbstractPane {
       }
 
       // do the replacement
-      $names  = Preferences::getTeamNames($school);
+      $names  = $school->getTeamNames();
       if (count($names) == 0)
 	$names[] = $school->nick_name;
 

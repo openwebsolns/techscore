@@ -82,11 +82,16 @@ class Account extends DBObject {
    * @return Array:School, indexed by school ID
    */
   public function getSchools(Conference $conf = null) {
-    $cond = new DBBool(array());
-    if (!$this->isAdmin())
+    $cond = null;
+    if ($this->isAdmin()) {
+      if ($conf !== null)
+	$cond = new DBCond('conference', $conf);
+    }
+    else {
       $cond = new DBBool(array(new DBCondIn('id', DB::prepGetAll(DB::$ACCOUNT_SCHOOL, new DBCond('account', $this), array('school')))));
-    if ($conf !== null)
-      $cond->add(new DBCond('conference', $conf));
+      if ($conf !== null)
+	$cond->add(new DBCond('conference', $conf));
+    }
     return DB::getAll(DB::$SCHOOL, $cond);
   }
 

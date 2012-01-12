@@ -92,7 +92,7 @@ class TeamsPane extends AbstractPane {
        * an appended numeral (2, 3, etc...)
        *
        */
-      $names  = Preferences::getTeamNames($school);
+      $names  = $school->getTeamNames();
       if (count($names) == 0)
 	$names[] = $school->nick_name;
 
@@ -167,7 +167,7 @@ class TeamsPane extends AbstractPane {
     foreach ($args['school'] as $i => $id) {
       $number = (int)$args['number'][$i];
       if ($number > 0 && ($school = DB::getSchool($id)) !== null) {
-	$names = Preferences::getTeamNames($school);
+	$names = $school->getTeamNames();
 	if (count($names) == 0)
 	  $names[] = $school->nick_name;
 	

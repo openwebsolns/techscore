@@ -37,43 +37,6 @@ class Preferences {
   }
 
   /**
-   * Returns an ordered list of the team names for the given school
-   *
-   * @param School $school the school whose team names to fetch
-   * @return Array ordered list of the school names
-   */
-  public static function getTeamNames(School $school) {
-    $q = sprintf('select name from team_name_prefs where school = "%s" order by rank desc',
-		 $school->id);
-    $q = self::query($q);
-    $list = array();
-    while ($obj = $q->fetch_object())
-      $list[] = $obj->name;
-    return $list;
-  }
-
-  /**
-   * Sets the team names for the given school
-   *
-   * @param School $school school whose valid team names to set
-   * @param Array $names an ordered list of team names
-   */
-  public static function setTeamNames(School $school, Array $names) {
-
-    // 1. Remove existing names
-    $q = sprintf('delete from team_name_prefs where school = "%s"', $school->id);
-    self::query($q);
-
-    // 2. Add new names
-    $q = array();
-    $rank = count($names);
-    foreach ($names as $name) {
-      $q[] = sprintf('("%s", "%s", %s)', $school->id, $name, $rank--);
-    }
-    self::query(sprintf('insert into team_name_prefs values %s', implode(', ', $q)));
-  }
-
-  /**
    * Traverses a list and returns the first object with the specified
    * property value for the specified property name, or null otherwise
    *

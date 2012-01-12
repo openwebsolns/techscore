@@ -198,3 +198,6 @@ alter table host add key (account);
 alter table host drop primary key;
 alter table host add column id int auto_increment primary key first;
 alter table host add unique key (account, regatta);
+
+-- Team name prefs --
+alter table team_name_prefs add column id int auto_increment primary key;

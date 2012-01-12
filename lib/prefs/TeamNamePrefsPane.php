@@ -49,14 +49,16 @@ class TeamNamePrefsPane extends AbstractUserPane {
 
     // Fill form
     $form->add($tab = new XQuickTable(array('class'=>'narrow'), array("", "Name")));
-    $names = Preferences::getTeamNames($this->SCHOOL);
+    $names = $this->SCHOOL->getTeamNames();
+    $first = (count($names) > 0) ? $names[0] : "";
     // First row
-    $tab->addRow(array("Primary", new XTextInput("name[]", array_shift($names), array("maxlength"=>20))),
+    $tab->addRow(array("Primary", new XTextInput("name[]", $first, array("maxlength"=>20))),
 		 array('style'=>'background:#EEEEEE;font-weight:bold'));
 
     // Next four
-    for ($i = 0; $i < 4; $i++) {
-      $tab->addRow(array("", new XTextInput("name[]", array_shift($names), array("maxlength"=>20))));
+    for ($i = 1; $i < 5; $i++) {
+      $name = (isset($names[$i])) ? $names[$i] : "";
+      $tab->addRow(array("", new XTextInput("name[]", $name, array("maxlength"=>20))));
     }
 
     // Submit
@@ -97,7 +99,7 @@ class TeamNamePrefsPane extends AbstractUserPane {
     }
 
     // Update the team names
-    Preferences::setTeamNames($this->SCHOOL, $names);
+    $this->SCHOOL->setTeamNames(array_keys($names));
     Session::pa(new PA("Update team name preferences."));
     if ($repeats)
       Session::pa(new PA("Team names cannot be repeated.", PA::I));

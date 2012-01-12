@@ -25,6 +25,7 @@ class DB extends DBM {
   public static $SEASON = null;
   public static $HOST = null;
   public static $TEAM = null;
+  public static $TEAM_NAME_PREFS = null;
   public static $NOW = null;
 
   public static $OUTBOX = null;
@@ -45,6 +46,7 @@ class DB extends DBM {
     // self::$SEASON = new Season();
     self::$HOST = new Host();
     self::$TEAM = new Team();
+    self::$TEAM_NAME_PREFS = new Team_Name_Prefs();
     self::$NOW = new DateTime();
 
     DBM::setConnectionParams($host, $user, $pass, $db);
@@ -522,6 +524,43 @@ class School extends DBObject {
       $cond->add(new DBCond('icsa_id', null, DBCond::NE));
     return self::getAll(self::$COACH, $cond);
   }
+
+  /**
+   * Returns an ordered list of the team names for this school
+   *
+   * @return Array ordered list of the school names
+   */
+  public function getTeamNames() {
+    return DB::getAll(DB::$TEAM_NAME_PREFS, new DBCond('school', $this));
+  }
+
+  /**
+   * Sets the team names for the given school
+   *
+   * @param School $school school whose valid team names to set
+   * @param Array $names an ordered list of team names
+   */
+  public function setTeamNames(Array $names) {
+    // Strategy, update as many as are the same, then remove old extra
+    // ones, or add any new ones
+    $top_rank = count($names);
+    $curr = $this->getTeamNames();
+    for ($i = 0; $i < count($names) && $i < count($curr); $i++) {
+      $tnp = $curr[$i];
+      $tnp->name = $names[$i];
+      $tnp->rank = $top_rank--;
+      DB::set($tnp);
+    }
+    for (; $i < count($curr); $i++)
+      DB::remove($curr[$i]);
+    for (; $i < count($names); $i++) {
+      $tnp = new Team_Name_Prefs();
+      $tnp->school = $this;
+      $tnp->name = $names[$i];
+      $tnp->rank = $top_rank--;
+      DB::set($tnp);
+    }
+  }
 }
 
 /**
@@ -795,5 +834,26 @@ class Team extends DBObject {
   public function __toString() {
     return $this->__get('school')->nick_name . ' ' . $this->name;
   }
+}
+
+/**
+ * Preference for team name, as specified by a school's user
+ *
+ * @author Dayan Paez
+ * @version 2012-01-11
+ */
+class Team_Name_Prefs extends DBObject {
+  protected $school;
+  public $name;
+  public $rank;
+
+  public function db_name() { return 'team_name_prefs'; }
+  public function db_type($field) {
+    if ($field == 'school')
+      return DB::$SCHOOL;
+    return parent::db_type($field);
+  }
+  protected function db_order() { return array('school'=>true, 'rank'=>false); }
+  public function __toString() { return (string)$this->name; }
 }
 ?>
