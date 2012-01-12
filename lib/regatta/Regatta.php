@@ -1414,28 +1414,15 @@ class Regatta implements RaceListener {
    * Fetches a list of all the notes for the given race, or the entire
    * regatta if no race provided
    *
-   * @return Array<Note> the list of notes
+   * @return Array:Note the list of notes
    */
   public function getNotes(Race $race = null) {
-    if ($race == null) {
-      $list = array();
-      foreach ($this->getRaces() as $race) {
-	$list = array_merge($list, $this->getNotes($race));
-      }
-      return $list;
-    }
-
-    // Fetch the notes for the given race
-    $q = sprintf('select %s from %s where race = "%s"',
-		 Note::FIELDS, Note::TABLES, $race->id);
-    $q = $this->query($q);
-
-    $list = array();
-    while ($obj = $q->fetch_object("Note")) {
-      $list[] = $obj;
-      $obj->race = $race;
-    }
-    return $list;
+    if ($race !== null)
+      return DB::getAll(DB::$NOTE, new DBCond('race', $race->id));
+    $races = array();
+    foreach ($this->getRaces() as $race)
+      $races[] = $race->id;
+    return DB::getAll(DB::$NOTE, new DBCondIn('race', $races));
   }
 
   /**
@@ -1444,15 +1431,7 @@ class Regatta implements RaceListener {
    * @param Note $note the note to add and update
    */
   public function addNote(Note $note) {
-    $now = new DateTime("now", new DateTimeZone("America/New_York"));
-    $q = sprintf('insert into observation (race, observation, observer, noted_at) ' .
-		 'values ("%s", "%s", "%s", "%s")',
-		 $note->race->id, $note->observation, $now->format("Y-m-d H:i:s"), $note->observer);
-    $this->query($q);
-
-    $res = $this->query('select last_insert_id() as id');
-    $note->id = $res->fetch_object()->id;
-    $note->noted_at = $now;
+    DB::set($note);
   }
 
   /**
@@ -1461,8 +1440,7 @@ class Regatta implements RaceListener {
    * @param Note $note the note to delete
    */
   public function deleteNote(Note $note) {
-    $q = sprintf('delete from observation where id = "%s"', $note->id);
-    $this->query($q);
+    DB::remove($note);
   }
   
 

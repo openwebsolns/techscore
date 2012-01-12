@@ -55,7 +55,6 @@ class NotesPane extends AbstractPane {
 
     $form->add(new XSubmitInput("observe",
 				"Add note"));
-
     // CURRENT NOTES
     $notes = $this->REGATTA->getNotes();
     if (count($notes) > 0) {
@@ -114,7 +113,8 @@ class NotesPane extends AbstractPane {
       $note = new Note();
       $note->observation = $mes;
       $note->observer    = $observer;
-      $note->race        = $race;
+      $note->race        = $race->id;
+      $note->noted_at = new DateTime();
       $this->REGATTA->addNote($note);
 
       Session::pa(new PA(sprintf("Observation from %s recorded.", $note->observer)));

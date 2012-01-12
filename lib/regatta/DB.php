@@ -27,6 +27,7 @@ class DB extends DBM {
   public static $TEAM = null;
   public static $TEAM_NAME_PREFS = null;
   public static $SAIL = null;
+  public static $NOTE = null;
   public static $NOW = null;
 
   public static $OUTBOX = null;
@@ -49,6 +50,7 @@ class DB extends DBM {
     self::$TEAM = new Team();
     self::$TEAM_NAME_PREFS = new Team_Name_Prefs();
     self::$SAIL = new Sail();
+    self::$NOTE = new Note();
     self::$NOW = new DateTime();
 
     DBM::setConnectionParams($host, $user, $pass, $db);
@@ -879,5 +881,29 @@ class Sail extends DBObject {
     }
   }
   public function __toString() { return (string)$this->sail; }
+}
+
+/**
+ * An observation during a race
+ *
+ * @author Dayan Paez
+ * @version 2012-01-11
+ */
+class Note extends DBObject {
+  public $observation;
+  public $observer;
+  public $race;
+  protected $noted_at;
+
+  protected function db_order() { return array('noted_at' => true); }
+  public function db_name() { return 'observation'; }
+  public function db_type($field) {
+    switch ($field) {
+    case 'noted_at': return DB::$NOW;
+    default:
+      return parent::db_type($field);
+    }
+  }
+  public function __toString() { return $this->observation; }
 }
 ?>
