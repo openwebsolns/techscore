@@ -201,3 +201,6 @@ alter table host add unique key (account, regatta);
 
 -- Team name prefs --
 alter table team_name_prefs add column id int auto_increment primary key;
+
+-- Rotation (sail) --
+alter table rotation add column id int auto_increment primary key first;

@@ -36,7 +36,7 @@ class TScoreDialog extends XPage {
     $this->filled = false;
     $this->menu = new XDiv(array('id'=>'menudiv'));
     $this->header = new XDiv(array('id'=>'headdiv'));
-    $this->content = new XDiv(array('id'=>'bodydiv'));
+    $this->content = array();
     $this->navigation = new XDiv(array('id'=>'topnav'));
   }
 
@@ -57,11 +57,14 @@ class TScoreDialog extends XPage {
     // Bottom grab/spacer
     $this->body->add($div = new XDiv(array('id'=>'bottom-grab')));
 
-    // Announcement
-    $this->body->add(Session::getAnnouncements('/inc/img'));
-
     // Content
-    $this->body->add($this->content);
+    $this->body->add($c = new XDiv(array('id'=>'bodydiv')));
+
+    // Announcement
+    $c->add(Session::getAnnouncements('/inc/img'));
+    foreach ($this->content as $cont)
+      $c->add($cont);
+    
     $this->body->add(new XDiv(array('id'=>'footdiv'),
 			      array(new XP(array(), sprintf("%s v%s © Dayán Páez 2008-%s", Conf::$NAME, Conf::$VERSION, date('y'))))));
   }
@@ -105,7 +108,7 @@ class TScoreDialog extends XPage {
    * page
    */
   public function addContent(Xmlable $elem) {
-    $this->content->add($elem);
+    $this->content[] = $elem;
   }
 
   /**
@@ -133,6 +136,15 @@ class TScoreDialog extends XPage {
    */
   public function addNavigation(Xmlable $elem) {
     $this->navigation->add($elem);
+  }
+
+  public function toXML() {
+    $this->fill();
+    return parent::toXML();
+  }
+  public function printXML() {
+    $this->fill();
+    parent::printXML();
   }
 }
 ?>
