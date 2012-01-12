@@ -56,7 +56,7 @@ class EnterPenaltyPane extends AbstractPane {
 	$nums = array();
 	foreach ($this->REGATTA->getScoredRaces($div) as $race)
 	  $nums[] = $race->number;
-	$brows[0][] = Utilities::makeRange($nums);
+	$brows[0][] = DB::makeRange($nums);
       }
       $form->add(new FItem("Possible races:", XTable::fromArray($brows, $hrows, array('class'=>'narrow'))));
       $form->add(new FItem("Race:", new XTextInput("p_race", $theRace,

@@ -76,7 +76,7 @@ class EnterFinishPane extends AbstractPane {
     foreach ($this->REGATTA->getUnscoredRaces($divisions[0]) as $r)
       $race_nums[] = $r->number;
     $fitem->add($tab = new XQuickTable(array('class'=>'narrow'), array("#")));
-    $cont = Utilities::makeRange($race_nums);
+    $cont = DB::makeRange($race_nums);
     if (empty($cont))
       $cont = "--";
     $tab->addRow($cont);
@@ -253,7 +253,7 @@ class EnterFinishPane extends AbstractPane {
       foreach ($this->REGATTA->getUnscoredRaces($div) as $r)
 	$race_nums[] = $r->number;
       $hrows[0][] = (string)$div;
-      $brows[0][] = Utilities::makeRange($race_nums);
+      $brows[0][] = DB::makeRange($race_nums);
     }
     $fitem->add(XTable::fromArray($brows, $hrows, array('class'=>'narrow')));
     

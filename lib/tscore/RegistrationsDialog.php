@@ -61,7 +61,7 @@ class RegistrationsDialog extends AbstractDialog {
 	foreach ($skips as $s) {
 	  $li = new XLi($sailor);
 	  if (count($s->races_nums) != $races_in_div[(string)$div])
-	    $li->add(new XSpan(Utilities::makeRange($s->races_nums), array('class'=>'races')));
+	    $li->add(new XSpan(DB::makeRange($s->races_nums), array('class'=>'races')));
 	  $list[] = $li;
 	}
 	$row[] = (count($list) > 0) ? new XUl(array(), $list) : "";
@@ -71,7 +71,7 @@ class RegistrationsDialog extends AbstractDialog {
 	foreach ($crews as $c) {
 	  $li = new XLi($sailor);
 	  if (count($c->races_nums) != $races_in_div[(string)$div])
-	    $li->add(new XSpan(Utilities::makeRange($c->races_nums), array('class'=>'races')));
+	    $li->add(new XSpan(DB::makeRange($c->races_nums), array('class'=>'races')));
 	  $list[] = $li;
 	}
 	$row[] = (count($list) > 0) ? new XUl(array(), $list) : "";

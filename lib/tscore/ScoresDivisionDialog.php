@@ -170,7 +170,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
 	  if (count($s->races_nums) == count($races))
 	    $amt = "";
 	  else
-	    $amt = Utilities::makeRange($s->races_nums);
+	    $amt = DB::makeRange($s->races_nums);
 	  $row->add($s_cell = new XTD(array('align'=>'right'), $s->sailor));
 	  $row->add($r_cell = new XTD(array('align'=>'left', 'class'=>'races'), $amt));
 	}

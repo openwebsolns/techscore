@@ -97,7 +97,7 @@ class CompareHeadToHead extends AbstractUserPane {
 
       $rank = sprintf('%d%s', $rp->team_division->rank, $rp->team_division->division);
       if (count($rp->race_nums) != $rp->team_division->team->regatta->num_races)
-	$rank .= sprintf(' (%s)', Utilities::makeRange($rp->race_nums));
+	$rank .= sprintf(' (%s)', DB::makeRange($rp->race_nums));
       $table[$rp->team_division->team->regatta->id][$rp->team_division->division][$rp->sailor->id] = $rank;
     }
 
@@ -113,7 +113,7 @@ class CompareHeadToHead extends AbstractUserPane {
 	  else {
 	    $rank = sprintf('%d%s', $rps[0]->team_division->rank, $div);
 	    if (count($rp->race_nums) != $regattas[$rid]->num_races)
-	      $rank .= sprintf(' (%s)', Utilities::makeRange($rp->race_nums)); 
+	      $rank .= sprintf(' (%s)', DB::makeRange($rp->race_nums)); 
 	    $table[$rid][$div][$sailor->id] = $rank;
 	  }
 	}

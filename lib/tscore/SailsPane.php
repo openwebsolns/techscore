@@ -53,9 +53,9 @@ class SailsPane extends AbstractPane {
     // Races
     $range_races = $this->REGATTA->getCombinedUnscoredRaces();
     $form->add($f_item = new FItem("Races:",
-				   new XTextInput("races", Utilities::makeRange($range_races),
+				   new XTextInput("races", DB::makeRange($range_races),
 						  array("id"=>"frace"))));
-    $f_item->add(XTable::fromArray(array(array(Utilities::makeRange($range_races))),
+    $f_item->add(XTable::fromArray(array(array(DB::makeRange($range_races))),
 				   array(array("Unscored races")),
 				   array('class'=>'narrow')));
 
@@ -251,9 +251,9 @@ class SailsPane extends AbstractPane {
 
       // Races
       $form->add($f_item = new FItem("Races:",
-				     new XTextInput("races", Utilities::makeRange($range_races),
+				     new XTextInput("races", DB::makeRange($range_races),
 						    array("id"=>"frace"))));
-      $f_item->add(XTable::fromArray(array(array(Utilities::makeRange($range_races))),
+      $f_item->add(XTable::fromArray(array(array(DB::makeRange($range_races))),
 				     array(array("Unscored races")),
 				     array('class'=>'narrow')));
 
@@ -323,7 +323,7 @@ class SailsPane extends AbstractPane {
     $divisions = $this->REGATTA->getDivisions();
     $races = null;
     if (isset($args['races']) &&
-	($races = Utilities::parseRange($args['races'])) != null &&
+	($races = DB::parseRange($args['races'])) != null &&
 	sort($races)) {
 
       $races = array_intersect($races, $this->REGATTA->getCombinedUnscoredRaces());
@@ -523,7 +523,7 @@ class SailsPane extends AbstractPane {
     //   d. validate races
     $races = null;
     if (isset($args['races']) &&
-	($races = Utilities::parseRange($args['races'])) !== null &&
+	($races = DB::parseRange($args['races'])) !== null &&
 	sort($races)) {
       
       // keep only races that are unscored
@@ -538,7 +538,7 @@ class SailsPane extends AbstractPane {
       // Output message about ignored races
       if (count($diff = array_diff($races_copy, $races)) > 0) {
 	$mes = sprintf("Ignored races %s in divisions %s.",
-		       Utilities::makeRange($diff),
+		       DB::makeRange($diff),
 		       implode(", ", $divisions));
 	Session::pa(new PA($mes, PA::I));
       }

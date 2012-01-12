@@ -115,7 +115,7 @@ class RpEnterPane extends AbstractPane {
 
       // Create races table
       foreach ($occ as $crews => $races) {
-	$tab_races->addRow(array(new XTD(array("name"=>"races" . $div), Utilities::makeRange($races)),
+	$tab_races->addRow(array(new XTD(array("name"=>"races" . $div), DB::makeRange($races)),
 				 new XTD(array("name"=>"occ" . $div),   ((int)$crews) - 1)));
       }
 
@@ -125,7 +125,7 @@ class RpEnterPane extends AbstractPane {
       for ($spot = 0; $spot < count($cur_sk) + 2; $spot++) {
 	$value = ""; // value for "races sailed"
 	if ($spot < count($cur_sk))
-	  $value = Utilities::makeRange($cur_sk[$spot]->races_nums);
+	  $value = DB::makeRange($cur_sk[$spot]->races_nums);
 
 	$cur_sk_id = (isset($cur_sk[$spot])) ? $cur_sk[$spot]->sailor->id : "";
 	$select_cell = XSelect::fromArray("sk$div$spot", $sailor_options, $cur_sk_id, array('onchange'=>'check()'));
@@ -150,7 +150,7 @@ class RpEnterPane extends AbstractPane {
 	for ($spot = 0; $spot < count($cur_cr) + 2; $spot++) {
 	  $value = ""; // value for "races sailed"
 	  if ($spot < count($cur_cr))
-	    $value = Utilities::makeRange($cur_cr[$spot]->races_nums);
+	    $value = DB::makeRange($cur_cr[$spot]->races_nums);
 
 	  $cur_cr_id = (isset($cur_cr[$spot])) ? $cur_cr[$spot]->sailor->id : "";
 	  $select_cell = XSelect::fromArray("cr$div$spot", $sailor_options, $cur_cr_id, array('onchange'=>'check()'));
@@ -255,7 +255,7 @@ class RpEnterPane extends AbstractPane {
 	  // We have a sailor request upon us
 	  $s_role = (substr($s, 0, 2) == "sk") ? RP::SKIPPER : RP::CREW;
 	  $s_div  = substr($s,2,1);
-	  $s_race = Utilities::parseRange($args["r" . $s]);
+	  $s_race = DB::parseRange($args["r" . $s]);
 	  $s_obj  = Preferences::getObjectWithProperty($sailors, "id", $s_value);
 
 	  if (!in_array($s_div, $divisions))

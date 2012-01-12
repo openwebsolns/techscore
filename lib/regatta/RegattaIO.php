@@ -117,7 +117,7 @@ class RegattaIO {
 	$tag->add($sub = new XElem("Boat"));
 	$sub->set("id", $id);
 	$sub->set("division", $div);
-	$sub->set("races", Utilities::makeRange($set));
+	$sub->set("races", DB::makeRange($set));
 	$sub->set("occupants", $boat->occupants);
 	$sub->add(new XText($boat->name));
       }
@@ -208,7 +208,7 @@ class RegattaIO {
 	    $sub->set("team", $team->id);
 	    $sub->set("role", $role);
 	    $sub->set("division", $div);
-	    $sub->set("races", Utilities::makeRange($cont->races_nums));
+	    $sub->set("races", DB::makeRange($cont->races_nums));
 	  }
 	}
       }
@@ -379,7 +379,7 @@ class RegattaIO {
 	$b = Preferences::getObjectWithProperty($valid_boats, "id", $id);
 	$d = new Division($div);
 	if (!isset($race_list[$div])) $race_list[$div] = array();
-	foreach (Utilities::parseRange($races) as $num) {
+	foreach (DB::parseRange($races) as $num) {
 	  $race = new Race();
 	  $race->division = $d;
 	  $race->boat     = $b;
@@ -622,7 +622,7 @@ class RegattaIO {
       $team = (isset($teams[$team_id])) ? $teams[$team_id] : null;
       $role = (in_array($role, array(RP::SKIPPER, RP::CREW))) ? $role : null;
       $div  = (in_array($div, $divisions)) ? new Division($div) : null;
-      $nums = Utilities::parseRange($nums);
+      $nums = DB::parseRange($nums);
 
       if ($team != null && $role != null && $div != null && $nums != null && !empty($id)) {
 	if (!isset($teams_reg[$team->school->id])) {

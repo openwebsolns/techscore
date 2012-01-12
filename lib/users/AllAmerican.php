@@ -278,7 +278,7 @@ class AllAmerican extends AbstractUserPane {
 	    $team = ScoresAnalyzer::getTeamDivision($rp->team, $rp->division);
 	    $content = sprintf('%d%s', $team->rank, $team->division);
 	    if (count($rp->races_nums) != $this->AA['regatta_races'][$reg_id])
-	      $content .= sprintf(' (%s)', Utilities::makeRange($rp->races_nums));
+	      $content .= sprintf(' (%s)', DB::makeRange($rp->races_nums));
 
 	    $this->AA['table'][$reg_id][$id][] = $content;
 	  }
@@ -561,7 +561,7 @@ class AllAmerican extends AbstractUserPane {
 	    isset($this->AA['report-confs'][$rp->sailor->school->conference->id])) {
 	  $content = ($sng) ? $team->rank : sprintf('%d%s', $team->rank, $team->division);
 	  if (count($rp->races_nums) != $this->AA['regatta_races'][$id])
-	    $content .= sprintf(' (%s)', Utilities::makeRange($rp->races_nums));
+	    $content .= sprintf(' (%s)', DB::makeRange($rp->races_nums));
 
 	  if (!isset($this->AA['table'][$id][$rp->sailor->id]))
 	    $this->AA['table'][$id][$rp->sailor->id] = array();

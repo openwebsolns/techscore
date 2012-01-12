@@ -83,9 +83,9 @@ class TweakSailsPane extends AbstractPane {
       }
 
       $form->add($f_item = new FItem("Races:",
-				     new XTextInput("races", Utilities::makeRange($range_races),
+				     new XTextInput("races", DB::makeRange($range_races),
 						    array("size"=>"12"))));
-      $f_item->add(XTable::fromArray(array(array(Utilities::makeRange($range_races))),
+      $f_item->add(XTable::fromArray(array(array(DB::makeRange($range_races))),
 				     array(array("Possible")),
 				     array('class'=>'narrow')));
 
@@ -169,7 +169,7 @@ class TweakSailsPane extends AbstractPane {
     // ------------------------------------------------------------
     //   - get races and unique sails
     if (isset($args['races']) &&
-	($races = Utilities::parseRange($args['races'])) !== null) {
+	($races = DB::parseRange($args['races'])) !== null) {
       if (!sort($races)) {
 	$mes = sprintf("Unable to understand/sort race range (%s).", $args['races']);
 	Session::pa(new PA($mes, PA::E));
@@ -187,7 +187,7 @@ class TweakSailsPane extends AbstractPane {
       }
       if (count($ignored_races) > 0) {
 	$mes = sprintf('Ignored races %s in divisions %s',
-		       Utilities::makeRange($ignored_races),
+		       DB::makeRange($ignored_races),
 		       implode(", ", $divisions));
 	Session::pa(new PA($mes, PA::I));
       }
