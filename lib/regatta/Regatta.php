@@ -706,6 +706,32 @@ class Regatta implements RaceListener {
   }
 
   /**
+   * Returns a list of the unscored race numbers common to all the
+   * divisions passed in the parameter
+   *
+   * @param Array<div> $divs a list of divisions
+   * @return a list of race numbers
+   */
+  public function getUnscoredRaceNumbers(Array $divisions) {
+    $common_nums = null;
+    foreach ($divisions as $div) {
+      $races = $this->getUnscoredRaces($div);
+      $nums  = array();
+      foreach ($races as $race) {
+	$nums[] = $race->number;
+      }
+
+      if ($common_nums == null) {
+	$common_nums = $nums;
+      }
+      else {
+	$common_nums = array_intersect($common_nums, $nums);
+      }
+    }
+    return $common_nums;
+  }
+  
+  /**
    * Get list of scored races in the specified division
    *
    * @param Division $div the division. If null, return all scored races

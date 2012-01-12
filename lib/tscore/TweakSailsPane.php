@@ -70,7 +70,7 @@ class TweakSailsPane extends AbstractPane {
       
       $edittype = $args['edittype'];
 
-      $range_races = Utilities::getUnscoredRaceNumbers($this->REGATTA, $chosen_div);
+      $range_races = $this->REGATTA->getUnscoredRaceNumbers($chosen_div);
 
       $this->PAGE->addContent($p = new XPort(sprintf("2. %s for Division %s",
 						     $this->ACTIONS[$edittype],
@@ -176,7 +176,7 @@ class TweakSailsPane extends AbstractPane {
 	return $args;
       }
       // Keep only races that are unscored
-      $valid_races = Utilities::getUnscoredRaceNumbers($this->REGATTA, $divisions);
+      $valid_races = $this->REGATTA->getUnscoredRaceNumbers($divisions);
       $ignored_races = array();
       $actual_races  = array();
       foreach ($races as $r) {
