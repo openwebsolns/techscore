@@ -303,12 +303,10 @@ class Regatta {
   public function getDivisions() {
     if ($this->divisions !== null)
       return array_values($this->divisions);
-    
-    $q = sprintf('select distinct division from race ' .
-		 'where regatta = "%s" ' . 
-		 'order by division',
-		 $this->id);
-    $q = $this->query($q);
+
+    $q = DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('division'));
+    $q->distinct(true);
+    $q = DB::query($q);
     $this->divisions = array();
     while ($row = $q->fetch_object()) {
       $this->divisions[$row->division] = Division::get($row->division);
@@ -477,26 +475,13 @@ class Regatta {
    * @throws InvalidArgumentException if such a race does not exist
    */
   public function getRace(Division $div, $num) {
-    $sdiv = (string)$div;
-    if (isset($this->races[$sdiv]) &&
-	isset($this->races[$sdiv][$num - 1]))
-      return $this->races[$sdiv][$num - 1];
-    
-    $q = sprintf('select %s from %s ' .
-		 'where (regatta, division, number) = ' .
-		 '      ("%s",    "%s",     "%d") limit 1',
-		 Race::FIELDS, Race::TABLES,
-		 $this->id, $div, $num);
-    $q = $this->query($q);
-    if ($q->num_rows == 0) {
-      $m = sprintf("No race %s%s in regatta %s", $num, $div, $this->id);
-      throw new InvalidArgumentException($m);
-    }
-    $race = $q->fetch_object("Race");
-    if (!isset($this->races[$sdiv]))
-      $this->races[$sdiv] = array();
-    $this->races[$sdiv][$num - 1] = $race;
-    return $race;
+    $res = DB::get(DB::$RACE, new DBBool(array(new DBCond('regatta', $this->id),
+					       new DBCond('division', (string)$div))));
+    if (count($res) == 0)
+      throw new InvalidArgumentException(sprintf("No race %s%s in regatta %s", $num, $div, $this->id));
+    $r = $res[0];
+    unset($res);
+    return $r;
   }
 
   /**
@@ -508,10 +493,7 @@ class Regatta {
   public function getRacesCount() {
     if ($this->total_races !== null)
       return $this->total_races;
-    
-    $q = $this->query(sprintf('select id from race where regatta = %d', $this->id));
-    $this->total_races = $q->num_rows;
-    $q->free();
+    $this->total_races = count(DB::getAll(DB::$RACE, new DBCond('regatta', $this->id)));
     return $this->total_races;
   }
 
@@ -530,29 +512,10 @@ class Regatta {
    * @return list of races in that division (could be empty)
    */
   public function getRaces(Division $div = null) {
-    if ($div == null) {
-      $list = array();
-      foreach ($this->getDivisions() as $div)
-	$list = array_merge($list, $this->getRaces($div));
-      return $list;
-    }
-    // cache?
-    $sdiv = (string)$div;
-    if (isset($this->races[$sdiv]))
-      return $this->races[$sdiv];
-
-    $q = sprintf('select %s from %s ' .
-		 'where (regatta, division) = ' .
-		 '      ("%s",    "%s") order by number',
-		 Race::FIELDS, Race::TABLES,
-		 $this->id, $sdiv);
-    $q = $this->query($q);
-    $this->races[$sdiv] = array();
-
-    while ($race = $q->fetch_object("Race")) {
-      $this->races[$sdiv][] = $race;
-    }
-    return $this->races[$sdiv];
+    $cond = new DBBool(array(new DBCond('regatta', $this->id)));
+    if ($div !== null)
+      $cond->add(new DBCond('division', (string)$div));
+    return DB::getAll(DB::$RACE, $cond);
   }
 
   /**
@@ -565,22 +528,10 @@ class Regatta {
    * @return Array<Boat> the boats
    */
   public function getBoats(Division $div = null) {
-    if ($div === null) {
-      $list = array();
-      foreach ($this->getDivisions() as $div) {
-	$list = array_merge($list, $this->getBoats($div));
-      }
-      return array_unique($list);
-    }
-
-    $q = sprintf('select distinct %s from %s ' .
-		 'where id in (select boat from race where regatta = %d and division = "%s")',
-		 Boat::FIELDS, Boat::TABLES, $this->id, $div);
-    $r = $this->query($q);
-    $list = array();
-    while ($obj = $r->fetch_object("Boat"))
-      $list[] = $obj;
-    return $list;
+    $cond = new DBBool(array(new DBCond('regatta', $this->id)));
+    if ($div !== null)
+      $cond->add(new DBCond('division', (string)$div));
+    return DB::getAll(DB::$BOAT, new DBCondIn('id', DB::prepGetAll(DB::$RACE, $cond, array('boat'))));
   }
 
   /**

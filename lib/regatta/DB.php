@@ -29,6 +29,7 @@ class DB extends DBM {
   public static $SAIL = null;
   public static $NOTE = null;
   public static $RACE = null;
+  public static $FINISH = null;
   public static $NOW = null;
 
   public static $OUTBOX = null;
@@ -53,6 +54,7 @@ class DB extends DBM {
     self::$SAIL = new Sail();
     self::$NOTE = new Note();
     self::$RACE = new Race();
+    self::$FINISH = new Finish();
     self::$NOW = new DateTime();
 
     DBM::setConnectionParams($host, $user, $pass, $db);
@@ -955,13 +957,14 @@ class Team_Name_Prefs extends DBObject {
  */
 class Sail extends DBObject {
   public $sail;
-  public $race;
+  protected $race;
   protected $team;
 
   public function db_name() { return 'rotation'; }
   public function db_type($field) {
     switch ($field) {
     case 'team': return DB::$TEAM;
+    case 'race': return DB::$RACE;
     default:
       return parent::db_type($field);
     }
@@ -978,7 +981,7 @@ class Sail extends DBObject {
 class Note extends DBObject {
   public $observation;
   public $observer;
-  public $race;
+  protected $race;
   protected $noted_at;
 
   protected function db_order() { return array('noted_at' => true); }
@@ -986,6 +989,7 @@ class Note extends DBObject {
   public function db_type($field) {
     switch ($field) {
     case 'noted_at': return DB::$NOW;
+    case 'race': return DB::$RACE;
     default:
       return parent::db_type($field);
     }
@@ -1088,6 +1092,95 @@ class Race extends DBObject {
     $diff = $r1->number - $r2->number;
     if ($diff != 0) return $diff;
     return ord((string)$r1->division) - ord((string)$r2->division);
+  }
+}
+
+/**
+ * Race finish: encompasses a team's finish record in a race,
+ * including possible penalties, breakdowns, etc. 
+ *
+ * @author Dayan Paez
+ * @version 2012-01-13
+ */
+class Finish extends DBObject {
+  protected $race;
+  protected $team;
+  protected $entered;
+  public $penalty;
+  /**
+   * @var int the assigned point value (for breakdowns/penalties)
+   */
+  public $amount;
+  /**
+   * @var int the "default" amount in case of dropped penalty
+   */
+  public $earned;
+  public $displace;
+  public $comments;
+  /**
+   * @var int the numerical score
+   */
+  protected $score;
+  public $explanation;
+
+  public function db_name() { return 'finish'; }
+  protected function db_order() { return array('entered'=>true); }
+  public function db_type($field) {
+    switch ($field) {
+    case 'race': return DB::$RACE;
+    case 'team': return DB::$TEAM;
+    case 'entered': return DB::$NOW;
+    case 'score': return DBQuery::A_STR;
+    default:
+      return parent::db_type($field);
+    }
+  }
+
+  public function __set($name, $value) {
+    if ($name == 'score') {
+      if ($value instanceof Score) {
+	$this->score = $value->score;
+	$this->explanation = $value->explanation;
+      }
+      if ($value === null) {
+	$this->score = null;
+	$this->explanation = null;
+      }
+      else
+	throw new InvalidArgumentException("Score property must be Score object.");
+      return;
+    }
+    parent::__set($name, $value);
+  }
+
+  /**
+   * Creates a new finish with the give id, team and regatta. This is
+   * legacy from previous incarnation of TechScore to facilitate
+   * migration and manual generation of finish object. Arguments
+   * overwrite default values from DBM object creation.
+   *
+   * @param int $id the id of the finish
+   * @param Team $team the team
+   * @param Race $race the race
+   */
+  public function __construct($id = null, Race $race = null, Team $team = null) {
+    if ($id !== null) $this->id = $id;
+    if ($race !== null) $this->race = $race;
+    if ($team !== null) $this->team = $team;
+  }
+  
+  // Comparators
+
+  /**
+   * Compare by entered value
+   *
+   * @param Finish $f1 the first finish
+   * @param Finish $f2 the second finish
+   * @return < 0 if $f1 is less than $f2, 0 if they are the same, 1 if
+   * it comes after
+   */
+  public static function compareEntered(Finish $f1, Finish $f2) {
+    return $f1->entered->format("U") - $f2->entered->format("U");
   }
 }
 ?>
