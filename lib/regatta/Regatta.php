@@ -458,8 +458,7 @@ class Regatta {
    * @param Team $team the team to remove
    */
   public function removeTeam(Team $team) {
-    $q = sprintf('delete from team where id = "%s" and regatta = "%s"', $team->id, $this->id);
-    $this->query($q);
+    DB::remove($team);
     unset($this->teams[$team->id]);
   }
 
@@ -564,15 +563,14 @@ class Regatta {
    * @param Race $race the race to register with this regatta
    */
   public function setRace(Race $race) {
-    $q = sprintf('insert into race (regatta, division, number, boat) ' .
-		 'values ("%s", "%s", "%s", %d) ' .
-		 'on duplicate key update boat = %4$d',
-		 $this->id, $race->division, $race->number, $race->boat->id);
-    $this->query($q);
-    $con = DB::connection();
-    // amounts to an insert
-    if ($con->affected_rows > 1 && $this->total_races !== null)
+    $cur = $this->getRace($race->division, $race->number);
+    if ($cur === null) {
+      $cur = $race;
       $this->total_races++;
+    }
+    else
+      $cur->boat = $race->boat;
+    DB::set($cur);
   }
 
   /**
@@ -588,20 +586,15 @@ class Regatta {
    * application.
    *
    * @param Race $race the race to remove
-   * @return boolean true if something was removed.
    */
   public function removeRace(Race $race) {
-    $this->query(sprintf('delete from race where (regatta, division, number) = (%d, "%s", %d)',
-			 $this->id, $race->division, $race->number));
-    $con = DB::connection();
-    if ($con->affected_rows > 0) {
-      if (isset($this->races[(string)$race->division]))
-	unset($this->races[(string)$race->division]);
-      if ($this->total_races !== null)
-	$this->total_races--;
-      return true;
-    }
-    return false;
+    DB::removeAll(DB::$RACE, new DBBool(array(new DBCond('regatta', $this->id),
+					      new DBCond('division', (string)$race->division),
+					      new DBCond('number', $race->number))));
+    if (isset($this->races[(string)$race->division]))
+      unset($this->races[(string)$race->division]);
+    if ($this->total_races !== null)
+      $this->total_races--;
   }
 
   /**
@@ -610,9 +603,7 @@ class Regatta {
    * @param Division $div the division whose races to remove
    */
   public function removeDivision(Division $div) {
-    $q = sprintf('delete from race where (regatta, division) = ("%s", "%s")',
-		 $this->id, $div);
-    $this->query($q);
+    DB::removeAll(DB::$RACE, new DBBool(array(new DBCond('regatta', $this->id), new DBCond('division', (string)$div))));
     unset($this->divisions[(string)$div]);
     if ($this->total_races !== null) {
       $con = DB::connection();
@@ -627,30 +618,16 @@ class Regatta {
    * @return Array<Race> a list of races
    */
   public function getUnscoredRaces(Division $div = null) {
-    if ($div == null) {
-      $list = array();
-      foreach ($this->getDivisions() as $div) {
-	$next = $this->getUnscoredRaces($div);
-	$list = array_merge($list, $next);
-      }
-      // sort by number, then division
-      usort($list, "Race::compareNumber");
-      return $list;
-    }
+    DB::$RACE->db_set_order(array('number'=>true, 'division'=>true));
     
-    $q = sprintf('select %s from %s ' .
-		 'where race.division = "%s" ' .
-		 '  and race.regatta = "%s" ' .
-		 '  and race.id not in ' .
-		 '  (select race from finish) ' .
-		 'order by number',
-		 Race::FIELDS, Race::TABLES, $div, $this->id);
-    $q = $this->query($q);
-    $list = array();
-    while ($obj = $q->fetch_object("Race")) {
-      $list[] = $obj;
-    }
-    return $list;
+    $cond = new DBBool(array(new DBCond('regatta', $this->id),
+			     new DBCondIn('id', DB::prepGetAll(DB::$FINISH, null, array('race')), DBCondIn::NOT_IN)));
+    if ($div !== null)
+      $cond->add(new DBCond('division', (string)$div));
+    $res = DB::getAll(DB::$RACE, $cond);
+    
+    DB::$RACE->db_set_order();
+    return $res;
   }
 
   /**
@@ -661,22 +638,13 @@ class Regatta {
    * @return a list of race numbers
    */
   public function getUnscoredRaceNumbers(Array $divisions) {
-    $common_nums = null;
+    $nums = array();
     foreach ($divisions as $div) {
-      $races = $this->getUnscoredRaces($div);
-      $nums  = array();
-      foreach ($races as $race) {
-	$nums[] = $race->number;
-      }
-
-      if ($common_nums == null) {
-	$common_nums = $nums;
-      }
-      else {
-	$common_nums = array_intersect($common_nums, $nums);
-      }
+      foreach ($this->getUnscoredRaces($div) as $race)
+	$nums[$race->number] = $race->number;
     }
-    return $common_nums;
+    usort($nums);
+    return $nums;
   }
   
   /**
@@ -686,26 +654,11 @@ class Regatta {
    * @return Array<Race> a list of races
    */
   public function getScoredRaces(Division $div = null) {
-    if ($div == null) {
-      $list = array();
-      foreach ($this->getDivisions() as $div)
-	$list = array_merge($list, $this->getScoredRaces($div));
-      return $list;
-    }
-    
-    $q = sprintf('select %s from %s ' .
-		 'where race.division = "%s" ' .
-		 '  and race.regatta = "%s" ' .
-		 '  and race.id in ' .
-		 '  (select distinct race from finish) ' .
-		 'order by number',
-		 Race::FIELDS, Race::TABLES, $div, $this->id);
-    $q = $this->query($q);
-    $list = array();
-    while ($obj = $q->fetch_object("Race")) {
-      $list[] = $obj;
-    }
-    return $list;
+    $cond = new DBBool(array(new DBCond('regatta', $this->id),
+			     new DBCondIn('id', DB::prepGetAll(DB::$FINISH, null, array('race')))));
+    if ($div !== null)
+      $cond->add(new DBCond('division', (string)$div));
+    return DB::getAll(DB::$RACE, $cond);
   }
 
   /**
@@ -717,14 +670,12 @@ class Regatta {
   public function getCombinedScoredRaces(Array $divs = null) {
     if ($divs == null)
       $divs = $this->getDivisions();
-    $nums = null;
+    $nums = array();
     foreach ($divs as $div) {
-      $set = array();
       foreach ($this->getScoredRaces($div) as $race)
-	$set[] = $race->number;
-
-      $nums = ($nums == null) ? $set : array_intersect($nums, $set);
+	$nums[$race->number] = $race->number;
     }
+    usort($nums);
     return $nums;
   }
 
@@ -737,14 +688,12 @@ class Regatta {
   public function getCombinedUnscoredRaces(Array $divs = null) {
     if ($divs == null)
       $divs = $this->getDivisions();
-    $nums = null;
+    $nums = array();
     foreach ($divs as $div) {
-      $set = array();
       foreach ($this->getUnscoredRaces($div) as $race)
-	$set[] = $race->number;
-
-      $nums = ($nums == null) ? $set : array_intersect($nums, $set);
+	$nums[$race->number] = $race->number;
     }
+    usort($nums);
     return $nums;
   }
 
@@ -758,16 +707,21 @@ class Regatta {
    * @return Race|null the race or null if none yet scored
    */
   public function getLastScoredRace(Division $div = null) {
-    $w = ($div === null) ? "" : sprintf('and division = "%s"', $div);
-    $q = sprintf('select race.id from race inner join (select race, min(entered) as entered from finish group by race) as f1 on race.id = f1.race where race.regatta = %d %s order by entered desc limit 1',
-		 $this->id, $w);
-    $r = $this->query($q);
-    if ($r->num_rows == 0)
-      return null;
-    $r = $r->fetch_object();
-    $q = sprintf('select %s from %s where race.id = %d limit 1', Race::FIELDS, Race::TABLES, $r->id);
-    $r = $this->query($q);
-    $r = $r->fetch_object("Race");
+    // Get the race (id) from the latest finish
+    DB::$FINISH->db_set_order(array('entered'=>false));
+    $q = DB::prepGetAll(DB::$FINISH,
+			new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('id'))),
+			array('race'));
+    $q->limit(1);
+    $res = DB::query($q);
+    if ($res->num_rows == 0)
+      $r = null;
+    else {
+      $res = $res->fetch_object();
+      $r = DB::get(DB::$RACE, $res->race);
+    }
+    unset($res);
+    DB::$FINISH->db_set_order();
     return $r;
   }
 
@@ -873,7 +827,7 @@ class Regatta {
    * @return Finish
    */
   public function createFinish(Race $race, Team $team) {
-    $id = sprintf('%s-%d', $race, $team->id);
+    $id = sprintf('%s-%d', (string)$race, $team->id);
     $fin = new Finish(null, $race, $team);
     $this->finishes[$id] = $fin;
     $this->has_finishes = true;
@@ -888,23 +842,19 @@ class Regatta {
    * @return the finish object
    */
   public function getFinish(Race $race, Team $team) {
-    // $id = sprintf('%s-%s', $race, $team->id);
     $id = (string)$race . '-' . $team->id;
     if (isset($this->finishes[$id])) {
       return $this->finishes[$id];
     }
-
-    $q = sprintf('select %s from %s where (race, team) = ("%s", "%s")',
-		 Finish::FIELDS, Finish::TABLES, $race->id, $team->id);
-
-    $q = $this->query($q);
-    if ($q->num_rows == 0)
-      return null;
-
-    $this->finishes[$id] = $this->deserializeFinish($q, $race, $team);
-    $q->free();
-    $this->has_finish = true;
-    return $this->finishes[$id];
+    $res = DB::getAll(DB::$FINISH, new DBBool(array(new DBCond('race', $race), new DBCond('team', $team))));
+    if (count($res) == 0)
+      $r = null;
+    else {
+      $r = $res[0];
+      $this->finishes[$id] = $r;
+    }
+    unset($res);
+    return $r;
   }
 
   /**
@@ -917,12 +867,7 @@ class Regatta {
    *
    */
   public function getFinishes(Race $race) {
-    $finishes = array();
-    foreach ($this->getTeams() as $team) {
-      if (($f = $this->getFinish($race, $team)) !== null)
-	$finishes[] = $f;
-    }
-    return $finishes;
+    return DB::getAll(DB::$FINISH, new DBCond('race', $race));
   }
 
   /**
