@@ -104,8 +104,8 @@ class DetailsPane extends AbstractPane {
     $f_sel->add($opt_group = new FOptionGroup("Current"));
     $schools = array(); // track these so as not to include them later
     foreach ($hosts as $host) {
-      $schools[$host->account->school->id] = $host->account->school;
-      $opt_group->add(new FOption($host->account->school->id, $host->account->school, array('selected' => 'selected')));
+      $schools[$host->id] = $host;
+      $opt_group->add(new FOption($host->id, $host, array('selected' => 'selected')));
     }
     $f_item->add(new XMessage("Hold down Ctrl to choose more than one"));
 

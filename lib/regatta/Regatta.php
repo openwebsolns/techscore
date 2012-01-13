@@ -1022,27 +1022,26 @@ class Regatta {
   // ------------------------------------------------------------
 
   /**
-   * Return a list of scorers for this regatta
-   *
-   * @return Array<Account> a list of scorers
-   */
-  public function getScorers() {
-    return DB::getAll(DB::$ACCOUNT, new DBCondIn('id', DB::prepGetAll(DB::$HOST, new DBCond('regatta', $this->id), array('account'))));
-  }
-
-  /**
    * Returns a list of hosts for this regatta
    *
-   * @return Array<Account> a list of hosts
+   * @return Array:School a list of hosts
    */
   public function getHosts() {
-    return DB::getAll(DB::$HOST, new DBCond('regatta', $this->id));
+    return DB::getAll(DB::$SCHOOL,
+		      new DBCondIn('id', DB::prepGetAll(DB::$HOST_SCHOOL, new DBCond('regatta', $this->id), array('school'))));
   }
 
   public function addHost(School $school) {
-    $q = sprintf('insert ignore into host_school (regatta, school) values ("%s", "%s")',
-		 $this->id, $school->id);
-    $this->query($q);
+    // Enforce unique key
+    $res = DB::getAll(DB::$HOST_SCHOOL, new DBBool(array(new DBCond('regatta', $this->id), new DBCond('school', $school))));
+    if (count($res) > 0)
+      return;
+    
+    $cur = new Host_School();
+    $cur->regatta = $this->id;
+    $cur->school = $school;
+    DB::set($cur);
+    unset($res);
   }
 
   /**
@@ -1051,7 +1050,16 @@ class Regatta {
    *
    */
   public function resetHosts() {
-    $this->query(sprintf('delete from host_school where regatta = "%s"', $this->id));
+    DB::removeAll(DB::$HOST_SCHOOL, new DBCond('regatta', $this->id));
+  }
+
+  /**
+   * Return a list of scorers for this regatta
+   *
+   * @return Array:Account a list of scorers
+   */
+  public function getScorers() {
+    return DB::getAll(DB::$ACCOUNT, new DBCondIn('id', DB::prepGetAll(DB::$SCORER, new DBCond('regatta', $this->id), array('account'))));
   }
 
   /**
@@ -1060,9 +1068,14 @@ class Regatta {
    * @param Account $acc the account to add
    */
   public function addScorer(Account $acc) {
-    $q = sprintf('insert into host (account, regatta) values ("%s", "%s")',
-		 $acc->id, $this->id);
-    $this->query($q);
+    $res = DB::getAll(DB::$SCORER, new DBBool(array(new DBCond('regatta', $this->id), new DBCond('account', $acc))));
+    if (count($res) > 0)
+      return;
+    $cur = new Scorer();
+    $cur->regatta = $this->id;
+    $cur->account = $acc;
+    DB::set($cur);
+    unset($res);
   }
 
   /**
@@ -1072,8 +1085,7 @@ class Regatta {
    * from this regatta
    */
   public function removeScorer(Account $acc) {
-    $q = sprintf('delete from host where account = "%s" and regatta = "%s"', $acc->id, $this->id);
-    $q = $this->query($q);
+    DB::removeAll(DB::$SCORER, new DBBool(array(new DBCond('regatta', $this->id), new DBCond('account', $acc))));
   }
 
   /**

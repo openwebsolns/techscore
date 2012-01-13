@@ -162,7 +162,7 @@ class ReportMaker {
     $hosts = $reg->getHosts();
     $schools = array();
     foreach ($hosts as $host)
-      $schools[$host->school->id] = $host->school->nick_name;
+      $schools[$host->id] = $host->nick_name;
 
     $types = Regatta::getTypes();
     $type = sprintf('%s Regatta', $types[$reg->get(Regatta::TYPE)]);

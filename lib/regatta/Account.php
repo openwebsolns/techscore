@@ -105,7 +105,7 @@ class Account extends DBObject {
   public function hasJurisdiction(Regatta $reg) {
     if ($this->admin > 0)
       return true;
-    $res = DB::getAll(DB::$HOST, new DBBool(array(new DBCond('regatta', $reg->id()), new DBCond('account', $this))));
+    $res = DB::getAll(DB::$SCORER, new DBBool(array(new DBCond('regatta', $reg->id()), new DBCond('account', $this))));
     $r = (count($res) > 0);
     unset($res);
     return $r;
@@ -127,7 +127,7 @@ class Account extends DBObject {
     require_once('regatta/RegattaSummary.php');
     $cond = null;
     if (!$this->isAdmin()) // regular user
-      $cond = new DBCondIn('id', DB::prepGetAll(DB::$HOST, new DBCond('account', $this), array('regatta')));
+      $cond = new DBCondIn('id', DB::prepGetAll(DB::$SCORER, new DBCond('account', $this), array('regatta')));
     return DB::getAll(DB::$REGATTA_SUMMARY, $cond);
   }
 
@@ -140,7 +140,7 @@ class Account extends DBObject {
   public function searchRegattas($qry) {
     $cond = new DBCond('name', "%qry%", DBCond::LIKE);
     if ($this->status == 0) // regular user
-      $cond->add(new DBCondIn('id', DB::prepGetAll(DB::$HOST, new DBCond('account', $this), array('regatta'))));
+      $cond->add(new DBCondIn('id', DB::prepGetAll(DB::$SCORER, new DBCond('account', $this), array('regatta'))));
     return DB::getAll(DB::$REGATTA_SUMMARY, $cond);
   }
 }

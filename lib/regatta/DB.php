@@ -23,7 +23,7 @@ class DB extends DBM {
   public static $SAILOR = null;
   public static $COACH = null;
   public static $SEASON = null;
-  public static $HOST = null;
+  public static $SCORER = null;
   public static $TEAM = null;
   public static $TEAM_NAME_PREFS = null;
   public static $SAIL = null;
@@ -31,6 +31,7 @@ class DB extends DBM {
   public static $RACE = null;
   public static $FINISH = null;
   public static $TEAM_PENALTY = null;
+  public static $HOST_SCHOOL = null;
   public static $NOW = null;
 
   public static $OUTBOX = null;
@@ -49,7 +50,7 @@ class DB extends DBM {
     self::$SAILOR = new Sailor();
     self::$COACH = new Coach();
     // self::$SEASON = new Season();
-    self::$HOST = new Host();
+    self::$SCORER = new Host();
     self::$TEAM = new Team();
     self::$TEAM_NAME_PREFS = new Team_Name_Prefs();
     self::$SAIL = new Sail();
@@ -57,6 +58,7 @@ class DB extends DBM {
     self::$RACE = new Race();
     self::$FINISH = new Finish();
     self::$TEAM_PENALTY = new TeamPenalty();
+    self::$HOST_SCHOOL = new Host_School();
     self::$NOW = new DateTime();
 
     DBM::setConnectionParams($host, $user, $pass, $db);
@@ -890,7 +892,7 @@ class Season extends DBObject {
  * @author Dayan Paez
  * @version 2012-01-08
  */
-class Host extends DBObject {
+class Scorer extends DBObject {
   public $regatta;
   protected $account;
   public $principal;
@@ -1245,6 +1247,24 @@ class TeamPenalty extends DBObject {
 		   $this->division,
 		   $this->type,
 		   $this->comments);
+  }
+}
+
+/**
+ * Relationship between regatta and hosting school.
+ *
+ * @author Dayan Paez
+ * @version 2012-01-13
+ */
+class Host_School extends DBObject {
+  public $regatta;
+  protected $school;
+  public function db_type($field) {
+    switch ($field) {
+    case 'school': return DB::$SCHOOL;
+    default:
+      return parent::db_type($field);
+    }
   }
 }
 

@@ -127,8 +127,8 @@ class RacesPane extends AbstractPane {
       // Add new divisions
       //   1. Get host's preferred boat
       $hosts = $this->REGATTA->getHosts();
-      $host = array_shift($hosts);
-      $boat = DB::getPreferredBoat($host->school);
+      $host = $hosts[0];
+      $boat = DB::getPreferredBoat($host);
       
       $cur_divisions = $this->REGATTA->getDivisions();
       $cur_races     = count($this->REGATTA->getRaces(Division::A()));

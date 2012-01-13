@@ -96,8 +96,8 @@ class UpdateRegatta {
     $confs = array();
     $hosts = array();
     foreach ($reg->getHosts() as $host) {
-      $confs[$host->school->conference->id] = $host->school->conference->id;
-      $hosts[$host->school->id] = $host->school->id;
+      $confs[$host->conference->id] = $host->conference->id;
+      $hosts[$host->id] = $host->id;
     }
     $dreg->hosts = implode(',', $hosts);
     $dreg->confs = implode(',', $confs);

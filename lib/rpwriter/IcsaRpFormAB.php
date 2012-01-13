@@ -167,8 +167,8 @@ if (isset($argv) && basename(__FILE__) == $argv[0]) {
 
   // create host string: MIT
   $schools = array();
-  foreach ($reg->getHosts() as $account)
-    $schools[] = $account->school->nick_name;
+  foreach ($reg->getHosts() as $school)
+    $schools[] = $school->nick_name;
   $form = new IcsaRpFormAB($reg->get(Regatta::NAME),
 			   implode("/", $schools),
 			   $reg->get(Regatta::START_TIME)->format("Y-m-d"));

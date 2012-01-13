@@ -207,3 +207,6 @@ alter table rotation add column id int auto_increment primary key first;
 
 -- Team Penalty --
 alter table penalty_team drop primary key, add column id int auto_increment primary key first, add unique key (team, division);
+
+-- Scorers vs. hosts --
+alter table host rename to scorer;

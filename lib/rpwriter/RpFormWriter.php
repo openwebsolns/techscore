@@ -29,8 +29,8 @@ class RpFormWriter {
 
     // create host string: MIT
     $schools = array();
-    foreach ($this->reg->getHosts() as $account) {
-      $schools[] = $account->school->nick_name;
+    foreach ($this->reg->getHosts() as $school) {
+      $schools[] = $school->nick_name;
     }
     $this->host = implode("/", $schools);
   }
