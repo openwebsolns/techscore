@@ -735,55 +735,6 @@ class Regatta {
   private $finishes = array();
 
   /**
-   * Helper method to serialize to the database a finish objec. This
-   * merely creates the query that should be executed for the given
-   * finish object
-   *
-   * @param Finish $fin the finish object to serialize
-   * @return String the query
-   */
-  private function serializeFinish(Race $race, Finish $fin) {
-    $fields = array('id', 'race', 'team', 'entered');
-    $values = array('"'.$fin->id.'"',
-		    '"'.$race->id.'"',
-		    '"'.$fin->team->id.'"',
-		    '"'.$fin->entered->format('Y-m-d H:i:s').'"');
-    $update = array('entered=values(entered)');
-
-    if ($fin->score !== null) {
-      $fields[] = 'score';
-      $fields[] = 'explanation';
-      $values[] = '"'.$fin->score.'"';
-      $values[] = '"'.$fin->explanation.'"';
-      $update[] = 'score=values(score),explanation=values(explanation)';
-    }
-    $fields[] = 'amount';
-    $fields[] = 'penalty';
-    $fields[] = 'comments';
-    $update[] = 'amount=values(amount),penalty=values(penalty),comments=values(comments)';
-    if ($fin->penalty !== null) {
-      $values[] = '"'.$fin->penalty->amount.'"';
-      $values[] = '"'.$fin->penalty->type.'"';
-      $values[] = '"'.$fin->penalty->comments.'"';
-      if ($fin->penalty instanceof Breakdown) {
-	$fields[] = 'earned';
-	$values[] = '"'.$fin->penalty->earned.'"';
-	$update[] = 'earned=values(earned)';
-      }
-    }
-    else {
-      $values[] = '0';
-      $values[] = 'NULL';
-      $values[] = 'NULL';
-    }
-    
-    return sprintf('insert into finish (%s) values (%s) on duplicate key update %s',
-		   implode(',', $fields),
-		   implode(',', $values),
-		   implode(',', $update));
-  }
-
-  /**
    * Helper method creates the finish object from the MySQLi_Result object
    *
    * @param MySQLi_Result $sql the result of a query that returns the
@@ -984,7 +935,7 @@ class Regatta {
    */
   public function commitFinishes(Array $finishes) {
     foreach ($this->finishes as $finish)
-      $this->query($this->serializeFinish($finish->race, $finish));
+      DB::set($finish);
   }
 
   /**
