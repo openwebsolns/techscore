@@ -31,7 +31,7 @@
  * @author Dayan Paez
  * @version 2009-10-01
  */
-class Regatta implements RaceListener {
+class Regatta {
 
   private $id;
   private $scorer;
@@ -493,7 +493,6 @@ class Regatta implements RaceListener {
       throw new InvalidArgumentException($m);
     }
     $race = $q->fetch_object("Race");
-    $race->addListener($this);
     if (!isset($this->races[$sdiv]))
       $this->races[$sdiv] = array();
     $this->races[$sdiv][$num - 1] = $race;
@@ -552,7 +551,6 @@ class Regatta implements RaceListener {
 
     while ($race = $q->fetch_object("Race")) {
       $this->races[$sdiv][] = $race;
-      $race->addListener($this);
     }
     return $this->races[$sdiv];
   }
@@ -700,7 +698,6 @@ class Regatta implements RaceListener {
     $list = array();
     while ($obj = $q->fetch_object("Race")) {
       $list[] = $obj;
-      $obj->addListener($this);
     }
     return $list;
   }
@@ -756,7 +753,6 @@ class Regatta implements RaceListener {
     $list = array();
     while ($obj = $q->fetch_object("Race")) {
       $list[] = $obj;
-      $obj->addListener($this);
     }
     return $list;
   }
@@ -821,7 +817,6 @@ class Regatta implements RaceListener {
     $q = sprintf('select %s from %s where race.id = %d limit 1', Race::FIELDS, Race::TABLES, $r->id);
     $r = $this->query($q);
     $r = $r->fetch_object("Race");
-    $r->addListener($this);
     return $r;
   }
 

@@ -28,6 +28,7 @@ class DB extends DBM {
   public static $TEAM_NAME_PREFS = null;
   public static $SAIL = null;
   public static $NOTE = null;
+  public static $RACE = null;
   public static $NOW = null;
 
   public static $OUTBOX = null;
@@ -51,6 +52,7 @@ class DB extends DBM {
     self::$TEAM_NAME_PREFS = new Team_Name_Prefs();
     self::$SAIL = new Sail();
     self::$NOTE = new Note();
+    self::$RACE = new Race();
     self::$NOW = new DateTime();
 
     DBM::setConnectionParams($host, $user, $pass, $db);
@@ -989,5 +991,103 @@ class Note extends DBObject {
     }
   }
   public function __toString() { return $this->observation; }
+}
+
+/**
+ * Race object: a number and a division
+ *
+ * @author Dayan Paez
+ * @version 2012-01-12
+ */
+class Race extends DBObject {
+  protected $division;
+  protected $boat;
+  public $number;
+  public $scored_by;
+
+  // Race fields
+  const FIELDS = "race.id, race.division, race.number, race.boat";
+  const TABLES = "race";
+  
+  public function db_name() { return 'race'; }
+  public function db_type($field) {
+    switch ($field) {
+    case 'division': return DBQuery::A_STR;
+    case 'boat': return DB::$BOAT;
+    }
+  }
+  protected function db_cache() { return true; }
+  protected function db_order() {
+    return array('number'=>true, 'division'=>true);
+  }
+  public function &__get($name) {
+    if ($name == 'division')
+      return Division::get($this->division);
+    return parent::__get($name);
+  }
+  public function __set($name, $value) {
+    if ($name == 'division')
+      $this->division = (string)$value;
+    else
+      parent::__set($name, $value);
+  }
+  public function __toString() {
+    return sprintf("%s%s", $this->number, $this->division);
+  }
+  /**
+   * Parses the string and returns a Race object with the
+   * corresponding division and number. Note that the race object
+   * obtained is orphan.
+   *
+   * @param String $text the text representation of a race (3A, B12)
+   * @return Race a race object
+   * @throws InvalidArgumentException if unable to parse
+   */
+  public static function parse($text) {
+    $race = (string)$text;
+    try {
+      $race = str_replace(" ", "", $race);
+      $race = str_replace("-", "", $race);
+      $race = strtoupper($race);
+
+      if (in_array($race[0], array("A", "B", "C", "D"))) {
+	// Move division letter to end of string
+	$race = substr($race, 1) . substr($race, 0, 1);
+      }
+
+      if (in_array($race[strlen($race)-1], array("A", "B", "C", "D"))) {
+	$race_a = sscanf($race, "%d%s");
+      }
+      else
+	throw new InvalidArgumentException("Race is missing division.");;
+
+      if (empty($race_a[0]) || empty($race_a[1])) {
+	throw new InvalidArgumentException("Race is missing division or number.");
+      }
+
+      $race = new Race();
+      $race->division = new Division($race_a[1]);
+      $race->number   = $race_a[0];
+      return $race;
+    }
+    catch (Exception $e) {
+      throw new InvalidArgumentException("Unable to parse race.");
+    }
+  }
+
+  /**
+   * Compares races by number, then division.
+   *
+   * @param Race $r1 the first race
+   * @param Race $r2 the second race
+   * @return negative should $r1 have a lower number, or failing that, a
+   * lower division than $r2; positive if the opposite is true; 0 if they
+   * are equal
+   */
+  public static function compareNumber(Race $r1, Race $r2) {
+    $diff = $r1->number - $r2->number;
+    if ($diff != 0) return $diff;
+    return ord((string)$r1->division) - ord((string)$r2->division);
+  }
 }
 ?>
