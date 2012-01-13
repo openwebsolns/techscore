@@ -32,6 +32,7 @@ class DB extends DBM {
   public static $FINISH = null;
   public static $TEAM_PENALTY = null;
   public static $HOST_SCHOOL = null;
+  public static $DAILY_SUMMARY = null;
   public static $NOW = null;
 
   public static $OUTBOX = null;
@@ -59,6 +60,7 @@ class DB extends DBM {
     self::$FINISH = new Finish();
     self::$TEAM_PENALTY = new TeamPenalty();
     self::$HOST_SCHOOL = new Host_School();
+    self::$DAILY_SUMMARY = new Daily_Summary();
     self::$NOW = new DateTime();
 
     DBM::setConnectionParams($host, $user, $pass, $db);
@@ -1262,6 +1264,28 @@ class Host_School extends DBObject {
   public function db_type($field) {
     switch ($field) {
     case 'school': return DB::$SCHOOL;
+    default:
+      return parent::db_type($field);
+    }
+  }
+}
+
+/**
+ * Event summary for a given day of sailing (one to many with regatta)
+ *
+ * @author Dayan Paez
+ * @version 2012-01-13
+ */
+class Daily_Summary extends DBObject {
+  public $regatta;
+  public $summary;
+  protected $summary_date;
+
+  public function db_name() { return 'daily_summary'; }
+  protected function db_order() { return array('regatta'=>true, 'summary_date'=>true); }
+  public function db_type($field) {
+    switch ($field) {
+    case 'summary_date': return DB::$NOW;
     default:
       return parent::db_type($field);
     }

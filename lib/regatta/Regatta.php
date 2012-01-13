@@ -269,13 +269,13 @@ class Regatta {
    * @return String the summary
    */
   public function getSummary(DateTime $day) {
-    $q = sprintf('select summary from daily_summary ' .
-		 'where regatta = "%s" and summary_date = "%s"',
-		 $this->id, $day->format("Y-m-d"));
-    $res = $this->query($q);
-    if ($res->num_rows == 0)
-      return '';
-    return stripslashes($res->fetch_object()->summary);
+    $res = DB::getAll(DB::$DAILY_SUMMARY, new DBBool(array(new DBCond('regatta', $this->id), new DBCond('summary_date', $day))));
+    if (count($res) == 0)
+      $r = '';
+    else
+      $r = $res[0]->summary;
+    unset($res);
+    return $r;
   }
 
   /**
@@ -285,10 +285,18 @@ class Regatta {
    * @param String $comment
    */
   public function setSummary(DateTime $day, $comment) {
-    $q = sprintf('replace into daily_summary (regatta, summary_date, summary) ' .
-		 'values ("%s", "%s", "%s")',
-		 $this->id, $day->format('Y-m-d'), (string)$comment);
-    $this->query($q);
+    // Enforce uniqueness
+    $res = DB::getAll(DB::$DAILY_SUMMARY, new DBBool(array(new DBCond('regatta', $this->id), new DBCond('summary_date', $day))));
+    if (count($res) > 0)
+      $cur = $res[0];
+    else {
+      $cur = new Daily_Summary();
+      $cur->regatta = $this->id;
+      $cur->summary_date = $day;
+    }
+    $cur->summary = $comment;
+    DB::set($cur);
+    unset($res);
   }
 
   /**
