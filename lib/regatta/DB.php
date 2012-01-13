@@ -30,6 +30,7 @@ class DB extends DBM {
   public static $NOTE = null;
   public static $RACE = null;
   public static $FINISH = null;
+  public static $TEAM_PENALTY = null;
   public static $NOW = null;
 
   public static $OUTBOX = null;
@@ -55,6 +56,7 @@ class DB extends DBM {
     self::$NOTE = new Note();
     self::$RACE = new Race();
     self::$FINISH = new Finish();
+    self::$TEAM_PENALTY = new TeamPenalty();
     self::$NOW = new DateTime();
 
     DBM::setConnectionParams($host, $user, $pass, $db);
@@ -1182,6 +1184,67 @@ class Finish extends DBObject {
    */
   public static function compareEntered(Finish $f1, Finish $f2) {
     return $f1->entered->format("U") - $f2->entered->format("U");
+  }
+}
+
+/**
+ * Penalty for a team in a division
+ *
+ * @author Dayan Paez
+ * @version 2012-01-13
+ */
+class TeamPenalty extends DBObject {
+  // Constants
+  const PFD = "PFD";
+  const LOP = "LOP";
+  const MRP = "MRP";
+  const GDQ = "GDQ";
+
+  public static function getList() {
+    return array(TeamPenalty::PFD=>"PFD: Illegal lifejacket",
+		 TeamPenalty::LOP=>"LOP: Missing pinnie",
+		 TeamPenalty::MRP=>"MRP: Missing RP info",
+		 TeamPenalty::GDQ=>"GDQ: General disqualification");
+  }
+
+  protected $team;
+  protected $division;
+  public $type;
+  public $comments;
+
+  public function db_name() { return 'penalty_team'; }
+  public function db_type($field) {
+    switch ($field) {
+    case 'team': return DB::$TEAM;
+    case 'division': return DBQuery::A_STR;
+    default:
+      return parent::db_type($field);
+    }
+  }
+
+  public function &__get($name) {
+    if ($name == 'division')
+      return Division::get($this->division);
+    return parent::__get($name);
+  }
+  public function __set($name, $value) {
+    if ($name == 'division')
+      $this->division = (string)$value;
+    else
+      parent::__set($name, $value);
+  }
+  
+  /**
+   * String representation, really useful for debugging purposes
+   *
+   * @return String string representation
+   */
+  public function __toString() {
+    return sprintf("%s|%s|%s|%s",
+		   $this->team,
+		   $this->division,
+		   $this->type,
+		   $this->comments);
   }
 }
 ?>

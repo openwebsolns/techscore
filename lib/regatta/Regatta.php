@@ -564,12 +564,10 @@ class Regatta {
    */
   public function setRace(Race $race) {
     $cur = $this->getRace($race->division, $race->number);
-    if ($cur === null) {
-      $cur = $race;
-      $this->total_races++;
-    }
+    if ($cur !== null)
+      $race->id = $cur->id;
     else
-      $cur->boat = $race->boat;
+      $this->total_races++;
     DB::set($cur);
   }
 
@@ -916,15 +914,11 @@ class Regatta {
    * @param TeamPenalty $penalty the penalty to register
    */
   public function setTeamPenalty(TeamPenalty $penalty) {
-    $con = DB::connection();
-    $q = sprintf('insert into %s values ("%s", "%s", "%s", "%s") ' .
-		 'on duplicate key update type = values(type), comments = values(comments)',
-		 TeamPenalty::TABLES,
-		 $penalty->team->id,
-		 $penalty->division,
-		 $penalty->type,
-		 $con->escape_string($penalty->comments));
-    $this->query($q);
+    // Ascertain unique key compliance
+    $cur = $this->getTeamPenalty($penalty->team, $penalty->division);
+    if ($cur !== null)
+      $penalty->id = $cur->id;
+    DB::set($penalty);
   }
 
   /**
@@ -934,9 +928,9 @@ class Regatta {
    * @param Division $div the division to drop
    */
   public function dropTeamPenalty(Team $team, Division $div) {
-    $q = sprintf('delete from %s where (team, division) = ("%s", "%s")',
-		 TeamPenalty::TABLES, $team->id, $div);
-    $this->query($q);
+    $cur = $this->getTeamPenalty($team, $div);
+    if ($cur !== null)
+      DB::remove($cur);
   }
 
   /**
@@ -947,16 +941,10 @@ class Regatta {
    * @return TeamPenalty if one exists, or null otherwise
    */
   public function getTeamPenalty(Team $team, Division $div) {
-    $q = sprintf('select %s from %s where team = "%s" and division = "%s"',
-		 TeamPenalty::FIELDS, TeamPenalty::TABLES,
-		 $team->id, $div);
-    $q = $this->query($q);
-    if ($q->num_rows == 0)
-      return null;
-    $pen = $q->fetch_object("TeamPenalty");
-    $pen->team = $this->getTeam($pen->team);
-    $q->free();
-    return $pen;
+    $res = $this->getTeamPenalties($team, $div);
+    $r = (count($res) == 0) ? null : $res[0];
+    unset($res);
+    return $r;
   }
   
 
@@ -966,26 +954,17 @@ class Regatta {
    *
    * @param Team $team the team whose penalties to return, or all if null
    * @param Division $div the division to fetch, or all if null
-   * @return Array<TeamPenalty> list of team penalties
+   * @return Array:TeamPenalty list of team penalties
    */
   public function getTeamPenalties(Team $team = null, Division $div = null) {
-    if ($team == null) {
-      $list = array();
-      foreach ($this->getTeams() as $team)
-	$list = array_merge($list, $this->getTeamPenalties($team, $div));
-      return $list;
-    }
-    if ($div == null) {
-      $list = array();
-      foreach ($this->getDivisions() as $division) {
-        $pen = $this->getTeamPenalty($team, $division);
-        if ($pen != null) {
-          $list[] = $pen;
-        }
-      }
-      return $list;
-    }
-    return $this->getTeamPenalty($team, $div);
+    $cond = new DBBool(array());
+    if ($team === null)
+      $cond->add(new DBCondIn('team', DB::prepGetAll(DB::$TEAM, new DBCond('regatta', $this->id), array('id'))));
+    else
+      $cond->add(new DBCond('team', $team));
+    if ($div !== null)
+      $cond->add(new DBCond('division', (string)$div));
+    return DB::getAll(DB::$TEAM_PENALTY, $cond);
   }
 
   /**
