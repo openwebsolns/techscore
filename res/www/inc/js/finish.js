@@ -42,7 +42,7 @@ String.prototype.reverse = function(){
 
 	    // Check that it is not blank
 	    if (input.value != "") {
-		cell.src = "/img/s.png";
+		cell.src = "/inc/img/s.png";
 		cell.alt = "Valid";
 
 		// Remove from the list of pos_teams
@@ -58,12 +58,12 @@ String.prototype.reverse = function(){
 		    if (inputs[k].value == input.value) {
 			// Error! Alert both, and stop checking for
 			// errors
-			cell.src = "/img/e.png";
+			cell.src = "/inc/img/e.png";
 			cell.alt = "Error: repeated team";
 
 			var iNum2 = inputs[k].id.replace("team", "");
 			var cell2 = document.getElementById("check" + iNum2);
-			cell2.src = "/img/e.png";
+			cell2.src = "/inc/img/e.png";
 			cell2.alt = "Error: repeated sail";
 			can_submit = false;
 			break;
@@ -71,7 +71,7 @@ String.prototype.reverse = function(){
 		}
 	    } // end non-blank if
 	    else {
-		cell.src = "/img/question.png";
+		cell.src = "/inc/img/question.png";
 		cell.alt = "Waiting for input";
 		can_submit = false;
 	    }
@@ -124,23 +124,23 @@ function checkSails () {
 	    // If possible, compare to others.
 	    // If not, label as error
 	    if ( !possible ) {
-		cell.src = "/img/e.png";
+		cell.src = "/inc/img/e.png";
 		cell.alt = "Error in sail number";
 		can_submit = false;
 	    }
 	    else {
-		cell.src = "/img/s.png";
+		cell.src = "/inc/img/s.png";
 		cell.alt = "Valid";
 
 		for (var k = 0; k < inputs.length; k++) {
 		    if ( k != i && inputs[k].value == input.value ) {
 			// Error! Alert both boxes, and stop
 			// checking for errors
-			cell.src = "/img/e.png";
+			cell.src = "/inc/img/e.png";
 			cell.alt = "Error: repeated sail";
 
 			var iNum2 = inputs[k].id.replace("sail","");
-			cell.src = "/img/e.png";
+			cell.src = "/inc/img/e.png";
 			cell.alt = "Error: repeated sail";
 			can_submit = false;
 			break;
@@ -149,7 +149,7 @@ function checkSails () {
 	    }
 	} // End non-blank if
 	else {
-	    cell.src = "/img/question.png";
+	    cell.src = "/inc/img/question.png";
 	    cell.alt = "Waiting for input";
 	    can_submit = false;
 	}
@@ -292,7 +292,7 @@ function updateDirectionSelect(dir) {
 // Draw compass
 function drawCompass(dir) {
     var pic = document.getElementById('compass_pic');
-    pic.src = "/img/needle_" + dir + ".png";
+    pic.src = "/inc/img/needle_" + dir + ".png";
 }
 
 /**
@@ -303,7 +303,7 @@ function drawCompass(dir) {
  * @date   January 26, 2009
  */
 var DIRECTION = null;
-var PIC_ROOT  = "/img/needle_";
+var PIC_ROOT  = "/inc/img/needle_";
 
 // Get coordinates of click
 $(document).ready(function() {
