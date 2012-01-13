@@ -735,39 +735,6 @@ class Regatta {
   private $finishes = array();
 
   /**
-   * Helper method creates the finish object from the MySQLi_Result object
-   *
-   * @param MySQLi_Result $sql the result of a query that returns the
-   * finish object's parameters
-   *
-   * @param Race $race the race
-   * @param Team $team the team
-   *
-   * @return Finish|null the first finish object from the result set
-   */
-  private function deserializeFinish(MySQLi_Result $res, Race $race, Team $team) {
-    $fin = $res->fetch_object();
-    if ($fin === false)
-      return null;
-    
-    $finish = new Finish($fin->id, $race, $team);
-    $finish->entered = new DateTime($fin->entered);
-
-    // penalty
-    if ($fin->penalty !== null) {
-      $penalties = Penalty::getList();
-      if (isset($penalties[$fin->penalty]))
-	$finish->penalty = new Penalty($fin->penalty, $fin->amount, $fin->comments, $fin->displace);
-      else {
-	$finish->penalty = new Breakdown($fin->penalty, $fin->amount, $fin->comments, $fin->displace);
-	$finish->penalty->earned = $fin->earned;
-      }
-    }
-    $finish->score = new Score($fin->score, $fin->explanation);
-    return $finish;
-  }
-
-  /**
    * Creates a new finish for the given race and team, and returns the
    * object. Note that this clobbers the existing finish, if any,
    * although the information is not saved in the database until it is
