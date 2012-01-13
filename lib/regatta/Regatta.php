@@ -795,25 +795,15 @@ class Regatta {
    * @return Array:Finish the list of finishes, regardless of race
    */
   public function getPenalizedFinishes() {
-    $q = sprintf('select race.id, race.division, race.number, finish.team from finish ' .
-		 'inner join race on finish.race = race.id ' .
-		 'where finish.penalty is not null and race.regatta = %d',
-		 $this->id);
-
-    $q = $this->query($q);
-    $list = array();
-    while ($obj = $q->fetch_object()) {
-      $list[] = $this->getFinish($this->getRace(Division::get($obj->division), $obj->number),
-				 $this->getTeam($obj->team));
-    }
-    $q->free();
-    return $list;
+    return DB::getAll(DB::$FINISH,
+		      new DBBool(array(new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('id'))),
+				       new DBCond('penalty', null, DBCond::NE))));
   }
 
   /**
    * Returns a list of those finishes in the given division which are
    * set to be scored as average of the other finishes in the same
-   * division. Confused, read the procedural rules for breakdowns, etc.
+   * division. Confused? Read the procedural rules for breakdowns, etc.
    *
    * @param Division $div the division whose average-scored finishes
    * to fetch
@@ -821,25 +811,18 @@ class Regatta {
    * @return Array:Finish the finishes
    */
   public function getAverageFinishes(Division $div) {
-    $q = sprintf('select race.division, race.number, finish.team from finish ' .
-		 'inner join race on finish.race = race.id ' .
-		 'where finish.penalty in ("BKD", "RDG", "BYE") and finish.amount <= 0 ' .
-		 '  and race.regatta = %d and race.division = "%s"',
-		 $this->id, $div);
-
-    $q = $this->query($q);
-    $list = array();
-    while ($obj = $q->fetch_object()) {
-      $rc = $this->getRace(Division::get($obj->division), $obj->number);
-      $tm = $this->getTeam($obj->team);
-      $list[] = $this->getFinish($rc, $tm);
-    }
-    $q->free();
-    return $list;
+    return DB::getAll(DB::$FINISH,
+		      new DBBool(array(new DBCondIn('race',
+						    DB::prepGetAll(DB::$RACE,
+								   new DBBool(array(new DBCond('regatta', $this->id),
+										    new DBCond('division', (string)$div))),
+								   array('id'))),
+				       new DBCondIn('penalty', array(Breakdown::BKD, Breakdown::RDG, Breakdown::BYE)),
+				       new DBCond('amount', 0, DBCond::LE))));
   }
 
   /**
-   * Like hasFinishes, but checks specifically for finishes
+   * Like hasFinishes, but checks specifically for penalties
    *
    * @param Race $race optional, if given, returns status for only
    * that race
@@ -847,15 +830,12 @@ class Regatta {
    * @see hasFinishes
    */
   public function hasPenalties(Race $race = null) {
-    $and = '';
-    if ($race !== null)
-      $and = sprintf('and race = "%s"', $race->id);
-    $q = $this->query(sprintf('select id from finish ' .
-			      'where race in (select id from race where regatta = %d) ' .
-			      '  and finish.penalty is not null %s', $this->id, $and));
-    $cnt = ($q->num_rows > 0);
-    $q->free();
-    return $cnt;
+    $cond = new DBBool(array(new DBCond('penalty', null, DBCond::NE)));
+    if ($race === null)
+      $cond->add(new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('id'))));
+    else
+      $cond->add(new DBCond('race', $race));
+    return DB::getAll(DB::$FINISH, $cond);
   }
 
   private $has_finishes = null;
@@ -870,13 +850,11 @@ class Regatta {
     if ($race === null && $this->has_finishes !== null)
       return $this->has_finishes;
 
-    $and = '';
-    if ($race !== null)
-      $and = sprintf('and race = "%s"', $race->id);
-    $q = $this->query(sprintf('select id from finish ' .
-			      'where race in (select id from race where regatta = %d) %s', $this->id, $and));
-    $cnt = ($q->num_rows > 0);
-    $q->free();
+    if ($race === null)
+      $cond = new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('id')));
+    else
+      $cond = new DBCond('race', $race);
+    $cnt = count(DB::getAll(DB::$FINISH, $cond));
     if ($race === null)
       $this->has_finishes = $cnt;
     return $cnt;
@@ -912,8 +890,7 @@ class Regatta {
    * @param Race $race the race whose finishes to drop
    */
   protected function deleteFinishes(Race $race) {
-    $q = sprintf('delete from finish where race = "%s"', $race->id);
-    $this->query($q);
+    DB::removeAll(DB::$RACE, new DBCond('race', $race));
     $this->has_finishes = null;
   }
 

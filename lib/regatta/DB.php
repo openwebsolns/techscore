@@ -1125,6 +1125,7 @@ class Finish extends DBObject {
 
   public function db_name() { return 'finish'; }
   protected function db_order() { return array('entered'=>true); }
+  protected function db_cache() { return true; }
   public function db_type($field) {
     switch ($field) {
     case 'race': return DB::$RACE;

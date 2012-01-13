@@ -207,3 +207,10 @@ created. Thus, when an admin logs in, he/she should have
 responsibility for maintaining the different seasons in the
 database. No new regattas will be created if there is no season
 available for them. Capisce?
+
+
+* Migration notes:
+
+Consider inspecting every use of array_shift, array_keys,
+array_values, array_merge, etc. Old library assumed that the returned
+objects where arrays and not just array-like with DBM.
