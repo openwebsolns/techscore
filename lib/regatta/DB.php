@@ -52,7 +52,7 @@ class DB extends DBM {
     self::$SAILOR = new Sailor();
     self::$COACH = new Coach();
     // self::$SEASON = new Season();
-    self::$SCORER = new Host();
+    self::$SCORER = new Scorer();
     self::$TEAM = new Team();
     self::$TEAM_NAME_PREFS = new Team_Name_Prefs();
     self::$SAIL = new Sail();
