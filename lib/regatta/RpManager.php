@@ -34,17 +34,10 @@ class RpManager {
    * @return Sailor the sailor, or null if none
    */
   public function getRepresentative(Team $team) {
-    $q = sprintf('select %s from %s ' .
-		 'inner join representative on (representative.sailor = sailor.id) ' .
-		 'where representative.team = "%s"',
-		 Sailor::FIELDS, Sailor::TABLES, $team->id);
-    $q = $this->regatta->query($q);
-    if ($q->num_rows == 0)
-      return null;
-
-    $q = $q->fetch_object("Sailor");
-    $q->school = $team->school;
-    return $q;
+    $res = DB::getAll(DB::$REPRESENTATIVE, new DBCond('team', $team));
+    $r = (count($res) == 0) ? null : $res->sailor;
+    unset($res);
+    return $r;
   }
 
   /**
@@ -54,9 +47,14 @@ class RpManager {
    * @param Sailor $sailor the sailor
    */
   public function setRepresentative(Team $team, Sailor $sailor) {
-    $q = sprintf('insert into representative values ("%s", "%s") on duplicate key update sailor = "%s"',
-		 $team->id, $sailor->id, $sailor->id);
-    $this->regatta->query($q);
+    // Ensure uniqueness
+    $cur = $this->getRepresentative($team, $sailor);
+    if ($cur === null) {
+      $cur = new Representative();
+      $cur->team = $team;
+    }
+    $cur->sailor = $sailor;
+    DB::set($cur);
   }
 
   /**
@@ -183,10 +181,8 @@ class RpManager {
    */
   public function reset(Team $team) {
     $q1 = sprintf('delete from rp where team = "%s"', $team->id);
-    $q2 = sprintf('delete from representative where team = "%s"',
-		  $team->id);
     $this->regatta->query($q1);
-    $this->regatta->query($q2);
+    DB::removeAll(DB::$REPRESENTATIVE, new DBCond('team', $team));
   }
 
   // RP form functions

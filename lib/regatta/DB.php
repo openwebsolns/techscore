@@ -33,6 +33,7 @@ class DB extends DBM {
   public static $TEAM_PENALTY = null;
   public static $HOST_SCHOOL = null;
   public static $DAILY_SUMMARY = null;
+  public static $REPRESENTATIVE = null;
   public static $NOW = null;
 
   public static $OUTBOX = null;
@@ -61,6 +62,7 @@ class DB extends DBM {
     self::$TEAM_PENALTY = new TeamPenalty();
     self::$HOST_SCHOOL = new Host_School();
     self::$DAILY_SUMMARY = new Daily_Summary();
+    self::$REPRESENTATIVE = new Representative();
     self::$NOW = new DateTime();
 
     DBM::setConnectionParams($host, $user, $pass, $db);
@@ -1288,6 +1290,26 @@ class Daily_Summary extends DBObject {
     case 'summary_date': return DB::$NOW;
     default:
       return parent::db_type($field);
+    }
+  }
+}
+
+/**
+ * Link between Sailor and Team: representative for the RP
+ *
+ * @author Dayan Paez
+ * @version 2012-01-13
+ */
+class Representative extends DBObject {
+  protected $team;
+  protected $sailor;
+  
+  public function db_type($field) {
+    switch ($field) {
+    case 'team': return DB::$TEAM;
+    case 'sailor': return DB::$SAILOR;
+    default:
+      return parent:db_type($field);
     }
   }
 }

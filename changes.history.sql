@@ -210,3 +210,6 @@ alter table penalty_team drop primary key, add column id int auto_increment prim
 
 -- Scorers vs. hosts --
 alter table host rename to scorer;
+
+-- Representatives --
+alter table representative add column id int auto_increment primary key first;
