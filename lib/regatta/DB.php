@@ -1309,9 +1309,35 @@ class Representative extends DBObject {
     case 'team': return DB::$TEAM;
     case 'sailor': return DB::$SAILOR;
     default:
-      return parent:db_type($field);
+      return parent::db_type($field);
     }
   }
+}
+
+/**
+ * An individual record of participation entry: a specific sailor in a
+ * specific race for a specific team, in a specific boat_role
+ *
+ * @author Dayan Paez
+ * @version 2012-01-13
+ */
+class RPEntry extends DBObject {
+  protected $race;
+  protected $team;
+  protected $sailor;
+  public $boat_role;
+
+  public function db_name() { return 'rp'; }
+  public function db_type($field) {
+    switch ($field) {
+    case 'race': return DB::$RACE;
+    case 'team': return DB::$TEAM;
+    case 'sailor': return DB::$SAILOR;
+    default:
+      return parent::db_type($field);
+    }
+  }
+  protected function db_order() { return array('team'=>true, 'race'=>true); }
 }
 
 /**
