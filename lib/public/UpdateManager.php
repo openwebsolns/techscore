@@ -35,10 +35,11 @@ class UpdateManager {
     if (!in_array($type, UpdateRequest::getTypes()))
       throw new InvalidArgumentException("Illegal update request type $type.");
 
-    $con = DB::connection();
-    $arg = ($arg === null) ? 'NULL' : sprintf('"%s"', $con->real_escape_string($arg));
-    Preferences::query(sprintf('insert into %s (regatta, activity, argument) values (%d, "%s", %s)',
-			       UpdateRequest::TABLES, $id, $type, $arg));
+    $obj = new UpdateRequest();
+    $obj->regatta = $id;
+    $obj->activity = $type;
+    $obj->argument = $arg;
+    DB::set($obj);
   }
 
   /**
@@ -49,13 +50,10 @@ class UpdateManager {
    * 'activity', with 'regatta' being an ID
    */
   public static function getPendingRequests() {
-    $r = Preferences::query(sprintf('select %s from %s where id not in ' .
-				    '(select request from pub_update_log where return_code <= 0)',
-				    UpdateRequest::FIELDS, UpdateRequest::TABLES));
-    $list = array();
-    while ($obj = $r->fetch_object("UpdateRequest"))
-      $list[] = $obj;
-    return $list;
+    return DB::getAll(DB::$UPDATE_REQUEST,
+		      new DBCondIn('id',
+				   DB::prepGetAll(DB::$UPDATE_LOG, new DBCond('return_code', 0, DBCond::LE), array('request')),
+				   DBCondIn::NOT_IN));
   }
 
   /**
@@ -65,8 +63,11 @@ class UpdateManager {
    * @param int $code the code to use (0 = pending, -1 = good, -2 = "assumed", > 0: error
    */
   public static function log(UpdateRequest $req, $code = -1, $mes = "") {
-    Preferences::query(sprintf('insert into pub_update_log (request, return_code, return_mess) values ("%s", %d, "%s")',
-			       $req->id, $code, addslashes($mes)));
+    $log = new UpdateLog();
+    $log->request = $req;
+    $log->return_code = $code;
+    $log->return_mess = $mess;
+    DB::set($log);
   }
 
   /**
@@ -75,7 +76,9 @@ class UpdateManager {
    * @param Season $season the season
    */
   public static function logSeason(Season $season) {
-    Preferences::query(sprintf('insert into pub_update_season (season) values ("%s")', $season));
+    $log = new UpdateLogSeason();
+    $log->season = (string)$season;
+    DB::set($log);
   }
 }
 ?>
