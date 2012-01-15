@@ -848,7 +848,7 @@ class Sailor extends DBObject {
 		    $this->first_name,
 		    $this->last_name,
 		    $year);
-    if (!$this->__get('registered'))
+    if (!$this->isRegistered())
       $name .= " *";
     return $name;
   }
