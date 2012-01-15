@@ -34,6 +34,7 @@ class DB extends DBM {
   public static $HOST_SCHOOL = null;
   public static $DAILY_SUMMARY = null;
   public static $REPRESENTATIVE = null;
+  public static $RP_ENTRY = null;
   public static $NOW = null;
 
   public static $OUTBOX = null;
@@ -41,6 +42,7 @@ class DB extends DBM {
   public static $ACCOUNT = null;
   public static $ACCOUNT_SCHOOL = null;
   public static $REGATTA_SUMMARY = null;
+  public static $RP_LOG = null; // RpManager.php
 
   public static function setConnectionParams($host, $user, $pass, $db) {
     // Template objects serialization
@@ -63,6 +65,7 @@ class DB extends DBM {
     self::$HOST_SCHOOL = new Host_School();
     self::$DAILY_SUMMARY = new Daily_Summary();
     self::$REPRESENTATIVE = new Representative();
+    self::$RP_ENTRY = new RPEntry();
     self::$NOW = new DateTime();
 
     DBM::setConnectionParams($host, $user, $pass, $db);

@@ -283,6 +283,7 @@ class RegattaIO {
    * @throws Exception if the string could not be parsed as XML
    */
   public function fromXML($doc) {
+    throw new RuntimeException("This method is not yet supported.");
     $warnings = array();
     
     $root = new SimpleXmlElement((string)$doc);
@@ -649,7 +650,7 @@ class RegattaIO {
 	}
 	else {
 	  $rp->sailor   = $sailor;
-	  $rpman->setRP($rp);
+	  // $rpman->setRP($rp);
 	}
       }
       else
@@ -705,7 +706,7 @@ class RegattaIO {
     foreach ($pending_rp as $rp) {
       if ($new_ids[$rp->sailor->id] != null) {
 	$rp->sailor = $new_ids[$rp->sailor->id];
-	$rpman->setRP($rp);
+	// $rpman->setRP($rp);
       }
       else
 	$warnings[] = sprintf("Unable to add temporary sailor with id (%s). RP not added.", $rp->sailor->id);

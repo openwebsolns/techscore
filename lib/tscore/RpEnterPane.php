@@ -220,8 +220,7 @@ class RpEnterPane extends AbstractPane {
 	if ($rep !== null)
 	  $rpManager->setRepresentative($team, $rep);
 	else {
-	  $mes = sprintf("Invalid representative ID (%s).", $args['rep']);
-	  Session::pa(new PA($mes, PA::E));
+	  Session::pa(new PA(sprintf("Invalid representative ID (%s).", $args['rep']), PA::I));
 	}
       }
 
@@ -248,8 +247,7 @@ class RpEnterPane extends AbstractPane {
       // Process each input, which is of the form:
       // ttDp, where tt = sk/cr, D=A/B/C/D (division) and p is position
       $errors = array();
-      $rp = new RP();
-      $rp->team = $team;
+      $rps = array(); // list of RPEntries
       foreach ($args as $s => $s_value) {
 	if (preg_match('/^(cr|sk)[ABCD][0-9]+/', $s) > 0) {
 	  // We have a sailor request upon us
@@ -274,14 +272,22 @@ class RpEnterPane extends AbstractPane {
 		  $occupants[$s_div][$num]--;
 	      }
 	    }
-	    $rp->division   = new Division($s_div);
-	    $rp->boat_role  = $s_role;
-	    $rp->races_nums = $s_race_copy;
-	    $rp->sailor     = $s_obj;
-	    $rpManager->setRP($rp);
+	    // Create the objects
+	    // @TODO
+	    $div = new Division($s_div);
+	    foreach ($s_race_copy as $num) {
+	      $rp = new RP();
+	      $rp->team = $team;
+	      $rp->race = $this->REGATTA->getRace($div, $num);
+	      $rp->boat_role  = $s_role;
+	      $rp->sailor     = $s_obj;
+	      $rps[] = $rp;
+	    }
 	  }
 	}
       }
+      // insert all!
+      $rpManager->setRP($rps);
       $rpManager->updateLog();
       
       // Announce

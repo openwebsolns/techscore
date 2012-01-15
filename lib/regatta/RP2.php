@@ -30,7 +30,7 @@ class RP2 {
    *
    * @param ArrayIterator $rps probably a DBDelegate
    */
-  public function __construct(ArrayIterator $rps = array()) {
+  public function __construct($rps = array()) {
     $this->rps = $rps;
   }
 

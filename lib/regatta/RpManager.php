@@ -68,78 +68,57 @@ class RpManager {
    * team, and the boat role
    */
   public function getRP(Team $team, Division $div, $role) {
-    $role = RP::parseRole($role);
-    $q = sprintf('select rp.sailor, ' .
-		 'group_concat(race.number ' .
-		 '             order by race.number ' .
-		 '             separator ",") as races_nums ' .
-		 'from race ' .
-		 'inner join rp on (race.id = rp.race) ' .
-		 'where rp.team       = "%s" ' .
-		 '  and race.division = "%s" ' .
-		 '  and rp.boat_role  = "%s" ' .
-		 'group by rp.sailor ' .
-		 'order by races_nums',
-		 $team->id, $div, $role);
-    $q = $this->regatta->query($q);
-    $list = array();
-    while ($obj = $q->fetch_object("RP")) {
-      $list[] = $obj;
-
-      // Fix properties
-      $obj->division = $div;
-      $obj->team = $team;
-      $obj->boat_role = $role;
-      $obj->sailor = DB::getSailor($obj->sailor);
-      $obj->sailor->school = $team->school;
+    // Get sailors
+    $res = DB::getAll(DB::$RP_ENTRY,
+		      new DBBool(array(new DBCond('team', $team),
+				       new DBCond('boat_role', RP2::parseRole($role)),
+				       new DBCondIn('race', DB::prepGetAll(DB::$RACE,
+									   new DBCond('division', (string)$div),
+									   array('id'))))));
+    $rps = array();
+    foreach ($res as $rpentry) {
+      if (!isset($rps[$rpentry->sailor->id]))
+	$rps[$rpentry->sailor->id] = array();
+      $rps[$rpentry->sailor->id][] = $rpentry;
     }
-    return $list;
+    $lst = array();
+    foreach ($rps as $lists)
+      $lst[] = new RP2($lists);
+    return $lst;
   }
 
   /**
-   * Registers the RP info with the database. Takes care of only
-   * registering for valid (existing) races regardless of races_nums
+   * Registers the RP info with the database. Insert all the RPEntries
+   * in the given list.
    *
-   * @param RP $rp the RP to register
+   * @param Array:RPEntry $rp the RPEntries to register
    */
-  public function setRP(RP $rp) {
-    $txt = array();
-    foreach ($rp->races_nums as $num) {
-      try {
-	$race = $this->regatta->getRace($rp->division, $num);
-	$txt[] = sprintf('("%s", "%s", "%s", "%s")',
-			 $race->id,
-			 $rp->sailor->id,
-			 $rp->team->id,
-			 $rp->boat_role);
-      } catch (Exception $e) {}
-    }
-    if (count($txt) == 0)
-      return;
-
-    $q = sprintf('insert into rp (race, sailor, team, boat_role) values %s', implode(',', $txt));
-    $this->regatta->query($q);
+  public function setRP(Array $rp) {
+    DB::insertAll($rp);
   }
 
   public function updateLog() {
-    $q = sprintf('insert into rp_log (regatta) values (%d)', $this->regatta->id());
-    $this->regatta->query($q);
+    $r = new RP_Log();
+    $r->regatta = $this->regatta->id();
+    DB::set($r);
   }
 
   /**
    * Returns true if the regatta has gender of the variety given,
-   * which should be one of the regatta participant constants
+   * which should be one of the Sailor gender constants
    *
    * @param Sailor::MALE|FEMALE $gender the gender to check
    * @return boolean true if it has any
    */
   public function hasGender($gender) {
-    $q = sprintf('select id from rp where race in (select id from race where regatta = "%s") and sailor in (select id from sailor where gender = "%s")', $this->regatta->id(), $gender);
-    $r = $this->regatta->query($q);
-    
-    $b = ($r->num_rows > 0);
-    $r->free();
-    return $b;
+    $r = DB::getAll(DB::$RP_ENTRY,
+		    new DBBool(array(new DBCondIn('race',
+						  DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta->id()), array('id'))),
+				     new DBCondIn('sailor',
+						  DB::prepGetAll(DB::$SAILOR, new DBCond('gender', $gender), array('id'))))));
+    $res = (count($r) > 0);
+    unset($r);
+    return $res;
   }
 
   /**
@@ -149,8 +128,11 @@ class RpManager {
    * @param Sailor::MALE|FEMALE $gender the gender
    */
   public function removeGender($gender) {
-    $q = sprintf('delete from rp where race in (select id from race where regatta = "%s") and sailor in (select id from sailor where gender = "%s")', $this->regatta->id(), $gender);
-    $this->regatta->query($q);
+    DB::removeAll(DB::$RP_ENTRY,
+		  new DBBool(array(new DBCondIn('race',
+						DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta->id()), array('id'))),
+				   new DBCondIn('sailor',
+						DB::prepGetAll(DB::$SAILOR, new DBCond('gender', $gender), array('id'))))));
   }
 
   // Static variable and functions
@@ -163,15 +145,14 @@ class RpManager {
    * @param Sailor $replace the replacement sailor
    */
   public static function replaceTempActual(Sailor $key, Sailor $replace) {
-    $q = sprintf('update rp set sailor = "%s" where sailor = "%s"',
-		 $replace->id, $key->id);
-    Preferences::query($q);
+    $q = DB::createQuery(DBQuery::UPDATE);
+    $q->values(array('sailor'), array($replace->id), DB::$RP_ENTRY->db_name());
+    $q->where(new DBCond('sailor', $key));
+    DB::query($q);
 
     // Delete if temporary sailor
-    if (!$key->isRegistered()) {
-      $q = sprintf('delete from sailor where id = "%s"', $key->id);
-      Preferences::query($q);
-    }
+    if (!$key->isRegistered())
+      DB::remove($key);
   }
 
   /**
@@ -180,8 +161,7 @@ class RpManager {
    * @param Team $team the team
    */
   public function reset(Team $team) {
-    $q1 = sprintf('delete from rp where team = "%s"', $team->id);
-    $this->regatta->query($q1);
+    DB::removeAll(DB::$RP_ENTRY, new DBCond('team', $team));
     DB::removeAll(DB::$REPRESENTATIVE, new DBCond('team', $team));
   }
 
@@ -375,4 +355,25 @@ class RpManager {
     return $list;
   }
 }
+
+/**
+ * Log of RP changes, for updating to public site
+ *
+ * @author Dayan Paez
+ * @version 2012-01-15
+ */
+class RP_Log extends DBObject {
+  public $regatta;
+  protected $updated_at;
+
+  public function db_name() { return 'rp_log'; }
+  public function db_type($field) {
+    switch ($field) {
+    case 'updated_at': return DB::$NOW;
+    default:
+      return parent::db_type($field);
+    }
+  }
+}
+DB::$RP_LOG = new RP_Log();
 ?>
