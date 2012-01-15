@@ -213,3 +213,6 @@ alter table host rename to scorer;
 
 -- Representatives --
 alter table representative add column id int auto_increment primary key first;
+
+-- RP Form --
+alter table rp_form drop primary key, drop foreign key rp_form_ibfk_1, change column regatta id int auto_increment primary key, add foreign key (id) references regatta(id) on delete cascade on update cascade;

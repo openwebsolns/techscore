@@ -174,11 +174,10 @@ class RpManager {
    * @return String|false the data, or <pre>false</pre> otherwise
    */
   public function getForm() {
-    $q = sprintf('select filedata from rp_form where regatta = %d', $this->regatta->id());
-    $q = $this->regatta->query($q);
-    if ($q->num_rows == 0)
+    $r = DB::get(DB::$RP_FORM, $this->regatta->id());
+    if ($r === null)
       return false;
-    return base64_decode($q->fetch_object()->filedata);
+    return base64_decode($r->filedata);
   }
 
   /**
@@ -187,9 +186,11 @@ class RpManager {
    * @param mixed $data the file contents
    */
   public function setForm($data) {
-    $q = sprintf('insert into rp_form (regatta, filedata) values (%d, "%1$s") on duplicate key update filedata = "%2$s", created_at = "%3$s"',
-		 $this->regatta->id(), base64_encode($data), date('Y-m-d H:i:s'));
-    $this->regatta->query($q);
+    $r = new RP_Form();
+    $r->id = $this->regatta->id();
+    $r->created_at = DB::$NOW;
+    $r->filedata = base64_encode($data);
+    DB::set($r);
   }
 
   /**
@@ -200,20 +201,14 @@ class RpManager {
    * it has a timestamp later than the update timestamp on the RP
    */
   public function isFormRecent() {
-    $q = sprintf('select created_at from rp_form where regatta = %d', $this->regatta->id());
-    $q = $this->regatta->query($q);
-    if ($q->num_rows == 0)
+    $r = DB::get(DB::$RP_FORM, $this->regatta->id());
+    if ($r === null)
       return false;
-    $c = strtotime($q->fetch_object()->created_at);
 
-    // Get updated timestamp
-    $q = sprintf('select updated_at from rp_log where regatta = %d', $this->regatta->id());
-    $q = $this->regatta->query($q);
-    if ($q->num_rows == 0)
+    $l = DB::getAll(DB::$RP_LOG, new DBCond('regatta', $this->regatta->id()));
+    if (count($l) == 0)
       return true;
-
-    $u = strtotime($q->fetch_object()->updated_at);
-    return ($c >= $u);
+    return ($l[0]->updated_at < $r->created_at);
   }
 
   // ------------------------------------------------------------
@@ -374,6 +369,29 @@ class RP_Log extends DBObject {
       return parent::db_type($field);
     }
   }
+  protected function db_order() { return array('updated_at'=>false); }
 }
+
+/**
+ * Cached copy of RP physical, PDF form
+ *
+ * @author Dayan Paez
+ * @version 2012-01-15
+ */
+class RP_Form extends DBObject {
+  public $filedata;
+  protected $created_at;
+
+  public function db_type($field) {
+    switch ($field) {
+    case 'created_at': return DB::$NOW;
+    case 'filedata': return DBQuery::A_BLOB;
+    default:
+      return parent::db_type($field);
+    }
+  }
+}
+
 DB::$RP_LOG = new RP_Log();
+DB::$RP_FORM = new RP_Form();
 ?>
