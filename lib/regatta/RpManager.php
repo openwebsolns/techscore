@@ -223,20 +223,10 @@ class RpManager {
    * @param Regatta $reg the regatta in which this temp sailor was added
    */
   public function addTempSailor(Sailor $sailor) {
-    $con = DB::connection();
-    $q = sprintf('insert into sailor ' .
-		 '(school, first_name, last_name, year, gender, regatta_added) values ' .
-		 '("%s", "%s", "%s", "%s", "%s", "%s")',
-		 $sailor->school->id,
-		 $con->real_escape_string($sailor->first_name),
-		 $con->real_escape_string($sailor->last_name),
-		 $con->real_escape_string($sailor->year),
-		 $sailor->gender,
-		 $this->regatta->id());
-    $this->regatta->query($q);
-
-    // fetch the last ID
-    $sailor->id = $con->insert_id;
+    // make sure it's temp and NEW!
+    $sailor->id = null;
+    $sailor->icsa_id = null;
+    DB::set($sailor);
   }
 
   /**
@@ -244,14 +234,12 @@ class RpManager {
    * any RPs for that sailor; however only temporary sailors are
    * removed, and only those that were added in this regatta. Anything
    * else will silently fail.
-   * thrown
    *
    * @param Sailor $temp the temporary sailor
    */
   public function removeTempSailor(Sailor $sailor) {
-    $q = sprintf('delete from sailor where id = "%s" and icsa_id is null and regatta_added = "%s"',
-		 $sailor->id, $this->regatta->id());
-    $this->regatta->query($q);
+    if ($sailor->icsa_id === null && $sailor->regatta_added == $this->regatta->id())
+      DB::remove($sailor);
   }
 
   /**
@@ -260,13 +248,7 @@ class RpManager {
    * @return Array:Sailor temporary sailor list
    */
   public function getAddedSailors() {
-    $q = sprintf('select %s from %s where regatta_added = "%s"',
-		 Sailor::FIELDS, Sailor::TABLES, $this->regatta->id());
-    $res = $this->regatta->query($q);
-    $list = array();
-    while ($obj = $res->fetch_object("Sailor"))
-      $list[] = $obj;
-    return $list;
+    return DB::getAll(DB::$SAILOR, new DBCond('regatta_added', $this->regatta->id()));
   }
 
   /**
@@ -277,12 +259,11 @@ class RpManager {
    * @return boolean true if the sailor is participating (has RP)
    */
   public function isParticipating(Sailor $sailor) {
-    $q = sprintf('select race from rp where sailor = "%s" and race in (select id from race where regatta = "%s")',
-		 $sailor->id,
-		 $this->regatta->id());
-    $q = $this->regatta->query($q);
-    $part = ($q->num_rows > 0);
-    $q->free();
+    $res = DB::getAll(DB::$RP_ENTRY,
+		      new DBBool(array(new DBCond('sailor', $sailor),
+				       new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta->id()), array('id'))))));
+    $part = count($res) > 0;
+    unset($res);
     return $part;
   }
 
@@ -293,35 +274,28 @@ class RpManager {
    * @param Sailor $sailor the sailor
    * @param const|null $role 'skipper', 'crew', or null for either
    * @param Division $div the division, if any, to narrow down to.
-   * @return Array:RP the teams
+   * @return Array:RP2 the teams
    */
   public function getParticipation(Sailor $sailor, $role = null, Division $div = null) {
-    $q = sprintf('select rp.sailor, rp.boat_role, rp.team, race.division, ' .
-		 'group_concat(race.number ' .
-		 '             order by race.number ' .
-		 '             separator ",") as races_nums ' .
-		 'from race ' .
-		 'inner join rp on (race.id = rp.race) ' .
-		 'where race.regatta  = "%s" %s %s ' .
-		 '  and rp.sailor = "%s" ' .
-		 'group by rp.sailor ' .
-		 'order by races_nums',
-		 $this->regatta->id(),
-		 ($role != null) ? sprintf('and rp.boat_role = "%s"', $role) : '',
-		 ($div  != null) ? sprintf('and race.division = "%s"', $div) : '',
-		 $sailor->id);
-
-    $q = $this->regatta->query($q);
-    $list = array();
-    while ($obj = $q->fetch_object("RP")) {
-      $list[] = $obj;
-
-      // Fix properties
-      $obj->division = Division::get($obj->division);
-      $obj->team = $this->regatta->getTeam($obj->team);
-      $obj->sailor = DB::getSailor($obj->sailor);
+    // Since RP2 objects all have the same role and division, we
+    // create lists of roles and divisions
+    $roles = ($role === null) ? array_keys(RP2::getRoles()) : array($role);
+    $divs  = ($role === null) ? $this->regatta->getDivisions() : array($div);
+    
+    $rps = array();
+    foreach ($roles as $role) {
+      foreach ($divs as $div) {
+	$c = new DBBool(array(new DBCond('sailor', $sailor),
+			      new DBCond('boat_role', $role),
+			      new DBCondIn('race',
+					   DB::prepGetAll(DB::$RACE,
+							  new DBBool(array(new DBCond('regatta', $this->regatta->id()),
+									   new DBCond('division', (string)$div))),
+							  array('id')))));
+	$rps[] = new RP2(DB::getAll(DB::$RP_ENTRY, $c));
+      }
     }
-    return $list;
+    return $rps;
   }
 
   /**
@@ -333,21 +307,15 @@ class RpManager {
    * @return Array:RegattaSummary
    */
   public static function getRegattas(Sailor $sailor, $role = null, Division $div = null) {
-    $where_role = '';
+    $cond = new DBBool(array(new DBCond('sailor', $sailor)));
     if ($role !== null)
-      $where_role = sprintf('and boat_role="%s"', $role);
-    $where_div = '';
+      $cond->add(new DBCond('boat_role', $role));
+    
+    $cond = new DBCondIn('id', DB::prepGetAll(DB::$RP_ENTRY, $cond, array('race')));
     if ($div !== null)
-      $where_div = sprintf('division="%s" and ', $div);
-    $q = sprintf('select %s from %s where id in ' .
-		 ' (select regatta from race where %s id in ' .
-		 '  (select race from rp where sailor = "%s" %s))',
-		 RegattaSummary::FIELDS, RegattaSummary::TABLES, $where_div, $sailor->id, $where_role);
-    $res = Preferences::query($q);
-    $list = array();
-    while ($obj = $res->fetch_object('RegattaSummary'))
-      $list[] = $obj;
-    return $list;
+      $cond->add(new DBCond('division', (string)$div));
+    
+    return DB::getAll(DB::$REGATTA_SUMMARY, new DBCondIn('id', DB::prepGetAll(DB::$RACE, $cond, array('regatta'))));
   }
 }
 

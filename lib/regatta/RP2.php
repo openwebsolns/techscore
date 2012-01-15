@@ -79,5 +79,8 @@ class RP2 {
       throw new IllegalArgumentError("Invalid sailor role: $role");
     }
   }
+  public static function getRoles() {
+    return array(RP2::SKIPPER => "Skipper", RP2::CREW => "Crew");
+  }
 }
 ?>

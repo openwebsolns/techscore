@@ -820,6 +820,7 @@ class Sailor extends DBObject {
   public $icsa_id;
   public $gender;
   public $active;
+  public $regatta_added;
 
   const MALE = 'M';
   const FEMALE = 'F';
