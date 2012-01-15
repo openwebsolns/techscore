@@ -26,14 +26,23 @@ class ScoresAnalyzer {
    * @param Const $role either 'skipper' (default) or 'crew'
    * @return Array:Sailor
    */
-  public static function getHighFinishers(Array $reg_ids, Division $div, $place, $role = 'skipper') {
-    $q = sprintf('select distinct %s from %s where icsa_id is not null and id in (select sailor from rp where team in (select team from dt_team_division where rank <= %d and division = "%s") and race in (select id from race where regatta in (%s) and division = "%s") and boat_role = "%s")',
-		 Sailor::FIELDS, Sailor::TABLES, $place, $div, implode(',', $reg_ids), $div, $role);
-    $q = Preferences::query($q);
-    $list = array();
-    while ($obj = $q->fetch_object("Sailor"))
-      $list[] = $obj;
-    return $list;
+  public static function getHighFinishers(Array $reg_ids, Division $div, $place, $role = RP2::SKIPPER) {
+    $r = new DBBool(array(new DBCondIn('team',
+				       DB::prepGetAll(DB::$TEAM_DIVISION,
+						      new DBBool(array(new DBCond('rank', $place, DBCond::LE),
+								       new DBCond('division', (string)$div))),
+						      array('team'))),
+			  new DBCondIn('race',
+				       DB::prepGetAll(DB::$RACE,
+						      new DBBool(array(new DBCondIn('regatta', $reg_ids),
+								       new DBCond('division', (string)$div))),
+						      array('id'))),
+			  new DBCond('boat_role', $role)));
+
+    return DB::getAll(DB::$SAILOR,
+		      new DBBool(array(new DBCond('icsa_id', null, DBCond::NE),
+				       new DBCondIn('id',
+						    DB::prepGetAll(DB::$RP, $r, array('sailor'))))));
   }
 
   /**
@@ -41,32 +50,25 @@ class ScoresAnalyzer {
    * two properties: 'regatta' (a regatta ID) and 'team' (a regatta
    * team).
    *
-   * @see getHighFinishers
    * @return Array:TeamDivision
    */
   public static function getHighFinishingTeams(Regatta $reg, Division $div, $place) {
-    $q = sprintf('select %s from %s where team in (select id from team where regatta = %d) and rank <= %d and division = "%s"',
-		 TeamDivision::FIELDS, TeamDivision::TABLES, $reg->id(), $place, $div);
-    $q = Preferences::query($q);
-    $list = array();
-    while ($obj = $q->fetch_object("TeamDivision"))
-      $list[] = $obj;
-    return $list;
+    return DB::getAll(DB::$TEAM_DIVISION,
+		      new DBBool(array(new DBCondIn('team', DB::prepGetAll(DB::$TEAM, new DBCond('regatta', $reg->id()), array('id'))),
+				       new DBCond('division', (string)$div),
+				       new DBCond('rank', $place, DBCond::LE))));
   }
 
   /**
    * Gets the TeamDivision (that is the rank) for the given RP
    *
+   * @return TeamDivision|null the team division object, if any
    */
   public static function getTeamDivision(Team $team, Division $div) {
-    $q = sprintf('select %s from %s where team = "%s" and division = "%s"',
-		 TeamDivision::FIELDS, TeamDivision::TABLES, $team->id, $div);
-    $q = Preferences::query($q);
-    if ($q->num_rows == 0)
-      return null;
-    $team = $q->fetch_object("TeamDivision");
-    $q->free();
-    return $team;
+    $res = DB::getAll(DB::$TEAM_DIVISION, new DBBool(array(new DBCond('team', $team), new DBCond('division', (string)$div))));
+    $r = (count($res) > 0) ? $res[0] : null;
+    unset($res);
+    return $r;
   }
 
   /**
@@ -76,17 +78,15 @@ class ScoresAnalyzer {
    *
    * @param Regatta $reg the regatta to consider
    * @param Sailor $sailor the sailor to consider
-   * @return Array the place finishes
+   * @return Array:TeamDivision the place finishes
    */
-  public static function getPlaces(Regatta $reg, Sailor $sailor, $role = 'skipper') {
+  public static function getPlaces(Regatta $reg, Sailor $sailor, $role = RP2::SKIPPER) {
     $list = array();
     $rpm = $reg->getRpManager();
     foreach ($rpm->getParticipation($sailor, $role) as $rp) {
-      $q = sprintf('select %s from %s where team = "%s" and division = "%s"',
-		   TeamDivision::FIELDS, TeamDivision::TABLES, $rp->team->id, $rp->division);
-      $q = Preferences::query($q);
-      if ($q->num_rows > 0)
-	$list[] = $q->fetch_object("TeamDivision");
+      $td = self::getTeamDivision($rp->team, $rp->division);
+      if ($td !== null)
+	$list[] = $td;
     }
     return $list;
   }

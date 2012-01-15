@@ -551,7 +551,7 @@ class AllAmerican extends AbstractUserPane {
     $rpm = $reg->getRpManager();
     $sng = $reg->isSingleHanded();
     foreach ($teams as $team) {
-      foreach ($rpm->getRP($reg->getTeam($team->team),
+      foreach ($rpm->getRP($team->team,
 			   $team->division,
 			   $this->AA['report-role']) as $rp) {
 	

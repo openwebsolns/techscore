@@ -21,18 +21,40 @@
  *
  * @see Dt_Team_Division, under DBObject
  */
-class TeamDivision {
-  public $id;
-  public $team;
-  public $division;
+class TeamDivision extends DBObject {
+  protected $team;
+  protected $division;
   public $rank;
 
-  const FIELDS = 'dt_team_division.id, dt_team_division.team, dt_team_division.division, dt_team_division.rank';
-  const TABLES = 'dt_team_division';
+  public function db_name() { return 'dt_team_division'; }
+  public function db_type($field) {
+    switch ($field) {
+    case 'team': return DB::$TEAM;
+    case 'division': return DBQuery::A_STR;
+    default:
+      return parent::db_type($field);
+    }
+  }
 
-  public function __construct() {
-    if (!($this->division instanceof Division))
-      $this->division = Division::get($this->division);
+  public function &__get($name) {
+    switch ($name) {
+    case 'division': return Division::get($this->division);
+    default:
+      return parent::__get($name);
+    }
+  }
+  public function __set($name, $value) {
+    if ($name == 'division') {
+      if ($value === null)
+	$this->division = null;
+      elseif ($value instanceof Division)
+	$this->division = (string)$value;
+      else
+	throw new InvalidArgumentException("Division must be a Division object.");
+      return;
+    }
+    parent::__set($name, $value);
   }
 }
+DB::$TEAM_DIVISION = new TeamDivision();
 ?>
