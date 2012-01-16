@@ -377,7 +377,7 @@ class RegattaIO {
 
       // validate boat ID and divisions
       try {
-	$b = Preferences::getObjectWithProperty($valid_boats, "id", $id);
+	$b = DB::getBoat($id);
 	$d = new Division($div);
 	if (!isset($race_list[$div])) $race_list[$div] = array();
 	foreach (DB::parseRange($races) as $num) {
@@ -411,7 +411,6 @@ class RegattaIO {
       $valid_teams[$team->id] = $team;
     foreach ($root->Teams->Team as $team) {
       $id = (string)$team['id'];
-      $old_team = Preferences::getObjectWithProperty($valid_teams, "id", $id);
       if (isset($valid_teams[$id])) {
 	$regatta->addTeam($valid_teams[$id]);
 	$teams[$id] = $valid_teams[$id];
@@ -640,9 +639,7 @@ class RegattaIO {
 	$rp->division   = $div;
 	$rp->races_nums = $nums;
 
-	$sailor = Preferences::getObjectWithProperty($teams_reg[$team->school->id], "id", $id);
-	if ($sailor == null)
-	  $sailor = Preferences::getObjectWithProperty($teams_ureg[$team->school->id], "id", $id);
+	$sailor = $team->school->getSailor($id);
 
 	if ($sailor == null) {
 	  $sailor = new Sailor();

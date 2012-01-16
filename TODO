@@ -214,3 +214,8 @@ available for them. Capisce?
 Consider inspecting every use of array_shift, array_keys,
 array_values, array_merge, etc. Old library assumed that the returned
 objects where arrays and not just array-like with DBM.
+
+
+* Move DB::getMessages(Account) to Account::getMessages
+
+This just seems like a better use of OOP.

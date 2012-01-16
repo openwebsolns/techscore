@@ -56,9 +56,12 @@ class ScoresFullDialog extends AbstractScoresDialog {
     $largest_num = 0;
     $races = array();
     foreach ($divisions as $division) {
-      $races[(string)$division] = $this->REGATTA->getScoredRaces($division);
-      foreach ($races[(string)$division] as $race)
+      $div = (string)$division;
+      $races[$div] = array();
+      foreach ($this->REGATTA->getScoredRaces($division) as $race) {
+	$races[$div][$race->number] = $race;
 	$largest_num = max($largest_num, $race->number);
+      }
     }
 
     
@@ -144,9 +147,9 @@ class ScoresFullDialog extends AbstractScoresDialog {
 	for ($i = 1; $i <= $largest_num; $i++) {
 
 	  // finish and score
-	  $race = Preferences::getObjectWithProperty($raceList, "number", $i);
 	  $r->add($cell = new XTD());
-	  if ($race != null) {
+	  if (isset($raceList[$i])) {
+	    $race = $raceList[$i];
 
 	    // add score for this race to running team score
 	    $finish = $this->REGATTA->getFinish($race, $rank->team);

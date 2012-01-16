@@ -78,8 +78,14 @@ class SailorMergePane extends AbstractUserPane {
     unset($args['match_sailors']);
 
     $divs = Division::getAssoc();
-    $reals = $this->SCHOOL->getSailors();
-    $temps = $this->SCHOOL->getUnregisteredSailors();
+    $reals = array();
+    foreach ($this->SCHOOL->getSailors() as $sailor)
+      $reals[$sailor->id] = $sailor;
+    
+    $temps = array();
+    foreach ($this->SCHOOL->getUnregisteredSailors() as $sailor)
+      $temps[$sailor->id] = $sailor;
+
     $replaced = 0;
     $affected = array();
     // Process each temp id
@@ -89,9 +95,9 @@ class SailorMergePane extends AbstractUserPane {
       if (!empty($value)) {
 
 	// Check that the id and value are valid
-	$real = Preferences::getObjectWithProperty($reals, "id", $value);
-	$temp = Preferences::getObjectWithProperty($temps, "id", $id);
-	if ($real && $temp) {
+	if (isset($reals[$value]) && isset($temps[$id])) {
+	  $real = $reals[$value];
+	  $temp = $temps[$id];
 
 	  // Notify the affected regattas to redo their RPs
 	  foreach ($divs as $div) {

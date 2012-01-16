@@ -148,12 +148,14 @@ class EnterPenaltyPane extends AbstractPane {
     // Change of race request
     if (isset($args['c_race'])) {
       // - validate race
-      $races = $this->REGATTA->getScoredRaces();
+      $races = array();
+      foreach ($this->REGATTA->getScoredRaces() as $race)
+	$races[$race->id] = $race;
       try {
 	$race = Race::parse($args['p_race']);
 	$race = $this->REGATTA->getRace($race->division, $race->number);
-	$theRace = Preferences::getObjectWithProperty($races, "id", $race->id);
-	if ($theRace == null) {
+	if (isset($races[$race->id])) {
+	  $theRace == $races[$race->id];
 	  $mes = sprintf("No finish recorded for race %s.", $theRace);
 	  Session::pa(new PA($mes, PA::I));
 	  unset($args['p_race']);

@@ -81,15 +81,15 @@ class DropPenaltyPane extends AbstractPane {
     if (isset($args['p_remove'])) {
 
       // - validate finish id
-      $finishes = $this->REGATTA->getPenalizedFinishes();
-      $theFinish = Preferences::getObjectWithProperty($finishes,
-						      "id",
-						      $args['r_finish']);
-      if ($theFinish == null) {
+      $finishes = array();
+      foreach ($this->REGATTA->getPenalizedFinishes() as $finish)
+	$finishes[$finish->id] = $finish;
+      if (!isset($finishes[$args['r_finish']])) {
 	$mes = sprintf("Invalid or missing finish ID (%s).", $args['r_finish']);
 	Session::pa(new PA($mes, PA::E));
 	return $args;
       }
+      $theFinish = $finishes[$args['r_finish']];
       $theFinish->penalty = null;
       $this->REGATTA->commitFinishes(array($theFinish));
       $this->REGATTA->runScore($theFinish->race);

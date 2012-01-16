@@ -117,11 +117,7 @@ class DropFinishPane extends AbstractPane {
     // Remove a set of race finishes
     // ------------------------------------------------------------
     if (isset($args['removerace'])) {
-      $races = $this->REGATTA->getScoredRaces();
-      if (!isset($args['race']) ||
-	  ($race = Preferences::getObjectWithProperty($races,
-						      "id",
-						      $args['race'])) == null) {
+      if (!isset($args['race']) || ($race = $this->REGATTA->getRaceById($args['race'])) === null) {
 	$mes = sprintf("Invalid or missing race (%s).", $args['race']);
 	Session::pa(new PA($mes, PA::E));
 	return $args;

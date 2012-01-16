@@ -37,26 +37,6 @@ class Preferences {
   }
 
   /**
-   * Traverses a list and returns the first object with the specified
-   * property value for the specified property name, or null otherwise
-   *
-   * @param Array $array the array of objects
-   * @param string $prop_name the property name to check
-   * @param mixed  $prop_value the value of the property to check
-   * @return the object, or null if not found
-   */
-  public static function getObjectWithProperty($array,
-					       $prop_name,
-					       $prop_value) {
-    foreach ($array as $obj) {
-      if ($obj->$prop_name == $prop_value) {
-	return $obj;
-      }
-    }
-    return null;
-  }
-
-  /**
    * Returns a list of the years for which there are regattas in the
    * database
    *

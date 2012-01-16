@@ -37,8 +37,8 @@ class MessagePane extends AbstractUserPane {
     // Chosen message
     // ------------------------------------------------------------
     if (isset($args['message'])) {
-      $message = Preferences::getObjectWithProperty($messages, "id", $args['message']);
-      if ($message === null) {
+      $message = DB::get(DB::$MESSAGE, $args['message']);
+      if ($message === null || $message->account != $this->USER) {
 	Session::pa(new PA("No such message.", PA::E));
 	$this->redirect("../inbox");
       }
@@ -99,9 +99,8 @@ class MessagePane extends AbstractUserPane {
     // Delete
     // ------------------------------------------------------------
     if (isset($args['delete'])) {
-      $messages = DB::getMessages($this->USER);
-      $mes = Preferences::getObjectWithProperty($messages, "id", $args['delete']);
-      if ($mes === null) {
+      $mes = DB::get(DB::$MESSAGE, $args['delete']);
+      if ($mes === null || $mes->account != $this->USER) {
 	Session::pa(new PA("Invalid message to delete.", PA::E));
 	$this->redirect();
       }
@@ -114,9 +113,8 @@ class MessagePane extends AbstractUserPane {
     // Reply
     // ------------------------------------------------------------
     if (isset($args['reply'])) {
-      $messages = DB::getMessages($this->USER);
-      $mes = Preferences::getObjectWithProperty($messages, "id", $args['reply']);
-      if ($mes === null) {
+      $mes = DB::get(DB::$MESSAGE, $args['reply']);
+      if ($mes === null || $mes->account != $this->USER) {
 	Session::pa(new PA("Invalid message to reply.", PA::E));
 	$this->redirect();
       }

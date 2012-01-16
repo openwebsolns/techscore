@@ -32,8 +32,7 @@ class RpEnterPane extends AbstractPane {
       return;
     }
     
-    if (!isset($args['chosen_team']) ||
-	($chosen_team = Preferences::getObjectWithProperty($teams, "id", $args['chosen_team'])) === null) {
+    if (!isset($args['chosen_team']) || ($chosen_team = $this->REGATTA->getTeam($args['chosen_team'])) === null) {
       $chosen_team = $teams[0];
     }
 

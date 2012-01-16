@@ -493,6 +493,19 @@ class Regatta {
   }
 
   /**
+   * Returns the race that is part of this regatta and has the ID
+   *
+   * @param String $id the ID
+   * @return Race|null the race if it exists
+   */
+  public function getRaceById($id) {
+    $r = DB::get(DB::$RACE, $id);
+    if ($r === null || $r->regatta != $this->id)
+      return null;
+    return $r;
+  }
+
+  /**
    * Return the total number of races participating, for efficiency
    * purposes
    *

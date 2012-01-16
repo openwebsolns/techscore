@@ -84,17 +84,14 @@ class ManualTweakPane extends AbstractPane {
     // ------------------------------------------------------------
     // Boat by boat
     // ------------------------------------------------------------
-    $races = $this->REGATTA->getRaces();
-    $teams = $this->REGATTA->getTeams();
-    
     if (isset($args['editboat'])) {
       unset($args['editboat']);
       $sail = new Sail();
       foreach ($args as $rAndt => $value) {
 	if ( !empty($value) && is_numeric($value) ) {
 	  $rAndt = explode(",", $rAndt);
-	  $r     = Preferences::getObjectWithProperty($races, "id", $rAndt[0]);
-	  $t     = Preferences::getObjectWithProperty($teams, "id", $rAndt[1]);
+	  $r = $this->REGATTA->getRaceById($rAndt[0]);
+	  $t = $this->REGATTA->getTeam($rAndt[1]);
 	  if ($r != null && $t != null) {
 	    $sail->race = $r;
 	    $sail->team = $t;

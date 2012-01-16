@@ -195,7 +195,6 @@ class RacesPane extends AbstractPane {
     $completed_divisions = array();
     if (isset($args['editboats'])) {
       unset($args['editboats']);
-      $boats = DB::getBoats();
 
       // Is there an assignment for all the races in the division?
       if (isset($args['div-value']) && is_array($args['div-value']) &&
@@ -205,7 +204,7 @@ class RacesPane extends AbstractPane {
 	  try {
 	    $div = Division::get($d);
 	    if (!empty($args['div-boat'][$i]) &&
-		($boat = Preferences::getObjectWithProperty($boats, "id", $args['div-boat'][$i])) !== null) {
+		($boat = DB::getBoat($args['div-boat'][$i])) !== null) {
 	      // Assign
 	      $completed_divisions[] = $div;
 	      foreach ($this->REGATTA->getRaces($div) as $race) {
@@ -230,8 +229,7 @@ class RacesPane extends AbstractPane {
 	  $race = Race::parse($key);
 	  if (!in_array($race->division, $completed_divisions)) {
 	    $race = $this->REGATTA->getRace($race->division, $race->number);
-	    $boat = Preferences::getObjectWithProperty($boats, "id", $value);
-	    $race->boat = $boat;
+	    $race->boat = DB::getBoat($value);
 	  }
 	}
 	catch (Exception $e) {

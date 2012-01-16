@@ -89,9 +89,7 @@ class TeamPenaltyPane extends AbstractPane {
     // Add penalty
     // ------------------------------------------------------------
     if (isset($args['t_submit'])) {
-      $team = Preferences::getObjectWithProperty($this->REGATTA->getTeams(),
-						 "id",
-						 $args['team']);
+      $team = $this->REGATTA->getTeam($args['team']);
       // - validate team
       if ($team == null) {
 	$mes = sprintf("Invalid or missing team (%s).", $args['team']);
@@ -141,8 +139,7 @@ class TeamPenaltyPane extends AbstractPane {
     if (isset($args['t_remove'])) {
 
       // - validate team
-      $teams = $this->REGATTA->getTeams();
-      $team = Preferences::getObjectWithProperty($teams, "id", $args['r_team']);
+      $team = $this->REGATTA->getTeam($args['r_team']);
 
       // - validate division
       $divisions = $this->REGATTA->getDivisions();
