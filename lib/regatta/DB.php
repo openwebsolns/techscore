@@ -1349,6 +1349,10 @@ class RPEntry extends DBObject {
   protected function db_order() { return array('team'=>true, 'race'=>true); }
 }
 
+// ------------------------------------------------------------
+// Useful non-DBObjects
+// ------------------------------------------------------------
+
 /**
  * Encapsulates a score. Objects can only be created. Their
  * attributes are not setable after that.
@@ -1378,6 +1382,121 @@ class Score {
    */
   public function __get($name) {
     return $this->$name;
+  }
+}
+
+/**
+ * Encapsulates an immutable penalty or breakdown
+ *
+ * @author Dayan Paez
+ * @version 2011-01-31
+ */
+abstract class FinishModifier {
+
+  public $amount;
+  public $type;
+  public $comments;
+  /**
+   * @var boolean when scoring penalty or breakdown, should the score
+   * displace other finishers behind this one? Note that for penalty,
+   * this is usually 'yes', which leads to everyone else being bumped
+   * up. For breakdowns, however, this is usually 'no'. Note that this
+   * is invalid if the 'amount' is non-positive.
+   */
+  public $displace;
+  
+  /**
+   * Fetches an associative list of the different penalty types
+   *
+   * @return Array<Penalty::Const,String> the different penalties
+   */
+  public static function getList() {
+    return array();
+  }
+
+  /**
+   * Creates a new penalty, of empty type by default
+   *
+   * @param String $type, one of the class constants
+   * @param int $amount (optional) the amount if assigned, or -1 for automatic
+   * @param String $comments (optional)
+   *
+   * @throws InvalidArgumentException if the type is set to an illegal
+   * value
+   */
+  public function __construct($type, $amount = -1, $comments = "", $displace = 0) {
+    $this->type = $type;
+    $this->amount = (int)$amount;
+    $this->comments = $comments;
+    $this->displace = $displace;
+  }
+
+  /**
+   * String representation, really useful for debugging purposes
+   *
+   * @return String string representation
+   */
+  public function __toString() {
+    return sprintf("%s|%s|%s", $this->type, $this->amount, $this->comments);
+  }
+}
+
+/**
+ * Encapsulates a breakdown
+ *
+ * @author Dayan Paez
+ * @version 2010-01-25
+ * @package regatta
+ */
+class Breakdown extends FinishModifier {
+
+  // Constants
+  const RDG = "RDG";
+  const BKD = "BKD";
+  const BYE = "BYE";
+
+  /**
+   * @var int the minimum score than an averaged breakdown
+   * deserves. This is tracked by the scoring algorithm so that an
+   * entire race need not be re-scored just to determine a handicapped
+   * team's finish average score; and to keep that average from never
+   * being worse than that team's EARNED score, sans breakdown.
+   */
+  public $earned;
+
+  public static function getList() {
+    return array(Breakdown::BKD => "BKD: Breakdown",
+		 Breakdown::RDG => "RDG: Yacht Given Redress",
+		 Breakdown::BYE => "BYE: Team is awarded average");
+  }
+}
+
+/**
+ * Encapsulates a penalty
+ *
+ * @author Dayan Paez
+ * @version 2010-01-25
+ */
+class Penalty extends FinishModifier {
+
+  // Constants
+  const DSQ = "DSQ";
+  const RAF = "RAF";
+  const OCS = "OCS";
+  const DNF = "DNF";
+  const DNS = "DNS";
+
+  /**
+   * Fetches an associative list of the different penalty types
+   *
+   * @return Array<Penalty::Const,String> the different penalties
+   */
+  public static function getList() {
+    return array(Penalty::DSQ => "DSQ: Disqualification",
+		 Penalty::RAF => "RAF: Retire After Finishing",
+		 Penalty::OCS => "OCS: On Course Side after start",
+		 Penalty::DNF => "DNF: Did Not Finish",
+		 Penalty::DNS => "DNS: Did Not Start");
   }
 }
 ?>
