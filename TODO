@@ -212,8 +212,6 @@ available for them. Capisce?
 
   - Constructor replaced with Season::forDate, which may return null.
 
-  - getRegattas no longer has limits (no arguments)
-
   - getTime is deprecated
 
 

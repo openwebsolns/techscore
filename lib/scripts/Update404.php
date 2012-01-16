@@ -101,16 +101,20 @@ class Update404 {
 											  array('class'=>'tt')))))))))))));
 
     // latest regatta
-    $one = $season->getRegattas(0, 1);
-    $ul->add(new XLi(array($season->fullString() . " ",
-			   new XA(sprintf('/%s', $season),
-				  sprintf('/%s', $season),
-				  array('class'=>'tt')),
-			   new XUl(array(),
-				   array(new XLi(array(sprintf("Regatta, e.g. %s ", $one[0]->name),
-						       new XA(sprintf('/%s/%s', $season, $one[0]->nick),
-							      sprintf('/%s/%s', $season, $one[0]->nick),
-							      array('class'=>'tt')))))))));
+    $res = $season->getRegattas();
+    if (count($res) > 0) {
+      $one = $res[0];
+      unset($res);
+      $ul->add(new XLi(array($season->fullString() . " ",
+			     new XA(sprintf('/%s', $season),
+				    sprintf('/%s', $season),
+				    array('class'=>'tt')),
+			     new XUl(array(),
+				     array(new XLi(array(sprintf("Regatta, e.g. %s ", $one[0]->name),
+							 new XA(sprintf('/%s/%s', $season, $one[0]->nick),
+								sprintf('/%s/%s', $season, $one[0]->nick),
+								array('class'=>'tt')))))))));
+    }
   }
 
   /**
