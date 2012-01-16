@@ -22,7 +22,6 @@ class DB extends DBM {
   public static $VENUE = null;
   public static $SAILOR = null;
   public static $COACH = null;
-  public static $SEASON = null;
   public static $SCORER = null;
   public static $TEAM = null;
   public static $TEAM_NAME_PREFS = null;
@@ -59,7 +58,6 @@ class DB extends DBM {
     self::$VENUE = new Venue();
     self::$SAILOR = new Sailor();
     self::$COACH = new Coach();
-    // self::$SEASON = new Season();
     self::$SCORER = new Scorer();
     self::$TEAM = new Team();
     self::$TEAM_NAME_PREFS = new Team_Name_Prefs();
@@ -872,37 +870,6 @@ class Coach extends Sailor {
 }
 
 /**
- * Encapsulates a season
- *
- * @author Dayan Paez
- * @version 2012-01-08
- */
-/*
-class Season extends DBObject {
-  const FALL = "fall";
-  const SUMMER = "summer";
-  const SPRING = "spring";
-  const WINTER = "winter";
-  
-  public $season;
-  protected $start_date;
-  protected $end_date;
-
-  public function db_type($field) {
-    switch ($field) {
-    case 'start_date':
-    case 'end_date':
-      return DB::$NOW;
-    default:
-      return parent::db_type($field);
-    }
-  }
-  protected function db_order() { return array('start_date'=>true); }
-  protected function db_cache() { return true; }
-}
-*/
-
-/**
  * Host account for a regatta (as just an ID) [many-to-many]
  *
  * @author Dayan Paez
@@ -1375,6 +1342,7 @@ class Season extends DBObject {
     }
   }
   protected function db_order() { return array('start_date'=>false); }
+  protected function db_cache() { return true; }
 
   /**
    * Wrapper to be deprecated
@@ -1461,6 +1429,23 @@ class Season extends DBObject {
   // ------------------------------------------------------------
   // Static methods
   // ------------------------------------------------------------
+
+  /**
+   * Fetches all the regattas in all the given seasons
+   *
+   * @param Array:Season all the seasons to consider
+   * @return Array:RegattaSummary
+   */
+  public static function getRegattasInSeasons(Array $seasons) {
+    if (count($seasons) == 0)
+      return array();
+    $cond = new DBBool(array(), DBBool::mOR);
+    foreach ($seasons as $season) {
+      $cond->add(new DBBool(array(new DBCond('start_time', $season->start_date, DBCond::GE),
+				  new DBCond('start_time', $season->end_date,   DBCond::LT))));
+    }
+    return DB::getAll(DB::$REGATTA_SUMMARY, $cond);
+  }
 
   /**
    * Parses the given season into a season object. The string should

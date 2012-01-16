@@ -212,6 +212,8 @@ available for them. Capisce?
 
   - Constructor replaced with Season::forDate, which may return null.
 
+  - getRegattas returns ArrayIterator, not array
+
 * Migration notes:
 
 Consider inspecting every use of array_shift, array_keys,

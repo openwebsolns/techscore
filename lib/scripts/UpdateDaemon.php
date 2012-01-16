@@ -208,7 +208,7 @@ class UpdateDaemon {
 
     // Deal now with each affected season.
     require_once('scripts/UpdateSeason.php');
-    $current = new Season(new DateTime());
+    $current = Season::forDate(DB::$NOW);
     foreach ($seasons as $season) {
       UpdateSeason::run($season);
       UpdateManager::logSeason($season);
@@ -227,7 +227,7 @@ class UpdateDaemon {
     // Deal with affected schools
     require_once('scripts/UpdateSchool.php');
     foreach ($schools as $school) {
-      UpdateSchool::run($school, new Season(new DateTime()));
+      UpdateSchool::run($school, Season::forDate(DB::$NOW));
       self::report(sprintf('generated school (%s) %s', $school->id, $school->nick_name));
     }
 

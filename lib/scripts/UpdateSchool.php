@@ -23,7 +23,7 @@ class UpdateSchool {
       throw new RuntimeException("Unable to make school directory: $dirname\n", 4);
 
     // Do season
-    $today = new Season(new DateTime());
+    $today = Season::forDate(DB::$NOW);
     $current = false;
     $base = (string)$season;
     // is this current season
@@ -80,7 +80,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
     }
   }
   else
-    $season = new Season(new DateTime());
+    $season = Season::forDate(DB::$NOW);
 
   try {
     UpdateSchool::run($school, $season);

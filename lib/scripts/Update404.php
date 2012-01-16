@@ -29,7 +29,7 @@ class Update404 {
     $this->page = new TPublicPage('404: School page not found');
 
     // SETUP navigation
-    $season = new Season(new DateTime());
+    $season = Season::forDate(DB::$NOW);
     $this->page->addNavigation(new XA('/', "Home", array('class'=>'nav')));
     $this->page->addMenu(new XA('/schools', "Schools"));
     $this->page->addMenu(new XA(sprintf('/%s', $season), $season->fullString()));
@@ -71,7 +71,7 @@ class Update404 {
     $this->page = new TPublicPage('404: Page not found');
 
     // SETUP navigation
-    $season = new Season(new DateTime());
+    $season = Season::forDate(DB::$NOW);
     $this->page->addNavigation(new XA('/', "Home", array('class'=>'nav')));
     $this->page->addMenu(new XA('/schools', "Schools"));
     $this->page->addMenu(new XA(sprintf('/%s', $season), $season->fullString()));

@@ -173,7 +173,7 @@ class CompareHeadToHead extends AbstractUserPane {
     $p->add(new XP(array(), "Choose at least one season to compare from the list below, then choose the sailors in the next panel."));
     $p->add($ul = new XUl(array('style'=>'list-style-type:none')));
 
-    $now = new Season(new DateTime());
+    $now = Season::forDate(DB::$NOW);
     $then = null;
     if ($now->season == Season::SPRING)
       $then = Season::parse(sprintf('f%0d', ($now->start_date->format('Y') - 1)));

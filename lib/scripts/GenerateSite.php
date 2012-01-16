@@ -106,7 +106,7 @@ class GenerateSite {
   private static function getSeasons() {
     $seasons = array();
     foreach (DBME::getAll(DBME::$SEASON) as $season) {
-      $s = new Season($season->start_date);
+      $s = Season::forDate($season->start_date);
       $seasons[] = $s;
     }
     return $seasons;

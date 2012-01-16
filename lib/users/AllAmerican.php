@@ -61,7 +61,7 @@ class AllAmerican extends AbstractUserPane {
       $form->add($fi = new FItem("Conferences:", $ul2 = new XUl(array('class'=>'inline-list'))));
       $fi->set('title', "Only choose sailors from selected conference(s) automatically. You can manually choose sailors from other divisions.");
       
-      $now = new Season(new DateTime());
+      $now = Season::forDate(DB::$NOW);
       $then = null;
       if ($now->season == Season::SPRING)
 	$then = Season::parse(sprintf('f%0d', ($now->start_date->format('Y') - 1)));
@@ -332,7 +332,7 @@ class AllAmerican extends AbstractUserPane {
       }
       if (count($this->AA['report-seasons']) == 0) {
 	$now = new DateTime();
-	$season = new Season($now);
+	$season = Season::forDate(DB::$NOW);
 	$this->AA['report-seasons'][] = (string)$season;
 	if ($season->season == Season::SPRING) {
 	  $now->setDate($now->format('Y') - 1, 10, 1);
@@ -370,7 +370,7 @@ class AllAmerican extends AbstractUserPane {
       }
       if (count($this->AA['report-seasons']) == 0) {
 	$now = new DateTime();
-	$season = new Season($now);
+	$season = Season::forDate(DB::$NOW);
 	$this->AA['report-seasons'][] = $season;
 	if ($season->season == Season::SPRING) {
 	  $now->setDate($now->format('Y') - 1, 10, 1);

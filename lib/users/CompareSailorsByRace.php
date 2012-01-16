@@ -51,23 +51,19 @@ class CompareSailorsByRace extends AbstractUserPane {
     }
 
     // seasons. If none provided, choose the default
-    $regattas = array();
+    $seasons = array();
     if (isset($args['seasons']) && is_array($args['seasons'])) {
       foreach ($args['seasons'] as $s) {
 	if (($season = Season::parse($s)) !== null)
-	  $regattas = array_merge($regattas, $season->getRegattas());
+	  $seasons[] = $season;
       }
     }
     else {
-      $now = new DateTime();
-      $season = new Season($now);
-      $regattas = $season->getRegattas();
-      if ($season->season == Season::SPRING) {
-	$now->setDate($now->format('Y') - 1, 10, 1);
-	$season = new Season($now);
-	$regattas = array_merge($regattas, $season->getRegattas());
-      }
+      $seasons[] = Season::forDate(DB::$NOW);
+      if ($seasons[0]->season == Season::SPRING)
+	$seasons[] = Season::parse('f' . ($seasons[0]->start_date->format('Y') - 1));
     }
+    $regattas = Season::getRegattasInSeasons($seasons);
     if (count($regattas) == 0) {
       Session::pa(new PA("There are no regattas in the given seasons to consider for comparison.", PA::E));
       return false;
@@ -197,7 +193,7 @@ class CompareSailorsByRace extends AbstractUserPane {
     $p->add(new XP(array(), "Choose at least one season to compare from the list below, then choose the sailors in the next panel."));
     $p->add($ul = new XUl(array('style'=>'list-style-type:none;')));
 
-    $now = new Season(new DateTime());
+    $now = Season::forDate(DB::$NOW);
     $then = null;
     if ($now->season == Season::SPRING)
       $then = Season::parse(sprintf('f%0d', ($now->start_date->format('Y') - 1)));

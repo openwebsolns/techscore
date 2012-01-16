@@ -196,7 +196,7 @@ class Regatta {
     }
     elseif ($property == Regatta::SEASON) {
       if ($this->properties[$property] === null)
-	$this->properties[$property] = new Season($this->properties[Regatta::START_TIME]);
+	$this->properties[$property] = Season::forDate($this->properties[Regatta::START_TIME]);
     }
     return $this->properties[$property];
   }
