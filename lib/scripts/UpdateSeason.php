@@ -34,7 +34,7 @@ class UpdateSeason {
     require_once('xml5/TPublicPage.php');
     $types = Regatta::getTypes();
     $season = $this->season;
-    $name = ucfirst($season->getSeason()) . ' ' . $season->getYear();
+    $name = $season->fullString();
     $this->page = new TPublicPage($name);
     $this->page->head->add(new XMeta('description', sprintf("Summary of ICSA regattas for %s", $name)));
 

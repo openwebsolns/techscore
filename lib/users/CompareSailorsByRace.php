@@ -62,7 +62,7 @@ class CompareSailorsByRace extends AbstractUserPane {
       $now = new DateTime();
       $season = new Season($now);
       $regattas = $season->getRegattas();
-      if ($season->getSeason() == Season::SPRING) {
+      if ($season->season == Season::SPRING) {
 	$now->setDate($now->format('Y') - 1, 10, 1);
 	$season = new Season($now);
 	$regattas = array_merge($regattas, $season->getRegattas());
@@ -199,7 +199,7 @@ class CompareSailorsByRace extends AbstractUserPane {
 
     $now = new Season(new DateTime());
     $then = null;
-    if ($now->getSeason() == Season::SPRING)
+    if ($now->season == Season::SPRING)
       $then = Season::parse(sprintf('f%0d', ($now->getTime()->format('Y') - 1)));
     foreach (Preferences::getActiveSeasons() as $season) {
       $ul->add(new XLi(array($chk = new XCheckboxInput('seasons[]', $season, array('id' => $season)),

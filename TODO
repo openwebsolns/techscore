@@ -210,11 +210,11 @@ available for them. Capisce?
 
 ** Deprecated functions
 
-  - getSeason() is swapped for ->season.
-
   - Constructor replaced with Season::forDate, which may return null.
 
   - getRegattas no longer has limits (no arguments)
+
+  - getTime is deprecated
 
 
 * Migration notes:

@@ -175,7 +175,7 @@ class CompareHeadToHead extends AbstractUserPane {
 
     $now = new Season(new DateTime());
     $then = null;
-    if ($now->getSeason() == Season::SPRING)
+    if ($now->season == Season::SPRING)
       $then = Season::parse(sprintf('f%0d', ($now->getTime()->format('Y') - 1)));
     foreach (Preferences::getActiveSeasons() as $season) {
       $ul->add(new XLi(array($chk = new XCheckboxInput('seasons[]', $season, array('id' => $season)),

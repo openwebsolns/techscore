@@ -178,7 +178,7 @@ class UpdateDaemon {
 	    // Cascade update to season
 	    if (in_array($last->activity, $UPD_SEASON) || $new) {
 	      $season = self::$REGATTA->get(Regatta::SEASON);
-	      $seasons[(string)$season->getSeason()] = $season;
+	      $seasons[$season->id] = $season;
 	    }
 
 	    // Affected schools
