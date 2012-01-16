@@ -584,7 +584,7 @@ class School extends DBObject {
       $cond->add(new DBCond('active', null));
     if ($gender !== null)
       $cond->add(new DBCond('gender', $gender));
-    return self::getAll(self::$SAILOR, $cond);
+    return DB::getAll(DB::$SAILOR, $cond);
   }
 
   /**
@@ -606,7 +606,7 @@ class School extends DBObject {
       $cond->add(new DBCond('active', null));
     if ($gender !== null)
       $cond->add(new DBCond('gender', $gender));
-    return self::getAll(self::$SAILOR, $cond);
+    return DB::getAll(DB::$SAILOR, $cond);
   }
 
   /**
@@ -630,7 +630,7 @@ class School extends DBObject {
       $cond->add(new DBCond('active', null));
     if ($only_registered !== false)
       $cond->add(new DBCond('icsa_id', null, DBCond::NE));
-    return self::getAll(self::$COACH, $cond);
+    return DB::getAll(DB::$COACH, $cond);
   }
 
   /**
