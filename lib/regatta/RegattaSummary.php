@@ -16,6 +16,19 @@ require_once('regatta/DB.php');
  */
 class RegattaSummary extends DBObject {
 
+  // Keys for data
+  const NAME       = "name";
+  const NICK_NAME  = "nick";
+  const START_TIME = "start_time";
+  const END_DATE   = "end_date";
+  const DURATION   = "duration";
+  const FINALIZED  = "finalized";
+  const TYPE       = "type";
+  const VENUE      = "venue";
+  const SCORING    = "scoring";
+  const SEASON     = "season";
+  const PARTICIPANT = "participant";
+
   /**
    * Standard scoring
    */
@@ -35,6 +48,48 @@ class RegattaSummary extends DBObject {
    * Coed regatta (default)
    */
   const PARTICIPANT_COED = "coed";
+
+  /**
+   * Gets an assoc. array of the possible regatta types
+   *
+   * @return Array a dict of regatta types
+   */
+  public static function getTypes() {
+    return array(RegattaSummary::TYPE_CHAMPIONSHIP=>"National Championship",
+		 RegattaSummary::TYPE_CONF_CHAMPIONSHIP=>"Conference Championship",
+		 RegattaSummary::TYPE_INTERSECTIONAL=>"Intersectional",
+		 RegattaSummary::TYPE_TWO_CONFERENCE=>"Two-Conference",
+		 RegattaSummary::TYPE_CONFERENCE=>"In-Conference",
+		 RegattaSummary::TYPE_PROMOTIONAL=>"Promotional",
+		 RegattaSummary::TYPE_PERSONAL=>"Personal");
+  }
+  const TYPE_PERSONAL = 'personal';
+  const TYPE_CONFERENCE = 'conference';
+  const TYPE_CHAMPIONSHIP = 'championship';
+  const TYPE_INTERSECTIONAL = 'intersectional';
+  const TYPE_CONF_CHAMPIONSHIP = 'conference-championship';
+  const TYPE_TWO_CONFERENCE = 'two-conference';
+  const TYPE_PROMOTIONAL = 'promotional';
+
+  /**
+   * Gets an assoc. array of the possible scoring rules
+   *
+   * @return Array a dict of scoring rules
+   */
+  public static function getScoringOptions() {
+    return array(RegattaSummary::SCORING_STANDARD => "Standard",
+		 RegattaSummary::SCORING_COMBINED => "Combined divisions");
+  }
+
+  /**
+   * Gets an assoc. array of the possible participant values
+   *
+   * @return Array a dict of scoring rules
+   */
+  public static function getParticipantOptions() {
+    return array(RegattaSummary::PARTICIPANT_COED => "Coed",
+		 RegattaSummary::PARTICIPANT_WOMEN => "Women");
+  }
   
   // Variables
   public $name;
@@ -45,6 +100,14 @@ class RegattaSummary extends DBObject {
   protected $finalized;
   public $participant;
 
+  // Managers
+  private $rotation;
+  private $rp;
+  private $season;
+
+  // ------------------------------------------------------------
+  // DBObject stuff
+  // ------------------------------------------------------------
   public function db_name() { return 'regatta'; }
   protected function db_order() { return array('start_time'=>false); }
   public function db_type($field) {
@@ -58,7 +121,142 @@ class RegattaSummary extends DBObject {
     }
   }
 
+  /**
+   * Returns the specified property. Suitable for migration.
+   *
+   * @param Regatta::Const $property one of the class constants
+   * @return the specified property
+   * @throws InvalidArgumentException if the property is invalid.
+   */
+  public function get($property) {
+    return $this->__get($property);
+  }
+
+  public function &__get($name) {
+    switch ($name) {
+    case 'scorer':
+      if ($this->scorer === null) {
+	require_once('regatta/ICSAScorer.php');
+	$this->scorer = new ICSAScorer();
+      }
+      return $this->scorer;
+    default:
+      return parent::__get($name);
+    }
+  }
+
+  public function getSeason() {
+    if ($this->season === null)
+      $this->season = Season::forDate($this->__get('start_date'));
+    return $this->season;
+  }
+
+  /**
+   * Commits the specified property. A thin and unnecessary wrapper
+   * around DBObject::__set, which will be deprecated.
+   *
+   * @param Regatta::Const $property one of the class constants
+   * @param object $value value whose string representation should be
+   * used for the given property
+   *
+   * @throws InvalidArgumentException if the property is invalid.
+   *
+   * @version 2011-01-03: if the regatta is (re)activated, then check
+   * if the nick name is valid.
+   *
+   * @deprecated 2012-01-16: Assign properties directly and use
+   * DB::set to commit to database
+   */
+  public function set($property, $value) {
+    $this->__set($property, $value);
+    DB::set($this);
+  }
+
+  // ------------------------------------------------------------
+  // Daily summaries
+  // ------------------------------------------------------------
+
+  /**
+   * Gets the daily summary for the given day
+   *
+   * @param DateTime $day the day summary to return
+   * @return String the summary
+   */
+  public function getSummary(DateTime $day) {
+    $res = DB::getAll(DB::$DAILY_SUMMARY, new DBBool(array(new DBCond('regatta', $this->id), new DBCond('summary_date', $day))));
+    $r = (count($res) == 0) ? '' : $res[0]->summary;
+    unset($res);
+    return $r;
+  }
+
+  /**
+   * Sets the daily summary for the given day
+   *
+   * @param DateTime $day
+   * @param String $comment
+   */
+  public function setSummary(DateTime $day, $comment) {
+    // Enforce uniqueness
+    $res = DB::getAll(DB::$DAILY_SUMMARY, new DBBool(array(new DBCond('regatta', $this->id), new DBCond('summary_date', $day))));
+    if (count($res) > 0)
+      $cur = $res[0];
+    else {
+      $cur = new Daily_Summary();
+      $cur->regatta = $this->id;
+      $cur->summary_date = $day;
+    }
+    $cur->summary = $comment;
+    DB::set($cur);
+    unset($res);
+  }
+
+  /**
+   * @var Array:Division an attempt at caching
+   */
+  private $divisions = null;
+  /**
+   * Returns an array of the divisions in this regatta
+   *
+   * @return list of divisions in this regatta
+   */
+  public function getDivisions() {
+    if ($this->divisions === null) {
+      $q = DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('division'));
+      $q->distinct(true);
+      $q = DB::query($q);
+      $this->divisions = array();
+      while ($row = $q->fetch_object()) {
+	$this->divisions[$row->division] = Division::get($row->division);
+      }
+    }
+    return array_values($this->divisions);
+  }
+
+  /**
+   * @var Array $teams an attempt to cache teams
+   */
+  private $teams = null;
+  /**
+   * Fetches the team with the given ID, or null
+   *
+   * @TODO: support for SingleHanded teams
+   *
+   * @param int $id the id of the team
+   * @return Team|null if the team exists
+   */
+  public function getTeam($id) {
+    if ($this->teams === null) {
+      $this->teams = array();
+      foreach ($this->getTeams() as $team)
+	$this->teams[$team->id] = $team;
+    }
+    return (isset($this->teams[$id])) ? $this->teams[$id] : null;
+  }
+
+
+  // ------------------------------------------------------------
   // Comparators
+  // ------------------------------------------------------------
   
   /**
    * Compares two regattas based on start_time
