@@ -35,7 +35,7 @@ class RpManager {
    */
   public function getRepresentative(Team $team) {
     $res = DB::getAll(DB::$REPRESENTATIVE, new DBCond('team', $team));
-    $r = (count($res) == 0) ? null : $res->sailor;
+    $r = (count($res) == 0) ? null : $res[0]->sailor;
     unset($res);
     return $r;
   }
@@ -48,7 +48,7 @@ class RpManager {
    */
   public function setRepresentative(Team $team, Sailor $sailor) {
     // Ensure uniqueness
-    $cur = $this->getRepresentative($team, $sailor);
+    $cur = $this->getRepresentative($team);
     if ($cur === null) {
       $cur = new Representative();
       $cur->team = $team;

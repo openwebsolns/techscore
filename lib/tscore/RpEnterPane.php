@@ -81,7 +81,10 @@ class RpEnterPane extends AbstractPane {
     $sailors = $chosen_team->school->getSailors($gender, $active);
     $un_slrs = $chosen_team->school->getUnregisteredSailors($gender);
 
-    $sailor_options = array("Coaches" => array(), "Sailors" => array(), "Non-ICSA" => array());
+    $sailor_options = array("" => "",
+			    "Coaches" => array(),
+			    "Sailors" => array(),
+			    "Non-ICSA" => array());
     foreach ($coaches as $s)
       $sailor_options["Coaches"][$s->id] = (string)$s;
     foreach ($sailors as $s)
@@ -210,14 +213,18 @@ class RpEnterPane extends AbstractPane {
 	$active = true;
       $gender = ($this->REGATTA->get(Regatta::PARTICIPANT) == Regatta::PARTICIPANT_WOMEN) ?
 	Sailor::FEMALE : null;
-      $sailors = array_merge($team->school->getCoaches($active),
-			     $team->school->getSailors($gender, $active),
-			     $team->school->getUnregisteredSailors($gender));
+      $sailors = array();
+      foreach ($team->school->getCoaches($active) as $sailor)
+	$sailors[$sailor->id] = $sailor;
+      foreach ($team->school->getSailors($gender, $active) as $sailor)
+	$sailors[$sailor->id] = $sailor;
+      foreach ($team->school->getUnregisteredSailors($gender) as $sailor)
+	$sailors[$sailor->id] = $sailor;
 
       // Insert representative
       if (!empty($args['rep']) ) {
-	$rep = Preferences::getObjectWithProperty($sailors, "id", $args['rep']);
-	if ($rep !== null)
+	$rep = DB::getSailor($args['rep']);
+	if ($rep !== null && $rep->school == $team->school)
 	  $rpManager->setRepresentative($team, $rep);
 	else {
 	  Session::pa(new PA(sprintf("Invalid representative ID (%s).", $args['rep']), PA::I));
@@ -254,12 +261,11 @@ class RpEnterPane extends AbstractPane {
 	  $s_role = (substr($s, 0, 2) == "sk") ? RP::SKIPPER : RP::CREW;
 	  $s_div  = substr($s,2,1);
 	  $s_race = DB::parseRange($args["r" . $s]);
-	  $s_obj  = Preferences::getObjectWithProperty($sailors, "id", $s_value);
+	  $s_obj  = (isset($sailors[$s_value])) ? $sailors[$s_value] : null;
 
 	  if (!in_array($s_div, $divisions))
 	    $errors[] = "Invalid division requested: $s_div.";
 	  elseif ($s_race !== null && $s_obj  !== null) {
-	    
 	    // Eliminate those races from $s_race for which there is
 	    // no space for a crew
 	    $s_race_copy = $s_race;
@@ -273,7 +279,6 @@ class RpEnterPane extends AbstractPane {
 	      }
 	    }
 	    // Create the objects
-	    // @TODO
 	    $div = new Division($s_div);
 	    foreach ($s_race_copy as $num) {
 	      $rp = new RPEntry();

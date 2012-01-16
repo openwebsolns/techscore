@@ -483,7 +483,8 @@ class Regatta {
    */
   public function getRace(Division $div, $num) {
     $res = DB::getAll(DB::$RACE, new DBBool(array(new DBCond('regatta', $this->id),
-						  new DBCond('division', (string)$div))));
+						  new DBCond('division', (string)$div),
+						  new DBCond('number', $num))));
     if (count($res) == 0)
       throw new InvalidArgumentException(sprintf("No race %s%s in regatta %s", $num, $div, $this->id));
     $r = $res[0];
