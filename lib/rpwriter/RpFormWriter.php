@@ -83,7 +83,7 @@ class RpFormWriter {
     foreach ($this->reg->getTeams() as $team) {
       $form->addRepresentative($team, $rp->getRepresentative($team));
       foreach ($divisions as $div) {
-	foreach (array(RP2::SKIPPER, RP2::CREW) as $role) {
+	foreach (array(RP::SKIPPER, RP::CREW) as $role) {
 	  foreach ($rp->getRP($team, $div, $role) as $r)
 	    $form->append($r);
 	}

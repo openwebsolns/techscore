@@ -16,7 +16,7 @@
  * @author Dayan Paez
  * @version 2012-01-13
  */
-class RP2 {
+class RP {
   const SKIPPER = "skipper";
   const CREW    = "crew";
 
@@ -56,7 +56,7 @@ class RP2 {
       }
       return $this->races_nums;
     default:
-      throw new InvalidArgumentException("No such property $field in RP2.");
+      throw new InvalidArgumentException("No such property $field in RP.");
     }
   }
   
@@ -71,16 +71,16 @@ class RP2 {
   public static function parseRole($role) {
     $role = (string)$role;
     switch ($role) {
-    case RP2::SKIPPER:
-      return RP2::SKIPPER;
-    case RP2::CREW:
-      return RP2::CREW;
+    case RP::SKIPPER:
+      return RP::SKIPPER;
+    case RP::CREW:
+      return RP::CREW;
     default:
       throw new IllegalArgumentError("Invalid sailor role: $role");
     }
   }
   public static function getRoles() {
-    return array(RP2::SKIPPER => "Skipper", RP2::CREW => "Crew");
+    return array(RP::SKIPPER => "Skipper", RP::CREW => "Crew");
   }
 }
 ?>

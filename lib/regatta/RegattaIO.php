@@ -200,7 +200,7 @@ class RegattaIO {
     $root->add($tag = new XElem("RP"));
     foreach ($teams as $team) {
       foreach ($divisions as $div) {
-	foreach (array(RP2::SKIPPER, RP2::CREW) as $role) {
+	foreach (array(RP::SKIPPER, RP::CREW) as $role) {
 	  $sailors = $rp->getRP($team, $div, $role);
 	  foreach ($sailors as $cont) {
 	    $tag->add($sub = new XElem("Sailor"));
@@ -621,7 +621,7 @@ class RegattaIO {
 
       // validate team, role, division, race_str
       $team = (isset($teams[$team_id])) ? $teams[$team_id] : null;
-      $role = (in_array($role, array(RP2::SKIPPER, RP2::CREW))) ? $role : null;
+      $role = (in_array($role, array(RP::SKIPPER, RP::CREW))) ? $role : null;
       $div  = (in_array($div, $divisions)) ? new Division($div) : null;
       $nums = DB::parseRange($nums);
 

@@ -26,7 +26,7 @@ class ScoresAnalyzer {
    * @param Const $role either 'skipper' (default) or 'crew'
    * @return Array:Sailor
    */
-  public static function getHighFinishers(Array $reg_ids, Division $div, $place, $role = RP2::SKIPPER) {
+  public static function getHighFinishers(Array $reg_ids, Division $div, $place, $role = RP::SKIPPER) {
     $r = new DBBool(array(new DBCondIn('team',
 				       DB::prepGetAll(DB::$TEAM_DIVISION,
 						      new DBBool(array(new DBCond('rank', $place, DBCond::LE),
@@ -80,7 +80,7 @@ class ScoresAnalyzer {
    * @param Sailor $sailor the sailor to consider
    * @return Array:TeamDivision the place finishes
    */
-  public static function getPlaces(Regatta $reg, Sailor $sailor, $role = RP2::SKIPPER) {
+  public static function getPlaces(Regatta $reg, Sailor $sailor, $role = RP::SKIPPER) {
     $list = array();
     $rpm = $reg->getRpManager();
     foreach ($rpm->getParticipation($sailor, $role) as $rp) {

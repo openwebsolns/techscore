@@ -71,7 +71,7 @@ class RpManager {
     // Get sailors
     $res = DB::getAll(DB::$RP_ENTRY,
 		      new DBBool(array(new DBCond('team', $team),
-				       new DBCond('boat_role', RP2::parseRole($role)),
+				       new DBCond('boat_role', RP::parseRole($role)),
 				       new DBCondIn('race', DB::prepGetAll(DB::$RACE,
 									   new DBCond('division', (string)$div),
 									   array('id'))))));
@@ -83,7 +83,7 @@ class RpManager {
     }
     $lst = array();
     foreach ($rps as $lists)
-      $lst[] = new RP2($lists);
+      $lst[] = new RP($lists);
     return $lst;
   }
 
@@ -274,12 +274,12 @@ class RpManager {
    * @param Sailor $sailor the sailor
    * @param const|null $role 'skipper', 'crew', or null for either
    * @param Division $div the division, if any, to narrow down to.
-   * @return Array:RP2 the teams
+   * @return Array:RP the teams
    */
   public function getParticipation(Sailor $sailor, $role = null, Division $div = null) {
-    // Since RP2 objects all have the same role and division, we
+    // Since RP objects all have the same role and division, we
     // create lists of roles and divisions
-    $roles = ($role === null) ? array_keys(RP2::getRoles()) : array($role);
+    $roles = ($role === null) ? array_keys(RP::getRoles()) : array($role);
     $divs  = ($role === null) ? $this->regatta->getDivisions() : array($div);
     
     $rps = array();
@@ -292,7 +292,7 @@ class RpManager {
 							  new DBBool(array(new DBCond('regatta', $this->regatta->id()),
 									   new DBCond('division', (string)$div))),
 							  array('id')))));
-	$rps[] = new RP2(DB::getAll(DB::$RP_ENTRY, $c));
+	$rps[] = new RP(DB::getAll(DB::$RP_ENTRY, $c));
       }
     }
     return $rps;
