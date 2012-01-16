@@ -210,8 +210,6 @@ available for them. Capisce?
 
 ** Deprecated functions
 
-  - Constructor replaced with Season::forDate, which may return null.
-
   - getRegattas returns ArrayIterator, not array
 
 * Migration notes:

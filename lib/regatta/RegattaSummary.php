@@ -16,10 +16,6 @@ require_once('regatta/DB.php');
  */
 class RegattaSummary extends DBObject {
 
-  const FIELDS = "regatta.id, regatta.name, regatta.nick, regatta.start_time, regatta.type,
-                  regatta.end_date, regatta.finalized, regatta.participant";
-  const TABLES = "regatta";
-
   /**
    * Standard scoring
    */
