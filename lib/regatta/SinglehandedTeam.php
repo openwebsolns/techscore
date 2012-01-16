@@ -52,7 +52,7 @@ class SinglehandedTeam extends Team {
     if ($this->rp == null) return parent::__get("name");
 
     try {
-      $rps = $this->rp->getRP($this, Division::A(), RP::SKIPPER);
+      $rps = $this->rp->getRP($this, Division::A(), RP2::SKIPPER);
       if (count($rps) == 0) return parent::__get("name");
 
       $sailors = array();

@@ -53,8 +53,8 @@ class RegistrationsDialog extends AbstractDialog {
 	$row[] = $div;
 
 	// Get skipper and crew
-	$skips = $rpManager->getRP($team, $div, RP::SKIPPER);
-	$crews = $rpManager->getRP($team, $div, RP::CREW);
+	$skips = $rpManager->getRP($team, $div, RP2::SKIPPER);
+	$crews = $rpManager->getRP($team, $div, RP2::CREW);
 
 	// Skippers
 	$list = array();

@@ -591,7 +591,7 @@ class School extends DBObject {
    * Returns a list of unregistered sailors for the specified school
    *
    * @param School $school the school object
-   * @param RP::const $gender null for both or the gender code
+   * @param RP2::const $gender null for both or the gender code
    *
    * @param mixed $active default "all", returns ONLY the active ones,
    * false to return ONLY the inactive ones, anything else for all.

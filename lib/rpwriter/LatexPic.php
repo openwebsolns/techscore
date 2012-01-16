@@ -87,7 +87,7 @@ class TempRpManager {
    *
    * @param Team $team the team
    * @param string $div the division
-   * @param string $role the role (RP::SKIPPER|RP::CREW)
+   * @param string $role the role (RP2::SKIPPER|RP2::CREW)
    * @return Array of RP objects matching criteria in the order in
    * which they were added to this TempRpManager
    */

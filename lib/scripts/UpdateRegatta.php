@@ -207,7 +207,7 @@ class UpdateRegatta {
     $rpm = $reg->getRpManager();
     foreach ($team_divs as $team) {
       $team->team->resetRP($team->division);
-      foreach (array(RP::SKIPPER, RP::CREW) as $role) {
+      foreach (array(RP2::SKIPPER, RP2::CREW) as $role) {
 	$rps = $rpm->getRP($team_objs[$team->id], Division::get($team->division), $role);
 	foreach ($rps as $rp) {
 	  $drp = new Dt_Rp();

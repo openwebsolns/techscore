@@ -175,7 +175,7 @@ if (isset($argv) && basename(__FILE__) == $argv[0]) {
   foreach ($reg->getTeams() as $team) {
     $form->addRepresentative($team, $rp->getRepresentative($team));
     foreach ($divs as $div) {
-      foreach (array(RP::SKIPPER, RP::CREW) as $role) {
+      foreach (array(RP2::SKIPPER, RP2::CREW) as $role) {
 	foreach ($rp->getRP($team, $div, $role) as $r)
 	  $form->append($r);
       }

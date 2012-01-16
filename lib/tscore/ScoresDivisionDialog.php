@@ -142,7 +142,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
 
       // ------------------------------------------------------------
       // Skippers and crews
-      foreach (array(RP::SKIPPER, RP::CREW) as $index => $role) {
+      foreach (array(RP2::SKIPPER, RP2::CREW) as $index => $role) {
 	$sailors  = $rpManager->getRP($rank->team, $division, $role);
 	    
 	$is_first = true;

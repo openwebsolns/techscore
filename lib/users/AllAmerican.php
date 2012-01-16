@@ -54,7 +54,7 @@ class AllAmerican extends AbstractUserPane {
 								array(Regatta::PARTICIPANT_COED => "Coed",
 								      Regatta::PARTICIPANT_WOMEN => "Women"))));
 
-      $form->add(new FItem("Boat role:", XSelect::fromArray('role', array(RP::SKIPPER => "Skipper", RP::CREW => "Crew"))));
+      $form->add(new FItem("Boat role:", XSelect::fromArray('role', array(RP2::SKIPPER => "Skipper", RP2::CREW => "Crew"))));
 
       $form->add(new FItem("Seasons:", $ul = new XUl(array('class'=>'inline-list'))));
 
@@ -317,7 +317,7 @@ class AllAmerican extends AbstractUserPane {
 	return false;
       }
       if (!isset($args['role']) ||
-	  !in_array($args['role'], array(RP::SKIPPER, RP::CREW))) {
+	  !in_array($args['role'], array(RP2::SKIPPER, RP2::CREW))) {
 	Session::pa(new PA("Invalid role provided.", PA::E));
 	return false;
       }

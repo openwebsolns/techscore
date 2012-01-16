@@ -106,8 +106,8 @@ class RpEnterPane extends AbstractPane {
       $occ = $this->getOccupantsRaces($div);
 
       // Fetch current rp's
-      $cur_sk = $rpManager->getRP($chosen_team, $div, RP::SKIPPER);
-      $cur_cr = $rpManager->getRP($chosen_team, $div, RP::CREW);
+      $cur_sk = $rpManager->getRP($chosen_team, $div, RP2::SKIPPER);
+      $cur_cr = $rpManager->getRP($chosen_team, $div, RP2::CREW);
 
       $form->add(new XHeading("Division $div"));
       $form->add($tab_races = new XQuickTable(array(), array("Races", "Crews")));
@@ -251,7 +251,7 @@ class RpEnterPane extends AbstractPane {
       foreach ($args as $s => $s_value) {
 	if (preg_match('/^(cr|sk)[ABCD][0-9]+/', $s) > 0) {
 	  // We have a sailor request upon us
-	  $s_role = (substr($s, 0, 2) == "sk") ? RP::SKIPPER : RP::CREW;
+	  $s_role = (substr($s, 0, 2) == "sk") ? RP2::SKIPPER : RP2::CREW;
 	  $s_div  = substr($s,2,1);
 	  $s_race = DB::parseRange($args["r" . $s]);
 	  $s_obj  = Preferences::getObjectWithProperty($sailors, "id", $s_value);
@@ -263,7 +263,7 @@ class RpEnterPane extends AbstractPane {
 	    // Eliminate those races from $s_race for which there is
 	    // no space for a crew
 	    $s_race_copy = $s_race;
-	    if ($s_role == RP::CREW) {
+	    if ($s_role == RP2::CREW) {
 	      foreach ($s_race as $i => $num) {
 		if ($occupants[$s_div][$num] <= 1) {
 		  unset($s_race_copy[$i]);
@@ -276,7 +276,7 @@ class RpEnterPane extends AbstractPane {
 	    // @TODO
 	    $div = new Division($s_div);
 	    foreach ($s_race_copy as $num) {
-	      $rp = new RP();
+	      $rp = new RPEntry();
 	      $rp->team = $team;
 	      $rp->race = $this->REGATTA->getRace($div, $num);
 	      $rp->boat_role  = $s_role;
