@@ -995,13 +995,12 @@ class Regatta {
    * @return DateTime, or null if no update found
    */
   public function getLastScoreUpdate() {
-    $q = sprintf('select request_time from %s where regatta = %d and activity = "%s"',
-		 UpdateRequest::TABLES, $this->id(), UpdateRequest::ACTIVITY_SCORE);
-    $q = $this->query($q);
-    if ($q->num_rows == 0)
-      return null;
-
-    return new DateTime($q->fetch_object()->request_time);
+    DB::$UPDATE_REQUEST->db_set_order(array('request_time'=>false));
+    $res = DB::getAll(DB::$UPDATE_REQUEST, new DBCond('regatta', $this->id));
+    $r = (count($res) == 0) ? null : $res[0]->request_time;
+    unset($res);
+    DB::$UPDATE_REQUEST->db_set_order();
+    return $r;
   }
 
   /**

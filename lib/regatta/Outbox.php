@@ -27,8 +27,6 @@ class Outbox extends DBObject {
   public $subject;
   public $content;
 
-  const TABLES = 'outbox';
-
   public function db_type($field) {
     switch ($field) {
     case 'queue_time':

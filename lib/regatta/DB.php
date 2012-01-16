@@ -1027,10 +1027,6 @@ class Race extends DBObject {
   public $number;
   public $scored_by;
 
-  // Race fields
-  const FIELDS = "race.id, race.division, race.number, race.boat";
-  const TABLES = "race";
-  
   public function db_name() { return 'race'; }
   public function db_type($field) {
     switch ($field) {
