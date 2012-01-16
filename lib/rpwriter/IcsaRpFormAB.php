@@ -161,7 +161,7 @@ class IcsaRpFormAB extends AbstractIcsaRpForm {
 
 
 if (isset($argv) && basename(__FILE__) == $argv[0]) {
-  $reg = new Regatta(20);
+  $reg = DB::getRegatta(20);
   $rp = $reg->getRpManager();
   $divs = $reg->getDivisions();
 

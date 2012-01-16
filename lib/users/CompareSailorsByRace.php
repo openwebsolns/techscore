@@ -75,7 +75,7 @@ class CompareSailorsByRace extends AbstractUserPane {
     // populate the list with the first sailor
     $first_sailor = array_shift($sailors);
     foreach ($regattas as $regatta) {
-      $reg = new Regatta($regatta->id);
+      $reg = DB::getRegatta($regatta->id);
       $rpm = $reg->getRpManager();
       $rps = $rpm->getParticipation($first_sailor, 'skipper');
       if (count($rps) > 0) {
@@ -97,7 +97,7 @@ class CompareSailorsByRace extends AbstractUserPane {
     foreach ($sailors as $sailor) {
       $copy = $reg_races;
       foreach ($copy as $regatta_id => $div_list) {
-	$reg = new Regatta($regatta_id);
+	$reg = DB::getRegatta($regatta_id);
 	$rpm = $reg->getRpManager();
 	foreach ($div_list as $div => $races_nums) {
 	  $rps = $rpm->getParticipation($sailor, 'skipper', Division::get($div));
@@ -149,7 +149,7 @@ class CompareSailorsByRace extends AbstractUserPane {
     }
     // each race
     foreach ($reg_races as $reg_id => $div_list) {
-      $regatta = new Regatta($reg_id);
+      $regatta = DB::getRegatta($reg_id);
       foreach ($div_list as $div => $races_nums) {
 	$index = 0;
 	foreach ($races_nums as $num) {

@@ -20,7 +20,7 @@ require_once('conf.php');
 array_shift($argv);
 foreach ($argv as $id) {
   try {
-    $reg = new Regatta($id);
+    $reg = DB::getRegatta($id);
     try {
       if ($reg->get(Regatta::TYPE) != Regatta::TYPE_PERSONAL) {
 	UpdateRegatta::runSync($reg);

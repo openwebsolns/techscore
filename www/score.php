@@ -29,7 +29,7 @@ if (!isset($_REQUEST['reg']) || !is_numeric($_REQUEST['reg'])) {
 }
 try {
   require_once('regatta/Regatta.php');
-  $REG = new Regatta((int)$_REQUEST['reg']);
+  $REG = DB::getRegatta($_REQUEST['reg']);
 }
 catch (Exception $e) {
   Session::pa(new PA("No such regatta.", PA::I));

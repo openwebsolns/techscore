@@ -167,7 +167,7 @@ class UpdateDaemon {
 	  // Action is still available, do it
 	  unset($actions[$last->activity]);
 	  try {
-	    self::$REGATTA = new Regatta($id);
+	    self::$REGATTA = DB::getRegatta($id);
 	    if (isset($sync[$id])) {
 	      UpdateRegatta::runSync(self::$REGATTA, $sync[$id][0], $sync[$id][1]);
 	      self::report('synced');
@@ -281,7 +281,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
     // Print them out and exit
     foreach ($regattas as $id => $list) {
       try {
-	$reg = new Regatta($id);
+	$reg = DB::getRegatta($id);
 	printf("--------------------\nRegatta: [%s] %s (%s/%s)\n--------------------\n",
 	       $reg->id(), $reg->get(Regatta::NAME), $reg->get(Regatta::SEASON), $reg->get(Regatta::NICK_NAME));
 	foreach ($list as $activity => $num)

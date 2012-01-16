@@ -133,7 +133,7 @@ if (isset($argv) && basename(__FILE__) == basename($argv[0])) {
   // 132: four divisions
   // 101: sloops
   //  76: single-handed
-  $writer = new RpFormWriter(new Regatta(76));
+  $writer = new RpFormWriter(DB::getRegatta(76));
   print($writer->makePDF("new-reg"));
 }
 ?>

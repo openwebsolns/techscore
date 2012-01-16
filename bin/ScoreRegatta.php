@@ -19,7 +19,7 @@ if (count($argv) < 2)
 ini_set('include_path', '.:'.realpath(dirname(__FILE__).'/../lib'));
 require_once('conf.php');
 try {
-  $reg = new Regatta($argv[1]);
+  $reg = DB::getRegatta($argv[1]);
   foreach ($reg->getScoredRaces() as $race)
     $reg->scorer->score($reg, $race);
 }

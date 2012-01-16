@@ -50,7 +50,7 @@ class TempRegatta extends Regatta {
       throw new InvalidArgumentException("Regatta $id is not a temporary regatta.");
 
     $res = $res->fetch_object();
-    $this->original = new Regatta($res->original);
+    $this->original = DB::getRegatta($res->original);
     $this->expires  = new DateTime($res->expires);
   }
 
@@ -130,10 +130,5 @@ class TempRegatta extends Regatta {
     $temp_reg = new TempRegatta($id);
     return $temp_reg;
   }
-}
-
-if (basename(__FILE__) == $argv[0]) {
-  $reg = TempRegatta::createRegatta(new Regatta(110), new DateTime("now", new DateTimeZone("America/New_York")));
-  print_r($reg);
 }
 ?>

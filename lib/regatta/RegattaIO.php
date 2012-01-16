@@ -290,7 +290,7 @@ class RegattaIO {
 
     $tsid = (int)$root['tsid'];
     try {
-      $other_reg = new Regatta($tsid);
+      $other_reg = DB::getRegatta($tsid);
     } catch (Exception $e) {
       throw new InvalidArgumentException("Unable to recognize saved ID.");
     }

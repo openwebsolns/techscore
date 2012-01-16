@@ -479,6 +479,20 @@ class DB extends DBM {
 
     return $range;
   }
+
+  /**
+   * Perfect for transition, creates ONE and only ONE regatta
+   *
+   * @param String $id the regatta ID
+   * @return Regatta the regatta object
+   * @throws InvalidArgumentException if illegal value
+   */
+  public static function getRegatta($id) {
+    if (!isset(self::$regattas[$id]))
+      self::$regattas[$id] = new Regatta($id);
+    return self::$regattas[$id];
+  }
+  private static $regattas = array();
 }
 
 /**

@@ -1336,7 +1336,7 @@ class Regatta {
 				       $scoring,
 				       $participant = Regatta::PARTICIPANT_COED) {
     $id = self::addRegatta(Conf::$SQL_DB, $name, $start_time, $end_date, $type, $scoring, $participant);
-    $r = new Regatta($id);
+    $r = DB::getRegatta($id);
     // do not create nick names for personal regattas (nick name
     // creation is delayed until the regatta is made active)
     if ($type != Regatta::TYPE_PERSONAL)

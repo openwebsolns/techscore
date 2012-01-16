@@ -139,7 +139,7 @@ class AllAmerican extends AbstractUserPane {
 	    in_array($reg->type, array(Regatta::TYPE_CHAMPIONSHIP,
 				       Regatta::TYPE_CONF_CHAMPIONSHIP,
 				       Regatta::TYPE_INTERSECTIONAL))) {
-	  $this->populateSailors(new Regatta($reg->id));
+	  $this->populateSailors(DB::getRegatta($reg->id));
 	  $qual_regattas[] = $reg;
 	}
 	else {
@@ -270,7 +270,7 @@ class AllAmerican extends AbstractUserPane {
 	  $this->AA['table'][$reg_id][$id] = array();
 
 	  // "Reverse" populate table
-	  $regatta = new Regatta($this->AA['regattas'][$reg_id]);
+	  $regatta = DB::getRegatta($this->AA['regattas'][$reg_id]);
 	  $rpm = $regatta->getRpManager();
 	  $rps = $rpm->getParticipation($sailor, $this->AA['report-role']);
 
@@ -399,7 +399,7 @@ class AllAmerican extends AbstractUserPane {
       $errors = 0;
       foreach ($args['regatta'] as $id) {
 	try {
-	  $reg = new Regatta($id);
+	  $reg = DB::getRegatta($id);
 	  $allow_other_ptcp = ($this->AA['report-participation'] != Regatta::PARTICIPANT_COED ||
 			       $reg->get(Regatta::PARTICIPANT) == Regatta::PARTICIPANT_COED);
 	  if ($reg->get(Regatta::TYPE) != Regatta::TYPE_PERSONAL && $allow_other_ptcp &&
