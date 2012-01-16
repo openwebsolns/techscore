@@ -35,6 +35,7 @@ class DB extends DBM {
   public static $DAILY_SUMMARY = null;
   public static $REPRESENTATIVE = null;
   public static $RP_ENTRY = null;
+  public static $SEASON = null;
   public static $NOW = null;
 
   public static $OUTBOX = null;
@@ -71,6 +72,7 @@ class DB extends DBM {
     self::$DAILY_SUMMARY = new Daily_Summary();
     self::$REPRESENTATIVE = new Representative();
     self::$RP_ENTRY = new RPEntry();
+    self::$SEASON = new Season();
     self::$NOW = new DateTime();
 
     DBM::setConnectionParams($host, $user, $pass, $db);
@@ -1344,6 +1346,171 @@ class RPEntry extends DBObject {
     }
   }
   protected function db_order() { return array('team'=>true, 'race'=>true); }
+}
+
+/**
+ * Encapsulates a season, either fall/spring, etc, with a start and
+ * end date
+ *
+ * @author Dayan Paez
+ * @version 2012-01-16
+ */
+class Season extends DBObject {
+  const FALL = "fall";
+  const SUMMER = "summer";
+  const SPRING = "spring";
+  const WINTER = "winter";
+
+  public $season;
+  protected $start_date;
+  protected $end_date;
+
+  public function db_type($field) {
+    switch ($field) {
+    case 'start_date':
+    case 'end_date':
+      return DB::$NOW;
+    default:
+      return parent::db_type($field);
+    }
+  }
+  protected function db_order() { return array('start_date'=>false); }
+
+  /**
+   * Wrapper to be deprecated
+   *
+   */
+  public function getSeason() {
+    return $this->season;
+  }
+  public function getYear() {
+    return $this->__get('start_date')->format('Y');
+  }
+  /**
+   * For Fall starting in 2011: f11
+   *
+   */
+  public function __toString() {
+    $v = null;
+    switch ($this->season) {
+    case self::FALL:
+      $v = "f";
+      break;
+    case self::WINTER:
+      $v = "w";
+      break;
+    case self::SPRING:
+      $v = "s";
+      break;
+    default:
+      $v = "m";
+    }
+    return sprintf("$v%s", substr($this->getYear(), 2));
+  }
+  
+  /**
+   * For Fall starting in 2011, return "Fall 2011"
+   */
+  public function fullString() {
+    return sprintf("%s %s", ucfirst((string)$this->season), substr($this->getYear(), 2));
+  }
+
+  /**
+   * Returns a list of week numbers in this season. Note that weeks go
+   * Monday through Sunday.
+   *
+   * @return Array:int the week number in the year
+   */
+  public function getWeeks() {
+    $weeks = array();
+    for ($i = $this->start_date->format('W'); $i < $this->end_date->format('W'); $i++)
+      $weeks[] = $i;
+    return $weeks;
+  }
+
+  // ------------------------------------------------------------
+  // Regattas
+  // ------------------------------------------------------------
+
+  /**
+   * Returns all the regattas in this season which are not personal
+   *
+   * @return Array:RegattaSummary
+   */
+  public function getRegattas() {
+    return DB::getAll(DB::$REGATTA_SUMMARY,
+		      new DBBool(array(new DBCond('start_time', $this->start_date, DBCond::GE),
+				       new DBCond('start_time', $this->end_date,   DBCond::LT),
+				       new DBCond('type', Regatta::TYPE_PERSONAL, DBCond::NE))));
+  }
+
+  /**
+   * Get a list of regattas in this season in which the given
+   * school participated. This is a convenience method.
+   *
+   * @param School $school the school whose participation to verify
+   * @return Array:RegattaSummary
+   */
+  public function getParticipation(School $school) {
+    return DB::getAll(DB::$REGATTA_SUMMARY,
+		      new DBBool(array(new DBCond('start_time', $this->start_date, DBCond::GE),
+				       new DBCond('start_time', $this->end_date,   DBCond::LT),
+				       new DBCondIn('id', DB::prepGetAll(DB::$TEAM, new DBCond('school', $school), array('regatta'))))));
+  }
+
+  // ------------------------------------------------------------
+  // Static methods
+  // ------------------------------------------------------------
+
+  /**
+   * Parses the given season into a season object. The string should
+   * have the form '[fswm][0-9]{2}'
+   *
+   * @param String $text the string to parse
+   * @return Season|null the season object or null
+   */
+  public static function parse($text) {
+    // Check first character for allowable type
+    $text = strtolower($text);
+
+    $s = null;
+    switch ($text[0]) {
+    case "f": $s = "fall";   break;
+    case "s": $s = "spring"; break;
+    case "m": $s = "summer"; break;
+    case "w": $s = "winter"; break;
+    default:
+      return null;
+    }
+    $y = substr($text, 1);
+    if (!is_numeric($y))
+      return null;
+
+    $y = (int)$y;
+    $y += ($y < 90) ? 2000 : 1900;
+
+    $res = DB::getAll(DB::$SEASON, new DBBool(array(new DBCond('season', $s), new DBCond('year(start_date)', $y))));
+    $r = (count($res) == 0) ? null : $res[0];
+    unset($res);
+    return $r;
+  }
+  
+  /**
+   * Returns the season object, if any, that surrounds the given date.
+   *
+   * This method replaces the former constructor for Season, for which
+   * there was no guarantee of a season existing.
+   *
+   * @param DateTime $date the date whose season to get
+   * @return Season|null the season for $date
+   */
+  public static function forDate(DateTime $date) {
+    $res = DB::getAll(DB::$SEASON, new DBBool(array(new DBCond('start_date', $date, DBCond::LE),
+						    new DBCond('end_date', $date, DBCond::GE))));
+    $r = (count($res) == 0) ? null : $res[0];
+    unset($res);
+    return $r;
+  }
 }
 
 // ------------------------------------------------------------

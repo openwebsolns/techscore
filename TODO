@@ -208,6 +208,14 @@ responsibility for maintaining the different seasons in the
 database. No new regattas will be created if there is no season
 available for them. Capisce?
 
+** Deprecated functions
+
+  - getSeason() is swapped for ->season.
+
+  - Constructor replaced with Season::forDate, which may return null.
+
+  - getRegattas no longer has limits (no arguments)
+
 
 * Migration notes:
 
