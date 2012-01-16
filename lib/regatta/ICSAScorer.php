@@ -58,7 +58,8 @@ class ICSAScorer {
     $finishes = array();
     foreach ($divs as $div) {
       $r = $reg->getRace($div, $race->number);
-      $finishes = array_merge($finishes, $reg->getFinishes($r));
+      foreach ($reg->getFinishes($r) as $fin)
+	$finishes[] = $fin;
     }
     if (count($finishes) != 0 && count($finishes) != $FLEET)
       throw new InvalidArgumentException("Some divisions seem to be missing combined finishes for race $race");
@@ -67,6 +68,7 @@ class ICSAScorer {
     $affected_finishes = $finishes; // these, and the average
 				    // finishes, need to be commited
 				    // to database. So track 'em!
+
     $avg_finishes = array();
     $score = 1;
     foreach ($finishes as $i => $finish) {
@@ -200,9 +202,11 @@ class ICSAScorer {
     // Get each finish in order and set the score
     $score = 1;
     $finishes = $reg->getFinishes($race);
-    $affected_finishes = $finishes; // track the finishes which need
-				    // to be committed to the database
-    usort($finishes, "Finish::compareEntered");
+    // track the finishes which need to be committed to database
+    $affected_finishes = array();
+    foreach ($finishes as $finish)
+      $affected_finishes[] = $finish;
+    // usort($finishes, "Finish::compareEntered");
     $avg_finishes = array(); // list of finishes that need to be averaged
     foreach ($finishes as $finish) {
       // ------------------------------------------------------------
@@ -315,7 +319,6 @@ class ICSAScorer {
 	}
       }
     } // end loop through average finishes
-
     $reg->commitFinishes($affected_finishes);
   }
 

@@ -1160,7 +1160,7 @@ class Finish extends DBObject {
 	$this->score = $value->score;
 	$this->explanation = $value->explanation;
       }
-      if ($value === null) {
+      elseif ($value === null) {
 	$this->score = null;
 	$this->explanation = null;
       }
@@ -1198,7 +1198,7 @@ class Finish extends DBObject {
    * it comes after
    */
   public static function compareEntered(Finish $f1, Finish $f2) {
-    return $f1->entered->format("U") - $f2->entered->format("U");
+    return $f1->__get('entered')->format("U") - $f2->__get('entered')->format("U");
   }
 }
 

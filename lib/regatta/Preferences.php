@@ -45,7 +45,7 @@ class Preferences {
    * @param mixed  $prop_value the value of the property to check
    * @return the object, or null if not found
    */
-  public static function getObjectWithProperty(Array $array,
+  public static function getObjectWithProperty($array,
 					       $prop_name,
 					       $prop_value) {
     foreach ($array as $obj) {
