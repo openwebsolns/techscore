@@ -46,7 +46,6 @@ class Regatta {
   const TYPE       = "type";
   const VENUE      = "venue";
   const SCORING    = "scoring";
-  const SEASON     = "season";
   const PARTICIPANT = "participant";
 
   /**
@@ -166,7 +165,7 @@ class Regatta {
 
       // Venue and Season shall not be serialized until they are
       // requested
-      $this->properties[Regatta::SEASON] = null;
+      $this->properties['season'] = null;
 
       // Finalized
       if (($p = $this->properties[Regatta::FINALIZED]) !== null)
@@ -194,7 +193,7 @@ class Regatta {
 	  !($this->properties[$property] instanceof Venue))
 	$this->properties[$property] = DB::getVenue($this->properties[$property]);
     }
-    elseif ($property == Regatta::SEASON) {
+    elseif ($property == 'season') {
       if ($this->properties[$property] === null)
 	$this->properties[$property] = Season::forDate($this->properties[Regatta::START_TIME]);
     }
@@ -251,8 +250,6 @@ class Regatta {
       $m = "Property $property not supported in regattas.";
       throw new InvalidArgumentException($m);
     }
-    if ($property == Regatta::SEASON)
-      throw new InvalidArgumentException("Cannot set season directly. Set START_TIME instead.");
     if ($value == null)
       $strvalue = 'NULL';
     elseif (in_array($property, array(Regatta::START_TIME, Regatta::END_DATE, Regatta::FINALIZED))) {
