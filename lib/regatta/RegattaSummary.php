@@ -233,24 +233,15 @@ class RegattaSummary extends DBObject {
   }
 
   /**
-   * @var Array $teams an attempt to cache teams
-   */
-  private $teams = null;
-  /**
    * Fetches the team with the given ID, or null
    *
    * @param int $id the id of the team
    * @return Team|null if the team exists
    */
   public function getTeam($id) {
-    if ($this->teams !== null)
-      return (isset($this->teams[$id])) ? $this->teams[$id] : null;
-
     $res = DB::get($this->isSingleHanded() ? DB::$SINGLEHANDED_TEAM : DB::$TEAM, $id);
     if ($res === null || $res->regatta != $this)
       return null;
-
-    $this->teams[$team->id] = $team;
     return $team;
   }
 
@@ -286,8 +277,6 @@ class RegattaSummary extends DBObject {
    */
   public function addTeam(Team $team) {
     DB::set($team);
-    if ($this->teams !== null)
-      $this->teams[$team->id] = $team;
   }
 
   /**
@@ -317,7 +306,6 @@ class RegattaSummary extends DBObject {
    */
   public function removeTeam(Team $team) {
     DB::remove($team);
-    unset($this->teams[$team->id]);
   }
   
   /**
