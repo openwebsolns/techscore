@@ -165,7 +165,7 @@ class ReportMaker {
       $schools[$host->id] = $host->nick_name;
 
     $types = Regatta::getTypes();
-    $type = sprintf('%s Regatta', $types[$reg->get(Regatta::TYPE)]);
+    $type = sprintf('%s Regatta', $types[$reg->type]);
     $div->add(new XUl(array(),
 		      array(new XLi(implode("/", $schools)),
 			    new XLi($date),

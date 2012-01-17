@@ -409,7 +409,7 @@ class AllAmerican extends AbstractUserPane {
 	  $reg = DB::getRegatta($id);
 	  $allow_other_ptcp = ($this->AA['report-participation'] != Regatta::PARTICIPANT_COED ||
 			       $reg->get(Regatta::PARTICIPANT) == Regatta::PARTICIPANT_COED);
-	  if ($reg->get(Regatta::TYPE) != Regatta::TYPE_PERSONAL && $allow_other_ptcp &&
+	  if ($reg->type != Regatta::TYPE_PERSONAL && $allow_other_ptcp &&
 	      $reg->get(Regatta::FINALIZED) !== null)
 	    $this->populateSailors($reg);
 	  else

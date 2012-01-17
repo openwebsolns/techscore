@@ -47,7 +47,7 @@ abstract class AbstractDialog {
     //   -Regatta info
     $this->PAGE->addNavigation(new XDiv(array("id"=>"regatta"),
 					array(new XP(array(), $this->REGATTA->get(Regatta::NAME)),
-					      new XUl(array(), array(new XLi(ucfirst($this->REGATTA->get(Regatta::TYPE))))))));
+					      new XUl(array(), array(new XLi(ucfirst($this->REGATTA->type)))))));
   }
 
   /**

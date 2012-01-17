@@ -66,7 +66,7 @@ class UpdateRegatta {
    * @return boolean true if a new regatta was inserted
    */
   public static function runSync(Regatta $reg, $full = true, $rp = true) {
-    if ($reg->get(Regatta::TYPE) == Regatta::TYPE_PERSONAL)
+    if ($reg->type == Regatta::TYPE_PERSONAL)
       return;
 
     $dreg = new Dt_Regatta();
@@ -75,7 +75,7 @@ class UpdateRegatta {
     $dreg->nick = $reg->get(Regatta::NICK_NAME);
     $dreg->start_time = $reg->get(Regatta::START_TIME);
     $dreg->end_date   = $reg->get(Regatta::END_DATE);
-    $dreg->type = $reg->get(Regatta::TYPE);
+    $dreg->type = $reg->type;
     $dreg->finalized = $reg->get(Regatta::FINALIZED);
     $dreg->scoring = $reg->get(Regatta::SCORING);
     $dreg->participant = $reg->get(Regatta::PARTICIPANT);
@@ -269,7 +269,7 @@ class UpdateRegatta {
    * @return boolean true if new regatta
    */
   public static function run(Regatta $reg, $activity) {
-    if ($reg->get(Regatta::TYPE) == Regatta::TYPE_PERSONAL) {
+    if ($reg->type == Regatta::TYPE_PERSONAL) {
       self::runDelete($reg);
       UpdateSeason::run($reg->getSeason());
       UpdateSchoolsSummary::run();

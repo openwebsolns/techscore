@@ -176,6 +176,33 @@ class RegattaSummary extends DBObject {
     DB::set($this);
   }
 
+  /**
+   * Sets the type for this regatta, creating a nick name if needed.
+   *
+   * Note that it does not actually record the changes in database. A
+   * subsequent call to DB::set is necessary.
+   *
+   * @param Const the regatta type
+   * @throws InvalidArgumentException if no regatta can be created
+   */
+  public function setType($value) {
+    if (!in_array($value, array_keys(RegattaSummary::getTypes())))
+      throw new InvalidArgumentException("Invalid regatta type \"$value\".");
+    // re-create the nick name, and let that method determine if it
+    // is valid (this would throw an exception otherwise)
+    if ($value != RegattaSummary::TYPE_PERSONAL)
+      $this->nick_name = $this->createNick();
+    $this->type = $value;
+  }
+
+  public function __set($name, $value) {
+    if ($name == 'type') {
+      $this->setType($value);
+      return;
+    }
+    parent::__set($name, $value);
+  }
+
   // ------------------------------------------------------------
   // Daily summaries
   // ------------------------------------------------------------
@@ -815,6 +842,73 @@ class RegattaSummary extends DBObject {
    */
   public static function cmpStartDesc(RegattaSummary $r1, RegattaSummary $r2) {
     return -1 * self::cmpStart($r1, $r2);
+  }
+
+  /**
+   * Creates a regatta nick name for this regatta based on this
+   * regatta's name. Nick names are guaranteed to be a unique per
+   * season. As such, this function will throw an error if there is
+   * already a regatta with the same nick name as this one. This is
+   * meant to establish some order from users who fail to read
+   * instructions and create mutliple regattas all with the same name,
+   * leaving behind "phantom" regattas.
+   *
+   * Nicknames are all lower case, separated by dashes, and devoid of
+   * filler words, including 'trophy', 'championship', and the like.
+   *
+   * @return String the nick name
+   * @throw InvalidArgumentException if the nick name is not unique
+   */
+  public function createNick() {
+    $name = strtolower($this->name);
+    // Remove 's from words
+    $name = str_replace('\'s', '', $name);
+
+    // Convert dashes, slashes and underscores into spaces
+    $name = str_replace('-', ' ', $name);
+    $name = str_replace('/', ' ', $name);
+    $name = str_replace('_', ' ', $name);
+
+    // White list permission
+    $name = preg_replace('/[^0-9a-z\s_+]+/', '', $name);
+
+    // Remove '80th'
+    $name = preg_replace('/[0-9]+th/', '', $name);
+    $name = preg_replace('/[0-9]*1st/', '', $name);
+    $name = preg_replace('/[0-9]*2nd/', '', $name);
+    $name = preg_replace('/[0-9]*3rd/', '', $name);
+
+    // Trim and squeeze spaces
+    $name = trim($name);
+    $name = preg_replace('/\s+/', '-', $name);
+
+    $tokens = explode("-", $name);
+    $blacklist = array("the", "of", "for", "and", "an", "in", "is", "at",
+		       "trophy", "championship", "intersectional",
+		       "college", "university",
+		       "professor");
+    $tok_copy = $tokens;
+    foreach ($tok_copy as $i => $t)
+      if (in_array($t, $blacklist))
+	unset($tokens[$i]);
+    $name = implode("-", $tokens);
+
+    // eastern -> east
+    $name = str_replace("eastern", "east", $name);
+    $name = str_replace("western", "west", $name);
+    $name = str_replace("northern", "north", $name);
+    $name = str_replace("southern", "south", $name);
+
+    // semifinals -> semis
+    $name = str_replace("semifinals", "semis", $name);
+    $name = str_replace("semifinal",  "semis", $name);
+
+    // list of regatta names in the same season as this one
+    foreach ($this->getSeason()->getRegattas() as $n) {
+      if ($n->nick == $name && $n->id != $this->id)
+	throw new InvalidArgumentException(sprintf("Nick name \"%s\" already in use by (%d).", $name, $n->id));
+    }
+    return $name;
   }
 }
 DB::$REGATTA_SUMMARY = new RegattaSummary();

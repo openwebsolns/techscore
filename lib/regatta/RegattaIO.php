@@ -64,7 +64,7 @@ class RegattaIO {
 
     //   -Regatta type
     $root->add($tag = new XElem("RegattaType"));
-    $tag->add(new XText($reg->get(Regatta::TYPE)));
+    $tag->add(new XText($reg->type));
     $tag->set("class", "ICSA");
 
     //   -Regatta scoring
@@ -323,7 +323,7 @@ class RegattaIO {
       $warnings[] = sprintf("Invalid RegattaType (%s), default to 'personal'.", $regtype);
       $regtype = "personal";
     }
-    $regatta->set(Regatta::TYPE, $regtype);
+    $regatta->setType($regtype);
 
 
     // - finalized?

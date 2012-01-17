@@ -43,7 +43,6 @@ class Regatta {
   const END_DATE   = "end_date";
   const DURATION   = "duration";
   const FINALIZED  = "finalized";
-  const TYPE       = "type";
   const VENUE      = "venue";
   const SCORING    = "scoring";
   const PARTICIPANT = "participant";
@@ -215,6 +214,8 @@ class Regatta {
       }
       return $this->scorer;
     }
+    if (isset($this->properties[$name]))
+      return $this->properties[$name];
     throw new InvalidArgumentException("No such Regatta property $name.");
   }
 
@@ -260,13 +261,7 @@ class Regatta {
       $strvalue = sprintf('"%s"', $value->format("Y-m-d H:i:s"));
     }
     elseif ($property == Regatta::TYPE) {
-      if (!in_array($value, array_keys(Regatta::getTypes())))
-	throw new InvalidArgumentException("Invalid regatta type \"$value\".");
-      // re-create the nick name, and let that method determine if it
-      // is valid (this would throw an exception otherwise)
-      if ($value != Regatta::TYPE_PERSONAL)
-	$this->set(Regatta::NICK_NAME, $this->createNick());
-      $strvalue = sprintf('"%s"', $value);
+      $this->setType($value);
     }
     else
       $strvalue = sprintf('"%s"', $value);
@@ -275,6 +270,23 @@ class Regatta {
     $q = sprintf('update regatta set %s = %s where id = "%s"',
 		 $property, $strvalue, $this->id);
     $this->query($q);
+  }
+
+  /**
+   * Sets the type for this regatta, creating a nick name if needed.
+   *
+   * @param Const the regatta type
+   * @throws InvalidArgumentException if no regatta can be created
+   */
+  public function setType($value) {
+    if (!in_array($value, array_keys(Regatta::getTypes())))
+      throw new InvalidArgumentException("Invalid regatta type \"$value\".");
+    // re-create the nick name, and let that method determine if it
+    // is valid (this would throw an exception otherwise)
+    if ($value != Regatta::TYPE_PERSONAL)
+      $this->__set('nick_name', $this->createNick());
+    $this->type = $value;
+    DB::set($this);
   }
 
   //

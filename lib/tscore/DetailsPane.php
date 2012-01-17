@@ -69,7 +69,7 @@ class DetailsPane extends AbstractPane {
     }
 
     // Regatta type
-    $value = $this->REGATTA->get(Regatta::TYPE);
+    $value = $this->REGATTA->type;
     $types = Regatta::getTypes();
     unset($types['personal']);
     $reg_form->add($item = new FItem("Type:",
@@ -178,7 +178,7 @@ class DetailsPane extends AbstractPane {
 	// this may throw an error for two reasons: illegal type or
 	// invalid nick name
 	try {
-	  $this->REGATTA->set(Regatta::TYPE, $args['type']);
+	  $this->REGATTA->setType($args['type']);
 	}
 	catch (InvalidArgumentException $e) {
 	  Session::pa(new PA("Unable to change the type of regatta. Either an invalid type was specified, or more likely you attempted to activate a regatta that is under the same name as another already-activated regatta for the current season. Before you can do that, please make sure that the other regatta with the same name as this one is removed or de-activated (made personal) before proceeding.", PA::I));
