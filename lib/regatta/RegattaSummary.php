@@ -310,6 +310,41 @@ class RegattaSummary extends DBObject {
     DB::set($old);
   }
 
+  /**
+   * Remove the given team from this regatta
+   *
+   * @param Team $team the team to remove
+   */
+  public function removeTeam(Team $team) {
+    DB::remove($team);
+    unset($this->teams[$team->id]);
+  }
+  
+  /**
+   * Returns the simple rank of the teams in the database, by
+   * totalling their score across the division given (or all
+   * divisions). A tiebreaker procedure should be used after that if
+   * multiple teams share the same score.
+   *
+   * @param Array:Division $divs the divisions to use for the ranking
+   */
+  public function getRanks(Array $divs) {
+    $q = DB::createQuery();
+    $q->fields(array(new DBField('team'),
+		     new DBField('score', 'sum', 'total')), DB::$FINISH->db_name());
+    $q->where(new DBCondIn('race',
+			   DB::prepGetAll(DB::$RACE,
+					  new DBBool(array(new DBCondIn('division', $divs),
+							   new DBCond('regatta', $this->id))),
+					  array('id'))));
+    $q->order_by(array('total'=>true));
+    $q = DB::query($q);
+    $ranks = array();
+    while ($obj = $q->fetch_object())
+      $ranks[] = new Rank($this->getTeam($obj->team), $obj->total);
+    $q->free();
+    return $ranks;
+  }
 
   // ------------------------------------------------------------
   // Comparators

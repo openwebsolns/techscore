@@ -407,12 +407,16 @@ class Regatta {
    * @param Array:Division $divs the divisions to use for the ranking
    */
   public function getRanks(Array $divs) {
-    $q = sprintf('select team, sum(score) as total from finish ' .
-		 'where race in (select id from race where regatta = %d and division in ("%s")) ' .
-		 'group by team order by total',
-		 $this->id,
-		 implode('","', $divs));
-    $q = $this->query($q);
+    $q = DB::createQuery();
+    $q->fields(array(new DBField('team'),
+		     new DBField('score', 'sum', 'total')), DB::$FINISH->db_name());
+    $q->where(new DBCondIn('race',
+			   DB::prepGetAll(DB::$RACE,
+					  new DBBool(array(new DBCondIn('division', $divs),
+							   new DBCond('regatta', $this->id))),
+					  array('id'))));
+    $q->order_by(array('total'=>true));
+    $q = DB::query($q);
     $ranks = array();
     while ($obj = $q->fetch_object())
       $ranks[] = new Rank($this->getTeam($obj->team), $obj->total);
