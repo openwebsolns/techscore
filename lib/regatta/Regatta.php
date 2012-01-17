@@ -373,12 +373,7 @@ class Regatta {
    * needed)
    */
   public function addTeam(Team $team) {
-    $con = DB::connection();
-    $q = sprintf('insert into team (regatta, school, name) ' .
-		 'values ("%s", "%s", "%s")',
-		 $this->id, $team->school->id, $team->name);
-    $this->query($q);
-    $team->id = $con->insert_id;
+    DB::set($team);
     if ($this->teams !== null)
       $this->teams[$team->id] = $team;
   }
@@ -395,12 +390,12 @@ class Regatta {
    * regatta to begin with!
    */
   public function replaceTeam(Team $old, Team $new) {
-    $this->getTeams();
-    if (!isset($this->teams[$old->id]))
+    if ($old->regatta != $this)
       throw new InvalidArgumentException("Team \"$old\" is not part of this regatta.");
-    
-    $this->query(sprintf('update team set school = "%s", name = "%s" where id = "%s"',
-			 $new->school->id, $new->name, $old->id));
+
+    $old->school = $new->school;
+    $old->name = $new->name;
+    DB::set($old);
   }
 
   /**

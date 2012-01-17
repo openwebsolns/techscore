@@ -239,18 +239,75 @@ class RegattaSummary extends DBObject {
   /**
    * Fetches the team with the given ID, or null
    *
-   * @TODO: support for SingleHanded teams
-   *
    * @param int $id the id of the team
    * @return Team|null if the team exists
    */
   public function getTeam($id) {
-    if ($this->teams === null) {
-      $this->teams = array();
-      foreach ($this->getTeams() as $team)
-	$this->teams[$team->id] = $team;
-    }
-    return (isset($this->teams[$id])) ? $this->teams[$id] : null;
+    if ($this->teams !== null)
+      return (isset($this->teams[$id])) ? $this->teams[$id] : null;
+
+    $res = DB::get($this->isSingleHanded() ? DB::$SINGLEHANDED_TEAM : DB::$TEAM, $id);
+    if ($res === null || $res->regatta != $this)
+      return null;
+
+    $this->teams[$team->id] = $team;
+    return $team;
+  }
+
+  /**
+   * Just get the number of teams, which is slightly quicker than
+   * serializing all those teams.
+   *
+   * @return int the fleet size
+   */
+  public function getFleetSize() {
+    return count($this->getTeams());
+  }
+
+  /**
+   * Gets a list of team objects for this regatta.
+   *
+   * @param School $school the optional school whose teams to return
+   * @return array of team objects
+   */
+  public function getTeams(School $school = null) {
+    $cond = new DBBool(array(new DBCond('regatta', $this->id)));
+    if ($school !== null)
+      $cond->add(new DBCond('school', $school));
+    return DB::getAll($this->isSingleHanded() ? DB::$SINGLEHANDED_TEAM : DB::$TEAM, $cond);
+  }
+
+  /**
+   * Adds the given team to this regatta. Updates the given team
+   * object to have the correct, databased ID
+   *
+   * @param Team $team the team to add (only team name and school are
+   * needed)
+   */
+  public function addTeam(Team $team) {
+    DB::set($team);
+    if ($this->teams !== null)
+      $this->teams[$team->id] = $team;
+  }
+
+  /**
+   * Replaces the given team's school information with the team
+   * given. Note that this changes the old team's object's
+   * information. The new team does not become part of this
+   * regatta.
+   *
+   * @param Team $old the team to replace
+   * @param Team $new the team to replace with
+   * @throws InvalidArgumentException if old team is not part of this
+   * regatta to begin with!
+   */
+  public function replaceTeam(Team $old, Team $new) {
+    if ($old->regatta->id != $this->id)
+      throw new InvalidArgumentException("Team \"$old\" is not part of this regatta.");
+
+    $old->school = $new->school;
+    $old->name = $new->name;
+    DB::set($old);
   }
 
 
