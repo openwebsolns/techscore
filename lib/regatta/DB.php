@@ -24,6 +24,7 @@ class DB extends DBM {
   public static $COACH = null;
   public static $SCORER = null;
   public static $TEAM = null;
+  public static $SINGLEHANDED_TEAM = null;
   public static $TEAM_NAME_PREFS = null;
   public static $SAIL = null;
   public static $NOTE = null;
@@ -60,6 +61,7 @@ class DB extends DBM {
     self::$COACH = new Coach();
     self::$SCORER = new Scorer();
     self::$TEAM = new Team();
+    self::$SINGLEHANDED_TEAM = new SinglehandedTeam();
     self::$TEAM_NAME_PREFS = new Team_Name_Prefs();
     self::$SAIL = new Sail();
     self::$NOTE = new Note();
@@ -912,6 +914,7 @@ class Scorer extends DBObject {
 class Team extends DBObject {
   public $name;
   protected $school;
+  protected $regatta; // change to protected when using DBM
 
   public function db_name() { return 'team'; }
   protected function db_order() { return array('school'=>true, 'id'=>true); }
@@ -923,9 +926,73 @@ class Team extends DBObject {
       return parent::db_type($field);
     }
   }
+  public function db_update_ignore() { return array('regatta'); }
+
+  public function &__get($name) {
+    if ($name == 'regatta') {
+      if ($this->regatta !== null && !($this->regatta instanceof Regatta))
+	$this->regatta = DB::getRegatta($this->regatta);
+      return $this->regatta;
+    }
+    return parent::__get($name);
+  }
 
   public function __toString() {
     return $this->__get('school')->nick_name . ' ' . $this->name;
+  }
+}
+
+/**
+ * Team for the purpose of a singlehanded event. For those events, the
+ * string representation of a team is the sailor's name, if such exists.
+ *
+ * @author Dayan Paez
+ * @version 2012-01-16
+ */
+class SinglehandedTeam extends Team {
+
+  /**
+   * Overrides the parent's method for retrieving name
+   *
+   * @param String $name the name of the property, only "name" is overriden
+   */
+  public function &__get($name) {
+    if ($name == 'name')
+      return $this->getQualifiedName();
+    return parent::__get($name);
+  }
+
+  /**
+   * Returns either the skipper in A division, or the team name
+   *
+   * @return String name of the team or sailor
+   */
+  private function getQualifiedName() {
+    if ($this->regatta == null) return parent::__get("name");
+
+    try {
+      $rps = $this->__get('regatta')->getRpManager()->getRP($this, Division::A(), RP::SKIPPER);
+      if (count($rps) == 0)
+	return parent::__get("name");
+
+      // Should be one, but just in case
+      $sailors = array();
+      foreach ($rps as $rp)
+	$sailors[] = $rp->sailor;
+      return implode("/", $sailors);
+    } catch (Exception $e) {
+      return parent::__get("name");
+    }
+  }
+
+  /**
+   * Overrides the parent __toString() method to print the skipper(s)
+   * in A Division, or the team name
+   *
+   * @return String the string representation of the team
+   */
+  public function __toString() {
+    return sprintf("%s %s", $this->__get('school')->name, $this->getQualifiedName());
   }
 }
 

@@ -331,24 +331,14 @@ class Regatta {
    * @return Team|null if the team exists
    */
   public function getTeam($id) {
-    if ($this->teams !== null) {
-      if (isset($this->teams[$id]))
-	return $this->teams[$id];
-      return null;
-    }
+    if ($this->teams !== null)
+      return (isset($this->teams[$id])) ? $this->teams[$id] : null;
 
-    $q = sprintf('select team.id, team.name, team.school from team where regatta = %d and id = %d limit 1',
-		 $this->id, $id);
-    $q = $this->query($q);
-    if ($q->num_rows == 0)
+    $res = DB::get($this->isSingleHanded() ? DB::$SINGLEHANDED_TEAM : DB::$TEAM, $id);
+    if ($res === null || $res->regatta != $this)
       return null;
 
-    if ($this->isSingleHanded()) {
-      $team = $q->fetch_object('SinglehandedTeam');
-      $team->setRpManager($this->rp);
-    }
-    else
-      $team = $q->fetch_object('Team');
+    $this->teams[$team->id] = $team;
     return $team;
   }
 
@@ -359,12 +349,7 @@ class Regatta {
    * @return int the fleet size
    */
   public function getFleetSize() {
-    if ($this->teams !== null)
-      return count($this->teams);
-    $q = $this->query(sprintf('select id from team where regatta = %d', $this->id));
-    $n = $q->num_rows;
-    $q->free();
-    return $n;
+    return count($this->getTeams());
   }
 
   /**
@@ -374,30 +359,10 @@ class Regatta {
    * @return array of team objects
    */
   public function getTeams(School $school = null) {
-    if ($school === null && $this->teams !== null)
-      return array_values($this->teams);
-    
-    $q = sprintf('select team.id, team.name, team.school ' .
-		 'from team where regatta = "%s" %s order by school, id',
-		 $this->id,
-		 ($school === null) ? '' : sprintf('and school = "%s"', $school->id));
-    $q = $this->query($q);
-
-    $teams = array();
-    if ($this->isSingleHanded()) {
-      while ($team = $q->fetch_object("SinglehandedTeam")) {
-	$teams[$team->id] = $team;
-	$team->setRpManager($this->rp);
-      }
-    }
-    else {
-      while ($team = $q->fetch_object("Team")) {
-	$teams[$team->id] = $team;
-      }
-    }
-    if ($school === null)
-      $this->teams = $teams;
-    return $teams;
+    $cond = new DBBool(array(new DBCond('regatta', $this->id)));
+    if ($school !== null)
+      $cond->add(new DBCond('school', $school));
+    return DB::getAll($this->isSingleHanded() ? DB::$SINGLEHANDED_TEAM : DB::$TEAM, $cond);
   }
 
   /**
