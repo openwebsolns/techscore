@@ -223,7 +223,7 @@ class Regatta {
 		   $this->id);
       $this->query($q);
     default:
-      throw new InvalidArgument("$name cannot be set.");
+      $this->set($name, $value);
     }
   }
 
