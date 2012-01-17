@@ -31,3 +31,5 @@ cache/*.html
 # CSS and JS
 www/inc/css/*.css
 www/inc/js/*.js
+
+Debug.php
