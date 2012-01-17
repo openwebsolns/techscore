@@ -212,6 +212,21 @@ class Regatta {
     throw new InvalidArgumentException("No such Regatta property $name.");
   }
 
+  public function __set($name, $value) {
+    switch ($name) {
+    case 'creator':
+      if (!($value instanceof Account))
+	throw new InvalidArgumentException("Invalid argument. Creator must be Account.");
+      $con = DB::connection();
+      $q = sprintf('update regatta set creator = "%s" where id = "%s"',
+		   $con->escape_string($value->id),
+		   $this->id);
+      $this->query($q);
+    default:
+      throw new InvalidArgument("$name cannot be set.");
+    }
+  }
+
   /**
    * Commits the specified property
    *
@@ -1069,21 +1084,6 @@ class Regatta {
    */
   public function removeScorer(Account $acc) {
     DB::removeAll(DB::$SCORER, new DBBool(array(new DBCond('regatta', $this->id), new DBCond('account', $acc))));
-  }
-
-  /**
-   * Set the special column in the database for the creator of the
-   * regatta. This should only be called once when the regatta is
-   * created, for example.
-   *
-   * @param Account $acc the account to set as the creator
-   */
-  public function setCreator(Account $acc) {
-    $con = DB::connection();
-    $q = sprintf('update regatta set creator = "%s" where id = "%s"',
-		 $con->escape_string($acc->id),
-		 $this->id);
-    $this->query($q);
   }
 
   //------------------------------------------------------------

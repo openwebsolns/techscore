@@ -176,14 +176,6 @@ class RegattaSummary extends DBObject {
     DB::set($this);
   }
 
-  /**
-   * Another thin wrapper
-   */
-  public function setCreator(Account $acc) {
-    $this->__set('creator', $acc);
-    DB::set($this);
-  }
-
   // ------------------------------------------------------------
   // Daily summaries
   // ------------------------------------------------------------

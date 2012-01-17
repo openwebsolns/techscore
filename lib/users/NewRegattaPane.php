@@ -185,7 +185,7 @@ class NewRegattaPane extends AbstractUserPane {
 				      $args['scoring'],
 				      $args['participant']);
 
-	$reg->setCreator($this->USER);
+	$reg->creator = $this->USER;
 	$reg->addScorer($this->USER);
 	foreach ($hosts as $school)
 	  $reg->addHost($school);
