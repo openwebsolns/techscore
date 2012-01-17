@@ -117,7 +117,7 @@ class TempRegatta extends Regatta {
    */
   public static function createRegatta(Regatta $reg, DateTime $expiration) {
     $id = self::addRegatta(Conf::$SQL_DB,
-			   $reg->get(Regatta::NAME),
+			   $reg->name,
 			   $reg->get(Regatta::START_TIME),
 			   $reg->get(Regatta::END_DATE),
 			   $reg->type,

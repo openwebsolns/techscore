@@ -71,7 +71,7 @@ class UpdateRegatta {
 
     $dreg = new Dt_Regatta();
     $dreg->id = $reg->id();
-    $dreg->name = $reg->get(Regatta::NAME);
+    $dreg->name = $reg->name;
     $dreg->nick = $reg->get(Regatta::NICK_NAME);
     $dreg->start_time = $reg->get(Regatta::START_TIME);
     $dreg->end_date   = $reg->get(Regatta::END_DATE);
@@ -305,7 +305,7 @@ class UpdateRegatta {
       $rot = $reg->getRotation();
       if (!$rot->isAssigned())
 	throw new RuntimeException(sprintf("Regatta %s (%d) does not have a rotation!",
-					   $reg->get(Regatta::NAME), $reg->id()), 8);
+					   $reg->name, $reg->id()), 8);
 
       self::createRotation($D, $M);
       break;

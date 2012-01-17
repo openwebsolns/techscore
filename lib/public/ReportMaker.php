@@ -38,7 +38,7 @@ class ReportMaker {
     if ($this->page !== null) return;
 
     $reg = $this->regatta;
-    $this->page = new TPublicPage($reg->get(Regatta::NAME));
+    $this->page = new TPublicPage($reg->name);
     $this->prepare($this->page);
 
     // Summary
@@ -65,7 +65,7 @@ class ReportMaker {
     if (isset($this->divPage[(string)$div])) return;
 
     $reg = $this->regatta;
-    $page = new TPublicPage("Scores for division $div | " . $reg->get(Regatta::NAME));
+    $page = new TPublicPage("Scores for division $div | " . $reg->name);
     $this->divPage[(string)$div] = $page;
     $this->prepare($page);
     
@@ -81,7 +81,7 @@ class ReportMaker {
     if ($this->fullPage !== null) return;
     
     $reg = $this->regatta;
-    $this->fullPage = new TPublicPage("Full scores | " . $reg->get(Regatta::NAME));
+    $this->fullPage = new TPublicPage("Full scores | " . $reg->name);
     $this->prepare($this->fullPage);
     
     $link_schools = Conf::$PUB_HOME.'/schools';
@@ -98,7 +98,7 @@ class ReportMaker {
     if ($this->rotPage !== null) return;
 
     $reg = $this->regatta;
-    $this->rotPage = new TPublicPage(sprintf("%s Rotations", $reg->get(Regatta::NAME)));
+    $this->rotPage = new TPublicPage(sprintf("%s Rotations", $reg->name));
     $this->prepare($this->rotPage);
 
     $maker = new RotationDialog($reg);
@@ -110,7 +110,7 @@ class ReportMaker {
 
   protected function prepare(TPublicPage $page) {
     $reg = $this->regatta;
-    $page->addNavigation(new XA('.', $reg->get(Regatta::NAME), array('class'=>'nav')));
+    $page->addNavigation(new XA('.', $reg->name, array('class'=>'nav')));
 
     // Add description
     $desc = "";
@@ -146,7 +146,7 @@ class ReportMaker {
 
     // Regatta information
     $page->addSection($div = new XDiv(array('id'=>'reg-details')));
-    $div->add(new XH2($reg->get(Regatta::NAME)));
+    $div->add(new XH2($reg->name));
     
     $stime = $reg->get(Regatta::START_TIME);
     $etime = $reg->get(Regatta::END_DATE);

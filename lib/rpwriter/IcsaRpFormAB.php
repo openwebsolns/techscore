@@ -169,7 +169,7 @@ if (isset($argv) && basename(__FILE__) == $argv[0]) {
   $schools = array();
   foreach ($reg->getHosts() as $school)
     $schools[] = $school->nick_name;
-  $form = new IcsaRpFormAB($reg->get(Regatta::NAME),
+  $form = new IcsaRpFormAB($reg->name,
 			   implode("/", $schools),
 			   $reg->get(Regatta::START_TIME)->format("Y-m-d"));
   foreach ($reg->getTeams() as $team) {

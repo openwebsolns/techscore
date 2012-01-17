@@ -29,7 +29,7 @@ class DetailsPane extends AbstractPane {
 
     $p->add($reg_form = $this->createForm());
     // Name
-    $value = $this->REGATTA->get(Regatta::NAME);
+    $value = $this->REGATTA->name;
     $reg_form->add(new FItem("Name:",
 			     new XTextInput("reg_name",
 					    stripslashes($value),
@@ -188,8 +188,8 @@ class DetailsPane extends AbstractPane {
 
       // Name
       if (isset($args['reg_name']) && strlen(trim($args['reg_name'])) > 0 &&
-	  ($args['reg_name'] != $this->REGATTA->get(Regatta::NAME))) {
-	$this->REGATTA->set(Regatta::NAME, $args['reg_name']);
+	  ($args['reg_name'] != $this->REGATTA->name)) {
+	$this->REGATTA->name = $args['reg_name'];
       }
 
       // Start time

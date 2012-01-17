@@ -71,7 +71,7 @@ class UpdateDaemon {
       return true; // ignore NOTICES, for now
     echo "(EE) + ";
     if (self::$REGATTA !== null)
-      printf("ID:%d (%s)", self::$REGATTA->id(), self::$REGATTA->get(Regatta::NAME));
+      printf("ID:%d (%s)", self::$REGATTA->id(), self::$REGATTA->name);
     echo "\n";
     
     $fmt = "     | %6s: %s\n";
@@ -283,7 +283,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
       try {
 	$reg = DB::getRegatta($id);
 	printf("--------------------\nRegatta: [%s] %s (%s/%s)\n--------------------\n",
-	       $reg->id(), $reg->get(Regatta::NAME), $reg->getSeason(), $reg->get(Regatta::NICK_NAME));
+	       $reg->id(), $reg->name, $reg->getSeason(), $reg->get(Regatta::NICK_NAME));
 	foreach ($list as $activity => $num)
 	  printf("%12s: %d\n", $activity, $num);
       }

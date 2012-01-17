@@ -37,7 +37,6 @@ class Regatta {
   private $scorer;
 
   // Keys for data
-  const NAME       = "name";
   const NICK_NAME  = "nick";
   const START_TIME = "start_time";
   const END_DATE   = "end_date";
@@ -259,9 +258,6 @@ class Regatta {
 	throw new InvalidArgumentException($m);
       }
       $strvalue = sprintf('"%s"', $value->format("Y-m-d H:i:s"));
-    }
-    elseif ($property == Regatta::TYPE) {
-      $this->setType($value);
     }
     else
       $strvalue = sprintf('"%s"', $value);
@@ -1338,7 +1334,7 @@ class Regatta {
    * @throw InvalidArgumentException if the nick name is not unique
    */
   public function createNick() {
-    $name = strtolower($this->get(Regatta::NAME));
+    $name = strtolower($this->name);
     // Remove 's from words
     $name = str_replace('\'s', '', $name);
 

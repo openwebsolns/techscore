@@ -51,7 +51,7 @@ class RegattaIO {
     // Details
     //   -Name
     $root->add($tag = new XElem("RegattaName"));
-    $tag->add(new XText($reg->get(Regatta::NAME)));
+    $tag->add(new XText($reg->name));
 
     //   -Start time
     $stime = $reg->get(Regatta::START_TIME);
@@ -300,7 +300,7 @@ class RegattaIO {
     // ------------------------------------------------------------
     // Edit main details
     // ------------------------------------------------------------
-    $regatta->set(Regatta::NAME,     addslashes($root->RegattaName));
+    $regatta->name = $root->RegattaName;
     $regatta->set(Regatta::SCORING,  $root->Scoring);
     // $regatta->set(Regatta::COMMENTS, addslashes($root->Blurb));
     try {

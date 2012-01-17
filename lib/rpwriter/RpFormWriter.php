@@ -49,31 +49,31 @@ class RpFormWriter {
     $form = null;
     if ($this->reg->isSingleHanded()) {
       require_once('rpwriter/IcsaRpFormSingles.php');
-      $form = new IcsaRpFormSingles($this->reg->get(Regatta::NAME),
+      $form = new IcsaRpFormSingles($this->reg->name,
 				    $this->host,
 				    $this->reg->get(Regatta::START_TIME)->format("Y-m-d"));
     }
     elseif (count($divisions) == 2) {
       require_once('rpwriter/IcsaRpFormAB.php');
-      $form = new IcsaRpFormAB($this->reg->get(Regatta::NAME),
+      $form = new IcsaRpFormAB($this->reg->name,
 			       $this->host,
 			       $this->reg->get(Regatta::START_TIME)->format("Y-m-d"));
     }
     elseif (count($divisions) == 3) {
       require_once('rpwriter/IcsaRpFormABC.php');
-      $form = new IcsaRpFormABC($this->reg->get(Regatta::NAME),
+      $form = new IcsaRpFormABC($this->reg->name,
 				$this->host,
 				$this->reg->get(Regatta::START_TIME)->format("Y-m-d"));
     }
     elseif (count($divisions) == 4) {
       require_once('rpwriter/IcsaRpFormABCD.php');
-      $form = new IcsaRpFormABCD($this->reg->get(Regatta::NAME),
+      $form = new IcsaRpFormABCD($this->reg->name,
 				 $this->host,
 				 $this->reg->get(Regatta::START_TIME)->format("Y-m-d"));
     }
     elseif (count($divisions) == 1) {
       require_once('rpwriter/IcsaRpFormSloops.php');
-      $form = new IcsaRpFormSloops($this->reg->get(Regatta::NAME),
+      $form = new IcsaRpFormSloops($this->reg->name,
 				   $this->host,
 				   $this->reg->get(Regatta::START_TIME)->format("Y-m-d"));
     }

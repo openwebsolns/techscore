@@ -148,7 +148,7 @@ class TScorePage extends XPage {
 				      array(new XA("/logout", "Logout", array('accesskey'=>'l')))));
     }
     if ($reg !== null) {
-      $div->add(new XH4($reg->get(Regatta::NAME), array("id"=>"regatta")));
+      $div->add(new XH4($reg->name, array("id"=>"regatta")));
     }
   }
 

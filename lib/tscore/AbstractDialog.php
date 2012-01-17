@@ -36,7 +36,7 @@ abstract class AbstractDialog {
 
     $title = sprintf("%s | %s | TS",
 		     $this->name,
-		     $this->REGATTA->get(Regatta::NAME));
+		     $this->REGATTA->name);
     $this->PAGE = new TScoreDialog($this->name);
     $this->PAGE->addContent(new XPageTitle($this->name));
 
@@ -46,7 +46,7 @@ abstract class AbstractDialog {
 
     //   -Regatta info
     $this->PAGE->addNavigation(new XDiv(array("id"=>"regatta"),
-					array(new XP(array(), $this->REGATTA->get(Regatta::NAME)),
+					array(new XP(array(), $this->REGATTA->name),
 					      new XUl(array(), array(new XLi(ucfirst($this->REGATTA->type)))))));
   }
 

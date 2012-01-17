@@ -156,7 +156,7 @@ class CompareSailorsByRace extends AbstractUserPane {
 	  $tab->add($row = new XTR());
 	  if ($index++ == 0) {
 	    $row->add(new XTH(array('rowspan'=>count($races_nums)),
-			      sprintf('%s (%s)', $regatta->get(Regatta::NAME), $regatta->getSeason()->fullString())));
+			      sprintf('%s (%s)', $regatta->name, $regatta->getSeason()->fullString())));
 	  }
 	  $row->add(new XTH(array(), sprintf("%d%s", $num, $div)));
 	  foreach ($sailors as $sailor) {
