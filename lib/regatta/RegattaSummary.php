@@ -17,13 +17,10 @@ require_once('regatta/DB.php');
 class RegattaSummary extends DBObject {
 
   // Keys for data
-  const NAME       = "name";
-  const NICK_NAME  = "nick";
   const START_TIME = "start_time";
   const END_DATE   = "end_date";
   const DURATION   = "duration";
   const FINALIZED  = "finalized";
-  const TYPE       = "type";
   const VENUE      = "venue";
   const SCORING    = "scoring";
   const SEASON     = "season";

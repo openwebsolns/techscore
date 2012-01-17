@@ -283,7 +283,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
       try {
 	$reg = DB::getRegatta($id);
 	printf("--------------------\nRegatta: [%s] %s (%s/%s)\n--------------------\n",
-	       $reg->id(), $reg->name, $reg->getSeason(), $reg->get(Regatta::NICK_NAME));
+	       $reg->id(), $reg->name, $reg->getSeason(), $reg->nick);
 	foreach ($list as $activity => $num)
 	  printf("%12s: %d\n", $activity, $num);
       }

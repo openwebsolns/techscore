@@ -37,7 +37,6 @@ class Regatta {
   private $scorer;
 
   // Keys for data
-  const NICK_NAME  = "nick";
   const START_TIME = "start_time";
   const END_DATE   = "end_date";
   const DURATION   = "duration";
@@ -1314,7 +1313,7 @@ class Regatta {
     // do not create nick names for personal regattas (nick name
     // creation is delayed until the regatta is made active)
     if ($type != Regatta::TYPE_PERSONAL)
-      $r->set(Regatta::NICK_NAME, $r->createNick());
+      $r->__set('nick', $r->createNick());
     return $r;
   }
 

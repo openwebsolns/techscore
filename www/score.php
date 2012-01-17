@@ -174,7 +174,7 @@ elseif (isset($_REQUEST['v'])) {
 //
 else {
   $st = $REG->get(Regatta::START_TIME);
-  $nn = $REG->get(Regatta::NICK_NAME);
+  $nn = $REG->nick;
   if (count($REG->getTeams()) == 0 || count($REG->getDivisions()) == 0) {
     Session::pa(new PA("First create teams and divisions before downloading.", PA::I));
     WebServer::go(sprintf('/score/%d', $REG->id()));

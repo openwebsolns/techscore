@@ -72,7 +72,7 @@ class UpdateRegatta {
     $dreg = new Dt_Regatta();
     $dreg->id = $reg->id();
     $dreg->name = $reg->name;
-    $dreg->nick = $reg->get(Regatta::NICK_NAME);
+    $dreg->nick = $reg->nick;
     $dreg->start_time = $reg->get(Regatta::START_TIME);
     $dreg->end_date   = $reg->get(Regatta::END_DATE);
     $dreg->type = $reg->type;
@@ -239,7 +239,7 @@ class UpdateRegatta {
 
     // Regatta Nick Name can be empty, if the regatta has always been
     // personal, in which case there is nothing to delete, right?
-    $nickname = $reg->get(Regatta::NICK_NAME);
+    $nickname = $reg->nick;
     if (!empty($nickname)) {
       $dirname = "$R/$season/$nickname";
       if (is_dir($dirname) && $dir = @opendir($dirname)) {
@@ -378,7 +378,7 @@ class UpdateRegatta {
     if (!file_exists("$R/$season") && mkdir("$R/$season") === false)
       throw new RuntimeException(sprintf("Unable to make the season folder: %s\n", $season), 2);
 
-    $dirname = "$R/$season/".$reg->get(Regatta::NICK_NAME);
+    $dirname = "$R/$season/".$reg->nick;
     if (!file_exists($dirname)) {
       self::$new_reg = true;
       if (mkdir($dirname) === false)
