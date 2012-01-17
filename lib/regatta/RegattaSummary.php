@@ -98,6 +98,7 @@ class RegattaSummary extends DBObject {
   protected $end_date;
   public $type;
   protected $finalized;
+  protected $creator;
   public $participant;
 
   // Managers
@@ -116,6 +117,9 @@ class RegattaSummary extends DBObject {
     case 'end_date':
     case 'finalized':
       return DB::$NOW;
+    case 'creator':
+      require_once('regatta/Account.php');
+      return DB::$ACCOUNT;
     default:
       return parent::db_type($field);
     }
@@ -169,6 +173,14 @@ class RegattaSummary extends DBObject {
    */
   public function set($property, $value) {
     $this->__set($property, $value);
+    DB::set($this);
+  }
+
+  /**
+   * Another thin wrapper
+   */
+  public function setCreator(Account $acc) {
+    $this->__set('creator', $acc);
     DB::set($this);
   }
 
@@ -595,6 +607,195 @@ class RegattaSummary extends DBObject {
     DB::$FINISH->db_set_order();
     return $r;
   }
+
+  // ------------------------------------------------------------
+  // Finishes
+  // ------------------------------------------------------------
+
+  /**
+   * @var Array attempt to cache finishes, index is 'race-team_id'
+   */
+  private $finishes = array();
+  /**
+   * @var boolean quick! Do we have finishes?
+   */
+  private $has_finishes = null;
+
+  /**
+   * Creates a new finish for the given race and team, and returns the
+   * object. Note that this clobbers the existing finish, if any,
+   * although the information is not saved in the database until it is
+   * saved with 'setFinishes'
+   *
+   * @param Race $race the race
+   * @param Team $team the team
+   * @return Finish
+   */
+  public function createFinish(Race $race, Team $team) {
+    $id = sprintf('%s-%d', (string)$race, $team->id);
+    $fin = new Finish(null, $race, $team);
+    $this->finishes[$id] = $fin;
+    $this->has_finishes = true;
+    return $fin;
+  }
+
+  /**
+   * Returns the finish for the given race and team, or null
+   *
+   * @param $race the race object
+   * @param $team the team object
+   * @return the finish object
+   */
+  public function getFinish(Race $race, Team $team) {
+    $id = (string)$race . '-' . $team->id;
+    if (isset($this->finishes[$id])) {
+      return $this->finishes[$id];
+    }
+    $res = DB::getAll(DB::$FINISH, new DBBool(array(new DBCond('race', $race), new DBCond('team', $team))));
+    if (count($res) == 0)
+      $r = null;
+    else {
+      $r = $res[0];
+      $this->finishes[$id] = $r;
+    }
+    unset($res);
+    return $r;
+  }
+
+  /**
+   * Returns an array of finish objects for the given race ordered by
+   * timestamp.
+   *
+   * @param $race whose finishes to get.
+   * @return a list of ordered finishes in the race. If null, return
+   * all the finishes ordered by race, and timestamp.
+   *
+   */
+  public function getFinishes(Race $race) {
+    return DB::getAll(DB::$FINISH, new DBCond('race', $race));
+  }
+
+  /**
+   * Returns all the finishes which have been "penalized" in one way
+   * or another. That is, they have either a penalty or a breakdown
+   *
+   * @return Array:Finish the list of finishes, regardless of race
+   */
+  public function getPenalizedFinishes() {
+    return DB::getAll(DB::$FINISH,
+		      new DBBool(array(new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('id'))),
+				       new DBCond('penalty', null, DBCond::NE))));
+  }
+
+  /**
+   * Returns a list of those finishes in the given division which are
+   * set to be scored as average of the other finishes in the same
+   * division. Confused? Read the procedural rules for breakdowns, etc.
+   *
+   * @param Division $div the division whose average-scored finishes
+   * to fetch
+   *
+   * @return Array:Finish the finishes
+   */
+  public function getAverageFinishes(Division $div) {
+    return DB::getAll(DB::$FINISH,
+		      new DBBool(array(new DBCondIn('race',
+						    DB::prepGetAll(DB::$RACE,
+								   new DBBool(array(new DBCond('regatta', $this->id),
+										    new DBCond('division', (string)$div))),
+								   array('id'))),
+				       new DBCondIn('penalty', array(Breakdown::BKD, Breakdown::RDG, Breakdown::BYE)),
+				       new DBCond('amount', 0, DBCond::LE))));
+  }
+
+  /**
+   * Like hasFinishes, but checks specifically for penalties
+   *
+   * @param Race $race optional, if given, returns status for only
+   * that race
+   * @return boolean
+   * @see hasFinishes
+   */
+  public function hasPenalties(Race $race = null) {
+    $cond = new DBBool(array(new DBCond('penalty', null, DBCond::NE)));
+    if ($race === null)
+      $cond->add(new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('id'))));
+    else
+      $cond->add(new DBCond('race', $race));
+    return DB::getAll(DB::$FINISH, $cond);
+  }
+
+  /**
+   * Are there finishes for this regatta?
+   *
+   * @param Race $race optional, if given, returns status for just
+   * that race. Otherwise, the whole regatta
+   * @return boolean
+   */
+  public function hasFinishes(Race $race = null) {
+    if ($race === null && $this->has_finishes !== null)
+      return $this->has_finishes;
+
+    if ($race === null)
+      $cond = new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('id')));
+    else
+      $cond = new DBCond('race', $race);
+    $cnt = count(DB::getAll(DB::$FINISH, $cond));
+    if ($race === null)
+      $this->has_finishes = $cnt;
+    return $cnt;
+  }
+
+  /**
+   * Commits the finishes given to the database. Note that the
+   * finishes must have been registered ahead of time with the
+   * regatta, either through getFinish or createFinish.
+   *
+   * @param Race $race the race for which to enter finishes
+   * @param Array:Finish $finishes the list of finishes
+   */
+  public function setFinishes(Race $race) {
+    $this->commitFinishes($this->getFinishes($race));
+  }
+
+  /**
+   * Commits the given finishes to the database.
+   *
+   * @param Array:Finish $finishes the finishes to commit
+   * @see setFinishes
+   */
+  public function commitFinishes(Array $finishes) {
+    foreach ($this->finishes as $finish)
+      DB::set($finish);
+  }
+
+  /**
+   * Deletes the finishes in the given race, without scoring the
+   * regatta.
+   *
+   * @param Race $race the race whose finishes to drop
+   */
+  protected function deleteFinishes(Race $race) {
+    DB::removeAll(DB::$RACE, new DBCond('race', $race));
+    $this->has_finishes = null;
+  }
+
+  /**
+   * Drops all the finishes registered with the given race and
+   * rescores the regatta. Respects the regatta scoring option.
+   *
+   * @param Race $race the race whose finishes to drop
+   */
+  public function dropFinishes(Race $race) {
+    if ($this->get(Regatta::SCORING) == Regatta::SCORING_STANDARD)
+      $this->deleteFinishes($race);
+    else {
+      foreach ($this->getDivisions() as $div)
+	$this->deleteFinishes($this->getRace($div, $race->number));
+    }
+    $this->runScore($race);
+  }
+
 
   // ------------------------------------------------------------
   // Comparators

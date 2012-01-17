@@ -216,3 +216,7 @@ alter table representative add column id int auto_increment primary key first;
 
 -- RP Form --
 alter table rp_form drop primary key, drop foreign key rp_form_ibfk_1, change column regatta id int auto_increment primary key, add foreign key (id) references regatta(id) on delete cascade on update cascade;
+
+-- Regatta creator --
+update regatta set creator = null where creator not in (select id from account);
+alter table regatta add foreign key (creator) references account(id) on delete set null on update cascade;
