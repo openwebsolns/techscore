@@ -43,35 +43,39 @@ class AllAmerican extends AbstractUserPane {
     $this->AA = Session::g('aa');
   }
 
+  private function seasonList($prefix, Array $preselect = array()) {
+    $ul = new XUl(array('class'=>'inline-list'));
+    foreach (Preferences::getActiveSeasons() as $season) {
+      $ul->add(new XLi(array($chk = new XCheckboxInput('seasons[]', $season, array('id' => $prefix . $season)),
+			     new XLabel($prefix . $season, $season->fullString()))));
+      if (in_array($season, $preselect))
+	$chk->set('checked', 'checked');
+    }
+    return $ul;
+  }
+
   public function fillHTML(Array $args) {
     // ------------------------------------------------------------
     // 0. Choose participation and role
     // ------------------------------------------------------------
     if ($this->AA['report-participation'] === null) {
       $this->PAGE->addContent($p = new XPort("Choose report"));
+      $now = Season::forDate(DB::$NOW);
+      $then = null;
+      if ($now->season == Season::SPRING)
+	$then = Season::parse(sprintf('f%0d', ($now->start_date->format('Y') - 1)));
+      
       $p->add($form = new XForm('/aa-edit', XForm::POST));
       $form->add(new FItem("Participation:", XSelect::fromArray('participation',
 								array(Regatta::PARTICIPANT_COED => "Coed",
 								      Regatta::PARTICIPANT_WOMEN => "Women"))));
 
       $form->add(new FItem("Boat role:", XSelect::fromArray('role', array(RP::SKIPPER => "Skipper", RP::CREW => "Crew"))));
-
-      $form->add(new FItem("Seasons:", $ul = new XUl(array('class'=>'inline-list'))));
+      $form->add(new FItem("Seasons:", $this->seasonList('', array($now, $then))));
 
       $form->add($fi = new FItem("Conferences:", $ul2 = new XUl(array('class'=>'inline-list'))));
       $fi->set('title', "Only choose sailors from selected conference(s) automatically. You can manually choose sailors from other divisions.");
       
-      $now = Season::forDate(DB::$NOW);
-      $then = null;
-      if ($now->season == Season::SPRING)
-	$then = Season::parse(sprintf('f%0d', ($now->start_date->format('Y') - 1)));
-      foreach (Preferences::getActiveSeasons() as $season) {
-	$ul->add(new XLi(array($chk = new XCheckboxInput('seasons[]', $season, array('id' => $season)),
-			       new XLabel($season, $season->fullString()))));
-	if ((string)$season == (string)$now || (string)$season == (string)$then)
-	  $chk->set('checked', 'checked');
-      }
-
       // Conferences
       foreach (DB::getConferences() as $conf) {
 	$ul2->add(new XLi(array($chk = new XCheckboxInput('confs[]', $conf, array('id' => $conf->id)),
@@ -83,9 +87,12 @@ class AllAmerican extends AbstractUserPane {
 
       $this->PAGE->addContent($p = new XPort("Special crew report"));
       $p->add($form = new XForm('/aa-edit', XForm::POST));
-      $form->add(new XP(array(), "To choose crews from ALL regattas regardless of participation, click the button below."));
+      $form->add(new XP(array(),
+			array("To choose crews from ",
+			      new XStrong("all"),
+			      " regattas regardless of participation, choose the seasons and click the button below.")));
 
-      $form->add(new FItem("Year:", XSelect::fromArray('year', Preferences::getYears())));
+      $form->add(new FItem("Season(s):", $this->seasonList('ss', array($now, $then))));
       $form->add(new XSubmitInput('set-special-report', "All crews >>"));
       return;
     }

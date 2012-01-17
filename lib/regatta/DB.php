@@ -1487,6 +1487,7 @@ class Season extends DBObject {
    * @return Array:RegattaSummary
    */
   public function getRegattas() {
+    require_once('regatta/RegattaSummary.php');
     return DB::getAll(DB::$REGATTA_SUMMARY,
 		      new DBBool(array(new DBCond('start_time', $this->start_date, DBCond::GE),
 				       new DBCond('start_time', $this->end_date,   DBCond::LT),

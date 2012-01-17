@@ -37,21 +37,6 @@ class Preferences {
   }
 
   /**
-   * Returns a list of the years for which there are regattas in the
-   * database
-   *
-   * @return Array:int the list of years, indexed by the years
-   */
-  public static function getYears() {
-    $q = sprintf('select distinct year(start_time) as year from regatta order by year desc');
-    $r = self::query($q);
-    $l = array();
-    while ($i = $r->fetch_object())
-      $l[$i->year] = $i->year;
-    return $l;
-  }
-
-  /**
    * Returns a list of the seasons for which there are public regattas
    *
    * @return Array:Season the list
