@@ -177,7 +177,7 @@ class UpdateDaemon {
 
 	    // Cascade update to season
 	    if (in_array($last->activity, $UPD_SEASON) || $new) {
-	      $season = self::$REGATTA->get(Regatta::SEASON);
+	      $season = self::$REGATTA->getSeason();
 	      $seasons[$season->id] = $season;
 	    }
 
@@ -283,7 +283,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
       try {
 	$reg = DB::getRegatta($id);
 	printf("--------------------\nRegatta: [%s] %s (%s/%s)\n--------------------\n",
-	       $reg->id(), $reg->get(Regatta::NAME), $reg->get(Regatta::SEASON), $reg->get(Regatta::NICK_NAME));
+	       $reg->id(), $reg->get(Regatta::NAME), $reg->getSeason(), $reg->get(Regatta::NICK_NAME));
 	foreach ($list as $activity => $num)
 	  printf("%12s: %d\n", $activity, $num);
       }

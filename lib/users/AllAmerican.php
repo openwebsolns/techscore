@@ -540,7 +540,7 @@ class AllAmerican extends AbstractUserPane {
    */
   private function populateSailors(Regatta $reg) {
     // use season/nick-name to sort
-    $id = sprintf('%s/%s', $reg->get(Regatta::SEASON), $reg->get(Regatta::NICK_NAME));
+    $id = sprintf('%s/%s', $reg->getSeason(), $reg->get(Regatta::NICK_NAME));
     $this->AA['regatta_races'][$id] = count($reg->getRaces(Division::A()));
     $this->AA['regattas'][$id] = $reg->id();
     if (!isset($this->AA['table'][$id]))

@@ -72,7 +72,7 @@ class RpEnterPane extends AbstractPane {
     //   from 'active' sailors
     $active = 'all';
     $cur_season = Season::forDate(DB::$NOW);
-    if ((string)$cur_season ==  (string)$this->REGATTA->get(Regatta::SEASON))
+    if ((string)$cur_season ==  (string)$this->REGATTA->getSeason())
       $active = true;
     $gender = ($this->REGATTA->get(Regatta::PARTICIPANT) == Regatta::PARTICIPANT_WOMEN) ?
       Sailor::FEMALE : null;
@@ -208,7 +208,7 @@ class RpEnterPane extends AbstractPane {
       $rpManager->reset($team);
 
       $cur_season = Season::forDate(DB::$NOW);
-      if ((string)$cur_season ==  (string)$this->REGATTA->get(Regatta::SEASON))
+      if ((string)$cur_season ==  (string)$this->REGATTA->getSeason())
 	$active = true;
       $gender = ($this->REGATTA->get(Regatta::PARTICIPANT) == Regatta::PARTICIPANT_WOMEN) ?
 	Sailor::FEMALE : null;

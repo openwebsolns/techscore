@@ -134,7 +134,7 @@ class ReportMaker {
       $page->head->add(new XMeta('description', $meta_desc));
     
     // Links to season
-    $season = $reg->get(Regatta::SEASON);
+    $season = $reg->getSeason();
     $page->addNavigation(new XA('..', $season->fullString(), array('class'=>'nav', 'accesskey'=>'u')));
 
     // Javascript?

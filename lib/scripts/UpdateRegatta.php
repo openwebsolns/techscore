@@ -112,7 +112,7 @@ class UpdateRegatta {
     if ($reg->isSingleHanded())
       $dreg->singlehanded = 1;
     
-    $dreg->season = (string)$reg->get(Regatta::SEASON);
+    $dreg->season = (string)$reg->getSeason();
 
     // status
     $now = new DateTime();
@@ -233,7 +233,7 @@ class UpdateRegatta {
    */
   public static function runDelete(Regatta $reg) {
     $R = realpath(dirname(__FILE__).'/../../html');
-    $season = $reg->get(Regatta::SEASON);
+    $season = $reg->getSeason();
     if ((string)$season == "")
       return;
 
@@ -271,7 +271,7 @@ class UpdateRegatta {
   public static function run(Regatta $reg, $activity) {
     if ($reg->get(Regatta::TYPE) == Regatta::TYPE_PERSONAL) {
       self::runDelete($reg);
-      UpdateSeason::run($reg->get(Regatta::SEASON));
+      UpdateSeason::run($reg->getSeason());
       UpdateSchoolsSummary::run();
       return false;
     }
@@ -374,7 +374,7 @@ class UpdateRegatta {
     if ($R === false)
       throw new RuntimeException("Public folder does not exist.");
 
-    $season = $reg->get(Regatta::SEASON);
+    $season = $reg->getSeason();
     if (!file_exists("$R/$season") && mkdir("$R/$season") === false)
       throw new RuntimeException(sprintf("Unable to make the season folder: %s\n", $season), 2);
 

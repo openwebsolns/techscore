@@ -201,6 +201,13 @@ class Regatta {
     return $this->properties[$property];
   }
 
+  private $season;
+  public function getSeason() {
+    if ($this->season === null)
+      $this->season = Season::forDate($this->get(Regatta::START_TIME));
+    return $this->season;
+  }
+
   public function __get($name) {
     if ($name == "scorer") {
       if ($this->scorer === null) {
@@ -1366,7 +1373,7 @@ class Regatta {
     $name = str_replace("semifinal",  "semis", $name);
 
     // list of regatta names in the same season as this one
-    foreach ($this->get(Regatta::SEASON)->getRegattas() as $n) {
+    foreach ($this->getSeason()->getRegattas() as $n) {
       if ($n->nick == $name && $n->id != $this->id)
 	throw new InvalidArgumentException(sprintf("Nick name \"%s\" already in use by (%d).",
 						   $name, $n->id));
