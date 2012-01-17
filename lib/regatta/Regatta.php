@@ -523,21 +523,19 @@ class Regatta {
    * Returns a sorted list of the race numbers common to all the
    * divisions
    *
-   * @param Array<Division> the list of divisions
-   * @return Array<int> the common race numbers
+   * @param Array:Division the list of divisions
+   * @return Array:int the common race numbers
    */
   public function getCombinedRaces(Array $divs = null) {
-    $nums = null;
+    $set = array();
     if ($divs == null)
       $divs = $this->getDivisions();
     foreach ($this->getDivisions() as $div) {
-      $set = array();
       foreach ($this->getRaces($div) as $race)
-	$set[] = $race->number;
-
-      $nums = ($nums == null) ? $set : array_intersect($nums, $set);
+	$set[$race->number] = $race->number;
     }
-    return $nums;
+    usort($set);
+    return array_values($set);
   }
 
   /**

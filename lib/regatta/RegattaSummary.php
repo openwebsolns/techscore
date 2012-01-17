@@ -346,6 +346,268 @@ class RegattaSummary extends DBObject {
     return $ranks;
   }
 
+  /**
+   * Gets the race object for the race with the given division and
+   * number. If the race does not exist, throws an
+   * InvalidArgumentException. The race object has properties "id",
+   * "division", "number", "boat"
+   *
+   * @param $div the division of the race
+   * @param $num the number of the race within that division
+   * @return the race object which matches the description
+   * @throws InvalidArgumentException if such a race does not exist
+   */
+  public function getRace(Division $div, $num) {
+    $res = DB::getAll(DB::$RACE, new DBBool(array(new DBCond('regatta', $this->id),
+						  new DBCond('division', (string)$div),
+						  new DBCond('number', $num))));
+    if (count($res) == 0)
+      throw new InvalidArgumentException(sprintf("No race %s%s in regatta %s", $num, $div, $this->id));
+    $r = $res[0];
+    unset($res);
+    return $r;
+  }
+
+  /**
+   * Returns the race that is part of this regatta and has the ID
+   *
+   * @param String $id the ID
+   * @return Race|null the race if it exists
+   */
+  public function getRaceById($id) {
+    $r = DB::get(DB::$RACE, $id);
+    if ($r === null || $r->regatta != $this->id)
+      return null;
+    return $r;
+  }
+
+  /**
+   * Return the total number of races participating, for efficiency
+   * purposes
+   *
+   * @return int the number of races
+   */
+  public function getRacesCount() {
+    if ($this->total_races !== null)
+      return $this->total_races;
+    $this->total_races = count(DB::getAll(DB::$RACE, new DBCond('regatta', $this->id)));
+    return $this->total_races;
+  }
+
+  // ------------------------------------------------------------
+  // Races and boats
+  // ------------------------------------------------------------
+
+  /**
+   * Returns an array of race objects within the specified division
+   * ordered by the race number. If no division specified, returns all
+   * the races in the regatta ordered by division, then number.
+   *
+   * @param $div the division whose races to extract
+   * @return list of races in that division (could be empty)
+   */
+  public function getRaces(Division $div = null) {
+    $cond = new DBBool(array(new DBCond('regatta', $this->id)));
+    if ($div !== null)
+      $cond->add(new DBCond('division', (string)$div));
+    return DB::getAll(DB::$RACE, $cond);
+  }
+
+  /**
+   * Returns the unique boats being used in this regatta. Note that
+   * this is much faster than going through all the races manually and
+   * keeping track of the boats.
+   *
+   * @param Division $div the division whose boats to retrieve.
+   * If null, return all of them instead.
+   * @return Array<Boat> the boats
+   */
+  public function getBoats(Division $div = null) {
+    $cond = new DBBool(array(new DBCond('regatta', $this->id)));
+    if ($div !== null)
+      $cond->add(new DBCond('division', (string)$div));
+    return DB::getAll(DB::$BOAT, new DBCondIn('id', DB::prepGetAll(DB::$RACE, $cond, array('boat'))));
+  }
+
+  /**
+   * Returns a sorted list of the race numbers common to all the
+   * divisions
+   *
+   * @param Array:Division the list of divisions
+   * @return Array:int the common race numbers
+   */
+  public function getCombinedRaces(Array $divs = null) {
+    $set = array();
+    if ($divs == null)
+      $divs = $this->getDivisions();
+    foreach ($this->getDivisions() as $div) {
+      foreach ($this->getRaces($div) as $race)
+	$set[$race->number] = $race->number;
+    }
+    usort($set);
+    return array_values($set);
+  }
+
+  /**
+   * Adds the specified race to this regatta. Unlike in previous
+   * versions, the user needs to specify the race number. As a result,
+   * if the race already exists, the code will attempt to update the
+   * race instead of adding a new one.
+   *
+   * @param Race $race the race to register with this regatta
+   */
+  public function setRace(Race $race) {
+    $cur = $this->getRace($race->division, $race->number);
+    if ($cur !== null)
+      $race->id = $cur->id;
+    else
+      $this->total_races++;
+    DB::set($cur);
+  }
+
+  /**
+   * Removes the specific race from this regatta. Note that in this
+   * version, the race is removed by regatta, division, number
+   * identifier instead of by ID. This means that it is not necessary
+   * to first serialize the race object in order to remove it from the
+   * database.
+   *
+   * It is the client code's responsibility to make sure that there
+   * aren't any empty race numbers in the middle of a division, as
+   * this could have less than humorous results in the rest of the
+   * application.
+   *
+   * @param Race $race the race to remove
+   */
+  public function removeRace(Race $race) {
+    DB::removeAll(DB::$RACE, new DBBool(array(new DBCond('regatta', $this->id),
+					      new DBCond('division', (string)$race->division),
+					      new DBCond('number', $race->number))));
+  }
+
+  /**
+   * Removes all the races from the given division
+   *
+   * @param Division $div the division whose races to remove
+   */
+  public function removeDivision(Division $div) {
+    DB::removeAll(DB::$RACE, new DBBool(array(new DBCond('regatta', $this->id), new DBCond('division', (string)$div))));
+  }
+
+  /**
+   * Returns a list of races in the given division which are unscored
+   *
+   * @param Division $div the division. If null, return all unscored races
+   * @return Array<Race> a list of races
+   */
+  public function getUnscoredRaces(Division $div = null) {
+    DB::$RACE->db_set_order(array('number'=>true, 'division'=>true));
+    
+    $cond = new DBBool(array(new DBCond('regatta', $this->id),
+			     new DBCondIn('id', DB::prepGetAll(DB::$FINISH, null, array('race')), DBCondIn::NOT_IN)));
+    if ($div !== null)
+      $cond->add(new DBCond('division', (string)$div));
+    $res = DB::getAll(DB::$RACE, $cond);
+    
+    DB::$RACE->db_set_order();
+    return $res;
+  }
+
+  /**
+   * Returns a list of the unscored race numbers common to all the
+   * divisions passed in the parameter
+   *
+   * @param Array<div> $divs a list of divisions
+   * @return a list of race numbers
+   */
+  public function getUnscoredRaceNumbers(Array $divisions) {
+    $nums = array();
+    foreach ($divisions as $div) {
+      foreach ($this->getUnscoredRaces($div) as $race)
+	$nums[$race->number] = $race->number;
+    }
+    usort($nums);
+    return $nums;
+  }
+
+  /**
+   * Get list of scored races in the specified division
+   *
+   * @param Division $div the division. If null, return all scored races
+   * @return Array<Race> a list of races
+   */
+  public function getScoredRaces(Division $div = null) {
+    $cond = new DBBool(array(new DBCond('regatta', $this->id),
+			     new DBCondIn('id', DB::prepGetAll(DB::$FINISH, null, array('race')))));
+    if ($div !== null)
+      $cond->add(new DBCond('division', (string)$div));
+    return DB::getAll(DB::$RACE, $cond);
+  }
+
+  /**
+   * Returns a list of the race numbers scored across all divisions
+   *
+   * @param Array<Division> the divisions
+   * @return Array<int> the race numbers
+   */
+  public function getCombinedScoredRaces(Array $divs = null) {
+    if ($divs == null)
+      $divs = $this->getDivisions();
+    $nums = array();
+    foreach ($divs as $div) {
+      foreach ($this->getScoredRaces($div) as $race)
+	$nums[$race->number] = $race->number;
+    }
+    usort($nums);
+    return $nums;
+  }
+
+  /**
+   * Returns a list of unscored race numbers common to all divisions
+   *
+   * @param  Array<Division> the divisions, or all if null
+   * @return Array<int> the race numbers
+   */
+  public function getCombinedUnscoredRaces(Array $divs = null) {
+    if ($divs == null)
+      $divs = $this->getDivisions();
+    $nums = array();
+    foreach ($divs as $div) {
+      foreach ($this->getUnscoredRaces($div) as $race)
+	$nums[$race->number] = $race->number;
+    }
+    usort($nums);
+    return $nums;
+  }
+
+  /**
+   * Fetches the race that was last scored in the regatta, or the
+   * specific division if one is provided. This method will look at
+   * the timestamp of the first finish in each race to determine which
+   * is the latest to be scored.
+   *
+   * @param Division $div (optional) only look in this division
+   * @return Race|null the race or null if none yet scored
+   */
+  public function getLastScoredRace(Division $div = null) {
+    // Get the race (id) from the latest finish
+    DB::$FINISH->db_set_order(array('entered'=>false));
+    $q = DB::prepGetAll(DB::$FINISH,
+			new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('id'))),
+			array('race'));
+    $q->limit(1);
+    $res = DB::query($q);
+    if ($res->num_rows == 0)
+      $r = null;
+    else {
+      $res = $res->fetch_object();
+      $r = DB::get(DB::$RACE, $res->race);
+    }
+    unset($res);
+    DB::$FINISH->db_set_order();
+    return $r;
+  }
+
   // ------------------------------------------------------------
   // Comparators
   // ------------------------------------------------------------
