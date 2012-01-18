@@ -39,7 +39,6 @@ class Regatta {
   // Keys for data
   const DURATION   = "duration";
   const VENUE      = "venue";
-  const SCORING    = "scoring";
   const PARTICIPANT = "participant";
 
   /**
@@ -906,7 +905,7 @@ class Regatta {
    * @param Race $race the race whose finishes to drop
    */
   public function dropFinishes(Race $race) {
-    if ($this->get(Regatta::SCORING) == Regatta::SCORING_STANDARD)
+    if ($this->scoring == Regatta::SCORING_STANDARD)
       $this->deleteFinishes($race);
     else {
       foreach ($this->getDivisions() as $div)

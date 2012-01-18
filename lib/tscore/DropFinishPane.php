@@ -59,7 +59,7 @@ class DropFinishPane extends AbstractPane {
 
   protected function fillHTML(Array $args) {
     // Delegate in case of combined scoring
-    if ($this->REGATTA->get(Regatta::SCORING) == Regatta::SCORING_COMBINED) {
+    if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED) {
       $this->fillCombined($args);
       return;
     }
@@ -124,7 +124,7 @@ class DropFinishPane extends AbstractPane {
       }
       $this->REGATTA->dropFinishes($race);
       $mes = sprintf("Removed finishes for race %s.", $race);
-      if ($this->REGATTA->get(Regatta::SCORING) == Regatta::SCORING_COMBINED)
+      if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED)
 	$mes = sprintf("Removed finishes for race %s.", $race->number);
       Session::pa(new PA($mes));
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);

@@ -201,7 +201,7 @@ class EnterFinishPane extends AbstractPane {
 
   protected function fillHTML(Array $args) {
 
-    if ($this->REGATTA->get(Regatta::SCORING) == Regatta::SCORING_COMBINED) {
+    if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED) {
       $this->fillCombined($args);
       return;
     }
@@ -542,7 +542,7 @@ class EnterFinishPane extends AbstractPane {
 
   public function process(Array $args) {
 
-    if ($this->REGATTA->get(Regatta::SCORING) == Regatta::SCORING_COMBINED) {
+    if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED) {
       return $this->processCombined($args);
     }
 

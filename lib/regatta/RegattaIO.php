@@ -69,7 +69,7 @@ class RegattaIO {
 
     //   -Regatta scoring
     $root->add($tag = new XElem("Scoring"));
-    $tag->add(new XText($reg->get(Regatta::SCORING)));
+    $tag->add(new XText($reg->scoring));
     $tag->set("class", "ICSA");
 
     //   -Blurb
@@ -301,7 +301,7 @@ class RegattaIO {
     // Edit main details
     // ------------------------------------------------------------
     $regatta->name = $root->RegattaName;
-    $regatta->set(Regatta::SCORING,  $root->Scoring);
+    $regatta->scoring = $root->Scoring;
     // $regatta->set(Regatta::COMMENTS, addslashes($root->Blurb));
     try {
       $start = new DateTime($root->StartTime, new DateTimeZone("America/New_York"));

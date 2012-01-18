@@ -121,7 +121,7 @@ class TempRegatta extends Regatta {
 			   $reg->start_time,
 			   $reg->end_date,
 			   $reg->type,
-			   $reg->get(Regatta::SCORING));
+			   $reg->scoring);
 
     $q = sprintf('replace into temp_regatta values ("%s", "%s", "%s")',
 		 $id, $reg->id(), $expiration->format("Y-m-d H:i:s"));

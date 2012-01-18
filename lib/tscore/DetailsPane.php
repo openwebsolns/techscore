@@ -90,7 +90,7 @@ class DetailsPane extends AbstractPane {
       $item->add(new XMessage("Changing this value may affect RP info"));
 
     // Scoring rules
-    $value = $this->REGATTA->get(Regatta::SCORING);
+    $value = $this->REGATTA->scoring;
     $reg_form->add(new FItem("Scoring:",
 			     XSelect::fromArray('scoring',
 						Regatta::getParticipantOptions(),
@@ -217,7 +217,7 @@ class DetailsPane extends AbstractPane {
       // Scoring
       if (isset($args['scoring']) &&
 	  in_array($args['scoring'], array_keys(Regatta::getScoringOptions()))) {
-	$this->REGATTA->set(Regatta::SCORING, $args['scoring']);
+	$this->REGATTA->scoring = $args['scoring'];
       }
 
       // Participation

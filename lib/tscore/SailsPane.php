@@ -133,7 +133,7 @@ class SailsPane extends AbstractPane {
   protected function fillHTML(Array $args) {
 
     $divisions = $this->REGATTA->getDivisions();
-    $combined = ($this->REGATTA->get(Regatta::SCORING) == Regatta::SCORING_COMBINED ||
+    $combined = ($this->REGATTA->scoring == Regatta::SCORING_COMBINED ||
 		 count($divisions) == 1);
 
     // Listen to requests
@@ -465,7 +465,7 @@ class SailsPane extends AbstractPane {
     }
 
     $combined = (count($this->REGATTA->getDivisions()) == 1 ||
-		 $this->REGATTA->get(Regatta::SCORING) == Regatta::SCORING_COMBINED);
+		 $this->REGATTA->scoring == Regatta::SCORING_COMBINED);
 
     //   b. validate division, only if not combined division, and
     //   order by order, if provided

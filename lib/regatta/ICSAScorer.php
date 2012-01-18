@@ -191,7 +191,7 @@ class ICSAScorer {
    */
   public function score(Regatta $reg, Race $race) {
 
-    if ($reg->get(Regatta::SCORING) == Regatta::SCORING_COMBINED) {
+    if ($reg->scoring == Regatta::SCORING_COMBINED) {
       $this->scoreCombined($reg, $race);
       return;
     }
