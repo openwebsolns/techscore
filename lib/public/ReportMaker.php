@@ -31,7 +31,7 @@ class ReportMaker {
    */
   public function __construct(Regatta $reg) {
     $this->regatta = $reg;
-    $this->dt_regatta = DBME::get(DBME::$REGATTA, $reg->id());
+    $this->dt_regatta = DBME::get(DBME::$REGATTA, $reg->id);
   }
 
   protected function fill() {

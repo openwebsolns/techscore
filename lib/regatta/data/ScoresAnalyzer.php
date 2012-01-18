@@ -54,7 +54,7 @@ class ScoresAnalyzer {
    */
   public static function getHighFinishingTeams(Regatta $reg, Division $div, $place) {
     return DB::getAll(DB::$TEAM_DIVISION,
-		      new DBBool(array(new DBCondIn('team', DB::prepGetAll(DB::$TEAM, new DBCond('regatta', $reg->id()), array('id'))),
+		      new DBBool(array(new DBCondIn('team', DB::prepGetAll(DB::$TEAM, new DBCond('regatta', $reg->id), array('id'))),
 				       new DBCond('division', (string)$div),
 				       new DBCond('rank', $place, DBCond::LE))));
   }

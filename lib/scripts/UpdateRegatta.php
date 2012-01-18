@@ -70,7 +70,7 @@ class UpdateRegatta {
       return;
 
     $dreg = new Dt_Regatta();
-    $dreg->id = $reg->id();
+    $dreg->id = $reg->id;
     $dreg->name = $reg->name;
     $dreg->nick = $reg->nick;
     $dreg->start_time = $reg->start_time;
@@ -255,7 +255,7 @@ class UpdateRegatta {
     }
 
     // Delete from database
-    $r = DBME::get(DBME::$REGATTA, $reg->id());
+    $r = DBME::get(DBME::$REGATTA, $reg->id);
     if ($r !== null)
       DBME::remove($r);
   }
@@ -305,7 +305,7 @@ class UpdateRegatta {
       $rot = $reg->getRotation();
       if (!$rot->isAssigned())
 	throw new RuntimeException(sprintf("Regatta %s (%d) does not have a rotation!",
-					   $reg->name, $reg->id()), 8);
+					   $reg->name, $reg->id), 8);
 
       self::createRotation($D, $M);
       break;
@@ -508,7 +508,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   foreach ($action as $act) {
     try {
       UpdateRegatta::run($REGATTA, $act);
-      error_log(sprintf("I/0/%s\t(%d)\t%s: Successful!\n", date('r'), $REGATTA->id(), $act), 3, LOG_UPDATE);
+      error_log(sprintf("I/0/%s\t(%d)\t%s: Successful!\n", date('r'), $REGATTA->id, $act), 3, LOG_UPDATE);
     }
     catch (RuntimeException $e) {
       error_log(sprintf("E/%d/%s\t(%d)\t%s: %s\n", $e->getCode(), date('r'), $argv[1], $act, $e->getMessage()),

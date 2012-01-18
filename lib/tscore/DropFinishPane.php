@@ -65,7 +65,7 @@ class DropFinishPane extends AbstractPane {
     }
 
     $rotation = $this->REGATTA->getRotation();
-    $url = sprintf("edit/%s/drop-finish", $this->REGATTA->id());
+    $url = sprintf("edit/%s/drop-finish", $this->REGATTA->id);
 
     // ------------------------------------------------------------
     // Print finishes for each division

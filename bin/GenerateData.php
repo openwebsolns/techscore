@@ -26,11 +26,11 @@ foreach ($argv as $id) {
 	UpdateRegatta::runSync($reg);
 	UpdateRegatta::run($reg, UpdateRequest::ACTIVITY_ROTATION);
 	UpdateRegatta::run($reg, UpdateRequest::ACTIVITY_SCORE);
-	printf("(%3d) Imported regatta %s\n", $reg->id(), $reg->name);
+	printf("(%3d) Imported regatta %s\n", $reg->id, $reg->name);
       }
     }
     catch (Exception $e) {
-      printf("(%3d) ERROR (%s): %s\n", $reg->id(), $reg->name, $e->getMessage());
+      printf("(%3d) ERROR (%s): %s\n", $reg->id, $reg->name, $e->getMessage());
     }
   }
   catch (Exception $e) {

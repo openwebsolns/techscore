@@ -33,7 +33,7 @@ class RegattaIO {
     $root = new XElem("Regatta");
     $root->set("version", Conf::$VERSION);
     $root->set("xmlns", "http://techscore.mit.edu");
-    $root->set("tsid", $reg->id());
+    $root->set("tsid", $reg->id);
 
     $divisions = $reg->getDivisions();
     $all_races = array();

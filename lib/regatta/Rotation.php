@@ -46,7 +46,7 @@ class Rotation {
       return isset($this->has_sails_race[$race->id]);
     }
 
-    $q = Preferences::query(sprintf('select race from rotation where race in (select id from race where regatta = %d)', $this->regatta->id()));
+    $q = Preferences::query(sprintf('select race from rotation where race in (select id from race where regatta = %d)', $this->regatta->id));
     $this->has_sails_race = array();
     while ($obj = $q->fetch_object())
       $this->has_sails_race[$obj->race] = true;
@@ -126,7 +126,7 @@ class Rotation {
 		 'inner join race on rotation.race = race.id ' .
 		 'where race.regatta = "%s" ' .
 		 'order by sail',
-		 $this->regatta->id());
+		 $this->regatta->id);
     $q = Preferences::query($q);
     $sails = array();
     while ($sail = $q->fetch_object()) {
@@ -161,7 +161,7 @@ class Rotation {
     $q = sprintf('select distinct rotation.race from rotation ' .
 		 'inner join race on (race.id = rotation.race) ' .
 		 'where race.regatta = "%s"',
-		 $this->regatta->id());
+		 $this->regatta->id);
     $q = Preferences::query($q);
     $rot_races = array();
     while ($obj = $q->fetch_object())
@@ -620,7 +620,7 @@ class Rotation {
    */
   public function reset(Race $race = null) {
     $where = ($race === null) ?
-      sprintf('in (select id from race where regatta = "%s")', $this->regatta->id()) :
+      sprintf('in (select id from race where regatta = "%s")', $this->regatta->id) :
       sprintf('= "%s"', $race->id);
     
     Preferences::query("delete from rotation where race $where");

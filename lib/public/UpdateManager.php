@@ -27,7 +27,7 @@ class UpdateManager {
   public static function queueRequest($reg, $type, $arg = null) {
     $id = '';
     if ($reg instanceof Regatta)
-      $id = $reg->id();
+      $id = $reg->id;
     elseif ($reg instanceof RegattaSummary)
       $id = $reg->id;
     else

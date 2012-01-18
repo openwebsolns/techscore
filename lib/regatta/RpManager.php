@@ -99,7 +99,7 @@ class RpManager {
 
   public function updateLog() {
     $r = new RP_Log();
-    $r->regatta = $this->regatta->id();
+    $r->regatta = $this->regatta->id;
     DB::set($r);
   }
 
@@ -113,7 +113,7 @@ class RpManager {
   public function hasGender($gender) {
     $r = DB::getAll(DB::$RP_ENTRY,
 		    new DBBool(array(new DBCondIn('race',
-						  DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta->id()), array('id'))),
+						  DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta->id), array('id'))),
 				     new DBCondIn('sailor',
 						  DB::prepGetAll(DB::$SAILOR, new DBCond('gender', $gender), array('id'))))));
     $res = (count($r) > 0);
@@ -130,7 +130,7 @@ class RpManager {
   public function removeGender($gender) {
     DB::removeAll(DB::$RP_ENTRY,
 		  new DBBool(array(new DBCondIn('race',
-						DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta->id()), array('id'))),
+						DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta->id), array('id'))),
 				   new DBCondIn('sailor',
 						DB::prepGetAll(DB::$SAILOR, new DBCond('gender', $gender), array('id'))))));
   }
@@ -174,7 +174,7 @@ class RpManager {
    * @return String|false the data, or <pre>false</pre> otherwise
    */
   public function getForm() {
-    $r = DB::get(DB::$RP_FORM, $this->regatta->id());
+    $r = DB::get(DB::$RP_FORM, $this->regatta->id);
     if ($r === null)
       return false;
     return base64_decode($r->filedata);
@@ -187,7 +187,7 @@ class RpManager {
    */
   public function setForm($data) {
     $r = new RP_Form();
-    $r->id = $this->regatta->id();
+    $r->id = $this->regatta->id;
     $r->created_at = DB::$NOW;
     $r->filedata = base64_encode($data);
     DB::set($r);
@@ -201,11 +201,11 @@ class RpManager {
    * it has a timestamp later than the update timestamp on the RP
    */
   public function isFormRecent() {
-    $r = DB::get(DB::$RP_FORM, $this->regatta->id());
+    $r = DB::get(DB::$RP_FORM, $this->regatta->id);
     if ($r === null)
       return false;
 
-    $l = DB::getAll(DB::$RP_LOG, new DBCond('regatta', $this->regatta->id()));
+    $l = DB::getAll(DB::$RP_LOG, new DBCond('regatta', $this->regatta->id));
     if (count($l) == 0)
       return true;
     return ($l[0]->updated_at < $r->created_at);
@@ -238,7 +238,7 @@ class RpManager {
    * @param Sailor $temp the temporary sailor
    */
   public function removeTempSailor(Sailor $sailor) {
-    if ($sailor->icsa_id === null && $sailor->regatta_added == $this->regatta->id())
+    if ($sailor->icsa_id === null && $sailor->regatta_added == $this->regatta->id)
       DB::remove($sailor);
   }
 
@@ -248,7 +248,7 @@ class RpManager {
    * @return Array:Sailor temporary sailor list
    */
   public function getAddedSailors() {
-    return DB::getAll(DB::$SAILOR, new DBCond('regatta_added', $this->regatta->id()));
+    return DB::getAll(DB::$SAILOR, new DBCond('regatta_added', $this->regatta->id));
   }
 
   /**
@@ -261,7 +261,7 @@ class RpManager {
   public function isParticipating(Sailor $sailor) {
     $res = DB::getAll(DB::$RP_ENTRY,
 		      new DBBool(array(new DBCond('sailor', $sailor),
-				       new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta->id()), array('id'))))));
+				       new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta->id), array('id'))))));
     $part = count($res) > 0;
     unset($res);
     return $part;
@@ -289,7 +289,7 @@ class RpManager {
 			      new DBCond('boat_role', $role),
 			      new DBCondIn('race',
 					   DB::prepGetAll(DB::$RACE,
-							  new DBBool(array(new DBCond('regatta', $this->regatta->id()),
+							  new DBBool(array(new DBCond('regatta', $this->regatta->id),
 									   new DBCond('division', (string)$div))),
 							  array('id')))));
 	$rps[] = new RP(DB::getAll(DB::$RP_ENTRY, $c));

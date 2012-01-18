@@ -708,7 +708,7 @@ class SailsPane extends AbstractPane {
 
       // Reset
       Session::pa(new PA(array("New rotation successfully created. ",
-			       new XA(sprintf('/view/%s/rotation', $this->REGATTA->id()), "View", array('target', '_blank')),
+			       new XA(sprintf('/view/%s/rotation', $this->REGATTA->id), "View", array('target', '_blank')),
 			       ".")));
       unset($args['rottype']);
       $this->redirect('finishes');

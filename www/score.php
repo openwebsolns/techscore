@@ -49,7 +49,7 @@ if (!isset($_REQUEST['p']) &&
     !isset($_REQUEST['d'])) {
   $mes = "No page requested.";
   Session::pa(new PA($mes, PA::I));
-  WebServer::go("/score/".$REG->id());
+  WebServer::go("/score/".$REG->id);
 }
 
 //
@@ -67,12 +67,12 @@ elseif (isset($_REQUEST['p'])) {
     if ($PAGE === null) {
       $mes = sprintf("Invalid page requested (%s)", $_REQUEST['p']);
       Session::pa(new PA($mes, PA::I));
-      WebServer::go("/score/".$REG->id());
+      WebServer::go("/score/".$REG->id);
     }
     if (!$PAGE->isActive()) {
       $title = $PAGE->getTitle();
       Session::pa(new PA("$title is not available.", PA::I));
-      WebServer::go("/score/".$REG->id());
+      WebServer::go("/score/".$REG->id);
     }
   }
   // process, if so requested
@@ -164,7 +164,7 @@ elseif (isset($_REQUEST['v'])) {
     default:
       $mes = sprintf("Unknown dialog requested (%s).", $_REQUEST['v']);
       Session::pa(new PA($mes, PA::I));
-      WebServer::go(sprintf("/view/%d/rotation", $REG->id()));
+      WebServer::go(sprintf("/view/%d/rotation", $REG->id));
     }
   }
 }
@@ -177,7 +177,7 @@ else {
   $nn = $REG->nick;
   if (count($REG->getTeams()) == 0 || count($REG->getDivisions()) == 0) {
     Session::pa(new PA("First create teams and divisions before downloading.", PA::I));
-    WebServer::go(sprintf('/score/%d', $REG->id()));
+    WebServer::go(sprintf('/score/%d', $REG->id));
   }
   switch ($_REQUEST['d']) {
 

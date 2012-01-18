@@ -86,7 +86,7 @@ abstract class AbstractPane {
 		     "sailors"  => "Sailors");
 
     // Fill panes menu
-    $id = $this->REGATTA->id();
+    $id = $this->REGATTA->id;
     foreach ($score_i as $title => $panes) {
       $menu = new XDiv(array('class'=>'menu'), array(new XH4($title), $m_list = new XUl()));
       foreach ($panes as $url => $pane) {
@@ -131,7 +131,7 @@ abstract class AbstractPane {
    *
    */
   protected function redirect($page = null) {
-    WebServer::go(sprintf('/score/%s/%s', $this->REGATTA->id(), $page));
+    WebServer::go(sprintf('/score/%s/%s', $this->REGATTA->id, $page));
   }
 
   /**
@@ -172,7 +172,7 @@ abstract class AbstractPane {
   protected function createForm($method = XForm::POST) {
     $i = get_class($this);
     if (isset(self::$URLS[$i]))
-      return new XForm(sprintf("/edit/%d/%s", $this->REGATTA->id(), self::$URLS[$i]), $method);
+      return new XForm(sprintf("/edit/%d/%s", $this->REGATTA->id, self::$URLS[$i]), $method);
     throw new InvalidArgumentException("Please register URL for pane $i.");
   }
 

@@ -44,7 +44,7 @@ class TempRegatta extends Regatta {
 
     // fetch temporary information
     $q = sprintf('select original, expires from temp_regatta where regatta = "%s"',
-		 $this->id());
+		 $this->id);
     $res = $this->query($q);
     if ($res->num_rows == 0)
       throw new InvalidArgumentException("Regatta $id is not a temporary regatta.");
@@ -104,7 +104,7 @@ class TempRegatta extends Regatta {
    */
   private function setTemporaryFor() {
     $q = sprintf('replace into temp_regatta values ("%s", "%s", "%s")',
-		 $this->id(), $this->original->id(), $this->expires->format("Y-m-d H:i:s"));
+		 $this->id, $this->original->id, $this->expires->format("Y-m-d H:i:s"));
     $this->query($q);
   }
 
@@ -124,7 +124,7 @@ class TempRegatta extends Regatta {
 			   $reg->scoring);
 
     $q = sprintf('replace into temp_regatta values ("%s", "%s", "%s")',
-		 $id, $reg->id(), $expiration->format("Y-m-d H:i:s"));
+		 $id, $reg->id, $expiration->format("Y-m-d H:i:s"));
     self::static_query($q);
 
     $temp_reg = new TempRegatta($id);

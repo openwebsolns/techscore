@@ -127,7 +127,7 @@ class NotesPane extends AbstractPane {
     if (isset($args['remove'])) {
       if (isset($args['observation']) &&
 	  ($note = DB::get(DB::$NOTE, $args['observation'])) !== null &&
-	  $note->regatta == $this->REGATTA->id()) {
+	  $note->regatta == $this->REGATTA->id) {
 	$this->REGATTA->deleteNote($note);
 	Session::pa(new PA(sprintf("Deleted observation from %s.", $note->observer)));
       }

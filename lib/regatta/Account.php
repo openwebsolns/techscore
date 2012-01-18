@@ -105,7 +105,7 @@ class Account extends DBObject {
   public function hasJurisdiction(Regatta $reg) {
     if ($this->admin > 0)
       return true;
-    $res = DB::getAll(DB::$SCORER, new DBBool(array(new DBCond('regatta', $reg->id()), new DBCond('account', $this))));
+    $res = DB::getAll(DB::$SCORER, new DBBool(array(new DBCond('regatta', $reg->id), new DBCond('account', $this))));
     $r = (count($res) > 0);
     unset($res);
     return $r;
