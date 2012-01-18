@@ -302,7 +302,6 @@ class RegattaIO {
     // ------------------------------------------------------------
     $regatta->name = $root->RegattaName;
     $regatta->scoring = $root->Scoring;
-    // $regatta->set(Regatta::COMMENTS, addslashes($root->Blurb));
     try {
       $start = new DateTime($root->StartTime, new DateTimeZone("America/New_York"));
     } catch (Exception $e) {

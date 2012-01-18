@@ -112,17 +112,6 @@ class RegattaSummary extends DBObject {
     }
   }
 
-  /**
-   * Returns the specified property. Suitable for migration.
-   *
-   * @param Regatta::Const $property one of the class constants
-   * @return the specified property
-   * @throws InvalidArgumentException if the property is invalid.
-   */
-  public function get($property) {
-    return $this->__get($property);
-  }
-
   public function &__get($name) {
     switch ($name) {
     case 'scorer':
@@ -154,27 +143,6 @@ class RegattaSummary extends DBObject {
     $start = new DateTime($start->format('r'));
     $start->setTime(0, 0);
     return 1 + floor(($this->__get('end_date')->format('U') - $start->format('U')) / 86400);
-  }
-
-  /**
-   * Commits the specified property. A thin and unnecessary wrapper
-   * around DBObject::__set, which will be deprecated.
-   *
-   * @param Regatta::Const $property one of the class constants
-   * @param object $value value whose string representation should be
-   * used for the given property
-   *
-   * @throws InvalidArgumentException if the property is invalid.
-   *
-   * @version 2011-01-03: if the regatta is (re)activated, then check
-   * if the nick name is valid.
-   *
-   * @deprecated 2012-01-16: Assign properties directly and use
-   * DB::set to commit to database
-   */
-  public function set($property, $value) {
-    $this->__set($property, $value);
-    DB::set($this);
   }
 
   /**

@@ -164,7 +164,7 @@ class Regatta {
    * @return the specified property
    * @throws InvalidArgumentException if the property is invalid.
    */
-  public function get($property) {
+  private function get($property) {
     if (!array_key_exists($property, $this->properties)) {
       $m = "Property $property not supported in regattas.";
       throw new InvalidArgumentException($m);
@@ -240,7 +240,7 @@ class Regatta {
    * @version 2011-01-03: if the regatta is (re)activated, then check
    * if the nick name is valid.
    */
-  public function set($property, $value) {
+  private function set($property, $value) {
     if (!array_key_exists($property, $this->properties)) {
       $m = "Property $property not supported in regattas.";
       throw new InvalidArgumentException($m);
