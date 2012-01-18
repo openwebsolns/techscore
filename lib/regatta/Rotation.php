@@ -28,11 +28,6 @@ class Rotation {
   }
 
   /**
-   * @var Array let's track races individually. If it's set: it has
-   * rotations. The index is the ID of the race.
-   */
-  private $has_sails_race = null;
-  /**
    * Determines whether there is a rotation assigned: i.e. if there
    * are sails in the database
    *
@@ -40,21 +35,11 @@ class Rotation {
    * @return boolean has sails or not. Simple, no?
    */
   public function isAssigned(Race $race = null) {
-    if ($this->has_sails_race !== null) {
-      if ($race === null)
-	return count($this->has_sails_race) > 0;
-      return isset($this->has_sails_race[$race->id]);
-    }
-
-    $q = Preferences::query(sprintf('select race from rotation where race in (select id from race where regatta = %d)', $this->regatta->id));
-    $this->has_sails_race = array();
-    while ($obj = $q->fetch_object())
-      $this->has_sails_race[$obj->race] = true;
-    $q->free();
-
-    if ($race === null)
-      return count($this->has_sails_race) > 0;
-    return isset($this->has_sails_race[$race->id]);
+    if ($race !== null)
+      $cond = new DBCond('race', $race);
+    else
+      $cond = new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta), array('id')));
+    return count(DB::getAll(DB::$SAIL, $cond)) > 0;
   }
 
   /**
@@ -65,18 +50,10 @@ class Rotation {
    * @param int  $sail the sail number
    */
   public function getTeam(Race $race, $sail) {
-    $q = sprintf('select team from rotation where (race, sail) = ("%s", "%s")', $race->id, $sail);
-    $r = Preferences::query($q);
-    if ($r->num_rows == 0) {
-      $r->free();
+    $res = DB::getAll(DB::$SAIL, new DBBool(array(new DBCond('race', $race), new DBCond('sail', $sail))));
+    if (count($res) == 0)
       return null;
-    }
-    $r = $r->fetch_object();
-    foreach ($this->regatta->getTeams() as $team) {
-      if ($team->id == $r->team)
-	return $team;
-    }
-    return null;
+    return $res[0]->team;
   }
 
   /**
@@ -87,22 +64,17 @@ class Rotation {
    * @return String the sail number, null if none
    */
   public function getSail(Race $race, Team $team) {
-    $q = sprintf('select sail from rotation ' .
-		 'where (race, team) = ("%s", "%s")',
-		 $race->id, $team->id);
-    $q = Preferences::query($q);
-    if ($q->num_rows == 0) {
+    $res = DB::getAll(DB::$SAIL, new DBBool(array(new DBCond('race', $race), new DBCond('team', $team))));
+    if (count($res) == 0)
       return null;
-    }
-    $q = $q->fetch_object();
-    return $q->sail;
+    return $res[0]->sail;
   }
 
   /**
    * Returns array of sail numbers for specified race, or all the
    * distinct sail numbers if no race is specified
    *
-   * @return Array<String> sail number in the race, or all sails
+   * @return Array:String sail number in the race, or all sails
    */
   public function getSails(Race $race = null) {
     if ($race == null) {
@@ -138,59 +110,46 @@ class Rotation {
   /**
    * Returns a list of sail numbers common to the given list of races
    *
-   * @param Array<Race> the list of races
-   * @return Array<String> the list of sails common to all the races
+   * @param Array:Race the list of races
+   * @return Array:String the list of sails common to all the races
    */
   public function getCommonSails(Array $races) {
-    $common_nums = null;
+    $nums = array();
     foreach ($races as $race) {
-      $nums = $this->getSails($race);
-      if ($common_nums == null)	$common_nums = $nums;
-      else
-	$common_nums = array_intersect($common_nums, $nums);
+      foreach ($this->getSails($race) as $num)
+	$nums[$num] = $num;
     }
-    return $common_nums;
+    return array_values($nums);
   }
 
   /**
    * Returns a list of races with rotation, ordered by division, number
    *
-   * @return Array<Race> list of races with rotations
+   * @return Array:Race list of races with rotations
    */
   public function getRaces() {
-    $q = sprintf('select distinct rotation.race from rotation ' .
-		 'inner join race on (race.id = rotation.race) ' .
-		 'where race.regatta = "%s"',
-		 $this->regatta->id);
-    $q = Preferences::query($q);
-    $rot_races = array();
-    while ($obj = $q->fetch_object())
-      $rot_races[] = $obj->race;
-
-    $list = array();
-    foreach ($this->regatta->getRaces() as $race)
-      if (in_array($race->id, $rot_races))
-	$list[] = $race;
-    return $list;
+    return DB::getAll(DB::$RACE,
+		      new DBBool(array(new DBCond('regatta', $this->regatta),
+				       new DBCondIn('id', DB::prepGetAll(DB::$SAIL, null, array('race'))))));
   }
 
   /**
    * Returns list of divisions with rotation, ordered by division
    *
-   * @return Array<Division> list of divisions
+   * @return Array:Division list of divisions
    */
   public function getDivisions() {
-    $q = sprintf('select distinct race.division ' .
-		 'from race inner join rotation ' .
-		 '  on (rotation.race = race.id) ' .
-		 'where race.regatta = "%s" ' .
-		 'order by race.division',
-		 $this->regatta->ID());
-    $q = Preferences::query($q);
+    $q = DB::prepGetAll(DB::$RACE,
+			new DBBool(array(new DBCond('regatta', $this->regatta),
+					 new DBCondIn('id', DB::prepGetAll(DB::$SAIL, null, array('race'))))));
+    $q->fields(array('division'), DB::$RACE->db_name());
+    $q->distinct(true);
+    $q->order_by(array('division'=>true));
+
+    $q = DB::query($q);
     $list = array();
-    while ($obj = $q->fetch_object()) {
+    while ($obj = $q->fetch_object())
       $list[] = Division::get($obj->division);
-    }
     return $list;
   }
 
@@ -261,8 +220,6 @@ class Rotation {
     $teams = array_values($teams);
     $races = array_values($races);
 
-    $this->has_sails_race = array();
-
     // verify parameters
     $num_sails = count($sails);
     $num_teams = count($teams);
@@ -291,7 +248,6 @@ class Rotation {
 	  // print(sprintf("%3s | %2s | %s\n", $sail->race, $sail->sail, $sail->team->name));
 	  $this->queue($sail);
 	}
-	$this->has_sails_race[$race->id] = true;
       }
     }
     
@@ -315,7 +271,6 @@ class Rotation {
 	  // print(sprintf("%3s | %2s | %s\n", $sail->race, $sail->sail, $sail->team->name));
 	  $this->queue($sail);
 	}
-	$this->has_sails_race[$race->id] = true;
       }
     }
     $this->commit();
@@ -369,8 +324,6 @@ class Rotation {
     $teams = array_values($teams);
     $races = array_values($races);
 
-    $this->has_sails_race = array();
-
     // verify parameters
     $num_sails = count($sails);
     $num_teams = count($teams);
@@ -400,7 +353,6 @@ class Rotation {
 	  // print(sprintf("%3s | %2s | %s\n", $sail->race, $sail->sail, $sail->team->name));
 	  $this->queue($sail);
 	}
-	$this->has_sails_race[$race->id] = true;
       }
     }
     
@@ -424,7 +376,6 @@ class Rotation {
 	  // print(sprintf("%3s | %2s | %s\n", $sail->race, $sail->sail, $sail->team->name));
 	  $this->queue($sail);
 	}
-	$this->has_sails_race[$race->id] = true;
       }
     }
     $this->commit();
@@ -525,14 +476,12 @@ class Rotation {
    * @throws InvalidArgumentException if the array sizes do not match
    */
   public function createOffset(Division $fromdiv, Division $todiv, Array $nums, $offset) {
-    $this->has_sails_race = array();
     foreach ($nums as $num) {
       $from = $this->regatta->getRace($fromdiv, $num);
       $to = $this->regatta->getRace($todiv, $num);
       $sails = $this->getSails($from);
       $upper = count($sails);
 
-      $this->has_sails_race[$to->id] = true;
       foreach ($sails as $j => $sail) {
 	$new_sail = new Sail();
 	$new_sail->race = $to;

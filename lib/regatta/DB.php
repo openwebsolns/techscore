@@ -490,6 +490,7 @@ class DB extends DBM {
    * @throws InvalidArgumentException if illegal value
    */
   public static function getRegatta($id) {
+    require_once('regatta/Regatta.php');
     return DB::get(DB::$REGATTA, $id);
   }
 }
