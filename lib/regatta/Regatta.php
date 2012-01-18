@@ -109,7 +109,7 @@ class Regatta {
    * Sends the query to the database and handles errors. Returns the
    * resultant mysqli_result object
    */
-  public function query($string) {
+  protected function query($string) {
     return Preferences::query($string);
   }
 

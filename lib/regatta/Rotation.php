@@ -46,7 +46,7 @@ class Rotation {
       return isset($this->has_sails_race[$race->id]);
     }
 
-    $q = $this->regatta->query(sprintf('select race from rotation where race in (select id from race where regatta = %d)', $this->regatta->id()));
+    $q = Preferences::query(sprintf('select race from rotation where race in (select id from race where regatta = %d)', $this->regatta->id()));
     $this->has_sails_race = array();
     while ($obj = $q->fetch_object())
       $this->has_sails_race[$obj->race] = true;
@@ -66,7 +66,7 @@ class Rotation {
    */
   public function getTeam(Race $race, $sail) {
     $q = sprintf('select team from rotation where (race, sail) = ("%s", "%s")', $race->id, $sail);
-    $r = $this->regatta->query($q);
+    $r = Preferences::query($q);
     if ($r->num_rows == 0) {
       $r->free();
       return null;
@@ -90,7 +90,7 @@ class Rotation {
     $q = sprintf('select sail from rotation ' .
 		 'where (race, team) = ("%s", "%s")',
 		 $race->id, $team->id);
-    $q = $this->regatta->query($q);
+    $q = Preferences::query($q);
     if ($q->num_rows == 0) {
       return null;
     }
@@ -113,7 +113,7 @@ class Rotation {
 		 'where race = "%s" ' .
 		 'order by sail',
 		 $race->id);
-    $q = $this->regatta->query($q);
+    $q = Preferences::query($q);
     $sails = array();
     while ($sail = $q->fetch_object()) {
       $sails[] = $sail->sail;
@@ -127,7 +127,7 @@ class Rotation {
 		 'where race.regatta = "%s" ' .
 		 'order by sail',
 		 $this->regatta->id());
-    $q = $this->regatta->query($q);
+    $q = Preferences::query($q);
     $sails = array();
     while ($sail = $q->fetch_object()) {
       $sails[] = $sail->sail;
@@ -162,7 +162,7 @@ class Rotation {
 		 'inner join race on (race.id = rotation.race) ' .
 		 'where race.regatta = "%s"',
 		 $this->regatta->id());
-    $q = $this->regatta->query($q);
+    $q = Preferences::query($q);
     $rot_races = array();
     while ($obj = $q->fetch_object())
       $rot_races[] = $obj->race;
@@ -186,7 +186,7 @@ class Rotation {
 		 'where race.regatta = "%s" ' .
 		 'order by race.division',
 		 $this->regatta->ID());
-    $q = $this->regatta->query($q);
+    $q = Preferences::query($q);
     $list = array();
     while ($obj = $q->fetch_object()) {
       $list[] = Division::get($obj->division);
@@ -206,7 +206,7 @@ class Rotation {
     $con = DB::connection();
     $q = sprintf('insert into rotation (race, team, sail) values ("%s", "%s", "%s") on duplicate key update sail=values(sail)',
 		 $sail->race->id, $sail->team->id, $con->real_escape_string($sail->sail));
-    $this->regatta->query($q);
+    Preferences::query($q);
   }
 
 
@@ -553,7 +553,7 @@ class Rotation {
    */
   public function addAmount(Race $race, $amount) {
     $q = sprintf('update rotation set sail = (sail + %d) where race = "%s"', $amount, $race->id);
-    $this->regatta->query($q);
+    Preferences::query($q);
   }
 
   /**
@@ -567,7 +567,7 @@ class Rotation {
     $q = sprintf('update rotation set sail = "%s" ' .
 		 'where sail = "%s" and race = "%s"',
 		 (int)$repl, (int)$orig, $race->id);
-    $this->regatta->query($q);
+    Preferences::query($q);
   }
 
   /**
@@ -596,7 +596,7 @@ class Rotation {
     }
     $q = sprintf('insert into rotation (race, team, sail) values %s on duplicate key update sail=values(sail)',
 		 implode(',', $list));
-    $this->regatta->query($q);
+    Preferences::query($q);
     $this->queued_sails = array();
   }
 
@@ -623,7 +623,7 @@ class Rotation {
       sprintf('in (select id from race where regatta = "%s")', $this->regatta->id()) :
       sprintf('= "%s"', $race->id);
     
-    $this->regatta->query("delete from rotation where race $where");
+    Preferences::query("delete from rotation where race $where");
   }
 }
 ?>

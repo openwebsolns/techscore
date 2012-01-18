@@ -253,8 +253,8 @@ class DetailsPane extends AbstractPane {
 	    $this->REGATTA->addHost($school);
 	}
       }
-      print_r($args);
 
+      // DB::set($this->REGATTA);
       Session::pa(new PA("Edited regatta details."));
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DETAILS);
     }
