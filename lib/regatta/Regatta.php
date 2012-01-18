@@ -131,7 +131,7 @@ class Regatta extends DBObject {
 
   public function getSeason() {
     if ($this->season === null)
-      $this->season = Season::forDate($this->__get('start_date'));
+      $this->season = Season::forDate($this->__get('start_time'));
     return $this->season;
   }
 
