@@ -60,8 +60,9 @@ class DetailsPane extends AbstractPane {
 						  "size"     =>8))));
 
     // Venue
-    $venue = $this->REGATTA->get(Regatta::VENUE);
+    $venue = $this->REGATTA->venue;
     $reg_form->add(new FItem("Venue:", $r_type = new XSelect("venue")));
+    $r_type->add(new FOption("", ""));
     foreach (DB::getVenues() as $v) {
       $r_type->add($opt = new FOption($v->id, $v->name));
       if ($venue !== null && $venue->id == $v->id)
@@ -93,7 +94,7 @@ class DetailsPane extends AbstractPane {
     $value = $this->REGATTA->scoring;
     $reg_form->add(new FItem("Scoring:",
 			     XSelect::fromArray('scoring',
-						Regatta::getParticipantOptions(),
+						Regatta::getScoringOptions(),
 						$value)));
 
     // Hosts: first add the current hosts, then the entire list of
@@ -210,9 +211,8 @@ class DetailsPane extends AbstractPane {
       }
 
       // Venue
-      if (isset($args['venue']) && is_numeric($args['venue']) &&
-	  DB::getVenue($args['venue']))
-	$this->REGATTA->set(Regatta::VENUE, (int)$args['venue']);
+      if (isset($args['venue']))
+	$this->REGATTA->venue = DB::getVenue($args['venue']);
 
       // Scoring
       if (isset($args['scoring']) &&

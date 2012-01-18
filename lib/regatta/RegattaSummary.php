@@ -16,9 +16,6 @@ require_once('regatta/DB.php');
  */
 class RegattaSummary extends DBObject {
 
-  // Keys for data
-  const VENUE      = "venue";
-
   /**
    * Standard scoring
    */

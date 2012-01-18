@@ -82,7 +82,7 @@ class RegattaIO {
     }
 
     //   -Venue
-    $cont = $reg->get(Regatta::VENUE);
+    $cont = $reg->venue;
     if ($cont !== null) {
       $root->add($tag = new XElem("Venue"));
       $tag->set("id", $cont->id);
@@ -346,12 +346,9 @@ class RegattaIO {
      // ------------------------------------------------------------
      // Venue
      // ------------------------------------------------------------
-    $venue_id = (int)$root->Venue['id'];
+    $venue_id = (string)$root->Venue['id'];
     $venue = DB::getVenue($venue_id);
-    if ($venue == null)
-      $warnings[] = sprintf("Ignoring invalid venue ID (%s).", $venue_id);
-    else
-      $regatta->set(Regatta::VENUE, $venue);
+    $regatta->venue = $venue;
 
       // ------------------------------------------------------------
       // Scorers

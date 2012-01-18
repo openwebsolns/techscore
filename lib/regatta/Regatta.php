@@ -36,9 +36,6 @@ class Regatta {
   private $id;
   private $scorer;
 
-  // Keys for data
-  const VENUE      = "venue";
-
   /**
    * Standard scoring
    */
@@ -172,7 +169,7 @@ class Regatta {
       $m = "Property $property not supported in regattas.";
       throw new InvalidArgumentException($m);
     }
-    if ($property == Regatta::VENUE) {
+    if ($property == 'venue') {
       if ($this->properties[$property] !== null &&
 	  !($this->properties[$property] instanceof Venue))
 	$this->properties[$property] = DB::getVenue($this->properties[$property]);
@@ -213,9 +210,7 @@ class Regatta {
       }
       return $this->scorer;
     }
-    if (isset($this->properties[$name]))
-      return $this->properties[$name];
-    throw new InvalidArgumentException("No such Regatta property $name.");
+    return $this->get($name);
   }
 
   public function __set($name, $value) {
@@ -228,9 +223,9 @@ class Regatta {
 		   $con->escape_string($value->id),
 		   $this->id);
       $this->query($q);
-    default:
-      $this->set($name, $value);
+      return;
     }
+    $this->set($name, $value);
   }
 
   /**
@@ -259,6 +254,11 @@ class Regatta {
       }
       $strvalue = sprintf('"%s"', $value->format("Y-m-d H:i:s"));
     }
+    elseif ($property == 'venue') {
+      if (!($value instanceof Venue))
+	throw new InvalidArgumentException("Venue must be venue object.");
+      $strvalue = sprintf('"%s"', $value->id);
+    }
     else
       $strvalue = sprintf('"%s"', $value);
 
@@ -281,8 +281,7 @@ class Regatta {
     // is valid (this would throw an exception otherwise)
     if ($value != Regatta::TYPE_PERSONAL)
       $this->__set('nick_name', $this->createNick());
-    $this->type = $value;
-    DB::set($this);
+    $this->set('type', $value);
   }
 
   //
