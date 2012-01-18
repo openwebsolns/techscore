@@ -161,11 +161,11 @@ class Rotation {
    */
   public function setSail(Sail $sail) {
     if ($sail->team instanceof ByeTeam) return;
-
-    $con = DB::connection();
-    $q = sprintf('insert into rotation (race, team, sail) values ("%s", "%s", "%s") on duplicate key update sail=values(sail)',
-		 $sail->race->id, $sail->team->id, $con->real_escape_string($sail->sail));
-    Preferences::query($q);
+    // Enforce uniqueness
+    $cur = $this->getSail($sail->race, $sail->team);
+    if ($cur !== null)
+      $sail->id = $cur->id;
+    DB::set($sail);
   }
 
 
@@ -533,19 +533,8 @@ class Rotation {
    * Rotation::queue
    */
   private function commit() {
-    $con = DB::connection();
-    $list = array();
-    foreach ($this->queued_sails as $sail) {
-      if (!($sail->team instanceof ByeTeam)) {
-	$list[] = sprintf('("%s", "%s", "%s")',
-			  $sail->race->id,
-			  $sail->team->id,
-			  $con->escape_string($sail->sail));
-      }
-    }
-    $q = sprintf('insert into rotation (race, team, sail) values %s on duplicate key update sail=values(sail)',
-		 implode(',', $list));
-    Preferences::query($q);
+    $this->reset();
+    DB::insertAll($this->queued_sails);
     $this->queued_sails = array();
   }
 
@@ -557,6 +546,8 @@ class Rotation {
    * @param Sail $sail the sail to queue
    */
   private function queue(Sail $sail) {
+    if ($sail->team instanceof ByeTeam)
+      return;
     $this->queued_sails[] = $sail;
   }
   private $queued_sails = array();
@@ -568,11 +559,11 @@ class Rotation {
    * regatta, otherwise
    */
   public function reset(Race $race = null) {
-    $where = ($race === null) ?
-      sprintf('in (select id from race where regatta = "%s")', $this->regatta->id) :
-      sprintf('= "%s"', $race->id);
-    
-    Preferences::query("delete from rotation where race $where");
+    if ($race !== null)
+      $cond = new DBCond('race', $race);
+    else
+      $cond = new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta), array('id')));
+    DB::removeAll(DB::$SAIL, $cond);
   }
 }
 ?>
