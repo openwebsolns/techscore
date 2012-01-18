@@ -1011,11 +1011,12 @@ class Regatta extends DBObject {
     $divisions = $this->getDivisions();
     if (count($divisions) > 1) return false;
 
-    foreach ($this->getRaces(array_shift($divisions)) as $race) {
-      if ($race->boat->occupants > 1)
-	return false;
-    }
-    return true;
+    $res = DB::getAll(DB::$RACE,
+		      new DBBool(array(new DBCond('regatta', $this),
+				       new DBCondIn('boat', DB::prepGetAll(DB::$BOAT, new DBCond('occupants', 1, DBCond::GT), array('id'))))));
+    $r = (count($res) == 0);
+    unset($res);
+    return $r;
   }
 
   /**
