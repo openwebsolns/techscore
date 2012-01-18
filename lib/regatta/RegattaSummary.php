@@ -17,7 +17,6 @@ require_once('regatta/DB.php');
 class RegattaSummary extends DBObject {
 
   // Keys for data
-  const DURATION   = "duration";
   const VENUE      = "venue";
 
   /**
@@ -144,6 +143,20 @@ class RegattaSummary extends DBObject {
     if ($this->season === null)
       $this->season = Season::forDate($this->__get('start_date'));
     return $this->season;
+  }
+
+  /**
+   * Fetches the number of days (inclusive) for this event
+   *
+   * @return int the number of days
+   */
+  public function getDuration() {
+    $start = $this->__get('start_time');
+    if ($start === null)
+      return 0;
+    $start = new DateTime($start->format('r'));
+    $start->setTime(0, 0);
+    return 1 + floor(($this->__get('end_date')->format('U') - $start->format('U')) / 86400);
   }
 
   /**

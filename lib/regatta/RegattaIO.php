@@ -60,7 +60,7 @@ class RegattaIO {
 
     //   -Duration
     $root->add($tag = new XElem("Duration"));
-    $tag->add(new XText($reg->get(Regatta::DURATION)));
+    $tag->add(new XText($reg->getDuration()));
 
     //   -Regatta type
     $root->add($tag = new XElem("RegattaType"));
@@ -74,7 +74,7 @@ class RegattaIO {
 
     //   -Blurb
     $root->add($tag = new XElem("Comments"));
-    for ($i = 0; $i < $reg->get(Regatta::DURATION); $i++) {
+    for ($i = 0; $i < $reg->getDuration(); $i++) {
       $day = new DateTime(sprintf("%s + %d days", $stime->format('Y-m-d'), $i));
       $tag->add($sub = new XElem("Comment"));
       $sub->set("day", $i);

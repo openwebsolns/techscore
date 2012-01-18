@@ -46,7 +46,7 @@ class DetailsPane extends AbstractPane {
 						  "size"     =>20,
 						  "id"=>"datepicker"))));
     // Duration
-    $value = $this->REGATTA->get(Regatta::DURATION);
+    $value = $this->REGATTA->getDuration();
     $reg_form->add(new FItem("Duration (days):",
 			     new XTextInput("duration",
 					    $value,

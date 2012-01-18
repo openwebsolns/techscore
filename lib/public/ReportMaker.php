@@ -116,7 +116,7 @@ class ReportMaker {
     $desc = "";
     $stime = $reg->start_time;
     $this->summary = array();
-    for ($i = 0; $i < $reg->get(Regatta::DURATION); $i++) {
+    for ($i = 0; $i < $reg->getDuration(); $i++) {
       $today = new DateTime(sprintf("%s + %d days", $stime->format('Y-m-d'), $i));
       $comms = $reg->getSummary($today);
       if (strlen($comms) > 0) {

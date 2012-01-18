@@ -28,7 +28,7 @@ class SummaryPane extends AbstractPane {
 
     $p->add($form = $this->createForm());
     $start = $this->REGATTA->start_time;
-    for ($i = 0; $i < $this->REGATTA->get(Regatta::DURATION); $i++) {
+    for ($i = 0; $i < $this->REGATTA->getDuration(); $i++) {
       $today = new DateTime(sprintf("%s + %d days", $start->format('Y-m-d'), $i));
       $comms = $this->REGATTA->getSummary($today);
       $form->add(new FItem($today->format('l, F j'),

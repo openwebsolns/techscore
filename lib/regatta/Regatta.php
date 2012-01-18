@@ -37,7 +37,6 @@ class Regatta {
   private $scorer;
 
   // Keys for data
-  const DURATION   = "duration";
   const VENUE      = "venue";
 
   /**
@@ -148,13 +147,6 @@ class Regatta {
       $this->properties['start_time'] = $start;
       $this->properties['end_date']   = $end;
 
-      // Calculate duration
-      $duration = 1 + (date_format($end, "U") -
-		       date_format($this->getDay($start), "U")) /
-	(3600 * 24);
-
-      $this->properties[Regatta::DURATION] = $duration;
-
       // Venue and Season shall not be serialized until they are
       // requested
       $this->properties['season'] = null;
@@ -197,6 +189,20 @@ class Regatta {
     if ($this->season === null)
       $this->season = Season::forDate($this->start_time);
     return $this->season;
+  }
+
+  /**
+   * Fetches the number of days (inclusive) for this event
+   *
+   * @return int the number of days
+   */
+  public function getDuration() {
+    $start = $this->__get('start_time');
+    if ($start === null)
+      return 0;
+    $start = new DateTime($start->format('r'));
+    $start->setTime(0, 0);
+    return 1 + floor(($this->__get('end_date')->format('U') - $start->format('U')) / 86400);
   }
 
   public function __get($name) {
