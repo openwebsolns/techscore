@@ -39,7 +39,7 @@ class CompareHeadToHead extends AbstractUserPane {
     // get sailors
     $sailors = array();
     foreach ($list as $id) {
-      $sailor = DBME::get(DBME::$SAILOR, $id);
+      $sailor = DB::getSailor($id);
       if ($sailor !== null && $sailor->icsa_id !== null)
 	$sailors[] = $sailor;
       else

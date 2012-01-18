@@ -21,7 +21,6 @@ class DBME extends DBM {
   public static $TEAM_DIVISION = null;
   public static $REGATTA = null;
   public static $SEASON = null;
-  public static $SAILOR = null;
   public static $SCORE = null;
   public static $VENUE = null;
   public static $TEAM = null;
@@ -36,7 +35,6 @@ class DBME extends DBM {
     self::$TEAM_DIVISION = new Dt_Team_Division();
     self::$REGATTA = new Dt_Regatta();
     self::$SEASON = new Dt_Season();
-    self::$SAILOR = new Dt_Sailor();
     self::$SCORE = new Dt_Score();
     self::$VENUE = new Dt_Venue();
     self::$TEAM = new Dt_Team();
@@ -270,7 +268,7 @@ class Dt_Regatta extends DBObject {
   // RP information
   // ------------------------------------------------------------
 
-  public function getParticipation(Dt_Sailor $sailor, $division = null, $role = null) {
+  public function getParticipation(Sailor $sailor, $division = null, $role = null) {
     $team = DBME::prepGetAll(DBME::$TEAM, new DBCond('regatta', $this->id), array('id'));
     
     $cond = new DBBool(array(new DBCondIn('team', $team)));
@@ -453,41 +451,12 @@ class Dt_Rp extends DBObject {
   public $boat_role;
 
   public function db_type($field) {
-    if ($field == 'sailor') return DBME::$SAILOR;
+    if ($field == 'sailor') return DB::$SAILOR;
     if ($field == 'race_nums') return DBME::$ARRAY;
     if ($field == 'team_division') return DBME::$TEAM_DIVISION;
     return parent::db_type($field);
   }
   protected function db_order() { return array('race_nums'=>true); }
-}
-
-class Dt_Sailor extends DBObject {
-  const FEMALE = 'F';
-  const MALE = 'M';
-
-  public $icsa_id;
-  protected $school;
-  public $last_name;
-  public $first_name;
-  public $year;
-  public $role;
-  public $gender;
-
-  public function db_name() { return 'sailor'; }
-  protected function db_cache() { return true; }
-  public function db_type($field) {
-    if ($field == 'school')
-      return DB::$SCHOOL;
-    return parent::db_type($field);
-  }
-  public function __toString() {
-    $suffix = ($this->icsa_id === null) ? ' *' : '';
-    return sprintf('%s %s \'%s%s',
-		   $this->first_name,
-		   $this->last_name,
-		   substr($this->year, 2),
-		   $suffix);
-  }
 }
 
 /**

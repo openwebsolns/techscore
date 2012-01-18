@@ -211,7 +211,7 @@ class UpdateRegatta {
 	$rps = $rpm->getRP($team_objs[$team->id], Division::get($team->division), $role);
 	foreach ($rps as $rp) {
 	  $drp = new Dt_Rp();
-	  $drp->sailor = DBME::get(DBME::$SAILOR, $rp->sailor->id);
+	  $drp->sailor = DB::getSailor($rp->sailor->id);
 	  $drp->team_division = $team;
 	  $drp->boat_role = $role;
 	  $drp->race_nums = $rp->races_nums;
