@@ -78,7 +78,7 @@ class UpdateRegatta {
     $dreg->type = $reg->type;
     $dreg->finalized = $reg->finalized;
     $dreg->scoring = $reg->scoring;
-    $dreg->participant = $reg->get(Regatta::PARTICIPANT);
+    $dreg->participant = $reg->participant;
 
     $venue = $reg->get(Regatta::VENUE);
     if ($venue !== null)

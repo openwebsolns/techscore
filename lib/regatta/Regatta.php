@@ -39,7 +39,6 @@ class Regatta {
   // Keys for data
   const DURATION   = "duration";
   const VENUE      = "venue";
-  const PARTICIPANT = "participant";
 
   /**
    * Standard scoring

@@ -80,7 +80,7 @@ class DetailsPane extends AbstractPane {
     $item->add(new XMessage("Choose \"Personal\" to un-publish"));
 
     // Regatta participation
-    $value = $this->REGATTA->get(Regatta::PARTICIPANT);
+    $value = $this->REGATTA->participant;
     $reg_form->add($item = new FItem("Participation:",
 				     XSelect::fromArray('participant',
 							Regatta::getParticipantOptions(),
@@ -223,7 +223,7 @@ class DetailsPane extends AbstractPane {
       // Participation
       if (isset($args['participant']) &&
 	  in_array($args['participant'], array_keys(Regatta::getParticipantOptions()))) {
-	$this->REGATTA->set(Regatta::PARTICIPANT, $args['participant']);
+	$this->REGATTA->participant = $args['participant'];
 	// affect RP accordingly
 	if ($args['participant'] == Regatta::PARTICIPANT_WOMEN) {
 	  $rp = $this->REGATTA->getRpManager();
