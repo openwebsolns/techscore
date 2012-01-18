@@ -17,7 +17,6 @@ require_once('regatta/DB.php');
 class RegattaSummary extends DBObject {
 
   // Keys for data
-  const END_DATE   = "end_date";
   const DURATION   = "duration";
   const FINALIZED  = "finalized";
   const VENUE      = "venue";

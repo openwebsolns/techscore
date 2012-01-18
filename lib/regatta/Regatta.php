@@ -37,7 +37,6 @@ class Regatta {
   private $scorer;
 
   // Keys for data
-  const END_DATE   = "end_date";
   const DURATION   = "duration";
   const FINALIZED  = "finalized";
   const VENUE      = "venue";

@@ -119,7 +119,7 @@ class TempRegatta extends Regatta {
     $id = self::addRegatta(Conf::$SQL_DB,
 			   $reg->name,
 			   $reg->start_time,
-			   $reg->get(Regatta::END_DATE),
+			   $reg->end_date,
 			   $reg->type,
 			   $reg->get(Regatta::SCORING));
 

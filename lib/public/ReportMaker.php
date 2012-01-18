@@ -140,7 +140,7 @@ class ReportMaker {
     // Javascript?
     $now = new DateTime('today');
     if ($reg->start_time <= $now &&
-	$reg->get(Regatta::END_DATE)   >= $now) {
+	$reg->end_date   >= $now) {
       // $page->head->add(new XScript('text/javascript', '/inc/js/refresh.js'));
     }
 
@@ -149,7 +149,7 @@ class ReportMaker {
     $div->add(new XH2($reg->name));
     
     $stime = $reg->start_time;
-    $etime = $reg->get(Regatta::END_DATE);
+    $etime = $reg->end_date;
     if ($stime->format('Y-m-d') == $etime->format('Y-m-d')) // same day
       $date = $stime->format('F j, Y');
     elseif ($stime->format('Y-m') == $etime->format('Y-m')) // same month

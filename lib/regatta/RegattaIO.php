@@ -315,9 +315,9 @@ class RegattaIO {
       $warnings[] = sprintf("Invalid value for duration (%s), defaulting to '1'.", $duration);
       $duration = 1;
     }
-    $end = new DateTime(sprintf("%s + %d days", $start->format("Y-m-d H:i:s"), $duration),
-			new DateTimeZone("America/New_York"));
-    $regatta->set(Regatta::END_DATE, $end);
+    $end = new DateTime(sprintf("%s + %d days", $start->format("Y-m-d H:i:s"), $duration));
+    $end->setTime(0, 0);
+    $regatta->end_date = $end;
     $regtype = $root->RegattaType;
     if (!in_array($regtype, array_keys(Regatta::getTypes()))) {
       $warnings[] = sprintf("Invalid RegattaType (%s), default to 'personal'.", $regtype);

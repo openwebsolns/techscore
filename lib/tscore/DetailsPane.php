@@ -154,7 +154,7 @@ class DetailsPane extends AbstractPane {
     }
     // If the regatta has already "ended", then the finalize port
     // should go first to urge the user to take action.
-    if ($this->REGATTA->get(Regatta::END_DATE) < new DateTime()) {
+    if ($this->REGATTA->end_date < new DateTime()) {
       $this->PAGE->addContent($p2);
       $this->PAGE->addContent($p);
     }
@@ -204,10 +204,9 @@ class DetailsPane extends AbstractPane {
 	  is_numeric($args['duration']) &&
 	  $args['duration'] > 0) {
 	$duration = (int)($args['duration']);
-	$edate = new DateTime(sprintf("%s + %d days",
-				      $args['sdate'],
-				      $duration-1));
-	$this->REGATTA->set(Regatta::END_DATE, $edate);
+	$edate = new DateTime(sprintf("%s + %d days", $args['sdate'], $duration-1));
+	$edate->setTime(0, 0);
+	$this->REGATTA->end_date = $edate;
       }
 
       // Venue
