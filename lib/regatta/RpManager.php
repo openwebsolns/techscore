@@ -304,7 +304,7 @@ class RpManager {
    * @param Sailor $sailor the sailor
    * @param Const|null $role either SKIPPER or CREW to narrow down
    * @param Division $div specify one to narrow down
-   * @return Array:RegattaSummary
+   * @return Array:Regatta
    */
   public static function getRegattas(Sailor $sailor, $role = null, Division $div = null) {
     $cond = new DBBool(array(new DBCond('sailor', $sailor)));

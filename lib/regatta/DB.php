@@ -42,7 +42,7 @@ class DB extends DBM {
   public static $MESSAGE = null;
   public static $ACCOUNT = null;
   public static $ACCOUNT_SCHOOL = null;
-  public static $REGATTA_SUMMARY = null;
+  public static $REGATTA = null;
   public static $RP_LOG = null; // RpManager.php
   public static $RP_FORM = null; // RpManager.php
   public static $TEAM_DIVISION = null;
@@ -490,11 +490,8 @@ class DB extends DBM {
    * @throws InvalidArgumentException if illegal value
    */
   public static function getRegatta($id) {
-    if (!isset(self::$regattas[$id]))
-      self::$regattas[$id] = new Regatta($id);
-    return self::$regattas[$id];
+    return DB::get(DB::$REGATTA, $id);
   }
-  private static $regattas = array();
 }
 
 /**
@@ -1484,11 +1481,11 @@ class Season extends DBObject {
   /**
    * Returns all the regattas in this season which are not personal
    *
-   * @return Array:RegattaSummary
+   * @return Array:Regatta
    */
   public function getRegattas() {
-    require_once('regatta/RegattaSummary.php');
-    return DB::getAll(DB::$REGATTA_SUMMARY,
+    require_once('regatta/Regatta.php');
+    return DB::getAll(DB::$REGATTA,
 		      new DBBool(array(new DBCond('start_time', $this->start_date, DBCond::GE),
 				       new DBCond('start_time', $this->end_date,   DBCond::LT),
 				       new DBCond('type', Regatta::TYPE_PERSONAL, DBCond::NE))));
@@ -1499,10 +1496,10 @@ class Season extends DBObject {
    * school participated. This is a convenience method.
    *
    * @param School $school the school whose participation to verify
-   * @return Array:RegattaSummary
+   * @return Array:Regatta
    */
   public function getParticipation(School $school) {
-    return DB::getAll(DB::$REGATTA_SUMMARY,
+    return DB::getAll(DB::$REGATTA,
 		      new DBBool(array(new DBCond('start_time', $this->start_date, DBCond::GE),
 				       new DBCond('start_time', $this->end_date,   DBCond::LT),
 				       new DBCondIn('id', DB::prepGetAll(DB::$TEAM, new DBCond('school', $school), array('regatta'))))));
@@ -1516,7 +1513,7 @@ class Season extends DBObject {
    * Fetches all the regattas in all the given seasons
    *
    * @param Array:Season all the seasons to consider
-   * @return Array:RegattaSummary
+   * @return Array:Regatta
    */
   public static function getRegattasInSeasons(Array $seasons) {
     if (count($seasons) == 0)
@@ -1526,7 +1523,7 @@ class Season extends DBObject {
       $cond->add(new DBBool(array(new DBCond('start_time', $season->start_date, DBCond::GE),
 				  new DBCond('start_time', $season->end_date,   DBCond::LT))));
     }
-    return DB::getAll(DB::$REGATTA_SUMMARY, $cond);
+    return DB::getAll(DB::$REGATTA, $cond);
   }
 
   /**

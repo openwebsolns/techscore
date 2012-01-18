@@ -1,20 +1,40 @@
 <?php
 /*
- * This file is part of TechScore
+ * This class is part of TechScore
  *
+ * @version 2.0
+ * @author Dayan Paez
  * @package regatta
  */
 
-require_once('regatta/DB.php');
-
 /**
- * Encapsulates a (flat) regatta object. Note that comments are
- * suppressed due to speed considerations.
+ * Class for regatta objects. Each object is responsible for
+ * communicating with the database and retrieving all sorts of
+ * pertinent informations. Only one global connection to the database
+ * is necessary and shared by all regatta objects.
+ *
+ * 2010-02-16: Created TempRegatta which extends this class.
+ *
+ * 2010-03-07: Provided for combined divisions
+ *
+ * 2011-01-03: Regatta nick names offer a special challenge in that
+ * they (a) need to be unique per season (as this is how they are
+ * identified in the public site), and (b) only for those that are
+ * published. As such, special care must be taken for regattas which
+ * change their status either by being deactivated or possibly
+ * re-activated. Of course, although this note appears here, the
+ * orchestration needs to be done elsewhere. For this moment, this
+ * class will now throw an error when attempting to set a name for
+ * which a nick-name would no longer be unique among active regattas
+ * in that season!
  *
  * @author Dayan Paez
- * @version 2009-11-30
+ * @version 2009-10-01
  */
-class RegattaSummary extends DBObject {
+class Regatta {
+
+  private $id;
+  private $scorer;
 
   /**
    * Standard scoring
@@ -42,13 +62,13 @@ class RegattaSummary extends DBObject {
    * @return Array a dict of regatta types
    */
   public static function getTypes() {
-    return array(RegattaSummary::TYPE_CHAMPIONSHIP=>"National Championship",
-		 RegattaSummary::TYPE_CONF_CHAMPIONSHIP=>"Conference Championship",
-		 RegattaSummary::TYPE_INTERSECTIONAL=>"Intersectional",
-		 RegattaSummary::TYPE_TWO_CONFERENCE=>"Two-Conference",
-		 RegattaSummary::TYPE_CONFERENCE=>"In-Conference",
-		 RegattaSummary::TYPE_PROMOTIONAL=>"Promotional",
-		 RegattaSummary::TYPE_PERSONAL=>"Personal");
+    return array(Regatta::TYPE_CHAMPIONSHIP=>"National Championship",
+		 Regatta::TYPE_CONF_CHAMPIONSHIP=>"Conference Championship",
+		 Regatta::TYPE_INTERSECTIONAL=>"Intersectional",
+		 Regatta::TYPE_TWO_CONFERENCE=>"Two-Conference",
+		 Regatta::TYPE_CONFERENCE=>"In-Conference",
+		 Regatta::TYPE_PROMOTIONAL=>"Promotional",
+		 Regatta::TYPE_PERSONAL=>"Personal");
   }
   const TYPE_PERSONAL = 'personal';
   const TYPE_CONFERENCE = 'conference';
@@ -64,8 +84,8 @@ class RegattaSummary extends DBObject {
    * @return Array a dict of scoring rules
    */
   public static function getScoringOptions() {
-    return array(RegattaSummary::SCORING_STANDARD => "Standard",
-		 RegattaSummary::SCORING_COMBINED => "Combined divisions");
+    return array(Regatta::SCORING_STANDARD => "Standard",
+		 Regatta::SCORING_COMBINED => "Combined divisions");
   }
 
   /**
@@ -74,60 +94,97 @@ class RegattaSummary extends DBObject {
    * @return Array a dict of scoring rules
    */
   public static function getParticipantOptions() {
-    return array(RegattaSummary::PARTICIPANT_COED => "Coed",
-		 RegattaSummary::PARTICIPANT_WOMEN => "Women");
+    return array(Regatta::PARTICIPANT_COED => "Coed",
+		 Regatta::PARTICIPANT_WOMEN => "Women");
   }
   
-  // Variables
-  public $name;
-  public $nick;
-  protected $start_time;
-  protected $end_date;
-  public $type;
-  protected $finalized;
-  protected $creator;
-  public $participant;
+  // Properties
+  private $properties = null;
 
   // Managers
   private $rotation;
   private $rp;
+
+  /**
+   * Sends the query to the database and handles errors. Returns the
+   * resultant mysqli_result object
+   */
+  protected function query($string) {
+    return Preferences::query($string);
+  }
+
+  /**
+   * Creates a new regatta object using the specified connection
+   *
+   * @param int $id the id of the regatta
+   *
+   * @throws InvalidArgumentException if not a valid regatta ID
+   */
+  public function __construct($id) {
+    if (!is_numeric($id))
+      throw new InvalidArgumentException(sprintf("Illegal regatta id value (%s).", $id));
+
+    $this->id  = (int)$id;
+
+    // Update the properties
+    $q = sprintf('select regatta.id, regatta.name, regatta.nick, ' .
+		 'regatta.start_time, regatta.end_date, regatta.venue, ' .
+		 'regatta.type, regatta.finalized, regatta.scoring, regatta.participant ' .
+		 'from regatta ' .
+		 'where regatta.id = "%s"',
+		 $this->id);
+    $result = $this->query($q);
+    if ($result->num_rows > 0) {
+      $this->properties = $result->fetch_assoc();
+
+      $start = new DateTime($this->properties['start_time']);
+      $end   = new DateTime($this->properties['end_date']);
+      date_time_set($end, 0, 0, 0);
+
+      $this->properties['start_time'] = $start;
+      $this->properties['end_date']   = $end;
+
+      // Venue and Season shall not be serialized until they are
+      // requested
+      $this->properties['season'] = null;
+
+      // Finalized
+      if (($p = $this->properties['finalized']) !== null)
+	$this->properties['finalized'] = new DateTime($p);
+    }
+    else {
+      throw new InvalidArgumentException("Invalid ID for regatta.");
+    }
+  }
+
+  /**
+   * Returns the specified property.
+   *
+   * @param Regatta::Const $property one of the class constants
+   * @return the specified property
+   * @throws InvalidArgumentException if the property is invalid.
+   */
+  private function get($property) {
+    if (!array_key_exists($property, $this->properties)) {
+      $m = "Property $property not supported in regattas.";
+      throw new InvalidArgumentException($m);
+    }
+    if ($property == 'venue') {
+      if ($this->properties[$property] !== null &&
+	  !($this->properties[$property] instanceof Venue))
+	$this->properties[$property] = DB::getVenue($this->properties[$property]);
+    }
+    elseif ($property == 'season') {
+      if ($this->properties[$property] === null)
+	$this->properties[$property] = Season::forDate($this->__get('start_time'));
+    }
+    return $this->properties[$property];
+  }
+
   private $season;
-
-  // ------------------------------------------------------------
-  // DBObject stuff
-  // ------------------------------------------------------------
-  public function db_name() { return 'regatta'; }
-  protected function db_order() { return array('start_time'=>false); }
-  public function db_type($field) {
-    switch ($field) {
-    case 'start_time':
-    case 'end_date':
-    case 'finalized':
-      return DB::$NOW;
-    case 'creator':
-      require_once('regatta/Account.php');
-      return DB::$ACCOUNT;
-    default:
-      return parent::db_type($field);
-    }
-  }
-
-  public function &__get($name) {
-    switch ($name) {
-    case 'scorer':
-      if ($this->scorer === null) {
-	require_once('regatta/ICSAScorer.php');
-	$this->scorer = new ICSAScorer();
-      }
-      return $this->scorer;
-    default:
-      return parent::__get($name);
-    }
-  }
-
   public function getSeason() {
     if ($this->season === null)
-      $this->season = Season::forDate($this->__get('start_date'));
+      $this->season = Season::forDate($this->start_time);
     return $this->season;
   }
 
@@ -145,36 +202,91 @@ class RegattaSummary extends DBObject {
     return 1 + floor(($this->__get('end_date')->format('U') - $start->format('U')) / 86400);
   }
 
+  public function __get($name) {
+    if ($name == "scorer") {
+      if ($this->scorer === null) {
+	require_once('regatta/ICSAScorer.php');
+	$this->scorer = new ICSAScorer();
+      }
+      return $this->scorer;
+    }
+    return $this->get($name);
+  }
+
+  public function __set($name, $value) {
+    switch ($name) {
+    case 'creator':
+      if (!($value instanceof Account))
+	throw new InvalidArgumentException("Invalid argument. Creator must be Account.");
+      $con = DB::connection();
+      $q = sprintf('update regatta set creator = "%s" where id = "%s"',
+		   $con->escape_string($value->id),
+		   $this->id);
+      $this->query($q);
+      return;
+    }
+    $this->set($name, $value);
+  }
+
+  /**
+   * Commits the specified property
+   *
+   * @param Regatta::Const $property one of the class constants
+   * @param object $value value whose string representation should be
+   * used for the given property
+   *
+   * @throws InvalidArgumentException if the property is invalid.
+   *
+   * @version 2011-01-03: if the regatta is (re)activated, then check
+   * if the nick name is valid.
+   */
+  private function set($property, $value) {
+    if (!array_key_exists($property, $this->properties)) {
+      $m = "Property $property not supported in regattas.";
+      throw new InvalidArgumentException($m);
+    }
+    if ($value == null)
+      $strvalue = 'NULL';
+    elseif (in_array($property, array('start_time', 'end_date', 'finalized'))) {
+      if (!($value instanceof DateTime)) {
+	$m = sprintf("Property %s must be a valid DateTime object.", $property);
+	throw new InvalidArgumentException($m);
+      }
+      $strvalue = sprintf('"%s"', $value->format("Y-m-d H:i:s"));
+    }
+    elseif ($property == 'venue') {
+      if (!($value instanceof Venue))
+	throw new InvalidArgumentException("Venue must be venue object.");
+      $strvalue = sprintf('"%s"', $value->id);
+    }
+    else
+      $strvalue = sprintf('"%s"', $value);
+
+    $this->properties[$property] = $value;
+    $q = sprintf('update regatta set %s = %s where id = "%s"',
+		 $property, $strvalue, $this->id);
+    $this->query($q);
+  }
+
   /**
    * Sets the type for this regatta, creating a nick name if needed.
-   *
-   * Note that it does not actually record the changes in database. A
-   * subsequent call to DB::set is necessary.
    *
    * @param Const the regatta type
    * @throws InvalidArgumentException if no regatta can be created
    */
   public function setType($value) {
-    if (!in_array($value, array_keys(RegattaSummary::getTypes())))
+    if (!in_array($value, array_keys(Regatta::getTypes())))
       throw new InvalidArgumentException("Invalid regatta type \"$value\".");
     // re-create the nick name, and let that method determine if it
     // is valid (this would throw an exception otherwise)
-    if ($value != RegattaSummary::TYPE_PERSONAL)
-      $this->nick_name = $this->createNick();
-    $this->type = $value;
+    if ($value != Regatta::TYPE_PERSONAL)
+      $this->__set('nick_name', $this->createNick());
+    $this->set('type', $value);
   }
 
-  public function __set($name, $value) {
-    if ($name == 'type') {
-      $this->setType($value);
-      return;
-    }
-    parent::__set($name, $value);
-  }
-
-  // ------------------------------------------------------------
+  //
   // Daily summaries
-  // ------------------------------------------------------------
+  //
 
   /**
    * Gets the daily summary for the given day
@@ -184,7 +296,10 @@ class RegattaSummary extends DBObject {
    */
   public function getSummary(DateTime $day) {
     $res = DB::getAll(DB::$DAILY_SUMMARY, new DBBool(array(new DBCond('regatta', $this->id), new DBCond('summary_date', $day))));
-    $r = (count($res) == 0) ? '' : $res[0]->summary;
+    if (count($res) == 0)
+      $r = '';
+    else
+      $r = $res[0]->summary;
     unset($res);
     return $r;
   }
@@ -220,18 +335,21 @@ class RegattaSummary extends DBObject {
    * @return list of divisions in this regatta
    */
   public function getDivisions() {
-    if ($this->divisions === null) {
-      $q = DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('division'));
-      $q->distinct(true);
-      $q = DB::query($q);
-      $this->divisions = array();
-      while ($row = $q->fetch_object()) {
-	$this->divisions[$row->division] = Division::get($row->division);
-      }
+    if ($this->divisions !== null)
+      return array_values($this->divisions);
+
+    $q = DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('division'));
+    $q->distinct(true);
+    $q = DB::query($q);
+    $this->divisions = array();
+    while ($row = $q->fetch_object()) {
+      $this->divisions[$row->division] = Division::get($row->division);
     }
     return array_values($this->divisions);
   }
 
+  // attempt to cache teams
+  private $teams = null;
   /**
    * Fetches the team with the given ID, or null
    *
@@ -239,9 +357,14 @@ class RegattaSummary extends DBObject {
    * @return Team|null if the team exists
    */
   public function getTeam($id) {
+    if ($this->teams !== null)
+      return (isset($this->teams[$id])) ? $this->teams[$id] : null;
+
     $res = DB::get($this->isSingleHanded() ? DB::$SINGLEHANDED_TEAM : DB::$TEAM, $id);
     if ($res === null || $res->regatta != $this)
       return null;
+
+    $this->teams[$team->id] = $team;
     return $team;
   }
 
@@ -277,6 +400,8 @@ class RegattaSummary extends DBObject {
    */
   public function addTeam(Team $team) {
     DB::set($team);
+    if ($this->teams !== null)
+      $this->teams[$team->id] = $team;
   }
 
   /**
@@ -291,7 +416,7 @@ class RegattaSummary extends DBObject {
    * regatta to begin with!
    */
   public function replaceTeam(Team $old, Team $new) {
-    if ($old->regatta->id != $this->id)
+    if ($old->regatta != $this)
       throw new InvalidArgumentException("Team \"$old\" is not part of this regatta.");
 
     $old->school = $new->school;
@@ -299,15 +424,6 @@ class RegattaSummary extends DBObject {
     DB::set($old);
   }
 
-  /**
-   * Remove the given team from this regatta
-   *
-   * @param Team $team the team to remove
-   */
-  public function removeTeam(Team $team) {
-    DB::remove($team);
-  }
-  
   /**
    * Returns the simple rank of the teams in the database, by
    * totalling their score across the division given (or all
@@ -332,6 +448,16 @@ class RegattaSummary extends DBObject {
       $ranks[] = new Rank($this->getTeam($obj->team), $obj->total);
     $q->free();
     return $ranks;
+  }
+
+  /**
+   * Remove the given team from this regatta
+   *
+   * @param Team $team the team to remove
+   */
+  public function removeTeam(Team $team) {
+    DB::remove($team);
+    unset($this->teams[$team->id]);
   }
 
   /**
@@ -382,10 +508,12 @@ class RegattaSummary extends DBObject {
     return $this->total_races;
   }
 
-  // ------------------------------------------------------------
-  // Races and boats
-  // ------------------------------------------------------------
-
+  /**
+   * @var Array an associative array of divisions => list of races,
+   * for those times when the races per division are requested
+   */
+  private $races = array();
+  private $total_races = null;
   /**
    * Returns an array of race objects within the specified division
    * ordered by the race number. If no division specified, returns all
@@ -471,6 +599,10 @@ class RegattaSummary extends DBObject {
     DB::removeAll(DB::$RACE, new DBBool(array(new DBCond('regatta', $this->id),
 					      new DBCond('division', (string)$race->division),
 					      new DBCond('number', $race->number))));
+    if (isset($this->races[(string)$race->division]))
+      unset($this->races[(string)$race->division]);
+    if ($this->total_races !== null)
+      $this->total_races--;
   }
 
   /**
@@ -480,6 +612,11 @@ class RegattaSummary extends DBObject {
    */
   public function removeDivision(Division $div) {
     DB::removeAll(DB::$RACE, new DBBool(array(new DBCond('regatta', $this->id), new DBCond('division', (string)$div))));
+    unset($this->divisions[(string)$div]);
+    if ($this->total_races !== null) {
+      $con = DB::connection();
+      $this->total_races -= $con->affected_rows;
+    }
   }
 
   /**
@@ -517,7 +654,7 @@ class RegattaSummary extends DBObject {
     usort($nums);
     return $nums;
   }
-
+  
   /**
    * Get list of scored races in the specified division
    *
@@ -597,17 +734,13 @@ class RegattaSummary extends DBObject {
   }
 
   // ------------------------------------------------------------
-  // Finishes
+  // FINISHES
   // ------------------------------------------------------------
-
+  
   /**
    * @var Array attempt to cache finishes, index is 'race-team_id'
    */
   private $finishes = array();
-  /**
-   * @var boolean quick! Do we have finishes?
-   */
-  private $has_finishes = null;
 
   /**
    * Creates a new finish for the given race and team, and returns the
@@ -713,6 +846,7 @@ class RegattaSummary extends DBObject {
     return DB::getAll(DB::$FINISH, $cond);
   }
 
+  private $has_finishes = null;
   /**
    * Are there finishes for this regatta?
    *
@@ -775,7 +909,7 @@ class RegattaSummary extends DBObject {
    * @param Race $race the race whose finishes to drop
    */
   public function dropFinishes(Race $race) {
-    if ($this->scoring == RegattaSummary::SCORING_STANDARD)
+    if ($this->scoring == Regatta::SCORING_STANDARD)
       $this->deleteFinishes($race);
     else {
       foreach ($this->getDivisions() as $div)
@@ -783,10 +917,6 @@ class RegattaSummary extends DBObject {
     }
     $this->runScore($race);
   }
-
-  // ------------------------------------------------------------
-  // Team penalties
-  // ------------------------------------------------------------
 
   /**
    * Set team penalty
@@ -827,6 +957,7 @@ class RegattaSummary extends DBObject {
     return $r;
   }
   
+
   /**
    * Returns list of all the team penalties for the given team, or all
    * if null
@@ -845,7 +976,7 @@ class RegattaSummary extends DBObject {
       $cond->add(new DBCond('division', (string)$div));
     return DB::getAll(DB::$TEAM_PENALTY, $cond);
   }
-  
+
   /**
    * Returns the timestamp of the last score update
    *
@@ -1040,10 +1171,6 @@ class RegattaSummary extends DBObject {
       $scorer->score($this, $race);
   }
 
-  // ------------------------------------------------------------
-  // Race notes
-  // ------------------------------------------------------------
-
   /**
    * Fetches a list of all the notes for the given race, or the entire
    * regatta if no race provided
@@ -1075,6 +1202,83 @@ class RegattaSummary extends DBObject {
    */
   public function deleteNote(Note $note) {
     DB::remove($note);
+  }
+  
+
+  // ------------------------------------------------------------
+  // Static methods and properties
+  // ------------------------------------------------------------
+
+  /**
+   * Creates a new regatta with the given specs
+   *
+   * @param String $db the database to add the regatta to, must be in
+   * the database map ($self::DB_MAP)
+   * @param String $name the name of the regatta
+   * @param DateTime $start_time the start time of the regatta
+   * @param DateTime $end_date the end_date
+   * @param String $type one of those listed in Regatta::getTypes()
+   * @param String $participant one of those listed in Regatta::getParticipantOptions()
+   * @return int the ID of the regatta
+   *
+   * @throws InvalidArgumentException if illegal regatta type
+   */
+  protected static function addRegatta($db,
+				       $name,
+				       DateTime $start_time,
+				       DateTime $end_date,
+				       $type,
+				       $scoring,
+				       $participant = Regatta::PARTICIPANT_COED) {
+    if (!in_array($type, array_keys(Regatta::getTypes())))
+      throw new InvalidArgumentException("No such regatta type $type.");
+    if (!in_array($scoring, array_keys(Regatta::getScoringOptions())))
+      throw new InvalidArgumentException("No such regatta scoring $scoring.");
+    if (!in_array($participant, array_keys(Regatta::getParticipantOptions())))
+      throw new InvalidArgumentException("No such regatta scoring $scoring.");
+
+    // Fetch the regatta back
+    $con = DB::connection();
+    $q = sprintf('insert into regatta ' .
+		 '(name, start_time, end_date, type, scoring, participant) values ' .
+		 '("%s", "%s", "%s", "%s", "%s", "%s")',
+		 $con->escape_string($name),
+		 $start_time->format("Y-m-d H:i:s"),
+		 $end_date->format("Y-m-d"),
+		 $type,
+		 $scoring,
+		 $participant);
+
+    $res = Preferences::query($q);
+
+    return $con->insert_id;
+  }
+
+  /**
+   * Creates a new regatta with the given specs
+   *
+   * @param String $name the name of the regatta
+   * @param DateTime $start_time the start time of the regatta
+   * @param DateTime $end_date the end_date
+   * @param String $type one of those listed in Regatta::getTypes()
+   * @param String $scoring one of those listed in Regatta::getScoringOptions()
+   * @param String $participant one of those listed in Regatta::getParticipantOptions()
+   *
+   * @throws InvalidArgumentException if illegal regatta type or name
+   */
+  public static function createRegatta($name,
+				       DateTime $start_time,
+				       DateTime $end_date,
+				       $type,
+				       $scoring = Regatta::SCORING_STANDARD,
+				       $participant = Regatta::PARTICIPANT_COED) {
+    $id = self::addRegatta(Conf::$SQL_DB, $name, $start_time, $end_date, $type, $scoring, $participant);
+    $r = DB::getRegatta($id);
+    // do not create nick names for personal regattas (nick name
+    // creation is delayed until the regatta is made active)
+    if ($type != Regatta::TYPE_PERSONAL)
+      $r->__set('nick', $r->createNick());
+    return $r;
   }
 
   /**
@@ -1139,79 +1343,10 @@ class RegattaSummary extends DBObject {
     // list of regatta names in the same season as this one
     foreach ($this->getSeason()->getRegattas() as $n) {
       if ($n->nick == $name && $n->id != $this->id)
-	throw new InvalidArgumentException(sprintf("Nick name \"%s\" already in use by (%d).", $name, $n->id));
+	throw new InvalidArgumentException(sprintf("Nick name \"%s\" already in use by (%d).",
+						   $name, $n->id));
     }
     return $name;
   }
-
-  // ------------------------------------------------------------
-  // Regatta creation
-  // ------------------------------------------------------------
-
-  /**
-   * Creates a new regatta with the given specs
-   *
-   * @param String $db the database to add the regatta to, must be in
-   * the database map ($self::DB_MAP)
-   * @param String $name the name of the regatta
-   * @param DateTime $start_time the start time of the regatta
-   * @param DateTime $end_date the end_date
-   * @param String $type one of those listed in Regatta::getTypes()
-   * @param String $participant one of those listed in Regatta::getParticipantOptions()
-   * @return int the ID of the regatta
-   *
-   * @throws InvalidArgumentException if illegal regatta type
-   */
-  public static function createRegatta($name,
-				       DateTime $start_time,
-				       DateTime $end_date,
-				       $type,
-				       $scoring = Regatta::SCORING_STANDARD,
-				       $participant = Regatta::PARTICIPANT_COED) {
-    if (!isset(Regatta::getScoringOptions()[$scoring]))
-      throw new InvalidArgumentException("No such regatta scoring $scoring.");
-    if (!isset(Regatta::getParticipantOptions()[$participant]))
-      throw new InvalidArgumentException("No such regatta scoring $scoring.");
-
-    $r = new RegattaSummary();
-    $r->name = $name;
-    $r->start_time = $start_time;
-    $r->end_date = $end_date;
-    $r->end_date->setTime(0, 0);
-    $r->scoring = $scoring;
-    $r->participant = $participant;
-    $r->setType($type);
-    DB::set($r);
-    return $r;
-  }
-
-  // ------------------------------------------------------------
-  // Comparators
-  // ------------------------------------------------------------
-  
-  /**
-   * Compares two regattas based on start_time
-   *
-   * @param RegattaSummary $r1 a regatta
-   * @param RegattaSummary $r2 a regatta
-   */
-  public static function cmpStart(RegattaSummary $r1, RegattaSummary $r2) {
-    if ($r1->start_time < $r2->start_time)
-      return -1;
-    if ($r1->start_time > $r2->start_time)
-      return 1;
-    return 0;
-  }
-
-  /**
-   * Compares two regattas based on start_time, descending
-   *
-   * @param RegattaSummary $r1 a regatta
-   * @param RegattaSummary $r2 a regatta
-   */
-  public static function cmpStartDesc(RegattaSummary $r1, RegattaSummary $r2) {
-    return -1 * self::cmpStart($r1, $r2);
-  }
 }
-DB::$REGATTA_SUMMARY = new RegattaSummary();
 ?>

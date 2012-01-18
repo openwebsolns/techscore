@@ -19,7 +19,7 @@ class UpdateManager {
   /**
    * Queues the given request type for the given regatta.
    *
-   * @param Regatta|RegattaSummary $reg the regatta to queue
+   * @param Regatta|Regatta $reg the regatta to queue
    * @param Const $type one of the UpdateRequest activity types
    * @param String $arg the optional argument to include in the request
    * @throws InvalidArgumentException if type not supported
@@ -28,10 +28,10 @@ class UpdateManager {
     $id = '';
     if ($reg instanceof Regatta)
       $id = $reg->id;
-    elseif ($reg instanceof RegattaSummary)
+    elseif ($reg instanceof Regatta)
       $id = $reg->id;
     else
-      throw new InvalidArgumentException("Invalid reg object (must be Regatta or RegattaSummary)");
+      throw new InvalidArgumentException("Invalid reg object (must be Regatta or Regatta)");
     if (!in_array($type, UpdateRequest::getTypes()))
       throw new InvalidArgumentException("Illegal update request type $type.");
 

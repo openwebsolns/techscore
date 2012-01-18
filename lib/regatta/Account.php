@@ -121,10 +121,10 @@ class Account extends DBObject {
    *   <li>To fetch the next ten:  <code>getRegattas(10, 20);</code><li>
    * </ul>
    *
-   * @return Array:RegattaSummary
+   * @return Array:Regatta
    */
   public function getRegattas() {
-    require_once('regatta/RegattaSummary.php');
+    require_once('regatta/Regatta.php');
     $cond = null;
     if (!$this->isAdmin()) // regular user
       $cond = new DBCondIn('id', DB::prepGetAll(DB::$SCORER, new DBCond('account', $this), array('regatta')));
@@ -135,7 +135,7 @@ class Account extends DBObject {
    * Searches and returns a list of matching regattas.
    *
    * @param String $qry the query to search
-   * @return Array:RegattaSummary the regattas
+   * @return Array:Regatta the regattas
    */
   public function searchRegattas($qry) {
     $cond = new DBCond('name', "%qry%", DBCond::LIKE);
