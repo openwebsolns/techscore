@@ -38,7 +38,6 @@ class Regatta {
 
   // Keys for data
   const DURATION   = "duration";
-  const FINALIZED  = "finalized";
   const VENUE      = "venue";
   const SCORING    = "scoring";
   const PARTICIPANT = "participant";
@@ -163,8 +162,8 @@ class Regatta {
       $this->properties['season'] = null;
 
       // Finalized
-      if (($p = $this->properties[Regatta::FINALIZED]) !== null)
-	$this->properties[Regatta::FINALIZED] = new DateTime($p);
+      if (($p = $this->properties['finalized']) !== null)
+	$this->properties['finalized'] = new DateTime($p);
     }
     else {
       throw new InvalidArgumentException("Invalid ID for regatta.");
@@ -249,7 +248,7 @@ class Regatta {
     }
     if ($value == null)
       $strvalue = 'NULL';
-    elseif (in_array($property, array('start_time', 'end_date', Regatta::FINALIZED))) {
+    elseif (in_array($property, array('start_time', 'end_date', 'finalized'))) {
       if (!($value instanceof DateTime)) {
 	$m = sprintf("Property %s must be a valid DateTime object.", $property);
 	throw new InvalidArgumentException($m);

@@ -98,7 +98,7 @@ class RegattaIO {
     }
 
     //   -Finalized?
-    $root->set("finalized", ($reg->get(Regatta::FINALIZED) != null));
+    $root->set("finalized", ($reg->finalized != null));
 
     // Boats
     $root->add($tag = new XElem("Boats"));
@@ -336,7 +336,7 @@ class RegattaIO {
 	$warnings[] = sprintf("Ignoring invalid datetime for finalized (%s).", $root['finalized']);
       }
     }
-    $regatta->set(Regatta::FINALIZED, $finalized);
+    $regatta->finalized = $finalized;
 
     /**************************************************************
      * The properties below are of no concern to offline programs *

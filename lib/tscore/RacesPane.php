@@ -38,7 +38,7 @@ class RacesPane extends AbstractPane {
     //------------------------------------------------------------
     // Number of races and divisions
     // ------------------------------------------------------------
-    $final = $this->REGATTA->get(Regatta::FINALIZED);
+    $final = $this->REGATTA->finalized;
     $this->PAGE->addContent($p = new XPort("Races and divisions"));
     $p->add($form = $this->createForm());
     $form->add(new FItem("Number of divisions:", $f_div = new XSelect('num_divisions')));
@@ -122,7 +122,7 @@ class RacesPane extends AbstractPane {
     // ------------------------------------------------------------
     // Set races
     // ------------------------------------------------------------
-    if (isset($args['set-races']) && !$this->REGATTA->get(Regatta::FINALIZED)) {
+    if (isset($args['set-races']) && !$this->REGATTA->finalized) {
       // ------------------------------------------------------------
       // Add new divisions
       //   1. Get host's preferred boat

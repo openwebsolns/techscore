@@ -123,7 +123,7 @@ class DetailsPane extends AbstractPane {
     // Update button
     $reg_form->add(new XP(array(), new XSubmitInput("edit_reg", "Edit")));
     // If finalized, disable submit
-    $finalized = $this->REGATTA->get(Regatta::FINALIZED);
+    $finalized = $this->REGATTA->finalized;
 
     // -------------------- Finalize regatta -------------------- //
     $p2 = new XText("");
@@ -266,7 +266,7 @@ class DetailsPane extends AbstractPane {
 	Session::pa(new PA("You cannot finalize a project with no finishes. To delete the regatta, please mark it as \"personal\".", PA::E));
       }
       elseif (isset($args['approve'])) {
-	$this->REGATTA->set(Regatta::FINALIZED, new DateTime());
+	$this->REGATTA->finalized = new DateTime();
 	Session::pa(new PA("Regatta has been finalized."));
 	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DETAILS);
       }

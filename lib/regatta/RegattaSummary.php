@@ -18,7 +18,6 @@ class RegattaSummary extends DBObject {
 
   // Keys for data
   const DURATION   = "duration";
-  const FINALIZED  = "finalized";
   const VENUE      = "venue";
   const SCORING    = "scoring";
   const SEASON     = "season";
