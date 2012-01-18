@@ -1077,8 +1077,6 @@ class RegattaSummary extends DBObject {
     DB::remove($note);
   }
 
-  
-
   /**
    * Creates a regatta nick name for this regatta based on this
    * regatta's name. Nick names are guaranteed to be a unique per
@@ -1144,6 +1142,47 @@ class RegattaSummary extends DBObject {
 	throw new InvalidArgumentException(sprintf("Nick name \"%s\" already in use by (%d).", $name, $n->id));
     }
     return $name;
+  }
+
+  // ------------------------------------------------------------
+  // Regatta creation
+  // ------------------------------------------------------------
+
+  /**
+   * Creates a new regatta with the given specs
+   *
+   * @param String $db the database to add the regatta to, must be in
+   * the database map ($self::DB_MAP)
+   * @param String $name the name of the regatta
+   * @param DateTime $start_time the start time of the regatta
+   * @param DateTime $end_date the end_date
+   * @param String $type one of those listed in Regatta::getTypes()
+   * @param String $participant one of those listed in Regatta::getParticipantOptions()
+   * @return int the ID of the regatta
+   *
+   * @throws InvalidArgumentException if illegal regatta type
+   */
+  public static function createRegatta($name,
+				       DateTime $start_time,
+				       DateTime $end_date,
+				       $type,
+				       $scoring = Regatta::SCORING_STANDARD,
+				       $participant = Regatta::PARTICIPANT_COED) {
+    if (!isset(Regatta::getScoringOptions()[$scoring]))
+      throw new InvalidArgumentException("No such regatta scoring $scoring.");
+    if (!isset(Regatta::getParticipantOptions()[$participant]))
+      throw new InvalidArgumentException("No such regatta scoring $scoring.");
+
+    $r = new RegattaSummary();
+    $r->name = $name;
+    $r->start_time = $start_time;
+    $r->end_date = $end_date;
+    $r->end_date->setTime(0, 0);
+    $r->scoring = $scoring;
+    $r->participant = $participant;
+    $r->setType($type);
+    DB::set($r);
+    return $r;
   }
 
   // ------------------------------------------------------------

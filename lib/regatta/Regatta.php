@@ -1270,7 +1270,7 @@ class Regatta {
 				       DateTime $start_time,
 				       DateTime $end_date,
 				       $type,
-				       $scoring,
+				       $scoring = Regatta::SCORING_STANDARD,
 				       $participant = Regatta::PARTICIPANT_COED) {
     $id = self::addRegatta(Conf::$SQL_DB, $name, $start_time, $end_date, $type, $scoring, $participant);
     $r = DB::getRegatta($id);
