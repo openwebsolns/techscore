@@ -77,33 +77,16 @@ class Rotation {
    * @return Array:String sail number in the race, or all sails
    */
   public function getSails(Race $race = null) {
-    if ($race == null) {
-      return $this->getAllSails();
-    }
-    
-    $q = sprintf('select sail from rotation ' .
-		 'where race = "%s" ' .
-		 'order by sail',
-		 $race->id);
-    $q = Preferences::query($q);
-    $sails = array();
-    while ($sail = $q->fetch_object()) {
+    if ($race !== null)
+      $cond = new DBCond('race', $race);
+    else
+      $cond = new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta), array('id')));
+    $q = DB::prepGetAll(DB::$SAIL, $cond, array('sail'));
+    $q->order_by(array('sail'=>true));
+    $q->distinct(true);
+    $q = DB::query($q);
+    while ($sail = $q->fetch_object())
       $sails[] = $sail->sail;
-    }
-    return $sails;
-  }
-
-  private function getAllSails() {
-    $q = sprintf('select distinct sail from rotation ' .
-		 'inner join race on rotation.race = race.id ' .
-		 'where race.regatta = "%s" ' .
-		 'order by sail',
-		 $this->regatta->id);
-    $q = Preferences::query($q);
-    $sails = array();
-    while ($sail = $q->fetch_object()) {
-      $sails[] = $sail->sail;
-    }
     return $sails;
   }
 
@@ -501,8 +484,44 @@ class Rotation {
    * @param int  $amount the amount to add/subtract
    */
   public function addAmount(Race $race, $amount) {
-    $q = sprintf('update rotation set sail = (sail + %d) where race = "%s"', $amount, $race->id);
-    Preferences::query($q);
+    // This needs to be done intelligently. Should we reinsert all the
+    // sails? Or update them? I'm thinking the former
+    $sails = array();
+    foreach ($this->getSails($race) as $sail) {
+      DB::remove($sail);
+      $sails[] = $sail;
+      $parts = $this->split3($sail->sail);
+      $parts[1] += $amount;
+      $sail->sail = implode("", $parts);
+    }
+    DB::insertAll($sails);
+  }
+
+  /**
+   * Splits sail number into a three part array: prefix, numerical
+   * value, suffix.
+   *
+   * @param String $a the sail number
+   * @return Array the parts (implode("",$ret) to recreate $a);
+   */
+  private function split3($a) {
+    $a = (string)$a;
+    $pre = array("", "", "");
+    for ($i = strlen($a) - 1; $i >= 0; $i--) {
+      if (is_numeric($a[$i])) {
+	if (strlen($pre[0]) > 0)
+	  $pre[0] = $a[$i] . $pre[0];
+	else
+	  $pre[1] = $a[$i] . $pre[1];
+      }
+      else {
+	if (strlen($pre[1]) > 0)
+	  $pre[0] = $a[$i] . $pre[0];
+	else
+	  $pre[2] = $a[$i] . $pre[2];
+      }
+    }
+    return $pre;
   }
 
   /**
@@ -513,10 +532,11 @@ class Rotation {
    * @param int $repl  the replacement
    */
   public function replaceSail(Race $race, $orig, $repl) {
-    $q = sprintf('update rotation set sail = "%s" ' .
-		 'where sail = "%s" and race = "%s"',
-		 (int)$repl, (int)$orig, $race->id);
-    Preferences::query($q);
+    // Ultimate cheating
+    $q = DB::prepSet(DB::$SAIL, true);
+    $q->values(array('sail'), array($repl), DB::$SAIL->db_name());
+    $q->where(new DBBool(array(new DBCond('race', $race), new DBCond('sail', $orig))));
+    DB::query($q);
   }
 
   /**
