@@ -10,13 +10,13 @@
 class UpdateSchoolsSummary {
 
   public static function run() {
-    $page = new TPublicPage("All Schools");
-    
+    require_once('xml5/TPublicPage.php');
     require_once('regatta/PublicDB.php');
+    $page = new TPublicPage("All Schools");
     DBME::setConnection(DB::connection());
 
     $page->addNavigation(new XA('http://collegesailing.info/teams', 'ICSA Info', array('class'=>'nav')));
-    $confs = DBME::getAll(DBME::$CONFERENCE);
+    $confs = DB::getAll(DB::$CONFERENCE);
     foreach ($confs as $conf)
       $page->addMenu(new XA('#'.$conf, $conf));
     $page->addSection($d = new XDiv(array('id'=>'reg-details')));
@@ -71,7 +71,6 @@ class UpdateSchoolsSummary {
 
 if (isset($argv) && basename($argv[0]) == basename(__FILE__)) {
   require_once(dirname(__FILE__) . '/../conf.php');
-
   UpdateSchoolsSummary::run();
 }
 ?>

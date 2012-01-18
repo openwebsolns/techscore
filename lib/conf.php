@@ -126,7 +126,7 @@ END;
   die();
 }
 ini_set('error_log', realpath(dirname(__FILE__).'/../log/errors.log'));
-
+ini_set('include_path', sprintf(".:%s", dirname(__FILE__)));
 
 require_once(dirname(__FILE__) . '/conf.local.php');
 
