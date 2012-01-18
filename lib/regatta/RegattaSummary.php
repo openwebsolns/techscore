@@ -784,35 +784,68 @@ class RegattaSummary extends DBObject {
     $this->runScore($race);
   }
 
+  // ------------------------------------------------------------
+  // Team penalties
+  // ------------------------------------------------------------
 
-  // ------------------------------------------------------------
-  // Comparators
-  // ------------------------------------------------------------
+  /**
+   * Set team penalty
+   *
+   * @param TeamPenalty $penalty the penalty to register
+   */
+  public function setTeamPenalty(TeamPenalty $penalty) {
+    // Ascertain unique key compliance
+    $cur = $this->getTeamPenalty($penalty->team, $penalty->division);
+    if ($cur !== null)
+      $penalty->id = $cur->id;
+    DB::set($penalty);
+  }
+
+  /**
+   * Drops the team penalty for the given team in the given division
+   *
+   * @param Team $team the team whose penalty to drop
+   * @param Division $div the division to drop
+   */
+  public function dropTeamPenalty(Team $team, Division $div) {
+    $cur = $this->getTeamPenalty($team, $div);
+    if ($cur !== null)
+      DB::remove($cur);
+  }
+
+  /**
+   * Returns the team penalty, or null
+   *
+   * @param Team $team the team
+   * @param Division $div the division
+   * @return TeamPenalty if one exists, or null otherwise
+   */
+  public function getTeamPenalty(Team $team, Division $div) {
+    $res = $this->getTeamPenalties($team, $div);
+    $r = (count($res) == 0) ? null : $res[0];
+    unset($res);
+    return $r;
+  }
   
   /**
-   * Compares two regattas based on start_time
+   * Returns list of all the team penalties for the given team, or all
+   * if null
    *
-   * @param RegattaSummary $r1 a regatta
-   * @param RegattaSummary $r2 a regatta
+   * @param Team $team the team whose penalties to return, or all if null
+   * @param Division $div the division to fetch, or all if null
+   * @return Array:TeamPenalty list of team penalties
    */
-  public static function cmpStart(RegattaSummary $r1, RegattaSummary $r2) {
-    if ($r1->start_time < $r2->start_time)
-      return -1;
-    if ($r1->start_time > $r2->start_time)
-      return 1;
-    return 0;
+  public function getTeamPenalties(Team $team = null, Division $div = null) {
+    $cond = new DBBool(array());
+    if ($team === null)
+      $cond->add(new DBCondIn('team', DB::prepGetAll(DB::$TEAM, new DBCond('regatta', $this->id), array('id'))));
+    else
+      $cond->add(new DBCond('team', $team));
+    if ($div !== null)
+      $cond->add(new DBCond('division', (string)$div));
+    return DB::getAll(DB::$TEAM_PENALTY, $cond);
   }
-
-  /**
-   * Compares two regattas based on start_time, descending
-   *
-   * @param RegattaSummary $r1 a regatta
-   * @param RegattaSummary $r2 a regatta
-   */
-  public static function cmpStartDesc(RegattaSummary $r1, RegattaSummary $r2) {
-    return -1 * self::cmpStart($r1, $r2);
-  }
-
+  
   /**
    * Creates a regatta nick name for this regatta based on this
    * regatta's name. Nick names are guaranteed to be a unique per
@@ -878,6 +911,34 @@ class RegattaSummary extends DBObject {
 	throw new InvalidArgumentException(sprintf("Nick name \"%s\" already in use by (%d).", $name, $n->id));
     }
     return $name;
+  }
+
+  // ------------------------------------------------------------
+  // Comparators
+  // ------------------------------------------------------------
+  
+  /**
+   * Compares two regattas based on start_time
+   *
+   * @param RegattaSummary $r1 a regatta
+   * @param RegattaSummary $r2 a regatta
+   */
+  public static function cmpStart(RegattaSummary $r1, RegattaSummary $r2) {
+    if ($r1->start_time < $r2->start_time)
+      return -1;
+    if ($r1->start_time > $r2->start_time)
+      return 1;
+    return 0;
+  }
+
+  /**
+   * Compares two regattas based on start_time, descending
+   *
+   * @param RegattaSummary $r1 a regatta
+   * @param RegattaSummary $r2 a regatta
+   */
+  public static function cmpStartDesc(RegattaSummary $r1, RegattaSummary $r2) {
+    return -1 * self::cmpStart($r1, $r2);
   }
 }
 DB::$REGATTA_SUMMARY = new RegattaSummary();
