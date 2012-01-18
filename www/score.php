@@ -173,7 +173,7 @@ elseif (isset($_REQUEST['v'])) {
 // - Downloads
 //
 else {
-  $st = $REG->get(Regatta::START_TIME);
+  $st = $REG->start_time;
   $nn = $REG->nick;
   if (count($REG->getTeams()) == 0 || count($REG->getDivisions()) == 0) {
     Session::pa(new PA("First create teams and divisions before downloading.", PA::I));

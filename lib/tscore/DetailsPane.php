@@ -37,7 +37,7 @@ class DetailsPane extends AbstractPane {
 						  "size"     =>20))));
     
     // Date
-    $start_time = $this->REGATTA->get(Regatta::START_TIME);
+    $start_time = $this->REGATTA->start_time;
     $date = date_format($start_time, 'm/d/Y');
     $reg_form->add(new FItem("Date:", 
 			     new XTextInput("sdate",
@@ -196,7 +196,7 @@ class DetailsPane extends AbstractPane {
       if (isset($args['sdate']) &&
 	  isset($args['stime']) &&
 	  $sdate = new DateTime($args['sdate'] . ' ' . $args['stime'])) {
-	$this->REGATTA->set(Regatta::START_TIME, $sdate);
+	$this->REGATTA->start_time = $sdate;
       }
 
       // Duration

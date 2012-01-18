@@ -27,7 +27,7 @@ class SummaryPane extends AbstractPane {
     $this->PAGE->addContent($p = new XPort("Daily summaries"));
 
     $p->add($form = $this->createForm());
-    $start = $this->REGATTA->get(Regatta::START_TIME);
+    $start = $this->REGATTA->start_time;
     for ($i = 0; $i < $this->REGATTA->get(Regatta::DURATION); $i++) {
       $today = new DateTime(sprintf("%s + %d days", $start->format('Y-m-d'), $i));
       $comms = $this->REGATTA->getSummary($today);

@@ -54,7 +54,7 @@ class RegattaIO {
     $tag->add(new XText($reg->name));
 
     //   -Start time
-    $stime = $reg->get(Regatta::START_TIME);
+    $stime = $reg->start_time;
     $root->add($tag = new XElem("StartTime"));
     $tag->add(new XText($stime->format('F j, Y G:i:s A T')));
 
@@ -309,7 +309,7 @@ class RegattaIO {
       $warnings[] = sprintf("Invalid StartTime (%s), defaulting to 'now'.", $root->StartTime);
       $start = new DateTime("now", new DateTimeZone("America/New_York"));
     }
-    $regatta->set(Regatta::START_TIME, $start);
+    $regatta->start_time = $start;
     $duration = (int)$root->Duration;
     if ($duration <= 0) {
       $warnings[] = sprintf("Invalid value for duration (%s), defaulting to '1'.", $duration);

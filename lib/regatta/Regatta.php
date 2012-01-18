@@ -37,7 +37,6 @@ class Regatta {
   private $scorer;
 
   // Keys for data
-  const START_TIME = "start_time";
   const END_DATE   = "end_date";
   const DURATION   = "duration";
   const FINALIZED  = "finalized";
@@ -146,12 +145,12 @@ class Regatta {
     if ($result->num_rows > 0) {
       $this->properties = $result->fetch_assoc();
 
-      $start = new DateTime($this->properties[Regatta::START_TIME]);
-      $end   = new DateTime($this->properties[Regatta::END_DATE]);
+      $start = new DateTime($this->properties['start_time']);
+      $end   = new DateTime($this->properties['end_date']);
       date_time_set($end, 0, 0, 0);
 
-      $this->properties[Regatta::START_TIME] = $start;
-      $this->properties[Regatta::END_DATE]   = $end;
+      $this->properties['start_time'] = $start;
+      $this->properties['end_date']   = $end;
 
       // Calculate duration
       $duration = 1 + (date_format($end, "U") -
@@ -192,7 +191,7 @@ class Regatta {
     }
     elseif ($property == 'season') {
       if ($this->properties[$property] === null)
-	$this->properties[$property] = Season::forDate($this->properties[Regatta::START_TIME]);
+	$this->properties[$property] = Season::forDate($this->__get('start_time'));
     }
     return $this->properties[$property];
   }
@@ -200,7 +199,7 @@ class Regatta {
   private $season;
   public function getSeason() {
     if ($this->season === null)
-      $this->season = Season::forDate($this->get(Regatta::START_TIME));
+      $this->season = Season::forDate($this->start_time);
     return $this->season;
   }
 
@@ -251,7 +250,7 @@ class Regatta {
     }
     if ($value == null)
       $strvalue = 'NULL';
-    elseif (in_array($property, array(Regatta::START_TIME, Regatta::END_DATE, Regatta::FINALIZED))) {
+    elseif (in_array($property, array('start_time', 'end_date', Regatta::FINALIZED))) {
       if (!($value instanceof DateTime)) {
 	$m = sprintf("Property %s must be a valid DateTime object.", $property);
 	throw new InvalidArgumentException($m);

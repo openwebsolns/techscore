@@ -114,7 +114,7 @@ class ReportMaker {
 
     // Add description
     $desc = "";
-    $stime = $reg->get(Regatta::START_TIME);
+    $stime = $reg->start_time;
     $this->summary = array();
     for ($i = 0; $i < $reg->get(Regatta::DURATION); $i++) {
       $today = new DateTime(sprintf("%s + %d days", $stime->format('Y-m-d'), $i));
@@ -139,7 +139,7 @@ class ReportMaker {
 
     // Javascript?
     $now = new DateTime('today');
-    if ($reg->get(Regatta::START_TIME) <= $now &&
+    if ($reg->start_time <= $now &&
 	$reg->get(Regatta::END_DATE)   >= $now) {
       // $page->head->add(new XScript('text/javascript', '/inc/js/refresh.js'));
     }
@@ -148,7 +148,7 @@ class ReportMaker {
     $page->addSection($div = new XDiv(array('id'=>'reg-details')));
     $div->add(new XH2($reg->name));
     
-    $stime = $reg->get(Regatta::START_TIME);
+    $stime = $reg->start_time;
     $etime = $reg->get(Regatta::END_DATE);
     if ($stime->format('Y-m-d') == $etime->format('Y-m-d')) // same day
       $date = $stime->format('F j, Y');

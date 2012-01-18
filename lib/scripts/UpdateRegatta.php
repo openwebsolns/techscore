@@ -73,7 +73,7 @@ class UpdateRegatta {
     $dreg->id = $reg->id();
     $dreg->name = $reg->name;
     $dreg->nick = $reg->nick;
-    $dreg->start_time = $reg->get(Regatta::START_TIME);
+    $dreg->start_time = $reg->start_time;
     $dreg->end_date   = $reg->get(Regatta::END_DATE);
     $dreg->type = $reg->type;
     $dreg->finalized = $reg->get(Regatta::FINALIZED);
