@@ -1099,13 +1099,7 @@ class Regatta {
 
   //------------------------------------------------------------
   // Misc
-
-  /**
-   * Get this regatta's ID
-   *
-   * @return int the regatta's ID
-   */
-  public function id() { return $this->id; }
+  // ------------------------------------------------------------
 
   /**
    * Gets the rotation object that manages this regatta's rotation
@@ -1132,19 +1126,6 @@ class Regatta {
     }
     return $this->rp;
   }
-
-  /**
-   * Returns the day stripped of time-of-day information
-   *
-   * @param DateTime $time the datetime object
-   * @return DateTime the modified datetime object
-   */
-  public function getDay(DateTime $time) {
-    $time_copy = clone($time);
-    date_time_set($time_copy, 0, 0, 0);
-    return $time_copy;
-  }
-
 
   /**
    * Determines whether the regatta is a singlehanded regatta or
@@ -1188,23 +1169,6 @@ class Regatta {
     $scorer = $this->__get('scorer');
     foreach ($this->getScoredRaces() as $race)
       $scorer->score($this, $race);
-  }
-
-  // ------------------------------------------------------------
-  // Listeners
-
-  /**
-   * Commits the properties of the race object. If a race's properties
-   * change, this function registers those changes with the database.
-   * Note that only the boat and the division are updated.
-   *
-   * @param Race $race the race to update
-   */
-  public function changedRace(Race $race) {
-    $q = sprintf('update race set boat = "%s", division = "%s" ' .
-		 'where id = "%s"',
-		 $race->boat->id, $race->division, $race->id);
-    $this->query($q);
   }
 
   /**

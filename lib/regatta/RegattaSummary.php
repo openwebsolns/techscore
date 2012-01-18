@@ -847,6 +847,239 @@ class RegattaSummary extends DBObject {
   }
   
   /**
+   * Returns the timestamp of the last score update
+   *
+   * @return DateTime, or null if no update found
+   */
+  public function getLastScoreUpdate() {
+    DB::$UPDATE_REQUEST->db_set_order(array('request_time'=>false));
+    $res = DB::getAll(DB::$UPDATE_REQUEST, new DBCond('regatta', $this->id));
+    $r = (count($res) == 0) ? null : $res[0]->request_time;
+    unset($res);
+    DB::$UPDATE_REQUEST->db_set_order();
+    return $r;
+  }
+
+  /**
+   * Gets the winning team for this regatta. That is, the team with
+   * the lowest score thus far
+   *
+   * @return Team the winning team object
+   */
+  public function getWinningTeam() {
+    $ranks = $this->__get("scorer")->rank($this);
+    if (count($ranks) == 0) return null;
+    return $ranks[0]->team;
+  }
+
+  /**
+   * Like getWinningTeam, this more generic method returns a list of
+   * where did every team belonging to the given school finish in this
+   * regatta (or is currently finishing). Returns a list because a
+   * school can have more than one team per regatta.
+   *
+   * An empty array means that the school had no teams in this
+   * regatta (something which can be known ahead of time using the
+   * Season::getParticipation function.
+   *
+   * @param School $school the school
+   * @return Array:int the current or final place finish for all teams
+   */
+  public function getPlaces(School $school) {
+    $ranks = $this->__get("scorer")->rank($this);
+    $places = array();
+    foreach ($ranks as $i => $rank) {
+      if ($rank->team->school->id == $school->id)
+	$places[] = ($i + 1);
+    }
+    return $places;
+  }
+
+  // ------------------------------------------------------------
+  // Scorers
+  // ------------------------------------------------------------
+
+  /**
+   * Returns a list of hosts for this regatta
+   *
+   * @return Array:School a list of hosts
+   */
+  public function getHosts() {
+    return DB::getAll(DB::$SCHOOL,
+		      new DBCondIn('id', DB::prepGetAll(DB::$HOST_SCHOOL, new DBCond('regatta', $this->id), array('school'))));
+  }
+
+  public function addHost(School $school) {
+    // Enforce unique key
+    $res = DB::getAll(DB::$HOST_SCHOOL, new DBBool(array(new DBCond('regatta', $this->id), new DBCond('school', $school))));
+    if (count($res) > 0)
+      return;
+    
+    $cur = new Host_School();
+    $cur->regatta = $this->id;
+    $cur->school = $school;
+    DB::set($cur);
+    unset($res);
+  }
+
+  /**
+   * Removes all the host from the regatta. Careful! Each regatta must
+   * have at least one host, so do not forget to ::addHost later
+   *
+   */
+  public function resetHosts() {
+    DB::removeAll(DB::$HOST_SCHOOL, new DBCond('regatta', $this->id));
+  }
+
+  /**
+   * Return a list of scorers for this regatta
+   *
+   * @return Array:Account a list of scorers
+   */
+  public function getScorers() {
+    return DB::getAll(DB::$ACCOUNT, new DBCondIn('id', DB::prepGetAll(DB::$SCORER, new DBCond('regatta', $this->id), array('account'))));
+  }
+
+  /**
+   * Registers the given scorer with this regatta
+   *
+   * @param Account $acc the account to add
+   */
+  public function addScorer(Account $acc) {
+    $res = DB::getAll(DB::$SCORER, new DBBool(array(new DBCond('regatta', $this->id), new DBCond('account', $acc))));
+    if (count($res) > 0)
+      return;
+    $cur = new Scorer();
+    $cur->regatta = $this->id;
+    $cur->account = $acc;
+    DB::set($cur);
+    unset($res);
+  }
+
+  /**
+   * Removes the specified account from this regatta
+   *
+   * @param Account $acc the account of the scorer to be removed
+   * from this regatta
+   */
+  public function removeScorer(Account $acc) {
+    DB::removeAll(DB::$SCORER, new DBBool(array(new DBCond('regatta', $this->id), new DBCond('account', $acc))));
+  }
+
+  //------------------------------------------------------------
+  // Misc
+  // ------------------------------------------------------------
+
+  /**
+   * Gets the rotation object that manages this regatta's rotation
+   *
+   * @return the rotation object for this regatta
+   */
+  public function getRotation() {
+    if ($this->rotation === null) {
+      require_once('regatta/Rotation.php');
+      $this->rotation = new Rotation($this);
+    }
+    return $this->rotation;
+  }
+
+  /**
+   * Gets the RpManager object that manages this regatta's RP
+   *
+   * @return RpManager the rp manager
+   */
+  public function getRpManager() {
+    if ($this->rp === null) {
+      require_once('regatta/RpManager.php');
+      $this->rp = new RpManager($this);
+    }
+    return $this->rp;
+  }
+
+  /**
+   * Determines whether the regatta is a singlehanded regatta or
+   * not. Singlehanded regattas consist of one division, and each race
+   * consists of single-occupant boats
+   *
+   * @return boolean is this regatta singlehanded?
+   */
+  public function isSingleHanded() {
+    $divisions = $this->getDivisions();
+    if (count($divisions) > 1) return false;
+
+    foreach ($this->getRaces(array_shift($divisions)) as $race) {
+      if ($race->boat->occupants > 1)
+	return false;
+    }
+    return true;
+  }
+
+  /**
+   * Calls the 'score' method on this regatta's scorer, feeding it the
+   * given race. This new method should be used during scoring, as it
+   * updates only the one affected race at a time. Whereas the doScore
+   * method is more appropriate for input data that needs to be
+   * checked first for possible errors.
+   *
+   * Note that the scorer is responsible for committing the affected
+   * finishes back to the database, and so there is no need to
+   * explicitly call 'setFinishes' after calling this function.
+   *
+   * @param Race $race the race to run the score
+   */
+  public function runScore(Race $race) {
+    $this->__get('scorer')->score($this, $race);
+  }
+
+  /**
+   * Scores the entire regatta
+   */
+  public function doScore() {
+    $scorer = $this->__get('scorer');
+    foreach ($this->getScoredRaces() as $race)
+      $scorer->score($this, $race);
+  }
+
+  // ------------------------------------------------------------
+  // Race notes
+  // ------------------------------------------------------------
+
+  /**
+   * Fetches a list of all the notes for the given race, or the entire
+   * regatta if no race provided
+   *
+   * @return Array:Note the list of notes
+   */
+  public function getNotes(Race $race = null) {
+    if ($race !== null)
+      return DB::getAll(DB::$NOTE, new DBCond('race', $race->id));
+    $races = array();
+    foreach ($this->getRaces() as $race)
+      $races[] = $race->id;
+    return DB::getAll(DB::$NOTE, new DBCondIn('race', $races));
+  }
+
+  /**
+   * Adds the given note to the regatta. Updates the Note object
+   *
+   * @param Note $note the note to add and update
+   */
+  public function addNote(Note $note) {
+    DB::set($note);
+  }
+
+  /**
+   * Deletes the given note from the regatta
+   *
+   * @param Note $note the note to delete
+   */
+  public function deleteNote(Note $note) {
+    DB::remove($note);
+  }
+
+  
+
+  /**
    * Creates a regatta nick name for this regatta based on this
    * regatta's name. Nick names are guaranteed to be a unique per
    * season. As such, this function will throw an error if there is
