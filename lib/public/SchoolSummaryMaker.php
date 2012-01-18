@@ -69,7 +69,7 @@ class SchoolSummaryMaker {
     $this->page->addNavigation(new XA(sprintf("/schools/%s", $school->id), $school->name, array("class"=>"nav")));
     $this->page->addMenu(new XA($this->getBlogLink(), "ICSA Info"));
     // Add links to last 7 seasons
-    require_once('mysqli/DB.php');
+    require_once('regatta/PublicDB.php');
     DBME::setConnection(DB::connection());
     $num = 0;
     foreach (DBME::getAll(DBME::$SEASON) as $s) {

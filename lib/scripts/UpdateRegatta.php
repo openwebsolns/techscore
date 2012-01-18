@@ -6,7 +6,7 @@
  */
 
 require_once(dirname(__FILE__).'/../conf.php');
-require_once('mysqli/DB.php');
+require_once('regatta/PublicDB.php');
 require_once('public/ReportMaker.php');
 require_once('xml5/TPublicPage.php');
 DBME::setConnection(DB::connection());

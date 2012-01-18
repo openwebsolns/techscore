@@ -489,7 +489,7 @@ class TScoresTables {
 
 if (isset($argv) && basename(__FILE__) == basename($argv[0])) {
   require_once('../conf.php');
-  require_once('mysqli/DB.php');
+  require_once('regatta/PublicDB.php');
   DBME::setConnection(DB::connection());
 
   $t = new TScoresTables(DBME::get(DBME::$REGATTA, 6));

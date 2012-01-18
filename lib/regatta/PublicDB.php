@@ -8,7 +8,7 @@
  * @package mysql
  */
 
-require_once(dirname(__FILE__).'/DBM.php');
+require_once('mysqli/DBM.php');
 
 /**
  * Provides some more functionality

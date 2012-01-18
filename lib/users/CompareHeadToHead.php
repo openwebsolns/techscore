@@ -34,7 +34,7 @@ class CompareHeadToHead extends AbstractUserPane {
     elseif (isset($args['sailors']))
       $list = explode(',', (string)$args['sailors']);
 
-    require_once('mysqli/DB.php');
+    require_once('regatta/PublicDB.php');
     DBME::setConnection(DB::connection());
     // get sailors
     $sailors = array();

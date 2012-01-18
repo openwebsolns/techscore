@@ -25,7 +25,7 @@ class GenerateSchools {
    * @return String the database
    */
   public static function getCache() {
-    require_once('mysqli/DB.php');
+    require_once('regatta/PublicDB.php');
     DBME::setConnection(DB::connection());
 
     $fmt = "%s\t%s\t%s\n";

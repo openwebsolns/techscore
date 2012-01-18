@@ -21,7 +21,7 @@ class UpdateFront {
     $this->page = new TPublicFrontPage();
 
     // Get current season's coming regattas
-    require_once('mysqli/DB.php');
+    require_once('regatta/PublicDB.php');
     DBME::setConnection(DB::connection());
 
     $success = false;

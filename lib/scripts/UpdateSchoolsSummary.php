@@ -12,7 +12,7 @@ class UpdateSchoolsSummary {
   public static function run() {
     $page = new TPublicPage("All Schools");
     
-    require_once('mysqli/DB.php');
+    require_once('regatta/PublicDB.php');
     DBME::setConnection(DB::connection());
 
     $page->addNavigation(new XA('http://collegesailing.info/teams', 'ICSA Info', array('class'=>'nav')));

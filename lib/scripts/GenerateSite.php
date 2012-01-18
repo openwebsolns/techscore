@@ -27,7 +27,7 @@ class GenerateSite {
    *
    */
   public static function run($do = self::ALL) {
-    require_once('mysqli/DB.php');
+    require_once('regatta/PublicDB.php');
     require_once('xml5/TS.php');
     DBME::setConnection(DB::connection());
 
