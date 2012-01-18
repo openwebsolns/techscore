@@ -40,7 +40,7 @@ class UpdateSchoolsSummary {
 							      new XTH(array(), "# Regattas"))))),
 			       $tab = new XTBody())));
       
-      foreach (DBME::getAll(DBME::$SCHOOL, new DBCond('conference', $conf->id)) as $i => $school) {
+      foreach ($conf->getSchools() as $i => $school) {
         $q = DBME::prepGetAll(DBME::$TEAM);
         $q->fields(array('regatta'), DBME::$TEAM->db_name());
         $q->where(new DBCond('school', $school->id));

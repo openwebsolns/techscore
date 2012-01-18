@@ -21,7 +21,6 @@ class DBME extends DBM {
   public static $TEAM_DIVISION = null;
   public static $REGATTA = null;
   public static $SEASON = null;
-  public static $SCHOOL = null;
   public static $SAILOR = null;
   public static $SCORE = null;
   public static $VENUE = null;
@@ -37,7 +36,6 @@ class DBME extends DBM {
     self::$TEAM_DIVISION = new Dt_Team_Division();
     self::$REGATTA = new Dt_Regatta();
     self::$SEASON = new Dt_Season();
-    self::$SCHOOL = new Dt_School();
     self::$SAILOR = new Dt_Sailor();
     self::$SCORE = new Dt_Score();
     self::$VENUE = new Dt_Venue();
@@ -206,7 +204,7 @@ class Dt_Regatta extends DBObject {
   public function getHosts() {
     $list = array();
     foreach (explode(',', $this->hosts) as $id) {
-      $sch = DBME::get(DBME::$SCHOOL, $id);
+      $sch = DBME::get(DB::$SCHOOL, $id);
       if ($sch !== null)
         $list[] = $sch;
     }
@@ -310,7 +308,7 @@ class Dt_Team extends DBObject {
     case 'regatta':
       return DBME::$REGATTA;
     case 'school':
-      return DBME::$SCHOOL;
+      return DB::$SCHOOL;
     default:
       return parent::db_type($field);
     }
@@ -421,26 +419,6 @@ class Dt_Sail extends DBObject {
   }
 }
 
-class Dt_School extends DBObject {
-  public $name;
-  public $nick_name;
-  public $city;
-  public $state;
-  protected $conference;
-
-  public function db_name() { return 'school'; }
-  protected function db_cache() { return true; }
-  public function db_type($field) {
-    if ($field == 'conference')
-      return DB::$CONFERENCE;
-    return parent::db_type($field);
-  }
-
-  public function __toString() {
-    return $this->name;
-  }
-}
-
 class Dt_Score extends DBObject {
   protected $team;
   protected $race;
@@ -499,7 +477,7 @@ class Dt_Sailor extends DBObject {
   protected function db_cache() { return true; }
   public function db_type($field) {
     if ($field == 'school')
-      return DBME::$SCHOOL;
+      return DB::$SCHOOL;
     return parent::db_type($field);
   }
   public function __toString() {

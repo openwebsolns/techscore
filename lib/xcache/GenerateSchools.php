@@ -30,7 +30,7 @@ class GenerateSchools {
 
     $fmt = "%s\t%s\t%s\n";
     $txt = "";
-    foreach (DBME::getAll(DBME::$SCHOOL) as $school)
+    foreach (DB::getAll(DB::$SCHOOL) as $school)
       $txt .= sprintf($fmt,
 		      strtoupper($school->id),
 		      strtoupper($school->nick_name),

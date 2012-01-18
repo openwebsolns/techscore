@@ -158,7 +158,7 @@ class UpdateRegatta {
 
 	$team->id = $rank->team->id;
 	$team->regatta = $dreg;
-	$team->school = DBME::get(DBME::$SCHOOL, $rank->team->school->id);
+	$team->school = DB::get(DB::$SCHOOL, $rank->team->school->id);
 	$team->name = $rank->team->name;
 	$team->rank = $i + 1;
 	$team->rank_explanation = $rank->explanation;

@@ -191,11 +191,11 @@ class UpdateSeason {
 	// tied teams
 	$tied_number = array_shift($winning_school);
 	$tied_schools = array();
-	$tied_schools[] = DBME::get(DBME::$SCHOOL, array_shift($school_codes));
+	$tied_schools[] = DB::get(DB::$SCHOOL, array_shift($school_codes));
 	while (count($school_codes) > 0) {
 	  $next_num = array_shift($winning_school);
 	  if ($next_num != $tied_number) break;
-	  $tied_schools[] = DBME::get(DBME::$SCHOOL, array_shift($school_codes));
+	  $tied_schools[] = DB::get(DB::$SCHOOL, array_shift($school_codes));
 	}
       }
       // 2011-04-09: feedback compiled by Matt Lindblad from users
