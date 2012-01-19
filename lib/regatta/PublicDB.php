@@ -22,15 +22,12 @@ class DBME extends DBM {
   public static $REGATTA = null;
   public static $TEAM = null;
   public static $RP = null;
-  public static $NOW = null;
-  public static $ARRAY = array();
   
   // use this method to initialize the different objects as well
   public static function setConnection(MySQLi $con) {
     self::$TEAM_DIVISION = new Dt_Team_Division();
     self::$REGATTA = new Dt_Regatta();
     self::$TEAM = new Dt_Team();
-    self::$NOW = new DateTime();
     self::$RP = new Dt_Rp();
 
     DBM::setConnection($con);
@@ -61,7 +58,7 @@ class Dt_Regatta extends DBObject {
     case 'start_time':
     case 'end_date':
     case 'finalized':
-      return DBME::$NOW;
+      return DB::$NOW;
 
     case 'venue':
       return DB::$VENUE;
@@ -228,7 +225,7 @@ class Dt_Rp extends DBObject {
 
   public function db_type($field) {
     if ($field == 'sailor') return DB::$SAILOR;
-    if ($field == 'race_nums') return DBME::$ARRAY;
+    if ($field == 'race_nums') return array();
     if ($field == 'team_division') return DBME::$TEAM_DIVISION;
     return parent::db_type($field);
   }

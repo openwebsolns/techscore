@@ -75,12 +75,9 @@ class CompareHeadToHead extends AbstractUserPane {
 
     // get first sailor's participation (dt_rp objects)
     $first_sailor = array_shift($sailors);
-    $regatta_cond = DBME::prepGetAll(DBME::$REGATTA, new DBBool($conds, DBBool::mOR));
-    $regatta_cond->fields(array('id'), DBME::$REGATTA->db_name());
-    $team_cond = DBME::prepGetAll(DBME::$TEAM, new DBCondIn('regatta', $regatta_cond));
-    $team_cond->fields(array('id'), DBME::$TEAM->db_name());
-    $dteam_cond = DBME::prepGetAll(DBME::$TEAM_DIVISION, new DBCondIn('team', $team_cond));
-    $dteam_cond->fields(array('id'), DBME::$TEAM_DIVISION->db_name());
+    $regatta_cond = DBME::prepGetAll(DBME::$REGATTA, new DBBool($conds, DBBool::mOR), array('id'));
+    $team_cond = DBME::prepGetAll(DBME::$TEAM, new DBCondIn('regatta', $regatta_cond), array('id'));
+    $dteam_cond = DBME::prepGetAll(DBME::$TEAM_DIVISION, new DBCondIn('team', $team_cond), array('id'));
     $first_rps = DBME::getAll(DBME::$RP, new DBBool(array(new DBCond('sailor', $first_sailor->id),
 							  new DBCondIn('team_division', $dteam_cond))));
 
