@@ -155,61 +155,6 @@ class Dt_Regatta extends DBObject {
   }
 
   // ------------------------------------------------------------
-  // SCORING
-  // ------------------------------------------------------------
-
-  /**
-   * Returns a list of all the races that have been scored in the
-   * given division
-   *
-   * @param String $division the division to fetch
-   * @return Array:Race the scored races
-   */
-  public function getScoredRaces($division) {
-    $p = DBME::$SCORE;
-    $q = DBME::prepGetAll($p, null, array('race'));
-    $q->distinct(true);
-
-    return DBME::getAll(DB::$RACE, new DBBool(array(new DBCond('regatta', $this->id),
-						    new DBCond('division', $division),
-						    new DBCondIn('id', $q))));
-  }
-
-  /**
-   * Gets the finish from this regatta for the given team in the given race
-   *
-   * @param Race $race the particular race
-   * @param Dt_Team $team the particular team
-   * @return Dt_Score|null the particular score
-   */
-  public function getFinish(Race $race, Dt_Team $team) {
-    $id = $race . '-' . $team->id;
-    if (isset($this->finishes[$id]))
-      return $this->finishes[$id];
-
-    $r = DBME::getAll(DBME::$SCORE, new DBBool(array(new DBCond('race', $race->id),
-						     new DBCond('team', $team->id))));
-    if (count($r) == 0)
-      $this->finishes[$id] = null;
-    else
-      $this->finishes[$id] = $r[0];
-    unset($r);
-    return $this->finishes[$id];
-  }
-  private $finishes = array();
-
-  /**
-   * Returns the races for this regatta
-   *
-   * @param String $division the division
-   * @return Array:Race the races
-   */
-  public function getRaces($division) {
-    return DBME::getAll(DB::$RACE, new DBBool(array(new DBCond('regatta', $this->id),
-						    new DBCond('division', $division))));
-  }
-
-  // ------------------------------------------------------------
   // RP information
   // ------------------------------------------------------------
 
