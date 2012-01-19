@@ -275,11 +275,24 @@ class DB extends DBM {
   /**
    * Fetches the Sailor with the given ID
    *
-   * @param int id the ID of the person
-   * @return Sailor the sailor
+   * @param int $id the ID of the person
+   * @return Sailor|null the sailor
    */
   public static function getSailor($id) {
     return DB::get(DB::$SAILOR, $id);
+  }
+
+  /**
+   * Fetches the Sailor with the given ICSA ID
+   *
+   * @param int $id the ICSA ID of the sailor
+   * @return Sailor|null the sailor
+   */
+  public static function getICSASailor($id) {
+    $r = DB::getAll(DB::$SAILOR, new DBCond('icsa_id', $id));
+    $s = (count($r) == 0) ? null : $r[0];
+    unset($r);
+    return $s;
   }
   
   public static function searchSailors($str) {
@@ -860,6 +873,9 @@ class Sailor extends DBObject {
   const MALE = 'M';
   const FEMALE = 'F';
 
+  const COACH = 'coach';
+  const STUDENT = 'student';
+
   public function db_type($field) {
     switch ($field) {
     case 'school': return DB::$SCHOOL;
@@ -897,6 +913,9 @@ class Sailor extends DBObject {
  */
 class Coach extends Sailor {
   public function db_where() { return new DBCond('role', 'coach'); }
+  public function __construct() {
+    $this->role = Sailor::COACH;
+  }
 }
 
 /**

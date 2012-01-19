@@ -75,22 +75,16 @@ class UpdateSailorsDB {
    * @param Sailor $sailor the sailor
    */
   private function updateSailor(Sailor $sailor) {
-    $s = ($sailor instanceof Coach) ? "coach" : "student";
+    $sailor->role = ($sailor instanceof Coach) ? Sailor::COACH : Sailor::STUDENT;
+    $sailor->active = 1;
+    $cur = DB::getICSASailor($sailor->icsa_id);
 
-    // One query to rule them all
-    $q = sprintf('insert into sailor (icsa_id, school, last_name, first_name, year, role, gender, active) ' .
-		 'values ("%s", "%s", "%s", "%s", "%s", "%s", "%s", 1) on duplicate key update ' .
-		 'school = values(school), last_name = values(last_name), first_name = values(first_name), ' .
-		 'year = values(year), role = values(role), gender = values(gender), active = values(active)',
-		 $sailor->icsa_id,
-		 $sailor->school->id,
-		 $sailor->last_name,
-		 $sailor->first_name,
-		 $sailor->year,
-		 $s,
-		 $sailor->gender);
-    
-    Preferences::query($q);
+    $update = false;
+    if ($cur !== null) {
+      $sailor->id = $cur->id;
+      $update = true;
+    }
+    DB::set($sailor, $update);
   }
 
   /**
@@ -118,7 +112,7 @@ class UpdateSailorsDB {
     else {
       $this->log("Inactivating sailors");
       // resets all sailors to be inactive
-      Preferences::query('update sailor set active = null where role = "student"');
+      RpManager::inactivateRole(Sailor::STUDENT);
       $this->log("Sailors deactivated");
       // parse data
       foreach ($xml->sailor as $sailor) {
@@ -158,7 +152,7 @@ class UpdateSailorsDB {
     }
     else {
       $this->log("Inactivating coaches");
-      Preferences::query('update sailor set active = null where role = "coach"');
+      RpManager::inactivateRole(Sailor::COACH);
       $this->log("Coaches inactivated");
       // parse data
       foreach ($xml->coach as $sailor) {

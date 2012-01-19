@@ -534,7 +534,7 @@ class Rotation {
   public function replaceSail(Race $race, $orig, $repl) {
     // Ultimate cheating
     $q = DB::prepSet(DB::$SAIL, true);
-    $q->values(array('sail'), array($repl), DB::$SAIL->db_name());
+    $q->values(array('sail'), array(DBQuery::A_STR), array($repl), DB::$SAIL->db_name());
     $q->where(new DBBool(array(new DBCond('race', $race), new DBCond('sail', $orig))));
     DB::query($q);
   }

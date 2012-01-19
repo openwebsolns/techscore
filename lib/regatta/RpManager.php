@@ -146,7 +146,7 @@ class RpManager {
    */
   public static function replaceTempActual(Sailor $key, Sailor $replace) {
     $q = DB::createQuery(DBQuery::UPDATE);
-    $q->values(array('sailor'), array($replace->id), DB::$RP_ENTRY->db_name());
+    $q->values(array('sailor'), array(DBQuery::A_STR), array($replace->id), DB::$RP_ENTRY->db_name());
     $q->where(new DBCond('sailor', $key));
     DB::query($q);
 
@@ -316,6 +316,19 @@ class RpManager {
       $cond->add(new DBCond('division', (string)$div));
     
     return DB::getAll(DB::$REGATTA_SUMMARY, new DBCondIn('id', DB::prepGetAll(DB::$RACE, $cond, array('regatta'))));
+  }
+
+  /**
+   * Inactivates all the sailors with the given role in the
+   * database. This is useful when syncing from the ICSA feed.
+   *
+   * @param Sailor::Const the role
+   */
+  public static function inactivateRole($role) {
+    $q = DB::createQuery(DBQuery::UPDATE);
+    $q->values(array('active'), array(DBQuery::A_STR), array(null), DB::$SAILOR->db_name());
+    $q->where('role', $role);
+    DB::query($q);
   }
 }
 
