@@ -22,7 +22,6 @@ class DBME extends DBM {
   public static $REGATTA = null;
   public static $SCORE = null;
   public static $TEAM = null;
-  public static $RACE = null;
   public static $NOW = null;
   public static $RP = null;
   public static $ARRAY = array();
@@ -33,7 +32,6 @@ class DBME extends DBM {
     self::$REGATTA = new Dt_Regatta();
     self::$SCORE = new Dt_Score();
     self::$TEAM = new Dt_Team();
-    self::$RACE = new Dt_Race();
     self::$NOW = new DateTime();
     self::$RP = new Dt_Rp();
 
@@ -172,19 +170,19 @@ class Dt_Regatta extends DBObject {
     $q = DBME::prepGetAll($p, null, array('race'));
     $q->distinct(true);
 
-    return DBME::getAll(DBME::$RACE, new DBBool(array(new DBCond('regatta', $this->id),
-						      new DBCond('division', $division),
-						      new DBCondIn('id', $q))));
+    return DBME::getAll(DB::$RACE, new DBBool(array(new DBCond('regatta', $this->id),
+						    new DBCond('division', $division),
+						    new DBCondIn('id', $q))));
   }
 
   /**
    * Gets the finish from this regatta for the given team in the given race
    *
-   * @param Dt_Race $race the particular race
+   * @param Race $race the particular race
    * @param Dt_Team $team the particular team
    * @return Dt_Score|null the particular score
    */
-  public function getFinish(Dt_Race $race, Dt_Team $team) {
+  public function getFinish(Race $race, Dt_Team $team) {
     $id = $race . '-' . $team->id;
     if (isset($this->finishes[$id]))
       return $this->finishes[$id];
@@ -204,11 +202,11 @@ class Dt_Regatta extends DBObject {
    * Returns the races for this regatta
    *
    * @param String $division the division
-   * @return Array:Dt_Race the races
+   * @return Array:Race the races
    */
   public function getRaces($division) {
-    return DBME::getAll(DBME::$RACE, new DBBool(array(new DBCond('regatta', $this->id),
-						      new DBCond('division', $division))));
+    return DBME::getAll(DB::$RACE, new DBBool(array(new DBCond('regatta', $this->id),
+						    new DBCond('division', $division))));
   }
 
   // ------------------------------------------------------------
@@ -308,23 +306,6 @@ class Dt_Team extends DBObject {
   }
 }
 
-class Dt_Race extends DBObject {
-  protected $regatta;
-  public $division;
-  public $number;
-
-  public function db_name() { return 'race'; }
-  protected function db_cache() { return true; }
-  public function db_type($field) {
-    if ($field == 'regatta') return DBME::$REGATTA;
-    return parent::db_type($field);
-  }
-
-  public function __toString() {
-    return $this->number . $this->division;
-  }
-}
-
 class Dt_Score extends DBObject {
   protected $team;
   protected $race;
@@ -338,7 +319,7 @@ class Dt_Score extends DBObject {
     if ($field == 'team')
       return DBME::$TEAM;
     if ($field == 'race')
-      return DBME::$RACE;
+      return DB::$RACE;
     return parent::db_type($field);
   }
   public function db_name() { return 'finish'; }

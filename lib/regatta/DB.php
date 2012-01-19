@@ -1070,6 +1070,7 @@ class Note extends DBObject {
  * @version 2012-01-12
  */
 class Race extends DBObject {
+  protected $regatta;
   protected $division;
   protected $boat;
   public $number;
@@ -1080,6 +1081,7 @@ class Race extends DBObject {
     switch ($field) {
     case 'division': return DBQuery::A_STR;
     case 'boat': return DB::$BOAT;
+    case 'regatta': return DB::$REGATTA;
     }
   }
   protected function db_cache() { return true; }
@@ -1098,8 +1100,9 @@ class Race extends DBObject {
       parent::__set($name, $value);
   }
   public function __toString() {
-    return sprintf("%s%s", $this->number, $this->division);
+    return $this->number . $this->division;
   }
+  
   /**
    * Parses the string and returns a Race object with the
    * corresponding division and number. Note that the race object

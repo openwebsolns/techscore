@@ -454,6 +454,7 @@ class Regatta extends DBObject {
       $race->id = $cur->id;
     else
       $this->total_races++;
+    $race->regatta = $this;
     DB::set($cur);
   }
 
