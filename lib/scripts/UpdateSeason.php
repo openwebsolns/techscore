@@ -42,9 +42,8 @@ class UpdateSeason {
     // timestamp, based solely on the start_time, assuming that the
     // week ends on a Sunday.
     require_once('regatta/PublicDB.php');
-    DBME::setConnection(DB::connection());
     $weeks = array();
-    $regattas = DBME::getAll(DB::$DT_REGATTA, new DBCond('season', (string)$season));
+    $regattas = DB::getAll(DB::$DT_REGATTA, new DBCond('season', (string)$season));
     foreach ($regattas as $reg) {
       $week = $reg->start_time->format('W');
       if (!isset($weeks[$week]))

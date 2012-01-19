@@ -13,7 +13,6 @@ class UpdateSchoolsSummary {
     require_once('xml5/TPublicPage.php');
     require_once('regatta/PublicDB.php');
     $page = new TPublicPage("All Schools");
-    DBME::setConnection(DB::connection());
 
     $page->addNavigation(new XA('http://collegesailing.info/teams', 'ICSA Info', array('class'=>'nav')));
     $confs = DB::getAll(DB::$CONFERENCE);
@@ -41,12 +40,12 @@ class UpdateSchoolsSummary {
 			       $tab = new XTBody())));
       
       foreach ($conf->getSchools() as $i => $school) {
-        $q = DBME::prepGetAll(DB::$DT_TEAM);
+        $q = DB::prepGetAll(DB::$DT_TEAM);
         $q->fields(array('regatta'), DB::$DT_TEAM->db_name());
         $q->where(new DBCond('school', $school->id));
 
 	$link = sprintf('/schools/%s', $school->id);
-	$cnt  = count(DBME::getAll(DB::$DT_REGATTA, new DBCondIn('id', $q)));
+	$cnt  = count(DB::getAll(DB::$DT_REGATTA, new DBCondIn('id', $q)));
 
 	$burg = "";
 	$path = sprintf('%s/../../html/inc/img/schools/%s.png', dirname(__FILE__), $school->id);

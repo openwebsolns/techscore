@@ -70,7 +70,6 @@ class SchoolSummaryMaker {
     $this->page->addMenu(new XA($this->getBlogLink(), "ICSA Info"));
     // Add links to last 7 seasons
     require_once('regatta/PublicDB.php');
-    DBME::setConnection(DB::connection());
     $num = 0;
     foreach (DB::getAll(DB::$SEASON) as $s) {
       if (file_exists(sprintf('%s/../../html/schools/%s/%s.html', dirname(__FILE__), $school->id, $s))) {
@@ -93,9 +92,9 @@ class SchoolSummaryMaker {
     $now = new DateTime();
     $now->setTime(0, 0);
 
-    $q = DBME::prepGetAll(DB::$DT_TEAM, new DBCond('school', $school->id));
+    $q = DB::prepGetAll(DB::$DT_TEAM, new DBCond('school', $school->id));
     $q->fields(array('regatta'), DB::$DT_TEAM->db_name());
-    $regs = DBME::getAll(DB::$DT_REGATTA, new DBBool(array(new DBCond('season', $season),
+    $regs = DB::getAll(DB::$DT_REGATTA, new DBBool(array(new DBCond('season', $season),
 							  new DBCondIn('id', $q))));
     $total = count($regs);
     $current = array(); // regattas happening NOW

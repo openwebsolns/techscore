@@ -9,7 +9,6 @@ require_once(dirname(__FILE__).'/../conf.php');
 require_once('regatta/PublicDB.php');
 require_once('public/ReportMaker.php');
 require_once('xml5/TPublicPage.php');
-DBME::setConnection(DB::connection());
 
 /**
  * Update the given regatta, given as an argument.
@@ -125,7 +124,7 @@ class UpdateRegatta {
       $dreg->status = ($last_race === null) ? 'coming' : $last_race;
     }
 
-    $added = !DBME::set($dreg);
+    $added = !DB::set($dreg);
 
     if ($full === false && $rp === false)
       return $added;
@@ -158,7 +157,7 @@ class UpdateRegatta {
 	$team->name = $rank->team->name;
 	$team->rank = $i + 1;
 	$team->rank_explanation = $rank->explanation;
-	DBME::set($team);
+	DB::set($team);
       }
 
       // do the team divisions
@@ -178,7 +177,7 @@ class UpdateRegatta {
 	    $team_division->penalty = $pen->type;
 	    $team_division->comments = $pen->comments;
 	  }
-	  DBME::set($team_division);
+	  DB::set($team_division);
 	  $team_divs[] = $team_division;
 	  $team_objs[$team_division->id] = $rank->team;
 	}
@@ -211,7 +210,7 @@ class UpdateRegatta {
 	  $drp->team_division = $team;
 	  $drp->boat_role = $role;
 	  $drp->race_nums = $rp->races_nums;
-	  DBME::set($drp);
+	  DB::set($drp);
 	}
       }
     }
@@ -251,9 +250,9 @@ class UpdateRegatta {
     }
 
     // Delete from database
-    $r = DBME::get(DB::$DT_REGATTA, $reg->id);
+    $r = DB::get(DB::$DT_REGATTA, $reg->id);
     if ($r !== null)
-      DBME::remove($r);
+      DB::remove($r);
   }
 
   /**

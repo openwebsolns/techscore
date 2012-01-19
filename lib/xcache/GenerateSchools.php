@@ -26,7 +26,6 @@ class GenerateSchools {
    */
   public static function getCache() {
     require_once('regatta/PublicDB.php');
-    DBME::setConnection(DB::connection());
 
     $fmt = "%s\t%s\t%s\n";
     $txt = "";

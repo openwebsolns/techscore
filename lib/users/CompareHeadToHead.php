@@ -35,7 +35,6 @@ class CompareHeadToHead extends AbstractUserPane {
       $list = explode(',', (string)$args['sailors']);
 
     require_once('regatta/PublicDB.php');
-    DBME::setConnection(DB::connection());
     // get sailors
     $sailors = array();
     foreach ($list as $id) {
@@ -75,10 +74,10 @@ class CompareHeadToHead extends AbstractUserPane {
 
     // get first sailor's participation (dt_rp objects)
     $first_sailor = array_shift($sailors);
-    $regatta_cond = DBME::prepGetAll(DB::$DT_REGATTA, new DBBool($conds, DBBool::mOR), array('id'));
-    $team_cond = DBME::prepGetAll(DB::$DT_TEAM, new DBCondIn('regatta', $regatta_cond), array('id'));
-    $dteam_cond = DBME::prepGetAll(DB::$DT_TEAM_DIVISION, new DBCondIn('team', $team_cond), array('id'));
-    $first_rps = DBME::getAll(DB::$DT_RP, new DBBool(array(new DBCond('sailor', $first_sailor->id),
+    $regatta_cond = DB::prepGetAll(DB::$DT_REGATTA, new DBBool($conds, DBBool::mOR), array('id'));
+    $team_cond = DB::prepGetAll(DB::$DT_TEAM, new DBCondIn('regatta', $regatta_cond), array('id'));
+    $dteam_cond = DB::prepGetAll(DB::$DT_TEAM_DIVISION, new DBCondIn('team', $team_cond), array('id'));
+    $first_rps = DB::getAll(DB::$DT_RP, new DBBool(array(new DBCond('sailor', $first_sailor->id),
 							  new DBCondIn('team_division', $dteam_cond))));
 
     // (reg_id => (division => (sailor_id => <rank races>)))

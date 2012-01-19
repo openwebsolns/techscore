@@ -29,13 +29,12 @@ class GenerateSite {
   public static function run($do = self::ALL) {
     require_once('regatta/PublicDB.php');
     require_once('xml5/TS.php');
-    DBME::setConnection(DB::connection());
 
     if ($do & self::REGATTAS) {
       // Go through all the regattas
       self::log("* Generating regattas\n\n");
       require_once('UpdateRegatta.php');
-      foreach (DBME::getAll(DB::$DT_REGATTA) as $reg) {
+      foreach (DB::getAll(DB::$DT_REGATTA) as $reg) {
 	UpdateRegatta::run(DB::getRegatta($reg->id), UpdateRequest::ACTIVITY_SCORE);
 	self::log(sprintf("  - (%4d) %s\n", $reg->id, $reg->name));
       }

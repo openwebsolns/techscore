@@ -8,18 +8,7 @@
  * @package mysql
  */
 
-require_once('mysqli/DBM.php');
-
-/**
- * Provides some more functionality
- *
- */
-class DBME extends DBM {
-  // use this method to initialize the different objects as well
-  public static function setConnection(MySQLi $con) {
-    DBM::setConnection($con);
-  }
-}
+require_once('regatta/DB.php');
 
 class Dt_Regatta extends DBObject {
   public $name;
@@ -75,11 +64,11 @@ class Dt_Regatta extends DBObject {
    * Deletes all data about my teams
    */
   public function deleteTeams() {
-    DBME::removeAll(DB::$DT_TEAM, new DBCond('regatta', $this->id));
+    DB::removeAll(DB::$DT_TEAM, new DBCond('regatta', $this->id));
   }
 
   public function getTeams() {
-    return DBME::getAll(DB::$DT_TEAM, new DBCond('regatta', $this->id));
+    return DB::getAll(DB::$DT_TEAM, new DBCond('regatta', $this->id));
   }
 
   /**
@@ -89,15 +78,15 @@ class Dt_Regatta extends DBObject {
    * @return Array:Dt_Team_Division
    */
   public function getRanks($div) {
-    $q = DBME::prepGetAll(DB::$DT_TEAM, new DBCond('regatta', $this->id), array('id'));
-    return DBME::getAll(DB::$DT_TEAM_DIVISION, new DBBool(array(new DBCond('division', $div),
-							       new DBCondIn('team', $q))));
+    $q = DB::prepGetAll(DB::$DT_TEAM, new DBCond('regatta', $this->id), array('id'));
+    return DB::getAll(DB::$DT_TEAM_DIVISION, new DBBool(array(new DBCond('division', $div),
+							      new DBCondIn('team', $q))));
   }
 
   public function getHosts() {
     $list = array();
     foreach (explode(',', $this->hosts) as $id) {
-      $sch = DBME::get(DB::$SCHOOL, $id);
+      $sch = DB::get(DB::$SCHOOL, $id);
       if ($sch !== null)
         $list[] = $sch;
     }
@@ -109,18 +98,18 @@ class Dt_Regatta extends DBObject {
   // ------------------------------------------------------------
 
   public function getParticipation(Sailor $sailor, $division = null, $role = null) {
-    $team = DBME::prepGetAll(DB::$DT_TEAM, new DBCond('regatta', $this->id), array('id'));
+    $team = DB::prepGetAll(DB::$DT_TEAM, new DBCond('regatta', $this->id), array('id'));
     
     $cond = new DBBool(array(new DBCondIn('team', $team)));
     if ($division !== null)
       $cond->add(new DBCond('division', $division));
-    $tdiv = DBME::prepGetAll(DB::$DT_TEAM_DIVISION, $cond, array('id'));
+    $tdiv = DB::prepGetAll(DB::$DT_TEAM_DIVISION, $cond, array('id'));
 
     $cond = new DBBool(array(new DBCondIn('team_division', $tdiv),
 			     new DBCond('sailor', $sailor->id)));
     if ($role !== null)
       $cond->add(new DBCond('boat_role', $role));
-    return DBME::getAll(DB::$DT_RP, $cond);
+    return DB::getAll(DB::$DT_RP, $cond);
   }
 }
 
@@ -155,8 +144,8 @@ class Dt_Team extends DBObject {
    * @return Dt_Team_Division|null the rank
    */
   public function getRank($division) {
-    $r = DBME::getAll(DB::$DT_TEAM_DIVISION, new DBBool(array(new DBCond('team', $this->id),
-							     new DBCond('division', $division))));
+    $r = DB::getAll(DB::$DT_TEAM_DIVISION, new DBBool(array(new DBCond('team', $this->id),
+							    new DBCond('division', $division))));
     $b;
     if (count($r) == 0) $b = null;
     else $b = $r[0];
@@ -182,9 +171,9 @@ class Dt_Team extends DBObject {
 	return array();
       return $rank->getRP($role);
     }
-    $q = DBME::prepGetAll(DB::$DT_TEAM_DIVISION, new DBCond('team', $this->id), array('id'));
-    return DBME::getAll(DB::$DT_RP, new DBBool(array(new DBCond('boat_role', $role),
-						    new DBCondIn('team_division', $q))));
+    $q = DB::prepGetAll(DB::$DT_TEAM_DIVISION, new DBCond('team', $this->id), array('id'));
+    return DB::getAll(DB::$DT_RP, new DBBool(array(new DBCond('boat_role', $role),
+						   new DBCondIn('team_division', $q))));
   }
 
   /**
@@ -193,11 +182,11 @@ class Dt_Team extends DBObject {
    * @param String $div the division whose RP info to reset
    */
   public function resetRP($div) {
-    $q = DBME::prepGetAll(DB::$DT_TEAM_DIVISION,
-			  new DBBool(array(new DBCond('team', $this->id), new DBCond('division', $div))),
-			  array('id'));
-    foreach (DBME::getAll(DB::$DT_RP, new DBCondIn('team_division', $q)) as $rp)
-      DBME::remove($rp);
+    $q = DB::prepGetAll(DB::$DT_TEAM_DIVISION,
+			new DBBool(array(new DBCond('team', $this->id), new DBCond('division', $div))),
+			array('id'));
+    foreach (DB::getAll(DB::$DT_RP, new DBCondIn('team_division', $q)) as $rp)
+      DB::remove($rp);
   }
 }
 
@@ -241,8 +230,8 @@ class Dt_Team_Division extends DBObject {
   protected function db_order() { return array('division'=>true, 'rank'=>true); }
 
   public function getRP($role = 'skipper') {
-    return DBME::getAll(DB::$DT_RP, new DBBool(array(new DBCond('boat_role', $role),
-						    new DBCond('team_division', $this->id))));
+    return DB::getAll(DB::$DT_RP, new DBBool(array(new DBCond('boat_role', $role),
+						   new DBCond('team_division', $this->id))));
   }
 }
 
