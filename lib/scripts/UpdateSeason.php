@@ -257,7 +257,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   require_once('conf.php');
 
   // GET Season
-  $season = Season::parse($argv[1]);
+  $season = DB::getSeason($argv[1]);
   if ($season == null) {
     printf("Invalid season given: %s\n\n", $argv[1]);
     printf("usage: %s <season>\n", $_SERVER['PHP_SELF']);

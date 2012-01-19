@@ -53,7 +53,7 @@ class CompareHeadToHead extends AbstractUserPane {
     $conds = array();
     if (isset($args['seasons']) && is_array($args['seasons'])) {
       foreach ($args['seasons'] as $s) {
-	if (($season = Season::parse($s)) !== null)
+	if (($season = DB::getSeason($s)) !== null)
 	  $conds[] = new DBCond('season', (string)$season);
       }
     }
@@ -172,8 +172,8 @@ class CompareHeadToHead extends AbstractUserPane {
     $now = Season::forDate(DB::$NOW);
     $then = null;
     if ($now->season == Season::SPRING)
-      $then = Season::parse(sprintf('f%0d', ($now->start_date->format('Y') - 1)));
-    foreach (Preferences::getActiveSeasons() as $season) {
+      $then = DB::getSeason(sprintf('f%0d', ($now->start_date->format('Y') - 1)));
+    foreach (Season::getActive() as $season) {
       $ul->add(new XLi(array($chk = new XCheckboxInput('seasons[]', $season, array('id' => $season)),
 			     new XLabel($season, $season->fullString()))));
       if ((string)$season == (string)$now || (string)$season == (string)$then)

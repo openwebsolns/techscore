@@ -54,14 +54,14 @@ class CompareSailorsByRace extends AbstractUserPane {
     $seasons = array();
     if (isset($args['seasons']) && is_array($args['seasons'])) {
       foreach ($args['seasons'] as $s) {
-	if (($season = Season::parse($s)) !== null)
+	if (($season = DB::getSeason($s)) !== null)
 	  $seasons[] = $season;
       }
     }
     else {
       $seasons[] = Season::forDate(DB::$NOW);
       if ($seasons[0]->season == Season::SPRING)
-	$seasons[] = Season::parse('f' . ($seasons[0]->start_date->format('Y') - 1));
+	$seasons[] = DB::getSeason('f' . ($seasons[0]->start_date->format('Y') - 1));
     }
     $regattas = Season::getRegattasInSeasons($seasons);
     if (count($regattas) == 0) {
@@ -196,8 +196,8 @@ class CompareSailorsByRace extends AbstractUserPane {
     $now = Season::forDate(DB::$NOW);
     $then = null;
     if ($now->season == Season::SPRING)
-      $then = Season::parse(sprintf('f%0d', ($now->start_date->format('Y') - 1)));
-    foreach (Preferences::getActiveSeasons() as $season) {
+      $then = DB::getSeason(sprintf('f%0d', ($now->start_date->format('Y') - 1)));
+    foreach (Season::getActive() as $season) {
       $ul->add(new XLi(array($chk = new XCheckboxInput('seasons[]', $season, array('id' => $season)),
 			     new XLabel($season, $season->fullString()))));
       if ((string)$season == (string)$now || (string)$season == (string)$then)

@@ -25,7 +25,7 @@ class Dt_Regatta extends DBObject {
   public $confs;
   public $boats;
   public $singlehanded;
-  public $season;
+  protected $season;
   public $status;
   public $participant;
 
@@ -38,6 +38,9 @@ class Dt_Regatta extends DBObject {
 
     case 'venue':
       return DB::$VENUE;
+
+    case 'season':
+      return DB::$SEASON;
 
     default:
       return parent::db_type($field);

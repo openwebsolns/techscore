@@ -499,6 +499,16 @@ class DB extends DBM {
     require_once('regatta/Regatta.php');
     return DB::get(DB::$REGATTA, $id);
   }
+
+  /**
+   * Returns the season with the given ID, or null.
+   *
+   * @param String $id the ID of the season
+   * @return Season|null
+   */
+  public static function getSeason($id) {
+    return DB::get(DB::$SEASON, $id);
+  }
 }
 
 /**
@@ -1456,16 +1466,7 @@ class Season extends DBObject {
    *
    */
   public function __toString() {
-    $v = null;
-    switch ($this->season) {
-    case self::FALL:   $v = "f"; break;
-    case self::WINTER: $v = "w"; break;
-    case self::SPRING: $v = "s"; break;
-    case self::SUMMER: $v = "m"; break;
-    default:
-      $v = "_";
-    }
-    return sprintf("$v%s", $this->__get('start_date')->format('y'));
+    return $this->id;
   }
   
   /**
@@ -1539,39 +1540,6 @@ class Season extends DBObject {
     }
     return DB::getAll(DB::$REGATTA, $cond);
   }
-
-  /**
-   * Parses the given season into a season object. The string should
-   * have the form '[fswm][0-9]{2}'
-   *
-   * @param String $text the string to parse
-   * @return Season|null the season object or null
-   */
-  public static function parse($text) {
-    // Check first character for allowable type
-    $text = strtolower($text);
-
-    $s = null;
-    switch ($text[0]) {
-    case "f": $s = "fall";   break;
-    case "s": $s = "spring"; break;
-    case "m": $s = "summer"; break;
-    case "w": $s = "winter"; break;
-    default:
-      return null;
-    }
-    $y = substr($text, 1);
-    if (!is_numeric($y))
-      return null;
-
-    $y = (int)$y;
-    $y += ($y < 90) ? 2000 : 1900;
-
-    $res = DB::getAll(DB::$SEASON, new DBBool(array(new DBCond('season', $s), new DBCond('year(start_date)', $y))));
-    $r = (count($res) == 0) ? null : $res[0];
-    unset($res);
-    return $r;
-  }
   
   /**
    * Returns the season object, if any, that surrounds the given date.
@@ -1588,6 +1556,20 @@ class Season extends DBObject {
     $r = (count($res) == 0) ? null : $res[0];
     unset($res);
     return $r;
+  }
+
+  /**
+   * Returns a list of the seasons for which there are public
+   * regattas, ordered in ascending chronological order.
+   *
+   * @return Array:Season the list
+   */
+  public static function getActive() {
+    require_once('regatta/PublicDB.php');
+    DB::$SEASON->db_set_order(array('start_date'=>true));
+    $res = DB::getAll(DB::$SEASON, new DBCondIn('id', DB::prepGetAll(DB::$DT_REGATTA, null, array('season'))));
+    DB::$SEASON->db_set_order();
+    return $res;
   }
 }
 

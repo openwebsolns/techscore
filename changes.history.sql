@@ -220,3 +220,14 @@ alter table rp_form drop primary key, drop foreign key rp_form_ibfk_1, change co
 -- Regatta creator --
 update regatta set creator = null where creator not in (select id from account);
 alter table regatta add foreign key (creator) references account(id) on delete set null on update cascade;
+
+-- Season IDs in a meaningful way --
+alter table season change column id id varchar(3) not null;
+update season set id = concat('s', substr(year(start_date), 3, 2)) where season = 'spring';
+update season set id = concat('f', substr(year(start_date), 3, 2)) where season = 'fall';
+update season set id = concat('w', substr(year(start_date), 3, 2)) where season = 'winter';
+update season set id = concat('m', substr(year(start_date), 3, 2)) where season = 'summer';
+alter table dt_regatta change column season season varchar(3) default null;
+update dt_regatta set season = null where season not in (select id from season);
+alter table dt_regatta add foreign key (season) references season(id) on delete set null on update cascade;
+select id, name, season from dt_regatta where season is null;

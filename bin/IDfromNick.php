@@ -19,7 +19,7 @@ function usage() {
 if (count($argv) < 3)
   usage();
 
-$season = Season::parse($argv[1]);
+$season = DB::getSeason($argv[1]);
 if ($season === null) {
   printf("Invalid season code provided: %s\n", $argv[1]);
   usage();

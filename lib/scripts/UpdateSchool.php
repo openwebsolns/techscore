@@ -72,7 +72,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   }
   // season?
   if (count($argv) == 3) {
-    $season = Season::parse($argv[2]);
+    $season = DB::getSeason($argv[2]);
     if ($season == null) {
       printf("Invalid season given: %s\n\n", $argv[2]);
       printf("usage: %s <season>\n", $_SERVER['PHP_SELF']);

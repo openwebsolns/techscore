@@ -45,7 +45,7 @@ class AllAmerican extends AbstractUserPane {
 
   private function seasonList($prefix, Array $preselect = array()) {
     $ul = new XUl(array('class'=>'inline-list'));
-    foreach (Preferences::getActiveSeasons() as $season) {
+    foreach (Season::getActive() as $season) {
       $ul->add(new XLi(array($chk = new XCheckboxInput('seasons[]', $season, array('id' => $prefix . $season)),
 			     new XLabel($prefix . $season, $season->fullString()))));
       if (in_array($season, $preselect))
@@ -63,7 +63,7 @@ class AllAmerican extends AbstractUserPane {
       $now = Season::forDate(DB::$NOW);
       $then = null;
       if ($now->season == Season::SPRING)
-	$then = Season::parse(sprintf('f%0d', ($now->start_date->format('Y') - 1)));
+	$then = DB::getSeason(sprintf('f%0d', ($now->start_date->format('Y') - 1)));
       
       $p->add($form = new XForm('/aa-edit', XForm::POST));
       $form->add(new FItem("Participation:", XSelect::fromArray('participation',
@@ -121,7 +121,7 @@ class AllAmerican extends AbstractUserPane {
 
       $seasons = array();
       foreach ($this->AA['report-seasons'] as $season)
-	$seasons[] = Season::parse($season);
+	$seasons[] = DB::getSeason($season);
       $regattas = Season::getRegattasInSeasons($seasons);
       $qual_regattas = array();
 
@@ -332,7 +332,7 @@ class AllAmerican extends AbstractUserPane {
       $this->AA['report-seasons'] = array();
       if (isset($args['seasons']) && is_array($args['seasons'])) {
 	foreach ($args['seasons'] as $s) {
-	  if (($season = Season::parse($s)) !== null)
+	  if (($season = DB::getSeason($s)) !== null)
 	    $this->AA['report-seasons'][] = (string)$season;
 	}
       }
@@ -370,7 +370,7 @@ class AllAmerican extends AbstractUserPane {
       $this->AA['report-seasons'] = array();
       if (isset($args['seasons']) && is_array($args['seasons'])) {
 	foreach ($args['seasons'] as $s) {
-	  if (($season = Season::parse($s)) !== null)
+	  if (($season = DB::getSeason($s)) !== null)
 	    $this->AA['report-seasons'][] = (string)$season;
 	}
       }
