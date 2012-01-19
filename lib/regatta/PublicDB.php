@@ -34,7 +34,6 @@ class DBME extends DBM {
     self::$TEAM_DIVISION = new Dt_Team_Division();
     self::$REGATTA = new Dt_Regatta();
     self::$SCORE = new Dt_Score();
-    self::$VENUE = new Dt_Venue();
     self::$TEAM = new Dt_Team();
     self::$RACE = new Dt_Race();
     self::$SAIL = new Dt_Sail();
@@ -104,7 +103,7 @@ class Dt_Regatta extends DBObject {
       return DBME::$NOW;
 
     case 'venue':
-      return DBME::$VENUE;
+      return DB::$VENUE;
 
     default:
       return parent::db_type($field);
@@ -233,16 +232,6 @@ class Dt_Regatta extends DBObject {
       $cond->add(new DBCond('boat_role', $role));
     return DBME::getAll(DBME::$RP, $cond);
   }
-}
-
-class Dt_Venue extends DBObject {
-  public $name;
-  public $address;
-  public $city;
-  public $state;
-  public $zipcode;
-
-  public function db_name() { return 'venue'; }
 }
 
 class Dt_Team extends DBObject {
