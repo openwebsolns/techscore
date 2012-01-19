@@ -128,7 +128,7 @@ class Account extends DBObject {
     $cond = null;
     if (!$this->isAdmin()) // regular user
       $cond = new DBCondIn('id', DB::prepGetAll(DB::$SCORER, new DBCond('account', $this), array('regatta')));
-    return DB::getAll(DB::$REGATTA_SUMMARY, $cond);
+    return DB::getAll(DB::$REGATTA, $cond);
   }
 
   /**
@@ -141,7 +141,7 @@ class Account extends DBObject {
     $cond = new DBCond('name', "%qry%", DBCond::LIKE);
     if ($this->status == 0) // regular user
       $cond->add(new DBCondIn('id', DB::prepGetAll(DB::$SCORER, new DBCond('account', $this), array('regatta'))));
-    return DB::getAll(DB::$REGATTA_SUMMARY, $cond);
+    return DB::getAll(DB::$REGATTA, $cond);
   }
 }
 

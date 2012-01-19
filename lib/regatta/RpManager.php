@@ -315,7 +315,7 @@ class RpManager {
     if ($div !== null)
       $cond->add(new DBCond('division', (string)$div));
     
-    return DB::getAll(DB::$REGATTA_SUMMARY, new DBCondIn('id', DB::prepGetAll(DB::$RACE, $cond, array('regatta'))));
+    return DB::getAll(DB::$REGATTA, new DBCondIn('id', DB::prepGetAll(DB::$RACE, $cond, array('regatta'))));
   }
 
   /**
