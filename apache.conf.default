@@ -39,6 +39,7 @@ Options All
 AllowOverride None
 
 DirectoryIndex index.php
+php_value include_path ".:{DIRECTORY}/lib"
 
 # Rewrite rules
 RewriteEngine on
