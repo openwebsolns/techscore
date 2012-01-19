@@ -62,7 +62,7 @@ class DetailsPane extends AbstractPane {
     // Venue
     $venue = $this->REGATTA->venue;
     $reg_form->add(new FItem("Venue:", $r_type = new XSelect("venue")));
-    $r_type->add(new FOption("", ""));
+    $r_type->add(new FOption("", "[Leave blank if not found]"));
     foreach (DB::getVenues() as $v) {
       $r_type->add($opt = new FOption($v->id, $v->name));
       if ($venue !== null && $venue->id == $v->id)
