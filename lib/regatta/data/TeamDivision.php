@@ -25,6 +25,9 @@ class TeamDivision extends DBObject {
   protected $team;
   protected $division;
   public $rank;
+  public $explanation;
+  public $penalty;
+  public $comments;
 
   public function db_name() { return 'dt_team_division'; }
   public function db_type($field) {
@@ -35,6 +38,7 @@ class TeamDivision extends DBObject {
       return parent::db_type($field);
     }
   }
+  protected function db_order() { return array('division'=>true, 'rank'=>true); }
 
   public function &__get($name) {
     switch ($name) {
