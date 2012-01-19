@@ -54,17 +54,17 @@ class CompareHeadToHead extends AbstractUserPane {
     $conds = array();
     if (isset($args['seasons']) && is_array($args['seasons'])) {
       foreach ($args['seasons'] as $s) {
-	if (($season = DBME::parseSeason($s)) !== null)
+	if (($season = Season::parse($s)) !== null)
 	  $conds[] = new DBCond('season', (string)$season);
       }
     }
     else {
       $now = new DateTime();
-      $season = DMBE::getSeason($now);
+      $season = Season::forDate($now);
       $conds[] = new DBCond('season', (string)$season);
       if ($season->season == Season::SPRING) {
 	$now->setDate($now->format('Y') - 1, 10, 1);
-	$season = DBME::getSeason($now);
+	$season = Season::forDate($now);
 	$conds[] = new DBCond('season', (string)$season);
       }
     }

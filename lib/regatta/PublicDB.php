@@ -37,38 +37,6 @@ class DBME extends DBM {
 
     DBM::setConnection($con);
   }
-
-  public static function parseSeason($str) {
-    if (strlen($str) == 0) return null;
-    $s = null;
-    switch (strtolower($str[0])) {
-    case 'f': $s = 'fall'; break;
-    case 'm': $s = 'summer'; break;
-    case 's': $s = 'spring'; break;
-    case 'w': $s = 'winter'; break;
-    default: return null;
-    }
-    $y = substr($str, 1);
-    if (!is_numeric($y)) return null;
-    $y = (int)$y;
-    $y += ($y < 90) ? 2000 : 1900;
-
-    $res = self::getAll(self::$SEASON,
-			new DBBool(array(new DBCond('season', $s),
-					 new DBCond('year(start_date)', $y))));
-
-    if (count($res) == 0)
-      return null;
-    return $res[0];
-  }
-
-  public static function getSeason(DateTime $t) {
-    $res = self::getAll(self::$SEASON, new DBBool(array(new DBCond('start_date', $t, DBCond::LE),
-							new DBCond('end_date',   $t, DBCond::GE))));
-    if (count($res) == 0)
-      return null;
-    return $res[0];
-  }
 }
 
 class Dt_Regatta extends DBObject {
