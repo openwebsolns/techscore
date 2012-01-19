@@ -155,7 +155,7 @@ class TScoresTables {
 	    $scoreTeam       += $finish->score;
 	    $scoreRace[$i-1] += $finish->score;
 
-	    $cell->add($finish->place);
+	    $cell->add($finish->getPlace());
 	    $cell->set('title', $finish->explanation);
 	    $cell->set('align', 'right');
 	  }

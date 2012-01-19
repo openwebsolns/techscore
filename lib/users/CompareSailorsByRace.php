@@ -162,7 +162,7 @@ class CompareSailorsByRace extends AbstractUserPane {
 	  foreach ($sailors as $sailor) {
 	    $finish = $regatta->getFinish($regatta->getRace(Division::get($div), $num),
 					  $reg_teams[$reg_id][$div][$sailor->id]);
-	    $row->add(new XTD(array(), $finish->place));
+	    $row->add(new XTD(array(), $finish->getPlace()));
 	    $scores[$sailor->id] += $finish->score;
 	  }
 	}

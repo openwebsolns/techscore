@@ -1202,6 +1202,15 @@ class Finish extends DBObject {
     }
   }
 
+  /**
+   * Provides for a textual representation of the finish's place
+   *
+   * @return String
+   */
+  public function getPlace() {
+    return ($this->penalty === null) ? $this->score : $this->penalty;
+  }
+
   public function __set($name, $value) {
     if ($name == 'score') {
       if ($value instanceof Score) {

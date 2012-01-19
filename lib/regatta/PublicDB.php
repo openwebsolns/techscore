@@ -20,17 +20,15 @@ class DBME extends DBM {
    */
   public static $TEAM_DIVISION = null;
   public static $REGATTA = null;
-  public static $SCORE = null;
   public static $TEAM = null;
-  public static $NOW = null;
   public static $RP = null;
+  public static $NOW = null;
   public static $ARRAY = array();
   
   // use this method to initialize the different objects as well
   public static function setConnection(MySQLi $con) {
     self::$TEAM_DIVISION = new Dt_Team_Division();
     self::$REGATTA = new Dt_Regatta();
-    self::$SCORE = new Dt_Score();
     self::$TEAM = new Dt_Team();
     self::$NOW = new DateTime();
     self::$RP = new Dt_Rp();
@@ -216,30 +214,6 @@ class Dt_Team extends DBObject {
 			  array('id'));
     foreach (DBME::getAll(DBME::$RP, new DBCondIn('team_division', $q)) as $rp)
       DBME::remove($rp);
-  }
-}
-
-class Dt_Score extends DBObject {
-  protected $team;
-  protected $race;
-
-  public $penalty;
-  public $score;
-  
-  public $explanation;
-
-  public function db_type($field) {
-    if ($field == 'team')
-      return DBME::$TEAM;
-    if ($field == 'race')
-      return DB::$RACE;
-    return parent::db_type($field);
-  }
-  public function db_name() { return 'finish'; }
-  public function &__get($name) {
-    if ($name == 'place')
-      return ($this->penalty === null) ? $this->score : $this->penalty;
-    return parent::__get($name);
   }
 }
 

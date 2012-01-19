@@ -157,7 +157,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
 	    $scoreTeam       += $finish->score;
 	    $scoreRace[$i-1] += $finish->score;
 
-	    $cell->add($finish->place);
+	    $cell->add($finish->getPlace());
 	    $cell->set("title", $finish->explanation);
 	    $cell->set("align", "right");
 	    $cell->set("ts:score", $finish->score);
