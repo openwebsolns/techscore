@@ -1440,19 +1440,14 @@ class Season extends DBObject {
   public function __toString() {
     $v = null;
     switch ($this->season) {
-    case self::FALL:
-      $v = "f";
-      break;
-    case self::WINTER:
-      $v = "w";
-      break;
-    case self::SPRING:
-      $v = "s";
-      break;
+    case self::FALL:   $v = "f"; break;
+    case self::WINTER: $v = "w"; break;
+    case self::SPRING: $v = "s"; break;
+    case self::SUMMER: $v = "m"; break;
     default:
-      $v = "m";
+      $v = "_";
     }
-    return sprintf("$v%s", substr($this->getYear(), 2));
+    return sprintf("$v%s", $this->__get('start_date')->format('y'));
   }
   
   /**

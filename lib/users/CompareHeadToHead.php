@@ -62,7 +62,7 @@ class CompareHeadToHead extends AbstractUserPane {
       $now = new DateTime();
       $season = DMBE::getSeason($now);
       $conds[] = new DBCond('season', (string)$season);
-      if ($season->season == Dt_Season::SPRING) {
+      if ($season->season == Season::SPRING) {
 	$now->setDate($now->format('Y') - 1, 10, 1);
 	$season = DBME::getSeason($now);
 	$conds[] = new DBCond('season', (string)$season);

@@ -72,7 +72,7 @@ class SchoolSummaryMaker {
     require_once('regatta/PublicDB.php');
     DBME::setConnection(DB::connection());
     $num = 0;
-    foreach (DBME::getAll(DBME::$SEASON) as $s) {
+    foreach (DB::getAll(DB::$SEASON) as $s) {
       if (file_exists(sprintf('%s/../../html/schools/%s/%s.html', dirname(__FILE__), $school->id, $s))) {
 	$this->page->addMenu(new XA($s, $s->fullString()));
 	if ($num++ >= 6)

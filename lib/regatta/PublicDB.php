@@ -20,7 +20,6 @@ class DBME extends DBM {
    */
   public static $TEAM_DIVISION = null;
   public static $REGATTA = null;
-  public static $SEASON = null;
   public static $SCORE = null;
   public static $VENUE = null;
   public static $TEAM = null;
@@ -34,7 +33,6 @@ class DBME extends DBM {
   public static function setConnection(MySQLi $con) {
     self::$TEAM_DIVISION = new Dt_Team_Division();
     self::$REGATTA = new Dt_Regatta();
-    self::$SEASON = new Dt_Season();
     self::$SCORE = new Dt_Score();
     self::$VENUE = new Dt_Venue();
     self::$TEAM = new Dt_Team();
@@ -76,53 +74,6 @@ class DBME extends DBM {
     if (count($res) == 0)
       return null;
     return $res[0];
-  }
-}
-
-class Dt_Season extends DBObject {
-  const FALL = 'fall';
-  const WINTER = 'winter';
-  const SPRING = 'spring';
-  const SUMMER = 'summer';
-
-  public $season;
-  protected $start_date;
-  protected $end_date;
-
-  public function db_name() { return 'season'; }
-  public function db_type($field) {
-    switch ($field) {
-    case 'start_date':
-    case 'end_date':
-      return DBME::$NOW;
-    default:
-      return parent::db_type($field);
-    }
-  }
-  protected function db_order() { return array('start_date'=>false); }
-  protected function db_cache() { return true; }
-
-  public function __toString() {
-    switch ($this->season) {
-    case 'fall':   $t = 'f'; break;
-    case 'winter': $t = 'w'; break;
-    case 'spring': $t = 's'; break;
-    case 'summer': $t = 'm'; break;
-    default: $t = '_';
-    }
-    return sprintf('%s%s', $t, $this->__get('start_date')->format('y'));
-  }
-  public function fullString() {
-    return sprintf('%s %s', ucfirst($this->season), $this->start_date->format('Y'));
-  }
-
-  /**
-   * Retrieves all the regattas for this season
-   *
-   * @return Array:Regattas
-   */
-  public function getRegattas() {
-    return DBME::getAll(DBME::$REGATTA, new DBCond('season', (string)$this));
   }
 }
 

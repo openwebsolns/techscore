@@ -119,11 +119,10 @@ class AllAmerican extends AbstractUserPane {
       $this->AA['sailors'] = array();
       Session::s('aa', $this->AA);
 
-      $regattas = array();
-      foreach ($this->AA['report-seasons'] as $season) {
-	$s = Season::parse($season);
-	$regattas = array_merge($regattas, $s->getRegattas());
-      }
+      $seasons = array();
+      foreach ($this->AA['report-seasons'] as $season)
+	$seasons[] = Season::parse($season);
+      $regattas = Season::getRegattasInSeasons($seasons);
       $qual_regattas = array();
 
       $this->PAGE->addContent($p1 = new XPort("Classified regattas"));

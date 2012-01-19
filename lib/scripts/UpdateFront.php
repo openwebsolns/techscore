@@ -25,7 +25,7 @@ class UpdateFront {
     DBME::setConnection(DB::connection());
 
     $success = false;
-    $seasons = DBME::getAll(DBME::$SEASON, new DBCond('start_date', date('Y-m-d'), DBCond::LE));
+    $seasons = DB::getAll(DB::$SEASON, new DBCond('start_date', new DateTime(), DBCond::LE));
     foreach ($seasons as $season) {
       if (($success = $this->fillSeason($season))) {
 	$this->page->addMenu(new XA("/$season", $season->fullString()));
@@ -38,7 +38,7 @@ class UpdateFront {
     }
   }
 
-  private function fillSeason(Dt_Season $season) {
+  private function fillSeason(Season $season) {
     $types = Regatta::getTypes();
 
     $cond = new DBCond('season', (string)$season);
