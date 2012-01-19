@@ -21,10 +21,8 @@ class DBME extends DBM {
   public static $TEAM_DIVISION = null;
   public static $REGATTA = null;
   public static $SCORE = null;
-  public static $VENUE = null;
   public static $TEAM = null;
   public static $RACE = null;
-  public static $SAIL = null;
   public static $NOW = null;
   public static $RP = null;
   public static $ARRAY = array();
@@ -36,7 +34,6 @@ class DBME extends DBM {
     self::$SCORE = new Dt_Score();
     self::$TEAM = new Dt_Team();
     self::$RACE = new Dt_Race();
-    self::$SAIL = new Dt_Sail();
     self::$NOW = new DateTime();
     self::$RP = new Dt_Rp();
 
@@ -325,35 +322,6 @@ class Dt_Race extends DBObject {
 
   public function __toString() {
     return $this->number . $this->division;
-  }
-
-  /**
-   * Returns all the sails in this race
-   *
-   * @return Array:Dt_Sail the sails
-   */
-  public function getSails() {
-    return DBME::getAll(DBME::$SAIL, new DBCond('race', $this->id));
-  }
-}
-
-class Dt_Sail extends DBObject {
-  protected $race;
-  protected $team;
-  public $sail;
-
-  public function db_name() { return 'rotation'; }
-  public function db_type($field) {
-    switch ($field) {
-    case 'race': return DBME::$RACE;
-    case 'team': return DBME::$TEAM;
-    default:
-      return parent::db_type($field);
-    }
-  }
-  protected function db_order() { return array('sail'=>true); }
-  public function __toString() {
-    return $this->sail;
   }
 }
 
