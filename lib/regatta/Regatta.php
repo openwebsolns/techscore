@@ -609,10 +609,6 @@ class Regatta extends DBObject {
    * @var Array attempt to cache finishes, index is 'race-team_id'
    */
   private $finishes = array();
-  /**
-   * @var boolean quick! Do we have finishes?
-   */
-  private $has_finishes = null;
 
   /**
    * Creates a new finish for the given race and team, and returns the
@@ -628,7 +624,6 @@ class Regatta extends DBObject {
     $id = sprintf('%s-%d', (string)$race, $team->id);
     $fin = new Finish(null, $race, $team);
     $this->finishes[$id] = $fin;
-    $this->has_finishes = true;
     return $fin;
   }
 
@@ -710,12 +705,16 @@ class Regatta extends DBObject {
    * @see hasFinishes
    */
   public function hasPenalties(Race $race = null) {
-    $cond = new DBBool(array(new DBCond('penalty', null, DBCond::NE)));
-    if ($race === null)
-      $cond->add(new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('id'))));
-    else
-      $cond->add(new DBCond('race', $race));
-    return DB::getAll(DB::$FINISH, $cond);
+    if ($race === null) {
+      return count(DB::getAll(DB::$RACE,
+			      new DBBool(array(new DBCond('regatta', $this),					       
+					       new DBCondIn('id', DB::prepGetAll(DB::$FINISH,
+										 new DBCond('penalty', null, DBCond::NE),
+										 array('race'))))))) > 0;
+    }
+    return count(DB::getAll(DB::$FINISH,
+			    new DBBool(array(new DBCond('penalty', null, DBCond::NE),
+					     new DBCond('race', $race))))) > 0;
   }
 
   /**
@@ -726,17 +725,12 @@ class Regatta extends DBObject {
    * @return boolean
    */
   public function hasFinishes(Race $race = null) {
-    if ($race === null && $this->has_finishes !== null)
-      return $this->has_finishes;
-
-    if ($race === null)
-      $cond = new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('id')));
-    else
-      $cond = new DBCond('race', $race);
-    $cnt = count(DB::getAll(DB::$FINISH, $cond));
-    if ($race === null)
-      $this->has_finishes = $cnt;
-    return $cnt;
+    if ($race === null) {
+      return count(DB::getAll(DB::$RACE,
+			      new DBBool(array(new DBCond('regatta', $this),
+					       new DBCondIn('id', DB::prepGetAll(DB::$FINISH, null, array('race'))))))) > 0;
+    }
+    return count(DB::getAll(DB::$FINISH, new DBCond('race', $race))) > 0;
   }
 
   /**
@@ -770,7 +764,6 @@ class Regatta extends DBObject {
    */
   protected function deleteFinishes(Race $race) {
     DB::removeAll(DB::$RACE, new DBCond('race', $race));
-    $this->has_finishes = null;
   }
 
   /**

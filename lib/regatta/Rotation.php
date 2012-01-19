@@ -35,11 +35,13 @@ class Rotation {
    * @return boolean has sails or not. Simple, no?
    */
   public function isAssigned(Race $race = null) {
-    if ($race !== null)
-      $cond = new DBCond('race', $race);
-    else
-      $cond = new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta), array('id')));
-    return count(DB::getAll(DB::$SAIL, $cond)) > 0;
+    if ($race === null) {
+      // Curious fact: this version is much faster!
+      return count(DB::getAll(DB::$RACE,
+			      new DBBool(array(new DBCond('regatta', $this->regatta),
+					       new DBCondIn('id', DB::prepGetAll(DB::$SAIL, null, array('race'))))))) > 0;
+    }
+    return count(DB::getAll(DB::$SAIL, new DBCond('race', $race))) > 0;
   }
 
   /**
