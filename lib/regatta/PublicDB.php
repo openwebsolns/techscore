@@ -18,14 +18,12 @@ class DBME extends DBM {
   /**
    * Empty objects to serve as prototypes
    */
-  public static $TEAM_DIVISION = null;
   public static $REGATTA = null;
   public static $TEAM = null;
   public static $RP = null;
   
   // use this method to initialize the different objects as well
   public static function setConnection(MySQLi $con) {
-    self::$TEAM_DIVISION = new Dt_Team_Division();
     self::$REGATTA = new Dt_Regatta();
     self::$TEAM = new Dt_Team();
     self::$RP = new Dt_Rp();
@@ -103,7 +101,7 @@ class Dt_Regatta extends DBObject {
    */
   public function getRanks($div) {
     $q = DBME::prepGetAll(DBME::$TEAM, new DBCond('regatta', $this->id), array('id'));
-    return DBME::getAll(DBME::$TEAM_DIVISION, new DBBool(array(new DBCond('division', $div),
+    return DBME::getAll(DB::$DT_TEAM_DIVISION, new DBBool(array(new DBCond('division', $div),
 							       new DBCondIn('team', $q))));
   }
 
@@ -127,7 +125,7 @@ class Dt_Regatta extends DBObject {
     $cond = new DBBool(array(new DBCondIn('team', $team)));
     if ($division !== null)
       $cond->add(new DBCond('division', $division));
-    $tdiv = DBME::prepGetAll(DBME::$TEAM_DIVISION, $cond, array('id'));
+    $tdiv = DBME::prepGetAll(DB::$DT_TEAM_DIVISION, $cond, array('id'));
 
     $cond = new DBBool(array(new DBCondIn('team_division', $tdiv),
 			     new DBCond('sailor', $sailor->id)));
@@ -168,7 +166,7 @@ class Dt_Team extends DBObject {
    * @return Dt_Team_Division|null the rank
    */
   public function getRank($division) {
-    $r = DBME::getAll(DBME::$TEAM_DIVISION, new DBBool(array(new DBCond('team', $this->id),
+    $r = DBME::getAll(DB::$DT_TEAM_DIVISION, new DBBool(array(new DBCond('team', $this->id),
 							     new DBCond('division', $division))));
     $b;
     if (count($r) == 0) $b = null;
@@ -195,7 +193,7 @@ class Dt_Team extends DBObject {
 	return array();
       return $rank->getRP($role);
     }
-    $q = DBME::prepGetAll(DBME::$TEAM_DIVISION, new DBCond('team', $this->id), array('id'));
+    $q = DBME::prepGetAll(DB::$DT_TEAM_DIVISION, new DBCond('team', $this->id), array('id'));
     return DBME::getAll(DBME::$RP, new DBBool(array(new DBCond('boat_role', $role),
 						    new DBCondIn('team_division', $q))));
   }
@@ -206,7 +204,7 @@ class Dt_Team extends DBObject {
    * @param String $div the division whose RP info to reset
    */
   public function resetRP($div) {
-    $q = DBME::prepGetAll(DBME::$TEAM_DIVISION,
+    $q = DBME::prepGetAll(DB::$DT_TEAM_DIVISION,
 			  new DBBool(array(new DBCond('team', $this->id), new DBCond('division', $div))),
 			  array('id'));
     foreach (DBME::getAll(DBME::$RP, new DBCondIn('team_division', $q)) as $rp)
@@ -226,7 +224,7 @@ class Dt_Rp extends DBObject {
   public function db_type($field) {
     if ($field == 'sailor') return DB::$SAILOR;
     if ($field == 'race_nums') return array();
-    if ($field == 'team_division') return DBME::$TEAM_DIVISION;
+    if ($field == 'team_division') return DB::$DT_TEAM_DIVISION;
     return parent::db_type($field);
   }
   protected function db_order() { return array('race_nums'=>true); }
@@ -258,4 +256,6 @@ class Dt_Team_Division extends DBObject {
 						    new DBCond('team_division', $this->id))));
   }
 }
+
+DB::$DT_TEAM_DIVISION = new Dt_Team_Division();
 ?>
