@@ -42,7 +42,7 @@ class UpdateFront {
     $types = Regatta::getTypes();
 
     $cond = new DBCond('season', (string)$season);
-    $regs = DBME::getAll(DBME::$REGATTA, new DBBool(array(new DBCond('status', 'coming'), $cond)));
+    $regs = DBME::getAll(DB::$DT_REGATTA, new DBBool(array(new DBCond('status', 'coming'), $cond)));
 
     $current_season_is_active = false;
     $row = 0;
@@ -75,7 +75,7 @@ class UpdateFront {
     }
 
     // get finished ones
-    $regs = DBME::getAll(DBME::$REGATTA, new DBBool(array(new DBCond('status', 'coming', DBCond::NE), $cond)));
+    $regs = DBME::getAll(DB::$DT_REGATTA, new DBBool(array(new DBCond('status', 'coming', DBCond::NE), $cond)));
     if (count($regs) > 0) {
       $current_season_is_active = true;
       $this->page->addSection(new XPort("All regattas", array($tab = new XTable()), array('id'=>'past')));

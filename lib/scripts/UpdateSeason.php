@@ -44,7 +44,7 @@ class UpdateSeason {
     require_once('regatta/PublicDB.php');
     DBME::setConnection(DB::connection());
     $weeks = array();
-    $regattas = DBME::getAll(DBME::$REGATTA, new DBCond('season', (string)$season));
+    $regattas = DBME::getAll(DB::$DT_REGATTA, new DBCond('season', (string)$season));
     foreach ($regattas as $reg) {
       $week = $reg->start_time->format('W');
       if (!isset($weeks[$week]))

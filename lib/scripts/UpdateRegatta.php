@@ -251,7 +251,7 @@ class UpdateRegatta {
     }
 
     // Delete from database
-    $r = DBME::get(DBME::$REGATTA, $reg->id);
+    $r = DBME::get(DB::$DT_REGATTA, $reg->id);
     if ($r !== null)
       DBME::remove($r);
   }

@@ -93,9 +93,9 @@ class SchoolSummaryMaker {
     $now = new DateTime();
     $now->setTime(0, 0);
 
-    $q = DBME::prepGetAll(DBME::$TEAM, new DBCond('school', $school->id));
-    $q->fields(array('regatta'), DBME::$TEAM->db_name());
-    $regs = DBME::getAll(DBME::$REGATTA, new DBBool(array(new DBCond('season', $season),
+    $q = DBME::prepGetAll(DB::$DT_TEAM, new DBCond('school', $school->id));
+    $q->fields(array('regatta'), DB::$DT_TEAM->db_name());
+    $regs = DBME::getAll(DB::$DT_REGATTA, new DBBool(array(new DBCond('season', $season),
 							  new DBCondIn('id', $q))));
     $total = count($regs);
     $current = array(); // regattas happening NOW

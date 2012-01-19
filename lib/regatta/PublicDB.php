@@ -17,15 +17,11 @@ require_once('mysqli/DBM.php');
 class DBME extends DBM {
   /**
    * Empty objects to serve as prototypes
-   */
-  public static $REGATTA = null;
-  public static $TEAM = null;
+   */  
   public static $RP = null;
   
   // use this method to initialize the different objects as well
   public static function setConnection(MySQLi $con) {
-    self::$REGATTA = new Dt_Regatta();
-    self::$TEAM = new Dt_Team();
     self::$RP = new Dt_Rp();
 
     DBM::setConnection($con);
@@ -86,11 +82,11 @@ class Dt_Regatta extends DBObject {
    * Deletes all data about my teams
    */
   public function deleteTeams() {
-    DBME::removeAll(DBME::$TEAM, new DBCond('regatta', $this->id));
+    DBME::removeAll(DB::$DT_TEAM, new DBCond('regatta', $this->id));
   }
 
   public function getTeams() {
-    return DBME::getAll(DBME::$TEAM, new DBCond('regatta', $this->id));
+    return DBME::getAll(DB::$DT_TEAM, new DBCond('regatta', $this->id));
   }
 
   /**
@@ -100,7 +96,7 @@ class Dt_Regatta extends DBObject {
    * @return Array:Dt_Team_Division
    */
   public function getRanks($div) {
-    $q = DBME::prepGetAll(DBME::$TEAM, new DBCond('regatta', $this->id), array('id'));
+    $q = DBME::prepGetAll(DB::$DT_TEAM, new DBCond('regatta', $this->id), array('id'));
     return DBME::getAll(DB::$DT_TEAM_DIVISION, new DBBool(array(new DBCond('division', $div),
 							       new DBCondIn('team', $q))));
   }
@@ -120,7 +116,7 @@ class Dt_Regatta extends DBObject {
   // ------------------------------------------------------------
 
   public function getParticipation(Sailor $sailor, $division = null, $role = null) {
-    $team = DBME::prepGetAll(DBME::$TEAM, new DBCond('regatta', $this->id), array('id'));
+    $team = DBME::prepGetAll(DB::$DT_TEAM, new DBCond('regatta', $this->id), array('id'));
     
     $cond = new DBBool(array(new DBCondIn('team', $team)));
     if ($division !== null)
@@ -145,7 +141,7 @@ class Dt_Team extends DBObject {
   public function db_type($field) {
     switch ($field) {
     case 'regatta':
-      return DBME::$REGATTA;
+      return DB::$DT_REGATTA;
     case 'school':
       return DB::$SCHOOL;
     default:
@@ -246,7 +242,7 @@ class Dt_Team_Division extends DBObject {
 
   public function db_name() { return 'dt_team_division'; }
   public function db_type($field) {
-    if ($field == 'team') return DBME::$TEAM;
+    if ($field == 'team') return DB::$DT_TEAM;
     return parent::db_type($field);
   }
   protected function db_order() { return array('division'=>true, 'rank'=>true); }
@@ -258,4 +254,6 @@ class Dt_Team_Division extends DBObject {
 }
 
 DB::$DT_TEAM_DIVISION = new Dt_Team_Division();
+DB::$DT_REGATTA = new Dt_Regatta();
+DB::$DT_TEAM = new Dt_Team();
 ?>

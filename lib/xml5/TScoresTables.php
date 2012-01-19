@@ -492,7 +492,7 @@ if (isset($argv) && basename(__FILE__) == basename($argv[0])) {
   require_once('regatta/PublicDB.php');
   DBME::setConnection(DB::connection());
 
-  $t = new TScoresTables(DBME::get(DBME::$REGATTA, 6));
+  $t = new TScoresTables(DBME::get(DB::$DT_REGATTA, 6));
   $r = $t->getFullTable();
   file_put_contents('/tmp/test.html', $r->toXML());
 

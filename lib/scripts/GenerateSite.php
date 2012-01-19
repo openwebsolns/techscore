@@ -35,7 +35,7 @@ class GenerateSite {
       // Go through all the regattas
       self::log("* Generating regattas\n\n");
       require_once('UpdateRegatta.php');
-      foreach (DBME::getAll(DBME::$REGATTA) as $reg) {
+      foreach (DBME::getAll(DB::$DT_REGATTA) as $reg) {
 	UpdateRegatta::run(DB::getRegatta($reg->id), UpdateRequest::ACTIVITY_SCORE);
 	self::log(sprintf("  - (%4d) %s\n", $reg->id, $reg->name));
       }

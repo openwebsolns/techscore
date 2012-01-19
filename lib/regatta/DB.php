@@ -51,6 +51,8 @@ class DB extends DBM {
   public static $UPDATE_LOG_SEASON = null; // UpdateRequest.php
 
   // Public API: PublicDB.php
+  public static $DT_REGATTA = null;
+  public static $DT_TEAM = null;
   public static $DT_TEAM_DIVISION = null;
 
   public static function setConnectionParams($host, $user, $pass, $db) {
