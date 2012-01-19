@@ -54,6 +54,7 @@ class DB extends DBM {
   public static $DT_REGATTA = null;
   public static $DT_TEAM = null;
   public static $DT_TEAM_DIVISION = null;
+  public static $DT_RP = null;
 
   public static function setConnectionParams($host, $user, $pass, $db) {
     // Template objects serialization

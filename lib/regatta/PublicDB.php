@@ -15,15 +15,8 @@ require_once('mysqli/DBM.php');
  *
  */
 class DBME extends DBM {
-  /**
-   * Empty objects to serve as prototypes
-   */  
-  public static $RP = null;
-  
   // use this method to initialize the different objects as well
   public static function setConnection(MySQLi $con) {
-    self::$RP = new Dt_Rp();
-
     DBM::setConnection($con);
   }
 }
@@ -127,7 +120,7 @@ class Dt_Regatta extends DBObject {
 			     new DBCond('sailor', $sailor->id)));
     if ($role !== null)
       $cond->add(new DBCond('boat_role', $role));
-    return DBME::getAll(DBME::$RP, $cond);
+    return DBME::getAll(DB::$DT_RP, $cond);
   }
 }
 
@@ -190,7 +183,7 @@ class Dt_Team extends DBObject {
       return $rank->getRP($role);
     }
     $q = DBME::prepGetAll(DB::$DT_TEAM_DIVISION, new DBCond('team', $this->id), array('id'));
-    return DBME::getAll(DBME::$RP, new DBBool(array(new DBCond('boat_role', $role),
+    return DBME::getAll(DB::$DT_RP, new DBBool(array(new DBCond('boat_role', $role),
 						    new DBCondIn('team_division', $q))));
   }
 
@@ -203,7 +196,7 @@ class Dt_Team extends DBObject {
     $q = DBME::prepGetAll(DB::$DT_TEAM_DIVISION,
 			  new DBBool(array(new DBCond('team', $this->id), new DBCond('division', $div))),
 			  array('id'));
-    foreach (DBME::getAll(DBME::$RP, new DBCondIn('team_division', $q)) as $rp)
+    foreach (DBME::getAll(DB::$DT_RP, new DBCondIn('team_division', $q)) as $rp)
       DBME::remove($rp);
   }
 }
@@ -248,12 +241,13 @@ class Dt_Team_Division extends DBObject {
   protected function db_order() { return array('division'=>true, 'rank'=>true); }
 
   public function getRP($role = 'skipper') {
-    return DBME::getAll(DBME::$RP, new DBBool(array(new DBCond('boat_role', $role),
+    return DBME::getAll(DB::$DT_RP, new DBBool(array(new DBCond('boat_role', $role),
 						    new DBCond('team_division', $this->id))));
   }
 }
 
-DB::$DT_TEAM_DIVISION = new Dt_Team_Division();
 DB::$DT_REGATTA = new Dt_Regatta();
 DB::$DT_TEAM = new Dt_Team();
+DB::$DT_TEAM_DIVISION = new Dt_Team_Division();
+DB::$DT_RP = new Dt_Rp();
 ?>
