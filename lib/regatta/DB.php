@@ -56,6 +56,9 @@ class DB extends DBM {
   public static $DT_TEAM_DIVISION = null;
   public static $DT_RP = null;
 
+  // The validation engine
+  public static $V = null;
+
   public static function setConnectionParams($host, $user, $pass, $db) {
     // Template objects serialization
     self::$CONFERENCE = new Conference();
@@ -82,6 +85,9 @@ class DB extends DBM {
     self::$NOW = new DateTime();
 
     DBM::setConnectionParams($host, $user, $pass, $db);
+
+    require_once('regatta/TSSoter.php');
+    DB::$V = new TSSoter();
   }
 
   /**
