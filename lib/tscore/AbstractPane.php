@@ -159,8 +159,25 @@ abstract class AbstractPane {
    *
    * @param Array $args the parameters to process
    * @return Array parameters to pass to the next page
+   * @throws SoterException
    */
   abstract public function process(Array $args);
+
+  /**
+   * Wrapper around process method to be used by web clients. Wraps
+   * the SoterExceptions as announcements.
+   *
+   * @param Array $args the parameters to process
+   * @return Array parameters to pass to the next page
+   */
+  final public function processPOST(Array $args) {
+    try {
+      return $this->process($args);
+    } catch (SoterException $e) {
+      Session::pa(new PA($e->getMessage(), PA::E));
+      return array();
+    }
+  }
 
   /**
    * Creates a new Form HTML element using the standard URL for this
