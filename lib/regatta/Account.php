@@ -96,6 +96,21 @@ class Account extends DBObject {
   }
 
   /**
+   * Determines whether this account has jurisdiction over the given
+   * school.
+   *
+   * @return boolean true if the school is in the list
+   */
+  public function hasSchool(School $school) {
+    if ($this->isAdmin())
+      return true;
+    $res = DB::getAll(DB::$ACCOUNT_SCHOOL, new DBBool(array(new DBCond('account', $this), new DBCond('school', $school))));
+    $r = (count($res) > 0);
+    unset($res);
+    return $r;
+  }
+
+  /**
    * Determines whether the given regatta is in this user's scoring
    * jurisdiction
    *

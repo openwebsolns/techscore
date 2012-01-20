@@ -33,7 +33,7 @@ class DetailsPane extends AbstractPane {
     $reg_form->add(new FItem("Name:",
 			     new XTextInput("reg_name",
 					    stripslashes($value),
-					    array("maxlength"=>40,
+					    array("maxlength"=>35,
 						  "size"     =>20))));
     
     // Date
@@ -173,13 +173,16 @@ class DetailsPane extends AbstractPane {
     // ------------------------------------------------------------
     // Details
     if ( isset($args['edit_reg']) ) {
-
+      $edited = false;
       // Type
       if (isset($args['type'])) {
-	// this may throw an error for two reasons: illegal type or
-	// invalid nick name
+	// this may throw an error for two reasons: illegal type or invalid nick name
 	try {
-	  $this->REGATTA->setType($args['type']);
+	  $type = DB::$V->reqKey($args, 'type', Regatta::getTypes(), "Invalid type specified.");
+	  if ($type != $this->REGATTA->type) {
+	    $this->REGATTA->setType($args['type']);
+	    $edited = true;
+	  }
 	}
 	catch (InvalidArgumentException $e) {
 	  Session::pa(new PA("Unable to change the type of regatta. Either an invalid type was specified, or more likely you attempted to activate a regatta that is under the same name as another already-activated regatta for the current season. Before you can do that, please make sure that the other regatta with the same name as this one is removed or de-activated (made personal) before proceeding.", PA::I));
@@ -188,90 +191,111 @@ class DetailsPane extends AbstractPane {
       }
 
       // Name
-      if (isset($args['reg_name']) && strlen(trim($args['reg_name'])) > 0 &&
-	  ($args['reg_name'] != $this->REGATTA->name)) {
-	$this->REGATTA->name = $args['reg_name'];
+      if (isset($args['reg_name'])) {
+	$name = DB::$V->reqString($args, 'reg_name', 1, 36, "Invalid name provided. Must be less than 35 characters.");
+	if ($name !== $this->REGATTA->name) {
+	  $this->REGATTA->name = $name;
+	  $edited = true;
+	}
       }
 
       // Start time
-      if (isset($args['sdate']) &&
-	  isset($args['stime']) &&
-	  $sdate = new DateTime($args['sdate'] . ' ' . $args['stime'])) {
-	$this->REGATTA->start_time = $sdate;
+      if (isset($args['sdate']) && isset($args['stime'])) {
+	try {
+	  $sdate = new DateTime($args['sdate'] . ' ' . $args['stime']);
+	  if ($sdate != $this->REGATTA->start_time) {
+	    $this->REGATTA->start_time = $sdate;
+	    $this->edited = true;
+	  }
+	} catch (Exception $e) {
+	  throw new SoterException("Invalid starting date and/or time.");
+	}
       }
 
       // Duration
-      if (isset($args['duration']) &&
-	  is_numeric($args['duration']) &&
-	  $args['duration'] > 0) {
-	$duration = (int)($args['duration']);
-	$edate = new DateTime(sprintf("%s + %d days", $args['sdate'], $duration-1));
-	$edate->setTime(0, 0);
-	$this->REGATTA->end_date = $edate;
+      if (isset($args['duration'])) {
+	$duration = DB::$V->reqInt($args, 'duration', 1, 30, "Invalid duration specified.");
+	if ($duration != $this->REGATTA->getDuration()) {
+	  $edate = clone($this->REGATTA->start_time);
+	  $edate->add(new DatePeriod(sprintf('P%dDT0H', ($duration - 1))));
+	  $edate->setTime(0, 0);
+	  $this->REGATTA->end_date = $edate;
+	  $edited = true;
+	}
       }
 
-      // Venue
-      if (isset($args['venue']))
-	$this->REGATTA->venue = DB::getVenue($args['venue']);
-
-      // Scoring
-      if (isset($args['scoring']) &&
-	  in_array($args['scoring'], array_keys(Regatta::getScoringOptions()))) {
-	$this->REGATTA->scoring = $args['scoring'];
+      if (isset($args['venue'])) {
+	$venue = DB::$V->incID($args, 'venue', DB::$VENUE, $this->REGATTA->venue);
+	if (($venue !== null && $this->REGATTA->venue == null) ||
+	    ($venue === null && $this->REGATTA->venue != null) ||
+	    $venue->id != $this->REGATTA->venue->id) {
+	  $this->REGATTA->venue = $venue;
+	  $edited = true;
+	}
       }
 
-      // Participation
-      if (isset($args['participant']) &&
-	  in_array($args['participant'], array_keys(Regatta::getParticipantOptions()))) {
-	$this->REGATTA->participant = $args['participant'];
-	// affect RP accordingly
-	if ($args['participant'] == Regatta::PARTICIPANT_WOMEN) {
-	  $rp = $this->REGATTA->getRpManager();
-	  if ($rp->hasGender(Sailor::MALE)) {
-	    $rp->removeGender(Sailor::MALE);
-	    Session::pa(new PA("Removed sailors from RP.", PA::I));
+      if (isset($args['scoring'])) {
+	$scoring = DB::$V->reqKey($args, 'scoring', Regatta::getScoringOptions(), $this->REGATTA->scoring);
+	if ($scoring != $this->REGATTA->scoring) {
+	  $this->REGATTA->scoring = $scoring;
+	  $edited = true;
+	}
+      }
+
+      if (isset($args['participant'])) {
+	$participant = DB::$V->reqKey($args, 'participant', Regatta::getParticipantOptions(), $this->REGATTA->participant);
+	if ($participant != $this->REGATTA->participant) {
+	  $this->REGATTA->participant = $participant;
+	  // affect RP accordingly
+	  if ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) {
+	    $rp = $this->REGATTA->getRpManager();
+	    if ($rp->hasGender(Sailor::MALE)) {
+	      $rp->removeGender(Sailor::MALE);
+	      Session::pa(new PA("Removed sailors from RP.", PA::I));
+	    }
 	  }
+	  $edited = true;
 	}
       }
 
       // Host(s): go through the list, ascertaining the validity. Once
       // we know we have at least one valid host for the regatta,
       // reset the hosts, and add each school, one at a time
-      if (isset($args['host']) && is_array($args['host'])) {
+      if (isset($args['host'])) {
 	$hosts = array();
-	$schools = $this->USER->getSchools();
-	foreach ($args['host'] as $id) {
+	foreach (DB::$V->incList($args, 'host') as $id) {
 	  $school = DB::getSchool($id);
-	  if ($school !== null && isset($schools[$school->id]))
+	  if ($school !== null && $this->USER->hasSchool($school))
 	    $hosts[] = $school;
 	}
 	if (count($hosts) == 0)
-	  Session::pa(new PA("There must be at least one host for each regatta. Left as is.", PA::I));
-	else {
-	  $this->REGATTA->resetHosts();
-	  foreach ($hosts as $school)
-	    $this->REGATTA->addHost($school);
-	}
+	  throw new SoterException("There must be at least one host for each regatta.");
+	$this->REGATTA->resetHosts();
+	foreach ($hosts as $school)
+	  $this->REGATTA->addHost($school);
+	$edited = true;
       }
 
-      // DB::set($this->REGATTA);
-      Session::pa(new PA("Edited regatta details."));
-      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DETAILS);
+      if ($edited) {
+	DB::set($this->REGATTA);
+	Session::pa(new PA("Edited regatta details."));
+	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DETAILS);
+      }
     }
 
     // ------------------------------------------------------------
     // Finalize
     if (isset($args['finalize'])) {
-      if (!$this->REGATTA->hasFinishes()) {
-	Session::pa(new PA("You cannot finalize a project with no finishes. To delete the regatta, please mark it as \"personal\".", PA::E));
-      }
-      elseif (isset($args['approve'])) {
-	$this->REGATTA->finalized = new DateTime();
-	Session::pa(new PA("Regatta has been finalized."));
-	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DETAILS);
-      }
-      else
-	Session::pa(new PA("Please check the box to finalize.", PA::E));
+      if (!$this->REGATTA->hasFinishes())
+	throw new SoterException("You cannot finalize a project with no finishes. To delete the regatta, please mark it as \"personal\".");
+
+      if (!isset($args['approve']))
+	throw new SoterException("Please check the box to finalize.");
+      
+      $this->REGATTA->finalized = new DateTime();
+      DB::set($this->REGATTA);
+      Session::pa(new PA("Regatta has been finalized."));
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DETAILS);
     }
   }
 }

@@ -88,6 +88,7 @@ class DB extends DBM {
 
     require_once('regatta/TSSoter.php');
     DB::$V = new TSSoter();
+    DB::$V->setDBM('DB');
   }
 
   /**
