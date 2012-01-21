@@ -175,14 +175,11 @@ class DetailsPane extends AbstractPane {
     if ( isset($args['edit_reg']) ) {
       $edited = false;
       // Type
-      if (isset($args['type'])) {
+      if (DB::$V->hasKey($V, $args, 'type', Regatta::getTypes()) && $V != $this->REGATTA->type) {
 	// this may throw an error for two reasons: illegal type or invalid nick name
 	try {
-	  $type = DB::$V->reqKey($args, 'type', Regatta::getTypes(), "Invalid type specified.");
-	  if ($type != $this->REGATTA->type) {
-	    $this->REGATTA->setType($args['type']);
-	    $edited = true;
-	  }
+	  $this->REGATTA->setType($args['type']);
+	  $edited = true;
 	}
 	catch (InvalidArgumentException $e) {
 	  Session::pa(new PA("Unable to change the type of regatta. Either an invalid type was specified, or more likely you attempted to activate a regatta that is under the same name as another already-activated regatta for the current season. Before you can do that, please make sure that the other regatta with the same name as this one is removed or de-activated (made personal) before proceeding.", PA::I));
@@ -191,12 +188,9 @@ class DetailsPane extends AbstractPane {
       }
 
       // Name
-      if (isset($args['reg_name'])) {
-	$name = DB::$V->reqString($args, 'reg_name', 1, 36, "Invalid name provided. Must be less than 35 characters.");
-	if ($name !== $this->REGATTA->name) {
-	  $this->REGATTA->name = $name;
-	  $edited = true;
-	}
+      if (DB::$V->hasString($V, $args, 'reg_name', 1, 36) && $V !== $this->REGATTA->name) {
+	$this->REGATTA->name = $V;
+	$edited = true;
       }
 
       // Start time
@@ -213,57 +207,46 @@ class DetailsPane extends AbstractPane {
       }
 
       // Duration
-      if (isset($args['duration'])) {
-	$duration = DB::$V->reqInt($args, 'duration', 1, 30, "Invalid duration specified.");
-	if ($duration != $this->REGATTA->getDuration()) {
-	  $edate = clone($this->REGATTA->start_time);
-	  $edate->add(new DatePeriod(sprintf('P%dDT0H', ($duration - 1))));
-	  $edate->setTime(0, 0);
-	  $this->REGATTA->end_date = $edate;
-	  $edited = true;
-	}
+      if (DB::$V->hasInt($V, $args, 'duration', 1, 30) && $V != $this->REGATTA->getDuration()) {
+	$edate = clone($this->REGATTA->start_time);
+	$edate->add(new DateInterval(sprintf('P%dDT0H', ($V - 1))));
+	$edate->setTime(0, 0);
+	$this->REGATTA->end_date = $edate;
+	$edited = true;
       }
 
-      if (isset($args['venue'])) {
-	$venue = DB::$V->incID($args, 'venue', DB::$VENUE, $this->REGATTA->venue);
-	if (($venue !== null && $this->REGATTA->venue == null) ||
-	    ($venue === null && $this->REGATTA->venue != null) ||
-	    $venue->id != $this->REGATTA->venue->id) {
-	  $this->REGATTA->venue = $venue;
-	  $edited = true;
-	}
+      if (DB::$V->hasID($V, $args, 'venue', DB::$VENUE) &&
+	  (($V !== null && $this->REGATTA->venue == null) ||
+	   ($V === null && $this->REGATTA->venue != null) ||
+	   $V->id != $this->REGATTA->venue->id)) {
+	$this->REGATTA->venue = $V;
+	$edited = true;
       }
 
-      if (isset($args['scoring'])) {
-	$scoring = DB::$V->reqKey($args, 'scoring', Regatta::getScoringOptions(), $this->REGATTA->scoring);
-	if ($scoring != $this->REGATTA->scoring) {
-	  $this->REGATTA->scoring = $scoring;
-	  $edited = true;
-	}
+      if (DB::$V->hasKey($V, $args, 'scoring', Regatta::getScoringOptions()) && $V != $this->REGATTA->scoring) {
+	$this->REGATTA->scoring = $V;
+	$edited = true;
       }
 
-      if (isset($args['participant'])) {
-	$participant = DB::$V->reqKey($args, 'participant', Regatta::getParticipantOptions(), $this->REGATTA->participant);
-	if ($participant != $this->REGATTA->participant) {
-	  $this->REGATTA->participant = $participant;
-	  // affect RP accordingly
-	  if ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) {
-	    $rp = $this->REGATTA->getRpManager();
-	    if ($rp->hasGender(Sailor::MALE)) {
-	      $rp->removeGender(Sailor::MALE);
-	      Session::pa(new PA("Removed sailors from RP.", PA::I));
-	    }
+      if (DB::$V->hasKey($V, $args, 'scoring', Regatta::getParticipantOptions()) && $V != $this->REGATTA->participant) {
+	$this->REGATTA->participant = $V;
+	// affect RP accordingly
+	if ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) {
+	  $rp = $this->REGATTA->getRpManager();
+	  if ($rp->hasGender(Sailor::MALE)) {
+	    $rp->removeGender(Sailor::MALE);
+	    Session::pa(new PA("Removed sailors from RP.", PA::I));
 	  }
-	  $edited = true;
 	}
+	$edited = true;
       }
 
       // Host(s): go through the list, ascertaining the validity. Once
       // we know we have at least one valid host for the regatta,
       // reset the hosts, and add each school, one at a time
-      if (isset($args['host'])) {
+      if (DB::$V->hasList($V, $args, 'host')) {
 	$hosts = array();
-	foreach (DB::$V->incList($args, 'host') as $id) {
+	foreach ($V as $id) {
 	  $school = DB::getSchool($id);
 	  if ($school !== null && $this->USER->hasSchool($school))
 	    $hosts[] = $school;
