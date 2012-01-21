@@ -187,7 +187,7 @@ class Regatta extends DBObject {
    * @return String the summary
    */
   public function getSummary(DateTime $day) {
-    $res = DB::getAll(DB::$DAILY_SUMMARY, new DBBool(array(new DBCond('regatta', $this->id), new DBCond('summary_date', $day))));
+    $res = DB::getAll(DB::$DAILY_SUMMARY, new DBBool(array(new DBCond('regatta', $this->id), new DBCond('summary_date', $day->format('Y-m-d')))));
     $r = (count($res) == 0) ? '' : $res[0]->summary;
     unset($res);
     return $r;
@@ -201,7 +201,7 @@ class Regatta extends DBObject {
    */
   public function setSummary(DateTime $day, $comment) {
     // Enforce uniqueness
-    $res = DB::getAll(DB::$DAILY_SUMMARY, new DBBool(array(new DBCond('regatta', $this->id), new DBCond('summary_date', $day))));
+    $res = DB::getAll(DB::$DAILY_SUMMARY, new DBBool(array(new DBCond('regatta', $this->id), new DBCond('summary_date', $day->format('Y-m-d')))));
     if (count($res) > 0)
       $cur = $res[0];
     else {
