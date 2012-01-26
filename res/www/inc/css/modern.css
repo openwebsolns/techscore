@@ -91,10 +91,10 @@ tr.disabled {background:#ddd;color:#555;}
 .inline-list {list-style-type:none;display:inline-block;zoom:1;*display:inline;margin:0;padding:0;}
 
 /* Navigation links */
-.navlinks {
+.page-nav {
     margin-top: 0.5em;
 }
-.navlinks a {
+.page-nav a {
     display: inline-block;
     zoom: 1;
     *display: inline;
@@ -107,10 +107,19 @@ tr.disabled {background:#ddd;color:#555;}
     border-left: 1px solid #ccc;
 }
 
-.navlinks a.current {
+.page-nav a.current {
     background: #002d62;
     font-weight: bold;
     margin: 0 1em;
+}
+
+.page-nav form {
+    display: inline-block;
+    font-size: 95%;
+    margin-left: 1em;
+}
+.page-nav input {
+    padding: 0;
 }
 
 #search  {

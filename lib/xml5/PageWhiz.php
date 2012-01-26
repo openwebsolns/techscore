@@ -50,45 +50,12 @@ class PageWhiz {
 
   
   public function getPages($var = 'r', Array $get = array()) {
-    if ($this->num_pages < 2)
-      return "";
-
-    $div = new XDiv(array('class'=>'navlinks'));
-    $current = DB::$V->incInt($get, $var, 1, $this->num_pages + 1, 1);
-    // always display the first five, if possible
-    for ($i = 1; $i < $current && $i < 5; $i++) {
-      $this->args[$var] = $i;
-      $div->add($l = new XA(sprintf("%s?%s", $this->base, http_build_query($this->args)), $i));
-      if ($i == $current)
-	$l->set("class", "current");
-    }
-    // also print the two before this one
-    if ($i < $current - 2)
-      $i = $current - 2;
-
-    for (; $i < $current; $i++) {
-      $this->args[$var] = $i;
-      $div->add($l = new XA(sprintf("%s?%s", $this->base, http_build_query($this->args)), $i));
-    }
-
-    // also print this one
-    $this->args[$var] = $i;
-    $div->add(new XA(sprintf("%s?%s", $this->base, http_build_query($this->args)), $i));
-    $div->add(new XText(" "));
-    $i++;
-    // also print the two after this one
-    for (; $i < $current + 3 && $i < $this->num_pages; $i++) {
-      $this->args[$var] = $i;
-      $div->add($l = new XA(sprintf("%s?%s", $this->base, http_build_query($this->args)), $i));
-      if ($i == $current)
-	$l->set("class", "current");
-    }
-    // also print the last one
-    if ($i <= $this->num_pages) {
-      $this->args[$var] = $i;
-      $div->add(new XA(sprintf("%s?%s", $this->base, http_build_query($this->args)), $i));
-    }
-    return $div;
+    require_once('xml5/LinksDiv.php');
+    return new LinksDiv($this->num_pages,
+			DB::$V->incInt($get, $var, 1, $this->num_pages + 1, 1),
+			$this->base,
+			$this->args,
+			$var);
   }
 
   /**
