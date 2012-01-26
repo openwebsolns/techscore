@@ -59,7 +59,7 @@ class PendingAccountsPane extends AbstractAdminUserPane {
       $row = 0;
       for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < $count; $i++) {
 	$acc = $list[$i];
-	$tab->addRow(array(new XCheckboxInput('accounts[]', $acc->d, array('id'=>$acc->id)),
+	$tab->addRow(array(new XCheckboxInput('accounts[]', $acc->id, array('id'=>$acc->id)),
 			   new XLabel($acc->id, $acc->getName()),
 			   new XLabel($acc->id, new XA(sprintf("mailto:%s", $acc->id), $acc->id)),
 			   new XLabel($acc->id, $acc->school->nick_name),
