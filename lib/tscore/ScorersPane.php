@@ -63,7 +63,6 @@ class ScorersPane extends AbstractPane {
       $chosen_conf = $this->USER->school->conference;
     }
       
-
     $confs = array();
     foreach (DB::getConferences() as $conf)
       $confs[$conf->id] = $conf;

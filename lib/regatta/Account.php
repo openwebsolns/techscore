@@ -153,9 +153,11 @@ class Account extends DBObject {
    * @return Array:Regatta the regattas
    */
   public function searchRegattas($qry) {
-    $cond = new DBCond('name', "%qry%", DBCond::LIKE);
-    if ($this->status == 0) // regular user
-      $cond->add(new DBCondIn('id', DB::prepGetAll(DB::$SCORER, new DBCond('account', $this), array('regatta'))));
+    require_once('regatta/Regatta.php');
+    $cond = new DBCond('name', "%$qry%", DBCond::LIKE);
+    if (!$this->isAdmin()) // regular user
+      $cond = new DBBool(array($cond,
+			       new DBCondIn('id', DB::prepGetAll(DB::$SCORER, new DBCond('account', $this), array('regatta')))));
     return DB::getAll(DB::$REGATTA, $cond);
   }
 }

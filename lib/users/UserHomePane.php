@@ -58,17 +58,13 @@ class UserHomePane extends AbstractUserPane {
     $mes = null;
     $regattas = array();
     $num_regattas = 0;
-    if (isset($_GET['q'])) {
-      $qry = trim($_GET['q']);
-      if (strlen($qry) == 0)
-	$mes = "No search query given.";
+    DB::$V->hasString($qry, $_GET, 'q', 1, 256);
+    if ($qry !== null) {
       if (strlen($qry) < 3)
 	$mes = "Search string is too short.";
       else {
 	$regs = $this->USER->searchRegattas($qry);
 	$num_regattas = count($regs);
-	if ($num_regattas == 0)
-	  $mes = "No results found.";
 	if ($startint > 0 && $startint >= $num_regattas)
 	  WebServer::go('/?q=' . $qry);
       }
@@ -77,29 +73,17 @@ class UserHomePane extends AbstractUserPane {
       $regs = $this->USER->getRegattas();
       $num_regattas = count($regs);
     }
-    // Narrow down the list
-    for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < $num_regattas; $i++)
-      $regattas[] = $regs[$i];
-    
+
     $this->PAGE->addContent($p = new XPort("My Regattas"));
 
-    // Add search form, if necessary
-    if ($num_regattas > self::NUM_PER_PAGE * 3 || $qry !== null) {
-      $p->add($f = new XForm('/', XForm::GET));
-      $f->add($pa = new XP(array('id'=>'search', 'title'=>"Enter part or all of the name"),
-			   array("Search your regattas: ",
-				 new XTextInput('q', $qry, array('size'=>60)),
-				 new XSubmitInput('go', "Go"))));
-      if ($qry !== null) {
-	$pa->add(new XText(" "));
-	$pa->add(new XA('/', "Cancel"));
-      }
-      if ($mes !== null)
-	$f->add(new XP(array('class'=>'warning', 'style'=>'padding:0.5em;'), $mes));
-    }
+    // Offer pagination awesomeness
+    require_once('xml5/PageWhiz.php');
+    $whiz = new PageWhiz($num_regattas, self::NUM_PER_PAGE, 'home', $_GET);
+    $p->add($whiz->getSearchForm($qry, 'q', "No regattas match your request.", "Search your regattas: "));
+    $p->add($ldiv = $whiz->getPages('r', $_GET));
 
     // Create table of regattas, if applicable
-    if (count($regattas) > 0) {
+    if ($num_regattas > 0) {
       $p->add(new XTable(array('style'=>'width:100%'),
 			 array(new XTHead(array(),
 					  array(new XTR(array(),
@@ -111,7 +95,8 @@ class UserHomePane extends AbstractUserPane {
 			       $tab = new XTBody())));
       $row = 0;
       $now = new DateTime('1 day ago');
-      foreach ($regattas as $reg) {
+      for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < $num_regattas; $i++) {
+	$reg = $regs[$i];
 	$link = new XA("score/" . $reg->id, $reg->name);
 	$finalized = '--';
 	if ($reg->finalized !== null)
@@ -127,18 +112,8 @@ class UserHomePane extends AbstractUserPane {
 				new XTD(array(), ucfirst($reg->type)),
 				new XTD(array(), $finalized))));
       }
-      $last = ceil($num_regattas / self::NUM_PER_PAGE);
-      if ($last > 1) {
-	require_once('xml5/PageDiv.php');
-	$suf = ($qry !== null) ? '?q='.$qry : '';
-	$p->add(new PageDiv($last, $pageset, 'home', $suf));
-      }
     }
-    elseif ($qry === null) {
-      $p->add(new XP(array(),
-		     array("You have no regattas. Go ",
-			   new XA("create", "create one"), "!")));
-    }
+    $p->add($ldiv);
   }
 
   /**
