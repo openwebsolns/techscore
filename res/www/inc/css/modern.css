@@ -93,6 +93,7 @@ tr.disabled {background:#ddd;color:#555;}
 /* Navigation links */
 .page-nav {
     margin-top: 0.5em;
+    padding: 0;
 }
 .page-nav a {
     display: inline-block;
@@ -110,13 +111,16 @@ tr.disabled {background:#ddd;color:#555;}
 .page-nav a.current {
     background: #002d62;
     font-weight: bold;
-    margin: 0 1em;
 }
 
 .page-nav form {
     display: inline-block;
     font-size: 95%;
     margin-left: 1em;
+    padding: 0;
+}
+.page-nav p {
+    margin: 0;
 }
 .page-nav input {
     padding: 0;

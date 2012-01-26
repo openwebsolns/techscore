@@ -28,12 +28,13 @@ class Update404 {
     require_once('xml5/TPublicPage.php');
     $this->page = new TPublicPage('404: School page not found');
 
-    // SETUP navigation
-    $season = Season::forDate(DB::$NOW);
+    // SETUP navigation, get latest season
+    $seasons = DB::getAll(DB::$SEASON, new DBCond('start_date', DB::$NOW, DBCond::LE));
+    $season = $seasons[0];
+
     $this->page->addNavigation(new XA('/', "Home", array('class'=>'nav')));
     $this->page->addMenu(new XA('/schools', "Schools"));
-    $this->page->addMenu(new XA(sprintf('/%s', $season), $season->fullString()));
-
+    $this->page->addMenu(new XA(sprintf('/%s', $season->id), $season->fullString()));
     $this->page->addSection($p = new XPort("404: School page overboard!"));
     $p->add(new XP(array(), "We're sorry, but the page you are requesting, or the school you seek, cannot be found. This can happen if:"));
     $p->add(new XUL(array(),
@@ -179,7 +180,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
       Update404::runSchool();
     else
       Update404::run();
-    error_log(sprintf("I:0:%s: Successful (%s)!\n", date('r'), $mode), 3, LOG_FRONT);
+    error_log(sprintf("I:0:%s: Successful (%s)!\n", date('r'), $mode), 3, Conf::$LOG_FRONT);
   }
   catch (Exception $e) {
     error_log(sprintf("E:%d:L%d:F%s:%s: %s\n",
@@ -188,7 +189,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
 		      $e->getFile(),
 		      date('r'),
 		      $e->getMessage()),
-	      3, LOG_FRONT);
+	      3, Conf::$LOG_FRONT);
     print_r($e->getTrace());
   }
 }
