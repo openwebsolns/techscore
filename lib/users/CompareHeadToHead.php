@@ -153,7 +153,7 @@ class CompareHeadToHead extends AbstractUserPane {
     if (isset($args['sailor']) || isset($args['sailors'])) {
       if ($this->doSailors($args))
 	return;
-      WebServer::go('/compare-sailors');
+      WS::go('/compare-sailors');
     }
 
     // ------------------------------------------------------------

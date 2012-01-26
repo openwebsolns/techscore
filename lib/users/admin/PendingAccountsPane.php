@@ -34,13 +34,13 @@ class PendingAccountsPane extends AbstractAdminUserPane {
   protected function fillHTML(Array $args) {
     $pageset  = (isset($args['page'])) ? (int)$args['page'] : 1;
     if ($pageset < 1)
-      WebServer::go("pending");
+      WS::go('/pending');
     $startint = self::NUM_PER_PAGE * ($pageset - 1);
     $list = DB::getPendingUsers();
     $count = count($list);
     $num_pages = ceil($count / self::NUM_PER_PAGE);
     if ($startint > $count)
-      WebServer::go(sprintf("pending|%d", $num_pages));
+      WS::go(sprintf('/pending|%d', $num_pages));
     
     $this->PAGE->addContent($p = new XPort("Pending accounts"));
     if ($count == 0) {

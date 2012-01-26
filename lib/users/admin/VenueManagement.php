@@ -51,7 +51,7 @@ class VenueManagement extends AbstractAdminUserPane {
       $v = DB::getVenue($args['v']);
       if ($v === null) {
 	Session::pa(new PA("Invalid venue ID provided.", PA::E));
-	WebServer::go("venue");
+	WS::go('/venue');
       }
       $name = $v->name;
       $addr = $v->address;
@@ -83,7 +83,7 @@ class VenueManagement extends AbstractAdminUserPane {
   private function fillList(Array $args) {
     $pageset  = (isset($args['page'])) ? (int)$args['page'] : 1;
     if ($pageset < 1)
-      WebServer::go("venue");
+      WS::go('/venue');
     // ------------------------------------------------------------
     // 2. Current venues
     // ------------------------------------------------------------
@@ -97,7 +97,7 @@ class VenueManagement extends AbstractAdminUserPane {
     $count = count($list);
     $num_pages = ceil($count / self::NUM_PER_PAGE);
     if ($startint > $count)
-      WebServer::go(sprintf("venue|%d", $num_pages));
+      WS::go(sprintf('/venue|%d', $num_pages));
     $p->add(new XP(array(), "Click on the venue name in the table below to edit."));
     $p->add($t = new XQuickTable(array('style'=>'width:100%'), array("Name", "Address")));
     for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < $count; $i++) {
@@ -164,7 +164,7 @@ class VenueManagement extends AbstractAdminUserPane {
       DB::set($venue);
       if ($old_id == $venue->id) {
 	Session::pa(new PA(sprintf('Edited venue "%s".', $venue->name)));
-	WebServer::go("venue");
+	WS::go('/venue');
       }
       Session::pa(new PA('Added new venue.'));
       return array();

@@ -50,7 +50,7 @@ class EULAPane extends AbstractUserPane {
 	$this->USER->status = Account::STAT_ACTIVE;
 	DB::set($this->USER);
 	Session::pa(new PA("Thank you for activatating your account!"));
-	WebServer::go('/');
+	WS::go('/');
       }
       else {
 	Session::pa(new PA("You must sign checkbox to continue.", PA::E));

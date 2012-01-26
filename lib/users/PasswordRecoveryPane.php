@@ -83,7 +83,7 @@ class PasswordRecoveryPane extends WelcomePage {
       if ($res !== false) {
 	DB::set($acc);
 	Session::pa(new PA("Account password successfully reset."));
-	WebServer::go('/');
+	WS::go('/');
       }
       else
 	Session::pa(new PA("Unable to reset password. Please try again later.", PA::E));

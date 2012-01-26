@@ -102,8 +102,8 @@ abstract class AbstractUserPane {
    */
   public function redirect($url = null) {
     if ($url !== null)
-      WebServer::go($url);
-    WebServer::goBack();
+      WS::go('/'.$url);
+    WS::goBack('/');
   }
 
   /**

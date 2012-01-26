@@ -178,7 +178,7 @@ class CompareSailorsByRace extends AbstractUserPane {
     if (isset($args['sailor']) || isset($args['sailors'])) {
       if ($this->doSailors($args))
 	return;
-      WebServer::go('/compare-by-race');
+      WS::go('/compare-by-race');
     }
 
     // ------------------------------------------------------------

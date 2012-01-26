@@ -8,8 +8,8 @@
  * @created 2009-10-16
  */
 
-require_once("conf.php");
-require_once("tscore/WebServer.php");
+require_once('conf.php');
+require_once('tscore/WS.php');
 
 // ------------------------------------------------------------
 // Not logged-in?
@@ -41,7 +41,7 @@ if (Conf::$USER === null) {
     }
     if (isset($_GET['_action']) && $_GET['_action'] == 'edit') {
       Session::s('POST', $PAGE->process($_REQUEST));
-      WebServer::goBack();
+      WS::goBack('/');
     }
     $PAGE->printXML();
     exit;
@@ -135,12 +135,12 @@ else {
 
   default:
     Session::pa(new PA(sprintf("Invalid page requested (%s).", $_REQUEST['p']), PA::E));
-    WebServer::go('/');
+    WS::go('/');
   }
 }
 if (isset($_GET['_action']) && $_GET['_action'] == 'edit') {
   Session::s('POST', $PAGE->process($_REQUEST));
-  WebServer::goBack();
+  WS::goBack('/');
 }
 $post = Session::g('POST');
 $args = array_merge($_GET, (is_array($post)) ? $post : array());

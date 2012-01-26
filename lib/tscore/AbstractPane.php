@@ -131,7 +131,7 @@ abstract class AbstractPane {
    *
    */
   protected function redirect($page = null) {
-    WebServer::go(sprintf('/score/%s/%s', $this->REGATTA->id, $page));
+    WS::go(sprintf('/score/%s/%s', $this->REGATTA->id, $page));
   }
 
   /**

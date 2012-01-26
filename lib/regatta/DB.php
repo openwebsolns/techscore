@@ -404,10 +404,10 @@ class DB extends DBM {
       return;
 
     case "accepted":
-      WebServer::go("license");
+      WS::go('/license');
 
     default:
-      WebServer::go('/');
+      WS::go('/');
     }
   }
 

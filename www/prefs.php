@@ -7,7 +7,7 @@
  */
 
 require_once('conf.php');
-require_once('tscore/WebServer.php');
+require_once('tscore/WS.php');
 
 //
 // Is logged-in
@@ -30,19 +30,19 @@ $HOME = sprintf("/prefs/%s", Conf::$USER->school->id);
 //
 if (!isset($_REQUEST['school'])) {
   // Redirect to the user's school
-  WebServer::go($HOME);
+  WS::go($HOME);
 }
 $SCHOOL = DB::getSchool(strtoupper($_REQUEST['school']));
 if ($SCHOOL == null) {
   $mes = sprintf("No such school (%s).", $_REQUEST['school']);
   Session::pa(new PA($mes, PA::E));
-  WebServer::go($HOME);
+  WS::go($HOME);
 }
 $schools = Conf::$USER->getSchools();
 if (!isset($schools[$SCHOOL->id])) {
   $mes = sprintf("No permissions to edit school (%s).", $SCHOOL);
   Session::pa(new PA($mes, PA::E));
-  WebServer::go($HOME);
+  WS::go($HOME);
 }
 
 //
@@ -86,13 +86,13 @@ else {
   default:
     $mes = sprintf("No such page (%s).", $_REQUEST['p']);
     Session::pa(new PA($mes, PA::E));
-    WebServer::go($HOME);
+    WS::go($HOME);
   }
 }
 
 if (isset($_GET['_action']) && $_GET['_action'] == 'edit') {
   $PAGE->process($_POST);
-  WebServer::goBack();
+  WS::goBack('/');
 }
 $PAGE->getHTML(array());
 ?>

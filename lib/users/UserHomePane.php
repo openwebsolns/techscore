@@ -33,7 +33,7 @@ class UserHomePane extends AbstractUserPane {
   protected function fillHTML(Array $args) {
     $pageset  = (isset($args['page'])) ? (int)$args['page'] : 1;
     if ($pageset < 1)
-      WebServer::go("home");
+      WS::go("home");
     $startint = self::NUM_PER_PAGE * ($pageset - 1);
 
     // ------------------------------------------------------------
@@ -66,7 +66,7 @@ class UserHomePane extends AbstractUserPane {
 	$regs = $this->USER->searchRegattas($qry);
 	$num_regattas = count($regs);
 	if ($startint > 0 && $startint >= $num_regattas)
-	  WebServer::go('/?q=' . $qry);
+	  WS::go('/?q=' . $qry);
       }
     }
     else {

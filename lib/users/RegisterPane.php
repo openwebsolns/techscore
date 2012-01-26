@@ -211,7 +211,7 @@ class RegisterPane extends WelcomePage {
 	$admins[] = sprintf('%s <%s>', $admin->getName(), $admin->id);
 
       DB::mail(implode(',', $admins), '[TechScore] New registration', $this->getAdminMessage($acc));
-      WebServer::go("register");
+      WS::go('/register');
     }
     return $args;
   }

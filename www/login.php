@@ -8,7 +8,7 @@
    */
 
 require_once('conf.php');
-require_once('tscore/WebServer.php');
+require_once('tscore/WS.php');
 
 //
 // Log-out
@@ -16,15 +16,15 @@ require_once('tscore/WebServer.php');
 if (isset($_REQUEST['dir']) && $_REQUEST['dir'] == "out") {
   Session::s('user', null);
   session_destroy();
-  WebServer::go('/');
+  WS::go('/');
 }
 
 //
 // Log-in
 //
 
-$userid = (isset($_POST['userid'])) ? trim($_POST['userid']) : WebServer::goBack();
-$passwd = (isset($_POST['pass']))   ? $_POST['pass'] : WebServer::goBack();
+$userid = (isset($_POST['userid'])) ? trim($_POST['userid']) : WS::goBack('/');
+$passwd = (isset($_POST['pass']))   ? $_POST['pass'] : WS::goBack('/');
 
 $user = DB::getAccount($userid);
 if ($user !== null && $user->password === sha1($passwd))
@@ -35,5 +35,5 @@ else
 $def = Session::g('last_page');
 if ($def === null)
   $def = '/';
-WebServer::goBack($def);
+WS::goBack($def);
 ?>

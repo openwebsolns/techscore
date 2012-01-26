@@ -16,7 +16,7 @@ abstract class AbstractAdminUserPane extends AbstractUserPane {
     parent::__construct($title, $user);
 
     if (!$user->isAdmin())
-      WebServer::go('/');
+      WS::go('/');
   }
 }
 ?>

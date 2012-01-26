@@ -39,7 +39,7 @@ class BoatManagement extends AbstractAdminUserPane {
       $boat = DB::getBoat($args['b']);
       if ($boat === null) {
 	Session::pa(new PA("Invalid boat to edit."));
-	WebServer::go("boats");
+	WS::go('/boats');
       }
       $mess = "Edit boat";
       $link = new XA("boats", "Cancel");
@@ -104,7 +104,7 @@ class BoatManagement extends AbstractAdminUserPane {
       DB::set($boat);
       Session::pa(new PA($mess));
       Session::s('POST', array());
-      WebServer::go("boats");
+      WS::go('/boats');
     }
     return $args;
   }

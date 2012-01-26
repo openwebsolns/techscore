@@ -25,7 +25,7 @@ if (!Session::has('user')) {
 // Validate input
 if (!isset($_GET['q']) || strlen($_GET['q']) < 3) {
   Session::pa(new PA("Please provide a long enough query to search.", PA::I));
-  WebServer::go('/');
+  WS::go('/');
 }
 
 $results = DB::searchSailors($_GET['q']);
