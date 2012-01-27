@@ -48,7 +48,7 @@ RewriteCond %{SCRIPT_FILENAME} -f
 RewriteRule . - [L]
 
 RewriteRule ^score/([0-9]+)/?$ score.php?reg=$1&p=home
-RewriteRule ^score/([0-9]+)/(.*)/?$ score.php?reg=$1&p=$2
+RewriteRule ^score/([0-9]+)/(.*)/?$ score.php?reg=$1&p=$2 [qsa]
 
 # for dialogs
 RewriteRule ^view/([0-9]+)/(.*)/?$ score.php?reg=$1&v=$2

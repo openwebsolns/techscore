@@ -189,4 +189,21 @@ class LinkCSS extends XLinkCSS {
     parent::__construct('text/css', $href, $media, $rel);
   }
 }
+
+/**
+ * XP wrapper around a submit input
+ *
+ * @author Dayan Paez
+ * @version 2012-01-26
+ */
+class XSubmitP extends XP {
+  
+  /**
+   * Creates a new paragraph wrapping a submit input
+   *
+   */
+  public function __construct($name, $value, Array $attrs = array()) {
+    parent::__construct(array('class'=>'p-submit'), new XSubmitInput($name, $value, $attrs));
+  }
+}
 ?>

@@ -75,16 +75,31 @@ class ScorersPane extends AbstractPane {
 
     // Accounts form
     $p->add($s_form = $this->createForm());
+    $s_form->set('id', 'list');
 
     // Get accounts for this conference
+    $NPP = 15;
     $accounts = $chosen_conf->getUsers();
-    if (count($accounts) > 0) {
-      $s_form->add(new FItem("Account:", $sel = new XSelectM("account[]", array('size'=>10))));
-      foreach ($accounts as $user) {
-	if (!isset($scorers[$user->id]))
-	  $sel->add(new FOption($user->id, sprintf('%s, %s', $user->last_name, $user->first_name)));
+    $count = count($accounts);
+    $npp = ceil($count / $NPP);
+    $num = DB::$V->incInt($_GET, 'r', 1, $npp + 1, 1);
+    require_once('xml5/LinksDiv.php');
+    if ($count > 0) {
+      $s_form->add(new XP(array(), "Choose an account to add from the list below and click \"Add scorer\" below."));
+      $s_form->add($l = new LinksDiv($npp, $num, sprintf('/score/%s/scorers', $this->REGATTA->id), array(), 'r', '#list'));
+      $s_form->add($tab = new XQuickTable(array(), array("", "First name", "Last name", "School")));
+      for ($i = $NPP * ($num - 1); $i < $NPP * $num && $i < $count; $i++) {
+	$user = $accounts[$i];
+	if (!isset($scorers[$user->id])) {
+	  $id = 's-' . $user->id;
+	  $tab->addRow(array(new XRadioInput('account', $user->id, array('id'=>$id)),
+			     new XTD(array('class'=>'left'), new XLabel($id, $user->first_name)),
+			     new XTD(array('class'=>'left'), new XLabel($id, $user->last_name)),
+			     new XLabel($id, $user->school->id)));
+	}
       }
-      $s_form->add(new XSubmitInput("add_scorer", "Add scorers"));
+      $s_form->add($l);
+      $s_form->add(new XSubmitP("add_scorer", "Add scorer"));
     }
     else
       $s_form->add(new XMessage("There are no accounts left to register in this conference. Please try a different one."));
@@ -126,30 +141,12 @@ class ScorersPane extends AbstractPane {
     // ------------------------------------------------------------
     // Add scorer
     // ------------------------------------------------------------
-    if (isset($args['add_scorer']) &&
-	isset($args['account']) &&
-	is_array($args['account'])) {
-
+    if (isset($args['add_scorer'])) {
       $success = array();
       $errors  = array();
-      foreach($args['account'] as $id) {
-	$account = DB::getAccount($id);
-	if ($account) {
-	  $this->REGATTA->addScorer($account);
-	  $success[] = $account->getName();
-	}
-	else {
-	  $errors[] = $id;
-	}
-      }
-      if (count($success) > 0) {
-	$mes = sprintf('Added scorer(s) %s.', implode(", ", $success));
-	Session::pa(new PA($mes));
-      }
-      if (count($errors) > 0) {
-	$mes = sprintf('Invalid scorer username(s) (%s).', implode(", ", $errors));
-	Session::pa(new PA($mes, PA::E));
-      }
+      $account = DB::$V->reqID($args, 'account', DB::$ACCOUNT, "Invalid account provided.");
+      $this->REGATTA->addScorer($account);
+      Session::pa(new PA(sprintf('Added scorer(s) %s.', implode(", ", $success))));
     }
     return $args;
   }
