@@ -58,8 +58,8 @@ class RacesPane extends AbstractPane {
     $form->add(new XP(array(),
 		      array(new XStrong("Note:"),
 			    " Extra races are automatically removed when the regatta is finalized.")));
-    $form->add($f_sub = new XSubmitInput("set-races", "Set races"));
-    if ($final) $f_sub->set("disabled", "disabled");
+    $attrs = ($final) ? array('disabled'=>'disabled') : array();
+    $form->add(new XSubmitP("set-races", "Set races", $attrs));
 
     // Fill the select boxes
     for ($i = 1; $i <= 4; $i++)
@@ -73,7 +73,7 @@ class RacesPane extends AbstractPane {
     $p->add($form = $this->createForm());
 
     // Add input elements
-    $form->add(new XP(array(), new XSubmitInput("editboats", "Edit boats")));
+    $form->add(new XSubmitP("editboats", "Edit boats"));
 
     // Table of races: columns are divisions; rows are race numbers
     $head = array("#");
@@ -90,19 +90,18 @@ class RacesPane extends AbstractPane {
     $row = array("All");
     foreach ($divisions as $div) {
       $c = new XTD();
-      $c->add(new XHiddenInput("div-value[]", $div));
-      $c->add(XSelect::fromArray('div-boat[]', $boatOptions));
+      $c->add(XSelect::fromArray($div, $boatOptions));
       $row[] = $c;
     }
     $tab->addRow($row);
 
     //  - Table content
+    array_shift($boatOptions);
     for ($i = 0; $i < $max; $i++) {
       // Add row
       $row = array(new XTH(array(), $i + 1));
 
       // For each division
-      array_shift($boatOptions);
       foreach ($divisions as $div) {
 	$c = "";
 	if (isset($races[(string)$div][$i])) {
@@ -129,7 +128,7 @@ class RacesPane extends AbstractPane {
       $hosts = $this->REGATTA->getHosts();
       $host = $hosts[0];
       $boat = DB::getPreferredBoat($host);
-      
+
       $cur_divisions = $this->REGATTA->getDivisions();
       $cur_races     = count($this->REGATTA->getRaces(Division::A()));
       if (isset($args['num_divisions'])) {
@@ -192,57 +191,35 @@ class RacesPane extends AbstractPane {
     // ------------------------------------------------------------
     // Update boats
 
-    $completed_divisions = array();
+    $remaining_divisions = $this->REGATTA->getDivisions();
+    $copy = $remaining_divisions;
     if (isset($args['editboats'])) {
       unset($args['editboats']);
 
       // Is there an assignment for all the races in the division?
-      if (isset($args['div-value']) && is_array($args['div-value']) &&
-	  isset($args['div-boat'])  && is_array($args['div-boat']) &&
-	  count($args['div-value']) == count($args['div-boat'])) {
-	foreach ($args['div-value'] as $i => $d) {
-	  try {
-	    $div = Division::get($d);
-	    if (!empty($args['div-boat'][$i]) &&
-		($boat = DB::getBoat($args['div-boat'][$i])) !== null) {
-	      // Assign
-	      $completed_divisions[] = $div;
-	      foreach ($this->REGATTA->getRaces($div) as $race) {
-		$race->boat = $boat;
-	      }
-	    }
-	  }
-	  catch (Exception $e) {
-	    Session::pa(new PA(sprintf("Invalid division (%s) chosen for boat assignment.",
-						     $d),
-					     PA::I));
+      foreach ($copy as $div) {
+	if (($val = DB::$V->incID($args, (string)$div, DB::$BOAT, null)) !== null) {
+	  unset($args[(string)$div]);
+	  unset($remaining_divisions[(string)$div]);
+	  foreach ($this->REGATTA->getRaces($div) as $race) {
+	    $race->boat = $val;
+	    DB::set($race);
 	  }
 	}
-	unset($args['div-value'], $args['div-boat']);
       }
       
       // Let the database decide whether the values are valid to begin
       // with. Just keep track of whether there were errors.
-      $errors = false;
-      foreach ($args as $key => $value) {
-	try {
-	  $race = Race::parse($key);
-	  if (!in_array($race->division, $completed_divisions)) {
-	    $race = $this->REGATTA->getRace($race->division, $race->number);
-	    $race->boat = DB::getBoat($value);
+      foreach ($remaining_divisions as $div) {
+	foreach ($this->REGATTA->getRaces($div) as $race) {
+	  if (($val = DB::$V->incID($args, (string)$race, DB::$BOAT, null)) !== null &&
+	      $val != $race->boat) {
+	    $race->boat = $val;
+	    DB::set($race);
 	  }
 	}
-	catch (Exception $e) {
-	  $errors = true;
-	}
       }
-
-      if ($errors) {
-	$mes = "Not all races updated.";
-	Session::pa(new PA($mes, PA::I));
-      }
-      else
-	Session::pa(new PA("Updated races."));
+      Session::pa(new PA("Updated races."));
     }
     return array();
   }

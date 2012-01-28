@@ -842,7 +842,7 @@ class Division {
     case "D":
       return self::D();
     default:
-      throw new InvalidArgumentException("Invalid division value");
+      throw new InvalidArgumentException("Invalid division value: $val");
     }
   }
 
@@ -1130,14 +1130,25 @@ class Race extends DBObject {
   protected function db_order() {
     return array('number'=>true, 'division'=>true);
   }
+  public function db_update_ignore() { return array('division'); }
   public function &__get($name) {
-    if ($name == 'division')
-      return Division::get($this->division);
+    if ($name == 'division') {
+      if ($this->division === null)
+	return null;
+      $div = Division::get($this->division);
+      return $div;
+    }
     return parent::__get($name);
   }
   public function __set($name, $value) {
-    if ($name == 'division')
-      $this->division = (string)$value;
+    if ($name == 'division') {
+      if ($value === null)
+	$this->division = $value;
+      elseif (!($value instanceof Division))
+	throw new InvalidArgumentException("Division property must be Division object.");
+      else
+	$this->division = (string)$value;
+    }
     else
       parent::__set($name, $value);
   }

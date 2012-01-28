@@ -227,6 +227,7 @@ class Regatta extends DBObject {
     if ($this->divisions === null) {
       $q = DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('division'));
       $q->distinct(true);
+      $q->order_by(array('division'=>true));
       $q = DB::query($q);
       $this->divisions = array();
       while ($row = $q->fetch_object()) {
