@@ -100,6 +100,7 @@ class Regatta extends DBObject {
   // ------------------------------------------------------------
   public function db_name() { return 'regatta'; }
   protected function db_order() { return array('start_time'=>false); }
+  protected function db_cache() { return true; }
   public function db_type($field) {
     switch ($field) {
     case 'start_time':

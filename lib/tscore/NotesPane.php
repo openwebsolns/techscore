@@ -82,38 +82,17 @@ class NotesPane extends AbstractPane {
       try {
 	$race = Race::parse($args['chosen_race']);
 	$race = $this->REGATTA->getRace($race->division, $race->number);
-      } catch (Exception $e) {
-	$mes = sprintf("Invalid or missing race chosen (%s).", $args['chosen_race']);
-	Session::pa(new PA($mes, PA::E));
-	return false;
+      } catch (InvalidArgumentException $e) {
+	throw new SoterException(sprintf("Invalid or missing race chosen (%s).", $args['chosen_race']));
       }
 
-      // require an observation
-      $mes = null;
-      if (isset($args['observation']) &&
-	  !empty($args['observation'])) {
-	$mes = addslashes($args['observation']);
-      }
-      else {
-	Session::pa(new PA("No observation found.", PA::E));
-	return false;
-      }
-
-      // require an observer
-      $observer = null;
-      if (isset($args['observer']) &&
-	  !empty($args['observer'])) {
-	$observer = addslashes($args['observer']);
-      }
-      else {
-	Session::pa(new PA("No observer included.", PA::E));
-	return false;
-      }
+      $mes = DB::$V->reqString($args, 'observation', 1, 1001, "No observation found.");
+      $obs = DB::$V->reqString($args, 'observer', 1, 51, "No observer or name too long (must be less than 50 characters).");
 
       $note = new Note();
       $note->observation = $mes;
-      $note->observer    = $observer;
-      $note->race        = $race->id;
+      $note->observer = $obs;
+      $note->race = $race;
       $note->noted_at = new DateTime();
       $this->REGATTA->addNote($note);
 
@@ -125,17 +104,11 @@ class NotesPane extends AbstractPane {
     // Remove existing
     // ------------------------------------------------------------
     if (isset($args['remove'])) {
-      if (isset($args['observation']) &&
-	  ($note = DB::get(DB::$NOTE, $args['observation'])) !== null &&
-	  $note->regatta == $this->REGATTA->id) {
-	$this->REGATTA->deleteNote($note);
-	Session::pa(new PA(sprintf("Deleted observation from %s.", $note->observer)));
-      }
-      else {
-	$mes = sprintf("Invalid or missing observation (%s) to delete.", $args['observation']);
-	Session::pa(new PA($mes, PA::E));
-	$this->redirect();
-      }
+      $note = DB::$V->reqID($args, 'observation', DB::$NOTE, "Invalid or missing observation to delete.");
+      if ($note->race->regatta != $this->REGATTA)
+	throw new SoterException("Chosen note does not belong to the given regatta.");
+      $this->REGATTA->deleteNote($note);
+      Session::pa(new PA(sprintf("Deleted observation from %s for race %s.", $note->observer, $note->race)));
     }
 
     return $args;
