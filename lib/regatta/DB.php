@@ -1120,7 +1120,6 @@ class Race extends DBObject {
   protected function db_order() {
     return array('number'=>true, 'division'=>true);
   }
-  public function db_update_ignore() { return array('division'); }
   public function &__get($name) {
     if ($name == 'division') {
       if ($this->division === null || $this->division instanceof Division)

@@ -123,5 +123,27 @@ class TSSoter extends Soter {
       return false;
     }
   }
+
+  public function reqRace(Array $args, $key, Regatta $reg, $mes = "GSE") {
+    if (!isset($args[$key]))
+      throw new SoterException($mes);
+    try {
+      $race = Race::parse($args[$key]);
+      if ($race->regatta != $reg)
+	throw new SoterException($mes);
+      return $race;
+    }
+    catch (Exception $e) {
+      throw new SoterException($mes);
+    }
+  }
+  public function incRace(Array $args, $key, Regatta $reg, $default = null) {
+    try {
+      return $this->reqRace($args, $key, $reg);
+    }
+    catch (SoterException $e) {
+      return $default;
+    }
+  }
 }
 ?>

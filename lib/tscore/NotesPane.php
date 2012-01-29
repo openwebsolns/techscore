@@ -78,14 +78,7 @@ class NotesPane extends AbstractPane {
     if (isset($args['observe'])) {
 
       // get race
-      $race = null;
-      try {
-	$race = Race::parse($args['chosen_race']);
-	$race = $this->REGATTA->getRace($race->division, $race->number);
-      } catch (InvalidArgumentException $e) {
-	throw new SoterException(sprintf("Invalid or missing race chosen (%s).", $args['chosen_race']));
-      }
-
+      $race = DB::$V->reqRace($args, 'chosen_race', $this->REGATTA, "Invalid or missing race chosen.");
       $mes = DB::$V->reqString($args, 'observation', 1, 1001, "No observation found.");
       $obs = DB::$V->reqString($args, 'observer', 1, 51, "No observer or name too long (must be less than 50 characters).");
 
