@@ -39,6 +39,9 @@ class Conf {
   public static $SQL_PASS = "";
   public static $SQL_DB   = "ts2";
 
+  // Error handler
+  public static $ERROR_HANDLER = "mail"; // "mail" or "print"
+
   /**
    * @var String|null Set to non-null path to log queries
    */
@@ -60,75 +63,22 @@ function __autoload($name) {
   require_once("regatta/$name.php");
 }
 
-/**
- * Error reporting function: send mail
- *
- */
-function __mail_error_handler($errno, $errstr, $errfile, $errline, $context) {
-  $fmt = "%6s: %s\n";
-  $body  = sprintf($fmt, "Time",   date('Y-m-d H:i:s'));
-  $body .= sprintf($fmt, "Number", $errno);
-  $body .= sprintf($fmt, "String", $errstr);
-  $body .= sprintf($fmt, "File",   $errfile);
-  $body .= sprintf($fmt, "Line",   $errline);
-  $body .= @sprintf($fmt, "Request", $_SERVER['REQUEST_URI']);
-  foreach (debug_backtrace() as $list) {
-    $body .= "--------------------\n";
-    foreach (array('file', 'line', 'class', 'function') as $index) {
-      if (isset($list[$index]))
-	$body .= sprintf($fmt, ucfirst($index), $list[$index]);
-    }
-  }
-
-  mail("dpv140@gmail.com", "[TS2 ERROR]", $body, "From: " . Conf::$TS_FROM_MAIL);
-
-  print <<<END
-There was an error while handling your request. Administrators
-have been notified of the problem and it will be addressed as
-soon as possible.
-
-Sorry for the inconvenience.
-END;
-  die();
-}
-
-/**
- * Exception reporting: send mail
- *
- */
-function __mail_exception_handler(Exception $e) {
-  $fmt = "%6s: %s\n";
-  $body  = sprintf($fmt, "Time",   date('Y-m-d H:i:s'));
-  $body .= sprintf($fmt, "Number", $e->getCode());
-  $body .= sprintf($fmt, "String", $e->getMessage());
-  $body .= sprintf($fmt, "File",   $e->getFile());
-  $body .= sprintf($fmt, "Line",   $e->getLine());
-  $body .= sprintf($fmt, "Request", $_SERVER['REQUEST_URI']);
-  $body .= "--------------------\n";
-  $body .= sprintf($fmt, "Trace",  $e->getTraceAsString());
-  $body .= "====================\n";
-
-  $sent = mail(Conf::$ADMIN_MAIL, "[TS2 EXCEPTION]", $body, "From: " . Conf::$TS_FROM_MAIL);
-  if ($sent) {
-    print <<<END
-There was an error while handling your request. Administrators
-have been notified of the problem and it will be addressed as
-soon as possible.
-
-Sorry for the inconvenience.
-END;
-  }
-  else {
-    print <<<END
-There was an error while handling your request. Please excuse the inconvenience.
-END;
-  }
-  die();
-}
 ini_set('error_log', realpath(dirname(__FILE__).'/../log/errors.log'));
 ini_set('include_path', sprintf(".:%s", dirname(__FILE__)));
 
 require_once(dirname(__FILE__) . '/conf.local.php');
+
+// Error handler
+if (Conf::$ERROR_HANDLER == 'mail') {
+  require_once('error/MailHandler.php');
+  MailHandler::registerErrors(E_ALL | E_STRICT);
+  MailHandler::registerExceptions();
+}
+else {
+  require_once('error/PrintHandler.php');
+  PrintHandler::registerErrors(E_ALL | E_STRICT);
+  PrintHandler::registerExceptions();
+}
 
 // Database connection
 require_once('regatta/DB.php');

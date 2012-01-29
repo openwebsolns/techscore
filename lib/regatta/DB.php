@@ -962,19 +962,11 @@ class Team extends DBObject {
   public function db_type($field) {
     switch ($field) {
     case 'school': return DB::$SCHOOL;
+    case 'regatta': return DB::$REGATTA;
     default:
       return parent::db_type($field);
     }
   }
-  public function &__get($name) {
-    if ($name == 'regatta') {
-      if ($this->regatta !== null && !($this->regatta instanceof Regatta))
-	$this->regatta = DB::getRegatta($this->regatta);
-      return $this->regatta;
-    }
-    return parent::__get($name);
-  }
-
   public function __toString() {
     return $this->__get('school')->nick_name . ' ' . $this->name;
   }
@@ -1366,11 +1358,12 @@ class TeamPenalty extends DBObject {
  * @version 2012-01-13
  */
 class Host_School extends DBObject {
-  public $regatta;
+  protected $regatta;
   protected $school;
   public function db_type($field) {
     switch ($field) {
     case 'school': return DB::$SCHOOL;
+    case 'regatta': return DB::$REGATTA;
     default:
       return parent::db_type($field);
     }
