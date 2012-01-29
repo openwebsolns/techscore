@@ -41,7 +41,9 @@ class RacesPane extends AbstractPane {
     $final = $this->REGATTA->finalized;
     $this->PAGE->addContent($p = new XPort("Races and divisions"));
     $p->add($form = $this->createForm());
-    $form->add(new FItem("Number of divisions:", $f_div = new XSelect('num_divisions')));
+    $form->add(new FItem("Number of divisions:", XSelect::fromArray('num_divisions',
+								    array(1=>1, 2=>2, 3=>3, 4=>4),
+								    count($this->REGATTA->getDivisions()))));
     $form->add(new FItem("Number of races:",
 			 $f_rac = new XTextInput("num_races",
 						 count($this->REGATTA->getRaces(Division::A())))));
@@ -60,10 +62,6 @@ class RacesPane extends AbstractPane {
 			    " Extra races are automatically removed when the regatta is finalized.")));
     $attrs = ($final) ? array('disabled'=>'disabled') : array();
     $form->add(new XSubmitP("set-races", "Set races", $attrs));
-
-    // Fill the select boxes
-    for ($i = 1; $i <= 4; $i++)
-      $f_div->add(new FOption($i, $i));
 
     //------------------------------------------------------------
     // Edit existing boats
@@ -121,7 +119,9 @@ class RacesPane extends AbstractPane {
     // ------------------------------------------------------------
     // Set races
     // ------------------------------------------------------------
-    if (isset($args['set-races']) && !$this->REGATTA->finalized) {
+    if (isset($args['set-races'])) {
+      if ($this->REGATTA->finalized !== null)
+	throw new SoterException("You may not edit races after regatta has been finalized.");
       // ------------------------------------------------------------
       // Add new divisions
       //   1. Get host's preferred boat
@@ -131,60 +131,49 @@ class RacesPane extends AbstractPane {
 
       $cur_divisions = $this->REGATTA->getDivisions();
       $cur_races     = count($this->REGATTA->getRaces(Division::A()));
-      if (isset($args['num_divisions'])) {
-	$pos_divisions = Division::getAssoc();
-	$num_divisions = (int)$args['num_divisions'];
-	if ($num_divisions < 1 || $num_divisions > count($pos_divisions)) {
-	  Session::pa(new PA("Invalid number of divisions.", PA::E));
-	  return $args;
-	}
-	$pos_divisions_list = array_values($pos_divisions);
-	for ($i = count($cur_divisions); $i < $num_divisions; $i++) {
-	  $div = $pos_divisions_list[$i];
-	  for ($j = 0; $j < $cur_races; $j++) {
-	    $race = new Race();
-	    $race->division = $div;
-	    $race->boat = $boat;
-	    $race->number = ($j + 1);
-	    $this->REGATTA->setRace($race);
-	  }
-	}
+      $pos_divisions = Division::getAssoc();
+      $num_divisions = DB::$V->reqInt($args, 'num_divisions', 1, count($pos_divisions) + 1, "Invalid number of divisions.");
+      $pos_divisions_list = array_values($pos_divisions);
 
-	// ------------------------------------------------------------
-	// Subtract extra divisions
-	for ($i = count($cur_divisions); $i > $num_divisions; $i--) {
-	  $this->REGATTA->removeDivision($pos_divisions_list[$i - 1]);
+      for ($i = count($cur_divisions); $i < $num_divisions; $i++) {
+	$div = $pos_divisions_list[$i];
+	for ($j = 0; $j < $cur_races; $j++) {
+	  $race = new Race();
+	  $race->division = $div;
+	  $race->boat = $boat;
+	  $race->number = ($j + 1);
+	  $this->REGATTA->setRace($race);
 	}
       }
 
-      if (isset($args['num_races'])) {
-	$num_races = (int)$args['num_races'];
-	if ($num_races < 1 || $num_races > 99) {
-	  Session::pa(new PA("Invalid number of races.", PA::E));
-	  return $args;
-	}
-	// Add
-	for ($i = $cur_races; $i < $num_races; $i++) {
-	  foreach ($cur_divisions as $div) {
-	    $race = new Race();
-	    $race->division = $div;
-	    $race->boat = $boat;
-	    $race->number = ($i + 1);
-	    $this->REGATTA->setRace($race);
-	  }
-	}
+      // ------------------------------------------------------------
+      // Subtract extra divisions
+      for ($i = count($cur_divisions); $i > $num_divisions; $i--) {
+	$this->REGATTA->removeDivision($pos_divisions_list[$i - 1]);
+      }
+      $cur_divisions = $this->REGATTA->getDivisions();
 
-	// Remove (from the end, of course!)
-	for ($i = $cur_races; $i > $num_races; $i--) {
-	  foreach ($cur_divisions as $div) {
-	    $race = new Race();
-	    $race->division = $div;
-	    $race->number = $i;
-	    $this->REGATTA->removeRace($race);
-	  }
+      $num_races = DB::$V->reqInt($args, 'num_races', 1, 100, "Invalid number of races.");
+      // Add
+      for ($i = $cur_races; $i < $num_races; $i++) {
+	foreach ($cur_divisions as $div) {
+	  $race = new Race();
+	  $race->division = $div;
+	  $race->boat = $boat;
+	  $race->number = ($i + 1);
+	  $this->REGATTA->setRace($race);
 	}
       }
 
+      // Remove (from the end, of course!)
+      for ($i = $cur_races; $i > $num_races; $i--) {
+	foreach ($cur_divisions as $div) {
+	  $race = new Race();
+	  $race->division = $div;
+	  $race->number = $i;
+	  $this->REGATTA->removeRace($race);
+	}
+      }
       Session::pa(new PA("Set number of races."));
     }
 
@@ -203,7 +192,7 @@ class RacesPane extends AbstractPane {
 	  unset($remaining_divisions[(string)$div]);
 	  foreach ($this->REGATTA->getRaces($div) as $race) {
 	    $race->boat = $val;
-	    DB::set($race);
+	    $this->REGATTA->setRace($race);
 	  }
 	}
       }

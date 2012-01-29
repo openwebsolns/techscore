@@ -215,26 +215,20 @@ class Regatta extends DBObject {
   }
 
   /**
-   * @var Array:Division an attempt at caching
-   */
-  private $divisions = null;
-  /**
    * Returns an array of the divisions in this regatta
    *
    * @return list of divisions in this regatta
    */
   public function getDivisions() {
-    if ($this->divisions === null) {
-      $q = DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('division'));
-      $q->distinct(true);
-      $q->order_by(array('division'=>true));
-      $q = DB::query($q);
-      $this->divisions = array();
-      while ($row = $q->fetch_object()) {
-	$this->divisions[$row->division] = Division::get($row->division);
-      }
+    $q = DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('division'));
+    $q->distinct(true);
+    $q->order_by(array('division'=>true));
+    $q = DB::query($q);
+    $divisions = array();
+    while ($row = $q->fetch_object()) {
+      $divisions[$row->division] = Division::get($row->division);
     }
-    return array_values($this->divisions);
+    return array_values($divisions);
   }
 
   /**
@@ -386,6 +380,7 @@ class Regatta extends DBObject {
     $this->total_races = count(DB::getAll(DB::$RACE, new DBCond('regatta', $this->id)));
     return $this->total_races;
   }
+  private $total_races;
 
   // ------------------------------------------------------------
   // Races and boats
@@ -450,13 +445,14 @@ class Regatta extends DBObject {
    * @param Race $race the race to register with this regatta
    */
   public function setRace(Race $race) {
-    $cur = $this->getRace($race->division, $race->number);
-    if ($cur !== null)
+    try {
+      $cur = $this->getRace($race->division, $race->number);
       $race->id = $cur->id;
-    else
+    } catch (InvalidArgumentException $e) {
       $this->total_races++;
+    }
     $race->regatta = $this;
-    DB::set($cur);
+    DB::set($race);
   }
 
   /**
