@@ -278,7 +278,7 @@ class DBM {
 	$values[] = $value->format('Y-m-d H:i:s');
       elseif (is_array($value))
 	$values[] = implode("\0", $value);
-      elseif (is_object($value))
+      elseif (is_object($value) && $obj->db_type($field) != DBQuery::A_STR)
 	$values[] = serialize($value);
       else {
 	$values[] =& $value;

@@ -33,3 +33,4 @@ www/inc/css/*.css
 www/inc/js/*.js
 
 Debug.php
+lib/ChangeLog

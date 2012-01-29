@@ -966,8 +966,6 @@ class Team extends DBObject {
       return parent::db_type($field);
     }
   }
-  public function db_update_ignore() { return array('regatta'); }
-
   public function &__get($name) {
     if ($name == 'regatta') {
       if ($this->regatta !== null && !($this->regatta instanceof Regatta))
@@ -1133,24 +1131,12 @@ class Race extends DBObject {
   public function db_update_ignore() { return array('division'); }
   public function &__get($name) {
     if ($name == 'division') {
-      if ($this->division === null)
-	return null;
+      if ($this->division === null || $this->division instanceof Division)
+	return $this->division;
       $div = Division::get($this->division);
       return $div;
     }
     return parent::__get($name);
-  }
-  public function __set($name, $value) {
-    if ($name == 'division') {
-      if ($value === null)
-	$this->division = $value;
-      elseif (!($value instanceof Division))
-	throw new InvalidArgumentException("Division property must be Division object.");
-      else
-	$this->division = (string)$value;
-    }
-    else
-      parent::__set($name, $value);
   }
   public function __toString() {
     return $this->number . $this->division;
