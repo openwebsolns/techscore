@@ -151,26 +151,18 @@ class EnterPenaltyPane extends AbstractPane {
       $races = array();
       foreach ($this->REGATTA->getScoredRaces() as $race)
 	$races[$race->id] = $race;
-      try {
-	$race = Race::parse($args['p_race']);
-	$race = $this->REGATTA->getRace($race->division, $race->number);
-	if (isset($races[$race->id])) {
-	  $theRace == $races[$race->id];
-	  $mes = sprintf("No finish recorded for race %s.", $theRace);
-	  Session::pa(new PA($mes, PA::I));
-	  unset($args['p_race']);
-	  unset($args['p_type']);
-	  return $args;
-	}
-	$args['p_race'] = $theRace;
-      }
-      catch (InvalidArgumentException $e) {
-	$mes = sprintf("Invalid race (%s).", $args['p_race']);
-	Session::pa(new PA($mes, PA::E));
+      $race = DB::$V->incRace($args, 'p_race', $this->REGATTA);
+      if ($race === null) {
 	unset($args['p_race']);
 	unset($args['p_type']);
-	return $args;
+	throw new SoterException("Invalid or missing race for penalty.");
       }
+      if (!isset($races[$race->id])) {
+	unset($args['p_race']);
+	unset($args['p_type']);
+	throw new SoterException(sprintf("No finish recorded for race %s.", $races[$race->id]));
+      }
+      $args['p_race'] = $theRace;
 
       // - validate penalty type
       if (!isset($args['p_type']) ||
@@ -201,6 +193,7 @@ class EnterPenaltyPane extends AbstractPane {
 	}
 	try {
 	  $race = Race::parse($tokens[0]);
+// @TODO getRace()
 	  $race = $this->REGATTA->getRace($race->division, $race->number);
 	  if ($race === null)
 	    throw new InvalidArgumentException("No such race!");

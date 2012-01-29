@@ -443,6 +443,7 @@ class RegattaIO {
       }
       if (isset($teams[$team_id]) && ($num > 0) && ($r != null)) {
 	try {
+// @TODO getRace()
 	  $race = $regatta->getRace($r->division, $r->number);
 	  $s = new Sail();
 	  $s->race = $race;
@@ -481,6 +482,7 @@ class RegattaIO {
 	}
 	if (isset($teams[$team_id]) && ($r != null)) {
 	  try {
+// @TODO getRace()
 	    $race = $regatta->getRace($r->division, $r->number);
 	    $f = $regatta->createFinish($r, $teams[$team_id]);
 	    $f->entered = $entered;
@@ -517,6 +519,7 @@ class RegattaIO {
       $race = null;
       try {
 	$r = Race::parse($race_num);
+// @TODO getRace()
 	$race = $regatta->getRace($r->division, $r->number);
       } catch (Exception $e) {
 	$warnings[] = "Unable to parse race or non-existing $race_num in penalty.";
@@ -553,6 +556,7 @@ class RegattaIO {
       $race = null;
       try {
 	$r = Race::parse($race_num);
+// @TODO getRace()
 	$race = $regatta->getRace($r->division, $r->number);
       } catch (Exception $e) {
 	$warnings[] = "Unable to parse race or non-existing $race_num in penalty.";

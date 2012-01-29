@@ -282,6 +282,7 @@ class RpEnterPane extends AbstractPane {
 	    foreach ($s_race_copy as $num) {
 	      $rp = new RPEntry();
 	      $rp->team = $team;
+// @TODO getRace()
 	      $rp->race = $this->REGATTA->getRace($div, $num);
 	      $rp->boat_role  = $s_role;
 	      $rp->sailor     = $s_obj;

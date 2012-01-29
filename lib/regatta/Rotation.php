@@ -223,6 +223,7 @@ class Rotation {
 	throw new InvalidArgumentException("The list of divisions must be of the same size as the list of races.");
       $table = $this->createStandardTable($sails, $num_races, $repeats, $updir);
       foreach ($races as $r => $num) {
+// @TODO getRace()
 	$race = $this->regatta->getRace($divisions[$r], $num);
 	foreach ($teams as $t => $team) {
 	  $sail = new Sail();
@@ -246,6 +247,7 @@ class Rotation {
       $table = $this->createStandardTable($sails, $num_races, $repeats, $updir);
       foreach ($races as $r => $num) {
 	foreach ($teams as $t => $team) {
+// @TODO getRace()
 	  $race = $this->regatta->getRace($divisions[$t], $num);
 
 	  $sail = new Sail();
@@ -328,6 +330,7 @@ class Rotation {
 
       $table = $this->createSwapTable($sails, $num_races, $repeats, $updir);
       foreach ($races as $r => $num) {
+// @TODO getRace()
 	$race = $this->regatta->getRace($divisions[$r], $num);
 	foreach ($teams as $t => $team) {
 	  $sail = new Sail();
@@ -351,6 +354,7 @@ class Rotation {
       $table = $this->createSwapTable($sails, $num_races, $repeats, $updir);
       foreach ($races as $r => $num) {
 	foreach ($teams as $t => $team) {
+// @TODO getRace()
 	  $race = $this->regatta->getRace($divisions[$t], $num);
 
 	  $sail = new Sail();
@@ -462,7 +466,9 @@ class Rotation {
    */
   public function createOffset(Division $fromdiv, Division $todiv, Array $nums, $offset) {
     foreach ($nums as $num) {
+// @TODO getRace()
       $from = $this->regatta->getRace($fromdiv, $num);
+// @TODO getRace()
       $to = $this->regatta->getRace($todiv, $num);
       $sails = $this->getSails($from);
       $upper = count($sails);

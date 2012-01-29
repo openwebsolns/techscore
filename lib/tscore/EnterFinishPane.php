@@ -39,6 +39,7 @@ class EnterFinishPane extends AbstractPane {
     if (!empty($args['chosen_race'])) {
       try {
 	$race = Race::parse($args['chosen_race']);
+// @TODO getRace()
 	$race = $this->REGATTA->getRace($race->division, $race->number);
       } catch (Exception $e) { $race = null; }
     }
@@ -101,10 +102,13 @@ class EnterFinishPane extends AbstractPane {
     $races = array();
     $finishes = array();
     foreach ($divisions as $div) {
-      $r = $this->REGATTA->getRace($div, $race->number);
-      $races[] = $r;
-      $f2 = $this->REGATTA->getFinishes($r);
-      $finishes = array_merge($finishes, $f2);
+// @TODO getRace()
+      if (($r = $this->REGATTA->getRace($div, $race->number)) !== null) {
+	$races[] = $r;
+	$f2 = $this->REGATTA->getFinishes($r);
+	$finishes = array_merge($finishes, $f2);
+      }
+      // @TODO: handle empty $races[]
     }
     usort($finishes, "Finish::compareEntered");
 
@@ -214,6 +218,7 @@ class EnterFinishPane extends AbstractPane {
     if (!empty($args['chosen_race'])) {
       try {
 	$race = Race::parse($args['chosen_race']);
+// @TODO getRace()
 	$race = $this->REGATTA->getRace($race->division, $race->number);
       } catch (Exception $e) { $race = null; }
     }
@@ -363,11 +368,13 @@ class EnterFinishPane extends AbstractPane {
     if (isset($args['chosen_race'])) {
       try {
 	if (is_numeric($args['chosen_race'])) {
+// @TODO getRace()
 	  $therace = $this->REGATTA->getRace($divisions[0], (int)$args['chosen_race']);
 	  $args['chosen_race'] = ($therace === null) ? null : (string)$therace;
 	}
 	else {
 	  $race = Race::parse($args['chosen_race']);
+// @TODO getRace()
 	  $therace = $this->REGATTA->getRace($race->division, $race->number);
 	  $args['chosen_race'] = ($therace === null) ? null : (string)$therace;
 	}
@@ -393,6 +400,7 @@ class EnterFinishPane extends AbstractPane {
     if (isset($args['f_places'])) {
       try {
 	$race = Race::parse($args['race']);
+// @TODO getRace()
 	$race = $this->REGATTA->getRace($race->division, $race->number);
 	if ($race === null)
 	  throw new Exception(sprintf("No such race (%s) in this regatta.", $race));
@@ -413,6 +421,7 @@ class EnterFinishPane extends AbstractPane {
       $race_ids = array();  // alist: race_id => Race
       $finishes = array();  // alist: race_id => array(Finish)
       foreach ($divisions as $div) {
+// @TODO getRace()
 	$r = $this->REGATTA->getRace($div, $race->number);
 	$race_ids[$r->id] = $r;
 	foreach ($teams as $t) {
@@ -467,6 +476,7 @@ class EnterFinishPane extends AbstractPane {
     if (isset($args['f_teams'])) {
       try {
 	$race = Race::parse($args['race']);
+// @TODO getRace()
 	$race = $this->REGATTA->getRace($race->division, $race->number);
 	if ($race == null)
 	  throw new Exception(sprintf("No such race in this regatta (%s).", $args['race']));
@@ -486,6 +496,7 @@ class EnterFinishPane extends AbstractPane {
       $race_ids = array(); // alist: race_id  => Race
       $finishes = array(); // alist: race_id  => array(Finish)
       foreach ($divisions as $div) {
+// @TODO getRace()
 	$r = $this->REGATTA->getRace($div, $race->number);
 	$race_ids[$r->id] = $r;
 	foreach ($this->REGATTA->getTeams() as $team) {
@@ -554,6 +565,7 @@ class EnterFinishPane extends AbstractPane {
     if (isset($args['chosen_race'])) {
       try {
 	$race = Race::parse($args['chosen_race']);
+// @TODO getRace()
 	$therace = $this->REGATTA->getRace($race->division, $race->number);
 	$args['chosen_race'] = ($therace === null) ? null : (string)$therace;
       }
@@ -576,6 +588,7 @@ class EnterFinishPane extends AbstractPane {
     if (isset($args['f_places'])) {
       try {
 	$race = Race::parse($args['race']);
+// @TODO getRace()
 	$race = $this->REGATTA->getRace($race->division, $race->number);
 	if ($race == null)
 	  throw new Exception(sprintf("No such race in this regatta (%s).", $args['race']));
@@ -638,6 +651,7 @@ class EnterFinishPane extends AbstractPane {
     if (isset($args['f_teams'])) {
       try {
 	$race = Race::parse($args['race']);
+// @TODO getRace()
 	$race = $this->REGATTA->getRace($race->division, $race->number);
 	if ($race == null)
 	  throw new Exception(sprintf("No such race in this regatta (%s).", $args['race']));

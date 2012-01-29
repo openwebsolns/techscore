@@ -160,6 +160,7 @@ class CompareSailorsByRace extends AbstractUserPane {
 	  }
 	  $row->add(new XTH(array(), sprintf("%d%s", $num, $div)));
 	  foreach ($sailors as $sailor) {
+// @TODO getRace()
 	    $finish = $regatta->getFinish($regatta->getRace(Division::get($div), $num),
 					  $reg_teams[$reg_id][$div][$sailor->id]);
 	    $row->add(new XTD(array(), $finish->getPlace()));

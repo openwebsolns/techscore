@@ -342,15 +342,14 @@ class Regatta extends DBObject {
    *
    * @param $div the division of the race
    * @param $num the number of the race within that division
-   * @return the race object which matches the description
-   * @throws InvalidArgumentException if such a race does not exist
+   * @return Race|null the race object which matches the description
    */
   public function getRace(Division $div, $num) {
     $res = DB::getAll(DB::$RACE, new DBBool(array(new DBCond('regatta', $this->id),
 						  new DBCond('division', (string)$div),
 						  new DBCond('number', $num))));
     if (count($res) == 0)
-      throw new InvalidArgumentException(sprintf("No race %s%s in regatta %s", $num, $div, $this->id));
+      return null;
     $r = $res[0];
     unset($res);
     return $r;
@@ -447,6 +446,7 @@ class Regatta extends DBObject {
    */
   public function setRace(Race $race) {
     try {
+// @TODO getRace()
       $cur = $this->getRace($race->division, $race->number);
       $race->id = $cur->id;
     } catch (InvalidArgumentException $e) {
@@ -775,6 +775,7 @@ class Regatta extends DBObject {
       $this->deleteFinishes($race);
     else {
       foreach ($this->getDivisions() as $div)
+// @TODO getRace()
 	$this->deleteFinishes($this->getRace($div, $race->number));
     }
     $this->runScore($race);

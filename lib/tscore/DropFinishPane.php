@@ -41,6 +41,7 @@ class DropFinishPane extends AbstractPane {
       $place = 1;
       $finishes = array();
       foreach ($divisions as $div) {
+// @TODO getRace()
 	$race = $this->REGATTA->getRace($div, $num);
 	$finishes = array_merge($finishes, $this->REGATTA->getFinishes($race));
       }

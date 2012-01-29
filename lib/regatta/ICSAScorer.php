@@ -57,6 +57,7 @@ class ICSAScorer {
     // given in the argument
     $finishes = array();
     foreach ($divs as $div) {
+// @TODO getRace()
       $r = $reg->getRace($div, $race->number);
       foreach ($reg->getFinishes($r) as $fin)
 	$finishes[] = $fin;
@@ -585,6 +586,7 @@ class ICSAScorer {
       foreach ($ranks as $rank) {
 	$total = 0;
 	foreach ($divisions as $div) {
+// @TODO getRace()
 	  $race = $reg->getRace($div, $lastNum);
 	  $finish = $reg->getFinish($race, $rank->team);
 	  $total += $finish->score;

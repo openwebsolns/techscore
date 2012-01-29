@@ -129,7 +129,8 @@ class TSSoter extends Soter {
       throw new SoterException($mes);
     try {
       $race = Race::parse($args[$key]);
-      if ($race->regatta != $reg)
+      $race = $reg->getRace($race->division, $race->number);
+      if ($race === null)
 	throw new SoterException($mes);
       return $race;
     }

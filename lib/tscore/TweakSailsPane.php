@@ -99,9 +99,13 @@ class TweakSailsPane extends AbstractPane {
       elseif ( $edittype == "REP" ) {
 	// Get sails in chosen races
 	$races = array();
-	foreach ($chosen_div as $div)
-	  foreach ($range_races as $num)
-	  $races[] = $this->REGATTA->getRace($div, $num);
+	foreach ($chosen_div as $div) {
+	  foreach ($range_races as $num) {
+// @TODO getRace()
+	    if (($race = $this->REGATTA->getRace($div, $num)) !== null)
+	      $races[] = $race;
+	  }
+	}
 	$sails = $rotation->getCommonSails($races);
 
 	$sails = array_combine($sails, $sails);
@@ -194,9 +198,15 @@ class TweakSailsPane extends AbstractPane {
 
       // Get sail numbers for all the races
       $races = array();
-      foreach ($divisions as $div)
-	foreach ($actual_races as $num)
-	$races[] = $this->REGATTA->getRace($div, $num);
+      foreach ($divisions as $div) {
+	foreach ($actual_races as $num) {
+// @TODO getRace()
+	  if (($race = $this->REGATTA->getRace($div, $num)) !== null)
+	    $races[] = $race;
+	}
+      }
+      if (count($races) == 0)
+	throw new SoterException("No valid races chosen.");
       $sails = $rotation->getCommonSails($races);
     }
     else {
