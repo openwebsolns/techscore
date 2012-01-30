@@ -687,17 +687,20 @@ class School extends DBObject {
   /**
    * Returns an ordered list of the team names for this school
    *
-   * @return Array ordered list of the school names
+   * @return Array:String ordered list of the school names
    */
   public function getTeamNames() {
-    return DB::getAll(DB::$TEAM_NAME_PREFS, new DBCond('school', $this));
+    $list = array();
+    foreach (DB::getAll(DB::$TEAM_NAME_PREFS, new DBCond('school', $this)) as $pref)
+      $list[] = (string)$pref;
+    return $list;
   }
 
   /**
    * Sets the team names for the given school
    *
    * @param School $school school whose valid team names to set
-   * @param Array $names an ordered list of team names
+   * @param Array:String $names an ordered list of team names
    */
   public function setTeamNames(Array $names) {
     // Strategy, update as many as are the same, then remove old extra

@@ -272,7 +272,8 @@ class ICSAScorer {
 
     // Part 2: deal with average finishes, including those from across
     // the regatta, not just this race
-    $avg_finishes = array_merge($avg_finishes, $reg->getAverageFinishes($race->division));
+    foreach ($reg->getAverageFinishes($race->division) as $finish)
+      $avg_finishes[] = $finish;
     while (count($avg_finishes) > 0) {
       $finish = array_shift($avg_finishes);
 

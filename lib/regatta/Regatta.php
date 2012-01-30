@@ -94,6 +94,7 @@ class Regatta extends DBObject {
   private $rotation;
   private $rp;
   private $season;
+  private $scorer;
 
   // ------------------------------------------------------------
   // DBObject stuff
@@ -276,6 +277,7 @@ class Regatta extends DBObject {
    * needed)
    */
   public function addTeam(Team $team) {
+    $team->regatta = $this;
     DB::set($team);
   }
 

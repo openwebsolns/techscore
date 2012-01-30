@@ -67,22 +67,15 @@ class TeamsPane extends AbstractPane {
     // ------------------------------------------------------------
     // Add team
     if (isset($args['invite'])) {
-      if (!isset($args['addschool']) ||
-	  ($school = DB::getSchool($args['addschool'])) === null) {
-	Session::pa(new PA("Invalid or missing school to add.", PA::E));
-	return array();
-      }
+      $school = DB::$V->reqID($args, 'addschool', DB::$SCHOOL, "Invalid or missing school to add.");
 
       // Also validate rotation and finish option, if applicable
-      if ($this->has_rots && !isset($args['del-rotation'])) {
-	Session::pa(new PA("Please choose an action to take with new rotation.", PA::E));
-	return array();
-      }
+      if ($this->has_rots && !isset($args['del-rotation']))
+	throw new SoterException("Please choose an action to take with new rotation.");
+      
       if ($this->has_scores &&
-	  (!isset($args['new-score']) || !in_array($args['new-score'], array('DNS', 'BYE')))) {
-	Session::pa(new PA("Please choose an appropriate action to take with scores.", PA::E));
-	return array();
-      }
+	  (!isset($args['new-score']) || !in_array($args['new-score'], array('DNS', 'BYE'))))
+	throw new SoterException("Please choose an appropriate action to take with scores.");
       
       /*
        * Add a team for each school into the regatta, using the data
@@ -105,8 +98,8 @@ class TeamsPane extends AbstractPane {
       $team = new Team();
       $team->school = $school;
       $team->name   = $name;
-
       $this->REGATTA->addTeam($team);
+      
       if (isset($args['del-rotation'])) {
 	$rot = $this->REGATTA->getRotation();
 	$rot->reset();
@@ -157,15 +150,11 @@ class TeamsPane extends AbstractPane {
 
   public function processNewRegatta(Array $args) {
     // the only thing to do: register me some teams!
-    if (!isset($args['school']) || !is_array($args['school']) ||
-	!isset($args['number']) || !is_array($args['number']) ||
-	count($args['number']) != count($args['school'])) {
-      Session::pa(new PA("Bad input. Please try again.", PA::E));
-      return array();
-    }
+    $map = DB::$V->reqMap($args, array('school', 'number'), null, "Bad input. Please try again.");
+
     $teams_added = 0;
-    foreach ($args['school'] as $i => $id) {
-      $number = (int)$args['number'][$i];
+    foreach ($map['school'] as $i => $id) {
+      $number = (int)$map['number'][$i];
       if ($number > 0 && ($school = DB::getSchool($id)) !== null) {
 	$names = $school->getTeamNames();
 	if (count($names) == 0)
@@ -194,8 +183,7 @@ class TeamsPane extends AbstractPane {
       Session::pa(new PA("Added $teams_added teams. You can now setup rotations, or start adding finishes."));
       $this->redirect('setup-rotations');
     }
-    Session::pa(new PA("Please add at least two teams to proceed."));
-    return array();
+    throw new SoterException("Please add at least two teams to proceed.");
   }
 }
 ?>
