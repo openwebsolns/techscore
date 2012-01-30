@@ -146,5 +146,19 @@ class TSSoter extends Soter {
       return $default;
     }
   }
+  public function reqTeam(Array $args, $key, Regatta $reg, $mes = "GSE") {
+    $team = $this->reqID($args, $key, DB::$TEAM, $mes);
+    if ($team->regatta != $reg)
+      throw new SoterException($mes);
+    return $team;
+  }
+  public function incTeam(Array $args, $key, Regatta $reg, Team $default = null) {
+    try {
+      return $this->reqID($args, $key, $reg);
+    }
+    catch (SoterException $e) {
+      return $default;
+    }
+  }
 }
 ?>
