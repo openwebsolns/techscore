@@ -243,7 +243,7 @@ class Regatta extends DBObject {
     $res = DB::get($this->isSingleHanded() ? DB::$SINGLEHANDED_TEAM : DB::$TEAM, $id);
     if ($res === null || $res->regatta != $this)
       return null;
-    return $team;
+    return $res;
   }
 
   /**

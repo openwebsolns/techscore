@@ -52,28 +52,26 @@ class DeleteTeamsPane extends AbstractPane {
     // ------------------------------------------------------------
     // Delete team: this time an array of them is possible
     if (isset($args['remove'])) {
-      if (!isset($args['teams']) || !is_array($args['teams']) || count($args['teams']) == 0) {
-	Session::pa(new PA("Please select one or more teams to remove.", PA::E));
-	return false;
-      }
+      $teams = DB::$V->reqList($args, 'teams', null, "Expected list of teams to delete. None found.");
+      if (count($teams) == 0)
+	throw new SoterException("There must be at least one team to remove.");
+
       $removed = 0;
-      foreach ($args['teams'] as $id) {
+      foreach ($teams as $id) {
 	$team = $this->REGATTA->getTeam($id);
 	if ($team !== null) {
 	  $this->REGATTA->removeTeam($team);
 	  $removed++;
 	}
       }
-      if (count($removed) > 0)
-	Session::pa(new PA("Removed $removed teams."));
-      else
-	Session::pa(new PA("Please select one or more teams to remove.", PA::E));
+      if (count($removed) == 0)
+	throw new SoterException("No valid teams to remove provided.");
+      Session::pa(new PA("Removed $removed teams."));
 
       if ($this->has_rots)
 	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       if ($this->has_scores)
 	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
-
     }
     return array();
   }
