@@ -455,45 +455,29 @@ class SailsPane extends AbstractPane {
     // 0. Validate inputs
     // ------------------------------------------------------------
     //   a. validate rotation
-    if (isset($args['rottype']) &&
-	$this->validateRotation($args['rottype'])) {
-      $rottype = $args['rottype'];
-    }
-    else {
-      Session::pa(new PA("Invalid or missing rotation type.", PA::E));
-      return array();
-    }
-
-    $combined = (count($this->REGATTA->getDivisions()) == 1 ||
+    $rottype = DB::$V->reqKey($args, 'rottype', $this->ROTS, "Invalid or missing rotation type.");
+    $regDivisions = $this->REGATTA->getDivisions();
+    $combined = (count($regDivisions) == 1 ||
 		 $this->REGATTA->scoring == Regatta::SCORING_COMBINED);
 
     //   b. validate division, only if not combined division, and
     //   order by order, if provided
     if (!$combined) {
-      $divisions = null;
-      if (isset($args['division'])    &&
-	  is_array($args['division']) &&
-	  $this->validateDivisions($args['division'])) {
-	if (isset($args['order'])) {
-	  if (!is_array($args['order']) || count($args['order']) != count($args['division'])) {
-	    Session::pa(new PA("Bad division order provided.", PA::E));
-	    return $args;
-	  }
-	  array_multisort($args['order'], $args['division'], SORT_NUMERIC);
-	}
-	$divisions = array();
-	$div_string = array();
-	foreach ($args['division'] as $div) {
-	  $divisions[] = new Division($div);
-	  $div_string[] = $div;
-	}
-	$args['division'] = $div_string;
-	unset($div_string);
+      $divisions = DB::$V->reqList($args, 'division', null, "Expected list of divisions, but none found.");
+      if (count($divisions) == 0)
+	throw new SoterException("There must be at least one division for the rotation.");
+      foreach ($divisions as $div) {
+	if (!isset($regDivisions[$div]))
+	  throw new SoterException("Invalid division chosen for rotation: $div.");
       }
-      else {
-	Session::pa(new PA("Invalid or missing division[s].", PA::E));
-	return array();
+      if (isset($args['order'])) {
+	$order = DB::$V->reqList($args, 'order', count($divisions), "Invalid order provided for divisions.");
+	array_multisort($order, $divisions, SORT_NUMERIC);
       }
+      $args['divisions'] = $divisions;
+      $divisions = array();
+      foreach ($args['division'] as $div)
+	$divisions[] = Division::get($div);
     }
     
     // ------------------------------------------------------------
@@ -510,44 +494,30 @@ class SailsPane extends AbstractPane {
       return $this->processCombined($args, $rottype);
 
     //   c. validate rotation style
-    $style = null;
-    if (isset($args['style']) &&
-	in_array($args['style'], array_keys($this->STYLES))) {
-      $style = $args['style'];
-    }
-    else {
-      Session::pa(new PA("Invalid or missing rotation style.", PA::E));
-      return $args;
-    }
+    $style = DB::$V->reqKey($args, 'style', $this->STYLES, "Invalid or missing rotation style.");
 
     //   d. validate races
-    $races = null;
-    if (isset($args['races']) &&
-	($races = DB::parseRange($args['races'])) !== null &&
-	sort($races)) {
+    $races = DB::$V->reqString($args, 'races', 1, 101, "No races provided.");
+    if (($races = DB::parseRange($races)) === null)
+      throw new SoterException("Unable to parse range of races provided.");
+    sort($races);
       
-      // keep only races that are unscored
-      $races_copy = $races;
-      foreach ($divisions as $div) {
-	$valid_races = array();
-	foreach ($this->REGATTA->getUnscoredRaces($div) as $r)
-	  $valid_races[] = $r->number;
-	$races = array_intersect($races, $valid_races);
-      }
+    // keep only races that are unscored
+    $races_copy = $races;
+    $pos_races = $this->REGATTA->getCombinedUnscoredRaces($divisions);
+    foreach ($races_copy as $i => $race) {
+      if (!in_array($race, $pos_races))
+	unset($races[$i]);
+    }
 
-      // Output message about ignored races
-      if (count($diff = array_diff($races_copy, $races)) > 0) {
-	$mes = sprintf("Ignored races %s in divisions %s.",
-		       DB::makeRange($diff),
-		       implode(", ", $divisions));
-	Session::pa(new PA($mes, PA::I));
-      }
-      unset($races_copy, $diff);
+    // Output message about ignored races
+    if (count($diff = array_diff($races_copy, $races)) > 0) {
+      $mes = sprintf("Ignored races %s in divisions %s.",
+		     DB::makeRange($diff),
+		     implode(", ", $divisions));
+      Session::pa(new PA($mes, PA::I));
     }
-    else {
-      Session::pa(new PA("Could not parse range of races.", PA::E));
-      return $args;
-    }
+    unset($races_copy, $diff);
 
     $rotation = $this->REGATTA->getRotation();
 
@@ -558,20 +528,10 @@ class SailsPane extends AbstractPane {
 
       // 3a. validate repeats
       $repeats = null;
-      if ($rottype === "NOR") {
+      if ($rottype === "NOR")
 	$repeats = count($divisions) * count($races);
-      }
-      elseif (isset($args['repeat']) && is_numeric($args['repeat'])) {
-	$repeats = (int)($args['repeat']);
-	if ($repeats < 1) {
-	  Session::pa(new PA(sprintf("Changed repeats to 1 from %d.", $repeats), PA::I));
-	  $repeats = 1;
-	}
-      }
-      else {
-	Session::pa(new PA("Invalid or missing value for repeats.", PA::E));
-	return $args;
-      }
+      else
+	$repeats = DB::$V->reqInt($args, 'repeat', 1, 101, "Invalid or missing value for repeats.");
 
       // 3b. validate teams: every signed-in team must exist
       $keys  = array_keys($args);
@@ -580,28 +540,20 @@ class SailsPane extends AbstractPane {
       $missing = array();
       foreach ($teams as $team) {
 	$id = $team->id;
-	if (isset($args[$id]) && !empty($args[$id])) {
-	  $sails[] = $args[$id];
-	}
-	else {
+	if (!DB::$V->hasString($sail, $args, $id, 1, 9))
 	  $missing[] = (string)$team;
-	}
+	$sails[] = $sail;
       }
       // Add BYE team if requested
       if (isset($args['BYE'])) {
 	$teams[] = new ByeTeam();
 	$sails[] = $args['BYE'];
       }
-      if (count($missing) > 0) {
-	Session::pa(new PA(sprintf("Missing team or sail for %s.", implode(", ", $missing)), PA::E));
-	return $args;
-      }
+      if (count($missing) > 0)
+	throw new SoterException(sprintf("Missing team or sail for %s.", implode(", ", $missing)));
 
       // 3c. sorting
-      $sort = "none";
-      if (isset($args['sort']) && in_array($args['sort'], array_keys($this->SORT)))
-	$sort = $args['sort'];
-      switch ($sort) {
+      switch (DB::$V->incKey($args, 'sort', $this->SORT, 'none')) {
       case "num":
 	array_multisort($sails, $teams, SORT_NUMERIC);
 	break;
@@ -636,16 +588,13 @@ class SailsPane extends AbstractPane {
 
 	case "SWP":
 	  // ascertain that there are an even number of teams
-	  if (count($teams) % 2 > 0) {
-	    Session::pa(new PA("There must be an even number of teams for swap rotation.", PA::E));
-	    return $args;
-	  }
+	  if (count($teams) % 2 > 0)
+	    throw new SoterException("There must be an even number of teams for swap rotation.");
 	  $rotation->createSwap($sails, $teams, $ordered_divs, $ordered_races, $repeats);
 	  break;
 
 	default:
-	  Session::pa(new PA("Unsupported rotation type.", PA::E));
-	  return $args;
+	  throw new SoterException("Unsupported rotation type \"$rottype\".");
 	}
 
 	// Offset subsequent divisions
@@ -694,16 +643,13 @@ class SailsPane extends AbstractPane {
 
       case "SWP":
 	// ascertain that there are an even number of teams
-	if (count($teams) % 2 > 0) {
-	  Session::pa(new PA("There must be an even number of teams for swap rotation.", PA::E));
-	  return $args;
-	}
+	if (count($teams) % 2 > 0)
+	  throw new SoterException("There must be an even number of teams for swap rotation.");
 	$rotation->createSwap($sails, $teams, $ordered_divs, $ordered_races, $repeats);
 	break;
 	
       default:
-	Session::pa(new PA("Unsupported rotation type.", PA::E));
-	return $args;
+	throw new SoterException("Unsupported rotation type.");
       }
 
       // Reset
@@ -730,23 +676,11 @@ class SailsPane extends AbstractPane {
 	  in_array($args['from_div'], $exist_div)) {
 	$from_div = new Division($args['from_div']);
       }
-      else {
-	$mes = sprintf("Invalid division to offset from (%s).", $args['from_div']);
-	Session::pa(new PA($mes, PA::E));
-	return $args;
-      }
+      else
+	throw new SoterException("Invalid division to offset from (%s).");
 
       // 4b. validate offset amount
-      if (isset($args['offset']) &&
-	  is_numeric($args['offset'])) {
-	$offset = (int)($args['offset']);
-      }
-      else {
-	$mes = sprintf("Invalid offset amount (%s)", $args['offset']);
-	Session::pa(new PA($mes, PA::E));
-	return $args;
-      }
-
+      $offset = DB::$V->reqInt($args, 'offset', -100, 101, "Invalid or missing offset amount.");
       $num_teams = count($this->REGATTA->getTeams());
       foreach ($divisions as $div) {
 	$rotation->createOffset($from_div,
@@ -759,40 +693,7 @@ class SailsPane extends AbstractPane {
       unset($args['rottype']);
       Session::pa(new PA('Offset rotation created.'));
     }
-
     return $args;
-  }
-
-  // Helper methods
-
-  /**
-   * Validates the rotation string
-   *
-   * @param String $str the rotation key
-   * @return Boolean whether the key is valid
-   */
-  private function validateRotation($rot) {
-    if (in_array($rot, array_keys($this->ROTS)))
-      return true;
-    return false;
-  }
-
-  /**
-   * Validates the division string
-   *
-   * @param String $str the rotation key
-   * @return Boolean whether the key is valid
-   */
-  private function validateDivisions($divs) {
-    $actual_divs = array();
-    foreach ($this->REGATTA->getDivisions() as $div)
-      $actual_divs[] = (string)$div;
-    
-    foreach ($divs as $d) {
-      if (!in_array($d, $actual_divs))
-	return false;
-    }
-    return true;
   }
 }
 ?>
