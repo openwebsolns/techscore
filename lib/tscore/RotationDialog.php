@@ -49,7 +49,7 @@ class RotationDialog extends AbstractDialog {
 
       foreach ($races as $race) {
 	$sail = $this->rotation->getSail($race, $team);
-	$sail = ($sail !== false) ? $sail : "";
+	$sail = ($sail !== null) ? $sail : "";
 	$r->add(new XTD(array(), $sail));
       }
     }

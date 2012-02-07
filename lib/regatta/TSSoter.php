@@ -160,5 +160,47 @@ class TSSoter extends Soter {
       return $default;
     }
   }
+  public function reqDivisions(Array $args, $key, Array $pos_values, $min = 0, $mes = "GSE") {
+    if (!isset($args[$key]) || !is_array($args[$key]))
+      throw new SoterException($mes);
+    $list = array();
+    foreach ($args[$key] as $div) {
+      try {
+	$division = Division::get($div);
+	if (in_array($division, $pos_values))
+	  $list[] = $division;
+      }
+      catch (InvalidArgumentException $e) {}
+    }
+    if (count($list) < $min)
+      throw new SoterException($mes);
+    return $list;
+  }
+  public function incDivisions(Array $args, $key, Array $pos_values, $min = 0, Array $def_values = array()) {
+    try {
+      return $this->reqDivisions($args, $key, $pos_values, $min);
+    }
+    catch (SoterException $e) {
+      return $def_values;
+    }
+  }
+  public function reqValues(Array $args, $key, Array $pos_values, $min = 0, $mes = "GSE") {
+    $list = array();
+    foreach ($this->reqList($args, $key, null, $mes) as $item) {
+      if (in_array($item, $pos_values))
+	$list[] = $item;
+    }
+    if (count($list) < $min)
+      throw new SoterException($mes);
+    return $list;
+  }
+  public function incValues(Array $args, $key, Array $pos_values, $min = 0, Array $default = array()) {
+    try {
+      return $this->reqValues($args, $key, $pos_values, $min);
+    }
+    catch (SoterException $e) {
+      return $default;
+    }
+  }
 }
 ?>

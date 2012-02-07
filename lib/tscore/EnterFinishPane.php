@@ -426,8 +426,8 @@ class EnterFinishPane extends AbstractPane {
 	$race_ids[$r->id] = $r;
 	foreach ($teams as $t) {
 	  $s = $rotation->getSail($r, $t);
-	  $sails[$s] = $t;
-	  $races[$s] = $r;
+	  $sails[(string)$s] = $t;
+	  $races[(string)$s] = $r;
 	}
       }
 

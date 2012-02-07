@@ -63,13 +63,13 @@ class Rotation {
    *
    * @param Race $race the race
    * @param Team $team the team
-   * @return String the sail number, null if none
+   * @return Sail the sail number, null if none
    */
   public function getSail(Race $race, Team $team) {
     $res = DB::getAll(DB::$SAIL, new DBBool(array(new DBCond('race', $race), new DBCond('team', $team))));
     if (count($res) == 0)
       return null;
-    return $res[0]->sail;
+    return $res[0];
   }
 
   /**
@@ -493,16 +493,18 @@ class Rotation {
    */
   public function addAmount(Race $race, $amount) {
     // This needs to be done intelligently. Should we reinsert all the
-    // sails? Or update them? I'm thinking the former
+    // sails? Or update them? I'm thinking the latter; only because
+    // removing them takes as many SQL calls as updating
     $sails = array();
-    foreach ($this->getSails($race) as $sail) {
-      DB::remove($sail);
-      $sails[] = $sail;
-      $parts = $this->split3($sail->sail);
-      $parts[1] += $amount;
-      $sail->sail = implode("", $parts);
+    foreach ($this->regatta->getTeams() as $team) {
+      $sail = $this->getSail($race, $team);
+      if ($sail !== null) {
+	$parts = self::split3($sail->sail);
+	$parts[1] += $amount;
+	$sail->sail = implode("", $parts);
+	DB::set($sail, true);
+      }
     }
-    DB::insertAll($sails);
   }
 
   /**
@@ -512,7 +514,7 @@ class Rotation {
    * @param String $a the sail number
    * @return Array the parts (implode("",$ret) to recreate $a);
    */
-  private function split3($a) {
+  private static function split3($a) {
     $a = (string)$a;
     $pre = array("", "", "");
     for ($i = strlen($a) - 1; $i >= 0; $i--) {
@@ -530,6 +532,22 @@ class Rotation {
       }
     }
     return $pre;
+  }
+
+  /**
+   * Returns the minimum sail number among the given sails
+   *
+   * @param Array:String $nums the sail numbers
+   * @return int $min the minimum value
+   */
+  public static function min($nums) {
+    $min = null;
+    foreach ($nums as $num) {
+      $split = self::split3($num);
+      if ($min === null || $split[1] < $min)
+	$min = $split[1];
+    }
+    return (int)$min;
   }
 
   /**

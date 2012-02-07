@@ -134,86 +134,34 @@ class TweakSailsPane extends AbstractPane {
     // ------------------------------------------------------------
     // 0.A Validate divisions
     // ------------------------------------------------------------
-    $divisions = null;
-    if (isset($args['division']) &&
-	is_array($args['division'])) {
-      foreach ($args['division'] as $div) {
-	try {
-	  $divisions[] = new Division($div);
-	}
-	catch (Exception $e) {
-	  $mes = sprintf("Ignored invalid division (%s).", $div);
-	  Session::pa(new PA($mes, PA::I));
-	}
-      }
-    }
-    else {
-      $mes = "Missing divisions.";
-      Session::pa(new PA($mes, PA::E));
-      return $args;
-    }
+    $divisions = DB::$V->reqDivisions($args, 'division', $rotation->getDivisions(), 1, "Invalid/missing divisions.");
 
     // ------------------------------------------------------------
     // 1. Choose type of tweak
     // ------------------------------------------------------------
     if (isset($args['choose_act'])) {
-      // Check action
-      if (!isset($args['edittype']) ||
-	  !in_array($args['edittype'], array_keys($this->ACTIONS))) {
-	$mes = sprintf("Invalid tweak type (%s).", $args['edittype']);
-	Session::pa(new PA($mes, PA::E));
-	unset($args['edittype']);
-      }
+      $args['edittype'] = DB::$V->reqKey($args, 'edittype', $this->ACTIONS, "Invalid or missing tweak type.");
       return $args;
     }
-
     
     // ------------------------------------------------------------
     // 2. Tweak
     // ------------------------------------------------------------
     //   - get races and unique sails
-    if (isset($args['races']) &&
-	($races = DB::parseRange($args['races'])) !== null) {
-      if (!sort($races)) {
-	$mes = sprintf("Unable to understand/sort race range (%s).", $args['races']);
-	Session::pa(new PA($mes, PA::E));
-	return $args;
-      }
-      // Keep only races that are unscored
-      $valid_races = $this->REGATTA->getUnscoredRaceNumbers($divisions);
-      $ignored_races = array();
-      $actual_races  = array();
-      foreach ($races as $r) {
-	if (!in_array($r, $valid_races))
-	  $ignored_races[] = $r;
-	else
-	  $actual_races[]  = $r;
-      }
-      if (count($ignored_races) > 0) {
-	$mes = sprintf('Ignored races %s in divisions %s',
-		       DB::makeRange($ignored_races),
-		       implode(", ", $divisions));
-	Session::pa(new PA($mes, PA::I));
-      }
+    $args['races'] = DB::parseRange(DB::$V->reqString($args, 'races', 1, 100, "Missing list of races."));
+    $racenums = DB::$V->reqValues($args, 'races', $this->REGATTA->getUnscoredRaceNumbers($divisions), 1, "Invalid races.");
 
-      // Get sail numbers for all the races
-      $races = array();
-      foreach ($divisions as $div) {
-	foreach ($actual_races as $num) {
-// @TODO getRace()
-	  if (($race = $this->REGATTA->getRace($div, $num)) !== null)
-	    $races[] = $race;
-	}
+    // Get sail numbers for all the races
+    $races = array();
+    foreach ($divisions as $div) {
+      foreach ($racenums as $num) {
+	if (($race = $this->REGATTA->getRace($div, $num)) !== null)
+	  $races[] = $race;
       }
-      if (count($races) == 0)
-	throw new SoterException("No valid races chosen.");
-      $sails = $rotation->getCommonSails($races);
     }
-    else {
-      $mes = sprintf("Invalid range for races (%s).", $args['races']);
-      Session::pa(new PA($mes, PA::E));
-      return $args;
-    }
+    if (count($races) == 0)
+      throw new SoterException("No valid races chosen.");
+    $sails = $rotation->getCommonSails($races);
 
     // ------------------------------------------------------------
     // 2a. Add to existing sails
@@ -221,21 +169,10 @@ class TweakSailsPane extends AbstractPane {
     if (isset($args['addsails'])) {
 
       // Validate amount
-      $amount = null;
-      if (isset($args['addamount']) &&
-	  is_numeric($args['addamount'])) {
-	$amount = (int)$args['addamount'];
-	if ($amount + min($sails) <= 0) {
-	  $mes = "Sail numbers must be positive.";
-	  Session::pa(new PA($mes, PA::E));
-	  return $args;
-	}
-      }
-      else {
-	$mes = "Missing or invalid amount to add to sails.";
-	Session::pa(new PA($mes, PA::E));
-	return $args;
-      }
+      $min = Rotation::min($sails);
+      $amount = DB::$V->reqInt($args, 'addamount', 1 - $min, 1000 - $min, "Invalid amount to add to sails (sails numbers must be positive).");
+      if ($amount == 0)
+	throw new SoterException("It is senseless to add nothing to the sails.");
 
       foreach ($races as $race)
 	$rotation->addAmount($race, $amount);

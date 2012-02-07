@@ -519,7 +519,7 @@ class Regatta extends DBObject {
       foreach ($this->getUnscoredRaces($div) as $race)
 	$nums[$race->number] = $race->number;
     }
-    usort($nums);
+    asort($nums, SORT_NUMERIC);
     return $nums;
   }
 
