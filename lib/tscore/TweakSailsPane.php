@@ -186,35 +186,10 @@ class TweakSailsPane extends AbstractPane {
     // 2b. Replace existing sails
     // ------------------------------------------------------------
     if (isset($args['replacesails'])) {
-
-      //   - Validate FROM sail
-      $fromsail = null;
-      if (isset($args['from_sail']) &&
-	  in_array($args['from_sail'], $sails)) {
-	$fromsail = $args['from_sail'];
-      }
-      else {
-	$mes = sprintf("Invalid sail number to replace (%s).", $args['from_sail']);
-	Session::pa(new PA($mes, PA::E));
-	return $args;
-      }
-
-      //  - Validate TO sail
-      $tosail = null;
-      if (isset($args['to_sail']) &&
-	  is_numeric($args['to_sail'])) {
-	$tosail = (int)$args['to_sail'];
-	if (in_array($tosail, $sails)) {
-	  $mes = "Duplicate value for sail $tosail.";
-	  Session::pa(new PA($mes, PA::E));
-	  return $args;
-	}
-      }
-      else {
-	$mes = sprintf("New sail number is invalid or missing (%s).", $args['to_sail']);
-	Session::pa(new PA($mes, PA::E));
-	return $args;
-      }
+      $fromsail = DB::$V->reqValue($args, 'from_sail', $sails, "Invalid/missing sail to replace.");
+      $tosail = DB::$V->reqString($args, 'to_sail', 1, 9, "Invalid/missing sail to change to.");
+      if (in_array($tosail, $sails))
+	throw new SoterException("Duplicate value for sail $tosail.");
 
       foreach ($races as $race)
 	$rotation->replaceSail($race, $fromsail, $tosail);
