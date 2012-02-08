@@ -52,7 +52,7 @@ class RP {
 	$this->races_nums = array();
 	foreach ($this->rps as $rp)
 	  $this->races_nums[] = $rp->race->number;
-	usort($this->races_nums);
+	sort($this->races_nums);
       }
       return $this->races_nums;
     default:

@@ -183,21 +183,7 @@ class RpEnterPane extends AbstractPane {
     // ------------------------------------------------------------
     // Change teams
     // ------------------------------------------------------------
-    $team = null;
-    if (isset($args['chosen_team'])) {
-      $team = $this->REGATTA->getTeam($args['chosen_team']);
-      if ($team == null) {
-	$mes = sprintf("Invalid team choice (%s).", $args['chosen_team']);
-	Session::pa(new PA($mes, PA::E));
-	unset($args['chosen_team']);
-	return $args;
-      }
-    }
-    else {
-      $mes = sprintf("Missing team choice.");
-      Session::pa(new PA($mes, PA::E));
-      return $args;
-    }
+    $team = DB::$V->reqTeam($args, 'chosen_team', $this->REGATTA, "Missing team choice.");
 
     // ------------------------------------------------------------
     // RP data
@@ -208,6 +194,7 @@ class RpEnterPane extends AbstractPane {
       $rpManager->reset($team);
 
       $cur_season = Season::forDate(DB::$NOW);
+      $active = false;
       if ((string)$cur_season ==  (string)$this->REGATTA->getSeason())
 	$active = true;
       $gender = ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) ?
@@ -221,13 +208,10 @@ class RpEnterPane extends AbstractPane {
 	$sailors[$sailor->id] = $sailor;
 
       // Insert representative
-      if (!empty($args['rep']) ) {
-	$rep = DB::getSailor($args['rep']);
-	if ($rep !== null && $rep->school == $team->school)
-	  $rpManager->setRepresentative($team, $rep);
-	else {
-	  Session::pa(new PA(sprintf("Invalid representative ID (%s).", $args['rep']), PA::I));
-	}
+      if (DB::$V->hasID($rep, $args, 'rep', DB::$MEMBER)) {
+	if ($rep->school != $team->school)
+	  throw new SoterException("Invalid representative chosen.");
+	$rpManager->setRepresentative($team, $rep);
       }
 
       // To enter RP information, keep track of the number of crews
@@ -305,7 +289,6 @@ class RpEnterPane extends AbstractPane {
       }
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RP, $team->school->id);
     }
-
     return $args;
   }
 

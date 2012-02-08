@@ -20,6 +20,7 @@ class DB extends DBM {
   public static $BURGEE = null;
   public static $BOAT = null;
   public static $VENUE = null;
+  public static $MEMBER = null;
   public static $SAILOR = null;
   public static $COACH = null;
   public static $SCORER = null;
@@ -66,6 +67,7 @@ class DB extends DBM {
     self::$BURGEE = new Burgee();
     self::$BOAT = new Boat();
     self::$VENUE = new Venue();
+    self::$MEMBER = new Member();
     self::$SAILOR = new Sailor();
     self::$COACH = new Coach();
     self::$SCORER = new Scorer();
@@ -864,12 +866,12 @@ class Division {
 }
 
 /**
- * Encapsulates a sailor, whether registered with ICSA or not.
+ * Represents either a student or a coach as a member of a school
  *
  * @author Dayan Paez
- * @version 2009-10-04
+ * @version 2012-02-07
  */
-class Sailor extends DBObject {
+class Member extends DBObject {
   protected $school;
   public $last_name;
   public $first_name;
@@ -895,12 +897,10 @@ class Sailor extends DBObject {
   }
   protected function db_order() { return array('last_name'=>true, 'first_name'=>true); }
   public function db_name() { return 'sailor'; }
-  public function db_where() { return new DBCond('role', 'student'); }
 
   public function isRegistered() {
     return $this->icsa_id !== null;
   }
-
   public function __toString() {
     $year = "";
     if ($this->role == 'student')
@@ -916,12 +916,22 @@ class Sailor extends DBObject {
 }
 
 /**
+ * Encapsulates a sailor, whether registered with ICSA or not.
+ *
+ * @author Dayan Paez
+ * @version 2009-10-04
+ */
+class Sailor extends Member {
+  public function db_where() { return new DBCond('role', 'student'); }
+}
+
+/**
  * A coach (a sailor with role=coach)
  *
  * @author Dayan Paez
  * @version 2012-01-08
  */
-class Coach extends Sailor {
+class Coach extends Member {
   public function db_where() { return new DBCond('role', 'coach'); }
   public function __construct() {
     $this->role = Sailor::COACH;
@@ -1407,7 +1417,7 @@ class Representative extends DBObject {
   public function db_type($field) {
     switch ($field) {
     case 'team': return DB::$TEAM;
-    case 'sailor': return DB::$SAILOR;
+    case 'sailor': return DB::$MEMBER;
     default:
       return parent::db_type($field);
     }

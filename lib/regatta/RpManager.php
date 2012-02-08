@@ -46,7 +46,7 @@ class RpManager {
    * @param Team $team the team
    * @param Sailor $sailor the sailor
    */
-  public function setRepresentative(Team $team, Sailor $sailor) {
+  public function setRepresentative(Team $team, Member $sailor) {
     // Ensure uniqueness
     $cur = $this->getRepresentative($team);
     if ($cur === null) {
