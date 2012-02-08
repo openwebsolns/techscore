@@ -148,9 +148,12 @@ class Rotation {
     if ($sail->team instanceof ByeTeam) return;
     // Enforce uniqueness
     $cur = $this->getSail($sail->race, $sail->team);
-    if ($cur !== null)
+    $arg = false;
+    if ($cur !== null) {
       $sail->id = $cur->id;
-    DB::set($sail);
+      $arg = true;
+    }
+    DB::set($sail, $arg);
   }
 
 

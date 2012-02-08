@@ -62,7 +62,7 @@ class ManualTweakPane extends AbstractPane {
       $tab->addRow($row);
     }
     $form->add(new XReset("reset", "Reset"));
-    $form->add(new XSubmitInput("editboat", "Edit boat(s)"));
+    $form->add(new XSubmitInput("editboat", "Edit sails"));
   }
 
   public function process(Array $args) {
@@ -73,11 +73,7 @@ class ManualTweakPane extends AbstractPane {
     // Edit division
     // ------------------------------------------------------------
     if (isset($args['division'])) {
-      if (!in_array($args['division'], $rotation->getDivisions())) {
-	$mes = sprintf("Invalid division (%s).", $args['division']);
-	Session::pa(new PA($mes, PA::E));
-	unset($args['division']);
-      }
+      $args['division'] = DB::$V->reqDivision($args, 'division', $rotation->getDivisions(), "Invalid division provided.");
       return $args;
     }
 
@@ -86,24 +82,22 @@ class ManualTweakPane extends AbstractPane {
     // ------------------------------------------------------------
     if (isset($args['editboat'])) {
       unset($args['editboat']);
-      $sail = new Sail();
       foreach ($args as $rAndt => $value) {
-	if ( !empty($value) && is_numeric($value) ) {
-	  $rAndt = explode(",", $rAndt);
-	  $r = $this->REGATTA->getRaceById($rAndt[0]);
-	  $t = $this->REGATTA->getTeam($rAndt[1]);
-	  if ($r != null && $t != null) {
-	    $sail->race = $r;
-	    $sail->team = $t;
-	    $sail->sail = $value;
-	    $rotation->setSail($sail);
-	  }
+	$value = DB::$V->reqString($args, $rAndt, 1, 9, "Invalid value for sail.");
+	$rAndt = explode(",", $rAndt);
+	$r = $this->REGATTA->getRaceById($rAndt[0]);
+	$t = $this->REGATTA->getTeam($rAndt[1]);
+	if ($r != null && $t != null) {
+	  $sail = new Sail();
+	  $sail->race = $r;
+	  $sail->team = $t;
+	  $sail->sail = $value;
+	  $rotation->setSail($sail);
 	}
       }
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA('Sails updated.'));
     }
-
     return $args;
   }
 }

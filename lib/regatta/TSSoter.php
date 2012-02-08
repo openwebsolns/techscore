@@ -184,6 +184,25 @@ class TSSoter extends Soter {
       return $def_values;
     }
   }
+  public function reqDivision(Array $args, $key, Array $pos_divisions, $mes = "GSE") {
+    try {
+      $div = Division::get($this->reqString($args, $key, 1, 2, $mes));
+      if (!in_array($div, $pos_divisions))
+	throw new SoterException($mes);
+      return $div;
+    }
+    catch (InvalidArgumentException $e) {
+      throw new SoterException($mes);
+    }
+  }
+  public function incDivision(Array $args, $key, Array $pos_divisions, $default = null) {
+    try {
+      return $this->reqDivision($args, $key, $pos_divisions);
+    }
+    catch (SoterException $e) {
+      return $default;
+    }
+  }
   public function reqValues(Array $args, $key, Array $pos_values, $min = 0, $mes = "GSE") {
     $list = array();
     foreach ($this->reqList($args, $key, null, $mes) as $item) {

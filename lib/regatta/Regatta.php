@@ -365,7 +365,7 @@ class Regatta extends DBObject {
    */
   public function getRaceById($id) {
     $r = DB::get(DB::$RACE, $id);
-    if ($r === null || $r->regatta != $this->id)
+    if ($r === null || $r->regatta != $this)
       return null;
     return $r;
   }
