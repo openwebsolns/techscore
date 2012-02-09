@@ -43,7 +43,7 @@ class RpEnterPane extends AbstractPane {
     $this->PAGE->addContent($p = new XPort("Choose a team"));
     $p->add(new XP(array(),
 		   array("Use the form below to enter RP information. If a sailor does not appear in the selection box, it means they are not in the ICSA database, and they have to be manually added to a temporary list in the ",
-			 new XA(sprintf('/%s/temp', $this->REGATTA->id), "Unregistered form"),
+			 new XA(sprintf('/score/%s/unregistered', $this->REGATTA->id), "Unregistered form"),
 			 ".")));
     $p->add(new XP(array(),
 		   array(new XStrong("Note:"),

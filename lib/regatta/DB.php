@@ -898,6 +898,10 @@ class Member extends DBObject {
   protected function db_order() { return array('last_name'=>true, 'first_name'=>true); }
   public function db_name() { return 'sailor'; }
 
+  public static function getGenders() {
+    return array(self::MALE => "Male", self::FEMALE => "Female");
+  }
+
   public function isRegistered() {
     return $this->icsa_id !== null;
   }
@@ -922,6 +926,9 @@ class Member extends DBObject {
  * @version 2009-10-04
  */
 class Sailor extends Member {
+  public function __construct() {
+    $this->role = Member::STUDENT;
+  }
   public function db_where() { return new DBCond('role', 'student'); }
 }
 
@@ -934,7 +941,7 @@ class Sailor extends Member {
 class Coach extends Member {
   public function db_where() { return new DBCond('role', 'coach'); }
   public function __construct() {
-    $this->role = Sailor::COACH;
+    $this->role = Member::COACH;
   }
 }
 

@@ -226,6 +226,8 @@ class RpManager {
     // make sure it's temp and NEW!
     $sailor->id = null;
     $sailor->icsa_id = null;
+    $sailor->active = 1;
+    $sailor->regatta_added = $this->regatta->id;
     DB::set($sailor);
   }
 
@@ -236,10 +238,16 @@ class RpManager {
    * else will silently fail.
    *
    * @param Sailor $temp the temporary sailor
+   * @return boolean remove succeeded
    */
   public function removeTempSailor(Sailor $sailor) {
-    if ($sailor->icsa_id === null && $sailor->regatta_added == $this->regatta->id)
+    if ($sailor->icsa_id === null &&
+	$sailor->regatta_added == $this->regatta->id &&
+	!$this->isParticipating($sailor)) {
       DB::remove($sailor);
+      return true;
+    }
+    return false;
   }
 
   /**
