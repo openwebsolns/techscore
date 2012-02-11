@@ -763,7 +763,7 @@ class Regatta extends DBObject {
    * @param Race $race the race whose finishes to drop
    */
   protected function deleteFinishes(Race $race) {
-    DB::removeAll(DB::$RACE, new DBCond('race', $race));
+    DB::removeAll(DB::$FINISH, new DBCond('race', $race));
   }
 
   /**
@@ -777,7 +777,6 @@ class Regatta extends DBObject {
       $this->deleteFinishes($race);
     else {
       foreach ($this->getDivisions() as $div)
-// @TODO getRace()
 	$this->deleteFinishes($this->getRace($div, $race->number));
     }
     $this->runScore($race);

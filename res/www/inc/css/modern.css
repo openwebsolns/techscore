@@ -133,3 +133,7 @@ tr.disabled {background:#ddd;color:#555;}
 #search input {
     padding: 0;
 }
+.thin {
+    padding: 0;
+    margin: 0;
+}

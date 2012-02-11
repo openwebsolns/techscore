@@ -52,9 +52,9 @@ class DropFinishPane extends AbstractPane {
       }
       // add form
       $tab->add(new XTR(array(), array(new XTD(array('colspan'=>2), $form = $this->createForm()))));
-      $form->add(new XP(array(),
+      $form->add(new XP(array('class'=>'thin'),
 			array(new XHiddenInput("race", $race->id),
-			      new XSubmitInput("removerace", "Remove", array('class'=>'thin')))));
+			      new XSubmitInput("removerace", "Remove", array('class'=>'small')))));
     }
   }
 
@@ -97,9 +97,9 @@ class DropFinishPane extends AbstractPane {
 	}
 	// add form
 	$tab->add(new XTR(array(), array(new XTD(array('colspan'=>2), $form = $this->createForm()))));
-	$form->add(new XP(array(),
+	$form->add(new XP(array('class'=>'thin'),
 			  array(new XHiddenInput("race", $race->id),
-				new XSubmitInput("removerace", "Remove"), array('class'=>'thin'))));
+				new XSubmitInput("removerace", "Remove", array('class'=>'small')))));
       }
     }
   }
@@ -118,11 +118,10 @@ class DropFinishPane extends AbstractPane {
     // Remove a set of race finishes
     // ------------------------------------------------------------
     if (isset($args['removerace'])) {
-      if (!isset($args['race']) || ($race = $this->REGATTA->getRaceById($args['race'])) === null) {
-	$mes = sprintf("Invalid or missing race (%s).", $args['race']);
-	Session::pa(new PA($mes, PA::E));
-	return $args;
-      }
+      $race = DB::$V->reqID($args, 'race', DB::$RACE, "Invalid or missing race to drop.");
+      if ($race->regatta != $this->REGATTA)
+	throw new SoterException("Provided race does not belong to this regatta.");
+      
       $this->REGATTA->dropFinishes($race);
       $mes = sprintf("Removed finishes for race %s.", $race);
       if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED)
