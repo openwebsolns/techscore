@@ -12,73 +12,73 @@ String.prototype.reverse = function(){
     revertext = splitext.reverse();
     reversed = revertext.join("");
     return reversed;
-}
+};
 
 // Check that all the teams are different
-    function checkTeams() {
-	// Get finish button
-	var submit_button = document.getElementById("submitfinish");
-	// Get possible values
-	var pos_teams = document.getElementsByName("pos_team");
+function checkTeams() {
+    // Get finish button
+    var submit_button = document.getElementById("submitfinish");
+    // Get possible values
+    var pos_teams = document.getElementsByName("pos_team");
 
-	// Reset pos_values
-	for (var i = 0; i < pos_teams.length; i++) {
-	    pos_teams[i].style.visibility = "visible";
-	}
-
-	// Determining that submission is valid
-	var can_submit = true;
-
-	// Get all inputs
-	var table  = document.getElementById("finish_table");
-	var inputs = table.getElementsByTagName("select");
-
-	// Go through each input and check it against the others later
-	// in the list
-	for (var i = 0; i < inputs.length; i++) {
-	    var input = inputs[i];
-	    var iNum  = input.id.replace("team", "");
-	    var cell  = document.getElementById("check" + iNum);
-
-	    // Check that it is not blank
-	    if (input.value != "") {
-		cell.src = "/inc/img/s.png";
-		cell.alt = "Valid";
-
-		// Remove from the list of pos_teams
-		for (var j = 0; j < pos_teams.length; j++) {
-		    if (pos_teams[j].attributes.value.nodeValue == input.value) {
-			pos_teams[j].style.visibility = "hidden";
-			break;
-		    }
-		}
-
-		// Compare to others preceding
-		for (var k = 0; k < i; k++) {
-		    if (inputs[k].value == input.value) {
-			// Error! Alert both, and stop checking for
-			// errors
-			cell.src = "/inc/img/e.png";
-			cell.alt = "Error: repeated team";
-
-			var iNum2 = inputs[k].id.replace("team", "");
-			var cell2 = document.getElementById("check" + iNum2);
-			cell2.src = "/inc/img/e.png";
-			cell2.alt = "Error: repeated sail";
-			can_submit = false;
-			break;
-		    }
-		}
-	    } // end non-blank if
-	    else {
-		cell.src = "/inc/img/question.png";
-		cell.alt = "Waiting for input";
-		can_submit = false;
-	    }
-	} // end: for each input
-
-	submit_button.disabled = (!can_submit);
+    // Reset pos_values
+    for (var i = 0; i < pos_teams.length; i++) {
+	pos_teams[i].style.visibility = "visible";
     }
+
+    // Determining that submission is valid
+    var can_submit = true;
+
+    // Get all inputs
+    var table  = document.getElementById("finish_table");
+    var inputs = table.getElementsByTagName("select");
+
+    // Go through each input and check it against the others later
+    // in the list
+    for (var i = 0; i < inputs.length; i++) {
+	var input = inputs[i];
+	var iNum  = input.id.replace("team", "");
+	var cell  = document.getElementById("check" + iNum);
+
+	// Check that it is not blank
+	if (input.value != "") {
+	    cell.src = "/inc/img/s.png";
+	    cell.alt = "Valid";
+
+	    // Remove from the list of pos_teams
+	    for (var j = 0; j < pos_teams.length; j++) {
+		if (pos_teams[j].attributes.value.nodeValue == input.value) {
+		    pos_teams[j].style.visibility = "hidden";
+		    break;
+		}
+	    }
+
+	    // Compare to others preceding
+	    for (var k = 0; k < i; k++) {
+		if (inputs[k].value == input.value) {
+		    // Error! Alert both, and stop checking for
+		    // errors
+		    cell.src = "/inc/img/e.png";
+		    cell.alt = "Error: repeated team";
+
+		    var iNum2 = inputs[k].id.replace("team", "");
+		    var cell2 = document.getElementById("check" + iNum2);
+		    cell2.src = "/inc/img/e.png";
+		    cell2.alt = "Error: repeated sail";
+		    can_submit = false;
+		    break;
+		}
+	    }
+	} // end non-blank if
+	else {
+	    cell.src = "/inc/img/question.png";
+	    cell.alt = "Waiting for input";
+	    can_submit = false;
+	}
+    } // end: for each input
+
+    submit_button.disabled = (!can_submit);
+}
 
 // Check that all the sails are correct
 // And indicate those that are repeated
@@ -308,84 +308,84 @@ var PIC_ROOT  = "/inc/img/needle_";
 // Get coordinates of click
 $(document).ready(function() {
 
-	$("#compass").click(function(ev) {
-		var x = ev.pageX - this.offsetLeft;
-		var y = ev.pageY - this.offsetTop;
-		
-		// center location
-		var cX = cY = 50;
-		x -= cX;
-		y =  cY - y;
-		var resolution = 15; // degree resolution
-		
-		angle = Math.atan2(y,x)*180.0/3.14159;
-		var dir = null;
-		if ( Math.abs(angle) < resolution ) { // east
-		    dir = "e";
-		}
-		if ( Math.abs(angle-22.5) < resolution ) { // ene
-		    dir = "ene";
-		}
-		if ( Math.abs(angle-45) < resolution ) { // ne
-		    dir = "ne";
-		}
-		if ( Math.abs(angle-67.5) < resolution ) { // nne
-		    dir = "nne";
-		}
-		if ( Math.abs(angle-90) < resolution ) { // n
-		    dir = "n";
-		}
-		if ( Math.abs(angle-112.5) < resolution ) { // nnw
-		    dir = "nnw";
-		}
-		if ( Math.abs(angle-135) < resolution ) { // nw
-		    dir = "nw";
-		}
-		if ( Math.abs(angle-157.5) < resolution ) { // wnw
-		    dir = "wnw";
-		}
-		if ( Math.abs(angle-180) < resolution ) { // w
-		    dir = "w";
-		}
-		if ( Math.abs(angle+180) < resolution ) { // w
-		    dir = "w";
-		}
-		if ( Math.abs(angle+157.5) < resolution ) { // wsw
-		    dir = "wsw";
-		}
-		if ( Math.abs(angle+135) < resolution ) { // sw
-		    dir = "sw";
-		}
-		if ( Math.abs(angle+112.5) < resolution ) { // ssw
-		    dir = "ssw";
-		}
-		if ( Math.abs(angle+90) < resolution ) { // s
-		    dir = "s";
-		}
-		if ( Math.abs(angle+67.5) < resolution ) { // sse
-		    dir = "sse";
-		}
-		if ( Math.abs(angle+45) < resolution ) { // se
-		    dir = "se";
-		}
-		if ( Math.abs(angle+22.5) < resolution ) { // ese
-		    dir = "ese";
-		}
-		
-		drawCompass(dir);
-		updateDirectionSelect(dir.toUpperCase());
-	    });
-
-
-	// Disable the finish button
-	$("#submitfinish").attr({disabled:true});
-
-	// Make possible sails grabbable
-	$(".pos_sail").css("cursor", "pointer");
-	$(".pos_sail").click(function() {
-		appendToList(this);
-	    });
-
-	checkSails();
-	checkTeams();
+    $("#compass").click(function(ev) {
+	var x = ev.pageX - this.offsetLeft;
+	var y = ev.pageY - this.offsetTop;
+	
+	// center location
+	var cX = cY = 50;
+	x -= cX;
+	y =  cY - y;
+	var resolution = 15; // degree resolution
+	
+	angle = Math.atan2(y,x)*180.0/3.14159;
+	var dir = null;
+	if ( Math.abs(angle) < resolution ) { // east
+	    dir = "e";
+	}
+	if ( Math.abs(angle-22.5) < resolution ) { // ene
+	    dir = "ene";
+	}
+	if ( Math.abs(angle-45) < resolution ) { // ne
+	    dir = "ne";
+	}
+	if ( Math.abs(angle-67.5) < resolution ) { // nne
+	    dir = "nne";
+	}
+	if ( Math.abs(angle-90) < resolution ) { // n
+	    dir = "n";
+	}
+	if ( Math.abs(angle-112.5) < resolution ) { // nnw
+	    dir = "nnw";
+	}
+	if ( Math.abs(angle-135) < resolution ) { // nw
+	    dir = "nw";
+	}
+	if ( Math.abs(angle-157.5) < resolution ) { // wnw
+	    dir = "wnw";
+	}
+	if ( Math.abs(angle-180) < resolution ) { // w
+	    dir = "w";
+	}
+	if ( Math.abs(angle+180) < resolution ) { // w
+	    dir = "w";
+	}
+	if ( Math.abs(angle+157.5) < resolution ) { // wsw
+	    dir = "wsw";
+	}
+	if ( Math.abs(angle+135) < resolution ) { // sw
+	    dir = "sw";
+	}
+	if ( Math.abs(angle+112.5) < resolution ) { // ssw
+	    dir = "ssw";
+	}
+	if ( Math.abs(angle+90) < resolution ) { // s
+	    dir = "s";
+	}
+	if ( Math.abs(angle+67.5) < resolution ) { // sse
+	    dir = "sse";
+	}
+	if ( Math.abs(angle+45) < resolution ) { // se
+	    dir = "se";
+	}
+	if ( Math.abs(angle+22.5) < resolution ) { // ese
+	    dir = "ese";
+	}
+	
+	drawCompass(dir);
+	updateDirectionSelect(dir.toUpperCase());
     });
+
+
+    // Disable the finish button
+    $("#submitfinish").attr({disabled:true});
+
+    // Make possible sails grabbable
+    $(".pos_sail").css("cursor", "pointer");
+    $(".pos_sail").click(function() {
+	appendToList(this);
+    });
+
+    checkSails();
+    checkTeams();
+});

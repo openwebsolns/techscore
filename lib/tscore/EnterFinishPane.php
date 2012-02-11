@@ -337,7 +337,7 @@ class EnterFinishPane extends AbstractPane {
 	$tab->addRow(array(new XTD($attrs, $name),
 			   new XImg("/inc/img/question.png", "Waiting for input", array("id"=>"check" . $i)),
 			   $sel = XSelect::fromArray("p" . $i, $team_opts, $current_team)));
-	$sel->set('id', "$team$i");
+	$sel->set('id', "team$i");
 	$sel->set('tabindex', $i + 1);
 	$sel->set('onchange', 'checkTeams()');
       }
