@@ -57,7 +57,6 @@ class ICSAScorer {
     // given in the argument
     $finishes = array();
     foreach ($divs as $div) {
-// @TODO getRace()
       $r = $reg->getRace($div, $race->number);
       foreach ($reg->getFinishes($r) as $fin)
 	$finishes[] = $fin;
@@ -207,8 +206,8 @@ class ICSAScorer {
     $affected_finishes = array();
     foreach ($finishes as $finish)
       $affected_finishes[] = $finish;
-    // usort($finishes, "Finish::compareEntered");
     $avg_finishes = array(); // list of finishes that need to be averaged
+    $finishes = $affected_finishes;
     foreach ($finishes as $finish) {
       // ------------------------------------------------------------
       // clean finish

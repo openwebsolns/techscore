@@ -231,3 +231,7 @@ alter table dt_regatta change column season season varchar(3) default null;
 update dt_regatta set season = null where season not in (select id from season);
 alter table dt_regatta add foreign key (season) references season(id) on delete set null on update cascade;
 select id, name, season from dt_regatta where season is null;
+
+-- tweak finish table --
+alter table finish change column amount amount tinyint default null comment 'Non-positive for assigned, otherwise as appropriate for the penalty';
+update finish set amount = null where amount = 0;

@@ -752,7 +752,7 @@ class Regatta extends DBObject {
    * @see setFinishes
    */
   public function commitFinishes(Array $finishes) {
-    foreach ($this->finishes as $finish)
+    foreach ($finishes as $finish)
       DB::set($finish);
   }
 

@@ -28,7 +28,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
    *
    */
   public function fillHTML(Array $args) {
-    // $this->PAGE->set('xmlns:ts', 'http://collegesailing.info');
+    $this->PAGE->set('xmlns:ts', 'http://collegesailing.info');
     $this->PAGE->addContent($p = new XPort("Team results"));
     $ELEMS = $this->getTable();
     $p->add(array_shift($ELEMS));
@@ -118,7 +118,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
 	    $ln = array($rank->team->name, new XBr(),
 			new XA(sprintf('%s/%s', $link_schools, $rank->team->school->id),
 			       $rank->team->school->nick_name));
-	  $r->add(new XTD(array("title" => $rank->explanation, "class" => "tiebreaker", $tiebreakers[$rank->explanation])),
+	  $r->add(new XTD(array("title" => $rank->explanation, "class" => "tiebreaker"), $tiebreakers[$rank->explanation]),
 		  new XTD(array(), $order++),
 		  new XTD(array("class"=>"strong"), $ln));
 	}

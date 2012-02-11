@@ -214,17 +214,14 @@ class EnterFinishPane extends AbstractPane {
 
     // Determine race to display: either as requested or the next
     // unscored race, or the last race
-    $race = null;
-    if (!empty($args['chosen_race'])) {
-      try {
-	$race = Race::parse($args['chosen_race']);
-// @TODO getRace()
-	$race = $this->REGATTA->getRace($race->division, $race->number);
-      } catch (Exception $e) { $race = null; }
-    }
+    $race = DB::$V->incRace($args, 'chosen_race', $this->REGATTA, null);
     if ($race == null) {
       $races = $this->REGATTA->getUnscoredRaces();
-      $race = array_shift($races);
+      if (count($races) > 0)
+	$race = $races[0];
+    }
+    if ($race == null) {
+      $race = $this->REGATTA->getLastScoredRace();
     }
     if ($race == null) {
       Session::pa(new PA("No new races to score.", PA::I));
@@ -249,19 +246,19 @@ class EnterFinishPane extends AbstractPane {
 						       "maxlength"=>"3",
 						       "id"=>"chosen_race",
 						       "class"=>"narrow"))));
-
+    /*
     // Table of possible races
     $hrows = array(array());
     $brows = array(array());
     foreach ($divisions as $div) {
       $race_nums = array();
-      foreach ($this->REGATTA->getUnscoredRaces($div) as $r)
+      foreach ($this->REGATTA->getRaces($div) as $r)
 	$race_nums[] = $r->number;
       $hrows[0][] = (string)$div;
       $brows[0][] = DB::makeRange($race_nums);
     }
     $fitem->add(XTable::fromArray($brows, $hrows, array('class'=>'narrow')));
-    
+    */
 
     // Using?
     $using = (isset($args['finish_using'])) ?
@@ -296,7 +293,6 @@ class EnterFinishPane extends AbstractPane {
       // - Fill possible sails and input box
       $pos_sails = $rotation->getSails($race);
       $finishes = $this->REGATTA->getFinishes($race);
-      usort($finishes, "Finish::compareEntered");
       foreach ($pos_sails as $i => $aPS) {
 	$current_sail = (count($finishes) > 0) ?
 	  $rotation->getSail($race, $finishes[$i]->team) : "";
@@ -320,10 +316,10 @@ class EnterFinishPane extends AbstractPane {
       // ------------------------------------------------------------
       // Team lists
       // ------------------------------------------------------------
+      $form->add(new XP(array(), "Click on left column to push to right column."));
       $form->add($fitem = new FItem("Enter teams:",
 				    $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'finish_table'),
 							   array("Team", ">", "Finish"))));
-      $fitem->add(new XMessage("Click on left column to push to right column"));
 
       // - Fill possible teams and select
       $teams = $this->REGATTA->getTeams();
@@ -333,7 +329,6 @@ class EnterFinishPane extends AbstractPane {
       
       $attrs = array("name"=>"pos_team", "class"=>"pos_sail", "id"=>"pos_team");
       $finishes = $this->REGATTA->getFinishes($race);
-      usort($finishes, "Finish::compareEntered");
       foreach ($teams as $i => $team) {
 	$name = sprintf("%s %s", $team->school->nick_name, $team->name);
 	$attrs["value"] = $team->id;
@@ -341,7 +336,7 @@ class EnterFinishPane extends AbstractPane {
 	$current_team = (count($finishes) > 0) ? $finishes[$i]->team->id : "";
 	$tab->addRow(array(new XTD($attrs, $name),
 			   new XImg("/inc/img/question.png", "Waiting for input", array("id"=>"check" . $i)),
-			   $sel = XSelect::fromArray("p" . $i, $current_team, $team_opts)));
+			   $sel = XSelect::fromArray("p" . $i, $team_opts, $current_team)));
 	$sel->set('id', "$team$i");
 	$sel->set('tabindex', $i + 1);
 	$sel->set('onchange', 'checkTeams()');
@@ -552,147 +547,61 @@ class EnterFinishPane extends AbstractPane {
 
 
   public function process(Array $args) {
-
-    if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED) {
+    if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED)
       return $this->processCombined($args);
-    }
 
     $divisions = $this->REGATTA->getDivisions();
     
     // ------------------------------------------------------------
     // Choose race
     // ------------------------------------------------------------
-    if (isset($args['chosen_race'])) {
-      try {
-	$race = Race::parse($args['chosen_race']);
-// @TODO getRace()
-	$therace = $this->REGATTA->getRace($race->division, $race->number);
-	$args['chosen_race'] = ($therace === null) ? null : (string)$therace;
-      }
-      catch (InvalidArgumentException $e) {
-	$mes = sprintf("Invalid race (%s).", $args['chosen_race']);
-	Session::pa(new PA($mes, PA::E));
-	unset($args['chosen_race']);
-      }
-
-      if (!isset($args['finish_using']) ||
-	  !in_array($args['finish_using'], array_keys($this->ACTIONS)))
-	$args['finish_using'] = "ROT";
+    if (isset($args['choose_race'])) {
+      $args['chosen_race'] = DB::$V->incRace($args, 'chosen_race', $this->REGATTA);
+      $args['finish_using'] = DB::$V->incKey($args, 'finish_using', $this->ACTIONS, "ROT");
       return $args;
     }
 
     // ------------------------------------------------------------
-    // Enter finish by rotation
+    // Enter finish by rotation/teams
     // ------------------------------------------------------------
     $rotation = $this->REGATTA->getRotation();
-    if (isset($args['f_places'])) {
-      try {
-	$race = Race::parse($args['race']);
-// @TODO getRace()
-	$race = $this->REGATTA->getRace($race->division, $race->number);
-	if ($race == null)
-	  throw new Exception(sprintf("No such race in this regatta (%s).", $args['race']));
+    if (isset($args['f_places']) || isset($args['f_teams'])) {
+      $race = DB::$V->reqRace($args, 'race', $this->REGATTA, "No such race in this regatta.");
 
-	$sails = $rotation->getSails($race);
-	if (count($sails) == 0)
-	  throw new Exception(sprintf("No rotation has been created for the chosen race (%s).", $race));
-      }
-      catch (Exception $e) {
-	Session::pa(new PA($e->getMessage(), PA::E));
-	unset($args['race']);
-	return $args;
-      }
-      
       // Ascertain that there are as many finishes as there are sails
       // participating in this regatta (every team has a finish). Make
       // associative array of sail numbers => teams
-      $teams = array(); // alist: sail => Team
-      foreach ($sails as $sail)
-	$teams[$sail] = $rotation->getTeam($race, $sail);
-
-      $count = count($sails);
-      $finishes = array();
-      $now_fmt = "now + %d seconds";
-      for ($i = 0; $i < $count; $i++) {
-
-	// Verify
-	if (!isset($args["p$i"])) {
-	  Session::pa(new PA("Missing team(s).", PA::E));
-	  return $args;
-	}
-	$sail = $args["p$i"];
-	// Possible sail
-	if (!isset($teams[$sail])) {
-	  $mes = sprintf('Sail not in this race (%s).', $sail);
-	  Session::pa(new PA($mes, PA::E));
-	  return $args;
-	}
-
-	$finish = $this->REGATTA->getFinish($race, $teams[$sail]);
-	if ($finish === null)
-	  $finish = $this->REGATTA->createFinish($race, $teams[$sail]);
-	$finish->entered = new DateTime(sprintf($now_fmt, 3 * $i));
-	$finishes[] = $finish;
-	unset($sails[$sail]);
-      }
-
-      $this->REGATTA->runScore($race);
-      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE, $race);
-
-      // Reset
-      unset($args['chosen_race']);
-      $mes = sprintf("Finishes entered for race %s.", $race);
-      Session::pa(new PA($mes));
-    }
-
-    // ------------------------------------------------------------
-    // Enter finish by team
-    // ------------------------------------------------------------
-    if (isset($args['f_teams'])) {
-      try {
-	$race = Race::parse($args['race']);
-// @TODO getRace()
-	$race = $this->REGATTA->getRace($race->division, $race->number);
-	if ($race == null)
-	  throw new Exception(sprintf("No such race in this regatta (%s).", $args['race']));
-      }
-      catch (Exception $e) {
-	Session::pa(new PA($e->getMessage(), Announcemen::ERROR));
-	unset($args['race']);
-	return $args;
-      }
-
-      // Ascertain that each team has a stake in this finish
       $teams = array();
-      foreach ($this->REGATTA->getTeams() as $team)
-	$teams[$team->id] = $team;
+      if (isset($args['f_teams'])) {
+	$args['finish_using'] = "TMS";
+	foreach ($this->REGATTA->getTeams() as $team)
+	  $teams[$team->id] = $team;
+      }
+      else {
+	$sails = $rotation->getSails($race);
+	if (count($sails) == 0)
+	  throw new SoterException(sprintf("No rotation has been created for the chosen race (%s).", $race));
       
+	foreach ($sails as $sail)
+	  $teams[$sail] = $rotation->getTeam($race, $sail);
+	unset($sails);
+      }
+
       $count = count($teams);
       $finishes = array();
-      $now_fmt = "now + %d seconds";
+      $time = new DateTime();
+      $intv = new DateInterval('P0DT3S');
       for ($i = 0; $i < $count; $i++) {
-
-	// Verify
-	if (!isset($args["p$i"])) {
-	  Session::pa(new PA("Missing team(s).", PA::E));
-	  return $args;
-	}
-	$team_id = $args["p$i"];
-	// Possible team
-	if (!isset($teams[$team_id])) {
-	  $mes = sprintf('Invalid team ID (%s).', $team_id);
-	  Session::pa(new PA($mes, PA::E));
-	  return $args;
-	}
-
-	$finish = $this->REGATTA->getFinish($race, $teams[$team_id]);
+	$id = DB::$V->reqKey($args, "p$i", $teams, "Missing at least one team.");
+	$finish = $this->REGATTA->getFinish($race, $teams[$id]);
 	if ($finish === null)
-	  $finish = $this->REGATTA->createFinish($race, $teams[$team_id]);
-	$finish->entered = new DateTime(sprintf($now_fmt, 3 * $i));
+	  $finish = $this->REGATTA->createFinish($race, $teams[$id]);
+	$finish->entered = clone($time);
 	$finishes[] = $finish;
-	unset($teams[$team_id]);
+	unset($teams[$id]);
+	$time->add($intv);
       }
-
+      $this->REGATTA->commitFinishes($finishes);
       $this->REGATTA->runScore($race);
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE, $race);
 
@@ -700,8 +609,6 @@ class EnterFinishPane extends AbstractPane {
       unset($args['chosen_race']);
       $mes = sprintf("Finishes entered for race %s.", $race);
       Session::pa(new PA($mes));
-
-      $args['finish_using'] = "TMS";
     }
     
     return $args;
