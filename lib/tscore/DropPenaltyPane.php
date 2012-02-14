@@ -23,9 +23,10 @@ class DropPenaltyPane extends AbstractPane {
     $penalties = array();
     $handicaps = array();
     foreach ($this->REGATTA->getPenalizedFinishes() as $finish) {
-      if ($finish->penalty instanceof Penalty)
+      $penalty = $finish->getModifier();
+      if ($penalty instanceof Penalty)
 	$penalties[] = $finish;
-      elseif ($finish->penalty instanceof Breakdown)
+      elseif ($penalty instanceof Breakdown)
 	$handicaps[] = $finish;
     }
 
@@ -42,7 +43,7 @@ class DropPenaltyPane extends AbstractPane {
       foreach ($penalties as $finish) {
 	$tab->addRow(array($finish->race,
 			   $finish->team,
-			   $finish->penalty->type,
+			   $finish->penalty,
 			   $form = $this->createForm()));
 
 	$form->add(new XHiddenInput("r_finish", $finish->id));
@@ -80,25 +81,17 @@ class DropPenaltyPane extends AbstractPane {
     // ------------------------------------------------------------
     if (isset($args['p_remove'])) {
 
-      // - validate finish id
-      $finishes = array();
-      foreach ($this->REGATTA->getPenalizedFinishes() as $finish)
-	$finishes[$finish->id] = $finish;
-      if (!isset($finishes[$args['r_finish']])) {
-	$mes = sprintf("Invalid or missing finish ID (%s).", $args['r_finish']);
-	Session::pa(new PA($mes, PA::E));
-	return $args;
-      }
-      $theFinish = $finishes[$args['r_finish']];
-      $theFinish->penalty = null;
-      $this->REGATTA->commitFinishes(array($theFinish));
-      $this->REGATTA->runScore($theFinish->race);
+      $finish = DB::$V->reqID($args, 'r_finish', DB::$FINISH, "Invalid or missing finish provided.");
+      if ($finish->race->regatta != $this->REGATTA ||
+	  $finish->getModifier() == null)
+	throw new SoterException("Invalid finish provided.");
+      $finish->setModifier();
+      $this->REGATTA->commitFinishes(array($finish));
+      $this->REGATTA->runScore($finish->race);
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
 
       // Announce
-      $mes = sprintf("Dropped penalty for %s in race %s.",
-		     $theFinish->team, $theFinish->race);
-      Session::pa(new PA($mes));
+      Session::pa(new PA(sprintf("Dropped penalty for %s in race %s.", $finish->team, $finish->race)));
     }
     return $args;
   }
