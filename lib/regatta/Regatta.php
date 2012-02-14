@@ -804,11 +804,14 @@ class Regatta extends DBObject {
    *
    * @param Team $team the team whose penalty to drop
    * @param Division $div the division to drop
+   * @return boolean true if a penalty was dropped
    */
   public function dropTeamPenalty(Team $team, Division $div) {
     $cur = $this->getTeamPenalty($team, $div);
-    if ($cur !== null)
-      DB::remove($cur);
+    if ($cur === null)
+      return false;
+    DB::remove($cur);
+    return true;
   }
 
   /**

@@ -42,8 +42,12 @@ class TeamPenaltyPane extends AbstractPane {
 
     $p->add($form = $this->createForm());
     $form->add(new FItem("Team:", XSelect::fromArray('team', $teams)));
-    $form->add($fi = new FItem("Division(s):", XSelectM::fromArray('division[]', $divisions)));
-    $fi->add(new XMessage("Hold down Ctrl to select multiple"));
+    if (count($divisions) > 1) {
+      $form->add($fi = new FItem("Division(s):", XSelectM::fromArray('division[]', $divisions)));
+      $fi->add(new XMessage("Hold down Ctrl to select multiple"));
+    }
+    else
+      $form->add(new XHiddenInput('division[]', array_shift($divisions)));
 
     // Penalty type
     $opts = array_merge(array(""=>""), TeamPenalty::getList());
@@ -52,7 +56,7 @@ class TeamPenaltyPane extends AbstractPane {
     $form->add(new FItem("Comments:",
 			 new XTextArea("comments", "",
 				       array("rows"=>"2",
-					     "cols"=>"15"))));
+					     "cols"=>"35"))));
 
     $form->add(new XSubmitInput("t_submit", "Enter team penalty"));
 
@@ -74,10 +78,10 @@ class TeamPenaltyPane extends AbstractPane {
 			   new XTD(array('style'=>'text-align:left;width:10em;'), $p->comments),
 			   $form = $this->createForm()));
 
-	$form->add(new XP(array(),
+	$form->add(new XP(array('class'=>'thin'),
 			  array(new XHiddenInput("r_team", $p->team->id),
 				new XHiddenInput("r_div",  $p->division),
-				new XSubmitInput("t_remove", "Drop", array("class"=>"thin")))));
+				new XSubmitInput("t_remove", "Drop", array("class"=>"small")))));
       }
     }
   }
@@ -89,73 +93,35 @@ class TeamPenaltyPane extends AbstractPane {
     // Add penalty
     // ------------------------------------------------------------
     if (isset($args['t_submit'])) {
-      $team = $this->REGATTA->getTeam($args['team']);
-      // - validate team
-      if ($team == null) {
-	$mes = sprintf("Invalid or missing team (%s).", $args['team']);
-	Session::pa(new PA($mes, PA::E));
-	return $args;
-      }
+      $team = DB::$V->reqTeam($args, 'team', $this->REGATTA, "Invalid or missing team.");
+      $pnty = DB::$V->reqKey($args, 'penalty', TeamPenalty::getList(), "Invalid or missing penalty type.");
+      $comm = DB::$V->incString($args, 'comments', 1, 16000, null);
+      $divs = DB::$V->reqDivisions($args, 'division', $this->REGATTA->getDivisions(), 1, "Division list not provided.");
 
-      // - validate penalty
-      $pnty = $args['penalty'];
-      if (!in_array($pnty, array_keys(TeamPenalty::getList()))) {
-	$mes = sprintf("Invalid or missing penalty (%s).", $args['penalty']);
-	Session::pa(new PA($mes, PA::E));
-	return $args;
+      foreach ($divs as $div) {
+	$pen = new TeamPenalty();
+	$pen->team = $team;
+	$pen->type = $pnty;
+	$pen->comments = $comm;
+	$pen->division = $div;
+	$this->REGATTA->setTeamPenalty($pen);
       }
-
-      // - validate division
-      $comm = trim($args['comments']);
-      if (isset($args['division']) &&
-	  is_array($args['division']) &&
-	  count($args['division']) > 0) {
-
-	$penalty = new TeamPenalty();
-	$penalty->team = $team;
-	$penalty->type = $pnty;
-	$penalty->comments = $comm;
-	
-	$divisions = $this->REGATTA->getDivisions();
-	foreach ($args['division'] as $div) {
-	  if (in_array($div, $divisions)) {
-	    $penalty->division = new Division($div);
-	    $this->REGATTA->setTeamPenalty($penalty);
-	  }
-	}
-	Session::pa(new PA("Added team penalty."));
-	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
-      }
-      else {
-	$mes = "Invalid or missing division(s).";
-	Session::pa(new PA($mes, PA::E));
-      }
+      Session::pa(new PA("Added team penalty."));
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
     }
-
     
     // ------------------------------------------------------------
     // Drop penalty
     // ------------------------------------------------------------
     if (isset($args['t_remove'])) {
-
-      // - validate team
-      $team = $this->REGATTA->getTeam($args['r_team']);
-
-      // - validate division
-      $divisions = $this->REGATTA->getDivisions();
-      if ($team != null && in_array($args['r_div'], $divisions)) {
-
-	$this->REGATTA->dropTeamPenalty($team, new Division($args['r_div']));
-
-	$mes = sprintf("Dropped team penalty for %s in %s.", $team, $div);
-	Session::pa(new PA($mes));
+      $team = DB::$V->reqTeam($args, 'r_team', $this->REGATTA, "Invalid or missing team.");
+      $div = DB::$V->reqDivision($args, 'r_div', $this->REGATTA->getDivisions(), "Invalid or missing division.");
+      if ($this->REGATTA->dropTeamPenalty($team, $div)) {
+	Session::pa(new PA(sprintf("Dropped team penalty for %s in %s.", $team, $div)));
 	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
       }
-      else {
-	$mes = sprintf("Invalid or missing team (%s) or division (%s).",
-		       $args['r_team'], $args['r_div']);
-	Session::pa(new PA($mes, PA::E));
-      }
+      else
+	Session::pa(new PA("No team penalty dropped.", PA::I));
     }
 
     return $args;

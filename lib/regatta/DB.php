@@ -1384,8 +1384,10 @@ class TeamPenalty extends DBObject {
   }
 
   public function &__get($name) {
-    if ($name == 'division')
-      return Division::get($this->division);
+    if ($name == 'division') {
+      $div = Division::get($this->division);
+      return $div;
+    }
     return parent::__get($name);
   }
   public function __set($name, $value) {
