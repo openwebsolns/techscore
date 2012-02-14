@@ -1293,6 +1293,45 @@ class Finish extends DBObject {
     if ($race !== null) $this->race = $race;
     if ($team !== null) $this->team = $team;
   }
+
+  /**
+   * Attaches the given finish modifier to this finish. This is
+   * superior to assigning the values directly. Trust me.
+   *
+   * @param FinishModifier $mod the modifier
+   */
+  public function setModifier(FinishModifier $mod = null) {
+    if ($mod instanceof FinishModifier) {
+      $this->amount = $mod->amount;
+      $this->penalty = $mod->type;
+      $this->comments = $mod->comments;
+      $this->displace = $mod->displace;
+      $this->earned = $mod->earned;
+    }
+    else {
+      $this->amount = null;
+      $this->penalty = null;
+      $this->comments = null;
+      $this->displace = null;
+      $this->earned = null;
+    }
+  }
+
+  /**
+   * Gets the finish modifier, if any, for this finish. This object
+   * will be created each time this method is invoked.
+   *
+   * @return FinishModifier the modifier
+   */
+  public function getModifier() {
+    if ($this->penalty === null)
+      return null;
+    $pens = Penalty::getList();
+    if (isset($pens[$this->penalty]))
+      return new Penalty($this->penalty, $this->amount, $this->comments, $this->displace);
+    return new Breakdown($this->penalty, $this->amount, $this->comments, $this->displace);
+  }
+  
   
   // Comparators
 
@@ -1665,6 +1704,15 @@ abstract class FinishModifier {
   public $displace;
   
   /**
+   * @var int the minimum score than an averaged breakdown
+   * deserves. This is tracked by the scoring algorithm so that an
+   * entire race need not be re-scored just to determine a handicapped
+   * team's finish average score; and to keep that average from never
+   * being worse than that team's EARNED score, sans breakdown.
+   */
+  public $earned;
+  
+  /**
    * Fetches an associative list of the different penalty types
    *
    * @return Array<Penalty::Const,String> the different penalties
@@ -1713,15 +1761,6 @@ class Breakdown extends FinishModifier {
   const RDG = "RDG";
   const BKD = "BKD";
   const BYE = "BYE";
-
-  /**
-   * @var int the minimum score than an averaged breakdown
-   * deserves. This is tracked by the scoring algorithm so that an
-   * entire race need not be re-scored just to determine a handicapped
-   * team's finish average score; and to keep that average from never
-   * being worse than that team's EARNED score, sans breakdown.
-   */
-  public $earned;
 
   public static function getList() {
     return array(Breakdown::BKD => "BKD: Breakdown",

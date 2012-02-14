@@ -235,3 +235,5 @@ select id, name, season from dt_regatta where season is null;
 -- tweak finish table --
 alter table finish change column amount amount tinyint default null comment 'Non-positive for assigned, otherwise as appropriate for the penalty';
 update finish set amount = null where amount = 0;
+alter table finish change column displace displace tinyint default null;
+update finish set displace = 1 where displace is not null;
