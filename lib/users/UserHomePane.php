@@ -91,6 +91,7 @@ class UserHomePane extends AbstractUserPane {
 							      // new XTH(array(), "Season"),
 							      new XTH(array(), "Date"),
 							      new XTH(array(), "Type"),
+							      new XTH(array(), "Scoring"),
 							      new XTH(array(), "Finalized"))))),
 			       $tab = new XTBody())));
       $row = 0;
@@ -110,6 +111,7 @@ class UserHomePane extends AbstractUserPane {
 				// new XTD(array(), strtoupper($reg->season)),
 				new XTD(array(), $reg->start_time->format("Y-m-d")),
 				new XTD(array(), ucfirst($reg->type)),
+				new XTD(array(), ucfirst($reg->scoring)),
 				new XTD(array(), $finalized))));
       }
     }
