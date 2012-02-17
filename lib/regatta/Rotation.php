@@ -49,7 +49,7 @@ class Rotation {
    * if no such team exists
    *
    * @param Race $race the race
-   * @param int  $sail the sail number
+   * @param String $sail the sail number
    */
   public function getTeam(Race $race, $sail) {
     $res = DB::getAll(DB::$SAIL, new DBBool(array(new DBCond('race', $race), new DBCond('sail', $sail))));
@@ -90,6 +90,21 @@ class Rotation {
     while ($sail = $q->fetch_object())
       $sails[] = $sail->sail;
     return $sails;
+  }
+
+  /**
+   * Fetches the sails in the same race number across all divisions
+   *
+   * @param Race $race the race number
+   * @param Array $divisions if null, all the regatta's divisions
+   */
+  public function getCombinedSails(Race $race, Array $divisions = null) {
+    if ($divisions === null)
+      $divisions = $this->regatta->getDivisions();
+    $races = array();
+    foreach ($divisions as $div)
+      $races[] = $this->regatta->getRace($div, $race->number);
+    return $this->getCommonSails($races);
   }
 
   /**

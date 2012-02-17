@@ -448,7 +448,6 @@ class Regatta extends DBObject {
    */
   public function setRace(Race $race) {
     try {
-// @TODO getRace()
       $cur = $this->getRace($race->division, $race->number);
       $race->id = $cur->id;
     } catch (InvalidArgumentException $e) {
@@ -654,13 +653,28 @@ class Regatta extends DBObject {
    * Returns an array of finish objects for the given race ordered by
    * timestamp.
    *
-   * @param $race whose finishes to get.
-   * @return a list of ordered finishes in the race. If null, return
-   * all the finishes ordered by race, and timestamp.
+   * @param Race $race whose finishes to get
+   * @return Array a list of ordered finishes in the race. If null,
+   * return all the finishes ordered by race, and timestamp.
    *
    */
   public function getFinishes(Race $race) {
     return DB::getAll(DB::$FINISH, new DBCond('race', $race));
+  }
+
+  /**
+   * Returns an array of finish objects for all the races with the
+   * same number across all divisions.
+   *
+   * @param Race $race whose finishes to get
+   * @return Array the list of finishes
+   */
+  public function getCombinedFinishes(Race $race) {
+    $races = DB::prepGetAll(DB::$RACE,
+			    new DBBool(array(new DBCond('regatta', $this),
+					     new DBCond('number', $race->number))),
+			    array('id'));
+    return DB::getAll(DB::$FINISH, new DBCondIn('race', $races));
   }
 
   /**
