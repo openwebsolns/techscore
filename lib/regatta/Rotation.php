@@ -76,20 +76,14 @@ class Rotation {
    * Returns array of sail numbers for specified race, or all the
    * distinct sail numbers if no race is specified
    *
-   * @return Array:String sail number in the race, or all sails
+   * @return Array:Sail sails in the race, or all sails
    */
   public function getSails(Race $race = null) {
     if ($race !== null)
       $cond = new DBCond('race', $race);
     else
       $cond = new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta), array('id')));
-    $q = DB::prepGetAll(DB::$SAIL, $cond, array('sail'));
-    $q->order_by(array('sail'=>true));
-    $q->distinct(true);
-    $q = DB::query($q);
-    while ($sail = $q->fetch_object())
-      $sails[] = $sail->sail;
-    return $sails;
+    return DB::getAll(DB::$SAIL, $cond);
   }
 
   /**
@@ -117,8 +111,9 @@ class Rotation {
     $nums = array();
     foreach ($races as $race) {
       foreach ($this->getSails($race) as $num)
-	$nums[$num] = $num;
+	$nums[(string)$num] = $num;
     }
+    ksort($nums);
     return array_values($nums);
   }
 
@@ -484,18 +479,15 @@ class Rotation {
    */
   public function createOffset(Division $fromdiv, Division $todiv, Array $nums, $offset) {
     foreach ($nums as $num) {
-// @TODO getRace()
       $from = $this->regatta->getRace($fromdiv, $num);
-// @TODO getRace()
       $to = $this->regatta->getRace($todiv, $num);
       $sails = $this->getSails($from);
       $upper = count($sails);
 
       foreach ($sails as $j => $sail) {
-	$new_sail = new Sail();
-	$new_sail->race = $to;
-	$new_sail->team = $this->getTeam($from, $sail);
-	$new_sail->sail = $sails[($j + $offset + $upper) % $upper];
+	$new_sail = clone($sails[($j + $offset + $upper) % $upper]);
+	$new_sail->id = null;
+	$new_sail->race = $top;
 
 	$this->queue($new_sail);
       }

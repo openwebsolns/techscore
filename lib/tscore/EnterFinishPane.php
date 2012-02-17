@@ -388,8 +388,8 @@ class EnterFinishPane extends AbstractPane {
 	  if (($race = $this->REGATTA->getRace($div, $therace->number)) === null)
 	    throw new SoterException("This regatta is not correctly setup for combined division scoring.");
 	  foreach ($rotation->getSails($race) as $sail) {
-	    $races[$sail] = $race;
-	    $teams[$sail] = $rotation->getTeam($race, $sail);
+	    $races[(string)$sail] = $race;
+	    $teams[(string)$sail] = $sail->team;
 	  }
 	}
       }
@@ -458,7 +458,7 @@ class EnterFinishPane extends AbstractPane {
 	  throw new SoterException(sprintf("No rotation has been created for the chosen race (%s).", $race));
       
 	foreach ($sails as $sail)
-	  $teams[$sail] = $rotation->getTeam($race, $sail);
+	  $teams[(string)$sail] = $sail->team;
 	unset($sails);
       }
 
