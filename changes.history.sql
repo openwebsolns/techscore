@@ -237,3 +237,9 @@ alter table finish change column amount amount tinyint default null comment 'Non
 update finish set amount = null where amount = 0;
 alter table finish change column displace displace tinyint default null;
 update finish set displace = 1 where displace is not null;
+
+-- some team racing functionality --
+create table tr_race_teams (id int primary key, team1 int not null, team2 int not null) engine=innodb default charset=utf8;
+alter table tr_race_teams add foreign key (id) references race(id) on delete cascade on update cascade, add foreign key (team1) references team(id)on delete cascade on update cascade, add foreign key (team2) references team(id) on delete cascade on update cascade;
+alter table rp add column boat_number tinyint default null comment "Applicable to team racing";
+alter table regatta change column scoring scoring enum('standard', 'combined', 'team') not null default 'standard';
