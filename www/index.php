@@ -40,7 +40,7 @@ if (Conf::$USER === null) {
       exit;
     }
     if (isset($_GET['_action']) && $_GET['_action'] == 'edit') {
-      Session::s('POST', $PAGE->process($_REQUEST));
+      Session::s('POST', $PAGE->processPOST($_REQUEST));
       WS::goBack('/');
     }
     $PAGE->printXML();
@@ -139,7 +139,7 @@ else {
   }
 }
 if (isset($_GET['_action']) && $_GET['_action'] == 'edit') {
-  Session::s('POST', $PAGE->process($_REQUEST));
+  Session::s('POST', $PAGE->processPOST($_REQUEST));
   WS::goBack('/');
 }
 $post = Session::g('POST');

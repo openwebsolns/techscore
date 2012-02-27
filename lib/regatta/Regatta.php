@@ -27,6 +27,11 @@ class Regatta extends DBObject {
   const SCORING_COMBINED = "combined";
 
   /**
+   * Team racing
+   */
+  const SCORING_TEAM = 'team';
+
+  /**
    * Women's regatta
    */
   const PARTICIPANT_WOMEN = "women";
@@ -65,7 +70,8 @@ class Regatta extends DBObject {
    */
   public static function getScoringOptions() {
     return array(Regatta::SCORING_STANDARD => "Standard",
-		 Regatta::SCORING_COMBINED => "Combined divisions");
+		 Regatta::SCORING_COMBINED => "Combined divisions",
+		 Regatta::SCORING_TEAM => "Team racing");
   }
 
   /**
@@ -161,12 +167,13 @@ class Regatta extends DBObject {
    * @throws InvalidArgumentException if no regatta can be created
    */
   public function setType($value) {
-    if (!in_array($value, array_keys(Regatta::getTypes())))
+    $types = Regatta::getTypes();
+    if (!isset($types[$value]))
       throw new InvalidArgumentException("Invalid regatta type \"$value\".");
     // re-create the nick name, and let that method determine if it
     // is valid (this would throw an exception otherwise)
     if ($value != Regatta::TYPE_PERSONAL)
-      $this->nick_name = $this->createNick();
+      $this->nick = $this->createNick();
     $this->type = $value;
   }
 
@@ -931,7 +938,7 @@ class Regatta extends DBObject {
       return;
     
     $cur = new Host_School();
-    $cur->regatta = $this->id;
+    $cur->regatta = $this;
     $cur->school = $school;
     DB::set($cur);
     unset($res);
@@ -1153,7 +1160,10 @@ class Regatta extends DBObject {
     $name = str_replace("semifinal",  "semis", $name);
 
     // list of regatta names in the same season as this one
-    foreach ($this->getSeason()->getRegattas() as $n) {
+    $season = $this->getSeason();
+    if ($season === null)
+      throw new InvalidArgumentException("No season for this regatta.");
+    foreach ($season->getRegattas() as $n) {
       if ($n->nick == $name && $n->id != $this->id)
 	throw new InvalidArgumentException(sprintf("Nick name \"%s\" already in use by (%d).", $name, $n->id));
     }
