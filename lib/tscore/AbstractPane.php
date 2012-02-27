@@ -22,6 +22,7 @@ abstract class AbstractPane {
   protected $USER;
 
   // variables to determine validity. See doActive()
+  protected $has_races = false;
   protected $has_teams = false;
   protected $has_rots = false;
   protected $has_scores = false;
@@ -40,6 +41,7 @@ abstract class AbstractPane {
     $this->USER = $user;
 
     $rot = $this->REGATTA->getRotation();
+    $this->has_races = count($this->REGATTA->getRaces());
     $this->has_teams = count($this->REGATTA->getTeams()) > 1;
     $this->has_rots = $this->has_teams && $rot->isAssigned();
     $this->has_scores = $this->has_teams && $this->REGATTA->hasFinishes();
@@ -141,6 +143,12 @@ abstract class AbstractPane {
    */
   final public function getHTML(Array $args) {
     $this->setupPage();
+    if (!$this->has_races && get_class($this) != 'RacesPane')
+      Session::pa(new PA(array("No races exist for this regatta. Please ",
+			       new XA(sprintf('/score/%s/races', $this->REGATTA->id), "add races"),
+			       " now."), PA::I));
+
+
     $this->fillHTML($args);
     $this->PAGE->printXML();
   }
@@ -317,6 +325,9 @@ abstract class AbstractPane {
       
     case 'DropPenaltyPane':
       return $this->has_penalty;
+
+    case 'NotesPane':
+      return $this->has_races;
       
     case 'EnterFinishPane':
     case 'ReplaceTeamPane':
@@ -325,7 +336,10 @@ abstract class AbstractPane {
     case 'TeamPenaltyPane':
     case 'DeleteTeamsPane':
     case 'UnregisteredSailorPane':
-      return $this->has_teams;
+      return $this->has_teams && $this->has_races;
+
+    case 'TeamsPane':
+      return $this->has_races;
 
     case 'ManualTweakPane':
     case 'TweakSailsPane':
