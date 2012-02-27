@@ -11,7 +11,7 @@ log/*.log*
 
 # Errors and local files
 _errors.log
-conf.local.php
+conf.local*.php
 apache.conf
 sync-up
 Makefile.local

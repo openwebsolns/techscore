@@ -29,7 +29,7 @@ apache.conf: apache.conf.default Makefile.local
 
 changes.current.sql: changes.history.sql
 	touch changes.current.sql && \
-	comm -13 changes.current.sql changes.history.sql | mysql -u $(DB_USER) -p $(DB_DB) && \
+	comm -13 changes.current.sql changes.history.sql | mysql -v -u $(DB_USER) -p $(DB_DB) && \
 	cp changes.history.sql changes.current.sql
 
 cache/404-schools.html: lib/scripts/Update404.php
@@ -38,13 +38,7 @@ cache/404-schools.html: lib/scripts/Update404.php
 cache/schools.db: lib/xcache/GenerateSchools.php html/schools/404.php
 	php lib/xcache/GenerateSchools.php
 
-.PHONY:	sql doc
-sql:
-	echo "SET FOREIGN_KEY_CHECKS=0;" \
-		`mysqldump $(DB_DB) -u $(DB_USER) -p --compact --no-data | \
-		sed 's/CREATE TABLE/CREATE TABLE IF NOT EXISTS/ig'` \
-		"SET FOREIGN_KEY_CHECKS=1;" > db.sql
-
+.PHONY:	doc
 doc:
 	rm -r doc/* && \
 	phpdoc --ignore conf.*php \
