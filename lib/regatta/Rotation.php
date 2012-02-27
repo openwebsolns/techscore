@@ -105,7 +105,7 @@ class Rotation {
    * Returns a list of sail numbers common to the given list of races
    *
    * @param Array:Race the list of races
-   * @return Array:String the list of sails common to all the races
+   * @return Array:Sail the list of sails common to all the races
    */
   public function getCommonSails(Array $races) {
     $nums = array();
