@@ -27,12 +27,44 @@ class RacesPane extends AbstractPane {
     parent::__construct("Edit Races", $user, $reg);
   }
 
-  protected function fillHTML(Array $args) {
-    $divisions = $this->REGATTA->getDivisions();
+  /**
+   * Fills out the pane for empty regattas. For these, provide a drop
+   * down of possible boats at the time of creating the races.
+   *
+   * @param Array $args (ignored)
+   */
+  private function fillNewRegatta(Array $args) {
     $boats     = DB::getBoats();
-    $boatOptions = array('' => "[Use table]");
+    $boatOptions = array();
     foreach ($boats as $boat) {
       $boatOptions[$boat->id] = $boat->name;
+    }
+
+    $this->PAGE->addContent($p = new XPort("Races and divisions"));
+    $p->add($form = $this->createForm());
+    if ($this->REGATTA->scoring != Regatta::SCORING_TEAM)
+      $form->add(new FItem("Number of divisions:", XSelect::fromArray('num_divisions',
+								      array(1=>1, 2=>2, 3=>3, 4=>4),
+								      count($this->REGATTA->getDivisions()))));
+    $form->add(new FItem("Number of races:", new XTextInput("num_races", '18')));
+    $form->add($fi = new FItem("Boat:", XSelect::fromArray('boat', $boatOptions)));
+    $fi->add(new XMessage("Boats can be assigned per division or race afterwards."));
+    $fi->add(new XSubmitP("set-races", "Add races"));
+  }
+
+  protected function fillHTML(Array $args) {
+    $divisions = $this->REGATTA->getDivisions();
+    if (count($divisions) == 0) {
+      $this->fillNewRegatta($args);
+      return;
+    }
+
+    $boats = DB::getBoats();
+    $boatOptions = array();
+    $boatFullOptions = array('' => "[Use table]");
+    foreach ($boats as $boat) {
+      $boatOptions[$boat->id] = $boat->name;
+      $boatFullOptions[$boat->id] = $boat->name;
     }
 
     //------------------------------------------------------------
@@ -41,9 +73,10 @@ class RacesPane extends AbstractPane {
     $final = $this->REGATTA->finalized;
     $this->PAGE->addContent($p = new XPort("Races and divisions"));
     $p->add($form = $this->createForm());
-    $form->add(new FItem("Number of divisions:", XSelect::fromArray('num_divisions',
-								    array(1=>1, 2=>2, 3=>3, 4=>4),
-								    count($this->REGATTA->getDivisions()))));
+    if ($this->REGATTA->scoring != Regatta::SCORING_TEAM)
+      $form->add(new FItem("Number of divisions:", XSelect::fromArray('num_divisions',
+								      array(1=>1, 2=>2, 3=>3, 4=>4),
+								      count($this->REGATTA->getDivisions()))));
     $form->add(new FItem("Number of races:",
 			 $f_rac = new XTextInput("num_races",
 						 count($this->REGATTA->getRaces(Division::A())))));
@@ -88,13 +121,12 @@ class RacesPane extends AbstractPane {
     $row = array("All");
     foreach ($divisions as $div) {
       $c = new XTD();
-      $c->add(XSelect::fromArray($div, $boatOptions));
+      $c->add(XSelect::fromArray($div, $boatFullOptions));
       $row[] = $c;
     }
     $tab->addRow($row);
 
     //  - Table content
-    array_shift($boatOptions);
     for ($i = 0; $i < $max; $i++) {
       // Add row
       $row = array(new XTH(array(), $i + 1));
@@ -127,17 +159,18 @@ class RacesPane extends AbstractPane {
       //   1. Get host's preferred boat
       $hosts = $this->REGATTA->getHosts();
       $host = $hosts[0];
-      $boat = DB::getPreferredBoat($host);
+      $boat = DB::$V->incID($args, 'boat', DB::$BOAT, DB::getPreferredBoat($host));
 
       $cur_divisions = $this->REGATTA->getDivisions();
-      $cur_races     = count($this->REGATTA->getRaces(Division::A()));
       $pos_divisions = Division::getAssoc();
-      $num_divisions = DB::$V->reqInt($args, 'num_divisions', 1, count($pos_divisions) + 1, "Invalid number of divisions.");
+      $num_races = DB::$V->reqInt($args, 'num_races', 1, 100, "Invalid number of races.");
+      $num_divisions = ($this->REGATTA->scoring == Regatta::SCORING_TEAM) ? 1 :
+	DB::$V->reqInt($args, 'num_divisions', 1, count($pos_divisions) + 1, "Invalid number of divisions.");
       $pos_divisions_list = array_values($pos_divisions);
 
       for ($i = count($cur_divisions); $i < $num_divisions; $i++) {
 	$div = $pos_divisions_list[$i];
-	for ($j = 0; $j < $cur_races; $j++) {
+	for ($j = 0; $j < $num_races; $j++) {
 	  $race = new Race();
 	  $race->division = $div;
 	  $race->boat = $boat;
@@ -153,8 +186,8 @@ class RacesPane extends AbstractPane {
       }
       $cur_divisions = $this->REGATTA->getDivisions();
 
-      $num_races = DB::$V->reqInt($args, 'num_races', 1, 100, "Invalid number of races.");
       // Add
+      $cur_races = count($this->REGATTA->getRaces(Division::A()));
       for ($i = $cur_races; $i < $num_races; $i++) {
 	foreach ($cur_divisions as $div) {
 	  $race = new Race();

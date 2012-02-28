@@ -454,12 +454,11 @@ class Regatta extends DBObject {
    * @param Race $race the race to register with this regatta
    */
   public function setRace(Race $race) {
-    try {
-      $cur = $this->getRace($race->division, $race->number);
+    $cur = $this->getRace($race->division, $race->number);
+    if ($cur !== null)
       $race->id = $cur->id;
-    } catch (InvalidArgumentException $e) {
+    else
       $this->total_races++;
-    }
     $race->regatta = $this;
     DB::set($race);
   }

@@ -147,7 +147,9 @@ abstract class AbstractPane {
       Session::pa(new PA(array("No races exist for this regatta. Please ",
 			       new XA(sprintf('/score/%s/races', $this->REGATTA->id), "add races"),
 			       " now."), PA::I));
-
+    elseif (!$this->has_teams && get_class($this) != 'TeamsPane')
+      Session::pa(new PA(array("No teams have yet been setup. ",
+			       new XA(sprintf('/score/%s/teams', $this->REGATTA->id), "Add teams now"), "."), PA::I));
 
     $this->fillHTML($args);
     $this->PAGE->printXML();

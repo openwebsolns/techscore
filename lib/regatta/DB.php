@@ -738,6 +738,7 @@ class Boat extends DBObject {
   public $occupants;
 
   protected function db_cache() { return true; }
+  protected function db_order() { return array('name'=>true); }
   public function __toString() { return $this->name; }
 }
 
