@@ -222,3 +222,11 @@ objects where arrays and not just array-like with DBM.
 * Move DB::getMessages(Account) to Account::getMessages
 
 This just seems like a better use of OOP.
+
+* Team racing
+
+** DetailsPane
+
+It occurs to me that users probably are not allowed to change the
+regatta type scoring to/away from Team after finishes have been
+entered.

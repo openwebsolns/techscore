@@ -92,10 +92,13 @@ class DetailsPane extends AbstractPane {
 
     // Scoring rules
     $value = $this->REGATTA->scoring;
-    $reg_form->add(new FItem("Scoring:",
-			     XSelect::fromArray('scoring',
-						Regatta::getScoringOptions(),
-						$value)));
+    $reg_form->add($fi = new FItem("Scoring:",
+				   XSelect::fromArray('scoring',
+						      Regatta::getScoringOptions(),
+						      $value)));
+    if ($this->REGATTA->scoring != Regatta::SCORING_TEAM &&
+	count($this->REGATTA->getDivisions()) > 1)
+      $fi->add(new XMessage("Changing to \"Team\" will remove divisions and rotations"));
 
     // Hosts: first add the current hosts, then the entire list of
     // schools in the affiliation ordered by conference
@@ -226,6 +229,14 @@ class DetailsPane extends AbstractPane {
       if (DB::$V->hasKey($V, $args, 'scoring', Regatta::getScoringOptions()) && $V != $this->REGATTA->scoring) {
 	$this->REGATTA->scoring = $V;
 	$edited = true;
+	// Are we going to team racing?
+	$divs = $this->REGATTA->getDivisions();
+	if ($this->REGATTA->scoring == Regatta::SCORING_TEAM && count($divs) > 1) {
+	  array_shift($divs);
+	  foreach ($divs as $div)
+	    $this->REGATTA->removeDivision($div);
+	  Session::pa(new PA("Removed extra divisions.", PA::I));
+	}
       }
 
       if (DB::$V->hasKey($V, $args, 'scoring', Regatta::getParticipantOptions()) && $V != $this->REGATTA->participant) {
