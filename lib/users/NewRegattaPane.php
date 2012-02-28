@@ -180,8 +180,8 @@ class NewRegattaPane extends AbstractUserPane {
       }
 				    
       // Move to new regatta
-      Session::pa(new PA(sprintf("Created new regatta \"%s\". Please add teams now.", $reg->name)));
-      WS::go("/score/".$reg->id."/teams");
+      Session::pa(new PA(sprintf("Created new regatta \"%s\". Please add races now.", $reg->name)));
+      WS::go("/score/".$reg->id."/races");
     }
     return array();
   }

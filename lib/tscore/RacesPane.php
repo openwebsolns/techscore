@@ -162,6 +162,7 @@ class RacesPane extends AbstractPane {
       $boat = DB::$V->incID($args, 'boat', DB::$BOAT, DB::getPreferredBoat($host));
 
       $cur_divisions = $this->REGATTA->getDivisions();
+      $new_regatta = (count($cur_divisions) == 0);
       $pos_divisions = Division::getAssoc();
       $num_races = DB::$V->reqInt($args, 'num_races', 1, 100, "Invalid number of races.");
       $num_divisions = ($this->REGATTA->scoring == Regatta::SCORING_TEAM) ? 1 :
@@ -206,6 +207,10 @@ class RacesPane extends AbstractPane {
 	  $race->number = $i;
 	  $this->REGATTA->removeRace($race);
 	}
+      }
+      if ($new_regatta) {
+	Session::pa(new PA("Regatta races successfull set. Now add teams for the event."));
+	$this->redirect('teams');
       }
       Session::pa(new PA("Set number of races."));
     }

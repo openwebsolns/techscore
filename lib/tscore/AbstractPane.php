@@ -143,10 +143,12 @@ abstract class AbstractPane {
    */
   final public function getHTML(Array $args) {
     $this->setupPage();
-    if (!$this->has_races && get_class($this) != 'RacesPane')
-      Session::pa(new PA(array("No races exist for this regatta. Please ",
-			       new XA(sprintf('/score/%s/races', $this->REGATTA->id), "add races"),
-			       " now."), PA::I));
+    if (!$this->has_races) {
+      if (get_class($this) != 'RacesPane')
+	Session::pa(new PA(array("No races exist for this regatta. Please ",
+				 new XA(sprintf('/score/%s/races', $this->REGATTA->id), "add races"),
+				 " now."), PA::I));
+    }
     elseif (!$this->has_teams && get_class($this) != 'TeamsPane')
       Session::pa(new PA(array("No teams have yet been setup. ",
 			       new XA(sprintf('/score/%s/teams', $this->REGATTA->id), "Add teams now"), "."), PA::I));
