@@ -34,19 +34,12 @@ require_once('conf.php');
  */
 class ICSAScorer {
 
-  // When ranking combined-scoring regattas for full scores (i.e., not
-  // within a particular division), ranking by last race takes on a
-  // new meaning, since it's the highest-numbered race across all
-  // divisions. This variable is set by the 'rank' method should no
-  // division be specified and the regatta use combined scoring
-  private $rankCombined = false;
-
   /**
    * Scores the given regatta using the combined division method
    *
    * @param Regatta $reg the regatta to score
    */
-  private function scoreCombined(Regatta $reg, Race $race) {
+  protected function scoreCombined(Regatta $reg, Race $race) {
     $teams = $reg->getTeams();
     $divs  = $reg->getDivisions();
     $FLEET = count($teams) * count($divs);
@@ -393,7 +386,7 @@ class ICSAScorer {
    * @param Regatta $reg the regatta
    * @param Array:Division the list of races to consider
    */
-  private function settleHeadToHead(Array $ranks, Regatta $reg, Array $divisions) {
+  protected function settleHeadToHead(Array $ranks, Regatta $reg, Array $divisions) {
     $numTeams = count($ranks);
     if ($numTeams < 2)
       return $ranks;
@@ -477,7 +470,6 @@ class ICSAScorer {
     return $ranks;
   }
 
-
   /**
    * Recursive method for tiebreaking: rank the teams in order of
    * highest place finishes.
@@ -487,10 +479,10 @@ class ICSAScorer {
    * @param Array:Race $races the races
    * @param int $placeFinish = 1 by default, the place finish to check for
    */
-  private function rankMostHighFinishes(Array $ranks,
-					Regatta $reg,
-					Array $races,
-					$placeFinish = 1) {
+  protected function rankMostHighFinishes(Array $ranks,
+					  Regatta $reg,
+					  Array $races,
+					  $placeFinish = 1) {
 
     // Base cases
     if (count($ranks) < 2)
@@ -498,10 +490,7 @@ class ICSAScorer {
 
     $fleetSize = count($reg->getTeams());
     if ($placeFinish > $fleetSize) {
-      // There are still ties, go to the third tiebreaker
-      // In case of combined scoring, use list of race numbers
-      $list = ($this->rankCombined) ? $reg->getCombinedScoredRaces() : $races;
-      return $this->rankByLastRace($ranks, $reg, $list);
+      return $this->rankByLastRace($ranks, $reg, $races);
     }
 
     // Work with copy of ranks
@@ -555,7 +544,6 @@ class ICSAScorer {
     return $ranks;
   }
 
-
   /**
    * Rank the teams by their performance in the last race
    *
@@ -563,9 +551,9 @@ class ICSAScorer {
    * @param Regatta $reg the regatta
    * @param Array<Race> $races the races
    */
-  private function rankByLastRace(Array $ranks,
-				  Regatta $reg,
-				  Array $races) {
+  protected function rankByLastRace(Array $ranks,
+				    Regatta $reg,
+				    Array $races) {
 
     $numRanks = count($ranks);
     if ($numRanks < 2)
@@ -582,31 +570,11 @@ class ICSAScorer {
     // Get the last race scores. If combined scoring, remove other
     // races with the same number.
     $scoreList = array();
-    if ($this->rankCombined) {
-      $divisions = $reg->getDivisions();
-      $lastNum  = array_pop($races);
-
-      $scoreList = array();
-      foreach ($ranks as $rank) {
-	$total = 0;
-	foreach ($divisions as $div) {
-// @TODO getRace()
-	  $race = $reg->getRace($div, $lastNum);
-	  $finish = $reg->getFinish($race, $rank->team);
-	  $total += $finish->score;
-	  $rank->explanation = sprintf("According to last race across all divisions (%s)", $lastNum);
-	}
-	$scoreList[] = $total;
-      }
-    }
-    else {
-      $lastRace = array_pop($races);
-
-      foreach ($ranks as $rank) {
-	$finish = $reg->getFinish($lastRace, $rank->team);
-	$scoreList[] = $finish->score;
-	$rank->explanation = sprintf("According to last race (%s)", $lastRace);
-      }
+    $lastRace = array_pop($races);
+    foreach ($ranks as $rank) {
+      $finish = $reg->getFinish($lastRace, $rank->team);
+      $scoreList[] = $finish->score;
+      $rank->explanation = sprintf("According to last race (%s)", $lastRace);
     }
     array_multisort($scoreList, $ranks);
 
@@ -648,7 +616,7 @@ class ICSAScorer {
    * @param Array<number> $list the list
    * @return int the average of those numbers
    */
-  private static function average(Array $list) {
+  protected static function average(Array $list) {
     $num = 0;
     $total = 0;
     foreach ($list as $n) {
