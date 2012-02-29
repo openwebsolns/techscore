@@ -177,6 +177,21 @@ class Regatta extends DBObject {
     $this->type = $value;
   }
 
+  /**
+   * Sets the scoring for this regatta.
+   *
+   * It is important to use this method instead of setting the scoring
+   * directly so that the Regatta can choose the appropriate scorer
+   *
+   * @param Const the regatta scoring
+   */
+  public function setScoring($value) {
+    if ($value == $this->scoring)
+      return;
+    $this->scoring = $value;
+    $this->scorer = null;
+  }
+
   public function __set($name, $value) {
     if ($name == 'type') {
       $this->setType($value);
@@ -1205,7 +1220,7 @@ class Regatta extends DBObject {
     $r->start_time = $start_time;
     $r->end_date = $end_date;
     $r->end_date->setTime(0, 0);
-    $r->scoring = $scoring;
+    $r->setScoring($scoring);
     $r->participant = $participant;
     $r->setType($type);
     DB::set($r);

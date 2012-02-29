@@ -301,7 +301,7 @@ class RegattaIO {
     // Edit main details
     // ------------------------------------------------------------
     $regatta->name = $root->RegattaName;
-    $regatta->scoring = $root->Scoring;
+    $regatta->setScoring($root->Scoring);
     try {
       $start = new DateTime($root->StartTime, new DateTimeZone("America/New_York"));
     } catch (Exception $e) {

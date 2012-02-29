@@ -227,7 +227,7 @@ class DetailsPane extends AbstractPane {
       }
 
       if (DB::$V->hasKey($V, $args, 'scoring', Regatta::getScoringOptions()) && $V != $this->REGATTA->scoring) {
-	$this->REGATTA->scoring = $V;
+	$this->REGATTA->setScoring($V);
 	$edited = true;
 	// Are we going to team racing?
 	$divs = $this->REGATTA->getDivisions();
