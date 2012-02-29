@@ -128,8 +128,16 @@ class Regatta extends DBObject {
     switch ($name) {
     case 'scorer':
       if ($this->scorer === null) {
-	require_once('regatta/ICSAScorer.php');
-	$this->scorer = new ICSAScorer();
+	switch ($this->scoring) {
+	case Regatta::SCORING_COMBINED:
+	  require_once('regatta/ICSACombinedScorer.php');
+	  $this->scorer = new ICSACombinedScorer();
+	  break;
+
+	default:
+	  require_once('regatta/ICSAScorer.php');
+	  $this->scorer = new ICSAScorer();
+	}
       }
       return $this->scorer;
     default:
