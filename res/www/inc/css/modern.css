@@ -33,8 +33,20 @@ h4#regatta {font-weight:bold;}
 #bottom-grab {display:none;}
 #bodydiv {position:absolute;top:70px;width:870px;padding:15px;padding-top:0px;border-bottom:1px solid #555555;margin-bottom:20px;}
 #bodydiv, #menudiv, #headdiv {border-left:1px solid #555555;border-right:1px solid #555555;}
-.port {border:1px solid #cccccc;padding:1em;padding-top:0em;padding-bottom:1em;margin-bottom:1.5em;}
-.port h3 {color:#555555;margin:0px;background:white;padding:0.2em;position:relative;top:-0.7em;font-size:1em;font-weight:normal;display:inline-block;zoom:1;*display:inline;}
+.port {border:1px solid #cccccc;padding:0 1em;margin-bottom:1.5em;}
+.port h3 {
+    color:#555555;
+    margin:0;
+    background:white;
+    padding:0.2em;
+    position:relative;
+    top:-0.7em;
+    font-size:1em;
+    font-weight:normal;
+    display:inline-block;
+    zoom:1;
+    *display:inline;
+}
 h2 {color:#b89f7e;}
 table {border-spacing:0px;border-collapse:collapse;font-size:0.9em;}
 table td {border:1px solid #bbbbbb;text-align:right;margin:0px;padding:2.5px;}

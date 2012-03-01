@@ -37,6 +37,22 @@ class UserHomePane extends AbstractUserPane {
     $startint = self::NUM_PER_PAGE * ($pageset - 1);
 
     // ------------------------------------------------------------
+    // Pending users
+    // ------------------------------------------------------------
+    if ($this->USER->isAdmin()) {
+      $pending = DB::getPendingUsers();
+      if (($num_pending = count($pending)) > 0) {
+	$this->PAGE->addContent($p = new XPort("Pending users"));
+	if ($num_pending == 1)
+	  $p->add(new XP(array(),
+			 array("There is one pending account request for ", new XA(WS::link('/pending'), $pending[0]), ".")));
+	else
+	  $p->add(new XP(array(),
+			 array("There are ", new XA(WS::link('/pending'), "$num_pending pending account requests"), ".")));
+      }
+    }
+
+    // ------------------------------------------------------------
     // Messages
     // ------------------------------------------------------------
     $num_messages = count(DB::getUnreadMessages($this->USER));
