@@ -122,8 +122,9 @@ class SailsPane extends AbstractPane {
     $form->add(new FItem("Order sails in first race:", XSelect::fromArray('sort', $this->SORT)));
 
     // Submit form
-    $form->add(new XSubmitInput("restart",   "<< Start over"));
-    $form->add(new XSubmitInput("createrot", "Create rotation"));
+    $form->add(new XP(array('class'=>'p-submit'),
+		      array(new XA(WS::link(sprintf('/score/%d/sails', $this->REGATTA->id)), "← Start over"), " ",
+			    new XSubmitInput("createrot", "Create rotation"))));
   }
 
   /**
@@ -184,7 +185,7 @@ class SailsPane extends AbstractPane {
     // ------------------------------------------------------------
     if ($chosen_rot === null) {
       $this->PAGE->addContent($p = new XPort("1. Create a rotation"));
-      $p->add($form = $this->createForm());
+      $p->add($form = $this->createForm(XForm::GET));
       $form->set("id", "sail_setup");
       $form->add(new XP(array(), "Swap divisions require an even number of total teams at the time of creation. If you choose swap division, TechScore will add a \"BYE Team\" as needed to make the total number of teams even. This will produce an unused boat in every race."));
 
@@ -200,7 +201,7 @@ class SailsPane extends AbstractPane {
 	  $div_opts[(string)$div] = (string)$div;
 	$form->add(new FItem("Divisions to affect:", XSelectM::fromArray('division[]', $div_opts, $chosen_div)));
       }
-      $form->add(new XSubmitInput("choose_rot", "Next >>"));
+      $form->add(new XSubmitP("choose_rot", "Next >>"));
     }
 
     // ------------------------------------------------------------
@@ -267,8 +268,9 @@ class SailsPane extends AbstractPane {
 					    array("size"=>"2",
 						  "maxlength"=>"2"))));
 
-	$form->add(new XSubmitInput("restart",   "<< Start over"));
-	$form->add(new XSubmitInput("offsetrot", "Offset"));
+	$form->add(new XP(array('class'=>'p-submit'),
+			  array(new XA(WS::link(sprintf('/score/%d/sails', $this->REGATTA->id)), "← Start over"), " ",
+				new XSubmitInput("offsetrot", "Offset"))));
       }
       else {
 	if ($chosen_rot != "NOR") {
@@ -298,8 +300,9 @@ class SailsPane extends AbstractPane {
 	$form->add(new FItem("Order sails in first race:", XSelect::fromArray('sort', $this->SORT, 'num')));
 
 	// Submit form
-	$form->add(new XSubmitInput("restart",   "<< Start over"));
-	$form->add(new XSubmitInput("createrot", "Create rotation"));
+	$form->add(new XP(array('class'=>'p-submit'),
+			  array(new XA(WS::link(sprintf('/score/%d/sails', $this->REGATTA->id)), "← Start over"), " ",
+				new XSubmitInput("createrot", "Create rotation"))));
       }
 
       // FAQ's
@@ -415,14 +418,6 @@ class SailsPane extends AbstractPane {
    * </dl>
    */
   public function process(Array $args) {
-
-    // ------------------------------------------------------------
-    // Reset
-    // ------------------------------------------------------------
-    if (isset($args['restart'])) {
-      unset($args['rottype']);
-      return $args;
-    }
 
     $rottype = null;
     // ------------------------------------------------------------

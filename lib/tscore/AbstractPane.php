@@ -200,9 +200,12 @@ abstract class AbstractPane {
    */
   protected function createForm($method = XForm::POST) {
     $i = get_class($this);
-    if (isset(self::$URLS[$i]))
-      return new XForm(sprintf("/edit/%d/%s", $this->REGATTA->id, self::$URLS[$i]), $method);
-    throw new InvalidArgumentException("Please register URL for pane $i.");
+    if (!isset(self::$URLS[$i]))
+      throw new InvalidArgumentException("Please register URL for pane $i.");
+    return new XForm(sprintf("/%s/%d/%s",
+			     ($method == XForm::POST) ? 'edit' : 'score',
+			     $this->REGATTA->id,
+			     self::$URLS[$i]), $method);
   }
 
   /**
