@@ -105,13 +105,18 @@ class TeamRacesPane extends AbstractPane {
       $boats = DB::$V->reqList($args, 'boat', null, "No list of boats were provided.");
       $teams = DB::$V->reqMap($args, array('team1', 'team2'), null, "Invalid list of teams provided.");
       $edited = 0;
+      $divs = array(Division::A(), Division::B(), Division::C());
       foreach ($races as $id) {
 	$race = $this->REGATTA->getRaceById($id);
 	if ($race === null)
 	  continue;
 
-	$race->boat = DB::$V->reqID($boats, $race->id, DB::$BOAT, "Invalid boat provided for race " . $race->number);
-	$this->REGATTA->setRace($race);
+	// Update all divisions with the same boat!
+	foreach ($divs as $div) {
+	  $therace = $this->REGATTA->getRace($div, $race->number);
+	  $therace->boat = DB::$V->reqID($boats, $race->id, DB::$BOAT, "Invalid boat provided for race " . $race->number);
+	  $this->REGATTA->setRace($therace);
+	}
 	// If unscored, also allow editing the teams
 	if (count($this->REGATTA->getFinishes($race)) == 0) {
 	  $t1 = DB::$V->reqTeam($teams['team1'], $race->id, $this->REGATTA, "Invalid first team specified.");
