@@ -249,3 +249,5 @@ alter table rp drop column boat_number;
 drop table tr_race_teams;
 create table tr_race_teams (id int primary key, number tinyint(3) unsigned not null, team1 int not null, team2 int not null) engine=innodb default charset=utf8;
 alter table tr_race_teams add foreign key (team1) references team(id) on delete cascade on update cascade, add foreign key (team2) references team(id) on delete cascade on update cascade;
+alter table tr_race_teams add column regatta int(5) not null after id, add foreign key (regatta) references regatta(id) on delete cascade on update cascade;
+alter table tr_race_teams drop primary key, change column id id int not null primary key auto_increment;

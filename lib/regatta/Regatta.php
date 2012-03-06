@@ -630,6 +630,65 @@ class Regatta extends DBObject {
   }
 
   // ------------------------------------------------------------
+  // Team Scoring: race teams
+  // ------------------------------------------------------------
+
+  /**
+   * Returns the teams (in an array) participating in the given race.
+   *
+   * This is specially applicable for team racing, where only the race
+   * number is of any use. For fleet racing, this is the same as
+   * calling getTeams(), regardless of the value of $race.
+   *
+   * @param Race $race the race whose teams to return
+   * @return Array:Team the teams
+   * @see setRaceTeams
+   */
+  public function getRaceTeams(Race $race) {
+    if ($this->scoring == Regatta::SCORING_TEAM) {
+      $tr = DB::getAll(DB::$TR_RACE_TEAMS, new DBBool(array(new DBCond('regatta', $this),
+							    new DBCond('number', $race->number))));
+      if (count($tr) == 0)
+	return array();
+      return array($tr[0]->team1, $tr[0]->team2);
+    }
+    return $this->getTeams();
+  }
+
+  /**
+   * Sets the teams which will participate in a given race. This is
+   * useful for team racing regattas. The teams should be already
+   * registered with the regatta.
+   *
+   * @param Race $race the race whose teams to set
+   * @param Team $team1 the first team in the race
+   * @param Team $team2 the second team in the race
+   *
+   * @throws InvalidArgumentException if there is no such race as the
+   * one given. This check is done based on race number only. For
+   * expediency, no check is done on the identities of the given
+   * teams. It is your responsibility to make sure they actually
+   * belong to this regatta.
+   *   
+   * @return Tr_Race_Teams the added entry
+   * @see getRaceTeams
+   */
+  public function setRaceTeams(Race $race, Team $team1, Team $team2) {
+    if ($this->getRace(Division::A(), $race->number) === null)
+      throw new InvalidArgumentException("No such race number exists: " . $race->number);
+    // Delete any of the ones that are there, and add the new ones
+    DB::removeAll(DB::$TR_RACE_TEAMS, new DBBool(array(new DBCond('regatta', $this),
+						       new DBCond('number', $race->number))));
+    $tr = new Tr_Race_Teams();
+    $tr->regatta = $this;
+    $tr->number = $race->number;
+    $tr->team1 = $team1;
+    $tr->team2 = $team2;
+    DB::set($tr);
+    return $tr;
+  }
+
+  // ------------------------------------------------------------
   // Finishes
   // ------------------------------------------------------------
 

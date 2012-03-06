@@ -143,16 +143,16 @@ abstract class AbstractPane {
    */
   final public function getHTML(Array $args) {
     $this->setupPage();
-    if (!$this->has_races) {
-      if (get_class($this) != 'RacesPane')
-	Session::pa(new PA(array("No races exist for this regatta. Please ",
-				 new XA(sprintf('/score/%s/races', $this->REGATTA->id), "add races"),
-				 " now."), PA::I));
+    if (!$this->has_teams) {
+      if (get_class($this) != 'TeamsPane')
+	Session::pa(new PA(array("No teams have yet been setup. ",
+				 new XA(sprintf('/score/%s/teams', $this->REGATTA->id), "Add teams now"), "."), PA::I));
     }
-    elseif (!$this->has_teams && get_class($this) != 'TeamsPane')
-      Session::pa(new PA(array("No teams have yet been setup. ",
-			       new XA(sprintf('/score/%s/teams', $this->REGATTA->id), "Add teams now"), "."), PA::I));
-
+    elseif (!$this->has_races && get_class($this) != 'RacesPane' && get_class($this) != 'TeamRacesPane')
+      Session::pa(new PA(array("No races exist for this regatta. Please ",
+			       new XA(sprintf('/score/%s/races', $this->REGATTA->id), "add races"),
+			       " now."), PA::I));
+      
     $this->fillHTML($args);
     $this->PAGE->printXML();
   }
@@ -254,6 +254,10 @@ abstract class AbstractPane {
     case 'race':
     case 'edit-race':
     case 'edit-races':
+      if ($u->scoring == Regatta::SCORING_TEAM) {
+	require_once('tscore/TeamRacesPane.php');
+	return new TeamRacesPane($r, $u);
+      }
       require_once('tscore/RacesPane.php');
       return new RacesPane($r, $u);
     case 'substitute':
@@ -347,8 +351,9 @@ abstract class AbstractPane {
     case 'TeamPenaltyPane':
       return $this->has_teams && $this->has_races && ($this->REGATTA->scoring != Regatta::SCORING_TEAM);
 
-    case 'TeamsPane':
-      return $this->has_races;
+    case 'TeamRacesPane':
+    case 'RacesPane':
+      return $this->has_teams;
 
     case 'ManualTweakPane':
     case 'TweakSailsPane':
@@ -384,7 +389,10 @@ abstract class AbstractPane {
   private static $URLS = array("DetailsPane" => "settings",
 			       "SummaryPane" => "summaries",
 			       "ScorersPane" => "scorers",
+			       
+			       "TeamRacesPane" => "races",
 			       "RacesPane" => "races",
+			       
 			       "NotesPane" => "notes",
 			       "TeamsPane" => "teams",
 			       "DeleteTeamsPane" => "remove-teams",

@@ -1814,6 +1814,7 @@ class Tr_Race_Teams extends DBObject {
   public $number;
   protected $team1;
   protected $team2;
+  protected $regatta;
 
   protected function db_order() { return array('number'=>true); }
   public function db_type($field) {
@@ -1823,6 +1824,8 @@ class Tr_Race_Teams extends DBObject {
     case 'team1':
     case 'team2':
       return DB::$TEAM;
+    case 'regatta':
+      return DB::$REGATTA;
     default:
       return parent::db_type($field);
     }
