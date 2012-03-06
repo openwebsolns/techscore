@@ -38,6 +38,7 @@ class DB extends DBM {
   public static $RP_ENTRY = null;
   public static $SEASON = null;
   public static $NOW = null;
+  public static $TR_RACE_TEAMS = null;
 
   public static $OUTBOX = null;
   public static $MESSAGE = null;
@@ -85,6 +86,7 @@ class DB extends DBM {
     self::$RP_ENTRY = new RPEntry();
     self::$SEASON = new Season();
     self::$NOW = new DateTime();
+    self::$TR_RACE_TEAMS = new Tr_Race_Teams();
 
     DBM::setConnectionParams($host, $user, $pass, $db);
 
@@ -1798,6 +1800,32 @@ class Penalty extends FinishModifier {
 		 Penalty::OCS => "OCS: On Course Side after start",
 		 Penalty::DNF => "DNF: Did Not Finish",
 		 Penalty::DNS => "DNS: Did Not Start");
+  }
+}
+
+/**
+ * Indicates which two teams actually participate in a given race for
+ * races in team races
+ *
+ * @author Dayan Paez
+ * @version 2012-03-05
+ */
+class Tr_Race_Teams extends DBObject {
+  public $number;
+  protected $team1;
+  protected $team2;
+
+  protected function db_order() { return array('number'=>true); }
+  public function db_type($field) {
+    switch ($field) {
+    case 'number':
+      return DBQuery::A_INT;
+    case 'team1':
+    case 'team2':
+      return DB::$TEAM;
+    default:
+      return parent::db_type($field);
+    }
   }
 }
 ?>

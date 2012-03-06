@@ -111,7 +111,8 @@ class RpEnterPane extends AbstractPane {
       $cur_sk = $rpManager->getRP($chosen_team, $div, RP::SKIPPER);
       $cur_cr = $rpManager->getRP($chosen_team, $div, RP::CREW);
 
-      $form->add(new XHeading("Division $div"));
+      if (count($divisions) > 1)
+	$form->add(new XHeading("Division $div"));
       $form->add($tab_races = new XQuickTable(array(), array("Races", "Crews")));
       $form->add($tab_skip = new XQuickTable(array('class'=>'narrow'), array("Skippers", "Races sailed", "")));
 
