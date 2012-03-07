@@ -51,6 +51,11 @@ class Conf {
    * @var Account|null will be set to the logged-in account, if any
    */
   public static $USER = null;
+
+  /**
+   * @var boolean allow registrations? (default yes)
+   */
+  public static $ALLOW_REGISTER = true;
 }
 // LOG FILES
 Conf::$LOG_UPDATE = realpath(dirname(__FILE__).'/../log/update.log');

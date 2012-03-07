@@ -37,11 +37,12 @@ class WelcomePage extends TScorePage {
     // Access to registration, ICSA, offline TS
     $this->addMenu(new XDiv(array('class'=>'menu'),
 			    array(new XH4("Useful Links"),
-				  new XUl(array(),
-					  array(new XLi(new XA(".", "Sign-in")),
-						new XLi(new XA("register", "Register")),
-						new XLi(new XA("http://www.collegesailing.org", "ICSA Website")),
-						new XLi(new XA("http://techscore.sourceforge.net", "Offline TechScore")))))));
+				  $m = new XUl(array(),
+					       array(new XLi(new XA(".", "Sign-in")))))));
+    if (Conf::$ALLOW_REGISTER !== false)
+      $m->add(new XLi(new XA("register", "Register")));
+    $m->add(new XLi(new XA("http://www.collegesailing.org", "ICSA Website")));
+    $m->add(new XLi(new XA("http://techscore.sourceforge.net", "Offline TechScore")));
   }
 
   /**

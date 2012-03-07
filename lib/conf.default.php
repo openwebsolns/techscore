@@ -22,4 +22,7 @@ conf::$SQL_DB   = 'ts2';
 
 // Define any other settings that are local to the production site
 // such as default date_timezone, etc.
+
+// Uncomment below to disallow registering for accounts
+//Conf::$ALLOW_REGISTER = false;
 ?>
