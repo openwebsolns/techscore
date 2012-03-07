@@ -20,7 +20,6 @@ class RpEnterPane extends AbstractPane {
   }
 
   protected function fillHTML(Array $args) {
-
     $teams = $this->REGATTA->getTeams();
 
     if (count($teams) == 0) {
@@ -52,7 +51,7 @@ class RpEnterPane extends AbstractPane {
     // ------------------------------------------------------------
     // Change team
     // ------------------------------------------------------------
-    $p->add($form = $this->createForm());
+    $p->add($form = $this->createForm(XForm::GET));
     $form->add(new FItem("Team:", $f_sel = new XSelect("chosen_team", array("onchange"=>"submit(this)"))));
     $team_opts = array();
     foreach ($teams as $team) {
@@ -281,7 +280,6 @@ class RpEnterPane extends AbstractPane {
 	    foreach ($s_race_copy as $num) {
 	      $rp = new RPEntry();
 	      $rp->team = $team;
-// @TODO getRace()
 	      $rp->race = $this->REGATTA->getRace($div, $num);
 	      $rp->boat_role  = $s_role;
 	      $rp->sailor     = $s_obj;

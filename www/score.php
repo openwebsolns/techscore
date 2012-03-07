@@ -224,7 +224,7 @@ else {
 $args = $_REQUEST;
 $post = Session::g('POST');
 if (is_array($post))
-  $args = array_merge($args, $post);
+  $args = array_merge($post, $args);
 $PAGE->getHTML($args);
 
 if (Conf::$LOG_MEMORY)
