@@ -47,13 +47,16 @@ class Regatta extends DBObject {
    * @return Array a dict of regatta types
    */
   public static function getTypes() {
-    return array(Regatta::TYPE_CHAMPIONSHIP=>"National Championship",
+    $lst = array(Regatta::TYPE_CHAMPIONSHIP=>"National Championship",
 		 Regatta::TYPE_CONF_CHAMPIONSHIP=>"Conference Championship",
 		 Regatta::TYPE_INTERSECTIONAL=>"Intersectional",
 		 Regatta::TYPE_TWO_CONFERENCE=>"Two-Conference",
 		 Regatta::TYPE_CONFERENCE=>"In-Conference",
 		 Regatta::TYPE_PROMOTIONAL=>"Promotional",
 		 Regatta::TYPE_PERSONAL=>"Personal");
+    foreach (Conf::$REGATTA_TYPE_BLACKLIST as $rem)
+      unset($lst[$rem]);
+    return $lst;
   }
   const TYPE_PERSONAL = 'personal';
   const TYPE_CONFERENCE = 'conference';
@@ -69,9 +72,12 @@ class Regatta extends DBObject {
    * @return Array a dict of scoring rules
    */
   public static function getScoringOptions() {
-    return array(Regatta::SCORING_STANDARD => "Standard",
+    $lst = array(Regatta::SCORING_STANDARD => "Standard",
 		 Regatta::SCORING_COMBINED => "Combined divisions",
 		 Regatta::SCORING_TEAM => "Team racing");
+    foreach (Conf::$REGATTA_SCORING_BLACKLIST as $rem)
+      unset($lst[$rem]);
+    return $lst;
   }
 
   /**

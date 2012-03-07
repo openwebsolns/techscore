@@ -15,7 +15,7 @@
  * @version 2012-01-06
  */
 class Conf {
-  public static $VERSION = '2.0';
+  public static $VERSION = '3.0-beta';
 
   // Logging options
   public static $LOG_UPDATE;
@@ -56,6 +56,21 @@ class Conf {
    * @var boolean allow registrations? (default yes)
    */
   public static $ALLOW_REGISTER = true;
+
+  /**
+   * @var Array the list of types NOT to allow. This will prevent the
+   * creation or changing of a regatta into one of these types. It
+   * will NOT prevent the display of these regattas.
+   */
+  public static $REGATTA_TYPE_BLACKLIST = array();
+
+  /**
+   * @var Array the list of scoring NOT to allow. This will prevent
+   * the creation or changing of a regatta scoring to one of these
+   * values. It will NOT prevent the display or editing of those
+   * regattas.
+   */
+  public static $REGATTA_SCORING_BLACKLIST = array();
 }
 // LOG FILES
 Conf::$LOG_UPDATE = realpath(dirname(__FILE__).'/../log/update.log');

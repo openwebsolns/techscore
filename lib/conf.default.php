@@ -25,4 +25,8 @@ conf::$SQL_DB   = 'ts2';
 
 // Uncomment below to disallow registering for accounts
 //Conf::$ALLOW_REGISTER = false;
+
+// Set the allowed regatta types and scoring options
+//Conf::$REGATTA_TYPE_BLACKLIST = array('conference');
+//Conf::$REGATTA_SCORING_BLACKLIST = array('standard', 'combined');
 ?>
