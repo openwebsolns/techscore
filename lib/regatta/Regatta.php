@@ -688,6 +688,31 @@ class Regatta extends DBObject {
     return $tr;
   }
 
+  /**
+   * Returns an ordered list of race numbers this team is
+   * participating in.
+   *
+   * This is of particular interest to team race regattas. For fleet
+   * racing, this is equivalent to calling getCombinedRaces()
+   *
+   * @param Team $team the team whose participation to retrieve
+   * @return Array:int the race numbers
+   * @see getCombinedRaces
+   */
+  public function getRacesForTeam(Team $team) {
+    if ($this->scoring != Regatta::SCORING_TEAM)
+      return $this->getCombinedRaces();
+    $list = array();
+    foreach (DB::getAll(DB::$TR_RACE_TEAMS,
+			new DBBool(array(new DBCond('regatta', $this),
+					 new DBBool(array(new DBCond('team1', $team),
+							  new DBCond('team2', $team)),
+						    DBBool::mOR)))) as $tr)
+      $list[$tr->number] = $tr->number;
+    return array_values($list);
+  }
+  
+
   // ------------------------------------------------------------
   // Finishes
   // ------------------------------------------------------------

@@ -105,7 +105,7 @@ class RpEnterPane extends AbstractPane {
     // - Fill out form
     foreach ($divisions as $div) {
       // Get races and its occupants
-      $occ = $this->getOccupantsRaces($div);
+      $occ = $this->getOccupantsRaces($div, $chosen_team);
 
       // Fetch current rp's
       $cur_sk = $rpManager->getRP($chosen_team, $div, RP::SKIPPER);
@@ -115,15 +115,27 @@ class RpEnterPane extends AbstractPane {
 	$form->add(new XHeading("Boat $div"));
       elseif (count($divisions) > 1)
 	$form->add(new XHeading("Division $div"));
-      $form->add($tab_races = new XQuickTable(array(), array("Races", "Crews")));
-      $form->add($tab_skip = new XQuickTable(array('class'=>'narrow'), array("Skippers", "Races sailed", "")));
+      $tab_races = new XQuickTable(array(), array("Race #", "Crews"));
 
       // Create races table
+      // $num_entries will track how many races the $chosen_team is
+      // participating in (which would be all except for team racing
+      // regattas). This will enable us to issue an appropriate message,
+      // rather than displaying the input tables.
+      $num_entries = 0;
       foreach ($occ as $crews => $races) {
+	$num_entries++;
 	$tab_races->addRow(array(new XTD(array("name"=>"races" . $div), DB::makeRange($races)),
 				 new XTD(array("name"=>"occ" . $div),   ((int)$crews) - 1)));
       }
+      if ($num_entries == 0) {
+	$tab_races->addRow(array("N/A", "N/A"));
+	$form->add(new XP(array('class'=>'message'), "The current team is not participating in the regatta."));
+	continue;
+      }
 
+      $form->add($tab_races);
+      $form->add($tab_skip = new XQuickTable(array('class'=>'narrow'), array("Skippers", "Races sailed", "")));
       // ------------------------------------------------------------
       // - Create skipper table
       // Write already filled-in spots + 2 more
@@ -230,7 +242,7 @@ class RpEnterPane extends AbstractPane {
       foreach ($divisions as $division) {
 	$div = (string)$division;
 	$occupants[$div] = array();
-	$list = $this->getOccupantsRaces($division);
+	$list = $this->getOccupantsRaces($division, $chosen_team);
 	foreach ($list as $occ => $race_nums) {
 	  foreach ($race_nums as $race_num)
 	    $occupants[$div][$race_num] = $occ;
@@ -303,10 +315,18 @@ class RpEnterPane extends AbstractPane {
    * that many occupants
    *
    * @param Division $div the division
+   * @param Team $team the team whose races to fetch
    * @return Array<int, Array<int>> a set of race number lists
+   * @see Regatta::getRacesForTeam
    */
-  public function getOccupantsRaces(Division $div) {
-    $races = $this->REGATTA->getRaces($div);
+  public function getOccupantsRaces(Division $div, Team $team) {
+    if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
+      $races = array();
+      foreach ($this->REGATTA->getRacesForTeam($team) as $num)
+	$races[] = $this->REGATTA->getRace($div, $num);
+    }
+    else
+      $races = $this->REGATTA->getRaces($div);
     $list = array();
     foreach ($races as $race) {
       $occ = $race->boat->occupants;
