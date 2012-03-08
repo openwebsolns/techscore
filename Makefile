@@ -10,6 +10,7 @@ lib/conf.local.php: lib/conf.default.php
 
 crontab: crontab.default Makefile.local
 	sed -e 's:{DIRECTORY}:'"`pwd`"':g' \
+	    -e 's:{DB_DB}:${DB_DB}:g' \
 	    -e 's:{CRON_MAILTO}:${CRON_MAILTO}:g' \
 	    -e 's:{CRON_DLY_FREQ}:${CRON_DLY_FREQ}:g' \
 	    -e 's:{CRON_WKD_FREQ}:${CRON_WKD_FREQ}:g' \
