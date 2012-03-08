@@ -335,7 +335,7 @@ class RpManager {
   public static function inactivateRole($role) {
     $q = DB::createQuery(DBQuery::UPDATE);
     $q->values(array('active'), array(DBQuery::A_STR), array(null), DB::$SAILOR->db_name());
-    $q->where('role', $role);
+    $q->where(new DBCond('role', $role));
     DB::query($q);
   }
 }
