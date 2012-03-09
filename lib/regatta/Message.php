@@ -13,17 +13,20 @@
  */
 class Message extends DBObject {
 
-  public $account;
+  protected $account;
   protected $created;
   protected $read_time;
   public $content;
   public $subject;
+  public $active;
 
   public function db_type($field) {
     switch ($field) {
     case 'created':
     case 'read_time':
       return DB::$NOW;
+    case 'account':
+      return DB::$ACCOUNT;
     default:
       return parent::db_type($field);
     }
@@ -41,6 +44,5 @@ class Message extends DBObject {
     return $this->content;
   }
 }
-
 DB::$MESSAGE = new Message();
 ?>

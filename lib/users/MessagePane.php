@@ -37,7 +37,7 @@ class MessagePane extends AbstractUserPane {
     // Chosen message
     // ------------------------------------------------------------
     if (isset($args['message'])) {
-      $message = DB::get(DB::$MESSAGE, $args['message']);
+      $message = DB::getMessage($args['message']);
       if ($message === null || $message->account != $this->USER) {
 	Session::pa(new PA("No such message.", PA::E));
 	$this->redirect("../inbox");
@@ -55,7 +55,7 @@ class MessagePane extends AbstractUserPane {
 				   "value"=>$message->id),
 			     array("Delete")));
       $form->add(new XText(" "));
-      $form->add(new XA("inbox", "Close"));
+      $form->add(new XA("/inbox", "Close"));
       
       $p->add($form = new XForm("/inbox-edit", XForm::POST));
       $form->add(new XTextArea("text", "", array("style"=>"width: 100%", "rows" =>"3")));
@@ -87,9 +87,9 @@ class MessagePane extends AbstractUserPane {
 
       $attrs = ($mes->read_time === null) ? array('class'=>'strong') : array();
       $tab->add(new XTR($attrs,
-			array(new XTD(new XA("/inbox/{$mes->id}", $sub)),
-			      new XTD($con),
-			      new XTD($mes->created->format('Y-m-d H:i')))));
+			array(new XTD(array(), new XA("/inbox/{$mes->id}", $sub)),
+			      new XTD(array('class'=>'left'), $con),
+			      new XTD(array(), $mes->created->format('Y-m-d H:i')))));
     }
   }
 
@@ -99,11 +99,9 @@ class MessagePane extends AbstractUserPane {
     // Delete
     // ------------------------------------------------------------
     if (isset($args['delete'])) {
-      $mes = DB::get(DB::$MESSAGE, $args['delete']);
-      if ($mes === null || $mes->account != $this->USER) {
-	Session::pa(new PA("Invalid message to delete.", PA::E));
-	$this->redirect();
-      }
+      $mes = DB::getMessage($args['delete']);
+      if ($mes === null || $mes->account != $this->USER)
+	throw new SoterException("Invalid message to delete.");
       DB::deleteMessage($mes);
       Session::pa(new PA("Message deleted."));
       $this->redirect("inbox");
@@ -113,20 +111,15 @@ class MessagePane extends AbstractUserPane {
     // Reply
     // ------------------------------------------------------------
     if (isset($args['reply'])) {
-      $mes = DB::get(DB::$MESSAGE, $args['reply']);
-      if ($mes === null || $mes->account != $this->USER) {
-	Session::pa(new PA("Invalid message to reply.", PA::E));
-	$this->redirect();
-      }
-      if (empty($args['text'])) {
-	Session::pa(new PA("Empty message not sent.", PA::I));
-	$this->redirect();
-      }
-      DB::reply($mes, (string)$args['text']);
+      $mes = DB::getMessage($args['reply']);
+      if ($mes === null || $mes->account != $this->USER)
+	throw new SoterException("Invalid message to reply.");
+      $text = DB::$V->reqString($args, 'text', 1, 16000, "Empty message body submitted.");
+      DB::reply($mes, $text);
       Session::pa(new PA("Reply sent."));
-      $this->redirect("inbox");
+      $this->redirect('inbox');
     }
-    return $args;
+    return array();
   }
 }
 ?>

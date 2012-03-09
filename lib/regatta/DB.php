@@ -198,6 +198,19 @@ class DB extends DBM {
   // ------------------------------------------------------------
 
   /**
+   * Retrieves the message with the given ID. Note that the Message
+   * class is not auto-loaded. Using this method ascertains that the
+   * class is loaded, and that DB::$MESSAGE is not null.
+   *
+   * @param String $id the id of the message to retrieve
+   * @return Message|null the message, if any
+   */
+  public static function getMessage($id) {
+    require_once('regatta/Message.php');
+    return self::get(self::$MESSAGE, $id);
+  }
+
+  /**
    * Retrieve all messages for the given account in order
    *
    * @param Account $acc the account
@@ -232,7 +245,7 @@ class DB extends DBM {
   public static function queueMessage(Account $acc, $sub, $mes, $email = false) {
     require_once('regatta/Message.php');
     $mes = new Message();
-    $mes->account = $acc->id;
+    $mes->account = $acc;
     $mes->subject = $sub;
     $mes->content = $mes;
     self::set($mes);

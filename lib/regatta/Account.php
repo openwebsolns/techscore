@@ -45,6 +45,7 @@ class Account extends DBObject {
   }
 
   protected function db_order() { return array('last_name'=>true, 'first_name'=>true); }
+  protected function db_cache() { return true; }
 
   public function __toString() {
     return $this->getName();
