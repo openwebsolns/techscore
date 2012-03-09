@@ -46,17 +46,13 @@ class EULAPane extends AbstractUserPane {
 
   public function process(Array $args) {
     if (isset($args['agree-form'])) {
-      if (isset($args['agree']) && $args['agree']) {
-	$this->USER->status = Account::STAT_ACTIVE;
-	DB::set($this->USER);
-	Session::pa(new PA("Thank you for activatating your account!"));
-	WS::go('/');
-      }
-      else {
-	Session::pa(new PA("You must sign checkbox to continue.", PA::E));
-      }
+      DB::$V->reqInt($args, 'agree', 1, 5, "Please check the checkbox to continue.");
+      $this->USER->status = Account::STAT_ACTIVE;
+      DB::set($this->USER);
+      Session::pa(new PA("Thank you for activatating your account!"));
+      WS::go('/');
     }
-    return $args;
+    return array();
   }
 }
 ?>
