@@ -74,7 +74,8 @@ class TScorePage extends XPage {
     $this->body->add($c = new XDiv(array('id'=>'bodydiv')));
 
     // Announcement
-    $c->add(Session::getAnnouncements('/inc/img'));
+    if (class_exists('Session'))
+      $c->add(Session::getAnnouncements('/inc/img'));
     foreach ($this->content as $cont)
       $c->add($cont);
 
@@ -89,8 +90,9 @@ class TScorePage extends XPage {
    *
    */
   private function isMobile() {
-    return (strpos($_SERVER['HTTP_USER_AGENT'], "Android") !== false ||
-	    strpos($_SERVER['HTTP_USER_AGENT'], "iPhone")  !== false);
+    return (isset($_SERVER['HTTP_USER_AGENT']) &&
+	    (strpos($_SERVER['HTTP_USER_AGENT'], "Android") !== false ||
+	     strpos($_SERVER['HTTP_USER_AGENT'], "iPhone")  !== false));
   }
 
   /**

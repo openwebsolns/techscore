@@ -61,7 +61,8 @@ class TScoreDialog extends XPage {
     $this->body->add($c = new XDiv(array('id'=>'bodydiv')));
 
     // Announcement
-    $c->add(Session::getAnnouncements('/inc/img'));
+    if (class_exists('Session'))
+      $c->add(Session::getAnnouncements('/inc/img'));
     foreach ($this->content as $cont)
       $c->add($cont);
     
