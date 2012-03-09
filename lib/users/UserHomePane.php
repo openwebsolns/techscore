@@ -71,13 +71,14 @@ class UserHomePane extends AbstractUserPane {
 
     // Search?
     $qry = null;
-    $mes = null;
+    $empty_mes = array("You have no regattas. Go ", new XA("create", "create one"), "!");
     $regattas = array();
     $num_regattas = 0;
     DB::$V->hasString($qry, $_GET, 'q', 1, 256);
     if ($qry !== null) {
+      $empty_mes = "No regattas match your request.";
       if (strlen($qry) < 3)
-	$mes = "Search string is too short.";
+	$empty_mes = "Search string is too short.";
       else {
 	$regs = $this->USER->searchRegattas($qry);
 	$num_regattas = count($regs);
@@ -95,7 +96,7 @@ class UserHomePane extends AbstractUserPane {
     // Offer pagination awesomeness
     require_once('xml5/PageWhiz.php');
     $whiz = new PageWhiz($num_regattas, self::NUM_PER_PAGE, 'home', $_GET);
-    $p->add($whiz->getSearchForm($qry, 'q', "No regattas match your request.", "Search your regattas: "));
+    $p->add($whiz->getSearchForm($qry, 'q', $empty_mes, "Search your regattas: "));
     $p->add($ldiv = $whiz->getPages('r', $_GET));
 
     // Create table of regattas, if applicable
