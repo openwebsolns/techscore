@@ -145,6 +145,6 @@ if (isset($_GET['_action']) && $_GET['_action'] == 'edit') {
   WS::goBack('/');
 }
 $post = Session::g('POST');
-$args = array_merge($_GET, (is_array($post)) ? $post : array());
+$args = array_merge((is_array($post)) ? $post : array(), $_GET);
 $PAGE->getHTML($args);
 ?>

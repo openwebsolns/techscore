@@ -21,8 +21,8 @@ class Outbox extends DBObject {
   public $sender;
   protected $queue_time;
   protected $completion_time;
+  protected $arguments;
   public $recipients;
-  public $arguments;
   public $copy_sender;
   public $subject;
   public $content;
@@ -32,6 +32,8 @@ class Outbox extends DBObject {
     case 'queue_time':
     case 'completion_time':
       return DB::$NOW;
+    case 'arguments':
+      return array();
     default:
       return parent::db_type($field);      
     }
