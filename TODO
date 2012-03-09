@@ -103,10 +103,8 @@ Each conference page will show be organized as follows:
 
   2. Current sailing regattas
 
-
 * Move scoring side to ts.hostname VirtualHost? (d o n e)
  
-
 * Migrate to using WebServer class for redirects (d o n e)
  
 * Specify regatta types as constants (d o n e)
@@ -134,7 +132,6 @@ races sailed), or 'Final' if finalized.
 
 This means using dt_regatta, etc.
 
-
 * Make score updates happen in one giant query of awesomeness (d o n e)!
 
 Perhaps as big as one race full at a time? Also, and perhaps more
@@ -148,9 +145,7 @@ awesomer table.
 
 Instead, use the Regatta::setFinishes method to do your bidding.
 
-
 * Since most scorers only have one school, do not display the extra host field for them (d o n e)
-
 
 * Pester about teams if there are none
 
@@ -165,9 +160,7 @@ Thus, in addition to this new scoring pane, there's a new one
 specifically for adding a team, which only takes one school at a
 time.
 
-
 * Merge the urls, title, etc
-
 
 * When creating rotations for the first time, it is REALLY slow. Fix! (d o n e)
 
@@ -176,7 +169,6 @@ massive insert. Note that updates are fast! But first-time inserts
 were slow.
 
 * Provide for switching of division order when creating rotations
-
 
 * Update Regatta::addTeam to use $con->insert_id (d o n e)
 
@@ -199,7 +191,6 @@ changed the 10 races to 11, and C still remained at 10.
 
    *
 
-
 * Season!
 
 It seems to me that seasons should exist PRIOR to any regattas being
@@ -212,17 +203,22 @@ available for them. Capisce?
 
   - getRegattas returns ArrayIterator, not array
 
+* Season administrative interface
+
+Now that seasons are required for regattas to be created, we should
+create the appropriate admin interface for this to happen.
+
+* BUG: Users with no regattas do not receive message asking to create one.
+
 * Migration notes:
 
 Consider inspecting every use of array_shift, array_keys,
 array_values, array_merge, etc. Old library assumed that the returned
 objects where arrays and not just array-like with DBM.
 
-
 * Move DB::getMessages(Account) to Account::getMessages
 
 This just seems like a better use of OOP.
-
 
 * Team racing
 

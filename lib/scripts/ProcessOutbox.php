@@ -24,7 +24,7 @@ class ProcessOutbox {
   public static function run() {
     self::$sent = 0;
     $num = 0;
-    foreach (Preferences::getPendingOutgoing() as $outbox) {
+    foreach (DB::getPendingOutgoing() as $outbox) {
       $num++;
       $sent_to_me = false;
       // all

@@ -667,6 +667,7 @@ class RegattaIO {
     // sailors. Then, step through the affiliations list once and
     // retrieve the new sailors as needed
     $new_ids = array();
+    $rpm = $regatta->getRpManager();
     foreach ($pending_rp as $rp)
       $new_ids[$rp->sailor->id] = null;
     foreach ($root->Membership->Affiliate as $aff) {
@@ -696,7 +697,7 @@ class RegattaIO {
 	      $sailor->role       = "student";
 	      $sailor->school     = $school;
 
-	      $sailor = Preferences::addTempSailor($sailor);
+	      $sailor = $rpm->addTempSailor($sailor);
 	      $new_ids[$id] = $sailor;
 	    }
 	  }
