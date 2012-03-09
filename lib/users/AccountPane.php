@@ -22,48 +22,41 @@ class AccountPane extends AbstractUserPane {
   protected function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new XPort("My information"));
     $p->add($form = new XForm("/account-edit", XForm::POST));
-    $form->add(new FItem("First name:", new XTextInput("first_name", $this->USER->first_name)));
-    $form->add(new FItem("Last name:",  new XTextInput("last_name",  $this->USER->last_name)));
-    $form->add(new XP(array(), "To leave password as is, leave the two fields below blank:"));
+    $form->add(new FItem("First name:", new XTextInput("first_name", $this->USER->first_name, array('maxlength'=>30))));
+    $form->add(new FItem("Last name:",  new XTextInput("last_name",  $this->USER->last_name, array('maxlength'=>30))));
+    $form->add(new FItem("Role:",  XSelect::fromArray('role', Account::getRoles(), $this->USER->role)));
+    $form->add(new XSubmitP('edit-info', "Edit"));
+
+    $this->PAGE->addContent($p = new XPort("Change password"));
+    $p->add($form = new XForm('/account-edit', XForm::POST));
     $form->add(new FItem("New password:",     new XPasswordInput("sake1", "")));
     $form->add(new FItem("Confirm password:", new XPasswordInput("sake2", "")));
-    $form->add(new XSubmitInput('edit-info', "Edit"));
+    $form->add(new XSubmitP('edit-password', "Change"));
   }
 
   public function process(Array $args) {
+    // ------------------------------------------------------------
+    // edit info
+    // ------------------------------------------------------------
     if (isset($args['edit-info'])) {
-      if (isset($args['first_name'])) {
-	$name = trim($args['first_name']);
-	if (empty($name)) {
-	  Session::pa(new PA("First name cannot be empty.", PA::E));
-	  return $args;
-	}
-	$this->USER->first_name = $name;
-      }
-      if (isset($args['last_name'])) {
-	$name = trim($args['last_name']);
-	if (empty($name)) {
-	  Session::pa(new PA("Last name cannot be empty.", PA::E));
-	  return $args;
-	}
-	$this->USER->last_name = $name;
-      }
-      // password change?
-      if (isset($args['sake1']) && isset($args['sake2']) &&
-	  !(empty($args['sake1']) && empty($args['sake2']))) {
-	if ($args['sake1'] != $args['sake2']) {
-	  Session::pa(new PA("The passwords do not match.", PA::E));
-	  return $args;
-	}
-	if (strlen($args['sake1']) < 8) {
-	  Session::pa(new PA("The password must be at least 8 characters long.", PA::E));
-	  return $args;
-	}
-	$this->USER->password = sha1($args['sake1']);
-	Session::pa(new PA("Password reset."));
-      }
+      $this->USER->first_name = DB::$V->reqString($args, 'first_name', 1, 31, "First name cannot be empty (and must be less than 30 characters.");
+      $this->USER->last_name = DB::$V->reqString($args, 'last_name', 1, 31, "Last name cannot be empty (and must be less than 30 characters.");
+      $this->USER->role = DB::$V->reqKey($args, 'role', Account::getRoles(), "Invalid role provided.");
       DB::set($this->USER);
       Session::pa(new PA("Information updated."));
+    }
+
+    // ------------------------------------------------------------
+    // password change?
+    // ------------------------------------------------------------
+    if (isset($args['edit-password'])) {
+      $pw1 = DB::$V->reqRaw($args, 'sake1', 8, 101, "The password must be at least 8 characters long.");
+      $pw2 = DB::$V->reqRaw($args, 'sake2', strlen($pw1), strlen($pw1) + 1, "The two passwords do not match.");
+      if ($pw1 != $pw2)
+	throw new SoterException("The two passwords do not match.");
+      $this->USER->password = sha1($pw1);
+      DB::set($this->USER);
+      Session::pa(new PA("Password reset."));
     }
     return array();
   }
