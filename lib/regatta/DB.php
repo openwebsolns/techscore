@@ -178,10 +178,10 @@ class DB extends DBM {
       $to = Conf::$DIVERT_MAIL;
       $subject = 'DIVERTED: ' . $subject;
     }
-    return mail($to,
-		$subject,
-		wordwrap($body, 72),
-		sprintf('From: %s', Conf::$TS_FROM_MAIL));
+    return @mail($to,
+		 $subject,
+		 wordwrap($body, 72),
+		 sprintf('From: %s', Conf::$TS_FROM_MAIL));
   }
 
   /**
@@ -190,7 +190,8 @@ class DB extends DBM {
    * @return Array:Outbox the messages
    */
   public static function getPendingOutgoing() {
-    return self::getAll(self::$OUTGOING, new DBCond('completion_time', null));
+    require_once('regatta/Outbox.php');
+    return self::getAll(self::$OUTBOX, new DBCond('completion_time', null));
   }
 
   // ------------------------------------------------------------
@@ -242,13 +243,14 @@ class DB extends DBM {
    * @param boolean $email true to send e-mail message
    * @return Message the queued message
    */
-  public static function queueMessage(Account $acc, $sub, $mes, $email = false) {
+  public static function queueMessage(Account $acc, $sub, $con, $email = false) {
     require_once('regatta/Message.php');
     $mes = new Message();
     $mes->account = $acc;
     $mes->subject = $sub;
-    $mes->content = $mes;
-    self::set($mes);
+    $mes->content = $con;
+    $mes->active = 1;
+    self::set($mes, false);
 
     if ($email !== false)
       self::mail($acc->id, $sub, $mes);
@@ -289,7 +291,7 @@ class DB extends DBM {
 		    $mes->account->id,
 		    $mes->content,
 		    $reply);
-    $res = self::mail(Conf::$ADMIN_MAIL, "[TechScore] Message reply", $body);
+    $res = self::mail(Conf::$ADMIN_MAIL, sprintf("[%s] Message reply", Conf::$NAME, $body));
   }
 
   // ------------------------------------------------------------

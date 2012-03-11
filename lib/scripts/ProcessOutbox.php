@@ -22,17 +22,18 @@ class ProcessOutbox {
    *
    */
   public static function run() {
+    // @TODO $outbox->arguments is already an array
     self::$sent = 0;
     $num = 0;
     foreach (DB::getPendingOutgoing() as $outbox) {
       $num++;
       $sent_to_me = false;
       // all
-      if ($outbox->recipients == 'all') {
+      if ($outbox->recipients == Outbox::R_ALL) {
 	foreach (DB::getConferences() as $conf) {
 	  foreach ($conf->getUsers() as $acc) {
 	    self::send($acc, $outbox->subject, $outbox->content);
-	    if ($acc->id == $outbox->sender)
+	    if ($acc->id == $outbox->sender->id)
 	      $sent_to_me = true;
 	  }
 	}
@@ -40,12 +41,14 @@ class ProcessOutbox {
 			  $outbox->sender, $outbox->queue_time->format('Y-m-d H:i:s')));
       }
       // conference
-      if ($outbox->recipients == 'conferences') {
-	foreach (explode(',', $outbox->arguments) as $conf) {
+      if ($outbox->recipients == Outbox::R_CONF) {
+	foreach ($outbox->arguments as $conf) {
 	  $conf = DB::getConference($conf);
+	  if ($conf === null)
+	    throw new RuntimeException("Conference $conf does not exist.");
 	  foreach ($conf->getUsers() as $acc) {
 	    self::send($acc, $outbox->subject, $outbox->content);
-	    if ($acc->id == $outbox->sender)
+	    if ($acc->id == $outbox->sender->id)
 	      $sent_to_me = true;
 	  }
 	}
@@ -53,11 +56,11 @@ class ProcessOutbox {
 			  $outbox->sender, $outbox->arguments, $outbox->queue_time->format('Y-m-d H:i:s')));
       }
       // role
-      if ($outbox->recipients == 'roles') {
-	foreach (explode(',', $outbox->arguments) as $role) {
+      if ($outbox->recipients == Outbox::R_ROLE) {
+	foreach ($outbox->arguments as $role) {
 	  foreach (DB::getAccounts($role) as $acc) {
 	    self::send($acc, $outbox->subject, $outbox->content);
-	    if ($acc->id == $outbox->sender)
+	    if ($acc->id == $outbox->sender->id)
 	      $sent_to_me = true;
 	  }
 	}
@@ -66,8 +69,8 @@ class ProcessOutbox {
       }
 
       // send me a copy?
-      if (isset($args['copy-me']) && !$sent_to_me) {
-	self::send(DB::getAccount($outbox->sender), "COPY OF: ".$outbox->subject, $outbox->content);
+      if ($outbox->copy_sender > 0 && !$sent_to_me) {
+	self::send($outbox->sender, "COPY OF: ".$outbox->subject, $outbox->content);
 	self::log("Also sent copy to sender {$outbox->sender}\n");
       }
       $outbox->completion_time = DB::$NOW;

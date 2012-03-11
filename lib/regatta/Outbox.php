@@ -14,11 +14,31 @@ require_once('regatta/DB.php');
  * @version 2011-11-18
  */
 class Outbox extends DBObject {
+  /**
+   * @var String constant to use for sending to all users
+   */
   const R_ALL = 'all';
-  const R_CONFERENCES = 'conferences';
-  const R_ROLES = 'roles';
+  /**
+   * @var String send based on account role
+   */
+  const R_ROLE = 'roles';
+  /**
+   * @var String send based on conference membership
+   */
+  const R_CONF = 'conferences';
+  /**
+   * @var String send based on IDs
+   */
+  const R_USER = 'users';
 
-  public $sender;
+  public static function getRecipientTypes() {
+    return array(self::R_ALL => self::R_ALL,
+		 self::R_ROLE => self::R_ROLE,
+		 self::R_CONF => self::R_CONF,
+		 self::R_USER => self::R_USER);
+  }
+
+  protected $sender;
   protected $queue_time;
   protected $completion_time;
   protected $arguments;
@@ -34,6 +54,8 @@ class Outbox extends DBObject {
       return DB::$NOW;
     case 'arguments':
       return array();
+    case 'sender':
+      return DB::$ACCOUNT;
     default:
       return parent::db_type($field);      
     }

@@ -49,23 +49,6 @@ class SendMessage extends AbstractAdminUserPane {
   }
 
   /**
-   * @var String constant to use for sending to all users
-   */
-  const SEND_ALL = 'all';
-  /**
-   * @var String send based on account role
-   */
-  const SEND_ROLE = 'roles';
-  /**
-   * @var String send based on conference membership
-   */
-  const SEND_CONF = 'conferences';
-  /**
-   * @var String send based on IDs
-   */
-  const SEND_USER = 'users';
-
-  /**
    * To send messages, administrators can either choose all accounts, 
    * all accounts from a conference, all accounts from individual
    * schools, or all accounts, period.
@@ -93,7 +76,7 @@ class SendMessage extends AbstractAdminUserPane {
     $p->add(new XP(array(), "You may send a message to as many individuals as you'd like at a time. First, select the recipients using this port. Once you have added all recipients, use the form below to send the message."));
 
     $p->add($f = new XForm("/send-message", XForm::GET));
-    $f->add($fi = new FItem(sprintf("All %s users:", Conf::$NAME), new XHiddenInput('axis', self::SEND_ALL)));
+    $f->add($fi = new FItem(sprintf("All %s users:", Conf::$NAME), new XHiddenInput('axis', Outbox::R_ALL)));
     $fi->add(new XSubmitInput('recipients', "Write message >"));
     $fi->add(new XMessage("Broadcast general message to all users. Use sparingly."));
 
@@ -102,7 +85,7 @@ class SendMessage extends AbstractAdminUserPane {
     $f->add($fi = new FItem("All users in conference:", $sel = new XSelectM('list[]')));
     $fi->add(" ");
     $fi->add(new XSubmitInput('recipients', "Write message >"));
-    $fi->add(new XHiddenInput('axis', self::SEND_CONF));
+    $fi->add(new XHiddenInput('axis', Outbox::R_CONF));
     $sel->set('size', 7);
     foreach (DB::getConferences() as $conf)
       $sel->add(new FOption($conf->id, $conf));
@@ -112,11 +95,17 @@ class SendMessage extends AbstractAdminUserPane {
     $f->add($fi = new FItem("All users with role:", $sel = XSelect::fromArray('list[]', Account::getRoles())));
     $fi->add(" ");
     $fi->add(new XSubmitInput('choose-recipients', "Write message >"));
-    $fi->add(new XHiddenInput('axis', self::SEND_ROLE));
+    $fi->add(new XHiddenInput('axis', Outbox::R_ROLE));
     $sel->set('size', 3);
   }
 
-  private function fillMessage(Array $args) {
+  /**
+   * Fills the pane with a form for the user to enter the subject and
+   * content (or message) to be sent.
+   *
+   * @param Outbox $out the message object
+   */
+  private function fillMessage(Outbox $out) {
     $this->PAGE->addContent(new XP(array(), new XA(WS::link('/send-message'), "← Discard changes and restart")));
     $this->PAGE->addContent($p = new XPort("Instructions"));
     $p->add(new XP(array(), "When filling out the message, you may use the keywords in the table below to customize each message."));
@@ -126,22 +115,22 @@ class SendMessage extends AbstractAdminUserPane {
     
     $title = "";
     $recip = "";
-    switch ($args['axis']) {
-    case self::SEND_ALL:
+    switch ($out->recipients) {
+    case Outbox::R_ALL:
       $title = "2. Send message to all users";
       $recip = "All users";
       break;
 
       // conference
-    case self::SEND_CONF:
+    case Outbox::R_CONF:
       $title = "2. Send message to users from conference(s)";
-      $recip = implode(", ", $args['list']);
+      $recip = implode(", ", $out->arguments);
       break;
 
       // roles
-    case self::SEND_ROLE:
+    case Outbox::R_ROLE:
       $title = "2. Send message ro users with role(s)";
-      $recip = implode(", ", $args['list']);
+      $recip = implode(", ", $out->arguments);
       break;
     }
 
@@ -149,15 +138,15 @@ class SendMessage extends AbstractAdminUserPane {
     $p->add($f = new XForm('/send-message-edit', XForm::POST));
     
     $f->add(new FItem("Recipients:", new XSpan($recip, array('class'=>'strong'))));
-    $f->add($fi = new FItem("Subject:", new XTextInput('subject', $args['subject'])));
+    $f->add($fi = new FItem("Subject:", new XTextInput('subject', $out->subject)));
     $fi->add(new XMessage("Less than 100 characters"));
 
-    $f->add(new FItem("Message body:", new XTextArea('content', $args['message'], array('rows'=>16, 'cols'=>75))));
+    $f->add(new FItem("Message body:", new XTextArea('content', $out->content, array('rows'=>16, 'cols'=>75))));
     $f->add($fi = new FItem("Copy me:", new XCheckboxInput('copy-me', 1, array('id'=>'copy-me'))));
     $fi->add(new XLabel('copy-me', "Send me a copy of message, whether or not I would otherwise receive one."));
-    $f->add($para = new XP(array('class'=>'p-submit'), array(new XHiddenInput('axis', $args['axis']))));
-    foreach ($args['list'] as $id => $item)
-      $para->add(new XHiddenInput('list[]', $id));
+    $f->add($para = new XP(array('class'=>'p-submit'), array(new XHiddenInput('axis', $out->recipients))));
+    foreach ($out->arguments as $item)
+      $para->add(new XHiddenInput('list[]', $item));
     $para->add(new XSubmitInput('send-message', "Send message now"));
   }
 
@@ -168,15 +157,8 @@ class SendMessage extends AbstractAdminUserPane {
    * @throws SoterException (as usual)
    */
   public function process(Array $args) {
-    $post = $this->parseArgs($args, true);
-
-    // Add the message to the outbox
-    $out = new Outbox();
-    $out->sender = $this->USER->id;
-    $out->recipients = $post['axis'];
-    $out->arguments = $post['list'];
-    $out->subject = $post['subject'];
-    $out->content = $post['message'];
+    $out = $this->parseArgs($args, true);
+    $out->sender = $this->USER;
     if (isset($args['copy-me']))
       $out->copy_sender =  1;
 
@@ -193,48 +175,51 @@ class SendMessage extends AbstractAdminUserPane {
    * @param Array $args the variables to parse
    * @param boolean $req_message if true, require non-empty subject
    *   and message
-   * @return Array with indices: 'axis' and 'list', 'subject', 'message'
+   * @return Outbox the message
    * @throws SoterException if user is trying to pull a fast one
    */
   private function parseArgs($args, $req_message = false) {
-    $res = array('list'=>array());
-    $res['axis'] = DB::$V->reqValue($args, 'axis', array(self::SEND_ALL,
-							 self::SEND_ROLE,
-							 self::SEND_CONF,
-							 self::SEND_USER), "Invalid recipient type provided.");
-    $res['subject'] = DB::$V->incString($args, 'subject', 1, 101);
-    if ($req_message && $res['subject'] === null)
+    $res = new Outbox();
+    $res->recipients = DB::$V->reqKey($args, 'axis', Outbox::getRecipientTypes(), "Invalid recipient type provided.");
+    $res->subject = DB::$V->incString($args, 'subject', 1, 101);
+    if ($req_message && $res->subject === null)
       throw new SoterException("Missing subject for message.");
-    $res['message'] = DB::$V->incString($args, 'content', 1, 16000);
-    if ($req_message && $res['message'] === null)
+    $res->content = DB::$V->incString($args, 'content', 1, 16000);
+    if ($req_message && $res->content === null)
       throw new SoterException("Missing content for message, or possibly too long.");
-    if ($res['axis'] == self::SEND_ALL)
+    if ($res->recipients == Outbox::R_ALL)
       return $res;
     // require appropriate list
+    $list = array();
     $roles = Account::getRoles();
     foreach (DB::$V->reqList($args, 'list', null, "Missing list of recipients.") as $m) {
       $obj = null;
       $ind = (string)$m;
-      switch ($res['axis']) {
-      case self::SEND_ROLE:
+      switch ($res->recipients) {
+      case Outbox::R_ROLE:
 	if (isset($roles[$ind]))
-	  $obj = $roles[$ind];
+	  $obj = $ind;
 	break;
 
-      case self::SEND_CONF:
-	$obj = DB::getConference($m);
+      case Outbox::R_CONF:
+	if (($ind = DB::getConference($ind)) !== null)
+	  $obj = $ind->id;
 	break;
 
-      case self::SEND_USER:
-	$obj = DB::getAccount($m);
+      case Outbox::R_USER:
+	if (($ind = DB::getAccount($ind)) !== null)
+	  $obj = $ind->id;
 	break;
 
       default:
 	throw new RuntimeException("Unknown recipient axis for message.");
       }
       if ($obj !== null)
-	$res['list'][$ind] = $obj;
+	$list[$obj] = $obj;
     }
+    if (count($list) == 0)
+      throw new SoterException("No valid recipients provided.");
+    $res->arguments = $list;
     return $res;
   }
 }

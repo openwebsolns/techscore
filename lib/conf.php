@@ -96,7 +96,7 @@ if (Conf::$ERROR_HANDLER == 'mail') {
 }
 else {
   require_once('error/PrintHandler.php');
-  PrintHandler::registerErrors(E_ALL | E_STRICT);
+  PrintHandler::registerErrors(E_ALL | E_STRICT | E_NOTICE);
   PrintHandler::registerExceptions();
 }
 
