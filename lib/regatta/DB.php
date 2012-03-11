@@ -249,7 +249,6 @@ class DB extends DBM {
     $mes->account = $acc;
     $mes->subject = $sub;
     $mes->content = $con;
-    $mes->active = 1;
     self::set($mes, false);
 
     if ($email !== false)
@@ -276,7 +275,7 @@ class DB extends DBM {
    * @param Message $mes the message to "delete"
    */
   public static function deleteMessage(Message $mes) {
-    $mes->active = 0;
+    $mes->inactive = 1;
     self::set($mes);
   }
 
@@ -291,7 +290,7 @@ class DB extends DBM {
 		    $mes->account->id,
 		    $mes->content,
 		    $reply);
-    $res = self::mail(Conf::$ADMIN_MAIL, sprintf("[%s] Message reply", Conf::$NAME, $body));
+    $res = self::mail(Conf::$ADMIN_MAIL, sprintf("[%s] Message reply", Conf::$NAME), $body);
   }
 
   // ------------------------------------------------------------

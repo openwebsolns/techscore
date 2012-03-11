@@ -251,3 +251,9 @@ create table tr_race_teams (id int primary key, number tinyint(3) unsigned not n
 alter table tr_race_teams add foreign key (team1) references team(id) on delete cascade on update cascade, add foreign key (team2) references team(id) on delete cascade on update cascade;
 alter table tr_race_teams add column regatta int(5) not null after id, add foreign key (regatta) references regatta(id) on delete cascade on update cascade;
 alter table tr_race_teams drop primary key, change column id id int not null primary key auto_increment;
+
+-- fixes for outbox --
+alter table message add column inactive tinyint default null after active;
+update message set inactive = 1 where active = null or active = 0;
+alter table message drop column active;
+alter table outbox change column recipients recipients enum('all', 'conferences', 'roles', 'users') not null default 'all';

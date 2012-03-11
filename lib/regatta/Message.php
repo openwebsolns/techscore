@@ -18,7 +18,7 @@ class Message extends DBObject {
   protected $read_time;
   public $content;
   public $subject;
-  public $active;
+  public $inactive;
 
   public function db_type($field) {
     switch ($field) {
@@ -33,7 +33,7 @@ class Message extends DBObject {
   }
 
   protected function db_order() { return array('created'=>false); }
-  public function db_where() { return new DBCond('active', 1); }
+  public function db_where() { return new DBCond('inactive', null); }
 
   /**
    * Returns just the content
