@@ -30,16 +30,15 @@ if (Conf::$USER === null) {
       $PAGE = new PasswordRecoveryPane();
       break;
 
+    case 'login':
     case 'home':
     default:
       Session::s('last_page', preg_replace(':^/edit/:', '/', $_SERVER['REQUEST_URI']));
 
       // provide the login page
-      Session::pa(new PA("Please login to proceed.", PA::I));
-      require_once('xml/WelcomePage.php');
-      $PAGE = new WelcomePage();
-      $PAGE->printXML();
-      exit;
+      require_once('users/LoginPage.php');
+      $PAGE = new LoginPage();
+      break;
     }
     if (isset($_GET['_action']) && $_GET['_action'] == 'edit') {
       Session::s('POST', $PAGE->processPOST($_REQUEST));
@@ -66,6 +65,12 @@ if ($page == "license") {
 else {
   DB::requireActive(Conf::$USER);
   switch ($page) {
+  case 'login':
+  case 'logout':
+    require_once('users/LoginPage.php');
+    $PAGE = new LoginPage();
+    break;
+
   case "home":
     require_once('users/UserHomePane.php');
     $PAGE = new UserHomePane(Conf::$USER);
