@@ -23,6 +23,7 @@ crontab: crontab.default Makefile.local
 apache.conf: apache.conf.default Makefile.local
 	sed -e 's:{DIRECTORY}:'"`pwd`"':g' \
 	    -e 's/{HOSTNAME}/${HTTP_HOSTNAME}/g' \
+	    -e 's/{PUBLIC_HOSTNAME}/${HTTP_PUBLIC_HOSTNAME}/g' \
 	    -e 's:{HTTP_LOGROOT}:${HTTP_LOGROOT}:g' \
 	    -e 's:{HTTP_CERTPATH}:${HTTP_CERTPATH}:g' \
 	    -e 's:{HTTP_CERTKEYPATH}:${HTTP_CERTKEYPATH}:g' \

@@ -9,21 +9,19 @@
 
 # Dummy SCORING virtualhost to forward traffic to port 443
 <VirtualHost *:80>
-ServerName ts2.{HOSTNAME}
-ServerAlias ts.{HOSTNAME}
+ServerName {HOSTNAME}
 CustomLog /dev/null combined
 
 # forward traffic accordingly
 RewriteEngine on
-RewriteRule ^(.*)$ https://ts2.{HOSTNAME}$1
+RewriteRule ^(.*)$ https://{HOSTNAME}$1
 </VirtualHost>
 
 # TechScore SCORING virtualhost setup
 <VirtualHost *:443>
-ServerName ts2.{HOSTNAME}
-ServerAlias ts.{HOSTNAME}
-ErrorLog {HTTP_LOGROOT}/ts2.{HOSTNAME}-error.log
-CustomLog {HTTP_LOGROOT}/ts2.{HOSTNAME}-access.log combined
+ServerName {HOSTNAME}
+ErrorLog {HTTP_LOGROOT}/{HOSTNAME}-error.log
+CustomLog {HTTP_LOGROOT}/{HOSTNAME}-access.log combined
 DocumentRoot {DIRECTORY}/www
 
 # SSL setup
@@ -126,10 +124,9 @@ Header set Expires "Thu, 15 Apr 2025 20:00:00 GMT"
 #------------------------------------------------------------
 # PUBLIC
 <VirtualHost *:80>
-ServerName scores.{HOSTNAME}
-ServerAlias live.{HOSTNAME}
-ErrorLog {HTTP_LOGROOT}/scores.{HOSTNAME}-error.log
-CustomLog {HTTP_LOGROOT}/scores.{HOSTNAME}-access.log combined
+ServerName {PUBLIC_HOSTNAME}
+ErrorLog {HTTP_LOGROOT}/{PUBLIC_HOSTNAME}-error.log
+CustomLog {HTTP_LOGROOT}/{PUBLIC_HOSTNAME}-access.log combined
 DocumentRoot {DIRECTORY}/html
 
 <Directory {DIRECTORY}/html>
