@@ -234,6 +234,7 @@ class TSSoter extends Soter {
     $sch = DB::getSchool($this->reqString($args, $key, 1, 11, $mes));
     if ($sch === null)
       throw new SoterException($mes);
+    return $sch;
   }
   public function incSchool(Array $args, $key, $default = null) {
     try {
