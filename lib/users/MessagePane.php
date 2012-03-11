@@ -87,7 +87,7 @@ class MessagePane extends AbstractUserPane {
 
       $attrs = ($mes->read_time === null) ? array('class'=>'strong') : array();
       $tab->add(new XTR($attrs,
-			array(new XTD(array(), new XA("/inbox/{$mes->id}", $sub)),
+			array(new XTD(array('class'=>'left'), new XA("/inbox/{$mes->id}", $sub)),
 			      new XTD(array('class'=>'left'), $con),
 			      new XTD(array(), $mes->created->format('Y-m-d H:i')))));
     }
