@@ -250,3 +250,14 @@ in which race. Cool, huh?
 It occurs to me that users probably are not allowed to change the
 regatta type scoring to/away from Team after finishes have been
 entered.
+
+* XML Simplication, part n+1
+
+WelcomePage becomes LoginPage. login.php is no more its own page. All
+extensions to WelcomePage will now extend AbstractUserPane.
+AbstractUserPane will be able to handle no USER, in which case it
+presents the menu one finds in WelcomePage.
+
+It might even be possible to merge AbstractPane as a subclass of
+AbstractUserPane. Cleaner code, even if there is more IO lookup
+required.

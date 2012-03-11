@@ -230,5 +230,18 @@ class TSSoter extends Soter {
       return $default;
     }
   }
+  public function reqSchool(Array $args, $key, $mes = "GSE") {
+    $sch = DB::getSchool($this->reqString($args, $key, 1, 11, $mes));
+    if ($sch === null)
+      throw new SoterException($mes);
+  }
+  public function incSchool(Array $args, $key, $default = null) {
+    try {
+      return $this->reqSchool($args, $key);
+    }
+    catch (SoterException $e) {
+      return $default;
+    }
+  }
 }
 ?>

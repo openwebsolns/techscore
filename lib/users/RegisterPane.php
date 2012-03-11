@@ -5,7 +5,7 @@
  * @package users
  */
 
-require_once('xml/WelcomePage.php');
+require_once('users/AbstractUserPane.php');
 
 /**
  * Allows for web users to petition for an account. In version 2.0 of
@@ -37,14 +37,18 @@ require_once('xml/WelcomePage.php');
  * @author Dayan Paez
  * @version 2010-07-21
  */
-class RegisterPane extends WelcomePage {
+class RegisterPane extends AbstractUserPane {
+
+  public function __construct() {
+    parent::__construct("Registration");
+  }
 
   /**
    * Fills web page depending on registration status, i.e. the
    * "registration-step" variable in the session.
    *
    */
-  public function fillContent() {
+  protected function fillHTML(Array $args) {
     $step = null;
     $post = Session::g('POST');
     if (isset($post['registration-step']))
@@ -72,8 +76,7 @@ class RegisterPane extends WelcomePage {
    * Create the form for new users to register
    */
   private function fillDefault() {
-    $this->addContent(new XPageTitle("Registration"));
-    $this->addContent($p = new XPort("Request new account"));
+    $this->PAGE->addContent($p = new XPort("Request new account"));
     $p->add(new XP(array(),
 		   array("Please note that TechScore is an online scoring program specifically designed for College Sailing regattas. As such, account access is given only to valid ICSA users, or as approved by the registration committee. If you are not affiliated with ICSA, you might be more interested in accessing the public site at ",
 			 new XA(Conf::$PUB_HOME, Conf::$PUB_HOME), ".")));
@@ -105,7 +108,7 @@ class RegisterPane extends WelcomePage {
    *
    */
   private function fillRequested() {
-    $this->addContent($p = new XPort("Account requested"));
+    $this->PAGE->addContent($p = new XPort("Account requested"));
     $p->add(new XP(array(), "Thank you for registering for an account with TechScore. You should receive an e-mail message shortly with a link to verify your account access."));
     $p->add(new XP(array(),
 		   array("If you don't receive an e-mail, please check your junk-mail settings and enable mail from ",
@@ -117,7 +120,7 @@ class RegisterPane extends WelcomePage {
    *
    */
   private function fillPending() {
-    $this->addContent($p = new XPort("Account pending"));
+    $this->PAGE->addContent($p = new XPort("Account pending"));
     $p->add(new XP(array(), "Thank you for confirming your account. At this point, the registration committee has been notified of your request. They will review your request and approve or reject your account accordingly. Please allow up to three business days for this process."));
     $p->add(new XP(array(), "You will be notified of the committee's response to your request with an e-mail message."));
   }
@@ -127,81 +130,50 @@ class RegisterPane extends WelcomePage {
    *
    */
   public function process(Array $args) {
+    echo '<pre>'; print_r($args); echo '</pre>';
     if (isset($args['register'])) {
       // 1. Check for existing account
-      $email = trim(addslashes($args['email']));
-      if (strlen($email) == 0) {
-	Session::pa(new PA("Email must not be empty.", PA::E));
-	return $args;
-      }
-      $acc = DB::getAccount($email);
-      if ($acc !== null) {
-	Session::pa(new PA("Invalid email provided.", PA::E));
-	return $args;
-      }
+      $id = DB::$V->reqString($args, 'email', 1, 41, "Email must not be empty or exceed 40 characters.");
+      $acc = DB::getAccount($id);
+      if ($acc !== null)
+	throw new SoterException("Invalid email provided.");
       $acc = new Account();
-      $acc->status = "requested";
-      $acc->id = $email;
+      $acc->status = Account::STAT_REQUESTED;
+      $acc->id = $id;
       
       // 2. Approve first and last name
-      $acc->last_name  = trim(addslashes($args['last_name']));
-      $acc->first_name = trim(addslashes($args['first_name']));
-      if (empty($acc->last_name) || empty($acc->first_name)) {
-	Session::pa(new PA("User first and last name must not be empty.", PA::E));
-	return $args;
-      }
+      $acc->last_name  = DB::$V->reqString($args, 'last_name', 1, 31, "Last name must not be empty and less than 30 characters.");
+      $acc->first_name = DB::$V->reqString($args, 'first_name', 1, 31, "First name must not be empty and less than 30 characters.");
 
       // 3. Affiliation
-      $acc->school = DB::getSchool(trim(addslashes($args['school'])));
-      if ($acc->school === null) {
-	Session::pa(new PA("Invalid school affiliation requested.", PA::E));
-	return $args;
-      }
+      $acc->school = DB::$V->reqSchool($args, 'school', "Invalid school requested.");
 
       // 4. Role (assume Staff if not recognized)
-      $role = strtolower($args['role']);
-      switch ($role) {
-      case "student":
-      case "coach":
-      case "staff":
-	$acc->role = $role;
-      break;
-      
-      default:
-	$acc->role = "staff";
-	Session::pa(new PA("Invalid role, assumed staff.", PA::I));
-      }
+      $acc->role = DB::$V->reqKey($args, 'role', Account::getRoles(), "Invalid account role.");
 
       // 5. Approve password
-      if (!isset($args['passwd']) || !isset($args['confirm']) ||
-	  $args['passwd'] != $args['confirm'] ||
-	  strlen(trim($args['passwd'])) < 8) {
-	Session::pa(new PA("Invalid or missing password. Make sure the passwords match and that it is at least 8 characters long.", PA::E));
-	return $args;
-      }
-      $acc->password = sha1(trim($args['passwd']));
+      $pw1 = DB::$V->reqRaw($args, 'passwd', 8, 101, "Invalid password. Must be at least 8 characters long.");
+      $pw2 = DB::$V->reqRaw($args, 'confirm', 8, 101, "Invalid password confirmation.");
+      if ($pw1 !== $pw2)
+	throw new SoterException("Password confirmation does not match. Please try again.");
+      $acc->password = sha1($pw1);
 
       // 6. Create account with status "requested";
-      $res = DB::mail($acc->id, '[TechScore] New account request', $this->getMessage($acc));
-      if ($res !== false) {
-	DB::set($acc);
-	Session::pa(new PA("Account successfully created."));
-	return array("registration-step"=>1);
-      }
-      Session::pa(new PA("There was an error with your request. Please try again later.", PA::E));
-      return $args;
+      if (DB::mail($acc->id, '[TechScore] New account request', $this->getMessage($acc)) === false)
+	throw new SoterException("There was an error with your request. Please try again later.");
+
+      DB::set($acc);
+      Session::pa(new PA("Account successfully created."));
+      return array("registration-step"=>1);
     }
 
     // Mail verification
     if (isset($args['acc'])) {
-      $hash = trim($args['acc']);
-      $acc = DB::getAccountFromHash($hash);
+      $acc = DB::getAccountFromHash(DB::$V->reqString($args, 'acc', 1, 40, "Invalid has provided."));
+      if ($acc === null)
+	throw new SoterException("Invalid account to approve.");
 
-      if ($acc === null) {
-	Session::pa(new PA("Invalid account to approve.", PA::E));
-	return $args;
-      }
-      $acc->status = 'pending';
+      $acc->status = Account::STAT_PENDING;
       DB::set($acc);
       Session::pa(new PA("Account verified. Please wait until the account is approved. You will be notified by mail."));
       Session::s('POST', array('registration-step' => 2));

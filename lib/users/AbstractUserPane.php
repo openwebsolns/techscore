@@ -28,11 +28,11 @@ abstract class AbstractUserPane {
    * @param String $title the title of the page
    * @param Account $user the user to whom this applies
    */
-  public function __construct($title, Account $user, School $school = null) {
+  public function __construct($title, Account $user = null, School $school = null) {
     $this->title = (string)$title;
     $this->USER  = $user;
     $this->SCHOOL = $school;
-    if ($this->SCHOOL === null)
+    if ($this->SCHOOL === null && $this->USER !== null)
       $this->SCHOOL = $this->USER->school;
   }
 
@@ -46,6 +46,24 @@ abstract class AbstractUserPane {
     require_once('xml/TScorePage.php');
     $this->PAGE = new TScorePage($this->title, $this->USER);
 
+    if ($this->USER === null) {
+      // ------------------------------------------------------------
+      // menu
+      $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
+				    array(new XH4("Useful Links"),
+					  $m = new XUl(array(),
+						       array(new XLi(new XA(".", "Sign-in")))))));
+      if (Conf::$ALLOW_REGISTER !== false)
+	$m->add(new XLi(new XA("register", "Register")));
+      $m->add(new XLi(new XA("http://www.collegesailing.org", "ICSA Website")));
+      $m->add(new XLi(new XA("http://techscore.sourceforge.net", "Offline TechScore")));
+
+      $this->PAGE->addContent(new XPageTitle($this->title));
+      $this->fillHTML($args);
+      $this->PAGE->printXML();
+      return;
+    }
+    
     // ------------------------------------------------------------
     // menu
     

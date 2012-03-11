@@ -75,5 +75,4 @@ class WelcomePage extends TScorePage {
 			 new XA("/register", "register here"), ".")));
   }
 }
-
 ?>

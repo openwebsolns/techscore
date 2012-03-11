@@ -45,7 +45,7 @@ if (Conf::$USER === null) {
       Session::s('POST', $PAGE->processPOST($_REQUEST));
       WS::goBack('/');
     }
-    $PAGE->printXML();
+    $PAGE->getHTML($_REQUEST);
     exit;
   }
 }
