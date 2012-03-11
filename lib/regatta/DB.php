@@ -598,7 +598,6 @@ class Burgee extends DBObject {
 
   public function db_type($field) {
     switch ($field) {
-    case 'filedata': return DBQuery::A_BLOB;
     case 'last_updated': return DB::$NOW;
     case 'school': return DB::$SCHOOL;
     default:

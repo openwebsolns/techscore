@@ -36,15 +36,14 @@ class EditLogoPane extends AbstractPrefsPane {
 
     $p->add($para = new XP(array(), "Please allow up to 8 hours after uploading for the new logo to appear on the public site."));
     // Current logo
-    if ($this->SCHOOL->burgee) {
-      $url = sprintf('data:image/png;base64,%s', $this->SCHOOL->burgee->filedata);
-      $para->add(sprintf("The current logo for %s is shown below. If you do not see an image below, you may need to upgrade your browser.", $this->SCHOOL->name));
+    if ($this->SCHOOL->burgee !== null) {
+      $para->add(sprintf("The current logo for %s is shown below. If you do not see an image below, you may need to upgrade your browser.", $this->SCHOOL));
       
       $p->add(new XP(array('style'=>'text-align:center;'),
-		     new XImg($url, $this->SCHOOL->nick_name)));
+		     new XImg('data:image/png;base64,'.$this->SCHOOL->burgee->filedata, $this->SCHOOL->nick_name)));
     }
     else {
-      $para->add("There is currently no logo for this school on file.");
+      $para->add(" There is currently no logo for this school on file.");
     }
 
     // Form
@@ -62,31 +61,13 @@ class EditLogoPane extends AbstractPrefsPane {
   public function process(Array $args) {
     require_once('Thumbnailer.php');
 
-    // Check $args
-    if (!isset($args['upload'])) {
-      return;
-    }
-
-    // Check that file was uploaded
-    if ($_FILES["logo_file"]["error"] > 0) {
-      $mes = 'Error while uploading file. Please try again.';
-      Session::pa(new PA($mes, PA::E));
-      return;
-    }
-
-    // Check size
-    if ($_FILES["logo_file"]["size"] > 200000) {
-      Session::pa(new PA("File is too large.", PA::E));
-      return;
-    }
+    $file = DB::$V->reqFile($_FILES, 'logo_file', 1, 200000, "Error or missing upload file. Please try again.");
 
     // Create thumbnail
-    $th = $_FILES["logo_file"]["tmp_name"].".thumb";
+    $th = $file['tmp_name'].'.thumb';
     $tn = new Thumbnailer(100, 100);
-    if (!$tn->resize($_FILES["logo_file"]["tmp_name"], $th)) {
-      Session::pa(new PA("Invalid image file.", PA::E));
-      return;
-    }
+    if (!$tn->resize($file['tmp_name'], $th))
+      throw new SoterException("Invalid image file.");
 
     // Update database: first create the burgee, then assign it to the
     // school object (for history control, mostly)

@@ -55,11 +55,4 @@ class Thumbnailer
     return ($value == 0);
   }
 }
-
-if (basename(__FILE__) == $argv[0]) {
-  $tn = new Thumbnailer(100, 100);
-  $rs = $tn->resize("/home/dayan/Desktop/wex-pics/coat.JPG", "/home/dayan/Desktop/wex-pics/coat-small.jpg");
-  var_dump($rs);
-}
-
 ?>
