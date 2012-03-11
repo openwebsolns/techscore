@@ -40,7 +40,7 @@ class MessagePane extends AbstractUserPane {
       $message = DB::getMessage($args['message']);
       if ($message === null || $message->account != $this->USER) {
 	Session::pa(new PA("No such message.", PA::E));
-	$this->redirect("../inbox");
+	$this->redirect('inbox');
       }
 
       $sub = (empty($message->subject)) ? "[No subject]" : $message->subject;

@@ -130,7 +130,7 @@ abstract class AbstractPane {
    * Redirects the browser to the specified page, or regatta home if
    * none specified
    *
-   *
+   * @param String $page the page within this regatta to go to
    */
   protected function redirect($page = null) {
     WS::go(sprintf('/score/%s/%s', $this->REGATTA->id, $page));
