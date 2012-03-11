@@ -5,7 +5,7 @@
  * @package prefs
  */
 
-require_once('users/AbstractUserPane.php');
+require_once('prefs/AbstractPrefsPane.php');
 
 /**
  * SailorMergePane: editor pane to merge the unsorted sailors from a
@@ -14,15 +14,15 @@ require_once('users/AbstractUserPane.php');
  * @author Dayan Paez
  * @version 2009-10-14
  */
-class SailorMergePane extends AbstractUserPane {
+class SailorMergePane extends AbstractPrefsPane {
 
   /**
    * Creates a new editor for the specified school
    *
-   * @param School $school the school whose logo to edit
+   * @param Account $usr the user
    */
-  public function __construct(Account $usr, School $school) {
-    parent::__construct("Sailors", $usr, $school);
+  public function __construct(Account $usr) {
+    parent::__construct("Sailors", $usr);
   }
 
   /**

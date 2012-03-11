@@ -61,12 +61,12 @@ RewriteRule ^dologin/?$ index.php?p=login&_action=edit
 RewriteRule ^logout/?$ index.php?p=login&_action=edit&dir=out [L]
 
 # for preferences
-RewriteRule ^prefs/?$ prefs.php
-RewriteRule ^prefs/([A-Za-z]+)/?$ prefs.php?school=$1&p=home
-RewriteRule ^prefs/([A-Za-z]+)/(.*)/?$ prefs.php?school=$1&p=$2
+RewriteRule ^prefs/?$ index.php?p=prefs-home [qsa,L]
+RewriteRule ^prefs/([A-Za-z]+)/?$ index.php?p=prefs-home&school=$1 [qsa,L]
+RewriteRule ^prefs/([A-Za-z]+)/(.*)/?$ index.php?p=prefs-$2&school=$1 [qsa,L]
 
 # for editing preferences
-RewriteRule ^pedit/([A-Za-z]+)/(.*)/?$ prefs.php?_action=edit&school=$1&p=$2
+RewriteRule ^pedit/([A-Za-z]+)/(.*)/?$ index.php?_action=edit&p=prefs-$2&school=$1 [L]
 
 # for users home
 RewriteRule ^/?$ index.php?p=home [qsa]

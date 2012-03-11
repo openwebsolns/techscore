@@ -28,12 +28,10 @@ abstract class AbstractUserPane {
    * @param String $title the title of the page
    * @param Account $user the user to whom this applies
    */
-  public function __construct($title, Account $user = null, School $school = null) {
+  public function __construct($title, Account $user = null) {
     $this->title = (string)$title;
     $this->USER  = $user;
-    $this->SCHOOL = $school;
-    if ($this->SCHOOL === null && $this->USER !== null)
-      $this->SCHOOL = $this->USER->school;
+    $this->SCHOOL = $this->USER->school;
   }
 
   /**

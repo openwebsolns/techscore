@@ -5,7 +5,7 @@
  * @package prefs
  */
 
-require_once('users/AbstractUserPane.php');
+require_once('prefs/AbstractPrefsPane.php');
 
 /**
  * PrefsHomePane: the gateway to preferences editing
@@ -13,15 +13,15 @@ require_once('users/AbstractUserPane.php');
  * @author Dayan Paez
  * @version 2009-10-14
  */
-class PrefsHomePane extends AbstractUserPane {
+class PrefsHomePane extends AbstractPrefsPane {
 
   /**
    * Creates a new editor for the specified school
    *
    * @param School $school the school whose logo to edit
    */
-  public function __construct(Account $usr, School $school) {
-    parent::__construct("Preferences", $usr, $school);
+  public function __construct(Account $usr) {
+    parent::__construct("Preferences", $usr);
   }
 
   /**

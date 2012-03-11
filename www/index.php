@@ -71,6 +71,42 @@ else {
     $PAGE = new LoginPage();
     break;
 
+    // ------------------------------------------------------------
+    // Preferences
+    // ------------------------------------------------------------
+
+  case 'prefs-home':
+    require_once('prefs/PrefsHomePane.php');
+    $PAGE = new PrefsHomePane(Conf::$USER);
+    break;
+
+    // --------------- LOGO --------------- //
+  case 'prefs-logo':
+  case 'prefs-burgee':
+    require_once('prefs/EditLogoPane.php');
+    $PAGE = new EditLogoPane(Conf::$USER);
+    break;
+
+  // --------------- SAILOR ------------- //
+  case 'prefs-sailor':
+  case 'prefs-sailors':
+    require_once('prefs/SailorMergePane.php');
+    $PAGE = new SailorMergePane(Conf::$USER);
+    break;
+
+  // --------------- TEAMS ------------- //
+  case 'prefs-team':
+  case 'prefs-teams':
+  case 'prefs-name':
+  case 'prefs-names':
+    require_once('prefs/TeamNamePrefsPane.php');
+    $PAGE = new TeamNamePrefsPane(Conf::$USER);
+    break;
+
+    // ------------------------------------------------------------
+    // User-related
+    // ------------------------------------------------------------
+
   case "home":
     require_once('users/UserHomePane.php');
     $PAGE = new UserHomePane(Conf::$USER);

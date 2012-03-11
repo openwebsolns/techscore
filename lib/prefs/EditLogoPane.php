@@ -5,7 +5,7 @@
  * @package prefs
  */
 
-require_once('users/AbstractUserPane.php');
+require_once('prefs/AbstractPrefsPane.php');
 
 /**
  * EditLogoPane: an editor for a school's logo.
@@ -13,15 +13,15 @@ require_once('users/AbstractUserPane.php');
  * @author Dayan Paez
  * @version 2009-10-14
  */
-class EditLogoPane extends AbstractUserPane {
+class EditLogoPane extends AbstractPrefsPane {
 
   /**
    * Creates a new editor for the specified school
    *
    * @param School $school the school whose logo to edit
    */
-  public function __construct(Account $usr, School $school) {
-    parent::__construct("School logo", $usr, $school);
+  public function __construct(Account $usr) {
+    parent::__construct("School logo", $usr);
   }
 
   /**
@@ -29,8 +29,8 @@ class EditLogoPane extends AbstractUserPane {
    *
    */
   public function fillHTML(Array $args) {
-    $this->PAGE->addContent($p = new XPort("School logo"));
-    $p->add(new XP(array(), "Use this function to upload a new logo to use with your school. This logo will replace all uses of the logo throughout TechScore."));
+    $this->PAGE->addContent($p = new XPort($this->SCHOOL . " logo"));
+    $p->add(new XP(array(), "Use this function to upload a new logo to use with your school. This logo will replace all uses of the logo throughout " . Conf::$NAME . "."));
 
     $p->add(new XP(array(), "Most picture formats are allowed, but files can be no larger than 200 KB in size. For best results use an image with a transparent background, by either using a PNG or GIF file format."));
 
@@ -51,7 +51,7 @@ class EditLogoPane extends AbstractUserPane {
     $p->add($form = new XFileForm(sprintf("/pedit/%s/logo", $this->SCHOOL->id)));
     $form->add(new XHiddenInput("MAX_FILE_SIZE","200000"));
     $form->add(new FItem("Picture:", new XFileInput("logo_file")));
-    $form->add(new XSubmitInput("upload", "Upload"));
+    $form->add(new XSubmitP("upload", "Upload"));
   }
 
   /**
