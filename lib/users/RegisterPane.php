@@ -169,7 +169,7 @@ class RegisterPane extends AbstractUserPane {
 
     // Mail verification
     if (isset($args['acc'])) {
-      $acc = DB::getAccountFromHash(DB::$V->reqString($args, 'acc', 1, 40, "Invalid has provided."));
+      $acc = DB::getAccountFromHash(DB::$V->reqString($args, 'acc', 1, 41, "Invalid has provided."));
       if ($acc === null)
 	throw new SoterException("Invalid account to approve.");
 
