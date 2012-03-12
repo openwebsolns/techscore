@@ -265,6 +265,8 @@ class UpdateRegatta {
    */
   public static function run(Regatta $reg, $activity) {
     if ($reg->type == Regatta::TYPE_PERSONAL) {
+      require_once('scripts/UpdateSeason.php');
+      require_once('scripts/UpdateSchoolsSummary.php');
       self::runDelete($reg);
       UpdateSeason::run($reg->getSeason());
       UpdateSchoolsSummary::run();

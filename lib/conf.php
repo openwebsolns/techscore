@@ -80,7 +80,7 @@ Conf::$LOG_FRONT =  realpath(dirname(__FILE__).'/../log/front.log');
 
 function __autoload($name) {
   // Check only in the 'regatta' folder
-  require_once("regatta/$name.php");
+  require_once("regatta/$name.php") or trigger_error("Unable to load $name", E_USER_ERROR);
 }
 
 ini_set('error_log', realpath(dirname(__FILE__).'/../log/errors.log'));
