@@ -31,7 +31,8 @@ abstract class AbstractUserPane {
   public function __construct($title, Account $user = null) {
     $this->title = (string)$title;
     $this->USER  = $user;
-    $this->SCHOOL = $this->USER->school;
+    if ($this->USER !== null)
+      $this->SCHOOL = $this->USER->school;
   }
 
   /**
