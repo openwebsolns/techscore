@@ -14,7 +14,9 @@ require_once('users/AbstractUserPane.php');
 class LoginPage extends AbstractUserPane {
 
   /**
-   * Create a new Welcome webpage, titled "Welcome"
+   * Create a new Welcome webpage, titled "Welcome", with a login
+   * screen. If the user is already logged-in, redirect them to the
+   * home page.
    *
    */
   public function __construct() {
@@ -26,6 +28,8 @@ class LoginPage extends AbstractUserPane {
    *
    */
   protected function fillHTML(Array $args) {
+    if (Conf::$USER !== null)
+      WS::go('/');
     Session::pa(new PA("Please login to proceed.", PA::I));
 
     // LOGIN MENU
@@ -63,6 +67,8 @@ class LoginPage extends AbstractUserPane {
       WS::go('/');
     }
 
+    if (Conf::$USER !== null)
+      WS::go('/');
     // ------------------------------------------------------------
     // Log-in
     // ------------------------------------------------------------
