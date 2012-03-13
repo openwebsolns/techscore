@@ -282,6 +282,8 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
     foreach ($regattas as $id => $list) {
       try {
 	$reg = DB::getRegatta($id);
+	if ($reg === null)
+	  throw new RuntimeException("Invalid regatta ID $id.");
 	printf("--------------------\nRegatta: [%s] %s (%s/%s)\n--------------------\n",
 	       $reg->id, $reg->name, $reg->getSeason(), $reg->nick);
 	foreach ($list as $activity => $num)
