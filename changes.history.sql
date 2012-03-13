@@ -257,3 +257,7 @@ alter table message add column inactive tinyint default null after active;
 update message set inactive = 1 where active = null or active = 0;
 alter table message drop column active;
 alter table outbox change column recipients recipients enum('all', 'conferences', 'roles', 'users') not null default 'all';
+
+-- pub_update_request should contain foreign key to regatta. This
+-- replaces previous thinking which imposed the rule.
+alter table pub_update_request add foreign key (regatta) references regatta(id) on delete cascade on update cascade;
