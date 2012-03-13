@@ -57,6 +57,15 @@ class NewRegattaPane extends AbstractUserPane {
 						  $r["type"])));
     $f->add(new FItem("Participation:", XSelect::fromArray("participant", Regatta::getParticipantOptions(),
 							   $r["participant"])));
+
+    // select
+    $sel->add(new FOption("", "[No venue]"));
+    foreach (DB::getVenues() as $venue) {
+      $sel->add($opt = new FOption($venue->id, $venue));
+      if ($venue->id == $r["venue"])
+	$opt->set('selected', 'selected');
+    }
+
     // host: if it has more than one host, otherwise send it hidden
     $confs = array(); // array of conference choices
     $schools = $this->USER->getSchools();
@@ -76,15 +85,7 @@ class NewRegattaPane extends AbstractUserPane {
       $fi->add(new XMessage("There must be at least one"));
       $sel->set('size', 10);
     }
-    $f->add(new XSubmitInput("new-regatta", "Create"));
-
-    // select
-    $sel->add(new FOption("", "[No venue]"));
-    foreach (DB::getVenues() as $venue) {
-      $sel->add($opt = new FOption($venue->id, $venue));
-      if ($venue->id == $r["venue"])
-	$opt->set('selected', 'selected');
-    }
+    $f->add(new XSubmitP("new-regatta", "Create"));
   }
 
   /**
@@ -169,8 +170,10 @@ class NewRegattaPane extends AbstractUserPane {
 				      $type,
 				      $scoring,
 				      $participant);
+	$reg->venue = $venue;
 	$reg->creator = $this->USER;
 	$reg->addScorer($this->USER);
+	DB::set($reg);
 	foreach ($hosts as $school)
 	  $reg->addHost($school);
       } catch (InvalidArgumentException $e) {
