@@ -18,10 +18,10 @@ class Conf {
   public static $VERSION = '3.0-beta';
 
   // Logging options
-  public static $LOG_UPDATE;
-  public static $LOG_SEASON;
-  public static $LOG_SCHOOL;
-  public static $LOG_FRONT;
+  public static $LOG_UPDATE = '/dev/null';
+  public static $LOG_SEASON = '/dev/null';
+  public static $LOG_SCHOOL = '/dev/null';
+  public static $LOG_FRONT = '/dev/null';
   public static $LOG_MEMORY = false;
   public static $DIVERT_MAIL = 'dayan@localhost';
 
@@ -72,11 +72,6 @@ class Conf {
    */
   public static $REGATTA_SCORING_BLACKLIST = array();
 }
-// LOG FILES
-Conf::$LOG_UPDATE = realpath(dirname(__FILE__).'/../log/update.log');
-Conf::$LOG_SEASON = realpath(dirname(__FILE__).'/../log/season.log');
-Conf::$LOG_SCHOOL = realpath(dirname(__FILE__).'/../log/school.log');
-Conf::$LOG_FRONT =  realpath(dirname(__FILE__).'/../log/front.log');
 
 function __autoload($name) {
   // Check only in the 'regatta' folder

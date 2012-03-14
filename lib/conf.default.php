@@ -20,6 +20,12 @@ Conf::$SQL_USER = 'ts2';
 conf::$SQL_PASS = '';
 conf::$SQL_DB   = 'ts2';
 
+// LOG FILES
+Conf::$LOG_UPDATE = realpath(dirname(__FILE__).'/../log/update.log');
+Conf::$LOG_SEASON = realpath(dirname(__FILE__).'/../log/season.log');
+Conf::$LOG_SCHOOL = realpath(dirname(__FILE__).'/../log/school.log');
+Conf::$LOG_FRONT =  realpath(dirname(__FILE__).'/../log/front.log');
+
 // Define any other settings that are local to the production site
 // such as default date_timezone, etc.
 
