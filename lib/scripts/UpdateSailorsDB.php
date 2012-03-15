@@ -74,8 +74,7 @@ class UpdateSailorsDB {
    *
    * @param Sailor $sailor the sailor
    */
-  private function updateSailor(Sailor $sailor) {
-    $sailor->role = ($sailor instanceof Coach) ? Sailor::COACH : Sailor::STUDENT;
+  private function updateSailor(Member $sailor) {
     $sailor->active = 1;
     $cur = DB::getICSASailor($sailor->icsa_id);
 
