@@ -1165,14 +1165,25 @@ class Race extends DBObject {
     }
     return parent::__get($name);
   }
+  /**
+   * Normal behavior is to have number and division, as in "3B".  But
+   * if the regatta is combined division (or equivalent), then only
+   * the race number is necessary.
+   *
+   * @return String the representation of the race
+   */
   public function __toString() {
+    if ($this->regatta !== null && $this->__get('regatta')->scoring != Regatta::SCORING_STANDARD)
+      return (string)$this->number;
     return $this->number . $this->division;
   }
   
   /**
    * Parses the string and returns a Race object with the
    * corresponding division and number. Note that the race object
-   * obtained is orphan.
+   * obtained is orphan. If no division is found, "A" is chosen by
+   * default. This should suffice for combined scoring regattas and
+   * the like.
    *
    * @param String $text the text representation of a race (3A, B12)
    * @return Race a race object
@@ -1192,12 +1203,13 @@ class Race extends DBObject {
 
       if (in_array($race[strlen($race)-1], array("A", "B", "C", "D"))) {
 	$race_a = sscanf($race, "%d%s");
+	if (empty($race_a[0]) || empty($race_a[1]))
+	  throw new InvalidArgumentException("Race is missing division or number.");
       }
-      else
+      else {
+	// $race_a = array((
 	throw new InvalidArgumentException("Race is missing division.");;
 
-      if (empty($race_a[0]) || empty($race_a[1])) {
-	throw new InvalidArgumentException("Race is missing division or number.");
       }
 
       $race = new Race();
