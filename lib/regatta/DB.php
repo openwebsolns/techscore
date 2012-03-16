@@ -1190,36 +1190,36 @@ class Race extends DBObject {
    * @throws InvalidArgumentException if unable to parse
    */
   public static function parse($text) {
-    $race = (string)$text;
-    try {
-      $race = str_replace(" ", "", $race);
-      $race = str_replace("-", "", $race);
-      $race = strtoupper($race);
+    $race = preg_replace('/[^A-Z0-9]/', '', strtoupper((string)$text));
+    $len = strlen($race);
+    if ($len == 0)
+      throw new InvalidArgumentException("Race missing number.");
 
-      if (in_array($race[0], array("A", "B", "C", "D"))) {
-	// Move division letter to end of string
-	$race = substr($race, 1) . substr($race, 0, 1);
-      }
+    // ASCII: A = 65, D = 68, Z = 90
+    $first = ord($race[0]);
+    $last = ord($race[$len - 1]);
 
-      if (in_array($race[strlen($race)-1], array("A", "B", "C", "D"))) {
-	$race_a = sscanf($race, "%d%s");
-	if (empty($race_a[0]) || empty($race_a[1]))
-	  throw new InvalidArgumentException("Race is missing division or number.");
-      }
-      else {
-	// $race_a = array((
-	throw new InvalidArgumentException("Race is missing division.");;
-
-      }
-
-      $race = new Race();
-      $race->division = new Division($race_a[1]);
-      $race->number   = $race_a[0];
-      return $race;
+    $div = Division::A();
+    if ($first >= 65 && $first <= 90) {
+      if ($last > 68)
+	throw new InvalidArgumentException(sprintf("Invalid division (%s).", $race[0]));
+      $div = Division::get($race[0]);
+      $race = substr($race, 1);
     }
-    catch (Exception $e) {
-      throw new InvalidArgumentException("Unable to parse race.");
+    elseif ($last >= 65 && $last <= 90) {
+      if ($last > 68)
+	throw new InvalidArgumentException(sprintf("Invalid division (%s).", $race[$len - 1]));
+      $div = Division::get($race[$len - 1]);
+      $race = substr($race, 0, $len - 1);
     }
+
+    if (!is_numeric($race))
+      throw new InvalidArgumentException("Missing number for race.");
+
+    $r = new Race();
+    $r->division = $div;
+    $r->number = (int)$race;
+    return $r;
   }
 
   /**
