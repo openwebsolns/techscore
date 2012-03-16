@@ -241,7 +241,7 @@ class RpEnterPane extends AbstractPane {
       foreach ($divisions as $division) {
 	$div = (string)$division;
 	$occupants[$div] = array();
-	$list = $this->getOccupantsRaces($division, $chosen_team);
+	$list = $this->getOccupantsRaces($division, $team);
 	foreach ($list as $occ => $race_nums) {
 	  foreach ($race_nums as $race_num)
 	    $occupants[$div][$race_num] = $occ;
