@@ -18,8 +18,14 @@ require_once("conf.php");
  */
 class EnterFinishPane extends AbstractPane {
 
-  private $ACTIONS = array("ROT" => "Sail numbers from rotation",
-			   "TMS" => "Team names");
+  /**
+   * @const String the action to use for entering finishes
+   */
+  const ROTATION = 'ROT';
+  const TEAMS = 'TMS';
+
+  private $ACTIONS = array(self::ROTATION => "Sail numbers from rotation",
+			   self::TEAMS => "Team names");
 
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Enter finish", $user, $reg);
@@ -85,29 +91,28 @@ class EnterFinishPane extends AbstractPane {
     // Using? If there is a rotation, use it by default
     
     $using = (isset($args['finish_using'])) ?
-      $args['finish_using'] : "ROT";
+      $args['finish_using'] : self::ROTATION;
 
     if (!$rotation->isAssigned($race)) {
-      unset($this->ACTIONS["ROT"]);
-      $using = "TMS";
+      unset($this->ACTIONS[self::ROTATION]);
+      $using = self::TEAMS;
     }
     
     $form->add(new FItem("Using:", XSelect::fromArray('finish_using', $this->ACTIONS, $using)));
-    $form->add(new XSubmitInput("choose_race",
-				"Change race"));
+    $form->add(new XSubmitP("choose_race", "Change race"));
 
     // ------------------------------------------------------------
     // Enter finishes
     // ------------------------------------------------------------
     $finishes = $this->REGATTA->getCombinedFinishes($race);
 
-    $title = sprintf("Add/edit finish for race %s across all divisions", $race->number);
+    $title = sprintf("Add/edit finish for race %s", $race);
     $this->PAGE->addContent($p = new XPort($title));
     $p->add($form = $this->createForm());
     $form->set("id", "finish_form");
 
     $form->add(new XHiddenInput("race", $race));
-    if ($using == "ROT") {
+    if ($using == self::ROTATION) {
       // ------------------------------------------------------------
       // Rotation-based
       // ------------------------------------------------------------
@@ -191,7 +196,6 @@ class EnterFinishPane extends AbstractPane {
 
 
   protected function fillHTML(Array $args) {
-
     if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED) {
       $this->fillCombined($args);
       return;
@@ -223,7 +227,7 @@ class EnterFinishPane extends AbstractPane {
     // ------------------------------------------------------------
     // Choose race
     // ------------------------------------------------------------
-    $p->add($form = $this->createForm());
+    $p->add($form = $this->createForm(XForm::GET));
     $form->set("id", "race_form");
 
     $form->add($fitem = new FItem("Race:", 
@@ -249,26 +253,26 @@ class EnterFinishPane extends AbstractPane {
 
     // Using?
     $using = (isset($args['finish_using'])) ?
-      $args['finish_using'] : "ROT";
+      $args['finish_using'] : self::ROTATION;
 
     if (!$rotation->isAssigned($race)) {
-      unset($this->ACTIONS["ROT"]);
-      $using = "TMS";
+      unset($this->ACTIONS[self::ROTATION]);
+      $using = self::TEAMS;
     }
     
     $form->add(new FItem("Using:", XSelect::fromArray('finish_using', $this->ACTIONS, $using)));
-    $form->add(new XSubmitInput("choose_race",
-				"Change race"));
+    $form->add(new XSubmitP("choose_race", "Change race"));
 
     // ------------------------------------------------------------
     // Enter finishes
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new XPort("Add/edit finish for " . $race));
+    $this->PAGE->addContent($p = new XPort("Add/edit finish for race " . $race));
     $p->add($form = $this->createForm());
     $form->set("id", "finish_form");
 
     $form->add(new XHiddenInput("race", $race));
-    if ($using == "ROT") {
+    $finishes = $this->REGATTA->getFinishes($race);
+    if ($using == self::ROTATION) {
       // ------------------------------------------------------------
       // Rotation-based
       // ------------------------------------------------------------
@@ -279,7 +283,6 @@ class EnterFinishPane extends AbstractPane {
 
       // - Fill possible sails and input box
       $pos_sails = $rotation->getSails($race);
-      $finishes = $this->REGATTA->getFinishes($race);
       foreach ($pos_sails as $i => $aPS) {
 	$current_sail = (count($finishes) > 0) ?
 	  $rotation->getSail($race, $finishes[$i]->team) : "";
@@ -296,7 +299,7 @@ class EnterFinishPane extends AbstractPane {
       // Submit buttom
       // $form->add(new XReset("reset_finish", "Reset"));
       $form->add(new XSubmitInput("f_places",
-				  sprintf("Enter finish for %s", $race),
+				  sprintf("Enter finish for race %s", $race),
 				  array("id"=>"submitfinish", "tabindex"=>($i+1))));
     }
     else {
@@ -315,7 +318,6 @@ class EnterFinishPane extends AbstractPane {
 	$team_opts[$team->id] = sprintf("%s %s", $team->school->nick_name, $team->name);
       
       $attrs = array("name"=>"pos_team", "class"=>"pos_sail", "id"=>"pos_team");
-      $finishes = $this->REGATTA->getFinishes($race);
       foreach ($teams as $i => $team) {
 	$name = sprintf("%s %s", $team->school->nick_name, $team->name);
 	$attrs["value"] = $team->id;
@@ -331,7 +333,7 @@ class EnterFinishPane extends AbstractPane {
 
       // Submit buttom
       $form->add(new XSubmitInput("f_teams",
-				  sprintf("Enter finish for %s", $race),
+				  sprintf("Enter finish for race %s", $race),
 				  array("id"=>"submitfinish", "tabindex"=>($i+1))));
     }
   }
@@ -355,7 +357,7 @@ class EnterFinishPane extends AbstractPane {
       else
 	$therace = DB::$V->reqRace($args, 'chosen_race', $this->REGATTA, "Invalid race provided.");
       $args['chosen_race'] = (string)$therace;
-      $args['finish_using'] = DB::$V->incKey($args, 'finish_using', $this->ACTIONS, "ROT");
+      $args['finish_using'] = DB::$V->incKey($args, 'finish_using', $this->ACTIONS, self::ROTATION);
       return $args;
     }
 
@@ -372,7 +374,7 @@ class EnterFinishPane extends AbstractPane {
       $races = array();
       $teams = array();
       if (isset($args['f_teams'])) {
-	$args['finish_using'] = "TMS";
+	$args['finish_using'] = self::TEAMS;
 	foreach ($this->REGATTA->getDivisions() as $div) {
 	  if (($race = $this->REGATTA->getRace($div, $therace->number)) === null)
 	    throw new SoterException("This regatta is not correctly setup for combined division scoring.");
@@ -428,15 +430,6 @@ class EnterFinishPane extends AbstractPane {
     $divisions = $this->REGATTA->getDivisions();
     
     // ------------------------------------------------------------
-    // Choose race
-    // ------------------------------------------------------------
-    if (isset($args['choose_race'])) {
-      $args['chosen_race'] = DB::$V->incRace($args, 'chosen_race', $this->REGATTA);
-      $args['finish_using'] = DB::$V->incKey($args, 'finish_using', $this->ACTIONS, "ROT");
-      return $args;
-    }
-
-    // ------------------------------------------------------------
     // Enter finish by rotation/teams
     // ------------------------------------------------------------
     $rotation = $this->REGATTA->getRotation();
@@ -448,7 +441,7 @@ class EnterFinishPane extends AbstractPane {
       // associative array of sail numbers => teams
       $teams = array();
       if (isset($args['f_teams'])) {
-	$args['finish_using'] = "TMS";
+	$args['finish_using'] = self::TEAMS;
 	foreach ($this->REGATTA->getTeams() as $team)
 	  $teams[$team->id] = $team;
       }
