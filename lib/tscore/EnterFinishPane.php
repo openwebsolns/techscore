@@ -31,178 +31,7 @@ class EnterFinishPane extends AbstractPane {
     parent::__construct("Enter finish", $user, $reg);
   }
 
-  /**
-   * Fills the page in the case of a combined division scoring
-   *
-   * @param Array $args the argument
-   */
-  private function fillCombined(Array $args) {
-    $divisions = $this->REGATTA->getDivisions();
-
-    // Determine race to display: either as requested or the next
-    // unscored race, or the last race.
-    $race = null;
-    if (!empty($args['chosen_race'])) {
-      try {
-	$race = Race::parse($args['chosen_race']);
-// @TODO getRace()
-	$race = $this->REGATTA->getRace($race->division, $race->number);
-      } catch (Exception $e) { $race = null; }
-    }
-    if ($race == null) {
-      $races = $this->REGATTA->getUnscoredRaces();
-      if (count($races) > 0)
-	$race = $races[0];
-    }
-    if ($race == null) {
-      $race = $this->REGATTA->getLastScoredRace();
-    }
-
-    $rotation = $this->REGATTA->getRotation();
-
-    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/finish.js'));
-    $this->PAGE->addContent($p = new XPort("Choose race number"));
-
-    // ------------------------------------------------------------
-    // Choose race
-    // ------------------------------------------------------------
-    $p->add($form = $this->createForm());
-    $form->set("id", "race_form");
-    $form->add(new XP(array(), "This regatta is being scored with combined divisions. Please enter any race in any division to enter finishes for that race number across all divisions."));
-
-    $form->add($fitem = new FItem("Race:", 
-				  new XTextInput("chosen_race",
-						 $race,
-						 array("size"=>"4",
-						       "maxlength"=>"3",
-						       "id"=>"chosen_race",
-						       "class"=>"narrow"))));
-
-    // Table of possible races
-    $race_nums = array();
-    foreach ($this->REGATTA->getUnscoredRaces($divisions[0]) as $r)
-      $race_nums[] = $r->number;
-    $fitem->add($tab = new XQuickTable(array('class'=>'narrow'), array("#")));
-    $cont = DB::makeRange($race_nums);
-    if (empty($cont))
-      $cont = "--";
-    $tab->addRow(array($cont));
-
-    // Using? If there is a rotation, use it by default
-    
-    $using = (isset($args['finish_using'])) ?
-      $args['finish_using'] : self::ROTATION;
-
-    if (!$rotation->isAssigned($race)) {
-      unset($this->ACTIONS[self::ROTATION]);
-      $using = self::TEAMS;
-    }
-    
-    $form->add(new FItem("Using:", XSelect::fromArray('finish_using', $this->ACTIONS, $using)));
-    $form->add(new XSubmitP("choose_race", "Change race"));
-
-    // ------------------------------------------------------------
-    // Enter finishes
-    // ------------------------------------------------------------
-    $finishes = $this->REGATTA->getCombinedFinishes($race);
-
-    $title = sprintf("Add/edit finish for race %s", $race);
-    $this->PAGE->addContent($p = new XPort($title));
-    $p->add($form = $this->createForm());
-    $form->set("id", "finish_form");
-
-    $form->add(new XHiddenInput("race", $race));
-    if ($using == self::ROTATION) {
-      // ------------------------------------------------------------
-      // Rotation-based
-      // ------------------------------------------------------------
-      $form->add($fitem = new FItem("Enter sail numbers:",
-				    $tab = new XQuickTable(array('id'=>'finish_table', 'class'=>'narrow'),
-							   array("Sail", ">", "Finish"))));
-      $fitem->set('title', 'Click on left column to push to right column');
-
-      // - Fill possible sails
-      $pos_sails = $rotation->getCombinedSails($race);
-      sort($pos_sails);
-      $row = array();
-      $i = 0;
-      foreach ($pos_sails as $i => $aPS) {
-	$current_sail = (count($finishes) > 0) ?
-	  $rotation->getSail($finishes[$i]->race, $finishes[$i]->team) : "";
-	$tab->addRow(array(new XTD(array('name'=>'pos_sail', 'class'=>'pos_sail', 'id'=>'pos_sail'), $aPS),
-			   new XImg('/inc/img/question.png', 'Waiting for input', array('id'=>'check' . $i)),
-			   new XTextInput('p' . $i, $current_sail,
-					  array('id'=>'sail' . $i,
-						'tabindex'=>($i+1),
-						'onkeyup'=>'checkSails()',
-						'class'=>'small',
-						'size'=>'2'))));
-      }
-
-      // Submit buttom
-      //$form->add(new XReset("reset_finish", "Reset"));
-      $form->add(new XSubmitInput("f_places",
-				  sprintf("Enter finish for race %s", $race->number),
-				  array("id"=>"submitfinish", "tabindex"=>($i+1))));
-    }
-    else {
-      // ------------------------------------------------------------
-      // Team lists
-      // ------------------------------------------------------------
-      $form->add($fitem = new FItem("Enter teams:",
-				    $tab = new XQuickTable(array('id'=>'finish_table', 'class'=>'narrow'),
-							   array("Teams", ">", "Finish"))));
-      $fitem->set('title', "Click on left column to push to right column");
-
-      // - Fill possible teams and select
-      $teams = $this->REGATTA->getTeams();
-      $team_opts = array("" => "");
-      foreach ($divisions as $div) {
-	foreach ($teams as $team) {
-	  $team_opts[sprintf("%s,%s", $div, $team->id)] = sprintf("%s: %s %s",
-								  $div,
-								  $team->school->nick_name,
-								  $team->name);
-	}
-      }
-      $attrs = array("name" =>"pos_team", "id" =>"pos_team", "class"=>"pos_sail");
-      $i = 0;
-      foreach ($divisions as $div) {
-	foreach ($teams as $team) {
-	  $name = sprintf("%s: %s %s",
-			  $div,
-			  $team->school->nick_name,
-			  $team->name);
-	  $attrs["value"] = sprintf("%s,%s", $div, $team->id);
-
-	  $current_team = (count($finishes) > 0) ?
-	    sprintf("%s,%s", $finishes[$i]->race->division, $finishes[$i]->team->id) : "";
-	  $tab->addRow(array(new XTD($attrs, $name),
-			     new XImg("/inc/img/question.png", "Waiting for input",  array("id"=>"check" . $i)),
-			     $sel = XSelect::fromArray("p" . $i, $team_opts, $current_team)));
-	  $sel->set('id', "team$i");
-	  $sel->set('tabindex', $i + 1);
-	  $sel->set('onchange', 'checkTeams()');
-	  $i++;
-	}
-      }
-
-      // Submit buttom
-      $form->add(new XSubmitInput("f_teams",
-				  sprintf("Enter finish for race %s", $race->number),
-				  array("id"=>"submitfinish", "tabindex"=>($i+1))));
-    }
-  }
-
-
   protected function fillHTML(Array $args) {
-    if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED) {
-      $this->fillCombined($args);
-      return;
-    }
-
-    $divisions = $this->REGATTA->getDivisions();
-
     // Determine race to display: either as requested or the next
     // unscored race, or the last race
     $race = DB::$V->incRace($args, 'chosen_race', $this->REGATTA, null);
@@ -237,20 +66,6 @@ class EnterFinishPane extends AbstractPane {
 						       "maxlength"=>"3",
 						       "id"=>"chosen_race",
 						       "class"=>"narrow"))));
-    /*
-    // Table of possible races
-    $hrows = array(array());
-    $brows = array(array());
-    foreach ($divisions as $div) {
-      $race_nums = array();
-      foreach ($this->REGATTA->getRaces($div) as $r)
-	$race_nums[] = $r->number;
-      $hrows[0][] = (string)$div;
-      $brows[0][] = DB::makeRange($race_nums);
-    }
-    $fitem->add(XTable::fromArray($brows, $hrows, array('class'=>'narrow')));
-    */
-
     // Using?
     $using = (isset($args['finish_using'])) ?
       $args['finish_using'] : self::ROTATION;
@@ -271,15 +86,18 @@ class EnterFinishPane extends AbstractPane {
     $form->set("id", "finish_form");
 
     $form->add(new XHiddenInput("race", $race));
-    $finishes = $this->REGATTA->getFinishes($race);
+    $finishes = ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ?
+      $this->REGATTA->getFinishes($race) :
+      $this->REGATTA->getCombinedFinishes($race);
+
     if ($using == self::ROTATION) {
       // ------------------------------------------------------------
       // Rotation-based
       // ------------------------------------------------------------
-      $form->add($fitem = new FItem("Enter sail numbers:",
-				    $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'finish_table'),
-							   array("Sail", ">", "Finish"))));
-      $fitem->add(new XMessage("Click on left column to push to right column"));
+      $form->add(new XP(array(), "Click on left column to push to right column"));
+      $form->add(new FItem("Enter sail numbers:",
+			   $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'finish_table'),
+						  array("Sail", "→", "Finish"))));
 
       // - Fill possible sails and input box
       $pos_sails = $rotation->getSails($race);
@@ -297,44 +115,22 @@ class EnterFinishPane extends AbstractPane {
       }
 
       // Submit buttom
-      // $form->add(new XReset("reset_finish", "Reset"));
-      $form->add(new XSubmitInput("f_places",
-				  sprintf("Enter finish for race %s", $race),
-				  array("id"=>"submitfinish", "tabindex"=>($i+1))));
+      $form->add(new XSubmitP("f_places",
+			      sprintf("Enter finish for race %s", $race),
+			      array("id"=>"submitfinish", "tabindex"=>($i+1))));
     }
     else {
       // ------------------------------------------------------------
       // Team lists
       // ------------------------------------------------------------
-      $form->add(new XP(array(), "Click on left column to push to right column."));
-      $form->add($fitem = new FItem("Enter teams:",
-				    $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'finish_table'),
-							   array("Team", ">", "Finish"))));
-
-      // - Fill possible teams and select
-      $teams = $this->REGATTA->getTeams();
-      $team_opts = array("" => "");
-      foreach ($teams as $team)
-	$team_opts[$team->id] = sprintf("%s %s", $team->school->nick_name, $team->name);
-      
-      $attrs = array("name"=>"pos_team", "class"=>"pos_sail", "id"=>"pos_team");
-      foreach ($teams as $i => $team) {
-	$name = sprintf("%s %s", $team->school->nick_name, $team->name);
-	$attrs["value"] = $team->id;
-
-	$current_team = (count($finishes) > 0) ? $finishes[$i]->team->id : "";
-	$tab->addRow(array(new XTD($attrs, $name),
-			   new XImg("/inc/img/question.png", "Waiting for input", array("id"=>"check" . $i)),
-			   $sel = XSelect::fromArray("p" . $i, $team_opts, $current_team)));
-	$sel->set('id', "team$i");
-	$sel->set('tabindex', $i + 1);
-	$sel->set('onchange', 'checkTeams()');
-      }
-
-      // Submit buttom
-      $form->add(new XSubmitInput("f_teams",
-				  sprintf("Enter finish for race %s", $race),
-				  array("id"=>"submitfinish", "tabindex"=>($i+1))));
+      $form->add(new XP(array(), "Click on left column to push to right column"));
+      $form->add(new FItem("Enter teams:",
+			   $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'finish_table'),
+						  array("Team", "→", "Finish"))));
+      $i = $this->fillFinishesTable($tab, $finishes);
+      $form->add(new XSubmitP('f_teams',
+			      sprintf("Enter finish for race %s", $race),
+			      array('id'=>'submitfinish', 'tabindex'=>($i+1))));
     }
   }
 
@@ -480,6 +276,66 @@ class EnterFinishPane extends AbstractPane {
     }
     
     return $args;
+  }
+
+  /**
+   * Helper method will fill the table with the selects, using the
+   * list of finishes provided.
+   *
+   * @param Array:Finish the current set of finishes
+   * @return int the total number of options added
+   */
+  private function fillFinishesTable(XQuickTable $tab, $finishes) {
+    $teams = $this->REGATTA->getTeams();
+    $team_opts = array("" => "");
+    $attrs = array("name"=>"pos_team", "class"=>"pos_sail", "id"=>"pos_team");
+    if ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) {
+      foreach ($teams as $team)
+	$team_opts[$team->id] = sprintf("%s %s", $team->school->nick_name, $team->name);
+
+      foreach ($teams as $i => $team) {
+	$attrs['value'] = $team->id;
+
+	$current_team = (count($finishes) > 0) ? $finishes[$i]->team->id : "";
+	$tab->addRow(array(new XTD($attrs, $team_opts[$team->id]),
+			   new XImg("/inc/img/question.png", "Waiting for input", array("id"=>"check" . $i)),
+			   $sel = XSelect::fromArray("p" . $i, $team_opts, $current_team)));
+	$sel->set('id', "team$i");
+	$sel->set('tabindex', $i + 1);
+	$sel->set('onchange', 'checkTeams()');
+      }
+      return $i;
+    }
+    else {
+      // Combined scoring
+      $divisions = $this->REGATTA->getDivisions();
+      foreach ($divisions as $div) {
+	foreach ($teams as $team) {
+	  $team_opts[sprintf("%s,%s", $div, $team->id)] = sprintf("%s: %s %s",
+								  $div,
+								  $team->school->nick_name,
+								  $team->name);
+	}
+      }
+      $i = 0;
+      foreach ($divisions as $div) {
+	foreach ($teams as $team) {
+	  $attrs['value'] = sprintf('%s,%s', $div, $team->id);
+	  $name = $team_opts[$attrs['value']];
+
+	  $current_team = (count($finishes) > 0) ?
+	    sprintf("%s,%s", $finishes[$i]->race->division, $finishes[$i]->team->id) : "";
+	  $tab->addRow(array(new XTD($attrs, $name),
+			     new XImg("/inc/img/question.png", "Waiting for input",  array("id"=>"check" . $i)),
+			     $sel = XSelect::fromArray("p" . $i, $team_opts, $current_team)));
+	  $sel->set('id', "team$i");
+	  $sel->set('tabindex', $i + 1);
+	  $sel->set('onchange', 'checkTeams()');
+	  $i++;
+	}
+      }
+      return $i;
+    }
   }
 }
 ?>
