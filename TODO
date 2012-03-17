@@ -1,3 +1,5 @@
+-*- mode: org -*-
+
 * Explain tiebreakers (d o n e)
 
 * Inactive editing panes (d o n e)
@@ -261,3 +263,28 @@ presents the menu one finds in WelcomePage.
 It might even be possible to merge AbstractPane as a subclass of
 AbstractUserPane. Cleaner code, even if there is more IO lookup
 required.
+
+* Synchronize list of schools with ICSA
+
+When updating ICSA sailors (UpdateSailorsDB), it is possible to have
+sailors for schools that do not yet exist in the database. It is also
+possible for schools that do exist to stop existing (or become
+inactive), etc.
+
+Currently, when UpdateSailorsDB encounters an unknown school, it sends
+a message alerting of the situation (actually a message is printed to
+stdout which is then e-mailed by cron).
+
+I propose a new script with synchronizes the schools themselves,
+before synchronizing the sailors and coaches. Such a URL already
+exists for this purpose:
+
+http://www.collegesailing.org/directory/individual/schoolapi.asp?District=NEISA&SchoolCode[]=BAB,MIT
+
+The goal is to update the school list according to this XML export,
+and to inactivate schools which no longer appear in the feed.
+
+Inactivated schools will still be present in the database, but they
+will have the inactive flag set, which would make them ineligible for
+hosting regattas or participating. This will be done by subclassing
+the current School class with an ActiveSchool class.
