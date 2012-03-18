@@ -73,7 +73,7 @@ class Rotation {
   }
 
   /**
-   * Returns array of sail numbers for specified race, or all the
+   * Returns ordered array of sails for specified race, or all the
    * distinct sail numbers if no race is specified
    *
    * @return Array:Sail sails in the race, or all sails
@@ -83,7 +83,11 @@ class Rotation {
       $cond = new DBCond('race', $race);
     else
       $cond = new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta), array('id')));
-    return DB::getAll(DB::$SAIL, $cond);
+    $list = array();
+    foreach (DB::getAll(DB::$SAIL, $cond) as $sail)
+      $list[] = $sail;
+    usort($list, 'Rotation::compareSails');
+    return $list;
   }
 
   /**
@@ -113,8 +117,8 @@ class Rotation {
       foreach ($this->getSails($race) as $num)
 	$nums[(string)$num] = $num;
     }
-    ksort($nums);
-    return array_values($nums);
+    usort($nums, 'Rotation::compareSails');
+    return $nums;
   }
 
   /**
@@ -515,6 +519,14 @@ class Rotation {
 	DB::set($sail, true);
       }
     }
+  }
+
+  public static function compareSails(Sail $sail1, Sail $sail2) {
+    $s1 = self::split3($sail1->sail);
+    $s2 = self::split3($sail2->sail);
+    if ($s1[1] != $s2[1])
+      return $s1[1] - $s2[1];
+    return strcmp($s1[0], $s2[0]);
   }
 
   /**
