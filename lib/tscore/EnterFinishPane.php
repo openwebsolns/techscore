@@ -129,7 +129,7 @@ class EnterFinishPane extends AbstractPane {
       $form->add(new FItem("Enter teams:",
 			   $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'finish_table'),
 						  array("Team", "→", "Finish"))));
-      $i = $this->fillFinishesTable($tab, $finishes);
+      $i = $this->fillFinishesTable($tab, $race, $finishes);
       $form->add(new XSubmitP('f_teams',
 			      sprintf("Enter finish for race %s", $race),
 			      array('id'=>'submitfinish', 'tabindex'=>($i+1))));
@@ -150,10 +150,13 @@ class EnterFinishPane extends AbstractPane {
       $teams = array();
       $races = array();
       if (isset($args['f_teams'])) {
+	$t = ($this->REGATTA->scoring == Regatta::SCORING_TEAM) ?
+	  $this->REGATTA->getRaceTeams($race) :
+	  $this->REGATTA->getTeams();
+
 	$args['finish_using'] = self::TEAMS;
-	$this->fillTeamOpts($teams);
-	foreach ($teams as $key => $t)
-	  $races[$key] = $race;
+	$opts = array();
+	$this->fillTeamOpts($opts, $teams, $races, $t, $race);
       }
       else {
 	$sails = ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ?
@@ -204,12 +207,13 @@ class EnterFinishPane extends AbstractPane {
    * @param Array:Finish the current set of finishes
    * @return int the total number of options added
    */
-  private function fillFinishesTable(XQuickTable $tab, $finishes) {
+  private function fillFinishesTable(XQuickTable $tab, Race $race, $finishes) {
     $teams = $this->REGATTA->getTeams();
     $team_opts = array("" => "");
     $attrs = array("name"=>"pos_team", "class"=>"pos_sail left", "id"=>"pos_team");
     if ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) {
-      $this->fillTeamOpts($team_opts, $teams);
+      $t = $r = array();
+      $this->fillTeamOpts($team_opts, $t, $r, $teams, $race);
 
       foreach ($teams as $i => $team) {
 	$attrs['value'] = $team->id;
@@ -225,9 +229,13 @@ class EnterFinishPane extends AbstractPane {
       return $i;
     }
     else {
-      // Combined scoring
+      // Combined and team scoring
       $divisions = $this->REGATTA->getDivisions();
-      $this->fillTeamOpts($team_opts, $teams, $divisions);
+      if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
+	$teams = $this->REGATTA->getRaceTeams($race);
+
+      $t = $r = array();
+      $this->fillTeamOpts($team_opts, $t, $r, $teams, $race, $divisions);
 
       $i = 0;
       foreach ($divisions as $div) {
@@ -256,27 +264,33 @@ class EnterFinishPane extends AbstractPane {
    *
    * This method takes into account the regatta scoring type
    *
-   * @param Array $team_opts the array to fill with team elements
+   * @param Array $team_opts the map to fill with team elements
+   * @param Array $tms the map of teams to fill in
+   * @param Array $rac the map of races to fill in
+   * @param Array $teams the list of teams whose options to fill in
+   * @param Race $race the template race to use
    * @param Array $divisions the list of divisions (required for
    * non-standard scoring). If missing or empty, query the $REGATTA
    * for its list of divisions.
    */
-  private function fillTeamOpts(Array &$team_opts, $teams = null, Array $divisions = array()) {
-    if ($teams === null)
-      $teams = $this->REGATTA->getTeams();
+  private function fillTeamOpts(Array &$team_opts, Array &$tms, Array &$rac, $teams, Race $race, Array $divisions = array()) {
     if ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) {
-      foreach ($teams as $team)
+      foreach ($teams as $team) {
 	$team_opts[$team->id] = sprintf("%s %s", $team->school->nick_name, $team->name);
+	$tms[$team->id] = $team;
+	$rac[$team->id] = $race;
+      }
       return;
     }
     if (count($divisions) == 0)
       $divisions = $this->REGATTA->getDivisions();
+
     foreach ($divisions as $div) {
       foreach ($teams as $team) {
-	$team_opts[sprintf("%s,%s", $div, $team->id)] = sprintf("%s: %s %s",
-								$div,
-								$team->school->nick_name,
-								$team->name);
+	$id = sprintf("%s,%s", $div, $team->id);
+	$team_opts[$id] = sprintf("%s: %s %s", $div, $team->school->nick_name, $team->name);
+	$tms[$id] = $team;
+	$rac[$id] = $this->REGATTA->getRace($div, $race->number);
       }
     }
   }
