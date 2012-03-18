@@ -207,9 +207,9 @@ class EnterFinishPane extends AbstractPane {
   private function fillFinishesTable(XQuickTable $tab, $finishes) {
     $teams = $this->REGATTA->getTeams();
     $team_opts = array("" => "");
-    $attrs = array("name"=>"pos_team", "class"=>"pos_sail", "id"=>"pos_team");
+    $attrs = array("name"=>"pos_team", "class"=>"pos_sail left", "id"=>"pos_team");
     if ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) {
-      $this->fillTeamOpts($team_opts);
+      $this->fillTeamOpts($team_opts, $teams);
 
       foreach ($teams as $i => $team) {
 	$attrs['value'] = $team->id;
@@ -227,7 +227,7 @@ class EnterFinishPane extends AbstractPane {
     else {
       // Combined scoring
       $divisions = $this->REGATTA->getDivisions();
-      $this->fillTeamOpts($team_opts, $divisions);
+      $this->fillTeamOpts($team_opts, $teams, $divisions);
 
       $i = 0;
       foreach ($divisions as $div) {
@@ -261,7 +261,9 @@ class EnterFinishPane extends AbstractPane {
    * non-standard scoring). If missing or empty, query the $REGATTA
    * for its list of divisions.
    */
-  private function fillTeamOpts(Array &$team_opts, Array $divisions = array()) {
+  private function fillTeamOpts(Array &$team_opts, $teams = null, Array $divisions = array()) {
+    if ($teams === null)
+      $teams = $this->REGATTA->getTeams();
     if ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) {
       foreach ($teams as $team)
 	$team_opts[$team->id] = sprintf("%s %s", $team->school->nick_name, $team->name);
