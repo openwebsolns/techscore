@@ -753,7 +753,7 @@ class Regatta extends DBObject {
    * @return the finish object
    */
   public function getFinish(Race $race, Team $team) {
-    $id = (string)$race . '-' . $team->id;
+    $id = $race->id . '-' . $team->id;
     if (isset($this->finishes[$id])) {
       return $this->finishes[$id];
     }
