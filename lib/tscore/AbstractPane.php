@@ -344,10 +344,10 @@ abstract class AbstractPane {
     case 'DeleteTeamsPane':
     case 'RpEnterPane':
     case 'UnregisteredSailorPane':
+    case 'EnterFinishPane':
       return $this->has_teams && $this->has_races;
 
     case 'SailsPane':
-    case 'EnterFinishPane':
     case 'TeamPenaltyPane':
       return $this->has_teams && $this->has_races && ($this->REGATTA->scoring != Regatta::SCORING_TEAM);
 

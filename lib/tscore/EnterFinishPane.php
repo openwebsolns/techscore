@@ -100,7 +100,9 @@ class EnterFinishPane extends AbstractPane {
 						  array("Sail", "→", "Finish"))));
 
       // - Fill possible sails and input box
-      $pos_sails = $rotation->getSails($race);
+      $pos_sails = ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ?
+	$rotation->getSails($race) :
+	$rotation->getCombinedSails($race);
       foreach ($pos_sails as $i => $aPS) {
 	$current_sail = (count($finishes) > 0) ?
 	  $rotation->getSail($race, $finishes[$i]->team) : "";
