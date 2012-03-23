@@ -794,6 +794,26 @@ class Division {
     return $this->value;
   }
 
+  /**
+   * Returns the value for this division as a relative level, one of
+   * "High", "Mid", or "Low".
+   *
+   * @param int $num the number of divisions participating
+   * @return String the level
+   */
+  public function getLevel($num = 3) {
+    if ($this->value == Division::A())
+      return "High";
+    if ($this->value == Division::D())
+      return "Lowest";
+    if ($this->value == Division::C())
+      return "Low";
+    // B division
+    if ($num == 2)
+      return "Low";
+    return "Mid";
+  }
+
   // Static variables
   private static $A;
   private static $B;
