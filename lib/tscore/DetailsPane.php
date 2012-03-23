@@ -148,8 +148,7 @@ class DetailsPane extends AbstractPane {
 					"I wish to finalize this regatta.",
 					array("class"=>"strong"))));
 
-	$form->add(new XSubmitInput("finalize",
-				    "Finalize!"));
+	$form->add(new XSubmitP("finalize", "Finalize!"));
       }
     }
     else {
