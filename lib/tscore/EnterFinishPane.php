@@ -288,7 +288,9 @@ class EnterFinishPane extends AbstractPane {
     foreach ($divisions as $div) {
       foreach ($teams as $team) {
 	$id = sprintf("%s,%s", $div, $team->id);
-	$team_opts[$id] = sprintf("%s: %s %s", $div, $team->school->nick_name, $team->name);
+	$label = ($this->REGATTA->scoring == Regatta::SCORING_TEAM) ? $div->getLevel() : $div;
+	$team_opts[$id] = sprintf("%s: %s %s", $label, $team->school->nick_name, $team->name);
+	  
 	$tms[$id] = $team;
 	$rac[$id] = $this->REGATTA->getRace($div, $race->number);
       }
