@@ -18,7 +18,7 @@ crontab: crontab.default Makefile.local
 	    -e 's:{CRON_BUP_USER}:${CRON_BUP_USER}:g' \
 	    -e 's:{CRON_BUP_RECIP}:${CRON_BUP_RECIP}:g' \
 		crontab.default > crontab && \
-	crontab crontab && echo "Crontab installed"
+	echo -e "\nPlease reinstall crontab!\n"
 
 apache.conf: apache.conf.default Makefile.local
 	sed -e 's:{DIRECTORY}:'"`pwd`"':g' \
