@@ -281,8 +281,9 @@ table#conftable td ul {
 table.coordinate td:hover { background: #3465a4; color: white; }
 
 div#reg-details ul {
-margin-top: 0.5em;
-padding: 0px;
+    margin-top: 0.5em;
+    padding: 0px;
+    text-align: center;
     font-size: 110%;
     list-style-type: none;
     color: #666666; line-height: 1.35em;
