@@ -198,6 +198,9 @@ table td {
     margin: 0px;
     padding: 2.5px;
 }
+td img {
+    height: 1.5em;
+}
 table th {
     border: 1px solid #bbbbbb;
 }
