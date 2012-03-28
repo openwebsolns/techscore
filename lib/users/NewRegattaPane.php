@@ -70,7 +70,7 @@ class NewRegattaPane extends AbstractUserPane {
     $confs = array(); // array of conference choices
     $schools = $this->USER->getSchools();
     if (count($schools) == 1) {
-      $school = array_shift($schools);
+      $school = $schools[0];
       $f->add(new FItem("Host:", new XSpan($school)));
       $f->add(new XHiddenInput('host[]', $school->id));
     }

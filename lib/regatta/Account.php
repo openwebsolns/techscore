@@ -89,9 +89,10 @@ class Account extends DBObject {
 	$cond = new DBCond('conference', $conf);
     }
     else {
-      $cond = new DBBool(array(new DBCondIn('id', DB::prepGetAll(DB::$ACCOUNT_SCHOOL, new DBCond('account', $this), array('school')))));
+      $cond = new DBCondIn('id', DB::prepGetAll(DB::$ACCOUNT_SCHOOL, new DBCond('account', $this), array('school')));
+      $cond = new DBBool(array($cond, new DBCond('id', $this->school)), DBBool::mOR);
       if ($conf !== null)
-	$cond->add(new DBCond('conference', $conf));
+	$cond = new DBBool(array($cond, new DBCond('conference', $conf)));
     }
     return DB::getAll(DB::$SCHOOL, $cond);
   }
