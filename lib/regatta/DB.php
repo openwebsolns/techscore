@@ -639,7 +639,7 @@ class School extends DBObject {
    * @param School $school the school object
    * @param Sailor::const $gender null for both or the gender code
    *
-   * @param mixed $active default "all", returns ONLY the active ones,
+   * @param mixed $active default "all", true returns ONLY the active ones,
    * false to return ONLY the inactive ones, anything else for all.
    *
    * @return Array:Sailor list of sailors
@@ -667,7 +667,7 @@ class School extends DBObject {
    * @return Array<Sailor> list of sailors
    */
   public function getUnregisteredSailors($gender = null, $active = "all") {
-    $cond = new DBBool(array(new DBCond('icsa_id', null, DBCond::NE), new DBCond('school', $this)));
+    $cond = new DBBool(array(new DBCond('icsa_id', null), new DBCond('school', $this)));
     if ($active === true)
       $cond->add(new DBCond('active', null, DBCond::NE));
     if ($active === false)
