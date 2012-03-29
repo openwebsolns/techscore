@@ -498,31 +498,30 @@ class DB extends DBM {
    * @return String the range as a string
    */
   public static function makeRange(Array $list) {
-    // Must be unique
+    // Must be unique and sorted
+    sort($list, SORT_NUMERIC);
     $list = array_unique($list);
     if (count($list) == 0)
       return "";
 
-    // and sorted
-    sort($list, SORT_NUMERIC);
-  
-    $mid_range = false;
-    $last  = $list[0];
-    $range = $last;
-    for ($i = 1; $i < count($list); $i++) {
-      if ($list[$i] == $last + 1)
-	$mid_range = true;
-      else {
-	$mid_range = false;
-	if ($last != substr($range,-1))
-	  $range .= "-$last";
-	$range .= ",$list[$i]";
+    $range_start = null;
+    $last = null;
+    $range = "";
+    foreach ($list as $next) {
+      if ($last === null) {
+	$range .= $next;
+	$range_start = $next;
       }
-      $last = $list[$i];
+      elseif ($next != $last + 1) {
+	if ($range_start != $last)
+	  $range .= "-$last";
+	$range .= ",$next";
+	$range_start = $next;
+      }
+      $last = $next;
     }
-    if ( $mid_range )
+    if ($range_start != $last)
       $range .= "-$last";
-
     return $range;
   }
 
