@@ -30,28 +30,6 @@ class GenerateSite {
     require_once('regatta/PublicDB.php');
     require_once('xml5/TS.php');
 
-    if ($do & self::REGATTAS) {
-      // Go through all the regattas
-      self::log("* Generating regattas\n\n");
-      require_once('UpdateRegatta.php');
-      foreach (DB::getAll(DB::$DT_REGATTA) as $reg) {
-	UpdateRegatta::run(DB::getRegatta($reg->id), UpdateRequest::ACTIVITY_SCORE);
-	self::log(sprintf("  - (%4d) %s\n", $reg->id, $reg->name));
-      }
-    }
-
-    $seasons = null;
-    if ($do & self::SEASONS) {
-      // Go through all the seasons
-      self::log("\n* Generating seasons\n");
-      require_once('UpdateSeason.php');
-      $seasons = self::getSeasons();
-      foreach ($seasons as $season) {
-	UpdateSeason::run($season);
-	self::log(sprintf("  - %s\n", $season->fullString()));
-      }
-    }
-
     if ($do & self::SCHOOLS) {
       // Schools
       self::log("\n* Generating schools\n");
@@ -72,6 +50,28 @@ class GenerateSite {
 	  UpdateBurgee::update($school);
 	  self::log("      - Updated burgee\n");
 	}
+      }
+    }
+
+    if ($do & self::REGATTAS) {
+      // Go through all the regattas
+      self::log("* Generating regattas\n\n");
+      require_once('UpdateRegatta.php');
+      foreach (DB::getAll(DB::$DT_REGATTA) as $reg) {
+	UpdateRegatta::run(DB::getRegatta($reg->id), UpdateRequest::ACTIVITY_SCORE);
+	self::log(sprintf("  - (%4d) %s\n", $reg->id, $reg->name));
+      }
+    }
+
+    $seasons = null;
+    if ($do & self::SEASONS) {
+      // Go through all the seasons
+      self::log("\n* Generating seasons\n");
+      require_once('UpdateSeason.php');
+      $seasons = self::getSeasons();
+      foreach ($seasons as $season) {
+	UpdateSeason::run($season);
+	self::log(sprintf("  - %s\n", $season->fullString()));
       }
     }
 
