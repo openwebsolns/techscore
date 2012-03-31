@@ -24,7 +24,10 @@ class PrintHandler {
     $P->addContent($tab = new XQuickTable(array(), array("No.", "Function", "File", "Line")));
     $tab->addRow(array($errno, $errstr, $errfile, $errline));
     foreach (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS) as $i => $trace) {
-      $tab->addRow(array($i + 1, $trace['function'], $trace['file'], $trace['line']));
+      $func = (isset($trace['function'])) ? $trace['function'] : 'N/A';
+      $file = (isset($trace['file'])) ? $trace['file'] : 'N/A';
+      $line = (isset($trace['line'])) ? $trace['line'] : 'N/A';
+      $tab->addRow(array($i + 1, $func, $file, $line));
     }
     $P->printXML();
     exit;
@@ -40,7 +43,10 @@ class PrintHandler {
 				 new XLi("Line: " . $e->getLine()))));
     $P->addContent($tab = new XQuickTable(array(), array("No.", "Function", "File", "Line")));
     foreach ($e->getTrace() as $i => $trace) {
-      $tab->addRow(array(($i + 1), $trace['function'], $trace['file'], $trace['line']));
+      $func = (isset($trace['function'])) ? $trace['function'] : 'N/A';
+      $file = (isset($trace['file'])) ? $trace['file'] : 'N/A';
+      $line = (isset($trace['line'])) ? $trace['line'] : 'N/A';
+      $tab->addRow(array(($i + 1), $func, $file, $line));
     }
     $P->printXML();
     exit;
