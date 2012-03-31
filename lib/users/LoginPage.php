@@ -71,17 +71,19 @@ class LoginPage extends AbstractUserPane {
 
     if (Conf::$USER !== null)
       WS::go('/');
+
     // ------------------------------------------------------------
     // Log-in
     // ------------------------------------------------------------
-    $userid = (isset($_POST['userid'])) ? trim($_POST['userid']) : WS::goBack('/');
-    $passwd = (isset($_POST['pass']))   ? $_POST['pass'] : WS::goBack('/');
+    $userid = DB::$V->reqString($args, 'userid', 1, 41, "No username provided.");
+    $passwd = DB::$V->reqRaw($args, 'pass', 1, 101, "Please enter a password.");
 
     $user = DB::getAccount($userid);
-    if ($user !== null && $user->password === sha1($passwd))
-      Session::s('user', $user->id);
-    else
-      Session::pa(new PA("Invalid username/password.", PA::E));
+    if ($user === null || $user->password !== sha1($passwd))
+      throw new SoterException("Invalid username/password.");
+    if (is_array(Conf::$DEBUG_USERS) && !in_array($user->id, Conf::$DEBUG_USERS))
+      throw new SoterException("We apologize, but log in has been disabled temporarily. Please try again later.");
+    Session::s('user', $user->id);
 
     $def = Session::g('last_page');
     if ($def === null)

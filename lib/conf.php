@@ -53,6 +53,11 @@ class Conf {
   public static $USER = null;
 
   /**
+   * @var Array ids of allowed users, or null to allow all
+   */
+  public static $DEBUG_USERS = null;
+
+  /**
    * @var boolean allow registrations? (default yes)
    */
   public static $ALLOW_REGISTER = true;

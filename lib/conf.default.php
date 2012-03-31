@@ -26,6 +26,9 @@ Conf::$LOG_SEASON = realpath(dirname(__FILE__).'/../log/season.log');
 Conf::$LOG_SCHOOL = realpath(dirname(__FILE__).'/../log/school.log');
 Conf::$LOG_FRONT =  realpath(dirname(__FILE__).'/../log/front.log');
 
+// Set to the ID of the users that can log in
+// Conf::$DEBUG_USERS = array('admin@localhost');
+
 // Define any other settings that are local to the production site
 // such as default date_timezone, etc.
 
