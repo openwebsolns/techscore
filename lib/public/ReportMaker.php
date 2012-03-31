@@ -166,11 +166,16 @@ class ReportMaker {
 
     $types = Regatta::getTypes();
     $type = sprintf('%s Regatta', $types[$reg->type]);
+
+    $boats = array();
+    foreach ($reg->getBoats() as $boat)
+      $boats[] = (string)$boat;
+
     $div->add(new XUl(array(),
 		      array(new XLi(implode("/", $schools)),
 			    new XLi($date),
 			    new XLi($type),
-			    new XLi(implode("/", $reg->getBoats())))));
+			    new XLi(implode("/", $boats)))));
   }
 
   /**

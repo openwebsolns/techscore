@@ -7,6 +7,7 @@
 
 require_once(dirname(__FILE__).'/../conf.php');
 require_once('regatta/PublicDB.php');
+require_once('public/UpdateRequest.php');
 require_once('public/ReportMaker.php');
 require_once('xml5/TPublicPage.php');
 
@@ -107,7 +108,7 @@ class UpdateRegatta {
     if ($reg->isSingleHanded())
       $dreg->singlehanded = 1;
     
-    $dreg->season = (string)$reg->getSeason();
+    $dreg->season = $reg->getSeason();
 
     // status
     $now = new DateTime();
@@ -372,13 +373,13 @@ class UpdateRegatta {
       throw new RuntimeException("Public folder does not exist.");
 
     $season = $reg->getSeason();
-    if (!file_exists("$R/$season") && mkdir("$R/$season") === false)
+    if (!is_dir("$R/$season") && mkdir("$R/$season", 0777, true) === false)
       throw new RuntimeException(sprintf("Unable to make the season folder: %s\n", $season), 2);
 
     $dirname = "$R/$season/".$reg->nick;
     if (!file_exists($dirname)) {
       self::$new_reg = true;
-      if (mkdir($dirname) === false)
+      if (!is_dir($dirname) && mkdir($dirname, 0777, true) === false)
 	throw new RuntimeException("Unable to make regatta directory: $dirname\n", 4);
     }
     return $dirname;
@@ -410,7 +411,10 @@ class UpdateRegatta {
    * @see createFront
    */
   private static function createFull($dirname, ReportMaker $maker) {
-    $filename = "$dirname/full-scores.html";
+    $path = "$dirname/full-scores";
+    if (!is_dir($path) && mkdir($path, 0777, true) === false)
+      throw new RuntimeException("Unable to make the full scores directory: $path", 8);
+    $filename = "$path/index.html";
     $page = $maker->getFullPage();
     self::prepMenu($maker->regatta, $page);
     if (@file_put_contents($filename, $page->toXML()) === false)
@@ -427,7 +431,10 @@ class UpdateRegatta {
    * @see createFront
    */
   private static function createDivision($dirname, ReportMaker $maker, Division $div) {
-    $filename = "$dirname/$div.html";
+    $path = "$dirname/$div";
+    if (!is_dir($path) && mkdir($path, 0777, true) === false)
+      throw new RuntimeException("Unable to make the $div division directory: $path", 8);
+    $filename = "$path/index.html";
     $page = $maker->getDivisionPage($div);
     self::prepMenu($maker->regatta, $page);
     if (@file_put_contents($filename, $page->toXML()) === false)
@@ -443,7 +450,10 @@ class UpdateRegatta {
    * @see createFront
    */
   private static function createRotation($dirname, ReportMaker $maker) {
-    $filename = "$dirname/rotations.html";
+    $path = "$dirname/rotations";
+    if (!is_dir($path) && mkdir($path, 0777, true) === false)
+      throw new RuntimeException("Unable to make the rotations directory: $path", 8);
+    $filename = "$path/index.html";
     $page = $maker->getRotationPage();
     self::prepMenu($maker->regatta, $page);
 
@@ -505,11 +515,11 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   foreach ($action as $act) {
     try {
       UpdateRegatta::run($REGATTA, $act);
-      error_log(sprintf("I/0/%s\t(%d)\t%s: Successful!\n", date('r'), $REGATTA->id, $act), 3, LOG_UPDATE);
+      error_log(sprintf("I/0/%s\t(%d)\t%s: Successful!\n", date('r'), $REGATTA->id, $act), 3, Conf::$LOG_UPDATE);
     }
     catch (RuntimeException $e) {
       error_log(sprintf("E/%d/%s\t(%d)\t%s: %s\n", $e->getCode(), date('r'), $argv[1], $act, $e->getMessage()),
-		3, LOG_UPDATE);
+		3, Conf::$LOG_UPDATE);
     }
   }
 }

@@ -51,9 +51,10 @@ class TScoresTables {
     // largest scored race number
     $largest_num = 0;
     $races = array();
+    $REG = DB::getRegatta($this->REGATTA->id);
     foreach ($divisions as $division) {
       $races[$division] = array();
-      foreach ($this->REGATTA->getScoredRaces($division) as $race) {
+      foreach ($REG->getScoredRaces(Division::get($division)) as $race) {
 	$races[$division][$race->number] = $race;
 	$largest_num = max($largest_num, $race->number);
       }
@@ -150,7 +151,7 @@ class TScoresTables {
 	    $race = $raceList[$i];
 
 	    // add score for this race to running team score
-	    $finish = $this->REGATTA->getFinish($race, $team);
+	    $finish = $REG->getFinish($race, $REG->getTeam($team->id));
 	    $scoreDiv        += $finish->score;
 	    $scoreTeam       += $finish->score;
 	    $scoreRace[$i-1] += $finish->score;
@@ -225,8 +226,9 @@ class TScoresTables {
       $divisions[] = $bank[$i];
 
     $races = array();
+    $REG = DB::getRegatta($this->REGATTA->id);
     foreach ($divisions as $div)
-      $races[$div] = $this->REGATTA->getScoredRaces($div);
+      $races[$div] = $REG->getScoredRaces(Division::get($div));
 
     $this->summary_tables[] =
       new XTable(array('class'=>'results coordinate'),
@@ -285,7 +287,7 @@ class TScoresTables {
       foreach ($divisions as $div) {
 	$scoreDiv = 0;
 	foreach ($races[$div] as $race) {
-	  $finish = $this->REGATTA->getFinish($race, $team);
+	  $finish = $REG->getFinish($race, $REG->getTeam($team->id));
 	  $scoreDiv += $finish->score;
 	}
 
@@ -355,13 +357,14 @@ class TScoresTables {
     
     $rowIndex = 0;
     $order = 1;
+    $REG = DB::getRegatta($this->REGATTA->id);
     foreach ($teams as $rank) {
 
       // get total score for this team
       $total = 0;
-      $races = $this->REGATTA->getScoredRaces($division);
+      $races = $REG->getScoredRaces(Division::get($division));
       foreach ($races as $race) {
-	$finish = $this->REGATTA->getFinish($race, $rank->team);
+	$finish = $REG->getFinish($race, $REG->getTeam($rank->team->id));
 	$total += $finish->score;
       }
       if ($rank->penalty != null) {
