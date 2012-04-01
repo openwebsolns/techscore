@@ -505,10 +505,8 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
 
   // GET REGATTA: first, check if the regatta exists in Dt_Regatta. If
   // it does not, attempt to find it in Regatta, and run sync, automatically.
-  try {
-    $REGATTA = DB::getRegatta($argv[1]);
-  }
-  catch (InvalidArgumentException $e) {
+  $REGATTA = DB::getRegatta($argv[1]);
+  if ($REGATTA === null) {
     printf("Invalid regatta ID provided: %s\n", $argv[1]);
     exit(2);
   }

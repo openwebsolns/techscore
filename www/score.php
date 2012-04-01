@@ -27,16 +27,13 @@ if (Conf::$USER === null) {
 if (!isset($_REQUEST['reg']) || !is_numeric($_REQUEST['reg'])) {
   WS::go('/');
 }
-try {
-  require_once('regatta/Regatta.php');
-  $REG = DB::getRegatta($_REQUEST['reg']);
-}
-catch (Exception $e) {
+require_once('regatta/Regatta.php');
+if (($REG = DB::getRegatta($_REQUEST['reg'])) === null) {
   Session::pa(new PA("No such regatta.", PA::I));
   WS::go('/');
 }
 if (!Conf::$USER->hasJurisdiction($REG)) {
-  // No jurisdiction
+  Session::pa(new PA("You do not have permission to edit that regatta.", PA::I));
   WS::go('/');
 }
 
