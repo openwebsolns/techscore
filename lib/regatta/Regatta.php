@@ -1282,6 +1282,25 @@ class Regatta extends DBObject {
     return $name;
   }
 
+  /**
+   * Returns the public path to this regatta.
+   *
+   * The path is /<season>/<name>/
+   *
+   * @return String the path, calculating it once
+   * @throws InvalidArgumentException for regattas that have no
+   * nick_names, (i.e. personal regattas)
+   */
+  public function getURL() {
+    if ($this->type == Regatta::TYPE_PERSONAL)
+      throw new InvalidArgumentException("Personal regattas are not published.");
+    if ($this->url !== null)
+      return $this->url;
+    $s = $this->getSeason();
+    return sprintf('/%s/%s/', $s->id, $this->nick);
+  }
+  private $url;
+
   // ------------------------------------------------------------
   // Regatta creation
   // ------------------------------------------------------------

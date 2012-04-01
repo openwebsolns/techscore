@@ -467,15 +467,16 @@ class UpdateRegatta {
    */
   private static function prepMenu(Regatta $reg, TPublicPage $page) {
     // Menu
+    $url = $reg->getURL();
     $rot = $reg->getRotation();
     if ($rot->isAssigned())
-      $page->addMenu(new XA('rotations', "Rotations"));
+      $page->addMenu(new XA($url.'rotations/', "Rotations"));
     if ($reg->hasFinishes()) {
-      $page->addMenu(new XA('.', "Report"));
-      $page->addMenu(new XA('full-scores', "Full Scores"));
+      $page->addMenu(new XA($url, "Report"));
+      $page->addMenu(new XA($url.'full-scores/', "Full Scores"));
       if (!$reg->isSingleHanded()) {
 	foreach ($reg->getDivisions() as $div)
-	  $page->addMenu(new XA($div, "$div Scores"));
+	  $page->addMenu(new XA($url.$div.'/', "$div Scores"));
       }
     }
   }

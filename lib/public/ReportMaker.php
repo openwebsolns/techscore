@@ -110,7 +110,7 @@ class ReportMaker {
 
   protected function prepare(TPublicPage $page) {
     $reg = $this->regatta;
-    $page->addNavigation(new XA('.', $reg->name, array('class'=>'nav')));
+    $page->addNavigation(new XA($reg->getURL(), $reg->name, array('class'=>'nav')));
 
     // Add description
     $desc = "";
@@ -135,7 +135,8 @@ class ReportMaker {
     
     // Links to season
     $season = $reg->getSeason();
-    $page->addNavigation(new XA('..', $season->fullString(), array('class'=>'nav', 'accesskey'=>'u')));
+    $url = sprintf('/%s/', $season->id);
+    $page->addNavigation(new XA($url, $season->fullString(), array('class'=>'nav', 'accesskey'=>'u')));
 
     // Javascript?
     $now = new DateTime('today');
