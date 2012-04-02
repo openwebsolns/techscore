@@ -76,6 +76,19 @@ class Conf {
    * regattas.
    */
   public static $REGATTA_SCORING_BLACKLIST = array();
+
+  /**
+   * @var String the URL of sailor information
+   */
+  public static $SAILOR_API_URL = 'http://www.collegesailing.org/directory/individual/sailorapi.asp';
+  /**
+   * @var String the URL of coach information
+   */
+  public static $COACH_API_URL = 'http://www.collegesailing.org/directory/individual/coachapi.asp';
+  /**
+   * @var String the URL of school information
+   */
+  public static $SCHOOL_API_URL = 'http://www.collegesailing.org/directory/individual/schoolapi.asp';
 }
 
 function __autoload($name) {

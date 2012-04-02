@@ -26,6 +26,11 @@ Conf::$LOG_SEASON = realpath(dirname(__FILE__).'/../log/season.log');
 Conf::$LOG_SCHOOL = realpath(dirname(__FILE__).'/../log/school.log');
 Conf::$LOG_FRONT =  realpath(dirname(__FILE__).'/../log/front.log');
 
+// API updates
+// Conf::$SAILOR_API_URL = '';
+// Conf::$COACH_API_URL = '';
+// Conf::$SCHOOL_API_URL = '';
+
 // Set to the ID of the users that can log in
 // Conf::$DEBUG_USERS = array('admin@localhost');
 

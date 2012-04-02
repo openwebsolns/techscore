@@ -18,16 +18,6 @@
 class UpdateSailorsDB {
 
   /**
-   * The URL to check for new sailors
-   */
-  public $SAILOR_URL = 'http://www.collegesailing.org/directory/individual/sailorapi.asp';
-
-  /**
-   * The URL to check for new coaches
-   */
-  public $COACH_URL = 'http://www.collegesailing.org/directory/individual/coachapi.asp';
-  
-  /**
    * Errors encountered
    */
   private $errors;
@@ -102,11 +92,11 @@ class UpdateSailorsDB {
    *
    */
   public function update() {
-    $this->log("Starting: fetching and parsing sailors " . $this->SAILOR_URL);
+    $this->log("Starting: fetching and parsing sailors " . Conf::$SAILOR_API_URL);
     $schools = array();
     
-    if (($xml = @simplexml_load_file($this->SAILOR_URL)) === false) {
-      $this->errors[] = "Unable to load XML from " . $this->SAILOR_URL;
+    if (($xml = @simplexml_load_file(Conf::$SAILOR_API_URL)) === false) {
+      $this->errors[] = "Unable to load XML from " . Conf::$SAILOR_API_URL;
     }
     else {
       $this->log("Inactivating sailors");
@@ -145,9 +135,9 @@ class UpdateSailorsDB {
     }
 
     // Coaches
-    $this->log("Starting: fetching and parsing coaches " . $this->COACH_URL);
-    if (($xml = @simplexml_load_file($this->COACH_URL)) === false) {
-      $this->errors[] = "Unable to load XML from " . $this->COACH_URL;
+    $this->log("Starting: fetching and parsing coaches " . Conf::$COACH_API_URL);
+    if (($xml = @simplexml_load_file(Conf::$COACH_API_URL)) === false) {
+      $this->errors[] = "Unable to load XML from " . Conf::$COACH_API_URL;
     }
     else {
       $this->log("Inactivating coaches");
