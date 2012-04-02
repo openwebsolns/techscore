@@ -101,8 +101,13 @@ ini_set('include_path', sprintf(".:%s", dirname(__FILE__)));
 
 require_once(dirname(__FILE__) . '/conf.local.php');
 
-// Error handler
-if (Conf::$ERROR_HANDLER == 'mail') {
+// Error handler: use CLI if not online
+if (!isset($_SERVER['HTTP_HOST'])) {
+  require_once('error/CLIHandler.php');
+  CLIHandler::registerErrors(E_ALL | E_STRICT);
+  CLIHandler::registerExceptions();
+}
+elseif (Conf::$ERROR_HANDLER == 'mail') {
   require_once('error/MailHandler.php');
   MailHandler::registerErrors(E_ALL | E_STRICT);
   MailHandler::registerExceptions();
