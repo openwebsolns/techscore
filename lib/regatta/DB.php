@@ -17,6 +17,7 @@ class DB extends DBM {
   // Template objects
   public static $CONFERENCE = null;
   public static $SCHOOL = null;
+  public static $ACTIVE_SCHOOL = null;
   public static $BURGEE = null;
   public static $BOAT = null;
   public static $VENUE = null;
@@ -65,6 +66,7 @@ class DB extends DBM {
     // Template objects serialization
     self::$CONFERENCE = new Conference();
     self::$SCHOOL = new School();
+    self::$ACTIVE_SCHOOL = new Active_School();
     self::$BURGEE = new Burgee();
     self::$BOAT = new Boat();
     self::$VENUE = new Venue();
@@ -121,6 +123,20 @@ class DB extends DBM {
    */
   public static function getSchool($id) {
     return self::get(self::$SCHOOL, $id);
+  }
+
+  /**
+   * Sets the inactive flag on all the schools in the DB.
+   *
+   */
+  public static function inactivateSchools() {
+    $q = self::createQuery(DBQuery::UPDATE);
+    $q->values(array(new DBField('inactive')),
+	       array(DBQuery::A_STR),
+	       array(DB::$NOW->format('Y-m-d H:i:s')),
+	       DB::$SCHOOL->db_name());
+    $q->where(new DBCond('inactive', null));
+    self::query($q);
   }
 
   /**
@@ -618,12 +634,14 @@ class School extends DBObject {
   public $state;
   protected $conference;
   protected $burgee;
+  protected $inactive;
 
   public function db_name() { return 'school'; }
   public function db_type($field) {
     switch ($field) {
     case 'conference': return DB::$CONFERENCE;
     case 'burgee': return DB::$BURGEE;
+    case 'inactive': return DB::$NOW;
     default:
       return parent::db_type($field);
     }
@@ -739,6 +757,33 @@ class School extends DBObject {
       DB::set($tnp);
     }
   }
+
+  /**
+   * Creates and returns a nick name for the school, which is of
+   * appropriate length (no greater than 20 chars)
+   *
+   * @param String $str the name, usually
+   * @return String the display name
+   */
+  public static function createNick($str) {
+    $str = str_replace('University of', 'U', $str);
+    $str = str_replace(' University', '', $str);
+    if (mb_strlen($str) > 20)
+      $str = mb_substr($str, 0, 20);
+    return $str;
+  }
+}
+
+/**
+ * Active schools are useful when creating a new regatta (or one for
+ * the current season), so that users are only choosing from active
+ * schools for regatta participation.
+ *
+ * @author Dayan Paez
+ * @version 2012-04-01
+ */
+class Active_School extends School {
+  public function db_where() { return new DBCond('inactive', null); }
 }
 
 /**

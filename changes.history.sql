@@ -262,3 +262,6 @@ alter table outbox change column recipients recipients enum('all', 'conferences'
 -- replaces previous thinking which imposed the rule.
 delete from pub_update_request where regatta not in (select id from regatta);
 alter table pub_update_request add foreign key (regatta) references regatta(id) on delete cascade on update cascade;
+
+-- schools, like sailors, can be inactivated --
+alter table school add column inactive datetime default null;
