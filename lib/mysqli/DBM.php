@@ -632,13 +632,19 @@ class DBObject {
    * @return Array the list of fields this object understands
    */
   public function db_fields() {
-    $class = new ReflectionClass($this);
-    $fields = array();
-    foreach ($class->getProperties(ReflectionProperty::IS_PUBLIC |
-				   ReflectionProperty::IS_PROTECTED) as $field)
-      $fields[] = $field->name;
-    return $fields;
+    if ($this->_db_fields === null) {
+      $this->_db_fields = array();
+      $class = new ReflectionClass($this);
+      foreach ($class->getProperties(ReflectionProperty::IS_PUBLIC |
+				     ReflectionProperty::IS_PROTECTED) as $field)
+	$this->_db_fields[] = $field->name;
+    }
+    return $this->_db_fields;
   }
+  /**
+   * @var Array a cached list of fields for this object
+   */
+  private $_db_fields;
 
   /**
    * Fetches a list of fields to ignore when updating. Default is none
