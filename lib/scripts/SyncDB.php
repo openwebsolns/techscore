@@ -15,7 +15,7 @@
  * @author Dayan Paez
  * @version 2010-03-02
  */
-class UpdateSailorsDB {
+class SyncDB {
 
   /**
    * Errors encountered
@@ -27,21 +27,15 @@ class UpdateSailorsDB {
    */
   private $warnings;
 
-  /**
-   * @var MySQLi the connection
-   */
-  private $con;
-
   private $verbose = false;
 
   /**
-   * Creates a new UpdateSailorsDB object
+   * Creates a new SyncDB object
    *
    */
   public function __construct($verbose = false) {
     $this->errors = array();
     $this->warnings = array();
-    $this->con = DB::connection();
     $this->verbose = $verbose;
   }
 
@@ -92,6 +86,55 @@ class UpdateSailorsDB {
    *
    */
   public function update() {
+    // ------------------------------------------------------------
+    // Schools
+    // ------------------------------------------------------------
+    $this->log("Starting: fetching and parsing schools " . Conf::$SCHOOL_API_URL);
+    
+    if (($xml = @simplexml_load_file(Conf::$SCHOOL_API_URL)) === false) {
+      $this->errors[] = "Unable to load XML from " . Conf::$SCHOOL_API_URL;
+      return;
+    }
+
+    $this->log("Inactivating schools");
+    DB::inactivateSchools();
+    $this->log("Schools deactivated");
+
+    // parse data
+    foreach ($xml->school as $school) {
+      try {
+	$id = (string)$school->school_code;
+	$sch = DB::getSchool($id);
+	$upd = true;
+	if ($sch === null) {
+	  $this->warnings[] = sprintf("New school: %s", $school->school_code);
+	  $sch = new School();
+	  $sch->id = $id;
+	  $upd = false;
+	}
+	$sch->conference = DB::getConference($school->district);
+	if ($sch->conference === null)
+	  throw new InvalidArgumentException("No valid conference found: " . $school->district);
+
+	// Update fields
+	$sch->name = (string)$school->school_name;
+	if ($sch->nick_name === null)
+	  $sch->nick_name = School::createNick($school->school_display_name);
+	$sch->city = (string)$school->school_city;
+	$sch->state = (string)$school->school_state;
+	$sch->inactive = null;
+
+	DB::set($sch, $upd);
+	$this->log(sprintf("Activated school %10s: %s", $sch->id, $sch->name));
+
+      } catch (Exception $e) {
+	$this->errors[] = "Invalid school information: " . $e->getMessage();
+      }
+    }
+
+    // ------------------------------------------------------------
+    // Sailors
+    // ------------------------------------------------------------
     $this->log("Starting: fetching and parsing sailors " . Conf::$SAILOR_API_URL);
     $schools = array();
     
@@ -109,17 +152,12 @@ class UpdateSailorsDB {
 	  $s = new Sailor();
 	  $s->icsa_id = (int)$sailor->id;
 
-	  // keep cache of schools
 	  $school_id = trim((string)$sailor->school);
-	  if (!isset($schools[$school_id])) {
-	    $schools[$school_id] = DB::getSchool($school_id);
-	    $this->log(sprintf("Fetched school (%s) %s", $school_id, $schools[$school_id]));
-	  }
-
-	  if ($schools[$school_id] !== null) {
-	    $s->school = $schools[$school_id];
-	    $s->last_name  = $this->con->real_escape_string($sailor->last_name);
-	    $s->first_name = $this->con->real_escape_string($sailor->first_name);
+	  $school = DB::getSchool($school_id);
+	  if ($school !== null) {
+	    $s->school = $school;
+	    $s->last_name  = (string)$sailor->last_name;
+	    $s->first_name = (string)$sailor->first_name;
 	    $s->year = (int)$sailor->year;
 	    $s->gender = $sailor->gender;
 
@@ -127,14 +165,16 @@ class UpdateSailorsDB {
 	    $this->log("Activated sailor $s");
 	  }
 	  else
-	    $this->warnings[$school_id] = "Missing school $school_id.";
+	    $this->warnings[$school_id] = "Missing school " . $school_id;
 	} catch (Exception $e) {
 	  $this->warnings[] = "Invalid sailor information: " . print_r($sailor, true);
 	}
       }
     }
 
+    // ------------------------------------------------------------
     // Coaches
+    // ------------------------------------------------------------
     $this->log("Starting: fetching and parsing coaches " . Conf::$COACH_API_URL);
     if (($xml = @simplexml_load_file(Conf::$COACH_API_URL)) === false) {
       $this->errors[] = "Unable to load XML from " . Conf::$COACH_API_URL;
@@ -149,17 +189,12 @@ class UpdateSailorsDB {
 	  $s = new Coach();
 	  $s->icsa_id = (int)$sailor->id;
 
-	  // keep cache of schools
 	  $school_id = trim((string)$sailor->school);
-	  if (!isset($schools[$school_id])) {
-	    $schools[$school_id] = DB::getSchool($school_id);
-	    $this->log(sprintf("Fetched school (%s) %s", $school_id, $schools[$school_id]));
-	  }
-
-	  if ($schools[$school_id] !== null) {
-	    $s->school = $schools[$school_id];
-	    $s->last_name  = $this->con->real_escape_string($sailor->last_name);
-	    $s->first_name = $this->con->real_escape_string($sailor->first_name);
+	  $school = DB::getSchool($school_id);
+	  if ($school !== null) {
+	    $s->school = $school;
+	    $s->last_name  = (string)$sailor->last_name;
+	    $s->first_name = (string)$sailor->first_name;
 	    $s->year = (int)$sailor->year;
 	    $s->gender = $sailor->gender;
 
@@ -167,7 +202,7 @@ class UpdateSailorsDB {
 	    $this->log("Activated coach $s");
 	  }
 	  else
-	    $this->warnings[$school_id] = "Missing school $school_id.";
+	    $this->warnings[$school_id] = "Missing school " . $school_id;
 	} catch (Exception $e) {
 	  $warnings[] = "Invalid coach information: " . print_r($sailor, true);
 	}
@@ -181,7 +216,7 @@ if (isset($argv) && basename(__FILE__) == basename($argv[0])) {
   require_once('conf.php');
 
   $opt = getopt('v');
-  $db = new UpdateSailorsDB(isset($opt['v']));
+  $db = new SyncDB(isset($opt['v']));
   $db->update();
   $err = $db->errors();
   if (count($err) > 0) {
