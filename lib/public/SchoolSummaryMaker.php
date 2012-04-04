@@ -22,12 +22,6 @@ require_once('xml5/TPublicPage.php');
 class SchoolSummaryMaker {
 
   /**
-   * @var String the sprintf-format for generating school's permanent
-   * summary page
-   */
-  private $link_fmt = 'http://collegesailing.info/blog/teams/%s';
-
-  /**
    * @var School the school to write about
    */
   protected $school;
@@ -53,7 +47,10 @@ class SchoolSummaryMaker {
   }
 
   private function getBlogLink() {
-    return sprintf($this->link_fmt, str_replace(' ', '-', strtolower($this->school->name)));
+    return null;
+    // Turned off until we can figure out a consistent way of doing
+    $link_fmt = 'http://collegesailing.info/blog/teams/%s';
+    return sprintf($link_fmt, str_replace(' ', '-', strtolower($this->school->name)));
   }
 
   private function fill() {
@@ -67,14 +64,15 @@ class SchoolSummaryMaker {
     // SETUP navigation
     $this->page->addNavigation(new XA("/schools", "Schools", array("class"=>"nav")));
     $this->page->addNavigation(new XA(sprintf("/schools/%s", $school->id), $school->name, array("class"=>"nav")));
-    $this->page->addMenu(new XA($this->getBlogLink(), "ICSA Info"));
+    if (($link = $this->getBlogLink()) !== null)
+      $this->page->addMenu(new XA($link, "ICSA Info"));
     // Add links to last 7 seasons
     require_once('regatta/PublicDB.php');
     $num = 0;
     $root = sprintf('/schools/%s', $school->id);
     foreach (DB::getAll(DB::$SEASON) as $s) {
       $this->page->addMenu(new XA(sprintf('%s/%s/', $root, $s), $s->fullString()));
-      if ($num++ >= 6)
+      if ($num++ >= 8)
 	break;
     }
 
