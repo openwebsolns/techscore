@@ -18,16 +18,23 @@
 class SyncDB {
 
   /**
-   * Errors encountered
+   * @var Array Errors encountered
    */
   private $errors;
 
   /**
-   * Warnings issued
+   * @var Array Warnings issued
    */
   private $warnings;
 
+  /**
+   * @var boolean true to report progress
+   */
   private $verbose = false;
+
+  const SCHOOLS = 'schools';
+  const SAILORS = 'sailors';
+  const COACHES = 'coaches';
 
   /**
    * Creates a new SyncDB object
@@ -81,14 +88,7 @@ class SyncDB {
       printf("%s\t%s\n", date('Y-m-d H:i:s'), $mes);
   }
 
-  /**
-   * Runs the update
-   *
-   */
-  public function update() {
-    // ------------------------------------------------------------
-    // Schools
-    // ------------------------------------------------------------
+  public function updateSchools() {
     $this->log("Starting: fetching and parsing schools " . Conf::$SCHOOL_API_URL);
     
     if (($xml = @simplexml_load_file(Conf::$SCHOOL_API_URL)) === false) {
@@ -112,9 +112,12 @@ class SyncDB {
 	  $sch->id = $id;
 	  $upd = false;
 	}
-	$sch->conference = DB::getConference($school->district);
-	if ($sch->conference === null)
-	  throw new InvalidArgumentException("No valid conference found: " . $school->district);
+	$dist = (string)$school->district;
+	$sch->conference = DB::getConference($dist);
+	if ($sch->conference === null) {
+	  $this->errors['conf-'.$dist] = "No valid conference found: " . $dist;
+	  continue;
+	}
 
 	// Update fields
 	$sch->name = (string)$school->school_name;
@@ -131,83 +134,84 @@ class SyncDB {
 	$this->errors[] = "Invalid school information: " . $e->getMessage();
       }
     }
+  }
+
+  public function updateMember(Member $proto) {
+    $src = null;
+    if ($proto instanceof Sailor)
+      $src = Conf::$SAILOR_API_URL;
+    elseif ($proto instanceof Coach)
+      $src = Conf::$COACH_API_URL;
+    else
+      throw new InvalidArgumentException("I do not know how to sync that kind of member.");
+
+    $role = $proto->role;
+    if ($src === null) {
+      $this->log("Syncing $role list: no URL found. Nothing to do.");
+      return;
+    }
+
+    $this->log("Starting: fetching and parsing $role list $src");
+    if (($xml = @simplexml_load_file($src)) === false) {
+      $this->errors[] = "Unable to load XML from $src";
+      return;
+    }
+
+    $this->log("Inactivating role $role");
+    RpManager::inactivateRole($proto->role);
+    $this->log(sprintf("%s role deactivated", ucfirst($role)));
+    foreach ($xml->$role as $sailor) {
+      try {
+	$s = clone $proto;
+
+	$school_id = trim((string)$sailor->school);
+	$school = DB::getSchool($school_id);
+	if ($school !== null) {
+	  $s->school = $school;
+	  $s->icsa_id = (int)$sailor->id;
+	  $s->last_name  = (string)$sailor->last_name;
+	  $s->first_name = (string)$sailor->first_name;
+	  if ($proto instanceof Sailor) {
+	    $s->year = (int)$sailor->year;
+	    $s->gender = $sailor->gender;
+	  }
+
+	  $this->updateSailor($s);
+	  $this->log("Activated $role $s");
+	}
+	else
+	  $this->warnings[$school_id] = "Missing school " . $school_id;
+      } catch (Exception $e) {
+	$this->warnings[] = "Invalid sailor information: " . print_r($sailor, true);
+      }
+    }
+  }
+
+  /**
+   * Runs the update
+   *
+   * @param boolean $schools true to sync schools
+   * @param boolean $sailors true to sync sailors
+   * @param boolean $coaches true to sync coaches
+   */
+  public function update($schools = true, $sailors = true, $coaches = true) {
+    // ------------------------------------------------------------
+    // Schools
+    // ------------------------------------------------------------
+    if ($schools !== false)
+      $this->updateSchools();
 
     // ------------------------------------------------------------
     // Sailors
     // ------------------------------------------------------------
-    $this->log("Starting: fetching and parsing sailors " . Conf::$SAILOR_API_URL);
-    $schools = array();
-    
-    if (($xml = @simplexml_load_file(Conf::$SAILOR_API_URL)) === false) {
-      $this->errors[] = "Unable to load XML from " . Conf::$SAILOR_API_URL;
-    }
-    else {
-      $this->log("Inactivating sailors");
-      // resets all sailors to be inactive
-      RpManager::inactivateRole(Sailor::STUDENT);
-      $this->log("Sailors deactivated");
-      // parse data
-      foreach ($xml->sailor as $sailor) {
-	try {
-	  $s = new Sailor();
-	  $s->icsa_id = (int)$sailor->id;
-
-	  $school_id = trim((string)$sailor->school);
-	  $school = DB::getSchool($school_id);
-	  if ($school !== null) {
-	    $s->school = $school;
-	    $s->last_name  = (string)$sailor->last_name;
-	    $s->first_name = (string)$sailor->first_name;
-	    $s->year = (int)$sailor->year;
-	    $s->gender = $sailor->gender;
-
-	    $this->updateSailor($s);
-	    $this->log("Activated sailor $s");
-	  }
-	  else
-	    $this->warnings[$school_id] = "Missing school " . $school_id;
-	} catch (Exception $e) {
-	  $this->warnings[] = "Invalid sailor information: " . print_r($sailor, true);
-	}
-      }
-    }
+    if ($sailors !== false)
+      $this->updateMember(DB::$SAILOR);
 
     // ------------------------------------------------------------
     // Coaches
     // ------------------------------------------------------------
-    $this->log("Starting: fetching and parsing coaches " . Conf::$COACH_API_URL);
-    if (($xml = @simplexml_load_file(Conf::$COACH_API_URL)) === false) {
-      $this->errors[] = "Unable to load XML from " . Conf::$COACH_API_URL;
-    }
-    else {
-      $this->log("Inactivating coaches");
-      RpManager::inactivateRole(Sailor::COACH);
-      $this->log("Coaches inactivated");
-      // parse data
-      foreach ($xml->coach as $sailor) {
-	try {
-	  $s = new Coach();
-	  $s->icsa_id = (int)$sailor->id;
-
-	  $school_id = trim((string)$sailor->school);
-	  $school = DB::getSchool($school_id);
-	  if ($school !== null) {
-	    $s->school = $school;
-	    $s->last_name  = (string)$sailor->last_name;
-	    $s->first_name = (string)$sailor->first_name;
-	    $s->year = (int)$sailor->year;
-	    $s->gender = $sailor->gender;
-
-	    $this->updateSailor($s);
-	    $this->log("Activated coach $s");
-	  }
-	  else
-	    $this->warnings[$school_id] = "Missing school " . $school_id;
-	} catch (Exception $e) {
-	  $warnings[] = "Invalid coach information: " . print_r($sailor, true);
-	}
-      }
-    }
+    if ($coaches !== false)
+      $this->updateMember(DB::$COACH);
   }
 }
 
@@ -215,9 +219,32 @@ if (isset($argv) && basename(__FILE__) == basename($argv[0])) {
   ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
   require_once('conf.php');
 
-  $opt = getopt('v');
-  $db = new SyncDB(isset($opt['v']));
-  $db->update();
+  // Parse arguments
+  array_shift($argv);
+  $verb = false;
+  $tosync = array(SyncDB::SCHOOLS => false,
+		  SyncDB::SAILORS => false,
+		  SyncDB::COACHES => false);
+  foreach ($argv as $arg) {
+    switch ($arg) {
+    case '-v':
+      $verb = true;
+      break;
+
+    case SyncDB::SCHOOLS:
+    case SyncDB::SAILORS:
+    case SyncDB::COACHES:
+      $tosync[$arg] = true;
+      break;
+
+    default:
+      printf("usage: php SyncDB.php [-v] [%s]\n", implode("] [", array_keys($tosync)));
+      exit(1);
+    }
+  }
+  $db = new SyncDB($verb);
+  
+  $db->update($tosync[SyncDB::SCHOOLS], $tosync[SyncDB::SAILORS], $tosync[SyncDB::COACHES]);
   $err = $db->errors();
   if (count($err) > 0) {
     echo "----------Error(s)\n";
