@@ -26,26 +26,27 @@ class UpdateSchool {
     $today = Season::forDate(DB::$NOW);
     $current = false;
     $base = (string)$season;
+
+    // Create season directory
+    $fullname = "$dirname/$base";
+    if (!file_exists($fullname) && mkdir($fullname) === false)
+      throw new RuntimeException("Unable to make school's season directory: $dirname\n", 4);
+
     // is this current season
     if ((string)$today == (string)$season)
       $current = true;
 
     require_once('public/SchoolSummaryMaker.php');
-    $filename = "$dirname/$base.html";
+    $filename = "$fullname/index.html";
     $M = new SchoolSummaryMaker($school, $season);
-    if (file_put_contents($filename, $M->getPage()) === false)
+    $content = $M->getPage();
+    if (file_put_contents($filename, $content) === false)
       throw new RuntimeException(sprintf("Unable to make the school summary: %s\n", $filename), 8);
 
     // If current, do we also need to create index page?
     if ($current) {
-      if (file_exists("$dirname/index.html")) {
-	if (fileinode($filename) != fileinode("$dirname/index.html")) {
-	  unlink("$dirname/index.html");
-	  link($filename, "$dirname/index.html");
-	}
-      }
-      else
-	link($filename, "$dirname/index.html");
+      if (file_put_contents("$dirname/index.html", $content) === false)
+	throw new RuntimeException(sprintf("Unable to make the school summary for current season: %s\n", $filename), 8);
     }
   }
 }
@@ -84,7 +85,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
 
   try {
     UpdateSchool::run($school, $season);
-    error_log(sprintf("I:0:%s\t(%s): Successful!\n", date('r'), $school->id), 3, LOG_SCHOOL);
+    error_log(sprintf("I:0:%s\t(%s): Successful!\n", date('r'), $school->id), 3, Conf::$LOG_SCHOOL);
   }
   catch (Exception $e) {
     error_log(sprintf("E:%d:L%d:F%s:%s\t(%d): %s\n",
@@ -94,7 +95,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
 		      date('r'),
 		      $argv[1],
 		      $e->getMessage()),
-	      3, LOG_SCHOOL);
+	      3, Conf::$LOG_SCHOOL);
     print_r($e->getTrace());
   }
 }

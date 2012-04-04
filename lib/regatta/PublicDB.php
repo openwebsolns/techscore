@@ -203,7 +203,7 @@ class Dt_Rp extends DBObject {
   public $boat_role;
 
   public function db_type($field) {
-    if ($field == 'sailor') return DB::$SAILOR;
+    if ($field == 'sailor') return DB::$MEMBER;
     if ($field == 'race_nums') return array();
     if ($field == 'team_division') return DB::$DT_TEAM_DIVISION;
     return parent::db_type($field);

@@ -71,12 +71,11 @@ class SchoolSummaryMaker {
     // Add links to last 7 seasons
     require_once('regatta/PublicDB.php');
     $num = 0;
+    $root = sprintf('/schools/%s', $school->id);
     foreach (DB::getAll(DB::$SEASON) as $s) {
-      if (file_exists(sprintf('%s/../../html/schools/%s/%s.html', dirname(__FILE__), $school->id, $s))) {
-	$this->page->addMenu(new XA($s, $s->fullString()));
-	if ($num++ >= 6)
-	  break;
-      }
+      $this->page->addMenu(new XA(sprintf('%s/%s/', $root, $s), $s->fullString()));
+      if ($num++ >= 6)
+	break;
     }
 
     $this->page->addSection($d = new XDiv(array('id'=>'reg-details')));
@@ -208,7 +207,7 @@ class SchoolSummaryMaker {
 
     // ------------------------------------------------------------
     // SCHOOL season summary
-    $season_link = new XA('/'.(string)$season, $season->fullString());
+    $season_link = new XA('/'.(string)$season.'/', $season->fullString());
     $this->page->addSection($p = new XPort(array("Season summary for ", $season_link)));
     $p->set('id', 'summary');
 

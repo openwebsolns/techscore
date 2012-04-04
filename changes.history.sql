@@ -265,3 +265,8 @@ alter table pub_update_request add foreign key (regatta) references regatta(id) 
 
 -- schools, like sailors, can be inactivated --
 alter table school add column inactive datetime default null;
+
+-- dt_rp fixings... some assembly may be required --
+update dt_rp, sailor set dt_rp.sailor = sailor.id where dt_rp.sailor = sailor.icsa_id;
+delete from dt_rp where sailor not in (select id from sailor);
+alter table dt_rp add foreign key (sailor) references sailor(id) on delete cascade on update cascade;
