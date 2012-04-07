@@ -20,7 +20,8 @@ class GenerateSite {
   const E404     = 8;
   const SCHOOL_SUMMARY = 16;
   const FRONT    = 32;
-  const ALL      = 63;
+  const BURGEES  = 64;
+  const ALL      = 127;
 
   /**
    * Generate the codez
@@ -30,11 +31,11 @@ class GenerateSite {
     require_once('regatta/PublicDB.php');
     require_once('xml5/TS.php');
 
+    $seasons = null;
     if ($do & self::SCHOOLS) {
       // Schools
       self::log("\n* Generating schools\n");
       require_once('UpdateSchool.php');
-      require_once('UpdateBurgee.php');
       
       if ($seasons === null)
 	$seasons = self::getSeasons();
@@ -47,9 +48,18 @@ class GenerateSite {
 	    UpdateSchool::run($school, $season);
 	    self::log(sprintf("      - %s\n", $season->fullString()));
 	  }
-	  UpdateBurgee::update($school);
-	  self::log("      - Updated burgee\n");
 	}
+      }
+    }
+
+    if ($do & self::BURGEES) {
+      // Schools
+      self::log("\n* Generating burgees\n");
+      require_once('UpdateBurgee.php');
+      
+      foreach (DB::getAll(DB::$SCHOOL) as $school) {
+	UpdateBurgee::update($school);
+	self::log(sprintf("      - Updated burgee: %s\n", $school));
       }
     }
 
@@ -63,7 +73,6 @@ class GenerateSite {
       }
     }
 
-    $seasons = null;
     if ($do & self::SEASONS) {
       // Go through all the seasons
       self::log("\n* Generating seasons\n");
@@ -115,6 +124,7 @@ class GenerateSite {
  -R  Generate regattas
  -S  Generate seasons
  -C  Generate schools (C as in college)
+ -B  Generate burgees
  -M  Generate schools summary page
  -4  Generate 404 page
  -F  Generate front page (consider using UpdateFront if only desired update)
@@ -128,7 +138,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   ini_set('include_path', '.:'.realpath(dirname(__FILE__).'/../'));
   require_once('conf.php');
 
-  $opts = getopt('vhRSC4MFA');
+  $opts = getopt('vhRSC4MFAB');
 
   // Help?
   if (isset($opts['h'])) {
@@ -154,6 +164,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
     case 'M': $do |= GenerateSite::SCHOOL_SUMMARY; break;
     case 'F': $do |= GenerateSite::FRONT; break;
     case '4': $do |= GenerateSite::E404; break;
+    case 'B': $do |= GenerateSite::BURGEES; break;
     default:
       printf("Invalid option provided: %s\n", $opt);
       GenerateSite::usage($argv[0]);

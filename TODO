@@ -149,7 +149,7 @@ Instead, use the Regatta::setFinishes method to do your bidding.
 
 * Since most scorers only have one school, do not display the extra host field for them (d o n e)
 
-* Pester about teams if there are none
+* Pester about teams if there are none (d o n e)
 
 The reasoning here is that a regatta is not ready until there are
 races and teams. The way it is now, the race creation is done at
@@ -162,7 +162,7 @@ Thus, in addition to this new scoring pane, there's a new one
 specifically for adding a team, which only takes one school at a
 time.
 
-* Merge the urls, title, etc
+* Merge the urls, title, etc (d o n e ?)
 
 * When creating rotations for the first time, it is REALLY slow. Fix! (d o n e)
 
@@ -174,7 +174,7 @@ were slow.
 
 * Update Regatta::addTeam to use $con->insert_id (d o n e)
 
-* Update public regattas when merging sailors
+* Update public regattas when merging sailors (d o n e)
 
 You see, we want users to merge temporary sailors with their real
 identities, but this is only useful if we, in turn, recreate those
@@ -193,7 +193,7 @@ changed the 10 races to 11, and C still remained at 10.
 
    *
 
-* Season!
+* Season! (d o n e)
 
 It seems to me that seasons should exist PRIOR to any regattas being
 created. Thus, when an admin logs in, he/she should have
@@ -210,7 +210,7 @@ available for them. Capisce?
 Now that seasons are required for regattas to be created, we should
 create the appropriate admin interface for this to happen.
 
-* BUG: Users with no regattas do not receive message asking to create one.
+* BUG: Users with no regattas do not receive message asking to create one. (d o n e)
 
 * Migration notes:
 
@@ -264,7 +264,7 @@ It might even be possible to merge AbstractPane as a subclass of
 AbstractUserPane. Cleaner code, even if there is more IO lookup
 required.
 
-* Synchronize list of schools with ICSA
+* Synchronize list of schools with ICSA (done)
 
 When updating ICSA sailors (UpdateSailorsDB), it is possible to have
 sailors for schools that do not yet exist in the database. It is also
