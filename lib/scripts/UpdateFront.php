@@ -25,16 +25,42 @@ class UpdateFront {
 
     $success = false;
     $seasons = DB::getAll(DB::$SEASON, new DBCond('start_date', new DateTime(), DBCond::LE));
-    foreach ($seasons as $season) {
+    $i = 0;
+    foreach ($seasons as $i => $season) {
       if (($success = $this->fillSeason($season))) {
-	$this->page->addMenu(new XA("/$season", $season->fullString()));
+	$this->page->addMenu(new XA("/$season/", $season->fullString()));
 	break;
       }
     }
     if (!$success) {
       // Wow! There is NO information to report!
       $this->page->addSection(new XPort("Nothing to show!", array(new XP(array(), "We are sorry, but there are no regattas in the system! Please come back later. Happy sailing!"))));
+      return;
     }
+    
+    // For the remaining seasons, make sure that they exist in the
+    // filesystem before linking to them. Add only two, and the rest
+    // as a submenu
+    $other_seasons = array();
+    for ($i++; $i < count($seasons); $i++) {
+      $path = dirname(dirname(dirname(__FILE__))).'/html/' . $seasons[$i];
+      if (realpath($path) !== false)
+	$other_seasons[] = $seasons[$i];
+    }
+
+    for ($i = 0; $i < count($other_seasons) && $i < 2; $i++)
+      $this->page->addMenu(new XA('/'.$other_seasons[$i].'/', $other_seasons[$i]->fullString()));
+
+    $i++;
+    if ($i + 1 == count($other_seasons)) {
+      $this->page->addMenu(new XA('/'.$other_seasons[$i].'/', $other_seasons[$i]->fullString()));
+      return;
+    }
+
+    $this->page->addMenu(array(new XSpan("More..."),
+			       $ul = new XUl(array('class'=>'submenu'))));
+    for (; $i < count($other_seasons); $i++)
+      $ul->add(new XLi(new XA('/'.$other_seasons[$i].'/', $other_seasons[$i]->fullString())));
   }
 
   private function fillSeason(Season $season) {

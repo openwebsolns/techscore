@@ -30,7 +30,7 @@ class TPublicFrontPage extends XPage {
     parent::__construct("Welcome | TechScore: Real-Time Regatta Results");
 
     $this->filled = false;
-    $this->menu = new XDiv(array('id'=>'menudiv'));
+    $this->menu = new XUl(array('id'=>'menudiv'));
     $this->navigation = new XDiv(array('id'=>'topnav'));
     $this->content = new XDiv(array('id'=>'body'));
     $this->announce = new XDiv(array('id'=>'announcediv'));
@@ -59,10 +59,6 @@ class TPublicFrontPage extends XPage {
 					    array(new XLi(new XA('#menu', "Menu")),
 						  new XLi(new XA('#body', "Content")))))));
 
-    // Menu
-    $this->body->add($this->menu);
-    $this->body->add(new XHR(array('class'=>'hidden')));
-
     // Header
     $this->body->add($div = new XDiv(array('id'=>'headdiv')));
     $div->add($sub = new XDiv(array('id'=>'header')));
@@ -70,13 +66,21 @@ class TPublicFrontPage extends XPage {
     $sub->add(new XH4(date('M j, Y'), array('id'=>'date')));
     $div->add($this->navigation);
 
+    // Menu
+    $this->body->add(new XH3("Main Menu", array('class'=>'hidden', 'id'=>'menu')));
+    $this->body->add($this->menu);
+    $this->body->add(new XHR(array('class'=>'hidden')));
+
     $this->body->add($this->content);
     $this->content->add($this->announce);
 
     // Footer
+    $this->body->add(new XHR(array('class'=>'hidden')));
     $this->body->add(new XDiv(array('id'=>'footdiv'),
-			      array(new XP(array(),
-					   sprintf("TechScore v%s © Dayán Páez 2008-%s", Conf::$VERSION, date('y'))))));
+			      array(new XAddress(array(), array(sprintf("%s v%s © Dayán Páez 2008-%s",
+									Conf::$NAME,
+									Conf::$VERSION,
+									date('y')))))));
 
     $this->filled = true;
   }
@@ -102,10 +106,11 @@ class TPublicFrontPage extends XPage {
   /**
    * Appends the givene element to the menu
    *
-   * @param Xmlable $elem the element to add
+   * @param mixed $elem the element to add, can be anything that can
+   * be provided as first argument to XLi's constructor
    */
-  public function addMenu(Xmlable $elem) {
-    $this->menu->add($elem);
+  public function addMenu($elem) {
+    $this->menu->add(new XLi($elem));
   }
 
   /**
