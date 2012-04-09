@@ -69,6 +69,9 @@ a.nav {
     border-left: 1px solid #aaa;
     border-right: 1px solid #eee;
 }
+#menudiv > li:last-child {
+    min-width: 8em;
+}
 #menudiv > li:hover {
     background: #ddd;
     color: black;
@@ -88,6 +91,7 @@ a.nav {
 }
 
 .submenu {
+    display: none;
     max-width: 8em;
     margin: 0;
     margin-top: -2px;
@@ -106,6 +110,7 @@ a.nav {
 }
 
 #menudiv li:hover .submenu {
+    display: block;
     position: relative;
     z-index: 8;
 }
@@ -114,12 +119,8 @@ a.nav {
 
 #body {
     background: none repeat scroll 0 0 #eee;
-    border-bottom: 1px solid #555555;
-    margin-bottom: 20px;
+    border-bottom: 1px solid #888;
     padding-top: 0;
-    position: absolute;
-    top: 70px;
-    width: 100%;
 }
 .port {
     background: none repeat scroll 0 0 white;
