@@ -72,27 +72,25 @@ class SailorMergePane extends AbstractPrefsPane {
     require_once('public/UpdateManager.php');
 
     // Check $args
-    if (!isset($args['match_sailors'])) {
-      return;
-    }
-    unset($args['match_sailors']);
+    if (isset($args['match_sailors'])) {
+      unset($args['match_sailors']);
 
-    $divs = Division::getAssoc();
-    $reals = array();
-    foreach ($this->SCHOOL->getSailors() as $sailor)
-      $reals[$sailor->id] = $sailor;
-    
-    $temps = array();
-    foreach ($this->SCHOOL->getUnregisteredSailors() as $sailor)
-      $temps[$sailor->id] = $sailor;
+      $divs = Division::getAssoc();
+      $reals = array();
+      foreach ($this->SCHOOL->getSailors() as $sailor)
+	$reals[$sailor->id] = $sailor;
 
-    $replaced = 0;
-    $affected = array();
-    // Process each temp id
-    foreach ($args as $id => $value) {
+      $temps = array();
+      foreach ($this->SCHOOL->getUnregisteredSailors() as $sailor)
+	$temps[$sailor->id] = $sailor;
 
-      // Check the value
-      if (!empty($value)) {
+      $replaced = 0;
+      $affected = array();
+      // Process each temp id
+      foreach ($args as $id => $value) {
+	$value = trim($value);
+	if (strlen($value) == 0)
+	  continue;
 
 	// Check that the id and value are valid
 	if (isset($reals[$value]) && isset($temps[$id])) {
@@ -111,17 +109,16 @@ class SailorMergePane extends AbstractPrefsPane {
 	  RpManager::replaceTempActual($temp, $real);
 	  $replaced++;
 	}
-	
       }
-    }
-    if (count($affected) > 0) {
-      Session::pa(new PA(sprintf("Affected %s regattas retroactively.", count($affected))));
-    }
-    if ($replaced > 0) {
-      Session::pa(new PA("Updated $replaced temporary sailor(s)."));
-    }
-    else {
-      Session::pa(new PA("No sailors updated.", PA::I));
+      if (count($affected) > 0) {
+	Session::pa(new PA(sprintf("Affected %s regattas retroactively.", count($affected))));
+      }
+      if ($replaced > 0) {
+	Session::pa(new PA("Updated $replaced temporary sailor(s)."));
+      }
+      else {
+	Session::pa(new PA("No sailors updated.", PA::I));
+      }
     }
   }
 }

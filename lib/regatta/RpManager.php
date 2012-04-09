@@ -318,11 +318,12 @@ class RpManager {
     $cond = new DBBool(array(new DBCond('sailor', $sailor)));
     if ($role !== null)
       $cond->add(new DBCond('boat_role', $role));
-    
+
     $cond = new DBCondIn('id', DB::prepGetAll(DB::$RP_ENTRY, $cond, array('race')));
     if ($div !== null)
-      $cond->add(new DBCond('division', (string)$div));
-    
+      $cond = new DBBool(array($cond, new DBCond('division', (string)$div)));
+
+    require_once('regatta/Regatta.php');
     return DB::getAll(DB::$REGATTA, new DBCondIn('id', DB::prepGetAll(DB::$RACE, $cond, array('regatta'))));
   }
 

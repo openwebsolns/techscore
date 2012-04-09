@@ -711,7 +711,7 @@ class School extends DBObject {
     $cond = new DBBool(array(new DBCond('school', $this)));
     if ($active === true)
       $cond->add(new DBCond('active', null, DBCond::NE));
-    if ($active === false)
+    elseif ($active === false)
       $cond->add(new DBCond('active', null));
     if ($only_registered !== false)
       $cond->add(new DBCond('icsa_id', null, DBCond::NE));
