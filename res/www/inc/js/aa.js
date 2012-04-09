@@ -4,6 +4,7 @@
 // @version 2011-05-06
 
 SEARCH = null;
+ICON = null;
 RESULTS = null;
 INPUT = null;
 ACTIVE = Array();
@@ -11,6 +12,12 @@ TIMEOUT = null;
 window.onload = function() {
     SEARCH = document.getElementById('name-search');
     SEARCH.onkeyup = launchSearch;
+
+    ICON = document.createElement('img');
+    ICON.setAttribute('src', '/inc/img/question.png');
+    ICON.setAttribute('alt', '?');
+    SEARCH.parentNode.insertBefore(ICON, SEARCH.nextSibling);
+
     INPUT = document.getElementById('aa-input');
     RESULTS = document.createElement('ul');
     RESULTS.setAttribute('id', 'aa-results');
@@ -30,13 +37,20 @@ window.onload = function() {
 function launchSearch(evt) {
     if (TIMEOUT != null)
 	clearTimeout(TIMEOUT);
-    TIMEOUT = setTimeout(doSearch(evt), 800);
+
+    if (SEARCH.value.length < 5) {
+	ICON.setAttribute('src', '/inc/img/question.png');
+	ICON.setAttribute('alt', '?');
+	return;
+    }
+
+    ICON.setAttribute('src', '/inc/img/search.gif');
+    ICON.setAttribute('alt', 'Searching...');
+    
+    TIMEOUT = setTimeout(doSearch, 700);
 }
 
-function doSearch(evt) {
-    if (SEARCH.value.length < 5)
-	return;
-    
+function doSearch() {
     var xml = new XMLHttpRequest();
     xml.open("GET", '/search?q=' + escape(SEARCH.value), false);
     xml.send();
@@ -69,6 +83,9 @@ function doSearch(evt) {
 	li.style.cursor = 'pointer';
 	li.onclick = promote;
     }
+
+    ICON.setAttribute('src', '/inc/img/s.png');
+    ICON.setAttribute('alt', '✓');
 }
 
 function promote(evt) {

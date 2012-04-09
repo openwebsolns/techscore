@@ -335,9 +335,21 @@ class DB extends DBM {
     unset($r);
     return $s;
   }
-  
-  public static function searchSailors($str) {
-    return self::search(self::$SAILOR, $str, array('first_name', 'last_name', 'concat(first_name, " ", last_name)'));
+
+  /**
+   * Searches for the sailor's first, last, or full name
+   *
+   * @param String $str the string to search
+   * @param mixed $registered true|false to filter, or anything else
+   * to ignore registration status
+   */
+  public static function searchSailors($str, $registered = 'all') {
+    $q = self::prepSearch(self::$SAILOR, $str, array('first_name', 'last_name', 'concat(first_name, " ", last_name)'));
+    if ($registered === true)
+      $q->where(new DBCond('icsa_id', null, DBCond::NE));
+    elseif ($registered === false)
+      $q->where(new DBCond('icsa_id', null));
+    return new DBDelegate(self::query($q), new DBObject_Delegate(get_class(DB::$SAILOR)));
   }
 
   // ------------------------------------------------------------
