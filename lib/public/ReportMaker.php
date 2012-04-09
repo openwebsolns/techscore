@@ -11,7 +11,8 @@ require_once('xml5/TScoresTables.php');
 require_once('tscore/RotationDialog.php');
 
 /**
- * Creates the report page for the given regatta
+ * Creates the report page for the given regatta, which will be used
+ * in the public facing side
  *
  */
 class ReportMaker {
@@ -51,7 +52,7 @@ class ReportMaker {
       }
     }
 
-    $link_schools = Conf::$PUB_HOME.'/schools';
+    $link_schools = '/schools';
 
     // Divisional scores
     // $maker = new ScoresDivisionalDialog($reg);
@@ -69,7 +70,7 @@ class ReportMaker {
     $this->divPage[(string)$div] = $page;
     $this->prepare($page);
     
-    $link_schools = Conf::$PUB_HOME.'/schools';
+    $link_schools = '/schools';
     // $maker = new ScoresDivisionDialog($reg, $div);
     $maker = new TScoresTables($this->dt_regatta);
     $page->addSection($p = new XPort("Scores for Division $div"));
@@ -84,7 +85,7 @@ class ReportMaker {
     $this->fullPage = new TPublicPage("Full scores | " . $reg->name);
     $this->prepare($this->fullPage);
     
-    $link_schools = Conf::$PUB_HOME.'/schools';
+    $link_schools = '/schools';
     
     // Total scores
     // $maker = new ScoresFullDialog($reg);

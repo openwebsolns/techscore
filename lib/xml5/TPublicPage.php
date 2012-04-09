@@ -61,7 +61,7 @@ class TPublicPage extends XPage {
     // Header
     $this->body->add($div = new XDiv(array('id'=>'headdiv')));
     $div->add($sub = new XDiv(array('id'=>'header')));
-    $sub->add(new XH1(new XA(Conf::$PUB_HOME, new XImg('/inc/img/techscore.png', Conf::$NAME, array('id'=>'headimg')))));
+    $sub->add(new XH1(new XA('/', new XImg('/inc/img/techscore.png', Conf::$NAME, array('id'=>'headimg')))));
     $sub->add(new XH4(date('M j, Y @ H:i:s'), array('id'=>'date')));
     $div->add($this->navigation);
 
