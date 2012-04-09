@@ -80,7 +80,7 @@ class PrefsHomePane extends AbstractPrefsPane {
    * @param Array $args an associative array similar to $_REQUEST
    */
   public function process(Array $args) {
-    return;
+    throw new SoterException("This page does not process any requests.");
   }
 }
 ?>

@@ -71,38 +71,34 @@ class TeamNamePrefsPane extends AbstractPrefsPane {
    * @param Array $args an associative array similar to $_REQUEST
    */
   public function process(Array $args) {
+    if (isset($args['team_names'])) {
+      $list = DB::$V->reqList($args, 'name', null, "No list of names provided.");
+      if (count($list) == 0)
+	throw new SoterException("There must be at least one team name, none given.");
 
-    // Check $args
-    if (!isset($args['name']) || !is_array($args['name']) || empty($args['name'])) {
-      return;
-    }
+      // There must be a valid primary name
+      $pri = trim(array_shift($list));
+      if (strlen($pri) == 0)
+	throw new SoterException("Primary team name must not be empty.");
 
-    // Validate name
-    $names = array();
-    // There must be a valid primary name
-    $pri = trim(array_shift($args['name']));
-    if (empty($pri)) {
-      $mes = "Primary team name must not be empty.";
-      Session::pa(new PA($mes, PA::E));
-      return;
-    }
-    $repeats = false;
-    $names[$pri] = $pri;
-    foreach ($args['name'] as $name) {
-      $name = trim($name);
-      if (!empty($name)) {
-	if (isset($names[$name]))
-	  $repeats = true;
-	else
-	  $names[$name] = $name;
+      $names = array($pri => $pri);
+      $repeats = false;
+      foreach ($list as $name) {
+	$name = trim($name);
+	if (strlen($name) > 0) {
+	  if (isset($names[$name]))
+	    $repeats = true;
+	  else
+	    $names[$name] = $name;
+	}
       }
-    }
 
-    // Update the team names
-    $this->SCHOOL->setTeamNames(array_keys($names));
-    Session::pa(new PA("Update team name preferences."));
-    if ($repeats)
-      Session::pa(new PA("Team names cannot be repeated.", PA::I));
+      // Update the team names
+      $this->SCHOOL->setTeamNames(array_values($names));
+      Session::pa(new PA("Team name preferences updated."));
+      if ($repeats)
+	Session::pa(new PA("Team names cannot be repeated.", PA::I));
+    }
   }
 }
 ?>

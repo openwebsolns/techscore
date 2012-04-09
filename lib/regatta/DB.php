@@ -740,7 +740,7 @@ class School extends DBObject {
     // Strategy, update as many as are the same, then remove old extra
     // ones, or add any new ones
     $top_rank = count($names);
-    $curr = $this->getTeamNames();
+    $curr = DB::getAll(DB::$TEAM_NAME_PREFS, new DBCond('school', $this));
     for ($i = 0; $i < count($names) && $i < count($curr); $i++) {
       $tnp = $curr[$i];
       $tnp->name = $names[$i];

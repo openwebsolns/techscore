@@ -81,8 +81,6 @@ class EditLogoPane extends AbstractPrefsPane {
     $this->SCHOOL->burgee = $burg;
     DB::set($this->SCHOOL);
     Session::pa(new PA("Updated school logo."));
-
-    // Notify, this needs to change!
   }
 }
 ?>
