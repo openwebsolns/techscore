@@ -134,8 +134,8 @@ class RacesPane extends AbstractPane {
       // For each division
       foreach ($divisions as $div) {
 	$c = "";
-	if (isset($races[(string)$div][$i])) {
-	  $race = $races[(string)$div][$i];
+	$race = $races[(string)$div][$i];
+	if ($race !== false) {
 	  $c = XSelect::fromArray($race, $boatOptions, $race->boat->id);
 	}
 	$row[] = $c;

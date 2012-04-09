@@ -28,7 +28,7 @@
 
 * Implement scripts (d o n e)
 
-* Improve the public site!!!!
+* Improve the public site!!!! (d o n e)
 
 * FIX Help files!
 
@@ -47,13 +47,13 @@
 
 * Add boats (d o n e)
 
-* Admin panes should get similar URL treatment to Editing panes
+* Admin panes should get similar URL treatment to Editing panes (d o n e)
 
 * Custom 404 page (in progress)
 
 ------------------------------------------------------------
 
-* Public side structure
+* Public side structure (d o n e)
 
 /
  - inc
@@ -84,7 +84,7 @@ Provide a list of current regattas participating in.
 Provide a link to the collegesailing.info information page for that
 school.
 
-* PUBLIC side: display results on a "weekend" basis
+* PUBLIC side: display results on a "weekend" basis (d o n e)
 
 ** Season page: organize by each weekend
 
@@ -170,7 +170,7 @@ The problem here was multiple one-record inserts. Fixed it with one
 massive insert. Note that updates are fast! But first-time inserts
 were slow.
 
-* Provide for switching of division order when creating rotations
+* Provide for switching of division order when creating rotations (d o n e)
 
 * Update Regatta::addTeam to use $con->insert_id (d o n e)
 
@@ -180,18 +180,16 @@ You see, we want users to merge temporary sailors with their real
 identities, but this is only useful if we, in turn, recreate those
 regattas in which the temporary sailors sailed.
 
-* Bugs
+* Bugs (d o n e)
 
-** Edit races: third division does not get updated?
+** Edit races: third division does not get updated? (d o n e)
 
 I went from 2 to 3 divisions, and from 18 to 10 races, and only A/B
 division got the 10 races, C received and remained with 10. Then I
 changed the 10 races to 11, and C still remained at 10.
 
-** Swap ports in Unregistered Sailors
+** Swap ports in Unregistered Sailors (d o n e)
 
-
-   *
 
 * Season! (d o n e)
 
