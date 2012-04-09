@@ -1707,6 +1707,7 @@ class Season extends DBObject {
       $cond->add(new DBBool(array(new DBCond('start_time', $season->start_date, DBCond::GE),
 				  new DBCond('start_time', $season->end_date,   DBCond::LT))));
     }
+    require_once('regatta/Regatta.php');
     return DB::getAll(DB::$REGATTA, $cond);
   }
   

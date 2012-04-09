@@ -83,7 +83,7 @@ class AllAmerican extends AbstractUserPane {
 	$chk->set('checked', 'checked');
       }
 
-      $form->add(new XSubmitInput('set-report', "Choose regattas >>"));
+      $form->add(new XSubmitP('set-report', "Choose regattas >>"));
 
       $this->PAGE->addContent($p = new XPort("Special crew report"));
       $p->add($form = new XForm('/aa-edit', XForm::POST));
@@ -93,7 +93,7 @@ class AllAmerican extends AbstractUserPane {
 			      " regattas regardless of participation, choose the seasons and click the button below.")));
 
       $form->add(new FItem("Season(s):", $this->seasonList('ss', array($now, $then))));
-      $form->add(new XSubmitInput('set-special-report', "All crews >>"));
+      $form->add(new XSubmitP('set-special-report', "All crews >>"));
       return;
     }
 
@@ -110,7 +110,7 @@ class AllAmerican extends AbstractUserPane {
       // Add button to go back
       $this->PAGE->addContent($p = new XPort("Progress"));
       $p->add($form = new XForm('/aa-edit', XForm::POST));
-      $form->add(new XSubmitInput('unset-regattas', "<< Start over"));
+      $form->add(new XSubmitP('unset-regattas', "<< Start over"));
 
       // Reset lists
       $this->AA['table'] = array();
@@ -176,7 +176,7 @@ class AllAmerican extends AbstractUserPane {
       else
 	$form->add(new XP(array(), "There are no other possible regattas to add to the report from for the chosen season."));
       $form->add(new XP(array(), "Next, choose the sailors to incorporate into the report."));
-      $form->add(new XSubmitInput('set-regattas', sprintf("Choose %ss >>", $this->AA['report-role'])));
+      $form->add(new XSubmitP('set-regattas', sprintf("Choose %ss >>", $this->AA['report-role'])));
 
       // are there any qualified regattas?
       if (count($qual_regattas) == 0)
@@ -203,7 +203,7 @@ class AllAmerican extends AbstractUserPane {
       // Add button to go back
       $this->PAGE->addContent($p = new XPort("Progress"));
       $p->add($form = new XForm('/aa-edit', XForm::POST));
-      $form->add(new XSubmitInput('unset-regattas', "<< Start over"));
+      $form->add(new XSubmitP('unset-regattas', "<< Start over"));
       
       $regattas = $this->AA['regattas'];
       // provide a list of sailors that are already included in the
@@ -224,7 +224,7 @@ class AllAmerican extends AbstractUserPane {
       $search->set('id', 'name-search');
       $form->add($ul = new XUl(array('id'=>'aa-input'),
 			       array(new XLi("No sailors.", array('class'=>'message')))));
-      $form->add(new XSubmitInput('set-sailors', "Generate report >>"));
+      $form->add(new XSubmitP('set-sailors', "Generate report >>"));
 
       return;
     }
@@ -237,10 +237,10 @@ class AllAmerican extends AbstractUserPane {
     $this->PAGE->addContent($p = new XPort("Report"));
     $p->add($form = new XForm('/aa-edit', XForm::POST));
     $form->add(new XP(array(), "Please click only once:"));
-    $form->add(new XSubmitInput('gen-report', "Download as CSV"));
+    $form->add(new XSubmitP('gen-report', "Download as CSV"));
 
     $p->add($form = new XForm('/aa-edit', XForm::POST));
-    $form->add(new XSubmitInput('unset-sailors', "<< Go back"));
+    $form->add(new XSubmitP('unset-sailors', "<< Go back"));
     
     $this->PAGE->addContent(new XTable(array('id'=>'aa-table'),
 				       array(new XTHead(array(),

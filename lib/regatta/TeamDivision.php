@@ -42,7 +42,9 @@ class TeamDivision extends DBObject {
 
   public function &__get($name) {
     switch ($name) {
-    case 'division': return Division::get($this->division);
+    case 'division':
+      $div = Division::get($this->division);
+      return $div;
     default:
       return parent::__get($name);
     }
