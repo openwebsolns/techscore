@@ -26,21 +26,38 @@ class Conf {
   public static $DIVERT_MAIL = 'dayan@localhost';
 
   // General constants
-  public static $NAME = "TechScore";
-  public static $HOME = "https://ts.collegesailing.info";
-  public static $PUB_HOME = "http://scores.collegesailing.info";
-  public static $HELP_HOME = "http://collegesailing.info/ts-help";
-  public static $ADMIN_MAIL = "dayan@localhost";
-  public static $TS_FROM_MAIL = "dayan@localhost";
+  /**
+   * @var String the name of the program
+   */
+  public static $NAME = 'TechScore';
+  /**
+   * @var String the hostname (sans protocol) for the scoring
+   */
+  public static $HOME = 'ts.collegesailing.org';
+  /**
+   * @var String the hostname (sans protocol) for public site
+   */
+  public static $PUB_HOME = 'scores.collegesailing.org';
+  /**
+   * @var String the hostname (sans protocol) for the help pages
+   */
+  public static $HELP_HOME = 'collegesailing.org/ts-help';
+  /**
+   * @var filepath the path to the directory containing the logs
+   */
+  public static $LOG_ROOT = '/var/log/httpd';
+
+  public static $ADMIN_MAIL = 'dayan@localhost';
+  public static $TS_FROM_MAIL = 'dayan@localhost';
 
   // MySQL connection
-  public static $SQL_HOST = "localhost";
-  public static $SQL_USER = "ts2";
-  public static $SQL_PASS = "";
-  public static $SQL_DB   = "ts2";
+  public static $SQL_HOST = 'localhost';
+  public static $SQL_USER = 'ts2';
+  public static $SQL_PASS = '';
+  public static $SQL_DB   = 'ts2';
 
   // Error handler
-  public static $ERROR_HANDLER = "mail"; // "mail" or "print"
+  public static $ERROR_HANDLER = 'mail'; // 'mail' or 'print'
 
   /**
    * @var String|null Set to non-null path to log queries
@@ -89,6 +106,45 @@ class Conf {
    * @var String the URL of school information
    */
   public static $SCHOOL_API_URL = 'http://www.collegesailing.org/directory/individual/schoolapi.asp';
+
+  // ------------------------------------------------------------
+  // Environment setup
+  // ------------------------------------------------------------
+
+  /**
+   * @var String the SQL user allowed to make schema changes
+   */
+  public static $DB_ROOT_USER = 'root';
+  /**
+   * @var filepath the path to the *.crt file (TS must be run over HTTPS)
+   */
+  public static $HTTP_CERTPATH = '/etc/httpd/certs/ts2.crt';
+  /**
+   * @var filepath the path to the *.key file (TS must be run over HTTPS)
+   */
+  public static $HTTP_CERTKEYPATH = '/etc/httpd/certs/ts2.key';
+  /**
+   * @var filepath the path to the bundle file (if any)
+   */
+  public static $HTTP_CERTCHAINPATH = null;
+
+  // ------------------------------------------------------------
+  // Cron settings
+  // ------------------------------------------------------------
+
+  /**
+   * @var cronline the minutes of the hour at which to run the sync
+   * daemon, in a crond-compatible way
+   */
+  public static $CRON_FREQ = '*/5';
+  /**
+   * @var cronline the times to run the database backup
+   */
+  public static $CRON_BUP = '3 5 1,8,15,22 * *';
+  /**
+   * @var String the SQL user to connect as for backup
+   */
+  public static $DB_BUP_USER = 'backup';
 }
 
 function __autoload($name) {

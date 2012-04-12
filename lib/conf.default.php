@@ -6,12 +6,22 @@
  *
  */
 
+// General settings for schema and system updates
+//Conf::$DB_ROOT_USER = 'root';
+//Conf::$LOG_ROOT = '/var/log/httpd';
+//Conf::$HTTP_CERTPATH = '/etc/httpd/certs/ts2.crt';
+//Conf::$HTTP_CERTKEYPATH = '/etc/httpd/certs/ts2.key';
+//Conf::$HTTP_CERTCHAINPATH = null;
+//Conf::$CRON_FREQ = '*/5';
+//Conf::$CRON_BUP = '3 5 1,8,15,22 * *';
+//Conf::$DB_BUP_USER = 'backup';
+
 // The following constants are used to identify the TechScore program
 // and the web environment. Take a look at the class Conf in conf.php
-Conf::$HOME = sprintf("http://%s", $_SERVER['HTTP_HOST']);
-Conf::$PUB_HOME = sprintf("http://scores.%s", $_SERVER['HTTP_HOST']);
-Conf::$HELP_HOME = sprintf("http://%s/ts-help", $_SERVER['HTTP_HOST']);
-Conf::$ADMIN_MAIL = "admin@" . $_SERVER['HTTP_HOST'];
+Conf::$HOME = 'ts.collegesailing.org';
+Conf::$PUB_HOME = 'scores.collegesailing.org';
+// Conf::$HELP_HOME = 'www.collegesailing.org/ts-help';
+Conf::$ADMIN_MAIL = 'admin@localhost';
 Conf::$TS_FROM_MAIL = Conf::$ADMIN_MAIL;
 
 // MySQL connection

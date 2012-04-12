@@ -99,7 +99,7 @@ class PasswordRecoveryPane extends AbstractUserPane {
 
   public function getMessage(Account $to) {
     return sprintf("Dear %s,\n\nYou are receiving this message because you, or someone in your name, has requested to reset the password for this account. If you did not request to reset your password, kindly disregard this message.\n\nTo enter a new password, please follow the link below. You may need to copy and paste the link into your browser's location bar.\n\n%s/password-recover?acc=%s\n\nThank you,\n\nTechScore Administration",
-		   $to->first_name, Conf::$HOME, DB::getHash($to));
+		   $to->first_name, WS::alink('/'), DB::getHash($to));
   }
 
   public function getSuccessMessage(Account $to) {
