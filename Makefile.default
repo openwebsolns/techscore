@@ -5,22 +5,6 @@ DB_DB = ts2
 DB_USER = dayan
 
 # ------------------------------------------------------------
-# Apache configuration
-# ------------------------------------------------------------
-# The hostname for the private scoring VirtualHost
-HTTP_HOSTNAME = ts.collegesailing.org
-
-# The hostname for the public scores VirtualHost
-HTTP_PUBLIC_HOSTNAME = scores.collegesailing.org
-
-# The root of the Apache log files
-HTTP_LOGROOT = /var/log/apache2
-
-# The certificate CRT and KEY full paths
-HTTP_CERTPATH = /etc/apache2/certs/ts2.crt
-HTTP_CERTKEYPATH = /etc/apache2/certs/ts2.key
-
-# ------------------------------------------------------------
 # Cron settings:
 # ------------------------------------------------------------
 # MAILTO is the address to send reports

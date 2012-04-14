@@ -1,6 +1,6 @@
 include Makefile.local
 
-default: Makefile.local lib/conf.local.php apache.conf changes.current.sql crontab cache/404-schools.html cache/schools.db css css-admin js js-admin
+default: Makefile.local lib/conf.local.php src/apache.conf changes.current.sql crontab cache/404-schools.html cache/schools.db css css-admin js js-admin
 
 Makefile.local: Makefile.default
 	@echo "Manually create Makefile.local from Makefile.default" && exit 2
@@ -20,14 +20,8 @@ crontab: crontab.default Makefile.local
 		crontab.default > crontab && \
 	echo -e "\nPlease reinstall crontab!\n"
 
-apache.conf: apache.conf.default Makefile.local
-	sed -e 's:{DIRECTORY}:'"`pwd`"':g' \
-	    -e 's/{HOSTNAME}/${HTTP_HOSTNAME}/g' \
-	    -e 's/{PUBLIC_HOSTNAME}/${HTTP_PUBLIC_HOSTNAME}/g' \
-	    -e 's:{HTTP_LOGROOT}:${HTTP_LOGROOT}:g' \
-	    -e 's:{HTTP_CERTPATH}:${HTTP_CERTPATH}:g' \
-	    -e 's:{HTTP_CERTKEYPATH}:${HTTP_CERTKEYPATH}:g' \
-		apache.conf.default > apache.conf
+src/apache.conf: src/apache.conf.default bin/Make.php lib/conf.local.php
+	php bin/Make.php apache.conf
 
 changes.current.sql: changes.history.sql
 	touch changes.current.sql && \
