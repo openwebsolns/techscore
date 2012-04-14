@@ -1,6 +1,6 @@
 include Makefile.local
 
-default: Makefile.local lib/conf.local.php src/apache.conf changes.current.sql crontab cache/404-schools.html cache/schools.db css css-admin js js-admin
+default: Makefile.local lib/conf.local.php src/apache.conf changes.current.sql src/crontab cache/404-schools.html cache/schools.db css css-admin js js-admin
 
 Makefile.local: Makefile.default
 	@echo "Manually create Makefile.local from Makefile.default" && exit 2
@@ -8,17 +8,9 @@ Makefile.local: Makefile.default
 lib/conf.local.php: lib/conf.default.php
 	@echo "Manually create lib/conf.local.php from lib/conf.default.php" && exit 1
 
-crontab: crontab.default Makefile.local
-	sed -e 's:{DIRECTORY}:'"`pwd`"':g' \
-	    -e 's:{DB_DB}:${DB_DB}:g' \
-	    -e 's:{CRON_MAILTO}:${CRON_MAILTO}:g' \
-	    -e 's:{CRON_DLY_FREQ}:${CRON_DLY_FREQ}:g' \
-	    -e 's:{CRON_WKD_FREQ}:${CRON_WKD_FREQ}:g' \
-	    -e 's:{CRON_BUP_TIME}:${CRON_BUP_TIME}:g' \
-	    -e 's:{CRON_BUP_USER}:${CRON_BUP_USER}:g' \
-	    -e 's:{CRON_BUP_RECIP}:${CRON_BUP_RECIP}:g' \
-		crontab.default > crontab && \
-	echo -e "\nPlease reinstall crontab!\n"
+src/crontab: src/crontab.default bin/Make.php lib/conf.local.php
+	php bin/Make.php crontab && \
+	echo -e "\nPlease reinstall src/crontab!\n"
 
 src/apache.conf: src/apache.conf.default bin/Make.php lib/conf.local.php
 	php bin/Make.php apache.conf

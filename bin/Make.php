@@ -18,11 +18,11 @@ require_once(dirname(dirname(__FILE__)).'/lib/conf.php');
 function usage($mes = null) {
   if ($mes !== null)
     echo "$mes\n\n";
-  echo "usage: php Make.php <apache.conf>\n";
+  echo "usage: php Make.php <apache.conf|crontab>\n";
   exit(1);
 }
 
-$targets = array('apache.conf');
+$targets = array('apache.conf', 'crontab');
 $args = array();
 if (!isset($argv) || !is_array($argv) || count($argv) < 1)
   usage("missing argument list");
@@ -37,11 +37,11 @@ foreach ($argv as $arg) {
 if (count($args) == 0)
   usage("no arguments provided");
 
+$pwd = dirname(dirname(__FILE__));
 // ------------------------------------------------------------
 // apache.conf
 // ------------------------------------------------------------
 if (isset($args['apache.conf'])) {
-  $pwd = dirname(dirname(__FILE__));
   $template = $pwd . '/src/apache.conf.default';
   if (($path = realpath($template)) === false)
     usage("template not found: $template");
@@ -55,6 +55,27 @@ if (isset($args['apache.conf'])) {
   $str = str_replace('{HTTP_CERTCHAINPATH}', Conf::$HTTP_CERTCHAINPATH, $str);
 
   $output = $pwd . '/src/apache.conf';
+  if (file_put_contents($output, $str) === false)
+    usage("unable to write file: $output");
+}
+
+// ------------------------------------------------------------
+// crontab
+// ------------------------------------------------------------
+if (isset($args['crontab'])) {
+  $template = $pwd . '/src/crontab.default';
+  if (($path = realpath($template)) === false)
+    usage("template not found: $template");
+  $str = file_get_contents($path);
+  $str = str_replace('{DIRECTORY}', $pwd, $str);
+  $str = str_replace('{DB_DB}', Conf::$SQL_DB, $str);
+  $str = str_replace('{CRON_MAILTO}', Conf::$ADMIN_MAIL, $str);
+  $str = str_replace('{CRON_FREQ}', Conf::$CRON_FREQ, $str);
+  $str = str_replace('{CRON_BUP_TIME}', Conf::$CRON_BUP, $str);
+  $str = str_replace('{CRON_BUP_USER}', Conf::$DB_BUP_USER, $str);
+  $str = str_replace('{CRON_BUP_RECIP}', Conf::$ADMIN_MAIL, $str);
+
+  $output = $pwd . '/src/crontab';
   if (file_put_contents($output, $str) === false)
     usage("unable to write file: $output");
 }

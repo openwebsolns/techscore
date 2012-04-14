@@ -3,16 +3,3 @@
 
 DB_DB = ts2
 DB_USER = dayan
-
-# ------------------------------------------------------------
-# Cron settings:
-# ------------------------------------------------------------
-# MAILTO is the address to send reports
-# DLY: daily update frequency, default is every 5 minutes
-# WKD: weekend update frequency
-CRON_MAILTO = ""
-CRON_DLY_FREQ = */5
-CRON_WKD_FREQ = 13,43
-CRON_BUP_TIME = "3 5 1,8,15,22 * *"
-CRON_BUP_USER = backup
-CRON_BUP_RECIP = dpv140@gmail.com
