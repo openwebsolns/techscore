@@ -1,1 +1,0 @@
-rsync --exclude=apache.conf --exclude=conf.php --exclude=doc/ --exclude=.hg* -rv --delete . dpv@techscore.mit.edu:/home/dpv/techscore-web/
