@@ -1,9 +1,5 @@
-include Makefile.local
 
-default: Makefile.local lib/conf.local.php src/apache.conf changes.current.sql src/crontab cache/404-schools.html cache/schools.db css css-admin js js-admin
-
-Makefile.local: Makefile.default
-	@echo "Manually create Makefile.local from Makefile.default" && exit 2
+default: lib/conf.local.php src/apache.conf src/changes.current.sql src/crontab cache/404-schools.html cache/schools.db css css-admin js js-admin
 
 lib/conf.local.php: lib/conf.default.php
 	@echo "Manually create lib/conf.local.php from lib/conf.default.php" && exit 1
@@ -15,10 +11,11 @@ src/crontab: src/crontab.default bin/Make.php lib/conf.local.php
 src/apache.conf: src/apache.conf.default bin/Make.php lib/conf.local.php
 	php bin/Make.php apache.conf
 
-changes.current.sql: changes.history.sql
-	touch changes.current.sql && \
-	comm -13 changes.current.sql changes.history.sql | mysql -v -u $(DB_USER) -p $(DB_DB) && \
-	cp changes.history.sql changes.current.sql
+src/changes.current.sql: src/changes.history.sql
+	touch src/changes.current.sql && \
+	comm -13 src/changes.current.sql src/changes.history.sql | \
+	mysql -v -u $$(php bin/Make.php getprop DB_ROOT_USER) -p $$(php bin/Make.php getprop SQL_DB) && \
+	cp src/changes.history.sql src/changes.current.sql
 
 cache/404-schools.html: lib/scripts/Update404.php
 	php lib/scripts/Update404.php schools

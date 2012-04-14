@@ -18,20 +18,32 @@ require_once(dirname(dirname(__FILE__)).'/lib/conf.php');
 function usage($mes = null) {
   if ($mes !== null)
     echo "$mes\n\n";
-  echo "usage: php Make.php <apache.conf|crontab>\n";
+  echo "usage: php Make.php <apache.conf|crontab|getprop PROP>
+
+Use 'getprop' to retrieve a constant from Conf class.\n";
   exit(1);
 }
 
-$targets = array('apache.conf', 'crontab');
+$targets = array('apache.conf', 'crontab', 'getprop');
 $args = array();
 if (!isset($argv) || !is_array($argv) || count($argv) < 1)
   usage("missing argument list");
 
 $base = array_shift($argv);
-foreach ($argv as $arg) {
+while (count($argv) > 0) {
+  $arg = array_shift($argv);
   if (!in_array($arg, $targets))
     usage("invalid argument: $arg");
   $args[$arg] = 1;
+  // Handle properties
+  if ($arg == 'getprop') {
+    if (count($argv) == 0)
+      usage("getprop: missing property to get");
+    $prop = array_shift($argv);
+    if (!isset(Conf::$$prop))
+      usage("getprop: invalid property $prop");
+    printf("%s\n", Conf::$$prop);
+  }
 }
 
 if (count($args) == 0)
