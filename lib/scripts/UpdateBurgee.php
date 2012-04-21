@@ -24,6 +24,8 @@
  *
  * The path to save to is '.../img/schools/{SCHOOL_ID}.png'.
  *
+ * If necessary, this script will create the directory.
+ *
  * @author Dayan Paez
  * @version 2011-01-02
  * @package scripts
@@ -32,9 +34,9 @@ class UpdateBurgee {
 
   /**
    * @var String the relative path to the burgee images (with respect
-   * to THIS file).
+   * to the HTML root).
    */
-  public static $filepath = '../../html/inc/img/schools';
+  public static $filepath = '/inc/img/schools';
 
   /**
    * Checks each school in the database for a possible burgee update
@@ -55,7 +57,8 @@ class UpdateBurgee {
    * @throw RuntimeException if unable to execute an action
    */
   public static function update(School $school) {
-    $file = sprintf('%s/%s/%s.png', dirname(__FILE__), self::$filepath, $school->id);
+    $root = dirname(dirname(dirname(__FILE__))).'/html'.self::$filepath;
+    $file = sprintf('%s/%s.png', $root, $school->id);
 
     // 1. There is no burgee
     if ($school->burgee === null) {
@@ -72,6 +75,8 @@ class UpdateBurgee {
     }
 
     // 3. Transfer data to file
+    if (!is_dir($root) && mkdir($root, 0777, true)  === false)
+      throw new RuntimeException("Unable to create burgee directory.");
     $res = file_put_contents($file, base64_decode($school->burgee->filedata));
     if ($res === false)
       throw new RuntimeException("Unable to write to file $file.");
