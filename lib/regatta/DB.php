@@ -1219,6 +1219,7 @@ class Race extends DBObject {
   protected $division;
   protected $boat;
   public $number;
+  public $round;
   public $scored_by;
 
   public function db_name() { return 'race'; }

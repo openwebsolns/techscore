@@ -270,3 +270,15 @@ alter table school add column inactive datetime default null;
 update dt_rp, sailor set dt_rp.sailor = sailor.id where dt_rp.sailor = sailor.icsa_id;
 delete from dt_rp where sailor not in (select id from sailor);
 alter table dt_rp add foreign key (sailor) references sailor(id) on delete cascade on update cascade;
+
+-- team races require the logical grouping of races into rounds. This
+-- concept can still apply to standard/combined scoring, but in that
+-- case there is only one giant round.
+alter table race add column round int default null after number;
+-- for non-team racing, separate each "day" of racing into
+-- rounds. Thus, on Saturdays, all the races belong to the same round,
+-- etc. At the time of round-based scoring (see ScoresGridDialog), add
+-- up the result of all the head-to-head *within* each round
+update race, regatta, (select race, min(entered) as time from finish group by race) as finish set race.round = abs(to_days(finish.time) - to_days(regatta.start_time)) + 1 where race.regatta = regatta.id and race.id = finish.race;
+update race set round = 1 where round is null;
+update race set round = null where id not in (select race from finish) and regatta not in (select id from regatta where scoring = 'team');

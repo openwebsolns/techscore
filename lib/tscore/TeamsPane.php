@@ -53,7 +53,7 @@ class TeamsPane extends AbstractPane {
       $exp->add(new XText("The regatta already has finishes entered. After adding the new teams, what should their score be?"));
       $form->add(new FItem("New score:", XSelect::fromArray('new-score', array('DNS' => 'DNS', 'BYE' => 'BYE'))));
     }
-    $form->add(new XSubmitInput("invite", "Register team"));
+    $form->add(new XSubmitP("invite", "Register team"));
   }
 
   /**
@@ -180,8 +180,10 @@ class TeamsPane extends AbstractPane {
     }
     // need two teams for a regatta
     if ($teams_added > 1) {
-      Session::pa(new PA("Added $teams_added teams. You can now setup rotations, or start adding finishes."));
-      $this->redirect('setup-rotations');
+      Session::pa(new PA(array("Added $teams_added teams. Next, ",
+			       new XA(WS::link(sprintf('/score/%s/races', $this->REGATTA->id)), "setup the races"),
+			       ".")));
+      $this->redirect('races');
     }
     throw new SoterException("Please add at least two teams to proceed.");
   }

@@ -13,6 +13,13 @@
  * teams which will be participating. Note that this pane will
  * automatically allocate 3 divisions for the regatta.
  *
+ * Each race must also belong to a particular "round". In a particular
+ * round, each team races against every other team in a round robin.
+ * It would be useful to have the user choose the teams that will
+ * participate in a given round and have the program create the
+ * pairings automatically. Then, the user has the option to add/remove
+ * or reorder the pairings as needed.
+ *
  * @author Dayan Paez
  * @version 2012-03-05
  */
@@ -31,6 +38,55 @@ class TeamRacesPane extends AbstractPane {
    * @param Array $args (ignored)
    */
   protected function fillHTML(Array $args) {
+    // ------------------------------------------------------------
+    // Specific round?
+    // ------------------------------------------------------------
+    $rounds = $this->REGATTA->getRounds();
+    if (($round = DB::$V->incValue($args, 'r', $rounds)) !== null) {
+      $this->fillRound($round);
+      return;
+    }
+
+    // ------------------------------------------------------------
+    // Add round
+    // ------------------------------------------------------------
+    $this->PAGE->addContent($p = new XPort("Add new round"));
+    $p->add($form = $this->createForm());
+    $form->add(new XP(array(),
+		   array("Choose the teams which will participate in the round to be added. ",
+			 Conf::$NAME,
+			 " will create the necessary races so that each team sails head-to-head against every other team (round-robin). Afterwards, you will be able to delete or create new races within the round.")));
+    $form->add($fi = new FItem("Choose teams:", $ul = new XUl(array('class'=>'fitem-list'))));
+    $fi->add(new XSpan("(Click to select/deselect)", array('class'=>'message')));
+    
+    foreach ($this->REGATTA->getTeams() as $team) {
+      $id = 'team-'.$team->id;
+      $ul->add(new Xli(array(new XCheckboxInput('team[]', $team->id, array('id'=>$id)), new XLabel($id, $team))));
+    }
+
+    $boats = DB::getBoats();
+    $boatOptions = array();
+    foreach ($boats as $boat)
+      $boatOptions[$boat->id] = $boat->name;
+
+    $form->add(new FItem("Boat:", XSelect::fromArray('boat', $boatOptions)));
+    $form->add(new XSubmitP('add-round', "Add round"));
+
+    // ------------------------------------------------------------
+    // Current rounds
+    // ------------------------------------------------------------
+    if (count($rounds) > 0) {
+      $this->PAGE->addContent($p = new XPort("Current rounds"));
+      $p->add(new XP(array(), "Click on the round below to edit the races in that round."));
+      $p->add($ul = new XUl());
+      foreach ($rounds as $round)
+	$ul->add(new XLi(new XA(WS::link(sprintf('/score/%s/races', $this->REGATTA->id), array('r'=>$round)), "Round $round")));
+    }
+  }
+
+  private function fillRound($round) {
+    $this->PAGE->addContent(new XP(array(), new XA(WS::link(sprintf('/score/%s/races', $this->REGATTA->id)), "← Back to races")));
+
     $teamOpts = array();
     $teamFullOpts = array("null" => "");
     foreach ($this->REGATTA->getTeams() as $team) {
@@ -46,9 +102,9 @@ class TeamRacesPane extends AbstractPane {
     // ------------------------------------------------------------
     // Current races
     // ------------------------------------------------------------
-    $cur_races = $this->REGATTA->getRaces(Division::A());
+    $cur_races = $this->REGATTA->getRacesInRound($round, Division::A());
     if (count($cur_races) > 0) {
-      $this->PAGE->addContent($p = new XPort("Edit current races"));
+      $this->PAGE->addContent($p = new XPort("Edit races in round $round"));
       $p->add($form = $this->createForm());
       $form->add(new XP(array(), "The teams for the races can only be edited for unscored races. To edit the teams in a scored race, drop the finish and then return here to edit the race."));
       $form->add(new XP(array(), "Extra (unused) races will be removed at the end of the regatta."));
@@ -97,6 +153,48 @@ class TeamRacesPane extends AbstractPane {
    * Processes new races and edits to existing races
    */
   public function process(Array $args) {
+    // ------------------------------------------------------------
+    // Add round
+    // ------------------------------------------------------------
+    if (isset($args['add-round'])) {
+      $boat = DB::$V->reqID($args, 'boat', DB::$BOAT, "Invalid boat provided.");
+      $team_ids = DB::$V->reqList($args, 'team', null, "No list of teams provided. Please try again.");
+
+      $teams = array();
+      foreach ($team_ids as $id) {
+	if (($team = $this->REGATTA->getTeam($id)) !== null)
+	  $teams[] = $team;
+      }
+      if (count($teams) < 1)
+	throw new SoterException("Not enough teams provided: there must be at least two. Please try again.");
+
+      // Assign next round number (leaving holes in numbering)
+      $rounds = $this->REGATTA->getRounds();
+      $round = (count($rounds) == 0) ? 1 : array_pop($rounds);
+
+      // Assign next race number
+      $count = count($this->REGATTA->getRaces(Division::A()));
+
+      // Create round robin
+      $num_added = 0;
+      $divs = array(Division::A(), Division::B(), Division::C());
+      foreach ($this->pairup($teams) as $pair) {
+	$count++;
+	foreach ($divs as $div) {
+	  $race = new Race();
+	  $race->division = $div;
+	  $race->number = $count;
+	  $race->boat = $boat;
+	  $race->round = $round;
+	  $this->REGATTA->setRace($race);
+	}
+	$this->REGATTA->setRaceTeams($race, $pair[0], $pair[1]);
+	$num_added++;
+      }
+      Session::pa(new PA("Added $num_added new races in round $round."));
+      return array();
+    }
+
     // ------------------------------------------------------------
     // Edit races
     // ------------------------------------------------------------
@@ -171,5 +269,27 @@ class TeamRacesPane extends AbstractPane {
     }
     return array();
   }
+
+  /**
+   * Creates a round-robin from the given items
+   *
+   * @param Array $items the items to pair up in round robin
+   * @return Array:Array a list of all the pairings
+   */
+  private function pairup($items) {
+    if (count($items) < 2)
+      throw new InvalidArgumentException("There must be at least two items.");
+    if (count($items) == 2)
+      return array($items);
+
+    $list = array();
+    $first = array_shift($items);
+    foreach ($items as $other)
+      $list[] = array($first, $other);
+    foreach ($this->pairup($items) as $pair)
+      $list[] = $pair;
+    return $list;
+  }
+
 }
 ?>

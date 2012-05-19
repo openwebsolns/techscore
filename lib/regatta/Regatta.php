@@ -440,6 +440,39 @@ class Regatta extends DBObject {
   }
 
   /**
+   * Ordered list of rounds in the regatta
+   *
+   * @return Array:int the list of rounds
+   */
+  public function getRounds() {
+    DB::$RACE->db_set_order(array('round'=>true));
+    $q = DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('round'));
+    $q->distinct(true);
+
+    $r = DB::query($q);
+    $list = array();
+    while (($obj = $r->fetch_object()) !== null)
+      $list[] = $obj->round;
+    DB::$RACE->db_set_order();
+    return $list;
+  }
+
+  /**
+   * Fetches the list of races in the given round
+   *
+   * @param int $round not verified to exist in this regatta
+   * @param Division $div the specific division (if any)
+   * @return Array:Race the list of races
+   */
+  public function getRacesInRound($round, Division $div = null) {
+    $cond = new DBBool(array(new DBCond('regatta', $this->id),
+			     new DBCond('round', $round)));
+    if ($div !== null)
+      $cond->add(new DBCond('division', (string)$div));
+    return DB::getAll(DB::$RACE, $cond);
+  }
+
+  /**
    * Returns the unique boats being used in this regatta. Note that
    * this is much faster than going through all the races manually and
    * keeping track of the boats.

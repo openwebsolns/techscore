@@ -28,7 +28,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
    *
    */
   public function fillHTML(Array $args) {
-    $this->PAGE->set('xmlns:ts', 'http://collegesailing.info');
+    $this->PAGE->set('xmlns:ts', 'http://collegesailing.org');
     $this->PAGE->addContent($p = new XPort("Team results"));
     $ELEMS = $this->getTable();
     $p->add(array_shift($ELEMS));
