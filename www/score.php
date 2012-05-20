@@ -113,8 +113,14 @@ elseif (isset($_REQUEST['v'])) {
     case "results":
     case "score":
     case "scores":
-      require_once('tscore/ScoresFullDialog.php');
-      $PAGE = new ScoresFullDialog($REG);
+      if ($REG->scoring == Regatta::SCORING_TEAM) {
+	require_once('tscore/ScoresGridDialog.php');
+	$PAGE = new ScoresGridDialog($REG);
+      }
+      else {
+	require_once('tscore/ScoresFullDialog.php');
+	$PAGE = new ScoresFullDialog($REG);
+      }
       break;
 
       // --------------- DIV. SCORE --------------//

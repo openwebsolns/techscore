@@ -296,23 +296,19 @@ class ICSAScorer {
       // no other scores to average
       if ($count == 0) {
 	foreach ($div_finishes as $fin) {
-	  $fin->score = new Score($fin->penalty->earned,
-				  sprintf("(%d: no other finishes to average) %s",
-					  $fin->penalty->earned, $fin->penalty->comments));
+	  $fin->score = new Score($fin->earned,
+				  sprintf("(%d: no other finishes to average) %s", $fin->earned, $fin->comments));
 	}
       }
       else {
 	$avg = round($total / $count);
 	foreach ($div_finishes as $fin) {
-	  if ($avg <= $fin->penalty->earned) {
-	    $fin->score = new Score($avg,
-				    sprintf("(%d: average in division) %s",
-					    $avg, $fin->penalty->comments));
+	  if ($avg <= $fin->earned) {
+	    $fin->score = new Score($avg, sprintf("(%d: average in division) %s", $avg, $fin->comments));
 	  }
 	  else {
-	    $fin->score = new Score($fin->penalty->earned,
-				    sprintf("(%d: average (%d) is no better) %s",
-					    $fin->penalty->earned, $avg, $fin->penalty->comments));
+	    $fin->score = new Score($fin->earned,
+				    sprintf("(%d: average (%d) is no better) %s", $fin->earned, $avg, $fin->comments));
 	  }
 	}
       }

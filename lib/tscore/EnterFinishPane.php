@@ -181,11 +181,44 @@ class EnterFinishPane extends AbstractPane {
 	$finish = $this->REGATTA->getFinish($races[$id], $teams[$id]);
 	if ($finish === null)
 	  $finish = $this->REGATTA->createFinish($races[$id], $teams[$id]);
+	$finish->setModifier(); // reset score
 	$finish->entered = clone($time);
 	$finishes[] = $finish;
 	unset($teams[$id]);
 	$time->add($intv);
       }
+
+      // For team racing regattas: enter all other non-participating
+      // teams as DNSes.
+      if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
+	$part = $this->REGATTA->getRaceTeams($race);
+	foreach ($this->REGATTA->getDivisions() as $div) {
+	  $r = $this->REGATTA->getRace($div, $race->number);
+	  foreach ($this->REGATTA->getTeams() as $team) {
+	    if ($team->id != $part[0]->id && $team->id != $part[1]->id) {
+	      $finish = $this->REGATTA->getFinish($r, $team);
+	      if ($finish === null)
+		$finish = $this->REGATTA->createFinish($r, $team);
+	      $finish->entered = clone($time);
+	      $finish->setModifier(new Penalty(Penalty::DNS, -1, "Did not participate"));
+	      $finishes[] = $finish;
+	      $time->add($intv);
+	    }
+	  }
+	}
+      }
+
+      /* echo '<pre>'; */
+      /* foreach ($finishes as $finish) */
+      /* 	printf("| %3s%s | %10s | %s | %4s |\n", */
+      /* 	       $finish->race->number, */
+      /* 	       $finish->race->division, */
+      /* 	       $finish->team->id, */
+      /* 	       $finish->entered->format('H:i:s'), */
+      /* 	       $finish->penalty); */
+      /* echo '</pre>'; */
+      /* exit; */
+      
 
       $this->REGATTA->commitFinishes($finishes);
       $this->REGATTA->runScore($race);

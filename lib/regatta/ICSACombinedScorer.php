@@ -66,54 +66,53 @@ class ICSACombinedScorer extends ICSAScorer {
     $score = 1;
     foreach ($finishes as $i => $finish) {
       // no penalties or breakdown
-      if ($finish->penalty == null) {
+      $penalty = $finish->getModifier();
+      if ($penalty == null) {
 	$finish->score = new Score($score);
 	$score++;
       }
       // penalty
-      elseif ($finish->penalty instanceof Penalty) {
-	if ($finish->penalty->amount <= 0)
+      elseif ($penalty instanceof Penalty) {
+	if ($penalty->amount <= 0)
 	  $finish->score = new Score($FLEET + 1,
-				     sprintf("(%d, Fleet + 1) %s", $FLEET + 1, $finish->penalty->comments));
-	elseif ($finish->penalty->amount > $score) {
-	  $finish->score = new Score($finish->penalty->amount,
-				     sprintf("(%d, Assigned) %s",
-					     $finish->penalty->amount,
-					     $finish->penalty->comments));
-	  if ($finish->penalty->displace)
+				     sprintf("(%d, Fleet + 1) %s", $FLEET + 1, $penalty->comments));
+	elseif ($penalty->amount > $score) {
+	  $finish->score = new Score($penalty->amount,
+				     sprintf("(%d, Assigned) %s", $penalty->amount, $penalty->comments));
+	  if ($penalty->displace)
 	    $score++;
 	}
 	else {
 	  $finish->score = new Score($score,
 				     sprintf("(%d, Assigned penalty (%d) no worse) %s",
 					     $score,
-					     $finish->penalty->amount,
-					     $finish->penalty->comments));
-	  if ($finish->penalty->displace)
+					     $penalty->amount,
+					     $penalty->comments));
+	  if ($penalty->displace)
 	    $score++;
 	}
-	$finish->penalty->earned = $score;
+	$finish->earned = $score;
       }
       // breakdown
       else {
 	// Should the amount be assigned, determine actual
 	// score. If not, then keep track for average score
-	if ($finish->penalty->amount > 0) {
-	  $amount = $finish->penalty->amount;
-	  $exp = sprintf("(%d, Assigned) %s", $amount, $finish->penalty->comments);
-	  if ($score <= $finish->penalty->amount) {
+	if ($penalty->amount > 0) {
+	  $amount = $penalty->amount;
+	  $exp = sprintf("(%d, Assigned) %s", $amount, $penalty->comments);
+	  if ($score <= $penalty->amount) {
 	    $amount = $score;
 	    $exp = sprintf("(%d, Assigned amount (%d) no better than actual) %s",
-			   $amount, $finish->penalty->amount, $finish->penalty->comments);
+			   $amount, $penalty->amount, $penalty->comments);
 	  }
 	  $finish->score = new Score($amount, $exp);
-	  $finish->penalty->earned = $score;
+	  $finish->earned = $score;
 	}
 	else {
 	  // for the time being, set their earned amount
 	  $avg_finishes[] = $finish;
 	}
-	$finish->penalty->earned = $score;
+	$finish->earned = $score;
 	$score++;
       }
     }
@@ -151,23 +150,20 @@ class ICSACombinedScorer extends ICSAScorer {
       // no other scores to average
       if ($count == 0) {
 	foreach ($div_finishes as $fin) {
-	  $fin->score = new Score($fin->penalty->earned,
-				  sprintf("(%d: no other finishes to average) %s",
-					  $fin->penalty->earned, $fin->penalty->comments));
+	  $fin->score = new Score($fin->earned,
+				  sprintf("(%d: no other finishes to average) %s", $fin->earned, $fin->comments));
 	}
       }
       else {
 	$avg = round($total / $count);
 	foreach ($div_finishes as $fin) {
-	  if ($avg <= $fin->penalty->earned) {
+	  if ($avg <= $fin->earned) {
 	    $fin->score = new Score($avg,
-				    sprintf("(%d: average in division) %s",
-					    $avg, $fin->penalty->comments));
+				    sprintf("(%d: average in division) %s", $avg, $fin->comments));
 	  }
 	  else {
-	    $fin->score = new Score($fin->penalty->earned,
-				    sprintf("(%d: average (%d) is no better) %s",
-					    $fin->penalty->earned, $avg, $fin->penalty->comments));
+	    $fin->score = new Score($fin->earned,
+				    sprintf("(%d: average (%d) is no better) %s", $fin->earned, $avg, $fin->comments));
 	  }
 	}
       }
