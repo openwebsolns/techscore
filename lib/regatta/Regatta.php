@@ -367,8 +367,14 @@ class Regatta extends DBObject {
     $q->order_by(array('total'=>true));
     $q = DB::query($q);
     $ranks = array();
-    while ($obj = $q->fetch_object())
-      $ranks[] = new Rank($this->getTeam($obj->team), $obj->total);
+    while ($obj = $q->fetch_object()) {
+      // This addresses a "bug" in the (My)SQL query above which will
+      // return a row with values null, null if there are no finishes
+      $team = $this->getTeam($obj->team);
+      if ($team !== null)
+	$ranks[] = new Rank($team, $obj->total);
+    }
+    exit;
     $q->free();
     return $ranks;
   }
@@ -1020,6 +1026,7 @@ class Regatta extends DBObject {
    * @return DateTime, or null if no update found
    */
   public function getLastScoreUpdate() {
+    require_once('public/UpdateRequest.php');
     DB::$UPDATE_REQUEST->db_set_order(array('request_time'=>false));
     $res = DB::getAll(DB::$UPDATE_REQUEST, new DBCond('regatta', $this->id));
     $r = (count($res) == 0) ? null : $res[0]->request_time;

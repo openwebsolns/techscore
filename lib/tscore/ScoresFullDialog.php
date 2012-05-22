@@ -70,7 +70,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
 					   array($r = new XTR(array(), array(new XTH(), new XTH(), new XTH(array(), "Team"))))),
 				$tab = new XTBody()));
     if ($num_divs > 1)
-      $r->add(new XTH("Div."));
+      $r->add(new XTH(array(), "Div."));
     for ($i = 1; $i <= $largest_num; $i++) {
       $r->add(new XTH(array('align'=>'right'), $i));
     }
