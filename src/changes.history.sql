@@ -282,3 +282,5 @@ alter table race add column round int default null after number;
 update race, regatta, (select race, min(entered) as time from finish group by race) as finish set race.round = abs(to_days(finish.time) - to_days(regatta.start_time)) + 1 where race.regatta = regatta.id and race.id = finish.race;
 update race set round = 1 where round is null;
 update race set round = null where id not in (select race from finish) and regatta not in (select id from regatta where scoring = 'team');
+
+delete from race where regatta in (select id from regatta where finalized is not null) and id not in (select race from finish);

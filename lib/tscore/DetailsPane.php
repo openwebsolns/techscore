@@ -286,8 +286,15 @@ class DetailsPane extends AbstractPane {
 	throw new SoterException("Please check the box to finalize.");
       
       $this->REGATTA->finalized = new DateTime();
+      $removed = 0;
+      foreach ($this->REGATTA->getUnscoredRaces() as $race) {
+	$this->REGATTA->removeRace($race);
+	$removed++;
+      }
       DB::set($this->REGATTA);
       Session::pa(new PA("Regatta has been finalized."));
+      if ($removed > 0)
+	Session::pa(new PA("Removed $removed unsailed races.", PA::I));
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DETAILS);
     }
   }
