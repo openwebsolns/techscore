@@ -1702,6 +1702,66 @@ class Season extends DBObject {
 				       new DBCondIn('id', DB::prepGetAll(DB::$TEAM, new DBCond('school', $school), array('regatta'))))));
   }
 
+  /**
+   * Return the next season if it exists in the database.
+   *
+   * The "next" season is one of either spring or fall.
+   *
+   * @return Season|null the season
+   * @throws InvalidArgumentException if used with either spring/fall
+   */
+  public function nextSeason() {
+    $next = null;
+    $year = $this->__get('start_date');
+    if ($year === null)
+      throw new InvalidArgumentException("There is no date this season. Thus, no nextSeason!");
+    $year = $year->format('y');
+    switch ($this->season) {
+    case Season::SPRING:
+      $next = 'f';
+      break;
+
+    case Season::FALL:
+      $next = 's';
+      $year++;
+      break;
+
+    default:
+      throw new InvalidArgumentException("Next season only valid for spring and fall.");
+    }
+    return DB::get(DB::$SEASON, $next . $year);
+  }
+
+  /**
+   * Return the previous season if it exists in the database.
+   *
+   * The "previous" season is one of either spring or fall.
+   *
+   * @return Season|null the season
+   * @throws InvalidArgumentException if used with either spring/fall
+   */
+  public function previousSeason() {
+    $next = null;
+    $year = $this->__get('start_date');
+    if ($year === null)
+      throw new InvalidArgumentException("There is no date this season. Thus, no previousSeason!");
+    $year = $year->format('y');
+    switch ($this->season) {
+    case Season::SPRING:
+      $next = 'f';
+      $year--;
+      break;
+
+    case Season::FALL:
+      $next = 's';
+      break;
+
+    default:
+      throw new InvalidArgumentException("Next season only valid for spring and fall.");
+    }
+    return DB::get(DB::$SEASON, $next . $year);
+  }
+
   // ------------------------------------------------------------
   // Static methods
   // ------------------------------------------------------------
@@ -1749,7 +1809,7 @@ class Season extends DBObject {
    */
   public static function getActive() {
     require_once('regatta/PublicDB.php');
-    DB::$SEASON->db_set_order(array('start_date'=>true));
+    DB::$SEASON->db_set_order(array('start_date'=>false));
     $res = DB::getAll(DB::$SEASON, new DBCondIn('id', DB::prepGetAll(DB::$DT_REGATTA, null, array('season'))));
     DB::$SEASON->db_set_order();
     return $res;

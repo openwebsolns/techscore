@@ -284,3 +284,6 @@ update race set round = 1 where round is null;
 update race set round = null where id not in (select race from finish) and regatta not in (select id from regatta where scoring = 'team');
 
 delete from race where regatta in (select id from regatta where finalized is not null) and id not in (select race from finish);
+
+-- use null-byte separator for dt_rp --
+update dt_rp set race_nums = replace(race_nums, ",", "\0");

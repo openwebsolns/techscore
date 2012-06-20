@@ -4,20 +4,14 @@
 // @version 2011-05-06
 
 SEARCH = null;
-ICON = null;
 RESULTS = null;
 INPUT = null;
 ACTIVE = Array();
 TIMEOUT = null;
+REQUEST = null;
 window.onload = function() {
     SEARCH = document.getElementById('name-search');
     SEARCH.onkeyup = launchSearch;
-
-    ICON = document.createElement('img');
-    ICON.setAttribute('src', '/inc/img/question.png');
-    ICON.setAttribute('alt', '?');
-    SEARCH.parentNode.insertBefore(ICON, SEARCH.nextSibling);
-
     INPUT = document.getElementById('aa-input');
     RESULTS = document.createElement('ul');
     RESULTS.setAttribute('id', 'aa-results');
@@ -35,27 +29,28 @@ window.onload = function() {
 };
 
 function launchSearch(evt) {
+    if (REQUEST !== null)
+	REQUEST.abort();
     if (TIMEOUT != null)
 	clearTimeout(TIMEOUT);
-
-    if (SEARCH.value.length < 5) {
-	ICON.setAttribute('src', '/inc/img/question.png');
-	ICON.setAttribute('alt', '?');
-	return;
-    }
-
-    ICON.setAttribute('src', '/inc/img/search.gif');
-    ICON.setAttribute('alt', 'Searching...');
-    
-    TIMEOUT = setTimeout(doSearch, 700);
+    TIMEOUT = setTimeout(doSearch, 200);
 }
 
-function doSearch() {
-    var xml = new XMLHttpRequest();
-    xml.open("GET", '/search?q=' + escape(SEARCH.value), false);
-    xml.send();
+function doSearch(evt) {
+    if (SEARCH.value.length < 5)
+	return;
 
-    doc = xml.responseXML;
+    var doc;
+    REQUEST = new XMLHttpRequest();
+    REQUEST.onreadystatechange = function() {
+	if (REQUEST.readyState == 4 && REQUEST.status == 200)
+	    fillResults(REQUEST.responseXML);
+    };
+    REQUEST.open("GET", '/search?q=' + escape(SEARCH.value), true);
+    REQUEST.send();
+}
+
+function fillResults(doc) {
     var res = doc.getElementsByTagName('Sailor');
     // empty RESULTS
     while (RESULTS.childNodes.length > 0)
@@ -72,24 +67,31 @@ function doSearch() {
 	RESULTS.appendChild(li);
 	var fn = res[i].getElementsByTagName('FirstName')[0];
 	var ln = res[i].getElementsByTagName('LastName')[0];
+	var yr = res[i].getElementsByTagName('Year')[0];
+	var sh = res[i].getElementsByTagName('School')[0];
 
 	var inp = document.createElement('input');
 	inp.setAttribute('type', 'hidden');
 	// inp.setAttribute('name', 'sailor-search[]');
 	inp.setAttribute('value', res[i].getAttribute('id'));
 	li.appendChild(inp);
-	li.appendChild(document.createTextNode(fn.childNodes[0].nodeValue + " " +
-					       ln.childNodes[0].nodeValue));
+	var elm = document.createElement('strong');
+	elm.appendChild(document.createTextNode(fn.childNodes[0].nodeValue + " " +
+						ln.childNodes[0].nodeValue));
+	li.appendChild(elm);
+	li.appendChild(document.createTextNode(" " + yr.childNodes[0].nodeValue +
+					       " (" + sh.childNodes[0].nodeValue + ")"));
+
 	li.style.cursor = 'pointer';
 	li.onclick = promote;
+	elm.onclick = promote;
     }
-
-    ICON.setAttribute('src', '/inc/img/s.png');
-    ICON.setAttribute('alt', '✓');
 }
 
 function promote(evt) {
     var li = evt.target;
+    if (li.nodeName.toLowerCase() == 'strong')
+	li = li.parentNode;
     var id = li.childNodes[0].value;
     
     // is this sailor already in the list?
@@ -110,11 +112,14 @@ function addToInput(old_li) {
     var li = old_li.cloneNode(true);
     li.onclick = demote;
     li.childNodes[0].setAttribute('name', 'sailor[]');
+
     INPUT.appendChild(li);
 }
 
 function demote(evt) {
     var li = evt.target;
+    if (li.nodeName.toLowerCase() == 'strong')
+	li = li.parentNode;
     var id = li.childNodes[0].value;
     li.parentNode.removeChild(li);
     return false;

@@ -22,15 +22,20 @@ if (!Session::has('user')) {
   exit;
 }
 
+require_once('xml5/XmlLib.php');
+$P = new XDoc('SailorSearch', array('version'=>'1.0'));
+
 // Validate input
 if (!isset($_GET['q']) || strlen($_GET['q']) < 3) {
-  Session::pa(new PA("Please provide a long enough query to search.", PA::I));
-  WS::go('/');
+  header('HTTP/1.1 400 Bad request');
+  $P->set('count', -1);
+  $P->add(new XElem('Error', array(), array(new XText("Please provide a long enough query to search."))));
+  $P->printXML();
+  exit;
 }
 
 $results = DB::searchSailors($_GET['q'], true);
-require_once('xml5/XmlLib.php');
-$P = new XDoc('SailorSearch', array('version'=>'1.0', 'count'=>count($results)));
+$P->set('count', count($results));
 foreach ($results as $result) {
   $P->add(new XElem('Sailor', array('id'=>$result->id, 'icsa_id'=>$result->icsa_id),
 		    array(new XElem('FirstName', array(), array(new XText($result->first_name))),
