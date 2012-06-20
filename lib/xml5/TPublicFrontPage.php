@@ -48,7 +48,6 @@ class TPublicFrontPage extends XPage {
 
     // Stylesheets
     $this->head->add(new XMeta('description', "TechScore is the official source for live regatta results of the Intercollegiate Sailing Association."));
-    $this->head->add(new XMeta('author', "Dayán Páez"));
     $this->head->add(new XMeta('keywords', "regatta,results,scores,icsa,sailing"));
     $this->head->add(new LinkCSS('/inc/css/mp-front.css'));
 
@@ -77,10 +76,10 @@ class TPublicFrontPage extends XPage {
     // Footer
     $this->body->add(new XHR(array('class'=>'hidden')));
     $this->body->add(new XDiv(array('id'=>'footdiv'),
-			      array(new XAddress(array(), array(sprintf("%s v%s © Dayán Páez 2008-%s",
+			      array(new XAddress(array(), array(sprintf("%s v%s %s",
 									Conf::$NAME,
 									Conf::$VERSION,
-									date('y')))))));
+									Conf::$COPYRIGHT))))));
 
     $this->filled = true;
   }

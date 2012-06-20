@@ -24,7 +24,7 @@ class UpdateFront {
     require_once('regatta/PublicDB.php');
 
     $success = false;
-    $seasons = DB::getAll(DB::$SEASON, new DBCond('start_date', new DateTime(), DBCond::LE));
+    $seasons = Season::getActive();
     $i = 0;
     foreach ($seasons as $i => $season) {
       if (($success = $this->fillSeason($season))) {

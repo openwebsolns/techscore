@@ -67,7 +67,7 @@ class TScoreDialog extends XPage {
       $c->add($cont);
     
     $this->body->add(new XDiv(array('id'=>'footdiv'),
-			      array(new XP(array(), sprintf("%s v%s © Dayán Páez 2008-%s", Conf::$NAME, Conf::$VERSION, date('y'))))));
+			      array(new XP(array(), sprintf("%s v%s %s", Conf::$NAME, Conf::$VERSION, Conf::$COPYRIGHT)))));
   }
 
   /**

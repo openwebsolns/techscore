@@ -16,6 +16,7 @@
  */
 class Conf {
   public static $VERSION = '3.0-beta';
+  public static $COPYRIGHT = '© OpenWeb Solutions, LLC 2008-2012';
 
   // Logging options
   public static $LOG_UPDATE = '/dev/null';
