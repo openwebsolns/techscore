@@ -252,12 +252,13 @@ class CompareHeadToHead extends AbstractUserPane {
     }
 
     // Other options, and submit
-    $form->add($p = new XPort("3. Submit"));
-    $p->add(new XP(array(), "By default, the comparison only includes the regattas in which all sailors have participated. To list the full record of the sailor, check the box below."));
-    $p->add(new FItem($chk = new XCheckboxInput('head-to-head', 1, array('id' => 'f-req')),
-		      new XLabel('f-req', "Only include records in which all sailors participate head-to-head.")));
-    if (!$fullreq)
-      $chk->set('checked', 'checked');
+    if (!isset($sailors) || count($sailors) > 1) {
+      $form->add($p = new XPort("3. Submit"));
+      $p->add(new XP(array(), "By default, the comparison only includes the regattas in which all sailors have participated. To list the full record of the sailor, check the box below."));
+      $p->add(new FItem($chk = new XCheckboxInput('head-to-head', 1, array('id' => 'f-req')),
+			new XLabel('f-req', "Only include records in which all sailors participate head-to-head.")));
+      if (!$fullreq)
+	$chk->set('checked', 'checked');
 
     $p->add(new XP(array(), "Head to head compares sailors that race against each other, that is: in the same division in the same regatta. To compare the sailors' records within the regatta regardless of division, check the box below. Note that this choice is only applicable if using full-records."));
 
@@ -265,6 +266,8 @@ class CompareHeadToHead extends AbstractUserPane {
 		      new XLabel('f-grp', "Group separate divisions in the same regatta in one row, instead of separately.")));
     if ($grouped)
       $chk->set('checked', 'checked');
+    }
+
     $form->add(new XSubmitP('set-sailors', "Fetch records"));
   }
 
