@@ -33,7 +33,7 @@ class TPublicPage extends XPage {
     $this->menu = new XDiv(array('id'=>'menudiv'));
     $this->navigation = new XDiv(array('id'=>'topnav'));
     $this->content = new XDiv(array('id'=>'body'));
-    $this->announce = new XDiv(array('id'=>'announcediv'));
+    $this->content->add($this->announce = new XDiv(array('id'=>'announcediv')));
   }
 
   /**
@@ -54,10 +54,6 @@ class TPublicPage extends XPage {
 					    array(new XLi(new XA('#menu', "Menu")),
 						  new XLi(new XA('#body', "Content")))))));
 
-    // Menu
-    $this->body->add($this->menu);
-    $this->body->add(new XHR(array('class'=>'hidden')));
-
     // Header
     $this->body->add($div = new XDiv(array('id'=>'headdiv')));
     $div->add($sub = new XDiv(array('id'=>'header')));
@@ -65,13 +61,17 @@ class TPublicPage extends XPage {
     $sub->add(new XH4(date('M j, Y @ H:i:s'), array('id'=>'date')));
     $div->add($this->navigation);
 
+    // Menu
+    $this->body->add(new XH3("Main Menu", array('id'=>'menu', 'class'=>'hidden')));
+    $this->body->add($this->menu);
+    $this->body->add(new XHR(array('class'=>'hidden')));
+
     $this->body->add($this->content);
-    $this->content->add($this->announce);
 
     // Footer
     $this->body->add(new XDiv(array('id'=>'footdiv'),
-			      array(new XP(array(),
-					   sprintf("%s v%s %s", Conf::$NAME, Conf::$VERSION, Conf::$COPYRIGHT)))));
+			      array(new XAddress(array(),
+						 array(sprintf("%s v%s %s", Conf::$NAME, Conf::$VERSION, Conf::$COPYRIGHT))))));
 
     $this->filled = true;
   }
@@ -99,8 +99,8 @@ class TPublicPage extends XPage {
    *
    * @param Xmlable $elem the element to add
    */
-  public function addMenu(Xmlable $elem) {
-    $this->menu->add($elem);
+  public function addMenu($elem, Array $attr = array()) {
+    $this->menu->add(new XLi($elem, $attr));
   }
 
   /**

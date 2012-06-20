@@ -1659,6 +1659,20 @@ class Season extends DBObject {
   }
 
   /**
+   * Is this the season for the given date (or right now)?
+   *
+   * @param DateTime|null $time if given, the time to check, or "now"
+   * @return boolean true if so
+   */
+  public function isCurrent(DateTime $time = null) {
+    if ($this->__get('start_date') === null || $this->__get('end_date') === null)
+      return false;
+    if ($time === null)
+      $time = DB::$NOW;
+    return ($time > $this->__get('start_date') && $time < $this->__get('end_date'));
+  }
+
+  /**
    * Returns a list of week numbers in this season. Note that weeks go
    * Monday through Sunday.
    *

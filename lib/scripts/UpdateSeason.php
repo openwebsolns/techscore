@@ -51,10 +51,24 @@ class UpdateSeason {
       $weeks[$week][] = $reg;
     }
 
-    // SETUP navigation
-    $this->page->addNavigation(new XA('.', $season->fullString(), array('class'=>'nav')));
-    $this->page->addMenu(new XA('#summary', "Summary"));
-    $this->page->addMenu(new XA('#all', "Weekends"));
+    // SETUP menu (schools link + all seasons)
+    $this->page->addMenu(new XA('/schools/', "Schools"));
+    $seasons = Season::getActive();
+    foreach ($seasons as $i => $season) {
+      if ($i == 4)
+	break;
+      $attr = ((string)$season == (string)$this->season) ? array('class'=>'emph') : array();
+      $this->page->addMenu(new XA('/'.$season.'/', $season->fullString()), $attr);
+    }
+    // Add remaining seasons as submenu
+    if ($i < count($seasons)) {
+      $this->page->addMenu(array(new XSpan("More..."),
+				 $ul = new XUl(array('class'=>'submenu'))));
+      for (; $i < count($seasons); $i++) {
+	$attr = ((string)$seasons[$i] == (string)$this->season) ? array('class'=>'emph') : array();
+	$ul->add(new XLi(new XA('/'.$seasons[$i].'/', $seasons[$i]->fullString()), $attr));
+      }
+    }
 
     // SEASON summary
     $this->page->addSection($summary_port = new XPort("Season summary"));
@@ -266,7 +280,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
 
   try {
     UpdateSeason::run($season);
-    error_log(sprintf("I:0:%s\t(%s): Successful!\n", date('r'), $season), 3, LOG_SEASON);
+    error_log(sprintf("I:0:%s\t(%s): Successful!\n", date('r'), $season), 3, Conf::$LOG_SEASON);
   }
   /*
     catch (InvalidArgumentException $e) {
@@ -282,7 +296,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
 		      date('r'),
 		      $argv[1],
 		      $e->getMessage()),
-	      3, LOG_SEASON);
+	      3, Conf::$LOG_SEASON);
     print_r($e->getTrace());
   }
 }
