@@ -35,7 +35,7 @@ class LoginPage extends AbstractUserPane {
     // LOGIN MENU
     $this->PAGE->addContent($p = new XPort("Sign-in"));
     $p->add($form = new XForm("/dologin", XForm::POST));
-    $form->add(new FItem("Username:", new XTextInput("userid", "", array("maxlength"=>"40"))));
+    $form->add(new FItem("Email:", new XTextInput("userid", "", array("maxlength"=>"40"))));
     $form->add($fi = new FItem("Password:", new XPasswordInput("pass", "", array("maxlength"=>"48"))));
     $fi->add(new XMessage(new XA('/password-recover', "Forgot your password?")));
 
@@ -78,7 +78,10 @@ class LoginPage extends AbstractUserPane {
     $passwd = DB::$V->reqRaw($args, 'pass', 1, 101, "Please enter a password.");
 
     $user = DB::getAccount($userid);
-    if ($user === null || $user->password !== sha1($passwd))
+    if ($user === null)
+      throw new SoterException("Invalid username/password.");
+    $hash = hash('sha512', $user->id . "\0" . sha1($passwd) . "\0" . Conf::$PASSWORD_SALT);
+    if ($user->password !== $hash)
       throw new SoterException("Invalid username/password.");
     if (is_array(Conf::$DEBUG_USERS) && !in_array($user->id, Conf::$DEBUG_USERS))
       throw new SoterException("We apologize, but log in has been disabled temporarily. Please try again later.");

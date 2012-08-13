@@ -57,6 +57,11 @@ class Conf {
   public static $SQL_PASS = '';
   public static $SQL_DB   = 'ts2';
 
+  /**
+   * @var String the salt to use for storing passwords in the database
+   */
+  public static $PASSWORD_SALT = '';
+
   // Error handler
   public static $ERROR_HANDLER = 'mail'; // 'mail' or 'print'
 

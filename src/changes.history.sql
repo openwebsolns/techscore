@@ -287,3 +287,6 @@ delete from race where regatta in (select id from regatta where finalized is not
 
 -- use null-byte separator for dt_rp --
 update dt_rp set race_nums = replace(race_nums, ",", "\0");
+
+-- allow for new hashed passwords --
+alter table account change password password varchar(128) null;

@@ -30,6 +30,8 @@ Conf::$SQL_USER = 'ts2';
 conf::$SQL_PASS = '';
 conf::$SQL_DB   = 'ts2';
 
+Conf::$PASSWORD_SALT = 'Enter password salt here. Longer is better.';
+
 // LOG FILES
 Conf::$LOG_UPDATE = realpath(dirname(__FILE__).'/../log/update.log');
 Conf::$LOG_SEASON = realpath(dirname(__FILE__).'/../log/season.log');
