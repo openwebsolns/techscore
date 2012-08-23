@@ -269,6 +269,7 @@ alter table school add column inactive datetime default null;
 -- dt_rp fixings... some assembly may be required --
 update dt_rp, sailor set dt_rp.sailor = sailor.id where dt_rp.sailor = sailor.icsa_id;
 delete from dt_rp where sailor not in (select id from sailor);
+alter table dt_rp change column sailor sailor mediumint(9) not null;
 alter table dt_rp add foreign key (sailor) references sailor(id) on delete cascade on update cascade;
 
 -- team races require the logical grouping of races into rounds. This
