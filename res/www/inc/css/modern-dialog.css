@@ -233,21 +233,18 @@ table.divisional tr {
 }
 
 /* Announce */
-#announcediv 
-{
-  background: #f3ebe0;
-  border: 1px solid #5b6065;
-  margin: auto;
-  margin-top: 10px;
-  font-size: 0.9em;
-  width: 820px;
-  }
-#announcediv p 
-{
-  margin: 15px;
-  margin-top: 5px;
-  margin-bottom: 5px;
-  }
+#announcements {
+    margin:1em auto;
+    font-size:0.9em;
+    width:820px;
+    padding:0;
+}
+#announcements li {    list-style-type: none; padding: 0.5em;}
+#announcements .error {background:#eed2c0;border:1px solid brown;}
+p.valid, #announcements .success {background:#e0f3e0;border:1px solid green;}
+p.warning, #announcements .warn {background:#f3f3bb;border:1px solid orange;}
+p.warning {padding: 0.5em;}
+#announcements img {margin-right:0.5em;}
 
 #footdiv 
 {

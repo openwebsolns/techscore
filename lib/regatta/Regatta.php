@@ -358,7 +358,10 @@ class Regatta extends DBObject {
   public function getRanks(Array $divs) {
     $ranks = array();
     $racec = new DBCondIn('race',
-			  DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('id')));
+			  DB::prepGetAll(DB::$RACE,
+					 new DBBool(array(new DBCond('regatta', $this->id),
+							  new DBCondIn('division', $divs))),
+					 array('id')));
     foreach ($this->getTeams() as $team) {
       $q = DB::prepGetAll(DB::$FINISH, new DBBool(array(new DBCond('team', $team), $racec)));
       $q->fields(array(new DBField('score', 'sum', 'total')), DB::$FINISH->db_name());

@@ -137,7 +137,7 @@ elseif (isset($_REQUEST['v'])) {
 	$PAGE = new ScoresDivisionDialog($REG, new Division($div));
       } catch (Exception $e) {
 	Session::pa(new PA($e->getMessage(), PA::I));
-	$PAGE = new ScoresFullDialog($REG);
+	WS::go(sprintf('/view/%s/scores', $REG->id));
       }
       break;
 
