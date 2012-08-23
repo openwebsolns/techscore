@@ -107,11 +107,14 @@ class UpdateDaemon {
     }
 
     // Create file lock
-    file_put_contents(self::$lock_file, date('r'));
+    if (file_put_contents(self::$lock_file, date('r')) === false)
+      throw new RuntimeException("Unable to create lock file!");
+    register_shutdown_function("UpdateDaemon::cleanup");
 
-    // Check queueu
+    // Check queue
     $requests = UpdateManager::getPendingRequests();
-    if (count($requests) == 0) self::cleanup();
+    if (count($requests) == 0)
+      return;
 
     // Sort the requests by regatta, and then by type
     // assoc list of regatta id => list of unique requests
@@ -232,11 +235,16 @@ class UpdateDaemon {
     }
 
     // Remove lock
-    self::cleanup();
     self::report('done OK');
   }
-  private static function cleanup() {
-    @unlink(self::$lock_file);
+
+  /**
+   * Removes lock file prior to exiting, one way or another.
+   *
+   */
+  public static function cleanup() {
+    if (file_exists(self::$lock_file) && !unlink(self::$lock_file))
+      throw new RuntimeException("(EE) Unable to delete lock file while cleaning up!");
     exit(0);
   }
 
