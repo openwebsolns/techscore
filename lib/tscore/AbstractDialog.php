@@ -40,14 +40,8 @@ abstract class AbstractDialog {
     $this->PAGE = new TScoreDialog($this->name);
     $this->PAGE->addContent(new XPageTitle($this->name));
 
-    // Menu
-    $this->PAGE->addMenu($h = new XH4("Refresh"));
-    $h->add(new XLi(new XA($_SERVER['REQUEST_URI'], "Refresh")));
-
     //   -Regatta info
-    $this->PAGE->addNavigation(new XDiv(array("id"=>"regatta"),
-					array(new XP(array(), $this->REGATTA->name),
-					      new XUl(array(), array(new XLi(ucfirst($this->REGATTA->type)))))));
+    $this->PAGE->addHeader(new XH4($this->REGATTA->name, array('id'=>'regata')));
   }
 
   /**

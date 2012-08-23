@@ -18,9 +18,8 @@ require_once('xml5/TS.php');
  */
 class TScoreDialog extends XPage {
 
-  // Private variables
+  // Containers for Xmlable
   private $header;
-  private $navigation;
   private $menu;
   private $content;
 
@@ -32,31 +31,42 @@ class TScoreDialog extends XPage {
    * @param String $title the title of the page
    */
   public function __construct($title) {
-    parent::__construct((string)$title);
+    parent::__construct((string)$title . " | " . Conf::$NAME);
     $this->filled = false;
-    $this->menu = new XDiv(array('id'=>'menudiv'));
-    $this->header = new XDiv(array('id'=>'headdiv'));
+    $this->menu = array();
+    $this->header = array();
     $this->content = array();
-    $this->navigation = new XDiv(array('id'=>'topnav'));
   }
 
   private function fill() {
     if ($this->filled) return;
     $this->filled = true;
 
-    $this->fillHead();
-
-    // Menu
-    $this->body->add($this->menu);
-    $this->body->add(new XHr(array("class"=>"hidden")));
-    $this->body->add($this->header);
+    // HTML HEAD element
+    // CSS Stylesheets
+    $this->head->add(new LinkCSS('/inc/css/modern-dialog.css'));
+    $this->head->add(new LinkCSS('/inc/css/print.css','print'));
+    
+    // Javascript
+    foreach (array("jquery-1.3.min.js",
+		   "jquery.tablehover.min.js",
+		   "jquery.columnmanager.min.js") as $scr) {
+      $this->head->add(new XScript('text/javascript', "/inc/js/$scr"));
+    }
 
     // Header
-    $this->fillPageHeader();
+    $this->body->add($div = new XDiv(array('id'=>'headdiv')));
+    $div->add(new XH1(new XImg("/inc/img/techscore.png", Conf::$NAME, array("id"=>"headimg"))));
+    $div->add(new XH4(date("D M j, Y"), array("id"=>"date")));
+    foreach ($this->header as $sub)
+      $div->add($sub);
 
-    // Bottom grab/spacer
-    $this->body->add($div = new XDiv(array('id'=>'bottom-grab')));
-
+    // Menu
+    $this->body->add(new XHr(array("class"=>"hidden")));
+    $this->body->add($div = new XDiv(array('id'=>'menudiv')));
+    foreach ($this->menu as $sub)
+      $div->add($sub);
+    
     // Content
     $this->body->add($c = new XDiv(array('id'=>'bodydiv')));
 
@@ -68,38 +78,6 @@ class TScoreDialog extends XPage {
     
     $this->body->add(new XDiv(array('id'=>'footdiv'),
 			      array(new XP(array(), sprintf("%s v%s %s", Conf::$NAME, Conf::$VERSION, Conf::$COPYRIGHT)))));
-  }
-
-  /**
-   * Fills the head element of this page
-   *
-   */
-  private function fillHead() {
-    // CSS Stylesheets
-    $this->head->add(new LinkCSS('/inc/css/modern-dialog.css'));
-    $this->head->add(new LinkCSS('/inc/css/print.css','print'));
-    
-    // Javascript
-    foreach (array("jquery-1.3.min.js",
-		   "jquery.tablehover.min.js",
-		   "jquery.columnmanager.min.js",
-		   "refresher.js") as $scr) {
-      $this->head->add(new XScript('text/javascript', "/inc/js/$scr"));
-    }
-  }
-
-  /**
-   * Creates the header of this page
-   *
-   */
-  private function fillPageHeader() {
-    $this->header->add(new XDiv(array('id'=>'header'),
-				array(new XH1(new XImg("/inc/img/techscore-small.png", Conf::$NAME, array("id"=>"headimg"))),
-				      new XH4(date("D M j, Y"), array("id"=>"date")))));
-    
-    $this->header->add($this->navigation);
-    $this->navigation->add(new XA("../help", "Help?",
-				  array("id"=>"help","target"=>"_blank")));
   }
 
   /**
@@ -118,7 +96,7 @@ class TScoreDialog extends XPage {
    * @param Xmlable $elem to add to the menu of this page
    */
   public function addMenu(Xmlable $elem) {
-    $this->menu->add($elem);
+    $this->menu[] = $elem;
   }
 
   /**
@@ -127,16 +105,7 @@ class TScoreDialog extends XPage {
    * @param Xmlable $elem to add to the page header
    */
   public function addHeader(Xmlable $elem) {
-    $this->header->add($elem);
-  }
-
-  /**
-   * Adds the given element to the navigation part
-   *
-   * @param Xmlable $elem to add to navigation
-   */
-  public function addNavigation(Xmlable $elem) {
-    $this->navigation->add($elem);
+    $this->header[] = $elem;
   }
 
   public function toXML() {

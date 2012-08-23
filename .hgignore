@@ -7,7 +7,6 @@ log/*.log*
 
 # Backup and image sources
 *~
-*.svg
 
 # Errors and local files
 _errors.log
