@@ -30,7 +30,6 @@ class LoginPage extends AbstractUserPane {
   protected function fillHTML(Array $args) {
     if (Conf::$USER !== null)
       WS::go('/');
-    Session::pa(new PA("Please login to proceed.", PA::I));
 
     // LOGIN MENU
     $this->PAGE->addContent($p = new XPort("Sign-in"));

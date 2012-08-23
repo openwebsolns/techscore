@@ -16,6 +16,7 @@ if (!Session::has('user')) {
   Session::s('last_page', $_SERVER['REQUEST_URI']);
 
   // provide the login page
+  Session::pa(new PA("Please login to proceed.", PA::I));
   require_once('users/LoginPage.php');
   $PAGE = new LoginPage();
   $PAGE->getHTML($_GET);
