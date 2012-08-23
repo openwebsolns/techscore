@@ -186,13 +186,31 @@ table.results tbody *
 table.results th  {
     text-align: right;
 }
-table.results tr.totalrow 
+.totalrow, .totalcell
 {
-  border-bottom: 1px solid #bbbbbb;
   background: #f3ebe0;
   color: #333;
   font-weight: bold;
-  }
+}
+tr.totalrow td {
+  border-bottom: 1px solid #bbbbbb;
+}
+
+tr.topborder td {
+    border-top: 1px solid #bbb;
+}
+
+td.races {
+    text-align: left;
+    font-size: 95%;
+    color: #555;
+    padding-left: 0.5em;
+}
+
+
+td.schoolname, td.teamname {
+    text-align: left;
+}
 
 /* Table fixes */
 td.noborder, th.noborder, tr.noborder 
@@ -208,33 +226,11 @@ colgroup
 td.total 
 {
   color: black;
-  }
+}
 
-/* Forms */
-div.form_entry 
-{
-  margin-bottom: 1em;
-  }
-.form_h 
-{
-  display: inline-block;
-  zoom: 1;
-  *display: inline;
-  width: 10em;
-  text-align: right;
-  margin-right: 1em;
-  font-weight: bold;
-  color: #5b6065;
-  vertical-align: top;
-  }
-.form_b 
-{
-  display: inline-block;
-  zoom: 1;
-  *display: inline;
-  vertical-align: top;
-  margin-left: 1em;
-  }
+table.divisional tr {
+    border-bottom: 1px solid #bbb;
+}
 
 /* Announce */
 #announcediv 

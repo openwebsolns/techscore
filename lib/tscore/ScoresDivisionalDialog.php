@@ -57,7 +57,7 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
       $races[(string)$div] = $this->REGATTA->getScoredRaces($div);
     $num_divs  = count($divisions);
 
-    $t = new XTable(array('class'=>'results coordinate'),
+    $t = new XTable(array('class'=>'results coordinate divisional'),
 		    array(new XTHead(array(),
 				     array($r = new XTR(array(),
 							array(new XTH(),
@@ -129,7 +129,7 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
 	$s_cell->set("class", "total");
 	$scoreTeam += $scoreDiv;
       }
-      $r->add(new XTD(array('class'=>'total'), $scoreTeam));
+      $r->add(new XTD(array('class'=>'totalcell'), $scoreTeam));
     }
 
     // Print legend, if necessary

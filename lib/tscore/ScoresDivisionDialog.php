@@ -72,7 +72,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
 								  $penalty_th = new XTH(),
 								  new XTH(array(), "Total"),
 								  new XTH(array(), "Sailors"),
-								  new XTH(""))))),
+								  new XTH(array(), ""))))),
 				   $tab = new XTBody())));
     $has_penalties = false;
 
@@ -123,20 +123,25 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
       $img = ($rank->team->school->burgee == null) ? '' :
 	new XImg(sprintf('%s/inc/img/schools/%s.png', $PREFIX, $rank->team->school->id), $rank->team->school->id,
 		 array('height'=>'30px'));
-      $r1 = new XTR(array('class'=>'strong row' . $rowIndex % 2, 'align' => 'left'),
+      $r1 = new XTR(array('class'=>'topborder row' . $rowIndex % 2, 'align' => 'left'),
 		    array(new XTD(array('title'=>$rank->explanation, 'class'=>'tiebreaker'), new XRawText($sym)),
 			  $ord = new XTD(array(), $order++),
 			  new XTD(array(), $img),
-			  $sch = new XTD(array(), $ln),
+			  $sch = new XTD(array('class'=>'schoolname'), $ln),
 			  $pen = new XTD(),
-			  new XTD(array(), $total)));
+			  new XTD(array('class'=>'totalcell'), $total)));
       if ($penalty != null) {
 	$pen->add($penalty->type);
 	$pen->set("title", sprintf("%s (+20 points)", $penalty->comments));
       }
 
       $r2 = new XTR(array('class'=>'row'.($rowIndex % 2), 'align'=>'left'),
-		    array(new XTD(), new XTD(), new XTD(), $sch = new XTD($rank->team->name), new XTD(), new XTD()));
+		    array(new XTD(),
+			  new XTD(),
+			  new XTD(),
+			  $sch = new XTD(array('class'=>'teamname'), $rank->team->name),
+			  new XTD(),
+			  new XTD(array('class'=>'totalcell'))));
       
       $headerRows = array($r1, $r2);
 
@@ -163,7 +168,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
 				 new XTD(),
 				 new XTD(),
 				 new XTD(),
-				 new XTD()));
+				 new XTD(array('class'=>'totalcell'))));
 	    $s_rows[] = $row;
 	  }
 
