@@ -13,10 +13,9 @@ if (Conf::$USER === null) {
   Session::s('last_page', preg_replace(':^/edit/:', '/', $_SERVER['REQUEST_URI']));
 
   // provide the login page
-  Session::pa(new PA("Please login to proceed.", PA::I));
-  require_once('xml/WelcomePage.php');
-  $PAGE = new WelcomePage();
-  $PAGE->printXML();
+  require_once('users/LoginPage.php');
+  $PAGE = new LoginPage();
+  $PAGE->getHTML($_GET);
   exit;
 }
 
