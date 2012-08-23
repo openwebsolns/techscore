@@ -33,7 +33,7 @@ h4#regatta {font-weight:bold;}
 #bottom-grab {display:none;}
 #bodydiv {position:absolute;top:70px;width:920px;padding:15px;padding-top:0px;border-bottom:1px solid #555555;margin-bottom:20px;}
 #bodydiv, #menudiv, #headdiv {border-left:1px solid #555555;border-right:1px solid #555555;}
-.port {border:1px solid #cccccc;padding:0 1em;margin-bottom:1.5em;}
+.port {border:1px solid #cccccc;padding:0 1em 0.5em;margin-bottom:1.5em;}
 .port h3 {
     color:#555555;
     margin:0;

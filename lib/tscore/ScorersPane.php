@@ -87,7 +87,7 @@ class ScorersPane extends AbstractPane {
     if ($count > 0) {
       $s_form->add(new XP(array(), "Choose an account to add from the list below and click \"Add scorer\" below."));
       $s_form->add($l = new LinksDiv($npp, $num, sprintf('/score/%s/scorers', $this->REGATTA->id), array(), 'r', '#list'));
-      $s_form->add($tab = new XQuickTable(array(), array("", "First name", "Last name", "School")));
+      $s_form->add($tab = new XQuickTable(array('class'=>'full'), array("", "First name", "Last name", "School")));
       for ($i = $NPP * ($num - 1); $i < $NPP * $num && $i < $count; $i++) {
 	$user = $accounts[$i];
 	if (!isset($scorers[$user->id])) {
