@@ -83,9 +83,6 @@ if (isset($args['crontab'])) {
   $str = str_replace('{DB_DB}', Conf::$SQL_DB, $str);
   $str = str_replace('{CRON_MAILTO}', Conf::$ADMIN_MAIL, $str);
   $str = str_replace('{CRON_FREQ}', Conf::$CRON_FREQ, $str);
-  $str = str_replace('{CRON_BUP_TIME}', Conf::$CRON_BUP, $str);
-  $str = str_replace('{CRON_BUP_USER}', Conf::$DB_BUP_USER, $str);
-  $str = str_replace('{CRON_BUP_RECIP}', Conf::$ADMIN_MAIL, $str);
 
   $output = $pwd . '/src/crontab';
   if (file_put_contents($output, $str) === false)

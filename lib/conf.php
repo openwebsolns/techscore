@@ -143,14 +143,6 @@ class Conf {
    * daemon, in a crond-compatible way
    */
   public static $CRON_FREQ = '*/5';
-  /**
-   * @var cronline the times to run the database backup
-   */
-  public static $CRON_BUP = '3 5 1,8,15,22 * *';
-  /**
-   * @var String the SQL user to connect as for backup
-   */
-  public static $DB_BUP_USER = 'backup';
 }
 
 function __autoload($name) {

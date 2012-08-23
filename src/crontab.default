@@ -1,4 +1,4 @@
-# Cron job for updating the public site
+# Cron tasks for TechScore
 #
 # To install: This file should be copied and modified as 'crontab' and
 # then installed by a user that can actually update the site
@@ -29,12 +29,5 @@ MAILTO = {CRON_MAILTO}
 26 4 13 * * /usr/bin/php {DIRECTORY}/lib/scripts/Update404.php schools
 
 #--------------------------------
-# Send back-ups
-{CRON_BUP_TIME} mysqldump {DB_DB} -u {CRON_BUP_USER} --skip-lock-tables | bzip2 > /tmp/backup.bz2; uuencode /tmp/backup.bz2 backup.bz2 | mail -s "TSB $(date +\%F)" {CRON_BUP_RECIP}; rm /tmp/backup.bz2
-
-#--------------------------------
 # Process mail messages
 27 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/ProcessOutbox.php
-
-#--------------------------------
-# @TODO: Other updates like backups, etc

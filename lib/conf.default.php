@@ -13,8 +13,6 @@
 //Conf::$HTTP_CERTKEYPATH = '/etc/httpd/certs/ts2.key';
 //Conf::$HTTP_CERTCHAINPATH = null;
 //Conf::$CRON_FREQ = '*/5';
-//Conf::$CRON_BUP = '3 5 1,8,15,22 * *';
-//Conf::$DB_BUP_USER = 'backup';
 
 // The following constants are used to identify the TechScore program
 // and the web environment. Take a look at the class Conf in conf.php
