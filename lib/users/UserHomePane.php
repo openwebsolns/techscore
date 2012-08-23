@@ -31,7 +31,7 @@ class UserHomePane extends AbstractUserPane {
    * @return String the HTML code
    */
   protected function fillHTML(Array $args) {
-    $pageset  = (isset($args['page'])) ? (int)$args['page'] : 1;
+    $pageset  = (isset($args['r'])) ? (int)$args['r'] : 1;
     if ($pageset < 1)
       WS::go("home");
     $startint = self::NUM_PER_PAGE * ($pageset - 1);
@@ -95,7 +95,7 @@ class UserHomePane extends AbstractUserPane {
 
     // Offer pagination awesomeness
     require_once('xml5/PageWhiz.php');
-    $whiz = new PageWhiz($num_regattas, self::NUM_PER_PAGE, 'home', $_GET);
+    $whiz = new PageWhiz($num_regattas, self::NUM_PER_PAGE, '/', $_GET);
     $p->add($whiz->getSearchForm($qry, 'q', $empty_mes, "Search your regattas: "));
     $p->add($ldiv = $whiz->getPages('r', $_GET));
 

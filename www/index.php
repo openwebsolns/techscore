@@ -9,7 +9,6 @@
  */
 
 require_once('conf.php');
-require_once('WS.php');
 
 // ------------------------------------------------------------
 // Not logged-in?

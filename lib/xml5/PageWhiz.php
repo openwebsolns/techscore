@@ -68,6 +68,9 @@ class PageWhiz {
     $this->args = $args;
     $this->num_pages = ceil($count / $NPP);
     $this->base = $base;
+
+    // Do not include page argument
+    unset($this->args['p']);
   }
 }
 ?>
