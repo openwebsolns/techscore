@@ -64,7 +64,6 @@ class ScoresFullDialog extends AbstractScoresDialog {
       }
     }
 
-    
     $ELEMS[] = new XTable(array('class'=>'results coordinate'),
 			  array(new XTHead(array(),
 					   array($r = new XTR(array(), array(new XTH(), new XTH(), new XTH(array(), "Team"))))),
@@ -82,7 +81,6 @@ class ScoresFullDialog extends AbstractScoresDialog {
     // one a successive symbol.
     $tiebreakers = array("" => "");
     $ranks = $this->REGATTA->scorer->rank($this->REGATTA);
-
     foreach ($ranks as $rank) {
       if (!empty($rank->explanation) && !isset($tiebreakers[$rank->explanation])) {
 	$count = count($tiebreakers);

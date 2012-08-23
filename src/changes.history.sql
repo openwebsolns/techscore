@@ -291,3 +291,6 @@ update dt_rp set race_nums = replace(race_nums, ",", "\0");
 
 -- allow for new hashed passwords --
 alter table account change password password varchar(128) null;
+
+-- reattach burgees --
+update school, burgee set school.burgee = burgee.id where school.id = burgee.school;

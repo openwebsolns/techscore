@@ -356,26 +356,18 @@ class Regatta extends DBObject {
    * @param Array:Division $divs the divisions to use for the ranking
    */
   public function getRanks(Array $divs) {
-    $q = DB::createQuery();
-    $q->fields(array(new DBField('team'),
-		     new DBField('score', 'sum', 'total')), DB::$FINISH->db_name());
-    $q->where(new DBCondIn('race',
-			   DB::prepGetAll(DB::$RACE,
-					  new DBBool(array(new DBCondIn('division', $divs),
-							   new DBCond('regatta', $this->id))),
-					  array('id'))));
-    $q->order_by(array('total'=>true));
-    $q = DB::query($q);
     $ranks = array();
-    while ($obj = $q->fetch_object()) {
-      // This addresses a "bug" in the (My)SQL query above which will
-      // return a row with values null, null if there are no finishes
-      $team = $this->getTeam($obj->team);
-      if ($team !== null)
-	$ranks[] = new Rank($team, $obj->total);
+    $racec = new DBCondIn('race',
+			  DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('id')));
+    foreach ($this->getTeams() as $team) {
+      $q = DB::prepGetAll(DB::$FINISH, new DBBool(array(new DBCond('team', $team), $racec)));
+      $q->fields(array(new DBField('score', 'sum', 'total')), DB::$FINISH->db_name());
+      $q = DB::query($q);
+      $r = $q->fetch_object();
+
+      $ranks[] = new Rank($team, $r->total);
     }
-    exit;
-    $q->free();
+    usort($ranks, "Rank::compareScore");
     return $ranks;
   }
 
