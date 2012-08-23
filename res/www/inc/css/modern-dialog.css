@@ -177,7 +177,7 @@ table tbody
   border: 1px solid #bbbbbb;
   }
 
-table.results tbody * 
+table.results tbody *, table.rotation tbody *, table.sailors tbody *
 {
   border: none;
   font-family: monospace;
@@ -207,6 +207,9 @@ td.races {
     padding-left: 0.5em;
 }
 
+.row1 {
+    background: #fff8ee;
+}
 
 td.schoolname, td.teamname {
     text-align: left;
@@ -230,6 +233,12 @@ td.total
 
 table.divisional tr {
     border-bottom: 1px solid #bbb;
+}
+
+table.sailors ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
 }
 
 /* Announce */

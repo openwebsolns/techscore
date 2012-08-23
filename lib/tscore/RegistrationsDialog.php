@@ -29,7 +29,7 @@ class RegistrationsDialog extends AbstractDialog {
     $rpManager = $this->REGATTA->getRpManager();
 
     $this->PAGE->addContent($p = new XPort("Registrations"));
-    $p->add($tab = new XQuickTable(array('class'=>'ordinate'), array("Team", "Div.", "Skipper", "Crew")));
+    $p->add($tab = new XQuickTable(array('class'=>'ordinate sailors'), array("Team", "Div.", "Skipper", "Races", "Crew", "Races")));
 
     $races_in_div = array();
     foreach ($divisions as $div)
@@ -41,41 +41,56 @@ class RegistrationsDialog extends AbstractDialog {
       $is_first = true;
       // For each division
       foreach ($divisions as $div) {
-	$row = array();
-	if ($is_first) {
-	  $is_first = false;
-          // Removed burgee printing to be fixed later TODO
-	  $row[] = $team;
-	}
-	else {
-	  $row[] = "";
-	}
-	$row[] = $div;
-
 	// Get skipper and crew
 	$skips = $rpManager->getRP($team, $div, RP::SKIPPER);
 	$crews = $rpManager->getRP($team, $div, RP::CREW);
 
-	// Skippers
-	$list = array();
-	foreach ($skips as $s) {
-	  $li = new XLi($sailor);
-	  if (count($s->races_nums) != $races_in_div[(string)$div])
-	    $li->add(new XSpan(DB::makeRange($s->races_nums), array('class'=>'races')));
-	  $list[] = $li;
-	}
-	$row[] = (count($list) > 0) ? new XUl(array(), $list) : "";
+	$num_subrows = max(count($skips), count($crews));
+	for ($i = 0; $i < $num_subrows; $i++) {
+	  $row = array();
+	  $cls = '';
+	  if ($is_first) {
+	    $is_first = false;
+	    $cls = 'topborder ';
+	    $row[] = new XTD(array('class'=>'schoolname teamname'), $team);
+	  }
+	  else {
+	    $row[] = "";
+	  }
+	  // Division
+	  if ($i == 0)
+	    $row[] = $div;
+	  else
+	    $row[] = "";
 
-	// Crews
-	$list = array();
-	foreach ($crews as $c) {
-	  $li = new XLi($sailor);
-	  if (count($c->races_nums) != $races_in_div[(string)$div])
-	    $li->add(new XSpan(DB::makeRange($c->races_nums), array('class'=>'races')));
-	  $list[] = $li;
+	  // Skipper and his races
+	  if (isset($skips[$i])) {
+	    $row[] = $skips[$i]->sailor;
+	    if (count($skips[$i]->races_nums) != $races_in_div[(string)$div])
+	      $row[] = new XTD(array('class'=>'races'), DB::makeRange($skips[$i]->races_nums));
+	    else
+	      $row[] = "";
+	  }
+	  else {
+	    $row[] = "";
+	    $row[] = "";
+	  }
+
+	  // Crew and his races
+	  if (isset($crews[$i])) {
+	    $row[] = $crews[$i]->sailor;
+	    if (count($crews[$i]->races_nums) != $races_in_div[(string)$div])
+	      $row[] = new XTD(array('class'=>'races'), DB::makeRange($crews[$i]->races_nums));
+	    else
+	      $row[] = "";
+	  }
+	  else {
+	    $row[] = "";
+	    $row[] = "";
+	  }
+
+	  $tab->addRow($row, array('class'=>$cls . 'row' . ($row_index % 2)));
 	}
-	$row[] = (count($list) > 0) ? new XUl(array(), $list) : "";
-	$tab->addRow($row, array('class'=>'row' . ($row_index % 2)));
       }
     }
   }

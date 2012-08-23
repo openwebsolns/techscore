@@ -44,8 +44,8 @@ class RotationDialog extends AbstractDialog {
     $row = 0;
     foreach ($this->REGATTA->getTeams() as $team) {
       $tab->add($r = new XTR(array('class'=>'row'.($row++ % 2)),
-			     array(new XTD(array(), $team->school->name),
-				   new XTD(array(), $team->name))));
+			     array(new XTD(array('class'=>'schoolname'), $team->school->name),
+				   new XTD(array('class'=>'teamname'), $team->name))));
 
       foreach ($races as $race) {
 	$sail = $this->rotation->getSail($race, $team);
