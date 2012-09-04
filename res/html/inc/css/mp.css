@@ -21,12 +21,10 @@ body {
     padding: 0;
 }
 #headdiv h1 {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 10;
+    display: inline-block;
+    max-width: 6em;
     margin: 0;
-    padding: 0;
+    padding: 0.25em 0.5em;
 }
 #headdiv h4 {
     color: white;
