@@ -25,7 +25,6 @@ class TScorePage extends XPage {
   private $reg;
 
   private $header;
-  private $navigation;
   private $menu;
   private $content;
 
@@ -46,29 +45,29 @@ class TScorePage extends XPage {
     $this->reg = $reg;
 
     $this->mobile = $this->isMobile();
-    $this->fillHead();
 
     $this->content = array();
     $this->filled = false;
     $this->menu = new XDiv(array('id'=>'menudiv'));
     $this->header = new XDiv(array('id'=>'headdiv'));
-    $this->navigation = new XDiv(array('id'=>'topnav'));
   }
 
   private function fill() {
     if ($this->filled) return;
     $this->filled = true;
-    
+
+    $this->fillHead();
+
+    // Header
+    $this->body->add($this->header);
+    $this->fillPageHeader($this->user, $this->reg);
+
     // Menu
     if ($this->mobile) {
       $this->body->add(new XButton(array("onclick"=>"toggleMenu()", 'type'=>'button'), array("Menu")));
     }
     $this->body->add($this->menu);
     $this->body->add(new XHr(array('class'=>'hidden')));
-    $this->body->add($this->header);
-
-    // Header
-    $this->fillPageHeader($this->user, $this->reg);
 
     // Content
     $this->body->add($c = new XDiv(array('id'=>'bodydiv')));
@@ -81,7 +80,7 @@ class TScorePage extends XPage {
 
     // Footer
     $this->body->add(new XDiv(array('id'=>'footdiv'),
-			      array(new XP(array(), sprintf("%s v%s %s", Conf::$NAME, Conf::$VERSION, Conf::$COPYRIGHT)))));
+			      array(new XAddress(array(), array(sprintf("%s v%s %s", Conf::$NAME, Conf::$VERSION, Conf::$COPYRIGHT))))));
   }
 
   /**
@@ -133,25 +132,23 @@ class TScorePage extends XPage {
    *
    */
   private function fillPageHeader(Account $user = null, Regatta $reg = null) {
-    $this->header->add($div = new XDiv(array('id'=>'header'),
-				       array(new XH1(new XImg("/inc/img/techscore.png", Conf::$NAME, array("id"=>"headimg"))))));
-    $div->add(new XH4(date("M j, Y"), array("id"=>"date")));
-    if (class_exists('Session', false) && Session::has('user'))
-      $div->add(new XH4(Session::g('user'), array("id"=>"user")));
-    
-    $this->header->add($this->navigation);
-    $this->navigation->add($a = new XA('http://'.Conf::$HELP_HOME, new XSpan("H", array('style'=>"text-decoration:underline")),
-				       array("id"=>"help",
-					     'onclick'=>'this.target="help"',
-					     "accesskey"=>"h")));
-    $a->add("elp?");
+    $this->header->add(new XH1(new XImg("/inc/img/techscore.png", Conf::$NAME, array("id"=>"headimg"))));
+    $this->header->add(new XH4(date("M j, Y"), array("id"=>"date")));
     if ($user !== null) {
-      $this->navigation->add(new XDiv(array("id"=>"logout"),
-				      array(new XA("/logout", "Logout", array('accesskey'=>'l')))));
+      $this->header->add(new XH4($user->id, array('id'=>'user')));
+      $this->header->add(new XDiv(array('id'=>'logout'),
+				  array(new XA('/logout', "Logout", array('accesskey'=>'l')))));
+
     }
-    if ($reg !== null) {
-      $div->add(new XH4($reg->name, array("id"=>"regatta")));
-    }
+    
+    if ($reg !== null)
+      $this->header->add(new XH4($reg->name, array('id'=>'regatta')));
+
+    $this->header->add(new XDiv(array('id'=>'help'),
+				array($a = new XA('http://'.Conf::$HELP_HOME, new XSpan("H", array('style'=>"text-decoration:underline")),
+						  array('onclick'=>'this.target="help"',
+							"accesskey"=>"h")))));
+    $a->add("elp?");
   }
 
   /**
@@ -188,7 +185,7 @@ class TScorePage extends XPage {
    * @param Xmlable $elem to add to navigation
    */
   public function addNavigation(Xmlable $elem) {
-    $this->navigation->add($elem);
+    $this->header->add($elem);
   }
 
   public function toXML() {
