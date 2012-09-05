@@ -180,6 +180,7 @@ DB::setConnectionParams(Conf::$SQL_HOST, Conf::$SQL_USER, Conf::$SQL_PASS, Conf:
 // Start the session, if run from the web
 if (isset($_SERVER['HTTP_HOST'])) {
   require_once('WS.php');
+  require_once('xml5/HtmlLib.php');
   require_once('xml5/Session.php');
   Session::init();
   Conf::$USER = DB::getAccount(Session::g('user'));
