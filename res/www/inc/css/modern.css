@@ -305,3 +305,8 @@ tr.disabled {background:#ddd;color:#555;}
 input:checked + label {
     background: #e0f3e0;
 }
+
+.hlink {
+    font-size: 0.9em;
+    margin-left: 1em;
+}

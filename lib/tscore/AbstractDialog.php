@@ -34,10 +34,7 @@ abstract class AbstractDialog {
   protected function setupPage() {
     require_once('xml/TScoreDialog.php');
 
-    $title = sprintf("%s | %s | TS",
-		     $this->name,
-		     $this->REGATTA->name);
-    $this->PAGE = new TScoreDialog($this->name);
+    $this->PAGE = new TScoreDialog($this->name . " | " . $this->REGATTA->name);
     $this->PAGE->addContent(new XPageTitle($this->name));
 
     //   -Regatta info
