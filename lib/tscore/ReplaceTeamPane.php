@@ -26,7 +26,7 @@ class ReplaceTeamPane extends AbstractPane {
     $props = array('rows'=>10, 'size'=>10);
     $form->add(new FItem("Replace team:", $sel1 = new XSelect('team', $props)));
     $form->add(new FItem("With school:",  $sel2 = new XSelect('school', $props)));
-    $form->add(new XSubmitInput("replace", "Replace"));
+    $form->add(new XSubmitP("replace", "Replace"));
 
     // team select
     foreach ($teams as $team)

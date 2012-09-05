@@ -37,21 +37,9 @@ body {
     width: 100%;
 }
 
-#menudiv h4 {
-    background: #f8f8f8; /* Old browsers */
-    background: -moz-linear-gradient(top, #f8f8f8 0%, #c8c8c8 86%, #c8c8c8 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f8f8f8), color-stop(86%,#c8c8c8), color-stop(100%,#c8c8c8)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top, #f8f8f8 0%,#c8c8c8 86%,#c8c8c8 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top, #f8f8f8 0%,#c8c8c8 86%,#c8c8c8 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top, #f8f8f8 0%,#c8c8c8 86%,#c8c8c8 100%); /* IE10+ */
-    background: linear-gradient(to bottom, #f8f8f8 0%,#c8c8c8 86%,#c8c8c8 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f8f8f8', endColorstr='#c8c8c8',GradientType=0 ); /* IE6-9 */
-}
-
 #menudiv div.menu {
     display:table-cell;
     vertical-align:top;
-    padding:0.25em 0.1em;
     min-width:7em;
     font-size:1em;
     height:auto;
@@ -61,6 +49,7 @@ body {
     margin-left:5px;
 }
 #menudiv h4 {
+    background: #ddd;
     font-weight:heavy;
     margin: 0;
     padding: 0.15em 0.25em;
@@ -231,7 +220,7 @@ dt {margin-left:3em;margin-bottom:1em;}
     font-size: 110%;
     margin: 0;
 }
-label { cursor: pointer; }
+label { cursor: pointer; padding: 0 0.25em; }
 #cmp-sailor {margin:1em auto;padding:0.5em;max-width:70%;background:#d5d5d5;border:1px solid #555;}
 #cmp-sailor label {margin-left:0.5em;}
 #teams-list {border:1px solid #aaa;max-height:25em;overflow:scroll;overflow-x:auto;padding:0;background:#eee;}
@@ -314,7 +303,5 @@ tr.disabled {background:#ddd;color:#555;}
 /*    background: #f3f3bb; */
 }
 input:checked + label {
-    background: #5495d4;
-    padding: 0 0.25em;
-    font-weight: bold;
+    background: #e0f3e0;
 }
