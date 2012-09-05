@@ -331,7 +331,7 @@ abstract class AbstractPane {
     switch ($class_name) {
     case 'DropFinishPane':
     case 'EnterPenaltyPane':
-      return $this->has_scores && ($this->REGATTA->scoring != Regatta::SCORING_TEAM);
+      return $this->has_rots && $this->has_scores && ($this->REGATTA->scoring != Regatta::SCORING_TEAM);
       
     case 'DropPenaltyPane':
       return $this->has_penalty;
