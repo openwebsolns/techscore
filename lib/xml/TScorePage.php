@@ -50,13 +50,15 @@ class TScorePage extends XPage {
     $this->filled = false;
     $this->menu = new XDiv(array('id'=>'menudiv'));
     $this->header = new XDiv(array('id'=>'headdiv'));
+
+    // Must be done PRIOR to fill method so that child additions are
+    // properly placed in the queue.
+    $this->fillHead();
   }
 
   private function fill() {
     if ($this->filled) return;
     $this->filled = true;
-
-    $this->fillHead();
 
     // Header
     $this->body->add($this->header);
