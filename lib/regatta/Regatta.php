@@ -620,7 +620,7 @@ class Regatta extends DBObject {
       foreach ($this->getScoredRaces($div) as $race)
 	$nums[$race->number] = $race->number;
     }
-    usort($nums);
+    ksort($nums);
     return $nums;
   }
 

@@ -219,7 +219,7 @@ td.schoolname, td.teamname {
 td.noborder, th.noborder, tr.noborder 
 {
   border: none;
-  }
+}
 
 colgroup 
 {
