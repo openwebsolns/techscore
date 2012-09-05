@@ -30,7 +30,7 @@ class SummaryPane extends AbstractPane {
     $s = clone($this->REGATTA->start_time);
     for ($i = 0; $i < $this->REGATTA->getDuration(); $i++) {
       $comms = $this->REGATTA->getSummary($s);
-      $form->add(new FItem($s->format('l, F j'), new XTextArea($s->format('Y-m-d'), $comms, array("rows"=>"5", "cols"=>"50"))));
+      $form->add(new FItem($s->format('l, F j'), new XTextArea($s->format('Y-m-d'), $comms, array("rows"=>"12", "cols"=>"80"))));
       $s->add(new DateInterval('P1DT0H'));
     }
     $form->add(new XSubmitInput("set_comment", "Add/Update"));
