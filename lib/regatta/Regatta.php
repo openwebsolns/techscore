@@ -607,24 +607,6 @@ class Regatta extends DBObject {
   }
 
   /**
-   * Returns a list of the race numbers scored across all divisions
-   *
-   * @param Array<Division> the divisions
-   * @return Array<int> the race numbers
-   */
-  public function getCombinedScoredRaces(Array $divs = null) {
-    if ($divs == null)
-      $divs = $this->getDivisions();
-    $nums = array();
-    foreach ($divs as $div) {
-      foreach ($this->getScoredRaces($div) as $race)
-	$nums[$race->number] = $race->number;
-    }
-    ksort($nums);
-    return $nums;
-  }
-
-  /**
    * Returns a list of unscored race numbers common to all divisions
    *
    * @param  Array<Division> the divisions, or all if null

@@ -9,9 +9,8 @@
 
 html 
 {
-  background: #7eade6;
-  background-image: url('img/page_bg.png');
-  }
+  background: #eee;
+}
 
 body 
 {
@@ -258,6 +257,6 @@ p.warning {padding: 0.5em;}
 #footdiv 
 {
   font-size: 0.8em;
-  color: white;
+  color: #555;
   text-align: right;
 }

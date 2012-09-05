@@ -62,18 +62,18 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
     $rpManager = $this->REGATTA->getRpManager();
     $division = $this->division;
 
-    $ELEM = array(new XTable(array('class'=>'results coordinate narrow'),
-			     array(new XTHead(array(),
-					      array(new XTR(array(),
-							    array(new XTH(), // superscript
-								  new XTH(), // rank
-								  new XTH(),
-								  new XTH(array(), "Team"),
-								  $penalty_th = new XTH(),
-								  new XTH(array(), "Total"),
-								  new XTH(array(), "Sailors"),
-								  new XTH(array(), ""))))),
-				   $tab = new XTBody())));
+    $ELEMS = array(new XTable(array('class'=>'results coordinate narrow'),
+			      array(new XTHead(array(),
+					       array(new XTR(array(),
+							     array(new XTH(), // superscript
+								   new XTH(), // rank
+								   new XTH(),
+								   new XTH(array(), "Team"),
+								   $penalty_th = new XTH(),
+								   new XTH(array(), "Total"),
+								   new XTH(array(), "Sailors"),
+								   new XTH(array(), ""))))),
+				    $tab = new XTBody())));
     $has_penalties = false;
 
     // print each ranked team
@@ -191,6 +191,6 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
     // Print tiebreakers $table
     if (count($tiebreakers) > 1)
       $ELEMS[] = $this->getLegend($tiebreakers);
-    return $ELEM;
+    return $ELEMS;
   }
 }

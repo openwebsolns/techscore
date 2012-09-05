@@ -191,7 +191,10 @@ class ICSACombinedScorer extends ICSAScorer {
 
     $fleetSize = count($reg->getTeams());
     if ($placeFinish > $fleetSize) {
-      return $this->rankByLastRace($ranks, $reg, $reg->getCombinedScoredRaces());
+      $nums = array();
+      foreach ($reg->getScoredRaces(Division::A()) as $race)
+	$nums[] = $race->number;
+      return $this->rankByLastRace($ranks, $reg, $nums);
     }
 
     // Work with copy of ranks
@@ -250,7 +253,7 @@ class ICSACombinedScorer extends ICSAScorer {
    *
    * @param Array<Rank> $ranks the ranks to sort
    * @param Regatta $reg the regatta
-   * @param Array<Race> $races the races
+   * @param Array:ints $races the race numbers
    */
   protected function rankByLastRace(Array $ranks,
 				    Regatta $reg,
