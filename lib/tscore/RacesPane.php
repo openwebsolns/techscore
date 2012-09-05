@@ -224,17 +224,17 @@ class RacesPane extends AbstractPane {
       unset($args['editboats']);
 
       // Is there an assignment for all the races in the division?
-      foreach ($copy as $div) {
+      foreach ($copy as $i => $div) {
 	if (($val = DB::$V->incID($args, (string)$div, DB::$BOAT, null)) !== null) {
 	  unset($args[(string)$div]);
-	  unset($remaining_divisions[(string)$div]);
+	  unset($remaining_divisions[$i]);
 	  foreach ($this->REGATTA->getRaces($div) as $race) {
 	    $race->boat = $val;
 	    $this->REGATTA->setRace($race);
 	  }
 	}
       }
-      
+
       // Let the database decide whether the values are valid to begin
       // with. Just keep track of whether there were errors.
       foreach ($remaining_divisions as $div) {
