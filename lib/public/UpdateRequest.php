@@ -5,6 +5,8 @@
  * @package scripts
  */
 
+require_once('regatta/Regatta.php');
+
 /**
  * Simple serialization of a public display update request
  *
@@ -12,7 +14,7 @@
  * @version 2010-10-11
  */
 class UpdateRequest extends DBObject {
-  public $regatta;
+  protected $regatta;
   public $activity;
   public $argument;
   /**
@@ -24,6 +26,7 @@ class UpdateRequest extends DBObject {
   public function db_type($field) {
     switch ($field) {
     case 'request_time': return DB::$NOW;
+    case 'regatta': return DB::$REGATTA;
     default:
       return parent::db_type($field);
     }
@@ -31,7 +34,6 @@ class UpdateRequest extends DBObject {
   protected function db_order() { return array('request_time'=>true); }
 
   const ACTIVITY_RP = "rp";
-  const ACTIVITY_SYNC = "sync";
   const ACTIVITY_SCORE = "score";
   const ACTIVITY_DETAILS = "details";
   const ACTIVITY_SUMMARY = "summary";
@@ -44,11 +46,19 @@ class UpdateRequest extends DBObject {
    */
   public static function getTypes() {
     return array(self::ACTIVITY_RP => self::ACTIVITY_RP,
-		 self::ACTIVITY_SYNC => self::ACTIVITY_SYNC,
 		 self::ACTIVITY_SCORE => self::ACTIVITY_SCORE,
 		 self::ACTIVITY_DETAILS => self::ACTIVITY_DETAILS,
 		 self::ACTIVITY_SUMMARY => self::ACTIVITY_SUMMARY,
 		 self::ACTIVITY_ROTATION => self::ACTIVITY_ROTATION);
+  }
+
+  /**
+   * Returns a unique identifier for this request, constituting of the
+   * regatta ID, the activity, and the argument
+   */
+  public function hash() {
+    $id = ($this->regatta instanceof Regatta) ? $this->regatta->id : $this->regatta;
+    return sprintf('%s-%s-%s', $id, $this->activity, $this->argument);
   }
 }
 

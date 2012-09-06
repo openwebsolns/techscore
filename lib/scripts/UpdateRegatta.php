@@ -48,8 +48,6 @@ require_once('xml5/TPublicPage.php');
  */
 class UpdateRegatta {
 
-  private static $new_reg = false;
-
   /**
    * Synchronizes the regatta's detail with the data information
    * (those fields in the database prefixed with dt_). Note this will
@@ -62,12 +60,14 @@ class UpdateRegatta {
    * efficiency improvement)
    *
    * @param boolean $rp set this to true to also sync the RP
-   *
-   * @return boolean true if a new regatta was inserted
+   * @throws InvalidArgumentException
    */
-  public static function runSync(Regatta $reg, $full = true, $rp = true) {
+  public static function sync(Regatta $reg) {
     if ($reg->type == Regatta::TYPE_PERSONAL)
-      return;
+      throw new InvalidArgumentException("Personal regattas may never be synced.");
+    $divs = $reg->getDivisions();
+    if (count($divs) == 0)
+      throw new InvalidArgumentException("Cannot update with no divisions.");
 
     $dreg = new Dt_Regatta();
     $dreg->id = $reg->id;
@@ -81,11 +81,8 @@ class UpdateRegatta {
     $dreg->participant = $reg->participant;
     $dreg->venue = $reg->venue;
     
-    $divs = $reg->getDivisions();
     $races = $reg->getScoredRaces();
     $dreg->num_divisions = count($divs);
-    if ($dreg->num_divisions == 0) // don't update at all!
-      return;
     $dreg->num_races = count($reg->getRaces()) / $dreg->num_divisions;
     
     // hosts and conferences
@@ -126,9 +123,17 @@ class UpdateRegatta {
     }
 
     $added = !DB::set($dreg);
+    return $dreg;
+  }
 
-    if ($full === false && $rp === false)
-      return $added;
+  /**
+   * Synchornize the team data for the given regatta
+   *
+   */
+  public static function syncTeams(Regatta $reg) {
+    $dreg = DB::get(DB::$DT_REGATTA, $reg->id);
+    if ($dreg === null)
+      $dreg = self::sync($reg);
 
     // ------------------------------------------------------------
     // Synchronize the teams. Track team_divs which is the list of all
@@ -184,9 +189,16 @@ class UpdateRegatta {
 	}
       }
     }
+  }
 
-    if ($rp === false)
-      return $added;
+  /**
+   * Sync the RP information for the given regatta
+   *
+   */
+  public static function syncRP(Regatta $reg) {
+    $dreg = DB::get(DB::$DT_REGATTA, $reg->id);
+    if ($dreg === null)
+      $dreg = self::sync($reg);
 
     // ------------------------------------------------------------
     // Also do the RP information
@@ -215,7 +227,6 @@ class UpdateRegatta {
 	}
       }
     }
-    return $added;
   }
 
   /**
@@ -261,99 +272,86 @@ class UpdateRegatta {
    * requested. Will not create scores page if no finishes are registered!
    *
    * @param Regatta $reg the regatta to update
-   * @param UpdateRequest::Constant the activity
-   * @return boolean true if new regatta
+   * @param Array:UpdateRequest::Constant the activities to execute
    */
-  public static function run(Regatta $reg, $activity) {
+  public static function run(Regatta $reg, Array $activities) {
     if ($reg->type == Regatta::TYPE_PERSONAL) {
-      require_once('scripts/UpdateSeason.php');
-      require_once('scripts/UpdateSchoolsSummary.php');
       self::runDelete($reg);
-      UpdateSeason::run($reg->getSeason());
-      UpdateSchoolsSummary::run();
-      return false;
+      return;
     }
 
-    $D = UpdateRegatta::createDir($reg);
-    $M = new ReportMaker($reg);
-
-    switch ($activity) {
-    case UpdateRequest::ACTIVITY_SCORE:
-      if (!$reg->hasFinishes()) return;
-      
-      // Re-do rotation if this is the first time:
-      $rot = $reg->getRotation();
-      $redo_rot = ($rot->isAssigned() && realpath("$D/index.html") === false);
-      
-      self::createFront($D, $M);
-      self::createFull($D, $M);
-
-      // Individual division scores (do not include if singlehanded as
-      // this is redundant)
-      if (!$reg->isSingleHanded()) {
-	foreach ($reg->getDivisions() as $div)
-	  self::createDivision($D, $M, $div);
-      }
-
-      if ($redo_rot)
-	self::createRotation($D, $M);
-      break;
-      // ------------------------------------------------------------
-    case UpdateRequest::ACTIVITY_ROTATION:
-      $rot = $reg->getRotation();
-      if (!$rot->isAssigned())
-	throw new RuntimeException(sprintf("Regatta %s (%d) does not have a rotation!",
-					   $reg->name, $reg->id), 8);
-
-      self::createRotation($D, $M);
-      break;
-      // ------------------------------------------------------------
-    case UpdateRequest::ACTIVITY_RP:
-      if ($reg->isSinglehanded()) {
-	self::createRotation($D, $M);
-	if ($reg->hasFinishes()) {
-	  self::createFront($D, $M);
-	  self::createFull($D, $M);
-	}
-      }
-      else {
-	if ($reg->hasFinishes()) {
-	  foreach ($reg->getDivisions() as $div)
-	    self::createDivision($D, $M, $div);
-	}
-      }
-      break;
-      // ------------------------------------------------------------
-    case UpdateRequest::ACTIVITY_SUMMARY:
-      self::createFront($D, $M);
-      break;
-      // ------------------------------------------------------------
-    case UpdateRequest::ACTIVITY_DETAILS:
-      // do them all!
-      $rot = $reg->getRotation();
+    $sync = false;
+    $sync_teams = false;
+    $sync_rp = false;
+    $rotation = false;
+    $divisions = false;
+    $front = false;
+    $full = false;
+    $rot = $reg->getRotation();
+    if (in_array(UpdateRequest::ACTIVITY_ROTATION, $activities)) {
       if ($rot->isAssigned())
-	self::createRotation($D, $M);
+	$rotation = true;
+    }
+    if (in_array(UpdateRequest::ACTIVITY_SCORE, $activities)) {
+      $sync_teams = true;
+      $front = true;
       if ($reg->hasFinishes()) {
-	self::createFront($D, $M);
-	self::createFull($D, $M);
+	$full = true;
+
+	// Individual division scores (do not include if singlehanded as
+	// this is redundant)
+	if (!$reg->isSingleHanded())
+	  $divisions = true;
+      }
+    }
+    if (in_array(UpdateRequest::ACTIVITY_RP, $activities)) {
+      $sync_rp = true;
+      if ($reg->isSinglehanded()) {
+	$rotation = true;
+	if ($reg->hasFinishes()) {
+	  $front = true;
+	  $full = true;
+	}
+      }
+      elseif ($reg->hasFinishes())
+	$divisions = true;
+    }
+    if (in_array(UpdateRequest::ACTIVITY_SUMMARY, $activities)) {
+      $front = true;
+    }
+    if (in_array(UpdateRequest::ACTIVITY_DETAILS, $activities)) {
+      // do them all!
+      $sync = true;
+      $front = true;
+      if ($rot->isAssigned())
+	$rotation = true;
+      if ($reg->hasFinishes()) {
+	$full = true;
       
 	// Individual division scores (do not include if singlehanded as
 	// this is redundant)
-	if (!$reg->isSingleHanded()) {
-	  foreach ($reg->getDivisions() as $div)
-	    self::createDivision($D, $M, $div);
-	}
+	if (!$reg->isSingleHanded())
+	  $divisions = true;
       }
-      break;
-      // ------------------------------------------------------------
-    case UpdateRequest::ACTIVITY_SYNC:
-      UpdateRegatta::runSync($reg);
-      break;
-
-    default:
-      throw new RuntimeException("Activity $activity not supported.");
     }
-    return self::$new_reg;
+
+    // ------------------------------------------------------------
+    // Perform the updates
+    // ------------------------------------------------------------
+    $D = UpdateRegatta::createDir($reg);
+    $M = new ReportMaker($reg);
+
+    if ($sync)       self::sync($reg);
+    if ($sync_teams) self::syncTeams($reg);
+    if ($sync_rp)    self::syncRP($reg);
+
+    if ($rotation)   self::createRotation($D, $M);
+    if ($front)      self::createFront($D, $M);
+    if ($full)       self::createFull($D, $M);
+    if ($divisions) {
+      foreach ($reg->getDivisions() as $div)
+	self::createDivision($D, $M, $div);
+    }
   }
 
   // ------------------------------------------------------------
@@ -378,7 +376,6 @@ class UpdateRegatta {
 
     $dirname = "$R/$season/".$reg->nick;
     if (!file_exists($dirname)) {
-      self::$new_reg = true;
       if (!is_dir($dirname) && mkdir($dirname, 0777, true) === false)
 	throw new RuntimeException("Unable to make regatta directory: $dirname\n", 4);
     }
@@ -485,41 +482,32 @@ class UpdateRegatta {
 // ------------------------------------------------------------
 // When run as a script
 if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
+  array_shift($argv);
   // Arguments
-  if (count($argv) < 2 || count($argv) > 3) {
-    printf("usage: %s <regatta-id> [score|rotation]\n", $_SERVER['PHP_SELF']);
+  if (count($argv) < 2) {
+    printf("usage: %s <regatta-id> [score|rotation [...]]\n", $_SERVER['PHP_SELF']);
     exit(1);
   }
   // SETUP PATHS and other CONSTANTS
   ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
   require_once('conf.php');
 
-  $action = UpdateRequest::getTypes();
-  if (isset($argv[2])) {
-    if (!in_array($argv[2], $action)) {
-      printf("Invalid update action requested: %s\n\n", $argv[2]);
-      printf("usage: %s <regatta-id> [score|rotation]\n", $_SERVER['PHP_SELF']);
-      exit(1);
-    }
-    $action = array($argv[2]);
-  }
-
-  // GET REGATTA: first, check if the regatta exists in Dt_Regatta. If
-  // it does not, attempt to find it in Regatta, and run sync, automatically.
-  $REGATTA = DB::getRegatta($argv[1]);
+  $REGATTA = DB::getRegatta(array_shift($argv));
   if ($REGATTA === null) {
     printf("Invalid regatta ID provided: %s\n", $argv[1]);
     exit(2);
   }
-  foreach ($action as $act) {
-    try {
-      UpdateRegatta::run($REGATTA, $act);
-      error_log(sprintf("I/0/%s\t(%d)\t%s: Successful!\n", date('r'), $REGATTA->id, $act), 3, Conf::$LOG_UPDATE);
+
+  $pos_actions = UpdateRequest::getTypes();
+  $actions = array();
+  foreach ($argv as $opt) {
+    if (!in_array($opt, $pos_actions)) {
+      printf("Invalid update action requested: %s\n\n", $argv[2]);
+      printf("usage: %s <regatta-id> [score|rotation [...]]\n", $_SERVER['PHP_SELF']);
+      exit(1);
     }
-    catch (RuntimeException $e) {
-      error_log(sprintf("E/%d/%s\t(%d)\t%s: %s\n", $e->getCode(), date('r'), $argv[1], $act, $e->getMessage()),
-		3, Conf::$LOG_UPDATE);
-    }
+    $action[$opt] = $opt;
   }
+  UpdateRegatta::run($REGATTA, $action);
 }
 ?>
