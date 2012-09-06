@@ -75,7 +75,8 @@ class Update404 {
     $season = Season::forDate(DB::$NOW);
     $this->page->addNavigation(new XA('/', "Home", array('class'=>'nav')));
     $this->page->addMenu(new XA('/schools', "Schools"));
-    $this->page->addMenu(new XA(sprintf('/%s', $season), $season->fullString()));
+    if ($season !== null)
+      $this->page->addMenu(new XA(sprintf('/%s', $season), $season->fullString()));
 
     $this->page->addSection($p = new XPort("404: Page overboard!"));
     $p->add(new XP(array(), "We're sorry, but the page you are looking cannot be found. Thar be two possible reasons for this:"));
@@ -100,6 +101,9 @@ class Update404 {
 										   new XA('/schools/MIT/f10',
 											  '/schools/MIT/f10',
 											  array('class'=>'tt')))))))))))));
+
+    if ($season === null)
+      return;
 
     // latest regatta
     $res = $season->getRegattas();
