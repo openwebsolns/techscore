@@ -427,7 +427,6 @@ class UpdateRegatta {
   private static function createFront($dirname, ReportMaker $maker) {
     $filename = "$dirname/index.html";
     $page = $maker->getScoresPage();
-    self::prepMenu($maker->regatta, $page);
     if (count($maker->regatta->getDivisions()) > 1)
       $page->head->add(new XScript('text/javascript', '/inc/js/rank.js'));
     if (@file_put_contents($filename, $page->toXML()) === false)
@@ -448,7 +447,6 @@ class UpdateRegatta {
       throw new RuntimeException("Unable to make the full scores directory: $path", 8);
     $filename = "$path/index.html";
     $page = $maker->getFullPage();
-    self::prepMenu($maker->regatta, $page);
     if (@file_put_contents($filename, $page->toXML()) === false)
       throw new RuntimeException(sprintf("Unable to make the regatta full scores: %s\n", $filename), 8);
   }
@@ -468,7 +466,6 @@ class UpdateRegatta {
       throw new RuntimeException("Unable to make the $div division directory: $path", 8);
     $filename = "$path/index.html";
     $page = $maker->getDivisionPage($div);
-    self::prepMenu($maker->regatta, $page);
     if (@file_put_contents($filename, $page->toXML()) === false)
       throw new RuntimeException(sprintf("Unable to make the regatta division score page: %s\n", $filename), 8);
   }
@@ -487,30 +484,9 @@ class UpdateRegatta {
       throw new RuntimeException("Unable to make the rotations directory: $path", 8);
     $filename = "$path/index.html";
     $page = $maker->getRotationPage();
-    self::prepMenu($maker->regatta, $page);
 
     if (@file_put_contents($filename, $page->toXML()) === false)
       throw new RuntimeException(sprintf("Unable to make the regatta rotation: %s\n", $filename), 8);
-  }
-
-  /**
-   * Adds the menu for the given page
-   *
-   */
-  private static function prepMenu(Regatta $reg, TPublicPage $page) {
-    // Menu
-    $url = $reg->getURL();
-    $rot = $reg->getRotation();
-    if ($rot->isAssigned())
-      $page->addMenu(new XA($url.'rotations/', "Rotations"));
-    if ($reg->hasFinishes()) {
-      $page->addMenu(new XA($url, "Report"));
-      $page->addMenu(new XA($url.'full-scores/', "Full Scores"));
-      if (!$reg->isSingleHanded()) {
-	foreach ($reg->getDivisions() as $div)
-	  $page->addMenu(new XA($url.$div.'/', "$div Scores"));
-      }
-    }
   }
 }
 

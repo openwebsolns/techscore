@@ -35,6 +35,13 @@ class ReportMaker {
     $this->dt_regatta = DB::get(DB::$DT_REGATTA, $reg->id);
   }
 
+  /**
+   * Fills the front page of a regatta.
+   *
+   * When there are no scores, the front page shall include a brief
+   * message. If there are rotations, a link to view rotations.
+   *
+   */
   protected function fill() {
     if ($this->page !== null) return;
 
@@ -54,12 +61,22 @@ class ReportMaker {
 
     $link_schools = '/schools';
 
-    // Divisional scores
-    // $maker = new ScoresDivisionalDialog($reg);
-    $maker = new TScoresTables($this->dt_regatta);
-    $this->page->addSection($p = new XPort("Score summary"));
-    foreach ($maker->getSummaryTables() as $elem)
-      $p->add($elem);
+    // Divisional scores, if any
+    if ($reg->hasFinishes()) {
+      $maker = new TScoresTables($this->dt_regatta);
+      $this->page->addSection($p = new XPort("Score summary"));
+      foreach ($maker->getSummaryTables() as $elem)
+	$p->add($elem);
+    }
+    else {
+      $this->page->addSection($p = new XPort("No scores have been entered"));
+      $p->add($xp = new XP(array('class'=>'notice'), "No scores have been entered yet for this regatta."));
+      $rot = $reg->getRotation();
+      if ($rot->isAssigned()) {
+	$xp->add(" ");
+	$xp->add(new XA('rotations/', "View rotations."));
+      }
+    }
   }
 
   protected function fillDivision(Division $div) {
@@ -109,6 +126,11 @@ class ReportMaker {
     }
   }
 
+  /**
+   * Prepares the basic elements common to all regatta public pages
+   * such as the navigation menu and the regatta description.
+   *
+   */
   protected function prepare(TPublicPage $page) {
     $reg = $this->regatta;
     $page->addNavigation(new XA($reg->getURL(), $reg->name, array('class'=>'nav')));
@@ -178,6 +200,20 @@ class ReportMaker {
 			    new XLi($date),
 			    new XLi($type),
 			    new XLi(implode("/", $boats)))));
+
+    // Menu
+    $url = $reg->getURL();
+    $rot = $reg->getRotation();
+    if ($rot->isAssigned())
+      $page->addMenu(new XA($url.'rotations/', "Rotations"));
+    $page->addMenu(new XA($url, "Report"));
+    if ($reg->hasFinishes()) {
+      $page->addMenu(new XA($url.'full-scores/', "Full Scores"));
+      if (!$reg->isSingleHanded()) {
+	foreach ($reg->getDivisions() as $div)
+	  $page->addMenu(new XA($url.$div.'/', "$div Scores"));
+      }
+    }
   }
 
   /**
