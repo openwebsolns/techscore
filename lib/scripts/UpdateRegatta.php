@@ -232,9 +232,8 @@ class UpdateRegatta {
   /**
    * Deletes the given regatta's information from the public site and
    * the database.  Note that this method is automatically called from
-   * <pre>runScore</pre> and <pre>runRotation</pre> if the rotation
-   * type is "personal". This method does not touch the season page or
-   * any other pages.
+   * <pre>run</pre> if the rotation type is "personal". This method
+   * does not touch the season page or any other pages.
    *
    * @param Regatta $reg the regatta whose information to delete.
    */
@@ -249,22 +248,46 @@ class UpdateRegatta {
     $nickname = $reg->nick;
     if (!empty($nickname)) {
       $dirname = "$R/$season/$nickname";
-      if (is_dir($dirname) && $dir = @opendir($dirname)) {
-        // Delete contents of dir
-        while (false !== ($file = readdir($dir))) {
-	  if ($file != '.' && $file != '..')
-	    @unlink(sprintf('%s/%s', $dirname, $file));
-        }
-        // Delete directory
-        closedir($dir);
-        rmdir($dirname);
-      }
+      if (!self::rm_r($dirname))
+	throw new RuntimeException("Unable to remove files rooted at $dirname.");
     }
 
     // Delete from database
     $r = DB::get(DB::$DT_REGATTA, $reg->id);
     if ($r !== null)
       DB::remove($r);
+  }
+
+  /**
+   * Recursively remove a filepath
+   *
+   * @param String $root the directory to remove
+   * @return boolean true on success
+   */
+  private static function rm_r($root) {
+    if (!is_dir($root))
+      return true;
+
+    $d = opendir($root);
+    if ($d === false)
+      return false;
+
+    $res = true;
+    while (($file = readdir($d)) !== false) {
+      if ($file != '.' && $file != '..') {
+	if (is_dir("$root/$file"))
+	  $res = ($res && self::rm_r("$root/$file"));
+	else {
+	  if (($my_res = unlink("$root/$file")) === true) {
+	    // message?
+	  }
+	  $res = ($res && $my_res);
+	}
+      }
+    }
+    closedir($d);
+    $res = ($res && rmdir($root));
+    return $res;
   }
 
   /**
@@ -338,12 +361,12 @@ class UpdateRegatta {
     // ------------------------------------------------------------
     // Perform the updates
     // ------------------------------------------------------------
-    $D = UpdateRegatta::createDir($reg);
-    $M = new ReportMaker($reg);
-
     if ($sync)       self::sync($reg);
     if ($sync_teams) self::syncTeams($reg);
     if ($sync_rp)    self::syncRP($reg);
+
+    $D = UpdateRegatta::createDir($reg);
+    $M = new ReportMaker($reg);
 
     if ($rotation)   self::createRotation($D, $M);
     if ($front)      self::createFront($D, $M);
