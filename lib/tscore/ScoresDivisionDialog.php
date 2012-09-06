@@ -98,11 +98,12 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
     
     $rowIndex = 0;
     $order = 1;
+    $races = $this->REGATTA->getScoredRaces($division);
+    $total_races = count($this->REGATTA->getRaces($division));
     foreach ($ranks as $rank) {
 
       // get total score for this team
       $total = 0;
-      $races = $this->REGATTA->getScoredRaces($division);
       foreach ($races as $race) {
 	$finish = $this->REGATTA->getFinish($race, $rank->team);
 	$total += $finish->score;
@@ -172,7 +173,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
 	    $s_rows[] = $row;
 	  }
 
-	  if (count($s->races_nums) == count($races))
+	  if (count($s->races_nums) == $total_races)
 	    $amt = "";
 	  else
 	    $amt = DB::makeRange($s->races_nums);
