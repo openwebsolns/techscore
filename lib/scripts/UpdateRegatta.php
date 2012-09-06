@@ -301,6 +301,28 @@ class UpdateRegatta {
       return;
     }
 
+    // In order to maintain all the regatta pages in sync, it is
+    // necessary to first check what pages have been serialized
+    $has_dir = false;
+    $has_rotation = false;
+    $has_fullscore = false;
+    $has_divs = array((string)Division::A() => false,
+		      (string)Division::B() => false,
+		      (string)Division::C() => false,
+		      (string)Division::D() => false);
+    $dir = sprintf('%s/html%s', dirname(dirname(dirname(__FILE__))), $reg->getURL());
+    if (is_dir($dir)) {
+      $has_dir = true;
+      if (is_dir($dir . '/rotations'))	 $has_rotation = true;
+      if (is_dir($dir . '/full-scores')) $has_fullscore = true;
+      foreach ($has_divs as $div => $val) {
+	if (is_dir($dir . '/' . $div))
+	  $has_divs[$div] = true;
+      }
+    }
+
+    // Based on the list of activities, determine what files need to
+    // be (re)serialized
     $sync = false;
     $sync_teams = false;
     $sync_rp = false;
@@ -311,8 +333,20 @@ class UpdateRegatta {
     $full = false;
     $rot = $reg->getRotation();
     if (in_array(UpdateRequest::ACTIVITY_ROTATION, $activities)) {
-      if ($rot->isAssigned())
+      if ($rot->isAssigned()) {
 	$rotation = true;
+
+	// This check takes care of the fringe case when the rotation
+	// is created AFTER there are already scores, etc.
+	if (!$has_rotation) {
+	  $front = true;
+	  if ($reg->hasFinishes()) {
+	    $full = true;
+	    if (!$reg->isSingleHanded())
+	      $divisions = true;
+	  }
+	}
+      }
     }
     if (in_array(UpdateRequest::ACTIVITY_SCORE, $activities)) {
       $sync_teams = true;
@@ -324,10 +358,16 @@ class UpdateRegatta {
 	// this is redundant)
 	if (!$reg->isSingleHanded())
 	  $divisions = true;
+
+	// Check for the case when this is the first time a score is
+	// entered, thus updating the rotation page as well
+	if (!$has_fullscore && $rot->isAssigned())
+	  $rotation = true;
       }
       else {
 	// It is possible that all finishes were removed, therefore,
-	// delete all such directories
+	// delete all such directories, and regenerate rotation page
+	$rotation = true;
 	$season = $reg->getSeason();
 	if ($season !== null && $reg->nick !== null) {
 	  $root = sprintf('%s/html/%s/%s', dirname(dirname(dirname(__FILE__))), $season, $reg->nick);
@@ -377,7 +417,7 @@ class UpdateRegatta {
     if ($sync_teams) self::syncTeams($reg);
     if ($sync_rp)    self::syncRP($reg);
 
-    $D = UpdateRegatta::createDir($reg);
+    $D = self::createDir($reg);
     $M = new ReportMaker($reg);
 
     if ($rotation)   self::createRotation($D, $M);
@@ -405,11 +445,7 @@ class UpdateRegatta {
     if ($R === false)
       throw new RuntimeException("Public folder does not exist.");
 
-    $season = $reg->getSeason();
-    if (!is_dir("$R/$season") && mkdir("$R/$season", 0777, true) === false)
-      throw new RuntimeException(sprintf("Unable to make the season folder: %s\n", $season), 2);
-
-    $dirname = "$R/$season/".$reg->nick;
+    $dirname = sprintf('%s%s', $R, $reg->getURL());
     if (!file_exists($dirname)) {
       if (!is_dir($dirname) && mkdir($dirname, 0777, true) === false)
 	throw new RuntimeException("Unable to make regatta directory: $dirname\n", 4);
