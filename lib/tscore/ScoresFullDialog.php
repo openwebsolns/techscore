@@ -28,7 +28,6 @@ class ScoresFullDialog extends AbstractScoresDialog {
    *
    */
   public function fillHTML(Array $args) {
-    $this->PAGE->set('xmlns:ts', 'http://collegesailing.org');
     $this->PAGE->addContent($p = new XPort("Team results"));
     $ELEMS = $this->getTable();
     $p->add(array_shift($ELEMS));
@@ -158,7 +157,6 @@ class ScoresFullDialog extends AbstractScoresDialog {
 	    $cell->add($finish->getPlace());
 	    $cell->set("title", $finish->explanation);
 	    $cell->set("align", "right");
-	    $cell->set("ts:score", $finish->score);
 	  }
 	}
 
@@ -175,7 +173,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
 	}
 
 	// print total score for division
-	$r->add(new XTD(array('align'=>'right'), $scoreDiv));
+	$r->add(new XTD(array('align'=>'right'), ($scoreDiv == 0) ? "" : $scoreDiv));
       }
 
       // write total row

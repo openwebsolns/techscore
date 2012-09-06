@@ -7,9 +7,6 @@
  * @package scripts
  */
 
-require_once('xml5/TScoresTables.php');
-require_once('tscore/RotationDialog.php');
-
 /**
  * Creates the report page for the given regatta, which will be used
  * in the public facing side
@@ -63,9 +60,10 @@ class ReportMaker {
 
     // Divisional scores, if any
     if ($reg->hasFinishes()) {
-      $maker = new TScoresTables($this->dt_regatta);
+      require_once('tscore/ScoresDivisionalDialog.php');
+      $maker = new ScoresDivisionalDialog($reg);
       $this->page->addSection($p = new XPort("Score summary"));
-      foreach ($maker->getSummaryTables() as $elem)
+      foreach ($maker->getTable('', '/schools') as $elem)
 	$p->add($elem);
     }
     else {
@@ -87,11 +85,10 @@ class ReportMaker {
     $this->divPage[(string)$div] = $page;
     $this->prepare($page);
     
-    $link_schools = '/schools';
-    // $maker = new ScoresDivisionDialog($reg, $div);
-    $maker = new TScoresTables($this->dt_regatta);
+    require_once('tscore/ScoresDivisionDialog.php');
+    $maker = new ScoresDivisionDialog($reg, $div);
     $page->addSection($p = new XPort("Scores for Division $div"));
-    foreach ($maker->getDivisionTables((string)$div) as $elem)
+    foreach ($maker->getTable('', '/schools') as $elem)
       $p->add($elem);
   }
 
@@ -105,10 +102,10 @@ class ReportMaker {
     $link_schools = '/schools';
     
     // Total scores
-    // $maker = new ScoresFullDialog($reg);
-    $maker = new TScoresTables($this->dt_regatta);
+    require_once('tscore/ScoresFullDialog.php');
+    $maker = new ScoresFullDialog($reg);
     $this->fullPage->addSection($p = new XPort("Race by race"));
-    foreach ($maker->getFullTables() as $elem)
+    foreach ($maker->getTable('', '/schools') as $elem)
       $p->add($elem);
   }
 
@@ -119,6 +116,7 @@ class ReportMaker {
     $this->rotPage = new TPublicPage(sprintf("%s Rotations", $reg->name));
     $this->prepare($this->rotPage);
 
+    require_once('tscore/RotationDialog.php');
     $maker = new RotationDialog($reg);
     foreach ($reg->getRotation()->getDivisions() as $div) {
       $this->rotPage->addSection($p = new XPort("$div Division"));
