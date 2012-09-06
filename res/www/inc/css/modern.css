@@ -208,9 +208,26 @@ p.warning {padding: 0.5em;}
 #announcements img {margin-right:0.5em;}
 .left {text-align:left;}
 .strong {font-weight:bold;}
-table#conftable {width:100%;}
-table#conftable td {padding:0px;}
-table#conftable td ul {height:10em;overflow:auto;margin:0px;}
+
+div.conf {
+    background: none repeat scroll 0 0 #EEEEEE;
+    border: 1px solid #888888;
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    -moz-border-radius: 0.5em;
+    -webkit-border-radius: 0.5em;
+    display: inline-block;
+    zoom: 1;
+    *display: inline;
+    height: 25em;
+    margin: 0.5%;
+    overflow: auto;
+    padding: 0.25em;
+    width: 22%;
+}
+div.conf h4 {
+    border-bottom: 1px solid #555;
+}
+
 table.coordinate td:hover {background:#3465a4;color:white;}
 dd {font-weight:bold;margin-left:1em;}
 dt {margin-left:3em;margin-bottom:1em;}

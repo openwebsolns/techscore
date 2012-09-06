@@ -49,20 +49,12 @@ class PrefsHomePane extends AbstractPrefsPane {
       }
 
       $this->PAGE->addContent($p = new XPort("Choose school"));
-      // Stylesheet fix
       $p->add(new XStyle('text/css', 'table.conf td { text-align: left; vertical-align: top; }'));
       $p->add(new XP(array(), "Choose a different school to edit from the list below."));
-      $p->add(new XTable(array('id'=>'conftable', 'class'=>'conf'), array($tab = new XTBody())));
       
       $col = 0;
       foreach ($conferences as $conf => $schools) {
-	if ($col++ % 4 == 0) {
-	  $tab->add($h = new XTR());
-	  $tab->add($b = new XTR());
-	}
-
-	$h->add(new XTH(array(), $conf));
-	$b->add(new XTD(array(), $list = new XUl()));
+	$p->add($tab = new XDiv(array('class'=>'conf'), array(new XH4($conf), $list = new XUl())));
 	foreach ($schools as $school) {
 	  if ($school != $this->SCHOOL)
 	    $link = new XA(sprintf("/prefs/%s", $school->id), $school->nick_name);
