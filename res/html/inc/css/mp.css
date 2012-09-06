@@ -46,7 +46,6 @@ a.nav {
     text-decoration: none;
 }
 
-
 #menudiv {
     background: #ddd;
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#b3b3b3', endColorstr='#f0f0f0');
@@ -296,4 +295,29 @@ div.stat .prefix {
     margin-top: 0.5em;
     text-align: right;
     width: 40%;
+}
+
+#rank-filter {
+    margin:0.25em auto;
+    text-align:center;
+}
+#rank-filter input {
+    display:none;
+}
+#rank-filter label {
+    margin-right:1em;
+    background:#ccc;
+    border:1px solid #aaa;
+    border-top:1px solid #eee;
+    border-bottom:1px solid #555;
+    width:2em;
+    display:inline-block;
+    cursor:pointer;
+    padding:0.15em 0.25em;
+}
+#rank-filter label.selected {
+    background:#aaa;
+    border:1px solid #ccc;
+    border-top:1px solid #888;
+    border-bottom:1px solid #eee;
 }
