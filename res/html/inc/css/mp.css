@@ -274,7 +274,7 @@ div.message {
     padding: 1em;
 }
 table.coordinate td:hover {
-    background: none repeat scroll 0 0 tan;
+    background: none repeat scroll 0 0 #FFECD1;
 }
 #reg-details ul {
     color: #666666;
