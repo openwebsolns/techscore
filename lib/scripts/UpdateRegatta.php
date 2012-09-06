@@ -135,6 +135,10 @@ class UpdateRegatta {
     if ($dreg === null)
       $dreg = self::sync($reg);
 
+    $divs = $reg->getDivisions();
+    if (count($divs) == 0)
+      throw new InvalidArgumentException("Cannot update with no divisions.");
+
     // ------------------------------------------------------------
     // Synchronize the teams. Track team_divs which is the list of all
     // the team divisions so that we can use them when syncing RP
@@ -143,50 +147,48 @@ class UpdateRegatta {
     $team_divs = array();
     $team_objs = array();
 
-    if ($full) {
-      $dteams = array();
-      foreach ($dreg->getTeams() as $team)
-	$dteams[$team->id] = $team;
+    $dteams = array();
+    foreach ($dreg->getTeams() as $team)
+      $dteams[$team->id] = $team;
 
-      // add teams
-      $dteams = array();
-      foreach ($reg->scorer->rank($reg) as $i => $rank) {
-	if (!isset($dteams[$rank->team->id])) {
-	  $team = new Dt_Team();
-	  $dteams[$rank->team->id] = $team;
-	}
-	$team = $dteams[$rank->team->id];
-
-	$team->id = $rank->team->id;
-	$team->regatta = $dreg;
-	$team->school = DB::get(DB::$SCHOOL, $rank->team->school->id);
-	$team->name = $rank->team->name;
-	$team->rank = $i + 1;
-	$team->rank_explanation = $rank->explanation;
-	DB::set($team);
+    // add teams
+    $dteams = array();
+    foreach ($reg->scorer->rank($reg) as $i => $rank) {
+      if (!isset($dteams[$rank->team->id])) {
+	$team = new Dt_Team();
+	$dteams[$rank->team->id] = $team;
       }
+      $team = $dteams[$rank->team->id];
 
-      // do the team divisions
-      foreach ($divs as $div) {
-	foreach ($reg->scorer->rank($reg, $div) as $i => $rank) {
-	  $team_division = $dteams[$rank->team->id]->getRank($div);
-	  if ($team_division === null)
-	    $team_division = new Dt_Team_Division();
+      $team->id = $rank->team->id;
+      $team->regatta = $dreg;
+      $team->school = DB::get(DB::$SCHOOL, $rank->team->school->id);
+      $team->name = $rank->team->name;
+      $team->rank = $i + 1;
+      $team->rank_explanation = $rank->explanation;
+      DB::set($team);
+    }
+
+    // do the team divisions
+    foreach ($divs as $div) {
+      foreach ($reg->scorer->rank($reg, $div) as $i => $rank) {
+	$team_division = $dteams[$rank->team->id]->getRank($div);
+	if ($team_division === null)
+	  $team_division = new Dt_Team_Division();
 	  
-	  $team_division->team = $dteams[$rank->team->id];
-	  $team_division->division = $div;
-	  $team_division->rank = ($i + 1);
-	  $team_division->explanation = $rank->explanation;
+	$team_division->team = $dteams[$rank->team->id];
+	$team_division->division = $div;
+	$team_division->rank = ($i + 1);
+	$team_division->explanation = $rank->explanation;
 
-	  // Penalty?
-	  if (($pen = $reg->getTeamPenalty($rank->team, $div)) !== null) {
-	    $team_division->penalty = $pen->type;
-	    $team_division->comments = $pen->comments;
-	  }
-	  DB::set($team_division);
-	  $team_divs[] = $team_division;
-	  $team_objs[$team_division->id] = $rank->team;
+	// Penalty?
+	if (($pen = $reg->getTeamPenalty($rank->team, $div)) !== null) {
+	  $team_division->penalty = $pen->type;
+	  $team_division->comments = $pen->comments;
 	}
+	DB::set($team_division);
+	$team_divs[] = $team_division;
+	$team_objs[$team_division->id] = $rank->team;
       }
     }
   }
@@ -200,18 +202,14 @@ class UpdateRegatta {
     if ($dreg === null)
       $dreg = self::sync($reg);
 
-    // ------------------------------------------------------------
-    // Also do the RP information
-    // ------------------------------------------------------------
-    if (count($team_divs) == 0) {
-      $team_divs = array();
-      foreach ($divs as $div) {
-	foreach ($dreg->getRanks($div) as $team) {
-	  $team_divs[] = $team;
-	  $team_objs[$team->id] = $reg->getTeam($team->team->id);
-	}
+    $team_divs = array();
+    foreach ($reg->getDivisions() as $div) {
+      foreach ($dreg->getRanks($div) as $team) {
+	$team_divs[] = $team;
+	$team_objs[$team->id] = $reg->getTeam($team->team->id);
       }
     }
+
     $rpm = $reg->getRpManager();
     foreach ($team_divs as $team) {
       $team->team->resetRP($team->division);
@@ -306,6 +304,7 @@ class UpdateRegatta {
     $sync = false;
     $sync_teams = false;
     $sync_rp = false;
+
     $rotation = false;
     $divisions = false;
     $front = false;
@@ -325,6 +324,19 @@ class UpdateRegatta {
 	// this is redundant)
 	if (!$reg->isSingleHanded())
 	  $divisions = true;
+      }
+      else {
+	// It is possible that all finishes were removed, therefore,
+	// delete all such directories
+	$season = $reg->getSeason();
+	if ($season !== null && $reg->nick !== null) {
+	  $root = sprintf('%s/html/%s/%s', dirname(dirname(dirname(__FILE__))), $season, $reg->nick);
+	  self::rm_r($root . '/full-scores');
+	  self::rm_r($root . '/A');
+	  self::rm_r($root . '/B');
+	  self::rm_r($root . '/C');
+	  self::rm_r($root . '/D');
+	}
       }
     }
     if (in_array(UpdateRequest::ACTIVITY_RP, $activities)) {
