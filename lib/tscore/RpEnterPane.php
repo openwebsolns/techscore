@@ -202,13 +202,13 @@ class RpEnterPane extends AbstractPane {
     // ------------------------------------------------------------
     // RP data
     // ------------------------------------------------------------
-    if (isset($_POST['rpform'])) {
+    if (isset($args['rpform'])) {
 
       $rpManager = $this->REGATTA->getRpManager();
       $rpManager->reset($team);
 
       $cur_season = Season::forDate(DB::$NOW);
-      $active = false;
+      $active = 'all';
       if ((string)$cur_season ==  (string)$this->REGATTA->getSeason())
 	$active = true;
       $gender = ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) ?
@@ -288,6 +288,7 @@ class RpEnterPane extends AbstractPane {
 	  }
 	}
       }
+
       // insert all!
       $rpManager->setRP($rps);
       $rpManager->updateLog();
