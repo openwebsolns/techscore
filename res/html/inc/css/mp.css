@@ -21,10 +21,12 @@ body {
     padding: 0;
 }
 #headdiv h1 {
-    display: inline-block;
-    max-width: 6em;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
     margin: 0;
-    padding: 0.25em 0.5em;
+    padding: 0;
 }
 #headdiv h4 {
     color: white;
@@ -155,33 +157,108 @@ h2 {
     margin-bottom: 0;
     text-align: center;
 }
-table {
-    border-collapse: collapse;
-    border-spacing: 0;
-    font-size: 0.9em;
-    margin: 1em auto;
+
+/* Tables */
+table 
+{
+  border-spacing: 0px;
+  border-collapse: collapse;
+  font-size: 0.9em;
+  margin: auto;
+  }
+table td 
+{
+  border: 1px solid #bbbbbb;
+  text-align: right;
+  margin: 0px;
+  padding: 0.25em;
+  }
+table th 
+{
+  border: 1px solid #bbbbbb;
+  text-align: right;
+  min-width: 2.25em;
+  padding: 0 0.25em;
+  font-size: 90%;
 }
-table td {
-    border-color: #BBBBBB;
-    border-style: solid none;
-    border-width: 1px medium;
-    margin: 0;
-    padding: 2.5px 0.5em;
+table thead 
+{
+  background: #b89f7e;
+  background-image: url('img/table_bg.png');
+  background-repeat: repeat-x;
+  border: 1px solid #bbbbbb;
+  height: 20px;
+  color: black;
+  }
+table tbody 
+{
+  border: 1px solid #bbbbbb;
+  }
+
+table.results tbody *, table.rotation tbody *, table.sailors tbody *
+{
+  border: none;
+  font-family: monospace;
+  font-size: 110%;
 }
-table th {
-    border-color: #BBBBBB;
-    border-style: solid none;
-    border-width: 1px medium;
-    margin: 0;
-    padding: 0 2.5px;
+table.results th  {
+    text-align: right;
 }
-table thead {
-    background: url("img/table_bg.png") repeat-x scroll 0 0 #B89F7E;
-    border: 1px solid #BBBBBB;
-    color: black;
-    height: 20px;
+.totalrow, .totalcell
+{
+  background: #f3ebe0;
+  color: #333;
+  font-weight: bold;
+}
+tr.totalrow td {
+  border-bottom: 1px solid #bbbbbb;
+}
+
+tr.topborder td {
+    border-top: 1px solid #bbb;
+}
+
+td.races {
+    text-align: left;
+    font-size: 95%;
+    color: #555;
+    padding-left: 0.5em;
+}
+
+.row1 {
+    background: #fff8ee;
+}
+
+td.schoolname, td.teamname {
     text-align: left;
 }
+
+/* Table fixes */
+td.noborder, th.noborder, tr.noborder 
+{
+  border: none;
+}
+
+colgroup 
+{
+  border-right: 1px solid #bbbbbb;
+  }
+
+td.total 
+{
+  color: black;
+}
+
+table.divisional tr {
+    border-bottom: 1px solid #bbb;
+}
+
+table.sailors ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
 #announcediv {
     background: none repeat scroll 0 0 #F3EBE0;
     font-size: 0.9em;
@@ -198,8 +275,7 @@ div.message {
     padding: 1em;
 }
 table.coordinate td:hover {
-    background: none repeat scroll 0 0 #3465A4;
-    color: white;
+    background: none repeat scroll 0 0 tan;
 }
 #reg-details ul {
     color: #666666;
@@ -208,25 +284,6 @@ table.coordinate td:hover {
     list-style-type: none;
     margin-top: 0.5em;
     padding: 0;
-}
-.results td {
-    border: medium none;
-    text-align: right;
-}
-.results tr.totalrow {
-    background: none repeat scroll 0 0 #F3EBE0;
-    border-bottom: 1px solid #BBBBBB;
-    color: #555555;
-}
-.results tbody {
-    border: 1px solid #BBBBBB;
-}
-td.left {
-    text-align: left;
-}
-td.races {
-    color: #555555;
-    font-size: 85%;
 }
 div.stat {
     font-size: 105%;
