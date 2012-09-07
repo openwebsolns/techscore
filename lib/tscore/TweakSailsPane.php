@@ -53,71 +53,59 @@ class TweakSailsPane extends AbstractPane {
       // ------------------------------------------------------------
       $this->PAGE->addContent($p = new XPort("Edit sail numbers"));
       $p->add(new XHeading("1. Choose action and division"));
-      $p->add($form = $this->createForm());
+      $p->add($form = $this->createForm(XForm::GET));
 
       // Action
       $form->add(new FItem("Action:", XSelect::fromArray('edittype', $this->ACTIONS, $edittype)));
       $form->add(new FItem("Division(s):", XSelectM::fromArray('division[]',
 							       array_combine($exist_div, $exist_div),
 							       $chosen_div)));
-      $form->add(new XSubmitInput("choose_act", "Next >>"));
+      $form->add(new XSubmitP("choose_act", "Next →"));
+      return;
     }
-    else {
-
-      // ------------------------------------------------------------
-      // 2. Tweak details
-      // ------------------------------------------------------------
+    
+    // ------------------------------------------------------------
+    // 2. Tweak details
+    // ------------------------------------------------------------
       
-      $edittype = $args['edittype'];
+    $edittype = $args['edittype'];
+    $this->PAGE->addContent($p = new XPort(sprintf("2. %s for Division %s",
+						   $this->ACTIONS[$edittype],
+						   implode(", ", $chosen_div))));
+    $p->add($form = $this->createForm());
 
-      $range_races = $this->REGATTA->getUnscoredRaceNumbers($chosen_div);
-
-      $this->PAGE->addContent($p = new XPort(sprintf("2. %s for Division %s",
-						     $this->ACTIONS[$edittype],
-						     implode(", ", $chosen_div))));
-      $p->add($form = $this->createForm());
-
-      // Write in this form the options from above
-      foreach ($chosen_div as $div) {
-	$form->add(new XHiddenInput("division[]", $div));
-      }
-
-      $form->add($f_item = new FItem("Races:",
-				     new XTextInput("races", DB::makeRange($range_races),
-						    array("size"=>"12"))));
-      $f_item->add(XTable::fromArray(array(array(DB::makeRange($range_races))),
-				     array(array("Possible")),
-				     array('class'=>'narrow')));
-
-      if ( $edittype === "ADD" ) {
-	$form->add(new FItem("Add/subtract:",
-			     $f = new XTextInput("addamount", "", array("size"=>"3"))));
-	$f->set("maxlength", "3");
-	$form->add(new XSubmitInput("cancel", "<< Cancel"));
-	$form->add(new XSubmitInput("addsails", "Edit sails"));
-      }
-      elseif ( $edittype == "REP" ) {
-	// Get sails in chosen races
-	$races = array();
-	foreach ($chosen_div as $div) {
-	  foreach ($range_races as $num) {
-// @TODO getRace()
-	    if (($race = $this->REGATTA->getRace($div, $num)) !== null)
-	      $races[] = $race;
-	  }
-	}
-	$sails = $rotation->getCommonSails($races);
-
-	$sails = array_combine($sails, $sails);
-	$form->add($f_item = new FItem("Replace sail:", XSelect::fromArray('from_sail', $sails)));
-	$f_item->add(" with ");
-	$f_item->add(new XTextInput("to_sail", "",
-				    array("size"=>"3")));
-	$form->add(new XSubmitInput("cancel", "<< Cancel"));
-	$form->add(new XSubmitInput("replacesails", "Replace"));
-      }
-
+    // Write in this form the options from above
+    foreach ($chosen_div as $div) {
+      $form->add(new XHiddenInput("division[]", $div));
     }
+
+    $range_races = sprintf('1-%d', count($this->REGATTA->getRaces(Division::A())));
+    $form->add(new FItem("Races:", new XTextInput("races", $range_races, array("size"=>"12"))));
+
+    if ( $edittype === "ADD") {
+      $form->add(new FItem("Add/subtract:",
+			   $f = new XTextInput('addamount', "", array("size"=>"3"))));
+      $f->set("maxlength", "3");
+      $form->add(new XP(array('class'=>'p-submit'),
+			array(new XA($this->link('tweak-sails'), "← Start over"), " ",
+			      new XSubmitInput('addsails', "Edit sails"))));
+    }
+    elseif ( $edittype == "REP" ) {
+      // Get sails in all races
+      $sails = array();
+      foreach ($rotation->getCommonSails($rotation->getRaces()) as $sail)
+	$sails[$sail->sail] = $sail;
+
+      $sails = array_combine($sails, $sails);
+      $form->add($f_item = new FItem("Replace sail:", XSelect::fromArray('from_sail', $sails)));
+      $f_item->add(" with ");
+      $f_item->add(new XTextInput('to_sail', '', array("size"=>"3")));
+
+      $form->add(new XP(array('class'=>'p-submit'),
+			array(new XA($this->link('tweak-sails'), "← Start over"), " ",
+			      new XSubmitInput('replacesails', "Replace"))));
+    }
+
   }
 
   public function process(Array $args) {

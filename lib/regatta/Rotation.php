@@ -108,10 +108,12 @@ class Rotation {
   /**
    * Returns a list of sail numbers common to the given list of races
    *
-   * @param Array:Race the list of races
+   * @param Array|ArrayIterator:Race the list of races
    * @return Array:Sail the list of sails common to all the races
    */
-  public function getCommonSails(Array $races) {
+  public function getCommonSails($races) {
+    if (!($races instanceof ArrayIterator) && !is_array($races))
+      throw new InvalidArgumentException("Argument is not iterable.");
     $nums = array();
     foreach ($races as $race) {
       foreach ($this->getSails($race) as $num)

@@ -307,7 +307,7 @@ class SailsPane extends AbstractPane {
 
 	// Submit form
 	$form->add(new XP(array('class'=>'p-submit'),
-			  array(new XA(WS::link(sprintf('/score/%d/sails', $this->REGATTA->id)), "← Start over"), " ",
+			  array(new XA($this->link('rotations'), "← Start over"), " ",
 				new XSubmitInput("createrot", "Create rotation"))));
       }
 
