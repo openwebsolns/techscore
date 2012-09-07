@@ -218,6 +218,8 @@ class Rotation {
 				 Array $races,
 				 $repeats,
 				 $updir = true) {
+    $this->initQueue();
+
     $sails = array_values($sails);
     $teams = array_values($teams);
     $races = array_values($races);
@@ -324,6 +326,8 @@ class Rotation {
 			     Array $races,
 			     $repeats,
 			     $updir = true) {
+    $this->initQueue();
+
     $sails = array_values($sails);
     $teams = array_values($teams);
     $races = array_values($races);
@@ -476,27 +480,33 @@ class Rotation {
    * before placing it in the corresponding index of the 'torace'
    * array. This means that both lists must have the same size.
    *
+   * Note that unlike the others, this function DOES NOT commit the
+   * changes to the database.
+   *
    * @param Array:Race $fromraces list of template races
    * @param Array:Race $toraces matching list of races to affect
    * @param int $offset the number of places to shift
    * @throws InvalidArgumentException if the array sizes do not match
    */
-  public function createOffset(Division $fromdiv, Division $todiv, Array $nums, $offset) {
+  public function queueOffset(Division $fromdiv, Division $todiv, Array $nums, $offset) {
     foreach ($nums as $num) {
       $from = $this->regatta->getRace($fromdiv, $num);
       $to = $this->regatta->getRace($todiv, $num);
+      if ($from === null || $to === null)
+	throw new InvalidArgumentException("Race num $num does not exist in both division $fromdiv and $todiv.");
       $sails = $this->getSails($from);
       $upper = count($sails);
-
       foreach ($sails as $j => $sail) {
-	$new_sail = clone($sails[($j + $offset + $upper) % $upper]);
-	$new_sail->id = null;
-	$new_sail->race = $top;
+	$offset_sail = $sails[($j + $offset + $upper) % $upper];
+
+	$new_sail = new Sail();
+	$new_sail->race = $to;
+	$new_sail->team = $sail->team;
+	$new_sail->sail = $offset_sail->sail;
 
 	$this->queue($new_sail);
       }
     }
-    $this->commit();
   }
 
   /**
@@ -600,9 +610,17 @@ class Rotation {
    * This method is now necessary to use in conjunction with
    * Rotation::queue
    */
-  private function commit() {
+  public function commit() {
     $this->reset();
     DB::insertAll($this->queued_sails);
+  }
+
+  /**
+   * Prepares the internal queue of sails.
+   *
+   * Sails are then committed using <pre>commit</pre> method.
+   */
+  public function initQueue() {
     $this->queued_sails = array();
   }
 
@@ -613,12 +631,12 @@ class Rotation {
    *
    * @param Sail $sail the sail to queue
    */
-  private function queue(Sail $sail) {
+  public function queue(Sail $sail) {
     if ($sail->team instanceof ByeTeam)
       return;
-    $this->queued_sails[] = $sail;
+    $this->queued_sails[$sail->hash()] = $sail;
   }
-  private $queued_sails = array();
+  private $queued_sails;
 
   /**
    * Deletes the entire rotation, or just the rotation for the given race

@@ -46,7 +46,7 @@ window.onload = function() {
     var span = document.createElement('span');
     table.parentNode.appendChild(span);
     span.setAttribute('class', 'message');
-    span.appendChild(document.createTextNode("< Drag to change order"));
+    span.appendChild(document.createTextNode("← Drag to change order"));
 };
 
 window.onmouseup = function(evt) {

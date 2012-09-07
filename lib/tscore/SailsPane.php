@@ -161,9 +161,6 @@ class SailsPane extends AbstractPane {
     $edittype = (isset($args['edittype']))
       ? $args['edittype'] : "ADD";
 
-    // Range of races
-    $range_races = $this->REGATTA->getCombinedUnscoredRaces($chosen_div);
-
     // Existing divisions with rotations
     // Get divisions to choose from
     $rotation = $this->REGATTA->getRotation();
@@ -251,12 +248,10 @@ class SailsPane extends AbstractPane {
       }
 
       // Races
-      $form->add($f_item = new FItem("Races:",
-				     new XTextInput("races", DB::makeRange($range_races),
-						    array("id"=>"frace"))));
-      $f_item->add(XTable::fromArray(array(array(DB::makeRange($range_races))),
-				     array(array("Unscored races")),
-				     array('class'=>'narrow')));
+      $range = sprintf("1-%d", count($this->REGATTA->getRaces(Division::A())));
+      $form->add(new FItem(sprintf("Races (%s):", $range),
+			   new XTextInput("races", $range,
+					  array("id"=>"frace"))));
 
       // For Offset rotations, print only the 
       // current divisions for which there are rotations entered
@@ -432,21 +427,12 @@ class SailsPane extends AbstractPane {
     //   b. validate division, only if not combined division, and
     //   order by order, if provided
     if (!$combined) {
-      $divisions = DB::$V->reqList($args, 'division', null, "Expected list of divisions, but none found.");
-      if (count($divisions) == 0)
-	throw new SoterException("There must be at least one division for the rotation.");
-      foreach ($divisions as $div) {
-	if (!isset($regDivisions[$div]))
-	  throw new SoterException("Invalid division chosen for rotation: $div.");
-      }
+      $divisions = DB::$V->reqDivisions($args, 'division', $regDivisions, 1, "Expected list of divisions, but none found.");
       if (isset($args['order'])) {
 	$order = DB::$V->reqList($args, 'order', count($divisions), "Invalid order provided for divisions.");
 	array_multisort($order, $divisions, SORT_NUMERIC);
       }
-      $args['divisions'] = $divisions;
-      $divisions = array();
-      foreach ($args['division'] as $div)
-	$divisions[] = Division::get($div);
+      $args['division'] = $divisions;
     }
     
     // ------------------------------------------------------------
@@ -471,24 +457,8 @@ class SailsPane extends AbstractPane {
       throw new SoterException("Unable to parse range of races provided.");
     sort($races);
       
-    // keep only races that are unscored
-    $races_copy = $races;
-    $pos_races = $this->REGATTA->getCombinedUnscoredRaces($divisions);
-    foreach ($races_copy as $i => $race) {
-      if (!in_array($race, $pos_races))
-	unset($races[$i]);
-    }
     if (count($races) == 0)
       throw new SoterException("No races for which to setup rotations.");
-
-    // Output message about ignored races
-    if (count($diff = array_diff($races_copy, $races)) > 0) {
-      $mes = sprintf("Ignored races %s in divisions %s.",
-		     DB::makeRange($diff),
-		     implode(", ", $divisions));
-      Session::pa(new PA($mes, PA::I));
-    }
-    unset($races_copy, $diff);
 
     $rotation = $this->REGATTA->getRotation();
 
@@ -507,9 +477,10 @@ class SailsPane extends AbstractPane {
       // 3b. validate teams: every signed-in team must exist
       $keys  = array_keys($args);
       $sails = array();
-      $teams = $this->REGATTA->getTeams();
+      $teams = array();
       $missing = array();
-      foreach ($teams as $team) {
+      foreach ($this->REGATTA->getTeams() as $team) {
+	$teams[] = $team;
 	$id = $team->id;
 	if (!DB::$V->hasString($sail, $args, $id, 1, 9))
 	  $missing[] = (string)$team;
@@ -568,15 +539,27 @@ class SailsPane extends AbstractPane {
 	  throw new SoterException("Unsupported rotation type \"$rottype\".");
 	}
 
-	// Offset subsequent divisions
+	// Offset subsequent divisions, but first queue this one
+	$rotation->initQueue();
+	foreach ($races as $num) {
+	  $race = $this->REGATTA->getRace($template, $num);
+	  if ($race !== null) {
+	    foreach ($teams as $team) {
+	      if (($sail = $rotation->getSail($race, $team)) !== null)
+		$rotation->queue($sail);
+	    }
+	  }
+	}
+
 	$num_teams = count($teams);
 	$index = 0;
 	foreach ($divisions as $div) {
-	  $rotation->createOffset($template,
-				  $div,
-				  $races,
-				  $offset * (++$index));
+	  $rotation->queueOffset($template,
+				 $div,
+				 $races,
+				 $offset * (++$index));
 	}
+	$rotation->commit();
 
 	// Reset
 	Session::pa(new PA("Franny-style rotation successfully created."));
@@ -625,7 +608,7 @@ class SailsPane extends AbstractPane {
 
       // Reset
       Session::pa(new PA(array("New rotation successfully created. ",
-			       new XA(sprintf('/view/%s/rotation', $this->REGATTA->id), "View", array('target', '_blank')),
+			       new XA(sprintf('/view/%s/rotation', $this->REGATTA->id), "View", array('onclick'=> 'javascript:this.target="rotation";')),
 			       ".")));
       unset($args['rottype']);
       $this->redirect('finishes');
@@ -637,32 +620,41 @@ class SailsPane extends AbstractPane {
     if (isset($args['offsetrot'])) {
 
       // 4a. validate FROM division
-      $exist_div = $rotation->getDivisions();
-      if (count($exist_div) == 0)
-	$exist_div = array();
-      else
-	$exist_div = array_combine($exist_div, $exist_div);
-
-      if (isset($args['from_div']) &&
-	  in_array($args['from_div'], $exist_div)) {
-	$from_div = new Division($args['from_div']);
-      }
-      else
-	throw new SoterException("Invalid division to offset from (%s).");
+      $all_divs = $rotation->getDivisions();
+      $from_div = DB::$V->reqDivision($args, 'from_div', $all_divs, "Invalid division to offset from.");
 
       // 4b. validate offset amount
       $offset = DB::$V->reqInt($args, 'offset', -100, 101, "Invalid or missing offset amount.");
-      $num_teams = count($this->REGATTA->getTeams());
+
+      // Queue ALL BUT the destination divs
+      $teams = $this->REGATTA->getTeams();
+      $rotation->initQueue();
+
+      foreach ($regDivisions as $division) {
+	if (!in_array($division, $divisions)) {
+	  foreach ($races as $num) {
+	    $race = $this->REGATTA->getRace($division, $num);
+	    if ($race !== null) {
+	      foreach ($teams as $team) {
+		if (($sail = $rotation->getSail($race, $team)) !== null)
+		  $rotation->queue($sail);
+	      }
+	    }
+	  }
+	}
+      }
+
       foreach ($divisions as $div) {
-	$rotation->createOffset($from_div,
-				$div,
-				$races,
-				$offset);
+	$rotation->queueOffset($from_div, $div, $races,	$offset);
       }
 
       // Reset
+      $rotation->commit();
+      Session::pa(new PA(array("Offset rotation successfully created. ",
+			       new XA(sprintf('/view/%s/rotation', $this->REGATTA->id), "View", array('onclick'=> 'javascript:this.target="rotation";')),
+			       ".")));
       unset($args['rottype']);
-      Session::pa(new PA('Offset rotation created.'));
+      $this->redirect('finishes');
     }
     return $args;
   }

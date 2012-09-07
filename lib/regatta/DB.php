@@ -1181,6 +1181,17 @@ class Sail extends DBObject {
     }
   }
   public function __toString() { return (string)$this->sail; }
+  /**
+   * Returns a string representation of sail that is unique for a
+   * given race, team pairing
+   *
+   * @return String race_id-team_id
+   */
+  public function hash() {
+    $r = ($this->race instanceof Race) ? $this->race->id : $this->race;
+    $t = ($this->team instanceof Team) ? $this->team->id : $this->team;
+    return sprintf('%s-%s', $r, $t);
+  }
 }
 
 /**
