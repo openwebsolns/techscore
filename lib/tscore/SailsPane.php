@@ -37,28 +37,40 @@ class SailsPane extends AbstractPane {
    * division. This function takes care of only the second step in
    * creating rotations below in fillHTML
    *
-   * @param Array $args the arguments
+   * @param Const $chosen_rot one of the $ROTS type
+   * @param Array $chosen_div the divisions to affect
    * @see fillHTML
    */
   private function fillCombined($chosen_rot, $chosen_div) {
-    
     $chosen_rot_desc = explode(":", $this->ROTS[$chosen_rot]);
-    $this->PAGE->addContent($p = new XPort(sprintf("2. %s for all division(s)", $chosen_rot_desc[0])));
+    $mesaage = sprintf("2. %s", $chosen_rot_desc[0]);
+    if (count($chosen_div) > 1)
+      $message = sprintf("2. %s for all divisions", $chosen_rot_desc[0]);
+    $this->PAGE->addContent($p = new XPort($message));
     $p->add($form = $this->createForm());
     $form->add(new XHiddenInput("rottype", $chosen_rot));
-    
+
     $teams = $this->REGATTA->getTeams();
     $divisions = $this->REGATTA->getDivisions();
 
     // Races
-    $range_races = $this->REGATTA->getCombinedUnscoredRaces();
-    $form->add($f_item = new FItem("Races:",
-				   new XTextInput("races", DB::makeRange($range_races),
-						  array("id"=>"frace"))));
-    $f_item->add(XTable::fromArray(array(array(DB::makeRange($range_races))),
-				   array(array("Unscored races")),
-				   array('class'=>'narrow')));
+    $range_races = sprintf('1-%d', count($this->REGATTA->getRaces(Division::A())));
+    $form->add(new FItem(sprintf("Races (%s):", $range_races),
+			 new XTextInput("races", $range_races, array("id"=>"frace"))));
 
+    if ($chosen_rot == "OFF") {
+      $form->add(new XHiddenInput('from_div', Division::A()));
+      $form->add(new FItem("Amount to offset (±):", new XTextInput('offset', (int)(count($teams) / 2))));
+
+      $form->add(new XP(array('class'=>'p-submit'),
+			array(new XA($this->link('rotations'), "← Start over"), " ",
+			      new XSubmitInput("offsetrot", "Offset"))));
+      return;
+    }
+
+    // ------------------------------------------------------------
+    // Else
+    // ------------------------------------------------------------
     // Set size
     $form->add($fitem = new FItem("Races in set:", $f_text = new XTextInput("repeat", 2, array('size'=>2, 'id'=>'repeat'))));
     $fitem->add(new XMessage("With \"no rotation\", value is ignored"));
@@ -119,11 +131,11 @@ class SailsPane extends AbstractPane {
     }
 
     // order
-    $form->add(new FItem("Order sails in first race:", XSelect::fromArray('sort', $this->SORT)));
+    $form->add(new FItem("Order sails in first race:", XSelect::fromArray('sort', $this->SORT, 'num')));
 
     // Submit form
     $form->add(new XP(array('class'=>'p-submit'),
-		      array(new XA(WS::link(sprintf('/score/%d/sails', $this->REGATTA->id)), "← Start over"), " ",
+		      array(new XA($this->link('rotations'), "← Start over"), " ",
 			    new XSubmitInput("createrot", "Create rotation"))));
   }
 
@@ -257,7 +269,6 @@ class SailsPane extends AbstractPane {
       // current divisions for which there are rotations entered
       // and the offset amount
       if ($chosen_rot == "OFF") {
-	$form->add(new FItem("Copy rotation from:", XSelect::fromArray('from_div', $exist_div)));
 	$form->add(new FItem("Amount to offset (+/-):",
 			     new XTextInput("offset", (int)(count($p_teams) / count($exist_div)),
 					    array("size"=>"2",
@@ -313,16 +324,45 @@ class SailsPane extends AbstractPane {
    * have been chosen
    *
    * @param Array $args the arguments
-   * @param Array the processed arguments
+   * @param Const $rottype the rotation type
+   * @return Array the processed arguments
    */
   private function processCombined(Array $args, $rottype) {
 
-    // validate races
-    $divisions = $this->REGATTA->getDivisions();
+    $rotation = $this->REGATTA->getRotation();
     $races = DB::$V->reqString($args, 'races', 1, 101, "No races provided.");
     if (($races = DB::parseRange($races)) === null)
       throw new SoterException("Unable to parse range of races provided.");
     sort($races);
+
+    // ------------------------------------------------------------
+    // Offset rotation
+    // ------------------------------------------------------------
+    if (isset($args['offsetrot'])) {
+
+      // 4a. validate FROM division
+      $all_divs = $rotation->getDivisions();
+      if (count($all_divs) == 0)
+	throw new SoterException("No existing rotation to offset from.");
+
+      // 4b. validate offset amount
+      $offset = DB::$V->reqInt($args, 'offset', -100, 101, "Invalid or missing offset amount.");
+
+      // Queue the sail offset
+      $rotation->initQueue();
+      $rotation->queueCombinedOffset($races, $offset);
+      $rotation->commit();
+      Session::pa(new PA(array("Offset rotation successfully created. ",
+			       new XA(sprintf('/view/%s/rotation', $this->REGATTA->id), "View", array('onclick'=> 'javascript:this.target="rotation";')),
+			       ".")));
+      unset($args['rottype']);
+      $this->redirect('finishes');
+      return $args;
+    }
+
+
+    // validate races
+    $divisions = $this->REGATTA->getDivisions();
 
     // keep only races that are unscored
     $races_copy = $races;
@@ -333,8 +373,6 @@ class SailsPane extends AbstractPane {
     }
     if (count($races) == 0)
       throw new SoterException("No races for which to setup rotations.");
-
-    $rotation = $this->REGATTA->getRotation();
 
     // ------------------------------------------------------------
     // Create the rotation

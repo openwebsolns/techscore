@@ -46,7 +46,7 @@ class RacesPane extends AbstractPane {
       $form->add(new FItem("Number of divisions:", XSelect::fromArray('num_divisions',
 								      array(1=>1, 2=>2, 3=>3, 4=>4),
 								      count($this->REGATTA->getDivisions()))));
-    $form->add(new FItem("Number of races:", new XTextInput("num_races", '18')));
+    $form->add(new FItem("Number of races:", new XTextInput('num_races', count($this->REGATTA->getTeams()))));
     $form->add($fi = new FItem("Boat:", XSelect::fromArray('boat', $boatOptions)));
     $fi->add(new XMessage("Boats can be assigned per division or race afterwards."));
     $fi->add(new XSubmitP("set-races", "Add races"));
@@ -209,8 +209,10 @@ class RacesPane extends AbstractPane {
 	}
       }
       if ($new_regatta) {
-	Session::pa(new PA("Regatta races successfull set. Now add teams for the event."));
-	$this->redirect('teams');
+	Session::pa(new PA(array("Regatta races successfull set. You may create a rotation, or ",
+				 new XA($this->link('finishes'), "skip this step"),
+				 " to enter finishes directly.")));
+	$this->redirect('rotations');
       }
       Session::pa(new PA("Set number of races."));
     }

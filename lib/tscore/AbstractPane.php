@@ -133,7 +133,16 @@ abstract class AbstractPane {
    * @param String $page the page within this regatta to go to
    */
   protected function redirect($page = null) {
-    WS::go(sprintf('/score/%s/%s', $this->REGATTA->id, $page));
+    WS::go($this->link($page));
+  }
+
+  /**
+   * Creates a link to the given page
+   *
+   * @return String the link
+   */
+  protected function link($page = null) {
+    return WS::link(sprintf('/score/%s/%s', $this->REGATTA->id, $page));
   }
 
   /**

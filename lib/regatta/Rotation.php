@@ -510,6 +510,33 @@ class Rotation {
   }
 
   /**
+   * Appropriate for "combined" rotations, this method will shift all
+   * the sails in the given race $nums by the given $offset, taking
+   * the full fleet into account.
+   *
+   * @param Array $nums the race numbers
+   * @param int $offset the offset amount
+   * @throws InvalidArgumentException
+   */
+  public function queueCombinedOffset(Array $nums, $offset) {
+    foreach ($nums as $num) {
+      $race = new Race();
+      $race->number = $num;
+
+      $sails = $this->getCombinedSails($race);
+      $upper = count($sails);
+      foreach ($sails as $j => $sail) {
+	$offset_sail = $sails[($j + $offset + $upper) % $upper];
+
+	$new_sail = clone $sail;
+	$new_sail->sail = $offset_sail->sail;
+
+	$this->queue($new_sail);
+      }
+    }
+  }
+
+  /**
    * Adds the given amount to the sails in the given race
    *
    * @param Race $race the race to affect
