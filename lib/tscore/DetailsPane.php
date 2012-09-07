@@ -217,10 +217,8 @@ class DetailsPane extends AbstractPane {
 	$edited = true;
       }
 
-      if (DB::$V->hasID($V, $args, 'venue', DB::$VENUE) &&
-	  (($V !== null && $this->REGATTA->venue == null) ||
-	   ($V === null && $this->REGATTA->venue != null) ||
-	   $V->id != $this->REGATTA->venue->id)) {
+      $V = DB::$V->incID($args, 'venue', DB::$VENUE);
+      if ($V != $this->REGATTA->venue) {
 	$this->REGATTA->venue = $V;
 	$edited = true;
       }
@@ -228,6 +226,7 @@ class DetailsPane extends AbstractPane {
       if (DB::$V->hasKey($V, $args, 'scoring', Regatta::getScoringOptions()) && $V != $this->REGATTA->scoring) {
 	$this->REGATTA->setScoring($V);
 	$edited = true;
+
 	// Are we going to team racing?
 	$divs = $this->REGATTA->getDivisions();
 	if ($this->REGATTA->scoring == Regatta::SCORING_TEAM && count($divs) > 1) {
@@ -238,7 +237,7 @@ class DetailsPane extends AbstractPane {
 	}
       }
 
-      if (DB::$V->hasKey($V, $args, 'scoring', Regatta::getParticipantOptions()) && $V != $this->REGATTA->participant) {
+      if (DB::$V->hasKey($V, $args, 'participant', Regatta::getParticipantOptions()) && $V != $this->REGATTA->participant) {
 	$this->REGATTA->participant = $V;
 	// affect RP accordingly
 	if ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) {
@@ -255,18 +254,32 @@ class DetailsPane extends AbstractPane {
       // we know we have at least one valid host for the regatta,
       // reset the hosts, and add each school, one at a time
       if (DB::$V->hasList($V, $args, 'host')) {
+	$current_schools = array();
+	foreach ($this->REGATTA->getHosts() as $host)
+	  $current_schools[$host->id] = $host;
+	$changed = false;
+
 	$hosts = array();
 	foreach ($V as $id) {
 	  $school = DB::getSchool($id);
-	  if ($school !== null && $this->USER->hasSchool($school))
+	  if ($school !== null && $this->USER->hasSchool($school)) {
 	    $hosts[] = $school;
+	    if (!isset($current_schools[$host->id]))
+	      $changed = true;
+	    unset($current_schools[$host->id]);
+	  }
 	}
+	if (count($current_schools) > 0)
+	  $changed = true;
+
 	if (count($hosts) == 0)
 	  throw new SoterException("There must be at least one host for each regatta.");
-	$this->REGATTA->resetHosts();
-	foreach ($hosts as $school)
-	  $this->REGATTA->addHost($school);
-	$edited = true;
+	if ($changed) {
+	  $this->REGATTA->resetHosts();
+	  foreach ($hosts as $school)
+	    $this->REGATTA->addHost($school);
+	  Session::pa(new PA("Edited regatta host(s)."));
+	}
       }
 
       if ($edited) {
