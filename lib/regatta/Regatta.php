@@ -607,24 +607,6 @@ class Regatta extends DBObject {
   }
 
   /**
-   * Returns a list of unscored race numbers common to all divisions
-   *
-   * @param  Array<Division> the divisions, or all if null
-   * @return Array<int> the race numbers
-   */
-  public function getCombinedUnscoredRaces(Array $divs = null) {
-    if ($divs == null)
-      $divs = $this->getDivisions();
-    $nums = array();
-    foreach ($divs as $div) {
-      foreach ($this->getUnscoredRaces($div) as $race)
-	$nums[$race->number] = $race->number;
-    }
-    sort($nums);
-    return $nums;
-  }
-
-  /**
    * Fetches the race that was last scored in the regatta, or the
    * specific division if one is provided. This method will look at
    * the timestamp of the first finish in each race to determine which

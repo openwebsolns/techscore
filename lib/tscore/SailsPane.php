@@ -334,6 +334,8 @@ class SailsPane extends AbstractPane {
     if (($races = DB::parseRange($races)) === null)
       throw new SoterException("Unable to parse range of races provided.");
     sort($races);
+    if (count($races) == 0)
+      throw new SoterException("No races for which to setup rotations.");
 
     // ------------------------------------------------------------
     // Offset rotation
@@ -363,16 +365,6 @@ class SailsPane extends AbstractPane {
 
     // validate races
     $divisions = $this->REGATTA->getDivisions();
-
-    // keep only races that are unscored
-    $races_copy = $races;
-    $pos_races = $this->REGATTA->getCombinedUnscoredRaces($divisions);
-    foreach ($races_copy as $i => $race) {
-      if (!in_array($race, $pos_races))
-	unset($races[$i]);
-    }
-    if (count($races) == 0)
-      throw new SoterException("No races for which to setup rotations.");
 
     // ------------------------------------------------------------
     // Create the rotation
