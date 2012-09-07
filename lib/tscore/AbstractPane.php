@@ -141,8 +141,8 @@ abstract class AbstractPane {
    *
    * @return String the link
    */
-  protected function link($page = null) {
-    return WS::link(sprintf('/score/%s/%s', $this->REGATTA->id, $page));
+  protected function link($page = null, Array $args = array()) {
+    return WS::link(sprintf('/score/%s/%s', $this->REGATTA->id, $page), $args);
   }
 
   /**

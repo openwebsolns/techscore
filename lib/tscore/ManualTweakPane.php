@@ -22,47 +22,80 @@ class ManualTweakPane extends AbstractPane {
   protected function fillHTML(Array $args) {
 
     $rotation  = $this->REGATTA->getRotation();
-    $exist_div = $rotation->getDivisions();
+    $exist_div = $this->REGATTA->getDivisions();
 
-    // Chosen division
-    $chosen_div = null;
-    if (isset($args['division']) &&
-	in_array($args['division'], $exist_div))
-      $chosen_div = new Division($args['division']);
-    else
-      $chosen_div = $exist_div[0];
+    // ------------------------------------------------------------    
+    // Chosen division: only applies if not "singlehanded"
+    // ------------------------------------------------------------
+    if (count($exist_div) > 1 && $this->REGATTA->scoring != Regatta::SCORING_COMBINED) {
+      $chosen_div = DB::$V->incDivision($args, 'division', $exist_div, $exist_div[0]);
+      $races = $rotation->getRaces($chosen_div);
+      $port_title = "Manual rotation for division " . $chosen_div;
 
-    // OUTPUT
-    $this->PAGE->addContent($p = new XPort("Tweak current rotation"));
-    $p->add($form = $this->createForm());
+      // Provide links to change division
+      $d = new FItem("Choose division:", "");
+      foreach ($exist_div as $div) {
+	$mes = new XStrong($div);
+	if ($div != $chosen_div)
+	  $mes = new XA($this->link('manual-rotation', array('division'=>(string)$div)), $mes);
+	$d->add(" ");
+	$d->add($mes);
+      }
 
-    $form->add(new FItem("Pick a division:", $f_sel = XSelect::fromArray('division',
-									 array_combine($exist_div, $exist_div),
-									 $chosen_div)));
-    $f_sel->set("onchange", "submit()");
-    $form->add(new XSubmitAccessible("boatupdate", "Update"));
+      $divraces = $this->REGATTA->getRaces($chosen_div);
+      $teams = array();
+      $races = array();
+      foreach ($this->REGATTA->getTeams() as $team) {
+	$teams[(string)$team] = $team;
+	$races[(string)$team] = $divraces;
+      }
+    }
+    else {
+      $port_title = "Manual rotation";
+      $d = "";
+      $races = $rotation->getRaces($exist_div[0]);
 
-    $p->add(new XHeading("Replace sail numbers"));
-    $p->add($form = $this->createForm());
+      // Include all teams across all divisions
+      $teams = array();
+      $races = array();
+      $existing = $this->REGATTA->getTeams();
+      foreach ($exist_div as $division) {
+	$divraces = $this->REGATTA->getRaces($division);
+	foreach ($existing as $team) {
+	  $label = sprintf('%s: %s', $division, $team);
+	  $teams[$label] = $team;
+	  $races[$label] = $divraces;
+	}
+      }
+    }
     
-    $races = $this->REGATTA->getRaces($chosen_div);
-    $row = array("Division $chosen_div");
-    foreach ($races as $race)
-      $row[] = $race->number;
-    $form->add(new FItem("Edit on a boat-by-boat basis.", $tab = new XQuickTable(array('class'=>'narrow'), $row)));
+    // OUTPUT
+    $this->PAGE->addContent($p = new XPort($port_title));
+    $p->add($d);
+    $p->add($form = $this->createForm());
+
+    $row = array("");
+    foreach ($races as $list) {
+      foreach ($list as $race) {
+	$row[] = $race->number;
+      }
+      break;
+    }
+    $form->add($tab = new XQuickTable(array(), $row));
 
     // Get teams
-    $attrs = array("size"=>"3", "maxlength"=>"3", "class"=>"small");
-    foreach($this->REGATTA->getTeams() as $team) {
-      $row = array($team);
-      foreach ($races as $race) {
+    $attrs = array('size'=>'3', 'maxlength'=>'3', 'class'=>'small');
+    foreach ($teams as $label => $team) {
+      $row = array($label);
+      foreach ($races[$label] as $race) {
 	$sail = $rotation->getSail($race, $team);
 	$row[] = new XTextInput(sprintf("%s,%s", $race->id, $team->id), ($sail !== null) ? $sail : "", $attrs);
       }
       $tab->addRow($row);
     }
-    $form->add(new XReset("reset", "Reset"));
-    $form->add(new XSubmitInput("editboat", "Edit sails"));
+    $form->add(new XP(array('class'=>'p-submit'),
+		      array(new XReset("reset", "Reset"),
+			    new XSubmitInput("editboat", "Edit sails"))));
   }
 
   public function process(Array $args) {
