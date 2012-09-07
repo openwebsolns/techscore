@@ -52,10 +52,13 @@ body {
     background: #ddd;
     font-weight:heavy;
     margin: 0;
-    padding: 0.15em 0.25em;
+    padding: 0.35em 0.5em;
     cursor:pointer;
     font-size:0.9em;
     color: #333;
+    border-right: 1px dotted white;
+    border-bottom: 1px solid #888;
+    border-top: 1px solid white;
 }
 #menudiv .menu:hover h4 {
     color: black;
@@ -83,7 +86,7 @@ body {
 #menudiv li {
     display:block;
     margin:0.25em 0px;
-    padding:0.1em;
+    padding:0.25em 0.5em;
     list-style-type:none;
 }
 #menudiv li a {
@@ -133,6 +136,13 @@ input, select {
 h4#regatta {
     font-weight:bold;
 }
+#regatta a {
+    color: inherit;
+    text-decoration: none;
+}
+#regatta a:hover {
+    text-decoration: underline;
+}
 #help {
     display: inline-block;
     zoom: 1;
@@ -149,7 +159,7 @@ h4#regatta {
     text-decoration: none;
     color: white;
 }
-#logout {
+#logout, #close {
     display: inline-block;
     zoom: 1;
     *display: inline;
@@ -158,12 +168,14 @@ h4#regatta {
     font-size:0.8em;
     margin: 0.5em 0.25em;
 }
-#logout a {
+#logout a, #close a {
     text-decoration:none;
     background:#f3ebe0;
-    border:1px outset #555555;
+    border:1px solid white;
     padding:0.2em;
     font-size:1em;
+    border-radius: 0.5em;
+    -moz-border-radius: 0.5em;
 }
 
 #bottom-grab {display:none;}
