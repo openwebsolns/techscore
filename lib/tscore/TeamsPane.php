@@ -135,17 +135,19 @@ class TeamsPane extends AbstractPane {
     $this->PAGE->addContent($p = new XPort("Add team from ICSA school"));
     $p->add(new XP(array(), "Choose schools which are participating by indicating how many teams are invited from each school. Use your browser's search function to help you."));
     $p->add($form = $this->createForm());
+    $form->add($cuts = new XUl(array('id'=>'teams-shortcuts')));
     $form->add($list = new XUl(array('id'=>'teams-list')));
     
     foreach ($confs as $conf) {
-      $list->add(new XLi(array(new XHeading($conf), $sub = new XUl())));
+      $cuts->add(new XLi(new XA('#'.$conf->id, $conf)));
+      $list->add(new XLi(array(new XHeading($conf, array('id'=>$conf->id)), $sub = new XUl())));
       foreach ($conf->getSchools() as $school) {
 	$sub->add(new XLi(array(new XHiddenInput('school[]', $school->id),
 				new XTextInput('number[]', "", array('id'=>$school->id)),
 				new XLabel($school->id, $school))));
       }
     }
-    $form->add(new XSubmitInput('set-teams', "Register teams"));
+    $form->add(new XSubmitP('set-teams', "Register teams"));
   }
 
   public function processNewRegatta(Array $args) {

@@ -246,7 +246,7 @@ class RacesPane extends AbstractPane {
 	  }
 	}
       }
-      Session::pa(new PA("Updated races."));
+      Session::pa(new PA("Updated boat assignments."));
     }
     return array();
   }

@@ -252,13 +252,82 @@ dt {margin-left:3em;margin-bottom:1em;}
 label { cursor: pointer; padding: 0 0.25em; }
 #cmp-sailor {margin:1em auto;padding:0.5em;max-width:70%;background:#d5d5d5;border:1px solid #555;}
 #cmp-sailor label {margin-left:0.5em;}
-#teams-list {border:1px solid #aaa;max-height:25em;overflow:scroll;overflow-x:auto;padding:0;background:#eee;}
-#teams-list ul {padding:0.25em;margin:0;}
-#teams-list > li {list-style-type:none;padding:0;margin:0.25em 0;}
-#teams-list ul li {margin:0.2em 0;}
-#teams-list h4 {margin:0.5em 0 0.25em;border-bottom:1px solid #aaa;}
-#teams-list input {width:3em;}
-#teams-list label {padding-left:1em;}
+
+#teams-shortcuts {
+    margin: 0.5em 0 0;
+    display: table;
+}
+#teams-shortcuts li {
+    display: table-cell;
+    padding: 0.5em 1em;
+    text-align: center;
+    border: 1px solid #aaa;
+    border-bottom: 0;
+    border-radius: 1em 1em 0 0;
+}
+#teams-shortcuts a {
+    color: black;
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 90%;
+}
+#teams-shortcuts > li:nth-child(1) {
+    background: #ffd0d0;
+}
+#teams-shortcuts > li:nth-child(2) {
+    background: #ffecd0;
+}
+#teams-shortcuts > li:nth-child(3) {
+    background: #feffd0;
+}
+#teams-shortcuts > li:nth-child(4) {
+    background: #d6ffd0;
+}
+#teams-shortcuts > li:nth-child(5) {
+    background: #d0ecff;
+}
+#teams-shortcuts > li:nth-child(6) {
+    background: #d7d0ff
+}
+#teams-shortcuts > li:nth-child(7) {
+    background: #ffd0fa;
+}
+#teams-shortcuts > li:nth-child(8) {
+    background: #eee;
+}
+
+#teams-list {
+    border:1px solid #aaa;
+    max-height:35em;
+    overflow:scroll;
+    overflow-x:auto;
+    padding:0;
+    background:#eee;
+    margin-top: 0;
+}
+#teams-list ul {
+    padding:0.25em;
+    margin:0;
+}
+#teams-list > li {
+    list-style-type:none;
+    padding:0;
+    margin:0.25em 0;
+}
+#teams-list ul li {
+    margin:0.2em 0;
+}
+#teams-list h4 {
+    margin: 0;
+    padding: 0.5em;
+    border-bottom:1px solid #aaa;
+}
+#teams-list input {
+    width:3em;
+}
+#teams-list label {
+    padding-left:1em;
+}
 .pos_sail:hover, .pos_team:hover {background:#3465a4;color:white;}
 tr.disabled {background:#ddd;color:#555;}
 .inline-list {list-style-type:none;display:inline-block;zoom:1;*display:inline;margin:0;padding:0;}
