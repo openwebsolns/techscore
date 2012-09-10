@@ -13,7 +13,7 @@ require_once('users/AbstractUserPane.php');
  */
 class UserHomePane extends AbstractUserPane {
 
-  const NUM_PER_PAGE = 10;
+  const NUM_PER_PAGE = 20;
 
   /**
    * Create a new User home page for the specified user

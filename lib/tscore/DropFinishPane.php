@@ -29,7 +29,7 @@ class DropFinishPane extends AbstractPane {
     $divisions = $this->REGATTA->getDivisions();
     $rotation = $this->REGATTA->getRotation();
 
-    $header = array("Place");
+    $header = array("Race");
     for ($i = 1; $i <= count($this->REGATTA->getTeams()) * count($divisions); $i++)
       $header[] = $i;
     $header[] = ""; // Drop finish
@@ -75,7 +75,7 @@ class DropFinishPane extends AbstractPane {
 	continue;
       }
 
-      $header = array("Place");
+      $header = array("Race");
       for ($i = 1; $i <= count($this->REGATTA->getTeams()); $i++)
 	$header[] = $i;
       $header[] = ""; // Drop finish
