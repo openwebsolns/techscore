@@ -43,8 +43,6 @@ class TScoreDialog extends XPage {
     $this->filled = true;
 
     // HTML HEAD element
-    if ($this->mobile)
-      $this->head->add(new XMeta('viewport', "width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"));
     // CSS Stylesheets
     $this->head->add(new LinkCSS('/inc/css/modern-dialog.css'));
     $this->head->add(new LinkCSS('/inc/css/print.css','print'));
