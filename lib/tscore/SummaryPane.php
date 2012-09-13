@@ -45,7 +45,7 @@ class SummaryPane extends AbstractPane {
       $s = clone($this->REGATTA->start_time);
       for ($i = 0; $i < $this->REGATTA->getDuration(); $i++) {
 	$day = $s->format('Y-m-d');
-	$this->REGATTA->setSummary($s, DB::$V->reqString($args, $day, 1, 16000, "No summary provided for $day."));
+	$this->REGATTA->setSummary($s, DB::$V->incString($args, $day, 1, 16000, null));
 	$s->add(new DateInterval('P1DT0H'));
       }
       Session::pa(new PA("Updated summaries"));

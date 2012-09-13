@@ -236,11 +236,17 @@ class Regatta extends DBObject {
    * Sets the daily summary for the given day
    *
    * @param DateTime $day
-   * @param String $comment
+   * @param String|null $comment no comment
    */
-  public function setSummary(DateTime $day, $comment) {
+  public function setSummary(DateTime $day, $comment = null) {
     // Enforce uniqueness
     $res = DB::getAll(DB::$DAILY_SUMMARY, new DBBool(array(new DBCond('regatta', $this->id), new DBCond('summary_date', $day->format('Y-m-d')))));
+    if ($comment === null) {
+      foreach ($res as $cur)
+	DB::remove($cur);
+      return;
+    }
+
     if (count($res) > 0)
       $cur = $res[0];
     else {
