@@ -347,6 +347,21 @@ class UpdateRegatta {
 	  }
 	}
       }
+      elseif ($has_rotation) {
+	// What if the rotation was removed?
+	$season = $reg->getSeason();
+	if ($season !== null && $reg->nick !== null) {
+	  $root = sprintf('%s/html/%s/%s', dirname(dirname(dirname(__FILE__))), $season, $reg->nick);
+	  self::rm_r($root . '/rotations');
+	}
+
+	$front = true;
+	if ($reg->hasFinishes()) {
+	  $full = true;
+	  if (!$reg->isSingleHanded())
+	    $divisions = true;
+	}
+      }
     }
     if (in_array(UpdateRequest::ACTIVITY_SCORE, $activities)) {
       $sync_teams = true;

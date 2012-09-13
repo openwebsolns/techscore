@@ -211,8 +211,18 @@ class SailsPane extends AbstractPane {
 	$form->add(new FItem("Divisions to affect:", XSelectM::fromArray('division[]', $div_opts, $chosen_div)));
       }
       $form->add(new XSubmitP("choose_rot", "Next >>"));
-    }
 
+      // ------------------------------------------------------------
+      // 1b. Delete a rotation
+      // ------------------------------------------------------------
+      if ($rotation->isAssigned()) {
+	$this->PAGE->addContent($p = new XPort("Remove rotation"));
+	$p->add($form = $this->createForm());
+	$form->add(new XP(array(), "You can replace an existing rotation simply by creating a new one using the form above. Note that rotation changes will not affect finishes already entered."));
+	$form->add(new XP(array(), "If you wish to not use rotations at all, click the button below. Note that you will still be able to enter finishes using team names instead of sail numbers."));
+	$form->add(new XSubmitP('remove-rotation', "Remove rotation"));
+      }
+    }
     // ------------------------------------------------------------
     // 2. Starting sails
     // ------------------------------------------------------------
@@ -354,6 +364,8 @@ class SailsPane extends AbstractPane {
       $rotation->initQueue();
       $rotation->queueCombinedOffset($races, $offset);
       $rotation->commit();
+
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA(array("Offset rotation successfully created. ",
 			       new XA(sprintf('/view/%s/rotation', $this->REGATTA->id), "View", array('onclick'=> 'javascript:this.target="rotation";')),
 			       ".")));
@@ -423,8 +435,7 @@ class SailsPane extends AbstractPane {
       break;
 
     default:
-      Session::pa(new PA("Unsupported rotation type.", PA::E));
-      return $args;
+      throw new SoterException("Unsupported rotation type.");
     }
 
     // reset
@@ -443,6 +454,21 @@ class SailsPane extends AbstractPane {
    * </dl>
    */
   public function process(Array $args) {
+
+    // ------------------------------------------------------------
+    // 1b. remove rotation
+    // ------------------------------------------------------------
+    if (isset($args['remove-rotation'])) {
+      $rotation = $this->REGATTA->getRotation();
+      if (!$rotation->isAssigned())
+	throw new SoterException("Rotations are not assigned.");
+      $rotation->reset();
+
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
+      Session::pa(new PA("Rotations removed."));
+      return array();
+    }
+
 
     $rottype = null;
     // ------------------------------------------------------------
@@ -637,6 +663,7 @@ class SailsPane extends AbstractPane {
       }
 
       // Reset
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA(array("New rotation successfully created. ",
 			       new XA(sprintf('/view/%s/rotation', $this->REGATTA->id), "View", array('onclick'=> 'javascript:this.target="rotation";')),
 			       ".")));
