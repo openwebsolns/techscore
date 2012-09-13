@@ -1,45 +1,43 @@
 /* Fixes for mobile devices */
 
 body {
-    width: 100%;
-    font-size: 18pt;
+    font-size: 14pt;
     font-family: "Lucida Grande", Tahoma, Verdana, sans-serif;
     line-height: 1.25em;
     position: relative;
-    background-image: url('img/m-back.png');
-    background-position: 0px 0px;
-    background-repeat: repeat-x;
+    margin: 0;
 }
 #bodydiv {
     padding: 0em;
 }
 #footdiv {
-    font-size: 12pt;
+    padding: 1em;
+    font-size: 75%;
     color: gray;
 }
 input, button {
-    font-size: 18pt;
+    font-size: 16pt;
 }
 select {
-    font-size: 18pt;
+    font-size: 16pt;
 }
 .hidden {
     display: none;
 }
 /* Forms */
-div.form_entry {
+.form_entry {
     margin-bottom: 1em;
 }
 .form_h {
-    display: inline-block;
-    zoom: 1;
-    *display: inline;
-    width: 10em;
-    text-align: right;
-    margin-right: 1em;
-    font-weight: bold;
+    display: block;
+    text-align: left;
     color: black;
-    vertical-align: top;
+}
+.form_entry input, .form_entry textarea, .form_entry select {
+    width: 95%;
+    border-radius: 0.25em;
+    padding: 0.25em 2.5%;
+    border-width: 1px;
 }
 .form_b {
     display: inline-block;
@@ -51,31 +49,33 @@ div.form_entry {
 th.noborder, td.noborder {
     border: none;
 }
-div.port {
+.port {
     border: 1px solid #cccccc;
-    padding: 1em;
+    padding: 1em 1%;
     padding-top: 0em;
     padding-bottom: 1em;
-    margin: 0em;
-    margin-bottom: 1.5em;
-    width: 92%;
+    margin: 1em 1% 0.5em;
+    width: 96%;
+    background: #eee;
 }
-div.port h3 {
+.port h3 {
     color: #555555;
     margin: 0px;
-    background: white;
-    padding: 0.2em;
-    position: relative;
-    top: -0.7em;
+    border: 1px solid #eee;
+    border-radius: 0.25em;
+    padding: 0.25em;
     font-size: 1em;
     font-weight: normal;
-    display: inline-block;
-    zoom: 1;
-    *display: inline;
+    text-align: center;
+}
+
+.hlink {
+    margin-left: 2em;
+    font-size: 90%;
 }
 
 h2 {
-    color: #b89f7e;
+    display: none;
 }
 
 /* Tables */
@@ -83,42 +83,56 @@ table {
     border-spacing: 0px;
     border-collapse: collapse;
     font-size: 0.9em;
+    background: #eee;
 }
 table td {
     border: 1px solid #bbbbbb;
     text-align: right;
     margin: 0px;
-    padding: 2.5px;
+    padding: 0.35em;
 }
 table th {
     border: 1px solid #bbbbbb;
 }
 table thead {
-    background: #b89f7e;
-    background-image: url('img/table_bg.png');
-    background-repeat: repeat-x;
+    background: #3465a4;
     border: 1px solid #555555;
     height: 20px;
-    color: black;
+    color: white;
 }
 thead th {
     padding: 0px 1em;
+    font-weight: normal;
 }
 table.narrow {
     display: inline-block;
     vertical-align: top;
 }
 #announcements {
-    background: #f3ebe0;
-    margin: auto;
-    margin-bottom: 20px;
-    font-size: 0.9em;
-    width: 820px;
+    list-style-type: none;
+    margin: 0 1.25%;
+    padding: 0.5em 0;
+    width: 97.5%;
 }
 #announcements li {
-    margin: 15px;
-    margin-top: 5px;
-    margin-bottom: 5px;
+    margin: 0.25em 0;
+    border: 1px solid #aaa;
+    padding: 0.5em;
+}
+#announcements img {
+    margin-right: 0.5em;
+}
+#announcements .success {
+    background:#e0f3e0;
+    border-color: green;
+}
+#announcements .warn {
+    background: #f3f3bb;
+    border-color: orange;
+}
+#announcements .error {
+    background: #eed2c0;
+    border-color: brown;
 }
 
 div.message {
@@ -132,14 +146,10 @@ table.left * {
     text-align: left;
 }
 div#menudiv {
-    background: #7eade6;
-    background-image: url('img/page_bg.png');
-    text-align: center;
+    background: #ccc;
+    text-align: left;
     margin: 0.35em 0em;
-    width: 98%;
-    border-radius: 0.25em;
-    -moz-border-radius: 0.25em;
-    -webkit-border-radius: 0.25em;
+    width: 100%;
 }
 div#menudiv li.inactive { color: #777; }
 div#menudiv.show {
@@ -147,31 +157,36 @@ div#menudiv.show {
 }
 div.menu {
     display: inline-block;
-    zoom: 1;
-    *display: inline;
+    width: 33%;
     background: #cccccc;
-    padding: 0em 0.25em 0em 0.5em;
-    margin: 0.5em 0.25em;
+    padding: 0;
     vertical-align: top;
-    border: 1px solid #555555;
-    border-radius: 0.25em;
-    -moz-border-radius: 0.25em;
-    -webkit-border-radius: 0.25em;
+    border-left: 1px solid #555555;
+    border-bottom: 1px solid white;
+    text-align: left;
 }
 div.menu h4 {
-    margin: 0em;
-    padding: 0em;
+    padding: 0.25em;
+    background: #3465a4;
+    margin: 0;
+    padding: 0;
+    color: white;
+    font-weight: normal;
 }
 div.menu ul, div.menu li {
     list-style-type: none;
-    margin: 0.5em 0.25em;
-    padding: 0px;
+    margin: 0;
+    padding: 0;
 }
-img#headimg {
-    position: absolute;
-    top: 0px;
-    left: 2em;
-    height: 1em;
+div.menu li {
+    border-bottom: 1px solid #555;
+    border-top: 1px solid white;
+    padding: 0.25em;
+    background: #ddd;
+}
+div.menu a {
+    text-decoration: none;
+    color: black;
 }
 /*
 h4#date {
@@ -182,26 +197,115 @@ h4#date {
     color: white;
 }
 */
-a#help {
-    position: absolute;
-    right: 1em;
-    top: 0px;
-    color: white;
-    font-size: 80%;
-    background: #4689de;
-}
-div#headdiv {
+#headdiv {
     background: #3465a4;
+    border-bottom: 1px solid #ccc;
+    padding-top: 0.25em;
 }
-div#user, h4#date, div#regatta ul {
+#headdiv h1 {
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+    font-size: 0.6em;
+    margin-left: 1em;
+    margin-top: 0.25em;
+}
+#headdiv img {
+    vertical-align: middle;
+}
+h4#date {
     display: none;
 }
-h4#user { float: right; color: #ccc; position: absolute; top: -30px; left: 12em; text-align: right;}
-div#regatta {
-    position: absolute;
-    top: 0px;
-    right: 5em;
-    text-align: right;
-    font-size: 90%;
+h4#user {
+    margin: 0;
+    padding-left: 1em;
+    display: inline-block;
+    font-size: 0.8em;
+    font-weight: normal;
     color: white;
+    vertical-align: middle;
+}
+#logout {
+    display: inline-block;
+    margin-left: 1em;
+    padding: 0 0.25em;
+    background: #eee;
+    font-size: 0.8em;
+    border-radius: 0.25em;
+    vertical-align: middle;
+    margin-right: 3em;
+}
+#logout a, #help a {
+    text-decoration: none;
+}
+
+#help {
+    position: absolute;
+    top: 0.5em;
+    right: 1em;
+    padding: 0.15em 0.25em;
+    background: #eee;
+    font-size: 90%;
+    border-radius: 0.25em;
+    vertical-align: middle;
+    font-size: 0.6em;
+}
+
+#regatta {
+    display: inline-block;
+    width: 96%;
+    padding: 0.25em 2%;
+    color: white;
+    margin: 0.25em 0 0;
+    background: white;
+    font-size: 1em;
+    text-align: center;
+}
+#regatta a {
+    color: #3465a4;
+    text-decoration: none;
+}
+#close {
+    display: none;
+}
+
+#menubut {
+    display: block;
+    border: 1px solid #aaa;
+    padding: 0.25em;
+    background: #eee;
+    text-align: middle;
+    border-radius: 0.5em;
+    width: 90%;
+    margin: 0.5em 5%;
+    border-bottom: 1px solid #555;
+    font-size: 80%;
+}
+/* search */
+.search input[type="text"] {
+    width: 65%;
+}
+
+.left {
+    text-align: left;
+}
+
+/* page navigation */
+.page-nav a {
+    padding: 0.5em;
+    background: white;
+    border: 1px solid #aaa;
+    border-radius: 0.25em;
+    border-bottom: 1px solid #555;
+    margin: 0.125em;
+}
+.page-nav form {
+    display: inline-block;
+    margin-left: 1em;
+}
+.page-nav form input {
+    border-radius: 0.25em;
+    border: 1px solid #aaa;
+    padding: 0.25em;
+    
 }
