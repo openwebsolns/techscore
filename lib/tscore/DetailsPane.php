@@ -201,7 +201,7 @@ class DetailsPane extends AbstractPane {
 	  $sdate = new DateTime($args['sdate'] . ' ' . $args['stime']);
 	  if ($sdate != $this->REGATTA->start_time) {
 	    $this->REGATTA->start_time = $sdate;
-	    $this->edited = true;
+	    $edited = true;
 	  }
 	} catch (Exception $e) {
 	  throw new SoterException("Invalid starting date and/or time.");
