@@ -44,6 +44,10 @@ class Conf {
    */
   public static $HELP_HOME = 'collegesailing.org/ts-help';
   /**
+   * @var String the URL for ICSA home
+   */
+  public static $ICSA_HOME = 'http://www.collegesailing.org';
+  /**
    * @var filepath the path to the directory containing the logs
    */
   public static $LOG_ROOT = '/var/log/httpd';

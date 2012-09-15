@@ -21,6 +21,9 @@ class ReportMaker {
   private $fullPage;
   private $divPage = array();
 
+  /**
+   * @var Array convenience method to track the description fields
+   */
   private $summary = array();
 
   /**
@@ -131,9 +134,28 @@ class ReportMaker {
    */
   protected function prepare(TPublicPage $page) {
     $reg = $this->regatta;
-    $page->addNavigation(new XA($reg->getURL(), $reg->name, array('class'=>'nav')));
+    $page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
 
-    // Add description
+    // Menu
+    // Links to season
+    $season = $reg->getSeason();
+    $url = sprintf('/%s/', $season->id);
+    $page->addMenu(new XA($url, $season->fullString()));
+
+    $url = $reg->getURL();
+    $page->addMenu(new XA($url, "Report"));
+    if ($reg->hasFinishes()) {
+      $page->addMenu(new XA($url.'full-scores/', "Full Scores"));
+      if (!$reg->isSingleHanded()) {
+	foreach ($reg->getDivisions() as $div)
+	  $page->addMenu(new XA($url . $div.'/', "Division $div"));
+      }
+    }
+    $rot = $reg->getRotation();
+    if ($rot->isAssigned())
+      $page->addMenu(new XA($url.'rotations/', "Rotations"));
+
+    // Add page description
     $desc = "";
     $stime = $reg->start_time;
     $this->summary = array();
@@ -154,22 +176,8 @@ class ReportMaker {
     if (strlen($meta_desc) > 1)
       $page->head->add(new XMeta('description', $meta_desc));
     
-    // Links to season
-    $season = $reg->getSeason();
-    $url = sprintf('/%s/', $season->id);
-    $page->addNavigation(new XA($url, $season->fullString(), array('class'=>'nav', 'accesskey'=>'u')));
-
-    // Javascript?
-    $now = new DateTime('today');
-    if ($reg->start_time <= $now &&
-	$reg->end_date   >= $now) {
-      // $page->head->add(new XScript('text/javascript', '/inc/js/refresh.js'));
-    }
 
     // Regatta information
-    $page->addSection($div = new XDiv(array('id'=>'reg-details')));
-    $div->add(new XH2($reg->name));
-    
     $stime = $reg->start_time;
     $etime = $reg->end_date;
     if ($stime->format('Y-m-d') == $etime->format('Y-m-d')) // same day
@@ -193,25 +201,12 @@ class ReportMaker {
     foreach ($reg->getBoats() as $boat)
       $boats[] = (string)$boat;
 
-    $div->add(new XUl(array(),
-		      array(new XLi(implode("/", $schools)),
-			    new XLi($date),
-			    new XLi($type),
-			    new XLi(implode("/", $boats)))));
-
-    // Menu
-    $url = $reg->getURL();
-    $rot = $reg->getRotation();
-    if ($rot->isAssigned())
-      $page->addMenu(new XA($url.'rotations/', "Rotations"));
-    $page->addMenu(new XA($url, "Report"));
-    if ($reg->hasFinishes()) {
-      $page->addMenu(new XA($url.'full-scores/', "Full Scores"));
-      if (!$reg->isSingleHanded()) {
-	foreach ($reg->getDivisions() as $div)
-	  $page->addMenu(new XA($url.$div.'/', "$div Scores"));
-      }
-    }
+    $table = array("Host" => implode("/", $schools),
+		   "Date" => $date,
+		   "Type" => $type,
+		   "Boat" => implode("/", $boats),
+		   "Scoring" => ($reg->scoring == Regatta::SCORING_STANDARD) ? "Fleet" : "Combined");
+    $page->setHeader($reg->name, $table);
   }
 
   /**

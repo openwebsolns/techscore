@@ -74,14 +74,14 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   // season?
   if (count($argv) == 3) {
     $season = DB::getSeason($argv[2]);
-    if ($season == null) {
-      printf("Invalid season given: %s\n\n", $argv[2]);
-      printf("usage: %s <season>\n", $_SERVER['PHP_SELF']);
-      exit(1);
-    }
   }
   else
     $season = Season::forDate(DB::$NOW);
+  if ($season == null) {
+    echo "Invalid season provided.\n\n";
+    printf("usage: %s <season>\n", $_SERVER['PHP_SELF']);
+    exit(1);
+  }
 
   try {
     UpdateSchool::run($school, $season);

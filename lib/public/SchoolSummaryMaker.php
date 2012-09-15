@@ -14,7 +14,7 @@ require_once('xml5/TPublicPage.php');
  * contains a port with information about the school's participation
  * and overall finish; a list of regattas currently particpating in;
  * list of regattas participated in the past; and a link (in the top
- * menu bar) to the school's profile at collegesailin.info.
+ * menu bar) to the school's profile at the ICSA site.
  *
  * @author Dayan Paez
  * @version 2011-01-03
@@ -56,34 +56,25 @@ class SchoolSummaryMaker {
   private function fill() {
     if ($this->page !== null) return;
 
+    require_once('regatta/PublicDB.php');
+
     $types = Regatta::getTypes();
     $school = $this->school;
     $season = $this->season;
     $this->page = new TPublicPage($school);
 
     // SETUP navigation
-    $this->page->addNavigation(new XA("/schools", "Schools", array("class"=>"nav")));
-    $this->page->addNavigation(new XA(sprintf("/schools/%s", $school->id), $school->name, array("class"=>"nav")));
+    $this->page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
+    $this->page->addMenu(new XA('/schools/', "Schools"));
+    $this->page->addMenu(new XA('/seasons/', "Seasons"));
+    $this->page->addMenu(new XA(sprintf("/schools/%s/", $school->id), $school->nick_name));
     if (($link = $this->getBlogLink()) !== null)
       $this->page->addMenu(new XA($link, "ICSA Info"));
-    // Add links to last 7 seasons
-    require_once('regatta/PublicDB.php');
-    $num = 0;
-    $root = sprintf('/schools/%s', $school->id);
-    foreach (DB::getAll(DB::$SEASON) as $s) {
-      $this->page->addMenu(new XA(sprintf('%s/%s/', $root, $s), $s->fullString()));
-      if ($num++ >= 8)
-	break;
-    }
-
-    $this->page->addSection($d = new XDiv(array('id'=>'reg-details')));
-    $d->add(new XH2($school));
-    $d->add($l = new XUl());
-    $l->add(new XLI($school->conference . ' Conference'));
+    $this->page->addMenu(new XA(Conf::$ICSA_HOME . '/teams/', "ICSA Teams"));
 
     $burgee = sprintf('%s/../../html/inc/img/schools/%s.png', dirname(__FILE__), $this->school->id);
     if (file_exists($burgee))
-      $l->add(new XLI(new XImg(sprintf('/inc/img/schools/%s.png', $this->school->id), $this->school->id)));
+      $this->page->addSection(new XP(array('class'=>'burgee'), new XImg(sprintf('/inc/img/schools/%s.png', $this->school->id), $this->school->id)));
 
     // current season
     $now = new DateTime();
@@ -205,15 +196,11 @@ class SchoolSummaryMaker {
 
     // ------------------------------------------------------------
     // SCHOOL season summary
+    $table = array("Conference" => $school->conference,
+		   "Number of Regattas" => $total,
+		   "Finish percentile" => $avg);
     $season_link = new XA('/'.(string)$season.'/', $season->fullString());
-    $this->page->addSection($p = new XPort(array("Season summary for ", $season_link)));
-    $p->set('id', 'summary');
 
-    $p->add(new XDiv(array('class'=>'stat'),
-		     array(new XSpan("Number of Regattas:", array("class"=>"prefix")), $total)));
-    $p->add(new XDiv(array('class'=>'stat'),
-		     array(new XSpan("Finish percentile:", array("class"=>"prefix")), $avg)));
-    
     // most active sailor?
     arsort($skippers, SORT_NUMERIC);
     arsort($crews, SORT_NUMERIC);
@@ -225,8 +212,7 @@ class SchoolSummaryMaker {
 	  break;
 	$txt[] = sprintf('%s (%d races)', $skip_objs[$id], $num);
       }
-      $p->add(new XDiv(array('class'=>'stat'),
-		       array(new XSpan("Most active skipper:", array('class'=>'prefix')), implode(", ", $txt))));
+      $table["Most active skipper"] = implode(", ", $txt);
     }
     if (count($crews) > 0) {
       $txt = array();
@@ -236,9 +222,9 @@ class SchoolSummaryMaker {
 	  break;
 	$txt[] = sprintf('%s (%d)', $crew_objs[$id], $num);
       }
-      $p->add(new XDiv(array('class'=>'stat'),
-		       array(new XSpan("Most active crew:", array('class'=>'prefix')), implode(", ", $txt))));
+      $table["Most active crew"] = implode(", ", $txt);
     }
+    $this->page->setHeader($school, $table);
 
     // ------------------------------------------------------------
     // SCHOOL past regattas
@@ -246,7 +232,7 @@ class SchoolSummaryMaker {
       $this->page->addSection($p = new XPort(array("Season history for ", $season_link)));
       $p->set('id', 'history');
       
-      $p->add(new XTable(array(),
+      $p->add(new XTable(array('class'=>'participation-table'),
 			 array(new XTHead(array(),
 					  array(new XTR(array(),
 							array(new XTH(array(), "Name"),
@@ -261,7 +247,7 @@ class SchoolSummaryMaker {
       $row = 0;
       foreach ($past as $reg) {
 	$date = $reg->start_time;
-	$status = ($reg->finalized === null) ? "Pending" : "Official";
+	$status = ($reg->finalized === null) ? "Pending" : new XStrong("Official");
 	$hosts = array();
 	$confs = array();
 	foreach ($reg->getHosts() as $host) {
@@ -280,11 +266,30 @@ class SchoolSummaryMaker {
 				new XTD(array(), implode("/", $hosts)),
 				new XTD(array(), $types[$reg->type]),
 				new XTD(array(), implode("/", $confs)),
-				new XTD(array(), $date->format('m/d/Y')),
+				new XTD(array(), $date->format('M d')),
 				new XTD(array(), $status),
 				new XTD(array(), sprintf('%s/%d', implode(',', $places), count($teams))))));
       }
     }
+
+    // ------------------------------------------------------------
+    // Add links to all seasons
+    $ul = new XUl(array('id'=>'other-seasons'));
+    $num = 0;
+    $root = sprintf('/schools/%s', $school->id);
+    foreach (DB::getAll(DB::$SEASON) as $s) {
+      $regs = DB::getAll(DB::$DT_REGATTA,
+			 new DBBool(array(new DBCond('season', $s->id),
+					  new DBCondIn('id', DB::prepGetAll(DB::$DT_TEAM, new DBCond('school', $school), array('regatta'))))));
+      if (count($regs) > 0) {
+	$num++;
+	$ul->add(new XLi(new XA($root . '/' . $s->id, $s->fullString())));
+      }
+    }
+    if ($num > 0)
+      $this->page->addSection(new XDiv(array('id'=>'submenu-wrapper'),
+				       array(new XH3("Other seasons", array('class'=>'nav')),
+					     $ul)));
   }
 
   /**
