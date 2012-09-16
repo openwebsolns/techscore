@@ -17,7 +17,7 @@
  * Interface for XML objects requires toXML method
  *
  * @author Dayan Paez
- * @version   2010-03-16
+ * @date   2010-03-16
  */
 interface Xmlable {
 
@@ -39,7 +39,7 @@ interface Xmlable {
  * Basic parent class for XML objects
  *
  * @author Dayan Paez
- * @version   2010-03-16
+ * @date   2010-03-16
  */
 class XElem implements Xmlable {
 
@@ -279,7 +279,7 @@ class XDoc extends XElem {
     $text = '';
     foreach ($this->headers as $header)
       $text .= sprintf("%s\n", $header->toXML());
-    return $text . "\n" . parent::toXML();
+    return $text . parent::toXML();
   }
 
   /**
@@ -300,7 +300,7 @@ class XDoc extends XElem {
  * as the text content is not escaped!
  *
  * @author Dayan Paez
- * @version   2010-04-22
+ * @date   2010-04-22
  */
 class XRawText implements Xmlable {
 
@@ -347,7 +347,7 @@ class XCData extends XRawText {
  * appropriately.
  *
  * @author Dayan Paez
- * @version   2010-03-16
+ * @date   2010-03-16
  */
 class XText extends XRawText {
 
@@ -446,9 +446,9 @@ class XPage extends XElem {
    */
   public function printXML() {
     if (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/xhtml+xml') !== false)
-      header("Content-type: application/xhtml+xml");
+      header("Content-type: application/xhtml+xml;charset=UTF-8");
     else
-      header("Content-type: text/html");
+      header("Content-type: text/html;charset=UTF-8");
     if ($this->doctype == XPage::XHTML_1) {
       $this->set("xmlns", "http://www.w3.org/1999/xhtml");
       $this->set("xml:lang", "en");

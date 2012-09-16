@@ -51,11 +51,16 @@ class ReportMaker {
 
     // Summary
     if (count($this->summary) > 0) {
+      // Use DPEditor goodness
+      require_once('xml5/DPEditor.php');
+      $DPE = new DPEditor();
+
       $this->page->addSection($p = new XPort("Summary"));
       $p->set('id', 'summary');
       foreach ($this->summary as $h => $i) {
 	$p->add(new XH4($h));
-	$p->add(new XP(array(), $i));
+	$DPE->parse($i);
+	$p->add(new XDiv(array(), array(new XRawText($DPE->toXML()))));
       }
     }
 

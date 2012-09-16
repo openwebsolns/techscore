@@ -136,25 +136,6 @@ class XReset extends XInput {
 }
 
 /**
- * Multiple selects
- *
- * @author Dayan Paez
- * @version 2011-12-31
- */
-class XSelectM extends XSelect {
-  public function __construct($name, Array $attrs = array(), Array $items = array()) {
-    parent::__construct($name, $attrs, $items);
-    $this->set('multiple', 'multiple');
-  }
-
-  public static function fromArray($name, Array $opts, $chosen = null, Array $attrs = array()) {
-    $sel = XSelect::fromArray($name, $opts, $chosen, $attrs);
-    $sel->set('multiple', 'multiple');
-    return $sel;
-  }
-}
-
-/**
  * XOptionGroup has its arguments in a weird order. This fixes that.
  *
  * @author Dayan Paez

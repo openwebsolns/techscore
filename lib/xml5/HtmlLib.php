@@ -646,7 +646,7 @@ class XSelect extends XAbstractHtml {
    * @param Array|String $chosen the list or item to select
    * @param Array $attrs the optional attributes to add
    */
-  public static function fromArray($name, Array $opts, $chosen = null, Array $attrs = array()) {
+  public static function fromArray($name, Array $opts, $chosen = null, Array $attrs = array(), $strict = false) {
     if (!is_array($chosen))
       $chosen = array($chosen);
     $sel = new XSelect($name, $attrs);
@@ -661,10 +661,29 @@ class XSelect extends XAbstractHtml {
       }
       else {
 	$sel->add($opt = new XOption($k, array(), $v));
-	if (in_array($k, $chosen))
+	if (in_array($k, $chosen, $strict))
 	  $opt->set('selected', 'selected');
       }
     }
+    return $sel;
+  }
+}
+
+/**
+ * Multiple selects
+ *
+ * @author Dayan Paez
+ * @version 2011-12-31
+ */
+class XSelectM extends XSelect {
+  public function __construct($name, Array $attrs = array(), Array $items = array()) {
+    parent::__construct($name, $attrs, $items);
+    $this->set('multiple', 'multiple');
+  }
+
+  public static function fromArray($name, Array $opts, $chosen = null, Array $attrs = array(), $strict = false) {
+    $sel = XSelect::fromArray($name, $opts, $chosen, $attrs, $strict);
+    $sel->set('multiple', 'multiple');
     return $sel;
   }
 }
@@ -776,7 +795,7 @@ class XTable extends XAbstractHtml {
       parent::add($elem);
       return;
     }
-    throw new InvaldArgumentException("XTable children must be one of XHead|XBody|XTR");
+    throw new InvalidArgumentException("XTable children must be one of XHead|XBody|XTR");
   }
   public function toXML() {
     $e = new XElem("table", $this->attrs);
@@ -1086,6 +1105,20 @@ class XObject extends XAbstractHtml {
     $this->set("type", $type);
     $this->set("width",  $width);
     $this->set("height", $height);
+  }
+}
+
+/**
+ * Parameter for embedded objects
+ *
+ * @author Dayan Paez
+ * @version 2012-09-12
+ */
+class XParam extends XAbstractHtml {
+  public function __construct($name, $value, Array $attrs = array()) {
+    parent::__construct("param", $attrs);
+    $this->set('name', (string)$name);
+    $this->set('value', (string)$value);
   }
 }
 
