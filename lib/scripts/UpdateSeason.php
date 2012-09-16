@@ -36,7 +36,9 @@ class UpdateSeason {
     $season = $this->season;
     $name = $season->fullString();
     $this->page = new TPublicPage($name);
-    $this->page->head->add(new XMeta('description', sprintf("Summary of ICSA regattas for %s", $name)));
+    $this->page->setDescription(sprintf("Summary of ICSA regattas for %s", $name));
+    $this->page->addMetaKeyword($season->getSeason());
+    $this->page->addMetaKeyword($season->getYear());
 
     // 2010-11-14: Separate regattas into "weekends", descending by
     // timestamp, based solely on the start_time, assuming that the

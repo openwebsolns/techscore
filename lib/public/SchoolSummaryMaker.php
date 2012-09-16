@@ -62,6 +62,11 @@ class SchoolSummaryMaker {
     $school = $this->school;
     $season = $this->season;
     $this->page = new TPublicPage($school);
+    $this->page->addDescription(sprintf("Summary of activity for %s during the %s season.", $school, $season->fullString()));
+    $this->page->addMetaKeyword($school->id);
+    $this->page->addMetaKeyword($school->name);
+    $this->page->addMetaKeyword($season->getSeason());
+    $this->page->addMetaKeyword($season->getYear());
 
     // SETUP navigation
     $this->page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));

@@ -22,11 +22,6 @@ class ReportMaker {
   private $divPage = array();
 
   /**
-   * @var Array convenience method to track the description fields
-   */
-  private $summary = array();
-
-  /**
    * Creates a new report for the given regatta
    *
    */
@@ -46,18 +41,28 @@ class ReportMaker {
     if ($this->page !== null) return;
 
     $reg = $this->regatta;
+    $season = $reg->getSeason();
     $this->page = new TPublicPage($reg->name);
     $this->prepare($this->page);
+    $this->page->setDescription(sprintf("Summary report for %s's %s.", $season->fullString(), $reg->name));
 
-    // Summary
-    if (count($this->summary) > 0) {
+    // Daily summaries
+    $stime = $reg->start_time;
+    $summaries = array();
+    for ($i = 0; $i < $reg->getDuration(); $i++) {
+      $today = new DateTime(sprintf("%s + %d days", $stime->format('Y-m-d'), $i));
+      $comms = $reg->getSummary($today);
+      if (strlen($comms) > 0)
+	$summaries[$today->format('l, F j:')] = $comms;
+    }
+    if (count($summaries) > 0) {
       // Use DPEditor goodness
-      require_once('xml5/DPEditor.php');
-      $DPE = new DPEditor();
+      require_once('xml5/TSEditor.php');
+      $DPE = new TSEditor();
 
       $this->page->addSection($p = new XPort("Summary"));
       $p->set('id', 'summary');
-      foreach ($this->summary as $h => $i) {
+      foreach ($summaries as $h => $i) {
 	$p->add(new XH4($h));
 	$DPE->parse($i);
 	$p->add(new XDiv(array(), array(new XRawText($DPE->toXML()))));
@@ -89,9 +94,12 @@ class ReportMaker {
     if (isset($this->divPage[(string)$div])) return;
 
     $reg = $this->regatta;
+    $season = $reg->getSeason();
     $page = new TPublicPage("Scores for division $div | " . $reg->name);
     $this->divPage[(string)$div] = $page;
     $this->prepare($page);
+    $page->setDescription(sprintf("Scores for Division %s for %s's %s.",
+				  $div, $season->fullString(), $reg->name));
     
     require_once('tscore/ScoresDivisionDialog.php');
     $maker = new ScoresDivisionDialog($reg, $div);
@@ -104,8 +112,10 @@ class ReportMaker {
     if ($this->fullPage !== null) return;
     
     $reg = $this->regatta;
+    $season = $reg->getSeason();
     $this->fullPage = new TPublicPage("Full scores | " . $reg->name);
     $this->prepare($this->fullPage);
+    $this->fullPage->setDescription(sprintf("Full scores table for %s's %s.", $season->fullString(), $reg->name));
     
     $link_schools = '/schools';
     
@@ -121,8 +131,10 @@ class ReportMaker {
     if ($this->rotPage !== null) return;
 
     $reg = $this->regatta;
+    $season = $reg->getSeason();
     $this->rotPage = new TPublicPage(sprintf("%s Rotations", $reg->name));
     $this->prepare($this->rotPage);
+    $this->rotPage->setDescription(sprintf("Sail rotations in all races for %s's %s.", $season->fullString(), $reg->name));
 
     require_once('tscore/RotationDialog.php');
     $maker = new RotationDialog($reg);
@@ -140,12 +152,16 @@ class ReportMaker {
   protected function prepare(TPublicPage $page) {
     $reg = $this->regatta;
     $page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
+    $page->addMetaKeyword($reg->name);
+    $page->addMetaKeyword('results');
 
     // Menu
     // Links to season
     $season = $reg->getSeason();
     $url = sprintf('/%s/', $season->id);
     $page->addMenu(new XA($url, $season->fullString()));
+    $page->addMetaKeyword($season->getSeason());
+    $page->addMetaKeyword($season->getYear());
 
     $url = $reg->getURL();
     $page->addMenu(new XA($url, "Report"));
@@ -159,28 +175,6 @@ class ReportMaker {
     $rot = $reg->getRotation();
     if ($rot->isAssigned())
       $page->addMenu(new XA($url.'rotations/', "Rotations"));
-
-    // Add page description
-    $desc = "";
-    $stime = $reg->start_time;
-    $this->summary = array();
-    for ($i = 0; $i < $reg->getDuration(); $i++) {
-      $today = new DateTime(sprintf("%s + %d days", $stime->format('Y-m-d'), $i));
-      $comms = $reg->getSummary($today);
-      if (strlen($comms) > 0) {
-	$this->summary[$today->format('l, F j:')] = $comms;
-	$desc .= $comms;
-      }
-    }
-    $meta_desc = "";
-    $desc = explode(" ", $desc);
-    while (count($desc) > 0 && strlen($meta_desc) < 150)
-      $meta_desc .= (' ' . array_shift($desc));
-    if (count($desc) > 0)
-      $meta_desc .= '...';
-    if (strlen($meta_desc) > 1)
-      $page->head->add(new XMeta('description', $meta_desc));
-    
 
     // Regatta information
     $stime = $reg->start_time;

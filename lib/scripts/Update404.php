@@ -27,6 +27,7 @@ class Update404 {
   private function fillSchools() {
     require_once('xml5/TPublicPage.php');
     $this->page = new TPublicPage('404: School page not found');
+    $this->page->addDescription("School page not found. Possible linking or URL error.");
 
     // SETUP navigation, get latest season
     $seasons = DB::getAll(DB::$SEASON, new DBCond('start_date', DB::$NOW, DBCond::LE));
@@ -76,6 +77,7 @@ class Update404 {
 
     require_once('xml5/TPublicPage.php');
     $this->page = new TPublicPage('404: Page not found');
+    $this->page->addDescription("Page not found. Possible linking or URL error.");
 
     // SETUP navigation
     $season = Season::forDate(DB::$NOW);
