@@ -1666,7 +1666,7 @@ class Season extends DBObject {
    * For Fall starting in 2011, return "Fall 2011"
    */
   public function fullString() {
-    return sprintf("%s %s", ucfirst((string)$this->season), substr($this->getYear(), 2));
+    return sprintf("%s %s", ucfirst((string)$this->season), $this->getYear());
   }
 
   /**
@@ -1828,16 +1828,13 @@ class Season extends DBObject {
 
   /**
    * Returns a list of the seasons for which there are public
-   * regattas, ordered in ascending chronological order.
+   * regattas, ordered in descending chronological order.
    *
    * @return Array:Season the list
    */
   public static function getActive() {
     require_once('regatta/PublicDB.php');
-    DB::$SEASON->db_set_order(array('start_date'=>false));
-    $res = DB::getAll(DB::$SEASON, new DBCondIn('id', DB::prepGetAll(DB::$DT_REGATTA, null, array('season'))));
-    DB::$SEASON->db_set_order();
-    return $res;
+    return DB::getAll(DB::$SEASON, new DBCondIn('id', DB::prepGetAll(DB::$DT_REGATTA, null, array('season'))));
   }
 }
 
