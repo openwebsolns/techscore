@@ -264,9 +264,9 @@ class DetailsPane extends AbstractPane {
 	  $school = DB::getSchool($id);
 	  if ($school !== null && $this->USER->hasSchool($school)) {
 	    $hosts[] = $school;
-	    if (!isset($current_schools[$host->id]))
+	    if (!isset($current_schools[$school->id]))
 	      $changed = true;
-	    unset($current_schools[$host->id]);
+	    unset($current_schools[$school->id]);
 	  }
 	}
 	if (count($current_schools) > 0)
