@@ -64,12 +64,22 @@ class GenerateSite {
     }
 
     if ($do & self::REGATTAS) {
+      if ($seasons === null)
+	$seasons = self::getSeasons();
+
       // Go through all the regattas
-      self::log("* Generating regattas\n\n");
       require_once('UpdateRegatta.php');
-      foreach (DB::getAll(DB::$DT_REGATTA) as $reg) {
-	UpdateRegatta::run(DB::getRegatta($reg->id), array(UpdateRequest::ACTIVITY_SCORE));
-	self::log(sprintf("  - (%4d) %s\n", $reg->id, $reg->name));
+      self::log("* Generating regattas\n\n");
+      foreach ($seasons as $season) {
+	self::log(sprintf("  - %s\n", $season->fullString()));
+	foreach ($season->getRegattas() as $reg) {
+	  if (count($reg->getDivisions()) > 0) {
+	    self::log(sprintf("    - (%4d) %s...", $reg->id, $reg->name));
+	    UpdateRegatta::run($reg, array(UpdateRequest::ACTIVITY_SCORE, UpdateRequest::ACTIVITY_DETAILS));
+	    self::log("done\n");
+	  }
+	}
+	self::log("\n");
       }
     }
 

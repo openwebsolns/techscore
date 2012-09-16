@@ -1,0 +1,434 @@
+.nav {
+    display: none;
+}
+
+html {
+    height: 100%;
+}
+body {
+    display: table;
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+    font-family: "Lucida Grande",Tahoma,Verdana,sans-serif;
+    font-family: Georgia,Tahoma,sans-serif;
+    line-height: 1.25em;
+    padding: 0;
+    background: #6C6D6F;
+}
+
+a {
+    color: #3465A4;
+}
+
+#page-header {
+    background: white;
+}
+
+#last_updated {
+    font-family: sans-serif;
+    max-width: 68em;
+    font-size: 0.8em;
+    color: #888;
+    text-align: right;
+    margin: 0 auto;
+    padding: 0.5em 0;
+}
+
+#menu-wrapper {
+    border-bottom: 1px solid #ddd;
+    border-top: 1px solid #ddd;
+}
+
+#menu {
+    max-width: 60em;
+    min-width: 35em;
+    margin: 0 auto;
+    list-style-type: none;
+    padding: 0.5em 0;
+    display: table;
+    width: 100%;
+}
+
+#menu li {
+    font-family: Arial,Helvetica,sans-serif;
+    text-transform: uppercase;
+    font-size: 0.7em;
+    letter-spacing: 0.12em;
+    font-stretch: condensed;
+    font-weight: bold;
+    border-right: 1px solid #ddd;
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+    padding: 0 2em;
+}
+
+#menu li:last-child {
+    border-right: none;
+}
+
+li#logo {
+    width: 5em;
+    border-right: none;
+}
+li#logo a {
+    position: absolute;
+    margin-left: -50px;
+    top: 0.75em;
+}
+
+#menu a {
+    color: #222;
+    text-decoration: none;
+}
+#menu a:hover {
+    color: #888;
+}
+
+/* content header */
+
+#content-header {
+    background: #F2EDE6;
+    border: 1px solid #ddd;
+    margin: 0 auto;
+    text-align: center;
+    max-width: 50em;
+}
+
+#content-header h1 {
+    display: inline-block;
+    width: auto;
+    margin: 0 auto;
+    padding: 0.5em;
+    font-family: Arial,Helvetica,sans-serif;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+    font-variant: small-caps;
+    color: #48484A;
+    text-align: center;
+    background: #f7f7f7;
+    border: 1px solid #ddd;
+    border-radius: 0.25em;
+    font-size: 160%;
+    position: relative;
+    top: -0.75em;
+}
+
+#left-fill {
+    display: inline-block;
+    width: 80px;
+    height: 15px;
+    background: url('http://scores3.havok/inc/img/left-fill.png');
+    background-repeat: no-repeat;
+    vertical-align: middle;
+}
+#right-fill {
+    display: inline-block;
+    width: 80px;
+    height: 15px;
+    background: url('http://scores3.havok/inc/img/right-fill.png');
+    background-repeat: no-repeat;
+    vertical-align: middle;
+}
+
+#page-info {
+    font-size: 0.9em;
+    color: #555;
+    margin: -1em 0 1em;
+    width: 100%;
+    border-collapse: collapse;
+    border: none;
+}
+#page-info th {
+    text-align: right;
+    font-weight: normal;
+    font-size: 90%;
+    width: 45%;
+    padding: 0.25em 1em;
+    border: none;
+}
+#page-info td {
+    text-align: left;
+    font-weight: bold;
+    border: none;
+}
+#page-info tr {
+    border-bottom: 1px solid #ddd;
+}
+#page-info tr:last-child {
+    border-bottom: none;
+}
+#page-content {
+    background: white;
+    padding: 3.5em 0 2em;
+    vertical-align: top;
+}
+
+/* footer */
+#page-footer {
+    padding: 0;
+    margin: 0;
+    height: 20em;
+}
+#page-footer h3 {
+    font-size: 0.7em;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-family: Arial,Helvetica,sans-serif;
+    margin-bottom: 0;
+}
+#sponsors {
+    max-width: 60em;
+    list-style-type: none;
+    margin: 0 auto;
+    padding: 0;
+}
+
+#sponsors li {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 0.5em;
+}
+
+address {
+    border-top: 1px solid #888;
+    max-width: 74em;
+    margin: 0 auto;
+    color: #ccc;
+    font-size: 0.8em;
+    text-align: right;
+}
+
+.port {
+    min-width: 50em;
+    display: table;
+    margin: auto;
+}
+
+.port p {
+    max-width: 50em;
+}
+
+/* Table */
+table 
+{
+  border-spacing: 0px;
+  border-collapse: collapse;
+  font-size: 0.9em;
+  margin: 1em auto;
+  }
+table td 
+{
+  border: 1px solid #bbbbbb;
+  text-align: right;
+  margin: 0px;
+  padding: 0.25em;
+  }
+table th 
+{
+  border: 1px solid #bbbbbb;
+  text-align: right;
+  min-width: 2.25em;
+  padding: 0 0.25em;
+  font-size: 90%;
+}
+table thead 
+{
+  background: #b89f7e;
+  background-image: url('img/table_bg.png');
+  background-repeat: repeat-x;
+  border: 1px solid #bbbbbb;
+  height: 20px;
+  color: black;
+  }
+table tbody 
+{
+  border: 1px solid #bbbbbb;
+  }
+
+table.results tbody *, table.rotation tbody *, table.sailors tbody *
+{
+  border: none;
+  font-family: monospace;
+  font-size: 110%;
+}
+table.results th  {
+    text-align: right;
+}
+.totalrow, .totalcell
+{
+  background: #f3ebe0;
+  color: #333;
+  font-weight: bold;
+}
+tr.totalrow td {
+  border-bottom: 1px solid #bbbbbb;
+}
+
+tr.topborder td {
+    border-top: 1px solid #bbb;
+}
+
+td.races {
+    text-align: left;
+    font-size: 95%;
+    color: #555;
+    padding-left: 0.5em;
+}
+
+.row1 {
+    background: #F2EDE6;
+}
+
+td.schoolname, td.teamname {
+    text-align: left;
+}
+
+/* Table fixes */
+td.noborder, th.noborder, tr.noborder 
+{
+  border: none;
+}
+
+colgroup 
+{
+  border-right: 1px solid #bbbbbb;
+  }
+
+td.total 
+{
+  color: black;
+}
+
+table.divisional tr {
+    border-bottom: 1px solid #bbb;
+}
+
+table.sailors ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+#announcediv {
+    background: none repeat scroll 0 0 #F3EBE0;
+    font-size: 0.9em;
+    margin: auto auto 20px;
+    width: 100%;
+}
+#announcediv p {
+    margin: 5px 15px;
+}
+div.message {
+    background: none repeat scroll 0 0 #F3EBE0;
+    border: 1px solid #3465A4;
+    margin: 10px 0;
+    padding: 1em;
+}
+table.coordinate td:hover {
+    background: none repeat scroll 0 0 #FFECD1;
+}
+div.stat {
+    font-size: 105%;
+}
+div.stat .prefix {
+    color: #555555;
+    display: inline-block;
+    font-weight: bold;
+    margin-right: 2%;
+    margin-top: 0.5em;
+    text-align: right;
+    width: 40%;
+}
+
+#rank-filter {
+    margin:0.25em auto;
+    text-align:center;
+}
+#rank-filter input {
+    display:none;
+}
+#rank-filter label {
+    margin-right:1em;
+    background:#ccc;
+    border:1px solid #aaa;
+    border-top:1px solid #eee;
+    border-bottom:1px solid #555;
+    width:2em;
+    display:inline-block;
+    cursor:pointer;
+    padding:0.15em 0.25em;
+}
+#rank-filter label.selected {
+    background:#aaa;
+    border:1px solid #ccc;
+    border-top:1px solid #888;
+    border-bottom:1px solid #eee;
+}
+
+.schools-table tbody {
+    border: none;
+}
+.schools-table td {
+    border: none;
+}
+
+.burgee {
+    max-width: 50em;
+    text-align: center;
+    margin: 1em auto;
+}
+
+.left {
+    text-align: left;
+}
+
+.participation-table tbody, .season-summary tbody {
+    border: none;
+}
+
+.participation-table td, .season-summary td {
+    text-align: left;
+    border: none;
+    padding: 0.5em;
+}
+
+.season-summary {
+    width: 100%;
+}
+
+/* Submenu */
+#submenu-wrapper {
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    padding: 0.5em 0;
+    margin-top: 1em;
+}
+#other-seasons {
+    list-style-type: none;
+    display: table;
+    max-width: 60em;
+    margin: 0 auto;
+}
+#other-seasons li {
+    display: table-cell;
+    border-right: 1px solid #ddd;
+    padding: 0 1em;
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 0.7em;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+#other-seasons li:last-child {
+    border-right: none;
+}
+#other-seasons a {
+    color: #222;
+    text-decoration: none;
+}
+#other-seasons a:hover {
+    color: #888;
+}

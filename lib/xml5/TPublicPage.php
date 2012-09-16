@@ -42,6 +42,16 @@ class TPublicPage extends XPage {
   private $header_table;
 
   /**
+   * @var String the meta-description for the page
+   */
+  private $description;
+
+  /**
+   * @var Array the list of meta-keywords for the page
+   */
+  private $keywords;
+
+  /**
    * Creates a new public page with the given title
    *
    * @param String $title the title of the page
@@ -56,6 +66,8 @@ class TPublicPage extends XPage {
 
     $this->header_title = null;
     $this->header_table = array();
+
+    $this->keywords = array("regatta", "results", "scores", "icsa", "sailing");
   }
 
   /**
@@ -70,7 +82,13 @@ class TPublicPage extends XPage {
     $sep = new XHR(array('class'=>'nav'));
 
     // Stylesheets
-    $this->head->add(new LinkCSS('/inc/css/icsa.css'));
+    $this->head->add(new XMeta('generator', Conf::$COPYRIGHT));
+    if ($this->description !== null)
+      $this->head->add(new XMeta('description', $this->description));
+    if (count($this->keywords) > 0)
+      $this->head->add(new XMeta('keywords', implode(',', $this->keywords)));
+    foreach ($this->getCSS() as $css)
+      $this->head->add(new LinkCSS($css));
 
     // Navigation
     $this->body->add(new XDiv(array('class'=>'nav'),
@@ -180,6 +198,24 @@ class TPublicPage extends XPage {
   }
 
   /**
+   * Set description for page.
+   *
+   * @param String $desc the description (null to remove)
+   */
+  public function setDescription($desc = null) {
+    $this->description = $desc;
+  }
+
+  /**
+   * Adds the meta keyword to the given page
+   *
+   * @param String $word the keyword to add to the list
+   */
+  public function addMetaKeyword($word) {
+    $this->keywords[] = $word;
+  }
+
+  /**
    * Delays the creation of the page and returns it as a string
    *
    * @return String the page
@@ -196,6 +232,17 @@ class TPublicPage extends XPage {
   public function printXML() {
     $this->fill();
     parent::printXML();
+  }
+
+  /**
+   * Fetch list of CSS links for the page
+   *
+   * Subclasses should use this method to customize the CSS list.
+   *
+   * @return Array:URLs the links to the CSS files
+   */
+  protected function getCSS() {
+    return array('/inc/css/icsa.css');
   }
 }
 ?>

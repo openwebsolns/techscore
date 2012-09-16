@@ -12,7 +12,7 @@
  * contains a port with information about current regattas being
  * sailed and past regattas as well. For speed sake, this function
  * uses the dt_* tables, which contain summarized versions of only the
- * public regattas and utilizies the new MySQL-DP-0.5 libraries.
+ * public regattas.
  *
  */
 class UpdateSeason {
@@ -51,28 +51,16 @@ class UpdateSeason {
       $weeks[$week][] = $reg;
     }
 
-    // SETUP menu (schools link + all seasons)
+    // SETUP menus top menu: ICSA Home, Schools, Seasons, *this*
+    // season, and About
+    $this->page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
     $this->page->addMenu(new XA('/schools/', "Schools"));
-    $seasons = Season::getActive();
-    foreach ($seasons as $i => $season) {
-      if ($i == 4)
-	break;
-      $attr = ((string)$season == (string)$this->season) ? array('class'=>'emph') : array();
-      $this->page->addMenu(new XA('/'.$season.'/', $season->fullString()), $attr);
-    }
-    // Add remaining seasons as submenu
-    if ($i < count($seasons)) {
-      $this->page->addMenu(array(new XSpan("More..."),
-				 $ul = new XUl(array('class'=>'submenu'))));
-      for (; $i < count($seasons); $i++) {
-	$attr = ((string)$seasons[$i] == (string)$this->season) ? array('class'=>'emph') : array();
-	$ul->add(new XLi(new XA('/'.$seasons[$i].'/', $seasons[$i]->fullString()), $attr));
-      }
-    }
+    $this->page->addMenu(new XA('/seasons/', "Seasons"));
+    $this->page->addMenu(new XA(sprintf('/%s/', $season->id), $season->fullString()));
+    $this->page->addMenu(new XA('http://www.collegesailing.org/about/', "About"));
 
     // SEASON summary
-    $this->page->addSection($summary_port = new XPort("Season summary"));
-    $summary_port->set('id', 'summary');
+    $summary_table = array();
     $num_teams = 0;
 
     // COMING soon
@@ -80,6 +68,7 @@ class UpdateSeason {
 
     // WEEKENDS
     $count = count($weeks);
+    $summary_table["Number of Weekends"] = $count;
     if ($count == 0) {
       // Should this section even exist?
       $this->page->addSection(new XP(array(), "There are no regattas to report on yet."));
@@ -94,17 +83,14 @@ class UpdateSeason {
       $week_total = 0;
       $p = new XPort($title);
       $count--;
-      $p->add(new XTable(array(),
-			 array(new XTHead(array(),
-					  array(new XTR(array(),
-							array(new XTH(array(), "Name"),
-							      new XTH(array(), "Host"),
-							      new XTH(array(), "Type"),
-							      new XTH(array(), "Conference"),
-							      new XTH(array(), "Start date"),
-							      new XTH(array(), "Status"),
-							      new XTH(array(), "Leading"))))),
-			       $tab = new XTBody())));
+      $p->add($tab = new XQuickTable(array('class'=>'season-summary'),
+				     array("Name",
+					   "Host",
+					   "Type",
+					   "Conference",
+					   "Start date",
+					   "Status",
+					   "Leading")));
       $row = 0;
       foreach ($list as $reg) {
 	if ($reg->status == 'coming')
@@ -125,7 +111,7 @@ class UpdateSeason {
 	    break;
 
 	  case 'final':
-	    $status = new XStrong("Final");
+	    $status = new XStrong("Official");
 	    if (!isset($winning_school[$wt->school->id]))
 	      $winning_school[$wt->school->id] = 0;
 	    $winning_school[$wt->school->id] += 1;
@@ -148,14 +134,14 @@ class UpdateSeason {
 	  $burg = ($path !== false) ?
 	    new XImg(sprintf('/inc/img/schools/%s.png', $wt->school->id), $wt->school, array('height'=>40)) :
 	    $wt->school->nick_name;
-	  $tab->add(new XTR(array('class' => sprintf("row%d", $row++ % 2)),
-			    array(new XTD(array(), $link),
-				  new XTD(array(), implode("/", $hosts)),
-				  new XTD(array(), $types[$reg->type]),
-				  new XTD(array(), implode("/", $confs)),
-				  new XTD(array(), $reg->start_time->format('m/d/Y')),
-				  new XTD(array(), $status),
-				  new XTD(array('title' => $wt), $burg))));
+	  $tab->addRow(array($link,
+			     implode("/", $hosts),
+			     $types[$reg->type],
+			     implode("/", $confs),
+			     $reg->start_time->format('m/d/Y'),
+			     $status,
+			     new XTD(array('title' => $wt), $burg)),
+		       array('class' => sprintf("row%d", $row++ % 2)));
 	}
       }
       if ($week_total > 0)
@@ -189,14 +175,13 @@ class UpdateSeason {
       $this->page->addSection($p);
 
     // Complete SUMMARY
-    $summary_port->add(new XDiv(array('class'=>'stat'),
-				array(new XSpan("Number of Regattas:", array('class'=>'prefix')), $total)));
-    $summary_port->add(new XDiv(array('class'=>'stat'),
-				array(new XSpan("Number of Teams:", array('class'=>'prefix')), $num_teams)));
+    $summary_table["Number of Regattas"] = $total;
+    $summary_table["Number of Teams"] = $num_teams;
     
     // Sort the winning school to determine winningest, and only print
     // this stat if there is a something to have won. Also, print all
     // the tied teams for winningest spot.
+    /*
     arsort($winning_school, SORT_NUMERIC);
     if (count($winning_school) > 0) {
       $school_codes = array_keys($winning_school);
@@ -213,13 +198,30 @@ class UpdateSeason {
       }
       // 2011-04-09: feedback compiled by Matt Lindblad from users
       // that this stat was "confusing"
-      /*
-	$summary_port->add(new XDiv(array('class'=>'stat'),
-	array(new XSpan("Winningest School(s):", array('class'=>'prefix')),
-	implode('/',
-	$tied_schools))));
-      */
+      $summary_port->add(new XDiv(array('class'=>'stat'),
+      array(new XSpan("Winningest School(s):", array('class'=>'prefix')),
+      implode('/',
+      $tied_schools))));
     }
+    */
+
+    // Summary report
+    $this->page->setHeader($this->season->fullString() . " Season", $summary_table);
+    
+    // ------------------------------------------------------------
+    // Add links to all seasons
+    $num = 0;
+    $ul = new XUl(array('id'=>'other-seasons'));
+    $seasons = Season::getActive();
+    foreach ($seasons as $s) {
+      if (count($s->getRegattas()) > 0) {
+	$num++;
+	$ul->add(new XLi(new XA('/'.$s.'/', $s->fullString())));
+      }
+    }
+    if ($num > 0)
+      $this->page->addSection(new XDiv(array('id'=>'submenu-wrapper'),
+				       array(new XH3("Other seasons", array('class'=>'nav')), $ul)));
   }
 
   /**

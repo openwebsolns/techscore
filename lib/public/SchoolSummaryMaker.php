@@ -220,7 +220,7 @@ class SchoolSummaryMaker {
       foreach ($crews as $id => $num) {
 	if ($i++ >= 2)
 	  break;
-	$txt[] = sprintf('%s (%d)', $crew_objs[$id], $num);
+	$txt[] = sprintf('%s (%d races)', $crew_objs[$id], $num);
       }
       $table["Most active crew"] = implode(", ", $txt);
     }
