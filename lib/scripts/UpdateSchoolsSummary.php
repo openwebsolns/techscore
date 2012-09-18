@@ -19,11 +19,11 @@ class UpdateSchoolsSummary {
     $page->setDescription("Listing of schools in ICSA, with regatta participation.");
     $page->addMetaKeyword("schools");
 
-    $page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
+    $page->addMenu(new XA('/', "Home"));
     $page->addMenu(new XA('/schools/', "Schools"));
     $page->addMenu(new XA('/seasons/', "Seasons"));
     $page->addMenu(new XA(Conf::$ICSA_HOME . '/teams/', "ICSA Teams"));
-    $page->addMenu(new XA('http://www.collegesailing.org/about/', "About"));
+    $page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
 
     $confs = DB::getAll(DB::$CONFERENCE);
     $num_schools = 0;

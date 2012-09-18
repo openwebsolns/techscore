@@ -26,11 +26,11 @@ class UpdateSeasonsSummary {
 
     // SETUP menus top menu: ICSA Home, Schools, Seasons, *this*
     // season, and About
-    $this->page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
+    $this->page->addMenu(new XA('/', "Home"));
     $this->page->addMenu(new XA('/schools/', "Schools"));
     $this->page->addMenu(new XA('/seasons/', "Seasons"));
     $this->page->addMenu(new XA(Conf::$ICSA_HOME . '/teams/', "ICSA Teams"));
-    $this->page->addMenu(new XA('http://www.collegesailing.org/about/', "About"));
+    $this->page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
 
     $table = array();
     $current = Season::forDate(DB::$NOW);

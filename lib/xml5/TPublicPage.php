@@ -82,7 +82,7 @@ class TPublicPage extends XPage {
     $sep = new XHR(array('class'=>'nav'));
 
     // Stylesheets
-    $this->head->add(new XMeta('generator', Conf::$COPYRIGHT));
+    $this->head->add(new XMeta('generator', "OpenWeb Solutions, LLC"));
     if ($this->description !== null)
       $this->head->add(new XMeta('description', $this->description));
     if (count($this->keywords) > 0)
@@ -123,7 +123,7 @@ class TPublicPage extends XPage {
     if ($this->header_title !== null) {
       $div->add($sub = new XDiv(array('id'=>'content-header'), array($h1 = new XH1(""))));
       $h1->add(new XSpan("", array('id'=>'left-fill')));
-      $h1->add($this->header_title);
+      $h1->add(new XSpan($this->header_title));
       $h1->add(new XSpan("", array('id'=>'right-fill')));
 
       if (count($this->header_table) > 0) {

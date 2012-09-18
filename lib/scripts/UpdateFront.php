@@ -21,7 +21,7 @@ class UpdateFront {
     $this->page = new TPublicFrontPage();
 
     // Menu
-    $this->page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
+    $this->page->addMenu(new XA('/', "Home"));
     $this->page->addMenu(new XA('/schools/', "Schools"));
     $this->page->addMenu(new XA('/seasons/', "Seasons"));
 
@@ -31,7 +31,7 @@ class UpdateFront {
     $success = false;
     $seasons = Season::getActive();
     if (count($seasons) == 0) {
-      $this->page->addMenu(new XA('http://www.collegesailing.org/about/', "About"));
+      $this->page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
 
       // Wow! There is NO information to report!
       $this->page->addSection(new XPort("Nothing to show!", array(new XP(array(), "We are sorry, but there are no regattas in the system! Please come back later. Happy sailing!"))));
@@ -39,7 +39,7 @@ class UpdateFront {
     }
 
     $this->page->addMenu(new XA('/'.$seasons[0]->id.'/', $seasons[0]->fullString()));
-    $this->page->addMenu(new XA('http://www.collegesailing.org/about/', "About"));
+    $this->page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
     $this->fillSeason($seasons[0]);
 
     // ------------------------------------------------------------

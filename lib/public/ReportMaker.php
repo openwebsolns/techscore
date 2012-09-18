@@ -151,7 +151,7 @@ class ReportMaker {
    */
   protected function prepare(TPublicPage $page) {
     $reg = $this->regatta;
-    $page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
+    $page->addMenu(new XA('/', "Home"));
     $page->addMetaKeyword($reg->name);
     $page->addMetaKeyword('results');
 

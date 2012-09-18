@@ -97,7 +97,7 @@ li#logo a {
 }
 
 #content-header h1 {
-    display: inline-block;
+    display: table;
     width: auto;
     margin: 0 auto;
     padding: 0.5em;
@@ -115,8 +115,11 @@ li#logo a {
     top: -0.75em;
 }
 
+#content-header span {
+    display: table-cell;
+}
+
 #left-fill {
-    display: inline-block;
     width: 80px;
     height: 15px;
     background: url('http://scores3.havok/inc/img/left-fill.png');
@@ -124,7 +127,6 @@ li#logo a {
     vertical-align: middle;
 }
 #right-fill {
-    display: inline-block;
     width: 80px;
     height: 15px;
     background: url('http://scores3.havok/inc/img/right-fill.png');

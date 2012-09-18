@@ -33,13 +33,13 @@ class Update404 {
     $seasons = DB::getAll(DB::$SEASON, new DBCond('start_date', DB::$NOW, DBCond::LE));
     $season = $seasons[0];
 
-    $this->page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home", array('class'=>'nav')));
+    $this->page->addMenu(new XA('/', "Home"));
     $this->page->addMenu(new XA('/schools/', "Schools"));
     $this->page->addMenu(new XA('/seasons/', "Seasons"));
     if ($season !== null)
       $this->page->addMenu(new XA(sprintf('/%s', $season), $season->fullString()));
     $this->page->addMenu(new XA(Conf::$ICSA_HOME . '/teams/', "ICSA Teams"));
-    $this->page->addMenu(new XA('http://www.collegesailing.org/about/', "About"));
+    $this->page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home", array('class'=>'nav')));
 
     $this->page->setHeader("404: School page not found");
     $this->page->addSection($p = new XPort("Page overboard!"));
@@ -81,13 +81,13 @@ class Update404 {
 
     // SETUP navigation
     $season = Season::forDate(DB::$NOW);
-    $this->page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
+    $this->page->addMenu(new XA('/', "Home"));
     $this->page->addMenu(new XA('/schools/', "Schools"));
     $this->page->addMenu(new XA('/seasons/', "Seasons"));
     if ($season !== null)
       $this->page->addMenu(new XA(sprintf('/%s', $season), $season->fullString()));
     $this->page->addMenu(new XA(Conf::$ICSA_HOME . '/teams/', "ICSA Teams"));
-    $this->page->addMenu(new XA('http://www.collegesailing.org/about/', "About"));
+    $this->page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
 
     $this->page->setHeader("404: File not found");
     $this->page->addSection($p = new XPort("Page overboard!"));
