@@ -13,7 +13,7 @@ class UpdateSchoolsSummary {
     require_once('xml5/TPublicPage.php');
     require_once('regatta/PublicDB.php');
     $page = new TPublicPage("All Schools");
-    $page->addDescription("Listing of schools in ICSA, with regatta participation.");
+    $page->setDescription("Listing of schools in ICSA, with regatta participation.");
     $page->addMetaKeyword("schools");
 
     $page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));

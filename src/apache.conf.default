@@ -168,6 +168,6 @@ Header set Expires "Thu, 15 Apr 2025 20:00:00 GMT"
 
 # Special 404 page for schools
 <Directory {DIRECTORY}/html/schools>
-ErrorDocument 404 /schools/404.php
+ErrorDocument 404 /schools/404.html
 </Directory>
 </VirtualHost>

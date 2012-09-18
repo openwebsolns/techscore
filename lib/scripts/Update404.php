@@ -27,7 +27,7 @@ class Update404 {
   private function fillSchools() {
     require_once('xml5/TPublicPage.php');
     $this->page = new TPublicPage('404: School page not found');
-    $this->page->addDescription("School page not found. Possible linking or URL error.");
+    $this->page->setDescription("School page not found. Possible linking or URL error.");
 
     // SETUP navigation, get latest season
     $seasons = DB::getAll(DB::$SEASON, new DBCond('start_date', DB::$NOW, DBCond::LE));
@@ -77,7 +77,7 @@ class Update404 {
 
     require_once('xml5/TPublicPage.php');
     $this->page = new TPublicPage('404: Page not found');
-    $this->page->addDescription("Page not found. Possible linking or URL error.");
+    $this->page->setDescription("Page not found. Possible linking or URL error.");
 
     // SETUP navigation
     $season = Season::forDate(DB::$NOW);
@@ -166,11 +166,16 @@ class Update404 {
    *
    */
   public static function runSchool() {
-    $R = realpath(dirname(__FILE__).'/../../cache');
+    $R = realpath(dirname(__FILE__).'/../../html');
+    if ($R === false)
+      throw new RuntimeException("Document root for public site does not exist.");
+    $R = "$R/schools";
+    if (!is_dir($R) && mkdir($R) === false)
+      throw new RuntimeException("Unable to create schools directory.");
 
     $M = new Update404('schools');
-    if (file_put_contents("$R/404-schools.html", $M->getPage()) === false)
-      throw new RuntimeException(sprintf("Unable to make the 404 page: %s/404-schools.html\n", $R), 8);
+    if (file_put_contents("$R/404.html", $M->getPage()) === false)
+      throw new RuntimeException(sprintf("Unable to make the 404 page: %s/404.html\n", $R), 8);
   }
 }
 
