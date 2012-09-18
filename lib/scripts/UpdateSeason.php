@@ -79,21 +79,18 @@ class UpdateSeason {
     $total = 0;
     $winning_school  = array();
     $now = date('U');
-    $ports = array();
+    $past_tab = new XQuickTable(array('class'=>'season-summary'),
+				array("Name",
+				      "Host",
+				      "Type",
+				      "Conference",
+				      "Start date",
+				      "Status",
+				      "Leading"));
+    $rowindex = 0;
     foreach ($weeks as $week => $list) {
-      $title = "Week $count";
-      $week_total = 0;
-      $p = new XPort($title);
       $count--;
-      $p->add($tab = new XQuickTable(array('class'=>'season-summary'),
-				     array("Name",
-					   "Host",
-					   "Type",
-					   "Conference",
-					   "Start date",
-					   "Status",
-					   "Leading")));
-      $row = 0;
+      $rows = array();
       foreach ($list as $reg) {
 	if ($reg->status == 'coming')
 	  $coming_regattas[] = $reg;
@@ -102,7 +99,6 @@ class UpdateSeason {
 	  if (count($teams) == 0)
 	    continue;
 	  
-	  $week_total++;
 	  $total++;
 	  $status = null;
 	  $wt = $teams[0];
@@ -136,18 +132,20 @@ class UpdateSeason {
 	  $burg = ($path !== false) ?
 	    new XImg(sprintf('/inc/img/schools/%s.png', $wt->school->id), $wt->school, array('height'=>40)) :
 	    $wt->school->nick_name;
-	  $tab->addRow(array($link,
-			     implode("/", $hosts),
-			     $types[$reg->type],
-			     implode("/", $confs),
-			     $reg->start_time->format('m/d/Y'),
-			     $status,
-			     new XTD(array('title' => $wt), $burg)),
-		       array('class' => sprintf("row%d", $row++ % 2)));
+	  $rows[] = array($link,
+			  implode("/", $hosts),
+			  $types[$reg->type],
+			  implode("/", $confs),
+			  $reg->start_time->format('m/d/Y'),
+			  $status,
+			  new XTD(array('title' => $wt), $burg));
 	}
       }
-      if ($week_total > 0)
-	$ports[] = $p;
+      if (count($rows) > 0) {
+	$past_tab->addRow(array(new XTH(array('colspan'=>7), "Week $count")));
+	foreach ($rows as $row)
+	  $past_tab->addRow($row, array('class' => sprintf("row%d", $rowindex++ % 2)));
+      }
     }
 
     // WRITE coming soon, and weekend summary ports
@@ -173,8 +171,8 @@ class UpdateSeason {
 			   $reg->start_time->format('m/d/Y @ H:i')));
       }
     }
-    foreach ($ports as $p)
-      $this->page->addSection($p);
+    if ($total > 0)
+      $this->page->addSection(new XPort("Season regattas", array($past_tab)));
 
     // Complete SUMMARY
     $summary_table["Number of Regattas"] = $total;

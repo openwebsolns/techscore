@@ -234,7 +234,7 @@ table th
   padding: 0 0.25em;
   font-size: 90%;
 }
-table thead 
+table thead
 {
   background: #b89f7e;
   background-image: url('img/table_bg.png');
@@ -382,6 +382,16 @@ div.stat .prefix {
 }
 
 .left {
+    text-align: left;
+}
+
+.season-summary tbody th {
+    text-align: center;
+    padding: 0.5em;
+    background: #E6E0D3;
+}
+
+.season-summary th {
     text-align: left;
 }
 
