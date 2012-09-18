@@ -153,6 +153,9 @@ class UpdateDaemon {
     self::$schools = array();
     self::$school_seasons = array();
 
+    // Update the seasons summary page
+    $seasons_summary = false;
+
     // ------------------------------------------------------------
     // Loop through the requests
     // ------------------------------------------------------------
@@ -174,8 +177,9 @@ class UpdateDaemon {
 
       // If the regatta is personal, but a request still exists, then
       // request the update of the seasons, the schools, and the
-      // school summaries, regardless.
+      // season summaries, regardless.
       if ($reg->type == Regatta::TYPE_PERSONAL) {
+	$seasons_summary = true;
 	self::$seasons[$season->id] = $season;
 	foreach ($reg->getTeams() as $team)
 	  self::queueSchoolSeason($team->school, $season);
@@ -185,6 +189,7 @@ class UpdateDaemon {
       switch ($r->activity) {
 	// ------------------------------------------------------------
       case UpdateRequest::ACTIVITY_DETAILS:
+	$seasons_summary = true;
       case UpdateRequest::ACTIVITY_SCORE:
 	self::$seasons[$season->id] = $season;
 	foreach ($reg->getTeams() as $team)
@@ -237,8 +242,17 @@ class UpdateDaemon {
 	require_once('scripts/Update404.php');
 	UpdateFront::run();
 	Update404::run();
-	self::report('generate front and 404 page');
+	self::report('generated front and 404 page');
       }
+    }
+
+    // ------------------------------------------------------------
+    // Perform all seasons summary update
+    // ------------------------------------------------------------
+    if ($seasons_summary) {
+      require_once('scripts/UpdateSeasonsSummary.php');
+      UpdateSeasonsSummary::run();
+      self::report('generated all-seasons summary');
     }
 
     // ------------------------------------------------------------

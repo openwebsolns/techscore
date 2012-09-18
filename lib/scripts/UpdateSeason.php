@@ -65,13 +65,13 @@ class UpdateSeason {
     // SEASON summary
     $summary_table = array();
     $num_teams = 0;
+    $num_weeks = 0;
 
     // COMING soon
     $coming_regattas = array();
 
     // WEEKENDS
     $count = count($weeks);
-    $summary_table["Number of Weekends"] = $count;
     if ($count == 0) {
       // Should this section even exist?
       $this->page->addSection(new XP(array(), "There are no regattas to report on yet."));
@@ -148,6 +148,7 @@ class UpdateSeason {
 	}
       }
       if (count($rows) > 0) {
+	$num_weeks++;
 	$past_tab->addRow(array(new XTH(array('colspan'=>7), "Week $count")));
 	foreach ($rows as $row)
 	  $past_tab->addRow($row, array('class' => sprintf("row%d", $rowindex++ % 2)));
@@ -178,6 +179,7 @@ class UpdateSeason {
       $this->page->addSection(new XPort("Season regattas", array($past_tab)));
 
     // Complete SUMMARY
+    $summary_table["Number of Weekends"] = $num_weeks;
     $summary_table["Number of Regattas"] = $total;
     $summary_table["Number of Teams"] = $num_teams;
     

@@ -92,6 +92,10 @@ class GenerateSite {
 	UpdateSeason::run($season);
 	self::log(sprintf("  - %s\n", $season->fullString()));
       }
+      // Also season summary
+      require_once('UpdateSeasonsSummary.php');
+      UpdateSeasonsSummary::run();
+      self::log("  - Seasons summary\n");
     }
 
     if ($do & self::SCHOOL_SUMMARY) {
