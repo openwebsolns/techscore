@@ -127,9 +127,9 @@ class Update404 {
 				    sprintf('/%s', $season),
 				    array('class'=>'tt')),
 			     new XUl(array(),
-				     array(new XLi(array(sprintf("Regatta, e.g. %s ", $one[0]->name),
-							 new XA(sprintf('/%s/%s', $season, $one[0]->nick),
-								sprintf('/%s/%s', $season, $one[0]->nick),
+				     array(new XLi(array(sprintf("Regatta, e.g. %s ", $one->name),
+							 new XA(sprintf('/%s/%s', $season, $one->nick),
+								sprintf('/%s/%s', $season, $one->nick),
 								array('class'=>'tt')))))))));
     }
   }

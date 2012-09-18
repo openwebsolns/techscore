@@ -222,7 +222,7 @@ class UpdateDaemon {
     foreach (self::$school_seasons as $id => $seasons) {
       foreach ($seasons as $season) {
 	UpdateSchool::run(self::$schools[$id], $season);
-	self::report(sprintf('generated school (%s/%s) %s', $season, $id, self::$schools[$id]->nick_name));
+	self::report(sprintf('generated school (%s/%-6s) %s', $season, $id, self::$schools[$id]->nick_name));
       }
     }
 

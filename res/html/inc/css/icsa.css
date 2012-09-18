@@ -421,8 +421,10 @@ div.stat .prefix {
     display: table;
     max-width: 60em;
     margin: 0 auto;
+    padding: 0;
 }
 #other-seasons li {
+    text-align: center;
     display: table-cell;
     border-right: 1px solid #ddd;
     padding: 0 1em;
@@ -441,4 +443,21 @@ div.stat .prefix {
 }
 #other-seasons a:hover {
     color: #888;
+}
+
+.coming-regattas thead {
+    display: none;
+}
+.coming-regattas {
+    background: #f2ede6;
+    border: 1px solid #aaa;
+    border-radius: 0.5em;
+}
+.coming-regattas * {
+    border: none;
+    padding: 0.5em;
+    text-align: left;
+}
+.coming-regattas tr td:first-child {
+    text-align: right;
 }

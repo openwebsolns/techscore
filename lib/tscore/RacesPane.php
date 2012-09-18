@@ -209,6 +209,7 @@ class RacesPane extends AbstractPane {
 	}
       }
       if ($new_regatta) {
+	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DETAILS);
 	Session::pa(new PA(array("Regatta races successfull set. You may create a rotation, or ",
 				 new XA($this->link('finishes'), "skip this step"),
 				 " to enter finishes directly.")));

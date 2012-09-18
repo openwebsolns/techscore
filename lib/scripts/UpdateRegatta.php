@@ -112,11 +112,15 @@ class UpdateRegatta {
     $end = $dreg->end_date;
     $end->setTime(23,59,59);
     if ($dreg->finalized !== null)
-      $dreg->status = 'final';
-    elseif ($dreg->start_time > $now)
-      $dreg->status = 'coming';
-    elseif ($dreg->end_date < $now)
-      $dreg->status = 'finished';
+      $dreg->status = Dt_Regatta::STAT_FINAL;
+    elseif (count($reg->getUnscoredRaces()) == 0)
+      $dreg->status = Dt_Regatta::STAT_FINISHED;
+    elseif (!$reg->hasFinishes()) {
+      if ($dreg->num_races > 0)
+	$dreg->status = Dt_Regatta::STAT_READY;
+      else
+	$dreg->status = Dt_Regatta::STAT_SCHEDULED;
+    }
     else {
       $last_race = $reg->getLastScoredRace();
       $dreg->status = ($last_race === null) ? 'coming' : $last_race;

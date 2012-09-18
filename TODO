@@ -286,3 +286,7 @@ Inactivated schools will still be present in the database, but they
 will have the inactive flag set, which would make them ineligible for
 hosting regattas or participating. This will be done by subclassing
 the current School class with an ActiveSchool class.
+
+* No nickname possible
+
+If name composed of only blacklist items!

@@ -11,6 +11,25 @@
 require_once('regatta/DB.php');
 
 class Dt_Regatta extends DBObject {
+
+  /**
+   * @const status for regattas that have been scheduled (details only)
+   */
+  const STAT_SCHEDULED = 'scheduled';
+  /**
+   * @const status for regattas that are ready
+   */
+  const STAT_READY = 'ready';
+  /**
+   * @const status for regattas that have no more finishes, but they
+   * are not finalized
+   */
+  const STAT_FINISHED = 'finished';
+  /**
+   * @const status for regattas that have been finalized
+   */
+  const STAT_FINAL = 'final';
+
   public $name;
   public $nick;
   protected $start_time;
@@ -26,6 +45,10 @@ class Dt_Regatta extends DBObject {
   public $boats;
   public $singlehanded;
   protected $season;
+  /**
+   * @var String the status of the race. Could be race number, or one
+   * of Dt_Regatta::STAT_* constants.
+   */
   public $status;
   public $participant;
 

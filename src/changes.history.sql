@@ -294,3 +294,5 @@ alter table account change password password varchar(128) null;
 
 -- reattach burgees --
 update school, burgee set school.burgee = burgee.id where school.id = burgee.school;
+
+update dt_regatta set status = 'ready' where status = 'coming';

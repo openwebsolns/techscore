@@ -411,8 +411,10 @@ div.stat .prefix {
     display: table;
     max-width: 60em;
     margin: 0 auto;
+    padding: 0;
 }
 #other-seasons li {
+    text-align: center;
     display: table-cell;
     border-right: 1px solid #ddd;
     padding: 0 1em;

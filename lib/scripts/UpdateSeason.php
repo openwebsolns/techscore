@@ -44,6 +44,7 @@ class UpdateSeason {
     // timestamp, based solely on the start_time, assuming that the
     // week ends on a Sunday.
     require_once('regatta/PublicDB.php');
+
     $weeks = array();
     $regattas = DB::getAll(DB::$DT_REGATTA, new DBCond('season', (string)$season));
     foreach ($regattas as $reg) {
@@ -75,6 +76,7 @@ class UpdateSeason {
       // Should this section even exist?
       $this->page->addSection(new XP(array(), "There are no regattas to report on yet."));
     }
+
     // stats
     $total = 0;
     $winning_school  = array();
@@ -83,18 +85,25 @@ class UpdateSeason {
 				array("Name",
 				      "Host",
 				      "Type",
-				      "Conference",
 				      "Start date",
 				      "Status",
 				      "Leading"));
+    $now = new DateTime();
+    $next_sunday = new DateTime();
+    $next_sunday->add(new DateInterval('P7DT0H'));
+    $next_sunday->setTime(0, 0);
+
+    $coming = array(Dt_Regatta::STAT_READY, Dt_Regatta::STAT_SCHEDULED);
+
     $rowindex = 0;
     foreach ($weeks as $week => $list) {
-      $count--;
       $rows = array();
       foreach ($list as $reg) {
-	if ($reg->status == 'coming')
-	  $coming_regattas[] = $reg;
-	else {
+	if ($reg->start_time >= $now) {
+	  if ($reg->start_time < $next_sunday && in_array($reg->status, $coming))
+	    array_unshift($coming_regattas, $reg);
+	}
+	elseif (!in_array($reg->status, $coming)) {
 	  $teams = $reg->getTeams();
 	  if (count($teams) == 0)
 	    continue;
@@ -121,10 +130,8 @@ class UpdateSeason {
 
 	  $num_teams += count($teams);
 	  $hosts = array();
-	  $confs = array();
 	  foreach ($reg->getHosts() as $host) {
 	    $hosts[$host->id] = $host->nick_name;
-	    $confs[$host->conference->id] = $host->conference;
 	  }
 
 	  $link = new XA($reg->nick, $reg->name);
@@ -135,7 +142,6 @@ class UpdateSeason {
 	  $rows[] = array($link,
 			  implode("/", $hosts),
 			  $types[$reg->type],
-			  implode("/", $confs),
 			  $reg->start_time->format('m/d/Y'),
 			  $status,
 			  new XTD(array('title' => $wt), $burg));
@@ -146,28 +152,25 @@ class UpdateSeason {
 	foreach ($rows as $row)
 	  $past_tab->addRow($row, array('class' => sprintf("row%d", $rowindex++ % 2)));
       }
+      $count--;
     }
 
     // WRITE coming soon, and weekend summary ports
     if (count($coming_regattas) > 0) {
       $this->page->addSection($p = new XPort("Coming soon"));
-      $p->add($tab = new XQuickTable(array(),
+      $p->add($tab = new XQuickTable(array('class'=>'coming-regattas'),
 				     array("Name",
 					   "Host",
 					   "Type",
-					   "Conference",
 					   "Start time")));
       foreach ($coming_regattas as $reg) {
 	$hosts = array();
-	$confs = array();
 	foreach ($reg->getHosts() as $host) {
 	  $hosts[$host->id] = $host->nick_name;
-	  $confs[$host->conference->id] = $host->conference;
 	}
 	$tab->addRow(array(new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name),
 			   implode("/", $hosts),
 			   $types[$reg->type],
-			   implode("/", $confs),
 			   $reg->start_time->format('m/d/Y @ H:i')));
       }
     }
