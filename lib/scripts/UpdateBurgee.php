@@ -48,6 +48,12 @@ class UpdateBurgee {
 	self::update($school);
       }
     }
+
+    // ------------------------------------------------------------
+    // Perform school summary update
+    // ------------------------------------------------------------
+    require_once('scripts/UpdateSchoolsSummary.php');
+    UpdateSchoolsSummary::run();
   }
 
   /**
