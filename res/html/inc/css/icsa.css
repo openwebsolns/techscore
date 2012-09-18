@@ -368,11 +368,49 @@ div.stat .prefix {
     border-bottom:1px solid #eee;
 }
 
+/* School summary table */
 .schools-table tbody {
     border: none;
+    text-align: center;
+}
+.schools-table thead {
+    display: none;
+}
+.schools-table tr {
+    display: inline-block;
+    zoom: 1;
+    *display: inline;
+    width: 15em;
+    margin: 0.5em 1%;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #aaa;
+    border-radius: 0.5em;
+    -moz-border-radius: 0.5em;
+    -webkit-border-radius: 0.5em;
+    vertical-align: top;
+    height: 6em;
+    text-align: right;
+    box-shadow: inset 0 -3px 5px #ccc;
+}
+.schools-table tr:hover {
+    box-shadow: inset 0 -3px 5px #aaa;
 }
 .schools-table td {
     border: none;
+    display: inline-block;
+    zoom: 1;
+    *display: inline;
+}
+.schools-table .schoolname {
+    font-weight: bold;
+    text-align: right;
+    display: block;
+}
+.schools-table .burgeecell {
+    position: absolute;
+    bottom: 0;
+    left: 0.5em;
 }
 
 .burgee {
