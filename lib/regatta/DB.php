@@ -232,16 +232,6 @@ class DB extends DBM {
    *
    * @param Account $acc the account
    */
-  public static function getMessages(Account $acc) {
-    require_once('regatta/Message.php');
-    return self::getAll(self::$MESSAGE, new DBCond('account', $acc->id));
-  }
-
-  /**
-   * Retrieve all messages for the given account in order
-   *
-   * @param Account $acc the account
-   */
   public static function getUnreadMessages(Account $acc) {
     require_once('regatta/Message.php');
     self::$MESSAGE->db_set_order(array('created'=>true));

@@ -22,7 +22,7 @@ class MessagePane extends AbstractUserPane {
   }
 
   protected function fillHTML(Array $args) {
-    $messages = DB::getMessages($this->USER);
+    $messages = $this->USER->getMessages();
 
     // ------------------------------------------------------------
     // No messages

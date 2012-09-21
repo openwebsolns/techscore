@@ -210,13 +210,13 @@ create the appropriate admin interface for this to happen.
 
 * BUG: Users with no regattas do not receive message asking to create one. (d o n e)
 
-* Migration notes:
+* Migration notes (d o n e):
 
 Consider inspecting every use of array_shift, array_keys,
 array_values, array_merge, etc. Old library assumed that the returned
 objects where arrays and not just array-like with DBM.
 
-* Move DB::getMessages(Account) to Account::getMessages
+* Move DB::getMessages(Account) to Account::getMessages (d o n e)
 
 This just seems like a better use of OOP.
 
@@ -251,7 +251,7 @@ It occurs to me that users probably are not allowed to change the
 regatta type scoring to/away from Team after finishes have been
 entered.
 
-* XML Simplication, part n+1
+* XML Simplication, part n+1 (d o n e)
 
 WelcomePage becomes LoginPage. login.php is no more its own page. All
 extensions to WelcomePage will now extend AbstractUserPane.
@@ -262,7 +262,7 @@ It might even be possible to merge AbstractPane as a subclass of
 AbstractUserPane. Cleaner code, even if there is more IO lookup
 required.
 
-* Synchronize list of schools with ICSA (done)
+* Synchronize list of schools with ICSA (d o n e: SyncDB)
 
 When updating ICSA sailors (UpdateSailorsDB), it is possible to have
 sailors for schools that do not yet exist in the database. It is also
@@ -290,3 +290,5 @@ the current School class with an ActiveSchool class.
 * No nickname possible
 
 If name composed of only blacklist items!
+
+* Notify users of approved account

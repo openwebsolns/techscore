@@ -162,6 +162,16 @@ class Account extends DBObject {
 			       new DBCondIn('id', DB::prepGetAll(DB::$SCORER, new DBCond('account', $this), array('regatta')))));
     return DB::getAll(DB::$REGATTA, $cond);
   }
+
+  /**
+   * Retrieve all messages for the given account in order
+   *
+   * @return Array:Message the messages
+   */
+  public function getMessages() {
+    require_once('regatta/Message.php');
+    return DB::getAll(DB::$MESSAGE, new DBCond('account', $this));
+  }
 }
 
 /**
