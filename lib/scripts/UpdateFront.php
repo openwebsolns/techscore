@@ -8,7 +8,12 @@
  */
 
 /**
- * Creates the front page
+ * Creates the front page: Includes a brief welcoming message,
+ * displayed alongside the list of regattas sailing now, if any. (The
+ * welcome message takes up the entire width otherwise).
+ *
+ * Underneath that, includes a list of upcoming events, in ascending
+ * chronological order.
  *
  */
 class UpdateFront {
@@ -38,10 +43,89 @@ class UpdateFront {
       return;
     }
 
+    $types = Regatta::getTypes();
     $this->page->addMenu(new XA('/'.$seasons[0]->id.'/', $seasons[0]->fullString()));
     $this->page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
-    $this->fillSeason($seasons[0]);
 
+    // Add welcome message
+    $this->page->addSection($div = new XDiv(array('id'=>'welcome'),
+					    array($h1 = new XH1(""),
+						  new XP(array(),
+							 array("This is the home for real-time results of College Sailing regattas. This site includes scores and participation records for all fleet-racing events within ICSA. An archive of ",
+							       new XA('/seasons/', "all previous seasons"),
+							       " is also available.")),
+						  new XP(array(),
+							 array("To follow a specific school, use our ",
+							       new XA('/schools/', "listing of schools"),
+							       " organized by ICSA Conference. Each school's participation is summarized by season.")),
+						  new XP(array(),
+							 array("For more information about college sailing, ICSA, the teams, and our sponsors, please visit the ",
+							       new XA(Conf::$ICSA_HOME, "ICSA site."))))));
+    $h1->add(new XSpan("", array('id'=>'left-fill')));
+    $h1->add(new XSpan("Welcome"));
+    $h1->add(new XSpan("", array('id'=>'right-fill')));
+
+    // ------------------------------------------------------------
+    // Are there any regattas in progress? Such regattas must exist in
+    // Dt_Regatta, be happening now according to date, and have a
+    // status not equal to 'SCHEDULED' (which usually indicates that a
+    // regatta is not yet ready, and might possibly never be scored).
+    $now = new DateTime('tomorrow');
+    $now->setTime(0, 0, 0);
+    $in_prog = DB::getAll(DB::$DT_REGATTA, new DBBool(array(new DBCond('start_time', $now, DBCond::LE),
+							    new DBCond('end_date', $now, DBCond::GE),
+							    new DBCond('status', Dt_Regatta::STAT_SCHEDULED, DBCond::NE))));
+    if (count($in_prog) > 0) {
+      $div->set('class', 'float');
+      $this->page->addSection(new XDiv(array('id'=>'in-progress'),
+				       array(new XH3("In progress"),
+					     $tab = new XQuickTable(array('class'=>'season-summary'),
+								    array("Name",
+									  "Type",
+									  "Status",
+									  "Leading")))));
+      foreach ($in_prog as $i => $reg) {
+	$stat = new XStrong($reg->status);
+	if ($reg->status == Dt_Regatta::STAT_READY) {
+	  $stat = new XEm("No score yet");
+	  $lead = new XEm("—");
+	}
+	else {
+	  $tms = $reg->getTeams();
+	  if ($tms[0]->school->burgee !== null)
+	    $lead = new XImg(sprintf('/inc/img/schools/%s.png', $tms[0]->school->id), $tms[0], array('height'=>40));
+	  else
+	    $lead = (string)$tms[0];
+	}
+	$tab->addRow(array(new XA(sprintf('/%s/%s/', $reg->season->id, $reg->nick), $reg->name),
+			   $types[$reg->type], $stat, $lead), array('class'=>'row'.($i % 2)));
+      }
+    }
+
+    // ------------------------------------------------------------
+    // Fill list of coming soon regattas
+    DB::$DT_REGATTA->db_set_order(array('start_time'=>true));
+    $regs = DB::getAll(DB::$DT_REGATTA, new DBCond('start_time', $now, DBCond::GE));
+    DB::$DT_REGATTA->db_set_order();
+    if (count($regs) > 0) {
+      $this->page->addSection($p = new XPort("Upcoming schedule"));
+      $p->add($tab = new XQuickTable(array('class'=>'coming-regattas'),
+				     array("Name",
+					   "Host",
+					   "Type",
+					   "Start time")));
+      foreach ($regs as $reg) {
+	$hosts = array();
+	foreach ($reg->getHosts() as $host) {
+	  $hosts[$host->id] = $host->nick_name;
+	}
+	$tab->addRow(array(new XA(sprintf('/%s/%s', $reg->season->id, $reg->nick), $reg->name),
+			   implode("/", $hosts),
+			   $types[$reg->type],
+			   $reg->start_time->format('m/d/Y @ H:i')));
+      }
+    }
+    
     // ------------------------------------------------------------
     // Add links to all seasons
     $num = 0;
@@ -57,96 +141,6 @@ class UpdateFront {
       $this->page->addSection(new XDiv(array('id'=>'submenu-wrapper'),
 				       array(new XH3("Other seasons", array('class'=>'nav')), $ul)));
 
-  }
-
-  /**
-   * Fills the page with information for the given season, assuming
-   * that such a season has anything to report
-   *
-   */
-  private function fillSeason(Season $season) {
-    $types = Regatta::getTypes();
-
-    $cond = new DBCond('season', (string)$season);
-    $regs = DB::getAll(DB::$DT_REGATTA, new DBBool(array(new DBCond('status', 'coming'), $cond)));
-
-    $row = 0;
-    if (count($regs) > 0) {
-      $this->page->addSection(new XPort("Coming soon",
-					array($tab = new XQuickTable(array('class'=>'season-summary'),
-								     array("Name",
-									   "Host",
-									   "Type",
-									   "Conference",
-									   "Start time")))));
-      foreach ($regs as $reg) {
-	$hosts = array();
-	$confs = array();
-	foreach ($reg->getHosts() as $host) {
-	  $hosts[$host->id] = $host->nick_name;
-	  $confs[$host->conference->id] = $host->conference;
-	}
-	$link = new XA(sprintf('/%s/%s', $reg->season, $reg->nick), $reg->name);
-	$tab->addRow(array($link,
-			   implode("/", $hosts),
-			   $types[$reg->type],
-			   implode("/", $confs),
-			   $reg->start_time->format('m/d/Y @ H:i')),
-		     array('class' => sprintf("row%d", $row++ % 2)));
-      }
-    }
-
-    // get finished ones
-    $regs = DB::getAll(DB::$DT_REGATTA, new DBBool(array(new DBCond('status', 'coming', DBCond::NE), $cond)));
-    if (count($regs) > 0) {
-      $this->page->addSection(new XPort("Regattas for " . $season->fullString(),
-					array($tab = new XQuickTable(array('class'=>'season-summary'),
-								     array("Name",
-									   "Host",
-									   "Type",
-									   "Conference",
-									   "Start date",
-									   "Status",
-									   "Leading"))),
-					array('id'=>'past')));
-      foreach ($regs as $reg) {
-	$label = null;
-	switch ($reg->status) {
-	case 'final':
-	  $label = new XStrong("Final"); break;
-	case 'finished':
-	  $label = 'Pending'; break;
-	default:
-	  $label = $reg->status;
-	}
-
-	$teams = $reg->getTeams();
-	if (count($teams) > 0) {
-	  $winner = $teams[0];
-	  $path = realpath(sprintf('%s/../../html/inc/img/schools/%s.png', dirname(__FILE__), $winner->school->id));
-	  $status = $winner;
-	  if ($path !== false)
-	    $status = new XImg(sprintf('/inc/img/schools/%s.png', $winner->school->id), $winner->school,
-			       array('height'=>40));
-	
-	  $hosts = array();
-	  $confs = array();
-	  foreach ($reg->getHosts() as $host) {
-	    $hosts[$host->id] = $host->nick_name;
-	    $confs[$host->conference->id] = $host->conference;
-	  }
-	  $link = new XA(sprintf('/%s/%s', $reg->season, $reg->nick), $reg->name);
-	  $tab->addRow(array($link,
-			     implode("/", $hosts),
-			     $types[$reg->type],
-			     implode("/", $confs),
-			     $reg->start_time->format('m/d/Y'),
-			     $label,
-			     new XTD(array('title'=>$winner), $status)),
-		       array('class' => sprintf("row%d", $row++ % 2)));
-	}
-      }
-    }
   }
 
   /**

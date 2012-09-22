@@ -622,19 +622,14 @@ class Regatta extends DBObject {
    * @return Race|null the race or null if none yet scored
    */
   public function getLastScoredRace(Division $div = null) {
-    // Get the race (id) from the latest finish
     DB::$FINISH->db_set_order(array('entered'=>false));
-    $q = DB::prepGetAll(DB::$FINISH,
-			new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('id'))),
-			array('race'));
-    $q->limit(1);
-    $res = DB::query($q);
-    if ($res->num_rows == 0)
+    $res = DB::getAll(DB::$FINISH,
+		      new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('id'))));
+
+    if (count($res) == 0)
       $r = null;
-    else {
-      $res = $res->fetch_object();
-      $r = DB::get(DB::$RACE, $res->race);
-    }
+    else
+      $r = $res[0]->race;
     unset($res);
     DB::$FINISH->db_set_order();
     return $r;

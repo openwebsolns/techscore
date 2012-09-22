@@ -8,7 +8,7 @@
 require_once('TPublicPage.php');
 
 /**
- * Specific page for front page, written in the new and improved HtmlLib.
+ * Specific page for front page.
  *
  * @author Dayan Paez
  * @version 2011-03-06

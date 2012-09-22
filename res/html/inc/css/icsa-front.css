@@ -163,6 +163,10 @@ li#logo a {
     background: white;
     padding: 3.5em 0 2em;
     vertical-align: top;
+    text-align: center;
+}
+#page-content h3 {
+    text-align: left;
 }
 
 /* footer */
@@ -433,4 +437,91 @@ div.stat .prefix {
 }
 #other-seasons a:hover {
     color: #888;
+}
+
+.coming-regattas thead {
+    display: none;
+}
+.coming-regattas {
+    background: #f2ede6;
+    border: 1px solid #aaa;
+    border-radius: 0.5em;
+}
+.coming-regattas * {
+    border: none;
+    padding: 0.5em;
+    text-align: left;
+}
+.coming-regattas tr td:first-child {
+    text-align: right;
+}
+
+/* Welcome */
+#welcome {
+    background: #F2EDE6;
+    border: 1px solid #ddd;
+    margin: 0 auto;
+    text-align: left;
+    display: inline-block;
+    zoom: 1;
+    *display: inline;
+    width: 46%;
+    padding: 1%;
+    vertical-align: top;
+}
+
+#welcome h1 {
+    display: table;
+    width: auto;
+    margin: 0 auto;
+    padding: 0.5em;
+    font-family: Arial,Helvetica,sans-serif;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+    font-variant: small-caps;
+    color: #48484A;
+    text-align: center;
+    background: #f7f7f7;
+    border: 1px solid #ddd;
+    border-radius: 0.25em;
+    font-size: 160%;
+    position: relative;
+    top: -0.75em;
+}
+
+#welcome span {
+    display: table-cell;
+}
+
+#welcome p {
+    margin-top: 0;
+    margin-bottom: 1em;
+}
+
+#left-fill {
+    width: 80px;
+    height: 15px;
+    background: url('http://scores3.havok/inc/img/left-fill.png');
+    background-repeat: no-repeat;
+    vertical-align: middle;
+}
+#right-fill {
+    width: 80px;
+    height: 15px;
+    background: url('http://scores3.havok/inc/img/right-fill.png');
+    background-repeat: no-repeat;
+    vertical-align: middle;
+}
+
+/* In progress */
+#in-progress {
+    display: inline-block;
+    zoom: 1;
+    *display: inline;
+    width: 48%;
+    margin-left: 2%;
+    vertical-align: top;
+}
+#in-progress table {
+    width: auto;
 }

@@ -123,7 +123,7 @@ class UpdateRegatta {
     }
     else {
       $last_race = $reg->getLastScoredRace();
-      $dreg->status = ($last_race === null) ? 'coming' : $last_race;
+      $dreg->status = ($last_race === null) ? 'coming' : (string)$last_race;
     }
 
     $added = !DB::set($dreg);
@@ -368,6 +368,7 @@ class UpdateRegatta {
       }
     }
     if (in_array(UpdateRequest::ACTIVITY_SCORE, $activities)) {
+      $sync = true;
       $sync_teams = true;
       $front = true;
       if ($reg->hasFinishes()) {
@@ -566,7 +567,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   $actions = array();
   foreach ($argv as $opt) {
     if (!in_array($opt, $pos_actions)) {
-      printf("Invalid update action requested: %s\n\n", $argv[2]);
+      printf("Invalid update action requested: %s\n\n", $opt);
       printf("usage: %s <regatta-id> [score|rotation [...]]\n", $_SERVER['PHP_SELF']);
       exit(1);
     }

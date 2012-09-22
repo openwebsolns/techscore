@@ -211,7 +211,7 @@ class UpdateSeason {
     */
 
     // Summary report
-    $this->page->setHeader($this->season->fullString() . " Season", $summary_table);
+    $this->page->setHeader($this->season->fullString(), $summary_table);
     
     // ------------------------------------------------------------
     // Add links to all seasons
