@@ -84,22 +84,25 @@ class PendingAccountsPane extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     foreach (array("approve", "reject") as $action) {
       if (isset($args[$action])) {
-	if (!isset($args['accounts']) ||
-	    !is_array($args['accounts']) ||
-	    empty($args['accounts'])) {
-	  Session::pa(new PA("No accounts chosen.", PA::E));
-	  return $args;
-	}
+	$accounts = DB::$V->reqList($args, 'accounts', null, "No account list provided.");
+	if (count($accounts) == 0)
+	  throw new SoterException("No accounts chosen.");
 
+	$unnotified = array();
 	$success = array();
 	$errors  = 0;
-	foreach ($args['accounts'] as $id) {
+	foreach ($accounts as $id) {
 	  $acc = DB::getAccount($id);
 	  if ($acc === null || $acc->status != Account::STAT_PENDING)
 	    $errors++;
 	  else {
 	    $acc->status = $legend[$action]["status"];
 	    DB::set($acc);
+	    // Notify user
+	    if ($action == 'approve') {
+	      if (!$this->notifyUser($acc))
+		$unnotified[] = sprintf('%s <%s>', $acc->getName(), $acc->id);
+	    }
 	    $success[] = $acc->id;
 	  }
 	}
@@ -108,12 +111,27 @@ class PendingAccountsPane extends AbstractAdminUserPane {
 	if ($errors > 0) {
 	  Session::pa(new PA(sprintf("%s %d accounts.", $legend[$action]["error"], $errors), PA::I));
 	}
+	if (count($unnotified) > 0)
+	  Session::pa(new PA(sprintf("Unable to notify the following accounts: %s.", implode(", ", $unnotified)), PA::I));
 	if (count($success) > 0) {
 	  Session::pa(new PA(sprintf("%s %s.", $legend[$action]["success"], implode(", ", $success))));
 	}
       }
     }
     return array();
+  }
+
+  /**
+   * Sends message to approved user
+   *
+   * @param Account $acc the account to notify
+   * @return boolean the result of DB::mail
+   */
+  private function notifyUser(Account $acc) {
+    return DB::mail($acc->id,
+		    sprintf("[%s] Account approved", Conf::$NAME),
+		    sprintf("Dear %1\$s,\n\nYou are receiving this message as notification that your account at %2\$s has been approved. To start using %2\$s, please login now at:\n\n%3\$s\n\nWhen you login the first time, you will be asked to sign an End-User License Agreement (EULA), where you assert that you will use %2\$s solely for scoring ICSA regattas.\n\nIt is *strongly* recommended that all new users become acquainted with the proper use of the program and member responsibilities by reading the user manual available on every page of the site (look for the \"Help\" link in to the top right corner).\n\nIn addition, you may request help from ICSA's %2\$s committee, led by Matt Lindblad, (mitsail@mit.edu).\n\nThank you for using %2\$s,\n-- \n%2\$s Administration",
+			    $acc->first_name, Conf::$NAME, WS::alink('/')));
   }
 }
 ?>

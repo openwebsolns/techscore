@@ -296,3 +296,7 @@ alter table account change password password varchar(128) null;
 update school, burgee set school.burgee = burgee.id where school.id = burgee.school;
 
 update dt_regatta set status = 'ready' where status = 'coming';
+
+-- account: admin should be null when not used
+alter table account change column admin admin tinyint default null;
+update account set admin = null where admin = 0;
