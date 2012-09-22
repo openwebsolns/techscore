@@ -208,18 +208,6 @@ class EnterFinishPane extends AbstractPane {
 	}
       }
 
-      /* echo '<pre>'; */
-      /* foreach ($finishes as $finish) */
-      /* 	printf("| %3s%s | %10s | %s | %4s |\n", */
-      /* 	       $finish->race->number, */
-      /* 	       $finish->race->division, */
-      /* 	       $finish->team->id, */
-      /* 	       $finish->entered->format('H:i:s'), */
-      /* 	       $finish->penalty); */
-      /* echo '</pre>'; */
-      /* exit; */
-      
-
       $this->REGATTA->commitFinishes($finishes);
       $this->REGATTA->runScore($race);
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE, $race);
