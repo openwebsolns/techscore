@@ -235,6 +235,10 @@ class DetailsPane extends AbstractPane {
 	    $this->REGATTA->removeDivision($div);
 	  Session::pa(new PA("Removed extra divisions.", PA::I));
 	}
+	if ($this->REGATTA->hasFinishes()) {
+	  $this->REGATTA->doScore();
+	  Session::pa(new PA("Re-scored the regatta."));
+	}
       }
 
       if (DB::$V->hasKey($V, $args, 'participant', Regatta::getParticipantOptions()) && $V != $this->REGATTA->participant) {
