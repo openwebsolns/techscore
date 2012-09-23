@@ -212,7 +212,7 @@ div.form_entry * {vertical-align:top;}
     max-width:820px;
     padding:0;
 }
-#announcements li {    list-style-type: none; padding: 0.5em;}
+#announcements li {    list-style-type: none; padding: 0.5em; margin-bottom: 0.5em;}
 #announcements .error {background:#eed2c0;border:1px solid brown;}
 p.valid, #announcements .success {background:#e0f3e0;border:1px solid green;}
 p.warning, #announcements .warn {background:#f3f3bb;border:1px solid orange;}

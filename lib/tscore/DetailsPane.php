@@ -238,6 +238,7 @@ class DetailsPane extends AbstractPane {
 	if ($this->REGATTA->hasFinishes()) {
 	  $this->REGATTA->doScore();
 	  Session::pa(new PA("Re-scored the regatta."));
+	  UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
 	}
       }
 
