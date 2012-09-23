@@ -25,6 +25,22 @@ class UpdateFront {
     require_once('xml5/TPublicFrontPage.php');
     $this->page = new TPublicFrontPage();
 
+    // Add welcome message
+    $this->page->addSection($div = new XDiv(array('id'=>'message-container')));
+    $div->add(new XDiv(array('id'=>'welcome'),
+		       array($this->h1("Welcome"),
+			     new XP(array(),
+				    array("This is the home for real-time results of College Sailing regattas. This site includes scores and participation records for all fleet-racing events within ICSA. An archive of ",
+					  new XA('/seasons/', "all previous seasons"),
+					  " is also available.")),
+			     new XP(array(),
+				    array("To follow a specific school, use our ",
+					  new XA('/schools/', "listing of schools"),
+					  " organized by ICSA Conference. Each school's participation is summarized by season.")),
+			     new XP(array(),
+				    array("For more information about college sailing, ICSA, the teams, and our sponsors, please visit the ",
+					  new XA(Conf::$ICSA_HOME, "ICSA site."))))));
+
     // Menu
     $this->page->addMenu(new XA('/', "Home"));
     $this->page->addMenu(new XA('/schools/', "Schools"));
@@ -47,24 +63,6 @@ class UpdateFront {
     $this->page->addMenu(new XA('/'.$seasons[0]->id.'/', $seasons[0]->fullString()));
     $this->page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
 
-    // Add welcome message
-    $this->page->addSection($div = new XDiv(array('id'=>'welcome'),
-					    array($h1 = new XH1(""),
-						  new XP(array(),
-							 array("This is the home for real-time results of College Sailing regattas. This site includes scores and participation records for all fleet-racing events within ICSA. An archive of ",
-							       new XA('/seasons/', "all previous seasons"),
-							       " is also available.")),
-						  new XP(array(),
-							 array("To follow a specific school, use our ",
-							       new XA('/schools/', "listing of schools"),
-							       " organized by ICSA Conference. Each school's participation is summarized by season.")),
-						  new XP(array(),
-							 array("For more information about college sailing, ICSA, the teams, and our sponsors, please visit the ",
-							       new XA(Conf::$ICSA_HOME, "ICSA site."))))));
-    $h1->add(new XSpan("", array('id'=>'left-fill')));
-    $h1->add(new XSpan("Welcome"));
-    $h1->add(new XSpan("", array('id'=>'right-fill')));
-
     // ------------------------------------------------------------
     // Are there any regattas in progress? Such regattas must exist in
     // Dt_Regatta, be happening now according to date, and have a
@@ -76,29 +74,27 @@ class UpdateFront {
 							    new DBCond('end_date', $now, DBCond::GE),
 							    new DBCond('status', Dt_Regatta::STAT_SCHEDULED, DBCond::NE))));
     if (count($in_prog) > 0) {
-      $div->set('class', 'float');
-      $this->page->addSection(new XDiv(array('id'=>'in-progress'),
-				       array(new XH3("In progress"),
-					     $tab = new XQuickTable(array('class'=>'season-summary'),
-								    array("Name",
-									  "Type",
-									  "Status",
-									  "Leading")))));
+      $div->add(new XDiv(array('id'=>'in-progress'),
+			 array($this->h1("In progress"),
+			       $tab = new XQuickTable(array('class'=>'season-summary'),
+						      array("Name",
+							    "Type",
+							    "Status",
+							    "Leading")))));
       foreach ($in_prog as $i => $reg) {
-	$stat = new XStrong($reg->status);
+	$row = array(new XA(sprintf('/%s/%s/', $reg->season->id, $reg->nick), $reg->name), $types[$reg->type]);
 	if ($reg->status == Dt_Regatta::STAT_READY) {
-	  $stat = new XEm("No score yet");
-	  $lead = new XEm("—");
+	  $row[] = new XTD(array('colspan'=>2), new XEm("No scores yet"));
 	}
 	else {
+	  $row[] = new XStrong(ucwords($reg->status));
 	  $tms = $reg->getTeams();
 	  if ($tms[0]->school->burgee !== null)
-	    $lead = new XImg(sprintf('/inc/img/schools/%s.png', $tms[0]->school->id), $tms[0], array('height'=>40));
+	    $row[] = new XImg(sprintf('/inc/img/schools/%s.png', $tms[0]->school->id), $tms[0], array('height'=>40));
 	  else
-	    $lead = (string)$tms[0];
+	    $row[] = (string)$tms[0];
 	}
-	$tab->addRow(array(new XA(sprintf('/%s/%s/', $reg->season->id, $reg->nick), $reg->name),
-			   $types[$reg->type], $stat, $lead), array('class'=>'row'.($i % 2)));
+	$tab->addRow($row, array('class'=>'row'.($i % 2)));
       }
     }
 
@@ -141,6 +137,20 @@ class UpdateFront {
       $this->page->addSection(new XDiv(array('id'=>'submenu-wrapper'),
 				       array(new XH3("Other seasons", array('class'=>'nav')), $ul)));
 
+  }
+
+  /**
+   * Creates a fancy, three-part, h1 heading
+   *
+   * @param String $heading the title of the heading (arg to XSpan)
+   * @return XH1
+   */
+  private function h1($heading) {
+    $h1 = new XH1("");
+    $h1->add(new XSpan("", array('class'=>'left-fill')));
+    $h1->add(new XSpan($heading));
+    $h1->add(new XSpan("", array('class'=>'right-fill')));
+    return $h1;
   }
 
   /**

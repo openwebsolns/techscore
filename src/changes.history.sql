@@ -300,3 +300,7 @@ update dt_regatta set status = 'ready' where status = 'coming';
 -- account: admin should be null when not used
 alter table account change column admin admin tinyint default null;
 update account set admin = null where admin = 0;
+
+-- fix summaries --
+update daily_summary set summary = replace(summary, "\\'", "'");
+update daily_summary set summary = replace(summary, "\\\"", "\"");

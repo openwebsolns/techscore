@@ -86,52 +86,6 @@ li#logo a {
     color: #888;
 }
 
-/* content header */
-
-#content-header {
-    background: #F2EDE6;
-    border: 1px solid #ddd;
-    margin: 0 auto;
-    text-align: center;
-    max-width: 50em;
-}
-
-#content-header h1 {
-    display: inline-block;
-    width: auto;
-    margin: 0 auto;
-    padding: 0.5em;
-    font-family: Arial,Helvetica,sans-serif;
-    font-weight: bold;
-    letter-spacing: 0.1em;
-    font-variant: small-caps;
-    color: #48484A;
-    text-align: center;
-    background: #f7f7f7;
-    border: 1px solid #ddd;
-    border-radius: 0.25em;
-    font-size: 160%;
-    position: relative;
-    top: -0.75em;
-}
-
-#left-fill {
-    display: inline-block;
-    width: 80px;
-    height: 15px;
-    background: url('http://scores3.havok/inc/img/left-fill.png');
-    background-repeat: no-repeat;
-    vertical-align: middle;
-}
-#right-fill {
-    display: inline-block;
-    width: 80px;
-    height: 15px;
-    background: url('http://scores3.havok/inc/img/right-fill.png');
-    background-repeat: no-repeat;
-    vertical-align: middle;
-}
-
 #page-info {
     font-size: 0.9em;
     color: #555;
@@ -280,10 +234,6 @@ td.races {
     font-size: 95%;
     color: #555;
     padding-left: 0.5em;
-}
-
-.row1 {
-    background: #F2EDE6;
 }
 
 td.schoolname, td.teamname {
@@ -456,25 +406,30 @@ div.stat .prefix {
     text-align: right;
 }
 
-/* Welcome */
-#welcome {
-    background: #F2EDE6;
-    border: 1px solid #ddd;
+#message-container {
+    display: table;
+    max-width: 65em;
     margin: 0 auto;
-    text-align: left;
-    display: inline-block;
-    zoom: 1;
-    *display: inline;
-    width: 46%;
-    padding: 1%;
-    vertical-align: top;
+    border-spacing: 1em;
 }
 
-#welcome h1 {
+/* Welcome */
+#welcome, #in-progress {
+    background: #F2EDE6;
+    border: 1px solid #ddd;
+    margin: 0 0.5em;
+    text-align: left;
+    display: table-cell;
+    padding: 0 1em;
+    width: 40%;
+}
+
+h1 {
     display: table;
     width: auto;
     margin: 0 auto;
     padding: 0.5em;
+    border-spacing: 0;
     font-family: Arial,Helvetica,sans-serif;
     font-weight: bold;
     letter-spacing: 0.1em;
@@ -489,23 +444,23 @@ div.stat .prefix {
     top: -0.75em;
 }
 
-#welcome span {
+#message-container span {
     display: table-cell;
 }
 
-#welcome p {
+#message-container p {
     margin-top: 0;
     margin-bottom: 1em;
 }
 
-#left-fill {
+.left-fill {
     width: 80px;
     height: 15px;
     background: url('http://scores3.havok/inc/img/left-fill.png');
     background-repeat: no-repeat;
     vertical-align: middle;
 }
-#right-fill {
+.right-fill {
     width: 80px;
     height: 15px;
     background: url('http://scores3.havok/inc/img/right-fill.png');
@@ -515,13 +470,21 @@ div.stat .prefix {
 
 /* In progress */
 #in-progress {
-    display: inline-block;
-    zoom: 1;
-    *display: inline;
-    width: 48%;
-    margin-left: 2%;
-    vertical-align: top;
+    width: 60%;
 }
 #in-progress table {
     width: auto;
+    margin-top: -1em;
+}
+#in-progress thead {
+    display: none;
+}
+#in-progress td {
+    border-bottom: 1px dotted #aaa;
+}
+#in-progress tr:last-child td {
+    border-bottom: none;
+}
+#in-progress tr td:first-child {
+    text-align: right;
 }
