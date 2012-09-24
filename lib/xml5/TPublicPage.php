@@ -57,7 +57,7 @@ class TPublicPage extends XPage {
    * @param String $title the title of the page
    */
   public function __construct($title) {
-    parent::__construct($title . " | " . Conf::$NAME . ": Real-Time Regatta Results");
+    parent::__construct($title . " | ICSA Real-Time Regatta Results");
 
     $this->filled = false;
     $this->menu = array();
@@ -82,6 +82,7 @@ class TPublicPage extends XPage {
     $sep = new XHR(array('class'=>'nav'));
 
     // Stylesheets
+    $this->head->add(new XMetaHTTP('content-type', 'text/html;charset=UTF-8'));
     $this->head->add(new XMeta('generator', "OpenWeb Solutions, LLC"));
     if ($this->description !== null)
       $this->head->add(new XMeta('description', $this->description));

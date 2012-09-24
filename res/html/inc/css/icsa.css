@@ -122,14 +122,14 @@ li#logo a {
 #left-fill {
     width: 80px;
     height: 15px;
-    background: url('http://scores3.havok/inc/img/left-fill.png');
+    background: url('/inc/img/left-fill.png');
     background-repeat: no-repeat;
     vertical-align: middle;
 }
 #right-fill {
     width: 80px;
     height: 15px;
-    background: url('http://scores3.havok/inc/img/right-fill.png');
+    background: url('/inc/img/right-fill.png');
     background-repeat: no-repeat;
     vertical-align: middle;
 }

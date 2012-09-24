@@ -31,14 +31,29 @@ class GenerateSite {
     require_once('regatta/PublicDB.php');
     require_once('xml5/TS.php');
 
-    $seasons = null;
+    $seasons = self::getSeasons();
+    if ($do & self::REGATTAS) {
+      // Go through all the regattas
+      require_once('UpdateRegatta.php');
+      self::log("* Generating regattas\n\n");
+
+      foreach ($seasons as $season) {
+	self::log(sprintf("  - %s\n", $season->fullString()));
+	foreach ($season->getRegattas() as $reg) {
+	  if (count($reg->getDivisions()) > 0) {
+	    self::log(sprintf("    - (%4d) %s...", $reg->id, $reg->name));
+	    UpdateRegatta::run($reg, array(UpdateRequest::ACTIVITY_SCORE, UpdateRequest::ACTIVITY_DETAILS));
+	    self::log("done\n");
+	  }
+	}
+	self::log("\n");
+      }
+    }
+
     if ($do & self::SCHOOLS) {
       // Schools
       self::log("\n* Generating schools\n");
       require_once('UpdateSchool.php');
-      
-      if ($seasons === null)
-	$seasons = self::getSeasons();
       
       foreach (DB::getConferences() as $conf) {
 	self::log(sprintf("  - Conference: %s\n", $conf));
@@ -63,31 +78,10 @@ class GenerateSite {
       }
     }
 
-    if ($do & self::REGATTAS) {
-      if ($seasons === null)
-	$seasons = self::getSeasons();
-
-      // Go through all the regattas
-      require_once('UpdateRegatta.php');
-      self::log("* Generating regattas\n\n");
-      foreach ($seasons as $season) {
-	self::log(sprintf("  - %s\n", $season->fullString()));
-	foreach ($season->getRegattas() as $reg) {
-	  if (count($reg->getDivisions()) > 0) {
-	    self::log(sprintf("    - (%4d) %s...", $reg->id, $reg->name));
-	    UpdateRegatta::run($reg, array(UpdateRequest::ACTIVITY_SCORE, UpdateRequest::ACTIVITY_DETAILS));
-	    self::log("done\n");
-	  }
-	}
-	self::log("\n");
-      }
-    }
-
     if ($do & self::SEASONS) {
       // Go through all the seasons
       self::log("\n* Generating seasons\n");
       require_once('UpdateSeason.php');
-      $seasons = self::getSeasons();
       foreach ($seasons as $season) {
 	UpdateSeason::run($season);
 	self::log(sprintf("  - %s\n", $season->fullString()));

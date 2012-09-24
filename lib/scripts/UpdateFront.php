@@ -68,10 +68,12 @@ class UpdateFront {
     // Dt_Regatta, be happening now according to date, and have a
     // status not equal to 'SCHEDULED' (which usually indicates that a
     // regatta is not yet ready, and might possibly never be scored).
-    $now = new DateTime('tomorrow');
-    $now->setTime(0, 0, 0);
-    $in_prog = DB::getAll(DB::$DT_REGATTA, new DBBool(array(new DBCond('start_time', $now, DBCond::LE),
-							    new DBCond('end_date', $now, DBCond::GE),
+    $start = new DateTime();
+    $start->setTime(23, 59, 59);
+    $end = new DateTime();
+    $end->setTime(0, 0, 0);
+    $in_prog = DB::getAll(DB::$DT_REGATTA, new DBBool(array(new DBCond('start_time', $start, DBCond::LE),
+							    new DBCond('end_date', $end, DBCond::GE),
 							    new DBCond('status', Dt_Regatta::STAT_SCHEDULED, DBCond::NE))));
     if (count($in_prog) > 0) {
       $div->add(new XDiv(array('id'=>'in-progress'),
@@ -100,6 +102,8 @@ class UpdateFront {
 
     // ------------------------------------------------------------
     // Fill list of coming soon regattas
+    $now = new DateTime('tomorrow');
+    $now->setTime(0, 0);
     DB::$DT_REGATTA->db_set_order(array('start_time'=>true));
     $regs = DB::getAll(DB::$DT_REGATTA, new DBCond('start_time', $now, DBCond::GE));
     DB::$DT_REGATTA->db_set_order();

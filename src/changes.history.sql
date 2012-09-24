@@ -304,3 +304,6 @@ update account set admin = null where admin = 0;
 -- fix summaries --
 update daily_summary set summary = replace(summary, "\\'", "'");
 update daily_summary set summary = replace(summary, "\\\"", "\"");
+
+delete from dt_regatta where season is null;
+alter table dt_regatta drop foreign key dt_regatta_ibfk_1, change column season season varchar(3) not null, add foreign key (season) references season(id) on delete cascade on update cascade;
