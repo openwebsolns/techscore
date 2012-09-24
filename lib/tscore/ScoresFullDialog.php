@@ -115,9 +115,9 @@ class ScoresFullDialog extends AbstractScoresDialog {
 	    $ln = array($rank->team->name, new XBr(),
 			new XA(sprintf('%s/%s', $link_schools, $rank->team->school->id),
 			       $rank->team->school->nick_name));
-	  $r->add(new XTD(array("title" => $rank->explanation, "class" => "tiebreaker"), $tiebreakers[$rank->explanation]),
-		  new XTD(array(), $order++),
-		  new XTD(array("class"=>"strong"), $ln));
+	  $r->add(new XTD(array("title" => $rank->explanation, "class" => "tiebreaker"), $tiebreakers[$rank->explanation]));
+	  $r->add(new XTD(array(), $order++));
+	  $r->add(new XTD(array("class"=>"strong"), $ln));
 	}
 	elseif ($div == "A") {
 	  $r->add(new XTD(array("title" => $rank->explanation), $tiebreakers[$rank->explanation]));
