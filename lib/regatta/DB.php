@@ -1252,7 +1252,9 @@ class Race extends DBObject {
    * @return String the representation of the race
    */
   public function __toString() {
-    if ($this->regatta !== null && $this->__get('regatta')->scoring != Regatta::SCORING_STANDARD)
+    if ($this->regatta !== null &&
+	($this->__get('regatta')->scoring != Regatta::SCORING_STANDARD ||
+	 count($this->__get('regatta')->getDivisions()) == 1))
       return (string)$this->number;
     return $this->number . $this->division;
   }
