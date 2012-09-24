@@ -29,32 +29,45 @@ class RotationDialog extends AbstractDialog {
    * Generates an HTML table for the given division
    *
    * @param Division $div the division
+   * @param String $PREFIX the prefix to add to image resource URLs
+   * @param String $link_schools if not null, the prefix for linking schools
    * @return Rotation $rot
    */
-  public function getTable(Division $div) {
-    $t = new XTable(array('class'=>'coordinate rotation'),
-		    array(new XTHead(array(),
-				     array($r = new XTR(array(), array(new XTH(), new XTH())))),
-			  $tab = new XTBody()));
-
+  public function getTable(Division $div, $PREFIX = "", $link_schools = null) {
+    $header = array("", "Team");
     $races = $this->REGATTA->getRaces($div);
     foreach ($races as $race)
-      $r->add(new XTH(array(), $race));
+      $header[] = (string)$race;
 
-    $row = 0;
+    $tab = new XQuickTable(array('class'=>'coordinate rotation'), $header);
+
+    $rowIndex = 0;
     foreach ($this->REGATTA->getTeams() as $team) {
-      $tab->add($r = new XTR(array('class'=>'row'.($row++ % 2)),
-			     array(new XTD(array('class'=>'schoolname'), $team->school->name),
-				   new XTD(array('class'=>'teamname'), $team->name))));
+      $row = array();
+      $burgee = "";
+      if ($team->school->burgee !== null) {
+	$url = sprintf("%s/inc/img/schools/%s.png", $PREFIX, $team->school->id);
+	$burgee = new XImg($url, $team->school->id, array('height'=>'30px'));
+      }
+      $row[] = $burgee;
+
+      // Team name
+      $name = (string)$team;
+      if ($link_schools !== null)
+	$name = array(new XA(sprintf('%s/%s', $link_schools, $team->school->id), $team->school->nick_name),
+		      " ",
+		      $team->name);
+      $row[] = new XTD(array('class'=>'teamname'), $name);
 
       foreach ($races as $race) {
 	$sail = $this->rotation->getSail($race, $team);
 	$sail = ($sail !== null) ? $sail : "";
-	$r->add(new XTD(array(), $sail));
+	$row[] = $sail;
       }
+      $tab->addRow($row, array('class'=>'row'.($rowIndex++%2)));
     }
 
-    return $t;
+    return $tab;
   }
 
   /**
