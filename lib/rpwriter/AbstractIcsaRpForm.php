@@ -25,7 +25,7 @@ require_once('rpwriter/RpBlock.php');
 abstract class AbstractIcsaRpForm {
 
   // Constants
-  
+
   protected $blocks_per_page = 3;
   protected $num_skipper_A = 3;
   protected $num_skipper_B = 3;
@@ -99,7 +99,7 @@ abstract class AbstractIcsaRpForm {
   public function __construct($name, $host, $date, $num_blocks = 3) {
     $this->INC = sprintf('\includegraphics[width=\textwidth]{%s}',
                          sprintf("%s/ICSA-RP-AB.pdf", dirname(__FILE__)));
-    
+
     $this->HEAD = ('\documentclass[letter,12pt]{article} ' .
                    '\usepackage{graphicx} ' .
                    '\usepackage[text={8.25in,11in},centering]{geometry} ' .

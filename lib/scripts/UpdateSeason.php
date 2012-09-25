@@ -107,7 +107,7 @@ class UpdateSeason {
           $teams = $reg->getTeams();
           if (count($teams) == 0)
             continue;
-          
+
           $total++;
           $status = null;
           $wt = $teams[0];
@@ -182,7 +182,7 @@ class UpdateSeason {
     $summary_table["Number of Weekends"] = $num_weeks;
     $summary_table["Number of Regattas"] = $total;
     $summary_table["Number of Teams"] = $num_teams;
-    
+
     // Sort the winning school to determine winningest, and only print
     // this stat if there is a something to have won. Also, print all
     // the tied teams for winningest spot.
@@ -212,7 +212,7 @@ class UpdateSeason {
 
     // Summary report
     $this->page->setHeader($this->season->fullString(), $summary_table);
-    
+
     // ------------------------------------------------------------
     // Add links to all seasons
     $num = 0;
@@ -243,7 +243,7 @@ class UpdateSeason {
   // ------------------------------------------------------------
   // Static component used to write the summary page to file
   // ------------------------------------------------------------
-  
+
   /**
    * Creates the new page summary in the public domain
    *

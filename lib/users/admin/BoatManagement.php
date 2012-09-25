@@ -57,9 +57,9 @@ class BoatManagement extends AbstractAdminUserPane {
     $this->PAGE->addContent($p = new XPort($mess));
     $p->add($form = new XForm("/boat-edit", XForm::POST));
     $form->add(new XP(array(), "The number of occupants will be used when entering RP information to determine how many crews are allowed in an RP form. If the same boat class can have multiple number of crews, add separate entries and distinguish them by adding the number of occupants in the name."));
-    
+
     $form->add(new XP(array(), "Keep in mind that the number of occupants includes 1 skipper. Therefore, the minimum value is 1 for a singlehanded boat class."));
-    
+
     $form->add(new FItem("Name:", new XTextInput("name", $boat->name, array("maxlength"=>"15"))));
     $form->add(new FItem("Number of occupants:", new XTextInput("occupants", $boat->occupants)));
     $form->add($hidd);
@@ -76,7 +76,7 @@ class BoatManagement extends AbstractAdminUserPane {
       $tab->addRow(array(new XA(sprintf("boats?b=%d", $boat->id), $boat->name), $boat->occupants));
     }
   }
-  
+
   public function process(Array $args) {
     // ------------------------------------------------------------
     // Add/edit boat

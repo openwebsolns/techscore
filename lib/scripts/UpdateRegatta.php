@@ -80,11 +80,11 @@ class UpdateRegatta {
     $dreg->scoring = $reg->scoring;
     $dreg->participant = $reg->participant;
     $dreg->venue = $reg->venue;
-    
+
     $races = $reg->getScoredRaces();
     $dreg->num_divisions = count($divs);
     $dreg->num_races = count($reg->getRaces()) / $dreg->num_divisions;
-    
+
     // hosts and conferences
     $confs = array();
     $hosts = array();
@@ -101,10 +101,10 @@ class UpdateRegatta {
     foreach ($reg->getBoats() as $boat)
       $boats[$boat->id] = $boat->name;
     $dreg->boats = implode(',', $boats);
-    
+
     if ($reg->isSingleHanded())
       $dreg->singlehanded = 1;
-    
+
     $dreg->season = $reg->getSeason();
 
     // status
@@ -179,7 +179,7 @@ class UpdateRegatta {
         $team_division = $dteams[$rank->team->id]->getRank($div);
         if ($team_division === null)
           $team_division = new Dt_Team_Division();
-          
+
         $team_division->team = $dteams[$rank->team->id];
         $team_division->division = $div;
         $team_division->rank = ($i + 1);
@@ -422,7 +422,7 @@ class UpdateRegatta {
         $rotation = true;
       if ($reg->hasFinishes()) {
         $full = true;
-      
+
         // Individual division scores (do not include if singlehanded as
         // this is redundant)
         if (!$reg->isSingleHanded())

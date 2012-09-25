@@ -58,7 +58,7 @@ class UpdateSeasonsSummary {
   // ------------------------------------------------------------
   // Static component used to write the summary page to file
   // ------------------------------------------------------------
-  
+
   /**
    * Creates the new pages in the public domain
    *

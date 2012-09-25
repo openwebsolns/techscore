@@ -90,7 +90,7 @@ class SyncDB {
 
   public function updateSchools() {
     $this->log("Starting: fetching and parsing schools " . Conf::$SCHOOL_API_URL);
-    
+
     if (($xml = @simplexml_load_file(Conf::$SCHOOL_API_URL)) === false) {
       $this->errors[] = "Unable to load XML from " . Conf::$SCHOOL_API_URL;
       return;
@@ -243,7 +243,7 @@ if (isset($argv) && basename(__FILE__) == basename($argv[0])) {
     }
   }
   $db = new SyncDB($verb);
-  
+
   $db->update($tosync[SyncDB::SCHOOLS], $tosync[SyncDB::SAILORS], $tosync[SyncDB::COACHES]);
   $err = $db->errors();
   if (count($err) > 0) {

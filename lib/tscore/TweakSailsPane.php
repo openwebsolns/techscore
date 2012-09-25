@@ -63,11 +63,11 @@ class TweakSailsPane extends AbstractPane {
       $form->add(new XSubmitP("choose_act", "Next →"));
       return;
     }
-    
+
     // ------------------------------------------------------------
     // 2. Tweak details
     // ------------------------------------------------------------
-      
+
     $edittype = $args['edittype'];
     $this->PAGE->addContent($p = new XPort(sprintf("2. %s for Division %s",
                                                    $this->ACTIONS[$edittype],
@@ -131,7 +131,7 @@ class TweakSailsPane extends AbstractPane {
       $args['edittype'] = DB::$V->reqKey($args, 'edittype', $this->ACTIONS, "Invalid or missing tweak type.");
       return $args;
     }
-    
+
     // ------------------------------------------------------------
     // 2. Tweak
     // ------------------------------------------------------------

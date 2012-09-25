@@ -95,7 +95,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
         }
       }
     }
-    
+
     $rowIndex = 0;
     $order = 1;
     $races = $this->REGATTA->getScoredRaces($division);
@@ -143,14 +143,14 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
                           $sch = new XTD(array('class'=>'teamname'), $rank->team->name),
                           new XTD(),
                           new XTD(array('class'=>'totalcell'))));
-      
+
       $headerRows = array($r1, $r2);
 
       // ------------------------------------------------------------
       // Skippers and crews
       foreach (array(RP::SKIPPER, RP::CREW) as $index => $role) {
         $sailors  = $rpManager->getRP($rank->team, $division, $role);
-            
+
         $is_first = true;
         $s_rows = array();
         if (count($sailors) == 0) {

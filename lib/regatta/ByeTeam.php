@@ -21,7 +21,7 @@ class ByeTeam extends Team {
     $this->name = "BYE";
     $this->school = null;
   }
-  
+
   public function __toString() {
     return "BYE Team";
   }

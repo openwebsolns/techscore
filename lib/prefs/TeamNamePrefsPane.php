@@ -33,7 +33,7 @@ class TeamNamePrefsPane extends AbstractPrefsPane {
     $p->add(new XP(array(), "Edit the team names (mascot) that can be used for this school in the regattas. TechScore allows you to choose one primary name and up to four secondary names. The team names are chosen according to this list, with the primary name chosen by default for the first team from this school in the regatta."));
 
     $p->add(new XP(array(), "If a second team from this school is added, TechScore will choose the next name from the list. If it runs out of names, it will append a numeral suffix to the primary name."));
-    
+
     $p->add(new XP(array(),
                    array("For instance, suppose there are four teams from a school that has only two possible team names (primary and one secondary): ",
                          new XEm("Mascot"), ", and ",
@@ -44,7 +44,7 @@ class TeamNamePrefsPane extends AbstractPrefsPane {
                           new XLi(new XEm("Other mascot")),
                           new XLi(new XEm("Mascot 2")),
                           new XLi(new XEm("Mascot 3")))));
-    
+
     $p->add($form = new XForm(sprintf("/pedit/%s/team", $this->SCHOOL->id), XForm::POST));
 
     // Fill form

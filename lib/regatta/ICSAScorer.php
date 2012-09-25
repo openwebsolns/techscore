@@ -623,6 +623,6 @@ class ICSAScorer {
       return null;
     return round($total / $num);
   }
-  
+
 }
 ?>

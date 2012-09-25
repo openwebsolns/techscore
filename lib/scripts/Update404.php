@@ -148,7 +148,7 @@ class Update404 {
   // ------------------------------------------------------------
   // Static component used to write the summary page to file
   // ------------------------------------------------------------
-  
+
   /**
    * Creates the new page summary in the public domain
    *

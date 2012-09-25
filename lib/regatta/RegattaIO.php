@@ -241,7 +241,7 @@ class RegattaIO {
         $sub->add($ssub = new XElem("Member"));
         $ssub->set("id", $sailor->id);
         $ssub->set("data", "http://techscore.mit.edu");
-        
+
         $ssub->add($sssub = new XElem("Name"));
         $sssub->add(new XText(sprintf("%s %s",
                                       $sailor->first_name,
@@ -249,12 +249,12 @@ class RegattaIO {
         $ssub->add($sssub = new XElem("Year"));
         $sssub->add(new XText($sailor->year));
       }
-      
+
       foreach ($school->getUnregisteredSailors() as $sailor) {
         $sub->add($ssub = new XElem("Member"));
         $ssub->set("id", $sailor->id);
         $ssub->set("data", "http://techscore.mit.edu");
-        
+
         $ssub->add($sssub = new XElem("Name"));
         $sssub->add(new XText(sprintf("%s %s*",
                                       $sailor->first_name,
@@ -272,7 +272,7 @@ class RegattaIO {
 
 
   private $warnings;
-  
+
   /**
    * Reads the regatta description from string and attempts to parse
    * it. Creates a new temporary regatta and assigns it to the given
@@ -285,7 +285,7 @@ class RegattaIO {
   public function fromXML($doc) {
     throw new RuntimeException("This method is not yet supported.");
     $warnings = array();
-    
+
     $root = new SimpleXmlElement((string)$doc);
 
     $tsid = (int)$root['tsid'];
@@ -296,7 +296,7 @@ class RegattaIO {
     }
     $expire  = new DateTime("now + 1 week", new DateTimeZone("America/New_York"));
     $regatta = TempRegatta::createRegatta($other_reg, $expire);
-    
+
     // ------------------------------------------------------------
     // Edit main details
     // ------------------------------------------------------------
@@ -461,7 +461,7 @@ class RegattaIO {
     if ($rot_errors == true)
       $warnings[] = "Problems with one or more sails numbers in the rotation.";
 
-    
+
     // ------------------------------------------------------------
     // Finishes
     // ------------------------------------------------------------
@@ -538,7 +538,7 @@ class RegattaIO {
     if ($penalty_errors)
       $warnings[] = "Problems with one or more penalties.";
 
-    
+
     // ------------------------------------------------------------
     // Breakdowns
     // ------------------------------------------------------------
@@ -715,7 +715,7 @@ class RegattaIO {
 
     $this->warnings = $warnings;
   }
-  
+
 
   /**
    * Return the warnings from the last IO operation

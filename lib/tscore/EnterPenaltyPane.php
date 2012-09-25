@@ -236,7 +236,7 @@ class EnterPenaltyPane extends AbstractPane {
       foreach ($races as $race)
         $this->REGATTA->runScore($race);
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
-      
+
       $mes = sprintf("Added %s for %s.", $thePen, implode(', ', $teams));
       Session::pa(new PA($mes));
       unset($args['p_type']);

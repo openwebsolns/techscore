@@ -54,7 +54,7 @@ class DBDelegate extends ArrayIterator {
 
   // Delegate action
   private $action;
-  
+
   public function __construct(MySQLi_Result $result, DBDelegatable $action) {
     $this->result = $result;
     $this->row_num = 0;
@@ -103,7 +103,7 @@ class DBDelegate extends ArrayIterator {
     else
       $this->current = $this->action->delegate_current($this->result);
   }
-  
+
   public function offsetExists($index) {
     return true;
   }
@@ -123,7 +123,7 @@ class DBDelegate extends ArrayIterator {
  * @version 2010-05-14
  */
 interface DBDelegatable {
-  
+
   /**
    * This method is responsible for fetching the current value from
    * the DBDelegate, formatting it as required, and returning the
@@ -239,7 +239,7 @@ class DBFunction_Delegate implements DBDelegatable {
  * @version 2010-05-14
  */
 interface DBFunction_Arg {
-  
+
   /**
    * Format and return the argument based on the information from the
    * parameter

@@ -62,10 +62,10 @@ abstract class AbstractUserPane {
       $this->PAGE->printXML();
       return;
     }
-    
+
     // ------------------------------------------------------------
     // menu
-    
+
     // User Preferences
     $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
                                   array(new XH4("TechScore"),

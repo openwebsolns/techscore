@@ -60,7 +60,7 @@ class RegisterPane extends AbstractUserPane {
     case 2:
       $this->fillPending();
       break;
-      
+
     case 1:
       $this->fillRequested();
       break;
@@ -81,7 +81,7 @@ class RegisterPane extends AbstractUserPane {
                    array(sprintf("Please note that %s is an online scoring program specifically designed for College Sailing regattas. As such, account access is given only to valid ICSA users, or as approved by the registration committee. If you are not affiliated with ICSA, you might be more interested in accessing the public site at ",
                                  Conf::$NAME),
                          new XA(WS::alink('/', Conf::$PUB_HOME, 'http'), Conf::$PUB_HOME), ".")));
-    
+
     $p->add(new XP(array(), "Through this form you will be allowed to petition for an account on TechScore. Every field is mandatory. Please enter a valid e-mail account which you check as you will be sent an e-mail there to verify your identity."));
 
     $p->add(new XP(array(), "Once your account request has been approved by the registration committee, you will receive another e-mail from TechScore with instructions on logging in."));
@@ -140,7 +140,7 @@ class RegisterPane extends AbstractUserPane {
       $acc = new Account();
       $acc->status = Account::STAT_REQUESTED;
       $acc->id = $id;
-      
+
       // 2. Approve first and last name
       $acc->last_name  = DB::$V->reqString($args, 'last_name', 1, 31, "Last name must not be empty and less than 30 characters.");
       $acc->first_name = DB::$V->reqString($args, 'first_name', 1, 31, "First name must not be empty and less than 30 characters.");

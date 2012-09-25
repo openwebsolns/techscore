@@ -59,7 +59,7 @@ class RP {
       throw new InvalidArgumentException("No such property $field in RP.");
     }
   }
-  
+
   /**
    * Returns the constant which matches the role specified role, and
    * throws an error if it's invalid.

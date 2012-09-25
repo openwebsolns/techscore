@@ -191,7 +191,7 @@ class Soter {
     $len = strlen($val);
     if ($len < $min || $len >= $max)
       throw new SoterException($mes, SoterException::STRING_OUT_OF_BOUNDS);
-    
+
     // Replace illegal M$ chars
     $search = array(chr(145), chr(146), chr(147), chr(148), chr(150), chr(151), chr(133));
     $replace = array("'", "'", '"', '"', '-', '-', '.');

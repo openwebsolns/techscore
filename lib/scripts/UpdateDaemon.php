@@ -100,7 +100,7 @@ class UpdateDaemon {
     if (self::$REGATTA !== null)
       printf("ID:%d (%s)", self::$REGATTA->id, self::$REGATTA->name);
     echo "\n";
-    
+
     $fmt = "     | %6s: %s\n";
     printf($fmt, "Time",   date('Y-m-d H:i:s'));
     printf($fmt, "Number", $errno);
@@ -351,13 +351,13 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
     }
     exit(0);
   }
-  
+
   // ------------------------------------------------------------
   // Actually perform the requests
   // ------------------------------------------------------------
   // Make sure, if nothing else, that you at least run cleanup
   $old = set_error_handler("UpdateDaemon::errorHandler", E_ALL);
-  
+
   if (isset($opts['v']))
     UpdateDaemon::$verbose = true;
   try {

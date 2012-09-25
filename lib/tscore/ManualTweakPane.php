@@ -68,7 +68,7 @@ class ManualTweakPane extends AbstractPane {
         }
       }
     }
-    
+
     // OUTPUT
     $this->PAGE->addContent($p = new XPort($port_title));
     $p->add($d);

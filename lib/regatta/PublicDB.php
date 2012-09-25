@@ -82,7 +82,7 @@ class Dt_Regatta extends DBObject {
     $str = new DateTime($this->start_time->format('Y-m-d'));
     $str->setTime(0, 0);
     $end->setTime(0, 0);
-    
+
     return (int)($end->format('U') - $str->format('U')) / 86400;
   }
 
@@ -125,7 +125,7 @@ class Dt_Regatta extends DBObject {
 
   public function getParticipation(Sailor $sailor, $division = null, $role = null) {
     $team = DB::prepGetAll(DB::$DT_TEAM, new DBCond('regatta', $this->id), array('id'));
-    
+
     $cond = new DBBool(array(new DBCondIn('team', $team)));
     if ($division !== null)
       $cond->add(new DBCond('division', $division));

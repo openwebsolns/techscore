@@ -34,7 +34,7 @@ class UpdateSchoolsSummary {
       $page->addSection($p = new XPort($conf . " Conference"));
       $p->set('id', $conf);
       $p->add($tab = new XQuickTable(array('class'=>'schools-table'), array("Mascot", "School", "City", "State")));
-      
+
       foreach ($conf->getSchools() as $i => $school) {
         $num_schools++;
         $link = sprintf('/schools/%s', $school->id);

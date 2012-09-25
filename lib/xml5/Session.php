@@ -117,7 +117,7 @@ class Session {
     if (isset($_SESSION['data']))
       self::$DATA = unserialize($_SESSION['data']);
   }
-  
+
   /**
    * Call this method to actually send the information back to the
    * session. Note that this does NOT call session_write_close

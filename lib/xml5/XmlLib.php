@@ -66,7 +66,7 @@ class XElem implements Xmlable {
     $this->name = (string)$tag;
     $this->child = array();
     $this->attrs = array();
-    
+
     foreach ($attrs as $key => $value)
       $this->set($key, $value);
     foreach ($child as $c)
@@ -192,7 +192,7 @@ class XHeader implements Xmlable {
     $this->tagname = (string)$tag;
     if (empty($this->tagname))
       throw new InvalidArgumentException("Tagname must not be empty.");
-    
+
     $this->attrs = array();
     foreach ($attrs as $key => $value) {
       $this->set($key, $value);

@@ -730,7 +730,7 @@ class XVar extends XAbstractHtml {
     parent::__construct('var', $attrs, array($content));
   }
 }
-    
+
 /**
  * Strikethrough (deleted) element
  *
@@ -1038,7 +1038,7 @@ class XQuickTable extends XTable {
 
   protected $thead;
   protected $tbody;
-  
+
   /**
    * Creates a new table with the attributes given as the first
    * argument and the headers in the second (optional) argument. The

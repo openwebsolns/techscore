@@ -58,7 +58,7 @@ class TeamRacesPane extends AbstractPane {
                          " will create the necessary races so that each team sails head-to-head against every other team (round-robin). Afterwards, you will be able to delete or create new races within the round.")));
     $form->add($fi = new FItem("Choose teams:", $ul = new XUl(array('class'=>'fitem-list'))));
     $fi->add(new XSpan("(Click to select/deselect)", array('class'=>'message')));
-    
+
     foreach ($this->REGATTA->getTeams() as $team) {
       $id = 'team-'.$team->id;
       $ul->add(new Xli(array(new XCheckboxInput('team[]', $team->id, array('id'=>$id)), new XLabel($id, $team))));
@@ -250,7 +250,7 @@ class TeamRacesPane extends AbstractPane {
           Session::pa(new PA("The same team cannot race against itself.", PA::E));
           continue;
         }
-          
+
         $count++;
         foreach ($divs as $div) {
           $race = new Race();

@@ -112,7 +112,7 @@ class SendMessage extends AbstractAdminUserPane {
     $p->add($tab = new XQuickTable(array('style'=>'margin:0 auto 2em;'), array("Keyword", "Description", "Example")));
     $tab->addRow(array("{FULL_NAME}", "Full name of user",  new XTD(array('class'=>'left'), $this->USER->getName())));
     $tab->addRow(array("{SCHOOL}",    "User's ICSA school", new XTD(array('class'=>'left'), $this->USER->school)));
-    
+
     $title = "";
     $recip = "";
     switch ($out->recipients) {
@@ -136,7 +136,7 @@ class SendMessage extends AbstractAdminUserPane {
 
     $this->PAGE->addContent($p = new XPort($title));
     $p->add($f = new XForm('/send-message-edit', XForm::POST));
-    
+
     $f->add(new FItem("Recipients:", new XSpan($recip, array('class'=>'strong'))));
     $f->add($fi = new FItem("Subject:", new XTextInput('subject', $out->subject)));
     $fi->add(new XMessage("Less than 100 characters"));

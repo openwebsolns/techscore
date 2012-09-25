@@ -176,7 +176,7 @@ class SailsPane extends AbstractPane {
     // Existing divisions with rotations
     // Get divisions to choose from
     $rotation = $this->REGATTA->getRotation();
-    
+
     $exist_div = $rotation->getDivisions();
     if (count($exist_div) == 0)
       $exist_div = array();
@@ -399,7 +399,7 @@ class SailsPane extends AbstractPane {
         $divs[] = $div;
       }
     }
-    
+
     // require BYE team, when applicable
     if ($rottype == "SWP" && count($divisions) * count($teams) % 2 > 0) {
       $team = new ByeTeam();
@@ -490,7 +490,7 @@ class SailsPane extends AbstractPane {
       }
       $args['division'] = $divisions;
     }
-    
+
     // ------------------------------------------------------------
     // 1. Choose rotation
     // ------------------------------------------------------------
@@ -512,7 +512,7 @@ class SailsPane extends AbstractPane {
     if (($races = DB::parseRange($races)) === null)
       throw new SoterException("Unable to parse range of races provided.");
     sort($races);
-      
+
     if (count($races) == 0)
       throw new SoterException("No races for which to setup rotations.");
 
@@ -560,17 +560,17 @@ class SailsPane extends AbstractPane {
         array_multisort($sails, $teams, SORT_STRING);
         break;
       }
-      
+
       // Arrange the races in order according to repeats and rotation
       // style. If the style is franny, then use only the first division
       // for rotation, and offset it to get the others.
-      
+
       // ------------------------------------------------------------
       //   3-1 Franny-style rotations
       // ------------------------------------------------------------
       if ($style === "fran") {
         $offset = (int)(count($teams) / count($divisions));
-        
+
         $template = array_shift($divisions);
         $ordered_races = $races;
         $ordered_divs  = array();
@@ -657,7 +657,7 @@ class SailsPane extends AbstractPane {
           throw new SoterException("There must be an even number of teams for swap rotation.");
         $rotation->createSwap($sails, $teams, $ordered_divs, $ordered_races, $repeats);
         break;
-        
+
       default:
         throw new SoterException("Unsupported rotation type.");
       }

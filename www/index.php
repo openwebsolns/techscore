@@ -23,7 +23,7 @@ if (Conf::$USER === null) {
       require_once('users/RegisterPane.php');
       $PAGE = new RegisterPane();
       break;
-      
+
     case 'password-recover':
       require_once('users/PasswordRecoveryPane.php');
       $PAGE = new PasswordRecoveryPane();
@@ -54,7 +54,7 @@ if (Conf::$USER === null) {
 $page = "home";
 if (isset($_REQUEST['p']))
   $page = $_REQUEST['p'];
-  
+
 // Check for license request
 $PAGE = null;
 if ($page == "license") {

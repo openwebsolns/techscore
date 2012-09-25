@@ -114,7 +114,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
     ProcessOutbox::usage($argv[0]);
     exit(1);
   }
-  
+
   if (isset($opts['v'])) {
     ProcessOutbox::$verbose = true;
     unset($opts['v']);

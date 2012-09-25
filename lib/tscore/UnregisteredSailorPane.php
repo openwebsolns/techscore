@@ -78,7 +78,7 @@ class UnregisteredSailorPane extends AbstractPane {
     }
   }
 
-  
+
   public function process(Array $args) {
 
     // ------------------------------------------------------------

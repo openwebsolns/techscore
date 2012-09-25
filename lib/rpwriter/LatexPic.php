@@ -57,7 +57,7 @@ class TempRpManager {
     $this->teams = array();
     $this->rps   = array();
   }
-  
+
   /**
    * Queues the given RP object
    *

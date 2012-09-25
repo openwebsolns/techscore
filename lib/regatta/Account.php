@@ -127,7 +127,7 @@ class Account extends DBObject {
     unset($res);
     return $r;
   }
-  
+
   /**
    * Returns all the regattas for which this user is registered as a
    * scorer, using the given optional indices to limit the list, like

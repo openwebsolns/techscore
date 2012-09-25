@@ -26,7 +26,7 @@ class TempRegatta extends Regatta {
    */
   const ORIGINAL = "original";
   private $original;
-  
+
   /**
    * Property constant for expiration
    */

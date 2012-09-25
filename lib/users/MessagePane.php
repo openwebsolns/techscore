@@ -56,7 +56,7 @@ class MessagePane extends AbstractUserPane {
                              array("Delete")));
       $form->add(new XText(" "));
       $form->add(new XA("/inbox", "Close"));
-      
+
       $p->add($form = new XForm("/inbox-edit", XForm::POST));
       $form->add(new XTextArea("text", "", array("style"=>"width: 100%", "rows" =>"3")));
       $form->add(new XButton(array("name" =>"reply",

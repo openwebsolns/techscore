@@ -62,11 +62,11 @@ class ScorersPane extends AbstractPane {
       Session::pa(new PA("Invalid conference chosen. Defaulting to your own.", PA::I));
       $chosen_conf = $this->USER->school->conference;
     }
-      
+
     $confs = array();
     foreach (DB::getConferences() as $conf)
       $confs[$conf->id] = $conf;
-        
+
     $s_form->add($fi = new FItem("Conference:", $sel = XSelect::fromArray('conference', $confs, $chosen_conf->id)));
     $sel->set("onchange","submit('this')");
 
@@ -103,7 +103,7 @@ class ScorersPane extends AbstractPane {
     }
     else
       $s_form->add(new XMessage("There are no accounts left to register in this conference. Please try a different one."));
-    
+
   }
 
   public function process(Array $args) {

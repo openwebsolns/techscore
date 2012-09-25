@@ -35,7 +35,7 @@ class Regatta extends DBObject {
    * Women's regatta
    */
   const PARTICIPANT_WOMEN = "women";
-  
+
   /**
    * Coed regatta (default)
    */
@@ -89,7 +89,7 @@ class Regatta extends DBObject {
     return array(Regatta::PARTICIPANT_COED => "Coed",
                  Regatta::PARTICIPANT_WOMEN => "Women");
   }
-  
+
   // Variables
   public $name;
   public $nick;
@@ -352,7 +352,7 @@ class Regatta extends DBObject {
   public function removeTeam(Team $team) {
     DB::remove($team);
   }
-  
+
   /**
    * Returns the simple rank of the teams in the database, by
    * totalling their score across the division given (or all
@@ -570,13 +570,13 @@ class Regatta extends DBObject {
    */
   public function getUnscoredRaces(Division $div = null) {
     DB::$RACE->db_set_order(array('number'=>true, 'division'=>true));
-    
+
     $cond = new DBBool(array(new DBCond('regatta', $this->id),
                              new DBCondIn('id', DB::prepGetAll(DB::$FINISH, null, array('race')), DBCondIn::NOT_IN)));
     if ($div !== null)
       $cond->add(new DBCond('division', (string)$div));
     $res = DB::getAll(DB::$RACE, $cond);
-    
+
     DB::$RACE->db_set_order();
     return $res;
   }
@@ -717,7 +717,7 @@ class Regatta extends DBObject {
       $list[$tr->number] = $tr->number;
     return array_values($list);
   }
-  
+
 
   // ------------------------------------------------------------
   // Finishes
@@ -960,7 +960,7 @@ class Regatta extends DBObject {
     unset($res);
     return $r;
   }
-  
+
   /**
    * Returns list of all the team penalties for the given team, or all
    * if null
@@ -979,7 +979,7 @@ class Regatta extends DBObject {
       $cond->add(new DBCond('division', (string)$div));
     return DB::getAll(DB::$TEAM_PENALTY, $cond);
   }
-  
+
   /**
    * Returns the timestamp of the last score update
    *
@@ -1049,7 +1049,7 @@ class Regatta extends DBObject {
     $res = DB::getAll(DB::$HOST_SCHOOL, new DBBool(array(new DBCond('regatta', $this->id), new DBCond('school', $school))));
     if (count($res) > 0)
       return;
-    
+
     $cur = new Host_School();
     $cur->regatta = $this;
     $cur->school = $school;
@@ -1348,7 +1348,7 @@ class Regatta extends DBObject {
   // ------------------------------------------------------------
   // Comparators
   // ------------------------------------------------------------
-  
+
   /**
    * Compares two regattas based on start_time
    *

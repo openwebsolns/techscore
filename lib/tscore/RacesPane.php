@@ -98,7 +98,7 @@ class RacesPane extends AbstractPane {
 
     //------------------------------------------------------------
     // Edit existing boats
-    
+
     $this->PAGE->addContent($p = new XPort("Boat assignments"));
     $p->add(new XP(array(), "Edit the boat associated with each race. This is necessary at the time of entering RP information. Races that are not sailed are automatically removed when finalizing the regatta."));
     $p->add($form = $this->createForm());

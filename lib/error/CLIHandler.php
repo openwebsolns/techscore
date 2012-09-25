@@ -14,7 +14,7 @@
 class CLIHandler {
   public static function handleErrors($errno, $errstr, $errfile, $errline) {
     printf("(EE) + %s\n", str_replace("\n", "\n     | ", wordwrap($errstr)));
-    
+
     $fmt = "     | %8s: %s\n";
     printf($fmt, "Time",   date('Y-m-d H:i:s'));
     printf($fmt, "Number", $errno);

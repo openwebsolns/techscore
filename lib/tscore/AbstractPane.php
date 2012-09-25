@@ -27,7 +27,7 @@ abstract class AbstractPane {
   protected $has_rots = false;
   protected $has_scores = false;
   protected $has_penalty = false;
-  
+
   /**
    * Create a new editing pane with the given name
    *
@@ -161,7 +161,7 @@ abstract class AbstractPane {
       Session::pa(new PA(array("No races exist for this regatta. Please ",
                                new XA(sprintf('/score/%s/races', $this->REGATTA->id), "add races"),
                                " now."), PA::I));
-      
+
     $this->fillHTML($args);
     $this->PAGE->printXML();
   }
@@ -341,13 +341,13 @@ abstract class AbstractPane {
     case 'DropFinishPane':
     case 'EnterPenaltyPane':
       return $this->has_rots && $this->has_scores && ($this->REGATTA->scoring != Regatta::SCORING_TEAM);
-      
+
     case 'DropPenaltyPane':
       return $this->has_penalty;
 
     case 'NotesPane':
       return $this->has_races;
-      
+
     case 'ReplaceTeamPane':
     case 'DeleteTeamsPane':
     case 'RpEnterPane':
@@ -397,10 +397,10 @@ abstract class AbstractPane {
   private static $URLS = array("DetailsPane" => "settings",
                                "SummaryPane" => "summaries",
                                "ScorersPane" => "scorers",
-                               
+
                                "TeamRacesPane" => "races",
                                "RacesPane" => "races",
-                               
+
                                "NotesPane" => "notes",
                                "TeamsPane" => "teams",
                                "DeleteTeamsPane" => "remove-teams",
@@ -415,7 +415,7 @@ abstract class AbstractPane {
                                "EnterPenaltyPane" => "penalty",
                                "DropPenaltyPane" => "drop-penalty",
                                "TeamPenaltyPane" => "team-penalty");
-  
+
   private static $TITLES = array("DetailsPane" => "Settings",
                                  "SummaryPane" => "Summaries",
                                  "ScorersPane" => "Scorers",

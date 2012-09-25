@@ -22,7 +22,7 @@ class NotesPane extends AbstractPane {
   protected function fillHTML(Array $args) {
 
     $divisions = $this->REGATTA->getDivisions();
-    
+
     // OUTPUT
     $this->PAGE->addContent($p = new XPort("Enter observation"));
 
@@ -92,7 +92,7 @@ class NotesPane extends AbstractPane {
       Session::pa(new PA(sprintf("Observation from %s recorded.", $note->observer)));
     }
 
-    
+
     // ------------------------------------------------------------
     // Remove existing
     // ------------------------------------------------------------

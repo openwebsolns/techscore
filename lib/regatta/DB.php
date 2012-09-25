@@ -115,7 +115,7 @@ class DB extends DBM {
   public static function getConferences() {
     return self::getAll(self::$CONFERENCE);
   }
-  
+
   /**
    * Returns the school with the given ID, or null if none exists
    *
@@ -147,7 +147,7 @@ class DB extends DBM {
   public static function getBoats() {
     return self::getAll(self::$BOAT);
   }
-  
+
   /**
    * Fetches the boat with the given ID
    *
@@ -356,7 +356,7 @@ class DB extends DBM {
     require_once('regatta/Account.php');
     return self::get(self::$ACCOUNT, $id);
   }
-  
+
   /**
    * Returns all the pending users, using the given optional indices
    * to limit the list, like the range function in Python.
@@ -425,7 +425,7 @@ class DB extends DBM {
       throw new InvalidArgumentException("Invalid role provided: $role.");
     return self::getAll(self::$ACCOUNT, new DBCond('role', $role));
   }
-  
+
   /**
    * Checks that the account holder is active. Otherwise, redirect to
    * license. Otherwise, redirect out
@@ -463,7 +463,7 @@ class DB extends DBM {
   // ------------------------------------------------------------
   // Utilities
   // ------------------------------------------------------------
-  
+
   /**
    * Creates array of range from string. On fail, return null. Expects
    * argument to contain only spaces, commas, dashes and numbers,
@@ -498,14 +498,14 @@ class DB extends DBM {
       $delims = explode("-", $s);
       $start  = $delims[0];
       $end    = $delims[count($delims)-1];
-    
+
       // Check limits
       if ($start > $end) // invalid range
         return null;
       for ($i = $start; $i <= $end; $i++)
         $list[] = (int)$i;
     }
-    
+
     return array_unique($list);
   }
 
@@ -578,7 +578,7 @@ class Conference extends DBObject {
     return $this->id;
   }
   protected function db_cache() { return true; }
-  
+
   /**
    * Returns a list of users from this conference
    *
@@ -651,7 +651,7 @@ class School extends DBObject {
   protected function db_cache() { return true; }
   protected function db_order() { return array('name'=>true); }
   public function __toString() { return $this->name; }
-  
+
   /**
    * Returns a list of sailors for the specified school
    *
@@ -867,7 +867,7 @@ class Division {
   private static $D;
 
   // Static functions
-  
+
   /**
    * Gets A division object
    *
@@ -1258,7 +1258,7 @@ class Race extends DBObject {
       return (string)$this->number;
     return $this->number . $this->division;
   }
-  
+
   /**
    * Parses the string and returns a Race object with the
    * corresponding division and number. Note that the race object
@@ -1440,8 +1440,8 @@ class Finish extends DBObject {
       return new Penalty($this->penalty, $this->amount, $this->comments, $this->displace);
     return new Breakdown($this->penalty, $this->amount, $this->comments, $this->displace);
   }
-  
-  
+
+
   // Comparators
 
   /**
@@ -1505,7 +1505,7 @@ class TeamPenalty extends DBObject {
     else
       parent::__set($name, $value);
   }
-  
+
   /**
    * String representation, really useful for debugging purposes
    *
@@ -1570,7 +1570,7 @@ class Daily_Summary extends DBObject {
 class Representative extends DBObject {
   protected $team;
   protected $sailor;
-  
+
   public function db_type($field) {
     switch ($field) {
     case 'team': return DB::$TEAM;
@@ -1653,7 +1653,7 @@ class Season extends DBObject {
   public function __toString() {
     return $this->id;
   }
-  
+
   /**
    * For Fall starting in 2011, return "Fall 2011"
    */
@@ -1800,7 +1800,7 @@ class Season extends DBObject {
     require_once('regatta/Regatta.php');
     return DB::getAll(DB::$REGATTA, $cond);
   }
-  
+
   /**
    * Returns the season object, if any, that surrounds the given date.
    *
@@ -1885,7 +1885,7 @@ abstract class FinishModifier {
    * is invalid if the 'amount' is non-positive.
    */
   public $displace;
-  
+
   /**
    * @var int the minimum score than an averaged breakdown
    * deserves. This is tracked by the scoring algorithm so that an
@@ -1894,7 +1894,7 @@ abstract class FinishModifier {
    * being worse than that team's EARNED score, sans breakdown.
    */
   public $earned;
-  
+
   /**
    * Fetches an associative list of the different penalty types
    *

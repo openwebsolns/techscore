@@ -17,7 +17,7 @@ class RpBlock {
   public $skipper_B = array();
   public $skipper_C = array();
   public $skipper_D = array();
-  
+
   public $crew_A = array();
   public $crew_B = array();
   public $crew_C = array();

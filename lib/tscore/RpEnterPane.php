@@ -30,7 +30,7 @@ class RpEnterPane extends AbstractPane {
                            " first.")));
       return;
     }
-    
+
     if (!isset($args['chosen_team']) || ($chosen_team = $this->REGATTA->getTeam($args['chosen_team'])) === null) {
       $chosen_team = $teams[0];
     }
@@ -89,7 +89,7 @@ class RpEnterPane extends AbstractPane {
       $sailor_options["Sailors"][$s->id] = (string)$s;
     foreach ($un_slrs as $s)
       $sailor_options["Non-ICSA"][$s->id] = (string)$s;
-    
+
     // Representative
     $rep = $rpManager->getRepresentative($chosen_team);
     $rep_id = ($rep === null) ? "" : $rep->id;
@@ -161,7 +161,7 @@ class RpEnterPane extends AbstractPane {
       if ( $num_crews > 1 ) {
         // update crew table
         $form->add($tab_crew = new XQuickTable(array('class'=>'narrow'), array("Crews", "Races sailed", "")));
-    
+
         //    write already filled-in spots + 2 more
         for ($spot = 0; $spot < count($cur_cr) + 2; $spot++) {
           $value = ""; // value for "races sailed"
@@ -191,7 +191,7 @@ class RpEnterPane extends AbstractPane {
     $p->add(new XScript('text/javascript', null, "check()"));
   }
 
-  
+
   public function process(Array $args) {
 
     // ------------------------------------------------------------
@@ -292,7 +292,7 @@ class RpEnterPane extends AbstractPane {
       // insert all!
       $rpManager->setRP($rps);
       $rpManager->updateLog();
-      
+
       // Announce
       if (count($errors) > 0) {
         $mes = "Encountered these errors: " . implode(' ', $errors);;

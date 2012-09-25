@@ -10,7 +10,7 @@
  *
  */
 abstract class AbstractDialog {
-  
+
   // Variables
   private $name;
   protected $REGATTA;

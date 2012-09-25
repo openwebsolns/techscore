@@ -40,7 +40,7 @@ class PageWhiz {
       if ($query !== null) {
         $pa->add(" ");
         $pa->add(new XA($this->base, "Cancel"));
-        
+
         if ($this->count == 0)
           $f->add(new XP(array('class'=>'warning'), $empty_mes));
       }
@@ -48,7 +48,7 @@ class PageWhiz {
     return $div;
   }
 
-  
+
   public function getPages($var = 'r', Array $get = array()) {
     require_once('xml5/LinksDiv.php');
     return new LinksDiv($this->num_pages,

@@ -92,7 +92,7 @@ class SchoolSummaryMaker {
     $total = count($regs);
     $current = array(); // regattas happening NOW
     $past = array();    // past regattas from the current season
-    
+
     $skippers = array(); // associative array of sailor id => num times participating
     $skip_objs = array();
     $crews = array();
@@ -141,7 +141,7 @@ class SchoolSummaryMaker {
     $avg = "Not applicable";
     if ($avg_total > 0)
       $avg = sprintf('%3.1f%%', 100 * ($places / $avg_total));
-    
+
     // ------------------------------------------------------------
     // SCHOOL sailing now
     if (count($current) > 0) {
@@ -181,7 +181,7 @@ class SchoolSummaryMaker {
         default:
           $status = "In progress: " . $reg->status;
         }
-        
+
         $hosts = array();
         $confs = array();
         foreach ($reg->getHosts() as $host) {
@@ -236,7 +236,7 @@ class SchoolSummaryMaker {
     if (count($past) > 0) {
       $this->page->addSection($p = new XPort(array("Season history for ", $season_link)));
       $p->set('id', 'history');
-      
+
       $p->add(new XTable(array('class'=>'participation-table'),
                          array(new XTHead(array(),
                                           array(new XTR(array(),

@@ -138,7 +138,7 @@ class IcsaRpFormAB extends AbstractIcsaRpForm {
                         $s->division,
                         $s->sailor->year,
                         DB::makeRange($s->races_nums)));
-        
+
         print("---------\n");
         foreach ($block->skipper_B as $s)
           print(sprintf($fmt,

@@ -24,7 +24,7 @@ class NewRegattaPane extends AbstractUserPane {
   public function __construct(Account $user) {
     parent::__construct("New regatta", $user);
   }
-  
+
   private function defaultRegatta() {
     $day = new DateTime('next Saturday');
     return array("name"=>"", "start_date"=>$day->format('m/d/Y'), "start_time" => "10:00", "duration"=>2,
@@ -181,7 +181,7 @@ class NewRegattaPane extends AbstractUserPane {
         Session::pa(new PA("It seems that there is already an active regatta with this name for the current season. This is likely the result of a previous regatta that was not deleted or demoted to \"Personal\" status. If you are a scorer for the other regatta, please delete it or de-activate it before creating this one. Otherwise, you may need to create the current one under a different name.", PA::I));
         return $args;
       }
-                                    
+
       // Move to new regatta
       Session::pa(new PA(sprintf("Created new regatta \"%s\". Please add teams now.", $reg->name)));
       WS::go("/score/".$reg->id."/teams");

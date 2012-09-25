@@ -379,7 +379,7 @@ class DBM {
     $obj->id = $newID;
     $q = self::createQuery(DBQuery::UPDATE);
     $q->where(new DBCond('id', $old_id));
-    
+
     self::fillSetQuery($obj, $q);
     self::query($q);
     $obj->id = $newID;

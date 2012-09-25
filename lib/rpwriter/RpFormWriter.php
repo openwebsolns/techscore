@@ -79,7 +79,7 @@ class RpFormWriter {
     }
     else
       throw new InvalidArgumentException("Regattas of this type are not supported.");
-    
+
     foreach ($this->reg->getTeams() as $team) {
       $form->addRepresentative($team, $rp->getRepresentative($team));
       foreach ($divisions as $div) {

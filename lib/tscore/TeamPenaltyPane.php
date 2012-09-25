@@ -27,7 +27,7 @@ class TeamPenaltyPane extends AbstractPane {
     $teams = array();
     foreach ($this->REGATTA->getTeams() as $team)
       $teams[$team->id] = $team;
-    
+
     $this->PAGE->addContent($p = new XPort("Team penalties per division"));
     $p->add(new XP(array(),
                    array("These penalties will be added to the final " .
@@ -60,7 +60,7 @@ class TeamPenaltyPane extends AbstractPane {
 
     $form->add(new XSubmitInput("t_submit", "Enter team penalty"));
 
-    
+
     // ------------------------------------------------------------
     // Existing penalties
     // ------------------------------------------------------------
@@ -86,7 +86,7 @@ class TeamPenaltyPane extends AbstractPane {
     }
   }
 
-  
+
   public function process(Array $args) {
 
     // ------------------------------------------------------------
@@ -109,7 +109,7 @@ class TeamPenaltyPane extends AbstractPane {
       Session::pa(new PA("Added team penalty."));
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
     }
-    
+
     // ------------------------------------------------------------
     // Drop penalty
     // ------------------------------------------------------------

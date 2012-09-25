@@ -72,11 +72,11 @@ class TeamsPane extends AbstractPane {
       // Also validate rotation and finish option, if applicable
       if ($this->has_rots && !isset($args['del-rotation']))
         throw new SoterException("Please choose an action to take with new rotation.");
-      
+
       if ($this->has_scores &&
           (!isset($args['new-score']) || !in_array($args['new-score'], array('DNS', 'BYE'))))
         throw new SoterException("Please choose an appropriate action to take with scores.");
-      
+
       /*
        * Add a team for each school into the regatta, using the data
        * from the preferences regarding allowed team names. If the
@@ -99,7 +99,7 @@ class TeamsPane extends AbstractPane {
       $team->school = $school;
       $team->name   = $name;
       $this->REGATTA->addTeam($team);
-      
+
       if (isset($args['del-rotation'])) {
         $rot = $this->REGATTA->getRotation();
         $rot->reset();
@@ -137,7 +137,7 @@ class TeamsPane extends AbstractPane {
     $p->add($form = $this->createForm());
     $form->add($cuts = new XUl(array('id'=>'teams-shortcuts')));
     $form->add($list = new XUl(array('id'=>'teams-list')));
-    
+
     foreach ($confs as $conf) {
       $cuts->add(new XLi(new XA('#'.$conf->id, $conf)));
       $list->add(new XLi(array(new XHeading($conf, array('id'=>$conf->id)), $sub = new XUl())));
@@ -161,7 +161,7 @@ class TeamsPane extends AbstractPane {
         $names = $school->getTeamNames();
         if (count($names) == 0)
           $names[] = $school->nick_name;
-        
+
         for ($num = 0; $num < count($names) && $num < $number; $num++) {
           $team = new Team();
           $team->school = $school;

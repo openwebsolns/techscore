@@ -118,7 +118,7 @@ class DropFinishPane extends AbstractPane {
       $race = DB::$V->reqID($args, 'race', DB::$RACE, "Invalid or missing race to drop.");
       if ($race->regatta != $this->REGATTA)
         throw new SoterException("Provided race does not belong to this regatta.");
-      
+
       $this->REGATTA->dropFinishes($race);
       $mes = sprintf("Removed finishes for race %s.", $race);
       if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED)

@@ -54,7 +54,7 @@ class GenerateSite {
       // Schools
       self::log("\n* Generating schools\n");
       require_once('UpdateSchool.php');
-      
+
       foreach (DB::getConferences() as $conf) {
         self::log(sprintf("  - Conference: %s\n", $conf));
         foreach ($conf->getSchools() as $school) {
@@ -71,7 +71,7 @@ class GenerateSite {
       // Schools
       self::log("\n* Generating burgees\n");
       require_once('UpdateBurgee.php');
-      
+
       foreach (DB::getAll(DB::$SCHOOL) as $school) {
         UpdateBurgee::update($school);
         self::log(sprintf("      - Updated burgee: %s\n", $school));
@@ -153,7 +153,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
     GenerateSite::usage($argv[0]);
     exit(1);
   }
-  
+
   if (isset($opts['v'])) {
     GenerateSite::$verbose = true;
     unset($opts['v']);

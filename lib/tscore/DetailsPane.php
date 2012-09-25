@@ -35,7 +35,7 @@ class DetailsPane extends AbstractPane {
                                             stripslashes($value),
                                             array("maxlength"=>35,
                                                   "size"     =>20))));
-    
+
     // Date
     $start_time = $this->REGATTA->start_time;
     $date = date_format($start_time, 'm/d/Y');
@@ -104,7 +104,7 @@ class DetailsPane extends AbstractPane {
     // schools in the affiliation ordered by conference
     $hosts = $this->REGATTA->getHosts();
     $reg_form->add($f_item = new FItem('Host(s):', $f_sel = new XSelectM("host[]", array('size'=>10))));
-    
+
     $f_sel->add($opt_group = new FOptionGroup("Current"));
     $schools = array(); // track these so as not to include them later
     foreach ($hosts as $host) {
@@ -138,7 +138,7 @@ class DetailsPane extends AbstractPane {
         $p2->addHelp("node9.html#SECTION00521100000000000000");
         $p2->add(new XP(array(),
                         array("Once ", new XStrong("finalized"), ", all the information (including rp, and rotation) about unscored regattas will be removed from the database. No ", new XStrong("new"), " information can be entered, although you may still be able to edit existing information.")));
-  
+
         $p2->add($form = $this->createForm());
 
         $form->add(new FItem(new XCheckboxInput("approve",
@@ -302,7 +302,7 @@ class DetailsPane extends AbstractPane {
 
       if (!isset($args['approve']))
         throw new SoterException("Please check the box to finalize.");
-      
+
       $this->REGATTA->finalized = new DateTime();
       $removed = 0;
       foreach ($this->REGATTA->getUnscoredRaces() as $race) {

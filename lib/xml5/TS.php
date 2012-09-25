@@ -178,7 +178,7 @@ class LinkCSS extends XLinkCSS {
  * @version 2012-01-26
  */
 class XSubmitP extends XP {
-  
+
   /**
    * Creates a new paragraph wrapping a submit input
    *

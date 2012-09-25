@@ -66,7 +66,7 @@ class XMLElement
                         str_repeat(" ", 4),
                         $attr,
                         implode(" ", $value));
-      
+
     // Empty tag?
     if (count($this->getChildren()) == 0)
       return str_replace("\n",
@@ -93,7 +93,7 @@ class XMLElement
 class XMLText extends XMLElement
 {
   private $content;
-  
+
   public function __construct($content) {
     $this->content = $content;
   }
@@ -149,7 +149,7 @@ class LineGraph implements SVGWriteable
 
   public function __construct($title = "") {
     $this->attrs["title"] = $title;
-    
+
     // Default values
     $this->x = array();
     $this->y = array();
@@ -187,7 +187,7 @@ class LineGraph implements SVGWriteable
                             $low, $high, $step),
                     E_USER_ERROR);
     }
-      
+
     $this->attrs["axes"]["left"]  = $low;
     $this->attrs["axes"]["right"] = $high;
     $this->attrs["axes"]["x-res"] = $step;
@@ -293,13 +293,13 @@ class LineGraph implements SVGWriteable
     $root->add($this->getSVGTitle());
     // Add viewport
     $root->add($port = $this->getSVGViewport());
-    
+
     // Path(s)
     $top   = $this->attrs["vY"];
     $left  = $this->attrs["vX"];
     $width = $this->attrs["v-width"];
     $height= $this->attrs["v-height"];
-    
+
     // ...determine graph limits
     $this->updateAxisLims();
     $lims = $this->attrs["axes"];
@@ -380,7 +380,7 @@ class LineGraph implements SVGWriteable
                              array(),
                              array_merge($t_props, $t_pos)));
     }
-    
+
     return $g;
   }
 
@@ -423,7 +423,7 @@ class LineGraph implements SVGWriteable
                              array(),
                              array_merge($t_props, $t_pos)));
     }
-    
+
     return $g;
   }
 
@@ -432,7 +432,7 @@ class LineGraph implements SVGWriteable
    * corner of the graph body.
    */
   private function getLegend() {
-    
+
   }
 
   /**
@@ -524,14 +524,14 @@ class LineData implements SVGWriteable
                         $top = 0,
                         $width = null,
                         $height = null) {
-    
+
     $x = $this->x;
     $y = $this->y;
     $attrs = $this->attrs;
 
     if (empty($x) || empty($y))
       return new XMLText("");
-    
+
     $xOff = $left;
     $yOff = $top + $height;
 

@@ -91,7 +91,7 @@ class CompareSailorsByRace extends AbstractUserPane {
       }
     }
     unset($regattas);
-    
+
     // keep only the regattas (and the races within them) where all
     // the other sailors have also participated
     foreach ($sailors as $sailor) {

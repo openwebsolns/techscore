@@ -99,14 +99,14 @@ elseif (isset($_REQUEST['v'])) {
       require_once('tscore/RotationDialog.php');
       $PAGE = new RotationDialog($REG);
       break;
-  
+
       // --------------- RP DIALOG ----------------//
     case "sailors":
     case "sailor":
       require_once('tscore/RegistrationsDialog.php');
       $PAGE = new RegistrationsDialog($REG);
       break;
-    
+
       // --------------- FULL SCORE --------------//
     case "result":
     case "results":
@@ -214,7 +214,7 @@ else {
     header(sprintf('Content-Disposition: attachment; filename="%s.pdf"', $name));
     echo $data;
     break;
-    
+
     // --------------- default ---------------//
   default:
     $mes = sprintf("Invalid download requested (%s)", $_REQUEST['d']);

@@ -41,7 +41,7 @@ class PendingAccountsPane extends AbstractAdminUserPane {
     $num_pages = ceil($count / self::NUM_PER_PAGE);
     if ($startint > $count)
       WS::go(sprintf('/pending|%d', $num_pages));
-    
+
     $this->PAGE->addContent($p = new XPort("Pending accounts"));
     if ($count == 0) {
       $p->add(new XP(array(), "There are no pending accounts."));

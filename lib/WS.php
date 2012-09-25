@@ -46,7 +46,7 @@ class WS {
 
   private static $folds = array('d'=>'=', 'r'=>'|');
   private static $default = 'index';
-  
+
   /**
    * Replace the given GET variables by the provided equivalent when
    * writing the links. Provide the variables as an ordered
@@ -101,7 +101,7 @@ class WS {
         $_SERVER['HTTP_REFERER'] != WS::alink($_SERVER['REQUEST_URI'])) {
       if ($same_host === false)
         WS::go($_SERVER['HTTP_REFERER']);
-      
+
       $sub = sprintf('%s://%s%s',
                      ($_SERVER['HTTPS'] == 'on') ? 'https' : 'http',
                      $_SERVER['HTTP_HOST'],
@@ -147,7 +147,7 @@ class WS {
       $url .= $anchor;
       return $url;
     }
-    
+
     if (self::$use_rewrite === true) {
       $url = preg_replace('/\.php$/', '', $url);
       if ($url == self::$default)
@@ -208,11 +208,11 @@ class WS {
   public static function unlink($url, $strip_query = false) {
     if (preg_match('_^[a-z]+://_', $url) == 1)
       return $url;
-    
+
     $url = substr($url, strlen(self::$root));
     if ($strip_query === false)
       return $url;
-    
+
     // also remove any anchor
     if (($anc = strpos($url, '#')) !== false)
       $url = substr($url, 0, $anc);

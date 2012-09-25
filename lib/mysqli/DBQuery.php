@@ -86,7 +86,7 @@ class DBQuery {
       throw new DBQueryException("Unsupported query axis $axis.");
     $this->axis = $axis;
     $this->con  = $con;
-    
+
     $this->table = null;
     $this->fields = array();
     $this->distinct = false;
@@ -245,7 +245,7 @@ class DBQuery {
   public function multipleValues(Array $types, Array $values, $table, $alias = null) {
     if ($this->multipleValues === null)
       throw new DBQueryException("multipleValues only applies to insert queries.");
-    
+
     if ($this->fields === null ||
         count($values) != count($this->fields) ||
         count($types)  != count($this->fields))
@@ -295,7 +295,7 @@ class DBQuery {
     else
       $this->where = new DBBool(array($this->where, $clause), DBBool::mOR);
   }
-  
+
   /**
    * Sets the "order by" clause to the given parameters in the given
    * order.

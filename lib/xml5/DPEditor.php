@@ -18,7 +18,7 @@ require_once(dirname(__FILE__).'/HtmlLib.php');
  * @version 2011-06-08
  */
 class DPEditor {
-  
+
   /**
    * @var Array the list of elements as parsed
    */
@@ -217,7 +217,7 @@ class DPEditor {
           foreach ($trows as $j) {
             $env->add(new XRawText(str_replace('</td>','</th>',
                                                str_replace('<td>','<th>', $j->toXML()))));
-            
+
           }
           $trows = array();
           // consume until the end of the line
@@ -302,7 +302,7 @@ class DPEditor {
           $i++;
           continue;
         }
-        
+
         $cont = '';
         for ($j = count($context) - 1; $j >= 0; $j--)
           $cont .= ($context->sym[$j] . $context->buf[$j]);
@@ -320,7 +320,7 @@ class DPEditor {
 
         if ($num_envs > 0) {
           $env = $context->env[$num_envs - 1];
-          
+
           if ($num_new_lines >= 2 || $env instanceof XLi || $env instanceof XTD) {
             $buf = '';
             for ($j = $num_envs - 1; $j >= 0; $j--)
@@ -350,7 +350,7 @@ class DPEditor {
               }
             }
             $context = new DPEConMap();
-            
+
             if ($env instanceof XTD)
               $row = null;
           }
@@ -360,7 +360,7 @@ class DPEditor {
         // hard reset the list
         if ($num_new_lines >= 3)
           $lists = new DPEList();
-        
+
         // hard reset the table
         if ($table !== null && $num_new_lines >= 2) {
           $table->add(new XTBody(array(), $trows));
@@ -393,7 +393,7 @@ class DPEditor {
         $next = mb_substr($input, $i + 1, 1);
         $num_envs = count($context);
         $env = $context->env[$num_envs - 1];
-        
+
         if ($next == "\n" && !($env instanceof XTD)) {
           $buf = '';
           for ($j = $num_envs - 1; $j >= 0; $j--)
@@ -530,7 +530,7 @@ class DPEditor {
           $context->set('buf', 1, '');
           $context->shift();
           $i++;
-          
+
           $do_parse = true;
           continue;
         }

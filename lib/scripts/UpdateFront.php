@@ -125,7 +125,7 @@ class UpdateFront {
                            $reg->start_time->format('m/d/Y @ H:i')));
       }
     }
-    
+
     // ------------------------------------------------------------
     // Add links to all seasons
     $num = 0;
@@ -171,7 +171,7 @@ class UpdateFront {
   // ------------------------------------------------------------
   // Static component used to write the summary page to file
   // ------------------------------------------------------------
-  
+
   /**
    * Creates the new page summary in the public domain
    *

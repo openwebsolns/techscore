@@ -74,7 +74,7 @@ class EnterFinishPane extends AbstractPane {
       unset($this->ACTIONS[self::ROTATION]);
       $using = self::TEAMS;
     }
-    
+
     $form->add(new FItem("Using:", XSelect::fromArray('finish_using', $this->ACTIONS, $using)));
     $form->add(new XSubmitP("choose_race", "Change race"));
 
@@ -164,7 +164,7 @@ class EnterFinishPane extends AbstractPane {
           $rotation->getCombinedSails($race);
         if (count($sails) == 0)
           throw new SoterException(sprintf("No rotation has been created for the chosen race (%s).", $race));
-      
+
         foreach ($sails as $sail) {
           $teams[(string)$sail] = $sail->team;
           $races[(string)$sail] = $sail->race;
@@ -232,7 +232,7 @@ class EnterFinishPane extends AbstractPane {
       $mes = sprintf("Finishes entered for race %s.", $race);
       Session::pa(new PA($mes));
     }
-    
+
     return $args;
   }
 
@@ -326,7 +326,7 @@ class EnterFinishPane extends AbstractPane {
         $id = sprintf("%s,%s", $div, $team->id);
         $label = ($this->REGATTA->scoring == Regatta::SCORING_TEAM) ? $div->getLevel() : $div;
         $team_opts[$id] = sprintf("%s: %s %s", $label, $team->school->nick_name, $team->name);
-          
+
         $tms[$id] = $team;
         $rac[$id] = $this->REGATTA->getRace($div, $race->number);
       }

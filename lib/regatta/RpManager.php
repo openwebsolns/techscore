@@ -82,7 +82,7 @@ class RpManager {
         // actually a coach, which should technically never happen
         continue;
       }
-        
+
       if (!isset($rps[$rpentry->sailor->id]))
         $rps[$rpentry->sailor->id] = array();
       $rps[$rpentry->sailor->id][] = $rpentry;
@@ -295,7 +295,7 @@ class RpManager {
     // create lists of roles and divisions
     $roles = ($role === null) ? array_keys(RP::getRoles()) : array($role);
     $divs  = ($role === null) ? $this->regatta->getDivisions() : array($div);
-    
+
     $rps = array();
     foreach ($roles as $role) {
       foreach ($divs as $div) {

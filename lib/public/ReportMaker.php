@@ -15,7 +15,7 @@
 class ReportMaker {
   public $regatta;
   public $dt_regatta;
-  
+
   private $page;
   private $rotPage;
   private $fullPage;
@@ -100,7 +100,7 @@ class ReportMaker {
     $this->prepare($page);
     $page->setDescription(sprintf("Scores for Division %s for %s's %s.",
                                   $div, $season->fullString(), $reg->name));
-    
+
     require_once('tscore/ScoresDivisionDialog.php');
     $maker = new ScoresDivisionDialog($reg, $div);
     $page->addSection($p = new XPort("Scores for Division $div"));
@@ -110,15 +110,15 @@ class ReportMaker {
 
   protected function fillFull() {
     if ($this->fullPage !== null) return;
-    
+
     $reg = $this->regatta;
     $season = $reg->getSeason();
     $this->fullPage = new TPublicPage("Full scores | " . $reg->name);
     $this->prepare($this->fullPage);
     $this->fullPage->setDescription(sprintf("Full scores table for %s's %s.", $season->fullString(), $reg->name));
-    
+
     $link_schools = '/schools';
-    
+
     // Total scores
     require_once('tscore/ScoresFullDialog.php');
     $maker = new ScoresFullDialog($reg);

@@ -257,7 +257,7 @@ class Rotation {
         }
       }
     }
-    
+
     // combined scoring, or singlehanded regattas
     else {
       // enforce correspondence between divisions and teams
@@ -366,7 +366,7 @@ class Rotation {
         }
       }
     }
-    
+
     // combined scoring
     else {
       // enforce correspondence between divisions and teams

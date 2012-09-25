@@ -42,7 +42,7 @@ abstract class NTable extends ArrayIterator {
       throw new RuntimeException("Map must contain at least one column!");
     foreach ($this->colnames as $n)
       $this->columns[$n] = array();
-    
+
     if ($this->defaults === null)
       $this->defaults = array();
     while (count($this->defaults) < count($this->colnames))

@@ -46,7 +46,7 @@ class TScoreDialog extends XPage {
     // CSS Stylesheets
     $this->head->add(new LinkCSS('/inc/css/modern-dialog.css'));
     $this->head->add(new LinkCSS('/inc/css/print.css','print'));
-    
+
     // Javascript
     foreach (array("jquery-1.3.min.js",
                    "jquery.tablehover.min.js",
@@ -66,7 +66,7 @@ class TScoreDialog extends XPage {
     $this->body->add($div = new XDiv(array('id'=>'menudiv')));
     foreach ($this->menu as $sub)
       $div->add($sub);
-    
+
     // Content
     $this->body->add($c = new XDiv(array('id'=>'bodydiv')));
 
@@ -75,7 +75,7 @@ class TScoreDialog extends XPage {
       $c->add(Session::getAnnouncements('/inc/img'));
     foreach ($this->content as $cont)
       $c->add($cont);
-    
+
     $this->body->add(new XDiv(array('id'=>'footdiv'),
                               array(new XP(array(), sprintf("%s v%s %s", Conf::$NAME, Conf::$VERSION, Conf::$COPYRIGHT)))));
   }
