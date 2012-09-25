@@ -145,7 +145,7 @@ class SyncDB {
     else
       throw new InvalidArgumentException("I do not know how to sync that kind of member.");
 
-    $role = $proto->role;
+    $role = ($proto instanceof Sailor) ? 'sailor' : 'coach';
     if ($src === null) {
       $this->log("Syncing $role list: no URL found. Nothing to do.");
       return;
