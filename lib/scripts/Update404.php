@@ -45,24 +45,24 @@ class Update404 {
     $this->page->addSection($p = new XPort("Page overboard!"));
     $p->add(new XP(array(), "We're sorry, but the page you are requesting, or the school you seek, cannot be found. This can happen if:"));
     $p->add(new XUL(array(),
-		    array(new XLi("the URL misspelled the ID of the school,"),
-			  new XLi("or the school is not recognized by ICSA."))));
+                    array(new XLi("the URL misspelled the ID of the school,"),
+                          new XLi("or the school is not recognized by ICSA."))));
     $p->add(new XP(array(),
-		   array("Make sure the ID of the school is in upper case, as in ",
-			 new XA('/schools/MIT', '/schools/MIT', array('class'=>'tt')), " vs ",
-			 new XSpan("/schools/mit", array('class'=>'tt')), ".")));
+                   array("Make sure the ID of the school is in upper case, as in ",
+                         new XA('/schools/MIT', '/schools/MIT', array('class'=>'tt')), " vs ",
+                         new XSpan("/schools/mit", array('class'=>'tt')), ".")));
 
     $p->add(new XP(array(),
-		   array("Also make sure the season (if any) is spelled correctly. This should be in lower case and one of ",
-			 new XSpan("f", array('class'=>'tt')),
-			 " for Fall or ",
-			 new XSpan("s", array('class'=>'tt')),
-			 " for Spring; followed by the last two digits of the year.")));
+                   array("Also make sure the season (if any) is spelled correctly. This should be in lower case and one of ",
+                         new XSpan("f", array('class'=>'tt')),
+                         " for Fall or ",
+                         new XSpan("s", array('class'=>'tt')),
+                         " for Spring; followed by the last two digits of the year.")));
 
     $p->add(new XP(array(),
-		   array("Of course, your best bet is to visit ",
-			 new XA('/schools', "the schools directory"),
-			 " to view all the schools in the system.")));
+                   array("Of course, your best bet is to visit ",
+                         new XA('/schools', "the schools directory"),
+                         " to view all the schools in the system.")));
 
     $p->add(new XP(array(), new XStrong("Happy sailing!")));
   }
@@ -93,26 +93,26 @@ class Update404 {
     $this->page->addSection($p = new XPort("Page overboard!"));
     $p->add(new XP(array(), "We're sorry, but the page you are looking cannot be found. Thar be two possible reasons for this:"));
     $p->add(new XUL(array(),
-		    array(new XLi("the page never joined the crew on this here vessel, or"),
-			  new XLi("it has since walked the plank."))));
+                    array(new XLi("the page never joined the crew on this here vessel, or"),
+                          new XLi("it has since walked the plank."))));
 
     // site EXPLANATION
     $this->page->addSection($p = new XPort("How to navigate this site"));
     $p->add(new XP(array(),
-		   array("We try to make our sites easy to navigate. Starting at our ",
-			 new XA('/', "home page"),
-			 ", you can navigate by following the examples below:")));
+                   array("We try to make our sites easy to navigate. Starting at our ",
+                         new XA('/', "home page"),
+                         ", you can navigate by following the examples below:")));
     $p->add($ul = new XUL());
     $ul->add(new XLi(array("Schools ", new XA('/schools', '/schools', array('class'=>'tt')),
-			   new XUL(array(),
-				   array(new XLi(array("School ID, e.g. ",
-						       new XA('/schools/MIT', '/schools/MIT',
-							      array('class'=>'tt')),
-						       new XUL(array(),
-							       array(new XLi(array("Fall 2010 summary ",
-										   new XA('/schools/MIT/f10',
-											  '/schools/MIT/f10',
-											  array('class'=>'tt')))))))))))));
+                           new XUL(array(),
+                                   array(new XLi(array("School ID, e.g. ",
+                                                       new XA('/schools/MIT', '/schools/MIT',
+                                                              array('class'=>'tt')),
+                                                       new XUL(array(),
+                                                               array(new XLi(array("Fall 2010 summary ",
+                                                                                   new XA('/schools/MIT/f10',
+                                                                                          '/schools/MIT/f10',
+                                                                                          array('class'=>'tt')))))))))))));
 
     if ($season === null)
       return;
@@ -123,14 +123,14 @@ class Update404 {
       $one = $res[0];
       unset($res);
       $ul->add(new XLi(array($season->fullString() . " ",
-			     new XA(sprintf('/%s', $season),
-				    sprintf('/%s', $season),
-				    array('class'=>'tt')),
-			     new XUl(array(),
-				     array(new XLi(array(sprintf("Regatta, e.g. %s ", $one->name),
-							 new XA(sprintf('/%s/%s', $season, $one->nick),
-								sprintf('/%s/%s', $season, $one->nick),
-								array('class'=>'tt')))))))));
+                             new XA(sprintf('/%s', $season),
+                                    sprintf('/%s', $season),
+                                    array('class'=>'tt')),
+                             new XUl(array(),
+                                     array(new XLi(array(sprintf("Regatta, e.g. %s ", $one->name),
+                                                         new XA(sprintf('/%s/%s', $season, $one->nick),
+                                                                sprintf('/%s/%s', $season, $one->nick),
+                                                                array('class'=>'tt')))))))));
     }
   }
 
@@ -205,12 +205,12 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   }
   catch (Exception $e) {
     error_log(sprintf("E:%d:L%d:F%s:%s: %s\n",
-		      $e->getCode(),
-		      $e->getLine(),
-		      $e->getFile(),
-		      date('r'),
-		      $e->getMessage()),
-	      3, Conf::$LOG_FRONT);
+                      $e->getCode(),
+                      $e->getLine(),
+                      $e->getFile(),
+                      date('r'),
+                      $e->getMessage()),
+              3, Conf::$LOG_FRONT);
     print_r($e->getTrace());
   }
 }

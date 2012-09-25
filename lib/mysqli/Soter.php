@@ -258,7 +258,7 @@ class Soter {
     foreach ($keys as $key) {
       $map[$key] = $this->reqList($args, $key, $size, $mes);
       if ($size === null)
-	$size = count($map[$key]);
+        $size = count($map[$key]);
     }
     return $map;
   }

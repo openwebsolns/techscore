@@ -39,12 +39,12 @@ $results = DB::searchSailors($_GET['q'], true);
 $P->set('count', count($results));
 foreach ($results as $result) {
   $P->add(new XElem('Sailor', array('id'=>$result->id, 'icsa_id'=>$result->icsa_id),
-		    array(new XElem('FirstName', array(), array(new XText($result->first_name))),
-			  new XElem('LastName',  array(), array(new XText($result->last_name))),
-			  new XElem('Year',      array(), array(new XText($result->year))),
-			  new XElem('Gender',    array(), array(new XText($result->gender))),
-			  new XElem('School',    array('id' => $result->school->id),
-				    array(new XText($result->school->name))))));
+                    array(new XElem('FirstName', array(), array(new XText($result->first_name))),
+                          new XElem('LastName',  array(), array(new XText($result->last_name))),
+                          new XElem('Year',      array(), array(new XText($result->year))),
+                          new XElem('Gender',    array(), array(new XText($result->gender))),
+                          new XElem('School',    array('id' => $result->school->id),
+                                    array(new XText($result->school->name))))));
 }
 $P->printXML();
 ?>

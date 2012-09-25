@@ -108,7 +108,7 @@ class DPEditor {
 
     // prep the string
     $input = str_replace("\r\n", "\n", $input) . "\n\n";
-    $input = preg_replace('/^[ 	]+$/m', '', $input);
+    $input = preg_replace('/^[         ]+$/m', '', $input);
 
     // context: three associated stacks, 'env' contains the nested
     // environments (such as p, li, strong, a, etc). 'buf' contains
@@ -159,230 +159,230 @@ class DPEditor {
 
       // beginning of "new" environment
       if (count($context) == 0) {
-	$inlist = (count($lists) > 0 && $num_new_lines == 1);
+        $inlist = (count($lists) > 0 && $num_new_lines == 1);
 
-	// ------------------------------------------------------------
-	// Headings
-	if ($char == '*' && !$inlist) {
-	  // gobble up to the first non-asterisk
-	  $buf = '';
-	  while (++$i < $len && mb_substr($input, $i, 1) == "*")
-	    $buf .= '*';
-	  if ($i < $len && mb_substr($input, $i, 1) == " ") {
-	    switch (strlen($buf)) {
-	    case 0:
-	      $context->unshift(clone $this->oneast_tpl); break;
-	    case 1:
-	      $context->unshift(clone $this->twoast_tpl); break;
-	    case 2:
-	      $context->unshift(clone $this->thrast_tpl); break;
-	    default:
-	      $context->unshift(new XP(), $buf);
-	    }
-	    $lists = new DPEList();
-	    $i++;
-	    continue;
-	  }
-	  else
-	    $i--;
-	}
+        // ------------------------------------------------------------
+        // Headings
+        if ($char == '*' && !$inlist) {
+          // gobble up to the first non-asterisk
+          $buf = '';
+          while (++$i < $len && mb_substr($input, $i, 1) == "*")
+            $buf .= '*';
+          if ($i < $len && mb_substr($input, $i, 1) == " ") {
+            switch (strlen($buf)) {
+            case 0:
+              $context->unshift(clone $this->oneast_tpl); break;
+            case 1:
+              $context->unshift(clone $this->twoast_tpl); break;
+            case 2:
+              $context->unshift(clone $this->thrast_tpl); break;
+            default:
+              $context->unshift(new XP(), $buf);
+            }
+            $lists = new DPEList();
+            $i++;
+            continue;
+          }
+          else
+            $i--;
+        }
 
-	// ------------------------------------------------------------
-	// Tables
-	elseif ($char == '|' && !$inlist) {
-	  $lists = new DPEList();
+        // ------------------------------------------------------------
+        // Tables
+        elseif ($char == '|' && !$inlist) {
+          $lists = new DPEList();
 
-	  // are we already in a table
-	  if ($table === null) {
-	    $table = new XTable();
-	    $trows = array();
-	    $this->list[] = $table;
-	  }
-	  // are we already in a row?
-	  if ($row === null) {
-	    $row = new XTR();
-	    $trows[] = $row;
-	  }
+          // are we already in a table
+          if ($table === null) {
+            $table = new XTable();
+            $trows = array();
+            $this->list[] = $table;
+          }
+          // are we already in a row?
+          if ($row === null) {
+            $row = new XTR();
+            $trows[] = $row;
+          }
 
-	  $row->add($td = new XTD());
-	  $context->unshift($td);
-	  $i++;
-	  continue;
-	}
-	elseif ($char == '-' && $table !== null) {
-	  // all previous rows belong in THEAD. This is particularly
-	  // painful because the entire content is inside an XTD
-	  // element thus far.
-	  $table->add($env = new XTHead());
-	  foreach ($trows as $j) {
-	    $env->add(new XRawText(str_replace('</td>','</th>',
-					       str_replace('<td>','<th>', $j->toXML()))));
-	    
-	  }
-	  $trows = array();
-	  // consume until the end of the line
-	  do { $i++; } while ($i < $len && mb_substr($input, $i, 1) != "\n");
-	  $i++;
-	  continue;
-	}
+          $row->add($td = new XTD());
+          $context->unshift($td);
+          $i++;
+          continue;
+        }
+        elseif ($char == '-' && $table !== null) {
+          // all previous rows belong in THEAD. This is particularly
+          // painful because the entire content is inside an XTD
+          // element thus far.
+          $table->add($env = new XTHead());
+          foreach ($trows as $j) {
+            $env->add(new XRawText(str_replace('</td>','</th>',
+                                               str_replace('<td>','<th>', $j->toXML()))));
+            
+          }
+          $trows = array();
+          // consume until the end of the line
+          do { $i++; } while ($i < $len && mb_substr($input, $i, 1) != "\n");
+          $i++;
+          continue;
+        }
 
-	// ------------------------------------------------------------
-	// Lists. These are mighty complicated, because they can be
-	// nested to any depth
-	// ------------------------------------------------------------
-	elseif ($char == ' ') {
-	  $buf = ''; // depth
-	  while (++$i < $len && mb_substr($input, $i, 1) == ' ')
-	    $buf .= ' ';
-	  if ($i < $len - 2) {
-	    $sub = mb_substr($input, $i, 2);
-	    if ($sub == "- " || $sub == "+ ") {
-	      $sym = ($buf . $sub);
-	      // if the previous environment is one of the lists
-	      // environments, then append this list item there.
-	      // Recall that that we are more lenient with list items,
-	      // allowing one empty line between successive entries.
-	      if (count($lists) == 0) {
-		$lists->unshift(($sub == "- ") ? new XUl() : new XOl(), null, $sym);
-		$this->list[] = $lists->ul[0];
-	      }
-	      elseif ($lists->sym[0] == $sym) {
-		// most likely case: just another entry => do nothing here
-	      }
-	      elseif (strlen($lists->sym[0]) < strlen($sym)) {
-		$env = $lists->li[0];
-		$lists->unshift(($sub == "- ") ? new XUl() : new XOl(), null, $sym);
-		$env->add($lists->ul[0]);
-	      }
-	      else {
-		// find the matching depth
-		$env = null;
-		foreach ($lists->sym as $j => $depth) {
-		  if ($depth == $sym) {
-		    $env = $lists->li[$j];
-		    break;
-		  }
-		}
-		if ($env !== null) {
-		  for ($k = 0; $k < $j; $k++)
-		    $lists->shift();
-		}
-		else {
-		  // reverse compatibility: not actually a sublist,
-		  // but a misaligned -/+. Treat as regular text
-		  $context->unshift($lists->li[0], (' ' . $sub), '', 0);
-		  $i += 2;
-		  continue;
-		}
-	      }
+        // ------------------------------------------------------------
+        // Lists. These are mighty complicated, because they can be
+        // nested to any depth
+        // ------------------------------------------------------------
+        elseif ($char == ' ') {
+          $buf = ''; // depth
+          while (++$i < $len && mb_substr($input, $i, 1) == ' ')
+            $buf .= ' ';
+          if ($i < $len - 2) {
+            $sub = mb_substr($input, $i, 2);
+            if ($sub == "- " || $sub == "+ ") {
+              $sym = ($buf . $sub);
+              // if the previous environment is one of the lists
+              // environments, then append this list item there.
+              // Recall that that we are more lenient with list items,
+              // allowing one empty line between successive entries.
+              if (count($lists) == 0) {
+                $lists->unshift(($sub == "- ") ? new XUl() : new XOl(), null, $sym);
+                $this->list[] = $lists->ul[0];
+              }
+              elseif ($lists->sym[0] == $sym) {
+                // most likely case: just another entry => do nothing here
+              }
+              elseif (strlen($lists->sym[0]) < strlen($sym)) {
+                $env = $lists->li[0];
+                $lists->unshift(($sub == "- ") ? new XUl() : new XOl(), null, $sym);
+                $env->add($lists->ul[0]);
+              }
+              else {
+                // find the matching depth
+                $env = null;
+                foreach ($lists->sym as $j => $depth) {
+                  if ($depth == $sym) {
+                    $env = $lists->li[$j];
+                    break;
+                  }
+                }
+                if ($env !== null) {
+                  for ($k = 0; $k < $j; $k++)
+                    $lists->shift();
+                }
+                else {
+                  // reverse compatibility: not actually a sublist,
+                  // but a misaligned -/+. Treat as regular text
+                  $context->unshift($lists->li[0], (' ' . $sub), '', 0);
+                  $i += 2;
+                  continue;
+                }
+              }
 
-	      $context->unshift(new XLi(""));
-	      $lists->ul[0]->add($context->env[0]);
-	      $lists->set('li', 0, $context->env[0]);
+              $context->unshift(new XLi(""));
+              $lists->ul[0]->add($context->env[0]);
+              $lists->set('li', 0, $context->env[0]);
 
-	      $i += 2;
-	      continue;
-	    }
-	  }
-	  $i -= strlen($buf);
-	}
-	elseif ($char == " " || $char == "\t") {
-	  // trim whitespace
-	  $i++;
-	  continue;
-	}
+              $i += 2;
+              continue;
+            }
+          }
+          $i -= strlen($buf);
+        }
+        elseif ($char == " " || $char == "\t") {
+          // trim whitespace
+          $i++;
+          continue;
+        }
       }
 
       // ------------------------------------------------------------
       // Table cell endings
       // ------------------------------------------------------------
       if ($char == '|' && $context->env[0] instanceof XTD) {
-	// are we at the end of a line? Let the new line handler do it
-	if ($i + 1 >= $len || mb_substr($input, $i + 1, 1) == "\n") {
-	  $i++;
-	  continue;
-	}
-	
-	$cont = '';
-	for ($j = count($context) - 1; $j >= 0; $j--)
-	  $cont .= ($context->sym[$j] . $context->buf[$j]);
-	$context->env[0]->add(rtrim($cont));
-	$context = new DPEConMap();
-	continue;
+        // are we at the end of a line? Let the new line handler do it
+        if ($i + 1 >= $len || mb_substr($input, $i + 1, 1) == "\n") {
+          $i++;
+          continue;
+        }
+        
+        $cont = '';
+        for ($j = count($context) - 1; $j >= 0; $j--)
+          $cont .= ($context->sym[$j] . $context->buf[$j]);
+        $context->env[0]->add(rtrim($cont));
+        $context = new DPEConMap();
+        continue;
       }
 
       // ------------------------------------------------------------
       // New lines? Are we at the end of some environment?
       // ------------------------------------------------------------
       if ($char == "\n") {
-	$num_new_lines++;
-	$num_envs = count($context);
+        $num_new_lines++;
+        $num_envs = count($context);
 
-	if ($num_envs > 0) {
-	  $env = $context->env[$num_envs - 1];
-	  
-	  if ($num_new_lines >= 2 || $env instanceof XLi || $env instanceof XTD) {
-	    $buf = '';
-	    for ($j = $num_envs - 1; $j >= 0; $j--)
-	      $buf .= ($context->sym[$j] . $context->buf[$j]);
-	    $env->add(rtrim($buf));
+        if ($num_envs > 0) {
+          $env = $context->env[$num_envs - 1];
+          
+          if ($num_new_lines >= 2 || $env instanceof XLi || $env instanceof XTD) {
+            $buf = '';
+            for ($j = $num_envs - 1; $j >= 0; $j--)
+              $buf .= ($context->sym[$j] . $context->buf[$j]);
+            $env->add(rtrim($buf));
 
-	    if (!($env instanceof XLi || $env instanceof XTD)) {
-	      $this->list[] = $env;
+            if (!($env instanceof XLi || $env instanceof XTD)) {
+              $this->list[] = $env;
 
-	      // ------------------------------------------------------------
-	      // Handle special 'figures' case
-	      // ------------------------------------------------------------
-	      if ($this->figure_class !== null && $env instanceof XP) {
-		$is_figure = true;
-		foreach ($env->children() as $child) {
-		  if ($child instanceof XImg)
-		    continue;
-		  if ($child instanceof XRawText) {
-		    if (trim($child->toXML()) == "")
-		      continue;
-		  }
-		  $is_figure = false;
-		  break;
-		}
-		if ($is_figure)
-		  $env->set('class', $this->figure_class);
-	      }
-	    }
-	    $context = new DPEConMap();
-	    
-	    if ($env instanceof XTD)
-	      $row = null;
-	  }
-	  else // replace new line with space
-	    $context->set('buf', 0, ($context->buf[0] . ' '));
-	}
-	// hard reset the list
-	if ($num_new_lines >= 3)
-	  $lists = new DPEList();
-	
-	// hard reset the table
-	if ($table !== null && $num_new_lines >= 2) {
-	  $table->add(new XTBody(array(), $trows));
-	  $table = null;
-	}
+              // ------------------------------------------------------------
+              // Handle special 'figures' case
+              // ------------------------------------------------------------
+              if ($this->figure_class !== null && $env instanceof XP) {
+                $is_figure = true;
+                foreach ($env->children() as $child) {
+                  if ($child instanceof XImg)
+                    continue;
+                  if ($child instanceof XRawText) {
+                    if (trim($child->toXML()) == "")
+                      continue;
+                  }
+                  $is_figure = false;
+                  break;
+                }
+                if ($is_figure)
+                  $env->set('class', $this->figure_class);
+              }
+            }
+            $context = new DPEConMap();
+            
+            if ($env instanceof XTD)
+              $row = null;
+          }
+          else // replace new line with space
+            $context->set('buf', 0, ($context->buf[0] . ' '));
+        }
+        // hard reset the list
+        if ($num_new_lines >= 3)
+          $lists = new DPEList();
+        
+        // hard reset the table
+        if ($table !== null && $num_new_lines >= 2) {
+          $table->add(new XTBody(array(), $trows));
+          $table = null;
+        }
 
 
-	$i++;
-	continue;
+        $i++;
+        continue;
       }
 
       // ------------------------------------------------------------
       // Create an P element by default
       // ------------------------------------------------------------
       if (count($context) == 0) {
-	if (!$inlist) {
-	  $context->unshift(new XP());
-	  $lists = new DPEList();
-	}
-	else {
-	  $context->unshift($lists->li[0], ' ');
-	}
+        if (!$inlist) {
+          $context->unshift(new XP());
+          $lists = new DPEList();
+        }
+        else {
+          $context->unshift($lists->li[0], ' ');
+        }
       }
 
       // ------------------------------------------------------------
@@ -390,150 +390,150 @@ class DPEditor {
       // consume characters according to inline rules
       // ------------------------------------------------------------
       if ($char == '\\' && ($i + 1) < $len) {
-	$next = mb_substr($input, $i + 1, 1);
-	$num_envs = count($context);
-	$env = $context->env[$num_envs - 1];
-	
-	if ($next == "\n" && !($env instanceof XTD)) {
-	  $buf = '';
-	  for ($j = $num_envs - 1; $j >= 0; $j--)
-	    $buf .= ($context->sym[$j] . $context->buf[$j]);
-	  $env->add(rtrim($buf));
-	  $env->add(new XBr());
+        $next = mb_substr($input, $i + 1, 1);
+        $num_envs = count($context);
+        $env = $context->env[$num_envs - 1];
+        
+        if ($next == "\n" && !($env instanceof XTD)) {
+          $buf = '';
+          for ($j = $num_envs - 1; $j >= 0; $j--)
+            $buf .= ($context->sym[$j] . $context->buf[$j]);
+          $env->add(rtrim($buf));
+          $env->add(new XBr());
 
-	  // remove all but $env
-	  while (count($context) > 1)
-	    $context->shift();
-	  $context->set('buf', 0, '');
+          // remove all but $env
+          while (count($context) > 1)
+            $context->shift();
+          $context->set('buf', 0, '');
 
-	  $i += 2;
-	  continue;
-	}
-	// Escape commas inside {...} elements
-	elseif ($next == ",") {
-	  $context->set('buf', 0, $context->buf[0] . $next);
-	  $i += 2;
-	  continue;
-	}
+          $i += 2;
+          continue;
+        }
+        // Escape commas inside {...} elements
+        elseif ($next == ",") {
+          $context->set('buf', 0, $context->buf[0] . $next);
+          $i += 2;
+          continue;
+        }
       }
       if ($do_parse && ($char == '*' || $char == '/' || $char == '✂')) {
-	// (possible) start of inline environment
-	//
-	// if not the first character, then previous must be word
-	// boundary; there must be a 'next' character, and it must be
-	// the beginning of a word; and the environment must not
-	// already be in use.
-	$a = $context->buf[0];
-	if (!in_array($char, $context->sym)
-	    && ($i + 1) < $len
-	    && mb_substr($input, $i + 1, 1) != " "
-	    && mb_substr($input, $i + 1, 1) != "\t"
-	    && ($a == '' || preg_match('/\B/', $a[strlen($a) - 1]) > 0)) {
+        // (possible) start of inline environment
+        //
+        // if not the first character, then previous must be word
+        // boundary; there must be a 'next' character, and it must be
+        // the beginning of a word; and the environment must not
+        // already be in use.
+        $a = $context->buf[0];
+        if (!in_array($char, $context->sym)
+            && ($i + 1) < $len
+            && mb_substr($input, $i + 1, 1) != " "
+            && mb_substr($input, $i + 1, 1) != "\t"
+            && ($a == '' || preg_match('/\B/', $a[strlen($a) - 1]) > 0)) {
 
-	  $env = null;
-	  switch ($char) {
-	  case '*': $env = new XStrong(""); break;
-	  case '/': $env = new XEm(""); break;
-	  case '✂': $env = new XDel(""); break;
-	  }
-	  $context->unshift($env, '', $char, 0);
-	  $i++;
-	  continue;
-	}
-	// (possible) end of inline environment. To make sure we are
-	// backwards compatible with the regexp version of the parser,
-	// we need to check if any inline environments in the stack
-	// are being closed, not just the top one. Viz:
-	//
-	//   Input: I *bought a /blue pony* mom.
-	//  Output: I <strong>bought a /blue pony</strong>mom.
-	//
-	// It would be wrong to wait for the <em> to close before
-	// closing the <strong>.
-	$closed = false;
-	foreach ($context->sym as $j => $aChar) {
-	  if ($aChar == $char) {
-	    $closed = true;
-	    break;
-	  }
-	}
-	// do the closing by rebuilding j-th buffer with prior buffers
-	// (if any) and appending j-th to parent.
-	if ($closed) {
-	  $context->env[$j]->add($context->buf[$j]);
-	  for ($k = $j - 1; $k >= 0; $k--) {
-	    $context->env[$j]->add($context->sym[$k]);
-	    $context->env[$j]->add($context->buf[$k]);
-	  }
-	  for ($k = 0; $k < $j; $k++)
-	    $context->shift();
+          $env = null;
+          switch ($char) {
+          case '*': $env = new XStrong(""); break;
+          case '/': $env = new XEm(""); break;
+          case '✂': $env = new XDel(""); break;
+          }
+          $context->unshift($env, '', $char, 0);
+          $i++;
+          continue;
+        }
+        // (possible) end of inline environment. To make sure we are
+        // backwards compatible with the regexp version of the parser,
+        // we need to check if any inline environments in the stack
+        // are being closed, not just the top one. Viz:
+        //
+        //   Input: I *bought a /blue pony* mom.
+        //  Output: I <strong>bought a /blue pony</strong>mom.
+        //
+        // It would be wrong to wait for the <em> to close before
+        // closing the <strong>.
+        $closed = false;
+        foreach ($context->sym as $j => $aChar) {
+          if ($aChar == $char) {
+            $closed = true;
+            break;
+          }
+        }
+        // do the closing by rebuilding j-th buffer with prior buffers
+        // (if any) and appending j-th to parent.
+        if ($closed) {
+          $context->env[$j]->add($context->buf[$j]);
+          for ($k = $j - 1; $k >= 0; $k--) {
+            $context->env[$j]->add($context->sym[$k]);
+            $context->env[$j]->add($context->buf[$k]);
+          }
+          for ($k = 0; $k < $j; $k++)
+            $context->shift();
 
-	  // add myself to my parent and reset his buffer
-	  $context->env[1]->add($context->buf[1]);
-	  $context->env[1]->add($context->env[0]);
-	  $context->set('buf', 1, '');
+          // add myself to my parent and reset his buffer
+          $context->env[1]->add($context->buf[1]);
+          $context->env[1]->add($context->env[0]);
+          $context->set('buf', 1, '');
 
-	  $context->shift();
-	  $i++;
-	  continue;
-	}
+          $context->shift();
+          $i++;
+          continue;
+        }
       } // end of */- inline
 
       // ------------------------------------------------------------
       // Opening {} environments (img) and anchors (a), (e)
       // ------------------------------------------------------------
       if ($do_parse && $char == '{') {
-	// Attempt to find the resource tag: alphanumeric characters
-	// followed by a colon (:), e.g. "a:", "img:", etc
-	$colon_i = mb_strpos($input, ':', $i);
-	if ($colon_i !== false && $colon_i > ($i + 1)) {
-	  $tag = mb_substr($input, $i + 1, ($colon_i - $i - 1));
-	  if (preg_match('/^[A-Za-z0-9]+$/', $tag) > 0 && ($xtag = $this->getResourceTag($tag)) !== null) {
-	    $context->unshift($xtag, '', ('{' . $tag . ':'), 0);
-	    $i += 2 + mb_strlen($tag);
-	    $do_parse = false;
-	    continue;
-	  }
-	}
+        // Attempt to find the resource tag: alphanumeric characters
+        // followed by a colon (:), e.g. "a:", "img:", etc
+        $colon_i = mb_strpos($input, ':', $i);
+        if ($colon_i !== false && $colon_i > ($i + 1)) {
+          $tag = mb_substr($input, $i + 1, ($colon_i - $i - 1));
+          if (preg_match('/^[A-Za-z0-9]+$/', $tag) > 0 && ($xtag = $this->getResourceTag($tag)) !== null) {
+            $context->unshift($xtag, '', ('{' . $tag . ':'), 0);
+            $i += 2 + mb_strlen($tag);
+            $do_parse = false;
+            continue;
+          }
+        }
       }
 
       // ------------------------------------------------------------
       // Closing {} environments?
       // ------------------------------------------------------------
       if ($char == '}') {
-	// see note about */- elements
-	$closed = false;
-	foreach ($context->sym as $j => $aChar) {
-	  if (strlen($aChar) > 0 && $aChar[0] == '{') {
-	    $closed = true;
-	    break;
-	  }
-	}
-	// do the closing by rebuilding j-th buffer
-	if ($closed) {
-	  $cont = $context->buf[$j];
-	  for ($k = $j - 1; $k >= 0; $k--) {
-	    $cont .= $context->sym[$k];
-	    $cont .= $context->buf[$k];
-	  }
-	  for ($k = 0; $k < $j; $k++)
-	    $context->shift();
+        // see note about */- elements
+        $closed = false;
+        foreach ($context->sym as $j => $aChar) {
+          if (strlen($aChar) > 0 && $aChar[0] == '{') {
+            $closed = true;
+            break;
+          }
+        }
+        // do the closing by rebuilding j-th buffer
+        if ($closed) {
+          $cont = $context->buf[$j];
+          for ($k = $j - 1; $k >= 0; $k--) {
+            $cont .= $context->sym[$k];
+            $cont .= $context->buf[$k];
+          }
+          for ($k = 0; $k < $j; $k++)
+            $context->shift();
 
-	  // set the href or src attribute depending on number of
-	  // arguments for this environment
-	  $tag = mb_substr($context->sym[0], 1, mb_strlen($context->sym[0]) - 2);
-	  $this->setResourceParam($context->arg[0], $context->env[0], $tag, $cont, true);
+          // set the href or src attribute depending on number of
+          // arguments for this environment
+          $tag = mb_substr($context->sym[0], 1, mb_strlen($context->sym[0]) - 2);
+          $this->setResourceParam($context->arg[0], $context->env[0], $tag, $cont, true);
 
-	  // add myself to my parent and reset his buffer
-	  $context->env[1]->add($context->buf[1]);
-	  $context->env[1]->add($context->env[0]);
-	  $context->set('buf', 1, '');
-	  $context->shift();
-	  $i++;
-	  
-	  $do_parse = true;
-	  continue;
-	}
+          // add myself to my parent and reset his buffer
+          $context->env[1]->add($context->buf[1]);
+          $context->env[1]->add($context->env[0]);
+          $context->set('buf', 1, '');
+          $context->shift();
+          $i++;
+          
+          $do_parse = true;
+          continue;
+        }
       } // end closing environments
 
       // ------------------------------------------------------------
@@ -543,26 +543,26 @@ class DPEditor {
       // The last condition limits two arguments per resource
       // ------------------------------------------------------------
       if ($char == ','
-	  && preg_match('/^\{[A-Za-z0-9]+:$/', $context->sym[0]) > 0
-	  && $context->arg[0] == 0) {
+          && preg_match('/^\{[A-Za-z0-9]+:$/', $context->sym[0]) > 0
+          && $context->arg[0] == 0) {
 
-	$tag = mb_substr($context->sym[0], 1, mb_strlen($context->sym[0]) - 2);
-	$this->setResourceParam(0, $context->env[0], $tag, trim($context->buf[0]));
-	$context->set('buf', 0, '');
+        $tag = mb_substr($context->sym[0], 1, mb_strlen($context->sym[0]) - 2);
+        $this->setResourceParam(0, $context->env[0], $tag, trim($context->buf[0]));
+        $context->set('buf', 0, '');
 
-	$i++;
-	$context->set('arg', 0, 1);
-	continue;
+        $i++;
+        $context->set('arg', 0, 1);
+        continue;
       }
 
       // ------------------------------------------------------------
       // empty space at the beginning of block environment have no meaning
       // ------------------------------------------------------------
       if (($char == ' ' || $char == "\t") &&
-	  count($context) == 0 &&
-	  $context->buf[0] == '') {
-	$i++;
-	continue;
+          count($context) == 0 &&
+          $context->buf[0] == '') {
+        $i++;
+        continue;
       }
 
       // ------------------------------------------------------------
@@ -618,31 +618,31 @@ class DPEditor {
     switch ($tag) {
     case 'a':
       if ($num > 0)
-	$env->add($cont);
+        $env->add($cont);
       else {
-	$env->set('href', $cont);
-	if ($close)
-	  $env->add($cont);
+        $env->set('href', $cont);
+        if ($close)
+          $env->add($cont);
       }
       return;
 
     case 'e':
       if ($num > 0)
-	$env->add($cont);
+        $env->add($cont);
       else {
-	$env->set('href', 'mailto:' . $cont);
-	if ($close)
-	  $env->add($cont);
+        $env->set('href', 'mailto:' . $cont);
+        if ($close)
+          $env->add($cont);
       }
       return;
 
     case 'img':
       if ($num > 0)
-	$env->set('alt', $cont);
+        $env->set('alt', $cont);
       else {
-	$env->set('src', $cont);
-	if ($close)
-	  $env->set('alt', "Image: " . $cont);
+        $env->set('src', $cont);
+        if ($close)
+          $env->set('alt', "Image: " . $cont);
       }
       return;
 

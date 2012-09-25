@@ -53,7 +53,7 @@ class ReportMaker {
       $today = new DateTime(sprintf("%s + %d days", $stime->format('Y-m-d'), $i));
       $comms = $reg->getSummary($today);
       if (strlen($comms) > 0)
-	$summaries[$today->format('l, F j:')] = $comms;
+        $summaries[$today->format('l, F j:')] = $comms;
     }
     if (count($summaries) > 0) {
       // Use DPEditor goodness
@@ -63,9 +63,9 @@ class ReportMaker {
       $this->page->addSection($p = new XPort("Summary"));
       $p->set('id', 'summary');
       foreach ($summaries as $h => $i) {
-	$p->add(new XH4($h));
-	$DPE->parse($i);
-	$p->add(new XDiv(array(), array(new XRawText($DPE->toXML()))));
+        $p->add(new XH4($h));
+        $DPE->parse($i);
+        $p->add(new XDiv(array(), array(new XRawText($DPE->toXML()))));
       }
     }
 
@@ -77,15 +77,15 @@ class ReportMaker {
       $maker = new ScoresDivisionalDialog($reg);
       $this->page->addSection($p = new XPort("Score summary"));
       foreach ($maker->getTable('', '/schools') as $elem)
-	$p->add($elem);
+        $p->add($elem);
     }
     else {
       $this->page->addSection($p = new XPort("No scores have been entered"));
       $p->add($xp = new XP(array('class'=>'notice'), "No scores have been entered yet for this regatta."));
       $rot = $reg->getRotation();
       if ($rot->isAssigned()) {
-	$xp->add(" ");
-	$xp->add(new XA('rotations/', "View rotations."));
+        $xp->add(" ");
+        $xp->add(new XA('rotations/', "View rotations."));
       }
     }
   }
@@ -99,7 +99,7 @@ class ReportMaker {
     $this->divPage[(string)$div] = $page;
     $this->prepare($page);
     $page->setDescription(sprintf("Scores for Division %s for %s's %s.",
-				  $div, $season->fullString(), $reg->name));
+                                  $div, $season->fullString(), $reg->name));
     
     require_once('tscore/ScoresDivisionDialog.php');
     $maker = new ScoresDivisionDialog($reg, $div);
@@ -168,8 +168,8 @@ class ReportMaker {
     if ($reg->hasFinishes()) {
       $page->addMenu(new XA($url.'full-scores/', "Full Scores"));
       if (!$reg->isSingleHanded()) {
-	foreach ($reg->getDivisions() as $div)
-	  $page->addMenu(new XA($url . $div.'/', "Division $div"));
+        foreach ($reg->getDivisions() as $div)
+          $page->addMenu(new XA($url . $div.'/', "Division $div"));
       }
     }
     $rot = $reg->getRotation();
@@ -201,10 +201,10 @@ class ReportMaker {
       $boats[] = (string)$boat;
 
     $table = array("Host" => implode("/", $schools),
-		   "Date" => $date,
-		   "Type" => $type,
-		   "Boat" => implode("/", $boats),
-		   "Scoring" => ($reg->scoring == Regatta::SCORING_STANDARD) ? "Fleet" : "Combined");
+                   "Date" => $date,
+                   "Type" => $type,
+                   "Boat" => implode("/", $boats),
+                   "Scoring" => ($reg->scoring == Regatta::SCORING_STANDARD) ? "Fleet" : "Combined");
     $page->setHeader($reg->name, $table);
   }
 

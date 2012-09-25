@@ -22,11 +22,11 @@ class DeleteTeamsPane extends AbstractPane {
     if ($this->has_rots || $this->has_scores) {
       $p->add(new XP(array(), "The regatta is currently \"under way\": either the rotation has been created, or finishes have been entered. If you remove a team, you will also remove all information from the rotation and the scores for that team. This will probably result in one or more idle boats in the rotation, and will effectively change the FLEET size for scoring purposes."));
       $p->add(new XP(array(),
-		     array("Please note: this process is ",
-			   new XStrong("not"),
-			   " undoable. Are you sure you don't wish to ",
-			   new XA("substitute", "substitute a team"),
-			   " instead?")));
+                     array("Please note: this process is ",
+                           new XStrong("not"),
+                           " undoable. Are you sure you don't wish to ",
+                           new XA("substitute", "substitute a team"),
+                           " instead?")));
     }
     $p->add(new XP(array(), "To remove one or more teams, check the appropriate box and hit \"Remove\"."));
     $p->add($form = $this->createForm());
@@ -37,10 +37,10 @@ class DeleteTeamsPane extends AbstractPane {
     foreach ($teams as $aTeam) {
       $id = 't'.$aTeam->id;
       $tab->addRow(array(new XCheckboxInput('teams[]', $aTeam->id, array('id'=>$id)),
-			 new XLabel($id, $row + 1),
-			 new XTD(array('class'=>'left'), new XLabel($id, $aTeam->school)),
-			 new XTD(array('class'=>'left'), new XLabel($id, $aTeam->name))),
-		   array('class'=>'row'.($row++ %2)));
+                         new XLabel($id, $row + 1),
+                         new XTD(array('class'=>'left'), new XLabel($id, $aTeam->school)),
+                         new XTD(array('class'=>'left'), new XLabel($id, $aTeam->name))),
+                   array('class'=>'row'.($row++ %2)));
     }
     $form->add(new XSubmitInput("remove", "Remove"));
   }
@@ -54,24 +54,24 @@ class DeleteTeamsPane extends AbstractPane {
     if (isset($args['remove'])) {
       $teams = DB::$V->reqList($args, 'teams', null, "Expected list of teams to delete. None found.");
       if (count($teams) == 0)
-	throw new SoterException("There must be at least one team to remove.");
+        throw new SoterException("There must be at least one team to remove.");
 
       $removed = 0;
       foreach ($teams as $id) {
-	$team = $this->REGATTA->getTeam($id);
-	if ($team !== null) {
-	  $this->REGATTA->removeTeam($team);
-	  $removed++;
-	}
+        $team = $this->REGATTA->getTeam($id);
+        if ($team !== null) {
+          $this->REGATTA->removeTeam($team);
+          $removed++;
+        }
       }
       if (count($removed) == 0)
-	throw new SoterException("No valid teams to remove provided.");
+        throw new SoterException("No valid teams to remove provided.");
       Session::pa(new PA("Removed $removed teams."));
 
       if ($this->has_rots)
-	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
+        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       if ($this->has_scores)
-	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
+        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
     }
     return array();
   }

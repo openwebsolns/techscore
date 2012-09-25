@@ -67,8 +67,8 @@ class Account extends DBObject {
    */
   public static function getRoles() {
     return array(self::ROLE_COACH=>"Coach",
-		 self::ROLE_STAFF=>"Staff",
-		 self::ROLE_STUDENT=>"Student");
+                 self::ROLE_STAFF=>"Staff",
+                 self::ROLE_STUDENT=>"Student");
   }
 
   public function isAdmin() {
@@ -86,13 +86,13 @@ class Account extends DBObject {
     $cond = null;
     if ($this->isAdmin()) {
       if ($conf !== null)
-	$cond = new DBCond('conference', $conf);
+        $cond = new DBCond('conference', $conf);
     }
     else {
       $cond = new DBCondIn('id', DB::prepGetAll(DB::$ACCOUNT_SCHOOL, new DBCond('account', $this), array('school')));
       $cond = new DBBool(array($cond, new DBCond('id', $this->school)), DBBool::mOR);
       if ($conf !== null)
-	$cond = new DBBool(array($cond, new DBCond('conference', $conf)));
+        $cond = new DBBool(array($cond, new DBCond('conference', $conf)));
     }
     return DB::getAll(DB::$SCHOOL, $cond);
   }
@@ -159,7 +159,7 @@ class Account extends DBObject {
     $cond = new DBCond('name', "%$qry%", DBCond::LIKE);
     if (!$this->isAdmin()) // regular user
       $cond = new DBBool(array($cond,
-			       new DBCondIn('id', DB::prepGetAll(DB::$SCORER, new DBCond('account', $this), array('regatta')))));
+                               new DBCondIn('id', DB::prepGetAll(DB::$SCORER, new DBCond('account', $this), array('regatta')))));
     return DB::getAll(DB::$REGATTA, $cond);
   }
 

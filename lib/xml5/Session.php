@@ -47,7 +47,7 @@ class PA {
     }
     if (is_array($this->c)) {
       foreach ($this->c as $c)
-	$li->add($c);
+        $li->add($c);
     }
     else
       $li->add($this->c);
@@ -110,7 +110,7 @@ class Session {
 
     if (isset($_SESSION['announce'])) {
       foreach ($_SESSION['announce'] as $a)
-	self::$announcements[] = unserialize($a);
+        self::$announcements[] = unserialize($a);
     }
 
     // other parameters

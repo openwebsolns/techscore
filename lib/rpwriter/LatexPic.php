@@ -39,7 +39,7 @@ class LatexPic {
 
   public function __toString() {
     return sprintf('\begin{picture}(0, 0)(%0.2f, %0.2f) %s \end{picture}',
-		   $this->x, $this->y, $this->body);
+                   $this->x, $this->y, $this->body);
   }
 }
 

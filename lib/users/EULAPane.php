@@ -34,12 +34,12 @@ class EULAPane extends AbstractUserPane {
     $this->PAGE->addContent($p = new XPort("License Agreement"));
     $p->add(new XP(array(), "Before using TechScore, you must read and agree to the terms below. These are short terms of usage that outline what we expect of TechScore users and your responsibilities as an official scorer. Please read it carefully before clicking on the checkbox below."));
     $p->add(new XTextArea("license", $license, array("readonly"=>"readonly",
-						     "style"=>"width:100%;",
-						     "cols"=>"80",
-						     "rows"=>"8")));
+                                                     "style"=>"width:100%;",
+                                                     "cols"=>"80",
+                                                     "rows"=>"8")));
     $p->add($f = new XForm("/license-edit", XForm::POST));
     $f->add($i = new FItem(new XCheckBoxInput("agree", "1", array("id"=>"agree")),
-			   new XLabel("agree", "I agree with the terms above")));
+                           new XLabel("agree", "I agree with the terms above")));
     $i->set("style", "margin:1em 0em;background:#ccc;border:black;padding:0.25em;font-size:110%;");
     $f->add(new XSubmitInput("agree-form", "Sign"));
   }

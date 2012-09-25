@@ -56,8 +56,8 @@ abstract class AbstractPane {
     require_once('xml/TScorePage.php');
 
     $title = sprintf("%s | %s | TS",
-		     $this->name,
-		     $this->REGATTA->name);
+                     $this->name,
+                     $this->REGATTA->name);
 
     $this->PAGE = new TScorePage($title, $this->USER, $this->REGATTA);
     $this->PAGE->addContent(new XPageTitle($this->name));
@@ -65,41 +65,41 @@ abstract class AbstractPane {
     // ------------------------------------------------------------
     // Menu
     $score_i = array("Regatta"   => array("settings"   => "DetailsPane",
-					  "summaries"  => "SummaryPane",
-					  "scorers"    => "ScorersPane",
-					  "races"      => "RacesPane",
-					  "notes"      => "NotesPane"),
-		     "Teams"     => array("teams"      => "TeamsPane",
-					  "substitute" => "ReplaceTeamPane",
-					  "remove-team"=> "DeleteTeamsPane"),
-		     "Rotations" => array("rotations"  => "SailsPane",
-					  "tweak-sails"=> "TweakSailsPane",
-					  "manual-rotation" => "ManualTweakPane"),
-		     "RP Forms"  => array("rp"         => "RpEnterPane",
-					  "unregistered" => "UnregisteredSailorPane"),
-		     "Finishes"  => array("finishes" => "EnterFinishPane",
-					  "drop-finishes" => "DropFinishPane",
-					  "penalty"  => "EnterPenaltyPane",
-					  "drop-penalty" => "DropPenaltyPane",
-					  "team-penalty" => "TeamPenaltyPane"));
+                                          "summaries"  => "SummaryPane",
+                                          "scorers"    => "ScorersPane",
+                                          "races"      => "RacesPane",
+                                          "notes"      => "NotesPane"),
+                     "Teams"     => array("teams"      => "TeamsPane",
+                                          "substitute" => "ReplaceTeamPane",
+                                          "remove-team"=> "DeleteTeamsPane"),
+                     "Rotations" => array("rotations"  => "SailsPane",
+                                          "tweak-sails"=> "TweakSailsPane",
+                                          "manual-rotation" => "ManualTweakPane"),
+                     "RP Forms"  => array("rp"         => "RpEnterPane",
+                                          "unregistered" => "UnregisteredSailorPane"),
+                     "Finishes"  => array("finishes" => "EnterFinishPane",
+                                          "drop-finishes" => "DropFinishPane",
+                                          "penalty"  => "EnterPenaltyPane",
+                                          "drop-penalty" => "DropPenaltyPane",
+                                          "team-penalty" => "TeamPenaltyPane"));
 
     $dial_i  = array("rotation" => "Rotation",
-		     "scores"   => "Scores",
-		     "sailors"  => "Sailors");
+                     "scores"   => "Scores",
+                     "sailors"  => "Sailors");
 
     // Fill panes menu
     $id = $this->REGATTA->id;
     foreach ($score_i as $title => $panes) {
       $menu = new XDiv(array('class'=>'menu'), array(new XH4($title), $m_list = new XUl()));
       foreach ($panes as $url => $pane) {
-	$t = $this->doTitle($pane);
-	if ($this->doActive($pane))
-	  $m_list->add(new XLi(new XA("/score/$id/$url", $t)));
-	else
-	  $m_list->add(new XLi($t, array("class"=>"inactive")));
+        $t = $this->doTitle($pane);
+        if ($this->doActive($pane))
+          $m_list->add(new XLi(new XA("/score/$id/$url", $t)));
+        else
+          $m_list->add(new XLi($t, array("class"=>"inactive")));
       }
       if ($title == "Regatta")
-	$m_list->add(new XLi(new XA('/', "Close", array('accesskey'=>'w'))));
+        $m_list->add(new XLi(new XA('/', "Close", array('accesskey'=>'w'))));
 
       $this->PAGE->addMenu($menu);
     }
@@ -114,13 +114,13 @@ abstract class AbstractPane {
     $menu = new XDiv(array('class'=>'menu'), array(new XH4("Windows"), $m_list = new XUl()));
     foreach ($dial_i as $url => $title) {
       if ($this->doActive($url)) {
-	$link = new XA("/view/$id/$url", $title);
-	$link->set("class", "frame-toggle");
-	$link->set("onclick", sprintf('this.target="%s"', $url));
-	$item = new XLi($link);
+        $link = new XA("/view/$id/$url", $title);
+        $link->set("class", "frame-toggle");
+        $link->set("onclick", sprintf('this.target="%s"', $url));
+        $item = new XLi($link);
       }
       else
-	$item = new XLi($title, array("class"=>"inactive"));
+        $item = new XLi($title, array("class"=>"inactive"));
       $m_list->add($item);
     }
     $this->PAGE->addMenu($menu);
@@ -154,13 +154,13 @@ abstract class AbstractPane {
     $this->setupPage();
     if (!$this->has_teams) {
       if (get_class($this) != 'TeamsPane')
-	Session::pa(new PA(array("No teams have yet been setup. ",
-				 new XA(sprintf('/score/%s/teams', $this->REGATTA->id), "Add teams now"), "."), PA::I));
+        Session::pa(new PA(array("No teams have yet been setup. ",
+                                 new XA(sprintf('/score/%s/teams', $this->REGATTA->id), "Add teams now"), "."), PA::I));
     }
     elseif (!$this->has_races && get_class($this) != 'RacesPane' && get_class($this) != 'TeamRacesPane')
       Session::pa(new PA(array("No races exist for this regatta. Please ",
-			       new XA(sprintf('/score/%s/races', $this->REGATTA->id), "add races"),
-			       " now."), PA::I));
+                               new XA(sprintf('/score/%s/races', $this->REGATTA->id), "add races"),
+                               " now."), PA::I));
       
     $this->fillHTML($args);
     $this->PAGE->printXML();
@@ -212,9 +212,9 @@ abstract class AbstractPane {
     if (!isset(self::$URLS[$i]))
       throw new InvalidArgumentException("Please register URL for pane $i.");
     return new XForm(sprintf("/%s/%d/%s",
-			     ($method == XForm::POST) ? 'edit' : 'score',
-			     $this->REGATTA->id,
-			     self::$URLS[$i]), $method);
+                             ($method == XForm::POST) ? 'edit' : 'score',
+                             $this->REGATTA->id,
+                             self::$URLS[$i]), $method);
   }
 
   /**
@@ -264,8 +264,8 @@ abstract class AbstractPane {
     case 'edit-race':
     case 'edit-races':
       if ($u->scoring == Regatta::SCORING_TEAM) {
-	require_once('tscore/TeamRacesPane.php');
-	return new TeamRacesPane($r, $u);
+        require_once('tscore/TeamRacesPane.php');
+        return new TeamRacesPane($r, $u);
       }
       require_once('tscore/RacesPane.php');
       return new RacesPane($r, $u);
@@ -395,44 +395,44 @@ abstract class AbstractPane {
     throw new InvalidArgumentException("No title registered for pane $i.");
   }
   private static $URLS = array("DetailsPane" => "settings",
-			       "SummaryPane" => "summaries",
-			       "ScorersPane" => "scorers",
-			       
-			       "TeamRacesPane" => "races",
-			       "RacesPane" => "races",
-			       
-			       "NotesPane" => "notes",
-			       "TeamsPane" => "teams",
-			       "DeleteTeamsPane" => "remove-teams",
-			       "ReplaceTeamPane" => "substitute",
-			       "SailsPane" => "rotations",
-			       "TweakSailsPane" => "tweak-sails",
-			       "ManualTweakPane" => "manual-rotation",
-			       "RpEnterPane" => "rp",
-			       "UnregisteredSailorPane" => "unregistered",
-			       "EnterFinishPane" => "finishes",
-			       "DropFinishPane" => "drop-finishes",
-			       "EnterPenaltyPane" => "penalty",
-			       "DropPenaltyPane" => "drop-penalty",
-			       "TeamPenaltyPane" => "team-penalty");
+                               "SummaryPane" => "summaries",
+                               "ScorersPane" => "scorers",
+                               
+                               "TeamRacesPane" => "races",
+                               "RacesPane" => "races",
+                               
+                               "NotesPane" => "notes",
+                               "TeamsPane" => "teams",
+                               "DeleteTeamsPane" => "remove-teams",
+                               "ReplaceTeamPane" => "substitute",
+                               "SailsPane" => "rotations",
+                               "TweakSailsPane" => "tweak-sails",
+                               "ManualTweakPane" => "manual-rotation",
+                               "RpEnterPane" => "rp",
+                               "UnregisteredSailorPane" => "unregistered",
+                               "EnterFinishPane" => "finishes",
+                               "DropFinishPane" => "drop-finishes",
+                               "EnterPenaltyPane" => "penalty",
+                               "DropPenaltyPane" => "drop-penalty",
+                               "TeamPenaltyPane" => "team-penalty");
   
   private static $TITLES = array("DetailsPane" => "Settings",
-				 "SummaryPane" => "Summaries",
-				 "ScorersPane" => "Scorers",
-				 "RacesPane" => "Edit races",
-				 "NotesPane" => "Race notes",
-				 "TeamsPane" => "Add team",
-				 "DeleteTeamsPane" => "Remove team",
-				 "ReplaceTeamPane" => "Sub team",
-				 "SailsPane" => "Setup",
-				 "TweakSailsPane" => "Tweak sails",
-				 "ManualTweakPane" => "Manual setup",
-				 "RpEnterPane" => "Enter RP",
-				 "UnregisteredSailorPane" => "Unregistered",
-				 "EnterFinishPane" => "Enter finish",
-				 "DropFinishPane" => "All finishes",
-				 "EnterPenaltyPane" => "Add penalty",
-				 "DropPenaltyPane" => "Drop penalty",
-				 "TeamPenaltyPane" => "Team penalty");
+                                 "SummaryPane" => "Summaries",
+                                 "ScorersPane" => "Scorers",
+                                 "RacesPane" => "Edit races",
+                                 "NotesPane" => "Race notes",
+                                 "TeamsPane" => "Add team",
+                                 "DeleteTeamsPane" => "Remove team",
+                                 "ReplaceTeamPane" => "Sub team",
+                                 "SailsPane" => "Setup",
+                                 "TweakSailsPane" => "Tweak sails",
+                                 "ManualTweakPane" => "Manual setup",
+                                 "RpEnterPane" => "Enter RP",
+                                 "UnregisteredSailorPane" => "Unregistered",
+                                 "EnterFinishPane" => "Enter finish",
+                                 "DropFinishPane" => "All finishes",
+                                 "EnterPenaltyPane" => "Add penalty",
+                                 "DropPenaltyPane" => "Drop penalty",
+                                 "TeamPenaltyPane" => "Team penalty");
 }
 ?>

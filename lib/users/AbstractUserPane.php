@@ -49,11 +49,11 @@ abstract class AbstractUserPane {
       // ------------------------------------------------------------
       // menu
       $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
-				    array(new XH4("Useful Links"),
-					  $m = new XUl(array(),
-						       array(new XLi(new XA(".", "Sign-in")))))));
+                                    array(new XH4("Useful Links"),
+                                          $m = new XUl(array(),
+                                                       array(new XLi(new XA(".", "Sign-in")))))));
       if (Conf::$ALLOW_REGISTER !== false)
-	$m->add(new XLi(new XA("register", "Register")));
+        $m->add(new XLi(new XA("register", "Register")));
       $m->add(new XLi(new XA("http://www.collegesailing.org", "ICSA Website")));
       $m->add(new XLi(new XA("http://techscore.sourceforge.net", "Offline TechScore")));
 
@@ -68,31 +68,31 @@ abstract class AbstractUserPane {
     
     // User Preferences
     $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
-				  array(new XH4("TechScore"),
-					new XUl(array(),
-						array(new XLi(new XA("/",      "My regattas")),
-						      new XLi(new XA("/create", "New regatta", array("accesskey"=>"n"))),
-						      new XLi(new XA("/account","My account")))))));
+                                  array(new XH4("TechScore"),
+                                        new XUl(array(),
+                                                array(new XLi(new XA("/",      "My regattas")),
+                                                      new XLi(new XA("/create", "New regatta", array("accesskey"=>"n"))),
+                                                      new XLi(new XA("/account","My account")))))));
     // School setup
     $S = $this->SCHOOL->id;
     $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
-				  array(new XH4("My School"),
-					new XUl(array(),
-						array(new XLi(new XA("/prefs/$S",        "Instructions")),
-						      new XLi(new XA("/prefs/$S/logo",   "School logo")),
-						      new XLi(new XA("/prefs/$S/team",   "Team names")),
-						      new XLi(new XA("/prefs/$S/sailor", "Sailors")))))));
+                                  array(new XH4("My School"),
+                                        new XUl(array(),
+                                                array(new XLi(new XA("/prefs/$S",        "Instructions")),
+                                                      new XLi(new XA("/prefs/$S/logo",   "School logo")),
+                                                      new XLi(new XA("/prefs/$S/team",   "Team names")),
+                                                      new XLi(new XA("/prefs/$S/sailor", "Sailors")))))));
     // Reports
     $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
-				  array(new XH4("Reports"),
-					new XUl(array(),
-						array(new XLi(new XA("/aa", "All-American")),
-						      new XLi(new XA("/compare-sailors", "Head to head")),
-						      new XLi(new XA("/compare-by-race", "Comp. by race")))))));
+                                  array(new XH4("Reports"),
+                                        new XUl(array(),
+                                                array(new XLi(new XA("/aa", "All-American")),
+                                                      new XLi(new XA("/compare-sailors", "Head to head")),
+                                                      new XLi(new XA("/compare-by-race", "Comp. by race")))))));
     // Messages
     $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
-				  array(new XH4("Messages"),
-					$list = new XUl())));
+                                  array(new XH4("Messages"),
+                                        $list = new XUl())));
     $list->add(new XLi(new XA("/inbox", "Inbox")));
     if ($this->USER->isAdmin())
       $list->add(new XLi(new XA("/send-message", "Send message")));
@@ -100,12 +100,12 @@ abstract class AbstractUserPane {
     // Admin
     if ($this->USER->isAdmin()) {
       $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
-				    array(new XH4("Admin"),
-					  new XUl(array(),
-						  array(new XLi(new XA("/pending",   "Pending users")),
-							new XLi(new XA("/venue",     "Venues")),
-							new XLi(new XA("/edit-venue", "Add Venues")),
-							new XLi(new XA("/boats",     "Boats")))))));
+                                    array(new XH4("Admin"),
+                                          new XUl(array(),
+                                                  array(new XLi(new XA("/pending",   "Pending users")),
+                                                        new XLi(new XA("/venue",     "Venues")),
+                                                        new XLi(new XA("/edit-venue", "Add Venues")),
+                                                        new XLi(new XA("/boats",     "Boats")))))));
     }
     $this->PAGE->addContent(new XPageTitle($this->title));
     $this->fillHTML($args);

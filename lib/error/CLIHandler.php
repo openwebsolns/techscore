@@ -23,8 +23,8 @@ class CLIHandler {
     foreach (debug_backtrace() as $list) {
       echo "     +--------------------\n";
       foreach (array('file', 'line', 'class', 'function') as $index) {
-	if (isset($list[$index]))
-	  printf($fmt, ucfirst($index), $list[$index]);
+        if (isset($list[$index]))
+          printf($fmt, ucfirst($index), $list[$index]);
       }
     }
     exit;
@@ -39,8 +39,8 @@ class CLIHandler {
     foreach ($e->getTrace() as $i => $trace) {
       echo "     +--------------------\n";
       foreach (array('file', 'line', 'class', 'function') as $index) {
-	if (isset($list[$index]))
-	  printf($fmt, ucfirst($index), $list[$index]);
+        if (isset($list[$index]))
+          printf($fmt, ucfirst($index), $list[$index]);
       }
     }
     exit;

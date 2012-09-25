@@ -50,32 +50,32 @@ class RpFormWriter {
     if ($this->reg->isSingleHanded()) {
       require_once('rpwriter/IcsaRpFormSingles.php');
       $form = new IcsaRpFormSingles($this->reg->name,
-				    $this->host,
-				    $this->reg->start_time->format("Y-m-d"));
+                                    $this->host,
+                                    $this->reg->start_time->format("Y-m-d"));
     }
     elseif (count($divisions) == 2) {
       require_once('rpwriter/IcsaRpFormAB.php');
       $form = new IcsaRpFormAB($this->reg->name,
-			       $this->host,
-			       $this->reg->start_time->format("Y-m-d"));
+                               $this->host,
+                               $this->reg->start_time->format("Y-m-d"));
     }
     elseif (count($divisions) == 3) {
       require_once('rpwriter/IcsaRpFormABC.php');
       $form = new IcsaRpFormABC($this->reg->name,
-				$this->host,
-				$this->reg->start_time->format("Y-m-d"));
+                                $this->host,
+                                $this->reg->start_time->format("Y-m-d"));
     }
     elseif (count($divisions) == 4) {
       require_once('rpwriter/IcsaRpFormABCD.php');
       $form = new IcsaRpFormABCD($this->reg->name,
-				 $this->host,
-				 $this->reg->start_time->format("Y-m-d"));
+                                 $this->host,
+                                 $this->reg->start_time->format("Y-m-d"));
     }
     elseif (count($divisions) == 1) {
       require_once('rpwriter/IcsaRpFormSloops.php');
       $form = new IcsaRpFormSloops($this->reg->name,
-				   $this->host,
-				   $this->reg->start_time->format("Y-m-d"));
+                                   $this->host,
+                                   $this->reg->start_time->format("Y-m-d"));
     }
     else
       throw new InvalidArgumentException("Regattas of this type are not supported.");
@@ -83,10 +83,10 @@ class RpFormWriter {
     foreach ($this->reg->getTeams() as $team) {
       $form->addRepresentative($team, $rp->getRepresentative($team));
       foreach ($divisions as $div) {
-	foreach (array(RP::SKIPPER, RP::CREW) as $role) {
-	  foreach ($rp->getRP($team, $div, $role) as $r)
-	    $form->append($r);
-	}
+        foreach (array(RP::SKIPPER, RP::CREW) as $role) {
+          foreach ($rp->getRP($team, $div, $role) as $r)
+            $form->append($r);
+        }
       }
     }
 
@@ -95,14 +95,14 @@ class RpFormWriter {
     $filename = tempnam($tmp, $tmpbase);
     $lat = $form->toLatex();
     $command = sprintf("pdflatex -output-directory='%s' -interaction=nonstopmode -jobname='%s' %s",
-		       escapeshellarg($tmp),
-		       escapeshellarg(basename($filename)),
-		       escapeshellarg($lat));
+                       escapeshellarg($tmp),
+                       escapeshellarg(basename($filename)),
+                       escapeshellarg($lat));
     $output = array();
     exec($command, $output, $value);
     if ($value != 0) {
       throw new RuntimeException(sprintf("Unable to generate PDF file. Exit code $value:\nValue: %s\nOutput%s",
-					 $value, implode("\n", $output)));
+                                         $value, implode("\n", $output)));
     }
 
     // clean up (including base created by tempnam call (last in list)

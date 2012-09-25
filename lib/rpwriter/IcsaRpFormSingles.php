@@ -25,14 +25,14 @@ class IcsaRpFormSingles extends AbstractIcsaRpForm {
   public function __construct($name, $host, $date) {
     parent::__construct($name, $host, $date, 20, 1, 0);
     $this->INC = sprintf('\includegraphics[width=\textwidth]{%s}',
-			 sprintf("%s/ICSA-RP-SINGLES.pdf", dirname(__FILE__)));
+                         sprintf("%s/ICSA-RP-SINGLES.pdf", dirname(__FILE__)));
     $this->HEAD = ('\documentclass[landscape,letter,12pt]{article} ' .
-		   '\usepackage{graphicx} ' .
-		   '\usepackage[text={10.5in,8.5in},centering]{geometry} ' .
-		   '\usepackage[usenames]{color} ' .
-		   '\begin{document} ' .
-		   '\sffamily\color{blue}  \setlength{\unitlength}{1in} ' .
-		   '\pagestyle{empty}');
+                   '\usepackage{graphicx} ' .
+                   '\usepackage[text={10.5in,8.5in},centering]{geometry} ' .
+                   '\usepackage[usenames]{color} ' .
+                   '\begin{document} ' .
+                   '\sffamily\color{blue}  \setlength{\unitlength}{1in} ' .
+                   '\pagestyle{empty}');
   }
 
   /**
@@ -46,41 +46,41 @@ class IcsaRpFormSingles extends AbstractIcsaRpForm {
     $fmt = '\put(%0.2f, %0.2f){%s}';
     foreach ($this->blocks as $id => $list) {
       foreach ($list as $num => $block) {
-	if ($within_page == 0) {
-	  $pc = new LatexPic(0.00, 0.05);
-	  $pc->add(sprintf('\put(9.45, 7.80){\thepage} ' .
-			   '\put(9.90, 7.80){**num_pages**} ' .
-			   '\put(2.30, 7.45){%s} ' .
-			   '\put(5.75, 7.45){%s} ' .
-			   '\put(8.75, 7.45){%s} ',
-			   $this->regatta_name,
-			   $this->host,
-			   $this->date));
-	  $pics[] = $pc;
-	}
+        if ($within_page == 0) {
+          $pc = new LatexPic(0.00, 0.05);
+          $pc->add(sprintf('\put(9.45, 7.80){\thepage} ' .
+                           '\put(9.90, 7.80){**num_pages**} ' .
+                           '\put(2.30, 7.45){%s} ' .
+                           '\put(5.75, 7.45){%s} ' .
+                           '\put(8.75, 7.45){%s} ',
+                           $this->regatta_name,
+                           $this->host,
+                           $this->date));
+          $pics[] = $pc;
+        }
 
-	// - team and representative
-	$team = $this->teams[$id];
-	$name = $team->school->nick_name;
-	if ($num > 0)
-	  $name .= sprintf(" (%d)", $num + 1);
-	$team_X = 4.08;
-	$team_Y = 6.48 - 0.28 * $within_page;
-	$pc->add(sprintf($fmt, $team_X, $team_Y, $name));
-	$pc->add(sprintf($fmt, $team_X + 4.1, $team_Y,
-			 $this->representatives[$id]));
+        // - team and representative
+        $team = $this->teams[$id];
+        $name = $team->school->nick_name;
+        if ($num > 0)
+          $name .= sprintf(" (%d)", $num + 1);
+        $team_X = 4.08;
+        $team_Y = 6.48 - 0.28 * $within_page;
+        $pc->add(sprintf($fmt, $team_X, $team_Y, $name));
+        $pc->add(sprintf($fmt, $team_X + 4.1, $team_Y,
+                         $this->representatives[$id]));
 
-	// - write content: skippers
-	$y = 6.48 - 0.28 * $within_page;
-	// :A
-	foreach ($block->skipper_A as $i => $s) {
-	  $year = substr($s->sailor->year, 2);
-	  $pc->add(sprintf($fmt, 1.35, $y, $s->sailor));
-	  $pc->add(sprintf($fmt, 5.68, $y, $year));
-	}
+        // - write content: skippers
+        $y = 6.48 - 0.28 * $within_page;
+        // :A
+        foreach ($block->skipper_A as $i => $s) {
+          $year = substr($s->sailor->year, 2);
+          $pc->add(sprintf($fmt, 1.35, $y, $s->sailor));
+          $pc->add(sprintf($fmt, 5.68, $y, $year));
+        }
 
-	// - update within page
-	$within_page = ($within_page + 1) % $this->blocks_per_page;
+        // - update within page
+        $within_page = ($within_page + 1) % $this->blocks_per_page;
       }
     } // end of blocks
 

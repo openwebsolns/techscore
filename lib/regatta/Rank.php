@@ -34,7 +34,7 @@ class Rank {
 
   public function __set($name, $value) {
     if ($name == "team" &&
-	$value instanceof Team) {
+        $value instanceof Team) {
       $this->team = $value;
     }
     elseif ($name == "explanation")

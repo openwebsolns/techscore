@@ -117,9 +117,9 @@ class UpdateRegatta {
       $dreg->status = Dt_Regatta::STAT_FINISHED;
     elseif (!$reg->hasFinishes()) {
       if ($dreg->num_races > 0)
-	$dreg->status = Dt_Regatta::STAT_READY;
+        $dreg->status = Dt_Regatta::STAT_READY;
       else
-	$dreg->status = Dt_Regatta::STAT_SCHEDULED;
+        $dreg->status = Dt_Regatta::STAT_SCHEDULED;
     }
     else {
       $last_race = $reg->getLastScoredRace();
@@ -159,8 +159,8 @@ class UpdateRegatta {
     $dteams = array();
     foreach ($reg->scorer->rank($reg) as $i => $rank) {
       if (!isset($dteams[$rank->team->id])) {
-	$team = new Dt_Team();
-	$dteams[$rank->team->id] = $team;
+        $team = new Dt_Team();
+        $dteams[$rank->team->id] = $team;
       }
       $team = $dteams[$rank->team->id];
 
@@ -176,23 +176,23 @@ class UpdateRegatta {
     // do the team divisions
     foreach ($divs as $div) {
       foreach ($reg->scorer->rank($reg, $div) as $i => $rank) {
-	$team_division = $dteams[$rank->team->id]->getRank($div);
-	if ($team_division === null)
-	  $team_division = new Dt_Team_Division();
-	  
-	$team_division->team = $dteams[$rank->team->id];
-	$team_division->division = $div;
-	$team_division->rank = ($i + 1);
-	$team_division->explanation = $rank->explanation;
+        $team_division = $dteams[$rank->team->id]->getRank($div);
+        if ($team_division === null)
+          $team_division = new Dt_Team_Division();
+          
+        $team_division->team = $dteams[$rank->team->id];
+        $team_division->division = $div;
+        $team_division->rank = ($i + 1);
+        $team_division->explanation = $rank->explanation;
 
-	// Penalty?
-	if (($pen = $reg->getTeamPenalty($rank->team, $div)) !== null) {
-	  $team_division->penalty = $pen->type;
-	  $team_division->comments = $pen->comments;
-	}
-	DB::set($team_division);
-	$team_divs[] = $team_division;
-	$team_objs[$team_division->id] = $rank->team;
+        // Penalty?
+        if (($pen = $reg->getTeamPenalty($rank->team, $div)) !== null) {
+          $team_division->penalty = $pen->type;
+          $team_division->comments = $pen->comments;
+        }
+        DB::set($team_division);
+        $team_divs[] = $team_division;
+        $team_objs[$team_division->id] = $rank->team;
       }
     }
   }
@@ -209,8 +209,8 @@ class UpdateRegatta {
     $team_divs = array();
     foreach ($reg->getDivisions() as $div) {
       foreach ($dreg->getRanks($div) as $team) {
-	$team_divs[] = $team;
-	$team_objs[$team->id] = $reg->getTeam($team->team->id);
+        $team_divs[] = $team;
+        $team_objs[$team->id] = $reg->getTeam($team->team->id);
       }
     }
 
@@ -218,15 +218,15 @@ class UpdateRegatta {
     foreach ($team_divs as $team) {
       $team->team->resetRP($team->division);
       foreach (array(RP::SKIPPER, RP::CREW) as $role) {
-	$rps = $rpm->getRP($team_objs[$team->id], Division::get($team->division), $role);
-	foreach ($rps as $rp) {
-	  $drp = new Dt_Rp();
-	  $drp->sailor = DB::getSailor($rp->sailor->id);
-	  $drp->team_division = $team;
-	  $drp->boat_role = $role;
-	  $drp->race_nums = $rp->races_nums;
-	  DB::set($drp);
-	}
+        $rps = $rpm->getRP($team_objs[$team->id], Division::get($team->division), $role);
+        foreach ($rps as $rp) {
+          $drp = new Dt_Rp();
+          $drp->sailor = DB::getSailor($rp->sailor->id);
+          $drp->team_division = $team;
+          $drp->boat_role = $role;
+          $drp->race_nums = $rp->races_nums;
+          DB::set($drp);
+        }
       }
     }
   }
@@ -251,7 +251,7 @@ class UpdateRegatta {
     if (!empty($nickname)) {
       $dirname = "$R/$season/$nickname";
       if (!self::rm_r($dirname))
-	throw new RuntimeException("Unable to remove files rooted at $dirname.");
+        throw new RuntimeException("Unable to remove files rooted at $dirname.");
     }
 
     // Delete from database
@@ -277,14 +277,14 @@ class UpdateRegatta {
     $res = true;
     while (($file = readdir($d)) !== false) {
       if ($file != '.' && $file != '..') {
-	if (is_dir("$root/$file"))
-	  $res = ($res && self::rm_r("$root/$file"));
-	else {
-	  if (($my_res = unlink("$root/$file")) === true) {
-	    // message?
-	  }
-	  $res = ($res && $my_res);
-	}
+        if (is_dir("$root/$file"))
+          $res = ($res && self::rm_r("$root/$file"));
+        else {
+          if (($my_res = unlink("$root/$file")) === true) {
+            // message?
+          }
+          $res = ($res && $my_res);
+        }
       }
     }
     closedir($d);
@@ -311,17 +311,17 @@ class UpdateRegatta {
     $has_rotation = false;
     $has_fullscore = false;
     $has_divs = array((string)Division::A() => false,
-		      (string)Division::B() => false,
-		      (string)Division::C() => false,
-		      (string)Division::D() => false);
+                      (string)Division::B() => false,
+                      (string)Division::C() => false,
+                      (string)Division::D() => false);
     $dir = sprintf('%s/html%s', dirname(dirname(dirname(__FILE__))), $reg->getURL());
     if (is_dir($dir)) {
       $has_dir = true;
-      if (is_dir($dir . '/rotations'))	 $has_rotation = true;
+      if (is_dir($dir . '/rotations'))         $has_rotation = true;
       if (is_dir($dir . '/full-scores')) $has_fullscore = true;
       foreach ($has_divs as $div => $val) {
-	if (is_dir($dir . '/' . $div))
-	  $has_divs[$div] = true;
+        if (is_dir($dir . '/' . $div))
+          $has_divs[$div] = true;
       }
     }
 
@@ -338,33 +338,33 @@ class UpdateRegatta {
     $rot = $reg->getRotation();
     if (in_array(UpdateRequest::ACTIVITY_ROTATION, $activities)) {
       if ($rot->isAssigned()) {
-	$rotation = true;
+        $rotation = true;
 
-	// This check takes care of the fringe case when the rotation
-	// is created AFTER there are already scores, etc.
-	if (!$has_rotation) {
-	  $front = true;
-	  if ($reg->hasFinishes()) {
-	    $full = true;
-	    if (!$reg->isSingleHanded())
-	      $divisions = true;
-	  }
-	}
+        // This check takes care of the fringe case when the rotation
+        // is created AFTER there are already scores, etc.
+        if (!$has_rotation) {
+          $front = true;
+          if ($reg->hasFinishes()) {
+            $full = true;
+            if (!$reg->isSingleHanded())
+              $divisions = true;
+          }
+        }
       }
       elseif ($has_rotation) {
-	// What if the rotation was removed?
-	$season = $reg->getSeason();
-	if ($season !== null && $reg->nick !== null) {
-	  $root = sprintf('%s/html/%s/%s', dirname(dirname(dirname(__FILE__))), $season, $reg->nick);
-	  self::rm_r($root . '/rotations');
-	}
+        // What if the rotation was removed?
+        $season = $reg->getSeason();
+        if ($season !== null && $reg->nick !== null) {
+          $root = sprintf('%s/html/%s/%s', dirname(dirname(dirname(__FILE__))), $season, $reg->nick);
+          self::rm_r($root . '/rotations');
+        }
 
-	$front = true;
-	if ($reg->hasFinishes()) {
-	  $full = true;
-	  if (!$reg->isSingleHanded())
-	    $divisions = true;
-	}
+        $front = true;
+        if ($reg->hasFinishes()) {
+          $full = true;
+          if (!$reg->isSingleHanded())
+            $divisions = true;
+        }
       }
     }
     if (in_array(UpdateRequest::ACTIVITY_SCORE, $activities)) {
@@ -372,44 +372,44 @@ class UpdateRegatta {
       $sync_teams = true;
       $front = true;
       if ($reg->hasFinishes()) {
-	$full = true;
+        $full = true;
 
-	// Individual division scores (do not include if singlehanded as
-	// this is redundant)
-	if (!$reg->isSingleHanded())
-	  $divisions = true;
+        // Individual division scores (do not include if singlehanded as
+        // this is redundant)
+        if (!$reg->isSingleHanded())
+          $divisions = true;
 
-	// Check for the case when this is the first time a score is
-	// entered, thus updating the rotation page as well
-	if (!$has_fullscore && $rot->isAssigned())
-	  $rotation = true;
+        // Check for the case when this is the first time a score is
+        // entered, thus updating the rotation page as well
+        if (!$has_fullscore && $rot->isAssigned())
+          $rotation = true;
       }
       else {
-	// It is possible that all finishes were removed, therefore,
-	// delete all such directories, and regenerate rotation page
-	$rotation = true;
-	$season = $reg->getSeason();
-	if ($season !== null && $reg->nick !== null) {
-	  $root = sprintf('%s/html/%s/%s', dirname(dirname(dirname(__FILE__))), $season, $reg->nick);
-	  self::rm_r($root . '/full-scores');
-	  self::rm_r($root . '/A');
-	  self::rm_r($root . '/B');
-	  self::rm_r($root . '/C');
-	  self::rm_r($root . '/D');
-	}
+        // It is possible that all finishes were removed, therefore,
+        // delete all such directories, and regenerate rotation page
+        $rotation = true;
+        $season = $reg->getSeason();
+        if ($season !== null && $reg->nick !== null) {
+          $root = sprintf('%s/html/%s/%s', dirname(dirname(dirname(__FILE__))), $season, $reg->nick);
+          self::rm_r($root . '/full-scores');
+          self::rm_r($root . '/A');
+          self::rm_r($root . '/B');
+          self::rm_r($root . '/C');
+          self::rm_r($root . '/D');
+        }
       }
     }
     if (in_array(UpdateRequest::ACTIVITY_RP, $activities)) {
       $sync_rp = true;
       if ($reg->isSinglehanded()) {
-	$rotation = true;
-	if ($reg->hasFinishes()) {
-	  $front = true;
-	  $full = true;
-	}
+        $rotation = true;
+        if ($reg->hasFinishes()) {
+          $front = true;
+          $full = true;
+        }
       }
       elseif ($reg->hasFinishes())
-	$divisions = true;
+        $divisions = true;
     }
     if (in_array(UpdateRequest::ACTIVITY_SUMMARY, $activities)) {
       $front = true;
@@ -419,14 +419,14 @@ class UpdateRegatta {
       $sync = true;
       $front = true;
       if ($rot->isAssigned())
-	$rotation = true;
+        $rotation = true;
       if ($reg->hasFinishes()) {
-	$full = true;
+        $full = true;
       
-	// Individual division scores (do not include if singlehanded as
-	// this is redundant)
-	if (!$reg->isSingleHanded())
-	  $divisions = true;
+        // Individual division scores (do not include if singlehanded as
+        // this is redundant)
+        if (!$reg->isSingleHanded())
+          $divisions = true;
       }
     }
 
@@ -445,7 +445,7 @@ class UpdateRegatta {
     if ($full)       self::createFull($D, $M);
     if ($divisions) {
       foreach ($reg->getDivisions() as $div)
-	self::createDivision($D, $M, $div);
+        self::createDivision($D, $M, $div);
     }
   }
 
@@ -468,7 +468,7 @@ class UpdateRegatta {
     $dirname = sprintf('%s%s', $R, $reg->getURL());
     if (!file_exists($dirname)) {
       if (!is_dir($dirname) && mkdir($dirname, 0777, true) === false)
-	throw new RuntimeException("Unable to make regatta directory: $dirname\n", 4);
+        throw new RuntimeException("Unable to make regatta directory: $dirname\n", 4);
     }
     return $dirname;
   }

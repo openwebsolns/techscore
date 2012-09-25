@@ -23,7 +23,7 @@ class XPort extends XDiv {
     $this->add($this->title = new XH3(""));
     if (is_array($title)) {
       foreach ($title as $item)
-	$this->title->add($item);
+        $this->title->add($item);
     }
     else
       $this->title->add($title);

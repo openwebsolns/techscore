@@ -38,7 +38,7 @@ class ReplaceTeamPane extends AbstractPane {
       $schools = $conf->getSchools();
       $sel2->add($grp = new FOptionGroup($conf));
       foreach ($schools as $school)
-	$grp->add(new FOption($school->id, $school->name));
+        $grp->add(new FOption($school->id, $school->name));
     }
   }
 
@@ -55,17 +55,17 @@ class ReplaceTeamPane extends AbstractPane {
 
       // is the team to be subsituted from the chosen school?
       if ($school == $team->school)
-	throw new SoterException("It is useless to replace a team from the same school with itself. I'll ignore that.");
+        throw new SoterException("It is useless to replace a team from the same school with itself. I'll ignore that.");
 
       // do the replacement
       $names  = $school->getTeamNames();
       if (count($names) == 0)
-	$names[] = $school->nick_name;
+        $names[] = $school->nick_name;
 
       $num_teams = 0;
       foreach ($this->REGATTA->getTeams() as $t) {
-	if ($t->school == $school)
-	  $num_teams++;
+        if ($t->school == $school)
+          $num_teams++;
       }
 
       // Assign team name depending
@@ -74,8 +74,8 @@ class ReplaceTeamPane extends AbstractPane {
       $new = new Team();
       $new->school = $school;
       $new->name   = ($surplus < 0) ?
-	$names[$num_teams] :
-	sprintf("%s %d", $names[0], $surplus + 2);
+        $names[$num_teams] :
+        sprintf("%s %d", $names[0], $surplus + 2);
 
       $old_name = (string)$team;
       $this->REGATTA->replaceTeam($team, $new);
@@ -87,9 +87,9 @@ class ReplaceTeamPane extends AbstractPane {
       // request recreation of rotation and scores, if applicable
       $rotation = $this->REGATTA->getRotation();
       if ($rotation->isAssigned())
-	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
+        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       if ($this->REGATTA->hasFinishes())
-	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
+        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
 
       Session::pa(new PA("Replaced team \"$old_name\" with \"$team\"."));
       return array();

@@ -113,12 +113,12 @@ elseif (isset($_REQUEST['v'])) {
     case "score":
     case "scores":
       if ($REG->scoring == Regatta::SCORING_TEAM) {
-	require_once('tscore/ScoresGridDialog.php');
-	$PAGE = new ScoresGridDialog($REG);
+        require_once('tscore/ScoresGridDialog.php');
+        $PAGE = new ScoresGridDialog($REG);
       }
       else {
-	require_once('tscore/ScoresFullDialog.php');
-	$PAGE = new ScoresFullDialog($REG);
+        require_once('tscore/ScoresFullDialog.php');
+        $PAGE = new ScoresFullDialog($REG);
       }
       break;
 
@@ -133,11 +133,11 @@ elseif (isset($_REQUEST['v'])) {
     case "scores/D":
       $div = substr($_REQUEST['v'], strlen($_REQUEST['v']) - 1);
       try {
-	require_once('tscore/ScoresDivisionDialog.php');
-	$PAGE = new ScoresDivisionDialog($REG, new Division($div));
+        require_once('tscore/ScoresDivisionDialog.php');
+        $PAGE = new ScoresDivisionDialog($REG, new Division($div));
       } catch (Exception $e) {
-	Session::pa(new PA($e->getMessage(), PA::I));
-	WS::go(sprintf('/view/%s/scores', $REG->id));
+        Session::pa(new PA($e->getMessage(), PA::I));
+        WS::go(sprintf('/view/%s/scores', $REG->id));
       }
       break;
 
@@ -158,7 +158,7 @@ elseif (isset($_REQUEST['v'])) {
     case "last-update":
       $t = $REG->getLastScoreUpdate();
       if ($t == null)
-	$t = new DateTime("yesterday");
+        $t = new DateTime("yesterday");
       echo $t->format("Y-m-d H:i:s");
       exit;
 

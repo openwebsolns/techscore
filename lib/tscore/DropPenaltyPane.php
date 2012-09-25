@@ -25,9 +25,9 @@ class DropPenaltyPane extends AbstractPane {
     foreach ($this->REGATTA->getPenalizedFinishes() as $finish) {
       $penalty = $finish->getModifier();
       if ($penalty instanceof Penalty)
-	$penalties[] = $finish;
+        $penalties[] = $finish;
       elseif ($penalty instanceof Breakdown)
-	$handicaps[] = $finish;
+        $handicaps[] = $finish;
     }
 
     // ------------------------------------------------------------
@@ -41,13 +41,13 @@ class DropPenaltyPane extends AbstractPane {
     else {
       $p->add($tab = new XQuickTable(array('class'=>'narrow'), array("Race", "Team", "Penalty", "Action")));
       foreach ($penalties as $finish) {
-	$tab->addRow(array($finish->race,
-			   $finish->team,
-			   $finish->penalty,
-			   $form = $this->createForm()));
+        $tab->addRow(array($finish->race,
+                           $finish->team,
+                           $finish->penalty,
+                           $form = $this->createForm()));
 
-	$form->add(new XHiddenInput("r_finish", $finish->id));
-	$form->add($sub = new XSubmitInput("p_remove", "Drop/Reinstate", array("class"=>"thin")));
+        $form->add(new XHiddenInput("r_finish", $finish->id));
+        $form->add($sub = new XSubmitInput("p_remove", "Drop/Reinstate", array("class"=>"thin")));
       }
     }
 
@@ -62,14 +62,14 @@ class DropPenaltyPane extends AbstractPane {
     else {
       $p->add($tab = new XQuickTable(array('class'=>'narrow'), array("Race", "Team", "Breakdown", "Action")));
       foreach ($handicaps as $finish) {
-	$tab->addRow(array($finish->race,
-			   $finish->team,
-			   $finish->penalty->type,
-			   $form = $this->createForm()));
+        $tab->addRow(array($finish->race,
+                           $finish->team,
+                           $finish->penalty->type,
+                           $form = $this->createForm()));
 
-	$form->add(new XHiddenInput("r_finish", $finish->id));
-	$form->add($sub = new XSubmitInput("p_remove", "Drop/Reinstate",
-					   array("class"=>"thin")));
+        $form->add(new XHiddenInput("r_finish", $finish->id));
+        $form->add($sub = new XSubmitInput("p_remove", "Drop/Reinstate",
+                                           array("class"=>"thin")));
       }
     }
   }
@@ -83,8 +83,8 @@ class DropPenaltyPane extends AbstractPane {
 
       $finish = DB::$V->reqID($args, 'r_finish', DB::$FINISH, "Invalid or missing finish provided.");
       if ($finish->race->regatta != $this->REGATTA ||
-	  $finish->getModifier() == null)
-	throw new SoterException("Invalid finish provided.");
+          $finish->getModifier() == null)
+        throw new SoterException("Invalid finish provided.");
       $finish->setModifier();
       $this->REGATTA->commitFinishes(array($finish));
       $this->REGATTA->runScore($finish->race);

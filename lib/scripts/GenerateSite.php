@@ -38,15 +38,15 @@ class GenerateSite {
       self::log("* Generating regattas\n\n");
 
       foreach ($seasons as $season) {
-	self::log(sprintf("  - %s\n", $season->fullString()));
-	foreach ($season->getRegattas() as $reg) {
-	  if (count($reg->getDivisions()) > 0) {
-	    self::log(sprintf("    - (%4d) %s...", $reg->id, $reg->name));
-	    UpdateRegatta::run($reg, array(UpdateRequest::ACTIVITY_SCORE, UpdateRequest::ACTIVITY_DETAILS));
-	    self::log("done\n");
-	  }
-	}
-	self::log("\n");
+        self::log(sprintf("  - %s\n", $season->fullString()));
+        foreach ($season->getRegattas() as $reg) {
+          if (count($reg->getDivisions()) > 0) {
+            self::log(sprintf("    - (%4d) %s...", $reg->id, $reg->name));
+            UpdateRegatta::run($reg, array(UpdateRequest::ACTIVITY_SCORE, UpdateRequest::ACTIVITY_DETAILS));
+            self::log("done\n");
+          }
+        }
+        self::log("\n");
       }
     }
 
@@ -56,14 +56,14 @@ class GenerateSite {
       require_once('UpdateSchool.php');
       
       foreach (DB::getConferences() as $conf) {
-	self::log(sprintf("  - Conference: %s\n", $conf));
-	foreach ($conf->getSchools() as $school) {
-	  self::log(sprintf("    - School: (%8s) %s\n", $school->id, $school));
-	  foreach ($seasons as $season) {
-	    UpdateSchool::run($school, $season);
-	    self::log(sprintf("      - %s\n", $season->fullString()));
-	  }
-	}
+        self::log(sprintf("  - Conference: %s\n", $conf));
+        foreach ($conf->getSchools() as $school) {
+          self::log(sprintf("    - School: (%8s) %s\n", $school->id, $school));
+          foreach ($seasons as $season) {
+            UpdateSchool::run($school, $season);
+            self::log(sprintf("      - %s\n", $season->fullString()));
+          }
+        }
       }
     }
 
@@ -73,8 +73,8 @@ class GenerateSite {
       require_once('UpdateBurgee.php');
       
       foreach (DB::getAll(DB::$SCHOOL) as $school) {
-	UpdateBurgee::update($school);
-	self::log(sprintf("      - Updated burgee: %s\n", $school));
+        UpdateBurgee::update($school);
+        self::log(sprintf("      - Updated burgee: %s\n", $school));
       }
     }
 
@@ -83,8 +83,8 @@ class GenerateSite {
       self::log("\n* Generating seasons\n");
       require_once('UpdateSeason.php');
       foreach ($seasons as $season) {
-	UpdateSeason::run($season);
-	self::log(sprintf("  - %s\n", $season->fullString()));
+        UpdateSeason::run($season);
+        self::log(sprintf("  - %s\n", $season->fullString()));
       }
       // Also season summary
       require_once('UpdateSeasonsSummary.php');

@@ -30,48 +30,48 @@ class ProcessOutbox {
       $sent_to_me = false;
       // all
       if ($outbox->recipients == Outbox::R_ALL) {
-	foreach (DB::getConferences() as $conf) {
-	  foreach ($conf->getUsers() as $acc) {
-	    self::send($acc, $outbox->subject, $outbox->content);
-	    if ($acc->id == $outbox->sender->id)
-	      $sent_to_me = true;
-	  }
-	}
-	self::log(sprintf("Successfully sent message from %s to all recipients queued at %s.\n",
-			  $outbox->sender, $outbox->queue_time->format('Y-m-d H:i:s')));
+        foreach (DB::getConferences() as $conf) {
+          foreach ($conf->getUsers() as $acc) {
+            self::send($acc, $outbox->subject, $outbox->content);
+            if ($acc->id == $outbox->sender->id)
+              $sent_to_me = true;
+          }
+        }
+        self::log(sprintf("Successfully sent message from %s to all recipients queued at %s.\n",
+                          $outbox->sender, $outbox->queue_time->format('Y-m-d H:i:s')));
       }
       // conference
       if ($outbox->recipients == Outbox::R_CONF) {
-	foreach ($outbox->arguments as $conf) {
-	  $conf = DB::getConference($conf);
-	  if ($conf === null)
-	    throw new RuntimeException("Conference $conf does not exist.");
-	  foreach ($conf->getUsers() as $acc) {
-	    self::send($acc, $outbox->subject, $outbox->content);
-	    if ($acc->id == $outbox->sender->id)
-	      $sent_to_me = true;
-	  }
-	}
-	self::log(sprintf("Successfully sent message from %s to %s queued at %s.\n",
-			  $outbox->sender, $outbox->arguments, $outbox->queue_time->format('Y-m-d H:i:s')));
+        foreach ($outbox->arguments as $conf) {
+          $conf = DB::getConference($conf);
+          if ($conf === null)
+            throw new RuntimeException("Conference $conf does not exist.");
+          foreach ($conf->getUsers() as $acc) {
+            self::send($acc, $outbox->subject, $outbox->content);
+            if ($acc->id == $outbox->sender->id)
+              $sent_to_me = true;
+          }
+        }
+        self::log(sprintf("Successfully sent message from %s to %s queued at %s.\n",
+                          $outbox->sender, $outbox->arguments, $outbox->queue_time->format('Y-m-d H:i:s')));
       }
       // role
       if ($outbox->recipients == Outbox::R_ROLE) {
-	foreach ($outbox->arguments as $role) {
-	  foreach (DB::getAccounts($role) as $acc) {
-	    self::send($acc, $outbox->subject, $outbox->content);
-	    if ($acc->id == $outbox->sender->id)
-	      $sent_to_me = true;
-	  }
-	}
-	self::log(sprintf("Successfully sent message from %s to %s queued at %s.\n",
-			  $outbox->sender, $outbox->arguments, $outbox->queue_time->format('Y-m-d H:i:s')));
+        foreach ($outbox->arguments as $role) {
+          foreach (DB::getAccounts($role) as $acc) {
+            self::send($acc, $outbox->subject, $outbox->content);
+            if ($acc->id == $outbox->sender->id)
+              $sent_to_me = true;
+          }
+        }
+        self::log(sprintf("Successfully sent message from %s to %s queued at %s.\n",
+                          $outbox->sender, $outbox->arguments, $outbox->queue_time->format('Y-m-d H:i:s')));
       }
 
       // send me a copy?
       if ($outbox->copy_sender > 0 && !$sent_to_me) {
-	self::send($outbox->sender, "COPY OF: ".$outbox->subject, $outbox->content);
-	self::log("Also sent copy to sender {$outbox->sender}\n");
+        self::send($outbox->sender, "COPY OF: ".$outbox->subject, $outbox->content);
+        self::log("Also sent copy to sender {$outbox->sender}\n");
       }
       $outbox->completion_time = DB::$NOW;
       DB::set($outbox);

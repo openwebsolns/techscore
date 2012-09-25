@@ -36,8 +36,8 @@ class ScorersPane extends AbstractPane {
       $f2->add($hidden);
       $f2->add($button);
       if ($s->id === $this->USER->id) {
-	$button->set("disabled", "disabled");
-	$button->set("title", "You cannot delete yourself from the regatta.");
+        $button->set("disabled", "disabled");
+        $button->set("title", "You cannot delete yourself from the regatta.");
       }
 
       // Fill row
@@ -89,14 +89,14 @@ class ScorersPane extends AbstractPane {
       $s_form->add($l = new LinksDiv($npp, $num, sprintf('/score/%s/scorers', $this->REGATTA->id), array(), 'r', '#list'));
       $s_form->add($tab = new XQuickTable(array('class'=>'full'), array("", "First name", "Last name", "School")));
       for ($i = $NPP * ($num - 1); $i < $NPP * $num && $i < $count; $i++) {
-	$user = $accounts[$i];
-	if (!isset($scorers[$user->id])) {
-	  $id = 's-' . $user->id;
-	  $tab->addRow(array(new XRadioInput('account', $user->id, array('id'=>$id)),
-			     new XTD(array('class'=>'left'), new XLabel($id, $user->first_name)),
-			     new XTD(array('class'=>'left'), new XLabel($id, $user->last_name)),
-			     new XLabel($id, $user->school->id)));
-	}
+        $user = $accounts[$i];
+        if (!isset($scorers[$user->id])) {
+          $id = 's-' . $user->id;
+          $tab->addRow(array(new XRadioInput('account', $user->id, array('id'=>$id)),
+                             new XTD(array('class'=>'left'), new XLabel($id, $user->first_name)),
+                             new XTD(array('class'=>'left'), new XLabel($id, $user->last_name)),
+                             new XLabel($id, $user->school->id)));
+        }
       }
       $s_form->add($l);
       $s_form->add(new XSubmitP("add_scorer", "Add scorer"));
@@ -113,11 +113,11 @@ class ScorersPane extends AbstractPane {
     // ------------------------------------------------------------
     if (isset($args['conference']) && is_numeric($args['conference'])) {
       if (!($conf = DB::getConference($args['conference']))) {
-	unset($args['conference']);
-	Session::pa(new PA("Invalid conference", PA::E));
+        unset($args['conference']);
+        Session::pa(new PA("Invalid conference", PA::E));
       }
       else {
-	$args['conference'] = $conf;
+        $args['conference'] = $conf;
       }
     }
 
@@ -125,16 +125,16 @@ class ScorersPane extends AbstractPane {
     // Delete scorer
     // ------------------------------------------------------------
     if (isset($args['delete_scorer']) &&
-	isset($args['scorer'])) {
+        isset($args['scorer'])) {
       $account = DB::getAccount($args['scorer']);
       if ($account !== null && $account->id !== $this->USER->id) {
-	$this->REGATTA->removeScorer($account);
-	$mes = sprintf("Removed scorer %s.", $account->getName());
-	Session::pa(new PA($mes));
+        $this->REGATTA->removeScorer($account);
+        $mes = sprintf("Removed scorer %s.", $account->getName());
+        Session::pa(new PA($mes));
       }
       else {
-	$mes = sprintf("Invalid scorer username (%s).", $args['scorer']);
-	Session::pa(new PA($mes, PA::E));
+        $mes = sprintf("Invalid scorer username (%s).", $args['scorer']);
+        Session::pa(new PA($mes, PA::E));
       }
     }
 

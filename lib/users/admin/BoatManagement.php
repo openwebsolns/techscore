@@ -38,8 +38,8 @@ class BoatManagement extends AbstractAdminUserPane {
     if (isset($args['b'])) {
       $boat = DB::getBoat($args['b']);
       if ($boat === null) {
-	Session::pa(new PA("Invalid boat to edit."));
-	WS::go('/boats');
+        Session::pa(new PA("Invalid boat to edit."));
+        WS::go('/boats');
       }
       $mess = "Edit boat";
       $link = new XA("boats", "Cancel");
@@ -85,21 +85,21 @@ class BoatManagement extends AbstractAdminUserPane {
       $boat = new Boat();
       $mess = "Added new boat.";
       if (isset($args['boat'])) {
-	$boat = DB::getBoat((int)$args['boat']);
-	if ($boat == null) {
-	  Session::pa(new PA("Invalid boat to edit.", PA::E));
-	  unset($args['boat']);
-	  return $args;
-	}
-	$mess = "Edited boat.";
+        $boat = DB::getBoat((int)$args['boat']);
+        if ($boat == null) {
+          Session::pa(new PA("Invalid boat to edit.", PA::E));
+          unset($args['boat']);
+          return $args;
+        }
+        $mess = "Edited boat.";
       }
       if (isset($args['name'])) $boat->name = $args['name'];
       if (isset($args['occupants']) && $args['occupants'] >= 1) {
-	$boat->occupants = (int)$args['occupants'];
+        $boat->occupants = (int)$args['occupants'];
       }
       else {
-	Session::pa(new PA("Invalid value for number of occupants.", PA::E));
-	return $args;
+        Session::pa(new PA("Invalid value for number of occupants.", PA::E));
+        return $args;
       }
       DB::set($boat);
       Session::pa(new PA($mess));

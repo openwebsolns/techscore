@@ -17,9 +17,9 @@ class PrintHandler {
     $P = new TScorePage("Error");
     $P->addContent(new XPageTitle("Error!"));
     $P->addContent(new XUl(array(),
-			   array(new XLi("$errno: $errstr"),
-				 new XLi("File: $errfile"),
-				 new XLi("Line: $errline"))));
+                           array(new XLi("$errno: $errstr"),
+                                 new XLi("File: $errfile"),
+                                 new XLi("Line: $errline"))));
     $P->addContent(new XHeading("Backtrace"));
     $P->addContent($tab = new XQuickTable(array(), array("No.", "Function", "File", "Line")));
     $tab->addRow(array($errno, $errstr, $errfile, $errline));
@@ -37,10 +37,10 @@ class PrintHandler {
     $P = new TScorePage("Exception");
     $P->addContent(new XPageTitle("Exception!"));
     $P->addContent(new XUl(array(),
-			   array(new XLi("Number: " . $e->getCode()),
-				 new XLi("Message: " . $e->getMessage()),
-				 new XLi("File: " . $e->getFile()),
-				 new XLi("Line: " . $e->getLine()))));
+                           array(new XLi("Number: " . $e->getCode()),
+                                 new XLi("Message: " . $e->getMessage()),
+                                 new XLi("File: " . $e->getFile()),
+                                 new XLi("Line: " . $e->getLine()))));
     $P->addContent($tab = new XQuickTable(array(), array("No.", "Function", "File", "Line")));
     foreach ($e->getTrace() as $i => $trace) {
       $func = (isset($trace['function'])) ? $trace['function'] : 'N/A';

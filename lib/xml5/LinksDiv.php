@@ -62,11 +62,11 @@ class LinksDiv extends XDiv {
    * @param String $anchor the text to attach literally at the end of the URL
    */
   public function __construct($number,
-			      $cur = -1,
-			      $base = '.',
-			      Array $args = array(),
-			      $key = 'r',
-			      $anchor = '') {
+                              $cur = -1,
+                              $base = '.',
+                              Array $args = array(),
+                              $key = 'r',
+                              $anchor = '') {
     parent::__construct(array('class'=>'page-nav'));
     $num = (int)$number;
     $cur = (int)$cur;
@@ -84,7 +84,7 @@ class LinksDiv extends XDiv {
       $args[$key] = $i;
       $this->add($href = new XA(WS::link($base, $args, $anchor), $i));
       if ($i == $cur)
-	$href->set('class', 'current');
+        $href->set('class', 'current');
     }
     if ($i < $num) $this->add(new XText(' '));
     // ALWAYS print the last page
@@ -99,7 +99,7 @@ class LinksDiv extends XDiv {
     foreach ($args as $k => $value)
       $f->add(new XHiddenInput($k, $value));
     $f->add(new XTextInput($key, $cur, array('size'=>'2',
-					     'maxlength'=>strlen((string)$num))));
+                                             'maxlength'=>strlen((string)$num))));
   }
 }
 ?>

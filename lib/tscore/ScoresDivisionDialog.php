@@ -63,17 +63,17 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
     $division = $this->division;
 
     $ELEMS = array(new XTable(array('class'=>'results coordinate narrow'),
-			      array(new XTHead(array(),
-					       array(new XTR(array(),
-							     array(new XTH(), // superscript
-								   new XTH(), // rank
-								   new XTH(),
-								   new XTH(array(), "Team"),
-								   $penalty_th = new XTH(),
-								   new XTH(array(), "Total"),
-								   new XTH(array(), "Sailors"),
-								   new XTH(array(), ""))))),
-				    $tab = new XTBody())));
+                              array(new XTHead(array(),
+                                               array(new XTR(array(),
+                                                             array(new XTH(), // superscript
+                                                                   new XTH(), // rank
+                                                                   new XTH(),
+                                                                   new XTH(array(), "Team"),
+                                                                   $penalty_th = new XTH(),
+                                                                   new XTH(array(), "Total"),
+                                                                   new XTH(array(), "Sailors"),
+                                                                   new XTH(array(), ""))))),
+                                    $tab = new XTBody())));
     $has_penalties = false;
 
     // print each ranked team
@@ -82,17 +82,17 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
     $ranks = $this->REGATTA->scorer->rank($this->REGATTA, $division);
     foreach ($ranks as $rank) {
       if (!empty($rank->explanation) && !isset($tiebreakers[$rank->explanation])) {
-	$count = count($tiebreakers);
-	switch ($count) {
-	case 1:
-	  $tiebreakers[$rank->explanation] = "*";
-	  break;
-	case 2:
-	  $tiebreakers[$rank->explanation] = "**";
-	  break;
-	default:
-	  $tiebreakers[$rank->explanation] = chr(95 + $count);
-	}
+        $count = count($tiebreakers);
+        switch ($count) {
+        case 1:
+          $tiebreakers[$rank->explanation] = "*";
+          break;
+        case 2:
+          $tiebreakers[$rank->explanation] = "**";
+          break;
+        default:
+          $tiebreakers[$rank->explanation] = chr(95 + $count);
+        }
       }
     }
     
@@ -105,86 +105,86 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
       // get total score for this team
       $total = 0;
       foreach ($races as $race) {
-	$finish = $this->REGATTA->getFinish($race, $rank->team);
-	$total += $finish->score;
+        $finish = $this->REGATTA->getFinish($race, $rank->team);
+        $total += $finish->score;
       }
       $penalty = $this->REGATTA->getTeamPenalty($rank->team, $division);
       if ($penalty != null) {
-	$total += 20;
+        $total += 20;
       }
 
       $ln = $rank->team->school->name;
       if ($link_schools !== null)
-	$ln = new XA(sprintf('%s/%s', $link_schools, $rank->team->school->id), $ln);
+        $ln = new XA(sprintf('%s/%s', $link_schools, $rank->team->school->id), $ln);
 
       // deal with explanations
       $sym = sprintf("<sup>%s</sup>", $tiebreakers[$rank->explanation]);
 
       // fill the two header rows up until the sailor names column
       $img = ($rank->team->school->burgee == null) ? '' :
-	new XImg(sprintf('%s/inc/img/schools/%s.png', $PREFIX, $rank->team->school->id), $rank->team->school->id,
-		 array('height'=>'30px'));
+        new XImg(sprintf('%s/inc/img/schools/%s.png', $PREFIX, $rank->team->school->id), $rank->team->school->id,
+                 array('height'=>'30px'));
       $r1 = new XTR(array('class'=>'topborder row' . $rowIndex % 2, 'align' => 'left'),
-		    array(new XTD(array('title'=>$rank->explanation, 'class'=>'tiebreaker'), new XRawText($sym)),
-			  $ord = new XTD(array(), $order++),
-			  new XTD(array(), $img),
-			  $sch = new XTD(array('class'=>'schoolname'), $ln),
-			  $pen = new XTD(),
-			  new XTD(array('class'=>'totalcell'), $total)));
+                    array(new XTD(array('title'=>$rank->explanation, 'class'=>'tiebreaker'), new XRawText($sym)),
+                          $ord = new XTD(array(), $order++),
+                          new XTD(array(), $img),
+                          $sch = new XTD(array('class'=>'schoolname'), $ln),
+                          $pen = new XTD(),
+                          new XTD(array('class'=>'totalcell'), $total)));
       if ($penalty != null) {
-	$pen->add($penalty->type);
-	$pen->set("title", sprintf("%s (+20 points)", $penalty->comments));
+        $pen->add($penalty->type);
+        $pen->set("title", sprintf("%s (+20 points)", $penalty->comments));
       }
 
       $r2 = new XTR(array('class'=>'row'.($rowIndex % 2), 'align'=>'left'),
-		    array(new XTD(),
-			  new XTD(),
-			  new XTD(),
-			  $sch = new XTD(array('class'=>'teamname'), $rank->team->name),
-			  new XTD(),
-			  new XTD(array('class'=>'totalcell'))));
+                    array(new XTD(),
+                          new XTD(),
+                          new XTD(),
+                          $sch = new XTD(array('class'=>'teamname'), $rank->team->name),
+                          new XTD(),
+                          new XTD(array('class'=>'totalcell'))));
       
       $headerRows = array($r1, $r2);
 
       // ------------------------------------------------------------
       // Skippers and crews
       foreach (array(RP::SKIPPER, RP::CREW) as $index => $role) {
-	$sailors  = $rpManager->getRP($rank->team, $division, $role);
-	    
-	$is_first = true;
-	$s_rows = array();
-	if (count($sailors) == 0) {
-	  $headerRows[$index]->add(new XTD());
-	  $headerRows[$index]->add(new XTD());
-	}
-	foreach ($sailors as $s) {
-	  if ($is_first) {
-	    $row = $headerRows[$index];
-	    $is_first = false;
-	  }
-	  else {
-	    $row = new XTR(array('class'=>'row'.($rowIndex % 2)),
-			   array(new XTD(),
-				 new XTD(),
-				 new XTD(),
-				 new XTD(),
-				 new XTD(),
-				 new XTD(array('class'=>'totalcell'))));
-	    $s_rows[] = $row;
-	  }
+        $sailors  = $rpManager->getRP($rank->team, $division, $role);
+            
+        $is_first = true;
+        $s_rows = array();
+        if (count($sailors) == 0) {
+          $headerRows[$index]->add(new XTD());
+          $headerRows[$index]->add(new XTD());
+        }
+        foreach ($sailors as $s) {
+          if ($is_first) {
+            $row = $headerRows[$index];
+            $is_first = false;
+          }
+          else {
+            $row = new XTR(array('class'=>'row'.($rowIndex % 2)),
+                           array(new XTD(),
+                                 new XTD(),
+                                 new XTD(),
+                                 new XTD(),
+                                 new XTD(),
+                                 new XTD(array('class'=>'totalcell'))));
+            $s_rows[] = $row;
+          }
 
-	  if (count($s->races_nums) == $total_races)
-	    $amt = "";
-	  else
-	    $amt = DB::makeRange($s->races_nums);
-	  $row->add($s_cell = new XTD(array('align'=>'right'), $s->sailor));
-	  $row->add($r_cell = new XTD(array('align'=>'left', 'class'=>'races'), $amt));
-	}
+          if (count($s->races_nums) == $total_races)
+            $amt = "";
+          else
+            $amt = DB::makeRange($s->races_nums);
+          $row->add($s_cell = new XTD(array('align'=>'right'), $s->sailor));
+          $row->add($r_cell = new XTD(array('align'=>'left', 'class'=>'races'), $amt));
+        }
 
-	// Add rows
-	$tab->add($headerRows[$index]);
-	foreach ($s_rows as $r)
-	  $tab->add($r);
+        // Add rows
+        $tab->add($headerRows[$index]);
+        foreach ($s_rows as $r)
+          $tab->add($r);
       }
       $rowIndex++;
     } // end of table

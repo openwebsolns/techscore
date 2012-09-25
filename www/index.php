@@ -19,7 +19,7 @@ if (Conf::$USER === null) {
     switch ($_GET['p']) {
     case 'register':
       if (Conf::$ALLOW_REGISTER === false)
-	WS::go('/');
+        WS::go('/');
       require_once('users/RegisterPane.php');
       $PAGE = new RegisterPane();
       break;

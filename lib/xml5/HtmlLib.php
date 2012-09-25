@@ -68,7 +68,7 @@ class XBig extends XAbstractHtml {
     parent::__construct("big", $attrs);
     if (is_array($content)) {
       foreach ($content as $c)
-	$this->add($c);
+        $this->add($c);
     }
     else
       $this->add($content);
@@ -402,7 +402,7 @@ class XLi extends XAbstractHtml {
     parent::__construct("li", $attrs);
     if (is_array($content)) {
       foreach ($content as $c)
-	$this->add($c);
+        $this->add($c);
     }
     else
       $this->add($content);
@@ -476,7 +476,7 @@ class XOptionGroup extends XAbstractHtml {
     $this->set("label", $label);
     foreach ($options as $opt) {
       if (!($opt instanceof XOption))
-	throw new InvalidArgumentException("Option group must contain Option elements");
+        throw new InvalidArgumentException("Option group must contain Option elements");
       $this->add($opt);
     }
   }
@@ -516,7 +516,7 @@ class XP extends XAbstractHtml {
     parent::__construct("p", $attrs);
     if (is_array($content)) {
       foreach ($content as $c)
-	$this->add($c);
+        $this->add($c);
     }
     else
       $this->add($content);
@@ -577,7 +577,7 @@ class XNoScript extends XAbstractHtml {
     parent::__construct("noscript", $attrs);
     if (is_array($content)) {
       foreach ($content as $cont)
-	$this->add($cont);
+        $this->add($cont);
     }
     else
       $this->add($content);
@@ -652,17 +652,17 @@ class XSelect extends XAbstractHtml {
     $sel = new XSelect($name, $attrs);
     foreach ($opts as $k => $v) {
       if (is_array($v)) {
-	$sel->add($grp = new XOptionGroup($k));
-	foreach ($v as $kk => $vv) {
-	  $grp->add($opt = new XOption($kk, array(), $vv));
-	  if (in_array($kk, $chosen))
-	    $opt->set('selected', 'selected');
-	}
+        $sel->add($grp = new XOptionGroup($k));
+        foreach ($v as $kk => $vv) {
+          $grp->add($opt = new XOption($kk, array(), $vv));
+          if (in_array($kk, $chosen))
+            $opt->set('selected', 'selected');
+        }
       }
       else {
-	$sel->add($opt = new XOption($k, array(), $v));
-	if (in_array($k, $chosen, $strict))
-	  $opt->set('selected', 'selected');
+        $sel->add($opt = new XOption($k, array(), $v));
+        if (in_array($k, $chosen, $strict))
+          $opt->set('selected', 'selected');
       }
     }
     return $sel;
@@ -789,9 +789,9 @@ class XTable extends XAbstractHtml {
       return;
     }
     if ($elem instanceof XTR    ||
-	$elem instanceof XTHead ||
-	$elem instanceof XTBody ||
-	$elem instanceof XTFoot) {
+        $elem instanceof XTHead ||
+        $elem instanceof XTBody ||
+        $elem instanceof XTFoot) {
       parent::add($elem);
       return;
     }
@@ -828,16 +828,16 @@ class XTable extends XAbstractHtml {
     if (count($headers) > 0) {
       $t->add($h = new XTHead());
       foreach ($headers as $header) {
-	$h->add($r = new XTR());
-	foreach ($header as $c)
-	  $r->add(new XTH(array(), $c));
+        $h->add($r = new XTR());
+        foreach ($header as $c)
+          $r->add(new XTH(array(), $c));
       }
     }
     $t->add($h = new XTBody());
     foreach ($rows as $header) {
       $h->add($r = new XTR());
       foreach ($header as $c)
-	$r->add(new XTD(array(), $c));
+        $r->add(new XTD(array(), $c));
     }
     return $t;
   }
@@ -872,7 +872,7 @@ class XTD extends XAbstractHtml {
     $this->non_empty = true;
     if (is_array($item)) {
       foreach ($item as $i)
-	$this->add($i);
+        $this->add($i);
     }
     else
       $this->add($item);
@@ -931,7 +931,7 @@ class XTH extends XAbstractHtml {
     $this->non_empty = true;
     if (is_array($item)) {
       foreach ($item as $i)
-	$this->add($i);
+        $this->add($i);
     }
     else
       $this->add($item);
@@ -1054,7 +1054,7 @@ class XQuickTable extends XTable {
     if (count($headers) > 0) {
       $this->add($this->thead = new XTHead(array(), array($tr = new XTR())));
       foreach ($headers as $head) {
-	$tr->add(new XTH(array(), $head));
+        $tr->add(new XTH(array(), $head));
       }
     }
     $this->add($this->tbody = new XTBody());
@@ -1070,9 +1070,9 @@ class XQuickTable extends XTable {
     $this->tbody->add($tr = new XTR($attrs));
     foreach ($cells as $cell) {
       if ($cell instanceof XTD || $cell instanceof XTH)
-	$tr->add($cell);
+        $tr->add($cell);
       else
-	$tr->add(new XTD(array(), $cell));
+        $tr->add(new XTD(array(), $cell));
     }
   }
 

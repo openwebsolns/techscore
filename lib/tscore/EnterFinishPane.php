@@ -25,7 +25,7 @@ class EnterFinishPane extends AbstractPane {
   const TEAMS = 'TMS';
 
   private $ACTIONS = array(self::ROTATION => "Sail numbers from rotation",
-			   self::TEAMS => "Team names");
+                           self::TEAMS => "Team names");
 
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Enter finish", $user, $reg);
@@ -38,7 +38,7 @@ class EnterFinishPane extends AbstractPane {
     if ($race == null) {
       $races = $this->REGATTA->getUnscoredRaces();
       if (count($races) > 0)
-	$race = $races[0];
+        $race = $races[0];
     }
     if ($race == null) {
       $race = $this->REGATTA->getLastScoredRace();
@@ -60,12 +60,12 @@ class EnterFinishPane extends AbstractPane {
     $form->set("id", "race_form");
 
     $form->add($fitem = new FItem("Race:", 
-				  new XTextInput("chosen_race",
-						 $race,
-						 array("size"=>"4",
-						       "maxlength"=>"3",
-						       "id"=>"chosen_race",
-						       "class"=>"narrow"))));
+                                  new XTextInput("chosen_race",
+                                                 $race,
+                                                 array("size"=>"4",
+                                                       "maxlength"=>"3",
+                                                       "id"=>"chosen_race",
+                                                       "class"=>"narrow"))));
     // Using?
     $using = (isset($args['finish_using'])) ?
       $args['finish_using'] : self::ROTATION;
@@ -96,30 +96,30 @@ class EnterFinishPane extends AbstractPane {
       // ------------------------------------------------------------
       $form->add(new XP(array(), "Click on left column to push to right column"));
       $form->add(new FItem("Enter sail numbers:",
-			   $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'finish_table'),
-						  array("Sail", "→", "Finish"))));
+                           $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'finish_table'),
+                                                  array("Sail", "→", "Finish"))));
 
       // - Fill possible sails and input box
       $pos_sails = ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ?
-	$rotation->getSails($race) :
-	$rotation->getCombinedSails($race);
+        $rotation->getSails($race) :
+        $rotation->getCombinedSails($race);
       foreach ($pos_sails as $i => $aPS) {
-	$current_sail = (count($finishes) > 0) ?
-	  $rotation->getSail($race, $finishes[$i]->team) : "";
-	$tab->addRow(array(new XTD(array('name'=>'pos_sail', 'class'=>'pos_sail','id'=>'pos_sail'), $aPS),
-			   new XImg("/inc/img/question.png", "Waiting for input", array("id"=>"check" . $i)),
-			   new XTextInput("p" . $i, $current_sail,
-					  array("id"=>"sail" . $i,
-						"tabindex"=>($i+1),
-						"onkeyup"=>"checkSails()",
-						"class"=>"small",
-						"size"=>"2"))));
+        $current_sail = (count($finishes) > 0) ?
+          $rotation->getSail($race, $finishes[$i]->team) : "";
+        $tab->addRow(array(new XTD(array('name'=>'pos_sail', 'class'=>'pos_sail','id'=>'pos_sail'), $aPS),
+                           new XImg("/inc/img/question.png", "Waiting for input", array("id"=>"check" . $i)),
+                           new XTextInput("p" . $i, $current_sail,
+                                          array("id"=>"sail" . $i,
+                                                "tabindex"=>($i+1),
+                                                "onkeyup"=>"checkSails()",
+                                                "class"=>"small",
+                                                "size"=>"2"))));
       }
 
       // Submit buttom
       $form->add(new XSubmitP("f_places",
-			      sprintf("Enter finish for race %s", $race),
-			      array("id"=>"submitfinish", "tabindex"=>($i+1))));
+                              sprintf("Enter finish for race %s", $race),
+                              array("id"=>"submitfinish", "tabindex"=>($i+1))));
     }
     else {
       // ------------------------------------------------------------
@@ -127,12 +127,12 @@ class EnterFinishPane extends AbstractPane {
       // ------------------------------------------------------------
       $form->add(new XP(array(), "Click on left column to push to right column"));
       $form->add(new FItem("Enter teams:",
-			   $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'finish_table'),
-						  array("Team", "→", "Finish"))));
+                           $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'finish_table'),
+                                                  array("Team", "→", "Finish"))));
       $i = $this->fillFinishesTable($tab, $race, $finishes);
       $form->add(new XSubmitP('f_teams',
-			      sprintf("Enter finish for race %s", $race),
-			      array('id'=>'submitfinish', 'tabindex'=>($i+1))));
+                              sprintf("Enter finish for race %s", $race),
+                              array('id'=>'submitfinish', 'tabindex'=>($i+1))));
     }
   }
 
@@ -150,26 +150,26 @@ class EnterFinishPane extends AbstractPane {
       $teams = array();
       $races = array();
       if (isset($args['f_teams'])) {
-	$t = ($this->REGATTA->scoring == Regatta::SCORING_TEAM) ?
-	  $this->REGATTA->getRaceTeams($race) :
-	  $this->REGATTA->getTeams();
+        $t = ($this->REGATTA->scoring == Regatta::SCORING_TEAM) ?
+          $this->REGATTA->getRaceTeams($race) :
+          $this->REGATTA->getTeams();
 
-	$args['finish_using'] = self::TEAMS;
-	$opts = array();
-	$this->fillTeamOpts($opts, $teams, $races, $t, $race);
+        $args['finish_using'] = self::TEAMS;
+        $opts = array();
+        $this->fillTeamOpts($opts, $teams, $races, $t, $race);
       }
       else {
-	$sails = ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ?
-	  $rotation->getSails($race) :
-	  $rotation->getCombinedSails($race);
-	if (count($sails) == 0)
-	  throw new SoterException(sprintf("No rotation has been created for the chosen race (%s).", $race));
+        $sails = ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ?
+          $rotation->getSails($race) :
+          $rotation->getCombinedSails($race);
+        if (count($sails) == 0)
+          throw new SoterException(sprintf("No rotation has been created for the chosen race (%s).", $race));
       
-	foreach ($sails as $sail) {
-	  $teams[(string)$sail] = $sail->team;
-	  $races[(string)$sail] = $sail->race;
-	}
-	unset($sails);
+        foreach ($sails as $sail) {
+          $teams[(string)$sail] = $sail->team;
+          $races[(string)$sail] = $sail->race;
+        }
+        unset($sails);
       }
 
       $count = count($teams);
@@ -177,35 +177,35 @@ class EnterFinishPane extends AbstractPane {
       $time = new DateTime();
       $intv = new DateInterval('P0DT3S');
       for ($i = 0; $i < $count; $i++) {
-	$id = DB::$V->reqKey($args, "p$i", $teams, "Missing team in position " . ($i + 1) . ".");
-	$finish = $this->REGATTA->getFinish($races[$id], $teams[$id]);
-	if ($finish === null)
-	  $finish = $this->REGATTA->createFinish($races[$id], $teams[$id]);
-	$finish->setModifier(); // reset score
-	$finish->entered = clone($time);
-	$finishes[] = $finish;
-	unset($teams[$id]);
-	$time->add($intv);
+        $id = DB::$V->reqKey($args, "p$i", $teams, "Missing team in position " . ($i + 1) . ".");
+        $finish = $this->REGATTA->getFinish($races[$id], $teams[$id]);
+        if ($finish === null)
+          $finish = $this->REGATTA->createFinish($races[$id], $teams[$id]);
+        $finish->setModifier(); // reset score
+        $finish->entered = clone($time);
+        $finishes[] = $finish;
+        unset($teams[$id]);
+        $time->add($intv);
       }
 
       // For team racing regattas: enter all other non-participating
       // teams as DNSes.
       if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
-	$part = $this->REGATTA->getRaceTeams($race);
-	foreach ($this->REGATTA->getDivisions() as $div) {
-	  $r = $this->REGATTA->getRace($div, $race->number);
-	  foreach ($this->REGATTA->getTeams() as $team) {
-	    if ($team->id != $part[0]->id && $team->id != $part[1]->id) {
-	      $finish = $this->REGATTA->getFinish($r, $team);
-	      if ($finish === null)
-		$finish = $this->REGATTA->createFinish($r, $team);
-	      $finish->entered = clone($time);
-	      $finish->setModifier(new Penalty(Penalty::DNS, -1, "Did not participate"));
-	      $finishes[] = $finish;
-	      $time->add($intv);
-	    }
-	  }
-	}
+        $part = $this->REGATTA->getRaceTeams($race);
+        foreach ($this->REGATTA->getDivisions() as $div) {
+          $r = $this->REGATTA->getRace($div, $race->number);
+          foreach ($this->REGATTA->getTeams() as $team) {
+            if ($team->id != $part[0]->id && $team->id != $part[1]->id) {
+              $finish = $this->REGATTA->getFinish($r, $team);
+              if ($finish === null)
+                $finish = $this->REGATTA->createFinish($r, $team);
+              $finish->entered = clone($time);
+              $finish->setModifier(new Penalty(Penalty::DNS, -1, "Did not participate"));
+              $finishes[] = $finish;
+              $time->add($intv);
+            }
+          }
+        }
       }
 
       $this->REGATTA->commitFinishes($finishes);
@@ -214,17 +214,17 @@ class EnterFinishPane extends AbstractPane {
 
       // Update races's round number as needed
       if ($this->REGATTA->scoring != Regatta::SCORING_TEAM) {
-	$start = $this->REGATTA->start_time;
-	$start->setTime(0, 0);
-	$now = new DateTime();
-	$now->setTime(0, 0);
-	$duration = $now->diff($start)->days + 1;
-	foreach ($races as $race) {
-	  if ($race->round === null) {
-	    $race->round = $duration;
-	    DB::set($race);
-	  }
-	}
+        $start = $this->REGATTA->start_time;
+        $start->setTime(0, 0);
+        $now = new DateTime();
+        $now->setTime(0, 0);
+        $duration = $now->diff($start)->days + 1;
+        foreach ($races as $race) {
+          if ($race->round === null) {
+            $race->round = $duration;
+            DB::set($race);
+          }
+        }
       }
 
       // Reset
@@ -252,15 +252,15 @@ class EnterFinishPane extends AbstractPane {
       $this->fillTeamOpts($team_opts, $t, $r, $teams, $race);
 
       foreach ($teams as $i => $team) {
-	$attrs['value'] = $team->id;
+        $attrs['value'] = $team->id;
 
-	$current_team = (count($finishes) > 0) ? $finishes[$i]->team->id : "";
-	$tab->addRow(array(new XTD($attrs, $team_opts[$team->id]),
-			   new XImg("/inc/img/question.png", "Waiting for input", array("id"=>"check" . $i)),
-			   $sel = XSelect::fromArray("p" . $i, $team_opts, $current_team)));
-	$sel->set('id', "team$i");
-	$sel->set('tabindex', $i + 1);
-	$sel->set('onchange', 'checkTeams()');
+        $current_team = (count($finishes) > 0) ? $finishes[$i]->team->id : "";
+        $tab->addRow(array(new XTD($attrs, $team_opts[$team->id]),
+                           new XImg("/inc/img/question.png", "Waiting for input", array("id"=>"check" . $i)),
+                           $sel = XSelect::fromArray("p" . $i, $team_opts, $current_team)));
+        $sel->set('id', "team$i");
+        $sel->set('tabindex', $i + 1);
+        $sel->set('onchange', 'checkTeams()');
       }
       return $i;
     }
@@ -268,27 +268,27 @@ class EnterFinishPane extends AbstractPane {
       // Combined and team scoring
       $divisions = $this->REGATTA->getDivisions();
       if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
-	$teams = $this->REGATTA->getRaceTeams($race);
+        $teams = $this->REGATTA->getRaceTeams($race);
 
       $t = $r = array();
       $this->fillTeamOpts($team_opts, $t, $r, $teams, $race, $divisions);
 
       $i = 0;
       foreach ($divisions as $div) {
-	foreach ($teams as $team) {
-	  $attrs['value'] = sprintf('%s,%s', $div, $team->id);
-	  $name = $team_opts[$attrs['value']];
+        foreach ($teams as $team) {
+          $attrs['value'] = sprintf('%s,%s', $div, $team->id);
+          $name = $team_opts[$attrs['value']];
 
-	  $current_team = (count($finishes) > 0) ?
-	    sprintf("%s,%s", $finishes[$i]->race->division, $finishes[$i]->team->id) : "";
-	  $tab->addRow(array(new XTD($attrs, $name),
-			     new XImg("/inc/img/question.png", "Waiting for input",  array("id"=>"check" . $i)),
-			     $sel = XSelect::fromArray("p" . $i, $team_opts, $current_team)));
-	  $sel->set('id', "team$i");
-	  $sel->set('tabindex', $i + 1);
-	  $sel->set('onchange', 'checkTeams()');
-	  $i++;
-	}
+          $current_team = (count($finishes) > 0) ?
+            sprintf("%s,%s", $finishes[$i]->race->division, $finishes[$i]->team->id) : "";
+          $tab->addRow(array(new XTD($attrs, $name),
+                             new XImg("/inc/img/question.png", "Waiting for input",  array("id"=>"check" . $i)),
+                             $sel = XSelect::fromArray("p" . $i, $team_opts, $current_team)));
+          $sel->set('id', "team$i");
+          $sel->set('tabindex', $i + 1);
+          $sel->set('onchange', 'checkTeams()');
+          $i++;
+        }
       }
       return $i;
     }
@@ -312,9 +312,9 @@ class EnterFinishPane extends AbstractPane {
   private function fillTeamOpts(Array &$team_opts, Array &$tms, Array &$rac, $teams, Race $race, Array $divisions = array()) {
     if ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) {
       foreach ($teams as $team) {
-	$team_opts[$team->id] = sprintf("%s %s", $team->school->nick_name, $team->name);
-	$tms[$team->id] = $team;
-	$rac[$team->id] = $race;
+        $team_opts[$team->id] = sprintf("%s %s", $team->school->nick_name, $team->name);
+        $tms[$team->id] = $team;
+        $rac[$team->id] = $race;
       }
       return;
     }
@@ -323,12 +323,12 @@ class EnterFinishPane extends AbstractPane {
 
     foreach ($divisions as $div) {
       foreach ($teams as $team) {
-	$id = sprintf("%s,%s", $div, $team->id);
-	$label = ($this->REGATTA->scoring == Regatta::SCORING_TEAM) ? $div->getLevel() : $div;
-	$team_opts[$id] = sprintf("%s: %s %s", $label, $team->school->nick_name, $team->name);
-	  
-	$tms[$id] = $team;
-	$rac[$id] = $this->REGATTA->getRace($div, $race->number);
+        $id = sprintf("%s,%s", $div, $team->id);
+        $label = ($this->REGATTA->scoring == Regatta::SCORING_TEAM) ? $div->getLevel() : $div;
+        $team_opts[$id] = sprintf("%s: %s %s", $label, $team->school->nick_name, $team->name);
+          
+        $tms[$id] = $team;
+        $rac[$id] = $this->REGATTA->getRace($div, $race->number);
       }
     }
   }

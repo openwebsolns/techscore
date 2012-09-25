@@ -44,7 +44,7 @@ class TempRegatta extends Regatta {
 
     // fetch temporary information
     $q = sprintf('select original, expires from temp_regatta where regatta = "%s"',
-		 $this->id);
+                 $this->id);
     $res = $this->query($q);
     if ($res->num_rows == 0)
       throw new InvalidArgumentException("Regatta $id is not a temporary regatta.");
@@ -84,12 +84,12 @@ class TempRegatta extends Regatta {
 
     if ($name == TempRegatta::ORIGINAL) {
       if (!($value instanceof Regatta))
-	throw new InvalidArgumentException("Original regatta must be Regatta object.");
+        throw new InvalidArgumentException("Original regatta must be Regatta object.");
       $this->original = $value;
     }
     elseif ($name == TempRegatta::EXPIRES) {
       if (!($value instanceof DateTime))
-	throw new InvalidArgumentException("Expiration date must be DateTime object.");
+        throw new InvalidArgumentException("Expiration date must be DateTime object.");
       $this->expires = $value;
     }
     $this->setTemporaryFor();
@@ -104,7 +104,7 @@ class TempRegatta extends Regatta {
    */
   private function setTemporaryFor() {
     $q = sprintf('replace into temp_regatta values ("%s", "%s", "%s")',
-		 $this->id, $this->original->id, $this->expires->format("Y-m-d H:i:s"));
+                 $this->id, $this->original->id, $this->expires->format("Y-m-d H:i:s"));
     $this->query($q);
   }
 
@@ -117,14 +117,14 @@ class TempRegatta extends Regatta {
    */
   public static function createRegatta(Regatta $reg, DateTime $expiration) {
     $id = self::addRegatta(Conf::$SQL_DB,
-			   $reg->name,
-			   $reg->start_time,
-			   $reg->end_date,
-			   $reg->type,
-			   $reg->scoring);
+                           $reg->name,
+                           $reg->start_time,
+                           $reg->end_date,
+                           $reg->type,
+                           $reg->scoring);
 
     $q = sprintf('replace into temp_regatta values ("%s", "%s", "%s")',
-		 $id, $reg->id, $expiration->format("Y-m-d H:i:s"));
+                 $id, $reg->id, $expiration->format("Y-m-d H:i:s"));
     self::static_query($q);
 
     $temp_reg = new TempRegatta($id);

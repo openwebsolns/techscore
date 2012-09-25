@@ -132,9 +132,9 @@ class DB extends DBM {
   public static function inactivateSchools() {
     $q = self::createQuery(DBQuery::UPDATE);
     $q->values(array(new DBField('inactive')),
-	       array(DBQuery::A_STR),
-	       array(DB::$NOW->format('Y-m-d H:i:s')),
-	       DB::$SCHOOL->db_name());
+               array(DBQuery::A_STR),
+               array(DB::$NOW->format('Y-m-d H:i:s')),
+               DB::$SCHOOL->db_name());
     $q->where(new DBCond('inactive', null));
     self::query($q);
   }
@@ -195,9 +195,9 @@ class DB extends DBM {
       $subject = 'DIVERTED: ' . $subject;
     }
     return @mail($to,
-		 $subject,
-		 wordwrap($body, 72),
-		 sprintf('From: %s', Conf::$TS_FROM_MAIL));
+                 $subject,
+                 wordwrap($body, 72),
+                 sprintf('From: %s', Conf::$TS_FROM_MAIL));
   }
 
   /**
@@ -293,9 +293,9 @@ class DB extends DBM {
    */
   public static function reply(Message $mes, $reply) {
     $body = sprintf("Reply from: %s\n---------------------\n%s\n-------------------\n%s",
-		    $mes->account->id,
-		    $mes->content,
-		    $reply);
+                    $mes->account->id,
+                    $mes->content,
+                    $reply);
     $res = self::mail(Conf::$ADMIN_MAIL, sprintf("[%s] Message reply", Conf::$NAME), $body);
   }
 
@@ -383,7 +383,7 @@ class DB extends DBM {
   public static function getAdmins() {
     require_once('regatta/Account.php');
     return self::getAll(self::$ACCOUNT, new DBBool(array(new DBCond('status', Account::STAT_ACTIVE),
-							 new DBCond('admin', 0, DBCond::GT))));
+                                                         new DBCond('admin', 0, DBCond::GT))));
   }
 
   /**
@@ -501,9 +501,9 @@ class DB extends DBM {
     
       // Check limits
       if ($start > $end) // invalid range
-	return null;
+        return null;
       for ($i = $start; $i <= $end; $i++)
-	$list[] = (int)$i;
+        $list[] = (int)$i;
     }
     
     return array_unique($list);
@@ -527,14 +527,14 @@ class DB extends DBM {
     $range = "";
     foreach ($list as $next) {
       if ($last === null) {
-	$range .= $next;
-	$range_start = $next;
+        $range .= $next;
+        $range_start = $next;
       }
       elseif ($next != $last + 1) {
-	if ($range_start != $last)
-	  $range .= "-$last";
-	$range .= ",$next";
-	$range_start = $next;
+        if ($range_start != $last)
+          $range .= "-$last";
+        $range .= ",$next";
+        $range_start = $next;
       }
       $last = $next;
     }
@@ -587,7 +587,7 @@ class Conference extends DBObject {
   public function getUsers() {
     require_once('regatta/Account.php');
     return DB::getAll(DB::$ACCOUNT,
-		      new DBCondIn('school', DB::prepGetAll(DB::$SCHOOL, new DBCond('conference', $this), array('id'))));
+                      new DBCondIn('school', DB::prepGetAll(DB::$SCHOOL, new DBCond('conference', $this), array('id'))));
   }
 
   /**
@@ -941,9 +941,9 @@ class Division {
    */
   public static function getAssoc() {
     return array("A"=>Division::A(),
-		 "B"=>Division::B(),
-		 "C"=>Division::C(),
-		 "D"=>Division::D());
+                 "B"=>Division::B(),
+                 "C"=>Division::C(),
+                 "D"=>Division::D());
   }
 }
 
@@ -992,9 +992,9 @@ class Member extends DBObject {
     if ($this->role == 'student')
       $year = " '" . (($this->year > 0) ? substr($this->year, -2) : "??");
     $name = sprintf("%s %s%s",
-		    $this->first_name,
-		    $this->last_name,
-		    $year);
+                    $this->first_name,
+                    $this->last_name,
+                    $year);
     if (!$this->isRegistered())
       $name .= " *";
     return $name;
@@ -1105,12 +1105,12 @@ class SinglehandedTeam extends Team {
     try {
       $rps = $this->__get('regatta')->getRpManager()->getRP($this, Division::A(), RP::SKIPPER);
       if (count($rps) == 0)
-	return parent::__get("name");
+        return parent::__get("name");
 
       // Should be one, but just in case
       $sailors = array();
       foreach ($rps as $rp)
-	$sailors[] = $rp->sailor;
+        $sailors[] = $rp->sailor;
       return implode("/", $sailors);
     } catch (Exception $e) {
       return parent::__get("name");
@@ -1238,7 +1238,7 @@ class Race extends DBObject {
   public function &__get($name) {
     if ($name == 'division') {
       if ($this->division === null || $this->division instanceof Division)
-	return $this->division;
+        return $this->division;
       $div = Division::get($this->division);
       return $div;
     }
@@ -1253,8 +1253,8 @@ class Race extends DBObject {
    */
   public function __toString() {
     if ($this->regatta !== null &&
-	($this->__get('regatta')->scoring != Regatta::SCORING_STANDARD ||
-	 count($this->__get('regatta')->getDivisions()) == 1))
+        ($this->__get('regatta')->scoring != Regatta::SCORING_STANDARD ||
+         count($this->__get('regatta')->getDivisions()) == 1))
       return (string)$this->number;
     return $this->number . $this->division;
   }
@@ -1283,13 +1283,13 @@ class Race extends DBObject {
     $div = Division::A();
     if ($first >= 65 && $first <= 90) {
       if ($last > 68)
-	throw new InvalidArgumentException(sprintf("Invalid division (%s).", $race[0]));
+        throw new InvalidArgumentException(sprintf("Invalid division (%s).", $race[0]));
       $div = Division::get($race[0]);
       $race = substr($race, 1);
     }
     elseif ($last >= 65 && $last <= 90) {
       if ($last > 68)
-	throw new InvalidArgumentException(sprintf("Invalid division (%s).", $race[$len - 1]));
+        throw new InvalidArgumentException(sprintf("Invalid division (%s).", $race[$len - 1]));
       $div = Division::get($race[$len - 1]);
       $race = substr($race, 0, $len - 1);
     }
@@ -1373,15 +1373,15 @@ class Finish extends DBObject {
   public function __set($name, $value) {
     if ($name == 'score') {
       if ($value instanceof Score) {
-	$this->score = $value->score;
-	$this->explanation = $value->explanation;
+        $this->score = $value->score;
+        $this->explanation = $value->explanation;
       }
       elseif ($value === null) {
-	$this->score = null;
-	$this->explanation = null;
+        $this->score = null;
+        $this->explanation = null;
       }
       else
-	throw new InvalidArgumentException("Score property must be Score object.");
+        throw new InvalidArgumentException("Score property must be Score object.");
       return;
     }
     parent::__set($name, $value);
@@ -1472,9 +1472,9 @@ class TeamPenalty extends DBObject {
 
   public static function getList() {
     return array(TeamPenalty::PFD=>"PFD: Illegal lifejacket",
-		 TeamPenalty::LOP=>"LOP: Missing pinnie",
-		 TeamPenalty::MRP=>"MRP: Missing RP info",
-		 TeamPenalty::GDQ=>"GDQ: General disqualification");
+                 TeamPenalty::LOP=>"LOP: Missing pinnie",
+                 TeamPenalty::MRP=>"MRP: Missing RP info",
+                 TeamPenalty::GDQ=>"GDQ: General disqualification");
   }
 
   protected $team;
@@ -1513,10 +1513,10 @@ class TeamPenalty extends DBObject {
    */
   public function __toString() {
     return sprintf("%s|%s|%s|%s",
-		   $this->team,
-		   $this->division,
-		   $this->type,
-		   $this->comments);
+                   $this->team,
+                   $this->division,
+                   $this->type,
+                   $this->comments);
   }
 }
 
@@ -1700,9 +1700,9 @@ class Season extends DBObject {
   public function getRegattas() {
     require_once('regatta/Regatta.php');
     return DB::getAll(DB::$REGATTA,
-		      new DBBool(array(new DBCond('start_time', $this->start_date, DBCond::GE),
-				       new DBCond('start_time', $this->end_date,   DBCond::LT),
-				       new DBCond('type', Regatta::TYPE_PERSONAL, DBCond::NE))));
+                      new DBBool(array(new DBCond('start_time', $this->start_date, DBCond::GE),
+                                       new DBCond('start_time', $this->end_date,   DBCond::LT),
+                                       new DBCond('type', Regatta::TYPE_PERSONAL, DBCond::NE))));
   }
 
   /**
@@ -1714,9 +1714,9 @@ class Season extends DBObject {
    */
   public function getParticipation(School $school) {
     return DB::getAll(DB::$REGATTA,
-		      new DBBool(array(new DBCond('start_time', $this->start_date, DBCond::GE),
-				       new DBCond('start_time', $this->end_date,   DBCond::LT),
-				       new DBCondIn('id', DB::prepGetAll(DB::$TEAM, new DBCond('school', $school), array('regatta'))))));
+                      new DBBool(array(new DBCond('start_time', $this->start_date, DBCond::GE),
+                                       new DBCond('start_time', $this->end_date,   DBCond::LT),
+                                       new DBCondIn('id', DB::prepGetAll(DB::$TEAM, new DBCond('school', $school), array('regatta'))))));
   }
 
   /**
@@ -1795,7 +1795,7 @@ class Season extends DBObject {
     $cond = new DBBool(array(), DBBool::mOR);
     foreach ($seasons as $season) {
       $cond->add(new DBBool(array(new DBCond('start_time', $season->start_date, DBCond::GE),
-				  new DBCond('start_time', $season->end_date,   DBCond::LT))));
+                                  new DBCond('start_time', $season->end_date,   DBCond::LT))));
     }
     require_once('regatta/Regatta.php');
     return DB::getAll(DB::$REGATTA, $cond);
@@ -1812,7 +1812,7 @@ class Season extends DBObject {
    */
   public static function forDate(DateTime $date) {
     $res = DB::getAll(DB::$SEASON, new DBBool(array(new DBCond('start_date', $date, DBCond::LE),
-						    new DBCond('end_date', $date, DBCond::GE))));
+                                                    new DBCond('end_date', $date, DBCond::GE))));
     $r = (count($res) == 0) ? null : $res[0];
     unset($res);
     return $r;
@@ -1947,8 +1947,8 @@ class Breakdown extends FinishModifier {
 
   public static function getList() {
     return array(Breakdown::BKD => "BKD: Breakdown",
-		 Breakdown::RDG => "RDG: Yacht Given Redress",
-		 Breakdown::BYE => "BYE: Team is awarded average");
+                 Breakdown::RDG => "RDG: Yacht Given Redress",
+                 Breakdown::BYE => "BYE: Team is awarded average");
   }
 }
 
@@ -1974,10 +1974,10 @@ class Penalty extends FinishModifier {
    */
   public static function getList() {
     return array(Penalty::DSQ => "DSQ: Disqualification",
-		 Penalty::RAF => "RAF: Retire After Finishing",
-		 Penalty::OCS => "OCS: On Course Side after start",
-		 Penalty::DNF => "DNF: Did Not Finish",
-		 Penalty::DNS => "DNS: Did Not Start");
+                 Penalty::RAF => "RAF: Retire After Finishing",
+                 Penalty::OCS => "OCS: On Course Side after start",
+                 Penalty::DNF => "DNF: Did Not Finish",
+                 Penalty::DNS => "DNS: Did Not Start");
   }
 }
 

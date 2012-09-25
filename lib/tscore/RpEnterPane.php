@@ -25,9 +25,9 @@ class RpEnterPane extends AbstractPane {
     if (count($teams) == 0) {
       $this->PAGE->addContent($p = new XPort("No teams registered"));
       $p->add(new XP(array(),
-		     array("In order to register sailors, you will need to ",
-			   new XA(sprintf("score/%s/team", $this->REGATTA->id), "register teams"),
-			   " first.")));
+                     array("In order to register sailors, you will need to ",
+                           new XA(sprintf("score/%s/team", $this->REGATTA->id), "register teams"),
+                           " first.")));
       return;
     }
     
@@ -41,12 +41,12 @@ class RpEnterPane extends AbstractPane {
     $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/rp.js'));
     $this->PAGE->addContent($p = new XPort("Choose a team"));
     $p->add(new XP(array(),
-		   array("Use the form below to enter RP information. If a sailor does not appear in the selection box, it means they are not in the ICSA database, and they have to be manually added to a temporary list in the ",
-			 new XA(sprintf('/score/%s/unregistered', $this->REGATTA->id), "Unregistered form"),
-			 ".")));
+                   array("Use the form below to enter RP information. If a sailor does not appear in the selection box, it means they are not in the ICSA database, and they have to be manually added to a temporary list in the ",
+                         new XA(sprintf('/score/%s/unregistered', $this->REGATTA->id), "Unregistered form"),
+                         ".")));
     $p->add(new XP(array(),
-		   array(new XStrong("Note:"),
-			 " You may only submit up to two sailors in the same role in the same division at a time. To add a third or more skipper or crew in a given division, submit the form multiple times.")));
+                   array(new XStrong("Note:"),
+                         " You may only submit up to two sailors in the same role in the same division at a time. To add a third or more skipper or crew in a given division, submit the form multiple times.")));
 
     // ------------------------------------------------------------
     // Change team
@@ -57,7 +57,7 @@ class RpEnterPane extends AbstractPane {
     foreach ($teams as $team) {
       $f_sel->add($opt = new FOption($team->id, sprintf("%s %s", $team->school->nick_name, $team->name)));
       if ($team->id == $chosen_team->id)
-	$opt->set('selected', 'selected');
+        $opt->set('selected', 'selected');
     }
     $form->add(new XSubmitAccessible("change_team", "Get form"));
 
@@ -80,9 +80,9 @@ class RpEnterPane extends AbstractPane {
     $un_slrs = $chosen_team->school->getUnregisteredSailors($gender);
 
     $sailor_options = array("" => "",
-			    "Coaches" => array(),
-			    "Sailors" => array(),
-			    "Non-ICSA" => array());
+                            "Coaches" => array(),
+                            "Sailors" => array(),
+                            "Non-ICSA" => array());
     foreach ($coaches as $s)
       $sailor_options["Coaches"][$s->id] = (string)$s;
     foreach ($sailors as $s)
@@ -111,9 +111,9 @@ class RpEnterPane extends AbstractPane {
       $cur_cr = $rpManager->getRP($chosen_team, $div, RP::CREW);
 
       if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
-	$form->add(new XHeading(sprintf("%s Boat", $div->getLevel())));
+        $form->add(new XHeading(sprintf("%s Boat", $div->getLevel())));
       elseif (count($divisions) > 1)
-	$form->add(new XHeading("Division $div"));
+        $form->add(new XHeading("Division $div"));
       $tab_races = new XQuickTable(array(), array("Race #", "Crews"));
 
       // Create races table
@@ -123,14 +123,14 @@ class RpEnterPane extends AbstractPane {
       // rather than displaying the input tables.
       $num_entries = 0;
       foreach ($occ as $crews => $races) {
-	$num_entries++;
-	$tab_races->addRow(array(new XTD(array("name"=>"races" . $div), DB::makeRange($races)),
-				 new XTD(array("name"=>"occ" . $div),   ((int)$crews) - 1)));
+        $num_entries++;
+        $tab_races->addRow(array(new XTD(array("name"=>"races" . $div), DB::makeRange($races)),
+                                 new XTD(array("name"=>"occ" . $div),   ((int)$crews) - 1)));
       }
       if ($num_entries == 0) {
-	$tab_races->addRow(array("N/A", "N/A"));
-	$form->add(new XP(array('class'=>'message'), "The current team is not participating in the regatta."));
-	continue;
+        $tab_races->addRow(array("N/A", "N/A"));
+        $form->add(new XP(array('class'=>'message'), "The current team is not participating in the regatta."));
+        continue;
       }
 
       $form->add($tab_races);
@@ -139,55 +139,55 @@ class RpEnterPane extends AbstractPane {
       // - Create skipper table
       // Write already filled-in spots + 2 more
       for ($spot = 0; $spot < count($cur_sk) + 2; $spot++) {
-	$value = ""; // value for "races sailed"
-	if ($spot < count($cur_sk))
-	  $value = DB::makeRange($cur_sk[$spot]->races_nums);
+        $value = ""; // value for "races sailed"
+        if ($spot < count($cur_sk))
+          $value = DB::makeRange($cur_sk[$spot]->races_nums);
 
-	$cur_sk_id = (isset($cur_sk[$spot])) ? $cur_sk[$spot]->sailor->id : "";
-	$select_cell = XSelect::fromArray("sk$div$spot", $sailor_options, $cur_sk_id, array('onchange'=>'check()'));
-	$tab_skip->addRow(array($select_cell,
-				new XTextInput("rsk$div$spot", $value,
-					       array("size"=>"8",
-						     "class"=>"race_text",
-						     "onchange"=>
-						     "check()")),
-				new XTD(array('id'=>"csk$div$spot"),
-					new XImg("/inc/img/question.png", "Waiting to verify"))),
-			  array("class"=>"skipper"));
+        $cur_sk_id = (isset($cur_sk[$spot])) ? $cur_sk[$spot]->sailor->id : "";
+        $select_cell = XSelect::fromArray("sk$div$spot", $sailor_options, $cur_sk_id, array('onchange'=>'check()'));
+        $tab_skip->addRow(array($select_cell,
+                                new XTextInput("rsk$div$spot", $value,
+                                               array("size"=>"8",
+                                                     "class"=>"race_text",
+                                                     "onchange"=>
+                                                     "check()")),
+                                new XTD(array('id'=>"csk$div$spot"),
+                                        new XImg("/inc/img/question.png", "Waiting to verify"))),
+                          array("class"=>"skipper"));
       }
 
       $num_crews = max(array_keys($occ));
       // Print table only if there is room in the boat for crews
       if ( $num_crews > 1 ) {
-	// update crew table
-	$form->add($tab_crew = new XQuickTable(array('class'=>'narrow'), array("Crews", "Races sailed", "")));
+        // update crew table
+        $form->add($tab_crew = new XQuickTable(array('class'=>'narrow'), array("Crews", "Races sailed", "")));
     
-	//    write already filled-in spots + 2 more
-	for ($spot = 0; $spot < count($cur_cr) + 2; $spot++) {
-	  $value = ""; // value for "races sailed"
-	  if ($spot < count($cur_cr))
-	    $value = DB::makeRange($cur_cr[$spot]->races_nums);
+        //    write already filled-in spots + 2 more
+        for ($spot = 0; $spot < count($cur_cr) + 2; $spot++) {
+          $value = ""; // value for "races sailed"
+          if ($spot < count($cur_cr))
+            $value = DB::makeRange($cur_cr[$spot]->races_nums);
 
-	  $cur_cr_id = (isset($cur_cr[$spot])) ? $cur_cr[$spot]->sailor->id : "";
-	  $select_cell = XSelect::fromArray("cr$div$spot", $sailor_options, $cur_cr_id, array('onchange'=>'check()'));
-	  $tab_crew->addRow(array($select_cell,
-				  new XTextInput("rcr$div$spot", $value,
-						 array("size"=>"8",
-						       "class"=>"race_text",
-						       "onchange"=>
-						       "check()")),
-				  new XTD(array('id'=>"ccr$div$spot"),
-					  new XImg("/inc/img/question.png", "Waiting to verify"))));
-	}
+          $cur_cr_id = (isset($cur_cr[$spot])) ? $cur_cr[$spot]->sailor->id : "";
+          $select_cell = XSelect::fromArray("cr$div$spot", $sailor_options, $cur_cr_id, array('onchange'=>'check()'));
+          $tab_crew->addRow(array($select_cell,
+                                  new XTextInput("rcr$div$spot", $value,
+                                                 array("size"=>"8",
+                                                       "class"=>"race_text",
+                                                       "onchange"=>
+                                                       "check()")),
+                                  new XTD(array('id'=>"ccr$div$spot"),
+                                          new XImg("/inc/img/question.png", "Waiting to verify"))));
+        }
       } // end if
     }
 
     // ------------------------------------------------------------
     // - Add submit
     $form->add(new XP(array(),
-		      array(new XReset("reset", "Reset"),
-			    new XSubmitInput("rpform", "Submit form",
-					     array("id"=>"rpsubmit")))));
+                      array(new XReset("reset", "Reset"),
+                            new XSubmitInput("rpform", "Submit form",
+                                             array("id"=>"rpsubmit")))));
     $p->add(new XScript('text/javascript', null, "check()"));
   }
 
@@ -210,22 +210,22 @@ class RpEnterPane extends AbstractPane {
       $cur_season = Season::forDate(DB::$NOW);
       $active = 'all';
       if ((string)$cur_season ==  (string)$this->REGATTA->getSeason())
-	$active = true;
+        $active = true;
       $gender = ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) ?
-	Sailor::FEMALE : null;
+        Sailor::FEMALE : null;
       $sailors = array();
       foreach ($team->school->getCoaches($active) as $sailor)
-	$sailors[$sailor->id] = $sailor;
+        $sailors[$sailor->id] = $sailor;
       foreach ($team->school->getSailors($gender, $active) as $sailor)
-	$sailors[$sailor->id] = $sailor;
+        $sailors[$sailor->id] = $sailor;
       foreach ($team->school->getUnregisteredSailors($gender) as $sailor)
-	$sailors[$sailor->id] = $sailor;
+        $sailors[$sailor->id] = $sailor;
 
       // Insert representative
       if (DB::$V->hasID($rep, $args, 'rep', DB::$MEMBER)) {
-	if ($rep->school != $team->school)
-	  throw new SoterException("Invalid representative chosen.");
-	$rpManager->setRepresentative($team, $rep);
+        if ($rep->school != $team->school)
+          throw new SoterException("Invalid representative chosen.");
+        $rpManager->setRepresentative($team, $rep);
       }
 
       // To enter RP information, keep track of the number of crews
@@ -239,13 +239,13 @@ class RpEnterPane extends AbstractPane {
       $divisions = $this->REGATTA->getDivisions();
       $occupants = array();
       foreach ($divisions as $division) {
-	$div = (string)$division;
-	$occupants[$div] = array();
-	$list = $this->getOccupantsRaces($division, $team);
-	foreach ($list as $occ => $race_nums) {
-	  foreach ($race_nums as $race_num)
-	    $occupants[$div][$race_num] = $occ;
-	}
+        $div = (string)$division;
+        $occupants[$div] = array();
+        $list = $this->getOccupantsRaces($division, $team);
+        foreach ($list as $occ => $race_nums) {
+          foreach ($race_nums as $race_num)
+            $occupants[$div][$race_num] = $occ;
+        }
       }
 
       // Process each input, which is of the form:
@@ -253,40 +253,40 @@ class RpEnterPane extends AbstractPane {
       $errors = array();
       $rps = array(); // list of RPEntries
       foreach ($args as $s => $s_value) {
-	if (preg_match('/^(cr|sk)[ABCD][0-9]+/', $s) > 0) {
-	  // We have a sailor request upon us
-	  $s_role = (substr($s, 0, 2) == "sk") ? RP::SKIPPER : RP::CREW;
-	  $s_div  = substr($s,2,1);
-	  $s_race = DB::parseRange($args["r" . $s]);
-	  $s_obj  = (isset($sailors[$s_value])) ? $sailors[$s_value] : null;
+        if (preg_match('/^(cr|sk)[ABCD][0-9]+/', $s) > 0) {
+          // We have a sailor request upon us
+          $s_role = (substr($s, 0, 2) == "sk") ? RP::SKIPPER : RP::CREW;
+          $s_div  = substr($s,2,1);
+          $s_race = DB::parseRange($args["r" . $s]);
+          $s_obj  = (isset($sailors[$s_value])) ? $sailors[$s_value] : null;
 
-	  if (!in_array($s_div, $divisions))
-	    $errors[] = "Invalid division requested: $s_div.";
-	  elseif ($s_race !== null && $s_obj  !== null) {
-	    // Eliminate those races from $s_race for which there is
-	    // no space for a crew
-	    $s_race_copy = $s_race;
-	    if ($s_role == RP::CREW) {
-	      foreach ($s_race as $i => $num) {
-		if ($occupants[$s_div][$num] <= 1) {
-		  unset($s_race_copy[$i]);
-		}
-		else
-		  $occupants[$s_div][$num]--;
-	      }
-	    }
-	    // Create the objects
-	    $div = new Division($s_div);
-	    foreach ($s_race_copy as $num) {
-	      $rp = new RPEntry();
-	      $rp->team = $team;
-	      $rp->race = $this->REGATTA->getRace($div, $num);
-	      $rp->boat_role  = $s_role;
-	      $rp->sailor     = $s_obj;
-	      $rps[] = $rp;
-	    }
-	  }
-	}
+          if (!in_array($s_div, $divisions))
+            $errors[] = "Invalid division requested: $s_div.";
+          elseif ($s_race !== null && $s_obj  !== null) {
+            // Eliminate those races from $s_race for which there is
+            // no space for a crew
+            $s_race_copy = $s_race;
+            if ($s_role == RP::CREW) {
+              foreach ($s_race as $i => $num) {
+                if ($occupants[$s_div][$num] <= 1) {
+                  unset($s_race_copy[$i]);
+                }
+                else
+                  $occupants[$s_div][$num]--;
+              }
+            }
+            // Create the objects
+            $div = new Division($s_div);
+            foreach ($s_race_copy as $num) {
+              $rp = new RPEntry();
+              $rp->team = $team;
+              $rp->race = $this->REGATTA->getRace($div, $num);
+              $rp->boat_role  = $s_role;
+              $rp->sailor     = $s_obj;
+              $rps[] = $rp;
+            }
+          }
+        }
       }
 
       // insert all!
@@ -295,11 +295,11 @@ class RpEnterPane extends AbstractPane {
       
       // Announce
       if (count($errors) > 0) {
-	$mes = "Encountered these errors: " . implode(' ', $errors);;
-	Session::pa(new PA($mes, PA::I));
+        $mes = "Encountered these errors: " . implode(' ', $errors);;
+        Session::pa(new PA($mes, PA::I));
       }
       else {
-	Session::pa(new PA("RP info updated."));
+        Session::pa(new PA("RP info updated."));
       }
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RP, $team->school->id);
     }
@@ -322,7 +322,7 @@ class RpEnterPane extends AbstractPane {
     if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
       $races = array();
       foreach ($this->REGATTA->getRacesForTeam($team) as $num)
-	$races[] = $this->REGATTA->getRace($div, $num);
+        $races[] = $this->REGATTA->getRace($div, $num);
     }
     else
       $races = $this->REGATTA->getRaces($div);
@@ -330,7 +330,7 @@ class RpEnterPane extends AbstractPane {
     foreach ($races as $race) {
       $occ = $race->boat->occupants;
       if (!isset($list[$occ]))
-	$list[$occ] = array();
+        $list[$occ] = array();
       $list[$occ][] = $race->number;
     }
     return $list;

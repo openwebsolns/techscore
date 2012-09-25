@@ -52,11 +52,11 @@ class TeamDivision extends DBObject {
   public function __set($name, $value) {
     if ($name == 'division') {
       if ($value === null)
-	$this->division = null;
+        $this->division = null;
       elseif ($value instanceof Division)
-	$this->division = (string)$value;
+        $this->division = (string)$value;
       else
-	throw new InvalidArgumentException("Division must be a Division object.");
+        throw new InvalidArgumentException("Division must be a Division object.");
       return;
     }
     parent::__set($name, $value);

@@ -35,14 +35,14 @@ class PageWhiz {
     if ($this->num_pages > 3 || $query !== null) {
       $div->add($f = new XForm($this->base, XForm::GET));
       $f->add($pa = new XP(array('class'=>'search'),
-			   array($leadin, new XTextInput($var, $query, array('size'=>60)),
-				 new XSubmitInput('go', "Go"))));
+                           array($leadin, new XTextInput($var, $query, array('size'=>60)),
+                                 new XSubmitInput('go', "Go"))));
       if ($query !== null) {
-	$pa->add(" ");
-	$pa->add(new XA($this->base, "Cancel"));
-	
-	if ($this->count == 0)
-	  $f->add(new XP(array('class'=>'warning'), $empty_mes));
+        $pa->add(" ");
+        $pa->add(new XA($this->base, "Cancel"));
+        
+        if ($this->count == 0)
+          $f->add(new XP(array('class'=>'warning'), $empty_mes));
       }
     }
     return $div;
@@ -52,10 +52,10 @@ class PageWhiz {
   public function getPages($var = 'r', Array $get = array()) {
     require_once('xml5/LinksDiv.php');
     return new LinksDiv($this->num_pages,
-			DB::$V->incInt($get, $var, 1, $this->num_pages + 1, 1),
-			$this->base,
-			$this->args,
-			$var);
+                        DB::$V->incInt($get, $var, 1, $this->num_pages + 1, 1),
+                        $this->base,
+                        $this->args,
+                        $var);
   }
 
   /**

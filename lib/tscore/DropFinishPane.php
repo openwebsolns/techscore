@@ -41,13 +41,13 @@ class DropFinishPane extends AbstractPane {
       // get finishes in order
       $finishes = $this->REGATTA->getCombinedFinishes($race);
       foreach ($finishes as $finish) {
-	$sail = $rotation->getSail($race, $finish->team);
-	$row[] = $sail;
+        $sail = $rotation->getSail($race, $finish->team);
+        $row[] = $sail;
       }
       $form = $this->createForm();
       $form->add(new XP(array('class'=>'thin'),
-			array(new XHiddenInput('race', $race->id),
-			      new XSubmitInput('removerace', "Remove", array('class'=>'small')))));
+                        array(new XHiddenInput('race', $race->id),
+                              new XSubmitInput('removerace', "Remove", array('class'=>'small')))));
       $row[] = $form;
       $tab->addRow($row, array('class'=>'row'.($i % 2)));
     }
@@ -71,32 +71,32 @@ class DropFinishPane extends AbstractPane {
 
       $races = $this->REGATTA->getScoredRaces($division);
       if (count($races) == 0) {
-	$p->add(new XP(array(), "No race finishes for $division division."));
-	continue;
+        $p->add(new XP(array(), "No race finishes for $division division."));
+        continue;
       }
 
       $header = array("Race");
       for ($i = 1; $i <= count($this->REGATTA->getTeams()); $i++)
-	$header[] = $i;
+        $header[] = $i;
       $header[] = ""; // Drop finish
       $p->add($tab = new XQuickTable(array('class'=>'finishes'), $header));
 
       // row for each race
       foreach ($races as $i => $race) {
-	$row = array($race);
+        $row = array($race);
 
-	// get finishes in order
-	$finishes = $this->REGATTA->getFinishes($race);
-	foreach ($finishes as $finish) {
-	  $sail = $rotation->getSail($race, $finish->team);
-	  $row[] = $sail;
-	}
-	$form = $this->createForm();
-	$form->add(new XP(array('class'=>'thin'),
-			  array(new XHiddenInput('race', $race->id),
-				new XSubmitInput('removerace', "Remove", array('class'=>'small')))));
-	$row[] = $form;
-	$tab->addRow($row, array('class'=>'row'.($i % 2)));
+        // get finishes in order
+        $finishes = $this->REGATTA->getFinishes($race);
+        foreach ($finishes as $finish) {
+          $sail = $rotation->getSail($race, $finish->team);
+          $row[] = $sail;
+        }
+        $form = $this->createForm();
+        $form->add(new XP(array('class'=>'thin'),
+                          array(new XHiddenInput('race', $race->id),
+                                new XSubmitInput('removerace', "Remove", array('class'=>'small')))));
+        $row[] = $form;
+        $tab->addRow($row, array('class'=>'row'.($i % 2)));
       }
     }
   }
@@ -117,12 +117,12 @@ class DropFinishPane extends AbstractPane {
     if (isset($args['removerace'])) {
       $race = DB::$V->reqID($args, 'race', DB::$RACE, "Invalid or missing race to drop.");
       if ($race->regatta != $this->REGATTA)
-	throw new SoterException("Provided race does not belong to this regatta.");
+        throw new SoterException("Provided race does not belong to this regatta.");
       
       $this->REGATTA->dropFinishes($race);
       $mes = sprintf("Removed finishes for race %s.", $race);
       if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED)
-	$mes = sprintf("Removed finishes for race %s.", $race->number);
+        $mes = sprintf("Removed finishes for race %s.", $race->number);
       Session::pa(new PA($mes));
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
     }

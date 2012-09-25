@@ -45,7 +45,7 @@ class UpdateBurgee {
   public static function run() {
     foreach (DB::getConferences() as $conf) {
       foreach ($conf->getSchools() as $school) {
-	self::update($school);
+        self::update($school);
       }
     }
 
@@ -70,14 +70,14 @@ class UpdateBurgee {
     if ($school->burgee === null) {
       // Is there one in the filesystem? Delete it!
       if (file_exists($file) && !(@unlink($file)))
-	throw new RuntimeException(sprintf('Unable to remove file for school %s.', $school->id));
+        throw new RuntimeException(sprintf('Unable to remove file for school %s.', $school->id));
       return;
     }
 
     // 2. Check timestamp
     if (file_exists($file)) {
       if (filemtime($file) >= $school->burgee->last_updated->format('U'))
-	return;
+        return;
     }
 
     // 3. Transfer data to file

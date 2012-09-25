@@ -70,21 +70,21 @@ class RpManager {
   public function getRP(Team $team, Division $div, $role) {
     // Get sailors
     $res = DB::getAll(DB::$RP_ENTRY,
-		      new DBBool(array(new DBCond('team', $team),
-				       new DBCond('boat_role', RP::parseRole($role)),
-				       new DBCondIn('race', DB::prepGetAll(DB::$RACE,
-									   new DBCond('division', (string)$div),
-									   array('id'))))));
+                      new DBBool(array(new DBCond('team', $team),
+                                       new DBCond('boat_role', RP::parseRole($role)),
+                                       new DBCondIn('race', DB::prepGetAll(DB::$RACE,
+                                                                           new DBCond('division', (string)$div),
+                                                                           array('id'))))));
     $rps = array();
     foreach ($res as $rpentry) {
       if ($rpentry->sailor === null) {
-	// @TODO: this indicates that the sailor for the RPentry is
-	// actually a coach, which should technically never happen
-	continue;
+        // @TODO: this indicates that the sailor for the RPentry is
+        // actually a coach, which should technically never happen
+        continue;
       }
-	
+        
       if (!isset($rps[$rpentry->sailor->id]))
-	$rps[$rpentry->sailor->id] = array();
+        $rps[$rpentry->sailor->id] = array();
       $rps[$rpentry->sailor->id][] = $rpentry;
     }
     $lst = array();
@@ -118,10 +118,10 @@ class RpManager {
    */
   public function hasGender($gender) {
     $r = DB::getAll(DB::$RP_ENTRY,
-		    new DBBool(array(new DBCondIn('race',
-						  DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta->id), array('id'))),
-				     new DBCondIn('sailor',
-						  DB::prepGetAll(DB::$SAILOR, new DBCond('gender', $gender), array('id'))))));
+                    new DBBool(array(new DBCondIn('race',
+                                                  DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta->id), array('id'))),
+                                     new DBCondIn('sailor',
+                                                  DB::prepGetAll(DB::$SAILOR, new DBCond('gender', $gender), array('id'))))));
     $res = (count($r) > 0);
     unset($r);
     return $res;
@@ -135,10 +135,10 @@ class RpManager {
    */
   public function removeGender($gender) {
     DB::removeAll(DB::$RP_ENTRY,
-		  new DBBool(array(new DBCondIn('race',
-						DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta->id), array('id'))),
-				   new DBCondIn('sailor',
-						DB::prepGetAll(DB::$SAILOR, new DBCond('gender', $gender), array('id'))))));
+                  new DBBool(array(new DBCondIn('race',
+                                                DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta->id), array('id'))),
+                                   new DBCondIn('sailor',
+                                                DB::prepGetAll(DB::$SAILOR, new DBCond('gender', $gender), array('id'))))));
   }
 
   // Static variable and functions
@@ -248,8 +248,8 @@ class RpManager {
    */
   public function removeTempSailor(Sailor $sailor) {
     if ($sailor->icsa_id === null &&
-	$sailor->regatta_added == $this->regatta->id &&
-	!$this->isParticipating($sailor)) {
+        $sailor->regatta_added == $this->regatta->id &&
+        !$this->isParticipating($sailor)) {
       DB::remove($sailor);
       return true;
     }
@@ -274,8 +274,8 @@ class RpManager {
    */
   public function isParticipating(Sailor $sailor) {
     $res = DB::getAll(DB::$RP_ENTRY,
-		      new DBBool(array(new DBCond('sailor', $sailor),
-				       new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta->id), array('id'))))));
+                      new DBBool(array(new DBCond('sailor', $sailor),
+                                       new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta->id), array('id'))))));
     $part = count($res) > 0;
     unset($res);
     return $part;
@@ -299,14 +299,14 @@ class RpManager {
     $rps = array();
     foreach ($roles as $role) {
       foreach ($divs as $div) {
-	$c = new DBBool(array(new DBCond('sailor', $sailor),
-			      new DBCond('boat_role', $role),
-			      new DBCondIn('race',
-					   DB::prepGetAll(DB::$RACE,
-							  new DBBool(array(new DBCond('regatta', $this->regatta->id),
-									   new DBCond('division', (string)$div))),
-							  array('id')))));
-	$rps[] = new RP(DB::getAll(DB::$RP_ENTRY, $c));
+        $c = new DBBool(array(new DBCond('sailor', $sailor),
+                              new DBCond('boat_role', $role),
+                              new DBCondIn('race',
+                                           DB::prepGetAll(DB::$RACE,
+                                                          new DBBool(array(new DBCond('regatta', $this->regatta->id),
+                                                                           new DBCond('division', (string)$div))),
+                                                          array('id')))));
+        $rps[] = new RP(DB::getAll(DB::$RP_ENTRY, $c));
       }
     }
     return $rps;

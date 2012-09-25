@@ -98,16 +98,16 @@ abstract class AbstractIcsaRpForm {
    */
   public function __construct($name, $host, $date, $num_blocks = 3) {
     $this->INC = sprintf('\includegraphics[width=\textwidth]{%s}',
-			 sprintf("%s/ICSA-RP-AB.pdf", dirname(__FILE__)));
+                         sprintf("%s/ICSA-RP-AB.pdf", dirname(__FILE__)));
     
     $this->HEAD = ('\documentclass[letter,12pt]{article} ' .
-		   '\usepackage{graphicx} ' .
-		   '\usepackage[text={8.25in,11in},centering]{geometry} ' .
-		   '\usepackage[usenames]{color} ' .
-		   '\begin{document}  ' .
-		   '\sffamily\color{blue}  ' .
-		   '\setlength{\unitlength}{1in} ' .
-		   '\pagestyle{empty}');
+                   '\usepackage{graphicx} ' .
+                   '\usepackage[text={8.25in,11in},centering]{geometry} ' .
+                   '\usepackage[usenames]{color} ' .
+                   '\begin{document}  ' .
+                   '\sffamily\color{blue}  ' .
+                   '\setlength{\unitlength}{1in} ' .
+                   '\pagestyle{empty}');
 
     $this->regatta_name = (string)$name;
     $this->host         = (string)$host;
@@ -115,9 +115,9 @@ abstract class AbstractIcsaRpForm {
     $this->blocks_per_page = (int)$num_blocks;
 
     $list = array("num_skipper_A", "num_crew_A",
-		  "num_skipper_B", "num_crew_B",
-		  "num_skipper_C", "num_crew_C",
-		  "num_skipper_D", "num_crew_D");
+                  "num_skipper_B", "num_crew_B",
+                  "num_skipper_C", "num_crew_C",
+                  "num_skipper_D", "num_crew_D");
     $max = min(func_num_args(), 12);
     for ($i = 4; $i < $max; $i++) {
       $name = array_shift($list);

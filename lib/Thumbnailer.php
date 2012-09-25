@@ -46,10 +46,10 @@ class Thumbnailer
    */
   public function resize($inFilename, $outFilename) {
     $command = sprintf("convert -alpha set -channel RGBA -fill none -opaque white %s -resize %sx%s %s",
-		       $inFilename,
-		       $this->width,
-		       $this->height,
-		       $outFilename);
+                       $inFilename,
+                       $this->width,
+                       $this->height,
+                       $outFilename);
     $output = array();
     exec($command, $output, $value);
     return ($value == 0);

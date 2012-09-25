@@ -77,10 +77,10 @@ class ScoresGridDialog extends AbstractScoresDialog {
     foreach ($races as $race) {
       $ts = $this->REGATTA->getRaceTeams($race);
       foreach ($ts as $t) {
-	if (!isset($teams[$t->id])) {
-	  $teams[$t->id] = $t;
-	  $scores[$t->id] = array();
-	}
+        if (!isset($teams[$t->id])) {
+          $teams[$t->id] = $t;
+          $scores[$t->id] = array();
+        }
       }
 
       $t0 = $ts[0]->id;
@@ -89,12 +89,12 @@ class ScoresGridDialog extends AbstractScoresDialog {
       $s1 = $this->REGATTA->getFinish($race, $ts[1]);
 
       if ($s0 !== null && $s1 !== null) {
-	if (!isset($scores[$t0][$t1])) {
-	  $scores[$t0][$t1] = 0;
-	  $scores[$t1][$t0] = 0;
-	}
-	$scores[$t0][$t1] += $s0->score;
-	$scores[$t1][$t0] += $s1->score;
+        if (!isset($scores[$t0][$t1])) {
+          $scores[$t0][$t1] = 0;
+          $scores[$t1][$t0] = 0;
+        }
+        $scores[$t0][$t1] += $s0->score;
+        $scores[$t1][$t0] += $s1->score;
       }
     }
 
@@ -107,27 +107,27 @@ class ScoresGridDialog extends AbstractScoresDialog {
     foreach ($teams as $id => $team) {
       $header->add(new XTH(array(), $team));
       $row = new XTR(array('class'=>'tr-row'),
-		     array(new XTH(array(), $team),
-			   $rec = new XTD(array('class'=>'tr-record'), "")));
+                     array(new XTH(array(), $team),
+                           $rec = new XTD(array('class'=>'tr-record'), "")));
       $win = 0;
       $los = 0;
       foreach ($teams as $id2 => $other) {
-	if ($id2 == $id)
-	  $row->add(new XTD(array('class'=>'tr-same'), "X"));
-	else {
-	  if (!isset($scores[$id][$id2]))
-	    $row->add(new XTD(array('class'=>'tr-na'), ""));
-	  else {
-	    if ($scores[$id][$id2] < $scores[$id2][$id]) {
-	      $row->add(new XTD(array('class'=>'tr-win'), "W"));
-	      $win++;
-	    }
-	    else {
-	      $row->add(new XTD(array('class'=>'tr-lose'), "L"));
-	      $los++;
-	    }
-	  }
-	}
+        if ($id2 == $id)
+          $row->add(new XTD(array('class'=>'tr-same'), "X"));
+        else {
+          if (!isset($scores[$id][$id2]))
+            $row->add(new XTD(array('class'=>'tr-na'), ""));
+          else {
+            if ($scores[$id][$id2] < $scores[$id2][$id]) {
+              $row->add(new XTD(array('class'=>'tr-win'), "W"));
+              $win++;
+            }
+            else {
+              $row->add(new XTD(array('class'=>'tr-lose'), "L"));
+              $los++;
+            }
+          }
+        }
       }
       $table->add($row);
       $rec->add("$win-$los");

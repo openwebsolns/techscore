@@ -49,10 +49,10 @@ class RP {
       return $this->rps[0]->race->division;
     case 'races_nums':
       if (!is_array($this->races_nums)) {
-	$this->races_nums = array();
-	foreach ($this->rps as $rp)
-	  $this->races_nums[] = $rp->race->number;
-	sort($this->races_nums);
+        $this->races_nums = array();
+        foreach ($this->rps as $rp)
+          $this->races_nums[] = $rp->race->number;
+        sort($this->races_nums);
       }
       return $this->races_nums;
     default:

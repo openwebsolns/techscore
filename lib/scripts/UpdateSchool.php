@@ -46,7 +46,7 @@ class UpdateSchool {
     // If current, do we also need to create index page?
     if ($current) {
       if (file_put_contents("$dirname/index.html", $content) === false)
-	throw new RuntimeException(sprintf("Unable to make the school summary for current season: %s\n", $filename), 8);
+        throw new RuntimeException(sprintf("Unable to make the school summary for current season: %s\n", $filename), 8);
     }
   }
 }
@@ -89,13 +89,13 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   }
   catch (Exception $e) {
     error_log(sprintf("E:%d:L%d:F%s:%s\t(%d): %s\n",
-		      $e->getCode(),
-		      $e->getLine(),
-		      $e->getFile(),
-		      date('r'),
-		      $argv[1],
-		      $e->getMessage()),
-	      3, Conf::$LOG_SCHOOL);
+                      $e->getCode(),
+                      $e->getLine(),
+                      $e->getFile(),
+                      date('r'),
+                      $argv[1],
+                      $e->getMessage()),
+              3, Conf::$LOG_SCHOOL);
     print_r($e->getTrace());
   }
 }

@@ -33,8 +33,8 @@ header("Expires: Sun, 21 Jul 2030 14:08:53 -0400");
 header(sprintf("Last-Modified: %s", $school->burgee->last_updated->format('r')));
 
 error_log(sprintf("Request: %s\t%s\t%s\t%s\n", $school->id, $_SERVER['REMOTE_ADDR'], date('r'),
-		  $school->burgee->last_updated->format('r')),
-	  3, "/tmp/burgee_requests.txt");
+                  $school->burgee->last_updated->format('r')),
+          3, "/tmp/burgee_requests.txt");
 
 echo base64_decode($school->burgee->filedata);
 ?>

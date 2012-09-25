@@ -28,18 +28,18 @@ class UpdateFront {
     // Add welcome message
     $this->page->addSection($div = new XDiv(array('id'=>'message-container')));
     $div->add(new XDiv(array('id'=>'welcome'),
-		       array($this->h1("Welcome"),
-			     new XP(array(),
-				    array("This is the home for real-time results of College Sailing regattas. This site includes scores and participation records for all fleet-racing events within ICSA. An archive of ",
-					  new XA('/seasons/', "all previous seasons"),
-					  " is also available.")),
-			     new XP(array(),
-				    array("To follow a specific school, use our ",
-					  new XA('/schools/', "listing of schools"),
-					  " organized by ICSA Conference. Each school's participation is summarized by season.")),
-			     new XP(array(),
-				    array("For more information about college sailing, ICSA, the teams, and our sponsors, please visit the ",
-					  new XA(Conf::$ICSA_HOME, "ICSA site."))))));
+                       array($this->h1("Welcome"),
+                             new XP(array(),
+                                    array("This is the home for real-time results of College Sailing regattas. This site includes scores and participation records for all fleet-racing events within ICSA. An archive of ",
+                                          new XA('/seasons/', "all previous seasons"),
+                                          " is also available.")),
+                             new XP(array(),
+                                    array("To follow a specific school, use our ",
+                                          new XA('/schools/', "listing of schools"),
+                                          " organized by ICSA Conference. Each school's participation is summarized by season.")),
+                             new XP(array(),
+                                    array("For more information about college sailing, ICSA, the teams, and our sponsors, please visit the ",
+                                          new XA(Conf::$ICSA_HOME, "ICSA site."))))));
 
     // Menu
     $this->page->addMenu(new XA('/', "Home"));
@@ -73,30 +73,30 @@ class UpdateFront {
     $end = new DateTime();
     $end->setTime(0, 0, 0);
     $in_prog = DB::getAll(DB::$DT_REGATTA, new DBBool(array(new DBCond('start_time', $start, DBCond::LE),
-							    new DBCond('end_date', $end, DBCond::GE),
-							    new DBCond('status', Dt_Regatta::STAT_SCHEDULED, DBCond::NE))));
+                                                            new DBCond('end_date', $end, DBCond::GE),
+                                                            new DBCond('status', Dt_Regatta::STAT_SCHEDULED, DBCond::NE))));
     if (count($in_prog) > 0) {
       $div->add(new XDiv(array('id'=>'in-progress'),
-			 array($this->h1("In progress"),
-			       $tab = new XQuickTable(array('class'=>'season-summary'),
-						      array("Name",
-							    "Type",
-							    "Status",
-							    "Leading")))));
+                         array($this->h1("In progress"),
+                               $tab = new XQuickTable(array('class'=>'season-summary'),
+                                                      array("Name",
+                                                            "Type",
+                                                            "Status",
+                                                            "Leading")))));
       foreach ($in_prog as $i => $reg) {
-	$row = array(new XA(sprintf('/%s/%s/', $reg->season->id, $reg->nick), $reg->name), $types[$reg->type]);
-	if ($reg->status == Dt_Regatta::STAT_READY) {
-	  $row[] = new XTD(array('colspan'=>2), new XEm("No scores yet"));
-	}
-	else {
-	  $row[] = new XStrong(ucwords($reg->status));
-	  $tms = $reg->getTeams();
-	  if ($tms[0]->school->burgee !== null)
-	    $row[] = new XImg(sprintf('/inc/img/schools/%s.png', $tms[0]->school->id), $tms[0], array('height'=>40));
-	  else
-	    $row[] = (string)$tms[0];
-	}
-	$tab->addRow($row, array('class'=>'row'.($i % 2)));
+        $row = array(new XA(sprintf('/%s/%s/', $reg->season->id, $reg->nick), $reg->name), $types[$reg->type]);
+        if ($reg->status == Dt_Regatta::STAT_READY) {
+          $row[] = new XTD(array('colspan'=>2), new XEm("No scores yet"));
+        }
+        else {
+          $row[] = new XStrong(ucwords($reg->status));
+          $tms = $reg->getTeams();
+          if ($tms[0]->school->burgee !== null)
+            $row[] = new XImg(sprintf('/inc/img/schools/%s.png', $tms[0]->school->id), $tms[0], array('height'=>40));
+          else
+            $row[] = (string)$tms[0];
+        }
+        $tab->addRow($row, array('class'=>'row'.($i % 2)));
       }
     }
 
@@ -110,19 +110,19 @@ class UpdateFront {
     if (count($regs) > 0) {
       $this->page->addSection($p = new XPort("Upcoming schedule"));
       $p->add($tab = new XQuickTable(array('class'=>'coming-regattas'),
-				     array("Name",
-					   "Host",
-					   "Type",
-					   "Start time")));
+                                     array("Name",
+                                           "Host",
+                                           "Type",
+                                           "Start time")));
       foreach ($regs as $reg) {
-	$hosts = array();
-	foreach ($reg->getHosts() as $host) {
-	  $hosts[$host->id] = $host->nick_name;
-	}
-	$tab->addRow(array(new XA(sprintf('/%s/%s', $reg->season->id, $reg->nick), $reg->name),
-			   implode("/", $hosts),
-			   $types[$reg->type],
-			   $reg->start_time->format('m/d/Y @ H:i')));
+        $hosts = array();
+        foreach ($reg->getHosts() as $host) {
+          $hosts[$host->id] = $host->nick_name;
+        }
+        $tab->addRow(array(new XA(sprintf('/%s/%s', $reg->season->id, $reg->nick), $reg->name),
+                           implode("/", $hosts),
+                           $types[$reg->type],
+                           $reg->start_time->format('m/d/Y @ H:i')));
       }
     }
     
@@ -133,13 +133,13 @@ class UpdateFront {
     $seasons = Season::getActive();
     foreach ($seasons as $s) {
       if (count($s->getRegattas()) > 0) {
-	$num++;
-	$ul->add(new XLi(new XA('/'.$s.'/', $s->fullString())));
+        $num++;
+        $ul->add(new XLi(new XA('/'.$s.'/', $s->fullString())));
       }
     }
     if ($num > 0)
       $this->page->addSection(new XDiv(array('id'=>'submenu-wrapper'),
-				       array(new XH3("Other seasons", array('class'=>'nav')), $ul)));
+                                       array(new XH3("Other seasons", array('class'=>'nav')), $ul)));
 
   }
 
@@ -197,12 +197,12 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   }
   catch (Exception $e) {
     error_log(sprintf("E:%d:L%d:F%s:%s: %s\n",
-		      $e->getCode(),
-		      $e->getLine(),
-		      $e->getFile(),
-		      date('r'),
-		      $e->getMessage()),
-	      3, Conf::$LOG_FRONT);
+                      $e->getCode(),
+                      $e->getLine(),
+                      $e->getFile(),
+                      date('r'),
+                      $e->getMessage()),
+              3, Conf::$LOG_FRONT);
     print_r($e->getTrace());
   }
 }

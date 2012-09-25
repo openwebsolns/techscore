@@ -131,7 +131,7 @@ class TSSoter extends Soter {
       $race = Race::parse($args[$key]);
       $race = $reg->getRace($race->division, $race->number);
       if ($race === null)
-	throw new SoterException($mes);
+        throw new SoterException($mes);
       return $race;
     }
     catch (Exception $e) {
@@ -175,9 +175,9 @@ class TSSoter extends Soter {
     $list = array();
     foreach ($args[$key] as $div) {
       try {
-	$division = Division::get($div);
-	if (in_array($division, $pos_values))
-	  $list[] = $division;
+        $division = Division::get($div);
+        if (in_array($division, $pos_values))
+          $list[] = $division;
       }
       catch (InvalidArgumentException $e) {}
     }
@@ -197,7 +197,7 @@ class TSSoter extends Soter {
     try {
       $div = Division::get($this->reqString($args, $key, 1, 2, $mes));
       if (!in_array($div, $pos_divisions))
-	throw new SoterException($mes);
+        throw new SoterException($mes);
       return $div;
     }
     catch (InvalidArgumentException $e) {
@@ -216,7 +216,7 @@ class TSSoter extends Soter {
     $list = array();
     foreach ($this->reqList($args, $key, null, $mes) as $item) {
       if (in_array($item, $pos_values))
-	$list[] = $item;
+        $list[] = $item;
     }
     if (count($list) < $min)
       throw new SoterException($mes);

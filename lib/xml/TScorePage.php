@@ -84,7 +84,7 @@ class TScorePage extends XPage {
 
     // Footer
     $this->body->add(new XDiv(array('id'=>'footdiv'),
-			      array(new XAddress(array(), array(sprintf("%s v%s %s", Conf::$NAME, Conf::$VERSION, Conf::$COPYRIGHT))))));
+                              array(new XAddress(array(), array(sprintf("%s v%s %s", Conf::$NAME, Conf::$VERSION, Conf::$COPYRIGHT))))));
   }
 
   /**
@@ -94,8 +94,8 @@ class TScorePage extends XPage {
    */
   private function isMobile() {
     return (isset($_SERVER['HTTP_USER_AGENT']) &&
-	    (strpos($_SERVER['HTTP_USER_AGENT'], "Android") !== false ||
-	     strpos($_SERVER['HTTP_USER_AGENT'], "iPhone")  !== false));
+            (strpos($_SERVER['HTTP_USER_AGENT'], "Android") !== false ||
+             strpos($_SERVER['HTTP_USER_AGENT'], "iPhone")  !== false));
   }
 
   /**
@@ -118,9 +118,9 @@ class TScorePage extends XPage {
 
     // Javascript
     foreach (array("jquery-1.3.min.js",
-		   "jquery.tablehover.min.js",
-		   "jquery.columnmanager.min.js",
-		   "ui.datepicker.js") as $scr) {
+                   "jquery.tablehover.min.js",
+                   "jquery.columnmanager.min.js",
+                   "ui.datepicker.js") as $scr) {
       $this->head->add(new XScript('text/javascript', "/inc/js/$scr"));
     }
     if ($this->mobile) {
@@ -151,9 +151,9 @@ class TScorePage extends XPage {
     }
 
     $this->header->add(new XDiv(array('id'=>'help'),
-				array($a = new XA('http://'.Conf::$HELP_HOME, new XSpan("H", array('style'=>"text-decoration:underline")),
-						  array('onclick'=>'this.target="help"',
-							"accesskey"=>"h")))));
+                                array($a = new XA('http://'.Conf::$HELP_HOME, new XSpan("H", array('style'=>"text-decoration:underline")),
+                                                  array('onclick'=>'this.target="help"',
+                                                        "accesskey"=>"h")))));
     $a->add("elp?");
   }
 

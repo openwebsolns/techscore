@@ -29,7 +29,7 @@ abstract class AbstractPrefsPane extends AbstractUserPane {
       $this->SCHOOL = DB::$V->reqSchool($_GET, 'school', "No school provided for preferences.");
       $schools = $user->getSchools();
       if (!isset($schools[$this->SCHOOL->id]))
-	throw new SoterException(sprintf("No permissions to edit school %s.", $this->SCHOOL));
+        throw new SoterException(sprintf("No permissions to edit school %s.", $this->SCHOOL));
     }
     catch (SoterException $e) {
       Session::pa(new PA($e->getMessage(), PA::E));

@@ -33,7 +33,7 @@ $r = $con->query('select id, burgee from school where burgee is not null');
 while ($obj = $r->fetch_object()) {
   $filename = sprintf('../www/%s', $obj->burgee);
   $q = sprintf('replace into burgee (school, filedata, updated_by) values ("%s", "%s", "paez@mit.edu")',
-	       $obj->id, base64_encode(file_get_contents($filename)));
+               $obj->id, base64_encode(file_get_contents($filename)));
   $con->query($q);
   printf("Did burgee for %s.\n", $obj->id);
 }

@@ -30,10 +30,10 @@ class TeamPenaltyPane extends AbstractPane {
     
     $this->PAGE->addContent($p = new XPort("Team penalties per division"));
     $p->add(new XP(array(),
-		   array("These penalties will be added to the final " .
-			 "team score after all race finishes have been " .
-			 "totaled. The penalty is ",
-			 new XStrong("+20 points per division"), ".")));
+                   array("These penalties will be added to the final " .
+                         "team score after all race finishes have been " .
+                         "totaled. The penalty is ",
+                         new XStrong("+20 points per division"), ".")));
 
     if (count($teams) == 0) {
       $p->add(new XHeading("No teams have been registered."));
@@ -54,9 +54,9 @@ class TeamPenaltyPane extends AbstractPane {
     $form->add(new FItem("Penalty type:", XSelect::fromArray('penalty', $opts)));
 
     $form->add(new FItem("Comments:",
-			 new XTextArea("comments", "",
-				       array("rows"=>"2",
-					     "cols"=>"35"))));
+                         new XTextArea("comments", "",
+                                       array("rows"=>"2",
+                                             "cols"=>"35"))));
 
     $form->add(new XSubmitInput("t_submit", "Enter team penalty"));
 
@@ -72,16 +72,16 @@ class TeamPenaltyPane extends AbstractPane {
     else {
       $p->add($tab = new XQuickTable(array('class'=>'narrow'), array("Team name", "Division", "Penalty", "Comments", "Action")));
       foreach ($penalties as $p) {
-	$tab->addRow(array($p->team,
-			   $p->division,
-			   $p->type,
-			   new XTD(array('style'=>'text-align:left;width:10em;'), $p->comments),
-			   $form = $this->createForm()));
+        $tab->addRow(array($p->team,
+                           $p->division,
+                           $p->type,
+                           new XTD(array('style'=>'text-align:left;width:10em;'), $p->comments),
+                           $form = $this->createForm()));
 
-	$form->add(new XP(array('class'=>'thin'),
-			  array(new XHiddenInput("r_team", $p->team->id),
-				new XHiddenInput("r_div",  $p->division),
-				new XSubmitInput("t_remove", "Drop", array("class"=>"small")))));
+        $form->add(new XP(array('class'=>'thin'),
+                          array(new XHiddenInput("r_team", $p->team->id),
+                                new XHiddenInput("r_div",  $p->division),
+                                new XSubmitInput("t_remove", "Drop", array("class"=>"small")))));
       }
     }
   }
@@ -99,12 +99,12 @@ class TeamPenaltyPane extends AbstractPane {
       $divs = DB::$V->reqDivisions($args, 'division', $this->REGATTA->getDivisions(), 1, "Division list not provided.");
 
       foreach ($divs as $div) {
-	$pen = new TeamPenalty();
-	$pen->team = $team;
-	$pen->type = $pnty;
-	$pen->comments = $comm;
-	$pen->division = $div;
-	$this->REGATTA->setTeamPenalty($pen);
+        $pen = new TeamPenalty();
+        $pen->team = $team;
+        $pen->type = $pnty;
+        $pen->comments = $comm;
+        $pen->division = $div;
+        $this->REGATTA->setTeamPenalty($pen);
       }
       Session::pa(new PA("Added team penalty."));
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
@@ -117,11 +117,11 @@ class TeamPenaltyPane extends AbstractPane {
       $team = DB::$V->reqTeam($args, 'r_team', $this->REGATTA, "Invalid or missing team.");
       $div = DB::$V->reqDivision($args, 'r_div', $this->REGATTA->getDivisions(), "Invalid or missing division.");
       if ($this->REGATTA->dropTeamPenalty($team, $div)) {
-	Session::pa(new PA(sprintf("Dropped team penalty for %s in %s.", $team, $div)));
-	UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
+        Session::pa(new PA(sprintf("Dropped team penalty for %s in %s.", $team, $div)));
+        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
       }
       else
-	Session::pa(new PA("No team penalty dropped.", PA::I));
+        Session::pa(new PA("No team penalty dropped.", PA::I));
     }
 
     return $args;

@@ -107,9 +107,9 @@ class XElem implements Xmlable {
     // check for empty
     if (count($this->child) == 0) {
       if ($this->non_empty)
-	$text .= sprintf('></%s>', $this->name);
+        $text .= sprintf('></%s>', $this->name);
       else
-	$text .= ' />';
+        $text .= ' />';
       return $text;
     }
     $text .= '>';
@@ -135,9 +135,9 @@ class XElem implements Xmlable {
     // check for empty
     if (count($this->child) == 0) {
       if ($this->non_empty)
-	echo sprintf('></%s>', $this->name);
+        echo sprintf('></%s>', $this->name);
       else
-	echo ' />';
+        echo ' />';
       return;
     }
     echo '>';
@@ -258,7 +258,7 @@ class XDoc extends XElem {
     parent::__construct($tag, $attrs, $children);
     $this->headers = array();
     $this->header(new XHeader("xml", array("version" =>"1.0",
-					   "encoding"=>"UTF-8")));
+                                           "encoding"=>"UTF-8")));
   }
 
   /**
@@ -381,8 +381,8 @@ class XPage extends XElem {
 
   private $doctype = "XHTML-1.0";
   private $doctypes = array("XHTML-1.0" =>'<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',
-			    "HTML-4.01" =>'<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">',
-			    "HTML-5"    =>'<!DOCTYPE html>');
+                            "HTML-4.01" =>'<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">',
+                            "HTML-5"    =>'<!DOCTYPE html>');
 
   /**
    * Creates a new page with the given title
@@ -395,7 +395,7 @@ class XPage extends XElem {
     if (!($title instanceof XRawText))
       $title = new XText($title);
     $this->head = new XElem("head", array(),
-			    array(new XElem("title", array(), array($title))));
+                            array(new XElem("title", array(), array($title))));
     $this->body = new XElem("body");
     $this->body->non_empty = true;
 
@@ -471,7 +471,7 @@ class XPage extends XElem {
 if (isset($argv[0]) && __FILE__ == $argv[0]) {
   $p = new XPage("My Title");
   $p->body->add(new XElem("p", array("class"=>"port"),
-			  array(new XText("A statement."))));
+                          array(new XText("A statement."))));
   $p->printXML();
 }
 ?>

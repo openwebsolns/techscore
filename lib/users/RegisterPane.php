@@ -78,9 +78,9 @@ class RegisterPane extends AbstractUserPane {
   private function fillDefault() {
     $this->PAGE->addContent($p = new XPort("Request new account"));
     $p->add(new XP(array(),
-		   array(sprintf("Please note that %s is an online scoring program specifically designed for College Sailing regattas. As such, account access is given only to valid ICSA users, or as approved by the registration committee. If you are not affiliated with ICSA, you might be more interested in accessing the public site at ",
-				 Conf::$NAME),
-			 new XA(WS::alink('/', Conf::$PUB_HOME, 'http'), Conf::$PUB_HOME), ".")));
+                   array(sprintf("Please note that %s is an online scoring program specifically designed for College Sailing regattas. As such, account access is given only to valid ICSA users, or as approved by the registration committee. If you are not affiliated with ICSA, you might be more interested in accessing the public site at ",
+                                 Conf::$NAME),
+                         new XA(WS::alink('/', Conf::$PUB_HOME, 'http'), Conf::$PUB_HOME), ".")));
     
     $p->add(new XP(array(), "Through this form you will be allowed to petition for an account on TechScore. Every field is mandatory. Please enter a valid e-mail account which you check as you will be sent an e-mail there to verify your identity."));
 
@@ -99,7 +99,7 @@ class RegisterPane extends AbstractUserPane {
     foreach (DB::getConferences() as $conf) {
       $aff->add($opt = new FOptionGroup($conf));
       foreach ($conf->getSchools() as $school) {
-	$opt->add(new FOption($school->id, $school->name));
+        $opt->add(new FOption($school->id, $school->name));
       }
     }
   }
@@ -112,8 +112,8 @@ class RegisterPane extends AbstractUserPane {
     $this->PAGE->addContent($p = new XPort("Account requested"));
     $p->add(new XP(array(), "Thank you for registering for an account with TechScore. You should receive an e-mail message shortly with a link to verify your account access."));
     $p->add(new XP(array(),
-		   array("If you don't receive an e-mail, please check your junk-mail settings and enable mail from ",
-			 new XEm(Conf::$TS_FROM_MAIL), ".")));
+                   array("If you don't receive an e-mail, please check your junk-mail settings and enable mail from ",
+                         new XEm(Conf::$TS_FROM_MAIL), ".")));
   }
 
   /**
@@ -136,7 +136,7 @@ class RegisterPane extends AbstractUserPane {
       $id = DB::$V->reqString($args, 'email', 1, 41, "Email must not be empty or exceed 40 characters.");
       $acc = DB::getAccount($id);
       if ($acc !== null)
-	throw new SoterException("Invalid email provided.");
+        throw new SoterException("Invalid email provided.");
       $acc = new Account();
       $acc->status = Account::STAT_REQUESTED;
       $acc->id = $id;
@@ -155,14 +155,14 @@ class RegisterPane extends AbstractUserPane {
       $pw1 = DB::$V->reqRaw($args, 'passwd', 8, 101, "Invalid password. Must be at least 8 characters long.");
       $pw2 = DB::$V->reqRaw($args, 'confirm', 8, 101, "Invalid password confirmation.");
       if ($pw1 !== $pw2)
-	throw new SoterException("Password confirmation does not match. Please try again.");
+        throw new SoterException("Password confirmation does not match. Please try again.");
       $acc->password = hash('sha512', $acc->id . "\0" . sha1($pw1) . "\0" . Conf::$PASSWORD_SALT);
 
       // 6. Create account with status "requested";
       if (DB::mail($acc->id,
-		   sprintf("[%s] New account request", Conf::$NAME),
-		   $this->getMessage($acc)) === false)
-	throw new SoterException("There was an error with your request. Please try again later.");
+                   sprintf("[%s] New account request", Conf::$NAME),
+                   $this->getMessage($acc)) === false)
+        throw new SoterException("There was an error with your request. Please try again later.");
 
       DB::set($acc);
       Session::pa(new PA("Account successfully created."));
@@ -173,7 +173,7 @@ class RegisterPane extends AbstractUserPane {
     if (isset($args['acc'])) {
       $acc = DB::getAccountFromHash(DB::$V->reqString($args, 'acc', 1, 41, "Invalid has provided."));
       if ($acc === null)
-	throw new SoterException("Invalid account to approve.");
+        throw new SoterException("Invalid account to approve.");
 
       $acc->status = Account::STAT_PENDING;
       DB::set($acc);
@@ -182,7 +182,7 @@ class RegisterPane extends AbstractUserPane {
       // notify all admins
       $admins = array();
       foreach (DB::getAdmins() as $admin)
-	$admins[] = sprintf('%s <%s>', $admin->getName(), $admin->id);
+        $admins[] = sprintf('%s <%s>', $admin->getName(), $admin->id);
 
       DB::mail(implode(',', $admins), sprintf("[%s] New registration", Conf::$NAME), $this->getAdminMessage($acc));
       WS::go('/register');
@@ -192,26 +192,26 @@ class RegisterPane extends AbstractUserPane {
 
   public function getMessage(Account $to) {
     return sprintf("Dear %1\$s,\n\nYou are receiving this message because you, or someone in your name, " .
-		   "has requested an account at %2\$s under this e-mail address. If you did not " .
-		   "request an account with %2\$s, kindly disregard this message.\n\n" .
-		   "To activate your account, you will need to follow the link below. You may need to " .
-		   "copy and paste the link into your browser's location bar. After you follow the " .
-		   "instructions, your account request will be sent to the registration committee for " .
-		   "approval. You will be notified as soon as your account is activated.\n\n" .
-		   "%3\$sregister/acc=%4\$s\n\nThank you,\n-- \n%2\$s Administration",
-		   $to->first_name, Conf::$NAME, WS::alink('/'), DB::getHash($to));
+                   "has requested an account at %2\$s under this e-mail address. If you did not " .
+                   "request an account with %2\$s, kindly disregard this message.\n\n" .
+                   "To activate your account, you will need to follow the link below. You may need to " .
+                   "copy and paste the link into your browser's location bar. After you follow the " .
+                   "instructions, your account request will be sent to the registration committee for " .
+                   "approval. You will be notified as soon as your account is activated.\n\n" .
+                   "%3\$sregister/acc=%4\$s\n\nThank you,\n-- \n%2\$s Administration",
+                   $to->first_name, Conf::$NAME, WS::alink('/'), DB::getHash($to));
   }
   public function getAdminMessage(Account $about) {
     return sprintf("Dear Administrators,\n\nThere is a new account request at %s. Please login " .
-		   "and approve or reject as soon as possible.\n\n" .
-		   "  Name: %s %s\n" .
-		   " Email: %s\n" .
-		   "School: %s\n" .
-		   "  Role: %s\n\nThank you,\n-- \n%s Administration",
-		   Conf::$NAME,
-		   $about->first_name, $about->last_name, $about->id,
-		   $about->school->nick_name, $about->role,
-		   Conf::$NAME);
+                   "and approve or reject as soon as possible.\n\n" .
+                   "  Name: %s %s\n" .
+                   " Email: %s\n" .
+                   "School: %s\n" .
+                   "  Role: %s\n\nThank you,\n-- \n%s Administration",
+                   Conf::$NAME,
+                   $about->first_name, $about->last_name, $about->id,
+                   $about->school->nick_name, $about->role,
+                   Conf::$NAME);
   }
 }
 ?>

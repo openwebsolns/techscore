@@ -29,11 +29,11 @@ class NotesPane extends AbstractPane {
     // Form
     $p->add($form = $this->createForm());
     $form->add($fitem = new FItem("Race:", 
-				  new XTextInput("chosen_race", "",
-						 array("size"=>"4",
-						       "maxlength"=>"4",
-						       "id"=>"chosen_race",
-						       "class"=>"narrow"))));
+                                  new XTextInput("chosen_race", "",
+                                                 array("size"=>"4",
+                                                       "maxlength"=>"4",
+                                                       "id"=>"chosen_race",
+                                                       "class"=>"narrow"))));
 
     // Table of possible races
     $fitem->add($tab = new XQuickTable(array('class'=>'narrow'), $divisions));
@@ -44,17 +44,17 @@ class NotesPane extends AbstractPane {
 
     // Observation
     $form->add(new FItem("Observation:",
-			 new XTextArea("observation","",
-				       array("rows"=>3,
-					     "cols"=>30))));
+                         new XTextArea("observation","",
+                                       array("rows"=>3,
+                                             "cols"=>30))));
     // Observer
     $form->add(new FItem("Observer:",
-			 new XTextInput("observer",
-					$this->USER->getName(),
-					array("maxlength"=>"50"))));
+                         new XTextInput("observer",
+                                        $this->USER->getName(),
+                                        array("maxlength"=>"50"))));
 
     $form->add(new XSubmitInput("observe",
-				"Add note"));
+                                "Add note"));
     // CURRENT NOTES
     $notes = $this->REGATTA->getNotes();
     if (count($notes) > 0) {
@@ -63,9 +63,9 @@ class NotesPane extends AbstractPane {
       // Table
       $p->add($tab = new XQuickTable(array(), array("Race", "Note", "Observer", "")));
       foreach ($notes as $note) {
-	$tab->addRow(array($note->race, $note->observation, $note->observer, $form = $this->createForm()));
-	$form->add(new XP(array(), array(new XHiddenInput("observation", $note->id),
-					 new XSubmitInput("remove", "Remove", array("class"=>"thin")))));
+        $tab->addRow(array($note->race, $note->observation, $note->observer, $form = $this->createForm()));
+        $form->add(new XP(array(), array(new XHiddenInput("observation", $note->id),
+                                         new XSubmitInput("remove", "Remove", array("class"=>"thin")))));
       }
     }
   }
@@ -99,7 +99,7 @@ class NotesPane extends AbstractPane {
     if (isset($args['remove'])) {
       $note = DB::$V->reqID($args, 'observation', DB::$NOTE, "Invalid or missing observation to delete.");
       if ($note->race->regatta != $this->REGATTA)
-	throw new SoterException("Chosen note does not belong to the given regatta.");
+        throw new SoterException("Chosen note does not belong to the given regatta.");
       $this->REGATTA->deleteNote($note);
       Session::pa(new PA(sprintf("Deleted observation from %s for race %s.", $note->observer, $note->race)));
     }

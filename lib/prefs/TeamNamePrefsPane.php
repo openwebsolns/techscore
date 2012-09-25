@@ -35,15 +35,15 @@ class TeamNamePrefsPane extends AbstractPrefsPane {
     $p->add(new XP(array(), "If a second team from this school is added, TechScore will choose the next name from the list. If it runs out of names, it will append a numeral suffix to the primary name."));
     
     $p->add(new XP(array(),
-		   array("For instance, suppose there are four teams from a school that has only two possible team names (primary and one secondary): ",
-			 new XEm("Mascot"), ", and ",
-			 new XEm("Other mascot"), ". Then the teams will receive the following names when they are added to a regatta:")));
+                   array("For instance, suppose there are four teams from a school that has only two possible team names (primary and one secondary): ",
+                         new XEm("Mascot"), ", and ",
+                         new XEm("Other mascot"), ". Then the teams will receive the following names when they are added to a regatta:")));
 
     $p->add(new XOl(array(),
-		    array(new XLi(new XEm("Mascot")),
-			  new XLi(new XEm("Other mascot")),
-			  new XLi(new XEm("Mascot 2")),
-			  new XLi(new XEm("Mascot 3")))));
+                    array(new XLi(new XEm("Mascot")),
+                          new XLi(new XEm("Other mascot")),
+                          new XLi(new XEm("Mascot 2")),
+                          new XLi(new XEm("Mascot 3")))));
     
     $p->add($form = new XForm(sprintf("/pedit/%s/team", $this->SCHOOL->id), XForm::POST));
 
@@ -53,7 +53,7 @@ class TeamNamePrefsPane extends AbstractPrefsPane {
     $first = (count($names) > 0) ? $names[0] : "";
     // First row
     $tab->addRow(array("Primary", new XTextInput("name[]", $first, array("maxlength"=>20))),
-		 array('style'=>'background:#EEEEEE;font-weight:bold'));
+                 array('style'=>'background:#EEEEEE;font-weight:bold'));
 
     // Next four
     for ($i = 1; $i < 5; $i++) {
@@ -74,30 +74,30 @@ class TeamNamePrefsPane extends AbstractPrefsPane {
     if (isset($args['team_names'])) {
       $list = DB::$V->reqList($args, 'name', null, "No list of names provided.");
       if (count($list) == 0)
-	throw new SoterException("There must be at least one team name, none given.");
+        throw new SoterException("There must be at least one team name, none given.");
 
       // There must be a valid primary name
       $pri = trim(array_shift($list));
       if (strlen($pri) == 0)
-	throw new SoterException("Primary team name must not be empty.");
+        throw new SoterException("Primary team name must not be empty.");
 
       $names = array($pri => $pri);
       $repeats = false;
       foreach ($list as $name) {
-	$name = trim($name);
-	if (strlen($name) > 0) {
-	  if (isset($names[$name]))
-	    $repeats = true;
-	  else
-	    $names[$name] = $name;
-	}
+        $name = trim($name);
+        if (strlen($name) > 0) {
+          if (isset($names[$name]))
+            $repeats = true;
+          else
+            $names[$name] = $name;
+        }
       }
 
       // Update the team names
       $this->SCHOOL->setTeamNames(array_values($names));
       Session::pa(new PA("Team name preferences updated."));
       if ($repeats)
-	Session::pa(new PA("Team names cannot be repeated.", PA::I));
+        Session::pa(new PA("Team names cannot be repeated.", PA::I));
     }
   }
 }

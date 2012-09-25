@@ -48,12 +48,12 @@ class Regatta extends DBObject {
    */
   public static function getTypes() {
     $lst = array(Regatta::TYPE_CHAMPIONSHIP=>"National Championship",
-		 Regatta::TYPE_CONF_CHAMPIONSHIP=>"Conference Championship",
-		 Regatta::TYPE_INTERSECTIONAL=>"Intersectional",
-		 Regatta::TYPE_TWO_CONFERENCE=>"Two-Conference",
-		 Regatta::TYPE_CONFERENCE=>"In-Conference",
-		 Regatta::TYPE_PROMOTIONAL=>"Promotional",
-		 Regatta::TYPE_PERSONAL=>"Personal");
+                 Regatta::TYPE_CONF_CHAMPIONSHIP=>"Conference Championship",
+                 Regatta::TYPE_INTERSECTIONAL=>"Intersectional",
+                 Regatta::TYPE_TWO_CONFERENCE=>"Two-Conference",
+                 Regatta::TYPE_CONFERENCE=>"In-Conference",
+                 Regatta::TYPE_PROMOTIONAL=>"Promotional",
+                 Regatta::TYPE_PERSONAL=>"Personal");
     foreach (Conf::$REGATTA_TYPE_BLACKLIST as $rem)
       unset($lst[$rem]);
     return $lst;
@@ -73,8 +73,8 @@ class Regatta extends DBObject {
    */
   public static function getScoringOptions() {
     $lst = array(Regatta::SCORING_STANDARD => "Standard",
-		 Regatta::SCORING_COMBINED => "Combined divisions",
-		 Regatta::SCORING_TEAM => "Team racing");
+                 Regatta::SCORING_COMBINED => "Combined divisions",
+                 Regatta::SCORING_TEAM => "Team racing");
     foreach (Conf::$REGATTA_SCORING_BLACKLIST as $rem)
       unset($lst[$rem]);
     return $lst;
@@ -87,7 +87,7 @@ class Regatta extends DBObject {
    */
   public static function getParticipantOptions() {
     return array(Regatta::PARTICIPANT_COED => "Coed",
-		 Regatta::PARTICIPANT_WOMEN => "Women");
+                 Regatta::PARTICIPANT_WOMEN => "Women");
   }
   
   // Variables
@@ -134,17 +134,17 @@ class Regatta extends DBObject {
     switch ($name) {
     case 'scorer':
       if ($this->scorer === null) {
-	switch ($this->scoring) {
-	case Regatta::SCORING_COMBINED:
-	case Regatta::SCORING_TEAM:
-	  require_once('regatta/ICSACombinedScorer.php');
-	  $this->scorer = new ICSACombinedScorer();
-	  break;
+        switch ($this->scoring) {
+        case Regatta::SCORING_COMBINED:
+        case Regatta::SCORING_TEAM:
+          require_once('regatta/ICSACombinedScorer.php');
+          $this->scorer = new ICSACombinedScorer();
+          break;
 
-	default:
-	  require_once('regatta/ICSAScorer.php');
-	  $this->scorer = new ICSAScorer();
-	}
+        default:
+          require_once('regatta/ICSAScorer.php');
+          $this->scorer = new ICSAScorer();
+        }
       }
       return $this->scorer;
     default:
@@ -243,7 +243,7 @@ class Regatta extends DBObject {
     $res = DB::getAll(DB::$DAILY_SUMMARY, new DBBool(array(new DBCond('regatta', $this->id), new DBCond('summary_date', $day->format('Y-m-d')))));
     if ($comment === null) {
       foreach ($res as $cur)
-	DB::remove($cur);
+        DB::remove($cur);
       return;
     }
 
@@ -364,10 +364,10 @@ class Regatta extends DBObject {
   public function getRanks(Array $divs) {
     $ranks = array();
     $racec = new DBCondIn('race',
-			  DB::prepGetAll(DB::$RACE,
-					 new DBBool(array(new DBCond('regatta', $this->id),
-							  new DBCondIn('division', $divs))),
-					 array('id')));
+                          DB::prepGetAll(DB::$RACE,
+                                         new DBBool(array(new DBCond('regatta', $this->id),
+                                                          new DBCondIn('division', $divs))),
+                                         array('id')));
     foreach ($this->getTeams() as $team) {
       $q = DB::prepGetAll(DB::$FINISH, new DBBool(array(new DBCond('team', $team), $racec)));
       $q->fields(array(new DBField('score', 'sum', 'total')), DB::$FINISH->db_name());
@@ -392,8 +392,8 @@ class Regatta extends DBObject {
    */
   public function getRace(Division $div, $num) {
     $res = DB::getAll(DB::$RACE, new DBBool(array(new DBCond('regatta', $this->id),
-						  new DBCond('division', (string)$div),
-						  new DBCond('number', $num))));
+                                                  new DBCond('division', (string)$div),
+                                                  new DBCond('number', $num))));
     if (count($res) == 0)
       return null;
     $r = $res[0];
@@ -474,7 +474,7 @@ class Regatta extends DBObject {
    */
   public function getRacesInRound($round, Division $div = null) {
     $cond = new DBBool(array(new DBCond('regatta', $this->id),
-			     new DBCond('round', $round)));
+                             new DBCond('round', $round)));
     if ($div !== null)
       $cond->add(new DBCond('division', (string)$div));
     return DB::getAll(DB::$RACE, $cond);
@@ -509,7 +509,7 @@ class Regatta extends DBObject {
       $divs = $this->getDivisions();
     foreach ($this->getDivisions() as $div) {
       foreach ($this->getRaces($div) as $race)
-	$set[$race->number] = $race->number;
+        $set[$race->number] = $race->number;
     }
     usort($set);
     return array_values($set);
@@ -549,8 +549,8 @@ class Regatta extends DBObject {
    */
   public function removeRace(Race $race) {
     DB::removeAll(DB::$RACE, new DBBool(array(new DBCond('regatta', $this->id),
-					      new DBCond('division', (string)$race->division),
-					      new DBCond('number', $race->number))));
+                                              new DBCond('division', (string)$race->division),
+                                              new DBCond('number', $race->number))));
   }
 
   /**
@@ -572,7 +572,7 @@ class Regatta extends DBObject {
     DB::$RACE->db_set_order(array('number'=>true, 'division'=>true));
     
     $cond = new DBBool(array(new DBCond('regatta', $this->id),
-			     new DBCondIn('id', DB::prepGetAll(DB::$FINISH, null, array('race')), DBCondIn::NOT_IN)));
+                             new DBCondIn('id', DB::prepGetAll(DB::$FINISH, null, array('race')), DBCondIn::NOT_IN)));
     if ($div !== null)
       $cond->add(new DBCond('division', (string)$div));
     $res = DB::getAll(DB::$RACE, $cond);
@@ -592,7 +592,7 @@ class Regatta extends DBObject {
     $nums = array();
     foreach ($divisions as $div) {
       foreach ($this->getUnscoredRaces($div) as $race)
-	$nums[$race->number] = $race->number;
+        $nums[$race->number] = $race->number;
     }
     asort($nums, SORT_NUMERIC);
     return $nums;
@@ -606,7 +606,7 @@ class Regatta extends DBObject {
    */
   public function getScoredRaces(Division $div = null) {
     $cond = new DBBool(array(new DBCond('regatta', $this->id),
-			     new DBCondIn('id', DB::prepGetAll(DB::$FINISH, null, array('race')))));
+                             new DBCondIn('id', DB::prepGetAll(DB::$FINISH, null, array('race')))));
     if ($div !== null)
       $cond->add(new DBCond('division', (string)$div));
     return DB::getAll(DB::$RACE, $cond);
@@ -624,7 +624,7 @@ class Regatta extends DBObject {
   public function getLastScoredRace(Division $div = null) {
     DB::$FINISH->db_set_order(array('entered'=>false));
     $res = DB::getAll(DB::$FINISH,
-		      new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('id'))));
+                      new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('id'))));
 
     if (count($res) == 0)
       $r = null;
@@ -653,9 +653,9 @@ class Regatta extends DBObject {
   public function getRaceTeams(Race $race) {
     if ($this->scoring == Regatta::SCORING_TEAM) {
       $tr = DB::getAll(DB::$TR_RACE_TEAMS, new DBBool(array(new DBCond('regatta', $this),
-							    new DBCond('number', $race->number))));
+                                                            new DBCond('number', $race->number))));
       if (count($tr) == 0)
-	return array();
+        return array();
       return array($tr[0]->team1, $tr[0]->team2);
     }
     return $this->getTeams();
@@ -684,7 +684,7 @@ class Regatta extends DBObject {
       throw new InvalidArgumentException("No such race number exists: " . $race->number);
     // Delete any of the ones that are there, and add the new ones
     DB::removeAll(DB::$TR_RACE_TEAMS, new DBBool(array(new DBCond('regatta', $this),
-						       new DBCond('number', $race->number))));
+                                                       new DBCond('number', $race->number))));
     $tr = new Tr_Race_Teams();
     $tr->regatta = $this;
     $tr->number = $race->number;
@@ -710,10 +710,10 @@ class Regatta extends DBObject {
       return $this->getCombinedRaces();
     $list = array();
     foreach (DB::getAll(DB::$TR_RACE_TEAMS,
-			new DBBool(array(new DBCond('regatta', $this),
-					 new DBBool(array(new DBCond('team1', $team),
-							  new DBCond('team2', $team)),
-						    DBBool::mOR)))) as $tr)
+                        new DBBool(array(new DBCond('regatta', $this),
+                                         new DBBool(array(new DBCond('team1', $team),
+                                                          new DBCond('team2', $team)),
+                                                    DBBool::mOR)))) as $tr)
       $list[$tr->number] = $tr->number;
     return array_values($list);
   }
@@ -790,9 +790,9 @@ class Regatta extends DBObject {
    */
   public function getCombinedFinishes(Race $race) {
     $races = DB::prepGetAll(DB::$RACE,
-			    new DBBool(array(new DBCond('regatta', $this),
-					     new DBCond('number', $race->number))),
-			    array('id'));
+                            new DBBool(array(new DBCond('regatta', $this),
+                                             new DBCond('number', $race->number))),
+                            array('id'));
     return DB::getAll(DB::$FINISH, new DBCondIn('race', $races));
   }
 
@@ -804,8 +804,8 @@ class Regatta extends DBObject {
    */
   public function getPenalizedFinishes() {
     return DB::getAll(DB::$FINISH,
-		      new DBBool(array(new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('id'))),
-				       new DBCond('penalty', null, DBCond::NE))));
+                      new DBBool(array(new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('id'))),
+                                       new DBCond('penalty', null, DBCond::NE))));
   }
 
   /**
@@ -820,13 +820,13 @@ class Regatta extends DBObject {
    */
   public function getAverageFinishes(Division $div) {
     return DB::getAll(DB::$FINISH,
-		      new DBBool(array(new DBCondIn('race',
-						    DB::prepGetAll(DB::$RACE,
-								   new DBBool(array(new DBCond('regatta', $this->id),
-										    new DBCond('division', (string)$div))),
-								   array('id'))),
-				       new DBCondIn('penalty', array(Breakdown::BKD, Breakdown::RDG, Breakdown::BYE)),
-				       new DBCond('amount', 0, DBCond::LE))));
+                      new DBBool(array(new DBCondIn('race',
+                                                    DB::prepGetAll(DB::$RACE,
+                                                                   new DBBool(array(new DBCond('regatta', $this->id),
+                                                                                    new DBCond('division', (string)$div))),
+                                                                   array('id'))),
+                                       new DBCondIn('penalty', array(Breakdown::BKD, Breakdown::RDG, Breakdown::BYE)),
+                                       new DBCond('amount', 0, DBCond::LE))));
   }
 
   /**
@@ -840,14 +840,14 @@ class Regatta extends DBObject {
   public function hasPenalties(Race $race = null) {
     if ($race === null) {
       return count(DB::getAll(DB::$RACE,
-			      new DBBool(array(new DBCond('regatta', $this),					       
-					       new DBCondIn('id', DB::prepGetAll(DB::$FINISH,
-										 new DBCond('penalty', null, DBCond::NE),
-										 array('race'))))))) > 0;
+                              new DBBool(array(new DBCond('regatta', $this),                                               
+                                               new DBCondIn('id', DB::prepGetAll(DB::$FINISH,
+                                                                                 new DBCond('penalty', null, DBCond::NE),
+                                                                                 array('race'))))))) > 0;
     }
     return count(DB::getAll(DB::$FINISH,
-			    new DBBool(array(new DBCond('penalty', null, DBCond::NE),
-					     new DBCond('race', $race))))) > 0;
+                            new DBBool(array(new DBCond('penalty', null, DBCond::NE),
+                                             new DBCond('race', $race))))) > 0;
   }
 
   /**
@@ -860,8 +860,8 @@ class Regatta extends DBObject {
   public function hasFinishes(Race $race = null) {
     if ($race === null) {
       return count(DB::getAll(DB::$RACE,
-			      new DBBool(array(new DBCond('regatta', $this),
-					       new DBCondIn('id', DB::prepGetAll(DB::$FINISH, null, array('race'))))))) > 0;
+                              new DBBool(array(new DBCond('regatta', $this),
+                                               new DBCondIn('id', DB::prepGetAll(DB::$FINISH, null, array('race'))))))) > 0;
     }
     return count(DB::getAll(DB::$FINISH, new DBCond('race', $race))) > 0;
   }
@@ -910,7 +910,7 @@ class Regatta extends DBObject {
       $this->deleteFinishes($race);
     else {
       foreach ($this->getDivisions() as $div)
-	$this->deleteFinishes($this->getRace($div, $race->number));
+        $this->deleteFinishes($this->getRace($div, $race->number));
     }
     $this->runScore($race);
   }
@@ -1025,7 +1025,7 @@ class Regatta extends DBObject {
     $places = array();
     foreach ($ranks as $i => $rank) {
       if ($rank->team->school->id == $school->id)
-	$places[] = ($i + 1);
+        $places[] = ($i + 1);
     }
     return $places;
   }
@@ -1041,7 +1041,7 @@ class Regatta extends DBObject {
    */
   public function getHosts() {
     return DB::getAll(DB::$SCHOOL,
-		      new DBCondIn('id', DB::prepGetAll(DB::$HOST_SCHOOL, new DBCond('regatta', $this->id), array('school'))));
+                      new DBCondIn('id', DB::prepGetAll(DB::$HOST_SCHOOL, new DBCond('regatta', $this->id), array('school'))));
   }
 
   public function addHost(School $school) {
@@ -1143,8 +1143,8 @@ class Regatta extends DBObject {
     if (count($divisions) > 1) return false;
 
     $res = DB::getAll(DB::$RACE,
-		      new DBBool(array(new DBCond('regatta', $this),
-				       new DBCondIn('boat', DB::prepGetAll(DB::$BOAT, new DBCond('occupants', 1, DBCond::GT), array('id'))))));
+                      new DBBool(array(new DBCond('regatta', $this),
+                                       new DBCondIn('boat', DB::prepGetAll(DB::$BOAT, new DBCond('occupants', 1, DBCond::GT), array('id'))))));
     $r = (count($res) == 0);
     unset($res);
     return $r;
@@ -1253,13 +1253,13 @@ class Regatta extends DBObject {
 
     $tokens = explode("-", $name);
     $blacklist = array("the", "of", "for", "and", "an", "in", "is", "at",
-		       "trophy", "championship", "intersectional",
-		       "college", "university",
-		       "professor");
+                       "trophy", "championship", "intersectional",
+                       "college", "university",
+                       "professor");
     $tok_copy = $tokens;
     foreach ($tok_copy as $i => $t)
       if (in_array($t, $blacklist))
-	unset($tokens[$i]);
+        unset($tokens[$i]);
     $name = implode("-", $tokens);
 
     // eastern -> east
@@ -1278,7 +1278,7 @@ class Regatta extends DBObject {
       throw new InvalidArgumentException("No season for this regatta.");
     foreach ($season->getRegattas() as $n) {
       if ($n->nick == $name && $n->id != $this->id)
-	throw new InvalidArgumentException(sprintf("Nick name \"%s\" already in use by (%d).", $name, $n->id));
+        throw new InvalidArgumentException(sprintf("Nick name \"%s\" already in use by (%d).", $name, $n->id));
     }
     return $name;
   }
@@ -1321,11 +1321,11 @@ class Regatta extends DBObject {
    * @throws InvalidArgumentException if illegal regatta type
    */
   public static function createRegatta($name,
-				       DateTime $start_time,
-				       DateTime $end_date,
-				       $type,
-				       $scoring = Regatta::SCORING_STANDARD,
-				       $participant = Regatta::PARTICIPANT_COED) {
+                                       DateTime $start_time,
+                                       DateTime $end_date,
+                                       $type,
+                                       $scoring = Regatta::SCORING_STANDARD,
+                                       $participant = Regatta::PARTICIPANT_COED) {
     $opts = Regatta::getScoringOptions();
     if (!isset($opts[$scoring]))
       throw new InvalidArgumentException("No such regatta scoring $scoring.");

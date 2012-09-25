@@ -46,23 +46,23 @@ class RotationDialog extends AbstractDialog {
       $row = array();
       $burgee = "";
       if ($team->school->burgee !== null) {
-	$url = sprintf("%s/inc/img/schools/%s.png", $PREFIX, $team->school->id);
-	$burgee = new XImg($url, $team->school->id, array('height'=>'30px'));
+        $url = sprintf("%s/inc/img/schools/%s.png", $PREFIX, $team->school->id);
+        $burgee = new XImg($url, $team->school->id, array('height'=>'30px'));
       }
       $row[] = $burgee;
 
       // Team name
       $name = (string)$team;
       if ($link_schools !== null)
-	$name = array(new XA(sprintf('%s/%s', $link_schools, $team->school->id), $team->school->nick_name),
-		      " ",
-		      $team->name);
+        $name = array(new XA(sprintf('%s/%s', $link_schools, $team->school->id), $team->school->nick_name),
+                      " ",
+                      $team->name);
       $row[] = new XTD(array('class'=>'teamname'), $name);
 
       foreach ($races as $race) {
-	$sail = $this->rotation->getSail($race, $team);
-	$sail = ($sail !== null) ? $sail : "";
-	$row[] = $sail;
+        $sail = $this->rotation->getSail($race, $team);
+        $sail = ($sail !== null) ? $sail : "";
+        $row[] = $sail;
       }
       $tab->addRow($row, array('class'=>'row'.($rowIndex++%2)));
     }

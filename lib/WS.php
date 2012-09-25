@@ -98,16 +98,16 @@ class WS {
    */
   public static function goBack($url, $same_host = false) {
     if (isset($_SERVER['HTTP_REFERER']) && isset($_SERVER['HTTP_HOST']) &&
-	$_SERVER['HTTP_REFERER'] != WS::alink($_SERVER['REQUEST_URI'])) {
+        $_SERVER['HTTP_REFERER'] != WS::alink($_SERVER['REQUEST_URI'])) {
       if ($same_host === false)
-	WS::go($_SERVER['HTTP_REFERER']);
+        WS::go($_SERVER['HTTP_REFERER']);
       
       $sub = sprintf('%s://%s%s',
-		     ($_SERVER['HTTPS'] == 'on') ? 'https' : 'http',
-		     $_SERVER['HTTP_HOST'],
-		     self::$root);
+                     ($_SERVER['HTTPS'] == 'on') ? 'https' : 'http',
+                     $_SERVER['HTTP_HOST'],
+                     self::$root);
       if (substr($_SERVER['HTTP_REFERER'], 0, strlen($sub)) == $sub)
-	WS::go($_SERVER['HTTP_REFERER']);
+        WS::go($_SERVER['HTTP_REFERER']);
     }
     WS::go($url);
   }
@@ -143,7 +143,7 @@ class WS {
   public static function link($url, Array $args = array(), $anchor = '') {
     if (preg_match('_^[a-z]+://_', $url)) {
       if (count($args) > 0)
-	$url .= '?'.http_build_query($args);
+        $url .= '?'.http_build_query($args);
       $url .= $anchor;
       return $url;
     }
@@ -151,11 +151,11 @@ class WS {
     if (self::$use_rewrite === true) {
       $url = preg_replace('/\.php$/', '', $url);
       if ($url == self::$default)
-	$url = '';
+        $url = '';
 
       foreach (self::$folds as $key => $rep) {
-	if (isset($args[$key])) $url .= $rep . $args[$key];
-	unset($args[$key]);
+        if (isset($args[$key])) $url .= $rep . $args[$key];
+        unset($args[$key]);
       }
     }
     if (count($args) > 0)
@@ -225,15 +225,15 @@ class WS {
     if (self::$use_rewrite) {
       $url = strrev($url);
       foreach (array_reverse(self::$folds) as $key => $rep) {
-	if (($anc = strpos($url, $rep)) !== false)
-	  $url = substr($url, $anc + 1);
+        if (($anc = strpos($url, $rep)) !== false)
+          $url = substr($url, $anc + 1);
       }
       $url = strrev($url);
       if ($url[strlen($url) - 1] == '/') $url = self::$default;
 
       // add extension if none found
       if (preg_match('/\.[a-z0-9]+$/', $url) == 0)
-	$url .= '.php';
+        $url .= '.php';
     }
     return $url;
   }

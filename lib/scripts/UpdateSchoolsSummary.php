@@ -36,19 +36,19 @@ class UpdateSchoolsSummary {
       $p->add($tab = new XQuickTable(array('class'=>'schools-table'), array("Mascot", "School", "City", "State")));
       
       foreach ($conf->getSchools() as $i => $school) {
-	$num_schools++;
-	$link = sprintf('/schools/%s', $school->id);
+        $num_schools++;
+        $link = sprintf('/schools/%s', $school->id);
 
-	$burg = "";
-	$path = sprintf('%s/../../html/inc/img/schools/%s.png', dirname(__FILE__), $school->id);
-	if (file_exists($path))
-	  $burg = new XImg(sprintf('/inc/img/schools/%s.png', $school->id), $school->id, array('height'=>40));
+        $burg = "";
+        $path = sprintf('%s/../../html/inc/img/schools/%s.png', dirname(__FILE__), $school->id);
+        if (file_exists($path))
+          $burg = new XImg(sprintf('/inc/img/schools/%s.png', $school->id), $school->id, array('height'=>40));
 
-	$tab->addRow(array(new XTD(array('class'=>'burgeecell'), $burg),
-			   new XTD(array('class'=>'schoolname'), new XA($link, $school->name)),
-			   $school->city,
-			   $school->state),
-		     array('class'=>'row'.($i%2)));
+        $tab->addRow(array(new XTD(array('class'=>'burgeecell'), $burg),
+                           new XTD(array('class'=>'schoolname'), new XA($link, $school->name)),
+                           $school->city,
+                           $school->state),
+                     array('class'=>'row'.($i%2)));
       }
     }
 

@@ -104,18 +104,18 @@ class DBQuery {
     if ($this->axis == self::INSERT) {
       $stmt = $this->con->prepare($this->toSQL());
       if ($stmt === false)
-	throw new DBQueryException("Malformed SQL: " . $this->toSQL());
+        throw new DBQueryException("Malformed SQL: " . $this->toSQL());
       $args = $this->bindArgs();
       if (count($args) > 1) {
-	if (strlen($args[0]) != count($args) - 1) {
-	  print_r($args);
-	  exit;
-	}
-	call_user_func_array(array($stmt, 'bind_param'), $args);
+        if (strlen($args[0]) != count($args) - 1) {
+          print_r($args);
+          exit;
+        }
+        call_user_func_array(array($stmt, 'bind_param'), $args);
       }
       $stmt->execute();
       if ($stmt->error > 0)
-	throw new DBQueryException("MySQL error (" . $this->toSQL() . "): " . $stm->error);
+        throw new DBQueryException("MySQL error (" . $this->toSQL() . "): " . $stm->error);
       $stmt->close();
       return null;
     }
@@ -160,8 +160,8 @@ class DBQuery {
       $this->multipleValues = array($this->values);
     for ($i = 0; $i < count($this->multipleValues); $i++) {
       for ($j = 0; $j < count($this->multipleValues[$i]); $j++) {
-	$args[0] .= $this->types[$j];
-	$args[] =& $this->multipleValues[$i][$j];
+        $args[0] .= $this->types[$j];
+        $args[] =& $this->multipleValues[$i][$j];
       }
     }
     return $args;
@@ -207,9 +207,9 @@ class DBQuery {
     $this->fields = array();
     foreach ($fields as $i => $field) {
       if ($field instanceof DBField)
-	$this->fields[] = $field;
+        $this->fields[] = $field;
       else
-	$this->fields[] = new DBField($field);
+        $this->fields[] = new DBField($field);
     }
     $this->types = $types;
     $this->values = $values;
@@ -247,8 +247,8 @@ class DBQuery {
       throw new DBQueryException("multipleValues only applies to insert queries.");
     
     if ($this->fields === null ||
-	count($values) != count($this->fields) ||
-	count($types)  != count($this->fields))
+        count($values) != count($this->fields) ||
+        count($types)  != count($this->fields))
       throw new DBQueryException("# of types/values differs from # of fields for given table ($alias)");
     $this->multipleValues[] = $values;
     $this->types = $types;
@@ -308,10 +308,10 @@ class DBQuery {
     $i = 0;
     foreach ($args as $key => $asc) {
       if ($i++ > 0)
-	$this->order .= ',';
+        $this->order .= ',';
       $this->order .= $key;
       if ($asc === false)
-	$this->order .= ' desc';
+        $this->order .= ' desc';
     }
   }
 
@@ -341,7 +341,7 @@ class DBQuery {
       $stmt .= 'distinct ';
     foreach ($this->fields as $i => $f) {
       if ($i > 0)
-	$stmt .= ',';
+        $stmt .= ',';
       $stmt .= $f->toSQL($this->table);
     }
     $stmt .= " from {$this->table}";
@@ -366,8 +366,8 @@ class DBQuery {
     $hldr = '';
     foreach ($this->fields as $i => $f) {
       if ($i > 0) {
-	$stmt .= ',';
-	$hldr .= ',';
+        $stmt .= ',';
+        $hldr .= ',';
       }
       $stmt .= $f->toSQL();
       $hldr .= '?';
@@ -389,12 +389,12 @@ class DBQuery {
     $stmt = "update {$this->table} set ";
     foreach ($this->fields as $i => $f) {
       if ($i > 0)
-	$stmt .= ',';
+        $stmt .= ',';
       $stmt .= $f->toSQL().'=';
       if ($this->values[$i] === null)
-	$stmt .= 'NULL';
+        $stmt .= 'NULL';
       else
-	$stmt .= '"'.$this->con->real_escape_string($this->values[$i]).'"';
+        $stmt .= '"'.$this->con->real_escape_string($this->values[$i]).'"';
     }
     if ($this->where !== null)
       $stmt .= ' where '.$this->where->toSQL($this->con);
@@ -486,7 +486,7 @@ class DBBool extends DBExpression {
     $txt = '(';
     foreach ($this->expressions as $i => $c) {
       if ($i > 0)
-	$txt .= $this->operator;
+        $txt .= $this->operator;
       $txt .= $c->toSQL($con);
     }
     return $txt . ')';
@@ -565,18 +565,18 @@ class DBCond extends DBExpression {
     $val  = "NULL";
     if ($this->value === null) {
       if ($this->operator == self::EQ)
-	$oper = " is ";
+        $oper = " is ";
       else
-	$oper = " is not ";
+        $oper = " is not ";
     }
     else {
       $oper = $this->operator;
       if ($this->value instanceof DBObject)
-	$val = '"'.$con->real_escape_string($this->value->id).'"';
+        $val = '"'.$con->real_escape_string($this->value->id).'"';
       elseif ($this->value instanceof DateTime)
-	$val = '"'.$this->value->format('Y-m-d H:i:s').'"';
+        $val = '"'.$this->value->format('Y-m-d H:i:s').'"';
       else
-	$val  = '"'.$con->real_escape_string($this->value).'"';
+        $val  = '"'.$con->real_escape_string($this->value).'"';
     }
     return '(' . $this->field . $oper . $val . ')';
   }
@@ -624,9 +624,9 @@ class DBCondIn extends DBExpression {
     if (is_array($this->values)) {
       $val = "";
       foreach ($this->values as $i => $v) {
-	if ($i > 0)
-	  $val .= ',';
-	$val .= ('"'.$con->real_escape_string($v).'"');
+        if ($i > 0)
+          $val .= ',';
+        $val .= ('"'.$con->real_escape_string($v).'"');
       }
     }
     else

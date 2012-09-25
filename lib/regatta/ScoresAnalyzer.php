@@ -28,21 +28,21 @@ class ScoresAnalyzer {
    */
   public static function getHighFinishers(Array $reg_ids, Division $div, $place, $role = RP::SKIPPER) {
     $r = new DBBool(array(new DBCondIn('team',
-				       DB::prepGetAll(DB::$TEAM_DIVISION,
-						      new DBBool(array(new DBCond('rank', $place, DBCond::LE),
-								       new DBCond('division', (string)$div))),
-						      array('team'))),
-			  new DBCondIn('race',
-				       DB::prepGetAll(DB::$RACE,
-						      new DBBool(array(new DBCondIn('regatta', $reg_ids),
-								       new DBCond('division', (string)$div))),
-						      array('id'))),
-			  new DBCond('boat_role', $role)));
+                                       DB::prepGetAll(DB::$TEAM_DIVISION,
+                                                      new DBBool(array(new DBCond('rank', $place, DBCond::LE),
+                                                                       new DBCond('division', (string)$div))),
+                                                      array('team'))),
+                          new DBCondIn('race',
+                                       DB::prepGetAll(DB::$RACE,
+                                                      new DBBool(array(new DBCondIn('regatta', $reg_ids),
+                                                                       new DBCond('division', (string)$div))),
+                                                      array('id'))),
+                          new DBCond('boat_role', $role)));
 
     return DB::getAll(DB::$SAILOR,
-		      new DBBool(array(new DBCond('icsa_id', null, DBCond::NE),
-				       new DBCondIn('id',
-						    DB::prepGetAll(DB::$RP, $r, array('sailor'))))));
+                      new DBBool(array(new DBCond('icsa_id', null, DBCond::NE),
+                                       new DBCondIn('id',
+                                                    DB::prepGetAll(DB::$RP, $r, array('sailor'))))));
   }
 
   /**
@@ -54,9 +54,9 @@ class ScoresAnalyzer {
    */
   public static function getHighFinishingTeams(Regatta $reg, Division $div, $place) {
     return DB::getAll(DB::$TEAM_DIVISION,
-		      new DBBool(array(new DBCondIn('team', DB::prepGetAll(DB::$TEAM, new DBCond('regatta', $reg->id), array('id'))),
-				       new DBCond('division', (string)$div),
-				       new DBCond('rank', $place, DBCond::LE))));
+                      new DBBool(array(new DBCondIn('team', DB::prepGetAll(DB::$TEAM, new DBCond('regatta', $reg->id), array('id'))),
+                                       new DBCond('division', (string)$div),
+                                       new DBCond('rank', $place, DBCond::LE))));
   }
 
   /**
@@ -86,7 +86,7 @@ class ScoresAnalyzer {
     foreach ($rpm->getParticipation($sailor, $role) as $rp) {
       $td = self::getTeamDivision($rp->team, $rp->division);
       if ($td !== null)
-	$list[] = $td;
+        $list[] = $td;
     }
     return $list;
   }

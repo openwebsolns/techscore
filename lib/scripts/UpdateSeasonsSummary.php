@@ -38,7 +38,7 @@ class UpdateSeasonsSummary {
       $mes = count($season->getRegattas());
       $mes .= ($mes == 1) ? " regatta" : " regattas";
       if ((string)$current == (string)$season)
-	$mes .= " (current)";
+        $mes .= " (current)";
       $table[$season->fullString()] = new XA(sprintf('/%s/', $season->id), $mes);
     }
     $this->page->setHeader("All Seasons", $table);
@@ -97,13 +97,13 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   }
   catch (Exception $e) {
     error_log(sprintf("E:%d:L%d:F%s:%s\t(%d): %s\n",
-		      $e->getCode(),
-		      $e->getLine(),
-		      $e->getFile(),
-		      date('r'),
-		      $argv[1],
-		      $e->getMessage()),
-	      3, Conf::$LOG_SEASON);
+                      $e->getCode(),
+                      $e->getLine(),
+                      $e->getFile(),
+                      date('r'),
+                      $argv[1],
+                      $e->getMessage()),
+              3, Conf::$LOG_SEASON);
     print_r($e->getTrace());
   }
 }

@@ -93,19 +93,19 @@ class TPublicPage extends XPage {
 
     // Navigation
     $this->body->add(new XDiv(array('class'=>'nav'),
-			      array(new XH3("Navigate"),
-				    new XUl(array(),
-					    array(new XLi(new XA('#menu', "Menu")),
-						  new XLi(new XA('#page-content', "Content")),
-						  new XLi(new XA('#sponsors', "Our sponsors")))))));
+                              array(new XH3("Navigate"),
+                                    new XUl(array(),
+                                            array(new XLi(new XA('#menu', "Menu")),
+                                                  new XLi(new XA('#page-content', "Content")),
+                                                  new XLi(new XA('#sponsors', "Our sponsors")))))));
     $this->body->add($sep);
 
     // Header
     $this->body->add($div = new XDiv(array('id'=>'page-header')));
     $div->add(new XP(array('id'=>'last_updated'), date('M j, Y @ H:i:s')));
     $div->add(new XDiv(array('id'=>'menu-wrapper'),
-		       array(new XH3("Menu", array('class'=>'nav')),
-			     $menu = new XUl(array('id'=>'menu')))));
+                       array(new XH3("Menu", array('class'=>'nav')),
+                             $menu = new XUl(array('id'=>'menu')))));
 
     // Fill menu, splitting in half, and wedging a link to the home
     // page in between
@@ -128,9 +128,9 @@ class TPublicPage extends XPage {
       $h1->add(new XSpan("", array('id'=>'right-fill')));
 
       if (count($this->header_table) > 0) {
-	$sub->add($tab = new XTable(array('id'=>'page-info')));
-	foreach ($this->header_table as $key => $val)
-	  $tab->add(new XTR(array(), array(new XTH(array(), $key), new XTD(array(), $val))));
+        $sub->add($tab = new XTable(array('id'=>'page-info')));
+        foreach ($this->header_table as $key => $val)
+          $tab->add(new XTR(array(), array(new XTH(array(), $key), new XTD(array(), $val))));
       }
     }
 
@@ -142,19 +142,19 @@ class TPublicPage extends XPage {
 
     // Footer
     $this->body->add(new XDiv(array('id'=>'page-footer'),
-			      array(new XDiv(array('id'=>'sponsors'),
-					     array(new XH3("Our sponsors"),
-						   new XUl(array('id'=>'sponsors-list'),
-							   array(new XLi(new XA('http://gillna.com', new XImg('/inc/img/sponsors/gill.png', "Gill"))),
-								 new XLi(new XA('http://www.apsltd.com', new XImg('/inc/img/sponsors/aps.png', "APS"))),
-								 new XLi(new XA('http://www.sperrytopsider.com/', new XImg('/inc/img/sponsors/sperry-gray.png', "Sperry Top-Sider"))),
-								 new XLi(new XA('http://www.laserperformance.com/', new XImg('/inc/img/sponsors/laserperformance.png', "LaserPerformance"))),
-								 new XLi(new XA('http://www.marlowropes.com/', new XImg('/inc/img/sponsors/marlow.png', "Marlow"))),
-								 new XLi(new XA('http://www.sail1design.com/', new XImg('/inc/img/sponsors/sail1design.png', "Sail 1 Design"))),
-								 new XLi(new XA('http://www.ussailing.org/', new XImg('/inc/img/sponsors/ussailing.png', "US Sailing"))),
-								 new XLi(new XA('http://www.quantumsails.com/', new XImg('/inc/img/sponsors/qtag.png', "Quantum Sails"))))))),
-				    
-				    new XAddress(array(), array(Conf::$COPYRIGHT)))));
+                              array(new XDiv(array('id'=>'sponsors'),
+                                             array(new XH3("Our sponsors"),
+                                                   new XUl(array('id'=>'sponsors-list'),
+                                                           array(new XLi(new XA('http://gillna.com', new XImg('/inc/img/sponsors/gill.png', "Gill"))),
+                                                                 new XLi(new XA('http://www.apsltd.com', new XImg('/inc/img/sponsors/aps.png', "APS"))),
+                                                                 new XLi(new XA('http://www.sperrytopsider.com/', new XImg('/inc/img/sponsors/sperry-gray.png', "Sperry Top-Sider"))),
+                                                                 new XLi(new XA('http://www.laserperformance.com/', new XImg('/inc/img/sponsors/laserperformance.png', "LaserPerformance"))),
+                                                                 new XLi(new XA('http://www.marlowropes.com/', new XImg('/inc/img/sponsors/marlow.png', "Marlow"))),
+                                                                 new XLi(new XA('http://www.sail1design.com/', new XImg('/inc/img/sponsors/sail1design.png', "Sail 1 Design"))),
+                                                                 new XLi(new XA('http://www.ussailing.org/', new XImg('/inc/img/sponsors/ussailing.png', "US Sailing"))),
+                                                                 new XLi(new XA('http://www.quantumsails.com/', new XImg('/inc/img/sponsors/qtag.png', "Quantum Sails"))))))),
+                                    
+                                    new XAddress(array(), array(Conf::$COPYRIGHT)))));
 
     $this->filled = true;
   }

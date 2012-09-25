@@ -106,20 +106,20 @@ class RegattaIO {
       $boat_set = array();
       $race_set = array();
       foreach ($races[(string)$div] as $race) {
-	$boat_set[$race->boat->id] = $race->boat;
-	if (!isset($race_set[$race->boat->id]))
-	  $race_set[$race->boat->id] = array();
-	$race_set[$race->boat->id][] = $race->number;
+        $boat_set[$race->boat->id] = $race->boat;
+        if (!isset($race_set[$race->boat->id]))
+          $race_set[$race->boat->id] = array();
+        $race_set[$race->boat->id][] = $race->number;
       }
 
       foreach ($race_set as $id => $set) {
-	$boat = $boat_set[$id];
-	$tag->add($sub = new XElem("Boat"));
-	$sub->set("id", $id);
-	$sub->set("division", $div);
-	$sub->set("races", DB::makeRange($set));
-	$sub->set("occupants", $boat->occupants);
-	$sub->add(new XText($boat->name));
+        $boat = $boat_set[$id];
+        $tag->add($sub = new XElem("Boat"));
+        $sub->set("id", $id);
+        $sub->set("division", $div);
+        $sub->set("races", DB::makeRange($set));
+        $sub->set("occupants", $boat->occupants);
+        $sub->add(new XText($boat->name));
       }
     }
 
@@ -148,40 +148,40 @@ class RegattaIO {
     foreach ($divisions as $div) {
       // For each race and team
       foreach ($races[(string)$div] as $race) {
-	foreach ($teams as $team) {
-	  // Sail
-	  $tag->add($sub = new XElem("Sail"));
-	  $sub->set("team", $team->id);
-	  $sub->set("race", $race);
-	  $sub->set("sail", $rotation->getSail($race, $team));
+        foreach ($teams as $team) {
+          // Sail
+          $tag->add($sub = new XElem("Sail"));
+          $sub->set("team", $team->id);
+          $sub->set("race", $race);
+          $sub->set("sail", $rotation->getSail($race, $team));
 
-	  // Finish
-	  $finish = $reg->getFinish($race, $team);
-	  if ($finish != null) {
+          // Finish
+          $finish = $reg->getFinish($race, $team);
+          if ($finish != null) {
 
-	    $tag2->add($sub = new XElem("Finish"));
-	    $sub->set("team", $team->id);
-	    $sub->set("race", $race);
-	    $sub->add(new XText($finish->entered->format('G:i:s O')));
+            $tag2->add($sub = new XElem("Finish"));
+            $sub->set("team", $team->id);
+            $sub->set("race", $race);
+            $sub->add(new XText($finish->entered->format('G:i:s O')));
 
-	    // Penalty and breakdown
-	    if ($finish->penalty instanceof Penalty) {
-	      $tagP->add($sub = new XElem("Penalty"));
-	      $sub->set("team", $team->id);
-	      $sub->set("race", $race);
-	      $sub->set("type", $finish->penalty->type);
-	      $sub->add(new XText($finish->penalty->comments));
-	    }
-	    elseif ($finish->penalty instanceof Breakdown) {
-	      $tagB->add($sub = new XElem("Breakdown"));
-	      $sub->set("team", $team->id);
-	      $sub->set("race", $race);
-	      $sub->set("type", $finish->penalty->type);
-	      $sub->set("handicap", $finish->penalty->amount);
-	      $sub->add(new XText($finish->penalty->comments));
-	    }
-	  }
-	}
+            // Penalty and breakdown
+            if ($finish->penalty instanceof Penalty) {
+              $tagP->add($sub = new XElem("Penalty"));
+              $sub->set("team", $team->id);
+              $sub->set("race", $race);
+              $sub->set("type", $finish->penalty->type);
+              $sub->add(new XText($finish->penalty->comments));
+            }
+            elseif ($finish->penalty instanceof Breakdown) {
+              $tagB->add($sub = new XElem("Breakdown"));
+              $sub->set("team", $team->id);
+              $sub->set("race", $race);
+              $sub->set("type", $finish->penalty->type);
+              $sub->set("handicap", $finish->penalty->amount);
+              $sub->add(new XText($finish->penalty->comments));
+            }
+          }
+        }
       }
     }
 
@@ -200,17 +200,17 @@ class RegattaIO {
     $root->add($tag = new XElem("RP"));
     foreach ($teams as $team) {
       foreach ($divisions as $div) {
-	foreach (array(RP::SKIPPER, RP::CREW) as $role) {
-	  $sailors = $rp->getRP($team, $div, $role);
-	  foreach ($sailors as $cont) {
-	    $tag->add($sub = new XElem("Sailor"));
-	    $sub->set("id",   $cont->sailor->id);
-	    $sub->set("team", $team->id);
-	    $sub->set("role", $role);
-	    $sub->set("division", $div);
-	    $sub->set("races", DB::makeRange($cont->races_nums));
-	  }
-	}
+        foreach (array(RP::SKIPPER, RP::CREW) as $role) {
+          $sailors = $rp->getRP($team, $div, $role);
+          foreach ($sailors as $cont) {
+            $tag->add($sub = new XElem("Sailor"));
+            $sub->set("id",   $cont->sailor->id);
+            $sub->set("team", $team->id);
+            $sub->set("role", $role);
+            $sub->set("division", $div);
+            $sub->set("races", DB::makeRange($cont->races_nums));
+          }
+        }
       }
     }
 
@@ -238,36 +238,36 @@ class RegattaIO {
       $sub->set("id", $school->id);
 
       foreach ($school->getSailors() as $sailor) {
-	$sub->add($ssub = new XElem("Member"));
-	$ssub->set("id", $sailor->id);
-	$ssub->set("data", "http://techscore.mit.edu");
-	
-	$ssub->add($sssub = new XElem("Name"));
-	$sssub->add(new XText(sprintf("%s %s",
-				      $sailor->first_name,
-				      $sailor->last_name)));
-	$ssub->add($sssub = new XElem("Year"));
-	$sssub->add(new XText($sailor->year));
+        $sub->add($ssub = new XElem("Member"));
+        $ssub->set("id", $sailor->id);
+        $ssub->set("data", "http://techscore.mit.edu");
+        
+        $ssub->add($sssub = new XElem("Name"));
+        $sssub->add(new XText(sprintf("%s %s",
+                                      $sailor->first_name,
+                                      $sailor->last_name)));
+        $ssub->add($sssub = new XElem("Year"));
+        $sssub->add(new XText($sailor->year));
       }
       
       foreach ($school->getUnregisteredSailors() as $sailor) {
-	$sub->add($ssub = new XElem("Member"));
-	$ssub->set("id", $sailor->id);
-	$ssub->set("data", "http://techscore.mit.edu");
-	
-	$ssub->add($sssub = new XElem("Name"));
-	$sssub->add(new XText(sprintf("%s %s*",
-				      $sailor->first_name,
-				      $sailor->last_name)));
+        $sub->add($ssub = new XElem("Member"));
+        $ssub->set("id", $sailor->id);
+        $ssub->set("data", "http://techscore.mit.edu");
+        
+        $ssub->add($sssub = new XElem("Name"));
+        $sssub->add(new XText(sprintf("%s %s*",
+                                      $sailor->first_name,
+                                      $sailor->last_name)));
 
-	$ssub->add($sssub = new XElem("Year"));
-	$sssub->add(new XText($sailor->year));
+        $ssub->add($sssub = new XElem("Year"));
+        $sssub->add(new XText($sailor->year));
       }
     }
 
     return sprintf("%s%s",
-		   '<?xml version="1.0" encoding="utf-8"?>',
-		   $root->toXML());
+                   '<?xml version="1.0" encoding="utf-8"?>',
+                   $root->toXML());
   }
 
 
@@ -328,11 +328,11 @@ class RegattaIO {
     // - finalized?
     $finalized = null;
     if (isset($root['finalized']) &&
-	!empty($root['finalized'])) {
+        !empty($root['finalized'])) {
       try {
-	$finalized = new DateTime($root['finalized'], new DateTimeZone("America/New_York"));
+        $finalized = new DateTime($root['finalized'], new DateTimeZone("America/New_York"));
       } catch (Exception $e) {
-	$warnings[] = sprintf("Ignoring invalid datetime for finalized (%s).", $root['finalized']);
+        $warnings[] = sprintf("Ignoring invalid datetime for finalized (%s).", $root['finalized']);
       }
     }
     $regatta->finalized = $finalized;
@@ -355,7 +355,7 @@ class RegattaIO {
       // @TODO: what about principal vs. secondary scorers?
     foreach ($root->Scorers->Scorer as $scorer) {
       if (($acc = DB::getAccount($scorer['id'])) != null) {
-	$regatta->addScorer($acc);
+        $regatta->addScorer($acc);
       }
       print($scorer['id'] . "\n");
     }
@@ -373,24 +373,24 @@ class RegattaIO {
 
       // validate boat ID and divisions
       try {
-	$b = DB::getBoat($id);
-	$d = new Division($div);
-	if (!isset($race_list[$div])) $race_list[$div] = array();
-	foreach (DB::parseRange($races) as $num) {
-	  $race = new Race();
-	  $race->division = $d;
-	  $race->boat     = $b;
-	  $race->number   = $num;
-	  $race_list[$div][$num - 1] = $race;
-	}
+        $b = DB::getBoat($id);
+        $d = new Division($div);
+        if (!isset($race_list[$div])) $race_list[$div] = array();
+        foreach (DB::parseRange($races) as $num) {
+          $race = new Race();
+          $race->division = $d;
+          $race->boat     = $b;
+          $race->number   = $num;
+          $race_list[$div][$num - 1] = $race;
+        }
       } catch (Exception $e) {
-	$warnings[] = "Boat information inaccurate: $b.";
+        $warnings[] = "Boat information inaccurate: $b.";
       }
     }
     // At this point, all the boats should be in the list
     foreach ($race_list as $list) {
       foreach ($list as $race)
-	$regatta->setRace($race);
+        $regatta->setRace($race);
     }
 
     // ------------------------------------------------------------
@@ -400,20 +400,20 @@ class RegattaIO {
     $removed_teams = array();
     $valid_teams = array();
     $teams = array();                              // alist: keep
-						   // track for speed
-						   // sake: old_id =>
-						   // new team
+                                                   // track for speed
+                                                   // sake: old_id =>
+                                                   // new team
     foreach ($other_reg->getTeams() as $team)
       $valid_teams[$team->id] = $team;
     foreach ($root->Teams->Team as $team) {
       $id = (string)$team['id'];
       if (isset($valid_teams[$id])) {
-	$regatta->addTeam($valid_teams[$id]);
-	$teams[$id] = $valid_teams[$id];
-	unset($valid_teams[$id]);
+        $regatta->addTeam($valid_teams[$id]);
+        $teams[$id] = $valid_teams[$id];
+        unset($valid_teams[$id]);
       }
       else {
-	$ignored_teams[] = sprintf("'%s %s'", $team->LongName, $team->ShortName);
+        $ignored_teams[] = sprintf("'%s %s'", $team->LongName, $team->ShortName);
       }
     }
     // remove teams still in $valid_teams
@@ -437,26 +437,26 @@ class RegattaIO {
       $num     = $sail['sail'];
       $r = null;
       try {
-	$r = Race::parse((string)$sail['race']);
+        $r = Race::parse((string)$sail['race']);
       } catch (Exception $e) {
-	$warnings[] = sprintf("Invalid race value (%s) in rotation.", (string)$sail['race']);
+        $warnings[] = sprintf("Invalid race value (%s) in rotation.", (string)$sail['race']);
       }
       if (isset($teams[$team_id]) && ($num > 0) && ($r != null)) {
-	try {
+        try {
 // @TODO getRace()
-	  $race = $regatta->getRace($r->division, $r->number);
-	  $s = new Sail();
-	  $s->race = $race;
-	  $s->team = $teams[$team_id];
-	  $s->sail = (int)$num;
-	  $rot->setSail($s);
-	}
-	catch (Exception $e) {
-	  $warnings[] = "Missing race $r.";
-	}
+          $race = $regatta->getRace($r->division, $r->number);
+          $s = new Sail();
+          $s->race = $race;
+          $s->team = $teams[$team_id];
+          $s->sail = (int)$num;
+          $rot->setSail($s);
+        }
+        catch (Exception $e) {
+          $warnings[] = "Missing race $r.";
+        }
       }
       else
-	$rot_errors = true;
+        $rot_errors = true;
     }
     if ($rot_errors == true)
       $warnings[] = "Problems with one or more sails numbers in the rotation.";
@@ -471,32 +471,32 @@ class RegattaIO {
     foreach ($root->Finishes->Finish as $finish) {
       $team_id = (string)$finish['team'];
       if (empty($finish))
-	$finish_errors = true;
+        $finish_errors = true;
       else {
-	$r = null;
-	try {
-	  $r = Race::parse($finish['race']);
-	  $entered = new DateTime((string)$finish, new DateTimeZone("America/New_York"));
-	} catch (Exception $e) {
-	  $warnings[] = sprintf("Invalid race (%s) or entered timestamp (%s) in finish.", $finish['race'], $finish);
-	}
-	if (isset($teams[$team_id]) && ($r != null)) {
-	  try {
+        $r = null;
+        try {
+          $r = Race::parse($finish['race']);
+          $entered = new DateTime((string)$finish, new DateTimeZone("America/New_York"));
+        } catch (Exception $e) {
+          $warnings[] = sprintf("Invalid race (%s) or entered timestamp (%s) in finish.", $finish['race'], $finish);
+        }
+        if (isset($teams[$team_id]) && ($r != null)) {
+          try {
 // @TODO getRace()
-	    $race = $regatta->getRace($r->division, $r->number);
-	    $f = $regatta->createFinish($r, $teams[$team_id]);
-	    $f->entered = $entered;
-	    if (isset($finishes[$race->id]))
-	      $finishes[$race->id] = array();
-	    $finishes[$race->id][] = $f;
-	    $races[$race->id] = $race;
-	  }
-	  catch (Exception $e) {
-	    $warnings[] = "Missing race $r while importing finishes.";
-	  }
-	}
-	else
-	  $finish_errors = true;
+            $race = $regatta->getRace($r->division, $r->number);
+            $f = $regatta->createFinish($r, $teams[$team_id]);
+            $f->entered = $entered;
+            if (isset($finishes[$race->id]))
+              $finishes[$race->id] = array();
+            $finishes[$race->id][] = $f;
+            $races[$race->id] = $race;
+          }
+          catch (Exception $e) {
+            $warnings[] = "Missing race $r while importing finishes.";
+          }
+        }
+        else
+          $finish_errors = true;
       }
     }
     if ($finish_errors)
@@ -518,22 +518,22 @@ class RegattaIO {
 
       $race = null;
       try {
-	$r = Race::parse($race_num);
+        $r = Race::parse($race_num);
 // @TODO getRace()
-	$race = $regatta->getRace($r->division, $r->number);
+        $race = $regatta->getRace($r->division, $r->number);
       } catch (Exception $e) {
-	$warnings[] = "Unable to parse race or non-existing $race_num in penalty.";
-	$penalty_errors = true;
+        $warnings[] = "Unable to parse race or non-existing $race_num in penalty.";
+        $penalty_errors = true;
       }
 
       if (isset($teams[$team_id]) &&
-	  ($race != null) &&
-	  in_array($type, $penalty_types) &&
-	  ($finish = $regatta->getFinish($race, $teams[$team_id])) != null) {
-	$finish->penalty = new Penalty($type, -1, (string)$elem);
+          ($race != null) &&
+          in_array($type, $penalty_types) &&
+          ($finish = $regatta->getFinish($race, $teams[$team_id])) != null) {
+        $finish->penalty = new Penalty($type, -1, (string)$elem);
       }
       else
-	$penalty_errors = true;
+        $penalty_errors = true;
     }
     if ($penalty_errors)
       $warnings[] = "Problems with one or more penalties.";
@@ -555,22 +555,22 @@ class RegattaIO {
 
       $race = null;
       try {
-	$r = Race::parse($race_num);
+        $r = Race::parse($race_num);
 // @TODO getRace()
-	$race = $regatta->getRace($r->division, $r->number);
+        $race = $regatta->getRace($r->division, $r->number);
       } catch (Exception $e) {
-	$warnings[] = "Unable to parse race or non-existing $race_num in penalty.";
-	$penalty_errors = true;
+        $warnings[] = "Unable to parse race or non-existing $race_num in penalty.";
+        $penalty_errors = true;
       }
 
       if (isset($teams[$team_id]) &&
-	  ($race != null) &&
-	  in_array($type, $penalty_types) &&
-	  ($finish = $regatta->getFinish($race, $teams[$team_id])) != null) {
-	$finish->penalty = new Breakdown($type, $amount, (string)$elem);
+          ($race != null) &&
+          in_array($type, $penalty_types) &&
+          ($finish = $regatta->getFinish($race, $teams[$team_id])) != null) {
+        $finish->penalty = new Breakdown($type, $amount, (string)$elem);
       }
       else
-	$penalty_errors = true;
+        $penalty_errors = true;
     }
     if ($penalty_errors)
       $warnings[] = "Problems with one or more breakdowns.";
@@ -585,18 +585,18 @@ class RegattaIO {
       $type    = (string)$elem['penalty'];
 
       if (isset($teams[$team_id]) &&
-	  in_array($div, $divisions) &&
-	  in_array($type, TeamPenalty::getList())) {
-	$penalty = new TeamPenalty();
-	$penalty->team = $teams[$team_id];
-	$penalty->division = new Division($div);
-	$penalty->type     = $type;
-	$penalty->comments = (string)$elem;
+          in_array($div, $divisions) &&
+          in_array($type, TeamPenalty::getList())) {
+        $penalty = new TeamPenalty();
+        $penalty->team = $teams[$team_id];
+        $penalty->division = new Division($div);
+        $penalty->type     = $type;
+        $penalty->comments = (string)$elem;
 
-	$regatta->setTeamPenalty($penalty);
+        $regatta->setTeamPenalty($penalty);
       }
       else {
-	$warnings[] = "Invalid team, division, or penalty type in team penalty.";
+        $warnings[] = "Invalid team, division, or penalty type in team penalty.";
       }
     }
 
@@ -625,36 +625,36 @@ class RegattaIO {
       $nums = DB::parseRange($nums);
 
       if ($team != null && $role != null && $div != null && $nums != null && !empty($id)) {
-	if (!isset($teams_reg[$team->school->id])) {
-	  $teams_reg[$team->school->id]  = $team->school->getSailors();
-	  $teams_ureg[$team->school->id] = $team->school->getUnregisteredSailors();
-	}
+        if (!isset($teams_reg[$team->school->id])) {
+          $teams_reg[$team->school->id]  = $team->school->getSailors();
+          $teams_ureg[$team->school->id] = $team->school->getUnregisteredSailors();
+        }
 
-	/*
-	 * Most be rewritten for new RP structure
-	// Does the sailor exist in the database? As unregistered? As new?
-	$rp = new RP();
-	$rp->boat_role  = $role;
-	$rp->team       = $team;
-	$rp->division   = $div;
-	$rp->races_nums = $nums;
+        /*
+         * Most be rewritten for new RP structure
+        // Does the sailor exist in the database? As unregistered? As new?
+        $rp = new RP();
+        $rp->boat_role  = $role;
+        $rp->team       = $team;
+        $rp->division   = $div;
+        $rp->races_nums = $nums;
 
-	$sailor = $team->school->getSailor($id);
+        $sailor = $team->school->getSailor($id);
 
-	if ($sailor == null) {
-	  $sailor = new Sailor();
-	  $sailor->id = $id;
-	  $rp->sailor   = $sailor;
-	  $pending_rp[] = $rp;
-	}
-	else {
-	  $rp->sailor   = $sailor;
-	  // $rpman->setRP($rp);
-	}
-	*/
+        if ($sailor == null) {
+          $sailor = new Sailor();
+          $sailor->id = $id;
+          $rp->sailor   = $sailor;
+          $pending_rp[] = $rp;
+        }
+        else {
+          $rp->sailor   = $sailor;
+          // $rpman->setRP($rp);
+        }
+        */
       }
       else
-	$rp_errors = true;
+        $rp_errors = true;
     }
     if ($rp_errors)
       $warnings[] = "Problems while entering some RP information.";
@@ -674,43 +674,43 @@ class RegattaIO {
       $school_id = addslashes((string)$aff['id']);
       $school = DB::getSchool($school_id);
       if ($school != null) {
-	foreach ($aff->Member as $member) {
-	  $id = (string)$member['id'];
-	  if (in_array($id, array_keys($new_ids))) {
+        foreach ($aff->Member as $member) {
+          $id = (string)$member['id'];
+          if (in_array($id, array_keys($new_ids))) {
 
-	    // add temporary sailor, fix the $rp
-	    $sailor = new Sailor();
-	    $year  = (string)$member->Year;
-	    if (is_numeric($year) && $year > 1900 && $year < 2100)
-	      $year = (int)$year;
-	    else {
-	      $year = date('Y');
-	      $warnings[] = sprintf("Invalid year found for new sailor (%s), using current.", $member->Name);
-	    }
+            // add temporary sailor, fix the $rp
+            $sailor = new Sailor();
+            $year  = (string)$member->Year;
+            if (is_numeric($year) && $year > 1900 && $year < 2100)
+              $year = (int)$year;
+            else {
+              $year = date('Y');
+              $warnings[] = sprintf("Invalid year found for new sailor (%s), using current.", $member->Name);
+            }
 
-	    $names = explode(" ", addslashes((string)$member->Name));
+            $names = explode(" ", addslashes((string)$member->Name));
 
-	    if (count($names) > 0) {
-	      $sailor->last_name  = array_pop($names);
-	      $sailor->first_name = implode(" ", $names);
-	      $sailor->year       = $year;
-	      $sailor->role       = "student";
-	      $sailor->school     = $school;
+            if (count($names) > 0) {
+              $sailor->last_name  = array_pop($names);
+              $sailor->first_name = implode(" ", $names);
+              $sailor->year       = $year;
+              $sailor->role       = "student";
+              $sailor->school     = $school;
 
-	      $sailor = $rpm->addTempSailor($sailor);
-	      $new_ids[$id] = $sailor;
-	    }
-	  }
-	}
+              $sailor = $rpm->addTempSailor($sailor);
+              $new_ids[$id] = $sailor;
+            }
+          }
+        }
       }
     }
     foreach ($pending_rp as $rp) {
       if ($new_ids[$rp->sailor->id] != null) {
-	$rp->sailor = $new_ids[$rp->sailor->id];
-	// $rpman->setRP($rp);
+        $rp->sailor = $new_ids[$rp->sailor->id];
+        // $rpman->setRP($rp);
       }
       else
-	$warnings[] = sprintf("Unable to add temporary sailor with id (%s). RP not added.", $rp->sailor->id);
+        $warnings[] = sprintf("Unable to add temporary sailor with id (%s). RP not added.", $rp->sailor->id);
     }
 
     $this->warnings = $warnings;

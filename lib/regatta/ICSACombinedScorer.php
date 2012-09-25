@@ -52,15 +52,15 @@ class ICSACombinedScorer extends ICSAScorer {
     foreach ($divs as $div) {
       $r = $reg->getRace($div, $race->number);
       foreach ($reg->getFinishes($r) as $fin)
-	$finishes[] = $fin;
+        $finishes[] = $fin;
     }
     if (count($finishes) != 0 && count($finishes) != $FLEET)
       throw new InvalidArgumentException("Some divisions seem to be missing combined finishes for race $race");
 
     usort($finishes, "Finish::compareEntered");
     $affected_finishes = $finishes; // these, and the average
-				    // finishes, need to be commited
-				    // to database. So track 'em!
+                                    // finishes, need to be commited
+                                    // to database. So track 'em!
 
     $avg_finishes = array();
     $score = 1;
@@ -68,52 +68,52 @@ class ICSACombinedScorer extends ICSAScorer {
       // no penalties or breakdown
       $penalty = $finish->getModifier();
       if ($penalty == null) {
-	$finish->score = new Score($score);
-	$score++;
+        $finish->score = new Score($score);
+        $score++;
       }
       // penalty
       elseif ($penalty instanceof Penalty) {
-	if ($penalty->amount <= 0)
-	  $finish->score = new Score($FLEET + 1,
-				     sprintf("(%d, Fleet + 1) %s", $FLEET + 1, $penalty->comments));
-	elseif ($penalty->amount > $score) {
-	  $finish->score = new Score($penalty->amount,
-				     sprintf("(%d, Assigned) %s", $penalty->amount, $penalty->comments));
-	  if ($penalty->displace)
-	    $score++;
-	}
-	else {
-	  $finish->score = new Score($score,
-				     sprintf("(%d, Assigned penalty (%d) no worse) %s",
-					     $score,
-					     $penalty->amount,
-					     $penalty->comments));
-	  if ($penalty->displace)
-	    $score++;
-	}
-	$finish->earned = $score;
+        if ($penalty->amount <= 0)
+          $finish->score = new Score($FLEET + 1,
+                                     sprintf("(%d, Fleet + 1) %s", $FLEET + 1, $penalty->comments));
+        elseif ($penalty->amount > $score) {
+          $finish->score = new Score($penalty->amount,
+                                     sprintf("(%d, Assigned) %s", $penalty->amount, $penalty->comments));
+          if ($penalty->displace)
+            $score++;
+        }
+        else {
+          $finish->score = new Score($score,
+                                     sprintf("(%d, Assigned penalty (%d) no worse) %s",
+                                             $score,
+                                             $penalty->amount,
+                                             $penalty->comments));
+          if ($penalty->displace)
+            $score++;
+        }
+        $finish->earned = $score;
       }
       // breakdown
       else {
-	// Should the amount be assigned, determine actual
-	// score. If not, then keep track for average score
-	if ($penalty->amount > 0) {
-	  $amount = $penalty->amount;
-	  $exp = sprintf("(%d, Assigned) %s", $amount, $penalty->comments);
-	  if ($score <= $penalty->amount) {
-	    $amount = $score;
-	    $exp = sprintf("(%d, Assigned amount (%d) no better than actual) %s",
-			   $amount, $penalty->amount, $penalty->comments);
-	  }
-	  $finish->score = new Score($amount, $exp);
-	  $finish->earned = $score;
-	}
-	else {
-	  // for the time being, set their earned amount
-	  $avg_finishes[] = $finish;
-	}
-	$finish->earned = $score;
-	$score++;
+        // Should the amount be assigned, determine actual
+        // score. If not, then keep track for average score
+        if ($penalty->amount > 0) {
+          $amount = $penalty->amount;
+          $exp = sprintf("(%d, Assigned) %s", $amount, $penalty->comments);
+          if ($score <= $penalty->amount) {
+            $amount = $score;
+            $exp = sprintf("(%d, Assigned amount (%d) no better than actual) %s",
+                           $amount, $penalty->amount, $penalty->comments);
+          }
+          $finish->score = new Score($amount, $exp);
+          $finish->earned = $score;
+        }
+        else {
+          // for the time being, set their earned amount
+          $avg_finishes[] = $finish;
+        }
+        $finish->earned = $score;
+        $score++;
       }
     }
 
@@ -121,7 +121,7 @@ class ICSACombinedScorer extends ICSAScorer {
     // the regatta, not just this race
     foreach ($divs as $div) {
       foreach ($reg->getAverageFinishes($div) as $finish)
-	$avg_finishes[] = $finish;
+        $avg_finishes[] = $finish;
     }
     while (count($avg_finishes) > 0) {
       $finish = array_shift($avg_finishes);
@@ -132,40 +132,40 @@ class ICSACombinedScorer extends ICSAScorer {
       $total = 0;
 
       foreach ($reg->getScoredRaces($finish->race->division) as $r) {
-	$fin = $reg->getFinish($r, $finish->team);
-	if ($fin == $finish) {
-	  $div_finishes[] = $fin;
-	}
-	elseif (($i = array_search($fin, $avg_finishes)) === false) {
-	  $total += $fin->score;
-	  $count++;
-	}
-	else {
-	  $affected_finishes[] = $fin;
-	  $div_finishes[] = $fin;
-	  unset($avg_finishes[$i]);
-	}
+        $fin = $reg->getFinish($r, $finish->team);
+        if ($fin == $finish) {
+          $div_finishes[] = $fin;
+        }
+        elseif (($i = array_search($fin, $avg_finishes)) === false) {
+          $total += $fin->score;
+          $count++;
+        }
+        else {
+          $affected_finishes[] = $fin;
+          $div_finishes[] = $fin;
+          unset($avg_finishes[$i]);
+        }
       }
 
       // no other scores to average
       if ($count == 0) {
-	foreach ($div_finishes as $fin) {
-	  $fin->score = new Score($fin->earned,
-				  sprintf("(%d: no other finishes to average) %s", $fin->earned, $fin->comments));
-	}
+        foreach ($div_finishes as $fin) {
+          $fin->score = new Score($fin->earned,
+                                  sprintf("(%d: no other finishes to average) %s", $fin->earned, $fin->comments));
+        }
       }
       else {
-	$avg = round($total / $count);
-	foreach ($div_finishes as $fin) {
-	  if ($avg <= $fin->earned) {
-	    $fin->score = new Score($avg,
-				    sprintf("(%d: average in division) %s", $avg, $fin->comments));
-	  }
-	  else {
-	    $fin->score = new Score($fin->earned,
-				    sprintf("(%d: average (%d) is no better) %s", $fin->earned, $avg, $fin->comments));
-	  }
-	}
+        $avg = round($total / $count);
+        foreach ($div_finishes as $fin) {
+          if ($avg <= $fin->earned) {
+            $fin->score = new Score($avg,
+                                    sprintf("(%d: average in division) %s", $avg, $fin->comments));
+          }
+          else {
+            $fin->score = new Score($fin->earned,
+                                    sprintf("(%d: average (%d) is no better) %s", $fin->earned, $avg, $fin->comments));
+          }
+        }
       }
     } // end loop through average finishes
     $reg->commitFinishes($affected_finishes);
@@ -181,9 +181,9 @@ class ICSACombinedScorer extends ICSAScorer {
    * @param int $placeFinish = 1 by default, the place finish to check for
    */
   protected function rankMostHighFinishes(Array $ranks,
-					  Regatta $reg,
-					  Array $races,
-					  $placeFinish = 1) {
+                                          Regatta $reg,
+                                          Array $races,
+                                          $placeFinish = 1) {
 
     // Base cases
     if (count($ranks) < 2)
@@ -193,7 +193,7 @@ class ICSACombinedScorer extends ICSAScorer {
     if ($placeFinish > $fleetSize) {
       $nums = array();
       foreach ($reg->getScoredRaces(Division::A()) as $race)
-	$nums[] = $race->number;
+        $nums[] = $race->number;
       return $this->rankByLastRace($ranks, $reg, $nums);
     }
 
@@ -208,9 +208,9 @@ class ICSACombinedScorer extends ICSAScorer {
       $rank->explanation = sprintf("Number of high-place (%d) finishes", $placeFinish);
 
       foreach ($races as $race) {
-	$finish = $reg->getFinish($race, $rank->team);
-	if ($finish !== null && $finish->score == $placeFinish)
-	  $numHighFinishes[$t]++;
+        $finish = $reg->getFinish($race, $rank->team);
+        if ($finish !== null && $finish->score == $placeFinish)
+          $numHighFinishes[$t]++;
       }
     }
 
@@ -230,20 +230,20 @@ class ICSACombinedScorer extends ICSAScorer {
       $tiedRanks[] = $ranksCopy[$i];
       $i++;
       while ($i < $numTeams) {
-	$nextScore = $numWins[$i];
-	if ($thisScore != $nextScore)
-	  break;
-	$tiedRanks[] = $ranksCopy[$i];
-	$thisScore = $nextScore;
-	$i++;
+        $nextScore = $numWins[$i];
+        if ($thisScore != $nextScore)
+          break;
+        $tiedRanks[] = $ranksCopy[$i];
+        $thisScore = $nextScore;
+        $i++;
       }
 
       $tiedRanks = $this->rankMostHighFinishes($tiedRanks,
-					       $reg,
-					       $races,
-					       $placeFinish + 1);
+                                               $reg,
+                                               $races,
+                                               $placeFinish + 1);
       foreach ($tiedRanks as $rank)
-	$ranks[$originalSpot++] = $rank;
+        $ranks[$originalSpot++] = $rank;
     }
     return $ranks;
   }
@@ -256,8 +256,8 @@ class ICSACombinedScorer extends ICSAScorer {
    * @param Array:ints $races the race numbers
    */
   protected function rankByLastRace(Array $ranks,
-				    Regatta $reg,
-				    Array $races) {
+                                    Regatta $reg,
+                                    Array $races) {
 
     $numRanks = count($ranks);
     if ($numRanks < 2)
@@ -266,7 +266,7 @@ class ICSACombinedScorer extends ICSAScorer {
     if (count($races) == 0) {
       // Let's go alphabetical
       foreach ($ranks as $rank)
-	$rank->explanation = "Alphabetical";
+        $rank->explanation = "Alphabetical";
       usort($ranks, "Rank::compareTeam");
       return $ranks;
     }
@@ -281,10 +281,10 @@ class ICSACombinedScorer extends ICSAScorer {
     foreach ($ranks as $rank) {
       $total = 0;
       foreach ($divisions as $div) {
-	$race = $reg->getRace($div, $lastNum);
-	$finish = $reg->getFinish($race, $rank->team);
-	$total += $finish->score;
-	$rank->explanation = sprintf("According to last race across all divisions (%s)", $lastNum);
+        $race = $reg->getRace($div, $lastNum);
+        $finish = $reg->getFinish($race, $rank->team);
+        $total += $finish->score;
+        $rank->explanation = sprintf("According to last race across all divisions (%s)", $lastNum);
       }
       $scoreList[] = $total;
     }
@@ -302,22 +302,22 @@ class ICSACombinedScorer extends ICSAScorer {
       $tiedRanks[] = $ranksCopy[$i];
       $i++;
       while ($i < $numTeams) {
-	$nextScore = $scoreList[$i];
-	if ($nextScore != $thisScore)
-	  break;
-	$tiedRanks[] = $ranksCopy[$i];
+        $nextScore = $scoreList[$i];
+        if ($nextScore != $thisScore)
+          break;
+        $tiedRanks[] = $ranksCopy[$i];
 
-	// Update variables
-	$thisScore = $nextScore;
-	$i++;
+        // Update variables
+        $thisScore = $nextScore;
+        $i++;
       }
 
       // Resolve ties
       $tiedRanks = $this->rankByLastRace($tiedRanks,
-					 $reg,
-					 $races);
+                                         $reg,
+                                         $races);
       foreach ($tiedRanks as $rank)
-	$ranks[$originalSpot++] = $rank;
+        $ranks[$originalSpot++] = $rank;
     }
     return $ranks;
   }

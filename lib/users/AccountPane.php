@@ -53,7 +53,7 @@ class AccountPane extends AbstractUserPane {
       $pw1 = DB::$V->reqRaw($args, 'sake1', 8, 101, "The password must be at least 8 characters long.");
       $pw2 = DB::$V->reqRaw($args, 'sake2', strlen($pw1), strlen($pw1) + 1, "The two passwords do not match.");
       if ($pw1 != $pw2)
-	throw new SoterException("The two passwords do not match.");
+        throw new SoterException("The two passwords do not match.");
       $this->USER->password = sha1($pw1);
       DB::set($this->USER);
       Session::pa(new PA("Password reset."));

@@ -23,10 +23,10 @@ foreach ($argv as $id) {
     $reg = DB::getRegatta($id);
     try {
       if ($reg->type != Regatta::TYPE_PERSONAL) {
-	UpdateRegatta::run($reg, array(UpdateRequest::ACTIVITY_DETAILS,
-				       UpdateRequest::ACTIVITY_ROTATION,
-				       UpdateRequest::ACTIVITY_SCORE));
-	printf("(%3d) Imported regatta %s\n", $reg->id, $reg->name);
+        UpdateRegatta::run($reg, array(UpdateRequest::ACTIVITY_DETAILS,
+                                       UpdateRequest::ACTIVITY_ROTATION,
+                                       UpdateRequest::ACTIVITY_SCORE));
+        printf("(%3d) Imported regatta %s\n", $reg->id, $reg->name);
       }
     }
     catch (Exception $e) {

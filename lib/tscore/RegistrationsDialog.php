@@ -41,56 +41,56 @@ class RegistrationsDialog extends AbstractDialog {
       $is_first = true;
       // For each division
       foreach ($divisions as $div) {
-	// Get skipper and crew
-	$skips = $rpManager->getRP($team, $div, RP::SKIPPER);
-	$crews = $rpManager->getRP($team, $div, RP::CREW);
+        // Get skipper and crew
+        $skips = $rpManager->getRP($team, $div, RP::SKIPPER);
+        $crews = $rpManager->getRP($team, $div, RP::CREW);
 
-	$num_subrows = max(count($skips), count($crews));
-	for ($i = 0; $i < $num_subrows; $i++) {
-	  $row = array();
-	  $cls = '';
-	  if ($is_first) {
-	    $is_first = false;
-	    $cls = 'topborder ';
-	    $row[] = new XTD(array('class'=>'schoolname teamname'), $team);
-	  }
-	  else {
-	    $row[] = "";
-	  }
-	  // Division
-	  if ($i == 0)
-	    $row[] = $div;
-	  else
-	    $row[] = "";
+        $num_subrows = max(count($skips), count($crews));
+        for ($i = 0; $i < $num_subrows; $i++) {
+          $row = array();
+          $cls = '';
+          if ($is_first) {
+            $is_first = false;
+            $cls = 'topborder ';
+            $row[] = new XTD(array('class'=>'schoolname teamname'), $team);
+          }
+          else {
+            $row[] = "";
+          }
+          // Division
+          if ($i == 0)
+            $row[] = $div;
+          else
+            $row[] = "";
 
-	  // Skipper and his races
-	  if (isset($skips[$i])) {
-	    $row[] = $skips[$i]->sailor;
-	    if (count($skips[$i]->races_nums) != $races_in_div[(string)$div])
-	      $row[] = new XTD(array('class'=>'races'), DB::makeRange($skips[$i]->races_nums));
-	    else
-	      $row[] = "";
-	  }
-	  else {
-	    $row[] = "";
-	    $row[] = "";
-	  }
+          // Skipper and his races
+          if (isset($skips[$i])) {
+            $row[] = $skips[$i]->sailor;
+            if (count($skips[$i]->races_nums) != $races_in_div[(string)$div])
+              $row[] = new XTD(array('class'=>'races'), DB::makeRange($skips[$i]->races_nums));
+            else
+              $row[] = "";
+          }
+          else {
+            $row[] = "";
+            $row[] = "";
+          }
 
-	  // Crew and his races
-	  if (isset($crews[$i])) {
-	    $row[] = $crews[$i]->sailor;
-	    if (count($crews[$i]->races_nums) != $races_in_div[(string)$div])
-	      $row[] = new XTD(array('class'=>'races'), DB::makeRange($crews[$i]->races_nums));
-	    else
-	      $row[] = "";
-	  }
-	  else {
-	    $row[] = "";
-	    $row[] = "";
-	  }
+          // Crew and his races
+          if (isset($crews[$i])) {
+            $row[] = $crews[$i]->sailor;
+            if (count($crews[$i]->races_nums) != $races_in_div[(string)$div])
+              $row[] = new XTD(array('class'=>'races'), DB::makeRange($crews[$i]->races_nums));
+            else
+              $row[] = "";
+          }
+          else {
+            $row[] = "";
+            $row[] = "";
+          }
 
-	  $tab->addRow($row, array('class'=>$cls . 'row' . ($row_index % 2)));
-	}
+          $tab->addRow($row, array('class'=>$cls . 'row' . ($row_index % 2)));
+        }
       }
     }
   }

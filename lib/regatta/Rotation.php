@@ -38,8 +38,8 @@ class Rotation {
     if ($race === null) {
       // Curious fact: this version is much faster!
       return count(DB::getAll(DB::$RACE,
-			      new DBBool(array(new DBCond('regatta', $this->regatta),
-					       new DBCondIn('id', DB::prepGetAll(DB::$SAIL, null, array('race'))))))) > 0;
+                              new DBBool(array(new DBCond('regatta', $this->regatta),
+                                               new DBCondIn('id', DB::prepGetAll(DB::$SAIL, null, array('race'))))))) > 0;
     }
     return count(DB::getAll(DB::$SAIL, new DBCond('race', $race))) > 0;
   }
@@ -117,7 +117,7 @@ class Rotation {
     $nums = array();
     foreach ($races as $race) {
       foreach ($this->getSails($race) as $num)
-	$nums[(string)$num] = $num;
+        $nums[(string)$num] = $num;
     }
     usort($nums, 'Rotation::compareSails');
     return $nums;
@@ -130,8 +130,8 @@ class Rotation {
    */
   public function getRaces() {
     return DB::getAll(DB::$RACE,
-		      new DBBool(array(new DBCond('regatta', $this->regatta),
-				       new DBCondIn('id', DB::prepGetAll(DB::$SAIL, null, array('race'))))));
+                      new DBBool(array(new DBCond('regatta', $this->regatta),
+                                       new DBCondIn('id', DB::prepGetAll(DB::$SAIL, null, array('race'))))));
   }
 
   /**
@@ -141,8 +141,8 @@ class Rotation {
    */
   public function getDivisions() {
     $q = DB::prepGetAll(DB::$RACE,
-			new DBBool(array(new DBCond('regatta', $this->regatta),
-					 new DBCondIn('id', DB::prepGetAll(DB::$SAIL, null, array('race'))))));
+                        new DBBool(array(new DBCond('regatta', $this->regatta),
+                                         new DBCondIn('id', DB::prepGetAll(DB::$SAIL, null, array('race'))))));
     $q->fields(array('division'), DB::$RACE->db_name());
     $q->distinct(true);
     $q->order_by(array('division'=>true));
@@ -215,11 +215,11 @@ class Rotation {
    * lists be incorrect
    */
   public function createStandard(Array $sails,
-				 Array $teams,
-				 Array $divisions,
-				 Array $races,
-				 $repeats,
-				 $updir = true) {
+                                 Array $teams,
+                                 Array $divisions,
+                                 Array $races,
+                                 $repeats,
+                                 $updir = true) {
     $this->initQueue();
 
     $sails = array_values($sails);
@@ -238,23 +238,23 @@ class Rotation {
 
     // standard scoring regatta
     if ($this->regatta->scoring == Regatta::SCORING_STANDARD &&
-	count($this->regatta->getDivisions()) > 1) {
+        count($this->regatta->getDivisions()) > 1) {
       // enforce correspondence between division and races
       if ($num_divisions != $num_races)
-	throw new InvalidArgumentException("The list of divisions must be of the same size as the list of races.");
+        throw new InvalidArgumentException("The list of divisions must be of the same size as the list of races.");
       $table = $this->createStandardTable($sails, $num_races, $repeats, $updir);
       foreach ($races as $r => $num) {
 // @TODO getRace()
-	$race = $this->regatta->getRace($divisions[$r], $num);
-	foreach ($teams as $t => $team) {
-	  $sail = new Sail();
-	  $sail->race = $race;
-	  $sail->team = $team;
-	  $sail->sail = $table[$t][$r];
+        $race = $this->regatta->getRace($divisions[$r], $num);
+        foreach ($teams as $t => $team) {
+          $sail = new Sail();
+          $sail->race = $race;
+          $sail->team = $team;
+          $sail->sail = $table[$t][$r];
 
-	  // print(sprintf("%3s | %2s | %s\n", $sail->race, $sail->sail, $sail->team->name));
-	  $this->queue($sail);
-	}
+          // print(sprintf("%3s | %2s | %s\n", $sail->race, $sail->sail, $sail->team->name));
+          $this->queue($sail);
+        }
       }
     }
     
@@ -262,23 +262,23 @@ class Rotation {
     else {
       // enforce correspondence between divisions and teams
       if ($num_divisions != $num_teams)
-	throw new InvalidArgumentException("In combined scoring, the list of divisions must be " .
-					   "of the same size as the list of teams.");
+        throw new InvalidArgumentException("In combined scoring, the list of divisions must be " .
+                                           "of the same size as the list of teams.");
 
       $table = $this->createStandardTable($sails, $num_races, $repeats, $updir);
       foreach ($races as $r => $num) {
-	foreach ($teams as $t => $team) {
+        foreach ($teams as $t => $team) {
 // @TODO getRace()
-	  $race = $this->regatta->getRace($divisions[$t], $num);
+          $race = $this->regatta->getRace($divisions[$t], $num);
 
-	  $sail = new Sail();
-	  $sail->race = $race;
-	  $sail->team = $team;
-	  $sail->sail = $table[$t][$r];
+          $sail = new Sail();
+          $sail->race = $race;
+          $sail->team = $team;
+          $sail->sail = $table[$t][$r];
 
-	  // print(sprintf("%3s | %2s | %s\n", $sail->race, $sail->sail, $sail->team->name));
-	  $this->queue($sail);
-	}
+          // print(sprintf("%3s | %2s | %s\n", $sail->race, $sail->sail, $sail->team->name));
+          $this->queue($sail);
+        }
       }
     }
     $this->commit();
@@ -323,11 +323,11 @@ class Rotation {
    * "true"
    */
   public function createSwap(Array $sails,
-			     Array $teams,
-			     Array $divisions,
-			     Array $races,
-			     $repeats,
-			     $updir = true) {
+                             Array $teams,
+                             Array $divisions,
+                             Array $races,
+                             $repeats,
+                             $updir = true) {
     $this->initQueue();
 
     $sails = array_values($sails);
@@ -346,24 +346,24 @@ class Rotation {
 
     // standard scoring regatta
     if ($this->regatta->scoring == Regatta::SCORING_STANDARD &&
-	count($this->regatta->getDivisions()) > 1) {
+        count($this->regatta->getDivisions()) > 1) {
       // enforce correspondence between division and races
       if ($num_divisions != $num_races)
-	throw new InvalidArgumentException("The list of divisions must be of the same size as the list of races.");
+        throw new InvalidArgumentException("The list of divisions must be of the same size as the list of races.");
 
       $table = $this->createSwapTable($sails, $num_races, $repeats, $updir);
       foreach ($races as $r => $num) {
 // @TODO getRace()
-	$race = $this->regatta->getRace($divisions[$r], $num);
-	foreach ($teams as $t => $team) {
-	  $sail = new Sail();
-	  $sail->race = $race;
-	  $sail->team = $team;
-	  $sail->sail = $table[$t][$r];
+        $race = $this->regatta->getRace($divisions[$r], $num);
+        foreach ($teams as $t => $team) {
+          $sail = new Sail();
+          $sail->race = $race;
+          $sail->team = $team;
+          $sail->sail = $table[$t][$r];
 
-	  // print(sprintf("%3s | %2s | %s\n", $sail->race, $sail->sail, $sail->team->name));
-	  $this->queue($sail);
-	}
+          // print(sprintf("%3s | %2s | %s\n", $sail->race, $sail->sail, $sail->team->name));
+          $this->queue($sail);
+        }
       }
     }
     
@@ -371,23 +371,23 @@ class Rotation {
     else {
       // enforce correspondence between divisions and teams
       if ($num_divisions != $num_teams)
-	throw new InvalidArgumentException("In combined scoring, the list of divisions must be " .
-					   "of the same size as the list of teams.");
+        throw new InvalidArgumentException("In combined scoring, the list of divisions must be " .
+                                           "of the same size as the list of teams.");
 
       $table = $this->createSwapTable($sails, $num_races, $repeats, $updir);
       foreach ($races as $r => $num) {
-	foreach ($teams as $t => $team) {
+        foreach ($teams as $t => $team) {
 // @TODO getRace()
-	  $race = $this->regatta->getRace($divisions[$t], $num);
+          $race = $this->regatta->getRace($divisions[$t], $num);
 
-	  $sail = new Sail();
-	  $sail->race = $race;
-	  $sail->team = $team;
-	  $sail->sail = $table[$t][$r];
+          $sail = new Sail();
+          $sail->race = $race;
+          $sail->team = $team;
+          $sail->sail = $table[$t][$r];
 
-	  // print(sprintf("%3s | %2s | %s\n", $sail->race, $sail->sail, $sail->team->name));
-	  $this->queue($sail);
-	}
+          // print(sprintf("%3s | %2s | %s\n", $sail->race, $sail->sail, $sail->team->name));
+          $this->queue($sail);
+        }
       }
     }
     $this->commit();
@@ -411,21 +411,21 @@ class Rotation {
     $race = 0;
     while ($race < $num_races) {
       for ($r = 0; $r < $repeats; $r++) {
-	if ($race >= $num_races) break;
+        if ($race >= $num_races) break;
 
-	for ($s = 0; $s < $num_sails; $s++) {
-	  if (!isset($table[$s])) $table[$s] = array();
+        for ($s = 0; $s < $num_sails; $s++) {
+          if (!isset($table[$s])) $table[$s] = array();
 
-	  // pull corresponding sail: start at original value
-	  // shift the index to the current sail number by moving up
-	  // or down the number of sets of sails already consumed
-	  $shift = $dir * (int)($race / $repeats);
-	  $index = ($s + $shift) % $num_sails;
-	  if ($index < 0) $index += $num_sails;
+          // pull corresponding sail: start at original value
+          // shift the index to the current sail number by moving up
+          // or down the number of sets of sails already consumed
+          $shift = $dir * (int)($race / $repeats);
+          $index = ($s + $shift) % $num_sails;
+          if ($index < 0) $index += $num_sails;
 
-	  $table[$s][] = $sails[$index];
-	}
-	$race++;
+          $table[$s][] = $sails[$index];
+        }
+        $race++;
       }
     }
     return $table;
@@ -449,23 +449,23 @@ class Rotation {
     $race = 0;
     while ($race < $num_races) {
       for ($r = 0; $r < $repeats; $r++) {
-	if ($race >= $num_races) break;
+        if ($race >= $num_races) break;
 
-	for ($s = 0; $s < $num_sails; $s++) {
-	  if (!isset($table[$s])) $table[$s] = array();
+        for ($s = 0; $s < $num_sails; $s++) {
+          if (!isset($table[$s])) $table[$s] = array();
 
-	  // pull corresponding sail: start at original value
-	  $dir = (($s % 2) == 0) ? $updir : -1 * $updir;
+          // pull corresponding sail: start at original value
+          $dir = (($s % 2) == 0) ? $updir : -1 * $updir;
 
-	  // shift the index to the current sail number by moving up
-	  // or down the number of sets of sails already consumed
-	  $shift = $dir * (int)($race / $repeats);
-	  $index = ($s + $shift) % $num_sails;
-	  if ($index < 0) $index += $num_sails;
+          // shift the index to the current sail number by moving up
+          // or down the number of sets of sails already consumed
+          $shift = $dir * (int)($race / $repeats);
+          $index = ($s + $shift) % $num_sails;
+          if ($index < 0) $index += $num_sails;
 
-	  $table[$s][] = $sails[$index];
-	}
-	$race++;
+          $table[$s][] = $sails[$index];
+        }
+        $race++;
       }
     }
     return $table;
@@ -495,18 +495,18 @@ class Rotation {
       $from = $this->regatta->getRace($fromdiv, $num);
       $to = $this->regatta->getRace($todiv, $num);
       if ($from === null || $to === null)
-	throw new InvalidArgumentException("Race num $num does not exist in both division $fromdiv and $todiv.");
+        throw new InvalidArgumentException("Race num $num does not exist in both division $fromdiv and $todiv.");
       $sails = $this->getSails($from);
       $upper = count($sails);
       foreach ($sails as $j => $sail) {
-	$offset_sail = $sails[($j + $offset + $upper) % $upper];
+        $offset_sail = $sails[($j + $offset + $upper) % $upper];
 
-	$new_sail = new Sail();
-	$new_sail->race = $to;
-	$new_sail->team = $sail->team;
-	$new_sail->sail = $offset_sail->sail;
+        $new_sail = new Sail();
+        $new_sail->race = $to;
+        $new_sail->team = $sail->team;
+        $new_sail->sail = $offset_sail->sail;
 
-	$this->queue($new_sail);
+        $this->queue($new_sail);
       }
     }
   }
@@ -528,12 +528,12 @@ class Rotation {
       $sails = $this->getCombinedSails($race);
       $upper = count($sails);
       foreach ($sails as $j => $sail) {
-	$offset_sail = $sails[($j + $offset + $upper) % $upper];
+        $offset_sail = $sails[($j + $offset + $upper) % $upper];
 
-	$new_sail = clone $sail;
-	$new_sail->sail = $offset_sail->sail;
+        $new_sail = clone $sail;
+        $new_sail->sail = $offset_sail->sail;
 
-	$this->queue($new_sail);
+        $this->queue($new_sail);
       }
     }
   }
@@ -552,10 +552,10 @@ class Rotation {
     foreach ($this->regatta->getTeams() as $team) {
       $sail = $this->getSail($race, $team);
       if ($sail !== null) {
-	$parts = self::split3($sail->sail);
-	$parts[1] += $amount;
-	$sail->sail = implode("", $parts);
-	DB::set($sail, true);
+        $parts = self::split3($sail->sail);
+        $parts[1] += $amount;
+        $sail->sail = implode("", $parts);
+        DB::set($sail, true);
       }
     }
   }
@@ -580,16 +580,16 @@ class Rotation {
     $pre = array("", "", "");
     for ($i = strlen($a) - 1; $i >= 0; $i--) {
       if (is_numeric($a[$i])) {
-	if (strlen($pre[0]) > 0)
-	  $pre[0] = $a[$i] . $pre[0];
-	else
-	  $pre[1] = $a[$i] . $pre[1];
+        if (strlen($pre[0]) > 0)
+          $pre[0] = $a[$i] . $pre[0];
+        else
+          $pre[1] = $a[$i] . $pre[1];
       }
       else {
-	if (strlen($pre[1]) > 0)
-	  $pre[0] = $a[$i] . $pre[0];
-	else
-	  $pre[2] = $a[$i] . $pre[2];
+        if (strlen($pre[1]) > 0)
+          $pre[0] = $a[$i] . $pre[0];
+        else
+          $pre[2] = $a[$i] . $pre[2];
       }
     }
     return $pre;
@@ -606,7 +606,7 @@ class Rotation {
     foreach ($nums as $num) {
       $split = self::split3($num);
       if ($min === null || $split[1] < $min)
-	$min = $split[1];
+        $min = $split[1];
     }
     return (int)$min;
   }

@@ -44,9 +44,9 @@ class UpdateManager {
    */
   public static function getPendingRequests() {
     return DB::getAll(DB::$UPDATE_REQUEST,
-		      new DBCondIn('id',
-				   DB::prepGetAll(DB::$UPDATE_LOG, new DBCond('return_code', 0, DBCond::LE), array('request')),
-				   DBCondIn::NOT_IN));
+                      new DBCondIn('id',
+                                   DB::prepGetAll(DB::$UPDATE_LOG, new DBCond('return_code', 0, DBCond::LE), array('request')),
+                                   DBCondIn::NOT_IN));
   }
 
   /**

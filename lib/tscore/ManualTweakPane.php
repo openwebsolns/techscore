@@ -35,19 +35,19 @@ class ManualTweakPane extends AbstractPane {
       // Provide links to change division
       $d = new FItem("Choose division:", "");
       foreach ($exist_div as $div) {
-	$mes = new XStrong($div);
-	if ($div != $chosen_div)
-	  $mes = new XA($this->link('manual-rotation', array('division'=>(string)$div)), $mes);
-	$d->add(" ");
-	$d->add($mes);
+        $mes = new XStrong($div);
+        if ($div != $chosen_div)
+          $mes = new XA($this->link('manual-rotation', array('division'=>(string)$div)), $mes);
+        $d->add(" ");
+        $d->add($mes);
       }
 
       $divraces = $this->REGATTA->getRaces($chosen_div);
       $teams = array();
       $races = array();
       foreach ($this->REGATTA->getTeams() as $team) {
-	$teams[(string)$team] = $team;
-	$races[(string)$team] = $divraces;
+        $teams[(string)$team] = $team;
+        $races[(string)$team] = $divraces;
       }
     }
     else {
@@ -60,12 +60,12 @@ class ManualTweakPane extends AbstractPane {
       $races = array();
       $existing = $this->REGATTA->getTeams();
       foreach ($exist_div as $division) {
-	$divraces = $this->REGATTA->getRaces($division);
-	foreach ($existing as $team) {
-	  $label = sprintf('%s: %s', $division, $team);
-	  $teams[$label] = $team;
-	  $races[$label] = $divraces;
-	}
+        $divraces = $this->REGATTA->getRaces($division);
+        foreach ($existing as $team) {
+          $label = sprintf('%s: %s', $division, $team);
+          $teams[$label] = $team;
+          $races[$label] = $divraces;
+        }
       }
     }
     
@@ -77,7 +77,7 @@ class ManualTweakPane extends AbstractPane {
     $row = array("");
     foreach ($races as $list) {
       foreach ($list as $race) {
-	$row[] = $race->number;
+        $row[] = $race->number;
       }
       break;
     }
@@ -88,14 +88,14 @@ class ManualTweakPane extends AbstractPane {
     foreach ($teams as $label => $team) {
       $row = array($label);
       foreach ($races[$label] as $race) {
-	$sail = $rotation->getSail($race, $team);
-	$row[] = new XTextInput(sprintf("%s,%s", $race->id, $team->id), ($sail !== null) ? $sail : "", $attrs);
+        $sail = $rotation->getSail($race, $team);
+        $row[] = new XTextInput(sprintf("%s,%s", $race->id, $team->id), ($sail !== null) ? $sail : "", $attrs);
       }
       $tab->addRow($row);
     }
     $form->add(new XP(array('class'=>'p-submit'),
-		      array(new XReset("reset", "Reset"),
-			    new XSubmitInput("editboat", "Edit sails"))));
+                      array(new XReset("reset", "Reset"),
+                            new XSubmitInput("editboat", "Edit sails"))));
   }
 
   public function process(Array $args) {
@@ -116,17 +116,17 @@ class ManualTweakPane extends AbstractPane {
     if (isset($args['editboat'])) {
       unset($args['editboat']);
       foreach ($args as $rAndt => $value) {
-	$value = DB::$V->reqString($args, $rAndt, 1, 9, "Invalid value for sail.");
-	$rAndt = explode(",", $rAndt);
-	$r = $this->REGATTA->getRaceById($rAndt[0]);
-	$t = $this->REGATTA->getTeam($rAndt[1]);
-	if ($r != null && $t != null) {
-	  $sail = new Sail();
-	  $sail->race = $r;
-	  $sail->team = $t;
-	  $sail->sail = $value;
-	  $rotation->setSail($sail);
-	}
+        $value = DB::$V->reqString($args, $rAndt, 1, 9, "Invalid value for sail.");
+        $rAndt = explode(",", $rAndt);
+        $r = $this->REGATTA->getRaceById($rAndt[0]);
+        $t = $this->REGATTA->getTeam($rAndt[1]);
+        if ($r != null && $t != null) {
+          $sail = new Sail();
+          $sail->race = $r;
+          $sail->team = $t;
+          $sail->sail = $value;
+          $rotation->setSail($sail);
+        }
       }
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA('Sails updated.'));

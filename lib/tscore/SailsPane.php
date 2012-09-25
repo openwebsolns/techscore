@@ -18,15 +18,15 @@ class SailsPane extends AbstractPane {
 
   // Options for rotation types
   private $ROTS = array("STD"=>"Standard: +1 each set",
-			"SWP"=>"Swap:  Odds up, evens down",
-			"OFF"=>"Offset by (+/-) amount from existing division",
-			"NOR"=>"No rotation");
+                        "SWP"=>"Swap:  Odds up, evens down",
+                        "OFF"=>"Offset by (+/-) amount from existing division",
+                        "NOR"=>"No rotation");
   private $STYLES = array("navy"=>"Navy: rotate on division change",
-			  "fran"=>"Franny: automatic offset",
-			  "copy"=>"All divisions similar");
+                          "fran"=>"Franny: automatic offset",
+                          "copy"=>"All divisions similar");
   private $SORT   = array("none"=>"Order as shown",
-			  "num" =>"Numerically",
-			  "alph"=>"Alpha-numerically");
+                          "num" =>"Numerically",
+                          "alph"=>"Alpha-numerically");
 
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Setup rotations", $user, $reg);
@@ -56,15 +56,15 @@ class SailsPane extends AbstractPane {
     // Races
     $range_races = sprintf('1-%d', count($this->REGATTA->getRaces(Division::A())));
     $form->add(new FItem(sprintf("Races (%s):", $range_races),
-			 new XTextInput("races", $range_races, array("id"=>"frace"))));
+                         new XTextInput("races", $range_races, array("id"=>"frace"))));
 
     if ($chosen_rot == "OFF") {
       $form->add(new XHiddenInput('from_div', Division::A()));
       $form->add(new FItem("Amount to offset (±):", new XTextInput('offset', (int)(count($teams) / 2))));
 
       $form->add(new XP(array('class'=>'p-submit'),
-			array(new XA($this->link('rotations'), "← Start over"), " ",
-			      new XSubmitInput("offsetrot", "Offset"))));
+                        array(new XA($this->link('rotations'), "← Start over"), " ",
+                              new XSubmitInput("offsetrot", "Offset"))));
       return;
     }
 
@@ -86,47 +86,47 @@ class SailsPane extends AbstractPane {
     $i = 1;
     if (count($divisions) == 1) {
       foreach ($teams as $team) {
-	$name = sprintf("%s,%s", $divisions[0], $team->id);
-	$tab->add(new XTR(array(),
-			  array(new XTH(array(), $team),
-				new XTH(array(), new XTextInput($name, $i++,
-								array("size"=>"2",
-								      "maxlength"=>"8",
-								      "class"=>"small"))))));
+        $name = sprintf("%s,%s", $divisions[0], $team->id);
+        $tab->add(new XTR(array(),
+                          array(new XTH(array(), $team),
+                                new XTH(array(), new XTextInput($name, $i++,
+                                                                array("size"=>"2",
+                                                                      "maxlength"=>"8",
+                                                                      "class"=>"small"))))));
       }
       if ($bye_team !== null)
-	$tab->add(new XTR(array(),
-			  array(new XTH(array(), $bye_team),
-				new XTD(array(), new XTextInput($bye_team->id, $i++,
-								array("size"=>"2",
-								      "maxlength"=>"8",
-								      "class"=>"small"))))));
+        $tab->add(new XTR(array(),
+                          array(new XTH(array(), $bye_team),
+                                new XTD(array(), new XTextInput($bye_team->id, $i++,
+                                                                array("size"=>"2",
+                                                                      "maxlength"=>"8",
+                                                                      "class"=>"small"))))));
     }
     else {
       $num_teams = count($teams);
       $tab->add(new XTHead(array(), array($row = new XTR(array(), array(new XTH(array(), "Team"))))));
       foreach ($divisions as $div)
-	$row->add(new XTH(array(), "Div. $div"));
+        $row->add(new XTH(array(), "Div. $div"));
       $tab->add($bod = new XTBody());
       foreach ($teams as $team) {
-	$bod->add($row = new XTR(array(), array(new XTD(array(), $team))));
-	$off = 0;
-	foreach ($divisions as $div) {
-	  $num = $i + $off * $num_teams;
-	  $name = sprintf("%s,%s", $div, $team->id);
-	  $row->add(new XTD(array(), new XTextInput($name, $num, array('size'=>'2', 'class'=>'small', 'maxlength'=>'8'))));
-	  $off++;
-	}
-	$i++;
+        $bod->add($row = new XTR(array(), array(new XTD(array(), $team))));
+        $off = 0;
+        foreach ($divisions as $div) {
+          $num = $i + $off * $num_teams;
+          $name = sprintf("%s,%s", $div, $team->id);
+          $row->add(new XTD(array(), new XTextInput($name, $num, array('size'=>'2', 'class'=>'small', 'maxlength'=>'8'))));
+          $off++;
+        }
+        $i++;
       }
       // add bye team, if necessary
       if ($bye_team !== null) {
-	$num = $i + ($off - 1) * $num_teams;
-	$bod->add($row = new XTR(array(), array(new XTD(array(), $bye_team))));
-	$row->add(new XTD(array(), new XTextInput($bye_team->id, $num, array('size'=>'2', 'class'=>'small', 'maxlength'=>'8'))));
-	for ($i = 1; $i < count($divisions); $i++) {
-	  $row->add(new XTD());
-	}
+        $num = $i + ($off - 1) * $num_teams;
+        $bod->add($row = new XTR(array(), array(new XTD(array(), $bye_team))));
+        $row->add(new XTD(array(), new XTextInput($bye_team->id, $num, array('size'=>'2', 'class'=>'small', 'maxlength'=>'8'))));
+        for ($i = 1; $i < count($divisions); $i++) {
+          $row->add(new XTD());
+        }
       }
     }
 
@@ -135,8 +135,8 @@ class SailsPane extends AbstractPane {
 
     // Submit form
     $form->add(new XP(array('class'=>'p-submit'),
-		      array(new XA($this->link('rotations'), "← Start over"), " ",
-			    new XSubmitInput("createrot", "Create rotation"))));
+                      array(new XA($this->link('rotations'), "← Start over"), " ",
+                            new XSubmitInput("createrot", "Create rotation"))));
   }
 
   /**
@@ -147,7 +147,7 @@ class SailsPane extends AbstractPane {
 
     $divisions = $this->REGATTA->getDivisions();
     $combined = ($this->REGATTA->scoring == Regatta::SCORING_COMBINED ||
-		 count($divisions) == 1);
+                 count($divisions) == 1);
 
     // Listen to requests
     $chosen_rot = (isset($args['rottype'])) ?
@@ -156,12 +156,12 @@ class SailsPane extends AbstractPane {
     $chosen_div = $divisions;
     if (isset($args['division']) && is_array($args['division'])) {
       try {
-	$chosen_div = array();
-	foreach ($args['division'] as $div)
-	  $chosen_div[$div] = Division::get($div);
+        $chosen_div = array();
+        foreach ($args['division'] as $div)
+          $chosen_div[$div] = Division::get($div);
       } catch (Exception $e) {
-	Session::pa(new PA("Invalid division(s) specified. Using all.", PA::I));
-	$chosen_div = $divisions;
+        Session::pa(new PA("Invalid division(s) specified. Using all.", PA::I));
+        $chosen_div = $divisions;
       }
     }
 
@@ -200,15 +200,15 @@ class SailsPane extends AbstractPane {
 
       $the_rots = $this->ROTS;
       if (count($exist_div) == 0)
-	unset($the_rots["OFF"]);
+        unset($the_rots["OFF"]);
       $form->add(new FItem("Type of rotation:", XSelect::fromArray('rottype', $the_rots, $chosen_rot)));
 
       // No need for this choice if combined
       if (!$combined) {
-	$div_opts = array();
-	foreach ($divisions as $div)
-	  $div_opts[(string)$div] = (string)$div;
-	$form->add(new FItem("Divisions to affect:", XSelectM::fromArray('division[]', $div_opts, $chosen_div)));
+        $div_opts = array();
+        foreach ($divisions as $div)
+          $div_opts[(string)$div] = (string)$div;
+        $form->add(new FItem("Divisions to affect:", XSelectM::fromArray('division[]', $div_opts, $chosen_div)));
       }
       $form->add(new XSubmitP("choose_rot", "Next >>"));
 
@@ -216,11 +216,11 @@ class SailsPane extends AbstractPane {
       // 1b. Delete a rotation
       // ------------------------------------------------------------
       if ($rotation->isAssigned()) {
-	$this->PAGE->addContent($p = new XPort("Remove rotation"));
-	$p->add($form = $this->createForm());
-	$form->add(new XP(array(), "You can replace an existing rotation simply by creating a new one using the form above. Note that rotation changes will not affect finishes already entered."));
-	$form->add(new XP(array(), "If you wish to not use rotations at all, click the button below. Note that you will still be able to enter finishes using team names instead of sail numbers."));
-	$form->add(new XSubmitP('remove-rotation', "Remove rotation"));
+        $this->PAGE->addContent($p = new XPort("Remove rotation"));
+        $p->add($form = $this->createForm());
+        $form->add(new XP(array(), "You can replace an existing rotation simply by creating a new one using the form above. Note that rotation changes will not affect finishes already entered."));
+        $form->add(new XP(array(), "If you wish to not use rotations at all, click the button below. Note that you will still be able to enter finishes using team names instead of sail numbers."));
+        $form->add(new XSubmitP('remove-rotation', "Remove rotation"));
       }
     }
     // ------------------------------------------------------------
@@ -229,96 +229,96 @@ class SailsPane extends AbstractPane {
     else {
       // This part is inherently different for combined
       if ($combined) {
-	$this->fillCombined($chosen_rot, $chosen_div);
-	return;
+        $this->fillCombined($chosen_rot, $chosen_div);
+        return;
       }
 
       // Divisions
       $chosen_rot_desc = explode(":", $this->ROTS[$chosen_rot]);
       $this->PAGE->addContent($p = new XPort(sprintf("2. %s for Div. %s",
-						     $chosen_rot_desc[0],
-						     implode(", ", $chosen_div))));
+                                                     $chosen_rot_desc[0],
+                                                     implode(", ", $chosen_div))));
       $p->addHelp("node13.html");
       $p->add($form = $this->createForm());
 
       $form->add(new XHiddenInput("rottype", $chosen_rot));
       // Divisions
       if (count($chosen_div) > 1) {
-	$this->PAGE->head->add(new XScript('text/javascript', '/inc/js/tablesort.js'));
+        $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/tablesort.js'));
 
-	$form->add(new FItem("Order:", $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'divtable'), array("#", "Div."))));
-	$i = 0;
-	foreach ($chosen_div as $div) {
-	  $tab->addRow(array(new XTextInput("order[]", ++$i, array('class'=>'small', 'size'=>2, 'maxlength'=>1)),
-			     new XTD(array('class'=>'drag'), array($div, new XHiddenInput('division[]', $div)))),
-		       array('class'=>'sortable'));
-	}
+        $form->add(new FItem("Order:", $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'divtable'), array("#", "Div."))));
+        $i = 0;
+        foreach ($chosen_div as $div) {
+          $tab->addRow(array(new XTextInput("order[]", ++$i, array('class'=>'small', 'size'=>2, 'maxlength'=>1)),
+                             new XTD(array('class'=>'drag'), array($div, new XHiddenInput('division[]', $div)))),
+                       array('class'=>'sortable'));
+        }
       }
       else {
-	foreach ($chosen_div as $div)
-	  $form->add(new XHiddenInput("division[]", $div));
+        foreach ($chosen_div as $div)
+          $form->add(new XHiddenInput("division[]", $div));
       }
 
       // Suggest Navy/Franny special
       if (count($chosen_div) > 1 &&
-	  $chosen_rot != "NOR" &&
-	  $chosen_rot != "OFF") {
-	$form->add(new FItem("Style:", XSelect::fromArray('style', $this->STYLES, 'copy')));
+          $chosen_rot != "NOR" &&
+          $chosen_rot != "OFF") {
+        $form->add(new FItem("Style:", XSelect::fromArray('style', $this->STYLES, 'copy')));
       }
       else {
-	$form->add(new XHiddenInput("style", "copy"));
+        $form->add(new XHiddenInput("style", "copy"));
       }
 
       // Races
       $range = sprintf("1-%d", count($this->REGATTA->getRaces(Division::A())));
       $form->add(new FItem(sprintf("Races (%s):", $range),
-			   new XTextInput("races", $range,
-					  array("id"=>"frace"))));
+                           new XTextInput("races", $range,
+                                          array("id"=>"frace"))));
 
       // For Offset rotations, print only the 
       // current divisions for which there are rotations entered
       // and the offset amount
       if ($chosen_rot == "OFF") {
-	$form->add(new FItem("Amount to offset (+/-):",
-			     new XTextInput("offset", (int)(count($p_teams) / count($exist_div)),
-					    array("size"=>"2",
-						  "maxlength"=>"2"))));
+        $form->add(new FItem("Amount to offset (+/-):",
+                             new XTextInput("offset", (int)(count($p_teams) / count($exist_div)),
+                                            array("size"=>"2",
+                                                  "maxlength"=>"2"))));
 
-	$form->add(new XP(array('class'=>'p-submit'),
-			  array(new XA(WS::link(sprintf('/score/%d/sails', $this->REGATTA->id)), "← Start over"), " ",
-				new XSubmitInput("offsetrot", "Offset"))));
+        $form->add(new XP(array('class'=>'p-submit'),
+                          array(new XA(WS::link(sprintf('/score/%d/sails', $this->REGATTA->id)), "← Start over"), " ",
+                                new XSubmitInput("offsetrot", "Offset"))));
       }
       else {
-	if ($chosen_rot != "NOR") {
-	  $form->add(new FItem("Races in set:",
-			       $f_text = new XTextInput("repeat", $repeats,
-							array("size"=>"2",
-							      "id"=>"repeat"))));
-	}
-	$divs = array_values($chosen_div);
-	$form->add(new FItem("Enter sail numbers in first race of div. " . $divs[0],
-			     $tab = new XQuickTable(array('class'=>'narrow'))));
+        if ($chosen_rot != "NOR") {
+          $form->add(new FItem("Races in set:",
+                               $f_text = new XTextInput("repeat", $repeats,
+                                                        array("size"=>"2",
+                                                              "id"=>"repeat"))));
+        }
+        $divs = array_values($chosen_div);
+        $form->add(new FItem("Enter sail numbers in first race of div. " . $divs[0],
+                             $tab = new XQuickTable(array('class'=>'narrow'))));
 
-	// require a BYE team if the total number of teams
-	// (divisions * number of teams) is not even
-	if ($chosen_rot == "SWP" && count($p_teams) % 2 > 0)
-	  $p_teams[] = new ByeTeam();
-	$i = 1;
-	foreach ($p_teams as $team) {
-	  $tab->addRow(array($team,
-			     new XTextInput($team->id, $i++,
-					    array("size"=>"2",
-						  "class"=>"small",
-						  "maxlength"=>"8"))));
-	}
+        // require a BYE team if the total number of teams
+        // (divisions * number of teams) is not even
+        if ($chosen_rot == "SWP" && count($p_teams) % 2 > 0)
+          $p_teams[] = new ByeTeam();
+        $i = 1;
+        foreach ($p_teams as $team) {
+          $tab->addRow(array($team,
+                             new XTextInput($team->id, $i++,
+                                            array("size"=>"2",
+                                                  "class"=>"small",
+                                                  "maxlength"=>"8"))));
+        }
 
-	// order
-	$form->add(new FItem("Order sails in first race:", XSelect::fromArray('sort', $this->SORT, 'num')));
+        // order
+        $form->add(new FItem("Order sails in first race:", XSelect::fromArray('sort', $this->SORT, 'num')));
 
-	// Submit form
-	$form->add(new XP(array('class'=>'p-submit'),
-			  array(new XA($this->link('rotations'), "← Start over"), " ",
-				new XSubmitInput("createrot", "Create rotation"))));
+        // Submit form
+        $form->add(new XP(array('class'=>'p-submit'),
+                          array(new XA($this->link('rotations'), "← Start over"), " ",
+                                new XSubmitInput("createrot", "Create rotation"))));
       }
 
       // FAQ's
@@ -355,7 +355,7 @@ class SailsPane extends AbstractPane {
       // 4a. validate FROM division
       $all_divs = $rotation->getDivisions();
       if (count($all_divs) == 0)
-	throw new SoterException("No existing rotation to offset from.");
+        throw new SoterException("No existing rotation to offset from.");
 
       // 4b. validate offset amount
       $offset = DB::$V->reqInt($args, 'offset', -100, 101, "Invalid or missing offset amount.");
@@ -367,8 +367,8 @@ class SailsPane extends AbstractPane {
 
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA(array("Offset rotation successfully created. ",
-			       new XA(sprintf('/view/%s/rotation', $this->REGATTA->id), "View", array('onclick'=> 'javascript:this.target="rotation";')),
-			       ".")));
+                               new XA(sprintf('/view/%s/rotation', $this->REGATTA->id), "View", array('onclick'=> 'javascript:this.target="rotation";')),
+                               ".")));
       unset($args['rottype']);
       $this->redirect('finishes');
       return $args;
@@ -394,9 +394,9 @@ class SailsPane extends AbstractPane {
     $teams = $this->REGATTA->getTeams();
     foreach ($divisions as $div) {
       foreach ($teams as $team) {
-	$sails[] = DB::$V->reqString($args, sprintf("%s,%s", $div, $team->id), 1, 9, "Missing sail for team $team in division $div");
-	$tlist[] = $team;
-	$divs[] = $div;
+        $sails[] = DB::$V->reqString($args, sprintf("%s,%s", $div, $team->id), 1, 9, "Missing sail for team $team in division $div");
+        $tlist[] = $team;
+        $divs[] = $div;
       }
     }
     
@@ -404,7 +404,7 @@ class SailsPane extends AbstractPane {
     if ($rottype == "SWP" && count($divisions) * count($teams) % 2 > 0) {
       $team = new ByeTeam();
       if (!isset($args[$team->id]))
-	throw new SoterException("Missing BYE team.");
+        throw new SoterException("Missing BYE team.");
       $sails[] = $args[$team->id];
       $tlist[] = $team;
       $divs[]  = Division::A();
@@ -461,7 +461,7 @@ class SailsPane extends AbstractPane {
     if (isset($args['remove-rotation'])) {
       $rotation = $this->REGATTA->getRotation();
       if (!$rotation->isAssigned())
-	throw new SoterException("Rotations are not assigned.");
+        throw new SoterException("Rotations are not assigned.");
       $rotation->reset();
 
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
@@ -478,15 +478,15 @@ class SailsPane extends AbstractPane {
     $rottype = DB::$V->reqKey($args, 'rottype', $this->ROTS, "Invalid or missing rotation type.");
     $regDivisions = $this->REGATTA->getDivisions();
     $combined = (count($regDivisions) == 1 ||
-		 $this->REGATTA->scoring == Regatta::SCORING_COMBINED);
+                 $this->REGATTA->scoring == Regatta::SCORING_COMBINED);
 
     //   b. validate division, only if not combined division, and
     //   order by order, if provided
     if (!$combined) {
       $divisions = DB::$V->reqDivisions($args, 'division', $regDivisions, 1, "Expected list of divisions, but none found.");
       if (isset($args['order'])) {
-	$order = DB::$V->reqList($args, 'order', count($divisions), "Invalid order provided for divisions.");
-	array_multisort($order, $divisions, SORT_NUMERIC);
+        $order = DB::$V->reqList($args, 'order', count($divisions), "Invalid order provided for divisions.");
+        array_multisort($order, $divisions, SORT_NUMERIC);
       }
       $args['division'] = $divisions;
     }
@@ -526,9 +526,9 @@ class SailsPane extends AbstractPane {
       // 3a. validate repeats
       $repeats = null;
       if ($rottype === "NOR")
-	$repeats = count($divisions) * count($races);
+        $repeats = count($divisions) * count($races);
       else
-	$repeats = DB::$V->reqInt($args, 'repeat', 1, 101, "Invalid or missing value for repeats.");
+        $repeats = DB::$V->reqInt($args, 'repeat', 1, 101, "Invalid or missing value for repeats.");
 
       // 3b. validate teams: every signed-in team must exist
       $keys  = array_keys($args);
@@ -536,29 +536,29 @@ class SailsPane extends AbstractPane {
       $teams = array();
       $missing = array();
       foreach ($this->REGATTA->getTeams() as $team) {
-	$teams[] = $team;
-	$id = $team->id;
-	if (!DB::$V->hasString($sail, $args, $id, 1, 9))
-	  $missing[] = (string)$team;
-	$sails[] = $sail;
+        $teams[] = $team;
+        $id = $team->id;
+        if (!DB::$V->hasString($sail, $args, $id, 1, 9))
+          $missing[] = (string)$team;
+        $sails[] = $sail;
       }
       // Add BYE team if requested
       if (isset($args['BYE'])) {
-	$teams[] = new ByeTeam();
-	$sails[] = $args['BYE'];
+        $teams[] = new ByeTeam();
+        $sails[] = $args['BYE'];
       }
       if (count($missing) > 0)
-	throw new SoterException(sprintf("Missing team or sail for %s.", implode(", ", $missing)));
+        throw new SoterException(sprintf("Missing team or sail for %s.", implode(", ", $missing)));
 
       // 3c. sorting
       switch (DB::$V->incKey($args, 'sort', $this->SORT, 'none')) {
       case "num":
-	array_multisort($sails, $teams, SORT_NUMERIC);
-	break;
+        array_multisort($sails, $teams, SORT_NUMERIC);
+        break;
 
       case "alph":
-	array_multisort($sails, $teams, SORT_STRING);
-	break;
+        array_multisort($sails, $teams, SORT_STRING);
+        break;
       }
       
       // Arrange the races in order according to repeats and rotation
@@ -569,58 +569,58 @@ class SailsPane extends AbstractPane {
       //   3-1 Franny-style rotations
       // ------------------------------------------------------------
       if ($style === "fran") {
-	$offset = (int)(count($teams) / count($divisions));
-	
-	$template = array_shift($divisions);
-	$ordered_races = $races;
-	$ordered_divs  = array();
-	foreach ($races as $num)
-	  $ordered_divs[] = $template;
+        $offset = (int)(count($teams) / count($divisions));
+        
+        $template = array_shift($divisions);
+        $ordered_races = $races;
+        $ordered_divs  = array();
+        foreach ($races as $num)
+          $ordered_divs[] = $template;
 
-	// Perform template rotation
-	switch ($rottype) {
-	case "STD":
-	case "NOR":
-	  $rotation->createStandard($sails, $teams, $ordered_divs, $ordered_races, $repeats);
-	break;
+        // Perform template rotation
+        switch ($rottype) {
+        case "STD":
+        case "NOR":
+          $rotation->createStandard($sails, $teams, $ordered_divs, $ordered_races, $repeats);
+        break;
 
-	case "SWP":
-	  // ascertain that there are an even number of teams
-	  if (count($teams) % 2 > 0)
-	    throw new SoterException("There must be an even number of teams for swap rotation.");
-	  $rotation->createSwap($sails, $teams, $ordered_divs, $ordered_races, $repeats);
-	  break;
+        case "SWP":
+          // ascertain that there are an even number of teams
+          if (count($teams) % 2 > 0)
+            throw new SoterException("There must be an even number of teams for swap rotation.");
+          $rotation->createSwap($sails, $teams, $ordered_divs, $ordered_races, $repeats);
+          break;
 
-	default:
-	  throw new SoterException("Unsupported rotation type \"$rottype\".");
-	}
+        default:
+          throw new SoterException("Unsupported rotation type \"$rottype\".");
+        }
 
-	// Offset subsequent divisions, but first queue this one
-	$rotation->initQueue();
-	foreach ($races as $num) {
-	  $race = $this->REGATTA->getRace($template, $num);
-	  if ($race !== null) {
-	    foreach ($teams as $team) {
-	      if (($sail = $rotation->getSail($race, $team)) !== null)
-		$rotation->queue($sail);
-	    }
-	  }
-	}
+        // Offset subsequent divisions, but first queue this one
+        $rotation->initQueue();
+        foreach ($races as $num) {
+          $race = $this->REGATTA->getRace($template, $num);
+          if ($race !== null) {
+            foreach ($teams as $team) {
+              if (($sail = $rotation->getSail($race, $team)) !== null)
+                $rotation->queue($sail);
+            }
+          }
+        }
 
-	$num_teams = count($teams);
-	$index = 0;
-	foreach ($divisions as $div) {
-	  $rotation->queueOffset($template,
-				 $div,
-				 $races,
-				 $offset * (++$index));
-	}
-	$rotation->commit();
+        $num_teams = count($teams);
+        $index = 0;
+        foreach ($divisions as $div) {
+          $rotation->queueOffset($template,
+                                 $div,
+                                 $races,
+                                 $offset * (++$index));
+        }
+        $rotation->commit();
 
-	// Reset
-	Session::pa(new PA("Franny-style rotation successfully created."));
-	unset($args);
-	$this->redirect('finishes');
+        // Reset
+        Session::pa(new PA("Franny-style rotation successfully created."));
+        unset($args);
+        $this->redirect('finishes');
       }
 
       // ------------------------------------------------------------
@@ -630,15 +630,15 @@ class SailsPane extends AbstractPane {
       $ordered_divs  = array();
       $racei = 0;
       while ($racei < count($races)) {
-	foreach ($divisions as $div) {
-	  $repi = 0;
-	  while ($repi < $repeats && ($racei + $repi) < count($races)) {
-	    $ordered_races[] = $races[$racei + $repi];
-	    $ordered_divs[]  = $div;
-	    $repi++;
-	  }
-	}
-	$racei += $repeats;
+        foreach ($divisions as $div) {
+          $repi = 0;
+          while ($repi < $repeats && ($racei + $repi) < count($races)) {
+            $ordered_races[] = $races[$racei + $repi];
+            $ordered_divs[]  = $div;
+            $repi++;
+          }
+        }
+        $racei += $repeats;
       }
 
       // With copy style, the "set" includes all divisions
@@ -648,25 +648,25 @@ class SailsPane extends AbstractPane {
       switch ($rottype) {
       case "STD":
       case "NOR":
-	$rotation->createStandard($sails, $teams, $ordered_divs, $ordered_races, $repeats);
+        $rotation->createStandard($sails, $teams, $ordered_divs, $ordered_races, $repeats);
       break;
 
       case "SWP":
-	// ascertain that there are an even number of teams
-	if (count($teams) % 2 > 0)
-	  throw new SoterException("There must be an even number of teams for swap rotation.");
-	$rotation->createSwap($sails, $teams, $ordered_divs, $ordered_races, $repeats);
-	break;
-	
+        // ascertain that there are an even number of teams
+        if (count($teams) % 2 > 0)
+          throw new SoterException("There must be an even number of teams for swap rotation.");
+        $rotation->createSwap($sails, $teams, $ordered_divs, $ordered_races, $repeats);
+        break;
+        
       default:
-	throw new SoterException("Unsupported rotation type.");
+        throw new SoterException("Unsupported rotation type.");
       }
 
       // Reset
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA(array("New rotation successfully created. ",
-			       new XA(sprintf('/view/%s/rotation', $this->REGATTA->id), "View", array('onclick'=> 'javascript:this.target="rotation";')),
-			       ".")));
+                               new XA(sprintf('/view/%s/rotation', $this->REGATTA->id), "View", array('onclick'=> 'javascript:this.target="rotation";')),
+                               ".")));
       unset($args['rottype']);
       $this->redirect('finishes');
     }
@@ -688,28 +688,28 @@ class SailsPane extends AbstractPane {
       $rotation->initQueue();
 
       foreach ($regDivisions as $division) {
-	if (!in_array($division, $divisions)) {
-	  foreach ($races as $num) {
-	    $race = $this->REGATTA->getRace($division, $num);
-	    if ($race !== null) {
-	      foreach ($teams as $team) {
-		if (($sail = $rotation->getSail($race, $team)) !== null)
-		  $rotation->queue($sail);
-	      }
-	    }
-	  }
-	}
+        if (!in_array($division, $divisions)) {
+          foreach ($races as $num) {
+            $race = $this->REGATTA->getRace($division, $num);
+            if ($race !== null) {
+              foreach ($teams as $team) {
+                if (($sail = $rotation->getSail($race, $team)) !== null)
+                  $rotation->queue($sail);
+              }
+            }
+          }
+        }
       }
 
       foreach ($divisions as $div) {
-	$rotation->queueOffset($from_div, $div, $races,	$offset);
+        $rotation->queueOffset($from_div, $div, $races,        $offset);
       }
 
       // Reset
       $rotation->commit();
       Session::pa(new PA(array("Offset rotation successfully created. ",
-			       new XA(sprintf('/view/%s/rotation', $this->REGATTA->id), "View", array('onclick'=> 'javascript:this.target="rotation";')),
-			       ".")));
+                               new XA(sprintf('/view/%s/rotation', $this->REGATTA->id), "View", array('onclick'=> 'javascript:this.target="rotation";')),
+                               ".")));
       unset($args['rottype']);
       $this->redirect('finishes');
     }

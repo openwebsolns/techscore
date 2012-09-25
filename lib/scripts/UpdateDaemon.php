@@ -110,8 +110,8 @@ class UpdateDaemon {
     foreach (debug_backtrace() as $list) {
       echo "     +--------------------\n";
       foreach (array('file', 'line', 'class', 'function') as $index) {
-	if (isset($list[$index]))
-	  printf($fmt, ucfirst($index), $list[$index]);
+        if (isset($list[$index]))
+          printf($fmt, ucfirst($index), $list[$index]);
       }
     }
     self::cleanup();
@@ -169,7 +169,7 @@ class UpdateDaemon {
 
       $hash = $r->hash();
       if (isset($hashes[$hash]))
-	continue;
+        continue;
       $hashes[$hash] = $r;
 
       self::queueRegattaActivity($reg, $r->activity);
@@ -179,29 +179,29 @@ class UpdateDaemon {
       // request the update of the seasons, the schools, and the
       // season summaries, regardless.
       if ($reg->type == Regatta::TYPE_PERSONAL) {
-	$seasons_summary = true;
-	self::$seasons[$season->id] = $season;
-	foreach ($reg->getTeams() as $team)
-	  self::queueSchoolSeason($team->school, $season);
-	continue;
+        $seasons_summary = true;
+        self::$seasons[$season->id] = $season;
+        foreach ($reg->getTeams() as $team)
+          self::queueSchoolSeason($team->school, $season);
+        continue;
       }
 
       switch ($r->activity) {
-	// ------------------------------------------------------------
+        // ------------------------------------------------------------
       case UpdateRequest::ACTIVITY_DETAILS:
-	$seasons_summary = true;
+        $seasons_summary = true;
       case UpdateRequest::ACTIVITY_SCORE:
-	self::$seasons[$season->id] = $season;
-	foreach ($reg->getTeams() as $team)
-	  self::queueSchoolSeason($team->school, $season);
-	break;
-	// ------------------------------------------------------------
+        self::$seasons[$season->id] = $season;
+        foreach ($reg->getTeams() as $team)
+          self::queueSchoolSeason($team->school, $season);
+        break;
+        // ------------------------------------------------------------
       case UpdateRequest::ACTIVITY_RP:
-	if ($r->argument !== null)
-	  self::queueSchoolSeason(DB::getSchool($r->argument), $season);
-	break;
-	// ------------------------------------------------------------
-	// Rotation and summary do not affect seasons or schools
+        if ($r->argument !== null)
+          self::queueSchoolSeason(DB::getSchool($r->argument), $season);
+        break;
+        // ------------------------------------------------------------
+        // Rotation and summary do not affect seasons or schools
       }
     }
 
@@ -212,7 +212,7 @@ class UpdateDaemon {
     foreach (self::$regattas as $id => $reg) {
       UpdateRegatta::run($reg, self::$activities[$id]);
       foreach (self::$activities[$id] as $act)
-	self::report(sprintf('performed activity %s on regatta %s: %s', $act, $id, $reg->name));
+        self::report(sprintf('performed activity %s on regatta %s: %s', $act, $id, $reg->name));
     }
 
     // ------------------------------------------------------------
@@ -221,8 +221,8 @@ class UpdateDaemon {
     require_once('scripts/UpdateSchool.php');
     foreach (self::$school_seasons as $id => $seasons) {
       foreach ($seasons as $season) {
-	UpdateSchool::run(self::$schools[$id], $season);
-	self::report(sprintf('generated school (%s/%-6s) %s', $season, $id, self::$schools[$id]->nick_name));
+        UpdateSchool::run(self::$schools[$id], $season);
+        self::report(sprintf('generated school (%s/%-6s) %s', $season, $id, self::$schools[$id]->nick_name));
       }
     }
 
@@ -238,11 +238,11 @@ class UpdateDaemon {
 
       // Deal with home page
       if ((string)$season == (string)$current) {
-	require_once('scripts/UpdateFront.php');
-	require_once('scripts/Update404.php');
-	UpdateFront::run();
-	Update404::run();
-	self::report('generated front and 404 page');
+        require_once('scripts/UpdateFront.php');
+        require_once('scripts/Update404.php');
+        UpdateFront::run();
+        Update404::run();
+        self::report('generated front and 404 page');
       }
     }
 
@@ -330,23 +330,23 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
     foreach ($requests as $req) {
       if (!isset($regattas[$req->regatta->id])) $regattas[$req->regatta->id] = array();
       if (!isset($regattas[$req->regatta->id][$req->activity]))
-	$regattas[$req->regatta->id][$req->activity] = 0;
+        $regattas[$req->regatta->id][$req->activity] = 0;
       $regattas[$req->regatta->id][$req->activity]++;
     }
 
     // Print them out and exit
     foreach ($regattas as $id => $list) {
       try {
-	$reg = DB::getRegatta($id);
-	if ($reg === null)
-	  throw new RuntimeException("Invalid regatta ID $id.");
-	printf("--------------------\nRegatta: [%s] %s (%s/%s)\n--------------------\n",
-	       $reg->id, $reg->name, $reg->getSeason(), $reg->nick);
-	foreach ($list as $activity => $num)
-	  printf("%12s: %d\n", $activity, $num);
+        $reg = DB::getRegatta($id);
+        if ($reg === null)
+          throw new RuntimeException("Invalid regatta ID $id.");
+        printf("--------------------\nRegatta: [%s] %s (%s/%s)\n--------------------\n",
+               $reg->id, $reg->name, $reg->getSeason(), $reg->nick);
+        foreach ($list as $activity => $num)
+          printf("%12s: %d\n", $activity, $num);
       }
       catch (Exception $e) {
-	printf("(EE) %s: %s\n.", $id, $e->getMessage());
+        printf("(EE) %s: %s\n.", $id, $e->getMessage());
       }
     }
     exit(0);

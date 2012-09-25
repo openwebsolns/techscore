@@ -67,9 +67,9 @@ class DBM {
   public static function connection() {
     if (self::$__con === null && self::$__con_host !== null) {
       self::$__con = new MySQLi(self::$__con_host,
-				self::$__con_user,
-				self::$__con_pass,
-				self::$__con_name);
+                                self::$__con_user,
+                                self::$__con_pass,
+                                self::$__con_name);
       self::$__con->set_charset('utf8');
     }
     return self::$__con;
@@ -159,10 +159,10 @@ class DBM {
     if ($obj->db_get_cache() && $id !== null) {
       $i = $c.'_'.$id;
       if (!isset(self::$objs[$i])) {
-	$r = self::query(self::prepGet($obj, $id));
-	self::$objs[$i] = ($r->num_rows == 0) ? null :
-	  $r->fetch_object($c);
-	$r->free();
+        $r = self::query(self::prepGet($obj, $id));
+        self::$objs[$i] = ($r->num_rows == 0) ? null :
+          $r->fetch_object($c);
+        $r->free();
       }
       return self::$objs[$i];
     }
@@ -268,25 +268,25 @@ class DBM {
       $value =& $obj->$field;
       $type = "";
       if ($value instanceof DBObject) {
-	$sub = self::get($value, $value->id);
-	if ($sub === null)
-	  self::set($value, false);
-	$values[] =& $value->id;
-	$type = $value->db_type('id');
+        $sub = self::get($value, $value->id);
+        if ($sub === null)
+          self::set($value, false);
+        $values[] =& $value->id;
+        $type = $value->db_type('id');
       }
       elseif ($value instanceof DateTime)
-	$values[] = $value->format('Y-m-d H:i:s');
+        $values[] = $value->format('Y-m-d H:i:s');
       elseif (is_array($value))
-	$values[] = implode("\0", $value);
+        $values[] = implode("\0", $value);
       elseif (is_object($value) && $obj->db_type($field) != DBQuery::A_STR)
-	$values[] = serialize($value);
+        $values[] = serialize($value);
       else {
-	$values[] =& $value;
-	if ($value !== null)
-	  $type = $obj->db_type($field);
+        $values[] =& $value;
+        if ($value !== null)
+          $type = $obj->db_type($field);
       }
       if (strlen($type) != 1)
-	$type = DBQuery::A_STR;
+        $type = DBQuery::A_STR;
       $types[] = $type;
     }
     if ($multiple)
@@ -325,14 +325,14 @@ class DBM {
     $q = self::createQuery(DBQuery::INSERT);
     foreach ($list as $i => $obj) {
       if (!($obj instanceof DBObject))
-	throw new InvalidArgumentException(sprintf("insertAll arguments must be DBObject's; %s found instead.", get_class($obj)));
+        throw new InvalidArgumentException(sprintf("insertAll arguments must be DBObject's; %s found instead.", get_class($obj)));
       if ($tmpl === null) {
-	$tmpl = $obj;
-	$fields = $tmpl->db_fields();
-	$q->fields($fields, $tmpl->db_name());
+        $tmpl = $obj;
+        $fields = $tmpl->db_fields();
+        $q->fields($fields, $tmpl->db_name());
       }
       elseif (get_class($tmpl) != get_class($obj))
-	throw new InvalidArgumentException(sprintf("Expected element %s to be of type %s, found %s instead.", $i, get_class($tmpl), get_class($obj)));
+        throw new InvalidArgumentException(sprintf("Expected element %s to be of type %s, found %s instead.", $i, get_class($tmpl), get_class($obj)));
 
       self::fillSetQuery($obj, $q, $fields);
     }
@@ -536,12 +536,12 @@ class DBM {
     foreach ($fields as $field) {
       $type = $obj->db_type($field);
       if ($type instanceof DBObject) {
-	$sub = self::filter_query($type, $qry);
-	$sub->fields(array("id"), $type->db_name());
-	$c[] = new DBCondIn($field, $sub);
+        $sub = self::filter_query($type, $qry);
+        $sub->fields(array("id"), $type->db_name());
+        $c[] = new DBCondIn($field, $sub);
       }
       else
-	$c[] = new DBCond($field, $qry, DBCond::LIKE);
+        $c[] = new DBCond($field, $qry, DBCond::LIKE);
     }
     $q->where(new DBBool(array($obj->db_where(), new DBBool($c, DBBool::mOR))));
     return $q;
@@ -636,8 +636,8 @@ class DBObject {
       $this->_db_fields = array();
       $class = new ReflectionClass($this);
       foreach ($class->getProperties(ReflectionProperty::IS_PUBLIC |
-				     ReflectionProperty::IS_PROTECTED) as $field)
-	$this->_db_fields[] = $field->name;
+                                     ReflectionProperty::IS_PROTECTED) as $field)
+        $this->_db_fields[] = $field->name;
     }
     return $this->_db_fields;
   }
@@ -675,7 +675,7 @@ class DBObject {
     $fields = array();
     foreach ($this->db_fields() as $field)
       if ($field != "id")
-	$fields[] = $field;
+        $fields[] = $field;
     return $fields;
   }
 
@@ -749,13 +749,13 @@ class DBObject {
   public function __set($name, $value) {
     if (!property_exists($this, $name))
       throw new BadFunctionCallException(sprintf("Class %s does not have property %s.",
-						 get_class($this), $name));
+                                                 get_class($this), $name));
 
     if (in_array($name, $this->db_fields())) {
       $type = $this->db_type($name);
       if ($value !== null && is_object($type) && !($value instanceof $type)) {
-	throw new BadFunctionCallException(sprintf("Property %s in class %s must be of type %s",
-						   $name, get_class($this), get_class($type)));
+        throw new BadFunctionCallException(sprintf("Property %s in class %s must be of type %s",
+                                                   $name, get_class($this), get_class($type)));
       }
     }
     $this->$name = $value;
@@ -764,7 +764,7 @@ class DBObject {
   public function &__get($name) {
     if (!property_exists($this, $name))
       throw new BadFunctionCallException(sprintf("Class %s does not have property %s.",
-						 get_class($this), $name));
+                                                 get_class($this), $name));
     $type = $this->db_type($name);
     if ($type instanceof DBObject && !($this->$name instanceof DBObject))
       $this->$name = DBM::get($type, $this->$name);

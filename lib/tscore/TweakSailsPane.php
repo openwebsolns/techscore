@@ -16,7 +16,7 @@ require_once('conf.php');
 class TweakSailsPane extends AbstractPane {
 
   private $ACTIONS = array("ADD"=>"Add or subtract value to sails",
-			   "REP"=>"Replace sail with a different one");
+                           "REP"=>"Replace sail with a different one");
 
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Tweak sails", $user, $reg);
@@ -31,10 +31,10 @@ class TweakSailsPane extends AbstractPane {
     // Chosen divisions
     $chosen_div = null;
     if (isset($args['division']) &&
-	is_array($args['division'])) {
+        is_array($args['division'])) {
       foreach ($args['division'] as $div) {
-	if (in_array($div, $exist_div))
-	  $chosen_div[] = new Division($div);
+        if (in_array($div, $exist_div))
+          $chosen_div[] = new Division($div);
       }
     }
     else {
@@ -45,7 +45,7 @@ class TweakSailsPane extends AbstractPane {
     // currently in. When null, we're filling out the first step of
     // the tweaking process
     if (!isset($args['edittype']) ||
-	!in_array($args['edittype'], array_keys($this->ACTIONS))) {
+        !in_array($args['edittype'], array_keys($this->ACTIONS))) {
 
       $edittype = "ADD";
       // ------------------------------------------------------------
@@ -58,8 +58,8 @@ class TweakSailsPane extends AbstractPane {
       // Action
       $form->add(new FItem("Action:", XSelect::fromArray('edittype', $this->ACTIONS, $edittype)));
       $form->add(new FItem("Division(s):", XSelectM::fromArray('division[]',
-							       array_combine($exist_div, $exist_div),
-							       $chosen_div)));
+                                                               array_combine($exist_div, $exist_div),
+                                                               $chosen_div)));
       $form->add(new XSubmitP("choose_act", "Next →"));
       return;
     }
@@ -70,8 +70,8 @@ class TweakSailsPane extends AbstractPane {
       
     $edittype = $args['edittype'];
     $this->PAGE->addContent($p = new XPort(sprintf("2. %s for Division %s",
-						   $this->ACTIONS[$edittype],
-						   implode(", ", $chosen_div))));
+                                                   $this->ACTIONS[$edittype],
+                                                   implode(", ", $chosen_div))));
     $p->add($form = $this->createForm());
 
     // Write in this form the options from above
@@ -84,17 +84,17 @@ class TweakSailsPane extends AbstractPane {
 
     if ( $edittype === "ADD") {
       $form->add(new FItem("Add/subtract:",
-			   $f = new XTextInput('addamount', "", array("size"=>"3"))));
+                           $f = new XTextInput('addamount', "", array("size"=>"3"))));
       $f->set("maxlength", "3");
       $form->add(new XP(array('class'=>'p-submit'),
-			array(new XA($this->link('tweak-sails'), "← Start over"), " ",
-			      new XSubmitInput('addsails', "Edit sails"))));
+                        array(new XA($this->link('tweak-sails'), "← Start over"), " ",
+                              new XSubmitInput('addsails', "Edit sails"))));
     }
     elseif ( $edittype == "REP" ) {
       // Get sails in all races
       $sails = array();
       foreach ($rotation->getCommonSails($rotation->getRaces()) as $sail)
-	$sails[$sail->sail] = $sail;
+        $sails[$sail->sail] = $sail;
 
       $sails = array_combine($sails, $sails);
       $form->add($f_item = new FItem("Replace sail:", XSelect::fromArray('from_sail', $sails)));
@@ -102,8 +102,8 @@ class TweakSailsPane extends AbstractPane {
       $f_item->add(new XTextInput('to_sail', '', array("size"=>"3")));
 
       $form->add(new XP(array('class'=>'p-submit'),
-			array(new XA($this->link('tweak-sails'), "← Start over"), " ",
-			      new XSubmitInput('replacesails', "Replace"))));
+                        array(new XA($this->link('tweak-sails'), "← Start over"), " ",
+                              new XSubmitInput('replacesails', "Replace"))));
     }
 
   }
@@ -143,8 +143,8 @@ class TweakSailsPane extends AbstractPane {
     $races = array();
     foreach ($divisions as $div) {
       foreach ($racenums as $num) {
-	if (($race = $this->REGATTA->getRace($div, $num)) !== null)
-	  $races[] = $race;
+        if (($race = $this->REGATTA->getRace($div, $num)) !== null)
+          $races[] = $race;
       }
     }
     if (count($races) == 0)
@@ -160,10 +160,10 @@ class TweakSailsPane extends AbstractPane {
       $min = Rotation::min($sails);
       $amount = DB::$V->reqInt($args, 'addamount', 1 - $min, 1000 - $min, "Invalid amount to add to sails (sails numbers must be positive).");
       if ($amount == 0)
-	throw new SoterException("It is senseless to add nothing to the sails.");
+        throw new SoterException("It is senseless to add nothing to the sails.");
 
       foreach ($races as $race)
-	$rotation->addAmount($race, $amount);
+        $rotation->addAmount($race, $amount);
 
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA("Added value to sails."));
@@ -177,10 +177,10 @@ class TweakSailsPane extends AbstractPane {
       $fromsail = DB::$V->reqValue($args, 'from_sail', $sails, "Invalid/missing sail to replace.");
       $tosail = DB::$V->reqString($args, 'to_sail', 1, 9, "Invalid/missing sail to change to.");
       if (in_array($tosail, $sails))
-	throw new SoterException("Duplicate value for sail $tosail.");
+        throw new SoterException("Duplicate value for sail $tosail.");
 
       foreach ($races as $race)
-	$rotation->replaceSail($race, $fromsail, $tosail);
+        $rotation->replaceSail($race, $fromsail, $tosail);
 
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA("Sail replaced successfully."));

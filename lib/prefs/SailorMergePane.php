@@ -78,46 +78,46 @@ class SailorMergePane extends AbstractPrefsPane {
       $divs = Division::getAssoc();
       $reals = array();
       foreach ($this->SCHOOL->getSailors() as $sailor)
-	$reals[$sailor->id] = $sailor;
+        $reals[$sailor->id] = $sailor;
 
       $temps = array();
       foreach ($this->SCHOOL->getUnregisteredSailors() as $sailor)
-	$temps[$sailor->id] = $sailor;
+        $temps[$sailor->id] = $sailor;
 
       $replaced = 0;
       $affected = array();
       // Process each temp id
       foreach ($args as $id => $value) {
-	$value = trim($value);
-	if (strlen($value) == 0)
-	  continue;
+        $value = trim($value);
+        if (strlen($value) == 0)
+          continue;
 
-	// Check that the id and value are valid
-	if (isset($reals[$value]) && isset($temps[$id])) {
-	  $real = $reals[$value];
-	  $temp = $temps[$id];
+        // Check that the id and value are valid
+        if (isset($reals[$value]) && isset($temps[$id])) {
+          $real = $reals[$value];
+          $temp = $temps[$id];
 
-	  // Notify the affected regattas to redo their RPs
-	  foreach ($divs as $div) {
-	    foreach (RpManager::getRegattas($temp, null, $div) as $reg) {
-	      UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_RP, $div);
-	      $affected[$reg->id] = $reg;
-	    }
-	  }
+          // Notify the affected regattas to redo their RPs
+          foreach ($divs as $div) {
+            foreach (RpManager::getRegattas($temp, null, $div) as $reg) {
+              UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_RP, $div);
+              $affected[$reg->id] = $reg;
+            }
+          }
 
-	  // Replace
-	  RpManager::replaceTempActual($temp, $real);
-	  $replaced++;
-	}
+          // Replace
+          RpManager::replaceTempActual($temp, $real);
+          $replaced++;
+        }
       }
       if (count($affected) > 0) {
-	Session::pa(new PA(sprintf("Affected %s regattas retroactively.", count($affected))));
+        Session::pa(new PA(sprintf("Affected %s regattas retroactively.", count($affected))));
       }
       if ($replaced > 0) {
-	Session::pa(new PA("Updated $replaced temporary sailor(s)."));
+        Session::pa(new PA("Updated $replaced temporary sailor(s)."));
       }
       else {
-	Session::pa(new PA("No sailors updated.", PA::I));
+        Session::pa(new PA("No sailors updated.", PA::I));
       }
     }
   }

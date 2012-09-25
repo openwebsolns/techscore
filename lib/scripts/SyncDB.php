@@ -103,35 +103,35 @@ class SyncDB {
     // parse data
     foreach ($xml->school as $school) {
       try {
-	$id = (string)$school->school_code;
-	$sch = DB::getSchool($id);
-	$upd = true;
-	if ($sch === null) {
-	  $this->warnings[] = sprintf("New school: %s", $school->school_code);
-	  $sch = new School();
-	  $sch->id = $id;
-	  $upd = false;
-	}
-	$dist = (string)$school->district;
-	$sch->conference = DB::getConference($dist);
-	if ($sch->conference === null) {
-	  $this->errors['conf-'.$dist] = "No valid conference found: " . $dist;
-	  continue;
-	}
+        $id = (string)$school->school_code;
+        $sch = DB::getSchool($id);
+        $upd = true;
+        if ($sch === null) {
+          $this->warnings[] = sprintf("New school: %s", $school->school_code);
+          $sch = new School();
+          $sch->id = $id;
+          $upd = false;
+        }
+        $dist = (string)$school->district;
+        $sch->conference = DB::getConference($dist);
+        if ($sch->conference === null) {
+          $this->errors['conf-'.$dist] = "No valid conference found: " . $dist;
+          continue;
+        }
 
-	// Update fields
-	$sch->name = (string)$school->school_name;
-	if ($sch->nick_name === null)
-	  $sch->nick_name = School::createNick($school->school_display_name);
-	$sch->city = (string)$school->school_city;
-	$sch->state = (string)$school->school_state;
-	$sch->inactive = null;
+        // Update fields
+        $sch->name = (string)$school->school_name;
+        if ($sch->nick_name === null)
+          $sch->nick_name = School::createNick($school->school_display_name);
+        $sch->city = (string)$school->school_city;
+        $sch->state = (string)$school->school_state;
+        $sch->inactive = null;
 
-	DB::set($sch, $upd);
-	$this->log(sprintf("Activated school %10s: %s", $sch->id, $sch->name));
+        DB::set($sch, $upd);
+        $this->log(sprintf("Activated school %10s: %s", $sch->id, $sch->name));
 
       } catch (Exception $e) {
-	$this->errors[] = "Invalid school information: " . $e->getMessage();
+        $this->errors[] = "Invalid school information: " . $e->getMessage();
       }
     }
   }
@@ -162,27 +162,27 @@ class SyncDB {
     $this->log(sprintf("%s role deactivated", ucfirst($role)));
     foreach ($xml->$role as $sailor) {
       try {
-	$s = clone $proto;
+        $s = clone $proto;
 
-	$school_id = trim((string)$sailor->school);
-	$school = DB::getSchool($school_id);
-	if ($school !== null) {
-	  $s->school = $school;
-	  $s->icsa_id = (int)$sailor->id;
-	  $s->last_name  = (string)$sailor->last_name;
-	  $s->first_name = (string)$sailor->first_name;
-	  if ($proto instanceof Sailor) {
-	    $s->year = (int)$sailor->year;
-	    $s->gender = $sailor->gender;
-	  }
+        $school_id = trim((string)$sailor->school);
+        $school = DB::getSchool($school_id);
+        if ($school !== null) {
+          $s->school = $school;
+          $s->icsa_id = (int)$sailor->id;
+          $s->last_name  = (string)$sailor->last_name;
+          $s->first_name = (string)$sailor->first_name;
+          if ($proto instanceof Sailor) {
+            $s->year = (int)$sailor->year;
+            $s->gender = $sailor->gender;
+          }
 
-	  $this->updateSailor($s);
-	  $this->log("Activated $role $s");
-	}
-	else
-	  $this->warnings[$school_id] = "Missing school " . $school_id;
+          $this->updateSailor($s);
+          $this->log("Activated $role $s");
+        }
+        else
+          $this->warnings[$school_id] = "Missing school " . $school_id;
       } catch (Exception $e) {
-	$this->warnings[] = "Invalid sailor information: " . print_r($sailor, true);
+        $this->warnings[] = "Invalid sailor information: " . print_r($sailor, true);
       }
     }
   }
@@ -223,8 +223,8 @@ if (isset($argv) && basename(__FILE__) == basename($argv[0])) {
   array_shift($argv);
   $verb = false;
   $tosync = array(SyncDB::SCHOOLS => false,
-		  SyncDB::SAILORS => false,
-		  SyncDB::COACHES => false);
+                  SyncDB::SAILORS => false,
+                  SyncDB::COACHES => false);
   foreach ($argv as $arg) {
     switch ($arg) {
     case '-v':

@@ -60,12 +60,12 @@ class SendMessage extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     if (isset($args['axis'])) {
       try {
-	$this->fillMessage($this->parseArgs($args));
-	return;
+        $this->fillMessage($this->parseArgs($args));
+        return;
       }
       catch (SoterException $e) {
-	Session::pa(new PA($e->getMessage(), PA::E));
-	WS::go('/send-message');
+        Session::pa(new PA($e->getMessage(), PA::E));
+        WS::go('/send-message');
       }
     }
 
@@ -197,25 +197,25 @@ class SendMessage extends AbstractAdminUserPane {
       $ind = (string)$m;
       switch ($res->recipients) {
       case Outbox::R_ROLE:
-	if (isset($roles[$ind]))
-	  $obj = $ind;
-	break;
+        if (isset($roles[$ind]))
+          $obj = $ind;
+        break;
 
       case Outbox::R_CONF:
-	if (($ind = DB::getConference($ind)) !== null)
-	  $obj = $ind->id;
-	break;
+        if (($ind = DB::getConference($ind)) !== null)
+          $obj = $ind->id;
+        break;
 
       case Outbox::R_USER:
-	if (($ind = DB::getAccount($ind)) !== null)
-	  $obj = $ind->id;
-	break;
+        if (($ind = DB::getAccount($ind)) !== null)
+          $obj = $ind->id;
+        break;
 
       default:
-	throw new RuntimeException("Unknown recipient axis for message.");
+        throw new RuntimeException("Unknown recipient axis for message.");
       }
       if ($obj !== null)
-	$list[$obj] = $obj;
+        $list[$obj] = $obj;
     }
     if (count($list) == 0)
       throw new SoterException("No valid recipients provided.");

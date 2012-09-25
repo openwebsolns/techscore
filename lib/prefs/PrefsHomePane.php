@@ -31,9 +31,9 @@ class PrefsHomePane extends AbstractPrefsPane {
   public function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new XPort(sprintf("Edit %s", $this->SCHOOL->nick_name)));
     $p->add(new XP(array(),
-		   array("This is the portal for editing details about your school. Navigate around using the menu to the left. When you are done, use the ",
-			 new XEm("Back"),
-			 " link to return to your home page.")));
+                   array("This is the portal for editing details about your school. Navigate around using the menu to the left. When you are done, use the ",
+                         new XEm("Back"),
+                         " link to return to your home page.")));
 
     $p->add(new XP(array(), "If you have any questions, send them to paez@mit.edu. Please note that this part of TechScore is still under development."));
 
@@ -43,9 +43,9 @@ class PrefsHomePane extends AbstractPrefsPane {
       // separate schools into conference list
       $conferences = array();
       foreach ($schools as $school) {
-	if (!isset($conferences[$school->conference->id]))
-	  $conferences[$school->conference->id] = array();
-	$conferences[$school->conference->id][$school->id] = $school;
+        if (!isset($conferences[$school->conference->id]))
+          $conferences[$school->conference->id] = array();
+        $conferences[$school->conference->id][$school->id] = $school;
       }
 
       $this->PAGE->addContent($p = new XPort("Choose school"));
@@ -54,14 +54,14 @@ class PrefsHomePane extends AbstractPrefsPane {
       
       $col = 0;
       foreach ($conferences as $conf => $schools) {
-	$p->add($tab = new XDiv(array('class'=>'conf'), array(new XH4($conf), $list = new XUl())));
-	foreach ($schools as $school) {
-	  if ($school != $this->SCHOOL)
-	    $link = new XA(sprintf("/prefs/%s", $school->id), $school->nick_name);
-	  else
-	    $link = new XSpan($school->nick_name);
-	  $list->add(new XLi($link));
-	}
+        $p->add($tab = new XDiv(array('class'=>'conf'), array(new XH4($conf), $list = new XUl())));
+        foreach ($schools as $school) {
+          if ($school != $this->SCHOOL)
+            $link = new XA(sprintf("/prefs/%s", $school->id), $school->nick_name);
+          else
+            $link = new XSpan($school->nick_name);
+          $list->add(new XLi($link));
+        }
       }
     }
   }

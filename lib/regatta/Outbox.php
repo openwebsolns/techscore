@@ -33,9 +33,9 @@ class Outbox extends DBObject {
 
   public static function getRecipientTypes() {
     return array(self::R_ALL => self::R_ALL,
-		 self::R_ROLE => self::R_ROLE,
-		 self::R_CONF => self::R_CONF,
-		 self::R_USER => self::R_USER);
+                 self::R_ROLE => self::R_ROLE,
+                 self::R_CONF => self::R_CONF,
+                 self::R_USER => self::R_USER);
   }
 
   protected $sender;

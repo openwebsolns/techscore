@@ -23,8 +23,8 @@ class MailHandler {
     foreach (debug_backtrace() as $list) {
       $body .= "--------------------\n";
       foreach (array('file', 'line', 'class', 'function') as $index) {
-	if (isset($list[$index]))
-	  $body .= sprintf($fmt, ucfirst($index), $list[$index]);
+        if (isset($list[$index]))
+          $body .= sprintf($fmt, ucfirst($index), $list[$index]);
       }
     }
     require_once('regatta/DB.php');

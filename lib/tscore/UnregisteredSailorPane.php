@@ -25,8 +25,8 @@ class UnregisteredSailorPane extends AbstractPane {
   protected function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new XPort("Add sailor to temporary list"));
     $p->add(new XP(array(),
-		   array("Enter unregistered sailors using the table below, up to five at a time. ",
-			 new XStrong("Note:"), " write the year as a four-digit number, e.g. as 2008.")));
+                   array("Enter unregistered sailors using the table below, up to five at a time. ",
+                         new XStrong("Note:"), " write the year as a four-digit number, e.g. as 2008.")));
     $genders = Sailor::getGenders();
 
     $p->add($form = $this->createForm());
@@ -38,15 +38,15 @@ class UnregisteredSailorPane extends AbstractPane {
     asort($schools);
 
     $form->add($tab = new XQuickTable(array('class'=>'short'),
-				      array("School", "First name", "Last name", "Year", "Gender")));
+                                      array("School", "First name", "Last name", "Year", "Gender")));
     $gender = XSelect::fromArray('gender[]', $genders);
     $school = XSelect::fromArray('school[]', $schools);
     for ($i = 0; $i < 5; $i++) {
       $tab->addRow(array($school,
-			 new XTextInput('first_name[]', ""),
-			 new XTextInput('last_name[]', ""),
-			 new XTextInput('year[]', "", array('maxlength'=>4, 'size'=>4, 'style'=>'max-width:5em;width:5em;min-width:5em')),
-			 $gender));
+                         new XTextInput('first_name[]', ""),
+                         new XTextInput('last_name[]', ""),
+                         new XTextInput('year[]', "", array('maxlength'=>4, 'size'=>4, 'style'=>'max-width:5em;width:5em;min-width:5em')),
+                         $gender));
     }
     $form->add(new XSubmitP("addtemp", "Add sailors"));
 
@@ -60,20 +60,20 @@ class UnregisteredSailorPane extends AbstractPane {
     else {
       $p->add($tab = new XQuickTable(array(), array("School", "First name", "Last name", "Year", "Gender", "Action")));
       foreach ($temp as $t) {
-	// is this sailor currently in the RP forms? Otherwise, offer
-	// to delete him/her
-	$form = "";
-	if (!$rp->isParticipating($t)) {
-	  $form = $this->createForm();
-	  $form->add(new XHiddenInput('sailor', $t->id));
-	  $form->add(new XSubmitInput('remove-temp', "Remove"));
-	}
-	$tab->addRow(array($t->school,
-			   $t->first_name,
-			   $t->last_name,
-			   $t->year,
-			   $genders[$t->gender],
-			   $form));
+        // is this sailor currently in the RP forms? Otherwise, offer
+        // to delete him/her
+        $form = "";
+        if (!$rp->isParticipating($t)) {
+          $form = $this->createForm();
+          $form->add(new XHiddenInput('sailor', $t->id));
+          $form->add(new XSubmitInput('remove-temp', "Remove"));
+        }
+        $tab->addRow(array($t->school,
+                           $t->first_name,
+                           $t->last_name,
+                           $t->year,
+                           $genders[$t->gender],
+                           $form));
       }
     }
   }
@@ -94,20 +94,20 @@ class UnregisteredSailorPane extends AbstractPane {
       $max_year = date('Y') + 11;
       $genders = Sailor::getGenders();
       for ($i = 0; $i < count($cnt['school']); $i++) {
-	$s = new Sailor();
-	if (DB::$V->hasID($s->school, $cnt['school'], $i, DB::$SCHOOL) &&
-	    DB::$V->hasString($s->first_name, $cnt['first_name'], $i, 1, 101) &&
-	    DB::$V->hasString($s->last_name, $cnt['last_name'], $i, 1, 101) &&
-	    DB::$V->hasInt($s->year, $cnt['year'], $i, 1990, $max_year) &&
-	    DB::$V->hasKey($s->gender, $cnt['gender'], $i, $genders)) {
-	  $rp->addTempSailor($s);
-	  $added++;
-	}
+        $s = new Sailor();
+        if (DB::$V->hasID($s->school, $cnt['school'], $i, DB::$SCHOOL) &&
+            DB::$V->hasString($s->first_name, $cnt['first_name'], $i, 1, 101) &&
+            DB::$V->hasString($s->last_name, $cnt['last_name'], $i, 1, 101) &&
+            DB::$V->hasInt($s->year, $cnt['year'], $i, 1990, $max_year) &&
+            DB::$V->hasKey($s->gender, $cnt['gender'], $i, $genders)) {
+          $rp->addTempSailor($s);
+          $added++;
+        }
       }
       if ($added > 0)
-	Session::pa(new PA("Added $added temporary sailor(s)."));
+        Session::pa(new PA("Added $added temporary sailor(s)."));
       else
-	Session::pa(new PA("No temporary sailors were added. Please fill in all the fields.", PA::I));
+        Session::pa(new PA("No temporary sailors were added. Please fill in all the fields.", PA::I));
     }
 
     // ------------------------------------------------------------
@@ -117,9 +117,9 @@ class UnregisteredSailorPane extends AbstractPane {
       $rp = $this->REGATTA->getRpManager();
       $sailor = DB::$V->reqID($args, 'sailor', DB::$SAILOR, "No sailor to delete.");
       if ($rp->removeTempSailor($sailor))
-	Session::pa(new PA("Removed temporary sailor $sailor."));
+        Session::pa(new PA("Removed temporary sailor $sailor."));
       else
-	throw new SoterException("Unable to remove sailor $sailor.");
+        throw new SoterException("Unable to remove sailor $sailor.");
     }
     return $args;
   }

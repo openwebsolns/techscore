@@ -50,8 +50,8 @@ class VenueManagement extends AbstractAdminUserPane {
     if (isset($args['v'])) {
       $v = DB::getVenue($args['v']);
       if ($v === null) {
-	Session::pa(new PA("Invalid venue ID provided.", PA::E));
-	WS::go('/venue');
+        Session::pa(new PA("Invalid venue ID provided.", PA::E));
+        WS::go('/venue');
       }
       $name = $v->name;
       $addr = $v->address;
@@ -103,11 +103,11 @@ class VenueManagement extends AbstractAdminUserPane {
     for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < $count; $i++) {
       $venue = $list[$i];
       $t->addRow(array(new XA(sprintf("edit-venue?v=%d", $venue->id), $venue),
-		       sprintf("%s %s, %s %s",
-			       $venue->address,
-			       $venue->city,
-			       $venue->state,
-			       $venue->zipcode)));
+                       sprintf("%s %s, %s %s",
+                               $venue->address,
+                               $venue->city,
+                               $venue->state,
+                               $venue->zipcode)));
     }
   }
 
@@ -116,41 +116,41 @@ class VenueManagement extends AbstractAdminUserPane {
       $venue = new Venue();
       // Check for existing venue
       if (isset($args['venue']) &&
-	  ($venue = DB::getVenue($args['venue'])) === null) {
-	Session::pa(new PA("Invalid venue to edit.", PA::E));
-	return $args;
+          ($venue = DB::getVenue($args['venue'])) === null) {
+        Session::pa(new PA("Invalid venue to edit.", PA::E));
+        return $args;
       }
 
       if (!isset($args['name']) || empty($args['name'])) {
-	Session::pa(new PA("Venue name must not be empty.", PA::E));
-	unset($args['name']);
-	return $args;
+        Session::pa(new PA("Venue name must not be empty.", PA::E));
+        unset($args['name']);
+        return $args;
       }
       $name = $args['name'];
 
       if (!isset($args['address']) || empty($args['address'])) {
-	Session::pa(new PA("Address field must not be empty.", PA::E));
-	unset($args['address']);
-	return $args;
+        Session::pa(new PA("Address field must not be empty.", PA::E));
+        unset($args['address']);
+        return $args;
       }
 
       if (!isset($args['city']) || empty($args['city'])) {
-	Session::pa(new PA("City field must not be empty.", PA::E));
-	unset($args['city']);
-	return $args;
+        Session::pa(new PA("City field must not be empty.", PA::E));
+        unset($args['city']);
+        return $args;
       }
 
       if (!isset($args['state']) || !isset(self::$states[$args['state']])) {
-	Session::pa(new PA("Invalid state field.", PA::E));
-	unset($args['state']);
-	return $args;
+        Session::pa(new PA("Invalid state field.", PA::E));
+        unset($args['state']);
+        return $args;
       }
 
       if (!isset($args['zipcode']) ||
-	  !preg_match('/^[0-9]{5}$/', $args['zipcode'])) {
-	Session::pa(new PA("Invalid zipcode entered.", PA::E));
-	unset($args['zipcode']);
-	return $args;
+          !preg_match('/^[0-9]{5}$/', $args['zipcode'])) {
+        Session::pa(new PA("Invalid zipcode entered.", PA::E));
+        unset($args['zipcode']);
+        return $args;
       }
 
       // Let's create one!
@@ -163,8 +163,8 @@ class VenueManagement extends AbstractAdminUserPane {
 
       DB::set($venue);
       if ($old_id == $venue->id) {
-	Session::pa(new PA(sprintf('Edited venue "%s".', $venue->name)));
-	WS::go('/venue');
+        Session::pa(new PA(sprintf('Edited venue "%s".', $venue->name)));
+        WS::go('/venue');
       }
       Session::pa(new PA('Added new venue.'));
       return array();
@@ -180,62 +180,62 @@ class VenueManagement extends AbstractAdminUserPane {
   }
 
   private static $states = array("AL" => "AL - ALABAMA",
-				 "AK" => "AK - ALASKA",
-				 "AS" => "AS - AMERICAN SAMOA",
-				 "AZ" => "AZ - ARIZONA",
-				 "AR" => "AR - ARKANSAS",
-				 "CA" => "CA - CALIFORNIA",
-				 "CO" => "CO - COLORADO",
-				 "CT" => "CT - CONNECTICUT",
-				 "DE" => "DE - DELAWARE",
-				 "DC" => "DC - DISTRICT OF COLUMBIA",
-				 "FL" => "FL - FLORIDA",
-				 "GA" => "GA - GEORGIA",
-				 "GU" => "GU - GUAM",
-				 "HI" => "HI - HAWAII",
-				 "ID" => "ID - IDAHO",
-				 "IL" => "IL - ILLINOIS",
-				 "IN" => "IN - INDIANA",
-				 "IA" => "IA - IOWA",
-				 "KS" => "KS - KANSAS",
-				 "KY" => "KY - KENTUCKY",
-				 "LA" => "LA - LOUISIANA",
-				 "ME" => "ME - MAINE",
-				 "MH" => "MH - MARSHALL ISLANDS",
-				 "MD" => "MD - MARYLAND",
-				 "MA" => "MA - MASSACHUSETTS",
-				 "MI" => "MI - MICHIGAN",
-				 "MN" => "MN - MINNESOTA",
-				 "MS" => "MS - MISSISSIPPI",
-				 "MO" => "MO - MISSOURI",
-				 "MT" => "MT - MONTANA",
-				 "NE" => "NE - NEBRASKA",
-				 "NV" => "NV - NEVADA",
-				 "NH" => "NH - NEW HAMPSHIRE",
-				 "NJ" => "NJ - NEW JERSEY",
-				 "NM" => "NM - NEW MEXICO",
-				 "NY" => "NY - NEW YORK",
-				 "NC" => "NC - NORTH CAROLINA",
-				 "ND" => "ND - NORTH DAKOTA",
-				 "MP" => "MP - NORTHERN MARIANA ISLANDS",
-				 "OH" => "OH - OHIO",
-				 "OK" => "OK - OKLAHOMA",
-				 "OR" => "OR - OREGON",
-				 "PW" => "PW - PALAU",
-				 "PA" => "PA - PENNSYLVANIA",
-				 "PR" => "PR - PUERTO RICO",
-				 "RI" => "RI - RHODE ISLAND",
-				 "SC" => "SC - SOUTH CAROLINA",
-				 "SD" => "SD - SOUTH DAKOTA",
-				 "TN" => "TN - TENNESSEE",
-				 "TX" => "TX - TEXAS",
-				 "UT" => "UT - UTAH",
-				 "VT" => "VT - VERMONT",
-				 "VI" => "VI - VIRGIN ISLANDS",
-				 "VA" => "VA - VIRGINIA",
-				 "WA" => "WA - WASHINGTON",
-				 "WV" => "WV - WEST VIRGINIA",
-				 "WI" => "WI - WISCONSIN",
-				 "WY" => "WY - WYOMING");
+                                 "AK" => "AK - ALASKA",
+                                 "AS" => "AS - AMERICAN SAMOA",
+                                 "AZ" => "AZ - ARIZONA",
+                                 "AR" => "AR - ARKANSAS",
+                                 "CA" => "CA - CALIFORNIA",
+                                 "CO" => "CO - COLORADO",
+                                 "CT" => "CT - CONNECTICUT",
+                                 "DE" => "DE - DELAWARE",
+                                 "DC" => "DC - DISTRICT OF COLUMBIA",
+                                 "FL" => "FL - FLORIDA",
+                                 "GA" => "GA - GEORGIA",
+                                 "GU" => "GU - GUAM",
+                                 "HI" => "HI - HAWAII",
+                                 "ID" => "ID - IDAHO",
+                                 "IL" => "IL - ILLINOIS",
+                                 "IN" => "IN - INDIANA",
+                                 "IA" => "IA - IOWA",
+                                 "KS" => "KS - KANSAS",
+                                 "KY" => "KY - KENTUCKY",
+                                 "LA" => "LA - LOUISIANA",
+                                 "ME" => "ME - MAINE",
+                                 "MH" => "MH - MARSHALL ISLANDS",
+                                 "MD" => "MD - MARYLAND",
+                                 "MA" => "MA - MASSACHUSETTS",
+                                 "MI" => "MI - MICHIGAN",
+                                 "MN" => "MN - MINNESOTA",
+                                 "MS" => "MS - MISSISSIPPI",
+                                 "MO" => "MO - MISSOURI",
+                                 "MT" => "MT - MONTANA",
+                                 "NE" => "NE - NEBRASKA",
+                                 "NV" => "NV - NEVADA",
+                                 "NH" => "NH - NEW HAMPSHIRE",
+                                 "NJ" => "NJ - NEW JERSEY",
+                                 "NM" => "NM - NEW MEXICO",
+                                 "NY" => "NY - NEW YORK",
+                                 "NC" => "NC - NORTH CAROLINA",
+                                 "ND" => "ND - NORTH DAKOTA",
+                                 "MP" => "MP - NORTHERN MARIANA ISLANDS",
+                                 "OH" => "OH - OHIO",
+                                 "OK" => "OK - OKLAHOMA",
+                                 "OR" => "OR - OREGON",
+                                 "PW" => "PW - PALAU",
+                                 "PA" => "PA - PENNSYLVANIA",
+                                 "PR" => "PR - PUERTO RICO",
+                                 "RI" => "RI - RHODE ISLAND",
+                                 "SC" => "SC - SOUTH CAROLINA",
+                                 "SD" => "SD - SOUTH DAKOTA",
+                                 "TN" => "TN - TENNESSEE",
+                                 "TX" => "TX - TEXAS",
+                                 "UT" => "UT - UTAH",
+                                 "VT" => "VT - VERMONT",
+                                 "VI" => "VI - VIRGIN ISLANDS",
+                                 "VA" => "VA - VIRGINIA",
+                                 "WA" => "WA - WASHINGTON",
+                                 "WV" => "WV - WEST VIRGINIA",
+                                 "WI" => "WI - WISCONSIN",
+                                 "WY" => "WY - WYOMING");
 }
 ?>
