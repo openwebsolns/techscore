@@ -16,12 +16,11 @@ MAILTO = {CRON_MAILTO}
 13 7,15,23 * * * /usr/bin/php {DIRECTORY}/lib/scripts/UpdateBurgee.php
 
 #--------------------------------
-# Update sailor information: do this every day around 5AM
+# Update sailor information: do this every day around 4AM
 18 4 * * * /usr/bin/php {DIRECTORY}/lib/scripts/SyncDB.php schools sailors coaches
-21 4 * * * /usr/bin/php {DIRECTORY}/lib/xcache/GenerateSchools.php
 
 #--------------------------------
-# Update the front page every day, 'cause it's cool to do that
+# Update the front page every day, just in case
 24 3 * * * /usr/bin/php {DIRECTORY}/lib/scripts/UpdateFront.php
 
 #--------------------------------
