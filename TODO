@@ -1,224 +1,18 @@
 -*- mode: org -*-
 
-* Explain tiebreakers (d o n e)
-
-* Inactive editing panes (d o n e)
-- Create menu at the TScorePage level, since the menu is always to be
-   displayed the same way except that inactive pages would be grayed
-   out. Note that dialogs are always to be displayed.
-
 * Preferences API for users
 - Timezone settings
 - Stylesheet to use
 
-* Dialog CSS, etc (d o n e)
-
-* Javascript COOKIE (d o n e)
-
-* Access keys (d o n e)
-
-* FIX CSS Table Styles (d o n e)
-
-* FIX Announcements Div on TScorePage (d o n e)
-- Both CSS positioning and placement within page
-
-* FIX CSS for Preference pages (d o n e)
-
-* Messenging mechanism (d o n e)
-
-* Implement scripts (d o n e)
-
-* Improve the public site!!!! (d o n e)
 
 * FIX Help files!
 
-* Scorers vs. Hosts (d o n e)
-
-* Admin side (d o n e)
-
-* Cache RP form creation (d o n e)
-
-* Separation of apache.conf (d o n e)
-
-* libcurl for notification system! (d o n e)
-  - no longer necessary since notification happens on same server from now on.
-
-* When registering for new accounts, an EULA would be nice (d o n e)
-
-* Add boats (d o n e)
-
-* Admin panes should get similar URL treatment to Editing panes (d o n e)
-
-* Custom 404 page (in progress)
-
-------------------------------------------------------------
-
-* Public side structure (d o n e)
-
-/
- - inc
- - f10
- - s10
- - f11
- - ...
-
-   schools
-   - MIT
-   - HAR
-   - ...
-
- - confs
-   - NEISA
-   - SAISA
-   - ...
-
- - sailors (perhaps this should be PHP-based?)
-
-** Schools
-
-For each school, provide a summary of regattas participated in and
-average overall place finish among finished regattas.
-
-Provide a list of current regattas participating in.
-
-Provide a link to the collegesailing.info information page for that
-school.
-
-* PUBLIC side: display results on a "weekend" basis (d o n e)
-
-** Season page: organize by each weekend
-
-Play off regattas that have not been finalized by not displaying the
-winning burgees.
-
-** Home page: latest weekend, and other seasons, and others
-
-
-** Conference
-
-Each conference page will show be organized as follows:
-
-  1. Conference summary:
-     a. Number of regattas (this season)
-     b. Winningest team
-     c. Winningest sailor?
-
-  2. Current sailing regattas
-
-* Move scoring side to ts.hostname VirtualHost? (d o n e)
- 
-* Migrate to using WebServer class for redirects (d o n e)
- 
-* Specify regatta types as constants (d o n e)
-
-* Fix rotation pane, again! (d o n e)
-
-* A third update type perhaps: RP (d o n e)
-
-RP updates would affect the score and the rotation pages, but not
-the season summary, while affecting the school summary. Just a
-thought.
-
-Also a fourth one, called 'sync' when the regatta is finalized?
-
-* Why are there "errors" when submitting RP? (d o n e)
-
-* When syncing (d o n e)...
-
-The num_races is the total number of races planned for in the system
-for that regatta. The 'status' field delimits either the last race
-sailed if ongoing, 'Pending' if already 'over' (due to time or all
-races sailed), or 'Final' if finalized.
-
-* Bring the update school script to the new data tables (d o n e)
-
-This means using dt_regatta, etc.
-
-* Make score updates happen in one giant query of awesomeness (d o n e)!
-
-Perhaps as big as one race full at a time? Also, and perhaps more
-importantly, attempt to update scores intelligently: that is, do not
-rescore races which have no penalty or breakdowns.
-
-Also, consider merging breakdowns penalties and finish into one
-awesomer table.
-
-** Deprecate the finish listener interface
-
-Instead, use the Regatta::setFinishes method to do your bidding.
-
-* Since most scorers only have one school, do not display the extra host field for them (d o n e)
-
-* Pester about teams if there are none (d o n e)
-
-The reasoning here is that a regatta is not ready until there are
-races and teams. The way it is now, the race creation is done at
-regatta creation time, but the teams are created at the scorer's
-discretion.  What we need to do instead is feed the scorer the pane
-where new teams can be added, which is different from the one that
-allows them to "add" a new team after the regatta has happened.
-
-Thus, in addition to this new scoring pane, there's a new one
-specifically for adding a team, which only takes one school at a
-time.
-
-* Merge the urls, title, etc (d o n e ?)
-
-* When creating rotations for the first time, it is REALLY slow. Fix! (d o n e)
-
-The problem here was multiple one-record inserts. Fixed it with one
-massive insert. Note that updates are fast! But first-time inserts
-were slow.
-
-* Provide for switching of division order when creating rotations (d o n e)
-
-* Update Regatta::addTeam to use $con->insert_id (d o n e)
-
-* Update public regattas when merging sailors (d o n e)
-
-You see, we want users to merge temporary sailors with their real
-identities, but this is only useful if we, in turn, recreate those
-regattas in which the temporary sailors sailed.
-
-* Bugs (d o n e)
-
-** Edit races: third division does not get updated? (d o n e)
-
-I went from 2 to 3 divisions, and from 18 to 10 races, and only A/B
-division got the 10 races, C received and remained with 10. Then I
-changed the 10 races to 11, and C still remained at 10.
-
-** Swap ports in Unregistered Sailors (d o n e)
-
-
-* Season! (d o n e)
-
-It seems to me that seasons should exist PRIOR to any regattas being
-created. Thus, when an admin logs in, he/she should have
-responsibility for maintaining the different seasons in the
-database. No new regattas will be created if there is no season
-available for them. Capisce?
-
-** Deprecated functions
-
-  - getRegattas returns ArrayIterator, not array
 
 * Season administrative interface
 
 Now that seasons are required for regattas to be created, we should
 create the appropriate admin interface for this to happen.
 
-* BUG: Users with no regattas do not receive message asking to create one. (d o n e)
-
-* Migration notes (d o n e):
-
-Consider inspecting every use of array_shift, array_keys,
-array_values, array_merge, etc. Old library assumed that the returned
-objects where arrays and not just array-like with DBM.
-
-* Move DB::getMessages(Account) to Account::getMessages (d o n e)
-
-This just seems like a better use of OOP.
 
 * Team racing
 
@@ -251,54 +45,16 @@ It occurs to me that users probably are not allowed to change the
 regatta type scoring to/away from Team after finishes have been
 entered.
 
-* XML Simplication, part n+1 (d o n e)
-
-WelcomePage becomes LoginPage. login.php is no more its own page. All
-extensions to WelcomePage will now extend AbstractUserPane.
-AbstractUserPane will be able to handle no USER, in which case it
-presents the menu one finds in WelcomePage.
-
-It might even be possible to merge AbstractPane as a subclass of
-AbstractUserPane. Cleaner code, even if there is more IO lookup
-required.
-
-* Synchronize list of schools with ICSA (d o n e: SyncDB)
-
-When updating ICSA sailors (UpdateSailorsDB), it is possible to have
-sailors for schools that do not yet exist in the database. It is also
-possible for schools that do exist to stop existing (or become
-inactive), etc.
-
-Currently, when UpdateSailorsDB encounters an unknown school, it sends
-a message alerting of the situation (actually a message is printed to
-stdout which is then e-mailed by cron).
-
-I propose a new script with synchronizes the schools themselves,
-before synchronizing the sailors and coaches. Such a URL already
-exists for this purpose:
-
-http://www.collegesailing.org/directory/individual/schoolapi.asp?District=NEISA&SchoolCode[]=BAB,MIT
-
-The goal is to update the school list according to this XML export,
-and to inactivate schools which no longer appear in the feed.
-
-Inactivated schools will still be present in the database, but they
-will have the inactive flag set, which would make them ineligible for
-hosting regattas or participating. This will be done by subclassing
-the current School class with an ActiveSchool class.
 
 * No nickname possible
 
 If name composed of only blacklist items!
 
-* Notify users of approved account (d o n e)
-
-* PUBLIC: Rotations: link schools (d o n e)
-
 
 * PUBLIC: school link in regatta summaries point to season for that school
 
-* PUBLIC: full scores table with only one division (d o n e)
-
 
 * Regenerate regattas when school first acquires burgee
+
+
+* New location for logs
