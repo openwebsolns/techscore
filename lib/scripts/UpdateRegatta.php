@@ -317,7 +317,7 @@ class UpdateRegatta {
     $dir = sprintf('%s/html%s', dirname(dirname(dirname(__FILE__))), $reg->getURL());
     if (is_dir($dir)) {
       $has_dir = true;
-      if (is_dir($dir . '/rotations'))         $has_rotation = true;
+      if (is_dir($dir . '/rotations'))   $has_rotation = true;
       if (is_dir($dir . '/full-scores')) $has_fullscore = true;
       foreach ($has_divs as $div => $val) {
         if (is_dir($dir . '/' . $div))

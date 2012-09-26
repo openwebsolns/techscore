@@ -100,6 +100,10 @@ class TeamsPane extends AbstractPane {
       $team->name   = $name;
       $this->REGATTA->addTeam($team);
 
+      // If there are already races, then update details
+      if (count($this->REGATTA->getDivisions()) > 0)
+        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DETAILS);
+
       if (isset($args['del-rotation'])) {
         $rot = $this->REGATTA->getRotation();
         $rot->reset();
@@ -108,17 +112,20 @@ class TeamsPane extends AbstractPane {
       }
 
       // Scores
-      $finishes = array();
-      foreach ($this->REGATTA->getScoredRaces() as $race) {
-        $finish = $this->REGATTA->createFinish($race, $team);
-        $finish->entered = new DateTime();
-        $finish->penalty = ($args['new-score'] == Penalty::DNS) ?
-          new Penalty($args['new-score']) : new Penalty($args['new-score']);
-        $finishes[] = $finish;
+      $scored_races = $this->REGATTA->getScoredRaces();
+      if (count($scored_races) > 0) {
+        $finishes = array();
+        foreach ($scored_races as $race) {
+          $finish = $this->REGATTA->createFinish($race, $team);
+          $finish->entered = new DateTime();
+          $finish->penalty = ($args['new-score'] == Penalty::DNS) ?
+            new Penalty($args['new-score']) : new Penalty($args['new-score']);
+          $finishes[] = $finish;
+        }
+        $this->REGATTA->commitFinishes($finishes);
+        $this->REGATTA->doScore();
+        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
       }
-      $this->REGATTA->commitFinishes($finishes);
-      $this->REGATTA->doScore();
-      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
 
       // Messages
       Session::pa(new PA("Added team $team."));

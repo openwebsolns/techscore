@@ -183,7 +183,7 @@ class TweakSailsPane extends AbstractPane {
         $rotation->replaceSail($race, $fromsail, $tosail);
 
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
-      Session::pa(new PA("Sail replaced successfully."));
+      Session::pa(new PA(sprintf("Successfully replaced sail %s with %s.", $fromsail, $tosail)));
       unset($args['edittype']);
     }
 
