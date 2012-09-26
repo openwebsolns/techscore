@@ -367,6 +367,9 @@ tr.disabled {background:#ddd;color:#555;}
 .page-nav input {
     padding: 0;
 }
+.page-nav input[type="submit"] {
+    display: none;
+}
 
 #search  {
     margin: 0 0 1em;

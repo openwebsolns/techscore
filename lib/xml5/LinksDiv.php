@@ -100,6 +100,7 @@ class LinksDiv extends XDiv {
       $f->add(new XHiddenInput($k, $value));
     $f->add(new XTextInput($key, $cur, array('size'=>'2',
                                              'maxlength'=>strlen((string)$num))));
+    $f->add(new XSubmitInput('go', "Go"));
   }
 }
 ?>
