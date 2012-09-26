@@ -126,12 +126,15 @@ class Rotation {
   /**
    * Returns a list of races with rotation, ordered by division, number
    *
+   * @param Division $div if given, the particular division
    * @return Array:Race list of races with rotations
    */
-  public function getRaces() {
-    return DB::getAll(DB::$RACE,
-                      new DBBool(array(new DBCond('regatta', $this->regatta),
-                                       new DBCondIn('id', DB::prepGetAll(DB::$SAIL, null, array('race'))))));
+  public function getRaces(Division $div = null) {
+    $conds = array(new DBCond('regatta', $this->regatta),
+                   new DBCondIn('id', DB::prepGetAll(DB::$SAIL, null, array('race'))));
+    if ($div !== null)
+      $conds[] = new DBCond('division', (string)$div);
+    return DB::getAll(DB::$RACE, new DBBool($conds));
   }
 
   /**

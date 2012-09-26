@@ -895,7 +895,7 @@ class Regatta extends DBObject {
    *
    * @param Race $race the race whose finishes to drop
    */
-  protected function deleteFinishes(Race $race) {
+  public function deleteFinishes(Race $race) {
     DB::removeAll(DB::$FINISH, new DBCond('race', $race));
   }
 

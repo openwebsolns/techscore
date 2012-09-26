@@ -84,7 +84,7 @@ class RacesPane extends AbstractPane {
       $f_div->set("disabled", "disabled");
       $f_rac->set("disabled", "disabled");
     }
-    elseif (count($this->REGATTA->getRotation()->getRaces()) > 0 ||
+    elseif (count($this->REGATTA->getRotation()->isAssigned()) > 0 ||
             count($this->REGATTA->getScoredRaces()) > 0) {
       $form->add(new XP(array(),
                         array(new XStrong("Warning:"),

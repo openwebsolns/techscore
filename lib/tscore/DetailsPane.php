@@ -235,10 +235,61 @@ class DetailsPane extends AbstractPane {
             $this->REGATTA->removeDivision($div);
           Session::pa(new PA("Removed extra divisions.", PA::I));
         }
+        // Are there scores?
         if ($this->REGATTA->hasFinishes()) {
+          // If going to combined scoring, delete incomplete races
+          if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED) {
+            // list of divs organized by race number
+            $scored_divs = array();
+            foreach ($this->REGATTA->getScoredRaces() as $race) {
+              if (!isset($scored_divs[$race->number]))
+                $scored_divs[$race->number] = array();
+              $scored_divs[$race->number][(string)$race->division] = $race;
+            }
+
+            $dropped_races = array();
+            foreach ($scored_divs as $num => $list) {
+              if (count($list) != count($divs)) {
+                foreach ($list as $race) {
+                  $this->REGATTA->deleteFinishes($race);
+                  $dropped_races[] = $num;
+                }
+              }
+            }
+
+            if (count($dropped_races) > 0)
+              Session::pa(new PA("Removed finishes for following races due to incompleteness: " . implode(", ", $dropped_races), PA::I));
+          }
+          
           $this->REGATTA->doScore();
           Session::pa(new PA("Re-scored the regatta."));
           UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
+        }
+        // Are there rotations?
+        if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED) {
+          $rot = $this->REGATTA->getRotation();
+          if ($rot->isAssigned()) {
+            // Remove rotation for any races for which there is a
+            // conflict in the rotation
+            if (count($rot->getDivisions()) != count($divs)) {
+              $rot->reset();
+              Session::pa(new PA("Rotations reset due to inconsistency.", PA::I));
+            }
+            else {
+              $required_count = count($this->REGATTA->getTeams()) * count($divs);
+              foreach ($rot->getRaces(Division::A()) as $race) {
+                $sails = array();
+                foreach ($rot->getCombinedSails($race) as $sail)
+                  $sails[] = (string)$sail;
+                $unique = array_unique($sails);
+                if (count($unique) != $required_count) {
+                  $rot->reset();
+                  Session::pa(new PA("Rotations reset due to duplicate sails in race $race.", PA::I));
+                  break;
+                }
+              }
+            }
+          }
         }
       }
 
