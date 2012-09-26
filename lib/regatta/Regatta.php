@@ -1262,6 +1262,11 @@ class Regatta extends DBObject {
         unset($tokens[$i]);
     $name = implode("-", $tokens);
 
+    // in the unlikely event that *every* token was a blacklisted
+    // element, use the entire token
+    if ($name == "")
+      $name = implode("-", $tok_copy);
+
     // eastern -> east
     $name = str_replace("eastern", "east", $name);
     $name = str_replace("western", "west", $name);
