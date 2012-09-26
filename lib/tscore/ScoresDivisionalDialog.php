@@ -105,8 +105,10 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
                                    $bc = new XTD(),
                                    new XTD(array('class'=>'strong'), $ln),
                                    new XTD(array('class'=>'left'), $rank->team->name))));
-      $url = sprintf('/inc/img/schools/%s.png', $rank->team->school->id);
-      $bc->add(new XImg($url, $rank->team->school->id, array('height'=>'30px')));
+      if ($rank->team->school->burgee !== null) {
+        $url = sprintf('/inc/img/schools/%s.png', $rank->team->school->id);
+        $bc->add(new XImg($url, $rank->team->school->id, array('height'=>'30px')));
+      }
 
       $scoreTeam    = 0;
       // For each division
