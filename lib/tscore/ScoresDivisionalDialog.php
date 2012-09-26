@@ -122,8 +122,8 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
         $r->add($p_cell = new XTD());
         if ($pen !== null) {
           $scoreDiv += 20;
-          $p_cell->add(new XImg('/inc/img/e.png', "X"));
-          $p_cell->set("title", sprintf("%s (+20 points)", $pen->type));
+          $p_cell->add($pen->type);
+          $p_cell->set("title", sprintf("(+20 points)", $pen->type));
         }
         $s_cell->add(new XText($scoreDiv));
         $s_cell->set("class", "total");
