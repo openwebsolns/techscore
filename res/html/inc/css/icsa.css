@@ -253,8 +253,6 @@ table tbody
 table.results tbody *, table.rotation tbody *, table.sailors tbody *
 {
   border: none;
-  font-family: monospace;
-  font-size: 110%;
 }
 table.results th  {
     text-align: right;
