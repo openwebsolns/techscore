@@ -76,8 +76,11 @@ li#logo a {
     position: absolute;
     margin-left: -50px;
     top: 0.75em;
+    border: none;
 }
-
+li#logo img {
+    border: none;
+}
 #menu a {
     color: #222;
     text-decoration: none;
