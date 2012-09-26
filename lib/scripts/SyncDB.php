@@ -103,7 +103,7 @@ class SyncDB {
     // parse data
     foreach ($xml->school as $school) {
       try {
-        $id = (string)$school->school_code;
+        $id = trim((string)$school->school_code);
         $sch = DB::getSchool($id);
         $upd = true;
         if ($sch === null) {
@@ -112,7 +112,7 @@ class SyncDB {
           $sch->id = $id;
           $upd = false;
         }
-        $dist = (string)$school->district;
+        $dist = trim((string)$school->district);
         $sch->conference = DB::getConference($dist);
         if ($sch->conference === null) {
           $this->errors['conf-'.$dist] = "No valid conference found: " . $dist;
@@ -120,11 +120,12 @@ class SyncDB {
         }
 
         // Update fields
-        $sch->name = (string)$school->school_name;
+        $sch->name = trim((string)$school->school_name);
         if ($sch->nick_name === null)
           $sch->nick_name = School::createNick($school->school_display_name);
-        $sch->city = (string)$school->school_city;
-        $sch->state = (string)$school->school_state;
+        $sch->nick_name = trim($sch->nick_name);
+        $sch->city = trim((string)$school->school_city);
+        $sch->state = trim((string)$school->school_state);
         $sch->inactive = null;
 
         DB::set($sch, $upd);

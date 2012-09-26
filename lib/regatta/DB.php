@@ -768,6 +768,7 @@ class School extends DBObject {
    * @return String the display name
    */
   public static function createNick($str) {
+    $str = trim($str);
     $str = str_replace('University of', 'U', $str);
     $str = str_replace(' University', '', $str);
     if (mb_strlen($str) > 20)
