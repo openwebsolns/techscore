@@ -91,20 +91,6 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   // SETUP PATHS and other CONSTANTS
   ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
   require_once('conf.php');
-
-  try {
-    UpdateSeasonsSummary::run();
-  }
-  catch (Exception $e) {
-    error_log(sprintf("E:%d:L%d:F%s:%s\t(%d): %s\n",
-                      $e->getCode(),
-                      $e->getLine(),
-                      $e->getFile(),
-                      date('r'),
-                      $argv[1],
-                      $e->getMessage()),
-              3, Conf::$LOG_SEASON);
-    print_r($e->getTrace());
-  }
+  UpdateSeasonsSummary::run();
 }
 ?>

@@ -196,22 +196,9 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
     $mode = 'schools';
   }
 
-  try {
-    if ($mode == 'schools')
-      Update404::runSchool();
-    else
-      Update404::run();
-    error_log(sprintf("I:0:%s: Successful (%s)!\n", date('r'), $mode), 3, Conf::$LOG_FRONT);
-  }
-  catch (Exception $e) {
-    error_log(sprintf("E:%d:L%d:F%s:%s: %s\n",
-                      $e->getCode(),
-                      $e->getLine(),
-                      $e->getFile(),
-                      date('r'),
-                      $e->getMessage()),
-              3, Conf::$LOG_FRONT);
-    print_r($e->getTrace());
-  }
+  if ($mode == 'schools')
+    Update404::runSchool();
+  else
+    Update404::run();
 }
 ?>

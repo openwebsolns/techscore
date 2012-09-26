@@ -190,20 +190,6 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   // SETUP PATHS and other CONSTANTS
   ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
   require_once('conf.php');
-
-  try {
-    UpdateFront::run();
-    error_log(sprintf("I:0:%s\t: Successful!\n", date('r')), 3, Conf::$LOG_FRONT);
-  }
-  catch (Exception $e) {
-    error_log(sprintf("E:%d:L%d:F%s:%s: %s\n",
-                      $e->getCode(),
-                      $e->getLine(),
-                      $e->getFile(),
-                      date('r'),
-                      $e->getMessage()),
-              3, Conf::$LOG_FRONT);
-    print_r($e->getTrace());
-  }
+  UpdateFront::run();
 }
 ?>

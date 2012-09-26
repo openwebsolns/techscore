@@ -75,8 +75,6 @@ elseif (isset($_REQUEST['p'])) {
   if ($POSTING) {
     require_once('public/UpdateManager.php');
     Session::s('POST', $PAGE->processPOST($_POST));
-    if (Conf::$LOG_MEMORY)
-      error_log(sprintf("%s:\t%d\n", $_SERVER['REQUEST_URI'], memory_get_peak_usage()), 3, "../log/memory.log");
     WS::goBack('/');
   }
 }
@@ -228,7 +226,4 @@ $post = Session::g('POST');
 if (is_array($post))
   $args = array_merge($post, $args);
 $PAGE->getHTML($args);
-
-if (Conf::$LOG_MEMORY)
-  error_log(sprintf("%s:\t%d\n", $_SERVER['REQUEST_URI'], memory_get_peak_usage()), 3, "../log/memory.log");
 ?>

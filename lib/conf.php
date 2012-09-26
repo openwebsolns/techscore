@@ -19,11 +19,6 @@ class Conf {
   public static $COPYRIGHT = '© OpenWeb Solutions, LLC 2008-2012';
 
   // Logging options
-  public static $LOG_UPDATE = '/dev/null';
-  public static $LOG_SEASON = '/dev/null';
-  public static $LOG_SCHOOL = '/dev/null';
-  public static $LOG_FRONT = '/dev/null';
-  public static $LOG_MEMORY = false;
   public static $DIVERT_MAIL = 'dayan@localhost';
 
   // General constants
@@ -179,7 +174,7 @@ else {
 // Database connection
 require_once('regatta/DB.php');
 DB::setConnectionParams(Conf::$SQL_HOST, Conf::$SQL_USER, Conf::$SQL_PASS, Conf::$SQL_DB);
-// DB::setLogfile(Conf::$LOG_QUERIES);
+DB::setLogfile(Conf::$LOG_QUERIES);
 
 // Start the session, if run from the web
 if (isset($_SERVER['HTTP_HOST'])) {

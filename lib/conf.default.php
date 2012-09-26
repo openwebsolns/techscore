@@ -14,8 +14,7 @@
 //Conf::$HTTP_CERTCHAINPATH = null;
 //Conf::$CRON_FREQ = '*/5';
 
-// The following constants are used to identify the TechScore program
-// and the web environment. Take a look at the class Conf in conf.php
+
 Conf::$HOME = 'ts.collegesailing.org';
 Conf::$PUB_HOME = 'scores.collegesailing.org';
 // Conf::$HELP_HOME = 'www.collegesailing.org/ts-help';
@@ -30,12 +29,6 @@ conf::$SQL_DB   = 'ts2';
 
 Conf::$PASSWORD_SALT = 'Enter password salt here. Longer is better.';
 
-// LOG FILES
-Conf::$LOG_UPDATE = realpath(dirname(__FILE__).'/../log/update.log');
-Conf::$LOG_SEASON = realpath(dirname(__FILE__).'/../log/season.log');
-Conf::$LOG_SCHOOL = realpath(dirname(__FILE__).'/../log/school.log');
-Conf::$LOG_FRONT =  realpath(dirname(__FILE__).'/../log/front.log');
-
 // API updates
 // Conf::$SAILOR_API_URL = '';
 // Conf::$COACH_API_URL = '';
@@ -43,9 +36,6 @@ Conf::$LOG_FRONT =  realpath(dirname(__FILE__).'/../log/front.log');
 
 // Set to the ID of the users that can log in
 // Conf::$DEBUG_USERS = array('admin@localhost');
-
-// Define any other settings that are local to the production site
-// such as default date_timezone, etc.
 
 // Uncomment below to disallow registering for accounts
 //Conf::$ALLOW_REGISTER = false;
