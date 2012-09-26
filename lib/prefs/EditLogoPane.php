@@ -59,24 +59,77 @@ class EditLogoPane extends AbstractPrefsPane {
    * @param Array $args an associative array similar to $_REQUEST
    */
   public function process(Array $args) {
-    require_once('Thumbnailer.php');
-
     $file = DB::$V->reqFile($_FILES, 'logo_file', 1, 200000, "Error or missing upload file. Please try again.");
 
     // Create thumbnail
-    $th = $file['tmp_name'].'.thumb';
-    $tn = new Thumbnailer(100, 100);
-    if (!$tn->resize($file['tmp_name'], $th))
+    if (($src = imagecreatefromstring(file_get_contents($file['tmp_name']))) === false)
       throw new SoterException("Invalid image file.");
+
+    $size = getimagesize($file['tmp_name']);
+    if ($size[0] < 32 || $size[1] < 32)
+      throw new SoterException("Image too small.");
+
+    // resize image to fix in bounding box 100x100
+    $width = $size[0];
+    $height = $size[1];
+
+    $boundX = 100;
+    $boundY = 100;
+
+    $ratio = min(($boundX / $width), ($boundY / $height));
+    if ($ratio < 1) {
+      $width = floor($ratio * $width);
+      $height = floor($ratio * $height);
+    }
+
+    // create transparent destination image
+    $dst = imagecreatetruecolor($width, $height);
+    imagealphablending($dst, false);
+    imagesavealpha($dst, true);
+    $trans = imagecolorallocatealpha($dst, 255, 255, 255, 127);
+    imagefill($dst, 0, 0, $trans);
+
+    if (imagecopyresized($dst, $src,
+                         0, 0,              // destination upper-left
+                         0, 0,              // source upper-left
+                         $width, $height,   // destination
+                         $size[0], $size[1]) === false)
+      throw new SoterException("Unable to create new burgee image.");
+
+    imagedestroy($src);
+    ob_start();
+    imagepng($dst);
+    $txt = ob_get_contents();
+    ob_end_clean();
+    imagedestroy($dst);
+
+    if ($txt == "")
+      throw new SoterException("Invalid image conversion.");
 
     // Update database: first create the burgee, then assign it to the
     // school object (for history control, mostly)
     $burg = new Burgee();
-    $burg->filedata = base64_encode(file_get_contents($th));
+    $burg->filedata = base64_encode($txt);
     $burg->last_updated = new DateTime();
     $burg->school = $this->SCHOOL;
     $burg->updated_by = Session::g('user');
     DB::set($burg);
+
+    // If this is the first time a burgee is added, then notify all
+    // public regattas for which this school has participated so that
+    // they can be regenerated!
+    if ($this->SCHOOL->burgee === null) {
+      $affected = 0;
+      require_once('public/UpdateManager.php');
+      foreach ($this->SCHOOL->getRegattas() as $reg) {
+        if ($reg->type != Regatta::TYPE_PERSONAL) {
+          UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_DETAILS);
+          $affected++;
+        }
+      }
+      if ($affected > 0)
+        Session::pa(new PA(sprintf("%d public regatta(s) will be updated.", $affected)));
+    }
 
     $this->SCHOOL->burgee = $burg;
     DB::set($this->SCHOOL);

@@ -761,6 +761,19 @@ class School extends DBObject {
   }
 
   /**
+   * Fetches list of regattas this school has a team in
+   *
+   * @return Array:Regatta the regatta list
+   */
+  public function getRegattas() {
+    require_once('regatta/Regatta.php');
+    return DB::getAll(DB::$REGATTA,
+                      new DBCondIn('id', DB::prepGetAll(DB::$TEAM,
+                                                        new DBCond('school', $this),
+                                                        array('regatta'))));
+  }
+
+  /**
    * Creates and returns a nick name for the school, which is of
    * appropriate length (no greater than 20 chars)
    *
