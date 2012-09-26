@@ -103,33 +103,66 @@ class ManualTweakPane extends AbstractPane {
     $rotation = $this->REGATTA->getRotation();
 
     // ------------------------------------------------------------
-    // Edit division
-    // ------------------------------------------------------------
-    if (isset($args['division'])) {
-      $args['division'] = DB::$V->reqDivision($args, 'division', $rotation->getDivisions(), "Invalid division provided.");
-      return $args;
-    }
-
-    // ------------------------------------------------------------
     // Boat by boat
     // ------------------------------------------------------------
     if (isset($args['editboat'])) {
       unset($args['editboat']);
+
+      $races = array(); // assoc map of affected race ID => Race
+      $sails = array(); // assoc map of race ID => map team ID => sail
+
+      DB::$SAIL->db_set_cache(true);
       foreach ($args as $rAndt => $value) {
         $value = DB::$V->reqString($args, $rAndt, 1, 9, "Invalid value for sail.");
         $rAndt = explode(",", $rAndt);
         $r = $this->REGATTA->getRaceById($rAndt[0]);
         $t = $this->REGATTA->getTeam($rAndt[1]);
         if ($r != null && $t != null) {
-          $sail = new Sail();
-          $sail->race = $r;
-          $sail->team = $t;
-          $sail->sail = $value;
-          $rotation->setSail($sail);
+          $oldsail = $rotation->getSail($r, $t);
+          if ($oldsail != $value) {
+            $sail = new Sail();
+            $sail->race = $r;
+            $sail->team = $t;
+            $sail->sail = $value;
+
+            $id = (string)$r;
+            $races[$id] = $r;
+            if (!isset($sails[$id]))
+              $sails[$id] = array();
+            $sails[$id][$t->id] = $sail;
+          }
         }
       }
+
+      if (count($sails) == 0)
+        throw new SoterException("No changes made.");
+
+      // Ascertain that the rotation makes sense
+      $combined = ($this->REGATTA->scoring == Regatta::SCORING_COMBINED);
+      foreach ($sails as $rid => $teamlist) {
+        $oldsails = ($combined) ? $rotation->getCombinedSails($races[$rid]) : $rotation->getSails($races[$rid]);
+        $newsails = array();
+        foreach ($oldsails as $sail)
+          $newsails[$sail->team->id] = (string)$sail;
+        foreach ($teamlist as $id => $sail)
+          $newsails[$id] = (string)$sail;
+        $unique = array_unique($newsails);
+        if (count($unique) != count($oldsails))
+          throw new SoterException("Duplicate sails in the same race: $rid.");
+      }
+
+      // All is well: replace sails
+      $count = 0;
+      foreach ($sails as $id => $list) {
+        foreach ($list as $sail) {
+          $rotation->setSail($sail);
+          $count++;
+        }
+      }
+
+      DB::$SAIL->db_set_cache();
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
-      Session::pa(new PA('Sails updated.'));
+      Session::pa(new PA(sprintf("Updated %d sail(s).", $count)));
     }
     return $args;
   }
