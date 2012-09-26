@@ -76,7 +76,7 @@ class ReportMaker {
       require_once('tscore/ScoresDivisionalDialog.php');
       $maker = new ScoresDivisionalDialog($reg);
       $this->page->addSection($p = new XPort("Score summary"));
-      foreach ($maker->getTable('', '/schools') as $elem)
+      foreach ($maker->getTable('/schools') as $elem)
         $p->add($elem);
     }
     else {
@@ -104,7 +104,7 @@ class ReportMaker {
     require_once('tscore/ScoresDivisionDialog.php');
     $maker = new ScoresDivisionDialog($reg, $div);
     $page->addSection($p = new XPort("Scores for Division $div"));
-    foreach ($maker->getTable('', '/schools') as $elem)
+    foreach ($maker->getTable('/schools') as $elem)
       $p->add($elem);
   }
 
@@ -123,7 +123,7 @@ class ReportMaker {
     require_once('tscore/ScoresFullDialog.php');
     $maker = new ScoresFullDialog($reg);
     $this->fullPage->addSection($p = new XPort("Race by race"));
-    foreach ($maker->getTable('', '/schools') as $elem)
+    foreach ($maker->getTable('/schools') as $elem)
       $p->add($elem);
   }
 
@@ -140,7 +140,7 @@ class ReportMaker {
     $maker = new RotationDialog($reg);
     foreach ($reg->getRotation()->getDivisions() as $div) {
       $this->rotPage->addSection($p = new XPort("$div Division"));
-      $p->add(new XRawText($maker->getTable($div, '', '/schools')->toXML()));
+      $p->add(new XRawText($maker->getTable($div, '/schools')->toXML()));
     }
   }
 

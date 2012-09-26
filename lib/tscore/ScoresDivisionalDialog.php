@@ -42,13 +42,12 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
   /**
    * Fetches just the table of results
    *
-   * @param String $PREFIX the prefix to add to the image URL
    * @param String $link_schools if not null, the prefix to use to
    * link the schools using the school's ID
    *
    * @return Array the table element
    */
-  public function getTable($PREFIX = "", $link_schools = null) {
+  public function getTable($link_schools = null) {
     $ELEMS = array();
 
     $divisions = $this->REGATTA->getDivisions();
@@ -106,7 +105,7 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
                                    $bc = new XTD(),
                                    new XTD(array('class'=>'strong'), $ln),
                                    new XTD(array('class'=>'left'), $rank->team->name))));
-      $url = sprintf('%s/inc/img/schools/%s.png', $PREFIX, $rank->team->school->id);
+      $url = sprintf('/inc/img/schools/%s.png', $rank->team->school->id);
       $bc->add(new XImg($url, $rank->team->school->id, array('height'=>'30px')));
 
       $scoreTeam    = 0;
@@ -123,7 +122,7 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
         $r->add($p_cell = new XTD());
         if ($pen !== null) {
           $scoreDiv += 20;
-          $p_cell->add(new XImg("$PREFIX/inc/img/e.png", "X"));
+          $p_cell->add(new XImg('/inc/img/e.png', "X"));
           $p_cell->set("title", sprintf("%s (+20 points)", $pen->type));
         }
         $s_cell->add(new XText($scoreDiv));

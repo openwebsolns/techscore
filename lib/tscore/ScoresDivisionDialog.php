@@ -52,13 +52,12 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
   /**
    * Fetches just the table of results
    *
-   * @param String $PREFIX the prefix to add to image resource URLs
    * @param String $link_schools if not null, the prefix to add to a
    * link from the school's name using the school's ID
    *
    * @return Array the table element
    */
-  public function getTable($PREFIX = "", $link_schools = null) {
+  public function getTable($link_schools = null) {
     $rpManager = $this->REGATTA->getRpManager();
     $division = $this->division;
 
@@ -122,7 +121,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
 
       // fill the two header rows up until the sailor names column
       $img = ($rank->team->school->burgee == null) ? '' :
-        new XImg(sprintf('%s/inc/img/schools/%s.png', $PREFIX, $rank->team->school->id), $rank->team->school->id,
+        new XImg(sprintf('/inc/img/schools/%s.png', $rank->team->school->id), $rank->team->school->id,
                  array('height'=>'30px'));
       $r1 = new XTR(array('class'=>'topborder row' . $rowIndex % 2, 'align' => 'left'),
                     array(new XTD(array('title'=>$rank->explanation, 'class'=>'tiebreaker'), new XRawText($sym)),

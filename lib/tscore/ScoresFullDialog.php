@@ -40,11 +40,10 @@ class ScoresFullDialog extends AbstractScoresDialog {
   /**
    * Fetches just the table of results
    *
-   * @param String $PREFIX the prefix to add to image resource URLs
    * @param String $link_schools if not null, the prefix for linking schools
    * @return Array the table element
    */
-  public function getTable($PREFIX = "", $link_schools = null) {
+  public function getTable($link_schools = null) {
     $ELEMS = array();
 
     $divisions = $this->REGATTA->getDivisions();
@@ -179,7 +178,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
       // write total row
       $tab->add($r = new XTR(array("class"=>"totalrow"), array(new XTD(), new XTD(), $burgee_cell = new XTD())));
       if ($rank->team->school->burgee !== null) {
-        $url = sprintf("%s/inc/img/schools/%s.png", $PREFIX, $rank->team->school->id);
+        $url = sprintf("/inc/img/schools/%s.png", $rank->team->school->id);
         $burgee_cell->add(new XImg($url, $rank->team->school->id, array("height"=>"30px")));
       }
       if ($num_divs > 1)

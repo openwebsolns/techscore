@@ -29,11 +29,10 @@ class RotationDialog extends AbstractDialog {
    * Generates an HTML table for the given division
    *
    * @param Division $div the division
-   * @param String $PREFIX the prefix to add to image resource URLs
    * @param String $link_schools if not null, the prefix for linking schools
    * @return Rotation $rot
    */
-  public function getTable(Division $div, $PREFIX = "", $link_schools = null) {
+  public function getTable(Division $div, $link_schools = null) {
     $header = array("", "Team");
     $races = $this->REGATTA->getRaces($div);
     foreach ($races as $race)
@@ -46,7 +45,7 @@ class RotationDialog extends AbstractDialog {
       $row = array();
       $burgee = "";
       if ($team->school->burgee !== null) {
-        $url = sprintf("%s/inc/img/schools/%s.png", $PREFIX, $team->school->id);
+        $url = sprintf("/inc/img/schools/%s.png", $team->school->id);
         $burgee = new XImg($url, $team->school->id, array('height'=>'30px'));
       }
       $row[] = $burgee;
