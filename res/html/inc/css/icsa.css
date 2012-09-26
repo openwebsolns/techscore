@@ -142,6 +142,9 @@ li#logo a {
     border-collapse: collapse;
     border: none;
 }
+#page-info tbody {
+    border: none;
+}
 #page-info th {
     text-align: right;
     font-weight: normal;
