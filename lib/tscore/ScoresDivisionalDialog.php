@@ -42,12 +42,12 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
   /**
    * Fetches just the table of results
    *
-   * @param String $link_schools if not null, the prefix to use to
+   * @param String $link_schools true to link to school's season page
    * link the schools using the school's ID
    *
    * @return Array the table element
    */
-  public function getTable($link_schools = null) {
+  public function getTable($link_schools = false) {
     $ELEMS = array();
 
     $divisions = $this->REGATTA->getDivisions();
@@ -96,8 +96,8 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
     $row = 0;
     foreach ($ranks as $tID => $rank) {
       $ln = $rank->team->school->name;
-      if ($link_schools !== null)
-        $ln = new XA(sprintf('%s/%s', $link_schools, $rank->team->school->id), $ln);
+      if ($link_schools !== false)
+        $ln = new XA(sprintf('/schools/%s/%s/', $rank->team->school->id, $this->REGATTA->getSeason()), $ln);
       $tab->add($r = new XTR(array('class'=>'row' . ($row++ % 2)),
                              array(new XTD(array('title'=>$rank->explanation, 'class'=>'tiebreaker'),
                                            $tiebreakers[$rank->explanation]),

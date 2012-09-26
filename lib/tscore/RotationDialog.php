@@ -29,10 +29,10 @@ class RotationDialog extends AbstractDialog {
    * Generates an HTML table for the given division
    *
    * @param Division $div the division
-   * @param String $link_schools if not null, the prefix for linking schools
+   * @param boolean $link_schools true to create link to school's summary
    * @return Rotation $rot
    */
-  public function getTable(Division $div, $link_schools = null) {
+  public function getTable(Division $div, $link_schools = false) {
     $header = array("", "Team");
     $races = $this->REGATTA->getRaces($div);
     foreach ($races as $race)
@@ -52,8 +52,8 @@ class RotationDialog extends AbstractDialog {
 
       // Team name
       $name = (string)$team;
-      if ($link_schools !== null)
-        $name = array(new XA(sprintf('%s/%s', $link_schools, $team->school->id), $team->school->nick_name),
+      if ($link_schools !== false)
+        $name = array(new XA(sprintf('/schools/%s/%s/', $team->school->id, $this->REGATTA->getSeason()), $team->school->nick_name),
                       " ",
                       $team->name);
       $row[] = new XTD(array('class'=>'teamname'), $name);

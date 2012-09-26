@@ -40,10 +40,10 @@ class ScoresFullDialog extends AbstractScoresDialog {
   /**
    * Fetches just the table of results
    *
-   * @param String $link_schools if not null, the prefix for linking schools
+   * @param String $link_schools true to include link to schools' season
    * @return Array the table element
    */
-  public function getTable($link_schools = null) {
+  public function getTable($link_schools = false) {
     $ELEMS = array();
 
     $divisions = $this->REGATTA->getDivisions();
@@ -110,9 +110,9 @@ class ScoresFullDialog extends AbstractScoresDialog {
 
         if ($num_divs == 1) {
           $ln = array($rank->team->name, new XBr(), $rank->team->school->nick_name);
-          if ($link_schools !== null)
+          if ($link_schools !== false)
             $ln = array($rank->team->name, new XBr(),
-                        new XA(sprintf('%s/%s', $link_schools, $rank->team->school->id),
+                        new XA(sprintf('/schools/%s/%s/', $rank->team->school->id, $this->REGATTA->getSeason()),
                                $rank->team->school->nick_name));
           $r->add(new XTD(array("title" => $rank->explanation, "class" => "tiebreaker"), $tiebreakers[$rank->explanation]));
           $r->add(new XTD(array(), $order++));
@@ -125,8 +125,8 @@ class ScoresFullDialog extends AbstractScoresDialog {
         }
         elseif ($div == "B") {
           $ln = $rank->team->school->nick_name;
-          if ($link_schools !== null)
-            $ln = new XA(sprintf('%s/%s', $link_schools, $rank->team->school->id), $ln);
+          if ($link_schools !== false)
+            $ln = new XA(sprintf('/schools/%s/%s/', $rank->team->school->id, $this->REGATTA->getSeason()), $ln);
           $r->add(new XTD());
           $r->add(new XTD());
           $r->add(new XTD(array(), $ln));
