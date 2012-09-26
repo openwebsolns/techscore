@@ -42,7 +42,7 @@ class GenerateSite {
         foreach ($season->getRegattas() as $reg) {
           if (count($reg->getDivisions()) > 0) {
             self::log(sprintf("    - (%4d) %s...", $reg->id, $reg->name));
-            UpdateRegatta::run($reg, array(UpdateRequest::ACTIVITY_SCORE, UpdateRequest::ACTIVITY_DETAILS));
+            UpdateRegatta::run($reg, array(UpdateRequest::ACTIVITY_DETAILS));
             self::log("done\n");
           }
         }
