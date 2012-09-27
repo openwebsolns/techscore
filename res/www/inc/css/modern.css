@@ -461,3 +461,15 @@ td.races {
 td.schoolname, td.teamname {
     text-align: left;
 }
+
+/* Regatta list table */
+.regatta-list {
+    width: 100%;
+}
+.regatta-list td, .regatta-list th {
+    text-align: left;
+    padding: 0 0.25em;
+}
+.regatta-list td {
+    padding: 0.25em;
+}

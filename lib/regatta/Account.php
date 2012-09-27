@@ -129,22 +129,26 @@ class Account extends DBObject {
   }
 
   /**
-   * Returns all the regattas for which this user is registered as a
-   * scorer, using the given optional indices to limit the list, like
-   * the range function in Python.
+   * Returns user's regattas
    *
-   * <ul>
-   *   <li>To fetch the first ten: <code>getRegattas(10);</code></li>
-   *   <li>To fetch the next ten:  <code>getRegattas(10, 20);</code><li>
-   * </ul>
+   * These are regattas for which this user has jurdisdiction,
+   * optionally limiting the list to a particular season
    *
+   * @param Season $season optional season to limit listing to
    * @return Array:Regatta
    */
-  public function getRegattas() {
+  public function getRegattas(Season $season = null) {
     require_once('regatta/Regatta.php');
     $cond = null;
     if (!$this->isAdmin()) // regular user
       $cond = new DBCondIn('id', DB::prepGetAll(DB::$SCORER, new DBCond('account', $this), array('regatta')));
+    if ($season !== null) {
+      $scond = new DBBool(array(new DBCond('start_time', $season->start_date, DBCond::GE),
+                                new DBCond('start_time', $season->end_date,   DBCond::LT)));
+      if ($cond !== null)
+        $scond->add($cond);
+      $cond = $scond;
+    }
     return DB::getAll(DB::$REGATTA, $cond);
   }
 
