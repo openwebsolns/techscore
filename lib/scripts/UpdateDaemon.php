@@ -52,7 +52,6 @@
  */
 class UpdateDaemon {
 
-  private static $lock_file_template = "ts2-pub.lock";
   private static $lock_file = null; // full path, used below
   private static $REGATTA = null;
 
@@ -128,7 +127,7 @@ class UpdateDaemon {
    */
   public static function run() {
     // Check file lock
-    self::$lock_file = sprintf("%s/%s", sys_get_temp_dir(), self::$lock_file_template);
+    self::$lock_file = sprintf("%s/%s", sys_get_temp_dir(), Conf::$LOCK_FILENAME);
     if (file_exists(self::$lock_file)) {
       die("Remove lockfile to proceed! (Created: " . file_get_contents(self::$lock_file) . ")\n");
     }

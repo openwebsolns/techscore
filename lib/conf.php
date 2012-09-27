@@ -142,6 +142,11 @@ class Conf {
    * daemon, in a crond-compatible way
    */
   public static $CRON_FREQ = '*/5';
+
+  /**
+   * @var String the filename to use for the lock file (in system temp)
+   */
+  public static $LOCK_FILENAME = 'ts-pub.lock';
 }
 
 function __autoload($name) {
