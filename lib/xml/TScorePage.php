@@ -48,7 +48,7 @@ class TScorePage extends XPage {
 
     $this->content = array();
     $this->filled = false;
-    $this->menu = new XDiv(array('id'=>'menudiv'));
+    $this->menu = new XDiv(array('id'=>'menubar'));
     $this->header = new XDiv(array('id'=>'headdiv'));
 
     // Must be done PRIOR to fill method so that child additions are
@@ -70,7 +70,7 @@ class TScorePage extends XPage {
     if ($this->mobile) {
       $this->body->add(new XButton(array('onclick'=>'toggleMenu()', 'type'=>'button', 'id'=>'menubut'), array("Menu")));
     }
-    $this->body->add($this->menu);
+    $this->body->add(new XDiv(array('id'=>'menudiv'), array($this->menu)));
     $this->body->add(new XHr(array('class'=>'hidden')));
 
     // Content

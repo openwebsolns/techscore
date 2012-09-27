@@ -19,7 +19,7 @@ body {
     background:white;
     border-bottom: 1px solid #aaa;
     margin-bottom: 0.5em;
-    padding: 2.5em 1em 0.5em;
+    padding: 0.5em 1em;
 }
 
 #bodydiv, #menudiv, #headerdiv {
@@ -29,27 +29,32 @@ body {
 
 /* Menus */
 #menudiv {
+    width: 100%;
+    background: #ddd;
+    border-bottom: 1px solid #888;
+    border-top: 1px solid white;
+    height: 2em;
+    min-width: 55em;
+}
+#menubar {
     position: absolute;
     overflow: visible;
     height: 2em;
     z-index:10;
-    display: table;
-    width: 100%;
 }
 
-#menudiv div.menu {
+#menubar div.menu {
     display:table-cell;
     vertical-align:top;
-    min-width:7em;
+    min-width:7.5em;
     font-size:1em;
     height:auto;
     margin:0px;
 }
-#menudiv div.menu:first-child {
+#menubar div.menu:first-child {
     margin-left:5px;
 }
-#menudiv h4 {
-    background: #ddd;
+#menubar h4 {
     font-weight:heavy;
     margin: 0;
     padding: 0.35em 0.5em;
@@ -57,49 +62,47 @@ body {
     font-size:0.9em;
     color: #333;
     border-right: 1px solid white;
-    border-bottom: 1px solid #888;
-    border-top: 1px solid white;
 }
-#menudiv .menu:hover h4 {
+#menubar .menu:hover h4 {
     color: black;
     background: #aaa;
 }
-#menudiv ul {
+#menubar ul {
     margin:0px;
     display:none;
     font-size:0.9em;
 }
-#menudiv div.menu:hover {
+#menubar div.menu:hover {
     background: #dadada;
     background-image: url('img/menu_bg_top.png');
     background-repeat: repeat-x;
     background-position: 0px 0px;
     border-bottom: 1px solid #aaa;
 }
-#menudiv div.menu:hover ul {
+#menubar div.menu:hover ul {
     display:block;
     background-image:url('img/menu_bg_bot.png');
     background-repeat:repeat-x;
     background-position:0px 100%;
     padding:0px;
 }
-#menudiv li {
+#menubar li {
     display:block;
     margin:0.25em 0px;
     padding:0.25em 0.5em;
     list-style-type:none;
 }
-#menudiv li a {
+#menubar li a {
     text-decoration:none;
     color:inherit;
     display:block;
     width:100%;
 }
-#menudiv li:hover {
+#menubar li:hover {
     background:#b89f7e;
     color:white;
 }
-#menudiv li.inactive {
+#menubar li.inactive {
     color:#777;
 }
 
