@@ -70,7 +70,7 @@ abstract class AbstractUserPane {
     $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
                                   array(new XH4("TechScore"),
                                         new XUl(array(),
-                                                array(new XLi(new XA("/",      "My regattas")),
+                                                array(new XLi(new XA("/archive", "All regattas")),
                                                       new XLi(new XA("/create", "New regatta", array("accesskey"=>"n"))),
                                                       new XLi(new XA("/account","My account")))))));
     // School setup

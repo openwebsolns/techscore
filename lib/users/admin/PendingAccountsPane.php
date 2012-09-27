@@ -29,7 +29,6 @@ class PendingAccountsPane extends AbstractAdminUserPane {
   /**
    * Generates and returns the HTML page
    *
-   * @see UserHomePane::fillHTML
    */
   protected function fillHTML(Array $args) {
     $pageset  = (isset($args['page'])) ? (int)$args['page'] : 1;

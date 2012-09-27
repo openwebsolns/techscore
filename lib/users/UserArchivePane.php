@@ -11,7 +11,7 @@ require_once('users/AbstractUserPane.php');
  * User's home page, subclasses AbstractUserPane
  *
  */
-class UserHomePane extends AbstractUserPane {
+class UserArchivePane extends AbstractUserPane {
 
   const NUM_PER_PAGE = 20;
 
@@ -21,7 +21,7 @@ class UserHomePane extends AbstractUserPane {
    * @param Account $user the user whose page to load
    */
   public function __construct(Account $user) {
-    parent::__construct("Welcome", $user);
+    parent::__construct("Regatta archive", $user);
   }
 
   /**
@@ -91,7 +91,7 @@ class UserHomePane extends AbstractUserPane {
       $num_regattas = count($regs);
     }
 
-    $this->PAGE->addContent($p = new XPort("My Regattas"));
+    $this->PAGE->addContent($p = new XPort("Regattas from previous seasons"));
 
     // Offer pagination awesomeness
     require_once('xml5/PageWhiz.php');

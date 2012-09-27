@@ -107,8 +107,13 @@ else {
     // ------------------------------------------------------------
 
   case "home":
-    require_once('users/UserHomePane.php');
-    $PAGE = new UserHomePane(Conf::$USER);
+    require_once('users/UserArchivePane.php');
+    $PAGE = new UserArchivePane(Conf::$USER);
+    break;
+
+  case "archive":
+    require_once('users/UserArchivePane.php');
+    $PAGE = new UserArchivePane(Conf::$USER);
     break;
 
   case "inbox":
