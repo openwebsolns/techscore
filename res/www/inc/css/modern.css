@@ -455,7 +455,7 @@ td.races {
 }
 
 .row1 {
-    background: #fff8ee;
+    background: #F2EDE6;
 }
 
 td.schoolname, td.teamname {
@@ -463,8 +463,9 @@ td.schoolname, td.teamname {
 }
 
 /* Regatta list table */
-.regatta-list {
+.regatta-list, .regatta-list-current {
     width: 100%;
+    border: none;
 }
 .regatta-list td, .regatta-list th {
     text-align: left;
@@ -472,4 +473,28 @@ td.schoolname, td.teamname {
 }
 .regatta-list td {
     padding: 0.25em;
+    border: none;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Current regattas */
+
+.regatta-list-current {
+    border: none;
+    background: #e8e1d4;
+}
+
+.regatta-list-current td {
+    text-align: left;
+    padding: 0.5em;
+    font-size: 120%;
+    border: none;
+    border-bottom: 1px solid #ddd;
+}
+.regatta-list-current tr:last-child td {
+    border-bottom: none;
+}
+
+.regatta-list-current thead {
+    display: none;
 }

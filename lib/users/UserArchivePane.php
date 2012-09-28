@@ -108,7 +108,7 @@ class UserArchivePane extends AbstractUserPane {
                                     'style'=>'color:red;font-weight:bold;font-size:110%;'));
         $row[] = $finalized;
 
-        $tab->addRow($row, array('class'=>'row'.($row++ % 2)));
+        $tab->addRow($row, array('class'=>'row'.($i % 2)));
       }
     }
     $p->add($ldiv);

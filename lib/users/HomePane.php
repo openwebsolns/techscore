@@ -76,7 +76,11 @@ class HomePane extends AbstractUserPane {
       return;
     }
 
+    require_once('regatta/Regatta.php');
+    DB::$REGATTA->db_set_order(array('start_time' => true));
     $regattas = $this->USER->getRegattas($season);
+    DB::$REGATTA->db_set_order();
+
     if (count($regattas) == 0) {
       $this->PAGE->addContent($p = new XPort(sprintf("Regattas for %s", $season->fullString())));
       $p->add(new XP(array('class'=>'warning'),
@@ -93,54 +97,50 @@ class HomePane extends AbstractUserPane {
     // now", to appear before the the second, which is a list of every
     // other regatta. Only create the first port if there are regattas
     // to list there.
-    $cur_tab = new XQuickTable(array('class'=>'regatta-list current'),
-                               array("Name", "Date", "Type", "Scoring"));
-    $num_cur = 0;
-
-    $headers = array("Name", "Season");
+    $headers = array("Name");
     if ($this->USER->isAdmin())
       $headers[] = "Host(s)";
     $headers[] = "Date";
     $headers[] = "Type";
     $headers[] = "Scoring";
     $headers[] = "Finalized";
+    $cur_tab = new XQuickTable(array('class'=>'regatta-list-current'), $headers);
+    $num_cur = 0;
+
     $all_tab = new XQuickTable(array('class'=>'regatta-list'), $headers);
     $num_all = 0;
 
     // Sort all current regattas
     foreach ($regattas as $reg) {
       $link = new XA("score/" . $reg->id, $reg->name);
+      $row = array($link);
+
+      if ($this->USER->isAdmin()) {
+	$hosts = array();
+	foreach ($reg->getHosts() as $host)
+	  $hosts[$host->id] = $host->id;
+	$row[] = implode("/", $hosts);
+      }
+
+      $finalized = '--';
+      if ($reg->finalized !== null)
+	$finalized = $reg->finalized->format("Y-m-d");
+      elseif ($reg->end_date < DB::$NOW)
+	$finalized = new XA('score/'.$reg->id.'#finalize', 'PENDING',
+			    array('title'=>'Regatta must be finalized!',
+				  'style'=>'color:red;font-weight:bold;font-size:110%;'));
+
+      $row = array($link, $reg->getSeason()->fullString());
+
+      $row[] = $reg->start_time->format("Y-m-d");
+      $row[] = ucfirst($reg->type);
+      $row[] = ucfirst($reg->scoring);
+      $row[] = $finalized;
+
       if ($this->isCurrent($reg)) {
-        $cur_tab->addRow(array($link,
-                               $reg->start_time->format('Y-m-d'),
-                               ucfirst($reg->type),
-                               ucfirst($reg->scoring)),
-                         array('class' => 'row'.($num_cur++ % 2)));
+        $cur_tab->addRow($row, array('class' => 'row'.($num_cur++ % 2)));
       }
       else {
-        $finalized = '--';
-        if ($reg->finalized !== null)
-          $finalized = $reg->finalized->format("Y-m-d");
-        elseif ($reg->end_date < DB::$NOW)
-          $finalized = new XA('score/'.$reg->id.'#finalize', 'PENDING',
-                              array('title'=>'Regatta must be finalized!',
-                                    'style'=>'color:red;font-weight:bold;font-size:110%;'));
-
-        $row = array($link, $reg->getSeason()->fullString());
-
-        if ($this->USER->isAdmin()) {
-          $hosts = array();
-          foreach ($reg->getHosts() as $host)
-            $hosts[$host->id] = $host->id;
-          $row[] = implode("/", $hosts);
-        }
-
-        $row[] = $reg->start_time->format("Y-m-d");
-        $row[] = ucfirst($reg->type);
-        $row[] = ucfirst($reg->scoring);
-        $row[] = $finalized;
-
-
         $all_tab->addRow($row, array('class'=>'row'.($num_all++ % 2)));
       }
     }
