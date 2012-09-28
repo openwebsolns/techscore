@@ -121,7 +121,7 @@ class HomePane extends AbstractUserPane {
         $finalized = '--';
         if ($reg->finalized !== null)
           $finalized = $reg->finalized->format("Y-m-d");
-        elseif ($reg->finalized < DB::$NOW)
+        elseif ($reg->end_date < DB::$NOW)
           $finalized = new XA('score/'.$reg->id.'#finalize', 'PENDING',
                               array('title'=>'Regatta must be finalized!',
                                     'style'=>'color:red;font-weight:bold;font-size:110%;'));
