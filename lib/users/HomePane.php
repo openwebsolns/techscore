@@ -161,10 +161,14 @@ class HomePane extends AbstractUserPane {
   /**
    * Determines whether a regatta is "recent enough"
    *
-   * Condition: start_time before now, end_date + 5 beyond now
+   * Condition: start_time in the next 3 days, end_date + 4 days
+   * beyond now
    */
   private function isCurrent(Regatta $reg) {
-    if ($reg->start_time > DB::$NOW)
+    $start = clone(DB::$NOW);
+    $start->add(new DateInterval('P3DT0H'));
+    $start->setTime(0, 0);
+    if ($reg->start_time > $start)
       return false;
     $end = clone($reg->end_date);
     $end->add(new DateInterval('P3DT0H'));
