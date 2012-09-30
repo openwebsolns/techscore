@@ -43,7 +43,7 @@ class SailsPane extends AbstractPane {
    */
   private function fillCombined($chosen_rot, $chosen_div) {
     $chosen_rot_desc = explode(":", $this->ROTS[$chosen_rot]);
-    $mesaage = sprintf("2. %s", $chosen_rot_desc[0]);
+    $message = sprintf("2. %s", $chosen_rot_desc[0]);
     if (count($chosen_div) > 1)
       $message = sprintf("2. %s for all divisions", $chosen_rot_desc[0]);
     $this->PAGE->addContent($p = new XPort($message));
@@ -72,8 +72,8 @@ class SailsPane extends AbstractPane {
     // Else
     // ------------------------------------------------------------
     // Set size
-    $form->add($fitem = new FItem("Races in set:", $f_text = new XTextInput("repeat", 2, array('size'=>2, 'id'=>'repeat'))));
-    $fitem->add(new XMessage("With \"no rotation\", value is ignored"));
+    if ($chosen_rot != "NOR")
+      $form->add($fitem = new FItem("Races in set:", $f_text = new XTextInput("repeat", 2, array('size'=>2, 'id'=>'repeat'))));
 
     // Teams table
     $bye_team = null;
@@ -440,7 +440,9 @@ class SailsPane extends AbstractPane {
 
     // reset
     UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
-    Session::pa(new PA("New rotation successfully created."));
+    Session::pa(new PA(array("New rotation successfully created. ",
+			     new XA(sprintf('/view/%s/rotation', $this->REGATTA->id), "View", array('onclick'=> 'javascript:this.target="rotation";')),
+			     ".")));
     unset($args['rottype']);
     $this->redirect('finishes');
   }
