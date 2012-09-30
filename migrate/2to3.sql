@@ -139,3 +139,7 @@ delete from season where id = 'w09';
 
 delete from dt_regatta where season is null;
 alter table dt_regatta drop foreign key dt_regatta_ibfk_1, change column season season varchar(3) not null, add foreign key (season) references season(id) on delete cascade on update cascade;
+
+alter table pub_update_request add column completion_time datetime default null;
+update pub_update_request, pub_update_log set pub_update_request.completion_time = pub_update_log.attempt_time where pub_update_request.id = pub_update_log.request;
+drop table pub_update_log;

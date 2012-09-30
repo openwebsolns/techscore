@@ -21,11 +21,14 @@ class UpdateRequest extends DBObject {
    * @var DateTime the time of the request. Leave as null for current timestamp
    */
   protected $request_time;
+  protected $completion_time;
 
   public function db_name() { return 'pub_update_request'; }
   public function db_type($field) {
     switch ($field) {
-    case 'request_time': return DB::$NOW;
+    case 'completion_time':
+    case 'request_time':
+      return DB::$NOW;
     case 'regatta': return DB::$REGATTA;
     default:
       return parent::db_type($field);
@@ -63,29 +66,6 @@ class UpdateRequest extends DBObject {
 }
 
 /**
- * Log of completed update requests
- *
- * @author Dayan Paez
- * @version 2012-01-15
- */
-class UpdateLog extends DBObject {
-  protected $request;
-  protected $attempt_time;
-  public $return_code;
-  public $return_mess;
-
-  public function db_name() { return 'pub_update_log'; }
-  public function db_type($field) {
-    switch ($field) {
-    case 'request': return DB::$UPDATE_REQUEST;
-    case 'attempt_time': returN DB::$NOW;
-    default:
-      parent::db_type($field);
-    }
-  }
-}
-
-/**
  * Request to update season
  *
  * @author Dayan Paez
@@ -105,6 +85,5 @@ class UpdateLogSeason extends DBObject {
   }
 }
 DB::$UPDATE_REQUEST = new UpdateRequest();
-DB::$UPDATE_LOG = new UpdateLog();
 DB::$UPDATE_LOG_SEASON = new UpdateLogSeason();
 ?>

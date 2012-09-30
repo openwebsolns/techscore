@@ -159,10 +159,7 @@ class UpdateDaemon {
     // Loop through the requests
     // ------------------------------------------------------------
     foreach (UpdateManager::getPendingRequests() as $r) {
-      $log = new UpdateLog();
-      $log->request = $r;
-      $log->return_code = 0;
-      $requests[] = $log;
+      $requests[] = $r;
 
       $reg = $r->regatta;
 
@@ -257,7 +254,8 @@ class UpdateDaemon {
     // ------------------------------------------------------------
     // Mark all requests as completed
     // ------------------------------------------------------------
-    DB::insertAll($requests);
+    foreach ($requests as $r)
+      UpdateManager::log($r);
 
     self::report('done');
   }

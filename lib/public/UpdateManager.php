@@ -43,24 +43,17 @@ class UpdateManager {
    * 'activity', with 'regatta' being an ID
    */
   public static function getPendingRequests() {
-    return DB::getAll(DB::$UPDATE_REQUEST,
-                      new DBCondIn('id',
-                                   DB::prepGetAll(DB::$UPDATE_LOG, new DBCond('return_code', 0, DBCond::LE), array('request')),
-                                   DBCondIn::NOT_IN));
+    return DB::getAll(DB::$UPDATE_REQUEST, new DBCond('completion_time', null));
   }
 
   /**
-   * Logs the response to the given request
+   * Logs the given request as completed
    *
    * @param UpdateRequest $req the update request to log
-   * @param int $code the code to use (0 = pending, -1 = good, -2 = "assumed", > 0: error
    */
-  public static function log(UpdateRequest $req, $code = -1, $mes = "") {
-    $log = new UpdateLog();
-    $log->request = $req;
-    $log->return_code = $code;
-    $log->return_mess = $mess;
-    DB::set($log);
+  public static function log(UpdateRequest $req) {
+    $req->completion_time = DB::$NOW;
+    DB::set($req, true);
   }
 
   /**
