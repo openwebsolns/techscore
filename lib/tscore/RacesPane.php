@@ -42,10 +42,14 @@ class RacesPane extends AbstractPane {
 
     $this->PAGE->addContent($p = new XPort("Races and divisions"));
     $p->add($form = $this->createForm());
-    if ($this->REGATTA->scoring != Regatta::SCORING_TEAM)
+    if ($this->REGATTA->scoring != Regatta::SCORING_TEAM) {
+      $divs = array(1=>1, 2=>2, 3=>3, 4=>4);
+      if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED)
+	array_shift($divs);
       $form->add(new FItem("Number of divisions:", XSelect::fromArray('num_divisions',
-                                                                      array(1=>1, 2=>2, 3=>3, 4=>4),
+                                                                      $divs,
                                                                       count($this->REGATTA->getDivisions()))));
+    }
     $form->add(new FItem("Number of races:", new XTextInput('num_races', count($this->REGATTA->getTeams()))));
     $form->add($fi = new FItem("Boat:", XSelect::fromArray('boat', $boatOptions)));
     $fi->add(new XMessage("Boats can be assigned per division or race afterwards."));
