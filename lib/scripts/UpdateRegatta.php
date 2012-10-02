@@ -184,6 +184,8 @@ class UpdateRegatta {
         $team_division->division = $div;
         $team_division->rank = ($i + 1);
         $team_division->explanation = $rank->explanation;
+	$team_division->penalty = null;
+	$team_division->comments = null;
 
         // Penalty?
         if (($pen = $reg->getTeamPenalty($rank->team, $div)) !== null) {

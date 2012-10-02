@@ -117,7 +117,7 @@ class TeamPenaltyPane extends AbstractPane {
       $team = DB::$V->reqTeam($args, 'r_team', $this->REGATTA, "Invalid or missing team.");
       $div = DB::$V->reqDivision($args, 'r_div', $this->REGATTA->getDivisions(), "Invalid or missing division.");
       if ($this->REGATTA->dropTeamPenalty($team, $div)) {
-        Session::pa(new PA(sprintf("Dropped team penalty for %s in %s.", $team, $div)));
+        Session::pa(new PA(sprintf("Dropped team penalty for %s in division %s.", $team, $div)));
         UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
       }
       else
