@@ -1082,19 +1082,7 @@ class Team extends DBObject {
       return parent::db_type($field);
     }
   }
-  /**
-   * For singlehanded regattas, use the sailor name
-   */
   public function __toString() {
-    if ($this->regatta !== null) {
-      $reg = $this->__get('regatta');
-      if ($reg->isSingleHanded()) {
-        $rpm = $reg->getRpManager();
-        $rps = $rpm->getRP($this, Division::A(), RP::SKIPPER);
-        if (count($rps) == 1)
-          return sprintf('%s %s', $this->__get('school')->nick_name, $rps[0]->sailor);
-      }
-    }
     return $this->__get('school')->nick_name . ' ' . $this->name;
   }
 }
