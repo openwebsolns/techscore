@@ -498,3 +498,39 @@ td.schoolname, td.teamname {
 .regatta-list-current thead {
     display: none;
 }
+
+.personal-regatta td {
+    color: #888;
+}
+
+.personal-regatta a {
+    color: #6e97ff;
+}
+
+/* Regatta status */
+.stat {
+    padding: 0.25em;
+    border: 1px solid black;
+    border-radius: 0.25em;
+    text-transform: uppercase;
+    font-size: 85%;
+    font-weight: bold;
+}
+a.pending {
+    color:red;
+    background: #eed2c0;
+    border-color: brown;
+    font-weight:bold;
+}
+
+.incomplete {
+    color: brown;
+    background: #f3f3bb;
+    border-color: orange;
+}
+
+a.empty {
+    color: green;
+    background: #e0f3e0;
+    border-color: green;
+}

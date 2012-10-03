@@ -102,13 +102,24 @@ class UserArchivePane extends AbstractUserPane {
         $finalized = '--';
         if ($reg->finalized !== null)
           $finalized = $reg->finalized->format("Y-m-d");
-        elseif ($reg->end_date < $now)
-          $finalized = new XA('score/'.$reg->id.'#finalize', 'PENDING',
-                              array('title'=>'Regatta must be finalized!',
-                                    'style'=>'color:red;font-weight:bold;font-size:110%;'));
+        elseif ($reg->end_date < DB::$NOW) {
+          if (count($reg->getTeams()) == 0 || count($reg->getRaces()) == 0)
+            $finalized = new XSpan("Incomplete", array('class'=>'stat incomplete', 'title'=>"Missing races or teams."));
+          elseif (!$reg->hasFinishes())
+            $finalized = new XA(WS::link(sprintf('/score/%s/finishes', $reg->id)), "No finishes",
+                                array('class'=>'stat empty',
+                                      'title'=>"No finishes entered"));
+          else
+            $finalized = new XA(WS::link('/score/'.$reg->id.'#finalize'), "Pending",
+                                array('title'=>'Regatta must be finalized!',
+                                      'class'=>'stat pending'));
+        }
         $row[] = $finalized;
 
-        $tab->addRow($row, array('class'=>'row'.($i % 2)));
+        $class = 'row'.($i % 2);
+        if ($reg->type == Regatta::TYPE_PERSONAL)
+          $class .= ' personal-regatta';
+        $tab->addRow($row, array('class' => $class));
       }
     }
     $p->add($ldiv);

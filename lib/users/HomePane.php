@@ -125,23 +125,32 @@ class HomePane extends AbstractUserPane {
       $finalized = '--';
       if ($reg->finalized !== null)
 	$finalized = $reg->finalized->format("Y-m-d");
-      elseif ($reg->end_date < DB::$NOW)
-	$finalized = new XA('score/'.$reg->id.'#finalize', 'PENDING',
-			    array('title'=>'Regatta must be finalized!',
-				  'style'=>'color:red;font-weight:bold;font-size:110%;'));
-
-      $row = array($link, $reg->getSeason()->fullString());
+      elseif ($reg->end_date < DB::$NOW) {
+        if (count($reg->getTeams()) == 0 || count($reg->getRaces()) == 0)
+          $finalized = new XSpan("Incomplete", array('class'=>'stat incomplete', 'title'=>"Missing races or teams."));
+        elseif (!$reg->hasFinishes())
+          $finalized = new XA(WS::link(sprintf('/score/%s/finishes', $reg->id)), "No finishes",
+                              array('class'=>'stat empty',
+                                    'title'=>"No finishes entered"));
+        else
+          $finalized = new XA(WS::link('/score/'.$reg->id.'#finalize'), "Pending",
+                              array('title'=>'Regatta must be finalized!',
+                                    'class'=>'stat pending'));
+      }
 
       $row[] = $reg->start_time->format("Y-m-d");
       $row[] = ucfirst($reg->type);
       $row[] = ucfirst($reg->scoring);
       $row[] = $finalized;
 
+      $class = "";
+      if ($reg->type == Regatta::TYPE_PERSONAL)
+        $class = 'personal-regatta ';
       if ($this->isCurrent($reg)) {
-        $cur_tab->addRow($row, array('class' => 'row'.($num_cur++ % 2)));
+        $cur_tab->addRow($row, array('class' => $class . 'row'.($num_cur++ % 2)));
       }
       else {
-        $all_tab->addRow($row, array('class'=>'row'.($num_all++ % 2)));
+        $all_tab->addRow($row, array('class' => $class . 'row'.($num_all++ % 2)));
       }
     }
 
