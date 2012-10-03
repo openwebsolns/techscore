@@ -100,7 +100,7 @@ class SailorMergePane extends AbstractPrefsPane {
           // Notify the affected regattas to redo their RPs
           foreach ($divs as $div) {
             foreach (RpManager::getRegattas($temp, null, $div) as $reg) {
-              UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_RP, $div);
+              UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_RP, $this->SCHOOL);
               $affected[$reg->id] = $reg;
             }
           }
