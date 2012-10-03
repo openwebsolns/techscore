@@ -509,3 +509,13 @@ div.stat .prefix {
 .coming-regattas tr td:first-child {
     text-align: right;
 }
+
+.tiebreaker th {
+    text-align: left;
+}
+.tiebreaker th, .tiebreaker td {
+    border: none;
+}
+.tiebreaker tr td:last-child {
+    text-align: left;
+}
