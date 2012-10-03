@@ -91,13 +91,16 @@ class DetailsPane extends AbstractPane {
       $item->add(new XMessage("Changing this value may affect RP info"));
 
     // Scoring rules
+    $options = Regatta::getScoringOptions();
     $value = $this->REGATTA->scoring;
-    $reg_form->add($fi = new FItem("Scoring:",
-                                   XSelect::fromArray('scoring',
-                                                      Regatta::getScoringOptions(),
-                                                      $value)));
-    if ($this->REGATTA->scoring != Regatta::SCORING_TEAM &&
-        count($this->REGATTA->getDivisions()) > 1)
+    $reg_form->add($fi = new FItem("Scoring:", XSelect::fromArray('scoring', $options, $value)));
+    if ($this->REGATTA->scoring != Regatta::SCORING_COMBINED &&
+        $this->REGATTA->hasFinishes() &&
+        isset($options[Regatta::SCORING_COMBINED]))
+      $fi->add(new XMessage("Changing to \"Combined\" will remove incomplete finishes and rotations."));
+    elseif ($this->REGATTA->scoring != Regatta::SCORING_TEAM &&
+        count($this->REGATTA->getDivisions()) > 1 &&
+        isset($options[Regatta::SCORING_TEAM]))
       $fi->add(new XMessage("Changing to \"Team\" will remove divisions and rotations"));
 
     // Hosts: first add the current hosts, then the entire list of
@@ -274,6 +277,7 @@ class DetailsPane extends AbstractPane {
             if (count($rot->getDivisions()) != count($divs)) {
               $rot->reset();
               Session::pa(new PA("Rotations reset due to inconsistency.", PA::I));
+              UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
             }
             else {
               $required_count = count($this->REGATTA->getTeams()) * count($divs);
@@ -285,6 +289,7 @@ class DetailsPane extends AbstractPane {
                 if (count($unique) != $required_count) {
                   $rot->reset();
                   Session::pa(new PA("Rotations reset due to duplicate sails in race $race.", PA::I));
+                  UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
                   break;
                 }
               }
