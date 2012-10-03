@@ -318,6 +318,7 @@ h4#user {
     text-transform: uppercase;
     font-size: 85%;
     font-weight: bold;
+    display: block;
 }
 a.pending {
     color:red;

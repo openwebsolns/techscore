@@ -515,6 +515,7 @@ td.schoolname, td.teamname {
     text-transform: uppercase;
     font-size: 85%;
     font-weight: bold;
+    display: block;
 }
 a.pending {
     color:red;
