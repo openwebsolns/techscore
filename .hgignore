@@ -34,3 +34,5 @@ www/inc/js/*.js
 Debug.php
 lib/ChangeLog
 etc/*
+
+lib/scripts/hooks-installed/*

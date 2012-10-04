@@ -257,6 +257,17 @@ class UpdateDaemon {
     foreach ($requests as $r)
       UpdateManager::log($r);
 
+    // ------------------------------------------------------------
+    // Perform all hooks
+    // ------------------------------------------------------------
+    foreach (self::getHooks() as $hook) {
+      $ret = 0;
+      passthru($hook, $ret);
+      if ($ret != 0)
+	throw new RuntimeException("Hook $hook", $ret);
+      self::report("Hook $hook run");
+    }
+
     self::report('done');
   }
 
@@ -268,6 +279,29 @@ class UpdateDaemon {
     if (file_exists(self::$lock_file) && !unlink(self::$lock_file))
       throw new RuntimeException("(EE) Unable to delete lock file while cleaning up!");
     exit(0);
+  }
+
+  /**
+   * Returns list of files that are hooks to this daemon
+   *
+   * @return Array:String filenames
+   * @throws RuntimeException due to IO errors
+   */
+  private static function getHooks() {
+    $list = array();
+    $path = sprintf('%s/hooks-installed', dirname(__FILE__));
+    if (!is_dir($path))
+      return $list;
+    if (($hooks = scandir($path)) === false)
+      throw new RuntimeException("Unable to read hooks directory: $path");
+    foreach ($hooks as $hook) {
+      if ($hook == '.' || $hook == '..')
+	continue;
+      $fname = "$path/$hook";
+      if (is_executable($fname))
+	$list[] = $fname;
+    }
+    return $list;
   }
 
   /**
