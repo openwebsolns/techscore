@@ -178,7 +178,7 @@ li#logo img {
 #page-footer {
     padding: 0;
     margin: 0;
-    height: 20em;
+    height: 12em;
 }
 #page-footer h3 {
     font-size: 0.7em;
@@ -202,6 +202,10 @@ li#logo img {
 }
 #sponsors img {
     border: none;
+}
+
+#sponsors-list {
+    padding: 0;
 }
 
 address {

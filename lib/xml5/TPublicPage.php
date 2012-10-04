@@ -150,7 +150,6 @@ class TPublicPage extends XPage {
                                                                  new XLi(new XA('http://www.sperrytopsider.com/', new XImg('/inc/img/sponsors/sperry-gray.png', "Sperry Top-Sider"))),
                                                                  new XLi(new XA('http://www.laserperformance.com/', new XImg('/inc/img/sponsors/laserperformance.png', "LaserPerformance"))),
                                                                  new XLi(new XA('http://www.marlowropes.com/', new XImg('/inc/img/sponsors/marlow.png', "Marlow"))),
-                                                                 new XLi(new XA('http://www.sail1design.com/', new XImg('/inc/img/sponsors/sail1design.png', "Sail 1 Design"))),
                                                                  new XLi(new XA('http://www.ussailing.org/', new XImg('/inc/img/sponsors/ussailing.png', "US Sailing"))),
                                                                  new XLi(new XA('http://www.quantumsails.com/', new XImg('/inc/img/sponsors/qtag.png', "Quantum Sails"))))))),
 
