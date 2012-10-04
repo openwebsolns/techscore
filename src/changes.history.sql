@@ -315,3 +315,6 @@ drop table pub_update_log;
 
 -- dt_team names can be sailor names for signlehanded events
 alter table dt_team change column name name text not null;
+
+-- regatta nick name can be null --
+alter table regatta change column nick nick varchar(40) default null;
