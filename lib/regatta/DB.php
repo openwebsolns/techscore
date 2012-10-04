@@ -464,9 +464,10 @@ class DB extends DBM {
   // ------------------------------------------------------------
 
   /**
-   * Creates array of range from string. On fail, return null. Expects
-   * argument to contain only spaces, commas, dashes and numbers,
-   * greater than 0
+   * Creates array of range from string.
+   *
+   * Expects argument to contain only spaces, commas, dashes and
+   * numbers, greater than 0
    *
    * @param String $str the range to parse
    * @return Array the numbers in the string in numerical order
@@ -474,7 +475,7 @@ class DB extends DBM {
   public static function parseRange($str) {
     // Check for valid characters
     if (preg_match('/[^0-9 ,-]/', $str) == 1)
-      return null;
+      return array();
 
     // Remove leading and trailing spaces, commasn and hyphens
     $str = preg_replace('/^[ ,-]*/', '', $str);
@@ -490,6 +491,9 @@ class DB extends DBM {
 
     // Squeeze hyphens
     $str = preg_replace('/-+/', '-', $str);
+
+    if (strlen($str) == 0)
+      return array();
 
     $sub = explode(",", $str);
     $list = array();
