@@ -1067,7 +1067,7 @@ class Scorer extends DBObject {
  * @version 2012-01-10
  */
 class Team extends DBObject {
-  public $name;
+  protected $name;
   protected $school;
   protected $regatta; // change to protected when using DBM
 
@@ -1078,6 +1078,7 @@ class Team extends DBObject {
     switch ($field) {
     case 'school': return DB::$SCHOOL;
     case 'regatta': return DB::$REGATTA;
+    case 'name': return DBQuery::A_STR;
     default:
       return parent::db_type($field);
     }
@@ -1112,7 +1113,7 @@ class SinglehandedTeam extends Team {
    *
    * @return String name of the team or sailor
    */
-  private function getQualifiedName() {
+  private function &getQualifiedName() {
     if ($this->regatta == null) return parent::__get("name");
 
     try {
@@ -1124,7 +1125,8 @@ class SinglehandedTeam extends Team {
       $sailors = array();
       foreach ($rps as $rp)
         $sailors[] = $rp->sailor;
-      return implode("/", $sailors);
+      $sailors = implode("/", $sailors);
+      return $sailors;
     } catch (Exception $e) {
       return parent::__get("name");
     }

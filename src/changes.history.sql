@@ -312,3 +312,6 @@ alter table dt_regatta drop foreign key dt_regatta_ibfk_1, change column season 
 alter table pub_update_request add column completion_time datetime default null;
 update pub_update_request, pub_update_log set pub_update_request.completion_time = pub_update_log.attempt_time where pub_update_request.id = pub_update_log.request;
 drop table pub_update_log;
+
+-- dt_team names can be sailor names for signlehanded events
+alter table dt_team change column name name text not null;
