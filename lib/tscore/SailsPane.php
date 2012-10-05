@@ -184,7 +184,9 @@ class SailsPane extends AbstractPane {
       $exist_div = array_combine($exist_div, $exist_div);
 
     // Get signed in teams
-    $p_teams = $this->REGATTA->getTeams();
+    $p_teams = array();
+    foreach ($this->REGATTA->getTeams() as $team)
+      $p_teams[] = $team;
 
     // ------------------------------------------------------------
     // 1. Choose a rotation type: SWAP rotations are allowed due to
@@ -386,7 +388,7 @@ class SailsPane extends AbstractPane {
     if ($rottype !== "NOR")
       $repeats = DB::$V->incInt($args, 'repeat', 1, $repeats, 1);
 
-    // validate teams
+    // validate teams (sails must all be different)
     $keys = array_keys($args);
     $sails = array();
     $divs  = array();                      // keep track of divisions
@@ -394,7 +396,10 @@ class SailsPane extends AbstractPane {
     $teams = $this->REGATTA->getTeams();
     foreach ($divisions as $div) {
       foreach ($teams as $team) {
-        $sails[] = DB::$V->reqString($args, sprintf("%s,%s", $div, $team->id), 1, 9, "Missing sail for team $team in division $div");
+        $sail = DB::$V->reqString($args, sprintf("%s,%s", $div, $team->id), 1, 9, "Missing sail for team $team in division $div");
+        if (in_array($sail, $sails))
+          throw new SoterException("Duplicate sail number $sail.");
+        $sails[] = $sail;
         $tlist[] = $team;
         $divs[] = $div;
       }
@@ -405,6 +410,8 @@ class SailsPane extends AbstractPane {
       $team = new ByeTeam();
       if (!isset($args[$team->id]))
         throw new SoterException("Missing BYE team.");
+      if (in_array($args[$team->id], $sails))
+        throw new SoterException("Duplicate sail number in BYE team.");
       $sails[] = $args[$team->id];
       $tlist[] = $team;
       $divs[]  = Division::A();
@@ -416,11 +423,11 @@ class SailsPane extends AbstractPane {
       $sort = $args['sort'];
     switch ($sort) {
     case "num":
-      array_multisort($sails, $tlist, SORT_NUMERIC);
+      array_multisort($sails, SORT_NUMERIC, $tlist);
       break;
 
     case "alph":
-      array_multisort($sails, $tlist, SORT_STRING);
+      array_multisort($sails, SORT_STRING, $tlist);
       break;
     }
 
@@ -542,11 +549,15 @@ class SailsPane extends AbstractPane {
         $id = $team->id;
         if (!DB::$V->hasString($sail, $args, $id, 1, 9))
           $missing[] = (string)$team;
+        if (in_array($sail, $sails))
+          throw new SoterException("Duplicate sail number $sail.");
         $sails[] = $sail;
       }
       // Add BYE team if requested
       if (isset($args['BYE'])) {
         $teams[] = new ByeTeam();
+        if (in_array($args['BYE'], $sails))
+          throw new SoterException("Duplicate sail number in BYE team.");
         $sails[] = $args['BYE'];
       }
       if (count($missing) > 0)
@@ -555,11 +566,11 @@ class SailsPane extends AbstractPane {
       // 3c. sorting
       switch (DB::$V->incKey($args, 'sort', $this->SORT, 'none')) {
       case "num":
-        array_multisort($sails, $teams, SORT_NUMERIC);
+        array_multisort($sails, SORT_NUMERIC, $teams);
         break;
 
       case "alph":
-        array_multisort($sails, $teams, SORT_STRING);
+        array_multisort($sails, SORT_STRING, $teams);
         break;
       }
 
