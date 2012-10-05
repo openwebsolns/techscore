@@ -1,4 +1,12 @@
 <?php
+/*
+ * This file is part of TechScore
+ *
+ * @package tscore/scripts
+ */
+
+require_once('AbstractScript.php');
+
 /**
  * This script, to be run from the command line as part of a scheduled
  * task, will process the outgoing request in the 'outbox' table,
@@ -9,21 +17,16 @@
  * @version 2011-11-18
  * @package scripts
  */
-class ProcessOutbox {
+class ProcessOutbox extends AbstractScript {
+
+  private $sent = 0;
 
   /**
-   * @var boolean true to print out information about what's happening
-   */
-  public static $verbose = false;
-  private static $sent = 0;
-
-  /**
-   * Do your thang. (i.e. send messages)
+   * Send queued messages
    *
    */
-  public static function run() {
-    // @TODO $outbox->arguments is already an array
-    self::$sent = 0;
+  public function run() {
+    $this->sent = 0;
     $num = 0;
     foreach (DB::getPendingOutgoing() as $outbox) {
       $num++;
@@ -32,12 +35,12 @@ class ProcessOutbox {
       if ($outbox->recipients == Outbox::R_ALL) {
         foreach (DB::getConferences() as $conf) {
           foreach ($conf->getUsers() as $acc) {
-            self::send($acc, $outbox->subject, $outbox->content);
+            $this->send($acc, $outbox->subject, $outbox->content);
             if ($acc->id == $outbox->sender->id)
               $sent_to_me = true;
           }
         }
-        self::log(sprintf("Successfully sent message from %s to all recipients queued at %s.\n",
+        self::errln(sprintf("Successfully sent message from %s to all recipients queued at %s.",
                           $outbox->sender, $outbox->queue_time->format('Y-m-d H:i:s')));
       }
       // conference
@@ -47,78 +50,57 @@ class ProcessOutbox {
           if ($conf === null)
             throw new RuntimeException("Conference $conf does not exist.");
           foreach ($conf->getUsers() as $acc) {
-            self::send($acc, $outbox->subject, $outbox->content);
+            $this->send($acc, $outbox->subject, $outbox->content);
             if ($acc->id == $outbox->sender->id)
               $sent_to_me = true;
           }
         }
-        self::log(sprintf("Successfully sent message from %s to %s queued at %s.\n",
+        self::errln(sprintf("Successfully sent message from %s to %s queued at %s.",
                           $outbox->sender, $outbox->arguments, $outbox->queue_time->format('Y-m-d H:i:s')));
       }
       // role
       if ($outbox->recipients == Outbox::R_ROLE) {
         foreach ($outbox->arguments as $role) {
           foreach (DB::getAccounts($role) as $acc) {
-            self::send($acc, $outbox->subject, $outbox->content);
+            $this->send($acc, $outbox->subject, $outbox->content);
             if ($acc->id == $outbox->sender->id)
               $sent_to_me = true;
           }
         }
-        self::log(sprintf("Successfully sent message from %s to %s queued at %s.\n",
+        self::errln(sprintf("Successfully sent message from %s to %s queued at %s.",
                           $outbox->sender, $outbox->arguments, $outbox->queue_time->format('Y-m-d H:i:s')));
       }
 
       // send me a copy?
       if ($outbox->copy_sender > 0 && !$sent_to_me) {
-        self::send($outbox->sender, "COPY OF: ".$outbox->subject, $outbox->content);
-        self::log("Also sent copy to sender {$outbox->sender}\n");
+        $this->send($outbox->sender, "COPY OF: ".$outbox->subject, $outbox->content);
+        self::errln("Also sent copy to sender {$outbox->sender}");
       }
       $outbox->completion_time = DB::$NOW;
       DB::set($outbox);
     }
-    self::log(sprintf("Processed %d requests, sending %d messages.\n", $num, self::$sent));
+    self::errln(sprintf("Processed %d requests, sending %d messages.", $num, $this->sent));
   }
 
-  private static function send(Account $to, $subject, $content) {
-    DB::queueMessage($to, self::keywordReplace($to, $subject), self::keywordReplace($to, $content), true);
-    self::$sent++;
+  private function send(Account $to, $subject, $content) {
+    DB::queueMessage($to, $this->keywordReplace($to, $subject), $this->keywordReplace($to, $content), true);
+    $this->sent++;
   }
-  private static function keywordReplace(Account $to, $mes) {
+  private function keywordReplace(Account $to, $mes) {
     $mes = str_replace('{FULL_NAME}', $to->getName(), $mes);
     $mes = str_replace('{SCHOOL}',    $to->school, $mes);
     return $mes;
-  }
-
-  private static function log($mes) {
-    if (self::$verbose)
-      echo $mes;
-  }
-
-  public static function usage($name = 'ProcessOutbox') {
-    printf("usage: %s [-vh]
-
- -h  Print this message
- -v  Be verbose about what you are doing\n", $name);
   }
 }
 
 // Run from the command line
 if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  ini_set('include_path', '.:'.realpath(dirname(__FILE__).'/../'));
-  require_once('conf.php');
+  require_once(dirname(dirname(__FILE__)).'/conf.php');
 
-  $opts = getopt('vh');
-
-  // Help?
-  if (isset($opts['h'])) {
-    ProcessOutbox::usage($argv[0]);
-    exit(1);
-  }
-
-  if (isset($opts['v'])) {
-    ProcessOutbox::$verbose = true;
-    unset($opts['v']);
-  }
-  ProcessOutbox::run();
+  $P = new ProcessOutbox();
+  $opts = $P->getOpts($argv);
+  if (count($opts) > 0)
+    throw new TSScriptException("Invalid argument");
+  $P->run();
 }
 ?>
