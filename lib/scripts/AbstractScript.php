@@ -143,7 +143,7 @@ abstract class AbstractScript {
     exit($errno);
   }
   public function handle_exception(Exception $e) {
-    if ($e instanceof ScriptException)
+    if ($e instanceof TSScriptException)
       $this->usage($e->getMessage());
 
     printf("(EX) + %s\n", $e->getMessage());

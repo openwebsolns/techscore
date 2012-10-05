@@ -317,7 +317,10 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   // ------------------------------------------------------------
   // List the pending requests only
   // ------------------------------------------------------------
-  if (isset($opts['l'])) {
+  if (count($opts) > 0) {
+    if (count($opts) > 1 || !in_array($opts[0], array('-l', '--list')))
+      throw new TSScriptException("Unknown arguments");
+
     // Merely list the pending requests
     $requests = UpdateManager::getPendingRequests();
     $regattas = array();
