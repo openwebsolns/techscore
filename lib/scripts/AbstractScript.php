@@ -35,8 +35,10 @@ abstract class AbstractScript {
   private static $print_filenames = false;
 
   /**
-   * Outputs the given message to standard error. Message is written
-   * only if current verbosity setting is at least the one provided.
+   * Outputs the given message to standard error.
+   *
+   * Message is written only if current verbosity setting is at least
+   * the one provided.
    *
    * @param String $mes the message to print (sans newlines)
    * @param int $threshold the minimum verbosity level needed
@@ -46,8 +48,15 @@ abstract class AbstractScript {
       for ($i = 0; $i < $threshold - 1; $i++)
         fwrite(STDERR, " ");
       fwrite(STDERR, $mes);
-      fwrite(STDERR, "\n");
     }
+  }
+
+  /**
+   * As with err, but append a new line automatically
+   *
+   */
+  protected static function errln($mes, $threshold = 1) {
+    self::err($mes . "\n", $threshold);
   }
 
   /**

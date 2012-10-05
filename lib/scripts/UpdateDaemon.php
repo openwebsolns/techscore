@@ -180,7 +180,7 @@ class UpdateDaemon extends AbstractScript {
     foreach ($this->regattas as $id => $reg) {
       UpdateRegatta::run($reg, $this->activities[$id]);
       foreach ($this->activities[$id] as $act)
-        self::err(sprintf("performed activity %s on %4d: %s", $act, $id, $reg->name));
+        self::errln(sprintf("performed activity %s on %4d: %s", $act, $id, $reg->name));
     }
 
     // ------------------------------------------------------------
@@ -190,7 +190,7 @@ class UpdateDaemon extends AbstractScript {
     foreach ($this->school_seasons as $id => $seasons) {
       foreach ($seasons as $season) {
         UpdateSchool::run($this->schools[$id], $season);
-        self::err(sprintf('generated school %s/%-6s %s', $season, $id, $this->schools[$id]->nick_name));
+        self::errln(sprintf('generated school %s/%-6s %s', $season, $id, $this->schools[$id]->nick_name));
       }
     }
 
@@ -202,7 +202,7 @@ class UpdateDaemon extends AbstractScript {
     foreach ($this->seasons as $season) {
       UpdateSeason::run($season);
       UpdateManager::logSeason($season);
-      self::err('generated season ' . $season);
+      self::errln('generated season ' . $season);
 
       // Deal with home page
       if ((string)$season == (string)$current) {
@@ -210,7 +210,7 @@ class UpdateDaemon extends AbstractScript {
         require_once('scripts/Update404.php');
         UpdateFront::run();
         Update404::run();
-        self::err('generated front and 404 page');
+        self::errln('generated front and 404 page');
       }
     }
 
@@ -220,7 +220,7 @@ class UpdateDaemon extends AbstractScript {
     if ($seasons_summary) {
       require_once('scripts/UpdateSeasonsSummary.php');
       UpdateSeasonsSummary::run();
-      self::err('generated all-seasons summary');
+      self::errln('generated all-seasons summary');
     }
 
     // ------------------------------------------------------------
@@ -237,10 +237,10 @@ class UpdateDaemon extends AbstractScript {
       passthru($hook, $ret);
       if ($ret != 0)
 	throw new RuntimeException("Hook $hook", $ret);
-      self::err("Hook $hook run");
+      self::errln("Hook $hook run");
     }
 
-    self::err('done');
+    self::errln('done');
   }
 
   /**
