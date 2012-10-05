@@ -104,14 +104,24 @@ abstract class AbstractScript {
   }
 
   /**
-   * Writes the given contents to the given file. Optionally gzipping.
+   * Writes the given contents to the given file.
    *
    * @param String $fname the name of the file
    * @param String $contents the contents
    */
   protected static function writeFile(&$fname, &$contents) {
-    if (file_put_contents($fname, $contents) === false)
+    $R = realpath(dirname(__FILE__).'/../../html');
+    if ($R === false)
+      throw new RuntimeException("Unable to find public directory root.");
+    
+    $dir = dirname($fname);
+    $root = $R . '/' . $dir;
+    if (!is_dir($root) && mkdir($root, 0777, true) === false)
+      throw new RuntimeException("Unable to create directory $root", 2);
+
+    if (file_put_contents($R . '/' . $fname, $contents) === false)
       throw new RuntimeException("ERROR: unable to write to file $fname.\n", 8);
+
     self::out($fname);
   }
 

@@ -104,8 +104,9 @@ class GenerateSite extends AbstractScript {
     if ($do & self::E404) {
       // 404 page
       require_once('Update404.php');
-      Update404::run();
-      self::errln("* Generated 404 page");
+      $P = new Update404();
+      $P->run(true, true);
+      self::errln("* Generated 404 pages");
     }
 
     if ($do & self::FRONT) {

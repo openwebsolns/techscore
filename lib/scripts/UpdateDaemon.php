@@ -209,7 +209,9 @@ class UpdateDaemon extends AbstractScript {
         require_once('scripts/UpdateFront.php');
         require_once('scripts/Update404.php');
         UpdateFront::run();
-        Update404::run();
+
+        $P = new Update404();
+        $P->run(true);
         self::errln('generated front and 404 page');
       }
     }
