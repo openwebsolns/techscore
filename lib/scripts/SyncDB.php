@@ -6,6 +6,8 @@
  * @package scripts
  */
 
+require_once('AbstractScript.php');
+
 /**
  * Pulls information from the ICSA database and updates the local
  * sailor database with the data.
@@ -15,7 +17,7 @@
  * @author Dayan Paez
  * @version 2010-03-02
  */
-class SyncDB {
+class SyncDB extends AbstractScript {
 
   /**
    * @var Array Errors encountered
@@ -27,11 +29,6 @@ class SyncDB {
    */
   private $warnings;
 
-  /**
-   * @var boolean true to report progress
-   */
-  private $verbose = false;
-
   const SCHOOLS = 'schools';
   const SAILORS = 'sailors';
   const COACHES = 'coaches';
@@ -40,10 +37,12 @@ class SyncDB {
    * Creates a new SyncDB object
    *
    */
-  public function __construct($verbose = false) {
+  public function __construct() {
+    parent::__construct();
     $this->errors = array();
     $this->warnings = array();
-    $this->verbose = $verbose;
+    $this->cli_opts = 'schools | sailors | coaches';
+    $this->cli_usage = "Provide at least one argument to update";
   }
 
   /**
@@ -52,13 +51,6 @@ class SyncDB {
    * @return Array<String> error messages
    */
   public function errors() { return $this->errors; }
-
-  /**
-   * Fetch the warnings
-   *
-   * @return Array<String> warning messages
-   */
-  public function warnings() { return $this->warnings; }
 
   /**
    * Updates the information in the database about the given sailor
@@ -77,28 +69,17 @@ class SyncDB {
     DB::set($sailor, $update);
   }
 
-  /**
-   * If verbose output enabled, prints the given message
-   *
-   * @param String $mes the message to output, appending a new line,
-   * prepending a timestamp
-   */
-  private function log($mes) {
-    if ($this->verbose !== false)
-      printf("%s\t%s\n", date('Y-m-d H:i:s'), $mes);
-  }
-
   public function updateSchools() {
-    $this->log("Starting: fetching and parsing schools " . Conf::$SCHOOL_API_URL);
+    self::errln("Fetching and parsing schools from " . Conf::$SCHOOL_API_URL);
 
     if (($xml = @simplexml_load_file(Conf::$SCHOOL_API_URL)) === false) {
       $this->errors[] = "Unable to load XML from " . Conf::$SCHOOL_API_URL;
       return;
     }
 
-    $this->log("Inactivating schools");
+    self::errln("Inactivating schools", 2);
     DB::inactivateSchools();
-    $this->log("Schools deactivated");
+    self::errln("Schools deactivated", 2);
 
     // parse data
     foreach ($xml->school as $school) {
@@ -129,7 +110,7 @@ class SyncDB {
         $sch->inactive = null;
 
         DB::set($sch, $upd);
-        $this->log(sprintf("Activated school %10s: %s", $sch->id, $sch->name));
+        self::errln(sprintf("Activated school %10s: %s", $sch->id, $sch->name), 2);
 
       } catch (Exception $e) {
         $this->errors[] = "Invalid school information: " . $e->getMessage();
@@ -144,23 +125,23 @@ class SyncDB {
     elseif ($proto instanceof Coach)
       $src = Conf::$COACH_API_URL;
     else
-      throw new InvalidArgumentException("I do not know how to sync that kind of member.");
+      throw new TSScriptException("I do not know how to sync that kind of member.");
 
     $role = ($proto instanceof Sailor) ? 'sailor' : 'coach';
     if ($src === null) {
-      $this->log("Syncing $role list: no URL found. Nothing to do.");
+      $this->errors[] = "No URL found for $role list.";
       return;
     }
 
-    $this->log("Starting: fetching and parsing $role list $src");
+    self::errln("Fetching and parsing $role list from $src");
     if (($xml = @simplexml_load_file($src)) === false) {
       $this->errors[] = "Unable to load XML from $src";
       return;
     }
 
-    $this->log("Inactivating role $role");
+    self::errln("Inactivating role $role", 2);
     RpManager::inactivateRole($proto->role);
-    $this->log(sprintf("%s role deactivated", ucfirst($role)));
+    self::errln(sprintf("%s role deactivated", ucfirst($role)), 2);
     foreach ($xml->$role as $sailor) {
       try {
         $s = clone $proto;
@@ -178,7 +159,7 @@ class SyncDB {
           }
 
           $this->updateSailor($s);
-          $this->log("Activated $role $s");
+          self::errln("Activated $role $s", 2);
         }
         else
           $this->warnings[$school_id] = "Missing school " . $school_id;
@@ -195,7 +176,7 @@ class SyncDB {
    * @param boolean $sailors true to sync sailors
    * @param boolean $coaches true to sync coaches
    */
-  public function update($schools = true, $sailors = true, $coaches = true) {
+  public function run($schools = true, $sailors = true, $coaches = true) {
     // ------------------------------------------------------------
     // Schools
     // ------------------------------------------------------------
@@ -213,25 +194,25 @@ class SyncDB {
     // ------------------------------------------------------------
     if ($coaches !== false)
       $this->updateMember(DB::$COACH);
+
+    foreach ($this->warnings as $mes)
+      self::errln("Warning: $mes");
   }
 }
 
 if (isset($argv) && basename(__FILE__) == basename($argv[0])) {
-  ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
-  require_once('conf.php');
+  require_once(dirname(dirname(__FILE__)).'/conf.php');
 
   // Parse arguments
-  array_shift($argv);
-  $verb = false;
+  $P = new SyncDB();
+  $opts = $P->getOpts($argv);
+  if (count($opts) == 0)
+    throw new TSScriptException("Missing update argument");
   $tosync = array(SyncDB::SCHOOLS => false,
                   SyncDB::SAILORS => false,
                   SyncDB::COACHES => false);
-  foreach ($argv as $arg) {
+  foreach ($opts as $arg) {
     switch ($arg) {
-    case '-v':
-      $verb = true;
-      break;
-
     case SyncDB::SCHOOLS:
     case SyncDB::SAILORS:
     case SyncDB::COACHES:
@@ -239,22 +220,13 @@ if (isset($argv) && basename(__FILE__) == basename($argv[0])) {
       break;
 
     default:
-      printf("usage: php SyncDB.php [-v] [%s]\n", implode("] [", array_keys($tosync)));
-      exit(1);
+      throw new TSScriptException("Invalid argument $opt");
     }
   }
-  $db = new SyncDB($verb);
-
-  $db->update($tosync[SyncDB::SCHOOLS], $tosync[SyncDB::SAILORS], $tosync[SyncDB::COACHES]);
-  $err = $db->errors();
+  $P->run($tosync[SyncDB::SCHOOLS], $tosync[SyncDB::SAILORS], $tosync[SyncDB::COACHES]);
+  $err = $P->errors();
   if (count($err) > 0) {
     echo "----------Error(s)\n";
-    foreach ($err as $mes)
-      printf("  %s\n", $mes);
-  }
-  $err = $db->warnings();
-  if (count($err) > 0) {
-    echo "----------Warning(s)\n";
     foreach ($err as $mes)
       printf("  %s\n", $mes);
   }
