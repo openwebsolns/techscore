@@ -23,6 +23,8 @@ require_once('conf.php');
  */
 class RacesPane extends AbstractPane {
 
+  private static $NEW_SCORES = array('DNS' => 'DNS', 'BYE' => 'BYE');
+
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Edit Races", $user, $reg);
   }
@@ -92,17 +94,26 @@ class RacesPane extends AbstractPane {
       $f_div->set("disabled", "disabled");
       $f_rac->set("disabled", "disabled");
     }
-    elseif (count($this->REGATTA->getRotation()->isAssigned()) > 0 ||
-            count($this->REGATTA->getScoredRaces()) > 0) {
-      $form->add(new XP(array(),
-                        array(new XStrong("Warning:"),
-                              " Adding races or divisions to this regatta will require that you also edit the rotations (if any). Removing races or divisions will also remove the finishes and rotations (if any) for the removed races!")));
+    else {
+      if ($this->REGATTA->getRotation()->isAssigned()) {
+        $form->add(new XHeading("Existing rotations"));
+        $form->add(new XP(array(), "Adding races or divisions to this regatta will require that you also edit rotations. Removing races or divisions will also remove the rotation for the removed races!"));
+      }
+      if ($this->REGATTA->hasFinishes()) {
+        $form->add(new XHeading("Existing finishes"));
+        $form->add($xp = new XP(array(),
+                                array("Removing races will also remove finishes entered in those races. ",
+                                      new XStrong("This is not recoverable."))));
+        if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED) {
+          $xp->add(" If adding divisions, you will need to specify how to score the teams in the previously scored races by selecting the appropriate choice below.");
+          $form->add($fi = new FItem("New score:", XSelect::fromArray('new-score', self::$NEW_SCORES)));
+          $fi->add(new XMessage("Only needed when adding divisions"));
+        }
+      }
     }
-    $form->add(new XP(array(),
-                      array(new XStrong("Note:"),
-                            " Extra races are automatically removed when the regatta is finalized.")));
     $attrs = ($final) ? array('disabled'=>'disabled') : array();
-    $form->add(new XSubmitP("set-races", "Set races", $attrs));
+    $form->add($xp = new XSubmitP("set-races", "Set races", $attrs));
+    $xp->add(new XMessage("Unsailed races are automatically removed when the regatta is finalized."));
 
     //------------------------------------------------------------
     // Edit existing boats
@@ -177,6 +188,18 @@ class RacesPane extends AbstractPane {
         DB::$V->reqInt($args, 'num_divisions', 1, count($pos_divisions) + 1, "Invalid number of divisions.");
       $pos_divisions_list = array_values($pos_divisions);
 
+      // If combined division, and finishes have been entered, then
+      // REQUIRE a new score (defaults to DNS)
+      $teams = array();
+      $new_score = false;
+      $scored_numbers = array();
+      if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED && $this->REGATTA->hasFinishes()) {
+        $new_score = DB::$V->incKey($args, 'new-score', self::$NEW_SCORES, 'DNS');
+        $teams = $this->REGATTA->getTeams();
+        foreach ($this->REGATTA->getScoredRaces(Division::A()) as $race)
+          $scored_numbers[$race->number] = $race->number;
+      }
+      $new_races = array();
       for ($i = count($cur_divisions); $i < $num_divisions; $i++) {
         $div = $pos_divisions_list[$i];
         for ($j = 0; $j < $num_races; $j++) {
@@ -185,7 +208,24 @@ class RacesPane extends AbstractPane {
           $race->boat = $boat;
           $race->number = ($j + 1);
           $this->REGATTA->setRace($race);
+          if (isset($scored_numbers[$race->number]))
+            $new_races[] = $race;
         }
+      }
+      if ($new_score !== false) {
+        $finishes = array();
+        foreach ($new_races as $race) {
+          foreach ($teams as $team) {
+            $finish = $this->REGATTA->createFinish($race, $team);
+            $finish->entered = DB::$NOW;
+            $finish->setModifier(new Penalty($new_score));
+            $finishes[] = $finish;
+          }
+        }
+        $this->REGATTA->commitFinishes($finishes);
+        $this->REGATTA->doScore();
+        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
+        Session::pa(new PA("Assigned $new_score finish to teams in new division(s)."));
       }
 
       // ------------------------------------------------------------
