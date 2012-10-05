@@ -103,9 +103,10 @@ class EnterFinishPane extends AbstractPane {
       $pos_sails = ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ?
         $rotation->getSails($race) :
         $rotation->getCombinedSails($race);
+      
       foreach ($pos_sails as $i => $aPS) {
         $current_sail = (count($finishes) > 0) ?
-          $rotation->getSail($race, $finishes[$i]->team) : "";
+          $rotation->getSail($finishes[$i]->race, $finishes[$i]->team) : "";
         $tab->addRow(array(new XTD(array('name'=>'pos_sail', 'class'=>'pos_sail','id'=>'pos_sail'), $aPS),
                            new XImg("/inc/img/question.png", "Waiting for input", array("id"=>"check" . $i)),
                            new XTextInput("p" . $i, $current_sail,
