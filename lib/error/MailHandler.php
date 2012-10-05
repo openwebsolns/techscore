@@ -28,7 +28,7 @@ class MailHandler {
       }
     }
     require_once('regatta/DB.php');
-    DB::mail(Conf::$ADMIN_MAIL, "[TS2 Error]", $body);
+    DB::mail(Conf::$ADMIN_MAIL, sprintf("[%s Error]", Conf::$NAME), $body);
 
     // Prepare XHTML
     require_once('xml/TScorePage.php');
@@ -51,7 +51,7 @@ class MailHandler {
     $body .= sprintf($fmt, "Trace",  $e->getTraceAsString());
     $body .= "====================\n";
     require_once('regatta/DB.php');
-    DB::mail(Conf::$ADMIN_MAIL, "[TS2 Exception]", $body);
+    DB::mail(Conf::$ADMIN_MAIL, sprintf("[%s Exception]", Conf::$NAME), $body);
 
     // Prepare XHTML
     require_once('xml/TScorePage.php');
