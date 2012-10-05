@@ -200,8 +200,12 @@ class RacesPane extends AbstractPane {
           $scored_numbers[$race->number] = $race->number;
       }
       $new_races = array();
+
+      // Track new divisions should rotations need to be reset
+      $new_divs = array();
       for ($i = count($cur_divisions); $i < $num_divisions; $i++) {
         $div = $pos_divisions_list[$i];
+        $new_divs[] = $div;
         for ($j = 0; $j < $num_races; $j++) {
           $race = new Race();
           $race->division = $div;
@@ -226,6 +230,15 @@ class RacesPane extends AbstractPane {
         $this->REGATTA->doScore();
         UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
         Session::pa(new PA("Assigned $new_score finish to teams in new division(s)."));
+      }
+
+      // Remove rotation?
+      if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED && count($new_divs) > 0) {
+        $rot = $this->REGATTA->getRotation();
+        if ($rot->isAssigned()) {
+          $rot->reset();
+          Session::pa(new PA("Rotations reset due to new division(s).", PA::I));
+        }
       }
 
       // ------------------------------------------------------------
