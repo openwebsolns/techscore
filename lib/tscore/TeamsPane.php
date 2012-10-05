@@ -73,9 +73,10 @@ class TeamsPane extends AbstractPane {
       if ($this->has_rots && !isset($args['del-rotation']))
         throw new SoterException("Please choose an action to take with new rotation.");
 
-      if ($this->has_scores &&
-          (!isset($args['new-score']) || !in_array($args['new-score'], array('DNS', 'BYE'))))
-        throw new SoterException("Please choose an appropriate action to take with scores.");
+      if ($this->has_scores) {
+        $new_score = DB::$V->reqValue($args, 'new-score', array(Penalty::DNS, Breakdown::BYE), "Please choose an appropriate action to take with new scores.");
+        $new_score = ($new_score == Penalty::DNS) ? new Penalty(Penalty::DNS) : new Breakdown(Breakdown::BYE);
+      }
 
       /*
        * Add a team for each school into the regatta, using the data
@@ -118,8 +119,7 @@ class TeamsPane extends AbstractPane {
         foreach ($scored_races as $race) {
           $finish = $this->REGATTA->createFinish($race, $team);
           $finish->entered = new DateTime();
-          $finish->penalty = ($args['new-score'] == Penalty::DNS) ?
-            new Penalty($args['new-score']) : new Penalty($args['new-score']);
+          $finish->setModifier($new_score);
           $finishes[] = $finish;
         }
         $this->REGATTA->commitFinishes($finishes);
