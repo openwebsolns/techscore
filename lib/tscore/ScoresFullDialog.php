@@ -176,7 +176,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
       }
 
       // write total row
-      $tab->add($r = new XTR(array("class"=>"totalrow"), array(new XTD(), new XTD(), $burgee_cell = new XTD())));
+      $tab->add($r = new XTR(array("class"=>"totalrow"), array(new XTD(), new XTD(), $burgee_cell = new XTD(array('class'=>'burgee-cell')))));
       if ($rank->team->school->burgee !== null) {
         $url = sprintf("/inc/img/schools/%s.png", $rank->team->school->id);
         $burgee_cell->add(new XImg($url, $rank->team->school->id, array("height"=>"30px")));

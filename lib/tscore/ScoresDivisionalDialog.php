@@ -102,7 +102,7 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
                              array(new XTD(array('title'=>$rank->explanation, 'class'=>'tiebreaker'),
                                            $tiebreakers[$rank->explanation]),
                                    new XTD(array(), $tID + 1),
-                                   $bc = new XTD(),
+                                   $bc = new XTD(array('class'=>'burgee-cell')),
                                    new XTD(array('class'=>'strong'), $ln),
                                    new XTD(array('class'=>'left'), $rank->team->name))));
       if ($rank->team->school->burgee !== null) {

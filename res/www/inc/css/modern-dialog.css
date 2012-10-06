@@ -234,6 +234,10 @@ table.divisional tr {
     border-bottom: 1px solid #bbb;
 }
 
+table.divisional .burgee-cell, table.division .burgee-cell {
+    text-align: left;
+}
+
 table.sailors ul {
     margin: 0;
     padding: 0;
