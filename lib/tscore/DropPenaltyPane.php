@@ -64,7 +64,7 @@ class DropPenaltyPane extends AbstractPane {
       foreach ($handicaps as $finish) {
         $tab->addRow(array($finish->race,
                            $finish->team,
-                           $finish->penalty->type,
+                           $finish->penalty,
                            $form = $this->createForm()));
 
         $form->add(new XHiddenInput("r_finish", $finish->id));
