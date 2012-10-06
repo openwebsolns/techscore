@@ -178,14 +178,9 @@ class UpdateSchool extends AbstractScript {
           $status = new XStrong(ucwords($data->status));
         }
 
-        $hosts = array();
-        foreach ($reg->getHosts() as $host) {
-          // @TODO: store hosts as text
-          $hosts[$host->id] = $host->nick_name;
-        }
         $link = new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name);
         $tab->addRow(array($link,
-                           implode("/", $hosts),
+                           implode("/", $data->hosts),
                            $types[$reg->type],
                            implode("/", $data->confs),
                            $status,
@@ -206,15 +201,9 @@ class UpdateSchool extends AbstractScript {
       foreach ($past as $row => $reg) {
         $data = $reg->getData();
 
-        $hosts = array();
-        foreach ($reg->getHosts() as $host) {
-          // @TODO: store hosts as text
-          $hosts[$host->id] = $host->nick_name;
-        }
-
         $link = new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name);
         $tab->addRow(array($link,
-                           implode("/", $hosts),
+                           implode("/", $data->hosts),
                            $types[$reg->type],
                            implode("/", $data->confs),
                            $reg->start_time->format('M d'),

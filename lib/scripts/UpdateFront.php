@@ -122,13 +122,8 @@ class UpdateFront extends AbstractScript {
                                            "Start time")));
       foreach ($regs as $reg) {
         $data = $reg->getData();
-        $hosts = array();
-        foreach ($reg->getHosts() as $host) {
-          // @TODO: save hosts as nick names in data
-          $hosts[$host->id] = $host->nick_name;
-        }
         $tab->addRow(array(new XA(sprintf('/%s/%s', $data->season->id, $reg->nick), $reg->name),
-                           implode("/", $hosts),
+                           implode("/", $data->hosts),
                            $types[$reg->type],
                            $reg->start_time->format('m/d/Y @ H:i')));
       }

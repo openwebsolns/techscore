@@ -118,10 +118,6 @@ class UpdateSeason extends AbstractScript {
           }
 
           $num_teams += count($teams);
-          $hosts = array();
-          foreach ($reg->getHosts() as $host) {
-            $hosts[$host->id] = $host->nick_name;
-          }
 
           $link = new XA($reg->nick, $reg->name);
           $path = realpath(sprintf('%s/../../html/inc/img/schools/%s.png', dirname(__FILE__), $wt->school->id));
@@ -129,7 +125,7 @@ class UpdateSeason extends AbstractScript {
             new XImg(sprintf('/inc/img/schools/%s.png', $wt->school->id), $wt->school, array('height'=>40)) :
             $wt->school->nick_name;
           $rows[] = array($link,
-                          implode("/", $hosts),
+                          implode("/", $data->hosts),
                           $types[$reg->type],
                           $reg->start_time->format('m/d/Y'),
                           $status,
@@ -154,12 +150,9 @@ class UpdateSeason extends AbstractScript {
                                            "Type",
                                            "Start time")));
       foreach ($coming_regattas as $reg) {
-        $hosts = array();
-        foreach ($reg->getHosts() as $host) {
-          $hosts[$host->id] = $host->nick_name;
-        }
+        $data = $reg->getData();
         $tab->addRow(array(new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name),
-                           implode("/", $hosts),
+                           implode("/", $data->hosts),
                            $types[$reg->type],
                            $reg->start_time->format('m/d/Y @ H:i')));
       }

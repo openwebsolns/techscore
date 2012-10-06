@@ -1328,7 +1328,7 @@ class Regatta extends DBObject {
     $data->hosts = array();
     foreach ($this->getHosts() as $host) {
       $data->confs[$host->conference->id] = $host->conference->id;
-      $data->hosts[$host->id] = $host->id;
+      $data->hosts[$host->id] = $host->nick_name;
     }
 
     // boats
