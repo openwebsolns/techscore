@@ -318,3 +318,7 @@ alter table dt_team change column name name text not null;
 
 -- regatta nick name can be null --
 alter table regatta change column nick nick varchar(40) default null;
+
+-- create an update queue for schools
+create table pub_update_school (id int primary key auto_increment, school varchar(10) not null, activity enum('burgee') not null default 'burgee', request_time timestamp not null default current_timestamp, completion_time datetime default null) engine=innodb default charset=latin1;
+alter table pub_update_school add foreign key (school) references school(id) on delete cascade on update cascade;

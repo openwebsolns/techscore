@@ -128,7 +128,22 @@ class UpdateDaemon extends AbstractScript {
     $seasons_summary = false;
 
     // ------------------------------------------------------------
-    // Loop through the requests
+    // Loop through the school requests
+    // ------------------------------------------------------------
+    $pending = UpdateManager::getPendingSchools();
+    if (count($pending) > 0) {
+      require_once('scripts/UpdateBurgee.php');
+      $P = new UpdateBurgee();
+      foreach ($pending as $r) {
+        $requests[] = $r;
+        // The only activity is burgees
+        $P->run($r->school);
+        self::errln(sprintf("processed school update %10s: %s", $r->school->id, $r->school->name));
+      }
+    }
+
+    // ------------------------------------------------------------
+    // Loop through the regatta requests
     // ------------------------------------------------------------
     foreach (UpdateManager::getPendingRequests() as $r) {
       $requests[] = $r;

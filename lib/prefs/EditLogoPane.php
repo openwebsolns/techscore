@@ -34,10 +34,9 @@ class EditLogoPane extends AbstractPrefsPane {
 
     $p->add(new XP(array(), "Most picture formats are allowed, but files can be no larger than 200 KB in size. For best results use an image with a transparent background, by either using a PNG or GIF file format."));
 
-    $p->add($para = new XP(array(), "Please allow up to 8 hours after uploading for the new logo to appear on the public site."));
     // Current logo
     if ($this->SCHOOL->burgee !== null) {
-      $para->add(sprintf("The current logo for %s is shown below. If you do not see an image below, you may need to upgrade your browser.", $this->SCHOOL));
+      $p->add(new XP(array(), sprintf("The current logo for %s is shown below. If you do not see an image below, you may need to upgrade your browser.", $this->SCHOOL)));
 
       $p->add(new XP(array('style'=>'text-align:center;'),
                      new XImg('data:image/png;base64,'.$this->SCHOOL->burgee->filedata, $this->SCHOOL->nick_name)));
@@ -118,9 +117,9 @@ class EditLogoPane extends AbstractPrefsPane {
     // If this is the first time a burgee is added, then notify all
     // public regattas for which this school has participated so that
     // they can be regenerated!
+    require_once('public/UpdateManager.php');
     if ($this->SCHOOL->burgee === null) {
       $affected = 0;
-      require_once('public/UpdateManager.php');
       foreach ($this->SCHOOL->getRegattas() as $reg) {
         if ($reg->type != Regatta::TYPE_PERSONAL) {
           UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_DETAILS);
@@ -134,6 +133,7 @@ class EditLogoPane extends AbstractPrefsPane {
     $this->SCHOOL->burgee = $burg;
     DB::set($this->SCHOOL);
     Session::pa(new PA("Updated school logo."));
+    UpdateManager::queueSchool($this->SCHOOL, UpdateSchoolRequest::ACTIVITY_BURGEE);
   }
 }
 ?>

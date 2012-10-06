@@ -7,34 +7,46 @@
 
 require_once('regatta/Regatta.php');
 
+abstract class AbstractUpdate extends DBObject {
+  public $activity;
+  protected $request_time;
+  protected $completion_time;
+
+  public function db_type($field) {
+    switch ($field) {
+    case 'request_time':
+    case 'completion_time':
+      return DB::$NOW;
+    }
+    return parent::db_type($field);
+  }
+  protected function db_order() { return array('request_time'=>true); }
+
+  /**
+   * Unique identifier for the request, without taking ID into account
+   *
+   */
+  abstract public function hash();
+}
+
 /**
  * Simple serialization of a public display update request
  *
  * @author Dayan Paez
  * @version 2010-10-11
  */
-class UpdateRequest extends DBObject {
+class UpdateRequest extends AbstractUpdate {
   protected $regatta;
-  public $activity;
   public $argument;
-  /**
-   * @var DateTime the time of the request. Leave as null for current timestamp
-   */
-  protected $request_time;
-  protected $completion_time;
 
   public function db_name() { return 'pub_update_request'; }
   public function db_type($field) {
-    switch ($field) {
-    case 'completion_time':
-    case 'request_time':
-      return DB::$NOW;
-    case 'regatta': return DB::$REGATTA;
-    default:
-      return parent::db_type($field);
+    if ($field == 'regatta') {
+      require_once('regatta/Regatta.php');
+      return DB::$REGATTA;
     }
+    return parent::db_type($field);
   }
-  protected function db_order() { return array('request_time'=>true); }
 
   const ACTIVITY_RP = "rp";
   const ACTIVITY_SCORE = "score";
@@ -66,6 +78,34 @@ class UpdateRequest extends DBObject {
 }
 
 /**
+ * School updates
+ *
+ * @author Dayan Paez
+ * @version 2012-10-05
+ */
+class UpdateSchoolRequest extends AbstractUpdate {
+  protected $school;
+
+  public function db_name() { return 'pub_update_school'; }
+  public function db_type($field) {
+    if ($field == 'school')
+      return DB::$SCHOOL;
+    return parent::db_type($field);
+  }
+
+  const ACTIVITY_BURGEE = 'burgee';
+
+  public static function getTypes() {
+    return array(self::ACTIVITY_BURGEE => self::ACTIVITY_BURGEE);
+  }
+
+  public function hash() {
+    $id = ($this->school instanceof School) ? $this->school->id : $this->school;
+    return sprintf('%s-%s', $id, $this->activity);
+  }
+}
+
+/**
  * Request to update season
  *
  * @author Dayan Paez
@@ -85,5 +125,6 @@ class UpdateLogSeason extends DBObject {
   }
 }
 DB::$UPDATE_REQUEST = new UpdateRequest();
+DB::$UPDATE_SCHOOL = new UpdateSchoolRequest();
 DB::$UPDATE_LOG_SEASON = new UpdateLogSeason();
 ?>
