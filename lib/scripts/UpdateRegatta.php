@@ -49,99 +49,13 @@ require_once('xml5/TPublicPage.php');
 class UpdateRegatta {
 
   /**
-   * Synchronizes the regatta's detail with the data information
-   * (those fields in the database prefixed with dt_). Note this will
-   * not run for personal regattas, even if requested.
-   *
-   * @param Regatta $reg the regatta to synchronize
-   *
-   * @param boolean $full set this to false to only update information
-   * about the regatta and not about the ranks (this creates slight
-   * efficiency improvement)
-   *
-   * @param boolean $rp set this to true to also sync the RP
-   * @throws InvalidArgumentException
-   */
-  public static function sync(Regatta $reg) {
-    if ($reg->type == Regatta::TYPE_PERSONAL)
-      throw new InvalidArgumentException("Personal regattas may never be synced.");
-    $divs = $reg->getDivisions();
-    if (count($divs) == 0)
-      throw new InvalidArgumentException("Cannot update with no divisions.");
-
-    $dreg = new Dt_Regatta();
-    $dreg->id = $reg->id;
-    $dreg->name = $reg->name;
-    $dreg->nick = $reg->nick;
-    $dreg->start_time = $reg->start_time;
-    $dreg->end_date   = $reg->end_date;
-    $dreg->type = $reg->type;
-    $dreg->finalized = $reg->finalized;
-    $dreg->scoring = $reg->scoring;
-    $dreg->participant = $reg->participant;
-    $dreg->venue = $reg->venue;
-
-    $races = $reg->getScoredRaces();
-    $dreg->num_divisions = count($divs);
-    $dreg->num_races = count($reg->getRaces()) / $dreg->num_divisions;
-
-    // hosts and conferences
-    $confs = array();
-    $hosts = array();
-    foreach ($reg->getHosts() as $host) {
-      $confs[$host->conference->id] = $host->conference->id;
-      $hosts[$host->id] = $host->id;
-    }
-    $dreg->hosts = implode(',', $hosts);
-    $dreg->confs = implode(',', $confs);
-    unset($hosts, $confs);
-
-    // boats
-    $boats = array();
-    foreach ($reg->getBoats() as $boat)
-      $boats[$boat->id] = $boat->name;
-    $dreg->boats = implode(',', $boats);
-
-    if ($reg->isSingleHanded())
-      $dreg->singlehanded = 1;
-
-    $dreg->season = $reg->getSeason();
-
-    // status
-    $now = new DateTime();
-    $end = $dreg->end_date;
-    $end->setTime(23,59,59);
-    if ($dreg->finalized !== null)
-      $dreg->status = Dt_Regatta::STAT_FINAL;
-    elseif (count($reg->getUnscoredRaces()) == 0)
-      $dreg->status = Dt_Regatta::STAT_FINISHED;
-    elseif (!$reg->hasFinishes()) {
-      if ($dreg->num_races > 0)
-        $dreg->status = Dt_Regatta::STAT_READY;
-      else
-        $dreg->status = Dt_Regatta::STAT_SCHEDULED;
-    }
-    else {
-      $last_race = $reg->getLastScoredRace();
-      $dreg->status = ($last_race === null) ? 'coming' : (string)$last_race;
-    }
-
-    $added = !DB::set($dreg);
-    return $dreg;
-  }
-
-  /**
    * Synchornize the team data for the given regatta
    *
    */
   public static function syncTeams(Regatta $reg) {
-    $dreg = DB::get(DB::$DT_REGATTA, $reg->id);
-    if ($dreg === null)
-      $dreg = self::sync($reg);
-
-    $divs = $reg->getDivisions();
-    if (count($divs) == 0)
-      throw new InvalidArgumentException("Cannot update with no divisions.");
+    $dreg = $reg->getData();
+    if ($dreg->num_divisions == 0)
+      return;
 
     // ------------------------------------------------------------
     // Synchronize the teams. Track team_divs which is the list of all
@@ -204,9 +118,9 @@ class UpdateRegatta {
    *
    */
   public static function syncRP(Regatta $reg) {
-    $dreg = DB::get(DB::$DT_REGATTA, $reg->id);
-    if ($dreg === null)
-      $dreg = self::sync($reg);
+    $dreg = $reg->getData();
+    if ($dreg->num_divisions == 0)
+      return;
 
     $team_divs = array();
     foreach ($reg->getDivisions() as $div) {
@@ -234,10 +148,7 @@ class UpdateRegatta {
   }
 
   /**
-   * Deletes the given regatta's information from the public site and
-   * the database.  Note that this method is automatically called from
-   * <pre>run</pre> if the rotation type is "personal". This method
-   * does not touch the season page or any other pages.
+   * Deletes the given regatta's information from the public site
    *
    * @param Regatta $reg the regatta whose information to delete.
    */
@@ -255,11 +166,6 @@ class UpdateRegatta {
       if (!self::rm_r($dirname))
         throw new RuntimeException("Unable to remove files rooted at $dirname.");
     }
-
-    // Delete from database
-    $r = DB::get(DB::$DT_REGATTA, $reg->id);
-    if ($r !== null)
-      DB::remove($r);
   }
 
   /**
@@ -329,7 +235,6 @@ class UpdateRegatta {
 
     // Based on the list of activities, determine what files need to
     // be (re)serialized
-    $sync = false;
     $sync_teams = false;
     $sync_rp = false;
 
@@ -370,7 +275,6 @@ class UpdateRegatta {
       }
     }
     if (in_array(UpdateRequest::ACTIVITY_SCORE, $activities)) {
-      $sync = true;
       $sync_teams = true;
       $front = true;
       if ($reg->hasFinishes()) {
@@ -418,7 +322,6 @@ class UpdateRegatta {
     }
     if (in_array(UpdateRequest::ACTIVITY_DETAILS, $activities)) {
       // do them all!
-      $sync = true;
       $front = true;
       if ($rot->isAssigned())
         $rotation = true;
@@ -435,7 +338,6 @@ class UpdateRegatta {
     // ------------------------------------------------------------
     // Perform the updates
     // ------------------------------------------------------------
-    if ($sync)       self::sync($reg);
     if ($sync_teams) self::syncTeams($reg);
     if ($sync_rp)    self::syncRP($reg);
 

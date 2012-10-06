@@ -46,7 +46,7 @@ class UpdateFront extends AbstractScript {
     $page->addMenu(new XA('/seasons/', "Seasons"));
 
     // Get current season's coming regattas
-    require_once('regatta/PublicDB.php');
+    require_once('regatta/Regatta.php');
 
     $success = false;
     $seasons = Season::getActive();
@@ -71,9 +71,15 @@ class UpdateFront extends AbstractScript {
     $start->setTime(23, 59, 59);
     $end = new DateTime();
     $end->setTime(0, 0, 0);
-    $in_prog = DB::getAll(DB::$DT_REGATTA, new DBBool(array(new DBCond('start_time', $start, DBCond::LE),
-                                                            new DBCond('end_date', $end, DBCond::GE),
-                                                            new DBCond('status', Dt_Regatta::STAT_SCHEDULED, DBCond::NE))));
+    $potential = DB::getAll(DB::$REGATTA, new DBBool(array(new DBCond('start_time', $start, DBCond::LE),
+                                                           new DBCond('end_date', $end, DBCond::GE),
+                                                           new DBCond('type', Regatta::TYPE_PERSONAL, DBCond::NE))));
+    $in_prog = array();
+    foreach ($potential as $reg) {
+      $data = $reg->getData();
+      if ($data->status != Dt_Regatta::STAT_SCHEDULED)
+        $in_prog[] = $reg;
+    }
     if (count($in_prog) > 0) {
       $div->add(new XDiv(array('id'=>'in-progress'),
                          array($this->h1("In progress"),
@@ -83,13 +89,14 @@ class UpdateFront extends AbstractScript {
                                                             "Status",
                                                             "Leading")))));
       foreach ($in_prog as $i => $reg) {
-        $row = array(new XA(sprintf('/%s/%s/', $reg->season->id, $reg->nick), $reg->name), $types[$reg->type]);
-        if ($reg->status == Dt_Regatta::STAT_READY) {
+        $data = $reg->getData();
+        $row = array(new XA(sprintf('/%s/%s/', $data->season->id, $reg->nick), $reg->name), $types[$reg->type]);
+        if ($data->status == Dt_Regatta::STAT_READY) {
           $row[] = new XTD(array('colspan'=>2), new XEm("No scores yet"));
         }
         else {
-          $row[] = new XStrong(ucwords($reg->status));
-          $tms = $reg->getTeams();
+          $row[] = new XStrong(ucwords($data->status));
+          $tms = $data->getTeams();
           if ($tms[0]->school->burgee !== null)
             $row[] = new XImg(sprintf('/inc/img/schools/%s.png', $tms[0]->school->id), $tms[0], array('height'=>40));
           else
@@ -103,9 +110,9 @@ class UpdateFront extends AbstractScript {
     // Fill list of coming soon regattas
     $now = new DateTime('tomorrow');
     $now->setTime(0, 0);
-    DB::$DT_REGATTA->db_set_order(array('start_time'=>true));
-    $regs = DB::getAll(DB::$DT_REGATTA, new DBCond('start_time', $now, DBCond::GE));
-    DB::$DT_REGATTA->db_set_order();
+    DB::$REGATTA->db_set_order(array('start_time'=>true));
+    $regs = DB::getAll(DB::$REGATTA, new DBCond('start_time', $now, DBCond::GE));
+    DB::$REGATTA->db_set_order();
     if (count($regs) > 0) {
       $page->addSection($p = new XPort("Upcoming schedule"));
       $p->add($tab = new XQuickTable(array('class'=>'coming-regattas'),
@@ -114,11 +121,13 @@ class UpdateFront extends AbstractScript {
                                            "Type",
                                            "Start time")));
       foreach ($regs as $reg) {
+        $data = $reg->getData();
         $hosts = array();
         foreach ($reg->getHosts() as $host) {
+          // @TODO: save hosts as nick names in data
           $hosts[$host->id] = $host->nick_name;
         }
-        $tab->addRow(array(new XA(sprintf('/%s/%s', $reg->season->id, $reg->nick), $reg->name),
+        $tab->addRow(array(new XA(sprintf('/%s/%s', $data->season->id, $reg->nick), $reg->name),
                            implode("/", $hosts),
                            $types[$reg->type],
                            $reg->start_time->format('m/d/Y @ H:i')));

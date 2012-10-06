@@ -322,3 +322,13 @@ alter table regatta change column nick nick varchar(40) default null;
 -- create an update queue for schools
 create table pub_update_school (id int primary key auto_increment, school varchar(10) not null, activity enum('burgee') not null default 'burgee', request_time timestamp not null default current_timestamp, completion_time datetime default null) engine=innodb default charset=latin1;
 alter table pub_update_school add foreign key (school) references school(id) on delete cascade on update cascade;
+
+-- change dt_regatta to contain only the extra information for a regatta --
+delete from dt_regatta where id not in (select id from regatta);
+alter table dt_regatta add foreign key (id) references regatta(id) on delete cascade on update cascade;
+alter table dt_regatta drop column venue;
+alter table dt_regatta drop column name, drop column nick, drop column start_time, drop column end_date, drop column type, drop column finalized, drop column scoring, drop column participant;
+-- regatta hosts are arrays
+update dt_regatta set hosts = replace(hosts, ',', '\0');
+update dt_regatta set confs = replace(confs, ',', '\0');
+update dt_regatta set boats = replace(boats, ',', '\0');

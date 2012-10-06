@@ -14,7 +14,6 @@
  */
 class ReportMaker {
   public $regatta;
-  public $dt_regatta;
 
   private $page;
   private $rotPage;
@@ -27,7 +26,6 @@ class ReportMaker {
    */
   public function __construct(Regatta $reg) {
     $this->regatta = $reg;
-    $this->dt_regatta = DB::get(DB::$DT_REGATTA, $reg->id);
   }
 
   /**

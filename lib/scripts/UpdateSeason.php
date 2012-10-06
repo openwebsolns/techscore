@@ -34,7 +34,7 @@ class UpdateSeason extends AbstractScript {
     require_once('regatta/PublicDB.php');
 
     $weeks = array();
-    $regattas = DB::getAll(DB::$DT_REGATTA, new DBCond('season', (string)$season));
+    $regattas = $season->getRegattas();
     foreach ($regattas as $reg) {
       $week = $reg->start_time->format('W');
       if (!isset($weeks[$week]))
@@ -87,11 +87,12 @@ class UpdateSeason extends AbstractScript {
     foreach ($weeks as $week => $list) {
       $rows = array();
       foreach ($list as $reg) {
+        $data = $reg->getData();
         if ($reg->start_time >= $now) {
           if ($reg->start_time < $next_sunday && in_array($reg->status, $coming))
             array_unshift($coming_regattas, $reg);
         }
-        elseif (!in_array($reg->status, $coming)) {
+        elseif (!in_array($data->status, $coming)) {
           $teams = $reg->getTeams();
           if (count($teams) == 0)
             continue;
@@ -100,7 +101,7 @@ class UpdateSeason extends AbstractScript {
           $status = null;
           $wt = $teams[0];
 
-          switch ($reg->status) {
+          switch ($data->status) {
           case 'finished':
             $status = "Pending";
             break;
@@ -113,7 +114,7 @@ class UpdateSeason extends AbstractScript {
             break;
 
           default:
-            $status = "In progress: " . $reg->status;
+            $status = "In progress: " . $data->status;
           }
 
           $num_teams += count($teams);
@@ -170,33 +171,6 @@ class UpdateSeason extends AbstractScript {
     $summary_table["Number of Weekends"] = $num_weeks;
     $summary_table["Number of Regattas"] = $total;
     $summary_table["Number of Teams"] = $num_teams;
-
-    // Sort the winning school to determine winningest, and only print
-    // this stat if there is a something to have won. Also, print all
-    // the tied teams for winningest spot.
-    /*
-      arsort($winning_school, SORT_NUMERIC);
-      if (count($winning_school) > 0) {
-      $school_codes = array_keys($winning_school);
-      if ($winning_school[$school_codes[0]] != 0) {
-      // tied teams
-      $tied_number = array_shift($winning_school);
-      $tied_schools = array();
-      $tied_schools[] = DB::get(DB::$SCHOOL, array_shift($school_codes));
-      while (count($school_codes) > 0) {
-      $next_num = array_shift($winning_school);
-      if ($next_num != $tied_number) break;
-      $tied_schools[] = DB::get(DB::$SCHOOL, array_shift($school_codes));
-      }
-      }
-      // 2011-04-09: feedback compiled by Matt Lindblad from users
-      // that this stat was "confusing"
-      $summary_port->add(new XDiv(array('class'=>'stat'),
-      array(new XSpan("Winningest School(s):", array('class'=>'prefix')),
-      implode('/',
-      $tied_schools))));
-      }
-    */
 
     // Summary report
     $page->setHeader($season->fullString(), $summary_table);

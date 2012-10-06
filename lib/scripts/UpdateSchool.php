@@ -70,10 +70,7 @@ class UpdateSchool extends AbstractScript {
     $tomorrow = new DateTime('tomorrow');
     $tomorrow->setTime(0, 0);
 
-    $q = DB::prepGetAll(DB::$DT_TEAM, new DBCond('school', $school->id));
-    $q->fields(array('regatta'), DB::$DT_TEAM->db_name());
-    $regs = DB::getAll(DB::$DT_REGATTA, new DBBool(array(new DBCond('season', $season),
-                                                         new DBCondIn('id', $q))));
+    $regs = $season->getParticipation($school);
     $total = count($regs);
     $current = array(); // regattas happening NOW
     $past = array();    // past regattas from the current season
@@ -86,7 +83,8 @@ class UpdateSchool extends AbstractScript {
     $places = 0;
     $avg_total = 0;
     foreach ($regs as $reg) {
-      $teams = $reg->getTeams();
+      $data = $reg->getData();
+      $teams = $data->getTeams();
       $num = count($teams);
       if ($reg->finalized !== null) {
         foreach ($teams as $pl => $team) {
@@ -142,7 +140,8 @@ class UpdateSchool extends AbstractScript {
       foreach ($skippers as $id => $num) {
         if ($i++ >= 2)
           break;
-        $txt[] = sprintf('%s (%d races)', $skip_objs[$id], $num);
+        $mes = ($num == 1) ? "race" : "races";
+        $txt[] = sprintf("%s (%d %s)", $skip_objs[$id], $num, $mes);
       }
       $table["Most active skipper"] = implode(", ", $txt);
     }
@@ -152,7 +151,8 @@ class UpdateSchool extends AbstractScript {
       foreach ($crews as $id => $num) {
         if ($i++ >= 2)
           break;
-        $txt[] = sprintf('%s (%d races)', $crew_objs[$id], $num);
+        $mes = ($num == 1) ? "race" : "races";
+        $txt[] = sprintf("%s (%d %s)", $crew_objs[$id], $num, $mes);
       }
       $table["Most active crew"] = implode(", ", $txt);
     }
@@ -165,31 +165,31 @@ class UpdateSchool extends AbstractScript {
       $p->add($tab = new XQuickTable(array('class'=>'participation-table'),
                                      array("Name", "Host", "Type", "Conference", "Last race", "Place(s)")));
       foreach ($current as $row => $reg) {
+        $data = $reg->getData();
+
         // borrowed from UpdateSeason
         $status = null;
-        $teams = $reg->getTeams();
-        switch ($reg->status) {
+        switch ($data->status) {
         case Dt_Regatta::STAT_READY:
           $status = new XEm("No scores yet");
           break;
 
         default:
-          $status = new XStrong(ucwords($reg->status));
+          $status = new XStrong(ucwords($data->status));
         }
 
         $hosts = array();
-        $confs = array();
         foreach ($reg->getHosts() as $host) {
+          // @TODO: store hosts as text
           $hosts[$host->id] = $host->nick_name;
-          $confs[$host->conference->id] = $host->conference;
         }
         $link = new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name);
         $tab->addRow(array($link,
                            implode("/", $hosts),
                            $types[$reg->type],
-                           implode("/", $confs),
+                           implode("/", $data->confs),
                            $status,
-                           $this->getPlaces($reg, $school)),
+                           $this->getPlaces($data, $school)),
                      array('class' => 'row' . ($row % 2)));
       }
     }
@@ -204,22 +204,22 @@ class UpdateSchool extends AbstractScript {
                                      array("Name", "Host", "Type", "Conference", "Date", "Status", "Place(s)")));
 
       foreach ($past as $row => $reg) {
-        $date = $reg->start_time;
-        $status = ($reg->finalized === null) ? "Pending" : new XStrong("Official");
+        $data = $reg->getData();
+
         $hosts = array();
-        $confs = array();
         foreach ($reg->getHosts() as $host) {
+          // @TODO: store hosts as text
           $hosts[$host->id] = $host->nick_name;
-          $confs[$host->conference->id] = $host->conference;
         }
+
         $link = new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name);
         $tab->addRow(array($link,
                            implode("/", $hosts),
                            $types[$reg->type],
-                           implode("/", $confs),
-                           $date->format('M d'),
-                           $status,
-                           $this->getPlaces($reg, $school)),
+                           implode("/", $data->confs),
+                           $reg->start_time->format('M d'),
+                           ($reg->finalized === null) ? "Pending" : new XStrong("Official"),
+                           $this->getPlaces($data, $school)),
                      array('class' => sprintf('row' . ($row % 2))));
       }
     }
@@ -230,9 +230,7 @@ class UpdateSchool extends AbstractScript {
     $num = 0;
     $root = sprintf('/schools/%s', $school->id);
     foreach (DB::getAll(DB::$SEASON) as $s) {
-      $regs = DB::getAll(DB::$DT_REGATTA,
-                         new DBBool(array(new DBCond('season', $s->id),
-                                          new DBCondIn('id', DB::prepGetAll(DB::$DT_TEAM, new DBCond('school', $school), array('regatta'))))));
+      $regs = $s->getParticipation($school);
       if (count($regs) > 0) {
         $num++;
         $ul->add(new XLi(new XA($root . '/' . $s->id, $s->fullString())));

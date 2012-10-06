@@ -30,19 +30,11 @@ class Dt_Regatta extends DBObject {
    */
   const STAT_FINAL = 'final';
 
-  public $name;
-  public $nick;
-  protected $start_time;
-  protected $end_date;
-  protected $venue;
-  public $type;
-  protected $finalized;
-  public $scoring;
   public $num_divisions;
   public $num_races;
-  public $hosts;
-  public $confs;
-  public $boats;
+  protected $hosts;
+  protected $confs;
+  protected $boats;
   public $singlehanded;
   protected $season;
   /**
@@ -50,18 +42,13 @@ class Dt_Regatta extends DBObject {
    * of Dt_Regatta::STAT_* constants.
    */
   public $status;
-  public $participant;
 
   public function db_type($field) {
     switch ($field) {
-    case 'start_time':
-    case 'end_date':
-    case 'finalized':
-      return DB::$NOW;
-
-    case 'venue':
-      return DB::$VENUE;
-
+    case 'hosts':
+    case 'confs':
+    case 'boats':
+      return array();
     case 'season':
       return DB::$SEASON;
 
@@ -70,28 +57,6 @@ class Dt_Regatta extends DBObject {
     }
   }
   protected function db_cache() { return true; }
-  protected function db_order() { return array('start_time'=>false); }
-
-  /**
-   * How many days is the regatta worth
-   *
-   * @return int number of days
-   */
-  public function duration() {
-    $end = new DateTime($this->end_time->format('Y-m-d'));
-    $str = new DateTime($this->start_time->format('Y-m-d'));
-    $str->setTime(0, 0);
-    $end->setTime(0, 0);
-
-    return (int)($end->format('U') - $str->format('U')) / 86400;
-  }
-
-  /**
-   * Deletes all data about my teams
-   */
-  public function deleteTeams() {
-    DB::removeAll(DB::$DT_TEAM, new DBCond('regatta', $this->id));
-  }
 
   public function getTeams() {
     return DB::getAll(DB::$DT_TEAM, new DBCond('regatta', $this->id));
@@ -107,16 +72,6 @@ class Dt_Regatta extends DBObject {
     $q = DB::prepGetAll(DB::$DT_TEAM, new DBCond('regatta', $this->id), array('id'));
     return DB::getAll(DB::$DT_TEAM_DIVISION, new DBBool(array(new DBCond('division', $div),
                                                               new DBCondIn('team', $q))));
-  }
-
-  public function getHosts() {
-    $list = array();
-    foreach (explode(',', $this->hosts) as $id) {
-      $sch = DB::get(DB::$SCHOOL, $id);
-      if ($sch !== null)
-        $list[] = $sch;
-    }
-    return $list;
   }
 
   // ------------------------------------------------------------
