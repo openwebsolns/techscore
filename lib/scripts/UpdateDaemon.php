@@ -222,9 +222,10 @@ class UpdateDaemon extends AbstractScript {
       // Deal with home page
       if ((string)$season == (string)$current) {
         require_once('scripts/UpdateFront.php');
-        require_once('scripts/Update404.php');
-        UpdateFront::run();
+        $P = new UpdateFront();
+        $P->run();
 
+        require_once('scripts/Update404.php');
         $P = new Update404();
         $P->run(true);
         self::errln('generated front and 404 page');

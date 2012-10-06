@@ -112,7 +112,8 @@ class GenerateSite extends AbstractScript {
     if ($do & self::FRONT) {
       // Front page!
       require_once('UpdateFront.php');
-      UpdateFront::run();
+      $P = new UpdateFront();
+      $P->run();
       self::errln("* Generated front page");
     }
   }

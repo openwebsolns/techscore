@@ -7,6 +7,8 @@
  * @package scripts
  */
 
+require_once('AbstractScript.php');
+
 /**
  * Creates the front page: Includes a brief welcoming message,
  * displayed alongside the list of regattas sailing now, if any. (The
@@ -16,17 +18,14 @@
  * chronological order.
  *
  */
-class UpdateFront {
-  private $page;
+class UpdateFront extends AbstractScript {
 
-  private function fill() {
-    if ($this->page !== null) return;
-
+  private function getPage() {
     require_once('xml5/TPublicFrontPage.php');
-    $this->page = new TPublicFrontPage();
+    $page = new TPublicFrontPage();
 
     // Add welcome message
-    $this->page->addSection($div = new XDiv(array('id'=>'message-container')));
+    $page->addSection($div = new XDiv(array('id'=>'message-container')));
     $div->add(new XDiv(array('id'=>'welcome'),
                        array($this->h1("Welcome"),
                              new XP(array(),
@@ -42,9 +41,9 @@ class UpdateFront {
                                           new XA(Conf::$ICSA_HOME, "ICSA site."))))));
 
     // Menu
-    $this->page->addMenu(new XA('/', "Home"));
-    $this->page->addMenu(new XA('/schools/', "Schools"));
-    $this->page->addMenu(new XA('/seasons/', "Seasons"));
+    $page->addMenu(new XA('/', "Home"));
+    $page->addMenu(new XA('/schools/', "Schools"));
+    $page->addMenu(new XA('/seasons/', "Seasons"));
 
     // Get current season's coming regattas
     require_once('regatta/PublicDB.php');
@@ -52,16 +51,16 @@ class UpdateFront {
     $success = false;
     $seasons = Season::getActive();
     if (count($seasons) == 0) {
-      $this->page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
+      $page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
 
       // Wow! There is NO information to report!
-      $this->page->addSection(new XPort("Nothing to show!", array(new XP(array(), "We are sorry, but there are no regattas in the system! Please come back later. Happy sailing!"))));
-      return;
+      $page->addSection(new XPort("Nothing to show!", array(new XP(array(), "We are sorry, but there are no regattas in the system! Please come back later. Happy sailing!"))));
+      return $page;
     }
 
     $types = Regatta::getTypes();
-    $this->page->addMenu(new XA('/'.$seasons[0]->id.'/', $seasons[0]->fullString()));
-    $this->page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
+    $page->addMenu(new XA('/'.$seasons[0]->id.'/', $seasons[0]->fullString()));
+    $page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
 
     // ------------------------------------------------------------
     // Are there any regattas in progress? Such regattas must exist in
@@ -108,7 +107,7 @@ class UpdateFront {
     $regs = DB::getAll(DB::$DT_REGATTA, new DBCond('start_time', $now, DBCond::GE));
     DB::$DT_REGATTA->db_set_order();
     if (count($regs) > 0) {
-      $this->page->addSection($p = new XPort("Upcoming schedule"));
+      $page->addSection($p = new XPort("Upcoming schedule"));
       $p->add($tab = new XQuickTable(array('class'=>'coming-regattas'),
                                      array("Name",
                                            "Host",
@@ -138,9 +137,9 @@ class UpdateFront {
       }
     }
     if ($num > 0)
-      $this->page->addSection(new XDiv(array('id'=>'submenu-wrapper'),
+      $page->addSection(new XDiv(array('id'=>'submenu-wrapper'),
                                        array(new XH3("Other seasons", array('class'=>'nav')), $ul)));
-
+    return $page;
   }
 
   /**
@@ -158,38 +157,23 @@ class UpdateFront {
   }
 
   /**
-   * Generates and returns the HTML code for the season. Note that the
-   * report is only generated once per report maker
-   *
-   * @return String
-   */
-  public function getPage() {
-    $this->fill();
-    return $this->page->toXML();
-  }
-
-  // ------------------------------------------------------------
-  // Static component used to write the summary page to file
-  // ------------------------------------------------------------
-
-  /**
    * Creates the new page summary in the public domain
    *
    */
-  public static function run() {
-    $R = realpath(dirname(__FILE__).'/../../html');
-    $M = new UpdateFront();
-    if (file_put_contents("$R/index.html", $M->getPage()) === false)
-      throw new RuntimeException(sprintf("Unable to make the front page: %s\n", $filename), 8);
+  public function run() {
+    self::writeXml('/index.html', $this->getPage());
   }
 }
 
 // ------------------------------------------------------------
 // When run as a script
 if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  // SETUP PATHS and other CONSTANTS
-  ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
-  require_once('conf.php');
-  UpdateFront::run();
+  require_once(dirname(dirname(__FILE__)).'/conf.php');
+
+  $P = new UpdateFront();
+  $opts = $P->getOpts($argv);
+  if (count($opts) > 0)
+    throw new TSScriptException("Invalid argument(s).");
+  $P->run();
 }
 ?>
