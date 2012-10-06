@@ -202,9 +202,10 @@ class UpdateDaemon extends AbstractScript {
     // Perform school updates
     // ------------------------------------------------------------
     require_once('scripts/UpdateSchool.php');
+    $P = new UpdateSchool();
     foreach ($this->school_seasons as $id => $seasons) {
       foreach ($seasons as $season) {
-        UpdateSchool::run($this->schools[$id], $season);
+        $P->run($this->schools[$id], $season);
         self::errln(sprintf('generated school %s/%-6s %s', $season, $id, $this->schools[$id]->nick_name));
       }
     }

@@ -1,4 +1,14 @@
 <?php
+/*
+ * This file is part of TechScore
+ *
+ * @author Dayan Paez
+ * @version 2010-09-18
+ * @package scripts
+ */
+
+require_once('AbstractScript.php');
+
 /**
  * Update the given school, given as an argument
  *
@@ -6,83 +16,81 @@
  * @version 2010-08-27
  * @package scripts
  */
-class UpdateSchool {
-  public static function run(School $school, Season $season) {
-    $path = dirname(__FILE__).'/../../html/schools';
-    $R = realpath($path);
+class UpdateSchool extends AbstractScript {
 
-    // Create schools directory if necessary
-    if ($R === false && !mkdir($path)) {
-      throw new RuntimeException("Unable to make directory for all schools.");
-    }
-    $R = realpath($path);
-
-    // Create directory if one does not exist for that school
-    $dirname = sprintf('%s/%s', $R, $school->id);
-    if (!file_exists($dirname) && mkdir($dirname) === false)
-      throw new RuntimeException("Unable to make school directory: $dirname\n", 4);
+  /**
+   * Creates the given season summary for the given school
+   *
+   * @param School $school the school whose summary to generate
+   * @param Season $season the season
+   */
+  public function run(School $school, Season $season) {
+    $dirname = '/schools/' . $school->id;
 
     // Do season
     $today = Season::forDate(DB::$NOW);
-    $current = false;
     $base = (string)$season;
 
     // Create season directory
     $fullname = "$dirname/$base";
-    if (!file_exists($fullname) && mkdir($fullname) === false)
-      throw new RuntimeException("Unable to make school's season directory: $dirname\n", 4);
 
     // is this current season
+    $current = false;
     if ((string)$today == (string)$season)
       $current = true;
 
     require_once('public/SchoolSummaryMaker.php');
     $filename = "$fullname/index.html";
+    // @TODO: fold SchoolSummaryMaker
     $M = new SchoolSummaryMaker($school, $season);
     $content = $M->getPage();
-    if (file_put_contents($filename, $content) === false)
-      throw new RuntimeException(sprintf("Unable to make the school summary: %s\n", $filename), 8);
-
+    self::writeFile($filename, $content);
+    self::errln("Wrote season $season summary for $school.");
+    
     // If current, do we also need to create index page?
     if ($current) {
-      if (file_put_contents("$dirname/index.html", $content) === false)
-        throw new RuntimeException(sprintf("Unable to make the school summary for current season: %s\n", $filename), 8);
+      $filename = "$dirname/index.html";
+      self::writeFile($filename, $content);
+      self::errln("Wrote current summary for $school.");
     }
   }
+
+  // ------------------------------------------------------------
+  // CLI
+  // ------------------------------------------------------------
+
+  protected $cli_opts = '<school_id> [season]';
+  protected $cli_usage = " <school_id>  the ID of the school to update
+ season       (optional) the season to update (defaults to current)";
 }
 
 // ------------------------------------------------------------
 // When run as a script
 if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  // Arguments
-  if (count($argv) < 2) {
-    printf("usage: %s <school-id> [season]\n", $_SERVER['PHP_SELF']);
-    exit(1);
-  }
+  require_once(dirname(dirname(__FILE__)).'/conf.php');
 
-  // SETUP PATHS and other CONSTANTS
-  ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
-  require_once('conf.php');
+  $P = new UpdateSchool();
+  $opts = $P->getOpts($argv);
 
-  // GET School
-  $school = DB::getSchool($argv[1]);
-  if ($school == null) {
-    printf("Invalid school given: %s\n\n", $argv[1]);
-    printf("usage: %s <school-id>\n", $_SERVER['PHP_SELF']);
-    exit(1);
-  }
-  // season?
-  if (count($argv) == 3) {
-    $season = DB::getSeason($argv[2]);
-  }
-  else
-    $season = Season::forDate(DB::$NOW);
-  if ($season == null) {
-    echo "Invalid season provided.\n\n";
-    printf("usage: %s <season>\n", $_SERVER['PHP_SELF']);
-    exit(1);
-  }
+  // Validate inputs
+  if (count($opts) == 0)
+    throw new TSScriptException("No school ID provided");
+  $id = array_shift($opts);
+  if (($school = DB::getSchool($id)) === null)
+    throw new TSScriptException("Invalid school ID provided: $id");
 
-  UpdateSchool::run($school, $season);
+  // Season
+  if (count($opts) > 1)
+    throw new TSScriptException("Invalid argument provided");
+  $season = Season::forDate(DB::$NOW);
+  if (count($opts) > 0) {
+    $id = array_shift($opts);
+    if (($season = DB::getSeason($id)) === null)
+      throw new TSScriptException("Invalid season provided: $id");
+  }
+  if ($season === null)
+    throw new TSScriptException("No current season exists");
+
+  $P->run($school, $season);
 }
 ?>
