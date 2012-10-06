@@ -7,6 +7,8 @@
  * @package scripts
  */
 
+require_once('AbstractScript.php');
+
 /**
  * Creates the season summary page for the given season. Such a page
  * contains a port with information about current regattas being
@@ -15,30 +17,16 @@
  * public regattas.
  *
  */
-class UpdateSeason {
-  private $season;
-  private $page;
+class UpdateSeason extends AbstractScript {
 
-  /**
-   * Creates a new season page
-   *
-   * @param Season $season the season
-   */
-  public function __construct(Season $season) {
-    $this->season = $season;
-  }
-
-  private function fill() {
-    if ($this->page !== null) return;
-
+  private function getPage(Season $season) {
     require_once('xml5/TPublicPage.php');
     $types = Regatta::getTypes();
-    $season = $this->season;
     $name = $season->fullString();
-    $this->page = new TPublicPage($name);
-    $this->page->setDescription(sprintf("Summary of ICSA regattas for %s", $name));
-    $this->page->addMetaKeyword($season->getSeason());
-    $this->page->addMetaKeyword($season->getYear());
+    $page = new TPublicPage($name);
+    $page->setDescription(sprintf("Summary of ICSA regattas for %s", $name));
+    $page->addMetaKeyword($season->getSeason());
+    $page->addMetaKeyword($season->getYear());
 
     // 2010-11-14: Separate regattas into "weekends", descending by
     // timestamp, based solely on the start_time, assuming that the
@@ -56,11 +44,11 @@ class UpdateSeason {
 
     // SETUP menus top menu: ICSA Home, Schools, Seasons, *this*
     // season, and About
-    $this->page->addMenu(new XA('/', "Home"));
-    $this->page->addMenu(new XA('/schools/', "Schools"));
-    $this->page->addMenu(new XA('/seasons/', "Seasons"));
-    $this->page->addMenu(new XA(sprintf('/%s/', $season->id), $season->fullString()));
-    $this->page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
+    $page->addMenu(new XA('/', "Home"));
+    $page->addMenu(new XA('/schools/', "Schools"));
+    $page->addMenu(new XA('/seasons/', "Seasons"));
+    $page->addMenu(new XA(sprintf('/%s/', $season->id), $season->fullString()));
+    $page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
 
     // SEASON summary
     $summary_table = array();
@@ -74,7 +62,7 @@ class UpdateSeason {
     $count = count($weeks);
     if ($count == 0) {
       // Should this section even exist?
-      $this->page->addSection(new XP(array(), "There are no regattas to report on yet."));
+      $page->addSection(new XP(array(), "There are no regattas to report on yet."));
     }
 
     // stats
@@ -158,7 +146,7 @@ class UpdateSeason {
 
     // WRITE coming soon, and weekend summary ports
     if (count($coming_regattas) > 0) {
-      $this->page->addSection($p = new XPort("Coming soon"));
+      $page->addSection($p = new XPort("Coming soon"));
       $p->add($tab = new XQuickTable(array('class'=>'coming-regattas'),
                                      array("Name",
                                            "Host",
@@ -176,7 +164,7 @@ class UpdateSeason {
       }
     }
     if ($total > 0)
-      $this->page->addSection(new XPort("Season regattas", array($past_tab)));
+      $page->addSection(new XPort("Season regattas", array($past_tab)));
 
     // Complete SUMMARY
     $summary_table["Number of Weekends"] = $num_weeks;
@@ -187,19 +175,19 @@ class UpdateSeason {
     // this stat if there is a something to have won. Also, print all
     // the tied teams for winningest spot.
     /*
-    arsort($winning_school, SORT_NUMERIC);
-    if (count($winning_school) > 0) {
+      arsort($winning_school, SORT_NUMERIC);
+      if (count($winning_school) > 0) {
       $school_codes = array_keys($winning_school);
       if ($winning_school[$school_codes[0]] != 0) {
-        // tied teams
-        $tied_number = array_shift($winning_school);
-        $tied_schools = array();
-        $tied_schools[] = DB::get(DB::$SCHOOL, array_shift($school_codes));
-        while (count($school_codes) > 0) {
-          $next_num = array_shift($winning_school);
-          if ($next_num != $tied_number) break;
-          $tied_schools[] = DB::get(DB::$SCHOOL, array_shift($school_codes));
-        }
+      // tied teams
+      $tied_number = array_shift($winning_school);
+      $tied_schools = array();
+      $tied_schools[] = DB::get(DB::$SCHOOL, array_shift($school_codes));
+      while (count($school_codes) > 0) {
+      $next_num = array_shift($winning_school);
+      if ($next_num != $tied_number) break;
+      $tied_schools[] = DB::get(DB::$SCHOOL, array_shift($school_codes));
+      }
       }
       // 2011-04-09: feedback compiled by Matt Lindblad from users
       // that this stat was "confusing"
@@ -207,11 +195,11 @@ class UpdateSeason {
       array(new XSpan("Winningest School(s):", array('class'=>'prefix')),
       implode('/',
       $tied_schools))));
-    }
+      }
     */
 
     // Summary report
-    $this->page->setHeader($this->season->fullString(), $summary_table);
+    $page->setHeader($season->fullString(), $summary_table);
 
     // ------------------------------------------------------------
     // Add links to all seasons
@@ -225,19 +213,9 @@ class UpdateSeason {
       }
     }
     if ($num > 0)
-      $this->page->addSection(new XDiv(array('id'=>'submenu-wrapper'),
+      $page->addSection(new XDiv(array('id'=>'submenu-wrapper'),
                                        array(new XH3("Other seasons", array('class'=>'nav')), $ul)));
-  }
-
-  /**
-   * Generates and returns the HTML code for the season. Note that the
-   * report is only generated once per report maker
-   *
-   * @return String
-   */
-  public function getPage() {
-    $this->fill();
-    return $this->page->toXML();
+    return $page;
   }
 
   // ------------------------------------------------------------
@@ -248,43 +226,34 @@ class UpdateSeason {
    * Creates the new page summary in the public domain
    *
    */
-  public static function run(Season $season) {
+  public function run(Season $season) {
     $R = realpath(dirname(__FILE__).'/../../html');
 
     // Do season
-    $dirname = "$R/$season";
-
-    // create folder, if necessary
-    if (!file_exists($dirname) && mkdir($dirname) === false)
-      throw new RuntimeException(sprintf("Unable to make the season folder: %s\n", $dirname), 2);
-
-    $M = new UpdateSeason($season);
-    if (file_put_contents("$dirname/index.html", $M->getPage()) === false)
-      throw new RuntimeException(sprintf("Unable to make the season summary: %s\n", $dirname), 8);
+    $dirname = "/$season/index.html";
+    self::writeXml($dirname, $this->getPage($season));
   }
+
+  // ------------------------------------------------------------
+  // CLI
+  // ------------------------------------------------------------
+
+  protected $cli_opts = '<season>';
+  protected $cli_usage = "Example of season format: \"s11\" for \"Spring 2011\"";
 }
 
 // ------------------------------------------------------------
 // When run as a script
 if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  // Arguments
-  if (count($argv) != 2) {
-    printf("usage: %s <season>\n", $_SERVER['PHP_SELF']);
-    exit(1);
-  }
+  require_once(dirname(dirname(__FILE__)).'/conf.php');
 
-  // SETUP PATHS and other CONSTANTS
-  ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
-  require_once('conf.php');
+  $P = new UpdateSeason();
+  $opts = $P->getOpts($argv);
+  if (count($opts) != 1)
+    throw new TSScriptException("Invalid argument(s)");
 
-  // GET Season
-  $season = DB::getSeason($argv[1]);
-  if ($season == null) {
-    printf("Invalid season given: %s\n\n", $argv[1]);
-    printf("usage: %s <season>\n", $_SERVER['PHP_SELF']);
-    exit(1);
-  }
-
-  UpdateSeason::run($season);
+  if (($season = DB::getSeason($opts[0])) === null)
+    throw new TSScriptException("Invalid season provided: " . $opts[0]);
+  $P->run($season);
 }
 ?>

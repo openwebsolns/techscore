@@ -85,8 +85,9 @@ class GenerateSite extends AbstractScript {
       // Go through all the seasons
       self::errln("* Generating seasons");
       require_once('UpdateSeason.php');
+      $P = new UpdateSeason();
       foreach ($seasons as $season) {
-        UpdateSeason::run($season);
+        $P->run($season);
         self::errln(sprintf("  - %s", $season->fullString()));
       }
       // Also season summary

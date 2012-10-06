@@ -216,23 +216,25 @@ class UpdateDaemon extends AbstractScript {
     // ------------------------------------------------------------
     // Perform season updates
     // ------------------------------------------------------------
-    require_once('scripts/UpdateSeason.php');
-    $current = Season::forDate(DB::$NOW);
-    foreach ($this->seasons as $season) {
-      UpdateSeason::run($season);
-      UpdateManager::logSeason($season);
-      self::errln('generated season ' . $season);
+    if (count($this->seasons) > 0) {
+      require_once('scripts/UpdateSeason.php');
+      $P = new UpdateSeason();
+      $current = Season::forDate(DB::$NOW);
+      foreach ($this->seasons as $season) {
+        $P->run($season);
+        self::errln('generated season ' . $season);
 
-      // Deal with home page
-      if ((string)$season == (string)$current) {
-        require_once('scripts/UpdateFront.php');
-        $P = new UpdateFront();
-        $P->run();
+        // Deal with home page
+        if ((string)$season == (string)$current) {
+          require_once('scripts/UpdateFront.php');
+          $P = new UpdateFront();
+          $P->run();
 
-        require_once('scripts/Update404.php');
-        $P = new Update404();
-        $P->run(true);
-        self::errln('generated front and 404 page');
+          require_once('scripts/Update404.php');
+          $P = new Update404();
+          $P->run(true);
+          self::errln('generated front and 404 page');
+        }
       }
     }
 
