@@ -443,7 +443,7 @@ div.stat .prefix {
     background: #E6E0D3;
 }
 
-.season-summary th {
+.season-summary th, .participation-table th {
     text-align: left;
 }
 
@@ -457,7 +457,7 @@ div.stat .prefix {
     padding: 0.5em;
 }
 
-.season-summary {
+.season-summary, .participation-table {
     width: 100%;
 }
 

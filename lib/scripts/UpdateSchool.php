@@ -25,6 +25,21 @@ class UpdateSchool extends AbstractScript {
     return sprintf($link_fmt, str_replace(' ', '-', strtolower($this->school->name)));
   }
 
+  /**
+   * Helper method provides a string representation of school's
+   * current placement
+   *
+   */
+  private function getPlaces(Dt_Regatta $reg, School $school) {
+    $places = array();
+    $teams = $reg->getTeams();
+    foreach ($teams as $rank => $team) {
+      if ($team->school->id == $school->id)
+        $places[] = ($rank + 1);
+    }
+    return sprintf('%s/%d', implode(',', $places), count($teams));
+  }
+
   private function getPage(School $school, Season $season) {
     require_once('regatta/PublicDB.php');
     require_once('xml5/TPublicPage.php');
@@ -112,63 +127,6 @@ class UpdateSchool extends AbstractScript {
       $avg = sprintf('%3.1f%%', 100 * ($places / $avg_total));
 
     // ------------------------------------------------------------
-    // SCHOOL sailing now
-    if (count($current) > 0) {
-      $page->addSection($p = new XPort("Sailing now", array(), array('id'=>'sailing')));
-      $p->add(new XTable(array(),
-                         array(new XTHead(array(),
-                                          array(new XTR(array(),
-                                                        array(new XTH(array(), "Name"),
-                                                              new XTH(array(), "Host"),
-                                                              new XTH(array(), "Type"),
-                                                              new XTH(array(), "Conference"),
-                                                              new XTH(array(), "Last race"),
-                                                              new XTH(array(), "Place(s)"))))),
-                               $tab = new XTBody())));
-      $row = 0;
-      foreach ($current as $reg) {
-        // borrowed from UpdateSeason
-        $status = null;
-        $teams = $reg->getTeams();
-        switch ($reg->status) {
-        case 'coming':
-          $status = "Coming soon";
-          break;
-
-        case 'finished':
-          $status = "Pending";
-          break;
-
-        case 'final':
-          $wt = $teams[0];
-          $status = "Winner: " . $wt;
-          if (!isset($winning_school[$wt->school->id]))
-            $winning_school[$wt->school->id] = 0;
-          $winning_school[$wt->school->id] += 1;
-          break;
-
-        default:
-          $status = "In progress: " . $reg->status;
-        }
-
-        $hosts = array();
-        $confs = array();
-        foreach ($reg->getHosts() as $host) {
-          $hosts[$host->id] = $host->nick_name;
-          $confs[$host->conference->id] = $host->conference;
-        }
-        $link = new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name);
-        $tab->add(new XTR(array('class' => sprintf("row%d", $row++ % 2)),
-                          array(new XTD(array('class'=>'left'), $link),
-                                new XTD(array(), implode("/", $hosts)),
-                                new XTD(array(), $types[$reg->type]),
-                                new XTD(array(), implode("/", $confs)),
-                                new XTD(array(), $reg->start_time->format('m/d/Y')),
-                                new XTD(array(), $status))));
-      }
-    }
-
-    // ------------------------------------------------------------
     // SCHOOL season summary
     $table = array("Conference" => $school->conference,
                    "Number of Regattas" => $total,
@@ -201,25 +159,51 @@ class UpdateSchool extends AbstractScript {
     $page->setHeader($school, $table);
 
     // ------------------------------------------------------------
+    // SCHOOL sailing now
+    if (count($current) > 0) {
+      $page->addSection($p = new XPort("Sailing now", array(), array('id'=>'sailing')));
+      $p->add($tab = new XQuickTable(array('class'=>'participation-table'),
+                                     array("Name", "Host", "Type", "Conference", "Last race", "Place(s)")));
+      foreach ($current as $row => $reg) {
+        // borrowed from UpdateSeason
+        $status = null;
+        $teams = $reg->getTeams();
+        switch ($reg->status) {
+        case Dt_Regatta::STAT_READY:
+          $status = new XEm("No scores yet");
+          break;
+
+        default:
+          $status = new XStrong(ucwords($reg->status));
+        }
+
+        $hosts = array();
+        $confs = array();
+        foreach ($reg->getHosts() as $host) {
+          $hosts[$host->id] = $host->nick_name;
+          $confs[$host->conference->id] = $host->conference;
+        }
+        $link = new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name);
+        $tab->addRow(array($link,
+                           implode("/", $hosts),
+                           $types[$reg->type],
+                           implode("/", $confs),
+                           $status,
+                           $this->getPlaces($reg, $school)),
+                     array('class' => 'row' . ($row % 2)));
+      }
+    }
+
+    // ------------------------------------------------------------
     // SCHOOL past regattas
     if (count($past) > 0) {
       $page->addSection($p = new XPort(array("Season history for ", $season_link)));
       $p->set('id', 'history');
 
-      $p->add(new XTable(array('class'=>'participation-table'),
-                         array(new XTHead(array(),
-                                          array(new XTR(array(),
-                                                        array(new XTH(array(), "Name"),
-                                                              new XTH(array(), "Host"),
-                                                              new XTH(array(), "Type"),
-                                                              new XTH(array(), "Conference"),
-                                                              new XTH(array(), "Date"),
-                                                              new XTH(array(), "Status"),
-                                                              new XTH(array(), "Place(s)"))))),
-                               $tab = new XTBody())));
+      $p->add($tab = new XQuickTable(array('class'=>'participation-table'),
+                                     array("Name", "Host", "Type", "Conference", "Date", "Status", "Place(s)")));
 
-      $row = 0;
-      foreach ($past as $reg) {
+      foreach ($past as $row => $reg) {
         $date = $reg->start_time;
         $status = ($reg->finalized === null) ? "Pending" : new XStrong("Official");
         $hosts = array();
@@ -228,21 +212,15 @@ class UpdateSchool extends AbstractScript {
           $hosts[$host->id] = $host->nick_name;
           $confs[$host->conference->id] = $host->conference;
         }
-        $places = array();
-        $teams = $reg->getTeams();
-        foreach ($teams as $rank => $team) {
-          if ($team->school->id == $school->id)
-            $places[] = ($rank + 1);
-        }
         $link = new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name);
-        $tab->add(new XTR(array('class' => sprintf("row%d", $row++ % 2)),
-                          array(new XTD(array('class'=>'left'), $link),
-                                new XTD(array(), implode("/", $hosts)),
-                                new XTD(array(), $types[$reg->type]),
-                                new XTD(array(), implode("/", $confs)),
-                                new XTD(array(), $date->format('M d')),
-                                new XTD(array(), $status),
-                                new XTD(array(), sprintf('%s/%d', implode(',', $places), count($teams))))));
+        $tab->addRow(array($link,
+                           implode("/", $hosts),
+                           $types[$reg->type],
+                           implode("/", $confs),
+                           $date->format('M d'),
+                           $status,
+                           $this->getPlaces($reg, $school)),
+                     array('class' => sprintf('row' . ($row % 2))));
       }
     }
 
