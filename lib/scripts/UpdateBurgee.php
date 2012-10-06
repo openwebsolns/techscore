@@ -1,28 +1,16 @@
 <?php
+/*
+ * This file is part of TechScore
+ *
+ * @package tscore/scripts
+ */
+
+require_once('AbstractScript.php');
+
 /**
- * A class and a script used to update one or more burgees for one or
- * more schools. When burgee changes occur because a coach uploaded a
- * new school burgee, this script should be called to generate a
- * static version of that burgee on the public version of the
- * site. This, in turn, should be called by some cron job, so that the
- * apache user is not actively writing to the public site.
+ * A class to serialize (or remove) a burgee for a particular school.
  *
- * One reason for actively creating/overwriting the new file is to
- * make a public site that is "free-standing" and not relying on data
- * from the database, which is where the burgees (and all previous
- * copies) are ultimately stored. This also aids in the creation of
- * static site mirrors, as only files need to be synced.
- *
- * When run as a script, this file will check each school in the
- * database and find its latest burgee. Based on the timestamp of the
- * database entry and the timestamp of the corresponding image on the
- * filesystem, the program then updates the filesystem copy, or
- * removes it (should rarely happen), or just plain ignores it.
- *
- * Like other scripts, the program may also be called by loading the
- * class and calling its static methods.
- *
- * The path to save to is '.../img/schools/{SCHOOL_ID}.png'.
+ * The path to save to is '/inc/img/schools/{SCHOOL_ID}.png'.
  *
  * If necessary, this script will create the directory.
  *
@@ -30,7 +18,7 @@
  * @version 2011-01-02
  * @package scripts
  */
-class UpdateBurgee {
+class UpdateBurgee extends AbstractScript {
 
   /**
    * @var String the relative path to the burgee images (with respect
@@ -39,66 +27,47 @@ class UpdateBurgee {
   public static $filepath = '/inc/img/schools';
 
   /**
-   * Checks each school in the database for a possible burgee update
-   *
-   */
-  public static function run() {
-    foreach (DB::getConferences() as $conf) {
-      foreach ($conf->getSchools() as $school) {
-        self::update($school);
-      }
-    }
-
-    // ------------------------------------------------------------
-    // Perform school summary update
-    // ------------------------------------------------------------
-    require_once('scripts/UpdateSchoolsSummary.php');
-    UpdateSchoolsSummary::run();
-  }
-
-  /**
    * Check and update a school's burgee, if necessary
    *
    * @param School $school the school whose burgee to update
    * @throw RuntimeException if unable to execute an action
    */
-  public static function update(School $school) {
-    $root = dirname(dirname(dirname(__FILE__))).'/html'.self::$filepath;
-    $file = sprintf('%s/%s.png', $root, $school->id);
+  public function run(School $school) {
+    $file = sprintf('%s/%s.png', self::$filepath, $school->id);
 
-    // 1. There is no burgee
+    // There is no burgee
     if ($school->burgee === null) {
-      // Is there one in the filesystem? Delete it!
-      if (file_exists($file) && !(@unlink($file)))
-        throw new RuntimeException(sprintf('Unable to remove file for school %s.', $school->id));
+      self::remove($file);
+      self::errln("Removed burgee for school $school");
       return;
     }
 
-    // 2. Check timestamp
-    if (file_exists($file)) {
-      if (filemtime($file) >= $school->burgee->last_updated->format('U'))
-        return;
-    }
-
-    // 3. Transfer data to file
-    if (!is_dir($root) && mkdir($root, 0777, true)  === false)
-      throw new RuntimeException("Unable to create burgee directory.");
-    $res = file_put_contents($file, base64_decode($school->burgee->filedata));
-    if ($res === false)
-      throw new RuntimeException("Unable to write to file $file.");
+    // Write to file
+    $data = base64_decode($school->burgee->filedata);
+    self::writeFile($file, $data);
+    self::errln("Serialized burgee for school $school");
   }
+
+  protected $cli_opts = '<school_id> [...]';
 }
 
 // ------------------------------------------------------------
 // When run as a script
 if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
-  require_once('conf.php');
-  try {
-    UpdateBurgee::run();
-  } catch (Exception $e) {
-    printf("Error while updating burgees: %s\n", $e->getMessage());
-    exit(1);
+  require_once(dirname(dirname(__FILE__)).'/conf.php');
+
+  $P = new UpdateBurgee();
+  $opts = $P->getOpts($argv);
+  $schools = array();
+  foreach ($opts as $opt) {
+    if (($school = DB::getSchool($opt)) === null)
+      throw new TSScriptException("Invalid school ID: $opt");
+    $schools[] = $school;
   }
+
+  if (count($schools) == 0)
+    throw new TSScriptException("No schools provided.");
+  foreach ($schools as $school)
+    $P->run($school);
 }
 ?>

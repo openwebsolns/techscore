@@ -73,9 +73,9 @@ class GenerateSite extends AbstractScript {
       // Schools
       self::errln("* Generating burgees");
       require_once('UpdateBurgee.php');
-
+      $P = new UpdateBurgee();
       foreach (DB::getAll(DB::$SCHOOL) as $school) {
-        UpdateBurgee::update($school);
+        $P->run($school);
         self::errln(sprintf("      - %s", $school));
       }
     }

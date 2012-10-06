@@ -115,7 +115,7 @@ abstract class AbstractScript {
       throw new RuntimeException("Unable to find public directory root.");
     
     $dir = dirname($fname);
-    $root = $R . '/' . $dir;
+    $root = $R . $dir;
     if (!is_dir($root) && mkdir($root, 0777, true) === false)
       throw new RuntimeException("Unable to create directory $root", 2);
 
@@ -123,6 +123,49 @@ abstract class AbstractScript {
       throw new RuntimeException("ERROR: unable to write to file $fname.\n", 8);
 
     self::out($fname);
+  }
+
+  /**
+   * Removes the file tree rooted at the given filename
+   *
+   * @param String $fname the name of the file to remove
+   * @return boolean true if something removed
+   */
+  protected static function remove(&$fname) {
+    $R = realpath(dirname(__FILE__).'/../../html');
+    if ($R === false)
+      throw new RuntimeException("Unable to find public directory root.");
+
+    $root = $R . $fname;
+    if (!file_exists($root)) {
+      self::errln("No file to remove $root.", 3);
+      return false;
+    }
+
+    // regular file
+    if (is_file($root)) {
+      if (($res = unlink($root)) !== false)
+        self::errln("Removed file $root", 2);
+      else
+        self::errln("Unable to remove file $root", 2);
+      return $res;
+    }
+
+    // directory
+    $d = opendir($root);
+    if ($d === false)
+      throw new RuntimeException("Unable to open directory $root");
+
+    $res = true;
+    while (($file = readdir($d)) !== false) {
+      if ($file != '.' && $file != '..') {
+        $path = "$fname/$file";
+        $res = $res && self::remove($path);
+      }
+    }
+    closedir($d);
+    $res = ($res && rmdir($root));
+    return $res;
   }
 
   // ------------------------------------------------------------
