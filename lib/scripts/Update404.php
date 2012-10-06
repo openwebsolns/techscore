@@ -100,7 +100,7 @@ class Update404 extends AbstractScript {
                                                                                           array('class'=>'tt')))))))))))));
 
     if ($season === null)
-      return;
+      return $page;
 
     // latest regatta
     $res = $season->getRegattas();
