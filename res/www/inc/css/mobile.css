@@ -338,3 +338,8 @@ a.empty {
     background: #e0f3e0;
     border-color: green;
 }
+.personal-regatta .stat {
+    background: #eee;
+    border-color: #888;
+    color: #555;
+}
