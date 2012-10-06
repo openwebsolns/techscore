@@ -98,7 +98,8 @@ class GenerateSite extends AbstractScript {
     if ($do & self::SCHOOL_SUMMARY) {
       // School summary page
       require_once('UpdateSchoolsSummary.php');
-      UpdateSchoolsSummary::run();
+      $P = new UpdateSchoolsSummary();
+      $P->run();
       self::errln("* Generated schools summary page");
     }
 

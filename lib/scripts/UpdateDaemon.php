@@ -140,6 +140,9 @@ class UpdateDaemon extends AbstractScript {
         $P->run($r->school);
         self::errln(sprintf("processed school update %10s: %s", $r->school->id, $r->school->name));
       }
+      require_once('scripts/UpdateSchoolsSummary.php');
+      $P = new UpdateSchoolsSummary();
+      $P->run();
     }
 
     // ------------------------------------------------------------

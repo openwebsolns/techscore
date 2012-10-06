@@ -116,6 +116,11 @@ class SyncDB extends AbstractScript {
         $this->errors[] = "Invalid school information: " . $e->getMessage();
       }
     }
+
+    // Update the summary page for completeness
+    require_once('UpdateSchoolsSummary.php');
+    $P = new UpdateSchoolsSummary();
+    $P->run();
   }
 
   public function updateMember(Member $proto) {
