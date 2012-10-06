@@ -243,7 +243,8 @@ class UpdateDaemon extends AbstractScript {
     // ------------------------------------------------------------
     if ($seasons_summary) {
       require_once('scripts/UpdateSeasonsSummary.php');
-      UpdateSeasonsSummary::run();
+      $P = new UpdateSeasonsSummary();
+      $P->run();
       self::errln('generated all-seasons summary');
     }
 

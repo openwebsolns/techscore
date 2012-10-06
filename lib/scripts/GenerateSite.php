@@ -92,7 +92,8 @@ class GenerateSite extends AbstractScript {
       }
       // Also season summary
       require_once('UpdateSeasonsSummary.php');
-      UpdateSeasonsSummary::run();
+      $P = new UpdateSeasonsSummary();
+      $P->run();
       self::errln("  - Seasons summary");
     }
 
