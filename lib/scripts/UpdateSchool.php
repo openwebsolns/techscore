@@ -27,6 +27,7 @@ class UpdateSchool extends AbstractScript {
 
   private function getPage(School $school, Season $season) {
     require_once('regatta/PublicDB.php');
+    require_once('xml5/TPublicPage.php');
 
     $types = Regatta::getTypes();
     $page = new TPublicPage($school);
@@ -49,8 +50,10 @@ class UpdateSchool extends AbstractScript {
       $page->addSection(new XP(array('class'=>'burgee'), new XImg(sprintf('/inc/img/schools/%s.png', $school->id), $school)));
 
     // current season
-    $now = new DateTime();
-    $now->setTime(0, 0);
+    $today = new DateTime();
+    $today->setTime(0, 0);
+    $tomorrow = new DateTime('tomorrow');
+    $tomorrow->setTime(0, 0);
 
     $q = DB::prepGetAll(DB::$DT_TEAM, new DBCond('school', $school->id));
     $q->fields(array('regatta'), DB::$DT_TEAM->db_name());
@@ -97,11 +100,10 @@ class UpdateSchool extends AbstractScript {
           }
         }
       }
-      if ($reg->start_time <= $now &&
-          $reg->end_date >= $now) {
+      if ($reg->start_time < $tomorrow && $reg->end_date >= $today) {
         $current[] = $reg;
       }
-      if ($reg->end_date < $now) {
+      if ($reg->end_date < $today) {
         $past[] = $reg;
       }
     }
