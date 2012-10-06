@@ -68,7 +68,7 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
     $ELEMS[] = $t;
     foreach ($divisions as $div) {
       $r->add(new XTH(array(), $div));
-      $r->add(new XTH(array('title'=>'Team penalty in division $div'), "P"));
+      $r->add(new XTH(array('title'=>"Team penalty in division $div"), "P"));
     }
     $r->add(new XTH(array('title'=>"Total for team", 'abbr'=>"Total"), "TOT"));
 
