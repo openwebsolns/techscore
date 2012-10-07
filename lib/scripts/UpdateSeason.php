@@ -89,7 +89,7 @@ class UpdateSeason extends AbstractScript {
       foreach ($list as $reg) {
         $data = $reg->getData();
         if ($reg->start_time >= $now) {
-          if ($reg->start_time < $next_sunday && in_array($reg->status, $coming))
+          if ($reg->start_time < $next_sunday && in_array($data->status, $coming))
             array_unshift($coming_regattas, $reg);
         }
         elseif (!in_array($data->status, $coming)) {

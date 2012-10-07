@@ -145,13 +145,12 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   $P = new GenerateSite();
   $opts = $P->getOpts($argv);
 
-  if (isset($opts['A'])) {
-    $P->run();
-    exit(0);
-  }
-
   $do = 0;
   foreach ($opts as $opt) {
+    if ($opt == '-A') {
+      $do = GenerateSite::ALL; 
+      break;
+    }
     switch ($opt) {
     case '-R': $do |= GenerateSite::REGATTAS; break;
     case '-S': $do |= GenerateSite::SEASONS; break;

@@ -78,6 +78,7 @@ class UpdateRegatta {
       $reg->setData();
     if ($dreg->num_divisions == 0)
       return;
+    $divs = $reg->getDivisions();
 
     // ------------------------------------------------------------
     // Synchronize the teams. Track team_divs which is the list of all
