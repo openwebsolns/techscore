@@ -309,10 +309,10 @@ class ICSAScorer {
             $fin->score = new Score($avg, sprintf("(%d: average in division) %s", $avg, $fin->comments));
           }
           else {
-            var_dump($fin);
             $fin->score = new Score($fin->earned,
                                     sprintf("(%d: average (%d) is no better) %s", $fin->earned, $avg, $fin->comments));
           }
+          DB::set($fin);
         }
       }
     } // end loop through average finishes
