@@ -38,6 +38,7 @@ class GenerateSite extends AbstractScript {
     if ($do & self::REGATTAS) {
       // Go through all the regattas
       require_once('UpdateRegatta.php');
+      $P = new UpdateRegatta();
       self::errln("* Generating regattas");
 
       foreach ($seasons as $season) {
@@ -45,7 +46,7 @@ class GenerateSite extends AbstractScript {
         foreach ($season->getRegattas() as $reg) {
           if (count($reg->getDivisions()) > 0) {
             self::err(sprintf("    - (%4d) %s...", $reg->id, $reg->name));
-            UpdateRegatta::run($reg, array(UpdateRequest::ACTIVITY_DETAILS));
+            $P->run($reg, array(UpdateRequest::ACTIVITY_DETAILS));
             self::errln("done");
           }
         }

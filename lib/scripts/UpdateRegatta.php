@@ -10,6 +10,7 @@ require_once('regatta/PublicDB.php');
 require_once('public/UpdateRequest.php');
 require_once('public/ReportMaker.php');
 require_once('xml5/TPublicPage.php');
+require_once('AbstractScript.php');
 
 /**
  * Update the given regatta, given as an argument.
@@ -46,7 +47,7 @@ require_once('xml5/TPublicPage.php');
  * @version 2010-08-27
  * @package scripts
  */
-class UpdateRegatta {
+class UpdateRegatta extends AbstractScript {
 
   /**
    * Synchronizes the regatta's detail with the data information
@@ -63,7 +64,7 @@ class UpdateRegatta {
    * @throws InvalidArgumentException
    * @deprecated delegates to Regatta::setData
    */
-  public static function sync(Regatta $reg) {
+  public function sync(Regatta $reg) {
     $reg->setData();
     return $reg->getData();
   }
@@ -72,7 +73,7 @@ class UpdateRegatta {
    * Synchornize the team data for the given regatta
    *
    */
-  public static function syncTeams(Regatta $reg) {
+  public function syncTeams(Regatta $reg) {
     $dreg = $reg->getData();
     if ($dreg->num_races === null)
       $reg->setData();
@@ -177,8 +178,7 @@ class UpdateRegatta {
    *
    * @param Regatta $reg the regatta whose information to delete.
    */
-  public static function runDelete(Regatta $reg) {
-    $R = realpath(dirname(__FILE__).'/../../html');
+  public function runDelete(Regatta $reg) {
     $season = $reg->getSeason();
     if ((string)$season == "")
       return;
@@ -187,42 +187,9 @@ class UpdateRegatta {
     // personal, in which case there is nothing to delete, right?
     $nickname = $reg->nick;
     if (!empty($nickname)) {
-      $dirname = "$R/$season/$nickname";
-      if (!self::rm_r($dirname))
-        throw new RuntimeException("Unable to remove files rooted at $dirname.");
+      $dirname = "/$season/$nickname";
+      self::remove($dirname);
     }
-  }
-
-  /**
-   * Recursively remove a filepath
-   *
-   * @param String $root the directory to remove
-   * @return boolean true on success
-   */
-  private static function rm_r($root) {
-    if (!is_dir($root))
-      return true;
-
-    $d = opendir($root);
-    if ($d === false)
-      return false;
-
-    $res = true;
-    while (($file = readdir($d)) !== false) {
-      if ($file != '.' && $file != '..') {
-        if (is_dir("$root/$file"))
-          $res = ($res && self::rm_r("$root/$file"));
-        else {
-          if (($my_res = unlink("$root/$file")) === true) {
-            // message?
-          }
-          $res = ($res && $my_res);
-        }
-      }
-    }
-    closedir($d);
-    $res = ($res && rmdir($root));
-    return $res;
   }
 
   /**
@@ -232,9 +199,9 @@ class UpdateRegatta {
    * @param Regatta $reg the regatta to update
    * @param Array:UpdateRequest::Constant the activities to execute
    */
-  public static function run(Regatta $reg, Array $activities) {
+  public function run(Regatta $reg, Array $activities) {
     if ($reg->type == Regatta::TYPE_PERSONAL) {
-      self::runDelete($reg);
+      $this->runDelete($reg);
       return;
     }
 
@@ -288,8 +255,7 @@ class UpdateRegatta {
         // What if the rotation was removed?
         $season = $reg->getSeason();
         if ($season !== null && $reg->nick !== null) {
-          $root = sprintf('%s/html/%s/%s', dirname(dirname(dirname(__FILE__))), $season, $reg->nick);
-          self::rm_r($root . '/rotations');
+          self::reomve($reg->getURL() . '/rotations');
         }
 
         $front = true;
@@ -323,12 +289,12 @@ class UpdateRegatta {
         $rotation = true;
         $season = $reg->getSeason();
         if ($season !== null && $reg->nick !== null) {
-          $root = sprintf('%s/html/%s/%s', dirname(dirname(dirname(__FILE__))), $season, $reg->nick);
-          self::rm_r($root . '/full-scores');
-          self::rm_r($root . '/A');
-          self::rm_r($root . '/B');
-          self::rm_r($root . '/C');
-          self::rm_r($root . '/D');
+          $root = $reg->getURL();
+          self::remove($root . '/full-scores');
+          self::remove($root . '/A');
+          self::remove($root . '/B');
+          self::remove($root . '/C');
+          self::remove($root . '/D');
         }
       }
     }
@@ -366,19 +332,19 @@ class UpdateRegatta {
     // ------------------------------------------------------------
     // Perform the updates
     // ------------------------------------------------------------
-    if ($sync)       self::sync($reg);
-    if ($sync_teams) self::syncTeams($reg);
-    if ($sync_rp)    self::syncRP($reg);
+    if ($sync)       $this->sync($reg);
+    if ($sync_teams) $this->syncTeams($reg);
+    if ($sync_rp)    $this->syncRP($reg);
 
-    $D = self::createDir($reg);
+    $D = $reg->getURL();
     $M = new ReportMaker($reg);
 
-    if ($rotation)   self::createRotation($D, $M);
-    if ($front)      self::createFront($D, $M);
-    if ($full)       self::createFull($D, $M);
+    if ($rotation)   $this->createRotation($D, $M);
+    if ($front)      $this->createFront($D, $M);
+    if ($full)       $this->createFull($D, $M);
     if ($divisions) {
       foreach ($reg->getDivisions() as $div)
-        self::createDivision($D, $M, $div);
+        $this->createDivision($D, $M, $div);
     }
   }
 
@@ -387,37 +353,16 @@ class UpdateRegatta {
   // ------------------------------------------------------------
 
   /**
-   * Creates the necessary folders for the given regatta
-   *
-   * @param Regatta $reg the regatta
-   * @return String the filepath root of the regatta's pages
-   * @throws RuntimeException when something goes bad
-   */
-  private static function createDir(Regatta $reg) {
-    $R = realpath(dirname(__FILE__).'/../../html');
-    if ($R === false)
-      throw new RuntimeException("Public folder does not exist.");
-
-    $dirname = sprintf('%s%s', $R, $reg->getURL());
-    if (!file_exists($dirname)) {
-      if (!is_dir($dirname) && mkdir($dirname, 0777, true) === false)
-        throw new RuntimeException("Unable to make regatta directory: $dirname\n", 4);
-    }
-    return $dirname;
-  }
-
-  /**
    * Creates and writes the front page (index) in the given directory
    *
    * @param String $dirname the directory
    * @param ReportMaker $maker the maker
    * @throws RuntimeException when writing is no good
    */
-  private static function createFront($dirname, ReportMaker $maker) {
-    $filename = "$dirname/index.html";
+  private function createFront($dirname, ReportMaker $maker) {
+    $filename = $dirname . 'index.html';
     $page = $maker->getScoresPage();
-    if (@file_put_contents($filename, $page->toXML()) === false)
-      throw new RuntimeException(sprintf("Unable to make the regatta report: %s\n", $filename), 8);
+    self::writeXml($filename, $page);
   }
 
   /**
@@ -428,14 +373,10 @@ class UpdateRegatta {
    * @throws RuntimeException when writing is no good
    * @see createFront
    */
-  private static function createFull($dirname, ReportMaker $maker) {
-    $path = "$dirname/full-scores";
-    if (!is_dir($path) && mkdir($path, 0777, true) === false)
-      throw new RuntimeException("Unable to make the full scores directory: $path", 8);
-    $filename = "$path/index.html";
+  private function createFull($dirname, ReportMaker $maker) {
     $page = $maker->getFullPage();
-    if (@file_put_contents($filename, $page->toXML()) === false)
-      throw new RuntimeException(sprintf("Unable to make the regatta full scores: %s\n", $filename), 8);
+    $path = $dirname . 'full-scores/index.html';
+    self::writeXml($path, $page);
   }
 
   /**
@@ -447,14 +388,10 @@ class UpdateRegatta {
    * @throws RuntimeException when writing is no good
    * @see createFront
    */
-  private static function createDivision($dirname, ReportMaker $maker, Division $div) {
-    $path = "$dirname/$div";
-    if (!is_dir($path) && mkdir($path, 0777, true) === false)
-      throw new RuntimeException("Unable to make the $div division directory: $path", 8);
-    $filename = "$path/index.html";
+  private function createDivision($dirname, ReportMaker $maker, Division $div) {
+    $path = $dirname . $div . '/index.html';
     $page = $maker->getDivisionPage($div);
-    if (@file_put_contents($filename, $page->toXML()) === false)
-      throw new RuntimeException(sprintf("Unable to make the regatta division score page: %s\n", $filename), 8);
+    self::writeXml($path, $page);
   }
 
   /**
@@ -465,47 +402,44 @@ class UpdateRegatta {
    * @throws RuntimeException when writing is no good
    * @see createFront
    */
-  private static function createRotation($dirname, ReportMaker $maker) {
-    $path = "$dirname/rotations";
-    if (!is_dir($path) && mkdir($path, 0777, true) === false)
-      throw new RuntimeException("Unable to make the rotations directory: $path", 8);
-    $filename = "$path/index.html";
+  private function createRotation($dirname, ReportMaker $maker) {
+    $path = $dirname . 'rotations/index.html';
     $page = $maker->getRotationPage();
+    self::writeXml($path, $page);
+  }
 
-    if (@file_put_contents($filename, $page->toXML()) === false)
-      throw new RuntimeException(sprintf("Unable to make the regatta rotation: %s\n", $filename), 8);
+  // ------------------------------------------------------------
+  // CLI
+  // ------------------------------------------------------------
+  public function __construct() {
+    parent::__construct();
+    $this->cli_opts = '<regatta-id> <activity>';
+    $this->cli_usage = "Activity must be one of:\n";
+    foreach (UpdateRequest::getTypes() as $type)
+      $this->cli_usage .= "\n - $type";
   }
 }
 
 // ------------------------------------------------------------
 // When run as a script
 if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  array_shift($argv);
-  // Arguments
-  if (count($argv) < 2) {
-    printf("usage: %s <regatta-id> [score|rotation [...]]\n", $_SERVER['PHP_SELF']);
-    exit(1);
-  }
-  // SETUP PATHS and other CONSTANTS
-  ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
-  require_once('conf.php');
+  require_once(dirname(dirname(__FILE__)).'/conf.php');
 
-  $REGATTA = DB::getRegatta(array_shift($argv));
-  if ($REGATTA === null) {
-    printf("Invalid regatta ID provided: %s\n", $argv[1]);
-    exit(2);
-  }
+  // Validate arguments
+  $P = new UpdateRegatta();
+  $opts = $P->getOpts($argv);
+  if (count($opts) < 2)
+    throw new TSScriptException("Missing argument(s)");
+  if (($reg = DB::getRegatta(array_shift($opts))) === null)
+    throw new TSScriptException("Invalid regatta");
 
   $pos_actions = UpdateRequest::getTypes();
   $actions = array();
-  foreach ($argv as $opt) {
-    if (!in_array($opt, $pos_actions)) {
-      printf("Invalid update action requested: %s\n\n", $opt);
-      printf("usage: %s <regatta-id> [score|rotation [...]]\n", $_SERVER['PHP_SELF']);
-      exit(1);
-    }
-    $action[$opt] = $opt;
+  foreach ($opts as $opt) {
+    if (!isset($pos_actions[$opt]))
+      throw new TSScriptException("Invalid activity $opt");
+    $actions[] = $opt;
   }
-  UpdateRegatta::run($REGATTA, $action);
+  $P->run($reg, $actions);
 }
 ?>

@@ -195,8 +195,9 @@ class UpdateDaemon extends AbstractScript {
     // Perform regatta level updates
     // ------------------------------------------------------------
     require_once('scripts/UpdateRegatta.php');
+    $P = new UpdateRegatta();
     foreach ($this->regattas as $id => $reg) {
-      UpdateRegatta::run($reg, $this->activities[$id]);
+      $P->run($reg, $this->activities[$id]);
       foreach ($this->activities[$id] as $act)
         self::errln(sprintf("performed activity %s on %4d: %s", $act, $id, $reg->name));
     }
