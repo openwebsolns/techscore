@@ -256,13 +256,13 @@ class UpdateSchool extends AbstractScript {
     $filename = "$fullname/index.html";
     $content = $this->getPage($school, $season);
     self::writeXml($filename, $content);
-    self::errln("Wrote season $season summary for $school.");
+    self::errln("Wrote season $season summary for $school.", 2);
     
     // If current, do we also need to create index page?
     if ($current) {
       $filename = "$dirname/index.html";
       self::writeXml($filename, $content);
-      self::errln("Wrote current summary for $school.");
+      self::errln("Wrote current summary for $school.", 2);
     }
   }
 
