@@ -106,25 +106,33 @@ class DetailsPane extends AbstractPane {
     // Hosts: first add the current hosts, then the entire list of
     // schools in the affiliation ordered by conference
     $hosts = $this->REGATTA->getHosts();
-    $reg_form->add($f_item = new FItem('Host(s):', $f_sel = new XSelectM("host[]", array('size'=>10))));
-
-    $f_sel->add($opt_group = new FOptionGroup("Current"));
-    $schools = array(); // track these so as not to include them later
-    foreach ($hosts as $host) {
-      $schools[$host->id] = $host;
-      $opt_group->add(new FOption($host->id, $host, array('selected' => 'selected')));
+    // special case that there is only one host AND the user has no
+    // more than one school associated with them
+    if (count($this->USER->getSchools()) == 1 && count($hosts) == 1) {
+      $reg_form->add($fitem = new FItem("Host:", new XSpan($hosts[0]->nick_name)));
+      $fitem->add(new XHiddenInput('host[]', $hosts[0]->id));
     }
-    $f_item->add(new XMessage("Hold down Ctrl to choose more than one"));
+    else {
+      $reg_form->add($f_item = new FItem('Host(s):', $f_sel = new XSelectM("host[]", array('size'=>10))));
 
-    // go through each conference
-    foreach (DB::getConferences() as $conf) {
-      $opts = array();
-      foreach ($this->USER->getSchools($conf) as $school) {
-        if (!isset($schools[$school->id]))
-          $opts[] = new FOption($school->id, $school);
+      $f_sel->add($opt_group = new FOptionGroup("Current"));
+      $schools = array(); // track these so as not to include them later
+      foreach ($hosts as $host) {
+        $schools[$host->id] = $host;
+        $opt_group->add(new FOption($host->id, $host, array('selected' => 'selected')));
       }
-      if (count($opts) > 0)
-        $f_sel->add(new FOptionGroup($conf, $opts));
+      $f_item->add(new XMessage("Hold down Ctrl to choose more than one"));
+
+      // go through each conference
+      foreach (DB::getConferences() as $conf) {
+        $opts = array();
+        foreach ($this->USER->getSchools($conf) as $school) {
+          if (!isset($schools[$school->id]))
+            $opts[] = new FOption($school->id, $school);
+        }
+        if (count($opts) > 0)
+          $f_sel->add(new FOptionGroup($conf, $opts));
+      }
     }
 
     // Update button
@@ -323,6 +331,8 @@ class DetailsPane extends AbstractPane {
         $hosts = array();
         foreach ($V as $id) {
           $school = DB::getSchool($id);
+          $a = $this->USER->hasSchool($school);
+
           if ($school !== null && $this->USER->hasSchool($school)) {
             $hosts[] = $school;
             if (!isset($current_schools[$school->id]))

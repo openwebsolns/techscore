@@ -106,6 +106,8 @@ class Account extends DBObject {
   public function hasSchool(School $school) {
     if ($this->isAdmin())
       return true;
+    if ($school == $this->__get('school'))
+      return true;
     $res = DB::getAll(DB::$ACCOUNT_SCHOOL, new DBBool(array(new DBCond('account', $this), new DBCond('school', $school))));
     $r = (count($res) > 0);
     unset($res);
