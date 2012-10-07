@@ -158,7 +158,7 @@ class NewRegattaPane extends AbstractUserPane {
       $sdate->setTime(0, 0);
       $end = clone($sdate);
       $sdate->add(new DateInterval(sprintf('P0DT%dH%dM', $stime->format('G'), $stime->format('i'))));
-      $end->add(new DateInterval(sprintf('P%dD', $duration)));
+      $end->add(new DateInterval(sprintf('P%dD', ($duration - 1))));
 
       // If there is no season, then quit
       if (Season::forDate($sdate) === null)
