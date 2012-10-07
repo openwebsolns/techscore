@@ -92,7 +92,7 @@ class ICSAScorer {
           if ($finish->penalty->displace)
             $score++;
         }
-        $finish->penalty->earned = $score;
+        $finish->earned = $score;
       }
       // breakdown
       else {
@@ -107,13 +107,13 @@ class ICSAScorer {
                            $amount, $finish->penalty->amount, $finish->penalty->comments);
           }
           $finish->score = new Score($amount, $exp);
-          $finish->penalty->earned = $score;
+          $finish->earned = $score;
         }
         else {
           // for the time being, set their earned amount
           $avg_finishes[] = $finish;
         }
-        $finish->penalty->earned = $score;
+        $finish->earned = $score;
         $score++;
       }
     }
@@ -151,23 +151,23 @@ class ICSAScorer {
       // no other scores to average
       if ($count == 0) {
         foreach ($div_finishes as $fin) {
-          $fin->score = new Score($fin->penalty->earned,
+          $fin->score = new Score($fin->earned,
                                   sprintf("(%d: no other finishes to average) %s",
-                                          $fin->penalty->earned, $fin->penalty->comments));
+                                          $fin->earned, $fin->getModifier()->comments));
         }
       }
       else {
         $avg = round($total / $count);
         foreach ($div_finishes as $fin) {
-          if ($avg <= $fin->penalty->earned) {
+          if ($avg <= $fin->earned) {
             $fin->score = new Score($avg,
                                     sprintf("(%d: average in division) %s",
-                                            $avg, $fin->penalty->comments));
+                                            $avg, $fin->getModifier()->comments));
           }
           else {
-            $fin->score = new Score($fin->penalty->earned,
+            $fin->score = new Score($fin->earned,
                                     sprintf("(%d: average (%d) is no better) %s",
-                                            $fin->penalty->earned, $avg, $fin->penalty->comments));
+                                            $fin->earned, $avg, $fin->getModifier()->comments));
           }
         }
       }
@@ -185,7 +185,6 @@ class ICSAScorer {
    * to the regatta you pass.
    */
   public function score(Regatta $reg, Race $race) {
-
     if ($reg->scoring == Regatta::SCORING_COMBINED) {
       $this->scoreCombined($reg, $race);
       return;
@@ -237,7 +236,7 @@ class ICSAScorer {
           if ($penalty->displace)
             $score++;
         }
-        $penalty->earned = $score;
+        $finish->earned = $score;
       }
       // ------------------------------------------------------------
       // breakdown
@@ -260,16 +259,19 @@ class ICSAScorer {
           $avg_finishes[] = $finish;
         }
         $penalty->earned = $score;
+        
         // breakdowns always "displace"
         $score++;
       }
       $finish->setModifier($penalty);
+      DB::set($finish);
     }
 
     // Part 2: deal with average finishes, including those from across
     // the regatta, not just this race
-    foreach ($reg->getAverageFinishes($race->division) as $finish)
+    foreach ($reg->getAverageFinishes($race->division) as $finish) {
       $avg_finishes[] = $finish;
+    }
     while (count($avg_finishes) > 0) {
       $finish = array_shift($avg_finishes);
 
@@ -307,6 +309,7 @@ class ICSAScorer {
             $fin->score = new Score($avg, sprintf("(%d: average in division) %s", $avg, $fin->comments));
           }
           else {
+            var_dump($fin);
             $fin->score = new Score($fin->earned,
                                     sprintf("(%d: average (%d) is no better) %s", $fin->earned, $avg, $fin->comments));
           }

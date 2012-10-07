@@ -92,6 +92,7 @@ class ICSACombinedScorer extends ICSAScorer {
             $score++;
         }
         $finish->earned = $score;
+        DB::set($finish);
       }
       // breakdown
       else {
@@ -114,6 +115,7 @@ class ICSACombinedScorer extends ICSAScorer {
         }
         $finish->earned = $score;
         $score++;
+        DB::set($finish);
       }
     }
 
