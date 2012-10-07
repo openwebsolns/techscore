@@ -49,11 +49,33 @@ require_once('xml5/TPublicPage.php');
 class UpdateRegatta {
 
   /**
+   * Synchronizes the regatta's detail with the data information
+   * (those fields in the database prefixed with dt_). Note this will
+   * not run for personal regattas, even if requested.
+   *
+   * @param Regatta $reg the regatta to synchronize
+   *
+   * @param boolean $full set this to false to only update information
+   * about the regatta and not about the ranks (this creates slight
+   * efficiency improvement)
+   *
+   * @param boolean $rp set this to true to also sync the RP
+   * @throws InvalidArgumentException
+   * @deprecated delegates to Regatta::setData
+   */
+  public static function sync(Regatta $reg) {
+    $reg->setData();
+    return $reg->getData();
+  }
+
+  /**
    * Synchornize the team data for the given regatta
    *
    */
   public static function syncTeams(Regatta $reg) {
     $dreg = $reg->getData();
+    if ($dreg->num_races === null)
+      $reg->setData();
     if ($dreg->num_divisions == 0)
       return;
 
@@ -119,6 +141,8 @@ class UpdateRegatta {
    */
   public static function syncRP(Regatta $reg) {
     $dreg = $reg->getData();
+    if ($dreg->num_races === null)
+      $reg->setData();
     if ($dreg->num_divisions == 0)
       return;
 
@@ -235,6 +259,7 @@ class UpdateRegatta {
 
     // Based on the list of activities, determine what files need to
     // be (re)serialized
+    $sync = false;
     $sync_teams = false;
     $sync_rp = false;
 
@@ -275,6 +300,7 @@ class UpdateRegatta {
       }
     }
     if (in_array(UpdateRequest::ACTIVITY_SCORE, $activities)) {
+      $sync = true;
       $sync_teams = true;
       $front = true;
       if ($reg->hasFinishes()) {
@@ -322,6 +348,7 @@ class UpdateRegatta {
     }
     if (in_array(UpdateRequest::ACTIVITY_DETAILS, $activities)) {
       // do them all!
+      $sync = true;
       $front = true;
       if ($rot->isAssigned())
         $rotation = true;
@@ -338,6 +365,7 @@ class UpdateRegatta {
     // ------------------------------------------------------------
     // Perform the updates
     // ------------------------------------------------------------
+    if ($sync)       self::sync($reg);
     if ($sync_teams) self::syncTeams($reg);
     if ($sync_rp)    self::syncRP($reg);
 
