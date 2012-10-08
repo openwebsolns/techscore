@@ -35,6 +35,37 @@ require_once('conf.php');
 class ICSAScorer {
 
   /**
+   * Helper method to identify any additional average-scored finishes
+   * in the given list of races
+   *
+   */
+  protected function populateAverageFinishes(&$avg_finishes, Regatta $reg, $races) {
+    $divs = array();
+    foreach ($races as $race) {
+      if (in_array($race->division, $divs))
+        continue;
+      $divs[] = $race->division;
+      foreach ($reg->getAverageFinishes($race->division) as $finish) {
+        if (!isset($avg_finishes[$finish->hash()]))
+          $avg_finishes[$finish->hash()] = $finish;
+      }
+    }
+  }
+
+  /**
+   * Helper method returns the finishes associated with a given race, ordered
+   *
+   * This method should be overridden by child classes as needed
+   *
+   * @param Regatta $reg the regatta
+   * @param Race $race the race
+   */
+  protected function &getFinishes(Regatta $reg, Race $race) {
+    $list = $reg->getFinishes($race);
+    return $list;
+  }
+
+  /**
    * Scores the given regatta, and commits the affected finishes back
    * to the database.
    *
@@ -47,19 +78,25 @@ class ICSAScorer {
     if (count($races) == 0)
       return;
 
-    $teams = $reg->getTeams();
-    $FLEET = count($teams);
-
     // track the finishes which need to be committed to database
     $affected_finishes = array();
 
     // map of finishes that need to be averaged
     $avg_finishes = array();
 
+    $scored_races = array(); // track race numbers already scored
+    $FLEET = null;
     foreach ($races as $race) {
+      if (isset($scored_races[(string)$race]))
+        continue;
+      $scored_races[(string)$race] = $race;
+
       // Get each finish in order and set the score
+      $finishes = $this->getFinishes($reg, $race);
+      if ($FLEET === null)
+        $FLEET = count($finishes);
+
       $score = 1;
-      $finishes = $reg->getFinishes($race);
       foreach ($finishes as $finish) {
         $penalty = $finish->getModifier();
         if ($penalty == null) {
@@ -132,10 +169,7 @@ class ICSAScorer {
     // Part 2: deal with average finishes, including those from across
     // the regatta, not just this race
     // ------------------------------------------------------------
-    foreach ($reg->getAverageFinishes($race->division) as $finish) {
-      if (!isset($avg_finishes[$finish->hash()]))
-        $avg_finishes[$finish->hash()] = $finish;
-    }
+    $this->populateAverageFinishes($avg_finishes, $reg, $races);
 
     if (count($avg_finishes) == 0)
       return;
