@@ -319,6 +319,9 @@ td.total
 table.divisional tr {
     border-bottom: 1px solid #bbb;
 }
+table.divisional .burgee-cell, table.division .burgee-cell {
+    text-align: left;
+}
 
 table.sailors ul {
     margin: 0;
@@ -443,7 +446,7 @@ div.stat .prefix {
     background: #E6E0D3;
 }
 
-.season-summary th {
+.season-summary th, .participation-table th {
     text-align: left;
 }
 
@@ -457,7 +460,7 @@ div.stat .prefix {
     padding: 0.5em;
 }
 
-.season-summary {
+.season-summary, .participation-table {
     width: 100%;
 }
 

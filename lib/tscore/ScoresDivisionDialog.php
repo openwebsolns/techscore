@@ -61,7 +61,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
     $rpManager = $this->REGATTA->getRpManager();
     $division = $this->division;
 
-    $ELEMS = array(new XTable(array('class'=>'results coordinate narrow'),
+    $ELEMS = array(new XTable(array('class'=>'results coordinate division ' . $division),
                               array(new XTHead(array(),
                                                array(new XTR(array(),
                                                              array(new XTH(), // superscript
@@ -126,7 +126,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
       $r1 = new XTR(array('class'=>'topborder row' . $rowIndex % 2, 'align' => 'left'),
                     array(new XTD(array('title'=>$rank->explanation, 'class'=>'tiebreaker'), new XRawText($sym)),
                           $ord = new XTD(array(), $order++),
-                          new XTD(array(), $img),
+                          new XTD(array('class'=>'burgee-cell'), $img),
                           $sch = new XTD(array('class'=>'schoolname'), $ln),
                           $pen = new XTD(),
                           new XTD(array('class'=>'totalcell'), $total)));

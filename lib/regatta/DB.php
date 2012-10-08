@@ -50,6 +50,7 @@ class DB extends DBM {
   public static $RP_FORM = null; // RpManager.php
   public static $TEAM_DIVISION = null;
   public static $UPDATE_REQUEST = null; // UpdateRequest.php
+  public static $UPDATE_SCHOOL = null; // UpdateRequest.php
   public static $UPDATE_LOG_SEASON = null; // UpdateRequest.php
 
   // Public API: PublicDB.php
@@ -1738,6 +1739,8 @@ class Season extends DBObject {
    * Get a list of regattas in this season in which the given
    * school participated. This is a convenience method.
    *
+   * Only non-personal regattas are fetched
+   *
    * @param School $school the school whose participation to verify
    * @return Array:Regatta
    */
@@ -1745,6 +1748,7 @@ class Season extends DBObject {
     return DB::getAll(DB::$REGATTA,
                       new DBBool(array(new DBCond('start_time', $this->start_date, DBCond::GE),
                                        new DBCond('start_time', $this->end_date,   DBCond::LT),
+                                       new DBCond('type', Regatta::TYPE_PERSONAL, DBCond::NE),
                                        new DBCondIn('id', DB::prepGetAll(DB::$TEAM, new DBCond('school', $school), array('regatta'))))));
   }
 

@@ -36,6 +36,19 @@ class UpdateManager {
   }
 
   /**
+   * @see queueRequest
+   */
+  public static function queueSchool(School $school, $type) {
+    if (!in_array($type, UpdateSchoolRequest::getTypes()))
+      throw new InvalidArgumentException("Illegal update request type $type.");
+
+    $obj = new UpdateSchoolRequest();
+    $obj->school = $school;
+    $obj->activity = $type;
+    DB::set($obj);
+  }
+
+  /**
    * Fetches all pending items from the queue in the order in which
    * they are found
    *
@@ -47,11 +60,18 @@ class UpdateManager {
   }
 
   /**
+   * @see getPendingRequests
+   */
+  public static function getPendingSchools() {
+    return DB::getAll(DB::$UPDATE_SCHOOL, new DBCond('completion_time', null));
+  }
+
+  /**
    * Logs the given request as completed
    *
    * @param UpdateRequest $req the update request to log
    */
-  public static function log(UpdateRequest $req) {
+  public static function log(AbstractUpdate $req) {
     $req->completion_time = DB::$NOW;
     DB::set($req, true);
   }

@@ -1,4 +1,12 @@
 <?php
+/*
+ * This file is part of TechScore
+ *
+ * @package tscore/scripts
+ */
+
+require_once('AbstractScript.php');
+
 /**
  * This script orchestrates all the queued update requests so that
  * they are executed from one process. This is necessary so that
@@ -50,10 +58,9 @@
  * @version 2010-10-08
  * @package scripts
  */
-class UpdateDaemon {
+class UpdateDaemon extends AbstractScript {
 
   private static $lock_file = null; // full path, used below
-  private static $REGATTA = null;
 
   // ------------------------------------------------------------
   // Public pages that need to be updated, after parsing through all
@@ -63,59 +70,24 @@ class UpdateDaemon {
   /**
    * @var Map regatta ID => Regatta objects for reference
    */
-  private static $regattas;
+  private $regattas;
   /**
    * @var Map regatta ID => Array:UpdateRequest::CONST. This is the
    * second argument to UpdateRegatta::run.
    */
-  private static $activities;
+  private $activities;
   /**
    * @var Map of season pages to update (ID => Season object)
    */
-  private static $seasons;
+  private $seasons;
   /**
    * @var Map of school objects for reference (ID => School)
    */
-  private static $schools;
+  private $schools;
   /**
    * @var Map of school ID => list of seasons to update
    */
-  private static $school_seasons;
-
-  /**
-   * @var boolean true to print out information about what's happening
-   */
-  public static $verbose = false;
-
-  /**
-   * Error handler which takes care of NOT exiting the script, but
-   * rather print the offending regatta.
-   *
-   */
-  public static function errorHandler($errno, $errstr, $errfile, $errline, $context) {
-    if ($errno == E_NOTICE)
-      return true; // ignore NOTICES, for now
-    echo "(EE) + ";
-    if (self::$REGATTA !== null)
-      printf("ID:%d (%s)", self::$REGATTA->id, self::$REGATTA->name);
-    echo "\n";
-
-    $fmt = "     | %6s: %s\n";
-    printf($fmt, "Time",   date('Y-m-d H:i:s'));
-    printf($fmt, "Number", $errno);
-    printf($fmt, "String", $errstr);
-    printf($fmt, "File",   $errfile);
-    printf($fmt, "Line",   $errline);
-    foreach (debug_backtrace() as $list) {
-      echo "     +--------------------\n";
-      foreach (array('file', 'line', 'class', 'function') as $index) {
-        if (isset($list[$index]))
-          printf($fmt, ucfirst($index), $list[$index]);
-      }
-    }
-    self::cleanup();
-    return true;
-  }
+  private $school_seasons;
 
   /**
    * Checks for the existance of a file lock. If absent, proceeds to
@@ -125,7 +97,7 @@ class UpdateDaemon {
    * instance of this method can be called.
    *
    */
-  public static function run() {
+  public function run() {
     // Check file lock
     self::$lock_file = sprintf("%s/%s", sys_get_temp_dir(), Conf::$LOCK_FILENAME);
     if (file_exists(self::$lock_file)) {
@@ -145,18 +117,36 @@ class UpdateDaemon {
     // regatta, so as not to re-analyze
     $hashes = array();
 
-    self::$regattas = array();
-    self::$activities = array();
+    $this->regattas = array();
+    $this->activities = array();
 
-    self::$seasons = array();
-    self::$schools = array();
-    self::$school_seasons = array();
+    $this->seasons = array();
+    $this->schools = array();
+    $this->school_seasons = array();
 
     // Update the seasons summary page
     $seasons_summary = false;
 
     // ------------------------------------------------------------
-    // Loop through the requests
+    // Loop through the school requests
+    // ------------------------------------------------------------
+    $pending = UpdateManager::getPendingSchools();
+    if (count($pending) > 0) {
+      require_once('scripts/UpdateBurgee.php');
+      $P = new UpdateBurgee();
+      foreach ($pending as $r) {
+        $requests[] = $r;
+        // The only activity is burgees
+        $P->run($r->school);
+        self::errln(sprintf("processed school update %10s: %s", $r->school->id, $r->school->name));
+      }
+      require_once('scripts/UpdateSchoolsSummary.php');
+      $P = new UpdateSchoolsSummary();
+      $P->run();
+    }
+
+    // ------------------------------------------------------------
+    // Loop through the regatta requests
     // ------------------------------------------------------------
     foreach (UpdateManager::getPendingRequests() as $r) {
       $requests[] = $r;
@@ -168,7 +158,7 @@ class UpdateDaemon {
         continue;
       $hashes[$hash] = $r;
 
-      self::queueRegattaActivity($reg, $r->activity);
+      $this->queueRegattaActivity($reg, $r->activity);
       $season = $reg->getSeason();
 
       // If the regatta is personal, but a request still exists, then
@@ -176,9 +166,9 @@ class UpdateDaemon {
       // season summaries, regardless.
       if ($reg->type == Regatta::TYPE_PERSONAL) {
         $seasons_summary = true;
-        self::$seasons[$season->id] = $season;
+        $this->seasons[$season->id] = $season;
         foreach ($reg->getTeams() as $team)
-          self::queueSchoolSeason($team->school, $season);
+          $this->queueSchoolSeason($team->school, $season);
         continue;
       }
 
@@ -187,14 +177,14 @@ class UpdateDaemon {
       case UpdateRequest::ACTIVITY_DETAILS:
         $seasons_summary = true;
       case UpdateRequest::ACTIVITY_SCORE:
-        self::$seasons[$season->id] = $season;
+        $this->seasons[$season->id] = $season;
         foreach ($reg->getTeams() as $team)
-          self::queueSchoolSeason($team->school, $season);
+          $this->queueSchoolSeason($team->school, $season);
         break;
         // ------------------------------------------------------------
       case UpdateRequest::ACTIVITY_RP:
         if ($r->argument !== null)
-          self::queueSchoolSeason(DB::getSchool($r->argument), $season);
+          $this->queueSchoolSeason(DB::getSchool($r->argument), $season);
         break;
         // ------------------------------------------------------------
         // Rotation and summary do not affect seasons or schools
@@ -205,40 +195,47 @@ class UpdateDaemon {
     // Perform regatta level updates
     // ------------------------------------------------------------
     require_once('scripts/UpdateRegatta.php');
-    foreach (self::$regattas as $id => $reg) {
-      UpdateRegatta::run($reg, self::$activities[$id]);
-      foreach (self::$activities[$id] as $act)
-        self::report(sprintf('performed activity %s on regatta %s: %s', $act, $id, $reg->name));
+    $P = new UpdateRegatta();
+    foreach ($this->regattas as $id => $reg) {
+      $P->run($reg, $this->activities[$id]);
+      foreach ($this->activities[$id] as $act)
+        self::errln(sprintf("performed activity %s on %4d: %s", $act, $id, $reg->name));
     }
 
     // ------------------------------------------------------------
     // Perform school updates
     // ------------------------------------------------------------
     require_once('scripts/UpdateSchool.php');
-    foreach (self::$school_seasons as $id => $seasons) {
+    $P = new UpdateSchool();
+    foreach ($this->school_seasons as $id => $seasons) {
       foreach ($seasons as $season) {
-        UpdateSchool::run(self::$schools[$id], $season);
-        self::report(sprintf('generated school (%s/%-6s) %s', $season, $id, self::$schools[$id]->nick_name));
+        $P->run($this->schools[$id], $season);
+        self::errln(sprintf('generated school %s/%-6s %s', $season, $id, $this->schools[$id]->nick_name));
       }
     }
 
     // ------------------------------------------------------------
     // Perform season updates
     // ------------------------------------------------------------
-    require_once('scripts/UpdateSeason.php');
-    $current = Season::forDate(DB::$NOW);
-    foreach (self::$seasons as $season) {
-      UpdateSeason::run($season);
-      UpdateManager::logSeason($season);
-      self::report('generated season ' . $season);
+    if (count($this->seasons) > 0) {
+      require_once('scripts/UpdateSeason.php');
+      $P = new UpdateSeason();
+      $current = Season::forDate(DB::$NOW);
+      foreach ($this->seasons as $season) {
+        $P->run($season);
+        self::errln('generated season ' . $season);
 
-      // Deal with home page
-      if ((string)$season == (string)$current) {
-        require_once('scripts/UpdateFront.php');
-        require_once('scripts/Update404.php');
-        UpdateFront::run();
-        Update404::run();
-        self::report('generated front and 404 page');
+        // Deal with home page
+        if ((string)$season == (string)$current) {
+          require_once('scripts/UpdateFront.php');
+          $P = new UpdateFront();
+          $P->run();
+
+          require_once('scripts/Update404.php');
+          $P = new Update404();
+          $P->run(true);
+          self::errln('generated front and 404 page');
+        }
       }
     }
 
@@ -247,8 +244,9 @@ class UpdateDaemon {
     // ------------------------------------------------------------
     if ($seasons_summary) {
       require_once('scripts/UpdateSeasonsSummary.php');
-      UpdateSeasonsSummary::run();
-      self::report('generated all-seasons summary');
+      $P = new UpdateSeasonsSummary();
+      $P->run();
+      self::errln('generated all-seasons summary');
     }
 
     // ------------------------------------------------------------
@@ -265,10 +263,10 @@ class UpdateDaemon {
       passthru($hook, $ret);
       if ($ret != 0)
 	throw new RuntimeException("Hook $hook", $ret);
-      self::report("Hook $hook run");
+      self::errln("Hook $hook run");
     }
 
-    self::report('done');
+    self::errln('done');
   }
 
   /**
@@ -305,56 +303,50 @@ class UpdateDaemon {
   }
 
   /**
-   * Prints the given message, if $verbose is set to true
-   *
-   * @param String $mes the message to print out
-   */
-  private static function report($mes) {
-    if (self::$verbose === false)
-      return;
-
-    if (self::$REGATTA !== null)
-      printf("%4d: %s\n", self::$REGATTA->id, $mes);
-    else
-      print "$mes\n";
-  }
-
-  /**
    * Convenience method fills the school and seasons map
    *
    * @param School $school the ID of the school to queue
    * @param Season $season the season to queue
    */
-  private static function queueSchoolSeason(School $school, Season $season) {
-    if (!isset(self::$schools[$school->id])) {
-      self::$schools[$school->id] = $school;
-      self::$school_seasons[$school->id] = array();
+  private function queueSchoolSeason(School $school, Season $season) {
+    if (!isset($this->schools[$school->id])) {
+      $this->schools[$school->id] = $school;
+      $this->school_seasons[$school->id] = array();
     }
-    self::$school_seasons[$school->id][(string)$season] = $season;
+    $this->school_seasons[$school->id][(string)$season] = $season;
   }
 
-  private static function queueRegattaActivity(Regatta $reg, $activity) {
-    if (!isset(self::$regattas[$reg->id])) {
-      self::$regattas[$reg->id] = $reg;
-      self::$activities[$reg->id] = array();
+  private function queueRegattaActivity(Regatta $reg, $activity) {
+    if (!isset($this->regattas[$reg->id])) {
+      $this->regattas[$reg->id] = $reg;
+      $this->activities[$reg->id] = array();
     }
-    self::$activities[$reg->id][$activity] = $activity;
+    $this->activities[$reg->id][$activity] = $activity;
   }
+
+  // ------------------------------------------------------------
+  // CLI setup
+  // ------------------------------------------------------------
+  protected $cli_opts = '[-l]';
+  protected $cli_usage = ' -l --list   only list the pending updates';
 }
 
 // ------------------------------------------------------------
 // When run as a script
 // ------------------------------------------------------------
 if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
-  require_once('conf.php');
+  require_once(dirname(dirname(__FILE__)).'/conf.php');
   require_once('public/UpdateManager.php');
 
-  $opts = getopt('vl');
+  $P = new UpdateDaemon();
+  $opts = $P->getOpts($argv);
   // ------------------------------------------------------------
   // List the pending requests only
   // ------------------------------------------------------------
-  if (isset($opts['l'])) {
+  if (count($opts) > 0) {
+    if (count($opts) > 1 || !in_array($opts[0], array('-l', '--list')))
+      throw new TSScriptException("Unknown arguments");
+
     // Merely list the pending requests
     $requests = UpdateManager::getPendingRequests();
     $regattas = array();
@@ -387,15 +379,6 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   // Actually perform the requests
   // ------------------------------------------------------------
   // Make sure, if nothing else, that you at least run cleanup
-  $old = set_error_handler("UpdateDaemon::errorHandler", E_ALL);
-
-  if (isset($opts['v']))
-    UpdateDaemon::$verbose = true;
-  try {
-    UpdateDaemon::run();
-  }
-  catch (Exception $e) {
-    UpdateDaemon::errorHandler($e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine(), 0);
-  }
+  $P->run();
 }
 ?>

@@ -12,31 +12,14 @@
 
 ini_set('include_path', '.:'.realpath(dirname(__FILE__).'/../lib'));
 ini_set('memory_limit', '128M');
-ini_set('output_buffering', '16384');
 error_reporting(E_ALL | E_STRICT);
 
 require_once('conf.php');
+require_once('regatta/Regatta.php');
 
-array_shift($argv);
-foreach ($argv as $id) {
-  try {
-    $reg = DB::getRegatta($id);
-    try {
-      if ($reg->type != Regatta::TYPE_PERSONAL) {
-        UpdateRegatta::sync($reg);
-        UpdateRegatta::syncTeams($reg);
-        UpdateRegatta::syncRP($reg);
-        printf("(%3d) Imported regatta %s\n", $reg->id, $reg->name);
-      }
-    }
-    catch (Exception $e) {
-      printf("(%3d) ERROR (%s): %s\n", $reg->id, $reg->name, $e->getMessage());
-    }
-  }
-  catch (Exception $e) {
-    printf("(%3d) ERROR (does it exist?)\n", $id);
-  }
+foreach (DB::getAll(DB::$REGATTA) as $reg) {
+  $reg->setData();
+  printf("%4d: %s\n", $reg->id, $reg->name);
 }
-printf("\nPeak memory usage: %s\n",
-       memory_get_peak_usage());
+printf("\nPeak memory usage: %s\n", memory_get_peak_usage());
 ?>

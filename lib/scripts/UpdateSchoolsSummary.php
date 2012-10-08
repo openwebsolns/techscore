@@ -1,7 +1,13 @@
 <?php
-/**
+/*
  * This file is part of TechScore
+ *
+ * @author Dayan Paez
+ * @version 2010-09-18
+ * @package scripts
  */
+
+require_once('AbstractScript.php');
 
 /**
  * The page that summarizes the schools in the system.
@@ -10,9 +16,9 @@
  * @version 2011-02-08
  * @package www
  */
-class UpdateSchoolsSummary {
+class UpdateSchoolsSummary extends AbstractScript {
 
-  public static function run() {
+  public function run() {
     require_once('xml5/TPublicPage.php');
     require_once('regatta/PublicDB.php');
     $page = new TPublicPage("All Schools");
@@ -55,13 +61,19 @@ class UpdateSchoolsSummary {
     $page->setHeader("ICSA Conferences", array("# of Conferences" => count($confs), "# of Schools" => $num_schools));
 
     // Write to file!
-    $f = sprintf('%s/../../html/schools/index.html', dirname(__FILE__));
-    file_put_contents($f, $page->toXML());
+    $f = '/schools/index.html';
+    self::writeXml($f, $page);
+    self::errln("Wrote schools summary page");
   }
 }
 
 if (isset($argv) && basename($argv[0]) == basename(__FILE__)) {
-  require_once(dirname(__FILE__) . '/../conf.php');
-  UpdateSchoolsSummary::run();
+  require_once(dirname(dirname(__FILE__)).'/conf.php');
+
+  $P = new UpdateSchoolsSummary();
+  $opts = $P->getOpts($argv);
+  if (count($opts) > 0)
+    throw new TSScriptException("Invalid argument");
+  $P->run();
 }
 ?>

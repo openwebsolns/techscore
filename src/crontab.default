@@ -11,11 +11,6 @@ MAILTO = {CRON_MAILTO}
 {CRON_FREQ} * * * * /usr/bin/php {DIRECTORY}/lib/scripts/UpdateDaemon.php
 
 #--------------------------------
-# Update school burgees: this is relatively a cheap operation. Do it
-# then, every 8 hours. Feel free to adjust.
-13 7,15,23 * * * /usr/bin/php {DIRECTORY}/lib/scripts/UpdateBurgee.php
-
-#--------------------------------
 # Update sailor information: do this every day around 4AM
 18 4 * * * /usr/bin/php {DIRECTORY}/lib/scripts/SyncDB.php schools sailors coaches
 

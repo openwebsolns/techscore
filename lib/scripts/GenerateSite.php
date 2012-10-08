@@ -1,4 +1,12 @@
 <?php
+/*
+ * This file is part of TechScore
+ *
+ * @package tscore/scripts
+ */
+
+require_once('AbstractScript.php');
+
 /**
  * Super script to generate entire public HTML site. Not to be run at
  * any old time, unless you NICE it up quite...nicely
@@ -7,12 +15,7 @@
  * @version 2011-10-17
  * @package scripts
  */
-class GenerateSite {
-
-  /**
-   * @var boolean true to print out information about what's happening
-   */
-  public static $verbose = false;
+class GenerateSite extends AbstractScript {
 
   const REGATTAS = 1;
   const SEASONS  = 2;
@@ -27,41 +30,42 @@ class GenerateSite {
    * Generate the codez
    *
    */
-  public static function run($do = self::ALL) {
+  public function run($do = self::ALL) {
     require_once('regatta/PublicDB.php');
     require_once('xml5/TS.php');
 
-    $seasons = self::getSeasons();
+    $seasons = DB::getAll(DB::$SEASON);
     if ($do & self::REGATTAS) {
       // Go through all the regattas
       require_once('UpdateRegatta.php');
-      self::log("* Generating regattas\n\n");
+      $P = new UpdateRegatta();
+      self::errln("* Generating regattas");
 
       foreach ($seasons as $season) {
-        self::log(sprintf("  - %s\n", $season->fullString()));
+        self::errln(sprintf("  - %s", $season->fullString()));
         foreach ($season->getRegattas() as $reg) {
           if (count($reg->getDivisions()) > 0) {
-            self::log(sprintf("    - (%4d) %s...", $reg->id, $reg->name));
-            UpdateRegatta::run($reg, array(UpdateRequest::ACTIVITY_DETAILS));
-            self::log("done\n");
+            self::err(sprintf("    - (%4d) %s...", $reg->id, $reg->name));
+            $P->run($reg, array(UpdateRequest::ACTIVITY_DETAILS));
+            self::errln("done");
           }
         }
-        self::log("\n");
       }
     }
 
     if ($do & self::SCHOOLS) {
       // Schools
-      self::log("\n* Generating schools\n");
+      self::errln("* Generating schools");
       require_once('UpdateSchool.php');
+      $P = new UpdateSchool();
 
       foreach (DB::getConferences() as $conf) {
-        self::log(sprintf("  - Conference: %s\n", $conf));
+        self::errln(sprintf("  - Conference: %s", $conf));
         foreach ($conf->getSchools() as $school) {
-          self::log(sprintf("    - School: (%8s) %s\n", $school->id, $school));
+          self::errln(sprintf("    - School: (%8s) %s", $school->id, $school));
           foreach ($seasons as $season) {
-            UpdateSchool::run($school, $season);
-            self::log(sprintf("      - %s\n", $season->fullString()));
+            $P->run($school, $season);
+            self::errln(sprintf("      - %s", $season->fullString()));
           }
         }
       }
@@ -69,116 +73,97 @@ class GenerateSite {
 
     if ($do & self::BURGEES) {
       // Schools
-      self::log("\n* Generating burgees\n");
+      self::errln("* Generating burgees");
       require_once('UpdateBurgee.php');
-
+      $P = new UpdateBurgee();
       foreach (DB::getAll(DB::$SCHOOL) as $school) {
-        UpdateBurgee::update($school);
-        self::log(sprintf("      - Updated burgee: %s\n", $school));
+        $P->run($school);
+        self::errln(sprintf("      - %s", $school));
       }
     }
 
     if ($do & self::SEASONS) {
       // Go through all the seasons
-      self::log("\n* Generating seasons\n");
+      self::errln("* Generating seasons");
       require_once('UpdateSeason.php');
+      $P = new UpdateSeason();
       foreach ($seasons as $season) {
-        UpdateSeason::run($season);
-        self::log(sprintf("  - %s\n", $season->fullString()));
+        $P->run($season);
+        self::errln(sprintf("  - %s", $season->fullString()));
       }
       // Also season summary
       require_once('UpdateSeasonsSummary.php');
-      UpdateSeasonsSummary::run();
-      self::log("  - Seasons summary\n");
+      $P = new UpdateSeasonsSummary();
+      $P->run();
+      self::errln("  - Seasons summary");
     }
 
     if ($do & self::SCHOOL_SUMMARY) {
       // School summary page
       require_once('UpdateSchoolsSummary.php');
-      UpdateSchoolsSummary::run();
-      self::log("\n* Generated schools summary page\n");
+      $P = new UpdateSchoolsSummary();
+      $P->run();
+      self::errln("* Generated schools summary page");
     }
 
     if ($do & self::E404) {
       // 404 page
       require_once('Update404.php');
-      Update404::run();
-      self::log("\n* Generated 404 page\n");
+      $P = new Update404();
+      $P->run(true, true);
+      self::errln("* Generated 404 pages");
     }
 
     if ($do & self::FRONT) {
       // Front page!
       require_once('UpdateFront.php');
-      UpdateFront::run();
-      self::log("\n* Generated front page\n");
+      $P = new UpdateFront();
+      $P->run();
+      self::errln("* Generated front page");
     }
   }
 
-  private static function log($mes) {
-    if (self::$verbose)
-      echo $mes;
-  }
+  // ------------------------------------------------------------
+  // CLI API
+  // ------------------------------------------------------------
 
-  private static function getSeasons() {
-    return DB::getAll(DB::$SEASON);
-  }
-
-  public static function usage($name = 'GenerateSite') {
-    printf("usage: %s [-vhRSC4MFA]
-
- -h  Print this message
- -v  Be verbose about what you are doing
-
- -R  Generate regattas
+  protected $cli_opts = '[-RSC4MFA]';
+  protected $cli_usage = ' -R  Generate regattas
  -S  Generate seasons
  -C  Generate schools (C as in college)
  -B  Generate burgees
  -M  Generate schools summary page
  -4  Generate 404 page
  -F  Generate front page (consider using UpdateFront if only desired update)
- -A  Generate ALL\n", $name);
 
-  }
+ -A  Generate ALL';
 }
 
 // Run from the command line
 if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  ini_set('include_path', '.:'.realpath(dirname(__FILE__).'/../'));
-  require_once('conf.php');
+  require_once(dirname(dirname(__FILE__)).'/conf.php');
 
-  $opts = getopt('vhRSC4MFAB');
-
-  // Help?
-  if (isset($opts['h'])) {
-    GenerateSite::usage($argv[0]);
-    exit(1);
-  }
-
-  if (isset($opts['v'])) {
-    GenerateSite::$verbose = true;
-    unset($opts['v']);
-  }
-  if (isset($opts['A'])) {
-    GenerateSite::run();
-    exit(0);
-  }
+  $P = new GenerateSite();
+  $opts = $P->getOpts($argv);
 
   $do = 0;
-  foreach ($opts as $opt => $val) {
+  foreach ($opts as $opt) {
+    if ($opt == '-A') {
+      $do = GenerateSite::ALL; 
+      break;
+    }
     switch ($opt) {
-    case 'R': $do |= GenerateSite::REGATTAS; break;
-    case 'S': $do |= GenerateSite::SEASONS; break;
-    case 'C': $do |= GenerateSite::SCHOOLS; break;
-    case 'M': $do |= GenerateSite::SCHOOL_SUMMARY; break;
-    case 'F': $do |= GenerateSite::FRONT; break;
-    case '4': $do |= GenerateSite::E404; break;
-    case 'B': $do |= GenerateSite::BURGEES; break;
+    case '-R': $do |= GenerateSite::REGATTAS; break;
+    case '-S': $do |= GenerateSite::SEASONS; break;
+    case '-C': $do |= GenerateSite::SCHOOLS; break;
+    case '-M': $do |= GenerateSite::SCHOOL_SUMMARY; break;
+    case '-F': $do |= GenerateSite::FRONT; break;
+    case '-4': $do |= GenerateSite::E404; break;
+    case '-B': $do |= GenerateSite::BURGEES; break;
     default:
-      printf("Invalid option provided: %s\n", $opt);
-      GenerateSite::usage($argv[0]);
-      exit(2);
+      throw new TSScriptException("Invalid option provided: $opt");
     }
   }
-  GenerateSite::run($do);
+  $P->run($do);
 }
 ?>

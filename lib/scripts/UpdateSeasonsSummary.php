@@ -7,30 +7,29 @@
  * @package scripts
  */
 
+require_once('AbstractScript.php');
+
 /**
  * Creates the page summarizing all the seasons in the database along
  * with the count of regattas for each. This page should be updated
  * every time a season is updated, but not incur too much overhead.
  *
  */
-class UpdateSeasonsSummary {
-  private $page;
+class UpdateSeasonsSummary extends AbstractScript {
 
-  private function fill() {
-    if ($this->page !== null) return;
-
+  private function getPage() {
     require_once('xml5/TPublicPage.php');
-    $this->page = new TPublicPage("All seasons");
-    $this->page->setDescription("Summary of all sailing seasons.");
-    $this->page->addMetaKeyword("seasons");
+    $page = new TPublicPage("All seasons");
+    $page->setDescription("Summary of all sailing seasons.");
+    $page->addMetaKeyword("seasons");
 
     // SETUP menus top menu: ICSA Home, Schools, Seasons, *this*
     // season, and About
-    $this->page->addMenu(new XA('/', "Home"));
-    $this->page->addMenu(new XA('/schools/', "Schools"));
-    $this->page->addMenu(new XA('/seasons/', "Seasons"));
-    $this->page->addMenu(new XA(Conf::$ICSA_HOME . '/teams/', "ICSA Teams"));
-    $this->page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
+    $page->addMenu(new XA('/', "Home"));
+    $page->addMenu(new XA('/schools/', "Schools"));
+    $page->addMenu(new XA('/seasons/', "Seasons"));
+    $page->addMenu(new XA(Conf::$ICSA_HOME . '/teams/', "ICSA Teams"));
+    $page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
 
     $table = array();
     $current = Season::forDate(DB::$NOW);
@@ -41,56 +40,28 @@ class UpdateSeasonsSummary {
         $mes .= " (current)";
       $table[$season->fullString()] = new XA(sprintf('/%s/', $season->id), $mes);
     }
-    $this->page->setHeader("All Seasons", $table);
+    $page->setHeader("All Seasons", $table);
+    return $page;
   }
-
-  /**
-   * Generates and returns the HTML code for the season. Note that the
-   * report is only generated once per report maker
-   *
-   * @return String
-   */
-  public function getPage() {
-    $this->fill();
-    return $this->page->toXML();
-  }
-
-  // ------------------------------------------------------------
-  // Static component used to write the summary page to file
-  // ------------------------------------------------------------
 
   /**
    * Creates the new pages in the public domain
    *
    */
-  public static function run() {
-    $R = realpath(dirname(__FILE__).'/../../html');
-
-    // Do season
-    $dirname = "$R/seasons";
-
-    // create folder, if necessary
-    if (!file_exists($dirname) && mkdir($dirname) === false)
-      throw new RuntimeException(sprintf("Unable to make the all-seasons folder: %s\n", $dirname), 2);
-
-    $M = new UpdateSeasonsSummary();
-    if (file_put_contents("$dirname/index.html", $M->getPage()) === false)
-      throw new RuntimeException(sprintf("Unable to make the all-seasons summary: %s\n", $dirname), 8);
+  public function run() {
+    self::writeXml('/seasons/index.html', $this->getPage());
   }
 }
 
 // ------------------------------------------------------------
 // When run as a script
 if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  // Arguments
-  if (count($argv) != 1) {
-    printf("usage: %s\n", $_SERVER['PHP_SELF']);
-    exit(1);
-  }
+  require_once(dirname(dirname(__FILE__)).'/conf.php');
 
-  // SETUP PATHS and other CONSTANTS
-  ini_set('include_path', ".:".realpath(dirname(__FILE__).'/../'));
-  require_once('conf.php');
-  UpdateSeasonsSummary::run();
+  $P = new UpdateSeasonsSummary();
+  $opts = $P->getOpts($argv);
+  if (count($opts) > 0)
+    throw new TSScriptException("Invalid argument(s)");
+  $P->run();
 }
 ?>

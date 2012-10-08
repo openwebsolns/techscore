@@ -1307,6 +1307,78 @@ class Regatta extends DBObject {
   private $url;
 
   // ------------------------------------------------------------
+  // Data caching
+  // ------------------------------------------------------------
+
+  /**
+   * Call this method to sync cacheable data about this regatta
+   *
+   */
+  public function setData() {
+    $data = $this->getData();
+    $data->num_divisions = count($this->getDivisions());
+    if ($data->num_divisions == 0)
+      $data->num_races = 0;
+    else
+      $data->num_races = floor(count($this->getRaces()) / $data->num_divisions);
+
+    // hosts and conferences
+    $data->confs = array();
+    $data->hosts = array();
+    foreach ($this->getHosts() as $host) {
+      $data->confs[$host->conference->id] = $host->conference->id;
+      $data->hosts[$host->id] = $host->nick_name;
+    }
+
+    // boats
+    $data->boats = array();
+    foreach ($this->getBoats() as $boat)
+      $data->boats[$boat->id] = $boat->name;
+
+    $data->singlehanded = ($this->isSingleHanded()) ? 1 : null;
+    $data->season = $this->getSeason();
+
+    // status
+    $now = new DateTime();
+    $end = $this->__get('end_date');
+    $end->setTime(23,59,59);
+    if ($this->__get('finalized') !== null)
+      $data->status = Dt_Regatta::STAT_FINAL;
+    elseif (count($this->getUnscoredRaces()) == 0)
+      $data->status = Dt_Regatta::STAT_FINISHED;
+    elseif (!$this->hasFinishes()) {
+      if ($data->num_races > 0)
+        $data->status = Dt_Regatta::STAT_READY;
+      else
+        $data->status = Dt_Regatta::STAT_SCHEDULED;
+    }
+    else {
+      $last_race = $this->getLastScoredRace();
+      $data->status = ($last_race === null) ? Dt_Regatta::STAT_READY : (string)$last_race;
+    }
+
+    DB::set($data);
+  }
+
+  /**
+   * Returns the cached data object for this regatta
+   *
+   * @return Dt_Regatta the data
+   */
+  public function getData() {
+    if ($this->data === null) {
+      require_once('regatta/PublicDB.php');
+      $this->data = DB::get(DB::$DT_REGATTA, $this->id);
+      if ($this->data === null) {
+        $this->data = new Dt_Regatta();
+        $this->data->id = $this->id;
+      }
+    }
+    return $this->data;
+  }
+  private $data;
+
+  // ------------------------------------------------------------
   // Regatta creation
   // ------------------------------------------------------------
 

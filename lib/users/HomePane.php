@@ -111,6 +111,7 @@ class HomePane extends AbstractUserPane {
     $num_all = 0;
 
     // Sort all current regattas
+    $types = Regatta::getTypes();
     foreach ($regattas as $reg) {
       $link = new XA("score/" . $reg->id, $reg->name);
       $row = array($link);
@@ -139,7 +140,7 @@ class HomePane extends AbstractUserPane {
       }
 
       $row[] = $reg->start_time->format("Y-m-d");
-      $row[] = ucfirst($reg->type);
+      $row[] = $types[$reg->type];
       $row[] = ucfirst($reg->scoring);
       $row[] = $finalized;
 
