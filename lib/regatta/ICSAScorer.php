@@ -39,7 +39,8 @@ class ICSAScorer {
    * in the given list of races
    *
    */
-  protected function populateAverageFinishes(&$avg_finishes, Regatta $reg, $races) {
+  protected function &getAverageFinishes(Regatta $reg, $races) {
+    $avg_finishes = array();
     $divs = array();
     foreach ($races as $race) {
       if (in_array($race->division, $divs))
@@ -50,6 +51,7 @@ class ICSAScorer {
           $avg_finishes[$finish->hash()] = $finish;
       }
     }
+    return $avg_finishes;
   }
 
   /**
@@ -80,9 +82,6 @@ class ICSAScorer {
 
     // track the finishes which need to be committed to database
     $affected_finishes = array();
-
-    // map of finishes that need to be averaged
-    $avg_finishes = array();
 
     $scored_races = array(); // track race numbers already scored
     $FLEET = null;
@@ -151,10 +150,6 @@ class ICSAScorer {
             $finish->score = new Score($amount, $exp);
             $penalty->earned = $score;
           }
-          else {
-            // for the time being, set their earned amount
-            $avg_finishes[$finish->hash()] = $finish;
-          }
           $penalty->earned = $score;
         
           // breakdowns always "displace"
@@ -169,7 +164,7 @@ class ICSAScorer {
     // Part 2: deal with average finishes, including those from across
     // the regatta, not just this race
     // ------------------------------------------------------------
-    $this->populateAverageFinishes($avg_finishes, $reg, $races);
+    $avg_finishes = $this->getAverageFinishes($reg, $races);
 
     if (count($avg_finishes) == 0)
       return;

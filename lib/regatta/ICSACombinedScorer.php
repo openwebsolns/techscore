@@ -39,13 +39,15 @@ class ICSACombinedScorer extends ICSAScorer {
    * in the given list of races
    *
    */
-  protected function populateAverageFinishes(&$avg_finishes, Regatta $reg, $races) {
+  protected function &getAverageFinishes(Regatta $reg, $races) {
+    $avg_finishes = array();
     foreach ($reg->getDivisions() as $div) {
       foreach ($reg->getAverageFinishes($div) as $finish) {
         if (!isset($avg_finishes[$finish->hash()]))
           $avg_finishes[$finish->hash()] = $finish;
       }
     }
+    return $avg_finishes;
   }
 
   protected function &getFinishes(Regatta $reg, Race $race) {
