@@ -1460,6 +1460,16 @@ class Finish extends DBObject {
     return new Breakdown($this->penalty, $this->amount, $this->comments, $this->displace);
   }
 
+  /**
+   * Creates a hash for this finish consisting of race-team
+   *
+   */
+  public function hash() {
+    $rid = ($this->race instanceof Race) ? $this->race->id : $this->race;
+    $tid = ($this->team instanceof Team) ? $this->team->id : $this->team;
+    return $rid . '-' . $tid;
+  }
+
 
   // Comparators
 

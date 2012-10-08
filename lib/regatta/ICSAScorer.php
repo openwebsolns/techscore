@@ -35,286 +35,169 @@ require_once('conf.php');
 class ICSAScorer {
 
   /**
-   * Scores the given regatta using the combined division method
-   *
-   * @param Regatta $reg the regatta to score
-   */
-  protected function scoreCombined(Regatta $reg, Race $race) {
-    $teams = $reg->getTeams();
-    $divs  = $reg->getDivisions();
-    $FLEET = count($teams) * count($divs);
-
-    if ($FLEET == 0) return;
-
-    // Go through the races across the divisions for the race number
-    // given in the argument
-    $finishes = array();
-    foreach ($divs as $div) {
-      $r = $reg->getRace($div, $race->number);
-      foreach ($reg->getFinishes($r) as $fin)
-        $finishes[] = $fin;
-    }
-    if (count($finishes) != 0 && count($finishes) != $FLEET)
-      throw new InvalidArgumentException("Some divisions seem to be missing combined finishes for race $race");
-
-    usort($finishes, "Finish::compareEntered");
-    $affected_finishes = $finishes; // these, and the average
-                                    // finishes, need to be commited
-                                    // to database. So track 'em!
-
-    $avg_finishes = array();
-    $score = 1;
-    foreach ($finishes as $i => $finish) {
-      // no penalties or breakdown
-      if ($finish->penalty == null) {
-        $finish->score = new Score($score);
-        $score++;
-      }
-      // penalty
-      elseif ($finish->penalty instanceof Penalty) {
-        if ($finish->penalty->amount <= 0)
-          $finish->score = new Score($FLEET + 1,
-                                     sprintf("(%d, Fleet + 1) %s", $FLEET + 1, $finish->penalty->comments));
-        elseif ($finish->penalty->amount > $score) {
-          $finish->score = new Score($finish->penalty->amount,
-                                     sprintf("(%d, Assigned) %s",
-                                             $finish->penalty->amount,
-                                             $finish->penalty->comments));
-          if ($finish->penalty->displace)
-            $score++;
-        }
-        else {
-          $finish->score = new Score($score,
-                                     sprintf("(%d, Assigned penalty (%d) no worse) %s",
-                                             $score,
-                                             $finish->penalty->amount,
-                                             $finish->penalty->comments));
-          if ($finish->penalty->displace)
-            $score++;
-        }
-        $finish->earned = $score;
-      }
-      // breakdown
-      else {
-        // Should the amount be assigned, determine actual
-        // score. If not, then keep track for average score
-        if ($finish->penalty->amount > 0) {
-          $amount = $finish->penalty->amount;
-          $exp = sprintf("(%d, Assigned) %s", $amount, $finish->penalty->comments);
-          if ($score <= $finish->penalty->amount) {
-            $amount = $score;
-            $exp = sprintf("(%d, Assigned amount (%d) no better than actual) %s",
-                           $amount, $finish->penalty->amount, $finish->penalty->comments);
-          }
-          $finish->score = new Score($amount, $exp);
-          $finish->earned = $score;
-        }
-        else {
-          // for the time being, set their earned amount
-          $avg_finishes[] = $finish;
-        }
-        $finish->earned = $score;
-        $score++;
-      }
-    }
-
-    // Part 2: deal with average finishes, including those from across
-    // the regatta, not just this race
-    foreach ($divs as $div) {
-      foreach ($reg->getAverageFinishes($div) as $finish)
-        $avg_finishes[] = $finish;
-    }
-    while (count($avg_finishes) > 0) {
-      $finish = array_shift($avg_finishes);
-
-      // finishes that shall get the average score from this same team
-      $div_finishes = array(); 
-      $count = 0;
-      $total = 0;
-
-      foreach ($reg->getScoredRaces($finish->race->division) as $r) {
-        $fin = $reg->getFinish($r, $finish->team);
-        if ($fin == $finish) {
-          $div_finishes[] = $fin;
-        }
-        elseif (($i = array_search($fin, $avg_finishes)) === false) {
-          $total += $fin->score;
-          $count++;
-        }
-        else {
-          $affected_finishes[] = $fin;
-          $div_finishes[] = $fin;
-          unset($avg_finishes[$i]);
-        }
-      }
-
-      // no other scores to average
-      if ($count == 0) {
-        foreach ($div_finishes as $fin) {
-          $fin->score = new Score($fin->earned,
-                                  sprintf("(%d: no other finishes to average) %s",
-                                          $fin->earned, $fin->getModifier()->comments));
-        }
-      }
-      else {
-        $avg = round($total / $count);
-        foreach ($div_finishes as $fin) {
-          if ($avg <= $fin->earned) {
-            $fin->score = new Score($avg,
-                                    sprintf("(%d: average in division) %s",
-                                            $avg, $fin->getModifier()->comments));
-          }
-          else {
-            $fin->score = new Score($fin->earned,
-                                    sprintf("(%d: average (%d) is no better) %s",
-                                            $fin->earned, $avg, $fin->getModifier()->comments));
-          }
-        }
-      }
-    } // end loop through average finishes
-    $reg->commitFinishes($affected_finishes);
-  }
-
-  /**
    * Scores the given regatta, and commits the affected finishes back
    * to the database.
    *
    * @param Regatta $reg the regatta to score
-   * @param Array:Races the optional list of races to score. Leave
-   * empty to score the entire regatta. Yes, the races should belong
-   * to the regatta you pass.
+   * @param Array:Races the list of races to score
    */
-  public function score(Regatta $reg, Race $race) {
-    if ($reg->scoring == Regatta::SCORING_COMBINED) {
-      $this->scoreCombined($reg, $race);
+  public function score(Regatta $reg, $races) {
+    if (!is_array($races) && !($races instanceof ArrayIterator))
+      throw new InvalidArgumentException("Races list should be a list");
+    if (count($races) == 0)
       return;
-    }
 
     $teams = $reg->getTeams();
     $FLEET = count($teams);
 
-    // Get each finish in order and set the score
-    $score = 1;
-    $finishes = $reg->getFinishes($race);
     // track the finishes which need to be committed to database
     $affected_finishes = array();
-    foreach ($finishes as $finish)
-      $affected_finishes[] = $finish;
-    $avg_finishes = array(); // list of finishes that need to be averaged
-    $finishes = $affected_finishes;
-    foreach ($finishes as $finish) {
-      $penalty = $finish->getModifier();
-      // ------------------------------------------------------------
-      // clean finish
-      if ($penalty == null) {
-        $finish->score = new Score($score);
-        $score++;
-      }
-      // ------------------------------------------------------------
-      // penalty
-      elseif ($penalty instanceof Penalty) {
-        if ($penalty->amount <= 0) {
-          $finish->score = new Score($FLEET + 1,
-                                     sprintf("(%d, Fleet + 1) %s",
-                                             $FLEET + 1,
-                                             $penalty->comments));
+
+    // map of finishes that need to be averaged
+    $avg_finishes = array();
+
+    foreach ($races as $race) {
+      // Get each finish in order and set the score
+      $score = 1;
+      $finishes = $reg->getFinishes($race);
+      foreach ($finishes as $finish) {
+        $penalty = $finish->getModifier();
+        if ($penalty == null) {
+          // ------------------------------------------------------------
+          // clean finish
+          $finish->score = new Score($score);
+          $score++;
+          $affected_finishes[] = $finish;
         }
-        elseif ($penalty->amount > $score) {
-          $finish->score = new Score($penalty->amount,
-                                     sprintf("(%d, Assigned) %s",
-                                             $penalty->amount,
-                                             $penalty->comments));
-          if ($penalty->displace)
-            $score++;
-        }
-        else {
-          $finish->score = new Score($score,
-                                     sprintf("(%d, Assigned penalty (%d) no worse) %s",
-                                             $score,
-                                             $penalty->amount,
-                                             $penalty->comments));
-          if ($penalty->displace)
-            $score++;
-        }
-        $finish->earned = $score;
-      }
-      // ------------------------------------------------------------
-      // breakdown
-      else {
-        // Should the amount be assigned, determine actual
-        // score. If not, then keep track for average score
-        if ($penalty->amount > 0) {
-          $amount = $penalty->amount;
-          $exp = sprintf("(%d, Assigned) %s", $amount, $penalty->comments);
-          if ($score <= $penalty->amount) {
-            $amount = $score;
-            $exp = sprintf("(%d, Assigned amount (%d) no better than actual) %s",
-                           $amount, $penalty->amount, $penalty->comments);
+        elseif ($penalty instanceof Penalty) {
+          // ------------------------------------------------------------
+          // penalty
+          if ($penalty->amount <= 0) {
+            $finish->score = new Score($FLEET + 1,
+                                       sprintf("(%d, Fleet + 1) %s",
+                                               $FLEET + 1,
+                                               $penalty->comments));
           }
-          $finish->score = new Score($amount, $exp);
-          $penalty->earned = $score;
-        }
-        else {
-          // for the time being, set their earned amount
-          $avg_finishes[] = $finish;
-        }
-        $penalty->earned = $score;
-        
-        // breakdowns always "displace"
-        $score++;
-      }
-      $finish->setModifier($penalty);
-      DB::set($finish);
-    }
-
-    // Part 2: deal with average finishes, including those from across
-    // the regatta, not just this race
-    foreach ($reg->getAverageFinishes($race->division) as $finish) {
-      $avg_finishes[] = $finish;
-    }
-    while (count($avg_finishes) > 0) {
-      $finish = array_shift($avg_finishes);
-
-      // finishes that shall get the average score from this same team
-      $div_finishes = array(); 
-      $count = 0;
-      $total = 0;
-      foreach ($reg->getScoredRaces($race->division) as $r) {
-        $fin = $reg->getFinish($r, $finish->team);
-        if ($fin == $finish) {
-          $div_finishes[] = $fin;
-        }
-        elseif (($i = array_search($fin, $avg_finishes)) === false) {
-          $total += $fin->score;
-          $count++;
-        }
-        else {
-          $div_finishes[] = $fin;
-          $affected_finishes[] = $fin;
-          unset($avg_finishes[$i]);
-        }
-      }
-
-      // no other scores to average
-      if ($count == 0) {
-        foreach ($div_finishes as $fin) {
-          $fin->score = new Score($fin->earned,
-                                  sprintf("(%d: no other finishes to average) %s", $fin->earned, $fin->comments));
-        }
-      }
-      else {
-        $avg = round($total / $count);
-        foreach ($div_finishes as $fin) {
-          if ($avg <= $fin->earned) {
-            $fin->score = new Score($avg, sprintf("(%d: average in division) %s", $avg, $fin->comments));
+          elseif ($penalty->amount > $score) {
+            $finish->score = new Score($penalty->amount,
+                                       sprintf("(%d, Assigned) %s",
+                                               $penalty->amount,
+                                               $penalty->comments));
+            if ($penalty->displace)
+              $score++;
           }
           else {
-            $fin->score = new Score($fin->earned,
-                                    sprintf("(%d: average (%d) is no better) %s", $fin->earned, $avg, $fin->comments));
+            $finish->score = new Score($score,
+                                       sprintf("(%d, Assigned penalty (%d) no worse) %s",
+                                               $score,
+                                               $penalty->amount,
+                                               $penalty->comments));
+            if ($penalty->displace)
+              $score++;
           }
-          DB::set($fin);
+          $penalty->earned = $score;
+          $affected_finishes[] = $finish;
+        }
+        else {
+          // ------------------------------------------------------------
+          // breakdown
+          // Should the amount be assigned, determine actual
+          // score. If not, then keep track for average score
+          if ($penalty->amount > 0) {
+            $amount = $penalty->amount;
+            $exp = sprintf("(%d, Assigned) %s", $amount, $penalty->comments);
+            if ($score <= $penalty->amount) {
+              $amount = $score;
+              $exp = sprintf("(%d, Assigned amount (%d) no better than actual) %s",
+                             $amount, $penalty->amount, $penalty->comments);
+            }
+            $finish->score = new Score($amount, $exp);
+            $penalty->earned = $score;
+          }
+          else {
+            // for the time being, set their earned amount
+            $avg_finishes[$finish->hash()] = $finish;
+          }
+          $penalty->earned = $score;
+        
+          // breakdowns always "displace"
+          $score++;
+        }
+        $finish->setModifier($penalty);
+      }
+    }
+    $reg->commitFinishes($affected_finishes);
+
+    // ------------------------------------------------------------
+    // Part 2: deal with average finishes, including those from across
+    // the regatta, not just this race
+    // ------------------------------------------------------------
+    foreach ($reg->getAverageFinishes($race->division) as $finish) {
+      if (!isset($avg_finishes[$finish->hash()]))
+        $avg_finishes[$finish->hash()] = $finish;
+    }
+
+    if (count($avg_finishes) == 0)
+      return;
+
+    // For speed sake, track the list of scored races by division, to
+    // avoid looking it up more than once
+    $scored_races = array();
+
+    $affected_finishes = array();
+    while (count($avg_finishes) > 0) {
+      $finish = array_shift($avg_finishes);
+      $hash = $finish->hash();
+
+      // finishes that shall get the average score from this same team
+      $div_finishes = array($finish); 
+      $count = 0;
+      $total = 0;
+
+      $div = (string)$finish->race->division;
+      if (!isset($scored_races[$div]))
+        $scored_races[$div] = $reg->getScoredRaces($finish->race->division);
+
+      // loop through other races in the same division to determine
+      // the average score. In doing so, you may stumble onto other
+      // entries also in avg_finishes. These entries are not involved
+      // in determining the score. For efficiency, remove them from
+      // the avg_finishes as they are encountered
+      foreach ($scored_races[$div] as $r) {
+        $other = $reg->getFinish($r, $finish->team);
+        $ohash = $other->hash();
+        if ($ohash != $hash) {
+          if (!isset($avg_finishes[$ohash])) {
+            $total += $other->score;
+            $count++;
+          }
+          else {
+            $div_finishes[] = $other;
+            unset($avg_finishes[$ohash]);
+          }
         }
       }
+
+      // Actually assign the scores to the div_finishes
+      $avg = ($count == 0) ? null : round($total / $count);
+      foreach ($div_finishes as $finish) {
+        $affected_finishes[$finish->hash()] = $finish;
+
+        // no other scores to average
+        if ($avg === null) {
+          $finish->score = new Score($finish->earned,
+                                     sprintf("(%d: no other finishes to average) %s", $finish->earned, $finish->comments));
+        }
+        else {
+          if ($avg <= $finish->earned) {
+            $finish->score = new Score($avg, sprintf("(%d: average in division) %s", $avg, $finish->comments));
+          }
+          else {
+            $finish->score = new Score($finish->earned,
+                                       sprintf("(%d: average (%d) is no better) %s", $finish->earned, $avg, $finish->comments));
+          }
+        }
+      } // end loop for divisions
     } // end loop through average finishes
     $reg->commitFinishes($affected_finishes);
   }

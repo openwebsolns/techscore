@@ -1164,7 +1164,7 @@ class Regatta extends DBObject {
    * @param Race $race the race to run the score
    */
   public function runScore(Race $race) {
-    $this->__get('scorer')->score($this, $race);
+    $this->__get('scorer')->score($this, array($race));
   }
 
   /**
@@ -1172,8 +1172,7 @@ class Regatta extends DBObject {
    */
   public function doScore() {
     $scorer = $this->__get('scorer');
-    foreach ($this->getScoredRaces() as $race)
-      $scorer->score($this, $race);
+    $scorer->score($this, $this->getScoredRaces());
   }
 
   // ------------------------------------------------------------
