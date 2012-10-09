@@ -30,6 +30,7 @@ class PrintHandler {
       $tab->addRow(array($i + 1, $func, $file, $line));
     }
     $P->printXML();
+    DB::rollback();
     exit;
   }
   public static function handleExceptions(Exception $e) {
@@ -49,6 +50,7 @@ class PrintHandler {
       $tab->addRow(array(($i + 1), $func, $file, $line));
     }
     $P->printXML();
+    DB::rollback();
     exit;
   }
   public static function registerErrors($errors) {

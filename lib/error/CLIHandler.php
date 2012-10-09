@@ -27,6 +27,7 @@ class CLIHandler {
           printf($fmt, ucfirst($index), $list[$index]);
       }
     }
+    DB::rollback();
     exit;
   }
   public static function handleExceptions(Exception $e) {
@@ -43,6 +44,7 @@ class CLIHandler {
           printf($fmt, ucfirst($index), $list[$index]);
       }
     }
+    DB::rollback();
     exit;
   }
   public static function registerErrors($errors) {

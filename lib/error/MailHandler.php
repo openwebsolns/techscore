@@ -37,6 +37,7 @@ class MailHandler {
     $P->addContent(new XP(array(), "There was an error while handling your request. Administrators have been notified of the problem and it will be addressed as soon as possible."));
     $P->addContent(new XP(array(), "Sorry for the inconvenience."));
     $P->printXML();
+    DB::rollback();
     exit;
   }
   public static function handleExceptions(Exception $e) {
@@ -60,6 +61,7 @@ class MailHandler {
     $P->addContent(new XP(array(), "There was an error while handling your request. Administrators have been notified of the problem and it will be addressed as soon as possible."));
     $P->addContent(new XP(array(), "Sorry for the inconvenience."));
     $P->printXML();
+    DB::rollback();
     exit;
   }
   public static function registerErrors($errors) {
