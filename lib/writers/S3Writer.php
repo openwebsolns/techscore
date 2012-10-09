@@ -35,10 +35,10 @@ class S3Writer extends AbstractWriter {
    *
    */
   protected function prepRequest(&$fname) {
-    $ch = curl_init(sprintf('https://%s.%s%s', self::$BUCKET, self::$HOST_BASE, $fname));
+    $ch = curl_init(sprintf('http://%s.%s%s', self::$BUCKET, self::$HOST_BASE, $fname));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HEADER, false);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
     curl_setopt($ch, CURLOPT_USERAGENT, 'TS3 Bot');
     return $ch;                                               
