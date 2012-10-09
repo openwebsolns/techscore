@@ -15,6 +15,7 @@ apache.conf
 sync-up
 Makefile.local
 changes.current.sql
+S3Writer.conf.local*.php
 
 # Public files
 html/*
