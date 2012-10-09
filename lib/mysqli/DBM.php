@@ -51,6 +51,15 @@ class DBConnection extends MySQLi {
   public function __destruct() {
     $this->commit();
   }
+
+  /**
+   * Automatically commits pending transactions
+   *
+   */
+  public function close() {
+    $this->commit();
+    parent::close();
+  }
 }
 
 /**
