@@ -100,6 +100,14 @@ class Conf {
   public static $REGATTA_SCORING_BLACKLIST = array();
 
   /**
+   * @var Array the list of class names of AbstractWriter's which
+   * should be used when creating the public pages. These class names
+   * should correspond with writers/<classname>.php files. If empty,
+   * files will not be written to the filesystem.
+   */
+  public static $WRITERS = array('LocalHtmlWriter');
+
+  /**
    * @var String the URL of sailor information
    */
   public static $SAILOR_API_URL = 'http://www.collegesailing.org/directory/individual/sailorapi.asp';

@@ -29,6 +29,8 @@ conf::$SQL_DB   = 'ts2';
 
 Conf::$PASSWORD_SALT = 'Enter password salt here. Longer is better.';
 
+Conf::$WRITERS = array('LocalHtmlWriter.php');
+
 // API updates
 // Conf::$SAILOR_API_URL = '';
 // Conf::$COACH_API_URL = '';

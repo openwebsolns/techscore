@@ -81,7 +81,9 @@ abstract class AbstractScript {
   }
 
   /**
-   * Set whether to print the name of the files touched
+   * Set whether to print the name of the files affected
+   *
+   * This will print relative filenames of files written or removed.
    *
    * @param boolean $flag true to print (default)
    */
@@ -96,7 +98,7 @@ abstract class AbstractScript {
    *
    * @param String $fname the full pathname of the file
    * @param Xmlable $p the document to serialize.
-   * @throws RuntimeException if unable to write to file
+   * @see AbstractWriter::write
    */
   protected static function writeXml($fname, Xmlable $p) {
     $x = $p->toXML();
@@ -108,20 +110,11 @@ abstract class AbstractScript {
    *
    * @param String $fname the name of the file
    * @param String $contents the contents
+   * @see AbstractWriter::write
    */
   protected static function writeFile(&$fname, &$contents) {
-    $R = realpath(dirname(__FILE__).'/../../html');
-    if ($R === false)
-      throw new RuntimeException("Unable to find public directory root.");
-    
-    $dir = dirname($fname);
-    $root = $R . $dir;
-    if (!is_dir($root) && mkdir($root, 0777, true) === false)
-      throw new RuntimeException("Unable to create directory $root", 2);
-
-    if (file_put_contents($R . '/' . $fname, $contents) === false)
-      throw new RuntimeException("ERROR: unable to write to file $fname.\n", 8);
-
+    foreach (self::getWriters() as $writer)
+      $writer->write($fname, $contents);
     self::out($fname);
   }
 
@@ -129,44 +122,35 @@ abstract class AbstractScript {
    * Removes the file tree rooted at the given filename
    *
    * @param String $fname the name of the file to remove
-   * @return boolean true if something removed
+   * @see AbstractWriter::remove
    */
   protected static function remove(&$fname) {
-    $R = realpath(dirname(__FILE__).'/../../html');
-    if ($R === false)
-      throw new RuntimeException("Unable to find public directory root.");
+    foreach (self::getWriters() as $writer)
+      $writer->remove($fname);
+    self::out($fname);
+  }
 
-    $root = $R . $fname;
-    if (!file_exists($root)) {
-      self::errln("No file to remove $root.", 3);
-      return false;
-    }
-
-    // regular file
-    if (is_file($root)) {
-      if (($res = unlink($root)) !== false)
-        self::errln("Removed file $root", 2);
-      else
-        self::errln("Unable to remove file $root", 2);
-      return $res;
-    }
-
-    // directory
-    $d = opendir($root);
-    if ($d === false)
-      throw new RuntimeException("Unable to open directory $root");
-
-    $res = true;
-    while (($file = readdir($d)) !== false) {
-      if ($file != '.' && $file != '..') {
-        $path = "$fname/$file";
-        $res = $res && self::remove($path);
+  /**
+   * Fetches list of writers to use
+   *
+   * @return Array:AbstractWriter the writers
+   */
+  protected static function &getWriters() {
+    if (self::$writers === null) {
+      self::$writers = array();
+      foreach (Conf::$WRITERS as $writer) {
+        require_once(sprintf('writers/%s.php', $writer));
+        self::$writers[] = new $writer();
       }
     }
-    closedir($d);
-    $res = ($res && rmdir($root));
-    return $res;
+    return self::$writers;
   }
+
+  /**
+   * @var Array:AbstractWriter Cached lits of writer objects
+   * @see getWriters
+   */
+  protected static $writers = null;
 
   // ------------------------------------------------------------
   // CLI features: provide a uniform usage method
