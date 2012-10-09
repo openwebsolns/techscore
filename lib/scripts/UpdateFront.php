@@ -90,7 +90,7 @@ class UpdateFront extends AbstractScript {
                                                             "Leading")))));
       foreach ($in_prog as $i => $reg) {
         $data = $reg->getData();
-        $row = array(new XA(sprintf('/%s/%s/', $data->season->id, $reg->nick), $reg->name), $types[$reg->type]);
+        $row = array(new XA($reg->getURL(), $reg->name), $types[$reg->type]);
         if ($data->status == Dt_Regatta::STAT_READY) {
           $row[] = new XTD(array('colspan'=>2), new XEm("No scores yet"));
         }
@@ -122,7 +122,7 @@ class UpdateFront extends AbstractScript {
                                            "Start time")));
       foreach ($regs as $reg) {
         $data = $reg->getData();
-        $tab->addRow(array(new XA(sprintf('/%s/%s', $data->season->id, $reg->nick), $reg->name),
+        $tab->addRow(array(new XA($reg->getURL(), $reg->name),
                            implode("/", $data->hosts),
                            $types[$reg->type],
                            $reg->start_time->format('m/d/Y @ H:i')));
