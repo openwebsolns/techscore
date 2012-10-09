@@ -42,7 +42,7 @@ class EditLogoPane extends AbstractPrefsPane {
                      new XImg('data:image/png;base64,'.$this->SCHOOL->burgee->filedata, $this->SCHOOL->nick_name)));
     }
     else {
-      $para->add(" There is currently no logo for this school on file.");
+      $p->add(new XP(array(), "There is currently no logo for this school on file."));
     }
 
     // Form
