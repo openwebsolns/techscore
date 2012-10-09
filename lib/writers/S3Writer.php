@@ -44,8 +44,33 @@ class S3Writer extends AbstractWriter {
     return $ch;                                               
   }
 
+  /**
+   * Rudimentary method to determine the type of file based on filename
+   *
+   * @param String $fname the name of the file
+   * @throws TSWriterException if unknown
+   */
+  protected function getMIME($fname) {
+    $tokens = explode('.', $fname);
+    if (count($tokens) < 2)
+      throw new TSWriterException("No extension for file $fname.");
+    $suff = array_pop($tokens);
+    switch ($suff) {
+    case 'html':
+      return 'text/html';
+    case 'png':
+      return 'image/png';
+    case 'css':
+      return 'text/css';
+    case 'js':
+      return 'text/javascript';
+    default:
+      throw new TSScriptException("Unknown extension: $suff");
+    }
+  }
+
   public function write($fname, &$contents) {
-    $type = 'text/plain';
+    $type = $this->getMIME($fname);
     $size = strlen($contents);
     $date = date('D, d M Y H:i:s T');
     $md5 = base64_encode(md5($contents, true));
@@ -53,11 +78,13 @@ class S3Writer extends AbstractWriter {
     $headers = array();
     $headers[] = sprintf('Host: %s.%s', self::$BUCKET, self::$HOST_BASE);
     $headers[] = sprintf('Content-Length: %s', $size);
+    $headers[] = sprintf('Content-Type: %s', $type);
     $headers[] = sprintf('Content-MD5: %s', $md5);
     $headers[] = sprintf('Date: %s', $date);
 
-    $string_to_sign = sprintf("PUT\n%s\n\n%s\n/%s%s",
+    $string_to_sign = sprintf("PUT\n%s\n%s\n%s\n/%s%s",
                               $md5,
+                              $type,
                               $date,
                               self::$BUCKET, $fname);
     $signature = base64_encode(hash_hmac('sha1', $string_to_sign, self::$SECRET_KEY, true));
