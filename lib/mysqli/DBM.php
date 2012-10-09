@@ -28,6 +28,32 @@ class DatabaseException extends Exception {
 }
 
 /**
+ * Database connection. Subclasses MySQLi
+ *
+ * @author Dayan Paez
+ * @version 2012-10-08
+ */
+class DBConnection extends MySQLi {
+  /**
+   * Opens connection, sets UTF-8, and autocommit to false
+   *
+   */
+  public function __construct($host = null, $user = null, $pass = null, $db = null, $port = null, $socket = null) {
+    parent::__construct($host, $user, $pass, $db, $port, $socket);
+    $this->set_charset('utf8');
+    $this->autocommit(false);
+  }
+
+  /**
+   * Automatically commits the transaction
+   *
+   */
+  public function __destruct() {
+    $this->commit();
+  }
+}
+
+/**
  * Manages all the connections to the database and provides for basic
  * methods of data serialization.
  *
@@ -66,13 +92,30 @@ class DBM {
    */
   public static function connection() {
     if (self::$__con === null && self::$__con_host !== null) {
-      self::$__con = new MySQLi(self::$__con_host,
-                                self::$__con_user,
-                                self::$__con_pass,
-                                self::$__con_name);
-      self::$__con->set_charset('utf8');
+      self::$__con = new DBConnection(self::$__con_host,
+                                      self::$__con_user,
+                                      self::$__con_pass,
+                                      self::$__con_name);
     }
     return self::$__con;
+  }
+
+  /**
+   * Silently cancels the current transaction
+   *
+   */
+  public static function rollback() {
+    if (self::$__con !== null)
+      self::$__con->rollback();
+  }
+
+  /**
+   * Requests the current transaction be committed.
+   *
+   */
+  public static function commit() {
+    if (self::$__con !== null)
+      self::$__con->commit();
   }
 
   /**
