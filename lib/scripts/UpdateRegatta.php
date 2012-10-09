@@ -188,7 +188,13 @@ class UpdateRegatta extends AbstractScript {
     $nickname = $reg->nick;
     if (!empty($nickname)) {
       $dirname = "/$season/$nickname";
-      self::remove($dirname);
+      self::remove("$dirname/rotations/index.html");
+      self::remove("$dirname/full-scores/index.html");
+      self::remove("$dirname/A/index.html");
+      self::remove("$dirname/B/index.html");
+      self::remove("$dirname/C/index.html");
+      self::remove("$dirname/D/index.html");
+      self::remove("$dirname/index.html");
     }
   }
 
