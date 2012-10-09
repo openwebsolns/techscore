@@ -182,6 +182,7 @@ else {
   switch ($_REQUEST['d']) {
 
     // --------------- REGATTA ---------------//
+    /*
   case "":
   case "regatta":
     $name = sprintf("%s-%s.tsr", $st->format("Y"), $nn);
@@ -189,7 +190,7 @@ else {
     header(sprintf('Content-disposition: attachment; filename="%s"', $name));
     echo RegattaIO::toXML($REG);
     break;
-
+    */
 
     // --------------- RP FORMS --------------//
   case "rp":

@@ -867,18 +867,6 @@ class Regatta extends DBObject {
   }
 
   /**
-   * Commits the finishes given to the database. Note that the
-   * finishes must have been registered ahead of time with the
-   * regatta, either through getFinish or createFinish.
-   *
-   * @param Race $race the race for which to enter finishes
-   * @param Array:Finish $finishes the list of finishes
-   */
-  public function setFinishes(Race $race) {
-    $this->commitFinishes($this->getFinishes($race));
-  }
-
-  /**
    * Commits the given finishes to the database.
    *
    * @param Array:Finish $finishes the finishes to commit
@@ -886,7 +874,7 @@ class Regatta extends DBObject {
    */
   public function commitFinishes(Array $finishes) {
     foreach ($finishes as $finish)
-      DB::set($finish);
+      DB::set($finish, ($finish->id !== null));
   }
 
   /**
