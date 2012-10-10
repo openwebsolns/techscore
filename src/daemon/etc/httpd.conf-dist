@@ -1,0 +1,25 @@
+# Apache configuration file
+#
+# Instructions: copy this file as httpd.conf and edit appropriately
+
+Listen 9210
+User USER
+Group GROUP
+
+# This should match the server root for regular Apache, so that PHP
+# modules may be found as well.
+ServerRoot /etc/httpd
+
+PidFile /var/run/ts-local.pid
+ErrorLog /dev/null
+DocumentRoot /srv/http
+
+# Load modules as desired
+LoadModule php5_module modules/libphp5.so
+<FilesMatch "\.php$">
+  SetHandler application/x-httpd-php
+</FilesMatch>
+
+# DirectoryIndex requires mod_dir
+LoadModule dir_module modules/mod_dir.so
+DirectoryIndex service.php
