@@ -58,6 +58,8 @@ class LocalHtmlWriter extends AbstractWriter {
   /**
    * Removes the given file/directory from filesystem
    *
+   * This method also trims empty directories
+   *
    * @see AbstractWriter::remove
    */
   public function remove($fname) {
@@ -70,23 +72,32 @@ class LocalHtmlWriter extends AbstractWriter {
     if (is_file($root)) {
       if (unlink($root) === false)
         throw new TSWriterException("Unable to remove file $root.");
+      // empty dirs?
+      while (strlen($root) > 1) {
+        $root = dirname($root);
+
+        if (($res = scandir($root)) === false)
+          throw new TSWriterException("Unable to scan directory $root.");
+        if (count($res) > 2)
+          break;
+
+        if (rmdir($root) === false)
+          throw new TSWriterException("Unable to remove directory $root.");
+      }
       return;
     }
 
     // directory
-    $d = opendir($root);
+    $d = scandir($root);
     if ($d === false)
       throw new TSWriterException("Unable to open directory $root");
 
-    while (($file = readdir($d)) !== false) {
+    foreach ($d as $file) {
       if ($file != '.' && $file != '..') {
         $path = "$fname/$file";
         $this->remove($path);
       }
     }
-    closedir($d);
-    if (rmdir($root) === false)
-      throw new TSScriptException("Unable to remove directory $root");
   }
 }
 ?>

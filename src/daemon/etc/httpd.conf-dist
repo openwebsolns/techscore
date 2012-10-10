@@ -9,6 +9,7 @@ Group GROUP
 # This should match the server root for regular Apache, so that PHP
 # modules may be found as well.
 ServerRoot /etc/httpd
+TraceEnable off
 
 PidFile /var/run/ts-local.pid
 ErrorLog /dev/null
@@ -16,13 +17,13 @@ DocumentRoot %DOC_ROOT%
 
 # Load modules as desired
 LoadModule php5_module modules/libphp5.so
-<FilesMatch "\.php$">
+<Files service.php>
   SetHandler application/x-httpd-php
-</FilesMatch>
+</Files>
 
-# Mod-rewrite required
-LoadModule rewrite_module modules/mod_rewrite.so
-<Directory %DOC_ROOT%>
-RewriteEngine on
-RewriteRule ^service.php - [L]
-RewriteRule . service.php
+# Actions module
+LoadModule actions_module modules/mod_actions.so
+<Location />
+    Script PUT /service.php
+    Script DELETE /service.php
+</Location>

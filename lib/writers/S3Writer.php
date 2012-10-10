@@ -21,8 +21,7 @@ class S3Writer extends AbstractWriter {
   public $port;
 
   public function __construct() {
-    if ($this->bucket === null)
-      require_once(dirname(__FILE__) . '/S3Writer.conf.local.php');
+    require(dirname(__FILE__) . '/S3Writer.conf.local.php');
   }
 
   /**
@@ -115,7 +114,7 @@ class S3Writer extends AbstractWriter {
     }
 
     $data = curl_getinfo($ch);
-    if ($data['http_code'] != 200)
+    if ($data['http_code'] >= 400)
       throw new TSWriterException(sprintf("HTTP error %s: %s", $data['http_code'], $output));
     curl_close($ch);
   }
@@ -144,7 +143,7 @@ class S3Writer extends AbstractWriter {
     }
 
     $data = curl_getinfo($ch);
-    if ($data['http_code'] > 400)
+    if ($data['http_code'] >= 400)
       throw new TSWriterException(sprintf("HTTP error %s: %s", $data['http_code'], $output));
     curl_close($ch);
   }
