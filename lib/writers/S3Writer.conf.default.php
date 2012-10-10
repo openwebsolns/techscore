@@ -9,10 +9,8 @@
  * @package tscore/writers
  */
 
-S3Writer::$BUCKET = '';
-S3Writer::$ACCESS_KEY = '';
-S3Writer::$SECRET_KEY = '';
-
-// Default value is s3.amazonaws.com
-//S3Writer::$HOST_BASE = '';
+$this->bucket = '';
+$this->access_key = '';
+$this->secret_key = '';
+$this->hose_base = '';
 ?>

@@ -14,20 +14,15 @@ require_once('AbstractWriter.php');
  * @created 2012-10-09
  */
 class S3Writer extends AbstractWriter {
-  public static $BUCKET = 'live.collegesailing.org';
-  public static $ACCESS_KEY = 'AKIAJUTLT5IE6R5UZXNA';
-  public static $SECRET_KEY = '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';
-  public static $HOST_BASE = 's3.amazonaws.com';
+  public $bucket;
+  public $access_key;
+  public $secret_key;
+  public $host_base;
+  public $port;
 
   public function __construct() {
-    if (self::$BUCKET === null) {
+    if ($this->bucket === null)
       require_once(dirname(__FILE__) . '/S3Writer.conf.local.php');
-      if (empty(self::$BUCKET) ||
-          empty(self::$ACCESS_KEY) ||
-          empty(self::$SECRET_KEY) ||
-          empty(self::$HOST_BASE))
-        throw new TSWriterException("Missing parameters for S3Writer.");
-    }
   }
 
   /**
@@ -35,11 +30,19 @@ class S3Writer extends AbstractWriter {
    *
    */
   protected function prepRequest(&$fname) {
-    $ch = curl_init(sprintf('http://%s.%s%s', self::$BUCKET, self::$HOST_BASE, $fname));
+    if (empty($this->bucket) ||
+        empty($this->access_key) ||
+        empty($this->secret_key) ||
+        empty($this->host_base))
+      throw new TSWriterException("Missing parameters for S3Writer.");
+
+    $ch = curl_init(sprintf('http://%s.%s%s', $this->bucket, $this->host_base, $fname));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HEADER, false);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
     curl_setopt($ch, CURLOPT_USERAGENT, 'TS3 Bot');
+    if ($this->port !== null)
+      curl_setopt($ch, CURLOPT_PORT, $this->port);
     return $ch;                                               
   }
 
@@ -68,6 +71,16 @@ class S3Writer extends AbstractWriter {
     }
   }
 
+  public function sign($method, $md5, $type, $date, $fname) {
+    $string_to_sign = sprintf("%s\n%s\n%s\n%s\n/%s%s",
+                              $method,
+                              $md5,
+                              $type,
+                              $date,
+                              $this->bucket, $fname);
+    return base64_encode(hash_hmac('sha1', $string_to_sign, $this->secret_key, true));
+  }
+
   public function write($fname, &$contents) {
     $type = $this->getMIME($fname);
     $size = strlen($contents);
@@ -75,19 +88,14 @@ class S3Writer extends AbstractWriter {
     $md5 = base64_encode(md5($contents, true));
 
     $headers = array();
-    $headers[] = sprintf('Host: %s.%s', self::$BUCKET, self::$HOST_BASE);
+    $headers[] = sprintf('Host: %s.%s', $this->bucket, $this->host_base);
     $headers[] = sprintf('Content-Length: %s', $size);
     $headers[] = sprintf('Content-Type: %s', $type);
     $headers[] = sprintf('Content-MD5: %s', $md5);
     $headers[] = sprintf('Date: %s', $date);
 
-    $string_to_sign = sprintf("PUT\n%s\n%s\n%s\n/%s%s",
-                              $md5,
-                              $type,
-                              $date,
-                              self::$BUCKET, $fname);
-    $signature = base64_encode(hash_hmac('sha1', $string_to_sign, self::$SECRET_KEY, true));
-    $headers[] = sprintf('Authorization: AWS %s:%s', self::$ACCESS_KEY, $signature);
+    $signature = $this->sign("PUT", $md5, $type, $date, $fname);
+    $headers[] = sprintf('Authorization: AWS %s:%s', $this->access_key, $signature);
                               
     $ch = $this->prepRequest($fname);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -120,14 +128,11 @@ class S3Writer extends AbstractWriter {
     $date = date('D, d M Y H:i:s T');
 
     $headers = array();
-    $headers[] = sprintf('Host: %s.%s', self::$BUCKET, self::$HOST_BASE);
+    $headers[] = sprintf('Host: %s.%s', $this->bucket, $this->host_base);
     $headers[] = sprintf('Date: %s', $date);
 
-    $string_to_sign = sprintf("DELETE\n\n\n%s\n/%s%s",
-                              $date,
-                              self::$BUCKET, $fname);
-    $signature = base64_encode(hash_hmac('sha1', $string_to_sign, self::$SECRET_KEY, true));
-    $headers[] = sprintf('Authorization: AWS %s:%s', self::$ACCESS_KEY, $signature);
+    $signature = $this->sign("DELETE", "", "", $date, $fname);
+    $headers[] = sprintf('Authorization: AWS %s:%s', $this->access_key, $signature);
                               
     $ch = $this->prepRequest($fname);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
