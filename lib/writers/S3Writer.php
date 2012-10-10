@@ -88,7 +88,6 @@ class S3Writer extends AbstractWriter {
 
     $headers = array();
     $headers[] = sprintf('Host: %s.%s', $this->bucket, $this->host_base);
-    $headers[] = sprintf('Content-Length: %s', $size);
     $headers[] = sprintf('Content-Type: %s', $type);
     $headers[] = sprintf('Content-MD5: %s', $md5);
     $headers[] = sprintf('Date: %s', $date);

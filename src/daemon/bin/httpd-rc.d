@@ -1,5 +1,8 @@
 #!/bin/bash
-
+#
+# chkconfig: - 85 15
+# description: Apache Server for local Techscore updates
+#
 # rc.d initscript for Apache. Install by symlink or direct copy into
 # your system's rc.d/init.d directories.
 
