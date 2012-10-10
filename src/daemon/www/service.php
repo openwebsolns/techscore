@@ -27,8 +27,8 @@ foreach (apache_request_headers() as $key => $val)
 // Validate headers
 if (!isset($headers['authorization'])) doError("Missing Authorization header");
 if (!isset($headers['date']))          doError("Missing Date header");
-if (($date = date_create($VALUES['date'])) === false)
-  doError("Invalid value for Date: " . $VALUES['date']);
+if (($date = date_create($headers['date'])) === false)
+  doError("Invalid value for Date: " . $headers['date']);
 
 // Check for skewed-ness
 $now = new DateTime();
