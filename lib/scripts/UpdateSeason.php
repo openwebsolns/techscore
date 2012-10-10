@@ -93,7 +93,7 @@ class UpdateSeason extends AbstractScript {
             array_unshift($coming_regattas, $reg);
         }
         elseif (!in_array($data->status, $coming)) {
-          $teams = $reg->getTeams();
+          $teams = $data->getTeams();
           if (count($teams) == 0)
             continue;
 
