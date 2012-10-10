@@ -12,7 +12,7 @@ ServerRoot /etc/httpd
 
 PidFile /var/run/ts-local.pid
 ErrorLog /dev/null
-DocumentRoot /srv/http
+DocumentRoot %DOC_ROOT%
 
 # Load modules as desired
 LoadModule php5_module modules/libphp5.so
@@ -20,6 +20,9 @@ LoadModule php5_module modules/libphp5.so
   SetHandler application/x-httpd-php
 </FilesMatch>
 
-# DirectoryIndex requires mod_dir
-LoadModule dir_module modules/mod_dir.so
-DirectoryIndex service.php
+# Mod-rewrite required
+LoadModule rewrite_module modules/mod_rewrite.so
+<Directory %DOC_ROOT%>
+RewriteEngine on
+RewriteRule ^service.php - [L]
+RewriteRule . service.php
