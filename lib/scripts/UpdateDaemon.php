@@ -317,6 +317,9 @@ class UpdateDaemon extends AbstractScript {
   }
 
   private function queueRegattaActivity(Regatta $reg, $activity) {
+    // Score activities are carried out instantaneously
+    if ($activity == UpdateRequest::ACTIVITY_SCORE)
+      return;
     if (!isset($this->regattas[$reg->id])) {
       $this->regattas[$reg->id] = $reg;
       $this->activities[$reg->id] = array();
