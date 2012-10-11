@@ -27,8 +27,7 @@ abstract class AbstractPrefsPane extends AbstractUserPane {
     parent::__construct($title, $user);
     try {
       $this->SCHOOL = DB::$V->reqSchool($_GET, 'school', "No school provided for preferences.");
-      $schools = $user->getSchools();
-      if (!isset($schools[$this->SCHOOL->id]))
+      if (!$user->hasSchool($this->SCHOOL))
         throw new SoterException(sprintf("No permissions to edit school %s.", $this->SCHOOL));
     }
     catch (SoterException $e) {
