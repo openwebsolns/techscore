@@ -98,10 +98,6 @@ RewriteRule ^([^.]+)/?$ index.php?p=$1 [qsa]
 RewriteRule ^license/?$ index.php?p=license
 RewriteRule ^license-edit/?$ index.php?_action=edit&p=license
 
-# force refresh of css and javascripts
-RewriteRule ^inc/js/(.*)\.[0-9]+\.js$ inc/js/$1.js
-RewriteRule ^inc/css/(.*)\.[0-9]+\.css$ inc/css/$1.css
-
 # for burgees
 RewriteRule ^inc/img/schools/(.*)\.png$ img.php?school=$1
 
