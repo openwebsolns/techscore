@@ -54,9 +54,8 @@ RewriteRule ^view/([0-9]+)/(.*)/?$ score.php?reg=$1&v=$2
 # for downloads
 RewriteRule ^download/([0-9]+)/(.*)/?$ score.php?reg=$1&d=$2
 
-RewriteRule ^login/?$ index.php?p=login
-RewriteRule ^dologin/?$ index.php?p=login&_action=edit
-RewriteRule ^logout/?$ index.php?p=login&_action=edit&dir=out [L]
+RewriteRule ^login/?$ index.php?p=login [L]
+RewriteRule ^logout/?$ index.php?p=login&dir=out [L]
 
 # for preferences
 RewriteRule ^prefs/?$ index.php?p=prefs-home [qsa,L]

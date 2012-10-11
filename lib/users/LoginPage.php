@@ -28,12 +28,21 @@ class LoginPage extends AbstractUserPane {
    *
    */
   protected function fillHTML(Array $args) {
+    // ------------------------------------------------------------
+    // Log-out
+    // ------------------------------------------------------------
+    if (isset($args['dir']) && $args['dir'] == "out") {
+      Session::s('user', null);
+      session_destroy();
+      WS::go('/');
+    }
+
     if (Conf::$USER !== null)
       WS::go('/');
 
     // LOGIN MENU
     $this->PAGE->addContent($p = new XPort("Sign-in"));
-    $p->add($form = new XForm("/dologin", XForm::POST));
+    $p->add($form = new XForm('/login', XForm::POST));
     $form->add(new FItem("Email:", new XTextInput("userid", "", array("maxlength"=>"40"))));
     $form->add($fi = new FItem("Password:", new XPasswordInput("pass", "", array("maxlength"=>"48"))));
     $fi->add(new XMessage(new XA('/password-recover', "Forgot your password?")));
