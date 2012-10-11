@@ -23,11 +23,11 @@ if (Conf::$USER === null) {
 //
 // Regatta
 //
-if (!isset($_REQUEST['reg']) || !is_numeric($_REQUEST['reg'])) {
+if (!isset($_GET['reg']) || !is_numeric($_GET['reg'])) {
   WS::go('/');
 }
 require_once('regatta/Regatta.php');
-if (($REG = DB::getRegatta($_REQUEST['reg'])) === null) {
+if (($REG = DB::getRegatta($_GET['reg'])) === null) {
   Session::pa(new PA("No such regatta.", PA::I));
   WS::go('/');
 }
@@ -40,9 +40,9 @@ if (!Conf::$USER->hasJurisdiction($REG)) {
 // Content, whether dialog ("v" or editing pane "p")
 //
 $PAGE = null;
-if (!isset($_REQUEST['p']) &&
-    !isset($_REQUEST['v']) &&
-    !isset($_REQUEST['d'])) {
+if (!isset($_GET['p']) &&
+    !isset($_GET['v']) &&
+    !isset($_GET['d'])) {
   $mes = "No page requested.";
   Session::pa(new PA($mes, PA::I));
   WS::go('/score/'.$REG->id);
@@ -51,17 +51,17 @@ if (!isset($_REQUEST['p']) &&
 //
 // - Editing panes
 //
-elseif (isset($_REQUEST['p'])) {
+elseif (isset($_GET['p'])) {
   $POSTING = (isset($_GET['_action']) && $_GET['_action'] == 'edit');
-  if (empty($_REQUEST['p'])) {
+  if (empty($_GET['p'])) {
     require_once('tscore/DetailsPane.php');
     $PAGE = new DetailsPane(Conf::$USER, $REG);
   }
   else {
     require_once('tscore/AbstractPane.php');
-    $PAGE = AbstractPane::getPane($_REQUEST['p'], Conf::$USER, $REG);
+    $PAGE = AbstractPane::getPane($_GET['p'], Conf::$USER, $REG);
     if ($PAGE === null) {
-      $mes = sprintf("Invalid page requested (%s)", $_REQUEST['p']);
+      $mes = sprintf("Invalid page requested (%s)", $_GET['p']);
       Session::pa(new PA($mes, PA::I));
       WS::go('/score/'.$REG->id);
     }
@@ -82,15 +82,15 @@ elseif (isset($_REQUEST['p'])) {
 //
 // - View panes
 //
-elseif (isset($_REQUEST['v'])) {
-  if (empty($_REQUEST['v'])) {
+elseif (isset($_GET['v'])) {
+  if (empty($_GET['v'])) {
     require_once('tscore/RotationDialog.php');
     $mes = "No dialog selected, defaulting to Rotation.";
     Session::pa(new PA($mes, PA::I));
     $PAGE = new RotationDialog($REG);
   }
   else {
-    switch ($_REQUEST['v']) {
+    switch ($_GET['v']) {
       // --------------- ROT DIALOG ---------------//
     case "rotation":
     case "rotations":
@@ -129,7 +129,7 @@ elseif (isset($_REQUEST['v'])) {
     case "scores/B":
     case "scores/C":
     case "scores/D":
-      $div = substr($_REQUEST['v'], strlen($_REQUEST['v']) - 1);
+      $div = substr($_GET['v'], strlen($_GET['v']) - 1);
       try {
         require_once('tscore/ScoresDivisionDialog.php');
         $PAGE = new ScoresDivisionDialog($REG, new Division($div));
@@ -162,7 +162,7 @@ elseif (isset($_REQUEST['v'])) {
 
       // --------------- default ----------------//
     default:
-      $mes = sprintf("Unknown dialog requested (%s).", $_REQUEST['v']);
+      $mes = sprintf("Unknown dialog requested (%s).", $_GET['v']);
       Session::pa(new PA($mes, PA::I));
       WS::go(sprintf('/view/%d/rotation', $REG->id));
     }
@@ -179,7 +179,7 @@ else {
     Session::pa(new PA("First create teams and divisions before downloading.", PA::I));
     WS::go(sprintf('/score/%d', $REG->id));
   }
-  switch ($_REQUEST['d']) {
+  switch ($_GET['d']) {
 
     // --------------- REGATTA ---------------//
     /*
@@ -216,13 +216,13 @@ else {
 
     // --------------- default ---------------//
   default:
-    $mes = sprintf("Invalid download requested (%s)", $_REQUEST['d']);
+    $mes = sprintf("Invalid download requested (%s)", $_GET['d']);
     Session::pa(new PA($mes, PA::I));
     WS::goBack('/');
   }
   exit;
 }
-$args = $_REQUEST;
+$args = $_GET;
 $post = Session::g('POST');
 if (is_array($post))
   $args = array_merge($post, $args);
