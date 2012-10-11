@@ -42,7 +42,7 @@ abstract class AbstractUserPane {
    * @return String the HTML code
    */
   public function getHTML(Array $args) {
-    require_once('xml/TScorePage.php');
+    require_once('xml5/TScorePage.php');
     $this->PAGE = new TScorePage($this->title, $this->USER);
 
     if ($this->USER === null) {

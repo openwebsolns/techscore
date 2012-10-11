@@ -31,7 +31,7 @@ class MailHandler {
     DB::mail(Conf::$ADMIN_MAIL, sprintf("[%s Error]", Conf::$NAME), $body);
 
     // Prepare XHTML
-    require_once('xml/TScorePage.php');
+    require_once('xml5/TScorePage.php');
     $P = new TScorePage("Server error", Conf::$USER);
     $P->addContent(new XPageTitle("Server error"));
     $P->addContent(new XP(array(), "There was an error while handling your request. Administrators have been notified of the problem and it will be addressed as soon as possible."));
@@ -55,7 +55,7 @@ class MailHandler {
     DB::mail(Conf::$ADMIN_MAIL, sprintf("[%s Exception]", Conf::$NAME), $body);
 
     // Prepare XHTML
-    require_once('xml/TScorePage.php');
+    require_once('xml5/TScorePage.php');
     $P = new TScorePage("Server error", Conf::$USER);
     $P->addContent(new XPageTitle("Server error"));
     $P->addContent(new XP(array(), "There was an error while handling your request. Administrators have been notified of the problem and it will be addressed as soon as possible."));

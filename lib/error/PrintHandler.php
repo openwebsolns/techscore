@@ -13,7 +13,7 @@
  */
 class PrintHandler {
   public static function handleErrors($errno, $errstr, $errfile, $errline) {
-    require_once('xml/TScorePage.php');
+    require_once('xml5/TScorePage.php');
     $P = new TScorePage("Error");
     $P->addContent(new XPageTitle("Error!"));
     $P->addContent(new XUl(array(),
@@ -34,7 +34,7 @@ class PrintHandler {
     exit;
   }
   public static function handleExceptions(Exception $e) {
-    require_once('xml/TScorePage.php');
+    require_once('xml5/TScorePage.php');
     $P = new TScorePage("Exception");
     $P->addContent(new XPageTitle("Exception!"));
     $P->addContent(new XUl(array(),

@@ -53,7 +53,7 @@ abstract class AbstractPane {
    *
    */
   protected function setupPage() {
-    require_once('xml/TScorePage.php');
+    require_once('xml5/TScorePage.php');
 
     $title = sprintf("%s | %s | TS",
                      $this->name,

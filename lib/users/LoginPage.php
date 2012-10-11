@@ -40,13 +40,6 @@ class LoginPage extends AbstractUserPane {
 
     $form->add(new XSubmitP("login", "Login"));
 
-    // Announcements
-    $file = sprintf("%s/announcements.html", dirname(__FILE__));
-    if (file_exists($file)) {
-      $this->PAGE->addContent($p = new XPort("Announcements"));
-      $p->add(new XRawText(file_get_contents($file)));
-    }
-
     if (Conf::$ALLOW_REGISTER) {
       $this->PAGE->addContent($p = new XPort("Register for TechScore"));
       $p->add(new XP(array(),

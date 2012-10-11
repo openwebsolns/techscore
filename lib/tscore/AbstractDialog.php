@@ -32,7 +32,7 @@ abstract class AbstractDialog {
    *
    */
   protected function setupPage() {
-    require_once('xml/TScoreDialog.php');
+    require_once('xml5/TScoreDialog.php');
 
     $this->PAGE = new TScoreDialog($this->name . " | " . $this->REGATTA->name);
     $this->PAGE->addContent(new XPageTitle($this->name));
