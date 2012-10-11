@@ -261,7 +261,7 @@ class UpdateRegatta extends AbstractScript {
         // What if the rotation was removed?
         $season = $reg->getSeason();
         if ($season !== null && $reg->nick !== null) {
-          self::reomve($reg->getURL() . '/rotations');
+          self::remove($reg->getURL() . '/rotations');
         }
 
         $front = true;
