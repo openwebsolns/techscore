@@ -119,6 +119,7 @@ class RegisterPane extends AbstractUserPane {
     $f->add(new XSubmitP("register", "Request account"));
 
     // Fill out the selection boxes
+    $aff->add(new FOption('0', "[Choose one]"));
     foreach (DB::getConferences() as $conf) {
       $aff->add($opt = new FOptionGroup($conf));
       foreach ($conf->getSchools() as $school) {
