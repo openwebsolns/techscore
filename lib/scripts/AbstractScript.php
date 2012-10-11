@@ -124,7 +124,7 @@ abstract class AbstractScript {
    * @param String $fname the name of the file to remove
    * @see AbstractWriter::remove
    */
-  protected static function remove(&$fname) {
+  protected static function remove($fname) {
     foreach (self::getWriters() as $writer)
       $writer->remove($fname);
     self::out($fname);
