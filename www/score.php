@@ -9,23 +9,14 @@ require_once('conf.php');
 // ------------------------------------------------------------
 // Verify method
 // ------------------------------------------------------------
-function do405($mes = "Only POST and GET methods allowed.") {
-  header('HTTP/1.1 405 Method not allowed');
-  header('Content-type: text/plain');
-  echo $mes;
-  exit;
-}
-if (!isset($_SERVER['REQUEST_METHOD']))
-  throw new RuntimeException("Script can only be run from web server.");
-$METHOD = $_SERVER['REQUEST_METHOD'];
-if (!in_array($METHOD, array('POST', 'GET')))
-  do405();
+if (!in_array(Conf::$METHOD, array('POST', 'GET')))
+  Conf::do405();
 
 // ------------------------------------------------------------
 // Is logged-in
 // ------------------------------------------------------------
 if (Conf::$USER === null) {
-  Session::s('last_page', preg_replace(':^/edit/:', '/', $_SERVER['REQUEST_URI']));
+  Session::s('last_page', $_SERVER['REQUEST_URI']);
 
   // provide the login page
   Session::pa(new PA("Please login to proceed.", PA::I));
@@ -72,7 +63,7 @@ if (isset($_GET['p'])) {
     }
   }
   // process, if so requested
-  if ($METHOD == 'POST') {
+  if (Conf::$METHOD == 'POST') {
     require_once('public/UpdateManager.php');
     Session::s('POST', $PAGE->processPOST($_POST));
     WS::goBack('/');
@@ -83,8 +74,8 @@ if (isset($_GET['p'])) {
 // - View panes
 // ------------------------------------------------------------
 elseif (isset($_GET['v'])) {
-  if ($METHOD != 'GET')
-    do405("Only GET method allowed for dialogs.");
+  if (Conf::$METHOD != 'GET')
+    Conf::do405("Only GET method allowed for dialogs.");
 
   if (empty($_GET['v'])) {
     require_once('tscore/RotationDialog.php');
@@ -169,8 +160,8 @@ elseif (isset($_GET['v'])) {
 // - Downloads
 // ------------------------------------------------------------
 elseif (isset($_GET['d'])) {
-  if ($METHOD != 'GET')
-    do405("Only GET method supported for downloads.");
+  if (Conf::$METHOD != 'GET')
+    Conf::do405("Only GET method supported for downloads.");
 
   $st = $REG->start_time;
   $nn = $REG->nick;

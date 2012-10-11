@@ -155,6 +155,27 @@ class Conf {
    * @var String the filename to use for the lock file (in system temp)
    */
   public static $LOCK_FILENAME = 'ts-pub.lock';
+
+  // ------------------------------------------------------------
+  // Runtime parameters and functions
+  // ------------------------------------------------------------
+
+  /**
+   * Issues a 405 HTTP error with the message provided
+   *
+   * @param String $mes the explanation to issue for the 405 error
+   */
+  public static function do405($mes = "Only POST and GET methods allowed.") {
+    header('HTTP/1.1 405 Method not allowed');
+    header('Content-type: text/plain');
+    echo $mes;
+    exit;
+  }
+
+  /**
+   * @var String the HTTP_REQUEST method for web requets: POST, GET
+   */
+  public static $METHOD = null;
 }
 
 function __autoload($name) {
@@ -190,6 +211,10 @@ DB::setLogfile(Conf::$LOG_QUERIES);
 
 // Start the session, if run from the web
 if (isset($_SERVER['HTTP_HOST'])) {
+  if (!isset($_SERVER['REQUEST_METHOD']))
+    throw new RuntimeException("Script can only be run from web server.");
+  Conf::$METHOD = $_SERVER['REQUEST_METHOD'];
+
   require_once('WS.php');
   require_once('xml5/HtmlLib.php');
   require_once('xml5/Session.php');
