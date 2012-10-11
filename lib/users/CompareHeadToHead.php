@@ -21,6 +21,7 @@ class CompareHeadToHead extends AbstractUserPane {
    */
   public function __construct(Account $user) {
     parent::__construct("Compare sailors head to head", $user);
+    $this->page_url = 'compare-sailors';
   }
 
   /**
@@ -92,7 +93,7 @@ class CompareHeadToHead extends AbstractUserPane {
 
     $this->PAGE->head->add(new XLinkCSS('text/css', '/inc/css/aa.css', 'screen', 'stylesheet'));
     $this->PAGE->addContent(new XP(array(), "Use this form to compare sailors head-to-head, showing the regattas that the sailors have sailed in common, and printing their place finish for each."));
-    $this->PAGE->addContent($form = new XForm('/compare-sailors', XForm::GET));
+    $this->PAGE->addContent($form = $this->createForm(XForm::GET));
 
     // Sailor search
     // Look for sailors as an array named 'sailors'

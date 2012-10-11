@@ -20,6 +20,7 @@ class CompareSailorsByRace extends AbstractUserPane {
    */
   public function __construct(Account $user) {
     parent::__construct("Compare sailors by race", $user);
+    $this->page_url = 'compare-by-race';
   }
 
   private function doSailors(Array $args) {
@@ -187,7 +188,7 @@ class CompareSailorsByRace extends AbstractUserPane {
     // ------------------------------------------------------------
     $this->PAGE->head->add(new LinkCSS('/inc/css/aa.css'));
     $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/aa.js'));
-    $this->PAGE->addContent($form = new XForm('/compare-by-race', XForm::GET));
+    $this->PAGE->addContent($form = $this->createForm(XForm::GET));
 
     // Season selection
     $form->add($p = new XPort("Seasons to compare"));

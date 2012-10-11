@@ -46,6 +46,7 @@ require_once('users/admin/AbstractAdminUserPane.php');
 class SendMessage extends AbstractAdminUserPane {
   public function __construct(Account $user) {
     parent::__construct("Send message", $user);
+    $this->page_url = 'send-message';
   }
 
   /**
@@ -75,13 +76,13 @@ class SendMessage extends AbstractAdminUserPane {
     $this->PAGE->addContent($p = new XPort("1. Choose recipients"));
     $p->add(new XP(array(), "You may send a message to as many individuals as you'd like at a time. First, select the recipients using this port. Once you have added all recipients, use the form below to send the message."));
 
-    $p->add($f = new XForm("/send-message", XForm::GET));
+    $p->add($f = $this->createForm(XForm::GET));
     $f->add($fi = new FItem(sprintf("All %s users:", Conf::$NAME), new XHiddenInput('axis', Outbox::R_ALL)));
     $fi->add(new XSubmitInput('recipients', "Write message >"));
     $fi->add(new XMessage("Broadcast general message to all users. Use sparingly."));
 
     // conference
-    $p->add($f = new XForm("/send-message", XForm::GET));
+    $p->add($f = $this->createForm(XForm::GET));
     $f->add($fi = new FItem("All users in conference:", $sel = new XSelectM('list[]')));
     $fi->add(" ");
     $fi->add(new XSubmitInput('recipients', "Write message >"));
@@ -91,7 +92,7 @@ class SendMessage extends AbstractAdminUserPane {
       $sel->add(new FOption($conf->id, $conf));
 
     // roles
-    $p->add($f = new XForm("/send-message", XForm::GET));
+    $p->add($f = $this->createForm(XForm::GET));
     $f->add($fi = new FItem("All users with role:", $sel = XSelect::fromArray('list[]', Account::getRoles())));
     $fi->add(" ");
     $fi->add(new XSubmitInput('choose-recipients', "Write message >"));
@@ -135,7 +136,7 @@ class SendMessage extends AbstractAdminUserPane {
     }
 
     $this->PAGE->addContent($p = new XPort($title));
-    $p->add($f = new XForm('/send-message-edit', XForm::POST));
+    $p->add($f = $this->createForm());
 
     $f->add(new FItem("Recipients:", new XSpan($recip, array('class'=>'strong'))));
     $f->add($fi = new FItem("Subject:", new XTextInput('subject', $out->subject)));

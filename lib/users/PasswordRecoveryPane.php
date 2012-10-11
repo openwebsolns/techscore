@@ -19,6 +19,7 @@ class PasswordRecoveryPane extends AbstractUserPane {
 
   public function __construct() {
     parent::__construct("Recover Password");
+    $this->page_url = 'password-recover';
   }
 
   protected function fillHTML(Array $args) {
@@ -32,7 +33,7 @@ class PasswordRecoveryPane extends AbstractUserPane {
         return $args;
       }
       $this->PAGE->addContent($p = new XPort("Reset password"));
-      $p->add($f = new XForm("/password-recover-edit", XForm::POST));
+      $p->add($f = $this->createForm());
       $f->add(new XP(array(), "Welcome $acc. Please enter the new password for your account."));
       $f->add(new FItem("New Password:", new XPasswordInput('new-password', "")));
       $f->add(new FItem("Confirm Password:", new XPasswordInput('confirm-password', "")));
@@ -58,7 +59,7 @@ class PasswordRecoveryPane extends AbstractUserPane {
     $this->PAGE->addContent($p = new XPort("Send e-mail"));
     $p->add(new XP(array(), "To reset the password, please enter your username below. You will receive an e-mail at the address provided with a link. Click that link to reset your password."));
 
-    $p->add($f = new XForm("/password-recover-edit", XForm::POST));
+    $p->add($f = $this->createForm());
     $f->add(new FItem("Email:", new XTextInput("email", "")));
     $f->add(new XSubmitP("send-message", "Send message"));
   }

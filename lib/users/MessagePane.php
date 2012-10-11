@@ -19,6 +19,7 @@ class MessagePane extends AbstractUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Messages", $user);
+    $this->page_url = 'inbox';
   }
 
   protected function fillHTML(Array $args) {
@@ -47,7 +48,7 @@ class MessagePane extends AbstractUserPane {
       $this->PAGE->addContent($p = new XPort($sub));
       $p->add(new XDiv(array('class'=>'email-message'),
                        array(new XPre(wordwrap($message->content, 90)))));
-      $p->add($form = new XForm("/inbox-edit", XForm::POST));
+      $p->add($form = $this->createForm());
 
       // Fill out form
       $form->add(new XButton(array("name" =>"delete",
@@ -57,7 +58,7 @@ class MessagePane extends AbstractUserPane {
       $form->add(new XText(" "));
       $form->add(new XA("/inbox", "Close"));
 
-      $p->add($form = new XForm("/inbox-edit", XForm::POST));
+      $p->add($form = $this->createForm());
       $form->add(new XTextArea("text", "", array("style"=>"width: 100%", "rows" =>"3")));
       $form->add(new XButton(array("name" =>"reply",
                                    "type" =>"submit",

@@ -24,6 +24,7 @@ class PendingAccountsPane extends AbstractAdminUserPane {
    */
   public function __construct(Account $user) {
     parent::__construct("Pending users", $user);
+    $this->page_url = 'pending';
   }
 
   /**
@@ -47,7 +48,7 @@ class PendingAccountsPane extends AbstractAdminUserPane {
     }
     else {
       $p->add(new XP(array(), "Use the checkboxes below to select the accounts, and then click on the appropriate button to approve/reject."));
-      $p->add($f = new XForm("/pending-edit", XForm::POST));
+      $p->add($f = $this->createForm());
       $f->add(new XP(array(),
                      array("With selected: ",
                            new XSubmitInput("approve", "Approve"),

@@ -18,6 +18,7 @@ class EULAPane extends AbstractUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Sign agreement", $user);
+    $this->page_url = 'license';
   }
 
   /**
@@ -37,7 +38,7 @@ class EULAPane extends AbstractUserPane {
                                                      "style"=>"width:100%;",
                                                      "cols"=>"80",
                                                      "rows"=>"8")));
-    $p->add($f = new XForm("/license-edit", XForm::POST));
+    $p->add($f = $this->createForm());
     $f->add($i = new FItem(new XCheckBoxInput("agree", "1", array("id"=>"agree")),
                            new XLabel("agree", "I agree with the terms above")));
     $i->set("style", "margin:1em 0em;background:#ccc;border:black;padding:0.25em;font-size:110%;");

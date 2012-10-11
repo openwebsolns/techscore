@@ -41,6 +41,7 @@ class RegisterPane extends AbstractUserPane {
 
   public function __construct() {
     parent::__construct("Registration");
+    $this->page_url = 'register';
   }
 
   /**
@@ -49,6 +50,28 @@ class RegisterPane extends AbstractUserPane {
    *
    */
   protected function fillHTML(Array $args) {
+    // ------------------------------------------------------------
+    // Mail verification
+    // ------------------------------------------------------------
+    if (isset($args['acc'])) {
+      $acc = DB::getAccountFromHash(DB::$V->reqString($args, 'acc', 1, 41, "Invalid has provided."));
+      if ($acc === null)
+        throw new SoterException("Invalid account to approve.");
+
+      $acc->status = Account::STAT_PENDING;
+      DB::set($acc);
+      Session::pa(new PA("Account verified. Please wait until the account is approved. You will be notified by mail."));
+      Session::s('POST', array('registration-step' => 2));
+      // notify all admins
+      $admins = array();
+      foreach (DB::getAdmins() as $admin)
+        $admins[] = sprintf('%s <%s>', $admin->getName(), $admin->id);
+
+      DB::mail(implode(',', $admins), sprintf("[%s] New registration", Conf::$NAME), $this->getAdminMessage($acc));
+      WS::go('/register');
+    }
+
+
     $step = null;
     $post = Session::g('POST');
     if (isset($post['registration-step']))
@@ -85,7 +108,7 @@ class RegisterPane extends AbstractUserPane {
     $p->add(new XP(array(), "Through this form you will be allowed to petition for an account on TechScore. Every field is mandatory. Please enter a valid e-mail account which you check as you will be sent an e-mail there to verify your identity."));
 
     $p->add(new XP(array(), "Once your account request has been approved by the registration committee, you will receive another e-mail from TechScore with instructions on logging in."));
-    $p->add($f = new XForm("/register-edit", XForm::POST));
+    $p->add($f = $this->createForm());
     $f->add(new FItem("Email:", new XTextInput("email", "")));
     $f->add(new FItem("First name:", new XTextInput("first_name", "")));
     $f->add(new FItem("Last name:",  new XTextInput("last_name", "")));
@@ -167,25 +190,6 @@ class RegisterPane extends AbstractUserPane {
       DB::set($acc);
       Session::pa(new PA("Account successfully created."));
       return array("registration-step"=>1);
-    }
-
-    // Mail verification
-    if (isset($args['acc'])) {
-      $acc = DB::getAccountFromHash(DB::$V->reqString($args, 'acc', 1, 41, "Invalid has provided."));
-      if ($acc === null)
-        throw new SoterException("Invalid account to approve.");
-
-      $acc->status = Account::STAT_PENDING;
-      DB::set($acc);
-      Session::pa(new PA("Account verified. Please wait until the account is approved. You will be notified by mail."));
-      Session::s('POST', array('registration-step' => 2));
-      // notify all admins
-      $admins = array();
-      foreach (DB::getAdmins() as $admin)
-        $admins[] = sprintf('%s <%s>', $admin->getName(), $admin->id);
-
-      DB::mail(implode(',', $admins), sprintf("[%s] New registration", Conf::$NAME), $this->getAdminMessage($acc));
-      WS::go('/register');
     }
     return $args;
   }

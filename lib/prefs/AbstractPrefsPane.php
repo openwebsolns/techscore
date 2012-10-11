@@ -35,5 +35,20 @@ abstract class AbstractPrefsPane extends AbstractUserPane {
       $this->redirect('prefs/' . $user->school->id);
     }
   }
+
+  /**
+   * Creates a new form HTML element using the page_name attribute
+   *
+   * @param Const $method XForm::POST or XForm::GET
+   * @return XForm
+   */
+  protected function createForm($method = XForm::POST) {
+    return new XForm(sprintf('/prefs/%s/%s', $this->SCHOOL->id, $this->page_url), $method);
+  }
+
+  protected function createFileForm() {
+    return new XFileForm(sprintf('/prefs/%s/%s', $this->SCHOOL->id, $this->page_url));
+  }
+
 }
 ?>

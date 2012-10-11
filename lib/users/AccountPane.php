@@ -17,18 +17,19 @@ class AccountPane extends AbstractUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("My Account", $user);
+    $this->page_url = 'account';
   }
 
   protected function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new XPort("My information"));
-    $p->add($form = new XForm("/account-edit", XForm::POST));
+    $p->add($form = $this->createForm());
     $form->add(new FItem("First name:", new XTextInput("first_name", $this->USER->first_name, array('maxlength'=>30))));
     $form->add(new FItem("Last name:",  new XTextInput("last_name",  $this->USER->last_name, array('maxlength'=>30))));
     $form->add(new FItem("Role:",  XSelect::fromArray('role', Account::getRoles(), $this->USER->role)));
     $form->add(new XSubmitP('edit-info', "Edit"));
 
     $this->PAGE->addContent($p = new XPort("Change password"));
-    $p->add($form = new XForm('/account-edit', XForm::POST));
+    $p->add($form = $this->createForm());
     $form->add(new FItem("New password:",     new XPasswordInput("sake1", "")));
     $form->add(new FItem("Confirm password:", new XPasswordInput("sake2", "")));
     $form->add(new XSubmitP('edit-password', "Change"));

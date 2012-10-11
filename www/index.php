@@ -63,7 +63,7 @@ if (isset($_GET['p']))
 
 // Check for license request
 $PAGE = null;
-if ($page == "license") {
+if ($page == 'license') {
   require_once('users/EULAPane.php');
   $PAGE = new EULAPane(Conf::$USER);
 }

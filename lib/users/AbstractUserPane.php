@@ -125,6 +125,25 @@ abstract class AbstractUserPane {
   }
 
   /**
+   * Creates a new form HTML element using the page_name attribute
+   *
+   * @param Const $method XForm::POST or XForm::GET
+   * @return XForm
+   */
+  protected function createForm($method = XForm::POST) {
+    return new XForm('/'.$this->page_url, $method);
+  }
+
+  protected function createFileForm() {
+    return new XFileForm('/'.$this->page_url);
+  }
+
+  /**
+   * @var String the relative URL of the page
+   */
+  protected $page_url = '';
+
+  /**
    * Wrapper around process method to be used by web clients. Wraps
    * the SoterExceptions as announcements.
    *

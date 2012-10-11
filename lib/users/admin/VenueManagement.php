@@ -25,6 +25,7 @@ class VenueManagement extends AbstractAdminUserPane {
   public function __construct(Account $user, $type = self::TYPE_LIST) {
     parent::__construct("Venue management", $user);
     $this->type = $type;
+    $this->page_url = ($type == self::TYPE_EDIT) ? 'edit-venue' : 'venue';
   }
 
   public function fillHTML(Array $args) {
@@ -71,7 +72,7 @@ class VenueManagement extends AbstractAdminUserPane {
     // 1. Add new venue
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new XPort("Add venue"));
-    $p->add($f = new XForm("/venue-edit", XForm::POST));
+    $p->add($f = $this->createForm());
     $f->add(new FItem("Name:", new XTextInput("name", $name, array("maxlength"=>40))));
     $f->add(new FItem("Address:", new XTextInput("address", $addr, array("maxlength"=>40))));
     $f->add(new FItem("City:", new XTextInput("city", $city, array("maxlength"=>20))));

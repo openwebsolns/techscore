@@ -15,6 +15,7 @@ class BoatManagement extends AbstractAdminUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Boat management", $user);
+    $this->page_url = 'boats';
   }
 
   /**
@@ -30,8 +31,8 @@ class BoatManagement extends AbstractAdminUserPane {
   public function fillHTML(Array $args) {
     $boat = $this->defaultBoat();
     $mess = "Add boat";
-    $hidd = new XText("");
-    $link = new XText("");
+    $hidd = "";
+    $link = null;
     // ------------------------------------------------------------
     // 0a. Editing boat?
     // ------------------------------------------------------------
@@ -55,7 +56,7 @@ class BoatManagement extends AbstractAdminUserPane {
     // 1. Add/edit new boat
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new XPort($mess));
-    $p->add($form = new XForm("/boat-edit", XForm::POST));
+    $p->add($form = $this->createForm());
     $form->add(new XP(array(), "The number of occupants will be used when entering RP information to determine how many crews are allowed in an RP form. If the same boat class can have multiple number of crews, add separate entries and distinguish them by adding the number of occupants in the name."));
 
     $form->add(new XP(array(), "Keep in mind that the number of occupants includes 1 skipper. Therefore, the minimum value is 1 for a singlehanded boat class."));
@@ -64,7 +65,10 @@ class BoatManagement extends AbstractAdminUserPane {
     $form->add(new FItem("Number of occupants:", new XTextInput("occupants", $boat->occupants)));
     $form->add($hidd);
     $form->add(new XSubmitInput("set-boat", $mess));
-    $form->add($link);
+    if ($link !== null) {
+      $form->add(" ");
+      $form->add($link);
+    }
 
     // ------------------------------------------------------------
     // 2. Current boat list

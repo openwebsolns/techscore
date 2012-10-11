@@ -22,6 +22,7 @@ class EditLogoPane extends AbstractPrefsPane {
    */
   public function __construct(Account $usr) {
     parent::__construct("School logo", $usr);
+    $this->page_url = 'logo';
   }
 
   /**
@@ -46,7 +47,7 @@ class EditLogoPane extends AbstractPrefsPane {
     }
 
     // Form
-    $p->add($form = new XFileForm(sprintf('/prefs/%s/logo', $this->SCHOOL->id)));
+    $p->add($form = $this->createFileForm());
     $form->add(new XHiddenInput("MAX_FILE_SIZE","200000"));
     $form->add(new FItem("Picture:", new XFileInput("logo_file")));
     $form->add(new XSubmitP("upload", "Upload"));

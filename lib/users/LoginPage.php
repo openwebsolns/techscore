@@ -21,6 +21,7 @@ class LoginPage extends AbstractUserPane {
    */
   public function __construct() {
     parent::__construct("Welcome!");
+    $this->page_url = 'login';
   }
 
   /**
@@ -42,7 +43,7 @@ class LoginPage extends AbstractUserPane {
 
     // LOGIN MENU
     $this->PAGE->addContent($p = new XPort("Sign-in"));
-    $p->add($form = new XForm('/login', XForm::POST));
+    $p->add($form = $this->createForm());
     $form->add(new FItem("Email:", new XTextInput("userid", "", array("maxlength"=>"40"))));
     $form->add($fi = new FItem("Password:", new XPasswordInput("pass", "", array("maxlength"=>"48"))));
     $fi->add(new XMessage(new XA('/password-recover', "Forgot your password?")));

@@ -41,6 +41,7 @@ class AllAmerican extends AbstractUserPane {
                              'regattas-set' => false,
                              'params-set' => false));
     $this->AA = Session::g('aa');
+    $this->page_url = 'aa';
   }
 
   private function seasonList($prefix, Array $preselect = array()) {
@@ -65,7 +66,7 @@ class AllAmerican extends AbstractUserPane {
       if ($now->season == Season::SPRING)
         $then = DB::getSeason(sprintf('f%0d', ($now->start_date->format('Y') - 1)));
 
-      $p->add($form = new XForm('/aa-edit', XForm::POST));
+      $p->add($form = $this->createForm());
       $form->add(new FItem("Participation:", XSelect::fromArray('participation',
                                                                 array(Regatta::PARTICIPANT_COED => "Coed",
                                                                       Regatta::PARTICIPANT_WOMEN => "Women"))));
@@ -86,7 +87,7 @@ class AllAmerican extends AbstractUserPane {
       $form->add(new XSubmitP('set-report', "Choose regattas >>"));
 
       $this->PAGE->addContent($p = new XPort("Special crew report"));
-      $p->add($form = new XForm('/aa-edit', XForm::POST));
+      $p->add($form = $this->createForm());
       $form->add(new XP(array(),
                         array("To choose crews from ",
                               new XStrong("all"),
@@ -109,7 +110,7 @@ class AllAmerican extends AbstractUserPane {
     if ($this->AA['regattas-set'] === false) {
       // Add button to go back
       $this->PAGE->addContent($p = new XPort("Progress"));
-      $p->add($form = new XForm('/aa-edit', XForm::POST));
+      $p->add($form = $this->createForm());
       $form->add(new XSubmitP('unset-regattas', "<< Start over"));
 
       // Reset lists
@@ -133,7 +134,7 @@ class AllAmerican extends AbstractUserPane {
         return;
       }
 
-      $p2->add($form = new XForm("/aa-edit", XForm::POST));
+      $p2->add($form = $this->createForm());
       $tab = new XQuickTable(array('id'=>'regtable'), array("", "Name", "Type", "Part.", "Date", "Status"));
 
       $types = Regatta::getTypes();
@@ -202,7 +203,7 @@ class AllAmerican extends AbstractUserPane {
     if ($this->AA['params-set'] === false) {
       // Add button to go back
       $this->PAGE->addContent($p = new XPort("Progress"));
-      $p->add($form = new XForm('/aa-edit', XForm::POST));
+      $p->add($form = $this->createForm());
       $form->add(new XSubmitP('unset-regattas', "<< Start over"));
 
       $regattas = $this->AA['regattas'];
@@ -218,7 +219,7 @@ class AllAmerican extends AbstractUserPane {
       // Form to fetch and add sailors
       $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/aa.js'));
       $this->PAGE->addContent($p = new XPort("New sailors"));
-      $p->add($form = new XForm('/aa-edit', XForm::POST));
+      $p->add($form = $this->createForm());
       $form->add(new XNoScript(new XP(array(), "Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding.")));
       $form->add(new FItem('Name:', $search = new XTextInput('name-search', "")));
       $search->set('id', 'name-search');
@@ -235,11 +236,11 @@ class AllAmerican extends AbstractUserPane {
     // 3. Step three: Generate and review
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new XPort("Report"));
-    $p->add($form = new XForm('/aa-edit', XForm::POST));
+    $p->add($form = $this->createForm());
     $form->add(new XP(array(), "Please click only once:"));
     $form->add(new XSubmitP('gen-report', "Download as CSV"));
 
-    $p->add($form = new XForm('/aa-edit', XForm::POST));
+    $p->add($form = $this->createForm());
     $form->add(new XSubmitP('unset-sailors', "<< Go back"));
 
     $this->PAGE->addContent(new XTable(array('id'=>'aa-table'),

@@ -23,6 +23,7 @@ class NewRegattaPane extends AbstractUserPane {
    */
   public function __construct(Account $user) {
     parent::__construct("New regatta", $user);
+    $this->page_url = 'create';
   }
 
   private function defaultRegatta() {
@@ -34,7 +35,7 @@ class NewRegattaPane extends AbstractUserPane {
 
   protected function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new XPort("Create"));
-    $p->add($f = new XForm("/create-edit", XForm::POST));
+    $p->add($f = $this->createForm());
 
     $r = $this->defaultRegatta();
     // Replace with values from $args

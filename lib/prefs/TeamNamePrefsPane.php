@@ -22,6 +22,7 @@ class TeamNamePrefsPane extends AbstractPrefsPane {
    */
   public function __construct(Account $usr) {
     parent::__construct("Team names", $usr);
+    $this->page_url = 'team';
   }
 
   /**
@@ -45,7 +46,7 @@ class TeamNamePrefsPane extends AbstractPrefsPane {
                           new XLi(new XEm("Mascot 2")),
                           new XLi(new XEm("Mascot 3")))));
 
-    $p->add($form = new XForm(sprintf('/prefs/%s/team', $this->SCHOOL->id), XForm::POST));
+    $p->add($form = $this->createForm());
 
     // Fill form
     $form->add($tab = new XQuickTable(array('class'=>'narrow'), array("", "Name")));
