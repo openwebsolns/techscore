@@ -6,9 +6,24 @@
 
 require_once('conf.php');
 
-//
+// ------------------------------------------------------------
+// Verify method
+// ------------------------------------------------------------
+function do405($mes = "Only POST and GET methods allowed.") {
+  header('HTTP/1.1 405 Method not allowed');
+  header('Content-type: text/plain');
+  echo $mes;
+  exit;
+}
+if (!isset($_SERVER['REQUEST_METHOD']))
+  throw new RuntimeException("Script can only be run from web server.");
+$METHOD = $_SERVER['REQUEST_METHOD'];
+if (!in_array($METHOD, array('POST', 'GET')))
+  do405();
+
+// ------------------------------------------------------------
 // Is logged-in
-//
+// ------------------------------------------------------------
 if (Conf::$USER === null) {
   Session::s('last_page', preg_replace(':^/edit/:', '/', $_SERVER['REQUEST_URI']));
 
@@ -20,12 +35,9 @@ if (Conf::$USER === null) {
   exit;
 }
 
-//
+// ------------------------------------------------------------
 // Regatta
-//
-if (!isset($_GET['reg']) || !is_numeric($_GET['reg'])) {
-  WS::go('/');
-}
+// ------------------------------------------------------------
 require_once('regatta/Regatta.php');
 if (($REG = DB::getRegatta($_GET['reg'])) === null) {
   Session::pa(new PA("No such regatta.", PA::I));
@@ -36,23 +48,11 @@ if (!Conf::$USER->hasJurisdiction($REG)) {
   WS::go('/');
 }
 
-//
-// Content, whether dialog ("v" or editing pane "p")
-//
 $PAGE = null;
-if (!isset($_GET['p']) &&
-    !isset($_GET['v']) &&
-    !isset($_GET['d'])) {
-  $mes = "No page requested.";
-  Session::pa(new PA($mes, PA::I));
-  WS::go('/score/'.$REG->id);
-}
-
-//
+// ------------------------------------------------------------
 // - Editing panes
-//
-elseif (isset($_GET['p'])) {
-  $POSTING = (isset($_GET['_action']) && $_GET['_action'] == 'edit');
+// ------------------------------------------------------------
+if (isset($_GET['p'])) {
   if (empty($_GET['p'])) {
     require_once('tscore/DetailsPane.php');
     $PAGE = new DetailsPane(Conf::$USER, $REG);
@@ -72,17 +72,20 @@ elseif (isset($_GET['p'])) {
     }
   }
   // process, if so requested
-  if ($POSTING) {
+  if ($METHOD == 'POST') {
     require_once('public/UpdateManager.php');
     Session::s('POST', $PAGE->processPOST($_POST));
     WS::goBack('/');
   }
 }
 
-//
+// ------------------------------------------------------------
 // - View panes
-//
+// ------------------------------------------------------------
 elseif (isset($_GET['v'])) {
+  if ($METHOD != 'GET')
+    do405("Only GET method allowed for dialogs.");
+
   if (empty($_GET['v'])) {
     require_once('tscore/RotationDialog.php');
     $mes = "No dialog selected, defaulting to Rotation.";
@@ -145,13 +148,6 @@ elseif (isset($_GET['v'])) {
       $PAGE = new ScoresDivisionalDialog($REG);
     break;
 
-      // --------------- BOAT SCORE --------------//
-    case "boat":
-    case "boats":
-      require_once('tscore/ScoresBoatDialog.php');
-      $PAGE = new ScoresBoatDialog($REG);
-      break;
-
       // --------------- LAST UPDATE ------------//
     case "last-update":
       $t = $REG->getLastScoreUpdate();
@@ -169,15 +165,18 @@ elseif (isset($_GET['v'])) {
   }
 }
 
-//
+// ------------------------------------------------------------
 // - Downloads
-//
-else {
+// ------------------------------------------------------------
+elseif (isset($_GET['d'])) {
+  if ($METHOD != 'GET')
+    do405("Only GET method supported for downloads.");
+
   $st = $REG->start_time;
   $nn = $REG->nick;
   if (count($REG->getTeams()) == 0 || count($REG->getDivisions()) == 0) {
     Session::pa(new PA("First create teams and divisions before downloading.", PA::I));
-    WS::go(sprintf('/score/%d', $REG->id));
+    WS::go(sprintf('/score/%s', $REG->id));
   }
   switch ($_GET['d']) {
 
@@ -222,6 +221,14 @@ else {
   }
   exit;
 }
+// ------------------------------------------------------------
+// Malformed request
+// ------------------------------------------------------------
+else {
+  Session::pa(new PA("No page requested.", PA::I));
+  WS::go('/score/'.$REG->id);
+}
+
 $args = $_GET;
 $post = Session::g('POST');
 if (is_array($post))
