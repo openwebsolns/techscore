@@ -44,7 +44,7 @@ class SailorMergePane extends AbstractPrefsPane {
       return;
     }
 
-    $p->add($form = new XForm(sprintf("/pedit/%s/sailor", $this->SCHOOL->id), XForm::POST));
+    $p->add($form = new XForm(sprintf('/prefs/%s/sailor', $this->SCHOOL->id), XForm::POST));
     $form->add($tab = new XQuickTable(array('class'=>'narrow'), array("Temporary sailor", "ICSA Match")));
 
     // Create choices

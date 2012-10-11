@@ -46,7 +46,7 @@ class EditLogoPane extends AbstractPrefsPane {
     }
 
     // Form
-    $p->add($form = new XFileForm(sprintf("/pedit/%s/logo", $this->SCHOOL->id)));
+    $p->add($form = new XFileForm(sprintf('/prefs/%s/logo', $this->SCHOOL->id)));
     $form->add(new XHiddenInput("MAX_FILE_SIZE","200000"));
     $form->add(new FItem("Picture:", new XFileInput("logo_file")));
     $form->add(new XSubmitP("upload", "Upload"));

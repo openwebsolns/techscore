@@ -11,6 +11,12 @@
 require_once('conf.php');
 
 // ------------------------------------------------------------
+// Verify method
+// ------------------------------------------------------------
+if (!in_array(Conf::$METHOD, array('POST', 'GET')))
+  Conf::do405();
+
+// ------------------------------------------------------------
 // Not logged-in?
 // ------------------------------------------------------------
 if (Conf::$USER === null) {
@@ -32,18 +38,18 @@ if (Conf::$USER === null) {
     case 'login':
     case 'home':
     default:
-      Session::s('last_page', preg_replace(':^/edit/:', '/', $_SERVER['REQUEST_URI']));
+      Session::s('last_page', $_SERVER['REQUEST_URI']);
 
       // provide the login page
       require_once('users/LoginPage.php');
       $PAGE = new LoginPage();
       break;
     }
-    if (isset($_GET['_action']) && $_GET['_action'] == 'edit') {
-      Session::s('POST', $PAGE->processPOST($_REQUEST));
+    if (Conf::$METHOD == 'POST') {
+      Session::s('POST', $PAGE->processPOST($_POST));
       WS::goBack('/');
     }
-    $PAGE->getHTML($_REQUEST);
+    $PAGE->getHTML($_GET);
     exit;
   }
 }
@@ -52,8 +58,8 @@ if (Conf::$USER === null) {
 // Process requested page
 // ------------------------------------------------------------
 $page = "home";
-if (isset($_REQUEST['p']))
-  $page = $_REQUEST['p'];
+if (isset($_GET['p']))
+  $page = $_GET['p'];
 
 // Check for license request
 $PAGE = null;
@@ -181,12 +187,12 @@ else {
   break;
 
   default:
-    Session::pa(new PA(sprintf("Invalid page requested (%s).", $_REQUEST['p']), PA::E));
+    Session::pa(new PA(sprintf("Invalid page requested (%s).", $_GET['p']), PA::E));
     WS::go('/');
   }
 }
-if (isset($_GET['_action']) && $_GET['_action'] == 'edit') {
-  Session::s('POST', $PAGE->processPOST($_REQUEST));
+if (Conf::$METHOD == 'POST') {
+  Session::s('POST', $PAGE->processPOST($_POST));
   WS::goBack('/');
 }
 $post = Session::g('POST');

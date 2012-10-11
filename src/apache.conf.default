@@ -63,9 +63,6 @@ RewriteRule ^prefs/?$ index.php?p=prefs-home [qsa,L]
 RewriteRule ^prefs/([A-Za-z]+)/?$ index.php?p=prefs-home&school=$1 [qsa,L]
 RewriteRule ^prefs/([A-Za-z]+)/(.*)/?$ index.php?p=prefs-$2&school=$1 [qsa,L]
 
-# for editing preferences
-RewriteRule ^pedit/([A-Za-z]+)/(.*)/?$ index.php?_action=edit&p=prefs-$2&school=$1 [L]
-
 # for users home
 RewriteRule ^/?$ index.php?p=home [qsa]
 RewriteRule ^home/?$ index.php?p=home [qsa]

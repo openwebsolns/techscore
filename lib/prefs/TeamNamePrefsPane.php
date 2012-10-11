@@ -45,7 +45,7 @@ class TeamNamePrefsPane extends AbstractPrefsPane {
                           new XLi(new XEm("Mascot 2")),
                           new XLi(new XEm("Mascot 3")))));
 
-    $p->add($form = new XForm(sprintf("/pedit/%s/team", $this->SCHOOL->id), XForm::POST));
+    $p->add($form = new XForm(sprintf('/prefs/%s/team', $this->SCHOOL->id), XForm::POST));
 
     // Fill form
     $form->add($tab = new XQuickTable(array('class'=>'narrow'), array("", "Name")));
