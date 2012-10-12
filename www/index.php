@@ -143,11 +143,6 @@ else {
     $PAGE = new VenueManagement(Conf::$USER);
     break;
 
-  case "edit-venue":
-    require_once('users/admin/VenueManagement.php');
-    $PAGE = new VenueManagement(Conf::$USER, VenueManagement::TYPE_EDIT);
-    break;
-
   case "boat":
   case "boats":
     require_once('users/admin/BoatManagement.php');
