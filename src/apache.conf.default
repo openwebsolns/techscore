@@ -45,49 +45,14 @@ RewriteEngine on
 RewriteCond %{SCRIPT_FILENAME} -f
 RewriteRule . - [L]
 
-RewriteRule ^score/([0-9]+)/?$ score.php?reg=$1&p=home
-RewriteRule ^score/([0-9]+)/(.*)/?$ score.php?reg=$1&p=$2 [qsa]
-
-# for dialogs
-RewriteRule ^view/([0-9]+)/(.*)/?$ score.php?reg=$1&v=$2
-
-# for downloads
-RewriteRule ^download/([0-9]+)/(.*)/?$ score.php?reg=$1&d=$2
-
-RewriteRule ^login/?$ index.php?p=login [L]
-RewriteRule ^logout/?$ index.php?p=login&dir=out [L]
-
-# for preferences
-RewriteRule ^prefs/?$ index.php?p=prefs-home [qsa,L]
-RewriteRule ^prefs/([A-Za-z]+)/?$ index.php?p=prefs-home&school=$1 [qsa,L]
-RewriteRule ^prefs/([A-Za-z]+)/(.*)/?$ index.php?p=prefs-$2&school=$1 [qsa,L]
-
-# for users home
-RewriteRule ^/?$ index.php?p=home [qsa]
-RewriteRule ^home/?$ index.php?p=home [qsa]
-RewriteRule ^home\|([0-9]+)$ index.php?p=home&page=$1 [qsa]
-
-# for messages
-RewriteRule ^inbox/?$ index.php?p=inbox
-RewriteRule ^inbox/([0-9]+)$ index.php?p=inbox&message=$1
-
-# for approving registration request
-RewriteRule ^register/acc=([A-Za-z0-9]{32})/?$ index.php?_action=edit&p=register&acc=$1
-
-# pagination for pending
-RewriteRule ^pending\|([0-9]+)$ index.php?p=pending&page=$1
-
 # for searches: needs to be added before the rule below
 RewriteRule ^search$ search.php [L]
 
-# for comparing sailors
-RewriteRule ^compare(-sailors)?=(.*)$ index.php?p=compare-sailors&sailors=$2
-
-# for creating regattas, pending, registration, etc
-RewriteRule ^([^.]+)/?$ index.php?p=$1 [qsa]
-
 # for burgees
 RewriteRule ^inc/img/schools/(.*)\.png$ img.php?school=$1
+
+# for creating regattas, pending, registration, etc
+RewriteRule ^ index.php [qsa]
 
 # Caching
 # Header unset Pragma

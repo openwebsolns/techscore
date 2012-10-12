@@ -60,5 +60,73 @@ abstract class AbstractDialog {
    * @param Array $args arguments to customize the display of the page
    */
   abstract protected function fillHTML(Array $args);
+
+  // ------------------------------------------------------------
+  // Static methods
+  // ------------------------------------------------------------
+
+  /**
+   * Returns a new instance of a dialog for the given URL
+   *
+   * @see AbstractPane::getPane
+   */
+  public static function getDialog(Array $uri, Account $r, Regatta $u) {
+    if (count($uri) == 0)
+      $uri = array('rotation');
+    try {
+      switch ($uri[0]) {
+        // --------------- ROT DIALOG ---------------//
+      case 'rotation':
+      case 'rotations':
+        require_once('tscore/RotationDialog.php');
+        return new RotationDialog($u);
+
+        // --------------- RP DIALOG ----------------//
+      case 'sailors':
+      case 'sailor':
+        require_once('tscore/RegistrationsDialog.php');
+        return new RegistrationsDialog($u);
+
+        // --------------- SCORES --------------//
+      case 'result':
+      case 'results':
+      case 'score':
+      case 'scores':
+        if ($u->scoring == Regatta::SCORING_TEAM) {
+          require_once('tscore/ScoresGridDialog.php');
+          return new ScoresGridDialog($u);
+        }
+        // look for division argument
+        if (count($uri) > 1) {
+          require_once('tscore/ScoresDivisionDialog.php');
+          return new ScoresDivisionDialog($u, new Division($uri[1]));
+        }
+        require_once('tscore/ScoresFullDialog.php');
+        return new ScoresFullDialog($u);
+
+      // --------------- DIV. SCORE --------------//
+      case 'div-score':
+      case 'div-scores':
+        require_once('tscore/ScoresDivisionalDialog.php');
+        return new ScoresDivisionalDialog($u);
+
+      // --------------- LAST UPDATE ------------//
+      case 'last-update':
+        // @TODO: deprecate
+        $t = $u->getLastScoreUpdate();
+        if ($t == null)
+          $t = new DateTime('yesterday');
+        echo $t->format('Y-m-d H:i:s');
+        exit;
+
+        // --------------- default ----------------//
+      default:
+        return null;
+      }
+    }
+    catch (Exception $e) { // semaphore exception?
+      return null;
+    }
+  }
 }
 ?>

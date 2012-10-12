@@ -19,24 +19,24 @@ if (!in_array(Conf::$METHOD, array('POST', 'GET')))
 // ------------------------------------------------------------
 // Construct the URI
 // ------------------------------------------------------------
-$URI = explode('/', WS::unlink($_SERVER['REQUEST_URI'], true));
-array_shift($URI);
-$BASE = array_shift($URI);
+$URI = WS::unlink($_SERVER['REQUEST_URI'], true);
+$URI_TOKENS = explode('/', $URI);
+array_shift($URI_TOKENS);
 
 // ------------------------------------------------------------
 // Not logged-in?
 // ------------------------------------------------------------
 if (Conf::$USER === null) {
   // Registration?
-  switch ($BASE) {
+  switch ($URI_TOKENS[0]) {
   case 'register':
     if (Conf::$ALLOW_REGISTER === false)
       WS::go('/');
 
     // When following mail verification, simulate POST
-    if (count($URI) > 0) {
+    if (count($URI_TOKENS) > 1) {
       Conf::$METHOD = 'POST';
-      $_POST['acc'] = $URI[0];
+      $_POST['acc'] = $URI_TOKENS[1];
     }
     require_once('users/RegisterPane.php');
     $PAGE = new RegisterPane();
@@ -47,13 +47,19 @@ if (Conf::$USER === null) {
     $PAGE = new PasswordRecoveryPane();
     break;
 
-  default:
-    Session::s('last_page', $_SERVER['REQUEST_URI']);
-
-    // provide the login page
+  case 'login':
     require_once('users/LoginPage.php');
     $PAGE = new LoginPage();
     break;
+
+  default:
+    if (Conf::$METHOD == 'POST')
+      WS::go($URI);
+
+    Session::pa(new PA("Please login to proceed.", PA::I));
+    Session::s('last_page', $_SERVER['REQUEST_URI']);
+    require_once('users/LoginPage.php');
+    $PAGE = new LoginPage();
   }
   if (Conf::$METHOD == 'POST') {
     Session::s('POST', $PAGE->processPOST($_POST));
@@ -64,141 +70,154 @@ if (Conf::$USER === null) {
 }
 
 // ------------------------------------------------------------
-// Process requested page
+// User registered at this point
 // ------------------------------------------------------------
-$page = "home";
-if (isset($_GET['p']))
-  $page = $_GET['p'];
-
-// Check for license request
-$PAGE = null;
-if ($page == 'license') {
+if ($URI_TOKENS[0] == 'license') {
+  if (Conf::$METHOD == 'POST')
+    WS::go($URI);
   require_once('users/EULAPane.php');
   $PAGE = new EULAPane(Conf::$USER);
+  $PAGE->getHTML($_GET);
+  exit;
 }
-else {
-  DB::requireActive(Conf::$USER);
-  switch ($page) {
-  case 'login':
-  case 'logout':
-    require_once('users/LoginPage.php');
-    $PAGE = new LoginPage();
-    break;
+if ($URI_TOKENS[0] == 'logout') {
+  $_GET['dir'] = 'out';
+  require_once('users/LoginPage.php');
+  $PAGE = new LoginPage();
+  $PAGE->getHTML(array('dir'=>'out'));
+  exit;
+}
+DB::requireActive(Conf::$USER);
 
-    // ------------------------------------------------------------
-    // Preferences
-    // ------------------------------------------------------------
-
-  case 'prefs-home':
-    require_once('prefs/PrefsHomePane.php');
-    $PAGE = new PrefsHomePane(Conf::$USER);
-    break;
-
-    // --------------- LOGO --------------- //
-  case 'prefs-logo':
-  case 'prefs-burgee':
-    require_once('prefs/EditLogoPane.php');
-    $PAGE = new EditLogoPane(Conf::$USER);
-    break;
-
-  // --------------- SAILOR ------------- //
-  case 'prefs-sailor':
-  case 'prefs-sailors':
-    require_once('prefs/SailorMergePane.php');
-    $PAGE = new SailorMergePane(Conf::$USER);
-    break;
-
-  // --------------- TEAMS ------------- //
-  case 'prefs-team':
-  case 'prefs-teams':
-  case 'prefs-name':
-  case 'prefs-names':
-    require_once('prefs/TeamNamePrefsPane.php');
-    $PAGE = new TeamNamePrefsPane(Conf::$USER);
-    break;
-
-    // ------------------------------------------------------------
-    // User-related
-    // ------------------------------------------------------------
-
-  case "home":
-    require_once('users/HomePane.php');
-    $PAGE = new HomePane(Conf::$USER);
-    break;
-
-  case "archive":
-    require_once('users/UserArchivePane.php');
-    $PAGE = new UserArchivePane(Conf::$USER);
-    break;
-
-  case "inbox":
-    require_once('users/MessagePane.php');
-    $PAGE = new MessagePane(Conf::$USER);
-    break;
-
-  case "create":
-    require_once('users/NewRegattaPane.php');
-    $PAGE = new NewRegattaPane(Conf::$USER);
-    break;
-
-  case "pending":
-    require_once('users/admin/PendingAccountsPane.php');
-    $PAGE = new PendingAccountsPane(Conf::$USER);
-    break;
-
-  case "venues":
-  case "venue":
-    require_once('users/admin/VenueManagement.php');
-    $PAGE = new VenueManagement(Conf::$USER);
-    break;
-
-  case "edit-venue":
-    require_once('users/admin/VenueManagement.php');
-    $PAGE = new VenueManagement(Conf::$USER, VenueManagement::TYPE_EDIT);
-    break;
-
-  case "boat":
-  case "boats":
-    require_once('users/admin/BoatManagement.php');
-    $PAGE = new BoatManagement(Conf::$USER);
-  break;
-
-  case "account":
-  case "accounts":
-    require_once('users/AccountPane.php');
-    $PAGE = new AccountPane(Conf::$USER);
-  break;
-
-  case "compare-by-race":
-    require_once('users/CompareSailorsByRace.php');
-    $PAGE = new CompareSailorsByRace(Conf::$USER);
-    break;
-
-  case "compare-sailors":
-  case "compare-head-to-head":
-  case "compare-head-head":
-  case "head-to-head":
-    require_once('users/CompareHeadToHead.php');
-    $PAGE = new CompareHeadToHead(Conf::$USER);
-    break;
-
-  case "aa":
-    require_once('users/AllAmerican.php');
-    $PAGE = new AllAmerican(Conf::$USER);
-    break;
-
-  case "send-message":
-  case "send-messages":
-  case "send-email":
-  case "send-emails":
-    require_once('users/admin/SendMessage.php');
-    $PAGE = new SendMessage(Conf::$USER);
-  break;
-
-  default:
-    Session::pa(new PA(sprintf("Invalid page requested (%s).", $_GET['p']), PA::E));
+// ------------------------------------------------------------
+// Process regatta requests
+// ------------------------------------------------------------
+if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
+  $BASE = array_shift($URI_TOKENS);
+  if (count($URI_TOKENS) == 0) {
+    Session::pa(new PA("Missing regatta.", PA::I));
     WS::go('/');
   }
+  $REG = DB::getRegatta(array_shift($URI_TOKENS));
+  if ($REG === null) {
+    Session::pa(new PA("No such regatta.", PA::I));
+    WS::go('/');
+  }
+  if (!Conf::$USER->hasJurisdiction($REG)) {
+    Session::pa(new PA("You do not have permission to edit that regatta.", PA::I));
+    WS::go('/');
+  }
+
+  // User and regatta authorized, delegate to AbstractPane
+  $PAGE = null;
+  if ($BASE == 'score') {
+    require_once('tscore/AbstractPane.php');
+    $PAGE = AbstractPane::getPane($URI_TOKENS, Conf::$USER, $REG);
+    if ($PAGE === null) {
+      $mes = sprintf("Invalid page requested (%s)", $ARG);
+      Session::pa(new PA($mes, PA::I));
+      WS::go('/score/'.$REG->id);
+    }
+    if (!$PAGE->isActive()) {
+      $title = $PAGE->getTitle();
+      Session::pa(new PA("\"$title\" is not available.", PA::I));
+      WS::go('/score/'.$REG->id);
+    }
+    // process, if so requested
+    if (Conf::$METHOD == 'POST') {
+      require_once('public/UpdateManager.php');
+      Session::s('POST', $PAGE->processPOST($_POST));
+      WS::goBack('/');
+    }
+  }
+
+  // 'view' and 'download' requires GET method only
+  if (Conf::$METHOD != 'GET')
+    Conf::do405("Only GET method supported for dialogs and downloads.");
+
+  if ($BASE == 'view') {
+    require_once('tscore/AbstractDialog.php');
+    $PAGE = AbstractDialog::getDialog($URI_TOKENS, Conf::$USER, $REG);
+    if ($PAGE === null) {
+      $mes = sprintf("Invalid page requested (%s)", $ARG);
+      Session::pa(new PA($mes, PA::I));
+      WS::go('/view/'.$REG->id);
+    }
+  }
+
+  if ($BASE == 'download') {
+    $st = $REG->start_time;
+    $nn = $REG->nick;
+    if (count($REG->getTeams()) == 0 || count($REG->getDivisions()) == 0) {
+      Session::pa(new PA("First create teams and divisions before downloading.", PA::I));
+      WS::go('/score/'.$REG->id);
+    }
+
+    if (count($URI_TOKENS) == 0) {
+      Session::pa(new PA("Nothing to download. Please try again.", PA::I));
+      WS::go('/score/'.$REG->id);
+    }
+    switch ($URI_TOKENS[0]) {
+
+      // --------------- REGATTA ---------------//
+      /*
+        case "":
+        case "regatta":
+        $name = sprintf("%s-%s.tsr", $st->format("Y"), $nn);
+        header("Content-type: text/xml");
+        header(sprintf('Content-disposition: attachment; filename="%s"', $name));
+        echo RegattaIO::toXML($REG);
+        break;
+      */
+
+      // --------------- RP FORMS --------------//
+    case 'rp':
+    case 'rpform':
+    case 'rps':
+      $name = sprintf('%s-%s-rp', $st->format('Y'), $nn);
+      $rp = $REG->getRpManager();
+      if ($rp->isFormRecent())
+        $data = $rp->getForm();
+      else {
+        require_once('rpwriter/RpFormWriter.php');
+        $writer = new RpFormWriter($REG);
+        $path = $writer->makePDF();
+        $data = file_get_contents($path);
+        unlink($path);
+        $rp->setForm($data);
+      }
+
+      header('Content-type: application/pdf');
+      header(sprintf('Content-Disposition: attachment; filename="%s.pdf"', $name));
+      echo $data;
+      exit;
+
+    // --------------- default ---------------//
+    default:
+      $mes = sprintf("Invalid download requested (%s)", $_GET['d']);
+      Session::pa(new PA("Invalid download requested.", PA::I));
+      WS::go('/score/'.$REG->id);
+    }
+  }
+
+  $args = $_GET;
+  $post = Session::g('POST');
+  if (is_array($post))
+    $args = array_merge($post, $args);
+  $PAGE->getHTML($args);
+  exit;
+}
+
+// ------------------------------------------------------------
+// Regular, non-scoring panes
+// ------------------------------------------------------------
+require_once('users/AbstractUserPane.php');
+try {
+  $PAGE = AbstractUserPane::getPane($URI_TOKENS, Conf::$USER);
+}
+catch (PaneException $e) {
+  Session::pa(new PA($e->getMessage(), PA::E));
+  WS::go('/');  
 }
 if (Conf::$METHOD == 'POST') {
   Session::s('POST', $PAGE->processPOST($_POST));

@@ -16,7 +16,7 @@ abstract class AbstractAdminUserPane extends AbstractUserPane {
     parent::__construct($title, $user);
 
     if (!$user->isAdmin())
-      WS::go('/');
+      throw new PaneException("Insufficient permission.");
   }
 }
 ?>

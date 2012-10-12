@@ -22,6 +22,7 @@ abstract class AbstractPrefsPane extends AbstractUserPane {
    * @param String $title the title of the pane
    * @param Account $user the user
    * @param School $school the school
+   * @throws PaneException
    */
   public function __construct($title, Account $user) {
     parent::__construct($title, $user);
@@ -31,8 +32,7 @@ abstract class AbstractPrefsPane extends AbstractUserPane {
         throw new SoterException(sprintf("No permissions to edit school %s.", $this->SCHOOL));
     }
     catch (SoterException $e) {
-      Session::pa(new PA($e->getMessage(), PA::E));
-      $this->redirect('prefs/' . $user->school->id);
+      throw new PaneException($e->getMessage());
     }
   }
 

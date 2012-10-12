@@ -217,11 +217,13 @@ abstract class AbstractPane {
   /**
    * Returns a new instance of a pane with the given URL
    *
-   * @param $url the URL
+   * @param Array $url the URL tokens in order
    * @return AbstractPane|null
    */
-  public static function getPane($url, Account $r, Regatta $u) {
-    switch ($url) {
+  public static function getPane(Array $url, Account $r, Regatta $u) {
+    if (count($url) == 0)
+      $url = array('home');
+    switch ($url[0]) {
     case 'home':
     case 'details':
     case 'settings':

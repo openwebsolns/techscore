@@ -7,6 +7,8 @@
 
 require_once('xml5/TS.php');
 
+class PaneException extends Exception {}
+
 /**
  * This is the parent class of all user's editing panes. It insures a
  * function called getHTML() exists which only populates a page if so
@@ -173,5 +175,119 @@ abstract class AbstractUserPane {
    * @return Array the modified arguments
    */
   abstract public function process(Array $args);
+
+  // ------------------------------------------------------------
+  // Static methods
+  // ------------------------------------------------------------
+
+  /**
+   * Fetches the pane based on URL
+   *
+   * @param Array $uri the URL tokens, in order
+   * @param Account $u the responsible account
+   * @return AbstractUserPane the specified pane
+   * @throws PaneException if malformed request
+   */
+  public static function getPane(Array $uri, Account $u) {
+    $base = array_shift($uri);
+    // ------------------------------------------------------------
+    // Preferences
+    // ------------------------------------------------------------
+    if ($base == 'prefs') {
+      $arg = (count($uri) == 0) ? 'home' : array_shift($uri);
+      switch ($arg) {
+      case 'home':
+        require_once('prefs/PrefsHomePane.php');
+        return new PrefsHomePane($u);
+
+        // --------------- LOGO --------------- //
+      case 'logo':
+      case 'burgee':
+        require_once('prefs/EditLogoPane.php');
+        return new EditLogoPane($u);
+
+        // --------------- SAILOR ------------- //
+      case 'sailor':
+      case 'sailors':
+        require_once('prefs/SailorMergePane.php');
+        return new SailorMergePane($u);
+
+        // --------------- TEAMS ------------- //
+      case 'team':
+      case 'teams':
+      case 'name':
+      case 'names':
+        require_once('prefs/TeamNamePrefsPane.php');
+        return new TeamNamePrefsPane($u);
+
+      default:
+        throw new PaneException("Invalid preferences page requested.");
+      }
+    }
+
+    // ------------------------------------------------------------
+    // User-related
+    // ------------------------------------------------------------
+    switch ($base) {
+    case '':
+    case 'home':
+      require_once('users/HomePane.php');
+      return new HomePane($u);
+
+    case 'archive':
+      require_once('users/UserArchivePane.php');
+      return new UserArchivePane($u);
+
+    case 'inbox':
+      require_once('users/MessagePane.php');
+      return new MessagePane($u);
+
+    case 'create':
+      require_once('users/NewRegattaPane.php');
+      return new NewRegattaPane($u);
+
+    case 'pending':
+      require_once('users/admin/PendingAccountsPane.php');
+      return new PendingAccountsPane($u);
+
+    case 'venues':
+    case 'venue':
+      require_once('users/admin/VenueManagement.php');
+      return new VenueManagement($u);
+
+    case 'boat':
+    case 'boats':
+      require_once('users/admin/BoatManagement.php');
+      return new BoatManagement($u);
+
+    case 'account':
+    case 'accounts':
+      require_once('users/AccountPane.php');
+      return new AccountPane($u);
+
+    case 'compare-by-race':
+      require_once('users/CompareSailorsByRace.php');
+      return new CompareSailorsByRace($u);
+
+    case 'compare-sailors':
+    case 'compare-head-to-head':
+    case 'compare-head-head':
+    case 'head-to-head':
+      require_once('users/CompareHeadToHead.php');
+      return new CompareHeadToHead($u);
+
+    case 'aa':
+      require_once('users/AllAmerican.php');
+      return new AllAmerican($u);
+
+    case 'send-message':
+    case 'send-messages':
+    case 'send-email':
+    case 'send-emails':
+      require_once('users/admin/SendMessage.php');
+      return new SendMessage($u);
+    }
+    throw new PaneException(sprintf("Invalid page requested (%s).", $base));
+  }
 }
 ?>
