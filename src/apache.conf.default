@@ -45,9 +45,6 @@ RewriteEngine on
 RewriteCond %{SCRIPT_FILENAME} -f
 RewriteRule . - [L]
 
-# for searches: needs to be added before the rule below
-RewriteRule ^search$ search.php [L]
-
 # for burgees
 RewriteRule ^inc/img/schools/(.*)\.png$ img.php?school=$1
 

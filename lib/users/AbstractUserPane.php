@@ -285,6 +285,10 @@ abstract class AbstractUserPane {
     case 'send-emails':
       require_once('users/admin/SendMessage.php');
       return new SendMessage($u);
+
+    case 'search':
+      require_once('users/SearchSailor.php');
+      return new SearchSailor($u);
     }
     throw new PaneException(sprintf("Invalid page requested (%s).", $base));
   }
