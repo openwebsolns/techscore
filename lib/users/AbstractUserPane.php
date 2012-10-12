@@ -107,7 +107,6 @@ abstract class AbstractUserPane {
                                           new XUl(array(),
                                                   array(new XLi(new XA("/pending",   "Pending users")),
                                                         new XLi(new XA("/venue",     "Venues")),
-                                                        new XLi(new XA("/edit-venue", "Add Venues")),
                                                         new XLi(new XA("/boats",     "Boats")))))));
     }
     $this->PAGE->addContent(new XPageTitle($this->title));

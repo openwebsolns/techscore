@@ -49,13 +49,14 @@ class PageWhiz {
   }
 
 
-  public function getPages($var = 'r', Array $get = array()) {
+  public function getPages($var = 'r', Array $get = array(), $anchor = '') {
     require_once('xml5/LinksDiv.php');
     return new LinksDiv($this->num_pages,
                         DB::$V->incInt($get, $var, 1, $this->num_pages + 1, 1),
                         $this->base,
                         $this->args,
-                        $var);
+                        $var,
+			$anchor);
   }
 
   /**

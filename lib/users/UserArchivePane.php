@@ -33,7 +33,7 @@ class UserArchivePane extends AbstractUserPane {
   protected function fillHTML(Array $args) {
     $pageset  = (isset($args['r'])) ? (int)$args['r'] : 1;
     if ($pageset < 1)
-      WS::go("home");
+      $this->redirect('home');
     $startint = self::NUM_PER_PAGE * ($pageset - 1);
 
     // ------------------------------------------------------------
@@ -54,7 +54,7 @@ class UserArchivePane extends AbstractUserPane {
         $regs = $this->USER->searchRegattas($qry);
         $num_regattas = count($regs);
         if ($startint > 0 && $startint >= $num_regattas)
-          WS::go('/?q=' . $qry);
+          WS::go('/archive?q=' . $qry);
       }
     }
     else {

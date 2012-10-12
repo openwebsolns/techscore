@@ -16,30 +16,17 @@ require_once('users/admin/AbstractAdminUserPane.php');
  */
 class VenueManagement extends AbstractAdminUserPane {
 
-  const NUM_PER_PAGE = 5;
-  const TYPE_EDIT = "edit";
-  const TYPE_LIST = "list";
+  const NUM_PER_PAGE = 30;
 
-  private $type;
-
-  public function __construct(Account $user, $type = self::TYPE_LIST) {
+  public function __construct(Account $user) {
     parent::__construct("Venue management", $user);
-    $this->type = $type;
-    $this->page_url = ($type == self::TYPE_EDIT) ? 'edit-venue' : 'venue';
+    $this->page_url = 'venue';
   }
 
   public function fillHTML(Array $args) {
-    switch ($this->type) {
-    case self::TYPE_EDIT:
-      $this->fillAdd($args);
-      return;
-    default:
-      $this->fillList($args);
-      return;
-    }
-  }
-
-  private function fillAdd(Array $args) {
+    // ------------------------------------------------------------
+    // Add/edit
+    // ------------------------------------------------------------
     $name = "";
     $addr = "";
     $city = "";
@@ -79,17 +66,17 @@ class VenueManagement extends AbstractAdminUserPane {
     $f->add(new FItem("State:", $this->getStateSelect($stat)));
     $f->add(new FItem("Zipcode:", new XTextInput("zipcode", $code, array("maxlength"=>5))));
     $f->add($hidd);
-    $f->add(new XSubmitInput("set-venue", $mess));
-  }
-  private function fillList(Array $args) {
-    $pageset  = (isset($args['page'])) ? (int)$args['page'] : 1;
+    $f->add(new XSubmitP("set-venue", $mess));
+
+    // ------------------------------------------------------------
+    // 2. List current venues
+    // ------------------------------------------------------------
+    $pageset  = (isset($args['r'])) ? (int)$args['r'] : 1;
     if ($pageset < 1)
-      WS::go('/venue');
-    // ------------------------------------------------------------
-    // 2. Current venues
-    // ------------------------------------------------------------
+      $this->redirect('venue');
     $list = DB::getVenues();
     $this->PAGE->addContent($p = new XPort("Current venue list"));
+    $p->set('id', 'venue-port');
     if (count($list) == 0) {
       $p->add(new XP(array(), "There are no venues in the database."));
       return;
@@ -98,18 +85,26 @@ class VenueManagement extends AbstractAdminUserPane {
     $count = count($list);
     $num_pages = ceil($count / self::NUM_PER_PAGE);
     if ($startint > $count)
-      WS::go(sprintf('/venue|%d', $num_pages));
+      WS::go('/venue', array('r' => $num_pages));
     $p->add(new XP(array(), "Click on the venue name in the table below to edit."));
-    $p->add($t = new XQuickTable(array('style'=>'width:100%'), array("Name", "Address")));
-    for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < $count; $i++) {
-      $venue = $list[$i];
-      $t->addRow(array(new XA(sprintf("edit-venue?v=%d", $venue->id), $venue),
-                       sprintf("%s %s, %s %s",
-                               $venue->address,
-                               $venue->city,
-                               $venue->state,
-                               $venue->zipcode)));
+    // Offer pagination awesomeness
+    require_once('xml5/PageWhiz.php');
+    $whiz = new PageWhiz($count, self::NUM_PER_PAGE, '/venue', $_GET);
+    $p->add($ldiv = $whiz->getPages('r', $_GET, '#venue-port'));
+
+    if ($count > 0) {
+      $p->add($t = new XQuickTable(array('id'=>'venue-table'), array("Name", "Address")));
+      for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < $count; $i++) {
+	$venue = $list[$i];
+	$t->addRow(array(new XA(sprintf('/%s?v=%d', $this->page_url, $venue->id), $venue),
+			 sprintf("%s %s, %s %s",
+				 $venue->address,
+				 $venue->city,
+				 $venue->state,
+				 $venue->zipcode)));
+      }
     }
+    $p->add($ldiv);
   }
 
   public function process(Array $args) {

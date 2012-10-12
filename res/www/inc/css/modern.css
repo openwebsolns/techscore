@@ -540,3 +540,6 @@ a.empty {
     border-color: #888;
     color: #555;
 }
+#venue-table td, #venue-table th {
+    text-align: left;
+}
