@@ -51,6 +51,10 @@ class TScorePage extends XPage {
     $this->menu = new XDiv(array('id'=>'menubar'));
     $this->header = new XDiv(array('id'=>'headdiv'));
 
+    // Favicon the W3C way
+    $this->head->add(new XLink(array('rel'=>'icon', 'type'=>'image/x-icon', 'href'=>WS::link('/inc/img/favicon.ico'))));
+    $this->head->set('profile', 'http://www.w3.org/2005/10/profile');
+
     // Must be done PRIOR to fill method so that child additions are
     // properly placed in the queue.
     if ($this->mobile)
