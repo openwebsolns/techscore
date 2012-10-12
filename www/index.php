@@ -209,6 +209,28 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
 }
 
 // ------------------------------------------------------------
+// School burgee stash
+// ------------------------------------------------------------
+if ($URI_TOKENS[0] == 'inc') {
+  if (count($URI_TOKENS) != 4 ||
+      $URI_TOKENS[1] != 'img' ||
+      $URI_TOKENS[2] != 'schools' ||
+      ($school = DB::getSchool(basename($URI_TOKENS[3], '.png'))) === null ||
+      $school->burgee === null) {
+    header('HTTP/1.1 404 School burgee not found');
+    exit;
+  }
+  // Cache headings
+  header("Cache-Control: public");
+  header("Pragma: public");
+  header("Content-Type: image/png");
+  header("Expires: Sun, 21 Jul 2030 14:08:53 -0400");
+  header(sprintf("Last-Modified: %s", $school->burgee->last_updated->format('r')));
+  echo base64_decode($school->burgee->filedata);
+  exit;
+}
+
+// ------------------------------------------------------------
 // Regular, non-scoring panes
 // ------------------------------------------------------------
 require_once('users/AbstractUserPane.php');

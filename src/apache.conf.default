@@ -45,9 +45,6 @@ RewriteEngine on
 RewriteCond %{SCRIPT_FILENAME} -f
 RewriteRule . - [L]
 
-# for burgees
-RewriteRule ^inc/img/schools/(.*)\.png$ img.php?school=$1
-
 # for creating regattas, pending, registration, etc
 RewriteRule ^ index.php [qsa]
 
