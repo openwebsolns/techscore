@@ -14,7 +14,7 @@ function usage {
 APACHECTL=$(which apachectl 2> /dev/null || usage "apachectl not found")
 
 NAME="local Apache REST Service"
-PWD=$(readlink -f $(dirname $(dirname $0)))
+PWD=$(dirname $(dirname $(readlink -f $0)))
 [ ! -f $PWD/etc/httpd.conf ] && usage "conf file $PWD/etc/httpd.conf not found"
 
 
