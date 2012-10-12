@@ -17,41 +17,50 @@ if (!in_array(Conf::$METHOD, array('POST', 'GET')))
   Conf::do405();
 
 // ------------------------------------------------------------
+// Construct the URI
+// ------------------------------------------------------------
+$URI = explode('/', WS::unlink($_SERVER['REQUEST_URI'], true));
+array_shift($URI);
+$BASE = array_shift($URI);
+
+// ------------------------------------------------------------
 // Not logged-in?
 // ------------------------------------------------------------
 if (Conf::$USER === null) {
   // Registration?
-  if (isset($_GET['p'])) {
-    switch ($_GET['p']) {
-    case 'register':
-      if (Conf::$ALLOW_REGISTER === false)
-        WS::go('/');
-      require_once('users/RegisterPane.php');
-      $PAGE = new RegisterPane();
-      break;
+  switch ($BASE) {
+  case 'register':
+    if (Conf::$ALLOW_REGISTER === false)
+      WS::go('/');
 
-    case 'password-recover':
-      require_once('users/PasswordRecoveryPane.php');
-      $PAGE = new PasswordRecoveryPane();
-      break;
-
-    case 'login':
-    case 'home':
-    default:
-      Session::s('last_page', $_SERVER['REQUEST_URI']);
-
-      // provide the login page
-      require_once('users/LoginPage.php');
-      $PAGE = new LoginPage();
-      break;
+    // When following mail verification, simulate POST
+    if (count($URI) > 0) {
+      Conf::$METHOD = 'POST';
+      $_POST['acc'] = $URI[0];
     }
-    if (Conf::$METHOD == 'POST') {
-      Session::s('POST', $PAGE->processPOST($_POST));
-      WS::goBack('/');
-    }
-    $PAGE->getHTML($_GET);
-    exit;
+    require_once('users/RegisterPane.php');
+    $PAGE = new RegisterPane();
+    break;
+
+  case 'password-recover':
+    require_once('users/PasswordRecoveryPane.php');
+    $PAGE = new PasswordRecoveryPane();
+    break;
+
+  default:
+    Session::s('last_page', $_SERVER['REQUEST_URI']);
+
+    // provide the login page
+    require_once('users/LoginPage.php');
+    $PAGE = new LoginPage();
+    break;
   }
+  if (Conf::$METHOD == 'POST') {
+    Session::s('POST', $PAGE->processPOST($_POST));
+    WS::goBack('/');
+  }
+  $PAGE->getHTML($_GET);
+  exit;
 }
 
 // ------------------------------------------------------------

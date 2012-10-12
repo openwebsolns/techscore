@@ -50,28 +50,6 @@ class RegisterPane extends AbstractUserPane {
    *
    */
   protected function fillHTML(Array $args) {
-    // ------------------------------------------------------------
-    // Mail verification
-    // ------------------------------------------------------------
-    if (isset($args['acc'])) {
-      $acc = DB::getAccountFromHash(DB::$V->reqString($args, 'acc', 1, 41, "Invalid has provided."));
-      if ($acc === null)
-        throw new SoterException("Invalid account to approve.");
-
-      $acc->status = Account::STAT_PENDING;
-      DB::set($acc);
-      Session::pa(new PA("Account verified. Please wait until the account is approved. You will be notified by mail."));
-      Session::s('POST', array('registration-step' => 2));
-      // notify all admins
-      $admins = array();
-      foreach (DB::getAdmins() as $admin)
-        $admins[] = sprintf('%s <%s>', $admin->getName(), $admin->id);
-
-      DB::mail(implode(',', $admins), sprintf("[%s] New registration", Conf::$NAME), $this->getAdminMessage($acc));
-      WS::go('/register');
-    }
-
-
     $step = null;
     $post = Session::g('POST');
     if (isset($post['registration-step']))
@@ -155,6 +133,27 @@ class RegisterPane extends AbstractUserPane {
    *
    */
   public function process(Array $args) {
+    // ------------------------------------------------------------
+    // Mail verification
+    // ------------------------------------------------------------
+    if (isset($args['acc'])) {
+      $acc = DB::getAccountFromHash(DB::$V->reqString($args, 'acc', 1, 41, "Invalid has provided."));
+      if ($acc === null)
+        throw new SoterException("Invalid account to approve.");
+
+      $acc->status = Account::STAT_PENDING;
+      DB::set($acc);
+      Session::pa(new PA("Account verified. Please wait until the account is approved. You will be notified by mail."));
+      Session::s('POST', array('registration-step' => 2));
+      // notify all admins
+      $admins = array();
+      foreach (DB::getAdmins() as $admin)
+        $admins[] = sprintf('%s <%s>', $admin->getName(), $admin->id);
+
+      DB::mail(implode(',', $admins), sprintf("[%s] New registration", Conf::$NAME), $this->getAdminMessage($acc));
+      WS::go('/register');
+    }
+
     if (isset($args['register'])) {
       // 1. Check for existing account
       $id = DB::$V->reqString($args, 'email', 1, 41, "Email must not be empty or exceed 40 characters.");
@@ -203,7 +202,7 @@ class RegisterPane extends AbstractUserPane {
                    "copy and paste the link into your browser's location bar. After you follow the " .
                    "instructions, your account request will be sent to the registration committee for " .
                    "approval. You will be notified as soon as your account is activated.\n\n" .
-                   "%3\$sregister/acc=%4\$s\n\nThank you,\n-- \n%2\$s Administration",
+                   "%3\$sregister/%4\$s\n\nThank you,\n-- \n%2\$s Administration",
                    $to->first_name, Conf::$NAME, WS::alink('/'), DB::getHash($to));
   }
   public function getAdminMessage(Account $about) {
