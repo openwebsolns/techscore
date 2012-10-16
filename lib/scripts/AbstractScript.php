@@ -157,14 +157,11 @@ abstract class AbstractScript {
   // ------------------------------------------------------------
 
   /**
-   * To be used when needing a CLI-generator. Upon construction, a new
-   * error and exception handlers are introduced. These handlers will
-   * trigger a call to 'usage' with the error message.
+   * Create a new generator. For CLI error handlers, see getOpts
    *
+   * @see getOpts
    */
   public function __construct() {
-    set_error_handler(array($this, 'handle_error'), E_ALL | E_NOTICE | E_STRICT);
-    set_exception_handler(array($this, 'handle_exception'));
   }
 
   // ------------------------------------------------------------
@@ -222,10 +219,15 @@ abstract class AbstractScript {
    * The script assumes that the first entry in $argv is the calling
    * script name; i.e. the first item in the list is ignored.
    *
+   * This function will also set the CLI error/exception handlers
+   *
    * @param Array $args the list of arguments
    * @return Array the parsed options
    */
   public function getOpts($argv) {
+    set_error_handler(array($this, 'handle_error'), E_ALL | E_NOTICE | E_STRICT);
+    set_exception_handler(array($this, 'handle_exception'));
+
     if (count($argv) == 0)
       return array();
 
