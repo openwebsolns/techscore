@@ -12,7 +12,7 @@ require_once('public/UpdateRequest.php');
  *
  * @author Dayan Paez
  * @version 2010-10-08
- * @see scripts/UpdateDaemon
+ * @see scripts/Daemon
  */
 class UpdateManager {
 

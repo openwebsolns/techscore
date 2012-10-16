@@ -1,5 +1,5 @@
-Installed hooks to be run after UpdateDaemon runs. It is best to
-install hooks by creating a symlink to them from this directory, which
-is not tracked by version control.
+Installed hooks to be run after Daemon runs. It is best to install
+hooks by creating a symlink to them from this directory, which is not
+tracked by version control.
 
 Available hooks can be found in hooks-avail directory.

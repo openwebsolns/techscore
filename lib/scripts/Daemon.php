@@ -58,7 +58,7 @@ require_once('AbstractScript.php');
  * @version 2010-10-08
  * @package scripts
  */
-class UpdateDaemon extends AbstractScript {
+class Daemon extends AbstractScript {
 
   private static $lock_file = null; // full path, used below
 
@@ -105,7 +105,7 @@ class UpdateDaemon extends AbstractScript {
     }
 
     // Create file lock
-    register_shutdown_function("UpdateDaemon::cleanup");
+    register_shutdown_function("Daemon::cleanup");
     if (file_put_contents(self::$lock_file, date('r')) === false)
       throw new RuntimeException("Unable to create lock file!");
 
@@ -341,7 +341,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   require_once(dirname(dirname(__FILE__)).'/conf.php');
   require_once('public/UpdateManager.php');
 
-  $P = new UpdateDaemon();
+  $P = new Daemon();
   $opts = $P->getOpts($argv);
   // ------------------------------------------------------------
   // List the pending requests only
