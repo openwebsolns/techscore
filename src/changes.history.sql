@@ -332,3 +332,6 @@ alter table dt_regatta drop column name, drop column nick, drop column start_tim
 update dt_regatta set hosts = replace(hosts, ',', '\0');
 update dt_regatta set confs = replace(confs, ',', '\0');
 update dt_regatta set boats = replace(boats, ',', '\0');
+
+-- update school request can refer to season
+alter table pub_update_school change column activity activity enum('burgee', 'season') not null default 'burgee', add column season varchar(3) default null after activity, add foreign key (season) references season(id) on delete cascade on update cascade;

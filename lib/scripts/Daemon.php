@@ -60,7 +60,7 @@ require_once('AbstractScript.php');
  */
 class Daemon extends AbstractScript {
 
-  private static $lock_file = null; // full path, used below
+  private static $lock_files = array(); // full path, used below
 
   // ------------------------------------------------------------
   // Public pages that need to be updated, after parsing through all
@@ -90,6 +90,75 @@ class Daemon extends AbstractScript {
   private $school_seasons;
 
   /**
+   * Checks for school-level updates and performs them
+   *
+   */
+  public function runSchools() {
+    self::$lock_files['sch'] = sprintf("%s/%s-sch", sys_get_temp_dir(), Conf::$LOCK_FILENAME);
+    if (file_exists(self::$lock_files['sch'])) {
+      die("Remove lockfile to proceed! (Created: " . file_get_contents(self::$lock_files['sch']) . ")\n");
+    }
+
+    // Create file lock
+    register_shutdown_function("Daemon::cleanup");
+    if (file_put_contents(self::$lock_files['sch'], date('r')) === false)
+      throw new RuntimeException("Unable to create lock file!");
+
+    $requests = array();
+    // ------------------------------------------------------------
+    // Loop through the school requests
+    // ------------------------------------------------------------
+    $pending = UpdateManager::getPendingSchools();
+    if (count($pending) > 0) {
+      require_once('scripts/UpdateBurgee.php');
+      require_once('scripts/UpdateSchool.php');
+      $PB = new UpdateBurgee();
+      $PS = new UpdateSchool();
+      foreach ($pending as $r) {
+        $requests[] = $r;
+	if ($r->activity == UpdateSchoolRequest::ACTIVITY_BURGEE)
+	  $PB->run($r->school);
+	else { // season summary
+	  // special case: season value is null: do all
+	  if ($r->season !== null) {
+	    $PS->run($r->school, $r->season);
+	    self::errln(sprintf('generated school %s/%-6s %s', $r->season, $r->school->id, $r->school));
+	  }
+	  else {
+	    foreach (DB::getAll(DB::$SEASON) as $season) {
+	      $PS->run($r->school, $season);
+	      self::errln(sprintf('generated school %s/%-6s %s', $season, $r->school->id, $r->school));
+	    }
+	  }
+	}
+	self::errln(sprintf("processed school update %10s: %s", $r->school->id, $r->school->name));
+      }
+      require_once('scripts/UpdateSchoolsSummary.php');
+      $P = new UpdateSchoolsSummary();
+      $P->run();
+    }
+
+    // ------------------------------------------------------------
+    // Mark all requests as completed
+    // ------------------------------------------------------------
+    foreach ($requests as $r)
+      UpdateManager::log($r);
+
+    // ------------------------------------------------------------
+    // Perform all hooks
+    // ------------------------------------------------------------
+    foreach (self::getHooks() as $hook) {
+      $ret = 0;
+      passthru($hook, $ret);
+      if ($ret != 0)
+	throw new RuntimeException("Hook $hook", $ret);
+      self::errln("Hook $hook run");
+    }
+
+    self::errln('done');
+  }
+
+  /**
    * Checks for the existance of a file lock. If absent, proceeds to
    * create one, then checks the queue of update requests for pending
    * items. Proceeds to intelligently update the public side of
@@ -97,16 +166,16 @@ class Daemon extends AbstractScript {
    * instance of this method can be called.
    *
    */
-  public function run() {
+  public function runRegattas() {
     // Check file lock
-    self::$lock_file = sprintf("%s/%s", sys_get_temp_dir(), Conf::$LOCK_FILENAME);
-    if (file_exists(self::$lock_file)) {
-      die("Remove lockfile to proceed! (Created: " . file_get_contents(self::$lock_file) . ")\n");
+    self::$lock_files['reg'] = sprintf("%s/%s-reg", sys_get_temp_dir(), Conf::$LOCK_FILENAME);
+    if (file_exists(self::$lock_files['reg'])) {
+      die("Remove lockfile to proceed! (Created: " . file_get_contents(self::$lock_files['reg']) . ")\n");
     }
 
     // Create file lock
     register_shutdown_function("Daemon::cleanup");
-    if (file_put_contents(self::$lock_file, date('r')) === false)
+    if (file_put_contents(self::$lock_files['reg'], date('r')) === false)
       throw new RuntimeException("Unable to create lock file!");
 
     // ------------------------------------------------------------
@@ -126,24 +195,6 @@ class Daemon extends AbstractScript {
 
     // Update the seasons summary page
     $seasons_summary = false;
-
-    // ------------------------------------------------------------
-    // Loop through the school requests
-    // ------------------------------------------------------------
-    $pending = UpdateManager::getPendingSchools();
-    if (count($pending) > 0) {
-      require_once('scripts/UpdateBurgee.php');
-      $P = new UpdateBurgee();
-      foreach ($pending as $r) {
-        $requests[] = $r;
-        // The only activity is burgees
-        $P->run($r->school);
-        self::errln(sprintf("processed school update %10s: %s", $r->school->id, $r->school->name));
-      }
-      require_once('scripts/UpdateSchoolsSummary.php');
-      $P = new UpdateSchoolsSummary();
-      $P->run();
-    }
 
     // ------------------------------------------------------------
     // Loop through the regatta requests
@@ -203,14 +254,12 @@ class Daemon extends AbstractScript {
     }
 
     // ------------------------------------------------------------
-    // Perform school updates
+    // Queue school updates
     // ------------------------------------------------------------
-    require_once('scripts/UpdateSchool.php');
-    $P = new UpdateSchool();
     foreach ($this->school_seasons as $id => $seasons) {
       foreach ($seasons as $season) {
-        $P->run($this->schools[$id], $season);
-        self::errln(sprintf('generated school %s/%-6s %s', $season, $id, $this->schools[$id]->nick_name));
+	UpdateManager::queueSchool($this->schools[$id], UpdateSchoolRequest::ACTIVITY_SEASON, $season);
+        self::errln(sprintf('queued school %s/%-6s %s', $season, $id, $this->schools[$id]->nick_name));
       }
     }
 
@@ -274,8 +323,10 @@ class Daemon extends AbstractScript {
    *
    */
   public static function cleanup() {
-    if (file_exists(self::$lock_file) && !unlink(self::$lock_file))
-      throw new RuntimeException("(EE) Unable to delete lock file while cleaning up!");
+    foreach (self::$lock_files as $file) {
+      if (file_exists($file) && !unlink($file))
+	throw new RuntimeException("(EE) Unable to delete lock file $file while cleaning up!");
+    }
     exit(0);
   }
 
@@ -328,28 +379,14 @@ class Daemon extends AbstractScript {
   }
 
   // ------------------------------------------------------------
-  // CLI setup
+  // List updates, without performing them
   // ------------------------------------------------------------
-  protected $cli_opts = '[-l]';
-  protected $cli_usage = ' -l --list   only list the pending updates';
-}
 
-// ------------------------------------------------------------
-// When run as a script
-// ------------------------------------------------------------
-if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  require_once(dirname(dirname(__FILE__)).'/conf.php');
-  require_once('public/UpdateManager.php');
-
-  $P = new Daemon();
-  $opts = $P->getOpts($argv);
-  // ------------------------------------------------------------
-  // List the pending requests only
-  // ------------------------------------------------------------
-  if (count($opts) > 0) {
-    if (count($opts) > 1 || !in_array($opts[0], array('-l', '--list')))
-      throw new TSScriptException("Unknown arguments");
-
+  /**
+   * Produce a list of pending regattal-level updates to standard output
+   *
+   */
+  public function listRegattas() {
     // Merely list the pending requests
     $requests = UpdateManager::getPendingRequests();
     $regattas = array();
@@ -375,13 +412,101 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
         printf("(EE) %s: %s\n.", $id, $e->getMessage());
       }
     }
-    exit(0);
+  }
+
+  /**
+   * Produce a list of pending school-level updates to standard output
+   *
+   */
+  public function listSchools() {
+    // Merely list the pending requests
+    $requests = UpdateManager::getPendingSchools();
+    $schools = array();
+    foreach ($requests as $req) {
+      $activity = $req->activity;
+      if ($req->activity == UpdateSchoolRequest::ACTIVITY_SEASON)
+	$activity .= sprintf(' (%s)', $req->season);
+      if (!isset($schools[$req->school->id])) $schools[$req->school->id] = array();
+      if (!isset($schools[$req->school->id][$activity]))
+        $schools[$req->school->id][$activity] = 0;
+      $schools[$req->school->id][$activity]++;
+    }
+
+    // Print them out and exit
+    foreach ($schools as $id => $list) {
+      try {
+        $reg = DB::getSchool($id);
+        if ($reg === null)
+          throw new RuntimeException("Invalid school ID $id.");
+        printf("--------------------\nSchool: [%s] %s\n--------------------\n", $reg->id, $reg->name);
+        foreach ($list as $activity => $num)
+          printf("%12s: %d\n", $activity, $num);
+      }
+      catch (Exception $e) {
+        printf("(EE) %s: %s\n.", $id, $e->getMessage());
+      }
+    }
   }
 
   // ------------------------------------------------------------
-  // Actually perform the requests
+  // CLI setup
   // ------------------------------------------------------------
-  // Make sure, if nothing else, that you at least run cleanup
-  $P->run();
+  protected $cli_opts = '[-l] {regatta|school}';
+  protected $cli_usage = ' -l --list   only list the pending updates
+
+ regatta: perform pending regatta-level updates
+ school:  perform pending school-level updates';
+}
+
+// ------------------------------------------------------------
+// When run as a script
+// ------------------------------------------------------------
+if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
+  require_once(dirname(dirname(__FILE__)).'/conf.php');
+  require_once('public/UpdateManager.php');
+
+  $P = new Daemon();
+  $opts = $P->getOpts($argv);
+  $axis = null;
+  $list = false;
+  if (count($opts) == 0)
+    throw new TSScriptException("Missing arguments.");
+
+  foreach ($opts as $opt) {
+    switch ($opt) {
+    case '-l':
+    case '--list':
+      $list = true;
+      break;
+
+    case 'regatta':
+    case 'school':
+      if ($axis !== null)
+	throw new TSScriptException("Only one axis may be performed at a time.");
+      $axis = $opt;
+      break;
+
+    default:
+      throw new TSScriptException("Invalid argument provided: $opt");
+    }
+  }
+  if ($axis === null)
+    throw new TSScriptException("No update axis chosen.");
+  
+  // ------------------------------------------------------------
+  // List the pending requests only
+  // ------------------------------------------------------------
+  if ($list) {
+    if ($axis == 'regatta')
+      $P->listRegattas();
+    else
+      $P->listSchools();
+  }
+  else {
+    if ($axis == 'regatta')
+      $P->runRegattas();
+    else
+      $P->runSchools();
+  }
 }
 ?>

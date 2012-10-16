@@ -146,10 +146,13 @@ class Conf {
   // ------------------------------------------------------------
 
   /**
-   * @var cronline the minutes of the hour at which to run the sync
-   * daemon, in a crond-compatible way
+   * @var cronline the (full) update schedule for regatta-level updates
    */
-  public static $CRON_FREQ = '*/5';
+  public static $CRON_FREQ = '*/5 * * * *';
+  /**
+   * @var cronline the (full) update schedule for school-level updates
+   */
+  public static $CRON_SCHOOL_FREQ = '7,27,47 * * * *';
 
   /**
    * @var String the filename to use for the lock file (in system temp)
