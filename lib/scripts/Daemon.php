@@ -279,11 +279,7 @@ class Daemon extends AbstractScript {
           require_once('scripts/UpdateFront.php');
           $P = new UpdateFront();
           $P->run();
-
-          require_once('scripts/Update404.php');
-          $P = new Update404();
-          $P->run(true);
-          self::errln('generated front and 404 page');
+	  self::errln('generated front page');
         }
       }
     }
