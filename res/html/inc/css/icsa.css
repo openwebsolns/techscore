@@ -296,7 +296,7 @@ td.races {
     background: #F2EDE6;
 }
 
-td.schoolname, td.teamname {
+td.schoolname, td.teamname, th.teamname {
     text-align: left;
 }
 

@@ -210,7 +210,7 @@ td.races {
     background: #fff8ee;
 }
 
-td.schoolname, td.teamname {
+td.schoolname, td.teamname, .results th.teamname {
     text-align: left;
 }
 
