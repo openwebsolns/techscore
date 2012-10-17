@@ -89,7 +89,8 @@ class TPublicPage extends XPage {
     if (count($this->keywords) > 0)
       $this->head->add(new XMeta('keywords', implode(',', $this->keywords)));
     foreach ($this->getCSS() as $css)
-      $this->head->add(new LinkCSS($css));
+      $this->head->add(new LinkCSS($css, 'screen,print'));
+    $this->head->add(new LinkCSS('/inc/css/print.css', 'print'));
 
     // Navigation
     $this->body->add(new XDiv(array('class'=>'nav'),
