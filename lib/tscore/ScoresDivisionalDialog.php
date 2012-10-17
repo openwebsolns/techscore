@@ -66,9 +66,14 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
                                                               new XTH(array(), "Team"))))),
                           $tab = new XTBody()));
     $ELEMS[] = $t;
+    $penalty_th = array();
+    $division_has_penalty = array();
     foreach ($divisions as $div) {
       $r->add(new XTH(array(), $div));
-      $r->add(new XTH(array('title'=>"Team penalty in division $div"), "P"));
+      $r->add($th = new XTH(array('title'=>"Team penalty in division $div"), ""));
+
+      $penalty_th[(string)$div] = $th;
+      $division_has_penalty[(string)$div] = false;
     }
     $r->add(new XTH(array('title'=>"Total for team", 'abbr'=>"Total"), "TOT"));
 
@@ -126,12 +131,20 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
           $scoreDiv += 20;
           $p_cell->add($pen->type);
           $p_cell->set("title", sprintf("(+20 points)", $pen->type));
+
+          $division_has_penalty[(string)$div] = true;
         }
         $s_cell->add(new XText($scoreDiv));
         $s_cell->set("class", "total");
         $scoreTeam += $scoreDiv;
       }
       $r->add(new XTD(array('class'=>'totalcell'), $scoreTeam));
+    }
+
+    // Deal with penalty headers
+    foreach ($division_has_penalty as $id => $val) {
+      if ($val)
+        $penalty_th[$id]->add("P");
     }
 
     // Print legend, if necessary
