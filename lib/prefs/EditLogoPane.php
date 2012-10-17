@@ -20,8 +20,8 @@ class EditLogoPane extends AbstractPrefsPane {
    *
    * @param School $school the school whose logo to edit
    */
-  public function __construct(Account $usr) {
-    parent::__construct("School logo", $usr);
+  public function __construct(Account $usr, School $school) {
+    parent::__construct("School logo", $usr, $school);
     $this->page_url = 'logo';
   }
 

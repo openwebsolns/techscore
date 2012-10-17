@@ -20,8 +20,8 @@ class PrefsHomePane extends AbstractPrefsPane {
    *
    * @param School $school the school whose logo to edit
    */
-  public function __construct(Account $usr) {
-    parent::__construct("Preferences", $usr);
+  public function __construct(Account $usr, School $school) {
+    parent::__construct("Preferences", $usr, $school);
   }
 
   /**

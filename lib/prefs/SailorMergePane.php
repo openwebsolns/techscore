@@ -21,8 +21,8 @@ class SailorMergePane extends AbstractPrefsPane {
    *
    * @param Account $usr the user
    */
-  public function __construct(Account $usr) {
-    parent::__construct("Sailors", $usr);
+  public function __construct(Account $usr, School $school) {
+    parent::__construct("Sailors", $usr, $school);
     $this->page_url = 'sailor';
   }
 
