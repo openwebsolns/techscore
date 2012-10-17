@@ -20,8 +20,8 @@ class TeamNamePrefsPane extends AbstractPrefsPane {
    *
    * @param Account $usr the user
    */
-  public function __construct(Account $usr) {
-    parent::__construct("Team names", $usr);
+  public function __construct(Account $usr, School $school) {
+    parent::__construct("Team names", $usr, $school);
     $this->page_url = 'team';
   }
 

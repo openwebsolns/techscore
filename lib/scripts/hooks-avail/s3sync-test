@@ -4,4 +4,4 @@
 
 root=$(hg root)
 ping -c 1 www.google.com > /dev/null || exit 2
-s3cmd -c "$root/etc/s3cfg" sync --dry-run --delete-removed "$root/html/" s3://live.collegesailing.org/
+s3cmd -c "$root/etc/s3cfg" sync --dry-run --delete-removed "$root/html/" s3://scores.collegesailing.org/

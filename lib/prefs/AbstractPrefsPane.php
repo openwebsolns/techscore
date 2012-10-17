@@ -24,16 +24,11 @@ abstract class AbstractPrefsPane extends AbstractUserPane {
    * @param School $school the school
    * @throws PaneException
    */
-  public function __construct($title, Account $user) {
+  public function __construct($title, Account $user, School $school) {
     parent::__construct($title, $user);
-    try {
-      $this->SCHOOL = DB::$V->reqSchool($_GET, 'school', "No school provided for preferences.");
-      if (!$user->hasSchool($this->SCHOOL))
-        throw new SoterException(sprintf("No permissions to edit school %s.", $this->SCHOOL));
-    }
-    catch (SoterException $e) {
-      throw new PaneException($e->getMessage());
-    }
+    if (!$user->hasSchool($school))
+      throw new PaneException(sprintf("No permissions to edit school %s.", $this->SCHOOL));
+    $this->SCHOOL = $school;
   }
 
   /**

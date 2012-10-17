@@ -193,23 +193,29 @@ abstract class AbstractUserPane {
     // Preferences
     // ------------------------------------------------------------
     if ($base == 'prefs') {
+      // school follows
+      if (count($uri) == 0)
+        throw new PaneException("No school provided.");
+      if (($school = DB::getSchool(array_shift($uri))) === null)
+        throw new PaneException("Invalid school requested.");
+      
       $arg = (count($uri) == 0) ? 'home' : array_shift($uri);
       switch ($arg) {
       case 'home':
         require_once('prefs/PrefsHomePane.php');
-        return new PrefsHomePane($u);
+        return new PrefsHomePane($u, $school);
 
         // --------------- LOGO --------------- //
       case 'logo':
       case 'burgee':
         require_once('prefs/EditLogoPane.php');
-        return new EditLogoPane($u);
+        return new EditLogoPane($u, $school);
 
         // --------------- SAILOR ------------- //
       case 'sailor':
       case 'sailors':
         require_once('prefs/SailorMergePane.php');
-        return new SailorMergePane($u);
+        return new SailorMergePane($u, $school);
 
         // --------------- TEAMS ------------- //
       case 'team':
@@ -217,7 +223,7 @@ abstract class AbstractUserPane {
       case 'name':
       case 'names':
         require_once('prefs/TeamNamePrefsPane.php');
-        return new TeamNamePrefsPane($u);
+        return new TeamNamePrefsPane($u, $school);
 
       default:
         throw new PaneException("Invalid preferences page requested.");
