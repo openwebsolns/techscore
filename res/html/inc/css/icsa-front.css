@@ -62,6 +62,7 @@ a {
     text-align: center;
     vertical-align: middle;
     padding: 0 2em;
+    min-width: 6em;
 }
 
 #menu li:last-child {
