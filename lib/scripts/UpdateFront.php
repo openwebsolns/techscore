@@ -91,12 +91,12 @@ class UpdateFront extends AbstractScript {
       foreach ($in_prog as $i => $reg) {
         $data = $reg->getData();
         $row = array(new XA($reg->getURL(), $reg->name), $types[$reg->type]);
-        if ($data->status == Dt_Regatta::STAT_READY) {
+        $tms = $data->getTeams();
+        if ($data->status == Dt_Regatta::STAT_READY || count($tms) == 0) {
           $row[] = new XTD(array('colspan'=>2), new XEm("No scores yet"));
         }
         else {
           $row[] = new XStrong(ucwords($data->status));
-          $tms = $data->getTeams();
           if ($tms[0]->school->burgee !== null)
             $row[] = new XImg(sprintf('/inc/img/schools/%s.png', $tms[0]->school->id), $tms[0], array('height'=>40));
           else
