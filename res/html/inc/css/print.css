@@ -13,7 +13,7 @@ a {
     border: none;
 }
 
-.nav, #page-header, #submenu-wrapper {
+.nav, #page-header, #submenu-wrapper, #welcome {
     display: none;
 }
 
