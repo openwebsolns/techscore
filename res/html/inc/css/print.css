@@ -3,18 +3,31 @@ html {
     font-size: 10pt;
 }
 
+body, #left-fill, #right-fill {
+    background: none;
+}
+
 a {
     color: black;
     text-decoration: none;
     border: none;
 }
 
-.nav, #page-header {
+.nav, #page-header, #submenu-wrapper {
     display: none;
 }
 
 #page-content {
     padding-top: 1.5em;
+}
+
+table {
+    page-break-inside: auto;
+}
+
+tr {
+    page-break-inside: avoid;
+    page-break-after:auto;
 }
 
 table * {
