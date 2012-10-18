@@ -114,7 +114,7 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
     require_once('tscore/AbstractPane.php');
     $PAGE = AbstractPane::getPane($URI_TOKENS, Conf::$USER, $REG);
     if ($PAGE === null) {
-      $mes = sprintf("Invalid page requested (%s)", $ARG);
+      $mes = sprintf("Invalid page requested (%s)", $BASE);
       Session::pa(new PA($mes, PA::I));
       WS::go('/score/'.$REG->id);
     }
@@ -139,7 +139,7 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
     require_once('tscore/AbstractDialog.php');
     $PAGE = AbstractDialog::getDialog($URI_TOKENS, Conf::$USER, $REG);
     if ($PAGE === null) {
-      $mes = sprintf("Invalid page requested (%s)", $ARG);
+      $mes = sprintf("Invalid page requested (%s)", $BASE);
       Session::pa(new PA($mes, PA::I));
       WS::go('/view/'.$REG->id);
     }
