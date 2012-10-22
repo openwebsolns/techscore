@@ -56,7 +56,6 @@ if (Conf::$USER === null) {
     if (Conf::$METHOD == 'POST')
       WS::go($URI);
 
-    Session::pa(new PA("Please login to proceed.", PA::I));
     Session::s('last_page', $_SERVER['REQUEST_URI']);
     require_once('users/LoginPage.php');
     $PAGE = new LoginPage();
