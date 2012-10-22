@@ -149,6 +149,7 @@ class ICSAScorer {
             }
             $finish->score = new Score($amount, $exp);
             $penalty->earned = $score;
+            $affected_finishes[] = $finish;
           }
           $penalty->earned = $score;
         
