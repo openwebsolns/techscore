@@ -97,13 +97,13 @@ class ICSAScorer {
 
       $score = 1;
       foreach ($finishes as $finish) {
+        $affected_finishes[] = $finish;
         $penalty = $finish->getModifier();
         if ($penalty == null) {
           // ------------------------------------------------------------
           // clean finish
           $finish->score = new Score($score);
           $score++;
-          $affected_finishes[] = $finish;
         }
         elseif ($penalty instanceof Penalty) {
           // ------------------------------------------------------------
@@ -132,7 +132,6 @@ class ICSAScorer {
               $score++;
           }
           $penalty->earned = $score;
-          $affected_finishes[] = $finish;
         }
         else {
           // ------------------------------------------------------------
@@ -149,7 +148,6 @@ class ICSAScorer {
             }
             $finish->score = new Score($amount, $exp);
             $penalty->earned = $score;
-            $affected_finishes[] = $finish;
           }
           $penalty->earned = $score;
         
