@@ -39,11 +39,20 @@ class DropPenaltyPane extends AbstractPane {
       $p->add(new XP(array(), "There are currently no penalties."));
     }
     else {
-      $p->add($tab = new XQuickTable(array('class'=>'narrow'), array("Race", "Team", "Penalty", "Action")));
+      $p->add($tab = new XQuickTable(array(), array("Race", "Team", "Type", "Comments", "Amount", "Displace?", "Action")));
       foreach ($penalties as $finish) {
+        $amount = $finish->amount;
+        if ($amount < 1)
+          $amount = "FLEET + 1";
+        $displace = "";
+        if ($finish->displace > 0)
+          $displace = new XImg(WS::link('/inc/img/s.png'), "✓");
         $tab->addRow(array($finish->race,
                            $finish->team,
                            $finish->penalty,
+                           $finish->comments,
+                           $amount,
+                           $displace,
                            $form = $this->createForm()));
 
         $form->add(new XHiddenInput("r_finish", $finish->id));
@@ -60,11 +69,20 @@ class DropPenaltyPane extends AbstractPane {
       $p->add(new XP(array(), "There are currently no breakdowns."));
     }
     else {
-      $p->add($tab = new XQuickTable(array('class'=>'narrow'), array("Race", "Team", "Breakdown", "Action")));
+      $p->add($tab = new XQuickTable(array(), array("Race", "Team", "Type", "Comments", "Amount", "Displace", "Action")));
       foreach ($handicaps as $finish) {
+        $amount = $finish->amount;
+        if ($amount < 1)
+          $amount = "Average in division";
+        $displace = "";
+        if ($finish->displace > 0)
+          $displace = new XImg(WS::link('/inc/img/s.png'), "✓");
         $tab->addRow(array($finish->race,
                            $finish->team,
                            $finish->penalty,
+                           $finish->comments,
+                           $amount,
+                           $displace,
                            $form = $this->createForm()));
 
         $form->add(new XHiddenInput("r_finish", $finish->id));
