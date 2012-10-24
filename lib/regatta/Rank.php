@@ -19,6 +19,10 @@ class Rank {
   public $team;
   public $score;
   public $explanation;
+  /**
+   * @var Division the optional division being referred to
+   */
+  public $division;
 
   /**
    * Create a new rank with the given parameters
@@ -43,6 +47,15 @@ class Rank {
       $this->score = (int)$score;
     else
       throw new InvalidArgumentException("Non-existing or invalid object type for Rank.");
+  }
+
+  /**
+   * Unique representation of rank: team-division pairing
+   *
+   */
+  public function hash() {
+    $tid = ($this->team instanceof Team) ? $this->team->id : $this->team;
+    return sprintf('%s-%s', $tid, $this->division);
   }
 
   /**
