@@ -360,10 +360,14 @@ class Regatta extends DBObject {
    * tiebreaker procedure should be used after that if multiple teams
    * share the same score.
    *
+   * If $races is empty, then it will return an empty array.
+   *
    * @param Array:Race $races the races to use for the ranking
    * @return Array:Rank the ordered rank objects
    */
   public function getRanks($races) {
+    if (count($races) == 0)
+      return array();
     $ranks = array();
     foreach ($this->getTeams() as $team) {
       $q = DB::prepGetAll(DB::$FINISH,
