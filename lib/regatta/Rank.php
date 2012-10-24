@@ -59,7 +59,7 @@ class Rank {
   }
 
   /**
-   * Compares the ranks by comparing the teams
+   * Compares the ranks by comparing the teams, then the divisions
    *
    * @param Rank $r1 the first rank
    * @param Rank $r2 the second rank
@@ -67,7 +67,10 @@ class Rank {
    * versa, and 0 when equal
    */
   public static function compareTeam(Rank $r1, Rank $r2) {
-    return strcmp($r1->team, $r2->team);
+    $ret = strcmp($r1->team, $r2->team);
+    if ($ret != 0)
+      return $ret;
+    return strcmp($r1->division, $r2->division);
   }
 
   /**
