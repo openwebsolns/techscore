@@ -113,7 +113,7 @@ class UpdateRegatta extends AbstractScript {
 
     // do the team divisions
     foreach ($divs as $div) {
-      foreach ($reg->scorer->rank($reg, $div) as $i => $rank) {
+      foreach ($reg->scorer->rank($reg, $reg->getScoredRaces($div)) as $i => $rank) {
         $team_division = $dteams[$rank->team->id]->getRank($div);
         if ($team_division === null)
           $team_division = new Dt_Team_Division();

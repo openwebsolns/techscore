@@ -78,7 +78,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
     // print each ranked team
     //  - keep track of different ranks and tiebrakers
     $tiebreakers = array("" => "");
-    $ranks = $this->REGATTA->scorer->rank($this->REGATTA, $division);
+    $ranks = $this->REGATTA->scorer->rank($this->REGATTA, $this->REGATTA->getScoredRaces($division));
     foreach ($ranks as $rank) {
       if (!empty($rank->explanation) && !isset($tiebreakers[$rank->explanation])) {
         $count = count($tiebreakers);

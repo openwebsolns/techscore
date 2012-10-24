@@ -231,22 +231,27 @@ class ICSAScorer {
   }
 
   /**
-   * Rank the teams of the regatta according to given division.
+   * Rank the teams of the regatta according to given races.
    *
-   * If division is null, then rank teams across all divisions.
+   * If $races is null, rank team across all races
    *
    * @param Regatta $reg the regatta
-   * @param Division $division the division to rank, or all if null
+   * @param Array:Race|null the list of races to limit rank
    * @return Array:Rank the ranked teams
    */
-  public function rank(Regatta $reg, Division $division = null) {
-    if ($division === null)
+  public function rank(Regatta $reg, $races = null) {
+    if ($races === null) {
+      $races = $reg->getScoredRaces();
       $divisions = $reg->getDivisions();
-    else
-      $divisions = array($division);
+    }
+    else {
+      $divisions = array();
+      foreach ($races as $race)
+        $divisions[(string)$race->division] = $race->division;
+    }
 
     $ranks = array();
-    foreach ($reg->getRanks($reg->getRaces($division)) as $rank) {
+    foreach ($reg->getRanks($races) as $rank) {
       foreach ($divisions as $div) {
         // deal with team penalties
         if ($reg->getTeamPenalty($rank->team, $div) !== null)
@@ -278,7 +283,7 @@ class ICSAScorer {
       }
 
       // Head to head ties
-      $tiedRanks = $this->settleHeadToHead($tiedRanks, $reg, $divisions);
+      $tiedRanks = $this->settleHeadToHead($tiedRanks, $reg, $races);
       $newOrder = array_merge($newOrder, $tiedRanks);
     }
 
@@ -296,9 +301,9 @@ class ICSAScorer {
    *
    * @param Array:Rank $ranks a list of tied ranks
    * @param Regatta $reg the regatta
-   * @param Array:Division the list of races to consider
+   * @param Array:Race the list of races to consider
    */
-  protected function settleHeadToHead(Array $ranks, Regatta $reg, Array $divisions) {
+  protected function settleHeadToHead(Array $ranks, Regatta $reg, $races) {
     $numTeams = count($ranks);
     if ($numTeams < 2)
       return $ranks;
@@ -312,36 +317,32 @@ class ICSAScorer {
       $rankMap[$rank->team->id]  = $rank;
     }
 
-    $races = array();
-    foreach ($divisions as $div) {
-      foreach ($reg->getScoredRaces($div) as $race) {
-        $races[] = $race;
-        $scoreList = array();
-        $rankList  = array();
-        foreach ($ranks as $rank) {
-          $finish = $reg->getFinish($race, $rank->team);
-          $scoreList[] = $finish->score;
-          $rankList[] = $rank;
-        }
-        array_multisort($scoreList, $rankList);
+    foreach ($races as $race) {
+      $scoreList = array();
+      $rankList  = array();
+      foreach ($ranks as $rank) {
+        $finish = $reg->getFinish($race, $rank->team);
+        $scoreList[] = $finish->score;
+        $rankList[] = $rank;
+      }
+      array_multisort($scoreList, $rankList);
 
-        // Update headwins
-        $thisScore = $scoreList[0];
-        $priorPlace = 0;
-        $key = $rankList[0]->team->id;
-        $headWins[$key] += $priorPlace;
-        for ($i = 1; $i < $numTeams; $i++) {
-          $nextScore = $scoreList[$i];
-          $key = $rankList[$i]->team->id;
-          $place = $i;
-          if ($nextScore == $thisScore)
-            $place = $priorPlace;
-          $headWins[$key] += $place;
+      // Update headwins
+      $thisScore = $scoreList[0];
+      $priorPlace = 0;
+      $key = $rankList[0]->team->id;
+      $headWins[$key] += $priorPlace;
+      for ($i = 1; $i < $numTeams; $i++) {
+        $nextScore = $scoreList[$i];
+        $key = $rankList[$i]->team->id;
+        $place = $i;
+        if ($nextScore == $thisScore)
+          $place = $priorPlace;
+        $headWins[$key] += $place;
 
-          // Reset variables
-          $priorPlace = $place;
-          $thisScore  = $nextScore;
-        }
+        // Reset variables
+        $priorPlace = $place;
+        $thisScore  = $nextScore;
       }
     }
 
@@ -393,7 +394,7 @@ class ICSAScorer {
    */
   protected function rankMostHighFinishes(Array $ranks,
                                           Regatta $reg,
-                                          Array $races,
+                                          $races,
                                           $placeFinish = 1) {
 
     // Base cases
@@ -459,19 +460,22 @@ class ICSAScorer {
   /**
    * Rank the teams by their performance in the last race
    *
-   * @param Array<Rank> $ranks the ranks to sort
+   * @param Array:Rank $ranks the ranks to sort
    * @param Regatta $reg the regatta
-   * @param Array<Race> $races the races
+   * @param Array:Race $races the races
+   * @param int $race_index the index of the race previously
+   * checked. The function will check the previous index.
    */
-  protected function rankByLastRace(Array $ranks,
-                                    Regatta $reg,
-                                    Array $races) {
+  protected function rankByLastRace(Array $ranks, Regatta $reg, $races, $race_index = null) {
 
     $numRanks = count($ranks);
     if ($numRanks < 2)
       return $ranks;
 
-    if (count($races) == 0) {
+    if ($race_index === null)
+      $race_index = count($races);
+    $race_index--;
+    if ($race_index < 0) {
       // Let's go alphabetical
       foreach ($ranks as $rank)
         $rank->explanation = "Alphabetical";
@@ -482,7 +486,7 @@ class ICSAScorer {
     // Get the last race scores. If combined scoring, remove other
     // races with the same number.
     $scoreList = array();
-    $lastRace = array_pop($races);
+    $lastRace = $races[$race_index];
     foreach ($ranks as $rank) {
       $finish = $reg->getFinish($lastRace, $rank->team);
       $scoreList[] = $finish->score;
@@ -513,9 +517,7 @@ class ICSAScorer {
       }
 
       // Resolve ties
-      $tiedRanks = $this->rankByLastRace($tiedRanks,
-                                         $reg,
-                                         $races);
+      $tiedRanks = $this->rankByLastRace($tiedRanks, $reg, $races, $race_index);
       foreach ($tiedRanks as $rank)
         $ranks[$originalSpot++] = $rank;
     }

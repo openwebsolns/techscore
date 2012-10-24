@@ -72,7 +72,7 @@ class ICSACombinedScorer extends ICSAScorer {
    */
   protected function rankMostHighFinishes(Array $ranks,
                                           Regatta $reg,
-                                          Array $races,
+                                          $races,
                                           $placeFinish = 1) {
 
     // Base cases
@@ -144,16 +144,19 @@ class ICSACombinedScorer extends ICSAScorer {
    * @param Array<Rank> $ranks the ranks to sort
    * @param Regatta $reg the regatta
    * @param Array:ints $races the race numbers
+   * @param int $race_index the index of the previously ranked race
+   * @see ICSAScorer::rankByLastRace
    */
-  protected function rankByLastRace(Array $ranks,
-                                    Regatta $reg,
-                                    Array $races) {
+  protected function rankByLastRace(Array $ranks, Regatta $reg, $races, $race_index = null) {
 
     $numRanks = count($ranks);
     if ($numRanks < 2)
       return $ranks;
 
-    if (count($races) == 0) {
+    if ($race_index === null)
+      $race_index = count($races);
+    $race_index--;
+    if ($race_index < 0) {
       // Let's go alphabetical
       foreach ($ranks as $rank)
         $rank->explanation = "Alphabetical";
@@ -165,7 +168,7 @@ class ICSACombinedScorer extends ICSAScorer {
     // races with the same number.
     $scoreList = array();
     $divisions = $reg->getDivisions();
-    $lastNum  = array_pop($races);
+    $lastNum  = $races[$race_index];
 
     $scoreList = array();
     foreach ($ranks as $rank) {
@@ -203,9 +206,7 @@ class ICSACombinedScorer extends ICSAScorer {
       }
 
       // Resolve ties
-      $tiedRanks = $this->rankByLastRace($tiedRanks,
-                                         $reg,
-                                         $races);
+      $tiedRanks = $this->rankByLastRace($tiedRanks, $reg, $races, $race_index);
       foreach ($tiedRanks as $rank)
         $ranks[$originalSpot++] = $rank;
     }
