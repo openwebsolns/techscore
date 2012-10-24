@@ -79,7 +79,7 @@ class ICSACombinedScorer extends ICSAScorer {
     if (count($ranks) < 2)
       return $ranks;
 
-    $fleetSize = count($reg->getTeams());
+    $fleetSize = count($reg->getTeams()) * count($reg->getDivisions());
     if ($placeFinish > $fleetSize) {
       $nums = array();
       foreach ($reg->getScoredRaces(Division::A()) as $race)
