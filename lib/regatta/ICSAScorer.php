@@ -278,7 +278,6 @@ class ICSAScorer {
         if ($nextScore != $aScore)
           break;
         $tiedRanks[] = $ranks[$i];
-        $aScore = $nextScore;
         $i++;
       }
 
