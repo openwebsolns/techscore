@@ -295,9 +295,10 @@ class ICSASpecialCombinedRanker extends ICSACombinedScorer {
     // races with the same number.
     $scoreList = array();
     foreach ($ranks as $rank) {
-      $finish = $reg->getFinish($races[(string)$rank->division][$race_index], $rank->team);
+      $race = $races[(string)$rank->division][$race_index];
+      $finish = $reg->getFinish($race, $rank->team);
       $scoreList[] = $finish->score;
-      $rank->explanation = sprintf("According to last race (%s)", $lastRace);
+      $rank->explanation = sprintf("According to last race (%s)", $race);
     }
     array_multisort($scoreList, $ranks);
 
