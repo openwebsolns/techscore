@@ -610,7 +610,7 @@ class DBCondIn extends DBExpression {
    */
   public function __construct($field, $values, $oper = DBCondIn::IN) {
     if ($field === null) throw new DBQueryException("Field cannot be null.");
-    if (!is_array($values) && !($values instanceof DBQuery))
+    if (!is_array($values) && !($values instanceof ArrayIterator) && !($values instanceof DBQuery))
       throw new DBQueryException("Value must be an array or a query.");
 
     if (!in_array($oper, self::$opers))
@@ -621,11 +621,13 @@ class DBCondIn extends DBExpression {
     $this->values =& $values;
   }
   public function toSQL(MySQLi $con) {
-    if (is_array($this->values)) {
+    if (is_array($this->values) || $this->values instanceof ArrayIterator) {
       $val = "";
       foreach ($this->values as $i => $v) {
         if ($i > 0)
           $val .= ',';
+        if ($v instanceof DBObject)
+          $v = $v->id;
         $val .= ('"'.$con->real_escape_string($v).'"');
       }
     }
