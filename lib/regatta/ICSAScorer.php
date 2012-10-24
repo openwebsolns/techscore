@@ -231,12 +231,13 @@ class ICSAScorer {
   }
 
   /**
-   * Ranks the teams of the regatta according to results from the
-   * given set of races. If null, then just rank the whole regatta
+   * Rank the teams of the regatta according to given division.
+   *
+   * If division is null, then rank teams across all divisions.
    *
    * @param Regatta $reg the regatta
    * @param Division $division the division to rank, or all if null
-   * @return Array<Rank> the ranked teams
+   * @return Array:Rank the ranked teams
    */
   public function rank(Regatta $reg, Division $division = null) {
     if ($division === null)
@@ -244,13 +245,14 @@ class ICSAScorer {
     else
       $divisions = array($division);
 
-    $ranks = $reg->getRanks($divisions);
-    // deal with team penalties
-    foreach ($ranks as $rank) {
+    $ranks = array();
+    foreach ($reg->getRanks($reg->getRaces($division)) as $rank) {
       foreach ($divisions as $div) {
+        // deal with team penalties
         if ($reg->getTeamPenalty($rank->team, $div) !== null)
           $rank->score += 20;
       }
+      $ranks[] = $rank;
     }
 
     // sort the ranks according to score

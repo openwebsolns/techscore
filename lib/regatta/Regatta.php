@@ -354,23 +354,21 @@ class Regatta extends DBObject {
   }
 
   /**
-   * Returns the simple rank of the teams in the database, by
-   * totalling their score across the division given (or all
-   * divisions). A tiebreaker procedure should be used after that if
-   * multiple teams share the same score.
+   * Returns the simple rank of the teams in the database.
    *
-   * @param Array:Division $divs the divisions to use for the ranking
+   * Total the team's score across the given list of races. A
+   * tiebreaker procedure should be used after that if multiple teams
+   * share the same score.
+   *
+   * @param Array:Race $races the races to use for the ranking
+   * @return Array:Rank the ordered rank objects
    */
-  public function getRanks(Array $divs) {
+  public function getRanks($races) {
     $ranks = array();
-    $racec = new DBCondIn('race',
-                          DB::prepGetAll(DB::$RACE,
-                                         new DBBool(array(new DBCond('regatta', $this->id),
-                                                          new DBCondIn('division', $divs))),
-                                         array('id')));
     foreach ($this->getTeams() as $team) {
-      $q = DB::prepGetAll(DB::$FINISH, new DBBool(array(new DBCond('team', $team), $racec)));
-      $q->fields(array(new DBField('score', 'sum', 'total')), DB::$FINISH->db_name());
+      $q = DB::prepGetAll(DB::$FINISH,
+                          new DBBool(array(new DBCond('team', $team), new DBCondIn('race', $races))),
+                          array(new DBField('score', 'sum', 'total')));
       $q = DB::query($q);
       $r = $q->fetch_object();
 
