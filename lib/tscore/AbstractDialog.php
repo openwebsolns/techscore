@@ -104,11 +104,18 @@ abstract class AbstractDialog {
         require_once('tscore/ScoresFullDialog.php');
         return new ScoresFullDialog($u);
 
-      // --------------- DIV. SCORE --------------//
+        // --------------- DIV. SCORE --------------//
       case 'div-score':
       case 'div-scores':
         require_once('tscore/ScoresDivisionalDialog.php');
         return new ScoresDivisionalDialog($u);
+
+        // --------------- COMINED. SCORE --------------//
+      case 'combined':
+        if ($u->scoring != Regatta::SCORING_COMBINED)
+          return null;
+        require_once('tscore/ScoresCombinedDialog.php');
+        return new ScoresCombinedDialog($u);
 
       // --------------- LAST UPDATE ------------//
       case 'last-update':
