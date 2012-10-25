@@ -91,20 +91,8 @@ class ScoresCombinedDialog extends AbstractScoresDialog {
 
     $rowIndex = 0;
     $order = 1;
-    $races = $this->REGATTA->getScoredRaces(Division::A());
     $total_races = count($this->REGATTA->getRaces(Division::A()));
     foreach ($ranks as $rank) {
-
-      // get total score for this team
-      $total = 0;
-      foreach ($races as $race) {
-        $finish = $this->REGATTA->getFinish($race, $rank->team);
-        $total += $finish->score;
-      }
-      $penalty = $this->REGATTA->getTeamPenalty($rank->team, $rank->division);
-      if ($penalty != null) {
-        $total += 20;
-      }
 
       $ln = $rank->team->school->name;
       if ($link_schools !== false)
@@ -124,7 +112,9 @@ class ScoresCombinedDialog extends AbstractScoresDialog {
                           $r1c4 = new XTD(array('class'=>'schoolname'), $ln),
                           $r1cDiv = new XTD(array('class'=>'division'), $rank->division),
                           $r1c5 = new XTD(),
-                          $r1c6 = new XTD(array('class'=>'totalcell'), $total)));
+                          $r1c6 = new XTD(array('class'=>'totalcell'), $rank->score)));
+      // get total score for this team
+      $penalty = $this->REGATTA->getTeamPenalty($rank->team, $rank->division);
       if ($penalty != null) {
         $r1c5->add($penalty->type);
         $r1c5->set('title', sprintf("%s (+20 points)", $penalty->comments));
