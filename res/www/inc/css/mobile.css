@@ -261,6 +261,12 @@ h4#user {
     font-size: 1em;
     text-align: center;
 }
+
+#regatta > img {
+    margin-left: 0.25em;
+    vertical-align: bottom;
+}
+
 #regatta a {
     color: #3465a4;
     text-decoration: none;

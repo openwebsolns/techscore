@@ -150,7 +150,9 @@ class TScorePage extends XPage {
     }
 
     if ($reg !== null) {
-      $this->header->add(new XH4(new XA(sprintf('/score/%s/', $reg->id), $reg->name), array('id'=>'regatta')));
+      $this->header->add($h4 = new XH4(new XA(sprintf('/score/%s/', $reg->id), $reg->name), array('id'=>'regatta')));
+      if ($reg->private)
+        $h4->add(new XImg(WS::link('/inc/img/priv.png'), "Private", array('title'=>'Regatta is not public')));
       $this->header->add(new XDiv(array('id'=>'close'), array(new XA('/', "Close", array('accesskey'=>'w')))));
     }
 
