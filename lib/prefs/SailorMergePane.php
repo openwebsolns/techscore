@@ -76,7 +76,6 @@ class SailorMergePane extends AbstractPrefsPane {
     if (isset($args['match_sailors'])) {
       unset($args['match_sailors']);
 
-      $divs = Division::getAssoc();
       $reals = array();
       foreach ($this->SCHOOL->getSailors() as $sailor)
         $reals[$sailor->id] = $sailor;
@@ -99,11 +98,9 @@ class SailorMergePane extends AbstractPrefsPane {
           $temp = $temps[$id];
 
           // Notify the affected regattas to redo their RPs
-          foreach ($divs as $div) {
-            foreach (RpManager::getRegattas($temp, null, $div) as $reg) {
-              UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_RP, $this->SCHOOL);
-              $affected[$reg->id] = $reg;
-            }
+          foreach ($temp->getRegattas() as $reg) {
+            UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_RP, $this->SCHOOL);
+            $affected[$reg->id] = $reg;
           }
 
           // Replace

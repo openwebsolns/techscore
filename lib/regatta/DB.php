@@ -1019,6 +1019,17 @@ class Member extends DBObject {
       $name .= " *";
     return $name;
   }
+
+  /**
+   * Fetch list of regattas member has participated in
+   *
+   */
+  public function getRegattas($inc_private = false) {
+    $cond = new DBCondIn('id', DB::prepGetAll(DB::$RP_ENTRY, new DBCond('sailor', $this), array('race')));
+    require_once('regatta/Regatta.php');
+    return DB::getAll(($inc_private !== false) ? DB::$REGATTA : DB::$PUBLIC_REGATTA,
+                      new DBCondIn('id', DB::prepGetAll(DB::$RACE, $cond, array('regatta'))));
+  }
 }
 
 /**
