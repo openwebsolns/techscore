@@ -25,5 +25,9 @@ MAILTO = {CRON_MAILTO}
 28 4 13 * * /usr/bin/php {DIRECTORY}/lib/scripts/Update404.php general
 
 #--------------------------------
+# Remove private regattas once a month
+26 4 28 * * /usr/bin/php {DIRECTORY}/lib/scripts/RemovePrivate.php
+
+#--------------------------------
 # Process mail messages
 27 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/ProcessOutbox.php
