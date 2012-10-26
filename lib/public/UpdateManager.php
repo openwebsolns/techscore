@@ -35,7 +35,7 @@ class UpdateManager {
     DB::set($obj);
 
     // Perform the regatta scores update right away
-    if ($type == UpdateRequest::ACTIVITY_SCORE && $reg->type != Regatta::TYPE_PERSONAL) {
+    if ($type == UpdateRequest::ACTIVITY_SCORE && !$reg->private) {
       if (self::$UPDATE_REG === null) {
         require_once('scripts/UpdateRegatta.php');
         self::$UPDATE_REG = new UpdateRegatta();

@@ -335,3 +335,9 @@ update dt_regatta set boats = replace(boats, ',', '\0');
 
 -- update school request can refer to season
 alter table pub_update_school change column activity activity enum('burgee', 'season') not null default 'burgee', add column season varchar(3) default null after activity, add foreign key (season) references season(id) on delete cascade on update cascade;
+
+-- personal is not a regatta type, but a condition
+alter table regatta add column private tinyint default null after participant;
+update regatta set private = 1 where type = 'personal';
+alter table regatta change column type type enum('conference','intersectional','championship','two-conference','conference-championship','promotional') not null default 'conference';
+update regatta set type = 'conference' where type = '';

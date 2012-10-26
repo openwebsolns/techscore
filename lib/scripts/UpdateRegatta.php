@@ -206,7 +206,7 @@ class UpdateRegatta extends AbstractScript {
    * @param Array:UpdateRequest::Constant the activities to execute
    */
   public function run(Regatta $reg, Array $activities) {
-    if ($reg->type == Regatta::TYPE_PERSONAL) {
+    if ($reg->private) {
       $this->runDelete($reg);
       return;
     }

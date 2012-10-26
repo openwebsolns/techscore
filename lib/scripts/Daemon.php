@@ -215,7 +215,7 @@ class Daemon extends AbstractScript {
       // If the regatta is personal, but a request still exists, then
       // request the update of the seasons, the schools, and the
       // season summaries, regardless.
-      if ($reg->type == Regatta::TYPE_PERSONAL) {
+      if ($reg->private) {
         $seasons_summary = true;
         $this->seasons[$season->id] = $season;
         foreach ($reg->getTeams() as $team)

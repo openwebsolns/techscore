@@ -145,7 +145,7 @@ class HomePane extends AbstractUserPane {
       $row[] = $finalized;
 
       $class = "";
-      if ($reg->type == Regatta::TYPE_PERSONAL)
+      if ($reg->private)
         $class = 'personal-regatta ';
       if ($this->isCurrent($reg)) {
         $cur_tab->addRow($row, array('class' => $class . 'row'.($num_cur++ % 2)));

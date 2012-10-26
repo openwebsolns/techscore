@@ -36,6 +36,13 @@ class DetailsPane extends AbstractPane {
                                             array("maxlength"=>35,
                                                   "size"     =>20))));
 
+    // Private
+    $reg_form->add($fi = new FItem("Private:",
+                                   $chk = new XCheckboxInput('private', 1, array('id'=>'chk-priv'))));
+    $fi->add(new XLabel('chk-priv', "Private regattas are not published and are temporary."));
+    if ($this->REGATTA->private)
+      $chk->set('checked', 'checked');
+
     // Date
     $start_time = $this->REGATTA->start_time;
     $date = date_format($start_time, 'm/d/Y');
@@ -71,14 +78,7 @@ class DetailsPane extends AbstractPane {
 
     // Regatta type
     $value = $this->REGATTA->type;
-    $types = Regatta::getTypes();
-    unset($types['personal']);
-    $reg_form->add($item = new FItem("Type:",
-                                     XSelect::fromArray('type',
-                                                        array("Public" => $types,
-                                                              "Not-published" => array('personal'=>"Personal")),
-                                                        $value)));
-    $item->add(new XMessage("Choose \"Personal\" to un-publish"));
+    $reg_form->add(new FItem("Type:", XSelect::fromArray('type', Regatta::getTypes(), $value)));
 
     // Regatta participation
     $value = $this->REGATTA->participant;
@@ -187,17 +187,25 @@ class DetailsPane extends AbstractPane {
     // Details
     if ( isset($args['edit_reg']) ) {
       $edited = false;
+      // Private?
+      $private = DB::$V->incInt($args, 'private', 1, 2, null);
+      if ($private !== $this->REGATTA->private) {
+        $this->REGATTA->private = $private;
+        $edited = true;
+        if ($private === null) {
+          try {
+            $this->REGATTA->nick = $this->REGATTA->createNick();
+          } catch (InvalidArgumentException $e) {
+            throw new SoterException("Unable to publish the regatta. Most likely, you attempted to activate a regatta that is under the same name as another already-activated regatta for the current season. Before you can do that, please make sure that the other regatta with the same name as this one is removed or de-activated (made private) before proceeding.");
+          }
+          Session::pa(new PA("Regatta is public with url: " . $this->REGATTA->getURL()));
+        }
+      }
+
       // Type
       if (DB::$V->hasKey($V, $args, 'type', Regatta::getTypes()) && $V != $this->REGATTA->type) {
-        // this may throw an error for two reasons: illegal type or invalid nick name
-        try {
-          $this->REGATTA->setType($args['type']);
-          $edited = true;
-        }
-        catch (InvalidArgumentException $e) {
-          Session::pa(new PA("Unable to change the type of regatta. Either an invalid type was specified, or more likely you attempted to activate a regatta that is under the same name as another already-activated regatta for the current season. Before you can do that, please make sure that the other regatta with the same name as this one is removed or de-activated (made personal) before proceeding.", PA::I));
-          return;
-        }
+        $this->REGATTA->type = $V;
+        $edited = true;
       }
 
       // Name

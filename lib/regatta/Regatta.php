@@ -52,13 +52,11 @@ class Regatta extends DBObject {
                  Regatta::TYPE_INTERSECTIONAL=>"Intersectional",
                  Regatta::TYPE_TWO_CONFERENCE=>"Two-Conference",
                  Regatta::TYPE_CONFERENCE=>"In-Conference",
-                 Regatta::TYPE_PROMOTIONAL=>"Promotional",
-                 Regatta::TYPE_PERSONAL=>"Personal");
+                 Regatta::TYPE_PROMOTIONAL=>"Promotional");
     foreach (Conf::$REGATTA_TYPE_BLACKLIST as $rem)
       unset($lst[$rem]);
     return $lst;
   }
-  const TYPE_PERSONAL = 'personal';
   const TYPE_CONFERENCE = 'conference';
   const TYPE_CHAMPIONSHIP = 'championship';
   const TYPE_INTERSECTIONAL = 'intersectional';
@@ -101,6 +99,7 @@ class Regatta extends DBObject {
   protected $venue;
   public $participant;
   public $scoring;
+  public $private;
 
   // Managers
   private $rotation;
@@ -173,26 +172,6 @@ class Regatta extends DBObject {
   }
 
   /**
-   * Sets the type for this regatta, creating a nick name if needed.
-   *
-   * Note that it does not actually record the changes in database. A
-   * subsequent call to DB::set is necessary.
-   *
-   * @param Const the regatta type
-   * @throws InvalidArgumentException if no regatta can be created
-   */
-  public function setType($value) {
-    $types = Regatta::getTypes();
-    if (!isset($types[$value]))
-      throw new InvalidArgumentException("Invalid regatta type \"$value\".");
-    // re-create the nick name, and let that method determine if it
-    // is valid (this would throw an exception otherwise)
-    if ($value != Regatta::TYPE_PERSONAL)
-      $this->nick = $this->createNick();
-    $this->type = $value;
-  }
-
-  /**
    * Sets the scoring for this regatta.
    *
    * It is important to use this method instead of setting the scoring
@@ -205,14 +184,6 @@ class Regatta extends DBObject {
       return;
     $this->scoring = $value;
     $this->scorer = null;
-  }
-
-  public function __set($name, $value) {
-    if ($name == 'type') {
-      $this->setType($value);
-      return;
-    }
-    parent::__set($name, $value);
   }
 
   // ------------------------------------------------------------
@@ -1287,8 +1258,8 @@ class Regatta extends DBObject {
    * nick_names, (i.e. personal regattas)
    */
   public function getURL() {
-    if ($this->type == Regatta::TYPE_PERSONAL)
-      throw new InvalidArgumentException("Personal regattas are not published.");
+    if ($this->nick === null)
+      throw new InvalidArgumentException("Private regattas are not published.");
     if ($this->url !== null)
       return $this->url;
     $s = $this->getSeason();
@@ -1382,22 +1353,27 @@ class Regatta extends DBObject {
    * @param DateTime $end_date the end_date
    * @param String $type one of those listed in Regatta::getTypes()
    * @param String $participant one of those listed in Regatta::getParticipantOptions()
+   * @param boolean $private true to create a private regatta
    * @return int the ID of the regatta
    *
-   * @throws InvalidArgumentException if illegal regatta type
+   * @throws InvalidArgumentException if unable to create nick name, etc.
    */
   public static function createRegatta($name,
                                        DateTime $start_time,
                                        DateTime $end_date,
                                        $type,
                                        $scoring = Regatta::SCORING_STANDARD,
-                                       $participant = Regatta::PARTICIPANT_COED) {
+                                       $participant = Regatta::PARTICIPANT_COED,
+                                       $private = false) {
     $opts = Regatta::getScoringOptions();
     if (!isset($opts[$scoring]))
       throw new InvalidArgumentException("No such regatta scoring $scoring.");
     $opts = Regatta::getParticipantOptions();
     if (!isset($opts[$participant]))
-      throw new InvalidArgumentException("No such regatta scoring $scoring.");
+      throw new InvalidArgumentException("No such regatta participant $participant.");
+    $opts = Regatta::getTypes();
+    if (!isset($opts[$type]))
+      throw new InvalidArgumentException("No such regatta type $type.");
 
     $r = new Regatta();
     $r->name = $name;
@@ -1406,7 +1382,11 @@ class Regatta extends DBObject {
     $r->end_date->setTime(0, 0);
     $r->setScoring($scoring);
     $r->participant = $participant;
-    $r->setType($type);
+    $r->type = $type;
+    if ($private)
+      $r->private = 1;
+    else
+      $r->nick = $r->createNick();
     DB::set($r);
     return $r;
   }
@@ -1439,5 +1419,17 @@ class Regatta extends DBObject {
     return -1 * self::cmpStart($r1, $r2);
   }
 }
+
+/**
+ * A non-private regatta: a convenience handle
+ *
+ * @author Dayan Paez
+ * @version 2012-10-26
+ */
+class Public_Regatta extends Regatta {
+  public function db_where() { return new DBCond('private', null); }
+}
+
 DB::$REGATTA = new Regatta();
+DB::$PUBLIC_REGATTA = new Public_Regatta();
 ?>

@@ -71,9 +71,9 @@ class UpdateFront extends AbstractScript {
     $start->setTime(23, 59, 59);
     $end = new DateTime();
     $end->setTime(0, 0, 0);
-    $potential = DB::getAll(DB::$REGATTA, new DBBool(array(new DBCond('start_time', $start, DBCond::LE),
-                                                           new DBCond('end_date', $end, DBCond::GE),
-                                                           new DBCond('type', Regatta::TYPE_PERSONAL, DBCond::NE))));
+    $potential = DB::getAll(DB::$PUBLIC_REGATTA,
+                            new DBBool(array(new DBCond('start_time', $start, DBCond::LE),
+                                             new DBCond('end_date', $end, DBCond::GE))));
     $in_prog = array();
     foreach ($potential as $reg) {
       $data = $reg->getData();
@@ -111,9 +111,7 @@ class UpdateFront extends AbstractScript {
     $now = new DateTime('tomorrow');
     $now->setTime(0, 0);
     DB::$REGATTA->db_set_order(array('start_time'=>true));
-    $regs = DB::getAll(DB::$REGATTA,
-                       new DBBool(array(new DBCond('type', Regatta::TYPE_PERSONAL, DBCond::NE),
-                                        new DBCond('start_time', $now, DBCond::GE))));
+    $regs = DB::getAll(DB::$PUBLIC_REGATTA, new DBCond('start_time', $now, DBCond::GE))));
     DB::$REGATTA->db_set_order();
     if (count($regs) > 0) {
       $page->addSection($p = new XPort("Upcoming schedule"));

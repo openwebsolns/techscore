@@ -28,9 +28,17 @@ class NewRegattaPane extends AbstractUserPane {
 
   private function defaultRegatta() {
     $day = new DateTime('next Saturday');
-    return array("name"=>"", "start_date"=>$day->format('m/d/Y'), "start_time" => "10:00", "duration"=>2,
-                 "venue"=>"", "scoring"=>"standard", "type"=>"conference", "participant"=>"coed",
-                 "num_divisions"=>2, "num_races"=>"18");
+    return array('name' => '',
+                 'private' => null,
+                 'start_date' => $day->format('m/d/Y'),
+                 'start_time'  =>  '10:00',
+                 'duration' => 2,
+                 'venue' => '',
+                 'scoring' => Regatta::SCORING_STANDARD,
+                 'type' => Regatta::TYPE_CONFERENCE,
+                 'participant' => Regatta::PARTICIPANT_COED,
+                 'num_divisions' => 2,
+                 'num_races' => '18');
   }
 
   protected function fillHTML(Array $args) {
@@ -45,17 +53,20 @@ class NewRegattaPane extends AbstractUserPane {
     }
 
     $types = Regatta::getTypes();
-    unset($types['personal']);
 
     $f->add(new FItem("Name:", new XTextInput("name", $r["name"], array('maxlength'=>40))));
+
+    $f->add($fi = new FItem("Private:", $chk = new XCheckboxInput('private', 1, array('id'=>'chk-priv'))));
+    if ($r['private'] !== null)
+      $chk->set('checked', 'checked');
+
+    $fi->add(new XLabel('chk-priv', "Private regattas are not published and are temporary."));
     $f->add(new FItem("Start date:", new XTextInput("start_date", $r["start_date"])));
     $f->add(new FItem("On the water:", new XTextInput("start_time", $r["start_time"])));
     $f->add(new FItem("Duration (days):", new XTextInput("duration", $r["duration"])));
     $f->add(new FItem("Venue:",   $sel = new XSelect("venue")));
     $f->add(new FItem("Scoring:", XSelect::fromArray("scoring", Regatta::getScoringOptions(), $r["scoring"])));
-    $f->add(new FItem("Type:", XSelect::fromArray("type",
-                                                  array("Public"=>$types, "Not-published"=>array('personal'=>"Personal")),
-                                                  $r["type"])));
+    $f->add(new FItem("Type:", XSelect::fromArray('type', Regatta::getTypes()), $r['type']));
     $f->add(new FItem("Participation:", XSelect::fromArray("participant", Regatta::getParticipantOptions(),
                                                            $r["participant"])));
 
@@ -101,6 +112,8 @@ class NewRegattaPane extends AbstractUserPane {
         Session::pa(new PA("Invalid (empty) name.", PA::E));
         $error = true;
       }
+      // 1b: Private?
+      $private = DB::$V->incInt($args, 'private', 1, 2, null);
       // 2. Check date
       if (!DB::$V->hasDate($sdate, $args, 'start_date')) {
         Session::pa(new PA("Invalid date given.", PA::E));
@@ -170,7 +183,8 @@ class NewRegattaPane extends AbstractUserPane {
                                       $end,
                                       $type,
                                       $scoring,
-                                      $participant);
+                                      $participant,
+                                      $private);
         $reg->venue = $venue;
         $reg->creator = $this->USER;
         $reg->addScorer($this->USER);
@@ -179,7 +193,7 @@ class NewRegattaPane extends AbstractUserPane {
           $reg->addHost($school);
       } catch (InvalidArgumentException $e) {
         // This should be reached ONLY because of a nick-name mismatch
-        Session::pa(new PA("It seems that there is already an active regatta with this name for the current season. This is likely the result of a previous regatta that was not deleted or demoted to \"Personal\" status. If you are a scorer for the other regatta, please delete it or de-activate it before creating this one. Otherwise, you may need to create the current one under a different name.", PA::I));
+        Session::pa(new PA("It seems that there is already an active regatta with this name for the current season. This is likely the result of a previous regatta that was not deleted or changed to \"Private\". If you are a scorer for the other regatta, please delete it or de-activate it before creating this one. Otherwise, you may need to create the current one under a different name.", PA::I));
         return $args;
       }
 

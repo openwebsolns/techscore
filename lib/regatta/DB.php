@@ -46,6 +46,7 @@ class DB extends DBM {
   public static $ACCOUNT = null;
   public static $ACCOUNT_SCHOOL = null;
   public static $REGATTA = null;
+  public static $PUBLIC_REGATTA = null;
   public static $RP_LOG = null; // RpManager.php
   public static $RP_FORM = null; // RpManager.php
   public static $TEAM_DIVISION = null;
@@ -767,11 +768,12 @@ class School extends DBObject {
   /**
    * Fetches list of regattas this school has a team in
    *
+   * @param boolean $inc_private true to include private regattas
    * @return Array:Regatta the regatta list
    */
-  public function getRegattas() {
+  public function getRegattas($inc_private = false) {
     require_once('regatta/Regatta.php');
-    return DB::getAll(DB::$REGATTA,
+    return DB::getAll(($inc_private !== false) ? DB::$REGATTA : DB::$PUBLIC_REGATTA,
                       new DBCondIn('id', DB::prepGetAll(DB::$TEAM,
                                                         new DBCond('school', $this),
                                                         array('regatta'))));
@@ -1725,14 +1727,14 @@ class Season extends DBObject {
   /**
    * Returns all the regattas in this season which are not personal
    *
+   * @param boolean $inc_private true to include private regatta in result
    * @return Array:Regatta
    */
-  public function getRegattas() {
+  public function getRegattas($inc_private = false) {
     require_once('regatta/Regatta.php');
-    return DB::getAll(DB::$REGATTA,
+    return DB::getAll(($inc_private !== false) ? DB::$REGATTA : DB::$PUBLIC_REGATTA,
                       new DBBool(array(new DBCond('start_time', $this->start_date, DBCond::GE),
-                                       new DBCond('start_time', $this->end_date,   DBCond::LT),
-                                       new DBCond('type', Regatta::TYPE_PERSONAL, DBCond::NE))));
+                                       new DBCond('start_time', $this->end_date,   DBCond::LT))));
   }
 
   /**
@@ -1742,13 +1744,13 @@ class Season extends DBObject {
    * Only non-personal regattas are fetched
    *
    * @param School $school the school whose participation to verify
+   * @param boolean $inc_private true to include private regattas
    * @return Array:Regatta
    */
-  public function getParticipation(School $school) {
-    return DB::getAll(DB::$REGATTA,
+  public function getParticipation(School $school, $inc_private = false) {
+    return DB::getAll(($inc_private !== false) ? DB::$REGATTA : DB::$PUBLIC_REGATTA,
                       new DBBool(array(new DBCond('start_time', $this->start_date, DBCond::GE),
                                        new DBCond('start_time', $this->end_date,   DBCond::LT),
-                                       new DBCond('type', Regatta::TYPE_PERSONAL, DBCond::NE),
                                        new DBCondIn('id', DB::prepGetAll(DB::$TEAM, new DBCond('school', $school), array('regatta'))))));
   }
 

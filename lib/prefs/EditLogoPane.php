@@ -122,10 +122,8 @@ class EditLogoPane extends AbstractPrefsPane {
     if ($this->SCHOOL->burgee === null) {
       $affected = 0;
       foreach ($this->SCHOOL->getRegattas() as $reg) {
-        if ($reg->type != Regatta::TYPE_PERSONAL) {
-          UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_DETAILS);
-          $affected++;
-        }
+        UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_DETAILS);
+        $affected++;
       }
       if ($affected > 0)
         Session::pa(new PA(sprintf("%d public regatta(s) will be updated.", $affected)));

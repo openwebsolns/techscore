@@ -119,7 +119,7 @@ class UserArchivePane extends AbstractUserPane {
         $row[] = $finalized;
 
         $class = 'row'.($i % 2);
-        if ($reg->type == Regatta::TYPE_PERSONAL)
+        if ($reg->private)
           $class .= ' personal-regatta';
         $tab->addRow($row, array('class' => $class));
       }
