@@ -37,6 +37,8 @@ class UpdateSchool extends AbstractScript {
       if ($team->school->id == $school->id)
         $places[] = ($rank + 1);
     }
+    if (count($teams) == 0)
+      return "";
     return sprintf('%s/%d', implode(',', $places), count($teams));
   }
 
