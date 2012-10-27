@@ -31,6 +31,9 @@ class RemovePrivate extends AbstractScript {
   }
 
   public function run() {
+    // ------------------------------------------------------------
+    // Delete regattas
+    // ------------------------------------------------------------
     require_once('regatta/Regatta.php');
     $regs = DB::getAll(DB::$REGATTA, new DBBool(array(new DBCond('private', null, DBCond::NE),
                                                       new DBCond('end_date', new DateTime('4 months ago'), DBCond::LE))));
@@ -38,6 +41,24 @@ class RemovePrivate extends AbstractScript {
       if (!$this->dry_run)
         DB::remove($reg);
       self::errln(sprintf("Deleting (%s) %4d: %s", $reg->getSeason(), $reg->id, $reg->name));
+    }
+
+    // ------------------------------------------------------------
+    // Delete orphaned sailors
+    // ------------------------------------------------------------
+    $cond = new DBBool(array(new DBCond('icsa_id', null),
+                             new DBCond('regatta_added', null),
+                             new DBCondIn('id', DB::prepGetAll(DB::$RP_ENTRY, null, array('sailor')), DBCondIn::NOT_IN),
+                             new DBCondIn('id', DB::prepGetAll(DB::$REPRESENTATIVE, null, array('sailor')), DBCondIn::NOT_IN)));
+    $sailors = DB::getAll(DB::$MEMBER, $cond);
+    if ($this->dry_run) {
+      foreach ($sailors as $sailor)
+        self::errln(sprintf("Removable: %-10s %s", $sailor->school->id, $sailor), 2);
+      self::errln(sprintf("%d removable sailors", count($sailors)));
+    }
+    else {
+      DB::removeAll(DB::$MEMBER, $cond);
+      self::errln(sprintf("Removed %d sailors", count($sailors)));
     }
     if ($this->dry_run) {
       self::errln("DRY-RUN only");
