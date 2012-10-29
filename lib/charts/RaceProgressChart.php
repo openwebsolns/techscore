@@ -39,7 +39,7 @@ class RaceProgressChart {
 
     $palette = array("#eeb211", "#b2bb1e", "#d31145", "#3b9bb9", "#f58025", "#8177b7",
 		     "#00b085", "#bb8c0a", "#98002e", "#06347a", "#766441", "#4c2432",
-		     "#939ba2", "#5d9732", "#ffe384", "#4f2683", "#386351", "#93543",
+		     "#939ba2", "#5d9732", "#ffe384", "#4f2683", "#386351", "#935433",
 		     "#1fbec9", "#5fff96");
     $data = array(); // associative map of team id => ranks
     $fills = array();
