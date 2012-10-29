@@ -117,7 +117,15 @@ abstract class AbstractDialog {
         require_once('tscore/ScoresCombinedDialog.php');
         return new ScoresCombinedDialog($u);
 
-      // --------------- LAST UPDATE ------------//
+	// -------------- CHARTS --------------------//
+      case 'chart':
+      case 'history':
+	if ($u->scoring != Regatta::SCORING_STANDARD)
+	  return null;
+	require_once('tscore/ScoresChartDialog.php');
+	return new ScoresChartDialog($u);
+
+	// --------------- LAST UPDATE ------------//
       case 'last-update':
         // @TODO: deprecate
         $t = $u->getLastScoreUpdate();

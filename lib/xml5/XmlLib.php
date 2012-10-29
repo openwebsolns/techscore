@@ -277,8 +277,10 @@ class XDoc extends XElem {
    */
   public function toXML() {
     $text = '';
-    foreach ($this->headers as $header)
-      $text .= sprintf("%s\n", $header->toXML());
+    if ($this->inc_headers) {
+      foreach ($this->headers as $header)
+	$text .= sprintf("%s\n", $header->toXML());
+    }
     return $text . parent::toXML();
   }
 
@@ -288,10 +290,23 @@ class XDoc extends XElem {
    *
    */
   public function printXML() {
-    header("Content-type: " . $this->ct);
-    foreach ($this->headers as $header)
-      $header->printXML();
+    if ($this->inc_headers) {
+      header("Content-type: " . $this->ct);
+      foreach ($this->headers as $header)
+	$header->printXML();
+    }
     parent::printXML();
+  }
+
+  private $inc_headers = true;
+
+  /**
+   * True to include XML headers and Content-type when printing XML
+   *
+   * @param boolean $flag true (default) to include headers
+   */
+  public function setIncludeHeaders($flag = true) {
+    $this->inc_headers = ($flag != false);
   }
 }
 

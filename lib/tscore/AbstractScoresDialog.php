@@ -28,6 +28,8 @@ abstract class AbstractScoresDialog extends AbstractDialog {
     $ul->add(new XLi(new XA(sprintf("/view/%d/div-scores", $this->REGATTA->id), "Summary")));
     if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED)
       $ul->add(new XLi(new XA(sprintf('/view/%d/combined', $this->REGATTA->id), "All Divisions")));
+    else
+      $ul->add(new XLi(new XA(sprintf('/view/%d/chart', $this->REGATTA->id), "Rank history")));
     foreach ($this->REGATTA->getDivisions() as $div)
       $ul->add(new XLi(new XA(sprintf("/view/%d/scores/%s",$this->REGATTA->id, $div),
                               "$div Division")));

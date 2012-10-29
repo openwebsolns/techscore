@@ -1,0 +1,56 @@
+text {
+    fill: #888;
+    font-family: Arial, sans-serif;
+    font-size: 10pt;
+}
+.border {
+    stroke-width: 1px;
+    stroke: #aaa;
+}
+.x-axis {
+    stroke: #aaa;
+    stroke-width: 1px;
+    fill: none;
+}
+.y-axis-label {
+    text-anchor: middle;
+}
+
+.linegraph-group * {
+    opacity: 0.5;
+}
+.chart-node {
+    stroke-width: 0;
+}
+.chart-node:hover {
+    opacity: 1;
+    stroke-width: 4px;
+}
+.chart-line:hover {
+    stroke-width: 4px;
+    opacity: 1;
+}
+.team-label {
+    fill: #111;
+}
+.team-label-group {
+    opacity: 0.5;
+}
+.team-label-group:hover {
+    opacity: 1;
+}
+.y-grid {
+    stroke: #ccc;
+    stroke-dasharray: 1,3;
+    stroke-linecap: round;
+}
+
+.focus, .focus * {
+    opacity: 1;
+}
+.focus path {
+    stroke-width: 4px;
+}
+.focus .chart-node {
+    stroke-width: 4px;
+}
