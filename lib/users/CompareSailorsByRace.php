@@ -37,14 +37,11 @@ class CompareSailorsByRace extends AbstractUserPane {
     // get sailors
     $sailors = array();
     foreach ($list as $id) {
-      try {
-        $sailor = DB::getSailor($id);
-        if ($sailor->icsa_id !== null)
-          $sailors[] = $sailor;
-      }
-      catch (InvalidArgumentException $e) {
+      $sailor = DB::getSailor($id);
+      if ($sailor === null)
         Session::pa(new PA("Invalid sailor id given ($id). Ignoring.", PA::I));
-      }
+      elseif ($sailor->icsa_id !== null)
+        $sailors[] = $sailor;
     }
     if (count($sailors) < 2) {
       Session::pa(new PA("Need at least two valid sailors for comparison.", PA::E));
@@ -71,23 +68,24 @@ class CompareSailorsByRace extends AbstractUserPane {
     }
 
     // the array is organized as $regatta_id => array($div => array($race_num))
+    $reg_ids = array();
     $reg_races = array();
     $reg_teams = array();
     // populate the list with the first sailor
     $first_sailor = array_shift($sailors);
-    foreach ($regattas as $regatta) {
-      $reg = DB::getRegatta($regatta->id);
+    foreach ($regattas as $reg) {
       $rpm = $reg->getRpManager();
-      $rps = $rpm->getParticipation($first_sailor, 'skipper');
+      $rps = $rpm->getParticipation($first_sailor, RP::SKIPPER);
       if (count($rps) > 0) {
-        $reg_races[$regatta->id] = array();
-        $reg_teams[$regatta->id] = array();
+        $reg_ids[$reg->id] = $reg;
+        $reg_races[$reg->id] = array();
+        $reg_teams[$reg->id] = array();
         foreach ($rps as $rp) {
           $key = (string)$rp->division;
-          $reg_teams[$regatta->id][$key] = array($rp->sailor->id => $rp->team);
-          $reg_races[$regatta->id][$key] = array();
+          $reg_teams[$reg->id][$key] = array($rp->sailor->id => $rp->team);
+          $reg_races[$reg->id][$key] = array();
           foreach ($rp->races_nums as $num)
-            $reg_races[$regatta->id][$key][$num] = $num;
+            $reg_races[$reg->id][$key][$num] = $num;
         }
       }
     }
@@ -98,7 +96,7 @@ class CompareSailorsByRace extends AbstractUserPane {
     foreach ($sailors as $sailor) {
       $copy = $reg_races;
       foreach ($copy as $regatta_id => $div_list) {
-        $reg = DB::getRegatta($regatta_id);
+        $reg = $reg_ids[$regatta_id];
         $rpm = $reg->getRpManager();
         foreach ($div_list as $div => $races_nums) {
           $rps = $rpm->getParticipation($sailor, 'skipper', Division::get($div));
@@ -135,6 +133,7 @@ class CompareSailorsByRace extends AbstractUserPane {
     array_unshift($sailors, $first_sailor);
     $scores = array(); // track scores
     $this->PAGE->addContent($p = new XPort("Races sailed head-to-head"));
+    $p->add(new XP(array(), new XA(WS::link('/compare-by-race'), "← Start over")));
     $p->add(new XTable(array(),
                        array(new XTHead(array(),
                                         array($head = new XTR(array(),
