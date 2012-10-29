@@ -294,7 +294,7 @@ class RpManager {
     // Since RP objects all have the same role and division, we
     // create lists of roles and divisions
     $roles = ($role === null) ? array_keys(RP::getRoles()) : array($role);
-    $divs  = ($role === null) ? $this->regatta->getDivisions() : array($div);
+    $divs  = ($div === null)  ? $this->regatta->getDivisions() : array($div);
 
     $rps = array();
     foreach ($roles as $role) {
@@ -306,7 +306,9 @@ class RpManager {
                                                           new DBBool(array(new DBCond('regatta', $this->regatta->id),
                                                                            new DBCond('division', (string)$div))),
                                                           array('id')))));
-        $rps[] = new RP(DB::getAll(DB::$RP_ENTRY, $c));
+        $res = DB::getAll(DB::$RP_ENTRY, $c);
+        if (count($res) > 0)
+          $rps[] = new RP($res);
       }
     }
     return $rps;
