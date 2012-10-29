@@ -17,7 +17,7 @@ text {
 }
 
 .linegraph-group * {
-    opacity: 0.5;
+    opacity: 0.75;
 }
 .chart-node {
     stroke-width: 0;
@@ -34,7 +34,7 @@ text {
     fill: #111;
 }
 .team-label-group {
-    opacity: 0.5;
+    opacity: 0.6;
 }
 .team-label-group:hover {
     opacity: 1;
