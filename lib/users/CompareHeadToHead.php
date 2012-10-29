@@ -125,10 +125,10 @@ class CompareHeadToHead extends AbstractUserPane {
       }
 
       $form->add(new XP(array(), new XA(WS::link('/compare-sailors'), "← Start over")));
-      // (reg_id => (division => (sailor_id => <rank races>)))
-      // Go through each of the remaining sailors, keeping only the
-      // regatta and divisions which they have in common, UNLESS
-      // full-record is set to true
+      // (reg_id => (division => (sailor_id => <rank races>))) Go
+      // through each of the sailors, keeping only the regatta and
+      // divisions which they have in common, UNLESS full-record is
+      // set to true
       $table = array();
       $regattas = array();
       $sailors = array_values($sailors);
@@ -151,7 +151,7 @@ class CompareHeadToHead extends AbstractUserPane {
 
           if (!isset($table[$reg])) {
             $table[$reg] = array();
-            $regattas[$reg] = $rp->team_division->team->regatta;
+            $regattas[$reg] = DB::getRegatta($reg);
           }
           if (!isset($table[$reg][$key]))
             $table[$reg][$key] = array();
@@ -203,7 +203,7 @@ class CompareHeadToHead extends AbstractUserPane {
         $rowid = 0;
         foreach ($table as $rid => $divs) {
           if ($grouped) {
-            $row = array($regattas[$rid]->name, $regattas[$rid]->season);
+            $row = array($regattas[$rid]->name, $regattas[$rid]->getSeason());
             foreach ($sailors as $sailor) {
               $part = array();
               foreach ($divs as $list) {
@@ -216,7 +216,7 @@ class CompareHeadToHead extends AbstractUserPane {
           }
           else {
             foreach ($divs as $list) {
-              $row = array($regattas[$rid]->name, $regattas[$rid]->season);
+              $row = array($regattas[$rid]->name, $regattas[$rid]->getSeason());
               foreach ($sailors as $sailor) {
                 if (isset($list[$sailor->id]))
                   $row[] = $list[$sailor->id];
