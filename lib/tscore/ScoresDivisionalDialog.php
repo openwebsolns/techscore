@@ -31,6 +31,10 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
    */
   public function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new XPort("Team results"));
+    if (!$this->REGATTA->hasFinishes()) {
+      $p->add(new XP(array('class'=>'warning'), "There are no finishes for this regatta."));
+      return;
+    }
     $ELEMS = $this->getTable();
     $p->add(array_shift($ELEMS));
     if (count($ELEMS) > 0) {

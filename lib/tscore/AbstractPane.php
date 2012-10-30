@@ -369,6 +369,9 @@ abstract class AbstractPane {
     case 'rotation':
       return $this->has_rots;
 
+    case 'scores':
+      return $this->has_scores;
+
     default:
       return true;
     }

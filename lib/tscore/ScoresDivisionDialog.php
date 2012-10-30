@@ -38,9 +38,11 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
    *
    */
   public function fillHTML(Array $args) {
-    $division  = $this->division;
-
-    $this->PAGE->addContent($p = new XPort("Division $division results"));
+    $this->PAGE->addContent($p = new XPort(sprintf("Division %s results", $this->division)));
+    if (!$this->REGATTA->hasDivisionFinishes($this->division)) {
+      $p->add(new XP(array('class'=>'warning'), sprintf("There are no finishes for division %s.", $this->division)));
+      return;
+    }
     $elems = $this->getTable();
     $p->add(array_shift($elems));
     if (count($elems) > 0) {

@@ -31,9 +31,13 @@ class RaceProgressChart {
    *
    * If division is null, then rank across all divisions
    *
-   * @param Division $div (optional) the division to create
+   * @param Array:Race $races the ordered list of races to include
+   * @throws InvalidArgumentException if there aren't enough races
    */
-  public function getChart(Division $div = null) {
+  public function getChart($races) {
+    if (count($races) < 2)
+      throw new InvalidArgumentException("There must be at least 2 races for chart.");
+
     // Prepare data
     $teams = $this->regatta->getTeams();
 
@@ -50,7 +54,6 @@ class RaceProgressChart {
     $num_teams = count($teams);
 
     $racelist = array();
-    $races = $this->regatta->getScoredRaces($div);
 
     $xRMargin = 300;
     $xLMargin = 50;
