@@ -39,7 +39,8 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
    */
   public function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new XPort(sprintf("Division %s results", $this->division)));
-    if (!$this->REGATTA->hasDivisionFinishes($this->division)) {
+    $races = $this->REGATTA->getScoredRaces($this->division);
+    if (count($races) == 0) {
       $p->add(new XP(array('class'=>'warning'), sprintf("There are no finishes for division %s.", $this->division)));
       return;
     }
@@ -48,6 +49,22 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
     if (count($elems) > 0) {
       $p->add(new XHeading("Tiebreaker legend"));
       $p->add($elems[0]);
+    }
+
+    // Also add a chart
+    if (count($races) > 1) {
+      $this->PAGE->set('xmlns:svg', 'http://www.w3.org/2000/svg');
+      $this->PAGE->addContent($p = new XPort(sprintf("Rank history for division %s", $this->division)));
+      $p->add(new XP(array(), "The first place team as of a given race will always be at the top of the chart. The spacing from one team to the next shows relative gains/losses made from one race to the next. You may hover over the data points to display the total score as of that race."));
+
+      require_once('xml5/SVGLib.php');
+      SVGAbstractElem::$namespace = 'svg';
+
+      require_once('charts/RaceProgressChart.php');
+      $maker = new RaceProgressChart($this->REGATTA);
+      $chart = $maker->getChart($races);
+      $chart->setIncludeHeaders(false);
+      $p->add($chart);
     }
   }
 

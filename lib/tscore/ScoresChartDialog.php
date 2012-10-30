@@ -16,7 +16,7 @@ require_once('tscore/AbstractScoresDialog.php');
 class ScoresChartDialog extends AbstractScoresDialog {
 
   /**
-   * @var Array:Racess the races to include in chart
+   * @var Array:Race the races to include in chart
    */
   private $races;
 
