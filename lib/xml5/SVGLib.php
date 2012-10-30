@@ -49,25 +49,50 @@ class SVGDoc extends XDoc {
    *
    * @param String $width
    * @param String $height
-   * @param String $title the title of the document
+   * @param String $title the title of the document (optional)
    */
-  public function __construct($width, $height, $title = "") {
+  public function __construct($width, $height, $title = null) {
     parent::__construct("svg", array("width" => $width,
 				     "height" => $height,
-				     "xmlns" => "http://www.w3.org/2000/svg",
-				     "xmlns:xlink" => "http://www.w3.org/1999/xlink"),
-			array(new XElem("title", array(), array(new XText($title)))));
+				     "xmlns:xlink" => "http://www.w3.org/1999/xlink"));
+    if ($title !== null)
+      $this->add(new SVGTitle($title));
+    if (SVGAbstractElem::$namespace !== null) {
+      $this->name = SVGAbstractElem::$namespace . ':svg';
+      $this->set('xmlns:' . SVGAbstractElem::$namespace, 'http://www.w3.org/2000/svg');
+    }
+    else
+      $this->set('xmlns', 'http://www.w3.org/2000/svg');
+
   }
 }
 
-class SVGDesc extends XElem {
+/**
+ * Title for SVG elements
+ *
+ * @author Dayan Paez
+ * @version 2012-10-30
+ */
+class SVGTitle extends SVGAbstractElem {
+  /**
+   * Creates an appropriate title field
+   *
+   * @param String $content the string-able title
+   * @param Array $attrs the attributes
+   */
+  public function __construct($content, Array $attrs = array()) {
+    parent::__construct("title", $attrs, array(new XText($content)));
+  }
+}
+
+class SVGDesc extends SVGAbstractElem {
   /**
    * Creates a description field
    *
    * @param String $content the string-able content of this description
    */
-  public function __construct($content) {
-    parent::__construct("desc", array(), array(new XText($content)));
+  public function __construct($content, Array $attrs = array()) {
+    parent::__construct("desc", $attrs, array(new XText($content)));
   }
 }
 
