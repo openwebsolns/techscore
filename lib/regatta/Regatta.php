@@ -840,20 +840,6 @@ class Regatta extends DBObject {
   }
 
   /**
-   * Are there any finishes in the given division?
-   *
-   * @param Division $div the division to check
-   * @return boolean
-   * @see hasFinishes
-   */
-  public function hasDivisionFinishes(Division $div) {
-    return count(DB::getAll(DB::$RACE,
-                            new DBBool(array(new DBCond('regatta', $this),
-                                             new DBCond('division', $div),
-                                             new DBCondIn('id', DB::prepGetAll(DB::$FINISH, null, array('race'))))))) > 0;
-  }
-
-  /**
    * Commits the given finishes to the database.
    *
    * @param Array:Finish $finishes the finishes to commit
