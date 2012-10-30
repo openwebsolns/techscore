@@ -67,7 +67,7 @@ class RaceProgressChart {
     $raceAxes = array();
     foreach ($races as $race) {
       $raceLabels[] = new SVGText($x, $yStart - 20, $race, array('class'=>'y-axis-label'));
-      $raceLabels[] = new SVGPath(array(new SVGMoveto($x, $yStart), new SVGLineto($x, ($height - 20 - $yStart))), array('class'=>'y-grid'));
+      $raceLabels[] = new SVGPath(array(new SVGMoveto($x, $yStart), new SVGLineto($x, ($height - 20))), array('class'=>'y-grid'));
 
       $racelist[] = $race;
       $ranks = $this->regatta->scorer->rank($this->regatta, $racelist);
