@@ -62,7 +62,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
 
       require_once('charts/RaceProgressChart.php');
       $maker = new RaceProgressChart($this->REGATTA);
-      $chart = $maker->getChart($races);
+      $chart = $maker->getChart($races, sprintf("Rank history for division %s of %s", $this->division, $this->REGATTA->name));
       $chart->setIncludeHeaders(false);
       $p->add($chart);
     }

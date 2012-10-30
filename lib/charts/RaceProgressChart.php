@@ -32,9 +32,10 @@ class RaceProgressChart {
    * If division is null, then rank across all divisions
    *
    * @param Array:Race $races the ordered list of races to include
+   * @param String $title the title for the chart
    * @throws InvalidArgumentException if there aren't enough races
    */
-  public function getChart($races) {
+  public function getChart($races, $title) {
     if (count($races) < 2)
       throw new InvalidArgumentException("There must be at least 2 races for chart.");
 
@@ -89,8 +90,8 @@ class RaceProgressChart {
     }
 
     $width = (count($races) - 1) * $xspacing + $xRMargin + $xLMargin;
-    $P = new SVGDoc($width, $height, $this->regatta->name);
-    $P->add(new SVGDesc(sprintf("Score history for %s", $this->regatta->name)));
+    $P = new SVGDoc($width, $height, $title);
+    $P->add(new SVGDesc("The first place team as of a given race will always be at the top of the chart. The spacing from one team to the next shows relative gains/losses made from one race to the next. The legend is listed in order of rank as of last race. Nodes specify the score as of that race for that team."));
     $P->add(new SVGDefs(array(), array(new SVGStyle('text/css', file_get_contents(__DIR__ . '/chart.css')))));
     $P->add(new SVGScript('text/javascript', null, 'function highlight(id) {
     var elem = document.getElementById(id);
@@ -103,7 +104,7 @@ function unhighlight(id) {
 	elem.classList.remove("focus");
 }'));
 
-    $ch = new SVGConnectedGraph('scores-history', $width, $height, sprintf("History score for %s", $this->regatta->name));
+    $ch = new SVGConnectedGraph('scores-history', $width, $height, $title);
     $ch->drawBorder(5, 5);
     // ------------------------------------------------------------
     // Axis + label

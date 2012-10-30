@@ -57,7 +57,7 @@ class ScoresChartDialog extends AbstractScoresDialog {
   public function getTable($link_schools = false) {
     require_once('charts/RaceProgressChart.php');
     $maker = new RaceProgressChart($this->REGATTA);
-    return array($maker->getChart($this->races));
+    return array($maker->getChart($this->races, sprintf("Rank history across all divisions for %s", $this->REGATTA->name)));
   }
 }
 ?>
