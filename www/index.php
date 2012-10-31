@@ -72,10 +72,12 @@ if (Conf::$USER === null) {
 // User registered at this point
 // ------------------------------------------------------------
 if ($URI_TOKENS[0] == 'license') {
-  if (Conf::$METHOD == 'POST')
-    WS::go($URI);
   require_once('users/EULAPane.php');
   $PAGE = new EULAPane(Conf::$USER);
+  if (Conf::$METHOD == 'POST') {
+    $PAGE->processPOST($_POST);
+    WS::go('/');
+  }
   $PAGE->getHTML($_GET);
   exit;
 }
