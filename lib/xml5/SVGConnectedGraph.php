@@ -44,7 +44,7 @@ class SVGConnectedGraph extends SVGChart {
   private $elems;
   private $connections;
 
-  public function __construct($id, $width, $height, $title) {
+  public function __construct($id, $width, $height, $title = null) {
     parent::__construct($id, $width, $height, $title);
     $this->elems = array();
     $this->connections = array();
@@ -95,16 +95,5 @@ class SVGConnectedGraph extends SVGChart {
     parent::add($group);
     return $node;
   }
-
-  private function getElem(SVGRect $elem) {
-    foreach ($this->elems as $e)
-      if ($elem == $e)
-	return $e;
-    return null;
-  }
-}
-
-if (isset($argv[0]) && basename(__FILE__) == basename($argv[0])) {
-  
 }
 ?>

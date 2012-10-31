@@ -175,7 +175,7 @@ class SVGSymbol extends SVGAbstractElem {
 
 class SVGUse extends SVGAbstractLeaf {
   public function __construct($href, $x, $y) {
-    parent::__construct("use", array("href" => $href, "x" => $x, "y" => $y));
+    parent::__construct("use", array("xlink:href" => $href, "x" => $x, "y" => $y));
   }
 }
 
