@@ -97,7 +97,7 @@ class RaceProgressChart {
                            array('class'=>'team-race-group'),
                            array(new SVGUse('#bubble-below', $x, $y + 4),
                                  new SVGText($x, $y + 28, $finish->score, array('class'=>'score-label')),
-                                 new SVGText($x, $y + 45, sprintf("(%s)", $rank->getPlace()), array('class'=>'rank-label'))));
+                                 new SVGText($x, $y + 45, sprintf("(%s)", $rank->getPlace(), array('class'=>'rank-label'))));
         $info[$rank->team->id]->add($bubble);
       }
       $x += $xspacing;
