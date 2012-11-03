@@ -76,7 +76,7 @@ class PasswordRecoveryPane extends AbstractUserPane {
       $pw2 = DB::$V->reqRaw($args, 'confirm-password', 8, 101, "Invalid confirmation.");
       if ($pw1 !== $pw2)
         throw new SoterException("Password mismatch. Make sure the passwords match and that it is at least 8 characters long.");
-      $acc->password = hash('sha512', $acc->id . "\0" . sha1($pw1) . "\0" . Conf::$PASSWORD_SALT);
+      $acc->password = DB::createPasswordHash($acc, $pw1);
       if (!DB::mail($acc->id, '[TechScore] Account password reset', $this->getSuccessMessage($acc)))
         Session::pa(new PA("No e-mail message could be sent, but password has been reset. Please log in with your new password now.", PA::I));
       else

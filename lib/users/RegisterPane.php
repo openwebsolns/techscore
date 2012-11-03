@@ -179,7 +179,7 @@ class RegisterPane extends AbstractUserPane {
       $pw2 = DB::$V->reqRaw($args, 'confirm', 8, 101, "Invalid password confirmation.");
       if ($pw1 !== $pw2)
         throw new SoterException("Password confirmation does not match. Please try again.");
-      $acc->password = hash('sha512', $acc->id . "\0" . sha1($pw1) . "\0" . Conf::$PASSWORD_SALT);
+      $acc->password = DB::createPasswordHash($acc, $pw1);
 
       // 6. Create account with status "requested";
       if (DB::mail($acc->id,

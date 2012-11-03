@@ -359,6 +359,16 @@ class DB extends DBM {
   }
 
   /**
+   * Create a new hash for the given user using the plain-text password.
+   *
+   * @param Account $user the user
+   * @param String $passwd the plain text password
+   */
+  public static function createPasswordHash(Account $user, $passwd) {
+    return hash('sha512', $user->id . "\0" . sha1($passwd) . "\0" . Conf::$PASSWORD_SALT);
+  }
+
+  /**
    * Returns all the pending users, using the given optional indices
    * to limit the list, like the range function in Python.
    *

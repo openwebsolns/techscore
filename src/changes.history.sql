@@ -341,3 +341,7 @@ alter table regatta add column private tinyint default null after participant;
 update regatta set private = 1 where type = 'personal';
 alter table regatta change column type type enum('conference','intersectional','championship','two-conference','conference-championship','promotional') not null default 'conference';
 update regatta set type = 'conference' where type = '';
+
+-- use utf8 for first_name, last_name of account table --
+alter table account change column first_name first_name varchar(30) character set utf8 not null;
+alter table account change column last_name last_name varchar(30) character set utf8 not null;

@@ -20,8 +20,13 @@ if (!in_array(Conf::$METHOD, array('POST', 'GET')))
 // Construct the URI
 // ------------------------------------------------------------
 $URI = WS::unlink($_SERVER['REQUEST_URI'], true);
-$URI_TOKENS = explode('/', $URI);
-array_shift($URI_TOKENS);
+$URI_TOKENS = array();
+foreach (explode('/', $URI) as $arg) {
+  if (strlen($arg) > 0)
+    $URI_TOKENS[] = $arg;
+}
+if (count($URI_TOKENS) == 0)
+  $URI_TOKENS = array('home');
 
 // ------------------------------------------------------------
 // Not logged-in?

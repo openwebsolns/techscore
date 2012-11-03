@@ -82,7 +82,7 @@ class LoginPage extends AbstractUserPane {
     $user = DB::getAccount($userid);
     if ($user === null)
       throw new SoterException("Invalid username/password.");
-    $hash = hash('sha512', $user->id . "\0" . sha1($passwd) . "\0" . Conf::$PASSWORD_SALT);
+    $hash = DB::createPasswordHash($user, $passwd);
     if ($user->password !== $hash)
       throw new SoterException("Invalid username/password.");
     if (is_array(Conf::$DEBUG_USERS) && !in_array($user->id, Conf::$DEBUG_USERS))
