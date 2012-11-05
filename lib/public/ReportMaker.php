@@ -187,8 +187,7 @@ class ReportMaker {
     foreach ($hosts as $host)
       $schools[$host->id] = $host->nick_name;
 
-    $types = Regatta::getTypes();
-    $type = sprintf('%s Regatta', $types[$reg->type]);
+    $type = sprintf('%s Regatta', $reg->type);
 
     $boats = array();
     foreach ($reg->getBoats() as $boat)

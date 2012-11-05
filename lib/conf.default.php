@@ -44,7 +44,6 @@ Conf::$WRITERS = array('LocalHtmlWriter.php');
 //Conf::$ALLOW_REGISTER = false;
 
 // Set the allowed regatta types and scoring options
-//Conf::$REGATTA_TYPE_BLACKLIST = array('conference');
 //Conf::$REGATTA_SCORING_BLACKLIST = array('standard', 'combined');
 
 Conf::$LOCK_FILENAME = 'ts-pub.lock';

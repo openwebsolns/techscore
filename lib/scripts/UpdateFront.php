@@ -58,7 +58,6 @@ class UpdateFront extends AbstractScript {
       return $page;
     }
 
-    $types = Regatta::getTypes();
     $page->addMenu(new XA('/'.$seasons[0]->id.'/', $seasons[0]->fullString()));
     $page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
 
@@ -90,7 +89,7 @@ class UpdateFront extends AbstractScript {
                                                             "Leading")))));
       foreach ($in_prog as $i => $reg) {
         $data = $reg->getData();
-        $row = array(new XA($reg->getURL(), $reg->name), $types[$reg->type]);
+        $row = array(new XA($reg->getURL(), $reg->name), $reg->type);
         $tms = $data->getTeams();
         if ($data->status == Dt_Regatta::STAT_READY || count($tms) == 0) {
           $row[] = new XTD(array('colspan'=>2), new XEm("No scores yet"));
@@ -124,7 +123,7 @@ class UpdateFront extends AbstractScript {
         $data = $reg->getData();
         $tab->addRow(array(new XA($reg->getURL(), $reg->name),
                            implode("/", $data->hosts),
-                           $types[$reg->type],
+                           $reg->type,
                            $reg->start_time->format('m/d/Y @ H:i')));
       }
     }

@@ -27,6 +27,7 @@ class NewRegattaPane extends AbstractUserPane {
   }
 
   private function defaultRegatta() {
+    $types = DB::getAll(DB::$ACTIVE_TYPE);
     $day = new DateTime('next Saturday');
     return array('name' => '',
                  'private' => null,
@@ -35,7 +36,7 @@ class NewRegattaPane extends AbstractUserPane {
                  'duration' => 2,
                  'venue' => '',
                  'scoring' => Regatta::SCORING_STANDARD,
-                 'type' => Regatta::TYPE_CONFERENCE,
+                 'type' => $types[count($types) - 1]->id,
                  'participant' => Regatta::PARTICIPANT_COED,
                  'num_divisions' => 2,
                  'num_races' => '18');
@@ -52,8 +53,6 @@ class NewRegattaPane extends AbstractUserPane {
         $r[$key] = $args[$key];
     }
 
-    $types = Regatta::getTypes();
-
     $f->add(new FItem("Name:", new XTextInput("name", $r["name"], array('maxlength'=>40))));
 
     $f->add($fi = new FItem("Private:", $chk = new XCheckboxInput('private', 1, array('id'=>'chk-priv'))));
@@ -66,7 +65,7 @@ class NewRegattaPane extends AbstractUserPane {
     $f->add(new FItem("Duration (days):", new XTextInput("duration", $r["duration"])));
     $f->add(new FItem("Venue:",   $sel = new XSelect("venue")));
     $f->add(new FItem("Scoring:", XSelect::fromArray("scoring", Regatta::getScoringOptions(), $r["scoring"])));
-    $f->add(new FItem("Type:", XSelect::fromArray('type', Regatta::getTypes()), $r['type']));
+    $f->add(new FItem("Type:", XSelect::fromDBM('type', DB::getAll(DB::$ACTIVE_TYPE), $r['type'])));
     $f->add(new FItem("Participation:", XSelect::fromArray("participant", Regatta::getParticipantOptions(),
                                                            $r["participant"])));
 
@@ -137,7 +136,7 @@ class NewRegattaPane extends AbstractUserPane {
         $error = true;
       }
       // 7. Type
-      if (!DB::$V->hasKey($type, $args, 'type', Regatta::getTypes())) {
+      if (!DB::$V->hasID($type, $args, 'type', DB::$ACTIVE_TYPE)) {
         Session::pa(new PA("Invalid regatta type.", PA::E));
         $error = true;
       }

@@ -85,13 +85,6 @@ class Conf {
   public static $ALLOW_REGISTER = true;
 
   /**
-   * @var Array the list of types NOT to allow. This will prevent the
-   * creation or changing of a regatta into one of these types. It
-   * will NOT prevent the display of these regattas.
-   */
-  public static $REGATTA_TYPE_BLACKLIST = array();
-
-  /**
    * @var Array the list of scoring NOT to allow. This will prevent
    * the creation or changing of a regatta scoring to one of these
    * values. It will NOT prevent the display or editing of those

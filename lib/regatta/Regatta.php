@@ -42,29 +42,6 @@ class Regatta extends DBObject {
   const PARTICIPANT_COED = "coed";
 
   /**
-   * Gets an assoc. array of the possible regatta types
-   *
-   * @return Array a dict of regatta types
-   */
-  public static function getTypes() {
-    $lst = array(Regatta::TYPE_CHAMPIONSHIP=>"National Championship",
-                 Regatta::TYPE_CONF_CHAMPIONSHIP=>"Conference Championship",
-                 Regatta::TYPE_INTERSECTIONAL=>"Intersectional",
-                 Regatta::TYPE_TWO_CONFERENCE=>"Two-Conference",
-                 Regatta::TYPE_CONFERENCE=>"In-Conference",
-                 Regatta::TYPE_PROMOTIONAL=>"Promotional");
-    foreach (Conf::$REGATTA_TYPE_BLACKLIST as $rem)
-      unset($lst[$rem]);
-    return $lst;
-  }
-  const TYPE_CONFERENCE = 'conference';
-  const TYPE_CHAMPIONSHIP = 'championship';
-  const TYPE_INTERSECTIONAL = 'intersectional';
-  const TYPE_CONF_CHAMPIONSHIP = 'conference-championship';
-  const TYPE_TWO_CONFERENCE = 'two-conference';
-  const TYPE_PROMOTIONAL = 'promotional';
-
-  /**
    * Gets an assoc. array of the possible scoring rules
    *
    * @return Array a dict of scoring rules
@@ -93,7 +70,7 @@ class Regatta extends DBObject {
   public $nick;
   protected $start_time;
   protected $end_date;
-  public $type;
+  protected $type;
   protected $finalized;
   protected $creator;
   protected $venue;
@@ -124,6 +101,8 @@ class Regatta extends DBObject {
       return DB::$ACCOUNT;
     case 'venue':
       return DB::$VENUE;
+    case 'type':
+      return DB::$TYPE;
     default:
       return parent::db_type($field);
     }
@@ -1351,7 +1330,7 @@ class Regatta extends DBObject {
    * @param String $name the name of the regatta
    * @param DateTime $start_time the start time of the regatta
    * @param DateTime $end_date the end_date
-   * @param String $type one of those listed in Regatta::getTypes()
+   * @param Type $type one of the active regatta types
    * @param String $participant one of those listed in Regatta::getParticipantOptions()
    * @param boolean $private true to create a private regatta
    * @return int the ID of the regatta
@@ -1361,7 +1340,7 @@ class Regatta extends DBObject {
   public static function createRegatta($name,
                                        DateTime $start_time,
                                        DateTime $end_date,
-                                       $type,
+                                       Active_Type $type,
                                        $scoring = Regatta::SCORING_STANDARD,
                                        $participant = Regatta::PARTICIPANT_COED,
                                        $private = false) {
@@ -1371,9 +1350,6 @@ class Regatta extends DBObject {
     $opts = Regatta::getParticipantOptions();
     if (!isset($opts[$participant]))
       throw new InvalidArgumentException("No such regatta participant $participant.");
-    $opts = Regatta::getTypes();
-    if (!isset($opts[$type]))
-      throw new InvalidArgumentException("No such regatta type $type.");
 
     $r = new Regatta();
     $r->name = $name;

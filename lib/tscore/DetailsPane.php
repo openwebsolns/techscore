@@ -78,7 +78,13 @@ class DetailsPane extends AbstractPane {
 
     // Regatta type
     $value = $this->REGATTA->type;
-    $reg_form->add(new FItem("Type:", XSelect::fromArray('type', Regatta::getTypes(), $value)));
+    $reg_form->add(new FItem("Type:", $r_type = new XSelect('type')));
+    $r_type->add(new FOption("", "[Choose type]"));
+    foreach (DB::getAll(DB::$ACTIVE_TYPE) as $v) {
+      $r_type->add($opt = new FOption($v->id, $v));
+      if ($v->id == $value->id)
+        $opt->set('selected', 'selected');
+    }
 
     // Regatta participation
     $value = $this->REGATTA->participant;
@@ -203,7 +209,7 @@ class DetailsPane extends AbstractPane {
       }
 
       // Type
-      if (DB::$V->hasKey($V, $args, 'type', Regatta::getTypes()) && $V != $this->REGATTA->type) {
+      if (DB::$V->hasID($V, $args, 'type', DB::$ACTIVE_TYPE) && $V != $this->REGATTA->type) {
         $this->REGATTA->type = $V;
         $edited = true;
       }

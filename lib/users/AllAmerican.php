@@ -137,7 +137,6 @@ class AllAmerican extends AbstractUserPane {
       $p2->add($form = $this->createForm());
       $tab = new XQuickTable(array('id'=>'regtable'), array("", "Name", "Type", "Part.", "Date", "Status"));
 
-      $types = Regatta::getTypes();
       $addt_regattas = 0;
       foreach ($regattas as $reg) {
         if ($reg->finalized !== null &&
@@ -162,7 +161,7 @@ class AllAmerican extends AbstractUserPane {
           }
           $tab->addRow(array(new XCheckboxInput("regatta[]", $reg->id, $cattr),
                              new XLabel($id, $reg->name),
-                             new XLabel($id, $types[$reg->type]),
+                             new XLabel($id, $reg->type),
                              new XLabel($id, ($reg->participant == Regatta::PARTICIPANT_WOMEN) ? "Women" : "Coed"),
                              new XLabel($id, $reg->start_time->format('Y/m/d H:i')),
                              new XLabel($id, ($reg->finalized) ? "Final" : "Pending")),
@@ -187,7 +186,7 @@ class AllAmerican extends AbstractUserPane {
         $p1->add($tab = new XQuickTable(array(), array("Name", "Type", "Part.", "Date", "Status")));
         foreach ($qual_regattas as $reg) {
           $tab->addRow(array($reg->name,
-                             $types[$reg->type],
+                             $reg->type,
                              ($reg->participant == Regatta::PARTICIPANT_WOMEN) ? "Women" : "Coed",
                              $reg->start_time->format('Y/m/d H:i'),
                              "Final"));

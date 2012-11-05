@@ -21,7 +21,6 @@ class UpdateSeason extends AbstractScript {
 
   private function getPage(Season $season) {
     require_once('xml5/TPublicPage.php');
-    $types = Regatta::getTypes();
     $name = $season->fullString();
     $page = new TPublicPage($name);
     $page->setDescription(sprintf("Summary of ICSA regattas for %s", $name));
@@ -126,7 +125,7 @@ class UpdateSeason extends AbstractScript {
             $wt->school->nick_name;
           $rows[] = array($link,
                           implode("/", $data->hosts),
-                          $types[$reg->type],
+                          $reg->type,
                           $reg->start_time->format('m/d/Y'),
                           $status,
                           new XTD(array('title' => $wt), $burg));
@@ -153,7 +152,7 @@ class UpdateSeason extends AbstractScript {
         $data = $reg->getData();
         $tab->addRow(array(new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name),
                            implode("/", $data->hosts),
-                           $types[$reg->type],
+                           $reg->type,
                            $reg->start_time->format('m/d/Y @ H:i')));
       }
     }

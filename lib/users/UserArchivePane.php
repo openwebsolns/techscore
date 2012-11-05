@@ -83,7 +83,6 @@ class UserArchivePane extends AbstractUserPane {
 
       $row = 0;
       $now = new DateTime('1 day ago');
-      $types = Regatta::getTypes();
       for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < $num_regattas; $i++) {
         $reg = $regs[$i];
 
@@ -98,7 +97,7 @@ class UserArchivePane extends AbstractUserPane {
         }
 
         $row[] = $reg->start_time->format("Y-m-d");
-        $row[] = $types[$reg->type];
+        $row[] = $reg->type;
         $row[] = ucfirst($reg->scoring);
         
         $finalized = '--';

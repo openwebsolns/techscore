@@ -46,7 +46,6 @@ class UpdateSchool extends AbstractScript {
     require_once('regatta/PublicDB.php');
     require_once('xml5/TPublicPage.php');
 
-    $types = Regatta::getTypes();
     $page = new TPublicPage($school);
     $page->setDescription(sprintf("Summary of activity for %s during the %s season.", $school, $season->fullString()));
     $page->addMetaKeyword($school->id);
@@ -183,7 +182,7 @@ class UpdateSchool extends AbstractScript {
         $link = new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name);
         $tab->addRow(array($link,
                            implode("/", $data->hosts),
-                           $types[$reg->type],
+                           $reg->type,
                            implode("/", $data->confs),
                            $status,
                            $this->getPlaces($data, $school)),
@@ -206,7 +205,7 @@ class UpdateSchool extends AbstractScript {
         $link = new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name);
         $tab->addRow(array($link,
                            implode("/", $data->hosts),
-                           $types[$reg->type],
+                           $reg->type,
                            implode("/", $data->confs),
                            $reg->start_time->format('M d'),
                            ($reg->finalized === null) ? "Pending" : new XStrong("Official"),

@@ -15,6 +15,8 @@ require_once('mysqli/DBM.php');
 class DB extends DBM {
 
   // Template objects
+  public static $TYPE = null;
+  public static $ACTIVE_TYPE = null;
   public static $CONFERENCE = null;
   public static $SCHOOL = null;
   public static $ACTIVE_SCHOOL = null;
@@ -65,6 +67,8 @@ class DB extends DBM {
 
   public static function setConnectionParams($host, $user, $pass, $db) {
     // Template objects serialization
+    self::$TYPE = new Type();
+    self::$ACTIVE_TYPE = new Active_Type();
     self::$CONFERENCE = new Conference();
     self::$SCHOOL = new School();
     self::$ACTIVE_SCHOOL = new Active_School();
@@ -578,6 +582,39 @@ class DB extends DBM {
    */
   public static function getSeason($id) {
     return DB::get(DB::$SEASON, $id);
+  }
+}
+
+/**
+ * Regatta type, which may be ranked
+ *
+ * @author Dayan Paez
+ * @version 2012-11-05
+ */
+class Type extends DBObject {
+  public $title;
+  public $description;
+  /**
+   * @var int the display rank (lower = more important)
+   */
+  public $rank;
+  public $inactive;
+
+  public function db_name() { return 'type'; }
+  protected function db_order() { return array('rank'=>true, 'title'=>true); }
+  protected function db_cache() { return true; }
+  public function __toString() { return $this->title; }
+}
+
+/**
+ * Active type: different per installation
+ *
+ * @author Dayan Paez
+ * @version 2012-11-05
+ */
+class Active_Type extends Type {
+  public function db_where() {
+    return new DBCond('inactive', null);
   }
 }
 

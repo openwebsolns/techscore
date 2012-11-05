@@ -345,3 +345,11 @@ update regatta set type = 'conference' where type = '';
 -- use utf8 for first_name, last_name of account table --
 alter table account change column first_name first_name varchar(30) character set utf8 not null;
 alter table account change column last_name last_name varchar(30) character set utf8 not null;
+
+-- turn regatta type into separate table --
+create table type (id varchar(30) not null primary key, title varchar(40) not null, description text default null, rank tinyint not null default 1 comment "Smaller means more important", inactive tinyint default null) engine=innodb charset=utf8;
+insert into type values ('championship', "National Championship", null, 1, null), ('intersectional', "Intersectional", null, 3, null), ('conference-championship', "Conference Championship", null, 2, null), ('two-conference', "Two-Conference", null, 4, null), ('conference', "In-Conference", null, 5, null), ('promotional', "Promotional", null, 6, null);
+alter table regatta change column type type_old enum('conference','intersectional','championship','two-conference','conference-championship','promotional') not null default 'conference', add column type varchar(30) character set utf8 not null after type_old;
+update regatta set type = type_old;
+update regatta set type = 'conference' where type is null;
+alter table regatta add foreign key (type) references type(id) on delete cascade on update cascade, drop column type_old;
