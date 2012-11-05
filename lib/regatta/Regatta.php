@@ -1378,9 +1378,11 @@ class Regatta extends DBObject {
    * @param Regatta $r2 a regatta
    */
   public static function cmpStart(Regatta $r1, Regatta $r2) {
-    if ($r1->start_time < $r2->start_time)
+    $r1s = $r1->__get('start_time');
+    $r2s = $r2->__get('start_time');
+    if ($r1s < $r2s)
       return -1;
-    if ($r1->start_time > $r2->start_time)
+    if ($r1s > $r2s)
       return 1;
     return 0;
   }
@@ -1393,6 +1395,20 @@ class Regatta extends DBObject {
    */
   public static function cmpStartDesc(Regatta $r1, Regatta $r2) {
     return -1 * self::cmpStart($r1, $r2);
+  }
+
+  /**
+   * Compares two regattas based on their type, then their start time
+   *
+   * @param Regatta $r1 a regatta
+   * @param Regatta $r2 a regatta
+   * @return int the result of question $r1 < $r2
+   */
+  public static function cmpTypes(Regatta $r1, Regatta $r2) {
+    $diff = $r1->__get('type')->rank - $r2->__get('type')->rank;
+    if ($diff == 0)
+      return Regatta::cmpStart($r1, $r2);
+    return $diff;
   }
 }
 
