@@ -1806,6 +1806,7 @@ class Season extends DBObject {
    * @return Array:Regatta
    */
   public function getParticipation(School $school, $inc_private = false) {
+    require_once('regatta/Regatta.php');
     return DB::getAll(($inc_private !== false) ? DB::$REGATTA : DB::$PUBLIC_REGATTA,
                       new DBBool(array(new DBCond('start_time', $this->start_date, DBCond::GE),
                                        new DBCond('start_time', $this->end_date,   DBCond::LT),
