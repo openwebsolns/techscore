@@ -667,6 +667,31 @@ class XSelect extends XAbstractHtml {
     }
     return $sel;
   }
+
+  /**
+   * Creates a XSelect element from the given DBM list
+   *
+   * Unlike fromArray, this method will only create a flat list. The
+   * DBObjects in $opts must have a toString() method defined, which
+   * will be implicitly called by the String type-casting.
+   *
+   * @param String $name the name of the select element
+   * @param ArrayIterator:DBObject $opts the list of DBObject
+   * @param Array|String $chosen the list or item to select
+   * @param $attrs the optional attributes to add
+   * @see fromArray
+   */
+  public static function fromDBM($name, $opts, $chosen = null, Array $attrs = array()) {
+    if (!is_array($chosen))
+      $chosen = array($chosen);
+    $sel = new XSelect($name, $attrs);
+    foreach ($opts as $v) {
+      $sel->add($opt = new XOption($v->id, array(), $v));
+      if (in_array($v->id, $chosen))
+        $opt->set('selected', 'selected');
+    }
+    return $sel;
+  }
 }
 
 /**
@@ -683,6 +708,12 @@ class XSelectM extends XSelect {
 
   public static function fromArray($name, Array $opts, $chosen = null, Array $attrs = array(), $strict = false) {
     $sel = XSelect::fromArray($name, $opts, $chosen, $attrs, $strict);
+    $sel->set('multiple', 'multiple');
+    return $sel;
+  }
+
+  public static function fromDBM($name, $opts, $chosen = null, Array $attrs = array()) {
+    $sel = XSelect::fromDBM($name, $opts, $chosen, $attrs);
     $sel->set('multiple', 'multiple');
     return $sel;
   }
