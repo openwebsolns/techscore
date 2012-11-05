@@ -162,6 +162,7 @@ class UpdateSchool extends AbstractScript {
     // ------------------------------------------------------------
     // SCHOOL sailing now
     if (count($current) > 0) {
+      usort($current, 'Regatta::cmpTypes');
       $page->addSection($p = new XPort("Sailing now", array(), array('id'=>'sailing')));
       $p->add($tab = new XQuickTable(array('class'=>'participation-table'),
                                      array("Name", "Host", "Type", "Conference", "Last race", "Place(s)")));

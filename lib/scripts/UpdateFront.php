@@ -80,6 +80,7 @@ class UpdateFront extends AbstractScript {
         $in_prog[] = $reg;
     }
     if (count($in_prog) > 0) {
+      usort($in_prog, 'Regatta::cmpTypes');
       $div->add(new XDiv(array('id'=>'in-progress'),
                          array($this->h1("In progress"),
                                $tab = new XQuickTable(array('class'=>'season-summary'),
@@ -109,9 +110,9 @@ class UpdateFront extends AbstractScript {
     // Fill list of coming soon regattas
     $now = new DateTime('tomorrow');
     $now->setTime(0, 0);
-    DB::$REGATTA->db_set_order(array('start_time'=>true));
+    DB::$PUBLIC_REGATTA->db_set_order(array('start_time'=>true));
     $regs = DB::getAll(DB::$PUBLIC_REGATTA, new DBCond('start_time', $now, DBCond::GE));
-    DB::$REGATTA->db_set_order();
+    DB::$PUBLIC_REGATTA->db_set_order();
     if (count($regs) > 0) {
       $page->addSection($p = new XPort("Upcoming schedule"));
       $p->add($tab = new XQuickTable(array('class'=>'coming-regattas'),

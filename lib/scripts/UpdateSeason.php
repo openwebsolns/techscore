@@ -85,6 +85,7 @@ class UpdateSeason extends AbstractScript {
     $rowindex = 0;
     foreach ($weeks as $week => $list) {
       $rows = array();
+      usort($list, 'Regatta::cmpTypes');
       foreach ($list as $reg) {
         $data = $reg->getData();
         if ($reg->start_time >= $now) {
