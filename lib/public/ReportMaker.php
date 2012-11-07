@@ -17,6 +17,7 @@ class ReportMaker {
 
   private $page;
   private $rotPage;
+  private $combinedPage;
   private $fullPage;
   private $divPage = array();
 
@@ -138,6 +139,23 @@ class ReportMaker {
     }
   }
 
+  protected function fillCombined() {
+    if ($this->combinedPage !== null) return;
+
+    $reg = $this->regatta;
+    $season = $reg->getSeason();
+    $this->combinedPage = new TPublicPage(sprintf("Scores for all Divisions | %s", $reg->name));
+    $this->prepare($this->combinedPage);
+    $this->combinedPage->setDescription(sprintf("Scores and ranks across all divisions for %s's %s.",
+                                                $season->fullString(), $reg->name));
+
+    require_once('tscore/ScoresCombinedDialog.php');
+    $maker = new ScoresCombinedDialog($reg);
+    $this->combinedPage->addSection($p = new XPort("Scores for all divisions"));
+    foreach ($maker->getTable(true) as $elem)
+      $p->add($elem);
+  }
+
   /**
    * Prepares the basic elements common to all regatta public pages
    * such as the navigation menu and the regatta description.
@@ -162,8 +180,12 @@ class ReportMaker {
     if ($reg->hasFinishes()) {
       $page->addMenu(new XA($url.'full-scores/', "Full Scores"));
       if (!$reg->isSingleHanded()) {
-        foreach ($reg->getDivisions() as $div)
-          $page->addMenu(new XA($url . $div.'/', "Division $div"));
+        if ($reg->scoring == Regatta::SCORING_STANDARD) {
+          foreach ($reg->getDivisions() as $div)
+            $page->addMenu(new XA($url . $div.'/', "Division $div"));
+        }
+        else
+          $page->addMenu(new XA($url . 'divisions/', "All Divisions"));
       }
     }
     $rot = $reg->getRotation();
@@ -242,6 +264,17 @@ class ReportMaker {
   public function getRotationPage() {
     $this->fillRotation();
     return $this->rotPage;
+  }
+
+  /**
+   * Generates the combined division page
+   *
+   * @return TPublicPage
+   * @throws InvalidArgumentException if the regatta is not combined scoring
+   */
+  public function getCombinedPage() {
+    $this->fillCombined();
+    return $this->combinedPage;
   }
 }
 ?>

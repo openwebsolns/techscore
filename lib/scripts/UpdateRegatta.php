@@ -43,6 +43,9 @@ require_once('AbstractScript.php');
  *
  * 2011-03-06: Use Dt_Regatta for every action except Sync, obviously
  *
+ * 2012-11-07: For combined division, use the special ranker when (a)
+ * performing syncs and (b) displaying
+ *
  * @author Dayan Paez
  * @version 2010-08-27
  * @package scripts
@@ -86,9 +89,6 @@ class UpdateRegatta extends AbstractScript {
     // the team divisions so that we can use them when syncing RP
     // information.  Also track the team objects for the same reason,
     // with these indexed by the ID of the dt_team_division object
-    $team_divs = array();
-    $team_objs = array();
-
     $dteams = array();
     foreach ($dreg->getTeams() as $team)
       $dteams[$team->id] = $team;
@@ -112,29 +112,54 @@ class UpdateRegatta extends AbstractScript {
     }
 
     // do the team divisions
-    foreach ($divs as $div) {
-      foreach ($reg->scorer->rank($reg, $reg->getScoredRaces($div)) as $i => $rank) {
-        $team_division = $dteams[$rank->team->id]->getRank($div);
+    if ($reg->scoring == Regatta::SCORING_STANDARD) {
+      foreach ($divs as $div) {
+        $races = $reg->getScoredRaces($div);
+        foreach ($reg->scorer->rank($reg, $races) as $i => $rank) {
+          $team_division = $dteams[$rank->team->id]->getRank($div);
+          if ($team_division === null)
+            $team_division = new Dt_Team_Division();
+
+          $team_division->team = $dteams[$rank->team->id];
+          $team_division->division = $div;
+          $team_division->rank = ($i + 1);
+          $team_division->explanation = $rank->explanation;
+          $team_division->penalty = null;
+          $team_division->comments = null;
+
+          // Penalty?
+          if (($pen = $reg->getTeamPenalty($rank->team, $div)) !== null) {
+            $team_division->penalty = $pen->type;
+            $team_division->comments = $pen->comments;
+          }
+          DB::set($team_division);
+        }
+      }
+    }
+    elseif ($reg->scoring == Regatta::SCORING_COMBINED) {
+      require_once('regatta/ICSASpecialCombinedRanker.php');
+      $ranker = new ICSASpecialCombinedRanker();
+      foreach ($ranker->rank($reg) as $i => $rank) {
+        $team_division = $dteams[$rank->team->id]->getRank($rank->division);
         if ($team_division === null)
           $team_division = new Dt_Team_Division();
 
         $team_division->team = $dteams[$rank->team->id];
-        $team_division->division = $div;
+        $team_division->division = $rank->division;
         $team_division->rank = ($i + 1);
         $team_division->explanation = $rank->explanation;
-	$team_division->penalty = null;
-	$team_division->comments = null;
+        $team_division->penalty = null;
+        $team_division->comments = null;
 
         // Penalty?
-        if (($pen = $reg->getTeamPenalty($rank->team, $div)) !== null) {
+        if (($pen = $reg->getTeamPenalty($rank->team, $rank->division)) !== null) {
           $team_division->penalty = $pen->type;
           $team_division->comments = $pen->comments;
         }
         DB::set($team_division);
-        $team_divs[] = $team_division;
-        $team_objs[$team_division->id] = $rank->team;
       }
     }
+    // @TODO: Team racing?
   }
 
   /**
@@ -216,6 +241,7 @@ class UpdateRegatta extends AbstractScript {
     $has_dir = false;
     $has_rotation = false;
     $has_fullscore = false;
+    $has_combined = false;
     $has_divs = array((string)Division::A() => false,
                       (string)Division::B() => false,
                       (string)Division::C() => false,
@@ -225,6 +251,7 @@ class UpdateRegatta extends AbstractScript {
       $has_dir = true;
       if (is_dir($dir . '/rotations'))   $has_rotation = true;
       if (is_dir($dir . '/full-scores')) $has_fullscore = true;
+      if (is_dir($dir . '/divisions'))   $has_combined = true;
       foreach ($has_divs as $div => $val) {
         if (is_dir($dir . '/' . $div))
           $has_divs[$div] = true;
@@ -261,7 +288,7 @@ class UpdateRegatta extends AbstractScript {
         // What if the rotation was removed?
         $season = $reg->getSeason();
         if ($season !== null && $reg->nick !== null) {
-          self::remove($reg->getURL() . '/rotations');
+          self::remove($reg->getURL() . '/rotations/index.html');
         }
 
         $front = true;
@@ -296,11 +323,12 @@ class UpdateRegatta extends AbstractScript {
         $season = $reg->getSeason();
         if ($season !== null && $reg->nick !== null) {
           $root = $reg->getURL();
-          self::remove($root . '/full-scores');
-          self::remove($root . '/A');
-          self::remove($root . '/B');
-          self::remove($root . '/C');
-          self::remove($root . '/D');
+          self::remove($root . 'full-scores/index.html');
+          self::remove($root . 'A/index.html');
+          self::remove($root . 'B/index.html');
+          self::remove($root . 'C/index.html');
+          self::remove($root . 'D/index.html');
+          self::remove($root . 'divisions/index.html');
         }
       }
     }
@@ -336,6 +364,24 @@ class UpdateRegatta extends AbstractScript {
     }
 
     // ------------------------------------------------------------
+    // For sanity sake, check for "display confusion": the possibility
+    // that the current set of files reflects the expectation of a
+    // standard-scoring regatta when in fact we are combined, or vice
+    // versa. Any such evidence will result automatically in an update
+    // of all the necessary resources
+    // ------------------------------------------------------------
+    if (($reg->scoring == Regatta::SCORING_STANDARD && $has_combined) ||
+        ($reg->scoring == Regatta::SCORING_COMBINED && $has_divs['A'])) {
+      $front = true;
+      if ($reg->hasFinishes()) {
+        $full = true;
+        $divisions = true;
+      }
+      if ($rot->isAssigned())
+        $rotation = true;
+    }
+
+    // ------------------------------------------------------------
     // Perform the updates
     // ------------------------------------------------------------
     if ($sync)       $this->sync($reg);
@@ -349,8 +395,19 @@ class UpdateRegatta extends AbstractScript {
     if ($front)      $this->createFront($D, $M);
     if ($full)       $this->createFull($D, $M);
     if ($divisions) {
-      foreach ($reg->getDivisions() as $div)
-        $this->createDivision($D, $M, $div);
+      $root = $reg->getURL();
+      if ($reg->scoring == Regatta::SCORING_STANDARD) {
+        self::remove($root . 'divisions/index.html');
+        foreach ($reg->getDivisions() as $div)
+          $this->createDivision($D, $M, $div);
+      }
+      else {
+        $this->createCombined($D, $M);
+        self::remove($root . 'A/index.html');
+        self::remove($root . 'B/index.html');
+        self::remove($root . 'C/index.html');
+        self::remove($root . 'D/index.html');
+      }
     }
   }
 
@@ -397,6 +454,20 @@ class UpdateRegatta extends AbstractScript {
   private function createDivision($dirname, ReportMaker $maker, Division $div) {
     $path = $dirname . $div . '/index.html';
     $page = $maker->getDivisionPage($div);
+    self::writeXml($path, $page);
+  }
+
+  /**
+   * Creates and writes the combined division page in the given directory
+   *
+   * @param String $dirname the directory
+   * @param ReportMaker $maker the maker
+   * @throws RuntimeException when writing is no good
+   * @see createFront
+   */
+  private function createCombined($dirname, ReportMaker $maker) {
+    $path = $dirname . 'divisions/index.html';
+    $page = $maker->getCombinedPage();
     self::writeXml($path, $page);
   }
 
