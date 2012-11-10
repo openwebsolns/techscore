@@ -127,7 +127,7 @@ class TPublicPage extends XPage {
     $stop = ceil($count / 2);
     for ($i = 0; $i < $stop; $i++)
       $menu->add(new XLi($this->menu[$i]));
-    $menu->add(new XLi(new XA('/', new XImg('/inc/img/logo.png', "ICSA Burgee")), array('id'=>'logo')));
+    $menu->add(new XLi(new XImg('/inc/img/logo.png', "ICSA Burgee"), array('id'=>'logo')));
     for ($i = $stop; $i < $count; $i++)
       $menu->add(new XLi($this->menu[$i]));
 
