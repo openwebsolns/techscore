@@ -54,11 +54,8 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
   public function getTable($link_schools = false) {
     $ELEMS = array();
 
+    $dreg = $this->REGATTA->getData();
     $divisions = $this->REGATTA->getDivisions();
-    $races = array();
-    foreach ($divisions as $div)
-      $races[(string)$div] = $this->REGATTA->getScoredRaces($div);
-    $num_divs  = count($divisions);
 
     $t = new XTable(array('class'=>'results coordinate divisional'),
                     array(new XTHead(array(),
@@ -85,62 +82,56 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
     // and collect the different tiebreaking categories, giving each
     // one a successive symbol.
     $tiebreakers = array("" => "");
-    $ranks = $this->REGATTA->scorer->rank($this->REGATTA);
+    $ranks = $dreg->getTeams();
     foreach ($ranks as $rank) {
-      if (!empty($rank->explanation) && !isset($tiebreakers[$rank->explanation])) {
+      if (!empty($rank->rank_explanation) && !isset($tiebreakers[$rank->rank_explanation])) {
         $count = count($tiebreakers);
         switch ($count) {
         case 1:
-          $tiebreakers[$rank->explanation] = "*";
+          $tiebreakers[$rank->rank_explanation] = "*";
           break;
         case 2:
-          $tiebreakers[$rank->explanation] = "**";
+          $tiebreakers[$rank->rank_explanation] = "**";
           break;
         default:
-          $tiebreakers[$rank->explanation] = chr(95 + $count);
+          $tiebreakers[$rank->rank_explanation] = chr(95 + $count);
         }
       }
     }
 
     $row = 0;
     foreach ($ranks as $tID => $rank) {
-      $ln = $rank->team->school->name;
+      $ln = $rank->school->name;
       if ($link_schools !== false)
-        $ln = new XA(sprintf('/schools/%s/%s/', $rank->team->school->id, $this->REGATTA->getSeason()), $ln);
+        $ln = new XA(sprintf('/schools/%s/%s/', $rank->school->id, $this->REGATTA->getSeason()), $ln);
       $tab->add($r = new XTR(array('class'=>'row' . ($row++ % 2)),
-                             array(new XTD(array('title'=>$rank->explanation, 'class'=>'tiebreaker'),
-                                           $tiebreakers[$rank->explanation]),
+                             array(new XTD(array('title'=>$rank->rank_explanation, 'class'=>'tiebreaker'),
+                                           $tiebreakers[$rank->rank_explanation]),
                                    new XTD(array(), $tID + 1),
                                    $bc = new XTD(array('class'=>'burgee-cell')),
                                    new XTD(array('class'=>'strong'), $ln),
-                                   new XTD(array('class'=>'left'), $rank->team->name))));
-      if ($rank->team->school->burgee !== null) {
-        $url = sprintf('/inc/img/schools/%s.png', $rank->team->school->id);
-        $bc->add(new XImg($url, $rank->team->school->id, array('height'=>'30px')));
+                                   new XTD(array('class'=>'left'), $rank->name))));
+      if ($rank->school->burgee !== null) {
+        $url = sprintf('/inc/img/schools/%s.png', $rank->school->id);
+        $bc->add(new XImg($url, $rank->school->id, array('height'=>'30px')));
       }
 
       $scoreTeam    = 0;
       // For each division
       foreach ($divisions as $div) {
-        $scoreDiv = 0;
-        foreach ($races[(string)$div] as $race) {
-          $finish = $this->REGATTA->getFinish($race, $rank->team);
-          $scoreDiv += $finish->score;
-        }
+        $div_rank = $rank->getRank($div);
 
-        $pen = $this->REGATTA->getTeamPenalty($rank->team, $div);
         $r->add($s_cell = new XTD());
         $r->add($p_cell = new XTD());
-        if ($pen !== null) {
-          $scoreDiv += 20;
-          $p_cell->add($pen->type);
-          $p_cell->set("title", sprintf("(+20 points)", $pen->type));
+        if ($div_rank->penalty !== null) {
+          $p_cell->add($div_rank->penalty);
+          $p_cell->set('title', "+20 points: " . $div_rank->comments);
 
           $division_has_penalty[(string)$div] = true;
         }
-        $s_cell->add(new XText($scoreDiv));
+        $s_cell->add(new XText($div_rank->score));
         $s_cell->set("class", "total");
-        $scoreTeam += $scoreDiv;
+        $scoreTeam += $div_rank->score;
       }
       $r->add(new XTD(array('class'=>'totalcell'), $scoreTeam));
     }
