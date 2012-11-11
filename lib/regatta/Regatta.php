@@ -1296,6 +1296,25 @@ class Regatta extends DBObject {
     }
 
     // ------------------------------------------------------------
+    // NOTE: What happens when divisions are removed?
+    // The problem here is that dt_team_division entries may still
+    // exist in the database even though the division does not exist
+    // (there is no possible foreign key for this purpose). To remedy
+    // this situation, the following syncing procedure should also
+    // make sure to remove any stray entries that may exist. This is
+    // done by creating a list of all the dt_team_division entries
+    // that exist and, after syncing all of the ones that should
+    // exist, delete the others. This is the purpose of the $to_delete
+    // map below.
+    $to_delete = array();
+    foreach ($dteams as $team) {
+      foreach (DB::getAll(DB::$DT_TEAM_DIVISION, new DBCond('team', $team)) as $entry) {
+        $id = sprintf('%s,%s', $entry->team->id, $entry->division);
+        $to_delete[$id] = $entry;
+      }
+    }
+
+    // ------------------------------------------------------------
     // do the team divisions
     if ($this->scoring == Regatta::SCORING_STANDARD) {
       $divs = ($division === null ) ? $this->getDivisions() : array($division);
@@ -1303,8 +1322,12 @@ class Regatta extends DBObject {
       foreach ($divs as $div) {
         $races = $this->getScoredRaces($div);
         foreach ($scorer->rank($this, $races) as $i => $rank) {
-          $team_division = $dteams[$rank->team->id]->getRank($div);
-          if ($team_division === null)
+          $id = sprintf('%s,%s', $rank->team->id, $div);
+          if (isset($to_delete[$id])) {
+            $team_division = $to_delete[$id];
+            unset($to_delete[$id]);
+          }
+          else
             $team_division = new Dt_Team_Division();
 
           $team_division->team = $dteams[$rank->team->id];
@@ -1328,8 +1351,12 @@ class Regatta extends DBObject {
       require_once('regatta/ICSASpecialCombinedRanker.php');
       $scorer = new ICSASpecialCombinedRanker();
       foreach ($scorer->rank($this) as $i => $rank) {
-        $team_division = $dteams[$rank->team->id]->getRank($rank->division);
-        if ($team_division === null)
+        $id = sprintf('%s,%s', $rank->team->id, $rank->division);
+        if (isset($to_delete[$id])) {
+          $team_division = $to_delete[$id];
+          unset($to_delete[$id]);
+        }
+        else
           $team_division = new Dt_Team_Division();
 
         $team_division->team = $dteams[$rank->team->id];
@@ -1349,6 +1376,10 @@ class Regatta extends DBObject {
       }
     }
     // @TODO: Team racing?
+
+    // Remove extraneous entries
+    foreach ($to_delete as $entry)
+      DB::remove($entry);
   }
 
   /**
