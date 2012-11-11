@@ -100,6 +100,7 @@ class Dt_Team extends DBObject {
   public $name;
   public $rank;
   public $rank_explanation;
+  public $score;
 
   public function db_type($field) {
     switch ($field) {
@@ -202,6 +203,7 @@ class Dt_Team_Division extends DBObject {
   public $explanation;
   public $penalty;
   public $comments;
+  public $score;
 
   public function db_name() { return 'dt_team_division'; }
   public function db_type($field) {

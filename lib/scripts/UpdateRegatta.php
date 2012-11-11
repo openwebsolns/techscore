@@ -73,96 +73,6 @@ class UpdateRegatta extends AbstractScript {
   }
 
   /**
-   * Synchornize the team data for the given regatta
-   *
-   */
-  public function syncTeams(Regatta $reg) {
-    $dreg = $reg->getData();
-    if ($dreg->num_races === null)
-      $reg->setData();
-    if ($dreg->num_divisions == 0)
-      return;
-    $divs = $reg->getDivisions();
-
-    // ------------------------------------------------------------
-    // Synchronize the teams. Track team_divs which is the list of all
-    // the team divisions so that we can use them when syncing RP
-    // information.  Also track the team objects for the same reason,
-    // with these indexed by the ID of the dt_team_division object
-    $dteams = array();
-    foreach ($dreg->getTeams() as $team)
-      $dteams[$team->id] = $team;
-
-    // add teams
-    $dteams = array();
-    foreach ($reg->scorer->rank($reg) as $i => $rank) {
-      if (!isset($dteams[$rank->team->id])) {
-        $team = new Dt_Team();
-        $dteams[$rank->team->id] = $team;
-      }
-      $team = $dteams[$rank->team->id];
-
-      $team->id = $rank->team->id;
-      $team->regatta = $dreg;
-      $team->school = DB::get(DB::$SCHOOL, $rank->team->school->id);
-      $team->name = $rank->team->name;
-      $team->rank = $i + 1;
-      $team->rank_explanation = $rank->explanation;
-      DB::set($team);
-    }
-
-    // do the team divisions
-    if ($reg->scoring == Regatta::SCORING_STANDARD) {
-      foreach ($divs as $div) {
-        $races = $reg->getScoredRaces($div);
-        foreach ($reg->scorer->rank($reg, $races) as $i => $rank) {
-          $team_division = $dteams[$rank->team->id]->getRank($div);
-          if ($team_division === null)
-            $team_division = new Dt_Team_Division();
-
-          $team_division->team = $dteams[$rank->team->id];
-          $team_division->division = $div;
-          $team_division->rank = ($i + 1);
-          $team_division->explanation = $rank->explanation;
-          $team_division->penalty = null;
-          $team_division->comments = null;
-
-          // Penalty?
-          if (($pen = $reg->getTeamPenalty($rank->team, $div)) !== null) {
-            $team_division->penalty = $pen->type;
-            $team_division->comments = $pen->comments;
-          }
-          DB::set($team_division);
-        }
-      }
-    }
-    elseif ($reg->scoring == Regatta::SCORING_COMBINED) {
-      require_once('regatta/ICSASpecialCombinedRanker.php');
-      $ranker = new ICSASpecialCombinedRanker();
-      foreach ($ranker->rank($reg) as $i => $rank) {
-        $team_division = $dteams[$rank->team->id]->getRank($rank->division);
-        if ($team_division === null)
-          $team_division = new Dt_Team_Division();
-
-        $team_division->team = $dteams[$rank->team->id];
-        $team_division->division = $rank->division;
-        $team_division->rank = ($i + 1);
-        $team_division->explanation = $rank->explanation;
-        $team_division->penalty = null;
-        $team_division->comments = null;
-
-        // Penalty?
-        if (($pen = $reg->getTeamPenalty($rank->team, $rank->division)) !== null) {
-          $team_division->penalty = $pen->type;
-          $team_division->comments = $pen->comments;
-        }
-        DB::set($team_division);
-      }
-    }
-    // @TODO: Team racing?
-  }
-
-  /**
    * Sync the RP information for the given regatta
    *
    */
@@ -261,7 +171,6 @@ class UpdateRegatta extends AbstractScript {
     // Based on the list of activities, determine what files need to
     // be (re)serialized
     $sync = false;
-    $sync_teams = false;
     $sync_rp = false;
 
     $rotation = false;
@@ -301,7 +210,6 @@ class UpdateRegatta extends AbstractScript {
     }
     if (in_array(UpdateRequest::ACTIVITY_SCORE, $activities)) {
       $sync = true;
-      $sync_teams = true;
       $front = true;
       if ($reg->hasFinishes()) {
         $full = true;
@@ -385,7 +293,6 @@ class UpdateRegatta extends AbstractScript {
     // Perform the updates
     // ------------------------------------------------------------
     if ($sync)       $this->sync($reg);
-    if ($sync_teams) $this->syncTeams($reg);
     if ($sync_rp)    $this->syncRP($reg);
 
     $D = $reg->getURL();

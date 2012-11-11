@@ -353,3 +353,8 @@ alter table regatta change column type type_old enum('conference','intersectiona
 update regatta set type = type_old;
 update regatta set type = 'conference' where type is null;
 alter table regatta add foreign key (type) references type(id) on delete cascade on update cascade, drop column type_old;
+
+-- track the overall score (including penalties) in the dt_team_division
+--   table, for ease of data reporting
+alter table dt_team_division add column score int not null comment "Includes penalties";
+alter table dt_team add column score int not null comment "Includes penalties";

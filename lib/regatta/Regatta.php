@@ -1105,14 +1105,15 @@ class Regatta extends DBObject {
    */
   public function runScore(Race $race) {
     $this->__get('scorer')->score($this, array($race));
+    $this->setRanks($race->division);
   }
 
   /**
    * Scores the entire regatta
    */
   public function doScore() {
-    $scorer = $this->__get('scorer');
-    $scorer->score($this, $this->getScoredRaces());
+    $this->__get('scorer')->score($this, $this->getScoredRaces());
+    $this->setRanks();
   }
 
   // ------------------------------------------------------------
@@ -1249,6 +1250,108 @@ class Regatta extends DBObject {
   // ------------------------------------------------------------
   // Data caching
   // ------------------------------------------------------------
+
+  /**
+   * Cache the information regarding the team ranks
+   *
+   * This method should be called whenever a race is entered (and is
+   * done so implicitly by the runScore and doScore methods) to create
+   * a snapshot in the dt_team* tables of the teams and how they
+   * ranked.
+   *
+   * This method will silently fail if there are no races
+   *
+   * @param Division $division optional specific division to rank
+   */
+  public function setRanks(Division $division = null) {
+    require_once('regatta/PublicDB.php');
+    $dreg = $this->getData();
+    if ($dreg->num_races === null)
+      $this->setData();
+    if ($dreg->num_divisions == 0)
+      return;
+
+    // ------------------------------------------------------------
+    // Cache the team-level information
+    $dteams = array();
+    foreach ($dreg->getTeams() as $team)
+      $dteams[$team->id] = $team;
+
+    // add teams
+    $scorer = $this->__get('scorer');
+    $dteams = array();
+    foreach ($scorer->rank($this) as $i => $rank) {
+      if (!isset($dteams[$rank->team->id])) {
+        $team = new Dt_Team();
+        $dteams[$rank->team->id] = $team;
+      }
+      $team = $dteams[$rank->team->id];
+
+      $team->id = $rank->team->id;
+      $team->regatta = $dreg;
+      $team->school = DB::get(DB::$SCHOOL, $rank->team->school->id);
+      $team->name = $rank->team->name;
+      $team->rank = $i + 1;
+      $team->rank_explanation = $rank->explanation;
+      $team->score = $rank->score;
+      DB::set($team);
+    }
+
+    // ------------------------------------------------------------
+    // do the team divisions
+    if ($this->scoring == Regatta::SCORING_STANDARD) {
+      $divs = ($division === null ) ? $this->getDivisions() : array($division);
+
+      foreach ($divs as $div) {
+        $races = $this->getScoredRaces($div);
+        foreach ($scorer->rank($this, $races) as $i => $rank) {
+          $team_division = $dteams[$rank->team->id]->getRank($div);
+          if ($team_division === null)
+            $team_division = new Dt_Team_Division();
+
+          $team_division->team = $dteams[$rank->team->id];
+          $team_division->division = $div;
+          $team_division->rank = ($i + 1);
+          $team_division->explanation = $rank->explanation;
+          $team_division->penalty = null;
+          $team_division->comments = null;
+          $team_division->score = $rank->score;
+
+          // Penalty?
+          if (($pen = $this->getTeamPenalty($rank->team, $div)) !== null) {
+            $team_division->penalty = $pen->type;
+            $team_division->comments = $pen->comments;
+          }
+          DB::set($team_division);
+        }
+      }
+    }
+    elseif ($this->scoring == Regatta::SCORING_COMBINED) {
+      require_once('regatta/ICSASpecialCombinedRanker.php');
+      $scorer = new ICSASpecialCombinedRanker();
+      foreach ($scorer->rank($this) as $i => $rank) {
+        $team_division = $dteams[$rank->team->id]->getRank($rank->division);
+        if ($team_division === null)
+          $team_division = new Dt_Team_Division();
+
+        $team_division->team = $dteams[$rank->team->id];
+        $team_division->division = $rank->division;
+        $team_division->rank = ($i + 1);
+        $team_division->explanation = $rank->explanation;
+        $team_division->penalty = null;
+        $team_division->comments = null;
+        $team_division->score = $rank->score;
+
+        // Penalty?
+        if (($pen = $this->getTeamPenalty($rank->team, $rank->division)) !== null) {
+          $team_division->penalty = $pen->type;
+          $team_division->comments = $pen->comments;
+        }
+        DB::set($team_division);
+      }
+    }
+    // @TODO: Team racing?
+  }
 
   /**
    * Call this method to sync cacheable data about this regatta
