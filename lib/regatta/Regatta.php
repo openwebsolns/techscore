@@ -304,18 +304,17 @@ class Regatta extends DBObject {
   }
 
   /**
-   * Returns the simple rank of the teams in the database.
+   * Returns rank objects of the teams in the database.
    *
    * Total the team's score across the given list of races. A
-   * tiebreaker procedure should be used after that if multiple teams
-   * share the same score.
+   * tiebreaker procedure should be used after that.
    *
    * If $races is empty, then it will return an empty array.
    *
    * @param Array:Race $races the races to use for the ranking
-   * @return Array:Rank the ordered rank objects
+   * @return Array:Rank the unordered rank objects
    */
-  public function getRanks($races) {
+  public function getTeamTotals($races) {
     if (count($races) == 0)
       return array();
     $ranks = array();
@@ -328,7 +327,6 @@ class Regatta extends DBObject {
 
       $ranks[] = new Rank($team, $r->total);
     }
-    usort($ranks, "Rank::compareScore");
     return $ranks;
   }
 

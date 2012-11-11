@@ -60,7 +60,7 @@ class ICSASpecialCombinedRanker extends ICSACombinedScorer {
     // 2. Track the division for each rank
     $ranks = array();
     foreach ($races as $id => $list) {
-      foreach ($reg->getRanks($list) as $rank) {
+      foreach ($reg->getTeamTotals($list) as $rank) {
         $rank->division = $divisions[$id];
         if ($reg->getTeamPenalty($rank->team, $divisions[$id]) !== null)
           $rank->score += 20;

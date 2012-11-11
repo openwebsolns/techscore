@@ -251,7 +251,7 @@ class ICSAScorer {
     }
 
     $ranks = array();
-    foreach ($reg->getRanks($races) as $rank) {
+    foreach ($reg->getTeamTotals($races) as $rank) {
       foreach ($divisions as $div) {
         // deal with team penalties
         if ($reg->getTeamPenalty($rank->team, $div) !== null)
