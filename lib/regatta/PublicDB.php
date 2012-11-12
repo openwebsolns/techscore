@@ -212,7 +212,7 @@ class Dt_Team_Division extends DBObject {
     if ($field == 'team') return DB::$DT_TEAM;
     return parent::db_type($field);
   }
-  protected function db_order() { return array('division'=>true, 'rank'=>true); }
+  protected function db_order() { return array('rank'=>true); }
 
   public function getRP($role = 'skipper') {
     return DB::getAll(DB::$DT_RP, new DBBool(array(new DBCond('boat_role', $role),
