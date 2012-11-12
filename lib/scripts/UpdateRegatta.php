@@ -142,7 +142,8 @@ class UpdateRegatta extends AbstractScript {
               $scored_ranks[$id] = $ranker->rank($reg, $races);
             }
             foreach ($scored_ranks[$id] as $i => $rank) {
-              if ($rank->team->id == $team->team->id && (string)$rank->division == (string)$team->division) {
+              if ($rank->team->id == $team->team->id &&
+                  ($rank->division === null || (string)$rank->division == (string)$team->division)) {
                 $drp->rank = $i + 1;
                 $drp->explanation = $rank->explanation;
                 break;
