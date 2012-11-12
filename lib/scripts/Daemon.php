@@ -226,6 +226,7 @@ class Daemon extends AbstractScript {
       switch ($r->activity) {
         // ------------------------------------------------------------
       case UpdateRequest::ACTIVITY_DETAILS:
+      case UpdateRequest::ACTIVITY_FINALIZED:
         $seasons_summary = true;
       case UpdateRequest::ACTIVITY_SCORE:
         $this->seasons[$season->id] = $season;

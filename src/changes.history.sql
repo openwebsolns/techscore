@@ -359,3 +359,6 @@ alter table regatta add foreign key (type) references type(id) on delete cascade
 alter table dt_team_division add column score int not null comment "Includes penalties";
 alter table dt_team add column score int not null comment "Includes penalties";
 alter table dt_rp add column rank tinyint(3) unsigned comment "In races sailed", add column explanation tinytext default null comment "Rank explanation";
+
+-- add finalization as a specific regatta update request
+alter table pub_update_request change column activity activity enum('rotation','score','rp','details','summary', 'finalized') not null default 'score';

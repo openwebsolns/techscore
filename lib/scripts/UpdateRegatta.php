@@ -270,6 +270,10 @@ class UpdateRegatta extends AbstractScript {
           $divisions = true;
       }
     }
+    if (in_array(UpdateRequest::ACTIVITY_FINALIZED, $activities)) {
+      $sync = true; // status change
+      $sync_rp = true; // some races were removed
+    }
 
     // ------------------------------------------------------------
     // For sanity sake, check for "display confusion": the possibility

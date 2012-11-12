@@ -393,7 +393,7 @@ class DetailsPane extends AbstractPane {
       Session::pa(new PA("Regatta has been finalized."));
       if ($removed > 0)
         Session::pa(new PA("Removed $removed unsailed races.", PA::I));
-      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DETAILS);
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_FINALIZED);
     }
   }
 }
