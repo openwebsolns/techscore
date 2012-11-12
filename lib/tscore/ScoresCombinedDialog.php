@@ -56,7 +56,7 @@ class ScoresCombinedDialog extends AbstractScoresDialog {
    */
   public function getTable($link_schools = false) {
     $rpManager = $this->REGATTA->getRpManager();
-
+    $dreg = $this->REGATTA->getData();
     $ELEMS = array(new XTable(array('class'=>'results coordinate division all'),
                               array(new XTHead(array(),
                                                array(new XTR(array(),
@@ -75,8 +75,7 @@ class ScoresCombinedDialog extends AbstractScoresDialog {
     // print each ranked team
     //  - keep track of different ranks and tiebrakers
     $tiebreakers = array("" => "");
-    $ranker = new ICSASpecialCombinedRanker();
-    $ranks = $ranker->rank($this->REGATTA);
+    $ranks = $dreg->getRanks();
     foreach ($ranks as $rank) {
       if (!empty($rank->explanation) && !isset($tiebreakers[$rank->explanation])) {
         $count = count($tiebreakers);
@@ -118,10 +117,10 @@ class ScoresCombinedDialog extends AbstractScoresDialog {
                           $r1c5 = new XTD(),
                           $r1c6 = new XTD(array('class'=>'totalcell'), $rank->score)));
       // get total score for this team
-      $penalty = $this->REGATTA->getTeamPenalty($rank->team, $rank->division);
-      if ($penalty != null) {
-        $r1c5->add($penalty->type);
-        $r1c5->set('title', sprintf("%s (+20 points)", $penalty->comments));
+      if ($rank->penalty != null) {
+        $r1c5->add($rank->penalty);
+        $r1c5->set('title', sprintf("%s (+20 points)", $rank->comments));
+        $has_penalties = true;
       }
 
       $r2 = new XTR(array('class'=>'row'.($rowIndex % 2), 'align'=>'left'),
@@ -129,10 +128,11 @@ class ScoresCombinedDialog extends AbstractScoresDialog {
 
       $headerRows = array($r1, $r2);
       $num_sailors = 2;
+      $team = $this->REGATTA->getTeam($rank->team->id);
       // ------------------------------------------------------------
       // Skippers and crews
       foreach (array(RP::SKIPPER, RP::CREW) as $index => $role) {
-        $sailors  = $rpManager->getRP($rank->team, $rank->division, $role);
+        $sailors  = $rpManager->getRP($team, new Division($rank->division), $role);
 
         $is_first = true;
         $s_rows = array();
@@ -176,6 +176,9 @@ class ScoresCombinedDialog extends AbstractScoresDialog {
       $r1cDiv->set('rowspan', $num_sailors);
       $rowIndex++;
     } // end of table
+    if ($has_penalties) {
+      $penalty_th->add("P");
+    }
 
     // Print tiebreakers $table
     if (count($tiebreakers) > 1)
