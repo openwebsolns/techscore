@@ -46,6 +46,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
   public function getTable($link_schools = false) {
     $ELEMS = array();
 
+    $dreg = $this->REGATTA->getData();
     $divisions = $this->REGATTA->getDivisions();
     $num_divs  = count($divisions);
 
@@ -78,19 +79,19 @@ class ScoresFullDialog extends AbstractScoresDialog {
     // and collect the different tiebreaking categories, giving each
     // one a successive symbol.
     $tiebreakers = array("" => "");
-    $ranks = $this->REGATTA->scorer->rank($this->REGATTA);
+    $ranks = $dreg->getTeams();
     foreach ($ranks as $rank) {
-      if (!empty($rank->explanation) && !isset($tiebreakers[$rank->explanation])) {
+      if (!empty($rank->rank_explanation) && !isset($tiebreakers[$rank->rank_explanation])) {
         $count = count($tiebreakers);
         switch ($count) {
         case 1:
-          $tiebreakers[$rank->explanation] = "*";
+          $tiebreakers[$rank->rank_explanation] = "*";
           break;
         case 2:
-          $tiebreakers[$rank->explanation] = "**";
+          $tiebreakers[$rank->rank_explanation] = "**";
           break;
         default:
-          $tiebreakers[$rank->explanation] = chr(95 + $count);
+          $tiebreakers[$rank->rank_explanation] = chr(95 + $count);
         }
       }
     }
@@ -98,6 +99,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
     $has_penalties = false;
     $order = 1;
     foreach ($ranks as $rank) {
+      $team = $this->REGATTA->getTeam($rank->id);
       $scoreTeam   = 0;
       $scoreRace   = ($largest_num == 0) ? array() : array_fill(0, $largest_num, 0);
       $penaltyTeam = 0;
@@ -109,24 +111,24 @@ class ScoresFullDialog extends AbstractScoresDialog {
         $tab->add($r = new XTR(array('class'=>"div$div")));
 
         if ($num_divs == 1) {
-          $ln = array($rank->team->name, new XBr(), $rank->team->school->nick_name);
+          $ln = array($rank->name, new XBr(), $rank->school->nick_name);
           if ($link_schools !== false)
-            $ln = array($rank->team->name, new XBr(),
-                        new XA(sprintf('/schools/%s/%s/', $rank->team->school->id, $this->REGATTA->getSeason()),
-                               $rank->team->school->nick_name));
-          $r->add(new XTD(array("title" => $rank->explanation, "class" => "tiebreaker"), $tiebreakers[$rank->explanation]));
+            $ln = array($rank->name, new XBr(),
+                        new XA(sprintf('/schools/%s/%s/', $rank->school->id, $this->REGATTA->getSeason()),
+                               $rank->school->nick_name));
+          $r->add(new XTD(array("title" => $rank->rank_explanation, "class" => "tiebreaker"), $tiebreakers[$rank->rank_explanation]));
           $r->add(new XTD(array(), $order++));
           $r->add(new XTD(array("class"=>"strong"), $ln));
         }
         elseif ($div == "A") {
-          $r->add(new XTD(array("title" => $rank->explanation), $tiebreakers[$rank->explanation]));
+          $r->add(new XTD(array("title" => $rank->rank_explanation), $tiebreakers[$rank->rank_explanation]));
           $r->add(new XTD(array(), $order++));
-          $r->add(new XTD(array('class'=>'strong'), $rank->team->name));
+          $r->add(new XTD(array('class'=>'strong'), $rank->name));
         }
         elseif ($div == "B") {
-          $ln = $rank->team->school->nick_name;
+          $ln = $rank->school->nick_name;
           if ($link_schools !== false)
-            $ln = new XA(sprintf('/schools/%s/%s/', $rank->team->school->id, $this->REGATTA->getSeason()), $ln);
+            $ln = new XA(sprintf('/schools/%s/%s/', $rank->school->id, $this->REGATTA->getSeason()), $ln);
           $r->add(new XTD());
           $r->add(new XTD());
           $r->add(new XTD(array(), $ln));
@@ -148,7 +150,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
             $race = $raceList[$i];
 
             // add score for this race to running team score
-            $finish = $this->REGATTA->getFinish($race, $rank->team);
+            $finish = $this->REGATTA->getFinish($race, $team);
             $scoreDiv        += $finish->score;
             $scoreTeam       += $finish->score;
             $scoreRace[$i-1] += $finish->score;
@@ -160,7 +162,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
         }
 
         // print penalty, should it exist
-        $team_pen = $this->REGATTA->getTeamPenalty($rank->team, new Division($div));
+        $team_pen = $this->REGATTA->getTeamPenalty($team, new Division($div));
         if ($team_pen !== null) {
           $r->add(new XTD(array('title'=>$team_pen->comments, 'align'=>'right'), $team_pen->type));
           $scoreDiv += 20;
@@ -177,9 +179,9 @@ class ScoresFullDialog extends AbstractScoresDialog {
 
       // write total row
       $tab->add($r = new XTR(array("class"=>"totalrow"), array(new XTD(), new XTD(), $burgee_cell = new XTD(array('class'=>'burgee-cell')))));
-      if ($rank->team->school->burgee !== null) {
-        $url = sprintf("/inc/img/schools/%s.png", $rank->team->school->id);
-        $burgee_cell->add(new XImg($url, $rank->team->school->id, array("height"=>"30px")));
+      if ($rank->school->burgee !== null) {
+        $url = sprintf("/inc/img/schools/%s.png", $rank->school->id);
+        $burgee_cell->add(new XImg($url, $rank->school->id, array("height"=>"30px")));
       }
       if ($num_divs > 1)
         $r->add(new XTD());
