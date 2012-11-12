@@ -358,3 +358,4 @@ alter table regatta add foreign key (type) references type(id) on delete cascade
 --   table, for ease of data reporting
 alter table dt_team_division add column score int not null comment "Includes penalties";
 alter table dt_team add column score int not null comment "Includes penalties";
+alter table dt_rp add column rank tinyint(3) unsigned comment "In races sailed", add column explanation tinytext default null comment "Rank explanation";
