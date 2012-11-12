@@ -934,36 +934,26 @@ class Regatta extends DBObject {
   }
 
   /**
-   * Gets the winning team for this regatta. That is, the team with
-   * the lowest score thus far
+   * Return list of rank numbers for given team.
    *
-   * @return Team the winning team object
-   */
-  public function getWinningTeam() {
-    $ranks = $this->__get("scorer")->rank($this);
-    if (count($ranks) == 0) return null;
-    return $ranks[0]->team;
-  }
-
-  /**
-   * Like getWinningTeam, this more generic method returns a list of
-   * where did every team belonging to the given school finish in this
-   * regatta (or is currently finishing). Returns a list because a
-   * school can have more than one team per regatta.
+   * Returns a list of where did every team belonging to the given
+   * school finish in this regatta (or is currently finishing).
+   * Returns a list because a school can have more than one team per
+   * regatta.
    *
    * An empty array means that the school had no teams in this
    * regatta (something which can be known ahead of time using the
-   * Season::getParticipation function.
+   * Season::getParticipation function).
    *
    * @param School $school the school
    * @return Array:int the current or final place finish for all teams
    */
   public function getPlaces(School $school) {
-    $ranks = $this->__get("scorer")->rank($this);
+    $data = $this->getData();
     $places = array();
-    foreach ($ranks as $i => $rank) {
-      if ($rank->team->school->id == $school->id)
-        $places[] = ($i + 1);
+    foreach ($data->getTeams() as $rank) {
+      if ($rank->school->id == $school->id)
+        $places[] = $rank->rank;
     }
     return $places;
   }
