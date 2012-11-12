@@ -65,13 +65,15 @@ class Dt_Regatta extends DBObject {
   /**
    * Return the teams ranked in the given division
    *
-   * @param String $div the division
+   * @param String $div the division (optional)
    * @return Array:Dt_Team_Division
    */
-  public function getRanks($div) {
-    $q = DB::prepGetAll(DB::$DT_TEAM, new DBCond('regatta', $this->id), array('id'));
-    return DB::getAll(DB::$DT_TEAM_DIVISION, new DBBool(array(new DBCond('division', $div),
-                                                              new DBCondIn('team', $q))));
+  public function getRanks($div = null) {
+    $cond = new DBBool(array(new DBCondIn('team',
+                                          DB::prepGetAll(DB::$DT_TEAM, new DBCond('regatta', $this->id), array('id')))));
+    if ($div !== null)
+      $cond->add(new DBCond('division', $div));
+    return DB::getAll(DB::$DT_TEAM_DIVISION, $cond);
   }
 
   // ------------------------------------------------------------
