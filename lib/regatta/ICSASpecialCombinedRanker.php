@@ -52,7 +52,7 @@ class ICSASpecialCombinedRanker extends ICSACombinedScorer {
       $races = array();
       foreach ($divisions as $id => $div) {
         $races[$id] = array();
-        foreach ($race_nums as $num)
+        foreach ($race_nums as $num => $race)
           $races[$id][] = $reg->getRace($div, $num);
       }
     }
