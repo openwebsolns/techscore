@@ -623,8 +623,9 @@ class DBCondIn extends DBExpression {
   public function toSQL(MySQLi $con) {
     if (is_array($this->values) || $this->values instanceof ArrayIterator) {
       $val = "";
-      foreach ($this->values as $i => $v) {
-        if ($i > 0)
+      $index = 0;
+      foreach ($this->values as $v) {
+        if ($index++ > 0)
           $val .= ',';
         if ($v instanceof DBObject)
           $v = $v->id;
