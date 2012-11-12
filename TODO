@@ -50,3 +50,5 @@ entered.
 
 * Editing boat membership could be RP disaster
 
+
+* Regatta::$ranker vs. Regatta::$scorer
