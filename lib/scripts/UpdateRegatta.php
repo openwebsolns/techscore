@@ -119,16 +119,19 @@ class UpdateRegatta extends AbstractScript {
           $drp->boat_role = $role;
           $drp->race_nums = $rp->races_nums;
 
+          self::err(sprintf("RP Entry for %s in div. %s: ", $drp->sailor, $division), 3);
           // rank: assign the team's rank if participating in every
           // scored race, otherwise, rank in only those races.
           $intersection = array_intersect($scored_nums[$team->division], $rp->races_nums);
           if ($intersection == $scored_nums[$team->division]) {
             $drp->rank = $team->rank;
             $drp->explanation = $team->explanation;
+            self::errln("participated in all scored races");
           }
           elseif (count($intersection) == 0) {
             $drp->rank = null;
             $drp->explanation = "Not participated";
+            self::errln("did not participate in any scored race");
           }
           else {
             $id = implode(',', $intersection);
@@ -145,6 +148,7 @@ class UpdateRegatta extends AbstractScript {
                 break;
               }
             }
+            self::errln(sprintf("participated in %s races", $id), 3);
           }
           DB::set($drp);
         }
