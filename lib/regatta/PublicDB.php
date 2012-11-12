@@ -182,6 +182,8 @@ class Dt_Rp extends DBObject {
   protected $race_nums;
   protected $sailor;
   public $boat_role;
+  public $rank;
+  public $explanation;
 
   public function db_type($field) {
     if ($field == 'sailor') return DB::$MEMBER;

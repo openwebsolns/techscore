@@ -84,24 +84,68 @@ class UpdateRegatta extends AbstractScript {
       return;
 
     $team_divs = array();
+    $scored_nums = array();
+    $scored_races = array();
+
+    // An attempt to minimize the amount of times a partial regatta
+    // needs to be ranked. The ID is the comma-delimited race numbers
+    $scored_ranks = array();
+
     foreach ($reg->getDivisions() as $div) {
+      $scored_races[(string)$div] = $reg->getScoredRaces($div);
+      $scored_nums[(string)$div] = array();
+      foreach ($scored_races[(string)$div] as $race)
+        $scored_nums[(string)$div][] = $race->number;
       foreach ($dreg->getRanks($div) as $team) {
         $team_divs[] = $team;
         $team_objs[$team->id] = $reg->getTeam($team->team->id);
       }
     }
 
+    $ranker = ($reg->scoring == Regatta::SCORING_STANDARD) ?
+      new ICSAScorer() :
+      new ICSASpecialCombinedRanker();
+
     $rpm = $reg->getRpManager();
     foreach ($team_divs as $team) {
       $team->team->resetRP($team->division);
       foreach (array(RP::SKIPPER, RP::CREW) as $role) {
-        $rps = $rpm->getRP($team_objs[$team->id], Division::get($team->division), $role);
+        $division = Division::get($team->division);
+        $rps = $rpm->getRP($team_objs[$team->id], $division, $role);
         foreach ($rps as $rp) {
           $drp = new Dt_Rp();
           $drp->sailor = DB::getSailor($rp->sailor->id);
           $drp->team_division = $team;
           $drp->boat_role = $role;
           $drp->race_nums = $rp->races_nums;
+
+          // rank: assign the team's rank if participating in every
+          // scored race, otherwise, rank in only those races.
+          $intersection = array_intersect($scored_nums[$team->division], $rp->races_nums);
+          if ($intersection == $scored_nums[$team->division]) {
+            $drp->rank = $team->rank;
+            $drp->explanation = $team->explanation;
+          }
+          elseif (count($intersection) == 0) {
+            $drp->rank = null;
+            $drp->explanation = "Not participated";
+          }
+          else {
+            $id = implode(',', $intersection);
+            if (!isset($scored_ranks[$id])) {
+              $races = array();
+              foreach ($intersection as $num)
+                $races[] = $reg->getRace($division, $num);
+              $scored_ranks[$id] = $ranker->rank($reg, $races);
+            }
+            foreach ($scored_ranks[$id] as $i => $rank) {
+              if ($rank->team->id == $team->team->id && (string)$rank->division == (string)$team->division) {
+                $drp->rank = $i + 1;
+                $drp->explanation = $rank->explanation;
+                break;
+              }
+            }
+          }
           DB::set($drp);
         }
       }
@@ -210,6 +254,7 @@ class UpdateRegatta extends AbstractScript {
     }
     if (in_array(UpdateRequest::ACTIVITY_SCORE, $activities)) {
       $sync = true;
+      $sync_rp = true; // re-rank sailors
       $front = true;
       if ($reg->hasFinishes()) {
         $full = true;
@@ -256,7 +301,7 @@ class UpdateRegatta extends AbstractScript {
       $front = true;
     }
     if (in_array(UpdateRequest::ACTIVITY_DETAILS, $activities)) {
-      // do them all!
+      // do them all (except RP)!
       $sync = true;
       $front = true;
       if ($rot->isAssigned())
