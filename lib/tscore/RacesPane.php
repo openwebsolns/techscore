@@ -243,8 +243,10 @@ class RacesPane extends AbstractPane {
 
       // ------------------------------------------------------------
       // Subtract extra divisions
+      $removed_races = false;
       for ($i = count($cur_divisions); $i > $num_divisions; $i--) {
         $this->REGATTA->removeDivision($pos_divisions_list[$i - 1]);
+        $removed_races = true;
       }
       $cur_divisions = $this->REGATTA->getDivisions();
 
@@ -267,8 +269,15 @@ class RacesPane extends AbstractPane {
           $race->division = $div;
           $race->number = $i;
           $this->REGATTA->removeRace($race);
+          $removed_races = true;
         }
       }
+      if ($removed_races && $this->REGATTA->hasFinishes()) {
+        $this->REGATTA->doScore();
+        Session::pa(new PA("Re-scored regatta."));
+        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
+      }
+
       if ($new_regatta) {
         UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DETAILS);
         Session::pa(new PA(array("Regatta races successfull set. You may create a rotation, or ",

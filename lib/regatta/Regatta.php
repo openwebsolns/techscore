@@ -83,6 +83,16 @@ class Regatta extends DBObject {
   private $rp;
   private $season;
   private $scorer;
+  /**
+   * @var ICSARanker the team-ranking object
+   */
+  private $ranker;
+  /**
+   * @var ICSARanker the ranker object to use for individual
+   * divisions. Only used for combined division events, and only when
+   * requesting division ranker.
+   */
+  private $ranker_division;
 
   // ------------------------------------------------------------
   // DBObject stuff
@@ -125,8 +135,50 @@ class Regatta extends DBObject {
         }
       }
       return $this->scorer;
+
     default:
       return parent::__get($name);
+    }
+  }
+
+  /**
+   * Fetch the object responsible for ranking
+   *
+   * @return ICSARanker the ranking object
+   */
+  public function getRanker() {
+    if ($this->ranker === null) {
+      switch ($this->scoring) {
+      case Regatta::SCORING_COMBINED:
+        require_once('regatta/ICSACombinedRanker.php');
+        $this->ranker = new ICSACombinedRanker();
+        break;
+
+      default:
+        require_once('regatta/ICSARanker.php');
+        $this->ranker = new ICSARanker();
+        break;
+      }
+    }
+    return $this->ranker;
+  }
+
+  /**
+   * Fetch the ranking object for division-level ranks
+   *
+   * @return ICSARanker the ranking object
+   */
+  public function getDivisionRanker() {
+    switch ($this->scoring) {
+    case Regatta::SCORING_COMBINED:
+      if ($this->ranker_division === null) {
+        require_once('regatta/ICSASpecialCombinedRanker.php');
+        $this->ranker_division = new ICSASpecialCombinedRanker();
+      }
+      return $this->ranker_division;
+
+    default:
+      return $this->getRanker();
     }
   }
 
@@ -163,6 +215,8 @@ class Regatta extends DBObject {
       return;
     $this->scoring = $value;
     $this->scorer = null;
+    $this->ranker = null;
+    $this->ranker_division = null;
   }
 
   // ------------------------------------------------------------
@@ -1266,9 +1320,9 @@ class Regatta extends DBObject {
       $dteams[$team->id] = $team;
 
     // add teams
-    $scorer = $this->__get('scorer');
+    $ranker = $this->getRanker();
     $dteams = array();
-    foreach ($scorer->rank($this) as $i => $rank) {
+    foreach ($ranker->rank($this) as $i => $rank) {
       if (!isset($dteams[$rank->team->id])) {
         $team = new Dt_Team();
         $dteams[$rank->team->id] = $team;
@@ -1296,6 +1350,9 @@ class Regatta extends DBObject {
     // that exist and, after syncing all of the ones that should
     // exist, delete the others. This is the purpose of the $to_delete
     // map below.
+    //
+    // NOTE, 2: That this should only take effect when $division is
+    // not specified directly!
     $to_delete = array();
     foreach ($dteams as $team) {
       foreach (DB::getAll(DB::$DT_TEAM_DIVISION, new DBCond('team', $team)) as $entry) {
@@ -1306,12 +1363,13 @@ class Regatta extends DBObject {
 
     // ------------------------------------------------------------
     // do the team divisions
+    $ranker = $this->getDivisionRanker();
     if ($this->scoring == Regatta::SCORING_STANDARD) {
       $divs = ($division === null ) ? $this->getDivisions() : array($division);
 
       foreach ($divs as $div) {
         $races = $this->getScoredRaces($div);
-        foreach ($scorer->rank($this, $races) as $i => $rank) {
+        foreach ($ranker->rank($this, $races) as $i => $rank) {
           $id = sprintf('%s,%s', $rank->team->id, $div);
           if (isset($to_delete[$id])) {
             $team_division = $to_delete[$id];
@@ -1338,9 +1396,7 @@ class Regatta extends DBObject {
       }
     }
     elseif ($this->scoring == Regatta::SCORING_COMBINED) {
-      require_once('regatta/ICSASpecialCombinedRanker.php');
-      $scorer = new ICSASpecialCombinedRanker();
-      foreach ($scorer->rank($this) as $i => $rank) {
+      foreach ($ranker->rank($this) as $i => $rank) {
         $id = sprintf('%s,%s', $rank->team->id, $rank->division);
         if (isset($to_delete[$id])) {
           $team_division = $to_delete[$id];
@@ -1368,8 +1424,10 @@ class Regatta extends DBObject {
     // @TODO: Team racing?
 
     // Remove extraneous entries
-    foreach ($to_delete as $entry)
-      DB::remove($entry);
+    if ($division === null) {
+      foreach ($to_delete as $entry)
+        DB::remove($entry);
+    }
   }
 
   /**

@@ -119,10 +119,12 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
       $scoreTeam    = 0;
       // For each division
       foreach ($divisions as $div) {
-        $div_rank = $rank->getRank($div);
-
         $r->add($s_cell = new XTD());
         $r->add($p_cell = new XTD());
+
+        if (($div_rank = $rank->getRank($div)) === null)
+          continue;
+
         if ($div_rank->penalty !== null) {
           $p_cell->add($div_rank->penalty);
           $p_cell->set('title', "+20 points: " . $div_rank->comments);

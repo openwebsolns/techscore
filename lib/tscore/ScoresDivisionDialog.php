@@ -99,6 +99,10 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
     //  - keep track of different ranks and tiebrakers
     $tiebreakers = array("" => "");
     $ranks = $dreg->getRanks($division);
+
+    if (count($ranks) == 0)
+      return array();
+
     foreach ($ranks as $rank) {
       if (!empty($rank->explanation) && !isset($tiebreakers[$rank->explanation])) {
         $count = count($tiebreakers);

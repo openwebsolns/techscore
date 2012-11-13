@@ -101,8 +101,13 @@ class ReportMaker {
     require_once('tscore/ScoresDivisionDialog.php');
     $maker = new ScoresDivisionDialog($reg, $div);
     $page->addSection($p = new XPort("Scores for Division $div"));
-    foreach ($maker->getTable(true) as $elem)
-      $p->add($elem);
+    $elems = $maker->getTable(true);
+    if (count($elems) == 0)
+      $p->add(new XP(array('class'=>'notice'), "No scores have been entered yet for Division $div."));
+    else {
+      foreach ($elems as $elem)
+        $p->add($elem);
+    }
   }
 
   protected function fillFull() {

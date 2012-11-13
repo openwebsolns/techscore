@@ -102,9 +102,7 @@ class UpdateRegatta extends AbstractScript {
       }
     }
 
-    $ranker = ($reg->scoring == Regatta::SCORING_STANDARD) ?
-      new ICSAScorer() :
-      new ICSASpecialCombinedRanker();
+    $ranker = $reg->getDivisionRanker();
 
     $rpm = $reg->getRpManager();
     foreach ($team_divs as $team) {
