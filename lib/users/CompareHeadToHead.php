@@ -156,7 +156,11 @@ class CompareHeadToHead extends AbstractUserPane {
           if (!isset($table[$reg][$key]))
             $table[$reg][$key] = array();
 
-          $rank = sprintf('%d%s', $rp->team_division->rank, $key);
+          $rank = $rp->rank;
+          if ($regattas[$reg]->scoring == Regatta::SCORING_COMBINED)
+            $rank .= 'com';
+          else
+            $rank .= $key;
           if (count($rp->race_nums) != $rp->team_division->team->regatta->num_races)
             $rank .= sprintf(' (%s)', DB::makeRange($rp->race_nums));
           $table[$reg][$key][$rp->sailor->id] = $rank;
