@@ -32,7 +32,7 @@ class UpdateSchool extends AbstractScript {
    */
   private function getPlaces(Regatta $reg, School $school) {
     $places = array();
-    $teams = $reg->getTeams($school);
+    $teams = $reg->getRankedTeams($school);
     foreach ($teams as $team) {
       $places[] = $team->dt_rank;
     }
