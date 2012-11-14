@@ -155,6 +155,29 @@ class TSSoter extends Soter {
       return false;
     }
   }
+  public function reqScoredRace(Array $args, $key, Regatta $reg, $mes = "GSE") {
+    $race = $this->reqRace($args, $key, $reg, $mes);
+    if (count($reg->getFinishes($race)) == 0)
+      throw new SoterException($mes);
+    return $race;
+  }
+  public function incScoredRace(Array $args, $key, Regatta $reg, $default = null) {
+    try {
+      return $this->reqScoredRace($args, $key, $reg);
+    }
+    catch (SoterException $e) {
+      return $default;
+    }
+  }
+  public function hasScoredRace(&$value, Array $args, $key, Regatta $reg) {
+    try {
+      $value = $this->reqScoredRace($args, $key, $reg);
+      return true;
+    }
+    catch (SoterException $e) {
+      return false;
+    }
+  }
   public function reqTeam(Array $args, $key, Regatta $reg, $mes = "GSE") {
     $team = $this->reqID($args, $key, DB::$TEAM, $mes);
     if ($team->regatta != $reg)
