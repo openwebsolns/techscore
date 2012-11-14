@@ -30,7 +30,7 @@ class DB extends DBM {
   public static $TEAM = null;
   public static $RANKED_TEAM = null;
   public static $SINGLEHANDED_TEAM = null;
-  public static $RANK_SINGLEHANDED_TEAM = null;
+  public static $RANKED_SINGLEHANDED_TEAM = null;
   public static $TEAM_NAME_PREFS = null;
   public static $SAIL = null;
   public static $NOTE = null;
