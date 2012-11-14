@@ -372,3 +372,6 @@ alter table team add column dt_rank tinyint unsigned default null, add column dt
 update team, dt_team set dt_rank = rank, dt_explanation = rank_explanation, dt_score = score where team.id = dt_team.id;
 
 alter table dt_team_division drop foreign key dt_team_division_ibfk_3, add foreign key (team) references team(id) on delete cascade on update cascade;
+
+drop table dt_team;
+drop table dt_regatta;
