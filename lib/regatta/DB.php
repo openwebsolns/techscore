@@ -1219,7 +1219,7 @@ class Team extends DBObject {
  * @version 2012-11-14
  */
 class RankedTeam extends Team {
-  protected function db_order() { return array('rank'=>true, 'school'=>true, 'id'=>true); }
+  protected function db_order() { return array('dt_rank'=>true, 'school'=>true, 'id'=>true); }
 }
 
 /**
@@ -1284,7 +1284,7 @@ class SinglehandedTeam extends Team {
  * @version 2012-11-14
  */
 class RankedSinglehandedTeam extends SinglehandedTeam {
-  protected function db_order() { return array('rank'=>true, 'school'=>true, 'id'=>true); }
+  protected function db_order() { return array('dt_rank'=>true, 'school'=>true, 'id'=>true); }
 }
 
 /**
@@ -2001,7 +2001,7 @@ class Season extends DBObject {
     require_once('regatta/PublicDB.php');
     $cond = new DBBool(array(new DBCond('private', null),
                              new DBCond('dt_status',Regatta::STAT_SCHEDULED, DBCond::NE)));
-    return DB::getAll(DB::$SEASON, new DBCondIn('id', DB::prepGetAll(DB::$REGATTA, $cond, array('season'))));
+    return DB::getAll(DB::$SEASON, new DBCondIn('id', DB::prepGetAll(DB::$REGATTA, $cond, array('dt_season'))));
   }
 }
 

@@ -38,7 +38,7 @@ class UpdateSchool extends AbstractScript {
     }
     if (count($teams) == 0)
       return "";
-    return sprintf('%s/%d', implode(',', $places), count($teams));
+    return sprintf('%s/%d', implode(',', $places), count($reg->getTeams()));
   }
 
   private function getPage(School $school, Season $season) {

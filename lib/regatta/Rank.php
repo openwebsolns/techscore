@@ -40,7 +40,7 @@ class Rank {
     if ($name == 'team' && $value instanceof Team)
       $this->team = $value;
     elseif ($name == 'division' && $value instanceof Division)
-      $this->division = $division;
+      $this->division = $value;
     elseif ($name == 'explanation')
       $this->explanation = (string)$value;
     elseif ($name == 'score')
@@ -50,7 +50,7 @@ class Rank {
   }
 
   public function __get($name) {
-    if (isset($this->$name))
+    if (property_exists($this, $name))
       return $this->$name;
     throw new InvalidArgumentException("Non-existing property $name.");
   }
