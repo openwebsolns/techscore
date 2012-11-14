@@ -168,7 +168,7 @@ class UpdateSchool extends AbstractScript {
         // borrowed from UpdateSeason
         $status = null;
         switch ($reg->dt_status) {
-        case Dt_Regatta::STAT_READY:
+        case Regatta::STAT_READY:
           $status = new XEm("No scores yet");
           break;
 

@@ -106,7 +106,7 @@ class Regatta extends DBObject {
   protected $dt_season;
   /**
    * @var String the status of the race. Could be race number, or one
-   * of Dt_Regatta::STAT_* constants.
+   * of Regatta::STAT_* constants.
    */
   public $dt_status;
 

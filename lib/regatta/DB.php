@@ -2001,7 +2001,9 @@ class Season extends DBObject {
    */
   public static function getActive() {
     require_once('regatta/PublicDB.php');
-    return DB::getAll(DB::$SEASON, new DBCondIn('id', DB::prepGetAll(DB::$DT_REGATTA, null, array('season'))));
+    $cond = new DBBool(array(new DBCond('private', null),
+                             new DBCond('dt_status',Regatta::STAT_SCHEDULED, DBCond::NE)));
+    return DB::getAll(DB::$SEASON, new DBCondIn('id', DB::prepGetAll(DB::$REGATTA, $cond, array('season'))));
   }
 }
 

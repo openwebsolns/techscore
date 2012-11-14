@@ -38,9 +38,9 @@ class CompareHeadToHead extends AbstractUserPane {
         throw new InvalidArgumentException("Either the list of regattas or the list of seasons must be provided.");
     }
     else {
-      $regs = DB::prepGetAll(DB::$DT_REGATTA, $db = new DBBool(array(), DBBool::mOR), array('id'));
+      $regs = DB::prepGetAll(DB::$REGATTA, $db = new DBBool(array(), DBBool::mOR), array('id'));
       foreach ($seasons as $season)
-        $db->add(new DBCond('season', (string)$season));
+        $db->add(new DBCond('dt_season', (string)$season));
     }
     $team_cond = DB::prepGetAll(DB::$DT_TEAM, new DBCondIn('regatta', $regs), array('id'));
     $dteam_cond = DB::prepGetAll(DB::$DT_TEAM_DIVISION, new DBCondIn('team', $team_cond), array('id'));

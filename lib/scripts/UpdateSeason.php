@@ -80,7 +80,7 @@ class UpdateSeason extends AbstractScript {
     $next_sunday->add(new DateInterval('P7DT0H'));
     $next_sunday->setTime(0, 0);
 
-    $coming = array(Dt_Regatta::STAT_READY, Dt_Regatta::STAT_SCHEDULED);
+    $coming = array(Regatta::STAT_READY, Regatta::STAT_SCHEDULED);
 
     $rowindex = 0;
     foreach ($weeks as $week => $list) {

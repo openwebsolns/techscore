@@ -41,8 +41,6 @@ require_once('AbstractScript.php');
  * 2011-03-06: If a regatta has no finishes, do not generate score
  * pages, even if requested.
  *
- * 2011-03-06: Use Dt_Regatta for every action except Sync, obviously
- *
  * 2012-11-07: For combined division, use the special ranker when (a)
  * performing syncs and (b) displaying
  *

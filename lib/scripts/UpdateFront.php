@@ -62,10 +62,10 @@ class UpdateFront extends AbstractScript {
     $page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
 
     // ------------------------------------------------------------
-    // Are there any regattas in progress? Such regattas must exist in
-    // Dt_Regatta, be happening now according to date, and have a
-    // status not equal to 'SCHEDULED' (which usually indicates that a
-    // regatta is not yet ready, and might possibly never be scored).
+    // Are there any regattas in progress? Such regattas must be
+    // happening now according to date, and have a status not equal to
+    // 'SCHEDULED' (which usually indicates that a regatta is not yet
+    // ready, and might possibly never be scored).
     $start = new DateTime();
     $start->setTime(23, 59, 59);
     $end = new DateTime();
@@ -90,7 +90,7 @@ class UpdateFront extends AbstractScript {
       foreach ($in_prog as $i => $reg) {
         $row = array(new XA($reg->getURL(), $reg->name), $reg->type);
         $tms = $reg->getRankedTeams();
-        if ($reg->dt_status == Dt_Regatta::STAT_READY || count($tms) == 0) {
+        if ($reg->dt_status == Regatta::STAT_READY || count($tms) == 0) {
           $row[] = new XTD(array('colspan'=>2), new XEm("No scores yet"));
         }
         else {
