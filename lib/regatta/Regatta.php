@@ -1319,7 +1319,6 @@ class Regatta extends DBObject {
    * @param Division $division optional specific division to rank
    */
   public function setRanks(Division $division = null) {
-    require_once('regatta/PublicDB.php');
     if ($this->dt_num_races === null)
       $this->setData();
     if ($this->dt_num_divisions == 0)
@@ -1414,7 +1413,6 @@ class Regatta extends DBObject {
    * @return Array:Dt_Team_Division
    */
   public function getRanks(Division $div = null) {
-    require_once('regatta/PublicDB.php');
     $cond = new DBBool(array(new DBCondIn('team',
                                           DB::prepGetAll(DB::$TEAM, new DBCond('regatta', $this), array('id')))));
     if ($div !== null)

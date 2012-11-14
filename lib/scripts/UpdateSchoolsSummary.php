@@ -20,7 +20,6 @@ class UpdateSchoolsSummary extends AbstractScript {
 
   public function run() {
     require_once('xml5/TPublicPage.php');
-    require_once('regatta/PublicDB.php');
     $page = new TPublicPage("All Schools");
     $page->setDescription("Listing of schools in ICSA, with regatta participation.");
     $page->addMetaKeyword("schools");

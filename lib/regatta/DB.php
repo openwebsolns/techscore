@@ -44,6 +44,8 @@ class DB extends DBM {
   public static $SEASON = null;
   public static $NOW = null;
   public static $TR_RACE_TEAMS = null;
+  public static $DT_TEAM_DIVISION = null;
+  public static $DT_RP = null;
 
   public static $OUTBOX = null;
   public static $MESSAGE = null;
@@ -57,10 +59,6 @@ class DB extends DBM {
   public static $UPDATE_REQUEST = null; // UpdateRequest.php
   public static $UPDATE_SCHOOL = null; // UpdateRequest.php
   public static $UPDATE_LOG_SEASON = null; // UpdateRequest.php
-
-  // Public API: PublicDB.php
-  public static $DT_TEAM_DIVISION = null;
-  public static $DT_RP = null;
 
   // The validation engine
   public static $V = null;
@@ -94,6 +92,8 @@ class DB extends DBM {
     self::$REPRESENTATIVE = new Representative();
     self::$RP_ENTRY = new RPEntry();
     self::$SEASON = new Season();
+    DB::$DT_TEAM_DIVISION = new Dt_Team_Division();
+    DB::$DT_RP = new Dt_Rp();
     self::$NOW = new DateTime();
     self::$TR_RACE_TEAMS = new Tr_Race_Teams();
 
@@ -1165,7 +1165,6 @@ class Team extends DBObject {
    * @return Dt_Team_Division|null the rank
    */
   public function getRank(Division $division) {
-    require_once('regatta/PublicDB.php');
     $r = DB::getAll(DB::$DT_TEAM_DIVISION, new DBBool(array(new DBCond('team', $this),
                                                             new DBCond('division', $division))));
     $b;
@@ -1998,7 +1997,6 @@ class Season extends DBObject {
    * @return Array:Season the list
    */
   public static function getActive() {
-    require_once('regatta/PublicDB.php');
     $cond = new DBBool(array(new DBCond('private', null),
                              new DBCond('dt_status',Regatta::STAT_SCHEDULED, DBCond::NE)));
     return DB::getAll(DB::$SEASON, new DBCondIn('id', DB::prepGetAll(DB::$REGATTA, $cond, array('dt_season'))));
@@ -2153,6 +2151,54 @@ class Penalty extends FinishModifier {
                  Penalty::OCS => "OCS: On Course Side after start",
                  Penalty::DNF => "DNF: Did Not Finish",
                  Penalty::DNS => "DNS: Did Not Start");
+  }
+}
+
+class Dt_Rp extends DBObject {
+  const SKIPPER = 'skipper';
+  const CREW = 'crew';
+
+  protected $team_division;
+  protected $race_nums;
+  protected $sailor;
+  public $boat_role;
+  public $rank;
+  public $explanation;
+
+  public function db_type($field) {
+    if ($field == 'sailor') return DB::$MEMBER;
+    if ($field == 'race_nums') return array();
+    if ($field == 'team_division') return DB::$DT_TEAM_DIVISION;
+    return parent::db_type($field);
+  }
+  protected function db_order() { return array('race_nums'=>true); }
+}
+
+/**
+ * Team rank within division, and possible penalty
+ *
+ * @author Dayan Paez
+ * @version 2011-03-06
+ */
+class Dt_Team_Division extends DBObject {
+  protected $team;
+  public $division;
+  public $rank;
+  public $explanation;
+  public $penalty;
+  public $comments;
+  public $score;
+
+  public function db_name() { return 'dt_team_division'; }
+  public function db_type($field) {
+    if ($field == 'team') return DB::$TEAM;
+    return parent::db_type($field);
+  }
+  protected function db_order() { return array('rank'=>true); }
+
+  public function getRP($role = Dt_Rp::SKIPPER) {
+    return DB::getAll(DB::$DT_RP, new DBBool(array(new DBCond('boat_role', $role),
+                                                   new DBCond('team_division', $this->id))));
   }
 }
 

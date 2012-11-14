@@ -30,7 +30,6 @@ class UpdateSeason extends AbstractScript {
     // 2010-11-14: Separate regattas into "weekends", descending by
     // timestamp, based solely on the start_time, assuming that the
     // week ends on a Sunday.
-    require_once('regatta/PublicDB.php');
 
     $weeks = array();
     $regattas = $season->getRegattas();

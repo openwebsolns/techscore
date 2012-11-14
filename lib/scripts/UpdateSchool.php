@@ -42,7 +42,6 @@ class UpdateSchool extends AbstractScript {
   }
 
   private function getPage(School $school, Season $season) {
-    require_once('regatta/PublicDB.php');
     require_once('xml5/TPublicPage.php');
 
     $page = new TPublicPage($school);
