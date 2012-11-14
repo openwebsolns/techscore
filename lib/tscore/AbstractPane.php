@@ -82,6 +82,9 @@ abstract class AbstractPane {
                                           "penalty"  => "EnterPenaltyPane",
                                           "drop-penalty" => "DropPenaltyPane",
                                           "team-penalty" => "TeamPenaltyPane"));
+    $access_keys_i = array('finishes' => 'f',
+                           'rotations' => 's',
+                           'rp' => 'r');
 
     $dial_i  = array("rotation" => "Rotation",
                      "scores"   => "Scores",
@@ -93,8 +96,11 @@ abstract class AbstractPane {
       $menu = new XDiv(array('class'=>'menu'), array(new XH4($title), $m_list = new XUl()));
       foreach ($panes as $url => $pane) {
         $t = $this->doTitle($pane);
-        if ($this->doActive($pane))
-          $m_list->add(new XLi(new XA("/score/$id/$url", $t)));
+        if ($this->doActive($pane)) {
+          $m_list->add(new XLi($a = new XA("/score/$id/$url", $t)));
+          if (isset($access_keys_i[$url]))
+            $a->set('accesskey', $access_keys_i[$url]);
+        }
         else
           $m_list->add(new XLi($t, array("class"=>"inactive")));
       }
