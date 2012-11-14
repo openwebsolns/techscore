@@ -83,7 +83,7 @@ class UpdateSchool extends AbstractScript {
     $places = 0;
     $avg_total = 0;
     foreach ($regs as $reg) {
-      $teams = $reg->getTeams();
+      $teams = $reg->getRankedTeams();
       $num = count($teams);
       if ($reg->finalized !== null) {
         foreach ($teams as $pl => $team) {
@@ -93,8 +93,8 @@ class UpdateSchool extends AbstractScript {
             $avg_total++;
 
             // track participation
-            $sk = $team->getRP(null, 'skipper');
-            $cr = $team->getRP(null, 'crew');
+            $sk = $team->getRpData(null, 'skipper');
+            $cr = $team->getRpData(null, 'crew');
             foreach ($sk as $rp) {
               if (!isset($skippers[$rp->sailor->id])) {
                 $skippers[$rp->sailor->id] = 0;

@@ -1186,7 +1186,7 @@ class Team extends DBObject {
    * @param String $role 'skipper', or 'crew'
    * @return Array:Dt_RP the rp for that team
    */
-  public function getRpData($div = null, $role = Dt_Rp::SKIPPER) {
+  public function getRpData(Division $div = null, $role = Dt_Rp::SKIPPER) {
     if ($div !== null) {
       $rank = $this->getRank($div);
       if ($rank === null)

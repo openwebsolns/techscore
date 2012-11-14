@@ -52,7 +52,7 @@ class Dt_Team_Division extends DBObject {
   }
   protected function db_order() { return array('rank'=>true); }
 
-  public function getRP($role = 'skipper') {
+  public function getRP($role = Dt_Rp::SKIPPER) {
     return DB::getAll(DB::$DT_RP, new DBBool(array(new DBCond('boat_role', $role),
                                                    new DBCond('team_division', $this->id))));
   }
