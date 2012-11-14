@@ -127,11 +127,10 @@ class ScoresCombinedDialog extends AbstractScoresDialog {
 
       $headerRows = array($r1, $r2);
       $num_sailors = 2;
-      $team = $this->REGATTA->getTeam($rank->team->id);
       // ------------------------------------------------------------
       // Skippers and crews
       foreach (array(RP::SKIPPER, RP::CREW) as $index => $role) {
-        $sailors  = $rpManager->getRP($team, new Division($rank->division), $role);
+        $sailors  = $rpManager->getRP($rank->team, new Division($rank->division), $role);
 
         $is_first = true;
         $s_rows = array();
