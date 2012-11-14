@@ -46,7 +46,6 @@ class ScoresFullDialog extends AbstractScoresDialog {
   public function getTable($link_schools = false) {
     $ELEMS = array();
 
-    $dreg = $this->REGATTA->getData();
     $divisions = $this->REGATTA->getDivisions();
     $num_divs  = count($divisions);
 
@@ -79,19 +78,19 @@ class ScoresFullDialog extends AbstractScoresDialog {
     // and collect the different tiebreaking categories, giving each
     // one a successive symbol.
     $tiebreakers = array("" => "");
-    $ranks = $dreg->getTeams();
+    $ranks = $this->REGATTA->getRankedTeams();
     foreach ($ranks as $rank) {
-      if (!empty($rank->rank_explanation) && !isset($tiebreakers[$rank->rank_explanation])) {
+      if (!empty($rank->dt_explanation) && !isset($tiebreakers[$rank->dt_explanation])) {
         $count = count($tiebreakers);
         switch ($count) {
         case 1:
-          $tiebreakers[$rank->rank_explanation] = "*";
+          $tiebreakers[$rank->dt_explanation] = "*";
           break;
         case 2:
-          $tiebreakers[$rank->rank_explanation] = "**";
+          $tiebreakers[$rank->dt_explanation] = "**";
           break;
         default:
-          $tiebreakers[$rank->rank_explanation] = chr(95 + $count);
+          $tiebreakers[$rank->dt_explanation] = chr(95 + $count);
         }
       }
     }
@@ -99,7 +98,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
     $has_penalties = false;
     $order = 1;
     foreach ($ranks as $rank) {
-      $team = $this->REGATTA->getTeam($rank->id);
+      $team = $rank->team;
       $scoreTeam   = 0;
       $scoreRace   = ($largest_num == 0) ? array() : array_fill(0, $largest_num, 0);
       $penaltyTeam = 0;
@@ -116,12 +115,12 @@ class ScoresFullDialog extends AbstractScoresDialog {
             $ln = array($rank->name, new XBr(),
                         new XA(sprintf('/schools/%s/%s/', $rank->school->id, $this->REGATTA->getSeason()),
                                $rank->school->nick_name));
-          $r->add(new XTD(array("title" => $rank->rank_explanation, "class" => "tiebreaker"), $tiebreakers[$rank->rank_explanation]));
+          $r->add(new XTD(array("title" => $rank->dt_explanation, "class" => "tiebreaker"), $tiebreakers[$rank->dt_explanation]));
           $r->add(new XTD(array(), $order++));
           $r->add(new XTD(array("class"=>"strong"), $ln));
         }
         elseif ($div == "A") {
-          $r->add(new XTD(array("title" => $rank->rank_explanation), $tiebreakers[$rank->rank_explanation]));
+          $r->add(new XTD(array("title" => $rank->dt_explanation), $tiebreakers[$rank->dt_explanation]));
           $r->add(new XTD(array(), $order++));
           $r->add(new XTD(array('class'=>'strong'), $rank->name));
         }

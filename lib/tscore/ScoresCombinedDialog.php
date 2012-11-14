@@ -56,7 +56,6 @@ class ScoresCombinedDialog extends AbstractScoresDialog {
    */
   public function getTable($link_schools = false) {
     $rpManager = $this->REGATTA->getRpManager();
-    $dreg = $this->REGATTA->getData();
     $ELEMS = array(new XTable(array('class'=>'results coordinate division all'),
                               array(new XTHead(array(),
                                                array(new XTR(array(),
@@ -75,7 +74,7 @@ class ScoresCombinedDialog extends AbstractScoresDialog {
     // print each ranked team
     //  - keep track of different ranks and tiebrakers
     $tiebreakers = array("" => "");
-    $ranks = $dreg->getRanks();
+    $ranks = $this->REGATTA->getRanks();
     foreach ($ranks as $rank) {
       if (!empty($rank->explanation) && !isset($tiebreakers[$rank->explanation])) {
         $count = count($tiebreakers);

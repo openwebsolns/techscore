@@ -75,8 +75,7 @@ class UpdateFront extends AbstractScript {
                                              new DBCond('end_date', $end, DBCond::GE))));
     $in_prog = array();
     foreach ($potential as $reg) {
-      $data = $reg->getData();
-      if ($data->status != Dt_Regatta::STAT_SCHEDULED)
+      if ($reg->dt_status != Regatta::STAT_SCHEDULED)
         $in_prog[] = $reg;
     }
     if (count($in_prog) > 0) {
@@ -89,14 +88,13 @@ class UpdateFront extends AbstractScript {
                                                             "Status",
                                                             "Leading")))));
       foreach ($in_prog as $i => $reg) {
-        $data = $reg->getData();
         $row = array(new XA($reg->getURL(), $reg->name), $reg->type);
-        $tms = $data->getTeams();
-        if ($data->status == Dt_Regatta::STAT_READY || count($tms) == 0) {
+        $tms = $reg->getRankedTeams();
+        if ($reg->dt_status == Dt_Regatta::STAT_READY || count($tms) == 0) {
           $row[] = new XTD(array('colspan'=>2), new XEm("No scores yet"));
         }
         else {
-          $row[] = new XStrong(ucwords($data->status));
+          $row[] = new XStrong(ucwords($reg->dt_status));
           if ($tms[0]->school->burgee !== null)
             $row[] = new XImg(sprintf('/inc/img/schools/%s.png', $tms[0]->school->id), $tms[0], array('height'=>40));
           else
@@ -121,9 +119,8 @@ class UpdateFront extends AbstractScript {
                                            "Type",
                                            "Start time")));
       foreach ($regs as $reg) {
-        $data = $reg->getData();
         $tab->addRow(array(new XA($reg->getURL(), $reg->name),
-                           implode("/", $data->hosts),
+                           implode("/", $reg->dt_hosts),
                            $reg->type,
                            $reg->start_time->format('m/d/Y @ H:i')));
       }

@@ -53,34 +53,13 @@ require_once('AbstractScript.php');
 class UpdateRegatta extends AbstractScript {
 
   /**
-   * Synchronizes the regatta's detail with the data information
-   * (those fields in the database prefixed with dt_). Note this will
-   * not run for personal regattas, even if requested.
-   *
-   * @param Regatta $reg the regatta to synchronize
-   *
-   * @param boolean $full set this to false to only update information
-   * about the regatta and not about the ranks (this creates slight
-   * efficiency improvement)
-   *
-   * @param boolean $rp set this to true to also sync the RP
-   * @throws InvalidArgumentException
-   * @deprecated delegates to Regatta::setData
-   */
-  public function sync(Regatta $reg) {
-    $reg->setData();
-    return $reg->getData();
-  }
-
-  /**
    * Sync the RP information for the given regatta
    *
    */
   public static function syncRP(Regatta $reg) {
-    $dreg = $reg->getData();
-    if ($dreg->num_races === null)
+    if ($reg->dt_num_races === null)
       $reg->setData();
-    if ($dreg->num_divisions == 0)
+    if ($reg->dt_num_divisions == 0)
       return;
 
     $team_divs = array();
@@ -96,7 +75,7 @@ class UpdateRegatta extends AbstractScript {
       $scored_nums[(string)$div] = array();
       foreach ($scored_races[(string)$div] as $race)
         $scored_nums[(string)$div][] = $race->number;
-      foreach ($dreg->getRanks($div) as $team) {
+      foreach ($reg->getRanks($div) as $team) {
         $team_divs[] = $team;
         $team_objs[$team->id] = $reg->getTeam($team->team->id);
       }
@@ -344,7 +323,7 @@ class UpdateRegatta extends AbstractScript {
     // ------------------------------------------------------------
     // Perform the updates
     // ------------------------------------------------------------
-    if ($sync)       $this->sync($reg);
+    if ($sync)       $reg->setData();
     if ($sync_rp)    $this->syncRP($reg);
 
     $D = $reg->getURL();

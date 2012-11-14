@@ -30,6 +30,7 @@ class DB extends DBM {
   public static $TEAM = null;
   public static $RANKED_TEAM = null;
   public static $SINGLEHANDED_TEAM = null;
+  public static $RANK_SINGLEHANDED_TEAM = null;
   public static $TEAM_NAME_PREFS = null;
   public static $SAIL = null;
   public static $NOTE = null;
@@ -83,6 +84,7 @@ class DB extends DBM {
     self::$TEAM = new Team();
     self::$RANKED_TEAM = new RankedTeam();
     self::$SINGLEHANDED_TEAM = new SinglehandedTeam();
+    self::$RANKED_SINGLEHANDED_TEAM = new RankedSinglehandedTeam();
     self::$TEAM_NAME_PREFS = new Team_Name_Prefs();
     self::$SAIL = new Sail();
     self::$NOTE = new Note();
@@ -1275,6 +1277,16 @@ class SinglehandedTeam extends Team {
   public function __toString() {
     return sprintf("%s %s", $this->__get('school')->name, $this->getQualifiedName());
   }
+}
+
+/**
+ * Same as team, but ordered by rank, by default
+ *
+ * @author Dayan Paez
+ * @version 2012-11-14
+ */
+class RankedSinglehandedTeam extends SinglehandedTeam {
+  protected function db_order() { return array('rank'=>true, 'school'=>true, 'id'=>true); }
 }
 
 /**

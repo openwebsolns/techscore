@@ -54,7 +54,6 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
   public function getTable($link_schools = false) {
     $ELEMS = array();
 
-    $dreg = $this->REGATTA->getData();
     $divisions = $this->REGATTA->getDivisions();
 
     $t = new XTable(array('class'=>'results coordinate divisional'),
@@ -82,19 +81,19 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
     // and collect the different tiebreaking categories, giving each
     // one a successive symbol.
     $tiebreakers = array("" => "");
-    $ranks = $dreg->getTeams();
+    $ranks = $this->REGATTA->getRankedTeams();
     foreach ($ranks as $rank) {
-      if (!empty($rank->rank_explanation) && !isset($tiebreakers[$rank->rank_explanation])) {
+      if (!empty($rank->dt_explanation) && !isset($tiebreakers[$rank->dt_explanation])) {
         $count = count($tiebreakers);
         switch ($count) {
         case 1:
-          $tiebreakers[$rank->rank_explanation] = "*";
+          $tiebreakers[$rank->dt_explanation] = "*";
           break;
         case 2:
-          $tiebreakers[$rank->rank_explanation] = "**";
+          $tiebreakers[$rank->dt_explanation] = "**";
           break;
         default:
-          $tiebreakers[$rank->rank_explanation] = chr(95 + $count);
+          $tiebreakers[$rank->dt_explanation] = chr(95 + $count);
         }
       }
     }
@@ -105,8 +104,8 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
       if ($link_schools !== false)
         $ln = new XA(sprintf('/schools/%s/%s/', $rank->school->id, $this->REGATTA->getSeason()), $ln);
       $tab->add($r = new XTR(array('class'=>'row' . ($row++ % 2)),
-                             array(new XTD(array('title'=>$rank->rank_explanation, 'class'=>'tiebreaker'),
-                                           $tiebreakers[$rank->rank_explanation]),
+                             array(new XTD(array('title'=>$rank->dt_explanation, 'class'=>'tiebreaker'),
+                                           $tiebreakers[$rank->dt_explanation]),
                                    new XTD(array(), $tID + 1),
                                    $bc = new XTD(array('class'=>'burgee-cell')),
                                    new XTD(array('class'=>'strong'), $ln),

@@ -87,13 +87,12 @@ class UpdateSeason extends AbstractScript {
       $rows = array();
       usort($list, 'Regatta::cmpTypes');
       foreach ($list as $reg) {
-        $data = $reg->getData();
         if ($reg->start_time >= $now) {
-          if ($reg->start_time < $next_sunday && in_array($data->status, $coming))
+          if ($reg->start_time < $next_sunday && in_array($reg->dt_status, $coming))
             array_unshift($coming_regattas, $reg);
         }
-        elseif (!in_array($data->status, $coming)) {
-          $teams = $data->getTeams();
+        elseif (!in_array($reg->dt_status, $coming)) {
+          $teams = $reg->getRankedTeams();
           if (count($teams) == 0)
             continue;
 
@@ -101,7 +100,7 @@ class UpdateSeason extends AbstractScript {
           $status = null;
           $wt = $teams[0];
 
-          switch ($data->status) {
+          switch ($reg->dt_status) {
           case 'finished':
             $status = "Pending";
             break;
@@ -114,7 +113,7 @@ class UpdateSeason extends AbstractScript {
             break;
 
           default:
-            $status = "In progress: " . $data->status;
+            $status = "In progress: " . $reg->dt_status;
           }
 
           $num_teams += count($teams);
@@ -125,7 +124,7 @@ class UpdateSeason extends AbstractScript {
             new XImg(sprintf('/inc/img/schools/%s.png', $wt->school->id), $wt->school, array('height'=>40)) :
             $wt->school->nick_name;
           $rows[] = array($link,
-                          implode("/", $data->hosts),
+                          implode("/", $reg->dt_hosts),
                           $reg->type,
                           $reg->start_time->format('m/d/Y'),
                           $status,
@@ -150,9 +149,8 @@ class UpdateSeason extends AbstractScript {
                                            "Type",
                                            "Start time")));
       foreach ($coming_regattas as $reg) {
-        $data = $reg->getData();
         $tab->addRow(array(new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name),
-                           implode("/", $data->hosts),
+                           implode("/", $reg->dt_hosts),
                            $reg->type,
                            $reg->start_time->format('m/d/Y @ H:i')));
       }

@@ -30,12 +30,11 @@ class UpdateSchool extends AbstractScript {
    * current placement
    *
    */
-  private function getPlaces(Dt_Regatta $reg, School $school) {
+  private function getPlaces(Regatta $reg, School $school) {
     $places = array();
-    $teams = $reg->getTeams();
-    foreach ($teams as $rank => $team) {
-      if ($team->school->id == $school->id)
-        $places[] = ($rank + 1);
+    $teams = $reg->getTeams($school);
+    foreach ($teams as $team) {
+      $places[] = $team->dt_rank;
     }
     if (count($teams) == 0)
       return "";
@@ -84,8 +83,7 @@ class UpdateSchool extends AbstractScript {
     $places = 0;
     $avg_total = 0;
     foreach ($regs as $reg) {
-      $data = $reg->getData();
-      $teams = $data->getTeams();
+      $teams = $reg->getTeams();
       $num = count($teams);
       if ($reg->finalized !== null) {
         foreach ($teams as $pl => $team) {
@@ -167,26 +165,24 @@ class UpdateSchool extends AbstractScript {
       $p->add($tab = new XQuickTable(array('class'=>'participation-table'),
                                      array("Name", "Host", "Type", "Conference", "Last race", "Place(s)")));
       foreach ($current as $row => $reg) {
-        $data = $reg->getData();
-
         // borrowed from UpdateSeason
         $status = null;
-        switch ($data->status) {
+        switch ($reg->dt_status) {
         case Dt_Regatta::STAT_READY:
           $status = new XEm("No scores yet");
           break;
 
         default:
-          $status = new XStrong(ucwords($data->status));
+          $status = new XStrong(ucwords($reg->dt_status));
         }
 
         $link = new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name);
         $tab->addRow(array($link,
-                           implode("/", $data->hosts),
+                           implode("/", $reg->dt_hosts),
                            $reg->type,
-                           implode("/", $data->confs),
+                           implode("/", $reg->dt_confs),
                            $status,
-                           $this->getPlaces($data, $school)),
+                           $this->getPlaces($reg, $school)),
                      array('class' => 'row' . ($row % 2)));
       }
     }
@@ -201,16 +197,14 @@ class UpdateSchool extends AbstractScript {
                                      array("Name", "Host", "Type", "Conference", "Date", "Status", "Place(s)")));
 
       foreach ($past as $row => $reg) {
-        $data = $reg->getData();
-
         $link = new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name);
         $tab->addRow(array($link,
-                           implode("/", $data->hosts),
+                           implode("/", $reg->dt_hosts),
                            $reg->type,
-                           implode("/", $data->confs),
+                           implode("/", $reg->dt_confs),
                            $reg->start_time->format('M d'),
                            ($reg->finalized === null) ? "Pending" : new XStrong("Official"),
-                           $this->getPlaces($data, $school)),
+                           $this->getPlaces($reg, $school)),
                      array('class' => sprintf('row' . ($row % 2))));
       }
     }

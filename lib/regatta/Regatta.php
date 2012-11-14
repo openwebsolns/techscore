@@ -1025,31 +1025,6 @@ class Regatta extends DBObject {
     return $r;
   }
 
-  /**
-   * Return list of rank numbers for given team.
-   *
-   * Returns a list of where did every team belonging to the given
-   * school finish in this regatta (or is currently finishing).
-   * Returns a list because a school can have more than one team per
-   * regatta.
-   *
-   * An empty array means that the school had no teams in this
-   * regatta (something which can be known ahead of time using the
-   * Season::getParticipation function).
-   *
-   * @param School $school the school
-   * @return Array:int the current or final place finish for all teams
-   */
-  public function getPlaces(School $school) {
-    $data = $this->getData();
-    $places = array();
-    foreach ($data->getTeams() as $rank) {
-      if ($rank->school->id == $school->id)
-        $places[] = $rank->rank;
-    }
-    return $places;
-  }
-
   // ------------------------------------------------------------
   // Scorers
   // ------------------------------------------------------------
@@ -1345,58 +1320,18 @@ class Regatta extends DBObject {
    */
   public function setRanks(Division $division = null) {
     require_once('regatta/PublicDB.php');
-    $dreg = $this->getData();
-    if ($dreg->num_races === null)
+    if ($this->dt_num_races === null)
       $this->setData();
-    if ($dreg->num_divisions == 0)
+    if ($this->dt_num_divisions == 0)
       return;
 
-    // ------------------------------------------------------------
-    // Cache the team-level information
-    $dteams = array();
-    foreach ($dreg->getTeams() as $team)
-      $dteams[$team->id] = $team;
-
-    // add teams
+    // Set the team-level ranking first
     $ranker = $this->getRanker();
-    $dteams = array();
     foreach ($ranker->rank($this) as $i => $rank) {
-      if (!isset($dteams[$rank->team->id])) {
-        $team = new Dt_Team();
-        $dteams[$rank->team->id] = $team;
-      }
-      $team = $dteams[$rank->team->id];
-
-      $team->id = $rank->team->id;
-      $team->regatta = $dreg;
-      $team->school = DB::get(DB::$SCHOOL, $rank->team->school->id);
-      $team->name = $rank->team->name;
-      $team->rank = $i + 1;
-      $team->rank_explanation = $rank->explanation;
-      $team->score = $rank->score;
-      DB::set($team);
-    }
-
-    // ------------------------------------------------------------
-    // NOTE: What happens when divisions are removed?
-    // The problem here is that dt_team_division entries may still
-    // exist in the database even though the division does not exist
-    // (there is no possible foreign key for this purpose). To remedy
-    // this situation, the following syncing procedure should also
-    // make sure to remove any stray entries that may exist. This is
-    // done by creating a list of all the dt_team_division entries
-    // that exist and, after syncing all of the ones that should
-    // exist, delete the others. This is the purpose of the $to_delete
-    // map below.
-    //
-    // NOTE, 2: That this should only take effect when $division is
-    // not specified directly!
-    $to_delete = array();
-    foreach ($dteams as $team) {
-      foreach (DB::getAll(DB::$DT_TEAM_DIVISION, new DBCond('team', $team)) as $entry) {
-        $id = sprintf('%s,%s', $entry->team->id, $entry->division);
-        $to_delete[$id] = $entry;
-      }
+      $rank->team->dt_rank = ($i + 1);
+      $rank->team->dt_explanation = $rank->explanation;
+      $rank->team->dt_score = $rank->score;
+      DB::set($rank->team);
     }
 
     // ------------------------------------------------------------
@@ -1408,16 +1343,13 @@ class Regatta extends DBObject {
       foreach ($divs as $div) {
         $races = $this->getScoredRaces($div);
         foreach ($ranker->rank($this, $races) as $i => $rank) {
-          $id = sprintf('%s,%s', $rank->team->id, $div);
-          if (isset($to_delete[$id])) {
-            $team_division = $to_delete[$id];
-            unset($to_delete[$id]);
-          }
-          else
+          $team_division = $rank->team->getRank($div);
+          if ($team_division === null) {
             $team_division = new Dt_Team_Division();
+            $team_division->team = $rank->team;
+            $team_division->division = $div;
+          }
 
-          $team_division->team = $dteams[$rank->team->id];
-          $team_division->division = $div;
           $team_division->rank = ($i + 1);
           $team_division->explanation = $rank->explanation;
           $team_division->penalty = null;
@@ -1435,16 +1367,13 @@ class Regatta extends DBObject {
     }
     elseif ($this->scoring == Regatta::SCORING_COMBINED) {
       foreach ($ranker->rank($this) as $i => $rank) {
-        $id = sprintf('%s,%s', $rank->team->id, $rank->division);
-        if (isset($to_delete[$id])) {
-          $team_division = $to_delete[$id];
-          unset($to_delete[$id]);
+        $team_division = $rank->team->getRank($rank->division);
+        if ($team_division === null) {
+            $team_division = new Dt_Team_Division();
+            $team_division->team = $rank->team;
+            $team_division->division = $rank->division;
         }
-        else
-          $team_division = new Dt_Team_Division();
 
-        $team_division->team = $dteams[$rank->team->id];
-        $team_division->division = $rank->division;
         $team_division->rank = ($i + 1);
         $team_division->explanation = $rank->explanation;
         $team_division->penalty = null;
@@ -1462,10 +1391,20 @@ class Regatta extends DBObject {
     // @TODO: Team racing?
 
     // Remove extraneous entries
-    if ($division === null) {
-      foreach ($to_delete as $entry)
-        DB::remove($entry);
-    }
+    DB::removeAll(DB::$DT_TEAM_DIVISION, new DBCondIn('division', $this->getDivisions(), DBCondIn::NOT_IN));
+  }
+
+  /**
+   * Get list of teams in order
+   *
+   * @param School $school the optional school whose teams to return
+   * @return Array:Team the teams in order of their rank
+   */
+  public function getRankedTeams(School $school = null) {
+    $cond = new DBBool(array(new DBCond('regatta', $this->id)));
+    if ($school !== null)
+      $cond->add(new DBCond('school', $school));
+    return DB::getAll($this->dt_singlehanded ? DB::$RANKED_SINGLEHANDED_TEAM : DB::$RANKED_TEAM, $cond);
   }
 
   /**
@@ -1487,68 +1426,49 @@ class Regatta extends DBObject {
    *
    */
   public function setData() {
-    $data = $this->getData();
-    $data->num_divisions = count($this->getDivisions());
-    if ($data->num_divisions == 0)
-      $data->num_races = 0;
+    $this->dt_num_divisions = count($this->getDivisions());
+    if ($this->dt_num_divisions == 0)
+      $this->dt_num_races = 0;
     else
-      $data->num_races = floor(count($this->getRaces()) / $data->num_divisions);
+      $this->dt_num_races = floor(count($this->getRaces()) / $this->dt_num_divisions);
 
     // hosts and conferences
-    $data->confs = array();
-    $data->hosts = array();
+    $this->dt_confs = array();
+    $this->dt_hosts = array();
     foreach ($this->getHosts() as $host) {
-      $data->confs[$host->conference->id] = $host->conference->id;
-      $data->hosts[$host->id] = $host->nick_name;
+      $this->dt_confs[$host->conference->id] = $host->conference->id;
+      $this->dt_hosts[$host->id] = $host->nick_name;
     }
 
     // boats
-    $data->boats = array();
+    $this->dt_boats = array();
     foreach ($this->getBoats() as $boat)
-      $data->boats[$boat->id] = $boat->name;
+      $this->dt_boats[$boat->id] = $boat->name;
 
-    $data->singlehanded = ($this->isSingleHanded()) ? 1 : null;
-    $data->season = $this->getSeason();
+    $this->dt_singlehanded = ($this->isSingleHanded()) ? 1 : null;
+    $this->dt_season = $this->getSeason();
 
     // status
     $now = new DateTime();
     $end = $this->__get('end_date');
     $end->setTime(23,59,59);
     if ($this->__get('finalized') !== null)
-      $data->status = Dt_Regatta::STAT_FINAL;
+      $this->dt_status = Regatta::STAT_FINAL;
     elseif (count($this->getUnscoredRaces()) == 0)
-      $data->status = Dt_Regatta::STAT_FINISHED;
+      $this->dt_status = Regatta::STAT_FINISHED;
     elseif (!$this->hasFinishes()) {
-      if ($data->num_races > 0)
-        $data->status = Dt_Regatta::STAT_READY;
+      if ($this->dt_num_races > 0)
+        $this->dt_status = Regatta::STAT_READY;
       else
-        $data->status = Dt_Regatta::STAT_SCHEDULED;
+        $this->dt_status = Regatta::STAT_SCHEDULED;
     }
     else {
       $last_race = $this->getLastScoredRace();
-      $data->status = ($last_race === null) ? Dt_Regatta::STAT_READY : (string)$last_race;
+      $this->dt_status = ($last_race === null) ? Regatta::STAT_READY : (string)$last_race;
     }
 
-    DB::set($data);
+    DB::set($this);
   }
-
-  /**
-   * Returns the cached data object for this regatta
-   *
-   * @return Dt_Regatta the data
-   */
-  public function getData() {
-    if ($this->data === null) {
-      require_once('regatta/PublicDB.php');
-      $this->data = DB::get(DB::$DT_REGATTA, $this->id);
-      if ($this->data === null) {
-        $this->data = new Dt_Regatta();
-        $this->data->id = $this->id;
-      }
-    }
-    return $this->data;
-  }
-  private $data;
 
   /**
    * Get the Dt_RP entries for the given sailor.
