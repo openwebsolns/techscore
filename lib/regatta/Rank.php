@@ -16,13 +16,13 @@ require_once('conf.php');
  */
 class Rank {
 
-  public $team;
+  protected $team;
   public $score;
   public $explanation;
   /**
    * @var Division the optional division being referred to
    */
-  public $division;
+  protected $division;
 
   /**
    * Create a new rank with the given parameters
@@ -37,16 +37,22 @@ class Rank {
   }
 
   public function __set($name, $value) {
-    if ($name == "team" &&
-        $value instanceof Team) {
+    if ($name == 'team' && $value instanceof Team)
       $this->team = $value;
-    }
-    elseif ($name == "explanation")
+    elseif ($name == 'division' && $value instanceof Division)
+      $this->division = $division;
+    elseif ($name == 'explanation')
       $this->explanation = (string)$value;
-    elseif ($name == "score")
+    elseif ($name == 'score')
       $this->score = (int)$score;
     else
       throw new InvalidArgumentException("Non-existing or invalid object type for Rank.");
+  }
+
+  public function __get($name) {
+    if (isset($this->$name))
+      return $this->$name;
+    throw new InvalidArgumentException("Non-existing property $name.");
   }
 
   /**

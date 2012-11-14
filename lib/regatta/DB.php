@@ -1164,7 +1164,7 @@ class Team extends DBObject {
    * @param String $division the possible division
    * @return Dt_Team_Division|null the rank
    */
-  public function getRank($division) {
+  public function getRank(Division $division) {
     require_once('regatta/PublicDB.php');
     $r = DB::getAll(DB::$DT_TEAM_DIVISION, new DBBool(array(new DBCond('team', $this),
                                                             new DBCond('division', $division))));
