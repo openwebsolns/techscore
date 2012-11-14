@@ -362,3 +362,11 @@ alter table dt_rp add column rank tinyint(3) unsigned comment "In races sailed",
 
 -- add finalization as a specific regatta update request
 alter table pub_update_request change column activity activity enum('rotation','score','rp','details','summary', 'finalized') not null default 'score';
+
+-- merge dt_regatta into regatta table
+alter table regatta add column dt_num_divisions tinyint unsigned default null, add column dt_num_races tinyint unsigned default null, add column dt_hosts varchar(255) default null, add column dt_confs varchar(255) default null, add column dt_boats varchar(255) default null, add column dt_singlehanded tinyint unsigned default null, add column dt_season varchar(3) default null, add column dt_status varchar(40) default null, add foreign key (dt_season) references season(id) on delete set null on update cascade;
+update regatta, dt_regatta set  dt_num_divisions = num_divisions, dt_num_races = num_races, dt_hosts = hosts, dt_confs = confs, dt_boats = boats, dt_singlehanded = singlehanded, dt_season = season, dt_status = status where regatta.id = dt_regatta.id;
+
+-- merge dt_team into team table
+alter table team add column dt_rank tinyint unsigned default null, add column dt_explanation varchar(100) default null, add column dt_score int default null;
+update team, dt_team set dt_rank = rank, dt_explanation = rank_explanation, dt_score = score where team.id = dt_team.id;

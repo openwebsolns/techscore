@@ -28,6 +28,7 @@ class DB extends DBM {
   public static $COACH = null;
   public static $SCORER = null;
   public static $TEAM = null;
+  public static $RANKED_TEAM = null;
   public static $SINGLEHANDED_TEAM = null;
   public static $TEAM_NAME_PREFS = null;
   public static $SAIL = null;
@@ -80,6 +81,7 @@ class DB extends DBM {
     self::$COACH = new Coach();
     self::$SCORER = new Scorer();
     self::$TEAM = new Team();
+    self::$RANKED_TEAM = new RankedTeam();
     self::$SINGLEHANDED_TEAM = new SinglehandedTeam();
     self::$TEAM_NAME_PREFS = new Team_Name_Prefs();
     self::$SAIL = new Sail();
@@ -1136,6 +1138,10 @@ class Team extends DBObject {
   protected $school;
   protected $regatta; // change to protected when using DBM
 
+  public $dt_rank;
+  public $dt_explanation;
+  public $dt_score;
+
   public function db_name() { return 'team'; }
   protected function db_order() { return array('school'=>true, 'id'=>true); }
   protected function db_cache() { return true; }
@@ -1151,6 +1157,69 @@ class Team extends DBObject {
   public function __toString() {
     return $this->__get('school')->nick_name . ' ' . $this->name;
   }
+
+  /**
+   * Returns this team's rank within the given division, if one exists
+   *
+   * @param String $division the possible division
+   * @return Dt_Team_Division|null the rank
+   */
+  public function getRank($division) {
+    require_once('regatta/PublicDB.php');
+    $r = DB::getAll(DB::$DT_TEAM_DIVISION, new DBBool(array(new DBCond('team', $this),
+                                                            new DBCond('division', $division))));
+    $b;
+    if (count($r) == 0) $b = null;
+    else $b = $r[0];
+    unset($r);
+    return $b;
+  }
+
+  // ------------------------------------------------------------
+  // RP
+  // ------------------------------------------------------------
+
+  /**
+   * Gets the Dt_RP for this team in the given division and role
+   *
+   * @param String $div the division, or null for all divisions
+   * @param String $role 'skipper', or 'crew'
+   * @return Array:Dt_RP the rp for that team
+   */
+  public function getRpData($div = null, $role = Dt_Rp::SKIPPER) {
+    if ($div !== null) {
+      $rank = $this->getRank($div);
+      if ($rank === null)
+        return array();
+      return $rank->getRP($role);
+    }
+    $q = DB::prepGetAll(DB::$DT_TEAM_DIVISION, new DBCond('team', $this->id), array('id'));
+    return DB::getAll(DB::$DT_RP, new DBBool(array(new DBCond('boat_role', $role),
+                                                   new DBCondIn('team_division', $q))));
+  }
+
+  /**
+   * Removes all Dt_RP entries for this team from the database
+   *
+   * @param String $div the division whose RP info to reset
+   */
+  public function resetRpData($div) {
+    $q = DB::prepGetAll(DB::$DT_TEAM_DIVISION,
+                        new DBBool(array(new DBCond('team', $this->id), new DBCond('division', $div))),
+                        array('id'));
+    foreach (DB::getAll(DB::$DT_RP, new DBCondIn('team_division', $q)) as $rp)
+      DB::remove($rp);
+  }
+}
+
+/**
+ * Same as team, but ordered by rank, by default
+ *
+ * @author Dayan Paez
+ * @version 2012-11-14
+ */
+class RankedTeam extends Team {
+  protected function db_order() { return array('rank'=>true, 'school'=>true, 'id'=>true); }
 }
 
 /**

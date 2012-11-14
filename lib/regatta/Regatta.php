@@ -42,6 +42,24 @@ class Regatta extends DBObject {
   const PARTICIPANT_COED = "coed";
 
   /**
+   * @const status for regattas that have been scheduled (details only)
+   */
+  const STAT_SCHEDULED = 'scheduled';
+  /**
+   * @const status for regattas that are ready
+   */
+  const STAT_READY = 'ready';
+  /**
+   * @const status for regattas that have no more finishes, but they
+   * are not finalized
+   */
+  const STAT_FINISHED = 'finished';
+  /**
+   * @const status for regattas that have been finalized
+   */
+  const STAT_FINAL = 'final';
+
+  /**
    * Gets an assoc. array of the possible scoring rules
    *
    * @return Array a dict of scoring rules
@@ -78,6 +96,20 @@ class Regatta extends DBObject {
   public $scoring;
   public $private;
 
+  // Data properties
+  public $dt_num_divisions;
+  public $dt_num_races;
+  protected $dt_hosts;
+  protected $dt_confs;
+  protected $dt_boats;
+  public $dt_singlehanded;
+  protected $dt_season;
+  /**
+   * @var String the status of the race. Could be race number, or one
+   * of Dt_Regatta::STAT_* constants.
+   */
+  public $dt_status;
+
   // Managers
   private $rotation;
   private $rp;
@@ -113,6 +145,12 @@ class Regatta extends DBObject {
       return DB::$VENUE;
     case 'type':
       return DB::$TYPE;
+    case 'dt_hosts':
+    case 'dt_confs':
+    case 'dt_boats':
+      return array();
+    case 'dt_season':
+      return DB::$SEASON;
     default:
       return parent::db_type($field);
     }
@@ -1431,6 +1469,20 @@ class Regatta extends DBObject {
   }
 
   /**
+   * Return the teams ranked in the given division
+   *
+   * @param String $div the division (optional)
+   * @return Array:Dt_Team_Division
+   */
+  public function getRanks($div = null) {
+    $cond = new DBBool(array(new DBCondIn('team',
+                                          DB::prepGetAll(DB::$TEAM, new DBCond('regatta', $this), array('id')))));
+    if ($div !== null)
+      $cond->add(new DBCond('division', $div));
+    return DB::getAll(DB::$DT_TEAM_DIVISION, $cond);
+  }
+
+  /**
    * Call this method to sync cacheable data about this regatta
    *
    */
@@ -1497,6 +1549,28 @@ class Regatta extends DBObject {
     return $this->data;
   }
   private $data;
+
+  /**
+   * Get the Dt_RP entries for the given sailor.
+   *
+   * @param Sailor $sailor the sailor whose data to retrieve
+   * @param Division $div the specific division, if any
+   * @param Const $role the role, if any
+   */
+  public function getRpData(Sailor $sailor, $division = null, $role = null) {
+    $team = DB::prepGetAll(DB::$TEAM, new DBCond('regatta', $this), array('id'));
+
+    $cond = new DBBool(array(new DBCondIn('team', $team)));
+    if ($division !== null)
+      $cond->add(new DBCond('division', $division));
+    $tdiv = DB::prepGetAll(DB::$DT_TEAM_DIVISION, $cond, array('id'));
+
+    $cond = new DBBool(array(new DBCondIn('team_division', $tdiv),
+                             new DBCond('sailor', $sailor->id)));
+    if ($role !== null)
+      $cond->add(new DBCond('boat_role', $role));
+    return DB::getAll(DB::$DT_RP, $cond);
+  }
 
   // ------------------------------------------------------------
   // Regatta creation
