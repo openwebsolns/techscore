@@ -83,7 +83,7 @@ class UpdateRegatta extends AbstractScript {
 
     $rpm = $reg->getRpManager();
     foreach ($team_divs as $team) {
-      $team->team->resetRP($team->division);
+      $team->team->resetRpData(new Division($team->division));
       foreach (array(RP::SKIPPER, RP::CREW) as $role) {
         $division = Division::get($team->division);
         $rps = $rpm->getRP($team_objs[$team->id], $division, $role);

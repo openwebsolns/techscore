@@ -1201,9 +1201,9 @@ class Team extends DBObject {
   /**
    * Removes all Dt_RP entries for this team from the database
    *
-   * @param String $div the division whose RP info to reset
+   * @param Division $div the division whose RP info to reset
    */
-  public function resetRpData($div) {
+  public function resetRpData(Division $div) {
     $q = DB::prepGetAll(DB::$DT_TEAM_DIVISION,
                         new DBBool(array(new DBCond('team', $this->id), new DBCond('division', $div))),
                         array('id'));
