@@ -1410,10 +1410,10 @@ class Regatta extends DBObject {
   /**
    * Return the teams ranked in the given division
    *
-   * @param String $div the division (optional)
+   * @param Division $div the division (optional)
    * @return Array:Dt_Team_Division
    */
-  public function getRanks($div = null) {
+  public function getRanks(Division $div = null) {
     $cond = new DBBool(array(new DBCondIn('team',
                                           DB::prepGetAll(DB::$TEAM, new DBCond('regatta', $this), array('id')))));
     if ($div !== null)
