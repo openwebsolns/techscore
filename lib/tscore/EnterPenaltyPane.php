@@ -89,7 +89,9 @@ class EnterPenaltyPane extends AbstractPane {
           $sail = (string)$rotation->getSail($fin->race, $fin->team);
           if (strlen($sail) > 0)
             $sail = sprintf("(Sail: %4s) ", $sail);
-          $f_sel->add(new FOption($fin->id, $sail . $fin->team));
+          $team = ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ?
+            $fin->team : sprintf('%s: %s', $fin->race->division, $fin->team);
+          $f_sel->add(new FOption($fin->id, $sail . $team));
         }
       }
 
