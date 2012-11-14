@@ -23,29 +23,39 @@ class EnterPenaltyPane extends AbstractPane {
 
   protected function fillHTML(Array $args) {
 
-    // Default is the last scored race
     $finished_races = $this->REGATTA->getScoredRaces();
     if (count($finished_races) == 0) {
-      Session::pa(new PA("No finishes entered.",
-                                       PA::I));
-      $this->redirect();
+      $this->PAGE->addContent($p = new XPort("No finishes entered"));
+      $p->add(new XP(array('class'=>'message'), "There are no finishes for the current regatta to which assign penalties."));
+      return;
     }
-    if (!DB::$V->hasRace($theRace, $args, 'p_race', $this->REGATTA))
-      $theRace = $finished_races[count($finished_races)-1];
 
-    $p_type = null;
-    if (isset($args['p_type']))
-      $p_type = $args['p_type'];
+    if (DB::$V->hasRace($theRace, $args, 'race', $this->REGATTA)) {
+      if (count($this->REGATTA->getFinishes($theRace)) == 0) {
+        $this->PAGE->addContent(new XP(array('class'=>'warning'), "Invalid race chosen ($theRace). Using latest scored race instead."));
+        $theRace = null;
+      }
+    }
+    if ($theRace === null)
+      $theRace = $finished_races[count($finished_races) - 1];
+
+    $finishes = ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ?
+      $this->REGATTA->getFinishes($theRace) :
+      $this->REGATTA->getCombinedFinishes($theRace);
 
     $divisions = $this->REGATTA->getDivisions();
 
-    if ($p_type == null) {
+    $type = DB::$V->incKey($args, 'type', Penalty::getList(), null);
+    $type = DB::$V->incKey($args, 'type', Breakdown::getList(), $type);
+    if (isset($args['type']) && $type === null)
+      $this->PAGE->addContent(new XP(array('class'=>'warning'), "Invalid type chosen. Please choose again."));
+    if ($type == null) {
 
       // ------------------------------------------------------------
       // 1. Chosen race
       // ------------------------------------------------------------
       $this->PAGE->addContent($p = new XPort("1. Individual penalties and breakdowns"));
-      $p->add($form = $this->createForm());
+      $p->add($form = $this->createForm(XForm::GET));
 
       // Table of finished races
       $hrows = array(array());
@@ -58,17 +68,17 @@ class EnterPenaltyPane extends AbstractPane {
         $brows[0][] = DB::makeRange($nums);
       }
       $form->add(new FItem("Possible races:", XTable::fromArray($brows, $hrows, array('class'=>'narrow'))));
-      $form->add(new FItem("Race:", new XTextInput("p_race", $theRace,
+      $form->add(new FItem("Race:", new XTextInput("race", $theRace,
                                                    array("size"=>"4",
                                                          "maxlength"=>"4",
                                                          "id"=>"chosen_race",
                                                          "class"=>"narrow"))));
 
       // Penalty type
-      $form->add(new FItem("Penalty type:", XSelect::fromArray('p_type', array("Penalties" => Penalty::getList(),
+      $form->add(new FItem("Penalty type:", XSelect::fromArray('type', array("Penalties" => Penalty::getList(),
                                                                                "Breakdowns" => Breakdown::getList()))));
       // Submit
-      $form->add(new XSubmitInput("c_race", "Next >>"));
+      $form->add(new XSubmitP('c_race', "Next →"));
     }
     else {
       $rotation = $this->REGATTA->getRotation();
@@ -76,14 +86,10 @@ class EnterPenaltyPane extends AbstractPane {
       // ------------------------------------------------------------
       // 2. Penalty details
       // ------------------------------------------------------------
-      $title = sprintf("2. %s in race %s", $p_type, $theRace);
+      $title = sprintf("2. %s in race %s", $type, $theRace);
       $this->PAGE->addContent($p = new XPort($title));
       $p->add($form = $this->createForm());
-      $form->add(new XHiddenInput("p_type", $p_type));
       $form->add(new FItem("Team:", $f_sel = new XSelectM("finish[]", array('size'=>10))));
-      $finishes = ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ?
-        $this->REGATTA->getFinishes($theRace) :
-        $this->REGATTA->getCombinedFinishes($theRace);
       foreach ($finishes as $fin) {
         if ($fin->penalty === null) {
           $sail = (string)$rotation->getSail($fin->race, $fin->team);
@@ -102,7 +108,7 @@ class EnterPenaltyPane extends AbstractPane {
                                                "cols"=>"50"))));
       // - Amount, or average, if necessary
       $b = Breakdown::getList();
-      if (in_array($p_type, array_keys($b)))
+      if (in_array($type, array_keys($b)))
         $average = "Use average within division";
       else
         $average = "Use standard scoring (FLEET + 1).";
@@ -125,8 +131,10 @@ class EnterPenaltyPane extends AbstractPane {
                              "document.getElementById('displace_box').disabled = true;".
                              "document.getElementById('avg_box').checked   = true;"));
       // Submit
-      $form->add(new XSubmitInput("p_cancel", "Cancel"));
-      $form->add(new XSubmitInput("p_submit", "Enter $p_type"));
+      $form->add(new XP(array('class'=>'p-submit'),
+                        array(new XA($this->link('penalty'), "← Start over"), " ",
+                              new XHiddenInput('type', $type),
+                              new XSubmitInput('p_submit', "Enter $type"))));
 
       // FAQ's
       $this->PAGE->addContent($p = new XPort("FAQ"));
@@ -138,38 +146,7 @@ class EnterPenaltyPane extends AbstractPane {
   public function process(Array $args) {
 
     // ------------------------------------------------------------
-    // 0. Cancel
-    // ------------------------------------------------------------
-    if (isset($args['p_cancel'])) {
-      unset($args['p_type']);
-      return $args;
-    }
-
-    // ------------------------------------------------------------
-    // 1. Choose race
-    // ------------------------------------------------------------
-    // Change of race request
-    if (isset($args['c_race'])) {
-      if (!DB::$V->hasRace($race, $args, 'p_race', $this->REGATTA) ||
-          count($this->REGATTA->getFinishes($race)) == 0) {
-        unset($args['p_race']);
-        unset($args['p_type']);
-        throw new SoterException("Invalid or missing race for penalty.");
-      }
-      $args['p_race'] = (string)$race;
-
-      // - validate penalty type
-      if (!DB::$V->hasKey($type, $args, 'p_type', Penalty::getList()) &&
-          !DB::$V->hasKey($type, $args, 'p_type', Breakdown::getList())) {
-        unset($args['p_type']);
-        throw new SoterException("Invalid or missing penalty/breakdown.");
-      }
-      $args['p_type'] = $type;
-      return $args;
-    }
-
-    // ------------------------------------------------------------
-    // 2. Enter penalty
+    // Enter penalty
     // ------------------------------------------------------------
     if (isset($args['p_submit']) ) {
       // Validate input
@@ -184,7 +161,7 @@ class EnterPenaltyPane extends AbstractPane {
       if (count($finishes) == 0)
         throw new SoterException("No finishes for penalty/breakdown.");
 
-      $thePen  = $args['p_type'];
+      $thePen  = $args['type'];
       $theComm = DB::$V->incString($args, 'p_comments', 1, 16000, null);
 
       // Get amount, checkbox has preference
@@ -206,8 +183,7 @@ class EnterPenaltyPane extends AbstractPane {
         if (isset($breakdowns[$thePen])) {
           if ($theFinish->score !== null && $theAmount >= $theFinish->score) {
             Session::pa(new PA("The assigned score is no better than the actual score; ignoring.", PA::I));
-            $args['p_race'] = $race;
-            return $args;
+            return array();
           }
           $theFinish->setModifier(new Breakdown($thePen, $theAmount, $theComm, $theDisplace));
         }
@@ -216,12 +192,12 @@ class EnterPenaltyPane extends AbstractPane {
               $theAmount > 0 &&
               $theAmount <= $theFinish->score) {
             Session::pa(new PA("The assigned penalty score is no worse than their actual score; ignoring.", PA::I));
-            return $args;
+            return array();
           }
           elseif ($theAmount > ($fleet = $this->REGATTA->getFleetSize() + 1)) {
             Session::pa(new PA(sprintf("The assigned penalty is greater than the maximum penalty of FLEET + 1 (%d); ignoring.", $fleet),
                                PA::I));
-            return $args;
+            return array();
           }
           $theFinish->setModifier(new Penalty($thePen, $theAmount, $theComm, $theDisplace));
         }
@@ -233,9 +209,8 @@ class EnterPenaltyPane extends AbstractPane {
 
       $mes = sprintf("Added %s for %s.", $thePen, implode(', ', $teams));
       Session::pa(new PA($mes));
-      unset($args['p_type']);
     }
 
-    return $args;
+    return array();
   }
 }
