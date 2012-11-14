@@ -37,7 +37,8 @@ class CLIHandler {
     printf($fmt, "Number", $e->getCode());
     printf($fmt, "File", $e->getFile());
     printf($fmt, "Line", $e->getLine());
-    foreach ($e->getTrace() as $i => $trace) {
+    var_dump($e);
+    foreach ($e->getTrace() as $i => $list) {
       echo "     +--------------------\n";
       foreach (array('file', 'line', 'class', 'function') as $index) {
         if (isset($list[$index]))
