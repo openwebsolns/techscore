@@ -47,7 +47,7 @@ class DropPenaltyPane extends AbstractPane {
         $displace = "";
         if ($finish->displace > 0)
           $displace = new XImg(WS::link('/inc/img/s.png'), "✓");
-        $tab->addRow(array($finish->race,
+        $tab->addRow(array(sprintf('%s%s', $finish->race->number, $finish->race->division),
                            $finish->team,
                            $finish->penalty,
                            $finish->comments,

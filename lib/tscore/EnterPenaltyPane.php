@@ -80,26 +80,18 @@ class EnterPenaltyPane extends AbstractPane {
       $this->PAGE->addContent($p = new XPort($title));
       $p->add($form = $this->createForm());
       $form->add(new XHiddenInput("p_type", $p_type));
-      $form->add(new FItem("Team:", $f_sel = new XSelectM("finish[]")));
-      $num_finishes = 0;
-      foreach ($this->REGATTA->getTeams() as $team) {
-        $fin = $this->REGATTA->getFinish($theRace, $team);
+      $form->add(new FItem("Team:", $f_sel = new XSelectM("finish[]", array('size'=>10))));
+      $finishes = ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ?
+        $this->REGATTA->getFinishes($theRace) :
+        $this->REGATTA->getCombinedFinishes($theRace);
+      foreach ($finishes as $fin) {
         if ($fin->penalty === null) {
-          $sail = (string)$rotation->getSail($theRace, $team);
+          $sail = (string)$rotation->getSail($fin->race, $fin->team);
           if (strlen($sail) > 0)
-            $sail = sprintf(" (%s)", $sail);
-          $f_sel->add(new FOption($fin->id, "$team$sail"));
-          $num_finishes++;
+            $sail = sprintf("(Sail: %4s) ", $sail);
+          $f_sel->add(new FOption($fin->id, $sail . $fin->team));
         }
       }
-      /*
-      if ($num_finishes == 0) {
-        Session::pa(new PA("There are no finishes to which add a penalty.", PA::I));
-        Session::s('p_race', null);
-        unset($args['p_race']);
-        $this->redirect('penalty');
-      }
-      */
 
       // - comments
       $form->add(new FItem("Comments:",
