@@ -370,3 +370,5 @@ update regatta, dt_regatta set  dt_num_divisions = num_divisions, dt_num_races =
 -- merge dt_team into team table
 alter table team add column dt_rank tinyint unsigned default null, add column dt_explanation varchar(100) default null, add column dt_score int default null;
 update team, dt_team set dt_rank = rank, dt_explanation = rank_explanation, dt_score = score where team.id = dt_team.id;
+
+alter table dt_team_division drop foreign key dt_team_division_ibfk_3, add foreign key (team) references team(id) on delete cascade on update cascade;

@@ -1311,8 +1311,8 @@ class Regatta extends DBObject {
    *
    * This method should be called whenever a race is entered (and is
    * done so implicitly by the runScore and doScore methods) to create
-   * a snapshot in the dt_team* tables of the teams and how they
-   * ranked.
+   * a snapshot in the team and dt_team_division tables of the teams
+   * and how they ranked.
    *
    * This method will silently fail if there are no races
    *

@@ -211,7 +211,7 @@ class Dt_Team_Division extends DBObject {
 
   public function db_name() { return 'dt_team_division'; }
   public function db_type($field) {
-    if ($field == 'team') return DB::$DT_TEAM;
+    if ($field == 'team') return DB::$TEAM;
     return parent::db_type($field);
   }
   protected function db_order() { return array('rank'=>true); }
