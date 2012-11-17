@@ -112,7 +112,7 @@ class HomePane extends AbstractUserPane {
 
     // Sort all current regattas
     foreach ($regattas as $reg) {
-      $link = new XA("score/" . $reg->id, $reg->name);
+      $link = new XA('/score/' . $reg->id, $reg->name);
       $row = array($link);
 
       if ($this->USER->isAdmin()) {
