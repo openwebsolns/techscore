@@ -61,6 +61,7 @@ function check() {
 
     // Check one sailor at a time, checking against all preceeding
     // sailors in the form
+    var global_errors = false;
     for ( var s = 0; s < skcrs.length; s++ ) {
 	// Get check box and data for this sailor
 	var checkTD = getCheckTD(skcrs[s]);
@@ -68,10 +69,18 @@ function check() {
 	typ_s = getType(skcrs[s]);
 	div_s = getDiv (skcrs[s]);
 	pos_s = getPos (skcrs[s]);
-	val_s = parseRange(skcrv[s].value.replace(" ", ""));
 
-	// Keep only that which is in the range
-	var com = arrayCommon(val_s, pos_races[div_s]);
+        // parse '*' as "all races"
+        var val_s = skcrv[s].value.replace(" ", "");
+        var com;
+        if (val_s == "*")
+            com = pos_races[div_s];
+        else {
+	    val_s = parseRange(val_s);
+
+	    // Keep only that which is in the range
+	    com = arrayCommon(val_s, pos_races[div_s]);
+        }
 	skcrv[s].value = makeRange(com);
 
 	var errors = false;
@@ -79,12 +88,22 @@ function check() {
 
 	// First check the validity of the text against the allowed
 	// Get list of requested values
-	if ( skcrs[s].value == "" || com.length == 0 ) {
+        if ( skcrs[s].value == "" && com.length == 0 ) {
 	    checkTD.innerHTML = '<img alt="?" title="Waiting for input" src="/inc/img/question.png"/>';
 	}
 	else {
+            // Are there any races?
+            if ( skcrs[s].value != "" && skcrv[s].value == "") {
+                checkTD.innerHTML = '<img alt="⚠" title="Missing races" src="/inc/img/i.png"/>';
+                errors = true;
+            }
+            // Is there any sailor?
+            if ( skcrs[s].value == "" && skcrv[s].value != "") {
+                checkTD.innerHTML = '<img alt="⚠" title="Missing sailor" src="/inc/img/i.png"/>';
+                errors = true;
+            }
 	    // **** 0 ****  Is there room on the boat for the crew?
-	    if (typ_s == "cr") {
+	    else if (typ_s == "cr") {
 
 		var conflicting_race = Array();
 		// For each race
@@ -218,14 +237,11 @@ function check() {
 	    if ( !errors && !warnings ) {
 		checkTD.innerHTML = '<img alt="Check!" src="/inc/img/s.png"/>';
 	    }
-	    if ( !errors ) {
-		document.getElementById('rpsubmit').disabled = false;
-	    }
-	    else {
-		document.getElementById('rpsubmit').disabled = true;
-	    }
+	    if ( errors )
+                global_errors = true;
 	}
     }
+    document.getElementById('rpsubmit').disabled = global_errors;
 }
 
 
