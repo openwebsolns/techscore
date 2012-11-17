@@ -259,13 +259,23 @@ class RpEnterPane extends AbstractPane {
         if (preg_match('/^(cr|sk)[ABCD][0-9]+/', $s) > 0) {
           // We have a sailor request upon us
           $s_role = (substr($s, 0, 2) == "sk") ? RP::SKIPPER : RP::CREW;
-          $s_div  = substr($s,2,1);
-          $s_race = DB::parseRange($args["r" . $s]);
+          $s_div  = substr($s, 2, 1);
+          if (!in_array($s_div, $divisions)) {
+            $errors[] = "Invalid division requested: $s_div.";
+            continue;
+          }
+
+          $div = new Division($s_div);
+          if (trim($args["r" . $s]) == "*") {
+            $s_race = array();
+            foreach ($this->REGATTA->getRaces($div) as $race)
+              $s_race[] = $race->number;
+          }
+          else
+            $s_race = DB::parseRange($args["r" . $s]);
           $s_obj  = (isset($sailors[$s_value])) ? $sailors[$s_value] : null;
 
-          if (!in_array($s_div, $divisions))
-            $errors[] = "Invalid division requested: $s_div.";
-          elseif ($s_race !== null && $s_obj  !== null) {
+          if ($s_race !== null && $s_obj  !== null) {
             // Eliminate those races from $s_race for which there is
             // no space for a crew
             $s_race_copy = $s_race;
@@ -279,7 +289,6 @@ class RpEnterPane extends AbstractPane {
               }
             }
             // Create the objects
-            $div = new Division($s_div);
             foreach ($s_race_copy as $num) {
               $rp = new RPEntry();
               $rp->team = $team;
