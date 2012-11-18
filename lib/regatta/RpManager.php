@@ -141,6 +141,29 @@ class RpManager {
                                                 DB::prepGetAll(DB::$SAILOR, new DBCond('gender', $gender), array('id'))))));
   }
 
+  /**
+   * Determine whether there are races missing skippers
+   *
+   * This is a convenience method to determine, as quickly as
+   * possible, if there is any missing RP information.
+   *
+   * Will return true if there is at least one race-team pairing that
+   * does not have a skipper. Note that, because the number of crews
+   * are conditional, these are not accounted.
+   *
+   * Implementation note: using serialized array from regatta object
+   * is faster than subquery.
+   *
+   * @return boolean true if there is at least one race-team pairing
+   */
+  public function isMissingSkipper() {
+    $races = $this->regatta->getRaces();
+    $res = DB::getAll(DB::$RP_ENTRY,
+                      new DBBool(array(new DBCond('boat_role', RP::SKIPPER),
+                                       new DBCondIn('race', $races))));
+    return count($res) < (count($races) * count($this->regatta->getTeams()));
+  }
+
   // Static variable and functions
 
   /**

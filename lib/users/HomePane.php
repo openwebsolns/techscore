@@ -123,8 +123,15 @@ class HomePane extends AbstractUserPane {
       }
 
       $finalized = '--';
-      if ($reg->finalized !== null)
-	$finalized = $reg->finalized->format("Y-m-d");
+      if ($reg->finalized !== null) {
+        $rpm = $reg->getRpManager();
+        if ($rpm->isMissingSkipper())
+          $finalized = new XA(WS::link(sprintf('/score/%s/rp', $reg->id)), "Missing RP",
+                              array('class'=>'stat missing-rp',
+                                    'title'=>"At least one skipper is missing."));
+        else
+          $finalized = $reg->finalized->format("Y-m-d");
+      }
       elseif ($reg->end_date < DB::$NOW) {
         if (count($reg->getTeams()) == 0 || count($reg->getRaces()) == 0)
           $finalized = new XSpan("Incomplete", array('class'=>'stat incomplete', 'title'=>"Missing races or teams."));

@@ -339,6 +339,12 @@ a.pending {
     border-color: orange;
 }
 
+.missing-rp {
+    color: purple;
+    background: #ffc2ff;
+    border-color: purple;
+}
+
 a.empty {
     color: green;
     background: #e0f3e0;
