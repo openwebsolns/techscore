@@ -29,7 +29,16 @@ class RegistrationsDialog extends AbstractDialog {
     $rpManager = $this->REGATTA->getRpManager();
 
     $this->PAGE->addContent($p = new XPort("Registrations"));
-    $p->add($tab = new XQuickTable(array('class'=>'ordinate sailors'), array("Team", "Div.", "Skipper", "Races", "Crew", "Races")));
+    $p->add(new XTable(array('class'=>'coordinate sailors'),
+                       array(new XTHead(array(),
+                                        array(new XTR(array(),
+                                                      array(new XTH(array(), "Team"),
+                                                            new XTH(array(), "Div."),
+                                                            new XTH(array(), "Skipper"),
+                                                            new XTH(array(), "Races"),
+                                                            new XTH(array(), "Crew"),
+                                                            new XTH(array(), "Races"))))),
+                             $tab = new XTBody())));
 
     $races_in_div = array();
     foreach ($divisions as $div)
@@ -38,59 +47,49 @@ class RegistrationsDialog extends AbstractDialog {
     foreach ($teams as $team) {
       $row_index++;
 
+      $first_row = new XTR(array('class'=>'row'.($row_index % 2)),
+                           array($team_td = new XTD(array('class'=>'schoolname teamname'), $team)));
+
       $is_first = true;
+      $num_rows = 0;
       // For each division
       foreach ($divisions as $div) {
         // Get skipper and crew
         $skips = $rpManager->getRP($team, $div, RP::SKIPPER);
         $crews = $rpManager->getRP($team, $div, RP::CREW);
 
-        $num_subrows = max(count($skips), count($crews));
+        $num_subrows = max(count($skips), count($crews), 1);
+        $num_rows += $num_subrows;
         for ($i = 0; $i < $num_subrows; $i++) {
-          $row = array();
-          $cls = '';
           if ($is_first) {
+            $row = $first_row;
+            $row->set('class', 'topborder row'.($row_index % 2));
             $is_first = false;
-            $cls = 'topborder ';
-            $row[] = new XTD(array('class'=>'schoolname teamname'), $team);
           }
           else {
-            $row[] = "";
+            $row = new XTR(array('class'=>'row'.($row_index % 2)));
           }
           // Division
           if ($i == 0)
-            $row[] = $div;
-          else
-            $row[] = "";
+            $row->add(new XTD(array('rowspan' => $num_subrows, 'class'=>'division-cell'), $div));
 
-          // Skipper and his races
-          if (isset($skips[$i])) {
-            $row[] = $skips[$i]->sailor;
-            if (count($skips[$i]->races_nums) != $races_in_div[(string)$div])
-              $row[] = new XTD(array('class'=>'races'), DB::makeRange($skips[$i]->races_nums));
-            else
-              $row[] = "";
+          // Skipper and crew, and his races
+          foreach (array($skips, $crews) as $sailors) {
+            if (isset($sailors[$i])) {
+              $row->add(new XTD(array(), $sailors[$i]->sailor));
+              if (count($sailors[$i]->races_nums) != $races_in_div[(string)$div])
+                $row->add(new XTD(array('class'=>'races'), DB::makeRange($sailors[$i]->races_nums)));
+              else
+                $row->add(new XTD());
+            }
+            else {
+              $row->add(new XTD());
+              $row->add(new XTD());
+            }
           }
-          else {
-            $row[] = "";
-            $row[] = "";
-          }
-
-          // Crew and his races
-          if (isset($crews[$i])) {
-            $row[] = $crews[$i]->sailor;
-            if (count($crews[$i]->races_nums) != $races_in_div[(string)$div])
-              $row[] = new XTD(array('class'=>'races'), DB::makeRange($crews[$i]->races_nums));
-            else
-              $row[] = "";
-          }
-          else {
-            $row[] = "";
-            $row[] = "";
-          }
-
-          $tab->addRow($row, array('class'=>$cls . 'row' . ($row_index % 2)));
+          $tab->add($row);
         }
+        $team_td->set('rowspan', $num_rows);
       }
     }
   }

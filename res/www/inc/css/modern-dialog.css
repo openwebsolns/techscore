@@ -238,10 +238,8 @@ table.divisional .burgee-cell, table.division .burgee-cell {
     text-align: left;
 }
 
-table.sailors ul {
-    margin: 0;
-    padding: 0;
-    list-style-type: none;
+.sailors .division-cell {
+    vertical-align: top;
 }
 
 /* Announce */
