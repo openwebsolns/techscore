@@ -96,7 +96,11 @@ class RpEnterPane extends AbstractPane {
     $p->add($form = $this->createForm());
     $form->add(new XP(array('class'=>'warning'),
                       array(new XStrong("Note:"), " It is not possible to add sailors without adding races. When unsure, mark a sailor as sailing all races, and edit later as more information becomes available.")));
-    $form->add(new XP(array('class'=>'warning'), array(new XStrong("Note:"), " Use \"*\" to automatically select all races.")));
+    $form->add(new XP(array('class'=>'warning'),
+                      array(new XStrong("Hint:"), " Use \"*\" to automatically select all races. Use the ",
+                            new XA(WS::link(sprintf('/view/%s/sailors', $this->REGATTA->id)), "Sailors dialog",
+                                   array('onclick'=>'this.target="sailors"')),
+                            " to see current registrations.")));
     $form->add(new XHiddenInput("chosen_team", $chosen_team->id));
     $form->add(new FItem("Representative:", XSelect::fromArray('rep', $sailor_options, $rep_id)));
 
