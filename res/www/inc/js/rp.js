@@ -72,23 +72,20 @@ function check() {
 
         // parse '*' as "all races"
         var val_s = skcrv[s].value.replace(" ", "");
-        var com;
         if (val_s == "*")
-            com = pos_races[div_s];
+            val_s = pos_races[div_s];
         else {
-	    val_s = parseRange(val_s);
-
 	    // Keep only that which is in the range
-	    com = arrayCommon(val_s, pos_races[div_s]);
+	    val_s = arrayCommon(parseRange(val_s), pos_races[div_s]);
         }
-	skcrv[s].value = makeRange(com);
+	skcrv[s].value = makeRange(val_s);
 
 	var errors = false;
 	var warnings = false;
 
 	// First check the validity of the text against the allowed
 	// Get list of requested values
-        if ( skcrs[s].value == "" && com.length == 0 ) {
+        if ( skcrs[s].value == "" && val_s.length == 0 ) {
 	    checkTD.innerHTML = '<img alt="?" title="Waiting for input" src="/inc/img/question.png"/>';
 	}
 	else {
@@ -107,7 +104,7 @@ function check() {
 
 		var conflicting_race = Array();
 		// For each race
-		for (var r = 0; r < com.length; r++) {
+		for (var r = 0; r < val_s.length; r++) {
 		    var num_crews = 1; // counting this one
 		    // Check against all previous crews in same division
 		    for (var c = 0; c < Number(pos_s); c++) {
@@ -121,16 +118,15 @@ function check() {
 			o_val_opt = o_crew_n.options[o_crew_n.selectedIndex];
 			o_val_opt = o_val_opt.value;
 			if (o_val.length > 0 && o_val_opt.length > 0) {
-			    var duplicate = arrayCommon(parseRange(o_val),
-							[com[r]]);
+			    var duplicate = arrayCommon(parseRange(o_val), [val_s[r]]);
 			    if (duplicate.length > 0)
 				num_crews += 1;
 			}
 		    }
 
 		    // Check for too many crews
-		    if (num_crews > pos_occs[div_s][com[r] - 1])
-			conflicting_race.push(com[r]);
+		    if (num_crews > pos_occs[div_s][val_s[r] - 1])
+			conflicting_race.push(val_s[r]);
 		}
 		if (conflicting_race.length > 0) {
 		    var conflict = makeRange(conflicting_race);
