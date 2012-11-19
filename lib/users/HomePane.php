@@ -125,10 +125,10 @@ class HomePane extends AbstractUserPane {
       $finalized = '--';
       if ($reg->finalized !== null) {
         $rpm = $reg->getRpManager();
-        if ($rpm->isMissingSkipper())
+        if (!$rpm->isComplete())
           $finalized = new XA(WS::link(sprintf('/score/%s/rp', $reg->id)), "Missing RP",
                               array('class'=>'stat missing-rp',
-                                    'title'=>"At least one skipper is missing."));
+                                    'title'=>"At least one skipper/crew is missing."));
         else
           $finalized = $reg->finalized->format("Y-m-d");
       }

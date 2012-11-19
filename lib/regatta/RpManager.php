@@ -164,6 +164,21 @@ class RpManager {
     return count($res) < (count($races) * count($this->regatta->getTeams()));
   }
 
+  /**
+   * Is every race-team-role combination accounted for?
+   *
+   * @return boolean true if all information is present
+   */
+  public function isComplete() {
+    $races = $this->regatta->getRaces();
+    $sum = 0;
+    foreach ($races as $race)
+      $sum += $race->boat->occupants;
+
+    $tot = DB::getAll(DB::$RP_ENTRY, new DBCondIn('race', $races));
+    return (count($tot) >= ($sum * count($this->regatta->getTeams())));
+  }
+
   // Static variable and functions
 
   /**

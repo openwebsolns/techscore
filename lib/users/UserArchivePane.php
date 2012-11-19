@@ -103,7 +103,7 @@ class UserArchivePane extends AbstractUserPane {
         $finalized = '--';
         if ($reg->finalized !== null) {
           $rpm = $reg->getRpManager();
-          if ($rpm->isMissingSkipper())
+          if (!$rpm->isComplete())
             $finalized = new XA(WS::link(sprintf('/score/%s/rp', $reg->id)), "Missing RP",
                                 array('class'=>'stat missing-rp',
                                       'title'=>"At least one skipper is missing."));
