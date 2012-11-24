@@ -107,7 +107,8 @@ abstract class AbstractUserPane {
                                           new XUl(array(),
                                                   array(new XLi(new XA("/pending",   "Pending users")),
                                                         new XLi(new XA("/venue",     "Venues")),
-                                                        new XLi(new XA("/boats",     "Boats")))))));
+                                                        new XLi(new XA("/boats",     "Boats")),
+                                                        new XLi(new XA("/seasons",   "Seasons")))))));
     }
     $this->PAGE->addContent(new XPageTitle($this->title));
     $this->fillHTML($args);
@@ -264,6 +265,11 @@ abstract class AbstractUserPane {
     case 'boats':
       require_once('users/admin/BoatManagement.php');
       return new BoatManagement($u);
+
+    case 'season':
+    case 'seasons':
+      require_once('users/admin/SeasonManagement.php');
+      return new SeasonManagement($u);
 
     case 'account':
     case 'accounts':

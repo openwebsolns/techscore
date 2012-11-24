@@ -555,3 +555,15 @@ a.empty {
 #venue-table td, #venue-table th {
     text-align: left;
 }
+
+#season-table {
+    min-width: 40em;
+}
+#season-table td {
+    text-align: left;
+    padding: 0.5em;
+}
+
+#season-table th {
+    text-align: left;
+}

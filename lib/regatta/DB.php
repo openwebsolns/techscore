@@ -2001,6 +2001,29 @@ class Season extends DBObject {
                              new DBCond('dt_status',Regatta::STAT_SCHEDULED, DBCond::NE)));
     return DB::getAll(DB::$SEASON, new DBCondIn('id', DB::prepGetAll(DB::$REGATTA, $cond, array('dt_season'))));
   }
+
+  /**
+   * Creates appropriate ID for given Season object.
+   *
+   * Does not assign the ID, but uses the object's start_date and
+   * reported "season" to determine the appropriate ID, such as f11
+   * for "Fall 2011"
+   *
+   * @param Season $obj the object whose ID to create
+   * @return String the suitable ID
+   * @throws InvalidArgumentException if attributes missing
+   */
+  public static function createID(Season $obj) {
+    if ($obj->start_date === null || $obj->season === null)
+      throw new InvalidArgumentException("Missing either start_date or season.");
+    switch ($obj->season) {
+    case Season::SPRING: $text = 's'; break;
+    case Season::SUMMER: $text = 'm'; break;
+    case Season::FALL:   $text = 'f'; break;
+    case Season::WINTER: $text = 'w'; break;
+    }
+    return $text . $obj->start_date->format('y');
+  }
 }
 
 // ------------------------------------------------------------
