@@ -2021,6 +2021,8 @@ class Season extends DBObject {
     case Season::SUMMER: $text = 'm'; break;
     case Season::FALL:   $text = 'f'; break;
     case Season::WINTER: $text = 'w'; break;
+    default:
+      throw new InvalidArgumentException("Invalid season type.");
     }
     return $text . $obj->start_date->format('y');
   }
