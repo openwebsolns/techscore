@@ -132,6 +132,25 @@ class UpdateRegatta extends AbstractScript {
   }
 
   /**
+   * Helper method will delete all the individual regatta files.
+   *
+   * $root should be the filesystem path to the root of the regatta's
+   * directory. This method will then delete all the individual files
+   * that could exist under that root.
+   *
+   * @param String $root the root to delete
+   */
+  public static function deleteRegattaFiles($root) {
+    self::remove("$root/rotations/index.html");
+    self::remove("$root/full-scores/index.html");
+    self::remove("$root/A/index.html");
+    self::remove("$root/B/index.html");
+    self::remove("$root/C/index.html");
+    self::remove("$root/D/index.html");
+    self::remove("$root/index.html");
+  }
+
+  /**
    * Deletes the given regatta's information from the public site
    *
    * @param Regatta $reg the regatta whose information to delete.
@@ -144,16 +163,8 @@ class UpdateRegatta extends AbstractScript {
     // Regatta Nick Name can be empty, if the regatta has always been
     // personal, in which case there is nothing to delete, right?
     $nickname = $reg->nick;
-    if (!empty($nickname)) {
-      $dirname = "/$season/$nickname";
-      self::remove("$dirname/rotations/index.html");
-      self::remove("$dirname/full-scores/index.html");
-      self::remove("$dirname/A/index.html");
-      self::remove("$dirname/B/index.html");
-      self::remove("$dirname/C/index.html");
-      self::remove("$dirname/D/index.html");
-      self::remove("$dirname/index.html");
-    }
+    if (!empty($nickname))
+      self::deleteRegattaFiles(sprintf('/%s/%s', $season, $nickname));
   }
 
   /**
@@ -279,7 +290,8 @@ class UpdateRegatta extends AbstractScript {
     if (in_array(UpdateRequest::ACTIVITY_SUMMARY, $activities)) {
       $front = true;
     }
-    if (in_array(UpdateRequest::ACTIVITY_DETAILS, $activities)) {
+    if (in_array(UpdateRequest::ACTIVITY_DETAILS, $activities) ||
+        in_array(UpdateRequest::ACTIVITY_SEASON, $activities)) {
       // do them all (except RP)!
       $sync = true;
       $front = true;

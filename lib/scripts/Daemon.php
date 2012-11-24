@@ -196,6 +196,9 @@ class Daemon extends AbstractScript {
     // Update the seasons summary page
     $seasons_summary = false;
 
+    // URLs to delete
+    $to_delete = array();
+
     // ------------------------------------------------------------
     // Loop through the regatta requests
     // ------------------------------------------------------------
@@ -227,6 +230,7 @@ class Daemon extends AbstractScript {
         // ------------------------------------------------------------
       case UpdateRequest::ACTIVITY_DETAILS:
       case UpdateRequest::ACTIVITY_FINALIZED:
+      case UpdateRequest::ACTIVITY_SEASON:
         $seasons_summary = true;
       case UpdateRequest::ACTIVITY_SCORE:
         $this->seasons[$season->id] = $season;
@@ -241,12 +245,33 @@ class Daemon extends AbstractScript {
         // ------------------------------------------------------------
         // Rotation and summary do not affect seasons or schools
       }
+
+      // If season change, then check for old season to delete, and
+      // queue old seasons as well
+      if ($r->activity == UpdateRequest::ACTIVITY_SEASON && $r->argument !== null) {
+        $prior_season = DB::getSeason($r->argument);
+        if ($prior_season !== null) {
+          $this->seasons[$prior_season->id] = $prior_season;
+          // Queue for deletion
+          $root = sprintf('/%s/%s', $prior_season->id, $reg->nick);
+          $to_delete[$root] = $root;
+
+          foreach ($reg->getTeams() as $team)
+            $this->queueSchoolSeason($team->school, $prior_season);
+        }
+      }
     }
+
+    // ------------------------------------------------------------
+    // Perform deletions
+    // ------------------------------------------------------------
+    require_once('scripts/UpdateRegatta.php');
+    foreach ($to_delete as $root)
+      UpdateRegatta::deleteRegattaFiles($root);
 
     // ------------------------------------------------------------
     // Perform regatta level updates
     // ------------------------------------------------------------
-    require_once('scripts/UpdateRegatta.php');
     $P = new UpdateRegatta();
     foreach ($this->regattas as $id => $reg) {
       $P->run($reg, $this->activities[$id]);

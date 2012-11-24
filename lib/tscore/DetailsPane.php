@@ -193,19 +193,15 @@ class DetailsPane extends AbstractPane {
     // Details
     if ( isset($args['edit_reg']) ) {
       $edited = false;
+      $create_nick = false;
+      $update_season = null;
+
       // Private?
       $private = DB::$V->incInt($args, 'private', 1, 2, null);
       if ($private !== $this->REGATTA->private) {
         $this->REGATTA->private = $private;
         $edited = true;
-        if ($private === null) {
-          try {
-            $this->REGATTA->nick = $this->REGATTA->createNick();
-          } catch (InvalidArgumentException $e) {
-            throw new SoterException("Unable to publish the regatta. Most likely, you attempted to activate a regatta that is under the same name as another already-activated regatta for the current season. Before you can do that, please make sure that the other regatta with the same name as this one is removed or de-activated (made private) before proceeding.");
-          }
-          Session::pa(new PA("Regatta is public with url: " . $this->REGATTA->getURL()));
-        }
+        $create_nick = ($private === null);
       }
 
       // Type
@@ -225,8 +221,21 @@ class DetailsPane extends AbstractPane {
         try {
           $sdate = new DateTime($args['sdate'] . ' ' . $args['stime']);
           if ($sdate != $this->REGATTA->start_time) {
+            // Track a possible season change
+            $cur_season = $this->REGATTA->getSeason();
+
             $this->REGATTA->start_time = $sdate;
             $edited = true;
+
+            // If there's a season change, re-create nick
+            $new_season = $this->REGATTA->getSeason();
+            if ($new_season === null)
+              throw new SoterException("There is no season for the newly chosen start time.");
+
+            if ($new_season != $cur_season) {
+              $create_nick = true;
+              $update_season = $cur_season;
+            }
           }
         } catch (Exception $e) {
           throw new SoterException("Invalid starting date and/or time.");
@@ -367,8 +376,26 @@ class DetailsPane extends AbstractPane {
         }
       }
 
+      if ($create_nick) {
+        try {
+          $url = $this->REGATTA->createNick();
+          if ($url != $this->REGATTA->nick) {
+            UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_URL, $this->REGATTA->getURL());
+            $this->REGATTA->nick = $url;
+            Session::pa(new PA("Regatta's public URL is now: " . $this->REGATTA->getURL()));
+          }
+        } catch (InvalidArgumentException $e) {
+          throw new SoterException("Unable to publish the regatta. Most likely, you attempted to activate a regatta that is under the same name as another already-activated regatta in the same season. Before you can do that, please make sure that the other regatta with the same name as this one is removed or de-activated (made private) before proceeding.");
+        }
+      }
+
+      if ($update_season !== null) {
+        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SEASON, (string)$update_season);
+        Session::pa(new PA("New season for regatta: " . $new_season->fullString(), PA::I));
+      }
+
       if ($edited) {
-        DB::set($this->REGATTA);
+        $this->REGATTA->setData(); // implies regatta objectu pdate
         Session::pa(new PA("Edited regatta details."));
         UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DETAILS);
       }

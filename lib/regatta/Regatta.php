@@ -114,6 +114,8 @@ class Regatta extends DBObject {
   private $rotation;
   private $rp;
   private $season;
+  private $season_start_time; // the start_time the current season
+                              // value is basd on
   private $scorer;
   /**
    * @var ICSARanker the team-ranking object
@@ -221,8 +223,10 @@ class Regatta extends DBObject {
   }
 
   public function getSeason() {
-    if ($this->season === null)
-      $this->season = Season::forDate($this->__get('start_time'));
+    if ($this->season === null || $this->season_start_time != $this->__get('start_time')) {
+      $this->season_start_time = $this->__get('start_time');
+      $this->season = Season::forDate($this->season_start_time);
+    }
     return $this->season;
   }
 

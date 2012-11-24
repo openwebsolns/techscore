@@ -375,3 +375,7 @@ alter table dt_team_division drop foreign key dt_team_division_ibfk_3, add forei
 
 drop table dt_team;
 drop table dt_regatta;
+
+-- need to track URL changes --
+alter table pub_update_request change column activity activity enum('rotation','score','rp','details','summary','finalized', 'url') not null default 'score', change column argument argument varchar(100) default null;
+alter table pub_update_request change column activity activity enum('rotation','score','rp','details','summary','finalized', 'url', 'season') not null default 'score';
