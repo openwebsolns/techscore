@@ -248,6 +248,10 @@ class DetailsPane extends AbstractPane {
         $edate->add(new DateInterval(sprintf('P%dDT0H', ($V - 1))));
         $edate->setTime(0, 0);
         $this->REGATTA->end_date = $edate;
+        // Is the end-date beyond the season end_date?
+        $season = $this->REGATTA->getSeason();
+        if ($season->end_date < $edate)
+          throw new SoterException(sprintf("Regatta cannot end after the season: %s", $season->end_date->format('m/d/Y')));
         $edited = true;
       }
 
