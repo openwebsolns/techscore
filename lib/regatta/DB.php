@@ -51,6 +51,7 @@ class DB extends DBM {
   public static $MESSAGE = null;
   public static $ACCOUNT = null;
   public static $ACCOUNT_SCHOOL = null;
+  public static $FULL_REGATTA = null;
   public static $REGATTA = null;
   public static $PUBLIC_REGATTA = null;
   public static $RP_LOG = null; // RpManager.php

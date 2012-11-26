@@ -8,13 +8,17 @@
 require_once('regatta/DB.php');
 
 /**
- * Encapsulates a (flat) regatta object. Note that comments are
- * suppressed due to speed considerations.
+ * Encapsulates a regatta object.
+ *
+ * This is the central class for all operations on regattas. This
+ * prototype class does not impose any conditions (db_where). As such,
+ * for everyday use, use either the regular Regatta class or any of
+ * its derivatives (like Public_Regatta).
  *
  * @author Dayan Paez
  * @version 2009-11-30
  */
-class Regatta extends DBObject {
+class FullRegatta extends DBObject {
 
   /**
    * Standard scoring
@@ -95,6 +99,7 @@ class Regatta extends DBObject {
   public $participant;
   public $scoring;
   public $private;
+  protected $inactive;
 
   // Data properties
   public $dt_num_divisions;
@@ -139,6 +144,7 @@ class Regatta extends DBObject {
     case 'start_time':
     case 'end_date':
     case 'finalized':
+    case 'inactive':
       return DB::$NOW;
     case 'creator':
       require_once('regatta/Account.php');
@@ -1590,15 +1596,29 @@ class Regatta extends DBObject {
 }
 
 /**
+ * A non-inactive regatta
+ *
+ * @author Dayan Paez
+ * @version 2012-11-26
+ */
+class Regatta extends FullRegatta {
+  public function db_where() { return new DBCond('inactive', null); }
+}
+
+/**
  * A non-private regatta: a convenience handle
  *
  * @author Dayan Paez
  * @version 2012-10-26
  */
 class Public_Regatta extends Regatta {
-  public function db_where() { return new DBCond('private', null); }
+  public function db_where() {
+    return new DBBool(array(new DBCond('private', null),
+                            parent::db_where()));
+  }
 }
 
+DB::$FULL_REGATTA = new FullRegatta();
 DB::$REGATTA = new Regatta();
 DB::$PUBLIC_REGATTA = new Public_Regatta();
 ?>

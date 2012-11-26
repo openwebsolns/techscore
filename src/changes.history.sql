@@ -379,3 +379,6 @@ drop table dt_regatta;
 -- need to track URL changes --
 alter table pub_update_request change column activity activity enum('rotation','score','rp','details','summary','finalized', 'url') not null default 'score', change column argument argument varchar(100) default null;
 alter table pub_update_request change column activity activity enum('rotation','score','rp','details','summary','finalized', 'url', 'season') not null default 'score';
+
+-- delete (inactivate) regattas
+alter table regatta add column inactive datetime default null comment "Deleted regattas, to be removed by the system." after private;
