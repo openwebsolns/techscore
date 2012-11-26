@@ -68,7 +68,8 @@ abstract class AbstractPane {
                                           "summaries"  => "SummaryPane",
                                           "scorers"    => "ScorersPane",
                                           "races"      => "RacesPane",
-                                          "notes"      => "NotesPane"),
+                                          "notes"      => "NotesPane",
+                                          "delete"     => "DeleteRegattaPane"),
                      "Teams"     => array("teams"      => "TeamsPane",
                                           "substitute" => "ReplaceTeamPane",
                                           "remove-team"=> "DeleteTeamsPane"),
@@ -264,6 +265,9 @@ abstract class AbstractPane {
     case 'race-notes':
       require_once('tscore/NotesPane.php');
       return new NotesPane($r, $u);
+    case 'delete':
+      require_once('tscore/DeleteRegattaPane.php');
+      return new DeleteRegattaPane($r, $u);
     case 'races':
     case 'race':
     case 'edit-race':
@@ -412,6 +416,7 @@ abstract class AbstractPane {
                                "RacesPane" => "races",
 
                                "NotesPane" => "notes",
+                               "DeleteRegattaPane" => "delete",
                                "TeamsPane" => "teams",
                                "DeleteTeamsPane" => "remove-teams",
                                "ReplaceTeamPane" => "substitute",
@@ -431,6 +436,7 @@ abstract class AbstractPane {
                                  "ScorersPane" => "Scorers",
                                  "RacesPane" => "Edit races",
                                  "NotesPane" => "Race notes",
+                                 "DeleteRegattaPane" => "Delete",
                                  "TeamsPane" => "Add team",
                                  "DeleteTeamsPane" => "Remove team",
                                  "ReplaceTeamPane" => "Sub team",

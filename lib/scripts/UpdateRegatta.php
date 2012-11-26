@@ -53,7 +53,7 @@ class UpdateRegatta extends AbstractScript {
    * Sync the RP information for the given regatta
    *
    */
-  public static function syncRP(Regatta $reg) {
+  public static function syncRP(FullRegatta $reg) {
     if ($reg->dt_num_races === null)
       $reg->setData();
     if ($reg->dt_num_divisions == 0)
@@ -155,7 +155,7 @@ class UpdateRegatta extends AbstractScript {
    *
    * @param Regatta $reg the regatta whose information to delete.
    */
-  public function runDelete(Regatta $reg) {
+  public function runDelete(FullRegatta $reg) {
     $season = $reg->getSeason();
     if ((string)$season == "")
       return;
@@ -174,8 +174,8 @@ class UpdateRegatta extends AbstractScript {
    * @param Regatta $reg the regatta to update
    * @param Array:UpdateRequest::Constant the activities to execute
    */
-  public function run(Regatta $reg, Array $activities) {
-    if ($reg->private) {
+  public function run(FullRegatta $reg, Array $activities) {
+    if ($reg->private || $reg->inactive !== null) {
       $this->runDelete($reg);
       return;
     }

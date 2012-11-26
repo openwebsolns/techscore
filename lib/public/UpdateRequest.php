@@ -43,7 +43,7 @@ class UpdateRequest extends AbstractUpdate {
   public function db_type($field) {
     if ($field == 'regatta') {
       require_once('regatta/Regatta.php');
-      return DB::$REGATTA;
+      return DB::$FULL_REGATTA;
     }
     return parent::db_type($field);
   }
@@ -78,7 +78,7 @@ class UpdateRequest extends AbstractUpdate {
    * regatta ID, the activity, and the argument
    */
   public function hash() {
-    $id = ($this->regatta instanceof Regatta) ? $this->regatta->id : $this->regatta;
+    $id = ($this->regatta instanceof FullRegatta) ? $this->regatta->id : $this->regatta;
     return sprintf('%s-%s-%s', $id, $this->activity, $this->argument);
   }
 }

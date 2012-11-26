@@ -199,6 +199,10 @@ class Daemon extends AbstractScript {
     // URLs to delete
     $to_delete = array();
 
+    // Regattas to delete from database (due to inactive flag) as a map
+    $deleted_regattas = array();
+    $delete_threshold = new DateTime('5 minutes ago');
+
     // ------------------------------------------------------------
     // Loop through the regatta requests
     // ------------------------------------------------------------
@@ -206,6 +210,8 @@ class Daemon extends AbstractScript {
       $requests[] = $r;
 
       $reg = $r->regatta;
+      if ($reg->inactive !== null)
+        $deleted_regattas[$reg->id] = $reg;
 
       $hash = $r->hash();
       if (isset($hashes[$hash]))
@@ -327,6 +333,14 @@ class Daemon extends AbstractScript {
       UpdateManager::log($r);
 
     // ------------------------------------------------------------
+    // Delete inactive regattas
+    // ------------------------------------------------------------
+    foreach ($deleted_regattas as $r) {
+      DB::remove($r);
+      self::errln(sprintf('permanently deleted regatta %s: %s', $r->id, $r->name));
+    }
+
+    // ------------------------------------------------------------
     // Perform all hooks
     // ------------------------------------------------------------
     foreach (self::getHooks() as $hook) {
@@ -389,7 +403,7 @@ class Daemon extends AbstractScript {
     $this->school_seasons[$school->id][(string)$season] = $season;
   }
 
-  private function queueRegattaActivity(Regatta $reg, $activity) {
+  private function queueRegattaActivity(FullRegatta $reg, $activity) {
     // Score activities are carried out instantaneously
     if ($activity == UpdateRequest::ACTIVITY_SCORE)
       return;
@@ -422,11 +436,12 @@ class Daemon extends AbstractScript {
     // Print them out and exit
     foreach ($regattas as $id => $list) {
       try {
-        $reg = DB::getRegatta($id);
+        $reg = DB::get(DB::$FULL_REGATTA, $id);
         if ($reg === null)
           throw new RuntimeException("Invalid regatta ID $id.");
-        printf("--------------------\nRegatta: [%s] %s (%s/%s)\n--------------------\n",
-               $reg->id, $reg->name, $reg->getSeason(), $reg->nick);
+        printf("--------------------\nRegatta: [%s] %s (%s/%s)%s\n--------------------\n",
+               $reg->id, $reg->name, $reg->getSeason(), $reg->nick,
+               ($reg->inactive !== null) ? " [deleted]" : "");
         foreach ($list as $activity => $num)
           printf("%12s: %d\n", $activity, $num);
       }

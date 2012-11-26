@@ -12,7 +12,7 @@ require_once('AbstractScript.php');
 
 /**
  * Scours database and removes private regattas that are more than
- * three months old
+ * three months old. Also remove all private regattas, just in case.
  *
  * @author Dayan Paez
  * @created 2012-10-26
@@ -35,8 +35,11 @@ class RemovePrivate extends AbstractScript {
     // Delete regattas
     // ------------------------------------------------------------
     require_once('regatta/Regatta.php');
-    $regs = DB::getAll(DB::$REGATTA, new DBBool(array(new DBCond('private', null, DBCond::NE),
-                                                      new DBCond('end_date', new DateTime('4 months ago'), DBCond::LE))));
+    $regs = DB::getAll(DB::$FULL_REGATTA,
+                       new DBBool(array(new DBCond('inactive', null, DBCond::NE),
+                                        new DBBool(array(new DBCond('private', null, DBCond::NE),
+                                                         new DBCond('end_date', new DateTime('4 months ago'), DBCond::LE)))),
+                                  DBBool::mOR));
     foreach ($regs as $reg) {
       if (!$this->dry_run)
         DB::remove($reg);
