@@ -19,10 +19,10 @@ class ScoresCombinedDialog extends AbstractScoresDialog {
   /**
    * Create a new rotation dialog for the given regatta
    *
-   * @param Regatta $reg the regatta
+   * @param FullRegatta $reg the regatta
    * @throws InvalidArgumentException if not combined division
    */
-  public function __construct(Regatta $reg) {
+  public function __construct(FullRegatta $reg) {
     parent::__construct("Race results", $reg);
     if ($reg->scoring != Regatta::SCORING_COMBINED)
       throw new InvalidArgumentException("Dialog only available to combined division scoring.");

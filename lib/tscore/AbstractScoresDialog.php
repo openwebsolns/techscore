@@ -15,7 +15,7 @@ require_once('tscore/AbstractDialog.php');
  * @version 2010-09-06
  */
 abstract class AbstractScoresDialog extends AbstractDialog {
-  public function __construct($title, Regatta $reg) {
+  public function __construct($title, FullRegatta $reg) {
     parent::__construct($title, $reg);
 
   }

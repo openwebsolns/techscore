@@ -19,7 +19,7 @@ class RegistrationsDialog extends AbstractDialog {
    * Creates a new registrations dialog
    *
    */
-  public function __construct(Regatta $reg) {
+  public function __construct(FullRegatta $reg) {
     parent::__construct("Record of Participation", $reg);
   }
 

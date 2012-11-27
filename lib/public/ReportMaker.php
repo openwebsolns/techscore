@@ -25,7 +25,7 @@ class ReportMaker {
    * Creates a new report for the given regatta
    *
    */
-  public function __construct(Regatta $reg) {
+  public function __construct(FullRegatta $reg) {
     $this->regatta = $reg;
   }
 

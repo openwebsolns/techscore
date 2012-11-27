@@ -18,9 +18,9 @@ class RotationDialog extends AbstractDialog {
   /**
    * Create a new rotation dialog for the given regatta
    *
-   * @param Regatta $reg the regatta
+   * @param FullRegatta $reg the regatta
    */
-  public function __construct(Regatta $reg) {
+  public function __construct(FullRegatta $reg) {
     parent::__construct("Rotation", $reg);
     $this->rotation = $this->REGATTA->getRotation();
   }

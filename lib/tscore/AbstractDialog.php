@@ -22,7 +22,7 @@ abstract class AbstractDialog {
    * @param String $name the name of the dialog
    * @param Regatta $reg the regatta
    */
-  public function __construct($name, Regatta $reg) {
+  public function __construct($name, FullRegatta $reg) {
     $this->name = (string)$name;
     $this->REGATTA = $reg;
   }
@@ -70,7 +70,7 @@ abstract class AbstractDialog {
    *
    * @see AbstractPane::getPane
    */
-  public static function getDialog(Array $uri, Account $r, Regatta $u) {
+  public static function getDialog(Array $uri, Account $r, FullRegatta $u) {
     if (count($uri) == 0)
       $uri = array('rotation');
     try {
