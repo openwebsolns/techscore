@@ -23,7 +23,7 @@ class RpManager {
    *
    * @param Regatta $reg a regatta object
    */
-  public function __construct(Regatta $reg) {
+  public function __construct(FullRegatta $reg) {
     $this->regatta = $reg;
   }
 
