@@ -28,7 +28,7 @@ class ICSARanker {
    * @param Array:Race|null the list of races to limit rank
    * @return Array:Rank the ranked teams
    */
-  public function rank(Regatta $reg, $races = null) {
+  public function rank(FullRegatta $reg, $races = null) {
     if ($races === null) {
       $races = $reg->getScoredRaces();
       $divisions = $reg->getDivisions();
@@ -91,7 +91,7 @@ class ICSARanker {
    * @param Regatta $reg the regatta
    * @param Array:Race the list of races to consider
    */
-  protected function settleHeadToHead(Array $ranks, Regatta $reg, $races) {
+  protected function settleHeadToHead(Array $ranks, FullRegatta $reg, $races) {
     $numTeams = count($ranks);
     if ($numTeams < 2)
       return $ranks;
@@ -181,7 +181,7 @@ class ICSARanker {
    * @param int $placeFinish = 1 by default, the place finish to check for
    */
   protected function rankMostHighFinishes(Array $ranks,
-                                          Regatta $reg,
+                                          FullRegatta $reg,
                                           $races,
                                           $placeFinish = 1) {
 
@@ -254,7 +254,7 @@ class ICSARanker {
    * @param int $race_index the index of the race previously
    * checked. The function will check the previous index.
    */
-  protected function rankByLastRace(Array $ranks, Regatta $reg, $races, $race_index = null) {
+  protected function rankByLastRace(Array $ranks, FullRegatta $reg, $races, $race_index = null) {
 
     $numRanks = count($ranks);
     if ($numRanks < 2)

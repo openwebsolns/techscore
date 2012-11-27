@@ -30,11 +30,11 @@ class ICSASpecialCombinedRanker extends ICSACombinedRanker {
    * Note that only race numbers are used, since this is a combined
    * division regatta.
    *
-   * @param Regatta $reg the regatta
+   * @param FullRegatta $reg the regatta
    * @param Array:Race|null the list of races to limit rank
    * @return Array:Rank the ranked teams
    */
-  public function rank(Regatta $reg, $races = null) {
+  public function rank(FullRegatta $reg, $races = null) {
     $divisions = array();
     foreach ($reg->getDivisions() as $div)
       $divisions[(string)$div] = $div;
@@ -109,13 +109,13 @@ class ICSASpecialCombinedRanker extends ICSACombinedRanker {
    * Shuffle ranks according to who has won the most
    *
    * @param Array:Rank $ranks the tied ranks (more than one)
-   * @param Regatta $reg the regatta in question
+   * @param FullRegatta $reg the regatta in question
    * @param Array $races the map of division => races
    * @return Array $ranks the new order
    * @see ICSAScorer::settleHeadToHead
    * @see rank
    */
-  protected function settleHeadToHead(Array $ranks, Regatta $reg, $races) {
+  protected function settleHeadToHead(Array $ranks, FullRegatta $reg, $races) {
     $numTeams = count($ranks);
     if ($numTeams < 2)
       return $ranks;
@@ -201,12 +201,12 @@ class ICSASpecialCombinedRanker extends ICSACombinedRanker {
    * highest place finishes.
    *
    * @param Array:Rank $ranks the ranks
-   * @param Regatta $reg the regatta
+   * @param FullRegatta $reg the regatta
    * @param Array:Race $races the races
    * @param int $placeFinish = 1 by default, the place finish to check for
    */
   protected function rankMostHighFinishes(Array $ranks,
-                                          Regatta $reg,
+                                          FullRegatta $reg,
                                           $races,
                                           $placeFinish = 1) {
 
@@ -271,12 +271,12 @@ class ICSASpecialCombinedRanker extends ICSACombinedRanker {
    * Rank the teams by their performance in the last race
    *
    * @param Array<Rank> $ranks the ranks to sort
-   * @param Regatta $reg the regatta
+   * @param FullRegatta $reg the regatta
    * @param Array:ints $races the race numbers
    * @param int $race_index the index of the previously ranked race
    * @see ICSAScorer::rankByLastRace
    */
-  protected function rankByLastRace(Array $ranks, Regatta $reg, $races, $race_index = null) {
+  protected function rankByLastRace(Array $ranks, FullRegatta $reg, $races, $race_index = null) {
 
     $numRanks = count($ranks);
     if ($numRanks < 2)

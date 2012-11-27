@@ -336,7 +336,7 @@ class FullRegatta extends DBObject {
    */
   public function getTeam($id) {
     $res = DB::get($this->isSingleHanded() ? DB::$SINGLEHANDED_TEAM : DB::$TEAM, $id);
-    if ($res === null || $res->regatta != $this)
+    if ($res === null || $res->regatta->id != $this->id)
       return null;
     return $res;
   }
