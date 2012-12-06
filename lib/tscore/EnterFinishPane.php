@@ -213,18 +213,16 @@ class EnterFinishPane extends AbstractPane {
       $this->REGATTA->runScore($race);
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE, $race);
 
-      // Update races's round number as needed
-      if ($this->REGATTA->scoring != Regatta::SCORING_TEAM) {
-        $start = $this->REGATTA->start_time;
-        $start->setTime(0, 0);
-        $now = new DateTime();
-        $now->setTime(0, 0);
-        $duration = $now->diff($start)->days + 1;
-        foreach ($races as $race) {
-          if ($race->round === null) {
-            $race->round = $duration;
-            DB::set($race);
-          }
+      // Update races's scored_day as needed
+      $start = $this->REGATTA->start_time;
+      $start->setTime(0, 0);
+      $now = new DateTime();
+      $now->setTime(0, 0);
+      $duration = $now->diff($start)->days + 1;
+      foreach ($races as $race) {
+        if ($race->scored_day === null) {
+          $race->scored_day = $duration;
+          DB::set($race);
         }
       }
 

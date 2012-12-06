@@ -34,6 +34,7 @@ class DB extends DBM {
   public static $TEAM_NAME_PREFS = null;
   public static $SAIL = null;
   public static $NOTE = null;
+  public static $ROUND = null;
   public static $RACE = null;
   public static $FINISH = null;
   public static $TEAM_PENALTY = null;
@@ -85,6 +86,7 @@ class DB extends DBM {
     self::$TEAM_NAME_PREFS = new Team_Name_Prefs();
     self::$SAIL = new Sail();
     self::$NOTE = new Note();
+    self::$ROUND = new Round();
     self::$RACE = new Race();
     self::$FINISH = new Finish();
     self::$TEAM_PENALTY = new TeamPenalty();
@@ -1369,6 +1371,21 @@ class Note extends DBObject {
 }
 
 /**
+ * A round-robin of races, for team racing applications
+ *
+ * @author Dayan Paez
+ * @version 2012-12-06
+ */
+class Round extends DBObject {
+  public $title;
+  public $scoring;
+
+  protected function db_cache() { return true; }
+  // No indication as to natural ordering
+  public function __toString() { return $this->title; }
+}
+
+/**
  * Race object: a number and a division
  *
  * @author Dayan Paez
@@ -1378,8 +1395,9 @@ class Race extends DBObject {
   protected $regatta;
   protected $division;
   protected $boat;
+  protected $round;
   public $number;
-  public $round;
+  public $scored_day;
   public $scored_by;
 
   public function db_name() { return 'race'; }
@@ -1388,6 +1406,7 @@ class Race extends DBObject {
     case 'division': return DBQuery::A_STR;
     case 'boat': return DB::$BOAT;
     case 'regatta': return DB::$REGATTA;
+    case 'round': return DB::$ROUND;
     }
   }
   protected function db_cache() { return true; }

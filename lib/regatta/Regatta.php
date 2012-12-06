@@ -505,16 +505,7 @@ class FullRegatta extends DBObject {
    * @return Array:int the list of rounds
    */
   public function getRounds() {
-    DB::$RACE->db_set_order(array('round'=>true));
-    $q = DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('round'));
-    $q->distinct(true);
-
-    $r = DB::query($q);
-    $list = array();
-    while (($obj = $r->fetch_object()) !== null)
-      $list[] = $obj->round;
-    DB::$RACE->db_set_order();
-    return $list;
+    return DB::getAll(DB::$ROUND, new DBCondIn('id', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('round'))));
   }
 
   /**

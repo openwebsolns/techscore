@@ -382,3 +382,12 @@ alter table pub_update_request change column activity activity enum('rotation','
 
 -- delete (inactivate) regattas
 alter table regatta add column inactive datetime default null comment "Deleted regattas, to be removed by the system." after private;
+
+-- team racing rounds --
+alter table race change column round scored_day int default null comment "Regatta day originally scored.";
+create table round (id int primary key auto_increment, title varchar(60) not null, scoring tinyint default null) engine=innodb default charset = utf8;
+insert into round (title) (select distinct concat(regatta, ":Round ", scored_day) from race where scored_day is not null and regatta in (select id from regatta where scoring = "team"));
+
+alter table race add column round int default null after boat;
+update race, round set race.round = round.id where concat(race.regatta, ":Round ", race.scored_day) = round.title;
+alter table race add foreign key (round) references round(id) on delete cascade on update cascade;

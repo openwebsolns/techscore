@@ -42,9 +42,15 @@ class TeamRacesPane extends AbstractPane {
     // Specific round?
     // ------------------------------------------------------------
     $rounds = $this->REGATTA->getRounds();
-    if (($round = DB::$V->incValue($args, 'r', $rounds)) !== null) {
-      $this->fillRound($round);
-      return;
+    if (($round = DB::$V->incID($args, 'r', DB::$ROUND)) !== null) {
+      foreach ($rounds as $r) {
+        if ($r->id == $round->id) {
+          $this->fillRound($round);
+          return;
+        }
+      }
+      Session::pa(new PA("Invalid round requested.", PA::E));
+      $this->redirect();
     }
 
     // ------------------------------------------------------------
@@ -55,7 +61,8 @@ class TeamRacesPane extends AbstractPane {
     $form->add(new XP(array(),
                    array("Choose the teams which will participate in the round to be added. ",
                          Conf::$NAME,
-                         " will create the necessary races so that each team sails head-to-head against every other team (round-robin). Afterwards, you will be able to delete or create new races within the round.")));
+                         " will create the necessary races so that each team sails head-to-head against every other team (round-robin). Afterwards, you will be able to delete or create new races within the round. Make sure to add an appropriate label for the round.")));
+    $form->add(new FItem("Round label:", new XTextInput('title', "Round " . (count($rounds) + 1))));
     $form->add($fi = new FItem("Choose teams:", $ul = new XUl(array('class'=>'fitem-list'))));
     $fi->add(new XSpan("(Click to select/deselect)", array('class'=>'message')));
 
@@ -80,7 +87,7 @@ class TeamRacesPane extends AbstractPane {
       $p->add(new XP(array(), "Click on the round below to edit the races in that round."));
       $p->add($ul = new XUl());
       foreach ($rounds as $round)
-        $ul->add(new XLi(new XA(WS::link(sprintf('/score/%s/races', $this->REGATTA->id), array('r'=>$round)), "Round $round")));
+        $ul->add(new XLi(new XA(WS::link(sprintf('/score/%s/races', $this->REGATTA->id), array('r'=>$round->id)), $round)));
     }
   }
 
@@ -157,6 +164,16 @@ class TeamRacesPane extends AbstractPane {
     // Add round
     // ------------------------------------------------------------
     if (isset($args['add-round'])) {
+      $rounds = $this->REGATTA->getRounds();
+
+      // title
+      $round = new Round();
+      $round->title = DB::$V->reqString($args, 'title', 1, 81, "Invalid round label. May not exceed 80 characters.");
+      foreach ($rounds as $r) {
+        if ($r->title == $round->title)
+          throw new SoterException("Duplicate round title provided.");
+      }
+
       $boat = DB::$V->reqID($args, 'boat', DB::$BOAT, "Invalid boat provided.");
       $team_ids = DB::$V->reqList($args, 'team', null, "No list of teams provided. Please try again.");
 
@@ -167,10 +184,6 @@ class TeamRacesPane extends AbstractPane {
       }
       if (count($teams) < 1)
         throw new SoterException("Not enough teams provided: there must be at least two. Please try again.");
-
-      // Assign next round number (leaving holes in numbering)
-      $rounds = $this->REGATTA->getRounds();
-      $round = (count($rounds) == 0) ? 1 : array_pop($rounds);
 
       // Assign next race number
       $count = count($this->REGATTA->getRaces(Division::A()));
