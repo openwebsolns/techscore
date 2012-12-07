@@ -109,6 +109,7 @@ class TeamRacesPane extends AbstractPane {
     // ------------------------------------------------------------
     // Current races
     // ------------------------------------------------------------
+    $has_finishes = false;
     $cur_races = $this->REGATTA->getRacesInRound($round, Division::A());
     if (count($cur_races) > 0) {
       $this->PAGE->addContent($p = new XPort("Edit races in round $round"));
@@ -121,6 +122,7 @@ class TeamRacesPane extends AbstractPane {
       foreach ($cur_races as $race) {
         $teams = $this->REGATTA->getRaceTeams($race);
         if (count($this->REGATTA->getFinishes($race)) > 0) {
+          $has_finishes = true;
           $tab->addRow(array(new XCheckboxInput('race[]', $race->id),
                              $race->number,
                              $teams[0],
@@ -136,6 +138,17 @@ class TeamRacesPane extends AbstractPane {
         }
       }
       $form->add(new XSubmitP('edit-races', "Edit checked races"));
+    }
+
+    // ------------------------------------------------------------
+    // With no scored races, offer to delete
+    // ------------------------------------------------------------
+    if (!$has_finishes) {
+      $this->PAGE->addContent($p = new XPort("Delete round"));
+      $p->add(new XP(array(), "Since there are no scored races for this round, you may delete the entire round from the regatta, but note that this is not recoverable."));
+      $p->add($form = $this->createForm());
+      $form->add($p = new XSubmitP('delete-round', "Delete"));
+      $p->add(new XHiddenInput('round', $round->id));
     }
 
     // ------------------------------------------------------------
@@ -160,6 +173,20 @@ class TeamRacesPane extends AbstractPane {
    * Processes new races and edits to existing races
    */
   public function process(Array $args) {
+    // ------------------------------------------------------------
+    // Delete round
+    // ------------------------------------------------------------
+    if (isset($args['delete-round'])) {
+      $round = DB::$V->reqID($args, 'round', DB::$ROUND, "Invalid round to delete.");
+      // Check that there are no finishes
+      foreach ($this->REGATTA->getRacesInRound($round) as $race) {
+        if (count($this->REGATTA->getFinishes($race)) > 0)
+          throw new SoterException("Cannot remove the round because race $race has scored.");
+      }
+      DB::remove($round);
+      Session::pa(new PA("Removed round $round."));
+    }
+
     // ------------------------------------------------------------
     // Add round
     // ------------------------------------------------------------
@@ -290,19 +317,55 @@ class TeamRacesPane extends AbstractPane {
    * @return Array:Array a list of all the pairings
    */
   private function pairup($items) {
-    if (count($items) < 2)
+    $count = count($items);
+    if ($count < 2)
       throw new InvalidArgumentException("There must be at least two items.");
-    if (count($items) == 2)
+    if ($count == 2)
       return array($items);
 
-    $list = array();
-    $first = array_shift($items);
-    foreach ($items as $other)
-      $list[] = array($first, $other);
-    foreach ($this->pairup($items) as $pair)
-      $list[] = $pair;
-    return $list;
-  }
+    // This method is best described as a "rotating carousel of
+    // independent columns", or the "slot machine" paradigm:
+    //
+    // The number of columns are determined by the number of items.
+    // Each column contains the same items in the same cyclical order,
+    // and the first row is arranged such that the first item matches
+    // the last item, the second matches the second-to-last, the third
+    // matches the third-to-last, and so on. Thus, with 6 items in the
+    // list (named 1 through 6, for simplicity), the different
+    // pairings are formed by reading one row at a time, and pairing
+    // every two consecutive columns:
+    //
+    //            Cyclical Columns
+    //          --------------------
+    //  Read ->   1  6  2  5  3  4
+    //            2  1  3  6  4  5
+    //            3  2  4  1  5  6
+    //            4  3  5  2  6  1
+    //            5  4  6  3  1  2
+    //
 
+    // Create the cyclical columns in pairs
+    $columns = array();
+    for ($col_index = 0; $col_index < $count / 2; $col_index++) {
+      $col1 = $items;
+      $col2 = $items;
+      array_unshift($col2, array_pop($col2));
+      for ($i = 0; $i < $col_index; $i++) {
+        array_push($col1, array_shift($col1));
+        array_unshift($col2, array_pop($col2));
+      }
+      $columns[] = $col1;
+      $columns[] = $col2;
+    }
+
+    // Group each pair, ignoring single columns
+    $pairs = array();
+    for ($row = 0; $row < count($columns[0]) - 1; $row++) {
+      for ($col = 0; $col < $count - 1; $col += 2) {
+        $pairs[] = array($columns[$col][$row], $columns[$col + 1][$row]);
+      }
+    }
+    return $pairs;
+  }
 }
 ?>

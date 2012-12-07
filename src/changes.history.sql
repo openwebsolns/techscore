@@ -391,3 +391,7 @@ insert into round (title) (select distinct concat(regatta, ":Round ", scored_day
 alter table race add column round int default null after boat;
 update race, round set race.round = round.id where concat(race.regatta, ":Round ", race.scored_day) = round.title;
 alter table race add foreign key (round) references round(id) on delete cascade on update cascade;
+
+-- clean up races in team-scoring regattas
+delete from race where regatta in (select id from regatta where scoring = 'team') and number not in (select number from tr_race_teams);
+delete from round where id not in (select round from race);

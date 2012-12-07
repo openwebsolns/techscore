@@ -515,7 +515,7 @@ class FullRegatta extends DBObject {
    * @param Division $div the specific division (if any)
    * @return Array:Race the list of races
    */
-  public function getRacesInRound($round, Division $div = null) {
+  public function getRacesInRound(Round $round, Division $div = null) {
     $cond = new DBBool(array(new DBCond('regatta', $this->id),
                              new DBCond('round', $round)));
     if ($div !== null)
