@@ -32,7 +32,7 @@ class ICSACombinedRanker extends ICSARanker {
    * @param int $placeFinish = 1 by default, the place finish to check for
    */
   protected function rankMostHighFinishes(Array $ranks,
-                                          Regatta $reg,
+                                          FullRegatta $reg,
                                           $races,
                                           $placeFinish = 1) {
 
