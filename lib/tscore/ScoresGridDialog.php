@@ -49,7 +49,7 @@ class ScoresGridDialog extends AbstractScoresDialog {
     $rounds = $this->REGATTA->getRounds();
     foreach ($rounds as $round) {
       $this->PAGE->addContent($p = new XPort("Round $round"));
-      $this->PAGE->addContent($this->getRoundTable($round));
+      $p->add($this->getRoundTable($round));
     }
   }
 
@@ -74,12 +74,14 @@ class ScoresGridDialog extends AbstractScoresDialog {
     // Map of teams in this round (team_id => Team)
     $teams = array();
     $scores = array(); // Map of team_id => (team_id => score)
+    $record = array(); // Map of team_id => (team_id => record [e.g. 1-2-5])
     foreach ($races as $race) {
       $ts = $this->REGATTA->getRaceTeams($race);
       foreach ($ts as $t) {
         if (!isset($teams[$t->id])) {
           $teams[$t->id] = $t;
           $scores[$t->id] = array();
+          $record[$t->id] = array();
         }
       }
 
@@ -92,9 +94,15 @@ class ScoresGridDialog extends AbstractScoresDialog {
         if (!isset($scores[$t0][$t1])) {
           $scores[$t0][$t1] = 0;
           $scores[$t1][$t0] = 0;
+
+          $record[$t0][$t1] = array();
+          $record[$t1][$t0] = array();
         }
         $scores[$t0][$t1] += $s0->score;
         $scores[$t1][$t0] += $s1->score;
+
+        $record[$t0][$t1][] = $s0->getPlace();
+        $record[$t1][$t0][] = $s1->getPlace();
       }
     }
 
@@ -105,9 +113,9 @@ class ScoresGridDialog extends AbstractScoresDialog {
     $header->add(new XTH(array('class'=>'tr-rec-th'), "Record"));
     // Header
     foreach ($teams as $id => $team) {
-      $header->add(new XTH(array(), $team));
+      $header->add(new XTH(array('class'=>'tr-vert-label'), $team->school->nick_name));
       $row = new XTR(array('class'=>'tr-row'),
-                     array(new XTH(array(), $team),
+                     array(new XTH(array('class'=>'tr-horiz-label'), $team),
                            $rec = new XTD(array('class'=>'tr-record'), "")));
       $win = 0;
       $los = 0;
@@ -119,11 +127,11 @@ class ScoresGridDialog extends AbstractScoresDialog {
             $row->add(new XTD(array('class'=>'tr-na'), ""));
           else {
             if ($scores[$id][$id2] < $scores[$id2][$id]) {
-              $row->add(new XTD(array('class'=>'tr-win'), "W"));
+              $row->add(new XTD(array('class'=>'tr-win'), implode('-', $record[$id][$id2])));
               $win++;
             }
             else {
-              $row->add(new XTD(array('class'=>'tr-lose'), "L"));
+              $row->add(new XTD(array('class'=>'tr-lose'), implode('-', $record[$id][$id2])));
               $los++;
             }
           }
