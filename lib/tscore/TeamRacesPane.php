@@ -107,6 +107,15 @@ class TeamRacesPane extends AbstractPane {
       $boatOptions[$boat->id] = $boat->name;
 
     // ------------------------------------------------------------
+    // Edit round name (and other attributes)
+    // ------------------------------------------------------------
+    $this->PAGE->addContent($p = new XPort("Edit round information"));
+    $p->add($form = $this->createForm());
+    $form->add(new FItem("Label:", new XTextInput('title', $round->title)));
+    $form->add($p = new XSubmitP('edit-round', "Edit"));
+    $p->add(new XHiddenInput('round', $round->id));
+
+    // ------------------------------------------------------------
     // Current races
     // ------------------------------------------------------------
     $has_finishes = false;
@@ -173,6 +182,21 @@ class TeamRacesPane extends AbstractPane {
    * Processes new races and edits to existing races
    */
   public function process(Array $args) {
+    // ------------------------------------------------------------
+    // Edit round data
+    // ------------------------------------------------------------
+    if (isset($args['edit-round'])) {
+      $round = DB::$V->reqID($args, 'round', DB::$ROUND, "Invalid round to edit.");
+      $title = DB::$V->reqString($args, 'title', 1, 81, "Invalid new label for round.");
+      if ($title == $round->title)
+        Session::pa(new PA("No change in title.", PA::I));
+      else {
+        $round->title = $title;
+        DB::set($round);
+        Session::pa(new PA("Edited round data for $round."));
+      }
+    }
+
     // ------------------------------------------------------------
     // Delete round
     // ------------------------------------------------------------
