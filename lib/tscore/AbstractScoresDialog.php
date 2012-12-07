@@ -24,15 +24,19 @@ abstract class AbstractScoresDialog extends AbstractDialog {
 
     // Add some menu
     $this->PAGE->addMenu(new XDiv(array('class'=>'menu'), array($ul = new XUl())));
-    $ul->add(new XLi(new XA(sprintf("/view/%d/scores",     $this->REGATTA->id), "All scores")));
-    $ul->add(new XLi(new XA(sprintf("/view/%d/div-scores", $this->REGATTA->id), "Summary")));
-    if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED)
-      $ul->add(new XLi(new XA(sprintf('/view/%d/combined', $this->REGATTA->id), "All Divisions")));
-    else
-      $ul->add(new XLi(new XA(sprintf('/view/%d/chart', $this->REGATTA->id), "Rank history")));
-    foreach ($this->REGATTA->getDivisions() as $div)
-      $ul->add(new XLi(new XA(sprintf("/view/%d/scores/%s",$this->REGATTA->id, $div),
-                              "$div Division")));
+    if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
+      $ul->add(new XLi(new XA(sprintf('/view/%d/scores',   $this->REGATTA->id), "All grids")));
+    else {
+      $ul->add(new XLi(new XA(sprintf('/view/%d/scores',     $this->REGATTA->id), "All scores")));
+      $ul->add(new XLi(new XA(sprintf('/view/%d/div-scores', $this->REGATTA->id), "Summary")));
+      if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED)
+        $ul->add(new XLi(new XA(sprintf('/view/%d/combined', $this->REGATTA->id), "All Divisions")));
+      else
+        $ul->add(new XLi(new XA(sprintf('/view/%d/chart', $this->REGATTA->id), "Rank history")));
+      foreach ($this->REGATTA->getDivisions() as $div)
+        $ul->add(new XLi(new XA(sprintf('/view/%d/scores/%s', $this->REGATTA->id, $div),
+                                "$div Division")));
+    }
 
     // Add meta tag
     $this->PAGE->head->add(new XMeta('timestamp', date('Y-m-d H:i:s')));
