@@ -694,13 +694,8 @@ class FullRegatta extends DBObject {
    * @see setRaceTeams
    */
   public function getRaceTeams(Race $race) {
-    if ($this->scoring == Regatta::SCORING_TEAM) {
-      $tr = DB::getAll(DB::$TR_RACE_TEAMS, new DBBool(array(new DBCond('regatta', $this),
-                                                            new DBCond('number', $race->number))));
-      if (count($tr) == 0)
-        return array();
-      return array($tr[0]->team1, $tr[0]->team2);
-    }
+    if ($race->tr_team1 !== null && $race->tr_team2 !== null)
+      return array($race->tr_team1, $race->tr_team2);
     return $this->getTeams();
   }
 
@@ -719,22 +714,15 @@ class FullRegatta extends DBObject {
    * teams. It is your responsibility to make sure they actually
    * belong to this regatta.
    *   
-   * @return Tr_Race_Teams the added entry
    * @see getRaceTeams
    */
   public function setRaceTeams(Race $race, Team $team1, Team $team2) {
-    if ($this->getRace(Division::A(), $race->number) === null)
-      throw new InvalidArgumentException("No such race number exists: " . $race->number);
-    // Delete any of the ones that are there, and add the new ones
-    DB::removeAll(DB::$TR_RACE_TEAMS, new DBBool(array(new DBCond('regatta', $this),
-                                                       new DBCond('number', $race->number))));
-    $tr = new Tr_Race_Teams();
-    $tr->regatta = $this;
-    $tr->number = $race->number;
-    $tr->team1 = $team1;
-    $tr->team2 = $team2;
-    DB::set($tr);
-    return $tr;
+    foreach ($this->getDivisions() as $division) {
+      $race = $this->getRace($division, $race->number);
+      $race->tr_team1 = $team1;
+      $race->tr_team2 = $team2;
+      DB::set($race);
+    }
   }
 
   /**
@@ -745,20 +733,20 @@ class FullRegatta extends DBObject {
    * racing, this is equivalent to calling getCombinedRaces()
    *
    * @param Team $team the team whose participation to retrieve
-   * @return Array:int the race numbers
+   * @param Division $div the specific division
+   * @return Array:Race the races
    * @see getCombinedRaces
    */
-  public function getRacesForTeam(Team $team) {
+  public function getRacesForTeam(Division $div, Team $team) {
+    $races = $this->getRaces($div);
     if ($this->scoring != Regatta::SCORING_TEAM)
-      return $this->getCombinedRaces();
+      return $races;
     $list = array();
-    foreach (DB::getAll(DB::$TR_RACE_TEAMS,
-                        new DBBool(array(new DBCond('regatta', $this),
-                                         new DBBool(array(new DBCond('team1', $team),
-                                                          new DBCond('team2', $team)),
-                                                    DBBool::mOR)))) as $tr)
-      $list[$tr->number] = $tr->number;
-    return array_values($list);
+    foreach ($races as $race) {
+      if ($race->tr_team1 == $team || $race->tr_team2 == $team)
+        $list[] = $race;
+    }
+    return $list;
   }
 
 

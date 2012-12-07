@@ -44,7 +44,6 @@ class DB extends DBM {
   public static $RP_ENTRY = null;
   public static $SEASON = null;
   public static $NOW = null;
-  public static $TR_RACE_TEAMS = null;
   public static $DT_TEAM_DIVISION = null;
   public static $DT_RP = null;
 
@@ -98,7 +97,6 @@ class DB extends DBM {
     DB::$DT_TEAM_DIVISION = new Dt_Team_Division();
     DB::$DT_RP = new Dt_Rp();
     self::$NOW = new DateTime();
-    self::$TR_RACE_TEAMS = new Tr_Race_Teams();
 
     DBM::setConnectionParams($host, $user, $pass, $db);
 
@@ -1400,6 +1398,13 @@ class Race extends DBObject {
   public $scored_day;
   public $scored_by;
 
+  /**
+   * When the regatta scoring is "Team", then these are the two teams
+   * that participate in this race
+   */
+  protected $tr_team1;
+  protected $tr_team2;
+
   public function db_name() { return 'race'; }
   public function db_type($field) {
     switch ($field) {
@@ -1407,6 +1412,11 @@ class Race extends DBObject {
     case 'boat': return DB::$BOAT;
     case 'regatta': return DB::$REGATTA;
     case 'round': return DB::$ROUND;
+    case 'tr_team1':
+    case 'tr_team2':
+      return DB::$TEAM;
+    default:
+      return parent::db_type($field);
     }
   }
   protected function db_cache() { return true; }
@@ -2244,35 +2254,6 @@ class Dt_Team_Division extends DBObject {
   public function getRP($role = Dt_Rp::SKIPPER) {
     return DB::getAll(DB::$DT_RP, new DBBool(array(new DBCond('boat_role', $role),
                                                    new DBCond('team_division', $this->id))));
-  }
-}
-
-/**
- * Indicates which two teams actually participate in a given race for
- * races in team races
- *
- * @author Dayan Paez
- * @version 2012-03-05
- */
-class Tr_Race_Teams extends DBObject {
-  public $number;
-  protected $team1;
-  protected $team2;
-  protected $regatta;
-
-  protected function db_order() { return array('number'=>true); }
-  public function db_type($field) {
-    switch ($field) {
-    case 'number':
-      return DBQuery::A_INT;
-    case 'team1':
-    case 'team2':
-      return DB::$TEAM;
-    case 'regatta':
-      return DB::$REGATTA;
-    default:
-      return parent::db_type($field);
-    }
   }
 }
 ?>

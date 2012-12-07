@@ -395,3 +395,15 @@ alter table race add foreign key (round) references round(id) on delete cascade 
 -- clean up races in team-scoring regattas
 delete from race where regatta in (select id from regatta where scoring = 'team') and number not in (select number from tr_race_teams);
 delete from round where id not in (select round from race);
+
+-- Store the team racing team pairs with the race object iself
+-- this gets rid of the extra tr_race_teams table which can
+-- create orphaned data.
+--
+-- A disadvantage of this method is that all divisions for the
+-- same race numbers SHOULD have the same team pairings. A plus
+-- side of this change is that foreign key cascading may retain
+-- some sanity
+alter table race add column tr_team1 int default null, add column tr_team2 int default null, add foreign key (tr_team1) references team(id) on delete cascade on update cascade, add foreign key (tr_team2) references team(id) on delete cascade on update cascade;
+update race, tr_race_teams set race.tr_team1 = tr_race_teams.team1, race.tr_team2 = tr_race_teams.team2 where (race.number, race.regatta) = (tr_race_teams.number, tr_race_teams.regatta);
+drop table tr_race_teams;

@@ -335,13 +335,7 @@ class RpEnterPane extends AbstractPane {
    * @see Regatta::getRacesForTeam
    */
   public function getOccupantsRaces(Division $div, Team $team) {
-    if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
-      $races = array();
-      foreach ($this->REGATTA->getRacesForTeam($team) as $num)
-        $races[] = $this->REGATTA->getRace($div, $num);
-    }
-    else
-      $races = $this->REGATTA->getRaces($div);
+    $races = $this->REGATTA->getRacesForTeam($div, $team);
     $list = array();
     foreach ($races as $race) {
       $occ = $race->boat->occupants;
