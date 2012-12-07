@@ -180,6 +180,10 @@ class UpdateRegatta extends AbstractScript {
       return;
     }
 
+    // Silently ignore team racing, as that's not ready
+    if ($reg->scoring == Regatta::SCORING_TEAM)
+      return;
+
     // In order to maintain all the regatta pages in sync, it is
     // necessary to first check what pages have been serialized
     $has_dir = false;
