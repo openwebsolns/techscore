@@ -108,7 +108,7 @@ class ICSACombinedRanker extends ICSARanker {
    * @param int $race_index the index of the previously ranked race
    * @see ICSAScorer::rankByLastRace
    */
-  protected function rankByLastRace(Array $ranks, Regatta $reg, $races, $race_index = null) {
+  protected function rankByLastRace(Array $ranks, FullRegatta $reg, $races, $race_index = null) {
 
     $numRanks = count($ranks);
     if ($numRanks < 2)
