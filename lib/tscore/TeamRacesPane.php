@@ -384,7 +384,7 @@ class TeamRacesPane extends AbstractPane {
 
     // Group each pair, ignoring single columns
     $pairs = array();
-    for ($row = 0; $row < count($columns[0]) - 1; $row++) {
+    for ($row = 0; $row < count($columns) - 1; $row++) {
       for ($col = 0; $col < $count - 1; $col += 2) {
         $pairs[] = array($columns[$col][$row], $columns[$col + 1][$row]);
       }
