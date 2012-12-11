@@ -61,20 +61,22 @@ class ScoresGridDialog extends AbstractScoresDialog {
    * @param int $round the round number to fetch (number must be,
    * incidentally, round)
    *
+   * @param boolean $score_mode true to include links to score races.
+   * Suitable for display within EnterFinish pane.
+   *
    * @return XTable a grid
    * @throws InvalidArgumentException if this regatta has no such round
    */
-  public function getRoundTable($round) {
+  public function getRoundTable(Round $round, $score_mode = false) {
     $races = $this->REGATTA->getRacesInRound($round);
     if (count($races) == 0)
       throw new InvalidArgumentException("No such round $round in this regatta.");
-
-    $divs = $this->REGATTA->getDivisions();
 
     // Map of teams in this round (team_id => Team)
     $teams = array();
     $scores = array(); // Map of team_id => (team_id => score)
     $record = array(); // Map of team_id => (team_id => record [e.g. 1-2-5])
+    $raceid = array(); // Map of team_id => (team_id => Race::id
     foreach ($races as $race) {
       $ts = $this->REGATTA->getRaceTeams($race);
       foreach ($ts as $t) {
@@ -82,6 +84,7 @@ class ScoresGridDialog extends AbstractScoresDialog {
           $teams[$t->id] = $t;
           $scores[$t->id] = array();
           $record[$t->id] = array();
+          $raceid[$t->id] = array();
         }
       }
 
@@ -89,6 +92,11 @@ class ScoresGridDialog extends AbstractScoresDialog {
       $t1 = $ts[1]->id;
       $s0 = $this->REGATTA->getFinish($race, $ts[0]);
       $s1 = $this->REGATTA->getFinish($race, $ts[1]);
+
+      if ($race->division == Division::A()) {
+        $raceid[$t0][$t1] = $race->id;
+        $raceid[$t1][$t0] = $race->id;
+      }
 
       if ($s0 !== null && $s1 !== null) {
         if (!isset($scores[$t0][$t1])) {
@@ -105,6 +113,8 @@ class ScoresGridDialog extends AbstractScoresDialog {
         $record[$t1][$t0][] = $s1->getPlace();
       }
     }
+
+    $lroot = sprintf('/score/%s/finishes', $this->REGATTA->id);
 
     // Create table
     $table = new XTable(array('class'=>'teamscores'));
@@ -123,15 +133,22 @@ class ScoresGridDialog extends AbstractScoresDialog {
         if ($id2 == $id)
           $row->add(new XTD(array('class'=>'tr-same'), "X"));
         else {
-          if (!isset($scores[$id][$id2]))
-            $row->add(new XTD(array('class'=>'tr-na'), ""));
+          if (!isset($scores[$id][$id2])) {
+            $cont = "";
+            if ($score_mode && isset($raceid[$id]) && isset($raceid[$id][$id2]))
+              $cont = new XA(WS::link($lroot, array('race' => $raceid[$id][$id2])), "Enter");
+            $row->add(new XTD(array('class'=>'tr-na'), $cont));
+          }
           else {
+            $cont = implode('-', $record[$id][$id2]);
+            if ($score_mode)
+              $cont = new XA(WS::link($lroot, array('race' => $raceid[$id][$id2])), $cont);
             if ($scores[$id][$id2] < $scores[$id2][$id]) {
-              $row->add(new XTD(array('class'=>'tr-win'), implode('-', $record[$id][$id2])));
+              $row->add(new XTD(array('class'=>'tr-win'), $cont));
               $win++;
             }
             else {
-              $row->add(new XTD(array('class'=>'tr-lose'), implode('-', $record[$id][$id2])));
+              $row->add(new XTD(array('class'=>'tr-lose'), $cont));
               $los++;
             }
           }
