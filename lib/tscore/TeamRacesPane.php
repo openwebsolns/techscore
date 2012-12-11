@@ -341,55 +341,18 @@ class TeamRacesPane extends AbstractPane {
    * @return Array:Array a list of all the pairings
    */
   private function pairup($items) {
-    $count = count($items);
-    if ($count < 2)
+    if (count($items) < 2)
       throw new InvalidArgumentException("There must be at least two items.");
-    if ($count == 2)
+    if (count($items) == 2)
       return array($items);
 
-    // This method is best described as a "rotating carousel of
-    // independent columns", or the "slot machine" paradigm:
-    //
-    // The number of columns are determined by the number of items.
-    // Each column contains the same items in the same cyclical order,
-    // and the first row is arranged such that the first item matches
-    // the last item, the second matches the second-to-last, the third
-    // matches the third-to-last, and so on. Thus, with 6 items in the
-    // list (named 1 through 6, for simplicity), the different
-    // pairings are formed by reading one row at a time, and pairing
-    // every two consecutive columns:
-    //
-    //            Cyclical Columns
-    //          --------------------
-    //  Read ->   1  6  2  5  3  4
-    //            2  1  3  6  4  5
-    //            3  2  4  1  5  6
-    //            4  3  5  2  6  1
-    //            5  4  6  3  1  2
-    //
-
-    // Create the cyclical columns in pairs
-    $columns = array();
-    for ($col_index = 0; $col_index < $count / 2; $col_index++) {
-      $col1 = $items;
-      $col2 = $items;
-      array_unshift($col2, array_pop($col2));
-      for ($i = 0; $i < $col_index; $i++) {
-        array_push($col1, array_shift($col1));
-        array_unshift($col2, array_pop($col2));
-      }
-      $columns[] = $col1;
-      $columns[] = $col2;
-    }
-
-    // Group each pair, ignoring single columns
-    $pairs = array();
-    for ($row = 0; $row < count($columns) - 1; $row++) {
-      for ($col = 0; $col < $count - 1; $col += 2) {
-        $pairs[] = array($columns[$col][$row], $columns[$col + 1][$row]);
-      }
-    }
-    return $pairs;
+    $list = array();
+    $first = array_shift($items);
+    foreach ($items as $other)
+      $list[] = array($first, $other);
+    foreach ($this->pairup($items) as $pair)
+      $list[] = $pair;
+    return $list;
   }
 }
 ?>
