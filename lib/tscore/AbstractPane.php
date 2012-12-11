@@ -141,8 +141,8 @@ abstract class AbstractPane {
    *
    * @param String $page the page within this regatta to go to
    */
-  protected function redirect($page = null) {
-    WS::go($this->link($page));
+  protected function redirect($page = null, Array $args = array()) {
+    WS::go($this->link($page, $args));
   }
 
   /**

@@ -120,9 +120,9 @@ abstract class AbstractUserPane {
    *
    * @param String $url the url to go
    */
-  protected function redirect($url = null) {
+  protected function redirect($url = null, Array $args = array()) {
     if ($url !== null)
-      WS::go('/'.$url);
+      WS::go(WS::link('/'.$url, $args));
     WS::goBack('/');
   }
 

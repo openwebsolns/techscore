@@ -54,6 +54,17 @@ class TeamRacesPane extends AbstractPane {
     }
 
     // ------------------------------------------------------------
+    // Current rounds
+    // ------------------------------------------------------------
+    if (count($rounds) > 0) {
+      $this->PAGE->addContent($p = new XPort("Current rounds"));
+      $p->add(new XP(array(), "Click on the round below to edit the races in that round."));
+      $p->add($ul = new XUl());
+      foreach ($rounds as $round)
+        $ul->add(new XLi(new XA(WS::link(sprintf('/score/%s/races', $this->REGATTA->id), array('r'=>$round->id)), $round)));
+    }
+
+    // ------------------------------------------------------------
     // Add round
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new XPort("Add new round"));
@@ -81,17 +92,6 @@ class TeamRacesPane extends AbstractPane {
     }
 
     $form->add(new XSubmitP('add-round', "Add round"));
-
-    // ------------------------------------------------------------
-    // Current rounds
-    // ------------------------------------------------------------
-    if (count($rounds) > 0) {
-      $this->PAGE->addContent($p = new XPort("Current rounds"));
-      $p->add(new XP(array(), "Click on the round below to edit the races in that round."));
-      $p->add($ul = new XUl());
-      foreach ($rounds as $round)
-        $ul->add(new XLi(new XA(WS::link(sprintf('/score/%s/races', $this->REGATTA->id), array('r'=>$round->id)), $round)));
-    }
   }
 
   private function fillRound($round) {
@@ -147,7 +147,7 @@ class TeamRacesPane extends AbstractPane {
                            XSelect::fromArray('boat[]', $boatOptions, $race->boat->id)),
                      array('class'=>'sortable'));
       }
-      $form->add($p = new XSubmitP('edit-races', "Edit checked races"));
+      $form->add($p = new XSubmitP('edit-races', "Edit races"));
       $p->add(new XHiddenInput('round', $round->id));
     }
 
@@ -246,6 +246,7 @@ class TeamRacesPane extends AbstractPane {
         $num_added++;
       }
       Session::pa(new PA("Added $num_added new races in round $round."));
+      $this->redirect('races', array('r'=>$round->id));
       return array();
     }
 
