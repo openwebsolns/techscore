@@ -407,3 +407,6 @@ delete from round where id not in (select round from race);
 alter table race add column tr_team1 int default null, add column tr_team2 int default null, add foreign key (tr_team1) references team(id) on delete cascade on update cascade, add foreign key (tr_team2) references team(id) on delete cascade on update cascade;
 update race, tr_race_teams set race.tr_team1 = tr_race_teams.team1, race.tr_team2 = tr_race_teams.team2 where (race.number, race.regatta) = (tr_race_teams.number, tr_race_teams.regatta);
 drop table tr_race_teams;
+
+-- in order to make race numbers editable, drop unique key
+alter table race drop key regatta_2;

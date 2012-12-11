@@ -6,11 +6,13 @@ DRAG_TO = null;
 window.onload = function() {
     var table = document.getElementById('divtable');
     var rows = table.getElementsByTagName('tr');
+    var totalcells = 0;
     for (var r = 0; r < rows.length; r++) {
 	var row = rows[r];
 	if (row.getAttribute('class') == 'sortable') {
 	    ROWS.push(row);
 	    var cells = row.getElementsByTagName('td');
+            totalcells = cells.length;
 	    for (var c = 0; c < cells.length; c++) {
 		var cell = cells[c];
 		if (cell.getAttribute('class') == 'drag') {
@@ -43,10 +45,12 @@ window.onload = function() {
 	// hide the first cell altogether
 	row.childNodes[0].style.display = "none";
     }
-    var span = document.createElement('span');
-    table.parentNode.appendChild(span);
-    span.setAttribute('class', 'message');
-    span.appendChild(document.createTextNode("← Drag to change order"));
+    if (cells.length < 4) {
+        var span = document.createElement('span');
+        table.parentNode.appendChild(span);
+        span.setAttribute('class', 'message');
+        span.appendChild(document.createTextNode("← Drag to change order"));
+    }
 };
 
 window.onmouseup = function(evt) {

@@ -592,3 +592,7 @@ a.empty {
 .tr-multtable td {
     border: none;
 }
+
+.teamtable td {
+    text-align: left;
+}

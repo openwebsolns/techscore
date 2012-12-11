@@ -121,35 +121,34 @@ class TeamRacesPane extends AbstractPane {
     // ------------------------------------------------------------
     // Current races
     // ------------------------------------------------------------
+    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/tablesort.js'));
     $has_finishes = false;
     $cur_races = $this->REGATTA->getRacesInRound($round, Division::A());
     if (count($cur_races) > 0) {
       $this->PAGE->addContent($p = new XPort("Edit races in round $round"));
       $p->add($form = $this->createForm());
-      $form->add(new XP(array(), "The teams for the races can only be edited for unscored races. To edit the teams in a scored race, drop the finish and then return here to edit the race."));
-      $form->add(new XP(array(), "Extra (unused) races will be removed at the end of the regatta."));
+      $form->set('id', 'edit-races-form');
+      $form->add(new XNoScript("To reorder the races, indicate the relative desired order in the first cell."));
+      $form->add(new XScript('text/javascript', null, 'var f = document.getElementById("edit-races-form"); var p = document.createElement("p"); p.appendChild(document.createTextNode("To reorder the races, move the rows below by clicking and dragging on the first cell (\"#\") of that row.")); f.appendChild(p);'));
+      $form->add(new XP(array(), "You may also edit the associated boat for each race. Click the \"Edit races\" button to save changes. Extra (unused) races will be removed at the end of the regatta."));
       $form->add(new XNoScript(array(new XP(array(),
                                             array(new XStrong("Important:"), " check the edit column if you wish to edit that race. The race will not be updated regardless of changes made otherwise.")))));
-      $form->add($tab = new XQuickTable(array(), array("Edit?", "#", "First team", "Second team", "Boat")));
-      foreach ($cur_races as $race) {
+      $form->add($tab = new XQuickTable(array('id'=>'divtable', 'class'=>'teamtable'), array("Order", "#", "First team", "Second team", "Boat")));
+      foreach ($cur_races as $i => $race) {
         $teams = $this->REGATTA->getRaceTeams($race);
-        if (count($this->REGATTA->getFinishes($race)) > 0) {
+        if (count($this->REGATTA->getFinishes($race)) > 0)
           $has_finishes = true;
-          $tab->addRow(array(new XCheckboxInput('race[]', $race->id),
-                             $race->number,
-                             $teams[0],
-                             $teams[1],
-                             XSelect::fromArray('boat['.$race->id.']', $boatOptions, $race->boat->id)));
-        }
-        else {
-          $tab->addRow(array(new XCheckboxInput('race[]', $race->id),
-                             $race->number,
-                             XSelect::fromArray('team1['.$race->id.']', $teamOpts, $teams[0]->id),
-                             XSelect::fromArray('team2['.$race->id.']', $teamOpts, $teams[1]->id),
-                             XSelect::fromArray('boat['.$race->id.']', $boatOptions, $race->boat->id)));
-        }
+        $tab->addRow(array(new XTD(array(),
+                                   array(new XTextInput('order[]', ($i + 1), array('size'=>2)),
+                                         new XHiddenInput('race[]', $race->number))),
+                           new XTD(array('class'=>'drag'), $race->number),
+                           $teams[0],
+                           $teams[1],
+                           XSelect::fromArray('boat[]', $boatOptions, $race->boat->id)),
+                     array('class'=>'sortable'));
       }
-      $form->add(new XSubmitP('edit-races', "Edit checked races"));
+      $form->add($p = new XSubmitP('edit-races', "Edit checked races"));
+      $p->add(new XHiddenInput('round', $round->id));
     }
 
     // ------------------------------------------------------------
@@ -187,6 +186,7 @@ class TeamRacesPane extends AbstractPane {
     // Delete round
     // ------------------------------------------------------------
     if (isset($args['delete-round'])) {
+      // @TODO: check round viability
       $round = DB::$V->reqID($args, 'round', DB::$ROUND, "Invalid round to delete.");
       // Check that there are no finishes
       foreach ($this->REGATTA->getRacesInRound($round) as $race) {
@@ -253,34 +253,61 @@ class TeamRacesPane extends AbstractPane {
     // Edit races
     // ------------------------------------------------------------
     if (isset($args['edit-races'])) {
-      $races = DB::$V->reqList($args, 'race', null, "No races to edit were provided.");
-      $boats = DB::$V->reqList($args, 'boat', null, "No list of boats were provided.");
-      $teams = DB::$V->reqMap($args, array('team1', 'team2'), null, "Invalid list of teams provided.");
-      $edited = 0;
-      $divs = array(Division::A(), Division::B(), Division::C());
-      foreach ($races as $id) {
-        $race = $this->REGATTA->getRaceById($id);
-        if ($race === null)
-          continue;
+      $rounds = array();
+      foreach ($this->REGATTA->getRounds() as $r)
+        $rounds[$r->id] = $r;
+      $round = $rounds[DB::$V->reqKey($args, 'round', $rounds, "Invalid round provided.")];
 
-        // Update all divisions with the same boat!
-        foreach ($divs as $div) {
-          $therace = $this->REGATTA->getRace($div, $race->number);
-          $therace->boat = DB::$V->reqID($boats, $race->id, DB::$BOAT, "Invalid boat provided for race " . $race->number);
-          $this->REGATTA->setRace($therace);
-        }
-        // If unscored, also allow editing the teams
-        if (count($this->REGATTA->getFinishes($race)) == 0) {
-          $t1 = DB::$V->reqTeam($teams['team1'], $race->id, $this->REGATTA, "Invalid first team specified.");
-          $t2 = DB::$V->reqTeam($teams['team2'], $race->id, $this->REGATTA, "Invalid second team specified.");
-          $this->REGATTA->setRaceTeams($race, $t1, $t2);
-        }
-        $edited++;
+      $map = DB::$V->reqMap($args, array('race', 'boat'), null, "Invalid list of race and boats.");
+      // If order list provided (and valid), then use it
+      $ord = DB::$V->incList($args, 'order', count($map['race']));
+      if (count($ord) > 0)
+        array_multisort($ord, SORT_NUMERIC, $map['race'], $map['boat']);
+
+      // Make sure that every race number is accounted for
+      $numbers = array();
+      foreach ($this->REGATTA->getRacesInRound($round) as $r) {
+        if (!isset($numbers[$r->number]))
+          $numbers[$r->number] = array();
+        $numbers[$r->number][] = $r;
       }
-      if (count($edited) == 0)
+      $pool = array_keys($numbers);
+      sort($pool);
+        
+      $to_save = array();
+      foreach ($map['race'] as $i => $number) {
+        if (!isset($numbers[$number]))
+          throw new SoterException("Invalid race number $number for round $round.");
+
+        $boat = DB::getBoat($map['boat'][$i]);
+        if ($boat === null)
+          throw new SoterException("Invalid boat specified.");
+
+        foreach ($numbers[$number] as $race) {
+          $edited = false;
+          if ($race->boat != $boat) {
+            $race->boat = $boat;
+            $edited = true;
+          }
+          if ($race->number != $pool[$i]) {
+            $race->number = $pool[$i];
+            $edited = true;
+          }
+          if ($edited)
+            $to_save[] = $race;
+        }
+        unset($numbers[$number]);
+      }
+      if (count($numbers) > 0)
+        throw new SoterException("Not all races in round are accounted for.");
+
+      foreach ($to_save as $race)
+        DB::set($race, true);
+        
+      if (count($to_save) == 0)
         Session::pa(new PA("No races were updated.", PA::I));
       else
-        Session::pa(new PA("Updated $edited race(s)."));
+        Session::pa(new PA(sprintf("Races updated for round %s.", $round)));
     }
     return array();
   }
