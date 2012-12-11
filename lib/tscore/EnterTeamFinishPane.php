@@ -46,9 +46,26 @@ class EnterTeamFinishPane extends EnterFinishPane {
 
     $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/finish.js'));
     // ------------------------------------------------------------
+    // Choose race (duplicate of parent)
+    // ------------------------------------------------------------
+    $this->PAGE->addContent($p = new XPort("Choose race by number"));
+    $p->add($form = $this->createForm(XForm::GET));
+    $form->set("id", "race_form");
+
+    $form->add(new FItem("Race:", 
+                         new XTextInput('race',
+                                        $race,
+                                        array("size"=>"4",
+                                              "maxlength"=>"3",
+                                              "id"=>"chosen_race",
+                                              "class"=>"narrow"))));
+    // No rotation yet
+    $form->add(new XSubmitP("choose_race", "Change race"));
+
+    // ------------------------------------------------------------
     // Choose round
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new XPort("Choose round"));
+    $this->PAGE->addContent($p = new XPort("Choose race by round"));
     $p->add($form = $this->createForm(XForm::GET));
     $form->set('id', 'race_form');
     $form->add(new FItem("Round:", $sel = XSelect::fromArray('round', $rounds, $round->id)));
@@ -59,7 +76,6 @@ class EnterTeamFinishPane extends EnterFinishPane {
     // Choose race: provide grid
     // ------------------------------------------------------------
     require_once('tscore/ScoresGridDialog.php');
-    $this->PAGE->addContent($p = new XPort("Choose race"));
     $D = new ScoresGridDialog($this->REGATTA);
     $p->add($D->getRoundTable($round, true));
 
@@ -67,10 +83,6 @@ class EnterTeamFinishPane extends EnterFinishPane {
     // Enter finishes
     // ------------------------------------------------------------
     $this->fillFinishesPort($race);
-  }
-
-  public function process(Array $args) {
-    
   }
 }
 ?>
