@@ -62,21 +62,24 @@ class TeamRacesPane extends AbstractPane {
                    array("Choose the teams which will participate in the round to be added. ",
                          Conf::$NAME,
                          " will create the necessary races so that each team sails head-to-head against every other team (round-robin). Afterwards, you will be able to delete or create new races within the round. Make sure to add an appropriate label for the round.")));
+    $form->add(new XP(array(),
+                      "To include a team, place a number next to the team name indicating their seeding order for the round-robin. Order numbers in ascending order. Teams with no number will not be included in the round-robin."));
     $form->add(new FItem("Round label:", new XTextInput('title', "Round " . (count($rounds) + 1))));
-    $form->add($fi = new FItem("Choose teams:", $ul = new XUl(array('class'=>'fitem-list'))));
-    $fi->add(new XSpan("(Click to select/deselect)", array('class'=>'message')));
-
-    foreach ($this->REGATTA->getTeams() as $team) {
-      $id = 'team-'.$team->id;
-      $ul->add(new Xli(array(new XCheckboxInput('team[]', $team->id, array('id'=>$id)), new XLabel($id, $team))));
-    }
 
     $boats = DB::getBoats();
     $boatOptions = array();
     foreach ($boats as $boat)
       $boatOptions[$boat->id] = $boat->name;
-
     $form->add(new FItem("Boat:", XSelect::fromArray('boat', $boatOptions)));
+
+    $form->add($ul = new XUl(array('id'=>'teams-list')));
+    foreach ($this->REGATTA->getTeams() as $team) {
+      $id = 'team-'.$team->id;
+      $ul->add(new XLi(array(new XHiddenInput('team[]', $team->id),
+                             new XTextInput('order[]', "", array('id'=>$id)),
+                             new XLabel($id, $team))));
+    }
+
     $form->add(new XSubmitP('add-round', "Add round"));
 
     // ------------------------------------------------------------
@@ -226,11 +229,15 @@ class TeamRacesPane extends AbstractPane {
       }
 
       $boat = DB::$V->reqID($args, 'boat', DB::$BOAT, "Invalid boat provided.");
-      $team_ids = DB::$V->reqList($args, 'team', null, "No list of teams provided. Please try again.");
+      $map = DB::$V->reqMap($args, array('order', 'team'), null, "No list of ordered teams provided. Please try again.");
+
+      $ord = $map['order'];
+      $ids = $map['team'];
+      array_multisort($ord, SORT_NUMERIC, $ids, SORT_STRING);
 
       $teams = array();
-      foreach ($team_ids as $id) {
-        if (($team = $this->REGATTA->getTeam($id)) !== null)
+      foreach ($ids as $index => $id) {
+        if (trim($ord[$index]) != "" && ($team = $this->REGATTA->getTeam($id)) !== null)
           $teams[] = $team;
       }
       if (count($teams) < 1)
