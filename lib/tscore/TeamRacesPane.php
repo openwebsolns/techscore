@@ -162,23 +162,6 @@ class TeamRacesPane extends AbstractPane {
       $form->add($p = new XSubmitP('delete-round', "Delete"));
       $p->add(new XHiddenInput('round', $round->id));
     }
-
-    // ------------------------------------------------------------
-    // Add races
-    // ------------------------------------------------------------
-    $team_sel1 = XSelect::fromArray('team1[]', $teamFullOpts);
-    $team_sel2 = XSelect::fromArray('team2[]', $teamFullOpts);
-    $this->PAGE->addContent($p = new XPort("Add races"));
-    $p->add($form = $this->createForm());
-    $form->add(new XP(array(), "You can add up to 10 races at a time. For each race, choose the two teams which will be facing each other and the boat they will be racing in. Races with no chosen teams will not be added."));
-    $form->add($tab = new XQuickTable(array(), array("#", "First Team", "First Team", "Boat")));
-
-    $boat_sel = XSelect::fromArray('boat[]', $boatOptions);
-    $cur_num = count($cur_races);
-    for ($i = $cur_num + 1; $i <= $cur_num + 10; $i++) {
-      $tab->addRow(array($i, $team_sel1, $team_sel2, $boat_sel));
-    }
-    $form->add(new XSubmitP('add-races', "Add races"));
   }
 
   /**
@@ -298,45 +281,6 @@ class TeamRacesPane extends AbstractPane {
         Session::pa(new PA("No races were updated.", PA::I));
       else
         Session::pa(new PA("Updated $edited race(s)."));
-    }
-
-    // ------------------------------------------------------------
-    // Add races
-    // ------------------------------------------------------------
-    if (isset($args['add-races'])) {
-      $cur_races = $this->REGATTA->getRaces(Division::A());
-      $count = count($cur_races);
-      $map = DB::$V->incMap($args, array('team1', 'team2', 'boat'), null,
-                            array('team1'=>array(), 'team2'=>array(), 'boat'=>array()));
-
-      $num_added = 0;
-      $divs = array(Division::A(), Division::B(), Division::C());
-      foreach ($map['team1'] as $i => $id1) {
-        $t1 = $this->REGATTA->getTeam($id1);
-        $t2 = $this->REGATTA->getTeam($map['team2'][$i]);
-        $bt = DB::getBoat($map['boat'][$i]);
-        if ($t1 === null || $t2 === null || $bt === null)
-          continue;
-        if ($t1 === $t2) {
-          Session::pa(new PA("The same team cannot race against itself.", PA::E));
-          continue;
-        }
-
-        $count++;
-        foreach ($divs as $div) {
-          $race = new Race();
-          $race->number = $count;
-          $race->division = $div;
-          $race->boat = $bt;
-          $this->REGATTA->setRace($race);
-        }
-        $this->REGATTA->setRaceTeams($race, $t1, $t2);
-        $num_added++;
-      }
-      if ($num_added == 0)
-        Session::pa(new PA("No races were added. Make sure to select both teams for each race.", PA::I));
-      else
-        Session::pa(new PA("Added $num_added race(s)."));
     }
     return array();
   }
