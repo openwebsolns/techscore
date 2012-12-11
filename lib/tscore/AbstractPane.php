@@ -64,6 +64,8 @@ abstract class AbstractPane {
 
     // ------------------------------------------------------------
     // Menu
+    $finish = ($this->REGATTA->scoring == Regatta::SCORING_TEAM) ?
+      "EnterTeamFinishPane" : "EnterFinishPane";
     $score_i = array("Regatta"   => array("settings"   => "DetailsPane",
                                           "summaries"  => "SummaryPane",
                                           "scorers"    => "ScorersPane",
@@ -78,7 +80,7 @@ abstract class AbstractPane {
                                           "manual-rotation" => "ManualTweakPane"),
                      "RP Forms"  => array("rp"         => "RpEnterPane",
                                           "unregistered" => "UnregisteredSailorPane"),
-                     "Finishes"  => array("finishes" => "EnterFinishPane",
+                     "Finishes"  => array("finishes" => $finish,
                                           "drop-finishes" => "DropFinishPane",
                                           "penalty"  => "EnterPenaltyPane",
                                           "drop-penalty" => "DropPenaltyPane",
@@ -249,6 +251,10 @@ abstract class AbstractPane {
     case 'enter-finishes':
     case 'finish':
     case 'finishes':
+      if ($u->scoring == Regatta::SCORING_TEAM) {
+        require_once('tscore/EnterTeamFinishPane.php');
+        return new EnterTeamFinishPane($r, $u);
+      }
       require_once('tscore/EnterFinishPane.php');
       return new EnterFinishPane($r, $u);
     case 'add-penalty':
@@ -364,6 +370,7 @@ abstract class AbstractPane {
     case 'RpEnterPane':
     case 'UnregisteredSailorPane':
     case 'EnterFinishPane':
+    case 'EnterTeamFinishPane':
       return $this->has_teams && $this->has_races;
 
     case 'SailsPane':
@@ -426,6 +433,7 @@ abstract class AbstractPane {
                                "RpEnterPane" => "rp",
                                "UnregisteredSailorPane" => "unregistered",
                                "EnterFinishPane" => "finishes",
+                               "EnterTeamFinishPane" => "finishes",
                                "DropFinishPane" => "drop-finishes",
                                "EnterPenaltyPane" => "penalty",
                                "DropPenaltyPane" => "drop-penalty",
@@ -446,6 +454,7 @@ abstract class AbstractPane {
                                  "RpEnterPane" => "Enter RP",
                                  "UnregisteredSailorPane" => "Unregistered",
                                  "EnterFinishPane" => "Enter finish",
+                                 "EnterTeamFinishPane" => "Enter finish",
                                  "DropFinishPane" => "All finishes",
                                  "EnterPenaltyPane" => "Add penalty",
                                  "DropPenaltyPane" => "Drop penalty",

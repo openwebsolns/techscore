@@ -58,7 +58,12 @@ class ScoresGridDialog extends AbstractScoresDialog {
    * return a grid indicating the winners/losers of the head to head
    * races involved in the given round, which must exist.
    *
-   * @param int $round the round number to fetch (number must be,
+   * It is possible for a pair of teams to meet more than once in a
+   * round (double round-robins come to mind). This method will
+   * account for such occurrences by displaying two records, if
+   * appropriate.
+   *
+   * @param Round $round the round number to fetch (number must be,
    * incidentally, round)
    *
    * @param boolean $score_mode true to include links to score races.
@@ -72,45 +77,46 @@ class ScoresGridDialog extends AbstractScoresDialog {
     if (count($races) == 0)
       throw new InvalidArgumentException("No such round $round in this regatta.");
 
-    // Map of teams in this round (team_id => Team)
+    // Map all the teams in this round to every other team in the
+    // round. For each such pairing, track the list of races in which
+    // they are set to meet, and if applicable, the score each team
+    // got in each race.
+    //
+    // Since $races contains the Race objects from each division,
+    // track the list of races by race number (not ID).
+    //
+    // The structure is, then, in pseudo-JSON format:
+    //
+    // {Team1ID : {Team2ID : {Race# : [Ascore, Bscore,...] } } }
+    //
+    // Also track corresponding team objects
     $teams = array();
-    $scores = array(); // Map of team_id => (team_id => score)
-    $record = array(); // Map of team_id => (team_id => record [e.g. 1-2-5])
-    $raceid = array(); // Map of team_id => (team_id => Race::id
+    $scores = array();
     foreach ($races as $race) {
       $ts = $this->REGATTA->getRaceTeams($race);
       foreach ($ts as $t) {
-        if (!isset($teams[$t->id])) {
-          $teams[$t->id] = $t;
+        $teams[$t->id] = $t;
+        if (!isset($scores[$t->id]))
           $scores[$t->id] = array();
-          $record[$t->id] = array();
-          $raceid[$t->id] = array();
-        }
       }
 
-      $t0 = $ts[0]->id;
-      $t1 = $ts[1]->id;
-      $s0 = $this->REGATTA->getFinish($race, $ts[0]);
-      $s1 = $this->REGATTA->getFinish($race, $ts[1]);
+      $t0 = $ts[0];
+      $t1 = $ts[1];
+      if (!isset($scores[$t0->id][$t1->id]))
+        $scores[$t0->id][$t1->id] = array();
+      if (!isset($scores[$t1->id][$t0->id]))
+        $scores[$t1->id][$t0->id] = array();
 
-      if ($race->division == Division::A()) {
-        $raceid[$t0][$t1] = $race->id;
-        $raceid[$t1][$t0] = $race->id;
-      }
-
+      if (!isset($scores[$t0->id][$t1->id][$race->number]))
+        $scores[$t0->id][$t1->id][$race->number] = array();
+      if (!isset($scores[$t1->id][$t0->id][$race->number]))
+        $scores[$t1->id][$t0->id][$race->number] = array();
+      
+      $s0 = $this->REGATTA->getFinish($race, $t0);
+      $s1 = $this->REGATTA->getFinish($race, $t1);
       if ($s0 !== null && $s1 !== null) {
-        if (!isset($scores[$t0][$t1])) {
-          $scores[$t0][$t1] = 0;
-          $scores[$t1][$t0] = 0;
-
-          $record[$t0][$t1] = array();
-          $record[$t1][$t0] = array();
-        }
-        $scores[$t0][$t1] += $s0->score;
-        $scores[$t1][$t0] += $s1->score;
-
-        $record[$t0][$t1][] = $s0->getPlace();
-        $record[$t1][$t0][] = $s1->getPlace();
+        $scores[$t0->id][$t1->id][$race->number][] = $s0->score;
+        $scores[$t1->id][$t0->id][$race->number][] = $s1->score;
       }
     }
 
@@ -130,32 +136,49 @@ class ScoresGridDialog extends AbstractScoresDialog {
       $win = 0;
       $los = 0;
       foreach ($teams as $id2 => $other) {
-        if ($id2 == $id)
-          $row->add(new XTD(array('class'=>'tr-same'), "X"));
+        if (!isset($scores[$id][$id2]))
+          $row->add(new XTD(array('class'=>'tr-ns'), "X"));
         else {
-          if (!isset($scores[$id][$id2])) {
-            $cont = "";
-            if ($score_mode && isset($raceid[$id]) && isset($raceid[$id][$id2]))
-              $cont = new XA(WS::link($lroot, array('race' => $raceid[$id][$id2])), "Enter");
-            $row->add(new XTD(array('class'=>'tr-na'), $cont));
+          // foreach race
+          if (count($scores[$id][$id2]) == 0) {
+            $row->add(new XTD(array('class'=>'tr-ns')));
+            continue;
           }
-          else {
-            $cont = implode('-', $record[$id][$id2]);
-            if ($score_mode)
-              $cont = new XA(WS::link($lroot, array('race' => $raceid[$id][$id2])), $cont);
-            if ($scores[$id][$id2] < $scores[$id2][$id]) {
-              $row->add(new XTD(array('class'=>'tr-win'), $cont));
-              $win++;
+
+          $subtab = null;
+          if (count($scores[$id][$id2]) > 1)
+            $row->add(new XTD(array('class'=>'tr-mult'), $subtab = new XTable(array('class'=>'tr-multtable'))));
+            
+          foreach ($scores[$id][$id2] as $race_num => $places) {
+            $subrow = $row;
+            if ($subtab !== null)
+              $subtab->add($subrow = new XTR());
+
+            sort($places);
+            $total1 = array_sum($places);
+            $total2 = array_sum($scores[$id2][$id][$race_num]);
+
+            // Calculate display
+            $cont = implode('-', $places);
+            if ($score_mode) {
+              if (count($places) == 0)
+                $cont = new XA(WS::link($lroot, array('race' => $race_num), '#finish_form'), "Score");
+              else
+                $cont = new XA(WS::link($lroot, array('race' => $race_num), '#finish_form'), $cont);
             }
-            else {
-              $row->add(new XTD(array('class'=>'tr-lose'), $cont));
-              $los++;
-            }
+            if ($total1 < $total2)
+              $subrow->add(new XTD(array('class'=>'tr-win'), $cont));
+            elseif ($total1 > $total2)
+              $subrow->add(new XTD(array('class'=>'tr-lose'), $cont));
+            elseif ($total1 != 0)
+              $subrow->add(new XTD(array('class'=>'tr-tie'), $cont));
+            else
+              $subrow->add(new XTD(array(), $cont));
           }
         }
       }
       $table->add($row);
-      $rec->add("$win-$los");
+      $rec->add($win . '-' . $los);
     }
     return $table;
   }

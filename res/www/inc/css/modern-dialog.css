@@ -298,7 +298,7 @@ p.warning {padding: 0.5em;}
     border-right: none;
 }
 
-.tr-same {
+.tr-ns {
     background: #ccc;
     color: #ccc;
 }
@@ -307,4 +307,15 @@ p.warning {padding: 0.5em;}
 }
 .tr-lose {
     background: #eed2c0;
+}
+.tr-tie {
+    background:#f3f3bb;
+}
+.tr-multtable {
+    border: medium none;
+    height: 100%;
+    width: 100%;
+}
+.tr-multtable td {
+    border: none;
 }

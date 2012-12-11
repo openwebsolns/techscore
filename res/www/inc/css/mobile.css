@@ -355,3 +355,27 @@ a.empty {
     border-color: #888;
     color: #555;
 }
+.teamscores td {
+    text-align: center;
+}
+.tr-ns {
+    background: #ccc;
+    color: #ccc;
+}
+.tr-win {
+    background: #e0f3e0;
+}
+.tr-lose {
+    background: #eed2c0;
+}
+.tr-tie {
+    background:#f3f3bb;
+}
+.tr-multtable {
+    border: medium none;
+    height: 100%;
+    width: 100%;
+}
+.tr-multtable td {
+    border: none;
+}

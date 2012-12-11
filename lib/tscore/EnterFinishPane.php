@@ -5,8 +5,6 @@
  * @package tscore
  */
 
-require_once("conf.php");
-
 /**
  * (Re)Enters finishes
  *
@@ -59,13 +57,13 @@ class EnterFinishPane extends AbstractPane {
     $p->add($form = $this->createForm(XForm::GET));
     $form->set("id", "race_form");
 
-    $form->add($fitem = new FItem("Race:", 
-                                  new XTextInput("chosen_race",
-                                                 $race,
-                                                 array("size"=>"4",
-                                                       "maxlength"=>"3",
-                                                       "id"=>"chosen_race",
-                                                       "class"=>"narrow"))));
+    $form->add(new FItem("Race:", 
+                         new XTextInput("chosen_race",
+                                        $race,
+                                        array("size"=>"4",
+                                              "maxlength"=>"3",
+                                              "id"=>"chosen_race",
+                                              "class"=>"narrow"))));
     // Using?
     $using = (isset($args['finish_using'])) ?
       $args['finish_using'] : self::ROTATION;
@@ -77,6 +75,16 @@ class EnterFinishPane extends AbstractPane {
 
     $form->add(new FItem("Using:", XSelect::fromArray('finish_using', $this->ACTIONS, $using)));
     $form->add(new XSubmitP("choose_race", "Change race"));
+
+    $this->fillFinishesPort($race, ($using == self::ROTATION) ? $rotation : null);
+  }
+
+  /**
+   * Helper method centralizes display of boat/team selection for
+   * entering finishes.
+   *
+   */
+  protected function fillFinishesPort(Race $race, Rotation $rotation = null) {
 
     // ------------------------------------------------------------
     // Enter finishes
@@ -90,7 +98,7 @@ class EnterFinishPane extends AbstractPane {
       $this->REGATTA->getFinishes($race) :
       $this->REGATTA->getCombinedFinishes($race);
 
-    if ($using == self::ROTATION) {
+    if ($rotation !== null) {
       // ------------------------------------------------------------
       // Rotation-based
       // ------------------------------------------------------------
@@ -319,6 +327,8 @@ class EnterFinishPane extends AbstractPane {
     }
     if (count($divisions) == 0)
       $divisions = $this->REGATTA->getDivisions();
+
+    // echo "<pre>"; print_r($race); "</pre>"; exit;
 
     foreach ($divisions as $div) {
       foreach ($teams as $team) {
