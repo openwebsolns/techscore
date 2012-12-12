@@ -79,7 +79,7 @@ class TeamRacesPane extends AbstractPane {
     $form->add(new XP(array(),
                    array("Choose the teams which will participate in the round to be added. ",
                          Conf::$NAME,
-                         " will create the necessary races so that each team sails head-to-head against every other team (round-robin). Afterwards, you will be able to delete or create new races within the round. Make sure to add an appropriate label for the round.")));
+                         " will create the necessary races so that each team sails head-to-head against every other team (round-robin). Make sure to add an appropriate label for the round.")));
     $form->add(new XP(array(),
                       "To include a team, place a number next to the team name indicating their seeding order for the round-robin. Order numbers in ascending order. Teams with no number will not be included in the round-robin."));
     $form->add(new FItem("Round label:", new XTextInput('title', "Round " . (count($rounds) + 1))));
