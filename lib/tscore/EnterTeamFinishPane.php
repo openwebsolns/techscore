@@ -65,9 +65,10 @@ class EnterTeamFinishPane extends EnterFinishPane {
     // ------------------------------------------------------------
     // Choose round
     // ------------------------------------------------------------
+    $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/tr-finish-ui.js')));
     $this->PAGE->addContent($p = new XPort("Choose race by round"));
     $p->add($form = $this->createForm(XForm::GET));
-    $form->set('id', 'race_form');
+    $form->set('id', 'round_form');
     $form->add(new FItem("Round:", $sel = XSelect::fromArray('round', $rounds, $round->id)));
     $sel->set('onchange', 'submit(this)');
     $form->add(new XSubmitAccessible("change_team", "Change"));

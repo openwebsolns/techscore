@@ -189,6 +189,21 @@ h4#regatta {
 
 #bottom-grab {display:none;}
 .port {border:1px solid #cccccc;padding:0 1em 0.5em;margin-bottom:1.5em;}
+.port.collapsed  {
+    background: #eee;
+    height: 2em;
+    cursor: pointer;
+}
+.port.collapsed * {
+    display: none;
+}
+.port.collapsed h3 {
+    display:inline-block;
+}
+.port.collapsed h3:before {
+    content: "+ ";
+    font-weight: bold;
+}
 .port h3 {
     color:#555555;
     margin:0;
