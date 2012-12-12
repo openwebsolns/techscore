@@ -72,9 +72,23 @@ class TeamRacesPane extends AbstractPane {
     }
 
     // ------------------------------------------------------------
+    // Create from previous
+    // ------------------------------------------------------------
+    if (count($rounds) > 0) {
+      $this->PAGE->addContent($p = new XPort("Create from existing round"));
+      $p->add($f = $this->createForm());
+      $f->add(new XP(array(), "Create a new round by using an existing round's races as references."));
+      $f->add(new FItem("Round label:", new XTextInput('title', "Round " . (count($rounds) + 1))));
+      $f->add(new FItem("Previous round:", XSelect::fromDBM('template', $rounds)));
+      $f->add($fi = new FItem("Swap teams:", new XCheckboxInput('swap', 1, array('id'=>'chk-swap'))));
+      $fi->add(new XLabel('chk-swap', "Reverse the teams in each race."));
+      $f->add(new XSubmitP('create-from-existing', "Create round"));
+    }
+
+    // ------------------------------------------------------------
     // Add round
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new XPort("Add new round"));
+    $this->PAGE->addContent($p = new XPort("Create new round"));
     $p->add($form = $this->createForm());
     $form->add(new XP(array(),
                    array("Choose the teams which will participate in the round to be added. ",
@@ -279,6 +293,55 @@ class TeamRacesPane extends AbstractPane {
         }
       }
       Session::pa(new PA("Removed round $round."));
+    }
+
+    // ------------------------------------------------------------
+    // Create from existing
+    // ------------------------------------------------------------
+    if (isset($args['create-from-existing'])) {
+      $rounds = array();
+      foreach ($this->REGATTA->getRounds() as $r)
+	$rounds[$r->id] = $r;
+
+      $templ = $rounds[DB::$V->reqKey($args, 'template', $rounds, "Invalid template round provided.")];
+
+      $round = new Round();
+      $round->title = DB::$V->reqString($args, 'title', 1, 81, "Invalid round label. May not exceed 80 characters.");
+      foreach ($rounds as $r) {
+	if ($r->title == $round->title)
+	  throw new SoterException("Duplicate round title provided.");
+      }
+      $round->relative_order = count($rounds) + 1;
+
+      $num_added = 0;
+      $swap = DB::$V->incInt($args, 'swap', 1, 2, 0);
+      $divs = $this->REGATTA->getDivisions();
+      $racenum = count($this->REGATTA->getRaces(Division::A()));
+      foreach ($this->REGATTA->getRacesInRound($templ, Division::A()) as $race) {
+	$racenum++;
+	$num_added++;
+	foreach ($divs as $div) {
+	  $tmprace = $this->REGATTA->getRace($div, $race->number);
+	  $newrace = new Race();
+	  $newrace->regatta = $this->REGATTA;
+	  $newrace->number = $racenum;
+	  $newrace->division = $div;
+	  $newrace->boat = $tmprace->boat;
+	  $newrace->round = $round;
+
+	  if ($swap > 0) {
+	    $newrace->tr_team1 = $tmprace->tr_team2;
+	    $newrace->tr_team2 = $tmprace->tr_team1;
+	  }
+	  else {
+	    $newrace->tr_team1 = $tmprace->tr_team1;
+	    $newrace->tr_team2 = $tmprace->tr_team2;
+	  }
+	  DB::set($newrace, false);
+	}
+      }
+      Session::pa(new PA(sprintf("Added new round %s with %d race(s).", $round, $num_added)));
+      $this->redirect('races', array('r'=>$round->id));
     }
 
     // ------------------------------------------------------------
