@@ -89,6 +89,8 @@ class TeamRacesPane extends AbstractPane {
     foreach ($boats as $boat)
       $boatOptions[$boat->id] = $boat->name;
     $form->add(new FItem("Boat:", XSelect::fromArray('boat', $boatOptions)));
+    $form->add($fi = new FItem("Meetings:", new XTextInput('meetings', 1)));
+    $fi->add(new XMessage("E.g., 1 for \"single\", 2 for \"double round-robin\""));
 
     $form->add($ul = new XUl(array('id'=>'teams-list')));
     foreach ($this->REGATTA->getTeams() as $team) {
@@ -292,6 +294,7 @@ class TeamRacesPane extends AbstractPane {
         if ($r->title == $round->title)
           throw new SoterException("Duplicate round title provided.");
       }
+      $round->relative_order = count($rounds) + 1;
 
       $boat = DB::$V->reqID($args, 'boat', DB::$BOAT, "Invalid boat provided.");
       $map = DB::$V->reqMap($args, array('order', 'team'), null, "No list of ordered teams provided. Please try again.");
@@ -299,6 +302,8 @@ class TeamRacesPane extends AbstractPane {
       $ord = $map['order'];
       $ids = $map['team'];
       array_multisort($ord, SORT_NUMERIC, $ids, SORT_STRING);
+
+      $meetings = DB::$V->reqInt($args, 'meetings', 1, 11, "Invalid meeting count. Must be between 1 and 10.");
 
       $teams = array();
       foreach ($ids as $index => $id) {
@@ -314,18 +319,23 @@ class TeamRacesPane extends AbstractPane {
       // Create round robin
       $num_added = 0;
       $divs = array(Division::A(), Division::B(), Division::C());
-      foreach ($this->pairup($teams) as $pair) {
-        $count++;
-        foreach ($divs as $div) {
-          $race = new Race();
-          $race->division = $div;
-          $race->number = $count;
-          $race->boat = $boat;
-          $race->round = $round;
-          $this->REGATTA->setRace($race);
+
+      $swap = false;
+      for ($meeting = 0; $meeting < $meetings; $meeting++) {
+        foreach ($this->pairup($teams, $swap) as $pair) {
+          $count++;
+          foreach ($divs as $div) {
+            $race = new Race();
+            $race->division = $div;
+            $race->number = $count;
+            $race->boat = $boat;
+            $race->round = $round;
+            $this->REGATTA->setRace($race);
+          }
+          $this->REGATTA->setRaceTeams($race, $pair[0], $pair[1]);
+          $num_added++;
         }
-        $this->REGATTA->setRaceTeams($race, $pair[0], $pair[1]);
-        $num_added++;
+        $swap = !$swap;
       }
       Session::pa(new PA("Added $num_added new races in round $round."));
       $this->redirect('races', array('r'=>$round->id));
@@ -399,9 +409,10 @@ class TeamRacesPane extends AbstractPane {
    * Creates a round-robin from the given items
    *
    * @param Array $items the items to pair up in round robin
+   * @param boolean $swap true to switch the normal order of the teams
    * @return Array:Array a list of all the pairings
    */
-  private function pairup($items) {
+  private function pairup($items, $swap = false) {
     if (count($items) < 2)
       throw new InvalidArgumentException("There must be at least two items.");
     if (count($items) == 2)
@@ -410,8 +421,8 @@ class TeamRacesPane extends AbstractPane {
     $list = array();
     $first = array_shift($items);
     foreach ($items as $other)
-      $list[] = array($first, $other);
-    foreach ($this->pairup($items) as $pair)
+      $list[] = ($swap) ? array($other, $first) : array($first, $other);
+    foreach ($this->pairup($items, $swap) as $pair)
       $list[] = $pair;
     return $list;
   }
