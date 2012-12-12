@@ -156,7 +156,7 @@ class TeamRacesPane extends AbstractPane {
       $form->add(new XP(array(), "You may also edit the associated boat for each race. Click the \"Edit races\" button to save changes. Extra (unused) races will be removed at the end of the regatta."));
       $form->add(new XNoScript(array(new XP(array(),
                                             array(new XStrong("Important:"), " check the edit column if you wish to edit that race. The race will not be updated regardless of changes made otherwise.")))));
-      $form->add($tab = new XQuickTable(array('id'=>'divtable', 'class'=>'teamtable'), array("Order", "#", "First team", "Second team", "Boat")));
+      $form->add($tab = new XQuickTable(array('id'=>'divtable', 'class'=>'teamtable'), array("Order", "#", "First team", "← Swap →", "Second team", "Boat")));
       foreach ($cur_races as $i => $race) {
         $teams = $this->REGATTA->getRaceTeams($race);
         if (count($this->REGATTA->getFinishes($race)) > 0)
@@ -166,6 +166,7 @@ class TeamRacesPane extends AbstractPane {
                                          new XHiddenInput('race[]', $race->number))),
                            new XTD(array('class'=>'drag'), $race->number),
                            $teams[0],
+			   new XCheckboxInput('swap[]', $race->id),
                            $teams[1],
                            XSelect::fromArray('boat[]', $boatOptions, $race->boat->id)),
                      array('class'=>'sortable'));
@@ -429,7 +430,8 @@ class TeamRacesPane extends AbstractPane {
       }
       $pool = array_keys($numbers);
       sort($pool);
-        
+
+      $swaplist = DB::$V->incList($args, 'swap');
       $to_save = array();
       foreach ($map['race'] as $i => $number) {
         if (!isset($numbers[$number]))
@@ -449,6 +451,12 @@ class TeamRacesPane extends AbstractPane {
             $race->number = $pool[$i];
             $edited = true;
           }
+	  if (in_array($race->id, $swaplist)) {
+	    $team1 = $race->tr_team1;
+	    $race->tr_team1 = $race->tr_team2;
+	    $race->tr_team2 = $team1;
+	    $edited = true;
+	  }
           if ($edited)
             $to_save[] = $race;
         }

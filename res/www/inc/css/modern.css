@@ -593,6 +593,6 @@ a.empty {
     border: none;
 }
 
-.teamtable td {
+.teamtable td, .teamtable th {
     text-align: left;
 }
