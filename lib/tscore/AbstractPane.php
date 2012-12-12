@@ -81,7 +81,6 @@ abstract class AbstractPane {
                      "RP Forms"  => array("rp"         => "RpEnterPane",
                                           "unregistered" => "UnregisteredSailorPane"),
                      "Finishes"  => array("finishes" => $finish,
-                                          "drop-finishes" => "DropFinishPane",
                                           "penalty"  => "EnterPenaltyPane",
                                           "drop-penalty" => "DropPenaltyPane",
                                           "team-penalty" => "TeamPenaltyPane"));
@@ -238,11 +237,6 @@ abstract class AbstractPane {
     case 'settings':
       require_once('tscore/DetailsPane.php');
       return new DetailsPane($r, $u);
-    case 'drop-finishes':
-    case 'all-finishes':
-    case 'current-finishes':
-      require_once('tscore/DropFinishPane.php');
-      return new DropFinishPane($r, $u);
     case 'drop-penalty':
     case 'drop-penalties':
       require_once('tscore/DropPenaltyPane.php');
@@ -353,9 +347,6 @@ abstract class AbstractPane {
 
   private function doActive($class_name) {
     switch ($class_name) {
-    case 'DropFinishPane':
-      return $this->has_rots && $this->has_scores && ($this->REGATTA->scoring != Regatta::SCORING_TEAM);
-
     case 'EnterPenaltyPane':
       return $this->has_scores && ($this->REGATTA->scoring != Regatta::SCORING_TEAM);
 
@@ -434,7 +425,6 @@ abstract class AbstractPane {
                                "UnregisteredSailorPane" => "unregistered",
                                "EnterFinishPane" => "finishes",
                                "EnterTeamFinishPane" => "finishes",
-                               "DropFinishPane" => "drop-finishes",
                                "EnterPenaltyPane" => "penalty",
                                "DropPenaltyPane" => "drop-penalty",
                                "TeamPenaltyPane" => "team-penalty");
@@ -455,7 +445,6 @@ abstract class AbstractPane {
                                  "UnregisteredSailorPane" => "Unregistered",
                                  "EnterFinishPane" => "Enter finish",
                                  "EnterTeamFinishPane" => "Enter finish",
-                                 "DropFinishPane" => "All finishes",
                                  "EnterPenaltyPane" => "Add penalty",
                                  "DropPenaltyPane" => "Drop penalty",
                                  "TeamPenaltyPane" => "Team penalty");

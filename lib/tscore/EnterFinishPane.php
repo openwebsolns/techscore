@@ -143,6 +143,17 @@ class EnterFinishPane extends AbstractPane {
                               sprintf("Enter finish for race %s", $race),
                               array('id'=>'submitfinish', 'tabindex'=>($i+1))));
     }
+
+    // ------------------------------------------------------------
+    // Drop finish
+    // ------------------------------------------------------------
+    if (count($finishes) > 0) {
+      $this->PAGE->addContent($p = new XPort("Drop finishes"));
+      $p->add(new XP(array(), "To drop the finishes for this race, click the button below. Note that this action is not undoable. All information associated with the finishes will be lost, including penalties and breakdowns that may have been entered."));
+      $p->add($f = $this->createForm());
+      $f->add($p = new XSubmitP('delete-finishes', "Delete"));
+      $p->add(new XHiddenInput('race', $race));
+    }
   }
 
   public function process(Array $args) {
@@ -238,6 +249,16 @@ class EnterFinishPane extends AbstractPane {
       unset($args['chosen_race']);
       $mes = sprintf("Finishes entered for race %s.", $race);
       Session::pa(new PA($mes));
+    }
+
+    // ------------------------------------------------------------
+    // Delete finishes
+    // ------------------------------------------------------------
+    if (isset($args['delete-finishes'])) {
+      $race = DB::$V->reqRace($args, 'race', $this->REGATTA, "Invalid or missing race to drop.");
+      $this->REGATTA->dropFinishes($race);
+      Session::pa(new PA(sprintf("Removed finishes for race %s.", $race)));
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
     }
 
     return $args;
