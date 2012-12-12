@@ -58,6 +58,23 @@ th.noborder, td.noborder {
     width: 96%;
     background: #eee;
 }
+.port.collapsed  {
+    background: #eee;
+    height: 2em;
+}
+.port.collapsed * {
+    display: none;
+}
+.port.collapsed h3 {
+    display:inline-block;
+    border: 1px solid #ddd;
+}
+.port.collapsed h3:after {
+    content: "click to expand";
+    font-weight: bold;
+    font-size: 70%;
+    margin-left: 1em;
+}
 .port h3 {
     color: #555555;
     margin: 0px;

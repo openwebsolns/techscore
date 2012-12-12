@@ -7,7 +7,8 @@ function hideTeamFinish(evt) {
 
     var div = f.parentNode;
     div.classList.add('collapsed');
-    div.onclick = function(evt) {
+    div.childNodes[0].style.cursor = "pointer";
+    div.childNodes[0].onclick = function(evt) {
 	div.classList.toggle('collapsed');
     };
 }
