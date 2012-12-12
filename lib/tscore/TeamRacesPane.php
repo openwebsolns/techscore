@@ -242,14 +242,40 @@ class TeamRacesPane extends AbstractPane {
     // Delete round
     // ------------------------------------------------------------
     if (isset($args['delete-round'])) {
-      // @TODO: check round viability
-      $round = DB::$V->reqID($args, 'round', DB::$ROUND, "Invalid round to delete.");
+      $rounds = array();
+      foreach ($this->REGATTA->getRounds() as $r)
+        $rounds[$r->id] = $r;
+
+      $round = $rounds[DB::$V->reqKey($args, 'round', $rounds, "Invalid round to delete.")];
       // Check that there are no finishes
       foreach ($this->REGATTA->getRacesInRound($round) as $race) {
         if (count($this->REGATTA->getFinishes($race)) > 0)
           throw new SoterException("Cannot remove the round because race $race has scored.");
       }
       DB::remove($round);
+
+      // Order races of all rounds AFTER this one
+      $divs = $this->REGATTA->getDivisions();
+
+      $round_num = 1;
+      $race_num = 1;
+      foreach ($rounds as $rid => $other) {
+        if ($other->relative_order < $round->relative_order) {
+          $race_num += count($this->REGATTA->getRacesInRound($other, Division::A()));
+          $round_num++;
+          continue;
+        }
+        $other->relative_order = $round_num++;
+        DB::set($other, true);
+        foreach ($this->REGATTA->getRacesInRound($other, Division::A()) as $race) {
+          foreach ($divs as $div) {
+            $r = $this->REGATTA->getRace($div, $race->number);
+            $r->number = $race_num;
+            DB::set($r, true);
+          }
+          $race_num++;
+        }
+      }
       Session::pa(new PA("Removed round $round."));
     }
 
