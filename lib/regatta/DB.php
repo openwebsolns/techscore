@@ -1377,7 +1377,9 @@ class Note extends DBObject {
 class Round extends DBObject {
   public $title;
   public $scoring;
+  public $relative_order;
 
+  protected function db_order() { return array('relative_order'=>true); }
   protected function db_cache() { return true; }
   // No indication as to natural ordering
   public function __toString() { return $this->title; }

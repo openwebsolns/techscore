@@ -54,14 +54,21 @@ class TeamRacesPane extends AbstractPane {
     }
 
     // ------------------------------------------------------------
-    // Current rounds
+    // Current rounds (offer to reorder them)
     // ------------------------------------------------------------
     if (count($rounds) > 0) {
+      $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/tablesort.js'));
       $this->PAGE->addContent($p = new XPort("Current rounds"));
-      $p->add(new XP(array(), "Click on the round below to edit the races in that round."));
-      $p->add($ul = new XUl());
-      foreach ($rounds as $round)
-        $ul->add(new XLi(new XA(WS::link(sprintf('/score/%s/races', $this->REGATTA->id), array('r'=>$round->id)), $round)));
+      $p->add($f = $this->createForm());
+      $f->add(new XP(array(), "Click on the round below to edit the races in that round."));
+      $f->add(new FItem("Round order:", $tab = new XQuickTable(array('id'=>'divtable', 'class'=>'narrow'), array("#", "Title", ""))));
+      foreach ($rounds as $i => $round)
+        $tab->addRow(array(new XTD(array(), array(new XTextInput('order[]', ($i + 1), array('size'=>2)),
+                                                  new XHiddenInput('round[]', $round->id))),
+                           new XTD(array('class'=>'drag'), $round),
+                           new XA(WS::link(sprintf('/score/%s/races', $this->REGATTA->id), array('r'=>$round->id)), "Edit")),
+                     array('class'=>'sortable'));
+      $f->add(new XSubmitP('order-rounds', "Reorder"));
     }
 
     // ------------------------------------------------------------
@@ -167,6 +174,55 @@ class TeamRacesPane extends AbstractPane {
    * Processes new races and edits to existing races
    */
   public function process(Array $args) {
+    // ------------------------------------------------------------
+    // Order rounds
+    // ------------------------------------------------------------
+    if (isset($args['order-rounds'])) {
+      $rounds = array();
+      foreach ($this->REGATTA->getRounds() as $round)
+        $rounds[$round->id] = $round;
+      if (count($rounds) == 0)
+        throw new SoterException("No rounds exist to reorder.");
+
+      $rids = DB::$V->reqList($args, 'round', count($rounds), "Invalid list of rounds to reorder.");
+      $order = DB::$V->incList($args, 'order', count($rids));
+      if (count($order) > 0)
+        array_multisort($order, SORT_NUMERIC, $rids);
+
+      // validate that all rounds are accounted for, as races are
+      // renumbered
+      $divs = $this->REGATTA->getDivisions();
+
+      $edited = array();
+      $races = array();
+      $roundnum = 1;
+      $racenum = 1;
+      foreach ($rids as $rid) {
+        if (!isset($rounds[$rid]))
+          throw new SoterException("Invalid round requested.");
+        $round = $rounds[$rid];
+        $round->relative_order = $roundnum++;
+        foreach ($this->REGATTA->getRacesInRound($round, Division::A()) as $race) {
+          foreach ($divs as $div) {
+            $r = $this->REGATTA->getRace($div, $race->number);
+            $r->number = $racenum;
+            $races[] = $r;
+          }
+          $racenum++;
+        }
+        unset($rounds[$rid]);
+        $edited[] = $round;
+      }
+
+      // commit rounds, and races
+      foreach ($edited as $round)
+        DB::set($round, true);
+      foreach ($races as $r)
+        DB::set($r, true);
+
+      Session::pa(new PA("Edited the round order."));
+    }
+
     // ------------------------------------------------------------
     // Edit round data
     // ------------------------------------------------------------

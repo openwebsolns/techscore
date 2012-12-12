@@ -410,3 +410,7 @@ drop table tr_race_teams;
 
 -- in order to make race numbers editable, drop unique key
 alter table race drop key regatta_2;
+
+-- add order to round objects
+alter table round add column relative_order tinyint not null default 1;
+update round set relative_order = 1 where relative_order is null;
