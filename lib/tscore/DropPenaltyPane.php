@@ -24,7 +24,8 @@ class DropPenaltyPane extends AbstractPane {
     $handicaps = array();
     foreach ($this->REGATTA->getPenalizedFinishes() as $finish) {
       $penalty = $finish->getModifier();
-      if ($penalty instanceof Penalty)
+      if ($penalty instanceof Penalty &&
+          ($this->REGATTA->scoring != Regatta::SCORING_TEAM || $penalty->type != Penalty::DNS))
         $penalties[] = $finish;
       elseif ($penalty instanceof Breakdown)
         $handicaps[] = $finish;
