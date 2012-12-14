@@ -17,10 +17,8 @@ class EnterTeamFinishPane extends EnterFinishPane {
   protected function fillHTML(Array $args) {
     // Chosen round
     $rounds = array();
-    foreach ($this->REGATTA->getRounds() as $i => $r) {
+    foreach ($this->REGATTA->getRounds() as $r) {
       $rounds[$r->id] = $r;
-      if ($i == 0)
-        $round = $r;
     }
 
     // Chosen race, by number
@@ -34,14 +32,24 @@ class EnterTeamFinishPane extends EnterFinishPane {
       $round = $race->round;
     }
     else {
-      $round = DB::$V->incID($args, 'round', DB::$ROUND, $round);
-      if (!isset($rounds[$round->id])) {
-        Session::pa(new PA("Invalid round chosen.", PA::E));
-        $this->redirect();
+      if (DB::$V->hasID($round, $args, 'round', DB::$ROUND)) {
+        if (!isset($rounds[$round->id])) {
+          Session::pa(new PA("Invalid round chosen.", PA::E));
+          $this->redirect();
+        }
+        // Choose first race
+        $races = $this->REGATTA->getRacesInRound($round);
+        $race = $races[0];
       }
-      // Choose first race
-      $races = $this->REGATTA->getRacesInRound($round);
-      $race = $races[0];
+      else {
+        // choose the next unscored, or last scored race
+        $races = $this->REGATTA->getUnscoredRaces();
+        if (count($races) > 0)
+          $race = $races[0];
+        else
+          $race = $this->REGATTA->getLastScoredRace();
+        $round = $race->round;
+      }
     }
 
     $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/finish.js'));

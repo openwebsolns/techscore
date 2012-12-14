@@ -32,7 +32,7 @@ class EnterFinishPane extends AbstractPane {
   protected function fillHTML(Array $args) {
     // Determine race to display: either as requested or the next
     // unscored race, or the last race
-    $race = DB::$V->incRace($args, 'chosen_race', $this->REGATTA, null);
+    $race = DB::$V->incRace($args, 'race', $this->REGATTA, null);
     if ($race == null) {
       $races = $this->REGATTA->getUnscoredRaces();
       if (count($races) > 0)
@@ -58,8 +58,7 @@ class EnterFinishPane extends AbstractPane {
     $form->set("id", "race_form");
 
     $form->add(new FItem("Race:", 
-                         new XTextInput("chosen_race",
-                                        $race,
+                         new XTextInput('race', $race,
                                         array("size"=>"4",
                                               "maxlength"=>"3",
                                               "id"=>"chosen_race",
@@ -246,9 +245,9 @@ class EnterFinishPane extends AbstractPane {
       }
 
       // Reset
-      unset($args['chosen_race']);
       $mes = sprintf("Finishes entered for race %s.", $race);
       Session::pa(new PA($mes));
+      $this->redirect('finishes');
     }
 
     // ------------------------------------------------------------
@@ -261,7 +260,7 @@ class EnterFinishPane extends AbstractPane {
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
     }
 
-    return $args;
+    return array();
   }
 
   /**

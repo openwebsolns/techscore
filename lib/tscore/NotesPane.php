@@ -29,7 +29,7 @@ class NotesPane extends AbstractPane {
     // Form
     $p->add($form = $this->createForm());
     $form->add($fitem = new FItem("Race:", 
-                                  new XTextInput("chosen_race", "",
+                                  new XTextInput('race', "",
                                                  array("size"=>"4",
                                                        "maxlength"=>"4",
                                                        "id"=>"chosen_race",
@@ -78,7 +78,7 @@ class NotesPane extends AbstractPane {
     if (isset($args['observe'])) {
 
       // get race
-      $race = DB::$V->reqRace($args, 'chosen_race', $this->REGATTA, "Invalid or missing race chosen.");
+      $race = DB::$V->reqRace($args, 'race', $this->REGATTA, "Invalid or missing race chosen.");
       $mes = DB::$V->reqString($args, 'observation', 1, 1001, "No observation found.");
       $obs = DB::$V->reqString($args, 'observer', 1, 51, "No observer or name too long (must be less than 50 characters).");
 
@@ -104,7 +104,7 @@ class NotesPane extends AbstractPane {
       Session::pa(new PA(sprintf("Deleted observation from %s for race %s.", $note->observer, $note->race)));
     }
 
-    return $args;
+    return array();
   }
 }
 ?>
