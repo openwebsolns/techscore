@@ -743,7 +743,7 @@ class FullRegatta extends DBObject {
       return $races;
     $list = array();
     foreach ($races as $race) {
-      if ($race->tr_team1 == $team || $race->tr_team2 == $team)
+      if ($race->tr_team1->id == $team->id || $race->tr_team2->id == $team->id)
         $list[] = $race;
     }
     return $list;
