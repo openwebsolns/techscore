@@ -135,6 +135,7 @@ class ScoresGridDialog extends AbstractScoresDialog {
                            $rec = new XTD(array('class'=>'tr-record'), "")));
       $win = 0;
       $los = 0;
+      $tie = 0;
       foreach ($teams as $id2 => $other) {
         if (!isset($scores[$id][$id2]))
           $row->add(new XTD(array('class'=>'tr-ns'), "X"));
@@ -166,19 +167,28 @@ class ScoresGridDialog extends AbstractScoresDialog {
               else
                 $cont = new XA(WS::link($lroot, array('race' => $race_num), '#finish_form'), $cont);
             }
-            if ($total1 < $total2)
+            if ($total1 < $total2) {
               $subrow->add(new XTD(array('class'=>'tr-win'), $cont));
-            elseif ($total1 > $total2)
+	      $win++;
+	    }
+            elseif ($total1 > $total2) {
               $subrow->add(new XTD(array('class'=>'tr-lose'), $cont));
-            elseif ($total1 != 0)
+	      $los++;
+	    }
+            elseif ($total1 != 0) {
               $subrow->add(new XTD(array('class'=>'tr-tie'), $cont));
+	      $tie++;
+	    }
             else
               $subrow->add(new XTD(array(), $cont));
           }
         }
       }
       $table->add($row);
-      $rec->add($win . '-' . $los);
+      $mes = $win . '-' . $los;
+      if ($tie > 0)
+	$mes .= '-' . $tie;
+      $rec->add($mes);
     }
     return $table;
   }
