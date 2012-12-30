@@ -13,6 +13,9 @@ require_once('tscore/AbstractPane.php');
  *
  * 2010-02-24: Allowed scoring rules change
  *
+ * 2012-12-30: Because team racing and fleet racing are so different,
+ * do not allow switching from one to the other
+ *
  * @author Dayan Paez
  * @version 2009-09-27
  */
@@ -98,16 +101,17 @@ class DetailsPane extends AbstractPane {
 
     // Scoring rules
     $options = Regatta::getScoringOptions();
-    $value = $this->REGATTA->scoring;
-    $reg_form->add($fi = new FItem("Scoring:", XSelect::fromArray('scoring', $options, $value)));
-    if ($this->REGATTA->scoring != Regatta::SCORING_COMBINED &&
-        $this->REGATTA->hasFinishes() &&
-        isset($options[Regatta::SCORING_COMBINED]))
-      $fi->add(new XMessage("Changing to \"Combined\" will remove incomplete finishes and rotations."));
-    elseif ($this->REGATTA->scoring != Regatta::SCORING_TEAM &&
-        count($this->REGATTA->getDivisions()) > 1 &&
-        isset($options[Regatta::SCORING_TEAM]))
-      $fi->add(new XMessage("Changing to \"Team\" will remove divisions and rotations"));
+    if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
+      $reg_form->add(new FItem("Scoring:", new XStrong("Team racing")));
+    else {
+      unset($options[Regatta::SCORING_TEAM]);
+      $value = $this->REGATTA->scoring;
+      $reg_form->add($fi = new FItem("Scoring:", XSelect::fromArray('scoring', $options, $value)));
+      if ($this->REGATTA->scoring != Regatta::SCORING_COMBINED &&
+	  $this->REGATTA->hasFinishes() &&
+	  isset($options[Regatta::SCORING_COMBINED]))
+	$fi->add(new XMessage("Changing to \"Combined\" will remove incomplete finishes and rotations."));
+    }
 
     // Hosts: first add the current hosts, then the entire list of
     // schools in the affiliation ordered by conference
@@ -261,18 +265,12 @@ class DetailsPane extends AbstractPane {
         $edited = true;
       }
 
-      if (DB::$V->hasKey($V, $args, 'scoring', Regatta::getScoringOptions()) && $V != $this->REGATTA->scoring) {
+      // only allow scoring changes if NOT team racing
+      if ($this->REGATTA->scoring != Regatta::SCORING_TEAM && DB::$V->hasKey($V, $args, 'scoring', Regatta::getScoringOptions()) && $V != $this->REGATTA->scoring) {
         $this->REGATTA->setScoring($V);
         $edited = true;
 
-        // Are we going to team racing?
         $divs = $this->REGATTA->getDivisions();
-        if ($this->REGATTA->scoring == Regatta::SCORING_TEAM && count($divs) > 1) {
-          array_shift($divs);
-          foreach ($divs as $div)
-            $this->REGATTA->removeDivision($div);
-          Session::pa(new PA("Removed extra divisions.", PA::I));
-        }
         // Are there scores?
         if ($this->REGATTA->hasFinishes()) {
           // If going to combined scoring, delete incomplete races
