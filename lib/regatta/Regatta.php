@@ -1303,6 +1303,10 @@ class FullRegatta extends DBObject {
    * a snapshot in the team and dt_team_division tables of the teams
    * and how they ranked.
    *
+   * Note that this ONLY applies to fleet racing regattas, as ranking
+   * of teams is a manual process in team racing events. Thus, this
+   * method will quietly return if the scoring is Team.
+   *
    * This method will silently fail if there are no races
    *
    * @param Division $division optional specific division to rank
@@ -1310,7 +1314,7 @@ class FullRegatta extends DBObject {
   public function setRanks(Division $division = null) {
     if ($this->dt_num_races === null)
       $this->setData();
-    if ($this->dt_num_divisions == 0)
+    if ($this->dt_num_divisions == 0 || $this->scoring == Regatta::SCORING_TEAM)
       return;
 
     // Set the team-level ranking first

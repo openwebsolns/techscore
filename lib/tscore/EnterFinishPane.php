@@ -207,26 +207,6 @@ class EnterFinishPane extends AbstractPane {
         $time->add($intv);
       }
 
-      // For team racing regattas: enter all other non-participating
-      // teams as DNSes.
-      if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
-        $part = $this->REGATTA->getRaceTeams($race);
-        foreach ($this->REGATTA->getDivisions() as $div) {
-          $r = $this->REGATTA->getRace($div, $race->number);
-          foreach ($this->REGATTA->getTeams() as $team) {
-            if ($team->id != $part[0]->id && $team->id != $part[1]->id) {
-              $finish = $this->REGATTA->getFinish($r, $team);
-              if ($finish === null)
-                $finish = $this->REGATTA->createFinish($r, $team);
-              $finish->entered = clone($time);
-              $finish->setModifier(new Penalty(Penalty::DNS, -1, "Did not participate"));
-              $finishes[] = $finish;
-              $time->add($intv);
-            }
-          }
-        }
-      }
-
       $this->REGATTA->commitFinishes($finishes);
       $this->REGATTA->runScore($race);
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE, $race);
