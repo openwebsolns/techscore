@@ -613,3 +613,10 @@ a.empty {
 .teamtable td, .teamtable th {
     text-align: left;
 }
+
+#finish_table th {
+    text-align: left;
+}
+#finish_table select {
+    min-width: 1em;
+}

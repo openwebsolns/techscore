@@ -25,6 +25,11 @@ class EnterFinishPane extends AbstractPane {
   private $ACTIONS = array(self::ROTATION => "Sail numbers from rotation",
                            self::TEAMS => "Team names");
 
+  /**
+   * @var Map penalty options available when entering finishes
+   */
+  private $pen_opts = array("" => "", Penalty::DNF => Penalty::DNF, Penalty::DNS => Penalty::DNS, Breakdown::BYE => Breakdown::BYE);
+
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Enter finish", $user, $reg);
   }
@@ -97,14 +102,14 @@ class EnterFinishPane extends AbstractPane {
       $this->REGATTA->getFinishes($race) :
       $this->REGATTA->getCombinedFinishes($race);
 
+    $form->add(new XP(array(), "Click on left column to push to right column. You may specify DNS/DNF/BYE when entering finishes, or later as a penalty/breakdown using the \"Add Penalty\" menu item."));
     if ($rotation !== null) {
       // ------------------------------------------------------------
       // Rotation-based
       // ------------------------------------------------------------
-      $form->add(new XP(array(), "Click on left column to push to right column"));
       $form->add(new FItem("Enter sail numbers:",
                            $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'finish_table'),
-                                                  array("Sail", "→", "Finish"))));
+                                                  array("Sail", "→", "Finish", "Pen."))));
 
       // - Fill possible sails and input box
       $pos_sails = ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ?
@@ -112,8 +117,12 @@ class EnterFinishPane extends AbstractPane {
         $rotation->getCombinedSails($race);
       
       foreach ($pos_sails as $i => $aPS) {
-        $current_sail = (count($finishes) > 0) ?
-          $rotation->getSail($finishes[$i]->race, $finishes[$i]->team) : "";
+	$current_sail = "";
+	$current_pen = null;
+	if (count($finishes) > 0) {
+          $current_sail = $rotation->getSail($finishes[$i]->race, $finishes[$i]->team);
+	  $current_pen = $finishes[$i]->penalty;
+	}
         $tab->addRow(array(new XTD(array('name'=>'pos_sail', 'class'=>'pos_sail','id'=>'pos_sail'), $aPS),
                            new XImg("/inc/img/question.png", "Waiting for input", array("id"=>"check" . $i)),
                            new XTextInput("p" . $i, $current_sail,
@@ -121,7 +130,8 @@ class EnterFinishPane extends AbstractPane {
                                                 "tabindex"=>($i+1),
                                                 "onkeyup"=>"checkSails()",
                                                 "class"=>"small",
-                                                "size"=>"2"))));
+                                                "size"=>"2")),
+			   XSelect::fromArray('m' . $i, $this->pen_opts, $current_pen)));
       }
 
       // Submit buttom
@@ -133,10 +143,9 @@ class EnterFinishPane extends AbstractPane {
       // ------------------------------------------------------------
       // Team lists
       // ------------------------------------------------------------
-      $form->add(new XP(array(), "Click on left column to push to right column"));
       $form->add(new FItem("Enter teams:",
                            $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'finish_table'),
-                                                  array("Team", "→", "Finish"))));
+                                                  array("Team", "→", "Finish", "Pen."))));
       $i = $this->fillFinishesTable($tab, $race, $finishes);
       $form->add(new XSubmitP('f_teams',
                               sprintf("Enter finish for race %s", $race),
@@ -197,10 +206,17 @@ class EnterFinishPane extends AbstractPane {
       $intv = new DateInterval('P0DT3S');
       for ($i = 0; $i < $count; $i++) {
         $id = DB::$V->reqKey($args, "p$i", $teams, "Missing team in position " . ($i + 1) . ".");
+	$pen = DB::$V->incKey($args, "m$i", $this->pen_opts, "");
+	$mod = null;
+	if ($pen == Penalty::DNS || $pen == Penalty::DNF)
+	  $mod = new Penalty($pen);
+	elseif ($pen == Breakdown::BYE)
+	  $mod = new Breakdown($pen);
+
         $finish = $this->REGATTA->getFinish($races[$id], $teams[$id]);
         if ($finish === null)
           $finish = $this->REGATTA->createFinish($races[$id], $teams[$id]);
-        $finish->setModifier(); // reset score
+        $finish->setModifier($mod); // reset score
         $finish->entered = clone($time);
         $finishes[] = $finish;
         unset($teams[$id]);
@@ -286,11 +302,17 @@ class EnterFinishPane extends AbstractPane {
           $attrs['value'] = sprintf('%s,%s', $div, $team->id);
           $name = $team_opts[$attrs['value']];
 
-          $current_team = (count($finishes) > 0) ?
-            sprintf("%s,%s", $finishes[$i]->race->division, $finishes[$i]->team->id) : "";
+	  $current_team = "";
+	  $current_pen = null;
+	  if (count($finishes) > 0) {
+	    $current_team = sprintf("%s,%s", $finishes[$i]->race->division, $finishes[$i]->team->id);
+	    $current_pen = $finishes[$i]->penalty;
+	  }
+
           $tab->addRow(array(new XTD($attrs, $name),
                              new XImg("/inc/img/question.png", "Waiting for input",  array("id"=>"check" . $i)),
-                             $sel = XSelect::fromArray("p" . $i, $team_opts, $current_team)));
+                             $sel = XSelect::fromArray("p" . $i, $team_opts, $current_team),
+			     XSelect::fromArray('m' . $i, $this->pen_opts, $current_pen)));
           $sel->set('id', "team$i");
           $sel->set('tabindex', $i + 1);
           $sel->set('onchange', 'checkTeams()');

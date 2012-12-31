@@ -399,3 +399,10 @@ a.empty {
 .teamtable td {
     text-align: left;
 }
+
+#finish_table th {
+    text-align: left;
+}
+#finish_table select {
+    min-width: 1em;
+}

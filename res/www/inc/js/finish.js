@@ -31,11 +31,16 @@ function checkTeams() {
 
     // Get all inputs
     var table  = document.getElementById("finish_table");
-    var inputs = table.getElementsByTagName("select");
+    var selects = table.getElementsByTagName("select");
+    var inputs = [];
+    for (i = 0; i < selects.length; i++) {
+	if (/^team[0-9]+$/.test(selects[i].id))
+	    inputs.push(selects[i]);
+    }
 
     // Go through each input and check it against the others later
     // in the list
-    for (var i = 0; i < inputs.length; i++) {
+    for (i = 0; i < inputs.length; i++) {
 	var input = inputs[i];
 	var iNum  = input.id.replace("team", "");
 	var cell  = document.getElementById("check" + iNum);
@@ -103,7 +108,7 @@ function checkSails () {
 
     // Go through each input, and check it against the others
     // Handshake problem, extraordinaire
-    for ( var i = 0; i < inputs.length; i++ ) {
+    for ( i = 0; i < inputs.length; i++ ) {
        	var input = inputs[i];
 	var iNum  = input.id.replace("sail","");
 	var cell = document.getElementById("check" + iNum);
@@ -257,12 +262,14 @@ function appendToList(elem) {
 	    break;
 	}
     }
-    for (var i = 0; i < selects.length; i++) {
-	var select = selects[i];
-	if (select.value == "") {
-	    select.value = elem.attributes.value.nodeValue;
-	    checkTeams();
-	    break;
+    for (i = 0; i < selects.length; i++) {
+	if (/^team[0-9]+$/.test(selects[i].id)) {
+	    var select = selects[i];
+	    if (select.value == "") {
+		select.value = elem.attributes.value.nodeValue;
+		checkTeams();
+		break;
+	    }
 	}
     }
 }
