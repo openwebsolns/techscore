@@ -381,9 +381,11 @@ a.empty {
 }
 .tr-win {
     background: #e0f3e0;
+    font-weight: bold;
 }
 .tr-lose {
     background: #eed2c0;
+    color: #555;
 }
 .tr-tie {
     background:#f3f3bb;
