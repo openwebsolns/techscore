@@ -54,6 +54,33 @@ class ICSAScorer {
   }
 
   /**
+   * Sets the penalty amount for the given finish.
+   *
+   * Applies only to amount = -1 penalties.
+   *
+   * @param Regatta $reg the regatta
+   * @return Score the penalty object
+   */
+  protected function getPenaltyScore(Finish $fin, Penalty $pen) {
+    if ($this->fleet === null)
+      $this->fleet = count($fin->team->regatta->getTeams()) + 1;
+    return new Score($this->fleet, sprintf("(%d, Fleet + 1) %s", $this->fleet, $pen->comments));
+  }
+
+  protected $fleet = null;
+
+  /**
+   * Determine whether to advance score for next team
+   *
+   * @return boolean
+   */
+  protected function getPenaltyDisplace(Finish $fin, Penalty $pen) {
+    if ($pen->amount <= 0)
+      return false;
+    return $penalty->displace;
+  }
+
+  /**
    * Scores the given regatta, and commits the affected finishes back
    * to the database.
    *
@@ -70,7 +97,6 @@ class ICSAScorer {
     $affected_finishes = array();
 
     $scored_races = array(); // track race numbers already scored
-    $FLEET = null;
     foreach ($races as $race) {
       if (isset($scored_races[(string)$race]))
         continue;
@@ -78,8 +104,6 @@ class ICSAScorer {
 
       // Get each finish in order and set the score
       $finishes = $this->getFinishes($reg, $race);
-      if ($FLEET === null)
-        $FLEET = count($finishes);
 
       $score = 1;
       foreach ($finishes as $finish) {
@@ -92,21 +116,17 @@ class ICSAScorer {
           $score++;
         }
         elseif ($penalty instanceof Penalty) {
+          $penalty->earned = $score;
           // ------------------------------------------------------------
           // penalty
           if ($penalty->amount <= 0) {
-            $finish->score = new Score($FLEET + 1,
-                                       sprintf("(%d, Fleet + 1) %s",
-                                               $FLEET + 1,
-                                               $penalty->comments));
+	    $finish->score = $this->getPenaltyScore($finish, $penalty);
           }
           elseif ($penalty->amount > $score) {
             $finish->score = new Score($penalty->amount,
                                        sprintf("(%d, Assigned) %s",
                                                $penalty->amount,
                                                $penalty->comments));
-            if ($penalty->displace)
-              $score++;
           }
           else {
             $finish->score = new Score($score,
@@ -114,10 +134,10 @@ class ICSAScorer {
                                                $score,
                                                $penalty->amount,
                                                $penalty->comments));
-            if ($penalty->displace)
-              $score++;
           }
-          $penalty->earned = $score;
+	  if ($this->getPenaltyDisplace($finish, $penalty))
+	    $score++;
+
         }
         else {
           // ------------------------------------------------------------

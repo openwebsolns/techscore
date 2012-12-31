@@ -170,10 +170,14 @@ class FullRegatta extends DBObject {
       if ($this->scorer === null) {
         switch ($this->scoring) {
         case Regatta::SCORING_COMBINED:
-        case Regatta::SCORING_TEAM:
           require_once('regatta/ICSACombinedScorer.php');
           $this->scorer = new ICSACombinedScorer();
           break;
+
+	case Regatta::SCORING_TEAM:
+	  require_once('regatta/ICSATeamScorer.php');
+	  $this->scorer = new ICSATeamScorer();
+	  break;
 
         default:
           require_once('regatta/ICSAScorer.php');
