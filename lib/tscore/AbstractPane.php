@@ -64,8 +64,12 @@ abstract class AbstractPane {
 
     // ------------------------------------------------------------
     // Menu
-    $finish = ($this->REGATTA->scoring == Regatta::SCORING_TEAM) ?
-      "EnterTeamFinishPane" : "EnterFinishPane";
+    $finish = "EnterFinishPane";
+    $penalty = "EnterPenaltyPane";
+    if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
+      $finish = "EnterTeamFinishPane";
+      $penalty = "EnterTeamPenaltyPane";
+    }
     $score_i = array("Regatta"   => array("settings"   => "DetailsPane",
                                           "summaries"  => "SummaryPane",
                                           "scorers"    => "ScorersPane",
@@ -81,7 +85,7 @@ abstract class AbstractPane {
                      "RP Forms"  => array("rp"         => "RpEnterPane",
                                           "unregistered" => "UnregisteredSailorPane"),
                      "Finishes"  => array("finishes" => $finish,
-                                          "penalty"  => "EnterPenaltyPane",
+                                          "penalty"  => $penalty,
                                           "drop-penalty" => "DropPenaltyPane",
                                           "team-penalty" => "TeamPenaltyPane"));
     $access_keys_i = array('finishes' => 'f',
@@ -254,6 +258,10 @@ abstract class AbstractPane {
     case 'add-penalty':
     case 'penalties':
     case 'penalty':
+      if ($u->scoring == Regatta::SCORING_TEAM) {
+	require_once('tscore/EnterTeamPenaltyPane.php');
+	return new EnterTeamPenaltyPane($r, $u);
+      }
       require_once('tscore/EnterPenaltyPane.php');
       return new EnterPenaltyPane($r, $u);
     case 'manual-rotation':
@@ -348,7 +356,8 @@ abstract class AbstractPane {
   private function doActive($class_name) {
     switch ($class_name) {
     case 'EnterPenaltyPane':
-      return $this->has_scores && ($this->REGATTA->scoring != Regatta::SCORING_TEAM);
+    case 'EnterTeamPenaltyPane':
+      return $this->has_scores;
 
     case 'DropPenaltyPane':
       return $this->has_penalty;
@@ -426,6 +435,7 @@ abstract class AbstractPane {
                                "EnterFinishPane" => "finishes",
                                "EnterTeamFinishPane" => "finishes",
                                "EnterPenaltyPane" => "penalty",
+			       "EnterTeamPenaltyPane" => "penalty",
                                "DropPenaltyPane" => "drop-penalty",
                                "TeamPenaltyPane" => "team-penalty");
 
@@ -446,6 +456,7 @@ abstract class AbstractPane {
                                  "EnterFinishPane" => "Enter finish",
                                  "EnterTeamFinishPane" => "Enter finish",
                                  "EnterPenaltyPane" => "Add penalty",
+				 "EnterTeamPenaltyPane" => "Add penalty",
                                  "DropPenaltyPane" => "Drop penalty",
                                  "TeamPenaltyPane" => "Team penalty");
 }

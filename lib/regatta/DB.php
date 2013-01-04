@@ -1605,14 +1605,12 @@ class Finish extends DBObject {
       $this->penalty = $mod->type;
       $this->comments = $mod->comments;
       $this->displace = $mod->displace;
-      $this->earned = $mod->earned;
     }
     else {
       $this->amount = null;
       $this->penalty = null;
       $this->comments = null;
       $this->displace = null;
-      $this->earned = null;
     }
   }
 
@@ -2115,15 +2113,6 @@ abstract class FinishModifier {
    * is invalid if the 'amount' is non-positive.
    */
   public $displace;
-
-  /**
-   * @var int the minimum score than an averaged breakdown
-   * deserves. This is tracked by the scoring algorithm so that an
-   * entire race need not be re-scored just to determine a handicapped
-   * team's finish average score; and to keep that average from never
-   * being worse than that team's EARNED score, sans breakdown.
-   */
-  public $earned;
 
   /**
    * Fetches an associative list of the different penalty types

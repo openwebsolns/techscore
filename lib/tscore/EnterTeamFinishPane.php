@@ -17,7 +17,7 @@ class EnterTeamFinishPane extends EnterFinishPane {
   /**
    * @var Map penalty options available when entering finishes
    */
-  protected $pen_opts = array("" => "", Penalty::DNF => Penalty::DNF, Penalty::DNS => Penalty::DNS);
+  protected $pen_opts = array("" => "", Penalty::DNF => "DNF (+6)", Penalty::DNS => "DNS (+6)");
 
   protected function fillHTML(Array $args) {
     // Chosen round
