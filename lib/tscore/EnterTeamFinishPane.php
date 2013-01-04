@@ -14,6 +14,11 @@ require_once('tscore/EnterFinishPane.php');
  */
 class EnterTeamFinishPane extends EnterFinishPane {
 
+  /**
+   * @var Map penalty options available when entering finishes
+   */
+  protected $pen_opts = array("" => "", Penalty::DNF => Penalty::DNF, Penalty::DNS => Penalty::DNS);
+
   protected function fillHTML(Array $args) {
     // Chosen round
     $rounds = array();

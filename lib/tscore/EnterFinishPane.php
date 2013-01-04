@@ -28,7 +28,7 @@ class EnterFinishPane extends AbstractPane {
   /**
    * @var Map penalty options available when entering finishes
    */
-  private $pen_opts = array("" => "", Penalty::DNF => Penalty::DNF, Penalty::DNS => Penalty::DNS, Breakdown::BYE => Breakdown::BYE);
+  protected $pen_opts = array("" => "", Penalty::DNF => Penalty::DNF, Penalty::DNS => Penalty::DNS, Breakdown::BYE => Breakdown::BYE);
 
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Enter finish", $user, $reg);
