@@ -77,7 +77,10 @@ class ICSAScorer {
    *
    * @return boolean
    */
-  protected function getPenaltyDisplace(Finish $fin, Penalty $pen) {
+  protected function displaceScore(Finish $fin, FinishModifier $pen) {
+    if ($pen instanceof Breakdown)
+      return true;
+
     if ($pen->amount <= 0)
       return false;
     return $pen->displace;
@@ -133,7 +136,7 @@ class ICSAScorer {
                                                $penScore->score,
                                                $penalty->comments));
           }
-	  if ($this->getPenaltyDisplace($finish, $penalty))
+	  if ($this->displaceScore($finish, $penalty))
 	    $score++;
 
         }
@@ -153,8 +156,8 @@ class ICSAScorer {
             $finish->score = new Score($amount, $exp);
           }
         
-          // breakdowns always "displace"
-          $score++;
+	  if ($this->displaceScore($finish, $penalty))
+	    $score++;
         }
         $finish->setModifier($penalty);
       }

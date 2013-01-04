@@ -15,6 +15,11 @@ require_once('tscore/EnterPenaltyPane.php');
  */
 class EnterTeamPenaltyPane extends EnterPenaltyPane {
 
+  public function __construct(Account $user, Regatta $reg) {
+    parent::__construct($user, $reg);
+    unset($this->breakdowns[Breakdown::BYE]);
+  }
+
   /**
    * Overrides parent method to show concise table listing instead
    *
@@ -43,8 +48,10 @@ class EnterTeamPenaltyPane extends EnterPenaltyPane {
 			     'document.getElementById("p_amount").disabled = true;' .
 			     'document.getElementById("def_box").checked = true;'));
     }
-    else // @TODO
-      return parent::fillPenaltyScheme($form, $type);
+    else {
+      // Assign score only
+      $form->add(new FItem("New place:", new XTextInput('p_amount', "", array('size'=>2, 'id'=>'p_amount'))));
+    }
   }
 }
 ?>

@@ -21,7 +21,7 @@ class ICSATeamScorer extends ICSACombinedScorer {
     $tot = $fin->earned + $amt;
     return new Score($tot, sprintf("(%d, +%d) %s", $tot, $amt, $pen->comments));
   }
-  protected function getPenaltyDisplace(Finish $fin, Penalty $pen) {
+  protected function displaceScore(Finish $fin, FinishModifier $pen) {
     return true;
   }
 }

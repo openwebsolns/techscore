@@ -17,8 +17,16 @@ require_once("conf.php");
  */
 class EnterPenaltyPane extends AbstractPane {
 
+  /**
+   * @var Array allowed penalties/breakdowns
+   */
+  protected $penalties;
+  protected $breakdowns;
+
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Add penalty", $user, $reg);
+    $this->penalties = Penalty::getList();
+    $this->breakdowns = Breakdown::getList();
   }
 
   protected function fillHTML(Array $args) {
@@ -43,8 +51,8 @@ class EnterPenaltyPane extends AbstractPane {
       $this->REGATTA->getFinishes($theRace) :
       $this->REGATTA->getCombinedFinishes($theRace);
 
-    $type = DB::$V->incKey($args, 'type', Penalty::getList(), null);
-    $type = DB::$V->incKey($args, 'type', Breakdown::getList(), $type);
+    $type = DB::$V->incKey($args, 'type', $this->penalties, null);
+    $type = DB::$V->incKey($args, 'type', $this->breakdowns, $type);
     if (isset($args['type']) && $type === null)
       $this->PAGE->addContent(new XP(array('class'=>'warning'), "Invalid type chosen. Please choose again."));
     if ($type == null) {
@@ -63,8 +71,8 @@ class EnterPenaltyPane extends AbstractPane {
                                                          "class"=>"narrow"))));
 
       // Penalty type
-      $form->add(new FItem("Penalty type:", XSelect::fromArray('type', array("Penalties" => Penalty::getList(),
-                                                                               "Breakdowns" => Breakdown::getList()))));
+      $form->add(new FItem("Penalty type:", XSelect::fromArray('type', array("Penalties" => $this->penalties,
+									     "Breakdowns" => $this->breakdowns))));
       // Submit
       $form->add(new XSubmitP('c_race', "Next →"));
     }
@@ -145,7 +153,7 @@ class EnterPenaltyPane extends AbstractPane {
       }
 
       // give the users the flexibility to do things wrong, if they so choose
-      $breakdowns = Breakdown::getList();
+      $breakdowns = $this->breakdowns;
       $races = array();
       foreach ($finishes as $theFinish) {
         $races[$theFinish->race->id] = $theFinish->race;
@@ -201,8 +209,7 @@ class EnterPenaltyPane extends AbstractPane {
    */
   protected function fillPenaltyScheme(XForm $form, $type) {
     // - Amount, or average, if necessary
-    $b = Breakdown::getList();
-    if (in_array($type, array_keys($b)))
+    if (isset($this->breakdowns[$type]))
       $average = "Use average within division";
     else
       $average = "Use standard scoring (FLEET + 1).";
