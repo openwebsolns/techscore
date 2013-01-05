@@ -155,7 +155,7 @@ class ScoresGridDialog extends AbstractScoresDialog {
             if ($subtab !== null)
               $subtab->add($subrow = new XTR());
 
-            usort($places, "Finish::compareEntered");
+            usort($places, "Finish::compareEarned");
             $total1 = $this->sumPlaces($places);
             $total2 = $this->sumPlaces($scores[$id2][$id][$race_num]);
 

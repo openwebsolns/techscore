@@ -1653,6 +1653,12 @@ class Finish extends DBObject {
   public static function compareEntered(Finish $f1, Finish $f2) {
     return $f1->__get('entered')->format("U") - $f2->__get('entered')->format("U");
   }
+
+  public static function compareEarned(Finish $f1, Finish $f2) {
+    if ($f1->earned === null || $f2->earned === null)
+      return self::compareEntered($f1, $f2);
+    return $f1->earned - $f2->earned;
+  }
 }
 
 /**

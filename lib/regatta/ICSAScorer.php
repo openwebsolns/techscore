@@ -115,8 +115,11 @@ class ICSAScorer {
 
       // Resort assigned finishes
       for ($i = 0; $i < count($finishes); $i++) {
-	if ($finishes[$i]->amount > 0 && $finishes[$i]->amount <= $i)
-	  array_splice($finishes, $finishes[$i]->amount - 1, 1, array($finishes[$i]));
+	$finish = $finishes[$i];
+	if ($finish->amount > 0 && $finish->amount <= $i) {
+	  unset($finishes[$i]);
+	  array_splice($finishes, $finish->amount - 1, 0, array($finish));
+	}
       }
 
       $score = 1;
