@@ -168,15 +168,21 @@ class ScoresGridDialog extends AbstractScoresDialog {
                 $cont = new XA(WS::link($lroot, array('race' => $race_num), '#finish_form'), $cont);
             }
             if ($total1 < $total2) {
-              $subrow->add(new XTD(array('class'=>'tr-win'), sprintf('W (%s)', $cont)));
+	      if (!$score_mode)
+		$cont = sprintf('W (%s)', $cont);
+              $subrow->add(new XTD(array('class'=>'tr-win'), $cont));
 	      $win++;
 	    }
             elseif ($total1 > $total2) {
-              $subrow->add(new XTD(array('class'=>'tr-lose'), sprintf('L (%s)', $cont)));
+	      if (!$score_mode)
+		$cont = sprintf('L (%s)', $cont);
+              $subrow->add(new XTD(array('class'=>'tr-lose'), $cont));
 	      $los++;
 	    }
             elseif ($total1 != 0) {
-              $subrow->add(new XTD(array('class'=>'tr-tie'), sprintf('T (%s)', $cont)));
+	      if (!$score_mode)
+		$cont = sprintf('T (%s)', $cont);
+              $subrow->add(new XTD(array('class'=>'tr-tie'), $cont));
 	      $tie++;
 	    }
             else
