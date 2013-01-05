@@ -49,7 +49,9 @@ class ICSAScorer {
    * @param Race $race the race
    */
   protected function &getFinishes(Regatta $reg, Race $race) {
-    $list = $reg->getFinishes($race);
+    $list = array();
+    foreach ($reg->getFinishes($race) as $finish)
+      $list[] = $finish;
     return $list;
   }
 
@@ -110,6 +112,12 @@ class ICSAScorer {
 
       // Get each finish in order and set the score
       $finishes = $this->getFinishes($reg, $race);
+
+      // Resort assigned finishes
+      for ($i = 0; $i < count($finishes); $i++) {
+	if ($finishes[$i]->amount > 0 && $finishes[$i]->amount <= $i)
+	  array_splice($finishes, $finishes[$i]->amount - 1, 1, array($finishes[$i]));
+      }
 
       $score = 1;
       foreach ($finishes as $finish) {
