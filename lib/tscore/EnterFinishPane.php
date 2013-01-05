@@ -135,6 +135,7 @@ class EnterFinishPane extends AbstractPane {
       }
 
       // Submit buttom
+      $this->fillRaceObservation($form, $race);
       $form->add(new XSubmitP("f_places",
                               sprintf("Enter finish for race %s", $race),
                               array("id"=>"submitfinish", "tabindex"=>($i+1))));
@@ -147,6 +148,7 @@ class EnterFinishPane extends AbstractPane {
                            $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'finish_table'),
                                                   array("Team", "→", "Finish", "Pen."))));
       $i = $this->fillFinishesTable($tab, $race, $finishes);
+      $this->fillRaceObservation($form, $race);
       $form->add(new XSubmitP('f_teams',
                               sprintf("Enter finish for race %s", $race),
                               array('id'=>'submitfinish', 'tabindex'=>($i+1))));
@@ -238,6 +240,18 @@ class EnterFinishPane extends AbstractPane {
           $race->scored_day = $duration;
           DB::set($race);
         }
+      }
+
+      // Observation?
+      $obs = DB::$V->incString($args, 'observation', 1, 16000, null);
+      if ($obs !== null) {
+	$note = new Note();
+	$note->noted_at = DB::$NOW;
+	$note->observation = $obs;
+	$note->observer = DB::$V->incString($args, 'observer', 1, 51, null);
+	$note->race = $race;
+	DB::set($note);
+	Session::pa(new PA(array("Added note for race $race. ", new XA($this->link('notes'), "Edit notes"), ".")));
       }
 
       // Reset
@@ -350,8 +364,6 @@ class EnterFinishPane extends AbstractPane {
     if (count($divisions) == 0)
       $divisions = $this->REGATTA->getDivisions();
 
-    // echo "<pre>"; print_r($race); "</pre>"; exit;
-
     foreach ($divisions as $div) {
       foreach ($teams as $team) {
         $id = sprintf("%s,%s", $div, $team->id);
@@ -361,6 +373,13 @@ class EnterFinishPane extends AbstractPane {
         $tms[$id] = $team;
         $rac[$id] = $this->REGATTA->getRace($div, $race->number);
       }
+    }
+  }
+
+  private function fillRaceObservation(XForm $form, Race $race) {
+    if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
+      $form->add(new FItem("Notes:", new XTextArea('observation', "")));
+      $form->add(new FItem("Observer:", new XTextInput('observer', "")));
     }
   }
 }
