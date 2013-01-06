@@ -622,3 +622,28 @@ a.empty {
 #finish_table select {
     min-width: 1em;
 }
+
+.rank-table th, .rank-table td {
+    width: 6em;
+    text-align: center;
+}
+td.rank-record {
+    width: 3em;
+    background: #bbf;
+}
+
+.rank-table input {
+    display: none;
+}
+
+.rank-table input + label {
+    background: none repeat scroll 0 0 rgba(55, 55, 55, 0.2);
+    color: #AAAAAA;
+    display: block;
+    height: 100%;
+}
+
+.rank-table input:checked + label {
+    background: none;
+    color: black;
+}

@@ -64,30 +64,48 @@ abstract class AbstractPane {
 
     // ------------------------------------------------------------
     // Menu
-    $finish = "EnterFinishPane";
-    $penalty = "EnterPenaltyPane";
     if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
-      $finish = "EnterTeamFinishPane";
-      $penalty = "EnterTeamPenaltyPane";
+      $score_i = array("Regatta"   => array("settings"   => "DetailsPane",
+					    "summaries"  => "SummaryPane",
+					    "scorers"    => "ScorersPane",
+					    "delete"     => "DeleteRegattaPane"),
+		       "Teams"     => array("teams"      => "TeamsPane",
+					    "substitute" => "ReplaceTeamPane",
+					    "remove-team"=> "DeleteTeamsPane"),
+		       "Races"     => array("races"      => "RacesPane",
+					    "notes"      => "NotesPane",
+					    "rotations"  => "SailsPane",
+					    // "tweak-sails"=> "TweakSailsPane",
+					    // "manual-rotation" => "ManualTweakPane"
+					    ),
+		       "RP Forms"  => array("rp"         => "RpEnterPane",
+					    "unregistered" => "UnregisteredSailorPane"),
+		       "Finishes"  => array("finishes" => "EnterTeamFinishPane",
+					    "penalty"  => "EnterTeamPenaltyPane",
+					    "drop-penalty" => "DropPenaltyPane",
+					    "team-penalty" => "TeamPenaltyPane",
+					    "rank"         => "RankTeamsPane"));
     }
-    $score_i = array("Regatta"   => array("settings"   => "DetailsPane",
-                                          "summaries"  => "SummaryPane",
-                                          "scorers"    => "ScorersPane",
-                                          "races"      => "RacesPane",
-                                          "notes"      => "NotesPane",
-                                          "delete"     => "DeleteRegattaPane"),
-                     "Teams"     => array("teams"      => "TeamsPane",
-                                          "substitute" => "ReplaceTeamPane",
-                                          "remove-team"=> "DeleteTeamsPane"),
-                     "Rotations" => array("rotations"  => "SailsPane",
-                                          "tweak-sails"=> "TweakSailsPane",
-                                          "manual-rotation" => "ManualTweakPane"),
-                     "RP Forms"  => array("rp"         => "RpEnterPane",
-                                          "unregistered" => "UnregisteredSailorPane"),
-                     "Finishes"  => array("finishes" => $finish,
-                                          "penalty"  => $penalty,
-                                          "drop-penalty" => "DropPenaltyPane",
-                                          "team-penalty" => "TeamPenaltyPane"));
+    else {
+      $score_i = array("Regatta"   => array("settings"   => "DetailsPane",
+					    "summaries"  => "SummaryPane",
+					    "scorers"    => "ScorersPane",
+					    "races"      => "RacesPane",
+					    "notes"      => "NotesPane",
+					    "delete"     => "DeleteRegattaPane"),
+		       "Teams"     => array("teams"      => "TeamsPane",
+					    "substitute" => "ReplaceTeamPane",
+					    "remove-team"=> "DeleteTeamsPane"),
+		       "Rotations" => array("rotations"  => "SailsPane",
+					    "tweak-sails"=> "TweakSailsPane",
+					    "manual-rotation" => "ManualTweakPane"),
+		       "RP Forms"  => array("rp"         => "RpEnterPane",
+					    "unregistered" => "UnregisteredSailorPane"),
+		       "Finishes"  => array("finishes" => "EnterFinishPane",
+					    "penalty"  => "EnterPenaltyPane",
+					    "drop-penalty" => "DropPenaltyPane",
+					    "team-penalty" => "TeamPenaltyPane"));
+    }
     $access_keys_i = array('finishes' => 'f',
                            'rotations' => 's',
                            'rp' => 'r');
@@ -255,6 +273,11 @@ abstract class AbstractPane {
       }
       require_once('tscore/EnterFinishPane.php');
       return new EnterFinishPane($r, $u);
+    case 'rank':
+      if ($u->scoring != Regatta::SCORING_TEAM)
+	return null;
+      require_once('tscore/RankTeamsPane.php');
+      return new RankTeamsPane($r, $u);
     case 'add-penalty':
     case 'penalties':
     case 'penalty':
@@ -357,6 +380,7 @@ abstract class AbstractPane {
     switch ($class_name) {
     case 'EnterPenaltyPane':
     case 'EnterTeamPenaltyPane':
+    case 'RankTeamsPane':
       return $this->has_scores;
 
     case 'DropPenaltyPane':
@@ -436,6 +460,7 @@ abstract class AbstractPane {
                                "EnterTeamFinishPane" => "finishes",
                                "EnterPenaltyPane" => "penalty",
 			       "EnterTeamPenaltyPane" => "penalty",
+			       "RankTeamsPane" => "rank",
                                "DropPenaltyPane" => "drop-penalty",
                                "TeamPenaltyPane" => "team-penalty");
 
@@ -448,7 +473,7 @@ abstract class AbstractPane {
                                  "TeamsPane" => "Add team",
                                  "DeleteTeamsPane" => "Remove team",
                                  "ReplaceTeamPane" => "Sub team",
-                                 "SailsPane" => "Setup",
+                                 "SailsPane" => "Set rotation",
                                  "TweakSailsPane" => "Tweak sails",
                                  "ManualTweakPane" => "Manual setup",
                                  "RpEnterPane" => "Enter RP",
@@ -457,6 +482,7 @@ abstract class AbstractPane {
                                  "EnterTeamFinishPane" => "Enter finish",
                                  "EnterPenaltyPane" => "Add penalty",
 				 "EnterTeamPenaltyPane" => "Add penalty",
+				 "RankTeamsPane" => "Rank teams",
                                  "DropPenaltyPane" => "Drop penalty",
                                  "TeamPenaltyPane" => "Team penalty");
 }
