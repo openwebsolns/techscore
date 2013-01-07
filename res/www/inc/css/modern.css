@@ -637,13 +637,22 @@ td.rank-record {
 }
 
 .rank-table input + label {
-    background: none repeat scroll 0 0 rgba(55, 55, 55, 0.2);
+    opacity: 0.7;
     color: #AAAAAA;
     display: block;
     height: 100%;
 }
 
 .rank-table input:checked + label {
-    background: none;
+    opacity: 1;
     color: black;
+}
+
+input:checked + label.rank-win {
+    background: #e0f3e0;
+    font-weight: bold;
+}
+input:checked + label.rank-lose {
+    background: #eed2c0;
+    color: #555;
 }

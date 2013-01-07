@@ -20,6 +20,7 @@ class RankTeamsPane extends AbstractPane {
   }
 
   protected function fillHTML(Array $args) {
+    $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/team-rank.js')));
     $this->PAGE->addContent(new XP(array(), "Use this pane to specify which races should be accounted for when creating the overall win-loss record for each team."));
 
     $tables = array();
@@ -43,17 +44,17 @@ class RankTeamsPane extends AbstractPane {
 	      $theirScore += $finish->score;
 	  }
 	  if ($myScore < $theirScore) {
-	    $className = 'tr-win';
+	    $className = 'rank-win';
 	    $display = 'W';
 	    $wins++;
 	  }
 	  elseif ($myScore > $theirScore) {
-	    $className = 'tr-lose';
+	    $className = 'rank-lose';
 	    $display = 'L';
 	    $loss++;
 	  }
 	  else {
-	    $className = 'tr-tie';
+	    $className = 'rank-tie';
 	    $display = 'T';
 	    $ties++;
 	  }
@@ -61,11 +62,12 @@ class RankTeamsPane extends AbstractPane {
 	  if ($other_team->id == $team->id)
 	    $other_team = $race->tr_team2;
 	  $id = sprintf('r-%s-%s', $race->id, $team->id);
-	  $row->add(new XTD(array('class'=>$className),
-			    array(new XCheckboxInput('race[]', $race->id, array('checked'=>'checked', 'id'=>$id)),
+	  $row->add(new XTD(array(),
+			    array(new XCheckboxInput('race[]', $race->id, array('checked'=>'checked', 'id'=>$id, 'class'=>$className)),
 				  $label = new XLabel($id, $display . " vs. "))));
 	  $label->add(new XBr());
 	  $label->add($other_team);
+	  $label->set('class', $className);
 	}
       }
       $cont = sprintf("%s-%s", $wins, $loss);
