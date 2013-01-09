@@ -151,7 +151,8 @@ class TeamsPane extends AbstractPane {
       foreach ($conf->getSchools() as $school) {
         $sub->add(new XLi(array(new XHiddenInput('school[]', $school->id),
                                 new XTextInput('number[]', "", array('id'=>$school->id)),
-                                new XLabel($school->id, $school))));
+                                new XLabel($school->id, $school,
+					   array('onclick'=>sprintf('var o=document.getElementById("%s");o.value=Number(o.value)+1;', $school->id))))));
       }
     }
     $form->add(new XSubmitP('set-teams', "Register teams"));
