@@ -58,11 +58,17 @@ function compareRankTables(a, b) {
     var rec1 = Number(tok1[0]);
     var rec2 = Number(tok2[0]);
 
-    if (Number(tok1[1]) > 0)
-	rec1 = rec1 / Number(tok1[1]);
-    if (Number(tok2[1]) > 0)
-	rec2 = rec2 / Number(tok2[1]);
-    return rec2 - rec1;
+    var tot1 = rec1 + Number(tok1[1]);
+    if (tok1.length > 2) { tot1 += Number(tok1[2]); }
+    var tot2 = rec2 + Number(tok2[1]);
+    if (tok2.length > 2) { tot2 += Number(tok2[2]); }
+
+    var per1 = rec1 / tot1;
+    var per2 = rec2 / tot2;
+
+    if (per1 == per2)
+	return tok1[1] - tok2[1];
+    return per2 - per1;
 }
 
 /**
