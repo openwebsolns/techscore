@@ -467,7 +467,7 @@ abstract class AbstractPane {
   private static $TITLES = array("DetailsPane" => "Settings",
                                  "SummaryPane" => "Summaries",
                                  "ScorersPane" => "Scorers",
-                                 "RacesPane" => "Edit races",
+                                 "RacesPane" => "Add/edit races",
                                  "NotesPane" => "Race notes",
                                  "DeleteRegattaPane" => "Delete",
                                  "TeamsPane" => "Add team",
