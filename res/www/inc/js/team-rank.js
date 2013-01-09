@@ -55,19 +55,25 @@ function compareRankTables(a, b) {
     var tok1 = a.childNodes[0].childNodes[0].childNodes[0].nodeValue.split("-");
     var tok2 = b.childNodes[0].childNodes[0].childNodes[0].nodeValue.split("-");
 
-    var rec1 = Number(tok1[0]);
-    var rec2 = Number(tok2[0]);
+    var win1 = Number(tok1[0]);
+    var win2 = Number(tok2[0]);
 
-    var tot1 = rec1 + Number(tok1[1]);
+    var los1 = Number(tok1[1]);
+    var los2 = Number(tok2[1]);
+
+    var tot1 = win1 + los1;
     if (tok1.length > 2) { tot1 += Number(tok1[2]); }
-    var tot2 = rec2 + Number(tok2[1]);
+    var tot2 = win2 + los2;
     if (tok2.length > 2) { tot2 += Number(tok2[2]); }
 
-    var per1 = rec1 / tot1;
-    var per2 = rec2 / tot2;
+    var per1 = win1 / tot1;
+    var per2 = win2 / tot2;
 
-    if (per1 == per2)
-	return tok1[1] - tok2[1];
+    if (per1 == per2) {
+	if (win1 == win2)
+	    return los1 - los2;
+	return win2 - win1;
+    }
     return per2 - per1;
 }
 
