@@ -623,6 +623,10 @@ a.empty {
     min-width: 1em;
 }
 
+#rank-table td, #rank-table th {
+    text-align: left;
+}
+
 .rank-table th, .rank-table td {
     width: 6em;
     text-align: center;

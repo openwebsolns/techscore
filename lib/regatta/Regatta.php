@@ -199,6 +199,11 @@ class FullRegatta extends DBObject {
   public function getRanker() {
     if ($this->ranker === null) {
       switch ($this->scoring) {
+      case Regatta::SCORING_TEAM:
+	require_once('regatta/ICSATeamRanker.php');
+        $this->ranker = new ICSATeamRanker();
+        break;
+
       case Regatta::SCORING_COMBINED:
         require_once('regatta/ICSACombinedRanker.php');
         $this->ranker = new ICSACombinedRanker();
