@@ -758,6 +758,27 @@ class FullRegatta extends DBObject {
     return $list;
   }
 
+  /**
+   * Returns ordered list of rounds team is participating in.
+   *
+   * @param Team $team the team
+   * @return Array:Round the rounds
+   * @see getRacesForTeam
+   * @throws InvalidArgumentException if regatta type is not scoring
+   */
+  public function getRoundsForTeam(Team $team) {
+    if ($this->scoring != Regatta::SCORING_TEAM)
+      throw new InvalidArgumentException("Rounds only applicable to team-racing regattas.");
+
+    return DB::getAll(DB::$ROUND,
+		      new DBCondIn('id', DB::prepGetAll(DB::$RACE,
+							new DBBool(array(new DBCond('regatta', $this->id),
+									 new DBBool(array(new DBCond('tr_team1', $team),
+											  new DBCond('tr_team2', $team)),
+										    DBBool::mOR))),
+							array('round'))));
+  }
+
 
   // ------------------------------------------------------------
   // Finishes
