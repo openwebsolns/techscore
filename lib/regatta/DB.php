@@ -1406,6 +1406,11 @@ class Race extends DBObject {
    */
   protected $tr_team1;
   protected $tr_team2;
+  /**
+   * @var int|null (team racing) ignore the race when creating
+   * win-loss record
+   */
+  public $tr_ignore;
 
   public function db_name() { return 'race'; }
   public function db_type($field) {
@@ -1605,14 +1610,12 @@ class Finish extends DBObject {
       $this->penalty = $mod->type;
       $this->comments = $mod->comments;
       $this->displace = $mod->displace;
-      $this->earned = $mod->earned;
     }
     else {
       $this->amount = null;
       $this->penalty = null;
       $this->comments = null;
       $this->displace = null;
-      $this->earned = null;
     }
   }
 
@@ -1654,6 +1657,12 @@ class Finish extends DBObject {
    */
   public static function compareEntered(Finish $f1, Finish $f2) {
     return $f1->__get('entered')->format("U") - $f2->__get('entered')->format("U");
+  }
+
+  public static function compareEarned(Finish $f1, Finish $f2) {
+    if ($f1->earned === null || $f2->earned === null)
+      return self::compareEntered($f1, $f2);
+    return $f1->earned - $f2->earned;
   }
 }
 
@@ -2115,15 +2124,6 @@ abstract class FinishModifier {
    * is invalid if the 'amount' is non-positive.
    */
   public $displace;
-
-  /**
-   * @var int the minimum score than an averaged breakdown
-   * deserves. This is tracked by the scoring algorithm so that an
-   * entire race need not be re-scored just to determine a handicapped
-   * team's finish average score; and to keep that average from never
-   * being worse than that team's EARNED score, sans breakdown.
-   */
-  public $earned;
 
   /**
    * Fetches an associative list of the different penalty types

@@ -17,8 +17,16 @@ require_once("conf.php");
  */
 class EnterPenaltyPane extends AbstractPane {
 
+  /**
+   * @var Array allowed penalties/breakdowns
+   */
+  protected $penalties;
+  protected $breakdowns;
+
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Add penalty", $user, $reg);
+    $this->penalties = Penalty::getList();
+    $this->breakdowns = Breakdown::getList();
   }
 
   protected function fillHTML(Array $args) {
@@ -43,10 +51,8 @@ class EnterPenaltyPane extends AbstractPane {
       $this->REGATTA->getFinishes($theRace) :
       $this->REGATTA->getCombinedFinishes($theRace);
 
-    $divisions = $this->REGATTA->getDivisions();
-
-    $type = DB::$V->incKey($args, 'type', Penalty::getList(), null);
-    $type = DB::$V->incKey($args, 'type', Breakdown::getList(), $type);
+    $type = DB::$V->incKey($args, 'type', $this->penalties, null);
+    $type = DB::$V->incKey($args, 'type', $this->breakdowns, $type);
     if (isset($args['type']) && $type === null)
       $this->PAGE->addContent(new XP(array('class'=>'warning'), "Invalid type chosen. Please choose again."));
     if ($type == null) {
@@ -57,17 +63,7 @@ class EnterPenaltyPane extends AbstractPane {
       $this->PAGE->addContent($p = new XPort("1. Individual penalties and breakdowns"));
       $p->add($form = $this->createForm(XForm::GET));
 
-      // Table of finished races
-      $hrows = array(array());
-      $brows = array(array());
-      foreach ($divisions as $div) {
-        $hrows[0][] = (string)$div;
-        $nums = array();
-        foreach ($this->REGATTA->getScoredRaces($div) as $race)
-          $nums[] = $race->number;
-        $brows[0][] = DB::makeRange($nums);
-      }
-      $form->add(new FItem("Possible races:", XTable::fromArray($brows, $hrows, array('class'=>'narrow'))));
+      $form->add(new FItem("Possible races:", $this->getRaceTable()));
       $form->add(new FItem("Race:", new XTextInput("race", $theRace,
                                                    array("size"=>"4",
                                                          "maxlength"=>"4",
@@ -75,8 +71,8 @@ class EnterPenaltyPane extends AbstractPane {
                                                          "class"=>"narrow"))));
 
       // Penalty type
-      $form->add(new FItem("Penalty type:", XSelect::fromArray('type', array("Penalties" => Penalty::getList(),
-                                                                               "Breakdowns" => Breakdown::getList()))));
+      $form->add(new FItem("Penalty type:", XSelect::fromArray('type', array("Penalties" => $this->penalties,
+									     "Breakdowns" => $this->breakdowns))));
       // Submit
       $form->add(new XSubmitP('c_race', "Next →"));
     }
@@ -95,8 +91,11 @@ class EnterPenaltyPane extends AbstractPane {
           $sail = (string)$rotation->getSail($fin->race, $fin->team);
           if (strlen($sail) > 0)
             $sail = sprintf("(Sail: %4s) ", $sail);
-          $team = ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ?
-            $fin->team : sprintf('%s: %s', $fin->race->division, $fin->team);
+          $team = $fin->team;
+	  if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED)
+	    $team = sprintf('%s: %s', $fin->race->division, $fin->team);
+	  elseif ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
+	    $team = sprintf('%s: %s', $fin->race->division->getLevel(), $fin->team);
           $f_sel->add(new FOption($fin->id, $sail . $team));
         }
       }
@@ -106,30 +105,8 @@ class EnterPenaltyPane extends AbstractPane {
                            new XTextArea("p_comments", "",
                                          array("rows"=>"2",
                                                "cols"=>"50"))));
-      // - Amount, or average, if necessary
-      $b = Breakdown::getList();
-      if (in_array($type, array_keys($b)))
-        $average = "Use average within division";
-      else
-        $average = "Use standard scoring (FLEET + 1).";
-      $new_score = new FItem("New score:",
-                             $cb = new XCheckboxInput("average", "yes", array("id"=>"avg_box")));
-      $cb->set("onclick", "document.getElementById('p_amount').disabled = this.checked;document.getElementById('displace_box').disabled = this.checked;");
-      // $cb->set("checked", "checked");
-      $new_score->add(new XLabel("avg_box", $average));
-      $form->add($new_score);
+      $this->fillPenaltyScheme($form, $type);
 
-      $new_score = new FItem("OR Assign score:",
-                             new XTextInput("p_amount", "", array("size"=>"2", "id"=>"p_amount")));
-      $new_score->add(new XCheckboxInput("displace", "yes", array("id"=>"displace_box")));
-      $new_score->add(new XLabel('displace_box', 'Displace finishes'));
-      $form->add($new_score);
-
-      // script to turn off the two by default
-      $form->add(new XScript('text/javascript', null,
-                             "document.getElementById('p_amount').disabled = true;".
-                             "document.getElementById('displace_box').disabled = true;".
-                             "document.getElementById('avg_box').checked   = true;"));
       // Submit
       $form->add(new XP(array('class'=>'p-submit'),
                         array(new XA($this->link('penalty'), "← Start over"), " ",
@@ -176,7 +153,7 @@ class EnterPenaltyPane extends AbstractPane {
       }
 
       // give the users the flexibility to do things wrong, if they so choose
-      $breakdowns = Breakdown::getList();
+      $breakdowns = $this->breakdowns;
       $races = array();
       foreach ($finishes as $theFinish) {
         $races[$theFinish->race->id] = $theFinish->race;
@@ -188,18 +165,12 @@ class EnterPenaltyPane extends AbstractPane {
           $theFinish->setModifier(new Breakdown($thePen, $theAmount, $theComm, $theDisplace));
         }
         else {
-          if ($theFinish->score !== null &&
-              $theAmount > 0 &&
-              $theAmount <= $theFinish->score) {
-            Session::pa(new PA("The assigned penalty score is no worse than their actual score; ignoring.", PA::I));
-            return array();
-          }
-          elseif ($theAmount > ($fleet = $this->REGATTA->getFleetSize() + 1)) {
-            Session::pa(new PA(sprintf("The assigned penalty is greater than the maximum penalty of FLEET + 1 (%d); ignoring.", $fleet),
-                               PA::I));
-            return array();
-          }
-          $theFinish->setModifier(new Penalty($thePen, $theAmount, $theComm, $theDisplace));
+	  $modifier = new Penalty($thePen, $theAmount, $theComm, $theDisplace);
+	  $score = $this->REGATTA->scorer->getPenaltyScore($theFinish, $modifier);
+          if ($theFinish->score !== null && $theAmount > 0 && $score->score <= $theFinish->score)
+	    throw new SoterException("The assigned penalty score is no worse than their actual score; ignoring.");
+	  // Allow assigned penalties beyond FLEET + 1
+          $theFinish->setModifier($modifier);
         }
       }
       $this->REGATTA->commitFinishes($finishes);
@@ -212,5 +183,51 @@ class EnterPenaltyPane extends AbstractPane {
     }
 
     return array();
+  }
+
+  protected function getRaceTable() {
+    $divisions = $this->REGATTA->getDivisions();
+
+    // Table of finished races
+    $hrows = array(array());
+    $brows = array(array());
+    foreach ($divisions as $div) {
+      $hrows[0][] = (string)$div;
+      $nums = array();
+      foreach ($this->REGATTA->getScoredRaces($div) as $race)
+	$nums[] = $race->number;
+      $brows[0][] = DB::makeRange($nums);
+    }
+    return XTable::fromArray($brows, $hrows, array('class'=>'narrow'));
+  }
+
+  /**
+   * Helper method to add the visual aspects of adding penalty
+   *
+   * @param XForm $form the form to fill
+   * @param FinishModifier::Const the penalty type
+   */
+  protected function fillPenaltyScheme(XForm $form, $type) {
+    // - Amount, or average, if necessary
+    if (isset($this->breakdowns[$type]))
+      $average = "Use average within division";
+    else
+      $average = "Use standard scoring (FLEET + 1).";
+    $new_score = new FItem("New score:", $cb = new XCheckboxInput("average", "yes", array("id"=>"avg_box")));
+    $cb->set('onclick', 'document.getElementById("p_amount").disabled = this.checked;document.getElementById("displace_box").disabled = this.checked;');
+    // $cb->set("checked", "checked");
+    $new_score->add(new XLabel("avg_box", $average));
+    $form->add($new_score);
+
+    $new_score = new FItem("OR Assign score:", new XTextInput("p_amount", "", array("size"=>"2", "id"=>"p_amount")));
+    $new_score->add(new XCheckboxInput("displace", "yes", array("id"=>"displace_box")));
+    $new_score->add(new XLabel('displace_box', 'Displace finishes'));
+    $form->add($new_score);
+
+    // script to turn off the two by default
+    $form->add(new XScript('text/javascript', null,
+			   "document.getElementById('p_amount').disabled = true;".
+			   "document.getElementById('displace_box').disabled = true;".
+			   "document.getElementById('avg_box').checked   = true;"));
   }
 }

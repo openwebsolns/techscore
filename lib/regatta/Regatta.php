@@ -170,10 +170,14 @@ class FullRegatta extends DBObject {
       if ($this->scorer === null) {
         switch ($this->scoring) {
         case Regatta::SCORING_COMBINED:
-        case Regatta::SCORING_TEAM:
           require_once('regatta/ICSACombinedScorer.php');
           $this->scorer = new ICSACombinedScorer();
           break;
+
+	case Regatta::SCORING_TEAM:
+	  require_once('regatta/ICSATeamScorer.php');
+	  $this->scorer = new ICSATeamScorer();
+	  break;
 
         default:
           require_once('regatta/ICSAScorer.php');
@@ -195,6 +199,11 @@ class FullRegatta extends DBObject {
   public function getRanker() {
     if ($this->ranker === null) {
       switch ($this->scoring) {
+      case Regatta::SCORING_TEAM:
+	require_once('regatta/ICSATeamRanker.php');
+        $this->ranker = new ICSATeamRanker();
+        break;
+
       case Regatta::SCORING_COMBINED:
         require_once('regatta/ICSACombinedRanker.php');
         $this->ranker = new ICSACombinedRanker();
@@ -743,10 +752,31 @@ class FullRegatta extends DBObject {
       return $races;
     $list = array();
     foreach ($races as $race) {
-      if ($race->tr_team1 == $team || $race->tr_team2 == $team)
+      if ($race->tr_team1->id == $team->id || $race->tr_team2->id == $team->id)
         $list[] = $race;
     }
     return $list;
+  }
+
+  /**
+   * Returns ordered list of rounds team is participating in.
+   *
+   * @param Team $team the team
+   * @return Array:Round the rounds
+   * @see getRacesForTeam
+   * @throws InvalidArgumentException if regatta type is not scoring
+   */
+  public function getRoundsForTeam(Team $team) {
+    if ($this->scoring != Regatta::SCORING_TEAM)
+      throw new InvalidArgumentException("Rounds only applicable to team-racing regattas.");
+
+    return DB::getAll(DB::$ROUND,
+		      new DBCondIn('id', DB::prepGetAll(DB::$RACE,
+							new DBBool(array(new DBCond('regatta', $this->id),
+									 new DBBool(array(new DBCond('tr_team1', $team),
+											  new DBCond('tr_team2', $team)),
+										    DBBool::mOR))),
+							array('round'))));
   }
 
 
@@ -1303,6 +1333,10 @@ class FullRegatta extends DBObject {
    * a snapshot in the team and dt_team_division tables of the teams
    * and how they ranked.
    *
+   * Note that this ONLY applies to fleet racing regattas, as ranking
+   * of teams is a manual process in team racing events. Thus, this
+   * method will quietly return if the scoring is Team.
+   *
    * This method will silently fail if there are no races
    *
    * @param Division $division optional specific division to rank
@@ -1310,7 +1344,7 @@ class FullRegatta extends DBObject {
   public function setRanks(Division $division = null) {
     if ($this->dt_num_races === null)
       $this->setData();
-    if ($this->dt_num_divisions == 0)
+    if ($this->dt_num_divisions == 0 || $this->scoring == Regatta::SCORING_TEAM)
       return;
 
     // Set the team-level ranking first

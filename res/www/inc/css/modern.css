@@ -594,9 +594,11 @@ a.empty {
 }
 .tr-win {
     background: #e0f3e0;
+    font-weight: bold;
 }
 .tr-lose {
     background: #eed2c0;
+    color: #555;
 }
 .tr-tie {
     background:#f3f3bb;
@@ -612,4 +614,49 @@ a.empty {
 
 .teamtable td, .teamtable th {
     text-align: left;
+}
+
+#finish_table th {
+    text-align: left;
+}
+#finish_table select {
+    min-width: 1em;
+}
+
+#rank-table td, #rank-table th {
+    text-align: left;
+}
+
+.rank-table th, .rank-table td {
+    width: 6em;
+    text-align: center;
+}
+td.rank-record {
+    width: 3em;
+    background: #bbf;
+}
+
+.rank-table input {
+    display: none;
+}
+
+.rank-table input + label {
+    opacity: 0.7;
+    color: #AAAAAA;
+    display: block;
+    height: 100%;
+}
+
+.rank-table input:checked + label {
+    opacity: 1;
+    color: black;
+}
+
+input:checked + label.rank-win {
+    background: #e0f3e0;
+    font-weight: bold;
+}
+input:checked + label.rank-lose {
+    background: #eed2c0;
+    color: #555;
 }

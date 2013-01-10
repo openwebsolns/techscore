@@ -414,3 +414,9 @@ alter table race drop key regatta_2;
 -- add order to round objects
 alter table round add column relative_order tinyint not null default 1;
 update round set relative_order = 1 where relative_order is null;
+
+-- delete DNS from team racing regattas
+delete from finish where penalty = "DNS" and comments = "Did not participate" and race in (select id from race where regatta in (select id from regatta where scoring = "team"));
+
+-- some races do not "count" towards record in team racing
+alter table race add column tr_ignore tinyint default null comment "Ignore race for team win-loss record";

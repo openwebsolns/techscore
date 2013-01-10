@@ -115,8 +115,8 @@ class ScoresGridDialog extends AbstractScoresDialog {
       $s0 = $this->REGATTA->getFinish($race, $t0);
       $s1 = $this->REGATTA->getFinish($race, $t1);
       if ($s0 !== null && $s1 !== null) {
-        $scores[$t0->id][$t1->id][$race->number][] = $s0->score;
-        $scores[$t1->id][$t0->id][$race->number][] = $s1->score;
+        $scores[$t0->id][$t1->id][$race->number][] = $s0;
+        $scores[$t1->id][$t0->id][$race->number][] = $s1;
       }
     }
 
@@ -135,6 +135,7 @@ class ScoresGridDialog extends AbstractScoresDialog {
                            $rec = new XTD(array('class'=>'tr-record'), "")));
       $win = 0;
       $los = 0;
+      $tie = 0;
       foreach ($teams as $id2 => $other) {
         if (!isset($scores[$id][$id2]))
           $row->add(new XTD(array('class'=>'tr-ns'), "X"));
@@ -154,33 +155,73 @@ class ScoresGridDialog extends AbstractScoresDialog {
             if ($subtab !== null)
               $subtab->add($subrow = new XTR());
 
-            sort($places);
-            $total1 = array_sum($places);
-            $total2 = array_sum($scores[$id2][$id][$race_num]);
+            usort($places, "Finish::compareEarned");
+            $total1 = $this->sumPlaces($places);
+            $total2 = $this->sumPlaces($scores[$id2][$id][$race_num]);
 
             // Calculate display
-            $cont = implode('-', $places);
+            $cont = $this->displayPlaces($places);
             if ($score_mode) {
               if (count($places) == 0)
                 $cont = new XA(WS::link($lroot, array('race' => $race_num), '#finish_form'), "Score");
               else
                 $cont = new XA(WS::link($lroot, array('race' => $race_num), '#finish_form'), $cont);
             }
-            if ($total1 < $total2)
+            if ($total1 < $total2) {
+	      if (!$score_mode)
+		$cont = sprintf('W (%s)', $cont);
               $subrow->add(new XTD(array('class'=>'tr-win'), $cont));
-            elseif ($total1 > $total2)
+	      $win++;
+	    }
+            elseif ($total1 > $total2) {
+	      if (!$score_mode)
+		$cont = sprintf('L (%s)', $cont);
               $subrow->add(new XTD(array('class'=>'tr-lose'), $cont));
-            elseif ($total1 != 0)
+	      $los++;
+	    }
+            elseif ($total1 != 0) {
+	      if (!$score_mode)
+		$cont = sprintf('T (%s)', $cont);
               $subrow->add(new XTD(array('class'=>'tr-tie'), $cont));
+	      $tie++;
+	    }
             else
               $subrow->add(new XTD(array(), $cont));
           }
         }
       }
       $table->add($row);
-      $rec->add($win . '-' . $los);
+      $mes = $win . '-' . $los;
+      if ($tie > 0)
+	$mes .= '-' . $tie;
+      $rec->add($mes);
     }
     return $table;
+  }
+
+  private function sumPlaces(Array $places = array()) {
+    $total = 0;
+    foreach ($places as $finish)
+      $total += $finish->score;
+    return $total;
+  }
+
+  private function displayPlaces(Array $places = array()) {
+    $disp = "";
+    $pens = array();
+    foreach ($places as $i => $finish) {
+      if ($i > 0)
+	$disp .= "-";
+      if ($finish->penalty !== null) {
+	$disp .= $finish->earned;
+	$pens[] = $finish->penalty;
+      }
+      else
+	$disp .= $finish->score;
+    }
+    if (count($pens) > 0)
+      $disp .= " " . implode(",", $pens);
+    return $disp;
   }
 }
 ?>
