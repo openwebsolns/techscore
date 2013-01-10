@@ -3,6 +3,7 @@
  */
 
 var RANK_TABLES = [];
+var RANK_CELL_I = 0;
 
 /**
  * Initializes the checkboxes event handlers
@@ -17,8 +18,10 @@ function initTeamRank(e) {
 	var tab = tabs[t];
 	RANK_TABLES.push(tab);
 	var inputs = tab.getElementsByTagName("input");
-	for (var i = 0; i < inputs.length; i++)
-	    inputs[i].onchange = updateRecord;
+	for (var i = 0; i < inputs.length; i++) {
+	    if (inputs[i].type == "checkbox")
+		inputs[i].onchange = updateRecord;
+	}
     }
 
     // Add shuffle button
@@ -35,7 +38,7 @@ function initTeamRank(e) {
 }
 
 function updateRecord(e) {
-    var td = this.parentNode.parentNode.childNodes[0]; // first cell
+    var td = this.parentNode.parentNode.childNodes[RANK_CELL_I];
     var tokens = td.childNodes[0].nodeValue.split("-");
 
     var index = 2;
@@ -52,8 +55,8 @@ function updateRecord(e) {
 }
 
 function compareRankTables(a, b) {
-    var tok1 = a.childNodes[0].childNodes[0].childNodes[0].nodeValue.split("-");
-    var tok2 = b.childNodes[0].childNodes[0].childNodes[0].nodeValue.split("-");
+    var tok1 = a.childNodes[0].childNodes[RANK_CELL_I].childNodes[0].nodeValue.split("-");
+    var tok2 = b.childNodes[0].childNodes[RANK_CELL_I].childNodes[0].nodeValue.split("-");
 
     var win1 = Number(tok1[0]);
     var win2 = Number(tok2[0]);

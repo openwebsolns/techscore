@@ -28,7 +28,8 @@ class RankTeamsPane extends AbstractPane {
     foreach ($this->REGATTA->getTeams() as $team) {
       $tables[] = new XTable(array('class'=>'rank-table'),
 			     array($row = new XTR(array(),
-						  array($recTD = new XTD(array('class'=>'rank-record'), ""), new XTH(array(), $team)))));
+						  array($recTD = new XTD(array('class'=>'rank-record'), ""),
+							new XTH(array(), $team)))));
       $wins = 0;
       $loss = 0;
       $ties = 0;
@@ -63,11 +64,13 @@ class RankTeamsPane extends AbstractPane {
 	    $other_team = $race->tr_team2;
 	  $id = sprintf('r-%s-%s', $race->id, $team->id);
 	  $row->add(new XTD(array(),
-			    array(new XCheckboxInput('race[]', $race->id, array('checked'=>'checked', 'id'=>$id, 'class'=>$className)),
+			    array($chk = new XCheckboxInput('race[]', $race->id, array('id'=>$id, 'class'=>$className)),
 				  $label = new XLabel($id, $display . " vs. "))));
 	  $label->add(new XBr());
 	  $label->add($other_team);
 	  $label->set('class', $className);
+	  if ($race->tr_ignore === null)
+	    $chk->set('checked', 'checked');
 	}
       }
       $cont = sprintf("%s-%s", $wins, $loss);
@@ -81,8 +84,10 @@ class RankTeamsPane extends AbstractPane {
     }
 
     array_multisort($records, SORT_NUMERIC | SORT_DESC, $tables);
+    $this->PAGE->addContent($f = $this->createForm());
     foreach ($tables as $table)
-      $this->PAGE->addContent($table);
+      $f->add($table);
+    $f->add(new XSubmitP('set-records', "Set race records"));
   }
 
   public function process(Array $args) {
