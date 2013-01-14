@@ -660,3 +660,7 @@ input:checked + label.rank-lose {
     background: #eed2c0;
     color: #555;
 }
+
+tr.checked {
+    background: #e0f3e0;
+}

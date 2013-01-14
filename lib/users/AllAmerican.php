@@ -84,7 +84,7 @@ class AllAmerican extends AbstractUserPane {
         $chk->set('checked', 'checked');
       }
 
-      $form->add(new XSubmitP('set-report', "Choose regattas >>"));
+      $form->add(new XSubmitP('set-report', "Choose regattas →"));
 
       $this->PAGE->addContent($p = new XPort("Special crew report"));
       $p->add($form = $this->createForm());
@@ -94,7 +94,7 @@ class AllAmerican extends AbstractUserPane {
                               " regattas regardless of participation, choose the seasons and click the button below.")));
 
       $form->add(new FItem("Season(s):", $this->seasonList('ss', array($now, $then))));
-      $form->add(new XSubmitP('set-special-report', "All crews >>"));
+      $form->add(new XSubmitP('set-special-report', "All crews →"));
       return;
     }
 
@@ -108,6 +108,7 @@ class AllAmerican extends AbstractUserPane {
     // list of automatic sailors.
     // ------------------------------------------------------------
     if ($this->AA['regattas-set'] === false) {
+      $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/aa-table.js')));
       // Add button to go back
       $this->PAGE->addContent($p = new XPort("Progress"));
       $p->add($form = $this->createForm());
@@ -126,72 +127,48 @@ class AllAmerican extends AbstractUserPane {
       $regattas = Season::getRegattasInSeasons($seasons);
       $qual_regattas = array();
 
-      $this->PAGE->addContent($p1 = new XPort("Classified regattas"));
-      $this->PAGE->addContent($p2 = new XPort("Additional regattas"));
+      $this->PAGE->addContent($p = new XPort("Regattas"));
       if (count($regattas) == 0) {
-        $p1->add("There are no regattas in the chosen season which classify for inclusion.");
-        $p2->add("There are no regattas in the chosen season to add.");
+        $p->add("There are no regattas in the chosen season(s) for inclusion.");
         return;
       }
 
-      $p2->add($form = $this->createForm());
-      $tab = new XQuickTable(array('id'=>'regtable', 'class'=>'regatta-list'), array("", "Name", "Type", "Part.", "Date", "Status"));
+      $p->add($form = $this->createForm());
+      $form->add($tab = new XQuickTable(array('id'=>'regtable', 'class'=>'regatta-list'),
+                                        array("", "Name", "Type", "Part.", "Date", "Status")));
 
-      $addt_regattas = 0;
       $types = array('championship', 'conference-championship', 'intersectional');
       foreach ($regattas as $reg) {
+        $chosen = false;
+
+        $id = 'r'.$reg->id;
+        $rattr = array();
+        $cattr = array('id'=>$id);
+
         if ($reg->finalized !== null &&
             $reg->scoring != Regatta::SCORING_TEAM &&
-            ($reg->participant == $this->AA['report-participation'] ||
-             'special' == $this->AA['report-participation']) &&
+            ($reg->participant == $this->AA['report-participation'] || 'special' == $this->AA['report-participation']) &&
             in_array($reg->type->id, $types)) {
           $this->populateSailors(DB::getRegatta($reg->id));
-          $qual_regattas[] = $reg;
+          $cattr['checked'] = 'checked';
         }
-        else {
-          // present these regattas for choosing
-          $id = 'r'.$reg->id;
-          $rattr = array();
-          $cattr = array('id'=>$id);
-          if ($reg->finalized === null ||
-              ($reg->participant != $this->AA['report-participation'] &&
-               Regatta::PARTICIPANT_COED == $this->AA['report-participation'])) {
+        elseif ($reg->finalized === null ||
+                ($reg->participant != $this->AA['report-participation'] &&
+                 Regatta::PARTICIPANT_COED == $this->AA['report-participation'])) {
             $rattr['class'] = 'disabled';
             $cattr['disabled'] = 'disabled';
-          }
-          $tab->addRow(array(new XCheckboxInput("regatta[]", $reg->id, $cattr),
-                             new XLabel($id, $reg->name),
-                             new XLabel($id, $reg->type),
-                             new XLabel($id, ($reg->participant == Regatta::PARTICIPANT_WOMEN) ? "Women" : "Coed"),
-                             new XLabel($id, $reg->start_time->format('Y/m/d H:i')),
-                             new XLabel($id, ($reg->finalized) ? "Final" : "Pending")),
-                       $rattr);
-          $addt_regattas++;
         }
+        $tab->addRow(array(new XCheckboxInput("regatta[]", $reg->id, $cattr),
+                           new XLabel($id, $reg->name),
+                           new XLabel($id, $reg->type),
+                           new XLabel($id, ($reg->participant == Regatta::PARTICIPANT_WOMEN) ? "Women" : "Coed"),
+                           new XLabel($id, $reg->start_time->format('Y/m/d H:i')),
+                           new XLabel($id, ($reg->finalized) ? "Final" : "Pending")),
+                     $rattr);
       }
-      if ($addt_regattas > 0) {
-        $form->add(new XP(array(), "Choose the regattas you wish to include in the report from the list below."));
-        $form->add($tab);
-      }
-      else
-        $form->add(new XP(array(), "There are no other possible regattas to add to the report from for the chosen season."));
       $form->add(new XP(array(), "Next, choose the sailors to incorporate into the report."));
       $form->add(new XSubmitP('set-regattas', sprintf("Choose %ss →", $this->AA['report-role'])));
 
-      // are there any qualified regattas?
-      if (count($qual_regattas) == 0)
-        $p1->add(new XP(array(), "No regattas fulfill the requirement for inclusion."));
-      else {
-        $p1->add(new XP(array(), "The following regattas meet the criteria for inclusion in the report."));
-        $p1->add($tab = new XQuickTable(array('class'=>'regatta-list'), array("Name", "Type", "Part.", "Date", "Status")));
-        foreach ($qual_regattas as $reg) {
-          $tab->addRow(array($reg->name,
-                             $reg->type,
-                             ($reg->participant == Regatta::PARTICIPANT_WOMEN) ? "Women" : "Coed",
-                             $reg->start_time->format('Y/m/d H:i'),
-                             "Final"));
-        }
-      }
       Session::s('aa', $this->AA);
       return;
     }
@@ -203,7 +180,7 @@ class AllAmerican extends AbstractUserPane {
       // Add button to go back
       $this->PAGE->addContent($p = new XPort("Progress"));
       $p->add($form = $this->createForm());
-      $form->add(new XSubmitP('unset-regattas', "<< Start over"));
+      $form->add(new XSubmitP('unset-regattas', "← Start over"));
 
       $regattas = $this->AA['regattas'];
       // provide a list of sailors that are already included in the
@@ -216,7 +193,7 @@ class AllAmerican extends AbstractUserPane {
         $item->add(new XLi($sailor));
 
       // Form to fetch and add sailors
-      $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/aa.js'));
+      $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/aa.js')));
       $this->PAGE->addContent($p = new XPort("New sailors"));
       $p->add($form = $this->createForm());
       $form->add(new XNoScript(new XP(array(), "Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding.")));
@@ -224,7 +201,7 @@ class AllAmerican extends AbstractUserPane {
       $search->set('id', 'name-search');
       $form->add($ul = new XUl(array('id'=>'aa-input'),
                                array(new XLi("No sailors.", array('class'=>'message')))));
-      $form->add(new XSubmitP('set-sailors', "Generate report >>"));
+      $form->add(new XSubmitP('set-sailors', "Generate report →"));
 
       return;
     }
@@ -240,7 +217,7 @@ class AllAmerican extends AbstractUserPane {
     $form->add(new XSubmitP('gen-report', "Download as CSV"));
 
     $p->add($form = $this->createForm());
-    $form->add(new XSubmitP('unset-sailors', "<< Go back"));
+    $form->add(new XSubmitP('unset-sailors', "← Go back"));
 
     $this->PAGE->addContent(new XTable(array('id'=>'aa-table'),
                                        array(new XTHead(array(),

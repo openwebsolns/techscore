@@ -89,7 +89,7 @@ abstract class AbstractUserPane {
     $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
                                   array(new XH4("Reports"),
                                         new XUl(array(),
-                                                array(// new XLi(new XA("/aa", "All-American")),
+                                                array(new XLi(new XA("/aa", "All-American")),
                                                       new XLi(new XA("/compare-sailors", "Head to head")),
                                                       new XLi(new XA("/compare-by-race", "Comp. by race")))))));
     // Messages
