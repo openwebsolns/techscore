@@ -1349,11 +1349,14 @@ class FullRegatta extends DBObject {
 
     // Set the team-level ranking first
     $ranker = $this->getRanker();
+    $team_ids = array();
     foreach ($ranker->rank($this) as $i => $rank) {
       $rank->team->dt_rank = ($i + 1);
       $rank->team->dt_explanation = $rank->explanation;
       $rank->team->dt_score = $rank->score;
       DB::set($rank->team);
+
+      $team_ids[] = $rank->team->id;
     }
 
     // ------------------------------------------------------------
@@ -1413,7 +1416,9 @@ class FullRegatta extends DBObject {
     // @TODO: Team racing?
 
     // Remove extraneous entries
-    DB::removeAll(DB::$DT_TEAM_DIVISION, new DBCondIn('division', $this->getDivisions(), DBCondIn::NOT_IN));
+    DB::removeAll(DB::$DT_TEAM_DIVISION,
+                  new DBBool(array(new DBCondIn('team', $team_ids, DBCondIn::IN),
+                                   new DBCondIn('division', $this->getDivisions(), DBCondIn::NOT_IN))));
   }
 
   /**
