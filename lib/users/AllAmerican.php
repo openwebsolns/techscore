@@ -111,7 +111,7 @@ class AllAmerican extends AbstractUserPane {
       // Add button to go back
       $this->PAGE->addContent($p = new XPort("Progress"));
       $p->add($form = $this->createForm());
-      $form->add(new XSubmitP('unset-regattas', "<< Start over"));
+      $form->add(new XSubmitP('unset-regattas', "← Start over"));
 
       // Reset lists
       $this->AA['table'] = array();
@@ -135,16 +135,16 @@ class AllAmerican extends AbstractUserPane {
       }
 
       $p2->add($form = $this->createForm());
-      $tab = new XQuickTable(array('id'=>'regtable'), array("", "Name", "Type", "Part.", "Date", "Status"));
+      $tab = new XQuickTable(array('id'=>'regtable', 'class'=>'regatta-list'), array("", "Name", "Type", "Part.", "Date", "Status"));
 
       $addt_regattas = 0;
+      $types = array('championship', 'conference-championship', 'intersectional');
       foreach ($regattas as $reg) {
         if ($reg->finalized !== null &&
+            $reg->scoring != Regatta::SCORING_TEAM &&
             ($reg->participant == $this->AA['report-participation'] ||
              'special' == $this->AA['report-participation']) &&
-            in_array($reg->type, array(Regatta::TYPE_CHAMPIONSHIP,
-                                       Regatta::TYPE_CONF_CHAMPIONSHIP,
-                                       Regatta::TYPE_INTERSECTIONAL))) {
+            in_array($reg->type->id, $types)) {
           $this->populateSailors(DB::getRegatta($reg->id));
           $qual_regattas[] = $reg;
         }
@@ -176,14 +176,14 @@ class AllAmerican extends AbstractUserPane {
       else
         $form->add(new XP(array(), "There are no other possible regattas to add to the report from for the chosen season."));
       $form->add(new XP(array(), "Next, choose the sailors to incorporate into the report."));
-      $form->add(new XSubmitP('set-regattas', sprintf("Choose %ss >>", $this->AA['report-role'])));
+      $form->add(new XSubmitP('set-regattas', sprintf("Choose %ss →", $this->AA['report-role'])));
 
       // are there any qualified regattas?
       if (count($qual_regattas) == 0)
-        $p1->add(new XP(array(), "No regattas this season fulfill the requirement for inclusion."));
+        $p1->add(new XP(array(), "No regattas fulfill the requirement for inclusion."));
       else {
         $p1->add(new XP(array(), "The following regattas meet the criteria for inclusion in the report."));
-        $p1->add($tab = new XQuickTable(array(), array("Name", "Type", "Part.", "Date", "Status")));
+        $p1->add($tab = new XQuickTable(array('class'=>'regatta-list'), array("Name", "Type", "Part.", "Date", "Status")));
         foreach ($qual_regattas as $reg) {
           $tab->addRow(array($reg->name,
                              $reg->type,
@@ -282,6 +282,10 @@ class AllAmerican extends AbstractUserPane {
 
           foreach ($rps as $rp) {
             $team = ScoresAnalyzer::getTeamDivision($rp->team, $rp->division);
+            if ($team === null) {
+              echo "<pre>"; print_r($regatta); "</pre>";
+              exit;
+            }
             $content = sprintf('%d%s', $team->rank, $team->division);
             if (count($rp->races_nums) != $this->AA['regatta_races'][$reg_id])
               $content .= sprintf(' (%s)', DB::makeRange($rp->races_nums));
@@ -408,8 +412,7 @@ class AllAmerican extends AbstractUserPane {
           $reg = DB::getRegatta($id);
           $allow_other_ptcp = ($this->AA['report-participation'] != Regatta::PARTICIPANT_COED ||
                                $reg->participant == Regatta::PARTICIPANT_COED);
-          if ($reg->type != Regatta::TYPE_PERSONAL && $allow_other_ptcp &&
-              $reg->finalized !== null)
+          if ($reg->private === null && $allow_other_ptcp && $reg->finalized !== null)
             $this->populateSailors($reg);
           else
             $errors++;
