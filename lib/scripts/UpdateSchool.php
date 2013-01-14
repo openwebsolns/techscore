@@ -125,11 +125,12 @@ class UpdateSchool extends AbstractScript {
     // ------------------------------------------------------------
     // SCHOOL season summary
     $table = array("Conference" => $school->conference,
-                   "Number of Regattas" => $total,
-                   "Finish percentile" => $avg);
+                   "Number of Regattas" => $total);
+    // "Finish percentile" => $avg;
     $season_link = new XA('/'.(string)$season.'/', $season->fullString());
 
     // most active sailor?
+    /*
     arsort($skippers, SORT_NUMERIC);
     arsort($crews, SORT_NUMERIC);
     if (count($skippers) > 0) {
@@ -154,6 +155,7 @@ class UpdateSchool extends AbstractScript {
       }
       $table["Most active crew"] = implode(", ", $txt);
     }
+    */
     $page->setHeader($school, $table);
 
     // ------------------------------------------------------------
