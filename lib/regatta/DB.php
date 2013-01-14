@@ -1090,6 +1090,16 @@ class Member extends DBObject {
     return DB::getAll(($inc_private !== false) ? DB::$REGATTA : DB::$PUBLIC_REGATTA,
                       new DBCondIn('id', DB::prepGetAll(DB::$RACE, $cond, array('regatta'))));
   }
+
+  /**
+   * Compares two members based on last name, then first name
+   *
+   */
+  public static function compare(Member $m1, Member $m2) {
+    if ($m1->last_name != $m2->last_name)
+      return strcmp($m1->last_name, $m2->last_name);
+    return strcmp($m1->first_name, $m2->first_name);
+  }
 }
 
 /**

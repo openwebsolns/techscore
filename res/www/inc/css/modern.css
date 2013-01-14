@@ -668,6 +668,3 @@ tr.checked {
 #sailortable th, #sailortable td {
     text-align: left;
 }
-#sailortable tr.checked {
-    background: #eed2c0;
-}
