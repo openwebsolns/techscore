@@ -1057,14 +1057,24 @@ class Member extends DBObject {
   public function isRegistered() {
     return $this->icsa_id !== null;
   }
+  public function getName() {
+    $name = "";
+    if ($this->first_name !== null)
+      $name = $this->first_name;
+    if ($this->last_name !== null) {
+      if ($name != "")
+        $name .= " ";
+      $name .= $this->last_name;
+    }
+    if ($name == "")
+      return "[No Name]";
+    return $name;
+  }
   public function __toString() {
     $year = "";
     if ($this->role == 'student')
       $year = " '" . (($this->year > 0) ? substr($this->year, -2) : "??");
-    $name = sprintf("%s %s%s",
-                    $this->first_name,
-                    $this->last_name,
-                    $year);
+    $name = sprintf("%s", $this->getName(), $year);
     if (!$this->isRegistered())
       $name .= " *";
     return $name;

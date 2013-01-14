@@ -9,7 +9,8 @@ INPUT = null;
 ACTIVE = Array();
 TIMEOUT = null;
 REQUEST = null;
-window.onload = function() {
+
+function initAaSearch() {
     SEARCH = document.getElementById('name-search');
     SEARCH.onkeyup = launchSearch;
     INPUT = document.getElementById('aa-input');
@@ -26,7 +27,7 @@ window.onload = function() {
     var p = document.createElement('p');
     p.appendChild(document.createTextNode('Search sailors by name in the box below. As you search, a list of possible matches will appear directly below. Click on a sailor to promote them for inclusion (move them to the second list). Click on a sailor in the second list to exclude them.'));
     SEARCH.parentNode.parentNode.insertBefore(p, SEARCH.parentNode);
-};
+}
 
 function launchSearch(evt) {
     if (REQUEST !== null)
@@ -124,3 +125,14 @@ function demote(evt) {
     li.parentNode.removeChild(li);
     return false;
 }
+
+var old = window.onload;
+if (old) {
+    window.onload = function() {
+        old();
+        initAaSearch();
+    };
+}
+else
+    window.onload = initAaSearch;
+

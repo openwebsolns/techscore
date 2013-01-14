@@ -2,8 +2,11 @@
 
 function initAaTable() {
     var tab = document.getElementById("regtable");
-    if (!tab)
-        return;
+    if (!tab) {
+        tab = document.getElementById("sailortable");
+        if (!tab)
+            return;
+    }
 
     var inputs = tab.getElementsByTagName("input");
     var inp;

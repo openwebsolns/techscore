@@ -177,6 +177,8 @@ class AllAmerican extends AbstractUserPane {
     // 2. Step two: Choose sailors
     // ------------------------------------------------------------
     if ($this->AA['params-set'] === false) {
+      $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/aa-table.js')));
+
       // Add button to go back
       $this->PAGE->addContent($p = new XPort("Progress"));
       $p->add($form = $this->createForm());
@@ -188,9 +190,18 @@ class AllAmerican extends AbstractUserPane {
       $this->PAGE->addContent($p = new XPort("Sailors in list"));
       $p->add(new XP(array(), sprintf("%d sailors meet the criteria for All-American inclusion based on the regattas chosen. Note that non-official sailors have been excluded. Use the bottom form to add more sailors to this list.",
                                       count($this->AA['sailors']))));
-      $p->add($item = new XUl(array('id'=>'inc-sailors')));
-      foreach ($this->AA['sailors'] as $sailor)
-        $item->add(new XLi($sailor));
+      if (count($this->AA['sailors']) > 0) {
+        $p->add(new XP(array(), array("Check the sailor below to ", new XStrong("remove"), " from the list.")));
+        $p->add($item = new XQuickTable(array('id'=>'sailortable'), array("", "Name", "Year", "School")));
+
+        foreach ($this->AA['sailors'] as $sailor) {
+          $id = 's' . $sailor->id;
+          $item->addRow(array(new XCheckboxInput('remove-sailor[]', $sailor->id, array('id'=>$id)),
+                              new XLabel($id, $sailor->getName()),
+                              new XLabel($id, $sailor->year),
+                              new XLabel($id, $sailor->school)));
+        }
+      }
 
       // Form to fetch and add sailors
       $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/aa.js')));
