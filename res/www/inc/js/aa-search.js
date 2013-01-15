@@ -10,6 +10,12 @@ function AASearcher(id) {
     if (!this.table)
         return;
 
+    // list of existing IDs
+    this.ids = {};
+    var inputs = this.table.getElementsByTagName("input");
+    for (var i = 0; i < inputs.length; i++)
+        this.ids[inputs[i].value] = inputs[i];
+
     this.request = null; // the current XHR object
     this.timeout = null; // the current timeout
     this.prevQuery = null; // the previous query
@@ -91,9 +97,10 @@ AASearcher.prototype.fillResults = function(doc) {
         }
 
         var myObj = this;
-        var promoteGen = function(li) {
+        var promoteGen = function(obj, li) {
             return function(evt) {
-                myObj.promote(li);
+                li.parentNode.removeChild(li);
+                myObj.promote(obj);
             };
         };
 
@@ -109,15 +116,62 @@ AASearcher.prototype.fillResults = function(doc) {
             li.appendChild(document.createTextNode(" " + res[i].year + " (" + res[i].school + ")"));
             li.style.cursor = "pointer";
 
-            li.onclick = promoteGen(li);
+            li.onclick = promoteGen(res[i], li);
         }
     }
     catch (e) {
     }
 };
 
-AASearcher.prototype.promote = function(li) {
-    alert(li);
+AASearcher.prototype.promote = function(obj) {
+    if (obj.id in this.ids) {
+        this.ids[obj.id].checked = true;
+        if (window.initAaTable)
+            window.initAaTable();
+        return;
+    }
+
+    var tr = document.createElement("tr");
+    tr.classList.add("sailor-added");
+    this.table.appendChild(tr);
+
+    var td = document.createElement("td");
+    tr.appendChild(td);
+
+    var id = "s" + obj.id;
+    var inp = document.createElement("input");
+    inp.type = "checkbox";
+    inp.name = "sailor[]";
+    inp.value = obj.id;
+    inp.id = id;
+    inp.checked = true;
+    td.appendChild(inp);
+    this.ids[obj.id] = inp;
+
+    var label;
+    td = document.createElement("td");
+    tr.appendChild(td);
+    label = document.createElement("label");
+    label.setAttribute("for", id);
+    label.appendChild(document.createTextNode(obj.first_name + " " + obj.last_name));
+    td.appendChild(label);
+
+    td = document.createElement("td");
+    tr.appendChild(td);
+    label = document.createElement("label");
+    label.setAttribute("for", id);
+    label.appendChild(document.createTextNode(obj.year));
+    td.appendChild(label);
+
+    td = document.createElement("td");
+    tr.appendChild(td);
+    label = document.createElement("label");
+    label.setAttribute("for", id);
+    label.appendChild(document.createTextNode(obj.school));
+    td.appendChild(label);
+    
+    if (window.initAaTable)
+        window.initAaTable();
 };
 
 var old = window.onload;
@@ -131,12 +185,3 @@ else
     window.onload = function() {
         new AASearcher('sailortable');
     };
-
-/*
-      $this->PAGE->addContent($p = new XPort("New sailors"));
-      $form->add(new XNoScript(new XP(array(), "Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding.")));
-      $form->add(new FItem('Name:', $search = new XTextInput('name-search', "")));
-      $search->set('id', 'name-search');
-      $form->add($ul = new XUl(array('id'=>'aa-input'),
-                               array(new XLi("No sailors.", array('class'=>'message')))));
-*/

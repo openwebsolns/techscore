@@ -223,7 +223,7 @@ class AllAmerican extends AbstractUserPane {
       $form->add($item = new XQuickTable(array('id'=>'sailortable'), array("", "Name", "Year", "School")));
       foreach ($sailors as $sailor) {
         $id = 's' . $sailor->id;
-        $item->addRow(array(new XCheckboxInput('remove-sailor[]', $sailor->id, array('id'=>$id, 'checked'=>'checked')),
+        $item->addRow(array(new XCheckboxInput('sailor[]', $sailor->id, array('id'=>$id, 'checked'=>'checked')),
                             new XLabel($id, $sailor->getName()),
                             new XLabel($id, $sailor->year),
                             new XLabel($id, $sailor->school)));
@@ -234,19 +234,20 @@ class AllAmerican extends AbstractUserPane {
       return;
     }
 
-    ini_set('memory_limit', '128M');
-    ini_set('max_execution_time', 60);
     // ------------------------------------------------------------
     // 3. Step three: Generate and review
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new XPort("Report"));
-    $p->add($form = $this->createForm());
-    $form->add(new XP(array(), "Please click only once:"));
-    $form->add(new XSubmitP('gen-report', "Download as CSV"));
-
+    $this->PAGE->addContent($p = new XPort("Progress"));
     $p->add($form = $this->createForm());
     $form->add(new XSubmitP('unset-sailors', "← Go back"));
 
+    $this->PAGE->addContent($p = new XPort("Review report"));
+    $p->add($form = $this->createForm());
+    $form->add(new XP(array(), sprintf("The report contains %d regattas and %d sailors. Click the \"Download as CSV\" button below to generate a CSV version of the report that can be opened with most spreadsheet software.",
+                                       count($this->AA['regattas']),
+                                       count($this->AA['sailors']))));
+    $form->add(new XSubmitP('gen-report', "Download as CSV"));
+    /*
     $this->PAGE->addContent(new XTable(array('id'=>'aa-table'),
                                        array(new XTHead(array(),
                                                         array($hrow1 = new XTR(array(),
@@ -301,6 +302,7 @@ class AllAmerican extends AbstractUserPane {
         $row->add(new XTD(array(), implode("/", $this->AA['table'][$reg_id][$id])));
       }
     }
+    */
   }
 
   public function process(Array $args) {
@@ -436,29 +438,24 @@ class AllAmerican extends AbstractUserPane {
     // Set sailors
     // ------------------------------------------------------------
     if (isset($args['set-sailors'])) {
+      $ids = DB::$V->reqList($args, 'sailor', null, "No sailor list provided.");
+      $this->AA['sailors'] = array();
 
-      if (!isset($args['sailor']) || !is_array($args['sailor']) || count($args['sailor']) == 0) {
-        Session::pa(new PA("Proceeding with no additional sailors."));
-        Session::s('aa', $this->AA);
-        return false;
-      }
-
-      // Add sailors, if not already in the 'sailors' list
       $errors = 0;
-      foreach ($args['sailor'] as $id) {
-        try {
-          $sailor = DB::getSailor($id);
+      foreach ($ids as $id) {
+        if (($sailor = DB::getSailor($id)) !== null)
           $this->AA['sailors'][$sailor->id] = $sailor;
-        } catch (Exception $e) {
+        else
           $errors++;
-          Session::pa(new PA($e->getMessage(), PA::E));
-        }
       }
+      if (count($this->AA['sailors']) == 0)
+        throw new SoterException("There must be at least one sailor in the list.");
       if ($errors > 0)
-        Session::pa(new PA("Some invalid sailors were provided and ignored.", PA::I));
+        Session::pa(new PA(sprintf("%s invalid sailor IDs were invalid and ignored.", $errors), PA::I));
+      
       Session::pa(new PA("Set sailors for report."));
       Session::s('aa', $this->AA);
-      return false;
+      return;
     }
 
     // ------------------------------------------------------------
