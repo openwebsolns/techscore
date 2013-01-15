@@ -2044,8 +2044,10 @@ class Season extends DBObject {
    * @return Season|null the season for $date
    */
   public static function forDate(DateTime $date) {
-    $res = DB::getAll(DB::$SEASON, new DBBool(array(new DBCond('start_date', $date, DBCond::LE),
-                                                    new DBCond('end_date', $date, DBCond::GE))));
+    $time = clone $date;
+    $time->setTime(0, 0, 0);
+    $res = DB::getAll(DB::$SEASON, new DBBool(array(new DBCond('start_date', $time, DBCond::LE),
+                                                    new DBCond('end_date', $time, DBCond::GE))));
     $r = (count($res) == 0) ? null : $res[0];
     unset($res);
     return $r;
