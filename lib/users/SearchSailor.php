@@ -25,6 +25,32 @@ class SearchSailor extends AbstractUserPane {
    *
    */
   public function getHTML(Array $args) {
+    if ($_SERVER['HTTP_ACCEPT'] == 'application/json') {
+      // Json output instead
+      header('Content-type: application/json');
+      try {
+        $query = DB::$V->reqString($args, 'q', "Please provide a query (GET=q).");
+        if (strlen($query) < 3)
+          throw new SoterException("Please provide a valid search query (3 or more characters).");
+        $results = DB::searchSailors($query, true);
+        $resp = array();
+        foreach ($results as $result)
+          $resp[] = array('first_name' => $result->first_name,
+                          'last_name' => $result->last_name,
+                          'year' => $result->year,
+                          'gender' => $result->gender,
+                          'school' => $result->school->name);
+        echo json_encode($resp);
+                          
+      }
+      catch (SoterException $e) {
+        header('HTTP/1.1 400 Bad request');
+        $a = array('error'=>$e->getMessage());
+        echo json_encode($a);
+      }
+      exit;
+    }
+
     $P = new XDoc('SailorSearch', array('version'=>'1.0'));
 
     // Validate input
@@ -49,7 +75,7 @@ class SearchSailor extends AbstractUserPane {
     catch (SoterException $e) {
       header('HTTP/1.1 400 Bad request');
       $P->set('count', -1);
-      $P->add(new XElem('Error', array(), array(new XText("Please provide a long enough query to search."))));
+      $P->add(new XElem('Error', array(), array(new XText($e->getMessage()))));
       $P->printXML();
       exit;
     }
