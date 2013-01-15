@@ -35,7 +35,8 @@ class SearchSailor extends AbstractUserPane {
         $results = DB::searchSailors($query, true);
         $resp = array();
         foreach ($results as $result)
-          $resp[] = array('first_name' => $result->first_name,
+          $resp[] = array('id' => $result->id,
+                          'first_name' => $result->first_name,
                           'last_name' => $result->last_name,
                           'year' => $result->year,
                           'gender' => $result->gender,
