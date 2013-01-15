@@ -143,7 +143,6 @@ class AllAmerican extends AbstractUserPane {
       foreach ($this->AA['report-seasons'] as $season)
         $seasons[] = DB::getSeason($season);
       $regattas = Season::getRegattasInSeasons($seasons);
-      $qual_regattas = array();
 
       $this->PAGE->addContent($p = new XPort("Regattas"));
       if (count($regattas) == 0) {
@@ -155,6 +154,7 @@ class AllAmerican extends AbstractUserPane {
       $form->add($tab = new XQuickTable(array('id'=>'regtable', 'class'=>'regatta-list'),
                                         array("", "Name", "Type", "Part.", "Date", "Status")));
 
+      $qual_regattas = 0;
       $types = array('championship', 'conference-championship', 'intersectional');
       foreach ($regattas as $reg) {
         $chosen = false;
@@ -168,8 +168,10 @@ class AllAmerican extends AbstractUserPane {
             ($reg->participant == $this->AA['report-participation'] || 'special' == $this->AA['report-participation']) &&
             in_array($reg->type->id, $types)) {
           $cattr['checked'] = 'checked';
+	  $qual_regattas++;
         }
         elseif ($reg->finalized === null ||
+		$reg->scoring == Regatta::SCORING_TEAM ||
                 ($reg->participant != $this->AA['report-participation'] &&
                  Regatta::PARTICIPANT_COED == $this->AA['report-participation'])) {
             $rattr['class'] = 'disabled';
@@ -183,8 +185,12 @@ class AllAmerican extends AbstractUserPane {
                            new XLabel($id, ($reg->finalized) ? "Final" : "Pending")),
                      $rattr);
       }
-      $form->add(new XP(array(), "Next, choose the sailors to incorporate into the report."));
-      $form->add(new XSubmitP('set-regattas', sprintf("Choose %ss →", $this->AA['report-role'])));
+      if ($qual_regattas == 0)
+	$form->add(new XP(array(), "There are no regattas that match the necessary criteria for inclusion in the report. Start over with a different set of parameters."));
+      else {
+	$form->add(new XP(array(), "Next, choose the sailors to incorporate into the report."));
+	$form->add(new XSubmitP('set-regattas', sprintf("Choose %ss →", $this->AA['report-role'])));
+      }
 
       Session::s('aa', $this->AA);
       return;
