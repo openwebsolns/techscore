@@ -253,62 +253,6 @@ class AllAmerican extends AbstractUserPane {
                                        count($this->AA['regattas']),
                                        count($this->AA['sailors']))));
     $form->add(new XSubmitP('gen-report', "Download as CSV"));
-    /*
-    $this->PAGE->addContent(new XTable(array('id'=>'aa-table'),
-                                       array(new XTHead(array(),
-                                                        array($hrow1 = new XTR(array(),
-                                                                               array(new XTH(array(), "ID"),
-                                                                                     new XTH(array(), "Sailor"),
-                                                                                     new XTH(array(), "YR"),
-                                                                                     new XTH(array(), "School"),
-                                                                                     new XTH(array(), "Conf."))),
-                                                              $hrow2 = new XTR(array(),
-                                                                               array(new XTH(array(), ""),
-                                                                                     new XTH(array(), ""),
-                                                                                     new XTH(array(), ""),
-                                                                                     new XTH(array(), ""),
-                                                                                     new XTH(array(), "Races/Div"))))),
-                                             $table = new XTBody())));
-    foreach ($this->AA['regatta_races'] as $reg_id => $num) {
-      $hrow1->add(new XTH(array('class'=>'rotate'), $reg_id));
-      $hrow2->add(new XTH(array(), $num));
-    }
-    $TABLE = $this->AA['table'];
-    $row_num = 0;
-    foreach ($this->AA['sailors'] as $id => $sailor) {
-      $table->add($row = new XTR(array('class'=>'row'.($row_num++ % 2)),
-                                 array(new XTD(array(), $sailor->id),
-                                       new XTD(array(), sprintf("%s %s", $sailor->first_name, $sailor->last_name)),
-                                       new XTD(array(), $sailor->year),
-                                       new XTD(array(), $sailor->school->nick_name),
-                                       new XTD(array(), $sailor->school->conference))));
-
-      foreach ($TABLE as $reg_id => $sailor_list) {
-        if (!isset($sailor_list[$id])) {
-          $this->AA['table'][$reg_id][$id] = array();
-
-          // "Reverse" populate table
-          $regatta = DB::getRegatta($this->AA['regattas'][$reg_id]);
-          $rpm = $regatta->getRpManager();
-          $rps = $rpm->getParticipation($sailor, $this->AA['report-role']);
-
-          foreach ($rps as $rp) {
-            $team = ScoresAnalyzer::getTeamDivision($rp->team, $rp->division);
-            if ($team === null) {
-              echo "<pre>"; print_r($regatta); "</pre>";
-              exit;
-            }
-            $content = sprintf('%d%s', $team->rank, $team->division);
-            if (count($rp->races_nums) != $this->AA['regatta_races'][$reg_id])
-              $content .= sprintf(' (%s)', DB::makeRange($rp->races_nums));
-
-            $this->AA['table'][$reg_id][$id][] = $content;
-          }
-        }
-        $row->add(new XTD(array(), implode("/", $this->AA['table'][$reg_id][$id])));
-      }
-    }
-    */
   }
 
   public function process(Array $args) {
@@ -469,23 +413,21 @@ class AllAmerican extends AbstractUserPane {
     // ------------------------------------------------------------
     if (isset($args['gen-report'])) {
       // is the regatta and sailor list set?
-      if (count($this->AA['table']) == 0 ||
-          count($this->AA['sailors']) == 0) {
+      if (count($this->AA['regattas']) == 0 || count($this->AA['sailors']) == 0) {
         Session::pa(new PA("No regattas or sailors for report.", PA::E));
         return false;
       }
-
-      $filename = sprintf('%s-aa-%s-%s.csv',
-                          date('Y'),
-                          $this->AA['report-participation'],
-                          $this->AA['report-role']);
-      header("Content-type: application/octet-stream");
-      header("Content-Disposition: attachment; filename=$filename");
 
       $header1 = array("ID", "Sailor", "YR", "School", "Conf");
       $header2 = array("", "", "", "", "Races/Div");
       $spacer  = array("", "", "", "", "");
       $rows = array();
+
+      foreach ($this->AA['regattas'] as $reg) {
+	$header1[] = $reg->getURL();
+	$header2[] = count($reg->getRaces(Division::A()));
+	$spacer[] = "";
+      }
 
       foreach ($this->AA['sailors'] as $id => $sailor) {
         $row = array($sailor->id,
@@ -493,15 +435,22 @@ class AllAmerican extends AbstractUserPane {
                      $sailor->year,
                      $sailor->school->nick_name,
                      $sailor->school->conference);
-        foreach ($this->AA['table'] as $reg_id => $sailor_list) {
-          if (isset($sailor_list[$id]))
-            $row[] = implode("/", $sailor_list[$id]);
-          else
-            $row[] = "";
-          $header1[$reg_id] = $reg_id;
-          $header2[$reg_id] = $this->AA['regatta_races'][$reg_id];
-        }
-        $rows[] = $row;
+	foreach ($this->AA['regattas'] as $reg) {
+	  $rps = array();
+	  $num_divisions = count($reg->getDivisions());
+	  foreach ($reg->getRpData($sailor, null, $this->AA['report-role']) as $rp) {
+	    $rank = $rp->rank;
+	    if ($reg->scoring == Regatta::SCORING_COMBINED)
+	      $rank .= 'com';
+	    elseif ($num_divisions > 1)
+	      $rank .= $rp->team_division->division;
+	    if (count($rp->race_nums) != count($reg->getRaces(Division::get($rp->team_division->division))))
+	      $rank .= sprintf(' (%s)', DB::makeRange($rp->race_nums));
+	    $rps[] = $rank;
+	  }
+	  $row[] = implode("/", $rps);
+	}
+	$rows[] = $row;
       }
 
       $this->csv = "";
@@ -511,6 +460,12 @@ class AllAmerican extends AbstractUserPane {
       foreach ($rows as $row)
         $this->rowCSV($row);
 
+      $filename = sprintf('%s-aa-%s-%s.csv',
+                          date('Y'),
+                          $this->AA['report-participation'],
+                          $this->AA['report-role']);
+      header("Content-type: application/octet-stream");
+      header("Content-Disposition: attachment; filename=$filename");
       header("Content-Length: " . strlen($this->csv));
       echo $this->csv;
       exit;

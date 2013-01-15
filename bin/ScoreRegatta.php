@@ -21,7 +21,13 @@ require_once('conf.php');
 require_once('scripts/UpdateRegatta.php');
 try {
   $reg = DB::getRegatta($argv[1]);
-  $reg->doScore();
+  // $reg->doScore();
+  /*
+  $reg->setRanks();
+  foreach ($reg->getDivisions() as $div)
+    $reg->setRanks($div);
+  */
+  UpdateRegatta::syncRP($reg);
 }
 catch (Exception $e) {
   printf("Invalid regatta ID provided: %s\n\n", $argv[1]);
