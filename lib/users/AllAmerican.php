@@ -195,6 +195,7 @@ class AllAmerican extends AbstractUserPane {
     // ------------------------------------------------------------
     if (count($this->AA['sailors']) == 0) {
       $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/aa-table.js')));
+      $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/aa-search.js')));
 
       // Add button to go back
       $this->PAGE->addContent($p = new XPort("Progress"));
@@ -218,7 +219,8 @@ class AllAmerican extends AbstractUserPane {
 
       $p->add(new XP(array(), array("Uncheck the sailor below to ", new XStrong("remove"), " from the list.")));
 
-      $p->add($item = new XQuickTable(array('id'=>'sailortable'), array("", "Name", "Year", "School")));
+      $p->add($form = $this->createForm());
+      $form->add($item = new XQuickTable(array('id'=>'sailortable'), array("", "Name", "Year", "School")));
       foreach ($sailors as $sailor) {
         $id = 's' . $sailor->id;
         $item->addRow(array(new XCheckboxInput('remove-sailor[]', $sailor->id, array('id'=>$id, 'checked'=>'checked')),
@@ -228,16 +230,7 @@ class AllAmerican extends AbstractUserPane {
       }
 
       // Form to fetch and add sailors
-      $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/aa.js')));
-      $this->PAGE->addContent($p = new XPort("New sailors"));
-      $p->add($form = $this->createForm());
-      $form->add(new XNoScript(new XP(array(), "Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding.")));
-      $form->add(new FItem('Name:', $search = new XTextInput('name-search', "")));
-      $search->set('id', 'name-search');
-      $form->add($ul = new XUl(array('id'=>'aa-input'),
-                               array(new XLi("No sailors.", array('class'=>'message')))));
       $form->add(new XSubmitP('set-sailors', "Generate report →"));
-
       return;
     }
 
@@ -550,16 +543,14 @@ class AllAmerican extends AbstractUserPane {
     $list = array();
     foreach ($reg->getDivisions() as $div) {
       $max_places = ($div == Division::A()) ? 5 : 4;
-      foreach ($reg->getRanks($div) as $i => $rank) {
-        if ($i >= $max_places)
-          break;
-
-        foreach ($rank->getRP($this->AA['report-role']) as $rp) {
-          if ($rp->sailor->icsa_id !== null &&
-              ($this->AA['report-participation'] != Regatta::PARTICIPANT_WOMEN || $rp->sailor->gender == Sailor::FEMALE) &&
-              isset($this->AA['report-confs'][$rp->sailor->school->conference->id])) {
-            $list[$rp->sailor->id] = $rp->sailor;
-          }
+      $rps = DB::getAll(DB::$DT_RP,
+                        new DBBool(array(new DBCond('rank', $max_places, DBCond::LE),
+                                         new DBCondIn('team_division', $reg->getRanks($div)))));
+      foreach ($rps as $rp) {
+        if ($rp->sailor->icsa_id !== null &&
+            ($this->AA['report-participation'] != Regatta::PARTICIPANT_WOMEN || $rp->sailor->gender == Sailor::FEMALE) &&
+            isset($this->AA['report-confs'][$rp->sailor->school->conference->id])) {
+          $list[$rp->sailor->id] = $rp->sailor;
         }
       }
     }

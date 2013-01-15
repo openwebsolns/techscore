@@ -668,3 +668,7 @@ tr.checked {
 #sailortable th, #sailortable td {
     text-align: left;
 }
+#sailortable {
+    width: 96%;
+    margin-bottom: 1em;
+}
