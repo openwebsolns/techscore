@@ -53,7 +53,7 @@ class UpdateRegatta extends AbstractScript {
    * Sync the RP information for the given regatta
    *
    */
-  public static function syncRP(FullRegatta $reg) {
+  public function syncRP(FullRegatta $reg) {
     if ($reg->dt_num_races === null)
       $reg->setData();
     if ($reg->dt_num_divisions == 0)
