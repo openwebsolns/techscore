@@ -50,88 +50,6 @@ require_once('AbstractScript.php');
 class UpdateRegatta extends AbstractScript {
 
   /**
-   * Sync the RP information for the given regatta
-   *
-   */
-  public function syncRP(FullRegatta $reg) {
-    if ($reg->dt_num_races === null)
-      $reg->setData();
-    if ($reg->dt_num_divisions == 0)
-      return;
-
-    $team_divs = array();
-    $scored_nums = array();
-    $scored_races = array();
-
-    // An attempt to minimize the amount of times a partial regatta
-    // needs to be ranked. The ID is the comma-delimited race numbers
-    $scored_ranks = array();
-
-    foreach ($reg->getDivisions() as $div) {
-      $scored_races[(string)$div] = $reg->getScoredRaces($div);
-      $scored_nums[(string)$div] = array();
-      foreach ($scored_races[(string)$div] as $race)
-        $scored_nums[(string)$div][] = $race->number;
-      foreach ($reg->getRanks($div) as $team) {
-        $team_divs[] = $team;
-        $team_objs[$team->id] = $reg->getTeam($team->team->id);
-      }
-    }
-
-    $ranker = $reg->getDivisionRanker();
-
-    $rpm = $reg->getRpManager();
-    foreach ($team_divs as $team) {
-      $team->team->resetRpData(new Division($team->division));
-      foreach (array(RP::SKIPPER, RP::CREW) as $role) {
-        $division = Division::get($team->division);
-        $rps = $rpm->getRP($team_objs[$team->id], $division, $role);
-        foreach ($rps as $rp) {
-          $drp = new Dt_Rp();
-          $drp->sailor = DB::getSailor($rp->sailor->id);
-          $drp->team_division = $team;
-          $drp->boat_role = $role;
-          $drp->race_nums = $rp->races_nums;
-
-          self::err(sprintf("RP Entry for %s in div. %s: ", $drp->sailor, $division), 3);
-          // rank: assign the team's rank if participating in every
-          // scored race, otherwise, rank in only those races.
-          $intersection = array_intersect($scored_nums[$team->division], $rp->races_nums);
-          if ($intersection == $scored_nums[$team->division]) {
-            $drp->rank = $team->rank;
-            $drp->explanation = $team->explanation;
-            self::errln("participated in all scored races");
-          }
-          elseif (count($intersection) == 0) {
-            $drp->rank = null;
-            $drp->explanation = "Not participated";
-            self::errln("did not participate in any scored race");
-          }
-          else {
-            $id = implode(',', $intersection);
-            if (!isset($scored_ranks[$id])) {
-              $races = array();
-              foreach ($intersection as $num)
-                $races[] = $reg->getRace($division, $num);
-              $scored_ranks[$id] = $ranker->rank($reg, $races);
-            }
-            foreach ($scored_ranks[$id] as $i => $rank) {
-              if ($rank->team->id == $team->team->id &&
-                  ($rank->division === null || (string)$rank->division == (string)$team->division)) {
-                $drp->rank = $i + 1;
-                $drp->explanation = $rank->explanation;
-                break;
-              }
-            }
-            self::errln(sprintf("participated in %s races", $id), 3);
-          }
-          DB::set($drp);
-        }
-      }
-    }
-  }
-
-  /**
    * Helper method will delete all the individual regatta files.
    *
    * $root should be the filesystem path to the root of the regatta's
@@ -337,7 +255,7 @@ class UpdateRegatta extends AbstractScript {
     // Perform the updates
     // ------------------------------------------------------------
     if ($sync)       $reg->setData();
-    if ($sync_rp)    $this->syncRP($reg);
+    if ($sync_rp)    $reg->setRpData();
 
     $D = $reg->getURL();
     $M = new ReportMaker($reg);

@@ -1516,6 +1516,87 @@ class FullRegatta extends DBObject {
     return DB::getAll(DB::$DT_RP, $cond);
   }
 
+  /**
+   * Sets the Dt_RP entries for this regatta, or particular division
+   *
+   * @param Division $division the optional division to set
+   */
+  public function setRpData(Division $division = null) {
+    if ($this->dt_num_races === null)
+      $this->setData();
+    if ($this->dt_num_divisions == 0 || $this->scoring == Regatta::SCORING_TEAM)
+      return;
+
+    $team_divs = array();
+    $scored_nums = array();
+    $scored_races = array();
+
+    // An attempt to minimize the amount of times a partial regatta
+    // needs to be ranked. The key is the comma-delimited race numbers
+    $scored_ranks = array();
+
+    $divisions = ($division === null) ? $this->getDivisions() : array($division);
+
+    foreach ($divisions as $div) {
+      $scored_races[(string)$div] = $this->getScoredRaces($div);
+      $scored_nums[(string)$div] = array();
+      foreach ($scored_races[(string)$div] as $race)
+        $scored_nums[(string)$div][] = $race->number;
+      foreach ($this->getRanks($div) as $team) {
+        $team_divs[] = $team;
+        $team_objs[$team->id] = $this->getTeam($team->team->id);
+      }
+    }
+
+    $ranker = $this->getDivisionRanker();
+
+    $rpm = $this->getRpManager();
+    foreach ($team_divs as $team) {
+      $team->team->resetRpData(new Division($team->division));
+      foreach (array(RP::SKIPPER, RP::CREW) as $role) {
+        $division = Division::get($team->division);
+        $rps = $rpm->getRP($team_objs[$team->id], $division, $role);
+        foreach ($rps as $rp) {
+          $drp = new Dt_Rp();
+          $drp->sailor = DB::getSailor($rp->sailor->id);
+          $drp->team_division = $team;
+          $drp->boat_role = $role;
+          $drp->race_nums = $rp->races_nums;
+
+          // rank: assign the team's rank if participating in every
+          // scored race, otherwise, rank in only those races.
+          $intersection = array_intersect($scored_nums[$team->division], $rp->races_nums);
+          if ($intersection == $scored_nums[$team->division]) {
+            $drp->rank = $team->rank;
+            $drp->explanation = $team->explanation;
+          }
+          elseif (count($intersection) == 0) {
+	    // non-participation == non-inclusion
+	    continue;
+          }
+          else {
+            $id = implode(',', $intersection);
+            if (!isset($scored_ranks[$id])) {
+              $races = array();
+              foreach ($intersection as $num)
+                $races[] = $this->getRace($division, $num);
+              $scored_ranks[$id] = $ranker->rank($this, $races);
+            }
+            foreach ($scored_ranks[$id] as $i => $rank) {
+              if ($rank->team->id == $team->team->id &&
+                  ($rank->division === null || (string)$rank->division == (string)$team->division)) {
+                $drp->rank = $i + 1;
+                $drp->explanation = $rank->explanation;
+                break;
+              }
+            }
+          }
+          DB::set($drp);
+        }
+      }
+    }
+  }
+
   // ------------------------------------------------------------
   // Regatta creation
   // ------------------------------------------------------------
