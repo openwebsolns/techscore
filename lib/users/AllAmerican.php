@@ -81,10 +81,19 @@ class AllAmerican extends AbstractUserPane {
   }
 
   public function fillHTML(Array $args) {
+    $this->PAGE->head->add(new LinkCSS('/inc/css/aa.css'));
+    $this->PAGE->addContent($f = $this->createForm());
+    $f->add($prog = new XP(array('id'=>'progressdiv')));
+
     // ------------------------------------------------------------
     // 0. Choose type and role
     // ------------------------------------------------------------
     if ($this->AA['report-type'] === null) {
+      $prog->add(new XSubmitInput('unset-parameters', "Start", array('id'=>'progress-active', 'disabled'=>'disabled')));
+      $prog->add(new XSpan("Regattas", array('class'=>'progress-disabled')));
+      $prog->add(new XSpan("Sailors", array('class'=>'progress-disabled')));
+      $prog->add(new XSpan("Download", array('class'=>'progress-disabled')));
+
       $this->PAGE->addContent($p = new XPort("Choose report"));
       $now = Season::forDate(DB::$NOW);
       $then = null;
@@ -112,7 +121,8 @@ class AllAmerican extends AbstractUserPane {
     }
 
     $this->PAGE->head->add(new LinkCSS('/inc/css/widescreen.css'));
-    $this->PAGE->head->add(new LinkCSS('/inc/css/aa.css'));
+
+    $prog->add(new XSubmitInput('unset-parameters', "Start"));
 
     // ------------------------------------------------------------
     // 1. Step one: choose regattas. For women's reports, ICSA
@@ -121,11 +131,11 @@ class AllAmerican extends AbstractUserPane {
     // list of automatic sailors.
     // ------------------------------------------------------------
     if (count($this->AA['regattas']) == 0) {
+      $prog->add(new XSubmitInput('unset-regattas', "Regattas", array('id'=>'progress-active', 'disabled'=>'disabled')));
+      $prog->add(new XSpan("Sailors", array('class'=>'progress-disabled')));
+      $prog->add(new XSpan("Download", array('class'=>'progress-disabled')));
+
       $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/aa-table.js')));
-      // Add button to go back
-      $this->PAGE->addContent($p = new XPort("Progress"));
-      $p->add($form = $this->createForm());
-      $form->add(new XSubmitP('unset-regattas', "← Start over"));
 
       // Reset lists
       $this->AA['table'] = array();
@@ -149,7 +159,7 @@ class AllAmerican extends AbstractUserPane {
       $form->add($tab = new XQuickTable(array('id'=>'regtable', 'class'=>'regatta-list'),
                                         array("", "Name", "Type", "Part.", "Date", "Status")));
 
-      $qual_regattas = 0;
+      $invalid_regattas = 0;
       $types = array('championship', 'conference-championship', 'intersectional');
       foreach ($regattas as $reg) {
         $chosen = false;
@@ -163,11 +173,11 @@ class AllAmerican extends AbstractUserPane {
             ($this->AA['report-type'] == self::TYPE_COED && $reg->participant != Regatta::PARTICIPANT_COED)) {
           $rattr['class'] = 'disabled';
           $cattr['disabled'] = 'disabled';
+          $invalid_regattas++;
         }
         elseif (in_array($reg->type->id, $types) &&
                 ($this->AA['report-type'] != self::TYPE_WOMEN || $reg->participant == Regatta::PARTICIPANT_WOMEN)) {
           $cattr['checked'] = 'checked';
-	  $qual_regattas++;
         }
         $tab->addRow(array(new XCheckboxInput("regatta[]", $reg->id, $cattr),
                            new XLabel($id, $reg->name),
@@ -177,7 +187,7 @@ class AllAmerican extends AbstractUserPane {
                            new XLabel($id, ($reg->finalized) ? "Final" : "Pending")),
                      $rattr);
       }
-      if ($qual_regattas == 0)
+      if (count($regattas) == $invalid_regattas)
 	$form->add(new XP(array(), "There are no regattas that match the necessary criteria for inclusion in the report. Start over with a different set of parameters."));
       else {
 	$form->add(new XP(array(), "Next, choose the sailors to incorporate into the report."));
@@ -188,19 +198,19 @@ class AllAmerican extends AbstractUserPane {
       return;
     }
 
+    $prog->add(new XSubmitInput('unset-regattas', "Regattas"));
+
     // ------------------------------------------------------------
     // 2. Step two: Choose sailors
     // ------------------------------------------------------------
     if (count($this->AA['sailors']) == 0) {
+      $prog->add(new XSubmitInput('unset-sailors', "Sailors", array('id'=>'progress-active', 'disabled'=>'disabled')));
+      $prog->add(new XSpan("Download", array('class'=>'progress-disabled')));
+
       $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/aa-table.js')));
       $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/aa-search.js')));
       if ($this->AA['report-type'] == self::TYPE_WOMEN)
         $this->PAGE->head->add(new XScript('text/javascript', null, 'AASearcher.prototype.womenOnly=true;'));
-
-      // Add button to go back
-      $this->PAGE->addContent($p = new XPort("Progress"));
-      $p->add($form = $this->createForm());
-      $form->add(new XSubmitP('unset-regattas', "← Start over"));
 
       // Determine automatically-qualifying sailors
       $sailors = array();
@@ -234,13 +244,12 @@ class AllAmerican extends AbstractUserPane {
       return;
     }
 
+    $prog->add(new XSubmitInput('unset-sailors', "Sailors"));
+    $prog->add(new XSubmitInput('gen-report', "Download", array('id'=>'progress-active', 'disabled'=>'disabled')));
+
     // ------------------------------------------------------------
     // 3. Step three: Generate and review
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new XPort("Progress"));
-    $p->add($form = $this->createForm());
-    $form->add(new XSubmitP('unset-sailors', "← Go back"));
-
     $this->PAGE->addContent($p = new XPort("Review report"));
     $p->add($form = $this->createForm());
     $form->add(new XP(array(), sprintf("The report contains %d regattas and %d sailors. Click the \"Download as CSV\" button below to generate a CSV version of the report that can be opened with most spreadsheet software.",
@@ -250,12 +259,21 @@ class AllAmerican extends AbstractUserPane {
   }
 
   public function process(Array $args) {
+    // ------------------------------------------------------------
+    // Start over
+    // ------------------------------------------------------------
+    if (isset($args['unset-parameters'])) {
+      Session::s('aa', null);
+      return false;
+    }
 
     // ------------------------------------------------------------
-    // Unset regatta choice (start over)
+    // Unset regatta choices
     // ------------------------------------------------------------
     if (isset($args['unset-regattas'])) {
-      Session::s('aa', null);
+      $this->AA['regattas'] = array();
+      $this->AA['sailors'] = array();
+      Session::s('aa', $this->AA);
       return false;
     }
 

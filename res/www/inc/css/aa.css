@@ -54,3 +54,32 @@
     max-width: none;
     background: #c8af8e;
 }
+
+#progressdiv {
+    background: none repeat scroll 0 0 #CCCCCC;
+    border: 1px solid #555555;
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    box-shadow: 0 1px 3px #555555 inset;
+    display: inline-block;
+    margin: 0 0 1em;
+    padding: 0;
+    overflow: hidden;
+}
+
+#progressdiv span, #progressdiv input {
+    border-radius: none;
+    background: none;
+    border: none;
+    border-left: 1px solid #888;
+    margin: 0;
+    padding: 0.5em;
+}
+
+#progressdiv input {
+    cursor: pointer;
+    background: #f3f3bb;
+}
+
+input#progress-active {
+    cursor: default;
+}
