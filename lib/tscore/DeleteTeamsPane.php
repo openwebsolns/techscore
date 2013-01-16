@@ -76,6 +76,8 @@ class DeleteTeamsPane extends AbstractPane {
         $this->REGATTA->doScore();
         UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
       }
+      if (count($this->REGATTA->getTeams()) == 0)
+        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DETAILS);
     }
     return array();
   }
