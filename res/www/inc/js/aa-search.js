@@ -91,11 +91,6 @@ AASearcher.prototype.fillResults = function(doc) {
         while (this.results.childNodes.length > 0)
             this.results.removeChild(this.results.childNodes[0]);
 
-        if (res.length == 0) {
-            this.results.appendChild(this.noSailorsMessage);
-            return;
-        }
-
         var myObj = this;
         var promoteGen = function(obj, li) {
             return function(evt) {
@@ -105,7 +100,11 @@ AASearcher.prototype.fillResults = function(doc) {
         };
 
         var li, elem;
+        var num = 0;
         for (var i = 0; i < res.length; i++) {
+            if (this.womenOnly && res[i].gender != "F")
+                continue;
+
             li = document.createElement("li");
             this.results.appendChild(li);
 
@@ -117,6 +116,12 @@ AASearcher.prototype.fillResults = function(doc) {
             li.style.cursor = "pointer";
 
             li.onclick = promoteGen(res[i], li);
+            num++;
+        }
+
+        if (num == 0) {
+            this.results.appendChild(this.noSailorsMessage);
+            return;
         }
     }
     catch (e) {

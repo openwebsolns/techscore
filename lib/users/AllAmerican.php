@@ -202,6 +202,8 @@ class AllAmerican extends AbstractUserPane {
     if (count($this->AA['sailors']) == 0) {
       $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/aa-table.js')));
       $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/aa-search.js')));
+      if ($this->AA['report-participation'] == Regatta::PARTICIPANT_WOMEN)
+        $this->PAGE->head->add(new XScript('text/javascript', null, 'AASearcher.prototype.womenOnly=true;'));
 
       // Add button to go back
       $this->PAGE->addContent($p = new XPort("Progress"));
@@ -489,9 +491,7 @@ class AllAmerican extends AbstractUserPane {
    * Get list of sailors that qualify for inclusion in report.
    *
    * The rules for such a feat include a top 5 finish in A division,
-   * and top 4 in any other. This method will also fill the
-   * appropriate Session variables with the pertinent information
-   * regarding this regatta, such as number of races.
+   * and top 4 in any other.
    *
    * 2011-12-10: Respect conference membership.
    *
@@ -503,6 +503,7 @@ class AllAmerican extends AbstractUserPane {
       $max_places = ($div == Division::A()) ? 5 : 4;
       $rps = DB::getAll(DB::$DT_RP,
                         new DBBool(array(new DBCond('rank', $max_places, DBCond::LE),
+                                         new DBCond('boat_role', $this->AA['report-role']),
                                          new DBCondIn('team_division', $reg->getRanks($div)))));
       foreach ($rps as $rp) {
         if ($rp->sailor->icsa_id !== null &&
@@ -513,63 +514,6 @@ class AllAmerican extends AbstractUserPane {
       }
     }
     return $list;
-  }
-
-  /**
-   * Determines the sailors who, based on their performance in the
-   * given regatta, merit inclusion in the report.
-   *
-   * The rules for such a feat include a top 5 finish in A division,
-   * and top 4 in any other. This method will also fill the
-   * appropriate Session variables with the pertinent information
-   * regarding this regatta, such as number of races.
-   *
-   * 2011-12-10: Respect conference membership.
-   *
-   * @param Regatta $reg the regatta whose information to incorporate
-   * into the table
-   */
-  private function populateSailors(Regatta $reg) {
-    // use season/nick-name to sort
-    $id = sprintf('%s/%s', $reg->getSeason(), $reg->nick);
-    $this->AA['regatta_races'][$id] = count($reg->getRaces(Division::A()));
-    $this->AA['regattas'][$id] = $reg->id;
-    if (!isset($this->AA['table'][$id]))
-      $this->AA['table'][$id] = array();
-
-    // grab a list of lucky teams
-    $teams = array(); 
-    foreach ($reg->getDivisions() as $div) {
-      $place = ($div == Division::A()) ? 5 : 4;
-      foreach (ScoresAnalyzer::getHighFinishingTeams($reg, $div, $place) as $team)
-        $teams[] = $team;
-    }
-
-    // get sailors participating in those lucky teams
-    $rpm = $reg->getRpManager();
-    $sng = $reg->isSingleHanded();
-    foreach ($teams as $team) {
-      foreach ($rpm->getRP($team->team,
-                           $team->division,
-                           $this->AA['report-role']) as $rp) {
-
-        if ($rp->sailor->icsa_id !== null &&
-            ($this->AA['report-participation'] != Regatta::PARTICIPANT_WOMEN ||
-             $rp->sailor->gender == Sailor::FEMALE) &&
-            isset($this->AA['report-confs'][$rp->sailor->school->conference->id])) {
-          $content = ($sng) ? $team->rank : sprintf('%d%s', $team->rank, $team->division);
-          if (count($rp->races_nums) != $this->AA['regatta_races'][$id])
-            $content .= sprintf(' (%s)', DB::makeRange($rp->races_nums));
-
-          if (!isset($this->AA['table'][$id][$rp->sailor->id]))
-            $this->AA['table'][$id][$rp->sailor->id] = array();
-          $this->AA['table'][$id][$rp->sailor->id][] = $content;
-
-          if (!isset($this->AA['sailors'][$rp->sailor->id]))
-            $this->AA['sailors'][$rp->sailor->id] = $rp->sailor;
-        }
-      }
-    }
   }
 }
 ?>
