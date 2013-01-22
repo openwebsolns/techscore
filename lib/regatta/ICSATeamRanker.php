@@ -13,6 +13,11 @@ require_once('regatta/Rank.php');
 /**
  * Ranks a team-racing regatta according to win percentages.
  *
+ * But only among teams that have no rank already established. This
+ * should technically be either all or none, but may not be the case
+ * if the regatta is already under way. Unranked teams will always be
+ * listed BELOW already ranked teams.
+ *
  * @author Dayan Paez
  * @created 2013-01-10
  */
@@ -83,6 +88,14 @@ class ICSATeamRanker extends ICSARanker {
    * @return int < 0 if first team ranks higher, > 0 otherwise
    */
   public function compare(TeamRank $a, TeamRank $b) {
+    if ($a->team->dt_rank !== null) {
+      if ($b->team->dt_rank === null)
+        return -1;
+      return $a->team->dt_rank - $b->team->dt_rank;        
+    }
+    elseif ($b->team->dt_rank !== null)
+      return 1;
+
     $perA = $a->getWinPercentage();
     $perB = $b->getWinPercentage();
     if ($perA == $perB) {

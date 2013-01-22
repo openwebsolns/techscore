@@ -115,21 +115,28 @@ class RankTeamsPane extends AbstractPane {
     // ------------------------------------------------------------
     // All ranks
     // ------------------------------------------------------------
+    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/tablesort.js'));
     $this->PAGE->addContent(new XP(array(), "Use this pane to set the rank for the teams in the regatta. By default, teams are ranked by the system according to win percentage, but tie breaks must be broken manually."));
     $this->PAGE->addContent(new XP(array(), "To edit a particular team's record by setting which races count towards their record, click on the win-loss record for that team. Remember to click \"Set ranks\" to save the order before editing a team's record."));
 
     $this->PAGE->addContent($f = $this->createForm());
-    $f->add($tab = new XQuickTable(array('id'=>'rank-table'), array("#", "Explanation", "Record", "Team")));
+    $f->add($tab = new XQuickTable(array('id'=>'divtable', 'class'=>'teamtable narrow'),
+                                   array("#", "Explanation", "Record", "Team")));
     foreach ($this->REGATTA->getRanker()->rank($this->REGATTA) as $i => $rank) {
-      $tab->addRow(array(new XTextInput('rank[]', ($i + 1), array('size'=>2)),
+      $tab->addRow(array(new XTD(array(), array(new XTextInput('order[]', ($i + 1), array('size'=>2)),
+                                                new XHiddenInput('team[]', $rank->team->id))),
 			 new XTextInput('explanation[]', $rank->explanation),
 			 new XA($this->link('rank', array('team' => $rank->team->id)), $rank->getRecord()),
-			 $rank->team));
+			 new XTD(array('class'=>'drag'), $rank->team)),
+                   array('class'=>'sortable'));
     }
     $f->add(new XSubmitP('set-ranks', "Set ranks"));
   }
 
   public function process(Array $args) {
+    // ------------------------------------------------------------
+    // Set records
+    // ------------------------------------------------------------
     if (isset($args['set-records'])) {
       $team = DB::$V->reqTeam($args, 'team', $this->REGATTA, "Invalid team whose records to set.");
       $ids = DB::$V->reqList($args, 'race', null, "No list of races provided.");
@@ -152,6 +159,45 @@ class RankTeamsPane extends AbstractPane {
 	Session::PA(new PA("No races affected.", PA::I));
       else
 	Session::pa(new PA(sprintf("Updated %d races.", $affected)));
+    }
+
+    // ------------------------------------------------------------
+    // Set ranks
+    // ------------------------------------------------------------
+    if (isset($args['set-ranks'])) {
+      $teams = array();
+      foreach ($this->REGATTA->getTeams() as $team)
+        $teams[$team->id] = $team;
+      $tids = DB::$V->reqList($args, 'team', count($teams), "Invalid list of teams provided.");
+      $exps = DB::$V->reqList($args, 'explanation', count($teams), "Missing list of explanations.");
+      $order = DB::$V->incList($args, 'order', count($tids));
+      if (count($order) > 0)
+        array_multisort($order, SORT_NUMERIC, $tids, $exps);
+
+      $ranks = array();
+      foreach ($tids as $i => $id) {
+        if (!isset($teams[$id]))
+          throw new SoterException("Invalid team provided.");
+        $new_rank = ($i + 1);
+        $new_expl = DB::$V->incString($exps, $i, 1, 101, null);
+
+        if ($new_rank != $teams[$id]->dt_rank || $new_expl != $teams[$id]->dt_explanation) {
+          $teams[$id]->dt_rank = $new_rank;
+          $teams[$id]->dt_explanation = $new_expl;
+          $ranks[] = $teams[$id];
+        }
+      }
+
+      if (count($ranks) == 0) {
+        Session::pa(new PA("No change in rankings.", PA::I));
+        return;
+      }
+
+      // Set the rank and issue update request
+      // @TODO: update request
+      foreach ($ranks as $team)
+        DB::set($team);
+      Session::pa(new PA("Ranks saved."));
     }
   }
 }

@@ -122,6 +122,10 @@ class TeamRank extends Rank {
     $this->wins = (int)$wins;
     $this->losses = (int)$losses;
     $this->ties = (int)$ties;
+
+    // Preserve explanation, if one exists
+    if ($team->dt_explanation !== null)
+      $this->explanation = $team->dt_explanation;
   }
 
   public function getWinPercentage() {

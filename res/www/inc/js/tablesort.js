@@ -5,6 +5,8 @@ DRAG_TO = null;
 
 window.onload = function() {
     var table = document.getElementById('divtable');
+    if (!table)
+        return;
     var rows = table.getElementsByTagName('tr');
     var totalcells = 0;
     for (var r = 0; r < rows.length; r++) {
@@ -45,9 +47,9 @@ window.onload = function() {
 	// hide the first cell altogether
 	row.childNodes[0].style.display = "none";
     }
-    if (cells.length < 4) {
+    if (cells.length < 4 || table.classList.contains("narrow")) {
         var span = document.createElement('span');
-        table.parentNode.appendChild(span);
+        table.parentNode.insertBefore(span, table.nextSibling);
         span.setAttribute('class', 'message');
         span.appendChild(document.createTextNode("← Drag to change order"));
     }
