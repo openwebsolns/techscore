@@ -420,3 +420,9 @@ delete from finish where penalty = "DNS" and comments = "Did not participate" an
 
 -- some races do not "count" towards record in team racing
 alter table race add column tr_ignore tinyint default null comment "Ignore race for team win-loss record";
+
+-- multiple penalties per finish --
+create table finish_modifier (id int primary key auto_increment, finish int not null, type enum('DSQ','RAF','OCS','DNF','DNS','BKD','RDG','BYE') DEFAULT NULL, amount tinyint(4) default null, displace tinyint(4) default null, comments text default null) engine=innodb default charset = utf8;
+alter table finish_modifier add foreign key (finish) references finish(id) on delete cascade on update cascade;
+insert into finish_modifier (finish, type, amount, displace, comments) (select id, penalty, amount, displace, comments from finish where penalty is not null);
+alter table finish drop column penalty, drop column amount, drop column displace, drop column comments;

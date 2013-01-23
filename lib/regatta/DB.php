@@ -37,6 +37,7 @@ class DB extends DBM {
   public static $ROUND = null;
   public static $RACE = null;
   public static $FINISH = null;
+  public static $FINISH_MODIFIER = null;
   public static $TEAM_PENALTY = null;
   public static $HOST_SCHOOL = null;
   public static $DAILY_SUMMARY = null;
@@ -87,6 +88,7 @@ class DB extends DBM {
     self::$ROUND = new Round();
     self::$RACE = new Race();
     self::$FINISH = new Finish();
+    self::$FINISH_MODIFIER = new FinishModifier();
     self::$TEAM_PENALTY = new TeamPenalty();
     self::$HOST_SCHOOL = new Host_School();
     self::$DAILY_SUMMARY = new Daily_Summary();
@@ -1525,17 +1527,7 @@ class Finish extends DBObject {
   protected $race;
   protected $team;
   protected $entered;
-  public $penalty;
-  /**
-   * @var int the assigned point value (for breakdowns/penalties)
-   */
-  public $amount;
-  /**
-   * @var int the "default" amount in case of dropped penalty
-   */
   public $earned;
-  public $displace;
-  public $comments;
   /**
    * @var int the numerical score
    */
@@ -1562,7 +1554,9 @@ class Finish extends DBObject {
    * @return String
    */
   public function getPlace() {
-    return ($this->penalty === null) ? $this->score : $this->penalty;
+    if (($modifier = $this->getModifier()) !== null)
+      return $modifier->type;
+    return $this->score;
   }
 
   public function __set($name, $value) {
@@ -1599,24 +1593,30 @@ class Finish extends DBObject {
   }
 
   /**
+   * @var FinishModifier the modifier (if any) for this finish. The
+   * default value (false) is a flag that it has not yet been
+   * deserialized from the database
+   *
+   * @see getModifier
+   */
+  private $modifier = false;
+  /**
+   * @var boolean convenient flag to determine if the modifier has
+   * been changed
+   */
+  private $changed_modifier = false;
+
+  /**
    * Attaches the given finish modifier to this finish. This is
    * superior to assigning the values directly. Trust me.
    *
    * @param FinishModifier $mod the modifier
    */
   public function setModifier(FinishModifier $mod = null) {
-    if ($mod instanceof FinishModifier) {
-      $this->amount = $mod->amount;
-      $this->penalty = $mod->type;
-      $this->comments = $mod->comments;
-      $this->displace = $mod->displace;
-    }
-    else {
-      $this->amount = null;
-      $this->penalty = null;
-      $this->comments = null;
-      $this->displace = null;
-    }
+    $this->modifier = $mod;
+    if ($this->modifier !== null)
+      $this->modifier->finish = $this;
+    $this->changed_modifier = true;
   }
 
   /**
@@ -1626,13 +1626,17 @@ class Finish extends DBObject {
    * @return FinishModifier the modifier
    */
   public function getModifier() {
-    if ($this->penalty === null)
-      return null;
-    $pens = Penalty::getList();
-    if (isset($pens[$this->penalty]))
-      return new Penalty($this->penalty, $this->amount, $this->comments, $this->displace);
-    return new Breakdown($this->penalty, $this->amount, $this->comments, $this->displace);
+    if ($this->modifier === false) {
+      $res = DB::getAll(DB::$FINISH_MODIFIER, new DBCond('finish', $this));
+      $this->modifier = null;
+      if (count($res) > 0)
+        $this->modifier = $res[0];
+      unset($res);
+    }
+    return $this->modifier;
   }
+
+  public function hasChangedModifier() { return $this->changed_modifier; }
 
   /**
    * Creates a hash for this finish consisting of race-team
@@ -2113,8 +2117,9 @@ class Score {
  * @author Dayan Paez
  * @version 2011-01-31
  */
-abstract class FinishModifier {
+class FinishModifier extends DBObject {
 
+  protected $finish;
   public $amount;
   public $type;
   public $comments;
@@ -2136,6 +2141,13 @@ abstract class FinishModifier {
     return array();
   }
 
+  public function db_name() { return 'finish_modifier'; }
+  public function db_type($field) {
+    if ($field == 'finish')
+      return DB::$FINISH;
+    return parent::db_type($field);
+  }
+
   /**
    * Creates a new penalty, of empty type by default
    *
@@ -2146,11 +2158,11 @@ abstract class FinishModifier {
    * @throws InvalidArgumentException if the type is set to an illegal
    * value
    */
-  public function __construct($type, $amount = -1, $comments = "", $displace = 0) {
-    $this->type = $type;
-    $this->amount = (int)$amount;
-    $this->comments = $comments;
-    $this->displace = $displace;
+  public function __construct($type = null, $amount = -1, $comments = "", $displace = 0) {
+    if ($this->type === null)     $this->type = $type;
+    if ($this->amount === null)   $this->amount = (int)$amount;
+    if ($this->comments === null) $this->comments = $comments;
+    if ($this->displace === null) $this->displace = $displace;
   }
 
   /**

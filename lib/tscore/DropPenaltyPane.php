@@ -5,8 +5,6 @@
  * @package tscore
  */
 
-require_once("conf.php");
-
 /**
  * Drop individual penalties
  *
@@ -23,13 +21,16 @@ class DropPenaltyPane extends AbstractPane {
     $penalties = array();
     $handicaps = array();
     $modifiers = array(); // map of finish ID => modifier
+
+    $penlist = Penalty::getList();
+    $bkdlist = Breakdown::getList();
     foreach ($this->REGATTA->getPenalizedFinishes() as $finish) {
       $penalty = $finish->getModifier();
       $modifiers[$finish->id] = $penalty;
-      if ($penalty instanceof Penalty &&
+      if (isset($penlist[$penalty->type]) &&
           ($this->REGATTA->scoring != Regatta::SCORING_TEAM || $penalty->type != Penalty::DNS))
         $penalties[] = $finish;
-      elseif ($penalty instanceof Breakdown)
+      elseif (isset($bkdlist[$penalty->type]))
         $handicaps[] = $finish;
     }
 

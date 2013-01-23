@@ -866,7 +866,7 @@ class FullRegatta extends DBObject {
   public function getPenalizedFinishes() {
     return DB::getAll(DB::$FINISH,
                       new DBBool(array(new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('id'))),
-                                       new DBCond('penalty', null, DBCond::NE))));
+                                       new DBCondIn('id', DB::prepGetAll(DB::$FINISH_MODIFIER, null, array('finish'))))));
   }
 
   /**
@@ -886,8 +886,11 @@ class FullRegatta extends DBObject {
                                                                    new DBBool(array(new DBCond('regatta', $this->id),
                                                                                     new DBCond('division', (string)$div))),
                                                                    array('id'))),
-                                       new DBCondIn('penalty', array(Breakdown::BKD, Breakdown::RDG, Breakdown::BYE)),
-                                       new DBCond('amount', 0, DBCond::LE))));
+                                       new DBCondIn('id',
+                                                    DB::prepGetAll(DB::$FINISH_MODIFIER,
+                                                                   new DBBool(array(new DBCondIn('type', array(Breakdown::BKD, Breakdown::RDG, Breakdown::BYE)),
+                                                                                    new DBCond('amount', 0, DBCond::LE))),
+                                                                   array('finish'))))));
   }
 
   /**
@@ -899,16 +902,13 @@ class FullRegatta extends DBObject {
    * @see hasFinishes
    */
   public function hasPenalties(Race $race = null) {
-    if ($race === null) {
-      return count(DB::getAll(DB::$RACE,
-                              new DBBool(array(new DBCond('regatta', $this),                                               
-                                               new DBCondIn('id', DB::prepGetAll(DB::$FINISH,
-                                                                                 new DBCond('penalty', null, DBCond::NE),
-                                                                                 array('race'))))))) > 0;
-    }
+    if ($race === null)
+      $cond = new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('id')));
+    else
+      $cond = new DBCond('race', $race);
     return count(DB::getAll(DB::$FINISH,
-                            new DBBool(array(new DBCond('penalty', null, DBCond::NE),
-                                             new DBCond('race', $race))))) > 0;
+                            new DBBool(array($cond,
+                                             new DBCondIn('id', DB::prepGetAll(DB::$FINISH_MODIFIER, null, array('finish'))))))) > 0;
   }
 
   /**
@@ -934,8 +934,16 @@ class FullRegatta extends DBObject {
    * @see setFinishes
    */
   public function commitFinishes(Array $finishes) {
-    foreach ($finishes as $finish)
+    foreach ($finishes as $finish) {
       DB::set($finish, ($finish->id !== null));
+      if ($finish->hasChangedModifier()) {
+        $mod = $finish->getModifier();
+        if ($mod === null)
+          DB::removeAll(DB::$FINISH_MODIFIER, new DBCond('finish', $finish->id));
+        else
+          DB::set($mod, ($mod->id !== null));
+      }
+    }
   }
 
   /**

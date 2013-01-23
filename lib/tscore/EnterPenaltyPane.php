@@ -173,6 +173,7 @@ class EnterPenaltyPane extends AbstractPane {
           $theFinish->setModifier($modifier);
         }
       }
+
       $this->REGATTA->commitFinishes($finishes);
       foreach ($races as $race)
         $this->REGATTA->runScore($race);

@@ -80,7 +80,8 @@ class ICSAScorer {
    * @return boolean
    */
   protected function displaceScore(Finish $fin, FinishModifier $pen) {
-    if ($pen instanceof Breakdown)
+    $bkdlist = Breakdown::getList();
+    if (isset($bkdlist[$pen->type]))
       return true;
 
     if ($pen->amount <= 0)
@@ -104,6 +105,7 @@ class ICSAScorer {
     // track the finishes which need to be committed to database
     $affected_finishes = array();
 
+    $penlist = Penalty::getList();
     $scored_races = array(); // track race numbers already scored
     foreach ($races as $race) {
       if (isset($scored_races[(string)$race]))
@@ -116,9 +118,10 @@ class ICSAScorer {
       // Resort assigned finishes
       for ($i = 0; $i < count($finishes); $i++) {
 	$finish = $finishes[$i];
-	if ($finish->amount > 0 && $finish->amount <= $i) {
+        $modifier = $finish->getModifier();
+	if ($modifier !== null && $modifier->amount > 0 && $modifier->amount <= $i) {
 	  unset($finishes[$i]);
-	  array_splice($finishes, $finish->amount - 1, 0, array($finish));
+	  array_splice($finishes, $modifier->amount - 1, 0, array($finish));
 	}
       }
 
@@ -133,7 +136,7 @@ class ICSAScorer {
           $finish->score = new Score($score);
           $score++;
         }
-        elseif ($penalty instanceof Penalty) {
+        elseif (isset($penlist[$penalty->type])) {
           // ------------------------------------------------------------
           // penalty
 	  $penScore = $this->getPenaltyScore($finish, $penalty);
@@ -226,19 +229,20 @@ class ICSAScorer {
       $avg = ($count == 0) ? null : round($total / $count);
       foreach ($div_finishes as $finish) {
         $affected_finishes[$finish->hash()] = $finish;
+        $modifier = $finish->getModifier();
 
         // no other scores to average
         if ($avg === null) {
           $finish->score = new Score($finish->earned,
-                                     sprintf("(%d: no other finishes to average) %s", $finish->earned, $finish->comments));
+                                     sprintf("(%d: no other finishes to average) %s", $finish->earned, $modifier->comments));
         }
         else {
           if ($avg <= $finish->earned) {
-            $finish->score = new Score($avg, sprintf("(%d: average in division) %s", $avg, $finish->comments));
+            $finish->score = new Score($avg, sprintf("(%d: average in division) %s", $avg, $modifier->comments));
           }
           else {
             $finish->score = new Score($finish->earned,
-                                       sprintf("(%d: average (%d) is no better) %s", $finish->earned, $avg, $finish->comments));
+                                       sprintf("(%d: average (%d) is no better) %s", $finish->earned, $avg, $modifier->comments));
           }
         }
       } // end loop for divisions
