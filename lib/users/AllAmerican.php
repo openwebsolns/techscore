@@ -6,8 +6,6 @@
  */
 
 require_once('users/AbstractUserPane.php');
-require_once('regatta/ScoresAnalyzer.php');
-require_once('regatta/TeamDivision.php');
 
 /**
  * Generates All-American reports.

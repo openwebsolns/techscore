@@ -56,7 +56,6 @@ class DB extends DBM {
   public static $PUBLIC_REGATTA = null;
   public static $RP_LOG = null; // RpManager.php
   public static $RP_FORM = null; // RpManager.php
-  public static $TEAM_DIVISION = null;
   public static $UPDATE_REQUEST = null; // UpdateRequest.php
   public static $UPDATE_SCHOOL = null; // UpdateRequest.php
   public static $UPDATE_LOG_SEASON = null; // UpdateRequest.php
