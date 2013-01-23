@@ -2159,7 +2159,7 @@ abstract class FinishModifier {
    * @return String string representation
    */
   public function __toString() {
-    return sprintf("%s|%s|%s", $this->type, $this->amount, $this->comments);
+    return $this->type;
   }
 }
 

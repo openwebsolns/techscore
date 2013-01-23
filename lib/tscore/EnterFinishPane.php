@@ -121,7 +121,7 @@ class EnterFinishPane extends AbstractPane {
 	$current_pen = null;
 	if (count($finishes) > 0) {
           $current_sail = $rotation->getSail($finishes[$i]->race, $finishes[$i]->team);
-	  $current_pen = $finishes[$i]->penalty;
+	  $current_pen = $finishes[$i]->getModifier();
 	}
         $tab->addRow(array(new XTD(array('name'=>'pos_sail', 'class'=>'pos_sail','id'=>'pos_sail'), $aPS),
                            new XImg("/inc/img/question.png", "Waiting for input", array("id"=>"check" . $i)),
@@ -291,10 +291,16 @@ class EnterFinishPane extends AbstractPane {
       foreach ($teams as $i => $team) {
         $attrs['value'] = $team->id;
 
-        $current_team = (count($finishes) > 0) ? $finishes[$i]->team->id : "";
+        $current_team = "";
+        $current_pen = null;
+        if (count($finishes) > 0) {
+          $current_team = $finishes[$i]->team->id;
+          $current_pen = $finishes[$i]->getModifier();
+        }
         $tab->addRow(array(new XTD($attrs, $team_opts[$team->id]),
                            new XImg("/inc/img/question.png", "Waiting for input", array("id"=>"check" . $i)),
-                           $sel = XSelect::fromArray("p" . $i, $team_opts, $current_team)));
+                           $sel = XSelect::fromArray("p" . $i, $team_opts, $current_team),
+                           XSelect::fromArray('m' . $i, $this->pen_opts, $current_pen)));
         $sel->set('id', "team$i");
         $sel->set('tabindex', $i + 1);
         $sel->set('onchange', 'checkTeams()');
@@ -320,7 +326,7 @@ class EnterFinishPane extends AbstractPane {
 	  $current_pen = null;
 	  if (count($finishes) > 0) {
 	    $current_team = sprintf("%s,%s", $finishes[$i]->race->division, $finishes[$i]->team->id);
-	    $current_pen = $finishes[$i]->penalty;
+	    $current_pen = $finishes[$i]->getModifier();
 	  }
 
           $tab->addRow(array(new XTD($attrs, $name),

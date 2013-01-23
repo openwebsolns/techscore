@@ -212,9 +212,10 @@ class ScoresGridDialog extends AbstractScoresDialog {
     foreach ($places as $i => $finish) {
       if ($i > 0)
 	$disp .= "-";
-      if ($finish->penalty !== null) {
+      $modifier = $finish->getModifier();
+      if ($modifier !== null) {
 	$disp .= $finish->earned;
-	$pens[] = $finish->penalty;
+	$pens[] = $modifier->type;
       }
       else
 	$disp .= $finish->score;

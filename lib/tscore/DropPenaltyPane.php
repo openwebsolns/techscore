@@ -22,8 +22,10 @@ class DropPenaltyPane extends AbstractPane {
   protected function fillHTML(Array $args) {
     $penalties = array();
     $handicaps = array();
+    $modifiers = array(); // map of finish ID => modifier
     foreach ($this->REGATTA->getPenalizedFinishes() as $finish) {
       $penalty = $finish->getModifier();
+      $modifiers[$finish->id] = $penalty;
       if ($penalty instanceof Penalty &&
           ($this->REGATTA->scoring != Regatta::SCORING_TEAM || $penalty->type != Penalty::DNS))
         $penalties[] = $finish;
@@ -42,16 +44,17 @@ class DropPenaltyPane extends AbstractPane {
     else {
       $p->add($tab = new XQuickTable(array(), array("Race", "Team", "Type", "Comments", "Amount", "Displace?", "Action")));
       foreach ($penalties as $finish) {
-        $amount = $finish->amount;
+        $modifier = $modifiers[$finish->id];
+        $amount = $modifier->amount;
         if ($amount < 1)
           $amount = "FLEET + 1";
         $displace = "";
-        if ($finish->displace > 0)
+        if ($modifier->displace > 0)
           $displace = new XImg(WS::link('/inc/img/s.png'), "✓");
-        $tab->addRow(array(sprintf('%s%s', $finish->race->number, $finish->race->division),
+        $tab->addRow(array($finish->race,
                            $finish->team,
-                           $finish->penalty,
-                           $finish->comments,
+                           $modifier->type,
+                           $modifier->comments,
                            $amount,
                            $displace,
                            $form = $this->createForm()));
@@ -72,16 +75,17 @@ class DropPenaltyPane extends AbstractPane {
     else {
       $p->add($tab = new XQuickTable(array(), array("Race", "Team", "Type", "Comments", "Amount", "Displace", "Action")));
       foreach ($handicaps as $finish) {
-        $amount = $finish->amount;
+        $modifier = $modifiers[$finish->id];
+        $amount = $modifier->amount;
         if ($amount < 1)
           $amount = "Average in division";
         $displace = "";
-        if ($finish->displace > 0)
+        if ($modifier->displace > 0)
           $displace = new XImg(WS::link('/inc/img/s.png'), "✓");
         $tab->addRow(array($finish->race,
                            $finish->team,
-                           $finish->penalty,
-                           $finish->comments,
+                           $modifier->type,
+                           $modifier->comments,
                            $amount,
                            $displace,
                            $form = $this->createForm()));
