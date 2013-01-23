@@ -39,7 +39,7 @@ class DeleteTeamsPane extends AbstractPane {
       $tab->addRow(array(new XCheckboxInput('teams[]', $aTeam->id, array('id'=>$id)),
                          new XLabel($id, $row + 1),
                          new XTD(array('class'=>'left'), new XLabel($id, $aTeam->school)),
-                         new XTD(array('class'=>'left'), new XLabel($id, $aTeam->name))),
+                         new XTD(array('class'=>'left'), new XLabel($id, $aTeam->getQualifiedName()))),
                    array('class'=>'row'.($row++ %2)));
     }
     $form->add(new XSubmitP("remove", "Remove"));

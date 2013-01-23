@@ -55,7 +55,7 @@ class RotationDialog extends AbstractDialog {
       if ($link_schools !== false)
         $name = array(new XA(sprintf('/schools/%s/%s/', $team->school->id, $this->REGATTA->getSeason()), $team->school->nick_name),
                       " ",
-                      $team->name);
+                      $team->getQualifiedName());
       $row[] = new XTD(array('class'=>'teamname'), $name);
 
       foreach ($races as $race) {

@@ -55,7 +55,7 @@ class RpEnterPane extends AbstractPane {
     $form->add(new FItem("Team:", $f_sel = new XSelect("chosen_team", array("onchange"=>"submit(this)"))));
     $team_opts = array();
     foreach ($teams as $team) {
-      $f_sel->add($opt = new FOption($team->id, sprintf("%s %s", $team->school->nick_name, $team->name)));
+      $f_sel->add($opt = new FOption($team->id, $team));
       if ($team->id == $chosen_team->id)
         $opt->set('selected', 'selected');
     }

@@ -87,7 +87,7 @@ class EnterPenaltyPane extends AbstractPane {
       $p->add($form = $this->createForm());
       $form->add(new FItem("Team:", $f_sel = new XSelectM("finish[]", array('size'=>10))));
       foreach ($finishes as $fin) {
-        if ($fin->penalty === null) {
+        if ($fin->getModifier() === null) {
           $sail = (string)$rotation->getSail($fin->race, $fin->team);
           if (strlen($sail) > 0)
             $sail = sprintf("(Sail: %4s) ", $sail);

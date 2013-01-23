@@ -255,7 +255,6 @@ class Rotation {
           $sail->team = $team;
           $sail->sail = $table[$t][$r];
 
-          // print(sprintf("%3s | %2s | %s\n", $sail->race, $sail->sail, $sail->team->name));
           $this->queue($sail);
         }
       }
@@ -279,7 +278,6 @@ class Rotation {
           $sail->team = $team;
           $sail->sail = $table[$t][$r];
 
-          // print(sprintf("%3s | %2s | %s\n", $sail->race, $sail->sail, $sail->team->name));
           $this->queue($sail);
         }
       }
@@ -364,7 +362,6 @@ class Rotation {
           $sail->team = $team;
           $sail->sail = $table[$t][$r];
 
-          // print(sprintf("%3s | %2s | %s\n", $sail->race, $sail->sail, $sail->team->name));
           $this->queue($sail);
         }
       }
@@ -388,7 +385,6 @@ class Rotation {
           $sail->team = $team;
           $sail->sail = $table[$t][$r];
 
-          // print(sprintf("%3s | %2s | %s\n", $sail->race, $sail->sail, $sail->team->name));
           $this->queue($sail);
         }
       }

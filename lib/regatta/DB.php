@@ -1154,7 +1154,7 @@ class Scorer extends DBObject {
  * @version 2012-01-10
  */
 class Team extends DBObject {
-  protected $name;
+  public $name;
   protected $school;
   protected $regatta; // change to protected when using DBM
 
@@ -1169,13 +1169,15 @@ class Team extends DBObject {
     switch ($field) {
     case 'school': return DB::$SCHOOL;
     case 'regatta': return DB::$REGATTA;
-    case 'name': return DBQuery::A_STR;
     default:
       return parent::db_type($field);
     }
   }
+  public function &getQualifiedName() {
+    return $this->name;
+  }
   public function __toString() {
-    return $this->__get('school')->nick_name . ' ' . $this->name;
+    return $this->__get('school')->nick_name . ' ' . $this->getQualifiedName();
   }
 
   /**
@@ -1251,22 +1253,11 @@ class RankedTeam extends Team {
 class SinglehandedTeam extends Team {
 
   /**
-   * Overrides the parent's method for retrieving name
-   *
-   * @param String $name the name of the property, only "name" is overriden
-   */
-  public function &__get($name) {
-    if ($name == 'name')
-      return $this->getQualifiedName();
-    return parent::__get($name);
-  }
-
-  /**
    * Returns either the skipper in A division, or the team name
    *
    * @return String name of the team or sailor
    */
-  private function &getQualifiedName() {
+  public function &getQualifiedName() {
     if ($this->regatta == null) return parent::__get("name");
 
     try {
@@ -1283,16 +1274,6 @@ class SinglehandedTeam extends Team {
     } catch (Exception $e) {
       return parent::__get("name");
     }
-  }
-
-  /**
-   * Overrides the parent __toString() method to print the skipper(s)
-   * in A Division, or the team name
-   *
-   * @return String the string representation of the team
-   */
-  public function __toString() {
-    return sprintf("%s %s", $this->__get('school')->name, $this->getQualifiedName());
   }
 }
 

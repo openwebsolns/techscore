@@ -147,6 +147,8 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
         $has_penalties = true;
       }
 
+      // We use the default team name instead of the qualified name
+      // because we are specifying the sailor names explicitly
       $r2 = new XTR(array('class'=>'row'.($rowIndex % 2), 'align'=>'left'),
                     array($r2c4 = new XTD(array('class'=>'teamname'), $rank->team->name)));
 

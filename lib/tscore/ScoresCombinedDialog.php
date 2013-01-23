@@ -123,7 +123,7 @@ class ScoresCombinedDialog extends AbstractScoresDialog {
       }
 
       $r2 = new XTR(array('class'=>'row'.($rowIndex % 2), 'align'=>'left'),
-                    array($r2c4 = new XTD(array('class'=>'teamname'), $rank->team->name)));
+                    array($r2c4 = new XTD(array('class'=>'teamname'), $rank->team->getQualifiedName())));
 
       $headerRows = array($r1, $r2);
       $num_sailors = 2;

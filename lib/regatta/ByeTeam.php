@@ -21,7 +21,10 @@ class ByeTeam extends Team {
     $this->name = "BYE";
     $this->school = null;
   }
-
+  public function &getQualifiedName() {
+    $a = "BYE Team";
+    return $a;
+  }
   public function __toString() {
     return "BYE Team";
   }

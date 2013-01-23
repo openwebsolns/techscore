@@ -109,7 +109,7 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
                                    new XTD(array(), $tID + 1),
                                    $bc = new XTD(array('class'=>'burgee-cell')),
                                    new XTD(array('class'=>'strong'), $ln),
-                                   new XTD(array('class'=>'left'), $rank->name))));
+                                   new XTD(array('class'=>'left'), $rank->getQualifiedName()))));
       if ($rank->school->burgee !== null) {
         $url = sprintf('/inc/img/schools/%s.png', $rank->school->id);
         $bc->add(new XImg($url, $rank->school->id, array('height'=>'30px')));

@@ -355,7 +355,7 @@ class EnterFinishPane extends AbstractPane {
   private function fillTeamOpts(Array &$team_opts, Array &$tms, Array &$rac, $teams, Race $race, Array $divisions = array()) {
     if ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) {
       foreach ($teams as $team) {
-        $team_opts[$team->id] = sprintf("%s %s", $team->school->nick_name, $team->name);
+        $team_opts[$team->id] = (string)$team;
         $tms[$team->id] = $team;
         $rac[$team->id] = $race;
       }
@@ -368,7 +368,7 @@ class EnterFinishPane extends AbstractPane {
       foreach ($teams as $team) {
         $id = sprintf("%s,%s", $div, $team->id);
         $label = ($this->REGATTA->scoring == Regatta::SCORING_TEAM) ? $div->getLevel() : $div;
-        $team_opts[$id] = sprintf("%s: %s %s", $label, $team->school->nick_name, $team->name);
+        $team_opts[$id] = sprintf("%s: %s", $label, $team);
 
         $tms[$id] = $team;
         $rac[$id] = $this->REGATTA->getRace($div, $race->number);
