@@ -16,7 +16,7 @@ require_once('regatta/ICSACombinedScorer.php');
  * @version 2012-12-30
  */
 class ICSATeamScorer extends ICSACombinedScorer {
-  public function getPenaltyScore(Finish $fin, Penalty $pen) {
+  public function getPenaltyScore(Finish $fin, FinishModifier $pen) {
     $amt = ($pen->amount <= 0) ? 6 : $pen->amount;
     $tot = $fin->earned + $amt;
     return new Score($tot, sprintf("(%d, +%d) %s", $tot, $amt, $pen->comments));

@@ -65,7 +65,7 @@ class ICSACombinedScorer extends ICSAScorer {
    * @param Regatta $reg the regatta
    * @return Penalty
    */
-  public function getPenaltyScore(Finish $fin, Penalty $pen) {
+  public function getPenaltyScore(Finish $fin, FinishModifier $pen) {
     if ($pen->amount <= 0) {
       if ($this->fleet === null) {
 	$reg = $fin->team->regatta;

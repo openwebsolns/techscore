@@ -1593,47 +1593,67 @@ class Finish extends DBObject {
   }
 
   /**
-   * @var FinishModifier the modifier (if any) for this finish. The
-   * default value (false) is a flag that it has not yet been
-   * deserialized from the database
+   * @var Array:FinishModifier the modifiers (if any) for this
+   * finish. The default value (null) is a flag that they have not yet
+   * been deserialized from the database
    *
    * @see getModifier
    */
-  private $modifier = false;
+  private $modifiers = null;
   /**
-   * @var boolean convenient flag to determine if the modifier has
-   * been changed
+   * @var boolean convenient flag to determine if the list of
+   * modifiers has been changed
    */
   private $changed_modifier = false;
 
   /**
-   * Attaches the given finish modifier to this finish. This is
-   * superior to assigning the values directly. Trust me.
+   * Convenience method removes other modifiers and optional adds new one
    *
    * @param FinishModifier $mod the modifier
    */
   public function setModifier(FinishModifier $mod = null) {
-    $this->modifier = $mod;
-    if ($this->modifier !== null)
-      $this->modifier->finish = $this;
+    $this->modifiers = array();
+    $this->changed_modifier = true;
+    if ($mod !== null) {
+      $mod->finish = $this;
+      $this->modifiers[] = $mod;
+    }
+  }
+
+  /**
+   * Adds the given modifier to the list of modifiers
+   *
+   * @param FinishModifier $mod the modifier to add
+   */
+  public function addModifier(FinishModifier $mod) {
+    $this->getModifiers();
+    $mod->finish = $this;
+    $this->modifiers[] = $mod;
     $this->changed_modifier = true;
   }
 
   /**
-   * Gets the finish modifier, if any, for this finish. This object
-   * will be created each time this method is invoked.
+   * Returns list of all modifiers associated with this finish
    *
-   * @return FinishModifier the modifier
+   * @return Array:FinishModifier the list of modifiers
+   */
+  public function getModifiers() {
+    if ($this->modifiers === null) {
+      $this->modifiers = array();
+      foreach (DB::getAll(DB::$FINISH_MODIFIER, new DBCond('finish', $this)) as $mod)
+        $this->modifiers[] = $mod;
+    }
+    return $this->modifiers;
+  }
+
+  /**
+   * Gets the first finish modifier, if any, for this finish.
+   *
+   * @return FinishModifier|null the modifier
    */
   public function getModifier() {
-    if ($this->modifier === false) {
-      $res = DB::getAll(DB::$FINISH_MODIFIER, new DBCond('finish', $this));
-      $this->modifier = null;
-      if (count($res) > 0)
-        $this->modifier = $res[0];
-      unset($res);
-    }
-    return $this->modifier;
+    $mods = $this->getModifiers();
+    return (count($mods) == 0) ? null : $mods[0];
   }
 
   public function hasChangedModifier() { return $this->changed_modifier; }

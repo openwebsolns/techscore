@@ -63,7 +63,7 @@ class ICSAScorer {
    * @param Regatta $reg the regatta
    * @return Score the penalty object
    */
-  public function getPenaltyScore(Finish $fin, Penalty $pen) {
+  public function getPenaltyScore(Finish $fin, FinishModifier $pen) {
     if ($pen->amount <= 0) {
       if ($this->fleet === null)
 	$this->fleet = count($fin->team->regatta->getTeams()) + 1;
