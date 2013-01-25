@@ -173,7 +173,6 @@ class ICSAScorer {
 	  if ($this->displaceScore($finish, $penalty))
 	    $score++;
         }
-        $finish->setModifier($penalty);
       }
     }
     $reg->commitFinishes($affected_finishes);

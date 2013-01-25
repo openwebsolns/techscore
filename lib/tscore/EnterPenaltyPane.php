@@ -87,7 +87,7 @@ class EnterPenaltyPane extends AbstractPane {
       $p->add($form = $this->createForm());
       $form->add(new FItem("Team:", $f_sel = new XSelectM("finish[]", array('size'=>10))));
       foreach ($finishes as $fin) {
-        if ($fin->getModifier() === null) {
+        if ($fin->getModifier() === null || $this->REGATTA->scoring == Regatta::SCORING_TEAM) {
           $sail = (string)$rotation->getSail($fin->race, $fin->team);
           if (strlen($sail) > 0)
             $sail = sprintf("(Sail: %4s) ", $sail);
@@ -162,7 +162,12 @@ class EnterPenaltyPane extends AbstractPane {
             Session::pa(new PA("The assigned score is no better than the actual score; ignoring.", PA::I));
             return array();
           }
-          $theFinish->setModifier(new Breakdown($thePen, $theAmount, $theComm, $theDisplace));
+          if ($this->REGATTA->scoring != Regatta::SCORING_TEAM)
+            $theFinish->setModifier();
+          else {
+            // @TODO: this modifier must match the previous types
+          }
+          $theFinish->addModifier(new Breakdown($thePen, $theAmount, $theComm, $theDisplace));
         }
         else {
 	  $modifier = new Penalty($thePen, $theAmount, $theComm, $theDisplace);
@@ -170,7 +175,12 @@ class EnterPenaltyPane extends AbstractPane {
           if ($theFinish->score !== null && $theAmount > 0 && $score->score <= $theFinish->score)
 	    throw new SoterException("The assigned penalty score is no worse than their actual score; ignoring.");
 	  // Allow assigned penalties beyond FLEET + 1
-          $theFinish->setModifier($modifier);
+          if ($this->REGATTA->scoring != Regatta::SCORING_TEAM)
+            $theFinish->setModifier();
+          else {
+            // @TODO: this modifier must match the previous types
+          }
+          $theFinish->addModifier($modifier);
         }
       }
 

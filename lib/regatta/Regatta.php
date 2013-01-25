@@ -939,8 +939,9 @@ class FullRegatta extends DBObject {
       if ($finish->hasChangedModifier()) {
         $modifiers = $finish->getModifiers();
         DB::removeAll(DB::$FINISH_MODIFIER, new DBCond('finish', $finish->id));
-        foreach ($modifiers as $mod)
+        foreach ($modifiers as $mod) {
           DB::set($mod);
+        }
       }
     }
   }

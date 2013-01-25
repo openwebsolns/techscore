@@ -52,8 +52,11 @@ class DropPenaltyPane extends AbstractPane {
         $displace = "";
         if ($modifier->displace > 0)
           $displace = new XImg(WS::link('/inc/img/s.png'), "✓");
+        $team = $finish->team;
+        if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
+          $team = $finish->race->division->getLevel() . ': ' . $team;
         $tab->addRow(array($finish->race,
-                           $finish->team,
+                           $team,
                            $modifier->type,
                            $modifier->comments,
                            $amount,
@@ -83,8 +86,11 @@ class DropPenaltyPane extends AbstractPane {
         $displace = "";
         if ($modifier->displace > 0)
           $displace = new XImg(WS::link('/inc/img/s.png'), "✓");
+        $team = $finish->team;
+        if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
+          $team = $finish->race->division->getLevel() . ': ' . $team;
         $tab->addRow(array($finish->race,
-                           $finish->team,
+                           $team,
                            $modifier->type,
                            $modifier->comments,
                            $amount,
