@@ -86,16 +86,18 @@ class EnterPenaltyPane extends AbstractPane {
       $this->PAGE->addContent($p = new XPort($title));
       $p->add($form = $this->createForm());
       $form->add(new FItem("Team:", $f_sel = new XSelectM("finish[]", array('size'=>10))));
+
+      $bkds = Breakdown::getList();
       foreach ($finishes as $fin) {
-        if ($fin->getModifier() === null || $this->REGATTA->scoring == Regatta::SCORING_TEAM) {
+        if ($this->canHaveModifier($fin, $type)) {
           $sail = (string)$rotation->getSail($fin->race, $fin->team);
           if (strlen($sail) > 0)
             $sail = sprintf("(Sail: %4s) ", $sail);
           $team = $fin->team;
-	  if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED)
-	    $team = sprintf('%s: %s', $fin->race->division, $fin->team);
-	  elseif ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
-	    $team = sprintf('%s: %s', $fin->race->division->getLevel(), $fin->team);
+          if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED)
+            $team = sprintf('%s: %s', $fin->race->division, $fin->team);
+          elseif ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
+            $team = sprintf('%s: %s', $fin->race->division->getLevel(), $fin->team);
           $f_sel->add(new FOption($fin->id, $sail . $team));
         }
       }
@@ -139,6 +141,9 @@ class EnterPenaltyPane extends AbstractPane {
         throw new SoterException("No finishes for penalty/breakdown.");
 
       $thePen  = $args['type'];
+      if (!isset($this->penalties[$thePen]) && !isset($this->breakdowns[$thePen]))
+        throw new SoterException("Invalid penalty/breakdown type.");
+
       $theComm = DB::$V->incString($args, 'p_comments', 1, 16000, null);
 
       // Get amount, checkbox has preference
@@ -156,6 +161,10 @@ class EnterPenaltyPane extends AbstractPane {
       $breakdowns = $this->breakdowns;
       $races = array();
       foreach ($finishes as $theFinish) {
+        if (!$this->canHaveModifier($theFinish, $thePen)) {
+          Session::pa(sprintf("Ignored finish modified for team %s.", $theFinish->team), PA::I);
+          continue;
+        }
         $races[$theFinish->race->id] = $theFinish->race;
         if (isset($breakdowns[$thePen])) {
           if ($theFinish->score !== null && $theAmount >= $theFinish->score) {
@@ -164,9 +173,6 @@ class EnterPenaltyPane extends AbstractPane {
           }
           if ($this->REGATTA->scoring != Regatta::SCORING_TEAM)
             $theFinish->setModifier();
-          else {
-            // @TODO: this modifier must match the previous types
-          }
           $theFinish->addModifier(new Breakdown($thePen, $theAmount, $theComm, $theDisplace));
         }
         else {
@@ -177,9 +183,6 @@ class EnterPenaltyPane extends AbstractPane {
 	  // Allow assigned penalties beyond FLEET + 1
           if ($this->REGATTA->scoring != Regatta::SCORING_TEAM)
             $theFinish->setModifier();
-          else {
-            // @TODO: this modifier must match the previous types
-          }
           $theFinish->addModifier($modifier);
         }
       }
@@ -240,5 +243,21 @@ class EnterPenaltyPane extends AbstractPane {
 			   "document.getElementById('p_amount').disabled = true;".
 			   "document.getElementById('displace_box').disabled = true;".
 			   "document.getElementById('avg_box').checked   = true;"));
+  }
+
+  protected function canHaveModifier(Finish $fin, $type) {
+    $mods = $fin->getModifiers();
+    if (count($mods) == 0)
+      return true;
+    if ($this->REGATTA->scoring != Regatta::SCORING_TEAM)
+      return false;
+    if (isset($this->breakdowns[$type]))
+      return false;
+    // Check all previous mods to make sure they are all penalties
+    foreach ($mods as $mod) {
+      if (!isset($this->penalties[$mod->type]))
+        return false;
+    }
+    return true;
   }
 }
