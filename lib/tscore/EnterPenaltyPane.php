@@ -177,7 +177,9 @@ class EnterPenaltyPane extends AbstractPane {
         }
         else {
 	  $modifier = new Penalty($thePen, $theAmount, $theComm, $theDisplace);
-	  $score = $this->REGATTA->scorer->getPenaltyScore($theFinish, $modifier);
+          $other_mods = $theFinish->getModifiers();
+          $other_mods[] = $modifier;
+	  $score = $this->REGATTA->scorer->getPenaltiesScore($theFinish, $other_mods);
           if ($theFinish->score !== null && $theAmount > 0 && $score->score <= $theFinish->score)
 	    throw new SoterException("The assigned penalty score is no worse than their actual score; ignoring.");
 	  // Allow assigned penalties beyond FLEET + 1

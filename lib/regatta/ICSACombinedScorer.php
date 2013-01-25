@@ -62,18 +62,16 @@ class ICSACombinedScorer extends ICSAScorer {
   /**
    * Fleet size equals (# teams) * (# divisions)
    *
-   * @param Regatta $reg the regatta
-   * @return Penalty
+   * @param Finish $fin the finish
+   * @param Array:FinishModifier (penalty objects)
+   * @return Score
    */
-  public function getPenaltyScore(Finish $fin, FinishModifier $pen) {
-    if ($pen->amount <= 0) {
-      if ($this->fleet === null) {
+  public function getPenaltiesScore(Finish $fin, Array $mods) {
+    if ($this->fleet === null) {
 	$reg = $fin->team->regatta;
 	$this->fleet = count($reg->getTeams()) * count($reg->getDivisions()) + 1;
-      }
-      return new Score($this->fleet, sprintf("(%d, Fleet + 1) %s", $this->fleet, $pen->comments));
     }
-    return parent::getPenaltyScore($fin, $pen);
+    return parent::getPenaltiesScore($fin, $mods);
   }
 }
 ?>

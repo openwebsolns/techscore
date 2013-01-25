@@ -56,20 +56,25 @@ class ICSAScorer {
   }
 
   /**
-   * Sets the penalty amount for the given finish.
+   * Determines the appropriate score to use for a given finish based
+   * on the provided list of modifiers
    *
-   * Applies only to amount = -1 penalties.
-   *
-   * @param Regatta $reg the regatta
-   * @return Score the penalty object
+   * @param Finish $fin the finish
+   * @param Array:FinishModifier (Penalty objects) the penalties
+   * @return Score the score to use
    */
-  public function getPenaltyScore(Finish $fin, FinishModifier $pen) {
-    if ($pen->amount <= 0) {
-      if ($this->fleet === null)
-	$this->fleet = count($fin->team->regatta->getTeams()) + 1;
-      return new Score($this->fleet, sprintf("(%d, Fleet + 1) %s", $this->fleet, $pen->comments));
+  public function getPenaltiesScore(Finish $fin, Array $mods) {
+    // If any is assigned, then use that amount, otherwise use fleet
+    $comments = array();
+    foreach ($mods as $pen) {
+      if ($pen->amount > 0)
+        return new Score($pen->amount, sprintf("(%d, Assigned) %s", $pen->amount, $pen->comments));
+      if (!empty($pen->comments))
+        $comments[] = $pen->comments;
     }
-    return new Score($pen->amount, sprintf("(%d, Assigned) %s", $pen->amount, $pen->comments));
+    if ($this->fleet === null)
+      $this->fleet = count($fin->team->regatta->getTeams()) + 1;
+    return new Score($this->fleet, sprintf("(%d, Fleet + 1) %s", $this->fleet, implode(". ", $comments)));
   }
 
   protected $fleet = null;
@@ -129,32 +134,16 @@ class ICSAScorer {
       foreach ($finishes as $finish) {
 	$finish->earned = $score;
         $affected_finishes[] = $finish;
-        $penalty = $finish->getModifier();
-        if ($penalty == null) {
+        $modifiers = $finish->getModifiers();
+        if (count($modifiers) == 0) {
           // ------------------------------------------------------------
           // clean finish
           $finish->score = new Score($score);
           $score++;
+          continue;
         }
-        elseif (isset($penlist[$penalty->type])) {
-          // ------------------------------------------------------------
-          // penalty
-	  $penScore = $this->getPenaltyScore($finish, $penalty);
-          if ($penScore->score > $score) {
-            $finish->score = $penScore;
-          }
-          else {
-            $finish->score = new Score($score,
-                                       sprintf("(%d, penalty (%d) no worse) %s",
-                                               $score,
-                                               $penScore->score,
-                                               $penalty->comments));
-          }
-	  if ($this->displaceScore($finish, $penalty))
-	    $score++;
-
-        }
-        else {
+        $penalty = $modifiers[0];
+        if (!isset($penlist[$penalty->type])) {
           // ------------------------------------------------------------
           // breakdown
           // Should the amount be assigned, determine actual
@@ -170,9 +159,32 @@ class ICSAScorer {
             $finish->score = new Score($amount, $exp);
           }
         
-	  if ($this->displaceScore($finish, $penalty))
-	    $score++;
+          if ($this->displaceScore($finish, $penalty))
+            $score++;
+          continue;
         }
+        // ------------------------------------------------------------
+        // penalty, or penalties
+        $penScore = $this->getPenaltiesScore($finish, $modifiers);
+        if ($penScore->score > $score) {
+          $finish->score = $penScore;
+        }
+        else {
+          $finish->score = new Score($score,
+                                     sprintf("(%d, penalty (%d) no worse) %s",
+                                             $score,
+                                             $penScore->score,
+                                             $penalty->comments));
+        }
+        $displace = false;
+        foreach ($modifiers as $penalty) {
+          if ($this->displaceScore($finish, $penalty)) {
+            $displace = true;
+            break;
+          }
+        }
+        if ($displace)
+          $score++;
       }
     }
     $reg->commitFinishes($affected_finishes);
