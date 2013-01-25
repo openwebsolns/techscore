@@ -20,18 +20,17 @@ class DropPenaltyPane extends AbstractPane {
   protected function fillHTML(Array $args) {
     $penalties = array();
     $handicaps = array();
-    $modifiers = array(); // map of finish ID => modifier
 
     $penlist = Penalty::getList();
     $bkdlist = Breakdown::getList();
     foreach ($this->REGATTA->getPenalizedFinishes() as $finish) {
-      $penalty = $finish->getModifier();
-      $modifiers[$finish->id] = $penalty;
-      if (isset($penlist[$penalty->type]) &&
-          ($this->REGATTA->scoring != Regatta::SCORING_TEAM || $penalty->type != Penalty::DNS))
-        $penalties[] = $finish;
-      elseif (isset($bkdlist[$penalty->type]))
-        $handicaps[] = $finish;
+      foreach ($finish->getModifiers() as $penalty) {
+        $modifiers[$penalty->id] = $penalty;
+        if (isset($penlist[$penalty->type]))
+          $penalties[] = $penalty;
+        elseif (isset($bkdlist[$penalty->type]))
+          $handicaps[] = $penalty;
+      }
     }
 
     // ------------------------------------------------------------
@@ -44,18 +43,17 @@ class DropPenaltyPane extends AbstractPane {
     }
     else {
       $p->add($tab = new XQuickTable(array(), array("Race", "Team", "Type", "Comments", "Amount", "Displace?", "Action")));
-      foreach ($penalties as $finish) {
-        $modifier = $modifiers[$finish->id];
+      foreach ($penalties as $modifier) {
         $amount = $modifier->amount;
         if ($amount < 1)
           $amount = "FLEET + 1";
         $displace = "";
         if ($modifier->displace > 0)
           $displace = new XImg(WS::link('/inc/img/s.png'), "✓");
-        $team = $finish->team;
+        $team = $modifier->finish->team;
         if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
-          $team = $finish->race->division->getLevel() . ': ' . $team;
-        $tab->addRow(array($finish->race,
+          $team = $modifier->finish->race->division->getLevel() . ': ' . $team;
+        $tab->addRow(array($modifier->finish->race,
                            $team,
                            $modifier->type,
                            $modifier->comments,
@@ -63,7 +61,7 @@ class DropPenaltyPane extends AbstractPane {
                            $displace,
                            $form = $this->createForm()));
 
-        $form->add(new XHiddenInput("r_finish", $finish->id));
+        $form->add(new XHiddenInput('modifier', $modifier->id));
         $form->add($sub = new XSubmitInput("p_remove", "Drop/Reinstate", array("class"=>"thin")));
       }
     }
@@ -78,18 +76,17 @@ class DropPenaltyPane extends AbstractPane {
     }
     else {
       $p->add($tab = new XQuickTable(array(), array("Race", "Team", "Type", "Comments", "Amount", "Displace", "Action")));
-      foreach ($handicaps as $finish) {
-        $modifier = $modifiers[$finish->id];
+      foreach ($handicaps as $modifier) {
         $amount = $modifier->amount;
         if ($amount < 1)
           $amount = "Average in division";
         $displace = "";
         if ($modifier->displace > 0)
           $displace = new XImg(WS::link('/inc/img/s.png'), "✓");
-        $team = $finish->team;
+        $team = $modifier->finish->team;
         if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
-          $team = $finish->race->division->getLevel() . ': ' . $team;
-        $tab->addRow(array($finish->race,
+          $team = $modifier->finish->race->division->getLevel() . ': ' . $team;
+        $tab->addRow(array($modifier->finish->race,
                            $team,
                            $modifier->type,
                            $modifier->comments,
@@ -97,7 +94,7 @@ class DropPenaltyPane extends AbstractPane {
                            $displace,
                            $form = $this->createForm()));
 
-        $form->add(new XHiddenInput("r_finish", $finish->id));
+        $form->add(new XHiddenInput('modifier', $modifier->id));
         $form->add($sub = new XSubmitInput("p_remove", "Drop/Reinstate",
                                            array("class"=>"thin")));
       }
@@ -111,17 +108,17 @@ class DropPenaltyPane extends AbstractPane {
     // ------------------------------------------------------------
     if (isset($args['p_remove'])) {
 
-      $finish = DB::$V->reqID($args, 'r_finish', DB::$FINISH, "Invalid or missing finish provided.");
-      if ($finish->race->regatta != $this->REGATTA ||
-          $finish->getModifier() == null)
-        throw new SoterException("Invalid finish provided.");
-      $finish->setModifier();
-      $this->REGATTA->commitFinishes(array($finish));
-      $this->REGATTA->runScore($finish->race);
-      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
+      $penalty = DB::$V->reqID($args, 'modifier', DB::$FINISH_MODIFIER, "Missing penalty/breakdown provided.");
+      if ($penalty->finish->race->regatta != $this->REGATTA)
+        throw new SoterException("Invalid penalty/breakdown provided.");
+      if ($penalty->finish->removeModifier($penalty)) {
+        $this->REGATTA->commitFinishes(array($penalty->finish));
+        $this->REGATTA->runScore($penalty->finish->race);
+        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
 
-      // Announce
-      Session::pa(new PA(sprintf("Dropped penalty for %s in race %s.", $finish->team, $finish->race)));
+        // Announce
+        Session::pa(new PA(sprintf("Dropped penalty for %s in race %s.", $penalty->finish->team, $penalty->finish->race)));
+      }
     }
     return $args;
   }

@@ -1647,6 +1647,23 @@ class Finish extends DBObject {
   }
 
   /**
+   * Removes the given modifier from list, comparing by ID
+   *
+   * @param FinishModifier $mod the modifier to remove
+   * @return boolean true if it was removed
+   */
+  public function removeModifier(FinishModifier $mod) {
+    foreach ($this->getModifiers() as $i => $other) {
+      if ($other->id == $mod->id) {
+        unset($this->modifiers[$i]);
+        $this->changed_modifier = true;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Gets the first finish modifier, if any, for this finish.
    *
    * @return FinishModifier|null the modifier
