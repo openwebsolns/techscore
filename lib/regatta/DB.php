@@ -1075,7 +1075,7 @@ class Member extends DBObject {
     $year = "";
     if ($this->role == 'student')
       $year = " '" . (($this->year > 0) ? substr($this->year, -2) : "??");
-    $name = sprintf("%s", $this->getName(), $year);
+    $name = $this->getName() . $year;
     if (!$this->isRegistered())
       $name .= " *";
     return $name;
