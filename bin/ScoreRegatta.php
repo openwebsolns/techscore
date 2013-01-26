@@ -25,6 +25,7 @@ try {
   $reg->setRanks();
   foreach ($reg->getDivisions() as $div)
     $reg->setRanks($div);
+  $reg->setRpData();
 }
 catch (Exception $e) {
   printf("Invalid regatta ID provided: %s\n\n", $argv[1]);
