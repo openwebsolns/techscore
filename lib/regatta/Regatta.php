@@ -1540,13 +1540,15 @@ class FullRegatta extends DBObject {
     $scored_races = array();
 
     // An attempt to minimize the amount of times a partial regatta
-    // needs to be ranked. The key is the comma-delimited race numbers
+    // needs to be ranked. For each division as key, contains a map of
+    // comma-delimited race numbers => list of ranks
     $scored_ranks = array();
 
     $divisions = ($division === null) ? $this->getDivisions() : array($division);
 
     foreach ($divisions as $div) {
       $scored_races[(string)$div] = $this->getScoredRaces($div);
+      $scored_ranks[(string)$div] = array();
       $scored_nums[(string)$div] = array();
       foreach ($scored_races[(string)$div] as $race)
         $scored_nums[(string)$div][] = $race->number;
@@ -1566,7 +1568,7 @@ class FullRegatta extends DBObject {
         $rps = $rpm->getRP($team_objs[$team->id], $division, $role);
         foreach ($rps as $rp) {
           $drp = new Dt_Rp();
-          $drp->sailor = DB::getSailor($rp->sailor->id);
+          $drp->sailor = $rp->sailor;
           $drp->team_division = $team;
           $drp->boat_role = $role;
           $drp->race_nums = $rp->races_nums;
@@ -1584,13 +1586,13 @@ class FullRegatta extends DBObject {
           }
           else {
             $id = implode(',', $intersection);
-            if (!isset($scored_ranks[$id])) {
+            if (!isset($scored_ranks[$team->division][$id])) {
               $races = array();
               foreach ($intersection as $num)
                 $races[] = $this->getRace($division, $num);
-              $scored_ranks[$id] = $ranker->rank($this, $races);
+              $scored_ranks[$team->division][$id] = $ranker->rank($this, $races);
             }
-            foreach ($scored_ranks[$id] as $i => $rank) {
+            foreach ($scored_ranks[$team->division][$id] as $i => $rank) {
               if ($rank->team->id == $team->team->id &&
                   ($rank->division === null || (string)$rank->division == (string)$team->division)) {
                 $drp->rank = $i + 1;
