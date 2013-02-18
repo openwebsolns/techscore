@@ -180,7 +180,7 @@ class DBM {
   public static function query(DBQuery $q) {
     $res = $q->query();
     if (self::$log_path !== null)
-      @error_log($q->toSQL(). "\n", 3, self::$log_path);
+      @error_log(microtime(true) . ": " . $q->toSQL(). "\n", 3, self::$log_path);
     return $res;
   }
 

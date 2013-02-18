@@ -24,8 +24,10 @@ abstract class AbstractScoresDialog extends AbstractDialog {
 
     // Add some menu
     $this->PAGE->addMenu(new XDiv(array('class'=>'menu'), array($ul = new XUl())));
-    if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
+    if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
       $ul->add(new XLi(new XA(sprintf('/view/%d/scores',   $this->REGATTA->id), "All grids")));
+      $ul->add(new XLi(new XA(sprintf('/view/%d/list', $this->REGATTA->id), "Races as list")));
+    }
     else {
       $ul->add(new XLi(new XA(sprintf('/view/%d/scores',     $this->REGATTA->id), "All scores")));
       $ul->add(new XLi(new XA(sprintf('/view/%d/div-scores', $this->REGATTA->id), "Summary")));
@@ -54,6 +56,30 @@ abstract class AbstractScoresDialog extends AbstractDialog {
     foreach ($tiebreakers as $exp => $ast)
       $tab->addRow(array($ast, $exp));
     return $tab;
+  }
+
+  /**
+   * Helper method for team racing regattas
+   *
+   */
+  protected function displayPlaces(Array $places = array()) {
+    $disp = "";
+    $pens = array();
+    foreach ($places as $i => $finish) {
+      if ($i > 0)
+	$disp .= "-";
+      $modifiers = $finish->getModifiers();
+      if (count($modifiers) > 0) {
+	$disp .= $finish->earned;
+        foreach ($modifiers as $modifier)
+          $pens[] = $modifier->type;
+      }
+      else
+	$disp .= $finish->score;
+    }
+    if (count($pens) > 0)
+      $disp .= " " . implode(",", $pens);
+    return $disp;
   }
 }
 

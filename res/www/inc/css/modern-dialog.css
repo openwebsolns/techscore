@@ -321,3 +321,18 @@ p.warning {padding: 0.5em;}
 .tr-multtable td {
     border: none;
 }
+
+
+.teamscorelist .roundrow th {
+    text-align: center;
+    padding: 0.5em 0;
+}
+.teamscorelist .vscell {
+    text-align: center;
+}
+.teamscorelist .team1 {
+    text-align: right;
+}
+.teamscorelist .team2 {
+    text-align: left;
+}

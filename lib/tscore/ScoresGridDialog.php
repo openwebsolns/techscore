@@ -31,7 +31,7 @@ require_once('tscore/AbstractScoresDialog.php');
  */
 class ScoresGridDialog extends AbstractScoresDialog {
   /**
-   * Create a new rotation dialog for the given regatta
+   * Create a new grid dialog for the given regatta
    *
    * @param FullRegatta $reg the regatta
    */
@@ -204,26 +204,6 @@ class ScoresGridDialog extends AbstractScoresDialog {
     foreach ($places as $finish)
       $total += $finish->score;
     return $total;
-  }
-
-  private function displayPlaces(Array $places = array()) {
-    $disp = "";
-    $pens = array();
-    foreach ($places as $i => $finish) {
-      if ($i > 0)
-	$disp .= "-";
-      $modifiers = $finish->getModifiers();
-      if (count($modifiers) > 0) {
-	$disp .= $finish->earned;
-        foreach ($modifiers as $modifier)
-          $pens[] = $modifier->type;
-      }
-      else
-	$disp .= $finish->score;
-    }
-    if (count($pens) > 0)
-      $disp .= " " . implode(",", $pens);
-    return $disp;
   }
 }
 ?>
