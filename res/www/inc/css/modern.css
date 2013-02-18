@@ -672,3 +672,7 @@ tr.checked {
     width: 96%;
     margin-bottom: 1em;
 }
+
+.rank-table {
+    margin-bottom: 2em;
+}

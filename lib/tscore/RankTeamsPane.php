@@ -28,21 +28,32 @@ class RankTeamsPane extends AbstractPane {
     $this->PAGE->addContent($p = new XPort("Race record for " . $team));
     $p->add($f = $this->createForm());
 
+    $divisions = $this->REGATTA->getDivisions();
     $races = $this->REGATTA->getRacesForTeam(Division::A(), $team);
     $f->add(new XP(array(), "Use this pane to specify which races should be accounted for when creating the overall win-loss record for " . $team . ". Greyed-out races are currently being ignored."));
 
     $rows = array(); // the row WITHIN the table
+    $cells = array(); // cells for a given row, indexed by team name
     $records = array(); // the TeamRank object for the given round
     $recTDs = array(); // the record cell for each table
     foreach ($races as $race) {
-      $finishes = $this->REGATTA->getFinishes($race);
-      if (count($finishes) == 0)
+      $fr_finishes = $this->REGATTA->getFinishes($race);
+      if (count($fr_finishes) == 0)
 	continue;
+
+      $finishes = array();
+      foreach ($fr_finishes as $finish)
+        $finishes[] = $finish;
+      for ($i = 1; $i < count($divisions); $i++) {
+        foreach ($this->REGATTA->getFinishes($this->REGATTA->getRace($divisions[$i], $race->number)) as $finish)
+          $finishes[] = $finish;
+      }
 
       if (!isset($rows[$race->round->id])) {
 	$records[$race->round->id] = new TeamRank($team);
 	$recTDs[$race->round->id] = new XTD(array('class'=>'rank-record'), "");
 	$rows[$race->round->id] = new XTR(array(), array($recTDs[$race->round->id], new XTH(array(), $team)));
+        $cells[$race->round->id] = array();
 
 	$f->add(new XH3("Round: " . $race->round));
 	$f->add(new XTable(array('class'=>'rank-table'), array($rows[$race->round->id])));
@@ -77,18 +88,28 @@ class RankTeamsPane extends AbstractPane {
 	if ($race->tr_ignore === null)
 	  $record->ties++;
       }
+      $display .= sprintf(' (%s)', $myScore);
       $other_team = $race->tr_team1;
       if ($other_team->id == $team->id)
 	$other_team = $race->tr_team2;
       $id = sprintf('r-%s', $race->id);
-      $row->add(new XTD(array(),
-			array($chk = new XCheckboxInput('race[]', $race->id, array('id'=>$id, 'class'=>$className)),
-			      $label = new XLabel($id, $display . " vs. "))));
+      $cell = new XTD(array(),
+                      array($chk = new XCheckboxInput('race[]', $race->id, array('id'=>$id, 'class'=>$className)),
+                            $label = new XLabel($id, $display . " vs. ")));
+      $cells[$race->round->id][(string)$other_team] = $cell;
+
       $label->add(new XBr());
-      $label->add($other_team);
+      $label->add(sprintf('%s (%s)', $other_team, $theirScore));
       $label->set('class', $className);
       if ($race->tr_ignore === null)
 	$chk->set('checked', 'checked');
+    }
+
+    // add all the rows
+    foreach ($cells as $id => $list) {
+      ksort($list);
+      foreach ($list as $cell)
+        $rows[$id]->add($cell);
     }
 
     // update all recTDs
@@ -97,6 +118,8 @@ class RankTeamsPane extends AbstractPane {
 
     $f->add($p = new XSubmitP('set-records', "Set race records"));
     $p->add(new XHiddenInput('team', $team->id));
+    $p->add(" ");
+    $p->add(new XA($this->link('rank'), "Return to rank list"));
   }
 
   protected function fillHTML(Array $args) {
