@@ -108,9 +108,15 @@ abstract class AbstractDialog {
         require_once('tscore/ScoresFullDialog.php');
         return new ScoresFullDialog($u);
 
-        // --------------- DIV. SCORE --------------//
+	// --------------- RANKING ------------------//
+      case 'ranking':
+      case 'rank':
       case 'div-score':
       case 'div-scores':
+	if ($u->scoring == Regatta::SCORING_TEAM) {
+	  require_once('tscore/TeamRankingDialog.php');
+	  return new TeamRankingDialog($u);
+	}
         require_once('tscore/ScoresDivisionalDialog.php');
         return new ScoresDivisionalDialog($u);
 

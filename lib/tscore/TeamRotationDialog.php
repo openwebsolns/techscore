@@ -27,7 +27,7 @@ class TeamRotationDialog extends AbstractScoresDialog {
    * @param FullRegatta $reg the regatta
    */
   public function __construct(FullRegatta $reg) {
-    parent::__construct("Results as list", $reg);
+    parent::__construct("Rotations", $reg);
   }
 
   /**
