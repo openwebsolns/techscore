@@ -50,7 +50,7 @@ class TeamRankingDialog extends AbstractScoresDialog {
       if ($link_schools !== false)
 	$school = new XA(sprintf('/schools/%s/%s/', $rank->team->school->id, $season), $school);
 
-      $b->add($row = new XTR(array('class'=>'topborder'),
+      $b->add($row = new XTR(array('class'=>'topborder row' . ($i % 2)),
 			     array(new XTD(array('title'=>$rank->explanation), ($i + 1)),
 				   new XTD(array(), $mascot),
 				   new XTD(array(), $school),
@@ -105,7 +105,8 @@ class TeamRankingDialog extends AbstractScoresDialog {
 	$school = new XA(sprintf('/schools/%s/%s/', $rank->team->school->id, $season), $school);
 
       $rowspan = max(1, count($skips), count($crews));
-      $b->add($row = new XTR(array('class'=>'topborder'),
+      $rowindex = 'row' . ($i % 2);
+      $b->add($row = new XTR(array('class'=>'topborder ' . $rowindex),
 			     array(new XTD(array('rowspan'=>$rowspan, 'title'=>$rank->explanation), ($i + 1)),
 				   new XTD(array('rowspan'=>$rowspan), $mascot),
 				   new XTD(array('rowspan'=>$rowspan), $school),
@@ -121,19 +122,23 @@ class TeamRankingDialog extends AbstractScoresDialog {
 
       // Add RP information
       $rprows = array($row);
-      foreach (array($skips, $crews) as $list) {
-	$row_number = 0;
-	foreach ($list as $sailor) {
-	  if (!isset($rprows[$row_number]))
-	    $rprows[$row_number] = new XTR();
-	  $rprows[$row_number]->add(new XTD(array('class'=>'sailor'), $sailor));
-	  $row_number++;
-	}
+      for ($i = 0; $i < $rowspan - 1; $i++) {
+        $b->add($row = new XTR(array('class'=>$rowindex)));
+        $rprows[] = $row;
       }
-
-      // Add rows
-      for ($i = 1; $i < count($rprows); $i++) {
-	$b->add($rprows[$i]);
+      $row_number = 0;
+      foreach ($skips as $sailor) {
+        $rprows[$row_number]->add(new XTD(array('class'=>'sailor'), $sailor));
+        if (count($crews) <= $row_number)
+          $rprows[$row_number]->add(new XTD());
+        $row_number++;
+      }
+      $row_number = 0;
+      foreach ($crews as $sailor) {
+        if (count($skips) <= $row_number)
+          $rprows[$row_number]->add(new XTD());
+        $rprows[$row_number]->add(new XTD(array('class'=>'sailor'), $sailor));
+        $row_number++;
       }
     }
 

@@ -269,11 +269,18 @@ class ReportMaker {
     foreach ($reg->getBoats() as $boat)
       $boats[] = (string)$boat;
 
+    $scoring = "Fleet";
+    if ($reg->scoring == Regatta::SCORING_COMBINED)
+      $scoring = "Combined";
+    elseif ($reg->scoring == Regatta::SCORING_TEAM)
+      $scoring = "Team";
+    elseif ($reg->isSingleHanded())
+      $scoring = "Singlehanded";
     $table = array("Host" => implode("/", $schools),
                    "Date" => $date,
                    "Type" => $type,
                    "Boat" => implode("/", $boats),
-                   "Scoring" => ($reg->scoring == Regatta::SCORING_STANDARD) ? "Fleet" : "Combined");
+                   "Scoring" => $scoring);
     $page->setHeader($reg->name, $table);
   }
 
