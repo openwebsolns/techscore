@@ -30,12 +30,13 @@ class TeamRankingDialog extends AbstractScoresDialog {
    * @return Array the table element(s)
    */
   public function getTable($link_schools = false) {
-    $tab = new XTable(array('class'=>'teamranking'),
+    $tab = new XTable(array('class'=>'teamranking results'),
 		      array(new XTHead(array(),
 				       array(new XTR(array(),
 						     array(new XTH(array(), "#"),
 							   new XTH(array('title'=>'School mascot')),
-							   new XTH(array(), "Team"),
+							   new XTH(array(), "School"),
+							   new XTH(array('class'=>'teamname'), "Team"),
 							   new XTH(array('title'=>"Winning record across all rounds"), "Rec."),
 							   new XTH(array('title'=>"Winning percentage"), "%"),
 							   new XTH(array('class'=>'sailor'), "Skippers"),
@@ -43,6 +44,7 @@ class TeamRankingDialog extends AbstractScoresDialog {
 			    $b = new XTBody()));
     $divs = $this->REGATTA->getDivisions();
 
+    $season = $this->REGATTA->getSeason();
     $rpm = $this->REGATTA->getRpManager();
     foreach ($this->REGATTA->getRanker()->rank($this->REGATTA) as $i => $rank) {
       $skips = array();
@@ -59,11 +61,16 @@ class TeamRankingDialog extends AbstractScoresDialog {
 	$url = sprintf('/inc/img/schools/%s.png', $rank->team->school->id);
 	$mascot = new XImg($url, $rank->team->school->id, array('height'=>'30px'));
       }
+      $school = (string)$rank->team->school;
+      if ($link_schools !== false)
+	$school = new XA(sprintf('/schools/%s/%s/', $rank->team->school->id, $season), $school);
+
       $rowspan = max(1, count($skips), count($crews));
-      $b->add($row = new XTR(array(),
+      $b->add($row = new XTR(array('class'=>'topborder'),
 			     array(new XTD(array('rowspan'=>$rowspan, 'title'=>$rank->explanation), ($i + 1)),
 				   new XTD(array('rowspan'=>$rowspan), $mascot),
-				   new XTD(array('rowspan'=>$rowspan), $rank->team),
+				   new XTD(array('rowspan'=>$rowspan), $school),
+				   new XTD(array('class'=>'teamname', 'rowspan'=>$rowspan), new XStrong($rank->team->getQualifiedName())),
 				   new XTD(array('rowspan'=>$rowspan), $rank->getRecord()),
 				   new XTD(array('rowspan'=>$rowspan), sprintf('%0.1f', (100 * $rank->getWinPercentage()))))));
       // Special case: no RP information
