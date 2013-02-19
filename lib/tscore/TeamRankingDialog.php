@@ -24,6 +24,45 @@ class TeamRankingDialog extends AbstractScoresDialog {
   }
 
   /**
+   * Retrieves the short version of the table (without RP)
+   *
+   */
+  public function getSummaryTable($link_schools = false) {
+    $tab = new XTable(array('class'=>'teamranking results'),
+		      array(new XTHead(array(),
+				       array(new XTR(array(),
+						     array(new XTH(array(), "#"),
+							   new XTH(array('title'=>'School mascot')),
+							   new XTH(array(), "School"),
+							   new XTH(array('class'=>'teamname'), "Team"),
+							   new XTH(array('title'=>"Winning record across all rounds"), "Rec."),
+							   new XTH(array('title'=>"Winning percentage"), "%"))))),
+			    $b = new XTBody()));
+
+    $season = $this->REGATTA->getSeason();
+    foreach ($this->REGATTA->getRanker()->rank($this->REGATTA) as $i => $rank) {
+      $mascot = "";
+      if ($rank->team->school->burgee !== null) {
+	$url = sprintf('/inc/img/schools/%s.png', $rank->team->school->id);
+	$mascot = new XImg($url, $rank->team->school->id, array('height'=>'30px'));
+      }
+      $school = (string)$rank->team->school;
+      if ($link_schools !== false)
+	$school = new XA(sprintf('/schools/%s/%s/', $rank->team->school->id, $season), $school);
+
+      $b->add($row = new XTR(array('class'=>'topborder'),
+			     array(new XTD(array('title'=>$rank->explanation), ($i + 1)),
+				   new XTD(array(), $mascot),
+				   new XTD(array(), $school),
+				   new XTD(array('class'=>'teamname'), new XStrong($rank->team->getQualifiedName())),
+				   new XTD(array(), $rank->getRecord()),
+				   new XTD(array(), sprintf('%0.1f', (100 * $rank->getWinPercentage()))))));
+    }
+
+    return array($tab);
+  }
+
+  /**
    * Fetches the rankings table
    *
    * @param String $link_schools true to include link to schools' season

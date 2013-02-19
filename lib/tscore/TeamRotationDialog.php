@@ -31,10 +31,12 @@ class TeamRotationDialog extends AbstractScoresDialog {
   }
 
   /**
-   * Creates the tabular display
+   * Fetches the list of tables that comprise this display
    *
+   * @param boolean $link_schools true to link schools
+   * @return Array:Xmlable
    */
-  public function fillHTML(Array $args) {
+  public function getTable($link_schools = false) {
     $divs = $this->REGATTA->getDivisions();
     $rounds = $this->REGATTA->getRounds();
 
@@ -110,7 +112,16 @@ class TeamRotationDialog extends AbstractScoresDialog {
         }
       }
     }
-    $this->PAGE->addContent($tab);
+    return array($tab);
+  }
+
+  /**
+   * Creates the tabular display
+   *
+   */
+  public function fillHTML(Array $args) {
+    foreach ($this->getTable() as $tab)
+      $this->PAGE->addContent($tab);
   }
 }
 ?>

@@ -524,3 +524,82 @@ div.stat .prefix {
 .tiebreaker tr td:last-child {
     text-align: left;
 }
+/* Team racing grids */
+.teamscores {
+    border: none;
+}
+.teamscores td {
+    text-align: center;
+    vertical-align: middle;
+}
+.tr-vert-label {
+    height: 12em;
+    text-align: left;
+    transform: rotate(270deg);
+    vertical-align: middle;
+    width: 7em;
+    word-break: hyphenate;
+}
+
+.tr-horiz-label {
+    height: 7em;
+    text-align: right;
+    vertical-align: middle;
+    width: 12em;
+}
+
+.tr-rec-th, .tr-pivot {
+    vertical-align: bottom;
+    border-left: none;
+    border-top: none;
+}
+
+.tr-pivot {
+    color: white;
+    border-right: none;
+}
+
+.tr-ns {
+    background: #ccc;
+    color: #ccc;
+}
+.tr-win {
+    background: #e0f3e0;
+    font-weight: bold;
+}
+.tr-lose {
+    background: #eed2c0;
+    color: #555;
+}
+.tr-tie {
+    background:#f3f3bb;
+}
+.tr-multtable {
+    border: medium none;
+    height: 100%;
+    width: 100%;
+}
+.tr-multtable td {
+    border: none;
+}
+
+.teamscorelist th {
+    text-align: center;
+}
+.teamscorelist .roundrow th {
+    padding: 0.5em 0;
+}
+.teamscorelist .vscell {
+    text-align: center;
+}
+.teamscorelist .team1 {
+    text-align: right;
+}
+.teamscorelist .team2 {
+    text-align: left;
+}
+
+.teamranking .sailor {
+    text-align: left;
+    padding: 0 1em;
+}

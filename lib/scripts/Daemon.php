@@ -245,6 +245,7 @@ class Daemon extends AbstractScript {
         break;
         // ------------------------------------------------------------
       case UpdateRequest::ACTIVITY_RP:
+      case UpdateRequest::ACTIVITY_RANK:
         if ($r->argument !== null)
           $this->queueSchoolSeason(DB::getSchool($r->argument), $season);
         break;

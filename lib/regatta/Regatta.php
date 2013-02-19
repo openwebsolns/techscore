@@ -665,6 +665,22 @@ class FullRegatta extends DBObject {
   }
 
   /**
+   * Returns the rounds that have at least one scored race
+   *
+   * @return Array:Round the list of (partially) scored rounds
+   */
+  public function getScoredRounds() {
+    return DB::getAll(DB::$ROUND,
+                      new DBCondIn('id',
+                                   DB::prepGetAll(DB::$RACE,
+                                                  new DBBool(array(new DBCond('regatta', $this->id),
+                                                                   new DBCondIn('id',
+                                                                                DB::prepGetAll(DB::$FINISH, null,
+                                                                                               array('race'))))),
+                                                  array('round'))));
+  }
+
+  /**
    * Fetches the race that was last scored in the regatta, or the
    * specific division if one is provided. This method will look at
    * the timestamp of the first finish in each race to determine which

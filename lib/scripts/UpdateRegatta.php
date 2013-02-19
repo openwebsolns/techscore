@@ -154,7 +154,7 @@ class UpdateRegatta extends AbstractScript {
       elseif ($has_rotation) {
         // What if the rotation was removed?
         $season = $reg->getSeason();
-        if ($season !== null && $reg->nick !== null) {
+        if ($season !== null && $reg->nick !== null)
           self::remove($reg->getURL() . '/rotations/index.html');
 
         $front = true;
@@ -358,6 +358,12 @@ class UpdateRegatta extends AbstractScript {
     if (in_array(UpdateRequest::ACTIVITY_FINALIZED, $activities)) {
       $sync = true; // status change
       $sync_rp = true; // some races were removed
+      $front = true;
+      $full = true;
+    }
+    if (in_array(UpdateRequest::ACTIVITY_RANK, $activities)) {
+      $sync = true;
+      $sync_rp = true;
       $front = true;
       $full = true;
     }

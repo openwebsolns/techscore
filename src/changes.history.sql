@@ -426,3 +426,6 @@ create table finish_modifier (id int primary key auto_increment, finish int not 
 alter table finish_modifier add foreign key (finish) references finish(id) on delete cascade on update cascade;
 insert into finish_modifier (finish, type, amount, displace, comments) (select id, penalty, amount, displace, comments from finish where penalty is not null);
 alter table finish drop column penalty, drop column amount, drop column displace, drop column comments;
+
+-- allow for rank attribute
+alter table pub_update_request change column activity activity enum('rotation','score','rp','details','summary','finalized','url','season', 'rank') NOT NULL DEFAULT 'score';

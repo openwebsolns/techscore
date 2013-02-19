@@ -35,6 +35,8 @@ class ReportMaker {
    * When there are no scores, the front page shall include a brief
    * message. If there are rotations, a link to view rotations.
    *
+   * 2013-02-19: Team racing regattas: include ranking table, and
+   * possible message
    */
   protected function fill() {
     if ($this->page !== null) return;
@@ -68,19 +70,34 @@ class ReportMaker {
       }
     }
 
-    // Divisional scores, if any
+    // Scores, if any
     if ($reg->hasFinishes()) {
-      require_once('tscore/ScoresDivisionalDialog.php');
-      $maker = new ScoresDivisionalDialog($reg);
-      $this->page->addSection($p = new XPort("Score summary"));
-      foreach ($maker->getTable(true) as $elem)
-        $p->add($elem);
+      if ($reg->scoring == Regatta::SCORING_TEAM) {
+        require_once('tscore/TeamRankingDialog.php');
+        $maker = new TeamRankingDialog($reg);
+        
+        if ($reg->finalized === null) {
+          $this->page->addSection($p = new XPort("Rankings"));
+          $p->add(new XP(array(), array(new XEm("Note:"), " Preliminary results; order may not be accurate due to unbroken ties and incomplete round robins.")));
+        }
+        else
+          $this->page->addSection($p = new XPort("Final Results"));
+        foreach ($maker->getTable(true) as $elem)
+          $p->add($elem);
+      }
+      else {
+        require_once('tscore/ScoresDivisionalDialog.php');
+        $maker = new ScoresDivisionalDialog($reg);
+        $this->page->addSection($p = new XPort("Score summary"));
+        foreach ($maker->getTable(true) as $elem)
+          $p->add($elem);
+      }
     }
     else {
       $this->page->addSection($p = new XPort("No scores have been entered"));
       $p->add($xp = new XP(array('class'=>'notice'), "No scores have been entered yet for this regatta."));
       $rot = $reg->getRotation();
-      if ($rot->isAssigned()) {
+      if ($rot->isAssigned() || $reg->scoring == Regatta::SCORING_TEAM) {
         $xp->add(" ");
         $xp->add(new XA('rotations/', "View rotations."));
       }
@@ -117,14 +134,37 @@ class ReportMaker {
     $season = $reg->getSeason();
     $this->fullPage = new TPublicPage("Full scores | " . $reg->name);
     $this->prepare($this->fullPage);
-    $this->fullPage->setDescription(sprintf("Full scores table for %s's %s.", $season->fullString(), $reg->name));
+    if ($reg->scoring == Regatta::SCORING_TEAM) {
+      $this->fullPage->setDescription(sprintf("Scoring grids for all rounds in %s's %s.", $season->fullString(), $reg->name));
 
-    // Total scores
-    require_once('tscore/ScoresFullDialog.php');
-    $maker = new ScoresFullDialog($reg);
-    $this->fullPage->addSection($p = new XPort("Race by race"));
-    foreach ($maker->getTable(true) as $elem)
-      $p->add($elem);
+      require_once('tscore/TeamRankingDialog.php');
+      $maker = new TeamRankingDialog($reg);
+      $this->fullPage->addSection($p = new XPort("Ranking summary"));
+      if ($reg->finalized === null)
+        $p->add(new XP(array(), array(new XEm("Note:"), " Preliminary results; order may not be accurate due to unbroken ties and incomplete round robins.")));
+      foreach ($maker->getSummaryTable(true) as $elem)
+        $p->add($elem);
+      
+      require_once('tscore/ScoresGridDialog.php');
+      $maker = new ScoresGridDialog($reg);
+      $rounds = array();
+      foreach ($reg->getScoredRounds() as $round)
+        array_unshift($rounds, $round);
+      foreach ($rounds as $round) {
+        $this->fullPage->addSection($p = new XPort($round));
+        $p->add($maker->getRoundTable($round));
+      }
+    }
+    else {
+      $this->fullPage->setDescription(sprintf("Full scores table for %s's %s.", $season->fullString(), $reg->name));
+
+      // Total scores
+      require_once('tscore/ScoresFullDialog.php');
+      $maker = new ScoresFullDialog($reg);
+      $this->fullPage->addSection($p = new XPort("Race by race"));
+      foreach ($maker->getTable(true) as $elem)
+        $p->add($elem);
+    }
   }
 
   protected function fillRotation() {
@@ -136,11 +176,20 @@ class ReportMaker {
     $this->prepare($this->rotPage);
     $this->rotPage->setDescription(sprintf("Sail rotations in all races for %s's %s.", $season->fullString(), $reg->name));
 
-    require_once('tscore/RotationDialog.php');
-    $maker = new RotationDialog($reg);
-    foreach ($reg->getRotation()->getDivisions() as $div) {
-      $this->rotPage->addSection($p = new XPort("$div Division"));
-      $p->add(new XRawText($maker->getTable($div, true)->toXML()));
+    if ($reg->scoring == Regatta::SCORING_TEAM) {
+      require_once('tscore/TeamRotationDialog.php');
+      $maker = new TeamRotationDialog($reg);
+      $this->rotPage->addSection($p = new XPort("All races"));
+      foreach ($maker->getTable(true) as $elem)
+        $p->add($elem);
+    }
+    else {
+      require_once('tscore/RotationDialog.php');
+      $maker = new RotationDialog($reg);
+      foreach ($reg->getRotation()->getDivisions() as $div) {
+        $this->rotPage->addSection($p = new XPort("$div Division"));
+        $p->add(new XRawText($maker->getTable($div, true)->toXML()));
+      }
     }
   }
 
@@ -189,12 +238,12 @@ class ReportMaker {
           foreach ($reg->getDivisions() as $div)
             $page->addMenu(new XA($url . $div.'/', "Division $div"));
         }
-        else
+        elseif ($reg->scoring == Regatta::SCORING_COMBINED)
           $page->addMenu(new XA($url . 'divisions/', "All Divisions"));
       }
     }
     $rot = $reg->getRotation();
-    if ($rot->isAssigned())
+    if ($rot->isAssigned() || $reg->scoring == Regatta::SCORING_TEAM)
       $page->addMenu(new XA($url.'rotations/', "Rotations"));
 
     // Regatta information

@@ -164,7 +164,7 @@ class RankTeamsPane extends AbstractPane {
       $team = DB::$V->reqTeam($args, 'team', $this->REGATTA, "Invalid team whose records to set.");
       $ids = DB::$V->reqList($args, 'race', null, "No list of races provided.");
 
-      $affected = 0;
+      $affected = array(); // other teams affected
       foreach ($this->REGATTA->getRacesForTeam(Division::A(), $team) as $race) {
 	if (count($this->REGATTA->getFinishes($race)) == 0)
 	  continue;
@@ -173,15 +173,21 @@ class RankTeamsPane extends AbstractPane {
 	if ($ignore != $race->tr_ignore) {
 	  $race->tr_ignore = $ignore;
 	  DB::set($race);
-	  $affected++;
+          $other_team = $race->tr_team1;
+          if ($other_team == $team)
+            $other_team = $race->tr_team2;
+	  $affected[$other_team->id] = $other_team;
 	}
       }
 
-      // @TODO: update request
-      if ($affected == 0)
+      if (count($affected) == 0)
 	Session::PA(new PA("No races affected.", PA::I));
-      else
-	Session::pa(new PA(sprintf("Updated %d races.", $affected)));
+      else {
+        foreach ($affected as $other_team)
+          UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RANK, $other_team->school->id);
+        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RANK, $team->school->id);
+	Session::pa(new PA(sprintf("Updated %d races.", count($affected))));
+      }
     }
 
     // ------------------------------------------------------------
@@ -217,9 +223,10 @@ class RankTeamsPane extends AbstractPane {
       }
 
       // Set the rank and issue update request
-      // @TODO: update request
-      foreach ($ranks as $team)
+      foreach ($ranks as $team) {
         DB::set($team);
+        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RANK, $team->school->id);
+      }
       Session::pa(new PA("Ranks saved."));
     }
   }

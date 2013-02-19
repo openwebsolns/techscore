@@ -56,6 +56,7 @@ class UpdateRequest extends AbstractUpdate {
   const ACTIVITY_FINALIZED = 'finalized';
   const ACTIVITY_URL = 'url';
   const ACTIVITY_SEASON = 'season';
+  const ACTIVITY_RANK = 'rank';
 
   /**
    * Returns an associative set of the permissible types
@@ -70,6 +71,7 @@ class UpdateRequest extends AbstractUpdate {
                  self::ACTIVITY_FINALIZED => self::ACTIVITY_FINALIZED,
                  self::ACTIVITY_URL => self::ACTIVITY_URL,
                  self::ACTIVITY_SEASON => self::ACTIVITY_SEASON,
+                 self::ACTIVITY_RANK => self::ACTIVITY_RANK,
                  self::ACTIVITY_ROTATION => self::ACTIVITY_ROTATION);
   }
 
