@@ -78,6 +78,10 @@ abstract class AbstractDialog {
         // --------------- ROT DIALOG ---------------//
       case 'rotation':
       case 'rotations':
+        if ($u->scoring == Regatta::SCORING_TEAM) {
+	  require_once('tscore/TeamRotationDialog.php');
+	  return new TeamRotationDialog($u);
+	}
         require_once('tscore/RotationDialog.php');
         return new RotationDialog($u);
 
@@ -103,13 +107,6 @@ abstract class AbstractDialog {
         }
         require_once('tscore/ScoresFullDialog.php');
         return new ScoresFullDialog($u);
-
-        // --------------- RACE LIST ---------------//
-      case 'list':
-        if ($u->scoring != Regatta::SCORING_TEAM)
-          return null;
-        require_once('tscore/ScoresTeamRacesDialog.php');
-        return new ScoresTeamRacesDialog($u);
 
         // --------------- DIV. SCORE --------------//
       case 'div-score':

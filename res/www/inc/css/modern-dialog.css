@@ -322,9 +322,10 @@ p.warning {padding: 0.5em;}
     border: none;
 }
 
-
-.teamscorelist .roundrow th {
+.teamscorelist th {
     text-align: center;
+}
+.teamscorelist .roundrow th {
     padding: 0.5em 0;
 }
 .teamscorelist .vscell {

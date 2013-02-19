@@ -20,7 +20,7 @@ require_once('tscore/AbstractScoresDialog.php');
  * @author Dayan Paez
  * @version 2013-02-18
  */
-class ScoresTeamRacesDialog extends AbstractScoresDialog {
+class TeamRotationDialog extends AbstractScoresDialog {
   /**
    * Create a new dialog
    *
@@ -52,11 +52,11 @@ class ScoresTeamRacesDialog extends AbstractScoresDialog {
                                                           array(new XTH(array('colspan'=>6), $round))))));
       foreach ($this->REGATTA->getRacesInRound($round, Division::A()) as $race) {
         $body->add($row = new XTR(array(), array(new XTD(array(), $race->number),
-                                                 $t1 = new XTD(array(), $race->tr_team1),
+                                                 $t1 = new XTD(array('class'=>'team1'), $race->tr_team1),
                                                  $r1 = new XTD(),
                                                  new XTD(array('class'=>'vscell'), "vs"),
                                                  $r2 = new XTD(),
-                                                 $t2 = new XTD(array(), $race->tr_team2))));
+                                                 $t2 = new XTD(array('class'=>'team2'), $race->tr_team2))));
         $finishes = $this->REGATTA->getFinishes($race);
         if (count($finishes) > 0) {
           $places1 = array();

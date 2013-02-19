@@ -408,6 +408,8 @@ abstract class AbstractPane {
     case 'ManualTweakPane':
     case 'TweakSailsPane':
     case 'rotation':
+      if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
+	return $this->has_races;
       return $this->has_rots;
 
     case 'scores':
