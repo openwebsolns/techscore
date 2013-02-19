@@ -31,6 +31,7 @@ class ICSATeamRanker extends ICSARanker {
     if ($races === null)
       $races = $reg->getScoredRaces(Division::A());
 
+    $divisions = $reg->getDivisions();
     $records = array();
     foreach ($races as $race) {
       if (!isset($records[$race->tr_team1->id]))
@@ -38,8 +39,15 @@ class ICSATeamRanker extends ICSARanker {
       if (!isset($records[$race->tr_team2->id]))
 	$records[$race->tr_team2->id] = new TeamRank($race->tr_team2);
 
-      $finishes = $reg->getFinishes($race);
-      if (count($finishes) > 0) {
+      $a_finishes = $reg->getFinishes($race);
+      if (count($a_finishes) > 0) {
+        $finishes = array();
+        foreach ($a_finishes as $finish)
+          $finishes[] = $finish;
+        for ($i = 1; $i < count($divisions); $i++) {
+          foreach ($reg->getFinishes($reg->getRace($divisions[$i], $race->number)) as $finish)
+            $finishes[] = $finish;
+        }
 
 	$myScore = 0;
 	$theirScore = 0;
