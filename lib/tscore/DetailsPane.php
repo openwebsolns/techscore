@@ -382,8 +382,8 @@ class DetailsPane extends AbstractPane {
         try {
           $url = $this->REGATTA->createNick();
           if ($url != $this->REGATTA->nick) {
-            UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_URL, $this->REGATTA->getURL());
             $this->REGATTA->nick = $url;
+            UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_URL, $this->REGATTA->getURL());
             Session::pa(new PA("Regatta's public URL is now: " . $this->REGATTA->getURL()));
           }
         } catch (InvalidArgumentException $e) {
