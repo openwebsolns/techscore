@@ -39,26 +39,47 @@ class TeamRotationDialog extends AbstractScoresDialog {
   public function getTable($link_schools = false) {
     $divs = $this->REGATTA->getDivisions();
     $rounds = $this->REGATTA->getRounds();
+    $season = $this->REGATTA->getSeason();
 
     $tab = new XTable(array('class'=>'teamscorelist'),
                       array(new XTHead(array(),
                                        array($head = new XTR(array(),
                                                              array(new XTH(array(), "#"),
-                                                                   new XTH(array(), "Team 1"),
+                                                                   new XTH(array('colspan'=>2), "Team 1"),
                                                                    new XTH(array(), "Record"),
                                                                    new XTH(array(), ""),
                                                                    new XTH(array(), "Record"),
-                                                                   new XTH(array(), "Team 2")))))));
+                                                                   new XTH(array('colspan'=>2), "Team 2")))))));
     foreach ($rounds as $round) {
       $tab->add($body = new XTBody(array(), array(new XTR(array('class'=>'roundrow'),
-                                                          array(new XTH(array('colspan'=>6), $round))))));
+                                                          array(new XTH(array('colspan'=>8), $round))))));
       foreach ($this->REGATTA->getRacesInRound($round, Division::A()) as $race) {
+        $team1 = $race->tr_team1;
+        $team2 = $race->tr_team2;
+        if ($link_schools !== false) {
+          $team1 = array(new XA(sprintf('/schools/%s/%s/', $team1->school->id, $season), $team1->school), " ", $team1->getQualifiedName());
+          $team2 = array(new XA(sprintf('/schools/%s/%s/', $team2->school->id, $season), $team2->school), " ", $team2->getQualifiedName());
+        }
+
+        $burg1 = "";
+        if ($race->tr_team1->school->burgee !== null) {
+          $url = sprintf('/inc/img/schools/%s.png', $race->tr_team1->school->id);
+          $burg1 = new XImg($url, $race->tr_team1->school->id, array('height'=>'20px'));
+        }
+        $burg2 = "";
+        if ($race->tr_team2->school->burgee !== null) {
+          $url = sprintf('/inc/img/schools/%s.png', $race->tr_team2->school->id);
+          $burg2 = new XImg($url, $race->tr_team2->school->id, array('height'=>'20px'));
+        }
+
         $body->add($row = new XTR(array(), array(new XTD(array(), $race->number),
-                                                 $t1 = new XTD(array('class'=>'team1'), $race->tr_team1),
+                                                 $b1 = new XTD(array('class'=>'team1'), $burg1),
+                                                 $t1 = new XTD(array('class'=>'team1'), $team1),
                                                  $r1 = new XTD(),
                                                  new XTD(array('class'=>'vscell'), "vs"),
                                                  $r2 = new XTD(),
-                                                 $t2 = new XTD(array('class'=>'team2'), $race->tr_team2))));
+                                                 $t2 = new XTD(array('class'=>'team2'), $team2),
+                                                 $b2 = new XTD(array('class'=>'team2'), $burg2))));
         $finishes = $this->REGATTA->getFinishes($race);
         if (count($finishes) > 0) {
           $places1 = array();
