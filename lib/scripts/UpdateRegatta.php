@@ -99,8 +99,10 @@ class UpdateRegatta extends AbstractScript {
     }
 
     // Silently ignore team racing, as that's not ready
-    if ($reg->scoring == Regatta::SCORING_TEAM)
+    if ($reg->scoring == Regatta::SCORING_TEAM) {
+      $this->runTeamRacing($reg, $activities);
       return;
+    }
 
     // In order to maintain all the regatta pages in sync, it is
     // necessary to first check what pages have been serialized
@@ -154,7 +156,6 @@ class UpdateRegatta extends AbstractScript {
         $season = $reg->getSeason();
         if ($season !== null && $reg->nick !== null) {
           self::remove($reg->getURL() . '/rotations/index.html');
-        }
 
         $front = true;
         if ($reg->hasFinishes()) {
@@ -278,6 +279,101 @@ class UpdateRegatta extends AbstractScript {
         self::remove($root . 'D/index.html');
       }
     }
+  }
+
+  /**
+   * Interpreter for team racing regattas
+   *
+   * No need to check if public, since parent performs check ahead of
+   * time.
+   */
+  private function runTeamRacing(FullRegatta $reg, Array $activities) {
+    $has_dir = false;
+    // "Rotation" tab always exists in team racing
+    $has_rotation = true;
+    $has_fullscore = false;
+    $dir = sprintf('%s/html%s', dirname(dirname(dirname(__FILE__))), $reg->getURL());
+    if (is_dir($dir)) {
+      $has_dir = true;
+      if (is_dir($dir . '/rotations'))   $has_rotation = true;
+      if (is_dir($dir . '/full-scores')) $has_fullscore = true;
+    }
+
+    // Based on the list of activities, determine what files need to
+    // be (re)serialized
+    $sync = false;
+    $sync_rp = false;
+
+    $rotation = false;
+    $front = false;
+    $full = false;
+    $rot = $reg->getRotation();
+    if (in_array(UpdateRequest::ACTIVITY_ROTATION, $activities)) {
+      $rotation = true;
+
+      // This check takes care of the fringe case when the rotation
+      // is created AFTER there are already scores, etc.
+      if (!$has_rotation) {
+        $front = true;
+        if ($reg->hasFinishes()) {
+          $full = true;
+        }
+      }
+    }
+    if (in_array(UpdateRequest::ACTIVITY_SCORE, $activities)) {
+      $sync = true;
+      $sync_rp = true; // re-rank sailors
+      $front = true;
+      $rotation = true;
+      if ($reg->hasFinishes()) {
+        $full = true;
+      }
+      else {
+        // It is possible that all finishes were removed, therefore,
+        // delete all such directories, and regenerate rotation page
+        $season = $reg->getSeason();
+        if ($season !== null && $reg->nick !== null) {
+          $root = $reg->getURL();
+          self::remove($root . 'full-scores/index.html');
+        }
+      }
+    }
+    if (in_array(UpdateRequest::ACTIVITY_RP, $activities)) {
+      $sync_rp = true;
+      $front = true;
+    }
+    if (in_array(UpdateRequest::ACTIVITY_SUMMARY, $activities)) {
+      $front = true;
+    }
+    if (in_array(UpdateRequest::ACTIVITY_DETAILS, $activities) ||
+        in_array(UpdateRequest::ACTIVITY_SEASON, $activities)) {
+      // do them all (except RP)!
+      $sync = true;
+      $front = true;
+      $rotation = true;
+      if ($reg->hasFinishes()) {
+        $full = true;
+      }
+    }
+    if (in_array(UpdateRequest::ACTIVITY_FINALIZED, $activities)) {
+      $sync = true; // status change
+      $sync_rp = true; // some races were removed
+      $front = true;
+      $full = true;
+    }
+
+    // ------------------------------------------------------------
+    // Perform the udpates
+    // ------------------------------------------------------------
+    if ($sync)       $reg->setData();
+    if ($sync_rp)    $reg->setRpData();
+
+    $D = $reg->getURL();
+    $M = new ReportMaker($reg);
+
+    if ($rotation)   $this->createRotation($D, $M);
+    if ($front)      $this->createFront($D, $M);
+    if ($full)       $this->createFull($D, $M);
   }
 
   // ------------------------------------------------------------

@@ -397,7 +397,7 @@ class DetailsPane extends AbstractPane {
       }
 
       if ($edited) {
-        $this->REGATTA->setData(); // implies regatta objectu pdate
+        $this->REGATTA->setData(); // implies regatta object update
         Session::pa(new PA("Edited regatta details."));
         UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DETAILS);
       }
