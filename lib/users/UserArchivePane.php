@@ -96,9 +96,12 @@ class UserArchivePane extends AbstractUserPane {
           $row[] = implode("/", $hosts);
         }
 
+        $scoring = ucfirst($reg->scoring);
+        if ($reg->isSinglehanded())
+          $scoring = "Singlehanded";
         $row[] = $reg->start_time->format("Y-m-d");
         $row[] = $reg->type;
-        $row[] = ucfirst($reg->scoring);
+        $row[] = $scoring;
         
         $finalized = '--';
         if ($reg->finalized !== null) {
