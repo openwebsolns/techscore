@@ -177,6 +177,7 @@ class ReportMaker {
     $this->rotPage->setDescription(sprintf("Sail rotations in all races for %s's %s.", $season->fullString(), $reg->name));
 
     if ($reg->scoring == Regatta::SCORING_TEAM) {
+      $this->rotPage->head->add(new XScript('text/javascript', '/inc/js/tr-rotation-select.js'));
       require_once('tscore/TeamRotationDialog.php');
       $maker = new TeamRotationDialog($reg);
       $this->rotPage->addSection($p = new XPort("All races"));

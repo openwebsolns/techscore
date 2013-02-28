@@ -41,7 +41,7 @@ class TeamRotationDialog extends AbstractScoresDialog {
     $rounds = $this->REGATTA->getRounds();
     $season = $this->REGATTA->getSeason();
 
-    $tab = new XTable(array('class'=>'teamscorelist'),
+    $tab = new XTable(array('class'=>'teamscorelist', 'id'=>'rotation-table'),
                       array(new XTHead(array(),
                                        array($head = new XTR(array(),
                                                              array(new XTH(array(), "#"),
