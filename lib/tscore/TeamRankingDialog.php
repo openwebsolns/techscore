@@ -77,7 +77,6 @@ class TeamRankingDialog extends AbstractScoresDialog {
 							   new XTH(array(), "School"),
 							   new XTH(array('class'=>'teamname'), "Team"),
 							   new XTH(array('title'=>"Winning record across all rounds"), "Rec."),
-							   new XTH(array('title'=>"Winning percentage"), "%"),
 							   new XTH(array('class'=>'sailor'), "Skippers"),
 							   new XTH(array('class'=>'sailor'), "Crews"))))),
 			    $b = new XTBody()));
@@ -111,8 +110,7 @@ class TeamRankingDialog extends AbstractScoresDialog {
 				   new XTD(array('rowspan'=>$rowspan), $mascot),
 				   new XTD(array('rowspan'=>$rowspan), $school),
 				   new XTD(array('class'=>'teamname', 'rowspan'=>$rowspan), new XStrong($rank->team->getQualifiedName())),
-				   new XTD(array('rowspan'=>$rowspan), $rank->getRecord()),
-				   new XTD(array('rowspan'=>$rowspan), sprintf('%0.1f', (100 * $rank->getWinPercentage()))))));
+				   new XTD(array('rowspan'=>$rowspan), $rank->getRecord()))));
       // Special case: no RP information
       if (count($skips) + count($crews) == 0) {
 	$row->add(new XTD());
