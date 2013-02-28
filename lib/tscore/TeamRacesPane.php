@@ -106,12 +106,40 @@ class TeamRacesPane extends AbstractPane {
     // $form->add($fi = new FItem("Meetings:", new XTextInput('meetings', 1)));
     // $fi->add(new XMessage("E.g., 1 for \"single\", 2 for \"double round-robin\""));
 
+    $this->PAGE->head->add(new XScript('text/javascript', null, '
+var TL = null;
+var TL_INPUTS = Array();
+function addTeamToRound(id) {
+  if (!TL) {
+    TL = document.getElementById("teams-list");
+    if (!TL)
+      return;
+    var inputs = TL.getElementsByTagName("input");
+    for (var i = 0; i &lt; inputs.length; i++) {
+      if (inputs[i].type == "text")
+        TL_INPUTS.push(inputs[i]);
+    }
+  }
+  var elem = document.getElementById(id);
+  if (!elem || elem.value != "")
+    return;
+  var max = 0;
+  for (var i = 0; i &lt; TL_INPUTS.length; i++) {
+    var num = Number(TL_INPUTS[i].value);
+    if (num > max)
+      max = num;
+  }
+  elem.value = (max + 1);
+}
+'));
+
     $form->add($ul = new XUl(array('id'=>'teams-list')));
     foreach ($this->REGATTA->getTeams() as $team) {
       $id = 'team-'.$team->id;
       $ul->add(new XLi(array(new XHiddenInput('team[]', $team->id),
                              new XTextInput('order[]', "", array('id'=>$id)),
-                             new XLabel($id, $team))));
+                             new XLabel($id, $team,
+                                        array('onclick'=>sprintf('addTeamToRound("%s");', $id))))));
     }
 
     $form->add(new XSubmitP('add-round', "Add round"));
