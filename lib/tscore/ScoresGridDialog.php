@@ -160,7 +160,7 @@ class ScoresGridDialog extends AbstractScoresDialog {
             $total2 = $this->sumPlaces($scores[$id2][$id][$race_num]);
 
             // Calculate display
-            $cont = $this->displayPlaces($places);
+            $cont = Finish::displayPlaces($places);
             if ($score_mode) {
               if (count($places) == 0)
                 $cont = new XA(WS::link($lroot, array('race' => $race_num), '#finish_form'), "Score");

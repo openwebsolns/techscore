@@ -257,6 +257,28 @@ class EnterFinishPane extends AbstractPane {
 
       // Reset
       $mes = sprintf("Finishes entered for race %s.", $race);
+      if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
+        // separate into team1 and team2 finishes
+        $team1 = array();
+        $team2 = array();
+        $divisions = $this->REGATTA->getDivisions();
+        foreach ($divisions as $division) {
+          $therace = $race;
+          if ($race->division != $division)
+            $therace = $this->REGATTA->getRace($division, $race->number);
+          foreach ($this->REGATTA->getFinishes($therace) as $finish) {
+            if ($finish->team == $race->tr_team1)
+              $team1[] = $finish;
+            else
+              $team2[] = $finish;
+          }
+        }
+        $mes = array(sprintf("Finishes entered for race %s: ", $race),
+                     new XStrong(sprintf("%s %s", $race->tr_team1, Finish::displayPlaces($team1))),
+                     " vs. ",
+                     new XStrong(sprintf("%s %s", Finish::displayPlaces($team2), $race->tr_team2)),
+                     ".");
+      }
       Session::pa(new PA($mes));
       $this->redirect('finishes');
     }

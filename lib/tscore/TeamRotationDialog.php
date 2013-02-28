@@ -109,8 +109,8 @@ class TeamRotationDialog extends AbstractScoresDialog {
               }
             }
           }
-          $r1->add($this->displayPlaces($places1));
-          $r2->add($this->displayPlaces($places2));
+          $r1->add(Finish::displayPlaces($places1));
+          $r2->add(Finish::displayPlaces($places2));
 
           if ($score1 < $score2) {
             $t1->set('class', 'tr-win team1');

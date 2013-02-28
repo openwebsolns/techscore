@@ -1705,6 +1705,35 @@ class Finish extends DBObject {
       return self::compareEntered($f1, $f2);
     return $f1->earned - $f2->earned;
   }
+
+  
+  /**
+   * Helper method for team racing regattas.
+   *
+   * Returns string representation of finishes, such as 1-2-5.
+   *
+   * @param Array:Finish $places the list of finishes.
+   */
+  public static function displayPlaces(Array $places = array()) {
+    usort($places, 'Finish::compareEarned');
+    $disp = "";
+    $pens = array();
+    foreach ($places as $i => $finish) {
+      if ($i > 0)
+	$disp .= "-";
+      $modifiers = $finish->getModifiers();
+      if (count($modifiers) > 0) {
+	$disp .= $finish->earned;
+        foreach ($modifiers as $modifier)
+          $pens[] = $modifier->type;
+      }
+      else
+	$disp .= $finish->score;
+    }
+    if (count($pens) > 0)
+      $disp .= " " . implode(",", $pens);
+    return $disp;
+  }
 }
 
 /**
