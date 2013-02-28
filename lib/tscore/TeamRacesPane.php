@@ -103,7 +103,7 @@ class TeamRacesPane extends AbstractPane {
     foreach ($boats as $boat)
       $boatOptions[$boat->id] = $boat->name;
     $form->add(new FItem("Boat:", XSelect::fromArray('boat', $boatOptions)));
-    $form->add($fi = new FItem("Meetings:", new XTextInput('meetings', 1)));
+    // $form->add($fi = new FItem("Meetings:", new XTextInput('meetings', 1)));
     $fi->add(new XMessage("E.g., 1 for \"single\", 2 for \"double round-robin\""));
 
     $form->add($ul = new XUl(array('id'=>'teams-list')));
@@ -367,7 +367,8 @@ class TeamRacesPane extends AbstractPane {
       $ids = $map['team'];
       array_multisort($ord, SORT_NUMERIC, $ids, SORT_STRING);
 
-      $meetings = DB::$V->reqInt($args, 'meetings', 1, 11, "Invalid meeting count. Must be between 1 and 10.");
+      // $meetings = DB::$V->reqInt($args, 'meetings', 1, 11, "Invalid meeting count. Must be between 1 and 10.");
+      $meetings = 1;
 
       $teams = array();
       foreach ($ids as $index => $id) {
