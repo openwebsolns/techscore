@@ -104,7 +104,7 @@ class TeamRacesPane extends AbstractPane {
       $boatOptions[$boat->id] = $boat->name;
     $form->add(new FItem("Boat:", XSelect::fromArray('boat', $boatOptions)));
     // $form->add($fi = new FItem("Meetings:", new XTextInput('meetings', 1)));
-    $fi->add(new XMessage("E.g., 1 for \"single\", 2 for \"double round-robin\""));
+    // $fi->add(new XMessage("E.g., 1 for \"single\", 2 for \"double round-robin\""));
 
     $form->add($ul = new XUl(array('id'=>'teams-list')));
     foreach ($this->REGATTA->getTeams() as $team) {
