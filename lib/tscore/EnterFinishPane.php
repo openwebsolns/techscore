@@ -44,6 +44,7 @@ class EnterFinishPane extends AbstractPane {
         $race = $races[0];
     }
     if ($race == null) {
+      Session::pa(new PA("All races have been scored."));
       $race = $this->REGATTA->getLastScoredRace();
     }
     if ($race == null) {
