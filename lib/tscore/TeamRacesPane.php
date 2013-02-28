@@ -237,6 +237,7 @@ class TeamRacesPane extends AbstractPane {
       foreach ($races as $r)
         DB::set($r, true);
 
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA("Edited the round order."));
     }
 
@@ -251,6 +252,7 @@ class TeamRacesPane extends AbstractPane {
       else {
         $round->title = $title;
         DB::set($round);
+        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
         Session::pa(new PA("Edited round data for $round."));
       }
     }
@@ -293,6 +295,7 @@ class TeamRacesPane extends AbstractPane {
           $race_num++;
         }
       }
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA("Removed round $round."));
     }
 
@@ -341,6 +344,7 @@ class TeamRacesPane extends AbstractPane {
 	  DB::set($newrace, false);
 	}
       }
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA(sprintf("Added new round %s with %d race(s).", $round, $num_added)));
       $this->redirect('races', array('r'=>$round->id));
     }
@@ -402,6 +406,7 @@ class TeamRacesPane extends AbstractPane {
         }
         $swap = !$swap;
       }
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA("Added $num_added new races in round $round."));
       $this->redirect('races', array('r'=>$round->id));
       return array();
@@ -471,8 +476,10 @@ class TeamRacesPane extends AbstractPane {
         
       if (count($to_save) == 0)
         Session::pa(new PA("No races were updated.", PA::I));
-      else
+      else {
         Session::pa(new PA(sprintf("Races updated for round %s.", $round)));
+        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
+      }
     }
     return array();
   }
