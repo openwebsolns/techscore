@@ -109,7 +109,11 @@ class UpdateFront extends AbstractScript {
     $now = new DateTime('tomorrow');
     $now->setTime(0, 0);
     DB::$PUBLIC_REGATTA->db_set_order(array('start_time'=>true));
-    $regs = DB::getAll(DB::$PUBLIC_REGATTA, new DBCond('start_time', $now, DBCond::GE));
+    $regs = array();
+    foreach (DB::getAll(DB::$PUBLIC_REGATTA, new DBCond('start_time', $now, DBCond::GE)) as $reg) {
+      if ($reg->dt_status !== null)
+        $regs[] = $reg;
+    }
     DB::$PUBLIC_REGATTA->db_set_order();
     if (count($regs) > 0) {
       $page->addSection($p = new XPort("Upcoming schedule"));
