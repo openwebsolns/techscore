@@ -51,8 +51,10 @@ class EnterTeamFinishPane extends EnterFinishPane {
         $races = $this->REGATTA->getUnscoredRaces();
         if (count($races) > 0)
           $race = $races[0];
-        else
+        else {
           $race = $this->REGATTA->getLastScoredRace();
+          Session::pa(new PA("All races have been scored."));
+        }
         $round = $race->round;
       }
     }
