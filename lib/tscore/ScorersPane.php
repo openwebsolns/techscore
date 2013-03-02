@@ -41,7 +41,7 @@ class ScorersPane extends AbstractPane {
       }
 
       // Fill row
-      $tab->addRow(array(new XA("mailto:" . $s->id, $s->getName()), $s->school->nick_name, $f2));
+      $tab->addRow(array(new XA("mailto:" . $s->id, $s->getName()), $s->school->name, $f2));
     }
     if (count($scorers) == 1) {
       $button->set("disabled", "disabled");
@@ -95,7 +95,7 @@ class ScorersPane extends AbstractPane {
           $tab->addRow(array(new XRadioInput('account', $user->id, array('id'=>$id)),
                              new XTD(array('class'=>'left'), new XLabel($id, $user->first_name)),
                              new XTD(array('class'=>'left'), new XLabel($id, $user->last_name)),
-                             new XLabel($id, $user->school->id)));
+                             new XTD(array('class'=>'left'), new XLabel($id, $user->school->name))));
         }
       }
       $s_form->add($l);
