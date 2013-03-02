@@ -309,6 +309,7 @@ class UpdateRegatta extends AbstractScript {
     $full = false;
     $rot = $reg->getRotation();
     if (in_array(UpdateRequest::ACTIVITY_ROTATION, $activities)) {
+      $sync = true;
       $rotation = true;
 
       // This check takes care of the fringe case when the rotation
