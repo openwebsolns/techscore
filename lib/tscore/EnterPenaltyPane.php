@@ -162,7 +162,7 @@ class EnterPenaltyPane extends AbstractPane {
       $races = array();
       foreach ($finishes as $theFinish) {
         if (!$this->canHaveModifier($theFinish, $thePen)) {
-          Session::pa(sprintf("Ignored finish modified for team %s.", $theFinish->team), PA::I);
+          Session::pa(new PA(sprintf("Ignored finish modifier for team %s.", $theFinish->team), PA::I));
           continue;
         }
         $races[$theFinish->race->id] = $theFinish->race;
