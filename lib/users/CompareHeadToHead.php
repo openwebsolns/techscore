@@ -29,10 +29,11 @@ class CompareHeadToHead extends AbstractUserPane {
    * either the given list of seasons, or the given list of regatta IDs
    *
    * @param Sailor $sailor the sailor whose RPs to fetch
+   * @param String|null $role specify non-null to limit to skipper/crew
    * @param Array $regs the regatta IDs (or empty)
    * @param Array $seasons the seasons array
    */
-  private function getRPs(Sailor $sailor, Array $regs = array(), Array $seasons = array()) {
+  private function getRPs(Sailor $sailor, $role, Array $regs = array(), Array $seasons = array()) {
     if (count($seasons) == 0) {
       if (count($regs) == 0)
         throw new InvalidArgumentException("Either the list of regattas or the list of seasons must be provided.");
@@ -44,8 +45,10 @@ class CompareHeadToHead extends AbstractUserPane {
     }
     $team_cond = DB::prepGetAll(DB::$TEAM, new DBCondIn('regatta', $regs), array('id'));
     $dteam_cond = DB::prepGetAll(DB::$DT_TEAM_DIVISION, new DBCondIn('team', $team_cond), array('id'));
-    return DB::getAll(DB::$DT_RP, new DBBool(array(new DBCond('sailor', $sailor->id),
-                                                   new DBCondIn('team_division', $dteam_cond))));
+    $rp_cond = new DBBool(array(new DBCond('sailor', $sailor->id), new DBCondIn('team_division', $dteam_cond)));
+    if ($role !== null)
+      $rp_cond->add(new DBCond('boat_role', $role));
+    return DB::getAll(DB::$DT_RP, $rp_cond);
   }
 
   public function fillHTML(Array $args) {
@@ -90,6 +93,9 @@ class CompareHeadToHead extends AbstractUserPane {
         }
       }
     }
+
+    // specific role?
+    $role = DB::$V->incKey($args, 'boat_role', array(RP::SKIPPER => "Skipper only", RP::CREW => "Crew only"));
 
     $this->PAGE->head->add(new XLinkCSS('text/css', '/inc/css/aa.css', 'screen', 'stylesheet'));
     $this->PAGE->addContent(new XP(array(), "Use this form to compare sailors head-to-head, showing the regattas that the sailors have sailed in common, and printing their place finish for each."));
@@ -141,7 +147,7 @@ class CompareHeadToHead extends AbstractUserPane {
           $the_seasons = array();
         }
 
-        $the_rps = $this->getRPs($sailor, $regs, $the_seasons);
+        $the_rps = $this->getRPs($sailor, $role, $regs, $the_seasons);
 
         $my_table = array();
         foreach ($the_rps as $rp) {
@@ -163,6 +169,8 @@ class CompareHeadToHead extends AbstractUserPane {
             $rank .= $key;
           if (count($rp->race_nums) != $rp->team_division->team->regatta->dt_num_races)
             $rank .= sprintf(' (%s)', DB::makeRange($rp->race_nums));
+          if ($role === null)
+            $rank .= " " . ucwords(substr($rp->boat_role, 0, 4));
           $table[$reg][$key][$rp->sailor->id] = $rank;
           $my_table[$reg][$key] = $rank;
         }
@@ -192,9 +200,14 @@ class CompareHeadToHead extends AbstractUserPane {
       }
 
       // are there any regattas in common?
-      $form->add($p = new XPort("Compare sailors head-to-head"));
+      $title = "Compare sailors head-to-head";
+      if ($role !== null)
+        $title .= " as " . $role;
+      $form->add($p = new XPort($title));
       if (count($table) == 0) {
-        $p->add(new XP(array(), sprintf("The sailors provided (%s) have not sailed head to head in any division in any of the regattas in the seasons specified.", implode(", ", $sailors))));
+        $p->add(new XP(array(), sprintf("The sailors provided (%s) have not sailed head to head %s in any division in any of the regattas in the seasons specified.",
+                                        implode(", ", $sailors),
+                                        ($role === null) ? "" : ("as  " . $role))));
       }
       else {
         $row = array("Regatta", "Season");
@@ -265,12 +278,19 @@ class CompareHeadToHead extends AbstractUserPane {
       if (!$fullreq)
         $chk->set('checked', 'checked');
 
-    $p->add(new XP(array(), "Head to head compares sailors that race against each other, that is: in the same division in the same regatta. To compare the sailors' records within the regatta regardless of division, check the box below. Note that this choice is only applicable if using full-records."));
+      $p->add(new XP(array(), "Head to head compares sailors that race against each other, that is: in the same division in the same regatta. To compare the sailors' records within the regatta regardless of division, check the box below. Note that this choice is only applicable if using full-records."));
 
-    $p->add(new FItem($chk = new XCheckboxInput('grouped', 1, array('id' => 'f-grp')),
-                      new XLabel('f-grp', "Group separate divisions in the same regatta in one row, instead of separately.")));
-    if ($grouped)
-      $chk->set('checked', 'checked');
+      $p->add(new FItem($chk = new XCheckboxInput('grouped', 1, array('id' => 'f-grp')),
+                        new XLabel('f-grp', "Group separate divisions in the same regatta in one row, instead of separately.")));
+      if ($grouped)
+        $chk->set('checked', 'checked');
+
+      $p->add(new XP(array(), "You may limit inclusion in the report to a specific boat role (skipper or crew). The default, \"Both roles\" will include the sailor's role next to their score."));
+      $p->add(new FItem("Sailing as:", XSelect::fromArray('boat_role',
+                                                          array("" => "Both roles",
+                                                                RP::SKIPPER => "Skipper only",
+                                                                RP::CREW => "Crew only"),
+                                                          $role)));
     }
 
     $form->add(new XSubmitP('set-sailors', "Fetch records"));
