@@ -73,6 +73,7 @@ class UpdateSchool extends AbstractScript {
     $total = count($regs);
     $current = array(); // regattas happening NOW
     $past = array();    // past regattas from the current season
+    $coming = array();  // upcoming schedule
 
     $skippers = array(); // associative array of sailor id => num times participating
     $skip_objs = array();
@@ -117,6 +118,8 @@ class UpdateSchool extends AbstractScript {
       if ($reg->end_date < $today) {
         $past[] = $reg;
       }
+      if ($reg->start_time >= $tomorrow)
+        $coming[] = $reg;
     }
     $avg = "Not applicable";
     if ($avg_total > 0)
@@ -185,6 +188,23 @@ class UpdateSchool extends AbstractScript {
                            $status,
                            $this->getPlaces($reg, $school)),
                      array('class' => 'row' . ($row % 2)));
+      }
+    }
+    // ------------------------------------------------------------
+    // SCHOOL coming soon: ONLY if there is no current ones
+    elseif (count($coming) > 0) {
+      usort($coming, 'Regatta::cmpTypes');
+      $page->addSection($p = new XPort("Coming soon"));
+      $p->add($tab = new XQuickTable(array('class'=>'coming-regattas'),
+                                     array("Name",
+                                           "Host",
+                                           "Type",
+                                           "Start time")));
+      foreach ($coming as $reg) {
+        $tab->addRow(array(new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name),
+                           implode("/", $reg->dt_hosts),
+                           $reg->type,
+                           $reg->start_time->format('m/d/Y @ H:i')));
       }
     }
 
