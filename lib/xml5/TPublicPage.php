@@ -52,6 +52,11 @@ class TPublicPage extends XPage {
   private $keywords;
 
   /**
+   * @var XDiv the body div where the specific content is populated
+   */
+  private $page_content;
+
+  /**
    * Creates a new public page with the given title
    *
    * @param String $title the title of the page
@@ -134,9 +139,10 @@ class TPublicPage extends XPage {
     $this->body->add($sep);
 
     // Page content
-    $this->body->add($div = new XDiv(array('id'=>'page-content')));
+    $this->page_content = new XDiv(array('id'=>'page-content'));
+    $this->body->add($this->page_content);
     if ($this->header_title !== null) {
-      $div->add($sub = new XDiv(array('id'=>'content-header'), array($h1 = new XH1(""))));
+      $this->page_content->add($sub = new XDiv(array('id'=>'content-header'), array($h1 = new XH1(""))));
       $h1->add(new XSpan("", array('id'=>'left-fill')));
       $h1->add(new XSpan($this->header_title));
       $h1->add(new XSpan("", array('id'=>'right-fill')));
@@ -150,7 +156,7 @@ class TPublicPage extends XPage {
 
     // Sections
     foreach ($this->content as $sub)
-      $div->add($sub);
+      $this->page_content->add($sub);
 
     $this->body->add($sep);
 
@@ -244,6 +250,15 @@ class TPublicPage extends XPage {
   public function printXML() {
     $this->fill();
     parent::printXML();
+  }
+
+  /**
+   * Get the "body" of the page
+   *
+   */
+  public function getPageContent() {
+    $this->fill();
+    return $this->page_content;
   }
 
   /**

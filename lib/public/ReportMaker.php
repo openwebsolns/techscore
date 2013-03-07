@@ -7,6 +7,8 @@
  * @package scripts
  */
 
+require_once('xml5/TPublicPage.php');
+
 /**
  * Creates the report page for the given regatta, which will be used
  * in the public facing side
