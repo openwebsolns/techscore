@@ -11,13 +11,13 @@ window.onload = function() {
     var totalcells = 0;
     for (var r = 0; r < rows.length; r++) {
 	var row = rows[r];
-	if (row.getAttribute('class') == 'sortable') {
+	if (row.classList.contains('sortable')) {
 	    ROWS.push(row);
 	    var cells = row.getElementsByTagName('td');
             totalcells = cells.length;
 	    for (var c = 0; c < cells.length; c++) {
 		var cell = cells[c];
-		if (cell.getAttribute('class') == 'drag') {
+		if (cell.classList.contains('drag')) {
 		    cell.style.cursor = 'n-resize';
 		    cell.onmousedown = function(evt) {
 			var target = getTargetRow(evt);
@@ -47,7 +47,7 @@ window.onload = function() {
 	// hide the first cell altogether
 	row.childNodes[0].style.display = "none";
     }
-    if (cells.length < 4 || table.classList.contains("narrow")) {
+    if (totalcells < 4 || table.classList.contains("narrow")) {
         var span = document.createElement('span');
         table.parentNode.insertBefore(span, table.nextSibling);
         span.setAttribute('class', 'message');
