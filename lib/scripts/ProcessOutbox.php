@@ -40,8 +40,6 @@ class ProcessOutbox extends AbstractScript {
               $sent_to_me = true;
           }
         }
-        self::errln(sprintf("Successfully sent message from %s to all recipients queued at %s.",
-                          $outbox->sender, $outbox->queue_time->format('Y-m-d H:i:s')));
       }
       // conference
       if ($outbox->recipients == Outbox::R_CONF) {
@@ -55,8 +53,6 @@ class ProcessOutbox extends AbstractScript {
               $sent_to_me = true;
           }
         }
-        self::errln(sprintf("Successfully sent message from %s to %s queued at %s.",
-                          $outbox->sender, $outbox->arguments, $outbox->queue_time->format('Y-m-d H:i:s')));
       }
       // role
       if ($outbox->recipients == Outbox::R_ROLE) {
@@ -67,8 +63,17 @@ class ProcessOutbox extends AbstractScript {
               $sent_to_me = true;
           }
         }
-        self::errln(sprintf("Successfully sent message from %s to %s queued at %s.",
-                          $outbox->sender, $outbox->arguments, $outbox->queue_time->format('Y-m-d H:i:s')));
+      }
+      // user
+      if ($outbox->recipients == Outbox::R_USER) {
+        foreach ($outbox->arguments as $user) {
+          $acc = DB::getAccount($user);
+          if ($acc !== null) {
+            $this->send($acc, $outbox->subject, $outbox->content);
+            if ($acc->id == $outbox->sender->id)
+              $sent_to_me = true;
+          }
+        }
       }
 
       // send me a copy?
@@ -84,6 +89,7 @@ class ProcessOutbox extends AbstractScript {
 
   private function send(Account $to, $subject, $content) {
     DB::queueMessage($to, $this->keywordReplace($to, $subject), $this->keywordReplace($to, $content), true);
+    self::errln(sprintf("Sent message to %s.", $to), 2);
     $this->sent++;
   }
   private function keywordReplace(Account $to, $mes) {

@@ -95,9 +95,14 @@ class SendMessage extends AbstractAdminUserPane {
     $p->add($f = $this->createForm(XForm::GET));
     $f->add($fi = new FItem("All users with role:", $sel = XSelect::fromArray('list[]', Account::getRoles())));
     $fi->add(" ");
-    $fi->add(new XSubmitInput('choose-recipients', "Write message >"));
+    $fi->add(new XSubmitInput('recipients', "Write message >"));
     $fi->add(new XHiddenInput('axis', Outbox::R_ROLE));
     $sel->set('size', 3);
+
+    $p->add($f = $this->createForm(XForm::GET));
+    $f->add($fi = new FItem("Specific user:", new XTextInput('list[]', "", array('required'=>'required'))));
+    $fi->add(new XSubmitInput('recipients', "Write message >"));
+    $fi->add(new XHiddenInput('axis', Outbox::R_USER));
   }
 
   /**
@@ -130,19 +135,24 @@ class SendMessage extends AbstractAdminUserPane {
 
       // roles
     case Outbox::R_ROLE:
-      $title = "2. Send message ro users with role(s)";
+      $title = "2. Send message to users with role(s)";
       $recip = implode(", ", $out->arguments);
       break;
+
+      // specific user
+    case Outbox::R_USER:
+      $title = "2. Send message to specific user";
+      $recip = implode(", ", $out->arguments);
     }
 
     $this->PAGE->addContent($p = new XPort($title));
     $p->add($f = $this->createForm());
 
     $f->add(new FItem("Recipients:", new XSpan($recip, array('class'=>'strong'))));
-    $f->add($fi = new FItem("Subject:", new XTextInput('subject', $out->subject)));
+    $f->add($fi = new FItem("Subject:", new XTextInput('subject', $out->subject, array('required'=>'required', 'maxlength'=>100))));
     $fi->add(new XMessage("Less than 100 characters"));
 
-    $f->add(new FItem("Message body:", new XTextArea('content', $out->content, array('rows'=>16, 'cols'=>75))));
+    $f->add(new FItem("Message body:", new XTextArea('content', $out->content, array('rows'=>16, 'cols'=>75, 'required'=>'required'))));
     $f->add($fi = new FItem("Copy me:", new XCheckboxInput('copy-me', 1, array('id'=>'copy-me'))));
     $fi->add(new XLabel('copy-me', "Send me a copy of message, whether or not I would otherwise receive one."));
     $f->add($para = new XP(array('class'=>'p-submit'), array(new XHiddenInput('axis', $out->recipients))));
@@ -190,6 +200,7 @@ class SendMessage extends AbstractAdminUserPane {
       throw new SoterException("Missing content for message, or possibly too long.");
     if ($res->recipients == Outbox::R_ALL)
       return $res;
+
     // require appropriate list
     $list = array();
     $roles = Account::getRoles();
