@@ -3,6 +3,7 @@
 // November 6, 2008
 // Updated 2009-03-20
 var allowed;
+var ENFORCE_DIV_SWITCH = true;
 
 // Daddy function
 function check() {
@@ -16,13 +17,13 @@ function check() {
 	if (elems[i].name.substring(0,2) == "sk" ||
 	    elems[i].name.substring(0,2) == "cr" ) {
 
-	    // Get associated textbox
-	    var t_elems = document.getElementsByName("r" + elems[i].name);
-	    var t       = t_elems[0];
+	        // Get associated textbox
+	        var t_elems = document.getElementsByName("r" + elems[i].name);
+	        var t       = t_elems[0];
 
-	    skcrs.push(elems[i]);
-	    skcrv.push(t);
-	}
+	        skcrs.push(elems[i]);
+	        skcrv.push(t);
+	    }
     }
 
     // Get list of permissible races and divisions
@@ -147,86 +148,89 @@ function check() {
 		     skcrs[s2].value != "" &&
 		     val_s2.length > 0 ) {
 
-		    // Races in common
-		    var com = arrayCommon(val_s, val_s2);
+		         // Races in common
+		         var com = arrayCommon(val_s, val_s2);
 
-		    // **** 1 **** Check for duplicate races within same
-		    // division and role, but only for skippers
-		    if ( typ_s2 == typ_s &&
-			 typ_s2 == "sk"  &&
-			 div_s2 == div_s   &&
-			 com.length > 0 ) {
-			// Repeats, report errors
-			getCheckTD(skcrs[s]).innerHTML = '<img alt="Error" title="Multiple sailors for same race" src="/inc/img/e.png"/><strong>' + makeRange(com) + '</strong>';
-			// Stop checking any more for this sailor
-			errors = true;
-			break;
-		    }
+		         // **** 1 **** Check for duplicate races within same
+		         // division and role, but only for skippers
+		         if ( typ_s2 == typ_s &&
+			      typ_s2 == "sk"  &&
+			      div_s2 == div_s   &&
+			      com.length > 0 ) {
+			          // Repeats, report errors
+			          getCheckTD(skcrs[s]).innerHTML = '<img alt="Error" title="Multiple sailors for same race" src="/inc/img/e.png"/><strong>' + makeRange(com) + '</strong>';
+			          // Stop checking any more for this sailor
+			          errors = true;
+			          break;
+		              }
 
-		    // 2009-09-28: Removed this check
-		    /*
-		    // **** 2 **** Check for multipresence in different divisions and positions
-		    if ( skcrs[s].value == skcrs[s2].value &&
-			 (typ_s2 != typ_s || div_s2 != div_s) &&
-			 com.length > 0 ) {
-			// Alert problem
-			checkTD.innerHTML = '<img alt="Error" title="Only God is omnipresent" src="/inc/img/e.png"/>';
-			checkTD.innerHTML+= '<span><strong> ' + makeRange(com) + ' in ' + div_s2 + '</strong></span>';
-			errors = true;
-			break;
-		    }
-		    */
+		         // 2009-09-28: Removed this check
+		         /*
+		          // **** 2 **** Check for multipresence in different divisions and positions
+		          if ( skcrs[s].value == skcrs[s2].value &&
+			  (typ_s2 != typ_s || div_s2 != div_s) &&
+			  com.length > 0 ) {
+			  // Alert problem
+			  checkTD.innerHTML = '<img alt="Error" title="Only God is omnipresent" src="/inc/img/e.png"/>';
+			  checkTD.innerHTML+= '<span><strong> ' + makeRange(com) + ' in ' + div_s2 + '</strong></span>';
+			  errors = true;
+			  break;
+		          }
+		          */
 
-		    // **** 3 **** RULE 1: Skipper in one division cannot sail in any other division
-		    if ( typ_s == "sk" &&
-			 div_s != div_s2 &&
-			 skcrs[s].value == skcrs[s2].value ) {
-			// Warn of problem
-			checkTD.innerHTML += '<img alt="Warning" title="Skippers cannot switch division" src="/inc/img/i.png"/>';
-			warnings = true;
-		    }
+		         // **** 3 **** RULE 1: Skipper in one division cannot sail in any other division
+		         if ( typ_s == "sk" &&
+                              ENFORCE_DIV_SWITCH &&
+			      div_s != div_s2 &&
+			      skcrs[s].value == skcrs[s2].value ) {
+			          // Warn of problem
+			          checkTD.innerHTML += '<img alt="Warning" title="Skippers cannot switch division" src="/inc/img/i.png"/>';
+			          warnings = true;
+		              }
 
-		    // **** 4 **** RULE 2: Crews can only switch division once
-		    if ( typ_s == "cr" &&
-			 div_s != div_s2 &&
-			 skcrs[s].value == skcrs[s2].value ) {
-			// Let's make sure they're not switching back and forth
-			val_all = val_s.concat(val_s2);
-			val_all.sort(function(a,b){return a-b});
+		         // **** 4 **** RULE 2: Crews can only switch division once
+		         if ( typ_s == "cr" &&
+                              ENFORCE_DIV_SWITCH &&
+			      div_s != div_s2 &&
+			      skcrs[s].value == skcrs[s2].value ) {
+			          // Let's make sure they're not switching back and forth
+			          val_all = val_s.concat(val_s2);
+			          val_all.sort(function(a,b){return a-b});
 
-			// DEBUG.innerHTML += "<h5>ready to begin switch checking" + val_all + "</h5>";
-			
-			// For each race in val_all, check in which array it is located
-			// If it switches arrays more than once, then rule is broken
-			var switches = 0;
-			var last;
-			var curr;
-			while ( switches <= 2 && val_all.length > 0 ) {
-			    var r = val_all.shift();
-			    // DEBUG.innerHTML += "<h5>r: " + r + "</h5>";
-			    // DEBUG.innerHTML += "<p>com: " + arrayCommon(new Array(r), val_s) + "</p>";
-			    var r_array = new Array();
-			    r_array[0]  = r;
-			    if ( arrayCommon(r_array, val_s).length > 0 ) {
-				// It is in s array
-				curr = val_s;
-			    }
-			    else {
-				curr = val_s2;
-			    }
-			    // Compare where it is now, to where it once was
-			    if ( curr != last ) {
-				switches++;
-				last = curr;
-			    }
-			}
-			if ( switches > 2 ) {
-			    // Too many switches, warn
-			    checkTD.innerHTML += '<img alt="Warning" title="Crews can switch divisions only once" src="/inc/img/i.png"/>';
-			    warnings = true;
-			}
-		    }
-		} // endif for checking oneself
+			          // DEBUG.innerHTML += "<h5>ready to begin switch checking" + val_all + "</h5>";
+			          
+			          // For each race in val_all, check in which array it is located
+			          // If it switches arrays more than once, then rule is broken
+                                  
+			          var switches = 0;
+			          var last;
+			          var curr;
+			          while ( switches <= 2 && val_all.length > 0 ) {
+			              var r = val_all.shift();
+			              // DEBUG.innerHTML += "<h5>r: " + r + "</h5>";
+			              // DEBUG.innerHTML += "<p>com: " + arrayCommon(new Array(r), val_s) + "</p>";
+			              var r_array = new Array();
+			              r_array[0]  = r;
+			              if ( arrayCommon(r_array, val_s).length > 0 ) {
+				          // It is in s array
+				          curr = val_s;
+			              }
+			              else {
+				          curr = val_s2;
+			              }
+			              // Compare where it is now, to where it once was
+			              if ( curr != last ) {
+				          switches++;
+				          last = curr;
+			              }
+			          }
+			          if ( switches > 2 ) {
+			              // Too many switches, warn
+			              checkTD.innerHTML += '<img alt="Warning" title="Crews can switch divisions only once" src="/inc/img/i.png"/>';
+			              warnings = true;
+			          }
+		              }
+		     } // endif for checking oneself
 	    }// end loop
 
 	    // If, after all this, there are no errors, or warnings, type check!
