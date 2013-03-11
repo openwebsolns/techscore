@@ -80,16 +80,75 @@ class ICSATeamRanker extends ICSARanker {
       if (!isset($records[$team->id]))
 	$records[$team->id] = new TeamRank($team);
     }
-    usort($records, array($this, 'compare'));
-    return $records;
+    return $this->order(array_values($records));
+  }
+
+  /**
+   * Merge-sort implementation
+   */
+  private function order(Array $teams, $lower = 0, $upper = null) {
+    if ($upper === null)
+      $upper = count($teams);
+    if (($upper - $lower) < 2)
+      return array($teams[$lower]);
+    $mid = floor(($upper + $lower) / 2);
+
+    $left = $this->order($teams, $lower, $mid);
+    $right = $this->order($teams, $mid, $upper);
+
+    $union = array();
+    $l = 0; $r = 0;
+
+    $nextRank = null;
+    $prevRank = null;
+    while ($l < count($left) && $r < count($right)) {
+      $res = $this->compare($left[$l], $right[$r]);
+      if ($res < 0) {
+	$nextRank = $left[$l];
+	$l++;
+      }
+      elseif ($res > 0) {
+	$nextRank = $right[$r];
+	$r++;
+      }
+      else {
+	$res = strcmp((string)$left[$l]->team, (string)$right[$r]->team);
+	if ($res <= 0) {
+	  $nextRank = $left[$l];
+	  $l++;
+	}
+	else {
+	  $nextRank = $right[$r];
+	  $r++;
+	}
+      }
+      if ($prevRank == null || $this->compare($prevRank, $nextRank) != 0)
+	$nextRank->rank = count($union) + 1;
+      else
+	$nextRank->rank = $prevRank->rank;
+
+      $union[] = $nextRank;
+      $prevRank = $nextRank;
+    }
+    // add the remainder of each list
+    while ($l < count($left)) {
+      $union[] = $left[$l];
+      $left[$l]->rank = count($union);
+      $l++;
+    }
+    while ($r < count($right)) {
+      $union[] = $right[$r];
+      $right[$r]->rank = count($union);
+      $r++;
+    }
+    return $union;
   }
 
   /**
    * Compares first record with second.
    *
    * Comparison is done first by win percentage, then by total number
-   * of wins, then by fewest number of losses. Finally, teams are
-   * ranked "alphabetically".
+   * of wins, then by fewest number of losses.
    *
    * @param TeamRank $a the first team
    * @param TeamRank $b the second team
@@ -109,9 +168,7 @@ class ICSATeamRanker extends ICSARanker {
     if ($perA == $perB) {
       if ($a->wins == $b->wins) {
 	if ($a->losses == $b->losses) {
-	  $a->explanation = "Alphabetical";
-	  $b->explanation = "Alphabetical";
-	  return strcmp((string)$a->team, (string)$b->team);
+	  return 0;
 	}
 	return $a->losses - $b->losses;
       }
