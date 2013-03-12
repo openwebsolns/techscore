@@ -75,7 +75,7 @@ class IcsaRpFormSingles extends AbstractIcsaRpForm {
         // :A
         foreach ($block->skipper_A as $i => $s) {
           $year = substr($s->sailor->year, 2);
-          $pc->add(sprintf($fmt, 1.35, $y, $s->sailor));
+          $pc->add(sprintf($fmt, 1.35, $y, $s->sailor->getName()));
           $pc->add(sprintf($fmt, 5.68, $y, $year));
         }
 

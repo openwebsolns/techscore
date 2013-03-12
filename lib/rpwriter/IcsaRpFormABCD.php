@@ -75,7 +75,7 @@ class IcsaRpFormABCD extends AbstractIcsaRpForm {
             $y = $Y - (0.3 * $i);
             $year = substr($s->sailor->year, 2);
             $races = DB::makeRange($s->races_nums);
-            $pc->add(sprintf($fmt, $x,        $y, $s->sailor));
+            $pc->add(sprintf($fmt, $x,        $y, $s->sailor->getName()));
             $pc->add(sprintf($fmt, $x + 1.9,  $y, $year));
             $pc->add(sprintf($fmt, $x + 2.33, $y, $races));
           }
@@ -90,7 +90,7 @@ class IcsaRpFormABCD extends AbstractIcsaRpForm {
             $y = $Y - (0.3 * $i);
             $year = substr($s->sailor->year, 2);
             $races = DB::makeRange($s->races_nums);
-            $pc->add(sprintf($fmt, $x,        $y, $s->sailor));
+            $pc->add(sprintf($fmt, $x,        $y, $s->sailor->getName()));
             $pc->add(sprintf($fmt, $x + 1.9,  $y, $year));
             $pc->add(sprintf($fmt, $x + 2.33, $y, $races));
           }
@@ -104,7 +104,7 @@ class IcsaRpFormABCD extends AbstractIcsaRpForm {
           $y = $Y - (0.3 * $i);
           $year = substr($s->sailor->year, 2);
           $races = DB::makeRange($s->races_nums);
-          $pc->add(sprintf($fmt, $x,        $y, $s->sailor));
+          $pc->add(sprintf($fmt, $x,        $y, $s->sailor->getName()));
           $pc->add(sprintf($fmt, $x + 1.9,  $y, $year));
           $pc->add(sprintf($fmt, $x + 2.33, $y, $races));
         }
@@ -117,7 +117,7 @@ class IcsaRpFormABCD extends AbstractIcsaRpForm {
           $y = $Y - (0.3 * $i);
           $year = substr($s->sailor->year, 2);
           $races = DB::makeRange($s->races_nums);
-          $pc->add(sprintf($fmt, $x,        $y, $s->sailor));
+          $pc->add(sprintf($fmt, $x,        $y, $s->sailor->getName()));
           $pc->add(sprintf($fmt, $x + 1.9,  $y, $year));
           $pc->add(sprintf($fmt, $x + 2.33, $y, $races));
         }
