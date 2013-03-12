@@ -28,19 +28,36 @@ class TeamRankingDialog extends AbstractScoresDialog {
    *
    */
   public function getSummaryTable($link_schools = false) {
-    $tab = new XTable(array('class'=>'teamranking results'),
-		      array(new XTHead(array(),
-				       array(new XTR(array(),
-						     array(new XTH(array(), "#"),
-							   new XTH(array('title'=>'School mascot')),
-							   new XTH(array(), "School"),
-							   new XTH(array('class'=>'teamname'), "Team"),
-							   new XTH(array('title'=>"Winning record across all rounds"), "Rec."),
-							   new XTH(array('title'=>"Winning percentage"), "%"))))),
-			    $b = new XTBody()));
+    $ELEMS = array(new XTable(array('class'=>'teamranking results'),
+			      array(new XTHead(array(),
+					       array(new XTR(array(),
+							     array(new XTH(),
+								   new XTH(array(), "#"),
+								   new XTH(array('title'=>'School mascot')),
+								   new XTH(array(), "School"),
+								   new XTH(array('class'=>'teamname'), "Team"),
+								   new XTH(array('title'=>"Winning record across all rounds"), "Rec."),
+								   new XTH(array('title'=>"Winning percentage"), "%"))))),
+				    $b = new XTBody())));
 
+    $explanations = array("" => "");
     $season = $this->REGATTA->getSeason();
     foreach ($this->REGATTA->getRankedTeams() as $rowIndex => $team) {
+      // Explanation
+      if (!empty($team->dt_explanation) && !isset($explanations[$team->dt_explanation])) {
+	$count = count($explanations);
+	switch ($count) {
+	case 1:
+	  $explanations[$team->dt_explanation] = "*";
+	  break;
+	case 2:
+	  $explanations[$team->dt_explanation] = "**";
+	  break;
+	default:
+	  $explanations[$team->dt_explanation] = chr(95 + $count);
+	}
+      }
+
       $mascot = "";
       if ($team->school->burgee !== null) {
 	$url = sprintf('/inc/img/schools/%s.png', $team->school->id);
@@ -51,7 +68,8 @@ class TeamRankingDialog extends AbstractScoresDialog {
 	$school = new XA(sprintf('/schools/%s/%s/', $team->school->id, $season), $school);
 
       $b->add($row = new XTR(array('class'=>'topborder row' . ($rowIndex % 2)),
-			     array(new XTD(array('title'=>$team->dt_explanation), $team->dt_rank),
+			     array(new XTD(array('class'=>'tiebreaker', 'title'=>$team->dt_explanation), $explanations[$team->dt_explanation]),
+				   new XTD(array(), $team->dt_rank),
 				   new XTD(array(), $mascot),
 				   new XTD(array(), $school),
 				   new XTD(array('class'=>'teamname'), new XStrong($team->getQualifiedName())),
@@ -59,7 +77,10 @@ class TeamRankingDialog extends AbstractScoresDialog {
 				   new XTD(array(), sprintf('%0.1f', (100 * $team->getWinPercentage()))))));
     }
 
-    return array($tab);
+    // Print legend, if necessary
+    if (count($explanations) > 1)
+      $ELEMS[] = $this->getLegend($explanations);
+    return $ELEMS;
   }
 
   /**
@@ -69,22 +90,39 @@ class TeamRankingDialog extends AbstractScoresDialog {
    * @return Array the table element(s)
    */
   public function getTable($link_schools = false) {
-    $tab = new XTable(array('class'=>'teamranking results'),
-		      array(new XTHead(array(),
-				       array(new XTR(array(),
-						     array(new XTH(array(), "#"),
-							   new XTH(array('title'=>'School mascot')),
-							   new XTH(array(), "School"),
-							   new XTH(array('class'=>'teamname'), "Team"),
-							   new XTH(array('title'=>"Winning record across all rounds"), "Rec."),
-							   new XTH(array('class'=>'sailor'), "Skippers"),
-							   new XTH(array('class'=>'sailor'), "Crews"))))),
-			    $b = new XTBody()));
+    $ELEMS = array(new XTable(array('class'=>'teamranking results'),
+			      array(new XTHead(array(),
+					       array(new XTR(array(),
+							     array(new XTH(array('class'=>'tiebreaker')),
+								   new XTH(array(), "#"),
+								   new XTH(array('title'=>'School mascot')),
+								   new XTH(array(), "School"),
+								   new XTH(array('class'=>'teamname'), "Team"),
+								   new XTH(array('title'=>"Winning record across all rounds"), "Rec."),
+								   new XTH(array('class'=>'sailor'), "Skippers"),
+								   new XTH(array('class'=>'sailor'), "Crews"))))),
+				    $b = new XTBody())));
     $divs = $this->REGATTA->getDivisions();
 
+    $explanations = array("" => "");
     $season = $this->REGATTA->getSeason();
     $rpm = $this->REGATTA->getRpManager();
     foreach ($this->REGATTA->getRankedTeams() as $rowIndex => $team) {
+      // Explanation
+      if (!empty($team->dt_explanation) && !isset($explanations[$team->dt_explanation])) {
+	$count = count($explanations);
+	switch ($count) {
+	case 1:
+	  $explanations[$team->dt_explanation] = "*";
+	  break;
+	case 2:
+	  $explanations[$team->dt_explanation] = "**";
+	  break;
+	default:
+	  $explanations[$team->dt_explanation] = chr(95 + $count);
+	}
+      }
+
       $skips = array();
       $crews = array();
       foreach ($divs as $div) {
@@ -106,7 +144,8 @@ class TeamRankingDialog extends AbstractScoresDialog {
       $rowspan = max(1, count($skips), count($crews));
       $rowindex = 'row' . ($rowIndex % 2);
       $b->add($row = new XTR(array('class'=>'topborder ' . $rowindex),
-			     array(new XTD(array('rowspan'=>$rowspan, 'title'=>$team->dt_explanation), $team->dt_rank),
+			     array(new XTD(array('rowspan'=>$rowspan, 'title'=>$team->dt_explanation, 'class'=>'tiebreaker'), $explanations[$team->dt_explanation]),
+				   new XTD(array('rowspan'=>$rowspan), $team->dt_rank),
 				   new XTD(array('rowspan'=>$rowspan), $mascot),
 				   new XTD(array('rowspan'=>$rowspan), $school),
 				   new XTD(array('class'=>'teamname', 'rowspan'=>$rowspan), new XStrong($team->getQualifiedName())),
@@ -121,26 +160,28 @@ class TeamRankingDialog extends AbstractScoresDialog {
       // Add RP information
       $rprows = array($row);
       for ($i = 0; $i < $rowspan - 1; $i++) {
-        $b->add($row = new XTR(array('class'=>$rowindex)));
-        $rprows[] = $row;
+	$b->add($row = new XTR(array('class'=>$rowindex)));
+	$rprows[] = $row;
       }
       $row_number = 0;
       foreach ($skips as $sailor) {
-        $rprows[$row_number]->add(new XTD(array('class'=>'sailor'), $sailor));
-        if (count($crews) <= $row_number)
-          $rprows[$row_number]->add(new XTD());
-        $row_number++;
+	$rprows[$row_number]->add(new XTD(array('class'=>'sailor'), $sailor));
+	if (count($crews) <= $row_number)
+	  $rprows[$row_number]->add(new XTD());
+	$row_number++;
       }
       $row_number = 0;
       foreach ($crews as $sailor) {
-        if (count($skips) <= $row_number)
-          $rprows[$row_number]->add(new XTD());
-        $rprows[$row_number]->add(new XTD(array('class'=>'sailor'), $sailor));
-        $row_number++;
+	if (count($skips) <= $row_number)
+	  $rprows[$row_number]->add(new XTD());
+	$rprows[$row_number]->add(new XTD(array('class'=>'sailor'), $sailor));
+	$row_number++;
       }
     }
 
-    return array($tab);
+    if (count($explanations) > 1)
+      $ELEMS[] = $this->getLegend($explanations);
+    return $ELEMS;
   }
 
   public function fillHTML(Array $args) {
