@@ -110,11 +110,11 @@ abstract class AbstractUserPane {
                                                         new XLi(new XA("/boats",     "Boats")),
                                                         new XLi(new XA("/types",     "Regatta types")),
                                                         new XLi(new XA("/seasons",   "Seasons")))))));
-      /*
       $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
                                     array(new XH4("Configure text"),
                                           $ul = new XUl())));
-      */
+      foreach (Text_Entry::getSections() as $sec => $title)
+        $ul->add(new XLi(new XA(WS::link(sprintf('/text/%s', $sec)), $title)));
     }
     $this->PAGE->addContent(new XPageTitle($this->title));
     $this->fillHTML($args);
@@ -312,6 +312,15 @@ abstract class AbstractUserPane {
     case 'search':
       require_once('users/SearchSailor.php');
       return new SearchSailor($u);
+
+    case 'text':
+      if (count($uri) != 1)
+        throw new PaneException("Invalid or missing text section to edit.");
+      $secs = Text_Entry::getSections();
+      if (!isset($secs[$uri[0]]))
+        throw new PaneException(sprintf("Invalid text section: %s.", $uri[0]));
+      require_once('users/admin/TextManagement.php');
+      return new TextManagement($u, $uri[0]);
     }
     throw new PaneException(sprintf("Invalid page requested (%s).", $base));
   }

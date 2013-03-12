@@ -47,6 +47,7 @@ class DB extends DBM {
   public static $NOW = null;
   public static $DT_TEAM_DIVISION = null;
   public static $DT_RP = null;
+  public static $TEXT_ENTRY = null;
 
   public static $OUTBOX = null;
   public static $MESSAGE = null;
@@ -95,15 +96,16 @@ class DB extends DBM {
     self::$REPRESENTATIVE = new Representative();
     self::$RP_ENTRY = new RPEntry();
     self::$SEASON = new Season();
-    DB::$DT_TEAM_DIVISION = new Dt_Team_Division();
-    DB::$DT_RP = new Dt_Rp();
+    self::$TEXT_ENTRY = new Text_Entry();
+    self::$DT_TEAM_DIVISION = new Dt_Team_Division();
+    self::$DT_RP = new Dt_Rp();
     self::$NOW = new DateTime();
 
     DBM::setConnectionParams($host, $user, $pass, $db);
 
     require_once('regatta/TSSoter.php');
-    DB::$V = new TSSoter();
-    DB::$V->setDBM('DB');
+    self::$V = new TSSoter();
+    self::$V->setDBM('DB');
   }
 
   /**
@@ -2360,5 +2362,28 @@ class Dt_Team_Division extends DBObject {
     return DB::getAll(DB::$DT_RP, new DBBool(array(new DBCond('boat_role', $role),
                                                    new DBCond('team_division', $this->id))));
   }
+}
+
+/**
+ * User editable, DPEditor-enabled, text element
+ *
+ * @author Dayan Paez
+ * @version 2013-03-12
+ */
+class Text_Entry extends DBObject {
+  public $plain;
+  public $html;
+
+  const ANNOUNCEMENTS = 'announcements';
+
+  /**
+   * Fetches list of known sections
+   *
+   * @return Map
+   */
+  public static function getSections() {
+    return array(self::ANNOUNCEMENTS => "Announcements");
+  }
+
 }
 ?>

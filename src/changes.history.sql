@@ -432,3 +432,6 @@ alter table pub_update_request change column activity activity enum('rotation','
 
 -- track the number of wins/losses/ties for team racing teams
 alter table team add column dt_wins mediumint unsigned default null, add column dt_losses mediumint unsigned default null, add column dt_ties mediumint unsigned default null;
+
+-- text entries
+create table text_entry (id varchar(40) not null primary key, plain text default null, html text default null) engine=innodb default charset =utf8;
