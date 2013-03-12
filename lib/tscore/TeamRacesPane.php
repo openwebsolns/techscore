@@ -106,40 +106,11 @@ class TeamRacesPane extends AbstractPane {
     // $form->add($fi = new FItem("Meetings:", new XTextInput('meetings', 1)));
     // $fi->add(new XMessage("E.g., 1 for \"single\", 2 for \"double round-robin\""));
 
-    $this->PAGE->head->add(new XScript('text/javascript', null, '
-var TL = null;
-var TL_INPUTS = Array();
-function addTeamToRound(id) {
-  if (!TL) {
-    TL = document.getElementById("teams-list");
-    if (!TL)
-      return;
-    var inputs = TL.getElementsByTagName("input");
-    for (var i = 0; i &lt; inputs.length; i++) {
-      if (inputs[i].type == "text")
-        TL_INPUTS.push(inputs[i]);
-    }
-  }
-  var elem = document.getElementById(id);
-  if (!elem || elem.value != "")
-    return;
-  var max = 0;
-  for (var i = 0; i &lt; TL_INPUTS.length; i++) {
-    var num = Number(TL_INPUTS[i].value);
-    if (num > max)
-      max = num;
-  }
-  elem.value = (max + 1);
-}
-'));
-
     $form->add($ul = new XUl(array('id'=>'teams-list')));
     foreach ($this->REGATTA->getTeams() as $team) {
       $id = 'team-'.$team->id;
-      $ul->add(new XLi(array(new XHiddenInput('team[]', $team->id),
-                             new XTextInput('order[]', "", array('id'=>$id)),
-                             new XLabel($id, $team,
-                                        array('onclick'=>sprintf('addTeamToRound("%s");', $id))))));
+      $ul->add(new XLi(array(new XCheckboxInput('team[]', $i, array('id'=>$id)),
+                             new XLabel($id, $team))));
     }
 
     $form->add(new XSubmitP('add-round', "Add round"));
@@ -407,18 +378,14 @@ function addTeamToRound(id) {
       $round->relative_order = count($rounds) + 1;
 
       $boat = DB::$V->reqID($args, 'boat', DB::$BOAT, "Invalid boat provided.");
-      $map = DB::$V->reqMap($args, array('order', 'team'), null, "No list of ordered teams provided. Please try again.");
-
-      $ord = $map['order'];
-      $ids = $map['team'];
-      array_multisort($ord, SORT_NUMERIC, $ids, SORT_STRING);
+      $ids = DB::$V->reqList($args, 'team', null, "No list of teams provided. Please try again.");
 
       // $meetings = DB::$V->reqInt($args, 'meetings', 1, 11, "Invalid meeting count. Must be between 1 and 10.");
       $meetings = 1;
 
       $teams = array();
       foreach ($ids as $index => $id) {
-        if (trim($ord[$index]) != "" && ($team = $this->REGATTA->getTeam($id)) !== null)
+        if (($team = $this->REGATTA->getTeam($id)) !== null)
           $teams[] = $team;
       }
       if (count($teams) < 1)
