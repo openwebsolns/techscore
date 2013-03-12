@@ -208,13 +208,17 @@ function addTeamToRound(id) {
     // ------------------------------------------------------------
     // With no scored races, offer to delete
     // ------------------------------------------------------------
-    if (!$has_finishes) {
-      $this->PAGE->addContent($p = new XPort("Delete round"));
-      $p->add(new XP(array(), "Since there are no scored races for this round, you may delete the entire round from the regatta, but note that this is not recoverable."));
-      $p->add($form = $this->createForm());
-      $form->add($p = new XSubmitP('delete-round', "Delete"));
-      $p->add(new XHiddenInput('round', $round->id));
+    $this->PAGE->addContent($p = new XPort("Delete round"));
+    $attr = array();
+    if ($has_finishes) {
+      $p->add(new XP(array('class'=>'warning'),
+		     array(new XStrong("Note:"), " Deleting the round will also delete all the races in the round, and all the finishes, and all the rotations!")));
+      $attr = array('onclick'=>'return confirm("Are you sure you wish to delete this round\ncurrently underway? All score data will be lost.");');
     }
+    $p->add($form = $this->createForm());
+    $form->add(new XP(array('class'=>'p-submit'),
+		      array(new XSubmitInput('delete-round', "Delete", $attr),
+			    new XHiddenInput('round', $round->id))));
   }
 
   /**
@@ -297,9 +301,11 @@ function addTeamToRound(id) {
 
       $round = $rounds[DB::$V->reqKey($args, 'round', $rounds, "Invalid round to delete.")];
       // Check that there are no finishes
-      foreach ($this->REGATTA->getRacesInRound($round) as $race) {
-        if (count($this->REGATTA->getFinishes($race)) > 0)
-          throw new SoterException("Cannot remove the round because race $race has scored.");
+      foreach ($this->REGATTA->getScoredRounds() as $other) {
+	if ($other->id == $round->id) {
+	  $scored = true;
+	  break;
+	}
       }
       DB::remove($round);
 
@@ -327,6 +333,12 @@ function addTeamToRound(id) {
       }
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA("Removed round $round."));
+      if ($scored) {
+	$this->REGATTA->setRanks();
+	foreach ($this->REGATTA->getTeams() as $team)
+	  UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RANK, $team->school);
+	Session::pa(new PA("Re-ranked teams.", PA::I));
+      }
     }
 
     // ------------------------------------------------------------
