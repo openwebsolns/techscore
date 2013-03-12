@@ -47,7 +47,13 @@ class RpFormWriter {
     $rp        = $this->reg->getRpManager();
 
     $form = null;
-    if ($this->reg->isSingleHanded()) {
+    if ($this->reg->scoring == Regatta::SCORING_TEAM) {
+      require_once('rpwriter/IcsaRpFormTeam.php');
+      $form = new IcsaRpFormTeam($this->reg,
+                                 $this->host,
+                                 $this->reg->start_time->format("Y-m-d"));
+    }
+    elseif ($this->reg->isSingleHanded()) {
       require_once('rpwriter/IcsaRpFormSingles.php');
       $form = new IcsaRpFormSingles($this->reg->name,
                                     $this->host,
