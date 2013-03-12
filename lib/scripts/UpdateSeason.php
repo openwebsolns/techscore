@@ -71,6 +71,7 @@ class UpdateSeason extends AbstractScript {
                                 array("Name",
                                       "Host",
                                       "Type",
+                                      "Scoring",
                                       "Start date",
                                       "Status",
                                       "Leading"));
@@ -125,6 +126,7 @@ class UpdateSeason extends AbstractScript {
           $rows[] = array($link,
                           implode("/", $reg->dt_hosts),
                           $reg->type,
+                          $reg->getDataScoring(),
                           $reg->start_time->format('m/d/Y'),
                           $status,
                           new XTD(array('title' => $wt), $burg));
@@ -146,11 +148,13 @@ class UpdateSeason extends AbstractScript {
                                      array("Name",
                                            "Host",
                                            "Type",
+                                           "Scoring",
                                            "Start time")));
       foreach ($coming_regattas as $reg) {
         $tab->addRow(array(new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name),
                            implode("/", $reg->dt_hosts),
                            $reg->type,
+                           $reg->getDataScoring(),
                            $reg->start_time->format('m/d/Y @ H:i')));
       }
     }

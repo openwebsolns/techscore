@@ -167,7 +167,7 @@ class UpdateSchool extends AbstractScript {
       usort($current, 'Regatta::cmpTypes');
       $page->addSection($p = new XPort("Sailing now", array(), array('id'=>'sailing')));
       $p->add($tab = new XQuickTable(array('class'=>'participation-table'),
-                                     array("Name", "Host", "Type", "Conference", "Last race", "Place(s)")));
+                                     array("Name", "Host", "Type", "Scoring", "Last race", "Place(s)")));
       foreach ($current as $row => $reg) {
         // borrowed from UpdateSeason
         $status = null;
@@ -184,7 +184,7 @@ class UpdateSchool extends AbstractScript {
         $tab->addRow(array($link,
                            implode("/", $reg->dt_hosts),
                            $reg->type,
-                           implode("/", $reg->dt_confs),
+                           $reg->getDataScoring(),
                            $status,
                            $this->getPlaces($reg, $school)),
                      array('class' => 'row' . ($row % 2)));
@@ -199,11 +199,13 @@ class UpdateSchool extends AbstractScript {
                                      array("Name",
                                            "Host",
                                            "Type",
+                                           "Scoring",
                                            "Start time")));
       foreach ($coming as $reg) {
         $tab->addRow(array(new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name),
                            implode("/", $reg->dt_hosts),
                            $reg->type,
+                           $reg->getDataScoring(),
                            $reg->start_time->format('m/d/Y @ H:i')));
       }
     }
@@ -215,14 +217,14 @@ class UpdateSchool extends AbstractScript {
       $p->set('id', 'history');
 
       $p->add($tab = new XQuickTable(array('class'=>'participation-table'),
-                                     array("Name", "Host", "Type", "Conference", "Date", "Status", "Place(s)")));
+                                     array("Name", "Host", "Type", "Scoring", "Date", "Status", "Place(s)")));
 
       foreach ($past as $row => $reg) {
         $link = new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name);
         $tab->addRow(array($link,
                            implode("/", $reg->dt_hosts),
                            $reg->type,
-                           implode("/", $reg->dt_confs),
+                           $reg->getDataScoring(),
                            $reg->start_time->format('M d'),
                            ($reg->finalized === null) ? "Pending" : new XStrong("Official"),
                            $this->getPlaces($reg, $school)),

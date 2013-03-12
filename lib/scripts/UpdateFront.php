@@ -85,10 +85,11 @@ class UpdateFront extends AbstractScript {
                                $tab = new XQuickTable(array('class'=>'season-summary'),
                                                       array("Name",
                                                             "Type",
+                                                            "Scoring",
                                                             "Status",
                                                             "Leading")))));
       foreach ($in_prog as $i => $reg) {
-        $row = array(new XA($reg->getURL(), $reg->name), $reg->type);
+        $row = array(new XA($reg->getURL(), $reg->name), $reg->type, $reg->getDataScoring());
         $tms = $reg->getRankedTeams();
         if ($reg->dt_status == Regatta::STAT_READY || count($tms) == 0) {
           $row[] = new XTD(array('colspan'=>2), new XEm("No scores yet"));
@@ -121,11 +122,13 @@ class UpdateFront extends AbstractScript {
                                      array("Name",
                                            "Host",
                                            "Type",
+                                           "Scoring",
                                            "Start time")));
       foreach ($regs as $reg) {
         $tab->addRow(array(new XA($reg->getURL(), $reg->name),
                            implode("/", $reg->dt_hosts),
                            $reg->type,
+                           $reg->getDataScoring(),
                            $reg->start_time->format('m/d/Y @ H:i')));
       }
     }

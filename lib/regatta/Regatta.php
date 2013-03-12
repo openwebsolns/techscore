@@ -1631,6 +1631,47 @@ class FullRegatta extends DBObject {
     }
   }
 
+  /**
+   * Fetches human-readable representation of scoring
+   *
+   * The data scoring is arrived using dt_scoring, dt_singlehanded,
+   * and dt_num_divisions, so it is important that setData exist for
+   * this purpose.
+   *
+   * The possible resulting values are:
+   *
+   *   - Singlehanded
+   *   - 1 Division
+   *   - 2 Divisions
+   *   - 3 Divisions
+   *   - 4 Divisions
+   *   - Combined
+   *   - Team
+   *   - NULL if no divisions available!
+   *
+   * @return String the scoring representation
+   */
+  public function getDataScoring() {
+    if ($this->dt_num_divisions === null)
+      $this->setData();
+    if ($this->dt_num_divisions == 0)
+      return null;
+
+    if ($this->dt_singlehanded)
+      return "Singlehanded";
+    if ($this->scoring == Regatta::SCORING_COMBINED)
+      return "Combined";
+    if ($this->scoring == Regatta::SCORING_TEAM)
+      return "Team";
+    switch ($this->dt_num_divisions) {
+    case 1: return "1 Division";
+    case 2: return "2 Divisions";
+    case 3: return "3 Divisions";
+    case 4: return "4 Divisions";
+    }
+    return null;
+  }
+
   // ------------------------------------------------------------
   // Regatta creation
   // ------------------------------------------------------------
