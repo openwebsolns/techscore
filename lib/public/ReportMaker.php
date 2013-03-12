@@ -80,7 +80,7 @@ class ReportMaker {
         
         if ($reg->finalized === null) {
           $this->page->addSection($p = new XPort("Rankings"));
-          $p->add(new XP(array(), array(new XEm("Note:"), " Preliminary results; order may not be accurate due to unbroken ties and incomplete round robins.")));
+          $p->add(new XP(array(), array(new XEm("Note:"), " Preliminary results; teams ranked by winning percentage.")));
         }
         else
           $this->page->addSection($p = new XPort("Final Results"));

@@ -110,6 +110,11 @@ abstract class AbstractUserPane {
                                                         new XLi(new XA("/boats",     "Boats")),
                                                         new XLi(new XA("/types",     "Regatta types")),
                                                         new XLi(new XA("/seasons",   "Seasons")))))));
+      /*
+      $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
+                                    array(new XH4("Configure text"),
+                                          $ul = new XUl())));
+      */
     }
     $this->PAGE->addContent(new XPageTitle($this->title));
     $this->fillHTML($args);
