@@ -155,6 +155,7 @@ class ICSATeamRanker extends ICSARanker {
    * @return int < 0 if first team ranks higher, > 0 otherwise
    */
   public function compare(TeamRank $a, TeamRank $b) {
+    /*
     if ($a->team->dt_rank !== null) {
       if ($b->team->dt_rank === null)
         return -1;
@@ -162,6 +163,7 @@ class ICSATeamRanker extends ICSARanker {
     }
     elseif ($b->team->dt_rank !== null)
       return 1;
+    */
 
     $perA = $a->getWinPercentage();
     $perB = $b->getWinPercentage();

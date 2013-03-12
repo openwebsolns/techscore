@@ -1163,6 +1163,9 @@ class Team extends DBObject {
   public $dt_rank;
   public $dt_explanation;
   public $dt_score;
+  public $dt_wins;
+  public $dt_losses;
+  public $dt_ties;
 
   public function db_name() { return 'team'; }
   protected function db_order() { return array('school'=>true, 'id'=>true); }
@@ -1180,6 +1183,26 @@ class Team extends DBObject {
   }
   public function __toString() {
     return $this->__get('school')->nick_name . ' ' . $this->getQualifiedName();
+  }
+
+  /**
+   * Gets the team's "team racing win percentage"
+   */
+  public function getWinPercentage() {
+    $total = $this->dt_wins + $this->dt_losses + $this->dt_ties;
+    if ($total == 0)
+      return 0;
+    return $this->dt_wins / $total;
+  }
+
+  /**
+   * Display this team's "team racing record": wins-losses
+   */
+  public function getRecord() {
+    $txt = sprintf('%d-%d', $this->dt_wins, $this->dt_losses);
+    if ($this->dt_ties > 0)
+      $txt .= sprintf('-%d', $this->dt_ties);
+    return $txt;
   }
 
   /**

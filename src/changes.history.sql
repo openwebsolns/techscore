@@ -429,3 +429,6 @@ alter table finish drop column penalty, drop column amount, drop column displace
 
 -- allow for rank attribute
 alter table pub_update_request change column activity activity enum('rotation','score','rp','details','summary','finalized','url','season', 'rank') NOT NULL DEFAULT 'score';
+
+-- track the number of wins/losses/ties for team racing teams
+alter table team add column dt_wins mediumint unsigned default null, add column dt_losses mediumint unsigned default null, add column dt_ties mediumint unsigned default null;

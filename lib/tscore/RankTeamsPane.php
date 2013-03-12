@@ -140,16 +140,17 @@ class RankTeamsPane extends AbstractPane {
     // ------------------------------------------------------------
     $this->PAGE->addContent(new XP(array(), "Use this pane to set the rank for the teams in the regatta. By default, teams are ranked by the system according to win percentage, but tie breaks must be broken manually."));
     $this->PAGE->addContent(new XP(array(), "To edit a particular team's record by setting which races count towards their record, click on the win-loss record for that team. Remember to click \"Set ranks\" to save the order before editing a team's record."));
+    $this->PAGE->addContent(new XP(array('class'=>'warning'), sprintf("Please note that %s will re-rank the teams with every new race scored.", Conf::$NAME)));
 
     $this->PAGE->addContent($f = $this->createForm());
     $f->add($tab = new XQuickTable(array('id'=>'divtable', 'class'=>'teamtable narrow'),
                                    array("#", "Explanation", "Record", "Team")));
-    foreach ($this->REGATTA->getRanker()->rank($this->REGATTA) as $rank) {
-      $tab->addRow(array(new XTD(array(), array(new XTextInput('order[]', $rank->rank, array('size'=>2)),
-                                                new XHiddenInput('team[]', $rank->team->id))),
-			 new XTextInput('explanation[]', $rank->explanation),
-			 new XA($this->link('rank', array('team' => $rank->team->id)), $rank->getRecord()),
-			 new XTD(array('class'=>'drag'), $rank->team)),
+    foreach ($this->REGATTA->getRankedTeams() as $team) {
+      $tab->addRow(array(new XTD(array(), array(new XTextInput('rank[]', $team->dt_rank, array('size'=>2)),
+                                                new XHiddenInput('team[]', $team->id))),
+			 new XTextInput('explanation[]', $team->dt_explanation),
+			 new XA($this->link('rank', array('team' => $team->id)), $team->getRecord()),
+			 new XTD(array('class'=>'drag'), $team)),
                    array('class'=>'sortable'));
     }
     $f->add(new XSubmitP('set-ranks', "Set ranks"));
@@ -182,6 +183,7 @@ class RankTeamsPane extends AbstractPane {
       if (count($affected) == 0)
 	Session::PA(new PA("No races affected.", PA::I));
       else {
+	$this->REGATTA->setRanks();
         foreach ($affected as $other_team)
           UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RANK, $other_team->school->id);
         UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RANK, $team->school->id);
@@ -198,15 +200,22 @@ class RankTeamsPane extends AbstractPane {
         $teams[$team->id] = $team;
       $tids = DB::$V->reqList($args, 'team', count($teams), "Invalid list of teams provided.");
       $exps = DB::$V->reqList($args, 'explanation', count($teams), "Missing list of explanations.");
-      $order = DB::$V->incList($args, 'order', count($tids));
-      if (count($order) > 0)
-        array_multisort($order, SORT_NUMERIC, $tids, $exps);
+      $rank = DB::$V->reqList($args, 'rank', count($teams));
+      array_multisort($rank, SORT_NUMERIC, $tids, $exps);
 
       $ranks = array();
+      $prevRank = 1;
+      $nextRank = 1;
       foreach ($tids as $i => $id) {
         if (!isset($teams[$id]))
           throw new SoterException("Invalid team provided.");
-        $new_rank = ($i + 1);
+	if ($rank[$i] != $prevRank && $rank[$i] != $nextRank)
+	  throw new SoterException("Invalid order provided.");
+
+	$nextRank++;
+	$prevRank = $rank[$i];
+
+        $new_rank = $rank[$i];
         $new_expl = DB::$V->incString($exps, $i, 1, 101, null);
 
         if ($new_rank != $teams[$id]->dt_rank || $new_expl != $teams[$id]->dt_explanation) {

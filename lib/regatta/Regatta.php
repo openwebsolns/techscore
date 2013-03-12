@@ -1357,10 +1357,6 @@ class FullRegatta extends DBObject {
    * a snapshot in the team and dt_team_division tables of the teams
    * and how they ranked.
    *
-   * Note that this ONLY applies to fleet racing regattas, as ranking
-   * of teams is a manual process in team racing events. Thus, this
-   * method will quietly return if the scoring is Team.
-   *
    * This method will silently fail if there are no races
    *
    * @param Division $division optional specific division to rank
@@ -1368,15 +1364,23 @@ class FullRegatta extends DBObject {
   public function setRanks(Division $division = null) {
     if ($this->dt_num_races === null)
       $this->setData();
-    if ($this->dt_num_divisions == 0 || $this->scoring == Regatta::SCORING_TEAM)
+    if ($this->dt_num_divisions == 0)
       return;
 
     // Set the team-level ranking first
     $ranker = $this->getRanker();
     foreach ($ranker->rank($this) as $i => $rank) {
-      $rank->team->dt_rank = ($i + 1);
+      if ($this->scoring == Regatta::SCORING_TEAM) {
+	$rank->team->dt_rank = $rank->rank;
+	$rank->team->dt_wins = $rank->wins;
+	$rank->team->dt_losses = $rank->losses;
+	$rank->team->dt_ties = $rank->ties;
+      }
+      else {
+	$rank->team->dt_rank = ($i + 1);
+	$rank->team->dt_score = $rank->score;
+      }
       $rank->team->dt_explanation = $rank->explanation;
-      $rank->team->dt_score = $rank->score;
       DB::set($rank->team);
     }
 
@@ -1434,12 +1438,16 @@ class FullRegatta extends DBObject {
         DB::set($team_division);
       }
     }
-    // @TODO: Team racing?
+    // For team racing, there is no dt_team_division entry. Every
+    // "boat" or "division" receives teh same rank as the team itself
 
     // Remove extraneous entries
-    DB::removeAll(DB::$DT_TEAM_DIVISION,
-                  new DBBool(array(new DBCondIn('team', DB::prepGetAll(DB::$TEAM, new DBCond('regatta', $this), array('id'))),
-                                   new DBCondIn('division', $this->getDivisions(), DBCondIn::NOT_IN))));
+    if ($this->scoring == Regatta::SCORING_TEAM)
+      DB::removeAll(DB::$DT_TEAM_DIVISION, new DBCondIn('team', DB::prepGetAll(DB::$TEAM, new DBCond('regatta', $this), array('id'))));
+    else
+      DB::removeAll(DB::$DT_TEAM_DIVISION,
+		    new DBBool(array(new DBCondIn('team', DB::prepGetAll(DB::$TEAM, new DBCond('regatta', $this), array('id'))),
+				     new DBCondIn('division', $this->getDivisions(), DBCondIn::NOT_IN))));
   }
 
   /**

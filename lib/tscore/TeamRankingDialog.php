@@ -40,23 +40,23 @@ class TeamRankingDialog extends AbstractScoresDialog {
 			    $b = new XTBody()));
 
     $season = $this->REGATTA->getSeason();
-    foreach ($this->REGATTA->getRanker()->rank($this->REGATTA) as $i => $rank) {
+    foreach ($this->REGATTA->getRankedTeams() as $rowIndex => $team) {
       $mascot = "";
-      if ($rank->team->school->burgee !== null) {
-	$url = sprintf('/inc/img/schools/%s.png', $rank->team->school->id);
-	$mascot = new XImg($url, $rank->team->school->id, array('height'=>'20px'));
+      if ($team->school->burgee !== null) {
+	$url = sprintf('/inc/img/schools/%s.png', $team->school->id);
+	$mascot = new XImg($url, $team->school->id, array('height'=>'20px'));
       }
-      $school = (string)$rank->team->school;
+      $school = (string)$team->school;
       if ($link_schools !== false)
-	$school = new XA(sprintf('/schools/%s/%s/', $rank->team->school->id, $season), $school);
+	$school = new XA(sprintf('/schools/%s/%s/', $team->school->id, $season), $school);
 
-      $b->add($row = new XTR(array('class'=>'topborder row' . ($i % 2)),
-			     array(new XTD(array('title'=>$rank->explanation), ($i + 1)),
+      $b->add($row = new XTR(array('class'=>'topborder row' . ($rowIndex % 2)),
+			     array(new XTD(array('title'=>$team->dt_explanation), $team->dt_rank),
 				   new XTD(array(), $mascot),
 				   new XTD(array(), $school),
-				   new XTD(array('class'=>'teamname'), new XStrong($rank->team->getQualifiedName())),
-				   new XTD(array(), $rank->getRecord()),
-				   new XTD(array(), sprintf('%0.1f', (100 * $rank->getWinPercentage()))))));
+				   new XTD(array('class'=>'teamname'), new XStrong($team->getQualifiedName())),
+				   new XTD(array(), $team->getRecord()),
+				   new XTD(array(), sprintf('%0.1f', (100 * $team->getWinPercentage()))))));
     }
 
     return array($tab);
@@ -84,33 +84,33 @@ class TeamRankingDialog extends AbstractScoresDialog {
 
     $season = $this->REGATTA->getSeason();
     $rpm = $this->REGATTA->getRpManager();
-    foreach ($this->REGATTA->getRanker()->rank($this->REGATTA) as $i => $rank) {
+    foreach ($this->REGATTA->getRankedTeams() as $rowIndex => $team) {
       $skips = array();
       $crews = array();
       foreach ($divs as $div) {
-	foreach ($rpm->getRP($rank->team, $div, RP::SKIPPER) as $s)
+	foreach ($rpm->getRP($team, $div, RP::SKIPPER) as $s)
 	  $skips[$s->sailor->id] = $s->sailor;
-	foreach ($rpm->getRP($rank->team, $div, RP::CREW) as $s)
+	foreach ($rpm->getRP($team, $div, RP::CREW) as $s)
 	  $crews[$s->sailor->id] = $s->sailor;
       }
 
       $mascot = "";
-      if ($rank->team->school->burgee !== null) {
-	$url = sprintf('/inc/img/schools/%s.png', $rank->team->school->id);
-	$mascot = new XImg($url, $rank->team->school->id, array('height'=>'30px'));
+      if ($team->school->burgee !== null) {
+	$url = sprintf('/inc/img/schools/%s.png', $team->school->id);
+	$mascot = new XImg($url, $team->school->id, array('height'=>'30px'));
       }
-      $school = (string)$rank->team->school;
+      $school = (string)$team->school;
       if ($link_schools !== false)
-	$school = new XA(sprintf('/schools/%s/%s/', $rank->team->school->id, $season), $school);
+	$school = new XA(sprintf('/schools/%s/%s/', $team->school->id, $season), $school);
 
       $rowspan = max(1, count($skips), count($crews));
-      $rowindex = 'row' . ($i % 2);
+      $rowindex = 'row' . ($rowIndex % 2);
       $b->add($row = new XTR(array('class'=>'topborder ' . $rowindex),
-			     array(new XTD(array('rowspan'=>$rowspan, 'title'=>$rank->explanation), ($i + 1)),
+			     array(new XTD(array('rowspan'=>$rowspan, 'title'=>$team->dt_explanation), $team->dt_rank),
 				   new XTD(array('rowspan'=>$rowspan), $mascot),
 				   new XTD(array('rowspan'=>$rowspan), $school),
-				   new XTD(array('class'=>'teamname', 'rowspan'=>$rowspan), new XStrong($rank->team->getQualifiedName())),
-				   new XTD(array('rowspan'=>$rowspan), $rank->getRecord()))));
+				   new XTD(array('class'=>'teamname', 'rowspan'=>$rowspan), new XStrong($team->getQualifiedName())),
+				   new XTD(array('rowspan'=>$rowspan), $team->getRecord()))));
       // Special case: no RP information
       if (count($skips) + count($crews) == 0) {
 	$row->add(new XTD());
