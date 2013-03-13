@@ -16,7 +16,7 @@ function initFullLink() {
         if (tables[t].classList.contains("teamranking")) {
             // Add message before
             var p = tables[t].previousSibling;
-            if (!p) {
+            if (p === null) {
                 p = document.createElement("p");
                 tables[t].parentNode.insertBefore(p, tables[t]);
             }
