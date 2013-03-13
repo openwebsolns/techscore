@@ -36,6 +36,9 @@ abstract class AbstractIcsaRpForm {
   protected $num_crew_C    = 0;
   protected $num_crew_D    = 0;
 
+  protected $num_skipper_total = 0;
+  protected $num_crew_total = 0;
+
   /**
    * The LaTeX preamble and open-document declaration
    */
@@ -150,11 +153,24 @@ abstract class AbstractIcsaRpForm {
     // determine whether a new block is necessary
     $var_name  = sprintf("%s_%s",  $role, $div);
     $var_count = sprintf("num_%s", $var_name);
+    $var_total = sprintf("num_%s_total", $role);
+
+    $new_block = false;
+    if ($this->$var_total > 0) {
+      $tot = 0;
+      foreach (array('A', 'B', 'C', 'D') as $div) {
+        $var = sprintf("%s_%s", $role, $div);
+        $list = $this->$var;
+        $block = $this->blocks[$team->id][$list[$team->id]];
+        $tot += count($block->$var);
+      }
+      $new_block = ($tot >= $this->$var_total);
+    }
 
     // get block, and create a new if necessary
     $list  = $this->$var_name;
     $block = $this->blocks[$team->id][$list[$team->id]];
-    if (count($block->$var_name) == $this->$var_count) {
+    if (count($block->$var_name) == $this->$var_count || $new_block) {
       $block = new RpBlock();
       $this->blocks[$team->id][] = $block;
       $list[$team->id]++;

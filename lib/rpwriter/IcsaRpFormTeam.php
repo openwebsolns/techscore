@@ -25,7 +25,9 @@ class IcsaRpFormTeam extends AbstractIcsaRpForm {
    * @param String $date the date of the regatta
    */
   public function __construct(FullRegatta $reg, $host, $date) {
-    parent::__construct($reg->name, $host, $date, 3, 3, 3, 3, 3);
+    parent::__construct($reg->name, $host, $date, 2, 5, 6, 5, 6, 5, 6);
+    $this->num_skipper_total = 5;
+    $this->num_crew_total = 6;
     $this->regatta = $reg;
   }
 
@@ -59,7 +61,7 @@ class IcsaRpFormTeam extends AbstractIcsaRpForm {
         if ($num > 0)
           $name .= sprintf(" (%d)", $num + 1);
         $team_X = 1.25;
-        $team_Y = 9.65 - 3.0 * $within_page;
+        $team_Y = 9.65 - 4.48 * $within_page;
         $pc->add(sprintf($fmt, $team_X, $team_Y, $name));
         $pc->add(sprintf($fmt, $team_X + 4.6, $team_Y,
                          $this->representatives[$id]));
@@ -68,13 +70,12 @@ class IcsaRpFormTeam extends AbstractIcsaRpForm {
 
         // - write content: skippers across all divisions
         $X = 0.75;
-        $Y = 8.85 - 3.0 * $within_page;
+        $Y = 8.65 - 4.48 * $within_page;
         // :A then :B then :C, first column, then second
         $skipIndex = 0;
         foreach (array("skipper_A", "skipper_B", "skipper_C") as $div_num => $div) {
           foreach ($block->$div as $s) {
-            $x = $X + (3.5 * floor($skipIndex / 3));
-            $y = $Y - (0.3 * ($skipIndex % 3));
+            $y = $Y - (0.3 * $skipIndex);
             $skipIndex++;
 
             $year = substr($s->sailor->year, 2);
@@ -82,22 +83,19 @@ class IcsaRpFormTeam extends AbstractIcsaRpForm {
               $races = "All";
             else
               $races = DB::makeRange($s->races_nums);
-            if (strlen($races) > 10)
-              $races = sprintf('\footnotesize{%s}', $races);
-            $pc->add(sprintf($fmt, $x,        $y, $s->sailor->getName()));
-            $pc->add(sprintf($fmt, $x + 1.9,  $y, $year));
-            $pc->add(sprintf($fmt, $x + 2.31, $y, $races));
+            $pc->add(sprintf($fmt, $X,        $y, $s->sailor->getName()));
+            $pc->add(sprintf($fmt, $X + 3.0,  $y, $year));
+            $pc->add(sprintf($fmt, $X + 3.4, $y, $races));
           }
         }
 
         // crews
         $X = 0.75;
-        $Y = 7.95 - 3.0 * $within_page;
+        $Y = 7.15 - 4.48 * $within_page;
         $crewIndex = 0;
         foreach (array("crew_A", "crew_B", "crew_C") as $div_num => $div) {
           foreach ($block->$div as $s) {
-            $x = $X + (3.5 * floor($crewIndex / 3));
-            $y = $Y - (0.3 * ($crewIndex % 3));
+            $y = $Y - (0.3 * $crewIndex);
             $crewIndex++;
 
             $year = substr($s->sailor->year, 2);
@@ -105,11 +103,9 @@ class IcsaRpFormTeam extends AbstractIcsaRpForm {
               $races = "All";
             else
               $races = DB::makeRange($s->races_nums);
-            if (strlen($races) > 10)
-              $races = sprintf('\footnotesize{%s}', $races);
-            $pc->add(sprintf($fmt, $x,        $y, $s->sailor->getName()));
-            $pc->add(sprintf($fmt, $x + 1.9,  $y, $year));
-            $pc->add(sprintf($fmt, $x + 2.31, $y, $races));
+            $pc->add(sprintf($fmt, $X,        $y, $s->sailor->getName()));
+            $pc->add(sprintf($fmt, $X + 3.0,  $y, $year));
+            $pc->add(sprintf($fmt, $X + 3.4, $y, $races));
           }
         }
 
