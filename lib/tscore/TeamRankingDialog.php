@@ -28,7 +28,7 @@ class TeamRankingDialog extends AbstractScoresDialog {
    *
    */
   public function getSummaryTable($link_schools = false) {
-    $ELEMS = array(new XTable(array('class'=>'teamranking results'),
+    $ELEMS = array(new XTable(array('class'=>'teamranking results', 'id'=>'teamranking-summary'),
 			      array(new XTHead(array(),
 					       array(new XTR(array(),
 							     array(new XTH(),
@@ -67,7 +67,7 @@ class TeamRankingDialog extends AbstractScoresDialog {
       if ($link_schools !== false)
 	$school = new XA(sprintf('/schools/%s/%s/', $team->school->id, $season), $school);
 
-      $b->add($row = new XTR(array('class'=>'topborder row' . ($rowIndex % 2)),
+      $b->add($row = new XTR(array('class'=>sprintf('topborder row%d team-%s', ($rowIndex % 2), $team->id)),
 			     array(new XTD(array('class'=>'tiebreaker', 'title'=>$team->dt_explanation), $explanations[$team->dt_explanation]),
 				   new XTD(array(), $team->dt_rank),
 				   new XTD(array(), $mascot),
@@ -143,7 +143,7 @@ class TeamRankingDialog extends AbstractScoresDialog {
 
       $rowspan = max(1, count($skips), count($crews));
       $rowindex = 'row' . ($rowIndex % 2);
-      $b->add($row = new XTR(array('class'=>'topborder ' . $rowindex),
+      $b->add($row = new XTR(array('class'=>sprintf('topborder %s team-%s', $rowindex, $team->id)),
 			     array(new XTD(array('rowspan'=>$rowspan, 'title'=>$team->dt_explanation, 'class'=>'tiebreaker'), $explanations[$team->dt_explanation]),
 				   new XTD(array('rowspan'=>$rowspan), $team->dt_rank),
 				   new XTD(array('rowspan'=>$rowspan), $mascot),

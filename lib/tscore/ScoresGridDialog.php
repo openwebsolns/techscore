@@ -130,7 +130,7 @@ class ScoresGridDialog extends AbstractScoresDialog {
     // Header
     foreach ($teams as $id => $team) {
       $header->add(new XTH(array('class'=>'tr-vert-label'), $team->school->nick_name));
-      $row = new XTR(array('class'=>'tr-row'),
+      $row = new XTR(array('class'=>sprintf('tr-row team-%s', $team->id)),
                      array(new XTH(array('class'=>'tr-horiz-label'), $team),
                            $rec = new XTD(array('class'=>'tr-record'), "")));
       $win = 0;
