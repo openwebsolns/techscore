@@ -1,0 +1,226 @@
+
+/* CSS for previewing pages using DPEditor */
+#content {
+    margin: 0;
+    width: 95%;
+    padding: 0.5em;
+    font-size: 11pt;
+    vertical-align: top;
+}
+.c-editor .no-width {
+    width: auto;
+}
+.dpe-preview {
+    display: inline-block;
+    background: #eee;
+    border: 1px solid #555;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    vertical-align: top;
+    margin-left: 1em;
+    width: 44%;
+    padding: 0 1em;
+}
+.dpe-preview:before {
+    content: "Preview";
+    font-weight: bold;
+    font-size: 80%;
+    position: relative;
+    top: -0.5em;
+    left: 1em;
+    background: white;
+    padding: 0.2em 0.5em;
+    border: 1px solid #555;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+}
+
+.dpe-preview ul {
+    margin-left: 3em;
+}
+
+.dpe-preview p {
+    text-align: justify;
+}
+
+.dpe-preview h1 {
+    font-size: 160%;
+}
+
+.dpe-preview h2 {
+    color:#003366;
+    font-weight:bold;
+    margin-top: 40px;
+    padding-bottom:1px;
+    padding-top:6px;
+    font-size: 16px;
+    width: 100%;
+    margin-top: 1em;
+    border: none;
+}
+.dpe-preview #p_title {
+    border-bottom:1px dotted #999999;
+}
+.dpe-preview h3 {
+    font-family:Helvetica,Arial,sans-serif;
+    font-size:100%;
+    color:#c5960c;
+}
+.dpe-preview h2 + h3 {
+    margin-top: 1em;
+}
+
+.dpe-preview table {
+    border-collapse: collapse;
+    border: 1px solid #aaa;
+    margin: auto;
+}
+.dpe-preview td {
+    border: 1px solid #aaa;
+    padding: 0.3em;
+}
+.dpe-preview th {
+    font-weight: bold;
+    background: #b3cadc;
+    color: black;
+    padding: 0.3em;
+}
+
+/* DPEditor goodness */
+.dpe-wrapper {
+    margin-top: 0;
+    display: inline-block;
+    width: 48%;
+    background: #eee;
+    border: 1px solid #555;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    padding: 0.5em;
+}
+.dpe-toolbar {
+    margin: 0;
+    letter-spacing: 1em;
+    padding: 0.25em 0.25em 0.5em;
+}
+.dpe-toolbar button {
+    padding: 0.15em;
+    font-size: 105%;
+    width: 2em;
+    height: 2em;
+    border-width: 1px;
+    border-radius: 0.2em;
+    border-color: #59ccff;
+    margin: 0 0.15em;
+    letter-spacing: normal;
+    background: url('/inc/img/butbg.png');
+    background-position: 100% 100%;
+    background-repeat: no-repeat;
+    background-color: #ccc;
+}
+.dpe-toolbar select {
+    color: #333;
+    letter-spacing: normal;
+}
+
+.image-list {
+    list-style-type: none;
+    margin: 0.5em 2em;
+    max-height: 10em;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.image-list li {
+    display: inline-block;
+    margin: 0.25em;
+    vertical-align: middle;
+}
+
+.image-list img {
+    cursor: pointer;
+    padding: 0.25em;
+    border: 1px solid #888;
+    border-radius: 0.25em;
+    background: white;
+}
+
+.image-list img:hover {
+    box-shadow: 0 2px 5px #888;
+}
+
+._ui-img-button {
+    background: none repeat scroll 0 0 white;
+    border: 1px solid #888888;
+    border-radius: 0.25em 0.25em 0.25em 0.25em;
+    margin: 0.1em;
+    padding: 0.25em;
+    opacity: 0.8;
+}
+
+._ui-img-button.selected {
+    opacity: 1;
+    position: relative;
+    transform: scale(1.2);
+    z-index: 2;
+}
+
+/* Tab environments */
+
+._ui_tab_environment {
+    margin: 1em 0;
+}
+
+._ui_tab_handles {
+    list-style-type: none;
+    padding: 0;
+}
+
+._ui_tab_handle {
+    background: none repeat scroll 0 0 #BBBBBB;
+    border-radius: 0.25em 0.25em 0 0;
+    color: #222222;
+    display: inline-block;
+    margin: 0 0 0 0.5em;
+    padding: 0.5em;
+    cursor: pointer;
+    border: 1px solid #bbb;
+    border-bottom: none;
+    position: relative;
+    z-index: 1;
+    top: 5px;
+}
+
+._ui_tab_handle._ui_tab_selected {
+    background: #f8f8f8;
+    top: 2px;
+    z-index: 3;
+}
+
+._ui_tab_bodies {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    z-index: 2;
+}
+
+._ui_tab_body {
+    border: 1px solid #BBBBBB;
+    padding: 1em;
+    display: none;
+    background: #f8f8f8;
+    min-height: 2em;
+    margin: 0;
+}
+
+._ui_tab_body._ui_tab_selected {
+    display: block;
+}
+
+
+/* Local Variables: */
+/* compile-command: "cd ../../../; make css" */
+/* End:  */

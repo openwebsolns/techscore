@@ -33,6 +33,7 @@ class TextManagement extends AbstractAdminUserPane {
   }
 
   public function fillHTML(Array $args) {
+    $this->PAGE->head->add(new XLinkCSS('text/css', WS::link('/inc/css/preview.css'), 'screen', 'stylesheet'));
     $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/DPEditor.js')));
     $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/DPEditorUI.js')));
     $this->PAGE->head->add(new XScript('text/javascript', null,
