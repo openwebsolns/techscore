@@ -41,11 +41,12 @@ function showAll() {
                 row.parentNode.childNodes[j].style.display = "table-row";
             }
         }
+
+        for (var i = 0; i < TEAM_PORT_MAP[name].length; i++) {
+            TEAM_PORT_MAP[name][i].style.display = "block";
+        }
     }
-    for (var i = 0; i < TEAM_PORT_MAP[name].length; i++) {
-        TEAM_PORT_MAP[name][i].style.display = "block";
-    }
-    window.location.hash = null;
+    window.location.hash = "#_";
     IS_SHOWING = false;
 }
 
@@ -96,16 +97,14 @@ function initFullSelect() {
 
         }
         else if (tables[t].classList.contains("teamscores")) {
-            var indices = {};
-            for (n in TEAM_PORT_MAP)
-                indices[n] = TEAM_PORT_MAP[n].push(tables[t].parentNode);
+            var represented = {};
 
             for (r = 1; r < tables[t].childNodes[0].childNodes.length; r++) {
                 var row = tables[t].childNodes[0].childNodes[r];
                 n = extractTeamID(row);
                 if (n in TEAM_ROW_MAP) {
                     TEAM_ROW_MAP[n].push(row);
-                    TEAM_PORT_MAP[n] = TEAM_PORT_MAP[n].splice(indices[n], 1);
+                    represented[n] = 1;
 
                     c = row.childNodes[1];
                     href = document.createElement("a");
@@ -116,6 +115,11 @@ function initFullSelect() {
                         href.appendChild(c.childNodes[0]);
                     c.appendChild(href);
                 }
+            }
+
+            for (n in TEAM_PORT_MAP) {
+                if (!(n in represented))
+                    TEAM_PORT_MAP[n].push(tables[t].parentNode);
             }
         }
     }
