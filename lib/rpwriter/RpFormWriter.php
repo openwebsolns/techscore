@@ -17,6 +17,7 @@ class RpFormWriter {
 
   private $reg;
   private $host;
+  private $form; // form cache
 
   /**
    * Basic constructor: specify the regatta for which to write the RP form
@@ -36,6 +37,56 @@ class RpFormWriter {
   }
 
   /**
+   * Fetches the form to use for the given regatta
+   *
+   * @return AbstractIcsaRpForm the form
+   */
+  public function getForm() {
+    if ($this->form === null) {
+      $divisions = $this->reg->getDivisions();
+      if ($this->reg->scoring == Regatta::SCORING_TEAM) {
+        require_once('rpwriter/IcsaRpFormTeam.php');
+        $this->form = new IcsaRpFormTeam($this->reg,
+                                   $this->host,
+                                   $this->reg->start_time->format("Y-m-d"));
+      }
+      elseif ($this->reg->isSingleHanded()) {
+        require_once('rpwriter/IcsaRpFormSingles.php');
+        $this->form = new IcsaRpFormSingles($this->reg->name,
+                                      $this->host,
+                                      $this->reg->start_time->format("Y-m-d"));
+      }
+      elseif (count($divisions) == 2) {
+        require_once('rpwriter/IcsaRpFormAB.php');
+        $this->form = new IcsaRpFormAB($this->reg->name,
+                                 $this->host,
+                                 $this->reg->start_time->format("Y-m-d"));
+      }
+      elseif (count($divisions) == 3) {
+        require_once('rpwriter/IcsaRpFormABC.php');
+        $this->form = new IcsaRpFormABC($this->reg->name,
+                                  $this->host,
+                                  $this->reg->start_time->format("Y-m-d"));
+      }
+      elseif (count($divisions) == 4) {
+        require_once('rpwriter/IcsaRpFormABCD.php');
+        $this->form = new IcsaRpFormABCD($this->reg->name,
+                                   $this->host,
+                                   $this->reg->start_time->format("Y-m-d"));
+      }
+      elseif (count($divisions) == 1) {
+        require_once('rpwriter/IcsaRpFormSloops.php');
+        $this->form = new IcsaRpFormSloops($this->reg->name,
+                                     $this->host,
+                                     $this->reg->start_time->format("Y-m-d"));
+      }
+      else
+        throw new InvalidArgumentException("Regattas of this type are not supported.");
+    }
+    return $this->form;
+  }
+
+  /**
    * Generates a PDF file with a random name, and returns the filename
    *
    * @param string $tmpbase the basename of the random file
@@ -46,45 +97,7 @@ class RpFormWriter {
     $divisions = $this->reg->getDivisions();
     $rp        = $this->reg->getRpManager();
 
-    $form = null;
-    if ($this->reg->scoring == Regatta::SCORING_TEAM) {
-      require_once('rpwriter/IcsaRpFormTeam.php');
-      $form = new IcsaRpFormTeam($this->reg,
-                                 $this->host,
-                                 $this->reg->start_time->format("Y-m-d"));
-    }
-    elseif ($this->reg->isSingleHanded()) {
-      require_once('rpwriter/IcsaRpFormSingles.php');
-      $form = new IcsaRpFormSingles($this->reg->name,
-                                    $this->host,
-                                    $this->reg->start_time->format("Y-m-d"));
-    }
-    elseif (count($divisions) == 2) {
-      require_once('rpwriter/IcsaRpFormAB.php');
-      $form = new IcsaRpFormAB($this->reg->name,
-                               $this->host,
-                               $this->reg->start_time->format("Y-m-d"));
-    }
-    elseif (count($divisions) == 3) {
-      require_once('rpwriter/IcsaRpFormABC.php');
-      $form = new IcsaRpFormABC($this->reg->name,
-                                $this->host,
-                                $this->reg->start_time->format("Y-m-d"));
-    }
-    elseif (count($divisions) == 4) {
-      require_once('rpwriter/IcsaRpFormABCD.php');
-      $form = new IcsaRpFormABCD($this->reg->name,
-                                 $this->host,
-                                 $this->reg->start_time->format("Y-m-d"));
-    }
-    elseif (count($divisions) == 1) {
-      require_once('rpwriter/IcsaRpFormSloops.php');
-      $form = new IcsaRpFormSloops($this->reg->name,
-                                   $this->host,
-                                   $this->reg->start_time->format("Y-m-d"));
-    }
-    else
-      throw new InvalidArgumentException("Regattas of this type are not supported.");
+    $form = $this->getForm();
 
     foreach ($this->reg->getTeams() as $team) {
       $form->addRepresentative($team, $rp->getRepresentative($team));

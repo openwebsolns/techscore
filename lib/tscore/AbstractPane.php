@@ -137,8 +137,13 @@ abstract class AbstractPane {
     // Downloads
     $menu = new XDiv(array('class'=>'menu'), array(new XH4("Download"), $m_list = new XUl()));
     // $m_list->add(new XLi(new XA("/download/$id/regatta", "Regatta")));
-    $m_list->add(new XLi(new XA("/download/$id/rp", "Filled RP")));
-    
+    $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp', $id)), "Filled RP")));
+
+    require_once('rpwriter/RpFormWriter.php');
+    $writer = new RpFormWriter($this->REGATTA);
+    $form = $writer->getForm();
+    $m_list->add(new XLi(new XA(WS::link(sprintf('/inc/rp/%s', $form->getPdfName())), "RP Template")));
+
     $this->PAGE->addMenu($menu);
 
     // Dialogs
