@@ -41,7 +41,6 @@ abstract class AbstractIcsaRpForm {
    */
   protected $HEAD;
   protected $TAIL = '\end{document}';
-  protected $INC;
 
   protected $regatta_name;
   protected $host;
@@ -97,9 +96,6 @@ abstract class AbstractIcsaRpForm {
    * If not provided, the values default to the parenthetical amount
    */
   public function __construct($name, $host, $date, $num_blocks = 3) {
-    $this->INC = sprintf('\includegraphics[width=\textwidth]{%s}',
-                         sprintf("%s/ICSA-RP-AB.pdf", dirname(__FILE__)));
-
     $this->HEAD = ('\documentclass[letter,12pt]{article} ' .
                    '\usepackage{graphicx} ' .
                    '\usepackage[text={8.25in,11in},centering]{geometry} ' .
@@ -191,7 +187,25 @@ abstract class AbstractIcsaRpForm {
    *
    * @return String the LaTeX code
    */
-  protected abstract function getBody();
+  abstract protected function getBody();
+
+  /**
+   * Gets the basename of the file to use as background
+   *
+   * @return String the filename
+   */
+  abstract public function getPdfName();
+
+  /**
+   * Convenience method to create LaTeX includegraphics
+   *
+   * @return String includegraphics string using getPdfName
+   * @see getPdfName
+   */
+  protected function getIncludeGraphics() {
+    return sprintf('\includegraphics[width=\textwidth]{%s}',
+                   sprintf('%s/www/inc/rp/%s', dirname(dirname(__DIR__)), $this->getPdfName()));
+  }
 
   /**
    * Returns the LaTeX code for this form
@@ -203,6 +217,52 @@ abstract class AbstractIcsaRpForm {
                    str_replace('#', '\#', $this->HEAD), 
                    str_replace('#', '\#', $this->getBody()), 
                    str_replace('#', '\#', $this->TAIL));
+  }
+
+  /**
+   * Dump the contents of the blocks to standard output for debugging
+   * purposes
+   *
+   */
+  public function dump() {
+    $fmt = "%-25s | %s | %2s | %s\n";
+    foreach ($this->blocks as $id => $list) {
+      print(sprintf("Team: %25s\n Rep: %s\n",
+                    $this->teams[$id],
+                    $this->representatives[$id]));
+      foreach ($list as $block) {
+        print("---------\n");
+        foreach ($block->skipper_A as $s)
+          print(sprintf($fmt,
+                        $s->sailor,
+                        $s->division,
+                        $s->sailor->year,
+                        DB::makeRange($s->races_nums)));
+        print("\n");
+        foreach ($block->crew_A as $s)
+          print(sprintf($fmt,
+                        $s->sailor,
+                        $s->division,
+                        $s->sailor->year,
+                        DB::makeRange($s->races_nums)));
+
+        print("---------\n");
+        foreach ($block->skipper_B as $s)
+          print(sprintf($fmt,
+                        $s->sailor,
+                        $s->division,
+                        $s->sailor->year,
+                        DB::makeRange($s->races_nums)));
+        print("\n");
+        foreach ($block->crew_B as $s)
+          print(sprintf($fmt,
+                        $s->sailor,
+                        $s->division,
+                        $s->sailor->year,
+                        DB::makeRange($s->races_nums)));
+      }
+      print("==========\n");
+    }
   }
 }
 ?>

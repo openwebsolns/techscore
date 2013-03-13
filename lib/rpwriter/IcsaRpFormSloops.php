@@ -23,9 +23,7 @@ class IcsaRpFormSloops extends AbstractIcsaRpForm {
    * @param String $date the date of the regatta
    */
   public function __construct($name, $host, $date) {
-    parent::__construct($name, $host, $date, 2, 2, 6);
-    $this->INC = sprintf('\includegraphics[width=\textwidth]{%s}',
-                         sprintf("%s/ICSA-RP-SLOOPS.pdf", dirname(__FILE__)));
+    parent::__construct($name, $host, $date, 3, 2, 6);
   }
 
   /**
@@ -79,7 +77,7 @@ class IcsaRpFormSloops extends AbstractIcsaRpForm {
         // crews
         $Y = 8.38 - 3.05 * $within_page;
         foreach ($block->crew_A as $i => $s) {
-          $y = $Y - (0.3 * $i);
+          $y = $Y - (0.27 * $i);
           $year = substr($s->sailor->year, 2);
           $races = DB::makeRange($s->races_nums);
           $pc->add(sprintf($fmt, $x,        $y, $s->sailor->getName()));
@@ -92,13 +90,18 @@ class IcsaRpFormSloops extends AbstractIcsaRpForm {
       }
     } // end of blocks
 
+    $inc = $this->getIncludeGraphics();
     $pages = array();
     foreach ($pics as $pic)
-      $pages[] = sprintf("%s %s", $this->INC, $pic);
+      $pages[] = sprintf("%s %s", $inc, $pic);
 
     $body = implode('\clearpage ', $pages);
     $body = str_replace("**num_pages**", count($pages), $body);
     return str_replace("&", "\&", $body);
+  }
+
+  public function getPdfName() {
+    return 'ICSA-RP-SLOOPS.pdf';
   }
 }
 ?>

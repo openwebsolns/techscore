@@ -24,8 +24,6 @@ class IcsaRpFormABC extends AbstractIcsaRpForm {
    */
   public function __construct($name, $host, $date) {
     parent::__construct($name, $host, $date, 2, 3, 3, 3, 3, 3, 3);
-    $this->INC = sprintf('\includegraphics[width=\textwidth]{%s}',
-                         sprintf("%s/ICSA-RP-ABC.pdf", dirname(__FILE__)));
   }
 
   /**
@@ -125,13 +123,18 @@ class IcsaRpFormABC extends AbstractIcsaRpForm {
       }
     } // end of blocks
 
+    $inc = $this->getIncludeGraphics();
     $pages = array();
     foreach ($pics as $pic)
-      $pages[] = sprintf("%s %s", $this->INC, $pic);
+      $pages[] = sprintf("%s %s", $inc, $pic);
 
     $body = implode('\clearpage ', $pages);
     $body = str_replace("**num_pages**", count($pages), $body);
     return str_replace("&", "\&", $body);
+  }
+
+  public function getPdfName() {
+    return 'ICSA-RP-ABC.pdf';
   }
 }
 ?>

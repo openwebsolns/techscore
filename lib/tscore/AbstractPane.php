@@ -137,7 +137,8 @@ abstract class AbstractPane {
     // Downloads
     $menu = new XDiv(array('class'=>'menu'), array(new XH4("Download"), $m_list = new XUl()));
     // $m_list->add(new XLi(new XA("/download/$id/regatta", "Regatta")));
-    $m_list->add(new XLi(new XA("/download/$id/rp", "RP Forms")));
+    $m_list->add(new XLi(new XA("/download/$id/rp", "Filled RP")));
+    
     $this->PAGE->addMenu($menu);
 
     // Dialogs

@@ -24,8 +24,6 @@ class IcsaRpFormSingles extends AbstractIcsaRpForm {
    */
   public function __construct($name, $host, $date) {
     parent::__construct($name, $host, $date, 20, 1, 0);
-    $this->INC = sprintf('\includegraphics[width=\textwidth]{%s}',
-                         sprintf("%s/ICSA-RP-SINGLES.pdf", dirname(__FILE__)));
     $this->HEAD = ('\documentclass[landscape,letter,12pt]{article} ' .
                    '\usepackage{graphicx} ' .
                    '\usepackage[text={10.5in,8.5in},centering]{geometry} ' .
@@ -84,13 +82,18 @@ class IcsaRpFormSingles extends AbstractIcsaRpForm {
       }
     } // end of blocks
 
+    $inc = $this->getIncludeGraphics();
     $pages = array();
     foreach ($pics as $pic)
-      $pages[] = sprintf("%s %s", $this->INC, $pic);
+      $pages[] = sprintf("%s %s", $inc, $pic);
 
     $body = implode('\clearpage ', $pages);
     $body = str_replace("**num_pages**", count($pages), $body);
     return str_replace("&", "\&", $body);
+  }
+
+  public function getPdfName() {
+    return 'ICSA-RP-SINGLES.pdf';
   }
 }
 ?>

@@ -28,8 +28,6 @@ class IcsaRpFormAB extends AbstractIcsaRpForm {
    */
   public function __construct($name, $host, $date) {
     parent::__construct($name, $host, $date, 3, 3, 3, 3, 3);
-    $this->INC = sprintf('\includegraphics[width=\textwidth]{%s}',
-                         sprintf("%s/ICSA-RP-AB.pdf", dirname(__FILE__)));
   }
 
   /**
@@ -103,98 +101,18 @@ class IcsaRpFormAB extends AbstractIcsaRpForm {
       }
     } // end of blocks
 
+    $inc = $this->getIncludeGraphics();
     $pages = array();
     foreach ($pics as $pic)
-      $pages[] = sprintf("%s %s", $this->INC, $pic);
+      $pages[] = sprintf("%s %s", $inc, $pic);
 
     $body = implode('\clearpage ', $pages);
     $body = str_replace("**num_pages**", count($pages), $body);
     return str_replace("&", "\&", $body);
   }
 
-  /**
-   * Dump the contents of the blocks to standard output for debugging
-   * purposes
-   *
-   */
-  public function dump() {
-    $fmt = "%-25s | %s | %2s | %s\n";
-    foreach ($this->blocks as $id => $list) {
-      print(sprintf("Team: %25s\n Rep: %s\n",
-                    $this->teams[$id],
-                    $this->representatives[$id]));
-      foreach ($list as $block) {
-        print("---------\n");
-        foreach ($block->skipper_A as $s)
-          print(sprintf($fmt,
-                        $s->sailor,
-                        $s->division,
-                        $s->sailor->year,
-                        DB::makeRange($s->races_nums)));
-        print("\n");
-        foreach ($block->crew_A as $s)
-          print(sprintf($fmt,
-                        $s->sailor,
-                        $s->division,
-                        $s->sailor->year,
-                        DB::makeRange($s->races_nums)));
-
-        print("---------\n");
-        foreach ($block->skipper_B as $s)
-          print(sprintf($fmt,
-                        $s->sailor,
-                        $s->division,
-                        $s->sailor->year,
-                        DB::makeRange($s->races_nums)));
-        print("\n");
-        foreach ($block->crew_B as $s)
-          print(sprintf($fmt,
-                        $s->sailor,
-                        $s->division,
-                        $s->sailor->year,
-                        DB::makeRange($s->races_nums)));
-      }
-      print("==========\n");
-    }
+  public function getPdfName() {
+    return 'ICSA-RP-AB.pdf';
   }
-}
-
-
-if (isset($argv) && basename(__FILE__) == $argv[0]) {
-  $reg = DB::getRegatta(20);
-  $rp = $reg->getRpManager();
-  $divs = $reg->getDivisions();
-
-  // create host string: MIT
-  $schools = array();
-  foreach ($reg->getHosts() as $school)
-    $schools[] = $school->nick_name;
-  $form = new IcsaRpFormAB($reg->name,
-                           implode("/", $schools),
-                           $reg->start_time->format("Y-m-d"));
-  foreach ($reg->getTeams() as $team) {
-    $form->addRepresentative($team, $rp->getRepresentative($team));
-    foreach ($divs as $div) {
-      foreach (array(RP::SKIPPER, RP::CREW) as $role) {
-        foreach ($rp->getRP($team, $div, $role) as $r)
-          $form->append($r);
-      }
-    }
-  }
-
-  $form->dump();
-
-  // generate PDF
-  $text = escapeshellarg($form->toLatex());
-  $command = sprintf("pdflatex -jobname='%s' %s", "new-reg", $text);
-
-  $output = array();
-  exec($command, $output, $value);
-  if ($value != 0)
-    throw new RuntimeException("Unable to generate PDF file. Exit code $value");
-
-  // clean up
-  unlink("new-reg.aux");
-  unlink("new-reg.log");
 }
 ?>
