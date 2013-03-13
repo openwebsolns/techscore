@@ -389,7 +389,7 @@ class TeamRacesPane extends AbstractPane {
         if (($team = $this->REGATTA->getTeam($id)) !== null)
           $teams[] = $team;
       }
-      if (count($teams) < 1)
+      if (count($teams) < 2)
         throw new SoterException("Not enough teams provided: there must be at least two. Please try again.");
 
       // Assign next race number
