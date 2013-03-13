@@ -82,6 +82,11 @@ class TextManagement extends AbstractAdminUserPane {
     switch ($this->section) {
     case Text_Entry::ANNOUNCEMENTS:
       $p->add(new XP(array(), "Announcements are shown on the scoring login page. They provide a quick way to convey general information to the scorers and future registrants."));
+      break;
+
+    case  Text_Entry::WELCOME:
+      $p->add(new XP(array(), "This message is shown in the \"Welcome\" box of the public home page."));
+      break;
     }
   }
 }

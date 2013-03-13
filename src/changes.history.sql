@@ -435,3 +435,9 @@ alter table team add column dt_wins mediumint unsigned default null, add column 
 
 -- text entries
 create table text_entry (id varchar(40) not null primary key, plain text default null, html text default null) engine=innodb default charset =utf8;
+
+replace into text_entry (id, plain, html) values ('welcome', "This is the home for real-time results of College Sailing regattas. This site includes scores and participation records for all fleet-racing events within ICSA. An archive of {a:/seasons/,all previous seasons} is also available.
+
+To follow a specific school, use our {a:/schools/,listing of schools} organized by ICSA Conference. Each school's participation is summarized by season.
+
+For more information about college sailing, ICSA, the teams, and our sponsors, please visit the {a:http://www.collegesailing.org,ICSA site}.", '<div><p>This is the home for real-time results of College Sailing regattas. This site includes scores and participation records for all fleet-racing events within ICSA. An archive of <a href="/seasons/">all previous seasons</a> is also available.</p><p>To follow a specific school, use our <a href="/schools/">listing of schools</a> organized by ICSA Conference. Each school&#039;s participation is summarized by season.</p><p>For more information about college sailing, ICSA, the teams, and our sponsors, please visit the <a href="{a:http://www.collegesailing.org">ICSA</a> site}.</p></div>');

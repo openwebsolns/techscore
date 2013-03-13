@@ -26,19 +26,11 @@ class UpdateFront extends AbstractScript {
 
     // Add welcome message
     $page->addSection($div = new XDiv(array('id'=>'message-container')));
-    $div->add(new XDiv(array('id'=>'welcome'),
-                       array($this->h1("Welcome"),
-                             new XP(array(),
-                                    array("This is the home for real-time results of College Sailing regattas. This site includes scores and participation records for all fleet-racing events within ICSA. An archive of ",
-                                          new XA('/seasons/', "all previous seasons"),
-                                          " is also available.")),
-                             new XP(array(),
-                                    array("To follow a specific school, use our ",
-                                          new XA('/schools/', "listing of schools"),
-                                          " organized by ICSA Conference. Each school's participation is summarized by season.")),
-                             new XP(array(),
-                                    array("For more information about college sailing, ICSA, the teams, and our sponsors, please visit the ",
-                                          new XA(Conf::$ICSA_HOME, "ICSA site."))))));
+    $div->add($sub = new XDiv(array('id'=>'welcome'), array($this->h1("Welcome"))));
+
+    $entry = DB::get(DB::$TEXT_ENTRY, Text_Entry::WELCOME);
+    if ($entry !== null && $entry->html !== null)
+      $sub->add(new XRawText($entry->html));
 
     // Menu
     $page->addMenu(new XA('/', "Home"));

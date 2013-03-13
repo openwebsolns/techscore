@@ -2375,6 +2375,7 @@ class Text_Entry extends DBObject {
   public $html;
 
   const ANNOUNCEMENTS = 'announcements';
+  const WELCOME = 'welcome';
 
   /**
    * Fetches list of known sections
@@ -2382,7 +2383,8 @@ class Text_Entry extends DBObject {
    * @return Map
    */
   public static function getSections() {
-    return array(self::ANNOUNCEMENTS => "Announcements");
+    return array(self::ANNOUNCEMENTS => "Announcements",
+                 self::WELCOME => "Public Welcome");
   }
 
 }
