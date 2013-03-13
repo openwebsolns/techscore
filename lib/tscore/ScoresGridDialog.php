@@ -123,8 +123,8 @@ class ScoresGridDialog extends AbstractScoresDialog {
     $lroot = sprintf('/score/%s/finishes', $this->REGATTA->id);
 
     // Create table
-    $table = new XTable(array('class'=>'teamscores'));
-    $table->add($header = new XTR(array('class'=>'tr-cols')));
+    $table = new XTable(array('class'=>'teamscores'), array($tbody = new XTBody()));
+    $tbody->add($header = new XTR(array('class'=>'tr-cols')));
     $header->add(new XTD(array('class'=>'tr-pivot'), "↓ vs →"));
     $header->add(new XTH(array('class'=>'tr-rec-th'), "Record"));
     // Header
@@ -190,7 +190,7 @@ class ScoresGridDialog extends AbstractScoresDialog {
           }
         }
       }
-      $table->add($row);
+      $tbody->add($row);
       $mes = $win . '-' . $los;
       if ($tie > 0)
 	$mes .= '-' . $tie;

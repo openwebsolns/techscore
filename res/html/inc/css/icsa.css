@@ -525,7 +525,7 @@ div.stat .prefix {
     text-align: left;
 }
 /* Team racing grids */
-.teamscores {
+.teamscores, .teamscores tbody {
     border: none;
 }
 .teamscores td {
