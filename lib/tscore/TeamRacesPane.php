@@ -109,7 +109,7 @@ class TeamRacesPane extends AbstractPane {
     $form->add($ul = new XUl(array('id'=>'teams-list')));
     foreach ($this->REGATTA->getTeams() as $team) {
       $id = 'team-'.$team->id;
-      $ul->add(new XLi(array(new XCheckboxInput('team[]', $i, array('id'=>$id)),
+      $ul->add(new XLi(array(new XCheckboxInput('team[]', $team->id, array('id'=>$id)),
                              new XLabel($id, $team))));
     }
 
@@ -272,6 +272,7 @@ class TeamRacesPane extends AbstractPane {
 
       $round = $rounds[DB::$V->reqKey($args, 'round', $rounds, "Invalid round to delete.")];
       // Check that there are no finishes
+      $scored = false;
       foreach ($this->REGATTA->getScoredRounds() as $other) {
 	if ($other->id == $round->id) {
 	  $scored = true;
