@@ -58,7 +58,7 @@ class TextManagement extends AbstractAdminUserPane {
       $entry->id = $this->section;
     }
 
-    $input = DB::$V->incString($args, 'content', 1, 10000);
+    $input = DB::$V->incRaw($args, 'content', 1, 10000);
     if ($input == $entry->plain) {
       Session::pa(new PA("Nothing changed.", PA::I));
       return;
@@ -67,9 +67,13 @@ class TextManagement extends AbstractAdminUserPane {
     require_once('xml5/TSEditor.php');
     $DPE = new TSEditor();
     $entry->plain = $input;
-
-    $html = new XDiv(array(), $DPE->parse($input));
-    $entry->html = $html->toXML();
+    if ($input === null) {
+      $entry->html = null;
+    }
+    else {
+      $html = new XDiv(array(), $DPE->parse($input));
+      $entry->html = $html->toXML();
+    }
     DB::set($entry);
     Session::pa(new PA("Updated text section for " . $this->section . "."));
   }
