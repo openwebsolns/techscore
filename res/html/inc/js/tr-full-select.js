@@ -43,7 +43,7 @@ function showAll() {
         }
 
         for (var i = 0; i < TEAM_PORT_MAP[name].length; i++) {
-            TEAM_PORT_MAP[name][i].style.display = "block";
+            TEAM_PORT_MAP[name][i].style.display = "table";
         }
     }
     window.location.hash = "#_";
