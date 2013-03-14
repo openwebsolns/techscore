@@ -585,17 +585,23 @@ class SailsPane extends AbstractPane {
         $offset = (int)(count($teams) / count($divisions));
 
         $template = array_shift($divisions);
-        $ordered_races = $races;
         $ordered_divs  = array();
-        foreach ($races as $num)
-          $ordered_divs[] = $template;
+        // vet the races are valid
+        $race_nums = array();
+        foreach ($races as $num) {
+          if ($this->REGATTA->getRace($template, $num) !== null) {
+            $ordered_divs[] = $template;
+            $race_nums[] = $num;
+          }
+        }
+        $ordered_races = $race_nums;
 
         // Perform template rotation
         switch ($rottype) {
         case "STD":
         case "NOR":
           $rotation->createStandard($sails, $teams, $ordered_divs, $ordered_races, $repeats);
-        break;
+          break;
 
         case "SWP":
           // ascertain that there are an even number of teams
@@ -610,22 +616,19 @@ class SailsPane extends AbstractPane {
 
         // Offset subsequent divisions, but first queue this one
         $rotation->initQueue();
-        foreach ($races as $num) {
+        foreach ($race_nums as $num) {
           $race = $this->REGATTA->getRace($template, $num);
-          if ($race !== null) {
-            foreach ($teams as $team) {
-              if (($sail = $rotation->getSail($race, $team)) !== null)
-                $rotation->queue($sail);
-            }
+          foreach ($teams as $team) {
+            if (($sail = $rotation->getSail($race, $team)) !== null)
+              $rotation->queue($sail);
           }
         }
 
-        $num_teams = count($teams);
         $index = 0;
         foreach ($divisions as $div) {
           $rotation->queueOffset($template,
                                  $div,
-                                 $races,
+                                 $race_nums,
                                  $offset * (++$index));
         }
         $rotation->commit();
