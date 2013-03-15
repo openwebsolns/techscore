@@ -8,6 +8,28 @@
 require_once('rpwriter/AbstractIcsaRpForm.php');
 
 /**
+ * Stand-in for RP object allows manipulation of race numbers
+ *
+ * @author Dayan Paez
+ * @version 2013-03-15
+ */
+class FauxRP extends RP {
+  public $sailor;
+  public $team;
+  public $boat_role;
+  public $division;
+  public $races_nums;
+
+  public function __construct(RP $parent) {
+    $this->sailor = $parent->__get('sailor');
+    $this->team = $parent->__get('team');
+    $this->boat_role = $parent->__get('boat_role');
+    $this->division = $parent->__get('division');
+    $this->races_nums = $parent->__get('races_nums');
+  }
+}
+
+/**
  * Draws RP forms for team racing regatta
  *
  * @author Dayan Paez
@@ -18,6 +40,12 @@ class IcsaRpFormTeam extends AbstractIcsaRpForm {
   private $regatta;
 
   /**
+   * @var Map of RP indexed <teamID>-<role>-<sailorID> meant to ascertain
+   * only one sailor appears per team, regardless of boat, or division
+   */
+  private $team_sailor_map;
+
+  /**
    * Creates a new form for two team racing
    *
    * @param FullRegatta $reg the regatta in question
@@ -25,10 +53,47 @@ class IcsaRpFormTeam extends AbstractIcsaRpForm {
    * @param String $date the date of the regatta
    */
   public function __construct(FullRegatta $reg, $host, $date) {
-    parent::__construct($reg->name, $host, $date, 2, 5, 6, 5, 6, 5, 6);
-    $this->num_skipper_total = 5;
-    $this->num_crew_total = 6;
+    parent::__construct($reg->name, $host, $date, 2, 5, 6);
     $this->regatta = $reg;
+    $this->team_sailor_map = array();
+  }
+
+  public function append(RP $rp) {
+    // Cheat by merging different divisions or boats into one RP, and
+    // use only "skipper_A" and "crew_A"
+    $team = $rp->team;
+    $role = $rp->boat_role; // either "skipper" or "crew"
+    if (!isset($this->teams[$team->id]))
+      $this->add($team);
+
+    $id = sprintf('%s-%s-%s', $team->id, $role, $rp->sailor->id);
+    if (isset($this->team_sailor_map[$id])) {
+      $prevRP = $this->team_sailor_map[$id];
+      foreach ($rp->races_nums as $num)
+        $prevRP->races_nums[] = $num;
+      $prevRP->races_nums = array_unique($prevRP->races_nums);
+      sort($prevRP->races_nums, SORT_NUMERIC);
+      return;
+    }
+
+    $rp = new FauxRP($rp);
+
+    // determine whether a new block is necessary
+    $var_name  = sprintf("%s_%s",  $role, Division::A());
+    $var_count = sprintf("num_%s", $var_name);
+
+    // get block, and create a new if necessary
+    $list  = $this->$var_name;
+    $block = $this->blocks[$team->id][$list[$team->id]];
+    if (count($block->$var_name) == $this->$var_count) {
+      $block = new RpBlock();
+      $this->blocks[$team->id][] = $block;
+      $list[$team->id]++;
+      $this->$var_name = $list;
+    }
+
+    array_push($block->$var_name, $rp);
+    $this->team_sailor_map[$id] = $rp;
   }
 
   /**
