@@ -174,9 +174,13 @@ class RpManager {
     $sum = 0;
     foreach ($races as $race)
       $sum += $race->boat->occupants;
+    if ($this->regatta->scoring == Regatta::SCORING_TEAM)
+      $sum *= 2;
+    else
+      $sum *= count($this->regatta->getTeams());
 
     $tot = DB::getAll(DB::$RP_ENTRY, new DBCondIn('race', $races));
-    return (count($tot) >= ($sum * count($this->regatta->getTeams())));
+    return (count($tot) >= $sum);
   }
 
   // Static variable and functions
