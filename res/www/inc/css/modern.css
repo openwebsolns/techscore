@@ -241,6 +241,9 @@ div.form_entry * {vertical-align:top;}
 #announcements li {    list-style-type: none; padding: 0.5em; margin-bottom: 0.5em;}
 #announcements .error {background:#eed2c0;border:1px solid brown;}
 p.valid, #announcements .success {background:#e0f3e0;border:1px solid green;}
+p.valid {
+    padding: 0.25em;
+}
 p.warning, #announcements .warn {background:#f3f3bb;border:1px solid orange;}
 p.warning {padding: 0.5em;}
 #announcements img {margin-right:0.5em;}

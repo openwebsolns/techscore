@@ -64,6 +64,62 @@ class RpEnterPane extends AbstractPane {
     $form->add(new XSubmitAccessible("change_team", "Get form"));
 
     // ------------------------------------------------------------
+    // What's missing
+    // ------------------------------------------------------------
+    if ($this->REGATTA->hasFinishes()) {
+      $this->PAGE->addContent($p = new XPort(sprintf("What's missing from %s", $chosen_team)));
+      $p->add(new XP(array(), "This port shows what information is missing for this team. Note that only scored races are considered."));
+
+      $header = new XTR(array(), array(new XTH(array(), "#")));
+      $rows = array();
+      foreach ($divisions as $divNumber => $div) {
+        $name = "Division " . $div;
+        if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
+          $name = $div->getLevel() . " Boat";
+        $header->add(new XTH(array('colspan'=>2), $name));
+
+        foreach ($this->REGATTA->getScoredRacesForTeam($div, $chosen_team) as $race) {
+          // get missing info
+          $skip = null;
+          $crew = null;
+          if (count($rpManager->getRpEntries($chosen_team, $race, RP::SKIPPER)) == 0)
+            $skip = "No skipper";
+          $diff = $race->boat->occupants - 1 - count($rpManager->getRpEntries($chosen_team, $race, RP::CREW));
+          if ($diff > 0)
+            $crew = sprintf("%d crew(s)", $diff);
+
+
+          if ($skip !== null || $crew !== null) {
+            if (!isset($rows[$race->number]))
+              $rows[$race->number] = array(new XTH(array(), $race->number));
+            // pad the row with previous division
+            for ($i = count($rows[$race->number]) - 1; $i < $divNumber * 2; $i += 2) {
+              $rows[$race->number][] = new XTD();
+              $rows[$race->number][] = new XTD();
+            }
+            $rows[$race->number][] = new XTD(array(), $skip);
+            $rows[$race->number][] = new XTD(array(), $crew);
+          }
+        }
+      }
+
+      if (count($rows) > 0) {
+        $p->add(new XTable(array('class'=>'missingrp-table'),
+                           array(new XTHead(array(), array($header)),
+                                 $bod = new XTBody())));
+        $rowIndex = 0;
+        foreach ($rows as $row) {
+          for ($i = count($row); $i < count($divisions) * 2 + 1; $i++)
+            $row[] = new XTD();
+          $bod->add(new XTR(array('class'=>'row' . ($rowIndex++ % 2)), $row));
+        }
+      }
+      else
+        $p->add(new XP(array('class'=>'valid'),
+                       array(new XImg(WS::link('/inc/img/s.png'), "✓"), " Information is complete.")));
+    }
+
+    // ------------------------------------------------------------
     // RP Form
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new XPort(sprintf("Fill out form for %s", $chosen_team)));
@@ -97,9 +153,8 @@ class RpEnterPane extends AbstractPane {
     $rep_id = ($rep === null) ? "" : $rep->id;
     $p->add($form = $this->createForm());
     $form->add(new XP(array('class'=>'warning'),
-                      array(new XStrong("Note:"), " It is not possible to add sailors without adding races. When unsure, mark a sailor as sailing all races, and edit later as more information becomes available.")));
-    $form->add(new XP(array('class'=>'warning'),
-                      array(new XStrong("Hint:"), " Use \"*\" to automatically select all races. Use the ",
+                      array(new XStrong("Note:"), " It is not possible to add sailors without adding races. When unsure, mark a sailor as sailing all races, and edit later as more information becomes available. ",
+                            new XStrong("Hint:"), " Use \"*\" to automatically select all races. Use the ",
                             new XA(WS::link(sprintf('/view/%s/sailors', $this->REGATTA->id)), "Sailors dialog",
                                    array('onclick'=>'this.target="sailors"')),
                             " to see current registrations.")));

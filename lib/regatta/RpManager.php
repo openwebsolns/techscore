@@ -58,6 +58,21 @@ class RpManager {
   }
 
   /**
+   * Fetches single RP_Entry for given team-race-role combo
+   *
+   * @param Team $team the team whose entry to fetch
+   * @param Race $race the specific race to fetch
+   * @param RP:Const $role the role (SKIPPER, CREW)
+   * @return Array:RP_Entry objects
+   */
+  public function getRpEntries(Team $team, Race $race, $role) {
+    return DB::getAll(DB::$RP_ENTRY,
+                      new DBBool(array(new DBCond('team', $team),
+                                       new DBCond('race', $race),
+                                       new DBCond('boat_role', RP::parseRole($role)))));
+  }
+
+  /**
    * Gets a list of sailors with the given role in the given team in
    * the specified division
    *

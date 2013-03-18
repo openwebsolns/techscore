@@ -775,6 +775,28 @@ class FullRegatta extends DBObject {
   }
 
   /**
+   * Like getScoredRaces, but for a specific team
+   *
+   * This is indeed identical to getScoredRaces for non-team scoring
+   * regattas.
+   *
+   * @param Division $div the specific division
+   * @param Team $team the specific team
+   * @return Array
+   */
+  public function getScoredRacesForTeam(Division $div, Team $team) {
+    $races = $this->getScoredRaces($div);
+    if ($this->scoring != Regatta::SCORING_TEAM)
+      return $races;
+    $list = array();
+    foreach ($races as $race) {
+      if ($race->tr_team1->id == $team->id || $race->tr_team2->id == $team->id)
+        $list[] = $race;
+    }
+    return $list;
+  }
+
+  /**
    * Returns ordered list of rounds team is participating in.
    *
    * @param Team $team the team
