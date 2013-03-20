@@ -118,7 +118,9 @@ class RegattaIO {
         $sub->set("id", $id);
         $sub->set("division", $div);
         $sub->set("races", DB::makeRange($set));
-        $sub->set("occupants", $boat->occupants);
+        $sub->set("min_crews", $boat->min_crews);
+        $sub->set("max_crews", $boat->min_crews);
+        $sub->set("occupants", $boat->min_crews + 1);
         $sub->add(new XText($boat->name));
       }
     }
