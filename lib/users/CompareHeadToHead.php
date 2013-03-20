@@ -36,7 +36,7 @@ class CompareHeadToHead extends AbstractUserPane {
   private function getRPs(Sailor $sailor, $role, Array $regs = array(), Array $seasons = array()) {
     if (count($seasons) == 0) {
       if (count($regs) == 0)
-        throw new InvalidArgumentException("Either the list of regattas or the list of seasons must be provided.");
+        return array();
     }
     else {
       $regs = DB::prepGetAll(DB::$REGATTA, $db = new DBBool(array(), DBBool::mOR), array('id'));
