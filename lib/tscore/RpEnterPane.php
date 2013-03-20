@@ -83,11 +83,14 @@ class RpEnterPane extends AbstractPane {
           $skip = null;
           $crew = null;
           if (count($rpManager->getRpEntries($chosen_team, $race, RP::SKIPPER)) == 0)
-            $skip = "No skipper";
+            $skip = "Skipper";
           $diff = $race->boat->occupants - 1 - count($rpManager->getRpEntries($chosen_team, $race, RP::CREW));
-          if ($diff > 0)
-            $crew = sprintf("%d crew(s)", $diff);
-
+          if ($diff > 0) {
+            if ($race->boat->occupants == 2)
+              $crew = "Crew";
+            else
+              $crew = sprintf("%d Crews", $diff);
+          }
 
           if ($skip !== null || $crew !== null) {
             if (!isset($rows[$race->number]))
