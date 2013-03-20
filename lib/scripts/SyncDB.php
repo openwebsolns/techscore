@@ -225,7 +225,7 @@ if (isset($argv) && basename(__FILE__) == basename($argv[0])) {
       break;
 
     default:
-      throw new TSScriptException("Invalid argument $opt");
+      throw new TSScriptException("Invalid argument $arg");
     }
   }
   $P->run($tosync[SyncDB::SCHOOLS], $tosync[SyncDB::SAILORS], $tosync[SyncDB::COACHES]);

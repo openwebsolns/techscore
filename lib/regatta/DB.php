@@ -331,7 +331,7 @@ class DB extends DBM {
    * @return Sailor|null the sailor
    */
   public static function getICSASailor($id) {
-    $r = DB::getAll(DB::$SAILOR, new DBCond('icsa_id', $id));
+    $r = DB::getAll(DB::$MEMBER, new DBCond('icsa_id', $id));
     $s = (count($r) == 0) ? null : $r[0];
     unset($r);
     return $s;
