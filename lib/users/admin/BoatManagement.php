@@ -76,15 +76,23 @@ class BoatManagement extends AbstractAdminUserPane {
     // 2. Current boat list
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new XPort("All boat classes"));
-    $p->add(new XP(array(), "Click on the boat name to edit that boat."));
-    $p->add($tab = new XQuickTable(array(), array("Name", "No. Crews")));
+    $p->add(new XP(array(), "Click on the boat name to edit that boat. To delete an unused boat class, check the box and click the \"Delete\" button."));
+    $p->add($f = $this->createForm());
+    $f->add($tab = new XQuickTable(array(), array("Name", "No. Crews", "Delete")));
     foreach (DB::getBoats() as $boat) {
       $crew = $boat->min_crews;
       if ($boat->max_crews != $boat->min_crews)
         $crew .= '-' . $boat->max_crews;
+
+      $del = '';
+      if (count($boat->getRaces()) == 0)
+        $del = new XCheckboxInput('boat[]', $boat->id, array('title'=>"Delete this boat class."));
+
       $tab->addRow(array(new XTD(array('class'=>'left'), new XA(sprintf("boats?b=%d", $boat->id), $boat->name)),
-                         $crew));
+                         $crew,
+                         $del));
     }
+    $f->add(new XSubmitP('delete-boats', "Delete"));
   }
 
   public function process(Array $args) {
@@ -112,7 +120,24 @@ class BoatManagement extends AbstractAdminUserPane {
       Session::pa(new PA($mess));
       WS::go('/boats');
     }
-    return $args;
+
+    // ------------------------------------------------------------
+    // Delete boats
+    // ------------------------------------------------------------
+    if (isset($args['delete-boats'])) {
+      $list = DB::$V->reqList($args, 'boat', null, "No boats to delete.");
+
+      $boats = array();
+      foreach ($list as $id) {
+        if (($boat = DB::getBoat($id)) === null)
+          throw new SoterException("Invalid boat to delete: $id.");
+        $boats[] = $boat;
+      }
+
+      foreach ($boats as $boat)
+        DB::remove($boat);
+      Session::pa(new PA(sprintf("Deleted %d boat(s).", count($boats))));
+    }
   }
 }
 ?>

@@ -875,6 +875,10 @@ class Boat extends DBObject {
   protected function db_cache() { return true; }
   protected function db_order() { return array('name'=>true); }
   public function __toString() { return $this->name; }
+
+  public function getRaces() {
+    return DB::getAll(DB::$RACE, new DBCond('boat', $this));
+  }
 }
 
 /**
