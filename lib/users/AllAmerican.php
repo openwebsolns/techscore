@@ -20,8 +20,8 @@ require_once('users/AbstractUserPane.php');
  *
  * After that, the sailors are chosen. The default set includes those
  * who finished in the top 5 in A division, or top 4 in the other
- * divisions in any of the chosen regattas, and are from the
- * conference(s) chosen. The user can alter the list by adding
+ * divisions in at least two of the chosen regattas, and are from the
+ * conference(s) chosen. The user can alter the list by adding or
  * removing sailors.
  *
  * Based on chosen regattas and sailors, the report is created. For
@@ -211,11 +211,20 @@ class AllAmerican extends AbstractUserPane {
         $this->PAGE->head->add(new XScript('text/javascript', null, 'AASearcher.prototype.womenOnly=true;'));
 
       // Determine automatically-qualifying sailors
+      $MIN_NUM_REGATTAS = 2;
       $sailors = array();
+      $sailor_count = array();
       foreach ($this->AA['regattas'] as $regatta) {
         foreach ($this->getQualifyingSailors($regatta) as $sailor) {
+          if (!isset($sailor_count[$sailor->id]))
+            $sailor_count[$sailor->id] = 0;
           $sailors[$sailor->id] = $sailor;
+          $sailor_count[$sailor->id]++;
         }
+      }
+      foreach ($sailor_count as $id => $num) {
+        if ($num < $MIN_NUM_REGATTAS)
+          unset($sailors[$id]);
       }
       usort($sailors, 'Member::compare');
 
