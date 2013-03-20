@@ -272,9 +272,9 @@ class CompareHeadToHead extends AbstractUserPane {
     // Other options, and submit
     if (!isset($sailors) || count($sailors) > 1) {
       $form->add($p = new XPort("3. Submit"));
-      $p->add(new XP(array(), "By default, the comparison only includes the regattas in which all sailors have participated. To list the full record of the sailor, check the box below."));
+      $p->add(new XP(array(), "By default, the report includes every regatta each sailor participated. Check the box below to limit the list to the regattas in which all sailors participated."));
       $p->add(new FItem($chk = new XCheckboxInput('head-to-head', 1, array('id' => 'f-req')),
-                        new XLabel('f-req', "Only include records in which all sailors participate head-to-head.")));
+                        new XLabel('f-req', "Only include records in which all sailors participated head-to-head.")));
       if (!$fullreq)
         $chk->set('checked', 'checked');
 
