@@ -188,7 +188,7 @@ class RpManager {
     $races = $this->regatta->getRaces();
     $sum = 0;
     foreach ($races as $race)
-      $sum += $race->boat->occupants;
+      $sum += $race->boat->min_crews + 1;
     if ($this->regatta->scoring == Regatta::SCORING_TEAM)
       $sum *= 2;
     else

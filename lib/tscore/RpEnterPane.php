@@ -143,7 +143,7 @@ class RpEnterPane extends AbstractPane {
       foreach ($occ as $crews => $races) {
         $num_entries++;
         $tab_races->addRow(array(new XTD(array("name"=>"races" . $div), DB::makeRange($races)),
-                                 new XTD(array("name"=>"occ" . $div),   ((int)$crews) - 1)));
+                                 new XTD(array("name"=>"occ" . $div),   $crews)));
       }
       if ($num_entries == 0) {
         $tab_races->addRow(array("N/A", "N/A"));
@@ -153,6 +153,7 @@ class RpEnterPane extends AbstractPane {
 
       $form->add($tab_races);
       $form->add($tab_skip = new XQuickTable(array('class'=>'narrow'), array("Skippers", "Races sailed", "")));
+      $size = ($this->REGATTA->scoring == Regatta::SCORING_TEAM) ? 32 : 8;
       // ------------------------------------------------------------
       // - Create skipper table
       // Write already filled-in spots + 2 more
@@ -165,7 +166,7 @@ class RpEnterPane extends AbstractPane {
         $select_cell = XSelect::fromArray("sk$div$spot", $sailor_options, $cur_sk_id, array('onchange'=>'check()'));
         $tab_skip->addRow(array($select_cell,
                                 new XTextInput("rsk$div$spot", $value,
-                                               array("size"=>"8",
+                                               array("size"=>$size,
                                                      "class"=>"race_text",
                                                      "onchange"=>
                                                      "check()")),
@@ -176,7 +177,7 @@ class RpEnterPane extends AbstractPane {
 
       $num_crews = max(array_keys($occ));
       // Print table only if there is room in the boat for crews
-      if ( $num_crews > 1 ) {
+      if ( $num_crews > 0 ) {
         // update crew table
         $form->add($tab_crew = new XQuickTable(array('class'=>'narrow'), array("Crews", "Races sailed", "")));
 
@@ -190,7 +191,7 @@ class RpEnterPane extends AbstractPane {
           $select_cell = XSelect::fromArray("cr$div$spot", $sailor_options, $cur_cr_id, array('onchange'=>'check()'));
           $tab_crew->addRow(array($select_cell,
                                   new XTextInput("rcr$div$spot", $value,
-                                                 array("size"=>"8",
+                                                 array("size"=>$size,
                                                        "class"=>"race_text",
                                                        "onchange"=>
                                                        "check()")),
@@ -336,9 +337,9 @@ class RpEnterPane extends AbstractPane {
   /**
    * Return the number of the races in this division organized by
    * number of occupants in the boats. The result associative array
-   * has keys which are the number of occupants and values which are a
-   * comma separated list of the race numbers in the division with
-   * that many occupants
+   * has keys which are the ranges of occupants (1-3) and values which
+   * are a comma separated list of the race numbers in the division
+   * with that many occupants
    *
    * @param Division $div the division
    * @param Team $team the team whose races to fetch
@@ -349,7 +350,9 @@ class RpEnterPane extends AbstractPane {
     $races = $this->REGATTA->getRacesForTeam($div, $team);
     $list = array();
     foreach ($races as $race) {
-      $occ = $race->boat->occupants;
+      $occ = $race->boat->min_crews;
+      if ($race->boat->max_crews != $race->boat->min_crews)
+        $occ .= '-' . $race->boat->max_crews;
       if (!isset($list[$occ]))
         $list[$occ] = array();
       $list[$occ][] = $race->number;
@@ -375,9 +378,9 @@ class RpEnterPane extends AbstractPane {
         $crew = null;
         if (count($rpManager->getRpEntries($chosen_team, $race, RP::SKIPPER)) == 0)
           $skip = "Skipper";
-        $diff = $race->boat->occupants - 1 - count($rpManager->getRpEntries($chosen_team, $race, RP::CREW));
+        $diff = $race->boat->min_crews - count($rpManager->getRpEntries($chosen_team, $race, RP::CREW));
         if ($diff > 0) {
-          if ($race->boat->occupants == 2)
+          if ($race->boat->min_crews == 1)
             $crew = "Crew";
           else
             $crew = sprintf("%d Crews", $diff);

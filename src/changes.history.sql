@@ -441,3 +441,8 @@ replace into text_entry (id, plain, html) values ('welcome', "This is the home f
 To follow a specific school, use our {a:/schools/,listing of schools} organized by ICSA Conference. Each school's participation is summarized by season.
 
 For more information about college sailing, ICSA, the teams, and our sponsors, please visit the {a:http://www.collegesailing.org,ICSA site}.", '<div><p>This is the home for real-time results of College Sailing regattas. This site includes scores and participation records for all fleet-racing events within ICSA. An archive of <a href="/seasons/">all previous seasons</a> is also available.</p><p>To follow a specific school, use our <a href="/schools/">listing of schools</a> organized by ICSA Conference. Each school&#039;s participation is summarized by season.</p><p>For more information about college sailing, ICSA, the teams, and our sponsors, please visit the <a href="{a:http://www.collegesailing.org">ICSA</a> site}.</p></div>');
+
+-- add minimum and maximum crew values per boat'
+alter table boat add column min_crews tinyint not null default 1, add column max_crews tinyint not null;
+update boat set min_crews = (occupants - 1), max_crews = (occupants - 1);
+alter table boat drop column occupants;

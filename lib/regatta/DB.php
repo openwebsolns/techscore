@@ -869,7 +869,8 @@ class Active_School extends School {
  */
 class Boat extends DBObject {
   public $name;
-  public $occupants;
+  public $min_crews;
+  public $max_crews;
 
   protected function db_cache() { return true; }
   protected function db_order() { return array('name'=>true); }
