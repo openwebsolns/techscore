@@ -879,6 +879,13 @@ class Boat extends DBObject {
   public function getRaces() {
     return DB::getAll(DB::$RACE, new DBCond('boat', $this));
   }
+
+  public function getNumCrews() {
+    $num = (int)$this->min_crews;
+    if ($this->max_crews != $this->min_crews)
+      $num .= '-' . (int)$this->max_crews;
+    return $num;
+  }
 }
 
 /**

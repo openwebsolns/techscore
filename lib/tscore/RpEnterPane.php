@@ -251,7 +251,7 @@ class RpEnterPane extends AbstractPane {
       // available in each race. To do this, keep a stacked
       // associative array with the following structure:
       //
-      //  $rot[DIVISION][NUM][# of OCCUPANTS],
+      //  $rot[DIVISION][NUM] = # Max Crews
       //
       // that is, for each race number (sorted by divisions), keep
       // track of the number of occupants available
@@ -260,11 +260,8 @@ class RpEnterPane extends AbstractPane {
       foreach ($divisions as $division) {
         $div = (string)$division;
         $occupants[$div] = array();
-        $list = $this->getOccupantsRaces($division, $team);
-        foreach ($list as $occ => $race_nums) {
-          foreach ($race_nums as $race_num)
-            $occupants[$div][$race_num] = $occ;
-        }
+        foreach ($this->REGATTA->getRacesForTeam($division, $team) as $race)
+          $occupants[$div][$race->number] = $race->boat->max_crews;
       }
 
       // Process each input, which is of the form:
@@ -297,7 +294,7 @@ class RpEnterPane extends AbstractPane {
             $s_race_copy = $s_race;
             if ($s_role == RP::CREW) {
               foreach ($s_race as $i => $num) {
-                if ($occupants[$s_div][$num] <= 1) {
+                if ($occupants[$s_div][$num] < 1) {
                   unset($s_race_copy[$i]);
                 }
                 else
@@ -350,9 +347,7 @@ class RpEnterPane extends AbstractPane {
     $races = $this->REGATTA->getRacesForTeam($div, $team);
     $list = array();
     foreach ($races as $race) {
-      $occ = $race->boat->min_crews;
-      if ($race->boat->max_crews != $race->boat->min_crews)
-        $occ .= '-' . $race->boat->max_crews;
+      $occ = $race->boat->getNumCrews();
       if (!isset($list[$occ]))
         $list[$occ] = array();
       $list[$occ][] = $race->number;

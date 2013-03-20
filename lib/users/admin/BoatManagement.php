@@ -80,16 +80,12 @@ class BoatManagement extends AbstractAdminUserPane {
     $p->add($f = $this->createForm());
     $f->add($tab = new XQuickTable(array(), array("Name", "No. Crews", "Delete")));
     foreach (DB::getBoats() as $boat) {
-      $crew = $boat->min_crews;
-      if ($boat->max_crews != $boat->min_crews)
-        $crew .= '-' . $boat->max_crews;
-
       $del = '';
       if (count($boat->getRaces()) == 0)
         $del = new XCheckboxInput('boat[]', $boat->id, array('title'=>"Delete this boat class."));
 
       $tab->addRow(array(new XTD(array('class'=>'left'), new XA(sprintf("boats?b=%d", $boat->id), $boat->name)),
-                         $crew,
+                         $boat->getNumCrews(),
                          $del));
     }
     $f->add(new XSubmitP('delete-boats', "Delete"));
