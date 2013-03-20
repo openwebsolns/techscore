@@ -15,8 +15,8 @@ require_once("conf.php");
  */
 class RpEnterPane extends AbstractPane {
 
-  public function __construct(Account $user, Regatta $reg) {
-    parent::__construct("Enter RP", $user, $reg);
+  public function __construct(Account $user, Regatta $reg, $title = "Enter RP") {
+    parent::__construct($title, $user, $reg);
   }
 
   protected function fillHTML(Array $args) {
@@ -70,56 +70,7 @@ class RpEnterPane extends AbstractPane {
       $this->PAGE->addContent($p = new XPort(sprintf("What's missing from %s", $chosen_team)));
       $p->add(new XP(array(), "This port shows what information is missing for this team. Note that only scored races are considered."));
 
-      $header = new XTR(array(), array(new XTH(array(), "#")));
-      $rows = array();
-      foreach ($divisions as $divNumber => $div) {
-        $name = "Division " . $div;
-        if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
-          $name = $div->getLevel() . " Boat";
-        $header->add(new XTH(array('colspan'=>2), $name));
-
-        foreach ($this->REGATTA->getScoredRacesForTeam($div, $chosen_team) as $race) {
-          // get missing info
-          $skip = null;
-          $crew = null;
-          if (count($rpManager->getRpEntries($chosen_team, $race, RP::SKIPPER)) == 0)
-            $skip = "Skipper";
-          $diff = $race->boat->occupants - 1 - count($rpManager->getRpEntries($chosen_team, $race, RP::CREW));
-          if ($diff > 0) {
-            if ($race->boat->occupants == 2)
-              $crew = "Crew";
-            else
-              $crew = sprintf("%d Crews", $diff);
-          }
-
-          if ($skip !== null || $crew !== null) {
-            if (!isset($rows[$race->number]))
-              $rows[$race->number] = array(new XTH(array(), $race->number));
-            // pad the row with previous division
-            for ($i = count($rows[$race->number]) - 1; $i < $divNumber * 2; $i += 2) {
-              $rows[$race->number][] = new XTD();
-              $rows[$race->number][] = new XTD();
-            }
-            $rows[$race->number][] = new XTD(array(), $skip);
-            $rows[$race->number][] = new XTD(array(), $crew);
-          }
-        }
-      }
-
-      if (count($rows) > 0) {
-        $p->add(new XTable(array('class'=>'missingrp-table'),
-                           array(new XTHead(array(), array($header)),
-                                 $bod = new XTBody())));
-        $rowIndex = 0;
-        foreach ($rows as $row) {
-          for ($i = count($row); $i < count($divisions) * 2 + 1; $i++)
-            $row[] = new XTD();
-          $bod->add(new XTR(array('class'=>'row' . ($rowIndex++ % 2)), $row));
-        }
-      }
-      else
-        $p->add(new XP(array('class'=>'valid'),
-                       array(new XImg(WS::link('/inc/img/s.png'), "✓"), " Information is complete.")));
+      $this->fillMissing($p, $chosen_team);
     }
 
     // ------------------------------------------------------------
@@ -404,6 +355,62 @@ class RpEnterPane extends AbstractPane {
       $list[$occ][] = $race->number;
     }
     return $list;
+  }
+
+  protected function fillMissing(XPort $p, Team $chosen_team) {
+    $divisions = $this->REGATTA->getDivisions();
+    $rpManager = $this->REGATTA->getRpManager();
+
+    $header = new XTR(array(), array(new XTH(array(), "#")));
+    $rows = array();
+    foreach ($divisions as $divNumber => $div) {
+      $name = "Division " . $div;
+      if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
+        $name = $div->getLevel() . " Boat";
+      $header->add(new XTH(array('colspan'=>2), $name));
+
+      foreach ($this->REGATTA->getScoredRacesForTeam($div, $chosen_team) as $race) {
+        // get missing info
+        $skip = null;
+        $crew = null;
+        if (count($rpManager->getRpEntries($chosen_team, $race, RP::SKIPPER)) == 0)
+          $skip = "Skipper";
+        $diff = $race->boat->occupants - 1 - count($rpManager->getRpEntries($chosen_team, $race, RP::CREW));
+        if ($diff > 0) {
+          if ($race->boat->occupants == 2)
+            $crew = "Crew";
+          else
+            $crew = sprintf("%d Crews", $diff);
+        }
+
+        if ($skip !== null || $crew !== null) {
+          if (!isset($rows[$race->number]))
+            $rows[$race->number] = array(new XTH(array(), $race->number));
+          // pad the row with previous division
+          for ($i = count($rows[$race->number]) - 1; $i < $divNumber * 2; $i += 2) {
+            $rows[$race->number][] = new XTD();
+            $rows[$race->number][] = new XTD();
+          }
+          $rows[$race->number][] = new XTD(array(), $skip);
+          $rows[$race->number][] = new XTD(array(), $crew);
+        }
+      }
+    }
+
+    if (count($rows) > 0) {
+      $p->add(new XTable(array('class'=>'missingrp-table'),
+                         array(new XTHead(array(), array($header)),
+                               $bod = new XTBody())));
+      $rowIndex = 0;
+      foreach ($rows as $row) {
+        for ($i = count($row); $i < count($divisions) * 2 + 1; $i++)
+          $row[] = new XTD();
+        $bod->add(new XTR(array('class'=>'row' . ($rowIndex++ % 2)), $row));
+      }
+    }
+    else
+      $p->add(new XP(array('class'=>'valid'),
+                     array(new XImg(WS::link('/inc/img/s.png'), "✓"), " Information is complete.")));
   }
 }
 ?>

@@ -79,7 +79,8 @@ abstract class AbstractPane {
 					    // "manual-rotation" => "ManualTweakPane"
 					    ),
 		       "RP Forms"  => array("rp"         => "RpEnterPane",
-					    "unregistered" => "UnregisteredSailorPane"),
+					    "unregistered" => "UnregisteredSailorPane",
+                                            "missing"  => "RpMissingPane"),
 		       "Finishes"  => array("finishes" => "EnterTeamFinishPane",
 					    "penalty"  => "EnterTeamPenaltyPane",
 					    "drop-penalty" => "DropPenaltyPane",
@@ -100,7 +101,8 @@ abstract class AbstractPane {
 					    "tweak-sails"=> "TweakSailsPane",
 					    "manual-rotation" => "ManualTweakPane"),
 		       "RP Forms"  => array("rp"         => "RpEnterPane",
-					    "unregistered" => "UnregisteredSailorPane"),
+					    "unregistered" => "UnregisteredSailorPane",
+                                            "missing"  => "RpMissingPane"),
 		       "Finishes"  => array("finishes" => "EnterFinishPane",
 					    "penalty"  => "EnterPenaltyPane",
 					    "drop-penalty" => "DropPenaltyPane",
@@ -326,6 +328,10 @@ abstract class AbstractPane {
     case 'enter-rps':
       require_once('tscore/RpEnterPane.php');
       return new RpEnterPane($r, $u);
+    case 'missing':
+    case 'missing-rp':
+      require_once('tscore/RpMissingPane.php');
+      return new RpMissingPane($r, $u);
     case 'setup-rotations':
     case 'setup-rotation':
     case 'rotation':
@@ -387,6 +393,7 @@ abstract class AbstractPane {
     case 'EnterPenaltyPane':
     case 'EnterTeamPenaltyPane':
     case 'RankTeamsPane':
+    case 'RpMissingPane':
       return $this->has_scores;
 
     case 'DropPenaltyPane':
@@ -463,6 +470,7 @@ abstract class AbstractPane {
                                "TweakSailsPane" => "tweak-sails",
                                "ManualTweakPane" => "manual-rotation",
                                "RpEnterPane" => "rp",
+                               "RpMissingPane" => "missing",
                                "UnregisteredSailorPane" => "unregistered",
                                "EnterFinishPane" => "finishes",
                                "EnterTeamFinishPane" => "finishes",
@@ -485,6 +493,7 @@ abstract class AbstractPane {
                                  "TweakSailsPane" => "Tweak sails",
                                  "ManualTweakPane" => "Manual setup",
                                  "RpEnterPane" => "Enter RP",
+                                 "RpMissingPane" => "Missing RP",
                                  "UnregisteredSailorPane" => "Unregistered",
                                  "EnterFinishPane" => "Enter finish",
                                  "EnterTeamFinishPane" => "Enter finish",
