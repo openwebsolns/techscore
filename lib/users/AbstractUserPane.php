@@ -90,8 +90,8 @@ abstract class AbstractUserPane {
                                   array(new XH4("Reports"),
                                         new XUl(array(),
                                                 array(new XLi(new XA("/aa", "All-American")),
-                                                      new XLi(new XA("/compare-sailors", "Head to head")),
-                                                      new XLi(new XA("/compare-by-race", "Comp. by race")))))));
+                                                      new XLi(new XA("/compare-sailors", "Head to head")))))));
+
     // Messages
     $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
                                   array(new XH4("Messages"),
@@ -287,9 +287,11 @@ abstract class AbstractUserPane {
       require_once('users/AccountPane.php');
       return new AccountPane($u);
 
+      /*
     case 'compare-by-race':
       require_once('users/CompareSailorsByRace.php');
       return new CompareSailorsByRace($u);
+      */
 
     case 'compare-sailors':
     case 'compare-head-to-head':

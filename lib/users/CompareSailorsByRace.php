@@ -92,7 +92,9 @@ class CompareSailorsByRace extends AbstractUserPane {
     unset($regattas);
 
     // keep only the regattas (and the races within them) where all
-    // the other sailors have also participated
+    // the other sailors have also participated. For standard
+    // regattas, the division must match. For combined and team, only
+    // the race number need match.
     foreach ($sailors as $sailor) {
       $copy = $reg_races;
       foreach ($copy as $regatta_id => $div_list) {
