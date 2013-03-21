@@ -39,7 +39,7 @@ class CompareHeadToHead extends AbstractUserPane {
         return array();
     }
     else {
-      $regs = DB::prepGetAll(DB::$REGATTA, $db = new DBBool(array(), DBBool::mOR), array('id'));
+      $regs = DB::prepGetAll(DB::$PUBLIC_REGATTA, $db = new DBBool(array(), DBBool::mOR), array('id'));
       foreach ($seasons as $season)
         $db->add(new DBCond('dt_season', (string)$season));
     }
@@ -167,10 +167,13 @@ class CompareHeadToHead extends AbstractUserPane {
             $rank .= 'com';
           else
             $rank .= $key;
+          $rank = array(new XA(sprintf('http://%s%sfull-scores/', Conf::$PUB_HOME, $regattas[$reg]->getURL()), $rank,
+                               array('onclick'=>'this.target="scores";')));
+
           if (count($rp->race_nums) != $rp->team_division->team->regatta->dt_num_races)
-            $rank .= sprintf(' (%s)', DB::makeRange($rp->race_nums));
+            $rank[] = sprintf(' (%s)', DB::makeRange($rp->race_nums));
           if ($role === null)
-            $rank .= " " . ucwords(substr($rp->boat_role, 0, 4));
+            $rank[] = " " . ucwords(substr($rp->boat_role, 0, 4));
           $table[$reg][$key][$rp->sailor->id] = $rank;
           $my_table[$reg][$key] = $rank;
         }
