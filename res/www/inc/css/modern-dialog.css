@@ -342,3 +342,34 @@ p.warning {padding: 0.5em;}
     text-align: left;
     padding: 0 1em;
 }
+
+/* Team registrations */
+.teamregistrations .tr-vert-label {
+    width: 11em;
+}
+
+.teamregistrations > tbody > tr:hover {
+    background: #f3f3bb;
+}
+.teamregistrations > tbody > tr:first-child:hover {
+    background: none;
+}
+.tr-boats, .tr-boats * {
+    border: 0;
+}
+.tr-boats {
+    width: 100%;
+}
+.tr-boats tr {
+    border-bottom: 1px dashed #aaa;
+}
+.tr-boats td {
+    height: 3em;
+    font-size: 90%;
+}
+.tr-boats td:hover {
+    background: #fafaea;
+}
+.tr-boats tr:last-child {
+    border-bottom: none;
+}

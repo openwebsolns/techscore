@@ -88,6 +88,10 @@ abstract class AbstractDialog {
         // --------------- RP DIALOG ----------------//
       case 'sailors':
       case 'sailor':
+        if ($u->scoring == Regatta::SCORING_TEAM) {
+          require_once('tscore/TeamRegistrationsDialog.php');
+          return new TeamRegistrationsDialog($u);
+        }
         require_once('tscore/RegistrationsDialog.php');
         return new RegistrationsDialog($u);
 
