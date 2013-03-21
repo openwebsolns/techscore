@@ -167,7 +167,6 @@ class AllAmerican extends AbstractUserPane {
         $cattr = array('id'=>$id);
 
         if ($reg->finalized === null ||
-            $reg->scoring == Regatta::SCORING_TEAM ||
             ($this->AA['report-type'] == self::TYPE_COED && $reg->participant != Regatta::PARTICIPANT_COED)) {
           $rattr['class'] = 'disabled';
           $cattr['disabled'] = 'disabled';
@@ -222,6 +221,7 @@ class AllAmerican extends AbstractUserPane {
           $sailor_count[$sailor->id]++;
         }
       }
+
       foreach ($sailor_count as $id => $num) {
         if ($num < $MIN_NUM_REGATTAS)
           unset($sailors[$id]);
@@ -409,7 +409,10 @@ class AllAmerican extends AbstractUserPane {
 
       foreach ($this->AA['regattas'] as $reg) {
 	$header1[] = $reg->getURL();
-	$header2[] = count($reg->getRaces(Division::A()));
+        if ($reg->scoring != Regatta::SCORING_TEAM)
+          $header2[] = count($reg->getRaces(Division::A()));
+        else
+          $header2[] = "";
 	$spacer[] = "";
       }
 
@@ -426,10 +429,18 @@ class AllAmerican extends AbstractUserPane {
 	    $rank = $rp->rank;
 	    if ($reg->scoring == Regatta::SCORING_COMBINED)
 	      $rank .= 'com';
-	    elseif ($num_divisions > 1)
+	    elseif ($num_divisions > 1 && $reg->scoring != Regatta::SCORING_TEAM)
 	      $rank .= $rp->team_division->division;
-	    if (count($rp->race_nums) != count($reg->getRaces(Division::get($rp->team_division->division))))
+
+            if ($reg->scoring == Regatta::SCORING_TEAM) {
+              $part_races = $reg->getRacesForTeam(Division::get($rp->team_division->division),
+                                                  $rp->team_division->team);
+              if (count($part_races) != count($rp->race_nums))
+                $rank .= sprintf(' (%d%%)', round(100 * count($rp->race_nums) / count($part_races)));
+            }
+	    elseif (count($rp->race_nums) != count($reg->getRaces(Division::get($rp->team_division->division))))
 	      $rank .= sprintf(' (%s)', DB::makeRange($rp->race_nums));
+
 	    $rps[] = $rank;
 	  }
 	  $row[] = implode("/", $rps);
@@ -482,11 +493,15 @@ class AllAmerican extends AbstractUserPane {
   private function getQualifyingSailors(Regatta $reg) {
     $list = array();
     foreach ($reg->getDivisions() as $div) {
-      $max_places = ($div == Division::A()) ? 5 : 4;
+      $max_places = 4;
+      if ($reg->scoring == Regatta::SCORING_TEAM || $div == Division::A())
+        $max_places = 5;
+
       $rps = DB::getAll(DB::$DT_RP,
                         new DBBool(array(new DBCond('rank', $max_places, DBCond::LE),
                                          new DBCond('boat_role', $this->AA['report-role']),
                                          new DBCondIn('team_division', $reg->getRanks($div)))));
+
       foreach ($rps as $rp) {
         if ($rp->sailor->icsa_id !== null &&
             ($this->AA['report-type'] != self::TYPE_WOMEN || $rp->sailor->gender == Sailor::FEMALE) &&
@@ -495,6 +510,7 @@ class AllAmerican extends AbstractUserPane {
         }
       }
     }
+
     return $list;
   }
 }
