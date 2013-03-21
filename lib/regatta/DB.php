@@ -2362,6 +2362,9 @@ class Dt_Team_Division extends DBObject {
   public $penalty;
   public $comments;
   public $score;
+  public $wins;
+  public $losses;
+  public $ties;
 
   public function db_name() { return 'dt_team_division'; }
   public function db_type($field) {

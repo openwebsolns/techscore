@@ -446,3 +446,7 @@ For more information about college sailing, ICSA, the teams, and our sponsors, p
 alter table boat add column min_crews tinyint not null default 1, add column max_crews tinyint not null;
 update boat set min_crews = (occupants - 1), max_crews = (occupants - 1);
 alter table boat drop column occupants;
+
+-- track the number of wins/losses/ties for team racing team_divisions
+alter table dt_team_division add column wins mediumint unsigned default null, add column losses mediumint unsigned default null, add column ties mediumint unsigned default null;
+alter table dt_team_division change column score score mediumint unsigned default null comment "Team races have no score.";

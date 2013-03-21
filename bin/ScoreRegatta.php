@@ -23,8 +23,6 @@ try {
   $reg = DB::getRegatta($argv[1]);
   $reg->doScore();
   $reg->setRanks();
-  foreach ($reg->getDivisions() as $div)
-    $reg->setRanks($div);
   $reg->setRpData();
 }
 catch (Exception $e) {

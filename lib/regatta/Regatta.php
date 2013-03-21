@@ -1389,7 +1389,13 @@ class FullRegatta extends DBObject {
     if ($this->dt_num_divisions == 0)
       return;
 
-    // Set the team-level ranking first
+    // ------------------------------------------------------------
+    // Set the team-level ranking first:
+    //
+    // For team racing, every "boat" or "division" receives the same
+    // rank as the team itself, so do those rankings here as well
+    $divs = ($division === null ) ? $this->getDivisions() : array($division);
+
     $ranker = $this->getRanker();
     foreach ($ranker->rank($this) as $i => $rank) {
       if ($this->scoring == Regatta::SCORING_TEAM) {
@@ -1397,6 +1403,32 @@ class FullRegatta extends DBObject {
 	$rank->team->dt_wins = $rank->wins;
 	$rank->team->dt_losses = $rank->losses;
 	$rank->team->dt_ties = $rank->ties;
+
+        foreach ($divs as $div) {
+          $team_division = $rank->team->getRank($div);
+          if ($team_division === null) {
+            $team_division = new Dt_Team_Division();
+            $team_division->team = $rank->team;
+            $team_division->division = $div;
+          }
+
+          $team_division->rank = $rank->rank;
+          $team_division->explanation = $rank->explanation;
+          $team_division->penalty = null;
+          $team_division->comments = null;
+          $team_division->score = null;
+
+          $team_division->wins = $rank->wins;
+          $team_division->losses = $rank->losses;
+          $team_division->ties = $rank->ties;
+
+          // Penalty?
+          if (($pen = $this->getTeamPenalty($rank->team, $div)) !== null) {
+            $team_division->penalty = $pen->type;
+            $team_division->comments = $pen->comments;
+          }
+          DB::set($team_division);
+        }
       }
       else {
 	$rank->team->dt_rank = ($i + 1);
@@ -1410,8 +1442,6 @@ class FullRegatta extends DBObject {
     // do the team divisions
     $ranker = $this->getDivisionRanker();
     if ($this->scoring == Regatta::SCORING_STANDARD) {
-      $divs = ($division === null ) ? $this->getDivisions() : array($division);
-
       foreach ($divs as $div) {
         $races = $this->getScoredRaces($div);
         foreach ($ranker->rank($this, $races) as $i => $rank) {
@@ -1437,7 +1467,7 @@ class FullRegatta extends DBObject {
         }
       }
     }
-    elseif ($this->scoring == Regatta::SCORING_COMBINED) {
+    if ($this->scoring == Regatta::SCORING_COMBINED) {
       foreach ($ranker->rank($this) as $i => $rank) {
         $team_division = $rank->team->getRank($rank->division);
         if ($team_division === null) {
@@ -1460,16 +1490,11 @@ class FullRegatta extends DBObject {
         DB::set($team_division);
       }
     }
-    // For team racing, there is no dt_team_division entry. Every
-    // "boat" or "division" receives teh same rank as the team itself
-
+    
     // Remove extraneous entries
-    if ($this->scoring == Regatta::SCORING_TEAM)
-      DB::removeAll(DB::$DT_TEAM_DIVISION, new DBCondIn('team', DB::prepGetAll(DB::$TEAM, new DBCond('regatta', $this), array('id'))));
-    else
-      DB::removeAll(DB::$DT_TEAM_DIVISION,
-		    new DBBool(array(new DBCondIn('team', DB::prepGetAll(DB::$TEAM, new DBCond('regatta', $this), array('id'))),
-				     new DBCondIn('division', $this->getDivisions(), DBCondIn::NOT_IN))));
+    DB::removeAll(DB::$DT_TEAM_DIVISION,
+                  new DBBool(array(new DBCondIn('team', DB::prepGetAll(DB::$TEAM, new DBCond('regatta', $this), array('id'))),
+                                   new DBCondIn('division', $this->getDivisions(), DBCondIn::NOT_IN))));
   }
 
   /**
@@ -1578,8 +1603,39 @@ class FullRegatta extends DBObject {
   public function setRpData(Division $division = null) {
     if ($this->dt_num_races === null)
       $this->setData();
-    if ($this->dt_num_divisions == 0 || $this->scoring == Regatta::SCORING_TEAM)
+    if ($this->dt_num_divisions == 0)
       return;
+
+    $rpm = $this->getRpManager();
+    // ------------------------------------------------------------
+    // For team racing, a sailor's record is equal to his team's
+    // overall record in that regatta, as dictated by
+    // dt_team_division. There is no way to partially rank a team
+    // racing regatta.
+    if ($this->scoring == Regatta::SCORING_TEAM) {
+      $ranks = $this->getRanks();
+      if (count($ranks) == 0) {
+        $this->setRanks();
+        $ranks = $this->getRanks();
+      }
+      foreach ($ranks as $rank) {
+        $div = new Division($rank->division);
+        $rank->team->resetRpData($div);
+        foreach (array(RP::SKIPPER, RP::CREW) as $role) {
+          foreach ($rpm->getRP($rank->team, $div, $role) as $rp) {
+            $drp = new Dt_Rp();
+            $drp->sailor = $rp->sailor;
+            $drp->team_division = $rank;
+            $drp->boat_role = $role;
+            $drp->race_nums = $rp->races_nums;
+            $drp->rank = $rank->rank;
+            $drp->explanation = $rank->explanation;
+            DB::set($drp);
+          }
+        }
+      }
+      return;
+    }
 
     $team_divs = array();
     $scored_nums = array();
@@ -1606,7 +1662,6 @@ class FullRegatta extends DBObject {
 
     $ranker = $this->getDivisionRanker();
 
-    $rpm = $this->getRpManager();
     foreach ($team_divs as $team) {
       $team->team->resetRpData(new Division($team->division));
       foreach (array(RP::SKIPPER, RP::CREW) as $role) {

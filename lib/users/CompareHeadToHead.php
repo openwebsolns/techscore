@@ -170,8 +170,16 @@ class CompareHeadToHead extends AbstractUserPane {
           $rank = array(new XA(sprintf('http://%s%sfull-scores/', Conf::$PUB_HOME, $regattas[$reg]->getURL()), $rank,
                                array('onclick'=>'this.target="scores";')));
 
-          if (count($rp->race_nums) != $rp->team_division->team->regatta->dt_num_races)
+          if ($regattas[$reg]->scoring == Regatta::SCORING_TEAM) {
+            $part_races = $regattas[$reg]->getRacesForTeam(new Division($rp->team_division->division),
+                                                           $rp->team_division->team);
+            if (count($part_races) != count($rp->race_nums))
+              $rank[] = sprintf(' (%d%%)', round(100 * count($rp->race_nums) / count($part_races)));
+          }
+          elseif (count($rp->race_nums) != $rp->team_division->team->regatta->dt_num_races) {
             $rank[] = sprintf(' (%s)', DB::makeRange($rp->race_nums));
+          }
+
           if ($role === null)
             $rank[] = " " . ucwords(substr($rp->boat_role, 0, 4));
           $table[$reg][$key][$rp->sailor->id] = $rank;
