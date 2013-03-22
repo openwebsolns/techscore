@@ -134,7 +134,11 @@ class CompareHeadToHead extends AbstractUserPane {
       // (reg_id => (division => (sailor_id => <rank races>))) Go
       // through each of the sailors, keeping only the regatta and
       // divisions which they have in common, UNLESS full-record is
-      // set to true
+      // set to true.
+      //
+      // For combined division and team racing regattas, the division
+      // to use is the faux division "com", since a sailor would have
+      // raced against another even if the divisions don't match
       $table = array();
       $regattas = array();
       $sailors = array_values($sailors);
@@ -152,6 +156,10 @@ class CompareHeadToHead extends AbstractUserPane {
         $my_table = array();
         foreach ($the_rps as $rp) {
           $key = $rp->team_division->division;
+          if ($rp->team_division->team->regatta->scoring == Regatta::SCORING_COMBINED)
+            $key = 'com';
+          if ($rp->team_division->team->regatta->scoring == Regatta::SCORING_TEAM)
+            $key = '';
           $reg = $rp->team_division->team->regatta->id;
           $my_table[$reg] = array();
 
@@ -162,11 +170,7 @@ class CompareHeadToHead extends AbstractUserPane {
           if (!isset($table[$reg][$key]))
             $table[$reg][$key] = array();
 
-          $rank = $rp->rank;
-          if ($regattas[$reg]->scoring == Regatta::SCORING_COMBINED)
-            $rank .= 'com';
-          else
-            $rank .= $key;
+          $rank = $rp->rank . $key;
           $rank = array(new XA(sprintf('http://%s%sfull-scores/', Conf::$PUB_HOME, $regattas[$reg]->getURL()), $rank,
                                array('onclick'=>'this.target="scores";')));
 
@@ -233,12 +237,17 @@ class CompareHeadToHead extends AbstractUserPane {
           if ($grouped) {
             $row = array($regattas[$rid]->name, $regattas[$rid]->getSeason());
             foreach ($sailors as $sailor) {
-              $part = array();
+              $cell = new XTD();
+              $i = 0;
               foreach ($divs as $list) {
-                if (isset($list[$sailor->id]))
-                  $part[] = $list[$sailor->id];
+                if (isset($list[$sailor->id])) {
+                  if ($i++ > 0)
+                    $cell->add(", ");
+                  foreach ($list[$sailor->id] as $sub)
+                    $cell->add($sub);
+                }
               }
-              $row[] = implode('/', $part);
+              $row[] = $cell;
             }
             $tab->addRow($row, array('class'=>'row'.($rowid++ % 2)));
           }
