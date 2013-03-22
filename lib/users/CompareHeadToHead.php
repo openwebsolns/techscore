@@ -25,30 +25,68 @@ class CompareHeadToHead extends AbstractUserPane {
   }
 
   /**
-   * Return the list of RPs for the given sailors for the regattas in
-   * either the given list of seasons, or the given list of regatta IDs
+   * Get list of RPs for sailor in the regattas in list of seasons
+   *
+   * For team racing regattas, create a faux RP entry that combines
+   * all the divisions and the different race numbers.
    *
    * @param Sailor $sailor the sailor whose RPs to fetch
    * @param String|null $role specify non-null to limit to skipper/crew
-   * @param Array $regs the regatta IDs (or empty)
    * @param Array $seasons the seasons array
    */
-  private function getRPs(Sailor $sailor, $role, Array $regs = array(), Array $seasons = array()) {
-    if (count($seasons) == 0) {
-      if (count($regs) == 0)
+  private function getRPs(Sailor $sailor, $role, Array $seasons = array()) {
+    if (count($seasons) == 0)
         return array();
-    }
-    else {
-      $regs = DB::prepGetAll(DB::$PUBLIC_REGATTA, $db = new DBBool(array(), DBBool::mOR), array('id'));
-      foreach ($seasons as $season)
-        $db->add(new DBCond('dt_season', (string)$season));
-    }
-    $team_cond = DB::prepGetAll(DB::$TEAM, new DBCondIn('regatta', $regs), array('id'));
-    $dteam_cond = DB::prepGetAll(DB::$DT_TEAM_DIVISION, new DBCondIn('team', $team_cond), array('id'));
-    $rp_cond = new DBBool(array(new DBCond('sailor', $sailor->id), new DBCondIn('team_division', $dteam_cond)));
+
+    // NON-TEAM SCORING REGATTAS
+    $regs1 = DB::prepGetAll(DB::$PUBLIC_REGATTA,
+                            new DBBool(array(new DBCond('scoring', Regatta::SCORING_TEAM, DBCond::NE),
+                                             $db = new DBBool(array(), DBBool::mOR))), array('id'));
+    foreach ($seasons as $season)
+      $db->add(new DBCond('dt_season', (string)$season));
+
+    $team_cond1 = DB::prepGetAll(DB::$TEAM, new DBCondIn('regatta', $regs1), array('id'));
+    $dteam_cond1 = DB::prepGetAll(DB::$DT_TEAM_DIVISION, new DBCondIn('team', $team_cond1), array('id'));
+    $rp_cond1 = new DBBool(array(new DBCond('sailor', $sailor->id), new DBCondIn('team_division', $dteam_cond1)));
     if ($role !== null)
-      $rp_cond->add(new DBCond('boat_role', $role));
-    return DB::getAll(DB::$DT_RP, $rp_cond);
+      $rp_cond1->add(new DBCond('boat_role', $role));
+    $res1 = DB::getAll(DB::$DT_RP, $rp_cond1);
+
+    // TEAM SCORING REGATTAS
+    $regs2 = DB::prepGetAll(DB::$PUBLIC_REGATTA,
+                            new DBBool(array(new DBCond('scoring', Regatta::SCORING_TEAM),
+                                             $db)), array('id'));
+
+    $team_cond2 = DB::prepGetAll(DB::$TEAM, new DBCondIn('regatta', $regs2), array('id'));
+    $dteam_cond2 = DB::prepGetAll(DB::$DT_TEAM_DIVISION, new DBCondIn('team', $team_cond2), array('id'));
+    $rp_cond2 = new DBBool(array(new DBCond('sailor', $sailor->id), new DBCondIn('team_division', $dteam_cond2)));
+    if ($role !== null)
+      $rp_cond2->add(new DBCond('boat_role', $role));
+    $res2 = DB::getAll(DB::$DT_RP, $rp_cond2);
+
+    if (count($res2) == 0)
+      return $res1;
+
+    // COMBINE THE TWO LISTS
+    $list = array();
+    foreach ($res1 as $rp)
+      $list[] = $rp;
+
+    $entries = array(); // map of <teamID-boatRole>  => "master rp"
+    foreach ($res2 as $rp) {
+      $id = $rp->team_division->team->id . '-' . $rp->boat_role;
+      if (!isset($entries[$id])) {
+        $entries[$id] = $rp;
+        $rp->team_division->division = "All";
+        $list[] = $rp;
+      }
+      else {
+        $nums = array_merge($entries[$id]->race_nums, $rp->race_nums);
+        sort($nums, SORT_NUMERIC);
+        $entries[$id]->race_nums = array_unique($nums);
+      }
+    }
+    return $list;
   }
 
   public function fillHTML(Array $args) {
@@ -135,10 +173,6 @@ class CompareHeadToHead extends AbstractUserPane {
       // through each of the sailors, keeping only the regatta and
       // divisions which they have in common, UNLESS full-record is
       // set to true.
-      //
-      // For combined division and team racing regattas, the division
-      // to use is the faux division "com", since a sailor would have
-      // raced against another even if the divisions don't match
       $table = array();
       $regattas = array();
       $sailors = array_values($sailors);
@@ -151,15 +185,11 @@ class CompareHeadToHead extends AbstractUserPane {
           $the_seasons = array();
         }
 
-        $the_rps = $this->getRPs($sailor, $role, $regs, $the_seasons);
+        $the_rps = $this->getRPs($sailor, $role, $the_seasons);
 
         $my_table = array();
         foreach ($the_rps as $rp) {
           $key = $rp->team_division->division;
-          if ($rp->team_division->team->regatta->scoring == Regatta::SCORING_COMBINED)
-            $key = 'com';
-          if ($rp->team_division->team->regatta->scoring == Regatta::SCORING_TEAM)
-            $key = '';
           $reg = $rp->team_division->team->regatta->id;
           $my_table[$reg] = array();
 
@@ -170,12 +200,16 @@ class CompareHeadToHead extends AbstractUserPane {
           if (!isset($table[$reg][$key]))
             $table[$reg][$key] = array();
 
-          $rank = $rp->rank . $key;
+          $rank = $rp->rank;
+          if ($rp->team_division->team->regatta->scoring == Regatta::SCORING_STANDARD)
+            $rank .= $key;
+          if ($rp->team_division->team->regatta->scoring == Regatta::SCORING_COMBINED)
+            $rank .= 'com';
           $rank = array(new XA(sprintf('http://%s%sfull-scores/', Conf::$PUB_HOME, $regattas[$reg]->getURL()), $rank,
                                array('onclick'=>'this.target="scores";')));
 
           if ($regattas[$reg]->scoring == Regatta::SCORING_TEAM) {
-            $part_races = $regattas[$reg]->getRacesForTeam(new Division($rp->team_division->division),
+            $part_races = $regattas[$reg]->getRacesForTeam(Division::A(),
                                                            $rp->team_division->team);
             if (count($part_races) != count($rp->race_nums))
               $rank[] = sprintf(' (%d%%)', round(100 * count($rp->race_nums) / count($part_races)));
@@ -235,7 +269,7 @@ class CompareHeadToHead extends AbstractUserPane {
         $rowid = 0;
         foreach ($table as $rid => $divs) {
           if ($grouped) {
-            $row = array($regattas[$rid]->name, $regattas[$rid]->getSeason());
+            $row = array(new XStrong($regattas[$rid]->name), $regattas[$rid]->getSeason()->fullString());
             foreach ($sailors as $sailor) {
               $cell = new XTD();
               $i = 0;
@@ -253,7 +287,7 @@ class CompareHeadToHead extends AbstractUserPane {
           }
           else {
             foreach ($divs as $list) {
-              $row = array($regattas[$rid]->name, $regattas[$rid]->getSeason());
+              $row = array(new XStrong($regattas[$rid]->name), $regattas[$rid]->getSeason()->fullString());
               foreach ($sailors as $sailor) {
                 if (isset($list[$sailor->id]))
                   $row[] = $list[$sailor->id];
