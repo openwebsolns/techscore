@@ -1225,7 +1225,10 @@ class FullRegatta extends DBObject {
    */
   public function runScore(Race $race) {
     $this->__get('scorer')->score($this, array($race));
-    $this->setRanks($race->division);
+    if ($this->scoring == Regatta::SCORING_STANDARD)
+      $this->setRanks($race->division);
+    else
+      $this->setRanks();
   }
 
   /**
@@ -1409,7 +1412,7 @@ class FullRegatta extends DBObject {
           if ($team_division === null) {
             $team_division = new Dt_Team_Division();
             $team_division->team = $rank->team;
-            $team_division->division = $div;
+            $team_division->division = (string)$div;
           }
 
           $team_division->rank = $rank->rank;
