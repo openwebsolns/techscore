@@ -62,6 +62,7 @@ class AllAmerican extends AbstractUserPane {
                              'report-role' => null,
                              'report-seasons' => null,
                              'report-confs' => null,
+                             'report-min-regattas' => null,
                              ));
     $this->AA = Session::g('aa');
     $this->page_url = 'aa';
@@ -113,6 +114,9 @@ class AllAmerican extends AbstractUserPane {
                                 new XLabel($conf->id, $conf))));
         $chk->set('checked', 'checked');
       }
+
+      $form->add($fi = new FItem("Min. # Regattas", new XTextInput('min-regattas', 2, array('size'=>3, 'maxlength'=>3, 'style'=>'min-width:3em'))));
+      $fi->add(new XMessage("Sailors must qualify for at least this many regattas to be automatically considered."));
 
       $form->add(new XSubmitP('set-report', "Choose regattas →"));
       return;
@@ -210,7 +214,6 @@ class AllAmerican extends AbstractUserPane {
         $this->PAGE->head->add(new XScript('text/javascript', null, 'AASearcher.prototype.womenOnly=true;'));
 
       // Determine automatically-qualifying sailors
-      $MIN_NUM_REGATTAS = 2;
       $sailors = array();
       $sailor_count = array();
       foreach ($this->AA['regattas'] as $regatta) {
@@ -223,7 +226,7 @@ class AllAmerican extends AbstractUserPane {
       }
 
       foreach ($sailor_count as $id => $num) {
-        if ($num < $MIN_NUM_REGATTAS)
+        if ($num < $this->AA['report-min-regattas'])
           unset($sailors[$id]);
       }
       usort($sailors, 'Member::compare');
@@ -330,6 +333,9 @@ class AllAmerican extends AbstractUserPane {
         foreach (DB::getConferences() as $conf)
           $this->AA['report-confs'][$conf->id] = $conf->id;
       }
+
+      // number of minimum regattas in order to include
+      $this->AA['report-min-regattas'] = DB::$V->incInt($args, 'min-regattas', 1, 100, 2);
 
       Session::s('aa', $this->AA);
       return false;
