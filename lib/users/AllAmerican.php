@@ -431,7 +431,25 @@ class AllAmerican extends AbstractUserPane {
 	foreach ($this->AA['regattas'] as $reg) {
 	  $rps = array();
 	  $num_divisions = count($reg->getDivisions());
-	  foreach ($reg->getRpData($sailor, null, $this->AA['report-role']) as $rp) {
+          $data = $reg->getRpData($sailor, null, $this->AA['report-role']);
+
+          // For team racing, combine all divisions into one
+          if ($reg->scoring == Regatta::SCORING_TEAM) {
+            $teamRPs = array(); // indexed by team ID
+            foreach ($data as $rp) {
+              $id = $rp->team_division->team->id;
+              if (!isset($teamRPs[$id]))
+                $teamRPs[$id] = $rp;
+              else {
+                $races = array_merge($teamRPs[$id]->race_nums, $rp->race_nums);
+                sort($races, SORT_NUMERIC);
+                $teamRPs[$id]->race_nums = array_unique($races);
+              }
+            }
+            $data = $teamRPs;
+          }
+
+	  foreach ($data as $rp) {
 	    $rank = $rp->rank;
 	    if ($reg->scoring == Regatta::SCORING_COMBINED)
 	      $rank .= 'com';
@@ -439,8 +457,7 @@ class AllAmerican extends AbstractUserPane {
 	      $rank .= $rp->team_division->division;
 
             if ($reg->scoring == Regatta::SCORING_TEAM) {
-              $part_races = $reg->getRacesForTeam(Division::get($rp->team_division->division),
-                                                  $rp->team_division->team);
+              $part_races = $reg->getRacesForTeam(Division::A(), $rp->team_division->team);
               if (count($part_races) != count($rp->race_nums))
                 $rank .= sprintf(' (%d%%)', round(100 * count($rp->race_nums) / count($part_races)));
             }
@@ -449,7 +466,7 @@ class AllAmerican extends AbstractUserPane {
 
 	    $rps[] = $rank;
 	  }
-	  $row[] = implode("/", $rps);
+	  $row[] = implode(", ", $rps);
 	}
 	$rows[] = $row;
       }
