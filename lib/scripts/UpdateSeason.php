@@ -31,10 +31,16 @@ class UpdateSeason extends AbstractScript {
     // timestamp, based solely on the start_time, assuming that the
     // week ends on a Sunday.
 
+    $first_week = $season->getFirstSaturday()->format('W');
     $weeks = array();
     $regattas = $season->getRegattas();
     foreach ($regattas as $reg) {
-      $week = $reg->start_time->format('W');
+      $week = $reg->start_time->format('W') - $first_week + 1;
+      if ($week <= 0)
+        $week = "Preweek " . (1 - $week);
+      else
+        $week = "Week " . $week;
+
       if (!isset($weeks[$week]))
         $weeks[$week] = array();
       $weeks[$week][] = $reg;
@@ -134,7 +140,7 @@ class UpdateSeason extends AbstractScript {
       }
       if (count($rows) > 0) {
         $num_weeks++;
-        $past_tab->addRow(array(new XTH(array('colspan'=>7), "Week $count")));
+        $past_tab->addRow(array(new XTH(array('colspan'=>7), $week)));
         foreach ($rows as $row)
           $past_tab->addRow($row, array('class' => sprintf("row%d", $rowindex++ % 2)));
       }

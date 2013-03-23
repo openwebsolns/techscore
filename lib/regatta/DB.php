@@ -1959,9 +1959,30 @@ class Season extends DBObject {
   public function getSeason() {
     return $this->season;
   }
+
   public function getYear() {
     return $this->__get('start_date')->format('Y');
   }
+
+  /**
+   * Fetches the first Saturday in the season.
+   *
+   * The first Saturday is the Saturday AFTER the start of the season,
+   * except that for Spring and Fall, these are pre-defined as the
+   * "First Saturday in February" and "September", respectively.
+   *
+   * @return DateTime
+   */
+  public function getFirstSaturday() {
+    $start = $this->__get('start_date');
+    if ($this->season == Season::FALL)
+      $start = new DateTime(sprintf('%s-09-01', $this->getYear()));
+    elseif ($this->season == Season::SPRING)
+      $start = new DateTime(sprintf('%s-02-01', $this->getYear()));
+    $start->add(new DateInterval(sprintf('P%sDT0H', (6 - $start->format('w')))));
+    return $start;
+  }
+
   /**
    * For Fall starting in 2011: f11
    *
