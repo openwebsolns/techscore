@@ -33,21 +33,7 @@ class UpdateManager {
     $obj->activity = $type;
     $obj->argument = $arg;
     DB::set($obj);
-
-    // Perform the regatta scores update right away
-    if ($type == UpdateRequest::ACTIVITY_SCORE && !$reg->private) {
-      if (self::$UPDATE_REG === null) {
-        require_once('scripts/UpdateRegatta.php');
-        self::$UPDATE_REG = new UpdateRegatta();
-      }
-      self::$UPDATE_REG->run($reg, array($type));
-    }
   }
-
-  /**
-   * @var UpdateRegatta the regatta updater
-   */
-  private static $UPDATE_REG;
 
   /**
    * @see queueRequest
