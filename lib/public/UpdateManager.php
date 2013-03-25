@@ -50,6 +50,19 @@ class UpdateManager {
   }
 
   /**
+   * @see queueRequest
+   */
+  public static function queueSeason(Season $season, $type) {
+    if (!in_array($type, UpdateSeasonRequest::getTypes()))
+      throw new InvalidArgumentException("Illegal update request type $type.");
+
+    $obj = new UpdateSeasonRequest();
+    $obj->season = $season;
+    $obj->activity = $type;
+    DB::set($obj);
+  }
+
+  /**
    * Fetches all pending items from the queue in the order in which
    * they are found
    *
@@ -68,6 +81,13 @@ class UpdateManager {
   }
 
   /**
+   * @see getPendingRequests
+   */
+  public static function getPendingSeasons() {
+    return DB::getAll(DB::$UPDATE_SEASON, new DBCond('completion_time', null));
+  }
+
+  /**
    * Logs the given request as completed
    *
    * @param UpdateRequest $req the update request to log
@@ -75,17 +95,6 @@ class UpdateManager {
   public static function log(AbstractUpdate $req) {
     $req->completion_time = DB::$NOW;
     DB::set($req, true);
-  }
-
-  /**
-   * Logs the update attempt for the given season
-   *
-   * @param Season $season the season
-   */
-  public static function logSeason(Season $season) {
-    $log = new UpdateLogSeason();
-    $log->season = (string)$season;
-    DB::set($log);
   }
 }
 ?>

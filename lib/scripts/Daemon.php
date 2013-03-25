@@ -36,23 +36,21 @@ require_once('AbstractScript.php');
  * time, the chances of two processes writing to the same file at the
  * same time is minimized--dare I say, eliminated?
  *
- * The overall suggestion would be to either call this script from an
- * actual daemonized process (this script is NOT a Linux daemon, per
- * se); or call the script uring a Cron job. The script will create a
- * file lock in the system's temp directory (as returned by PHP's
- * sys_get_temp_dir call) so that only one instance of this script is
- * run at a time. Thus, it should be no problem to set the cronjob to
- * cycle relatively quickly during high traffic times like the
- * weekend, as only one instance of this process will actually execute
- * at a time.
+ * As of 2013-03-25, this script works more like a real daemon. When
+ * launched, it creates a PID file in the tmp directory (in what used
+ * to be a simple lock file). It will then launch itself into an
+ * infinite loop, in which it checks for all pending updates,
+ * processes them, and then checks again, or goes to sleep, depending
+ * on the kind of daemon it is being run as.
+ *
+ * For instance, Regatta updates happen "as quickly as possible", to
+ * provide "real time" results. Updates to the season and front pages
+ * happen every 5 minutes, while school page updates every 20.
  *
  * This script has been written in the style of the other update
  * scripts in that it can be run from the command line or as a
  * "library" call from a different script, by using the class's 'run'
  * method.
- *
- * 2011-01-03: When a regatta is updated, also update all the info
- * pages for the schools associated with that regatta.
  *
  * @author Dayan Paez
  * @version 2010-10-08
@@ -80,6 +78,10 @@ class Daemon extends AbstractScript {
    * @var Map of season pages to update (ID => Season object)
    */
   private $seasons;
+  /**
+   * @var Map of season ID => list of activities
+   */
+  private $season_activities;
   /**
    * @var Map of school objects for reference (ID => School)
    */
@@ -159,6 +161,80 @@ class Daemon extends AbstractScript {
   }
 
   /**
+   * Checks for school-level updates and performs them
+   *
+   */
+  public function runSeasons() {
+    self::$lock_files['sea'] = sprintf("%s/%s-sea", sys_get_temp_dir(), Conf::$LOCK_FILENAME);
+    if (file_exists(self::$lock_files['sea'])) {
+      die("Remove lockfile to proceed! (Created: " . file_get_contents(self::$lock_files['sea']) . ")\n");
+    }
+
+    // Create file lock
+    register_shutdown_function("Daemon::cleanup");
+    if (file_put_contents(self::$lock_files['sea'], date('r')) === false)
+      throw new RuntimeException("Unable to create lock file!");
+
+    $requests = array();
+    // ------------------------------------------------------------
+    // Loop through the season requests
+    // ------------------------------------------------------------
+    $pending = UpdateManager::getPendingSeasons();
+    if (count($pending) > 0) {
+      require_once('scripts/UpdateSeason.php');
+      $P = new UpdateSeason();
+
+      // perform season summary as well?
+      $summary = false;
+      $front = false;
+      $current = Season::forDate(DB::$NOW);
+      foreach ($pending as $r) {
+        $requests[] = $r;
+	if ($r->activity == UpdateSeasonRequest::ACTIVITY_REGATTA)
+          $summary = true;
+
+        if ((string)$r->season == (string)$current)
+          $front = true;
+
+        $P->run($r->season);
+        self::errln(sprintf("processed season update %s: %s", $r->season->id, $r->season->fullString()));
+      }
+      if ($summary) {
+        require_once('scripts/UpdateSeasonsSummary.php');
+        $P = new UpdateSeasonsSummary();
+        $P->run();
+        self::errln('generated seasons summary page');
+      }
+      // Deal with home page
+      if ($front) {
+        require_once('scripts/UpdateFront.php');
+        $P = new UpdateFront();
+        $P->run();
+        self::errln('generated front page');
+      }
+    }
+
+    // ------------------------------------------------------------
+    // Mark all requests as completed
+    // ------------------------------------------------------------
+    foreach ($requests as $r)
+      UpdateManager::log($r);
+
+    // ------------------------------------------------------------
+    // Perform all hooks
+    // ------------------------------------------------------------
+    foreach (self::getHooks() as $hook) {
+      $ret = 0;
+      passthru($hook, $ret);
+      if ($ret != 0)
+	throw new RuntimeException("Hook $hook", $ret);
+      self::errln("Hook $hook run");
+    }
+
+    self::errln('done');
+  }
+
+  /**
    * Checks for the existance of a file lock. If absent, proceeds to
    * create one, then checks the queue of update requests for pending
    * items. Proceeds to intelligently update the public side of
@@ -190,11 +266,9 @@ class Daemon extends AbstractScript {
     $this->activities = array();
 
     $this->seasons = array();
+    $this->season_activities = array();
     $this->schools = array();
     $this->school_seasons = array();
-
-    // Update the seasons summary page
-    $seasons_summary = false;
 
     // URLs to delete
     $to_delete = array();
@@ -225,8 +299,7 @@ class Daemon extends AbstractScript {
       // request the update of the seasons, the schools, and the
       // season summaries, regardless.
       if ($reg->private) {
-        $seasons_summary = true;
-        $this->seasons[$season->id] = $season;
+        $this->queueSeason($season, UpdateSeasonRequest::ACTIVITY_REGATTA);
         foreach ($reg->getTeams() as $team)
           $this->queueSchoolSeason($team->school, $season);
         continue;
@@ -237,9 +310,8 @@ class Daemon extends AbstractScript {
       case UpdateRequest::ACTIVITY_DETAILS:
       case UpdateRequest::ACTIVITY_FINALIZED:
       case UpdateRequest::ACTIVITY_SEASON:
-        $seasons_summary = true;
       case UpdateRequest::ACTIVITY_SCORE:
-        $this->seasons[$season->id] = $season;
+        $this->queueSeason($season, UpdateSeasonRequest::ACTIVITY_REGATTA);
         foreach ($reg->getTeams() as $team)
           $this->queueSchoolSeason($team->school, $season);
         break;
@@ -287,6 +359,16 @@ class Daemon extends AbstractScript {
     }
 
     // ------------------------------------------------------------
+    // Queue season updates
+    // ------------------------------------------------------------
+    foreach ($this->season_activities as $id => $activities) {
+      foreach ($activities as $activity) {
+        UpdateManager::queueSeason($this->seasons[$id], $activity);
+        self::errln(sprintf('queued season %s', $id));
+      }
+    }
+
+    // ------------------------------------------------------------
     // Queue school updates
     // ------------------------------------------------------------
     foreach ($this->school_seasons as $id => $seasons) {
@@ -294,37 +376,6 @@ class Daemon extends AbstractScript {
 	UpdateManager::queueSchool($this->schools[$id], UpdateSchoolRequest::ACTIVITY_SEASON, $season);
         self::errln(sprintf('queued school %s/%-6s %s', $season, $id, $this->schools[$id]->nick_name));
       }
-    }
-
-    // ------------------------------------------------------------
-    // Perform season updates
-    // ------------------------------------------------------------
-    if (count($this->seasons) > 0) {
-      require_once('scripts/UpdateSeason.php');
-      $P = new UpdateSeason();
-      $current = Season::forDate(DB::$NOW);
-      foreach ($this->seasons as $season) {
-        $P->run($season);
-        self::errln('generated season ' . $season);
-
-        // Deal with home page
-        if ((string)$season == (string)$current) {
-          require_once('scripts/UpdateFront.php');
-          $P = new UpdateFront();
-          $P->run();
-	  self::errln('generated front page');
-        }
-      }
-    }
-
-    // ------------------------------------------------------------
-    // Perform all seasons summary update
-    // ------------------------------------------------------------
-    if ($seasons_summary) {
-      require_once('scripts/UpdateSeasonsSummary.php');
-      $P = new UpdateSeasonsSummary();
-      $P->run();
-      self::errln('generated all-seasons summary');
     }
 
     // ------------------------------------------------------------
@@ -404,10 +455,16 @@ class Daemon extends AbstractScript {
     $this->school_seasons[$school->id][(string)$season] = $season;
   }
 
+  private function queueSeason(Season $season, $activity) {
+    if (!isset($this->seasons[$season->id])) {
+      $this->seasons[$season->id] = $season;
+      $this->season_activities[$season->id] = array();
+    }
+    $this->season_activities[$season->id][$activity] = $activity;
+  }
+
   private function queueRegattaActivity(FullRegatta $reg, $activity) {
     // Score activities are carried out instantaneously
-    if ($activity == UpdateRequest::ACTIVITY_SCORE)
-      return;
     if (!isset($this->regattas[$reg->id])) {
       $this->regattas[$reg->id] = $reg;
       $this->activities[$reg->id] = array();
@@ -486,13 +543,46 @@ class Daemon extends AbstractScript {
     }
   }
 
+  /**
+   * Produce a list of pending season-level updates to standard output
+   *
+   */
+  public function listSeasons() {
+    // Merely list the pending requests
+    $requests = UpdateManager::getPendingSeasons();
+    $seasons = array();
+    foreach ($requests as $req) {
+      $activity = $req->activity;
+      if (!isset($seasons[$req->season->id])) $seasons[$req->season->id] = array();
+      if (!isset($seasons[$req->season->id][$activity]))
+        $seasons[$req->season->id][$activity] = 0;
+      $seasons[$req->season->id][$activity]++;
+    }
+
+    // Print them out and exit
+    foreach ($seasons as $id => $list) {
+      try {
+        $reg = DB::getSeason($id);
+        if ($reg === null)
+          throw new RuntimeException("Invalid season ID $id.");
+        printf("--------------------\nSeason: [%s] %s\n--------------------\n", $reg->id, $reg->fullString());
+        foreach ($list as $activity => $num)
+          printf("%12s: %d\n", $activity, $num);
+      }
+      catch (Exception $e) {
+        printf("(EE) %s: %s\n.", $id, $e->getMessage());
+      }
+    }
+  }
+
   // ------------------------------------------------------------
   // CLI setup
   // ------------------------------------------------------------
-  protected $cli_opts = '[-l] {regatta|school}';
+  protected $cli_opts = '[-l] {regatta|season|school}';
   protected $cli_usage = ' -l --list   only list the pending updates
 
  regatta: perform pending regatta-level updates
+ season:  perform pending season-level updates
  school:  perform pending school-level updates';
 }
 
@@ -519,6 +609,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
 
     case 'regatta':
     case 'school':
+    case 'season':
       if ($axis !== null)
 	throw new TSScriptException("Only one axis may be performed at a time.");
       $axis = $opt;
@@ -537,12 +628,16 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   if ($list) {
     if ($axis == 'regatta')
       $P->listRegattas();
+    elseif ($axis == 'season')
+      $P->listSeasons();
     else
       $P->listSchools();
   }
   else {
     if ($axis == 'regatta')
       $P->runRegattas();
+    elseif ($axis == 'season')
+      $P->runSeasons();
     else
       $P->runSchools();
   }

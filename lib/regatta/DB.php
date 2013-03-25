@@ -60,7 +60,7 @@ class DB extends DBM {
   public static $RP_FORM = null; // RpManager.php
   public static $UPDATE_REQUEST = null; // UpdateRequest.php
   public static $UPDATE_SCHOOL = null; // UpdateRequest.php
-  public static $UPDATE_LOG_SEASON = null; // UpdateRequest.php
+  public static $UPDATE_SEASON = null; // UpdateRequest.php
 
   // The validation engine
   public static $V = null;

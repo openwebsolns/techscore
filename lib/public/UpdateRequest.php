@@ -124,20 +124,32 @@ class UpdateSchoolRequest extends AbstractUpdate {
  * @author Dayan Paez
  * @version 2012-01-15
  */
-class UpdateLogSeason extends DBObject {
-  public $season;
-  protected $update_time;
+class UpdateSeasonRequest extends AbstractUpdate {
+  protected $season;
+
+  const ACTIVITY_REGATTA = 'regatta';
+  const ACTIVITY_DETAILS = 'details';
+
+  public static function getTypes() {
+    return array(self::ACTIVITY_REGATTA => self::ACTIVITY_REGATTA,
+                 self::ACTIVITY_DETAILS => self::ACTIVITY_DETAILS);
+  }
 
   public function db_name() { return 'pub_update_season'; }
   public function db_type($field) {
     switch ($field) {
-    case 'update_time': return DB::$NOW;
+    case 'season': return DB::$SEASON;
     default:
       return parent::db_type($field);
     }
   }
+
+  public function hash() {
+    $id = ($this->season instanceof Season) ? $this->season->id : $this->season;
+    return sprintf('%s-%s', $id, $this->activity);
+  }
 }
 DB::$UPDATE_REQUEST = new UpdateRequest();
 DB::$UPDATE_SCHOOL = new UpdateSchoolRequest();
-DB::$UPDATE_LOG_SEASON = new UpdateLogSeason();
+DB::$UPDATE_SEASON = new UpdateSeasonRequest();
 ?>

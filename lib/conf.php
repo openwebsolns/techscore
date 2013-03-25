@@ -141,7 +141,11 @@ class Conf {
   /**
    * @var cronline the (full) update schedule for regatta-level updates
    */
-  public static $CRON_FREQ = '*/5 * * * *';
+  public static $CRON_FREQ = '* * * * *';
+  /**
+   * @var cronline the (full update schedule for season-level updates
+   */
+  public static $CRON_SEASON_FREQ = '*/5 * * * *';
   /**
    * @var cronline the (full) update schedule for school-level updates
    */

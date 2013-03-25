@@ -450,3 +450,7 @@ alter table boat drop column occupants;
 -- track the number of wins/losses/ties for team racing team_divisions
 alter table dt_team_division add column wins mediumint unsigned default null, add column losses mediumint unsigned default null, add column ties mediumint unsigned default null;
 alter table dt_team_division change column score score mediumint unsigned default null comment "Team races have no score.";
+
+-- use pub_update_season to request updates to season summary pages
+alter table pub_update_season change column update_time request_time timestamp not null default current_timestamp, add column activity enum('regatta', 'details') not null default 'regatta' after season, add column completion_time datetime default null;
+delete from pub_update_season;
