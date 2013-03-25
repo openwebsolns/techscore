@@ -1204,7 +1204,7 @@ class FullRegatta extends DBObject {
 
     $res = DB::getAll(DB::$RACE,
                       new DBBool(array(new DBCond('regatta', $this),
-                                       new DBCondIn('boat', DB::prepGetAll(DB::$BOAT, new DBCond('max_crews', 0), array('id'))))));
+                                       new DBCondIn('boat', DB::prepGetAll(DB::$BOAT, new DBCond('max_crews', 0, DBCond::GT), array('id'))))));
     $r = (count($res) == 0);
     unset($res);
     return $r;
