@@ -66,6 +66,8 @@ class SyncDB extends AbstractScript {
       $sailor->id = $cur->id;
       $update = true;
     }
+    if ($sailor->gender === null)
+      $sailor->gender = Sailor::MALE;
     DB::set($sailor, $update);
   }
 
