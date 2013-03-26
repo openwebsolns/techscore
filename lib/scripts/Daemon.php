@@ -97,31 +97,73 @@ class Daemon extends AbstractScript {
    * @param String $suffix the identifier for the lock file
    */
   private function createLock($suffix) {
-    self::$lock_files[$suffix] = sprintf("%s/%s-" . $suffix, sys_get_temp_dir(), Conf::$LOCK_FILENAME);
-    if (file_exists(self::$lock_files[$suffix])) {
-      $pid = file_get_contents(self::$lock_files[$suffix]);
-      try {
-        $file = new SplFileInfo('/proc/' . $pid);
-        if ($file->isReadable()) {
-          echo "Daemon is running with PID $pid.\n";
-          exit(1);
-        }
-      } catch (RuntimeException $e) {
-        echo "Daemon may be already running with PID $pid (unable to check /proc).\n";
-        exit(1);
-      }
-      if (!@unlink(self::$lock_files[$suffix])) {
-        echo "Unable to remove PID file!\n";
-        exit(2);
-      }
-    }
+    if (file_exists(self::$lock_files[$suffix]) && !@unlink(self::$lock_files[$suffix]))
+      throw new TSScriptException("Unable to remove PID file.", 2);
 
     // Create file lock
     register_shutdown_function("Daemon::cleanup");
-    if (file_put_contents(self::$lock_files[$suffix], getmypid()) === false) {
-      echo "Unable to create PID file!\n";
-      exit(4);
+    if (file_put_contents(self::$lock_files[$suffix], getmypid()) === false)
+      throw new TSScriptException("Unable to create PID file.", 4);
+  }
+
+  /**
+   * Check that the PID file exists and equals argument $pid
+   *
+   * If $pid is null, then make sure that the lock files does not
+   * exist, or that the PID in it is no longer active.
+   *
+   */
+  private function checkLock($suffix, $pid = null) {
+    self::$lock_files[$suffix] = sprintf("%s/%s-" . $suffix, sys_get_temp_dir(), Conf::$LOCK_FILENAME);
+    if ($pid === null) {
+      if (@file_exists(self::$lock_files[$suffix])) {
+        $pid = file_get_contents(self::$lock_files[$suffix]);
+
+        $old = set_error_handler(function($errno, $errstr) {
+            if ($errno == E_WARNING)
+              return;
+            throw new TSScriptException($errstr, $errno);
+          });
+        if (pcntl_getpriority($pid) !== false)
+          throw new TSScriptException("Daemon is already running with PID $pid.", 8);
+        set_error_handler($old);
+      }
+      return;
     }
+    
+    if (!@file_exists(self::$lock_files[$suffix]))
+      throw new TSScriptException("Lock file is gone.", 16);
+    $content = @file_get_contents(self::$lock_files[$suffix]);
+    if ($content != $pid)
+      throw new TSScriptException("Lock file owned by different process.", 18);
+  }
+
+  /**
+   * Fork off as daemon, and return child PID
+   *
+   */
+  private function daemonize() {
+    $pid = pcntl_fork();
+    if ($pid == -1)
+      throw new TSScriptException("Could not fork.");
+    if ($pid != 0)
+      exit(0); // parent
+    if (posix_setsid() == -1)
+      throw new TSScriptException("Could not detach from terminal.");
+
+    declare(ticks=1);
+
+    // register signal handlers
+    $handler = function($signo) {
+      echo "Termination received. Exiting.\n";
+      Daemon::cleanup();
+      exit(127);
+    };
+
+    pcntl_signal(SIGTERM, $handler);
+    pcntl_signal(SIGHUP, $handler);
+
+    return getmypid();
   }
 
   /**
@@ -282,6 +324,9 @@ class Daemon extends AbstractScript {
    *
    */
   public function runRegattas($daemon = false) {
+    $this->checkLock('reg');
+    if ($daemon)
+      $mypid = $this->daemonize();
     $this->createLock('reg');
 
     while (true) {
@@ -290,7 +335,8 @@ class Daemon extends AbstractScript {
         if ($daemon) {
           self::errln("Sleeping...");
           DB::commit();
-          sleep(17);
+          sleep(10);
+          $this->checkLock('reg', $mypid);
           continue;
         }
         break;
@@ -455,10 +501,9 @@ class Daemon extends AbstractScript {
    */
   public static function cleanup() {
     foreach (self::$lock_files as $file) {
-      if (file_exists($file) && !unlink($file))
+      if (file_exists($file) && !@unlink($file))
 	throw new RuntimeException("(EE) Unable to delete lock file $file while cleaning up!");
     }
-    exit(0);
   }
 
   /**
