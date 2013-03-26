@@ -6,11 +6,11 @@
 MAILTO = {CRON_MAILTO}
 
 #--------------------------------
-# On weekends, let's update every 5 minutes, every other day, from
-# 9h-22h, let's update every half hour
-{CRON_FREQ} /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php regatta
-{CRON_SEASON_FREQ} /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php season
-{CRON_SCHOOL_FREQ} /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php school
+# Daemons should always be running in the background.
+# Just to make sure, attempt to start every 10 minutes
+*/10 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php -d regatta && echo "Started regatta daemon."
+*/10 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php -d season && echo "Started season daemon."
+*/10 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php -d school && echo "Started school daemon."
 
 #--------------------------------
 # Update sailor information: do this every day around 4AM

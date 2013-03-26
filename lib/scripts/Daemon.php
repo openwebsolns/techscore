@@ -172,6 +172,9 @@ class Daemon extends AbstractScript {
    * @param boolean $daemon run in daemon mode
    */
   public function runSchools($daemon = false) {
+    $this->checkLock('sch');
+    if ($daemon)
+      $mypid = $this->daemonize();
     $this->createLock('sch');
 
     while (true) {
@@ -181,6 +184,7 @@ class Daemon extends AbstractScript {
           self::errln("Sleeping...");
           DB::commit();
           sleep(73);
+          $this->checkLock('sch', $mypid);
           continue;
         }
         break;
@@ -244,6 +248,9 @@ class Daemon extends AbstractScript {
    * @param boolean $daemon run in daemon mode
    */
   public function runSeasons($daemon = false) {
+    $this->checkLock('sea');
+    if ($daemon)
+      $mypid = $this->daemonize();
     $this->createLock('sea');
 
     while (true) {
@@ -253,6 +260,7 @@ class Daemon extends AbstractScript {
           self::errln("Sleeping...");
           DB::commit();
           sleep(37);
+          $this->checkLock('sea', $mypid);
           continue;
         }
         break;
