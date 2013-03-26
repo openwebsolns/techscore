@@ -187,7 +187,7 @@ abstract class AbstractScript {
   }
   public function handle_exception(Exception $e) {
     if ($e instanceof TSScriptException)
-      $this->usage($e->getMessage());
+      $this->usage($e->getMessage(), max($e->getCode(), 1));
 
     printf("(EX) + %s\n", $e->getMessage());
     $fmt = "     | %8s: %s\n";
