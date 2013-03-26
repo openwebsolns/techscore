@@ -92,19 +92,45 @@ class Daemon extends AbstractScript {
   private $school_seasons;
 
   /**
-   * Checks for school-level updates and performs them
+   * Creates or complains about lock file
    *
+   * @param String $suffix the identifier for the lock file
    */
-  public function runSchools() {
-    self::$lock_files['sch'] = sprintf("%s/%s-sch", sys_get_temp_dir(), Conf::$LOCK_FILENAME);
-    if (file_exists(self::$lock_files['sch'])) {
-      die("Remove lockfile to proceed! (Created: " . file_get_contents(self::$lock_files['sch']) . ")\n");
+  private function createLock($suffix) {
+    self::$lock_files[$suffix] = sprintf("%s/%s-" . $suffix, sys_get_temp_dir(), Conf::$LOCK_FILENAME);
+    if (file_exists(self::$lock_files[$suffix])) {
+      $pid = file_get_contents(self::$lock_files[$suffix]);
+      try {
+        $file = new SplFileInfo('/proc/' . $pid);
+        if ($file->isReadable()) {
+          echo "Daemon is running with PID $pid.\n";
+          exit(1);
+        }
+      } catch (RuntimeException $e) {
+        echo "Daemon may be already running with PID $pid (unable to check /proc).\n";
+        exit(1);
+      }
+      if (!@unlink(self::$lock_files[$suffix])) {
+        echo "Unable to remove PID file!\n";
+        exit(2);
+      }
     }
 
     // Create file lock
     register_shutdown_function("Daemon::cleanup");
-    if (file_put_contents(self::$lock_files['sch'], date('r')) === false)
-      throw new RuntimeException("Unable to create lock file!");
+    if (file_put_contents(self::$lock_files[$suffix], getmypid()) === false) {
+      echo "Unable to create PID file!\n";
+      exit(4);
+    }
+  }
+
+  /**
+   * Checks for school-level updates and performs them
+   *
+   * @param boolean $daemon run in daemon mode
+   */
+  public function runSchools($daemon = false) {
+    $this->createLock('sch');
 
     $requests = array();
     // ------------------------------------------------------------
@@ -163,17 +189,10 @@ class Daemon extends AbstractScript {
   /**
    * Checks for school-level updates and performs them
    *
+   * @param boolean $daemon run in daemon mode
    */
-  public function runSeasons() {
-    self::$lock_files['sea'] = sprintf("%s/%s-sea", sys_get_temp_dir(), Conf::$LOCK_FILENAME);
-    if (file_exists(self::$lock_files['sea'])) {
-      die("Remove lockfile to proceed! (Created: " . file_get_contents(self::$lock_files['sea']) . ")\n");
-    }
-
-    // Create file lock
-    register_shutdown_function("Daemon::cleanup");
-    if (file_put_contents(self::$lock_files['sea'], date('r')) === false)
-      throw new RuntimeException("Unable to create lock file!");
+  public function runSeasons($daemon = false) {
+    $this->createLock('sea');
 
     $requests = array();
     // ------------------------------------------------------------
@@ -242,165 +261,175 @@ class Daemon extends AbstractScript {
    * instance of this method can be called.
    *
    */
-  public function runRegattas() {
-    // Check file lock
-    self::$lock_files['reg'] = sprintf("%s/%s-reg", sys_get_temp_dir(), Conf::$LOCK_FILENAME);
-    if (file_exists(self::$lock_files['reg'])) {
-      die("Remove lockfile to proceed! (Created: " . file_get_contents(self::$lock_files['reg']) . ")\n");
-    }
+  public function runRegattas($daemon = false) {
+    $this->createLock('reg');
 
-    // Create file lock
-    register_shutdown_function("Daemon::cleanup");
-    if (file_put_contents(self::$lock_files['reg'], date('r')) === false)
-      throw new RuntimeException("Unable to create lock file!");
-
-    // ------------------------------------------------------------
-    // Initialize the set of updates that need to be created
-    // ------------------------------------------------------------
-    $requests = array(); // list of processed requests
-    // For efficiency, track the activities performed for each
-    // regatta, so as not to re-analyze
-    $hashes = array();
-
-    $this->regattas = array();
-    $this->activities = array();
-
-    $this->seasons = array();
-    $this->season_activities = array();
-    $this->schools = array();
-    $this->school_seasons = array();
-
-    // URLs to delete
-    $to_delete = array();
-
-    // Regattas to delete from database (due to inactive flag) as a map
-    $deleted_regattas = array();
-    $delete_threshold = new DateTime('5 minutes ago');
-
-    // ------------------------------------------------------------
-    // Loop through the regatta requests
-    // ------------------------------------------------------------
-    foreach (UpdateManager::getPendingRequests() as $r) {
-      $requests[] = $r;
-
-      $reg = $r->regatta;
-      if ($reg->inactive !== null)
-        $deleted_regattas[$reg->id] = $reg;
-
-      $hash = $r->hash();
-      if (isset($hashes[$hash]))
-        continue;
-      $hashes[$hash] = $r;
-
-      $this->queueRegattaActivity($reg, $r->activity);
-      $season = $reg->getSeason();
-
-      // If the regatta is personal, but a request still exists, then
-      // request the update of the seasons, the schools, and the
-      // season summaries, regardless.
-      if ($reg->private) {
-        $this->queueSeason($season, UpdateSeasonRequest::ACTIVITY_REGATTA);
-        foreach ($reg->getTeams() as $team)
-          $this->queueSchoolSeason($team->school, $season);
-        continue;
+    while (true) {
+      $pending = UpdateManager::getPendingRequests();
+      if (count($pending) == 0) {
+        if ($daemon) {
+          self::errln("Sleeping...");
+          DB::commit();
+          sleep(17);
+          continue;
+        }
+        break;
       }
 
-      switch ($r->activity) {
-        // ------------------------------------------------------------
-      case UpdateRequest::ACTIVITY_DETAILS:
-      case UpdateRequest::ACTIVITY_FINALIZED:
-      case UpdateRequest::ACTIVITY_SEASON:
-      case UpdateRequest::ACTIVITY_SCORE:
-        $this->queueSeason($season, UpdateSeasonRequest::ACTIVITY_REGATTA);
-        foreach ($reg->getTeams() as $team)
-          $this->queueSchoolSeason($team->school, $season);
-        break;
-        // ------------------------------------------------------------
-      case UpdateRequest::ACTIVITY_RP:
-      case UpdateRequest::ACTIVITY_RANK:
-        if ($r->argument !== null)
-          $this->queueSchoolSeason(DB::getSchool($r->argument), $season);
-        break;
-        // ------------------------------------------------------------
-        // Rotation and summary do not affect seasons or schools
-      }
+      // ------------------------------------------------------------
+      // Initialize the set of updates that need to be created
+      // ------------------------------------------------------------
+      $requests = array(); // list of processed requests
+      // For efficiency, track the activities performed for each
+      // regatta, so as not to re-analyze
+      $hashes = array();
 
-      // If season change, then check for old season to delete, and
-      // queue old seasons as well
-      if ($r->activity == UpdateRequest::ACTIVITY_SEASON && $r->argument !== null) {
-        $prior_season = DB::getSeason($r->argument);
-        if ($prior_season !== null) {
-          $this->seasons[$prior_season->id] = $prior_season;
-          // Queue for deletion
-          $root = sprintf('/%s/%s', $prior_season->id, $reg->nick);
-          $to_delete[$root] = $root;
+      $this->regattas = array();
+      $this->activities = array();
 
+      $this->seasons = array();
+      $this->season_activities = array();
+      $this->schools = array();
+      $this->school_seasons = array();
+
+      // URLs to delete
+      $to_delete = array();
+
+      // Regattas to delete from database (due to inactive flag) as a map
+      $deleted_regattas = array();
+      $delete_threshold = new DateTime('5 minutes ago');
+
+      // ------------------------------------------------------------
+      // Loop through the regatta requests
+      // ------------------------------------------------------------
+      foreach ($pending as $r) {
+        $requests[] = $r;
+
+        $reg = $r->regatta;
+        if ($reg->inactive !== null)
+          $deleted_regattas[$reg->id] = $reg;
+
+        $hash = $r->hash();
+        if (isset($hashes[$hash]))
+          continue;
+        $hashes[$hash] = $r;
+
+        $this->queueRegattaActivity($reg, $r->activity);
+        $season = $reg->getSeason();
+
+        // If the regatta is personal, but a request still exists, then
+        // request the update of the seasons, the schools, and the
+        // season summaries, regardless.
+        if ($reg->private) {
+          $this->queueSeason($season, UpdateSeasonRequest::ACTIVITY_REGATTA);
           foreach ($reg->getTeams() as $team)
-            $this->queueSchoolSeason($team->school, $prior_season);
+            $this->queueSchoolSeason($team->school, $season);
+          continue;
+        }
+
+        switch ($r->activity) {
+          // ------------------------------------------------------------
+        case UpdateRequest::ACTIVITY_DETAILS:
+        case UpdateRequest::ACTIVITY_FINALIZED:
+        case UpdateRequest::ACTIVITY_SEASON:
+        case UpdateRequest::ACTIVITY_SCORE:
+          $this->queueSeason($season, UpdateSeasonRequest::ACTIVITY_REGATTA);
+          foreach ($reg->getTeams() as $team)
+            $this->queueSchoolSeason($team->school, $season);
+          break;
+          // ------------------------------------------------------------
+        case UpdateRequest::ACTIVITY_RP:
+        case UpdateRequest::ACTIVITY_RANK:
+          if ($r->argument !== null)
+            $this->queueSchoolSeason(DB::getSchool($r->argument), $season);
+          break;
+          // ------------------------------------------------------------
+          // Rotation and summary do not affect seasons or schools
+        }
+
+        // If season change, then check for old season to delete, and
+        // queue old seasons as well
+        if ($r->activity == UpdateRequest::ACTIVITY_SEASON && $r->argument !== null) {
+          $prior_season = DB::getSeason($r->argument);
+          if ($prior_season !== null) {
+            $this->seasons[$prior_season->id] = $prior_season;
+            // Queue for deletion
+            $root = sprintf('/%s/%s', $prior_season->id, $reg->nick);
+            $to_delete[$root] = $root;
+
+            foreach ($reg->getTeams() as $team)
+              $this->queueSchoolSeason($team->school, $prior_season);
+          }
         }
       }
-    }
 
-    // ------------------------------------------------------------
-    // Perform deletions
-    // ------------------------------------------------------------
-    require_once('scripts/UpdateRegatta.php');
-    foreach ($to_delete as $root)
-      UpdateRegatta::deleteRegattaFiles($root);
+      // ------------------------------------------------------------
+      // Perform deletions
+      // ------------------------------------------------------------
+      require_once('scripts/UpdateRegatta.php');
+      foreach ($to_delete as $root)
+        UpdateRegatta::deleteRegattaFiles($root);
 
-    // ------------------------------------------------------------
-    // Perform regatta level updates
-    // ------------------------------------------------------------
-    $P = new UpdateRegatta();
-    foreach ($this->regattas as $id => $reg) {
-      $P->run($reg, $this->activities[$id]);
-      foreach ($this->activities[$id] as $act)
-        self::errln(sprintf("performed activity %s on %4d: %s", $act, $id, $reg->name));
-    }
-
-    // ------------------------------------------------------------
-    // Queue season updates
-    // ------------------------------------------------------------
-    foreach ($this->season_activities as $id => $activities) {
-      foreach ($activities as $activity) {
-        UpdateManager::queueSeason($this->seasons[$id], $activity);
-        self::errln(sprintf('queued season %s', $id));
+      // ------------------------------------------------------------
+      // Perform regatta level updates
+      // ------------------------------------------------------------
+      $P = new UpdateRegatta();
+      foreach ($this->regattas as $id => $reg) {
+        $P->run($reg, $this->activities[$id]);
+        foreach ($this->activities[$id] as $act)
+          self::errln(sprintf("performed activity %s on %4d: %s", $act, $id, $reg->name));
       }
-    }
 
-    // ------------------------------------------------------------
-    // Queue school updates
-    // ------------------------------------------------------------
-    foreach ($this->school_seasons as $id => $seasons) {
-      foreach ($seasons as $season) {
-	UpdateManager::queueSchool($this->schools[$id], UpdateSchoolRequest::ACTIVITY_SEASON, $season);
-        self::errln(sprintf('queued school %s/%-6s %s', $season, $id, $this->schools[$id]->nick_name));
+      // ------------------------------------------------------------
+      // Queue season updates
+      // ------------------------------------------------------------
+      foreach ($this->season_activities as $id => $activities) {
+        foreach ($activities as $activity) {
+          UpdateManager::queueSeason($this->seasons[$id], $activity);
+          self::errln(sprintf('queued season %s', $id));
+        }
       }
-    }
 
-    // ------------------------------------------------------------
-    // Mark all requests as completed
-    // ------------------------------------------------------------
-    foreach ($requests as $r)
-      UpdateManager::log($r);
+      // ------------------------------------------------------------
+      // Queue school updates
+      // ------------------------------------------------------------
+      foreach ($this->school_seasons as $id => $seasons) {
+        foreach ($seasons as $season) {
+          UpdateManager::queueSchool($this->schools[$id], UpdateSchoolRequest::ACTIVITY_SEASON, $season);
+          self::errln(sprintf('queued school %s/%-6s %s', $season, $id, $this->schools[$id]->nick_name));
+        }
+      }
 
-    // ------------------------------------------------------------
-    // Delete inactive regattas
-    // ------------------------------------------------------------
-    foreach ($deleted_regattas as $r) {
-      DB::remove($r);
-      self::errln(sprintf('permanently deleted regatta %s: %s', $r->id, $r->name));
-    }
+      // ------------------------------------------------------------
+      // Mark all requests as completed
+      // ------------------------------------------------------------
+      foreach ($requests as $r)
+        UpdateManager::log($r);
 
-    // ------------------------------------------------------------
-    // Perform all hooks
-    // ------------------------------------------------------------
-    foreach (self::getHooks() as $hook) {
-      $ret = 0;
-      passthru($hook, $ret);
-      if ($ret != 0)
-	throw new RuntimeException("Hook $hook", $ret);
-      self::errln("Hook $hook run");
+      // ------------------------------------------------------------
+      // Delete inactive regattas
+      // ------------------------------------------------------------
+      foreach ($deleted_regattas as $r) {
+        DB::remove($r);
+        self::errln(sprintf('permanently deleted regatta %s: %s', $r->id, $r->name));
+      }
+
+      // ------------------------------------------------------------
+      // Perform all hooks
+      // ------------------------------------------------------------
+      foreach (self::getHooks() as $hook) {
+        $ret = 0;
+        passthru($hook, $ret);
+        if ($ret != 0)
+          throw new RuntimeException("Hook $hook", $ret);
+        self::errln("Hook $hook run");
+      }
+
+      // ------------------------------------------------------------
+      // If not running as a daemon, then exit
+      // ------------------------------------------------------------
+      if ($daemon === false)
+        break;
     }
 
     self::errln('done');
@@ -578,8 +607,9 @@ class Daemon extends AbstractScript {
   // ------------------------------------------------------------
   // CLI setup
   // ------------------------------------------------------------
-  protected $cli_opts = '[-l] {regatta|season|school}';
-  protected $cli_usage = ' -l --list   only list the pending updates
+  protected $cli_opts = '[-l] [-d] {regatta|season|school}';
+  protected $cli_usage = ' -l --list    only list the pending updates
+ -d --daemon  run as a daemon
 
  regatta: perform pending regatta-level updates
  season:  perform pending season-level updates
@@ -600,11 +630,17 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   if (count($opts) == 0)
     throw new TSScriptException("Missing arguments.");
 
+  $daemon = false;
   foreach ($opts as $opt) {
     switch ($opt) {
     case '-l':
     case '--list':
       $list = true;
+      break;
+
+    case '-d':
+    case '--daemon':
+      $daemon = true;
       break;
 
     case 'regatta':
@@ -635,11 +671,11 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   }
   else {
     if ($axis == 'regatta')
-      $P->runRegattas();
+      $P->runRegattas($daemon);
     elseif ($axis == 'season')
-      $P->runSeasons();
+      $P->runSeasons($daemon);
     else
-      $P->runSchools();
+      $P->runSchools($daemon);
   }
 }
 ?>
