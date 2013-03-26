@@ -132,55 +132,65 @@ class Daemon extends AbstractScript {
   public function runSchools($daemon = false) {
     $this->createLock('sch');
 
-    $requests = array();
-    // ------------------------------------------------------------
-    // Loop through the school requests
-    // ------------------------------------------------------------
-    $pending = UpdateManager::getPendingSchools();
-    if (count($pending) > 0) {
+    while (true) {
+      $pending = UpdateManager::getPendingSchools();
+      if (count($pending) == 0) {
+        if ($daemon) {
+          self::errln("Sleeping...");
+          DB::commit();
+          sleep(73);
+          continue;
+        }
+        break;
+      }
+
+      $requests = array();
+      // ------------------------------------------------------------
+      // Loop through the school requests
+      // ------------------------------------------------------------
       require_once('scripts/UpdateBurgee.php');
       require_once('scripts/UpdateSchool.php');
       $PB = new UpdateBurgee();
       $PS = new UpdateSchool();
       foreach ($pending as $r) {
         $requests[] = $r;
-	if ($r->activity == UpdateSchoolRequest::ACTIVITY_BURGEE)
-	  $PB->run($r->school);
-	else { // season summary
-	  // special case: season value is null: do all
-	  if ($r->season !== null) {
-	    $PS->run($r->school, $r->season);
-	    self::errln(sprintf('generated school %s/%-6s %s', $r->season, $r->school->id, $r->school));
-	  }
-	  else {
-	    foreach (DB::getAll(DB::$SEASON) as $season) {
-	      $PS->run($r->school, $season);
-	      self::errln(sprintf('generated school %s/%-6s %s', $season, $r->school->id, $r->school));
-	    }
-	  }
-	}
-	self::errln(sprintf("processed school update %10s: %s", $r->school->id, $r->school->name));
+        if ($r->activity == UpdateSchoolRequest::ACTIVITY_BURGEE)
+          $PB->run($r->school);
+        else { // season summary
+          // special case: season value is null: do all
+          if ($r->season !== null) {
+            $PS->run($r->school, $r->season);
+            self::errln(sprintf('generated school %s/%-6s %s', $r->season, $r->school->id, $r->school));
+          }
+          else {
+            foreach (DB::getAll(DB::$SEASON) as $season) {
+              $PS->run($r->school, $season);
+              self::errln(sprintf('generated school %s/%-6s %s', $season, $r->school->id, $r->school));
+            }
+          }
+        }
+        self::errln(sprintf("processed school update %10s: %s", $r->school->id, $r->school->name));
       }
       require_once('scripts/UpdateSchoolsSummary.php');
       $P = new UpdateSchoolsSummary();
       $P->run();
-    }
 
-    // ------------------------------------------------------------
-    // Mark all requests as completed
-    // ------------------------------------------------------------
-    foreach ($requests as $r)
-      UpdateManager::log($r);
+      // ------------------------------------------------------------
+      // Mark all requests as completed
+      // ------------------------------------------------------------
+      foreach ($requests as $r)
+        UpdateManager::log($r);
 
-    // ------------------------------------------------------------
-    // Perform all hooks
-    // ------------------------------------------------------------
-    foreach (self::getHooks() as $hook) {
-      $ret = 0;
-      passthru($hook, $ret);
-      if ($ret != 0)
-	throw new RuntimeException("Hook $hook", $ret);
-      self::errln("Hook $hook run");
+      // ------------------------------------------------------------
+      // Perform all hooks
+      // ------------------------------------------------------------
+      foreach (self::getHooks() as $hook) {
+        $ret = 0;
+        passthru($hook, $ret);
+        if ($ret != 0)
+          throw new RuntimeException("Hook $hook", $ret);
+        self::errln("Hook $hook run");
+      }
     }
 
     self::errln('done');
@@ -194,12 +204,22 @@ class Daemon extends AbstractScript {
   public function runSeasons($daemon = false) {
     $this->createLock('sea');
 
-    $requests = array();
-    // ------------------------------------------------------------
-    // Loop through the season requests
-    // ------------------------------------------------------------
-    $pending = UpdateManager::getPendingSeasons();
-    if (count($pending) > 0) {
+    while (true) {
+      $pending = UpdateManager::getPendingSeasons();
+      if (count($pending) == 0) {
+        if ($daemon) {
+          self::errln("Sleeping...");
+          DB::commit();
+          sleep(37);
+          continue;
+        }
+        break;
+      }
+
+      $requests = array();
+      // ------------------------------------------------------------
+      // Loop through the season requests
+      // ------------------------------------------------------------
       require_once('scripts/UpdateSeason.php');
       $P = new UpdateSeason();
 
@@ -231,23 +251,23 @@ class Daemon extends AbstractScript {
         $P->run();
         self::errln('generated front page');
       }
-    }
 
-    // ------------------------------------------------------------
-    // Mark all requests as completed
-    // ------------------------------------------------------------
-    foreach ($requests as $r)
-      UpdateManager::log($r);
+      // ------------------------------------------------------------
+      // Mark all requests as completed
+      // ------------------------------------------------------------
+      foreach ($requests as $r)
+        UpdateManager::log($r);
 
-    // ------------------------------------------------------------
-    // Perform all hooks
-    // ------------------------------------------------------------
-    foreach (self::getHooks() as $hook) {
-      $ret = 0;
-      passthru($hook, $ret);
-      if ($ret != 0)
-	throw new RuntimeException("Hook $hook", $ret);
-      self::errln("Hook $hook run");
+      // ------------------------------------------------------------
+      // Perform all hooks
+      // ------------------------------------------------------------
+      foreach (self::getHooks() as $hook) {
+        $ret = 0;
+        passthru($hook, $ret);
+        if ($ret != 0)
+          throw new RuntimeException("Hook $hook", $ret);
+        self::errln("Hook $hook run");
+      }
     }
 
     self::errln('done');
@@ -424,12 +444,6 @@ class Daemon extends AbstractScript {
           throw new RuntimeException("Hook $hook", $ret);
         self::errln("Hook $hook run");
       }
-
-      // ------------------------------------------------------------
-      // If not running as a daemon, then exit
-      // ------------------------------------------------------------
-      if ($daemon === false)
-        break;
     }
 
     self::errln('done');
