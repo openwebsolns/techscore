@@ -165,42 +165,15 @@ abstract class AbstractScript {
   }
 
   // ------------------------------------------------------------
-  // CLI error/exception handlers
+  // CLI exception handler catches TSScriptExceptions
   // ------------------------------------------------------------
 
-  public function handle_error($errno, $errstr, $errfile, $errline) {
-    printf("(EE) + %s\n", str_replace("\n", "\n     | ", wordwrap($errstr)));
-
-    $fmt = "     | %8s: %s\n";
-    printf($fmt, "Time",   date('Y-m-d H:i:s'));
-    printf($fmt, "Number", $errno);
-    printf($fmt, "File",   $errfile);
-    printf($fmt, "Line",   $errline);
-    foreach (debug_backtrace() as $list) {
-      echo "     +--------------------\n";
-      foreach (array('file', 'line', 'class', 'function') as $index) {
-        if (isset($list[$index]))
-          printf($fmt, ucfirst($index), $list[$index]);
-      }
-    }
-    exit($errno);
-  }
   public function handle_exception(Exception $e) {
     if ($e instanceof TSScriptException)
       $this->usage($e->getMessage(), max($e->getCode(), 1));
-
-    printf("(EX) + %s\n", $e->getMessage());
-    $fmt = "     | %8s: %s\n";
-    printf($fmt, "Time", date('Y-m-d H:i:s'));
-    printf($fmt, "Number", $e->getCode());
-    printf($fmt, "File", $e->getFile());
-    printf($fmt, "Line", $e->getLine());
-    foreach ($e->getTrace() as $i => $list) {
-      echo "     +--------------------\n";
-      foreach (array('file', 'line', 'class', 'function') as $index) {
-        if (isset($list[$index]))
-          printf($fmt, ucfirst($index), $list[$index]);
-      }
+    if ($this->cli_exception_handler !== null) {
+      $h = $this->cli_exception_handler;
+      $h($e);
     }
     exit($e->getCode());
   }
@@ -225,8 +198,7 @@ abstract class AbstractScript {
    * @return Array the parsed options
    */
   public function getOpts($argv) {
-    set_error_handler(array($this, 'handle_error'), E_ALL | E_NOTICE | E_STRICT);
-    set_exception_handler(array($this, 'handle_exception'));
+    $this->cli_exception_handler = set_exception_handler(array($this, 'handle_exception'));
 
     if (count($argv) == 0)
       return array();
@@ -318,6 +290,10 @@ abstract class AbstractScript {
    * by ::getOpts from $argv
    */
   protected $cli_base;
+  /**
+   * @var callable the previous exception  handler
+   */
+  protected $cli_exception_handler;
   /**
    * @var String the usage summary (e.g.: <department_id>. Note that
    * AbstractGenerator::usage automatically prepends the $cli_base.

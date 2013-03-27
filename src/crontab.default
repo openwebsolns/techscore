@@ -7,10 +7,10 @@ MAILTO = {CRON_MAILTO}
 
 #--------------------------------
 # Daemons should always be running in the background.
-# Just to make sure, attempt to start every 10 minutes
-*/10 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php -d regatta && echo "Started regatta daemon."
-*/10 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php -d season && echo "Started season daemon."
-*/10 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php -d school && echo "Started school daemon."
+# Just to make sure, attempt to start every 5 minutes
+*/5 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php -d regatta > /dev/null && echo "Started regatta daemon."
+*/5 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php -d season > /dev/null && echo "Started season daemon."
+*/5 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php -d school > /dev/null && echo "Started school daemon."
 
 #--------------------------------
 # Update sailor information: do this every day around 4AM

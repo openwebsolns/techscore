@@ -194,32 +194,63 @@ class Daemon extends AbstractScript {
       // ------------------------------------------------------------
       // Loop through the school requests
       // ------------------------------------------------------------
-      require_once('scripts/UpdateBurgee.php');
-      require_once('scripts/UpdateSchool.php');
-      $PB = new UpdateBurgee();
-      $PS = new UpdateSchool();
+      $burgees = array(); // map of schools whose burgees to update
+
+      $schools = array(); // map of schools indexed by ID
+      $seasons = array(); // map of seasons to update indexed by school
+
       foreach ($pending as $r) {
         $requests[] = $r;
         if ($r->activity == UpdateSchoolRequest::ACTIVITY_BURGEE)
-          $PB->run($r->school);
+          $burgees[$r->school->id] = $r->school;
         else { // season summary
+          $schools[$r->school->id] = $r->school;
+          if (!isset($seasons[$r->school->id]))
+            $seasons[$r->school->id] = array();
+          
           // special case: season value is null: do all
-          if ($r->season !== null) {
-            $PS->run($r->school, $r->season);
-            self::errln(sprintf('generated school %s/%-6s %s', $r->season, $r->school->id, $r->school));
-          }
+          if ($r->season !== null)
+            $seasons[$r->school->id][(string)$r->season] = $r->season;
           else {
-            foreach (DB::getAll(DB::$SEASON) as $season) {
-              $PS->run($r->school, $season);
-              self::errln(sprintf('generated school %s/%-6s %s', $season, $r->school->id, $r->school));
+            foreach (DB::getAll(DB::$SEASON) as $season)
+              $seasons[$r->school->id][(string)$season] = $season;
+          }
+        }
+      }
+
+      try {
+        // ------------------------------------------------------------
+        // Perform the updates
+        // ------------------------------------------------------------
+        if (count($burgees) > 0) {
+          require_once('scripts/UpdateBurgee.php');
+          $P = new UpdateBurgee();
+          foreach ($burgees as $school) {
+            $P->run($school);
+            self::errln(sprintf('generated burgee for %s', $school));
+          }
+        }
+
+        if (count($seasons) > 0) {
+          require_once('scripts/UpdateSchool.php');
+          $P = new UpdateSchool();
+          foreach ($seasons as $id => $list) {
+            foreach ($list as $season) {
+              $P->run($schools[$id], $season);
+              self::errln(sprintf('generated school %s/%-6s %s', $season, $schools[$id], $schools[$id]));
             }
           }
         }
-        self::errln(sprintf("processed school update %10s: %s", $r->school->id, $r->school->name));
+
+        require_once('scripts/UpdateSchoolsSummary.php');
+        $P = new UpdateSchoolsSummary();
+        $P->run();
       }
-      require_once('scripts/UpdateSchoolsSummary.php');
-      $P = new UpdateSchoolsSummary();
-      $P->run();
+      catch (TSWriterException $e) {
+        self::errln("Error while writing: " . $e->getMessage());
+        sleep(3);
+        continue;
+      }
 
       // ------------------------------------------------------------
       // Mark all requests as completed
@@ -270,36 +301,48 @@ class Daemon extends AbstractScript {
       // ------------------------------------------------------------
       // Loop through the season requests
       // ------------------------------------------------------------
-      require_once('scripts/UpdateSeason.php');
-      $P = new UpdateSeason();
 
       // perform season summary as well?
       $summary = false;
       $front = false;
       $current = Season::forDate(DB::$NOW);
+      $seasons = array();
       foreach ($pending as $r) {
         $requests[] = $r;
+        $seasons[(string)$r->season] = $r->season;
 	if ($r->activity == UpdateSeasonRequest::ACTIVITY_REGATTA)
           $summary = true;
 
         if ((string)$r->season == (string)$current)
           $front = true;
+      }
 
-        $P->run($r->season);
-        self::errln(sprintf("processed season update %s: %s", $r->season->id, $r->season->fullString()));
+      try {
+        if (count($seasons) > 0) {
+          require_once('scripts/UpdateSeason.php');
+          $P = new UpdateSeason();
+          foreach ($seasons as $season) {
+            $P->run($season);
+            self::errln(sprintf("processed season update %s: %s", $season->id, $season->fullString()));
+          }
+        }
+        if ($summary) {
+          require_once('scripts/UpdateSeasonsSummary.php');
+          $P = new UpdateSeasonsSummary();
+          $P->run();
+          self::errln('generated seasons summary page');
+        }
+        if ($front) {
+          require_once('scripts/UpdateFront.php');
+          $P = new UpdateFront();
+          $P->run();
+          self::errln('generated front page');
+        }
       }
-      if ($summary) {
-        require_once('scripts/UpdateSeasonsSummary.php');
-        $P = new UpdateSeasonsSummary();
-        $P->run();
-        self::errln('generated seasons summary page');
-      }
-      // Deal with home page
-      if ($front) {
-        require_once('scripts/UpdateFront.php');
-        $P = new UpdateFront();
-        $P->run();
-        self::errln('generated front page');
+      catch (TSWriterException $e) {
+        self::errln("Error while writing: " . $e->getMessage());
+        sleep(2);
+        continue;
       }
 
       // ------------------------------------------------------------
@@ -437,21 +480,30 @@ class Daemon extends AbstractScript {
         }
       }
 
-      // ------------------------------------------------------------
-      // Perform deletions
-      // ------------------------------------------------------------
-      require_once('scripts/UpdateRegatta.php');
-      foreach ($to_delete as $root)
-        UpdateRegatta::deleteRegattaFiles($root);
+      // In case of a writing exception, catch it, and sleep for a
+      // second to allow some "flush" time before restarting
+      try {
+        // ------------------------------------------------------------
+        // Perform deletions
+        // ------------------------------------------------------------
+        require_once('scripts/UpdateRegatta.php');
+        foreach ($to_delete as $root)
+          UpdateRegatta::deleteRegattaFiles($root);
 
-      // ------------------------------------------------------------
-      // Perform regatta level updates
-      // ------------------------------------------------------------
-      $P = new UpdateRegatta();
-      foreach ($this->regattas as $id => $reg) {
-        $P->run($reg, $this->activities[$id]);
-        foreach ($this->activities[$id] as $act)
-          self::errln(sprintf("performed activity %s on %4d: %s", $act, $id, $reg->name));
+        // ------------------------------------------------------------
+        // Perform regatta level updates
+        // ------------------------------------------------------------
+        $P = new UpdateRegatta();
+        foreach ($this->regattas as $id => $reg) {
+          $P->run($reg, $this->activities[$id]);
+          foreach ($this->activities[$id] as $act)
+            self::errln(sprintf("performed activity %s on %4d: %s", $act, $id, $reg->name));
+        }
+      }
+      catch (TSWriterException $e) {
+        self::errln("Error while writing: " . $e->getMessage());
+        sleep(1);
+        continue;
       }
 
       // ------------------------------------------------------------
