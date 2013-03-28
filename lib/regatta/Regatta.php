@@ -1560,14 +1560,14 @@ class FullRegatta extends DBObject {
     $end->setTime(23,59,59);
     if ($this->__get('finalized') !== null)
       $this->dt_status = Regatta::STAT_FINAL;
-    elseif (count($this->getUnscoredRaces()) == 0)
-      $this->dt_status = Regatta::STAT_FINISHED;
     elseif (!$this->hasFinishes()) {
       if ($this->dt_num_races > 0)
         $this->dt_status = Regatta::STAT_READY;
       else
         $this->dt_status = Regatta::STAT_SCHEDULED;
     }
+    elseif (count($this->getUnscoredRaces()) == 0)
+      $this->dt_status = Regatta::STAT_FINISHED;
     else {
       $last_race = $this->getLastScoredRace();
       $this->dt_status = ($last_race === null) ? Regatta::STAT_READY : (string)$last_race;
