@@ -83,7 +83,7 @@ class FinalizePane extends AbstractPane {
     // ------------------------------------------------------------
     // Team racing
     // ------------------------------------------------------------
-    if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
+    if ($can_finalize && $this->REGATTA->scoring == Regatta::SCORING_TEAM) {
       // Ranks
       $p->add(new XH4("Rankings"));
       $p->add(new XP(array(),
