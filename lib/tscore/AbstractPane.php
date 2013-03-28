@@ -67,6 +67,7 @@ abstract class AbstractPane {
     if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
       $score_i = array("Regatta"   => array("settings"   => "DetailsPane",
 					    "summaries"  => "SummaryPane",
+                                            "finalize"   => "FinalizePane",
 					    "scorers"    => "ScorersPane",
 					    "delete"     => "DeleteRegattaPane"),
 		       "Teams"     => array("teams"      => "TeamsPane",
@@ -90,6 +91,7 @@ abstract class AbstractPane {
     else {
       $score_i = array("Regatta"   => array("settings"   => "DetailsPane",
 					    "summaries"  => "SummaryPane",
+                                            "finalize"   => "FinalizePane",
 					    "scorers"    => "ScorersPane",
 					    "races"      => "RacesPane",
 					    "notes"      => "NotesPane",
@@ -267,6 +269,9 @@ abstract class AbstractPane {
     case 'settings':
       require_once('tscore/DetailsPane.php');
       return new DetailsPane($r, $u);
+    case 'finalize':
+      require_once('tscore/FinalizePane.php');
+      return new FinalizePane($r, $u);
     case 'drop-penalty':
     case 'drop-penalties':
       require_once('tscore/DropPenaltyPane.php');
@@ -396,6 +401,9 @@ abstract class AbstractPane {
     case 'RpMissingPane':
       return $this->has_scores;
 
+    case 'FinalizePane':
+      return ($this->has_scores && $this->REGATTA->finalized === null);
+
     case 'DropPenaltyPane':
       return $this->has_penalty;
 
@@ -456,6 +464,7 @@ abstract class AbstractPane {
   }
   private static $URLS = array("DetailsPane" => "settings",
                                "SummaryPane" => "summaries",
+                               "FinalizePane"=> "finalize",
                                "ScorersPane" => "scorers",
 
                                "TeamRacesPane" => "races",
@@ -482,6 +491,7 @@ abstract class AbstractPane {
 
   private static $TITLES = array("DetailsPane" => "Settings",
                                  "SummaryPane" => "Summaries",
+                                 "FinalizePane"=> "Finalize",
                                  "ScorersPane" => "Scorers",
                                  "RacesPane" => "Add/edit races",
                                  "NotesPane" => "Race notes",

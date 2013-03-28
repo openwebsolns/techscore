@@ -26,8 +26,33 @@ class DetailsPane extends AbstractPane {
   }
 
   protected function fillHTML(Array $args) {
+    // ------------------------------------------------------------
+    // Finalize regatta
+    // ------------------------------------------------------------
+    if ($this->REGATTA->end_date < DB::$NOW) {
+      if ($this->REGATTA->finalized === null) {
+        if ($this->REGATTA->hasFinishes()) {
+          $this->PAGE->addContent($p = new XPort("Finalize regatta"));
+          $p->set('id', 'finalize');
+          $p->add(new XP(array('class'=>'warning'),
+                         array(new XStrong("Note:"), " all official regattas must be finalized, or they will be flagged as incomplete.")));
+          $p->add(new XP(array(),
+                         array("Once finalized, all unsailed races will be removed from the system. This means that no new races can be created. However, existing races can be re-scored, if needed. In addition, RP information will still be available for edits after finalization.")));
+          $p->add(new XP(array(),
+                         array("Once ready to finalize, visit the ", new XA($this->link('finalize'), "Finalize"), " pane to review the regatta.")));
+        }
+      }
+      else {
+        $this->PAGE->addContent($p = new XPort("Finalize regatta"));
+        $p->add(new XP(array('class'=>'valid'),
+                       sprintf("This regatta was finalized on %s.", $this->REGATTA->finalized->format("l, F j Y"))));
+      }
+    }
+
+    // ------------------------------------------------------------
     // Regatta details
-    $p = new XPort('Regatta details');
+    // ------------------------------------------------------------
+    $this->PAGE->addContent($p = new XPort('Regatta details'));
     $p->addHelp("node9.html#SECTION00521000000000000000");
 
     $p->add($reg_form = $this->createForm());
@@ -147,45 +172,6 @@ class DetailsPane extends AbstractPane {
 
     // Update button
     $reg_form->add(new XP(array(), new XSubmitInput("edit_reg", "Edit")));
-    // If finalized, disable submit
-    $finalized = $this->REGATTA->finalized;
-
-    // -------------------- Finalize regatta -------------------- //
-    $p2 = new XText("");
-    if ($finalized === null) {
-      if ($this->REGATTA->hasFinishes()) {
-        $p2 = new XPort("Finalize regatta");
-        $p2->set('id', 'finalize');
-        $p2->addHelp("node9.html#SECTION00521100000000000000");
-        $p2->add(new XP(array(),
-                        array("Once ", new XStrong("finalized"), ", all the information (including rp, and rotation) about unscored regattas will be removed from the database. No ", new XStrong("new"), " information can be entered, although you may still be able to edit existing information.")));
-
-        $p2->add($form = $this->createForm());
-
-        $form->add(new FItem(new XCheckboxInput("approve",
-                                                "on",
-                                                array("id"=>"approve")),
-                             new XLabel("approve",
-                                        "I wish to finalize this regatta.",
-                                        array("class"=>"strong"))));
-
-        $form->add(new XSubmitP("finalize", "Finalize!"));
-      }
-    }
-    else {
-      $p->add(new XP(array("class"=>"strong"),
-                     sprintf("This regatta was finalized on %s.", $finalized->format("l, F j Y"))));
-    }
-    // If the regatta has already "ended", then the finalize port
-    // should go first to urge the user to take action.
-    if ($this->REGATTA->end_date < new DateTime()) {
-      $this->PAGE->addContent($p2);
-      $this->PAGE->addContent($p);
-    }
-    else {
-      $this->PAGE->addContent($p);
-      $this->PAGE->addContent($p2);
-    }
   }
 
   /**
@@ -401,28 +387,6 @@ class DetailsPane extends AbstractPane {
         Session::pa(new PA("Edited regatta details."));
         UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DETAILS);
       }
-    }
-
-    // ------------------------------------------------------------
-    // Finalize
-    if (isset($args['finalize'])) {
-      if (!$this->REGATTA->hasFinishes())
-        throw new SoterException("You cannot finalize a project with no finishes. To delete the regatta, please mark it as \"personal\".");
-
-      if (!isset($args['approve']))
-        throw new SoterException("Please check the box to finalize.");
-
-      $this->REGATTA->finalized = new DateTime();
-      $removed = 0;
-      foreach ($this->REGATTA->getUnscoredRaces() as $race) {
-        $this->REGATTA->removeRace($race);
-        $removed++;
-      }
-      DB::set($this->REGATTA);
-      Session::pa(new PA("Regatta has been finalized."));
-      if ($removed > 0)
-        Session::pa(new PA("Removed $removed unsailed races.", PA::I));
-      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_FINALIZED);
     }
   }
 }

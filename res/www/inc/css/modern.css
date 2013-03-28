@@ -696,3 +696,21 @@ h4 a:hover {
     text-align: center;
     padding: 0.25em 0.1em;
 }
+
+
+#finalize-issues {
+    margin: 0 auto 1em;
+    min-width: 30em;
+}
+
+#finalize-issues td {
+    padding: 0.5em;
+    text-align: left;
+}
+#finalize-issues th {
+    text-align: left;
+}
+#finalize-issues tr > td:first-child {
+    width: 3em;
+    text-align: right;
+}
