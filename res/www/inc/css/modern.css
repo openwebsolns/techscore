@@ -714,3 +714,6 @@ h4 a:hover {
     width: 3em;
     text-align: right;
 }
+#finalize-issues p {
+    margin: 0;
+}

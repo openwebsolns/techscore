@@ -180,12 +180,12 @@ class RpManager {
   }
 
   /**
-   * Is every race-team-role combination accounted for?
+   * Is every scored race-team-role combination accounted for?
    *
    * @return boolean true if all information is present
    */
   public function isComplete() {
-    $races = $this->regatta->getRaces();
+    $races = $this->regatta->getScoredRaces();
     $sum = 0;
     foreach ($races as $race)
       $sum += $race->boat->min_crews + 1;

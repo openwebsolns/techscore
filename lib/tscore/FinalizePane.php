@@ -68,6 +68,18 @@ class FinalizePane extends AbstractPane {
     }
     $tab->addRow(array($icon, $mess));
 
+    // RP
+    $mess = "All RP info is present.";
+    $icon = $VALID;
+    $rpm = $this->REGATTA->getRpManager();
+    if (!$rpm->isComplete()) {
+      $mess = array("There is ",
+                    new XA($this->link('missing'), "missing RP"),
+                    " information. Note that this may be edited after finalization.");
+      $icon = $WARN;
+    }
+    $tab->addRow(array($icon, $mess));
+
     if ($can_finalize) {
       $p->add($f = $this->createForm());
       $f->add(new FItem($chk = new XCheckboxInput('approve', 1, array('id'=>'approve')),
@@ -83,7 +95,7 @@ class FinalizePane extends AbstractPane {
     // Finalize
     if (isset($args['finalize'])) {
       if (!$this->REGATTA->hasFinishes())
-        throw new SoterException("You cannot finalize a project with no finishes. To delete the regatta, please mark it as \"personal\".");
+        throw new SoterException("You cannot finalize a project with no finishes.");
 
       $list = $this->getUnsailedMiddleRaces();
       if (count($list) > 0)
