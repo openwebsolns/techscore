@@ -92,6 +92,9 @@ class FinalizePane extends AbstractPane {
       if (($mess = $this->passesPR24()) !== null)
         throw new SoterException($mess);
 
+      if (count($this->getMissingSummaries()) > 0)
+        throw new SoterException("Missing at least one daily summary.");
+
       if (!isset($args['approve']))
         throw new SoterException("Please check the box to finalize.");
 
