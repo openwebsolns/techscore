@@ -31,7 +31,7 @@ class FinalizePane extends AbstractPane {
     $ERROR = new XImg(WS::link('/inc/img/e.png'), "X");
     $WARN  = new XImg(WS::link('/inc/img/i.png'), "⚠");
 
-    
+    // Missing races
     $list = $this->getUnsailedMiddleRaces();
     $mess = "No middle races unscored.";
     $icon = $VALID;
@@ -42,6 +42,7 @@ class FinalizePane extends AbstractPane {
     }
     $tab->addRow(array($icon, $mess));
 
+    // PR 24
     if (($mess = $this->passesPR24()) !== null) {
       $tab->addRow(array($ERROR,
                          new XTD(array(),
@@ -52,6 +53,20 @@ class FinalizePane extends AbstractPane {
                                               ".")))));
       $can_finalize = false;
     }
+
+    // Summaries
+    $list = $this->getMissingSummaries();
+    $mess = "All daily summaries completed.";
+    $icon = $VALID;
+    if (count($list) > 0) {
+      $mess = new XP(array(),
+                     array("Missing one or more ",
+                           new XA($this->link('summaries'), "daily summaries"),
+                           "."));
+      $icon = $ERROR;
+      $can_finalize = false;
+    }
+    $tab->addRow(array($icon, $mess));
 
     if ($can_finalize) {
       $p->add($f = $this->createForm());
@@ -139,6 +154,18 @@ class FinalizePane extends AbstractPane {
     elseif (($max - $min) > 2)
       return "PR 24b(i): Multi-day events: no more than two (2) additional races shall be scored in any one division more than the division with the least number of races.";
     return null;
+  }
+
+  private function getMissingSummaries() {
+    $stime = clone $this->REGATTA->start_time;
+    $missing = array();
+    for ($i = 0; $i < $this->REGATTA->getDuration(); $i++) {
+      $comms = $this->REGATTA->getSummary($stime);
+      if (strlen($comms) == 0)
+        $missing[] = clone $stime;
+      $stime->add(new DateInterval('P1DT0H'));
+    }
+    return $missing;
   }
 }
 ?>
