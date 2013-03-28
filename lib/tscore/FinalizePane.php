@@ -42,7 +42,16 @@ class FinalizePane extends AbstractPane {
     }
     $tab->addRow(array($icon, $mess));
 
-
+    if (($mess = $this->passesPR24()) !== null) {
+      $tab->addRow(array($ERROR,
+                         new XTD(array(),
+                                 new XP(array(),
+                                        array($mess,
+                                              " To delete extra finishes, use the ",
+                                              new XA($this->link('finishes'), "finishes pane"),
+                                              ".")))));
+      $can_finalize = false;
+    }
 
     if ($can_finalize) {
       $p->add($f = $this->createForm());
@@ -64,6 +73,9 @@ class FinalizePane extends AbstractPane {
       $list = $this->getUnsailedMiddleRaces();
       if (count($list) > 0)
         throw new SoterException("Cannot finalize with unsailed races: " . implode(", ", $list));
+
+      if (($mess = $this->passesPR24()) !== null)
+        throw new SoterException($mess);
 
       if (!isset($args['approve']))
         throw new SoterException("Please check the box to finalize.");
@@ -101,6 +113,32 @@ class FinalizePane extends AbstractPane {
       }
     }
     return $list;
+  }
+
+  private function passesPR24() {
+    if ($this->REGATTA->scoring != Regatta::SCORING_STANDARD)
+      return null;
+    $divisions = $this->REGATTA->getDivisions();
+    if (count($divisions) < 2)
+      return null;
+
+    $max = 0;
+    $min = null;
+    foreach ($divisions as $division) {
+      $num = count($this->REGATTA->getScoredRaces($division));
+      if ($num > $max)
+        $max = $num;
+      if ($min === null || $num < $min)
+        $min = $num;
+    }
+    if ($this->REGATTA->getDuration() == 1) {
+      if ($max != $min)
+        return "PR 24b: Final regatta scores shall be based only on the scores of the races in which each division has completed an equal number.";
+      return null;
+    }
+    elseif (($max - $min) > 2)
+      return "PR 24b(i): Multi-day events: no more than two (2) additional races shall be scored in any one division more than the division with the least number of races.";
+    return null;
   }
 }
 ?>
