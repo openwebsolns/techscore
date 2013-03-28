@@ -699,11 +699,11 @@ h4 a:hover {
 
 
 #finalize-issues {
-    margin: 0 auto 1em;
+    margin: 0 0 1em;
     min-width: 30em;
 }
 
-#finalize-issues td {
+#finalize-issues td, #ranktable td {
     padding: 0.5em;
     text-align: left;
 }
@@ -716,4 +716,8 @@ h4 a:hover {
 }
 #finalize-issues p {
     margin: 0;
+}
+
+#ranktable {
+    margin: 0 0 1em;
 }

@@ -143,7 +143,7 @@ class RankTeamsPane extends AbstractPane {
     $this->PAGE->addContent(new XP(array('class'=>'warning'), sprintf("Please note that %s will re-rank the teams with every new race scored.", Conf::$NAME)));
 
     $this->PAGE->addContent($f = $this->createForm());
-    $f->add($tab = new XQuickTable(array('id'=>'divtable', 'class'=>'teamtable narrow'),
+    $f->add($tab = new XQuickTable(array('id'=>'ranktable', 'class'=>'teamtable'),
                                    array("#", "Explanation", "Record", "Team")));
     foreach ($this->REGATTA->getRankedTeams() as $team) {
       $tab->addRow(array(new XTD(array(), array(new XTextInput('rank[]', $team->dt_rank, array('size'=>2)),

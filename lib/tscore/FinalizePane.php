@@ -80,11 +80,32 @@ class FinalizePane extends AbstractPane {
     }
     $tab->addRow(array($icon, $mess));
 
+    // ------------------------------------------------------------
+    // Team racing
+    // ------------------------------------------------------------
+    if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
+      // Ranks
+      $p->add(new XH4("Rankings"));
+      $p->add(new XP(array(),
+                     array("Since tiebreaks must be resolved manually for team racing, please take this opportunity to make sure the teams are correctly ranked below. To make edits, visit the ",
+                           new XA($this->link('rank'), "Rank teams"),
+                           " pane.")));
+      $p->add($tab = new XQuickTable(array('id'=>'ranktable', 'class'=>'teamtable'),
+                                     array("#", "Explanation", "Record", "Team")));
+      foreach ($this->REGATTA->getRankedTeams() as $i => $team) {
+        $tab->addRow(array($team->dt_rank,
+                           $team->dt_explanation,
+                           $team->getRecord(),
+                           $team),
+                     array('class'=>'row' . ($i % 2)));
+      }
+    }
+
     if ($can_finalize) {
       $p->add($f = $this->createForm());
       $f->add(new FItem($chk = new XCheckboxInput('approve', 1, array('id'=>'approve')),
                         new XLabel('approve',
-                                   "I wish to finalize this regatta.",
+                                   "I have reviews the information above and wish to finalize this regatta.",
                                    array("class"=>"strong"))));
       $f->add(new XSubmitP("finalize", "Finalize!"));
     }
