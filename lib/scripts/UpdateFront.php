@@ -104,7 +104,7 @@ class UpdateFront extends AbstractScript {
     DB::$PUBLIC_REGATTA->db_set_order(array('start_time'=>true));
     $regs = array();
     foreach (DB::getAll(DB::$PUBLIC_REGATTA, new DBCond('start_time', $now, DBCond::GE)) as $reg) {
-      if ($reg->dt_status !== null)
+      if ($reg->dt_status !== null && $reg->dt_status != Regatta::STAT_SCHEDULED)
         $regs[] = $reg;
     }
     DB::$PUBLIC_REGATTA->db_set_order();
