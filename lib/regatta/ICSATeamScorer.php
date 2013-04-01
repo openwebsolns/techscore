@@ -27,8 +27,11 @@ class ICSATeamScorer extends ICSACombinedScorer {
     $tot = $fin->earned + $amt;
     return new Score($tot, sprintf("(%d, +%d) %s", $tot, $amt, implode(". ", $comments)));
   }
-  protected function displaceScore(Finish $fin, FinishModifier $pen) {
-    return true;
+  protected function reorderScore(Finish $fin, FinishModifier $pen) {
+    $bkdlist = Breakdown::getList();
+    if (isset($bkdlist[$pen->type]))
+      return true;
+    return false;
   }
 }
 ?>
