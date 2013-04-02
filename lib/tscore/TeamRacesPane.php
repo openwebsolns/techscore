@@ -144,6 +144,7 @@ class TeamRacesPane extends AbstractPane {
     // Current races
     // ------------------------------------------------------------
     $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/tablesort.js'));
+    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/toggle-tablesort.js'));
     $has_finishes = false;
     $cur_races = $this->REGATTA->getRacesInRound($round, Division::A());
     if (count($cur_races) > 0) {

@@ -1,13 +1,16 @@
 // Sort me some rows by drag and drop. Again.
-ROWS = Array();
-DRAG_FROM = null;
-DRAG_TO = null;
+var TABLE = null;
+var ROWS = Array();
+var DRAG_FROM = null;
+var DRAG_TO = null;
+var MESSAGE = null;
 
-window.onload = function() {
-    var table = document.getElementById('divtable');
-    if (!table)
-        return;
-    var rows = table.getElementsByTagName('tr');
+function initTableSort() {
+    ROWS = Array();
+    DRAG_FROM = null;
+    DRAG_TO = null;
+
+    var rows = TABLE.getElementsByTagName('tr');
     var totalcells = 0;
     for (var r = 0; r < rows.length; r++) {
 	var row = rows[r];
@@ -47,12 +50,45 @@ window.onload = function() {
 	// hide the first cell altogether
 	row.childNodes[0].style.display = "none";
     }
-    if (totalcells < 4 || table.classList.contains("narrow")) {
-        var span = document.createElement('span');
-        table.parentNode.insertBefore(span, table.nextSibling);
-        span.setAttribute('class', 'message');
-        span.appendChild(document.createTextNode("← Drag to change order"));
+
+    if (totalcells < 4 || TABLE.classList.contains("narrow")) {
+        MESSAGE = document.createElement('span');
+        TABLE.parentNode.insertBefore(MESSAGE, TABLE.nextSibling);
+        MESSAGE.setAttribute('class', 'message');
+        MESSAGE.appendChild(document.createTextNode("← Drag to change order"));
     }
+}
+
+function destroyTableSort() {
+    if (MESSAGE)
+        MESSAGE.parentNode.removeChild(MESSAGE);
+
+    for (var r = 0; r < ROWS.length; r++) {
+	var cells = ROWS[r].getElementsByTagName('td');
+	for (var c = 0; c < cells.length; c++) {
+	    var cell = cells[c];
+	    if (cell.classList.contains('drag')) {
+		cell.style.cursor = 'auto';
+		cell.onmousedown = null;
+	    }
+	}
+	ROWS[r].onmouseover = null;
+	ROWS[r].onmouseout = null;
+
+	var input = ROWS[r].getElementsByTagName('input')[0];
+	input.disabled = false;
+    }
+    var rows = TABLE.getElementsByTagName("tr");
+    // show the first cell altogether
+    for (r = 0; r < rows.length; r++)
+	rows[r].childNodes[0].style.display = "table-cell";
+}
+
+window.onload = function() {
+    TABLE = document.getElementById('divtable');
+    if (!TABLE)
+        return;
+    initTableSort();
 };
 
 window.onmouseup = function(evt) {
