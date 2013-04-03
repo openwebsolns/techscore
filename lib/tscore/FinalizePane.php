@@ -142,6 +142,7 @@ class FinalizePane extends AbstractPane {
       if ($removed > 0)
         Session::pa(new PA("Removed $removed unsailed races.", PA::I));
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_FINALIZED);
+      $this->redirect('home');
     }
   }
 
