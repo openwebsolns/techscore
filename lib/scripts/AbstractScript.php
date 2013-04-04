@@ -172,8 +172,7 @@ abstract class AbstractScript {
     if ($e instanceof TSScriptException)
       $this->usage($e->getMessage(), max($e->getCode(), 1));
     if ($this->cli_exception_handler !== null) {
-      $h = $this->cli_exception_handler;
-      $h($e);
+      call_user_func($this->cli_exception_handler, $e);
     }
     exit($e->getCode());
   }
