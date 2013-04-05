@@ -123,6 +123,7 @@ class WS {
    * @see link
    */
   public static function go($url, Array $args = array(), $anchor = '') {
+    header('HTTP/1.1 303 See Other');
     header('Location: ' . self::link($url, $args, $anchor));
     exit;
   }
