@@ -127,10 +127,14 @@ class DBQuery {
     }
 
     // old fashioned way
-    $res = $this->con->query($this->toSQL());
-    if ($this->con->errno > 0)
-      throw new DBQueryException("MySQL error (" . $this->toSQL() . "): " . $this->con->error);
-    return $res;
+    for ($i = 0; $i < 15; $i++) {
+      $res = $this->con->query($this->toSQL());
+      if ($this->con->errno == 0)
+        return $res;
+      if ($this->con->errno != 1205)
+        throw new DBQueryException("MySQL error " . $this->con->errno . " (" . $this->toSQL() . "): " . $this->con->error);
+    }
+    throw new DBQueryException("Exceeded number of attempts (5) for query (" . $this->toSQL() . ")");
   }
 
   /**
