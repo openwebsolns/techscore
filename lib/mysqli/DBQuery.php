@@ -131,7 +131,7 @@ class DBQuery {
       $res = $this->con->query($this->toSQL());
       if ($this->con->errno == 0)
         return $res;
-      if ($this->con->errno != 1205)
+      if ($this->con->errno != 1205 && $stmt->errno != 1213)
         throw new DBQueryException("MySQL error " . $this->con->errno . " (" . $this->toSQL() . "): " . $this->con->error);
     }
     throw new DBQueryException("Exceeded number of attempts (5) for query (" . $this->toSQL() . ")");
