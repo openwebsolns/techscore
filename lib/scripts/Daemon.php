@@ -268,6 +268,7 @@ class Daemon extends AbstractScript {
           throw new RuntimeException("Hook $hook", $ret);
         self::errln("Hook $hook run");
       }
+      DB::commit();
     }
 
     self::errln('done');
@@ -361,6 +362,7 @@ class Daemon extends AbstractScript {
           throw new RuntimeException("Hook $hook", $ret);
         self::errln("Hook $hook run");
       }
+      DB::commit();
     }
 
     self::errln('done');
@@ -550,6 +552,7 @@ class Daemon extends AbstractScript {
           throw new RuntimeException("Hook $hook", $ret);
         self::errln("Hook $hook run");
       }
+      DB::commit();
     }
 
     self::errln('done');
