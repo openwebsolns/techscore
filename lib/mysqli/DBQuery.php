@@ -108,16 +108,22 @@ class DBQuery {
       $args = $this->bindArgs();
       if (count($args) > 1) {
         if (strlen($args[0]) != count($args) - 1) {
-          print_r($args);
-          exit;
+          throw new DBQueryException("bindArgs returned wrong argument count.");
         }
         call_user_func_array(array($stmt, 'bind_param'), $args);
       }
-      $stmt->execute();
-      if ($stmt->error > 0)
-        throw new DBQueryException("MySQL error (" . $this->toSQL() . "): " . $stm->error);
+      for ($i = 0; $i < 15; $i++) {
+        $stmt->execute();
+        if ($stmt->errno == 0) {
+          $stmt->close();
+          return null;
+        }
+        if ($stmt->errno != 1205 && $stmt->errno != 1213) {
+          throw new DBQueryException("MySQL error " . $stmt->errno . " (" . $this->toSQL() . "): " . $stmt->error);
+        }
+      }
       $stmt->close();
-      return null;
+      throw new DBQueryException("Exceeded number of attempts (5) for query (" . $this->toSQL() . ")");
     }
 
     // old fashioned way
