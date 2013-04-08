@@ -183,6 +183,7 @@ class Daemon extends AbstractScript {
         if ($daemon) {
           self::errln("Sleeping...");
           DB::commit();
+          DB::resetCache();
           sleep(73);
           $this->checkLock('sch', $mypid);
           continue;
@@ -269,6 +270,7 @@ class Daemon extends AbstractScript {
         self::errln("Hook $hook run");
       }
       DB::commit();
+      DB::resetCache();
     }
 
     self::errln('done');
@@ -291,6 +293,7 @@ class Daemon extends AbstractScript {
         if ($daemon) {
           self::errln("Sleeping...");
           DB::commit();
+          DB::resetCache();
           sleep(37);
           $this->checkLock('sea', $mypid);
           continue;
@@ -363,6 +366,7 @@ class Daemon extends AbstractScript {
         self::errln("Hook $hook run");
       }
       DB::commit();
+      DB::resetCache();
     }
 
     self::errln('done');
@@ -388,6 +392,7 @@ class Daemon extends AbstractScript {
         if ($daemon) {
           self::errln("Sleeping...");
           DB::commit();
+          DB::resetCache();
           sleep(10);
           $this->checkLock('reg', $mypid);
           continue;
@@ -553,6 +558,7 @@ class Daemon extends AbstractScript {
         self::errln("Hook $hook run");
       }
       DB::commit();
+      DB::resetCache();
     }
 
     self::errln('done');

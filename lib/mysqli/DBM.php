@@ -95,6 +95,16 @@ class DBM {
   protected static $objs = array();
 
   /**
+   * Empties the internal DBObject cache
+   *
+   * It is a good idea to call this method with every "transaction"
+   * commit, to avoid using stale data.
+   */
+  public static function resetCache() {
+    self::$objs = array();
+  }
+
+  /**
    * Retrieves the database connection
    *
    * @return MySQLi connection
