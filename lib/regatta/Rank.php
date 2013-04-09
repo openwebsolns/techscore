@@ -23,6 +23,10 @@ class Rank {
    * @var Division the optional division being referred to
    */
   protected $division;
+  /**
+   * @var int 
+   */
+  public $rank;
 
   /**
    * Create a new rank with the given parameters
@@ -107,10 +111,6 @@ class TeamRank extends Rank {
   public $wins;
   public $losses;
   public $ties;
-  /**
-   * @var int teams can be tied in team racing
-   */
-  public $rank;
 
   /**
    * The win-loss record for a specific team

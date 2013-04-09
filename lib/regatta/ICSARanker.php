@@ -79,6 +79,9 @@ class ICSARanker {
     if (count($newOrder) < $numTeams)
       $newOrder[] = $tiedRanks[$numTeams - 1];
 
+    // assign rank number successively
+    foreach ($newOrder as $i => $rank)
+      $rank->rank = ($i + 1);
     return $newOrder;
   }
 

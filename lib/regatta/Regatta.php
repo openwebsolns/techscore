@@ -1374,6 +1374,32 @@ class FullRegatta extends DBObject {
   // Data caching
   // ------------------------------------------------------------
 
+  public function setDivisionRank(Division $div, Rank $rank) {
+    $team_division = $rank->team->getRank($div);
+    if ($team_division === null) {
+      $team_division = new Dt_Team_Division();
+      $team_division->team = $rank->team;
+      $team_division->division = (string)$div;
+    }
+
+    $team_division->rank = $rank->rank;
+    $team_division->explanation = $rank->explanation;
+    $team_division->penalty = null;
+    $team_division->comments = null;
+    $team_division->score = null;
+
+    $team_division->wins = $rank->wins;
+    $team_division->losses = $rank->losses;
+    $team_division->ties = $rank->ties;
+
+    // Penalty?
+    if (($pen = $this->getTeamPenalty($rank->team, $div)) !== null) {
+      $team_division->penalty = $pen->type;
+      $team_division->comments = $pen->comments;
+    }
+    DB::set($team_division);
+  }
+
   /**
    * Cache the information regarding the team ranks
    *
@@ -1400,7 +1426,11 @@ class FullRegatta extends DBObject {
     $divs = ($division === null ) ? $this->getDivisions() : array($division);
 
     $ranker = $this->getRanker();
-    foreach ($ranker->rank($this) as $i => $rank) {
+    foreach ($ranker->rank($this) as $rank) {
+      $rank->team->dt_rank = $rank->rank;
+      $rank->team->dt_score = $rank->score;
+      $rank->team->dt_explanation = $rank->explanation;
+
       if ($this->scoring == Regatta::SCORING_TEAM) {
 	$rank->team->dt_rank = $rank->rank;
 	$rank->team->dt_wins = $rank->wins;
@@ -1408,36 +1438,9 @@ class FullRegatta extends DBObject {
 	$rank->team->dt_ties = $rank->ties;
 
         foreach ($divs as $div) {
-          $team_division = $rank->team->getRank($div);
-          if ($team_division === null) {
-            $team_division = new Dt_Team_Division();
-            $team_division->team = $rank->team;
-            $team_division->division = (string)$div;
-          }
-
-          $team_division->rank = $rank->rank;
-          $team_division->explanation = $rank->explanation;
-          $team_division->penalty = null;
-          $team_division->comments = null;
-          $team_division->score = null;
-
-          $team_division->wins = $rank->wins;
-          $team_division->losses = $rank->losses;
-          $team_division->ties = $rank->ties;
-
-          // Penalty?
-          if (($pen = $this->getTeamPenalty($rank->team, $div)) !== null) {
-            $team_division->penalty = $pen->type;
-            $team_division->comments = $pen->comments;
-          }
-          DB::set($team_division);
+          $this->setDivisionRank($div, $rank);
         }
       }
-      else {
-	$rank->team->dt_rank = ($i + 1);
-	$rank->team->dt_score = $rank->score;
-      }
-      $rank->team->dt_explanation = $rank->explanation;
       DB::set($rank->team);
     }
 
@@ -1447,7 +1450,7 @@ class FullRegatta extends DBObject {
     if ($this->scoring == Regatta::SCORING_STANDARD) {
       foreach ($divs as $div) {
         $races = $this->getScoredRaces($div);
-        foreach ($ranker->rank($this, $races) as $i => $rank) {
+        foreach ($ranker->rank($this, $races) as $rank) {
           $team_division = $rank->team->getRank($div);
           if ($team_division === null) {
             $team_division = new Dt_Team_Division();
@@ -1455,7 +1458,7 @@ class FullRegatta extends DBObject {
             $team_division->division = $div;
           }
 
-          $team_division->rank = ($i + 1);
+          $team_division->rank = $rank->rank;
           $team_division->explanation = $rank->explanation;
           $team_division->penalty = null;
           $team_division->comments = null;
@@ -1471,7 +1474,7 @@ class FullRegatta extends DBObject {
       }
     }
     if ($this->scoring == Regatta::SCORING_COMBINED) {
-      foreach ($ranker->rank($this) as $i => $rank) {
+      foreach ($ranker->rank($this) as $rank) {
         $team_division = $rank->team->getRank($rank->division);
         if ($team_division === null) {
             $team_division = new Dt_Team_Division();
@@ -1479,7 +1482,7 @@ class FullRegatta extends DBObject {
             $team_division->division = $rank->division;
         }
 
-        $team_division->rank = ($i + 1);
+        $team_division->rank = $rank->rank;
         $team_division->explanation = $rank->explanation;
         $team_division->penalty = null;
         $team_division->comments = null;
@@ -1696,10 +1699,10 @@ class FullRegatta extends DBObject {
                 $races[] = $this->getRace($division, $num);
               $scored_ranks[$team->division][$id] = $ranker->rank($this, $races);
             }
-            foreach ($scored_ranks[$team->division][$id] as $i => $rank) {
+            foreach ($scored_ranks[$team->division][$id] as $rank) {
               if ($rank->team->id == $team->team->id &&
                   ($rank->division === null || (string)$rank->division == (string)$team->division)) {
-                $drp->rank = $i + 1;
+                $drp->rank = $rank->rank;
                 $drp->explanation = $rank->explanation;
                 break;
               }
