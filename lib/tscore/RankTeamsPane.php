@@ -203,6 +203,13 @@ class RankTeamsPane extends AbstractPane {
       $rank = DB::$V->reqList($args, 'rank', count($teams));
       array_multisort($rank, SORT_NUMERIC, $tids, $exps);
 
+      // Fetch the old rankings as we need these objects to update the
+      // division rankings
+      $default_rankings = array();
+      foreach ($this->REGATTA->getRanker()->rank($this->REGATTA) as $r)
+        $default_rankings[$r->team->id] = $r;
+
+      $divisions = $this->REGATTA->getDivisions();
       $ranks = array();
       $prevRank = 1;
       $nextRank = 1;
@@ -222,6 +229,12 @@ class RankTeamsPane extends AbstractPane {
           $teams[$id]->dt_rank = $new_rank;
           $teams[$id]->dt_explanation = $new_expl;
           $ranks[] = $teams[$id];
+
+          $default_rankings[$id]->rank = $new_rank;
+          $default_rankings[$id]->explanation = $new_expl;
+          // also update all division ranks
+          foreach ($divisions as $div)
+            $this->REGATTA->setDivisionRank($div, $default_rankings[$id]);
         }
       }
 
@@ -231,9 +244,11 @@ class RankTeamsPane extends AbstractPane {
       }
 
       // Set the rank and issue update request
+      $this->REGATTA->setRpData();
       foreach ($ranks as $team) {
         DB::set($team);
         UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RANK, $team->school->id);
+        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RP, $team->school->id);
       }
       Session::pa(new PA("Ranks saved."));
     }
