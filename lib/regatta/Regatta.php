@@ -1384,13 +1384,13 @@ class FullRegatta extends DBObject {
 
     $team_division->rank = $rank->rank;
     $team_division->explanation = $rank->explanation;
-    $team_division->penalty = null;
-    $team_division->comments = null;
-    $team_division->score = null;
-
+    $team_division->score = $rank->score;
     $team_division->wins = $rank->wins;
     $team_division->losses = $rank->losses;
     $team_division->ties = $rank->ties;
+
+    $team_division->penalty = null;
+    $team_division->comments = null;
 
     // Penalty?
     if (($pen = $this->getTeamPenalty($rank->team, $div)) !== null) {
@@ -1451,49 +1451,13 @@ class FullRegatta extends DBObject {
       foreach ($divs as $div) {
         $races = $this->getScoredRaces($div);
         foreach ($ranker->rank($this, $races) as $rank) {
-          $team_division = $rank->team->getRank($div);
-          if ($team_division === null) {
-            $team_division = new Dt_Team_Division();
-            $team_division->team = $rank->team;
-            $team_division->division = $div;
-          }
-
-          $team_division->rank = $rank->rank;
-          $team_division->explanation = $rank->explanation;
-          $team_division->penalty = null;
-          $team_division->comments = null;
-          $team_division->score = $rank->score;
-
-          // Penalty?
-          if (($pen = $this->getTeamPenalty($rank->team, $div)) !== null) {
-            $team_division->penalty = $pen->type;
-            $team_division->comments = $pen->comments;
-          }
-          DB::set($team_division);
+          $this->setDivisionRank($div, $rank);
         }
       }
     }
     if ($this->scoring == Regatta::SCORING_COMBINED) {
       foreach ($ranker->rank($this) as $rank) {
-        $team_division = $rank->team->getRank($rank->division);
-        if ($team_division === null) {
-            $team_division = new Dt_Team_Division();
-            $team_division->team = $rank->team;
-            $team_division->division = $rank->division;
-        }
-
-        $team_division->rank = $rank->rank;
-        $team_division->explanation = $rank->explanation;
-        $team_division->penalty = null;
-        $team_division->comments = null;
-        $team_division->score = $rank->score;
-
-        // Penalty?
-        if (($pen = $this->getTeamPenalty($rank->team, $rank->division)) !== null) {
-          $team_division->penalty = $pen->type;
-          $team_division->comments = $pen->comments;
-        }
-        DB::set($team_division);
+        $this->setDivisionRank($rank->division, $rank);
       }
     }
     

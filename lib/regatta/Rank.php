@@ -27,6 +27,12 @@ class Rank {
    * @var int 
    */
   public $rank;
+  /**
+   * @var int useful for team racing
+   */
+  public $wins;
+  public $losses;
+  public $ties;
 
   /**
    * Create a new rank with the given parameters
@@ -108,9 +114,6 @@ class Rank {
  * @version 2013-01-10
  */
 class TeamRank extends Rank {
-  public $wins;
-  public $losses;
-  public $ties;
 
   /**
    * The win-loss record for a specific team
