@@ -281,8 +281,19 @@ class SailsPane extends AbstractPane {
       // current divisions for which there are rotations entered
       // and the offset amount
       if ($chosen_rot == "OFF") {
+	if (count($exist_div) == 0) {
+	  $form->add(new XP(array('class'=>'warning'), "There are no valid divisions to serve as templates for offset."));
+	  $form->add(new XP(array('class'=>'p-submit'),
+			    array(new XA(WS::link(sprintf('/score/%d/sails', $this->REGATTA->id)), "← Start over"))));
+	}
+	if (count($exist_div) == 1) {
+	  $divs = array_values($exist_div);
+	  $form->add(new XHiddenInput('from_div', $divs[0]));
+	}
+	else
+	  $form->add(new FItem("Template Division:", XSelect::fromArray('from_div', $exist_div)));
         $form->add(new FItem("Amount to offset (+/-):",
-                             new XTextInput("offset", (int)(count($p_teams) / count($exist_div)),
+                             new XTextInput("offset", (int)(count($p_teams) / count($divisions)),
                                             array("size"=>"2",
                                                   "maxlength"=>"2"))));
 
@@ -594,6 +605,8 @@ class SailsPane extends AbstractPane {
             $race_nums[] = $num;
           }
         }
+	if (count($race_nums) == 0)
+	  throw new SoterException("No valid races chosen.");
         $ordered_races = $race_nums;
 
         // Perform template rotation
@@ -649,13 +662,18 @@ class SailsPane extends AbstractPane {
         foreach ($divisions as $div) {
           $repi = 0;
           while ($repi < $repeats && ($racei + $repi) < count($races)) {
-            $ordered_races[] = $races[$racei + $repi];
-            $ordered_divs[]  = $div;
+	    $num = $races[$racei + $repi];
+	    if ($this->REGATTA->getRace($div, $num) !== null) {
+	      $ordered_races[] = $num;
+	      $ordered_divs[]  = $div;
+	    }
             $repi++;
           }
         }
         $racei += $repeats;
       }
+      if (count($ordered_races) == 0)
+	throw new SoterException("No valid races chosen.");
 
       // With copy style, the "set" includes all divisions
       if ($style == "copy") $repeats *= count($divisions);
@@ -703,22 +721,37 @@ class SailsPane extends AbstractPane {
       $teams = $this->REGATTA->getTeams();
       $rotation->initQueue();
 
+      // keep only race numbers compatible with all divisions
+      $race_nums = array();
+      foreach ($races as $num)
+	$race_nums[$num] = $num;
+
       foreach ($regDivisions as $division) {
         if (!in_array($division, $divisions)) {
           foreach ($races as $num) {
             $race = $this->REGATTA->getRace($division, $num);
-            if ($race !== null) {
-              foreach ($teams as $team) {
-                if (($sail = $rotation->getSail($race, $team)) !== null)
-                  $rotation->queue($sail);
-              }
-            }
+	    if ($race === null) {
+	      unset($race_nums[$num]);
+	      continue;
+	    }
+	    $tmpl = $this->REGATTA->getRace($from_div, $num);
+	    if ($tmpl === null) {
+	      unset($race_nums[$num]);
+	      continue;
+	    }
+	    foreach ($teams as $team) {
+	      if (($sail = $rotation->getSail($race, $team)) !== null)
+		$rotation->queue($sail);
+	    }
           }
         }
       }
 
+      if (count($race_nums) == 0)
+	throw new SoterException("No valid races chosen.");
+
       foreach ($divisions as $div) {
-        $rotation->queueOffset($from_div, $div, $races,        $offset);
+        $rotation->queueOffset($from_div, $div, $race_nums, $offset);
       }
 
       // Reset
