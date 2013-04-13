@@ -357,8 +357,16 @@ class SailsPane extends AbstractPane {
     if (($races = DB::parseRange($races)) === null)
       throw new SoterException("Unable to parse range of races provided.");
     sort($races);
-    if (count($races) == 0)
-      throw new SoterException("No races for which to setup rotations.");
+
+    // validate race numbers
+    $race_nums = array();
+    foreach ($races as $num) {
+      if ($this->REGATTA->getRace(Division::A(), $num) !== null)
+	$race_nums[] = $num;
+    }
+    if (count($race_nums) == 0)
+      throw new SoterException("Invalid race numbers provided.");
+    $races = $race_nums;
 
     // ------------------------------------------------------------
     // Offset rotation
@@ -375,7 +383,7 @@ class SailsPane extends AbstractPane {
 
       // Queue the sail offset
       $rotation->initQueue();
-      $rotation->queueCombinedOffset($races, $offset);
+      $rotation->queueCombinedOffset($race_nums, $offset);
       $rotation->commit();
 
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
