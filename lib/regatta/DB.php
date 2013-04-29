@@ -36,6 +36,7 @@ class DB extends DBM {
   public static $NOTE = null;
   public static $ROUND = null;
   public static $RACE = null;
+  public static $RACE_ROUND = null;
   public static $FINISH = null;
   public static $FINISH_MODIFIER = null;
   public static $TEAM_PENALTY = null;
@@ -88,6 +89,7 @@ class DB extends DBM {
     self::$NOTE = new Note();
     self::$ROUND = new Round();
     self::$RACE = new Race();
+    self::$RACE_ROUND = new Race_Round();
     self::$FINISH = new Finish();
     self::$FINISH_MODIFIER = new FinishModifier();
     self::$TEAM_PENALTY = new TeamPenalty();
@@ -1422,6 +1424,31 @@ class Round extends DBObject {
   protected function db_cache() { return true; }
   // No indication as to natural ordering
   public function __toString() { return $this->title; }
+
+  public static function compare(Round $r1, Round $r2) {
+    return (int)$r1->relative_order - (int)$r2->relative_order;
+  }
+}
+
+/**
+ * Linking table between round and races, since each race can belong
+ * to more than one round.
+ *
+ * @author Dayan Paez
+ * @version 2013-04-29
+ */
+class Race_Round extends DBObject {
+  protected $race;
+  protected $round;
+
+  public function db_type($field) {
+    switch ($field) {
+    case 'race': return DB::$RACE;
+    case 'round': return DB::$ROUND;
+    default:
+      return parent::db_type($field);
+    }
+  }
 }
 
 /**
@@ -1434,7 +1461,6 @@ class Race extends DBObject {
   protected $regatta;
   protected $division;
   protected $boat;
-  protected $round;
   public $number;
   public $scored_day;
   public $scored_by;
@@ -1457,7 +1483,6 @@ class Race extends DBObject {
     case 'division': return DBQuery::A_STR;
     case 'boat': return DB::$BOAT;
     case 'regatta': return DB::$REGATTA;
-    case 'round': return DB::$ROUND;
     case 'tr_team1':
     case 'tr_team2':
       return DB::$TEAM;
@@ -1491,6 +1516,80 @@ class Race extends DBObject {
          count($this->__get('regatta')->getDivisions()) == 1))
       return (string)$this->number;
     return $this->number . $this->division;
+  }
+
+  // ------------------------------------------------------------
+  // Rounds
+  // ------------------------------------------------------------
+
+  /**
+   * @var Array internal cache of rounds for this given race
+   */
+  private $_rounds = null;
+
+  /**
+   * Get list of rounds for this race
+   *
+   * @return Array:Round the rounds
+   */
+  public function getRounds() {
+    if ($this->_rounds === null) {
+      $this->_rounds = array();
+      foreach (DB::getAll(DB::$RACE_ROUND, new DBCond('race', $this)) as $r)
+	$this->_rounds[] = $r->round;
+      usort($this->_rounds, 'Round::compare');
+    }
+    return $this->_rounds;
+  }
+
+  /**
+   * Set the rounds to use for this race
+   *
+   * @param Array:Round $rounds the rounds to use
+   */
+  public function setRounds(Array $rounds) {
+    $this->_rounds = array();
+    $queue = array();
+    foreach ($rounds as $round) {
+      if ($round->id === null)
+	DB::set($round, false);
+
+      if (isset($queue[$round->id]))
+	continue;
+
+      $r = new Race_Round();
+      $r->race = $this;
+      $r->round = $round;
+      $queue[$round->id] = $r;
+      $this->_rounds[] = $round;
+    }
+    DB::removeAll(DB::$RACE_ROUND, new DBCond('race', $this));
+    DB::insertAll($queue);
+  }
+
+  /**
+   * Adds the given round to this race's list of rounds
+   *
+   * Only if the round is not already in the list of rounds
+   *
+   * @param Round $newRound the round to add
+   */
+  public function addRound(Round $newRound) {
+    if ($newRound->id === null)
+      DB::set($newRound, false);
+
+    // check for uniqueness
+    $curr = array();
+    foreach ($this->getRounds() as $round)
+      $curr[$round->id] = $round;
+    if (isset($curr[$newRound->id]))
+      return;
+
+    // create new one
+    $r = new Race_Round();
+    $r->race = $this;
+    $r->round = $newRound;
+    DB::set($r, false);
   }
 
   /**

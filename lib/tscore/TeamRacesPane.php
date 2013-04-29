@@ -280,6 +280,8 @@ class TeamRacesPane extends AbstractPane {
 	  break;
 	}
       }
+      foreach ($this->REGATTA->getRacesInRound($round) as $race)
+	DB::remove($race);
       DB::remove($round);
 
       // Order races of all rounds AFTER this one
@@ -346,7 +348,6 @@ class TeamRacesPane extends AbstractPane {
 	  $newrace->number = $racenum;
 	  $newrace->division = $div;
 	  $newrace->boat = $tmprace->boat;
-	  $newrace->round = $round;
 
 	  if ($swap > 0) {
 	    $newrace->tr_team1 = $tmprace->tr_team2;
@@ -357,6 +358,7 @@ class TeamRacesPane extends AbstractPane {
 	    $newrace->tr_team2 = $tmprace->tr_team2;
 	  }
 	  DB::set($newrace, false);
+	  $newrace->addRound($round);
 	}
       }
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
@@ -409,8 +411,9 @@ class TeamRacesPane extends AbstractPane {
             $race->division = $div;
             $race->number = $count;
             $race->boat = $boat;
-            $race->round = $round;
-            $this->REGATTA->setRace($race);
+	    $race->regatta = $this->REGATTA;
+	    DB::set($race, false);
+	    $race->addRound($round);
           }
           $this->REGATTA->setRaceTeams($race, $pair[0], $pair[1]);
           $num_added++;

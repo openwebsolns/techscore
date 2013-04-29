@@ -514,19 +514,24 @@ class FullRegatta extends DBObject {
    * @return Array:int the list of rounds
    */
   public function getRounds() {
-    return DB::getAll(DB::$ROUND, new DBCondIn('id', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('round'))));
+    return DB::getAll(DB::$ROUND,
+		      new DBCondIn('id', DB::prepGetAll(DB::$RACE_ROUND,
+							new DBCondIn('race', DB::prepGetAll(DB::$RACE,
+											    new DBCond('regatta', $this->id),
+											    array('id'))),
+							array('round'))));
   }
 
   /**
    * Fetches the list of races in the given round
    *
-   * @param int $round not verified to exist in this regatta
+   * @param Round $round the round
    * @param Division $div the specific division (if any)
    * @return Array:Race the list of races
    */
   public function getRacesInRound(Round $round, Division $div = null) {
     $cond = new DBBool(array(new DBCond('regatta', $this->id),
-                             new DBCond('round', $round)));
+                             new DBCondIn('id', DB::prepGetAll(DB::$RACE_ROUND, new DBCond('round', $round), array('race')))));
     if ($div !== null)
       $cond->add(new DBCond('division', (string)$div));
     return DB::getAll(DB::$RACE, $cond);
@@ -671,13 +676,16 @@ class FullRegatta extends DBObject {
    */
   public function getScoredRounds() {
     return DB::getAll(DB::$ROUND,
-                      new DBCondIn('id',
-                                   DB::prepGetAll(DB::$RACE,
-                                                  new DBBool(array(new DBCond('regatta', $this->id),
-                                                                   new DBCondIn('id',
-                                                                                DB::prepGetAll(DB::$FINISH, null,
-                                                                                               array('race'))))),
-                                                  array('round'))));
+		      new DBCondIn('id',
+				   DB::prepGetAll(DB::$RACE_ROUND,
+						  new DBCondIn('race',
+							       DB::prepGetAll(DB::$RACE,
+									      new DBBool(array(new DBCond('regatta', $this->id),
+											       new DBCondIn('id',
+													    DB::prepGetAll(DB::$FINISH, null,
+															   array('race'))))),
+									      array('id'))),
+						  array('round'))));
   }
 
   /**
@@ -809,11 +817,13 @@ class FullRegatta extends DBObject {
       throw new InvalidArgumentException("Rounds only applicable to team-racing regattas.");
 
     return DB::getAll(DB::$ROUND,
-		      new DBCondIn('id', DB::prepGetAll(DB::$RACE,
-							new DBBool(array(new DBCond('regatta', $this->id),
-									 new DBBool(array(new DBCond('tr_team1', $team),
-											  new DBCond('tr_team2', $team)),
-										    DBBool::mOR))),
+		      new DBCondIn('id', DB::prepGetAll(DB::$RACE_ROUND,
+							new DBCondIn('race', DB::prepGetAll(DB::$RACE,
+											    new DBBool(array(new DBCond('regatta', $this->id),
+													     new DBBool(array(new DBCond('tr_team1', $team),
+															      new DBCond('tr_team2', $team)),
+															DBBool::mOR))),
+											    array('id'))),
 							array('round'))));
   }
 

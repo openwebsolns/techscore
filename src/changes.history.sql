@@ -454,3 +454,9 @@ alter table dt_team_division change column score score mediumint unsigned defaul
 -- use pub_update_season to request updates to season summary pages
 alter table pub_update_season change column update_time request_time timestamp not null default current_timestamp, add column activity enum('regatta', 'details') not null default 'regatta' after season, add column completion_time datetime default null;
 delete from pub_update_season;
+
+-- allow multiple rounds per race
+create table race_round (id int not null primary key auto_increment, race int(7) not null, round int(11) not null) engine=innodb;
+alter table race_round add foreign key (race) references race(id) on delete cascade on update cascade, add foreign key (round)references round(id) on delete cascade on update cascade;
+insert into race_round (race, round) (select id, round from race where round is not null);
+alter table race drop foreign key race_ibfk_4, drop column round;
