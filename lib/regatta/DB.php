@@ -1593,6 +1593,16 @@ class Race extends DBObject {
   }
 
   /**
+   * Removes any race-round relationship
+   *
+   * @param Round $oldRound
+   */
+  public function deleteRound(Round $oldRound) {
+    DB::removeAll(DB::$RACE_ROUND, new DBBool(array(new DBCond('race', $this), new DBCond('round', $oldRound))));
+    $this->_rounds = null;
+  }
+
+  /**
    * Parses the string and returns a Race object with the
    * corresponding division and number. Note that the race object
    * obtained is orphan. If no division is found, "A" is chosen by

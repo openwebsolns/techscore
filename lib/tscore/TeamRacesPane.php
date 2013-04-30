@@ -113,6 +113,17 @@ class TeamRacesPane extends AbstractPane {
                              new XLabel($id, $team))));
     }
 
+    // Carry over from previous round(s)
+    if (count($rounds) > 0) {
+      $form->add(new XP(array(), "It is possible to carry the finishes from one or more previous rounds when creating the new one. In that case, any race in the new round where both teams have met in one of the selected rounds below will be used in the new round. Note that the first such race will be used."));
+      $form->add(new FItem("Carry over from:", $ul = new XUl(array('class'=>'inline-list'))));
+      foreach ($rounds as $round) {
+	$id = 'chk-' . $round->id;
+	$ul->add(new XLi(array(new XCheckboxInput('duplicate-round[]', $round->id, array('id'=>$id)),
+			       new XLabel($id, $round))));
+      }
+    }
+
     $form->add(new XSubmitP('add-round', "Add round"));
   }
 
@@ -280,8 +291,13 @@ class TeamRacesPane extends AbstractPane {
 	  break;
 	}
       }
-      foreach ($this->REGATTA->getRacesInRound($round) as $race)
-	DB::remove($race);
+      // Remove this round from each race, or entire race if only round
+      foreach ($this->REGATTA->getRacesInRound($round) as $race) {
+	if (count($race->getRounds()) == 1)
+	  DB::remove($race);
+	else
+	  $race->deleteRound($round);
+      }
       DB::remove($round);
 
       // Order races of all rounds AFTER this one
@@ -370,7 +386,9 @@ class TeamRacesPane extends AbstractPane {
     // Add round
     // ------------------------------------------------------------
     if (isset($args['add-round'])) {
-      $rounds = $this->REGATTA->getRounds();
+      $rounds = array();
+      foreach ($this->REGATTA->getRounds() as $r)
+	$rounds[$r->id] = $r;
 
       // title
       $round = new Round();
@@ -395,33 +413,71 @@ class TeamRacesPane extends AbstractPane {
       if (count($teams) < 2)
         throw new SoterException("Not enough teams provided: there must be at least two. Please try again.");
 
+      // Previous races
+      $prev_races = array(); // map of "<teamID>-<teamID>" => [Race,
+			     // ...]
+      foreach (DB::$V->incList($args, 'duplicate-round') as $r) {
+	if (!isset($rounds[$r]))
+	  throw new SoterException("Invalid previous round from which to carry over races.");
+	foreach ($this->REGATTA->getRacesInRound($rounds[$r], Division::A()) as $race) {
+	  $id = sprintf('%s-%s', $race->tr_team1->id, $race->tr_team2->id);
+	  if (!isset($prev_races[$id]))
+	    $prev_races[$id] = array();
+	  $prev_races[$id][] = $race;
+	}
+      }
+
       // Assign next race number
       $count = count($this->REGATTA->getRaces(Division::A()));
 
       // Create round robin
       $num_added = 0;
+      $num_duplicate = 0;
       $divs = array(Division::A(), Division::B(), Division::C());
 
       $swap = false;
       for ($meeting = 0; $meeting < $meetings; $meeting++) {
         foreach ($this->pairup($teams, $swap) as $pair) {
-          $count++;
-          foreach ($divs as $div) {
-            $race = new Race();
-            $race->division = $div;
-            $race->number = $count;
-            $race->boat = $boat;
-	    $race->regatta = $this->REGATTA;
-	    DB::set($race, false);
-	    $race->addRound($round);
-          }
-          $this->REGATTA->setRaceTeams($race, $pair[0], $pair[1]);
-          $num_added++;
+	  // check for existing race to duplicate
+	  $existing_race = null;
+	  $id = sprintf('%s-%s', $pair[0]->id, $pair[1]->id);
+	  if (isset($prev_races[$id]) && count($prev_races[$id]) > 0)
+	    $existing_race = array_shift($prev_races[$id]);
+	  
+	  $id = sprintf('%s-%s', $pair[1]->id, $pair[0]->id);
+	  if (isset($prev_races[$id]) && count($prev_races[$id]) > 0)
+	    $existing_race = array_shift($prev_races[$id]);
+
+	  if ($existing_race !== null) {
+	    $existing_race->addRound($round);
+	    foreach (array(Division::B(), Division::C()) as $div) {
+	      $race = $this->REGATTA->getRace($div, $existing_race->number);
+	      $race->addRound($round);
+	    }
+	    $num_duplicate++;
+	  }
+	  else {
+	    $count++;
+	    foreach ($divs as $div) {
+	      $race = new Race();
+	      $race->division = $div;
+	      $race->number = $count;
+	      $race->boat = $boat;
+	      $race->regatta = $this->REGATTA;
+	      DB::set($race, false);
+	      $race->addRound($round);
+	    }
+	    $this->REGATTA->setRaceTeams($race, $pair[0], $pair[1]);
+	    $num_added++;
+	  }
         }
         $swap = !$swap;
       }
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
-      Session::pa(new PA("Added $num_added new races in round $round."));
+      $mes = "Added $num_added new races in round $round.";
+      if ($num_duplicate > 0)
+	$mes .= " $num_duplicate race(s) carried over from previous rounds.";
+      Session::pa(new PA($mes));
       $this->redirect('races', array('r'=>$round->id));
       return array();
     }
