@@ -128,7 +128,7 @@ abstract class AbstractIcsaRpForm {
    * @param Team $team the team to add
    * @param Sailor $rep the sailor who represents this team
    */
-  public function addRepresentative(Team $team, Member $sailor = null) {
+  public function addRepresentative(Team $team, Representative $sailor = null) {
     if (!isset($this->teams[$team->id]))
       $this->add($team);
     $this->representatives[$team->id] = $sailor;

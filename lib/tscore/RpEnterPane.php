@@ -104,7 +104,6 @@ class RpEnterPane extends AbstractPane {
 
     // Representative
     $rep = $rpManager->getRepresentative($chosen_team);
-    $rep_id = ($rep === null) ? "" : $rep->id;
     $p->add($form = $this->createForm());
     $form->add(new XP(array('class'=>'warning'),
                       array(new XStrong("Note:"), " It is not possible to add sailors without adding races. When unsure, mark a sailor as sailing all races, and edit later as more information becomes available. ",
@@ -113,7 +112,8 @@ class RpEnterPane extends AbstractPane {
                                    array('onclick'=>'this.target="sailors"')),
                             " to see current registrations.")));
     $form->add(new XHiddenInput("chosen_team", $chosen_team->id));
-    $form->add(new FItem("Representative:", XSelect::fromArray('rep', $sailor_options, $rep_id)));
+    $form->add($fi = new FItem("Representative:", new XTextInput('rep', $rep)));
+    $fi->add(new XMessage("For contact purposes only."));
 
     // Remove coaches from list
     unset($sailor_options["Coaches"]);
@@ -241,11 +241,7 @@ class RpEnterPane extends AbstractPane {
         $sailors[$sailor->id] = $sailor;
 
       // Insert representative
-      if (DB::$V->hasID($rep, $args, 'rep', DB::$MEMBER)) {
-        if ($rep->school != $team->school)
-          throw new SoterException("Invalid representative chosen.");
-        $rpManager->setRepresentative($team, $rep);
-      }
+      $rpManager->setRepresentative($team, DB::$V->incString($args, 'rep', 1, 256, null));
 
       // To enter RP information, keep track of the number of crews
       // available in each race. To do this, keep a stacked

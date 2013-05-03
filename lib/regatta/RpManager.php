@@ -31,29 +31,34 @@ class RpManager {
    * Returns the representative sailor for the given school
    *
    * @param School $school the school whose representative to get
-   * @return Sailor the sailor, or null if none
+   * @return Representative the rep, or null if none
    */
   public function getRepresentative(Team $team) {
     $res = DB::getAll(DB::$REPRESENTATIVE, new DBCond('team', $team));
-    $r = (count($res) == 0) ? null : $res[0]->sailor;
-    unset($res);
-    return $r;
+    return (count($res) == 0) ? null : $res[0];
   }
 
   /**
    * Sets the representative for the given team
    *
+   * If name is null, remove representative instead
+   *
    * @param Team $team the team
-   * @param Sailor $sailor the sailor
+   * @param String|null $name the name of the representative
    */
-  public function setRepresentative(Team $team, Member $sailor) {
+  public function setRepresentative(Team $team, $name = null) {
+    if ($name === null) {
+      DB::removeAll(DB::$REPRESENTATIVE, new DBCond('team', $team));
+      return;
+    }
+
     // Ensure uniqueness
     $cur = $this->getRepresentative($team);
     if ($cur === null) {
       $cur = new Representative();
       $cur->team = $team;
     }
-    $cur->sailor = $sailor;
+    $cur->name = $name;
     DB::set($cur);
   }
 

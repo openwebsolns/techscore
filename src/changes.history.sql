@@ -471,3 +471,8 @@ alter table round add column regatta int(5) not null after id;
 update race, round set round.regatta = race.regatta where race.round = round.id;
 delete from round where regatta not in (select id from regatta);
 alter table round add foreign key (regatta) references regatta(id) on delete cascade on update cascade;
+
+-- representative information need not be database-backed
+alter table representative add column name varchar(255) not null;
+update representative, sailor set representative.name = concat(sailor.first_name, " ", sailor.last_name) where representative.sailor = sailor.id;
+alter table representative drop foreign key representative_ibfk_1, drop column sailor;

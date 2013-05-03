@@ -2004,16 +2004,17 @@ class Daily_Summary extends DBObject {
  */
 class Representative extends DBObject {
   protected $team;
-  protected $sailor;
+  public $name;
 
   public function db_type($field) {
     switch ($field) {
     case 'team': return DB::$TEAM;
-    case 'sailor': return DB::$MEMBER;
     default:
       return parent::db_type($field);
     }
   }
+
+  public function __toString() { return $this->name; }
 }
 
 /**
