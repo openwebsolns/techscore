@@ -34,8 +34,7 @@ class EnterTeamFinishPane extends EnterFinishPane {
         Session::pa(new PA("Invalid race chosen.", PA::E));
         $this->redirect();
       }
-      $rnds = $race->getRounds();
-      $round = $rnds[count($rnds) - 1];
+      $round = $race->round;
     }
     else {
       if (DB::$V->hasID($round, $args, 'round', DB::$ROUND)) {
@@ -56,8 +55,10 @@ class EnterTeamFinishPane extends EnterFinishPane {
           $race = $this->REGATTA->getLastScoredRace();
           Session::pa(new PA("All races have been scored."));
         }
+	$round = $race->round;
 	$rnds = $race->getRounds();
-	$round = $rnds[count($rnds) - 1];
+	if (count($rnds) > 0)
+	  $round = $rnds[count($rnds) - 1];
       }
     }
 

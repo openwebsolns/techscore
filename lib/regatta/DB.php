@@ -1416,10 +1416,16 @@ class Note extends DBObject {
  * @version 2012-12-06
  */
 class Round extends DBObject {
+  protected $regatta;
   public $title;
   public $scoring;
   public $relative_order;
 
+  public function db_type($field) {
+    if ($field == 'regatta')
+      return DB::$REGATTA;
+    return parent::db_type($field);
+  }
   protected function db_order() { return array('relative_order'=>true); }
   protected function db_cache() { return true; }
   // No indication as to natural ordering
@@ -1431,8 +1437,10 @@ class Round extends DBObject {
 }
 
 /**
- * Linking table between round and races, since each race can belong
- * to more than one round.
+ * Linking table between round and races.
+ *
+ * This is applicable for races that are carried over from one round
+ * to another one.
  *
  * @author Dayan Paez
  * @version 2013-04-29
@@ -1461,6 +1469,7 @@ class Race extends DBObject {
   protected $regatta;
   protected $division;
   protected $boat;
+  protected $round;
   public $number;
   public $scored_day;
   public $scored_by;
@@ -1483,6 +1492,7 @@ class Race extends DBObject {
     case 'division': return DBQuery::A_STR;
     case 'boat': return DB::$BOAT;
     case 'regatta': return DB::$REGATTA;
+    case 'round': return DB::$ROUND;
     case 'tr_team1':
     case 'tr_team2':
       return DB::$TEAM;
@@ -1519,11 +1529,11 @@ class Race extends DBObject {
   }
 
   // ------------------------------------------------------------
-  // Rounds
+  // Rounds carried over
   // ------------------------------------------------------------
 
   /**
-   * @var Array internal cache of rounds for this given race
+   * @var Array internal cache of extra rounds for this given race
    */
   private $_rounds = null;
 
@@ -1568,7 +1578,7 @@ class Race extends DBObject {
   }
 
   /**
-   * Adds the given round to this race's list of rounds
+   * Adds the given round to this race's list of extra rounds
    *
    * Only if the round is not already in the list of rounds
    *

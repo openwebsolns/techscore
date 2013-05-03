@@ -460,3 +460,14 @@ create table race_round (id int not null primary key auto_increment, race int(7)
 alter table race_round add foreign key (race) references race(id) on delete cascade on update cascade, add foreign key (round)references round(id) on delete cascade on update cascade;
 insert into race_round (race, round) (select id, round from race where round is not null);
 alter table race drop foreign key race_ibfk_4, drop column round;
+
+-- re-associate main round with race
+alter table race add column round int default null, add foreign key race_ibfk_4 (round) references round(id) on delete cascade on update cascade;
+update race, (select race, rnd.id, min(rnd.num) from race_round inner join (select id, id + relative_order as num from round) as rnd on rnd.id = race_round.round group by race) as first_round set race.round = first_round.id where race.id = first_round.race;
+delete from race_round where (race, round) in (select id, round from race);
+
+-- for simplicity, associate each round with its regatta on its own merit
+alter table round add column regatta int(5) not null after id;
+update race, round set round.regatta = race.regatta where race.round = round.id;
+delete from round where regatta not in (select id from regatta);
+alter table round add foreign key (regatta) references regatta(id) on delete cascade on update cascade;

@@ -157,7 +157,7 @@ class TeamRacesPane extends AbstractPane {
     $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/tablesort.js'));
     $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/toggle-tablesort.js'));
     $has_finishes = false;
-    $cur_races = $this->REGATTA->getRacesInRound($round, Division::A());
+    $cur_races = $this->REGATTA->getRacesInRound($round, Division::A(), false);
     if (count($cur_races) > 0) {
       $this->PAGE->addContent($p = new XPort("Edit races in round $round"));
       $p->add($form = $this->createForm());
@@ -343,6 +343,7 @@ class TeamRacesPane extends AbstractPane {
       $templ = $rounds[DB::$V->reqKey($args, 'template', $rounds, "Invalid template round provided.")];
 
       $round = new Round();
+      $round->regatta = $this->REGATTA;
       $round->title = DB::$V->reqString($args, 'title', 1, 81, "Invalid round label. May not exceed 80 characters.");
       foreach ($rounds as $r) {
 	if ($r->title == $round->title)
@@ -364,6 +365,7 @@ class TeamRacesPane extends AbstractPane {
 	  $newrace->number = $racenum;
 	  $newrace->division = $div;
 	  $newrace->boat = $tmprace->boat;
+	  $newrace->round = $round;
 
 	  if ($swap > 0) {
 	    $newrace->tr_team1 = $tmprace->tr_team2;
@@ -374,7 +376,6 @@ class TeamRacesPane extends AbstractPane {
 	    $newrace->tr_team2 = $tmprace->tr_team2;
 	  }
 	  DB::set($newrace, false);
-	  $newrace->addRound($round);
 	}
       }
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
@@ -392,6 +393,7 @@ class TeamRacesPane extends AbstractPane {
 
       // title
       $round = new Round();
+      $round->regatta = $this->REGATTA;
       $round->title = DB::$V->reqString($args, 'title', 1, 81, "Invalid round label. May not exceed 80 characters.");
       foreach ($rounds as $r) {
         if ($r->title == $round->title)
@@ -464,8 +466,8 @@ class TeamRacesPane extends AbstractPane {
 	      $race->number = $count;
 	      $race->boat = $boat;
 	      $race->regatta = $this->REGATTA;
+	      $race->round = $round;
 	      DB::set($race, false);
-	      $race->addRound($round);
 	    }
 	    $this->REGATTA->setRaceTeams($race, $pair[0], $pair[1]);
 	    $num_added++;
