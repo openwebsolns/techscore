@@ -259,6 +259,8 @@ class CompareHeadToHead extends AbstractUserPane {
                                         ($role === null) ? "" : ("as  " . $role))));
       }
       else {
+	// Sort regattas by start time
+	uasort($regattas, 'Regatta::cmpStart');
         $row = array("Regatta", "Season");
         foreach ($sailors as $sailor) {
           $row[] = $sailor;
@@ -267,7 +269,8 @@ class CompareHeadToHead extends AbstractUserPane {
         $p->add($tab = new XQuickTable(array(), $row));
 
         $rowid = 0;
-        foreach ($table as $rid => $divs) {
+	foreach ($regattas as $rid => $regatta) {
+	  $divs = $table[$rid];
           if ($grouped) {
             $row = array(new XStrong($regattas[$rid]->name), $regattas[$rid]->getSeason()->fullString());
             foreach ($sailors as $sailor) {
