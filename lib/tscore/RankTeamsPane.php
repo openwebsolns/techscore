@@ -49,62 +49,60 @@ class RankTeamsPane extends AbstractPane {
           $finishes[] = $finish;
       }
 
-      foreach ($race->getRounds() as $round) {
-	if (!isset($rows[$round->id])) {
-	  $records[$round->id] = new TeamRank($team);
-	  $recTDs[$round->id] = new XTD(array('class'=>'rank-record'), "");
-	  $rows[$round->id] = new XTR(array(), array($recTDs[$round->id], new XTH(array(), $team)));
-	  $cells[$round->id] = array();
+      if (!isset($rows[$race->round->id])) {
+	$records[$race->round->id] = new TeamRank($team);
+	$recTDs[$race->round->id] = new XTD(array('class'=>'rank-record'), "");
+	$rows[$race->round->id] = new XTR(array(), array($recTDs[$race->round->id], new XTH(array(), $team)));
+        $cells[$race->round->id] = array();
 
-	  $f->add(new XH3("Round: " . $round));
-	  $f->add(new XTable(array('class'=>'rank-table'), array($rows[$round->id])));
-	}
-
-	$row = $rows[$round->id];
-	$record = $records[$round->id];
-
-	$myScore = 0;
-	$theirScore = 0;
-	foreach ($finishes as $finish) {
-	  if ($finish->team->id == $team->id)
-	    $myScore += $finish->score;
-	  else
-	    $theirScore += $finish->score;
-	}
-	if ($myScore < $theirScore) {
-	  $className = 'rank-win';
-	  $display = 'W';
-	  if ($race->tr_ignore === null)
-	    $record->wins++;
-	}
-	elseif ($myScore > $theirScore) {
-	  $className = 'rank-lose';
-	  $display = 'L';
-	  if ($race->tr_ignore === null)
-	    $record->losses++;
-	}
-	else {
-	  $className = 'rank-tie';
-	  $display = 'T';
-	  if ($race->tr_ignore === null)
-	    $record->ties++;
-	}
-	$display .= sprintf(' (%s)', $myScore);
-	$other_team = $race->tr_team1;
-	if ($other_team->id == $team->id)
-	  $other_team = $race->tr_team2;
-	$id = sprintf('r-%s', $race->id);
-	$cell = new XTD(array(),
-			array($chk = new XCheckboxInput('race[]', $race->id, array('id'=>$id, 'class'=>$className)),
-			      $label = new XLabel($id, $display . " vs. ")));
-	$cells[$round->id][(string)$other_team] = $cell;
-
-	$label->add(new XBr());
-	$label->add(sprintf('%s (%s)', $other_team, $theirScore));
-	$label->set('class', $className);
-	if ($race->tr_ignore === null)
-	  $chk->set('checked', 'checked');
+	$f->add(new XH3("Round: " . $race->round));
+	$f->add(new XTable(array('class'=>'rank-table'), array($rows[$race->round->id])));
       }
+
+      $row = $rows[$race->round->id];
+      $record = $records[$race->round->id];
+
+      $myScore = 0;
+      $theirScore = 0;
+      foreach ($finishes as $finish) {
+	if ($finish->team->id == $team->id)
+	  $myScore += $finish->score;
+	else
+	  $theirScore += $finish->score;
+      }
+      if ($myScore < $theirScore) {
+	$className = 'rank-win';
+	$display = 'W';
+	if ($race->tr_ignore === null)
+	  $record->wins++;
+      }
+      elseif ($myScore > $theirScore) {
+	$className = 'rank-lose';
+	$display = 'L';
+	if ($race->tr_ignore === null)
+	  $record->losses++;
+      }
+      else {
+	$className = 'rank-tie';
+	$display = 'T';
+	if ($race->tr_ignore === null)
+	  $record->ties++;
+      }
+      $display .= sprintf(' (%s)', $myScore);
+      $other_team = $race->tr_team1;
+      if ($other_team->id == $team->id)
+	$other_team = $race->tr_team2;
+      $id = sprintf('r-%s', $race->id);
+      $cell = new XTD(array(),
+                      array($chk = new XCheckboxInput('race[]', $race->id, array('id'=>$id, 'class'=>$className)),
+                            $label = new XLabel($id, $display . " vs. ")));
+      $cells[$race->round->id][(string)$other_team] = $cell;
+
+      $label->add(new XBr());
+      $label->add(sprintf('%s (%s)', $other_team, $theirScore));
+      $label->set('class', $className);
+      if ($race->tr_ignore === null)
+	$chk->set('checked', 'checked');
     }
 
     // add all the rows
