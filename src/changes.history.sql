@@ -476,3 +476,8 @@ alter table round add foreign key (regatta) references regatta(id) on delete cas
 alter table representative add column name varchar(255) not null;
 update representative, sailor set representative.name = concat(sailor.first_name, " ", sailor.last_name) where representative.sailor = sailor.id;
 alter table representative drop foreign key representative_ibfk_1, drop column sailor;
+
+-- program needs to track which team rounds are "grouped" together in their race order.
+-- create a dummy table whose primary key indicates a group
+create table round_group (id int primary key auto_increment) engine=innodb;
+alter table round add column round_group int default null, add foreign key (round_group) references round_group(id) on delete set null on update cascade;

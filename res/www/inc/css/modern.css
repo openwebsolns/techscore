@@ -721,3 +721,29 @@ h4 a:hover {
 #ranktable {
     margin: 0 0 1em;
 }
+
+/* background colors */
+.bgcolor0 {
+    background: #ffd0d0;
+}
+.bgcolor1 {
+    background: #ffecd0;
+}
+.bgcolor5 {
+    background: #feffd0;
+}
+.bgcolor2 {
+    background: #d6ffd0;
+}
+.bgcolor6 {
+    background: #d0ecff;
+}
+.bgcolor3 {
+    background: #d7d0ff
+}
+.bgcolor7 {
+    background: #ffd0fa;
+}
+.bgcolor4 {
+    background: #eee;
+}

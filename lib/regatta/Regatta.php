@@ -509,6 +509,17 @@ class FullRegatta extends DBObject {
   }
 
   /**
+   * Gets the grouped rounds
+   *
+   * @return Array:Round_Group
+   */
+  public function getRoundGroups() {
+    return DB::getAll(DB::$ROUND_GROUP,
+		      new DBCondIn('id',
+				   DB::prepGetAll(DB::$ROUND, new DBCond('regatta', $this->id), array('round_group'))));
+  }
+
+  /**
    * Ordered list of rounds in the regatta
    *
    * @return Array:Round the list of rounds
@@ -522,7 +533,7 @@ class FullRegatta extends DBObject {
    *
    * @param Round $round the round
    * @param Division $div the specific division (if any)
-   * @param booleam $inc_carry_over set to true (default) to include
+   * @param boolean $inc_carry_over set to true (default) to include
    * races carried over from previous rounds
    *
    * @return Array:Race the list of races
@@ -537,6 +548,45 @@ class FullRegatta extends DBObject {
 
     if ($div !== null)
       $cond->add(new DBCond('division', (string)$div));
+    return DB::getAll(DB::$RACE, $cond);
+  }
+
+  /**
+   * Fetches all races in given group of rounds
+   *
+   * @param Round_Group the group of rounds
+   * @param Division $div the specific division (if any)
+   * @param boolean $inc_carry_over set to true (default) to include
+   * races carried over from previous rounds
+   *
+   * @return Array:Race the list of races
+   */
+  public function getRacesInRoundGroup(Round_Group $group, Division $div = null, $inc_carry_over = true) {
+    $cond = new DBCondIn('round', DB::prepGetAll(DB::$ROUND, new DBCond('round_group', $group), array('id')));
+    if ($inc_carry_over !== false)
+      $cond = new DBBool(array($cond,
+			       new DBCondIn('id', DB::prepGetAll(DB::$RACE_ROUND, new DBCond('round', $round), array('race')))),
+			 DBBool::mOR);
+    $cond = new DBBool(array(new DBCond('regatta', $this->id), $cond));
+
+    if ($div !== null)
+      $cond->add(new DBCond('division', (string)$div));
+    return DB::getAll(DB::$RACE, $cond);
+  }
+
+  /**
+   * Get list of races in given round that are carried over to other rounds
+   *
+   * @param Round $round the round the race must belong to
+   * @param Division $div the optional division for the race
+   * @return Array:Race
+   */
+  public function getRacesCarriedOver(Round $round, Division $div = null) {
+    $cond = new DBBool(array(new DBCond('regatta', $this->id),
+			     new DBCond('round', $round),
+			     new DBCondIn('id', DB::prepGetAll(DB::$RACE_ROUND, null, array('race')))));
+    if ($div !== null)
+      $cond->add(new DBCond('division', $div));
     return DB::getAll(DB::$RACE, $cond);
   }
 

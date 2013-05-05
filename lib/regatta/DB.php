@@ -35,6 +35,7 @@ class DB extends DBM {
   public static $SAIL = null;
   public static $NOTE = null;
   public static $ROUND = null;
+  public static $ROUND_GROUP = null;
   public static $RACE = null;
   public static $RACE_ROUND = null;
   public static $FINISH = null;
@@ -88,6 +89,7 @@ class DB extends DBM {
     self::$SAIL = new Sail();
     self::$NOTE = new Note();
     self::$ROUND = new Round();
+    self::$ROUND_GROUP = new Round_Group();
     self::$RACE = new Race();
     self::$RACE_ROUND = new Race_Round();
     self::$FINISH = new Finish();
@@ -1410,6 +1412,21 @@ class Note extends DBObject {
 }
 
 /**
+ * Group of races (team racing only)
+ *
+ * @author Dayan Paez
+ * @version 2013-05-04
+ */
+class Round_Group extends DBObject {
+  protected function db_cache() { return true; }
+  public function __toString() { return $this->id; }
+
+  public function getRounds() {
+    return DB::getAll(DB::$ROUND, new DBCond('round_group', $this));
+  }
+}
+
+/**
  * A round-robin of races, for team racing applications
  *
  * @author Dayan Paez
@@ -1420,10 +1437,16 @@ class Round extends DBObject {
   public $title;
   public $scoring;
   public $relative_order;
+  /**
+   * @var Race_Group since team races can be "grouped" for ordering purposes
+   */
+  protected $round_group;
 
   public function db_type($field) {
     if ($field == 'regatta')
       return DB::$REGATTA;
+    if ($field == 'round_group')
+      return DB::$ROUND_GROUP;
     return parent::db_type($field);
   }
   protected function db_order() { return array('relative_order'=>true); }
