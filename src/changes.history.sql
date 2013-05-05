@@ -485,3 +485,8 @@ alter table round add column round_group int default null, add foreign key (roun
 -- ignore race for one team, but not the other
 alter table race change column tr_ignore tr_ignore1 tinyint default null, add column tr_ignore2 tinyint default null;
 update race set tr_ignore2 = tr_ignore1;
+
+-- for uniformity, all races (regardless of division) should have the proper tr_ignore flag set
+create temporary table race_A as (select id, regatta, number, tr_ignore1, tr_ignore2 from race where division = "A");
+update race, race_A set race.tr_ignore1 = race_A.tr_ignore1, race.tr_ignore2 = race_A.tr_ignore2 where (race.regatta,race.number) = (race_A.regatta,race_A.number) and race.division != "A";
+drop temporary table race_A;

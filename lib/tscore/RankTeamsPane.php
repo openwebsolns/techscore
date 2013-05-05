@@ -168,7 +168,10 @@ class RankTeamsPane extends AbstractPane {
       $team = DB::$V->reqTeam($args, 'team', $this->REGATTA, "Invalid team whose records to set.");
       $ids = DB::$V->reqList($args, 'race', null, "No list of races provided.");
 
-      $affected = array(); // other teams affected
+      $other_divisions = $this->REGATTA->getDivisions();
+      array_shift($other_divisions);
+
+      $affected = 0;
       foreach ($this->REGATTA->getRacesForTeam(Division::A(), $team) as $race) {
 	if (count($this->REGATTA->getFinishes($race)) == 0)
 	  continue;
@@ -179,21 +182,21 @@ class RankTeamsPane extends AbstractPane {
 	$ignore = (in_array($race->id, $ids)) ? null : 1;
 
 	if ($ignore != $race->$ignoreProp) {
+          $affected++;
 	  $race->$ignoreProp = $ignore;
 	  DB::set($race);
-          $other_team = $race->tr_team1;
-          if ($other_team == $team)
-            $other_team = $race->tr_team2;
-	  $affected[$other_team->id] = $other_team;
+          foreach ($other_divisions as $div) {
+            $r = $this->REGATTA->getRace($div, $race->number);
+            $r->$ignoreProp = $ignore;
+            DB::set($r);
+          }
 	}
       }
 
-      if (count($affected) == 0)
+      if ($affected == 0)
 	Session::PA(new PA("No races affected.", PA::I));
       else {
 	$this->REGATTA->setRanks();
-        foreach ($affected as $other_team)
-          UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RANK, $other_team->school->id);
         UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RANK, $team->school->id);
 	Session::pa(new PA(sprintf("Updated %d races.", count($affected))));
       }
