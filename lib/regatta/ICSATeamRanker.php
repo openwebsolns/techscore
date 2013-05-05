@@ -58,19 +58,21 @@ class ICSATeamRanker extends ICSARanker {
 	  else
 	    $theirScore += $finish->score;
 	}
-	if ($race->tr_ignore === null) {
-	  if ($myScore < $theirScore) {
+	if ($race->tr_ignore1 === null) {
+	  if ($myScore < $theirScore)
 	    $records[$race->tr_team1->id]->wins++;
-	    $records[$race->tr_team2->id]->losses++;
-	  }
-	  elseif ($myScore > $theirScore) {
-	    $records[$race->tr_team2->id]->wins++;
+	  elseif ($myScore > $theirScore)
 	    $records[$race->tr_team1->id]->losses++;
-	  }
-	  else {
+	  else
 	    $records[$race->tr_team1->id]->ties++;
+	}
+	if ($race->tr_ignore2 === null) {
+	  if ($myScore < $theirScore)
+	    $records[$race->tr_team2->id]->losses++;
+	  elseif ($myScore > $theirScore)
+	    $records[$race->tr_team2->id]->wins++;
+	  else
 	    $records[$race->tr_team2->id]->ties++;
-	  }
 	}
       }
     }

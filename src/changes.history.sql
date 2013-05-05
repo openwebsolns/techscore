@@ -481,3 +481,7 @@ alter table representative drop foreign key representative_ibfk_1, drop column s
 -- create a dummy table whose primary key indicates a group
 create table round_group (id int primary key auto_increment) engine=innodb;
 alter table round add column round_group int default null, add foreign key (round_group) references round_group(id) on delete set null on update cascade;
+
+-- ignore race for one team, but not the other
+alter table race change column tr_ignore tr_ignore1 tinyint default null, add column tr_ignore2 tinyint default null;
+update race set tr_ignore2 = tr_ignore1;

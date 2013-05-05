@@ -235,9 +235,12 @@ class TeamRaceOrderPane extends AbstractPane {
 	if (in_array($race->id, $swaplist)) {
 	  $edited = true;
 	  $team1 = $race->tr_team1;
+          $ignore1 = $race->tr_ignore1; // also swap ignore list
 	  foreach ($list as $r) {
 	    $r->tr_team1 = $r->tr_team2;
 	    $r->tr_team2 = $team1;
+            $r->tr_ignore1 = $r->tr_ignore2;
+            $r->tr_ignore2 = $ignore1;
 	  }
 	}
 	if ($edited) {

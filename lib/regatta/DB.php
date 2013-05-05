@@ -1505,9 +1505,14 @@ class Race extends DBObject {
   protected $tr_team2;
   /**
    * @var int|null (team racing) ignore the race when creating
-   * win-loss record
+   * win-loss record for first team
    */
-  public $tr_ignore;
+  public $tr_ignore1;
+  /**
+   * @var int|null (team racing) ignore the race when creating
+   * win-loss record for second team
+   */
+  public $tr_ignore2;
 
   public function db_name() { return 'race'; }
   public function db_type($field) {

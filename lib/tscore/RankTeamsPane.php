@@ -41,6 +41,9 @@ class RankTeamsPane extends AbstractPane {
       if (count($fr_finishes) == 0)
 	continue;
 
+      // determine if this is team1 or team2
+      $ignoreProp = ($team->id == $race->tr_team1->id) ? 'tr_ignore1' : 'tr_ignore2';
+
       $finishes = array();
       foreach ($fr_finishes as $finish)
         $finishes[] = $finish;
@@ -73,19 +76,19 @@ class RankTeamsPane extends AbstractPane {
       if ($myScore < $theirScore) {
 	$className = 'rank-win';
 	$display = 'W';
-	if ($race->tr_ignore === null)
+	if ($race->$ignoreProp === null)
 	  $record->wins++;
       }
       elseif ($myScore > $theirScore) {
 	$className = 'rank-lose';
 	$display = 'L';
-	if ($race->tr_ignore === null)
+	if ($race->$ignoreProp === null)
 	  $record->losses++;
       }
       else {
 	$className = 'rank-tie';
 	$display = 'T';
-	if ($race->tr_ignore === null)
+	if ($race->$ignoreProp === null)
 	  $record->ties++;
       }
       $display .= sprintf(' (%s)', $myScore);
@@ -101,7 +104,8 @@ class RankTeamsPane extends AbstractPane {
       $label->add(new XBr());
       $label->add(sprintf('%s (%s)', $other_team, $theirScore));
       $label->set('class', $className);
-      if ($race->tr_ignore === null)
+
+      if ($race->$ignoreProp === null)
 	$chk->set('checked', 'checked');
     }
 
@@ -169,9 +173,13 @@ class RankTeamsPane extends AbstractPane {
 	if (count($this->REGATTA->getFinishes($race)) == 0)
 	  continue;
 
+        // determine if this is team1 or team2
+        $ignoreProp = ($team->id == $race->tr_team1->id) ? 'tr_ignore1' : 'tr_ignore2';
+
 	$ignore = (in_array($race->id, $ids)) ? null : 1;
-	if ($ignore != $race->tr_ignore) {
-	  $race->tr_ignore = $ignore;
+
+	if ($ignore != $race->$ignoreProp) {
+	  $race->$ignoreProp = $ignore;
 	  DB::set($race);
           $other_team = $race->tr_team1;
           if ($other_team == $team)
