@@ -203,7 +203,7 @@ class TeamRacesPane extends AbstractPane {
           throw new SoterException("Invalid round requested.");
         $round = $rounds[$rid];
         $round->relative_order = $roundnum++;
-        foreach ($this->REGATTA->getRacesInRound($round, Division::A()) as $race) {
+        foreach ($this->REGATTA->getRacesInRound($round, Division::A(), false) as $race) {
           foreach ($divs as $div) {
             $r = $this->REGATTA->getRace($div, $race->number);
             $r->number = $racenum;
@@ -259,7 +259,7 @@ class TeamRacesPane extends AbstractPane {
 	}
       }
       // Remove this round from each race, or entire race if only round
-      foreach ($this->REGATTA->getRacesInRound($round) as $race) {
+      foreach ($this->REGATTA->getRacesInRound($round, null, false) as $race) {
 	if (count($race->getRounds()) == 1)
 	  DB::remove($race);
 	else
@@ -274,13 +274,13 @@ class TeamRacesPane extends AbstractPane {
       $race_num = 1;
       foreach ($rounds as $rid => $other) {
         if ($other->relative_order < $round->relative_order) {
-          $race_num += count($this->REGATTA->getRacesInRound($other, Division::A()));
+          $race_num += count($this->REGATTA->getRacesInRound($other, Division::A(), false));
           $round_num++;
           continue;
         }
         $other->relative_order = $round_num++;
         DB::set($other, true);
-        foreach ($this->REGATTA->getRacesInRound($other, Division::A()) as $race) {
+        foreach ($this->REGATTA->getRacesInRound($other, Division::A(), false) as $race) {
           foreach ($divs as $div) {
             $r = $this->REGATTA->getRace($div, $race->number);
             $r->number = $race_num;
@@ -388,7 +388,7 @@ class TeamRacesPane extends AbstractPane {
       foreach (DB::$V->incList($args, 'duplicate-round') as $r) {
 	if (!isset($rounds[$r]))
 	  throw new SoterException("Invalid previous round from which to carry over races.");
-	foreach ($this->REGATTA->getRacesInRound($rounds[$r], Division::A()) as $race) {
+	foreach ($this->REGATTA->getRacesInRound($rounds[$r], Division::A(), false) as $race) {
 	  $id = sprintf('%s-%s', $race->tr_team1->id, $race->tr_team2->id);
 	  if (!isset($prev_races[$id]))
 	    $prev_races[$id] = array();
