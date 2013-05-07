@@ -490,3 +490,6 @@ update race set tr_ignore2 = tr_ignore1;
 create temporary table race_A as (select id, regatta, number, tr_ignore1, tr_ignore2 from race where division = "A");
 update race, race_A set race.tr_ignore1 = race_A.tr_ignore1, race.tr_ignore2 = race_A.tr_ignore2 where (race.regatta,race.number) = (race_A.regatta,race_A.number) and race.division != "A";
 drop temporary table race_A;
+
+-- lock teams rank
+alter table team add column lock_rank tinyint default null after name;

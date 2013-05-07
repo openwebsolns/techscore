@@ -144,18 +144,22 @@ class RankTeamsPane extends AbstractPane {
     // ------------------------------------------------------------
     $this->PAGE->addContent(new XP(array(), "Use this pane to set the rank for the teams in the regatta. By default, teams are ranked by the system according to win percentage, but tie breaks must be broken manually."));
     $this->PAGE->addContent(new XP(array(), "To edit a particular team's record by setting which races count towards their record, click on the win-loss record for that team. Remember to click \"Set ranks\" to save the order before editing a team's record."));
+    $this->PAGE->addContent(new XP(array(), "Use the \"Lock\" checkbox to lock/unlock a team's rank in the regatta. When locked, the rank will not change when new finishes are entered."));
     $this->PAGE->addContent(new XP(array('class'=>'warning'), sprintf("Please note that %s will re-rank the teams with every new race scored.", Conf::$NAME)));
 
     $this->PAGE->addContent($f = $this->createForm());
     $f->add($tab = new XQuickTable(array('id'=>'ranktable', 'class'=>'teamtable'),
-                                   array("#", "Explanation", "Record", "Team")));
-    foreach ($this->REGATTA->getRankedTeams() as $team) {
+                                   array("#", "Record", "Team", "Explanation", "Lock")));
+    foreach ($this->REGATTA->getRankedTeams() as $i => $team) {
       $tab->addRow(array(new XTD(array(), array(new XTextInput('rank[]', $team->dt_rank, array('size'=>2)),
                                                 new XHiddenInput('team[]', $team->id))),
-			 new XTextInput('explanation[]', $team->dt_explanation),
 			 new XA($this->link('rank', array('team' => $team->id)), $team->getRecord()),
-			 new XTD(array('class'=>'drag'), $team)),
-                   array('class'=>'sortable'));
+                         new XTD(array('class'=>'drag'), $team),
+			 new XTextInput('explanation[]', $team->dt_explanation),
+                         $chk = new XCheckboxInput('lock_rank[]', $team->id, array('size'=>2))),
+                   array('class'=>'sortable row' . ($i % 2)));
+      if ($team->lock_rank !== null)
+        $chk->set('checked', 'checked');
     }
     $f->add(new XSubmitP('set-ranks', "Set ranks"));
   }
@@ -211,8 +215,11 @@ class RankTeamsPane extends AbstractPane {
         $teams[$team->id] = $team;
       $tids = DB::$V->reqList($args, 'team', count($teams), "Invalid list of teams provided.");
       $exps = DB::$V->reqList($args, 'explanation', count($teams), "Missing list of explanations.");
-      $rank = DB::$V->reqList($args, 'rank', count($teams));
+      $rank = DB::$V->reqList($args, 'rank', count($teams), "Missing list of ranks.");
       array_multisort($rank, SORT_NUMERIC, $tids, $exps);
+
+      // get list of locked teams
+      $locked = DB::$V->incList($args, 'lock_rank', null, array());
 
       // Fetch the old rankings as we need these objects to update the
       // division rankings
@@ -235,17 +242,22 @@ class RankTeamsPane extends AbstractPane {
 
         $new_rank = $rank[$i];
         $new_expl = DB::$V->incString($exps, $i, 1, 101, null);
+        $new_lock = (in_array($id, $locked)) ? 1 : null;
 
         if ($new_rank != $teams[$id]->dt_rank || $new_expl != $teams[$id]->dt_explanation) {
           $teams[$id]->dt_rank = $new_rank;
           $teams[$id]->dt_explanation = $new_expl;
-          $ranks[] = $teams[$id];
+          $ranks[$id] = $teams[$id];
 
           $default_rankings[$id]->rank = $new_rank;
           $default_rankings[$id]->explanation = $new_expl;
           // also update all division ranks
           foreach ($divisions as $div)
             $this->REGATTA->setDivisionRank($div, $default_rankings[$id]);
+        }
+        if ($new_lock != $teams[$id]->lock_rank) {
+          $teams[$id]->lock_rank = $new_lock;
+          $ranks[$id] = $teams[$id];
         }
       }
 

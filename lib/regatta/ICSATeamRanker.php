@@ -26,18 +26,29 @@ class ICSATeamRanker extends ICSARanker {
   /**
    * Ranks the team according to their winning percentages.
    *
+   * Respect the locked ranks
    */
   public function rank(FullRegatta $reg, $races = null) {
     if ($races === null)
       $races = $reg->getScoredRaces(Division::A());
 
     $divisions = $reg->getDivisions();
-    $records = array();
+    // keep separate maps for locked ranks
+    $locked_records = array();
+    $open_records = array();
     foreach ($races as $race) {
-      if (!isset($records[$race->tr_team1->id]))
-	$records[$race->tr_team1->id] = new TeamRank($race->tr_team1);
-      if (!isset($records[$race->tr_team2->id]))
-	$records[$race->tr_team2->id] = new TeamRank($race->tr_team2);
+      // initialize TeamRank objects
+      $myList =& $open_records;
+      $theirList =& $open_records;
+      if ($race->tr_team1->lock_rank !== null)
+        $myList =& $locked_records;
+      if ($race->tr_team2->lock_rank !== null)
+        $theirList =& $locked_records;
+
+      if (!isset($myList[$race->tr_team1->id]))
+	$myList[$race->tr_team1->id] = new TeamRank($race->tr_team1);
+      if (!isset($theirList[$race->tr_team2->id]))
+	$theirList[$race->tr_team2->id] = new TeamRank($race->tr_team2);
 
       $a_finishes = $reg->getFinishes($race);
       if (count($a_finishes) > 0) {
@@ -60,29 +71,83 @@ class ICSATeamRanker extends ICSARanker {
 	}
 	if ($race->tr_ignore1 === null) {
 	  if ($myScore < $theirScore)
-	    $records[$race->tr_team1->id]->wins++;
+	    $myList[$race->tr_team1->id]->wins++;
 	  elseif ($myScore > $theirScore)
-	    $records[$race->tr_team1->id]->losses++;
+	    $myList[$race->tr_team1->id]->losses++;
 	  else
-	    $records[$race->tr_team1->id]->ties++;
+	    $myList[$race->tr_team1->id]->ties++;
 	}
 	if ($race->tr_ignore2 === null) {
 	  if ($myScore < $theirScore)
-	    $records[$race->tr_team2->id]->losses++;
+	    $theirList[$race->tr_team2->id]->losses++;
 	  elseif ($myScore > $theirScore)
-	    $records[$race->tr_team2->id]->wins++;
+	    $theirList[$race->tr_team2->id]->wins++;
 	  else
-	    $records[$race->tr_team2->id]->ties++;
+	    $theirList[$race->tr_team2->id]->ties++;
 	}
       }
     }
 
     // Add other teams not in list of races
     foreach ($reg->getTeams() as $team) {
-      if (!isset($records[$team->id]))
-	$records[$team->id] = new TeamRank($team);
+      $list =& $open_records;
+      if ($team->lock_rank !== null)
+        $list =& $locked_records;
+      if (!isset($list[$team->id]))
+        $list[$team->id] = new TeamRank($team);
     }
-    return $this->order(array_values($records));
+
+    $open_records = $this->order(array_values($open_records));
+    usort($locked_records, function(TeamRank $r1, TeamRank $r2) {
+        if ($r1->team->dt_rank < $r2->team->dt_rank)
+          return -1;
+        if ($r1->team->dt_rank > $r2->team->dt_rank)
+          return 1;
+        return strcmp((string)$r1->team, (string)$r2->team);
+      });
+
+    // Assign ranks by reassembling lists
+    $records = array();
+    $openIndex = 0; $lockedIndex = 0;
+    $prevRank = null;
+    while ($openIndex < count($open_records) && $lockedIndex < count($locked_records)) {
+      if (($prevRank === null && $locked_records[$lockedIndex]->team->dt_rank == 1) ||
+          ($prevRank !== null && $locked_records[$lockedIndex]->team->dt_rank <= $prevRank->rank + 1)) {
+
+        $locked_records[$lockedIndex]->rank = $locked_records[$lockedIndex]->team->dt_rank;
+        $records[] = $locked_records[$lockedIndex];
+        $prevRank = $locked_records[$lockedIndex];
+        $lockedIndex++;
+        continue;
+      }
+      if ($prevRank === null || $this->compare($prevRank, $open_records[$openIndex]) != 0) {
+        $open_records[$openIndex]->rank = count($records) + 1;
+      }
+      else {
+        $open_records[$openIndex]->rank = $prevRank->rank;
+      }
+      $records[] = $open_records[$openIndex];
+      $prevRank = $open_records[$openIndex];
+      $openIndex++;
+    }
+    // Add remaining ones
+    while ($lockedIndex < count($locked_records)) {
+      $locked_records[$lockedIndex]->rank = $locked_records[$lockedIndex]->team->dt_rank;
+      $records[] = $locked_records[$lockedIndex];
+      $lockedIndex++;
+    }
+    while ($openIndex < count($open_records)) {
+      if ($prevRank === null || $this->compare($prevRank, $open_records[$openIndex]) != 0) {
+        $open_records[$openIndex]->rank = count($records) + 1;
+      }
+      else {
+        $open_records[$openIndex]->rank = $prevRank->rank;
+      }
+      $records[] = $open_records[$openIndex];
+      $prevRank = $open_records[$openIndex];
+      $openIndex++;
+    }
+    return $records;
   }
 
   /**
@@ -102,7 +167,6 @@ class ICSATeamRanker extends ICSARanker {
     $l = 0; $r = 0;
 
     $nextRank = null;
-    $prevRank = null;
     while ($l < count($left) && $r < count($right)) {
       $res = $this->compare($left[$l], $right[$r]);
       if ($res < 0) {
@@ -124,23 +188,15 @@ class ICSATeamRanker extends ICSARanker {
 	  $r++;
 	}
       }
-      if ($prevRank == null || $this->compare($prevRank, $nextRank) != 0)
-	$nextRank->rank = count($union) + 1;
-      else
-	$nextRank->rank = $prevRank->rank;
-
       $union[] = $nextRank;
-      $prevRank = $nextRank;
     }
     // add the remainder of each list
     while ($l < count($left)) {
       $union[] = $left[$l];
-      $left[$l]->rank = count($union);
       $l++;
     }
     while ($r < count($right)) {
       $union[] = $right[$r];
-      $right[$r]->rank = count($union);
       $r++;
     }
     return $union;
@@ -157,16 +213,6 @@ class ICSATeamRanker extends ICSARanker {
    * @return int < 0 if first team ranks higher, > 0 otherwise
    */
   public function compare(TeamRank $a, TeamRank $b) {
-    /*
-    if ($a->team->dt_rank !== null) {
-      if ($b->team->dt_rank === null)
-        return -1;
-      return $a->team->dt_rank - $b->team->dt_rank;        
-    }
-    elseif ($b->team->dt_rank !== null)
-      return 1;
-    */
-
     $perA = $a->getWinPercentage();
     $perB = $b->getWinPercentage();
     if ($perA == $perB) {
