@@ -120,7 +120,9 @@ class ICSATeamRanker extends ICSARanker {
         $lockedIndex++;
         continue;
       }
-      if ($prevRank === null || $this->compare($prevRank, $open_records[$openIndex]) != 0) {
+      if ($prevRank === null ||
+          $prevRank->team->lock_rank !== null ||
+          $this->compare($prevRank, $open_records[$openIndex]) != 0) {
         $open_records[$openIndex]->rank = count($records) + 1;
       }
       else {
