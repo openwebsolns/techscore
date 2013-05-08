@@ -109,6 +109,7 @@ abstract class AbstractUserPane {
                                                         new XLi(new XA("/venue",     "Venues")),
                                                         new XLi(new XA("/boats",     "Boats")),
                                                         new XLi(new XA("/types",     "Regatta types")),
+                                                        new XLi(new XA("/race-orders", "Team race orders")),
                                                         new XLi(new XA("/seasons",   "Seasons")))))));
       $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
                                     array(new XH4("Configure text"),
@@ -281,6 +282,11 @@ abstract class AbstractUserPane {
     case 'seasons':
       require_once('users/admin/SeasonManagement.php');
       return new SeasonManagement($u);
+
+    case 'race-order':
+    case 'race-orders':
+      require_once('users/admin/TeamRaceOrderManagement.php');
+      return new TeamRaceOrderManagement($u);
 
     case 'account':
     case 'accounts':

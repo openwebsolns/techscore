@@ -827,6 +827,8 @@ class DBObject {
     if (!property_exists($this, $name))
       throw new BadFunctionCallException(sprintf("Class %s does not have property %s.",
                                                  get_class($this), $name));
+    if ($this->$name === null)
+      return $this->$name;
     $type = $this->db_type($name);
     if ($type instanceof DBObject && !($this->$name instanceof DBObject))
       $this->$name = DBM::get($type, $this->$name);

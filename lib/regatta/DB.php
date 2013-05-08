@@ -50,6 +50,7 @@ class DB extends DBM {
   public static $DT_TEAM_DIVISION = null;
   public static $DT_RP = null;
   public static $TEXT_ENTRY = null;
+  public static $RACE_ORDER = null;
 
   public static $OUTBOX = null;
   public static $MESSAGE = null;
@@ -101,6 +102,7 @@ class DB extends DBM {
     self::$RP_ENTRY = new RPEntry();
     self::$SEASON = new Season();
     self::$TEXT_ENTRY = new Text_Entry();
+    self::$RACE_ORDER = new Race_Order();
     self::$DT_TEAM_DIVISION = new Dt_Team_Division();
     self::$DT_RP = new Dt_Rp();
     self::$NOW = new DateTime();
@@ -2573,5 +2575,79 @@ class Text_Entry extends DBObject {
                  self::WELCOME => "Public Welcome");
   }
 
+}
+
+/**
+ * Template for ordering races in team racing
+ *
+ * The ID of the entry is a varchar that encodes the four parameters
+ * which define a template:
+ *
+ * (# of divs)-(# of teams)-(# of boats)-(in/frequent)
+ *
+ * A value of '0' for the last entry means 'infrequent
+ * rotation'. Thus, a template that defines 6 teams in 18 boats,
+ * rotating frequently, would have ID = 6-18-1.
+ *
+ * The 'template' property is an array, each successive entry of which
+ * is the next "race", encoded as a string. The string is of the form
+ * "X-Y", where X and Y represent the (n+1)th team in the round.
+ *
+ * Thus, if MIT and Harvard are the second and fifth team in the
+ * round, respectively, then the race "MIT vs. Harvard" would be
+ * encoded as "2-5", and the opposite ("Harvard vs. MIT") would be
+ * encoded "5-2". Note that indices are 1-based.
+ *
+ * @author Dayan Paez
+ * @version 2013-05-08
+ */
+class Race_Order extends DBObject {
+  protected $template;
+  protected $author;
+
+  public function db_type($field) {
+    switch ($field) {
+    case 'template':
+      return array();
+    case 'author':
+      require_once('regatta/Account.php');
+      return DB::$ACCOUNT;
+    default:
+      return parent::db_type($field);
+    }
+  }
+
+  private function getIdTerm($index) {
+    if ($this->id === null)
+      return null;
+    $terms = explode("-", $this->id);
+    if ($index < 0 || $index >= count($terms))
+      throw new InvalidArgumentException("No such term $index in ID.");
+    return $terms[$index];
+  }
+
+  public function getNumTeams() { return $this->getIdTerm(1); }
+  public function getNumBoats() { return $this->getIdTerm(2); }
+  public function getNumDivisions() { return $this->getIdTerm(0); }
+  public function isFrequent() { return $this->getIdTerm(3) > 0; }
+
+  public function getPair($index) {
+    if ($this->template === null || $index < 0  || $index > count($this->__get('template')))
+      return array(null, null);
+    $pairings = $this->__get('template');
+    return explode('-', $pairings[$index]);
+  }
+
+  /**
+   * Create an ID based on parameters given
+   *
+   * @param int $num_divs the number of boats per team
+   * @param int $num_teams the number of teams
+   * @param int $num_boats the number of boats
+   * @param boolean $freq whether or not to rotate frequently
+   */
+  public static function createID($num_divs, $num_teams, $num_boats, $freq) {
+    return sprintf('%d-%d-%d-%d', $num_divs, $num_teams, $num_boats, ($freq !== false) ? 1 : 0);
+  }
 }
 ?>
