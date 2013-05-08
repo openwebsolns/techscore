@@ -117,7 +117,7 @@ class TeamRacesPane extends AbstractPane {
                          Conf::$NAME,
                          " will create the necessary races so that each team sails head-to-head against every other team (round-robin). Make sure to add an appropriate label for the round.")));
     $form->add(new XP(array(),
-                      "To include a team, place a number next to the team name indicating their seeding order for the round-robin. Order numbers in ascending order. Teams with no number will not be included in the round-robin."));
+                      "To include a team, select the checkbox next to that team's name."));
     $form->add(new FItem("Round label:", new XTextInput('title', "Round " . (count($rounds) + 1))));
 
     $boats = DB::getBoats();

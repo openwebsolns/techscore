@@ -143,7 +143,8 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
     $p->add(new XP(array(), "Click on the \"Edit\" link next to the template name to edit that template. To delete a template, check the box in the last column and click \"Delete\" at the bottom of the form."));
     $p->add($form = $this->createForm());
     $form->add($tab = new XQuickTable(array(), array("Teams", "Total boats", "T/B", "Freq?", "Author", "Edit", "Delete?")));
-    foreach ($current as $i => $order) {
+    $rowIndex = 0;
+    foreach ($current as $order) {
       $tab->addRow(array($order->getNumTeams(),
                          $order->getNumBoats(),
                          $order->getNumDivisions(),
@@ -151,7 +152,7 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
                          $order->author,
                          new XA(WS::link('/race-order', array('template'=>$order->id)), "Edit"),
                          new XCheckboxInput('template[]', $order->id)),
-                   array('class'=>'row' . ($i % 2)));
+                   array('class'=>'row' . ($rowIndex++ % 2)));
     }
     $form->add(new XSubmitP('delete', "Delete"));
   }

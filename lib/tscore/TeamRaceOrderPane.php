@@ -98,12 +98,78 @@ class TeamRaceOrderPane extends AbstractPane {
   }
 
   private function fillRounds(Array $rounds) {
+    $this->PAGE->addContent(new XP(array(), new XA($this->link('race-order'), "← Back to round list")));
 
-    $teamOpts = array();
-    $teamFullOpts = array("null" => "");
-    foreach ($this->REGATTA->getTeams() as $team) {
-      $teamOpts[$team->id] = $team;
-      $teamFullOpts[$team->id] = $team;
+    // ------------------------------------------------------------
+    // Race order templates to choose from?
+    // ------------------------------------------------------------
+    if (count($rounds) == 1) {
+      $races = $this->REGATTA->getRacesInRound($rounds[0], Division::A());
+      $teams = array();
+      foreach ($races as $race) {
+        $teams[$race->tr_team1->id] = $race->tr_team1;
+        $teams[$race->tr_team2->id] = $race->tr_team2;
+      }
+      $divs = $this->REGATTA->getDivisions();
+
+      $templates = DB::getAll(DB::$RACE_ORDER, new DBCond('id', sprintf('%d-%d-%%', count($divs), count($teams)), DBCond::LIKE));
+      if (count($templates) > 0) {
+        $this->PAGE->head->add(new XScript('text/javascript', null, '
+var TL = null;
+var TL_INPUTS = Array();
+function addTeamToRound(id) {
+  if (!TL) {
+    TL = document.getElementById("teams-list");
+    if (!TL)
+      return;
+    var inputs = TL.getElementsByTagName("input");
+    for (var i = 0; i &lt; inputs.length; i++) {
+      if (inputs[i].type == "text")
+        TL_INPUTS.push(inputs[i]);
+    }
+  }
+  var elem = document.getElementById(id);
+  if (!elem || elem.value != "")
+    return;
+  var max = 0;
+  for (var i = 0; i &lt; TL_INPUTS.length; i++) {
+    var num = Number(TL_INPUTS[i].value);
+    if (num > max)
+      max = num;
+  }
+  elem.value = (max + 1);
+}
+'));
+
+        $this->PAGE->addContent($p = new XPort("Order races using template"));
+        $p->add(new XP(array(), "You may choose to order the races automatically by using one of the templates below, applicable to this round. Pay close attention to the number of boats per flight. If none of the templates below apply to you, then use the manual ordering scheme below."));
+        $p->add(new XP(array(), "Choose the seeding order for the round by placing incrementing numbers next to the team names."));
+        $p->add($form = $this->createForm());
+        $form->add($tab = new XQuickTable(array(), array("", "Number of boats", "Rotation frequency")));
+        foreach ($templates as $template) {
+          $id = 'inp-' . $template->id;
+          $tab->addRow(array($ri = new XRadioInput('template', $template->id, array('id'=>$id)),
+                             new XLabel($id, $template->getNumBoats()),
+                             new XLabel($id, ($template->isFrequent()) ? "Rotate teams frequently" : "Do not rotate teams frequently")));
+        }
+        if (count($templates) == 1)
+          $ri->set('checked', 'checked');
+
+        $form->add(new XH4("Specify seeding order"));
+        $form->add($ul = new XUl(array('id'=>'teams-list')));
+        $num = 1;
+        foreach ($teams as $team) {
+          $id = 'team-'.$team->id;
+          $ul->add(new XLi(array(new XHiddenInput('team[]', $team->id),
+                                 new XTextInput('order[]', $num++, array('id'=>$id)),
+                                 new XLabel($id, $team,
+                                            array('onclick'=>sprintf('addTeamToRound("%s");', $id))))));
+        }
+
+        $form->add(new XP(array('class'=>'p-submit'),
+                          array(new XSubmitInput('use-template', "Use template"),
+                                new XHiddenInput('round', $rounds[0]->id))));
+      }
     }
 
     $boats = DB::getBoats();
@@ -125,8 +191,14 @@ class TeamRaceOrderPane extends AbstractPane {
     $form->add(new XP(array('class'=>'warning'), "Hint: For large rotations, click \"Edit races\" at the bottom of page often to save your work."));
     $form->add(new XNoScript(array(new XP(array(),
 					  array(new XStrong("Important:"), " check the edit column if you wish to edit that race. The race will not be updated regardless of changes made otherwise.")))));
-    $form->add($tab = new XQuickTable(array('id'=>'divtable', 'class'=>'teamtable'),
-				      array("Order", "#", "Round", "First team", "← Swap →", "Second team", "Boat")));
+    $header = array("Order", "#");
+    if (count($rounds) > 1)
+      $header[] = "Round";
+    $header[] = "First team";
+    $header[] = "← Swap →";
+    $header[] = "Second team";
+    $header[] = "Boat";
+    $form->add($tab = new XQuickTable(array('id'=>'divtable', 'class'=>'teamtable'), $header));
 
     // order races by number
     $races = array();
@@ -142,21 +214,19 @@ class TeamRaceOrderPane extends AbstractPane {
       if (count($rounds) > 1)
 	$bgcolor = ' bgcolor' . ($race->round->relative_order % 7);
       $teams = $this->REGATTA->getRaceTeams($race);
-      $tab->addRow(array(new XTD(array(),
-				 array(new XTextInput('order[]', ($i + 1), array('size'=>2)),
-				       new XHiddenInput('race[]', $race->id))),
-			 new XTD(array('class'=>'drag'), $race->number),
-			 $race->round,
-			 $teams[0],
-			 new XCheckboxInput('swap[]', $race->id),
-			 $teams[1],
-			 XSelect::fromArray('boat[]', $boatOptions, $race->boat->id)),
-		   array('class'=>'sortable' . $bgcolor));
+      $row = array(new XTD(array(),
+                           array(new XTextInput('order[]', ($i + 1), array('size'=>2)),
+                                 new XHiddenInput('race[]', $race->id))),
+                   new XTD(array('class'=>'drag'), $race->number));
+      if (count($rounds) > 1)
+        $race->round;
+      $row[] = $teams[0];
+      $row[] = new XCheckboxInput('swap[]', $race->id);
+      $row[] = $teams[1];
+      $row[] = XSelect::fromArray('boat[]', $boatOptions, $race->boat->id);
+      $tab->addRow($row, array('class'=>'sortable' . $bgcolor));
     }
-    $form->add($p = new XP(array('class'=>'p-submit'),
-			   array(new XA($this->link('race-order'), "← Back to round list"),
-				 " ",
-				 new XSubmitInput('edit-races', "Edit races"))));
+    $form->add($p = new XSubmitP('edit-races', "Edit races"));
     foreach ($rounds as $round)
       $p->add(new XHiddenInput('round[]', $round->id));
   }
@@ -165,6 +235,96 @@ class TeamRaceOrderPane extends AbstractPane {
    * Processes new races and edits to existing races
    */
   public function process(Array $args) {
+    // ------------------------------------------------------------
+    // Use template
+    // ------------------------------------------------------------
+    if (isset($args['use-template'])) {
+      $divs = $this->REGATTA->getDivisions();
+
+      $template = DB::$V->reqID($args, 'template', DB::$RACE_ORDER, "Invalid or missing template.");
+      if ($template->getNumDivisions() != count($divs))
+        throw new SoterException("Chosen template is incompatible with this regatta.");
+
+      $round = DB::$V->reqID($args, 'round', DB::$ROUND, "Invalid or missing round.");
+      if ($round->regatta != $this->REGATTA)
+        throw new SoterException("Invalid round provided.");
+
+      $races = $this->REGATTA->getRacesInRound($round, Division::A());
+      $teams = array();
+      $matches = array();
+      $nums = array();
+      foreach ($races as $race) {
+        if ($race->round == $round)
+          $nums[] = $race->number;
+
+        $teams[$race->tr_team1->id] = $race->tr_team1;
+        $teams[$race->tr_team2->id] = $race->tr_team2;
+
+        $matches[sprintf("%s-%s", $race->tr_team1->id, $race->tr_team2->id)] = $race;
+        $matches[sprintf("%s-%s", $race->tr_team2->id, $race->tr_team1->id)] = $race;
+      }
+
+      if ($template->getNumTeams() != count($teams))
+        throw new SoterException("Chosen template is incompatible with number of teams in round.");
+
+      // Seed the teams. Seed them!
+      $ids = DB::$V->reqList($args, 'team', count($teams), "Invalid list of team seeds.");
+      $order = DB::$V->reqList($args, 'order', count($teams), "Missing list to order teams by.");
+      array_multisort($order, SORT_NUMERIC, $ids);
+
+      $seeding = array();
+      foreach ($ids as $id) {
+        if (!isset($teams[$id]))
+          throw new SoterException("Invalid team ID specified.");
+        $seeding[] = $teams[$id];
+      }
+
+      sort($nums, SORT_NUMERIC);
+      $next_number = $nums[0];
+      unset($nums);
+
+      $other_divisions = $divs;
+      array_shift($other_divisions);
+
+      foreach ($template->template as $pair) {
+        $tokens = explode('-', $pair);
+        
+        $team1 = $seeding[$tokens[0] - 1];
+        $team2 = $seeding[$tokens[1] - 1];
+
+        $match = sprintf('%s-%s', $team1->id, $team2->id);
+        $race = $matches[$match];
+        if ($race->round == $round) {
+          $swap = ($race->tr_team1 != $team1);
+          if ($race->number != $next_number || $swap) {
+            foreach ($other_divisions as $div) {
+              $r = $this->REGATTA->getRace($div, $race->number);
+              $r->number = $next_number;
+              if ($swap) {
+                $r->tr_team1 = $team1;
+                $r->tr_team2 = $team2;
+                $ignore1 = $r->tr_ignore1;
+                $r->tr_ignore1 = $r->tr_ignore2;
+                $r->tr_ignore2 = $ignore1;
+              }
+              DB::set($r);
+            }
+            $race->number = $next_number;
+            if ($swap) {
+              $race->tr_team1 = $team1;
+              $race->tr_team2 = $team2;
+              $ignore1 = $race->tr_ignore1;
+              $race->tr_ignore1 = $race->tr_ignore2;
+              $race->tr_ignore2 = $ignore1;
+            }
+            DB::set($race);
+          }
+          $next_number++;
+        }
+      }
+      Session::pa(new PA("Races sorted according to template."));
+    }
+
     // ------------------------------------------------------------
     // Edit races
     // ------------------------------------------------------------
