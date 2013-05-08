@@ -20,7 +20,14 @@ class ICSATeamScorer extends ICSACombinedScorer {
     $amt = 0;
     $comments = array();
     foreach ($mods as $pen) {
-      $amt += ($pen->amount <= 0) ? 6 : $pen->amount;
+      if ($pen->type == Penalty::DNS || $pen->type == Penalty::DNF) {
+        $amt = ($pen->amount <= 0) ? 6 : $pen->amount;
+        return new Score($amt, sprintf("(%d) %s", $amt, $pen->comments));
+      }
+      if ($pen->type == Penalty::OCS)
+        $amt += ($pen->amount <= 0) ? 10 : $pen->amount;
+      else
+        $amt += ($pen->amount <= 0) ? 6 : $pen->amount;
       if (!empty($pen->comments))
         $comments[] = $pen->comments;
     }
