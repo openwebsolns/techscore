@@ -38,7 +38,14 @@ class EnterPenaltyPane extends AbstractPane {
       return;
     }
 
-    if (DB::$V->hasRace($theRace, $args, 'race', $this->REGATTA)) {
+    // Check for race by ID
+    if (DB::$V->hasID($theRace, $args, 'race_id', DB::$RACE)) {
+      if ($theRace->regatta != $this->REGATTA || count($this->REGATTA->getFinishes($theRace)) == 0) {
+        $this->PAGE->addContent(new XP(array('class'=>'warning'), "Invalid race ID provided."));
+        $theRace = null;
+      }
+    }
+    elseif (DB::$V->hasRace($theRace, $args, 'race', $this->REGATTA)) {
       if (count($this->REGATTA->getFinishes($theRace)) == 0) {
         $this->PAGE->addContent(new XP(array('class'=>'warning'), "Invalid race chosen ($theRace). Using latest scored race instead."));
         $theRace = null;
@@ -69,6 +76,7 @@ class EnterPenaltyPane extends AbstractPane {
                                                          "maxlength"=>"4",
                                                          "id"=>"chosen_race",
                                                          "class"=>"narrow"))));
+      $this->fillAlternateRaceSelection($form);
 
       // Penalty type
       $form->add(new FItem("Penalty type:", XSelect::fromArray('type', array("Penalties" => $this->penalties,
@@ -249,17 +257,12 @@ class EnterPenaltyPane extends AbstractPane {
 
   protected function canHaveModifier(Finish $fin, $type) {
     $mods = $fin->getModifiers();
-    if (count($mods) == 0)
-      return true;
-    if ($this->REGATTA->scoring != Regatta::SCORING_TEAM)
-      return false;
-    if (isset($this->breakdowns[$type]))
-      return false;
-    // Check all previous mods to make sure they are all penalties
-    foreach ($mods as $mod) {
-      if (!isset($this->penalties[$mod->type]))
-        return false;
-    }
-    return true;
+    return (count($mods) == 0);
   }
+
+  /**
+   * Allows subclasses to specify additional ways of selecting races
+   *
+   */
+  protected function fillAlternateRaceSelection(XForm $form) {}
 }

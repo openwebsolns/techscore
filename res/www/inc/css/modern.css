@@ -588,6 +588,10 @@ a.empty {
     text-align: left;
 }
 
+.teamscores {
+    margin-bottom: 1em;
+}
+
 .teamscores td {
     text-align: center;
 }
