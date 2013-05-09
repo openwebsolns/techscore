@@ -984,9 +984,8 @@ class FullRegatta extends DBObject {
       $cond = new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('id')));
     else
       $cond = new DBCond('race', $race);
-    return count(DB::getAll(DB::$FINISH,
-                            new DBBool(array($cond,
-                                             new DBCondIn('id', DB::prepGetAll(DB::$FINISH_MODIFIER, null, array('finish'))))))) > 0;
+    return count(DB::getAll(DB::$FINISH_MODIFIER,
+                            new DBCondIn('finish', DB::prepGetAll(DB::$FINISH, $cond, array('id'))))) > 0;
   }
 
   /**
