@@ -80,7 +80,7 @@ abstract class AbstractPane {
 					    // "tweak-sails"=> "TweakSailsPane",
 					    // "manual-rotation" => "ManualTweakPane"
 					    ),
-		       "RP Forms"  => array("rp"         => "RpEnterPane",
+		       "RP Forms"  => array("rp"         => "TeamRpEnterPane",
 					    "unregistered" => "UnregisteredSailorPane",
                                             "missing"  => "RpMissingPane"),
 		       "Finishes"  => array("finishes" => "EnterTeamFinishPane",
@@ -338,6 +338,10 @@ abstract class AbstractPane {
     case 'rps':
     case 'enter-rp':
     case 'enter-rps':
+      if ($u->scoring == Regatta::SCORING_TEAM) {
+        require_once('tscore/TeamRpEnterPane.php');
+        return new TeamRpEnterPane($r, $u);
+      }
       require_once('tscore/RpEnterPane.php');
       return new RpEnterPane($r, $u);
     case 'missing':
@@ -421,6 +425,7 @@ abstract class AbstractPane {
     case 'ReplaceTeamPane':
     case 'DeleteTeamsPane':
     case 'RpEnterPane':
+    case 'TeamRpEnterPane':
     case 'UnregisteredSailorPane':
     case 'EnterFinishPane':
     case 'EnterTeamFinishPane':
@@ -488,6 +493,7 @@ abstract class AbstractPane {
                                "TweakSailsPane" => "tweak-sails",
                                "ManualTweakPane" => "manual-rotation",
                                "RpEnterPane" => "rp",
+                               "TeamRpEnterPane" => "rp",
                                "RpMissingPane" => "missing",
                                "UnregisteredSailorPane" => "unregistered",
                                "EnterFinishPane" => "finishes",
@@ -514,6 +520,7 @@ abstract class AbstractPane {
                                  "TweakSailsPane" => "Tweak sails",
                                  "ManualTweakPane" => "Manual setup",
                                  "RpEnterPane" => "Enter RP",
+                                 "TeamRpEnterPane" => "Enter RP",
                                  "RpMissingPane" => "Missing RP",
                                  "UnregisteredSailorPane" => "Unregistered",
                                  "EnterFinishPane" => "Enter finish",

@@ -692,13 +692,18 @@ h4 a:hover {
     text-decoration: underline;
 }
 
-.missingrp-table thead th {
+.missingrp-table thead th, .tr-missingrp-table thead th {
     text-align: center;
 }
 .missingrp-table td {
     width: 5em;
     text-align: center;
     padding: 0.25em 0.1em;
+}
+
+.tr-missingrp-table td {
+    padding: 0.25em;
+    text-align: center;
 }
 
 
@@ -750,4 +755,34 @@ h4 a:hover {
 }
 .bgcolor4 {
     background: #eee;
+}
+
+.tr-rp-set {
+    margin: 1em auto;
+}
+.tr-rp-set thead th {
+    text-align: center;
+}
+
+.tr-rp-roundtable td {
+    text-align: center;
+    width: 5em;
+    position: relative;
+}
+
+.tr-rp-roundtable input {
+    display: none;
+}
+
+.tr-rp-roundtable label {
+    display: block;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    height: 100%;
+}
+
+.tr-rp-roundtable input:checked + label {
+    background: #e0f3e0;
 }

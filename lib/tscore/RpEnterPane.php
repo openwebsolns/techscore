@@ -39,8 +39,6 @@ class RpEnterPane extends AbstractPane {
     $divisions = $this->REGATTA->getDivisions();
     // Output
     $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/rp.js'));
-    if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
-      $this->PAGE->head->add(new XScript('text/javascript', null, 'ENFORCE_DIV_SWITCH = false;'));
     $this->PAGE->addContent($p = new XPort("Choose a team"));
     $p->add(new XP(array(),
                    array("Use the form below to enter RP information. If a sailor does not appear in the selection box, it means they are not in the ICSA database, and they have to be manually added to a temporary list in the ",
@@ -87,16 +85,12 @@ class RpEnterPane extends AbstractPane {
       $active = true;
     $gender = ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) ?
       Sailor::FEMALE : null;
-    $coaches = $chosen_team->school->getCoaches($active);
     $sailors = $chosen_team->school->getSailors($gender, $active);
     $un_slrs = $chosen_team->school->getUnregisteredSailors($gender);
 
     $sailor_options = array("" => "",
-                            "Coaches" => array(),
                             "Sailors" => array(),
                             "Non-ICSA" => array());
-    foreach ($coaches as $s)
-      $sailor_options["Coaches"][$s->id] = (string)$s;
     foreach ($sailors as $s)
       $sailor_options["Sailors"][$s->id] = (string)$s;
     foreach ($un_slrs as $s)
@@ -115,9 +109,6 @@ class RpEnterPane extends AbstractPane {
     $form->add($fi = new FItem("Representative:", new XTextInput('rep', $rep)));
     $fi->add(new XMessage("For contact purposes only."));
 
-    // Remove coaches from list
-    unset($sailor_options["Coaches"]);
-
     // ------------------------------------------------------------
     // - Fill out form
     foreach ($divisions as $div) {
@@ -128,9 +119,7 @@ class RpEnterPane extends AbstractPane {
       $cur_sk = $rpManager->getRP($chosen_team, $div, RP::SKIPPER);
       $cur_cr = $rpManager->getRP($chosen_team, $div, RP::CREW);
 
-      if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
-        $form->add(new XHeading(sprintf("%s Boat", $div->getLevel())));
-      elseif (count($divisions) > 1)
+      if (count($divisions) > 1)
         $form->add(new XHeading("Division $div"));
       $tab_races = new XQuickTable(array(), array("Race #", "Crews"));
 
@@ -153,7 +142,7 @@ class RpEnterPane extends AbstractPane {
 
       $form->add($tab_races);
       $form->add($tab_skip = new XQuickTable(array('class'=>'narrow'), array("Skippers", "Races sailed", "")));
-      $size = ($this->REGATTA->scoring == Regatta::SCORING_TEAM) ? 32 : 8;
+      $size = 8;
       // ------------------------------------------------------------
       // - Create skipper table
       // Write already filled-in spots + 2 more
@@ -233,8 +222,6 @@ class RpEnterPane extends AbstractPane {
       $gender = ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) ?
         Sailor::FEMALE : null;
       $sailors = array();
-      foreach ($team->school->getCoaches($active) as $sailor)
-        $sailors[$sailor->id] = $sailor;
       foreach ($team->school->getSailors($gender, $active) as $sailor)
         $sailors[$sailor->id] = $sailor;
       foreach ($team->school->getUnregisteredSailors($gender) as $sailor)
@@ -359,8 +346,6 @@ class RpEnterPane extends AbstractPane {
     $rows = array();
     foreach ($divisions as $divNumber => $div) {
       $name = "Division " . $div;
-      if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
-        $name = $div->getLevel() . " Boat";
       $header->add(new XTH(array('colspan'=>2), $name));
 
       foreach ($this->REGATTA->getScoredRacesForTeam($div, $chosen_team) as $race) {
