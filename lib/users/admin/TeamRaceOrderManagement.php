@@ -19,6 +19,7 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
   }
 
   private function fillRaceList(XPort $p, Race_Order $template) {
+    $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/addSwapButton.js')));
     $num_boats = $template->getNumBoats();
     $num_teams = $template->getNumTeams();
     $num_divs = $template->getNumDivisions();
@@ -42,7 +43,7 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
       $pair = $template->getPair($num);
 
       if ($num % $races_per_flight == 0)
-        $form->add($tab = new XQuickTable(array(), array("#", "Team A", "Team B")));
+        $form->add($tab = new XQuickTable(array('class'=>'tr-order-race'), array("#", "Team A", "Team B")));
       $tab->addRow(array($num + 1,
                          new XTextInput('team1[]', $pair[0], array('size'=>2, 'min'=>1, 'max'=>$num_teams)),
                          new XTextInput('team2[]', $pair[1], array('size'=>2, 'min'=>1, 'max'=>$num_teams))));
