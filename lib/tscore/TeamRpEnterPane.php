@@ -74,6 +74,7 @@ class TeamRpEnterPane extends AbstractPane {
     // ------------------------------------------------------------
     // RP Form
     // ------------------------------------------------------------
+    $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/teamrp.js')));
     $this->PAGE->addContent($p = new XPort(sprintf("Fill out form for %s", $chosen_team)));
     // ------------------------------------------------------------
     // - Create option lists
@@ -94,6 +95,7 @@ class TeamRpEnterPane extends AbstractPane {
     // Representative
     $rep = $rpManager->getRepresentative($chosen_team);
     $p->add($form = $this->createForm());
+    $form->set('id', 'rp-form');
     $form->add(new XP(array(), "Fill out the form using one set of sailors at a time. A \"set\" refers to the group of sailors out on the water at the same time. Submit more than once for each different configuration of sailors. Invalid configurations will be ignored."));
     $form->add(new XP(array(), "Remember to choose the races that apply to the specified \"set\" by selecting from the list of races that appear below."));
     $form->add(new XP(array('class'=>'warning'),
