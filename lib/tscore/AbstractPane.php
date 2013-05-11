@@ -76,7 +76,7 @@ abstract class AbstractPane {
 		       "Races"     => array("races"      => "TeamRacesPane",
 					    "race-order" => "TeamRaceOrderPane",
 					    "notes"      => "NotesPane",
-					    "rotations"  => "SailsPane",
+					    "rotations"  => "TeamSailsPane",
 					    // "tweak-sails"=> "TweakSailsPane",
 					    // "manual-rotation" => "ManualTweakPane"
 					    ),
@@ -355,6 +355,10 @@ abstract class AbstractPane {
     case 'sails':
     case 'create-rotation':
     case 'create-rotations':
+      if ($u->scoring == Regatta::SCORING_TEAM) {
+        require_once('tscore/TeamSailsPane.php');
+        return new TeamSailsPane($r, $u);
+      }
       require_once('tscore/SailsPane.php');
       return new SailsPane($r, $u);
     case 'scorer':
@@ -433,7 +437,10 @@ abstract class AbstractPane {
 
     case 'SailsPane':
     case 'TeamPenaltyPane':
-      return $this->has_teams && $this->has_races && ($this->REGATTA->scoring != Regatta::SCORING_TEAM);
+      return $this->has_teams && $this->has_races;
+
+    case 'TeamSailsPane':
+      return false;
 
     case 'TeamRacesPane':
     case 'RacesPane':
@@ -490,6 +497,7 @@ abstract class AbstractPane {
                                "DeleteTeamsPane" => "remove-teams",
                                "ReplaceTeamPane" => "substitute",
                                "SailsPane" => "rotations",
+                               "TeamSailsPane" => "rotations",
                                "TweakSailsPane" => "tweak-sails",
                                "ManualTweakPane" => "manual-rotation",
                                "RpEnterPane" => "rp",
@@ -517,6 +525,7 @@ abstract class AbstractPane {
                                  "DeleteTeamsPane" => "Remove team",
                                  "ReplaceTeamPane" => "Sub team",
                                  "SailsPane" => "Set rotation",
+                                 "TeamSailsPane" => "Set rotation",
                                  "TweakSailsPane" => "Tweak sails",
                                  "ManualTweakPane" => "Manual setup",
                                  "RpEnterPane" => "Enter RP",
