@@ -240,17 +240,17 @@ class TeamRpEnterPane extends AbstractPane {
       $config = array();
       $chosen_sailors = array();
       foreach ($divisions as $div) {
-        $sailor = null;
+        $config[(string)$div] = array(RP::SKIPPER => array(),
+                                       RP::CREW => array());
+
         $id = DB::$V->incKey($args, sprintf('sk%s', $div), $sailors);
         if ($id !== null) {
           if (isset($chosen_sailors[$id]))
             throw new SoterException(sprintf("%s cannot be involved in more than one role or boat at a time.", $sailors[$id]));
           $sailor = $sailors[$id];
           $chosen_sailors[$id] = $sailor;
+          $config[(string)$div][RP::SKIPPER][] = $sailor;
         }
-
-        $config[(string)$div] = array(RP::SKIPPER => $sailor,
-                                       RP::CREW => array());
 
         for ($i = 0; $i < $max_crews; $i++) {
           $id = DB::$V->incKey($args, sprintf('cr%s%d', $div, $i), $sailors);
@@ -273,7 +273,7 @@ class TeamRpEnterPane extends AbstractPane {
 
         foreach ($races as $race) {
           $r = $this->REGATTA->getRace($div, $race->number);
-          $rpManager->setRpEntries($team, $r, RP::SKIPPER, array($skipper));
+          $rpManager->setRpEntries($team, $r, RP::SKIPPER, $skipper);
           $myCrews = array();
           for ($i = 0; $i < $r->boat->max_crews && $i < count($crews); $i++)
             $myCrews[] = $crews[$i];

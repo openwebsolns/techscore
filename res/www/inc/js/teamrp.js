@@ -73,17 +73,20 @@ function initRP() {
                     }
                 };
             };
+
             var row = document.createElement("tr");
             tables[i].childNodes[0].appendChild(row);
             for (c = 0; c < num_sets; c++) {
                 var td = document.createElement("td");
                 row.appendChild(td);
 
-                var bt = document.createElement("button");
-                bt.setAttribute("type", "button");
-                bt.onclick = clickFactory(sets[c]);
-                bt.appendChild(document.createTextNode("Load group"));
-                td.appendChild(bt);
+                if (Object.keys(sets[c]).length > 0) {
+                    var bt = document.createElement("button");
+                    bt.setAttribute("type", "button");
+                    bt.onclick = clickFactory(sets[c]);
+                    bt.appendChild(document.createTextNode("Load group"));
+                    td.appendChild(bt);
+                }
             }
         }
     }

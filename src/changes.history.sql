@@ -498,3 +498,5 @@ alter table team add column lock_rank tinyint default null after name;
 create table race_order (id varchar(12) not null primary key, template text not null, author varchar(40) not null) engine=innodb default charset = latin1;
 alter table race_order add foreign key (author) references account(id) on delete cascade on update cascade;
 
+-- fix bug with empty sailors in RP --
+delete from rp where sailor is null;
