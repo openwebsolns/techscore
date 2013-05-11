@@ -766,8 +766,9 @@ h4 a:hover {
 
 .tr-rp-roundtable td {
     text-align: center;
-    width: 5em;
+    width: 8em;
     position: relative;
+    vertical-align: top;
 }
 
 .tr-rp-roundtable input {
@@ -785,4 +786,22 @@ h4 a:hover {
 
 .tr-rp-roundtable input:checked + label {
     background: #e0f3e0;
+}
+
+.tr-sailor-row {
+    color: #333333;
+    font-size: 80%;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.tr-sailor-row td {
+    text-align: left;
+}
+
+.tr-sailor-row span {
+    padding-left: 0.25em;
+    display: block;
+    text-indent: -0.25em;
 }

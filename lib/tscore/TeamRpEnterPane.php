@@ -62,16 +62,6 @@ class TeamRpEnterPane extends AbstractPane {
     $form->add(new XSubmitAccessible("change_team", "Get form"));
 
     // ------------------------------------------------------------
-    // What's missing
-    // ------------------------------------------------------------
-    if ($this->REGATTA->hasFinishes()) {
-      $this->PAGE->addContent($p = new XPort(sprintf("What's missing from %s", $chosen_team)));
-      $p->add(new XP(array(), "This port shows what information is missing for this team. Note that only scored races are considered."));
-
-      $this->fillMissing($p, $chosen_team);
-    }
-
-    // ------------------------------------------------------------
     // RP Form
     // ------------------------------------------------------------
     $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/teamrp.js')));
@@ -97,14 +87,10 @@ class TeamRpEnterPane extends AbstractPane {
     $p->add($form = $this->createForm());
     $form->set('id', 'rp-form');
     $form->add(new XP(array(), "Fill out the form using one set of sailors at a time. A \"set\" refers to the group of sailors out on the water at the same time. Submit more than once for each different configuration of sailors. Invalid configurations will be ignored."));
-    $form->add(new XP(array(), "Remember to choose the races that apply to the specified \"set\" by selecting from the list of races that appear below."));
+    $form->add(new XP(array(), "Remember to choose the races that apply to the specified \"set\" by selecting the opponent from the list of races that appear below."));
     $form->add(new XP(array('class'=>'warning'),
-                      array(new XStrong("Note:"), " To clear an RP entry for a given race, leave the sailor list blank, while selecting the race. ",
-                            new XStrong("Hint:"),
-                            " Use the ",
-                            new XA(WS::link(sprintf('/view/%s/sailors', $this->REGATTA->id)), "Sailors dialog",
-                                   array('onclick'=>'this.target="sailors"')),
-                            " to see current registrations.")));
+                      array(new XStrong("Note:"), " To clear an RP entry for a given race, leave the sailor list blank, while selecting the race.")));
+
     $form->add(new XHiddenInput("chosen_team", $chosen_team->id));
     $form->add($fi = new FItem("Representative:", new XTextInput('rep', $rep)));
     $fi->add(new XMessage("For contact purposes only."));
@@ -156,7 +142,13 @@ class TeamRpEnterPane extends AbstractPane {
     foreach ($rounds as $id => $round) {
       $form->add(new XH4($round));
       $form->add(new XTable(array('class'=>'tr-rp-roundtable'),
-                            array(new XTBody(array(), array($bod = new XTR())))));
+                            array($tab = new XTBody(array(), array($bod = new XTR())))));
+      $rows = array();
+      foreach ($divisions as $div) {
+        $rows[(string)$div] = new XTR(array('class'=>'tr-sailor-row'));
+        $tab->add($rows[(string)$div]);
+      }
+
       foreach ($round_races[$id] as $race) {
         $opp = $race->tr_team1;
         if ($opp->id == $chosen_team->id)
@@ -169,6 +161,23 @@ class TeamRpEnterPane extends AbstractPane {
                                 $label = new XLabel($id, new XSpan($race->number, array('class'=>'message'))))));
         $label->add(new XBr());
         $label->add($opp);
+
+        // Current participants
+        foreach ($divisions as $div) {
+          $li = array();
+          $r = $this->REGATTA->getRace($div, $race->number);
+          $skip = $rpManager->getRpEntries($chosen_team, $r, RP::SKIPPER);
+          if (count($skip) > 0)
+            $li[] = new XSpan($skip[0]->sailor, array('class' => sprintf('sk%s', $div)));
+          $crew = $rpManager->getRpEntries($chosen_team, $r, RP::CREW);
+          foreach ($crew as $i => $rp)
+            $li[] = new XSpan($rp->sailor, array('class' => sprintf('cr%s%d', $div, $i)));
+
+          if (count($li) > 0)
+            $rows[(string)$div]->add(new XTD(array(), $li));
+          else
+            $rows[(string)$div]->add(new XTD(array(), new XImg(WS::link('/inc/img/question.png'), "?")));
+        }
       }
     }
     
@@ -280,70 +289,6 @@ class TeamRpEnterPane extends AbstractPane {
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RP, $team->school->id);
     }
     return $args;
-  }
-
-  /**
-   * Return the number of the races in this division organized by
-   * number of occupants in the boats. The result associative array
-   * has keys which are the ranges of occupants (1-3) and values which
-   * are a comma separated list of the race numbers in the division
-   * with that many occupants
-   *
-   * @param Division $div the division
-   * @param Team $team the team whose races to fetch
-   * @return Array<int, Array<int>> a set of race number lists
-   * @see Regatta::getRacesForTeam
-   */
-  public function getOccupantsRaces(Division $div, Team $team) {
-    $races = $this->REGATTA->getRacesForTeam($div, $team);
-    $list = array();
-    foreach ($races as $race) {
-      $occ = $race->boat->getNumCrews();
-      if (!isset($list[$occ]))
-        $list[$occ] = array();
-      $list[$occ][] = $race->number;
-    }
-    return $list;
-  }
-
-  protected function fillMissing(XPort $p, Team $chosen_team) {
-    $divisions = $this->REGATTA->getDivisions();
-    $rpManager = $this->REGATTA->getRpManager();
-
-    $races = array();
-    $rounds = array();
-    $opponents = array();
-    foreach ($divisions as $divNumber => $div) {
-      foreach ($this->REGATTA->getScoredRacesForTeam($div, $chosen_team) as $race) {
-        if (!isset($races[$race->number])) {
-          $races[$race->number] = array(RP::SKIPPER => 0, RP::CREW => 0);
-          $rounds[$race->number] = $race->round;
-          $opponents[$race->number] = ($race->tr_team1 == $chosen_team) ? $race->tr_team2 : $race->tr_team1;
-        }
-        if (count($rpManager->getRpEntries($chosen_team, $race, RP::SKIPPER)) == 0)
-          $races[$race->number][RP::SKIPPER]++;
-        $races[$race->number][RP::CREW] += $race->boat->min_crews - count($rpManager->getRpEntries($chosen_team, $race, RP::CREW));
-      }
-    }
-    $rows = array();
-    foreach ($races as $num => $pairs) {
-      if ($pairs[RP::SKIPPER] == 0 && $pairs[RP::CREW] == 0)
-        continue;
-      $rows[] = array($num,
-                      $rounds[$num],
-                      $opponents[$num],
-                      ($pairs[RP::SKIPPER] > 0) ? sprintf("%d skipper(s)", $pairs[RP::SKIPPER]) : "",
-                      ($pairs[RP::CREW] > 0) ? sprintf("%d crew(s)", $pairs[RP::CREW]) : "");
-    }
-        
-    if (count($rows) > 0) {
-      $p->add($tab = new XQuickTable(array('class'=>'tr-missingrp-table'), array("#", "Round", "Opponent", "Skippers", "Crews")));
-      foreach ($rows as $rowIndex => $row)
-        $tab->addRow($row, array('class'=>'row' . ($rowIndex % 2)));
-    }
-    else
-      $p->add(new XP(array('class'=>'valid'),
-                     array(new XImg(WS::link('/inc/img/s.png'), "✓"), " Information is complete.")));
   }
 }
 ?>
