@@ -183,8 +183,8 @@ class ReportMaker {
 
     if ($reg->scoring == Regatta::SCORING_TEAM) {
       $this->rotPage->head->add(new XScript('text/javascript', '/inc/js/tr-rotation-select.js'));
-      require_once('tscore/TeamRotationDialog.php');
-      $maker = new TeamRotationDialog($reg);
+      require_once('tscore/TeamRacesDialog.php');
+      $maker = new TeamRacesDialog($reg);
       $this->rotPage->addSection($p = new XPort("All races"));
       foreach ($maker->getTable(true) as $elem)
         $p->add($elem);

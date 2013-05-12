@@ -322,19 +322,19 @@ p.warning {padding: 0.5em;}
     border: none;
 }
 
-.teamscorelist th {
+.teamscorelist th, .tr-rotation-table thead th {
     text-align: center;
 }
-.teamscorelist .roundrow th {
+.roundrow th {
     padding: 0.5em 0;
 }
-.teamscorelist .vscell {
+.vscell {
     text-align: center;
 }
-.teamscorelist .team1 {
+.team1 {
     text-align: right;
 }
-.teamscorelist .team2 {
+.team2 {
     text-align: left;
 }
 
@@ -377,11 +377,17 @@ p.warning {padding: 0.5em;}
 td.tr-sail {
     font-size: 80%;
     font-weight: bold;
-    text-shadow: 0 0 5px white;
     padding: 0 0.35em;
+    text-align: center;
+    color: #ddd;
+    text-shadow: 1px 1px 0px #222;
 }
 
-#rotation-table td {
+.tr-rotation-table td {
     border-right: 0;
     border-left: 0;
+}
+.tr-flight td {
+    text-align: center;
+    font-size: 75%;
 }

@@ -1429,6 +1429,20 @@ class Round_Group extends DBObject {
   public function getRounds() {
     return DB::getAll(DB::$ROUND, new DBCond('round_group', $this));
   }
+
+  /**
+   * Returns string concatenation of round's titles
+   *
+   */
+  public function getTitle() {
+    $label = "";
+    foreach ($this->getRounds() as $i => $round) {
+      if ($i > 0)
+        $label .= ", ";
+      $label .= $round;
+    }
+    return $label;
+  }
 }
 
 /**

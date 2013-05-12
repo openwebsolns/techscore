@@ -170,6 +170,7 @@ class TeamSailsPane extends AbstractPane {
       $color1 = array();
       $color2 = array();
       $num_races = null;
+      $all_sails = array();
       foreach ($divisions as $div) {
         $name1 = sprintf('%s-1', $div);
         $name2 = sprintf('%s-2', $div);
@@ -184,11 +185,15 @@ class TeamSailsPane extends AbstractPane {
         $sails2[(string)$div] = DB::$V->reqList($args, $name2, $num_races, "Missing list of races for second team.");
         $color2[(string)$div] = DB::$V->incList($args, 'sail-' . $name2, $num_races, array());
 
-        // make sure all sails are present and accounted for
+        // make sure all sails are present and accounted for, and distinct
         foreach (array($sails1, $sails2) as $sails) {
           foreach ($sails1[(string)$div] as $sail) {
-            if (trim($sail) == "")
+            $sail = trim($sail);
+            if ($sail == "")
               throw new SoterException("Empty sail provided.");
+            if (isset($all_sails[$sail]))
+              throw new SoterException("Duplicate sail provided.");
+            $all_sails[$sail] = $sail;
           }
         }
       }
@@ -207,7 +212,7 @@ class TeamSailsPane extends AbstractPane {
           $sail = new Sail();
           $sail->race = $r;
           $sail->team = $r->tr_team1;
-          $sail->sail = $sails1[(string)$div][$i];
+          $sail->sail = trim($sails1[(string)$div][$i]);
           $sail->color = DB::$V->incRE($color1[(string)$div], $i, '/^#[0-9A-Fa-f]{3,6}$/');
           $rotation->setSail($sail);
 

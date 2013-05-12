@@ -124,6 +124,35 @@ class Rotation {
   }
 
   /**
+   * Fetch sails involved in the races of the given round
+   *
+   * @param Round $round the round (must belong to this regatta)
+   * @return Array:Sail rotations
+   */
+  public function getSailsInRound(Round $round) {
+    return DB::getAll(DB::$SAIL,
+                      new DBCondIn('race', DB::prepGetAll(DB::$RACE,
+                                                          new DBBool(array(new DBCond('regatta', $this->regatta->id),
+                                                                           new DBCond('round', $round))),
+                                                          array('id'))));
+  }
+
+  /**
+   * Fetch sails involved in the races of the rounds of the given group
+   *
+   * @param Round_Group $group the groups of round
+   * @return Array:Sail rotations
+   */
+  public function getSailsInRoundGroup(Round_Group $group) {
+    $cond = new DBCondIn('round', DB::prepGetAll(DB::$ROUND, new DBCond('round_group', $group), array('id')));
+    return DB::getAll(DB::$SAIL,
+                      new DBCondIn('race', DB::prepGetAll(DB::$RACE,
+                                                          new DBBool(array(new DBCond('regatta', $this->regatta->id),
+                                                                           $cond)),
+                                                          array('id'))));
+  }
+
+  /**
    * Returns a list of races with rotation, ordered by division, number
    *
    * @param Division $div if given, the particular division
