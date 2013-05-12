@@ -15,6 +15,23 @@
  */
 class TeamSailsPane extends AbstractPane {
 
+  public static $COLORS = array(
+                                "#fff" => "White",
+                                "#ccc" => "Light Grey",
+                                "#666" => "Grey",
+                                "#000" => "Black",
+                                "#884B2A" => "Brown",
+                                "#f80" => "Orange",
+                                "#f00" => "Red",
+                                "#fcc" => "Pink",
+                                "#add8e6" => "Light Blue",
+                                "#00f" => "Blue",
+                                "#808" => "Purple",
+                                "#0f0" => "Lime Green",
+                                "#080" => "Green",
+                                "#ff0" => "Yellow"
+                                );
+
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Setup rotations", $user, $reg);
   }
@@ -71,9 +88,21 @@ class TeamSailsPane extends AbstractPane {
             if ($i == 0)
               $row->add(new XTH(array('rowspan' => count($divisions)), sprintf("Race %d", ($race_num + 1))));
             $row->add(new XTD(array(), new XTextInput($name1, "", array('size'=>5))));
-            $row->add(new XTD(array('title'=>"Optional"), new XTextInput('sail-' . $name1, "")));
+            $row->add(new XTD(array('title'=>"Optional"), $sel1 = new XSelect('sail-' . $name1)));
             $row->add(new XTD(array(), new XTextInput($name2, "", array('size'=>5))));
-            $row->add(new XTD(array('title'=>"Optional"), new XTextInput('sail-' . $name2, "")));
+            $row->add(new XTD(array('title'=>"Optional"), $sel2 = new XSelect('sail-' . $name2)));
+
+            $sel1->set('class', 'color-chooser');
+            $sel1->set('onchange', 'this.style.background=this.value;');
+            $sel2->set('class', 'color-chooser');
+            $sel2->set('onchange', 'this.style.background=this.value;');
+            $sel1->add(new XOption("", array(), "[None]"));
+            $sel2->add(new XOption("", array(), "[None]"));
+            foreach (self::$COLORS as $code => $title) {
+              $attrs = array('style'=>sprintf('background:%1$s;color:%1$s;', $code));
+              $sel1->add(new XOption($code, $attrs, $title));
+              $sel2->add(new XOption($code, $attrs, $title));
+            }
           }
         }
 
@@ -125,7 +154,83 @@ class TeamSailsPane extends AbstractPane {
    * Sets up rotations according to requests.
    */
   public function process(Array $args) {
-    throw new SoterException("Not yet ready to process requests.");
+    if (isset($args['create'])) {
+      $divisions = $this->REGATTA->getDivisions();
+
+      $rounds = array();
+      foreach ($this->REGATTA->getRounds() as $round)
+        $rounds[$round->id] = $round;
+      
+      $round = $rounds[DB::$V->reqKey($args, 'round', $rounds, "Invalid round chosen.")];
+
+      // determine flight automatically by ascertaining that there are
+      // the same number of sails for each division/team combo
+      $sails1 = array();
+      $sails2 = array();
+      $color1 = array();
+      $color2 = array();
+      $num_races = null;
+      foreach ($divisions as $div) {
+        $name1 = sprintf('%s-1', $div);
+        $name2 = sprintf('%s-2', $div);
+
+        $sails1[(string)$div] = DB::$V->reqList($args, $name1, $num_races, "Missing list of races for first team.");
+        if ($num_races === null) {
+          $num_races = count($sails1[(string)$div]);
+          if (count($num_races) == 0)
+            throw new SoterException("Empty list of sails provided.");
+        }
+        $color1[(string)$div] = DB::$V->incList($args, 'sail-' . $name1, $num_races, array());
+        $sails2[(string)$div] = DB::$V->reqList($args, $name2, $num_races, "Missing list of races for second team.");
+        $color2[(string)$div] = DB::$V->incList($args, 'sail-' . $name2, $num_races, array());
+
+        // make sure all sails are present and accounted for
+        foreach (array($sails1, $sails2) as $sails) {
+          foreach ($sails1[(string)$div] as $sail) {
+            if (trim($sail) == "")
+              throw new SoterException("Empty sail provided.");
+          }
+        }
+      }
+
+      $races = ($round->round_group !== null) ?
+        $this->REGATTA->getRacesInRoundGroup($round->round_group, Division::A()) :
+        $this->REGATTA->getRacesInRound($round, Division::A());
+
+      // rotations set up manually
+      $rotation = $this->REGATTA->getRotation();
+      foreach ($races as $i => $race) {
+        $i = $i % $num_races;
+        foreach ($divisions as $div) {
+          $r = $this->REGATTA->getRace($div, $race->number);
+
+          $sail = new Sail();
+          $sail->race = $r;
+          $sail->team = $r->tr_team1;
+          $sail->sail = $sails1[(string)$div][$i];
+          $sail->color = DB::$V->incRE($color1[(string)$div], $i, '/^#[0-9A-Fa-f]{3,6}$/');
+          $rotation->setSail($sail);
+
+          $sail = new Sail();
+          $sail->race = $r;
+          $sail->team = $r->tr_team2;
+          $sail->sail = $sails2[(string)$div][$i];
+          $sail->color = DB::$V->incRE($color2[(string)$div], $i, '/^#[0-9A-Fa-f]{3,6}$/');
+          $rotation->setSail($sail);
+        }
+      }
+
+      $label = $round;
+      if ($round->round_group !== null) {
+        $label = array();
+        foreach ($round->round_group->getRounds() as $round)
+          $label[] = $round;
+        $label = implode(", ", $label);
+      }
+      Session::pa(new PA(sprintf("Rotation assigned for %s.", $label)));
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
+      $this->redirect('rotations');
+    }
   }
 }
 ?>

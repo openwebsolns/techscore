@@ -112,6 +112,15 @@ abstract class AbstractDialog {
         require_once('tscore/ScoresFullDialog.php');
         return new ScoresFullDialog($u);
 
+        // --------------- ALL RACES ----------------//
+      case 'all':
+      case 'races':
+        if ($u->scoring == Regatta::SCORING_TEAM) {
+          require_once('tscore/TeamRacesDialog.php');
+          return new TeamRacesDialog($u);
+        }
+        return null;
+
 	// --------------- RANKING ------------------//
       case 'ranking':
       case 'rank':

@@ -157,6 +157,20 @@ class Rotation {
     return $list;
   }
 
+  /**
+   * Applicable to team racing, return the rounds with sails
+   *
+   * @return Array:Round
+   */
+  public function getRounds() {
+    $q = DB::prepGetAll(DB::$RACE,
+                        new DBCondIn('id', DB::prepGetAll(DB::$SAIL, null, array('race'))),
+                        array('round'));
+
+    return DB::getAll(DB::$ROUND,
+                      new DBBool(array(new DBCond('regatta', $this->regatta),
+                                       new DBCondIn('id', $q))));
+  }
 
   /**
    * Commits the given sail into this rotation, except for those from ByeTeam

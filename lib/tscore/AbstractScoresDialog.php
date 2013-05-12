@@ -26,7 +26,7 @@ abstract class AbstractScoresDialog extends AbstractDialog {
     $this->PAGE->addMenu(new XDiv(array('class'=>'menu'), array($ul = new XUl())));
     if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
       $ul->add(new XLi(new XA(sprintf('/view/%d/scores',   $this->REGATTA->id), "All grids")));
-      $ul->add(new XLi(new XA(sprintf('/view/%d/rotation', $this->REGATTA->id), "All races")));
+      $ul->add(new XLi(new XA(sprintf('/view/%d/races', $this->REGATTA->id), "All races")));
       $ul->add(new XLi(new XA(sprintf('/view/%d/ranking',  $this->REGATTA->id), "Rankings")));
     }
     else {

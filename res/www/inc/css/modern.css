@@ -805,3 +805,13 @@ h4 a:hover {
     display: block;
     text-indent: -0.25em;
 }
+
+.tr-rotation-sails thead th {
+    background: none repeat scroll 0 0 #EDE5D8;
+    text-align: center;
+}
+
+.color-chooser {
+    background: none repeat scroll 0 0 transparent;
+    border: medium none;
+}

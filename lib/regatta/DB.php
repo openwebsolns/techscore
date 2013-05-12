@@ -1365,6 +1365,7 @@ class Sail extends DBObject {
   public $sail;
   protected $race;
   protected $team;
+  public $color;
 
   protected function db_order() { return array('sail'=>true); }
   public function db_name() { return 'rotation'; }

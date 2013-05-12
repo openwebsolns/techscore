@@ -500,3 +500,6 @@ alter table race_order add foreign key (author) references account(id) on delete
 
 -- fix bug with empty sailors in RP --
 delete from rp where sailor is null;
+
+-- associate color with sail (optional)
+alter table rotation add column color varchar(7) default null comment "Hex code, including hash";

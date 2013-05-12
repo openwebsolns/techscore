@@ -20,7 +20,7 @@ require_once('tscore/AbstractScoresDialog.php');
  * @author Dayan Paez
  * @version 2013-02-18
  */
-class TeamRotationDialog extends AbstractScoresDialog {
+class TeamRotationDialog extends AbstractDialog {
   /**
    * Create a new dialog
    *
@@ -37,8 +37,30 @@ class TeamRotationDialog extends AbstractScoresDialog {
    * @return Array:Xmlable
    */
   public function getTable($link_schools = false) {
+    $rotation = $this->REGATTA->getRotation();
+
     $divs = $this->REGATTA->getDivisions();
-    $rounds = $this->REGATTA->getRounds();
+    $other_divs = array();
+    for ($i = 1; $i < count($divs); $i++)
+      $other_divs[] = $divs[$i];
+
+    $rounds = array();
+    foreach ($rotation->getRounds() as $round)
+      $rounds[$round->id] = $round;
+
+    $groups = array();
+    $unmoved = $rounds;
+    foreach ($rounds as $id => $round) {
+      if (isset($unmoved[$id])) {
+        $groups[] = $round;
+        unset($unmoved[$id]);
+        if ($round->round_group !== null) {
+          foreach ($round->round_group->getRounds() as $other)
+            unset($unmoved[$other->id]);
+        }
+      }
+    }
+
     $season = $this->REGATTA->getSeason();
 
     $tab = new XTable(array('class'=>'teamscorelist', 'id'=>'rotation-table'),
@@ -46,13 +68,13 @@ class TeamRotationDialog extends AbstractScoresDialog {
                                        array($head = new XTR(array(),
                                                              array(new XTH(array(), "#"),
                                                                    new XTH(array('colspan'=>2), "Team 1"),
-                                                                   new XTH(array(), "Record"),
+                                                                   new XTH(array('colspan'=>count($divs)), "Sails"),
                                                                    new XTH(array(), ""),
-                                                                   new XTH(array(), "Record"),
+                                                                   new XTH(array('colspan'=>count($divs)), "Sails"),
                                                                    new XTH(array('colspan'=>2), "Team 2")))))));
-    foreach ($rounds as $round) {
+    foreach ($groups as $round) {
       $tab->add($body = new XTBody(array(), array(new XTR(array('class'=>'roundrow'),
-                                                          array(new XTH(array('colspan'=>8), $round))))));
+                                                          array(new XTH(array('colspan'=>8 + 2 * count($divs)), $round))))));
       foreach ($this->REGATTA->getRacesInRound($round, Division::A()) as $race) {
         $team1 = $race->tr_team1;
         $team2 = $race->tr_team2;
@@ -73,64 +95,41 @@ class TeamRotationDialog extends AbstractScoresDialog {
         }
 
         $body->add($row = new XTR(array(), array(new XTD(array(), $race->number),
-                                                 $b1 = new XTD(array('class'=>'team1'), $burg1),
-                                                 $t1 = new XTD(array('class'=>'team1'), $team1),
-                                                 $r1 = new XTD(),
-                                                 new XTD(array('class'=>'vscell'), "vs"),
-                                                 $r2 = new XTD(),
-                                                 $t2 = new XTD(array('class'=>'team2'), $team2),
-                                                 $b2 = new XTD(array('class'=>'team2'), $burg2))));
-        $finishes = $this->REGATTA->getFinishes($race);
-        if (count($finishes) > 0) {
-          $places1 = array();
-          $places2 = array();
-          $score1 = 0;
-          $score2 = 0;
-          foreach ($finishes as $finish) {
-            if ($finish->team == $race->tr_team1) {
-              $places1[] = $finish;
-              $score1 += $finish->score;
-            }
-            elseif ($finish->team == $race->tr_team2) {
-              $places2[] = $finish;
-              $score2 += $finish->score;
-            }
-          }
-          // repeat with remaining divisions
-          for ($i = 1; $i < count($divs); $i++) {
-            foreach ($this->REGATTA->getFinishes($this->REGATTA->getRace($divs[$i], $race->number)) as $finish) {
-              if ($finish->team == $race->tr_team1) {
-                $places1[] = $finish;
-                $score1 += $finish->score;
-              }
-              elseif ($finish->team == $race->tr_team2) {
-                $places2[] = $finish;
-                $score2 += $finish->score;
-              }
-            }
-          }
-          $r1->add(Finish::displayPlaces($places1));
-          $r2->add(Finish::displayPlaces($places2));
+                                                 new XTD(array('class'=>'team1'), $burg1),
+                                                 new XTD(array('class'=>'team1'), $team1))));
 
-          if ($score1 < $score2) {
-            $t1->set('class', 'tr-win team1');
-            $r1->set('class', 'tr-win team1');
-            $t2->set('class', 'tr-lose team2');
-            $r2->set('class', 'tr-lose team2');
-          }
-          elseif ($score1 > $score2) {
-            $t1->set('class', 'tr-lose team1');
-            $r1->set('class', 'tr-lose team1');
-            $t2->set('class', 'tr-win team2');
-            $r2->set('class', 'tr-win team2');
-          }
-          else {
-            $t1->set('class', 'tr-tie team1');
-            $r1->set('class', 'tr-tie team1');
-            $t2->set('class', 'tr-tie team2');
-            $r2->set('class', 'tr-tie team2');
-          }
+        // first team
+        $sail = $rotation->getSail($race, $team1);
+        $row->add($s = new XTD(array('class'=>'team1 tr-sail'), $sail));
+        if ($sail->color !== null)
+          $s->set('style', sprintf('background:%s;', $sail->color));
+
+        $other_races = array();
+        foreach ($other_divs as $div) {
+          $other_races[(string)$div] = $this->REGATTA->getRace($div, $race->number);
+          $sail = $rotation->getSail($other_races[(string)$div], $team1);
+          $row->add($s = new XTD(array('class'=>'team1 tr-sail'), $sail));
+          if ($sail->color !== null)
+            $s->set('style', sprintf('background:%s;', $sail->color));
         }
+
+        $row->add(new XTD(array('class'=>'vscell'), "vs"));
+
+        // second team
+        $sail = $rotation->getSail($race, $team2);
+        $row->add($s = new XTD(array('class'=>'team2 tr-sail'), $sail));
+        if ($sail->color !== null)
+          $s->set('style', sprintf('background:%s;', $sail->color));
+
+        foreach ($other_races as $race) {
+          $sail = $rotation->getSail($race, $team2);
+          $row->add($s = new XTD(array('class'=>'team2 tr-sail'), $sail));
+          if ($sail->color !== null)
+            $s->set('style', sprintf('background:%s;', $sail->color));
+        }
+
+        $row->add(new XTD(array('class'=>'team2'), $team2));
+        $row->add(new XTD(array('class'=>'team2'), $burg2));
       }
     }
     return array($tab);
