@@ -102,7 +102,7 @@ class TeamRotationDialog extends AbstractDialog {
         $other_races[(string)$div] = $this->REGATTA->getRace($div, $race->number);
         $sail = $rotation->getSail($other_races[(string)$div], $team1);
         $row->add($s = new XTD(array('class'=>'team1 tr-sail'), $sail));
-        if ($sail->color !== null)
+        if ($sail !== null && $sail->color !== null)
           $s->set('style', sprintf('background:%s;', $sail->color));
       }
 
@@ -117,7 +117,7 @@ class TeamRotationDialog extends AbstractDialog {
       foreach ($other_races as $race) {
         $sail = $rotation->getSail($race, $team2);
         $row->add($s = new XTD(array('class'=>'team2 tr-sail'), $sail));
-        if ($sail->color !== null)
+        if ($sail !== null && $sail->color !== null)
           $s->set('style', sprintf('background:%s;', $sail->color));
       }
 

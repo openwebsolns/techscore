@@ -62,6 +62,7 @@ class TeamSailsPane extends AbstractPane {
         if ($flight % $step != 0)
           throw new SoterException(sprintf("Number of boats must be divisible by %d.", $step));
 
+        $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/tr-rot.js')));
         $this->PAGE->addContent($p = new XPort("2. Provide sail numbers"));
         $p->add($form = $this->createForm());
         $form->add(new XP(array(), "Assign the sail numbers to use using the list below. If applicable, choose the optional color that goes with the sail. This color will be displayed in the \"Rotations\" dialog."));
@@ -187,20 +188,20 @@ class TeamSailsPane extends AbstractPane {
 
         // make sure all sails are present and accounted for, and distinct
         foreach (array($sails1, $sails2) as $sails) {
-          foreach ($sails1[(string)$div] as $sail) {
+          foreach ($sails[(string)$div] as $sail) {
             $sail = trim($sail);
             if ($sail == "")
               throw new SoterException("Empty sail provided.");
             if (isset($all_sails[$sail]))
-              throw new SoterException("Duplicate sail provided.");
+              throw new SoterException("Duplicate sail \"$sail\" provided.");
             $all_sails[$sail] = $sail;
           }
         }
       }
 
       $races = ($round->round_group !== null) ?
-        $this->REGATTA->getRacesInRoundGroup($round->round_group, Division::A()) :
-        $this->REGATTA->getRacesInRound($round, Division::A());
+        $this->REGATTA->getRacesInRoundGroup($round->round_group, Division::A(), false) :
+        $this->REGATTA->getRacesInRound($round, Division::A(), false);
 
       // rotations set up manually
       $rotation = $this->REGATTA->getRotation();

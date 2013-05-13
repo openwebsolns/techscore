@@ -565,7 +565,7 @@ class FullRegatta extends DBObject {
     $cond = new DBCondIn('round', DB::prepGetAll(DB::$ROUND, new DBCond('round_group', $group), array('id')));
     if ($inc_carry_over !== false)
       $cond = new DBBool(array($cond,
-			       new DBCondIn('id', DB::prepGetAll(DB::$RACE_ROUND, new DBCond('round', $round), array('race')))),
+			       new DBCondIn('id', DB::prepGetAll(DB::$RACE_ROUND, $cond, array('race')))),
 			 DBBool::mOR);
     $cond = new DBBool(array(new DBCond('regatta', $this->id), $cond));
 
