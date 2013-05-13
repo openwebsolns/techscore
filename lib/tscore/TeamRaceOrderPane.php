@@ -91,6 +91,7 @@ class TeamRaceOrderPane extends AbstractPane {
     if ($count > 0) {
       $p->add(new XH4("Individual rounds"));
       $p->add(new XP(array(), "To manually assign a race order, check the round or rounds from the list below. To schedule two rounds simultaneously, for example, check both rounds, and click \"Order races\"."));
+      $p->add(new XP(array('class'=>'warning'), array(new XStrong("Hint:"), " When combining multiple rounds, first order each round individually before combining their races.")));
       $p->add($f = $this->createForm(XForm::GET));
       $f->add(new FItem("Rounds:", $ul));
       $f->add(new XSubmitP('order-rounds', "Order races"));
