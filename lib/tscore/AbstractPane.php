@@ -437,10 +437,8 @@ abstract class AbstractPane {
 
     case 'SailsPane':
     case 'TeamPenaltyPane':
-      return $this->has_teams && $this->has_races;
-
     case 'TeamSailsPane':
-      return false;
+      return $this->has_teams && $this->has_races;
 
     case 'TeamRacesPane':
     case 'RacesPane':

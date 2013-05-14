@@ -428,7 +428,7 @@ class TeamRacesPane extends AbstractPane {
       }
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA(array(sprintf("Added new round %s with %d race(s). ", $round, $num_added),
-			       new XA($this->link('race-order', array('order-rounds'=>'', 'round'=>array($round->id))), "Edit races"),
+			       new XA($this->link('race-order', array('order-rounds'=>'', 'round'=>array($round->id))), "Order races"),
 			       ".")));
     }
 
@@ -528,7 +528,7 @@ class TeamRacesPane extends AbstractPane {
       $mes = array("Added $num_added new races in round $round. ");
       if ($num_duplicate > 0)
 	$mes[] = "$num_duplicate race(s) carried over from previous rounds. ";
-      $mes[] = new XA($this->link('race-order', array('order-rounds'=>'', 'round'=>array($round->id))), "Edit races");
+      $mes[] = new XA($this->link('race-order', array('order-rounds'=>'', 'round'=>array($round->id))), "Order races");
       $mes[] = ".";
       Session::pa(new PA($mes));
       return array();

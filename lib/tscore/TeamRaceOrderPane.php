@@ -250,7 +250,7 @@ function addTeamToRound(id) {
       if ($round->regatta != $this->REGATTA)
         throw new SoterException("Invalid round provided.");
 
-      $races = $this->REGATTA->getRacesInRound($round, Division::A());
+      $races = $this->REGATTA->getRacesInRound($round);
       $teams = array();
       $matches = array();
       $nums = array();
@@ -261,8 +261,14 @@ function addTeamToRound(id) {
         $teams[$race->tr_team1->id] = $race->tr_team1;
         $teams[$race->tr_team2->id] = $race->tr_team2;
 
-        $matches[sprintf("%s-%s", $race->tr_team1->id, $race->tr_team2->id)] = $race;
-        $matches[sprintf("%s-%s", $race->tr_team2->id, $race->tr_team1->id)] = $race;
+        $name1 = sprintf("%s-%s", $race->tr_team1->id, $race->tr_team2->id);
+        $name2 = sprintf("%s-%s", $race->tr_team2->id, $race->tr_team1->id);
+        if (!isset($matches[$name1])) {
+          $matches[$name1] = array();
+          $matches[$name2] = array();
+        }
+        $matches[$name1][] = $race;
+        $matches[$name2][] = $race;
       }
 
       if ($template->getNumTeams() != count($teams))
@@ -294,31 +300,23 @@ function addTeamToRound(id) {
         $team2 = $seeding[$tokens[1] - 1];
 
         $match = sprintf('%s-%s', $team1->id, $team2->id);
-        $race = $matches[$match];
+        $races = $matches[$match];
+        $race = $races[0];
+
         if ($race->round == $round) {
           $swap = ($race->tr_team1 != $team1);
           if ($race->number != $next_number || $swap) {
-            foreach ($other_divisions as $div) {
-              $r = $this->REGATTA->getRace($div, $race->number);
-              $r->number = $next_number;
+            foreach ($races as $race) {
+              $race->number = $next_number;
               if ($swap) {
-                $r->tr_team1 = $team1;
-                $r->tr_team2 = $team2;
-                $ignore1 = $r->tr_ignore1;
-                $r->tr_ignore1 = $r->tr_ignore2;
-                $r->tr_ignore2 = $ignore1;
+                $race->tr_team1 = $team1;
+                $race->tr_team2 = $team2;
+                $ignore1 = $race->tr_ignore1;
+                $race->tr_ignore1 = $race->tr_ignore2;
+                $race->tr_ignore2 = $ignore1;
               }
-              DB::set($r);
+              DB::set($race);
             }
-            $race->number = $next_number;
-            if ($swap) {
-              $race->tr_team1 = $team1;
-              $race->tr_team2 = $team2;
-              $ignore1 = $race->tr_ignore1;
-              $race->tr_ignore1 = $race->tr_ignore2;
-              $race->tr_ignore2 = $ignore1;
-            }
-            DB::set($race);
           }
           $next_number++;
         }
