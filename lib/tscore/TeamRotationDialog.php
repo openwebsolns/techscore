@@ -47,7 +47,7 @@ class TeamRotationDialog extends AbstractDialog {
 
     $season = $this->REGATTA->getSeason();
 
-    $tab = new XTable(array('class'=>'teamscorelist', 'class'=>'tr-rotation-table'),
+    $tab = new XTable(array('class'=>'tr-rotation-table'),
                       array(new XTHead(array(),
                                        array($head = new XTR(array(),
                                                              array(new XTH(array(), "#"),
@@ -65,7 +65,7 @@ class TeamRotationDialog extends AbstractDialog {
     $flight = count($rotation->getCommonSails($races)) / 2;
     foreach ($races as $i => $race) {
       // spacer
-      if ($i % $flight == 0) {
+      if ($flight > 0 && $i % $flight == 0) {
         $body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => 8 + 2 * count($divs)), sprintf("Flight %d", ($i / $flight + 1))))));
       }
 
@@ -134,8 +134,12 @@ class TeamRotationDialog extends AbstractDialog {
   public function fillHTML(Array $args) {
     $rotation = $this->REGATTA->getRotation();
 
+    $this->PAGE->body->set('class', 'tr-rotation-page');
+    $this->PAGE->addContent(new XP(array('class'=>'warning nonprint'),
+                                   array(new XStrong("Hint:"), " to print the sail colors, enable \"Print background colors\" in your printer dialog.")));
+
     $covered = array();
-    foreach ($rotation->getRounds() as $round) {
+    foreach ($this->REGATTA->getRounds() as $round) {
       if (!isset($covered[$round->id])) {
         $covered[$round->id] = $round;
         $label = (string)$round;

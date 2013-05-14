@@ -283,3 +283,7 @@ td.tr-sail {
     text-align: center;
     font-size: 75%;
 }
+
+.tr-rotation-page .port {
+    page-break-after: always;
+}

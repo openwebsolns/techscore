@@ -16,7 +16,7 @@
 class TeamSailsPane extends AbstractPane {
 
   public static $COLORS = array(
-                                "#fff" => "White",
+                                "#ddd" => "White",
                                 "#ccc" => "Light Grey",
                                 "#666" => "Grey",
                                 "#000" => "Black",
