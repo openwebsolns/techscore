@@ -1,4 +1,5 @@
 /* Make sure that all boats are unique prior to submitting */
+/* Choose sails 2 (and 3) when changing the first sail */
 
 var SAIL_INPUTS = Array();
 var SUBMIT_INPUT = null;
@@ -26,6 +27,9 @@ function checkRotation() {
     }
 }
 
+function changeOtherSails(master) {
+    // TODO
+}
 
 var old = window.onload;
 window.onload = function(evt) {
@@ -45,5 +49,44 @@ window.onload = function(evt) {
             SUBMIT_INPUT.parentNode.appendChild(SUBMIT_EXPL);
         }
     }
+
+    inputs = document.getElementsByTagName("select");
+    var masterChangeFactory = function(master, slaves) {
+        return function(evt) {
+            master.style.background = master.value;
+            for (var i = 0; i < slaves.length; i++) {
+                slaves[i].value = master.value;
+                slaves[i].style.background = master.value;
+            }
+        };
+    };
+    var slaveChangeFactory = function(sel) {
+        return function(evt) {
+            sel.style.background = sel.value;
+        };
+    };
+
+    var masters = {"1" : null, "2": null};
+    var slaves = {"1": [], "2": []};
+    for (i = 0; i < inputs.length; i++) {
+        var stub = inputs[i].name.substring(7, 8);
+        var div = inputs[i].name.substring(5, 6);
+        if (div == "A") {
+            if (masters[stub] != null) {
+                masters[stub].onchange = masterChangeFactory(masters[stub], slaves[stub]);
+            }
+            masters[stub] = inputs[i];
+            slaves[stub] = [];
+        }
+        else {
+            slaves[stub].push(inputs[i]);
+            inputs[i].onchange = slaveChangeFactory(inputs[i]);
+            inputs[i].classList.add("tr-slave");
+        }
+    }
+    if (masters[stub] != null) {
+        masters[stub].onchange = masterChangeFactory(masters[stub], slaves[stub]);
+    }
+
     checkRotation();
 };

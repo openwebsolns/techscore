@@ -16,7 +16,7 @@
 class TeamSailsPane extends AbstractPane {
 
   public static $COLORS = array(
-                                "#ddd" => "White",
+                                "#eee" => "White",
                                 "#ccc" => "Light Grey",
                                 "#666" => "Grey",
                                 "#000" => "Black",
@@ -96,9 +96,7 @@ class TeamSailsPane extends AbstractPane {
             $row->add(new XTD(array('title'=>"Optional"), $sel2 = new XSelect('sail-' . $name2)));
 
             $sel1->set('class', 'color-chooser');
-            $sel1->set('onchange', 'this.style.background=this.value;');
             $sel2->set('class', 'color-chooser');
-            $sel2->set('onchange', 'this.style.background=this.value;');
             $sel1->add(new XOption("", array(), "[None]"));
             $sel2->add(new XOption("", array(), "[None]"));
             foreach (self::$COLORS as $code => $title) {
@@ -110,7 +108,7 @@ class TeamSailsPane extends AbstractPane {
         }
 
         $form->add(new XP(array('class'=>'p-submit'),
-                       array(new XA($this->link(), "← Cancel"), " ",
+                       array(new XA($this->link('rotations'), "← Cancel"), " ",
                              new XSubmitInput('create', "Create rotation"),
                              new XHiddenInput('round', $round->id))));
         return;
