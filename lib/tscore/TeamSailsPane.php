@@ -55,8 +55,10 @@ class TeamSailsPane extends AbstractPane {
     if (isset($args['round'])) {
       try {
         $round = $rounds[DB::$V->reqKey($args, 'round', $rounds, "Invalid round chosen.")];
-        if ($round->round_group != null)
-          $round = $round->round_group->getRounds()[0];
+        if ($round->round_group != null) {
+          $rnds = $round->round_group->getRounds();
+          $round = $rnds[0];
+        }
 
         $flight = DB::$V->reqInt($args, 'flight', $step, $step * 20 + 1, "Invalid flight size provided.");
         if ($flight % $step != 0)
