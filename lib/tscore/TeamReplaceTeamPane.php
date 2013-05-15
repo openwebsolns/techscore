@@ -65,6 +65,13 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
           }
         }
 
+        if (count($options) == 1) {
+          $mes = "No possible teams to use as replacement.";
+          if (count($rounds) > 1)
+            $mes .= " Try replacing one round at a time.";
+          throw new SoterException($mes);
+        }
+
         $this->PAGE->addContent($p = new XPort(sprintf("Replace team in %s", implode(", ", $rounds))));
         $p->add($form = $this->createForm());
         $form->add(new XP(array(), "On the left below are all the teams that are currently participating in the chosen round(s). To replace a team, choose a different one from the list on the right. Leave blank for no replacement."));
