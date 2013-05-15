@@ -256,12 +256,19 @@ class TeamRacesPane extends AbstractPane {
         if (!isset($rounds[$rid]))
           throw new SoterException("Invalid round requested.");
         $round = $rounds[$rid];
+
+        // does this round depend on others?
+        foreach ($this->REGATTA->getRoundsCarriedOver($round) as $other) {
+          if (!isset($edited[$other->id]))
+            throw new SoterException(sprintf("Round \"%s\" must come after \"%s\" because it contains races carried over.", $round, $other));
+        }
+
         $round->relative_order = $roundnum++;
 
 	if (isset($round_groups[$rid])) {
 	  foreach ($round_groups[$rid] as $other_round) {
 	    $other_round->relative_order = $roundnum++;
-	    $edited[] = $other_round;
+	    $edited[$other_round->id] = $other_round;
 	  }
 	  foreach ($this->REGATTA->getRacesInRoundGroup($round->round_group, Division::A(), false) as $race) {
 	    foreach ($divs as $div) {
@@ -283,7 +290,7 @@ class TeamRacesPane extends AbstractPane {
 	  }
 	}
         unset($rounds[$rid]);
-        $edited[] = $round;
+        $edited[$round->id] = $round;
       }
 
       // commit rounds, and races
