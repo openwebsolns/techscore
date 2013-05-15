@@ -220,7 +220,7 @@ function addTeamToRound(id) {
                                  new XHiddenInput('race[]', $race->id))),
                    new XTD(array('class'=>'drag'), $race->number));
       if (count($rounds) > 1)
-        $race->round;
+        $row[] = $race->round;
       $row[] = $teams[0];
       $row[] = new XCheckboxInput('swap[]', $race->id);
       $row[] = $teams[1];
