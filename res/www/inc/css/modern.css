@@ -819,3 +819,10 @@ h4 a:hover {
 .tr-slave {
     font-size: 85%;
 }
+
+#tr-replace-table thead th {
+    text-align: center;
+}
+#tr-replace-table td {
+    text-align: left;
+}

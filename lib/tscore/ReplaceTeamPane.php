@@ -19,7 +19,7 @@ class ReplaceTeamPane extends AbstractPane {
     $confs = DB::getConferences();
     $teams = $this->REGATTA->getTeams();
 
-    $this->PAGE->addContent($p = new XPort("Substitute team"));
+    $this->PAGE->addContent($p = new XPort("Replace team in entire regatta"));
     $p->add(new XP(array(), "Use this space to substitute a team from one school for one from another. The new team will inherit the rotations and place finishes of the old team. Note that the RP information for the old team will be removed!"));
 
     $p->add($form = $this->createForm());
@@ -53,7 +53,7 @@ class ReplaceTeamPane extends AbstractPane {
       $team = DB::$V->reqTeam($args, 'team', $this->REGATTA, "Invalid or missing team to replace.");
       $school = DB::$V->reqID($args, 'school', DB::$SCHOOL, "Invalid or missing school with which to replace $team.");
 
-      // is the team to be subsituted from the chosen school?
+      // is the team to be substituted from the chosen school?
       if ($school == $team->school)
         throw new SoterException("It is useless to replace a team from the same school with itself. I'll ignore that.");
 

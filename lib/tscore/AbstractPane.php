@@ -71,7 +71,7 @@ abstract class AbstractPane {
 					    "scorers"    => "ScorersPane",
 					    "delete"     => "DeleteRegattaPane"),
 		       "Teams"     => array("teams"      => "TeamsPane",
-					    "substitute" => "ReplaceTeamPane",
+					    "substitute" => "TeamReplaceTeamPane",
 					    "remove-team"=> "DeleteTeamsPane"),
 		       "Races"     => array("races"      => "TeamRacesPane",
 					    "race-order" => "TeamRaceOrderPane",
@@ -332,6 +332,10 @@ abstract class AbstractPane {
     case 'substitute':
     case 'substitute-team':
     case 'sub-team':
+      if ($u->scoring == Regatta::SCORING_TEAM) {
+        require_once('tscore/TeamReplaceTeamPane.php');
+        return new TeamReplaceTeamPane($r, $u);
+      }
       require_once('tscore/ReplaceTeamPane.php');
       return new ReplaceTeamPane($r, $u);
     case 'rp':
@@ -426,6 +430,7 @@ abstract class AbstractPane {
     case 'NotesPane':
       return $this->has_races;
 
+    case 'TeamReplaceTeamPane':
     case 'ReplaceTeamPane':
     case 'DeleteTeamsPane':
     case 'RpEnterPane':
@@ -494,6 +499,7 @@ abstract class AbstractPane {
                                "TeamsPane" => "teams",
                                "DeleteTeamsPane" => "remove-teams",
                                "ReplaceTeamPane" => "substitute",
+                               "TeamReplaceTeamPane" => "substitute",
                                "SailsPane" => "rotations",
                                "TeamSailsPane" => "rotations",
                                "TweakSailsPane" => "tweak-sails",
@@ -522,6 +528,7 @@ abstract class AbstractPane {
                                  "TeamsPane" => "Add team",
                                  "DeleteTeamsPane" => "Remove team",
                                  "ReplaceTeamPane" => "Sub team",
+                                 "TeamReplaceTeamPane" => "Sub team",
                                  "SailsPane" => "Set rotation",
                                  "TeamSailsPane" => "Set rotation",
                                  "TweakSailsPane" => "Tweak sails",
