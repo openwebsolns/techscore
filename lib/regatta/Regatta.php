@@ -552,6 +552,22 @@ class FullRegatta extends DBObject {
   }
 
   /**
+   * Like getRacesInRound, but return exclusively carried over races
+   *
+   * @param Round $round the round in question
+   * @param Division $div the optional division for the races
+   * @return Array:Race the list of races
+   */
+  public function getRacesFromOtherRounds(Round $round, Division $div = null) {
+    $cond = new DBBool(array(new DBCond('regatta', $this->id),
+                             new DBCondIn('id', DB::prepGetAll(DB::$RACE_ROUND, new DBCond('round', $round), array('race')))));
+
+    if ($div !== null)
+      $cond->add(new DBCond('division', (string)$div));
+    return DB::getAll(DB::$RACE, $cond);
+  }
+
+  /**
    * Fetches all races in given group of rounds
    *
    * @param Round_Group the group of rounds
@@ -588,6 +604,21 @@ class FullRegatta extends DBObject {
     if ($div !== null)
       $cond->add(new DBCond('division', $div));
     return DB::getAll(DB::$RACE, $cond);
+  }
+
+  /**
+   * Fetches list of rounds where at least one race is carried over to
+   * the given round.
+   *
+   * @param Round $round the dependent round
+   * @return Array:Round the original rounds.
+   */
+  public function getRoundsCarriedOver(Round $round) {
+    $races = $this->getRacesFromOtherRounds($round, Division::A());
+    $rounds = array();
+    foreach ($races as $race)
+      $rounds[$race->round->id] = $race->round;
+    return array_values($rounds);
   }
 
   /**
