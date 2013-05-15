@@ -84,8 +84,11 @@ window.onload = function(evt) {
             inputs[i].classList.add("tr-slave");
         }
     }
-    if (masters[stub] != null) {
-        masters[stub].onchange = masterChangeFactory(masters[stub], slaves[stub]);
+    if (masters["1"] != null) {
+        masters["1"].onchange = masterChangeFactory(masters["1"], slaves["1"]);
+    }
+    if (masters["2"] != null) {
+        masters["2"].onchange = masterChangeFactory(masters["2"], slaves["2"]);
     }
 
     checkRotation();
