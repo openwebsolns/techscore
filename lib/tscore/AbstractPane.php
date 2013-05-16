@@ -86,8 +86,9 @@ abstract class AbstractPane {
 		       "Finishes"  => array("finishes" => "TeamEnterFinishPane",
 					    "penalty"  => "TeamEnterPenaltyPane",
 					    "drop-penalty" => "DropPenaltyPane",
-					    "team-penalty" => "TeamPenaltyPane",
-					    "rank"         => "RankTeamsPane"));
+					    "team-penalty" => "TeamPenaltyPane"),
+                       "Ranks"     => array("rank"        => "RankTeamsPane"),
+                       );
     }
     else {
       $score_i = array("Regatta"   => array("settings"   => "DetailsPane",
@@ -135,25 +136,41 @@ abstract class AbstractPane {
       }
       if ($title == "Regatta")
         $m_list->add(new XLi(new XA('/', "Close", array('accesskey'=>'w'))));
+      elseif ($title == "RP Forms" and $this->REGATTA->scoring == Regatta::SCORING_TEAM) {
+        // Downloads
+        if ($this->has_teams) {
+          $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp', $id)), "Download")));
+          require_once('rpwriter/RpFormWriter.php');
+          $writer = new RpFormWriter($this->REGATTA);
+          $form = $writer->getForm();
+          $m_list->add(new XLi(new XA(WS::link(sprintf('/inc/rp/%s', $form->getPdfName())), "RP Template")));
+        }
+        else {
+          $m_list->add(new XLi("Download", array('class'=>'inactive')));
+          $m_list->add(new XLi("RP Template", array('class'=>'inactive')));
+        }
+      }
 
       $this->PAGE->addMenu($menu);
     }
 
-    // Downloads
-    $menu = new XDiv(array('class'=>'menu'), array(new XH4("Download"), $m_list = new XUl()));
-    // $m_list->add(new XLi(new XA("/download/$id/regatta", "Regatta")));
-    if ($this->has_teams) {
-      $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp', $id)), "Filled RP")));
-      require_once('rpwriter/RpFormWriter.php');
-      $writer = new RpFormWriter($this->REGATTA);
-      $form = $writer->getForm();
-      $m_list->add(new XLi(new XA(WS::link(sprintf('/inc/rp/%s', $form->getPdfName())), "RP Template")));
+    if ($this->REGATTA->scoring != Regatta::SCORING_TEAM) {
+      // Downloads
+      $menu = new XDiv(array('class'=>'menu'), array(new XH4("Download"), $m_list = new XUl()));
+      // $m_list->add(new XLi(new XA("/download/$id/regatta", "Regatta")));
+      if ($this->has_teams) {
+        $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp', $id)), "Filled RP")));
+        require_once('rpwriter/RpFormWriter.php');
+        $writer = new RpFormWriter($this->REGATTA);
+        $form = $writer->getForm();
+        $m_list->add(new XLi(new XA(WS::link(sprintf('/inc/rp/%s', $form->getPdfName())), "RP Template")));
+      }
+      else {
+        $m_list->add(new XLi("Filled RP", array('class'=>'inactive')));
+        $m_list->add(new XLi("RP Template", array('class'=>'inactive')));
+      }
+      $this->PAGE->addMenu($menu);
     }
-    else {
-      $m_list->add(new XLi("Filled RP", array('class'=>'inactive')));
-      $m_list->add(new XLi("RP Template", array('class'=>'inactive')));
-    }
-    $this->PAGE->addMenu($menu);
 
     // Dialogs
     $menu = new XDiv(array('class'=>'menu'), array(new XH4("Windows"), $m_list = new XUl()));
