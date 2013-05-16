@@ -11,6 +11,9 @@ require_once('ReplaceTeamPane.php');
 
 class TeamReplaceTeamPane extends ReplaceTeamPane {
 
+  private $rotation;
+  private $rpManager;
+
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct($user, $reg);
   }
@@ -19,25 +22,13 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
    * Helper function returns list of chosen rounds
    *
    */
-  private function parseRounds(Array $args) {
-    $rounds = array();
-    if (is_array($args['round'])) {
-      foreach ($args['round'] as $id) {
-        $round = DB::get(DB::$ROUND, $id);
-        if ($round === null || $round->regatta != $this->REGATTA)
-          throw new SoterException("Invalid round provided: $id.");
-        $rounds[] = $round;
-      }
-      if (count($rounds) == 0)
-        throw new SoterException("No round(s) chosen.");
-    }
-    else {
-      $round = DB::$V->reqID($args, 'round', DB::$ROUND, "Invalid round ID provided.");
-      if ($round->regatta != $this->REGATTA)
-        throw new SoterException("Invalid round chosen.");
-      $rounds[] = $round;
-    }
-    return $rounds;
+  private function parseRound(Array $args) {
+    $round = DB::$V->reqID($args, 'round', DB::$ROUND, "Invalid round ID provided.");
+    if ($round->regatta != $this->REGATTA)
+      throw new SoterException("Invalid round chosen.");
+    if (count($this->REGATTA->getRacesCarriedOver($round)) > 0)
+      throw new SoterException(sprintf("Races from %s are being carried over. Therefore, teams cannot be substituted.", $round));
+    return $round;
   }
 
   protected function fillHTML(Array $args) {
@@ -46,7 +37,7 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
     // ------------------------------------------------------------
     if (isset($args['round'])) {
       try {
-        $rounds = $this->parseRounds($args);
+        $round = $this->parseRound($args);
 
         // create options to select replacement
         $options = array("" => "");
@@ -55,28 +46,28 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
 
         // get teams that have participated in chosen rounds
         $teams = array();
-        foreach ($rounds as $round) {
-          foreach ($this->REGATTA->getRacesInRound($round, Division::A(), false) as $race) {
-            $teams[$race->tr_team1->id] = $race->tr_team1;
-            $teams[$race->tr_team2->id] = $race->tr_team2;
+        foreach ($this->REGATTA->getRacesInRound($round, Division::A(), false) as $race) {
+          $teams[$race->tr_team1->id] = $race->tr_team1;
+          $teams[$race->tr_team2->id] = $race->tr_team2;
 
-            unset($options[$race->tr_team1->id]);
-            unset($options[$race->tr_team2->id]);
-          }
+          unset($options[$race->tr_team1->id]);
+          unset($options[$race->tr_team2->id]);
         }
 
-        if (count($options) == 1) {
-          $mes = "No possible teams to use as replacement.";
-          if (count($rounds) > 1)
-            $mes .= " Try replacing one round at a time.";
-          throw new SoterException($mes);
-        }
+        if (count($options) == 1)
+          throw new SoterException("No possible teams to use as replacement.");
 
-        $this->PAGE->addContent($p = new XPort(sprintf("Replace team in %s", implode(", ", $rounds))));
+        $this->PAGE->addContent($p = new XPort(sprintf("Replace team in %s", $round)));
         $p->add($form = $this->createForm());
-        $form->add(new XP(array(), "On the left below are all the teams that are currently participating in the chosen round(s). To replace a team, choose a different one from the list on the right. Leave blank for no replacement."));
-        $form->add($tab = new XQuickTable(array('id'=>'tr-replace-table'), array("Current team", "Replacement")));
+        $form->add(new XP(array(), "On the left below are all the teams that are currently participating in the chosen round. To replace a team, choose a different one from the list on the right. Leave blank for no replacement."));
 
+        $from_rounds = $this->REGATTA->getRoundsCarriedOver($round);
+        if (count($from_rounds) > 0)
+          $form->add(new XP(array('class'=>'warning'),
+                            array(new XStrong("Warning:"),
+                                  sprintf(" This round contains races carried over from %s. If a team whose race was carried over is replaced, then every attempt will be made to find a race for the new team from the aforementioned round(s). Either way, any scores entered in this round for the replaced team will be removed. In addition, race numbers might be altered as a result of this operation.", implode(", ", $from_rounds)))));
+
+        $form->add($tab = new XQuickTable(array('id'=>'tr-replace-table'), array("Current team", "Replacement")));
         $rowIndex = 0;
         foreach ($teams as $id => $team) {
           $tab->addRow(array(array($team, new XHiddenInput('team[]', $id)),
@@ -84,11 +75,10 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
                        array('class'=>'row' . ($rowIndex++ % 2)));
         }
 
-        $form->add($p = new XP(array('class'=>'p-submit'),
-                               array(new XA($this->link('substitute'), "← Cancel"), " ",
-                                     new XSubmitInput('replace-round', "Replace"))));
-        foreach ($rounds as $round)
-          $p->add(new XHiddenInput('round[]', $round->id));
+        $form->add(new XP(array('class'=>'p-submit'),
+                          array(new XA($this->link('substitute'), "← Cancel"), " ",
+                                new XSubmitInput('replace-round', "Replace"),
+                                new XHiddenInput('round', $round->id))));
         return;
       }
       catch (SoterException $e) {
@@ -106,8 +96,14 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
 
     foreach ($this->REGATTA->getRounds() as $round) {
       $id = 'chk-' . $round->id;
-      $ul->add(new XLi(array(new XCheckboxInput('round[]', $round->id, array('id'=>$id)),
-                             new XLabel($id, $round))));
+      $ul->add(new XLi(array($ri = new XRadioInput('round', $round->id, array('id'=>$id)),
+                             $lb = new XLabel($id, $round))));
+      if (count($this->REGATTA->getRacesCarriedOver($round)) > 0) {
+        $mes = "Races from this round are being carried over to other rounds.";
+        $ri->set('disabled', 'disabled');
+        $ri->set('title', $mes);
+        $lb->set('title', $mes);
+      }
     }
     $form->add(new XSubmitP('replace-round', "Choose teams →"));
 
@@ -125,7 +121,7 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
     // Replace in round(s)
     // ------------------------------------------------------------
     if (isset($args['replace-round'])) {
-      $rounds = $this->parseRounds($args);
+      $round = $this->parseRound($args);
 
       $options = array();
       foreach ($this->REGATTA->getTeams() as $team)
@@ -135,22 +131,20 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
       $races_by_team2 = array();
 
       $teams = array();
-      foreach ($rounds as $round) {
-        foreach ($this->REGATTA->getRacesInRound($round, null, false) as $race) {
-          $teams[$race->tr_team1->id] = $race->tr_team1;
-          $teams[$race->tr_team2->id] = $race->tr_team2;
+      foreach ($this->REGATTA->getRacesInRound($round, null, false) as $race) {
+        $teams[$race->tr_team1->id] = $race->tr_team1;
+        $teams[$race->tr_team2->id] = $race->tr_team2;
 
-          if (!isset($races_by_team1[$race->tr_team1->id]))
-            $races_by_team1[$race->tr_team1->id] = array();
-          $races_by_team1[$race->tr_team1->id][] = $race;
+        if (!isset($races_by_team1[$race->tr_team1->id]))
+          $races_by_team1[$race->tr_team1->id] = array();
+        $races_by_team1[$race->tr_team1->id][] = $race;
 
-          if (!isset($races_by_team2[$race->tr_team2->id]))
-            $races_by_team2[$race->tr_team2->id] = array();
-          $races_by_team2[$race->tr_team2->id][] = $race;
+        if (!isset($races_by_team2[$race->tr_team2->id]))
+          $races_by_team2[$race->tr_team2->id] = array();
+        $races_by_team2[$race->tr_team2->id][] = $race;
 
-          unset($options[$race->tr_team1->id]);
-          unset($options[$race->tr_team2->id]);
-        }
+        unset($options[$race->tr_team1->id]);
+        unset($options[$race->tr_team2->id]);
       }
 
       $list = DB::$V->reqList($args, 'team', null, "Invalid lits of teams provided.");
@@ -158,8 +152,8 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
         throw new SoterException("No teams to replace.");
       $repl = DB::$V->reqList($args, 'replacement', count($list), "Invalid list of replacements.");
 
-      $rotation = $this->REGATTA->getRotation();
-      $rpManager = $this->REGATTA->getRpManager();
+      $this->rotation = $this->REGATTA->getRotation();
+      $this->rpManager = $this->REGATTA->getRpManager();
 
       $changed_races = array();
       $changed_finishes = array(); // update finishes as well
@@ -188,22 +182,7 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
               $race->$prop = $new_team;
               $changed_races[$race->id] = $race;
 
-              $finish = $this->REGATTA->getFinish($race, $old_team);
-              if ($finish !== null) {
-                $finish->team = $new_team;
-                $changed_finishes[$finish->id] = $finish;
-              }
-
-              $sail = $rotation->getSail($race, $old_team);
-              if ($sail !== null) {
-                $sail->team = $new_team;
-                $changed_sails[$sail->id] = $sail;
-              }
-
-              foreach (array(RP::SKIPPER, RP::CREW) as $role) {
-                foreach ($rpManager->getRpEntries($old_team, $race, $role) as $rp)
-                  $deleted_rps[$rp->id] = $rp;
-              }
+              $this->replaceTeam($race, $old_team, $new_team, $changed_finishes, $changed_sails, $deleted_rps);
             }
           }
         }
@@ -233,6 +212,29 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
       $this->redirect('substitute');
     }
     return parent::process($args);
+  }
+
+  /**
+   * Helper method 
+   *
+   */
+  private function replaceTeam(Race $race, Team $old_team, Team $new_team, &$changed_finishes, &$changed_sails, &$deleted_rps) {
+    $finish = $this->REGATTA->getFinish($race, $old_team);
+    if ($finish !== null) {
+      $finish->team = $new_team;
+      $changed_finishes[$finish->id] = $finish;
+    }
+
+    $sail = $this->rotation->getSail($race, $old_team);
+    if ($sail !== null) {
+      $sail->team = $new_team;
+      $changed_sails[$sail->id] = $sail;
+    }
+
+    foreach (array(RP::SKIPPER, RP::CREW) as $role) {
+      foreach ($this->rpManager->getRpEntries($old_team, $race, $role) as $rp)
+        $deleted_rps[$rp->id] = $rp;
+    }
   }
 }
 ?>

@@ -432,6 +432,9 @@ tr.disabled {background:#ddd;color:#555;}
     border: 1px solid #3465a4;
 /*    background: #f3f3bb; */
 }
+input[disabled] + label {
+    color: #888;
+}
 input:checked + label {
     background: #e0f3e0;
 }
