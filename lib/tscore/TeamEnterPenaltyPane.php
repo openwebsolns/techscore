@@ -71,7 +71,7 @@ class TeamEnterPenaltyPane extends EnterPenaltyPane {
   protected function fillAlternateRaceSelection(XForm $form) {
     $form->add(new FItem("OR choose:", new XSpan("(Use grids below)")));
     foreach ($this->REGATTA->getRounds() as $round) {
-      $form->add(new XH4($round));
+      $has_races = false;
       $teams = array();
       $matches = array();
       foreach ($this->REGATTA->getRacesInRound($round, Division::A()) as $race) {
@@ -91,7 +91,7 @@ class TeamEnterPenaltyPane extends EnterPenaltyPane {
         $matches[$race->tr_team1->id][$race->tr_team2->id][] = $race;
         $matches[$race->tr_team2->id][$race->tr_team1->id][] = $race;
       }
-      $form->add(new XTable(array('class'=>'teamscores'), array($tab = new XTBody(array(), array($header = new XTR(array(), array(new XTH(array(), "↓ vs. →"))))))));
+      $tab = new XTBody(array(), array($header = new XTR(array(), array(new XTH(array(), "↓ vs. →")))));
       foreach ($teams as $myId => $team) {
         $header->add(new XTH(array(), $team));
         $tab->add($row = new XTR(array(), array(new XTH(array(), $team))));
@@ -101,15 +101,31 @@ class TeamEnterPenaltyPane extends EnterPenaltyPane {
             continue;
           }
           $races = $matches[$myId][$theirId];
-          if (count($races) == 1)
-            $row->add(new XTD(array(), new XRadioInput('race_id', $races[0]->id)));
+          if (count($races) == 1) {
+            if (count($this->REGATTA->getFinishes($races[0])) > 0) {
+              $has_races = true;
+              $row->add(new XTD(array(), new XRadioInput('race_id', $races[0]->id)));
+            }
+            else
+              $row->add(new XTD(array('class' => 'tr-na'), "N/A"));
+          }
           else {
             $row->add(new XTable(array(), array($sub = new XTBody())));
             foreach ($races as $race) {
-              $sub->add(new XTR(array(), array(new XTD(array(), new XRadioInput('race_id', $race->id)))));
+              if (count($this->REGATTA->getFinishes($race)) > 0) {
+                $has_races = true;
+                $sub->add(new XTR(array(), array(new XTD(array(), new XRadioInput('race_id', $race->id)))));
+              }
+              else
+                $sub->add(new XTR(array(), array(new XTD(array('class'=>'tr-na'), "N/A"))));
             }
           }
         }
+      }
+
+      if ($has_races) {
+        $form->add(new XH4($round));
+        $form->add(new XTable(array('class'=>'teamscores'), array($tab)));
       }
     }
   }

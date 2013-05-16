@@ -829,3 +829,8 @@ h4 a:hover {
 #tr-replace-table td {
     text-align: left;
 }
+
+.tr-na {
+    background: #eee;
+    color: #eee;
+}
