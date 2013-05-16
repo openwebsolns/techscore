@@ -12,7 +12,7 @@ require_once('tscore/EnterFinishPane.php');
  * @author Dayan Paez
  * @created 2012-12-11 
  */
-class EnterTeamFinishPane extends EnterFinishPane {
+class TeamEnterFinishPane extends EnterFinishPane {
 
   /**
    * @var Map penalty options available when entering finishes

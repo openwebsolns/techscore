@@ -13,7 +13,7 @@ require_once('tscore/EnterPenaltyPane.php');
  * @author Dayan Paez
  * @version 2013-01-04
  */
-class EnterTeamPenaltyPane extends EnterPenaltyPane {
+class TeamEnterPenaltyPane extends EnterPenaltyPane {
 
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct($user, $reg);

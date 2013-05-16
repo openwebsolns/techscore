@@ -83,8 +83,8 @@ abstract class AbstractPane {
 		       "RP Forms"  => array("rp"         => "TeamRpEnterPane",
 					    "unregistered" => "UnregisteredSailorPane",
                                             "missing"  => "RpMissingPane"),
-		       "Finishes"  => array("finishes" => "EnterTeamFinishPane",
-					    "penalty"  => "EnterTeamPenaltyPane",
+		       "Finishes"  => array("finishes" => "TeamEnterFinishPane",
+					    "penalty"  => "TeamEnterPenaltyPane",
 					    "drop-penalty" => "DropPenaltyPane",
 					    "team-penalty" => "TeamPenaltyPane",
 					    "rank"         => "RankTeamsPane"));
@@ -282,8 +282,8 @@ abstract class AbstractPane {
     case 'finish':
     case 'finishes':
       if ($u->scoring == Regatta::SCORING_TEAM) {
-        require_once('tscore/EnterTeamFinishPane.php');
-        return new EnterTeamFinishPane($r, $u);
+        require_once('tscore/TeamEnterFinishPane.php');
+        return new TeamEnterFinishPane($r, $u);
       }
       require_once('tscore/EnterFinishPane.php');
       return new EnterFinishPane($r, $u);
@@ -296,8 +296,8 @@ abstract class AbstractPane {
     case 'penalties':
     case 'penalty':
       if ($u->scoring == Regatta::SCORING_TEAM) {
-	require_once('tscore/EnterTeamPenaltyPane.php');
-	return new EnterTeamPenaltyPane($r, $u);
+	require_once('tscore/TeamEnterPenaltyPane.php');
+	return new TeamEnterPenaltyPane($r, $u);
       }
       require_once('tscore/EnterPenaltyPane.php');
       return new EnterPenaltyPane($r, $u);
@@ -415,7 +415,7 @@ abstract class AbstractPane {
   private function doActive($class_name) {
     switch ($class_name) {
     case 'EnterPenaltyPane':
-    case 'EnterTeamPenaltyPane':
+    case 'TeamEnterPenaltyPane':
     case 'RankTeamsPane':
     case 'RpMissingPane':
       return $this->has_scores;
@@ -437,7 +437,7 @@ abstract class AbstractPane {
     case 'TeamRpEnterPane':
     case 'UnregisteredSailorPane':
     case 'EnterFinishPane':
-    case 'EnterTeamFinishPane':
+    case 'TeamEnterFinishPane':
       return $this->has_teams && $this->has_races;
 
     case 'SailsPane':
@@ -509,9 +509,9 @@ abstract class AbstractPane {
                                "RpMissingPane" => "missing",
                                "UnregisteredSailorPane" => "unregistered",
                                "EnterFinishPane" => "finishes",
-                               "EnterTeamFinishPane" => "finishes",
+                               "TeamEnterFinishPane" => "finishes",
                                "EnterPenaltyPane" => "penalty",
-			       "EnterTeamPenaltyPane" => "penalty",
+			       "TeamEnterPenaltyPane" => "penalty",
 			       "RankTeamsPane" => "rank",
                                "DropPenaltyPane" => "drop-penalty",
                                "TeamPenaltyPane" => "team-penalty");
@@ -538,9 +538,9 @@ abstract class AbstractPane {
                                  "RpMissingPane" => "Missing RP",
                                  "UnregisteredSailorPane" => "Unregistered",
                                  "EnterFinishPane" => "Enter finish",
-                                 "EnterTeamFinishPane" => "Enter finish",
+                                 "TeamEnterFinishPane" => "Enter finish",
                                  "EnterPenaltyPane" => "Add penalty",
-				 "EnterTeamPenaltyPane" => "Add penalty",
+				 "TeamEnterPenaltyPane" => "Add penalty",
 				 "RankTeamsPane" => "Rank teams",
                                  "DropPenaltyPane" => "Drop penalty",
                                  "TeamPenaltyPane" => "Team penalty");
