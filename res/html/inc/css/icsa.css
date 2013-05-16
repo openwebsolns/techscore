@@ -635,3 +635,6 @@ div.stat .prefix {
 .tr-boats tr:last-child {
     border-bottom: none;
 }
+.tr-carried {
+    opacity: 0.5;
+}

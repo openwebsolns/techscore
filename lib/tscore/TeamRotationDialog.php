@@ -59,8 +59,8 @@ class TeamRotationDialog extends AbstractDialog {
                             $body = new XTBody()));
 
     $races = ($round->round_group === null) ?
-      $this->REGATTA->getRacesInRound($round, Division::A()) :
-      $this->REGATTA->getRacesInRoundGroup($round->round_group, Division::A());
+      $this->REGATTA->getRacesInRound($round, Division::A(), false) :
+      $this->REGATTA->getRacesInRoundGroup($round->round_group, Division::A(), false);
 
     $flight = count($rotation->getCommonSails($races)) / 2;
     foreach ($races as $i => $race) {

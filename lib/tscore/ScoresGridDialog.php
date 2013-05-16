@@ -92,7 +92,11 @@ class ScoresGridDialog extends AbstractScoresDialog {
     // Also track corresponding team objects
     $teams = array();
     $scores = array();
+    $carried = array();
     foreach ($races as $race) {
+      if ($race->round != $round)
+        $carried[$race->number] = $race;
+
       $ts = $this->REGATTA->getRaceTeams($race);
       foreach ($ts as $t) {
         $teams[$t->id] = $t;
@@ -151,6 +155,10 @@ class ScoresGridDialog extends AbstractScoresDialog {
             $row->add(new XTD(array('class'=>'tr-mult'), $subtab = new XTable(array('class'=>'tr-multtable'))));
             
           foreach ($scores[$id][$id2] as $race_num => $places) {
+            $extra_class = '';
+            if (isset($carried[$race_num]))
+              $extra_class = ' tr-carried';
+
             $subrow = $row;
             if ($subtab !== null)
               $subtab->add($subrow = new XTR());
@@ -170,19 +178,19 @@ class ScoresGridDialog extends AbstractScoresDialog {
             if ($total1 < $total2) {
 	      if (!$score_mode)
 		$cont = sprintf('W (%s)', $cont);
-              $subrow->add(new XTD(array('class'=>'tr-win'), $cont));
+              $subrow->add(new XTD(array('class'=>'tr-win' . $extra_class), $cont));
 	      $win++;
 	    }
             elseif ($total1 > $total2) {
 	      if (!$score_mode)
 		$cont = sprintf('L (%s)', $cont);
-              $subrow->add(new XTD(array('class'=>'tr-lose'), $cont));
+              $subrow->add(new XTD(array('class'=>'tr-lose' . $extra_class), $cont));
 	      $los++;
 	    }
             elseif ($total1 != 0) {
 	      if (!$score_mode)
 		$cont = sprintf('T (%s)', $cont);
-              $subrow->add(new XTD(array('class'=>'tr-tie'), $cont));
+              $subrow->add(new XTD(array('class'=>'tr-tie' . $extra_class), $cont));
 	      $tie++;
 	    }
             else

@@ -72,14 +72,17 @@ class TeamRacesDialog extends AbstractScoresDialog {
           $burg2 = new XImg($url, $race->tr_team2->school->id, array('height'=>'20px'));
         }
 
-        $body->add($row = new XTR(array(), array(new XTD(array(), $race->number),
-                                                 $b1 = new XTD(array('class'=>'team1'), $burg1),
-                                                 $t1 = new XTD(array('class'=>'team1'), $team1),
-                                                 $r1 = new XTD(),
-                                                 new XTD(array('class'=>'vscell'), "vs"),
-                                                 $r2 = new XTD(),
-                                                 $t2 = new XTD(array('class'=>'team2'), $team2),
-                                                 $b2 = new XTD(array('class'=>'team2'), $burg2))));
+        $attrs = array();
+        if ($race->round != $round)
+          $attrs['class'] = 'tr-carried';
+        $body->add($row = new XTR($attrs, array(new XTD(array(), $race->number),
+                                                $b1 = new XTD(array('class'=>'team1'), $burg1),
+                                                $t1 = new XTD(array('class'=>'team1'), $team1),
+                                                $r1 = new XTD(),
+                                                new XTD(array('class'=>'vscell'), "vs"),
+                                                $r2 = new XTD(),
+                                                $t2 = new XTD(array('class'=>'team2'), $team2),
+                                                $b2 = new XTD(array('class'=>'team2'), $burg2))));
         $finishes = $this->REGATTA->getFinishes($race);
         if (count($finishes) > 0) {
           $places1 = array();
