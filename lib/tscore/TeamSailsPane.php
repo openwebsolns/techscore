@@ -154,6 +154,11 @@ class TeamSailsPane extends AbstractPane {
     // ------------------------------------------------------------
     // 1. Choose parameters
     // ------------------------------------------------------------
+    $rotation = $this->REGATTA->getRotation();
+    $have_rotations = array();
+    foreach ($rotation->getRounds() as $round)
+      $have_rotations[$round->id] = $round;
+
     $this->PAGE->addContent($p = new XPort("1. Choose round and flight size"));
     $p->add(new XP(array(), "Rotations are set up on a per-round basis. To begin, choose the round or group of rounds from the list below, and the number of total boats available. On the next page, you will be able to enter sail numbers to use."));
     $p->add($form = $this->createForm(XForm::GET));
@@ -175,8 +180,12 @@ class TeamSailsPane extends AbstractPane {
           }
           $label = implode(", ", $label);
         }
+        $mes = "";
+        if (isset($have_rotations[$round->id]))
+          $mes = new Ximg(WS::link('/inc/img/s.png'), "✓", array('title'=>"Rotation exists"));
         $ul->add($li = new XLi(array(new XRadioInput('round', $round->id, array('id'=>$id)),
-                                     new XLabel($id, $label))));
+                                     new XLabel($id, $label),
+                                     $mes)));
       }
     }
 
