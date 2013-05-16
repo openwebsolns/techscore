@@ -809,6 +809,10 @@ h4 a:hover {
     text-indent: -0.25em;
 }
 
+.tr-rotation-sails {
+    margin-bottom: 1em;
+}
+
 .tr-rotation-sails thead th {
     background: none repeat scroll 0 0 #EDE5D8;
     text-align: center;

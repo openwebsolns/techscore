@@ -60,7 +60,19 @@ class TeamSailsPane extends AbstractPane {
           $round = $rnds[0];
         }
 
-        $flight = DB::$V->reqInt($args, 'flight', $step, $step * 20 + 1, "Invalid flight size provided.");
+        $rot = DB::$V->incID($args, 'regatta_rotation', DB::$REGATTA_ROTATION);
+        if ($rot !== null) {
+          if ($rot->regatta != $this->REGATTA)
+            throw new SoterException("Invalid saved rotation to use.");
+          $rotation = $rot->rotation;
+          $flight = 2 * $rotation->count();
+        }
+        else {
+          $rot = new Regatta_Rotation();
+          $rotation = new TeamRotation();
+          $flight = DB::$V->reqInt($args, 'flight', $step, $step * 20 + 1, "Invalid flight size provided.");
+        }
+
         if ($flight % $step != 0)
           throw new SoterException(sprintf("Number of boats must be divisible by %d.", $step));
 
@@ -82,6 +94,8 @@ class TeamSailsPane extends AbstractPane {
                                                                    new XTH(array(), "Sail #"),
                                                                    new XTH(array(), "Color"))))),
                                     $bod = new XTBody())));
+        $globalIndex = 0;
+        $rotCount = $rotation->count();
         for ($race_num = 0; $race_num < $flight / $step; $race_num++) {
           foreach ($divisions as $i => $div) {
             $name1 = sprintf('%s-1[]', $div);
@@ -90,10 +104,16 @@ class TeamSailsPane extends AbstractPane {
             $bod->add($row = new XTR(array()));
             if ($i == 0)
               $row->add(new XTH(array('rowspan' => count($divisions)), sprintf("Race %d", ($race_num + 1))));
-            $row->add(new XTD(array(), new XTextInput($name1, "", array('size'=>5))));
+            $s1 = ($globalIndex < $rotCount) ? $rotation->sails1[$globalIndex] : "";
+            $s2 = ($globalIndex < $rotCount) ? $rotation->sails2[$globalIndex] : "";
+
+            $row->add(new XTD(array(), new XTextInput($name1, $s1, array('size'=>5))));
             $row->add(new XTD(array('title'=>"Optional"), $sel1 = new XSelect('sail-' . $name1)));
-            $row->add(new XTD(array(), new XTextInput($name2, "", array('size'=>5))));
+            $row->add(new XTD(array(), new XTextInput($name2, $s2, array('size'=>5))));
             $row->add(new XTD(array('title'=>"Optional"), $sel2 = new XSelect('sail-' . $name2)));
+
+            $c1 = ($globalIndex < $rotCount) ? $rotation->colors1[$globalIndex] : null;
+            $c2 = ($globalIndex < $rotCount) ? $rotation->colors2[$globalIndex] : null;
 
             $sel1->set('class', 'color-chooser');
             $sel2->set('class', 'color-chooser');
@@ -101,11 +121,24 @@ class TeamSailsPane extends AbstractPane {
             $sel2->add(new XOption("", array(), "[None]"));
             foreach (self::$COLORS as $code => $title) {
               $attrs = array('style'=>sprintf('background:%1$s;color:%1$s;', $code));
-              $sel1->add(new XOption($code, $attrs, $title));
-              $sel2->add(new XOption($code, $attrs, $title));
+              $sel1->add($opt1 = new XOption($code, $attrs, $title));
+              $sel2->add($opt2 = new XOption($code, $attrs, $title));
+
+              if ($code == $c1)
+                $opt1->set('selected', 'selected');
+              if ($code == $c2)
+                $opt2->set('selected', 'selected');
             }
+
+            $globalIndex++;
           }
         }
+
+        $form->add($fi = new FItem("Save as:", new XTextInput('name', $rot->name)));
+        if ($rot->id === null)
+          $fi->add(new XMessage("If blank, rotation will not be saved. Name must be unique."));
+        else
+          $fi->add(new XMessage("Change name to create new rotation."));
 
         $form->add(new XP(array('class'=>'p-submit'),
                        array(new XA($this->link('rotations'), "← Cancel"), " ",
@@ -148,6 +181,17 @@ class TeamSailsPane extends AbstractPane {
     }
 
     $form->add(new FItem("# of boats:", new XInput('number', 'flight', $step * 3, array('min'=>$step, 'step'=>$step, 'max'=>($step * 20)))));
+
+    $list = $this->REGATTA->getTeamRotations();
+    if (count($list) > 0) {
+      $form->add(new XP(array(), "Or, you may choose from the saved rotation(s) below."));
+      $form->add(new FItem("Saved rotation:", $ul = new XUl(array('class'=>'inline-list'))));
+      foreach ($list as $rot) {
+        $id = 'chk-rot-' . $rot->id;
+        $ul->add(new XLi(array(new XRadioInput('regatta_rotation', $rot->id, array('id'=>$id)),
+                               new XLabel($id, $rot->name))));
+      }
+    }
     $form->add(new XSubmitP('go', "Next →"));
   }
 
@@ -203,6 +247,12 @@ class TeamSailsPane extends AbstractPane {
         $this->REGATTA->getRacesInRoundGroup($round->round_group, Division::A(), false) :
         $this->REGATTA->getRacesInRound($round, Division::A(), false);
 
+      // save in case we need to save
+      $s1 = array();
+      $s2 = array();
+      $c1 = array();
+      $c2 = array();
+
       // rotations set up manually
       $rotation = $this->REGATTA->getRotation();
       foreach ($races as $i => $race) {
@@ -214,15 +264,29 @@ class TeamSailsPane extends AbstractPane {
           $sail->race = $r;
           $sail->team = $r->tr_team1;
           $sail->sail = trim($sails1[(string)$div][$i]);
-          $sail->color = DB::$V->incRE($color1[(string)$div], $i, '/^#[0-9A-Fa-f]{3,6}$/');
+          $color = DB::$V->incRE($color1[(string)$div], $i, '/^#[0-9A-Fa-f]{3,6}$/');
+          if ($color !== null)
+            $sail->color = $color[0];
           $rotation->setSail($sail);
+
+          if (!isset($s1[$sail->sail])) {
+            $s1[$sail->sail] = $sail->sail;
+            $c1[] = $sail->color;
+          }
 
           $sail = new Sail();
           $sail->race = $r;
           $sail->team = $r->tr_team2;
           $sail->sail = $sails2[(string)$div][$i];
-          $sail->color = DB::$V->incRE($color2[(string)$div], $i, '/^#[0-9A-Fa-f]{3,6}$/');
+          $color = DB::$V->incRE($color2[(string)$div], $i, '/^#[0-9A-Fa-f]{3,6}$/');
+          if ($color !== null)
+            $sail->color = $color[0];
           $rotation->setSail($sail);
+
+          if (!isset($s2[$sail->sail])) {
+            $s2[$sail->sail] = $sail->sail;
+            $c2[] = $sail->color;
+          }
         }
       }
 
@@ -233,6 +297,34 @@ class TeamSailsPane extends AbstractPane {
           $label[] = $round;
         $label = implode(", ", $label);
       }
+
+      // Save?
+      $name = DB::$V->incString($args, 'name', 1, 51);
+      if ($name !== null) {
+        $rot = null;
+        foreach ($this->REGATTA->getTeamRotations() as $prev) {
+          if ($prev->name == $name) {
+            $rot = $prev;
+            break;
+          }
+        }
+        if ($rot === null) {
+          $rot = new Regatta_Rotation();
+          $rot->name = $name;
+          $rot->regatta = $this->REGATTA;
+        }
+
+        $rot->rotation = new TeamRotation();
+
+        $rot->rotation->sails1 = array_values($s1);
+        $rot->rotation->colors1 = $c1;
+        $rot->rotation->sails2 = array_values($s2);
+        $rot->rotation->colors2 = $c2;
+
+        DB::set($rot);
+        Session::pa(new PA(sprintf("Saved the rotation as \"%s\".", $name)));
+      }
+
       Session::pa(new PA(sprintf("Rotation assigned for %s.", $label)));
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       $this->redirect('rotations');

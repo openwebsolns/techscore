@@ -503,3 +503,7 @@ delete from rp where sailor is null;
 
 -- associate color with sail (optional)
 alter table rotation add column color varchar(7) default null comment "Hex code, including hash";
+
+-- remember team rotations --
+create table regatta_rotation (id int primary key auto_increment, regatta int(5) not null, rotation text not null, name varchar(50) not null) engine=innodb;
+alter table regatta_rotation add foreign key (regatta) references regatta(id) on delete cascade on update cascade;

@@ -27,8 +27,8 @@ function checkRotation() {
     }
 }
 
-function changeOtherSails(master) {
-    // TODO
+function updateRotationStyle(select) {
+    select.style.background = select.value;
 }
 
 var old = window.onload;
@@ -38,7 +38,7 @@ window.onload = function(evt) {
 
     var inputs = document.getElementsByTagName("input");
     for (var i = 0; i < inputs.length; i++) {
-        if (inputs[i].type == "text") {
+        if (inputs[i].type == "text" && inputs[i].name != "name") {
             SAIL_INPUTS.push(inputs[i]);
             inputs[i].onchange = checkRotation;
         }
@@ -53,16 +53,16 @@ window.onload = function(evt) {
     inputs = document.getElementsByTagName("select");
     var masterChangeFactory = function(master, slaves) {
         return function(evt) {
-            master.style.background = master.value;
+            updateRotationStyle(master);
             for (var i = 0; i < slaves.length; i++) {
                 slaves[i].value = master.value;
-                slaves[i].style.background = master.value;
+                updateRotationStyle(slaves[i]);
             }
         };
     };
     var slaveChangeFactory = function(sel) {
         return function(evt) {
-            sel.style.background = sel.value;
+            updateRotationStyle(sel);
         };
     };
 
@@ -83,6 +83,7 @@ window.onload = function(evt) {
             inputs[i].onchange = slaveChangeFactory(inputs[i]);
             inputs[i].classList.add("tr-slave");
         }
+        updateRotationStyle(inputs[i]);
     }
     if (masters["1"] != null) {
         masters["1"].onchange = masterChangeFactory(masters["1"], slaves["1"]);

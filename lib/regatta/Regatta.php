@@ -1790,6 +1790,19 @@ class FullRegatta extends DBObject {
   }
 
   // ------------------------------------------------------------
+  // Saved team rotation templates
+  // ------------------------------------------------------------
+
+  /**
+   * Get all the saved rotations for this regatta
+   *
+   * @return Array:Regatta_Rotation
+   */
+  public function getTeamRotations() {
+    return DB::getAll(DB::$REGATTA_ROTATION, new DBCond('regatta', $this->id));
+  }
+
+  // ------------------------------------------------------------
   // Regatta creation
   // ------------------------------------------------------------
 
