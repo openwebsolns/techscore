@@ -838,3 +838,7 @@ h4 a:hover {
     background: #eee;
     color: #eee;
 }
+
+#tr-rankgroup-table th, #tr-rankgroup-table td {
+    text-align: left;
+}

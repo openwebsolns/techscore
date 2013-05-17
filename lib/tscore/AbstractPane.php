@@ -87,7 +87,8 @@ abstract class AbstractPane {
 					    "penalty"  => "TeamEnterPenaltyPane",
 					    "drop-penalty" => "DropPenaltyPane",
 					    "team-penalty" => "TeamPenaltyPane"),
-                       "Ranks"     => array("rank"        => "RankTeamsPane"),
+                       "Ranks"     => array("rank"        => "RankTeamsPane",
+                                            "groups"      => "TeamRankGroupPane"),
                        );
     }
     else {
@@ -313,6 +314,12 @@ abstract class AbstractPane {
 	return null;
       require_once('tscore/RankTeamsPane.php');
       return new RankTeamsPane($r, $u);
+    case 'group':
+    case 'groups':
+      if ($u->scoring != Regatta::SCORING_TEAM)
+	return null;
+      require_once('tscore/TeamRankGroupPane.php');
+      return new TeamRankGroupPane($r, $u);
     case 'add-penalty':
     case 'penalties':
     case 'penalty':
@@ -438,6 +445,7 @@ abstract class AbstractPane {
     case 'EnterPenaltyPane':
     case 'TeamEnterPenaltyPane':
     case 'RankTeamsPane':
+    case 'TeamRankGroupPane':
     case 'RpMissingPane':
       return $this->has_scores;
 
@@ -534,6 +542,7 @@ abstract class AbstractPane {
                                "EnterPenaltyPane" => "penalty",
 			       "TeamEnterPenaltyPane" => "penalty",
 			       "RankTeamsPane" => "rank",
+                               "TeamRankGroupPane" => "group",
                                "DropPenaltyPane" => "drop-penalty",
                                "TeamPenaltyPane" => "team-penalty");
 
@@ -563,6 +572,7 @@ abstract class AbstractPane {
                                  "EnterPenaltyPane" => "Add penalty",
 				 "TeamEnterPenaltyPane" => "Add penalty",
 				 "RankTeamsPane" => "Rank teams",
+                                 "TeamRankGroupPane" => "Rank groups",
                                  "DropPenaltyPane" => "Drop penalty",
                                  "TeamPenaltyPane" => "Team penalty");
 }

@@ -142,12 +142,13 @@ class RankTeamsPane extends AbstractPane {
     // ------------------------------------------------------------
     // All ranks
     // ------------------------------------------------------------
-    $this->PAGE->addContent(new XP(array(), "Use this pane to set the rank for the teams in the regatta. By default, teams are ranked by the system according to win percentage, but tie breaks must be broken manually."));
-    $this->PAGE->addContent(new XP(array(), "To edit a particular team's record by setting which races count towards their record, click on the win-loss record for that team. Remember to click \"Set ranks\" to save the order before editing a team's record."));
-    $this->PAGE->addContent(new XP(array(), "Use the \"Lock\" checkbox to lock/unlock a team's rank in the regatta. When locked, the rank will not change when new finishes are entered."));
-    $this->PAGE->addContent(new XP(array('class'=>'warning'), sprintf("Please note that %s will re-rank the teams with every new race scored.", Conf::$NAME)));
+    $this->PAGE->addContent($p = new XPort("Manually rank the teams"));
+    $p->add(new XP(array(), "Use this form to set the rank for the teams in the regatta. By default, teams are ranked by the system according to win percentage, but tie breaks must be broken manually."));
+    $p->add(new XP(array(), "To edit a particular team's record by setting which races count towards their record, click on the win-loss record for that team. Remember to click \"Set ranks\" to save the order before editing a team's record."));
+    $p->add(new XP(array(), "Use the \"Lock\" checkbox to lock/unlock a team's rank in the regatta. When locked, the rank will not change when new finishes are entered."));
+    $p->add(new XP(array('class'=>'warning'), sprintf("Please note that %s will re-rank the teams with every new race scored.", Conf::$NAME)));
 
-    $this->PAGE->addContent($f = $this->createForm());
+    $p->add($f = $this->createForm());
     $f->add($tab = new XQuickTable(array('id'=>'ranktable', 'class'=>'teamtable'),
                                    array("#", "Record", "Team", "Explanation", "Lock")));
     foreach ($this->REGATTA->getRankedTeams() as $i => $team) {

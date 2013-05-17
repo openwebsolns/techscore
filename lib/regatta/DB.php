@@ -1182,6 +1182,7 @@ class Team extends DBObject {
   protected $school;
   protected $regatta; // change to protected when using DBM
 
+  public $rank_group;
   public $lock_rank;
 
   public $dt_rank;

@@ -7,8 +7,8 @@
  * @package regatta
  */
 
-require_once('regatta/ICSARanker.php');
-require_once('regatta/Rank.php');
+require_once('ICSARanker.php');
+require_once('Rank.php');
 
 /**
  * Ranks a team-racing regatta according to win percentages.
@@ -26,29 +26,21 @@ class ICSATeamRanker extends ICSARanker {
   /**
    * Ranks the team according to their winning percentages.
    *
-   * Respect the locked ranks
+   * Respect the locked ranks, and also the groupings
    */
   public function rank(FullRegatta $reg, $races = null) {
+    $divisions = $reg->getDivisions();
     if ($races === null)
       $races = $reg->getScoredRaces(Division::A());
 
-    $divisions = $reg->getDivisions();
-    // keep separate maps for locked ranks
-    $locked_records = array();
-    $open_records = array();
+    // Determine records for each team in given races
+    $records = array();
     foreach ($races as $race) {
       // initialize TeamRank objects
-      $myList =& $open_records;
-      $theirList =& $open_records;
-      if ($race->tr_team1->lock_rank !== null)
-        $myList =& $locked_records;
-      if ($race->tr_team2->lock_rank !== null)
-        $theirList =& $locked_records;
-
-      if (!isset($myList[$race->tr_team1->id]))
-	$myList[$race->tr_team1->id] = new TeamRank($race->tr_team1);
-      if (!isset($theirList[$race->tr_team2->id]))
-	$theirList[$race->tr_team2->id] = new TeamRank($race->tr_team2);
+      if (!isset($records[$race->tr_team1->id]))
+        $records[$race->tr_team1->id] = new TeamRank($race->tr_team1);
+      if (!isset($records[$race->tr_team2->id]))
+        $records[$race->tr_team2->id] = new TeamRank($race->tr_team2);
 
       $a_finishes = $reg->getFinishes($race);
       if (count($a_finishes) > 0) {
@@ -71,33 +63,57 @@ class ICSATeamRanker extends ICSARanker {
 	}
 	if ($race->tr_ignore1 === null) {
 	  if ($myScore < $theirScore)
-	    $myList[$race->tr_team1->id]->wins++;
+	    $records[$race->tr_team1->id]->wins++;
 	  elseif ($myScore > $theirScore)
-	    $myList[$race->tr_team1->id]->losses++;
+	    $records[$race->tr_team1->id]->losses++;
 	  else
-	    $myList[$race->tr_team1->id]->ties++;
+	    $records[$race->tr_team1->id]->ties++;
 	}
 	if ($race->tr_ignore2 === null) {
 	  if ($myScore < $theirScore)
-	    $theirList[$race->tr_team2->id]->losses++;
+	    $records[$race->tr_team2->id]->losses++;
 	  elseif ($myScore > $theirScore)
-	    $theirList[$race->tr_team2->id]->wins++;
+	    $records[$race->tr_team2->id]->wins++;
 	  else
-	    $theirList[$race->tr_team2->id]->ties++;
+	    $records[$race->tr_team2->id]->ties++;
 	}
       }
     }
 
-    // Add other teams not in list of races
-    foreach ($reg->getTeams() as $team) {
-      $list =& $open_records;
-      if ($team->lock_rank !== null)
-        $list =& $locked_records;
-      if (!isset($list[$team->id]))
-        $list[$team->id] = new TeamRank($team);
+    $min_rank = 1;
+    $all_ranks = array();
+    foreach ($reg->getTeamsInRankGroups() as $group) {
+      $group = $this->rankGroup($reg, $races, $group, $records, $min_rank);
+      foreach ($group as $rank)
+        $all_ranks[] = $rank;
+      $min_rank += count($group);
+    }
+    return $all_ranks;
+  }
+
+  /**
+   * Ranks the team according to their winning percentages.
+   *
+   * Respect the locked ranks, and also the groupings
+   */
+  public function rankGroup(FullRegatta $reg, $races, $teams, &$ranks, $min_rank) {
+    $max_rank = $min_rank + count($teams) - 1;
+
+    // separate teams into "locked" and "open" groups
+    $locked_records = array();
+    $open_records = array();
+    foreach ($teams as $team) {
+      $rank = (isset($ranks[$team->id])) ? $ranks[$team->id] : new TeamRank($team);
+      if ($team->lock_rank !== null && $team->dt_rank !== null) {
+        if ($team->dt_rank < $min_rank || $team->dt_rank > $max_rank)
+          throw new InvalidArgumentException(sprintf("Locked rank of %d for %s outside the range of group %d-%d.", $team, $team->dt_rank, $min_rank, $max_rank));
+        $locked_records[] = $rank;
+      }
+      else
+        $open_records[] = $rank;
     }
 
-    $open_records = $this->order(array_values($open_records));
+    $open_records = $this->order($open_records);
     usort($locked_records, function(TeamRank $r1, TeamRank $r2) {
         if ($r1->team->dt_rank < $r2->team->dt_rank)
           return -1;
@@ -111,7 +127,7 @@ class ICSATeamRanker extends ICSARanker {
     $openIndex = 0; $lockedIndex = 0;
     $prevRank = null;
     while ($openIndex < count($open_records) && $lockedIndex < count($locked_records)) {
-      if (($prevRank === null && $locked_records[$lockedIndex]->team->dt_rank == 1) ||
+      if (($prevRank === null && $locked_records[$lockedIndex]->team->dt_rank == $min_rank) ||
           ($prevRank !== null && $locked_records[$lockedIndex]->team->dt_rank <= $prevRank->rank + 1)) {
 
         $locked_records[$lockedIndex]->rank = $locked_records[$lockedIndex]->team->dt_rank;
@@ -123,7 +139,7 @@ class ICSATeamRanker extends ICSARanker {
       if ($prevRank === null ||
           $prevRank->team->lock_rank !== null ||
           $this->compare($prevRank, $open_records[$openIndex]) != 0) {
-        $open_records[$openIndex]->rank = count($records) + 1;
+        $open_records[$openIndex]->rank = $min_rank + count($records);
       }
       else {
         $open_records[$openIndex]->rank = $prevRank->rank;
@@ -140,7 +156,7 @@ class ICSATeamRanker extends ICSARanker {
     }
     while ($openIndex < count($open_records)) {
       if ($prevRank === null || $this->compare($prevRank, $open_records[$openIndex]) != 0) {
-        $open_records[$openIndex]->rank = count($records) + 1;
+        $open_records[$openIndex]->rank = $min_rank + count($records);
       }
       else {
         $open_records[$openIndex]->rank = $prevRank->rank;

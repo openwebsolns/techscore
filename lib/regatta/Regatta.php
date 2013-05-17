@@ -1790,6 +1790,46 @@ class FullRegatta extends DBObject {
   }
 
   // ------------------------------------------------------------
+  // Rank groups
+  // ------------------------------------------------------------
+
+  /**
+   * Return the teams grouped by ordered rank groups
+   *
+   * @param Rank_Group $group
+   * @return Array:Array:Team
+   */
+  public function getTeamsInRankGroups() {
+    $groups = array();
+    $ungrouped = array();
+    foreach ($this->getTeams() as $team) {
+      if ($team->rank_group === null)
+        $ungrouped[] = $team;
+      else {
+        if (!isset($groups[$team->rank_group]))
+          $groups[$team->rank_group] = array();
+        $groups[$team->rank_group][] = $team;
+      }
+    }
+    ksort($groups, SORT_NUMERIC);
+    $groups = array_values($groups);
+    if (count($ungrouped) > 0)
+      $groups[] = $ungrouped;
+    return $groups;
+  }
+
+  /**
+   * Removes all the rank groups in use for this regatta
+   *
+   */
+  public function dissolveRankGroups() {
+    foreach ($this->getTeams() as $team) {
+      $team->rank_group = null;
+      DB::set($team, true);
+    }
+  }
+
+  // ------------------------------------------------------------
   // Saved team rotation templates
   // ------------------------------------------------------------
 
