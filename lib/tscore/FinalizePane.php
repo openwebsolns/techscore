@@ -36,7 +36,10 @@ class FinalizePane extends AbstractPane {
     $mess = "No middle races unscored.";
     $icon = $VALID;
     if (count($list) > 0) {
-      $mess = "The following races must be scored: " . implode(", ", $list);
+      $nums = array();
+      foreach ($list as $race)
+        $nums[] = $race->number;
+      $mess = "The following races must be scored: " . DB::makeRange($nums);
       $icon = $ERROR;
       $can_finalize = false;
     }
@@ -137,6 +140,15 @@ class FinalizePane extends AbstractPane {
         $this->REGATTA->removeRace($race);
         $removed++;
       }
+
+      if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
+        // Lock scores
+        foreach ($this->REGATTA->getRankedTeams() as $team) {
+          $team->lock_rank = 1;
+          DB::set($team);
+        }
+      }
+
       DB::set($this->REGATTA);
       Session::pa(new PA("Regatta has been finalized."));
       if ($removed > 0)
