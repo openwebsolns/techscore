@@ -289,6 +289,11 @@ class DBM {
     // Update ID if necessary
     if ($obj->id === null)
       $obj->id = self::connection()->insert_id;
+    elseif ($obj->db_get_cache()) {
+      $i = get_class($obj) . '_' . $obj->id;
+      if (isset(self::$objs[$i]))
+        self::$objs[$i] = $obj;
+    }
   }
 
   public static function prepSet(DBObject $obj, $update = "guess") {
