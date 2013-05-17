@@ -148,19 +148,43 @@ class RankTeamsPane extends AbstractPane {
     $p->add(new XP(array(), "Use the \"Lock\" checkbox to lock/unlock a team's rank in the regatta. When locked, the rank will not change when new finishes are entered."));
     $p->add(new XP(array('class'=>'warning'), sprintf("Please note that %s will re-rank the teams with every new race scored.", Conf::$NAME)));
 
+    // group the teams
+    $groups = array();
+    $ungrouped = array();
+    foreach ($this->REGATTA->getRankedTeams() as $team) {
+      if ($team->rank_group === null)
+        $ungrouped[] = $team;
+      else {
+        if (!isset($groups[$team->rank_group]))
+          $groups[$team->rank_group] = array();
+        $groups[$team->rank_group][] = $team;
+      }
+    }
+    if (count($ungrouped) > 0)
+      $groups[] = $ungrouped;
+
     $p->add($f = $this->createForm());
     $f->add($tab = new XQuickTable(array('id'=>'ranktable', 'class'=>'teamtable'),
                                    array("#", "Record", "Team", "Explanation", "Lock")));
-    foreach ($this->REGATTA->getRankedTeams() as $i => $team) {
-      $tab->addRow(array(new XTD(array(), array(new XTextInput('rank[]', $team->dt_rank, array('size'=>2)),
-                                                new XHiddenInput('team[]', $team->id))),
-			 new XA($this->link('rank', array('team' => $team->id)), $team->getRecord()),
-                         new XTD(array('class'=>'drag'), $team),
-			 new XTextInput('explanation[]', $team->dt_explanation),
-                         $chk = new XCheckboxInput('lock_rank[]', $team->id, array('size'=>2))),
-                   array('class'=>'sortable row' . ($i % 2)));
-      if ($team->lock_rank !== null)
-        $chk->set('checked', 'checked');
+    $min = 1;
+    $i = 0;
+    foreach ($groups as $group) {
+      $max = $min + count($group) - 1;
+      if (count($groups) > 1)
+        $tab->addRow(array(new XTD(array('colspan'=>5, 'class'=>'tr-rank-group'), sprintf("Ranks %d-%d", $min, $max))));
+      foreach ($group as $team) {
+        $tab->addRow(array(new XTD(array(), array(new XInput('number', 'rank[]', $team->dt_rank, array('size'=>2, 'min'=>$min, 'max'=>$max, 'step'=>1)),
+                                                  new XHiddenInput('team[]', $team->id))),
+                           new XA($this->link('rank', array('team' => $team->id)), $team->getRecord()),
+                           new XTD(array('class'=>'drag'), $team),
+                           new XTextInput('explanation[]', $team->dt_explanation),
+                           $chk = new XCheckboxInput('lock_rank[]', $team->id, array('size'=>2))),
+                     array('class'=>'sortable row' . ($i++ % 2)));
+        if ($team->lock_rank !== null)
+          $chk->set('checked', 'checked');
+      }
+
+      $min = $max + 1;
     }
     $f->add(new XSubmitP('set-ranks', "Set ranks"));
   }
@@ -222,11 +246,38 @@ class RankTeamsPane extends AbstractPane {
       // get list of locked teams
       $locked = DB::$V->incList($args, 'lock_rank', null, array());
 
+      // rank groups help ascertain that assigned rank is not outside range
+      $groups = array();
+      $ungrouped = array();
       // Fetch the old rankings as we need these objects to update the
       // division rankings
       $default_rankings = array();
-      foreach ($this->REGATTA->getRanker()->rank($this->REGATTA) as $r)
+      foreach ($this->REGATTA->getRanker()->rank($this->REGATTA) as $r) {
         $default_rankings[$r->team->id] = $r;
+        if ($r->team->rank_group === null)
+          $ungrouped[] = $r->team;
+        else {
+          if (!isset($groups[$r->team->rank_group]))
+            $groups[$r->team->rank_group] = array();
+          $groups[$r->team->rank_group][] = $r->team;
+        }
+      }
+
+      if (count($ungrouped) > 0)
+        $groups[] = $ungrouped;
+
+      $min_ranks = array();
+      $max_ranks = array();
+      $min = 1;
+      foreach ($groups as $group) {
+        $max = $min + count($group) - 1;
+        foreach ($group as $team) {
+          $min_ranks[$team->id] = $min;
+          $max_ranks[$team->id] = $max;
+        }
+        $min = $max + 1;
+      }
+      
 
       $divisions = $this->REGATTA->getDivisions();
       $ranks = array();
@@ -237,6 +288,8 @@ class RankTeamsPane extends AbstractPane {
           throw new SoterException("Invalid team provided.");
 	if ($rank[$i] != $prevRank && $rank[$i] != $nextRank)
 	  throw new SoterException("Invalid order provided.");
+        if ($rank[$i] < $min_ranks[$id] || $rank[$i] > $max_ranks[$id])
+          throw new SoterException(sprintf("Provided rank for %s is outside allowed range.", $teams[$id]));
 
 	$nextRank++;
 	$prevRank = $rank[$i];
