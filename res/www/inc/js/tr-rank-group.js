@@ -172,7 +172,7 @@ function initRankGroup() {
         }
     }
     if (ungrouped.length > 0)
-        RANK_GROUPS[max_val + 1] = ungrouped;
+        RANK_GROUPS[String(max_val + 1)] = ungrouped;
 
     var td, row, newRow;
 
@@ -206,6 +206,8 @@ function initRankGroup() {
 	};
 
         val = row.childNodes[0].childNodes[0].value;
+        if (val.length == 0)
+            val = "1";
         if (prevValue == null || prevValue != val) {
             newRow = document.createElement("tr");
             td = document.createElement("td");
