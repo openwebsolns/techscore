@@ -22,6 +22,7 @@ class TeamRankGroupPane extends AbstractPane {
     // ------------------------------------------------------------
     // Set groups
     // ------------------------------------------------------------
+    $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/tr-rank-group.js')));
     $this->PAGE->addContent($p = new XPort("Group teams"));
     $p->add($form = $this->createForm());
     $form->add(new XP(array(), "Use this form to limit the minimum and maximum ranks allowed for each team. This is done by placing the teams into \"rank groups\". These limits will be taken into consideration when auto-ranking the teams, as is the case with every new score entered."));
@@ -42,7 +43,7 @@ class TeamRankGroupPane extends AbstractPane {
       $form->add(new XP(array('class'=>'warning'),
                         array(new XStrong("Warning:"),
                               " Teams whose ranks are locked may have to be unlocked if the locked rank lies outside range of possible ranks assigned above.")));
-    $form->add(new XSubmitP('set-groups', "Set groups"));
+    $form->add(new XSubmitP('set-groups', "Set groups", array('id'=>'submit-input')));
 
     // ------------------------------------------------------------
     // Remove groups

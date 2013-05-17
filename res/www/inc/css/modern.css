@@ -842,3 +842,25 @@ h4 a:hover {
 #tr-rankgroup-table th, #tr-rankgroup-table td {
     text-align: left;
 }
+#tr-rankgroup-table td {
+    padding: 0.25em 0.5em;
+}
+
+#tr-rankgroup-table .tr-js-drag {
+    text-align: center;
+    font-size: 90%;
+    color: #888;
+    cursor: cell;
+}
+#tr-rankgroup-table .tr-js-grouplabel {
+    text-align: center;
+    font-weight: bold;
+    font-size: 90%;
+    cursor: not-allowed;
+}
+.js-moving {
+    opacity: 0.5;
+}
+.js-moving > .tr-js-grouplabel {
+    opacity: 1;
+}
