@@ -174,8 +174,11 @@ class ICSATeamRanker extends ICSARanker {
   private function order(Array $teams, $lower = 0, $upper = null) {
     if ($upper === null)
       $upper = count($teams);
-    if (($upper - $lower) < 2)
+    if (count($teams) == 0)
+      return array();
+    if (($upper - $lower) < 2) {
       return array($teams[$lower]);
+    }
     $mid = floor(($upper + $lower) / 2);
 
     $left = $this->order($teams, $lower, $mid);
