@@ -646,3 +646,11 @@ div.stat .prefix {
     text-align: center;
     font-size: 75%;
 }
+td.tr-sail {
+    font-size: 80%;
+    font-weight: bold;
+    padding: 0 0.35em;
+    text-align: center;
+    color: #ddd;
+    text-shadow: 1px 1px 0px #222;
+}
