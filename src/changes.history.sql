@@ -510,3 +510,6 @@ alter table regatta_rotation add foreign key (regatta) references regatta(id) on
 
 -- allow for rank groups, ways to box teams into certain ranks for team racing
 alter table team add column rank_group tinyint unsigned default null after lock_rank;
+
+-- lock all ranks for finalized regattas
+update team set lock_rank = 1 where regatta in (select id from regatta where scoring = "team" and finalized is not null);
