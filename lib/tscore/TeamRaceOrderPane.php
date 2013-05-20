@@ -322,6 +322,7 @@ function addTeamToRound(id) {
         }
       }
       Session::pa(new PA("Races sorted according to template."));
+      $this->redirect('race-order');
     }
 
     // ------------------------------------------------------------
