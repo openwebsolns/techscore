@@ -131,6 +131,9 @@ class AllAmerican extends AbstractUserPane {
     // requests that non-women's regattas may also be chosen for
     // inclusion. Note that male sailors should NOT be included in the
     // list of automatic sailors.
+    //
+    // For crew reports, do not include regattas with no crews in
+    // them, whether singlehanded or otherwise
     // ------------------------------------------------------------
     if (count($this->AA['regattas']) == 0) {
       $prog->add(new XSubmitInput('unset-regattas', "Regattas", array('id'=>'progress-active', 'disabled'=>'disabled')));
@@ -171,7 +174,8 @@ class AllAmerican extends AbstractUserPane {
         $cattr = array('id'=>$id);
 
         if ($reg->finalized === null ||
-            ($this->AA['report-type'] == self::TYPE_COED && $reg->participant != Regatta::PARTICIPANT_COED)) {
+            ($this->AA['report-type'] == self::TYPE_COED && $reg->participant != Regatta::PARTICIPANT_COED) ||
+            ($this->AA['report-role'] == RP::CREW && $reg->getRpManager()->getMaximumCrewsAllowed() == 0)) {
           $rattr['class'] = 'disabled';
           $cattr['disabled'] = 'disabled';
           $invalid_regattas++;

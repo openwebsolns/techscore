@@ -241,6 +241,20 @@ class RpManager {
     return (count($tot) >= $sum);
   }
 
+  /**
+   * Convenience method returns the maximum number of crews
+   *
+   * Considers all the boats used in all the races for this regatta
+   */
+  public function getMaximumCrewsAllowed() {
+    $max = 0;
+    foreach ($this->regatta->getBoats() as $boat) {
+      if ($boat->max_crews > $max)
+        $max = $boat->max_crews;
+    }
+    return $max;
+  }
+
   // Static variable and functions
 
   /**
