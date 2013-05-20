@@ -183,19 +183,23 @@ class TeamRacesPane extends AbstractPane {
 			   new XA($this->link('race-order'), "Order races"),
 			   " pane.")));
     }
-    elseif (count($this->REGATTA->getRacesCarriedOver($round)) > 0) {
-      $p->add(new XP(array('class'=>'warning'),
-		     array(new XStrong("Note:"), " Some races in this round are carried over to other rounds. Because of this, this round may not be deleted, as this would create incomplete round robins elsewhere. To delete this round, you must first delete all relying rounds.")));
-    }
     else {
-      $p->add(new XP(array('class'=>'warning'),
-		     array(new XStrong("Note:"), " Deleting the round will also delete all the races in the round and all information associated with that race, including finishes, penalties, and rotations.")));
-      $attr = array('onclick'=>'return confirm("Are you sure you wish to delete this round\ncurrently underway? All score data will be lost.");');
+      $slaves = $round->getSlaves();
+      if (count($slaves) > 0) {
+        $p->add(new XP(array('class'=>'warning'),
+                       array(new XStrong("Note:"),
+                             sprintf(" Races in this round are carried over to %s. Because of this, this round may not be deleted, as this would create incomplete round robins. To delete this round, you must first delete the dependent rounds above.", implode(", ", $slaves)))));
+      }
+      else {
+        $p->add(new XP(array('class'=>'warning'),
+                       array(new XStrong("Note:"), " Deleting the round will also delete all the races in the round and all information associated with that race, including finishes, penalties, and rotations.")));
+        $attr = array('onclick'=>'return confirm("Are you sure you wish to delete this round\ncurrently underway? All score data will be lost.");');
 
-      $p->add($form = $this->createForm());
-      $form->add(new XP(array('class'=>'p-submit'),
-			array(new XSubmitInput('delete-round', "Delete", $attr),
-			      new XHiddenInput('round', $round->id))));
+        $p->add($form = $this->createForm());
+        $form->add(new XP(array('class'=>'p-submit'),
+                          array(new XSubmitInput('delete-round', "Delete", $attr),
+                                new XHiddenInput('round', $round->id))));
+      }
     }
 
     $this->PAGE->addContent($p = new XPort("Races order"));
@@ -258,7 +262,7 @@ class TeamRacesPane extends AbstractPane {
         $round = $rounds[$rid];
 
         // does this round depend on others?
-        foreach ($this->REGATTA->getRoundsCarriedOver($round) as $other) {
+        foreach ($round->getMasters() as $other) {
           if (!isset($edited[$other->id]))
             throw new SoterException(sprintf("Round \"%s\" must come after \"%s\" because it contains races carried over.", $round, $other));
         }
@@ -331,7 +335,7 @@ class TeamRacesPane extends AbstractPane {
       if ($round->round_group !== null)
 	throw new SoterException("Round cannot be deleted until it is unlinked from its round group.");
 
-      if (count($this->REGATTA->getRacesCarriedOver($round)) > 0)
+      if (count($round->getSlaves()) > 0)
 	throw new SoterException("Round cannot be deleted because some races are carried over to other rounds.");
 
       // Check that there are no finishes
@@ -411,6 +415,11 @@ class TeamRacesPane extends AbstractPane {
       $divs = $this->REGATTA->getDivisions();
       $racenum = count($this->REGATTA->getRaces(Division::A()));
       foreach ($this->REGATTA->getRacesInRound($templ, Division::A()) as $race) {
+        if ($race->round != $templ) {
+          $race->addRound($round);
+          continue;
+        }
+
 	$racenum++;
 	$num_added++;
 	foreach ($divs as $div) {
@@ -433,8 +442,13 @@ class TeamRacesPane extends AbstractPane {
 	  DB::set($newrace, false);
 	}
       }
+
+      // Also associate masters
+      foreach ($templ->getMasters() as $master)
+        $round->addMaster($master);
+
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
-      Session::pa(new PA(array(sprintf("Added new round %s with %d race(s). ", $round, $num_added),
+      Session::pa(new PA(array(sprintf("Added new round %s based on %s. ", $round, $templ),
 			       new XA($this->link('race-order', array('order-rounds'=>'', 'round'=>array($round->id))), "Order races"),
 			       ".")));
     }
@@ -474,9 +488,14 @@ class TeamRacesPane extends AbstractPane {
       // Previous races
       $prev_races = array(); // map of "<teamID>-<teamID>" => [Race,
 			     // ...]
+      $master_rounds = array();
       foreach (DB::$V->incList($args, 'duplicate-round') as $r) {
 	if (!isset($rounds[$r]))
 	  throw new SoterException("Invalid previous round from which to carry over races.");
+        if (isset($master_rounds[$r]))
+          throw new SoterException("Same master round specified more than once.");
+        $master_rounds[$r] = $rounds[$r];
+
 	foreach ($this->REGATTA->getRacesInRound($rounds[$r], Division::A(), false) as $race) {
 	  $id = sprintf('%s-%s', $race->tr_team1->id, $race->tr_team2->id);
 	  if (!isset($prev_races[$id]))
@@ -531,6 +550,11 @@ class TeamRacesPane extends AbstractPane {
         }
         $swap = !$swap;
       }
+
+      // master slave relation
+      foreach ($master_rounds as $master)
+        $round->addMaster($master);
+
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       $mes = array("Added $num_added new races in round $round. ");
       if ($num_duplicate > 0)

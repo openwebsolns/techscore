@@ -513,3 +513,9 @@ alter table team add column rank_group tinyint unsigned default null after lock_
 
 -- lock all ranks for finalized regattas
 update team set lock_rank = 1 where regatta in (select id from regatta where scoring = "team" and finalized is not null);
+
+-- store the "carry over" intention for each round as a master-slave relation
+create table round_slave (id int primary key auto_increment, master int not null, slave int not null) engine=innodb;
+alter table round_slave add foreign key (master) references round(id) on delete cascade on update cascade, add foreign key (slave) references round(id) on delete cascade on update cascade;
+-- reverse populate master-slave relationship
+insert into round_slave (master, slave) (select distinct race.round, race_round.round from race inner join race_round on race.id = race_round.race);

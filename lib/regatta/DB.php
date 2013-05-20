@@ -52,6 +52,7 @@ class DB extends DBM {
   public static $TEXT_ENTRY = null;
   public static $RACE_ORDER = null;
   public static $REGATTA_ROTATION = null;
+  public static $ROUND_SLAVE = null;
 
   public static $OUTBOX = null;
   public static $MESSAGE = null;
@@ -105,6 +106,7 @@ class DB extends DBM {
     self::$TEXT_ENTRY = new Text_Entry();
     self::$RACE_ORDER = new Race_Order();
     self::$REGATTA_ROTATION = new Regatta_Rotation();
+    self::$ROUND_SLAVE = new Round_Slave();
     self::$DT_TEAM_DIVISION = new Dt_Team_Division();
     self::$DT_RP = new Dt_Rp();
     self::$NOW = new DateTime();
@@ -1478,6 +1480,75 @@ class Round extends DBObject {
 
   public static function compare(Round $r1, Round $r2) {
     return (int)$r1->relative_order - (int)$r2->relative_order;
+  }
+
+  /**
+   * Sets the given round as master of this round
+   *
+   * If provided round is already a master, silently ignore
+   *
+   * @param Round $master the master
+   * @throws InvalidArgumentException if $master not in same regatta, etc
+   */
+  public function addMaster(Round $master) {
+    if ($master->__get('regatta') != $this->__get('regatta'))
+      throw new InvalidArgumentException("Only rounds from same regatta can be masters.");
+    if ($master->relative_order >= $this->relative_order)
+      throw new InvalidArgumentException("Master rounds muts come before slave rounds.");
+
+    // Is it already a master?
+    foreach ($this->getMasters() as $old_master) {
+      if ($old_master->id == $master->id)
+        return;
+    }
+
+    $s = new Round_Slave();
+    $s->slave = $this;
+    $s->master = $master;
+    DB::set($s);
+    $this->_masters = null;
+  }
+
+  public function getMasters() {
+    if ($this->_masters === null) {
+      $this->_masters = array();
+      foreach (DB::getAll(DB::$ROUND_SLAVE, new DBCond('slave', $this->id)) as $rel)
+        $this->_masters[] = $rel->master;
+    }
+    return $this->_masters;
+  }
+
+  public function getSlaves() {
+    if ($this->_slaves === null) {
+      $this->_slaves = array();
+      foreach (DB::getAll(DB::$ROUND_SLAVE, new DBCond('master', $this->id)) as $rel)
+        $this->_slaves[] = $rel->slave;
+    }
+    return $this->_slaves;
+  }
+
+  private $_masters;
+  private $_slaves;
+}
+
+/**
+ * Rounds (slaves) that carry over from other rounds (masters)
+ *
+ * @author Dayan Paez
+ * @version 2013-05-20
+ */
+class Round_Slave extends DBObject {
+  protected $master;
+  protected $slave;
+
+  public function db_type($field) {
+    switch ($field) {
+    case 'master':
+    case 'slave':
+      return DB::$ROUND;
+    default:
+      return parent::db_type($field);
+    }
   }
 }
 

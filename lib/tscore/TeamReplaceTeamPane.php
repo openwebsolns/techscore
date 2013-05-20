@@ -26,7 +26,7 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
     $round = DB::$V->reqID($args, 'round', DB::$ROUND, "Invalid round ID provided.");
     if ($round->regatta != $this->REGATTA)
       throw new SoterException("Invalid round chosen.");
-    if (count($this->REGATTA->getRacesCarriedOver($round)) > 0)
+    if (count($round->getSlaves()) > 0)
       throw new SoterException(sprintf("Races from %s are being carried over. Therefore, teams cannot be substituted.", $round));
     return $round;
   }
@@ -61,7 +61,7 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
         $p->add($form = $this->createForm());
         $form->add(new XP(array(), "On the left below are all the teams that are currently participating in the chosen round. To replace a team, choose a different one from the list on the right. Leave blank for no replacement."));
 
-        $from_rounds = $this->REGATTA->getRoundsCarriedOver($round);
+        $from_rounds = $round->getMasters();
         if (count($from_rounds) > 0)
           $form->add(new XP(array('class'=>'warning'),
                             array(new XStrong("Warning:"),
@@ -98,7 +98,7 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
       $id = 'chk-' . $round->id;
       $ul->add(new XLi(array($ri = new XRadioInput('round', $round->id, array('id'=>$id)),
                              $lb = new XLabel($id, $round))));
-      if (count($this->REGATTA->getRacesCarriedOver($round)) > 0) {
+      if (count($round->getSlaves()) > 0) {
         $mes = "Races from this round are being carried over to other rounds.";
         $ri->set('disabled', 'disabled');
         $ri->set('title', $mes);
@@ -155,7 +155,7 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
       // create list of races that should be used as carry over,
       // indexed by team, then opponent, then division
       $carried_races = array();
-      foreach ($this->REGATTA->getRoundsCarriedOver($round) as $other_round) {
+      foreach ($round->getMasters() as $other_round) {
         foreach ($this->REGATTA->getRacesInRound($other_round, null, false) as $race) {
           $t1 = $race->tr_team1;
           $t2 = $race->tr_team2;
