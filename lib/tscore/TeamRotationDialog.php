@@ -92,7 +92,7 @@ class TeamRotationDialog extends AbstractDialog {
                                                new XTD(array('class'=>'team1'), $team1))));
 
       // first team
-      $sail = $rotation->getSail($race, $team1);
+      $sail = $rotation->getSail($race, $race->tr_team1);
       $row->add($s = new XTD(array('class'=>'team1 tr-sail'), $sail));
       if ($sail !== null && $sail->color !== null)
         $s->set('style', sprintf('background:%s;', $sail->color));
@@ -100,7 +100,7 @@ class TeamRotationDialog extends AbstractDialog {
       $other_races = array();
       foreach ($other_divs as $div) {
         $other_races[(string)$div] = $this->REGATTA->getRace($div, $race->number);
-        $sail = $rotation->getSail($other_races[(string)$div], $team1);
+        $sail = $rotation->getSail($other_races[(string)$div], $race->tr_team1);
         $row->add($s = new XTD(array('class'=>'team1 tr-sail'), $sail));
         if ($sail !== null && $sail->color !== null)
           $s->set('style', sprintf('background:%s;', $sail->color));
@@ -109,13 +109,13 @@ class TeamRotationDialog extends AbstractDialog {
       $row->add(new XTD(array('class'=>'vscell'), "vs"));
 
       // second team
-      $sail = $rotation->getSail($race, $team2);
+      $sail = $rotation->getSail($race, $race->tr_team2);
       $row->add($s = new XTD(array('class'=>'team2 tr-sail'), $sail));
       if ($sail !== null && $sail->color !== null)
         $s->set('style', sprintf('background:%s;', $sail->color));
 
       foreach ($other_races as $race) {
-        $sail = $rotation->getSail($race, $team2);
+        $sail = $rotation->getSail($race, $race->tr_team2);
         $row->add($s = new XTD(array('class'=>'team2 tr-sail'), $sail));
         if ($sail !== null && $sail->color !== null)
           $s->set('style', sprintf('background:%s;', $sail->color));
@@ -132,8 +132,6 @@ class TeamRotationDialog extends AbstractDialog {
    *
    */
   public function fillHTML(Array $args) {
-    $rotation = $this->REGATTA->getRotation();
-
     $this->PAGE->body->set('class', 'tr-rotation-page');
     $this->PAGE->addContent(new XP(array('class'=>'warning nonprint'),
                                    array(new XStrong("Hint:"), " to print the sail colors, enable \"Print background colors\" in your printer dialog.")));
