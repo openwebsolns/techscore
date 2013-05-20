@@ -305,12 +305,14 @@ class UpdateRegatta extends AbstractScript {
     $sync_rp = false;
 
     $rotation = false;
+    $allraces = false;
     $front = false;
     $full = false;
     $rot = $reg->getRotation();
     if (in_array(UpdateRequest::ACTIVITY_ROTATION, $activities)) {
       $sync = true;
       $rotation = true;
+      $allraces = true;
 
       // This check takes care of the fringe case when the rotation
       // is created AFTER there are already scores, etc.
@@ -325,7 +327,7 @@ class UpdateRegatta extends AbstractScript {
       $sync = true;
       $sync_rp = true; // re-rank sailors
       $front = true;
-      $rotation = true;
+      $allraces = true;
       if ($reg->hasFinishes()) {
         $full = true;
       }
@@ -352,6 +354,7 @@ class UpdateRegatta extends AbstractScript {
       $sync = true;
       $front = true;
       $rotation = true;
+      $allraces = true;
       if ($reg->hasFinishes()) {
         $full = true;
       }
@@ -381,6 +384,7 @@ class UpdateRegatta extends AbstractScript {
     if ($rotation)   $this->createRotation($D, $M);
     if ($front)      $this->createFront($D, $M);
     if ($full)       $this->createFull($D, $M);
+    if ($allraces)   $this->createAllRaces($D, $M);
   }
 
   // ------------------------------------------------------------
@@ -454,6 +458,20 @@ class UpdateRegatta extends AbstractScript {
   private function createRotation($dirname, ReportMaker $maker) {
     $path = $dirname . 'rotations/index.html';
     $page = $maker->getRotationPage();
+    self::writeXml($path, $page);
+  }
+
+  /**
+   * Creates and writes the all-races page for team racing
+   *
+   * @param String $dirname the directory
+   * @param ReportMaker $maker the maker
+   * @throws RuntimeException when writing is no good
+   * @see createFront
+   */
+  private function createAllRaces($dirname, ReportMaker $maker) {
+    $path = $dirname . 'all/index.html';
+    $page = $maker->getAllRacesPage();
     self::writeXml($path, $page);
   }
 

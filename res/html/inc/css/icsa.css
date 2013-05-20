@@ -583,19 +583,19 @@ div.stat .prefix {
     border: none;
 }
 
-.teamscorelist th {
+.teamscorelist th, .tr-rotation-table thead th {
     text-align: center;
 }
-.teamscorelist .roundrow th {
+.roundrow th {
     padding: 0.5em 0;
 }
-.teamscorelist .vscell {
+.vscell {
     text-align: center;
 }
-.teamscorelist .team1 {
+.team1 {
     text-align: right;
 }
-.teamscorelist .team2 {
+.team2 {
     text-align: left;
 }
 
@@ -637,4 +637,12 @@ div.stat .prefix {
 }
 .tr-carried {
     opacity: 0.5;
+}
+.tr-rotation-table td {
+    border-right: 0;
+    border-left: 0;
+}
+.tr-flight td {
+    text-align: center;
+    font-size: 75%;
 }

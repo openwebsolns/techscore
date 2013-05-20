@@ -21,6 +21,7 @@ class ReportMaker {
   private $rotPage;
   private $combinedPage;
   private $fullPage;
+  private $allracesPage;
   private $divPage = array();
 
   /**
@@ -183,11 +184,28 @@ class ReportMaker {
 
     if ($reg->scoring == Regatta::SCORING_TEAM) {
       $this->rotPage->head->add(new XScript('text/javascript', '/inc/js/tr-rotation-select.js'));
-      require_once('tscore/TeamRacesDialog.php');
-      $maker = new TeamRacesDialog($reg);
-      $this->rotPage->addSection($p = new XPort("All races"));
-      foreach ($maker->getTable(true) as $elem)
-        $p->add($elem);
+      require_once('tscore/TeamRotationDialog.php');
+      $maker = new TeamRotationDialog($reg);
+
+      $covered = array();
+      foreach ($this->regatta->getRounds() as $round) {
+	if (!isset($covered[$round->id])) {
+	  $covered[$round->id] = $round;
+	  $label = (string)$round;
+	  if ($round->round_group !== null) {
+	    foreach ($round->round_group->getRounds() as $i => $other) {
+	      if ($i > 0) {
+		$label .= ", " . $other;
+		$covered[$other->id] = $other;
+	      }
+	    }
+	  }
+
+	  $this->rotPage->addSection($p = new XPort($label));
+	  foreach ($maker->getTable($round, true) as $tab)
+	    $p->add($tab);
+	}
+      }
     }
     else {
       require_once('tscore/RotationDialog.php');
@@ -197,6 +215,23 @@ class ReportMaker {
         $p->add(new XRawText($maker->getTable($div, true)->toXML()));
       }
     }
+  }
+
+  protected function fillAllRaces() {
+    if ($this->allracesPage !== null) return;
+
+    $reg = $this->regatta;
+    $season = $reg->getSeason();
+    $this->allracesPage = new TPublicPage(sprintf("%s Rotations", $reg->name));
+    $this->prepare($this->allracesPage);
+    $this->allracesPage->setDescription(sprintf("Sail rotations in all races for %s's %s.", $season->fullString(), $reg->name));
+
+    $this->allracesPage->head->add(new XScript('text/javascript', '/inc/js/tr-allraces-select.js'));
+    require_once('tscore/TeamRacesDialog.php');
+    $maker = new TeamRacesDialog($reg);
+    $this->allracesPage->addSection($p = new XPort("All races"));
+    foreach ($maker->getTable(true) as $elem)
+      $p->add($elem);
   }
 
   protected function fillCombined() {
@@ -246,6 +281,9 @@ class ReportMaker {
         }
         elseif ($reg->scoring == Regatta::SCORING_COMBINED)
           $page->addMenu(new XA($url . 'divisions/', "All Divisions"));
+      }
+      if ($reg->scoring == Regatta::SCORING_TEAM) {
+	$page->addMenu(new XA($url . 'all/', "All Races"));
       }
     }
     $rot = $reg->getRotation();
@@ -331,6 +369,16 @@ class ReportMaker {
   public function getRotationPage() {
     $this->fillRotation();
     return $this->rotPage;
+  }
+
+  /**
+   * Generates the all races page
+   *
+   * @return TPublicPage
+   */
+  public function getAllRacesPage() {
+    $this->fillAllRaces();
+    return $this->allracesPage;
   }
 
   /**

@@ -3,6 +3,7 @@
  * quickly show  only a specific team's races.
  */
 
+var ROTATION_TABLE = null;
 var TEAM_ROWS = Array();
 var TEAM_ROW_MAP = {};
 var TEAM_SELECT = null;
@@ -39,40 +40,31 @@ function showRotationForTeam(evt) {
 }
 
 function initRotationSelect() {
-    var first;
-    var tables = document.getElementsByTagName("table");
-    for (var t = 0; t < tables.length; t++) {
-	if (!tables[t].classList.contains("tr-rotation-table"))
-	    continue;
+    ROTATION_TABLE = document.getElementById("rotation-table");
+    if (!ROTATION_TABLE)
+        return;
 
-	if (first == null)
-	    first = tables[t];
+    // Team names appear in columns 2 and 6
+    var tbodies = ROTATION_TABLE.getElementsByTagName("tbody");
+    for (var i = 0; i < tbodies.length; i++) {
+        var rows = tbodies[i].getElementsByTagName("tr");
+        // first row is roundrow
+        for (var j = 1; j < rows.length; j++) {
+            if (rows[j].childNodes.length < 7)
+                continue;
+            var team = extractTeamName(rows[j].childNodes[2]);
+            if (!(team in TEAM_ROW_MAP))
+                TEAM_ROW_MAP[team] = Array();
+            TEAM_ROW_MAP[team].push(rows[j]);
 
-	// Team names appear in columns 2 and 6
-	var tbodies = tables[t].getElementsByTagName("tbody");
-	for (var i = 0; i < tbodies.length; i++) {
-            var rows = tbodies[i].getElementsByTagName("tr");
-            // ignore rows with class tr-flight
-            for (var j = 0; j < rows.length; j++) {
-		if (rows[j].className.contains("tr-flight"))
-                    continue;
-		var team = extractTeamName(rows[j].childNodes[2]);
-		if (!(team in TEAM_ROW_MAP))
-                    TEAM_ROW_MAP[team] = Array();
-		TEAM_ROW_MAP[team].push(rows[j]);
+            team = extractTeamName(rows[j].childNodes[6]);
+            if (!(team in TEAM_ROW_MAP))
+                TEAM_ROW_MAP[team] = Array();
+            TEAM_ROW_MAP[team].push(rows[j]);
 
-		team = extractTeamName(rows[j].childNodes[rows[j].childNodes.length - 2]);
-		if (!(team in TEAM_ROW_MAP))
-                    TEAM_ROW_MAP[team] = Array();
-		TEAM_ROW_MAP[team].push(rows[j]);
-
-		TEAM_ROWS.push(rows[j]);
-            }
-	}
+            TEAM_ROWS.push(rows[j]);
+        }
     }
-
-    if (!first)
-	return;
 
     // Create drop down box
     var p = document.createElement("p");
@@ -96,7 +88,7 @@ function initRotationSelect() {
         TEAM_SELECT.appendChild(opt);
     }
 
-    first.parentNode.insertBefore(p, first);
+    ROTATION_TABLE.parentNode.insertBefore(p, ROTATION_TABLE);
 }
 
 var old = window.onload;
