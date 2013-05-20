@@ -34,11 +34,20 @@ class ICSATeamScorer extends ICSACombinedScorer {
     $tot = $fin->earned + $amt;
     return new Score($tot, sprintf("(%d, +%d) %s", $tot, $amt, implode(". ", $comments)));
   }
+
   protected function reorderScore(Finish $fin, FinishModifier $pen) {
+    if ($pen->amount > 0)
+      return ($pen->displace > 0) ? (int)$pen->amount : null;
+
     $bkdlist = Breakdown::getList();
     if (isset($bkdlist[$pen->type]))
-      return true;
-    return false;
+      return null;
+
+    if ($pen->type == Penalty::DNS || $pen->type == Penalty::DNF)
+      return 6;
+    if ($pen->type == Penalty::OCS)
+      return 10;
+    return null;
   }
 }
 ?>
