@@ -113,7 +113,9 @@ class TeamRaceOrderPane extends AbstractPane {
       }
       $divs = $this->REGATTA->getDivisions();
 
-      $templates = DB::getAll(DB::$RACE_ORDER, new DBCond('id', sprintf('%d-%d-%%', count($divs), count($teams)), DBCond::LIKE));
+      $templates = DB::getAll(DB::$RACE_ORDER,
+                              new DBBool(array(new DBCond('num_teams', count($teams)),
+                                               new DBCond('num_divisions', count($divs)))));
       if (count($templates) > 0) {
         $this->PAGE->head->add(new XScript('text/javascript', null, '
 var TL = null;
@@ -146,12 +148,13 @@ function addTeamToRound(id) {
         $p->add(new XP(array(), "You may choose to order the races automatically by using one of the templates below, applicable to this round. Pay close attention to the number of boats per flight. If none of the templates below apply to you, then use the manual ordering scheme below."));
         $p->add(new XP(array(), "Choose the seeding order for the round by placing incrementing numbers next to the team names."));
         $p->add($form = $this->createForm());
-        $form->add($tab = new XQuickTable(array(), array("", "Number of boats", "Rotation frequency")));
+        $form->add($tab = new XQuickTable(array(), array("", "Name", "Number of boats")));
         foreach ($templates as $template) {
           $id = 'inp-' . $template->id;
           $tab->addRow(array($ri = new XRadioInput('template', $template->id, array('id'=>$id)),
-                             new XLabel($id, $template->getNumBoats()),
-                             new XLabel($id, ($template->isFrequent()) ? "Rotate teams frequently" : "Do not rotate teams frequently")));
+                             new XLabel($id, $template->name),
+                             new XLabel($id, $template->num_boats)),
+                       array('title' => $template->description));
         }
         if (count($templates) == 1)
           $ri->set('checked', 'checked');
@@ -243,7 +246,7 @@ function addTeamToRound(id) {
       $divs = $this->REGATTA->getDivisions();
 
       $template = DB::$V->reqID($args, 'template', DB::$RACE_ORDER, "Invalid or missing template.");
-      if ($template->getNumDivisions() != count($divs))
+      if ($template->num_divisions != count($divs))
         throw new SoterException("Chosen template is incompatible with this regatta.");
 
       $round = DB::$V->reqID($args, 'round', DB::$ROUND, "Invalid or missing round.");
@@ -271,7 +274,7 @@ function addTeamToRound(id) {
         $matches[$name2][] = $race;
       }
 
-      if ($template->getNumTeams() != count($teams))
+      if ($template->num_teams != count($teams))
         throw new SoterException("Chosen template is incompatible with number of teams in round.");
 
       // Seed the teams. Seed them!
