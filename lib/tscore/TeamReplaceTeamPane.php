@@ -28,6 +28,8 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
       throw new SoterException("Invalid round chosen.");
     if (count($round->getSlaves()) > 0)
       throw new SoterException(sprintf("Races from %s are being carried over. Therefore, teams cannot be substituted.", $round));
+    if (count($round->getMasters()) > 0)
+      throw new SoterException(sprintf("Some races for %s are carried over from other rounds. This is currently not allowed."));
     return $round;
   }
 
@@ -100,6 +102,12 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
                              $lb = new XLabel($id, $round))));
       if (count($round->getSlaves()) > 0) {
         $mes = "Races from this round are being carried over to other rounds.";
+        $ri->set('disabled', 'disabled');
+        $ri->set('title', $mes);
+        $lb->set('title', $mes);
+      }
+      elseif (count($round->getMasters()) > 0) {
+        $mes = "Races for this round are carried over from other rounds.";
         $ri->set('disabled', 'disabled');
         $ri->set('title', $mes);
         $lb->set('title', $mes);
