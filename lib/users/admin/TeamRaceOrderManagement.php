@@ -20,43 +20,40 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
 
   private function fillRaceList(XPort $p, Race_Order $template) {
     $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/addSwapButton.js')));
-    $num_boats = $template->getNumBoats();
-    $num_teams = $template->getNumTeams();
-    $num_divs = $template->getNumDivisions();
 
     $p->add(new XP(array(),
-                   array("Use the list of races, grouped by flight, to enter the order in which teams should meet. ", new XStrong(sprintf("Use numbers 1 through %d to indicate which team %s will use in that race.", $num_teams, Conf::$NAME)))));
+                   array("Use the list of races, grouped by flight, to enter the order in which teams should meet. ", new XStrong(sprintf("Use numbers 1 through %d to indicate which team %s will use in that race.", $template->num_teams, Conf::$NAME)))));
     $p->add(new XP(array(),
                    array("For example, to indicate that the second and third team should meet in a race, with the teams \"swapped\", enter ", new XVar("3"), ", ", new XVar("2"), " for that race number.")));
     $p->add(new XP(array(), "A template will not be considered if every team-pairing is not present."));
 
     $p->add($form = $this->createForm());
-    $form->add(new FItem("Num. of teams:", new XStrong($num_teams)));
-    $form->add(new FItem("Num. of boats/team:", new XStrong($num_divs)));
-    $form->add(new FItem("Num. of boats:", new XStrong($num_boats)));
-    $form->add(new FItem("Rotate frequently:", ($template->isFrequent()) ? new XStrong("Yes") : new XStrong("No")));
+    $form->add(new FItem("Name:", new XTextInput('name', $template->name)));
+    $form->add(new FItem("Description:", new XTextArea('description', $template->description)));
+    $form->add(new FItem("Num. of teams:", new XStrong($template->num_teams)));
+    $form->add(new FItem("Num. of boats/team:", new XStrong($template->num_divisions)));
+    $form->add(new FItem("Num. of boats:", new XStrong($template->num_boats)));
     $form->add(new FItem("Race order:", new XSpan("(Table below)", array('class'=>'hidden'))));
 
-    $num_races = $num_teams * ($num_teams - 1) / 2;
-    $races_per_flight = $num_boats / $num_divs / 2;
+    $num_races = $template->num_teams * ($template->num_teams - 1) / 2;
+    $races_per_flight = $template->num_boats / $template->num_divisions / 2;
     for ($num = 0; $num < $num_races; $num++) {
       $pair = $template->getPair($num);
 
       if ($num % $races_per_flight == 0)
         $form->add($tab = new XQuickTable(array('class'=>'tr-order-race'), array("#", "Team A", "Team B")));
       $tab->addRow(array($num + 1,
-                         new XTextInput('team1[]', $pair[0], array('size'=>2, 'min'=>1, 'max'=>$num_teams)),
-                         new XTextInput('team2[]', $pair[1], array('size'=>2, 'min'=>1, 'max'=>$num_teams))));
+                         new XTextInput('team1[]', $pair[0], array('size'=>2, 'min'=>1, 'max'=>$template->num_teams)),
+                         new XTextInput('team2[]', $pair[1], array('size'=>2, 'min'=>1, 'max'=>$template->num_teams))));
     }
 
     if ($template->template === null) {
       $form->add(new XP(array('class'=>'p-submit'),
                         array(new XA(WS::link('/race-order'), "← Cancel"), " ",
                               new XSubmitInput('create', "Create template"),
-                              new XHiddenInput('teams', $num_teams),
-                              new XHiddenInput('boats', $num_boats),
-                              new XHiddenInput('divs', $num_divs),
-                              new XHiddenInput('freq', ($template->isFrequent()) ? 1 : 0))));
+                              new XHiddenInput('teams', $template->num_teams),
+                              new XHiddenInput('boats', $template->num_boats),
+                              new XHiddenInput('divs', $template->num_divisions))));
     }
     else {
       $form->add(new XP(array('class'=>'p-submit'),
@@ -89,20 +86,14 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     if (isset($args['create'])) {
       try {
-        $num_teams = DB::$V->reqInt($args, 'teams', 1, 100, "Invalid number of teams specified.");
-        $num_boats = DB::$V->reqInt($args, 'boats', 1, 100, "Invalid number of boats specified.");
-        $num_divs = DB::$V->reqInt($args, 'divs', 1, 5, "Invalid number of boats per team specified.");
-        if ($num_boats % ($num_divs * 2) != 0)
-          throw new SoterException("Invalid number of boats in flight given number of boats per team.");
-
-        $freq = DB::$V->incInt($args, 'freq', 1, 2, 0);
-
-        $id = Race_Order::createID($num_divs, $num_teams, $num_boats, $freq > 0);
-        if (isset($current[$id]))
-          throw new SoterException("A template already exists for these parameters. Please edit that template instead.");
-
         $template = new Race_Order();
-        $template->id = $id;
+        $template->num_teams = DB::$V->reqInt($args, 'teams', 1, 100, "Invalid number of teams specified.");
+        $template->num_boats = DB::$V->reqInt($args, 'boats', 1, 100, "Invalid number of boats specified.");
+        $template->num_divisions = DB::$V->reqInt($args, 'divs', 1, 5, "Invalid number of boats per team specified.");
+        $template->name = DB::$V->incString($args, 'name', 1, 51);
+
+        if ($template->num_boats % ($template->num_divisions * 2) != 0)
+          throw new SoterException("Invalid number of boats in flight given number of boats per team.");
 
         $this->PAGE->addContent($p = new XPort("Specify race order for new template"));
         $this->fillRaceList($p, $template);
@@ -129,8 +120,6 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
     $form->add($fi = new FItem("# of boats:", new XTextInput('boats', "", array('size'=>2))));
     $fi->add(new XMessage("Total number of boats, i.e. 18, 24"));
 
-    $form->add($fi = new FItem("Frequent rotation:", new XCheckboxInput('freq', 1, array('id'=>'chk-freq'))));
-    $fi->add(new XLabel('chk-freq', "The race order specified switches teams frequently."));
     $form->add(new XSubmitP('create', "Create template"));
 
     // ------------------------------------------------------------
@@ -143,13 +132,14 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
     }
     $p->add(new XP(array(), "Click on the \"Edit\" link next to the template name to edit that template. To delete a template, check the box in the last column and click \"Delete\" at the bottom of the form."));
     $p->add($form = $this->createForm());
-    $form->add($tab = new XQuickTable(array(), array("Teams", "Total boats", "T/B", "Freq?", "Author", "Edit", "Delete?")));
+    $form->add($tab = new XQuickTable(array('id'=>'tr-race-order'), array("Name", "Teams", "Total boats", "T/B", "Desc.", "Author", "Edit", "Delete?")));
     $rowIndex = 0;
     foreach ($current as $order) {
-      $tab->addRow(array($order->getNumTeams(),
-                         $order->getNumBoats(),
-                         $order->getNumDivisions(),
-                         ($order->isFrequent()) ? new XImg(WS::link('/inc/img/s.png'), "✓") : "",
+      $tab->addRow(array($order->name,
+                         $order->num_teams,
+                         $order->num_boats,
+                         $order->num_divisions,
+                         $order->description,
                          $order->author,
                          new XA(WS::link('/race-order', array('template'=>$order->id)), "Edit"),
                          new XCheckboxInput('template[]', $order->id)),
@@ -163,22 +153,21 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
     // Create new one
     // ------------------------------------------------------------
     if (isset($args['create'])) {
-      $num_teams = DB::$V->reqInt($args, 'teams', 1, 100, "Invalid number of teams specified.");
-      $num_boats = DB::$V->reqInt($args, 'boats', 1, 100, "Invalid number of boats specified.");
-      $num_divs = DB::$V->reqInt($args, 'divs', 1, 5, "Invalid number of boats per team specified.");
-      if ($num_boats % ($num_divs * 2) != 0)
+      $template = new Race_Order();
+      $template->num_teams = DB::$V->reqInt($args, 'teams', 1, 100, "Invalid number of teams specified.");
+      $template->num_boats = DB::$V->reqInt($args, 'boats', 1, 100, "Invalid number of boats specified.");
+      $template->num_divisions = DB::$V->reqInt($args, 'divs', 1, 5, "Invalid number of boats per team specified.");
+      if ($template->num_boats % ($template->num_divisions * 2) != 0)
         throw new SoterException("Invalid number of boats in flight given number of boats per team.");
 
-      $freq = DB::$V->incInt($args, 'freq', 1, 2, 0);
+      $template->name = DB::$V->reqString($args, 'name', 1, 51, "Invalid name provided.");
+      $template->description = DB::$V->incString($args, 'description', 1, 16000);
 
-      $id = Race_Order::createID($num_divs, $num_teams, $num_boats, $freq > 0);
-      if (DB::get(DB::$RACE_ORDER, $id) !== null)
-        throw new SoterException("A template already exists for these parameters. Please edit that template instead.");
-
-      $template = new Race_Order();
-      $template->id = $id;
       $this->processPairings($template, $args);
-      Session::pa(new PA(sprintf("Created new team race order template for %d teams in %d boats.", $num_teams, $num_boats)));
+      Session::pa(new PA(sprintf("Created new team race order template \"%s\" for %d teams in %d boats.",
+                                 $template->name,
+                                 $template->num_teams,
+                                 $template->num_boats)));
       WS::go('/race-order');
     }
 
@@ -188,9 +177,10 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
     if (isset($args['edit'])) {
       $template = DB::$V->reqID($args, 'template', DB::$RACE_ORDER, "Invalid template to edit.");
       $this->processPairings($template, $args);
-      Session::pa(new PA(sprintf("Edited template for %d teams in %d boats.",
-                                 $template->getNumTeams(),
-                                 $template->getNumBoats())));
+      Session::pa(new PA(sprintf("Edited template \"%s\" for %d teams in %d boats.",
+                                 $template->name,
+                                 $template->num_teams,
+                                 $template->num_boats)));
       WS::go('/race-order');
     }
 
@@ -215,18 +205,14 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
   }
 
   private function processPairings(Race_Order $template, Array $args) {
-    $num_teams = $template->getNumTeams();
-    $num_boats = $template->getNumBoats();
-    $num_divs = $template->getNumDivisions();
-
-    $num_races = $num_teams * ($num_teams - 1) / 2;
+    $num_races = $template->num_teams * ($template->num_teams - 1) / 2;
     $teams1 = DB::$V->reqList($args, 'team1', $num_races, "Invalid or incomplete list for \"Team A\".");
     $teams2 = DB::$V->reqList($args, 'team2', $num_races, "Invalid or incomplete list for \"Team B\".");
 
     // All handshakes must be accounted for
     $handshakes = array();
-    for ($i = 1; $i <= $num_teams; $i++) {
-      for ($j = $i + 1; $j <= $num_teams; $j++) {
+    for ($i = 1; $i <= $template->num_teams; $i++) {
+      for ($j = $i + 1; $j <= $template->num_teams; $j++) {
         $shake = sprintf("%d-%d", $i, $j);
         $handshakes[$shake] = $shake;
       }
@@ -234,8 +220,8 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
 
     $pairings = array();
     foreach ($teams1 as $i => $team1) {
-      $team1 = DB::$V->reqInt($teams1, $i, 1, $num_teams + 1, "Invalid Team A index provided.");
-      $team2 = DB::$V->reqInt($teams2, $i, 1, $num_teams + 1, "Invalid partner for Team A provided.");
+      $team1 = DB::$V->reqInt($teams1, $i, 1, $template->num_teams + 1, "Invalid Team A index provided.");
+      $team2 = DB::$V->reqInt($teams2, $i, 1, $template->num_teams + 1, "Invalid partner for Team A provided.");
       if ($team1 == $team2)
         throw new SoterException("Teams cannot sail against themselves.");
       $shake = sprintf("%d-%d", $team1, $team2);

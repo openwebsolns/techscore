@@ -864,3 +864,12 @@ h4 a:hover {
 .js-moving > .tr-js-grouplabel {
     opacity: 1;
 }
+
+#tr-race-order thead th {
+    text-align: center;
+}
+
+#tr-race-order td {
+    text-align: left;
+    padding: 0.5em 0.75em;
+}

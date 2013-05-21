@@ -2691,6 +2691,11 @@ class Text_Entry extends DBObject {
  * @version 2013-05-08
  */
 class Race_Order extends DBObject {
+  public $num_teams;
+  public $num_divisions;
+  public $num_boats;
+  public $name;
+  public $description;
   protected $template;
   protected $author;
 
@@ -2706,37 +2711,11 @@ class Race_Order extends DBObject {
     }
   }
 
-  private function getIdTerm($index) {
-    if ($this->id === null)
-      return null;
-    $terms = explode("-", $this->id);
-    if ($index < 0 || $index >= count($terms))
-      throw new InvalidArgumentException("No such term $index in ID.");
-    return $terms[$index];
-  }
-
-  public function getNumTeams() { return $this->getIdTerm(1); }
-  public function getNumBoats() { return $this->getIdTerm(2); }
-  public function getNumDivisions() { return $this->getIdTerm(0); }
-  public function isFrequent() { return $this->getIdTerm(3) > 0; }
-
   public function getPair($index) {
     if ($this->template === null || $index < 0  || $index > count($this->__get('template')))
       return array(null, null);
     $pairings = $this->__get('template');
     return explode('-', $pairings[$index]);
-  }
-
-  /**
-   * Create an ID based on parameters given
-   *
-   * @param int $num_divs the number of boats per team
-   * @param int $num_teams the number of teams
-   * @param int $num_boats the number of boats
-   * @param boolean $freq whether or not to rotate frequently
-   */
-  public static function createID($num_divs, $num_teams, $num_boats, $freq) {
-    return sprintf('%d-%d-%d-%d', $num_divs, $num_teams, $num_boats, ($freq !== false) ? 1 : 0);
   }
 }
 

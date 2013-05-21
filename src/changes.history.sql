@@ -519,3 +519,14 @@ create table round_slave (id int primary key auto_increment, master int not null
 alter table round_slave add foreign key (master) references round(id) on delete cascade on update cascade, add foreign key (slave) references round(id) on delete cascade on update cascade;
 -- reverse populate master-slave relationship
 insert into round_slave (master, slave) (select distinct race.round, race_round.round from race inner join race_round on race.id = race_round.race);
+
+-- more flexible templates (name and description)
+alter table race_order add column num_divisions tinyint unsigned not null after id, add column num_teams tinyint unsigned not null after num_divisions, add column num_boats tinyint unsigned not null after num_teams, drop primary key;
+alter table race_order change column id old_id varchar(12) not null, add column id int primary key auto_increment first;
+alter table race_order add column name varchar(50) not null after id, add column description text default null after name;
+update race_order set num_divisions = substring_index(old_id, '-', 1);
+update race_order set num_teams = substring_index(substring_index(old_id, '-', 2), '-', -1);
+update race_order set num_boats = substring_index(substring_index(old_id, '-', 3), '-', -1);
+update race_order set description = "Rotate frequently." where substring_index(old_id, '-', -1) = "1";
+update race_order set name = "Standard";
+alter table race_order drop column old_id;
