@@ -770,32 +770,6 @@ class FullRegatta extends DBObject {
   }
 
   /**
-   * Sets the teams which will participate in a given race. This is
-   * useful for team racing regattas. The teams should be already
-   * registered with the regatta.
-   *
-   * @param Race $race the race whose teams to set
-   * @param Team $team1 the first team in the race
-   * @param Team $team2 the second team in the race
-   *
-   * @throws InvalidArgumentException if there is no such race as the
-   * one given. This check is done based on race number only. For
-   * expediency, no check is done on the identities of the given
-   * teams. It is your responsibility to make sure they actually
-   * belong to this regatta.
-   *   
-   * @see getRaceTeams
-   */
-  public function setRaceTeams(Race $race, Team $team1, Team $team2) {
-    foreach ($this->getDivisions() as $division) {
-      $race = $this->getRace($division, $race->number);
-      $race->tr_team1 = $team1;
-      $race->tr_team2 = $team2;
-      DB::set($race);
-    }
-  }
-
-  /**
    * Returns an ordered list of race numbers this team is
    * participating in.
    *

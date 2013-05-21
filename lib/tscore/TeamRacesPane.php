@@ -542,9 +542,10 @@ class TeamRacesPane extends AbstractPane {
 	      $race->boat = $boat;
 	      $race->regatta = $this->REGATTA;
 	      $race->round = $round;
+              $race->tr_team1 = $pair[0];
+              $race->tr_team2 = $pair[1];
 	      DB::set($race, false);
 	    }
-	    $this->REGATTA->setRaceTeams($race, $pair[0], $pair[1]);
 	    $num_added++;
 	  }
         }
