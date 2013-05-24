@@ -169,6 +169,58 @@ abstract class AbstractUserPane {
   }
 
   /**
+   * Helper method: return XUl of seasons
+   *
+   * @param String $prefix to use for checkbox IDs
+   * @param Array:Season $preselect list of seasons to choose
+   * @return XUl
+   */
+  protected function seasonList($prefix, Array $preselect = array()) {
+    $ul = new XUl(array('class'=>'inline-list'));
+    foreach (Season::getActive() as $season) {
+      $ul->add(new XLi(array($chk = new XCheckboxInput('seasons[]', $season, array('id' => $prefix . $season)),
+                             new XLabel($prefix . $season, $season->fullString()))));
+      if (in_array($season, $preselect))
+        $chk->set('checked', 'checked');
+    }
+    return $ul;
+  }
+
+  /**
+   * Helper method: return XUl of conferences
+   *
+   * @param String $prefix to use for checkbox IDs
+   * @param Array:Conference $chosen conferences to choose, or all if empty
+   */
+  protected function conferenceList($prefix, Array $chosen = array()) {
+    $ul = new XUl(array('class'=>'inline-list'));
+    foreach (DB::getConferences() as $conf) {
+      $ul->add(new XLi(array($chk = new XCheckboxInput('confs[]', $conf, array('id' => $conf->id)),
+                             new XLabel($conf->id, $conf))));
+      if (count($chosen) == 0 || in_array($conf, $chosen))
+        $chk->set('checked', 'checked');
+    }
+    return $ul;
+  }
+
+  /**
+   * Concatenates a new CSV row to the given string
+   *
+   * @param String $name the string to which add new row
+   * @param Array:String $cells the row to add
+   */
+  protected function rowCSV(&$csv, Array $cells) {
+    $quoted = array();
+    foreach ($cells as $cell) {
+      if (is_numeric($cell))
+        $quoted[] = $cell;
+      else
+        $quoted[] = sprintf('"%s"', str_replace('"', '""', $cell));
+    }
+    $csv .= implode(',', $quoted) . "\n";
+  }
+
+  /**
    * Fill this page's content
    *
    * @param Array $args the arguments to process
@@ -287,6 +339,10 @@ abstract class AbstractUserPane {
     case 'race-orders':
       require_once('users/admin/TeamRaceOrderManagement.php');
       return new TeamRaceOrderManagement($u);
+
+    case 'team-participation':
+      require_once('users/SchoolParticipationReportPane.php');
+      return new SchoolParticipationReportPane($u);
 
     case 'account':
     case 'accounts':

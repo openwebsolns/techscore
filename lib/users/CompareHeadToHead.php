@@ -354,7 +354,7 @@ class CompareHeadToHead extends AbstractUserPane {
   }
 
   public function process(Array $args) {
-    return false;
+    throw new SoterException("Nothing to process here.");
   }
 }
 ?>

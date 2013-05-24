@@ -68,17 +68,6 @@ class AllAmerican extends AbstractUserPane {
     $this->page_url = 'aa';
   }
 
-  private function seasonList($prefix, Array $preselect = array()) {
-    $ul = new XUl(array('class'=>'inline-list'));
-    foreach (Season::getActive() as $season) {
-      $ul->add(new XLi(array($chk = new XCheckboxInput('seasons[]', $season, array('id' => $prefix . $season)),
-                             new XLabel($prefix . $season, $season->fullString()))));
-      if (in_array($season, $preselect))
-        $chk->set('checked', 'checked');
-    }
-    return $ul;
-  }
-
   public function fillHTML(Array $args) {
     $this->PAGE->head->add(new LinkCSS('/inc/css/aa.css'));
     $this->PAGE->addContent($f = $this->createForm());
@@ -105,15 +94,8 @@ class AllAmerican extends AbstractUserPane {
       $form->add(new FItem("Boat role:", XSelect::fromArray('role', array(RP::SKIPPER => "Skipper", RP::CREW => "Crew"))));
       $form->add(new FItem("Seasons:", $this->seasonList('', array($now, $then))));
 
-      $form->add($fi = new FItem("Conferences:", $ul2 = new XUl(array('class'=>'inline-list'))));
+      $form->add($fi = new FItem("Conferences:", $this->conferenceList('conf-')));
       $fi->set('title', "Only choose sailors from selected conference(s) automatically. You can manually choose sailors from other divisions.");
-
-      // Conferences
-      foreach (DB::getConferences() as $conf) {
-        $ul2->add(new XLi(array($chk = new XCheckboxInput('confs[]', $conf, array('id' => $conf->id)),
-                                new XLabel($conf->id, $conf))));
-        $chk->set('checked', 'checked');
-      }
 
       $form->add($fi = new FItem("Min. # Regattas", new XTextInput('min-regattas', 2, array('size'=>3, 'maxlength'=>3, 'style'=>'min-width:3em'))));
       $fi->add(new XMessage("Sailors must qualify for at least this many regattas to be automatically considered."));
@@ -475,12 +457,12 @@ class AllAmerican extends AbstractUserPane {
 	$rows[] = $row;
       }
 
-      $this->csv = "";
-      $this->rowCSV($header1);
-      $this->rowCSV($header2);
-      $this->rowCSV($spacer);
+      $csv = "";
+      $this->rowCSV($csv, $header1);
+      $this->rowCSV($csv, $header2);
+      $this->rowCSV($csv, $spacer);
       foreach ($rows as $row)
-        $this->rowCSV($row);
+        $this->rowCSV($csv, $row);
 
       $filename = sprintf('%s-aa-%s-%s.csv',
                           date('Y'),
@@ -488,23 +470,11 @@ class AllAmerican extends AbstractUserPane {
                           $this->AA['report-role']);
       header("Content-type: application/octet-stream");
       header("Content-Disposition: attachment; filename=$filename");
-      header("Content-Length: " . strlen($this->csv));
-      echo $this->csv;
+      header("Content-Length: " . strlen($csv));
+      echo $csv;
       exit;
     }
     return false;
-  }
-
-  private $csv = "";
-  private function rowCSV(Array $cells) {
-    $quoted = array();
-    foreach ($cells as $cell) {
-      if (is_numeric($cell))
-        $quoted[] = $cell;
-      else
-        $quoted[] = sprintf('"%s"', str_replace('"', '""', $cell));
-    }
-    $this->csv .= implode(',', $quoted) . "\n";
   }
 
   /**
