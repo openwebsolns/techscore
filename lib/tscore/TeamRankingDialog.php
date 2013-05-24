@@ -42,7 +42,12 @@ class TeamRankingDialog extends AbstractScoresDialog {
 
     $explanations = array("" => "");
     $season = $this->REGATTA->getSeason();
+    $prev_group = null;
     foreach ($this->REGATTA->getRankedTeams() as $rowIndex => $team) {
+      if ($prev_group !== null && $team->rank_group != $prev_group)
+        $b->add(new XTR(array(), array(new XTD(array('class'=>'tr-rank-group', 'colspan'=>7, 'title'=>"Next group")))));
+      $prev_group = $team->rank_group;
+
       // Explanation
       if (!empty($team->dt_explanation) && !isset($explanations[$team->dt_explanation])) {
 	$count = count($explanations);
@@ -107,7 +112,12 @@ class TeamRankingDialog extends AbstractScoresDialog {
     $explanations = array("" => "");
     $season = $this->REGATTA->getSeason();
     $rpm = $this->REGATTA->getRpManager();
+    $prev_group = null;
     foreach ($this->REGATTA->getRankedTeams() as $rowIndex => $team) {
+      if ($prev_group !== null && $team->rank_group != $prev_group)
+        $b->add(new XTR(array(), array(new XTD(array('class'=>'tr-rank-group', 'colspan'=>8, 'title'=>"Next group")))));
+      $prev_group = $team->rank_group;
+
       // Explanation
       if (!empty($team->dt_explanation) && !isset($explanations[$team->dt_explanation])) {
 	$count = count($explanations);

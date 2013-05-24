@@ -654,3 +654,7 @@ td.tr-sail {
     color: #ddd;
     text-shadow: 1px 1px 0px #222;
 }
+.tr-rank-group {
+    height: 1.25em;
+    background: #ccc;
+}

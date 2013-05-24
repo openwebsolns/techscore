@@ -395,3 +395,7 @@ td.tr-sail {
 .tr-carried {
     opacity: 0.5;
 }
+.tr-rank-group {
+    height: 1.25em;
+    background: #ccc;
+}
