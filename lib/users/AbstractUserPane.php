@@ -194,7 +194,7 @@ abstract class AbstractUserPane {
    */
   protected function conferenceList($prefix, Array $chosen = array()) {
     $ul = new XUl(array('class'=>'inline-list'));
-    foreach (DB::getConferences() as $conf) {
+    foreach ($this->USER->getConferences() as $conf) {
       $ul->add(new XLi(array($chk = new XCheckboxInput('confs[]', $conf, array('id' => $conf->id)),
                              new XLabel($conf->id, $conf))));
       if (count($chosen) == 0 || in_array($conf, $chosen))

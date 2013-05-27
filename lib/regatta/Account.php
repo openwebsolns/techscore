@@ -76,6 +76,26 @@ class Account extends DBObject {
   }
 
   /**
+   * Returns all the conferences this user is affiliated with
+   *
+   * Affiliation is transitory: depending on school
+   *
+   * @return Array:Conference
+   */
+  public function getConferences() {
+    if ($this->isAdmin())
+      return DB::getConferences();
+    return DB::getAll(DB::$CONFERENCE,
+                      new DBBool(array(new DBCond('id', $this->__get('school')->conference->id),
+                                       new DBCondIn('id',
+                                                    DB::prepGetAll(DB::$SCHOOL,
+                                                                   new DBCondIn('id',
+                                                                                DB::prepGetAll(DB::$ACCOUNT_SCHOOL, new DBCond('account', $this), array('school'))),
+                                                                   array('conference')))),
+                                 DBBool::mOR));
+  }
+
+  /**
    * Returns all the schools that this user is affiliated with
    *
    * @param Conference $conf the possible to conference to narrow down
