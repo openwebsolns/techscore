@@ -372,8 +372,11 @@ function addTeamToRound(id) {
       if (count($ord) > 0)
         array_multisort($ord, SORT_NUMERIC, $map['race'], $map['boat']);
 
+      $rotation = $this->REGATTA->getRotation();
       $swaplist = DB::$V->incList($args, 'swap');
       $to_save = array();
+      $sails_to_save = array();
+      $races_to_reset = array();
       foreach ($map['race'] as $i => $rid) {
 	if (!isset($races[$rid]))
 	  throw new SoterException("Invalid race provided.");
@@ -404,6 +407,18 @@ function addTeamToRound(id) {
 	    $r->tr_team2 = $team1;
             $r->tr_ignore1 = $r->tr_ignore2;
             $r->tr_ignore2 = $ignore1;
+
+            // also swap sails, if set
+            if ($rotation->isAssigned($r)) {
+              $s1 = $rotation->getSail($r, $r->tr_team1);
+              $s2 = $rotation->getSail($r, $r->tr_team2);
+
+              $s1->team = $r->tr_team2;
+              $s2->team = $r->tr_team1;
+              $sails_to_save[] = $s1;
+              $sails_to_save[] = $s2;
+              $races_to_reset[] = $r;
+            }
 	  }
 	}
 	if ($edited) {
@@ -418,6 +433,10 @@ function addTeamToRound(id) {
 
       foreach ($to_save as $race)
         DB::set($race, true);
+      foreach ($races_to_reset as $race)
+        $rotation->reset($race);
+      foreach ($sails_to_save as $sail)
+        $rotation->setSail($sail);
         
       if (count($to_save) == 0)
         Session::pa(new PA("No races were updated.", PA::I));
