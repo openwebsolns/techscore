@@ -40,11 +40,13 @@ class SchoolParticipationReportPane extends AbstractUserPane {
         if (count($seasons) == 0)
           throw new SoterException("No seasons provided.");
 
+        $pos_confs = array();
+        foreach ($this->USER->getConferences() as $conf)
+          $pos_confs[$conf->id] = $conf;
         foreach (DB::$V->reqList($args, 'confs', null, "Missing conferences for report.") as $id) {
-          $conf = DB::getConference($id);
-          if ($conf === null)
+          if (!isset($pos_confs[$id]))
             throw new SoterException("Invalid conference provided: $conf.");
-          $confs[$conf->id] = $conf;
+          $confs[$id] = $pos_confs[$id];
         }
         if (count($confs) == 0)
           throw new SoterException("No conferences provided.");
@@ -76,8 +78,8 @@ class SchoolParticipationReportPane extends AbstractUserPane {
 
             $list = array();
             foreach ($reg->getTeams() as $team) {
-              if (isset($confs[$school->conference->id])) {
-                $schools[$team->school->id] = $school;
+              if (isset($confs[$team->school->conference->id])) {
+                $schools[$team->school->id] = $team->school;
                 if (!isset($list[$team->school->id]))
                   $list[$team->school->id] = 0;
                 $list[$team->school->id]++;
