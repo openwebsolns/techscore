@@ -309,15 +309,17 @@ class AllAmerican extends AbstractUserPane {
 
       // conferences. If none provided, choose ALL
       $this->AA['report-confs'] = array();
+      $pos_confs = array();
+      foreach ($this->USER->getConferences() as $conf)
+        $pos_confs[$conf->id] = $conf;
       if (isset($args['confs']) && is_array($args['confs'])) {
         foreach ($args['confs'] as $s) {
-          if (($conf = DB::getConference($s)) !== null)
-            $this->AA['report-confs'][$conf->id] = $conf->id;
+          if (isset($pos_confs[$s]))
+            $this->AA['report-confs'][$s] = $pos_confs[$s];
         }
       }
       if (count($this->AA['report-confs']) == 0) {
-        foreach (DB::getConferences() as $conf)
-          $this->AA['report-confs'][$conf->id] = $conf->id;
+        $this->AA['report-confs'] = $pos_confs;
       }
 
       // number of minimum regattas in order to include
