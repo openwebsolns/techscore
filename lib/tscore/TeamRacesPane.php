@@ -510,6 +510,9 @@ class TeamRacesPane extends AbstractPane {
       // Create round robin
       $num_added = 0;
       $num_duplicate = 0;
+      
+      $added = array();     // races to be added to this round
+      $duplicate = array(); // races to add this round as secondary
       $divs = array(Division::A(), Division::B(), Division::C());
 
       $swap = false;
@@ -526,12 +529,12 @@ class TeamRacesPane extends AbstractPane {
 	    $existing_race = array_shift($prev_races[$id]);
 
 	  if ($existing_race !== null) {
-	    $existing_race->addRound($round);
+            $duplicate[] = $existing_race;
 	    foreach (array(Division::B(), Division::C()) as $div) {
 	      $race = $this->REGATTA->getRace($div, $existing_race->number);
-	      $race->addRound($round);
+              $duplicate[] = $race;
 	    }
-	    $num_duplicate++;
+            $num_duplicate++;
 	  }
 	  else {
 	    $count++;
@@ -544,7 +547,7 @@ class TeamRacesPane extends AbstractPane {
 	      $race->round = $round;
               $race->tr_team1 = $pair[0];
               $race->tr_team2 = $pair[1];
-	      DB::set($race, false);
+              $added[] = $race;
 	    }
 	    $num_added++;
 	  }
@@ -552,14 +555,22 @@ class TeamRacesPane extends AbstractPane {
         $swap = !$swap;
       }
 
+      // check that there is at least ONE added race
+      if (count($added) == 0)
+        throw new SoterException("All races in the new round come from previous rounds.");
+      foreach ($added as $race)
+        DB::set($race, false);
+      foreach ($duplicate as $race)
+        $race->addRound($round);
+
       // master slave relation
       foreach ($master_rounds as $master)
         $round->addMaster($master);
 
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
-      $mes = array("Added $num_added new races in round $round. ");
-      if ($num_duplicate > 0)
-	$mes[] = "$num_duplicate race(s) carried over from previous rounds. ";
+      $mes = array(sprintf("Added %d new races in round %s. ", $num_added, $round));
+      if (count($duplicate) > 0)
+	$mes[] = sprintf("%d race(s) carried over from previous rounds. ", $num_duplicate);
       $mes[] = new XA($this->link('race-order', array('order-rounds'=>'', 'round'=>array($round->id))), "Order races");
       $mes[] = ".";
       Session::pa(new PA($mes));
