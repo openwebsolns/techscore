@@ -51,8 +51,7 @@ class RemovePrivate extends AbstractScript {
     // ------------------------------------------------------------
     $cond = new DBBool(array(new DBCond('icsa_id', null),
                              new DBCond('regatta_added', null),
-                             new DBCondIn('id', DB::prepGetAll(DB::$RP_ENTRY, null, array('sailor')), DBCondIn::NOT_IN),
-                             new DBCondIn('id', DB::prepGetAll(DB::$REPRESENTATIVE, null, array('sailor')), DBCondIn::NOT_IN)));
+                             new DBCondIn('id', DB::prepGetAll(DB::$RP_ENTRY, null, array('sailor')), DBCondIn::NOT_IN)));
     $sailors = DB::getAll(DB::$MEMBER, $cond);
     if ($this->dry_run) {
       foreach ($sailors as $sailor)
