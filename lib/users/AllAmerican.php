@@ -107,7 +107,7 @@ class AllAmerican extends AbstractUserPane {
       $reports = DB::getAll(DB::$AA_REPORT);
       if (count($reports) > 0) {
         $this->PAGE->addContent($p = new XPort("Saved reports"));
-        $p->add(new XP(array(), "Open a saved report by selecting from the table below."));
+        $p->add(new XP(array(), "Open or deleted a saved report by selecting from the table below and clicking the appropriate button."));
         $p->add($form = $this->createForm());
         $form->add($tab = new XQuickTable(array('id'=>'saved-aa-reports'),
                                           array("", "Name", "Type", "Role", "Seasons", "Conferences", "Regs.", "Sailors")));
@@ -134,7 +134,10 @@ class AllAmerican extends AbstractUserPane {
                        array('class'=>'row' . ($i % 2)));
         }
 
-        $form->add(new XSubmitP('load-report', "Load report"));
+        $form->add($p = new XSubmitP('load-report', "Load report"));
+        $p->add(new XSubmitInput('delete-report', "Delete report",
+                                 array('style'=>'margin-left: 2em;',
+                                       'onclick'=>'return confirm("Are you sure you wish to delete the selected report?\n\nDeletions are permanent.")')));
       }
       return;
     }
@@ -331,6 +334,16 @@ class AllAmerican extends AbstractUserPane {
     if (isset($args['unset-sailors'])) {
       $this->AA['sailors'] = array();
       Session::s('aa', $this->AA);
+      return false;
+    }
+
+    // ------------------------------------------------------------
+    // Delete report
+    // ------------------------------------------------------------
+    if (isset($args['delete-report'])) {
+      $report = DB::$V->reqID($args, 'id', DB::$AA_REPORT, "Invalid report chosen.");
+      DB::remove($report);
+      Session::pa(new PA(sprintf("Deleted report \"%s\".", $report->id)));
       return false;
     }
 
