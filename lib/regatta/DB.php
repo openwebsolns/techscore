@@ -53,6 +53,7 @@ class DB extends DBM {
   public static $RACE_ORDER = null;
   public static $REGATTA_ROTATION = null;
   public static $ROUND_SLAVE = null;
+  public static $AA_REPORT = null;
 
   public static $OUTBOX = null;
   public static $MESSAGE = null;
@@ -107,6 +108,7 @@ class DB extends DBM {
     self::$RACE_ORDER = new Race_Order();
     self::$REGATTA_ROTATION = new Regatta_Rotation();
     self::$ROUND_SLAVE = new Round_Slave();
+    self::$AA_REPORT = new AA_Report();
     self::$DT_TEAM_DIVISION = new Dt_Team_Division();
     self::$DT_RP = new Dt_Rp();
     self::$NOW = new DateTime();
@@ -2736,6 +2738,38 @@ class Regatta_Rotation extends DBObject {
       return DB::$REGATTA;
     case 'rotation':
       return new TeamRotation();
+    default:
+      return parent::db_type($field);
+    }
+  }
+}
+
+/**
+ * Saved All-America report parameters
+ *
+ * @author Dayan Paez
+ * @version 2013-06-13
+ */
+class AA_Report extends DBObject {
+  public $type;
+  public $role;
+  protected $seasons;
+  protected $conferences;
+  public $min_regattas;
+  protected $regattas;
+  protected $sailors;
+  protected $last_updated;
+  public $author;
+
+  public function db_type($field) {
+    switch ($field) {
+    case 'regattas':
+    case 'sailors':
+    case 'conferences':
+    case 'seasons':
+      return array();
+    case 'last_updated':
+      return DB::$NOW;
     default:
       return parent::db_type($field);
     }

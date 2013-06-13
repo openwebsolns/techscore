@@ -530,3 +530,7 @@ update race_order set num_boats = substring_index(substring_index(old_id, '-', 3
 update race_order set description = "Rotate frequently." where substring_index(old_id, '-', -1) = "1";
 update race_order set name = "Standard";
 alter table race_order drop column old_id;
+
+-- remember aa reports
+create table aa_report (id varchar(40) primary key, regattas text not null comment "Array of regatta IDs",  sailors text not null comment "Array of sailor IDs", last_updated timestamp not null default current_timestamp, author varchar(40) default null) engine=innodb;
+alter table aa_report add column type enum('coed', 'women', 'all') not null default 'coed' after id, add column role enum('skipper', 'crew') not null default 'skipper' after type, add column seasons text not null comment "List of seasons IDs" after role, add column conferences text not null comment "List of conference IDs" after seasons, add column min_regattas tinyint unsigned not null default 2 after conferences;

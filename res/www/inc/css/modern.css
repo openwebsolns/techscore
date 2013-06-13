@@ -873,3 +873,7 @@ h4 a:hover {
     text-align: left;
     padding: 0.5em 0.75em;
 }
+
+#saved-aa-reports thead th, #saved-aa-reports td {
+    text-align: left;
+}

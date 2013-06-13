@@ -63,6 +63,7 @@ class AllAmerican extends AbstractUserPane {
                              'report-seasons' => null,
                              'report-confs' => null,
                              'report-min-regattas' => null,
+                             'report-id' => null,
                              ));
     $this->AA = Session::g('aa');
     $this->page_url = 'aa';
@@ -82,7 +83,7 @@ class AllAmerican extends AbstractUserPane {
       $prog->add(new XSpan("Sailors", array('class'=>'progress-disabled')));
       $prog->add(new XSpan("Download", array('class'=>'progress-disabled')));
 
-      $this->PAGE->addContent($p = new XPort("Choose report"));
+      $this->PAGE->addContent($p = new XPort("New report"));
       $now = Season::forDate(DB::$NOW);
       $then = null;
       if ($now->season == Season::SPRING)
@@ -101,6 +102,40 @@ class AllAmerican extends AbstractUserPane {
       $fi->add(new XMessage("Sailors must qualify for at least this many regattas to be automatically considered."));
 
       $form->add(new XSubmitP('set-report', "Choose regattas →"));
+
+      // existing?
+      $reports = DB::getAll(DB::$AA_REPORT);
+      if (count($reports) > 0) {
+        $this->PAGE->addContent($p = new XPort("Saved reports"));
+        $p->add(new XP(array(), "Open a saved report by selecting from the table below."));
+        $p->add($form = $this->createForm());
+        $form->add($tab = new XQuickTable(array('id'=>'saved-aa-reports'),
+                                          array("", "Name", "Type", "Role", "Seasons", "Conferences", "Regs.", "Sailors")));
+        $num_confs = count(DB::getConferences());
+        foreach ($reports as $i => $report) {
+          $id = 'ri-' . $report->id;
+
+          $seasons = array();
+          foreach ($report->seasons as $season) {
+            if (($season = DB::getSeason($season)) !== null)
+              $seasons[] = $season->fullString();
+          }
+
+          $confs = (count($report->conferences) == $num_confs) ? "All" : implode(", ", $report->conferences);
+
+          $tab->addRow(array(new XRadioInput('id', $report->id, array('id'=>$id)),
+                             new XLabel($id, $report->id),
+                             new XLabel($id, $this->types[$report->type]),
+                             new XLabel($id, ucwords($report->role)),
+                             new XLabel($id, implode(", ", $seasons)),
+                             new XLabel($id, $confs),
+                             new XLabel($id, count($report->regattas)),
+                             new XLabel($id, count($report->sailors))),
+                       array('class'=>'row' . ($i % 2)));
+        }
+
+        $form->add(new XSubmitP('load-report', "Load report"));
+      }
       return;
     }
 
@@ -175,10 +210,10 @@ class AllAmerican extends AbstractUserPane {
                      $rattr);
       }
       if (count($regattas) == $invalid_regattas)
-	$form->add(new XP(array(), "There are no regattas that match the necessary criteria for inclusion in the report. Start over with a different set of parameters."));
+        $form->add(new XP(array(), "There are no regattas that match the necessary criteria for inclusion in the report. Start over with a different set of parameters."));
       else {
-	$form->add(new XP(array(), "Next, choose the sailors to incorporate into the report."));
-	$form->add(new XSubmitP('set-regattas', sprintf("Choose %ss →", $this->AA['report-role'])));
+        $form->add(new XP(array(), "Next, choose the sailors to incorporate into the report."));
+        $form->add(new XSubmitP('set-regattas', sprintf("Choose %ss →", $this->AA['report-role'])));
       }
 
       Session::s('aa', $this->AA);
@@ -212,7 +247,7 @@ class AllAmerican extends AbstractUserPane {
       }
 
       foreach ($sailor_count as $id => $num) {
-        if ($num < $this->AA['report-min-regattas'])
+        if ($num < (int)$this->AA['report-min-regattas'])
           unset($sailors[$id]);
       }
       usort($sailors, 'Member::compare');
@@ -252,6 +287,23 @@ class AllAmerican extends AbstractUserPane {
                                        count($this->AA['regattas']),
                                        count($this->AA['sailors']))));
     $form->add(new XSubmitP('gen-report', "Download as CSV"));
+
+    $this->PAGE->addContent($p = new XPort("Save report"));
+    $p->add($form = $this->createForm());
+    $form->add(new XP(array(),
+                      array("You may save this form for easier retrieval later. Choose a name from the list below to ", new XStrong("replace"), " that file with this report. To save under a ", new XStrong("new file"), " choose the \"New:\" option and provide a name. Note that filenames must be unique.")));
+    $form->add(new FItem("Name:", $ul = new XUl(array('class'=>'inline-list'))));
+    $ul->add(new XLi(array(new XRadioInput('id', '-new-', array('id'=>'ri-new')),
+                           new XLabel('ri-new', "New file:"),
+                           new XTextInput('-new-', $this->getFilename()))));
+    foreach (DB::getAll(DB::$AA_REPORT) as $rep) {
+      $id = 'ri-'.$rep->id;
+      $ul->add(new XLi(array($ri = new XRadioInput('id', $rep->id, array('id'=>$id)),
+                             new XLabel($id, $rep->id))));
+      if ($this->AA['report-id'] == $rep->id)
+        $ri->set('checked', 'checked');
+    }
+    $form->add(new XSubmitP('save-report', "Save report"));
   }
 
   public function process(Array $args) {
@@ -280,6 +332,57 @@ class AllAmerican extends AbstractUserPane {
       $this->AA['sailors'] = array();
       Session::s('aa', $this->AA);
       return false;
+    }
+
+    // ------------------------------------------------------------
+    // Load saved report
+    // ------------------------------------------------------------
+    if (isset($args['load-report'])) {
+      $report = DB::$V->reqID($args, 'id', DB::$AA_REPORT, "Invalid report chosen.");
+      $this->AA['report-type'] = $report->type;
+      $this->AA['report-role'] = $report->role;
+      $this->AA['report-id'] = $report->id;
+      $this->AA['report-seasons'] = $report->seasons;
+      $this->AA['report-min-regattas'] = $report->min_regattas;
+
+      $this->AA['report-confs'] = array();
+      foreach ($report->conferences as $id) {
+        $conf = DB::getConference($id);
+        if ($conf !== null)
+          $this->AA['report-confs'][$conf->id] = $conf;
+      }
+      if (count($this->AA['report-confs']) == 0) {
+        DB::remove($report);
+        throw new SoterException("Chosen report is outdated and contains no valid conferences. Report has been removed.");
+      }
+
+      // Regattas
+      $this->AA['regattas'] = array();
+      foreach ($report->regattas as $id) {
+        if (($reg = DB::getRegatta($id)) === null)
+          continue;
+
+        $allow_other_ptcp = ($this->AA['report-type'] != self::TYPE_COED ||
+                             $reg->participant == Regatta::PARTICIPANT_COED);
+        if ($reg->private === null && $allow_other_ptcp && $reg->finalized !== null)
+          $this->AA['regattas'][$reg->id] = $reg;
+      }
+      if (count($this->AA['regattas']) == 0) {
+        DB::remove($report);
+        throw new SoterException("No valid regattas exist in chosen report. Report has been removed.");
+      }
+
+      // Sailors
+      $this->AA['sailors'] = array();
+      foreach ($report->sailors as $id) {
+        if (($sailor = DB::getSailor($id)) !== null)
+          $this->AA['sailors'][$sailor->id] = $sailor;
+      }
+      if (count($this->AA['sailors']) == 0) {
+        DB::remove($report);
+        throw new SoterException("No valid sailors exist in saved report. Report has been removed.");
+      }
+      Session::s('aa', $this->AA);
     }
 
     // ------------------------------------------------------------
@@ -340,17 +443,15 @@ class AllAmerican extends AbstractUserPane {
       $regs = array();
       $errors = 0;
       foreach ($ids as $id) {
-        try {
-          $reg = DB::getRegatta($id);
+        if (($reg = DB::getRegatta($id)) === null)
+          $errors++;
+        else {
           $allow_other_ptcp = ($this->AA['report-type'] != self::TYPE_COED ||
                                $reg->participant == Regatta::PARTICIPANT_COED);
           if ($reg->private === null && $allow_other_ptcp && $reg->finalized !== null)
             $this->AA['regattas'][$reg->id] = $reg;
           else
             $errors++;
-        }
-        catch (Exception $e) {
-          $errors++;
         }
       }
       if ($errors > 0)
@@ -402,12 +503,12 @@ class AllAmerican extends AbstractUserPane {
       $rows = array();
 
       foreach ($this->AA['regattas'] as $reg) {
-	$header1[] = $reg->getURL();
+        $header1[] = $reg->getURL();
         if ($reg->scoring != Regatta::SCORING_TEAM)
           $header2[] = count($reg->getRaces(Division::A()));
         else
           $header2[] = "";
-	$spacer[] = "";
+        $spacer[] = "";
       }
 
       foreach ($this->AA['sailors'] as $id => $sailor) {
@@ -416,9 +517,9 @@ class AllAmerican extends AbstractUserPane {
                      $sailor->year,
                      $sailor->school->nick_name,
                      $sailor->school->conference);
-	foreach ($this->AA['regattas'] as $reg) {
-	  $rps = array();
-	  $num_divisions = count($reg->getDivisions());
+        foreach ($this->AA['regattas'] as $reg) {
+          $rps = array();
+          $num_divisions = count($reg->getDivisions());
           $data = $reg->getRpData($sailor, null, $this->AA['report-role']);
 
           // For team racing, combine all divisions into one
@@ -437,26 +538,26 @@ class AllAmerican extends AbstractUserPane {
             $data = $teamRPs;
           }
 
-	  foreach ($data as $rp) {
-	    $rank = $rp->rank;
-	    if ($reg->scoring == Regatta::SCORING_COMBINED)
-	      $rank .= 'com';
-	    elseif ($num_divisions > 1 && $reg->scoring != Regatta::SCORING_TEAM)
-	      $rank .= $rp->team_division->division;
+          foreach ($data as $rp) {
+            $rank = $rp->rank;
+            if ($reg->scoring == Regatta::SCORING_COMBINED)
+              $rank .= 'com';
+            elseif ($num_divisions > 1 && $reg->scoring != Regatta::SCORING_TEAM)
+              $rank .= $rp->team_division->division;
 
             if ($reg->scoring == Regatta::SCORING_TEAM) {
               $part_races = $reg->getRacesForTeam(Division::A(), $rp->team_division->team);
               if (count($part_races) != count($rp->race_nums))
                 $rank .= sprintf(' (%d%%)', round(100 * count($rp->race_nums) / count($part_races)));
             }
-	    elseif (count($rp->race_nums) != count($reg->getRaces(Division::get($rp->team_division->division))))
-	      $rank .= sprintf(' (%s)', DB::makeRange($rp->race_nums));
+            elseif (count($rp->race_nums) != count($reg->getRaces(Division::get($rp->team_division->division))))
+              $rank .= sprintf(' (%s)', DB::makeRange($rp->race_nums));
 
-	    $rps[] = $rank;
-	  }
-	  $row[] = implode(", ", $rps);
-	}
-	$rows[] = $row;
+            $rps[] = $rank;
+          }
+          $row[] = implode(", ", $rps);
+        }
+        $rows[] = $row;
       }
 
       $csv = "";
@@ -466,17 +567,89 @@ class AllAmerican extends AbstractUserPane {
       foreach ($rows as $row)
         $this->rowCSV($csv, $row);
 
-      $filename = sprintf('%s-aa-%s-%s.csv',
-                          date('Y'),
-                          $this->AA['report-type'],
-                          $this->AA['report-role']);
       header("Content-type: application/octet-stream");
-      header("Content-Disposition: attachment; filename=$filename");
+      header("Content-Disposition: attachment; filename=" . $this->getFilename());
       header("Content-Length: " . strlen($csv));
       echo $csv;
       exit;
     }
+
+    // ------------------------------------------------------------
+    // Save?
+    // ------------------------------------------------------------
+    if (isset($args['save-report'])) {
+      $rep = null;
+      $mes = null;
+
+      $id = DB::$V->reqString($args, 'id', 1, 41, "Invalid name for report.");
+      if ($id == '-new-') {
+        $id = DB::$V->reqString($args, '-new-', 1, 41, "Invalid name for new report.");
+
+        if (strlen($id) < 5 || substr($id, -4) != '.csv') {
+          $id .= '.csv';
+          if (strlen($id) > 40)
+            throw new SoterException("Name is too long (must be 40 characters including extension).");
+        }
+
+        // already exists?
+        if (DB::get(DB::$AA_REPORT, $id) !== null)
+          throw new SoterException("A report with this name already exists.");
+
+        $rep = new AA_Report();
+        $rep->id = $id;
+        $mes = "Saved new report with filename \"%s\".";
+      }
+      else {
+        $rep = DB::get(DB::$AA_REPORT, $id);
+        if ($rep === null)
+          throw new SoterException("Invalid report to replace.");
+        $mes = "Replaced report with filename \"%s\".";
+      }
+      
+
+      // is the regatta and sailor list set?
+      if (count($this->AA['regattas']) == 0 || count($this->AA['sailors']) == 0) {
+        Session::pa(new PA("No regattas or sailors for report.", PA::E));
+        return false;
+      }
+
+      $rep->last_updated = DB::$NOW;
+      $rep->type = $this->AA['report-type'];
+      $rep->role = $this->AA['report-role'];
+      $rep->min_regattas = $this->AA['report-min-regattas'];
+      $rep->author = Conf::$USER->id;
+
+      $rep->seasons = array();
+      foreach ($this->AA['report-seasons'] as $season) {
+        $season = DB::getSeason($season);
+        $rep->seasons[] = $season->id;
+      }
+
+      $rep->conferences = array();
+      foreach ($this->AA['report-confs'] as $conf)
+        $rep->conferences[] = $conf->id;
+
+      $rep->regattas = array();
+      foreach ($this->AA['regattas'] as $reg)
+        $rep->regattas[] = $reg->id;
+
+      $rep->sailors = array();
+      foreach ($this->AA['sailors'] as $sailor)
+        $rep->sailors[] = $sailor->id;
+
+      DB::set($rep);
+      $this->AA['report-id'] = $rep->id;
+      Session::s('aa', $this->AA);
+      Session::pa(new PA(sprintf($mes, $rep->id)));
+    }
     return false;
+  }
+
+  private function getFilename() {
+    return sprintf('%s-aa-%s-%s.csv',
+                   date('Y'),
+                   $this->AA['report-type'],
+                   $this->AA['report-role']);
   }
 
   /**
