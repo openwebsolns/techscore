@@ -109,9 +109,20 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
     Session::pa(new PA("No such regatta.", PA::I));
     WS::go('/');
   }
+  $is_participant = false;
   if (!Conf::$USER->hasJurisdiction($REG)) {
-    Session::pa(new PA("You do not have permission to edit that regatta.", PA::I));
-    WS::go('/');
+    if ($REG->private === null) {
+      foreach (Conf::$USER->getSchools() as $school) {
+        if (count($REG->getTeams($school)) > 0) {
+          $is_participant = true;
+          break;
+        }
+      }
+    }
+    if (!$is_participant) {
+      Session::pa(new PA("You do not have permission to edit that regatta.", PA::I));
+      WS::go('/');
+    }
   }
 
   // User and regatta authorized, delegate to AbstractPane
@@ -128,6 +139,15 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
       $title = $PAGE->getTitle();
       Session::pa(new PA("\"$title\" is not available.", PA::I));
       WS::go('/score/'.$REG->id);
+    }
+    // Participant?
+    if ($is_participant) {
+      try {
+        $PAGE->setParticipantUIMode($is_participant);
+      } catch (InvalidArgumentException $e) {
+        Session::pa(new PA("Insufficient permissions for requested page.", PA::E));
+        WS::go('/');
+      }
     }
     // process, if so requested
     if (Conf::$METHOD == 'POST') {

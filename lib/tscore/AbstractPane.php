@@ -29,6 +29,11 @@ abstract class AbstractPane {
   protected $has_penalty = false;
 
   /**
+   * @var boolean UI mode (true = participant) default = false
+   */
+  protected $participant_mode = false;
+
+  /**
    * Create a new editing pane with the given name
    *
    * @param String $name the name of the editing page
@@ -49,6 +54,18 @@ abstract class AbstractPane {
   }
 
   /**
+   * Determine whether to use the participant moden
+   *
+   * @param boolean $participant true to set to partcipant mode
+   * @throws InvalidArgumentException
+   */
+  public function setParticipantUIMode($participant = false) {
+    $this->participant_mode = ($participant !== false);
+    if ($this->participant_mode && !in_array(get_class($this), self::$PARTICIPANT_MODE))
+      throw new InvalidArgumentException("Participant UI not available for this pane.");
+  }
+
+  /**
    * Sets up the HTML page
    *
    */
@@ -65,53 +82,69 @@ abstract class AbstractPane {
     // ------------------------------------------------------------
     // Menu
     if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
-      $score_i = array("Regatta"   => array("settings"   => "DetailsPane",
-					    "summaries"  => "SummaryPane",
-                                            "finalize"   => "FinalizePane",
-					    "scorers"    => "ScorersPane",
-					    "delete"     => "DeleteRegattaPane"),
-		       "Teams"     => array("teams"      => "TeamsPane",
-					    "substitute" => "TeamReplaceTeamPane",
-					    "remove-team"=> "DeleteTeamsPane"),
-		       "Races"     => array("races"      => "TeamRacesPane",
-					    "race-order" => "TeamRaceOrderPane",
-					    "notes"      => "NotesPane",
-					    "rotations"  => "TeamSailsPane",
-					    // "tweak-sails"=> "TweakSailsPane",
-					    // "manual-rotation" => "ManualTweakPane"
-					    ),
-		       "RP Forms"  => array("rp"         => "TeamRpEnterPane",
-					    "unregistered" => "UnregisteredSailorPane",
-                                            "missing"  => "RpMissingPane"),
-		       "Finishes"  => array("finishes" => "TeamEnterFinishPane",
-					    "penalty"  => "TeamEnterPenaltyPane",
-					    "drop-penalty" => "DropPenaltyPane",
-					    "team-penalty" => "TeamPenaltyPane"),
-                       "Ranks"     => array("rank"        => "RankTeamsPane",
-                                            "groups"      => "TeamRankGroupPane"),
-                       );
+      if ($this->participant_mode) {
+        $score_i = array("Regatta"  => array("settings"  => "DetailsPane"),
+                         "RP Forms" => array("rp"         => "TeamRpEnterPane",
+                                             "unregistered" => "UnregisteredSailorPane",
+                                             "missing"  => "RpMissingPane"));
+      }
+      else {
+        $score_i = array("Regatta"   => array("settings"   => "DetailsPane",
+                                              "summaries"  => "SummaryPane",
+                                              "finalize"   => "FinalizePane",
+                                              "scorers"    => "ScorersPane",
+                                              "delete"     => "DeleteRegattaPane"),
+                         "Teams"     => array("teams"      => "TeamsPane",
+                                              "substitute" => "TeamReplaceTeamPane",
+                                              "remove-team"=> "DeleteTeamsPane"),
+                         "Races"     => array("races"      => "TeamRacesPane",
+                                              "race-order" => "TeamRaceOrderPane",
+                                              "notes"      => "NotesPane",
+                                              "rotations"  => "TeamSailsPane",
+                                              // "tweak-sails"=> "TweakSailsPane",
+                                              // "manual-rotation" => "ManualTweakPane"
+                                              ),
+                         "RP Forms"  => array("rp"         => "TeamRpEnterPane",
+                                              "unregistered" => "UnregisteredSailorPane",
+                                              "missing"  => "RpMissingPane"),
+                         "Finishes"  => array("finishes" => "TeamEnterFinishPane",
+                                              "penalty"  => "TeamEnterPenaltyPane",
+                                              "drop-penalty" => "DropPenaltyPane",
+                                              "team-penalty" => "TeamPenaltyPane"),
+                         "Ranks"     => array("rank"        => "RankTeamsPane",
+                                              "groups"      => "TeamRankGroupPane"),
+                         );
+      }
     }
     else {
-      $score_i = array("Regatta"   => array("settings"   => "DetailsPane",
-					    "summaries"  => "SummaryPane",
-                                            "finalize"   => "FinalizePane",
-					    "scorers"    => "ScorersPane",
-					    "races"      => "RacesPane",
-					    "notes"      => "NotesPane",
-					    "delete"     => "DeleteRegattaPane"),
-		       "Teams"     => array("teams"      => "TeamsPane",
-					    "substitute" => "ReplaceTeamPane",
-					    "remove-team"=> "DeleteTeamsPane"),
-		       "Rotations" => array("rotations"  => "SailsPane",
-					    "tweak-sails"=> "TweakSailsPane",
-					    "manual-rotation" => "ManualTweakPane"),
-		       "RP Forms"  => array("rp"         => "RpEnterPane",
-					    "unregistered" => "UnregisteredSailorPane",
-                                            "missing"  => "RpMissingPane"),
-		       "Finishes"  => array("finishes" => "EnterFinishPane",
-					    "penalty"  => "EnterPenaltyPane",
-					    "drop-penalty" => "DropPenaltyPane",
-					    "team-penalty" => "TeamPenaltyPane"));
+      if ($this->participant_mode) {
+        $score_i = array("Regatta"  => array("settings"  => "DetailsPane"),
+                         "RP Forms" => array("rp"         => "RpEnterPane",
+                                             "unregistered" => "UnregisteredSailorPane",
+                                             "missing"  => "RpMissingPane"));
+      }
+      else {
+        $score_i = array("Regatta"   => array("settings"   => "DetailsPane",
+                                              "summaries"  => "SummaryPane",
+                                              "finalize"   => "FinalizePane",
+                                              "scorers"    => "ScorersPane",
+                                              "races"      => "RacesPane",
+                                              "notes"      => "NotesPane",
+                                              "delete"     => "DeleteRegattaPane"),
+                         "Teams"     => array("teams"      => "TeamsPane",
+                                              "substitute" => "ReplaceTeamPane",
+                                              "remove-team"=> "DeleteTeamsPane"),
+                         "Rotations" => array("rotations"  => "SailsPane",
+                                              "tweak-sails"=> "TweakSailsPane",
+                                              "manual-rotation" => "ManualTweakPane"),
+                         "RP Forms"  => array("rp"         => "RpEnterPane",
+                                              "unregistered" => "UnregisteredSailorPane",
+                                              "missing"  => "RpMissingPane"),
+                         "Finishes"  => array("finishes" => "EnterFinishPane",
+                                              "penalty"  => "EnterPenaltyPane",
+                                              "drop-penalty" => "DropPenaltyPane",
+                                              "team-penalty" => "TeamPenaltyPane"));
+      }
     }
     $access_keys_i = array('finishes' => 'f',
                            'rotations' => 's',
@@ -281,6 +314,8 @@ abstract class AbstractPane {
    * Returns a new instance of a pane with the given URL
    *
    * @param Array $url the URL tokens in order
+   * @param Account $r the user
+   * @param Regatta $u the regatta
    * @return AbstractPane|null
    */
   public static function getPane(Array $url, Account $r, Regatta $u) {
@@ -311,21 +346,21 @@ abstract class AbstractPane {
       return new EnterFinishPane($r, $u);
     case 'rank':
       if ($u->scoring != Regatta::SCORING_TEAM)
-	return null;
+        return null;
       require_once('tscore/RankTeamsPane.php');
       return new RankTeamsPane($r, $u);
     case 'group':
     case 'groups':
       if ($u->scoring != Regatta::SCORING_TEAM)
-	return null;
+        return null;
       require_once('tscore/TeamRankGroupPane.php');
       return new TeamRankGroupPane($r, $u);
     case 'add-penalty':
     case 'penalties':
     case 'penalty':
       if ($u->scoring == Regatta::SCORING_TEAM) {
-	require_once('tscore/TeamEnterPenaltyPane.php');
-	return new TeamEnterPenaltyPane($r, $u);
+        require_once('tscore/TeamEnterPenaltyPane.php');
+        return new TeamEnterPenaltyPane($r, $u);
       }
       require_once('tscore/EnterPenaltyPane.php');
       return new EnterPenaltyPane($r, $u);
@@ -354,7 +389,7 @@ abstract class AbstractPane {
     case 'race-order':
     case 'order':
       if ($u->scoring != Regatta::SCORING_TEAM)
-	return null;
+        return null;
       require_once('tscore/TeamRaceOrderPane.php');
       return new TeamRaceOrderPane($r, $u);
     case 'substitute':
@@ -441,6 +476,9 @@ abstract class AbstractPane {
   }
 
   private function doActive($class_name) {
+    if ($this->participant_mode && !in_array($class_name, self::$PARTICIPANT_MODE))
+      return false;
+
     switch ($class_name) {
     case 'EnterPenaltyPane':
     case 'TeamEnterPenaltyPane':
@@ -482,7 +520,7 @@ abstract class AbstractPane {
     case 'TweakSailsPane':
     case 'rotation':
       if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
-	return $this->has_races;
+        return $this->has_races;
       return $this->has_rots;
 
     case 'scores':
@@ -514,6 +552,14 @@ abstract class AbstractPane {
       return self::$TITLES[$i];
     throw new InvalidArgumentException("No title registered for pane $i.");
   }
+  /**
+   * @var Array list of panes that support "participant" UI mode
+   */
+  private static $PARTICIPANT_MODE = array(
+                                           "DetailsPane",
+                                           
+                                           );
+
   private static $URLS = array("DetailsPane" => "settings",
                                "SummaryPane" => "summaries",
                                "FinalizePane"=> "finalize",
@@ -521,7 +567,7 @@ abstract class AbstractPane {
 
                                "TeamRacesPane" => "races",
                                "RacesPane" => "races",
-			       "TeamRaceOrderPane" => "race-order",
+                               "TeamRaceOrderPane" => "race-order",
 
                                "NotesPane" => "notes",
                                "DeleteRegattaPane" => "delete",
@@ -540,8 +586,8 @@ abstract class AbstractPane {
                                "EnterFinishPane" => "finishes",
                                "TeamEnterFinishPane" => "finishes",
                                "EnterPenaltyPane" => "penalty",
-			       "TeamEnterPenaltyPane" => "penalty",
-			       "RankTeamsPane" => "rank",
+                               "TeamEnterPenaltyPane" => "penalty",
+                               "RankTeamsPane" => "rank",
                                "TeamRankGroupPane" => "group",
                                "DropPenaltyPane" => "drop-penalty",
                                "TeamPenaltyPane" => "team-penalty");
@@ -551,8 +597,8 @@ abstract class AbstractPane {
                                  "FinalizePane"=> "Finalize",
                                  "ScorersPane" => "Scorers",
                                  "RacesPane" => "Add/edit races",
-				 "TeamRacesPane" => "Edit rounds",
-				 "TeamRaceOrderPane" => "Order races",
+                                 "TeamRacesPane" => "Edit rounds",
+                                 "TeamRaceOrderPane" => "Order races",
                                  "NotesPane" => "Race notes",
                                  "DeleteRegattaPane" => "Delete",
                                  "TeamsPane" => "Add team",
@@ -570,8 +616,8 @@ abstract class AbstractPane {
                                  "EnterFinishPane" => "Enter finish",
                                  "TeamEnterFinishPane" => "Enter finish",
                                  "EnterPenaltyPane" => "Add penalty",
-				 "TeamEnterPenaltyPane" => "Add penalty",
-				 "RankTeamsPane" => "Rank teams",
+                                 "TeamEnterPenaltyPane" => "Add penalty",
+                                 "RankTeamsPane" => "Rank teams",
                                  "TeamRankGroupPane" => "Rank groups",
                                  "DropPenaltyPane" => "Drop penalty",
                                  "TeamPenaltyPane" => "Team penalty");

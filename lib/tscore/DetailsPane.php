@@ -30,7 +30,7 @@ class DetailsPane extends AbstractPane {
     // Finalize regatta
     // ------------------------------------------------------------
     if ($this->REGATTA->end_date < DB::$NOW) {
-      if ($this->REGATTA->finalized === null) {
+      if ($this->REGATTA->finalized === null && !$this->participant_mode) {
         if ($this->REGATTA->hasFinishes()) {
           $this->PAGE->addContent($p = new XPort("Finalize regatta"));
           $p->set('id', 'finalize');
@@ -59,22 +59,28 @@ class DetailsPane extends AbstractPane {
     // Name
     $value = $this->REGATTA->name;
     $reg_form->add(new FItem("Name:",
+                             ($this->participant_mode) ?
+                             new XStrong($value) :
                              new XTextInput("reg_name",
-                                            stripslashes($value),
+                                            $value,
                                             array("maxlength"=>35,
                                                   "size"     =>20))));
 
     // Private
-    $reg_form->add($fi = new FItem("Private:",
-                                   $chk = new XCheckboxInput('private', 1, array('id'=>'chk-priv'))));
-    $fi->add(new XLabel('chk-priv', "Private regattas are not published and are temporary."));
-    if ($this->REGATTA->private)
-      $chk->set('checked', 'checked');
+    if (!$this->participant_mode) {
+      $reg_form->add($fi = new FItem("Private:",
+                                     $chk = new XCheckboxInput('private', 1, array('id'=>'chk-priv'))));
+      $fi->add(new XLabel('chk-priv', "Private regattas are not published and are temporary."));
+      if ($this->REGATTA->private)
+        $chk->set('checked', 'checked');
+    }
 
     // Date
     $start_time = $this->REGATTA->start_time;
     $date = date_format($start_time, 'm/d/Y');
-    $reg_form->add(new FItem("Date:", 
+    $reg_form->add(new FItem("Date:",
+                             ($this->participant_mode) ?
+                             new XStrong($date) :
                              new XTextInput("sdate",
                                             $date,
                                             array("maxlength"=>30,
@@ -83,6 +89,8 @@ class DetailsPane extends AbstractPane {
     // Duration
     $value = $this->REGATTA->getDuration();
     $reg_form->add(new FItem("Duration (days):",
+                             ($this->participant_mode) ?
+                             new XStrong($value) :
                              new XTextInput("duration",
                                             $value,
                                             array("maxlength"=>2,
@@ -90,94 +98,124 @@ class DetailsPane extends AbstractPane {
     // On the water
     $value = date_format($start_time, "H:i");
     $reg_form->add(new FItem("On the water:",
+                             ($this->participant_mode) ?
+                             new XStrong($value) :
                              new XTextInput("stime", $value,
                                             array("maxlength"=>8,
                                                   "size"     =>8))));
 
     // Venue
     $venue = $this->REGATTA->venue;
-    $reg_form->add(new FItem("Venue:", $r_type = new XSelect("venue")));
-    $r_type->add(new FOption("", "[Leave blank if not found]"));
-    foreach (DB::getVenues() as $v) {
-      $r_type->add($opt = new FOption($v->id, $v->name));
-      if ($venue !== null && $venue->id == $v->id)
-        $opt->set('selected', 'selected');
+    if ($this->participant_mode)
+      $reg_form->add(new FItem("Venue:", new XStrong($venue)));
+    else {
+      $reg_form->add(new FItem("Venue:", $r_type = new XSelect("venue")));
+      $r_type->add(new FOption("", "[Leave blank if not found]"));
+      foreach (DB::getVenues() as $v) {
+        $r_type->add($opt = new FOption($v->id, $v->name));
+        if ($venue !== null && $venue->id == $v->id)
+          $opt->set('selected', 'selected');
+      }
     }
 
     // Regatta type
     $value = $this->REGATTA->type;
-    $reg_form->add(new FItem("Type:", $r_type = new XSelect('type')));
-    $r_type->add(new FOption("", "[Choose type]"));
-    foreach (DB::getAll(DB::$ACTIVE_TYPE) as $v) {
-      $r_type->add($opt = new FOption($v->id, $v));
-      if ($v->id == $value->id)
-        $opt->set('selected', 'selected');
+    if ($this->participant_mode)
+      $reg_form->add(new FItem("Type:", $value));
+    else {
+      $reg_form->add(new FItem("Type:", $r_type = new XSelect('type')));
+      $r_type->add(new FOption("", "[Choose type]"));
+      foreach (DB::getAll(DB::$ACTIVE_TYPE) as $v) {
+        $r_type->add($opt = new FOption($v->id, $v));
+        if ($v->id == $value->id)
+          $opt->set('selected', 'selected');
+      }
     }
 
     // Regatta participation
     $value = $this->REGATTA->participant;
-    $reg_form->add($item = new FItem("Participation:",
-                                     XSelect::fromArray('participant',
-                                                        Regatta::getParticipantOptions(),
-                                                        $value)));
-    // will changing this value affect the RP information?
-    if ($value == Regatta::PARTICIPANT_COED)
-      $item->add(new XMessage("Changing this value may affect RP info"));
+    $options = Regatta::getParticipantOptions();
+    if ($this->participant_mode)
+      $reg_form->add(new FItem("Participation:", new XStrong($options[$value])));
+    else {
+      $reg_form->add($item = new FItem("Participation:",
+                                       XSelect::fromArray('participant',
+                                                          $options,
+                                                          $value)));
+      // will changing this value affect the RP information?
+      if ($value == Regatta::PARTICIPANT_COED)
+        $item->add(new XMessage("Changing this value may affect RP info"));
+    }
 
     // Scoring rules
     $options = Regatta::getScoringOptions();
     if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
       $reg_form->add(new FItem("Scoring:", new XStrong("Team racing")));
     else {
-      unset($options[Regatta::SCORING_TEAM]);
-      $value = $this->REGATTA->scoring;
-      $reg_form->add($fi = new FItem("Scoring:", XSelect::fromArray('scoring', $options, $value)));
-      if ($this->REGATTA->scoring != Regatta::SCORING_COMBINED &&
-	  $this->REGATTA->hasFinishes() &&
-	  isset($options[Regatta::SCORING_COMBINED]))
-	$fi->add(new XMessage("Changing to \"Combined\" will remove incomplete finishes and rotations."));
+      if ($this->participant_mode)
+        $reg_form->add(new FItem("Scoring:", new XStrong($options[$value])));
+      else {
+        unset($options[Regatta::SCORING_TEAM]);
+        $value = $this->REGATTA->scoring;
+        $reg_form->add($fi = new FItem("Scoring:", XSelect::fromArray('scoring', $options, $value)));
+        if ($this->REGATTA->scoring != Regatta::SCORING_COMBINED &&
+            $this->REGATTA->hasFinishes() &&
+            isset($options[Regatta::SCORING_COMBINED]))
+          $fi->add(new XMessage("Changing to \"Combined\" will remove incomplete finishes and rotations."));
+      }
     }
 
     // Hosts: first add the current hosts, then the entire list of
     // schools in the affiliation ordered by conference
     $hosts = $this->REGATTA->getHosts();
-    // special case that there is only one host AND the user has no
-    // more than one school associated with them
-    if (count($this->USER->getSchools()) == 1 && count($hosts) == 1) {
-      $reg_form->add($fitem = new FItem("Host:", new XSpan($hosts[0]->nick_name)));
-      $fitem->add(new XHiddenInput('host[]', $hosts[0]->id));
+    if ($this->participant_mode) {
+      $val = array();
+      foreach ($hosts as $school)
+        $val[] = $school->nick_name;
+      $reg_form->add(new FItem("Host:", new XStrong(implode(", ", $val))));
     }
     else {
-      $reg_form->add($f_item = new FItem('Host(s):', $f_sel = new XSelectM("host[]", array('size'=>10))));
-
-      $f_sel->add($opt_group = new FOptionGroup("Current"));
-      $schools = array(); // track these so as not to include them later
-      foreach ($hosts as $host) {
-        $schools[$host->id] = $host;
-        $opt_group->add(new FOption($host->id, $host, array('selected' => 'selected')));
+      // special case that there is only one host AND the user has no
+      // more than one school associated with them
+      if (count($this->USER->getSchools()) == 1 && count($hosts) == 1) {
+        $reg_form->add($fitem = new FItem("Host:", new XSpan($hosts[0]->nick_name)));
+        $fitem->add(new XHiddenInput('host[]', $hosts[0]->id));
       }
-      $f_item->add(new XMessage("Hold down Ctrl to choose more than one"));
+      else {
+        $reg_form->add($f_item = new FItem('Host(s):', $f_sel = new XSelectM("host[]", array('size'=>10))));
 
-      // go through each conference
-      foreach (DB::getConferences() as $conf) {
-        $opts = array();
-        foreach ($this->USER->getSchools($conf) as $school) {
-          if (!isset($schools[$school->id]))
-            $opts[] = new FOption($school->id, $school);
+        $f_sel->add($opt_group = new FOptionGroup("Current"));
+        $schools = array(); // track these so as not to include them later
+        foreach ($hosts as $host) {
+          $schools[$host->id] = $host;
+          $opt_group->add(new FOption($host->id, $host, array('selected' => 'selected')));
         }
-        if (count($opts) > 0)
-          $f_sel->add(new FOptionGroup($conf, $opts));
+        $f_item->add(new XMessage("Hold down Ctrl to choose more than one"));
+
+        // go through each conference
+        foreach (DB::getConferences() as $conf) {
+          $opts = array();
+          foreach ($this->USER->getSchools($conf) as $school) {
+            if (!isset($schools[$school->id]))
+              $opts[] = new FOption($school->id, $school);
+          }
+          if (count($opts) > 0)
+            $f_sel->add(new FOptionGroup($conf, $opts));
+        }
       }
     }
 
     // Update button
-    $reg_form->add(new XP(array(), new XSubmitInput("edit_reg", "Edit")));
+    if (!$this->participant_mode)
+      $reg_form->add(new XP(array(), new XSubmitInput("edit_reg", "Edit")));
   }
 
   /**
    * Process edits to the regatta
    */
   public function process(Array $args) {
+    if ($this->participant_mode)
+      throw new SoterException("Insufficient permissions.");
 
     // ------------------------------------------------------------
     // Details
