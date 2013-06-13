@@ -69,13 +69,20 @@ abstract class AbstractUserPane {
     // menu
 
     // User Preferences
+    $items = array(new XLi(new XA("/", "Home")));
+
+    $season = Season::forDate(DB::$NOW);
+    if ($season !== null)
+      $items[] = new XLi(new XA('/season', $season->fullString()));
+
+    $items[] = new XLi(new XA("/archive", "All regattas"));
+    $items[] = new XLi(new XA("/create", "New regatta", array("accesskey"=>"n")));
+    $items[] = new XLi(new XA("/account","My account"));
+
     $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
                                   array(new XH4("TechScore"),
-                                        new XUl(array(),
-                                                array(new XLi(new XA("/", "Home")),
-                                                      new XLi(new XA("/archive", "All regattas")),
-                                                      new XLi(new XA("/create", "New regatta", array("accesskey"=>"n"))),
-                                                      new XLi(new XA("/account","My account")))))));
+                                        new XUl(array(), $items))));
+
     // School setup
     $S = $this->SCHOOL->id;
     $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
@@ -306,6 +313,10 @@ abstract class AbstractUserPane {
     case 'inbox':
       require_once('users/MessagePane.php');
       return new MessagePane($u);
+
+    case 'season':
+      require_once('users/UserSeasonPane.php');
+      return new UserSeasonPane($u);
 
     case 'create':
       require_once('users/NewRegattaPane.php');
