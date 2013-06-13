@@ -104,7 +104,16 @@ class AllAmerican extends AbstractUserPane {
       $form->add(new XSubmitP('set-report', "Choose regattas →"));
 
       // existing?
-      $reports = DB::getAll(DB::$AA_REPORT);
+      $all_reports = DB::getAll(DB::$AA_REPORT);
+      $pos_confs = array();
+      foreach ($this->USER->getConferences() as $conf)
+        $pos_confs[$conf->id] = $conf;
+
+      $reports = array();
+      foreach ($all_reports as $report) {
+        if ($this->isValidReportForUser($report, $pos_confs))
+          $reports[] = $report;
+      }
       if (count($reports) > 0) {
         $this->PAGE->addContent($p = new XPort("Saved reports"));
         $p->add(new XP(array(), "Open or deleted a saved report by selecting from the table below and clicking the appropriate button."));
@@ -342,6 +351,9 @@ class AllAmerican extends AbstractUserPane {
     // ------------------------------------------------------------
     if (isset($args['delete-report'])) {
       $report = DB::$V->reqID($args, 'id', DB::$AA_REPORT, "Invalid report chosen.");
+      if (!$this->isValidReportForUser($report))
+        throw new SoterException("You do not have permission to delete this report.");
+
       DB::remove($report);
       Session::pa(new PA(sprintf("Deleted report \"%s\".", $report->id)));
       return false;
@@ -352,6 +364,9 @@ class AllAmerican extends AbstractUserPane {
     // ------------------------------------------------------------
     if (isset($args['load-report'])) {
       $report = DB::$V->reqID($args, 'id', DB::$AA_REPORT, "Invalid report chosen.");
+      if (!$this->isValidReportForUser($report))
+        throw new SoterException("You do not have permission to use this report.");
+
       $this->AA['report-type'] = $report->type;
       $this->AA['report-role'] = $report->role;
       $this->AA['report-id'] = $report->id;
@@ -697,6 +712,19 @@ class AllAmerican extends AbstractUserPane {
     }
 
     return $list;
+  }
+
+  private function isValidReportForUser(AA_Report $report, Array $pos_confs = array()) {
+    if (count($pos_confs) == 0) {
+      foreach ($this->USER->getConferences() as $conf)
+        $pos_confs[$conf->id] = $conf;
+    }
+
+    foreach ($report->conferences as $conf) {
+      if (!isset($pos_confs[$conf]))
+        return false;
+    }
+    return true;
   }
 }
 ?>
