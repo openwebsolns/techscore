@@ -20,46 +20,60 @@ class RpEnterPane extends AbstractPane {
   }
 
   protected function fillHTML(Array $args) {
-    $teams = $this->REGATTA->getTeams();
+    if ($this->participant_mode) {
+      $teams = array();
+      foreach ($this->USER->getSchools() as $school) {
+        foreach ($this->REGATTA->getTeams($school) as $team)
+          $teams[$team->id] = $team;
+      }
+    }
+    else {
+      $teams = array();
+      foreach ($this->REGATTA->getTeams() as $team)
+        $teams[$team->id] = $team;
+    }
 
     if (count($teams) == 0) {
       $this->PAGE->addContent($p = new XPort("No teams registered"));
-      $p->add(new XP(array(),
-                     array("In order to register sailors, you will need to ",
-                           new XA(sprintf("score/%s/team", $this->REGATTA->id), "register teams"),
-                           " first.")));
+      if (!$this->participant_mode)
+        $p->add(new XP(array(),
+                       array("In order to register sailors, you will need to ",
+                             new XA(sprintf("score/%s/team", $this->REGATTA->id), "register teams"),
+                             " first.")));
       return;
     }
 
-    if (!isset($args['chosen_team']) || ($chosen_team = $this->REGATTA->getTeam($args['chosen_team'])) === null) {
-      $chosen_team = $teams[0];
+    if (isset($args['chosen_team']) && isset($teams[$args['chosen_team']]))
+      $chosen_team = $teams[$args['chosen_team']];
+    else {
+      $keys = array_keys($teams);
+      $chosen_team = $teams[$keys[0]];
     }
 
     $rpManager = $this->REGATTA->getRpManager();
     $divisions = $this->REGATTA->getDivisions();
     // Output
     $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/rp.js'));
-    $this->PAGE->addContent($p = new XPort("Choose a team"));
-    $p->add(new XP(array(),
-                   array("Use the form below to enter RP information. If a sailor does not appear in the selection box, it means they are not in the ICSA database, and they have to be manually added to a temporary list in the ",
-                         new XA(sprintf('/score/%s/unregistered', $this->REGATTA->id), "Unregistered form"),
-                         ".")));
-    $p->add(new XP(array(),
-                   array(new XStrong("Note:"),
-                         " You may only submit up to two sailors in the same role in the same division at a time. To add a third or more skipper or crew in a given division, submit the form multiple times.")));
+    if (count($teams) > 1) {
+      // ------------------------------------------------------------
+      // Change team
+      // ------------------------------------------------------------
+      $this->PAGE->addContent($p = new XPort("Choose a team"));
+      $p->add(new XP(array(),
+                     array("Use the form below to enter RP information. If a sailor does not appear in the selection box, it means they are not in the ICSA database, and they have to be manually added to a temporary list in the ",
+                           new XA(sprintf('/score/%s/unregistered', $this->REGATTA->id), "Unregistered form"),
+                           ".")));
 
-    // ------------------------------------------------------------
-    // Change team
-    // ------------------------------------------------------------
-    $p->add($form = $this->createForm(XForm::GET));
-    $form->add(new FItem("Team:", $f_sel = new XSelect("chosen_team", array("onchange"=>"submit(this)"))));
-    $team_opts = array();
-    foreach ($teams as $team) {
-      $f_sel->add($opt = new FOption($team->id, $team));
-      if ($team->id == $chosen_team->id)
-        $opt->set('selected', 'selected');
+      $p->add($form = $this->createForm(XForm::GET));
+      $form->add(new FItem("Team:", $f_sel = new XSelect("chosen_team", array("onchange"=>"submit(this)"))));
+      $team_opts = array();
+      foreach ($teams as $team) {
+        $f_sel->add($opt = new FOption($team->id, $team));
+        if ($team->id == $chosen_team->id)
+          $opt->set('selected', 'selected');
+      }
+      $form->add(new XSubmitAccessible("change_team", "Get form"));
     }
-    $form->add(new XSubmitAccessible("change_team", "Get form"));
 
     // ------------------------------------------------------------
     // What's missing
@@ -105,6 +119,11 @@ class RpEnterPane extends AbstractPane {
                             new XA(WS::link(sprintf('/view/%s/sailors', $this->REGATTA->id)), "Sailors dialog",
                                    array('onclick'=>'this.target="sailors"')),
                             " to see current registrations.")));
+
+    $p->add(new XP(array(),
+                   array(new XStrong("Note:"),
+                         " You may only submit up to two sailors in the same role in the same division at a time. To add a third or more skipper or crew in a given division, submit the form multiple times.")));
+
     $form->add(new XHiddenInput("chosen_team", $chosen_team->id));
     $form->add($fi = new FItem("Representative:", new XTextInput('rep', $rep)));
     $fi->add(new XMessage("For contact purposes only."));
@@ -201,11 +220,24 @@ class RpEnterPane extends AbstractPane {
 
 
   public function process(Array $args) {
+    if ($this->participant_mode) {
+      $teams = array();
+      foreach ($this->USER->getSchools() as $school) {
+        foreach ($this->REGATTA->getTeams($school) as $team)
+          $teams[$team->id] = $team;
+      }
+    }
+    else {
+      $teams = array();
+      foreach ($this->REGATTA->getTeams() as $team)
+        $teams[$team->id] = $team;
+    }
 
     // ------------------------------------------------------------
-    // Change teams
+    // Choose team
     // ------------------------------------------------------------
-    $team = DB::$V->reqTeam($args, 'chosen_team', $this->REGATTA, "Missing team choice.");
+    $id = DB::$V->reqKey($args, 'chosen_team', $teams, "Missing or invalid team choice.");
+    $team = $teams[$id];
 
     // ------------------------------------------------------------
     // RP data

@@ -30,16 +30,18 @@ class DetailsPane extends AbstractPane {
     // Finalize regatta
     // ------------------------------------------------------------
     if ($this->REGATTA->end_date < DB::$NOW) {
-      if ($this->REGATTA->finalized === null && !$this->participant_mode) {
-        if ($this->REGATTA->hasFinishes()) {
-          $this->PAGE->addContent($p = new XPort("Finalize regatta"));
-          $p->set('id', 'finalize');
-          $p->add(new XP(array('class'=>'warning'),
-                         array(new XStrong("Note:"), " all official regattas must be finalized, or they will be flagged as incomplete.")));
-          $p->add(new XP(array(),
-                         array("Once finalized, all unsailed races will be removed from the system. This means that no new races can be created. However, existing races can be re-scored, if needed. In addition, RP information will still be available for edits after finalization.")));
-          $p->add(new XP(array(),
-                         array("Once ready to finalize, visit the ", new XA($this->link('finalize'), "Finalize"), " pane to review the regatta.")));
+      if ($this->REGATTA->finalized === null) {
+        if (!$this->participant_mode) {
+          if ($this->REGATTA->hasFinishes()) {
+            $this->PAGE->addContent($p = new XPort("Finalize regatta"));
+            $p->set('id', 'finalize');
+            $p->add(new XP(array('class'=>'warning'),
+                           array(new XStrong("Note:"), " all official regattas must be finalized, or they will be flagged as incomplete.")));
+            $p->add(new XP(array(),
+                           array("Once finalized, all unsailed races will be removed from the system. This means that no new races can be created. However, existing races can be re-scored, if needed. In addition, RP information will still be available for edits after finalization.")));
+            $p->add(new XP(array(),
+                           array("Once ready to finalize, visit the ", new XA($this->link('finalize'), "Finalize"), " pane to review the regatta.")));
+          }
         }
       }
       else {
@@ -121,7 +123,7 @@ class DetailsPane extends AbstractPane {
     // Regatta type
     $value = $this->REGATTA->type;
     if ($this->participant_mode)
-      $reg_form->add(new FItem("Type:", $value));
+      $reg_form->add(new FItem("Type:", new XStrong($value)));
     else {
       $reg_form->add(new FItem("Type:", $r_type = new XSelect('type')));
       $r_type->add(new FOption("", "[Choose type]"));
@@ -149,6 +151,7 @@ class DetailsPane extends AbstractPane {
 
     // Scoring rules
     $options = Regatta::getScoringOptions();
+    $value = $this->REGATTA->scoring;
     if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
       $reg_form->add(new FItem("Scoring:", new XStrong("Team racing")));
     else {
@@ -156,7 +159,6 @@ class DetailsPane extends AbstractPane {
         $reg_form->add(new FItem("Scoring:", new XStrong($options[$value])));
       else {
         unset($options[Regatta::SCORING_TEAM]);
-        $value = $this->REGATTA->scoring;
         $reg_form->add($fi = new FItem("Scoring:", XSelect::fromArray('scoring', $options, $value)));
         if ($this->REGATTA->scoring != Regatta::SCORING_COMBINED &&
             $this->REGATTA->hasFinishes() &&

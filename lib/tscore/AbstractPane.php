@@ -248,16 +248,17 @@ abstract class AbstractPane {
    */
   final public function getHTML(Array $args) {
     $this->setupPage();
-    if (!$this->has_teams) {
-      if (get_class($this) != 'TeamsPane')
-        Session::pa(new PA(array("No teams have yet been setup. ",
-                                 new XA(sprintf('/score/%s/teams', $this->REGATTA->id), "Add teams now"), "."), PA::I));
+    if (!$this->participant_mode) {
+      if (!$this->has_teams) {
+        if (get_class($this) != 'TeamsPane')
+          Session::pa(new PA(array("No teams have yet been setup. ",
+                                   new XA(sprintf('/score/%s/teams', $this->REGATTA->id), "Add teams now"), "."), PA::I));
+      }
+      elseif (!$this->has_races && get_class($this) != 'RacesPane' && get_class($this) != 'TeamRacesPane')
+        Session::pa(new PA(array("No races exist for this regatta. Please ",
+                                 new XA(sprintf('/score/%s/races', $this->REGATTA->id), "add races"),
+                                 " now."), PA::I));
     }
-    elseif (!$this->has_races && get_class($this) != 'RacesPane' && get_class($this) != 'TeamRacesPane')
-      Session::pa(new PA(array("No races exist for this regatta. Please ",
-                               new XA(sprintf('/score/%s/races', $this->REGATTA->id), "add races"),
-                               " now."), PA::I));
-
     $this->fillHTML($args);
     $this->PAGE->printXML();
   }
@@ -557,7 +558,8 @@ abstract class AbstractPane {
    */
   private static $PARTICIPANT_MODE = array(
                                            "DetailsPane",
-                                           
+                                           "RpEnterPane",
+                                           "TeamRpEnterPane",
                                            );
 
   private static $URLS = array("DetailsPane" => "settings",
