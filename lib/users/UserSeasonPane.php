@@ -35,35 +35,6 @@ class UserSeasonPane extends AbstractUserPane {
    */
   protected function fillHTML(Array $args) {
     // ------------------------------------------------------------
-    // Pending users
-    // ------------------------------------------------------------
-    if ($this->USER->isAdmin()) {
-      $pending = DB::getPendingUsers();
-      if (($num_pending = count($pending)) > 0) {
-        $this->PAGE->addContent($p = new XPort("Pending users"));
-        if ($num_pending == 1)
-          $p->add(new XP(array(),
-                         array("There is one pending account request for ", new XA(WS::link('/pending'), $pending[0]), ".")));
-        else
-          $p->add(new XP(array(),
-                         array("There are ", new XA(WS::link('/pending'), "$num_pending pending account requests"), ".")));
-      }
-    }
-
-    // ------------------------------------------------------------
-    // Messages
-    // ------------------------------------------------------------
-    $num_messages = count(DB::getUnreadMessages($this->USER));
-    if ($num_messages > 0) {
-      $this->PAGE->addContent($p = new XPort("Messages"));
-      $p->add($para = new XP(array(), "You have "));
-      if ($num_messages == 1)
-        $para->add(new XA("inbox", "1 unread message."));
-      else
-        $para->add(new XA("inbox", "$num_messages unread messages."));
-    }
-
-    // ------------------------------------------------------------
     // Regattas
     // ------------------------------------------------------------
     $season = Season::forDate(DB::$NOW);
@@ -111,15 +82,21 @@ class UserSeasonPane extends AbstractUserPane {
     $num_all = 0;
 
     // Sort all current regattas
+    $start = clone(DB::$NOW);
+    $start->add(new DateInterval('P3DT0H'));
+    $start->setTime(0, 0);
+
+    
+
     foreach ($regattas as $reg) {
       $link = new XA('/score/' . $reg->id, $reg->name);
       $row = array($link);
 
       if ($this->USER->isAdmin()) {
-	$hosts = array();
-	foreach ($reg->getHosts() as $host)
-	  $hosts[$host->id] = $host->id;
-	$row[] = implode("/", $hosts);
+        $hosts = array();
+        foreach ($reg->getHosts() as $host)
+          $hosts[$host->id] = $host->id;
+        $row[] = implode("/", $hosts);
       }
 
       $finalized = '--';
@@ -156,7 +133,7 @@ class UserSeasonPane extends AbstractUserPane {
       $class = "";
       if ($reg->private)
         $class = 'personal-regatta ';
-      if ($this->isCurrent($reg)) {
+      if ($this->isCurrent($reg, $start)) {
         $cur_tab->addRow($row, array('class' => $class . 'row'.($num_cur++ % 2)));
       }
       else {
@@ -183,10 +160,7 @@ class UserSeasonPane extends AbstractUserPane {
    * Condition: start_time in the next 3 days, end_date + 4 days
    * beyond now
    */
-  private function isCurrent(Regatta $reg) {
-    $start = clone(DB::$NOW);
-    $start->add(new DateInterval('P3DT0H'));
-    $start->setTime(0, 0);
+  private function isCurrent(Regatta $reg, DateTime $start) {
     if ($reg->start_time > $start)
       return false;
     $end = clone($reg->end_date);

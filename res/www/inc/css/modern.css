@@ -877,3 +877,32 @@ h4 a:hover {
 #saved-aa-reports thead th, #saved-aa-reports td {
     text-align: left;
 }
+
+#port-burgee {
+    width: 12em;
+    text-align: center;
+    vertical-align: top;
+    display: inline-block;
+    margin-right: 1em;
+}
+.burgee-cell {
+    margin: 0;
+}
+.burgee-cell a {
+    background: #F2EDE6;
+    border-radius: 0.5em;
+    display: inline-block;
+    padding: 0.25em;
+}
+.burgee-cell a:hover {
+    background: white;
+}
+
+#port-team-names {
+    width: 20em;
+    display: inline-block;
+    vertical-align: top;
+}
+#port-team-names ol {
+    margin-top: 0;
+}
