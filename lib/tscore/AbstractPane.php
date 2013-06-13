@@ -85,8 +85,7 @@ abstract class AbstractPane {
       if ($this->participant_mode) {
         $score_i = array("Regatta"  => array("settings"  => "DetailsPane"),
                          "RP Forms" => array("rp"         => "TeamRpEnterPane",
-                                             "unregistered" => "UnregisteredSailorPane",
-                                             "missing"  => "RpMissingPane"));
+                                             "unregistered" => "UnregisteredSailorPane"));
       }
       else {
         $score_i = array("Regatta"   => array("settings"   => "DetailsPane",
@@ -120,8 +119,7 @@ abstract class AbstractPane {
       if ($this->participant_mode) {
         $score_i = array("Regatta"  => array("settings"  => "DetailsPane"),
                          "RP Forms" => array("rp"         => "RpEnterPane",
-                                             "unregistered" => "UnregisteredSailorPane",
-                                             "missing"  => "RpMissingPane"));
+                                             "unregistered" => "UnregisteredSailorPane"));
       }
       else {
         $score_i = array("Regatta"   => array("settings"   => "DetailsPane",
