@@ -33,14 +33,22 @@ class UnregisteredSailorPane extends AbstractPane {
 
     // Create set of schools
     $schools = array();
-    foreach ($this->REGATTA->getTeams() as $team)
-      $schools[$team->school->id] = $team->school->nick_name;
+    foreach ($this->REGATTA->getTeams() as $team) {
+      if (!$this->participant_mode || $this->USER->hasSchool($team->school))
+        $schools[$team->school->id] = $team->school->nick_name;
+    }
     asort($schools);
 
     $form->add($tab = new XQuickTable(array('class'=>'short'),
                                       array("School", "First name", "Last name", "Year", "Gender")));
     $gender = XSelect::fromArray('gender[]', $genders);
-    $school = XSelect::fromArray('school[]', $schools);
+    $school = null;
+    if (count($schools) < 2) {
+      $keys = array_keys($schools);
+      $school = array(new XHiddenInput('school[]', $schools[$keys[0]]), $schools[$keys[0]]);
+    }
+    else
+      $school = XSelect::fromArray('school[]', $schools);
     for ($i = 0; $i < 5; $i++) {
       $tab->addRow(array($school,
                          new XTextInput('first_name[]', ""),
@@ -50,14 +58,15 @@ class UnregisteredSailorPane extends AbstractPane {
     }
     $form->add(new XSubmitP("addtemp", "Add sailors"));
 
-    $this->PAGE->addContent($p = new XPort("Review current regatta list"));
-    $p->add(new XP(array(), "Below is a list of all the temporary sailors added in this regatta. You are given the option to delete any sailor that is not currently present in any of the RP forms for this regatta. If you made a mistake about a sailor's identity, remove that sailor and add a new one instead."));
+    $temp = array();
     $rp = $this->REGATTA->getRpManager();
-    $temp = $rp->getAddedSailors();
-    if (count($temp) == 0) {
-      $p->add(new XP(array(), "There are no temporary sailors added yet.", array('class'=>'message')));
+    foreach ($rp->getAddedSailors() as $sailor) {
+      if (isset($schools[$sailor->school->id]))
+        $temp[] = $sailor;
     }
-    else {
+    if (count($temp) > 0) {
+      $this->PAGE->addContent($p = new XPort("Review current regatta list"));
+      $p->add(new XP(array(), "Below is a list of all the temporary sailors added in this regatta. You are given the option to delete any sailor that is not currently present in any of the RP forms for this regatta. If you made a mistake about a sailor's identity, remove that sailor and add a new one instead."));
       $p->add($tab = new XQuickTable(array(), array("School", "First name", "Last name", "Year", "Gender", "Action")));
       foreach ($temp as $t) {
         // is this sailor currently in the RP forms? Otherwise, offer
@@ -68,7 +77,7 @@ class UnregisteredSailorPane extends AbstractPane {
           $form->add(new XHiddenInput('sailor', $t->id));
           $form->add(new XSubmitInput('remove-temp', "Remove"));
         }
-        $tab->addRow(array($t->school,
+        $tab->addRow(array($t->school->nick_name,
                            $t->first_name,
                            $t->last_name,
                            $t->year,
@@ -78,8 +87,14 @@ class UnregisteredSailorPane extends AbstractPane {
     }
   }
 
-
   public function process(Array $args) {
+
+    // valid schools
+    $schools = array();
+    foreach ($this->REGATTA->getTeams() as $team) {
+      if (!$this->participant_mode || $this->USER->hasSchool($team->school))
+        $schools[$team->school->id] = $team->school->nick_name;
+    }
 
     // ------------------------------------------------------------
     // Add temporary sailor
@@ -96,6 +111,7 @@ class UnregisteredSailorPane extends AbstractPane {
       for ($i = 0; $i < count($cnt['school']); $i++) {
         $s = new Sailor();
         if (DB::$V->hasID($s->school, $cnt['school'], $i, DB::$SCHOOL) &&
+            isset($schools[$s->school->id]) &&
             DB::$V->hasString($s->first_name, $cnt['first_name'], $i, 1, 101) &&
             DB::$V->hasString($s->last_name, $cnt['last_name'], $i, 1, 101) &&
             DB::$V->hasInt($s->year, $cnt['year'], $i, 1990, $max_year) &&
@@ -116,6 +132,8 @@ class UnregisteredSailorPane extends AbstractPane {
     if (isset($args['remove-temp'])) {
       $rp = $this->REGATTA->getRpManager();
       $sailor = DB::$V->reqID($args, 'sailor', DB::$SAILOR, "No sailor to delete.");
+      if (!isset($schools[$sailor->school->id]))
+        throw new SoterException("Insufficient permissions to remove temporary sailor.");
       if ($rp->removeTempSailor($sailor))
         Session::pa(new PA("Removed temporary sailor $sailor."));
       else

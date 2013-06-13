@@ -558,6 +558,7 @@ abstract class AbstractPane {
                                            "DetailsPane",
                                            "RpEnterPane",
                                            "TeamRpEnterPane",
+                                           "UnregisteredSailorPane",
                                            );
 
   private static $URLS = array("DetailsPane" => "settings",
