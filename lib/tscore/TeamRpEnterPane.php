@@ -18,10 +18,21 @@ class TeamRpEnterPane extends AbstractPane {
   }
 
   protected function fillHTML(Array $args) {
+    if ($this->participant_mode) {
+      $pos_teams = array();
+      foreach ($this->USER->getSchools() as $school) {
+        foreach ($this->REGATTA->getTeams($school) as $team)
+          $pos_teams[] = $team;
+      }
+    }
+    else {
+      $pos_teams = $this->REGATTA->getTeams();
+    }
+
     $teams = array();
     $team_races = array();
     $chosen_team = null;
-    foreach ($this->REGATTA->getTeams() as $team) {
+    foreach ($pos_teams as $team) {
       $races = $this->REGATTA->getRacesForTeam(Division::A(), $team);
       if (count($races) > 0) {
         $teams[$team->id] = $team;
@@ -38,8 +49,10 @@ class TeamRpEnterPane extends AbstractPane {
     }
 
     if (isset($args['chosen_team'])) {
-      if (!isset($teams[$args['chosen_team']]))
-        Session::pa(new PA("Invalid chosen team. Please try again.", PA::I));
+      if (!isset($teams[$args['chosen_team']])) {
+        $keys = array_keys($teams);
+        $chosen_team = $teams[$keys[0]];
+      }
       else
         $chosen_team = $teams[$args['chosen_team']];
     }
@@ -47,19 +60,21 @@ class TeamRpEnterPane extends AbstractPane {
     $rpManager = $this->REGATTA->getRpManager();
     $divisions = $this->REGATTA->getDivisions();
 
-    $this->PAGE->addContent($p = new XPort("Choose a team"));
-    $p->add(new XP(array(),
-                   array("Use the form below to enter RP information. If a sailor does not appear in the selection box, it means they are not in the ICSA database, and they have to be manually added to a temporary list in the ",
-                         new XA(sprintf('/score/%s/unregistered', $this->REGATTA->id), "Unregistered form"),
-                         ".")));
+    $this->PAGE->addContent(new XP(array(),
+                                   array("Use the form below to enter RP information. If a sailor does not appear in the selection box, it means they are not in the ICSA database, and they have to be manually added to a temporary list in the ",
+                                         new XA(sprintf('/score/%s/unregistered', $this->REGATTA->id), "Unregistered form"),
+                                         ".")));
 
-    // ------------------------------------------------------------
-    // Change team
-    // ------------------------------------------------------------
-    $p->add($form = $this->createForm(XForm::GET));
-    $form->add(new FItem("Team:", $sel = XSelect::fromArray('chosen_team', $teams, $chosen_team->id)));
-    $sel->set('onchange', 'submit(this);');
-    $form->add(new XSubmitAccessible("change_team", "Get form"));
+    if (count($teams) > 1) {
+      // ------------------------------------------------------------
+      // Change team
+      // ------------------------------------------------------------
+      $this->PAGE->addContent($p = new XPort("Choose a team"));
+      $p->add($form = $this->createForm(XForm::GET));
+      $form->add(new FItem("Team:", $sel = XSelect::fromArray('chosen_team', $teams, $chosen_team->id)));
+      $sel->set('onchange', 'submit(this);');
+      $form->add(new XSubmitAccessible("change_team", "Get form"));
+    }
 
     // ------------------------------------------------------------
     // RP Form
@@ -194,9 +209,22 @@ class TeamRpEnterPane extends AbstractPane {
   public function process(Array $args) {
 
     // ------------------------------------------------------------
-    // Change teams
+    // Choose teams
     // ------------------------------------------------------------
-    $team = DB::$V->reqTeam($args, 'chosen_team', $this->REGATTA, "Missing team choice.");
+    $pos_teams = array();
+    if ($this->participant_mode) {
+      foreach ($this->USER->getSchools() as $school) {
+        foreach ($this->REGATTA->getTeams($school) as $team)
+          $pos_teams[$team->id] = $team;
+      }
+    }
+    else {
+      foreach ($this->REGATTA->getTeams() as $team)
+        $pos_teams[$team->id] = $team;
+    }
+
+    $id = DB::$V->reqKey($args, 'chosen_team', $pos_teams, "Missing team choice.");
+    $team = $pos_teams[$id];
 
     // ------------------------------------------------------------
     // RP data
@@ -228,7 +256,7 @@ class TeamRpEnterPane extends AbstractPane {
         $race = $this->REGATTA->getRace(Division::A(), $num);
         if ($race === null)
           throw new SoterException("Invalid race number provided: $num.");
-        if ($race->tr_team1 != $team && $race->tr_team2 != $team)
+        if ($race->tr_team1->id != $team->id && $race->tr_team2->id != $team->id)
           throw new SoterException(sprintf("%s did not participate in race %s.", $team, $race));
         $races[$race->number] = $race;
         if ($race->boat->max_crews > $max_crews)
