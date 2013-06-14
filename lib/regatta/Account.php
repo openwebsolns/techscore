@@ -190,14 +190,23 @@ class Account extends DBObject {
    * Searches and returns a list of matching regattas.
    *
    * @param String $qry the query to search
+   * @param boolean $inc_participating default false
    * @return Array:Regatta the regattas
    */
-  public function searchRegattas($qry) {
+  public function searchRegattas($qry, $inc_participating = false) {
     require_once('regatta/Regatta.php');
     $cond = new DBCond('name', "%$qry%", DBCond::LIKE);
-    if (!$this->isAdmin()) // regular user
-      $cond = new DBBool(array($cond,
-                               new DBCondIn('id', DB::prepGetAll(DB::$SCORER, new DBCond('account', $this), array('regatta')))));
+
+    if (!$this->isAdmin()) { // regular user
+      $c = new DBBool(array(new DBCondIn('id', DB::prepGetAll(DB::$SCORER, new DBCond('account', $this), array('regatta'))),
+                            new DBCondIn('id',
+                                         DB::prepGetAll(DB::$TEAM,
+                                                        new DBCondIn('school', $this->getSchools()),
+                                                        array('regatta')))),
+                      DBBool::mOR);
+      $cond = new DBBool(array($cond, $c));
+    }
+
     return DB::getAll(DB::$REGATTA, $cond);
   }
 

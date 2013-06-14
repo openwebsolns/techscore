@@ -92,101 +92,20 @@ class HomePane extends AbstractUserPane {
                                               new DBCond('end_date', DB::$NOW, DBCond::GE))));
       DB::$REGATTA->db_set_order();
 
-      $headers = array("Inv", "Name");
-      if ($this->USER->isAdmin())
-        $headers[] = "Host(s)";
-      $headers[] = "Date";
-      $headers[] = "Type";
-      $headers[] = "Scoring";
-      $headers[] = "Finalized";
-      $cur_tab = new XQuickTable(array('class'=>'regatta-list-current'), $headers);
-      $num_cur = 0;
+      require_once('xml5/UserRegattaTable.php');
+      $cur_tab = new UserRegattaTable($this->USER, true);
 
       $schools = $this->USER->getSchools();
 
       // Sort all current regattas
       foreach ($regattas as $reg) {
-        $is_participant = false;
-        $inv = null;
-        if ($this->USER->hasJurisdiction($reg))
-          $inv = new XImg(WS::link('/inc/img/scoring.png'), "Scoring");
-        elseif ($this->hasSchoolIn($reg, $schools)) {
-          $inv = new XImg(WS::link('/inc/img/part.png'), "Part.");
-          $is_participant = true;
-        }
-        else
-          continue;
-
-        $link = new XA('/score/' . $reg->id, $reg->name);
-        $row = array($inv, $link);
-
-        if ($this->USER->isAdmin()) {
-          $hosts = array();
-          foreach ($reg->getHosts() as $host)
-            $hosts[$host->id] = $host->id;
-          $row[] = implode("/", $hosts);
-        }
-
-        $finalized = '--';
-        if ($reg->finalized !== null) {
-          $is_complete = true;
-          $rpm = $reg->getRpManager();
-
-          if ($is_participant) {
-            foreach ($schools as $school) {
-              foreach ($reg->getTeams($school) as $team) {
-                if (!$rpm->isComplete($team)) {
-                  $finalized = new XA(WS::link(sprintf('/score/%s/rp?chosen_team=%s', $reg->id, $team->id)), "Missing RP",
-                                      array('class'=>'stat missing-rp',
-                                            'title'=>"At least one skipper/crew is missing."));
-                  $is_complete = false;
-                  break;
-                }
-              }
-              if ($is_complete)
-                break;
-            }
-          }
-          elseif (!$rpm->isComplete()) {
-            $is_complete = false;
-            $finalized = new XA(WS::link(sprintf('/score/%s/rp', $reg->id)), "Missing RP",
-                                array('class'=>'stat missing-rp',
-                                      'title'=>"At least one skipper/crew is missing."));
-          }
-          if ($is_complete)
-            $finalized = $reg->finalized->format("Y-m-d");
-        }
-        elseif ($reg->end_date < DB::$NOW) {
-          if (count($reg->getTeams()) == 0 || count($reg->getRaces()) == 0)
-            $finalized = new XSpan("Incomplete", array('class'=>'stat incomplete', 'title'=>"Missing races or teams."));
-          elseif ($reg->private === null && !$reg->hasFinishes())
-            $finalized = new XA(WS::link(sprintf('/score/%s/finishes', $reg->id)), "No finishes",
-                                array('class'=>'stat empty',
-                                      'title'=>"No finishes entered"));
-          else
-            $finalized = new XA(WS::link('/score/'.$reg->id.'#finalize'), "Pending",
-                                array('title'=>'Regatta must be finalized!',
-                                      'class'=>'stat pending'));
-        }
-
-        $scoring = ucfirst($reg->scoring);
-        if ($reg->isSinglehanded())
-          $scoring = "Singlehanded";
-        $row[] = $reg->start_time->format("Y-m-d");
-        $row[] = $reg->type;
-        $row[] = $scoring;
-        $row[] = $finalized;
-
-        $class = "";
-        if ($reg->private)
-          $class = 'personal-regatta ';
-        $cur_tab->addRow($row, array('class' => $class . 'row'.($num_cur++ % 2)));
+        if ($this->USER->hasJurisdiction($reg) || $this->hasSchoolIn($reg, $schools))
+          $cur_tab->addRegatta($reg);
       }
 
-      // Add the tables
       $this->PAGE->addContent($p = new XPort("In focus"));
       $p->set('id', 'port-in-focus');
-      if ($num_cur > 0)
+      if ($cur_tab->count() > 0)
         $p->add($cur_tab);
       $p->add(new XP(array(),
                      array("See all the regattas for ",
@@ -228,7 +147,7 @@ class HomePane extends AbstractUserPane {
     }
   }
 
-  private function hasSchoolIn(Regatta $reg, Array $schools) {
+  private function hasSchoolIn(Regatta $reg, $schools) {
     foreach ($schools as $school) {
       if (count($reg->getTeams($school)) > 0)
         return true;

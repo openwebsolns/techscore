@@ -51,18 +51,18 @@ class UserArchivePane extends AbstractUserPane {
       if (strlen($qry) < 3)
         $empty_mes = "Search string is too short.";
       else {
-        $regs = $this->USER->searchRegattas($qry);
+        $regs = $this->USER->searchRegattas($qry, true);
         $num_regattas = count($regs);
         if ($startint > 0 && $startint >= $num_regattas)
           WS::go('/archive?q=' . $qry);
       }
     }
     else {
-      $regs = $this->USER->getRegattas();
+      $regs = $this->USER->getRegattas(null, true);
       $num_regattas = count($regs);
     }
 
-    $this->PAGE->addContent($p = new XPort("Regattas from previous seasons"));
+    $this->PAGE->addContent($p = new XPort("Regattas from all seasons"));
 
     // Offer pagination awesomeness
     require_once('xml5/PageWhiz.php');
@@ -72,65 +72,11 @@ class UserArchivePane extends AbstractUserPane {
 
     // Create table of regattas, if applicable
     if ($num_regattas > 0) {
-      $headers = array("Name", "Season");
-      if ($this->USER->isAdmin())
-        $headers[] = "Host(s)";
-      $headers[] = "Date";
-      $headers[] = "Type";
-      $headers[] = "Scoring";
-      $headers[] = "Finalized";
-      $p->add($tab = new XQuickTable(array('class' => 'regatta-list'), $headers));
-
-      $row = 0;
-      $now = new DateTime('1 day ago');
+      require_once('xml5/UserRegattaTable.php');
+      $p->add($tab = new UserRegattaTable($this->USER));
       for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < $num_regattas; $i++) {
         $reg = $regs[$i];
-
-        $row = array(new XA("score/" . $reg->id, $reg->name),
-                     $reg->getSeason()->fullString());
-
-        if ($this->USER->isAdmin()) {
-          $hosts = array();
-          foreach ($reg->getHosts() as $host)
-            $hosts[$host->id] = $host->id;
-          $row[] = implode("/", $hosts);
-        }
-
-        $scoring = ucfirst($reg->scoring);
-        if ($reg->isSinglehanded())
-          $scoring = "Singlehanded";
-        $row[] = $reg->start_time->format("Y-m-d");
-        $row[] = $reg->type;
-        $row[] = $scoring;
-        
-        $finalized = '--';
-        if ($reg->finalized !== null) {
-          $rpm = $reg->getRpManager();
-          if (!$rpm->isComplete())
-            $finalized = new XA(WS::link(sprintf('/score/%s/rp', $reg->id)), "Missing RP",
-                                array('class'=>'stat missing-rp',
-                                      'title'=>"At least one skipper is missing."));
-          else
-            $finalized = $reg->finalized->format("Y-m-d");
-        }
-        elseif ($reg->end_date < DB::$NOW) {
-          if (count($reg->getTeams()) == 0 || count($reg->getRaces()) == 0)
-            $finalized = new XSpan("Incomplete", array('class'=>'stat incomplete', 'title'=>"Missing races or teams."));
-          elseif (!$reg->hasFinishes())
-            $finalized = new XA(WS::link(sprintf('/score/%s/finishes', $reg->id)), "No finishes",
-                                array('class'=>'stat empty',
-                                      'title'=>"No finishes entered"));
-          else
-            $finalized = new XA(WS::link('/score/'.$reg->id.'#finalize'), "Pending",
-                                array('title'=>'Regatta must be finalized!',
-                                      'class'=>'stat pending'));
-        }
-        $row[] = $finalized;
-
-        $class = 'row'.($i % 2);
-        if ($reg->private)
-          $class .= ' personal-regatta';
-        $tab->addRow($row, array('class' => $class));
+        $tab->addRegatta($reg);
       }
     }
     $p->add($ldiv);
