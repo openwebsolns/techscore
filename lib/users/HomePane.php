@@ -116,6 +116,24 @@ class HomePane extends AbstractUserPane {
     }
 
     // ------------------------------------------------------------
+    // Unregistered sailors
+    // ------------------------------------------------------------
+    $sailors = $this->USER->school->getUnregisteredSailors();
+    if (count($sailors) > 0) {
+      $lnk = WS::link(sprintf('/prefs/%s/sailor', $this->USER->school->id));
+      $this->PAGE->addContent($p = new XPort(new XA($lnk, "Unreg. sailors for " . $this->USER->school->nick_name)));
+      $p->set('id', 'port-unregistered');
+      $limit = 5;
+      if (count($sailors) > 5)
+        $limit = 4;
+      $p->add($ul = new XUl());
+      for ($i = 0; $i < $limit; $i++)
+        $ul->add(new XLi($sailors[$i]));
+      if ($limit == 4)
+        $ul->add(new XLi(new XEm(sprintf("%d more...", (count($sailors) - $limit)))));
+    }
+
+    // ------------------------------------------------------------
     // Mascot/burgee
     // ------------------------------------------------------------
     $lnk = WS::link(sprintf('/prefs/%s/logo', $this->USER->school->id));

@@ -906,3 +906,14 @@ h4 a:hover {
 #port-team-names ol {
     margin-top: 0;
 }
+#port-unregistered {
+    width: 20em;
+    background: #f3f3bb;
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 1em;
+    border-color: orange;
+}
+#port-unregistered ul {
+    margin: 0 auto;
+}
