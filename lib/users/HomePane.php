@@ -178,7 +178,7 @@ class HomePane extends AbstractUserPane {
         if ($num_cur > 0)
           $p->add($cur_tab);
         $p->add(new XP(array(),
-                       array("See al the regattas for ",
+                       array("See all the regattas for ",
                              new XA(WS::link('/season'), $season->fullString()),
                              " or browse the ",
                              new XA(WS::link('/archive'), "archives"),
