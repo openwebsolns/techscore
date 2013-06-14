@@ -106,11 +106,14 @@ class HomePane extends AbstractUserPane {
 
       // Sort all current regattas
       foreach ($regattas as $reg) {
+        $is_participant = false;
         $inv = null;
         if ($this->USER->hasJurisdiction($reg))
           $inv = new XImg(WS::link('/inc/img/scoring.png'), "Scoring");
-        elseif ($this->hasSchoolIn($reg, $schools))
+        elseif ($this->hasSchoolIn($reg, $schools)) {
           $inv = new XImg(WS::link('/inc/img/part.png'), "Part.");
+          $is_participant = true;
+        }
         else
           continue;
 
@@ -126,12 +129,31 @@ class HomePane extends AbstractUserPane {
 
         $finalized = '--';
         if ($reg->finalized !== null) {
+          $is_complete = true;
           $rpm = $reg->getRpManager();
-          if (!$rpm->isComplete())
+
+          if ($is_participant) {
+            foreach ($schools as $school) {
+              foreach ($reg->getTeams($school) as $team) {
+                if (!$rpm->isComplete($team)) {
+                  $finalized = new XA(WS::link(sprintf('/score/%s/rp?chosen_team=%s', $reg->id, $team->id)), "Missing RP",
+                                      array('class'=>'stat missing-rp',
+                                            'title'=>"At least one skipper/crew is missing."));
+                  $is_complete = false;
+                  break;
+                }
+              }
+              if ($is_complete)
+                break;
+            }
+          }
+          elseif (!$rpm->isComplete()) {
+            $is_complete = false;
             $finalized = new XA(WS::link(sprintf('/score/%s/rp', $reg->id)), "Missing RP",
                                 array('class'=>'stat missing-rp',
                                       'title'=>"At least one skipper/crew is missing."));
-          else
+          }
+          if ($is_complete)
             $finalized = $reg->finalized->format("Y-m-d");
         }
         elseif ($reg->end_date < DB::$NOW) {
