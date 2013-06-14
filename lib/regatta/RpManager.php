@@ -225,10 +225,19 @@ class RpManager {
   /**
    * Is every scored race-team-role combination accounted for?
    *
+   * @param Team $team optional team to check
    * @return boolean true if all information is present
    */
-  public function isComplete() {
-    $races = $this->regatta->getScoredRaces();
+  public function isComplete(Team $team = null) {
+    if ($team === null)
+      $races = $this->regatta->getScoredRaces();
+    else {
+      $races = array();
+      foreach ($this->regatta->getDivisions() as $div) {
+        foreach ($this->regatta->getScoredRacesForTeam($div, $team) as $race)
+          $races[] = $race;
+      }
+    }
     $sum = 0;
     foreach ($races as $race)
       $sum += $race->boat->min_crews + 1;
@@ -237,7 +246,10 @@ class RpManager {
     else
       $sum *= count($this->regatta->getTeams());
 
-    $tot = DB::getAll(DB::$RP_ENTRY, new DBCondIn('race', $races));
+    $cond = new DBCondIn('race', $races);
+    if ($team !== null)
+      $cond = new DBBool(array(new DBCond('team', $team), $cond));
+    $tot = DB::getAll(DB::$RP_ENTRY, $cond);
     return (count($tot) >= $sum);
   }
 
