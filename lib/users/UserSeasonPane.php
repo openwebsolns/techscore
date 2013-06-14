@@ -90,10 +90,10 @@ class UserSeasonPane extends AbstractUserPane {
 
     foreach ($regattas as $reg) {
       $is_participant = false;
-      $inv = new XImg(WS::link('/inc/img/scoring.png'), "Scoring");
+      $inv = new XImg(WS::link('/inc/img/scoring.png'), "Scoring", array('title'=>"You are a scorer for this regatta"));
       if (!$this->USER->hasJurisdiction($reg)) {
         $is_participant = true;
-        $inv = new XImg(WS::link('/inc/img/part.png'), "Part.");
+        $inv = new XImg(WS::link('/inc/img/part.png'), "Part.", array('title'=>"Your school is a participant in this regatta"));
       }
       $link = new XA('/score/' . $reg->id, $reg->name);
       $row = array($inv, $link);
