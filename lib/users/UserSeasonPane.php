@@ -49,7 +49,7 @@ class UserSeasonPane extends AbstractUserPane {
 
     require_once('regatta/Regatta.php');
     DB::$REGATTA->db_set_order(array('start_time' => true));
-    $regattas = $this->USER->getRegattas($season);
+    $regattas = $this->USER->getRegattas($season, true);
     DB::$REGATTA->db_set_order();
 
     if (count($regattas) == 0) {
@@ -68,7 +68,7 @@ class UserSeasonPane extends AbstractUserPane {
     // now", to appear before the the second, which is a list of every
     // other regatta. Only create the first port if there are regattas
     // to list there.
-    $headers = array("Name");
+    $headers = array("Inv.", "Name");
     if ($this->USER->isAdmin())
       $headers[] = "Host(s)";
     $headers[] = "Date";
@@ -86,11 +86,17 @@ class UserSeasonPane extends AbstractUserPane {
     $start->add(new DateInterval('P3DT0H'));
     $start->setTime(0, 0);
 
-    
+    $schools = $this->USER->getSchools();
 
     foreach ($regattas as $reg) {
+      $is_participant = false;
+      $inv = new XImg(WS::link('/inc/img/scoring.png'), "Scoring");
+      if (!$this->USER->hasJurisdiction($reg)) {
+        $is_participant = true;
+        $inv = new XImg(WS::link('/inc/img/part.png'), "Part.");
+      }
       $link = new XA('/score/' . $reg->id, $reg->name);
-      $row = array($link);
+      $row = array($inv, $link);
 
       if ($this->USER->isAdmin()) {
         $hosts = array();
@@ -101,12 +107,31 @@ class UserSeasonPane extends AbstractUserPane {
 
       $finalized = '--';
       if ($reg->finalized !== null) {
+        $is_complete = true;
         $rpm = $reg->getRpManager();
-        if (!$rpm->isComplete())
-          $finalized = new XA(WS::link(sprintf('/score/%s/rp', $reg->id)), "Missing RP",
+
+        if ($is_participant) {
+          foreach ($schools as $school) {
+            foreach ($reg->getTeams($school) as $team) {
+              if (!$rpm->isComplete($team)) {
+                $finalized = new XA(WS::link(sprintf('/score/%s/rp?chosen_team=%s', $reg->id, $team->id)), "Missing RP",
+                                    array('class'=>'stat missing-rp',
+                                          'title'=>"At least one skipper/crew is missing."));
+                $is_complete = false;
+                break;
+              }
+            }
+            if (!$is_complete)
+              break;
+          }
+        }
+        elseif (!$rpm->isComplete()) {
+          $is_complete = false;
+          $finalized = new XA(WS::link(sprintf('/score/%s/missing-rp', $reg->id)), "Missing RP",
                               array('class'=>'stat missing-rp',
                                     'title'=>"At least one skipper/crew is missing."));
-        else
+        }
+        if ($is_complete)
           $finalized = $reg->finalized->format("Y-m-d");
       }
       elseif ($reg->end_date < DB::$NOW) {

@@ -241,14 +241,17 @@ class RpManager {
     $sum = 0;
     foreach ($races as $race)
       $sum += $race->boat->min_crews + 1;
-    if ($this->regatta->scoring == Regatta::SCORING_TEAM)
-      $sum *= 2;
-    else
-      $sum *= count($this->regatta->getTeams());
+    if ($team === null) {
+      if ($this->regatta->scoring == Regatta::SCORING_TEAM)
+        $sum *= 2;
+      else
+        $sum *= count($this->regatta->getTeams());
+    }
 
     $cond = new DBCondIn('race', $races);
     if ($team !== null)
       $cond = new DBBool(array(new DBCond('team', $team), $cond));
+
     $tot = DB::getAll(DB::$RP_ENTRY, $cond);
     return (count($tot) >= $sum);
   }

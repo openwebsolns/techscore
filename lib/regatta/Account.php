@@ -154,16 +154,28 @@ class Account extends DBObject {
    * Returns user's regattas
    *
    * These are regattas for which this user has jurdisdiction,
-   * optionally limiting the list to a particular season
+   * optionally limiting the list to a particular season.
+   *
+   * If the second parameter is true, then regattas in which one of
+   * the user's schools is participating will also be included.
    *
    * @param Season $season optional season to limit listing to
+   * @param boolean $inc_participating default false
    * @return Array:Regatta
    */
-  public function getRegattas(Season $season = null) {
+  public function getRegattas(Season $season = null, $inc_participating = false) {
     require_once('regatta/Regatta.php');
     $cond = null;
-    if (!$this->isAdmin()) // regular user
+    if (!$this->isAdmin()) { // regular user
       $cond = new DBCondIn('id', DB::prepGetAll(DB::$SCORER, new DBCond('account', $this), array('regatta')));
+      if ($inc_participating !== false)
+        $cond = new DBBool(array($cond,
+                                 new DBCondIn('id',
+                                              DB::prepGetAll(DB::$TEAM,
+                                                             new DBCondIn('school', $this->getSchools()),
+                                                             array('regatta')))),
+                           DBBool::mOR);
+    }
     if ($season !== null) {
       $scond = new DBBool(array(new DBCond('start_time', $season->start_date, DBCond::GE),
                                 new DBCond('start_time', $season->end_date,   DBCond::LT)));
