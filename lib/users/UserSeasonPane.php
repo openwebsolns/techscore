@@ -68,6 +68,8 @@ class UserSeasonPane extends AbstractUserPane {
     // now", to appear before the the second, which is a list of every
     // other regatta. Only create the first port if there are regattas
     // to list there.
+    $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/tablefilter.js')));
+    $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/tfinit.js')));
     require_once('xml5/UserRegattaTable.php');
     $all_tab = new UserRegattaTable($this->USER);
     $cur_tab = new UserRegattaTable($this->USER, true);

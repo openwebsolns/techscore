@@ -93,7 +93,7 @@ class UserRegattaTable extends XTable {
                                   'title'=>"At least one skipper/crew is missing."));
       }
       if ($is_complete)
-        $finalized = $reg->finalized->format("Y-m-d");
+        $finalized = new XSpan("Finalized", array('class'=>'stat finalized'));
     }
     elseif ($reg->end_date < DB::$NOW) {
       if (count($reg->getTeams()) == 0 || count($reg->getRaces()) == 0)
