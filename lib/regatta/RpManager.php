@@ -63,12 +63,12 @@ class RpManager {
   }
 
   /**
-   * Fetches single RP_Entry for given team-race-role combo
+   * Fetches single RPEntry for given team-race-role combo
    *
    * @param Team $team the team whose entry to fetch
    * @param Race $race the specific race to fetch
    * @param RP:Const $role the role (SKIPPER, CREW)
-   * @return Array:RP_Entry objects
+   * @return Array:RPEntry objects
    */
   public function getRpEntries(Team $team, Race $race, $role) {
     return DB::getAll(DB::$RP_ENTRY,
@@ -449,7 +449,7 @@ class RpManager {
    * @param Sailor $sailor the sailor
    * @param const|null $role 'skipper', 'crew', or null for either
    * @param Division $div the division, if any, to narrow down to.
-   * @return Array:RP_Entry the teams
+   * @return Array:RPEntry the teams
    */
   public function getParticipationEntries(Sailor $sailor, $role = null, Division $div = null) {
     // Since RP objects all have the same role and division, we

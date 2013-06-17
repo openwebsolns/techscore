@@ -1994,15 +1994,15 @@ class Finish extends DBObject {
     $pens = array();
     foreach ($places as $i => $finish) {
       if ($i > 0)
-	$disp .= "-";
+        $disp .= "-";
       $modifiers = $finish->getModifiers();
       if (count($modifiers) > 0) {
-	$disp .= $finish->earned;
+        $disp .= $finish->earned;
         foreach ($modifiers as $modifier)
           $pens[] = $modifier->type;
       }
       else
-	$disp .= $finish->score;
+        $disp .= $finish->score;
     }
     if (count($pens) > 0)
       $disp .= " " . implode(",", $pens);

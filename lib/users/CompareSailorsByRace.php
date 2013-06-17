@@ -136,15 +136,44 @@ class CompareSailorsByRace extends AbstractUserPane {
         $row->add(new XTH(array(), $race));
         foreach ($sailors as $sailor) {
           $rp = $rplist[$sailor->id];
-          $finish = $regatta->getFinish($rp->race, $rp->team);
-          $row->add(new XTD(array(), $finish->getPlace()));
-          $scores[$sailor->id] += $finish->score;
+          $row->add(new XTD(array(), $this->getPlaceEntry($regatta, $rp)));
         }
         $index++;
       }
       $reg_index++;
     }
     return true;
+  }
+
+  /**
+   * Returns the content of the cell for the given RP entry
+   *
+   * If the regatta in question is a team racing regatta, this will be
+   * 'W'/'L'/'T', instead of a numerical place.
+   */
+  private function getPlaceEntry(Regatta $regatta, RPEntry $rp) {
+    if ($regatta->scoring == Regatta::SCORING_TEAM) {
+      // determine if win/loss
+      $score1 = 0;
+      $score2 = 0;
+      foreach ($regatta->getDivisions() as $div) {
+        $race = $regatta->getRace($div, $rp->race->number);
+        $fin1 = $regatta->getFinish($race, $rp->race->tr_team1);
+        $fin2 = $regatta->getFinish($race, $rp->race->tr_team2);
+
+        $score1 += $fin1->score;
+        $score2 += $fin2->score;
+      }
+      $diff = $score1 - $score2;
+      if ($diff == 0)
+        return 'T';
+      if ($rp->race->tr_team1 == $rp->team) {
+        return ($diff < 0) ? 'W' : 'L';
+      }
+      return ($diff < 0) ? 'L' : 'W';
+    }
+    $finish = $regatta->getFinish($rp->race, $rp->team);
+    return $finish->getPlace();
   }
 
   public function fillHTML(Array $args) {
