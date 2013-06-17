@@ -917,3 +917,6 @@ h4 a:hover {
 #port-unregistered ul {
     margin: 0 auto;
 }
+.compare-by-race thead th, .compare-by-race th {
+    text-align: left;
+}

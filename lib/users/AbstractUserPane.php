@@ -360,11 +360,9 @@ abstract class AbstractUserPane {
       require_once('users/AccountPane.php');
       return new AccountPane($u);
 
-      /*
     case 'compare-by-race':
       require_once('users/CompareSailorsByRace.php');
       return new CompareSailorsByRace($u);
-      */
 
     case 'compare-sailors':
     case 'compare-head-to-head':

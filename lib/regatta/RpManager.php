@@ -444,6 +444,32 @@ class RpManager {
   }
 
   /**
+   * Returns the list of RP entries for the given sailor in this regatta
+   *
+   * @param Sailor $sailor the sailor
+   * @param const|null $role 'skipper', 'crew', or null for either
+   * @param Division $div the division, if any, to narrow down to.
+   * @return Array:RP_Entry the teams
+   */
+  public function getParticipationEntries(Sailor $sailor, $role = null, Division $div = null) {
+    // Since RP objects all have the same role and division, we
+    // create lists of roles and divisions
+    $roles = ($role === null) ? array_keys(RP::getRoles()) : array($role);
+    $divs  = ($div === null)  ? $this->regatta->getDivisions() : array($div);
+
+    $r = new DBCond('regatta', $this->regatta->id);
+    if ($div !== null)
+      $r = new DBBool(array($r, new DBCond('division', (string)$div)));
+
+    $c = new DBBool(array(new DBCond('sailor', $sailor)));
+    if ($role !== null)
+      $c->add(new DBCond('boat_role', $role));
+    $c->add(new DBCondIn('race', DB::prepGetAll(DB::$RACE, $r, array('id'))));
+
+    return DB::getAll(DB::$RP_ENTRY, $c);
+  }
+
+  /**
    * Get all the regattas the given sailor has participated in
    *
    * @param Sailor $sailor the sailor

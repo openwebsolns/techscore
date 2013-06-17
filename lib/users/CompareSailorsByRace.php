@@ -67,112 +67,83 @@ class CompareSailorsByRace extends AbstractUserPane {
       return false;
     }
 
-    // the array is organized as $regatta_id => array($div => array($race_num))
+    // the array is organized as $regatta_id => array($race => array($rp))
     $reg_ids = array();
-    $reg_races = array();
-    $reg_teams = array();
-    // populate the list with the first sailor
-    $first_sailor = array_shift($sailors);
+    $reg_rps = array();
     foreach ($regattas as $reg) {
       $rpm = $reg->getRpManager();
-      $rps = $rpm->getParticipation($first_sailor, RP::SKIPPER);
-      if (count($rps) > 0) {
-        $reg_ids[$reg->id] = $reg;
-        $reg_races[$reg->id] = array();
-        $reg_teams[$reg->id] = array();
-        foreach ($rps as $rp) {
-          $key = (string)$rp->division;
-          $reg_teams[$reg->id][$key] = array($rp->sailor->id => $rp->team);
-          $reg_races[$reg->id][$key] = array();
-          foreach ($rp->races_nums as $num)
-            $reg_races[$reg->id][$key][$num] = $num;
+      foreach ($sailors as $sailor) {
+        $rps = $rpm->getParticipationEntries($sailor, RP::SKIPPER);
+        if (count($rps) > 0) {
+          if (!isset($reg_ids[$reg->id])) {
+            $reg_ids[$reg->id] = $reg;
+            $reg_rps[$reg->id] = array();
+          }
+
+          foreach ($rps as $rp) {
+            $key = (string)$rp->race;
+            if (!isset($reg_rps[$reg->id][$key]))
+              $reg_rps[$reg->id][$key] = array();
+            $reg_rps[$reg->id][$key][$rp->sailor->id] = $rp;
+          }
         }
       }
     }
-    unset($regattas);
 
-    // keep only the regattas (and the races within them) where all
-    // the other sailors have also participated. For standard
-    // regattas, the division must match. For combined and team, only
-    // the race number need match.
-    foreach ($sailors as $sailor) {
-      $copy = $reg_races;
-      foreach ($copy as $regatta_id => $div_list) {
-        $reg = $reg_ids[$regatta_id];
-        $rpm = $reg->getRpManager();
-        foreach ($div_list as $div => $races_nums) {
-          $rps = $rpm->getParticipation($sailor, 'skipper', Division::get($div));
-          if (count($rps) == 0) {
-            unset($reg_races[$regatta_id][$div]);
-            unset($reg_teams[$regatta_id][$div]);
-          }
-          else {
-            $reg_teams[$regatta_id][$div][$sailor->id] = $rps[0]->team;
-            foreach ($races_nums as $i => $num) {
-              if (!in_array($num, $rps[0]->races_nums))
-                unset($reg_races[$regatta_id][$div][$i]);
-            }
-            if (count($reg_races[$regatta_id][$div]) == 0) {
-              unset($reg_races[$regatta_id][$div]);
-              unset($reg_teams[$regatta_id][$div]);
-            }
-          }
-        }
-        if (count($reg_races[$regatta_id]) == 0) {
-          unset($reg_races[$regatta_id]);
-          unset($reg_teams[$regatta_id]);
+    // only keep race entries for which all sailors are present
+    $and_rps = array();
+    foreach ($reg_rps as $reg_id => $racelist) {
+      foreach ($racelist as $key => $rplist) {
+        if (count($rplist) == count($sailors)) {
+          if (!isset($and_rps[$reg_id]))
+            $and_rps[$reg_id] = array();
+          $and_rps[$reg_id][$key] = $rplist;
         }
       }
     }
 
     // are there any regattas in common?
-    if (count($reg_races) == 0) {
+    if (count($and_rps) == 0) {
       Session::pa(new PA(sprintf("The sailors provided (%s, %s) have not sailed head to head in any race in any regatta in the seasons specified.", $first_sailor, implode(", ", $sailors)), PA::I));
       return false;
     }
 
-    // push the sailor back
-    array_unshift($sailors, $first_sailor);
     $scores = array(); // track scores
     $this->PAGE->addContent($p = new XPort("Races sailed head-to-head"));
     $p->add(new XP(array(), new XA(WS::link('/compare-by-race'), "← Start over")));
-    $p->add(new XTable(array(),
+    $p->add(new XTable(array('class'=>'compare-by-race'),
                        array(new XTHead(array(),
                                         array($head = new XTR(array(),
                                                               array(new XTH(array(), "Regatta"),
-                                                                    new XTH(array(), "Race"))),
-                                              $tot  = new XTR(array(),
-                                                              array(new XTH(array(), ""),
-                                                                    new XTH(array(), "Total"))))),
+                                                                    new XTH(array(), "Season"),
+                                                                    new XTH(array(), "Race"))))),
                              $tab = new XTBody())));
     foreach ($sailors as $sailor) {
       $head->add(new XTH(array(), $sailor));
       $scores[$sailor->id] = 0;
     }
     // each race
-    foreach ($reg_races as $reg_id => $div_list) {
-      $regatta = DB::getRegatta($reg_id);
-      foreach ($div_list as $div => $races_nums) {
-        $index = 0;
-        foreach ($races_nums as $num) {
-          $tab->add($row = new XTR());
-          if ($index++ == 0) {
-            $row->add(new XTH(array('rowspan'=>count($races_nums)),
-                              sprintf('%s (%s)', $regatta->name, $regatta->getSeason()->fullString())));
-          }
-          $row->add(new XTH(array(), sprintf("%d%s", $num, $div)));
-          foreach ($sailors as $sailor) {
-// @TODO getRace()
-            $finish = $regatta->getFinish($regatta->getRace(Division::get($div), $num),
-                                          $reg_teams[$reg_id][$div][$sailor->id]);
-            $row->add(new XTD(array(), $finish->getPlace()));
-            $scores[$sailor->id] += $finish->score;
-          }
+    $reg_index = 0;
+    foreach ($and_rps as $reg_id => $racelist) {
+      $regatta = $reg_ids[$reg_id];
+      $index = 0;
+      foreach ($racelist as $race => $rplist) {
+        $tab->add($row = new XTR(array('class'=>'row' . ($reg_index) % 2)));
+        if ($index == 0) {
+          $row->add(new XTH(array('rowspan'=>count($racelist)), $regatta->name));
+          $row->add(new XTD(array('rowspan'=>count($racelist)), $regatta->getSeason()->fullString()));
         }
+        $row->add(new XTH(array(), $race));
+        foreach ($sailors as $sailor) {
+          $rp = $rplist[$sailor->id];
+          $finish = $regatta->getFinish($rp->race, $rp->team);
+          $row->add(new XTD(array(), $finish->getPlace()));
+          $scores[$sailor->id] += $finish->score;
+        }
+        $index++;
       }
+      $reg_index++;
     }
-    foreach ($sailors as $sailor)
-      $tot->add(new XTH(array(), $scores[$sailor->id]));
     return true;
   }
 
@@ -214,7 +185,7 @@ class CompareSailorsByRace extends AbstractUserPane {
     $search->set('id', 'name-search');
     $p->add(new XUl(array('id'=>'aa-input'),
                     array(new XLi("No sailors.", array('class'=>'message')))));
-    $form->add(new XSubmitInput('set-sailors', "Compare sailors"));
+    $form->add(new XSubmitP('set-sailors', "Compare sailors"));
   }
 
   public function process(Array $args) {
