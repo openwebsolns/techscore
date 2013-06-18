@@ -546,26 +546,26 @@ td.schoolname, td.teamname {
     font-weight: bold;
     display: block;
 }
-a.pending {
+a.pending, .user-rejected, .user-inactive {
     color:red;
     background: #eed2c0;
     border-color: brown;
     font-weight:bold;
 }
 
-.incomplete {
+.incomplete, .user-pending {
     color: brown;
     background: #f3f3bb;
     border-color: orange;
 }
 
-.missing-rp {
+.missing-rp, .user-requested {
     color: purple;
     background: #ffc2ff;
     border-color: purple;
 }
 
-a.empty {
+a.empty, .user-active {
     color: green;
     background: #e0f3e0;
     border-color: green;
@@ -919,4 +919,14 @@ h4 a:hover {
 }
 .compare-by-race thead th, .compare-by-race th {
     text-align: left;
+}
+
+.users-table {
+    width: 100%;
+}
+.users-table thead th, .users-table td, .users-legend thead th, .users-legend td {
+    text-align: left;
+}
+.users-legend td {
+    padding: 0.25em 0.5em;
 }

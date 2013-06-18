@@ -443,15 +443,20 @@ class DB extends DBM {
   /**
    * Returns a list of accounts fulfilling the given role
    *
-   * @param String $role a possible Account role
+   * @param String|null $role a possible Account role
    * @return Array:Account the list of accounts
    * @throws InvalidArgumentException if provided role is invalid
    */
-  public static function getAccounts($role) {
-    $roles = Account::getRoles();
-    if (!isset($roles[$role]))
-      throw new InvalidArgumentException("Invalid role provided: $role.");
-    return self::getAll(self::$ACCOUNT, new DBCond('role', $role));
+  public static function getAccounts($role = null) {
+    require_once('regatta/Account.php');
+    $cond = null;
+    if ($role !== null) {
+      $roles = Account::getRoles();
+      if (!isset($roles[$role]))
+        throw new InvalidArgumentException("Invalid role provided: $role.");
+      $cond = new DBCond('role', $role);
+    }
+    return self::getAll(self::$ACCOUNT, $cond);
   }
 
   /**

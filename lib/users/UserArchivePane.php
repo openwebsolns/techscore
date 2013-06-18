@@ -33,7 +33,7 @@ class UserArchivePane extends AbstractUserPane {
   protected function fillHTML(Array $args) {
     $pageset  = (isset($args['r'])) ? (int)$args['r'] : 1;
     if ($pageset < 1)
-      $this->redirect('home');
+      $this->redirect('archive');
     $startint = self::NUM_PER_PAGE * ($pageset - 1);
 
     // ------------------------------------------------------------

@@ -114,12 +114,18 @@ abstract class AbstractUserPane {
       $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
                                     array(new XH4("Admin"),
                                           new XUl(array(),
-                                                  array(new XLi(new XA("/pending",   "Pending users")),
-                                                        new XLi(new XA("/venue",     "Venues")),
+                                                  array(new XLi(new XA("/venue",     "Venues")),
                                                         new XLi(new XA("/boats",     "Boats")),
                                                         new XLi(new XA("/types",     "Regatta types")),
                                                         new XLi(new XA("/race-orders", "Team race orders")),
                                                         new XLi(new XA("/seasons",   "Seasons")))))));
+      $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
+                                    array(new XH4("Users"),
+                                          new XUl(array(),
+                                                  array(
+                                                        new XLi(new XA("/pending",   "Pending users")),
+                                                        new XLi(new XA("/users", "All users")),
+                                                        )))));
       $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
                                     array(new XH4("Configure text"),
                                           $ul = new XUl())));
@@ -344,6 +350,11 @@ abstract class AbstractUserPane {
     case 'create':
       require_once('users/NewRegattaPane.php');
       return new NewRegattaPane($u);
+
+    case 'users':
+    case 'accounts':
+      require_once('users/admin/AccountsPane.php');
+      return new AccountsPane($u);
 
     case 'pending':
       require_once('users/admin/PendingAccountsPane.php');
