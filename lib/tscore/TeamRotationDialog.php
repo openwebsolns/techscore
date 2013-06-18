@@ -83,9 +83,16 @@ class TeamRotationDialog extends AbstractDialog {
                                 $body = new XTBody()));
 
     // identify the first race to be printed
-    $flight_index = (int)(($next_race->number - $races[0]->number) / $flight);
-    $start = $flight_index * $flight;
-    for ($i = 0; $i < $flight * 3 && $i + $start < count($races); $i++) {
+    if ($flight > 0) {
+      $flight_index = (int)(($next_race->number - $races[0]->number) / $flight);
+      $start = $flight_index * $flight;
+      $end = $start + $flight * 3;
+    }
+    else {
+      $start = $next_race->number - $races[0]->number;
+      $end = $start + 9;
+    }
+    for ($i = 0; $i + $start < $end && $i + $start < count($races); $i++) {
       // spacer
       if ($flight > 0 && $i % $flight == 0) {
         $body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => 8 + 2 * count($divs)), sprintf("%s: Flight %d", $label, ($flight_index++ + 1))))));
