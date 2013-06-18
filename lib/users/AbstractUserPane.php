@@ -97,7 +97,9 @@ abstract class AbstractUserPane {
                                   array(new XH4("Reports"),
                                         new XUl(array(),
                                                 array(new XLi(new XA("/aa", "All-American")),
-                                                      new XLi(new XA("/compare-sailors", "Head to head")))))));
+                                                      new XLi(new XA("/compare-sailors", "Head to head")),
+                                                      new XLi(new XA('/team-participation', "Team Record")),
+                                                      )))));
 
     // Messages
     $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
@@ -179,15 +181,17 @@ abstract class AbstractUserPane {
    * Helper method: return XUl of seasons
    *
    * @param String $prefix to use for checkbox IDs
-   * @param Array:Season $preselect list of seasons to choose
+   * @param Array:Season $preselect list of seasons to choose, indexed
+   * by ID.
    * @return XUl
    */
   protected function seasonList($prefix, Array $preselect = array()) {
     $ul = new XUl(array('class'=>'inline-list'));
     foreach (Season::getActive() as $season) {
-      $ul->add(new XLi(array($chk = new XCheckboxInput('seasons[]', $season, array('id' => $prefix . $season)),
-                             new XLabel($prefix . $season, $season->fullString()))));
-      if (in_array($season, $preselect))
+      $id = $prefix . $season;
+      $ul->add(new XLi(array($chk = new XCheckboxInput('seasons[]', $season, array('id' => $id)),
+                             new XLabel($id, $season->fullString()))));
+      if (isset($preselect[$season->id]))
         $chk->set('checked', 'checked');
     }
     return $ul;
@@ -202,9 +206,28 @@ abstract class AbstractUserPane {
   protected function conferenceList($prefix, Array $chosen = array()) {
     $ul = new XUl(array('class'=>'inline-list'));
     foreach ($this->USER->getConferences() as $conf) {
-      $ul->add(new XLi(array($chk = new XCheckboxInput('confs[]', $conf, array('id' => $conf->id)),
-                             new XLabel($conf->id, $conf))));
+      $id = $prefix . $conf->id;
+      $ul->add(new XLi(array($chk = new XCheckboxInput('confs[]', $conf, array('id' => $id)),
+                             new XLabel($id, $conf))));
       if (count($chosen) == 0 || in_array($conf, $chosen))
+        $chk->set('checked', 'checked');
+    }
+    return $ul;
+  }
+
+  /**
+   * Helper method: return XUl of regatta types
+   *
+   * @param String $prefix to use for checkbox IDs
+   * @param Array:Type $chosen the types to choose, or all if empty
+   */
+  protected function regattaTypeList($prefix, Array $chosen = array()) {
+    $ul = new XUl(array('class'=>'inline-list'));
+    foreach (DB::getAll(DB::$ACTIVE_TYPE) as $t) {
+      $id = $prefix . $t;
+      $ul->add(new XLi(array($chk = new XCheckboxInput('types[]', $t->id, array('id'=>$id)),
+                             new XLabel($id, $t))));
+      if (count($chosen) == 0 || in_array($t, $chosen))
         $chk->set('checked', 'checked');
     }
     return $ul;
