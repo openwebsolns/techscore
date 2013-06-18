@@ -399,3 +399,10 @@ td.tr-sail {
     height: 1.25em;
     background: #ccc;
 }
+
+.tr-current {
+    font-size: 105%;
+}
+.tr-sailed {
+    opacity: 0.5;
+}
