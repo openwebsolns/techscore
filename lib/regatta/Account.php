@@ -151,6 +151,16 @@ class Account extends DBObject {
   }
 
   /**
+   * Return list of regattas where this user is the author
+   *
+   * @return Array:Regatta
+   */
+  public function getRegattasCreated() {
+    require_once('regatta/Regatta.php');
+    return DB::getAll(DB::$REGATTA, new DBCond('creator', $this->id));
+  }
+
+  /**
    * Returns user's regattas
    *
    * These are regattas for which this user has jurdisdiction,

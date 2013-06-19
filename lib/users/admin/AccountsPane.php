@@ -28,10 +28,26 @@ class AccountsPane extends AbstractAdminUserPane {
   }
 
   private function fillUser(Account $user) {
+    $this->PAGE->addContent(new XP(array(), new XA(WS::link('/'.$this->page_url), "← Go back")));
     $this->PAGE->addContent($p = new XPort("General information"));
     $p->add(new XP(array('class'=>'warning'), "The user's name may only be changed by the account holder, using the \"My Account\" link in the main menu."));
 
-    $p->add(new XP(array(), "Coming soon..."));
+    $p->add($f = $this->createForm());
+    $f->add($fi = new FItem("Name:", new XStrong($user)));
+    $fi->add(new XMessage("Only the user can change the name using the \"My Account\" page."));
+
+    $f->add(new FItem("Email:", new XA('mailto:'.$user->id, $user->id)));
+    $f->add(new FItem("Role: ", XSelect::fromArray('role', Account::getRoles(), $user->role)));
+
+    $f->add($fi = new FItem("Admin:", $chk = new XCheckboxInput('admin', 1, array('id'=>'chk-admin'))));
+    $fi->add(new XLabel('chk-admin', "Does this account have admin privileges?"));
+    if ($user->isAdmin())
+      $chk->set('checked', 'checked');
+
+    $f->add(new FItem("Regattas created:", new XStrong(count($user->getRegattasCreated()))));
+
+    $f->add($xp = new XSubmitP('edit-user', "Edit user"));
+    $xp->add(new XHiddenInput('user', $user->id));
   }
 
   /**
@@ -141,50 +157,19 @@ class AccountsPane extends AbstractAdminUserPane {
   }
 
   public function process(Array $args) {
-    $legend = array("approve"=>array("success"=>"Approved accounts(s):",
-                                     "error"  =>"Unable to approve",
-                                     "status" =>"accepted"),
-                    "reject" =>array("success"=>"Rejected account(s):",
-                                     "error"  =>"Unable to reject",
-                                     "status" =>"rejected"));
-    // ------------------------------------------------------------
-    // Approve / Reject
-    // ------------------------------------------------------------
-    foreach (array("approve", "reject") as $action) {
-      if (isset($args[$action])) {
-        $accounts = DB::$V->reqList($args, 'accounts', null, "No account list provided.");
-        if (count($accounts) == 0)
-          throw new SoterException("No accounts chosen.");
+    require_once('regatta/Account.php');
+    $user = DB::$V->reqID($args, 'user', DB::$ACCOUNT, "No user provided.");
 
-        $unnotified = array();
-        $success = array();
-        $errors  = 0;
-        foreach ($accounts as $id) {
-          $acc = DB::getAccount($id);
-          if ($acc === null || $acc->status != Account::STAT_PENDING)
-            $errors++;
-          else {
-            $acc->status = $legend[$action]["status"];
-            DB::set($acc);
-            // Notify user
-            if ($action == 'approve') {
-              if (!$this->notifyUser($acc))
-                $unnotified[] = sprintf('%s <%s>', $acc->getName(), $acc->id);
-            }
-            $success[] = $acc->id;
-          }
-        }
-
-        // Announce the good news
-        if ($errors > 0) {
-          Session::pa(new PA(sprintf("%s %d accounts.", $legend[$action]["error"], $errors), PA::I));
-        }
-        if (count($unnotified) > 0)
-          Session::pa(new PA(sprintf("Unable to notify the following accounts: %s.", implode(", ", $unnotified)), PA::I));
-        if (count($success) > 0) {
-          Session::pa(new PA(sprintf("%s %s.", $legend[$action]["success"], implode(", ", $success))));
-        }
-      }
+    // ------------------------------------------------------------
+    // Edit user
+    // ------------------------------------------------------------
+    if (isset($args['edit-user'])) {
+      $user->role = DB::$V->reqKey($args, 'role', Account::getRoles(), "Invalid role provided.");
+      $user->admin = DB::$V->incInt($args, 'admin', 1, 2, null);
+      DB::set($user);
+      Session::pa(new PA(sprintf("Updated account information for user %s.", $user)));
+      if ($user->admin !== null)
+        Session::pa(new PA("User has \"admin\" privileges and can change key program settings.", PA::I));
     }
     return array();
   }
