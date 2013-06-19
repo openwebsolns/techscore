@@ -29,8 +29,13 @@ class AccountsPane extends AbstractAdminUserPane {
 
   private function fillUser(Account $user) {
     $this->PAGE->addContent(new XP(array(), new XA(WS::link('/'.$this->page_url), "← Go back")));
+
+    // ------------------------------------------------------------
+    // General information
+    // ------------------------------------------------------------
     $this->PAGE->addContent($p = new XPort("General information"));
-    $p->add(new XP(array('class'=>'warning'), "The user's name may only be changed by the account holder, using the \"My Account\" link in the main menu."));
+    if ($user->status == Account::STAT_INACTIVE || $user->status == Account::STAT_REJECTED)
+      $p->add(new XP(array('class'=>'warning'), "This account is not able to log in and use the system because their account has either been rejected or deleted."));
 
     $p->add($f = $this->createForm());
     $f->add($fi = new FItem("Name:", new XStrong($user)));
@@ -48,6 +53,29 @@ class AccountsPane extends AbstractAdminUserPane {
 
     $f->add($xp = new XSubmitP('edit-user', "Edit user"));
     $xp->add(new XHiddenInput('user', $user->id));
+
+    if ($user->status != Account::STAT_INACTIVE) {
+      // ------------------------------------------------------------
+      // Delete account?
+      // ------------------------------------------------------------
+      $this->PAGE->addContent($p = new XPort("Inactivate account"));
+      $p->add($f = $this->createForm());
+      $f->add(new XP(array(), "Delete this account by clicking the button below. The user will no longer be allowed to use the application, or create a new account."));
+      $f->add(new XP(array('class'=>'p-submit'),
+                     array(new XSubmitInput('delete-user', "Delete user", array('onclick'=>'return confirm("Are you sure you wish to delete this user?");')),
+                           new XHiddenInput('user', $user->id))));
+    }
+    else {
+      // ------------------------------------------------------------
+      // Undelete account
+      // ------------------------------------------------------------
+      $this->PAGE->addContent($p = new XPort("Reactivate account"));
+      $p->add($f = $this->createForm());
+      $f->add(new XP(array(), sprintf("Reactivate this account by clicking the button below. As a result, the account's status will be changed to \"%s\", which means the user has to agree to the EULA upon log-in. Note that the system will not notify the user that their account has been reactivated.", Account::STAT_ACCEPTED)));
+      $f->add(new XP(array('class'=>'p-submit'),
+                     array(new XSubmitInput('accept-user', "Reactivate"),
+                           new XHiddenInput('user', $user->id))));
+    }
   }
 
   /**
@@ -157,7 +185,7 @@ class AccountsPane extends AbstractAdminUserPane {
         }
         
         $tab->addRow(array(new XA(WS::link('/' . $this->page_url, array('id'=>$user->id)), $user),
-                           new XA('mailto:'.$user->id, $user->id),
+                           $user->id,
                            $schools,
                            ucwords($user->role),
                            new XSpan(ucwords($user->status), array('class'=>'stat user-' . $user->status))),
@@ -203,6 +231,28 @@ class AccountsPane extends AbstractAdminUserPane {
       Session::pa(new PA(sprintf("Updated account information for user %s.", $user)));
       if ($user->admin !== null)
         Session::pa(new PA("User has \"admin\" privileges and can change key program settings.", PA::I));
+    }
+
+    // ------------------------------------------------------------
+    // Delete user
+    // ------------------------------------------------------------
+    if (isset($args['delete-user'])) {
+      if ($user->id == $this->USER->id)
+        throw new SoterException("You cannot delete your own account.");
+      $user->status = Account::STAT_INACTIVE;
+      DB::set($user);
+      Session::pa(new PA(sprintf("Removed account %s for %s.", $user->id, $user)));
+    }
+
+    // ------------------------------------------------------------
+    // Reactivate user
+    // ------------------------------------------------------------
+    if (isset($args['accept-user'])) {
+      if ($user->status != Account::STAT_INACTIVE)
+        throw new SoterException("Only inactivated accounts may be reactivated.");
+      $user->status = Account::STAT_ACCEPTED;
+      DB::set($user);
+      Session::pa(new PA(sprintf("Reactivated account %s for %s.", $user->id, $user)));
     }
     return array();
   }

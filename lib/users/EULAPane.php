@@ -37,7 +37,7 @@ class EULAPane extends AbstractUserPane {
     $p->add(new XTextArea("license", $license, array("readonly"=>"readonly",
                                                      "style"=>"width:100%;",
                                                      "cols"=>"80",
-                                                     "rows"=>"8")));
+                                                     "rows"=>"30")));
     $p->add($f = $this->createForm());
     $f->add($i = new FItem(new XCheckBoxInput("agree", "1", array("id"=>"agree")),
                            new XLabel("agree", "I agree with the terms above")));

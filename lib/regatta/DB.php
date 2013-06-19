@@ -512,14 +512,15 @@ class DB extends DBM {
    */
   public static function requireActive(Account $user) {
     switch ($user->status) {
-    case "active":
+    case Account::STAT_ACTIVE:
       return;
 
-    case "accepted":
+    case Account::STAT_ACCEPTED:
       WS::go('/license');
 
     default:
-      WS::go('/');
+    case Account::STAT_INACTIVE:
+      WS::go('/logout');
     }
   }
 
