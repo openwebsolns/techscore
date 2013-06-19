@@ -966,3 +966,35 @@ h4 a:hover {
 .filter p {
     margin: 0;
 }
+
+.multiple-select {
+    display: inline-block;
+    vertical-align: top;
+    min-width: 30em;
+    width: auto;
+    max-height: 15em;
+    overflow: auto;
+    overflow-x: hidden;
+    border: 1px solid #555;
+    border-radius: 0.5em;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+.multiple-select-group {
+    font-weight: bold;
+    padding: 0.5em;
+}
+.multiple-select input {
+    display: none;
+}
+.multiple-select label {
+    display: block;
+    padding: 0.5em;
+}
+.multiple-select label:hover {
+    background: #f3f3bb;
+}
+.multiple-select input[checked="checked"] + label:hover {
+    background: #e0f3e0;
+}

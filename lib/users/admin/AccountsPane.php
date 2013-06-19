@@ -58,6 +58,41 @@ class AccountsPane extends AbstractAdminUserPane {
     $f->add($xp = new XSubmitP('edit-user', "Edit user"));
     $xp->add(new XHiddenInput('user', $user->id));
 
+    // ------------------------------------------------------------
+    // Schools
+    // ------------------------------------------------------------
+    $this->PAGE->addContent($p = new XPort("School affiliations"));
+    $p->add(new XP(array(), "Each account has one primary school affiliation, and any number of secondary school affiliations. The user has access to edit the information for all affiliated schools. In addition, all schools will be considered in determining whether the account has access to a regatta as a \"participant\"."));
+    if ($user->isAdmin())
+      $p->add(new XP(array('class'=>'warning'), "As this account has administrator privileges, the user has access to every regatta and every school in the system."));
+
+    $opts = array();
+    foreach (DB::getConferences() as $conf) {
+      $subs = array();
+      foreach ($conf->getSchools() as $school)
+        $subs[$school->id] = $school;
+      $opts[(string)$conf] = $subs;
+    }
+    $p->add($f = $this->createForm());
+    $f->add(new XHiddenInput('user', $user->id));
+
+    require_once('xml5/XMultipleSelect.php');
+    $f->add(new FItem("Primary school:", XSelect::fromArray('school', $opts, $user->school->id)));
+    $f->add(new FItem("Other schools:", $sel = new XMultipleSelect('schools[]')));
+
+    $my_schools = array();
+    foreach ($user->getSchools(null, false) as $school) {
+      if ($school->id != $user->school->id)
+        $my_schools[$school->id] = $school;
+    }
+    foreach ($opts as $conf => $schools) {
+      $sel->addOptgroup($conf);
+      foreach ($schools as $key => $val)
+        $sel->addOption($key, $val, isset($my_schools[$key]));
+    }
+    $f->add(new XSubmitP('user-schools', "Set affiliations"));
+    
+
     if ($user->status != Account::STAT_INACTIVE) {
       if ($user->id != $this->USER->id) {
         // ------------------------------------------------------------
@@ -260,6 +295,24 @@ class AccountsPane extends AbstractAdminUserPane {
       $user->status = Account::STAT_ACCEPTED;
       DB::set($user);
       Session::pa(new PA(sprintf("Reactivated account %s for %s.", $user->id, $user)));
+    }
+
+    // ------------------------------------------------------------
+    // Set affiliations
+    // ------------------------------------------------------------
+    if (isset($args['user-schools'])) {
+      $user->school = DB::$V->reqID($args, 'school', DB::$SCHOOL, "Invalid school ID provided.");
+      DB::set($user);
+
+      // Other school affiliations
+      $schools = array();
+      foreach (DB::$V->incList($args, 'schools') as $id) {
+        if (($school = DB::get(DB::$SCHOOL, $id)) !== null && $school != $user->school)
+          $schools[$school->id] = $school;
+      }
+
+      $user->setSchools($schools);
+      Session::pa(new PA(sprintf("Updated school affiliations for user %s.", $user)));
     }
     return array();
   }

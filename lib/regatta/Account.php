@@ -112,15 +112,36 @@ class Account extends DBObject {
   }
 
   /**
+   * Sets the affiliations for this account
+   *
+   * @param Array:School the schools to associate
+   */
+  public function setSchools(Array $schools) {
+    DB::removeAll(DB::$ACCOUNT_SCHOOL, new DBCond('account', $this));
+    $new = array();
+    foreach ($schools as $school) {
+      $link = new Account_School();
+      $link->account = $this;
+      $link->school = $school;
+      $new[] = $link;
+    }
+    DB::insertAll($new);
+  }
+
+  /**
    * Returns all the schools that this user is affiliated with
    *
    * @param Conference $conf the possible to conference to narrow down
    * school list
+   *
+   * @param boolean $effective false to ignore permissions and return
+   * only assigned values
+   *
    * @return Array:School, indexed by school ID
    */
-  public function getSchools(Conference $conf = null) {
+  public function getSchools(Conference $conf = null, $effective = true) {
     $cond = null;
-    if ($this->isAdmin()) {
+    if ($this->isAdmin() && $effective !== false) {
       if ($conf !== null)
         $cond = new DBCond('conference', $conf);
     }
