@@ -71,6 +71,22 @@ class Account extends DBObject {
                  self::ROLE_STUDENT=>"Student");
   }
 
+  /**
+   * Fetches the different statuses allowed
+   *
+   * @return Array:String assoc. map of statuses
+   */
+  public static function getStatuses() {
+    return array(
+                 self::STAT_REQUESTED => 'Requested',
+                 self::STAT_PENDING => 'Pending',
+                 self::STAT_ACCEPTED => 'Accepted',
+                 self::STAT_REJECTED => 'Rejected',
+                 self::STAT_ACTIVE => 'Active',
+                 self::STAT_INACTIVE => 'Inactive',
+                 );
+  }
+
   public function isAdmin() {
     return $this->admin > 0;
   }

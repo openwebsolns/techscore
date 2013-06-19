@@ -77,7 +77,14 @@ class AccountsPane extends AbstractAdminUserPane {
     require_once('regatta/Account.php');
     $this->PAGE->addContent($p = new XPort("Current users"));
     $p->add(new XP(array(), "Click on the user's name to edit."));
-    
+
+    // Filter?
+    $roles = Account::getRoles();
+    $role_chosen = DB::$V->incKey($_GET, 'role', $roles, null);
+
+    $statuses = Account::getStatuses();
+    $stat_chosen = DB::$V->incKey($_GET, 'status', $statuses, null);
+
     // Search?
     $qry = null;
     $empty_mes = array("There are no users.");
@@ -89,14 +96,14 @@ class AccountsPane extends AbstractAdminUserPane {
       if (strlen($qry) < 3)
         $empty_mes = "Search query is too short.";
       else {
-        $users = DB::search(DB::$ACCOUNT, $qry);
+        $users = DB::searchAccounts($qry, $role_chosen, $stat_chosen);
         $num_users = count($users);
         if ($startint > 0 && $startint >= $num_users)
           $startint = (int)(($num_users - 1) / self::NUM_PER_PAGE) * self::NUM_PER_PAGE;
       }
     }
     else {
-      $users = DB::getAccounts();
+      $users = DB::getAccounts($role_chosen, $stat_chosen);
       $num_users = count($users);
     }
 
@@ -104,6 +111,32 @@ class AccountsPane extends AbstractAdminUserPane {
     require_once('xml5/PageWhiz.php');
     $whiz = new PageWhiz($num_users, self::NUM_PER_PAGE, '/' . $this->page_url, $_GET);
     $p->add($whiz->getSearchForm($qry, 'q', $empty_mes, "Search users: "));
+
+    // Filter
+    $role_opts = array("" => "[All]");
+    foreach ($roles as $key => $val)
+      $role_opts[$key] = $val;
+
+    $stat_opts = array("" => "[All]");
+    foreach ($statuses as $key => $val)
+      $stat_opts[$key] = $val;
+
+    $p->add($fs = new XFieldSet("Filter options", array('class'=>'filter')));
+    $fs->add($f = $this->createForm(XForm::GET));
+
+    foreach ($_GET as $key => $val) {
+      if (!in_array($key, array('role', 'status')))
+        $f->add(new XHiddenInput($key, $val));
+    }
+    $f->add(new XP(array(),
+                   array(new XSpan("Role:", array('class'=>'span_h')),
+                         XSelect::fromArray('role', $role_opts, $role_chosen),
+                         " ",
+                         new XSpan("Status:", array('class'=>'span_h')),
+                         XSelect::fromArray('status', $stat_opts, $stat_chosen),
+                         " ",
+                         new XSubmitInput('go', "Apply"))));
+
     $p->add($ldiv = $whiz->getPages('r', $_GET));
 
     // Create table, if applicable

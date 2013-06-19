@@ -930,3 +930,39 @@ h4 a:hover {
 .users-legend td {
     padding: 0.25em 0.5em;
 }
+
+/*
+.filter {
+    height: 0.5em;
+    overflow: hidden;
+    background: #eee;
+}
+
+.filter * {
+    visibility: hidden;
+}
+
+.filter legend {
+    visibility: visible;
+}
+
+.filter legend:after {
+    content: "Hover to show";
+    font-size: 85%;
+    color: #555;
+    margin-left: 1em;
+}
+
+.filter:hover {
+    background: white;
+    height: auto;
+    position: relative;
+}
+
+.filter:hover * {
+    visibility: visible;
+}
+*/
+.filter p {
+    margin: 0;
+}

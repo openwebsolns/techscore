@@ -444,10 +444,11 @@ class DB extends DBM {
    * Returns a list of accounts fulfilling the given role
    *
    * @param String|null $role a possible Account role
+   * @param String|null $status a possible Account status
    * @return Array:Account the list of accounts
    * @throws InvalidArgumentException if provided role is invalid
    */
-  public static function getAccounts($role = null) {
+  public static function getAccounts($role = null, $status = null) {
     require_once('regatta/Account.php');
     $cond = null;
     if ($role !== null) {
@@ -456,7 +457,49 @@ class DB extends DBM {
         throw new InvalidArgumentException("Invalid role provided: $role.");
       $cond = new DBCond('role', $role);
     }
+    if ($status !== null) {
+      $statuses = Account::getStatuses();
+      if (!isset($statuses[$status]))
+        throw new InvalidArgumentException("Invalid status provided: $status.");
+      if ($cond === null)
+        $cond = new DBCond('status', $status);
+      else
+        $cond = new DBBool(array($cond, new DBCond('status', $status)));
+    }
     return self::getAll(self::$ACCOUNT, $cond);
+  }
+
+  /**
+   * Search accounts, with optional role and/or status filter
+   *
+   * @param String|null $role a possible Account role
+   * @param String|null $status a possible Account status
+   * @return Array:Account the list of accounts
+   * @throws InvalidArgumentException if provided role is invalid
+   */
+  public static function searchAccounts($qry, $role = null, $status = null) {
+    require_once('regatta/Account.php');
+    if ($role === null && $status === null)
+      return self::search(DB::$ACCOUNT, $qry);
+
+    $cond = new DBBool(array());
+    if ($role !== null) {
+      $roles = Account::getRoles();
+      if (!isset($roles[$role]))
+        throw new InvalidArgumentException("Invalid role provided: $role.");
+      $cond->add(new DBCond('role', $role));
+    }
+    if ($status !== null) {
+      $statuses = Account::getStatuses();
+      if (!isset($statuses[$status]))
+        throw new InvalidArgumentException("Invalid status provided: $status.");
+      $cond->add(new DBCond('status', $status));
+    }
+
+    $q = self::prepSearch(DB::$ACCOUNT, $qry);
+    $q->where($cond);
+    $r = self::query($q);
+    return new DBDelegate($r, new DBObject_Delegate(get_class(DB::$ACCOUNT)));
   }
 
   /**
