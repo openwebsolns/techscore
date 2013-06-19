@@ -48,6 +48,10 @@ class AccountsPane extends AbstractAdminUserPane {
     $fi->add(new XLabel('chk-admin', "Does this account have admin privileges?"));
     if ($user->isAdmin())
       $chk->set('checked', 'checked');
+    if ($user == $this->USER) {
+      $chk->set('disabled', 'disabled');
+      $chk->set('title', "You may not remove permissions for yourself.");
+    }
 
     $f->add(new FItem("Regattas created:", new XStrong(count($user->getRegattasCreated()))));
 
@@ -55,15 +59,17 @@ class AccountsPane extends AbstractAdminUserPane {
     $xp->add(new XHiddenInput('user', $user->id));
 
     if ($user->status != Account::STAT_INACTIVE) {
-      // ------------------------------------------------------------
-      // Delete account?
-      // ------------------------------------------------------------
-      $this->PAGE->addContent($p = new XPort("Inactivate account"));
-      $p->add($f = $this->createForm());
-      $f->add(new XP(array(), "Delete this account by clicking the button below. The user will no longer be allowed to use the application, or create a new account."));
-      $f->add(new XP(array('class'=>'p-submit'),
-                     array(new XSubmitInput('delete-user', "Delete user", array('onclick'=>'return confirm("Are you sure you wish to delete this user?");')),
-                           new XHiddenInput('user', $user->id))));
+      if ($user->id != $this->USER->id) {
+        // ------------------------------------------------------------
+        // Delete account?
+        // ------------------------------------------------------------
+        $this->PAGE->addContent($p = new XPort("Inactivate account"));
+        $p->add($f = $this->createForm());
+        $f->add(new XP(array(), "Delete this account by clicking the button below. The user will no longer be allowed to use the application, or create a new account."));
+        $f->add(new XP(array('class'=>'p-submit'),
+                       array(new XSubmitInput('delete-user', "Delete user", array('onclick'=>'return confirm("Are you sure you wish to delete this user?");')),
+                             new XHiddenInput('user', $user->id))));
+      }
     }
     else {
       // ------------------------------------------------------------
@@ -226,7 +232,8 @@ class AccountsPane extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     if (isset($args['edit-user'])) {
       $user->role = DB::$V->reqKey($args, 'role', Account::getRoles(), "Invalid role provided.");
-      $user->admin = DB::$V->incInt($args, 'admin', 1, 2, null);
+      if ($user != $this->USER)
+        $user->admin = DB::$V->incInt($args, 'admin', 1, 2, null);
       DB::set($user);
       Session::pa(new PA(sprintf("Updated account information for user %s.", $user)));
       if ($user->admin !== null)
