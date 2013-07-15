@@ -998,3 +998,7 @@ h4 a:hover {
 .multiple-select input[checked="checked"] + label:hover {
     background: #e0f3e0;
 }
+.has-raced {
+    color: #555;
+    font-style: italic;
+}
