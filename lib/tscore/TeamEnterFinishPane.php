@@ -9,6 +9,10 @@ require_once('tscore/EnterFinishPane.php');
 /**
  * Enter finishes for team racing regattas
  *
+ * 2013-07-15: Divide it into a two-step process: the first is where
+ * the race is chosen (do not collapse the port). Unlike in fleet
+ * racing, recommend the next race automatically.
+ *
  * @author Dayan Paez
  * @created 2012-12-11 
  */
@@ -20,87 +24,52 @@ class TeamEnterFinishPane extends EnterFinishPane {
   protected $pen_opts = array("" => "", Penalty::DNF => "DNF (6)", Penalty::DNS => "DNS (6)");
 
   protected function fillHTML(Array $args) {
-    // Chosen round
-    $rounds = array();
-    foreach ($this->REGATTA->getRounds() as $r) {
-      $rounds[$r->id] = $r;
-    }
-
     // Chosen race, by number
-    $num = DB::$V->incInt($args, 'race', 1, 1001, null);
+    $race = null;
+    $num = DB::$V->incString($args, 'race', 1, 1001, null);
     if ($num !== null) {
       $race = $this->REGATTA->getRace(Division::A(), $num);
-      if ($race === null) {
-        Session::pa(new PA("Invalid race chosen.", PA::E));
-        $this->redirect();
-      }
-      $round = $race->round;
+      if ($race === null)
+        Session::pa(new PA("Invalid race chosen.", PA::I));
     }
-    else {
-      if (DB::$V->hasID($round, $args, 'round', DB::$ROUND)) {
-        if (!isset($rounds[$round->id])) {
-          Session::pa(new PA("Invalid round chosen.", PA::E));
-          $this->redirect();
-        }
-        // Choose first race
-        $races = $this->REGATTA->getRacesInRound($round);
-        $race = $races[0];
-      }
-      else {
-        // choose the next unscored, or last scored race
-        $races = $this->REGATTA->getUnscoredRaces();
-        if (count($races) > 0)
-          $race = $races[0];
-        else {
-          $race = $this->REGATTA->getLastScoredRace();
-          Session::pa(new PA("All races have been scored."));
-        }
-	$round = $race->round;
-	$rnds = $race->getRounds();
-	if (count($rnds) > 0)
-	  $round = $rnds[count($rnds) - 1];
-      }
+    // ------------------------------------------------------------
+    // Choose race: provide either numerical input, or direct selection
+    // ------------------------------------------------------------
+    if ($race === null) {
+      $this->PAGE->addContent($p = new XPort("Choose race"));
+      $p->add($form = $this->createForm(XForm::GET));
+      $form->set("id", "race_form");
+
+      $form->add(new FItem("Race number:", 
+                           $race_input = new XTextInput('race', "",
+                                                        array("size"=>"4",
+                                                              "maxlength"=>"3",
+                                                              "id"=>"chosen_race",
+                                                              "class"=>"narrow"))));
+      // Add next unscored, or last scored race
+      $races = $this->REGATTA->getUnscoredRaces();
+      if (count($races) > 0)
+        $race_input->set('value', $races[0]);
+      else
+        $race_input->set('value', $this->REGATTA->getLastScoredRace());
+      
+      // No rotation yet
+      $form->add(new XSubmitP('go', "Enter finishes →"));
+
+      // ------------------------------------------------------------
+      // Choose race: provide grid
+      // ------------------------------------------------------------
+      require_once('tscore/ScoresGridDialog.php');
+      $D = new ScoresGridDialog($this->REGATTA);
+      foreach ($this->REGATTA->getRounds() as $round)
+        $p->add($D->getRoundTable($round, true));
+      return;
     }
-
-    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/finish.js'));
-    // ------------------------------------------------------------
-    // Choose race (duplicate of parent)
-    // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new XPort("Choose race by number"));
-    $p->add($form = $this->createForm(XForm::GET));
-    $form->set("id", "race_form");
-
-    $form->add(new FItem("Race:", 
-                         new XTextInput('race',
-                                        $race,
-                                        array("size"=>"4",
-                                              "maxlength"=>"3",
-                                              "id"=>"chosen_race",
-                                              "class"=>"narrow"))));
-    // No rotation yet
-    $form->add(new XSubmitP("choose_race", "Change race"));
-
-    // ------------------------------------------------------------
-    // Choose round
-    // ------------------------------------------------------------
-    $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/tr-finish-ui.js')));
-    $this->PAGE->addContent($p = new XPort("Choose race by round"));
-    $p->add($form = $this->createForm(XForm::GET));
-    $form->set('id', 'round_form');
-    $form->add(new FItem("Round:", $sel = XSelect::fromArray('round', $rounds, $round->id)));
-    $sel->set('onchange', 'submit(this)');
-    $form->add(new XSubmitAccessible("change_team", "Change"));
-
-    // ------------------------------------------------------------
-    // Choose race: provide grid
-    // ------------------------------------------------------------
-    require_once('tscore/ScoresGridDialog.php');
-    $D = new ScoresGridDialog($this->REGATTA);
-    $p->add($D->getRoundTable($round, true));
 
     // ------------------------------------------------------------
     // Enter finishes
     // ------------------------------------------------------------
+    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/finish.js'));
     $this->fillFinishesPort($race);
   }
 }
