@@ -22,6 +22,7 @@ class ReportMaker {
   private $combinedPage;
   private $fullPage;
   private $allracesPage;
+  private $sailorsPage;
   private $divPage = array();
 
   /**
@@ -234,6 +235,29 @@ class ReportMaker {
       $p->add($elem);
   }
 
+  protected function fillSailors() {
+    if ($this->sailorsPage !== null) return;
+
+    $reg = $this->regatta;
+    $season = $reg->getSeason();
+    $this->sailorsPage = new TPublicPage(sprintf("%s Sailors", $reg->name));
+    $this->prepare($this->sailorsPage);
+    $this->sailorsPage->setDescription(sprintf("Sailors participating in %s's %s.", $season->fullString(), $reg->name));
+
+    require_once('tscore/TeamRegistrationsDialog.php');
+    $maker = new TeamRegistrationsDialog($reg);
+    $rounds = $reg->getScoredRounds();
+    if (count($rounds) == 0)
+      $this->sailorsPage->addSection(new XP(array('class'=>'notice'), "There are no scored races yet in this regatta."));
+    else {
+      $this->sailorsPage->addSection(new XP(array('class'=>'notice'), "Note that only races that have been scored are shown."));
+      foreach ($rounds as $round) {
+        $this->sailorsPage->addSection($p = new XPort($round));
+        $p->add($maker->getRoundTable($round));
+      }
+    }
+  }
+
   protected function fillCombined() {
     if ($this->combinedPage !== null) return;
 
@@ -283,12 +307,14 @@ class ReportMaker {
           $page->addMenu(new XA($url . 'divisions/', "All Divisions"));
       }
       if ($reg->scoring == Regatta::SCORING_TEAM) {
-	$page->addMenu(new XA($url . 'all/', "All Races"));
+        $page->addMenu(new XA($url . 'all/', "All Races"));
       }
     }
     $rot = $reg->getRotation();
     if ($rot->isAssigned() || $reg->scoring == Regatta::SCORING_TEAM)
       $page->addMenu(new XA($url.'rotations/', "Rotations"));
+    if ($reg->scoring == Regatta::SCORING_TEAM)
+      $page->addMenu(new XA($url.'sailors/', "Sailors"));
 
     // Regatta information
     $stime = $reg->start_time;
@@ -379,6 +405,11 @@ class ReportMaker {
   public function getAllRacesPage() {
     $this->fillAllRaces();
     return $this->allracesPage;
+  }
+
+  public function getSailorsPage() {
+    $this->fillSailors();
+    return $this->sailorsPage;
   }
 
   /**

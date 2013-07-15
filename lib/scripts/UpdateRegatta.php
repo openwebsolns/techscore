@@ -65,6 +65,7 @@ class UpdateRegatta extends AbstractScript {
     self::remove("$root/B/index.html");
     self::remove("$root/C/index.html");
     self::remove("$root/D/index.html");
+    self::remove("$root/sailors/index.html");
     self::remove("$root/index.html");
   }
 
@@ -292,11 +293,13 @@ class UpdateRegatta extends AbstractScript {
     // "Rotation" tab always exists in team racing
     $has_rotation = true;
     $has_fullscore = false;
+    $has_sailors = false;
     $dir = sprintf('%s/html%s', dirname(dirname(dirname(__FILE__))), $reg->getURL());
     if (is_dir($dir)) {
       $has_dir = true;
       if (is_dir($dir . '/rotations'))   $has_rotation = true;
       if (is_dir($dir . '/full-scores')) $has_fullscore = true;
+      if (is_dir($dir . '/sailors'))     $has_sailors = true;
     }
 
     // Based on the list of activities, determine what files need to
@@ -308,6 +311,7 @@ class UpdateRegatta extends AbstractScript {
     $allraces = false;
     $front = false;
     $full = false;
+    $sailors = false;
     $rot = $reg->getRotation();
     if (in_array(UpdateRequest::ACTIVITY_ROTATION, $activities)) {
       $sync = true;
@@ -318,6 +322,7 @@ class UpdateRegatta extends AbstractScript {
       // is created AFTER there are already scores, etc.
       if (!$has_rotation) {
         $front = true;
+        $sailors = true;
         if ($reg->hasFinishes()) {
           $full = true;
         }
@@ -344,6 +349,7 @@ class UpdateRegatta extends AbstractScript {
     if (in_array(UpdateRequest::ACTIVITY_RP, $activities)) {
       $sync_rp = true;
       $front = true;
+      $sailors = true;
     }
     if (in_array(UpdateRequest::ACTIVITY_SUMMARY, $activities)) {
       $front = true;
@@ -355,6 +361,7 @@ class UpdateRegatta extends AbstractScript {
       $front = true;
       $rotation = true;
       $allraces = true;
+      $sailors = true;
       if ($reg->hasFinishes()) {
         $full = true;
       }
@@ -364,6 +371,7 @@ class UpdateRegatta extends AbstractScript {
       $sync_rp = true; // some races were removed
       $front = true;
       $full = true;
+      $sailors = true;
     }
     if (in_array(UpdateRequest::ACTIVITY_RANK, $activities)) {
       $sync = true;
@@ -385,6 +393,7 @@ class UpdateRegatta extends AbstractScript {
     if ($front)      $this->createFront($D, $M);
     if ($full)       $this->createFull($D, $M);
     if ($allraces)   $this->createAllRaces($D, $M);
+    if ($sailors)    $this->createSailors($D, $M);
   }
 
   // ------------------------------------------------------------
@@ -472,6 +481,20 @@ class UpdateRegatta extends AbstractScript {
   private function createAllRaces($dirname, ReportMaker $maker) {
     $path = $dirname . 'all/index.html';
     $page = $maker->getAllRacesPage();
+    self::writeXml($path, $page);
+  }
+
+  /**
+   * Creates and writes the sailors report for team racing
+   *
+   * @param String $dirname the directory
+   * @param ReportMaker $maker the maker
+   * @throws RuntimeException when writing is no good
+   * @see createFront
+   */
+  private function createSailors($dirname, ReportMaker $maker) {
+    $path = $dirname . 'sailors/index.html';
+    $page = $maker->getSailorsPage();
     self::writeXml($path, $page);
   }
 
