@@ -56,19 +56,19 @@ class EnterFinishPane extends AbstractPane {
       $form->set("id", "race_form");
 
       $form->add(new FItem("Race:", $sel = new XSelect('race')));
-      $empty_option = false;
+      $scored = array();
+      $unscored = array();
       foreach ($this->REGATTA->getRaces() as $other) {
-        $has_finishes = $this->REGATTA->hasFinishes($other);
-        if (!$has_finishes && !$empty_option) {
-          $sel->add(new XOption("", array('selected'=>'selected'), ""));
-          $empty_option = true;
-        }
-        $sel->add($opt = new XOption($other, array(), $other));
-        if ($has_finishes) {
-          $opt->set('class', 'has-raced');
-          $opt->set('title', "Race already scored.");
-        }
+        if ($this->REGATTA->hasFinishes($other))
+          $scored[] = new XOption($other, array(), $other);
+        else
+          $unscored[] = new XOption($other, array(), $other);
       }
+      $sel->add(new XOption("", array(), ""));
+      if (count($unscored) > 0)
+        $sel->add(new XOptionGroup("Unscored races", array(), $unscored));
+      if (count($scored) > 0)
+        $sel->add(new XOptionGroup("Scored races", array('class'=>'has-raced'), $scored));
       
       if (!$rotation->isAssigned($race)) {
         unset($this->ACTIONS[self::ROTATION]);
