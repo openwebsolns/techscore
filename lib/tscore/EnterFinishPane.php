@@ -11,6 +11,9 @@
  * 2010-02-25: Allow entering combined divisions. Of course, deal with
  * the team name entry as well as rotation
  *
+ * 2013-07-15: Split into a two-step process: one for choosing the
+ * race, the other for entering the race.
+ *
  * @author Dayan Paez
  * @version 2010-01-24
  */
@@ -35,52 +38,44 @@ class EnterFinishPane extends AbstractPane {
   }
 
   protected function fillHTML(Array $args) {
-    // Determine race to display: either as requested or the next
-    // unscored race, or the last race
-    $race = DB::$V->incRace($args, 'race', $this->REGATTA, null);
-    if ($race == null) {
-      $races = $this->REGATTA->getUnscoredRaces();
-      if (count($races) > 0)
-        $race = $races[0];
-    }
-    if ($race == null) {
-      Session::pa(new PA("All races have been scored."));
-      $race = $this->REGATTA->getLastScoredRace();
-    }
-    if ($race == null) {
-      Session::pa(new PA("No new races to score.", PA::I));
-      $this->redirect();
-    }
-
+    // Determine race to display as requested
     $rotation = $this->REGATTA->getRotation();
+    $using = DB::$V->incKey($args, 'finish_using', $this->ACTIONS, self::ROTATION);
+    $race = null;
+    if (isset($args['race'])) {
+      $race = DB::$V->incRace($args, 'race', $this->REGATTA, null);
+      if ($race === null)
+        Session::pa(new PA("Invalid race requested. Please try again.", PA::I));
+    }
+    if ($race == null) {
+      // ------------------------------------------------------------
+      // 1. Choose race
+      // ------------------------------------------------------------
+      $this->PAGE->addContent($p = new XPort("Choose race"));
+      $p->add($form = $this->createForm(XForm::GET));
+      $form->set("id", "race_form");
 
-    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/finish.js'));
-    $this->PAGE->addContent($p = new XPort("Choose race"));
+      $form->add(new FItem("Race:", 
+                           new XTextInput('race', $race,
+                                          array("size"=>"4",
+                                                "maxlength"=>"3",
+                                                "id"=>"chosen_race",
+                                                "class"=>"narrow"))));
+      
+      if (!$rotation->isAssigned($race)) {
+        unset($this->ACTIONS[self::ROTATION]);
+        $using = self::TEAMS;
+      }
 
-    // ------------------------------------------------------------
-    // Choose race
-    // ------------------------------------------------------------
-    $p->add($form = $this->createForm(XForm::GET));
-    $form->set("id", "race_form");
-
-    $form->add(new FItem("Race:", 
-                         new XTextInput('race', $race,
-                                        array("size"=>"4",
-                                              "maxlength"=>"3",
-                                              "id"=>"chosen_race",
-                                              "class"=>"narrow"))));
-    // Using?
-    $using = (isset($args['finish_using'])) ?
-      $args['finish_using'] : self::ROTATION;
-
-    if (!$rotation->isAssigned($race)) {
-      unset($this->ACTIONS[self::ROTATION]);
-      $using = self::TEAMS;
+      $form->add(new FItem("Using:", XSelect::fromArray('finish_using', $this->ACTIONS, $using)));
+      $form->add(new XSubmitP("go", "Enter finishes →"));
+      return;
     }
 
-    $form->add(new FItem("Using:", XSelect::fromArray('finish_using', $this->ACTIONS, $using)));
-    $form->add(new XSubmitP("choose_race", "Change race"));
-
+    // ------------------------------------------------------------
+    // 2. Enter finishes
+    // ------------------------------------------------------------
+    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/finish.js'));
     $this->fillFinishesPort($race, ($using == self::ROTATION) ? $rotation : null);
   }
 
@@ -118,12 +113,12 @@ class EnterFinishPane extends AbstractPane {
         $rotation->getCombinedSails($race);
       
       foreach ($pos_sails as $i => $aPS) {
-	$current_sail = "";
-	$current_pen = null;
-	if (count($finishes) > 0) {
+        $current_sail = "";
+        $current_pen = null;
+        if (count($finishes) > 0) {
           $current_sail = $rotation->getSail($finishes[$i]->race, $finishes[$i]->team);
-	  $current_pen = $finishes[$i]->getModifier();
-	}
+          $current_pen = $finishes[$i]->getModifier();
+        }
         $tab->addRow(array(new XTD(array('name'=>'pos_sail', 'class'=>'pos_sail','id'=>'pos_sail'), $aPS),
                            new XImg("/inc/img/question.png", "Waiting for input", array("id"=>"check" . $i)),
                            new XTextInput("p" . $i, $current_sail,
@@ -132,14 +127,16 @@ class EnterFinishPane extends AbstractPane {
                                                 "onkeyup"=>"checkSails()",
                                                 "class"=>"small",
                                                 "size"=>"2")),
-			   XSelect::fromArray('m' . $i, $this->pen_opts, $current_pen)));
+                           XSelect::fromArray('m' . $i, $this->pen_opts, $current_pen)));
       }
 
       // Submit buttom
       $this->fillRaceObservation($form, $race);
-      $form->add(new XSubmitP("f_places",
-                              sprintf("Enter finish for race %s", $race),
-                              array("id"=>"submitfinish", "tabindex"=>($i+1))));
+      $form->add($xp = new XSubmitP("f_places",
+                                    sprintf("Enter finish for race %s", $race),
+                                    array("id"=>"submitfinish", "tabindex"=>($i+1))));
+      $xp->add(" ");
+      $xp->add(new XA($this->link('finishes'), "Cancel"));
     }
     else {
       // ------------------------------------------------------------
@@ -150,9 +147,11 @@ class EnterFinishPane extends AbstractPane {
                                                   array("Team", "→", "Finish", "Pen."))));
       $i = $this->fillFinishesTable($tab, $race, $finishes);
       $this->fillRaceObservation($form, $race);
-      $form->add(new XSubmitP('f_teams',
-                              sprintf("Enter finish for race %s", $race),
-                              array('id'=>'submitfinish', 'tabindex'=>($i+1))));
+      $form->add($xp = new XSubmitP('f_teams',
+                                    sprintf("Enter finish for race %s", $race),
+                                    array('id'=>'submitfinish', 'tabindex'=>($i+1))));
+      $xp->add(" ");
+      $xp->add(new XA($this->link('finishes'), "Cancel"));
     }
 
     // ------------------------------------------------------------
@@ -209,12 +208,12 @@ class EnterFinishPane extends AbstractPane {
       $intv = new DateInterval('P0DT3S');
       for ($i = 0; $i < $count; $i++) {
         $id = DB::$V->reqKey($args, "p$i", $teams, "Missing team in position " . ($i + 1) . ".");
-	$pen = DB::$V->incKey($args, "m$i", $this->pen_opts, "");
-	$mod = null;
-	if ($pen == Penalty::DNS || $pen == Penalty::DNF)
-	  $mod = new Penalty($pen);
-	elseif ($pen == Breakdown::BYE)
-	  $mod = new Breakdown($pen);
+        $pen = DB::$V->incKey($args, "m$i", $this->pen_opts, "");
+        $mod = null;
+        if ($pen == Penalty::DNS || $pen == Penalty::DNF)
+          $mod = new Penalty($pen);
+        elseif ($pen == Breakdown::BYE)
+          $mod = new Breakdown($pen);
 
         $finish = $this->REGATTA->getFinish($races[$id], $teams[$id]);
         if ($finish === null)
@@ -246,13 +245,13 @@ class EnterFinishPane extends AbstractPane {
       // Observation?
       $obs = DB::$V->incString($args, 'observation', 1, 16000, null);
       if ($obs !== null) {
-	$note = new Note();
-	$note->noted_at = DB::$NOW;
-	$note->observation = $obs;
-	$note->observer = DB::$V->incString($args, 'observer', 1, 51, null);
-	$note->race = $race;
-	DB::set($note);
-	Session::pa(new PA(array("Added note for race $race. ", new XA($this->link('notes'), "Edit notes"), ".")));
+        $note = new Note();
+        $note->noted_at = DB::$NOW;
+        $note->observation = $obs;
+        $note->observer = DB::$V->incString($args, 'observer', 1, 51, null);
+        $note->race = $race;
+        DB::set($note);
+        Session::pa(new PA(array("Added note for race $race. ", new XA($this->link('notes'), "Edit notes"), ".")));
       }
 
       // Reset
@@ -345,17 +344,17 @@ class EnterFinishPane extends AbstractPane {
           $attrs['value'] = sprintf('%s,%s', $div, $team->id);
           $name = $team_opts[$attrs['value']];
 
-	  $current_team = "";
-	  $current_pen = null;
-	  if (count($finishes) > 0) {
-	    $current_team = sprintf("%s,%s", $finishes[$i]->race->division, $finishes[$i]->team->id);
-	    $current_pen = $finishes[$i]->getModifier();
-	  }
+          $current_team = "";
+          $current_pen = null;
+          if (count($finishes) > 0) {
+            $current_team = sprintf("%s,%s", $finishes[$i]->race->division, $finishes[$i]->team->id);
+            $current_pen = $finishes[$i]->getModifier();
+          }
 
           $tab->addRow(array(new XTD($attrs, $name),
                              new XImg("/inc/img/question.png", "Waiting for input",  array("id"=>"check" . $i)),
                              $sel = XSelect::fromArray("p" . $i, $team_opts, $current_team),
-			     XSelect::fromArray('m' . $i, $this->pen_opts, $current_pen)));
+                             XSelect::fromArray('m' . $i, $this->pen_opts, $current_pen)));
           $sel->set('id', "team$i");
           $sel->set('tabindex', $i + 1);
           $sel->set('onchange', 'checkTeams()');
@@ -374,13 +373,13 @@ class EnterFinishPane extends AbstractPane {
    *
    * @param Array $team_opts the map to fill with team elements
    * @param Array $tms the map of teams to fill in
-   * @param Array $rac the map of races to fill in
-   * @param Array $teams the list of teams whose options to fill in
-   * @param Race $race the template race to use
-   * @param Array $divisions the list of divisions (required for
-   * non-standard scoring). If missing or empty, query the $REGATTA
-   * for its list of divisions.
-   */
+               * @param Array $rac the map of races to fill in
+               * @param Array $teams the list of teams whose options to fill in
+               * @param Race $race the template race to use
+               * @param Array $divisions the list of divisions (required for
+    * non-standard scoring). If missing or empty, query the $REGATTA
+               * for its list of divisions.
+                           */
   private function fillTeamOpts(Array &$team_opts, Array &$tms, Array &$rac, $teams, Race $race, Array $divisions = array()) {
     if ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) {
       foreach ($teams as $team) {
