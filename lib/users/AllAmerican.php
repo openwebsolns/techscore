@@ -86,7 +86,7 @@ class AllAmerican extends AbstractUserPane {
       $this->PAGE->addContent($p = new XPort("New report"));
       $now = Season::forDate(DB::$NOW);
       $then = null;
-      if ($now->season == Season::SPRING)
+      if ($now != null && $now->season == Season::SPRING)
         $then = DB::getSeason(sprintf('f%0d', ($now->start_date->format('Y') - 1)));
 
       $p->add($form = $this->createForm());
