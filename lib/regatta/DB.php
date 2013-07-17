@@ -55,6 +55,10 @@ class DB extends DBM {
   public static $ROUND_SLAVE = null;
   public static $AA_REPORT = null;
 
+  public static $PERMISSION = null;
+  public static $ROLE = null;
+  public static $ROLE_PERMISSION = null;
+
   public static $OUTBOX = null;
   public static $MESSAGE = null;
   public static $ACCOUNT = null;
@@ -109,6 +113,11 @@ class DB extends DBM {
     self::$REGATTA_ROTATION = new Regatta_Rotation();
     self::$ROUND_SLAVE = new Round_Slave();
     self::$AA_REPORT = new AA_Report();
+
+    self::$PERMISSION = new Permission();
+    self::$ROLE = new Role();
+    self::$ROLE_PERMISSION = new Role_Permission();
+
     self::$DT_TEAM_DIVISION = new Dt_Team_Division();
     self::$DT_RP = new Dt_Rp();
     self::$NOW = new DateTime();
@@ -2816,6 +2825,87 @@ class AA_Report extends DBObject {
       return DB::$NOW;
     default:
       return parent::db_type($field);
+    }
+  }
+}
+
+/**
+ * A permission line, used to regulate access to areas of the site
+ *
+ * @author Dayan Paez
+ * @version 2013-07-17
+ */
+class Permission extends DBObject {
+  public $title;
+  public $description;
+  protected function db_cache() { return true; }
+  public function __toString() { return $this->title; }
+}
+
+/**
+ * A bundle of permission entries, as assigned to an account
+ *
+ * @author Dayan Paez
+ * @version 2013-07-17
+ */
+class Role extends DBObject {
+  public $title;
+  public $description;
+  protected function db_cache() { return true; }
+  public function __toString() { return $this->title; }
+
+  /**
+   * @var Array:Permission internal cache of permissions
+   */
+  private $permissions = null;
+  
+  /**
+   * Returns list of Permission objects associated with this role
+   *
+   * @return Array:Permission
+   */
+  public function getPermissions() {
+    if ($this->permissions === null) {
+      $this->permissions = array();
+      foreach (DB::getAll(DB::$ROLE_PERMISSION, new DBCond('role', $this)) as $link) {
+        $this->permissions[] = $link->permission;
+      }
+    }
+    return $this->permissions;
+  }
+
+  /**
+   * Sets the list of permissions associated with this role
+   *
+   * @param Array:Permission $persm the list of permissions
+   */
+  public function setPermissions(Array $perms) {
+    DB::removeAll(DB::$ROLE_PERMISSION, new DBCond('role', $this));
+    foreach ($perms as $perm) {
+      $link = new Role_Permission();
+      $link->role = $this;
+      $link->permission = $perm;
+      DB::set($link);
+    }
+    $this->permissions = $perms;
+  }
+}
+
+/**
+ * Link between Permission and Role
+ *
+ * @author Dayan Paez
+ * @version 2013-07-17
+ */
+class Role_Permission extends DBObject {
+  protected $role;
+  protected $permission;
+
+  public function db_type($field) {
+    switch ($field) {
+    case 'role': return DB::$ROLE;
+    case 'permission': return DB::$PERMISSION;
+    default: return parent::db_type($field);
     }
   }
 }

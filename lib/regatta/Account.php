@@ -34,11 +34,14 @@ class Account extends DBObject {
   public $status;
   public $password;
   protected $school;
+  protected $ts_role;
 
   public function db_type($field) {
     switch ($field) {
     case 'school':
       return DB::$SCHOOL;
+    case 'ts_role':
+      return DB::$ROLE;
     default:
       return parent::db_type($field);
     }
@@ -265,6 +268,26 @@ class Account extends DBObject {
   public function getMessages() {
     require_once('regatta/Message.php');
     return DB::getAll(DB::$MESSAGE, new DBCond('account', $this));
+  }
+
+  // ------------------------------------------------------------
+  // Permissions
+  // ------------------------------------------------------------
+
+  /**
+   * Does this account's role have the necessary permission?
+   *
+   */
+  public function can(Permission $perm) {
+    if ($this->isAdmin())
+      return true;
+    if ($this->ts_role === null)
+      return false;
+    foreach ($this->__get('ts_role')->getPermissions() as $other) {
+      if ($other == $perm)
+        return true;
+    }
+    return false;
   }
 }
 

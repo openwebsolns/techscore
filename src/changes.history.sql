@@ -534,3 +534,49 @@ alter table race_order drop column old_id;
 -- remember aa reports
 create table aa_report (id varchar(40) primary key, regattas text not null comment "Array of regatta IDs",  sailors text not null comment "Array of sailor IDs", last_updated timestamp not null default current_timestamp, author varchar(40) default null) engine=innodb;
 alter table aa_report add column type enum('coed', 'women', 'all') not null default 'coed' after id, add column role enum('skipper', 'crew') not null default 'skipper' after type, add column seasons text not null comment "List of seasons IDs" after role, add column conferences text not null comment "List of conference IDs" after seasons, add column min_regattas tinyint unsigned not null default 2 after conferences;
+
+-- create permission subsystem
+create table permission (id varchar(40) not null primary key, title tinytext not null, description text default null) engine=innodb;
+create table role (id mediumint not null primary key auto_increment, title tinytext not null, description text default null) engine=innodb;
+create table role_permission (id int primary key auto_increment, role mediumint not null, permission varchar(40) not null) engine=innodb;
+alter table role_permission add foreign key (role) references role(id) on delete cascade on update cascade, add foreign key (permission) references permission(id) on delete cascade on update cascade;
+alter table account add column ts_role mediumint default null, add foreign key (ts_role) references role(id) on delete set null on update cascade;
+
+-- add individual permission entries
+insert into permission values
+('edit_seasons', "Edit seasons", "Edit the start and end time of each season, and create new ones."),
+('edit_unregistered_sailors', "Manage unregistered sailors", "Merge list of unregistered sailors for a given school."),
+('edit_school_logo', "Edit school burgee", "Upload a new image to use as the school burgee."),
+('edit_team_names', "Edit team names", "Manage the list of mascots to be used for the teams from a particular school."),
+('edit_aa_report', "Edit All-America reports", "Create, save, and edit All-America reports."),
+('download_aa_report', "Download saved All-America reports", "Download (but not create) All-America reports."),
+('use_head_to_head_report', "Use Head-to-Head report", "Allow access to the Head-to-Head report."),
+('use_team_record_report', "Use \"Team Record\" report", "Allow access to use the report of team participation."),
+('send_message', "Broadcast e-mail message", "Can send e-mail on behalf of administration."),
+('edit_venues', "Edit list of venues", null),
+('edit_boats', "Edit list of boats", null),
+('edit_regatta_types', "Edit list of regatta types", "Edit the different regatta types available, their display name, and their order of importance."),
+('edit_tr_templates', "Manage race-order templates for team racing", "Edit, create, and delete available race-order templates for team racing."),
+('edit_users', "Edit existing users", "Approve/reject pending accounts, and edit existing users. Will receive notification e-mail with each newly-requested account."),
+('edit_announcements', "Edit scoring announcements", "Edit text to be used on the log-in page for the program."),
+('edit_welcome', "Edit public welcome message", "Edit text to be used on the \"Welcome\" port of the public site."),
+('create_regatta', "Create a new regatta", null),
+('edit_regatta', "Score regattas", "Ability to edit and score existing regattas. Access to regatta is regulated by schools associated with account."),
+('delete_regatta', "Delete regatta", "Delete a regatta from the system, to which the account has access."),
+('finalize_regatta', "Finalize regatta", "Finalize a regatta to which the account has access.");
+
+-- add roles
+insert into role values (null, 'scorer_editor', "General regatta scorer and school editor");
+
+insert into role_permission (role, permission) values
+(1, 'edit_unregistered_sailors'),
+(1, 'edit_school_logo'),
+(1, 'edit_team_names'),
+(1, 'download_aa_report'),
+(1, 'use_head_to_head_report'),
+(1, 'create_regatta'),
+(1, 'edit_regatta'),
+(1, 'delete_regatta'),
+(1, 'finalize_regatta');
+
+update account set ts_role = 1;
