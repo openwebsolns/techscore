@@ -91,6 +91,9 @@ class ScoresGridDialog extends AbstractScoresDialog {
     //
     // Also track corresponding team objects
     $teams = array();
+    foreach ($this->REGATTA->getTeamsInRound($round) as $team)
+      $teams[$team->id] = $team;
+
     $scores = array();
     $carried = array();
     foreach ($races as $race) {
@@ -99,7 +102,6 @@ class ScoresGridDialog extends AbstractScoresDialog {
 
       $ts = $this->REGATTA->getRaceTeams($race);
       foreach ($ts as $t) {
-        $teams[$t->id] = $t;
         if (!isset($scores[$t->id]))
           $scores[$t->id] = array();
       }
