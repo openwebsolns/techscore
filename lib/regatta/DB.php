@@ -1737,7 +1737,7 @@ class Race extends DBObject {
     if ($this->_rounds === null) {
       $this->_rounds = array();
       foreach (DB::getAll(DB::$RACE_ROUND, new DBCond('race', $this)) as $r)
-	$this->_rounds[] = $r->round;
+        $this->_rounds[] = $r->round;
       usort($this->_rounds, 'Round::compare');
     }
     return $this->_rounds;
@@ -1753,10 +1753,10 @@ class Race extends DBObject {
     $queue = array();
     foreach ($rounds as $round) {
       if ($round->id === null)
-	DB::set($round, false);
+        DB::set($round, false);
 
       if (isset($queue[$round->id]))
-	continue;
+        continue;
 
       $r = new Race_Round();
       $r->race = $this;
