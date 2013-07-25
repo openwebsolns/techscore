@@ -369,12 +369,8 @@ class TeamRacesPane extends AbstractPane {
         }
       }
       // Remove this round from each race, or entire race if only round
-      foreach ($this->REGATTA->getRacesInRound($round, null, false) as $race) {
-        if (count($race->getRounds()) == 1)
-          DB::remove($race);
-        else
-          $race->deleteRound($round);
-      }
+      foreach ($this->REGATTA->getRacesInRound($round, null, false) as $race)
+        DB::remove($race);
       DB::remove($round);
 
       // Order races of all rounds AFTER this one
