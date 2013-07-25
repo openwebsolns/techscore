@@ -509,6 +509,23 @@ class FullRegatta extends DBObject {
   }
 
   /**
+   * Returns the set of teams participating in the round
+   *
+   * @param Round $round the round
+   * @return Array:Team the teams that are participating
+   */
+  public function getTeamsInRound(Round $round) {
+    if ($round->regatta != $this)
+      throw new InvalidArgumentException("The round must be from this regatta.");
+    return DB::getAll($this->isSingleHanded() ? DB::$SINGLEHANDED_TEAM : DB::$TEAM,
+                      new DBBool(array(new DBCondIn('id', DB::prepGetAll(DB::$RACE, new DBCond('round', $round),
+                                                                         array('tr_team1'))),
+                                       new DBCondIn('id', DB::prepGetAll(DB::$RACE, new DBCond('round', $round),
+                                                                         array('tr_team2')))),
+                                 DBBool::mOR));
+  }
+
+  /**
    * Gets the grouped rounds
    *
    * @return Array:Round_Group

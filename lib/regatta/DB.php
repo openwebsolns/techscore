@@ -1543,9 +1543,10 @@ class Round extends DBObject {
    * If provided round is already a master, silently ignore
    *
    * @param Round $master the master
+   * @param int $num_teams the number of teams to migrate
    * @throws InvalidArgumentException if $master not in same regatta, etc
    */
-  public function addMaster(Round $master) {
+  public function addMaster(Round $master, $num_teams) {
     if ($master->__get('regatta') != $this->__get('regatta'))
       throw new InvalidArgumentException("Only rounds from same regatta can be masters.");
     if ($master->relative_order >= $this->relative_order)
@@ -1560,6 +1561,7 @@ class Round extends DBObject {
     $s = new Round_Slave();
     $s->slave = $this;
     $s->master = $master;
+    $s->num_teams = $num_teams;
     DB::set($s);
     $this->_masters = null;
   }
@@ -1589,12 +1591,25 @@ class Round extends DBObject {
 /**
  * Rounds (slaves) that carry over from other rounds (masters)
  *
+ * When carrying over races from other rounds, those teams that have
+ * already met do not race again. The slave round will only include
+ * the races necessary to complete the impartial round-robins from the
+ * master rounds.
+ *
+ * Because of this, the net number of races that are created for the
+ * slave round depends on the number of teams that carry over from all
+ * of the master rounds. It is imperative that this number of races
+ * remain the same, even after teams are substituted. As a result,
+ * each master-slave record must also indicate the number of teams
+ * that are to "advance" from one round to another.
+ *
  * @author Dayan Paez
  * @version 2013-05-20
  */
 class Round_Slave extends DBObject {
   protected $master;
   protected $slave;
+  public $num_teams;
 
   public function db_type($field) {
     switch ($field) {

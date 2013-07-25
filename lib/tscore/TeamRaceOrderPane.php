@@ -148,12 +148,13 @@ function addTeamToRound(id) {
         $p->add(new XP(array(), "You may choose to order the races automatically by using one of the templates below, applicable to this round. Pay close attention to the number of boats per flight. If none of the templates below apply to you, then use the manual ordering scheme below."));
         $p->add(new XP(array(), "Choose the seeding order for the round by placing incrementing numbers next to the team names."));
         $p->add($form = $this->createForm());
-        $form->add($tab = new XQuickTable(array(), array("", "Name", "Number of boats")));
+        $form->add($tab = new XQuickTable(array(), array("", "Name", "Number of boats", "Description")));
         foreach ($templates as $template) {
           $id = 'inp-' . $template->id;
           $tab->addRow(array($ri = new XRadioInput('template', $template->id, array('id'=>$id)),
                              new XLabel($id, $template->name),
-                             new XLabel($id, $template->num_boats)),
+                             new XLabel($id, $template->num_boats),
+                             new XLabel($id, $template->description)),
                        array('title' => $template->description));
         }
         if (count($templates) == 1)
