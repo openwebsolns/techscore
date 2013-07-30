@@ -113,36 +113,9 @@ class TeamRaceOrderPane extends AbstractPane {
       }
       $divs = $this->REGATTA->getDivisions();
 
-      $templates = DB::getAll(DB::$RACE_ORDER,
-                              new DBBool(array(new DBCond('num_teams', count($teams)),
-                                               new DBCond('num_divisions', count($divs)))));
+      $templates = DB::getRaceOrders(count($teams), count($divs));
       if (count($templates) > 0) {
-        $this->PAGE->head->add(new XScript('text/javascript', null, '
-var TL = null;
-var TL_INPUTS = Array();
-function addTeamToRound(id) {
-  if (!TL) {
-    TL = document.getElementById("teams-list");
-    if (!TL)
-      return;
-    var inputs = TL.getElementsByTagName("input");
-    for (var i = 0; i &lt; inputs.length; i++) {
-      if (inputs[i].type == "text")
-        TL_INPUTS.push(inputs[i]);
-    }
-  }
-  var elem = document.getElementById(id);
-  if (!elem || elem.value != "")
-    return;
-  var max = 0;
-  for (var i = 0; i &lt; TL_INPUTS.length; i++) {
-    var num = Number(TL_INPUTS[i].value);
-    if (num > max)
-      max = num;
-  }
-  elem.value = (max + 1);
-}
-'));
+        $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/addTeamToRound.js'));
 
         $this->PAGE->addContent($p = new XPort("Order races using template"));
         $p->add(new XP(array(), "You may choose to order the races automatically by using one of the templates below, applicable to this round. Pay close attention to the number of boats per flight. If none of the templates below apply to you, then use the manual ordering scheme below."));

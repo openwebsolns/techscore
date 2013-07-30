@@ -408,3 +408,9 @@ a.empty {
 #finish_table select {
     min-width: 1em;
 }
+.tr-race-order-list thead th, .tr-race-order-list td {
+    text-align: left;
+}
+.tr-rotation-template thead th, .tr-rotation-template td {
+    text-align: left;
+}

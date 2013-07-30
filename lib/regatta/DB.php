@@ -654,6 +654,19 @@ class DB extends DBM {
   public static function getSeason($id) {
     return DB::get(DB::$SEASON, $id);
   }
+
+  /**
+   * Fetches all the race order templates for given parameters
+   *
+   * @param int $num_teams how many teams in the template
+   * @param int $num_divisions how many divisions
+   * @return Array:Race_Order
+   */
+  public static function getRaceOrders($num_teams, $num_divisions) {
+    return DB::getAll(DB::$RACE_ORDER,
+                      new DBBool(array(new DBCond('num_teams', $num_teams),
+                                       new DBCond('num_divisions', $num_divisions))));
+  }
 }
 
 /**

@@ -39,6 +39,18 @@ class TeamRacesPane extends AbstractPane {
    */
   protected function fillHTML(Array $args) {
     // ------------------------------------------------------------
+    // New round?
+    // ------------------------------------------------------------
+    if (isset($args['new-round'])) {
+      try {
+        $this->fillNewRound($args);
+        return;
+      } catch (SoterException $e) {
+        Session::pa(new PA($e->getMessage(), PA::E));
+      }
+    }
+
+    // ------------------------------------------------------------
     // Specific round?
     // ------------------------------------------------------------
     $rounds = $this->REGATTA->getRounds();
@@ -111,32 +123,13 @@ class TeamRacesPane extends AbstractPane {
     // Add round
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new XPort("Create new round"));
-    $p->add($form = $this->createForm());
+    $p->add($form = $this->createForm(XForm::GET));
     $form->add(new XP(array(),
-                      array("Choose the teams which will participate in the round to be added. ",
-                            Conf::$NAME,
-                            " will create the necessary races so that each team sails head-to-head against every other team (round-robin). Make sure to add an appropriate label for the round.")));
-    $form->add(new XP(array(),
-                      "To include a team, select the checkbox next to that team's name."));
-    $form->add(new FItem("Round label:", new XTextInput('title', "Round " . (count($rounds) + 1))));
-
-    $boats = DB::getBoats();
-    $boatOptions = array();
-    foreach ($boats as $boat)
-      $boatOptions[$boat->id] = $boat->name;
-    $form->add(new FItem("Boat:", XSelect::fromArray('boat', $boatOptions)));
-    // $form->add($fi = new FItem("Meetings:", new XTextInput('meetings', 1)));
-    // $fi->add(new XMessage("E.g., 1 for \"single\", 2 for \"double round-robin\""));
-
-    $form->add($ul = new XUl(array('id'=>'teams-list')));
-    foreach ($this->REGATTA->getTeams() as $team) {
-      $id = 'team-'.$team->id;
-      $ul->add(new XLi(array(new XCheckboxInput('team[]', $team->id, array('id'=>$id)),
-                             new XLabel($id, $team))));
-    }
-
-    $form->add(new XSubmitP('add-round', "Add round"));
-
+                      array("To create a (",
+                            new XSpan("simple", array('class'=>'tooltip', 'title'=>"A regular round-robin, as opposed to a \"completion\" round-robin.")),
+                            ") round-robin, choose the number of teams which will participate in the round and click \"Next →\". On the following screen, you will have the option to choose the teams, the name, and the race order.")));
+    $form->add(new FItem("Number of teams:", new XTextInput('num_teams', 2)));
+    $form->add(new XSubmitP('new-round', "Next →"));
 
     // ------------------------------------------------------------
     // Create "completion" (slave) round, if there are at least two
@@ -153,7 +146,7 @@ class TeamRacesPane extends AbstractPane {
       $form->add(new XP(array(),
                         array("Use this form to create a new round where some of the races come from previously existing round(s). Only as many races as needed to complete a round robin will be created. For each round to \"carry-over from\", indicate the teams that advance from that round. Note that a team may only be imported from one round.")));
       $form->add(new FItem("Round label:", new XTextInput('title', "Round " . (count($rounds) + 1))));
-      $form->add(new FItem("Boat:", XSelect::fromArray('boat', $boatOptions)));
+      $form->add(new FItem("Boat:", XSelect::fromArray('boat', $this->getBoatOptions())));
 
       foreach ($master_rounds as $round) {
         if (count($round->getMasters()) > 0)
@@ -171,6 +164,101 @@ class TeamRacesPane extends AbstractPane {
     }
   }
 
+  private function getBoatOptions() {
+    $boats = DB::getBoats();
+    $boatOptions = array();
+    foreach ($boats as $boat)
+      $boatOptions[$boat->id] = $boat->name;
+    return $boatOptions;
+  }
+
+  private function fillNewRound(Array $args) {
+    $teams = $this->REGATTA->getTeams();
+    $num_teams = DB::$V->reqInt($args, 'num_teams', 2, count($teams) + 1, "Invalid number of teams specified.");
+
+    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/addTeamToRound.js'));
+    $this->PAGE->addContent(new XP(array(), new XA($this->link('races'), "← Cancel")));
+    $this->PAGE->addContent($p = new XPort("Create a new round"));
+    
+    $p->add($form = $this->createForm());
+    $form->add(new XHiddenInput('num_teams', $num_teams));
+    $form->add(new FItem("Round label:", new XTextInput('title', "Round " . (count($this->REGATTA->getRounds()) + 1))));
+
+    $form->add(new FItem("Boat:", XSelect::fromArray('boat', $this->getBoatOptions())));
+
+    // ------------------------------------------------------------
+    // Teams
+    // ------------------------------------------------------------
+    $form->add(new XH4("Seeding order"));
+    $form->add(new XP(array(), 
+                      array("Choose the seeding order for the round by placing incrementing numbers next to the team name. ",
+                            new XStrong(sprintf("Note: a total of %d teams must be chosen.", $num_teams)),
+                            " If a team is not participating in the round, then leave it blank. This seeding order will be used to generate the race order for the round.")));
+
+    $form->add($ul = new XUl(array('id'=>'teams-list')));
+    $num = 1;
+    foreach ($teams as $team) {
+      $id = 'team-'.$team->id;
+      $ul->add(new XLi(array(new XHiddenInput('team[]', $team->id),
+                             new XTextInput('order[]', "", array('id'=>$id)),
+                             new XLabel($id, $team,
+                                        array('onclick'=>sprintf('addTeamToRound("%s");', $id))))));
+    }
+
+    // ------------------------------------------------------------
+    // Race order
+    // ------------------------------------------------------------
+    $templates = DB::getRaceOrders($num_teams, count($this->REGATTA->getDivisions()));
+    $form->add(new XH4("Race order"));
+    if (count($templates) == 0)
+      $form->add(new XP(array('class'=>'notice'), "There are no templates in the system for this number of teams. As such, a standard race order will be applied, which you may manually alter later."));
+    else {
+      $form->add($tab = new XQuickTable(array('class'=>'tr-race-order-list'), array("", "Name", "# of boats", "Description")));
+      foreach ($templates as $i => $template) {
+        $id = 'inp-' . $template->id;
+        $tab->addRow(array($ri = new XRadioInput('template', $template->id, array('id'=>$id)),
+                           new XLabel($id, $template->name),
+                           new XLabel($id, $template->num_boats),
+                           new XLabel($id, $template->description)),
+                     array('class' => 'row'.($i % 2)));
+      }
+      if (count($templates) == 1)
+        $ri->set('checked', 'checked');
+      $tab->addRow(array(new XRadioInput('template', '', array('id'=>'inp-no-template')),
+                         new XLabel('inp-no-template', "No special order."),
+                         new XLabel('inp-no-template', "N/A"),
+                         new XLabel('inp-no-template', "This option will group all of the first team's races, followed by those of the second team, etc. Use as a last resort.")),
+                   array('class' => 'row'.($i % 2)));
+    }
+
+    // ------------------------------------------------------------
+    // Rotation
+    // ------------------------------------------------------------
+    $form->add(new XH4("Rotation"));
+    $list = $this->REGATTA->getTeamRotations();
+    if (count($list) == 0)
+      $form->add(new XP(array('class'=>'notice'), "There are no saved rotations for this regatta at this time. Rotations may be manually set for this round after creation by visiting \"Races\" → \"Set rotation\"."));
+    else {
+      $form->add(new XP(array(),
+                        array("Choose a rotation to use from the list below, or no rotation at all to manually set one later. ", new XStrong("For best results, the number of boats in the rotation should match the number of boats in the race order template shown above, if applicable."))));
+
+      $form->add($tab = new XQuickTable(array('class'=>'tr-rotation-template'),
+                                        array("", "Name", "# of Boats")));
+      foreach ($list as $i => $rot) {
+        $id = 'inp-rot-' . $rot->id;
+        $tab->addRow(array(new XRadioInput('regatta_rotation', $rot->id, array('id'=>$id)),
+                           new XLabel($id, $rot->name),
+                           new XLabel($id, $rot->rotation->count())),
+                     array('class'=>'row' . ($i % 2)));
+      }
+      $tab->addRow(array(new XRadioInput('regatta_rotation', '', array('id'=>'inp-no-rot')),
+                         new XLabel('inp-no-rot', "No rotation"),
+                         new XLabel('inp-no-rot', "N/A")));
+    }
+
+    $form->add(new XSubmitP('add-round', "Add round"));
+  }
+
   private function fillRound($round) {
     $this->PAGE->addContent(new XP(array(), new XA(WS::link(sprintf('/score/%s/races', $this->REGATTA->id)), "← Back to list of rounds")));
 
@@ -180,11 +268,6 @@ class TeamRacesPane extends AbstractPane {
       $teamOpts[$team->id] = $team;
       $teamFullOpts[$team->id] = $team;
     }
-
-    $boats = DB::getBoats();
-    $boatOptions = array();
-    foreach ($boats as $boat)
-      $boatOptions[$boat->id] = $boat->name;
 
     // ------------------------------------------------------------
     // Edit round name (and other attributes)
@@ -472,74 +555,130 @@ class TeamRacesPane extends AbstractPane {
     }
 
     // ------------------------------------------------------------
-    // Add round (no longer handles "carry over" behavior
+    // Add round: this may include race order and rotations
     // ------------------------------------------------------------
     if (isset($args['add-round'])) {
+      $all_teams = array();
+      foreach ($this->REGATTA->getTeams() as $team)
+        $all_teams[$team->id] = $team;
+
+      $num_teams = DB::$V->reqInt($args, 'num_teams', 2, count($all_teams) + 1, "Invalid number of teams provided.");
+
       $rounds = array();
       foreach ($this->REGATTA->getRounds() as $r)
-        $rounds[$r->id] = $r;
+        $rounds[$r->title] = $r;
 
       // title
       $round = new Round();
       $round->regatta = $this->REGATTA;
       $round->title = DB::$V->reqString($args, 'title', 1, 81, "Invalid round label. May not exceed 80 characters.");
-      foreach ($rounds as $r) {
-        if ($r->title == $round->title)
-          throw new SoterException("Duplicate round title provided.");
-      }
+      if (isset($rounds[$round->title]))
+        throw new SoterException("Duplicate round title provided.");
+
+      // TODO: insert round?
       $round->relative_order = count($rounds) + 1;
 
       $boat = DB::$V->reqID($args, 'boat', DB::$BOAT, "Invalid boat provided.");
       $ids = DB::$V->reqList($args, 'team', null, "No list of teams provided. Please try again.");
-
-      // $meetings = DB::$V->reqInt($args, 'meetings', 1, 11, "Invalid meeting count. Must be between 1 and 10.");
-      $meetings = 1;
+      $order = DB::$V->incList($args, 'order', count($ids));
+      if (count($order) > 0)
+        array_multisort($order, SORT_NUMERIC, $ids);
 
       $teams = array();
       foreach ($ids as $index => $id) {
-        if (($team = $this->REGATTA->getTeam($id)) !== null)
-          $teams[] = $team;
+        if ($order[$index] > 0) {
+          if (!isset($all_teams[$id]))
+            throw new SoterException("Invalid team ID provided: $id.");
+          if (!isset($teams[$id]))
+            $teams[$id] = $all_teams[$id];
+        }
       }
-      if (count($teams) < 2)
-        throw new SoterException("Not enough teams provided: there must be at least two. Please try again.");
+      if (count($teams) != $num_teams)
+        throw new SoterException(sprintf("Exactly %d must be provided; %d given.", $num_teams, count($teams)));
+      $teams = array_values($teams);
+
+      $divs = array(Division::A(), Division::B(), Division::C());
+      $num_divs = count($divs);
+
+      // Template?
+      $template = DB::$V->incID($args, 'template', DB::$RACE_ORDER);
+      $pairs = array();
+      if ($template == null)
+        $pairs = $this->makeRoundRobin($teams);
+      else {
+        if ($template->num_divisions != $num_divs)
+          throw new SoterException("Invalid template chosen (wrong number of boats per team).");
+        if ($template->num_teams != $num_teams)
+          throw new SoterException("Invalid template chosen (wrong number of teams).");
+        for ($i = 0; $i < ($num_teams * ($num_teams - 1)) / 2; $i++) {
+          $pair = $template->getPair($i);
+          $pairs[] = array($teams[$pair[0] - 1], $teams[$pair[1] - 1]);
+        }
+      }
+
+      // Rotation? Allow cross-regatta rotation
+      $rotation_count = null;
+      $rotation = DB::$V->incID($args, 'regatta_rotation', DB::$REGATTA_ROTATION);
+      if ($rotation != null)
+        $rotation_count = $rotation->rotation->count();
 
       // Assign next race number
       $count = count($this->REGATTA->getRaces(Division::A()));
 
       // Create round robin
+      $sailI = 0;
       $num_added = 0;
-      
       $added = array();     // races to be added to this round
-      $divs = array(Division::A(), Division::B(), Division::C());
+      $sails_added = array();
+      foreach ($pairs as $pair) {
+        $count++;
+        foreach ($divs as $div) {
+          $race = new Race();
+          $race->division = $div;
+          $race->number = $count;
+          $race->boat = $boat;
+          $race->regatta = $this->REGATTA;
+          $race->round = $round;
+          $race->tr_team1 = $pair[0];
+          $race->tr_team2 = $pair[1];
+          $added[] = $race;
 
-      $swap = false;
-      for ($meeting = 0; $meeting < $meetings; $meeting++) {
-        foreach ($this->makeRoundRobin($teams, $swap) as $pair) {
-          $count++;
-          foreach ($divs as $div) {
-            $race = new Race();
-            $race->division = $div;
-            $race->number = $count;
-            $race->boat = $boat;
-            $race->regatta = $this->REGATTA;
-            $race->round = $round;
-            $race->tr_team1 = $pair[0];
-            $race->tr_team2 = $pair[1];
-            $added[] = $race;
+          if ($rotation != null) {
+            $sail = new Sail();
+            $sail->race = $race;
+            $sail->team = $race->tr_team1;
+            $sail->sail = $rotation->rotation->sails1[$sailI];
+            $sail->color = $rotation->rotation->colors1[$sailI];
+            $sails_added[] = $sail;
+
+            $sail = new Sail();
+            $sail->race = $race;
+            $sail->team = $race->tr_team2;
+            $sail->sail = $rotation->rotation->sails2[$sailI];
+            $sail->color = $rotation->rotation->colors2[$sailI];
+            $sails_added[] = $sail;
+
+            $sailI = ($sailI + 1) % $rotation_count;
           }
-          $num_added++;
         }
-        $swap = !$swap;
+        $num_added++;
       }
 
       // Insert all at once
-      DB::insertAll($added);
+      DB::set($round);
+      if (count($sails_added) > 0) {
+        // This will automatically set the race as well
+        $rot = $this->REGATTA->getRotation();
+        foreach ($sails_added as $sail)
+          $rot->setSail($sail);
+      }
+      else {
+        DB::insertAll($added);
+      }
 
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
-      $mes = array(sprintf("Added %d new races in round %s. ", $num_added, $round));
-      $mes[] = new XA($this->link('race-order', array('order-rounds'=>'', 'round'=>array($round->id))), "Order races");
-      $mes[] = ".";
-      Session::pa(new PA($mes));
+      Session::pa(new PA(sprintf("Added %d new races in round %s. ", $num_added, $round)));
+      $this->redirect('races');
       return array();
     }
 

@@ -1002,3 +1002,13 @@ h4 a:hover {
     color: #555;
     font-style: italic;
 }
+.tooltip {
+    border-bottom: 1px dotted navy;
+    cursor: help;
+}
+.tr-race-order-list thead th, .tr-race-order-list td {
+    text-align: left;
+}
+.tr-rotation-template thead th, .tr-rotation-template td {
+    text-align: left;
+}
