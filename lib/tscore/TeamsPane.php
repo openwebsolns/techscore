@@ -189,13 +189,18 @@ class TeamsPane extends AbstractPane {
       }
     }
     // need two teams for a regatta
-    if ($teams_added > 1) {
-      Session::pa(new PA(array("Added $teams_added teams. Next, ",
-                               new XA(WS::link(sprintf('/score/%s/races', $this->REGATTA->id)), "setup the races"),
-                               ".")));
-      $this->redirect('races');
+    if ($teams_added < 2)
+      throw new SoterException("Please add at least two teams to proceed.");
+
+    if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
+      Session::pa(new PA("Added $teams_added teams. Next, set up the boats to be used throughout the regatta."));
+      $this->redirect('rotations');
     }
-    throw new SoterException("Please add at least two teams to proceed.");
+
+    Session::pa(new PA(array("Added $teams_added teams. Next, ",
+                             new XA(WS::link(sprintf('/score/%s/races', $this->REGATTA->id)), "setup the races"),
+                             ".")));
+    $this->redirect('races');
   }
 }
 ?>

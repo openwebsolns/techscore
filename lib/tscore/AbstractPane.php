@@ -252,7 +252,7 @@ abstract class AbstractPane {
           Session::pa(new PA(array("No teams have yet been setup. ",
                                    new XA(sprintf('/score/%s/teams', $this->REGATTA->id), "Add teams now"), "."), PA::I));
       }
-      elseif (!$this->has_races && get_class($this) != 'RacesPane' && get_class($this) != 'TeamRacesPane')
+      elseif (!$this->has_races && get_class($this) != 'RacesPane' && get_class($this) != 'TeamRacesPane' && get_class($this) != 'TeamSailsPane')
         Session::pa(new PA(array("No races exist for this regatta. Please ",
                                  new XA(sprintf('/score/%s/races', $this->REGATTA->id), "add races"),
                                  " now."), PA::I));
@@ -508,7 +508,6 @@ abstract class AbstractPane {
 
     case 'SailsPane':
     case 'TeamPenaltyPane':
-    case 'TeamSailsPane':
       return $this->has_teams && $this->has_races;
 
     case 'TeamRacesPane':
@@ -525,6 +524,7 @@ abstract class AbstractPane {
     case 'scores':
       return $this->has_scores;
 
+    case 'TeamSailsPane':
     default:
       return true;
     }

@@ -128,7 +128,7 @@ class TeamRacesPane extends AbstractPane {
                       array("To create a (",
                             new XSpan("simple", array('class'=>'tooltip', 'title'=>"A regular round-robin, as opposed to a \"completion\" round-robin.")),
                             ") round-robin, choose the number of teams which will participate in the round and click \"Next →\". On the following screen, you will have the option to choose the teams, the name, and the race order.")));
-    $form->add(new FItem("Number of teams:", new XTextInput('num_teams', 2)));
+    $form->add(new FItem("Number of teams:", new XTextInput('num_teams', count($this->REGATTA->getTeams()))));
     $form->add(new XSubmitP('new-round', "Next →"));
 
     // ------------------------------------------------------------
