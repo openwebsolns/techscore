@@ -170,6 +170,11 @@ address {
     text-align: right;
 }
 
+address a {
+    color: #ccc;
+    text-decoration: none;
+}
+
 .port {
     min-width: 50em;
     display: table;

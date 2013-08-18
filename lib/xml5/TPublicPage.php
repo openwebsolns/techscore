@@ -172,7 +172,7 @@ class TPublicPage extends XPage {
                                                                  new XLi(new XA('http://www.ussailing.org/', new XImg('/inc/img/sponsors/ussailing.png', "US Sailing"))),
                                                                  new XLi(new XA('http://www.quantumsails.com/', new XImg('/inc/img/sponsors/qtag.png', "Quantum Sails"))))))),
 
-                                    new XAddress(array(), array(Conf::$COPYRIGHT)))));
+                                    new XAddress(array(), array(new XA('http://www.openweb-solutions.net', Conf::$COPYRIGHT))))));
 
     $this->filled = true;
   }
