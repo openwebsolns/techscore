@@ -44,12 +44,15 @@ class UpdateSchool extends AbstractScript {
   private function getPage(School $school, Season $season) {
     require_once('xml5/TPublicPage.php');
 
-    $page = new TPublicPage($school);
+    $page = new TPublicPage(sprintf("%s | %s", $school, $season->fullString()));
     $page->setDescription(sprintf("Summary of activity for %s during the %s season.", $school, $season->fullString()));
     $page->addMetaKeyword($school->id);
     $page->addMetaKeyword($school->name);
     $page->addMetaKeyword($season->getSeason());
     $page->addMetaKeyword($season->getYear());
+
+    $page->body->set('itemscope', 'itemscope');
+    $page->body->set('itemtype', 'http://schema.org/CollegeOrUniversity');
 
     // SETUP navigation
     $page->addMenu(new XA('/', "Home"));
@@ -57,11 +60,11 @@ class UpdateSchool extends AbstractScript {
     $page->addMenu(new XA('/seasons/', "Seasons"));
     $page->addMenu(new XA(sprintf("/schools/%s/", $school->id), $school->nick_name));
     if (($link = $this->getBlogLink()) !== null)
-      $page->addMenu(new XA($link, "ICSA Info"));
+      $page->addMenu(new XA($link, "ICSA Info", array('itemprop'=>'url')));
     $page->addMenu(new XA(Conf::$ICSA_HOME . '/teams/', "ICSA Teams"));
 
     if ($school->burgee !== null)
-      $page->addSection(new XP(array('class'=>'burgee'), new XImg(sprintf('/inc/img/schools/%s.png', $school->id), $school)));
+      $page->addSection(new XP(array('class'=>'burgee'), new XImg(sprintf('/inc/img/schools/%s.png', $school->id), $school, array('itemprop'=>'image'))));
 
     // current season
     $today = new DateTime();
@@ -159,7 +162,7 @@ class UpdateSchool extends AbstractScript {
       $table["Most active crew"] = implode(", ", $txt);
     }
     */
-    $page->setHeader($school, $table);
+    $page->setHeader($school, $table, array('itemprop'=>'name'));
 
     // ------------------------------------------------------------
     // SCHOOL sailing now

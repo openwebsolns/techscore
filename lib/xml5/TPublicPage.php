@@ -35,6 +35,10 @@ class TPublicPage extends XPage {
    */
   private $header_title;
   /**
+   * @var Array the map of attributes to use for the header_title
+   */
+  private $header_attrs;
+  /**
    * @var Array the associative array of name-value pairs. These will
    * be added as a table under the $header_title
    * @see setHeader
@@ -71,6 +75,7 @@ class TPublicPage extends XPage {
     $this->announce = array();
 
     $this->header_title = null;
+    $this->header_attrs = array();
     $this->header_table = array();
 
     $this->keywords = array("regatta", "results", "scores", "icsa", "sailing");
@@ -160,7 +165,7 @@ class TPublicPage extends XPage {
     if ($this->header_title !== null) {
       $this->page_content->add($sub = new XDiv(array('id'=>'content-header'), array($h1 = new XH1(""))));
       $h1->add(new XSpan("", array('id'=>'left-fill')));
-      $h1->add(new XSpan($this->header_title));
+      $h1->add(new XSpan($this->header_title, $this->header_attrs));
       $h1->add(new XSpan("", array('id'=>'right-fill')));
 
       if (count($this->header_table) > 0) {
@@ -226,9 +231,10 @@ class TPublicPage extends XPage {
    * @param String $title the title to use
    * @param Array $table assoc. array for the #page-info
    */
-  public function setHeader($title, Array $table = array()) {
+  public function setHeader($title, Array $table = array(), Array $attrs = array()) {
     $this->header_title = (string)$title;
     $this->header_table = $table;
+    $this->header_attrs = $attrs;
   }
 
   /**
