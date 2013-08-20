@@ -223,15 +223,22 @@ class UpdateSchool extends AbstractScript {
                                      array("Name", "Host", "Type", "Scoring", "Date", "Status", "Place(s)")));
 
       foreach ($past as $row => $reg) {
-        $link = new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name);
+        $link = new XA(sprintf('/%s/%s/', $season, $reg->nick),
+                       new XSpan($reg->name, array('itemprop'=>'name')),
+                       array('itemprop'=>'url'));
         $tab->addRow(array($link,
                            implode("/", $reg->dt_hosts),
                            $reg->type,
                            $reg->getDataScoring(),
-                           $reg->start_time->format('M d'),
+                           new XElem('time', array('datetime'=>$reg->start_time->format('Y-m-d\TH:i'),
+                                                   'itemprop'=>'startDate'),
+                                     array(new XText($reg->start_time->format('M d')))),
                            ($reg->finalized === null) ? "Pending" : new XStrong("Official"),
                            $this->getPlaces($reg, $school)),
-                     array('class' => sprintf('row' . ($row % 2))));
+                     array('class' => sprintf('row' . ($row % 2)),
+                           'itemprop'=>'Event',
+                           'itemscope'=>'itemscope',
+                           'itemtype'=>'http://schema.org/SportsEvent'));
       }
     }
 
