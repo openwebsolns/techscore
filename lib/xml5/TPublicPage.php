@@ -64,6 +64,7 @@ class TPublicPage extends XPage {
   public function __construct($title) {
     parent::__construct($title . " | ICSA Real-Time Regatta Results");
 
+    $this->setDoctype(self::HTML_5);
     $this->filled = false;
     $this->menu = array();
     $this->content = array();
