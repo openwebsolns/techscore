@@ -25,16 +25,6 @@ a {
     background: white;
 }
 
-#last_updated {
-    font-family: sans-serif;
-    max-width: 68em;
-    font-size: 0.8em;
-    color: #888;
-    text-align: right;
-    margin: 0 auto;
-    padding: 0.5em 0;
-}
-
 #menu-wrapper {
     border-bottom: 1px solid #ddd;
     border-top: 1px solid #ddd;
@@ -662,4 +652,48 @@ td.tr-sail {
 .tr-rank-group {
     height: 1.25em;
     background: #ccc;
+}
+
+#top-wrapper {
+    display: table;
+    width: 60em;
+    margin: 0 auto;
+}
+
+#search-wrapper {
+    display: table-cell;
+    width: 30%;
+}
+
+#last_updated {
+    font-family: sans-serif;
+    font-size: 0.8em;
+    color: #888;
+    margin: 0 auto;
+    padding: 0.5em 0;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.gsc-control-cse table tbody, .gsc-control-cse td {
+    border: none;
+    padding: 0;
+}
+
+#search-wrapper table {
+    margin: 0;
+}
+
+#search-wrapper .gsc-control-cse {
+    padding: 0;
+}
+
+.gsc-search-box td {
+    vertical-align: middle;
+}
+
+.gsc-input {
+    font-family: Arial,sans-serif;
+    font-size: 75%;
+    color: #222;
 }

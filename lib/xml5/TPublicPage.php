@@ -111,6 +111,18 @@ class TPublicPage extends XPage {
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();"));
 
+    $this->head->add(new XScript('text/javascript', null,
+                                 "(function() {
+                                   var cx = '002908019982776867430:jqzynrwtbns';
+                                   var gcse = document.createElement('script');
+                                   gcse.type = 'text/javascript';
+                                   gcse.async = true;
+                                   gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+                                     '//www.google.com/cse/cse.js?cx=' + cx;
+                                   var s = document.getElementsByTagName('script')[0];
+                                   s.parentNode.insertBefore(gcse, s);
+                                 })();"));
+
     // Navigation
     $this->body->add(new XDiv(array('class'=>'nav'),
                               array(new XH3("Navigate"),
@@ -122,7 +134,10 @@ class TPublicPage extends XPage {
 
     // Header
     $this->body->add($div = new XDiv(array('id'=>'page-header')));
-    $div->add(new XP(array('id'=>'last_updated'), date('M j, Y @ H:i:s')));
+    $div->add(new XDiv(array('id'=>'top-wrapper'),
+                       array(new XDiv(array('id'=>'last_updated'), array(date('M j, Y @ H:i:s'))),
+                             new XDiv(array('id'=>'search-wrapper'),
+                                      array(new XElem('gcse:search', array(), array(new XText(""))))))));
     $div->add(new XDiv(array('id'=>'menu-wrapper'),
                        array(new XH3("Menu", array('class'=>'nav')),
                              $menu = new XUl(array('id'=>'menu')))));
