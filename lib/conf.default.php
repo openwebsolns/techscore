@@ -48,4 +48,7 @@ Conf::$WRITERS = array('LocalHtmlWriter.php');
 //Conf::$REGATTA_SCORING_BLACKLIST = array('standard', 'combined');
 
 Conf::$LOCK_FILENAME = 'ts-pub.lock';
+
+// The Google Custom Search ID.
+Conf::$GCSE_ID = null;
 ?>
