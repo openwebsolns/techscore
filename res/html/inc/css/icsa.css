@@ -21,6 +21,7 @@ a {
     color: #3465A4;
 }
 
+@media screen /*and (min-width:800px)*/ {
 #page-header {
     background: white;
 }
@@ -696,4 +697,71 @@ td.tr-sail {
     font-family: Arial,sans-serif;
     font-size: 75%;
     color: #222;
+}
+}
+
+@media screen and (max-width:799px) {
+    html {
+        background: none;
+        font-size: 14pt;
+    }
+
+    body {
+        display: block;
+    }
+
+    #last_updated {
+        display: none;
+    }
+
+    #menu-wrapper {
+        border: none;
+    }
+
+    #menu {
+        font-size: 11pt;
+        display: block;
+        max-width: 100%;
+        padding: 0 0 0 14ex;
+        position: relative;
+        min-width: 20ex;
+        width: auto;
+    }
+
+    #menu li {
+        display: inline-block;
+        width: 28ex;
+        padding: 0;
+        text-align: center;
+        border: none;
+        border-bottom: 1px solid #ddd;
+    }
+
+    #menu li a {
+        display: block;
+        padding: 1ex;
+        
+    }
+
+    li#logo {
+        left: 0;
+        top: 0;
+        position: absolute;
+        text-align: left;
+        border: none;
+        width: 20ex;
+    }
+
+    li#logo img {
+        margin: 0;
+        position: static;
+        top: 0;
+        width: 20ex;
+    }
+
+    #top-wrapper {
+        display: block;
+        width: auto;
+        margin-bottom: 1ex;
+    }
 }
