@@ -132,7 +132,12 @@ class TPublicPage extends XPage {
     $this->body->add($div = new XDiv(array('id'=>'page-header')));
     $div->add(new XDiv(array('id'=>'top-wrapper'),
                        array(new XDiv(array('id'=>'last_updated'), array(date('M j, Y @ H:i:s'))),
+                             $sc = new XDiv(array('id'=>'social')),
                              $sw = new XDiv(array('id'=>'search-wrapper')))));
+    if (Conf::$FACEBOOK !== null)
+      $sc->add(new XA(sprintf('http://www.facebook.com/%s', Conf::$FACEBOOK), new XImg('/inc/img/fb.png', "FB")));
+    if (Conf::$TWITTER !== null)
+      $sc->add(new XA(sprintf('http://www.twitter.com/%s', Conf::$TWITTER), new XImg('/inc/img/tw.png', "Twitter")));
     if (Conf::$GCSE_ID !== null)
       $sw->add(new XElem('gcse:search', array(), array(new XText(""))));
 

@@ -43,6 +43,14 @@ class Conf {
    */
   public static $ICSA_HOME = 'http://www.collegesailing.org';
   /**
+   * @var String the Facebook account name
+   */
+  public static $FACEBOOK = null;
+  /**
+   * @var String the Twitter handle (sans @)
+   */
+  public static $TWITTER = null;
+  /**
    * @var filepath the path to the directory containing the logs
    */
   public static $LOG_ROOT = '/var/log/httpd';

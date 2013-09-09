@@ -38,6 +38,9 @@ Conf::$WRITERS = array('LocalHtmlWriter.php');
 // Conf::$COACH_API_URL = '';
 // Conf::$SCHOOL_API_URL = '';
 
+Conf::$FACEBOOK = 'collegesailing';
+Conf::$TWITTER = 'collegesailing';
+
 // Set to the ID of the users that can log in
 // Conf::$DEBUG_USERS = array('admin@localhost');
 

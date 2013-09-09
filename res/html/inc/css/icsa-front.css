@@ -514,6 +514,17 @@ h1 {
     padding: 0.5em 0;
     display: table-cell;
     vertical-align: middle;
+    width: 20ex;
+}
+
+#social {
+    padding: 0.5em 0;
+    vertical-align: middle;
+    display: table-cell;
+}
+
+#social a {
+    margin-right: 0.5em;
 }
 
 .gsc-control-cse table tbody, .gsc-control-cse td {
@@ -536,4 +547,88 @@ h1 {
     font-family: Arial,sans-serif;
     font-size: 75%;
     color: #222;
+}
+
+@media screen and (max-width:799px) {
+    html {
+        background: none;
+        font-size: 14pt;
+    }
+
+    body {
+        background: none;
+        display: block;
+    }
+
+    #last_updated {
+        display: none;
+    }
+
+    #menu-wrapper {
+        border: none;
+    }
+
+    #menu {
+        font-size: 11pt;
+        display: block;
+        max-width: 100%;
+        padding: 0 0 0 14ex;
+        position: relative;
+        min-width: 20ex;
+        width: auto;
+    }
+
+    #menu li {
+        display: inline-block;
+        width: 28ex;
+        padding: 0;
+        text-align: center;
+        border: none;
+        border-bottom: 1px solid #ddd;
+    }
+
+    #menu li a {
+        display: block;
+        padding: 1ex;
+        
+    }
+
+    li#logo {
+        left: 0;
+        top: 0;
+        position: absolute;
+        text-align: left;
+        border: none;
+        width: 20ex;
+    }
+
+    li#logo img {
+        margin: 0;
+        position: static;
+        top: 0;
+        width: 20ex;
+    }
+
+    #top-wrapper {
+        display: block;
+        width: auto;
+        margin-bottom: 1ex;
+    }
+
+    #page-footer {
+        height: auto;
+        background: #6C6D6F;
+    }
+
+    .port {
+        min-width: 10em;
+    }
+
+    table th {
+        min-width: 0.25em;
+    }
+
+    #social {
+        width: 5%;
+    }
 }

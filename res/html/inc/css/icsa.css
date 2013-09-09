@@ -14,7 +14,6 @@ body {
     font-family: Georgia,Tahoma,sans-serif;
     line-height: 1.25em;
     padding: 0;
-    background: #6C6D6F;
 }
 
 a {
@@ -22,6 +21,10 @@ a {
 }
 
 @media screen /*and (min-width:800px)*/ {
+body {
+    background: #6C6D6F;
+}
+
 #page-header {
     background: white;
 }
@@ -110,6 +113,7 @@ li#logo img {
 
 #content-header span {
     display: table-cell;
+    line-height: 2ex;
 }
 
 #left-fill {
@@ -674,6 +678,17 @@ td.tr-sail {
     padding: 0.5em 0;
     display: table-cell;
     vertical-align: middle;
+    width: 20ex;
+}
+
+#social {
+    padding: 0.5em 0;
+    vertical-align: middle;
+    display: table-cell;
+}
+
+#social a {
+    margin-right: 0.5em;
 }
 
 .gsc-control-cse table tbody, .gsc-control-cse td {
@@ -707,6 +722,7 @@ td.tr-sail {
     }
 
     body {
+        background: none;
         display: block;
     }
 
@@ -763,5 +779,22 @@ td.tr-sail {
         display: block;
         width: auto;
         margin-bottom: 1ex;
+    }
+
+    #page-footer {
+        height: auto;
+        background: #6C6D6F;
+    }
+
+    .port {
+        min-width: 10em;
+    }
+
+    table th {
+        min-width: 0.25em;
+    }
+
+    #social {
+        width: 5%;
     }
 }
