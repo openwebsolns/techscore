@@ -126,7 +126,7 @@ class TPublicPage extends XPage {
     $this->head->add(new XMeta('twitter:card', 'summary'));
     $this->head->add(new XMeta('twitter:title', $this->title));
     $this->head->add(new XMeta('twitter:description', $this->description));
-    $this->head->add(new XMeta('twitter:image', '/inc/img/icsa.png'));
+    $this->head->add(new XMeta('twitter:image', sprintf('http://%s/inc/img/icsa.png', Conf::$PUB_HOME)));
 
     if (Conf::$GCSE_ID !== null)
       $this->head->add(new XScript('text/javascript', sprintf('//www.google.com/cse/cse.js?cx=%s', Conf::$GCSE_ID)));
