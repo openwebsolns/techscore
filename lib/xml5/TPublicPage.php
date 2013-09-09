@@ -139,7 +139,7 @@ class TPublicPage extends XPage {
     if (Conf::$TWITTER !== null)
       $sc->add(new XA(sprintf('http://www.twitter.com/%s', Conf::$TWITTER), new XImg('/inc/img/tw.png', "Twitter")));
     if (Conf::$GCSE_ID !== null)
-      $sw->add(new XElem('gcse:search', array(), array(new XText(""))));
+      $sw->add(new XDiv(array('class'=>'gcse-search')));
 
     $div->add(new XDiv(array('id'=>'menu-wrapper'),
                        array(new XH3("Menu", array('class'=>'nav')),
