@@ -46,6 +46,11 @@ class TPublicPage extends XPage {
   private $header_table;
 
   /**
+   * @var String the title of the page
+   */
+  private $title;
+
+  /**
    * @var String the meta-description for the page
    */
   private $description;
@@ -79,6 +84,7 @@ class TPublicPage extends XPage {
     $this->header_table = array();
 
     $this->keywords = array("regatta", "results", "scores", "icsa", "sailing");
+    $this->title = $title;
   }
 
   /**
@@ -116,6 +122,12 @@ class TPublicPage extends XPage {
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();"));
 
+    // Twitter summary cards
+    $this->head->add(new XMeta('twitter:card', 'summary'));
+    $this->head->add(new XMeta('twitter:title', $this->title));
+    $this->head->add(new XMeta('twitter:title', $this->description));
+    $this->head->add(new XMeta('twitter:image', '/inc/img/icsa.png'));
+
     if (Conf::$GCSE_ID !== null)
       $this->head->add(new XScript('text/javascript', sprintf('//www.google.com/cse/cse.js?cx=%s', Conf::$GCSE_ID)));
 
@@ -136,8 +148,10 @@ class TPublicPage extends XPage {
                              $sw = new XDiv(array('id'=>'search-wrapper')))));
     if (Conf::$FACEBOOK !== null)
       $sc->add(new XA(sprintf('http://www.facebook.com/%s', Conf::$FACEBOOK), new XImg('/inc/img/fb.png', "FB")));
-    if (Conf::$TWITTER !== null)
+    if (Conf::$TWITTER !== null) {
       $sc->add(new XA(sprintf('http://www.twitter.com/%s', Conf::$TWITTER), new XImg('/inc/img/tw.png', "Twitter")));
+      $this->head->add(new XMeta('twitter:site', '@' . Conf::$TWITTER));
+    }
     if (Conf::$GCSE_ID !== null)
       $sw->add(new XDiv(array('class'=>'gcse-search')));
 
