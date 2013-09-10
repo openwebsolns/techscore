@@ -20,7 +20,93 @@ a {
     color: #3465A4;
 }
 
-@media screen /*and (min-width:800px)*/ {
+.coming-regattas thead {
+    display: none;
+}
+.coming-regattas {
+    background: #f2ede6;
+    border: 1px solid #aaa;
+    border-radius: 0.5em;
+}
+.coming-regattas * {
+    border: none;
+    padding: 0.5em;
+    text-align: left;
+}
+.coming-regattas tr td:first-child {
+    text-align: right;
+}
+
+#message-container {
+    display: table;
+    max-width: 65em;
+    margin: 0 auto;
+    border-spacing: 1em;
+}
+
+/* Welcome */
+#welcome, #in-progress {
+    background: #F2EDE6;
+    border: 1px solid #ddd;
+    margin: 0 0.5em;
+    text-align: left;
+    display: table-cell;
+    padding: 0 1em;
+    width: 40%;
+}
+
+h1 {
+    display: table;
+    width: auto;
+    margin: 0 auto;
+    padding: 0.5em;
+    border-spacing: 0;
+    font-family: Arial,Helvetica,sans-serif;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+    font-variant: small-caps;
+    color: #48484A;
+    text-align: center;
+    background: #f7f7f7;
+    border: 1px solid #ddd;
+    border-radius: 0.25em;
+    font-size: 160%;
+    position: relative;
+    top: -0.75em;
+}
+
+#message-container span {
+    display: table-cell;
+}
+
+#message-container p {
+    margin-top: 0;
+    margin-bottom: 1em;
+}
+
+/* In progress */
+#in-progress {
+    width: 60%;
+}
+#in-progress table {
+    width: auto;
+    margin-top: -1em;
+}
+#in-progress thead {
+    display: none;
+}
+#in-progress td {
+    border-bottom: 1px dotted #aaa;
+}
+#in-progress tr:last-child td {
+    border-bottom: none;
+}
+#in-progress tr td:first-child {
+    text-align: right;
+}
+
+
+@media screen and (min-width:800px) {
 body {
     background: #6C6D6F;
 }
@@ -42,6 +128,7 @@ body {
     padding: 0.5em 0;
     display: table;
     width: 100%;
+}
 }
 
 #menu li {
@@ -713,7 +800,6 @@ td.tr-sail {
     font-size: 75%;
     color: #222;
 }
-}
 
 @media screen and (max-width:799px) {
     html {
@@ -796,5 +882,38 @@ td.tr-sail {
 
     #social {
         width: 5%;
+    }
+
+    #page-content {
+        padding-top: 1.5em;
+    }
+
+    #message-container {
+        display: block;
+    }
+
+    #welcome, #in-progress {
+        display: block;
+        width: 95%;
+        margin: 0 auto;
+    }
+
+    #welcome {
+        margin-bottom: 3em;
+        font-size: 90%;
+    }
+
+    #other-seasons {
+        text-align: center;
+    }
+
+    #other-seasons li {
+        display: inline-block;
+    }
+
+    #other-seasons a {
+        display: block;
+        width: 8em;
+        padding: 0.5em 0;
     }
 }

@@ -26,7 +26,7 @@ class TPublicFrontPage extends TPublicPage {
   }
 
   protected function getCSS() {
-    return array('/inc/css/icsa-front.css');
+    return array('/inc/css/icsa.css');
   }
 }
 ?>
