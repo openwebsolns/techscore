@@ -203,14 +203,14 @@ li#logo img {
     line-height: 2ex;
 }
 
-#left-fill {
+#left-fill, .left-fill {
     width: 80px;
     height: 15px;
     background: url('/inc/img/left-fill.png');
     background-repeat: no-repeat;
     vertical-align: middle;
 }
-#right-fill {
+#right-fill, .right-fill {
     width: 80px;
     height: 15px;
     background: url('/inc/img/right-fill.png');
