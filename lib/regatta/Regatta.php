@@ -515,7 +515,7 @@ class FullRegatta extends DBObject {
    * @return Array:Team the teams that are participating
    */
   public function getTeamsInRound(Round $round) {
-    if ($round->regatta != $this)
+    if ($round->regatta->id != $this->id)
       throw new InvalidArgumentException("The round must be from this regatta.");
     return DB::getAll($this->isSingleHanded() ? DB::$SINGLEHANDED_TEAM : DB::$TEAM,
                       new DBBool(array(new DBCondIn('id', DB::prepGetAll(DB::$RACE, new DBCond('round', $round),
