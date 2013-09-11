@@ -62,7 +62,7 @@ class RaceProgressChart {
 
     $xRMargin = 300;
     $xLMargin = 50;
-    $xspacing = max(40, 660 / (count($races) - 1));
+    $xspacing = max(40, 600 / (count($races) - 1));
     $x = $xLMargin;
     $yStart = 60;
     $height = max(500, (60 + ($num_teams - 1) * 35));

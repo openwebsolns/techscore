@@ -63,6 +63,9 @@ class ScoresChartDialog extends AbstractScoresDialog {
   }
 
   public function getTable($link_schools = false) {
+    if (count($this->races) < 2)
+      return array();
+
     require_once('charts/RaceProgressChart.php');
     $maker = new RaceProgressChart($this->REGATTA);
     return array($maker->getChart($this->races, $this->title));
