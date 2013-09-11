@@ -137,6 +137,7 @@ body {
 .chart-container {
     display: block;
     max-width: 60em;
+    max-width: 95vw;
     overflow: auto;
     overflow-y: hidden;
 }
