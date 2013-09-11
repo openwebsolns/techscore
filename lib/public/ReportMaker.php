@@ -108,8 +108,9 @@ class ReportMaker {
 	  $p->add(new XDiv(array('id'=>'history-expl'),
 			   array(new XP(array(), "The following chart shows the relative rank of the teams as of the race indicated. Note that the races are ordered by number, then division, which may not represent the order in which the races were actually sailed."),
 				 new XP(array(), "The first place team as of a given race will always be at the top of the chart. The spacing from one team to the next shows relative gains/losses made from one race to the next. You may hover over the data points to display the total score as of that race."))));
+	  $p->add($sub = new XDiv(array('class'=>'chart-container')));
 	  foreach ($elems as $elem)
-	    $p->add($elem);
+	    $sub->add($elem);
 	}
       }
     }
@@ -155,8 +156,9 @@ class ReportMaker {
 	$p->add(new XDiv(array('id'=>'history-expl'),
 			 array(new XP(array(), "The following chart shows the relative rank of the teams as of the race indicated."),
 			       new XP(array(), "The first place team as of a given race will always be at the top of the chart. The spacing from one team to the next shows relative gains/losses made from one race to the next. You may hover over the data points to display the total score as of that race."))));
+	$p->add($sub = new XDiv(array('class'=>'chart-container')));
 	foreach ($elems as $elem)
-	  $p->add($elem);
+	  $sub->add($elem);
       }
     }
   }

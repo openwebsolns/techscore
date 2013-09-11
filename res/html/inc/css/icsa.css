@@ -20,6 +20,10 @@ a {
     color: #3465A4;
 }
 
+svg {
+    display: block;
+}
+
 .coming-regattas thead {
     display: none;
 }
@@ -130,11 +134,11 @@ body {
     width: 100%;
 }
 
-#history-port {
+.chart-container {
     display: block;
-    max-width: 65em;
+    max-width: 60em;
     overflow: auto;
-    overflow-y: no-scroll;
+    overflow-y: hidden;
 }
 }
 
