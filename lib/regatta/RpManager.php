@@ -238,6 +238,9 @@ class RpManager {
           $races[] = $race;
       }
     }
+    if (count($races) == 0)
+      return true;
+
     $sum = 0;
     foreach ($races as $race)
       $sum += $race->boat->min_crews + 1;
