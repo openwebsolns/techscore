@@ -129,6 +129,13 @@ body {
     display: table;
     width: 100%;
 }
+
+#history-port {
+    display: block;
+    max-width: 65em;
+    overflow: auto;
+    overflow-y: no-scroll;
+}
 }
 
 #menu li {
