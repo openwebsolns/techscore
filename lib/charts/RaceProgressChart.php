@@ -25,6 +25,8 @@ class RaceProgressChart {
    */
   public function __construct(Regatta $reg) {
     $this->regatta = $reg;
+    if ($this->regatta->scoring != Regatta::SCORING_STANDARD && $this->regatta->scoring != Regatta::SCORING_COMBINED)
+      throw new InvalidArgumentException("Only standard and combined regattas qualify for this chart.");
   }
 
   /**
@@ -50,13 +52,28 @@ class RaceProgressChart {
     $data = array(); // associative map of team id => ranks
     $info = array(); // associative map of team id => info bubbles
     $fills = array();
-    foreach ($teams as $i => $team) {
-      $fills[$team->id] = $palette[$i % count($palette)];
-      $data[$team->id] = array();
-      $info[$team->id] = new SVGG(sprintf('scores-history-info-%s', $team->id),
-                                  array('class'=>'team-info-group'));
+    if ($this->regatta->scoring == Regatta::SCORING_STANDARD) {
+      foreach ($teams as $i => $team) {
+	$fills[$team->id] = $palette[$i % count($palette)];
+	$data[$team->id] = array();
+	$info[$team->id] = new SVGG(sprintf('scores-history-info-%s', $team->id),
+				    array('class'=>'team-info-group'));
+      }
     }
-    $num_teams = count($teams);
+    else {
+      $divisions = $this->regatta->getDivisions();
+      foreach ($teams as $i => $team) {
+	foreach ($divisions as $div) {
+	  $id = $team->id . '-' . $div;
+	  $fills[$id] = $palette[$i % count($palette)];
+	  $data[$id] = array();
+	  $info[$id] = new SVGG(sprintf('scores-history-info-%s', $id),
+				array('class'=>'team-info-group'));
+	}
+      }
+    }
+
+    $num_teams = count($data);
 
     $racelist = array();
 
@@ -70,7 +87,7 @@ class RaceProgressChart {
     $raceLabels = array();
     $raceAxes = array();
     $raceIndex = 0;
-    $ranker = $this->regatta->getRanker();
+    $ranker = $this->regatta->getDivisionRanker();
     foreach ($races as $race) {
       $raceLabels[] = new SVGText($x, $yStart - 20, $race, array('class'=>'y-axis-label'));
       $raceLabels[] = new SVGPath(array(new SVGMoveto($x, $yStart), new SVGLineto($x, ($height - 20))), array('class'=>'y-grid'));
@@ -85,21 +102,28 @@ class RaceProgressChart {
 	$yrange = 1;
       $yscale = ($height - 20 - $yStart) / $yrange;
       foreach ($ranks as $i => $rank) {
+	$id = $rank->team->id;
+	$title = $rank->team;
+	if ($this->regatta->scoring == Regatta::SCORING_COMBINED) {
+	  $id .= '-' . $rank->division;
+	  $title = $rank->division . ": " . $title;
+	}
+
 	$y = $yStart + ($rank->score - $yMin) * $yscale;
-	$data[$rank->team->id][] = new SVGNode($x, $y, 7,
-					       array('fill' => $fills[$rank->team->id],
-						     'stroke'=> $fills[$rank->team->id],
-						     'class'=>'chart-node',
-						     'title'=>sprintf("%d: %s (%s points)", ($i + 1), $rank->team, $rank->score)));
+	$data[$id][] = new SVGNode($x, $y, 7,
+				   array('fill' => $fills[$id],
+					 'stroke'=> $fills[$id],
+					 'class'=>'chart-node',
+					 'title'=>sprintf("%d: %s (%s points)", ($i + 1), $title, $rank->score)));
 
         // bubble
         $finish = $this->regatta->getFinish($race, $rank->team);
-        $bubble = new SVGG(sprintf('scores-history-infobox-%s-%s', $race, $rank->team->id),
+        $bubble = new SVGG(sprintf('scores-history-infobox-%s-%s', $race, $id),
                            array('class'=>'team-race-group'),
                            array(new SVGUse('#bubble-below', $x, $y + 4),
                                  new SVGText($x, $y + 28, $finish->getPlace(), array('class'=>'score-label')),
                                  new SVGText($x, $y + 45, sprintf("(%s)", $rank->score), array('class'=>'rank-label'))));
-        $info[$rank->team->id]->add($bubble);
+        $info[$id]->add($bubble);
       }
       $x += $xspacing;
       $raceIndex++;
@@ -144,18 +168,25 @@ function unhighlight(id) {
     $ySpacing = ($height - 20 - $yStart) / (count($ranks) - 1);
     $y = $yStart - 15;
     foreach ($ranks as $rank) {
+      $id = $rank->team->id;
+      $title = $rank->team;
+      if ($this->regatta->scoring == Regatta::SCORING_COMBINED) {
+	  $id .= '-' . $rank->division;
+	  $title = $rank->division . ": " . $title;
+      }
+
       $x = $width - $xRMargin + 20;
       $img = new SVGText(15, 0, "");
       if ($rank->team->school->burgee !== null)
 	$img = new SVGImage(15, 0, 30, 30, sprintf('/inc/img/schools/%s.png', $rank->team->school->id));
-      $ch->add(new SVGG(sprintf('scores-history-team-%s', $rank->team->id),
+      $ch->add(new SVGG(sprintf('scores-history-team-%s', $id),
 			array('class'=>'team-label-group',
 			      'transform'=>sprintf('translate(%s %s)', $x, $y),
-			      'onmouseover'=>sprintf('highlight("scores-history-series-%1$s");highlight("scores-history-info-%1$s");', $rank->team->id),
-			      'onmouseout'=>sprintf('unhighlight("scores-history-series-%1$s");unhighlight("scores-history-info-%1$s");', $rank->team->id)),
-			array(new SVGRect(0, 0, 10, 30, 5, 5, array('class'=>'team-label-box', 'fill'=>$fills[$rank->team->id])),
+			      'onmouseover'=>sprintf('highlight("scores-history-series-%1$s");highlight("scores-history-info-%1$s");', $id),
+			      'onmouseout'=>sprintf('unhighlight("scores-history-series-%1$s");unhighlight("scores-history-info-%1$s");', $id)),
+			array(new SVGRect(0, 0, 10, 30, 5, 5, array('class'=>'team-label-box', 'fill'=>$fills[$id])),
 			      $img,
-			      new SVGText(50, 20, $rank->team, array('class'=>'team-label')))));
+			      new SVGText(50, 20, $title, array('class'=>'team-label')))));
   
       $y += $ySpacing;
     }
