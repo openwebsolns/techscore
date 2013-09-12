@@ -102,8 +102,10 @@ class Session {
    *
    */
   public static function init() {
-    if (session_id() == "")
+    if (session_id() == "") {
+      session_set_cookie_params(900, WS::link('/'), Conf::$HOME, true, true);
       session_start() or trigger_error("Unable to start session from Session class.");
+    }
 
     // register commit()
     register_shutdown_function(array("Session", "commit"));
