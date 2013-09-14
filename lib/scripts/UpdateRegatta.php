@@ -99,7 +99,6 @@ class UpdateRegatta extends AbstractScript {
       return;
     }
 
-    // Silently ignore team racing, as that's not ready
     if ($reg->scoring == Regatta::SCORING_TEAM) {
       $this->runTeamRacing($reg, $activities);
       return;
