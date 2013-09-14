@@ -23,7 +23,7 @@ class RaceProgressChart {
    *
    * @param Regatta $reg the regatta to draw upon
    */
-  public function __construct(Regatta $reg) {
+  public function __construct(FullRegatta $reg) {
     $this->regatta = $reg;
     if ($this->regatta->scoring != Regatta::SCORING_STANDARD && $this->regatta->scoring != Regatta::SCORING_COMBINED)
       throw new InvalidArgumentException("Only standard and combined regattas qualify for this chart.");
