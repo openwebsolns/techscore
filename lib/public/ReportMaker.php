@@ -339,6 +339,10 @@ class ReportMaker {
       if ($reg->scoring == Regatta::SCORING_TEAM) {
         $page->addMenu(new XA($url . 'all/', "All Races"));
       }
+      // Winning?
+      $tms = $reg->getRankedTeams();
+      if ($tms[0]->school->burgee !== null)
+        $page->setTwitterImage(sprintf('http://%s/inc/img/schools/%s.png', Conf::$PUB_HOME, $tms[0]->school->id));
     }
     $rot = $reg->getRotation();
     if ($rot->isAssigned() || $reg->scoring == Regatta::SCORING_TEAM)

@@ -66,6 +66,15 @@ class TPublicPage extends XPage {
   private $page_content;
 
   /**
+   * @var String the URL of the image to use in the Twitter card. If
+   * not provided, then the logo will be used
+   *
+   * @see setTwitterImage
+   */
+  private $twitter_image;
+  
+
+  /**
    * Creates a new public page with the given title
    *
    * @param String $title the title of the page
@@ -126,7 +135,10 @@ class TPublicPage extends XPage {
     $this->head->add(new XMeta('twitter:card', 'summary'));
     $this->head->add(new XMeta('twitter:title', $this->title));
     $this->head->add(new XMeta('twitter:description', $this->description));
-    $this->head->add(new XMeta('twitter:image', sprintf('http://%s/inc/img/icsa.png', Conf::$PUB_HOME)));
+    $url = $this->twitter_image;
+    if ($url === null)
+      $url = sprintf('http://%s/inc/img/icsa.png', Conf::$PUB_HOME);
+    $this->head->add(new XMeta('twitter:image', $url));
 
     if (Conf::$GCSE_ID !== null)
       $this->head->add(new XScript('text/javascript', sprintf('//www.google.com/cse/cse.js?cx=%s', Conf::$GCSE_ID)));
@@ -295,6 +307,17 @@ class TPublicPage extends XPage {
   public function getPageContent() {
     $this->fill();
     return $this->page_content;
+  }
+
+  /**
+   * Set the URL to use for the Twitter Summary Card.
+   *
+   * The URL should be a fully defined.
+   *
+   * @param String $url the URL, or null to reset
+   */
+  public function setTwitterImage($url = null) {
+    $this->twitter_image = $url;
   }
 
   /**
