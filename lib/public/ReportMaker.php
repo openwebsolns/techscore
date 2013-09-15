@@ -47,7 +47,7 @@ class ReportMaker {
 
     $reg = $this->regatta;
     $season = $reg->getSeason();
-    $this->page = new TPublicPage($reg->name);
+    $this->page = new TPublicPage($reg->name . " | " . $season->fullString());
     $this->prepare($this->page);
     $this->page->setDescription(sprintf("Summary report for %s's %s.", $season->fullString(), $reg->name));
 
@@ -130,7 +130,7 @@ class ReportMaker {
 
     $reg = $this->regatta;
     $season = $reg->getSeason();
-    $page = new TPublicPage("Scores for division $div | " . $reg->name);
+    $page = new TPublicPage("Scores for division $div | " . $reg->name  . " | " . $season->fullString());
     $this->divPage[(string)$div] = $page;
     $this->prepare($page);
     $page->setDescription(sprintf("Scores for Division %s for %s's %s.",
@@ -168,7 +168,7 @@ class ReportMaker {
 
     $reg = $this->regatta;
     $season = $reg->getSeason();
-    $this->fullPage = new TPublicPage("Full scores | " . $reg->name);
+    $this->fullPage = new TPublicPage("Full scores | " . $reg->name . " | " . $season->fullString());
     $this->prepare($this->fullPage);
     if ($reg->scoring == Regatta::SCORING_TEAM) {
       $this->fullPage->head->add(new XScript('text/javascript', '/inc/js/tr-full-select.js'));
@@ -209,7 +209,7 @@ class ReportMaker {
 
     $reg = $this->regatta;
     $season = $reg->getSeason();
-    $this->rotPage = new TPublicPage(sprintf("%s Rotations", $reg->name));
+    $this->rotPage = new TPublicPage(sprintf("%s Rotations | %s", $reg->name, $season->fullString()));
     $this->prepare($this->rotPage);
     $this->rotPage->setDescription(sprintf("Sail rotations in all races for %s's %s.", $season->fullString(), $reg->name));
 
@@ -253,7 +253,7 @@ class ReportMaker {
 
     $reg = $this->regatta;
     $season = $reg->getSeason();
-    $this->allracesPage = new TPublicPage(sprintf("%s Rotations", $reg->name));
+    $this->allracesPage = new TPublicPage(sprintf("%s Rotations | %s", $reg->name, $season->fullString()));
     $this->prepare($this->allracesPage);
     $this->allracesPage->setDescription(sprintf("Sail rotations in all races for %s's %s.", $season->fullString(), $reg->name));
 
@@ -270,7 +270,7 @@ class ReportMaker {
 
     $reg = $this->regatta;
     $season = $reg->getSeason();
-    $this->sailorsPage = new TPublicPage(sprintf("%s Sailors", $reg->name));
+    $this->sailorsPage = new TPublicPage(sprintf("%s Sailors | %s", $reg->name, $season->fullString()));
     $this->prepare($this->sailorsPage);
     $this->sailorsPage->setDescription(sprintf("Sailors participating in %s's %s.", $season->fullString(), $reg->name));
 
@@ -293,7 +293,7 @@ class ReportMaker {
 
     $reg = $this->regatta;
     $season = $reg->getSeason();
-    $this->combinedPage = new TPublicPage(sprintf("Scores for all Divisions | %s", $reg->name));
+    $this->combinedPage = new TPublicPage(sprintf("Scores for all Divisions | %s | %s", $reg->name, $season->fullString()));
     $this->prepare($this->combinedPage);
     $this->combinedPage->setDescription(sprintf("Scores and ranks across all divisions for %s's %s.",
                                                 $season->fullString(), $reg->name));
