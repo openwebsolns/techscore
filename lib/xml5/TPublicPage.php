@@ -149,8 +149,10 @@ class TPublicPage extends XPage {
     if (Conf::$FACEBOOK !== null)
       $sc->add(new XA(sprintf('http://www.facebook.com/%s', Conf::$FACEBOOK), new XImg('/inc/img/fb.png', "FB")));
     if (Conf::$TWITTER !== null) {
-      $sc->add(new XA(sprintf('http://www.twitter.com/%s', Conf::$TWITTER), new XImg('/inc/img/tw.png', "Twitter")));
+      $sc->add(new XA(sprintf('http://www.twitter.com/%s', Conf::$TWITTER), new XImg('/inc/img/tw.png', "Twitter"), array('class'=>'twitter-follow-button', 'data-show-count'=>'false', 'data-show-screen-name'=>'false')));
       $this->head->add(new XMeta('twitter:site', '@' . Conf::$TWITTER));
+      $this->head->add($scr = new XScript('text/javascript', '//platform.twitter.com/widgets.js'));
+      $scr->set('id', 'twitter-wjs');
     }
     if (Conf::$GCSE_ID !== null)
       $sw->add(new XDiv(array('class'=>'gcse-search')));
