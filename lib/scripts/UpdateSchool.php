@@ -50,6 +50,8 @@ class UpdateSchool extends AbstractScript {
     $page->addMetaKeyword($school->name);
     $page->addMetaKeyword($season->getSeason());
     $page->addMetaKeyword($season->getYear());
+    if ($school->burgee !== null)
+      $page->setTwitterImage(sprintf('http://%s/inc/img/schools/%s.png', Conf::$PUB_HOME, $school->id));
 
     $page->body->set('itemscope', 'itemscope');
     $page->body->set('itemtype', 'http://schema.org/CollegeOrUniversity');
