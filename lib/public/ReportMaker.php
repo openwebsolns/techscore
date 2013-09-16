@@ -132,7 +132,7 @@ class ReportMaker {
     $season = $reg->getSeason();
     $page = new TPublicPage("Scores for division $div | " . $reg->name  . " | " . $season->fullString());
     $this->divPage[(string)$div] = $page;
-    $this->prepare($page);
+    $this->prepare($page, (string)$div);
     $page->setDescription(sprintf("Scores for Division %s for %s's %s.",
                                   $div, $season->fullString(), $reg->name));
 
@@ -169,7 +169,7 @@ class ReportMaker {
     $reg = $this->regatta;
     $season = $reg->getSeason();
     $this->fullPage = new TPublicPage("Full scores | " . $reg->name . " | " . $season->fullString());
-    $this->prepare($this->fullPage);
+    $this->prepare($this->fullPage, 'full-scores');
     if ($reg->scoring == Regatta::SCORING_TEAM) {
       $this->fullPage->head->add(new XScript('text/javascript', '/inc/js/tr-full-select.js'));
       $this->fullPage->setDescription(sprintf("Scoring grids for all rounds in %s's %s.", $season->fullString(), $reg->name));
@@ -210,7 +210,7 @@ class ReportMaker {
     $reg = $this->regatta;
     $season = $reg->getSeason();
     $this->rotPage = new TPublicPage(sprintf("%s Rotations | %s", $reg->name, $season->fullString()));
-    $this->prepare($this->rotPage);
+    $this->prepare($this->rotPage, 'rotations');
     $this->rotPage->setDescription(sprintf("Sail rotations in all races for %s's %s.", $season->fullString(), $reg->name));
 
     if ($reg->scoring == Regatta::SCORING_TEAM) {
@@ -254,7 +254,7 @@ class ReportMaker {
     $reg = $this->regatta;
     $season = $reg->getSeason();
     $this->allracesPage = new TPublicPage(sprintf("%s Rotations | %s", $reg->name, $season->fullString()));
-    $this->prepare($this->allracesPage);
+    $this->prepare($this->allracesPage, 'all');
     $this->allracesPage->setDescription(sprintf("Sail rotations in all races for %s's %s.", $season->fullString(), $reg->name));
 
     $this->allracesPage->head->add(new XScript('text/javascript', '/inc/js/tr-allraces-select.js'));
@@ -271,7 +271,7 @@ class ReportMaker {
     $reg = $this->regatta;
     $season = $reg->getSeason();
     $this->sailorsPage = new TPublicPage(sprintf("%s Sailors | %s", $reg->name, $season->fullString()));
-    $this->prepare($this->sailorsPage);
+    $this->prepare($this->sailorsPage, 'sailors');
     $this->sailorsPage->setDescription(sprintf("Sailors participating in %s's %s.", $season->fullString(), $reg->name));
 
     require_once('tscore/TeamRegistrationsDialog.php');
@@ -294,7 +294,7 @@ class ReportMaker {
     $reg = $this->regatta;
     $season = $reg->getSeason();
     $this->combinedPage = new TPublicPage(sprintf("Scores for all Divisions | %s | %s", $reg->name, $season->fullString()));
-    $this->prepare($this->combinedPage);
+    $this->prepare($this->combinedPage, 'divisions');
     $this->combinedPage->setDescription(sprintf("Scores and ranks across all divisions for %s's %s.",
                                                 $season->fullString(), $reg->name));
 
@@ -310,7 +310,7 @@ class ReportMaker {
    * such as the navigation menu and the regatta description.
    *
    */
-  protected function prepare(TPublicPage $page) {
+  protected function prepare(TPublicPage $page, $sub = null) {
     $reg = $this->regatta;
     $page->addMenu(new XA('/', "Home"));
     $page->addMetaKeyword($reg->name);
@@ -325,6 +325,14 @@ class ReportMaker {
     $page->addMetaKeyword($season->getYear());
 
     $url = $reg->getURL();
+
+    // Metadata
+    $page_url = sprintf('http://%s%s', Conf::$PUB_HOME, $url);
+    if ($sub !== null)
+      $page_url .= $sub . '/';
+    $page->setFacebookLike($page_url);
+    $opengraph = array('url'=>$page_url, 'type'=>'event', 'og:event:start_time'=>$reg->start_time->format('Y-m-d\TH:iP'));
+
     $page->addMenu(new XA($url, "Report"));
     if ($reg->hasFinishes()) {
       $page->addMenu(new XA($url.'full-scores/', "Full Scores"));
@@ -341,9 +349,15 @@ class ReportMaker {
       }
       // Winning?
       $tms = $reg->getRankedTeams();
-      if ($tms[0]->school->burgee !== null)
-        $page->setTwitterImage(sprintf('http://%s/inc/img/schools/%s.png', Conf::$PUB_HOME, $tms[0]->school->id));
+      if ($reg->finalized !== null && $tms[0]->school->burgee !== null) {
+        $imgurl = sprintf('http://%s/inc/img/schools/%s.png', Conf::$PUB_HOME, $tms[0]->school->id);
+        $page->setTwitterImage($imgurl);
+        $opengraph['image'] = $imgurl;
+      }
     }
+
+    $page->setOpenGraphProperties($opengraph);
+
     $rot = $reg->getRotation();
     if ($rot->isAssigned() || $reg->scoring == Regatta::SCORING_TEAM)
       $page->addMenu(new XA($url.'rotations/', "Rotations"));

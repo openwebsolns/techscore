@@ -109,6 +109,11 @@ h1 {
     text-align: right;
 }
 
+#social-wrapper > div {
+    display: inline-block;
+    width: auto;
+    margin: 0 0.5ex;
+}
 
 @media screen and (min-width:800px) {
 body {
@@ -216,14 +221,14 @@ li#logo img {
 }
 
 #left-fill, .left-fill {
-    width: 80px;
+    width: 90px;
     height: 15px;
     background: url('/inc/img/left-fill.png');
     background-repeat: no-repeat;
     vertical-align: middle;
 }
 #right-fill, .right-fill {
-    width: 80px;
+    width: 90px;
     height: 15px;
     background: url('/inc/img/right-fill.png');
     background-repeat: no-repeat;
@@ -233,7 +238,7 @@ li#logo img {
 #page-info {
     font-size: 0.9em;
     color: #555;
-    margin: -1em 0 1em;
+    margin: -1em 0 0.5em;
     width: 100%;
     border-collapse: collapse;
     border: none;
@@ -254,6 +259,11 @@ li#logo img {
     font-weight: bold;
     border: none;
 }
+
+#page-info td#social-wrapper {
+    text-align: center;
+}
+
 #page-info tr {
     border-bottom: 1px solid #ddd;
 }

@@ -72,7 +72,19 @@ class TPublicPage extends XPage {
    * @see setTwitterImage
    */
   private $twitter_image;
-  
+
+  /**
+   * @var String the URL to use for a Facebook "Like" button
+   */
+  private $facebook_like;
+
+  /**
+   * @var Array map of the OpenGraph properties, if any.
+   *
+   * Keys 'url' and 'type' are required in order for open graph
+   * information to be included
+   */
+  private $opengraph_props = array();
 
   /**
    * Creates a new public page with the given title
@@ -140,6 +152,25 @@ class TPublicPage extends XPage {
       $url = sprintf('http://%s/inc/img/icsa.png', Conf::$PUB_HOME);
     $this->head->add(new XMeta('twitter:image', $url));
 
+    // Open graph
+    if (isset($this->opengraph_props['url']) && isset($this->opengraph_props['type'])) {
+      $this->head->set('prefix', 'og: http://ogp.me/ns#');
+      $this->head->add(new XElem('meta', array('property'=>'og:title', 'content'=>$this->title)));
+      $this->head->add(new XElem('meta', array('property'=>'og:description', 'content'=>$this->description)));
+      $this->head->add(new XElem('meta', array('property'=>'og:site_name', 'content'=>"ICSA Real-Time Regatta Results")));
+      $this->head->add(new XElem('meta', array('property'=>'og:url', 'content'=>$this->opengraph_props['url'])));
+      $this->head->add(new XElem('meta', array('property'=>'og:type', 'content'=>$this->opengraph_props['type'])));
+      if (isset($this->opengraph_props['image']))
+        $urrl = $this->opengraph_props['image'];
+      $this->head->add(new XElem('meta', array('property'=>'og:image', 'content'=>$url)));
+
+      foreach ($this->opengraph_props as $key => $val) {
+        if ($key != 'url' && $key != 'type' && $key != 'image')
+          $this->head->add(new XElem('meta', array('property'=>$key, 'content'=>$val)));
+      }
+    }
+
+    // Google search
     if (Conf::$GCSE_ID !== null)
       $this->head->add(new XScript('text/javascript', sprintf('//www.google.com/cse/cse.js?cx=%s', Conf::$GCSE_ID)));
 
@@ -160,12 +191,12 @@ class TPublicPage extends XPage {
                              $sw = new XDiv(array('id'=>'search-wrapper')))));
     if (Conf::$FACEBOOK !== null)
       $sc->add(new XA(sprintf('http://www.facebook.com/%s', Conf::$FACEBOOK), new XImg('/inc/img/fb.png', "FB")));
+
     if (Conf::$TWITTER !== null) {
-      $sc->add(new XA(sprintf('http://www.twitter.com/%s', Conf::$TWITTER), new XImg('/inc/img/tw.png', "Twitter"), array('class'=>'twitter-follow-button', 'data-show-count'=>'false', 'data-show-screen-name'=>'false')));
+      $sc->add(new XA(sprintf('http://www.twitter.com/%s', Conf::$TWITTER), new XImg('/inc/img/tw.png', "Twitter")));
       $this->head->add(new XMeta('twitter:site', '@' . Conf::$TWITTER));
-      $this->head->add($scr = new XScript('text/javascript', '//platform.twitter.com/widgets.js'));
-      $scr->set('id', 'twitter-wjs');
     }
+
     if (Conf::$GCSE_ID !== null)
       $sw->add(new XDiv(array('class'=>'gcse-search')));
 
@@ -199,6 +230,34 @@ class TPublicPage extends XPage {
         foreach ($this->header_table as $key => $val)
           $tab->add(new XTR(array(), array(new XTH(array(), $key), new XTD(array(), $val))));
       }
+
+      // Social plugins?
+      $td = new XTD(array('id'=>'social-wrapper', 'colspan'=>2));
+      $has_social = false;
+      if (Conf::$FACEBOOK_APP_ID !== null && $this->facebook_like !== null) {
+        $has_social = true;
+        $td->add(new XDiv(array('id'=>'fb-wrapper'),
+                          array(new XDiv(array('id'=>'fb-root')),
+                                new XDiv(array('class'=>'fb-like',
+                                               'data-href'=>$this->facebook_like,
+                                               'data-width'=>450,
+                                               'data-layout'=>'button_count',
+                                               'data-show-faces'=>'false',
+                                               'data-send'=>'false')))));
+        
+        $this->head->add($scr = new XScript('text/javascript', sprintf('//connect.facebook.net/en_US/all.js#xfbml=1&appId=%s', Conf::$FACEBOOK_APP_ID)));
+        $scr->set('id', 'facebook-jssdk');
+      }
+      if (Conf::$TWITTER !== null) {
+        $has_social = true;
+        $td->add(new XDiv(array('id'=>'twitter-wrapper'), array(new XA('https://twitter.com/share', "Tweet", array('class'=>'twitter-share-button', 'data-via'=>'ICSAscores')))));
+        // data-hashtags
+        $this->head->add($scr = new XScript('text/javascript', '//platform.twitter.com/widgets.js'));
+        $scr->set('id', 'twitter-wjs');
+      }
+
+      if ($has_social)
+        $tab->add(new XTR(array(), array($td)));
     }
 
     // Sections
@@ -318,6 +377,27 @@ class TPublicPage extends XPage {
    */
   public function setTwitterImage($url = null) {
     $this->twitter_image = $url;
+  }
+
+  /**
+   * Include a Facebook Like button?
+   *
+   * @param String $url the URL to use, or null for none
+   */
+  public function setFacebookLike($url = null) {
+    $this->facebook_like = $url;
+  }
+
+  /**
+   * Map of open-graph protocol data.
+   *
+   * Keys 'url' and 'type' must be provided in order for the map to be
+   * used.
+   *
+   * @param Array $props thet property map
+   */
+  public function setOpenGraphProperties(Array $props = array()) {
+    $this->opengraph_props = $props;
   }
 
   /**
