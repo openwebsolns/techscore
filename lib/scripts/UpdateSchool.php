@@ -50,8 +50,18 @@ class UpdateSchool extends AbstractScript {
     $page->addMetaKeyword($school->name);
     $page->addMetaKeyword($season->getSeason());
     $page->addMetaKeyword($season->getYear());
-    if ($school->burgee !== null)
-      $page->setTwitterImage(sprintf('http://%s/inc/img/schools/%s.png', Conf::$PUB_HOME, $school->id));
+    $page->addSocialPlugins(true);
+
+    $url = sprintf('http://%s/schools/%s/', Conf::$PUB_HOME, $school->id);
+    $og = array('type'=>'website', 'url'=>$url);
+    if ($school->burgee !== null) {
+      $imgurl = sprintf('http://%s/inc/img/schools/%s.png', Conf::$PUB_HOME, $school->id);
+      $page->setTwitterImage($imgurl);
+      $og['image'] = $imgurl;
+    }
+
+    $page->setFacebookLike($url);
+    $page->setOpenGraphProperties($og);
 
     $page->body->set('itemscope', 'itemscope');
     $page->body->set('itemtype', 'http://schema.org/CollegeOrUniversity');

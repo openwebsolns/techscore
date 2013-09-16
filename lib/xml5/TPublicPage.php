@@ -87,6 +87,11 @@ class TPublicPage extends XPage {
   private $opengraph_props = array();
 
   /**
+   * @var boolean true to include row for social plugins
+   */
+  private $add_social_plugins = false;
+
+  /**
    * Creates a new public page with the given title
    *
    * @param String $title the title of the page
@@ -232,32 +237,34 @@ class TPublicPage extends XPage {
       }
 
       // Social plugins?
-      $td = new XTD(array('id'=>'social-wrapper', 'colspan'=>2));
-      $has_social = false;
-      if (Conf::$FACEBOOK_APP_ID !== null && $this->facebook_like !== null) {
-        $has_social = true;
-        $td->add(new XDiv(array('id'=>'fb-wrapper'),
-                          array(new XDiv(array('id'=>'fb-root')),
-                                new XDiv(array('class'=>'fb-like',
-                                               'data-href'=>$this->facebook_like,
-                                               'data-width'=>450,
-                                               'data-layout'=>'button_count',
-                                               'data-show-faces'=>'false',
-                                               'data-send'=>'false')))));
+      if ($this->add_social_plugins) {
+        $td = new XTD(array('id'=>'social-wrapper', 'colspan'=>2));
+        $has_social = false;
+        if (Conf::$FACEBOOK_APP_ID !== null && $this->facebook_like !== null) {
+          $has_social = true;
+          $td->add(new XDiv(array('id'=>'fb-wrapper'),
+                            array(new XDiv(array('id'=>'fb-root')),
+                                  new XDiv(array('class'=>'fb-like',
+                                                 'data-href'=>$this->facebook_like,
+                                                 'data-width'=>450,
+                                                 'data-layout'=>'button_count',
+                                                 'data-show-faces'=>'false',
+                                                 'data-send'=>'false')))));
         
-        $this->head->add($scr = new XScript('text/javascript', sprintf('//connect.facebook.net/en_US/all.js#xfbml=1&appId=%s', Conf::$FACEBOOK_APP_ID)));
-        $scr->set('id', 'facebook-jssdk');
-      }
-      if (Conf::$TWITTER !== null) {
-        $has_social = true;
-        $td->add(new XDiv(array('id'=>'twitter-wrapper'), array(new XA('https://twitter.com/share', "Tweet", array('class'=>'twitter-share-button', 'data-via'=>'ICSAscores')))));
-        // data-hashtags
-        $this->head->add($scr = new XScript('text/javascript', '//platform.twitter.com/widgets.js'));
-        $scr->set('id', 'twitter-wjs');
-      }
+          $this->head->add($scr = new XScript('text/javascript', sprintf('//connect.facebook.net/en_US/all.js#xfbml=1&appId=%s', Conf::$FACEBOOK_APP_ID)));
+          $scr->set('id', 'facebook-jssdk');
+        }
+        if (Conf::$TWITTER !== null) {
+          $has_social = true;
+          $td->add(new XDiv(array('id'=>'twitter-wrapper'), array(new XA('https://twitter.com/share', new XImg('/inc/img/tw.png', "Tweet"), array('class'=>'twitter-share-button', 'data-via'=>'ICSAscores')))));
+          // data-hashtags
+          $this->head->add($scr = new XScript('text/javascript', '//platform.twitter.com/widgets.js'));
+          $scr->set('id', 'twitter-wjs');
+        }
 
-      if ($has_social)
-        $tab->add(new XTR(array(), array($td)));
+        if ($has_social)
+          $tab->add(new XTR(array(), array($td)));
+      }
     }
 
     // Sections
@@ -398,6 +405,10 @@ class TPublicPage extends XPage {
    */
   public function setOpenGraphProperties(Array $props = array()) {
     $this->opengraph_props = $props;
+  }
+
+  public function addSocialPlugins($flag = true) {
+    $this->add_social_plugins = ($flag !== false);
   }
 
   /**

@@ -315,6 +315,7 @@ class ReportMaker {
     $page->addMenu(new XA('/', "Home"));
     $page->addMetaKeyword($reg->name);
     $page->addMetaKeyword('results');
+    $page->addSocialPlugins(true);
 
     // Menu
     // Links to season
