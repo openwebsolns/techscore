@@ -584,3 +584,6 @@ update account set ts_role = 1;
 -- track the number of teams in master-slave round relationship
 alter table round_slave add column num_teams tinyint unsigned not null;
 update round_slave, (select round, count(distinct tr_team1, tr_team2) as num_teams from race where round in (select master from round_slave) and id in (select race from race_round) group by round) as t1 set round_slave.num_teams = t1.num_teams where round_slave.master = t1.round;
+
+-- setting table: for "sticky" (cached) information
+create table setting (id varchar(100) not null primary key, value text default null) engine=innodb;

@@ -58,6 +58,7 @@ class DB extends DBM {
   public static $PERMISSION = null;
   public static $ROLE = null;
   public static $ROLE_PERMISSION = null;
+  public static $SETTING = null;
 
   public static $OUTBOX = null;
   public static $MESSAGE = null;
@@ -117,6 +118,7 @@ class DB extends DBM {
     self::$PERMISSION = new Permission();
     self::$ROLE = new Role();
     self::$ROLE_PERMISSION = new Role_Permission();
+    self::$SETTING = new Setting();
 
     self::$DT_TEAM_DIVISION = new Dt_Team_Division();
     self::$DT_RP = new Dt_Rp();
@@ -666,6 +668,29 @@ class DB extends DBM {
     return DB::getAll(DB::$RACE_ORDER,
                       new DBBool(array(new DBCond('num_teams', $num_teams),
                                        new DBCond('num_divisions', $num_divisions))));
+  }
+
+  // ------------------------------------------------------------
+  // Settings
+  // ------------------------------------------------------------
+
+  public static function getSetting($key) {
+    $res = DB::get(DB::$SETTING, $key);
+    if ($res === null)
+      return null;
+    return $res->value;
+  }
+
+  public static function setSetting($key, $value) {
+    $res = DB::get(DB::$SETTING, $key);
+    $upd = true;
+    if ($res === null) {
+      $res = new Setting();
+      $res->id = $key;
+      $upd = false;
+    }
+    $res->value = $value;
+    DB::set($res, $upd);
   }
 }
 
@@ -2936,5 +2961,19 @@ class Role_Permission extends DBObject {
     default: return parent::db_type($field);
     }
   }
+}
+
+/**
+ * "Sticky" key-value pairs for the application, as handled by DB
+ *
+ * @author Dayan Paez
+ * @version 2013-09-16
+ */
+class Setting extends DBObject {
+  const TWITTER_URL_LENGTH = 'twitter_url_length';
+
+  public $value;
+  protected function db_cache() { return true; }
+  public function __toString() { return $this->value; }
 }
 ?>
