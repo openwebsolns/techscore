@@ -41,6 +41,12 @@ Conf::$WRITERS = array('LocalHtmlWriter.php');
 Conf::$FACEBOOK = 'collegesailing';
 Conf::$TWITTER = 'collegesailing';
 
+// Update all in order to tweet
+Conf::$TWITTER_CONSUMER_KEY = null;
+Conf::$TWITTER_CONSUMER_SECRET = null;
+Conf::$TWITTER_OAUTH_TOKEN = null;
+Conf::$TWITTER_OAUTH_SECRET = null;
+
 // Set to the ID of the users that can log in
 // Conf::$DEBUG_USERS = array('admin@localhost');
 

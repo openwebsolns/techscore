@@ -51,6 +51,14 @@ class Conf {
    */
   public static $TWITTER = null;
   /**
+   * @var String needed secrets for the Twitter API
+   */
+  public static $TWITTER_CONSUMER_KEY = null;
+  public static $TWITTER_CONSUMER_SECRET = null;
+  public static $TWITTER_OAUTH_TOKEN = null;
+  public static $TWITTER_OAUTH_SECRET = null;
+
+  /**
    * @var filepath the path to the directory containing the logs
    */
   public static $LOG_ROOT = '/var/log/httpd';

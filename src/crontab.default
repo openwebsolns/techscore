@@ -32,3 +32,7 @@ MAILTO = {CRON_MAILTO}
 #--------------------------------
 # Process mail messages
 27 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/ProcessOutbox.php
+
+#--------------------------------
+# Update Twitter settings
+39 1 * * * /usr/bin/php {DIRECTORY}/lib/scripts/TwitterCheck.php
