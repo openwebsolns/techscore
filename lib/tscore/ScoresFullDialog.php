@@ -69,10 +69,10 @@ class ScoresFullDialog extends AbstractScoresDialog {
     if ($num_divs > 1)
       $r->add(new XTH(array(), "Div."));
     for ($i = 1; $i <= $largest_num; $i++) {
-      $r->add(new XTH(array('align'=>'right'), $i));
+      $r->add(new XTH(array('class'=>'right'), $i));
     }
     $r->add($penalty_th = new XTH());
-    $r->add(new XTH(array("align"=>"right"), "TOT"));
+    $r->add(new XTH(array('class'=>'right'), "TOT"));
 
     // In order to print the ranks, go through each ranked team once,
     // and collect the different tiebreaking categories, giving each
@@ -152,15 +152,15 @@ class ScoresFullDialog extends AbstractScoresDialog {
             $scoreRace[$i-1] += $finish->score;
 
             $cell->add($finish->getPlace());
-            $cell->set("title", $finish->explanation);
-            $cell->set("align", "right");
+            $cell->set('title', $finish->explanation);
+            $cell->set('class', 'right');
           }
         }
 
         // print penalty, should it exist
         $team_pen = $this->REGATTA->getTeamPenalty($team, new Division($div));
         if ($team_pen !== null) {
-          $r->add(new XTD(array('title'=>$team_pen->comments, 'align'=>'right'), $team_pen->type));
+          $r->add(new XTD(array('title'=>$team_pen->comments, 'class'=>'right'), $team_pen->type));
           $scoreDiv += 20;
           $penaltyTeam += 20;
           $has_penalties = true;
@@ -170,7 +170,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
         }
 
         // print total score for division
-        $r->add(new XTD(array('align'=>'right'), ($scoreDiv == 0) ? "" : $scoreDiv));
+        $r->add(new XTD(array('class'=>'right'), ($scoreDiv == 0) ? "" : $scoreDiv));
       }
 
       // write total row
@@ -184,7 +184,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
 
       for ($i = 0; $i < $largest_num; $i++) {
         $value = array_sum(array_slice($scoreRace, 0, $i + 1));
-        $r->add(new XTD(array('class'=>'sum', 'align'=>'right'), $value));
+        $r->add(new XTD(array('class'=>'right sum'), $value));
       }
 
       // print penalty sum, if they exist
@@ -194,7 +194,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
         $r->add(new XTD(array('title' => "Penalty total"), "($penaltyTeam)"));
 
       // print total
-      $r->add(new XTD(array('class'=>'sum total', 'align'=>'right'), $scoreTeam + $penaltyTeam));
+      $r->add(new XTD(array('class'=>'sum total right'), $scoreTeam + $penaltyTeam));
     }
 
     // Print legend, if necessary

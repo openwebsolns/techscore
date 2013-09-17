@@ -107,7 +107,7 @@ class ScoresCombinedDialog extends AbstractScoresDialog {
       $img = ($rank->team->school->burgee == null) ? '' :
         new XImg(sprintf('/inc/img/schools/%s.png', $rank->team->school->id), $rank->team->school->id,
                  array('height'=>'30'));
-      $r1 = new XTR(array('class'=>'topborder row' . $rowIndex % 2, 'align' => 'left'),
+      $r1 = new XTR(array('class'=>'topborder left row' . $rowIndex % 2),
                     array($r1c1 = new XTD(array('title'=>$rank->explanation, 'class'=>'tiebreaker'), $sym),
                           $r1c2 = new XTD(array(), $order++),
                           $r1c3 = new XTD(array('class'=>'burgee-cell'), $img),
@@ -122,7 +122,7 @@ class ScoresCombinedDialog extends AbstractScoresDialog {
         $has_penalties = true;
       }
 
-      $r2 = new XTR(array('class'=>'row'.($rowIndex % 2), 'align'=>'left'),
+      $r2 = new XTR(array('class'=>'left row'.($rowIndex % 2)),
                     array($r2c4 = new XTD(array('class'=>'teamname'), $rank->team->getQualifiedName())));
 
       $headerRows = array($r1, $r2);
