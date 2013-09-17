@@ -692,6 +692,28 @@ class DB extends DBM {
     $res->value = $value;
     DB::set($res, $upd);
   }
+
+  // ------------------------------------------------------------
+  // Tweet
+  // ------------------------------------------------------------
+
+  private static $twitterer = null;
+
+  /**
+   * Wrapper around TwitterWriter
+   *
+   * @param String $mes
+   */
+  public static function tweet($mes) {
+    if (self::$twitterer === null) {
+      require_once('twitter/TwitterWriter.php');
+      self::$twitterer = new TwitterWriter(Conf::$TWITTER_CONSUMER_KEY,
+                                           Conf::$TWITTER_CONSUMER_SECRET,
+                                           Conf::$TWITTER_OAUTH_TOKEN,
+                                           Conf::$TWITTER_OAUTH_SECRET);
+    }
+    self::$twitterer->tweet($mes);
+  }
 }
 
 /**

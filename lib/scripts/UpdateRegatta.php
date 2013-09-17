@@ -232,6 +232,10 @@ class UpdateRegatta extends AbstractScript {
     if (in_array(UpdateRequest::ACTIVITY_FINALIZED, $activities)) {
       $sync = true; // status change
       $sync_rp = true; // some races were removed
+
+      require_once('twitter/TweetFactory.php');
+      $fac = new TweetFactory();
+      DB::tweet($fac->create(TweetFactory::FINALIZED_EVENT, $reg));
     }
 
     // ------------------------------------------------------------
