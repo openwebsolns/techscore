@@ -139,6 +139,39 @@ class Daemon extends AbstractScript {
   }
 
   /**
+   * Retrieves the md5sum, if any
+   *
+   * @return String the sum
+   */
+  private function getMD5sum() {
+    $sum = null;
+    $path = dirname(dirname(__DIR__)) . '/src/md5sum';
+    if (file_exists($path)) {
+      if (($sum = file_get_contents($path)) !== false)
+        $sum = trim($sum);
+    }
+    return $sum;
+  }
+
+  /**
+   * Checks if the given md5sum matches the current one from file.
+   *
+   * If no match, then throws a TSScriptException. A mismatch is
+   * caused by a non-null $current argument that does not equal the
+   * value from getMD5sum (which, in turn, may be null).
+   *
+   * @param String|null $current the current sum, if any
+   * @return String the sum
+   * @throws TSScriptException if mismatch
+   */
+  private function checkMD5sum($current = null) {
+    $file = $this->getMD5sum();
+    if ($current !== null && $current != $file)
+      throw new TSScriptException("MD5sum has changed on file.");
+    return $file;
+  }
+
+  /**
    * Fork off as daemon, and return child PID
    *
    */
@@ -173,6 +206,7 @@ class Daemon extends AbstractScript {
    */
   public function runSchools($daemon = false) {
     $this->checkLock('sch');
+    $md5 = $this->checkMD5sum();
     if ($daemon)
       $mypid = $this->daemonize();
     $this->createLock('sch');
@@ -186,6 +220,7 @@ class Daemon extends AbstractScript {
           DB::resetCache();
           sleep(73);
           $this->checkLock('sch', $mypid);
+          $md5 = $this->checkMD5sum($md5);
           continue;
         }
         break;
@@ -283,6 +318,7 @@ class Daemon extends AbstractScript {
    */
   public function runSeasons($daemon = false) {
     $this->checkLock('sea');
+    $md5 = $this->checkMD5sum();
     if ($daemon)
       $mypid = $this->daemonize();
     $this->createLock('sea');
@@ -296,6 +332,7 @@ class Daemon extends AbstractScript {
           DB::resetCache();
           sleep(37);
           $this->checkLock('sea', $mypid);
+          $md5 = $this->checkMD5sum($md5);
           continue;
         }
         break;
@@ -382,6 +419,7 @@ class Daemon extends AbstractScript {
    */
   public function runRegattas($daemon = false) {
     $this->checkLock('reg');
+    $md5 = $this->checkMD5sum();
     if ($daemon)
       $mypid = $this->daemonize();
     $this->createLock('reg');
@@ -395,6 +433,7 @@ class Daemon extends AbstractScript {
           DB::resetCache();
           sleep(10);
           $this->checkLock('reg', $mypid);
+          $md5 = $this->checkMD5sum($md5);
           continue;
         }
         break;

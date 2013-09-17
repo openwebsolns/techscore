@@ -1,0 +1,10 @@
+The md5sum file, if present, should indicate the md5sum of all the
+files in the lib/ directory. This allows the Daemon
+(lib/scripts/Daemon.php) to check if the source has changed since it
+started running; and if so, kill itself in order to load the new
+version.
+
+This file may be created by running Make, which should be a hook to
+the version control system. If not present, then the file will not be
+checked by the Daemon processes, which must then be manually restarted
+with code changes.

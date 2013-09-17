@@ -1,5 +1,5 @@
 
-default: lib/conf.local.php src/apache.conf src/changes.current.sql src/crontab html/schools/404.html css css-admin js js-admin
+default: lib/conf.local.php src/apache.conf src/changes.current.sql src/crontab html/schools/404.html css css-admin js js-admin src/md5sum
 
 lib/conf.local.php: lib/conf.default.php
 	@echo "Manually create lib/conf.local.php from lib/conf.default.php" && exit 1
@@ -16,6 +16,9 @@ src/changes.current.sql: src/changes.history.sql
 	comm -13 src/changes.current.sql src/changes.history.sql | \
 	mysql -v -u $$(php bin/Make.php getprop DB_ROOT_USER) -p $$(php bin/Make.php getprop SQL_DB) && \
 	cp src/changes.history.sql src/changes.current.sql
+
+src/md5sum: lib
+	php bin/Make.php md5sum
 
 html/schools/404.html: lib/scripts/Update404.php
 	mkdir -pv html/schools && php lib/scripts/Update404.php schools

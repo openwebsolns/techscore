@@ -16,6 +16,7 @@ sync-up
 Makefile.local
 changes.current.sql
 S3Writer.conf.local*.php
+src/md5sum
 
 # Public files
 html/*

@@ -24,7 +24,7 @@ Use 'getprop' to retrieve a constant from Conf class.\n";
   exit(1);
 }
 
-$targets = array('apache.conf', 'crontab', 'getprop');
+$targets = array('apache.conf', 'crontab', 'getprop', 'md5sum');
 $args = array();
 if (!isset($argv) || !is_array($argv) || count($argv) < 1)
   usage("missing argument list");
@@ -88,6 +88,22 @@ if (isset($args['crontab'])) {
 
   $output = $pwd . '/src/crontab';
   if (file_put_contents($output, $str) === false)
+    usage("unable to write file: $output");
+}
+
+// ------------------------------------------------------------
+// md5sum
+// ------------------------------------------------------------
+if (isset($args['md5sum'])) {
+  $output = null;
+  $return = -1;
+  $sum = exec(sprintf('find %s/lib -type f | sort | xargs cat | md5sum', $pwd), $output, $return);
+  if ($return != 0)
+    usage(sprintf("error while checking sum (%d)", $return));
+  $tokens = explode(" ", $sum);
+
+  $output = $pwd . '/src/md5sum';
+  if (file_put_contents($output, $tokens[0]) === false)
     usage("unable to write file: $output");
 }
 ?>
