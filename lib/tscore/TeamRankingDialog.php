@@ -145,7 +145,7 @@ class TeamRankingDialog extends AbstractScoresDialog {
       $mascot = "";
       if ($team->school->burgee !== null) {
 	$url = sprintf('/inc/img/schools/%s.png', $team->school->id);
-	$mascot = new XImg($url, $team->school->id, array('height'=>'30px'));
+	$mascot = new XImg($url, $team->school->id, array('height'=>'30'));
       }
       $school = (string)$team->school;
       if ($link_schools !== false)

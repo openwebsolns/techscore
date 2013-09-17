@@ -51,10 +51,12 @@ class SVGDoc extends XDoc {
    * @param String $height
    * @param String $title the title of the document (optional)
    */
-  public function __construct($width, $height, $title = null) {
+  public function __construct($width, $height, $title = null, $inc_header = false) {
     parent::__construct("svg", array("width" => $width,
-				     "height" => $height,
-				     "xmlns:xlink" => "http://www.w3.org/1999/xlink"));
+                                     "height" => $height,
+                                     "xmlns:xlink" => "http://www.w3.org/1999/xlink"),
+                        array(),
+                        $inc_header);
     if ($title !== null)
       $this->add(new SVGTitle($title));
     if (SVGAbstractElem::$namespace !== null) {

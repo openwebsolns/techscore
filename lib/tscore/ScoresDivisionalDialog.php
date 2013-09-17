@@ -75,7 +75,7 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
       $penalty_th[(string)$div] = $th;
       $division_has_penalty[(string)$div] = false;
     }
-    $r->add(new XTH(array('title'=>"Total for team", 'abbr'=>"Total"), "TOT"));
+    $r->add(new XTH(array('title'=>"Total for team"), new XElem('abbr', array('title'=>"Total"), array(new XText("TOT")))));
 
     // In order to print the ranks, go through each ranked team once,
     // and collect the different tiebreaking categories, giving each
@@ -112,7 +112,7 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
                                    new XTD(array('class'=>'left'), $rank->getQualifiedName()))));
       if ($rank->school->burgee !== null) {
         $url = sprintf('/inc/img/schools/%s.png', $rank->school->id);
-        $bc->add(new XImg($url, $rank->school->id, array('height'=>'30px')));
+        $bc->add(new XImg($url, $rank->school->id, array('height'=>'30')));
       }
 
       $scoreTeam    = 0;

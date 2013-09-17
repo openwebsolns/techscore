@@ -254,11 +254,11 @@ class XDoc extends XElem {
    *
    * @param String $tag the root tag name
    */
-  public function __construct($tag, $attrs = array(), $children = array()) {
+  public function __construct($tag, $attrs = array(), $children = array(), $inc_header = true) {
     parent::__construct($tag, $attrs, $children);
     $this->headers = array();
-    $this->header(new XHeader("xml", array("version" =>"1.0",
-                                           "encoding"=>"UTF-8")));
+    if ($inc_header)
+      $this->header(new XHeader("xml", array("version" =>"1.0", "encoding"=>"UTF-8")));
   }
 
   /**
@@ -279,7 +279,7 @@ class XDoc extends XElem {
     $text = '';
     if ($this->inc_headers) {
       foreach ($this->headers as $header)
-	$text .= sprintf("%s\n", $header->toXML());
+        $text .= sprintf("%s\n", $header->toXML());
     }
     return $text . parent::toXML();
   }
@@ -293,7 +293,7 @@ class XDoc extends XElem {
     if ($this->inc_headers) {
       header("Content-type: " . $this->ct);
       foreach ($this->headers as $header)
-	$header->printXML();
+        $header->printXML();
     }
     parent::printXML();
   }

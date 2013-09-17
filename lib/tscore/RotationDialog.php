@@ -46,7 +46,7 @@ class RotationDialog extends AbstractDialog {
       $burgee = "";
       if ($team->school->burgee !== null) {
         $url = sprintf("/inc/img/schools/%s.png", $team->school->id);
-        $burgee = new XImg($url, $team->school->id, array('height'=>'30px'));
+        $burgee = new XImg($url, $team->school->id, array('height'=>'30'));
       }
       $row[] = $burgee;
 
