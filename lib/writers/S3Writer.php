@@ -70,31 +70,61 @@ class S3Writer extends AbstractWriter {
     }
   }
 
-  public function sign($method, $md5, $type, $date, $fname) {
-    $string_to_sign = sprintf("%s\n%s\n%s\n%s\n/%s%s",
+  protected function canonicalizeAmzHeaders(Array $headers = array()) {
+    if (count($headers) == 0)
+      return "";
+    $uniq = array();
+    foreach ($headers as $header) {
+      $tokens = explode(":", $header);
+      $h = strtolower(array_shift($tokens));
+      if (count($tokens) == 0)
+        continue;
+      if (!isset($uniq[$h]))
+        $uniq[$h] = array();
+      $uniq[$h][] = trim(implode(":", $tokens));
+    }
+    $str = "";
+    foreach ($uniq as $h => $v)
+      $str .= sprintf("%s:%s\n", $h, implode(",", $v));
+    return $str;
+  }
+
+  public function sign($method, $md5, $type, $date, $fname, Array $extra = array()) {
+    $string_to_sign = sprintf("%s\n%s\n%s\n%s\n%s/%s%s",
                               $method,
                               $md5,
                               $type,
                               $date,
+                              $this->canonicalizeAmzHeaders($extra),
                               $this->bucket, $fname);
     return base64_encode(hash_hmac('sha1', $string_to_sign, $this->secret_key, true));
+  }
+
+  protected function getHeaders($method, $md5, $type, $fname, Array $extra_headers = array()) {
+    $date = date('D, d M Y H:i:s T');
+
+    $headers = array();
+    $headers[] = sprintf('Host: %s.%s', $this->bucket, $this->host_base);
+    if ($type !== null)
+      $headers[] = sprintf('Content-Type: %s', $type);
+    if ($md5 !== null)
+      $headers[] = sprintf('Content-MD5: %s', $md5);
+    $headers[] = sprintf('Date: %s', $date);
+
+    foreach ($extra_headers as $i => $header)
+      $headers[] = $header;
+
+    $signature = $this->sign($method, $md5, $type, $date, $fname, $extra_headers);
+    $headers[] = sprintf('Authorization: AWS %s:%s', $this->access_key, $signature);
+    return $headers;
   }
 
   public function write($fname, &$contents) {
     $type = $this->getMIME($fname);
     $size = strlen($contents);
-    $date = date('D, d M Y H:i:s T');
     $md5 = base64_encode(md5($contents, true));
+    $headers = $this->getHeaders('PUT', $md5, $type, $fname);
 
-    $headers = array();
-    $headers[] = sprintf('Host: %s.%s', $this->bucket, $this->host_base);
-    $headers[] = sprintf('Content-Type: %s', $type);
-    $headers[] = sprintf('Content-MD5: %s', $md5);
-    $headers[] = sprintf('Date: %s', $date);
-
-    $signature = $this->sign("PUT", $md5, $type, $date, $fname);
-    $headers[] = sprintf('Authorization: AWS %s:%s', $this->access_key, $signature);
-                              
     $ch = $this->prepRequest($fname);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
@@ -123,14 +153,7 @@ class S3Writer extends AbstractWriter {
    *
    */
   public function remove($fname) {
-    $date = date('D, d M Y H:i:s T');
-
-    $headers = array();
-    $headers[] = sprintf('Host: %s.%s', $this->bucket, $this->host_base);
-    $headers[] = sprintf('Date: %s', $date);
-
-    $signature = $this->sign("DELETE", "", "", $date, $fname);
-    $headers[] = sprintf('Authorization: AWS %s:%s', $this->access_key, $signature);
+    $headers = $this->getHeaders('DELETE', null, null, $fname);
                               
     $ch = $this->prepRequest($fname);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
