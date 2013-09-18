@@ -62,7 +62,13 @@ class EditLogoPane extends AbstractPrefsPane {
     $file = DB::$V->reqFile($_FILES, 'logo_file', 1, 200000, "Error or missing upload file. Please try again.");
 
     // Create thumbnail
-    if (($src = imagecreatefromstring(file_get_contents($file['tmp_name']))) === false)
+    set_error_handler(function($n, $s) {
+        throw new SoterException("Invalid image file.");
+      }, E_WARNING);
+    $src = @imagecreatefromstring(file_get_contents($file['tmp_name']));
+    restor_error_handler();
+
+    if ($src === false)
       throw new SoterException("Invalid image file.");
 
     $size = getimagesize($file['tmp_name']);
