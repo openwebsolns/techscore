@@ -156,8 +156,10 @@ class SendMessage extends AbstractAdminUserPane {
     $f->add($fi = new FItem("Copy me:", new XCheckboxInput('copy-me', 1, array('id'=>'copy-me'))));
     $fi->add(new XLabel('copy-me', "Send me a copy of message, whether or not I would otherwise receive one."));
     $f->add($para = new XP(array('class'=>'p-submit'), array(new XHiddenInput('axis', $out->recipients))));
-    foreach ($out->arguments as $item)
-      $para->add(new XHiddenInput('list[]', $item));
+    if ($out->arguments !== null) {
+      foreach ($out->arguments as $item)
+        $para->add(new XHiddenInput('list[]', $item));
+    }
     $para->add(new XSubmitInput('send-message', "Send message now"));
   }
 
