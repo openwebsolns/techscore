@@ -17,7 +17,7 @@ src/changes.current.sql: src/changes.history.sql
 	mysql -v -u $$(php bin/Make.php getprop DB_ROOT_USER) -p $$(php bin/Make.php getprop SQL_DB) && \
 	cp src/changes.history.sql src/changes.current.sql
 
-src/md5sum: lib
+src/md5sum: lib bin/Make.php
 	php bin/Make.php md5sum
 
 html/schools/404.html: lib/scripts/Update404.php
