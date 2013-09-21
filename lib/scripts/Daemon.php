@@ -545,6 +545,7 @@ class Daemon extends AbstractScript {
           foreach ($this->activities[$id] as $act)
             self::errln(sprintf("performed activity %s on %4d: %s", $act, $id, $reg->name));
         }
+        DB::commit();
       }
       catch (TSWriterException $e) {
         self::errln("Error while writing: " . $e->getMessage());
