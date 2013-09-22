@@ -174,10 +174,10 @@ class FullRegatta extends DBObject {
           $this->scorer = new ICSACombinedScorer();
           break;
 
-	case Regatta::SCORING_TEAM:
-	  require_once('regatta/ICSATeamScorer.php');
-	  $this->scorer = new ICSATeamScorer();
-	  break;
+        case Regatta::SCORING_TEAM:
+          require_once('regatta/ICSATeamScorer.php');
+          $this->scorer = new ICSATeamScorer();
+          break;
 
         default:
           require_once('regatta/ICSAScorer.php');
@@ -200,7 +200,7 @@ class FullRegatta extends DBObject {
     if ($this->ranker === null) {
       switch ($this->scoring) {
       case Regatta::SCORING_TEAM:
-	require_once('regatta/ICSATeamRanker.php');
+        require_once('regatta/ICSATeamRanker.php');
         $this->ranker = new ICSATeamRanker();
         break;
 
@@ -532,8 +532,8 @@ class FullRegatta extends DBObject {
    */
   public function getRoundGroups() {
     return DB::getAll(DB::$ROUND_GROUP,
-		      new DBCondIn('id',
-				   DB::prepGetAll(DB::$ROUND, new DBCond('regatta', $this->id), array('round_group'))));
+                      new DBCondIn('id',
+                                   DB::prepGetAll(DB::$ROUND, new DBCond('regatta', $this->id), array('round_group'))));
   }
 
   /**
@@ -583,7 +583,7 @@ class FullRegatta extends DBObject {
     if ($inc_carry_over !== false)
       $cond = new DBBool(array($cond,
                                new DBCondIn('id', DB::prepGetAll(DB::$RACE_ROUND, $cond, array('race')))),
-			 DBBool::mOR);
+                         DBBool::mOR);
     $cond = new DBBool(array(new DBCond('regatta', $this->id), $cond));
 
     if ($div !== null)
@@ -733,13 +733,13 @@ class FullRegatta extends DBObject {
    */
   public function getScoredRounds() {
     return DB::getAll(DB::$ROUND,
-		      new DBCondIn('id',
-				   DB::prepGetAll(DB::$RACE,
-						  new DBBool(array(new DBCond('regatta', $this->id),
-								   new DBCondIn('id',
-										DB::prepGetAll(DB::$FINISH, null,
-											       array('race'))))),
-						  array('round'))));
+                      new DBCondIn('id',
+                                   DB::prepGetAll(DB::$RACE,
+                                                  new DBBool(array(new DBCond('regatta', $this->id),
+                                                                   new DBCondIn('id',
+                                                                                DB::prepGetAll(DB::$FINISH, null,
+                                                                                               array('race'))))),
+                                                  array('round'))));
   }
 
   /**
@@ -1446,10 +1446,10 @@ class FullRegatta extends DBObject {
       $rank->team->dt_explanation = $rank->explanation;
 
       if ($this->scoring == Regatta::SCORING_TEAM) {
-	$rank->team->dt_rank = $rank->rank;
-	$rank->team->dt_wins = $rank->wins;
-	$rank->team->dt_losses = $rank->losses;
-	$rank->team->dt_ties = $rank->ties;
+        $rank->team->dt_rank = $rank->rank;
+        $rank->team->dt_wins = $rank->wins;
+        $rank->team->dt_losses = $rank->losses;
+        $rank->team->dt_ties = $rank->ties;
 
         foreach ($divs as $div) {
           $this->setDivisionRank($div, $rank);
@@ -1464,6 +1464,12 @@ class FullRegatta extends DBObject {
     if ($this->scoring == Regatta::SCORING_STANDARD) {
       foreach ($divs as $div) {
         $races = $this->getScoredRaces($div);
+        if (count($races) == 0) {
+          // Delete any possible caching for this division
+          DB::removeAll(DB::$DT_TEAM_DIVISION, new DBBool(array(new DBCond('division', $div),
+                                                                new DBCondIn('team', $this->getTeams()))));
+          continue;
+        }
         foreach ($ranker->rank($this, $races) as $rank) {
           $this->setDivisionRank($div, $rank);
         }
@@ -1511,9 +1517,9 @@ class FullRegatta extends DBObject {
   }
 
   /**
-   * Call this method to sync cacheable data about this regatta
-   *
-   */
+     * Call this method to sync cacheable data about this regatta
+     *
+     */
   public function setData() {
     $this->dt_num_divisions = count($this->getDivisions());
     if ($this->dt_num_divisions == 0)
@@ -1668,8 +1674,8 @@ class FullRegatta extends DBObject {
             $drp->explanation = $team->explanation;
           }
           elseif (count($intersection) == 0) {
-	    // non-participation == non-inclusion
-	    continue;
+            // non-participation == non-inclusion
+            continue;
           }
           else {
             $id = implode(',', $intersection);
