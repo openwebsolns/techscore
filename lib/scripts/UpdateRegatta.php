@@ -131,6 +131,8 @@ class UpdateRegatta extends AbstractScript {
     $sync = false;
     $sync_rp = false;
 
+    $tweet_finalized = false;
+
     $rotation = false;
     $divisions = false;
     $front = false;
@@ -232,10 +234,7 @@ class UpdateRegatta extends AbstractScript {
     if (in_array(UpdateRequest::ACTIVITY_FINALIZED, $activities)) {
       $sync = true; // status change
       $sync_rp = true; // some races were removed
-
-      require_once('twitter/TweetFactory.php');
-      $fac = new TweetFactory();
-      DB::tweet($fac->create(TweetFactory::FINALIZED_EVENT, $reg));
+      $tweet_finalized = true;
     }
 
     // ------------------------------------------------------------
@@ -282,6 +281,11 @@ class UpdateRegatta extends AbstractScript {
         self::remove($root . 'C/index.html');
         self::remove($root . 'D/index.html');
       }
+    }
+    if ($tweet_finalized) {
+      require_once('twitter/TweetFactory.php');
+      $fac = new TweetFactory();
+      DB::tweet($fac->create(TweetFactory::FINALIZED_EVENT, $reg));
     }
   }
 
