@@ -1331,7 +1331,7 @@ class FullRegatta extends DBObject {
     $tokens = explode("-", $name);
     $blacklist = array("the", "of", "for", "and", "an", "in", "is", "at",
                        "trophy", "championship", "intersectional",
-                       "college", "university",
+                       "college", "university", "regatta", "memorial",
                        "professor");
     $tok_copy = $tokens;
     foreach ($tok_copy as $i => $t)
