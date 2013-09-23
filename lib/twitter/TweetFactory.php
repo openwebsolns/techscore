@@ -53,6 +53,21 @@ class TweetFactory {
 
       // Fleet racing
       if ($reg->scoring != Regatta::SCORING_TEAM) {
+        // Combined division
+        if ($reg->scoring == Regatta::SCORING_COMBINED) {
+          // Check for overall winner
+          $rnk = $reg->getDivisionRanker();
+          $divtms = $rnk->rank($reg);
+          if ($divtms[0]->team->id != $tms[0]->id) {
+            // Special mention of overall winner
+            $mes = sprintf("Team %s %s wins %s%s. Congrats to %s's %s %s division on 1st place all-around.",
+                           $tms[0]->school->nick_name, $tms[0]->name,
+                           $art, $reg->name,
+                           $divtms[0]->team->school->nick_name, $divtms[0]->team->name, $divtms[0]->division);
+            return $this->addRegattaURL($mes, $reg);
+          }
+        }
+
         // Ties
         if ($tms[0]->dt_score == $tms[1]->dt_score) {
           switch (rand(0, 1)) {
