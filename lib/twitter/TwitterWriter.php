@@ -1,5 +1,12 @@
 <?php
-class TwitterWriterException extends Exception {}
+/*
+ * This file is part of TechScore
+ *
+ * @author Dayan Paez
+ * @version 2010-09-18
+ */
+
+require_once('TwitterException.php');
 
 /**
  * Post a message to Twitter
@@ -49,7 +56,7 @@ class TwitterWriter {
    *
    * @param String $url the URL for the connection
    * @return resource curl connection
-   * @throws TwitterWriterException
+   * @throws TwitterException
    */
   protected function prepRequest($url) {
     $ch = curl_init($url);
@@ -125,13 +132,13 @@ class TwitterWriter {
     if (($output = curl_exec($ch)) === false) {
       $mes = curl_error($ch);
       curl_close($ch);
-      throw new TwitterWriterException($mes);
+      throw new TwitterException($mes);
     }
     curl_close($ch);
 
     $obj = json_decode($output, true);
     if (isset($obj['errors']))
-      throw new TwitterWriterException(sprintf("%s: %s", $obj['errors'][0]['code'], $obj['errors'][0]['message']));
+      throw new TwitterException(sprintf("%s: %s", $obj['errors'][0]['code'], $obj['errors'][0]['message']));
     return $obj;
   }
 
@@ -155,13 +162,13 @@ class TwitterWriter {
     if (($output = curl_exec($ch)) === false) {
       $mes = curl_error($ch);
       curl_close($ch);
-      throw new TwitterWriterException($mes);
+      throw new TwitterException($mes);
     }
 
     curl_close($ch);
     $obj = json_decode($output, true);
     if (isset($obj['errors']))
-      throw new TwitterWriterException(sprintf("%s: %s", $obj['errors'][0]['code'], $obj['errors'][0]['message']));
+      throw new TwitterException(sprintf("%s: %s", $obj['errors'][0]['code'], $obj['errors'][0]['message']));
     return $obj;
   }
 }
