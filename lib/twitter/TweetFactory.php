@@ -47,17 +47,31 @@ class TweetFactory {
       if (strlen($reg->name) > 4 && substr(strtolower($reg->name), 0, 4) != "the ")
         $art = "the ";
 
-      // Interesting cases: lead is "very" small
-      if ($reg->scoring != Regatta::SCORING_TEAM) {
-        $suf = "";
-        if (substr($tms[0]->name, -1) != "s")
-          $suf .= "s";
+      $suf = "";
+      if (substr($tms[0]->name, -1) != "s" && substr($tms[0]->name, -3) != "men")
+        $suf .= "s";
 
+      // Fleet racing
+      if ($reg->scoring != Regatta::SCORING_TEAM) {
+        // Ties
         if ($tms[0]->dt_score == $tms[1]->dt_score) {
-          $mes = sprintf("%s's %s win%s %s%s on a tiebreaker.",
-                         $tms[0]->school->nick_name, $tms[0]->name, $suf, $art, $reg->name);
-          return  $this->addRegattaURL($mes, $reg);
+          switch (rand(0, 1)) {
+          case 0:
+            if (strlen($tms[0]->dt_explanation) > 0) {
+              $mes = sprintf("The winner for %s%s is %s's %s%s: %s.",
+                             $art, $reg->name,
+                             $tms[0]->school->nick_name, $tms[0]->name, $suf,
+                             strtolower($tms[0]->dt_explanation));
+              return  $this->addRegattaURL($mes, $reg);
+            }
+            
+          default:
+            $mes = sprintf("%s's %s win%s %s%s on a tiebreaker.",
+                           $tms[0]->school->nick_name, $tms[0]->name, $suf, $art, $reg->name);
+            return  $this->addRegattaURL($mes, $reg);
+          }
         }
+        // Interesting cases: lead is "very" small
         if (($tms[1]->dt_score - $tms[0]->dt_score) * 2 < count($tms)) {
           switch (rand(0, 1)) {
           case 0:
@@ -71,18 +85,33 @@ class TweetFactory {
             return $this->addRegattaURL($mes, $reg);
           }
         }
+        // Lead is "very" large
+        if (($tms[1]->dt_score - $tms[0]->dt_score) > 2 * count($tms)) {
+          switch (rand(0, 3)) {
+          case 0:
+            $mes = sprintf("%s's %s dominant in victory at %s%s.",
+                           $tms[0]->school->nick_name, $tms[0]->name, $art, $reg->name);
+            return $this->addRegattaURL($mes, $reg);
+
+          case 1:
+            $mes = sprintf("%s's %s win%s comfortably with a strong perfomance at %s%s.",
+                           $tms[0]->school->nick_name, $tms[0]->name, $suf, $art, $reg->name);
+            return $this->addRegattaURL($mes, $reg);
+
+          case 2:
+            $mes = sprintf("An impressive performance by %s's %s as they finish in first place at %s%s.",
+                           $tms[0]->school->nick_name, $tms[0]->name, $art, $reg->name);
+            return $this->addRegattaURL($mes, $reg);
+          }
+        }
       }
 
       $num = rand(0, 3);
       switch ($num) {
       case 0:
-        $suf = "";
-        if (substr($tms[0]->name, -1) != "s")
-          $suf .= "s";
         $mes = sprintf("Final results: %s's %s win%s %s%s.",
                        $tms[0]->school->nick_name, $tms[0]->name, $suf, $art, $reg->name);
-        $mes = $this->addRegattaURL($mes, $reg);
-        return $mes;
+        return $this->addRegattaURL($mes, $reg);
 
       case 1:
         $mes = sprintf("It's official! The winner of %s%s is %s's %s.",
