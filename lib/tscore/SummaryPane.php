@@ -116,44 +116,28 @@ class SummaryPane extends AbstractPane {
       // Send mail?
       if ($summ->summary !== null && $summ->mail_sent === null && $this->REGATTA->private === null &&
           DB::$V->incInt($args, 'email', 1, 2, null) !== null) {
-        // @TODO
-        $recips = array();
-        switch ($this->REGATTA->type->id) {
-        case 'conference-championship':
-        case 'championship':
-          $recips['alumni'] = 'alumni@lists.collegesailing.org';
 
-        case 'intersectional':
-        case 'promotional':
-          $recips['ICSA'] = 'icsa@lists.collegesailing.org';
+        $recips = $this->REGATTA->type->mail_lists;
+        if ($recips === null)
+          $recips = array();
+        // Add participant conferences
+        foreach ($this->REGATTA->getTeams() as $team) {
+          $recips[strtoupper($team->school->conference->id)] = sprintf('%s@lists.collegesailing.org', strtolower($team->school->conference->id));
+        }
 
-        case 'conference':
-          $confs = array();
-          foreach ($this->REGATTA->getHosts() as $host) {
-            $recips[strtoupper($host->conference->id)] = sprintf('%s@lists.collegesailing.org', $host->conference->id);
-          }
-          break;
-        }
-        if ($this->REGATTA->type->id == 'two-conference') {
-          foreach ($this->REGATTA->getTeams() as $team) {
-            $recips[strtoupper($team->school->conference->id)] = sprintf('%s@lists.collegesailing.org', $team->school->conference->id);
-          }
-        }
-        if (count($recips) > 0) {
-          $this->sendMessage($recips, $summ);
-          $summ->mail_sent = 1;
-          DB::set($summ);
-          Session::pa(new PA(sprintf("Sent e-mail message to the %s list%s.",
-                                     implode(", ", array_keys($recips)),
-                                     (count($recips) > 1) ? "s" : "")));
-        }
+        $this->sendMessage($recips, $summ);
+        $summ->mail_sent = 1;
+        DB::set($summ);
+        Session::pa(new PA(sprintf("Sent e-mail message to the %s list%s.",
+                                   implode(", ", array_keys($recips)),
+                                   (count($recips) > 1) ? "s" : "")));
       }
     }
     return $args;
   }
 
   protected function sendMessage(Array $recips, Daily_Summary $summ) {
-    $W = 72;
+    $W = 70;
     $body = "";
     $body .= $this->centerInLine($this->REGATTA->name, $W) . "\r\n";
     $body .= $this->centerInLine($this->REGATTA->type, $W) . "\r\n";
@@ -168,11 +152,21 @@ class SummaryPane extends AbstractPane {
     $body .= $this->centerInLine(sprintf("%s in %s", implode(", ", $hosts), implode(", ", $boats)), $W) . "\r\n";
     $body .= "\r\n";
 
-    $body .= $summ->summary_date->format('l, F j') . "\r\n";
+    $str = $summ->summary_date->format('l, F j');
+    $body .= $str . "\r\n";
+    for ($i = 0; $i < mb_strlen($str); $i++)
+      $body .= "-";
     $body .= "\r\n";
-    $body .= wordwrap($summ, $W, " \r\n") . "\r\n";
     $body .= "\r\n";
-    
+    $paras = explode("\r\n\r\n", $summ);
+    foreach ($paras as $para)
+      $body .= wordwrap($para, $W, " \r\n") . "\r\n\r\n";
+
+    $body .= "\r\n";
+    $body .= "Results\r\n";
+    $body .= "-------\r\n";
+    $body .= "\r\n";
+
     $has_scores = false;
     $scored = array();
     $divs = ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ?
@@ -191,14 +185,14 @@ class SummaryPane extends AbstractPane {
     if ($has_scores) {
       $tms = $this->REGATTA->getRankedTeams();
       $str = sprintf("Leader:     %s after %s.", $tms[0], implode(", ", $scored));
-      $body .= wordwrap($str, $W, " \r\n") . "\r\n";
+      $body .= wordwrap($str, $W, " \r\n            ") . "\r\n";
     }
 
     if ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) {
       $ranker = $this->REGATTA->getDivisionRanker();
       foreach ($scored as $div => $mes) {
         $tms = $ranker->rank($this->REGATTA, $this->REGATTA->getScoredRaces(Division::get($div)));
-        $body .= sprintf("%s division: %s (-%d points)", $div, $tms[0]->team, ($tms[0]->score - $tms[1]->score)) . "\r\n";
+        $body .= sprintf("%s division: %s (%d points)", $div, $tms[0]->team, ($tms[0]->score - $tms[1]->score)) . "\r\n";
       }
       if (count($scored) > 0)
         $body .= "\r\n";
@@ -206,10 +200,11 @@ class SummaryPane extends AbstractPane {
     if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED) {
       $ranker = $this->REGATTA->getDivisionRanker();
       $tms = $ranker->rank($this->REGATTA);
-      $body .= sprintf("Combined leader: %s, %s division (-%d points)", $tms[0]->team, $tms[0]->division, ($tms[0]->score - $tms[1]->score)) . "\r\n";
+      $body .= sprintf("Combined leader: %s, %s division (%d points)", $tms[0]->team, $tms[0]->division, ($tms[0]->score - $tms[1]->score)) . "\r\n";
     }
 
     $body .= wordwrap(sprintf("Visit http://%s%s for up to the minute results.", Conf::$PUB_HOME, $this->REGATTA->getUrl()), $W, " \r\n") . "\r\n";
+    $body .= "\r\n";
     $body .= "-- \r\n";
     $body .= wordwrap(sprintf("This message sent by %s on behalf of %s.", Conf::$NAME, Conf::$USER), 78, " \r\n");
 

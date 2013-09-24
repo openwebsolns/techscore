@@ -590,3 +590,6 @@ create table setting (id varchar(100) not null primary key, value text default n
 
 -- track the daily summary e-mails
 alter table daily_summary add column mail_sent tinyint default null;
+
+-- track mailing lists per type
+alter table type add column mail_lists text default null after rank;

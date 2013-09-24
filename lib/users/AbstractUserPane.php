@@ -117,6 +117,7 @@ abstract class AbstractUserPane {
                                                   array(new XLi(new XA("/venue",     "Venues")),
                                                         new XLi(new XA("/boats",     "Boats")),
                                                         new XLi(new XA("/types",     "Regatta types")),
+                                                        new XLi(new XA("/lists",     "Mailing lists")),
                                                         new XLi(new XA("/race-orders", "Team race orders")),
                                                         new XLi(new XA("/seasons",   "Seasons")))))));
       $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
@@ -374,6 +375,11 @@ abstract class AbstractUserPane {
     case 'type':
       require_once('users/admin/RegattaTypeManagement.php');
       return new RegattaTypeManagement($u);
+
+    case 'lists':
+    case 'mailing':
+      require_once('users/admin/MailingListManagement.php');
+      return new MailingListManagement($u);
 
     case 'season':
     case 'seasons':
