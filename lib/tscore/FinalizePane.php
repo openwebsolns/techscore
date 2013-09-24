@@ -59,17 +59,18 @@ class FinalizePane extends AbstractPane {
 
     // Summaries
     $list = $this->getMissingSummaries();
-    $mess = "All daily summaries completed.";
-    $icon = $VALID;
-    if (count($list) > 0) {
-      $mess = new XP(array(),
-                     array("Missing one or more ",
-                           new XA($this->link('summaries'), "daily summaries"),
-                           "."));
-      $icon = $ERROR;
+    if (count($list) == 0)
+      $tab->addRow(array($VALID, "All daily summaries completed."));
+    else {
+      foreach ($list as $day) {
+        $tab->addRow(array($ERROR, new XP(array(),
+                                          array("Missing daily summary for ",
+                                                new XA($this->link('summaries', array('day'=>$day->format('Y-m-d'))),
+                                                       $day->format('l, F j')),
+                                                "."))));
+      }
       $can_finalize = false;
     }
-    $tab->addRow(array($icon, $mess));
 
     // RP
     $mess = "All RP info is present.";
