@@ -587,3 +587,6 @@ update round_slave, (select round, count(distinct tr_team1, tr_team2) as num_tea
 
 -- setting table: for "sticky" (cached) information
 create table setting (id varchar(100) not null primary key, value text default null) engine=innodb;
+
+-- track the daily summary e-mails
+alter table daily_summary add column mail_sent tinyint default null;

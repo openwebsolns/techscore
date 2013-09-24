@@ -284,11 +284,11 @@ class FullRegatta extends DBObject {
    * Gets the daily summary for the given day
    *
    * @param DateTime $day the day summary to return
-   * @return String the summary
+   * @return Daily_Summary the summary object
    */
   public function getSummary(DateTime $day) {
     $res = DB::getAll(DB::$DAILY_SUMMARY, new DBBool(array(new DBCond('regatta', $this->id), new DBCond('summary_date', $day->format('Y-m-d')))));
-    $r = (count($res) == 0) ? '' : $res[0]->summary;
+    $r = (count($res) == 0) ? null : $res[0];
     unset($res);
     return $r;
   }
@@ -297,27 +297,22 @@ class FullRegatta extends DBObject {
    * Sets the daily summary for the given day
    *
    * @param DateTime $day
-   * @param String|null $comment no comment
+   * @param Daily_Summary|null $comment no comment
    */
-  public function setSummary(DateTime $day, $comment = null) {
+  public function setSummary(DateTime $day, Daily_Summary $comment = null) {
     // Enforce uniqueness
     $res = DB::getAll(DB::$DAILY_SUMMARY, new DBBool(array(new DBCond('regatta', $this->id), new DBCond('summary_date', $day->format('Y-m-d')))));
-    if ($comment === null) {
+    if ($comment === null || $comment->summary === null) {
       foreach ($res as $cur)
         DB::remove($cur);
       return;
     }
 
     if (count($res) > 0)
-      $cur = $res[0];
-    else {
-      $cur = new Daily_Summary();
-      $cur->regatta = $this->id;
-      $cur->summary_date = $day;
-    }
-    $cur->summary = $comment;
-    DB::set($cur);
-    unset($res);
+      $comment->id = $res[0]->id;
+    $comment->regatta = $this->id;
+    $comment->summary_date = $day;
+    DB::set($comment);
   }
 
   /**

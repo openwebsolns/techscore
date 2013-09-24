@@ -2234,6 +2234,7 @@ class Host_School extends DBObject {
 class Daily_Summary extends DBObject {
   public $regatta;
   public $summary;
+  public $mail_sent;
   protected $summary_date;
 
   public function db_name() { return 'daily_summary'; }
@@ -2245,6 +2246,7 @@ class Daily_Summary extends DBObject {
       return parent::db_type($field);
     }
   }
+  public function __toString() { return $this->summary; }
 }
 
 /**
