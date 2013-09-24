@@ -63,13 +63,13 @@ class SummaryPane extends AbstractPane {
       $now = clone(DB::$NOW);
       $now->setTime(0, 0);
       $diff = $now->diff($s);
-      if ($diff->days >= $duration)
-        $day = $e;
-      elseif ($diff->days < 0)
+      if ($now <= $s)
         $day = $s;
+      elseif ($diff->days >= $duration)
+        $day = $e;
       else {
         $day = clone($s);
-        $day->add(new DateInterval(sprintf('P%dDT0H', ($diff->days - 1))));
+        $day->add(new DateInterval(sprintf('P%dDT0H', $diff->days)));
       }
     }
     $summ = $this->REGATTA->getSummary($day);
@@ -89,8 +89,6 @@ class SummaryPane extends AbstractPane {
         $prog->add(new XSpan($s->format('l, F j')));
       else {
         $prog->add($sub = new XSubmitInput('day', $s->format('l, F j')));
-        if ($s > DB::$NOW)
-          $sub->set('disabled', 'disabled');
       }
       $s->add(new DateInterval('P1DT0H'));
     }
