@@ -300,16 +300,14 @@ class FullRegatta extends DBObject {
    * @param Daily_Summary|null $comment no comment
    */
   public function setSummary(DateTime $day, Daily_Summary $comment = null) {
+    if ($comment === null)
+      $comment = new Daily_Summary();
+
     // Enforce uniqueness
     $res = DB::getAll(DB::$DAILY_SUMMARY, new DBBool(array(new DBCond('regatta', $this->id), new DBCond('summary_date', $day->format('Y-m-d')))));
-    if ($comment === null || $comment->summary === null) {
-      foreach ($res as $cur)
-        DB::remove($cur);
-      return;
-    }
-
     if (count($res) > 0)
       $comment->id = $res[0]->id;
+
     $comment->regatta = $this->id;
     $comment->summary_date = $day;
     DB::set($comment);

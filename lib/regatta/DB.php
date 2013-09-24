@@ -2252,7 +2252,7 @@ class Daily_Summary extends DBObject {
       return parent::db_type($field);
     }
   }
-  public function __toString() { return $this->summary; }
+  public function __toString() { return (string)$this->summary; }
 }
 
 /**
