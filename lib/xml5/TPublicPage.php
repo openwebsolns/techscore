@@ -287,7 +287,7 @@ UserVoice.push(["showTab", "classic_widget", {
   tab_label: "Feedback",
   tab_color: "#6c6d6f",
   tab_position: "bottom-left",
-  tab_inverted: false
+  tab_inverted: true
 }]);
 ', Conf::$USERVOICE_FORUM)));
     }
