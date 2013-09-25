@@ -15,6 +15,7 @@
 class TweetFactory {
 
   const FINALIZED_EVENT = 'finalized';
+  const COMING_SOON_EVENT = 'coming_soon';
 
   private $maxlength;
 
@@ -36,12 +37,14 @@ class TweetFactory {
    *
    * @param Const $action one of the class constants
    * @param FullRegatta $reg the regatta in question
-   * @return String the tweet
+   * @return String|null the tweet
    * @throws InvalidArgumentException
    */
-  public function create($action, FullRegatta $reg) {
+  public function create($action, FullRegatta $reg = null) {
     switch ($action) {
     case self::FINALIZED_EVENT:
+      if ($reg === null)
+        throw new InvalidArgumentException("Missing Regatta argument for FINALIZED_EVENT");
       $tms = $reg->getRankedTeams();
       $art = "";
       if (strlen($reg->name) > 4 && substr(strtolower($reg->name), 0, 4) != "the ")
@@ -213,6 +216,94 @@ class TweetFactory {
         $mes = sprintf("Congratulations to %s's %s on winning %s%s!",
                        $tms[0]->school->nick_name, $tms[0]->name, $art, $reg->name);
         $mes = $this->addRegattaURL($mes, $reg);
+        return $mes;
+      }
+      break;
+
+      // ------------------------------------------------------------
+      // Coming soon
+      // ------------------------------------------------------------
+    case self::COMING_SOON_EVENT:
+      require_once('regatta/Regatta.php');
+      // Look at regattas starting in the next 7 days
+      $start = clone(DB::$NOW);
+      $start->add(new DateInterval('P7DT0H'));
+      $potential = DB::getAll(DB::$PUBLIC_REGATTA,
+                              new DBBool(array(new DBCond('start_time', DB::$NOW, DBCond::GE),
+                                               new DBCond('start_time', $start, DBCond::LE),
+                                               new DBCond('dt_status', Regatta::STAT_SCHEDULED, DBCond::NE))));
+
+      if (count($potential) == 0)
+        return null;
+
+      // Group all regattas by day, and determine number of schools
+      $all_schools = array();
+      $schools = array();
+      $days = array();
+      foreach ($potential as $reg) {
+        $day = $reg->start_time->format('Y-m-d');
+        if (!isset($days[$day])) {
+          $days[$day] = array();
+          $schools[$day] = array();
+        }
+        $days[$day][] = $reg;
+        foreach ($reg->getTeams() as $team) {
+          $schools[$day][$team->school->id] = $team->school;
+          $all_schools[$team->school->id] = $team->school;
+        }
+      }
+
+      ksort($days);
+      $keys = array_keys($days);
+
+      if (count($days) > 1) {
+        switch (rand(0, 2)) {
+        case 0:
+          $day = array_pop($keys);
+          $now = clone(DB::$NOW);
+          $now->setTime(0, 0);
+          $diff = $now->diff(new DateTime($day));
+          $dur = sprintf("%d days", $diff->days);
+          if ($diff->days <= 2)
+            $dur = "couple of days";
+          $mes = sprintf("In the next %s, %d schools are scheduled to race in %d regattas. Get up-to-the-minute results at http://%s.",
+                         $dur, count($all_schools), count($potential), Conf::$PUB_HOME);
+          return $mes;
+        }
+      }
+
+      switch (rand(0, 3)) {
+      case 0:
+        
+
+      default:
+        $cnt = count($days[$day]);
+        $day = array_shift($keys);
+        $num = sprintf("across %d regattas", $cnt);
+        $lnk = sprintf('http://%s', Conf::$PUB_HOME);
+        if ($cnt == 1) {
+          $reg = $days[$day][0];
+          $art = "";
+          if (strlen($reg->name) > 4 && substr(strtolower($reg->name), 0, 4) != "the ")
+            $art = "the ";
+          $num = sprintf("at %s%s", $art, $reg->name);
+          $lnk .= $reg->getUrl();
+        }
+        elseif ($cnt < 5) {
+          $num = sprintf("at %d different regattas", $cnt);
+        }
+
+        $now = clone(DB::$NOW);
+        $now->setTime(0, 0);
+        $diff = $now->diff(new DateTime($day));
+        $dur = sprintf("In %d days", $diff->days);
+        if ($diff->days == 1)
+          $dur = "Tomorrow";
+        if ($diff->days == 0)
+          $dur = "Today";
+
+        $mes = sprintf("%s, %d schools take to the water %s. Follow the action at %s.",
+                       $dur, count($schools[$day]), $num, $lnk);
         return $mes;
       }
       break;
