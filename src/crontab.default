@@ -36,3 +36,7 @@ MAILTO = {CRON_MAILTO}
 #--------------------------------
 # Update Twitter settings
 39 1 * * * /usr/bin/php {DIRECTORY}/lib/scripts/TwitterCheck.php
+
+#--------------------------------
+# Send summary tweets on Thursdays, at 6PM
+0 18 * * 4 /usr/bin/php {DIRECTORY}/lib/scripts/TweetSummary.php coming_soon
