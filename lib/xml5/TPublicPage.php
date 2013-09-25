@@ -273,6 +273,25 @@ class TPublicPage extends XPage {
 
     $this->body->add($sep);
 
+    // UserVoice
+    if (Conf::$USERVOICE_ID !== null && Conf::$USERVOICE_FORUM !== null) {
+      $this->head->add(new XScript('text/javascript', sprintf('//widget.uservoice.com/%s.js', Conf::$USERVOICE_ID)));
+      $this->head->add(new XScript('text/javascript', null,
+                                   sprintf('
+UserVoice = window.UserVoice || [];
+UserVoice.push(["showTab", "classic_widget", {
+  mode: "feedback",
+  primary_color: "#6C6D6F",
+  link_color: "#3465a4",
+  forum_id: %d,
+  tab_label: "Feedback",
+  tab_color: "#6c6d6f",
+  tab_position: "bottom-left",
+  tab_inverted: false
+}]);
+', Conf::$USERVOICE_FORUM)));
+    }
+
     // Footer
     $this->body->add(new XDiv(array('id'=>'page-footer'),
                               array(new XDiv(array('id'=>'sponsors'),
