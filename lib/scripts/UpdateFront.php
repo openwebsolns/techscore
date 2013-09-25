@@ -64,11 +64,11 @@ class UpdateFront extends AbstractScript {
     $end->setTime(0, 0, 0);
     $potential = DB::getAll(DB::$PUBLIC_REGATTA,
                             new DBBool(array(new DBCond('start_time', $start, DBCond::LE),
-                                             new DBCond('end_date', $end, DBCond::GE))));
+                                             new DBCond('end_date', $end, DBCond::GE),
+                                             new DBCond('dt_status', Regatta::STAT_SCHEDULED, DBCond::NE))));
     $in_prog = array();
     foreach ($potential as $reg) {
-      if ($reg->dt_status != Regatta::STAT_SCHEDULED)
-        $in_prog[] = $reg;
+      $in_prog[] = $reg;
     }
     if (count($in_prog) > 0) {
       usort($in_prog, 'Regatta::cmpTypes');
