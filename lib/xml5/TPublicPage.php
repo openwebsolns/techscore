@@ -202,6 +202,10 @@ class TPublicPage extends XPage {
       $this->head->add(new XMeta('twitter:site', '@' . Conf::$TWITTER));
     }
 
+    if (Conf::$FLICKR_NAME !== null) {
+      $sc->add(new XA(sprintf('//www.flickr.com/photos/%s', Conf::$FLICKR_NAME), new XImg('/inc/img/flickr.png', "Flickr")));
+    }
+
     if (Conf::$GCSE_ID !== null)
       $sw->add(new XDiv(array('class'=>'gcse-search')));
 

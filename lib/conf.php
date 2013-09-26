@@ -72,6 +72,15 @@ class Conf {
   public static $USERVOICE_FORUM = null;
 
   /**
+   * @var String the account name
+   */
+  public static $FLICKR_NAME = null;
+  /**
+   * @var String the Flickr ID to use for the slideshow
+   */
+  public static $FLICKR_ID = null;
+
+  /**
    * @var filepath the path to the directory containing the logs
    */
   public static $LOG_ROOT = '/var/log/httpd';

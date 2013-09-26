@@ -96,6 +96,13 @@ class UpdateFront extends AbstractScript {
         $tab->addRow($row, array('class'=>'row'.($i % 2)));
       }
     }
+    elseif (Conf::$FLICKR_ID !== null) {
+      $div->add(new XDiv(array('id'=>'flickwrap'),
+                         array(new XElem('iframe', array('src'=>sprintf('//www.flickr.com/slideShow/index.gne?group_id=&user_id=%s', urlencode(Conf::$FLICKR_ID)),
+                                                         'width'=>500,
+                                                         'height'=>500),
+                                         array(new XText(""))))));
+    }
 
     // ------------------------------------------------------------
     // Fill list of coming soon regattas

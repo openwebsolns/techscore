@@ -66,4 +66,7 @@ Conf::$GCSE_ID = null;
 // The UserVoice ID
 Conf::$USERVOICE_ID = null;
 Conf::$USERVOICE_FORUM = null;
+
+Conf::$FLICKR_NAME = 'collegesailing';
+Conf::$FLICKR_ID = null;
 ?>
