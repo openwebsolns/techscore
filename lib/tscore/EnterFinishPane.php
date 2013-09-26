@@ -107,7 +107,7 @@ class EnterFinishPane extends AbstractPane {
       $this->REGATTA->getCombinedFinishes($race);
 
     $form->add(new XP(array(), "Click on left column to push to right column. You may specify DNS/DNF/BYE when entering finishes, or later as a penalty/breakdown using the \"Add Penalty\" menu item."));
-    if ($rotation !== null) {
+    if ($rotation !== null && $rotation->isAssigned($race)) {
       // ------------------------------------------------------------
       // Rotation-based
       // ------------------------------------------------------------
