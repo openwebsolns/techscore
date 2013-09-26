@@ -75,7 +75,7 @@ class SummaryPane extends AbstractPane {
     $summ = $this->REGATTA->getSummary($day);
     $form->add(new XHiddenInput('day', $day->format('Y-m-d')));
     $form->add(new XH4($day->format('l, F j')));
-    $form->add(new XP(array(), new XTextArea('summary', $summ, array('rows'=>30, 'style'=>'width:100%'))));
+    $form->add(new XP(array(), new XTextArea('summary', $summ, array('rows'=>30, 'id'=>'summary-textarea'))));
 
     if ($summ === null || $summ->mail_sent === null) {
       $form->add($fi = new FItem("Send e-mail:", new XCheckboxInput('email', 1, array('id'=>'chk-mail'))));
@@ -194,8 +194,8 @@ class SummaryPane extends AbstractPane {
       foreach ($values as $i => $value) {
         if (!isset($colwidths[$i]))
           $colwidths[$i] = 0;
-        if (strlen($value) > $colwidths[$i])
-          $colwidths[$i] = strlen($value);
+        if (mb_strlen($value) > $colwidths[$i])
+          $colwidths[$i] = mb_strlen($value);
       }
     }
 
@@ -228,11 +228,13 @@ class SummaryPane extends AbstractPane {
         foreach ($divisions as $div) {
           $div_rank = $rank->getRank($div);
           if ($div_rank === null) {
-            $row[] = " "; // to account for header
+            $row[] = "  "; // to account for header and leaderstar
             $row[] = "";
           }
           else {
-            $row[] = $div_rank->score;
+            $score = $div_rank->score;
+            $score .= ($div_rank->rank == 1) ? '!' : ' ';
+            $row[] = $score;
             $row[] = (string)$div_rank->penalty;
             $tot += $div_rank->score;
           }
@@ -281,7 +283,7 @@ class SummaryPane extends AbstractPane {
       $str .= sprintf('%' . ($span - $pad - 1) . 's', "") . $sep;
       $i = 3;
       foreach ($divisions as $j => $div) {
-        $str .= sprintf('%' . $colwidths[$i + (2 * $j)] . 's', $div) . $sep;
+        $str .= sprintf('%' . $colwidths[$i + (2 * $j)] . 's', $div . " ") . $sep;
         $str .= sprintf('%' . $colwidths[$i + (2 * $j) + 1] . 's',
                         $colwidths[$i + (2 * $j) + 1] > 0 ? "P" : "") . $sep;
       }
@@ -318,6 +320,12 @@ class SummaryPane extends AbstractPane {
         }
         $str .= "\r\n";
       }
+
+      // Divisional winner
+      $str .= sprintf('%' . $prefix . 's', " ");
+      $str .= sprintf('%' . $colwidths[0] . 's', '!');
+      $str .= sprintf(" = %s winner\r\n",
+                      ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ? "Divisional" : "Overall");
       return $str;
     }
     else {

@@ -1012,3 +1012,9 @@ h4 a:hover {
 .tr-rotation-template thead th, .tr-rotation-template td {
     text-align: left;
 }
+#summary-textarea {
+    padding: 1ex;
+    width: 95%;
+    font-size: 110%;
+    line-height: 1.5em;
+}
