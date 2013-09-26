@@ -150,6 +150,8 @@ class SummaryPane extends AbstractPane {
     foreach ($this->REGATTA->getBoats() as $boat)
       $boats[] = $boat;
     $body .= $this->centerInLine(sprintf("%s in %s", implode(", ", $hosts), implode(", ", $boats)), $W) . "\r\n";
+    $url = sprintf('http://%s%s', Conf::$PUB_HOME, $this->REGATTA->getUrl());
+    $body .= $this->centerInLine($url, $W) . "\r\n";
     $body .= "\r\n";
 
     $str = $summ->summary_date->format('l, F j');
@@ -163,18 +165,19 @@ class SummaryPane extends AbstractPane {
       $body .= wordwrap($para, $W, " \r\n") . "\r\n\r\n";
 
     $body .= "\r\n";
-    $body .= "Results\r\n";
-    $body .= "-------\r\n";
+    $body .= sprintf("Top %d\r\n", min(5, count($this->REGATTA->getTeams())));
+    $body .= "-----\r\n";
     $body .= "\r\n";
+    $body .= wordwrap(sprintf("Visit %s for full results.", $url), $W, " \r\n");
+    $body .= "\r\n\r\n";
 
     if ($this->REGATTA->hasFinishes()) {
       $body .= $this->getResultsTable($W) . "\r\n";
     }
 
-    $body .= wordwrap(sprintf("Visit http://%s%s for up to the minute results.", Conf::$PUB_HOME, $this->REGATTA->getUrl()), $W, " \r\n") . "\r\n";
     $body .= "\r\n";
     $body .= "-- \r\n";
-    $body .= wordwrap(sprintf("This message sent by %s on behalf of %s.", Conf::$NAME, Conf::$USER), 78, " \r\n");
+    $body .= wordwrap(sprintf("This message sent by %s on behalf of %s.", Conf::$NAME, Conf::$USER), $W, " \r\n");
 
     foreach ($recips as $recip)
       DB::mail($recip, $this->REGATTA->name, $body);
@@ -198,43 +201,25 @@ class SummaryPane extends AbstractPane {
           $colwidths[$i] = mb_strlen($value);
       }
     }
-
-    // Tiebreakers
-    $tiebreakers = array("" => "");
     $ranks = $this->REGATTA->getRankedTeams();
-    foreach ($ranks as $rank) {
-      if (!empty($rank->dt_explanation) && !isset($tiebreakers[$rank->dt_explanation])) {
-        $count = count($tiebreakers);
-        switch ($count) {
-        case 1:
-          $tiebreakers[$rank->dt_explanation] = "*";
-          break;
-        case 2:
-          $tiebreakers[$rank->dt_explanation] = "**";
-          break;
-        default:
-          $tiebreakers[$rank->dt_explanation] = chr(95 + $count);
-        }
-      }
-    }
-
     if ($this->REGATTA->scoring != Regatta::SCORING_TEAM) {
       // Make table
-      foreach ($ranks as $rank) {
-        $row = array($tiebreakers[$rank->dt_explanation],
+      foreach ($ranks as $r => $rank) {
+        if ($r >= 5)
+          break;
+
+        $row = array(($r + 1),
                      $rank->school->nick_name,
                      $rank->name);
         $tot = 0;
         foreach ($divisions as $div) {
           $div_rank = $rank->getRank($div);
           if ($div_rank === null) {
-            $row[] = "  "; // to account for header and leaderstar
+            $row[] = " "; // to account for header and leaderstar
             $row[] = "";
           }
           else {
-            $score = $div_rank->score;
-            $score .= ($div_rank->rank == 1) ? '!' : ' ';
-            $row[] = $score;
+            $row[] = $div_rank->score;
             $row[] = (string)$div_rank->penalty;
             $tot += $div_rank->score;
           }
@@ -276,28 +261,26 @@ class SummaryPane extends AbstractPane {
 
       // Headers
       $str .= sprintf('%' . $prefix . 's', "");
-      $str .= sprintf('%' . $colwidths[0] . 's', "") . $sep;
+      $str .= sprintf('%' . $colwidths[0] . 's', "#") . $sep;
       $span = ($colwidths[1] + $colwidths[2] + $sep);
       $pad = floor(($span + 4) / 2);
       $str .= sprintf('%' . $pad . 's', "") . "Team";
       $str .= sprintf('%' . ($span - $pad - 1) . 's', "") . $sep;
       $i = 3;
       foreach ($divisions as $j => $div) {
-        $str .= sprintf('%' . $colwidths[$i + (2 * $j)] . 's', $div . " ") . $sep;
+        $str .= sprintf('%' . $colwidths[$i + (2 * $j)] . 's', $div) . $sep;
         $str .= sprintf('%' . $colwidths[$i + (2 * $j) + 1] . 's',
                         $colwidths[$i + (2 * $j) + 1] > 0 ? "P" : "") . $sep;
       }
       $str .= sprintf('%' . $colwidths[count($colwidths) - 1] . 's', "TOT") . "\r\n";
 
-      foreach ($table as $i => $row) {
-        if ($i % 3 == 0) {
-          $lin = ($i == 0) ? "=" : "-";
-          $str .= sprintf('%' . $prefix . 's', " ");
-          for ($j = 0; $j < $rowwidth; $j++)
-            $str .= $lin;
-          $str .= "\r\n";
-        }
+      // ----------
+      $str .= sprintf('%' . $prefix . 's', " ");
+      for ($j = 0; $j < $rowwidth; $j++)
+        $str .= "=";
+      $str .= "\r\n";
 
+      foreach ($table as $i => $row) {
         $str .= sprintf('%' . $prefix . 's', " ");
         foreach ($row as $j => $value) {
           if ($j > 0)
@@ -308,33 +291,22 @@ class SummaryPane extends AbstractPane {
         }
         $str .= "\r\n";
       }
-      $str .= "\r\n";
-
-      // Tiebreaker
-      if (count($tiebreakers) > 1) {
-        array_shift($tiebreakers);
-        $wrap = "\r\n" . sprintf('%' . ($prefix + 4) . 's', "");
-        foreach ($tiebreakers as $expl => $val) {
-          $str .= sprintf('%' . $prefix . 's', " ");
-          $str .= sprintf('%' . $colwidths[0] . 's', $val) . ' = ' . wordwrap($expl, $W, $wrap) . "\r\n";
-        }
-        $str .= "\r\n";
-      }
-
-      // Divisional winner
+      // ----------
       $str .= sprintf('%' . $prefix . 's', " ");
-      $str .= sprintf('%' . $colwidths[0] . 's', '!');
-      $str .= sprintf(" = %s winner\r\n",
-                      ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ? "Divisional" : "Overall");
+      for ($j = 0; $j < $rowwidth; $j++)
+        $str .= "-";
+      $str .= "\r\n";
       return $str;
     }
     else {
       // ------------------------------------------------------------
       // Team
       // ------------------------------------------------------------
-      foreach ($ranks as $rank) {
-        $row = array($tiebreakers[$rank->dt_explanation],
-                     $rank->dt_rank,
+      foreach ($ranks as $r => $rank) {
+        if ($r >= 5)
+          break;
+
+        $row = array($rank->dt_rank,
                      $rank->school->nick_name,
                      $rank->name,
                      (int)$rank->dt_wins,
@@ -345,7 +317,7 @@ class SummaryPane extends AbstractPane {
       }
 
       // Alignment
-      $alignment = array("", "", "", "-", "", "", "-");
+      $alignment = array("", "", "-", "", "", "-");
 
       // Column separator
       $sep = "    ";
@@ -366,25 +338,22 @@ class SummaryPane extends AbstractPane {
 
       // Headers
       $str .= sprintf('%' . $prefix . 's', "");
-      $str .= sprintf('%' . $colwidths[0] . 's', "") . $sep;
-      $str .= sprintf('%' . $colwidths[1] . 's', "#") . $sep;
-      $span = ($colwidths[2] + $colwidths[3] + $sep);
+      $str .= sprintf('%' . $colwidths[0] . 's', "#") . $sep;
+      $span = ($colwidths[1] + $colwidths[2] + $sep);
       $pad = floor(($span + 4) / 2);
       $str .= sprintf('%' . $pad . 's', "") . "Team";
       $str .= sprintf('%' . ($span - $pad - 1) . 's', "") . $sep;
-      $str .= sprintf('%' . $colwidths[4] . 's', "W") . $sep;
-      $str .= sprintf('%' . $colwidths[5] . 's', "-") . $sep;
-      $str .= sprintf('%' . $colwidths[6] . 's', "L") . "\r\n";
+      $str .= sprintf('%' . $colwidths[3] . 's', "W") . $sep;
+      $str .= sprintf('%' . $colwidths[4] . 's', "-") . $sep;
+      $str .= sprintf('%' . $colwidths[5] . 's', "L") . "\r\n";
+
+      // ----------
+      $str .= sprintf('%' . $prefix . 's', " ");
+      for ($j = 0; $j < $rowwidth; $j++)
+        $str .= "=";
+      $str .= "\r\n";
 
       foreach ($table as $i => $row) {
-        if ($i % 3 == 0) {
-          $lin = ($i == 0) ? "=" : "-";
-          $str .= sprintf('%' . $prefix . 's', " ");
-          for ($j = 0; $j < $rowwidth; $j++)
-            $str .= $lin;
-          $str .= "\r\n";
-        }
-
         $str .= sprintf('%' . $prefix . 's', " ");
         foreach ($row as $j => $value) {
           if ($j > 0)
@@ -395,18 +364,11 @@ class SummaryPane extends AbstractPane {
         }
         $str .= "\r\n";
       }
+      // ----------
+      $str .= sprintf('%' . $prefix . 's', " ");
+      for ($j = 0; $j < $rowwidth; $j++)
+        $str .= "-";
       $str .= "\r\n";
-
-      // Tiebreaker
-      if (count($tiebreakers) > 1) {
-        array_shift($tiebreakers);
-        $wrap = "\r\n" . sprintf('%' . ($prefix + 4) . 's', "");
-        foreach ($tiebreakers as $expl => $val) {
-          $str .= sprintf('%' . $prefix . 's', " ");
-          $str .= sprintf('%' . $colwidths[0] . 's', $val) . ' = ' . wordwrap($expl, $W, $wrap) . "\r\n";
-        }
-        $str .= "\r\n";
-      }
       return $str;
     }
   }
