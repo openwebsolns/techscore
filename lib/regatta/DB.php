@@ -231,7 +231,7 @@ class DB extends DBM {
     return @mail($to,
                  $subject,
                  wordwrap($body, 72),
-                 sprintf('From: %s', Conf::$TS_FROM_MAIL));
+                 sprintf("From: %s\r\nContent-Type: text/plain; charset=utf8", Conf::$TS_FROM_MAIL));
   }
 
   /**
