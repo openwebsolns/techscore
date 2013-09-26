@@ -66,7 +66,7 @@ class EditLogoPane extends AbstractPrefsPane {
         throw new SoterException("Invalid image file.");
       }, E_WARNING);
     $src = @imagecreatefromstring(file_get_contents($file['tmp_name']));
-    restor_error_handler();
+    restore_error_handler();
 
     if ($src === false)
       throw new SoterException("Invalid image file.");
