@@ -551,9 +551,11 @@ class XScript extends XAbstractHtml {
    * @param String $type the type
    * @param String $src the "src" attribute. Use null to exclude
    * @param String $text the content
+   * @param Array $attrs optional list of attributes
    */
-  public function __construct($type, $src = null, $text = null) {
-    parent::__construct("script", array("type"=>$type));
+  public function __construct($type, $src = null, $text = null, Array $attrs = array()) {
+    parent::__construct("script", $attrs);
+    $this->set("type", $type);
     $this->non_empty = true;
     if ($src !== null)
       $this->set("src", $src);
