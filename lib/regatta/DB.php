@@ -3001,6 +3001,7 @@ class Role_Permission extends DBObject {
  */
 class Setting extends DBObject {
   const TWITTER_URL_LENGTH = 'twitter_url_length';
+  const SEND_MAIL = 'send_mail';
 
   public $value;
   protected function db_cache() { return true; }

@@ -32,6 +32,8 @@ class SummaryPane extends AbstractPane {
     if ($duration > 1)
       $this->PAGE->addContent($f);
 
+    $can_mail = ((string)DB::getSetting(Setting::SEND_MAIL) == 1);
+
     $this->PAGE->addContent($xp = new XPort("About the daily summaries"));
     $xp->add($p = new XP(array(), "A text summary is required for each day of competition for all public regattas."));
     if ($this->REGATTA->private == null) {
@@ -40,7 +42,9 @@ class SummaryPane extends AbstractPane {
       if ($this->REGATTA->dt_status != Regatta::STAT_SCHEDULED)
         $txt = new XA(sprintf('http://%s%s', Conf::$PUB_HOME, $this->REGATTA->getUrl()), $txt);
       $p->add($txt);
-      $p->add(". In addition, the summaries will be used in the daily e-mail message report, if the checkbox is selected below. Note that e-mails may only be sent once per day.");
+      $p->add(".");
+      if ($can_mail)
+          $p->add(" In addition, the summaries will be used in the daily e-mail message report, if the checkbox is selected below. Note that e-mails may only be sent once per day.");
     }
     $xp->add(new XP(array(), "Tips for writing summaries:"));
     $xp->add(new XUl(array(),
@@ -77,7 +81,7 @@ class SummaryPane extends AbstractPane {
     $form->add(new XH4($day->format('l, F j')));
     $form->add(new XP(array(), new XTextArea('summary', $summ, array('rows'=>30, 'id'=>'summary-textarea'))));
 
-    if ($summ === null || $summ->mail_sent === null) {
+    if ($can_mail && ($summ === null || $summ->mail_sent === null)) {
       $form->add($fi = new FItem("Send e-mail:", new XCheckboxInput('email', 1, array('id'=>'chk-mail'))));
       $fi->add(new XLabel('chk-mail', "Click to send e-mail to appropriate mailing lists with regatta details."));
     }
@@ -114,7 +118,8 @@ class SummaryPane extends AbstractPane {
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SUMMARY);
 
       // Send mail?
-      if ($summ->summary !== null && $summ->mail_sent === null && $this->REGATTA->private === null &&
+      if (((string)DB::getSetting(Setting::SEND_MAIL == 1)) &&
+          $summ->summary !== null && $summ->mail_sent === null && $this->REGATTA->private === null &&
           DB::$V->incInt($args, 'email', 1, 2, null) !== null) {
 
         $recips = array();
