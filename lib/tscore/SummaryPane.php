@@ -118,13 +118,15 @@ class SummaryPane extends AbstractPane {
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SUMMARY);
 
       // Send mail?
-      if (((string)DB::getSetting(Setting::SEND_MAIL == 1)) &&
+      if (((string)DB::getSetting(Setting::SEND_MAIL) == 1) &&
           $summ->summary !== null && $summ->mail_sent === null && $this->REGATTA->private === null &&
           DB::$V->incInt($args, 'email', 1, 2, null) !== null) {
 
         $recips = array();
-        foreach ($this->REGATTA->type->mail_lists as $target)
-          $recips[$target] = $target;
+        if ($this->REGATTA->type->mail_lists !== null) {
+          foreach ($this->REGATTA->type->mail_lists as $target)
+            $recips[$target] = $target;
+        }
         // Add participant conferences
         foreach ($this->REGATTA->getTeams() as $team) {
           $recips[strtoupper($team->school->conference->id)] = sprintf('%s@lists.collegesailing.org', strtolower($team->school->conference->id));
