@@ -177,7 +177,7 @@ class TPublicPage extends XPage {
 
     // Google search
     if (Conf::$GCSE_ID !== null)
-      $this->head->add(new XScript('text/javascript', sprintf('//www.google.com/cse/cse.js?cx=%s', Conf::$GCSE_ID)));
+      $this->head->add(new XScript('text/javascript', sprintf('//www.google.com/cse/cse.js?cx=%s', Conf::$GCSE_ID), null, array('async'=>'true')));
 
     // Navigation
     $this->body->add(new XDiv(array('class'=>'nav'),
@@ -255,14 +255,14 @@ class TPublicPage extends XPage {
                                                  'data-show-faces'=>'false',
                                                  'data-send'=>'false')))));
         
-          $this->head->add($scr = new XScript('text/javascript', sprintf('//connect.facebook.net/en_US/all.js#xfbml=1&appId=%s', Conf::$FACEBOOK_APP_ID)));
+          $this->head->add($scr = new XScript('text/javascript', sprintf('//connect.facebook.net/en_US/all.js#xfbml=1&appId=%s', Conf::$FACEBOOK_APP_ID), null, array('async'=>'true')));
           $scr->set('id', 'facebook-jssdk');
         }
         if (Conf::$TWITTER !== null) {
           $has_social = true;
           $td->add(new XDiv(array('id'=>'twitter-wrapper'), array(new XA('https://twitter.com/share', new XImg('/inc/img/tw.png', "Tweet"), array('class'=>'twitter-share-button', 'data-via'=>'ICSAscores')))));
           // data-hashtags
-          $this->head->add($scr = new XScript('text/javascript', '//platform.twitter.com/widgets.js'));
+          $this->head->add($scr = new XScript('text/javascript', '//platform.twitter.com/widgets.js', null, array('async'=>'true')));
           $scr->set('id', 'twitter-wjs');
         }
 
@@ -279,7 +279,7 @@ class TPublicPage extends XPage {
 
     // UserVoice
     if (Conf::$USERVOICE_ID !== null && Conf::$USERVOICE_FORUM !== null) {
-      $this->head->add(new XScript('text/javascript', sprintf('//widget.uservoice.com/%s.js', Conf::$USERVOICE_ID)));
+      $this->head->add(new XScript('text/javascript', sprintf('//widget.uservoice.com/%s.js', Conf::$USERVOICE_ID), null, array('async'=>'true')));
       $this->head->add(new XScript('text/javascript', null,
                                    sprintf('
 UserVoice = window.UserVoice || [];
