@@ -143,7 +143,7 @@ class SummaryPane extends AbstractPane {
     return $args;
   }
 
-  protected function sendMessage(Array $recips, Daily_Summary $summ) {
+  public function sendMessage(Array $recips, Daily_Summary $summ) {
     $W = 70;
     $body = "";
     $body .= $this->centerInLine($this->REGATTA->name, $W) . "\r\n";
