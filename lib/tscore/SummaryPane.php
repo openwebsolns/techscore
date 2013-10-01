@@ -224,6 +224,8 @@ class SummaryPane extends AbstractPane {
                                                    " for full results.")),
                                       $this->getResultsHtmlTable())));
     }
+    $body->body->add(new XAddress(array('style'=>'color:#555;border-top:1px solid #222;margin-top:4ex;padding:1ex 0;'),
+                                  array(sprintf("This message sent by %s on behalf of %s.", Conf::$NAME, Conf::$USER))));
 
     $parts['text/html; charset=utf8'] = $body->toXML();
     DB::multipartMail($recips, $this->REGATTA->name, $parts);
