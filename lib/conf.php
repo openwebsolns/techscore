@@ -63,15 +63,6 @@ class Conf {
   public static $TWITTER_OAUTH_SECRET = null;
 
   /**
-   * @var String the UserVoice ID (if any) to use
-   */
-  public static $USERVOICE_ID = null;
-  /**
-   * @var String the UserVoice Forum ID (both need to be present)
-   */
-  public static $USERVOICE_FORUM = null;
-
-  /**
    * @var String the account name
    */
   public static $FLICKR_NAME = null;

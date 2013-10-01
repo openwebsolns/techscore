@@ -278,8 +278,8 @@ class TPublicPage extends XPage {
     $this->body->add($sep);
 
     // UserVoice
-    if (Conf::$USERVOICE_ID !== null && Conf::$USERVOICE_FORUM !== null) {
-      $this->head->add(new XScript('text/javascript', sprintf('//widget.uservoice.com/%s.js', Conf::$USERVOICE_ID), null, array('async'=>'true')));
+    if (DB::g(STN::USERVOICE_ID) !== null && DB::g(STN::USERVOICE_FORUM) !== null) {
+      $this->head->add(new XScript('text/javascript', sprintf('//widget.uservoice.com/%s.js', DB::g(STN::USERVOICE_ID)), null, array('async'=>'true')));
       $this->head->add(new XScript('text/javascript', null,
                                    sprintf('
 UserVoice = window.UserVoice || [];
@@ -293,7 +293,7 @@ UserVoice.push(["showTab", "classic_widget", {
   tab_position: "bottom-left",
   tab_inverted: true
 }]);
-', Conf::$USERVOICE_FORUM)));
+', DB::g(STN::USERVOICE_FORUM))));
     }
 
     // Footer
