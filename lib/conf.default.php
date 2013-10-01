@@ -41,9 +41,6 @@ Conf::$WRITERS = array('LocalHtmlWriter.php');
 // Set to the ID of the users that can log in
 // Conf::$DEBUG_USERS = array('admin@localhost');
 
-// Uncomment below to disallow registering for accounts
-//Conf::$ALLOW_REGISTER = false;
-
 // Set the allowed regatta types and scoring options
 //Conf::$REGATTA_SCORING_BLACKLIST = array('standard', 'combined');
 

@@ -54,7 +54,7 @@ abstract class AbstractUserPane {
                                     array(new XH4("Useful Links"),
                                           $m = new XUl(array(),
                                                        array(new XLi(new XA(".", "Sign-in")))))));
-      if (Conf::$ALLOW_REGISTER !== false)
+      if (DB::g(STN::ALLOW_REGISTER) !== null)
         $m->add(new XLi(new XA("register", "Register")));
       $m->add(new XLi(new XA("http://www.collegesailing.org", "ICSA Website")));
       $m->add(new XLi(new XA("http://techscore.sourceforge.net", "Offline TechScore")));

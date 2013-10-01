@@ -35,7 +35,7 @@ if (Conf::$USER === null) {
   // Registration?
   switch ($URI_TOKENS[0]) {
   case 'register':
-    if (Conf::$ALLOW_REGISTER === false)
+    if (DB::g(STN::ALLOW_REGISTER) === null)
       WS::go('/');
 
     // When following mail verification, simulate POST

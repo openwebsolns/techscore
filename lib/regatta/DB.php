@@ -3089,6 +3089,7 @@ class Role_Permission extends DBObject {
 class STN extends DBObject {
   const TWITTER_URL_LENGTH = 'twitter_url_length';
   const SEND_MAIL = 'send_mail';
+  const ALLOW_REGISTER = 'allow_register';
 
   const GCSE_ID = 'gcse_id';
   const FACEBOOK = 'facebook';

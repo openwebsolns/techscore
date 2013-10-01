@@ -57,7 +57,7 @@ class LoginPage extends AbstractUserPane {
       $p->add(new XRawText($entry->html));
     }
 
-    if (Conf::$ALLOW_REGISTER) {
+    if (DB::g(STN::ALLOW_REGISTER) !== null) {
       $this->PAGE->addContent($p = new XPort("Register for TechScore"));
       $p->add(new XP(array(),
                      array("If you are affiliated with ",

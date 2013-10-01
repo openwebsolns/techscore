@@ -80,11 +80,6 @@ class Conf {
   public static $DEBUG_USERS = null;
 
   /**
-   * @var boolean allow registrations? (default yes)
-   */
-  public static $ALLOW_REGISTER = true;
-
-  /**
    * @var Array the list of scoring NOT to allow. This will prevent
    * the creation or changing of a regatta scoring to one of these
    * values. It will NOT prevent the display or editing of those
