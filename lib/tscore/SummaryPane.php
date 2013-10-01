@@ -146,9 +146,9 @@ class SummaryPane extends AbstractPane {
   public function sendMessage(Array $recips, Daily_Summary $summ) {
     $W = 70;
     $body = "";
-    $body .= $this->centerInLine($this->REGATTA->name, $W) . "\r\n";
-    $body .= $this->centerInLine($this->REGATTA->type, $W) . "\r\n";
-    $body .= $this->centerInLine($this->REGATTA->getDataScoring(), $W) . "\r\n";
+    $body .= $this->centerInLine($this->REGATTA->name, $W) . "\n";
+    $body .= $this->centerInLine($this->REGATTA->type, $W) . "\n";
+    $body .= $this->centerInLine($this->REGATTA->getDataScoring(), $W) . "\n";
 
     $hosts = array();
     foreach ($this->REGATTA->getHosts() as $host)
@@ -156,35 +156,35 @@ class SummaryPane extends AbstractPane {
     $boats = array();
     foreach ($this->REGATTA->getBoats() as $boat)
       $boats[] = $boat;
-    $body .= $this->centerInLine(sprintf("%s in %s", implode(", ", $hosts), implode(", ", $boats)), $W) . "\r\n";
+    $body .= $this->centerInLine(sprintf("%s in %s", implode(", ", $hosts), implode(", ", $boats)), $W) . "\n";
     $url = sprintf('http://%s%s', Conf::$PUB_HOME, $this->REGATTA->getUrl());
-    $body .= $this->centerInLine($url, $W) . "\r\n";
-    $body .= "\r\n";
+    $body .= $this->centerInLine($url, $W) . "\n";
+    $body .= "\n";
 
     $str = $summ->summary_date->format('l, F j');
-    $body .= $str . "\r\n";
+    $body .= $str . "\n";
     for ($i = 0; $i < mb_strlen($str); $i++)
       $body .= "-";
-    $body .= "\r\n";
-    $body .= "\r\n";
-    $paras = explode("\r\n\r\n", $summ);
+    $body .= "\n";
+    $body .= "\n";
+    $paras = explode("\n\n", $summ);
     foreach ($paras as $para)
-      $body .= wordwrap($para, $W, " \r\n") . "\r\n\r\n";
+      $body .= wordwrap($para, $W, " \n") . "\n\n";
 
-    $body .= "\r\n";
-    $body .= sprintf("Top %d\r\n", min(5, count($this->REGATTA->getTeams())));
-    $body .= "-----\r\n";
-    $body .= "\r\n";
-    $body .= wordwrap(sprintf("Visit %s for full results.", $url), $W, " \r\n");
-    $body .= "\r\n\r\n";
+    $body .= "\n";
+    $body .= sprintf("Top %d\n", min(5, count($this->REGATTA->getTeams())));
+    $body .= "-----\n";
+    $body .= "\n";
+    $body .= wordwrap(sprintf("Visit %s for full results.", $url), $W, " \n");
+    $body .= "\n\n";
 
     if ($this->REGATTA->hasFinishes()) {
-      $body .= $this->getResultsTable($W) . "\r\n";
+      $body .= $this->getResultsTable($W) . "\n";
     }
 
-    $body .= "\r\n";
-    $body .= "-- \r\n";
-    $body .= wordwrap(sprintf("This message sent by %s on behalf of %s.", Conf::$NAME, Conf::$USER), $W, " \r\n");
+    $body .= "\n";
+    $body .= "-- \n";
+    $body .= wordwrap(sprintf("This message sent by %s on behalf of %s.", Conf::$NAME, Conf::$USER), $W, " \n");
 
     foreach ($recips as $recip)
       DB::mail($recip, $this->REGATTA->name, $body, false);
