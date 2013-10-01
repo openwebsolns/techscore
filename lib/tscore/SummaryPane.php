@@ -144,6 +144,8 @@ class SummaryPane extends AbstractPane {
   }
 
   public function sendMessage(Array $recips, Daily_Summary $summ) {
+    // ------------------------------------------------------------
+    // text/plain
     $W = 70;
     $body = "";
     $body .= $this->centerInLine($this->REGATTA->name, $W) . "\n";
@@ -156,7 +158,8 @@ class SummaryPane extends AbstractPane {
     $boats = array();
     foreach ($this->REGATTA->getBoats() as $boat)
       $boats[] = $boat;
-    $body .= $this->centerInLine(sprintf("%s in %s", implode(", ", $hosts), implode(", ", $boats)), $W) . "\n";
+    $hostline = sprintf("%s in %s", implode(", ", $hosts), implode(", ", $boats));
+    $body .= $this->centerInLine($hostline, $W) . "\n";
     $url = sprintf('http://%s%s', Conf::$PUB_HOME, $this->REGATTA->getUrl());
     $body .= $this->centerInLine($url, $W) . "\n";
     $body .= "\n";
@@ -186,8 +189,36 @@ class SummaryPane extends AbstractPane {
     $body .= "-- \n";
     $body .= wordwrap(sprintf("This message sent by %s on behalf of %s.", Conf::$NAME, Conf::$USER), $W, " \n");
 
-    foreach ($recips as $recip)
-      DB::mail($recip, $this->REGATTA->name, $body, false);
+    $parts = array('text/plain; charset=utf8' => $body);
+    
+    // ------------------------------------------------------------
+    // text/html
+    require_once('xml5/TEmailPage.php');
+    $body = new TEmailPage($this->REGATTA->name . " Summary");
+    $body->body->add(new XDiv(array('id'=>'regatta-header'),
+                              array(new XH1($this->REGATTA->name),
+                                    new XH2($this->REGATTA->type),
+                                    new XH2($this->REGATTA->getDataScoring()),
+                                    new XH2($hostline))));
+
+    require_once('xml5/TSEditor.php');
+    $DPE = new TSEditor();
+    $DPE->parse((string)$summ);
+    $body->body->add(new XDiv(array('id'=>'summary'),
+                              array(new XH3($summ->summary_date->format('l, F j')),
+                                    new XRawText($DPE->toXML()))));
+
+    if ($this->REGATTA->hasFinishes()) {
+      $body->body->add(new XDiv(array('id'=>'scores'),
+                                array(new XP(array(),
+                                             array("Visit ",
+                                                   new XA($url, $url),
+                                                   " for full results.")),
+                                      $this->getResultsHtmlTable())));
+    }
+
+    $parts['text/html; charset=utf8'] = $body->toXML();
+    DB::multipartMail($recips, $this->REGATTA->name, $parts);
   }
 
   protected function centerInLine($str, $W) {
@@ -378,6 +409,62 @@ class SummaryPane extends AbstractPane {
       $str .= "\n";
       return $str;
     }
+  }
+
+  protected function getResultsHtmlTable() {
+    $divisions = $this->REGATTA->getDivisions();
+    $ranks = $this->REGATTA->getRankedTeams();
+
+    if ($this->REGATTA->scoring != Regatta::SCORING_TEAM) {
+      $headers = array("#", "School", "Team");
+      foreach ($divisions as $div)
+        $headers[] = $div;
+      $headers[] = "TOT";
+      $table = new XQuickTable(array('class'=>'results'), $headers);
+      foreach ($ranks as $r => $rank) {
+        if ($r >= 5)
+          break;
+
+        $row = array(($r + 1),
+                     $rank->school->nick_name,
+                     $rank->name);
+        $tot = 0;
+        foreach ($divisions as $div) {
+          $div_rank = $rank->getRank($div);
+          if ($div_rank === null) {
+            $row[] = " "; // to account for header and leaderstar
+            $row[] = "";
+          }
+          else {
+            $row[] = $div_rank->score;
+            $row[] = (string)$div_rank->penalty;
+            $tot += $div_rank->score;
+          }
+        }
+        $row[] = $tot;
+        $table->addRow($row, array('class'=>'row'.($r % 2)));
+      }
+    }
+    else {
+      // ------------------------------------------------------------
+      // Team
+      // ------------------------------------------------------------
+      $table = new XQuickTable(array('class'=>'team-results'),
+                               array("#", "School", "Team", "Win", "Loss"));
+      foreach ($ranks as $r => $rank) {
+        if ($r >= 5)
+          break;
+
+        $table->addRow(array($rank->dt_rank,
+                             $rank->school->nick_name,
+                             $rank->name,
+                             (int)$rank->dt_wins,
+                             "-",
+                             (int)$rank->dt_losses),
+                       array('class'=>'row'.($r % 2)));
+      }
+    }
+    return $table;
   }
 }
 ?>

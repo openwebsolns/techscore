@@ -238,6 +238,57 @@ class DB extends DBM {
   }
 
   /**
+   * Sends a multipart (MIME) mail message to the given user with the
+   * given subject, appending the correct headers (i.e., the "from"
+   * field). This method uses the standard PHP mail function
+   *
+   * @param String|Array $to the e-mail address(es) to send to
+   * @param String $subject the subject
+   * @param Array $parts the different MIME parts, indexed by MIME type.
+   * @return boolean the result, as returned by mail
+   */
+  public static function multipartMail($to, $subject, Array $parts) {
+    if (Conf::$DIVERT_MAIL !== null) {
+      $to = Conf::$DIVERT_MAIL;
+      $subject = 'DIVERTED: ' . $subject;
+    }
+
+    $segments = array();
+    foreach ($parts as $mime => $part) {
+      $segment = sprintf("Content-Type: %s\r\n", $mime);
+      $segment .= "Content-Transfer-Encoding: quoted-printable\r\n";
+      $segment .= "\r\n";
+      $segment .= quoted_printable_encode($part);
+      $segments[] = $segment;
+    }
+
+    $found = true;
+    while ($found) {
+      $bdry = uniqid(rand(100, 999), true);
+      $found = false;
+      foreach ($segments as $segment) {
+        if (strstr($segment, $bdry) !== false) {
+          $found = true;
+          break;
+        }
+      }
+    }
+
+    $headers = sprintf("From: %s\r\nMIME-Version: 1.0\r\nContent-Type: multipart/alternative; boundary=%s\r\n", Conf::$TS_FROM_MAIL, $bdry);
+    $body = "This is a message with multiple parts in MIME format.\r\n";
+    foreach ($segments as $segment)
+      $body .= sprintf("--%s\r\n%s\r\n", $bdry, $segment);
+    $body .= sprintf("--%s--", $bdry);
+
+    if (!is_array($to))
+      $to = array($to);
+    $res = true;
+    foreach ($to as $recipient)
+      $res = $res & @mail($recipient, $subject, $body, $headers);
+    return $res;
+  }
+
+  /**
    * Get all non-completed outgoing messages
    *
    * @return Array:Outbox the messages
