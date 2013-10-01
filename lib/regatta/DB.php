@@ -231,10 +231,17 @@ class DB extends DBM {
     }
     if ($wrap)
       $body = wordwrap($body, 72);
-    return @mail($to,
-                 $subject,
-                 $body,
-                 sprintf("From: %s\r\nContent-Type: text/plain; charset=utf8", Conf::$TS_FROM_MAIL));
+
+    if (!is_array($to))
+      $to = array($to);
+
+    $res = false;
+    foreach ($to as $recipient)
+      $res = $res && @mail($to,
+                          $subject,
+                          $body,
+                          sprintf("From: %s\r\nContent-Type: text/plain; charset=utf8", Conf::$TS_FROM_MAIL));
+    return $res;
   }
 
   /**
@@ -287,7 +294,7 @@ class DB extends DBM {
       $to = array($to);
     $res = true;
     foreach ($to as $recipient)
-      $res = $res & @mail($recipient, $subject, $body, $headers);
+      $res = $res && @mail($recipient, $subject, $body, $headers);
     return $res;
   }
 

@@ -150,7 +150,7 @@ class RegisterPane extends AbstractUserPane {
       foreach (DB::getAdmins() as $admin)
         $admins[] = sprintf('%s <%s>', $admin->getName(), $admin->id);
 
-      DB::mail(implode(',', $admins), sprintf("[%s] New registration", Conf::$NAME), $this->getAdminMessage($acc));
+      DB::mail($admins, sprintf("[%s] New registration", Conf::$NAME), $this->getAdminMessage($acc));
       WS::go('/register');
     }
 
