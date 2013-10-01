@@ -20,7 +20,7 @@ class TweetFactory {
   private $maxlength;
 
   public function __construct() {
-    $urlen = DB::getSetting(Setting::TWITTER_URL_LENGTH);
+    $urlen = DB::g(STN::TWITTER_URL_LENGTH);
     if ($urlen === null)
       $urlen = 25;
     $this->maxlength = 140 - $urlen;

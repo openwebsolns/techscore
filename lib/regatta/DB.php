@@ -118,7 +118,7 @@ class DB extends DBM {
     self::$PERMISSION = new Permission();
     self::$ROLE = new Role();
     self::$ROLE_PERMISSION = new Role_Permission();
-    self::$SETTING = new Setting();
+    self::$SETTING = new STN();
 
     self::$DT_TEAM_DIVISION = new Dt_Team_Division();
     self::$DT_RP = new Dt_Rp();
@@ -738,7 +738,7 @@ class DB extends DBM {
   // Settings
   // ------------------------------------------------------------
 
-  public static function getSetting($key) {
+  public static function g($key) {
     $attrs = self::getSettingNames();
     if (!in_array($key, $attrs))
       throw new InvalidArgumentException("Invalid setting $key.");
@@ -751,7 +751,7 @@ class DB extends DBM {
     return self::$settings[$key];
   }
 
-  public static function setSetting($key, $value) {
+  public static function s($key, $value) {
     $attrs = self::getSettingNames();
     if (!in_array($key, $attrs))
       throw new InvalidArgumentException("Invalid setting $key.");
@@ -761,7 +761,7 @@ class DB extends DBM {
     $res = DB::get(DB::$SETTING, $key);
     $upd = true;
     if ($res === null) {
-      $res = new Setting();
+      $res = new STN();
       $res->id = $key;
       $upd = false;
     }
@@ -3086,7 +3086,7 @@ class Role_Permission extends DBObject {
  * @author Dayan Paez
  * @version 2013-09-16
  */
-class Setting extends DBObject {
+class STN extends DBObject {
   const TWITTER_URL_LENGTH = 'twitter_url_length';
   const SEND_MAIL = 'send_mail';
 
@@ -3104,6 +3104,7 @@ class Setting extends DBObject {
   const FLICKR_ID = 'flickr_id';
 
   public $value;
+  public function db_name() { return 'setting'; }
   protected function db_cache() { return true; }
   public function __toString() { return $this->value; }
 }

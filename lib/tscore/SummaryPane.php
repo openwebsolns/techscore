@@ -32,7 +32,7 @@ class SummaryPane extends AbstractPane {
     if ($duration > 1)
       $this->PAGE->addContent($f);
 
-    $can_mail = ((string)DB::getSetting(Setting::SEND_MAIL) == 1);
+    $can_mail = ((string)DB::g(STN::SEND_MAIL) == 1);
 
     $this->PAGE->addContent($xp = new XPort("About the daily summaries"));
     $xp->add($p = new XP(array(), "A text summary is required for each day of competition for all public regattas."));
@@ -118,7 +118,7 @@ class SummaryPane extends AbstractPane {
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SUMMARY);
 
       // Send mail?
-      if (((string)DB::getSetting(Setting::SEND_MAIL) == 1) &&
+      if (((string)DB::g(STN::SEND_MAIL) == 1) &&
           $summ->summary !== null && $summ->mail_sent === null && $this->REGATTA->private === null &&
           DB::$V->incInt($args, 'email', 1, 2, null) !== null) {
 

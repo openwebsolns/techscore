@@ -31,7 +31,7 @@ class TwitterCheck extends AbstractScript {
                                 Conf::$TWITTER_OAUTH_TOKEN,
                                 Conf::$TWITTER_OAUTH_SECRET);
     $cfg = $writer->checkConfig();
-    DB::setSetting(Setting::TWITTER_URL_LENGTH, $cfg['short_url_length']);
+    DB::s(STN::TWITTER_URL_LENGTH, $cfg['short_url_length']);
     self::errln(sprintf("Set the Twitter URL length to %d.", $cfg['short_url_length']));
   }
 }

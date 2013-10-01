@@ -24,11 +24,11 @@ class MailingListManagement extends AbstractAdminUserPane {
     $this->PAGE->addContent($p = new XPort("Enable summary emails"));
     $p->add($f = $this->createForm());
     $f->add(new XP(array(), "To allow scorers to send e-mail with the daily summaries, check the box below."));
-    $f->add($fi = new FItem("Allow mail:", $chk = new XCheckboxInput(Setting::SEND_MAIL, 1, array('id'=>'chk-mail'))));
+    $f->add($fi = new FItem("Allow mail:", $chk = new XCheckboxInput(STN::SEND_MAIL, 1, array('id'=>'chk-mail'))));
     $fi->add(new XLabel('chk-mail', "Check to allow scorers to send mail with daily summaries."));
     $f->add(new XSubmitP('set-mail', "Save changes"));
 
-    if ((string)DB::getSetting(Setting::SEND_MAIL) == 1)
+    if ((string)DB::g(STN::SEND_MAIL) == 1)
       $chk->set('checked', 'checked');
     else
       return;
@@ -50,7 +50,7 @@ class MailingListManagement extends AbstractAdminUserPane {
 
   public function process(Array $args) {
     if (isset($args['set-mail'])) {
-      DB::setSetting(Setting::SEND_MAIL, DB::$V->incInt($args, Setting::SEND_MAIL, 1, 2, null));
+      DB::s(STN::SEND_MAIL, DB::$V->incInt($args, STN::SEND_MAIL, 1, 2, null));
       Session::pa(new PA("Settings updated."));
     }
     if (isset($args['set-lists'])) {
