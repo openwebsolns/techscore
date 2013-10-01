@@ -262,7 +262,7 @@ class TPublicPage extends XPage {
           $has_social = true;
           $td->add(new XDiv(array('id'=>'twitter-wrapper'), array(new XA('https://twitter.com/share', new XImg('/inc/img/tw.png', "Tweet"), array('class'=>'twitter-share-button', 'data-via'=>'ICSAscores')))));
           // data-hashtags
-          $this->head->add($scr = new XScript('text/javascript', '//platform.twitter.com/widgets.js', null, array('async'=>'true')));
+          $this->head->add($scr = new XScript('text/javascript', '//platform.twitter.com/widgets.js'));
           $scr->set('id', 'twitter-wjs');
         }
 
