@@ -195,24 +195,30 @@ class SummaryPane extends AbstractPane {
     // text/html
     require_once('xml5/TEmailPage.php');
     $body = new TEmailPage($this->REGATTA->name . " Summary");
-    $body->head->add(new XStyle('text/css', 'html{font-family:Georgia,serif;}#header{text-align:center;margin-bottom:3ex;}h1,h3{margin:0.5ex 0;}h1{font-family:Arial,Helvetica,sans-serif;font-variant:small-caps;font-size:160%;}h3{font-size:110%;color:#48484A;}h2{font-size:120%;}table{margin:1ex auto;border-collapse:collapse;border:1px solid #ccc;}tr{border:1px solid #ccc;}thead{background:#EAE5D6;}th,td{padding:0.5ex;}.right{text-align:right;}'));
-    $body->body->add(new XDiv(array('id'=>'header'),
-                              array(new XH1($this->REGATTA->name),
-                                    new XH3($this->REGATTA->type),
-                                    new XH3($this->REGATTA->getDataScoring()),
-                                    new XH3($hostline),
-                                    new XH3(new XA($url, "View full report")))));
+
+    $body->body->set('style', 'font-family:Georgia,serif;');
+    $h1args = array('style'=>'margin:0.5ex 0;font-family:Arial,Helvetica,sans-serif;font-variant:small-caps;font-size:160%;');
+    $h2args = array('style'=>'font-size:120%;');
+    $h3args = array('style'=>'margin:0.5ex 0;font-size:110%;color:#48484A;');
+
+    $body->body->add(new XDiv(array('id'=>'header','style'=>'text-align:center;margin-bottom:3ex;'),
+                              array(new XH1($this->REGATTA->name, $h1args),
+                                    new XH3($this->REGATTA->type, $h3args),
+                                    new XH3($this->REGATTA->getDataScoring(), $h3args),
+                                    new XH3($hostline, $h3args),
+                                    new XH3(new XA($url, "View full report"), $h3args))));
 
     require_once('xml5/TSEditor.php');
     $DPE = new TSEditor();
     $DPE->parse((string)$summ);
     $body->body->add(new XDiv(array('id'=>'summary'),
-                              array(new XH2($summ->summary_date->format('l, F j')),
+                              array(new XH2($summ->summary_date->format('l, F j'), $h2args),
                                     new XRawText($DPE->toXML()))));
 
     if ($this->REGATTA->hasFinishes()) {
       $body->body->add(new XDiv(array('id'=>'scores'),
-                                array(new XP(array(),
+                                array(new XH2(sprintf("Top %d\n", min(5, count($this->REGATTA->getTeams()))), $h2args),
+                                      new XP(array(),
                                              array("Visit ",
                                                    new XA($url, $url),
                                                    " for full results.")),
@@ -414,6 +420,11 @@ class SummaryPane extends AbstractPane {
   }
 
   protected function getResultsHtmlTable() {
+    $tdArgs = array('style'=>'padding:0.5ex;');
+    $trArgs = array('style'=>'border:1px solid #ccc;');
+    $tdRight = array('style'=>'padding:0.5ex;text-align:right;');
+    $tabArgs = array('style'=>'margin:1ex auto;border-collapse:collapse;border:1px solid #ccc;');
+
     $divisions = $this->REGATTA->getDivisions();
     $ranks = $this->REGATTA->getRankedTeams();
 
@@ -424,14 +435,15 @@ class SummaryPane extends AbstractPane {
         $headers[] = "";
       }
       $headers[] = "TOT";
-      $table = new XQuickTable(array('class'=>'results'), $headers);
+      $table = new XQuickTable($tabArgs, $headers);
+
       foreach ($ranks as $r => $rank) {
         if ($r >= 5)
           break;
 
-        $row = array(($r + 1),
-                     new XTD(array('class'=>'right'), $rank->school->nick_name),
-                     $rank->name);
+        $row = array(new XTD($tdArgs, ($r + 1)),
+                     new XTD($tdRight, $rank->school->nick_name),
+                     new XTD($tdArgs, $rank->name));
         $tot = 0;
         foreach ($divisions as $div) {
           $div_rank = $rank->getRank($div);
@@ -440,32 +452,31 @@ class SummaryPane extends AbstractPane {
             $row[] = "";
           }
           else {
-            $row[] = new XTD(array('class'=>'right'), $div_rank->score);
-            $row[] = (string)$div_rank->penalty;
+            $row[] = new XTD($tdRight, $div_rank->score);
+            $row[] = new XTD($tdArgs, (string)$div_rank->penalty);
             $tot += $div_rank->score;
           }
         }
-        $row[] = new XTD(array('class'=>'right'), new XStrong($tot));
-        $table->addRow($row, array('class'=>'row'.($r % 2)));
+        $row[] = new XTD($tdRight, new XStrong($tot));
+        $table->addRow($row, $trArgs);
       }
     }
     else {
       // ------------------------------------------------------------
       // Team
       // ------------------------------------------------------------
-      $table = new XQuickTable(array('class'=>'team-results'),
+      $table = new XQuickTable(array('style'=>'margin:1ex auto;border-collapse:collapse;border:1px solid #ccc;'),
                                array("#", "School", "Team", "Win", "Loss"));
       foreach ($ranks as $r => $rank) {
         if ($r >= 5)
           break;
 
         $table->addRow(array($rank->dt_rank,
-                             $rank->school->nick_name,
-                             $rank->name,
-                             (int)$rank->dt_wins,
-                             "-",
-                             (int)$rank->dt_losses),
-                       array('class'=>'row'.($r % 2)));
+                             new XTD($tdRight, $rank->school->nick_name),
+                             new XTD($tdArgs, $rank->name),
+                             new XTD($tdRight, (int)$rank->dt_wins),
+                             new XTD($tdArgs, (int)$rank->dt_losses)),
+                       $trArgs);
       }
     }
     return $table;
