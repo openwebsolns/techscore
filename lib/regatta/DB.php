@@ -257,8 +257,8 @@ class DB extends DBM {
     foreach ($parts as $mime => $part) {
       $segment = sprintf("Content-Type: %s\n", $mime);
       if (substr($mime, 0, strlen('text/plain')) != 'text/plain') {
-        $segment .= "Content-Transfer-Encoding: quoted-printable\n";
-        $part = quoted_printable_encode($part);
+        $segment .= "Content-Transfer-Encoding: base64\n";
+        $part = base64_encode($part);
       }
       $segment .= "\n";
       $segment .= $part;

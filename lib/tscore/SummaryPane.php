@@ -195,7 +195,8 @@ class SummaryPane extends AbstractPane {
     // text/html
     require_once('xml5/TEmailPage.php');
     $body = new TEmailPage($this->REGATTA->name . " Summary");
-    $body->body->add(new XDiv(array('id'=>'regatta-header'),
+    $body->head->add(new XStyle('text/css', '#header{text-align:center;margin-bottom:3ex}h1,h3{margin-bottom:1ex;}table{border-collapse:collapse;border:1px solid #ccc;}th,td{border:1px solid #ccc;}'));
+    $body->body->add(new XDiv(array('id'=>'header'),
                               array(new XH1($this->REGATTA->name),
                                     new XH3($this->REGATTA->type),
                                     new XH3($this->REGATTA->getDataScoring()),
