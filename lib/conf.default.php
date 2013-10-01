@@ -57,9 +57,6 @@ Conf::$TWITTER_OAUTH_SECRET = null;
 
 Conf::$LOCK_FILENAME = 'ts-pub.lock';
 
-// The Google Custom Search ID.
-Conf::$GCSE_ID = null;
-
 Conf::$FLICKR_NAME = 'collegesailing';
 Conf::$FLICKR_ID = null;
 ?>

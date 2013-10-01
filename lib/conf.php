@@ -154,11 +154,6 @@ class Conf {
    * @var filepath the path to the bundle file (if any)
    */
   public static $HTTP_CERTCHAINPATH = null;
-  /**
-   * @var String the Google Custom Search ID. If non-null, the Google
-   * Custom Search script will be added to the public pages
-   */
-  public static $GCSE_ID = null;
   // ------------------------------------------------------------
   // Cron settings
   // ------------------------------------------------------------

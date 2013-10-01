@@ -175,10 +175,6 @@ class TPublicPage extends XPage {
       }
     }
 
-    // Google search
-    if (Conf::$GCSE_ID !== null)
-      $this->head->add(new XScript('text/javascript', sprintf('//www.google.com/cse/cse.js?cx=%s', Conf::$GCSE_ID), null, array('async'=>'true')));
-
     // Navigation
     $this->body->add(new XDiv(array('class'=>'nav'),
                               array(new XH3("Navigate"),
@@ -206,8 +202,10 @@ class TPublicPage extends XPage {
       $sc->add(new XA(sprintf('//www.flickr.com/photos/%s', Conf::$FLICKR_NAME), new XImg('/inc/img/flickr.png', "Flickr")));
     }
 
-    if (Conf::$GCSE_ID !== null)
+    if (DB::g(STN::GCSE_ID) !== null) {
+      $this->head->add(new XScript('text/javascript', sprintf('//www.google.com/cse/cse.js?cx=%s', DB::g(STN::GCSE_ID)), null, array('async'=>'true')));
       $sw->add(new XDiv(array('class'=>'gcse-search')));
+    }
 
     $div->add(new XDiv(array('id'=>'menu-wrapper'),
                        array(new XH3("Menu", array('class'=>'nav')),
