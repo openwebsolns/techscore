@@ -255,9 +255,9 @@ class DB extends DBM {
 
     $segments = array();
     foreach ($parts as $mime => $part) {
-      $segment = sprintf("Content-Type: %s\r\n", $mime);
-      $segment .= "Content-Transfer-Encoding: quoted-printable\r\n";
-      $segment .= "\r\n";
+      $segment = sprintf("Content-Type: %s\n", $mime);
+      $segment .= "Content-Transfer-Encoding: quoted-printable\n";
+      $segment .= "\n";
       $segment .= quoted_printable_encode($part);
       $segments[] = $segment;
     }
@@ -274,10 +274,10 @@ class DB extends DBM {
       }
     }
 
-    $headers = sprintf("From: %s\r\nMIME-Version: 1.0\r\nContent-Type: multipart/alternative; boundary=%s\r\n", Conf::$TS_FROM_MAIL, $bdry);
-    $body = "This is a message with multiple parts in MIME format.\r\n";
+    $headers = sprintf("From: %s\nMIME-Version: 1.0\nContent-Type: multipart/alternative; boundary=%s\n", Conf::$TS_FROM_MAIL, $bdry);
+    $body = "This is a message with multiple parts in MIME format.\n";
     foreach ($segments as $segment)
-      $body .= sprintf("--%s\r\n%s\r\n", $bdry, $segment);
+      $body .= sprintf("--%s\n%s\n", $bdry, $segment);
     $body .= sprintf("--%s--", $bdry);
 
     if (!is_array($to))
