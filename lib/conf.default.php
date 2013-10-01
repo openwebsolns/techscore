@@ -48,7 +48,4 @@ Conf::$WRITERS = array('LocalHtmlWriter.php');
 //Conf::$REGATTA_SCORING_BLACKLIST = array('standard', 'combined');
 
 Conf::$LOCK_FILENAME = 'ts-pub.lock';
-
-Conf::$FLICKR_NAME = 'collegesailing';
-Conf::$FLICKR_ID = null;
 ?>

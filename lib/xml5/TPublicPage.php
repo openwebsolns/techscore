@@ -198,8 +198,8 @@ class TPublicPage extends XPage {
       $this->head->add(new XMeta('twitter:site', '@' . DB::g(STN::TWITTER)));
     }
 
-    if (Conf::$FLICKR_NAME !== null) {
-      $sc->add(new XA(sprintf('//www.flickr.com/photos/%s', Conf::$FLICKR_NAME), new XImg('/inc/img/flickr.png', "Flickr")));
+    if (DB::g(STN::FLICKR_NAME) !== null) {
+      $sc->add(new XA(sprintf('//www.flickr.com/photos/%s', DB::g(STN::FLICKR_NAME)), new XImg('/inc/img/flickr.png', "Flickr")));
     }
 
     if (DB::g(STN::GCSE_ID) !== null) {
