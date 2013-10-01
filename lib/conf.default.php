@@ -38,9 +38,6 @@ Conf::$WRITERS = array('LocalHtmlWriter.php');
 // Conf::$COACH_API_URL = '';
 // Conf::$SCHOOL_API_URL = '';
 
-Conf::$FACEBOOK = 'collegesailing';
-Conf::$FACEBOOK_APP_ID = null;
-
 Conf::$TWITTER = 'collegesailing';
 
 // Update all in order to tweet

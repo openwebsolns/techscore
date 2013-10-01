@@ -194,8 +194,8 @@ class TPublicPage extends XPage {
                        array(new XDiv(array('id'=>'last_updated'), array(date('M j, Y @ H:i:s'))),
                              $sc = new XDiv(array('id'=>'social')),
                              $sw = new XDiv(array('id'=>'search-wrapper')))));
-    if (Conf::$FACEBOOK !== null)
-      $sc->add(new XA(sprintf('http://www.facebook.com/%s', Conf::$FACEBOOK), new XImg('/inc/img/fb.png', "FB")));
+    if (DB::g(STN::FACEBOOK) !== null)
+      $sc->add(new XA(sprintf('http://www.facebook.com/%s', DB::g(STN::FACEBOOK)), new XImg('/inc/img/fb.png', "FB")));
 
     if (Conf::$TWITTER !== null) {
       $sc->add(new XA(sprintf('http://www.twitter.com/%s', Conf::$TWITTER), new XImg('/inc/img/tw.png', "Twitter")));
@@ -244,7 +244,7 @@ class TPublicPage extends XPage {
       if ($this->add_social_plugins) {
         $td = new XTD(array('id'=>'social-wrapper', 'colspan'=>2));
         $has_social = false;
-        if (Conf::$FACEBOOK_APP_ID !== null && $this->facebook_like !== null) {
+        if (DB::g(STN::FACEBOOK_APP_ID) !== null && $this->facebook_like !== null) {
           $has_social = true;
           $td->add(new XDiv(array('id'=>'fb-wrapper'),
                             array(new XDiv(array('id'=>'fb-root')),
@@ -255,7 +255,7 @@ class TPublicPage extends XPage {
                                                  'data-show-faces'=>'false',
                                                  'data-send'=>'false')))));
         
-          $this->head->add($scr = new XScript('text/javascript', sprintf('//connect.facebook.net/en_US/all.js#xfbml=1&appId=%s', Conf::$FACEBOOK_APP_ID), null, array('async'=>'true')));
+          $this->head->add($scr = new XScript('text/javascript', sprintf('//connect.facebook.net/en_US/all.js#xfbml=1&appId=%s', DB::g(STN::FACEBOOK_APP_ID)), null, array('async'=>'true')));
           $scr->set('id', 'facebook-jssdk');
         }
         if (Conf::$TWITTER !== null) {

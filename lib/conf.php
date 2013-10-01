@@ -43,14 +43,6 @@ class Conf {
    */
   public static $ICSA_HOME = 'http://www.collegesailing.org';
   /**
-   * @var String the Facebook account name
-   */
-  public static $FACEBOOK = null;
-  /**
-   * @var String the Facebook App ID
-   */
-  public static $FACEBOOK_APP_ID = null;
-  /**
    * @var String the Twitter handle (sans @)
    */
   public static $TWITTER = null;
