@@ -195,12 +195,13 @@ class SummaryPane extends AbstractPane {
     // text/html
     require_once('xml5/TEmailPage.php');
     $body = new TEmailPage($this->REGATTA->name . " Summary");
-    $body->head->add(new XStyle('text/css', '#header{text-align:center;margin-bottom:3ex}h1,h3{margin-bottom:1ex;}table{border-collapse:collapse;border:1px solid #ccc;}th,td{border:1px solid #ccc;}'));
+    $body->head->add(new XStyle('text/css', 'html{font-family:Georgia,serif;}#header{text-align:center;margin-bottom:3ex;}h1,h3{margin:0.5ex 0;}h1{font-family:Arial,Helvetica,sans-serif;font-variant:small-caps;font-size:160%;}h3{font-size:110%;color:#48484A;}h2{font-size:120%;}table{margin:1ex auto;border-collapse:collapse;border:1px solid #ccc;}tr{border:1px solid #ccc;}thead{background:#EAE5D6;}th,td{padding:0.5ex;}.right{text-align:right;}'));
     $body->body->add(new XDiv(array('id'=>'header'),
                               array(new XH1($this->REGATTA->name),
                                     new XH3($this->REGATTA->type),
                                     new XH3($this->REGATTA->getDataScoring()),
-                                    new XH3($hostline))));
+                                    new XH3($hostline),
+                                    new XH3(new XA($url, "View full report")))));
 
     require_once('xml5/TSEditor.php');
     $DPE = new TSEditor();
@@ -429,7 +430,7 @@ class SummaryPane extends AbstractPane {
           break;
 
         $row = array(($r + 1),
-                     $rank->school->nick_name,
+                     new XTD(array('class'=>'right'), $rank->school->nick_name),
                      $rank->name);
         $tot = 0;
         foreach ($divisions as $div) {
@@ -439,12 +440,12 @@ class SummaryPane extends AbstractPane {
             $row[] = "";
           }
           else {
-            $row[] = $div_rank->score;
+            $row[] = new XTD(array('class'=>'right'), $div_rank->score);
             $row[] = (string)$div_rank->penalty;
             $tot += $div_rank->score;
           }
         }
-        $row[] = $tot;
+        $row[] = new XTD(array('class'=>'right'), new XStrong($tot));
         $table->addRow($row, array('class'=>'row'.($r % 2)));
       }
     }
