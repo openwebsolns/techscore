@@ -43,18 +43,6 @@ class Conf {
    */
   public static $ICSA_HOME = 'http://www.collegesailing.org';
   /**
-   * @var String the Twitter handle (sans @)
-   */
-  public static $TWITTER = null;
-  /**
-   * @var String needed secrets for the Twitter API
-   */
-  public static $TWITTER_CONSUMER_KEY = null;
-  public static $TWITTER_CONSUMER_SECRET = null;
-  public static $TWITTER_OAUTH_TOKEN = null;
-  public static $TWITTER_OAUTH_SECRET = null;
-
-  /**
    * @var String the account name
    */
   public static $FLICKR_NAME = null;

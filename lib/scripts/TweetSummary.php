@@ -22,10 +22,10 @@ class TweetSummary extends AbstractScript {
   }
 
   public function run($event) {
-    if (Conf::$TWITTER_CONSUMER_KEY === null ||
-        Conf::$TWITTER_CONSUMER_SECRET === null ||
-        Conf::$TWITTER_OAUTH_TOKEN === null ||
-        Conf::$TWITTER_OAUTH_SECRET === null) {
+    if (DB::g(STN::TWITTER_CONSUMER_KEY) === null ||
+        DB::g(STN::TWITTER_CONSUMER_SECRET) === null ||
+        DB::g(STN::TWITTER_OAUTH_TOKEN) === null ||
+        DB::g(STN::TWITTER_OAUTH_SECRET) === null) {
       self::errln("Twitter is not enabled.");
       return;
     }
@@ -44,10 +44,10 @@ class TweetSummary extends AbstractScript {
         $pre = "Tweet: ";
         require_once('twitter/TwitterWriter.php');
 
-        $writer = new TwitterWriter(Conf::$TWITTER_CONSUMER_KEY,
-                                    Conf::$TWITTER_CONSUMER_SECRET,
-                                    Conf::$TWITTER_OAUTH_TOKEN,
-                                    Conf::$TWITTER_OAUTH_SECRET);
+        $writer = new TwitterWriter(DB::g(STN::TWITTER_CONSUMER_KEY),
+                                    DB::g(STN::TWITTER_CONSUMER_SECRET),
+                                    DB::g(STN::TWITTER_OAUTH_TOKEN),
+                                    DB::g(STN::TWITTER_OAUTH_SECRET));
         $writer->tweet($mes);
       }
       self::errln($pre . $mes);

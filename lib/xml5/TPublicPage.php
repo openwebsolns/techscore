@@ -193,9 +193,9 @@ class TPublicPage extends XPage {
     if (DB::g(STN::FACEBOOK) !== null)
       $sc->add(new XA(sprintf('http://www.facebook.com/%s', DB::g(STN::FACEBOOK)), new XImg('/inc/img/fb.png', "FB")));
 
-    if (Conf::$TWITTER !== null) {
-      $sc->add(new XA(sprintf('http://www.twitter.com/%s', Conf::$TWITTER), new XImg('/inc/img/tw.png', "Twitter")));
-      $this->head->add(new XMeta('twitter:site', '@' . Conf::$TWITTER));
+    if (DB::g(STN::TWITTER) !== null) {
+      $sc->add(new XA(sprintf('http://www.twitter.com/%s', DB::g(STN::TWITTER)), new XImg('/inc/img/tw.png', "Twitter")));
+      $this->head->add(new XMeta('twitter:site', '@' . DB::g(STN::TWITTER)));
     }
 
     if (Conf::$FLICKR_NAME !== null) {
@@ -256,7 +256,7 @@ class TPublicPage extends XPage {
           $this->head->add($scr = new XScript('text/javascript', sprintf('//connect.facebook.net/en_US/all.js#xfbml=1&appId=%s', DB::g(STN::FACEBOOK_APP_ID)), null, array('async'=>'true')));
           $scr->set('id', 'facebook-jssdk');
         }
-        if (Conf::$TWITTER !== null) {
+        if (DB::g(STN::TWITTER) !== null) {
           $has_social = true;
           $td->add(new XDiv(array('id'=>'twitter-wrapper'), array(new XA('https://twitter.com/share', new XImg('/inc/img/tw.png', "Tweet"), array('class'=>'twitter-share-button', 'data-via'=>'ICSAscores')))));
           // data-hashtags
