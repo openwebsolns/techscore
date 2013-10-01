@@ -187,7 +187,7 @@ class SummaryPane extends AbstractPane {
     $body .= wordwrap(sprintf("This message sent by %s on behalf of %s.", Conf::$NAME, Conf::$USER), $W, " \r\n");
 
     foreach ($recips as $recip)
-      DB::mail($recip, $this->REGATTA->name, $body);
+      DB::mail($recip, $this->REGATTA->name, $body, false);
   }
 
   protected function centerInLine($str, $W) {

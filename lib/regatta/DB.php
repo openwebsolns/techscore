@@ -220,17 +220,20 @@ class DB extends DBM {
    * @param String $subject the subject
    * @param String $body the body of the message, will be wrapped to
    * 72 characters
+   * @param boolean $wrap whether to wrap message (default = true)
    * @return boolean the result, as returned by mail
    */
-  public static function mail($to, $subject, $body) {
+  public static function mail($to, $subject, $body, $wrap = true) {
     if (Conf::$DIVERT_MAIL !== null) {
       $body = "Message meant for $to\n\n" . $body;
       $to = Conf::$DIVERT_MAIL;
       $subject = 'DIVERTED: ' . $subject;
     }
+    if ($wrap)
+      $body = wordwrap($body, 72);
     return @mail($to,
                  $subject,
-                 wordwrap($body, 72),
+                 $body,
                  sprintf("From: %s\r\nContent-Type: text/plain; charset=utf8", Conf::$TS_FROM_MAIL));
   }
 
