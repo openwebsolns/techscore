@@ -279,13 +279,13 @@ class SummaryPane extends AbstractPane {
         $str .= sprintf('%' . $colwidths[$i + (2 * $j) + 1] . 's',
                         $colwidths[$i + (2 * $j) + 1] > 0 ? "P" : "") . $sep;
       }
-      $str .= sprintf('%' . $colwidths[count($colwidths) - 1] . 's', "TOT") . "\r\n";
+      $str .= sprintf('%' . $colwidths[count($colwidths) - 1] . 's', "TOT") . "\n";
 
       // ----------
       $str .= sprintf('%' . $prefix . 's', " ");
       for ($j = 0; $j < $rowwidth; $j++)
         $str .= "=";
-      $str .= "\r\n";
+      $str .= "\n";
 
       foreach ($table as $i => $row) {
         $str .= sprintf('%' . $prefix . 's', " ");
@@ -296,13 +296,13 @@ class SummaryPane extends AbstractPane {
           $fmt = '%' . $alignment[$j] . $colwidths[$j] . 's';
           $str .= sprintf($fmt, $value);
         }
-        $str .= "\r\n";
+        $str .= "\n";
       }
       // ----------
       $str .= sprintf('%' . $prefix . 's', " ");
       for ($j = 0; $j < $rowwidth; $j++)
         $str .= "-";
-      $str .= "\r\n";
+      $str .= "\n";
       return $str;
     }
     else {
@@ -352,13 +352,13 @@ class SummaryPane extends AbstractPane {
       $str .= sprintf('%' . ($span - $pad - 1) . 's', "") . $sep;
       $str .= sprintf('%' . $colwidths[3] . 's', "W") . $sep;
       $str .= sprintf('%' . $colwidths[4] . 's', "-") . $sep;
-      $str .= sprintf('%' . $colwidths[5] . 's', "L") . "\r\n";
+      $str .= sprintf('%' . $colwidths[5] . 's', "L") . "\n";
 
       // ----------
       $str .= sprintf('%' . $prefix . 's', " ");
       for ($j = 0; $j < $rowwidth; $j++)
         $str .= "=";
-      $str .= "\r\n";
+      $str .= "\n";
 
       foreach ($table as $i => $row) {
         $str .= sprintf('%' . $prefix . 's', " ");
@@ -369,13 +369,13 @@ class SummaryPane extends AbstractPane {
           $fmt = '%' . $alignment[$j] . $colwidths[$j] . 's';
           $str .= sprintf($fmt, $value);
         }
-        $str .= "\r\n";
+        $str .= "\n";
       }
       // ----------
       $str .= sprintf('%' . $prefix . 's', " ");
       for ($j = 0; $j < $rowwidth; $j++)
         $str .= "-";
-      $str .= "\r\n";
+      $str .= "\n";
       return $str;
     }
   }
