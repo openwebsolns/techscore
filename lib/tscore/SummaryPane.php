@@ -197,15 +197,15 @@ class SummaryPane extends AbstractPane {
     $body = new TEmailPage($this->REGATTA->name . " Summary");
     $body->body->add(new XDiv(array('id'=>'regatta-header'),
                               array(new XH1($this->REGATTA->name),
-                                    new XH2($this->REGATTA->type),
-                                    new XH2($this->REGATTA->getDataScoring()),
-                                    new XH2($hostline))));
+                                    new XH3($this->REGATTA->type),
+                                    new XH3($this->REGATTA->getDataScoring()),
+                                    new XH3($hostline))));
 
     require_once('xml5/TSEditor.php');
     $DPE = new TSEditor();
     $DPE->parse((string)$summ);
     $body->body->add(new XDiv(array('id'=>'summary'),
-                              array(new XH3($summ->summary_date->format('l, F j')),
+                              array(new XH2($summ->summary_date->format('l, F j')),
                                     new XRawText($DPE->toXML()))));
 
     if ($this->REGATTA->hasFinishes()) {
@@ -417,8 +417,10 @@ class SummaryPane extends AbstractPane {
 
     if ($this->REGATTA->scoring != Regatta::SCORING_TEAM) {
       $headers = array("#", "School", "Team");
-      foreach ($divisions as $div)
+      foreach ($divisions as $div) {
         $headers[] = $div;
+        $headers[] = "";
+      }
       $headers[] = "TOT";
       $table = new XQuickTable(array('class'=>'results'), $headers);
       foreach ($ranks as $r => $rank) {
@@ -432,7 +434,7 @@ class SummaryPane extends AbstractPane {
         foreach ($divisions as $div) {
           $div_rank = $rank->getRank($div);
           if ($div_rank === null) {
-            $row[] = " "; // to account for header and leaderstar
+            $row[] = "";
             $row[] = "";
           }
           else {
