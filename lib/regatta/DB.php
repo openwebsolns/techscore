@@ -739,13 +739,25 @@ class DB extends DBM {
   // ------------------------------------------------------------
 
   public static function getSetting($key) {
-    $res = DB::get(DB::$SETTING, $key);
-    if ($res === null)
-      return null;
-    return $res->value;
+    $attrs = self::getSettingNames();
+    if (!in_array($key, $attrs))
+      throw new InvalidArgumentException("Invalid setting $key.");
+    if (!array_key_exists($key, self::$settings)) {
+      self::$settings[$key] = null;
+      $res = DB::get(DB::$SETTING, $key);
+      if ($res !== null && $res->value !== null)
+        self::$settings[$key] = $res->value;
+    }
+    return self::$settings[$key];
   }
 
   public static function setSetting($key, $value) {
+    $attrs = self::getSettingNames();
+    if (!in_array($key, $attrs))
+      throw new InvalidArgumentException("Invalid setting $key.");
+    if ($value !== null)
+      $value = (string)$value;
+
     $res = DB::get(DB::$SETTING, $key);
     $upd = true;
     if ($res === null) {
@@ -755,7 +767,18 @@ class DB extends DBM {
     }
     $res->value = $value;
     DB::set($res, $upd);
+    self::$settings[$key] = $value;
   }
+
+  private static function getSettingNames() {
+    if (self::$setting_names === null) {
+      $r = new ReflectionClass(DB::$SETTING);
+      self::$setting_names = $r->getConstants();
+    }
+    return self::$setting_names;
+  }
+  private static $settings = array();
+  private static $setting_names;
 
   // ------------------------------------------------------------
   // Tweet
