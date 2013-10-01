@@ -103,13 +103,15 @@ class FItem extends XDiv {
    * @param mixed $message any possible child of XDiv
    * @param mixed $form_input ditto.
    */
-  public function __construct($message, $form_input) {
+  public function __construct($message, $form_input, $expl = null) {
     parent::__construct(array('class'=>'form_entry'));
     if (is_string($message))
       $this->add(new XSpan($message, array('class'=>'form_h')));
     else
       $this->add($message);
     $this->add($form_input);
+    if ($expl !== null)
+      $this->add(new XMessage($expl));
   }
 }
 

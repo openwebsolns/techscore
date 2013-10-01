@@ -770,7 +770,7 @@ class DB extends DBM {
     self::$settings[$key] = $value;
   }
 
-  private static function getSettingNames() {
+  public static function getSettingNames() {
     if (self::$setting_names === null) {
       $r = new ReflectionClass(DB::$SETTING);
       self::$setting_names = $r->getConstants();
@@ -3089,6 +3089,19 @@ class Role_Permission extends DBObject {
 class Setting extends DBObject {
   const TWITTER_URL_LENGTH = 'twitter_url_length';
   const SEND_MAIL = 'send_mail';
+
+  const GCSE_ID = 'gcse_id';
+  const FACEBOOK = 'facebook';
+  const FACEBOOK_APP_ID = 'facebook_app_id';
+  const TWITTER = 'twitter';
+  const TWITTER_CONSUMER_KEY = 'twitter_consumer_key';
+  const TWITTER_CONSUMER_SECRET = 'twitter_consumer_secret';
+  const TWITTER_OAUTH_TOKEN = 'twitter_oauth_token';
+  const TWITTER_OAUTH_SECRET = 'twitter_oauth_secret';
+  const USERVOICE_ID = 'uservoice_id';
+  const USERVOICE_FORUM = 'uservoice_forum';
+  const FLICKR_NAME = 'flickr_name';
+  const FLICKR_ID = 'flickr_id';
 
   public $value;
   protected function db_cache() { return true; }
