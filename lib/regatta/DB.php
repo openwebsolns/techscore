@@ -235,7 +235,7 @@ class DB extends DBM {
     if (!is_array($to))
       $to = array($to);
 
-    $res = false;
+    $res = true;
     foreach ($to as $recipient)
       $res = $res && @mail($to,
                           $subject,
