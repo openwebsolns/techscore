@@ -170,9 +170,9 @@ class SummaryPane extends AbstractPane {
       $body .= "-";
     $body .= "\n";
     $body .= "\n";
-    $paras = explode("\n\n", $summ);
+    $paras = explode("\r\n\r\n", $summ);
     foreach ($paras as $para)
-      $body .= wordwrap($para, $W, " \n") . "\n\n";
+      $body .= wordwrap(preg_replace('/\s+/', ' ', $para), $W, " \n") . "\n\n";
 
     $body .= "\n";
     $body .= sprintf("Top %d\n", min(5, count($this->REGATTA->getTeams())));
@@ -196,7 +196,7 @@ class SummaryPane extends AbstractPane {
     require_once('xml5/TEmailPage.php');
     $body = new TEmailPage($this->REGATTA->name . " Summary");
 
-    $body->body->set('style', 'font-family:Georgia,serif;');
+    $body->body->set('style', 'font-family:Georgia,serif;max-width:50em;margin:0 auto;');
     $h1args = array('style'=>'margin:0.5ex 0;font-family:Arial,Helvetica,sans-serif;font-variant:small-caps;font-size:160%;');
     $h2args = array('style'=>'font-size:120%;');
     $h3args = array('style'=>'margin:0.5ex 0;font-size:110%;color:#48484A;');
@@ -256,9 +256,7 @@ class SummaryPane extends AbstractPane {
         if ($r >= 5)
           break;
 
-        $row = array(($r + 1),
-                     $rank->school->nick_name,
-                     $rank->name);
+        $row = array(($r + 1), $rank);
         $tot = 0;
         foreach ($divisions as $div) {
           $div_rank = $rank->getRank($div);
@@ -282,7 +280,7 @@ class SummaryPane extends AbstractPane {
         $colwidths[count($colwidths) - 1] = 3;
 
       // Alignment
-      $alignment = array("", "", "-");
+      $alignment = array("", "-");
       foreach ($divisions as $div) {
         $alignment[] = "";
         $alignment[] = "-";
@@ -310,11 +308,8 @@ class SummaryPane extends AbstractPane {
       // Headers
       $str .= sprintf('%' . $prefix . 's', "");
       $str .= sprintf('%' . $colwidths[0] . 's', "#") . $sep;
-      $span = ($colwidths[1] + $colwidths[2] + $sep);
-      $pad = floor(($span + 4) / 2);
-      $str .= sprintf('%' . $pad . 's', "") . "Team";
-      $str .= sprintf('%' . ($span - $pad - 1) . 's', "") . $sep;
-      $i = 3;
+      $str .= sprintf('%-' . $colwidths[1] . 's', "Team") . $sep;
+      $i = 2;
       foreach ($divisions as $j => $div) {
         $str .= sprintf('%' . $colwidths[$i + (2 * $j)] . 's', $div) . $sep;
         $str .= sprintf('%' . $colwidths[$i + (2 * $j) + 1] . 's',
@@ -355,8 +350,7 @@ class SummaryPane extends AbstractPane {
           break;
 
         $row = array($rank->dt_rank,
-                     $rank->school->nick_name,
-                     $rank->name,
+                     $rank,
                      (int)$rank->dt_wins,
                      "-",
                      (int)$rank->dt_losses);
@@ -365,7 +359,7 @@ class SummaryPane extends AbstractPane {
       }
 
       // Alignment
-      $alignment = array("", "", "-", "", "", "-");
+      $alignment = array("", "-", "", "", "-");
 
       // Column separator
       $sep = "    ";
@@ -387,13 +381,10 @@ class SummaryPane extends AbstractPane {
       // Headers
       $str .= sprintf('%' . $prefix . 's', "");
       $str .= sprintf('%' . $colwidths[0] . 's', "#") . $sep;
-      $span = ($colwidths[1] + $colwidths[2] + $sep);
-      $pad = floor(($span + 4) / 2);
-      $str .= sprintf('%' . $pad . 's', "") . "Team";
-      $str .= sprintf('%' . ($span - $pad - 1) . 's', "") . $sep;
-      $str .= sprintf('%' . $colwidths[3] . 's', "W") . $sep;
-      $str .= sprintf('%' . $colwidths[4] . 's', "-") . $sep;
-      $str .= sprintf('%' . $colwidths[5] . 's', "L") . "\n";
+      $str .= sprintf('%-' . $colwidths[1] . 's', "Team") . $sep;
+      $str .= sprintf('%' . $colwidths[2] . 's', "W") . $sep;
+      $str .= sprintf('%' . $colwidths[3] . 's', "-") . $sep;
+      $str .= sprintf('%' . $colwidths[4] . 's', "L") . "\n";
 
       // ----------
       $str .= sprintf('%' . $prefix . 's', " ");
@@ -431,7 +422,7 @@ class SummaryPane extends AbstractPane {
     $ranks = $this->REGATTA->getRankedTeams();
 
     if ($this->REGATTA->scoring != Regatta::SCORING_TEAM) {
-      $headers = array("#", "School", "Team");
+      $headers = array("#", "Team");
       foreach ($divisions as $div) {
         $headers[] = $div;
         $headers[] = "";
@@ -444,8 +435,7 @@ class SummaryPane extends AbstractPane {
           break;
 
         $row = array(new XTD($tdArgs, ($r + 1)),
-                     new XTD($tdRight, $rank->school->nick_name),
-                     new XTD($tdArgs, $rank->name));
+                     new XTD($tdArgs, $rank));
         $tot = 0;
         foreach ($divisions as $div) {
           $div_rank = $rank->getRank($div);
@@ -468,14 +458,13 @@ class SummaryPane extends AbstractPane {
       // Team
       // ------------------------------------------------------------
       $table = new XQuickTable(array('style'=>'margin:1ex auto;border-collapse:collapse;border:1px solid #ccc;'),
-                               array("#", "School", "Team", "Win", "Loss"));
+                               array("#", "Team", "Win", "Loss"));
       foreach ($ranks as $r => $rank) {
         if ($r >= 5)
           break;
 
         $table->addRow(array($rank->dt_rank,
-                             new XTD($tdRight, $rank->school->nick_name),
-                             new XTD($tdArgs, $rank->name),
+                             new XTD($tdArgs, $rank),
                              new XTD($tdRight, (int)$rank->dt_wins),
                              new XTD($tdArgs, (int)$rank->dt_losses)),
                        $trArgs);
