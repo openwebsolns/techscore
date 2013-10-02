@@ -237,10 +237,10 @@ class DB extends DBM {
 
     $res = true;
     foreach ($to as $recipient)
-      $res = $res && @mail($to,
-                          $subject,
-                          $body,
-                          sprintf("From: %s\r\nContent-Type: text/plain; charset=utf8", Conf::$TS_FROM_MAIL));
+      $res = $res && @mail($recipient,
+                           $subject,
+                           $body,
+                           sprintf("From: %s\r\nContent-Type: text/plain; charset=utf8", Conf::$TS_FROM_MAIL));
     return $res;
   }
 
