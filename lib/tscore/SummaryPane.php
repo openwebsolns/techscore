@@ -59,9 +59,10 @@ class SummaryPane extends AbstractPane {
 
     // Which day's summary?
     $s = clone($this->REGATTA->start_time);
-    $s->setTime(0, 0);
+    $s->setTime(0, 0, 0);
     $e = clone($this->REGATTA->end_date);
     $e->setTime(23, 59, 59);
+    
     $day = DB::$V->incDate($args, 'day', $s, $e, null);
     if ($day === null) {
       $now = clone(DB::$NOW);
@@ -90,9 +91,9 @@ class SummaryPane extends AbstractPane {
     $day = $day->format('Y-m-d');
     for ($i = 0; $i < $duration; $i++) {
       if ($s->format('Y-m-d') == $day)
-        $prog->add(new XSpan($s->format('l, F j')));
+        $prog->add(new XSpan($s->format('l, F j, Y')));
       else {
-        $prog->add($sub = new XSubmitInput('day', $s->format('l, F j')));
+        $prog->add($sub = new XSubmitInput('day', $s->format('l, F j, Y')));
       }
       $s->add(new DateInterval('P1DT0H'));
     }
