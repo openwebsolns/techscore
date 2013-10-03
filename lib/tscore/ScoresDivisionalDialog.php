@@ -100,10 +100,10 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
 
     $row = 0;
     foreach ($ranks as $tID => $rank) {
-      $ln = $rank->school->name;
+      $ln = new XSpan($rank->school->name, array('itemprop'=>'name'));
       if ($link_schools !== false)
-        $ln = new XA(sprintf('/schools/%s/%s/', $rank->school->id, $this->REGATTA->getSeason()), $ln);
-      $tab->add($r = new XTR(array('class'=>'row' . ($row++ % 2)),
+        $ln = new XA(sprintf('/schools/%s/%s/', $rank->school->id, $this->REGATTA->getSeason()), $ln, array('itemprop'=>'url'));
+      $tab->add($r = new XTR(array('class'=>'row' . ($row++ % 2), 'itemscope'=>'itemscope', 'itemtype'=>'http://schema.org/CollegeOrUniversity', 'itemprop'=>'attendee'),
                              array(new XTD(array('title'=>$rank->dt_explanation, 'class'=>'tiebreaker'),
                                            $tiebreakers[$rank->dt_explanation]),
                                    new XTD(array(), $tID + 1),
@@ -112,7 +112,7 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
                                    new XTD(array('class'=>'left'), $rank->getQualifiedName()))));
       if ($rank->school->burgee !== null) {
         $url = sprintf('/inc/img/schools/%s.png', $rank->school->id);
-        $bc->add(new XImg($url, $rank->school->id, array('height'=>'30')));
+        $bc->add(new XImg($url, $rank->school->id, array('height'=>'30', 'itemprop'=>'image')));
       }
 
       $scoreTeam    = 0;
