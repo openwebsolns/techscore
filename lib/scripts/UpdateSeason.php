@@ -128,8 +128,7 @@ class UpdateSeason extends AbstractScript {
           $num_teams += count($teams);
 
           $link = new XA($reg->nick, $reg->name);
-          $path = realpath(sprintf('%s/../../html/inc/img/schools/%s.png', dirname(__FILE__), $wt->school->id));
-          $burg = ($path !== false) ?
+          $burg = ($wt->school->burgee !== null) ?
             new XImg(sprintf('/inc/img/schools/%s.png', $wt->school->id), $wt->school, array('height'=>40)) :
             $wt->school->nick_name;
           $rows[] = array($link,
@@ -204,8 +203,6 @@ class UpdateSeason extends AbstractScript {
    *
    */
   public function run(Season $season) {
-    $R = realpath(dirname(__FILE__).'/../../html');
-
     // Do season
     $dirname = "/$season/index.html";
     self::writeXml($dirname, $this->getPage($season));

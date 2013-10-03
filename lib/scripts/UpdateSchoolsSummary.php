@@ -45,8 +45,7 @@ class UpdateSchoolsSummary extends AbstractScript {
         $link = sprintf('/schools/%s', $school->id);
 
         $burg = "";
-        $path = sprintf('%s/../../html/inc/img/schools/%s.png', dirname(__FILE__), $school->id);
-        if (file_exists($path))
+        if ($school->burgee !== null)
           $burg = new XImg(sprintf('/inc/img/schools/%s.png', $school->id), $school->id, array('height'=>40));
 
         $tab->addRow(array(new XTD(array('class'=>'burgeecell'), $burg),
