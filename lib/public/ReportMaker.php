@@ -319,6 +319,9 @@ class ReportMaker {
     $page->addMetaKeyword('results');
     $page->addSocialPlugins(true);
 
+    $page->body->set('itemscope', 'itemscope');
+    $page->body->set('itemtype', 'http://schema.org/SportsEvent');
+
     // Menu
     // Links to season
     $season = $reg->getSeason();
@@ -336,7 +339,7 @@ class ReportMaker {
     $page->setFacebookLike($page_url);
     $opengraph = array('url'=>$page_url, 'type'=>'event', 'og:event:start_time'=>$reg->start_time->format('Y-m-d\TH:iP'));
 
-    $page->addMenu(new XA($url, "Report"));
+    $page->addMenu(new XA($url, "Report", array('itemprop'=>'url')));
     if ($reg->hasFinishes()) {
       $page->addMenu(new XA($url.'full-scores/', "Full Scores"));
       if (!$reg->isSingleHanded()) {
@@ -390,12 +393,14 @@ class ReportMaker {
     foreach ($reg->getBoats() as $boat)
       $boats[] = (string)$boat;
 
-    $table = array("Host" => implode("/", $schools),
-                   "Date" => $date,
-                   "Type" => $type,
+    $table = array("Host" => new XSpan(implode("/", $schools), array('itemprop'=>'location')),
+                   "Date" => new XElem('time', array('datetime'=>$reg->start_time->format('Y-m-d\TH:i'),
+                                                     'itemprop'=>'startDate'),
+                                       array(new XText($date))),
+                   "Type" => new XSpan($type, array('itemprop'=>'description')),
                    "Boat" => implode("/", $boats),
                    "Scoring" => $reg->getDataScoring());
-    $page->setHeader($reg->name, $table);
+    $page->setHeader($reg->name, $table, array('itemprop'=>'name'));
   }
 
   /**
