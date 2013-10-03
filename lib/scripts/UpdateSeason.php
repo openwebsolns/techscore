@@ -35,6 +35,9 @@ class UpdateSeason extends AbstractScript {
     $weeks = array();
     $regattas = $season->getRegattas();
     foreach ($regattas as $reg) {
+      if ($reg->dt_num_divisions === null)
+        continue;
+
       $week = $reg->start_time->format('W') - $first_week + 1;
       if ($week <= 0)
         $week = "Preweek " . (1 - $week);
