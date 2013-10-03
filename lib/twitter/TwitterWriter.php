@@ -168,7 +168,7 @@ class TwitterWriter {
     curl_close($ch);
     $obj = json_decode($output, true);
     if (isset($obj['errors']))
-      throw new TwitterException(sprintf("%s: %s", $obj['errors'][0]['code'], $obj['errors'][0]['message']));
+      throw new TwitterException(sprintf("%s: %s (%s)", $obj['errors'][0]['code'], $obj['errors'][0]['message'], $status));
     return $obj;
   }
 }
