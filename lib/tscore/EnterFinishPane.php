@@ -58,7 +58,10 @@ class EnterFinishPane extends AbstractPane {
       $form->add(new FItem("Race:", $sel = new XSelect('race')));
       $scored = array();
       $unscored = array();
-      foreach ($this->REGATTA->getRaces() as $other) {
+      $races = ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ?
+        $this->REGATTA->getRaces() :
+        $this->REGATTA->getRaces(Division::A());
+      foreach ($races as $other) {
         if ($this->REGATTA->hasFinishes($other))
           $scored[] = new XOption($other, array(), $other);
         else
