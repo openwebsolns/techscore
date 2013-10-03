@@ -13,7 +13,7 @@ require_once(dirname(__FILE__).'/DPEditor.php');
  */
 class TSEditor extends DPEditor {
   protected function preParse($inp) {
-    $inp = preg_replace('@[^({a:)] *(https?://[^\s]+)@', '{a:$1}', $inp);
+    $inp = preg_replace('@([^({a:)] *)(https?://[^\s]+)@', '$1{a:$2}', $inp);
     return $inp;
   }
 }
