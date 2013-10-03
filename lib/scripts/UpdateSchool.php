@@ -248,7 +248,7 @@ class UpdateSchool extends AbstractScript {
                            ($reg->finalized === null) ? "Pending" : new XStrong("Official"),
                            $this->getPlaces($reg, $school)),
                      array('class' => sprintf('row' . ($row % 2)),
-                           'itemprop'=>'Event',
+                           'itemprop'=>'event',
                            'itemscope'=>'itemscope',
                            'itemtype'=>'http://schema.org/SportsEvent'));
       }
