@@ -3148,7 +3148,7 @@ class Pub_Regatta_Url extends DBObject {
 
   public function db_type($field) {
     if ($field == 'regatta')
-      return DB::$REGATTA;
+      return DB::$FULL_REGATTA;
     return parent::db_type($field);
   }
 }
