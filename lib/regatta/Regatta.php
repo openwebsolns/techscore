@@ -1788,6 +1788,98 @@ class FullRegatta extends DBObject {
   }
 
   // ------------------------------------------------------------
+  // Public URL cache
+  // ------------------------------------------------------------
+
+  private $url_cache;
+
+  /**
+   * Retrieves URLs from saved cache
+   *
+   * @return Array:String the "relative" URLs
+   */
+  public function getPublicPages() {
+    if ($this->url_cache === null) {
+      $this->url_cache = array();
+      foreach (DB::getAll(DB::$PUB_REGATTA_URL, new DBCond('regatta', $this->id)) as $url)
+        $this->url_cache[] = $url->url;
+    }
+    return $this->url_cache;
+  }
+
+  /**
+   * Stores the given list of URLs in cache
+   *
+   * @param Array:String $urls the list of "relative" URLs
+   * @see calculatePublicPages
+   */
+  public function setPublicPages(Array $urls) {
+    $objs = array();
+    $this->url_cache = array();
+    foreach ($urls as $url) {
+      $obj = new Pub_Regatta_Url();
+      $obj->regatta = $this;
+      $obj->url = $url;
+      $objs[] = $obj;
+      $this->url_cache[] = $url;
+    }
+    DB::removeAll(DB::$PUB_REGATTA_URL, new DBCond('regatta', $this->id));
+    if (count($objs) > 0)
+      DB::insertAll($objs);
+  }
+
+  /**
+   * Create list of URLs that should be used for this regatta.
+   *
+   * The list takes into consideration the state of the regatta for
+   * public viewing.
+   *
+   * @return Array:String $urls the appropriate "relative" URLs
+   */
+  public function calculatePublicPages() {
+    $list = array();
+    if ($this->private !== null)
+      return $list;
+
+    if ($this->dt_status === null)
+      $this->setData();
+
+    if ($this->dt_status == Regatta::STAT_SCHEDULED)
+      return $list;
+
+    $list[] = 'index.html';
+    $rotation = $this->getRotation();
+    if ($rotation->isAssigned())
+      $list[] = 'rotations/index.html';
+    if ($this->hasFinishes()) {
+      $list[] = 'full-scores/index.html';
+      if (count($this->getScoredRaces()) > 1)
+        $list[] = 'history.svg';
+      if ($this->scoring == Regatta::SCORING_STANDARD) {
+        if (!$this->isSingleHanded()) {
+          foreach ($this->getDivisions() as $div) {
+            $list[] = sprintf('%s/index.html', $div);
+            if (count($this->getScoredRaces($div)) > 1)
+              $list[] = sprintf('%s/history.svg', $div);
+          }
+        }
+      }
+        
+      elseif ($this->scoring == Regatta::SCORING_COMBINED) {
+        $list[] = 'divisions/index.html';
+      }
+    }
+      
+    if ($this->scoring == Regatta::SCORING_TEAM) {
+      if (count($this->getRaces()) > 0) {
+        $list[] = 'sailors/index.html';
+        $list[] = 'all/index.html';
+      }
+    }
+    return $list;
+  }
+
+  // ------------------------------------------------------------
   // Regatta creation
   // ------------------------------------------------------------
 

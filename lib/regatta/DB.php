@@ -54,6 +54,7 @@ class DB extends DBM {
   public static $REGATTA_ROTATION = null;
   public static $ROUND_SLAVE = null;
   public static $AA_REPORT = null;
+  public static $PUB_REGATTA_URL = null;
 
   public static $PERMISSION = null;
   public static $ROLE = null;
@@ -114,6 +115,7 @@ class DB extends DBM {
     self::$REGATTA_ROTATION = new Regatta_Rotation();
     self::$ROUND_SLAVE = new Round_Slave();
     self::$AA_REPORT = new AA_Report();
+    self::$PUB_REGATTA_URL = new Pub_Regatta_Url();
 
     self::$PERMISSION = new Permission();
     self::$ROLE = new Role();
@@ -3132,5 +3134,22 @@ class STN extends DBObject {
   public function db_name() { return 'setting'; }
   protected function db_cache() { return true; }
   public function __toString() { return $this->value; }
+}
+
+/**
+ * Cache of (local) URLs which have been serialized for a regatta
+ *
+ * @author Dayan Paez
+ * @version 2013-10-02
+ */
+class Pub_Regatta_Url extends DBObject {
+  protected $regatta;
+  public $url;
+
+  public function db_type($field) {
+    if ($field == 'regatta')
+      return DB::$REGATTA;
+    return parent::db_type($field);
+  }
 }
 ?>
