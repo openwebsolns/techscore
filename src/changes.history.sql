@@ -597,3 +597,4 @@ alter table type add column mail_lists text default null after rank;
 -- keep cache of URLs whcih exist for a given regatta
 create table pub_regatta_url (id int not null primary key auto_increment, regatta int(5) not null, url varchar(255) not null) engine=innodb;
 alter table pub_regatta_url add foreign key (regatta) references regatta(id) on delete cascade on update cascade;
+alter table pub_regatta_url change column url url text not null;

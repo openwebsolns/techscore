@@ -87,6 +87,39 @@ class UpdateRegatta extends AbstractScript {
   }
 
   /**
+   * Compare l ist of cached URLs to current ones
+   *
+   * Delete URLs that are no longer valid, and save the current
+   * ones. Returns list of affected URLs, indexed by the URL, with
+   * value indicating ADDED (true) or DELETED (false)
+   *
+   * @param FullRegatta $reg the regatta to save
+   * @return Array:String:boolean affected URLs
+   */
+  public function syncUrls(FullRegatta $reg) {
+    $actual = $reg->calculatePublicPages();
+    $saved = $reg->getPublicPages();
+
+    $affected = array();
+    $delete = array();
+    foreach ($saved as $url) {
+      if (!in_array($url, $actual)) {
+        $delete[] = $url;
+        $affected[$url] = false;
+      }
+    }
+    foreach ($actual as $url) {
+      if (!in_array($url, $saved)) {
+        $affected[$url] = true;
+      }
+    }
+    foreach ($delete as $url)
+      self::remove($url);
+    $reg->setPublicPages($actual);
+    return $affected;
+  }
+
+  /**
    * Updates the regatta's pages according to the activity
    * requested. Will not create scores page if no finishes are registered!
    *
@@ -94,36 +127,15 @@ class UpdateRegatta extends AbstractScript {
    * @param Array:UpdateRequest::Constant the activities to execute
    */
   public function run(FullRegatta $reg, Array $activities) {
+    $changed = $this->syncUrls($reg);
+
     if ($reg->private || $reg->inactive !== null) {
-      $this->runDelete($reg);
       return;
     }
 
     if ($reg->scoring == Regatta::SCORING_TEAM) {
-      $this->runTeamRacing($reg, $activities);
+      $this->runTeamRacing($reg, $activities, $changed);
       return;
-    }
-
-    // In order to maintain all the regatta pages in sync, it is
-    // necessary to first check what pages have been serialized
-    $has_dir = false;
-    $has_rotation = false;
-    $has_fullscore = false;
-    $has_combined = false;
-    $has_divs = array((string)Division::A() => false,
-                      (string)Division::B() => false,
-                      (string)Division::C() => false,
-                      (string)Division::D() => false);
-    $dir = sprintf('%s/html%s', dirname(dirname(dirname(__FILE__))), $reg->getURL());
-    if (is_dir($dir)) {
-      $has_dir = true;
-      if (is_dir($dir . '/rotations'))   $has_rotation = true;
-      if (is_dir($dir . '/full-scores')) $has_fullscore = true;
-      if (is_dir($dir . '/divisions'))   $has_combined = true;
-      foreach ($has_divs as $div => $val) {
-        if (is_dir($dir . '/' . $div))
-          $has_divs[$div] = true;
-      }
     }
 
     // Based on the list of activities, determine what files need to
@@ -138,33 +150,28 @@ class UpdateRegatta extends AbstractScript {
     $front = false;
     $full = false;
     $rot = $reg->getRotation();
-    if (in_array(UpdateRequest::ACTIVITY_ROTATION, $activities)) {
-      if ($rot->isAssigned()) {
-        $rotation = true;
 
-        // This check takes care of the fringe case when the rotation
-        // is created AFTER there are already scores, etc.
-        if (!$has_rotation) {
-          $front = true;
-          if ($reg->hasFinishes()) {
-            $full = true;
-            if (!$reg->isSingleHanded())
-              $divisions = true;
-          }
-        }
-      }
-      elseif ($has_rotation) {
-        // What if the rotation was removed?
-        $season = $reg->getSeason();
-        if ($season !== null && $reg->nick !== null)
-          self::remove($reg->getURL() . '/rotations/index.html');
-
+    // If any 'index.html' files were added or deleted, then all pages
+    // need to be regenerated, regardless of activity, because the
+    // page's menu will have changed.
+    foreach ($changed as $url => $action) {
+      if (strlen($url) > 11 && substr($url, -11) == '/index.html') {
+        self::errln(sprintf("URL $url changed, queueing all pages.", $url), 3);
         $front = true;
         if ($reg->hasFinishes()) {
           $full = true;
           if (!$reg->isSingleHanded())
             $divisions = true;
         }
+        if ($rot->isAssigned())
+          $rotation = true;
+        break;
+      }
+    }
+
+    if (in_array(UpdateRequest::ACTIVITY_ROTATION, $activities)) {
+      if ($rot->isAssigned()) {
+        $rotation = true;
       }
     }
     if (in_array(UpdateRequest::ACTIVITY_SCORE, $activities)) {
@@ -178,26 +185,6 @@ class UpdateRegatta extends AbstractScript {
         // this is redundant)
         if (!$reg->isSingleHanded())
           $divisions = true;
-
-        // Check for the case when this is the first time a score is
-        // entered, thus updating the rotation page as well
-        if (!$has_fullscore && $rot->isAssigned())
-          $rotation = true;
-      }
-      else {
-        // It is possible that all finishes were removed, therefore,
-        // delete all such directories, and regenerate rotation page
-        $rotation = true;
-        $season = $reg->getSeason();
-        if ($season !== null && $reg->nick !== null) {
-          $root = $reg->getURL();
-          self::remove($root . 'full-scores/index.html');
-          self::remove($root . 'A/index.html');
-          self::remove($root . 'B/index.html');
-          self::remove($root . 'C/index.html');
-          self::remove($root . 'D/index.html');
-          self::remove($root . 'divisions/index.html');
-        }
       }
     }
     if (in_array(UpdateRequest::ACTIVITY_RP, $activities)) {
@@ -238,24 +225,6 @@ class UpdateRegatta extends AbstractScript {
     }
 
     // ------------------------------------------------------------
-    // For sanity sake, check for "display confusion": the possibility
-    // that the current set of files reflects the expectation of a
-    // standard-scoring regatta when in fact we are combined, or vice
-    // versa. Any such evidence will result automatically in an update
-    // of all the necessary resources
-    // ------------------------------------------------------------
-    if (($reg->scoring == Regatta::SCORING_STANDARD && $has_combined) ||
-        ($reg->scoring == Regatta::SCORING_COMBINED && $has_divs['A'])) {
-      $front = true;
-      if ($reg->hasFinishes()) {
-        $full = true;
-        $divisions = true;
-      }
-      if ($rot->isAssigned())
-        $rotation = true;
-    }
-
-    // ------------------------------------------------------------
     // Perform the updates
     // ------------------------------------------------------------
     if ($sync)       $reg->setData();
@@ -270,16 +239,11 @@ class UpdateRegatta extends AbstractScript {
     if ($divisions) {
       $root = $reg->getURL();
       if ($reg->scoring == Regatta::SCORING_STANDARD) {
-        self::remove($root . 'divisions/index.html');
         foreach ($reg->getDivisions() as $div)
           $this->createDivision($D, $M, $div);
       }
       else {
         $this->createCombined($D, $M);
-        self::remove($root . 'A/index.html');
-        self::remove($root . 'B/index.html');
-        self::remove($root . 'C/index.html');
-        self::remove($root . 'D/index.html');
       }
     }
     if ($tweet_finalized) {
@@ -293,47 +257,44 @@ class UpdateRegatta extends AbstractScript {
    * Interpreter for team racing regattas
    *
    * No need to check if public, since parent performs check ahead of
-   * time.
+   * time. No need to sync URLs either, for the same reason. Hence,
+   * the third argument, which contains the changed URLs.
    */
-  private function runTeamRacing(FullRegatta $reg, Array $activities) {
-    $has_dir = false;
-    // "Rotation" tab always exists in team racing
-    $has_rotation = true;
-    $has_fullscore = false;
-    $has_sailors = false;
-    $dir = sprintf('%s/html%s', dirname(dirname(dirname(__FILE__))), $reg->getURL());
-    if (is_dir($dir)) {
-      $has_dir = true;
-      if (is_dir($dir . '/rotations'))   $has_rotation = true;
-      if (is_dir($dir . '/full-scores')) $has_fullscore = true;
-      if (is_dir($dir . '/sailors'))     $has_sailors = true;
-    }
-
+  private function runTeamRacing(FullRegatta $reg, Array $activities, Array $changed) {
     // Based on the list of activities, determine what files need to
     // be (re)serialized
     $sync = false;
     $sync_rp = false;
+
+    $tweet_finalized = false;
 
     $rotation = false;
     $allraces = false;
     $front = false;
     $full = false;
     $sailors = false;
-    $rot = $reg->getRotation();
+
+    // If any 'index.html' files were added or deleted, then all pages
+    // need to be regenerated, regardless of activity, because the
+    // page's menu will have changed.
+    foreach ($changed as $url => $action) {
+      if (strlen($url) > 11 && substr($url, -11) == '/index.html') {
+        self::errln(sprintf("URL $url changed, queueing all pages.", $url), 3);
+        $front = true;
+        $allraces = true;
+        $rotation = true;
+        if ($reg->hasFinishes()) {
+          $sailors = true;
+          $full = true;
+        }
+        break;
+      }
+    }
+
     if (in_array(UpdateRequest::ACTIVITY_ROTATION, $activities)) {
       $sync = true;
       $rotation = true;
       $allraces = true;
-
-      // This check takes care of the fringe case when the rotation
-      // is created AFTER there are already scores, etc.
-      if (!$has_rotation) {
-        $front = true;
-        $sailors = true;
-        if ($reg->hasFinishes()) {
-          $full = true;
-        }
-      }
     }
     if (in_array(UpdateRequest::ACTIVITY_SCORE, $activities)) {
       $sync = true;
@@ -343,20 +304,12 @@ class UpdateRegatta extends AbstractScript {
       if ($reg->hasFinishes()) {
         $full = true;
       }
-      else {
-        // It is possible that all finishes were removed, therefore,
-        // delete all such directories, and regenerate rotation page
-        $season = $reg->getSeason();
-        if ($season !== null && $reg->nick !== null) {
-          $root = $reg->getURL();
-          self::remove($root . 'full-scores/index.html');
-        }
-      }
     }
     if (in_array(UpdateRequest::ACTIVITY_RP, $activities)) {
       $sync_rp = true;
       $front = true;
-      $sailors = true;
+      if ($reg->hasFinishes())
+        $sailors = true;
     }
     if (in_array(UpdateRequest::ACTIVITY_SUMMARY, $activities)) {
       $front = true;
@@ -368,8 +321,8 @@ class UpdateRegatta extends AbstractScript {
       $front = true;
       $rotation = true;
       $allraces = true;
-      $sailors = true;
       if ($reg->hasFinishes()) {
+        $sailors = true;
         $full = true;
       }
     }
@@ -379,6 +332,7 @@ class UpdateRegatta extends AbstractScript {
       $front = true;
       $full = true;
       $sailors = true;
+      $tweet_finalized = true;
     }
     if (in_array(UpdateRequest::ACTIVITY_RANK, $activities)) {
       $sync = true;
@@ -401,6 +355,12 @@ class UpdateRegatta extends AbstractScript {
     if ($full)       $this->createFull($D, $M);
     if ($allraces)   $this->createAllRaces($D, $M);
     if ($sailors)    $this->createSailors($D, $M);
+
+    if ($tweet_finalized) {
+      require_once('twitter/TweetFactory.php');
+      $fac = new TweetFactory();
+      DB::tweet($fac->create(TweetFactory::FINALIZED_EVENT, $reg));
+    }
   }
 
   // ------------------------------------------------------------

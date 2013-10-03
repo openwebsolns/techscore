@@ -601,25 +601,6 @@ class FullRegatta extends DBObject {
   }
 
   /**
-   * Returns a sorted list of the race numbers common to all the
-   * divisions
-   *
-   * @param Array:Division the list of divisions
-   * @return Array:int the common race numbers
-   */
-  public function getCombinedRaces(Array $divs = null) {
-    $set = array();
-    if ($divs == null)
-      $divs = $this->getDivisions();
-    foreach ($this->getDivisions() as $div) {
-      foreach ($this->getRaces($div) as $race)
-        $set[$race->number] = $race->number;
-    }
-    usort($set);
-    return array_values($set);
-  }
-
-  /**
    * Adds the specified race to this regatta. Unlike in previous
    * versions, the user needs to specify the race number. As a result,
    * if the race already exists, the code will attempt to update the
@@ -784,12 +765,12 @@ class FullRegatta extends DBObject {
    * participating in.
    *
    * This is of particular interest to team race regattas. For fleet
-   * racing, this is equivalent to calling getCombinedRaces()
+   * racing, this is equivalent to calling getRaces()
    *
    * @param Team $team the team whose participation to retrieve
    * @param Division $div the specific division
    * @return Array:Race the races
-   * @see getCombinedRaces
+   * @see getRaces
    */
   public function getRacesForTeam(Division $div, Team $team) {
     $races = $this->getRaces($div);
@@ -1847,34 +1828,42 @@ class FullRegatta extends DBObject {
     if ($this->dt_status == Regatta::STAT_SCHEDULED)
       return $list;
 
-    $list[] = 'index.html';
-    $rotation = $this->getRotation();
-    if ($rotation->isAssigned())
-      $list[] = 'rotations/index.html';
+    $root = $this->getUrl();
+    $list[] = $root . 'index.html';
     if ($this->hasFinishes()) {
-      $list[] = 'full-scores/index.html';
-      if (count($this->getScoredRaces()) > 1)
-        $list[] = 'history.svg';
+      $list[] = $root . 'full-scores/index.html';
       if ($this->scoring == Regatta::SCORING_STANDARD) {
+        if (count($this->getScoredRaces()) > 1)
+          $list[] = $root . 'history.svg';
         if (!$this->isSingleHanded()) {
           foreach ($this->getDivisions() as $div) {
-            $list[] = sprintf('%s/index.html', $div);
+            $list[] = $root . sprintf('%s/index.html', $div);
             if (count($this->getScoredRaces($div)) > 1)
-              $list[] = sprintf('%s/history.svg', $div);
+              $list[] = $root . sprintf('%s/history.svg', $div);
           }
         }
       }
         
       elseif ($this->scoring == Regatta::SCORING_COMBINED) {
-        $list[] = 'divisions/index.html';
+        $list[] = $root . 'divisions/index.html';
+        if (count($this->getScoredRaces(Division::A())) > 1)
+          $list[] = $root . 'history.svg';
       }
+
+      elseif ($this->scoring == Regatta::SCORING_TEAM)
+        $list[] = $root . 'sailors/index.html';
     }
       
     if ($this->scoring == Regatta::SCORING_TEAM) {
       if (count($this->getRaces()) > 0) {
-        $list[] = 'sailors/index.html';
-        $list[] = 'all/index.html';
+        $list[] = $root . 'all/index.html';
+        $list[] = $root . 'rotations/index.html';
       }
+    }
+    else {
+      $rotation = $this->getRotation();
+      if ($rotation->isAssigned())
+        $list[] = $root . 'rotations/index.html';
     }
     return $list;
   }
