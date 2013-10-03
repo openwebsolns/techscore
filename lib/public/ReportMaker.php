@@ -277,8 +277,10 @@ class ReportMaker {
     require_once('tscore/TeamRegistrationsDialog.php');
     $maker = new TeamRegistrationsDialog($reg);
     $rounds = $reg->getScoredRounds();
-    if (count($rounds) == 0)
-      $this->sailorsPage->addSection(new XP(array('class'=>'notice'), "There are no scored races yet in this regatta."));
+    if (count($rounds) == 0) {
+      $this->sailorsPage->addSection($p = new XPort("Sailors"));
+      $p->add(new XP(array('class'=>'notice'), "There are no scored races yet in this regatta."));
+    }
     else {
       $this->sailorsPage->addSection(new XP(array('class'=>'notice'), "Note that only races that have been scored are shown."));
       foreach ($rounds as $round) {
@@ -362,7 +364,7 @@ class ReportMaker {
     $rot = $reg->getRotation();
     if ($rot->isAssigned() || $reg->scoring == Regatta::SCORING_TEAM)
       $page->addMenu(new XA($url.'rotations/', "Rotations"));
-    if ($reg->scoring == Regatta::SCORING_TEAM)
+    if ($reg->scoring == Regatta::SCORING_TEAM && $reg->hasFinishes())
       $page->addMenu(new XA($url.'sailors/', "Sailors"));
 
     // Regatta information
