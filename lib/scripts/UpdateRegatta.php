@@ -147,6 +147,7 @@ class UpdateRegatta extends AbstractScript {
 
     $rotation = false;
     $divisions = false;
+    $divisions_history = false;
     $front = false;
     $front_history = false;
     $full = false;
@@ -185,8 +186,10 @@ class UpdateRegatta extends AbstractScript {
 
         // Individual division scores (do not include if singlehanded as
         // this is redundant)
-        if (!$reg->isSingleHanded())
+        if (!$reg->isSingleHanded()) {
           $divisions = true;
+          $divisions_history = true;
+        }
       }
     }
     if (in_array(UpdateRequest::ACTIVITY_RP, $activities)) {
@@ -218,8 +221,10 @@ class UpdateRegatta extends AbstractScript {
 
         // Individual division scores (do not include if singlehanded as
         // this is redundant)
-        if (!$reg->isSingleHanded())
+        if (!$reg->isSingleHanded()) {
           $divisions = true;
+          $divisions_history = true;
+        }
       }
     }
     if (in_array(UpdateRequest::ACTIVITY_FINALIZED, $activities)) {
@@ -242,7 +247,6 @@ class UpdateRegatta extends AbstractScript {
     if ($front_history) $this->createFrontHistory($D, $reg);
     if ($full)       $this->createFull($D, $M);
     if ($divisions) {
-      $root = $reg->getURL();
       if ($reg->scoring == Regatta::SCORING_STANDARD) {
         foreach ($reg->getDivisions() as $div)
           $this->createDivision($D, $M, $div);
@@ -250,6 +254,11 @@ class UpdateRegatta extends AbstractScript {
       else {
         $this->createCombined($D, $M);
       }
+    }
+    if ($divisions_history && $reg->scoring == Regatta::SCORING_STANDARD) {
+      $root = $reg->getURL();
+      foreach ($reg->getDivisions() as $div)
+        $this->createDivisionHistory($D, $reg, $div);
     }
     if ($tweet_finalized) {
       require_once('twitter/TweetFactory.php');
@@ -425,6 +434,19 @@ class UpdateRegatta extends AbstractScript {
     $path = $dirname . $div . '/index.html';
     $page = $maker->getDivisionPage($div);
     self::writeXml($path, $page);
+  }
+
+  private function createDivisionHistory($dirname, FullRegatta $reg, Division $div) {
+    require_once('tscore/ScoresChartDialog.php');
+    $P = new ScoresChartDialog($reg, $div);
+    $cont = $P->getTable(true);
+    if (count($cont) == 0)
+      return;
+
+    $filename = $dirname . $div . '/history.svg';
+    $data = '<?xml version="1.0" encoding="UTF-8"?>
+' . $cont[0]->toXML();
+    self::writeFile($filename, $data);
   }
 
   /**
