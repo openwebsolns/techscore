@@ -112,6 +112,8 @@ class S3Writer extends AbstractWriter {
     if ($md5 !== null)
       $headers[] = sprintf('Content-MD5: %s', $md5);
     $headers[] = sprintf('Date: %s', $date);
+    if (substr($fname, -5) != '.html' && substr($fname, -4) != '.svg')
+      $headers[] = 'Cache-Control: no-cache, max-age=1209600';
 
     foreach ($extra_headers as $i => $header)
       $headers[] = $header;
