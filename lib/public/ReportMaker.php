@@ -99,18 +99,16 @@ class ReportMaker {
           $p->add($elem);
 
         // SVG history diagram
-        require_once('tscore/ScoresChartDialog.php');
-        $maker = new ScoresChartDialog($reg);
-        $elems = $maker->getTable(true);
-        if (count($elems) > 0) {
+        if (count($reg->getScoredRaces(($reg->scoring == Regatta::SCORING_COMBINED) ? Division::A() : null)) > 1) { 
           $this->page->addSection($p = new XPort("Score history"));
           $p->set('id', 'history-port');
           $p->add(new XDiv(array('id'=>'history-expl'),
                            array(new XP(array(), "The following chart shows the relative rank of the teams as of the race indicated. Note that the races are ordered by number, then division, which may not represent the order in which the races were actually sailed."),
                                  new XP(array(), "The first place team as of a given race will always be at the top of the chart. The spacing from one team to the next shows relative gains/losses made from one race to the next. You may hover over the data points to display the total score as of that race."))));
-          $p->add($sub = new XDiv(array('class'=>'chart-container')));
-          foreach ($elems as $elem)
-            $sub->add($elem);
+          $p->add($sub = new XDiv(array('class'=>'chart-container'),
+                                  array(new XElem('object', array('data'=>'history.svg', 'type'=>'image/svg+xml'),
+                                                  array(new XP(array('class'=>'notice'),
+                                                               "Your browser does not support SVG elements."))))));
         }
       }
     }

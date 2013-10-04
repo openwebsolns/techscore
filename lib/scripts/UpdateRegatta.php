@@ -148,6 +148,7 @@ class UpdateRegatta extends AbstractScript {
     $rotation = false;
     $divisions = false;
     $front = false;
+    $front_history = false;
     $full = false;
     $rot = $reg->getRotation();
 
@@ -178,6 +179,7 @@ class UpdateRegatta extends AbstractScript {
       $sync = true;
       $sync_rp = true; // re-rank sailors
       $front = true;
+      $front_history = true;
       if ($reg->hasFinishes()) {
         $full = true;
 
@@ -193,6 +195,7 @@ class UpdateRegatta extends AbstractScript {
         $rotation = true;
         if ($reg->hasFinishes()) {
           $front = true;
+          $front_history = true;
           $full = true;
         }
       }
@@ -207,6 +210,7 @@ class UpdateRegatta extends AbstractScript {
       // do them all (except RP)!
       $sync = true;
       $front = true;
+      $front_history = true;
       if ($rot->isAssigned())
         $rotation = true;
       if ($reg->hasFinishes()) {
@@ -235,6 +239,7 @@ class UpdateRegatta extends AbstractScript {
 
     if ($rotation)   $this->createRotation($D, $M);
     if ($front)      $this->createFront($D, $M);
+    if ($front_history) $this->createFrontHistory($D, $reg);
     if ($full)       $this->createFull($D, $M);
     if ($divisions) {
       $root = $reg->getURL();
@@ -378,6 +383,19 @@ class UpdateRegatta extends AbstractScript {
     $filename = $dirname . 'index.html';
     $page = $maker->getScoresPage();
     self::writeXml($filename, $page);
+  }
+
+  private function createFrontHistory($dirname, FullRegatta $reg) {
+    require_once('tscore/ScoresChartDialog.php');
+    $P = new ScoresChartDialog($reg);
+    $cont = $P->getTable(true);
+    if (count($cont) == 0)
+      return;
+
+    $filename = $dirname . 'history.svg';
+    $data = '<?xml version="1.0" encoding="UTF-8"?>
+' . $cont[0]->toXML();
+    self::writeFile($filename, $data);
   }
 
   /**

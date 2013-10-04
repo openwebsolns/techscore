@@ -58,7 +58,7 @@ class S3Writer extends AbstractWriter {
     $suff = array_pop($tokens);
     switch ($suff) {
     case 'html':
-      return 'text/html';
+      return 'text/html; charset=utf-8';
     case 'png':
       return 'image/png';
     case 'css':
@@ -67,6 +67,8 @@ class S3Writer extends AbstractWriter {
       return 'text/javascript';
     case 'ico':
       return 'image/x-icon';
+    case 'svg':
+      return 'image/svg+xml';
     default:
       throw new TSWriterException("Unknown extension: $suff");
     }

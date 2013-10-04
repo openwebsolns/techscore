@@ -32,12 +32,16 @@ class ScoresChartDialog extends AbstractScoresDialog {
    */
   public function __construct(FullRegatta $reg, Division $div = null) {
     parent::__construct("Regatta ranking history", $reg);
-    if ($reg->scoring == Regatta::SCORING_COMBINED)
+    if ($reg->scoring == Regatta::SCORING_COMBINED) {
       $div = Division::A();
+      $this->title = sprintf("Rank history of combined divisions for %s", $this->REGATTA->name);
+    }
+    else {
+      $this->title = ($div === null) ?
+        sprintf("Rank history across all divisions for %s", $this->REGATTA->name) :
+        sprintf("Rank history across Division %s for %s", $div, $this->REGATTA->name);
+    }
     $this->races = $reg->getScoredRaces($div);
-    $this->title = ($div === null) ?
-      sprintf("Rank history across all divisions for %s", $this->REGATTA->name) :
-      sprintf("Rank history across Division %s for %s", $div, $this->REGATTA->name);
   }
 
   /**
