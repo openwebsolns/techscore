@@ -133,7 +133,6 @@ class TPublicPage extends XPage {
       $this->head->add(new XMeta('keywords', implode(',', $this->keywords)));
     foreach ($this->getCSS() as $css)
       $this->head->add(new LinkCSS($css, 'screen,print'));
-    $this->head->add(new LinkCSS('/inc/css/print.css', 'print'));
 
     // Add Google Analytics code
     $this->head->add(new XScript('text/javascript', null,

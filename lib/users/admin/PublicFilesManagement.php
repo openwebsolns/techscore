@@ -94,13 +94,18 @@ class PublicFilesManagement extends AbstractAdminUserPane {
           $name = $file['name'];
 
           $type = null;
+          $data = file_get_contents($file['tmp_name']);
           $tokens = $this->explodeFilename($name);
           if (count($tokens) > 1) {
             $ext = array_pop($tokens);
-            if ($ext == 'js')
+            if ($ext == 'js') {
               $type = 'application/javascript';
-            elseif ($ext == 'css')
+              $data = $this->compressJavascript($data);
+            }
+            elseif ($ext == 'css') {
               $type = 'text/css';
+              $data = $this->compressCSS($data);
+            }
           }
           if ($type === null) {
             $type = $finfo->file($file['tmp_name']);
@@ -112,7 +117,7 @@ class PublicFilesManagement extends AbstractAdminUserPane {
             $obj->id = $name;
           }
           $obj->filetype = $type;
-          $obj->filedata = file_get_contents($file['tmp_name']);
+          $obj->filedata = $data;
           DB::set($obj);
           UpdateManager::queueFile($obj);
           $uploaded[] = $name;
@@ -144,6 +149,27 @@ class PublicFilesManagement extends AbstractAdminUserPane {
     $url = preg_replace('/[^_a-z0-9-]/', '', $url);
     $url = preg_replace('/-+/', '-', $url);
     return $url;
+  }
+
+  private function compressJavascript($str) {
+    $str = preg_replace('/^\s+/', '', $str);
+    $str = preg_replace('/\s+$/', '', $str);
+    return $str;
+  }
+
+  private function compressCSS($str) {
+    $str = preg_replace('/\s+/', ' ', $str);
+    $str = preg_replace('/\s*([{};:])\s*/', '\1', $str);
+    $str = str_replace('}', "}\n", $str);
+    return $str;
+  }
+
+  private function compressPNG($filename) {
+    if (($img = @imagecreatefrompng($filename)) === false)
+      throw new InvalidArgumentException("Unable to create image from file $filename.");
+    $r = @imagepng($img, $filename, 9, PNG_ALL_FILTERS);
+    if ($r === false)
+      throw new InvalidArgumentException("Unable to create compressed PNG $filename.");
   }
 }
 ?>

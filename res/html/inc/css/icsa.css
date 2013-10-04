@@ -1,3 +1,4 @@
+@media screen {
 .nav {
     display: none;
 }
@@ -125,6 +126,7 @@ h1 {
     display: inline-block;
     width: auto;
     margin: 0 0.5ex;
+}
 }
 
 @media screen and (min-width:800px) {
@@ -950,4 +952,67 @@ td.tr-sail {
         width: 8em;
         padding: 0.5em 0;
     }
+}
+
+@media print {
+/* Hide navigation material */
+html {
+    font-size: 10pt;
+}
+
+body, #left-fill, #right-fill {
+    background: none;
+}
+
+a {
+    color: black;
+    text-decoration: none;
+    border: none;
+}
+
+.nav, #page-header, #submenu-wrapper, #welcome, #flickwrap, #social-wrapper {
+    display: none;
+}
+
+#page-content {
+    padding-top: 1.5em;
+}
+
+table {
+    page-break-inside: auto;
+}
+
+tr {
+    page-break-inside: avoid;
+    page-break-after:auto;
+}
+
+table * {
+    font-family: monospace;
+}
+
+#content-header table * {
+    border: none;
+}
+
+table img {
+    height: 1.5em;
+}
+
+thead {
+    display: table-header-group;
+    background-color: #ccc;
+}
+
+#sponsors h3 {
+    display: none;
+}
+
+#sponsors-list {
+    text-align: center;
+}
+
+#sponsors-list img {
+    max-height: 5em;
+}
 }
