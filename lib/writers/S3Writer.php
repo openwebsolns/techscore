@@ -65,6 +65,8 @@ class S3Writer extends AbstractWriter {
       return 'text/css';
     case 'js':
       return 'text/javascript';
+    case 'ico':
+      return 'image/x-icon';
     default:
       throw new TSWriterException("Unknown extension: $suff");
     }
