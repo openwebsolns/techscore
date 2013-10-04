@@ -75,6 +75,7 @@ class DB extends DBM {
   public static $UPDATE_REQUEST = null; // UpdateRequest.php
   public static $UPDATE_SCHOOL = null; // UpdateRequest.php
   public static $UPDATE_SEASON = null; // UpdateRequest.php
+  public static $UPDATE_FILE = null;   // UpdateRequest.php
 
   // The validation engine
   public static $V = null;

@@ -63,6 +63,15 @@ class UpdateManager {
   }
 
   /**
+   * @see queueRequest
+   */
+  public static function queueFile(Pub_File_Summary $file) {
+    $obj = new UpdateFileRequest();
+    $obj->file = $file->id;
+    DB::set($obj);
+  }
+
+  /**
    * Fetches all pending items from the queue in the order in which
    * they are found
    *

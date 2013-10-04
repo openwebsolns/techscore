@@ -149,7 +149,21 @@ class UpdateSeasonRequest extends AbstractUpdate {
     return sprintf('%s-%s', $id, $this->activity);
   }
 }
+
+/**
+ * Request to update a public file.
+ *
+ * @author Dayan Paez
+ * @version 2013-10-04
+ */
+class UpdateFileRequest extends AbstractUpdate {
+  public $file;
+  public static function getTypes() { return array(); }
+  public function db_name() { return 'pub_update_file'; }
+  public function hash() { return $this->file; }
+}
 DB::$UPDATE_REQUEST = new UpdateRequest();
 DB::$UPDATE_SCHOOL = new UpdateSchoolRequest();
 DB::$UPDATE_SEASON = new UpdateSeasonRequest();
+DB::$UPDATE_FILE = new UpdateFileRequest();
 ?>
