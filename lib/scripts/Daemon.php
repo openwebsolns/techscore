@@ -52,6 +52,8 @@ require_once('AbstractScript.php');
  * "library" call from a different script, by using the class's 'run'
  * method.
  *
+ * 2013-10-04: Included a new daemon for "files"
+ *
  * @author Dayan Paez
  * @version 2010-10-08
  * @package scripts
@@ -197,6 +199,78 @@ class Daemon extends AbstractScript {
     pcntl_signal(SIGHUP, $handler);
 
     return getmypid();
+  }
+
+  /**
+   * Checks for file-level updates and performs them
+   *
+   * @param boolean $daemon run in daemon mode
+   */
+  public function runFiles($daemon = false) {
+    $this->checkLock('fil');
+    $md5 = $this->checkMD5sum();
+    if ($daemon)
+      $mypid = $this->daemonize();
+    $this->createLock('fil');
+
+    while (true) {
+      $pending = UpdateManager::getPendingFiles();
+      if (count($pending) == 0) {
+        if ($daemon) {
+          self::errln("Sleeping...");
+          DB::commit();
+          DB::resetCache();
+          sleep(59);
+          $this->checkLock('fil', $mypid);
+          $md5 = $this->checkMD5sum($md5);
+          continue;
+        }
+        break;
+      }
+
+      $requests = array();
+      // ------------------------------------------------------------
+      // Loop through the file requests
+      // ------------------------------------------------------------
+      require_once('scripts/UpdateFile.php');
+      $P = new UpdateFile();
+      foreach ($pending as $r) {
+        $requests[] = $r;
+        try {
+          // ------------------------------------------------------------
+          // Perform the updates
+          // ------------------------------------------------------------
+          $P->run($r->file);
+        }
+        catch (TSWriterException $e) {
+          self::errln("Error while writing: " . $e->getMessage());
+          sleep(3);
+          continue;
+        }
+      }
+
+      // ------------------------------------------------------------
+      // Mark all requests as completed
+      // ------------------------------------------------------------
+      foreach ($requests as $r)
+        UpdateManager::log($r);
+
+      // ------------------------------------------------------------
+      // Perform all hooks
+      // ------------------------------------------------------------
+      foreach (self::getHooks() as $hook) {
+        $ret = 0;
+        passthru($hook, $ret);
+        if ($ret != 0)
+          throw new RuntimeException("Hook $hook", $ret);
+        self::errln("Hook $hook run");
+      }
+
+      DB::commit();
+      DB::resetCache();
+    }
+
+    self::errln('done');
   }
 
   /**
@@ -351,7 +425,7 @@ class Daemon extends AbstractScript {
       foreach ($pending as $r) {
         $requests[] = $r;
         $seasons[(string)$r->season] = $r->season;
-	if ($r->activity == UpdateSeasonRequest::ACTIVITY_REGATTA)
+        if ($r->activity == UpdateSeasonRequest::ACTIVITY_REGATTA)
           $summary = true;
 
         if ((string)$r->season == (string)$current)
@@ -611,7 +685,7 @@ class Daemon extends AbstractScript {
   public static function cleanup() {
     foreach (self::$lock_files as $file) {
       if (file_exists($file) && !@unlink($file))
-	throw new RuntimeException("(EE) Unable to delete lock file $file while cleaning up!");
+        throw new RuntimeException("(EE) Unable to delete lock file $file while cleaning up!");
     }
   }
 
@@ -630,10 +704,10 @@ class Daemon extends AbstractScript {
       throw new RuntimeException("Unable to read hooks directory: $path");
     foreach ($hooks as $hook) {
       if ($hook == '.' || $hook == '..')
-	continue;
+        continue;
       $fname = "$path/$hook";
       if (is_executable($fname))
-	$list[] = $fname;
+        $list[] = $fname;
     }
     return $list;
   }
@@ -707,6 +781,22 @@ class Daemon extends AbstractScript {
   }
 
   /**
+   * Produce a list of pending file-level updates to standard output
+   *
+   */
+  public function listFiles() {
+    $requests = UpdateManager::getPendingFiles();
+    $files = array(); // map of filename to # of times
+    foreach ($requests as $req) {
+      if (!array_key_exists($req->file, $files))
+        $files[$req->file] = 0;
+      $files[$req->file]++;
+    }
+    foreach ($files as $file => $count)
+      printf("File: %s (%d)\n", $file, $count);
+  }
+
+  /**
    * Produce a list of pending school-level updates to standard output
    *
    */
@@ -717,7 +807,7 @@ class Daemon extends AbstractScript {
     foreach ($requests as $req) {
       $activity = $req->activity;
       if ($req->activity == UpdateSchoolRequest::ACTIVITY_SEASON)
-	$activity .= sprintf(' (%s)', $req->season);
+        $activity .= sprintf(' (%s)', $req->season);
       if (!isset($schools[$req->school->id])) $schools[$req->school->id] = array();
       if (!isset($schools[$req->school->id][$activity]))
         $schools[$req->school->id][$activity] = 0;
@@ -775,13 +865,14 @@ class Daemon extends AbstractScript {
   // ------------------------------------------------------------
   // CLI setup
   // ------------------------------------------------------------
-  protected $cli_opts = '[-l] [-d] {regatta|season|school}';
+  protected $cli_opts = '[-l] [-d] {regatta|season|school|file}';
   protected $cli_usage = ' -l --list    only list the pending updates
  -d --daemon  run as a daemon
 
  regatta: perform pending regatta-level updates
  season:  perform pending season-level updates
- school:  perform pending school-level updates';
+ school:  perform pending school-level updates
+ file:    perform pending file-level updates';
 }
 
 // ------------------------------------------------------------
@@ -814,8 +905,9 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
     case 'regatta':
     case 'school':
     case 'season':
+    case 'file':
       if ($axis !== null)
-	throw new TSScriptException("Only one axis may be performed at a time.");
+        throw new TSScriptException("Only one axis may be performed at a time.");
       $axis = $opt;
       break;
 
@@ -834,16 +926,20 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
       $P->listRegattas();
     elseif ($axis == 'season')
       $P->listSeasons();
-    else
+    elseif ($axis == 'school')
       $P->listSchools();
+    elseif ($axis == 'file')
+      $P->listFiles();
   }
   else {
     if ($axis == 'regatta')
       $P->runRegattas($daemon);
     elseif ($axis == 'season')
       $P->runSeasons($daemon);
-    else
+    elseif ($axis == 'school')
       $P->runSchools($daemon);
+    elseif ($axis == 'file')
+      $P->runFiles($daemon);
   }
 }
 ?>

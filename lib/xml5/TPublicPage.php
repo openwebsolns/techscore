@@ -299,12 +299,12 @@ UserVoice.push(["showTab", "classic_widget", {
                               array(new XDiv(array('id'=>'sponsors'),
                                              array(new XH3("Our sponsors"),
                                                    new XUl(array('id'=>'sponsors-list'),
-                                                           array(new XLi(new XA('http://gillna.com', new XImg('/inc/img/sponsors/gill.png', "Gill"))),
-                                                                 new XLi(new XA('http://www.apsltd.com', new XImg('/inc/img/sponsors/aps.png', "APS"))),
-                                                                 new XLi(new XA('http://www.sperrytopsider.com/', new XImg('/inc/img/sponsors/sperry-gray.png', "Sperry Top-Sider"))),
-                                                                 new XLi(new XA('http://www.laserperformance.com/', new XImg('/inc/img/sponsors/laserperformance.png', "LaserPerformance"))),
-                                                                 new XLi(new XA('http://www.ussailing.org/', new XImg('/inc/img/sponsors/ussailing.png', "US Sailing"))),
-                                                                 new XLi(new XA('http://www.quantumsails.com/', new XImg('/inc/img/sponsors/qtag.png', "Quantum Sails"))))))),
+                                                           array(new XLi(new XA('http://gillna.com', new XImg('/inc/img/gill.png', "Gill"))),
+                                                                 new XLi(new XA('http://www.apsltd.com', new XImg('/inc/img/aps.png', "APS"))),
+                                                                 new XLi(new XA('http://www.sperrytopsider.com/', new XImg('/inc/img/sperry-gray.png', "Sperry Top-Sider"))),
+                                                                 new XLi(new XA('http://www.laserperformance.com/', new XImg('/inc/img/laserperformance.png', "LaserPerformance"))),
+                                                                 new XLi(new XA('http://www.ussailing.org/', new XImg('/inc/img/ussailing.png', "US Sailing"))),
+                                                                 new XLi(new XA('http://www.quantumsails.com/', new XImg('/inc/img/qtag.png', "Quantum Sails"))))))),
 
                                     new XAddress(array(), array(new XA('http://www.openweb-solutions.net', Conf::$COPYRIGHT))))));
 

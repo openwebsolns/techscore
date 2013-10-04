@@ -97,6 +97,13 @@ class UpdateManager {
   }
 
   /**
+   * @see getPendingRequests
+   */
+  public static function getPendingFiles() {
+    return DB::getAll(DB::$UPDATE_FILE, new DBCond('completion_time', null));
+  }
+
+  /**
    * Logs the given request as completed
    *
    * @param UpdateRequest $req the update request to log
