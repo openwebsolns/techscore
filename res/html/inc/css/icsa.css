@@ -1039,7 +1039,7 @@ td.tr-sail {
 
 .coming-regattas tr {
     display: inline-block;
-    min-width: 15ex;
+    min-width: 25ex;
     width: 45%;
     vertical-align: top;
 }
