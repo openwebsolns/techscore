@@ -129,7 +129,7 @@ class UpdateSeason extends AbstractScript {
 
           $link = new XA($reg->nick, $reg->name);
           $burg = ($wt->school->burgee !== null) ?
-            new XImg(sprintf('/inc/img/schools/%s.png', $wt->school->id), $wt->school, array('height'=>40)) :
+            $wt->school->burgee->asImg($wt->school) :
             $wt->school->nick_name;
           $rows[] = array($link,
                           implode("/", $reg->dt_hosts),

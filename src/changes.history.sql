@@ -605,3 +605,6 @@ alter table pub_file change column filetype filetype varchar(40) not null;
 alter table pub_file drop column filename;
 create table pub_update_file (id int not null primary key auto_increment, file varchar(32) not null, request_time timestamp not null default current_timestamp, completion_time datetime default null) engine=innodb;
 alter table pub_update_file add column activity varchar(32) default null after file;
+
+-- track width/height of burgees
+alter table burgee add column width tinyint unsigned default null after filedata, add column height tinyint unsigned default null after width;

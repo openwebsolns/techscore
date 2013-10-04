@@ -920,6 +920,8 @@ class Conference extends DBObject {
  */
 class Burgee extends DBObject {
   public $filedata;
+  public $width;
+  public $height;
   protected $last_updated;
   protected $school;
   public $updated_by;
@@ -931,6 +933,15 @@ class Burgee extends DBObject {
     default:
       return parent::db_type($field);
     }
+  }
+
+  public function asImg(School $school, Array $attrs = array()) {
+    $img = new XImg(sprintf('/inc/img/schools/%s.png', $school->id), $school->nick_name, $attrs);
+    if ($this->width !== null) {
+      $img->set('width', $this->width);
+      $img->set('height', $this->height);
+    }
+    return $img;
   }
 }
 

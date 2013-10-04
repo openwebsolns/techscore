@@ -406,3 +406,16 @@ td.tr-sail {
 .tr-sailed {
     opacity: 0.5;
 }
+
+.burgee-cell img {
+    height: 30px;
+    width: auto;
+}
+.teamranking img {
+    height: 40px;
+    width: auto;
+}
+.tr-rotation-table img, .teamscorelist img {
+    height: 20px;
+    width: auto;
+}

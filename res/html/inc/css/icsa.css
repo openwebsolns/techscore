@@ -1,3 +1,16 @@
+.tr-rotation-table img, .teamscorelist img {
+    height: 20px;
+    width: auto;
+}
+.burgee-cell img {
+    height: 30px;
+    width: auto;
+}
+.teamranking img {
+    height: 40px;
+    width: auto;
+}
+
 @media screen {
 .nav {
     display: none;
@@ -551,6 +564,11 @@ div.stat .prefix {
     left: 0.5em;
 }
 
+.schools-table img {
+    height: 40px;
+    width: auto;
+}
+
 .burgee {
     max-width: 50em;
     text-align: center;
@@ -583,6 +601,11 @@ div.stat .prefix {
 
 .season-summary, .participation-table {
     width: 100%;
+}
+
+.season-summary img {
+    height: 40px;
+    width: auto;
 }
 
 /* Submenu */
@@ -917,7 +940,16 @@ td.tr-sail {
     }
 
     #social {
-        width: 5%;
+        display: block;
+        height: 20px;
+        text-align: center;
+        width: 100%;
+    }
+
+    #search-wrapper {
+        display: block;
+        width: 100%;
+        height: 35px;
     }
 
     #page-content {
@@ -952,6 +984,90 @@ td.tr-sail {
         width: 8em;
         padding: 0.5em 0;
     }
+
+.season-summary thead {
+    display: none;
+}
+.season-summary tr {
+    display: block;
+    width: 100%;
+    margin-top: 2em;
+}
+.season-summary tr.row0, .season-summary tr.row1 {
+    margin-top: 0;
+}
+.season-summary td {
+    display: block;
+    width: 100%;
+    margin-left: 1em;
+    padding: 0.5ex 0;
+}
+
+.season-summary tbody th {
+    display: block;
+    width: 100%;
+    padding: 0.5em 0;
+}
+
+.season-summary tr td:first-child {
+    margin-left: 0;
+    font-size: 110%;
+    font-weight: bold;
+}
+
+.coming-regattas {
+    background: none;
+    border: none;
+}
+
+.coming-regattas tbody {
+    text-align: center;
+}
+
+.coming-regattas td {
+    display: block;
+    padding: 1ex 5ex;
+    background: #f2ede6;
+}
+
+.coming-regattas tr td:first-child {
+    text-align: left;
+    font-size: 110%;
+    font-weight: bold;
+    padding-left: 1ex;
+}
+
+.coming-regattas tr {
+    display: inline-block;
+    min-width: 15ex;
+    width: 45%;
+    vertical-align: top;
+}
+
+.coming-regattas a {
+    padding: 0;
+}
+
+#in-progress table {
+    width: 100%;
+}
+
+#in-progress tr {
+    border-bottom: medium none;
+    display: inline-block;
+    min-width: 20ex;
+    vertical-align: top;
+    width: 48%;
+}
+
+#in-progress tr td:first-child {
+    text-align: left;
+    font-size: 110%;
+    font-weight: bold;
+}
+#in-progress td {
+    border-bottom: none;
+}
 }
 
 @media print {
@@ -1014,5 +1130,12 @@ thead {
 
 #sponsors-list img {
     max-height: 5em;
+}
+.chart-container {
+    display: block;
+    max-width: 60em;
+    max-width: 95vw;
+    overflow: auto;
+    overflow-y: hidden;
 }
 }

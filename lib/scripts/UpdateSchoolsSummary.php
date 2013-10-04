@@ -46,7 +46,7 @@ class UpdateSchoolsSummary extends AbstractScript {
 
         $burg = "";
         if ($school->burgee !== null)
-          $burg = new XImg(sprintf('/inc/img/schools/%s.png', $school->id), $school->id, array('height'=>40));
+          $burg = $school->burgee->asImg($school);
 
         $tab->addRow(array(new XTD(array('class'=>'burgeecell'), $burg),
                            new XTD(array('class'=>'schoolname'), new XA($link, $school->name)),

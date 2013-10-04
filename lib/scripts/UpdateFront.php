@@ -89,7 +89,7 @@ class UpdateFront extends AbstractScript {
         else {
           $row[] = new XStrong(ucwords($reg->dt_status));
           if ($tms[0]->school->burgee !== null)
-            $row[] = new XImg(sprintf('/inc/img/schools/%s.png', $tms[0]->school->id), $tms[0], array('height'=>40));
+            $row[] = $tms[0]->school->burgee->asImg($tms[0]->school);
           else
             $row[] = (string)$tms[0];
         }

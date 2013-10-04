@@ -45,10 +45,9 @@ class RotationDialog extends AbstractDialog {
       $row = array();
       $burgee = "";
       if ($team->school->burgee !== null) {
-        $url = sprintf("/inc/img/schools/%s.png", $team->school->id);
-        $burgee = new XImg($url, $team->school->id, array('height'=>'30'));
+        $burgee = $team->school->burgee->asImg($team->school);
       }
-      $row[] = $burgee;
+      $row[] = new XTD(array('class'=>'burgee-cell'), $burgee);
 
       // Team name
       $name = (string)$team;
