@@ -127,6 +127,7 @@ class TPublicPage extends XPage {
     // Stylesheets
     $this->head->add(new XMetaHTTP('content-type', 'text/html;charset=UTF-8'));
     $this->head->add(new XMeta('generator', "OpenWeb Solutions, LLC"));
+    $this->head->add(new XMeta('viewport', 'width=device-width,initial-scale=1,maximum-scale=1'));
     if ($this->description !== null)
       $this->head->add(new XMeta('description', $this->description));
     if (count($this->keywords) > 0)
