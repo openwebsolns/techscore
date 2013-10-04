@@ -1,6 +1,6 @@
 LIBSRC := $(shell find lib -name "*.php")
 
-default: lib/conf.local.php src/apache.conf src/changes.current.sql src/crontab html/schools/404.html css css-admin js js-admin src/md5sum
+default: lib/conf.local.php src/apache.conf src/changes.current.sql src/crontab css-admin js-admin src/md5sum
 
 lib/conf.local.php: lib/conf.default.php
 	@echo "Manually create lib/conf.local.php from lib/conf.default.php" && exit 1
@@ -21,10 +21,11 @@ src/changes.current.sql: src/changes.history.sql
 src/md5sum: $(LIBSRC) bin/Make.php
 	php bin/Make.php md5sum
 
-html/schools/404.html: lib/scripts/Update404.php
-	mkdir -pv html/schools && php lib/scripts/Update404.php schools
+.PHONY:	doc school-404
 
-.PHONY:	doc
+school-404: lib/scripts/Update404.php
+	php lib/scripts/Update404.php schools
+
 doc:
 	rm -r doc/* && \
 	phpdoc --ignore conf.*php \
@@ -36,15 +37,6 @@ doc:
 
 # CSS goodness
 
-html/inc/css/%.css: res/html/inc/css/%.css
-	mkdir -pv html/inc/css && \
-	tr "\n" " " < $^ | \
-	tr -s " " | \
-	sed -e 's:/\*[^(\*/)]*\*/::g' -e 's/\(;\|:\|}\|{\)[ 	]*/\1/g' \
-	    -e 's/[ 	]*{/{/g'      -e 's/^[ 	]*//' > $@
-
-css:   $(subst res/html,html,$(wildcard res/html/inc/css/*.css))
-
 www/inc/css/%.css: res/www/inc/css/%.css
 	mkdir -pv www/inc/css && \
 	tr "\n" " " < $^ | \
@@ -55,12 +47,6 @@ www/inc/css/%.css: res/www/inc/css/%.css
 css-admin:   $(subst res/www,www,$(wildcard res/www/inc/css/*.css))
 
 # Javascript goodness
-
-html/inc/js/%.js: res/html/inc/js/%.js
-	mkdir -p html/inc/js && \
-	minijs.sh < $^ > $@ || cp $^ $@
-
-js:	$(subst res/html,html,$(wildcard res/html/inc/js/*.js))
 
 www/inc/js/%.js: res/www/inc/js/%.js
 	mkdir -pv www/inc/js && \
