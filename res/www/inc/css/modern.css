@@ -96,7 +96,7 @@ body {
     text-decoration:none;
     color:inherit;
     display:block;
-    width:100%;
+    width:7.2em;
 }
 #menubar li:hover {
     background:#b89f7e;
@@ -1017,4 +1017,15 @@ h4 a:hover {
     width: 95%;
     font-size: 110%;
     line-height: 1.5em;
+}
+
+#files-table {
+    margin: 1ex 0 3ex;
+}
+#files-table td {
+    padding: 0.5ex 1ex;
+    text-align: left;
+}
+#files-table thead th {
+    text-align: left;
 }

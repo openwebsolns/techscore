@@ -120,7 +120,7 @@ abstract class AbstractUserPane {
                                                         new XLi(new XA("/lists",     "Mailing lists")),
                                                         new XLi(new XA("/race-orders", "Team race orders")),
                                                         new XLi(new XA("/seasons",   "Seasons")),
-                                                        new XLi(new XA("/social",    "Social settings")))))));
+                                                        )))));
       $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
                                     array(new XH4("Users"),
                                           new XUl(array(),
@@ -133,6 +133,14 @@ abstract class AbstractUserPane {
                                           $ul = new XUl())));
       foreach (Text_Entry::getSections() as $sec => $title)
         $ul->add(new XLi(new XA(WS::link(sprintf('/text/%s', $sec)), $title)));
+
+      $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
+                                    array(new XH4("Public site"),
+                                          new XUl(array(),
+                                                  array(
+                                                        new XLi(new XA("/social", "Social settings")),
+                                                        new XLi(new XA("/files",  "Files"))
+                                                        )))));
     }
     $this->PAGE->addContent(new XPageTitle($this->title));
     $this->fillHTML($args);
@@ -385,6 +393,11 @@ abstract class AbstractUserPane {
     case 'social':
       require_once('users/admin/SocialSettingsManagement.php');
       return new SocialSettingsManagement($u);
+
+    case 'file':
+    case 'files':
+      require_once('users/admin/PublicFilesManagement.php');
+      return new PublicFilesManagement($u);
 
     case 'season':
     case 'seasons':

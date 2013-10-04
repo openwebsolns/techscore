@@ -312,6 +312,39 @@ class Soter {
   }
 
   /**
+   * Useful for an array of files, as found in $_FILES.
+   *
+   * Similar to reqFile, but will return a list of associative arrays,
+   * each with indices 'name', 'type', 'tmp_name', 'error', 'size'.
+   *
+   * This is notably different from the way $_FILES is normally
+   * populated
+   *
+   * @see reqFiles
+   * @return Array:Map may be empty
+   */
+  final public function reqFiles(Array $args, $key, $min = 0, $max = 8388608, $mes = "GSE") {
+    $files = array();
+    $templ = array('name' => null, 'tmp_name' => null, 'type' => null, 'error' => null, 'size' => null);
+    foreach ($this->reqList($args, $key, 5, $mes) as $axis => $sublist) {
+      if (!array_key_exists($axis, $templ))
+        $this->panic($mes, SoterException::FILE_MISS);
+      if (!is_array($sublist))
+        $this->panic($mes, SoterException::FILE_MISS);
+      for ($i = 0; $i < count($sublist); $i++) {
+        if (count($files) <= $i)
+          $files[$i] = $templ;
+        $files[$i][$axis] = $sublist[$i];
+      }
+    }
+
+    // Verify each file
+    foreach ($files as $i => $file)
+      $this->reqFile($files, $i, $min, $max, $mes);
+    return $files;
+  }
+
+  /**
    * Requires that $args[$key] exists and satisfies the given regular
    * expression, which must work. If the regular expression does not
    * work, (preg_match returns false), a RuntimeException is thrown.
@@ -439,6 +472,15 @@ class Soter {
   final public function incFile(Array $args, $key, $min = 0, $max = 8388608, $default = null) {
     try {
       return $this->reqFile($args, $key, $min, $max);
+    }
+    catch (SoterException $e) {
+      return $default;
+    }
+  }
+
+  final public function incFiles(Array $args, $key, $min = 0, $max = 8388608, $default = array()) {
+    try {
+      return $this->reqFiles($args, $key, $min, $max);
     }
     catch (SoterException $e) {
       return $default;

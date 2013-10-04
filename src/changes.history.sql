@@ -598,3 +598,8 @@ alter table type add column mail_lists text default null after rank;
 create table pub_regatta_url (id int not null primary key auto_increment, regatta int(5) not null, url varchar(255) not null) engine=innodb;
 alter table pub_regatta_url add foreign key (regatta) references regatta(id) on delete cascade on update cascade;
 alter table pub_regatta_url change column url url text not null;
+
+-- track public files in the database
+create table pub_file (id varchar(32) not null primary key, filetype varchar(10) default null, filename varchar(100) not null, filedata mediumblob not null) engine=innodb;
+alter table pub_file change column filetype filetype varchar(40) not null;
+alter table pub_file drop column filename;

@@ -55,6 +55,8 @@ class DB extends DBM {
   public static $ROUND_SLAVE = null;
   public static $AA_REPORT = null;
   public static $PUB_REGATTA_URL = null;
+  public static $PUB_FILE = null;
+  public static $PUB_FILE_SUMMARY = null;
 
   public static $PERMISSION = null;
   public static $ROLE = null;
@@ -116,6 +118,8 @@ class DB extends DBM {
     self::$ROUND_SLAVE = new Round_Slave();
     self::$AA_REPORT = new AA_Report();
     self::$PUB_REGATTA_URL = new Pub_Regatta_Url();
+    self::$PUB_FILE = new Pub_File();
+    self::$PUB_FILE_SUMMARY = new Pub_File_Summary();
 
     self::$PERMISSION = new Permission();
     self::$ROLE = new Role();
@@ -758,6 +762,10 @@ class DB extends DBM {
     return DB::getAll(DB::$RACE_ORDER,
                       new DBBool(array(new DBCond('num_teams', $num_teams),
                                        new DBCond('num_divisions', $num_divisions))));
+  }
+
+  public static function getFile($name) {
+    return DB::get(DB::$PUB_FILE, $name);
   }
 
   // ------------------------------------------------------------
@@ -3151,5 +3159,32 @@ class Pub_Regatta_Url extends DBObject {
       return DB::$FULL_REGATTA;
     return parent::db_type($field);
   }
+}
+
+/**
+ * Skeletal public site (missing filedata)
+ *
+ * @author Dayan Paez
+ * @version 2013-10-04
+ */
+class Pub_File_Summary extends DBObject {
+  public $filetype;
+  public function db_name() { return 'pub_file'; }
+  protected function db_order() { return array('filetype'=>true, 'id'=>true); }
+
+  public function getFile() {
+    return DB::get(DB::$PUB_FILE, $this->id);
+  }
+}
+
+/**
+ * Public site file
+ *
+ * @author Dayan Paez
+ * @version 2013-10-04
+ */
+class Pub_File extends Pub_File_Summary {
+  public $filedata;
+  protected function db_cache() { return true; }
 }
 ?>
