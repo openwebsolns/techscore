@@ -228,6 +228,7 @@ class Daemon extends AbstractScript {
         break;
       }
 
+      $hashes = array();
       $requests = array();
       // ------------------------------------------------------------
       // Loop through the file requests
@@ -236,6 +237,12 @@ class Daemon extends AbstractScript {
       $P = new UpdateFile();
       foreach ($pending as $r) {
         $requests[] = $r;
+
+        $hash = $r->hash();
+        if (isset($hashes[$hash]))
+          continue;
+        $hashes[$hash] = $r;
+
         try {
           // ------------------------------------------------------------
           // Perform the updates
