@@ -3,8 +3,11 @@
     width: auto;
 }
 .burgee-cell img {
-    height: 30px;
+    height: 40px;
     width: auto;
+}
+.totalrow .burgee-cell img {
+    height: 30px;
 }
 .teamranking img {
     height: 40px;
@@ -1109,10 +1112,6 @@ table * {
 
 #content-header table * {
     border: none;
-}
-
-table img {
-    height: 1.5em;
 }
 
 thead {
