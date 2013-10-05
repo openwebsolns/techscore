@@ -39,13 +39,28 @@ class UpdateBurgee extends AbstractScript {
     if ($school->burgee === null) {
       self::remove($file);
       self::errln("Removed burgee for school $school");
-      return;
+    }
+    else {
+      // Write to file
+      $data = base64_decode($school->burgee->filedata);
+      self::writeFile($file, $data);
+      self::errln("Serialized burgee for school $school");
     }
 
-    // Write to file
-    $data = base64_decode($school->burgee->filedata);
-    self::writeFile($file, $data);
-    self::errln("Serialized burgee for school $school");
+    // Small burgee
+    $file = sprintf('%s/%s-40.png', self::$filepath, $school->id);
+
+    // There is no burgee
+    if ($school->burgee_small === null) {
+      self::remove($file);
+      self::errln("Removed small burgee for school $school");
+    }
+    else {
+      // Write to file
+      $data = base64_decode($school->burgee_small->filedata);
+      self::writeFile($file, $data);
+      self::errln("Serialized small burgee for school $school");
+    }
   }
 
   protected $cli_opts = '<school_id> [...]';

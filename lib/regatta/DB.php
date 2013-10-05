@@ -958,13 +958,16 @@ class School extends DBObject {
   public $state;
   protected $conference;
   protected $burgee;
+  protected $burgee_small;
   protected $inactive;
 
   public function db_name() { return 'school'; }
   public function db_type($field) {
     switch ($field) {
     case 'conference': return DB::$CONFERENCE;
-    case 'burgee': return DB::$BURGEE;
+    case 'burgee':
+    case 'burgee_small':
+      return DB::$BURGEE;
     case 'inactive': return DB::$NOW;
     default:
       return parent::db_type($field);

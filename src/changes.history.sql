@@ -608,3 +608,6 @@ alter table pub_update_file add column activity varchar(32) default null after f
 
 -- track width/height of burgees
 alter table burgee add column width tinyint unsigned default null after filedata, add column height tinyint unsigned default null after width;
+
+-- keep copy of small burgee
+alter table school add column burgee_small int default null after burgee, add foreign key (burgee_small) references burgee(id) on delete set null on update cascade;

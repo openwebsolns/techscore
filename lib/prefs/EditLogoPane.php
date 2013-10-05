@@ -76,12 +76,55 @@ class EditLogoPane extends AbstractPrefsPane {
       throw new SoterException("Image too small.");
 
     // resize image to fix in bounding box 100x100
-    $width = $size[0];
-    $height = $size[1];
+    $txt = $this->resizeToSize($src, $size[0], $size[1], 100, 100);
+    $small = $this->resizeToSize($src, $size[0], $size[1], 40, 40);
+    imagedestroy($src);
+    if ($txt == "" || $small == "")
+      throw new SoterException("Invalid image conversion.");
 
+    // Update database: first create the burgee, then assign it to the
+    // school object (for history control, mostly)
+    $burg = new Burgee();
+    $burg->filedata = base64_encode($txt);
+    $burg->last_updated = new DateTime();
+    $burg->school = $this->SCHOOL;
+    $burg->updated_by = Session::g('user');
+    DB::set($burg);
+
+    $burg_small = new Burgee();
+    $burg_small->filedata = base64_encode($small);
+    $burg_small->last_updated = new DateTime();
+    $burg_small->school = $this->SCHOOL;
+    $burg_small->updated_by = Session::g('user');
+    DB::set($burg_small);
+
+    // If this is the first time a burgee is added, then notify all
+    // public regattas for which this school has participated so that
+    // they can be regenerated!
+    require_once('public/UpdateManager.php');
+    if ($this->SCHOOL->burgee === null) {
+      $affected = 0;
+      foreach ($this->SCHOOL->getRegattas() as $reg) {
+        UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_DETAILS);
+        $affected++;
+      }
+      if ($affected > 0)
+        Session::pa(new PA(sprintf("%d public regatta(s) will be updated.", $affected)));
+    }
+
+    $this->SCHOOL->burgee = $burg;
+    $this->SCHOOL->burgee_small = $burg_small;
+    DB::set($this->SCHOOL);
+    Session::pa(new PA("Updated school logo."));
+    UpdateManager::queueSchool($this->SCHOOL, UpdateSchoolRequest::ACTIVITY_BURGEE);
+  }
+
+  private function resizeToSize($src, $origX, $origY, $boundX, $boundY) {
     $boundX = 100;
     $boundY = 100;
 
+    $width = $origX;
+    $height = $origY;
     $ratio = min(($boundX / $width), ($boundY / $height));
     if ($ratio < 1) {
       $width = floor($ratio * $width);
@@ -99,46 +142,15 @@ class EditLogoPane extends AbstractPrefsPane {
                          0, 0,              // destination upper-left
                          0, 0,              // source upper-left
                          $width, $height,   // destination
-                         $size[0], $size[1]) === false)
+                         $origX, $origY) === false)
       throw new SoterException("Unable to create new burgee image.");
 
-    imagedestroy($src);
     ob_start();
     imagepng($dst);
     $txt = ob_get_contents();
     ob_end_clean();
     imagedestroy($dst);
-
-    if ($txt == "")
-      throw new SoterException("Invalid image conversion.");
-
-    // Update database: first create the burgee, then assign it to the
-    // school object (for history control, mostly)
-    $burg = new Burgee();
-    $burg->filedata = base64_encode($txt);
-    $burg->last_updated = new DateTime();
-    $burg->school = $this->SCHOOL;
-    $burg->updated_by = Session::g('user');
-    DB::set($burg);
-
-    // If this is the first time a burgee is added, then notify all
-    // public regattas for which this school has participated so that
-    // they can be regenerated!
-    require_once('public/UpdateManager.php');
-    if ($this->SCHOOL->burgee === null) {
-      $affected = 0;
-      foreach ($this->SCHOOL->getRegattas() as $reg) {
-        UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_DETAILS);
-        $affected++;
-      }
-      if ($affected > 0)
-        Session::pa(new PA(sprintf("%d public regatta(s) will be updated.", $affected)));
-    }
-
-    $this->SCHOOL->burgee = $burg;
-    DB::set($this->SCHOOL);
-    Session::pa(new PA("Updated school logo."));
-    UpdateManager::queueSchool($this->SCHOOL, UpdateSchoolRequest::ACTIVITY_BURGEE);
+    return $txt;
   }
 }
 ?>
