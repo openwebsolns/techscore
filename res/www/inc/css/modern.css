@@ -897,6 +897,15 @@ h4 a:hover {
 .burgee-cell a:hover {
     background: white;
 }
+#burgee-preview {
+    text-align:center;
+    background:#F2EDE6;
+}
+#burgee-preview img {
+    vertical-align: middle;
+    border: 1px solid #ccc;
+    margin: 1em;
+}
 
 #port-team-names {
     width: 20em;

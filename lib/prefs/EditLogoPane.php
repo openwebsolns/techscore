@@ -31,16 +31,22 @@ class EditLogoPane extends AbstractPrefsPane {
    */
   public function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new XPort($this->SCHOOL . " logo"));
-    $p->add(new XP(array(), "Use this function to upload a new logo to use with your school. This logo will replace all uses of the logo throughout " . Conf::$NAME . "."));
+    $p->add(new XP(array(), "Upload a logo to use with your school. This logo will replace all uses of the logo throughout " . Conf::$NAME . "."));
 
-    $p->add(new XP(array(), "Most picture formats are allowed, but files can be no larger than 200 KB in size. For best results use an image with a transparent background, by either using a PNG or GIF file format."));
+    $p->add(new XP(array(), "Follow these rules for best results:"));
+    $p->add(new XUl(array(),
+                    array(new XLi("File can be no larger than 200 KB in size."),
+                          new XLi(array("Only ", new XStrong("PNG"), " and ", new XStrong("GIF"), " images are allowed.")),
+                          new XLi("The image used should have a transparent background, so that it looks appropriate throught the application."),
+                          new XLi(array("All images will be resized to fit in an aspect ratio of 3:2. We ", new XStrong("strongly recommend"), " that the image be properly cropped prior to uploading.")))));
 
     // Current logo
     if ($this->SCHOOL->burgee !== null) {
       $p->add(new XP(array(), sprintf("The current logo for %s is shown below. If you do not see an image below, you may need to upgrade your browser.", $this->SCHOOL)));
 
-      $p->add(new XP(array('style'=>'text-align:center;'),
-                     new XImg('data:image/png;base64,'.$this->SCHOOL->burgee->filedata, $this->SCHOOL->nick_name)));
+      $p->add(new XP(array('id'=>'burgee-preview'),
+                     array(new XImg('data:image/png;base64,'.$this->SCHOOL->burgee->filedata, $this->SCHOOL->nick_name),
+                           new XImg('data:image/png;base64,'.$this->SCHOOL->burgee_small->filedata, $this->SCHOOL->nick_name . " small"))));
     }
     else {
       $p->add(new XP(array(), "There is currently no logo for this school on file."));
@@ -61,6 +67,11 @@ class EditLogoPane extends AbstractPrefsPane {
   public function process(Array $args) {
     $file = DB::$V->reqFile($_FILES, 'logo_file', 1, 200000, "Error or missing upload file. Please try again.");
 
+    $finfo = new FInfo(FILEINFO_MIME_TYPE);
+    $res = $finfo->file($file['tmp_name']);
+    if ($res != 'image/png' && $res != 'image/gif')
+      throw new SoterException("Only PNG and GIF images are allowed.");
+
     // Create thumbnail
     set_error_handler(function($n, $s) {
         throw new SoterException("Invalid image file.");
@@ -75,28 +86,24 @@ class EditLogoPane extends AbstractPrefsPane {
     if ($size[0] < 32 || $size[1] < 32)
       throw new SoterException("Image too small.");
 
-    // resize image to fix in bounding box 100x100
-    $txt = $this->resizeToSize($src, $size[0], $size[1], 100, 100);
-    $small = $this->resizeToSize($src, $size[0], $size[1], 40, 40);
+    // resize image to fix in bounding boxes
+    $full = $this->resizeToSize($src, $size[0], $size[1], 180, 120);
+    $small = $this->resizeToSize($src, $size[0], $size[1], 60, 40);
     imagedestroy($src);
-    if ($txt == "" || $small == "")
+    if ($full === null || $small === null)
       throw new SoterException("Invalid image conversion.");
 
     // Update database: first create the burgee, then assign it to the
     // school object (for history control, mostly)
-    $burg = new Burgee();
-    $burg->filedata = base64_encode($txt);
-    $burg->last_updated = new DateTime();
-    $burg->school = $this->SCHOOL;
-    $burg->updated_by = Session::g('user');
-    DB::set($burg);
+    $full->last_updated = new DateTime();
+    $full->school = $this->SCHOOL;
+    $full->updated_by = Session::g('user');
+    DB::set($full);
 
-    $burg_small = new Burgee();
-    $burg_small->filedata = base64_encode($small);
-    $burg_small->last_updated = new DateTime();
-    $burg_small->school = $this->SCHOOL;
-    $burg_small->updated_by = Session::g('user');
-    DB::set($burg_small);
+    $small->last_updated = new DateTime();
+    $small->school = $this->SCHOOL;
+    $small->updated_by = Session::g('user');
+    DB::set($small);
 
     // If this is the first time a burgee is added, then notify all
     // public regattas for which this school has participated so that
@@ -112,45 +119,56 @@ class EditLogoPane extends AbstractPrefsPane {
         Session::pa(new PA(sprintf("%d public regatta(s) will be updated.", $affected)));
     }
 
-    $this->SCHOOL->burgee = $burg;
-    $this->SCHOOL->burgee_small = $burg_small;
+    $this->SCHOOL->burgee = $full;
+    $this->SCHOOL->burgee_small = $small;
     DB::set($this->SCHOOL);
     Session::pa(new PA("Updated school logo."));
     UpdateManager::queueSchool($this->SCHOOL, UpdateSchoolRequest::ACTIVITY_BURGEE);
   }
 
   private function resizeToSize($src, $origX, $origY, $boundX, $boundY) {
-    $boundX = 100;
-    $boundY = 100;
-
     $width = $origX;
     $height = $origY;
-    $ratio = min(($boundX / $width), ($boundY / $height));
+
+    $ratio = min(($boundX / $origX), ($boundY / $origY));
+
     if ($ratio < 1) {
       $width = floor($ratio * $width);
       $height = floor($ratio * $height);
     }
 
+    $dstX = floor(($boundX - $width) / 2);
+    $dstY = floor(($boundY - $height) / 2);
+
     // create transparent destination image
-    $dst = imagecreatetruecolor($width, $height);
+    $dst = imagecreatetruecolor($boundX, $boundY);
     imagealphablending($dst, false);
     imagesavealpha($dst, true);
     $trans = imagecolorallocatealpha($dst, 255, 255, 255, 127);
     imagefill($dst, 0, 0, $trans);
 
-    if (imagecopyresized($dst, $src,
-                         0, 0,              // destination upper-left
-                         0, 0,              // source upper-left
-                         $width, $height,   // destination
-                         $origX, $origY) === false)
+    if (imagecopyresampled($dst, $src,
+                           $dstX, $dstY,      // destination upper-left
+                           0, 0,              // source upper-left
+                           $width, $height,   // destination
+                           $origX, $origY) === false)
       throw new SoterException("Unable to create new burgee image.");
 
     ob_start();
-    imagepng($dst);
+    imagepng($dst, null, 9, PNG_ALL_FILTERS);
     $txt = ob_get_contents();
     ob_end_clean();
     imagedestroy($dst);
-    return $txt;
+
+    if ($txt == "") {
+      return null;
+    }
+
+    $burg = new Burgee();
+    $burg->filedata = base64_encode($txt);
+    $burg->width = $boundX;
+    $burg->height = $boundY;
+    return $burg;
   }
 }
 ?>
