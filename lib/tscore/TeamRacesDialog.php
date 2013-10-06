@@ -61,14 +61,8 @@ class TeamRacesDialog extends AbstractScoresDialog {
           $team2 = array(new XA(sprintf('/schools/%s/%s/', $team2->school->id, $season), $team2->school), " ", $team2->getQualifiedName());
         }
 
-        $burg1 = "";
-        if ($race->tr_team1->school->burgee !== null) {
-          $burg1 = $race->tr_team1->school->burgee->asImg($race->tr_team1->school);
-        }
-        $burg2 = "";
-        if ($race->tr_team2->school->burgee !== null) {
-          $burg2 = $race->tr_team2->school->burgee->asImg($race->tr_team2->school);
-        }
+        $burg1 = $race->tr_team1->school->drawSmallBurgee("");
+        $burg2 = $race->tr_team2->school->drawSmallBurgee("");
 
         $attrs = array();
         if ($race->round != $round)

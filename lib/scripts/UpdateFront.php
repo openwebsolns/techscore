@@ -88,10 +88,7 @@ class UpdateFront extends AbstractScript {
         }
         else {
           $row[] = new XStrong(ucwords($reg->dt_status));
-          if ($tms[0]->school->burgee !== null)
-            $row[] = $tms[0]->school->burgee->asImg($tms[0]->school);
-          else
-            $row[] = (string)$tms[0];
+          $row[] = $tms[0]->school->drawSmallBurgee((string)$tms[0]);
         }
         $tab->addRow($row, array('class'=>'row'.($i % 2)));
       }

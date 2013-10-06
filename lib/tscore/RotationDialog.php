@@ -43,11 +43,7 @@ class RotationDialog extends AbstractDialog {
     $rowIndex = 0;
     foreach ($this->REGATTA->getTeams() as $team) {
       $row = array();
-      $burgee = "";
-      if ($team->school->burgee !== null) {
-        $burgee = $team->school->burgee->asImg($team->school);
-      }
-      $row[] = new XTD(array('class'=>'burgee-cell'), $burgee);
+      $row[] = new XTD(array('class'=>'burgee-cell'), $team->school->drawSmallBurgee(""));
 
       // Team name
       $name = (string)$team;

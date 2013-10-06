@@ -75,8 +75,8 @@ class UpdateSchool extends AbstractScript {
       $page->addMenu(new XA($link, "ICSA Info", array('itemprop'=>'url')));
     $page->addMenu(new XA(Conf::$ICSA_HOME . '/teams/', "ICSA Teams"));
 
-    if ($school->burgee !== null)
-      $page->addSection(new XP(array('class'=>'burgee'), $school->burgee->asImg($school, array('itemprop'=>'image'))));
+    if (($img = $school->drawBurgee(null, array('itemprop'=>'image'))) !== null)
+      $page->addSection(new XP(array('class'=>'burgee'), $img));
 
     // current season
     $today = new DateTime();

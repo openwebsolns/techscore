@@ -934,15 +934,6 @@ class Burgee extends DBObject {
       return parent::db_type($field);
     }
   }
-
-  public function asImg(School $school, Array $attrs = array()) {
-    $img = new XImg(sprintf('/inc/img/schools/%s.png', $school->id), $school->nick_name, $attrs);
-    if ($this->width !== null) {
-      $img->set('width', $this->width);
-      $img->set('height', $this->height);
-    }
-    return $img;
-  }
 }
 
 /**
@@ -976,6 +967,45 @@ class School extends DBObject {
   protected function db_cache() { return true; }
   protected function db_order() { return array('name'=>true); }
   public function __toString() { return $this->name; }
+
+  /**
+   * Return IMG element of burgee, if burgee exists
+   *
+   * @param mixed $def the element to return if no burgee exists
+   * @param Array $attrs extra attributes to use for XImg
+   * @return XImg|null
+   */
+  public function drawBurgee($def = null, Array $attrs = array()) {
+    if ($this->burgee === null || $this->id === null)
+      return $def;
+
+    $img = new XImg(sprintf('/inc/img/schools/%s.png', $this->id), $this->nick_name, $attrs);
+    if ($this->__get('burgee')->width !== null) {
+      $img->set('width', $this->__get('burgee')->width);
+      $img->set('height', $this->__get('burgee')->height);
+    }
+    return $img;
+  }
+
+  /**
+   * Returns IMG element of small burgee
+   *
+   * @param mixed $def the element to return if no burgee exists
+   * @param Array $attrs extra attributes to use for XImg
+   * @return XImg|null
+   * @see drawBurgee
+   */
+  public function drawSmallBurgee($def = null, Array $attrs = array()) {
+    if ($this->burgee_small === null || $this->id === null)
+      return $def;
+
+    $img = new XImg(sprintf('/inc/img/schools/%s-40.png', $this->id), $this->nick_name, $attrs);
+    if ($this->__get('burgee_small')->width !== null) {
+      $img->set('width', $this->__get('burgee_small')->width);
+      $img->set('height', $this->__get('burgee_small')->height);
+    }
+    return $img;
+  }
 
   /**
    * Returns a list of sailors for the specified school

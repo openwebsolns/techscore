@@ -128,9 +128,7 @@ class UpdateSeason extends AbstractScript {
           $num_teams += count($teams);
 
           $link = new XA($reg->nick, $reg->name);
-          $burg = ($wt->school->burgee !== null) ?
-            $wt->school->burgee->asImg($wt->school) :
-            $wt->school->nick_name;
+          $burg = $wt->school->drawSmallBurgee($wt->school->nick_name);
           $rows[] = array($link,
                           implode("/", $reg->dt_hosts),
                           $reg->type,

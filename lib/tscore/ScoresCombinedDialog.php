@@ -104,8 +104,7 @@ class ScoresCombinedDialog extends AbstractScoresDialog {
       $sym = $tiebreakers[$rank->explanation];
 
       // fill the two header rows up until the sailor names column
-      $img = ($rank->team->school->burgee == null) ? '' :
-        $rank->team->school->burgee->asImg($rank->team->school);
+      $img = $rank->team->school->drawSmallBurgee('');
       $r1 = new XTR(array('class'=>'topborder left row' . $rowIndex % 2),
                     array($r1c1 = new XTD(array('title'=>$rank->explanation, 'class'=>'tiebreaker'), $sym),
                           $r1c2 = new XTD(array(), $order++),

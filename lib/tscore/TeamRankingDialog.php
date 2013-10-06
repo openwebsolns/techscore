@@ -63,10 +63,7 @@ class TeamRankingDialog extends AbstractScoresDialog {
         }
       }
 
-      $mascot = "";
-      if ($team->school->burgee !== null) {
-        $mascot = $team->school->burgee->asImg($team->school);
-      }
+      $mascot = $team->school->drawSmallBurgee("");
       $school = (string)$team->school;
       if ($link_schools !== false)
         $school = new XA(sprintf('/schools/%s/%s/', $team->school->id, $season), $school);
@@ -141,10 +138,7 @@ class TeamRankingDialog extends AbstractScoresDialog {
           $crews[$s->sailor->id] = $s->sailor;
       }
 
-      $mascot = "";
-      if ($team->school->burgee !== null) {
-        $mascot = $team->school->burgee->asImg($team->school);
-      }
+      $mascot = $team->school->drawSmallBurgee("");
       $school = (string)$team->school;
       if ($link_schools !== false)
         $school = new XA(sprintf('/schools/%s/%s/', $team->school->id, $season), $school);

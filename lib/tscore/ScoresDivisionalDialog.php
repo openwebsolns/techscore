@@ -110,9 +110,7 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
                                    $bc = new XTD(array('class'=>'burgee-cell')),
                                    new XTD(array('class'=>'strong'), $ln),
                                    new XTD(array('class'=>'left'), $rank->getQualifiedName()))));
-      if ($rank->school->burgee !== null) {
-        $bc->add($rank->school->burgee->asImg($rank->school, array('itemprop'=>'image')));
-      }
+      $bc->add($rank->school->drawSmallBurgee(null, array('itemprop'=>'image')));
 
       $scoreTeam    = 0;
       // For each division

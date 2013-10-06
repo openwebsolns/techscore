@@ -44,10 +44,7 @@ class UpdateSchoolsSummary extends AbstractScript {
         $num_schools++;
         $link = sprintf('/schools/%s', $school->id);
 
-        $burg = "";
-        if ($school->burgee !== null)
-          $burg = $school->burgee->asImg($school);
-
+        $burg = $school->drawSmallBurgee("");
         $tab->addRow(array(new XTD(array('class'=>'burgeecell'), $burg),
                            new XTD(array('class'=>'schoolname'), new XA($link, $school->name)),
                            $school->city,
