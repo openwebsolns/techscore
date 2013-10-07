@@ -44,9 +44,10 @@ class EditLogoPane extends AbstractPrefsPane {
     if ($this->SCHOOL->burgee !== null) {
       $p->add(new XP(array(), sprintf("The current logo for %s is shown below. If you do not see an image below, you may need to upgrade your browser.", $this->SCHOOL)));
 
-      $p->add(new XP(array('id'=>'burgee-preview'),
-                     array(new XImg('data:image/png;base64,'.$this->SCHOOL->burgee->filedata, $this->SCHOOL->nick_name),
-                           new XImg('data:image/png;base64,'.$this->SCHOOL->burgee_small->filedata, $this->SCHOOL->nick_name . " small"))));
+      $p->add($xp = new XP(array('id'=>'burgee-preview'),
+                           array(new XImg('data:image/png;base64,'.$this->SCHOOL->burgee->filedata, $this->SCHOOL->nick_name))));
+      if ($this->SCHOOL->burgee_small !== null)
+        $xp->add(new XImg('data:image/png;base64,'.$this->SCHOOL->burgee_small->filedata, $this->SCHOOL->nick_name . " small"));
     }
     else {
       $p->add(new XP(array(), "There is currently no logo for this school on file."));
