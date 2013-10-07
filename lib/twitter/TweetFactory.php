@@ -102,14 +102,16 @@ class TweetFactory {
           }
         }
         // Interesting cases: lead is "very" small
-        if (($tms[1]->dt_score - $tms[0]->dt_score) * 2 < count($tms)) {
-          switch (rand(0, 1)) {
+        if (($tms[1]->dt_score - $tms[0]->dt_score) < count($tms)) {
+          switch (rand(0, 4)) {
           case 0:
+          case 1:
             $mes = sprintf("%s's %s edge%s out the competition to win %s%s.",
                            $tms[0]->school->nick_name, $tms[0]->getQualifiedName(), $suf, $art, $reg->name);
             return $this->addRegattaURL($mes, $reg);
 
-          default:
+          case 2:
+          case 3:
             $mes = sprintf("%s's %s win%s a close one at %s%s!",
                            $tms[0]->school->nick_name, $tms[0]->getQualifiedName(), $suf, $art, $reg->name);
             return $this->addRegattaURL($mes, $reg);
