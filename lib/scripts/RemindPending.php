@@ -12,12 +12,17 @@ require_once('AbstractScript.php');
 /**
  * Sends mail to users regarding unfinalized regattas
  *
+ * 2013-10-07: Include missing RP regattas
+ *
  * @author Dayan Paez
  * @version 2013-10-02
  */
 class RemindPending extends AbstractScript {
 
-    private $dry_run = false;
+  const PENDING = 1;
+  const MISSING_RP = 2;
+
+  private $dry_run = false;
 
   /**
    * Sets dry run flag
@@ -38,10 +43,18 @@ class RemindPending extends AbstractScript {
     $schools = array();  // map of school ID to list of accounts
     $users = array();    // map of ID to user
     $regattas = array(); // map of user ID to list of regattas
+    $missing = array();  // map of reg ID to what is missing
 
     $threshold = new DateTime('2 days ago');
     foreach ($season->getRegattas() as $reg) {
-      if ($reg->end_date < $threshold && $reg->hasFinishes() && $reg->finalized === null) {
+      $notify = 0;
+      if ($reg->end_date < $threshold && $reg->hasFinishes() && $reg->finalized === null)
+        $notify |= self::PENDING;
+      $rp = $reg->getRpManager();
+      if (!$rp->isComplete())
+        $notify |= self::MISSING_RP;
+
+      if ($notify > 0) {
         // Notify every account affiliated with the given school
         foreach ($reg->getHosts() as $host) {
           if (!isset($schools[$host->id]))
@@ -52,6 +65,7 @@ class RemindPending extends AbstractScript {
               $regattas[$acc->id] = array();
             }
             $regattas[$acc->id][] = $reg;
+            $missing[$reg->id] = $notify;
           }
         }
       }
@@ -64,9 +78,12 @@ class RemindPending extends AbstractScript {
 
     foreach ($users as $id => $user) {
       if (!$this->dry_run) {
+        $subject = (count($regattas[$id]) == 1) ?
+          sprintf("[Techscore] Please finalized %s", $regattas[$id][0]->name) :
+          "[Techscore] Please finalize your regattas";
         DB::mail($user->id,
-                 "[Techscore] Please finalize your regattas",
-                 $this->getMessage($user, $regattas[$id]));
+                 $subject,
+                 $this->getMessage($user, $regattas[$id], $missing));
       }
       self::errln(sprintf("Sent email to %s (%s) regarding %d regatta(s).", $user, $user->id, count($regattas[$id])));
     }
@@ -77,19 +94,25 @@ class RemindPending extends AbstractScript {
    *
    * @param Account $user the user
    * @param Array:Regatta $regs the list of regattas
+   * @param Array:Const $missing look-up table of what is missing for
+   * each regatta
    */
-  public function getMessage(Account $user, Array $regs) {
+  private function getMessage(Account $user, Array $regs, Array $missing) {
     $body = sprintf("Dear %s,
 
-You are receiving this message because one or more of your regattas are not yet finalized. All official ICSA regattas *must* be finalized in order to be included in reports and on the website.
+You are receiving this message because one or more of your regattas are not yet finalized. All official ICSA regattas *must* be finalized, and all RP information must be accounted for, in order to be included in reports and on the website.
+
+Below is a list of regattas that need your attention, as well as an indication of what needs to be addressed:
 
 ",
                     $user);
     foreach ($regs as $reg) {
-      $body .= sprintf("%s\nhttps://%s/score/%s/finalize\n\n",
-                       $reg->name,
-                       Conf::$HOME,
-                       $reg->id);
+      $body .= sprintf("%s\n", $reg->name);
+      if ($missing[$reg->id] & self::PENDING)
+        $body .= sprintf("Finalize:   https://%s/score/%s/finalize\n", Conf::$HOME, $reg->id);
+      if ($missing[$reg->id] & self::MISSING_RP)
+        $body .= sprintf("Missing RP: https://%s/score/%s/missing\n", Conf::$HOME, $reg->id);
+      $body .= "\n";
     }
     $body .= sprintf("Please take a minute to log in using the links above. If you have any questions, contact Danielle Richards at intersectionals@collegesailing.org.
 
