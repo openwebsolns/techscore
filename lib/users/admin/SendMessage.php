@@ -28,6 +28,7 @@ require_once('users/admin/AbstractAdminUserPane.php');
  *
  *   - conferences: list of conference IDs
  *   - roles:       list of roles (student, staff, coach)
+ *   - schools:     list of users with access to schools
  *   - users:       list of account IDs
  *
  * If this pane is accessed through GET with the above parameters set,
@@ -91,6 +92,20 @@ class SendMessage extends AbstractAdminUserPane {
     foreach (DB::getConferences() as $conf)
       $sel->add(new FOption($conf->id, $conf));
 
+    // schools
+    $p->add($f = $this->createForm(XForm::GET));
+    $f->add($fi = new FItem("All users in schools:", $sel = new XSelectM('list[]')));
+    $fi->add(" ");
+    $fi->add(new XSubmitInput('recipients', "Write message >"));
+    $fi->add(new XHiddenInput('axis', Outbox::R_SCHOOL));
+    $sel->set('size', 10);
+    foreach (DB::getConferences() as $conf) {
+      $sel->add($grp = new XOptionGroup($conf));
+      foreach ($conf->getSchools() as $school) {
+        $grp->add(new FOption($school->id, $school));
+      }
+    }
+
     // roles
     $p->add($f = $this->createForm(XForm::GET));
     $f->add($fi = new FItem("All users with role:", $sel = XSelect::fromArray('list[]', Account::getRoles())));
@@ -131,6 +146,18 @@ class SendMessage extends AbstractAdminUserPane {
     case Outbox::R_CONF:
       $title = "2. Send message to users from conference(s)";
       $recip = implode(", ", $out->arguments);
+      break;
+
+      // schools
+    case Outbox::R_SCHOOL:
+      $title = "2. Send message to users from school(s)";
+      $recip = "";
+      $i = 0;
+      foreach ($out->arguments as $id) {
+        if ($i++ > 0)
+          $recip .= ", ";
+        $recip .= DB::getSchool($id)->nick_name;
+      }
       break;
 
       // roles
@@ -222,6 +249,11 @@ class SendMessage extends AbstractAdminUserPane {
 
       case Outbox::R_USER:
         if (($ind = DB::getAccount($ind)) !== null)
+          $obj = $ind->id;
+        break;
+
+      case Outbox::R_SCHOOL:
+        if (($ind = DB::getSchool($ind)) !== null)
           $obj = $ind->id;
         break;
 

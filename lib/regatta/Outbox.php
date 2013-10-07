@@ -27,6 +27,10 @@ class Outbox extends DBObject {
    */
   const R_CONF = 'conferences';
   /**
+   * @var String send based on school access
+   */
+  const R_SCHOOL = 'schools';
+  /**
    * @var String send based on IDs
    */
   const R_USER = 'users';
@@ -35,6 +39,7 @@ class Outbox extends DBObject {
     return array(self::R_ALL => self::R_ALL,
                  self::R_ROLE => self::R_ROLE,
                  self::R_CONF => self::R_CONF,
+                 self::R_SCHOOL => self::R_SCHOOL,
                  self::R_USER => self::R_USER);
   }
 

@@ -58,7 +58,7 @@ class RemindPending extends AbstractScript {
         // Notify every account affiliated with the given school
         foreach ($reg->getHosts() as $host) {
           if (!isset($schools[$host->id]))
-            $schools[$host->id] = DB::getAccountsForSchool($host, Account::STAT_ACTIVE);
+            $schools[$host->id] = $host->getUsers(Account::STAT_ACTIVE);
           foreach ($schools[$host->id] as $acc) {
             if (!isset($users[$acc->id])) {
               $users[$acc->id] = $acc;

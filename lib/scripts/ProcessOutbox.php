@@ -34,7 +34,7 @@ class ProcessOutbox extends AbstractScript {
       // all
       if ($outbox->recipients == Outbox::R_ALL) {
         foreach (DB::getConferences() as $conf) {
-          foreach ($conf->getUsers() as $acc) {
+          foreach ($conf->getUsers(Account::STAT_ACTIVE) as $acc) {
             $this->send($acc, $outbox->subject, $outbox->content);
             if ($acc->id == $outbox->sender->id)
               $sent_to_me = true;
@@ -43,11 +43,24 @@ class ProcessOutbox extends AbstractScript {
       }
       // conference
       if ($outbox->recipients == Outbox::R_CONF) {
-        foreach ($outbox->arguments as $conf) {
-          $conf = DB::getConference($conf);
+        foreach ($outbox->arguments as $id) {
+          $conf = DB::getConference($id);
           if ($conf === null)
-            throw new RuntimeException("Conference $conf does not exist.");
-          foreach ($conf->getUsers() as $acc) {
+            throw new RuntimeException("Conference $id does not exist.");
+          foreach ($conf->getUsers(Account::STAT_ACTIVE) as $acc) {
+            $this->send($acc, $outbox->subject, $outbox->content);
+            if ($acc->id == $outbox->sender->id)
+              $sent_to_me = true;
+          }
+        }
+      }
+      // schools
+      if ($outbox->recipients == Outbox::R_SCHOOL) {
+        foreach ($outbox->arguments as $id) {
+          $school = DB::getSchool($id);
+          if ($school === null)
+            throw new RuntimeException("School $id does not exist.");
+          foreach ($school->getUsers(Account::STAT_ACTIVE) as $acc) {
             $this->send($acc, $outbox->subject, $outbox->content);
             if ($acc->id == $outbox->sender->id)
               $sent_to_me = true;

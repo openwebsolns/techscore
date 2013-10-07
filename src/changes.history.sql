@@ -611,3 +611,7 @@ alter table burgee add column width tinyint unsigned default null after filedata
 
 -- keep copy of small burgee
 alter table school add column burgee_small int default null after burgee, add foreign key (burgee_small) references burgee(id) on delete set null on update cascade;
+
+-- ad doption to send e-mail to users from school
+alter table outbox change column recipients recipients enum('all','conferences','roles','users','schools') not null default 'all';
+

@@ -585,30 +585,6 @@ class DB extends DBM {
   }
 
   /**
-   * Get all the accounts which have access to given school.
-   *
-   * Access is either assigned directly or indirectly.
-   *
-   * @param School $school the school whose affiliation to check
-   * @param String|null $status a possible Account status
-   * @return Array:Account
-   */
-  public static function getAccountsForSchool(School $school, $status = null) {
-    require_once('regatta/Account.php');
-    $cond = new DBBool(array(new DBCond('admin', null, DBCond::NE),
-                             new DBCond('school', $school),
-                             new DBCondIn('id', DB::prepGetAll(DB::$ACCOUNT_SCHOOL, new DBCond('school', $school), array('account')))),
-                       DBBool::mOR);
-    if ($status !== null) {
-      $statuses = Account::getStatuses();
-      if (!isset($statuses[$status]))
-        throw new InvalidArgumentException("Invalid status provided: $status.");
-      $cond = new DBBool(array($cond, new DBCond('status', $status)));
-    }
-    return self::getAll(self::$ACCOUNT, $cond);
-  }
-
-  /**
    * Checks that the account holder is active. Otherwise, redirect to
    * license. Otherwise, redirect out
    *
@@ -893,12 +869,19 @@ class Conference extends DBObject {
   /**
    * Returns a list of users from this conference
    *
+   * @param String|null $status a possible Account status
    * @return Array:Account list of users
    */
-  public function getUsers() {
+  public function getUsers($status = null) {
     require_once('regatta/Account.php');
-    return DB::getAll(DB::$ACCOUNT,
-                      new DBCondIn('school', DB::prepGetAll(DB::$SCHOOL, new DBCond('conference', $this), array('id'))));
+    $cond = new DBCondIn('school', DB::prepGetAll(DB::$SCHOOL, new DBCond('conference', $this), array('id')));
+    if ($status !== null) {
+      $statuses = Account::getStatuses();
+      if (!isset($statuses[$status]))
+        throw new InvalidArgumentException("Invalid status provided: $status.");
+      $cond = new DBBool(array($cond, new DBCond('status', $status)));
+    }
+    return DB::getAll(DB::$ACCOUNT, $cond);
   }
 
   /**
@@ -1127,6 +1110,29 @@ class School extends DBObject {
                       new DBCondIn('id', DB::prepGetAll(DB::$TEAM,
                                                         new DBCond('school', $this),
                                                         array('regatta'))));
+  }
+
+  /**
+   * Get all the accounts which have access to this school.
+   *
+   * Access is either assigned directly or indirectly.
+   *
+   * @param String|null $status a possible Account status
+   * @return Array:Account
+   */
+  public function getUsers($status = null) {
+    require_once('regatta/Account.php');
+    $cond = new DBBool(array(new DBCond('admin', null, DBCond::NE),
+                             new DBCond('school', $this->id),
+                             new DBCondIn('id', DB::prepGetAll(DB::$ACCOUNT_SCHOOL, new DBCond('school', $this->id), array('account')))),
+                       DBBool::mOR);
+    if ($status !== null) {
+      $statuses = Account::getStatuses();
+      if (!isset($statuses[$status]))
+        throw new InvalidArgumentException("Invalid status provided: $status.");
+      $cond = new DBBool(array($cond, new DBCond('status', $status)));
+    }
+    return DB::getAll(DB::$ACCOUNT, $cond);
   }
 
   /**
