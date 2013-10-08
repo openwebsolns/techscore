@@ -240,19 +240,30 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
 if ($URI_TOKENS[0] == 'inc') {
   if (count($URI_TOKENS) != 4 ||
       $URI_TOKENS[1] != 'img' ||
-      $URI_TOKENS[2] != 'schools' ||
-      ($school = DB::getSchool(basename($URI_TOKENS[3], '.png'))) === null ||
-      $school->burgee === null) {
-    header('HTTP/1.1 404 School burgee not found');
+      $URI_TOKENS[2] != 'schools') {
+    http_response_code(404);
     exit;
   }
+  $name = basename($URI_TOKENS[3], '.png');
+  $id = $name;
+  $prop = 'burgee';
+  if (substr($name, -3) == '-40') {
+    $id = substr($name, 0, strlen($name) - 3);
+    $prop = 'burgee_small';
+  }
+  if (($school = DB::getSchool($id)) === null ||
+      $school->$prop === null) {
+    http_response_code(404);
+    exit;
+  }
+
   // Cache headings
   header("Cache-Control: public");
   header("Pragma: public");
   header("Content-Type: image/png");
   header("Expires: Sun, 21 Jul 2030 14:08:53 -0400");
-  header(sprintf("Last-Modified: %s", $school->burgee->last_updated->format('r')));
-  echo base64_decode($school->burgee->filedata);
+  header(sprintf("Last-Modified: %s", $school->$prop->last_updated->format('r')));
+  echo base64_decode($school->$prop->filedata);
   exit;
 }
 
