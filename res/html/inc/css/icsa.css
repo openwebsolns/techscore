@@ -988,7 +988,11 @@ td.tr-sail {
         padding: 0.5em 0;
     }
 
-.season-summary thead {
+.season-summary, .participation-table {
+    text-align: center;
+}
+
+.season-summary thead, .participation-table thead {
     display: none;
 }
 .season-summary tr {
@@ -996,16 +1000,19 @@ td.tr-sail {
     width: 100%;
     margin-top: 2em;
 }
-.season-summary tr.row0, .season-summary tr.row1 {
+.season-summary tr.row0, .season-summary tr.row1,
+.participation-table tr.row0, .participation-table tr.row1 {
     margin-top: 0;
     display: inline-block;
     width: 25ex;
+    vertical-align: top;
 }
-.season-summary td {
+.season-summary td, .participation-table td {
     display: block;
     width: 100%;
     margin-left: 1em;
-    padding: 0.5ex 0;
+    padding: 0.3ex 0.5ex;
+    white-space: normal;
 }
 
 .season-summary tbody th {
@@ -1014,7 +1021,7 @@ td.tr-sail {
     padding: 0.5em 0;
 }
 
-.season-summary tr td:first-child {
+.season-summary tr td:first-child, .participation-table tr td:first-child {
     margin-left: 0;
     font-size: 110%;
     font-weight: bold;
