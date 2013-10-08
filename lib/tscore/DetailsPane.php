@@ -101,9 +101,9 @@ class DetailsPane extends AbstractPane {
     $reg_form->add(new FItem("On the water:",
                              ($this->participant_mode) ?
                              new XStrong($value) :
-                             new XTextInput("stime", $value,
-                                            array("maxlength"=>8,
-                                                  "size"     =>8))));
+                             new XInput('time', 'stime', $value,
+                                        array("maxlength"=>8,
+                                              "size"     =>8))));
 
     // Venue
     $venue = $this->REGATTA->venue;
