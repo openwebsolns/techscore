@@ -70,12 +70,6 @@ $(document).ready(function(){
 	  // Automatically hide class "accessible"
 	  $(".accessible").css("display","none");
 
-	  // Tablehover
-	  $('.coordinate').tableHover({colClass: 'hover',
-		                             cellClass:'hovercell'});
-	  $('.ordinate').tableHover();
-	  //clickClass:'click'});
-
 	  // Calendar
     var inp = document.getElementById("datepicker");
     if (inp !== null && inp.type == "text") {

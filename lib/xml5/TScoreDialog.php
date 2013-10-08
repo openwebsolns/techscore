@@ -51,12 +51,6 @@ class TScoreDialog extends XPage {
     $this->head->add(new LinkCSS('/inc/css/modern-dialog.css'));
     $this->head->add(new LinkCSS('/inc/css/print.css','print'));
 
-    // Javascript
-    foreach (array("jquery-1.3.min.js",
-                   "jquery.tablehover.min.js") as $scr) {
-      $this->head->add(new XScript('text/javascript', "/inc/js/$scr"));
-    }
-
     // Header
     $this->body->add($div = new XDiv(array('id'=>'headdiv')));
     $div->add(new XH1(new XImg("/inc/img/techscore.png", Conf::$NAME, array("id"=>"headimg"))));

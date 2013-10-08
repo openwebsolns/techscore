@@ -268,7 +268,6 @@ div.conf h4 {
     border-bottom: 1px solid #555;
 }
 
-table.coordinate td:hover {background:#3465a4;color:white;}
 dd {font-weight:bold;margin-left:1em;}
 dt {margin-left:3em;margin-bottom:1em;}
 .message {font-size: 90%; color:#555;margin-left:1em;}

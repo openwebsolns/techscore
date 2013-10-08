@@ -85,14 +85,8 @@ function parseRange(str) {
 //
 // February 3, 2009
 $(document).ready(function(){
-	// Automatically hide class "accessible"
-	$(".accessible").css("display","none");
-
-	// Tablehover
-	$('.coordinate').tableHover({colClass: 'hover',
-		    cellClass:'hovercell'});
-	$('.ordinate').tableHover();
-	//clickClass:'click'});
+	  // Automatically hide class "accessible"
+	  $(".accessible").css("display","none");
 
   	// Calendar
     var inp = document.getElementById("datepicker");
@@ -111,6 +105,6 @@ $(document).ready(function(){
 
     }
 
-	toggleMenu();
-    });
+	  toggleMenu();
+});
 
