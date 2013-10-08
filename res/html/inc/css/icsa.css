@@ -998,6 +998,8 @@ td.tr-sail {
 }
 .season-summary tr.row0, .season-summary tr.row1 {
     margin-top: 0;
+    display: inline-block;
+    width: 25ex;
 }
 .season-summary td {
     display: block;
