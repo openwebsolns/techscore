@@ -123,7 +123,6 @@ class TScorePage extends XPage {
     // Javascript
     foreach (array("jquery-1.3.min.js",
                    "jquery.tablehover.min.js",
-                   "jquery.columnmanager.min.js",
                    "mselect.js") as $scr) {
       $this->head->add(new XScript('text/javascript', "/inc/js/$scr"));
     }
