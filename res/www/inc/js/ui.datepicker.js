@@ -59,7 +59,7 @@ function Datepicker() {
 		dayNamesMin: ['Su','Mo','Tu','We','Th','Fr','Sa'], // Column headings for days starting at Sunday
 		dayStatus: 'Set DD as first week day', // Status text for the day of the week selection
 		dateStatus: 'Select DD, M d', // Status text for the date selection
-		dateFormat: 'mm/dd/yy', // See format options on parseDate
+		dateFormat: 'yy-mm-dd', // See format options on parseDate
 		firstDay: 0, // The first day of the week, Sun = 0, Mon = 1, ...
 		initStatus: 'Select a date', // Initial Status text on opening
 		isRTL: false // True if right-to-left language, false if left-to-right

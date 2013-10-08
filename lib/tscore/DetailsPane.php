@@ -79,15 +79,14 @@ class DetailsPane extends AbstractPane {
 
     // Date
     $start_time = $this->REGATTA->start_time;
-    $date = date_format($start_time, 'm/d/Y');
+    $date = $start_time->format('Y-m-d');
     $reg_form->add(new FItem("Date:",
                              ($this->participant_mode) ?
                              new XStrong($date) :
-                             new XTextInput("sdate",
-                                            $date,
-                                            array("maxlength"=>30,
-                                                  "size"     =>20,
-                                                  "id"=>"datepicker"))));
+                             new XInput('date', 'sdate', $date,
+                                        array("maxlength"=>30,
+                                              "size"     =>20,
+                                              "id"=>"datepicker"))));
     // Duration
     $value = $this->REGATTA->getDuration();
     $reg_form->add(new FItem("Duration (days):",
@@ -98,7 +97,7 @@ class DetailsPane extends AbstractPane {
                                             array("maxlength"=>2,
                                                   "size"     =>2))));
     // On the water
-    $value = date_format($start_time, "H:i");
+    $value = $start_time->format('H:i');
     $reg_form->add(new FItem("On the water:",
                              ($this->participant_mode) ?
                              new XStrong($value) :

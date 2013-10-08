@@ -116,18 +116,27 @@ $(document).ready(function(){
 	$('#show').click(function(){
 		$('#results').showColumns(null); });
 
-
-
 	// Calendar
-	$('#datepicker').datepicker({firstDay: 1,
-		    gotoCurrent: true,
-		    currentText: 'Current'
-		    });
+    var inp = document.getElementById("datepicker");
+    if (inp !== null && inp.type == "text") {
+        var s = document.createElement("script");
+        s.type = "text/javascript";
+        s.src = "/inc/js/ui.datepicker.js";
+        s.onload = function(evt) {
+	          $('#datepicker').datepicker({firstDay: 1,
+		                                     gotoCurrent: true,
+		                                     currentText: 'Current'
+		                                    });
+        };
+        var p = document.getElementsByTagName("script")[0];
+        p.parentNode.insertBefore(s, p);
+
+    }
 
 	// Dialogs
 	$(".dialog").removeAttr("href");
         $(".dialog").click(function() {
-		open_dialog($(this).attr("title"));
-	    });
+		        open_dialog($(this).attr("title"));
+	      });
 
-    });
+});

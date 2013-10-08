@@ -110,7 +110,7 @@ input, select {
     font-size:1em;
     padding:0.15em
 }
-.form_entry input[type="text"], input[type="email"], .form_entry input[type="password"], .form_entry select {
+.form_entry input[type="text"], input[type="email"], input[type="date"], .form_entry input[type="password"], .form_entry select {
     min-width:15em;
     padding:0.15em}
 .form_entry input.race_text, .form_entry input.small {
