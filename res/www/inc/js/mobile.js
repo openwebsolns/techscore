@@ -88,43 +88,11 @@ $(document).ready(function(){
 	// Automatically hide class "accessible"
 	$(".accessible").css("display","none");
 
-	$("#right-grab").addClass("scriptenabled");
-	$("#right-grab").click( function(){
-		if($("#menudiv").is(":hidden")) {
-		    $("#menudiv").show();
-		    $("#headdiv").removeClass("fullscreen");
-		    $("#bottom-grab").removeClass("fullscreen");
-		    $("#bodydiv").removeClass("fullscreen");
-		    $("#right-grab").removeClass("fullscreen");
-		}
-		else {
-		    $("#menudiv").hide();
-		    $("#headdiv").addClass("fullscreen");
-		    $("#bottom-grab").addClass("fullscreen");
-		    $("#bodydiv").addClass("fullscreen");
-		    $("#right-grab").addClass("fullscreen");
-		}
-	    });
-
 	// Tablehover
 	$('.coordinate').tableHover({colClass: 'hover',
 		    cellClass:'hovercell'});
 	$('.ordinate').tableHover();
 	//clickClass:'click'});
-
-	// Hide/show columns
-	$('#hide').click(function(){
-		var l = parseRange($('#hidetext').val());
-		for (var i = 0; i < l.length; i++) {
-		    l[i] += 3;
-		}
-		$('#results').hideColumns(l); 
-	    });
-
-	$('#show').click(function(){
-		$('#results').showColumns(null); });
-
-
 
   	// Calendar
     var inp = document.getElementById("datepicker");

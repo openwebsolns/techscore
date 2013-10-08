@@ -187,7 +187,6 @@ h4#regatta {
     -moz-border-radius: 0.5em;
 }
 
-#bottom-grab {display:none;}
 .port {border:1px solid #cccccc;padding:0 1em 0.5em;margin-bottom:1.5em;}
 .port.collapsed  {
     background: #eee;

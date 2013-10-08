@@ -8,7 +8,7 @@
 function makeRange(list) {
     // Must be unique
     if (list.length == 0)
-	return "";
+	      return "";
     
     list = sort_unique(list);
 
@@ -16,20 +16,20 @@ function makeRange(list) {
     var last  = list[0];
     var range = last;
     for (var i = 1; i < list.length; i++) {
-	if ((Number)(list[i]) == (Number)(last) + 1) {
-	    mid_range = true;
-	}
-	else {
-	    mid_range = false;
-	    if (last != range.substring(range.length-last.length))
-		range += "-" + last;
+	      if ((Number)(list[i]) == (Number)(last) + 1) {
+	          mid_range = true;
+	      }
+	      else {
+	          mid_range = false;
+	          if (last != range.substring(range.length-last.length))
+		            range += "-" + last;
 
-	    range += "," + list[i];
-	}
-	last = list[i];
+	          range += "," + list[i];
+	      }
+	      last = list[i];
     }
     if ( mid_range )
-	range += "-" + last;
+	      range += "-" + last;
 
     return range;
 }
@@ -42,81 +42,41 @@ function makeRange(list) {
 function parseRange(str) {
 
     if ( str.toUpperCase() == "ALL" )
-	return allowed;
+	      return allowed;
 
     if ( str.length == 0 )
-	return new Array();
+	      return new Array();
 
     var list = new Array();
     var n = 0; // Index for list
     // Separate value at commas
     var sub   = str.split(",");
     for (var i = 0; i < sub.length; i++) {
-	var delims = sub[i].split("-");
+	      var delims = sub[i].split("-");
 
-	for (var j = (Number)(delims[0]); j <= (Number)(delims[delims.length-1]); j++) {
-	    list[n] = j;
-	    n++;
-	}
+	      for (var j = (Number)(delims[0]); j <= (Number)(delims[delims.length-1]); j++) {
+	          list[n] = j;
+	          n++;
+	      }
     }
 
     return list;
-}
-
-/**
- * Opens the dialog box
- *
- */
-function open_dialog(loc) {
-    window.open(loc,
-		loc,
-		'height=600px,width=400px,location=no,menubar=no,status=no,toolbar=no,scrollbars=yes');
 }
 
 // Global jQuery and user interface scripts
 //
 // February 3, 2009
 $(document).ready(function(){
-	// Automatically hide class "accessible"
-	$(".accessible").css("display","none");
+	  // Automatically hide class "accessible"
+	  $(".accessible").css("display","none");
 
-	$("#right-grab").addClass("scriptenabled");
-	$("#right-grab").click( function(){
-		if($("#menudiv").is(":hidden")) {
-		    $("#menudiv").show();
-		    $("#headdiv").removeClass("fullscreen");
-		    $("#bottom-grab").removeClass("fullscreen");
-		    $("#bodydiv").removeClass("fullscreen");
-		    $("#right-grab").removeClass("fullscreen");
-		}
-		else {
-		    $("#menudiv").hide();
-		    $("#headdiv").addClass("fullscreen");
-		    $("#bottom-grab").addClass("fullscreen");
-		    $("#bodydiv").addClass("fullscreen");
-		    $("#right-grab").addClass("fullscreen");
-		}
-	    });
+	  // Tablehover
+	  $('.coordinate').tableHover({colClass: 'hover',
+		                             cellClass:'hovercell'});
+	  $('.ordinate').tableHover();
+	  //clickClass:'click'});
 
-	// Tablehover
-	$('.coordinate').tableHover({colClass: 'hover',
-		    cellClass:'hovercell'});
-	$('.ordinate').tableHover();
-	//clickClass:'click'});
-
-	// Hide/show columns
-	$('#hide').click(function(){
-		var l = parseRange($('#hidetext').val());
-		for (var i = 0; i < l.length; i++) {
-		    l[i] += 3;
-		}
-		$('#results').hideColumns(l); 
-	    });
-
-	$('#show').click(function(){
-		$('#results').showColumns(null); });
-
-	// Calendar
+	  // Calendar
     var inp = document.getElementById("datepicker");
     if (inp !== null && inp.type == "text") {
         var s = document.createElement("script");
@@ -132,11 +92,4 @@ $(document).ready(function(){
         p.parentNode.insertBefore(s, p);
 
     }
-
-	// Dialogs
-	$(".dialog").removeAttr("href");
-        $(".dialog").click(function() {
-		        open_dialog($(this).attr("title"));
-	      });
-
 });
