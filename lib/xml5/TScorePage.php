@@ -121,13 +121,12 @@ class TScorePage extends XPage {
     $this->head->add(new LinkCSS('/inc/css/cal.css'));
 
     // Javascript
-    foreach (array("jquery-1.3.min.js", "mselect.js") as $scr) {
-      $this->head->add(new XScript('text/javascript', "/inc/js/$scr"));
-    }
+    $this->head->add(new XScript('text/javascript', '/inc/js/jquery-1.3.min.js'));
     if ($this->mobile) {
       $this->head->add(new XScript('text/javascript', '/inc/js/mobile.js'));
     }
     else {
+      $this->head->add(new XScript('text/javascript', '/inc/js/mselect.js'));
       $this->head->add(new XScript('text/javascript', '/inc/js/form.js'));
     }
   }
