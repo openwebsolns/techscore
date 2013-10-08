@@ -126,12 +126,23 @@ $(document).ready(function(){
 
 
 
-	// Calendar
-	$('#datepicker').datepicker({firstDay: 1,
-		    gotoCurrent: true,
-		    currentText: 'Current'
-		    });
-        
+  	// Calendar
+    var inp = document.getElementById("datepicker");
+    if (inp !== null && inp.type == "text") {
+        var s = document.createElement("script");
+        s.type = "text/javascript";
+        s.src = "/inc/js/ui.datepicker.js";
+        s.onload = function(evt) {
+	          $('#datepicker').datepicker({firstDay: 1,
+		                                     gotoCurrent: true,
+		                                     currentText: 'Current'
+		                                    });
+        };
+        var p = document.getElementsByTagName("script")[0];
+        p.parentNode.insertBefore(s, p);
+
+    }
+
 	toggleMenu();
     });
 

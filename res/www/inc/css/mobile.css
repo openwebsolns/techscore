@@ -414,3 +414,5 @@ a.empty {
 .tr-rotation-template thead th, .tr-rotation-template td {
     text-align: left;
 }
+p.warning, #announcements .warn {background:#f3f3bb;border:1px solid orange;}
+p.warning {padding: 0.5em;}
