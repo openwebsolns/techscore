@@ -186,11 +186,9 @@ class DetailsPane extends AbstractPane {
       else {
         $reg_form->add($f_item = new FItem('Host(s):', $f_sel = new XSelectM("host[]", array('size'=>10))));
 
-        $f_sel->add($opt_group = new FOptionGroup("Current"));
         $schools = array(); // track these so as not to include them later
         foreach ($hosts as $host) {
           $schools[$host->id] = $host;
-          $opt_group->add(new FOption($host->id, $host, array('selected' => 'selected')));
         }
         $f_item->add(new XMessage("Hold down Ctrl to choose more than one"));
 
@@ -198,8 +196,10 @@ class DetailsPane extends AbstractPane {
         foreach (DB::getConferences() as $conf) {
           $opts = array();
           foreach ($this->USER->getSchools($conf) as $school) {
-            if (!isset($schools[$school->id]))
-              $opts[] = new FOption($school->id, $school);
+            $opt = new FOption($school->id, $school);
+            if (isset($schools[$school->id]))
+              $opt->set('selected', 'selected');
+            $opts[] = $opt;
           }
           if (count($opts) > 0)
             $f_sel->add(new FOptionGroup($conf, $opts));
