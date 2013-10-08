@@ -23,6 +23,7 @@ class UpdateSeason extends AbstractScript {
     require_once('xml5/TPublicPage.php');
     $name = $season->fullString();
     $page = new TPublicPage($name);
+    $page->body->set('class', 'season-page');
     $page->setDescription(sprintf("Summary of ICSA regattas for %s", $name));
     $page->addMetaKeyword($season->getSeason());
     $page->addMetaKeyword($season->getYear());

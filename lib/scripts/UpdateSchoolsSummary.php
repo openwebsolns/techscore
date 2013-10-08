@@ -21,6 +21,7 @@ class UpdateSchoolsSummary extends AbstractScript {
   public function run() {
     require_once('xml5/TPublicPage.php');
     $page = new TPublicPage("All Schools");
+    $page->body->set('class', 'school-summary-page');
     $page->setDescription("Listing of schools in ICSA, with regatta participation.");
     $page->addMetaKeyword("schools");
 

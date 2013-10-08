@@ -886,15 +886,16 @@ td.tr-sail {
         font-size: 11pt;
         display: block;
         max-width: 100%;
-        padding: 0 0 0 14ex;
+        padding: 0 0 0 6ex;
         position: relative;
         min-width: 20ex;
         width: auto;
+        margin: 0;
     }
 
     #menu li {
         display: inline-block;
-        width: 28ex;
+        width: 20ex;
         padding: 0;
         text-align: center;
         border: none;
@@ -913,20 +914,20 @@ td.tr-sail {
         position: absolute;
         text-align: left;
         border: none;
-        width: 20ex;
+        width: 10ex;
     }
 
     li#logo img {
         margin: 0;
         position: static;
         top: 0;
-        width: 20ex;
+        width: 10ex;
+        height: auto;
     }
 
     #top-wrapper {
-        display: block;
-        width: auto;
-        margin-bottom: 1ex;
+        display: table;
+        width: 100%;
     }
 
     #page-footer {
@@ -943,15 +944,15 @@ td.tr-sail {
     }
 
     #social {
-        display: block;
+        display: table-cell;
         height: 20px;
         text-align: center;
-        width: 100%;
+        width: 10ex;
     }
 
     #search-wrapper {
-        display: block;
-        width: 100%;
+        display: table-cell;
+        width: auto;
         height: 35px;
     }
 
@@ -999,6 +1000,9 @@ td.tr-sail {
     display: block;
     width: 100%;
     margin-top: 2em;
+}
+.season-summary tr:first-child {
+    margin-top: 0;
 }
 .season-summary tr.row0, .season-summary tr.row1,
 .participation-table tr.row0, .participation-table tr.row1 {
@@ -1080,6 +1084,36 @@ td.tr-sail {
 #in-progress td {
     border-bottom: none;
 }
+
+#content-header span {
+    line-height: auto;
+}
+#content-header h1 {
+    font-size: 130%;
+}
+#page-info {
+    font-size: 80%;
+    margin-bottom: 0;
+}
+#page-info th {
+    width: 25%;
+    padding: 0.1em;
+}
+#page-info td {
+    padding: 0.1em 0.5em;
+}
+#page-info td#social-wrapper {
+    padding-top: 0.5em;
+}
+.season-page #page-info, .school-page #page-info, .school-summary-page #page-info {
+    display: none;
+}
+}
+
+@media screen and (max-width:500px) {
+    #content-header #left-fill, #content-header #right-fill {
+        display: none;
+    }
 }
 
 @media print {

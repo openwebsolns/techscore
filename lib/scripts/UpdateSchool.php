@@ -45,6 +45,7 @@ class UpdateSchool extends AbstractScript {
     require_once('xml5/TPublicPage.php');
 
     $page = new TPublicPage(sprintf("%s | %s", $school, $season->fullString()));
+    $page->body->set('class', 'school-page');
     $page->setDescription(sprintf("Summary of activity for %s during the %s season.", $school, $season->fullString()));
     $page->addMetaKeyword($school->id);
     $page->addMetaKeyword($school->name);
