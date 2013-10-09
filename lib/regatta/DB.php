@@ -1118,14 +1118,19 @@ class School extends DBObject {
    * Access is either assigned directly or indirectly.
    *
    * @param String|null $status a possible Account status
+   * @param boolean $effective falase to ignore permissions and return
+   * only assigned values
+   *
    * @return Array:Account
    */
-  public function getUsers($status = null) {
+  public function getUsers($status = null, $effective = true) {
     require_once('regatta/Account.php');
-    $cond = new DBBool(array(new DBCond('admin', null, DBCond::NE),
-                             new DBCond('school', $this->id),
-                             new DBCondIn('id', DB::prepGetAll(DB::$ACCOUNT_SCHOOL, new DBCond('school', $this->id), array('account')))),
-                       DBBool::mOR);
+    $cond = new DBCond('school', $this->id);
+    if ($effective !== false) {
+      $cond = new DBBool(array(new DBCond('admin', null, DBCond::NE),
+                               $cond,
+                               new DBCondIn('id', DB::prepGetAll(DB::$ACCOUNT_SCHOOL, new DBCond('school', $this->id), array('account')))),
+                         DBBool::mOR);
     if ($status !== null) {
       $statuses = Account::getStatuses();
       if (!isset($statuses[$status]))

@@ -60,7 +60,7 @@ class ProcessOutbox extends AbstractScript {
           $school = DB::getSchool($id);
           if ($school === null)
             throw new RuntimeException("School $id does not exist.");
-          foreach ($school->getUsers(Account::STAT_ACTIVE) as $acc) {
+          foreach ($school->getUsers(Account::STAT_ACTIVE, false) as $acc) {
             $this->send($acc, $outbox->subject, $outbox->content);
             if ($acc->id == $outbox->sender->id)
               $sent_to_me = true;
