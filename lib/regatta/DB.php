@@ -1131,6 +1131,7 @@ class School extends DBObject {
                                $cond,
                                new DBCondIn('id', DB::prepGetAll(DB::$ACCOUNT_SCHOOL, new DBCond('school', $this->id), array('account')))),
                          DBBool::mOR);
+    }
     if ($status !== null) {
       $statuses = Account::getStatuses();
       if (!isset($statuses[$status]))
