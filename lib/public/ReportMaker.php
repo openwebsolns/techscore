@@ -108,7 +108,8 @@ class ReportMaker {
           $p->add($sub = new XDiv(array('class'=>'chart-container'),
                                   array(new XElem('object', array('data'=>'history.svg', 'type'=>'image/svg+xml'),
                                                   array(new XP(array('class'=>'notice'),
-                                                               "Your browser does not support SVG elements."))))));
+                                                               array("Your browser does not support embedded SVG elements. ",
+                                                                     new XA('history.svg', "View the history chart."))))))));
         }
       }
     }

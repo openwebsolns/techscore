@@ -143,6 +143,12 @@ h1 {
     width: auto;
     margin: 0 0.5ex;
 }
+
+.notice {
+    border:1px solid orange;
+    background:#f3f3bb;
+    padding: 1ex;
+}
 }
 
 @media screen and (min-width:800px) {
@@ -1241,4 +1247,9 @@ thead {
     margin: 0.5ex;
     background: #f2ede6;
     border-width: 1px;
+}
+
+#ms-message {
+    font-size: 16pt;
+    color: #888;
 }
