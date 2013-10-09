@@ -16,22 +16,11 @@
         else if (!/mobile=false/.test(c)) {
             var f = function(evt) {
                 var d = document.createElement("div");
-                d.style.background = "rgba(0,0,0,0.7)";
-                d.style.position = "fixed";
-                d.style.top = 0;
-                d.style.left = 0;
-                d.style.right = 0;
-                d.style.bottom = 0;
-                d.style.zIndex = 50;
-                d.style.paddingTop = "50px";
+                d.setAttribute("id", "ms-screen");
                 document.body.appendChild(d);
 
                 var s = document.createElement("div");
-                s.style.display = "table";
-                s.style.background = "white";
-                s.style.borderRadius = "1ex";
-                s.style.margin = "0 auto";
-                s.style.padding = "1ex 2ex";
+                s.setAttribute("id", "ms-container");
                 d.appendChild(s);
 
                 var b = document.createElement("p");
@@ -39,6 +28,7 @@
                 s.appendChild(b);
 
                 b = document.createElement("p");
+                b.setAttribute("id", "ms-buttons");
                 s.appendChild(b);
                 var r = document.createElement("button");
                 r.setAttribute("type", "button");

@@ -1206,3 +1206,39 @@ thead {
     overflow-y: hidden;
 }
 }
+
+/* Rules for mobile switch */
+#ms-screen {
+    background: rgba(0,0,0,0.7);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    padding-top: 50px;
+}
+
+#ms-container {
+    display: table;
+    background: white;
+    border-radius: 2ex;
+    margin: 0 auto;
+    padding: 1ex 2ex;
+    font-size: 24pt;
+    line-height: 2ex;
+    max-width: 80%;
+    font-family: Arial,sans-serif;
+}
+
+#ms-buttons {
+    text-align: center;
+}
+
+#ms-buttons button {
+    border-radius: 1ex;
+    padding: 1ex 2ex;
+    margin: 0.5ex;
+    background: #f2ede6;
+    border-width: 1px;
+}

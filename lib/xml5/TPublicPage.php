@@ -204,7 +204,7 @@ class TPublicPage extends XPage {
     }
 
     if (DB::g(STN::GCSE_ID) !== null) {
-      $this->head->add(new XScript('text/javascript', sprintf('//www.google.com/cse/cse.js?cx=%s', DB::g(STN::GCSE_ID)), null, array('async'=>'true')));
+      $this->head->add(new XScript('text/javascript', sprintf('//www.google.com/cse/cse.js?cx=%s', DB::g(STN::GCSE_ID)), null, array('async'=>'async', 'defer'=>'defer')));
       $sw->add(new XDiv(array('class'=>'gcse-search')));
     }
 
@@ -255,7 +255,7 @@ class TPublicPage extends XPage {
                                                  'data-show-faces'=>'false',
                                                  'data-send'=>'false')))));
         
-          $this->head->add($scr = new XScript('text/javascript', sprintf('//connect.facebook.net/en_US/all.js#xfbml=1&appId=%s', DB::g(STN::FACEBOOK_APP_ID)), null, array('async'=>'true')));
+          $this->head->add($scr = new XScript('text/javascript', sprintf('//connect.facebook.net/en_US/all.js#xfbml=1&appId=%s', DB::g(STN::FACEBOOK_APP_ID)), null, array('async'=>'async', 'defer'=>'defer')));
           $scr->set('id', 'facebook-jssdk');
         }
         if (DB::g(STN::TWITTER) !== null) {
@@ -279,7 +279,7 @@ class TPublicPage extends XPage {
 
     // UserVoice
     if (DB::g(STN::USERVOICE_ID) !== null && DB::g(STN::USERVOICE_FORUM) !== null) {
-      $this->head->add(new XScript('text/javascript', sprintf('//widget.uservoice.com/%s.js', DB::g(STN::USERVOICE_ID)), null, array('async'=>'true')));
+      $this->head->add(new XScript('text/javascript', sprintf('//widget.uservoice.com/%s.js', DB::g(STN::USERVOICE_ID)), null, array('async'=>'async', 'defer'=>'defer')));
       $this->head->add(new XScript('text/javascript', null,
                                    sprintf('
 UserVoice = window.UserVoice || [];
