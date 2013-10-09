@@ -886,20 +886,21 @@ td.tr-sail {
         font-size: 11pt;
         display: block;
         max-width: 100%;
-        padding: 0 0 0 6ex;
+        padding: 0;
         position: relative;
         min-width: 20ex;
         width: auto;
         margin: 0;
+        text-align: center;
     }
 
     #menu li {
         display: inline-block;
-        width: 20ex;
-        padding: 0;
+        padding: 0 2ex;
         text-align: center;
         border: none;
         border-bottom: 1px solid #ddd;
+        background: rgba(255,255,255,0.8);
     }
 
     #menu li a {
@@ -914,14 +915,16 @@ td.tr-sail {
         position: absolute;
         text-align: left;
         border: none;
-        width: 10ex;
+        width: 20ex;
+        z-index: -1;
+        padding: 0;
     }
 
     li#logo img {
         margin: 0;
         position: static;
         top: 0;
-        width: 10ex;
+        width: 20ex;
         height: auto;
     }
 
@@ -989,6 +992,11 @@ td.tr-sail {
         padding: 0.5em 0;
     }
 
+    h3 {
+        margin: 1ex;
+        font-size: 90%;
+    }
+
 .season-summary, .participation-table {
     text-align: center;
 }
@@ -1042,7 +1050,7 @@ td.tr-sail {
 
 .coming-regattas td {
     display: block;
-    padding: 1ex 5ex;
+    padding: 0.25ex 0.5ex;
     background: #f2ede6;
 }
 
@@ -1050,14 +1058,14 @@ td.tr-sail {
     text-align: left;
     font-size: 110%;
     font-weight: bold;
-    padding-left: 1ex;
 }
 
 .coming-regattas tr {
     display: inline-block;
-    min-width: 25ex;
-    width: 45%;
+    width: 20ex;
     vertical-align: top;
+    font-size: 95%;
+    padding: 0.5ex;
 }
 
 .coming-regattas a {
@@ -1107,6 +1115,23 @@ td.tr-sail {
 }
 .season-page #page-info, .school-page #page-info, .school-summary-page #page-info {
     display: none;
+}
+.season-page #content-header,
+.school-page #content-header,
+.school-summary-page #content-header {
+    background: none;
+    border: none;
+}
+.season-page #content-header h1,
+.school-page #content-header h1,
+.school-summary-page #content-header h1 {
+    position: static;
+    top: 0;
+}
+.season-page #page-content,
+.school-page #page-content,
+.school-summary-page #page-content {
+    padding-top: 1.5em;
 }
 }
 
