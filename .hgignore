@@ -18,9 +18,6 @@ changes.current.sql
 S3Writer.conf.local*.php
 src/md5sum
 
-# Public files
-html/*
-
 # Crontab
 crontab
 crontab.orig
@@ -38,3 +35,8 @@ lib/ChangeLog
 etc/*
 
 lib/scripts/hooks-installed/*
+
+# Public files
+syntax: regexp
+
+^html/.*
