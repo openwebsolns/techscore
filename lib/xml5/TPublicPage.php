@@ -127,13 +127,14 @@ class TPublicPage extends XPage {
     // Stylesheets
     $this->head->add(new XMetaHTTP('content-type', 'text/html;charset=UTF-8'));
     $this->head->add(new XMeta('generator', "OpenWeb Solutions, LLC"));
-    $this->head->add(new XMeta('viewport', 'width=device-width,initial-scale=1,maximum-scale=1'));
     if ($this->description !== null)
       $this->head->add(new XMeta('description', $this->description));
     if (count($this->keywords) > 0)
       $this->head->add(new XMeta('keywords', implode(',', $this->keywords)));
     foreach ($this->getCSS() as $css)
       $this->head->add(new LinkCSS($css, 'screen,print'));
+
+    $this->head->add(new XScript('text/javascript', '/inc/js/mobile-switch.js'));
 
     // Add Google Analytics code
     $this->head->add(new XScript('text/javascript', null,
