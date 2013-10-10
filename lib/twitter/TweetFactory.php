@@ -102,7 +102,7 @@ class TweetFactory {
           }
         }
         // Interesting cases: lead is "very" small
-        if (($tms[1]->dt_score - $tms[0]->dt_score) < count($tms)) {
+        if (($tms[1]->dt_score - $tms[0]->dt_score) * 2 < count($tms)) {
           switch (rand(0, 4)) {
           case 0:
           case 1:
