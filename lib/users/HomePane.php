@@ -89,7 +89,7 @@ class HomePane extends AbstractUserPane {
       DB::$REGATTA->db_set_order(array('start_time' => true));
       $regattas = DB::getAll(DB::$REGATTA,
                              new DBBool(array(new DBCond('start_time', $start, DBCond::LE),
-                                              new DBCond('end_date', DB::$NOW, DBCond::GE))));
+                                              new DBCond('end_date', $end, DBCond::GE))));
       DB::$REGATTA->db_set_order();
 
       require_once('xml5/UserRegattaTable.php');
