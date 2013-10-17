@@ -113,7 +113,10 @@ class SummaryPane extends AbstractPane {
       $summ = $this->REGATTA->getSummary($day);
       if ($summ === null)
         $summ = new Daily_Summary();
+      $min_length = 20;
       $summ->summary = DB::$V->incString($args, 'summary', 1, 16000, null);
+      if ($summ->summary !== null && strlen($summ->summary) < $min_length)
+        throw new SoterException("Insufficient summary. Please include a few sentences describing the event conditions, staff involved, winning teams, and other note-worthy observations.");
       $this->REGATTA->setSummary($day, $summ);
       Session::pa(new PA(sprintf("Updated summary for %s.", $day->format('l, F j'))));
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SUMMARY);
