@@ -53,7 +53,7 @@ class NewRegattaPane extends AbstractUserPane {
         $r[$key] = $args[$key];
     }
 
-    $f->add(new FItem("Name:", new XTextInput("name", $r["name"], array('maxlength'=>40))));
+    $f->add(new FItem("Name:", new XTextInput("name", $r["name"], array('maxlength'=>35))));
 
     $f->add($fi = new FItem("Private:", $chk = new XCheckboxInput('private', 1, array('id'=>'chk-priv'))));
     if ($r['private'] !== null)
@@ -108,7 +108,7 @@ class NewRegattaPane extends AbstractUserPane {
       $error = false;
       // 1. Check name
       if (!DB::$V->hasString($name, $args, 'name', 1, 36)) {
-        Session::pa(new PA("Invalid (empty) name.", PA::E));
+        Session::pa(new PA("Invalid name.", PA::E));
         $error = true;
       }
       // 1b: Private?
