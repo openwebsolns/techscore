@@ -1491,9 +1491,9 @@ class FullRegatta extends DBObject {
   }
 
   /**
-     * Call this method to sync cacheable data about this regatta
-     *
-     */
+   * Call this method to sync cacheable data about this regatta
+   *
+   */
   public function setData() {
     $this->dt_num_divisions = count($this->getDivisions());
     if ($this->dt_num_divisions == 0)
