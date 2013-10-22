@@ -588,10 +588,14 @@ class Daemon extends AbstractScript {
         // If the regatta is personal, but a request still exists, then
         // request the update of the seasons, the schools, and the
         // season summaries, regardless.
-        if ($reg->private) {
+        if ($reg->private !== null || $reg->inactive !== null) {
           $this->queueSeason($season, UpdateSeasonRequest::ACTIVITY_REGATTA);
           foreach ($reg->getTeams() as $team)
             $this->queueSchoolSeason($team->school, $season);
+          if ($reg->nick !== null) {
+            $root = $reg->getURL();
+            $to_delete[$root] = $root;
+          }
           continue;
         }
 
