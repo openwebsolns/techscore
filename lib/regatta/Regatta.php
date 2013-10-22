@@ -1456,11 +1456,14 @@ class FullRegatta extends DBObject {
     }
     
     // Remove extraneous entries
+    $keep = array();
+    foreach ($this->getDivisions() as $div)
+      $keep[(string)$div] = $div;
     $cond = new DBCondIn('team', DB::prepGetAll(DB::$TEAM, new DBCond('regatta', $this), array('id')));
-    $divs = $this->getDivisions();
-    if (count($divs) > 0)
-      $cond = new DBBool(array($cond, new DBCondIn('division', $divs, DBCondIn::NOT_IN)));
-    DB::removeAll(DB::$DT_TEAM_DIVISION, $cond);
+    foreach (DB::getAll(DB::$DT_TEAM_DIVISION, $cond) as $team_div) {
+      if (!isset($keep[$team_div->division]))
+        DB::remove($team_div);
+    }
   }
 
   /**
