@@ -1213,6 +1213,7 @@ class FullRegatta extends DBObject {
    */
   public function runScore(Race $race) {
     $this->__get('scorer')->score($this, array($race));
+    $this->setStatus();
     if ($this->scoring == Regatta::SCORING_STANDARD)
       $this->setRanks($race->division);
     else
@@ -1224,6 +1225,7 @@ class FullRegatta extends DBObject {
    */
   public function doScore() {
     $this->__get('scorer')->score($this, $this->getScoredRaces());
+    $this->setStatus();
     $this->setRanks();
   }
 
@@ -1521,25 +1523,51 @@ class FullRegatta extends DBObject {
     $this->dt_season = $this->getSeason();
 
     // status
+    $this->dt_status = $this->calcStatus();
+    DB::set($this);
+  }
+
+  /**
+   * Shortcut for committing the dt_status property
+   *
+   * This function should be called whenever the status of the regatta
+   * needs to be updated. It is a shortcut to avoid calling setData.
+   *
+   */
+  public function setStatus() {
+    if ($this->dt_num_races === null)
+      $this->setData();
+    else {
+      $this->dt_status = $this->calcStatus();
+      DB::set($this);
+    }
+  }
+
+  /**
+   * Determines the correct value to use for dt_status property
+   *
+   * Will return one of the class constants, or possibly the last
+   * scored race.
+   *
+   * @return String
+   */
+  public function calcStatus() {
     $now = new DateTime();
     $end = $this->__get('end_date');
     $end->setTime(23,59,59);
     if ($this->__get('finalized') !== null)
-      $this->dt_status = Regatta::STAT_FINAL;
+      return Regatta::STAT_FINAL;
     elseif (!$this->hasFinishes()) {
       if ($this->dt_num_races > 0)
-        $this->dt_status = Regatta::STAT_READY;
-      else
-        $this->dt_status = Regatta::STAT_SCHEDULED;
+        return Regatta::STAT_READY;
+      return Regatta::STAT_SCHEDULED;
     }
     elseif (count($this->getUnscoredRaces()) == 0)
-      $this->dt_status = Regatta::STAT_FINISHED;
+      return Regatta::STAT_FINISHED;
     else {
       $last_race = $this->getLastScoredRace();
-      $this->dt_status = ($last_race === null) ? Regatta::STAT_READY : (string)$last_race;
+      return ($last_race === null) ? Regatta::STAT_READY : (string)$last_race;
     }
-
-    DB::set($this);
   }
 
   /**
