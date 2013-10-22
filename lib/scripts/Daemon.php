@@ -561,6 +561,30 @@ class Daemon extends AbstractScript {
         $this->queueRegattaActivity($reg, $r->activity);
         $season = $reg->getSeason();
 
+        // If season change, then check for old season to delete, and
+        // queue old seasons as well
+        if ($r->activity == UpdateRequest::ACTIVITY_SEASON && $r->argument !== null) {
+          $prior_season = DB::getSeason($r->argument);
+          if ($prior_season !== null) {
+            $this->seasons[$prior_season->id] = $prior_season;
+            // Queue for deletion
+            $root = sprintf('/%s/%s', $prior_season->id, $reg->nick);
+            $to_delete[$root] = $root;
+
+            foreach ($reg->getTeams() as $team)
+              $this->queueSchoolSeason($team->school, $prior_season);
+          }
+        }
+
+        // If team change, then check for affected school in argument,
+        // and update that school's season page
+        if ($r->activity == UpdateRequest::ACTIVITY_TEAM && $r->argument !== null) {
+          $school = DB::getSchool($r->argument);
+          if ($school !== null) {
+            $this->queueSchoolSeason($school, $season);
+          }
+        }
+
         // If the regatta is personal, but a request still exists, then
         // request the update of the seasons, the schools, and the
         // season summaries, regardless.
@@ -577,9 +601,10 @@ class Daemon extends AbstractScript {
         case UpdateRequest::ACTIVITY_FINALIZED:
         case UpdateRequest::ACTIVITY_SEASON:
         case UpdateRequest::ACTIVITY_SCORE:
-          $this->queueSeason($season, UpdateSeasonRequest::ACTIVITY_REGATTA);
           foreach ($reg->getTeams() as $team)
             $this->queueSchoolSeason($team->school, $season);
+        case UpdateRequest::ACTIVITY_TEAM:
+          $this->queueSeason($season, UpdateSeasonRequest::ACTIVITY_REGATTA);
           break;
           // ------------------------------------------------------------
         case UpdateRequest::ACTIVITY_RP:
@@ -589,21 +614,6 @@ class Daemon extends AbstractScript {
           break;
           // ------------------------------------------------------------
           // Rotation and summary do not affect seasons or schools
-        }
-
-        // If season change, then check for old season to delete, and
-        // queue old seasons as well
-        if ($r->activity == UpdateRequest::ACTIVITY_SEASON && $r->argument !== null) {
-          $prior_season = DB::getSeason($r->argument);
-          if ($prior_season !== null) {
-            $this->seasons[$prior_season->id] = $prior_season;
-            // Queue for deletion
-            $root = sprintf('/%s/%s', $prior_season->id, $reg->nick);
-            $to_delete[$root] = $root;
-
-            foreach ($reg->getTeams() as $team)
-              $this->queueSchoolSeason($team->school, $prior_season);
-          }
         }
       }
 

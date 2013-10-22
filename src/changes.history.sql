@@ -615,3 +615,5 @@ alter table school add column burgee_small int default null after burgee, add fo
 -- ad doption to send e-mail to users from school
 alter table outbox change column recipients recipients enum('all','conferences','roles','users','schools') not null default 'all';
 
+-- add team activity
+alter table pub_update_request change column activity activity enum('rotation','score','rp','details','summary','finalized','url','season','rank','team') not null default 'score';

@@ -54,7 +54,8 @@ class ReplaceTeamPane extends AbstractPane {
       $school = DB::$V->reqID($args, 'school', DB::$SCHOOL, "Invalid or missing school with which to replace $team.");
 
       // is the team to be substituted from the chosen school?
-      if ($school == $team->school)
+      $old_school = $team->school;
+      if ($school == $old_school)
         throw new SoterException("It is useless to replace a team from the same school with itself. I'll ignore that.");
 
       // do the replacement
@@ -84,13 +85,9 @@ class ReplaceTeamPane extends AbstractPane {
       $rp = $this->REGATTA->getRpManager();
       $rp->reset($team);
 
-      // request recreation of rotation and scores, if applicable
-      $rotation = $this->REGATTA->getRotation();
-      if ($rotation->isAssigned())
-        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
-      if ($this->REGATTA->hasFinishes())
-        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
-
+      // request team change
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_TEAM, $old_school->id);
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_TEAM, $new->school->id);
       Session::pa(new PA("Replaced team \"$old_name\" with \"$team\"."));
       return array();
     }

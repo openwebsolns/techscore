@@ -192,6 +192,23 @@ class UpdateRegatta extends AbstractScript {
         }
       }
     }
+    if (in_array(UpdateRequest::ACTIVITY_TEAM, $activities)) {
+      $front = true;
+      $front_history = true;
+      if ($rot->isAssigned()) {
+        $rotation = true;
+      }
+      if ($reg->hasFinishes()) {
+        $full = true;
+
+        // Individual division scores (do not include if singlehanded as
+        // this is redundant)
+        if (!$reg->isSingleHanded()) {
+          $divisions = true;
+          $divisions_history = true;
+        }
+      }
+    }
     if (in_array(UpdateRequest::ACTIVITY_RP, $activities)) {
       $sync_rp = true;
       if ($reg->isSinglehanded()) {
