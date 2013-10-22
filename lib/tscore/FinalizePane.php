@@ -150,7 +150,7 @@ class FinalizePane extends AbstractPane {
         }
       }
 
-      DB::set($this->REGATTA);
+      $this->REGATTA->setData(); // implies update to object
       Session::pa(new PA("Regatta has been finalized."));
       if ($removed > 0)
         Session::pa(new PA("Removed $removed unsailed races.", PA::I));

@@ -484,6 +484,7 @@ class TeamRacesPane extends AbstractPane {
       }
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA("Removed round $round."));
+      $this->REGATTA->setData(); // changed races
       if ($scored) {
         $this->REGATTA->setRanks();
         foreach ($this->REGATTA->getTeams() as $team)
@@ -548,6 +549,7 @@ class TeamRacesPane extends AbstractPane {
       foreach ($templ->getMasters() as $master)
         $round->addMaster($master);
 
+      $this->REGATTA->setData(); // new races
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA(array(sprintf("Added new round %s based on %s. ", $round, $templ),
                                new XA($this->link('race-order', array('order-rounds'=>'', 'round'=>array($round->id))), "Order races"),
@@ -676,6 +678,7 @@ class TeamRacesPane extends AbstractPane {
         DB::insertAll($added);
       }
 
+      $this->REGATTA->setData(); // added new races
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA(sprintf("Added %d new races in round %s. ", $num_added, $round)));
       $this->redirect('races');
@@ -800,6 +803,7 @@ class TeamRacesPane extends AbstractPane {
         $round->addMaster($master_rounds[$id], count($list));
       }
 
+      $this->REGATTA->setData(); // added new races
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA(array("Added new \"completion\" round. ",
                                new XA($this->link('race-order', array('order-rounds'=>'', 'round'=>array($round->id))), "Order races"),

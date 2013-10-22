@@ -61,7 +61,7 @@ class DeleteTeamsPane extends AbstractPane {
         $team = $this->REGATTA->getTeam($id);
         if ($team !== null) {
           $this->REGATTA->removeTeam($team);
-          UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RP, $team->school->id);
+          UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_TEAM, $team->school->id);
           $removed++;
         }
       }
@@ -69,15 +69,10 @@ class DeleteTeamsPane extends AbstractPane {
         throw new SoterException("No valid teams to remove provided.");
       Session::pa(new PA("Removed $removed team(s)."));
 
-      if ($this->has_rots)
-        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
-      if ($this->has_scores) {
-        // Rescore the regatta
-        $this->REGATTA->doScore();
-        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
-      }
-      if (count($this->REGATTA->getTeams()) == 0)
+      if (count($this->REGATTA->getTeams()) == 0) {
+        $this->REGATTA->setStatus();
         UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DETAILS);
+      }
     }
     return array();
   }

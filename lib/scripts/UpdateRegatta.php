@@ -140,7 +140,6 @@ class UpdateRegatta extends AbstractScript {
 
     // Based on the list of activities, determine what files need to
     // be (re)serialized
-    $sync = false;
     $sync_rp = false;
 
     $tweet_finalized = false;
@@ -177,7 +176,6 @@ class UpdateRegatta extends AbstractScript {
       }
     }
     if (in_array(UpdateRequest::ACTIVITY_SCORE, $activities)) {
-      $sync = true;
       $sync_rp = true; // re-rank sailors
       $front = true;
       $front_history = true;
@@ -228,7 +226,6 @@ class UpdateRegatta extends AbstractScript {
     if (in_array(UpdateRequest::ACTIVITY_DETAILS, $activities) ||
         in_array(UpdateRequest::ACTIVITY_SEASON, $activities)) {
       // do them all (except RP)!
-      $sync = true;
       $front = true;
       $front_history = true;
       if ($rot->isAssigned())
@@ -245,7 +242,6 @@ class UpdateRegatta extends AbstractScript {
       }
     }
     if (in_array(UpdateRequest::ACTIVITY_FINALIZED, $activities)) {
-      $sync = true; // status change
       $sync_rp = true; // some races were removed
       $tweet_finalized = true;
     }
@@ -253,7 +249,6 @@ class UpdateRegatta extends AbstractScript {
     // ------------------------------------------------------------
     // Perform the updates
     // ------------------------------------------------------------
-    if ($sync)       $reg->setData();
     if ($sync_rp)    $reg->setRpData();
 
     $D = $reg->getURL();
@@ -294,7 +289,6 @@ class UpdateRegatta extends AbstractScript {
   private function runTeamRacing(FullRegatta $reg, Array $activities, Array $changed) {
     // Based on the list of activities, determine what files need to
     // be (re)serialized
-    $sync = false;
     $sync_rp = false;
 
     $tweet_finalized = false;
@@ -323,12 +317,10 @@ class UpdateRegatta extends AbstractScript {
     }
 
     if (in_array(UpdateRequest::ACTIVITY_ROTATION, $activities)) {
-      $sync = true;
       $rotation = true;
       $allraces = true;
     }
     if (in_array(UpdateRequest::ACTIVITY_SCORE, $activities)) {
-      $sync = true;
       $sync_rp = true; // re-rank sailors
       $front = true;
       $allraces = true;
@@ -346,9 +338,9 @@ class UpdateRegatta extends AbstractScript {
       $front = true;
     }
     if (in_array(UpdateRequest::ACTIVITY_DETAILS, $activities) ||
-        in_array(UpdateRequest::ACTIVITY_SEASON, $activities)) {
+        in_array(UpdateRequest::ACTIVITY_SEASON, $activities) ||
+        in_array(UpdateRequest::ACTIVITY_TEAM, $activities)) {
       // do them all (except RP)!
-      $sync = true;
       $front = true;
       $rotation = true;
       $allraces = true;
@@ -358,7 +350,6 @@ class UpdateRegatta extends AbstractScript {
       }
     }
     if (in_array(UpdateRequest::ACTIVITY_FINALIZED, $activities)) {
-      $sync = true; // status change
       $sync_rp = true; // some races were removed
       $front = true;
       $full = true;
@@ -366,7 +357,6 @@ class UpdateRegatta extends AbstractScript {
       $tweet_finalized = true;
     }
     if (in_array(UpdateRequest::ACTIVITY_RANK, $activities)) {
-      $sync = true;
       $sync_rp = true;
       $front = true;
       $full = true;
@@ -375,7 +365,6 @@ class UpdateRegatta extends AbstractScript {
     // ------------------------------------------------------------
     // Perform the udpates
     // ------------------------------------------------------------
-    if ($sync)       $reg->setData();
     if ($sync_rp)    $reg->setRpData();
 
     $D = $reg->getURL();

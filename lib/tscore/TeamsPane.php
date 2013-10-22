@@ -103,7 +103,7 @@ class TeamsPane extends AbstractPane {
 
       // If there are already races, then update details
       if (count($this->REGATTA->getDivisions()) > 0)
-        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DETAILS);
+        $this->REGATTA->setData();
 
       if (isset($args['del-rotation'])) {
         $rot = $this->REGATTA->getRotation();

@@ -32,9 +32,9 @@ class DeleteRegattaPane extends AbstractPane {
     if (isset($args['delete'])) {
       DB::$V->reqInt($args, 'confirm', 1, 2, "Please check the \"Confirm\" box before deleting.");
       $this->REGATTA->inactive = new DateTime();
-      DB::set($this->REGATTA);
+      $this->REGATTA->setData(); // implies update to regatta object
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DETAILS);
-      Session::pa(new PA("Regattas has been deleted."));
+      Session::pa(new PA(sprintf("Regatta \"%s\" has been deleted.", $this->REGATTA->name)));
     }
   }
 }
