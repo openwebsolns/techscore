@@ -87,7 +87,7 @@ class UpdateRegatta extends AbstractScript {
   }
 
   /**
-   * Compare l ist of cached URLs to current ones
+   * Compare list of cached URLs to current ones
    *
    * Delete URLs that are no longer valid, and save the current
    * ones. Returns list of affected URLs, indexed by the URL, with
@@ -117,6 +117,24 @@ class UpdateRegatta extends AbstractScript {
       self::remove($url);
     $reg->setPublicPages($actual);
     return $affected;
+  }
+
+  /**
+   * Convenience method provides option to sync dt_* data.
+   *
+   * This method should not be called by a Daemon process, which
+   * should focus instead on retrieving data.
+   *
+   * @param FullRegatta $reg the regatta whose information to sync
+   */
+  public function runSync(FullRegatta $reg) {
+    $reg->setData();
+    self::errln(sprintf("Synced data for %s.", $reg->name), 2);
+    $reg->setRanks();
+    self::errln(sprintf("Synced ranks for %s.", $reg->name), 2);
+    $reg->setRpData();
+    self::errln(sprintf("Synced RP data for %s.", $reg->name), 2);
+    self::errln(sprintf("Synced %s.", $reg->name));
   }
 
   /**
@@ -520,6 +538,7 @@ class UpdateRegatta extends AbstractScript {
     $this->cli_usage = "Activity must be one of:\n";
     foreach (UpdateRequest::getTypes() as $type)
       $this->cli_usage .= "\n - $type";
+    $this->cli_usage .= "\n - sync:      special rule to set data";
   }
 }
 
@@ -538,11 +557,19 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
 
   $pos_actions = UpdateRequest::getTypes();
   $actions = array();
+  $sync = false;
   foreach ($opts as $opt) {
-    if (!isset($pos_actions[$opt]))
-      throw new TSScriptException("Invalid activity $opt");
-    $actions[] = $opt;
+    if ($opt == 'sync')
+      $sync = true;
+    else {
+      if (!isset($pos_actions[$opt]))
+        throw new TSScriptException("Invalid activity $opt");
+      $actions[] = $opt;
+    }
   }
-  $P->run($reg, $actions);
+  if ($sync)
+    $P->runSync($reg);
+  if (count($actions) > 0)
+    $P->run($reg, $actions);
 }
 ?>
