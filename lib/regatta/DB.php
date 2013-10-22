@@ -795,7 +795,7 @@ class DB extends DBM {
   // Tweet
   // ------------------------------------------------------------
 
-  private static $twitterer = null;
+  private static $twitterer = false;
 
   /**
    * Wrapper around TwitterWriter
@@ -803,14 +803,20 @@ class DB extends DBM {
    * @param String $mes
    */
   public static function tweet($mes) {
-    if (self::$twitterer === null) {
-      require_once('twitter/TwitterWriter.php');
-      self::$twitterer = new TwitterWriter(DB::g(STN::TWITTER_CONSUMER_KEY),
-                                           DB::g(STN::TWITTER_CONSUMER_SECRET),
-                                           DB::g(STN::TWITTER_OAUTH_TOKEN),
-                                           DB::g(STN::TWITTER_OAUTH_SECRET));
+    if (self::$twitterer === false) {
+      $ck = DB::g(STN::TWITTER_CONSUMER_KEY);
+      $cs = DB::g(STN::TWITTER_CONSUMER_SECRET);
+      $ot = DB::g(STN::TWITTER_OAUTH_TOKEN);
+      $os = DB::g(STN::TWITTER_OAUTH_SECRET);
+      if ($ck === null || $cs === null || $ot === null || $os === null)
+        self::$twitterer = null;
+      else {
+        require_once('twitter/TwitterWriter.php');
+        self::$twitterer = new TwitterWriter($ck, $cs, $ot, $os);
+      }
     }
-    self::$twitterer->tweet($mes);
+    if (self::$twitterer !== null)
+      self::$twitterer->tweet($mes);
   }
 }
 
