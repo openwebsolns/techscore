@@ -99,6 +99,8 @@ class UpdateSchool extends AbstractScript {
     $places = 0;
     $avg_total = 0;
     foreach ($regs as $reg) {
+      if ($reg->dt_status == Regatta::STAT_SCHEDULED)
+        continue;
       $teams = $reg->getRankedTeams();
       $num = count($teams);
       if ($reg->finalized !== null) {
