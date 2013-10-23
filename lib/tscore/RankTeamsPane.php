@@ -39,7 +39,7 @@ class RankTeamsPane extends AbstractPane {
     foreach ($races as $race) {
       $fr_finishes = $this->REGATTA->getFinishes($race);
       if (count($fr_finishes) == 0)
-	continue;
+        continue;
 
       // determine if this is team1 or team2
       $ignoreProp = ($team->id == $race->tr_team1->id) ? 'tr_ignore1' : 'tr_ignore2';
@@ -53,13 +53,13 @@ class RankTeamsPane extends AbstractPane {
       }
 
       if (!isset($rows[$race->round->id])) {
-	$records[$race->round->id] = new TeamRank($team);
-	$recTDs[$race->round->id] = new XTD(array('class'=>'rank-record'), "");
-	$rows[$race->round->id] = new XTR(array(), array($recTDs[$race->round->id], new XTH(array(), $team)));
+        $records[$race->round->id] = new TeamRank($team);
+        $recTDs[$race->round->id] = new XTD(array('class'=>'rank-record'), "");
+        $rows[$race->round->id] = new XTR(array(), array($recTDs[$race->round->id], new XTH(array(), $team)));
         $cells[$race->round->id] = array();
 
-	$f->add(new XH3("Round: " . $race->round));
-	$f->add(new XTable(array('class'=>'rank-table'), array($rows[$race->round->id])));
+        $f->add(new XH3("Round: " . $race->round));
+        $f->add(new XTable(array('class'=>'rank-table'), array($rows[$race->round->id])));
       }
 
       $row = $rows[$race->round->id];
@@ -68,33 +68,33 @@ class RankTeamsPane extends AbstractPane {
       $myScore = 0;
       $theirScore = 0;
       foreach ($finishes as $finish) {
-	if ($finish->team->id == $team->id)
-	  $myScore += $finish->score;
-	else
-	  $theirScore += $finish->score;
+        if ($finish->team->id == $team->id)
+          $myScore += $finish->score;
+        else
+          $theirScore += $finish->score;
       }
       if ($myScore < $theirScore) {
-	$className = 'rank-win';
-	$display = 'W';
-	if ($race->$ignoreProp === null)
-	  $record->wins++;
+        $className = 'rank-win';
+        $display = 'W';
+        if ($race->$ignoreProp === null)
+          $record->wins++;
       }
       elseif ($myScore > $theirScore) {
-	$className = 'rank-lose';
-	$display = 'L';
-	if ($race->$ignoreProp === null)
-	  $record->losses++;
+        $className = 'rank-lose';
+        $display = 'L';
+        if ($race->$ignoreProp === null)
+          $record->losses++;
       }
       else {
-	$className = 'rank-tie';
-	$display = 'T';
-	if ($race->$ignoreProp === null)
-	  $record->ties++;
+        $className = 'rank-tie';
+        $display = 'T';
+        if ($race->$ignoreProp === null)
+          $record->ties++;
       }
       $display .= sprintf(' (%s)', $myScore);
       $other_team = $race->tr_team1;
       if ($other_team->id == $team->id)
-	$other_team = $race->tr_team2;
+        $other_team = $race->tr_team2;
       $id = sprintf('r-%s', $race->id);
       $cell = new XTD(array(),
                       array($chk = new XCheckboxInput('race[]', $race->id, array('id'=>$id, 'class'=>$className)),
@@ -106,7 +106,7 @@ class RankTeamsPane extends AbstractPane {
       $label->set('class', $className);
 
       if ($race->$ignoreProp === null)
-	$chk->set('checked', 'checked');
+        $chk->set('checked', 'checked');
     }
 
     // add all the rows
@@ -132,8 +132,8 @@ class RankTeamsPane extends AbstractPane {
     // ------------------------------------------------------------
     if (isset($args['team'])) {
       if (($team = $this->REGATTA->getTeam($args['team'])) === null) {
-	Session::pa(new PA("Invalid team chosen.", PA::E));
-	$this->redirect('rank');
+        Session::pa(new PA("Invalid team chosen.", PA::E));
+        $this->redirect('rank');
       }
       $this->fillTeam($team);
       return;
@@ -202,32 +202,32 @@ class RankTeamsPane extends AbstractPane {
 
       $affected = 0;
       foreach ($this->REGATTA->getRacesForTeam(Division::A(), $team) as $race) {
-	if (count($this->REGATTA->getFinishes($race)) == 0)
-	  continue;
+        if (count($this->REGATTA->getFinishes($race)) == 0)
+          continue;
 
         // determine if this is team1 or team2
         $ignoreProp = ($team->id == $race->tr_team1->id) ? 'tr_ignore1' : 'tr_ignore2';
 
-	$ignore = (in_array($race->id, $ids)) ? null : 1;
+        $ignore = (in_array($race->id, $ids)) ? null : 1;
 
-	if ($ignore != $race->$ignoreProp) {
+        if ($ignore != $race->$ignoreProp) {
           $affected++;
-	  $race->$ignoreProp = $ignore;
-	  DB::set($race);
+          $race->$ignoreProp = $ignore;
+          DB::set($race);
           foreach ($other_divisions as $div) {
             $r = $this->REGATTA->getRace($div, $race->number);
             $r->$ignoreProp = $ignore;
             DB::set($r);
           }
-	}
+        }
       }
 
       if ($affected == 0)
-	Session::PA(new PA("No races affected.", PA::I));
+        Session::PA(new PA("No races affected.", PA::I));
       else {
-	$this->REGATTA->setRanks();
+        $this->REGATTA->setRanks();
         UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RANK, $team->school->id);
-	Session::pa(new PA(sprintf("Updated %d races.", count($affected))));
+        Session::pa(new PA(sprintf("Updated %d races.", count($affected))));
       }
     }
 
@@ -286,13 +286,13 @@ class RankTeamsPane extends AbstractPane {
       foreach ($tids as $i => $id) {
         if (!isset($teams[$id]))
           throw new SoterException("Invalid team provided.");
-	if ($rank[$i] != $prevRank && $rank[$i] != $nextRank)
-	  throw new SoterException("Invalid order provided.");
+        if ($rank[$i] != $prevRank && $rank[$i] != $nextRank)
+          throw new SoterException("Invalid order provided.");
         if ($rank[$i] < $min_ranks[$id] || $rank[$i] > $max_ranks[$id])
           throw new SoterException(sprintf("Provided rank for %s is outside allowed range.", $teams[$id]));
 
-	$nextRank++;
-	$prevRank = $rank[$i];
+        $nextRank++;
+        $prevRank = $rank[$i];
 
         $new_rank = $rank[$i];
         $new_expl = DB::$V->incString($exps, $i, 1, 101, null);
