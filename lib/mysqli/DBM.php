@@ -309,7 +309,7 @@ class DBM {
       $exist = self::get($obj, $obj->id);
       return self::prepSet($obj, ($exist instanceof DBObject));
     }
-    self::fillSetQuery($obj, $q);
+    self::fillSetQuery($obj, $q, array(), !$update);
     $q->limit(1);
     return $q;
   }
@@ -323,15 +323,19 @@ class DBM {
    * @param Array $fields provide this flag to use 'multipleValues'
    * instead of just 'values'
    */
-  private static function fillSetQuery(DBObject $obj, DBQuery $q, Array $fields = array()) {
+  private static function fillSetQuery(DBObject $obj, DBQuery $q, Array $fields = array(), $inc_id = true) {
     $multiple = true;
     if (count($fields) == 0) {
       $multiple = false;
       $fields = $obj->db_fields();
     }
+    $all_fields = array();
     $values = array();
     $types  = array();
     foreach ($fields as $field) {
+      if ($field == 'id' && $inc_id === false)
+        continue;
+      $all_fields[] = $field;
       $value =& $obj->$field;
       $type = "";
       if ($value instanceof DBObject) {
@@ -359,7 +363,7 @@ class DBM {
     if ($multiple)
       $q->multipleValues($types, $values, $obj->db_name());
     else
-      $q->values($fields, $types, $values, $obj->db_name());
+      $q->values($all_fields, $types, $values, $obj->db_name());
   }
 
   /**
