@@ -321,7 +321,6 @@ class RankTeamsPane extends AbstractPane {
       }
 
       // Set the rank and issue update request
-      $this->REGATTA->setRpData();
       foreach ($ranks as $team) {
         DB::set($team);
         UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RANK, $team->school->id);
