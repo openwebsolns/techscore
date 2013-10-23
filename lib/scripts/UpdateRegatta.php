@@ -262,6 +262,7 @@ class UpdateRegatta extends AbstractScript {
     if (in_array(UpdateRequest::ACTIVITY_FINALIZED, $activities)) {
       $sync_rp = true; // some races were removed
       $tweet_finalized = true;
+      $front = true;
     }
 
     // ------------------------------------------------------------
