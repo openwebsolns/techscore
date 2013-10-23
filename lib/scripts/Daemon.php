@@ -213,6 +213,8 @@ class Daemon extends AbstractScript {
       $mypid = $this->daemonize();
     $this->createLock('fil');
 
+    $con = DB::connection();
+    $con->autocommit(true);
     while (true) {
       $pending = UpdateManager::getPendingFiles();
       if (count($pending) == 0) {
@@ -292,6 +294,8 @@ class Daemon extends AbstractScript {
       $mypid = $this->daemonize();
     $this->createLock('sch');
 
+    $con = DB::connection();
+    $con->autocommit(true);
     while (true) {
       $pending = UpdateManager::getPendingSchools();
       if (count($pending) == 0) {
@@ -404,6 +408,8 @@ class Daemon extends AbstractScript {
       $mypid = $this->daemonize();
     $this->createLock('sea');
 
+    $con = DB::connection();
+    $con->autocommit(true);
     while (true) {
       $pending = UpdateManager::getPendingSeasons();
       if (count($pending) == 0) {
@@ -505,6 +511,8 @@ class Daemon extends AbstractScript {
       $mypid = $this->daemonize();
     $this->createLock('reg');
 
+    $con = DB::connection();
+    $con->autocommit(true);
     while (true) {
       $pending = UpdateManager::getPendingRequests();
       if (count($pending) == 0) {
