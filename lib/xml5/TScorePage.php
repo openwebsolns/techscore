@@ -98,8 +98,7 @@ class TScorePage extends XPage {
    */
   private function isMobile() {
     return (isset($_SERVER['HTTP_USER_AGENT']) &&
-            (strpos($_SERVER['HTTP_USER_AGENT'], "Android") !== false ||
-             strpos($_SERVER['HTTP_USER_AGENT'], "iPhone")  !== false));
+            (strpos($_SERVER['HTTP_USER_AGENT'], "Mobi") !== false));
   }
 
   /**
