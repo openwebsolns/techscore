@@ -8,6 +8,9 @@ body {
     display: table;
     min-width: 100%;
 }
+a img {
+    border: none;
+}
 #footdiv {
     color:#555;
     font-size:70%;

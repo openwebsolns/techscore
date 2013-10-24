@@ -59,6 +59,8 @@ class TScorePage extends XPage {
     // properly placed in the queue.
     if ($this->mobile)
       $this->head->add(new XMeta('viewport', "width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"));
+    else
+      $this->head->add(new XMetaHTTP('X-UA-Compatible', 'IE=Edge'));
     $this->fillHead();
   }
 
