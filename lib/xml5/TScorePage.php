@@ -75,7 +75,7 @@ class TScorePage extends XPage {
                                                             array(new XImg('/inc/img/ie6-warn.jpg', "Warning!"))),
                                                    new XDiv(array('id'=>'ie-wrap'),
                                                             array(new XDiv(array('id'=>'ie-mes1'),
-                                                                           array("You are using an oudated browser")),
+                                                                           array("You are using an outdated browser")),
                                                                   new XDiv(array('id'=>'ie-mes2'),
                                                                            array(sprintf("For a better experience with %s, please upgrade to a modern web browser.", Conf::$NAME))))),
                                                    new XDiv(array('class'=>'ie-b'),
