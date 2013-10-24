@@ -1,0 +1,48 @@
+
+/* IE is not a browser */
+#ie-warn {
+    border: 1px solid #F7941D;
+    background: #FEEFDA;
+    text-align: center;
+    clear: both;
+    height: 75px;
+    position: relative;
+}
+#ie-close {
+    position: absolute;
+    right: 3px;
+    top: 3px;
+    font-family: courier new;
+    font-weight: bold;
+}
+#ie-cont {
+    width: 640px;
+    margin: 0 auto;
+    text-align: left;
+    padding: 0;
+    overflow: hidden;
+    color: black;
+}
+#ie-img {
+    width: 75px;
+    float: left;
+}
+#ie-wrap {
+    width: 275px;
+    float: left;
+    font-family: Arial, sans-serif;
+}
+#ie-mes1 {
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 12px;
+}
+#ie-mes2 {
+    font-size: 12px;
+    margin-top: 6px;
+    line-height: 12px;
+}
+.ie-b {
+    width: 75px;
+    float: left;
+}

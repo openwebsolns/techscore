@@ -61,6 +61,31 @@ class TScorePage extends XPage {
       $this->head->add(new XMeta('viewport', "width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"));
     else
       $this->head->add(new XMetaHTTP('X-UA-Compatible', 'IE=Edge'));
+
+    // Deal with IE7 and below
+    $this->head->add(new XRawText('<!--[if lt IE 9]> '));
+    $this->head->add(new XLinkCSS('text/css', '/inc/css/ie.css', 'screen,print', 'stylesheet'));
+    $this->head->add(new XRawText(' <![endif]-->'));
+    $this->body->add(new XRawText('<!--[if lt IE 9]> '));
+    $this->body->add(new XDiv(array('id'=>'ie-warn'),
+                              array(new XDiv(array('id'=>'ie-close'),
+                                             array(new XA('#', new XImg('/inc/img/ie-close.jpg', "Close"), array('onclick'=>'javascript:this.parentNode.parentNode.style.display="none"; return false;')))),
+                                    new XDiv(array('id'=>'ie-cont'),
+                                             array(new XDiv(array('id'=>'ie-img'),
+                                                            array(new XImg('/inc/img/ie6-warn.jpg', "Warning!"))),
+                                                   new XDiv(array('id'=>'ie-wrap'),
+                                                            array(new XDiv(array('id'=>'ie-mes1'),
+                                                                           array("You are using an oudated browser")),
+                                                                  new XDiv(array('id'=>'ie-mes2'),
+                                                                           array(sprintf("For a better experience with %s, please upgrade to a modern web browser.", Conf::$NAME))))),
+                                                   new XDiv(array('class'=>'ie-b'),
+                                                            array(new XA('http://www.firefox.com', new XImg('/inc/img/ff.jpg', "Firefox")))),
+                                                   new XDiv(array('class'=>'ie-b'),
+                                                            array(new XA('http://www.google.com/chrome', new XImg('/inc/img/chrome.jpg', "Chrome")))),
+                                                   new XDiv(array('class'=>'ie-b'),
+                                                            array(new XA('http://www.opera.com', new XImg('/inc/img/opera.jpg', "Opera")))))))));
+    $this->body->add(new XRawText(' <![endif]-->'));
+
     $this->fillHead();
   }
 
