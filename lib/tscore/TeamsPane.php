@@ -177,9 +177,10 @@ class TeamsPane extends AbstractPane {
           $this->REGATTA->addTeam($team);
           $teams_added++;
         }
+
         // add rest, by appending index to first name
         $name_index = 2;
-        for (; $num < count($number); $num++) {
+        for (; $num < $number; $num++) {
           $team = new Team();
           $team->school = $school;
           $team->name = sprintf("%s %d", $names[0], $name_index++);
