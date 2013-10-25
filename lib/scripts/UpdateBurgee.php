@@ -53,7 +53,37 @@ class UpdateBurgee extends AbstractScript {
     }
   }
 
-  protected $cli_opts = '<school_id> [...]';
+  /**
+   * Removes unused burgees from the database
+   *
+   * @param School $school if given, only remove stale burgees from
+   * this school
+   */
+  public function runCleanup(School $school = null) {
+    $cond = new DBBool(array(new DBCondIn('id', DB::prepGetAll(DB::$SCHOOL, new DBCond('burgee', null, DBCond::NE), array('burgee')), DBCondIn::NOT_IN),
+                             new DBCondIn('id', DB::prepGetAll(DB::$SCHOOL, new DBCond('burgee_small', null, DBCond::NE), array('burgee_small')), DBCondIn::NOT_IN),
+                             new DBCondIn('id', DB::prepGetAll(DB::$SCHOOL, new DBCond('burgee_square', null, DBCond::NE), array('burgee_square')), DBCondIn::NOT_IN)));
+    $mes = "Removed stale burgees.";
+    if ($school !== null) {
+      $cond->add(new DBCond('school', $school));
+      $mes = sprintf("Removed stale burgees for %s.", $school->name);
+    }
+
+    $all = DB::getAll(DB::$BURGEE, $cond);
+    foreach ($all as $bur) {
+      DB::remove($bur);
+      self::errln(sprintf("Removed burgee with ID %s.", $bur->id), 2);
+    }
+    self::errln($mes);
+  }
+
+  protected $cli_opts = '<school_id> [...] | -c [<school_id> ...]';
+  protected $cli_usage = 'To update a burgee, provide the school ID(s).
+
+To cleanup stale burgees, use -c (--clean) flag and optionally
+include the school ID(s) to remove.
+
+  -c  --clean    Remove stale burgees';
 }
 
 // ------------------------------------------------------------
@@ -63,16 +93,31 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
 
   $P = new UpdateBurgee();
   $opts = $P->getOpts($argv);
+  $clean = false;
   $schools = array();
   foreach ($opts as $opt) {
-    if (($school = DB::getSchool($opt)) === null)
-      throw new TSScriptException("Invalid school ID: $opt");
-    $schools[] = $school;
+    if ($opt == '-c' || $opt == '--clean')
+      $clean = true;
+    else {
+      if (($school = DB::getSchool($opt)) === null)
+        throw new TSScriptException("Invalid school ID: $opt");
+      $schools[] = $school;
+    }
   }
 
-  if (count($schools) == 0)
-    throw new TSScriptException("No schools provided.");
-  foreach ($schools as $school)
-    $P->run($school);
+  if ($clean) {
+    if (count($schools) == 0)
+      $P->runCleanup();
+    else {
+      foreach ($schools as $school)
+        $P->runCleanup($school);
+    }
+  }
+  else {
+    if (count($schools) == 0)
+      throw new TSScriptException("No schools provided.");
+    foreach ($schools as $school)
+      $P->run($school);
+  }
 }
 ?>

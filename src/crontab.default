@@ -31,6 +31,10 @@ MAILTO = {CRON_MAILTO}
 26 4 28 * * /usr/bin/php {DIRECTORY}/lib/scripts/RemovePrivate.php
 
 #--------------------------------
+# Remove stale burgees twice a month
+26 4 14,28 * * /usr/bin/php {DIRECTORY}/lib/scripts/UpdateBurgee.php -c
+
+#--------------------------------
 # Process mail messages
 27 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/ProcessOutbox.php
 
