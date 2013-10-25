@@ -55,7 +55,7 @@ class UpdateSchool extends AbstractScript {
 
     $url = sprintf('http://%s/schools/%s/', Conf::$PUB_HOME, $school->id);
     $og = array('type'=>'website', 'url'=>$url);
-    if ($school->burgee !== null) {
+    if ($school->hasBurgee()) {
       $imgurl = sprintf('http://%s/inc/img/schools/%s.png', Conf::$PUB_HOME, $school->id);
       $page->setTwitterImage($imgurl);
       $og['image'] = $imgurl;

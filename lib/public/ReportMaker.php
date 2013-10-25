@@ -352,8 +352,8 @@ class ReportMaker {
       }
       // Winning?
       $tms = $reg->getRankedTeams();
-      if ($reg->finalized !== null && $tms[0]->school->burgee !== null) {
-        $imgurl = sprintf('http://%s/inc/img/schools/%s.png', Conf::$PUB_HOME, $tms[0]->school->id);
+      if ($reg->finalized !== null && $tms[0]->school->hasBurgee('square')) {
+        $imgurl = sprintf('http://%s/inc/img/schools/%s-sq.png', Conf::$PUB_HOME, $tms[0]->school->id);
         $page->setTwitterImage($imgurl);
         $opengraph['image'] = $imgurl;
       }
