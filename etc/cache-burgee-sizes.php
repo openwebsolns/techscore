@@ -9,9 +9,12 @@
 require_once(dirname(__DIR__) . '/lib/conf.php');
 require_once('regatta/Regatta.php');
 
+$tmp = '/tmp/burgee.png';
+
 $upd = 0;
 foreach (DB::getAll(DB::$BURGEE) as $file) {
-  $props = getimagesizefromstring(base64_decode($file->filedata));
+  file_put_contents($tmp, base64_decode($file->filedata));
+  $props = getimagesize($tmp);
   if ($props === false)
     printf("(EE) Unable to get size for file %s.\n", $file->id);
   else {
