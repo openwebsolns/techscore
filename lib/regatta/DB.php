@@ -939,6 +939,7 @@ class School extends DBObject {
   protected $conference;
   protected $burgee;
   protected $burgee_small;
+  protected $burgee_square;
   protected $inactive;
 
   public function db_name() { return 'school'; }
@@ -947,6 +948,7 @@ class School extends DBObject {
     case 'conference': return DB::$CONFERENCE;
     case 'burgee':
     case 'burgee_small':
+    case 'burgee_square':
       return DB::$BURGEE;
     case 'inactive': return DB::$NOW;
     default:
@@ -994,6 +996,48 @@ class School extends DBObject {
       $img->set('height', $this->__get('burgee_small')->height);
     }
     return $img;
+  }
+
+  /**
+   * Returns IMG element of square burgee
+   *
+   * @param mixed $def the element to return if no burgee exists
+   * @param Array $attrs extra attributes to use for XImg
+   * @return XImg|null
+   * @see drawBurgee
+   */
+  public function drawSquareBurgee($def = null, Array $attrs = array()) {
+    if ($this->burgee_square === null || $this->id === null)
+      return $def;
+
+    $img = new XImg(sprintf('/inc/img/schools/%s-sq.png', $this->id), $this->nick_name, $attrs);
+    if ($this->__get('burgee_square')->width !== null) {
+      $img->set('width', $this->__get('burgee_square')->width);
+      $img->set('height', $this->__get('burgee_square')->height);
+    }
+    return $img;
+  }
+
+  /**
+   * Determines whether this school has the given burgee type.
+   *
+   * This method saves memory by avoiding the direct serialization of
+   * the burgee property, bypassing the magic __get method.
+   *
+   * Since it should be the case that all versions exist, or none
+   * at all, the argument to this method is (usually) unnecessary. It
+   * is included for precision control, in order to check against the
+   * specific version (e.g. '', 'small', 'square').
+   *
+   * @param String $type (optional) the burgee version (small, etc)
+   * @return boolean true if burgee exists
+   */
+  public function hasBurgee($type = '') {
+    switch ($type) {
+    case 'small':  return $this->burgee_small !== null;
+    case 'square': return $this->burgee_square !== null;
+    default:       return $this->burgee !== null;
+    }
   }
 
   /**

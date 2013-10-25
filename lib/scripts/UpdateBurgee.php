@@ -33,33 +33,23 @@ class UpdateBurgee extends AbstractScript {
    * @throw RuntimeException if unable to execute an action
    */
   public function run(School $school) {
-    $file = sprintf('%s/%s.png', self::$filepath, $school->id);
+    $versions = array('burgee' => '',
+                      'burgee_small' => '-40',
+                      'burgee_square' => '-sq');
+    foreach ($versions as $prop => $suffix) {
+      $file = sprintf('%s/%s%s.png', self::$filepath, $school->id, $suffix);
 
-    // There is no burgee
-    if ($school->burgee === null) {
-      self::remove($file);
-      self::errln("Removed burgee for school $school");
-    }
-    else {
-      // Write to file
-      $data = base64_decode($school->burgee->filedata);
-      self::writeFile($file, $data);
-      self::errln("Serialized burgee for school $school");
-    }
-
-    // Small burgee
-    $file = sprintf('%s/%s-40.png', self::$filepath, $school->id);
-
-    // There is no burgee
-    if ($school->burgee_small === null) {
-      self::remove($file);
-      self::errln("Removed small burgee for school $school");
-    }
-    else {
-      // Write to file
-      $data = base64_decode($school->burgee_small->filedata);
-      self::writeFile($file, $data);
-      self::errln("Serialized small burgee for school $school");
+      // There is no burgee
+      if ($school->$prop === null) {
+        self::remove($file);
+        self::errln("Removed $prop for school $school");
+      }
+      else {
+        // Write to file
+        $data = base64_decode($school->$prop->filedata);
+        self::writeFile($file, $data);
+        self::errln("Serialized $prop for school $school");
+      }
     }
   }
 

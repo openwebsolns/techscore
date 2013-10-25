@@ -617,3 +617,6 @@ alter table outbox change column recipients recipients enum('all','conferences',
 
 -- add team activity
 alter table pub_update_request change column activity activity enum('rotation','score','rp','details','summary','finalized','url','season','rank','team') not null default 'score';
+
+-- keep copy of square burgee (for twitter)
+alter table school add column burgee_square int default null after burgee_small, add foreign key (burgee_square) references burgee(id) on delete set null on update cascade;
