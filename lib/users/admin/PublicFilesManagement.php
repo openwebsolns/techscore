@@ -49,6 +49,10 @@ class PublicFilesManagement extends AbstractAdminUserPane {
         if (substr($file->filetype, 0, 6) == 'image/') {
           $full = $file->getFile();
           $pre = new XImg(sprintf('data:%s;base64,%s', $full->filetype, base64_encode($full->filedata)), "");
+          if ($full->width !== null) {
+            $pre->set('width', $full->width);
+            $pre->set('height', $full->height);
+          }
         }
         $tab->addRow(array($file->id,
                            $file->filetype,
@@ -118,6 +122,16 @@ class PublicFilesManagement extends AbstractAdminUserPane {
           }
           $obj->filetype = $type;
           $obj->filedata = $data;
+
+          // Attempt to retrieve width/height for images
+          if (substr($type, 0, 6) == 'image/') {
+            $size = getimagesize($file['tmp_name']);
+            if ($size !== false) {
+              $obj->width = $size[0];
+              $obj->height = $size[1];
+            }
+          }
+
           DB::set($obj);
           UpdateManager::queueFile($obj);
           $uploaded[] = $name;

@@ -3276,11 +3276,29 @@ class Pub_Regatta_Url extends DBObject {
  */
 class Pub_File_Summary extends DBObject {
   public $filetype;
+  public $width;
+  public $height;
   public function db_name() { return 'pub_file'; }
   protected function db_order() { return array('filetype'=>true, 'id'=>true); }
 
   public function getFile() {
     return DB::get(DB::$PUB_FILE, $this->id);
+  }
+
+  /**
+   * Creates an XImg object with width/height attrs (if available)
+   *
+   * @param String $src the source to use
+   * @param String $alt the alt text to use
+   * @param Array $attrs optional list of other attributes
+   */
+  public function asImg($src, $alt, Array $attrs = array()) {
+    $img = new XImg($src, $alt, $attrs);
+    if ($this->width !== null) {
+      $img->set('width', $this->width);
+      $img->set('height', $this->height);
+    }
+    return $img;
   }
 }
 

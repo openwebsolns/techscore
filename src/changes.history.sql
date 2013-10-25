@@ -620,3 +620,6 @@ alter table pub_update_request change column activity activity enum('rotation','
 
 -- keep copy of square burgee (for twitter)
 alter table school add column burgee_square int default null after burgee_small, add foreign key (burgee_square) references burgee(id) on delete set null on update cascade;
+
+-- track the width/height of public images
+alter table pub_file add column width mediumint unsigned default null, add column height mediumint unsigned default null;
