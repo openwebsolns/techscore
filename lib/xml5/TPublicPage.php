@@ -192,16 +192,29 @@ class TPublicPage extends XPage {
                        array(new XDiv(array('id'=>'last_updated'), array(date('M j, Y @ H:i:s'))),
                              $sc = new XDiv(array('id'=>'social')),
                              $sw = new XDiv(array('id'=>'search-wrapper')))));
-    if (DB::g(STN::FACEBOOK) !== null)
-      $sc->add(new XA(sprintf('http://www.facebook.com/%s', DB::g(STN::FACEBOOK)), new XImg('/inc/img/fb.png', "FB")));
+    if (DB::g(STN::FACEBOOK) !== null) {
+      $lnk = "Facebook";
+      $img = DB::getFile('fb.png');
+      if ($img !== null)
+        $lnk = $img->asImg('/inc/img/fb.png', $lnk);
+      $sc->add(new XA(sprintf('http://www.facebook.com/%s', DB::g(STN::FACEBOOK)), $lnk));
+    }
 
     if (DB::g(STN::TWITTER) !== null) {
-      $sc->add(new XA(sprintf('http://www.twitter.com/%s', DB::g(STN::TWITTER)), new XImg('/inc/img/tw.png', "Twitter")));
+      $lnk = "Twitter";
+      $img = DB::getFile('tw.png');
+      if ($img !== null)
+        $lnk = $img->asImg('/inc/img/tw.png', $lnk);
+      $sc->add(new XA(sprintf('http://www.twitter.com/%s', DB::g(STN::TWITTER)), $lnk));
       $this->head->add(new XMeta('twitter:site', '@' . DB::g(STN::TWITTER)));
     }
 
     if (DB::g(STN::FLICKR_NAME) !== null) {
-      $sc->add(new XA(sprintf('//www.flickr.com/photos/%s', DB::g(STN::FLICKR_NAME)), new XImg('/inc/img/flickr.png', "Flickr")));
+      $lnk = "Flickr";
+      $img = DB::getFile('flickr.png');
+      if ($img !== null)
+        $lnk = $img->asImg('/inc/img/flickr.png', $lnk);
+      $sc->add(new XA(sprintf('//www.flickr.com/photos/%s', DB::g(STN::FLICKR_NAME)), $lnk));
     }
 
     if (DB::g(STN::GCSE_ID) !== null) {
@@ -219,8 +232,12 @@ class TPublicPage extends XPage {
     $stop = ceil($count / 2);
     for ($i = 0; $i < $stop; $i++)
       $menu->add(new XLi($this->menu[$i]));
-    $menu->add(new XLi(new XImg('/inc/img/logo.png', "ICSA Burgee", array('width'=>145, 'height'=>92)),
-                       array('id'=>'logo')));
+
+    $lnk = "ICSA";
+    $img = DB::getFile('logo.png');
+    if ($img !== null)
+      $lnk = $img->asImg('/inc/img/logo.png', $lnk);
+    $menu->add(new XLi($lnk, array('id'=>'logo')));
     for ($i = $stop; $i < $count; $i++)
       $menu->add(new XLi($this->menu[$i]));
 
@@ -261,7 +278,13 @@ class TPublicPage extends XPage {
         }
         if (DB::g(STN::TWITTER) !== null) {
           $has_social = true;
-          $td->add(new XDiv(array('id'=>'twitter-wrapper'), array(new XA('https://twitter.com/share', new XImg('/inc/img/tw.png', "Tweet"), array('class'=>'twitter-share-button', 'data-via'=>'ICSAscores')))));
+
+          $lnk = "Tweet";
+          $img = DB::getFile('tw.png');
+          if ($img !== null)
+            $lnk = $img->asImg('/inc/img/tw.png', $lnk);
+
+          $td->add(new XDiv(array('id'=>'twitter-wrapper'), array(new XA('https://twitter.com/share', $lnk, array('class'=>'twitter-share-button', 'data-via'=>'ICSAscores')))));
           // data-hashtags
           $this->head->add($scr = new XScript('text/javascript', '//platform.twitter.com/widgets.js'));
           $scr->set('id', 'twitter-wjs');
