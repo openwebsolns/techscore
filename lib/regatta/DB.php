@@ -232,7 +232,10 @@ class DB extends DBM {
    */
   public static function mail($to, $subject, $body, $wrap = true) {
     if (Conf::$DIVERT_MAIL !== null) {
-      $body = "Message meant for $to\n\n" . $body;
+      $meant = $to;
+      if (is_array($to))
+        $meant = implode(", ", $to);
+      $body = "Message meant for $meant\n\n" . $body;
       $to = Conf::$DIVERT_MAIL;
       $subject = 'DIVERTED: ' . $subject;
     }
