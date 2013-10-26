@@ -11,6 +11,15 @@
 require_once('conf.php');
 
 // ------------------------------------------------------------
+// HEAD method used to determine status
+// ------------------------------------------------------------
+if (Conf::$METHOD == 'HEAD') {
+  if (Conf::$USER === null)
+    header('HTTP/1.1 403 Permission denied');
+  exit(0);
+}
+
+// ------------------------------------------------------------
 // Verify method
 // ------------------------------------------------------------
 if (!in_array(Conf::$METHOD, array('POST', 'GET')))
