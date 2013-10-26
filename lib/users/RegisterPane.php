@@ -211,10 +211,12 @@ class RegisterPane extends AbstractUserPane {
                    "  Name: %s %s\n" .
                    " Email: %s\n" .
                    "School: %s\n" .
-                   "  Role: %s\n\nThank you,\n-- \n%s Administration",
+                   "  Role: %s\n\n" .
+                   "Visit https://%s/pending to approve or reject.\n\nThank you,\n-- \n%s Administration",
                    Conf::$NAME,
                    $about->first_name, $about->last_name, $about->id,
                    $about->school->nick_name, $about->role,
+                   Conf::$HOME,
                    Conf::$NAME);
   }
 }
