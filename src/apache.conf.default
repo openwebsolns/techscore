@@ -21,7 +21,7 @@ RewriteRule ^(.*)$ https://{HOSTNAME}$1
 <VirtualHost *:443>
 ServerName {HOSTNAME}
 ErrorLog {HTTP_LOGROOT}/{HOSTNAME}-error.log
-CustomLog {HTTP_LOGROOT}/{HOSTNAME}-access.log combined
+CustomLog {HTTP_LOGROOT}/{HOSTNAME}-access.log "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" %D"
 DocumentRoot {DIRECTORY}/www
 
 # SSL setup
