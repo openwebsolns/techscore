@@ -49,6 +49,9 @@ class LoginPage extends AbstractUserPane {
     $form->add(new FItem("Email:", new XInput('email', 'userid', "", array("maxlength"=>"40"))));
     $form->add($fi = new FItem("Password:", new XPasswordInput("pass", "", array("maxlength"=>"48"))));
     $fi->add(new XMessage(new XA('/password-recover', "Forgot your password?")));
+    $form->add($fi = new FItem("", new XCheckboxInput("remember", 1, array('id'=>'chk-remember'))));
+    $fi->add(new XLabel('chk-remember', "Keep me signed in"));
+    $fi->add(new XMessage("Warning: do not use on a public network or computer."));
 
     $form->add(new XSubmitP("login", "Login"));
 
@@ -96,6 +99,7 @@ class LoginPage extends AbstractUserPane {
     // ------------------------------------------------------------
     $userid = DB::$V->reqString($args, 'userid', 1, 41, "No username provided.");
     $passwd = DB::$V->reqRaw($args, 'pass', 1, 101, "Please enter a password.");
+    $remember = DB::$V->incInt($args, 'remember', 1, 2, null);
 
     $user = DB::getAccount($userid);
     if ($user === null)
@@ -105,11 +109,25 @@ class LoginPage extends AbstractUserPane {
       throw new SoterException("Invalid username/password.");
     if (is_array(Conf::$DEBUG_USERS) && !in_array($user->id, Conf::$DEBUG_USERS))
       throw new SoterException("We apologize, but log in has been disabled temporarily. Please try again later.");
-    Session::s('user', $user->id);
 
     $def = Session::g('last_page');
+
+    // If "remember", then destroy session and create a new,
+    // long-lasting one
+    if ($remember !== null) {
+      session_regenerate_id(true);
+      $id = session_id();
+      session_destroy();
+      session_id($id);
+      session_set_cookie_params(864000, WS::link('/'), Conf::$HOME, true, true);
+      session_start();
+    }
+    Session::s('user', $user->id);
+
     if ($def === null)
       $def = '/';
+
+    Session::commit();
   }
 
   /**
