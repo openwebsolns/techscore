@@ -43,6 +43,7 @@ class LoginPage extends AbstractUserPane {
 
     // LOGIN MENU
     $this->PAGE->addContent($p = new XPort("Sign-in"));
+    $p->set('id', 'login-port');
     $p->add($form = $this->createForm());
     $form->add(new FItem("Email:", new XInput('email', 'userid', "", array("maxlength"=>"40"))));
     $form->add($fi = new FItem("Password:", new XPasswordInput("pass", "", array("maxlength"=>"48"))));
