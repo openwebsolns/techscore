@@ -6,7 +6,7 @@
  */
 
 (function() {
-    var TIMEOUT = 9000000;
+    var TIMEOUT = 900000;
     var timer = Date.now();
     var cf = function(form, name, value) {
         return function(evt) {
