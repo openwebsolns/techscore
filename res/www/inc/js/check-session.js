@@ -5,7 +5,7 @@
  * requires: XMLHttpRequest, FormData
  */
 
-window.addEventListener('load', function(evt) {
+(function() {
     var TIMEOUT = 9000000;
     TIMEOUT = 3000;
     var timer = Date.now();
@@ -120,4 +120,4 @@ window.addEventListener('load', function(evt) {
             forms[i].onsubmit = cf(forms[i], submitName, submitValue);
         }
     }
-}, false);
+})();
