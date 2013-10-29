@@ -68,6 +68,10 @@ class LoginPage extends AbstractUserPane {
     }
   }
 
+  /**
+   * Override parent in order to supply 403 header
+   *
+   */
   public function getHTML(Array $args) {
     header('HTTP/1.1 403 Forbidden');
     parent::getHTML($args);
@@ -105,7 +109,25 @@ class LoginPage extends AbstractUserPane {
     $def = Session::g('last_page');
     if ($def === null)
       $def = '/';
-    WS::goBack($def);
+  }
+
+  /**
+   * Override parent in order to handle API calls differently
+   *
+   */
+  public function processPOST(Array $args) {
+    if (isset($_SERVER['HTTP_API']) && $_SERVER['HTTP_API'] == 'application/json') {
+      try {
+        $this->process($args);
+        exit(0);
+      } catch (SoterException $e) {
+        header('HTTP/1.1 403 Forbidden');
+        echo $e->getMessage();
+        exit(0);
+      }
+    }
+    else
+      return parent::processPOST($args);
   }
 }
 ?>

@@ -184,7 +184,7 @@ abstract class AbstractUserPane {
    * @param Array $args the parameters to process
    * @return Array parameters to pass to the next page
    */
-  final public function processPOST(Array $args) {
+  public function processPOST(Array $args) {
     try {
       return $this->process($args);
     } catch (SoterException $e) {
