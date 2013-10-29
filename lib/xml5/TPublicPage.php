@@ -327,6 +327,7 @@ UserVoice.push(["showTab", "classic_widget", {
                       array('http://www.apsltd.com', 'aps.png', "APS"),
                       array('http://www.sperrytopsider.com/', 'sperry-gray.png', "Sperry Top-Sider"),
                       array('http://www.laserperformance.com/', 'laserperformance.png', "LaserPerformance"),
+                      array('http://www.marlowropes.com', 'marlow.png', "Marlow"),
                       array('http://www.ussailing.org/', 'ussailing.png', "US Sailing"),
                       array('http://www.quantumsails.com/', 'qtag.png', "Quantum Sails"));
     if (count($sponsors) > 0) {
