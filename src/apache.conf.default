@@ -55,7 +55,7 @@ Header unset ETag
 
 # Cache forever
 <FilesMatch "\.(jpg|jpeg|png|gif|js|css)$">
-Header set Cache-Control "public, max-age=2500000"
+Header set Cache-Control "public, must-revalidate"
 Header set Expires "Thu, 15 Apr 2025 20:00:00 GMT"
 # Header unset Last-Modified
 </FilesMatch>

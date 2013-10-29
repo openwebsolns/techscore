@@ -89,7 +89,7 @@
 
                                 exp = document.createElement("p");
                                 exp.appendChild(document.createTextNode("Your session has expired. To avoid losing your progress, please log in again."));
-                                exp.classList.add("warning");
+                                exp.className = "warning";
                                 exp.style.marginTop = 0;
                                 wrp.appendChild(exp);
 
@@ -113,7 +113,7 @@
     var forms = document.getElementsByTagName("form");
     var submitName, submitValue;
     for (var i = 0; i < forms.length; i++) {
-        if (forms[i].method == "post") {
+        if (forms[i].method == "post" && forms[i].className != "no-check-session") {
             var inps = forms[i].getElementsByTagName("input");
             submitName = null, submitValue = null;
             for (var j = 0; j < inps.length; j++) {

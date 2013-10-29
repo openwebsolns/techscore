@@ -148,6 +148,7 @@ class TScorePage extends XPage {
 
     // Javascript
     $this->head->add(new XScript('text/javascript', '/inc/js/jquery-1.3.min.js'));
+    $this->head->add(new XScript('text/javascript', '/inc/js/check-session-load.js'));
     if ($this->mobile) {
       $this->head->add(new XScript('text/javascript', '/inc/js/mobile.js'));
     }

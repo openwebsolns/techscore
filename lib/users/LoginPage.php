@@ -45,6 +45,7 @@ class LoginPage extends AbstractUserPane {
     $this->PAGE->addContent($p = new XPort("Sign-in"));
     $p->set('id', 'login-port');
     $p->add($form = $this->createForm());
+    $form->set('class', 'no-check-session');
     $form->add(new FItem("Email:", new XInput('email', 'userid', "", array("maxlength"=>"40"))));
     $form->add($fi = new FItem("Password:", new XPasswordInput("pass", "", array("maxlength"=>"48"))));
     $fi->add(new XMessage(new XA('/password-recover', "Forgot your password?")));
