@@ -7,7 +7,6 @@
 
 (function() {
     var TIMEOUT = 9000000;
-    TIMEOUT = 3000;
     var timer = Date.now();
     var cf = function(form, name, value) {
         return function(evt) {
@@ -29,10 +28,11 @@
                             login.onreadystatechange = function() {
                                 if (login.readyState != 4)
                                     return;
-                                if (login.status != 200) {
+                                if (login.status != 403) {
                                     form.submit();
                                     return;
                                 }
+                                var scr, wrp, exp;
                                 var doc = login.responseXML;
                                 var prt = doc.getElementById("login-port");
                                 if (!prt) {
@@ -52,17 +52,24 @@
                                     var post = new XMLHttpRequest();
                                     post.onreadystatechange = function() {
                                         if (post.readyState == 4) {
-                                            form.submit();
-                                            // @TODO: errors?!
+                                            if (post.status == 200) {
+                                                form.submit();
+                                            }
+                                            else {
+                                                while (exp.hasChildNodes())
+                                                    exp.removeChild(exp.childNodes[0]);
+                                                exp.appendChild(document.createTextNode(post.responseText));
+                                            }
                                         }
                                     };
                                     post.open("POST", fms.action);
+                                    post.setRequestHeader("API", "application/json");
                                     post.send(new FormData(fms));
                                     return false;
                                 };
 
                                 // Create screen
-                                var scr = document.createElement("div");
+                                scr = document.createElement("div");
                                 scr.style.position = "fixed";
                                 scr.style.top = "0";
                                 scr.style.left = "0";
@@ -72,7 +79,7 @@
                                 scr.style.zIndex = 150;
                                 document.body.appendChild(scr);
 
-                                var wrp = document.createElement("div");
+                                wrp = document.createElement("div");
                                 wrp.style.maxWidth = "30em";
                                 wrp.style.margin = "30px auto";
                                 wrp.style.padding = "1em";
@@ -80,7 +87,7 @@
                                 wrp.style.borderRadius = "0.5em";
                                 scr.appendChild(wrp);
 
-                                var exp = document.createElement("p");
+                                exp = document.createElement("p");
                                 exp.appendChild(document.createTextNode("Your session has expired. To avoid losing your progress, please log in again."));
                                 exp.classList.add("warning");
                                 exp.style.marginTop = 0;
