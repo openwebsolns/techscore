@@ -57,6 +57,7 @@ class DB extends DBM {
   public static $PUB_REGATTA_URL = null;
   public static $PUB_FILE = null;
   public static $PUB_FILE_SUMMARY = null;
+  public static $WEBSESSION = null;
 
   public static $PERMISSION = null;
   public static $ROLE = null;
@@ -121,6 +122,7 @@ class DB extends DBM {
     self::$PUB_REGATTA_URL = new Pub_Regatta_Url();
     self::$PUB_FILE = new Pub_File();
     self::$PUB_FILE_SUMMARY = new Pub_File_Summary();
+    self::$WEBSESSION = new Websession();
 
     self::$PERMISSION = new Permission();
     self::$ROLE = new Role();
@@ -3314,5 +3316,28 @@ class Pub_File_Summary extends DBObject {
 class Pub_File extends Pub_File_Summary {
   public $filedata;
   protected function db_cache() { return true; }
+}
+
+/**
+ * Web-based session object
+ *
+ * @author Dayan Paez
+ * @version 2013-10-29
+ */
+class Websession extends DBObject {
+  public $sessiondata;
+  protected $created;
+  protected $last_modified;
+  protected $expires;
+
+  protected function db_cache() { return true; }
+  public function db_type($field) {
+    switch ($field) {
+    case 'created':
+    case 'last_modified':
+    case 'expires':
+      return DB::$NOW;
+    }
+  }
 }
 ?>

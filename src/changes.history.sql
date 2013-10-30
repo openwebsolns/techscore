@@ -623,3 +623,13 @@ alter table school add column burgee_square int default null after burgee_small,
 
 -- track the width/height of public images
 alter table pub_file add column width mediumint unsigned default null, add column height mediumint unsigned default null;
+
+-- save session information in the database
+CREATE TABLE `websession` (
+  `id` varchar(32) NOT NULL,
+  `created` datetime NOT NULL,
+  `last_modified` datetime NOT NULL,
+  `expires` datetime default null,
+  `sessiondata` text,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

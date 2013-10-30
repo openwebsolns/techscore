@@ -210,8 +210,10 @@ if (isset($_SERVER['HTTP_HOST'])) {
   Conf::$METHOD = $_SERVER['REQUEST_METHOD'];
 
   require_once('WS.php');
+  require_once('TSSessionHandler.php');
   require_once('xml5/HtmlLib.php');
   require_once('xml5/Session.php');
+  TSSessionHandler::register();
   Session::init();
   Conf::$USER = DB::getAccount(Session::g('user'));
 }

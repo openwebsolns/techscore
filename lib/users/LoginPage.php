@@ -121,6 +121,7 @@ class LoginPage extends AbstractUserPane {
       session_id($id);
       session_set_cookie_params(864000, WS::link('/'), Conf::$HOME, true, true);
       session_start();
+      TSSessionHandler::setLifetime(864000);
     }
     Session::s('user', $user->id);
 
