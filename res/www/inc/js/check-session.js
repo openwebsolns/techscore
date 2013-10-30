@@ -6,12 +6,9 @@
  */
 
 (function() {
-    var TIMEOUT = 900000;
-    var timer = Date.now();
     var cf = function(form, name, value) {
         return function(evt) {
-            var now = Date.now();
-            if (now - timer > TIMEOUT) {
+            if (!window.SESSION_EXPIRATION || Date.now() > window.SESSION_EXPIRATION * 1000) {
                 var inp = document.createElement("input");
                 inp.type = "hidden";
                 inp.name = name;

@@ -30,7 +30,7 @@ class TSSessionHandler {
   }
 
   public static function gc($maxlifetime) {
-    $t1 = new DateTime(sprintf('%d seconds ago', max($maxlifetime, self::IDLE_TIME)));
+    $t1 = new DateTime(sprintf('%d seconds ago', self::IDLE_TIME));
     DB::removeAll(DB::$WEBSESSION,
                   new DBBool(array(new DBCond('expires', null),
                                    new DBCond('last_modified', $t1, DBCond::LT))));
@@ -43,7 +43,11 @@ class TSSessionHandler {
 
   public static function read($session_id) {
     $s = DB::get(DB::$WEBSESSION, $session_id);
-    return ($s === null) ? null : $s->sessiondata;
+    if ($s === null)
+      return null;
+    if (self::isExpired($s))
+      return null;
+    return $s->sessiondata;
   }
 
   public static function write($session_id, $session_data) {
@@ -81,6 +85,37 @@ class TSSessionHandler {
     self::$expires[session_id()] = $t;
   }
 
+  /**
+   * Returns the time at which the current session will no longer be
+   * considered active.
+   *
+   * This will be IDLE_TIME from now, or the expiration time if
+   * long-lived
+   *
+   * @return int the number of seconds since Jan 1, 1970
+   */
+  public static function getExpiration() {
+    if (session_status() != PHP_SESSION_ACTIVE)
+      return null;
+
+    $params = session_get_cookie_params();
+    if ($params['lifetime'] == 0)
+      return time() + self::IDLE_TIME;
+    $d = new DateTime($params['lifetime']);
+    return $d->format('U');
+  }
+
   private static $expires = array();
+
+  public static function isExpired(Websession $s) {
+    if ($s->expires === null) {
+      if ($s->last_modified < new DateTime(sprintf('%d seconds ago', self::IDLE_TIME)))
+        return true;
+    }
+    elseif ($s->expires < DB::$NOW) {
+      return true;
+    }
+    return false;
+  }
 }
 ?>
