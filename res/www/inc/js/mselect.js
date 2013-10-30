@@ -83,7 +83,7 @@ function OWSMultSelect(elem) {
     this.toElement.style.display = "block";
     this.toElement.style.height = "100%";
     this.toElement.style.width = this.fromElement.innerWidth + "px";
-    this.toElement.setAttribute("size", this.fromElement.getAttribute("size"));
+    this.toElement.setAttribute("size", Math.max(3, this.fromElement.getAttribute("size")));
     this.toElement.ondblclick = function(evt) {
         myObj.demoteSelected();
     };
