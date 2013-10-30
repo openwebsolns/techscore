@@ -91,7 +91,8 @@ class LoggedInUsers extends AbstractAdminUserPane {
     $ret = null;
     if (isset($_SESSION['data'])) {
       $val = unserialize($_SESSION['data']);
-      $ret = DB::getAccount($val['user']);
+      if (isset($val['user']))
+        $ret = DB::getAccount($val['user']);
     }
     $_SESSION = $old;
     return $ret;

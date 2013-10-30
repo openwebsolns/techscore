@@ -99,7 +99,7 @@ class TSSessionHandler {
    * @return int the number of seconds since Jan 1, 1970
    */
   public static function getExpiration() {
-    if (session_status() != PHP_SESSION_ACTIVE)
+    if (session_id() == "")
       return null;
 
     $params = session_get_cookie_params();
