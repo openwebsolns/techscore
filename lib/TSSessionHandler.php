@@ -113,7 +113,7 @@ class TSSessionHandler {
 
   public static function isExpired(Websession $s) {
     if ($s->expires === null) {
-      if ($s->last_modified < new DateTime(sprintf('%d seconds ago', self::IDLE_TIME)))
+      if ($s->last_modified->format('U') < time() - self::IDLE_TIME)
         return true;
     }
     elseif ($s->expires < DB::$NOW) {
