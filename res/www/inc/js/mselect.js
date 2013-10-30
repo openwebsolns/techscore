@@ -28,13 +28,16 @@ function OWSMultSelect(elem) {
     c.style.display = "table-cell";
     w.appendChild(c);
 
-    this.fromSearch = document.createElement("input");
-    this.fromSearch.setAttribute("class", "msel-search");
-    this.fromSearch.style.display = "block";
-    this.fromSearch.onkeyup = function(evt) {
-        myObj.performFromSearch();
-    };
-    c.appendChild(this.fromSearch);
+    var s = (this.fromElement.length > 10);
+    if (s) {
+        this.fromSearch = document.createElement("input");
+        this.fromSearch.setAttribute("class", "msel-search");
+        this.fromSearch.style.display = "block";
+        this.fromSearch.onkeyup = function(evt) {
+            myObj.performFromSearch();
+        };
+        c.appendChild(this.fromSearch);
+    }
     c.appendChild(this.fromElement);
 
     // Button cell
@@ -70,13 +73,15 @@ function OWSMultSelect(elem) {
     c.style.display = "table-cell";
     w.appendChild(c);
 
-    this.toSearch = document.createElement("input");
-    this.toSearch.setAttribute("class", "msel-search");
-    this.toSearch.style.display = "block";
-    this.toSearch.onkeyup = function(evt) {
-        myObj.performToSearch();
-    };
-    c.appendChild(this.toSearch);
+    if (s) {
+        this.toSearch = document.createElement("input");
+        this.toSearch.setAttribute("class", "msel-search");
+        this.toSearch.style.display = "block";
+        this.toSearch.onkeyup = function(evt) {
+            myObj.performToSearch();
+        };
+        c.appendChild(this.toSearch);
+    }
 
     this.toElement = document.createElement("select");
     this.toElement.setAttribute("class", "msel-selected");
