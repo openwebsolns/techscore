@@ -70,6 +70,10 @@ class TSSessionHandler {
     return true;
   }
 
+  // ------------------------------------------------------------
+  // Extra functionality
+  // ------------------------------------------------------------
+
   public static function register() {
     return session_set_save_handler('TSSessionHandler::open',
                                     'TSSessionHandler::close',
@@ -116,6 +120,19 @@ class TSSessionHandler {
       return true;
     }
     return false;
+  }
+
+  /**
+   * Returns list of non-expired sessions
+   *
+   * @return Array:Websession sessions
+   */
+  public static function getActive() {
+    return DB::getAll(DB::$WEBSESSION,
+                      new DBBool(array(new DBCond('expires', DB::$NOW, DBCond::GT),
+                                       new DBBool(array(new DBCond('expires', null),
+                                                        new DBCond('last_modified', new DateTime(sprintf('%d seconds ago', self::IDLE_TIME)), DBCond::GT)))),
+                                 DBBool::mOR));
   }
 }
 ?>

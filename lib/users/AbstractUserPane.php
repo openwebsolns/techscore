@@ -127,6 +127,7 @@ abstract class AbstractUserPane {
                                                   array(
                                                         new XLi(new XA("/pending",   "Pending users")),
                                                         new XLi(new XA("/users", "All users")),
+                                                        new XLi(new XA("/logged-in", "Logged-in")),
                                                         )))));
       $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
                                     array(new XH4("Configure text"),
@@ -365,6 +366,11 @@ abstract class AbstractUserPane {
     case 'accounts':
       require_once('users/admin/AccountsPane.php');
       return new AccountsPane($u);
+
+    case 'logged-in':
+    case 'active':
+      require_once('users/admin/LoggedInUsers.php');
+      return new LoggedInUsers($u);
 
     case 'pending':
       require_once('users/admin/PendingAccountsPane.php');

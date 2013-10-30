@@ -416,3 +416,19 @@ a.empty {
 }
 p.warning, #announcements .warn {background:#f3f3bb;border:1px solid orange;}
 p.warning {padding: 0.5em;}
+
+.users-table, .sessions-table {
+    width: 100%;
+}
+.users-table thead th, .users-table td, .users-legend thead th, .users-legend td, .sessions-table thead th, .sessions-table td {
+    text-align: left;
+}
+.users-legend td {
+    padding: 0.25em 0.5em;
+}
+.current-session {
+    background: #e0f3e0;
+}
+.current-session td {
+    padding: 0.5em 2.5px;
+}

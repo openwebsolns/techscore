@@ -3330,6 +3330,7 @@ class Websession extends DBObject {
   protected $last_modified;
   protected $expires;
 
+  protected function db_order() { return array('last_modified'=>false); }
   protected function db_cache() { return true; }
   public function db_type($field) {
     switch ($field) {
