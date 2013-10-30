@@ -30,6 +30,7 @@ class AccountPane extends AbstractUserPane {
 
     $this->PAGE->addContent($p = new XPort("Change password"));
     $p->add($form = $this->createForm());
+    $form->add(new FItem("Current password:", new XPasswordInput('current', "")));
     $form->add(new FItem("New password:",     new XPasswordInput("sake1", "")));
     $form->add(new FItem("Confirm password:", new XPasswordInput("sake2", "")));
     $form->add(new XSubmitP('edit-password', "Change"));
@@ -51,10 +52,14 @@ class AccountPane extends AbstractUserPane {
     // password change?
     // ------------------------------------------------------------
     if (isset($args['edit-password'])) {
+      $cur = DB::$V->reqRaw($args, 'current', 1, 101, "No current password provided.");
+      if ($this->USER->password != DB::createPasswordHash($this->USER, $cur))
+        throw new SoterException("Invalid current password provided.");
+
       $pw1 = DB::$V->reqRaw($args, 'sake1', 8, 101, "The password must be at least 8 characters long.");
       $pw2 = DB::$V->reqRaw($args, 'sake2', strlen($pw1), strlen($pw1) + 1, "The two passwords do not match.");
       if ($pw1 != $pw2)
-        throw new SoterException("The two passwords do not match.");
+        throw new SoterException("The password confirmation does not match.");
       $this->USER->password = DB::createPasswordHash($this->USER, $pw1);
       DB::set($this->USER);
       Session::pa(new PA("Password reset."));
