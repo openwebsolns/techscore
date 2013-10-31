@@ -18,6 +18,10 @@ a img {
     border: none;
 }
 
+.noshow {
+    font-style: italic;
+}
+
 @media screen {
 .nav {
     display: none;

@@ -1620,14 +1620,16 @@ class FullRegatta extends DBObject {
         $rank->team->resetRpData($div);
         foreach (array(RP::SKIPPER, RP::CREW) as $role) {
           foreach ($rpm->getRP($rank->team, $div, $role) as $rp) {
-            $drp = new Dt_Rp();
-            $drp->sailor = $rp->sailor;
-            $drp->team_division = $rank;
-            $drp->boat_role = $role;
-            $drp->race_nums = $rp->races_nums;
-            $drp->rank = $rank->rank;
-            $drp->explanation = $rank->explanation;
-            DB::set($drp);
+            if ($rp->sailor !== null) {
+              $drp = new Dt_Rp();
+              $drp->sailor = $rp->sailor;
+              $drp->team_division = $rank;
+              $drp->boat_role = $role;
+              $drp->race_nums = $rp->races_nums;
+              $drp->rank = $rank->rank;
+              $drp->explanation = $rank->explanation;
+              DB::set($drp);
+            }
           }
         }
       }
@@ -1665,41 +1667,43 @@ class FullRegatta extends DBObject {
         $division = Division::get($team->division);
         $rps = $rpm->getRP($team_objs[$team->id], $division, $role);
         foreach ($rps as $rp) {
-          $drp = new Dt_Rp();
-          $drp->sailor = $rp->sailor;
-          $drp->team_division = $team;
-          $drp->boat_role = $role;
-          $drp->race_nums = $rp->races_nums;
+          if ($rp->sailor !== null) {
+            $drp = new Dt_Rp();
+            $drp->sailor = $rp->sailor;
+            $drp->team_division = $team;
+            $drp->boat_role = $role;
+            $drp->race_nums = $rp->races_nums;
 
-          // rank: assign the team's rank if participating in every
-          // scored race, otherwise, rank in only those races.
-          $intersection = array_intersect($scored_nums[$team->division], $rp->races_nums);
-          if ($intersection == $scored_nums[$team->division]) {
-            $drp->rank = $team->rank;
-            $drp->explanation = $team->explanation;
-          }
-          elseif (count($intersection) == 0) {
-            // non-participation == non-inclusion
-            continue;
-          }
-          else {
-            $id = implode(',', $intersection);
-            if (!isset($scored_ranks[$team->division][$id])) {
-              $races = array();
-              foreach ($intersection as $num)
-                $races[] = $this->getRace($division, $num);
-              $scored_ranks[$team->division][$id] = $ranker->rank($this, $races);
+            // rank: assign the team's rank if participating in every
+            // scored race, otherwise, rank in only those races.
+            $intersection = array_intersect($scored_nums[$team->division], $rp->races_nums);
+            if ($intersection == $scored_nums[$team->division]) {
+              $drp->rank = $team->rank;
+              $drp->explanation = $team->explanation;
             }
-            foreach ($scored_ranks[$team->division][$id] as $rank) {
-              if ($rank->team->id == $team->team->id &&
-                  ($rank->division === null || (string)$rank->division == (string)$team->division)) {
-                $drp->rank = $rank->rank;
-                $drp->explanation = $rank->explanation;
-                break;
+            elseif (count($intersection) == 0) {
+              // non-participation == non-inclusion
+              continue;
+            }
+            else {
+              $id = implode(',', $intersection);
+              if (!isset($scored_ranks[$team->division][$id])) {
+                $races = array();
+                foreach ($intersection as $num)
+                  $races[] = $this->getRace($division, $num);
+                $scored_ranks[$team->division][$id] = $ranker->rank($this, $races);
+              }
+              foreach ($scored_ranks[$team->division][$id] as $rank) {
+                if ($rank->team->id == $team->team->id &&
+                    ($rank->division === null || (string)$rank->division == (string)$team->division)) {
+                  $drp->rank = $rank->rank;
+                  $drp->explanation = $rank->explanation;
+                  break;
+                }
               }
             }
+            DB::set($drp);
           }
-          DB::set($drp);
         }
       }
     }
