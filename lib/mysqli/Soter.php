@@ -126,7 +126,7 @@ class Soter {
    * @throws SoterException
    */
   final public function reqKey(Array $args, $key, Array $values, $mes = "GSE") {
-    if (!isset($args[$key]) || !isset($values[$args[$key]]))
+    if (!array_key_exists($key, $args) || !array_key_exists($args[$key], $values))
       throw new SoterException($mes, SoterException::NO_KEY);
     return $args[$key];
   }
