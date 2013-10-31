@@ -80,7 +80,7 @@ class TeamSailsPane extends AbstractPane {
           throw new SoterException(sprintf("Number of boats must be divisible by %d.", $step));
 
         $this->PAGE->addContent($p = new XPort("2. Provide sail numbers"));
-        $p->add($form = $this->getSailsForm($rotation, $flight, $divisions, $rot));
+        $p->add($form = $this->getSailsForm($rotation, $flight, $divisions, $rot, $round));
         $form->add(new XHiddenInput('round', $round->id));
         return;
       }
@@ -168,6 +168,13 @@ class TeamSailsPane extends AbstractPane {
 
       $num_divs = count($divisions);
 
+      $no_rot = 0;
+      $team_sails = array(); // map of team ID to sail objects
+      if ($round->round_group === null &&
+          $team_rot->count() * 2 == count($divisions) * count($this->REGATTA->getTeamsInRound($round))) {
+        $no_rot = DB::$V->incInt($args, 'no-rotation', 1, 2, 0);
+      }
+
       // rotations set up manually
       $rotation = $this->REGATTA->getRotation();
       $i = 0;
@@ -180,14 +187,38 @@ class TeamSailsPane extends AbstractPane {
           $sail->team = $r->tr_team1;
           $sail->sail = $team_rot->sails1[$i];
           $sail->color = $team_rot->colors1[$i];
-          $rotation->setSail($sail);
+          if ($no_rot == 0)
+            $rotation->setSail($sail);
+          else {
+            if (isset($team_sails[$r->tr_team1->id])) {
+              $sail = clone($team_sails[$r->tr_team1->id]);
+              $sail->race = $r;
+              $rotation->setSail($sail);
+            }
+            else {
+              $team_sails[$r->tr_team1->id] = $sail;
+              $rotation->setSail($sail);
+            }
+          }
 
           $sail = new Sail();
           $sail->race = $r;
           $sail->team = $r->tr_team2;
           $sail->sail = $team_rot->sails2[$i];
           $sail->color = $team_rot->colors2[$i];
-          $rotation->setSail($sail);
+          if ($no_rot == 0)
+            $rotation->setSail($sail);
+          else {
+            if (isset($team_sails[$r->tr_team2->id])) {
+              $sail = clone($team_sails[$r->tr_team2->id]);
+              $sail->race = $r;
+              $rotation->setSail($sail);
+            }
+            else {
+              $team_sails[$r->tr_team2->id] = $sail;
+              $rotation->setSail($sail);
+            }
+          }
 
           $i = ($i + 1) % $team_rot->count();
         }
@@ -369,8 +400,9 @@ class TeamSailsPane extends AbstractPane {
    * @param int $flight the number of boats
    * @param Array $divisions the divisions
    * @param Regatta_Rotation $rot the optional pre-existing saved rotation
+   * @param Round $round the optional round in question
    */
-  private function getSailsForm(TeamRotation $rotation, $flight, Array $divisions, Regatta_Rotation $rot = null) {
+  private function getSailsForm(TeamRotation $rotation, $flight, Array $divisions, Regatta_Rotation $rot = null, Round $round = null) {
     $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/tr-rot.js')));
 
     $step = count($divisions) * 2;
@@ -435,7 +467,16 @@ class TeamSailsPane extends AbstractPane {
     if ($rot === null)
       $fi->add(new XMessage("If blank, rotation will not be saved. Name must be unique."));
     else
-      $fi->add(new XMessage("Change name to create new rotation."));
+      $fi->add(new XMessage("Change name to create new rotation template."));
+
+    // No rotation: enforce, at least for now, a single round, as
+    // well as the requirement of equal number of boats as there
+    // are teams in the round
+    if ($round->round_group === null &&
+        $flight / count($divisions) == count($this->REGATTA->getTeamsInRound($round))) {
+      $form->add($fi = new FItem("Don't switch boats", new XCheckboxInput('no-rotation', 1, array('id'=>'chk-rot'))));
+      $fi->add(new XLabel('chk-rot', "Keep the teams in the same boats after the first flight (\"no rotation\")."));
+    }
 
     $form->add(new XP(array('class'=>'p-submit'),
                       array(new XA($this->link('rotations'), "← Cancel"), " ",
