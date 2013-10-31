@@ -104,6 +104,7 @@ class SponsorsManagement extends AbstractAdminUserPane {
       $sponsor->logo = DB::$V->incID($args, 'logo', DB::$PUB_FILE_SUMMARY);
       if ($sponsor->logo !== null && substr($sponsor->logo->filetype, 0, 6) != 'image/')
         throw new SoterException("Only images may be used for the sponsor logo.");
+      $sponsor->relative_order = count(DB::getAll(DB::$PUB_SPONSOR)) + 1;
       DB::set($sponsor);
       Session::pa(new PA(sprintf("Added \"%s\" as new sponsor.", $sponsor->name)));
     }

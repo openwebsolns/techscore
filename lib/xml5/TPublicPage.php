@@ -322,13 +322,7 @@ UserVoice.push(["showTab", "classic_widget", {
     $this->body->add($foot = new XDiv(array('id'=>'page-footer')));
 
     // Sponsors
-    $sponsors = array(array('http://gillna.com', 'gill.png', "Gill"),
-                      array('http://www.apsltd.com', 'aps.png', "APS"),
-                      array('http://www.sperrytopsider.com/', 'sperry-gray.png', "Sperry Top-Sider"),
-                      array('http://www.laserperformance.com/', 'laserperformance.png', "LaserPerformance"),
-                      array('http://www.marlowropes.com', 'marlow.png', "Marlow"),
-                      array('http://www.ussailing.org/', 'ussailing.png', "US Sailing"),
-                      array('http://www.quantumsails.com/', 'qtag.png', "Quantum Sails"));
+    $sponsors = DB::getAll(DB::$PUB_SPONSOR);
     if (count($sponsors) > 0) {
       $nav->add(new XLi(new XA('#sponsors', "Our sponsors")));
       $foot->add(new XDiv(array('id'=>'sponsors'),
@@ -336,11 +330,12 @@ UserVoice.push(["showTab", "classic_widget", {
                                 $slist = new XUl(array('id'=>'sponsors-list')))));
 
       foreach ($sponsors as $sponsor) {
-        $img = new XSpan($sponsor[2]);
-        $file = DB::getFile($sponsor[1]);
-        if ($file !== null)
-          $img = $file->asImg('/inc/img/' . $file->id, $sponsor[2]);
-        $slist->add(new XLi(new XA($sponsor[0], $img)));
+        $cnt = new XSpan($sponsor->name);
+        if ($sponsor->logo !== null)
+          $cnt = $sponsor->logo->asImg('/inc/img/' . $sponsor->logo->id, $sponsor->name);
+        if ($sponsor->url !== null)
+          $cnt = new XA($sponsor->url, $cnt);
+        $slist->add(new XLi($cnt));
       }
     }
 
