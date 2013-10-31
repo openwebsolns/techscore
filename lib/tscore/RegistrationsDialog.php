@@ -76,7 +76,7 @@ class RegistrationsDialog extends AbstractDialog {
           // Skipper and crew, and his races
           foreach (array($skips, $crews) as $sailors) {
             if (isset($sailors[$i])) {
-              $row->add(new XTD(array(), $sailors[$i]->sailor));
+              $row->add(new XTD(array(), $sailors[$i]->getSailor(true)));
               if (count($sailors[$i]->races_nums) != $races_in_div[(string)$div])
                 $row->add(new XTD(array('class'=>'races'), DB::makeRange($sailors[$i]->races_nums)));
               else

@@ -2540,11 +2540,15 @@ class RPEntry extends DBObject {
    * Because sailor might be null (which means no-show) calling this
    * method will return "No show" rather than the empty String.
    *
+   * @param boolean $xml true to wrap No shows in XSpan
    * @return String the sailor
    */
-  public function getSailor() {
-    if ($this->sailor === null)
+  public function getSailor($xml = false) {
+    if ($this->sailor === null) {
+      if ($xml !== false)
+        return new XSpan("No show", array('class'=>'noshow'));
       return "No show";
+    }
     return (string)$this->__get('sailor');
   }
 }

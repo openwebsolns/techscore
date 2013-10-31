@@ -132,10 +132,14 @@ class TeamRankingDialog extends AbstractScoresDialog {
       $skips = array();
       $crews = array();
       foreach ($divs as $div) {
-        foreach ($rpm->getRP($team, $div, RP::SKIPPER) as $s)
-          $skips[$s->sailor->id] = $s->sailor;
-        foreach ($rpm->getRP($team, $div, RP::CREW) as $s)
-          $crews[$s->sailor->id] = $s->sailor;
+        foreach ($rpm->getRP($team, $div, RP::SKIPPER) as $s) {
+          if ($s->sailor !== null)
+            $skips[$s->sailor->id] = $s->getSailor(true);
+        }
+        foreach ($rpm->getRP($team, $div, RP::CREW) as $s) {
+          if ($s->sailor !== null)
+            $crews[$s->sailor->id] = $s->getSailor(true);
+        }
       }
 
       $mascot = $team->school->drawSmallBurgee("");

@@ -110,7 +110,7 @@ class TeamRegistrationsDialog extends AbstractDialog {
               foreach ($rp->getRpEntries($t0, $race, $role) as $entry) {
                 if ($e++ > 0)
                   $cell->add(new XBr());
-                $cell->add($entry->sailor);
+                $cell->add($entry->getSailor(true));
               }
             }
           }

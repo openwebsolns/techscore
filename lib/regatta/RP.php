@@ -61,6 +61,25 @@ class RP {
   }
 
   /**
+   * Returns sailor representation, including year
+   *
+   * Returns "No show" if sailor is null
+   *
+   * @param boolean $xml true to wrap No shows in XSpan
+   * @return String|null normally: (string)$sailor
+   */
+  public function getSailor($xml = false) {
+    if (count($this->rps) == 0)
+      return null;
+    if ($this->rps[0]->sailor === null) {
+      if ($xml !== false)
+        return new XSpan("No show", array('class'=>'noshow'));
+      return "No show";
+    }
+    return (string)$this->rps[0]->sailor;
+  }
+
+  /**
    * Returns suitable representation of sailor
    *
    * Includes "No show" for null sailor values

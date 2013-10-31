@@ -151,7 +151,7 @@ class ScoresCombinedDialog extends AbstractScoresDialog {
             $amt = "";
           else
             $amt = DB::makeRange($s->races_nums);
-          $row->add($s_cell = new XTD(array('class'=>'sailor-name'), $s->sailor));
+          $row->add($s_cell = new XTD(array('class'=>'sailor-name'), $s->getSailor(true)));
           $row->add($r_cell = new XTD(array('class'=>'races'), $amt));
         }
 

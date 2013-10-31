@@ -419,3 +419,6 @@ td.tr-sail {
     height: 20px;
     width: auto;
 }
+.noshow {
+    font-style: italic;
+}
