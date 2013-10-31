@@ -61,28 +61,29 @@ class IcsaRpFormSloops extends AbstractIcsaRpForm {
         $pc->add(sprintf($fmt, $team_X + 4.6, $team_Y,
                          $this->representatives[$id]));
 
-        // - write content: skippers for divisions A/B
-        $x = 0.75;
-        $Y = 8.88 - 3.05 * $within_page;
+        // - write content: skippers for divisions A
+        $x = 0.50;
+        $Y = 8.9 - 3.05 * $within_page;
         // :A
         foreach ($block->skipper_A as $i => $s) {
-          $y = $Y - (0.3 * $i);
+          $y = $Y - (0.25 * $i);
           $year = substr($s->getSailorYear(), 2);
           $races = DB::makeRange($s->races_nums);
           $pc->add(sprintf($fmt, $x,        $y, $s->getSailorName()));
-          $pc->add(sprintf($fmt, $x + 1.9,  $y, $year));
-          $pc->add(sprintf($fmt, $x + 2.33, $y, $races));
+          $pc->add(sprintf($fmt, $x + 3.8,  $y, $year));
+          $pc->add(sprintf($fmt, $x + 4.3, $y, $races));
         }
 
         // crews
+        $x = 0.80;
         $Y = 8.38 - 3.05 * $within_page;
         foreach ($block->crew_A as $i => $s) {
           $y = $Y - (0.27 * $i);
           $year = substr($s->getSailorYear(), 2);
           $races = DB::makeRange($s->races_nums);
           $pc->add(sprintf($fmt, $x,        $y, $s->getSailorName()));
-          $pc->add(sprintf($fmt, $x + 1.9,  $y, $year));
-          $pc->add(sprintf($fmt, $x + 2.33, $y, $races));
+          $pc->add(sprintf($fmt, $x + 3.5,  $y, $year));
+          $pc->add(sprintf($fmt, $x + 4.0, $y, $races));
         }
 
         // - update within page
