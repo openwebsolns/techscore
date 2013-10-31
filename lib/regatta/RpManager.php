@@ -135,15 +135,12 @@ class RpManager {
                                                                            array('id'))))));
     $rps = array();
     foreach ($res as $rpentry) {
-      if ($rpentry->sailor === null) {
-        // @TODO: this indicates that the sailor for the RPentry is
-        // actually a coach, which should technically never happen
-        continue;
-      }
-
-      if (!isset($rps[$rpentry->sailor->id]))
-        $rps[$rpentry->sailor->id] = array();
-      $rps[$rpentry->sailor->id][] = $rpentry;
+      $id = "NULL";
+      if ($rpentry->sailor !== null)
+        $id = $rpentry->sailor->id;
+      if (!isset($rps[$id]))
+        $rps[$id] = array();
+      $rps[$id][] = $rpentry;
     }
     $lst = array();
     foreach ($rps as $lists)

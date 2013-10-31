@@ -104,7 +104,8 @@ class RpEnterPane extends AbstractPane {
 
     $sailor_options = array("" => "",
                             "Sailors" => array(),
-                            "Non-ICSA" => array());
+                            "Non-ICSA" => array(),
+                            "No-show" => array('NULL' => "No show"));
     foreach ($sailors as $s)
       $sailor_options["Sailors"][$s->id] = (string)$s;
     foreach ($un_slrs as $s)
@@ -170,7 +171,13 @@ class RpEnterPane extends AbstractPane {
         if ($spot < count($cur_sk))
           $value = DB::makeRange($cur_sk[$spot]->races_nums);
 
-        $cur_sk_id = (isset($cur_sk[$spot])) ? $cur_sk[$spot]->sailor->id : "";
+        $cur_sk_id = "";
+        if (isset($cur_sk[$spot])) {
+          if ($cur_sk[$spot]->sailor === null)
+            $cur_sk_id = 'NULL';
+          else
+            $cur_sk_id = $cur_sk[$spot]->sailor->id;
+        }
         $select_cell = XSelect::fromArray("sk$div$spot", $sailor_options, $cur_sk_id, array('onchange'=>'check()'));
         $tab_skip->addRow(array($select_cell,
                                 new XTextInput("rsk$div$spot", $value,
@@ -195,7 +202,14 @@ class RpEnterPane extends AbstractPane {
           if ($spot < count($cur_cr))
             $value = DB::makeRange($cur_cr[$spot]->races_nums);
 
-          $cur_cr_id = (isset($cur_cr[$spot])) ? $cur_cr[$spot]->sailor->id : "";
+          $cur_cr_id = "";
+          if (isset($cur_cr[$spot])) {
+            if ($cur_cr[$spot]->sailor === null)
+              $cur_cr_id = 'NULL';
+            else
+              $cur_cr_id = $cur_cr[$spot]->sailor->id;
+          }
+
           $select_cell = XSelect::fromArray("cr$div$spot", $sailor_options, $cur_cr_id, array('onchange'=>'check()'));
           $tab_crew->addRow(array($select_cell,
                                   new XTextInput("rcr$div$spot", $value,
@@ -301,9 +315,14 @@ class RpEnterPane extends AbstractPane {
           }
           else
             $s_race = DB::parseRange($args["r" . $s]);
-          $s_obj  = (isset($sailors[$s_value])) ? $sailors[$s_value] : null;
 
-          if ($s_race !== null && $s_obj  !== null) {
+          $s_obj = false;
+          if ($s_value == 'NULL')
+            $s_obj = null;
+          elseif (isset($sailors[$s_value]))
+            $s_obj = $sailors[$s_value];
+
+          if ($s_race !== null && $s_obj !== false) {
             // Eliminate those races from $s_race for which there is
             // no space for a crew
             $s_race_copy = $s_race;

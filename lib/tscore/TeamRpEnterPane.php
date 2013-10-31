@@ -96,7 +96,8 @@ class TeamRpEnterPane extends AbstractPane {
 
     $sailor_options = array("" => "",
                             "Sailors" => array(),
-                            "Non-ICSA" => array());
+                            "Non-ICSA" => array(),
+                            "No-show" => array('NULL' => "No show"));
     // Representative
     $rep = $rpManager->getRepresentative($chosen_team);
     $p->add($form = $this->createForm());
@@ -183,10 +184,10 @@ class TeamRpEnterPane extends AbstractPane {
           $r = $this->REGATTA->getRace($div, $race->number);
           $skip = $rpManager->getRpEntries($chosen_team, $r, RP::SKIPPER);
           if (count($skip) > 0)
-            $li[] = new XSpan($skip[0]->sailor, array('class' => sprintf('sk%s', $div)));
+            $li[] = new XSpan($skip[0]->getSailor(), array('class' => sprintf('sk%s', $div)));
           $crew = $rpManager->getRpEntries($chosen_team, $r, RP::CREW);
           foreach ($crew as $i => $rp)
-            $li[] = new XSpan($rp->sailor, array('class' => sprintf('cr%s%d', $div, $i)));
+            $li[] = new XSpan($rp->getSailor(), array('class' => sprintf('cr%s%d', $div, $i)));
 
           if (count($li) > 0)
             $rows[(string)$div]->add(new XTD(array(), $li));
@@ -245,6 +246,7 @@ class TeamRpEnterPane extends AbstractPane {
         $sailors[$sailor->id] = $sailor;
       foreach ($team->school->getUnregisteredSailors($gender) as $sailor)
         $sailors[$sailor->id] = $sailor;
+      $sailors['NULL'] = null; // no-show
 
       // Insert representative
       $rpManager->setRepresentative($team, DB::$V->incString($args, 'rep', 1, 256, null));
@@ -271,9 +273,9 @@ class TeamRpEnterPane extends AbstractPane {
         $config[(string)$div] = array(RP::SKIPPER => array(),
                                        RP::CREW => array());
 
-        $id = DB::$V->incKey($args, sprintf('sk%s', $div), $sailors);
-        if ($id !== null) {
-          if (isset($chosen_sailors[$id]))
+        $id = DB::$V->incKey($args, sprintf('sk%s', $div), $sailors, false);
+        if ($id !== false) {
+          if ($id !== 'NULL' && isset($chosen_sailors[$id]))
             throw new SoterException(sprintf("%s cannot be involved in more than one role or boat at a time.", $sailors[$id]));
           $sailor = $sailors[$id];
           $chosen_sailors[$id] = $sailor;
@@ -281,9 +283,9 @@ class TeamRpEnterPane extends AbstractPane {
         }
 
         for ($i = 0; $i < $max_crews; $i++) {
-          $id = DB::$V->incKey($args, sprintf('cr%s%d', $div, $i), $sailors);
-          if ($id !== null) {
-            if (isset($chosen_sailors[$id]))
+          $id = DB::$V->incKey($args, sprintf('cr%s%d', $div, $i), $sailors, false);
+          if ($id !== false) {
+            if ($id !== null && isset($chosen_sailors[$id]))
               throw new SoterException(sprintf("%s cannot be involved in more than one role or boat at a time.", $sailors[$id]));
             $sailor = $sailors[$id];
             $chosen_sailors[$id] = $sailor;

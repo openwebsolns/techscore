@@ -2533,6 +2533,20 @@ class RPEntry extends DBObject {
     }
   }
   protected function db_order() { return array('team'=>true, 'race'=>true); }
+
+  /**
+   * Returns textual representation of sailor.
+   *
+   * Because sailor might be null (which means no-show) calling this
+   * method will return "No show" rather than the empty String.
+   *
+   * @return String the sailor
+   */
+  public function getSailor() {
+    if ($this->sailor === null)
+      return "No show";
+    return (string)$this->__get('sailor');
+  }
 }
 
 /**
