@@ -57,7 +57,7 @@ class LoggedInUsers extends AbstractAdminUserPane {
       $type = "Session";
       $exp = $session->expires;
       if ($exp === null) {
-        $exp = clone($exp->last_modified);
+        $exp = clone($session->last_modified);
         $exp->add(new DateInterval(sprintf('P0DT%dS', TSSessionHandler::IDLE_TIME)));
       }
       else
