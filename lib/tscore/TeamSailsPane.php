@@ -472,7 +472,7 @@ class TeamSailsPane extends AbstractPane {
     // No rotation: enforce, at least for now, a single round, as
     // well as the requirement of equal number of boats as there
     // are teams in the round
-    if ($round->round_group === null &&
+    if ($round !== null && $round->round_group === null &&
         $flight / count($divisions) == count($this->REGATTA->getTeamsInRound($round))) {
       $form->add($fi = new FItem("Don't switch boats", new XCheckboxInput('no-rotation', 1, array('id'=>'chk-rot'))));
       $fi->add(new XLabel('chk-rot', "Keep the teams in the same boats after the first flight (\"no rotation\")."));
