@@ -27,6 +27,16 @@ class FauxRP extends RP {
     $this->division = $parent->__get('division');
     $this->races_nums = $parent->__get('races_nums');
   }
+  public function getSailorName() {
+    if ($this->sailor === null)
+      return "No show";
+    return $this->sailor->getName();
+  }
+  public function getSailorYear() {
+    if ($this->sailor === null)
+      return "----";
+    return $this->sailor->year;
+  }
 }
 
 /**
@@ -66,7 +76,7 @@ class IcsaRpFormTeam extends AbstractIcsaRpForm {
     if (!isset($this->teams[$team->id]))
       $this->add($team);
 
-    $id = sprintf('%s-%s-%s', $team->id, $role, $rp->sailor->id);
+    $id = sprintf('%s-%s-%s', $team->id, $role, ($rp->sailor) ? $rp->sailor->id : 'NULL');
     if (isset($this->team_sailor_map[$id])) {
       $prevRP = $this->team_sailor_map[$id];
       foreach ($rp->races_nums as $num)
@@ -143,12 +153,12 @@ class IcsaRpFormTeam extends AbstractIcsaRpForm {
             $y = $Y - (0.3 * $skipIndex);
             $skipIndex++;
 
-            $year = substr($s->sailor->year, 2);
+            $year = substr($s->getSailorYear(), 2);
             if (count($s->races_nums) == count($teamRaces))
               $races = "All";
             else
               $races = DB::makeRange($s->races_nums);
-            $pc->add(sprintf($fmt, $X,        $y, $s->sailor->getName()));
+            $pc->add(sprintf($fmt, $X,        $y, $s->getSailorName()));
             $pc->add(sprintf($fmt, $X + 3.0,  $y, $year));
             $pc->add(sprintf($fmt, $X + 3.4, $y, $races));
           }
@@ -163,12 +173,12 @@ class IcsaRpFormTeam extends AbstractIcsaRpForm {
             $y = $Y - (0.3 * $crewIndex);
             $crewIndex++;
 
-            $year = substr($s->sailor->year, 2);
+            $year = substr($s->getSailorYear(), 2);
             if (count($s->races_nums) == count($teamRaces))
               $races = "All";
             else
               $races = DB::makeRange($s->races_nums);
-            $pc->add(sprintf($fmt, $X,        $y, $s->sailor->getName()));
+            $pc->add(sprintf($fmt, $X,        $y, $s->getSailorName()));
             $pc->add(sprintf($fmt, $X + 3.0,  $y, $year));
             $pc->add(sprintf($fmt, $X + 3.4, $y, $races));
           }

@@ -67,9 +67,9 @@ class IcsaRpFormSloops extends AbstractIcsaRpForm {
         // :A
         foreach ($block->skipper_A as $i => $s) {
           $y = $Y - (0.3 * $i);
-          $year = substr($s->sailor->year, 2);
+          $year = substr($s->getSailorYear(), 2);
           $races = DB::makeRange($s->races_nums);
-          $pc->add(sprintf($fmt, $x,        $y, $s->sailor->getName()));
+          $pc->add(sprintf($fmt, $x,        $y, $s->getSailorName()));
           $pc->add(sprintf($fmt, $x + 1.9,  $y, $year));
           $pc->add(sprintf($fmt, $x + 2.33, $y, $races));
         }
@@ -78,9 +78,9 @@ class IcsaRpFormSloops extends AbstractIcsaRpForm {
         $Y = 8.38 - 3.05 * $within_page;
         foreach ($block->crew_A as $i => $s) {
           $y = $Y - (0.27 * $i);
-          $year = substr($s->sailor->year, 2);
+          $year = substr($s->getSailorYear(), 2);
           $races = DB::makeRange($s->races_nums);
-          $pc->add(sprintf($fmt, $x,        $y, $s->sailor->getName()));
+          $pc->add(sprintf($fmt, $x,        $y, $s->getSailorName()));
           $pc->add(sprintf($fmt, $x + 1.9,  $y, $year));
           $pc->add(sprintf($fmt, $x + 2.33, $y, $races));
         }

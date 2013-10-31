@@ -73,9 +73,9 @@ class IcsaRpFormAB extends AbstractIcsaRpForm {
           $x = $X + (3.5 * $div_num);
           foreach ($block->$div as $i => $s) {
             $y = $Y - (0.3 * $i);
-            $year = substr($s->sailor->year, 2);
+            $year = substr($s->getSailorYear(), 2);
             $races = DB::makeRange($s->races_nums);
-            $pc->add(sprintf($fmt, $x,        $y, $s->sailor->getName()));
+            $pc->add(sprintf($fmt, $x,        $y, $s->getSailorName()));
             $pc->add(sprintf($fmt, $x + 1.9,  $y, $year));
             $pc->add(sprintf($fmt, $x + 2.33, $y, $races));
           }
@@ -88,9 +88,9 @@ class IcsaRpFormAB extends AbstractIcsaRpForm {
           $x = $X + (3.5 * $div_num);
           foreach ($block->$div as $i => $s) {
             $y = $Y - (0.3 * $i);
-            $year = substr($s->sailor->year, 2);
+            $year = substr($s->getSailorYear(), 2);
             $races = DB::makeRange($s->races_nums);
-            $pc->add(sprintf($fmt, $x,        $y, $s->sailor->getName()));
+            $pc->add(sprintf($fmt, $x,        $y, $s->getSailorName()));
             $pc->add(sprintf($fmt, $x + 1.9,  $y, $year));
             $pc->add(sprintf($fmt, $x + 2.33, $y, $races));
           }

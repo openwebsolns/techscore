@@ -61,6 +61,36 @@ class RP {
   }
 
   /**
+   * Returns suitable representation of sailor
+   *
+   * Includes "No show" for null sailor values
+   *
+   * @return String|null name of sailor
+   */
+  public function getSailorName() {
+    if (count($this->rps) == 0)
+      return null;
+    if ($this->rps[0]->sailor === null)
+      return "No show";
+    return $this->rps[0]->sailor->getName();
+  }
+
+  /**
+   * Returns suitable representation of sailor year
+   *
+   * Returns "----" for null sailor values
+   *
+   * @return String|null graduation year of sailor
+   */
+  public function getSailorYear() {
+    if (count($this->rps) == 0)
+      return null;
+    if ($this->rps[0]->sailor === null)
+      return "----";
+    return $this->rps[0]->sailor->year;
+  }
+
+  /**
    * Returns the constant which matches the role specified role, and
    * throws an error if it's invalid.
    *

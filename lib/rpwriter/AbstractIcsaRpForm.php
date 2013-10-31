@@ -234,31 +234,31 @@ abstract class AbstractIcsaRpForm {
         print("---------\n");
         foreach ($block->skipper_A as $s)
           print(sprintf($fmt,
-                        $s->sailor,
+                        $s->getSailorName(),
                         $s->division,
-                        $s->sailor->year,
+                        $s->getSailorYear(),
                         DB::makeRange($s->races_nums)));
         print("\n");
         foreach ($block->crew_A as $s)
           print(sprintf($fmt,
-                        $s->sailor,
+                        $s->getSailorName(),
                         $s->division,
-                        $s->sailor->year,
+                        $s->getSailorYear(),
                         DB::makeRange($s->races_nums)));
 
         print("---------\n");
         foreach ($block->skipper_B as $s)
           print(sprintf($fmt,
-                        $s->sailor,
+                        $s->getSailorName(),
                         $s->division,
-                        $s->sailor->year,
+                        $s->getSailorYear(),
                         DB::makeRange($s->races_nums)));
         print("\n");
         foreach ($block->crew_B as $s)
           print(sprintf($fmt,
-                        $s->sailor,
+                        $s->getSailorName(),
                         $s->division,
-                        $s->sailor->year,
+                        $s->getSailorYear(),
                         DB::makeRange($s->races_nums)));
       }
       print("==========\n");
