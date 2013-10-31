@@ -633,3 +633,8 @@ CREATE TABLE `websession` (
   `sessiondata` text,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- tweak list of sponsors from admin site
+create table pub_sponsor (id tinyint unsigned not null primary key auto_increment, name varchar(50) not null, url varchar(255) default null, logo varchar(32) default null) engine=innodb default charset = utf8;
+alter table pub_sponsor add foreign key (logo) references pub_file(id) on delete set null on update cascade;
+alter table pub_sponsor add column relative_order tinyint unsigned not null default 1;

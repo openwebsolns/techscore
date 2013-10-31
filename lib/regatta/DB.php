@@ -57,6 +57,7 @@ class DB extends DBM {
   public static $PUB_REGATTA_URL = null;
   public static $PUB_FILE = null;
   public static $PUB_FILE_SUMMARY = null;
+  public static $PUB_SPONSOR = null;
   public static $WEBSESSION = null;
 
   public static $PERMISSION = null;
@@ -122,6 +123,7 @@ class DB extends DBM {
     self::$PUB_REGATTA_URL = new Pub_Regatta_Url();
     self::$PUB_FILE = new Pub_File();
     self::$PUB_FILE_SUMMARY = new Pub_File_Summary();
+    self::$PUB_SPONSOR = new Pub_Sponsor();
     self::$WEBSESSION = new Websession();
 
     self::$PERMISSION = new Permission();
@@ -3308,6 +3310,10 @@ class Pub_File_Summary extends DBObject {
     return DB::get(DB::$PUB_FILE, $this->id);
   }
 
+  public function __toString() {
+    return $this->id;
+  }
+
   /**
    * Creates an XImg object with width/height attrs (if available)
    *
@@ -3334,6 +3340,27 @@ class Pub_File_Summary extends DBObject {
 class Pub_File extends Pub_File_Summary {
   public $filedata;
   protected function db_cache() { return true; }
+}
+
+/**
+ * A sponsor to be used on the public site
+ *
+ * @author Dayan Paez
+ * @version 2013-10-31
+ */
+class Pub_Sponsor extends DBObject {
+  public $name;
+  public $url;
+  public $relative_order;
+  protected $logo;
+
+  public function db_type($field) {
+    if ($field == 'logo')
+      return DB::$PUB_FILE_SUMMARY;
+    return parent::db_type($field);
+  }
+
+  protected function db_order() { return array('relative_order'=>true); }
 }
 
 /**

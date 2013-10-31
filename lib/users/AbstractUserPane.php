@@ -140,6 +140,7 @@ abstract class AbstractUserPane {
                                           new XUl(array(),
                                                   array(
                                                         new XLi(new XA("/social", "Social settings")),
+                                                        new XLi(new XA("/sponsor", "Sponsors")),
                                                         new XLi(new XA("/files",  "Files"))
                                                         )))));
     }
@@ -399,6 +400,11 @@ abstract class AbstractUserPane {
     case 'social':
       require_once('users/admin/SocialSettingsManagement.php');
       return new SocialSettingsManagement($u);
+
+    case 'sponsor':
+    case 'sponsors':
+      require_once('users/admin/SponsorsManagement.php');
+      return new SponsorsManagement($u);
 
     case 'file':
     case 'files':

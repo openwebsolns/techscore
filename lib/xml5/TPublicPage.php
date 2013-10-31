@@ -179,10 +179,9 @@ class TPublicPage extends XPage {
     // Navigation
     $this->body->add(new XDiv(array('class'=>'nav'),
                               array(new XH3("Navigate"),
-                                    new XUl(array(),
-                                            array(new XLi(new XA('#menu', "Menu")),
-                                                  new XLi(new XA('#page-content', "Content")),
-                                                  new XLi(new XA('#sponsors', "Our sponsors")))))));
+                                    $nav = new XUl(array(),
+                                                   array(new XLi(new XA('#menu', "Menu")),
+                                                         new XLi(new XA('#page-content', "Content")))))));
     $this->body->add($sep);
 
     // Header
@@ -331,6 +330,7 @@ UserVoice.push(["showTab", "classic_widget", {
                       array('http://www.ussailing.org/', 'ussailing.png', "US Sailing"),
                       array('http://www.quantumsails.com/', 'qtag.png', "Quantum Sails"));
     if (count($sponsors) > 0) {
+      $nav->add(new XLi(new XA('#sponsors', "Our sponsors")));
       $foot->add(new XDiv(array('id'=>'sponsors'),
                           array(new XH3("Our sponsors"),
                                 $slist = new XUl(array('id'=>'sponsors-list')))));

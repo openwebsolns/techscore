@@ -37,18 +37,18 @@ class TeamRaceOrderPane extends AbstractPane {
 
     if (isset($args['order-rounds'])) {
       try {
-	$list = DB::$V->reqList($args, 'round', null, "No rounds chosen for ordering. Please try again.");
-	$rnds = array();
-	foreach ($list as $id) {
-	  if (!isset($rounds[$id]))
-	    throw new SoterException("Invalid round ID provided: $id.");
-	  $rnds[] = $rounds[$id];
-	}
-	$this->fillRounds($rnds);
-	return;
+        $list = DB::$V->reqList($args, 'round', null, "No rounds chosen for ordering. Please try again.");
+        $rnds = array();
+        foreach ($list as $id) {
+          if (!isset($rounds[$id]))
+            throw new SoterException("Invalid round ID provided: $id.");
+          $rnds[] = $rounds[$id];
+        }
+        $this->fillRounds($rnds);
+        return;
       }
       catch (SoterException $e) {
-	Session::pa(new PA($e->getMessage(), PA::I));
+        Session::pa(new PA($e->getMessage(), PA::I));
       }
     }
 
@@ -63,18 +63,18 @@ class TeamRaceOrderPane extends AbstractPane {
       $p->add(new XP(array(), "The following table summarizes the list of rounds whose races are ordered together. To edit the races within each group, click on the group name. To separate the rounds, click the \"Unlink\" button next to the group name."));
       $p->add($tab = new XQuickTable(array(), array("Group", "")));
       foreach ($groups as $group) {
-	$my_rounds = array();
-	$my_round_ids = array();
-	foreach ($group->getRounds() as $round) {
-	  $my_rounds[] = $round;
-	  $my_round_ids[] = $round->id;
-	}
+        $my_rounds = array();
+        $my_round_ids = array();
+        foreach ($group->getRounds() as $round) {
+          $my_rounds[] = $round;
+          $my_round_ids[] = $round->id;
+        }
 
-	$f = $this->createForm();
-	$f->add(new XHiddenInput('round_group', $group->id));
-	$f->add(new XSubmitInput('unlink-group', "Unlink"));
+        $f = $this->createForm();
+        $f->add(new XHiddenInput('round_group', $group->id));
+        $f->add(new XSubmitInput('unlink-group', "Unlink"));
 
-	$tab->addRow(array(new XA($this->link('race-order', array('order-rounds'=>"", 'round' => $my_round_ids)), implode(", ", $my_rounds)), $f));
+        $tab->addRow(array(new XA($this->link('race-order', array('order-rounds'=>"", 'round' => $my_round_ids)), implode(", ", $my_rounds)), $f));
       }
     }
 
@@ -82,10 +82,10 @@ class TeamRaceOrderPane extends AbstractPane {
     $count = 0;
     foreach ($rounds as $i => $round) {
       if ($round->round_group === null) {
-	$id = 'chk-round-' . $i;
-	$ul->add(new XLi(array(new XCheckboxInput('round[]', $round->id, array('id'=>$id)),
-			       new XLabel($id, $round))));
-	$count++;
+        $id = 'chk-round-' . $i;
+        $ul->add(new XLi(array(new XCheckboxInput('round[]', $round->id, array('id'=>$id)),
+                               new XLabel($id, $round))));
+        $count++;
       }
     }
     if ($count > 0) {
@@ -168,7 +168,7 @@ class TeamRaceOrderPane extends AbstractPane {
     $form->add(new XP(array(), "You may also edit the associated boat for each race. Click the \"Edit races\" button to save changes. Extra (unused) races will be removed at the end of the regatta."));
     $form->add(new XP(array('class'=>'warning'), "Hint: For large rotations, click \"Edit races\" at the bottom of page often to save your work."));
     $form->add(new XNoScript(array(new XP(array(),
-					  array(new XStrong("Important:"), " check the edit column if you wish to edit that race. The race will not be updated regardless of changes made otherwise.")))));
+                                          array(new XStrong("Important:"), " check the edit column if you wish to edit that race. The race will not be updated regardless of changes made otherwise.")))));
     $header = array("Order", "#");
     if (count($rounds) > 1)
       $header[] = "Round";
@@ -182,7 +182,7 @@ class TeamRaceOrderPane extends AbstractPane {
     $races = array();
     foreach ($rounds as $r => $round) {
       foreach ($this->REGATTA->getRacesInRound($round, Division::A(), false) as $i => $race) {
-	$races[] = $race;
+        $races[] = $race;
       }
     }
     usort($races, 'Race::compareNumber');
@@ -190,7 +190,7 @@ class TeamRaceOrderPane extends AbstractPane {
     foreach ($races as $i => $race) {
       $bgcolor = '';
       if (count($rounds) > 1)
-	$bgcolor = ' bgcolor' . ($race->round->relative_order % 7);
+        $bgcolor = ' bgcolor' . ($race->round->relative_order % 7);
       $teams = $this->REGATTA->getRaceTeams($race);
       $row = array(new XTD(array(),
                            array(new XTextInput('order[]', ($i + 1), array('size'=>2)),
@@ -318,23 +318,23 @@ class TeamRaceOrderPane extends AbstractPane {
       // the list and determine the smallest one.
       $nums = array();
       foreach (DB::$V->reqList($args, 'round', null, "No rounds provided.") as $rid) {
-	if (($round = DB::get(DB::$ROUND, $rid)) === null || $round->regatta != $this->REGATTA)
-	  throw new SoterException("Invalid round provided: $rid.");
+        if (($round = DB::get(DB::$ROUND, $rid)) === null || $round->regatta != $this->REGATTA)
+          throw new SoterException("Invalid round provided: $rid.");
 
-	if ($group !== false && $group != $round->round_group)
-	  throw new SoterException("All rounds must belong to the same group.");
-	$group = $round->round_group;
+        if ($group !== false && $group != $round->round_group)
+          throw new SoterException("All rounds must belong to the same group.");
+        $group = $round->round_group;
 
-	foreach ($this->REGATTA->getRacesInRound($round, Division::A(), false) as $race) {
-	  $races[$race->id] = array($race);
-	  foreach ($other_divisions as $div)
-	    $races[$race->id][] = $this->REGATTA->getRace($div, $race->number);
-	  $nums[] = $race->number;
-	}
-	$rounds[$round->id] = $round;
+        foreach ($this->REGATTA->getRacesInRound($round, Division::A(), false) as $race) {
+          $races[$race->id] = array($race);
+          foreach ($other_divisions as $div)
+            $races[$race->id][] = $this->REGATTA->getRace($div, $race->number);
+          $nums[] = $race->number;
+        }
+        $rounds[$round->id] = $round;
       }
       if (count($rounds) == 0)
-	throw new SoterException("Empty round list provided.");
+        throw new SoterException("Empty round list provided.");
 
       sort($nums, SORT_NUMERIC);
       $next_number = $nums[0];
@@ -352,33 +352,33 @@ class TeamRaceOrderPane extends AbstractPane {
       $sails_to_save = array();
       $races_to_reset = array();
       foreach ($map['race'] as $i => $rid) {
-	if (!isset($races[$rid]))
-	  throw new SoterException("Invalid race provided.");
+        if (!isset($races[$rid]))
+          throw new SoterException("Invalid race provided.");
 
         $boat = DB::getBoat($map['boat'][$i]);
         if ($boat === null)
           throw new SoterException("Invalid boat specified.");
 
-	$list = $races[$rid];
-	$race = $list[0];
-	$edited = false;
-	if ($race->boat != $boat) {
-	  $edited = true;
-	  foreach ($list as $r)
-	    $r->boat = $boat;
-	}
-	if ($race->number != $next_number) {
-	  $edited = true;
-	  foreach ($list as $r)
-	    $r->number = $next_number;
-	}
-	if (in_array($race->id, $swaplist)) {
-	  $edited = true;
-	  $team1 = $race->tr_team1;
+        $list = $races[$rid];
+        $race = $list[0];
+        $edited = false;
+        if ($race->boat != $boat) {
+          $edited = true;
+          foreach ($list as $r)
+            $r->boat = $boat;
+        }
+        if ($race->number != $next_number) {
+          $edited = true;
+          foreach ($list as $r)
+            $r->number = $next_number;
+        }
+        if (in_array($race->id, $swaplist)) {
+          $edited = true;
+          $team1 = $race->tr_team1;
           $ignore1 = $race->tr_ignore1; // also swap ignore list
-	  foreach ($list as $r) {
-	    $r->tr_team1 = $r->tr_team2;
-	    $r->tr_team2 = $team1;
+          foreach ($list as $r) {
+            $r->tr_team1 = $r->tr_team2;
+            $r->tr_team2 = $team1;
             $r->tr_ignore1 = $r->tr_ignore2;
             $r->tr_ignore2 = $ignore1;
 
@@ -393,14 +393,14 @@ class TeamRaceOrderPane extends AbstractPane {
               $sails_to_save[] = $s2;
               $races_to_reset[] = $r;
             }
-	  }
-	}
-	if ($edited) {
-	  foreach ($list as $r)
-	    $to_save[] = $r;
+          }
         }
-	unset($races[$rid]);
-	$next_number++;
+        if ($edited) {
+          foreach ($list as $r)
+            $to_save[] = $r;
+        }
+        unset($races[$rid]);
+        $next_number++;
       }
       if (count($races) > 0)
         throw new SoterException("Not all races in round are accounted for.");
@@ -415,57 +415,57 @@ class TeamRaceOrderPane extends AbstractPane {
       if (count($to_save) == 0)
         Session::pa(new PA("No races were updated.", PA::I));
       else {
-	if (count($rounds) == 1)
-	  Session::pa(new PA(sprintf("Races updated for round %s.", implode(", ", $rounds))));
-	else {
-	  // create group if necessary
-	  if ($group === null) {
-	    $group = new Round_Group();
-	    foreach ($rounds as $round) {
-	      $round->round_group = $group;
-	      DB::set($round);
-	    }
-	  }
+        if (count($rounds) == 1)
+          Session::pa(new PA(sprintf("Races updated for round %s.", implode(", ", $rounds))));
+        else {
+          // create group if necessary
+          if ($group === null) {
+            $group = new Round_Group();
+            foreach ($rounds as $round) {
+              $round->round_group = $group;
+              DB::set($round);
+            }
+          }
 
-	  // affect all race numbers as necessary
-	  $these_rounds = $rounds;
-	  $other_rounds = array();
-	  $do_add = false;
-	  foreach ($this->REGATTA->getRounds() as $round) {
-	    if (!isset($these_rounds[$round->id])) {
-	      if ($do_add)
-		$other_rounds[] = $round;
-	    }
-	    else {
-	      $do_add = true;
-	      unset($these_rounds[$round->id]);
-	    }
-	    if (count($these_rounds) == 0)
-	      break;
-	  }
-	  $others_changed = array();
-	  foreach ($other_rounds as $round) {
-	    $changed = false;
-	    foreach ($this->REGATTA->getRacesInRound($round, Division::A(), false) as $race) {
-	      foreach ($other_divisions as $div) {
-		$r = $this->REGATTA->getRace($div, $race->number);
-		if ($r->number != $next_number) {
-		  $changed = true;
-		  $r->number = $next_number;
-		  DB::set($r);
-		}
-		$race->number = $next_number;
-		DB::set($race);
-	      }
-	      $next_number++;
-	    }
-	    if ($changed)
-	      $others_changed[] = $round;
-	  }
-	  Session::pa(new PA(sprintf("Races updated for rounds %s.", implode(", ", $rounds))));
-	  if (count($others_changed) > 0)
-	    Session::pa(new PA(sprintf("Also re-numbered races for round(s) %s.", implode(", ", $other_changed)), PA::I));
-	}
+          // affect all race numbers as necessary
+          $these_rounds = $rounds;
+          $other_rounds = array();
+          $do_add = false;
+          foreach ($this->REGATTA->getRounds() as $round) {
+            if (!isset($these_rounds[$round->id])) {
+              if ($do_add)
+                $other_rounds[] = $round;
+            }
+            else {
+              $do_add = true;
+              unset($these_rounds[$round->id]);
+            }
+            if (count($these_rounds) == 0)
+              break;
+          }
+          $others_changed = array();
+          foreach ($other_rounds as $round) {
+            $changed = false;
+            foreach ($this->REGATTA->getRacesInRound($round, Division::A(), false) as $race) {
+              foreach ($other_divisions as $div) {
+                $r = $this->REGATTA->getRace($div, $race->number);
+                if ($r->number != $next_number) {
+                  $changed = true;
+                  $r->number = $next_number;
+                  DB::set($r);
+                }
+                $race->number = $next_number;
+                DB::set($race);
+              }
+              $next_number++;
+            }
+            if ($changed)
+              $others_changed[] = $round;
+          }
+          Session::pa(new PA(sprintf("Races updated for rounds %s.", implode(", ", $rounds))));
+          if (count($others_changed) > 0)
+            Session::pa(new PA(sprintf("Also re-numbered races for round(s) %s.", implode(", ", $other_changed)), PA::I));
+        }
         UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       }
     }
@@ -485,22 +485,22 @@ class TeamRaceOrderPane extends AbstractPane {
 
       $next_number = null;
       foreach ($rounds as $round) {
-	foreach ($this->REGATTA->getRacesInRound($round, Division::A(), false) as $race) {
-	  if ($next_number === null) {
-	    $next_number = $race->number + 1;
-	    continue;
-	  }
-	  if ($next_number != $race->number) {
-	    foreach ($other_divisions as $division) {
-	      $r = $this->REGATTA->getRace($division, $race->number);
-	      $r->number = $next_number;
-	      DB::set($r);
-	    }
-	    $race->number = $next_number;
-	    DB::set($race);
-	  }
-	  $next_number++;
-	}
+        foreach ($this->REGATTA->getRacesInRound($round, Division::A(), false) as $race) {
+          if ($next_number === null) {
+            $next_number = $race->number + 1;
+            continue;
+          }
+          if ($next_number != $race->number) {
+            foreach ($other_divisions as $division) {
+              $r = $this->REGATTA->getRace($division, $race->number);
+              $r->number = $next_number;
+              DB::set($r);
+            }
+            $race->number = $next_number;
+            DB::set($race);
+          }
+          $next_number++;
+        }
       }
       Session::pa(new PA("Unlinked rounds and re-numbered races."));
     }
