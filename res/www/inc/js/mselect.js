@@ -84,7 +84,9 @@ function OWSMultSelect(elem) {
     }
 
     this.toElement = document.createElement("select");
-    this.toElement.setAttribute("class", "msel-selected");
+    this.toElement.classList.add("msel-selected");
+    for (var i = 0; i < this.fromElement.classList.length; i++)
+        this.toElement.classList.add(this.fromElement.classList[i]);
     this.toElement.style.display = "block";
     this.toElement.style.height = "100%";
     this.toElement.style.width = this.fromElement.innerWidth + "px";

@@ -116,8 +116,9 @@ input, select {
 .form_entry input[type="text"], input[type="email"], input[type="date"], input[type="time"], .form_entry input[type="password"], .form_entry select {
     min-width:15em;
     padding:0.15em}
-.form_entry input.race_text, .form_entry input.small {
+.form_entry input.race_text, .form_entry input.small, .form_entry select.small {
     min-width:3em;
+    width: auto;
 }
 #headdiv {
     padding:0px;

@@ -210,7 +210,7 @@ class SailsPane extends AbstractPane {
         $div_opts = array();
         foreach ($divisions as $div)
           $div_opts[(string)$div] = (string)$div;
-        $form->add(new FItem("Divisions to affect:", XSelectM::fromArray('division[]', $div_opts, $chosen_div)));
+        $form->add(new FItem("Divisions to affect:", XSelectM::fromArray('division[]', $div_opts, $chosen_div, array('class'=>'small'))));
       }
       $form->add(new XSubmitP("choose_rot", "Next >>"));
 
