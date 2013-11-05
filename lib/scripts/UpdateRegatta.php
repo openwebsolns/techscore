@@ -261,8 +261,11 @@ class UpdateRegatta extends AbstractScript {
     }
     if (in_array(UpdateRequest::ACTIVITY_FINALIZED, $activities)) {
       $sync_rp = true; // some races were removed
-      $tweet_finalized = true;
       $front = true;
+      $end = clone($reg->end_date);
+      $end->setTime(23,59,59);
+      if ($end > new DateTime('2 days ago'))
+        $tweet_finalized = true;
     }
 
     // ------------------------------------------------------------
@@ -295,6 +298,7 @@ class UpdateRegatta extends AbstractScript {
       require_once('twitter/TweetFactory.php');
       $fac = new TweetFactory();
       DB::tweet($fac->create(TweetFactory::FINALIZED_EVENT, $reg));
+      self::errln(sprintf("Tweeted about regatta %s.", $reg->name));
     }
   }
 
