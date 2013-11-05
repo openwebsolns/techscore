@@ -51,15 +51,15 @@ class TweakSailsPane extends AbstractPane {
       // ------------------------------------------------------------
       // 1. Select edit type
       // ------------------------------------------------------------
-      $this->PAGE->addContent($p = new XPort("Edit sail numbers"));
-      $p->add(new XHeading("1. Choose action and division"));
+      $this->PAGE->addContent($p = new XPort("1. Choose action and division"));
       $p->add($form = $this->createForm(XForm::GET));
 
       // Action
       $form->add(new FItem("Action:", XSelect::fromArray('edittype', $this->ACTIONS, $edittype)));
       $form->add(new FItem("Division(s):", XSelectM::fromArray('division[]',
                                                                array_combine($exist_div, $exist_div),
-                                                               $chosen_div)));
+                                                               $chosen_div,
+                                                               array('class'=>'small'))));
       $form->add(new XSubmitP("choose_act", "Next →"));
       return;
     }
