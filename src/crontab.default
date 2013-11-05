@@ -52,4 +52,4 @@ MAILTO = {CRON_MAILTO}
 
 #--------------------------------
 # Email users about pending regattas
-0 18 * * 3 /usr/bin/php {DIRECTORY}/lib/scripts/RemindPending.php
+0 18 * * 2 /usr/bin/php {DIRECTORY}/lib/scripts/RemindPending.php
