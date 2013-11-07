@@ -200,7 +200,7 @@ class SummaryPane extends AbstractPane {
     require_once('xml5/TEmailPage.php');
     $body = new TEmailPage($this->REGATTA->name . " Summary");
 
-    $body->body->set('style', 'font-family:Georgia,serif;max-width:50em;margin:0 auto;');
+    $body->body->set('style', 'font-family:Georgia,serif;max-width:45em;margin:0 auto;padding:0 1em;');
     $h1args = array('style'=>'margin:0.5ex 0;font-family:Arial,Helvetica,sans-serif;font-variant:small-caps;font-size:160%;');
     $h2args = array('style'=>'font-size:120%;');
     $h3args = array('style'=>'margin:0.5ex 0;font-size:110%;color:#48484A;');
@@ -228,7 +228,7 @@ class SummaryPane extends AbstractPane {
                                                    " for full results.")),
                                       $this->getResultsHtmlTable())));
     }
-    $body->body->add(new XAddress(array('style'=>'color:#555;border-top:1px solid #222;margin-top:4ex;padding:1ex 0;'),
+    $body->body->add(new XAddress(array('style'=>'color:#555;border-top:1px solid #555;margin-top:4ex;padding:1ex 0;'),
                                   array(sprintf("This message sent by %s on behalf of %s.", Conf::$NAME, $this->USER))));
 
     $parts['text/html; charset=utf8'] = $body->toXML();
