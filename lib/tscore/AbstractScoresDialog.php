@@ -39,6 +39,9 @@ abstract class AbstractScoresDialog extends AbstractDialog {
       foreach ($this->REGATTA->getDivisions() as $div)
         $ul->add(new XLi(new XA(sprintf('/view/%d/scores/%s', $this->REGATTA->id, $div),
                                 "$div Division")));
+      $rot = $this->REGATTA->getRotation();
+      if ($rot->isAssigned())
+        $ul->add(new XLi(new XA(sprintf('/view/%d/boats', $this->REGATTA->id), "Boats rank")));
     }
 
     // Add meta tag

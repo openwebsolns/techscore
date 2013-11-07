@@ -79,9 +79,9 @@ abstract class AbstractDialog {
       case 'rotation':
       case 'rotations':
         if ($u->scoring == Regatta::SCORING_TEAM) {
-	  require_once('tscore/TeamRotationDialog.php');
-	  return new TeamRotationDialog($u);
-	}
+          require_once('tscore/TeamRotationDialog.php');
+          return new TeamRotationDialog($u);
+        }
         require_once('tscore/RotationDialog.php');
         return new RotationDialog($u);
 
@@ -121,15 +121,15 @@ abstract class AbstractDialog {
         }
         return null;
 
-	// --------------- RANKING ------------------//
+        // --------------- RANKING ------------------//
       case 'ranking':
       case 'rank':
       case 'div-score':
       case 'div-scores':
-	if ($u->scoring == Regatta::SCORING_TEAM) {
-	  require_once('tscore/TeamRankingDialog.php');
-	  return new TeamRankingDialog($u);
-	}
+        if ($u->scoring == Regatta::SCORING_TEAM) {
+          require_once('tscore/TeamRankingDialog.php');
+          return new TeamRankingDialog($u);
+        }
         require_once('tscore/ScoresDivisionalDialog.php');
         return new ScoresDivisionalDialog($u);
 
@@ -140,15 +140,26 @@ abstract class AbstractDialog {
         require_once('tscore/ScoresCombinedDialog.php');
         return new ScoresCombinedDialog($u);
 
-	// -------------- CHARTS --------------------//
+        // -------------- CHARTS --------------------//
       case 'chart':
       case 'history':
-	if ($u->scoring != Regatta::SCORING_STANDARD)
-	  return null;
-	require_once('tscore/ScoresChartDialog.php');
-	return new ScoresChartDialog($u);
+        if ($u->scoring != Regatta::SCORING_STANDARD)
+          return null;
+        require_once('tscore/ScoresChartDialog.php');
+        return new ScoresChartDialog($u);
 
-	// --------------- LAST UPDATE ------------//
+        // -------------- BOATS --------------------//
+      case 'boat':
+      case 'boats':
+        if ($u->scoring != Regatta::SCORING_STANDARD && $u->scoring != Regatta::SCORING_COMBINED)
+          return null;
+        $rot = $u->getRotation();
+        if (!$rot->isAssigned())
+          return null;
+        require_once('tscore/BoatsDialog.php');
+        return new BoatsDialog($u);
+
+        // --------------- LAST UPDATE ------------//
       case 'last-update':
         // @TODO: deprecate
         $t = $u->getLastScoreUpdate();
