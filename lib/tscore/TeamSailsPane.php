@@ -192,6 +192,7 @@ class TeamSailsPane extends AbstractPane {
           else {
             if (isset($team_sails[$r->tr_team1->id])) {
               $sail = clone($team_sails[$r->tr_team1->id]);
+              $sail->id = null;
               $sail->race = $r;
               $rotation->setSail($sail);
             }
@@ -211,6 +212,7 @@ class TeamSailsPane extends AbstractPane {
           else {
             if (isset($team_sails[$r->tr_team2->id])) {
               $sail = clone($team_sails[$r->tr_team2->id]);
+              $sail->id = null;
               $sail->race = $r;
               $rotation->setSail($sail);
             }
