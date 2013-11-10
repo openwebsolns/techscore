@@ -169,7 +169,7 @@ class TeamSailsPane extends AbstractPane {
       $num_divs = count($divisions);
 
       $no_rot = 0;
-      $team_sails = array(); // map of team ID to sail objects
+      $team_sails = array(); // map of team ID and division to sail objects
       if ($round->round_group === null &&
           $team_rot->count() * 2 == count($divisions) * count($this->REGATTA->getTeamsInRound($round))) {
         $no_rot = DB::$V->incInt($args, 'no-rotation', 1, 2, 0);
@@ -181,6 +181,8 @@ class TeamSailsPane extends AbstractPane {
       foreach ($races as $race) {
         foreach ($divisions as $div) {
           $r = $this->REGATTA->getRace($div, $race->number);
+          $id1 = sprintf('%s-%s', $r->tr_team1->id, $div);
+          $id2 = sprintf('%s-%s', $r->tr_team2->id, $div);
 
           $sail = new Sail();
           $sail->race = $r;
@@ -190,14 +192,14 @@ class TeamSailsPane extends AbstractPane {
           if ($no_rot == 0)
             $rotation->setSail($sail);
           else {
-            if (isset($team_sails[$r->tr_team1->id])) {
-              $sail = clone($team_sails[$r->tr_team1->id]);
+            if (isset($team_sails[$id1])) {
+              $sail = clone($team_sails[$id1]);
               $sail->id = null;
               $sail->race = $r;
               $rotation->setSail($sail);
             }
             else {
-              $team_sails[$r->tr_team1->id] = $sail;
+              $team_sails[$id1] = $sail;
               $rotation->setSail($sail);
             }
           }
@@ -210,14 +212,14 @@ class TeamSailsPane extends AbstractPane {
           if ($no_rot == 0)
             $rotation->setSail($sail);
           else {
-            if (isset($team_sails[$r->tr_team2->id])) {
-              $sail = clone($team_sails[$r->tr_team2->id]);
+            if (isset($team_sails[$id2])) {
+              $sail = clone($team_sails[$id2]);
               $sail->id = null;
               $sail->race = $r;
               $rotation->setSail($sail);
             }
             else {
-              $team_sails[$r->tr_team2->id] = $sail;
+              $team_sails[$id2] = $sail;
               $rotation->setSail($sail);
             }
           }
