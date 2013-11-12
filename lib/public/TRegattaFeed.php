@@ -16,7 +16,7 @@ require_once('xml5/Atom.php');
 class TRegattaFeed extends AtomFeed {
 
   public function __construct() {
-    parent::__construct(Conf::$HOME . ':regattas', "ICSA Finalized Regattas");
+    parent::__construct(Conf::$HOME . ':regattas', sprintf("%s Finalized Regattas", DB::g(STN::ORG_NAME)));
     $this->fill();
   }
 
@@ -24,7 +24,7 @@ class TRegattaFeed extends AtomFeed {
     $url = sprintf('http://%s', Conf::$PUB_HOME);
 
     $updated = new AtomUpdated(DB::$NOW);
-    $author = new AtomAuthor("ICSA Scores", $url);
+    $author = new AtomAuthor(sprintf("%s Scores", DB::g(STN::ORG_NAME)), $url);
     $rights = new AtomRights(Conf::$COPYRIGHT);
 
     $this->add($author);

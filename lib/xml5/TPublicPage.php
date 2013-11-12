@@ -97,7 +97,7 @@ class TPublicPage extends XPage {
    * @param String $title the title of the page
    */
   public function __construct($title) {
-    parent::__construct($title . " | ICSA Real-Time Regatta Results");
+    parent::__construct(sprintf("%s | %s Real-Time Regatta Results", $title, DB::g(STN::ORG_NAME)));
 
     $this->setDoctype(self::HTML_5);
     $this->filled = false;
@@ -163,7 +163,7 @@ class TPublicPage extends XPage {
       $this->head->set('prefix', 'og: http://ogp.me/ns#');
       $this->head->add(new XElem('meta', array('property'=>'og:title', 'content'=>$this->title)));
       $this->head->add(new XElem('meta', array('property'=>'og:description', 'content'=>$this->description)));
-      $this->head->add(new XElem('meta', array('property'=>'og:site_name', 'content'=>"ICSA Real-Time Regatta Results")));
+      $this->head->add(new XElem('meta', array('property'=>'og:site_name', 'content'=>sprintf("%s Real-Time Regatta Results", DB::g(STN::ORG_NAME)))));
       $this->head->add(new XElem('meta', array('property'=>'og:url', 'content'=>$this->opengraph_props['url'])));
       $this->head->add(new XElem('meta', array('property'=>'og:type', 'content'=>$this->opengraph_props['type'])));
       if (isset($this->opengraph_props['image']))
@@ -231,7 +231,7 @@ class TPublicPage extends XPage {
     for ($i = 0; $i < $stop; $i++)
       $menu->add(new XLi($this->menu[$i]));
 
-    $lnk = "ICSA";
+    $lnk = DB::g(STN::ORG_NAME);
     $img = DB::getFile('logo.png');
     if ($img !== null)
       $lnk = $img->asImg('/inc/img/logo.png', $lnk);
@@ -282,7 +282,7 @@ class TPublicPage extends XPage {
           if ($img !== null)
             $lnk = $img->asImg('/inc/img/tw.png', $lnk);
 
-          $td->add(new XDiv(array('id'=>'twitter-wrapper'), array(new XA('https://twitter.com/share', $lnk, array('class'=>'twitter-share-button', 'data-via'=>'ICSAscores')))));
+          $td->add(new XDiv(array('id'=>'twitter-wrapper'), array(new XA('https://twitter.com/share', $lnk, array('class'=>'twitter-share-button', 'data-via'=>DB::g(STN::TWITTER))))));
           // data-hashtags
           $this->head->add($scr = new XScript('text/javascript', '//platform.twitter.com/widgets.js'));
           $scr->set('id', 'twitter-wjs');
