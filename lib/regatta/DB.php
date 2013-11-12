@@ -3044,6 +3044,8 @@ class Text_Entry extends DBObject {
 
   const ANNOUNCEMENTS = 'announcements';
   const WELCOME = 'welcome';
+  const GENERAL_404 = '404';
+  const SCHOOL_404 = 'school404';
 
   /**
    * Fetches list of known sections
@@ -3052,9 +3054,10 @@ class Text_Entry extends DBObject {
    */
   public static function getSections() {
     return array(self::ANNOUNCEMENTS => "Announcements",
-                 self::WELCOME => "Public Welcome");
+                 self::WELCOME => "Public Welcome",
+                 self::GENERAL_404 => "404 Page",
+                 self::SCHOOL_404 => "School 404 Page");
   }
-
 }
 
 /**

@@ -85,8 +85,12 @@ class TextManagement extends AbstractAdminUserPane {
       $p->add(new XP(array(), "Announcements are shown on the scoring login page. They provide a quick way to convey general information to the scorers and future registrants."));
       break;
 
-    case  Text_Entry::WELCOME:
+    case Text_Entry::WELCOME:
       $p->add(new XP(array(), "This message is shown in the \"Welcome\" box of the public home page."));
+      break;
+
+    case Text_Entry::GENERAL_404:
+      $p->add(new XP(array(), "This is the body of the 404 page shown with invalid URLs."));
       break;
     }
   }
