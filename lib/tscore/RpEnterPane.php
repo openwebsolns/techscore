@@ -20,6 +20,7 @@ class RpEnterPane extends AbstractPane {
   }
 
   protected function fillHTML(Array $args) {
+    $orgname = (string)(DB::g(STN::ORG_NAME));
     if ($this->participant_mode) {
       $teams = array();
       foreach ($this->USER->getSchools() as $school) {
@@ -60,7 +61,7 @@ class RpEnterPane extends AbstractPane {
       // ------------------------------------------------------------
       $this->PAGE->addContent($p = new XPort("Choose a team"));
       $p->add(new XP(array(),
-                     array("Use the form below to enter RP information. If a sailor does not appear in the selection box, it means they are not in the ICSA database, and they have to be manually added to a temporary list in the ",
+                     array(sprintf("Use the form below to enter RP information. If a sailor does not appear in the selection box, it means they are not in the %s database, and they have to be manually added to a temporary list in the ", $orgname),
                            new XA(sprintf('/score/%s/unregistered', $this->REGATTA->id), "Unregistered form"),
                            ".")));
 
@@ -104,12 +105,12 @@ class RpEnterPane extends AbstractPane {
 
     $sailor_options = array("" => "",
                             "Sailors" => array(),
-                            "Non-ICSA" => array(),
+                            "Non-Registered" => array(),
                             "No-show" => array('NULL' => "No show"));
     foreach ($sailors as $s)
       $sailor_options["Sailors"][$s->id] = (string)$s;
     foreach ($un_slrs as $s)
-      $sailor_options["Non-ICSA"][$s->id] = (string)$s;
+      $sailor_options["Non-Registered"][$s->id] = (string)$s;
 
     // Representative
     $rep = $rpManager->getRepresentative($chosen_team);
