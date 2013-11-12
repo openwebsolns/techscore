@@ -22,14 +22,19 @@ class UpdateSchoolsSummary extends AbstractScript {
     require_once('xml5/TPublicPage.php');
     $page = new TPublicPage("All Schools");
     $page->body->set('class', 'school-summary-page');
-    $page->setDescription("Listing of schools in ICSA, with regatta participation.");
+    $desc = "Listing of schools, with regatta participation.";
+    if (($n = DB::g(STN::ORG_NAME)) !== null)
+      $desc = sprintf("Listing of schools in %s, with regatta participation.", $n);
+    $page->setDescription($desc);
     $page->addMetaKeyword("schools");
 
     $page->addMenu(new XA('/', "Home"));
     $page->addMenu(new XA('/schools/', "Schools"));
     $page->addMenu(new XA('/seasons/', "Seasons"));
-    $page->addMenu(new XA(Conf::$ICSA_HOME . '/teams/', "ICSA Teams"));
-    $page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
+    if (($lnk = $page->getOrgTeamsLink()) !== null)
+      $page->addMenu($lnk);
+    if (($lnk = $page->getOrgLink()) !== null)
+      $page->addMenu($lnk);
 
     $confs = DB::getAll(DB::$CONFERENCE);
     $num_schools = 0;
@@ -54,7 +59,10 @@ class UpdateSchoolsSummary extends AbstractScript {
       }
     }
 
-    $page->setHeader("ICSA Conferences", array("# of Conferences" => count($confs), "# of Schools" => $num_schools));
+    $header = "Conferences";
+    if (($n = DB::g(STN::ORG_NAME)) !== null)
+      $header = sprintf("%s %s", $n, $header);
+    $page->setHeader($header, array("# of Conferences" => count($confs), "# of Schools" => $num_schools));
 
     // Write to file!
     $f = '/schools/index.html';

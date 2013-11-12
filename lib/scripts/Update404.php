@@ -29,15 +29,17 @@ class Update404 extends AbstractScript {
     $page->addMenu(new XA('/seasons/', "Seasons"));
     if ($season !== null)
       $page->addMenu(new XA(sprintf('/%s', $season), $season->fullString()));
-    $page->addMenu(new XA(Conf::$ICSA_HOME . '/teams/', "ICSA Teams"));
-    $page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home", array('class'=>'nav')));
+    if (($lnk = $page->getOrgTeamsLink()) !== null)
+      $page->addMenu($lnk);
+    if (($lnk = $page->getOrgLink()) !== null)
+      $page->addMenu($lnk);
 
     $page->setHeader("404: School page not found");
     $page->addSection($p = new XPort("Page overboard!"));
     $p->add(new XP(array(), "We're sorry, but the page you are requesting, or the school you seek, cannot be found. This can happen if:"));
     $p->add(new XUL(array(),
                     array(new XLi("the URL misspelled the ID of the school,"),
-                          new XLi("or the school is not recognized by ICSA."))));
+                          new XLi("or the school is not recognized."))));
     $p->add(new XP(array(),
                    array("Make sure the ID of the school is in upper case, as in ",
                          new XA('/schools/MIT', '/schools/MIT', array('class'=>'tt')), " vs ",
@@ -71,8 +73,10 @@ class Update404 extends AbstractScript {
     $page->addMenu(new XA('/seasons/', "Seasons"));
     if ($season !== null)
       $page->addMenu(new XA(sprintf('/%s', $season), $season->fullString()));
-    $page->addMenu(new XA(Conf::$ICSA_HOME . '/teams/', "ICSA Teams"));
-    $page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
+    if (($n = DB::g(STN::ORG_NAME)) !== null && ($u = DB::g(STN::ORG_TEAMS_URL)) !== null)
+      $page->addMenu(new XA($u, sprintf("%s Teams", $n)));
+    if ($n !== null && ($u = DB::g(STN::ORG_URL)) !== null)
+      $page->addMenu(new XA($u, sprintf("%s Home", $n)));
 
     $page->setHeader("404: File not found");
     $page->addSection($p = new XPort("Page overboard!"));

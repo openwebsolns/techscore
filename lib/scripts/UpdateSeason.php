@@ -24,7 +24,7 @@ class UpdateSeason extends AbstractScript {
     $name = $season->fullString();
     $page = new TPublicPage($name);
     $page->body->set('class', 'season-page');
-    $page->setDescription(sprintf("Summary of ICSA regattas for %s", $name));
+    $page->setDescription(sprintf("List of regattas for %s", $name));
     $page->addMetaKeyword($season->getSeason());
     $page->addMetaKeyword($season->getYear());
 
@@ -53,13 +53,14 @@ class UpdateSeason extends AbstractScript {
       $weeks[$week][] = $reg;
     }
 
-    // SETUP menus top menu: ICSA Home, Schools, Seasons, *this*
+    // SETUP menus top menu: Org Home, Schools, Seasons, *this*
     // season, and About
     $page->addMenu(new XA('/', "Home"));
     $page->addMenu(new XA('/schools/', "Schools"));
     $page->addMenu(new XA('/seasons/', "Seasons"));
     $page->addMenu(new XA(sprintf('/%s/', $season->id), $season->fullString()));
-    $page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
+    if (($lnk = $page->getOrgLink()) !== null)
+      $page->addMenu($lnk);
 
     // SEASON summary
     $summary_table = array();

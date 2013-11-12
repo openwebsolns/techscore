@@ -476,5 +476,27 @@ UserVoice.push(["showTab", "classic_widget", {
   protected function getCSS() {
     return array('/inc/css/icsa.css');
   }
+
+  /**
+   * Get the link to the organization, if any
+   *
+   * @return XA link to the home page, or null
+   */
+  public function getOrgLink() {
+    if (($n = DB::g(STN::ORG_NAME)) !== null && ($u = DB::g(STN::ORG_URL)) !== null)
+      return new XA($u, sprintf("%s Home", $n));
+    return null;
+  }
+
+  /**
+   * Get the link to the organization's teams page, if any
+   *
+   * @return XA link to org teams page, if any
+   */
+  public function getOrgTeamsLink() {
+    if (($n = DB::g(STN::ORG_NAME)) !== null && ($u = DB::g(STN::ORG_TEAMS_URL)) !== null)
+      return new XA($u, sprintf("%s Teams", $n));
+    return null;
+  }
 }
 ?>

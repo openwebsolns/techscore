@@ -3256,6 +3256,9 @@ class STN extends DBObject {
   const TWITTER_URL_LENGTH = 'twitter_url_length';
   const SEND_MAIL = 'send_mail';
   const ALLOW_REGISTER = 'allow_register';
+  const ORG_NAME = 'org_name';
+  const ORG_URL = 'org_url';
+  const ORG_TEAMS_URL = 'org_teams_url';
 
   const GCSE_ID = 'gcse_id';
   const FACEBOOK = 'facebook';
