@@ -426,12 +426,12 @@ class DB extends DBM {
   }
 
   /**
-   * Fetches the Sailor with the given ICSA ID
+   * Fetches the registered Sailor with the given ID
    *
-   * @param int $id the ICSA ID of the sailor
+   * @param int $id the ID of the registered sailor
    * @return Sailor|null the sailor
    */
-  public static function getICSASailor($id) {
+  public static function getRegisteredSailor($id) {
     $r = DB::getAll(DB::$MEMBER, new DBCond('icsa_id', $id));
     $s = (count($r) == 0) ? null : $r[0];
     unset($r);
@@ -1100,7 +1100,7 @@ class School extends DBObject {
    * @param mixed $active default "all", returns ONLY the active ones,
    * false to return ONLY the inactive ones, anything else for all.
    *
-   * @param boolean $only_registered true to narrow down to ICSA
+   * @param boolean $only_registered true to narrow down to registered
    *
    * @return Array:Coach list of coaches
    */
@@ -1484,7 +1484,7 @@ class Member extends DBObject {
 }
 
 /**
- * Encapsulates a sailor, whether registered with ICSA or not.
+ * Encapsulates a sailor, whether registered or not.
  *
  * @author Dayan Paez
  * @version 2009-10-04

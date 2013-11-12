@@ -59,7 +59,7 @@ class SyncDB extends AbstractScript {
    */
   private function updateSailor(Member $sailor) {
     $sailor->active = 1;
-    $cur = DB::getICSASailor($sailor->icsa_id);
+    $cur = DB::getRegisteredSailor($sailor->icsa_id);
 
     $update = false;
     if ($cur !== null) {
