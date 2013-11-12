@@ -92,6 +92,14 @@ class TextManagement extends AbstractAdminUserPane {
     case Text_Entry::GENERAL_404:
       $p->add(new XP(array(), "This is the body of the 404 page shown with invalid URLs."));
       break;
+
+    case Text_Entry::SCHOOL_404:
+      $p->add(new XP(array(), "This is the body of the 404 page shown with invalid URLs within the schools section."));
+      break;
+
+    case Text_Entry::EULA:
+      $p->add(new XP(array(), "The End-User License Agreement that is shown to new users."));
+      break;
     }
   }
 }
