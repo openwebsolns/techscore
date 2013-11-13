@@ -127,12 +127,13 @@ class SendMessage extends AbstractAdminUserPane {
    * @param Outbox $out the message object
    */
   private function fillMessage(Outbox $out) {
+    $orgname = DB::g(STN::ORG_NAME);
     $this->PAGE->addContent(new XP(array(), new XA(WS::link('/send-message'), "← Discard changes and restart")));
     $this->PAGE->addContent($p = new XPort("Instructions"));
     $p->add(new XP(array(), "When filling out the message, you may use the keywords in the table below to customize each message."));
     $p->add($tab = new XQuickTable(array('style'=>'margin:0 auto 2em;'), array("Keyword", "Description", "Example")));
     $tab->addRow(array("{FULL_NAME}", "Full name of user",  new XTD(array('class'=>'left'), $this->USER->getName())));
-    $tab->addRow(array("{SCHOOL}",    "User's ICSA school", new XTD(array('class'=>'left'), $this->USER->school)));
+    $tab->addRow(array("{SCHOOL}", sprintf("User's %s school", $orgname), new XTD(array('class'=>'left'), $this->USER->school)));
 
     $title = "";
     $recip = "";

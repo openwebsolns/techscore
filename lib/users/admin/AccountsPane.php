@@ -326,7 +326,7 @@ class AccountsPane extends AbstractAdminUserPane {
   private function notifyUser(Account $acc) {
     return DB::mail($acc->id,
                     sprintf("[%s] Account approved", Conf::$NAME),
-                    sprintf("Dear %1\$s,\n\nYou are receiving this message as notification that your account at %2\$s has been approved. To start using %2\$s, please login now at:\n\n%3\$s\n\nWhen you login the first time, you will be asked to sign an End-User License Agreement (EULA), where you assert that you will use %2\$s solely for scoring ICSA regattas.\n\nIt is *strongly* recommended that all new users become acquainted with the proper use of the program and member responsibilities by reading the user manual available on every page of the site (look for the \"Help\" link in to the top right corner).\n\nIn addition, you may request help from ICSA's %2\$s committee, led by Matt Lindblad, (mitsail@mit.edu).\n\nThank you for using %2\$s,\n-- \n%2\$s Administration",
+                    sprintf("Dear %1\$s,\n\nYou are receiving this message as notification that your account at %2\$s has been approved. To start using %2\$s, please login now at:\n\n%3\$s\n\nWhen you login the first time, you will be asked to sign an End-User License Agreement (EULA).\n\nIt is *strongly* recommended that all new users become acquainted with the proper use of the program and member responsibilities by reading the user manual available on every page of the site (look for the \"Help\" link in to the top right corner).\n\nThank you for using %2\$s,\n-- \n%2\$s Administration",
                             $acc->first_name, Conf::$NAME, WS::alink('/')));
   }
 }
