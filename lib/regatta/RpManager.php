@@ -492,7 +492,7 @@ class RpManager {
 
   /**
    * Inactivates all the sailors with the given role in the
-   * database. This is useful when syncing from the ICSA feed.
+   * database. This is useful when syncing from a membership feed.
    *
    * @param Sailor::Const the role
    */
