@@ -100,6 +100,10 @@ class TextManagement extends AbstractAdminUserPane {
     case Text_Entry::EULA:
       $p->add(new XP(array(), "The End-User License Agreement that is shown to new users."));
       break;
+
+    case Text_Entry::REGISTER_MESSAGE:
+      $p->add(new XP(array(), "This is an optional message to be provided in the new user registration pane."));
+      break;
     }
   }
 }

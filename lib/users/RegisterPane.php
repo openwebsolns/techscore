@@ -78,10 +78,9 @@ class RegisterPane extends AbstractUserPane {
    */
   private function fillDefault() {
     $this->PAGE->addContent($p = new XPort("Request new account"));
-    $p->add(new XP(array(),
-                   array(sprintf("Please note that %s is an online scoring program specifically designed for College Sailing regattas. As such, account access is given only to valid ICSA users, or as approved by the registration committee. If you are not affiliated with ICSA, you might be more interested in accessing the public site at ",
-                                 Conf::$NAME),
-                         new XA(WS::alink('/', Conf::$PUB_HOME, 'http'), Conf::$PUB_HOME), ".")));
+    $cont = DB::get(DB::$TEXT_ENTRY, Text_Entry::REGISTER_MESSAGE);
+    if ($cont !== null)
+      $p->add(new XRawText($cont->html));
 
     $p->add(new XP(array(), "Through this form you will be allowed to petition for an account on TechScore. Every field is mandatory. Please enter a valid e-mail account which you check as you will be sent an e-mail there to verify your identity."));
 

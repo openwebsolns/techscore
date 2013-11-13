@@ -3047,6 +3047,7 @@ class Text_Entry extends DBObject {
   const GENERAL_404 = '404';
   const SCHOOL_404 = 'school404';
   const EULA = 'eula';
+  const REGISTER_MESSAGE = 'register';
 
   /**
    * Fetches list of known sections
@@ -3055,6 +3056,7 @@ class Text_Entry extends DBObject {
    */
   public static function getSections() {
     return array(self::ANNOUNCEMENTS => "Announcements",
+                 self::REGISTER_MESSAGE => "Registration Message",
                  self::EULA => "EULA",
                  self::WELCOME => "Public Welcome",
                  self::GENERAL_404 => "404 Page",
