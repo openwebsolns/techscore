@@ -9,7 +9,7 @@ require_once('tscore/AbstractScoresDialog.php');
 
 /**
  * Displays the scores table à la Division dialog, but tailored for
- * combined division score (uses ICSASpecialCombinedRanker).
+ * combined division score (uses *SpecialCombinedRanker).
  *
  * @author Dayan Paez
  * @version 2010-02-01

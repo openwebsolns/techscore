@@ -144,7 +144,7 @@ class SchoolParticipationReportPane extends AbstractUserPane {
             $this->rowCSV($csv, array());
           }
         }
-        $this->rowCSV($csv, array("Grand Total to ICSA", $grand_total));
+        $this->rowCSV($csv, array("Grand Total", $grand_total));
 
         $name = sprintf('%s-team-record-', date('Y'));
         if (count($confs) == count($pos_confs))

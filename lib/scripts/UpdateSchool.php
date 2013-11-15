@@ -73,8 +73,9 @@ class UpdateSchool extends AbstractScript {
     $page->addMenu(new XA('/seasons/', "Seasons"));
     $page->addMenu(new XA(sprintf("/schools/%s/", $school->id), $school->nick_name));
     if (($link = $this->getBlogLink()) !== null)
-      $page->addMenu(new XA($link, "ICSA Info", array('itemprop'=>'url')));
-    $page->addMenu(new XA(Conf::$ICSA_HOME . '/teams/', "ICSA Teams"));
+      $page->addMenu(new XA($link, "Blog", array('itemprop'=>'url')));
+    if (($link = $page->getOrgTeamsLink()) !== null)
+      $page->addMenu($link);
 
     if (($img = $school->drawBurgee(null, array('itemprop'=>'image'))) !== null)
       $page->addSection(new XP(array('class'=>'burgee'), $img));

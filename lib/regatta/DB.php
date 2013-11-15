@@ -426,12 +426,12 @@ class DB extends DBM {
   }
 
   /**
-   * Fetches the Sailor with the given ICSA ID
+   * Fetches the registered Sailor with the given ID
    *
-   * @param int $id the ICSA ID of the sailor
+   * @param int $id the ID of the registered sailor
    * @return Sailor|null the sailor
    */
-  public static function getICSASailor($id) {
+  public static function getRegisteredSailor($id) {
     $r = DB::getAll(DB::$MEMBER, new DBCond('icsa_id', $id));
     $s = (count($r) == 0) ? null : $r[0];
     unset($r);
@@ -1100,7 +1100,7 @@ class School extends DBObject {
    * @param mixed $active default "all", returns ONLY the active ones,
    * false to return ONLY the inactive ones, anything else for all.
    *
-   * @param boolean $only_registered true to narrow down to ICSA
+   * @param boolean $only_registered true to narrow down to registered
    *
    * @return Array:Coach list of coaches
    */
@@ -1484,7 +1484,7 @@ class Member extends DBObject {
 }
 
 /**
- * Encapsulates a sailor, whether registered with ICSA or not.
+ * Encapsulates a sailor, whether registered or not.
  *
  * @author Dayan Paez
  * @version 2009-10-04
@@ -3044,6 +3044,10 @@ class Text_Entry extends DBObject {
 
   const ANNOUNCEMENTS = 'announcements';
   const WELCOME = 'welcome';
+  const GENERAL_404 = '404';
+  const SCHOOL_404 = 'school404';
+  const EULA = 'eula';
+  const REGISTER_MESSAGE = 'register';
 
   /**
    * Fetches list of known sections
@@ -3052,9 +3056,12 @@ class Text_Entry extends DBObject {
    */
   public static function getSections() {
     return array(self::ANNOUNCEMENTS => "Announcements",
-                 self::WELCOME => "Public Welcome");
+                 self::REGISTER_MESSAGE => "Registration Message",
+                 self::EULA => "EULA",
+                 self::WELCOME => "Public Welcome",
+                 self::GENERAL_404 => "404 Page",
+                 self::SCHOOL_404 => "School 404 Page");
   }
-
 }
 
 /**
@@ -3256,6 +3263,9 @@ class STN extends DBObject {
   const TWITTER_URL_LENGTH = 'twitter_url_length';
   const SEND_MAIL = 'send_mail';
   const ALLOW_REGISTER = 'allow_register';
+  const ORG_NAME = 'org_name';
+  const ORG_URL = 'org_url';
+  const ORG_TEAMS_URL = 'org_teams_url';
 
   const GCSE_ID = 'gcse_id';
   const FACEBOOK = 'facebook';

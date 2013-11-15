@@ -61,15 +61,6 @@ class LoginPage extends AbstractUserPane {
       $this->PAGE->addContent($p = new XPort("Announcements"));
       $p->add(new XRawText($entry->html));
     }
-
-    if (DB::g(STN::ALLOW_REGISTER) !== null) {
-      $this->PAGE->addContent($p = new XPort("Register for TechScore"));
-      $p->add(new XP(array(),
-                     array("If you are affiliated with ",
-                           new XA("http://www.collegesailing.org", "ICSA"),
-                           " and would like an account with ", Conf::$NAME, ", you can ",
-                           new XA("/register", "register here"), ".")));
-    }
   }
 
   /**

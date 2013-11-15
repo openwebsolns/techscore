@@ -9,7 +9,7 @@
 require_once('AbstractScript.php');
 
 /**
- * Pulls information from the ICSA database and updates the local
+ * Pulls information from the organization database and updates the local
  * sailor database with the data.
  *
  * 2011-09-12: Sets active flag to true
@@ -59,7 +59,7 @@ class SyncDB extends AbstractScript {
    */
   private function updateSailor(Member $sailor) {
     $sailor->active = 1;
-    $cur = DB::getICSASailor($sailor->icsa_id);
+    $cur = DB::getRegisteredSailor($sailor->icsa_id);
 
     $update = false;
     if ($cur !== null) {
@@ -72,6 +72,11 @@ class SyncDB extends AbstractScript {
   }
 
   public function updateSchools() {
+    if (Conf::$SCHOOL_API_URL === null) {
+      self::errln("No URL to update schools list.");
+      return;
+    }
+
     self::errln("Fetching and parsing schools from " . Conf::$SCHOOL_API_URL);
 
     if (($xml = @simplexml_load_file(Conf::$SCHOOL_API_URL)) === false) {

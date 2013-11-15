@@ -1,5 +1,9 @@
 -*- mode: org -*-
 
+* Migrate EULA.txt as preference item
+
+* Migrate content of 404 page(s) as preference item
+
 * Preferences API for users
 
   - Timezone settings

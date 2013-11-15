@@ -1,14 +1,11 @@
-TechScore is the official regatta scoring platform of the
-Intercollegiate Sailing Association (ICSA).
-
 The goal of this program is to provide a centralized database of all
-the scores and participation for all the fleet racing regattas
-organized under ICSA. In addition, it provides a graphical user
+the scores and participation for all fleet and team racing regattas
+for any organization. In addition, it provides a graphical user
 interface for scoring these regattas.
 
 TechScore does not maintain membership information; this comes from
-ICSA directly. It does, however, track the performance of all its
-sailors, and provides some reporting facilities.
+the organization directly. It does, however, track the performance
+of all its sailors, and provides some reporting facilities.
 
 The web program is a PHP application which connects to a database
 (most cases MySQL). It includes two front-ends: the scoring site which

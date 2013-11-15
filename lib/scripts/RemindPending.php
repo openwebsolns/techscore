@@ -100,7 +100,7 @@ class RemindPending extends AbstractScript {
   private function getMessage(Account $user, Array $regs, Array $missing) {
     $body = sprintf("Dear %s,
 
-You are receiving this message because one or more of your regattas are not yet finalized. All official ICSA regattas *must* be finalized, and all RP information must be accounted for, in order to be included in reports and on the website.
+You are receiving this message because one or more of your regattas are not yet finalized. All official regattas *must* be finalized, and all RP information must be accounted for, in order to be included in reports and on the website.
 
 Below is a list of regattas that need your attention, as well as an indication of what needs to be addressed:
 

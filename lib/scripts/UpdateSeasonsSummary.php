@@ -23,13 +23,15 @@ class UpdateSeasonsSummary extends AbstractScript {
     $page->setDescription("Summary of all sailing seasons.");
     $page->addMetaKeyword("seasons");
 
-    // SETUP menus top menu: ICSA Home, Schools, Seasons, *this*
+    // SETUP menus top menu: Org Home, Schools, Seasons, *this*
     // season, and About
     $page->addMenu(new XA('/', "Home"));
     $page->addMenu(new XA('/schools/', "Schools"));
     $page->addMenu(new XA('/seasons/', "Seasons"));
-    $page->addMenu(new XA(Conf::$ICSA_HOME . '/teams/', "ICSA Teams"));
-    $page->addMenu(new XA(Conf::$ICSA_HOME, "ICSA Home"));
+    if (($lnk = $page->getOrgTeamsLink()) !== null)
+      $page->addMenu($lnk);
+    if (($lnk = $page->getOrgLink()) !== null)
+      $page->addMenu($lnk);
 
     $table = array();
     $current = Season::forDate(DB::$NOW);

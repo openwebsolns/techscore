@@ -31,12 +31,14 @@ class SailorMergePane extends AbstractPrefsPane {
    *
    */
   public function fillHTML(Array $args) {
+    $orgname = DB::g(STN::ORG_NAME);
+
     $this->PAGE->addContent($p = new XPort("Merge temporary sailors"));
-    $p->add(new XP(array(), "When a sailor is not found in the database, the scorers can add the sailor temporarily. These temporary sailors appear throughout TechScore with an asterisk next to their name."));
+    $p->add(new XP(array(), sprintf("When a sailor is not found in the database, the scorers can add the sailor temporarily. These temporary sailors appear throughout %s with an asterisk next to their name.", Conf::$NAME)));
 
-    $p->add(new XP(array(), "It is the school's responsibilities to match the temporary sailors with the actual sailor from the ICSA database once the missing sailor has been approved."));
+    $p->add(new XP(array(), sprintf("It is the school's responsibilities to match the temporary sailors with the actual sailor from the %s database once the missing sailor has been approved.", $orgname)));
 
-    $p->add(new XP(array(), "Use this form to update the database by matching the temporary sailor with the actual one from the ICSA database. If the sailor does not appear, he/she may have to be approved by ICSA before the changes are reflected in TechScore. Also, bear in mind that TechScore's copy of the ICSA membership database might lag ICSA's copy by as much as a week."));
+    $p->add(new XP(array(), sprintf("Use this form to update the database by matching the temporary sailor with the actual one from the %s database. If the sailor does not appear, he/she may have to be approved before the changes are reflected in %s. Also, bear in mind that %s's copy of the membership database might lag the official copy by as much as a week.", $orgname, Conf::$NAME, Conf::$NAME)));
 
     // Get all the temporary sailors
     $temp = $this->SCHOOL->getUnregisteredSailors();
@@ -46,7 +48,7 @@ class SailorMergePane extends AbstractPrefsPane {
     }
 
     $p->add($form = $this->createForm());
-    $form->add($tab = new XQuickTable(array('class'=>'narrow'), array("Temporary sailor", "ICSA Match")));
+    $form->add($tab = new XQuickTable(array('class'=>'narrow'), array("Temporary sailor", sprintf("%s Match", $orgname))));
 
     // Create choices
     $sailors = $this->SCHOOL->getSailors();

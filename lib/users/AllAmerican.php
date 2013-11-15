@@ -156,8 +156,8 @@ class AllAmerican extends AbstractUserPane {
     $prog->add(new XSubmitInput('unset-parameters', "Start"));
 
     // ------------------------------------------------------------
-    // 1. Step one: choose regattas. For women's reports, ICSA
-    // requests that non-women's regattas may also be chosen for
+    // 1. Step one: choose regattas. For women's reports,
+    // non-women's regattas may also be chosen for
     // inclusion. Note that male sailors should NOT be included in the
     // list of automatic sailors.
     //

@@ -39,10 +39,6 @@ class Conf {
    */
   public static $HELP_HOME = 'collegesailing.org/ts-help';
   /**
-   * @var String the URL for ICSA home
-   */
-  public static $ICSA_HOME = 'http://www.collegesailing.org';
-  /**
    * @var filepath the path to the directory containing the logs
    */
   public static $LOG_ROOT = '/var/log/httpd';
@@ -98,15 +94,15 @@ class Conf {
   /**
    * @var String the URL of sailor information
    */
-  public static $SAILOR_API_URL = 'http://www.collegesailing.org/directory/individual/sailorapi.asp';
+  public static $SAILOR_API_URL = null;
   /**
    * @var String the URL of coach information
    */
-  public static $COACH_API_URL = 'http://www.collegesailing.org/directory/individual/coachapi.asp';
+  public static $COACH_API_URL = null;
   /**
    * @var String the URL of school information
    */
-  public static $SCHOOL_API_URL = 'http://www.collegesailing.org/directory/individual/schoolapi.asp';
+  public static $SCHOOL_API_URL = null;
 
   // ------------------------------------------------------------
   // Environment setup

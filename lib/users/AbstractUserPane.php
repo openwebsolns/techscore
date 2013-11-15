@@ -56,7 +56,9 @@ abstract class AbstractUserPane {
                                                        array(new XLi(new XA(".", "Sign-in")))))));
       if (DB::g(STN::ALLOW_REGISTER) !== null)
         $m->add(new XLi(new XA("register", "Register")));
-      $m->add(new XLi(new XA("http://www.collegesailing.org", "ICSA Website")));
+      if (($n = DB::g(STN::ORG_NAME)) !== null &&
+          ($u = DB::g(STN::ORG_URL)) !== null)
+        $m->add(new XLi(new XA($u, sprintf("%s Website", $n))));
       $m->add(new XLi(new XA("http://techscore.sourceforge.net", "Offline TechScore")));
 
       $this->PAGE->addContent(new XPageTitle($this->title));
@@ -130,7 +132,7 @@ abstract class AbstractUserPane {
                                                         new XLi(new XA("/logged-in", "Logged-in")),
                                                         )))));
       $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
-                                    array(new XH4("Configure text"),
+                                    array(new XH4("Configure"),
                                           $ul = new XUl())));
       foreach (Text_Entry::getSections() as $sec => $title)
         $ul->add(new XLi(new XA(WS::link(sprintf('/text/%s', $sec)), $title)));

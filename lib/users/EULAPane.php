@@ -19,6 +19,10 @@ class EULAPane extends AbstractUserPane {
   public function __construct(Account $user) {
     parent::__construct("Sign agreement", $user);
     $this->page_url = 'license';
+    if ($user->status != Account::STAT_ACCEPTED) {
+      Session::pa(new PA("This page is not available.", PA::I));
+      WS::go('/');
+    }
   }
 
   /**
@@ -27,17 +31,12 @@ class EULAPane extends AbstractUserPane {
    *
    */
   public function fillHTML(Array $args) {
-    $filename = sprintf("%s/%s", dirname(__FILE__), "EULA.txt");
-    $license  = (file_exists($filename)) ?
-      file_get_contents($filename) :
-      "I agree to use TechScore responsibly.";
+    $filename = DB::get(DB::$TEXT_ENTRY, Text_Entry::EULA);
+    $license = ($filename !== null) ? new XRawText($filename->html) : new XP(array(), sprintf("I agree to use %s responsibly.", Conf::$NAME));
 
     $this->PAGE->addContent($p = new XPort("License Agreement"));
-    $p->add(new XP(array(), "Before using TechScore, you must read and agree to the terms below. These are short terms of usage that outline what we expect of TechScore users and your responsibilities as an official scorer. Please read it carefully before clicking on the checkbox below."));
-    $p->add(new XTextArea("license", $license, array("readonly"=>"readonly",
-                                                     "style"=>"width:100%;",
-                                                     "cols"=>"80",
-                                                     "rows"=>"30")));
+    $p->add(new XP(array(), sprintf("Before using %s, you must read and agree to the terms below. These are short terms of usage that outline what is expected of %s users and your responsibilities as an official scorer. Please read it carefully before clicking on the checkbox below.", Conf::$NAME, Conf::$NAME)));
+    $p->add(new XDiv(array('id'=>'license'), array($license)));
     $p->add($f = $this->createForm());
     $f->add($i = new FItem(new XCheckBoxInput("agree", "1", array("id"=>"agree")),
                            new XLabel("agree", "I agree with the terms above")));
