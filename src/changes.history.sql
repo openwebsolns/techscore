@@ -638,3 +638,6 @@ CREATE TABLE `websession` (
 create table pub_sponsor (id tinyint unsigned not null primary key auto_increment, name varchar(50) not null, url varchar(255) default null, logo varchar(32) default null) engine=innodb default charset = utf8;
 alter table pub_sponsor add foreign key (logo) references pub_file(id) on delete set null on update cascade;
 alter table pub_sponsor add column relative_order tinyint unsigned not null default 1;
+
+-- use pub_update_season to request updates for front page and 404 resources
+alter table pub_update_season change column activity activity enum('regatta','details','front','404','school404') not null default 'regatta';

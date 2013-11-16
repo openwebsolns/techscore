@@ -76,7 +76,28 @@ class TextManagement extends AbstractAdminUserPane {
       $entry->html = $html->toXML();
     }
     DB::set($entry);
-    Session::pa(new PA("Updated text section for " . $this->section . "."));
+
+    // Notify appropriate updates (requires seasons)
+    $seasons = DB::getAll(DB::$SEASON);
+    if (count($seasons) > 0) {
+      require_once('public/UpdateManager.php');
+      switch ($this->section) {
+      case Text_Entry::WELCOME:
+        UpdateManager::queueSeason($seasons[0], UpdateSeasonRequest::ACTIVITY_FRONT);
+        break;
+
+      case Text_Entry::GENERAL_404:
+        UpdateManager::queueSeason($seasons[0], UpdateSeasonRequest::ACTIVITY_404);
+        break;
+
+      case Text_Entry::SCHOOL_404:
+        UpdateManager::queueSeason($seasons[0], UpdateSeasonRequest::ACTIVITY_SCHOOL_404);
+        break;
+      }
+    }
+
+    $secs = Text_Entry::getSections();
+    Session::pa(new PA(sprintf("Updated text section for \"%s\".",  $secs[$this->section])));
   }
 
   private function fillExplanation(XPort $p) {

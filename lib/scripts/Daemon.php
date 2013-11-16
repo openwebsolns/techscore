@@ -435,14 +435,25 @@ class Daemon extends AbstractScript {
       $front = false;
       $current = Season::forDate(DB::$NOW);
       $seasons = array();
+      $general404 = false;
+      $school404 = false;
       foreach ($pending as $r) {
         $requests[] = $r;
-        $seasons[(string)$r->season] = $r->season;
-        if ($r->activity == UpdateSeasonRequest::ACTIVITY_REGATTA)
-          $summary = true;
 
-        if ((string)$r->season == (string)$current)
+        if ($r->activity == UpdateSeasonRequest::ACTIVITY_FRONT)
           $front = true;
+        elseif ($r->activity == UpdateSeasonRequest::ACTIVITY_404)
+          $general404 = true;
+        elseif ($r->activity == UpdateSeasonRequest::ACTIVITY_SCHOOL_404)
+          $school404 = true;
+        else {
+          $seasons[(string)$r->season] = $r->season;
+          if ($r->activity == UpdateSeasonRequest::ACTIVITY_REGATTA)
+            $summary = true;
+
+          if ((string)$r->season == (string)$current)
+            $front = true;
+        }
       }
 
       try {
@@ -465,6 +476,12 @@ class Daemon extends AbstractScript {
           $P = new UpdateFront();
           $P->run();
           self::errln('generated front page');
+        }
+        if ($general404 || $school404) {
+          require_once('scripts/Update404.php');
+          $P = new Update404();
+          $P->run($general404, $school404);
+          self::errln('generated 404 page(s)');
         }
       }
       catch (TSWriterException $e) {
