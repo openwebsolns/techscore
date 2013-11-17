@@ -143,7 +143,8 @@ abstract class AbstractUserPane {
                                                   array(
                                                         new XLi(new XA("/social", "Social settings")),
                                                         new XLi(new XA("/sponsor", "Sponsors")),
-                                                        new XLi(new XA("/files",  "Files"))
+                                                        new XLi(new XA("/files",  "Files")),
+                                                        new XLi(new XA("/org", "Organization")),
                                                         )))));
     }
     $this->PAGE->addContent(new XPageTitle($this->title));
@@ -457,6 +458,11 @@ abstract class AbstractUserPane {
     case 'search':
       require_once('users/SearchSailor.php');
       return new SearchSailor($u);
+
+    case 'org':
+    case 'conf':
+      require_once('users/admin/OrganizationConfiguration.php');
+      return new OrganizationConfiguration($u);
 
     case 'text':
       if (count($uri) != 1)
