@@ -13,6 +13,7 @@
  */
 class Message extends DBObject {
 
+  protected $sender;
   protected $account;
   protected $created;
   protected $read_time;
@@ -26,6 +27,7 @@ class Message extends DBObject {
     case 'read_time':
       return DB::$NOW;
     case 'account':
+    case 'sender':
       return DB::$ACCOUNT;
     default:
       return parent::db_type($field);

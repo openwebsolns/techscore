@@ -232,9 +232,10 @@ class DB extends DBM {
    * @param String $body the body of the message, will be wrapped to
    * 72 characters
    * @param boolean $wrap whether to wrap message (default = true)
+   * @param Array $extra_headers optional map of extra headers to send
    * @return boolean the result, as returned by mail
    */
-  public static function mail($to, $subject, $body, $wrap = true) {
+  public static function mail($to, $subject, $body, $wrap = true, Array $extra_headers = array()) {
     if (Conf::$DIVERT_MAIL !== null) {
       $meant = $to;
       if (is_array($to))
@@ -250,11 +251,13 @@ class DB extends DBM {
       $to = array($to);
 
     $res = true;
+    $header = "";
+    $extra_headers["From"] = Conf::$TS_FROM_MAIL;
+    $extra_headers["Content-Type"] = "text/plain; charset=utf8";
+    foreach ($extra_headers as $key => $val)
+      $header .= sprintf("%s: %s\r\n", $key, $val);
     foreach ($to as $recipient)
-      $res = $res && @mail($recipient,
-                           $subject,
-                           $body,
-                           sprintf("From: %s\r\nContent-Type: text/plain; charset=utf8", Conf::$TS_FROM_MAIL));
+      $res = $res && @mail($recipient, $subject, $body, $header);
     return $res;
   }
 
@@ -355,22 +358,24 @@ class DB extends DBM {
   /**
    * Adds the given message for the given user
    *
-   * @param Account the user
+   * @param Account $from the sender
+   * @param Account $acc the recipient
    * @param String $sub the subject of the message
    * @param String $mes the message
    * @param boolean $email true to send e-mail message
    * @return Message the queued message
    */
-  public static function queueMessage(Account $acc, $sub, $con, $email = false) {
+  public static function queueMessage(Account $from, Account $acc, $sub, $con, $email = false) {
     require_once('regatta/Message.php');
     $mes = new Message();
+    $mes->sender = $from;
     $mes->account = $acc;
     $mes->subject = $sub;
     $mes->content = $con;
     self::set($mes, false);
 
     if ($email !== false)
-      self::mail($acc->id, $sub, $mes);
+      self::mail($acc->id, $sub, $mes, true, array('Reply-To' => sprintf('%s <%s>', $from, $from->id)));
 
     return $mes;
   }
@@ -408,7 +413,8 @@ class DB extends DBM {
                     $mes->account->id,
                     $mes->content,
                     $reply);
-    $res = self::mail(Conf::$ADMIN_MAIL, sprintf("[%s] Message reply", Conf::$NAME), $body);
+    $to = ($mes->sender === null) ? Conf::$ADMIN_MAIL : $mes->sender->id;
+    $res = self::mail($to, sprintf("[%s] Message reply", Conf::$NAME), $body, true, array('Reply-To' => $mes->account->id));
   }
 
   // ------------------------------------------------------------

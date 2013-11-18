@@ -641,3 +641,7 @@ alter table pub_sponsor add column relative_order tinyint unsigned not null defa
 
 -- use pub_update_season to request updates for front page and 404 resources
 alter table pub_update_season change column activity activity enum('regatta','details','front','404','school404') not null default 'regatta';
+
+-- record message sender for smarter replies
+alter table message add column sender varchar(40) default null after id;
+alter table message add foreign key (sender) references account(id) on delete set null on update cascade;

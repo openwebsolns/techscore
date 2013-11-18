@@ -35,7 +35,7 @@ class ProcessOutbox extends AbstractScript {
       if ($outbox->recipients == Outbox::R_ALL) {
         foreach (DB::getConferences() as $conf) {
           foreach ($conf->getUsers(Account::STAT_ACTIVE) as $acc) {
-            $this->send($acc, $outbox->subject, $outbox->content);
+            $this->send($outbox->sender, $acc, $outbox->subject, $outbox->content);
             if ($acc->id == $outbox->sender->id)
               $sent_to_me = true;
           }
@@ -48,7 +48,7 @@ class ProcessOutbox extends AbstractScript {
           if ($conf === null)
             throw new RuntimeException("Conference $id does not exist.");
           foreach ($conf->getUsers(Account::STAT_ACTIVE) as $acc) {
-            $this->send($acc, $outbox->subject, $outbox->content);
+            $this->send($outbox->sender, $acc, $outbox->subject, $outbox->content);
             if ($acc->id == $outbox->sender->id)
               $sent_to_me = true;
           }
@@ -61,7 +61,7 @@ class ProcessOutbox extends AbstractScript {
           if ($school === null)
             throw new RuntimeException("School $id does not exist.");
           foreach ($school->getUsers(Account::STAT_ACTIVE, false) as $acc) {
-            $this->send($acc, $outbox->subject, $outbox->content);
+            $this->send($outbox->sender, $acc, $outbox->subject, $outbox->content);
             if ($acc->id == $outbox->sender->id)
               $sent_to_me = true;
           }
@@ -71,7 +71,7 @@ class ProcessOutbox extends AbstractScript {
       if ($outbox->recipients == Outbox::R_ROLE) {
         foreach ($outbox->arguments as $role) {
           foreach (DB::getAccounts($role) as $acc) {
-            $this->send($acc, $outbox->subject, $outbox->content);
+            $this->send($outbox->sender, $acc, $outbox->subject, $outbox->content);
             if ($acc->id == $outbox->sender->id)
               $sent_to_me = true;
           }
@@ -82,7 +82,7 @@ class ProcessOutbox extends AbstractScript {
         foreach ($outbox->arguments as $user) {
           $acc = DB::getAccount($user);
           if ($acc !== null) {
-            $this->send($acc, $outbox->subject, $outbox->content);
+            $this->send($outbox->sender, $acc, $outbox->subject, $outbox->content);
             if ($acc->id == $outbox->sender->id)
               $sent_to_me = true;
           }
@@ -91,7 +91,7 @@ class ProcessOutbox extends AbstractScript {
 
       // send me a copy?
       if ($outbox->copy_sender > 0 && !$sent_to_me) {
-        $this->send($outbox->sender, "COPY OF: ".$outbox->subject, $outbox->content);
+        $this->send($outbox->sender, $outbox->sender, "COPY OF: ".$outbox->subject, $outbox->content);
         self::errln("Also sent copy to sender {$outbox->sender}");
       }
       $outbox->completion_time = DB::$NOW;
@@ -100,8 +100,8 @@ class ProcessOutbox extends AbstractScript {
     self::errln(sprintf("Processed %d requests, sending %d messages.", $num, $this->sent));
   }
 
-  private function send(Account $to, $subject, $content) {
-    DB::queueMessage($to, $this->keywordReplace($to, $subject), $this->keywordReplace($to, $content), true);
+  private function send(Account $from, Account $to, $subject, $content) {
+    DB::queueMessage($from, $to, $this->keywordReplace($to, $subject), $this->keywordReplace($to, $content), true);
     self::errln(sprintf("Sent message to %s.", $to), 2);
     $this->sent++;
   }

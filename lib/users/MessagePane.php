@@ -58,12 +58,14 @@ class MessagePane extends AbstractUserPane {
       $form->add(new XText(" "));
       $form->add(new XA("/inbox", "Close"));
 
-      $p->add($form = $this->createForm());
-      $form->add(new XTextArea("text", "", array("style"=>"width: 100%", "rows" =>"3")));
-      $form->add(new XButton(array("name" =>"reply",
-                                   "type" =>"submit",
-                                   "value"=>$message->id),
-                             array("Reply")));
+      if ($message->sender !== null) {
+        $p->add($form = $this->createForm());
+        $form->add(new XTextArea("text", "", array("style"=>"width: 100%", "rows" =>"3")));
+        $form->add(new XButton(array("name" =>"reply",
+                                     "type" =>"submit",
+                                     "value"=>$message->id),
+                               array("Reply")));
+      }
 
       // Mark the message as read
       DB::markRead($message);
@@ -105,7 +107,7 @@ class MessagePane extends AbstractUserPane {
         throw new SoterException("Invalid message to delete.");
       DB::deleteMessage($mes);
       Session::pa(new PA("Message deleted."));
-      $this->redirect("inbox");
+      $this->redirect('inbox');
     }
 
     // ------------------------------------------------------------
@@ -115,6 +117,8 @@ class MessagePane extends AbstractUserPane {
       $mes = DB::getMessage($args['reply']);
       if ($mes === null || $mes->account != $this->USER)
         throw new SoterException("Invalid message to reply.");
+      if ($mes->sender === null)
+        throw new SoterException("No user to reply to for this message.");
       $text = DB::$V->reqString($args, 'text', 1, 16000, "Empty message body submitted.");
       DB::reply($mes, $text);
       Session::pa(new PA("Reply sent."));
