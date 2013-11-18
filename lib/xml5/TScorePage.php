@@ -134,7 +134,7 @@ class TScorePage extends XPage {
    */
   private function fillHead() {
     $this->head->add(new XMeta('robots', 'noindex, nofollow'));
-    $this->head->add(new XMetaHTTP('http-equiv', 'text/html; charset=UTF-8'));
+    $this->head->add(new XMetaHTTP('Content-Type', 'text/html; charset=UTF-8'));
 
     // CSS Stylesheets
     if ($this->mobile) {
