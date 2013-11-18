@@ -132,8 +132,16 @@ class SummaryPane extends AbstractPane {
             $recips[$target] = $target;
         }
         // Add participant conferences
+        $checked_confs = array();
         foreach ($this->REGATTA->getTeams() as $team) {
-          $recips[strtoupper($team->school->conference->id)] = sprintf('%s@lists.collegesailing.org', strtolower($team->school->conference->id));
+          $id = $team->school->conference->id;
+          if (!isset($checked_confs[$id])) {
+            $checked_confs[$id] = 1;
+            if ($team->school->conference->mail_lists !== null) {
+              foreach ($team->school->conference->mail_lists as $target)
+                $recips[$target] = $target;
+            }
+          }
         }
 
         $this->sendMessage($recips, $summ);

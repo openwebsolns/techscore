@@ -880,10 +880,17 @@ class Active_Type extends Type {
  */
 class Conference extends DBObject {
   public $name;
+  protected $mail_lists;
   public function __toString() {
     return $this->id;
   }
   protected function db_cache() { return true; }
+
+  public function db_type($field) {
+    if ($field == 'mail_lists')
+      return array();
+    return parent::db_type($field);
+  }
 
   /**
    * Returns a list of users from this conference

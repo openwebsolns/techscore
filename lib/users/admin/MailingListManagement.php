@@ -8,7 +8,7 @@
 require_once('users/admin/AbstractAdminUserPane.php');
 
 /**
- * Manage the regatta types and their ranks
+ * Manage the mailing list per regatta type and conference
  *
  * @author Dayan Paez
  * @created 2013-03-06
@@ -46,6 +46,25 @@ class MailingListManagement extends AbstractAdminUserPane {
       $fi->add(new XHiddenInput('type', $type->id));
       $fi->add(new XSubmitInput('set-lists', "Update"));
     }
+
+    // ------------------------------------------------------------
+    // Conferences
+    // ------------------------------------------------------------
+    $confs = DB::getConferences();
+    if (count($confs) > 0) {
+      $this->PAGE->addContent($p = new XPort("Conference mailing lists"));
+      $p->add(new XP(array(), "For each conference, specify the e-mail addresses (one per line) which will receive the daily summary messages."));
+
+      foreach ($confs as $conf) {
+        $p->add($f = $this->createForm());
+        $list = $conf->mail_lists;
+        if ($list === null)
+          $list = array();
+        $f->add($fi = new FItem($conf . ":", new XTextArea('lists', implode("\n", $list))));
+        $fi->add(new XHiddenInput('conference', $conf->id));
+        $fi->add(new XSubmitInput('set-conf-list', "Update"));
+      }
+    }
   }
 
   public function process(Array $args) {
@@ -61,6 +80,15 @@ class MailingListManagement extends AbstractAdminUserPane {
       $type->mail_lists = $lists;
       DB::set($type);
       Session::pa(new PA(sprintf("Updated mailing lists for regattas of type \"%s\".", $type)));
+    }
+    if (isset($args['set-conf-list'])) {
+      $conf = DB::$V->reqID($args, 'conference', DB::$CONFERENCE, "Invalid or missing conference.");
+      $lists = DB::$V->incString($args, 'lists', 1, 16000, null);
+      if ($lists !== null)
+        $lists = explode(" ", preg_replace('/[\s,]+/', ' ', $lists));
+      $conf->mail_lists = $lists;
+      DB::set($conf);
+      Session::pa(new PA(sprintf("Updated e-mail addresses for \"%s\" conference.", $conf)));
     }
   }
 }

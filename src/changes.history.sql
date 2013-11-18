@@ -645,3 +645,6 @@ alter table pub_update_season change column activity activity enum('regatta','de
 -- record message sender for smarter replies
 alter table message add column sender varchar(40) default null after id;
 alter table message add foreign key (sender) references account(id) on delete set null on update cascade;
+
+-- track mailing list per conference
+alter table conference add column mail_lists text default null;
