@@ -1070,3 +1070,69 @@ h4 a:hover {
     margin: 1ex;
     padding: 0.5ex 0;
 }
+
+/* Combobox selects */
+
+select, .csel-container {
+    background: none repeat scroll 0 0 #dcdad5;
+    border-top: 1px solid #fdfdfd;
+    border-bottom: 1px solid #888;
+    border-left: 1px solid #fdfdfd;
+    border-right: 1px solid #888;
+    border-radius: 2px;
+}
+
+.csel-filter {
+    background: none;
+    border: medium none;
+    height: 100%;
+    width: 100%;
+    vertical-align: middle;
+}
+
+.csel-filter.invalid {
+    background-color: #f8b8b8;
+}
+
+.csel-drop {
+    border-left: 2px groove #FFFFFF;
+    cursor: default;
+    padding: 0 0.5ex;
+}
+
+.csel-options {
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+    overflow-x: hidden;
+    max-height: 15em;
+    list-style-type: none;
+    text-align: left;
+    background: #dcdad5;
+    width: 100%;
+    border: 1px solid #888;
+    box-shadow: 0 2px 2px #888;
+}
+
+.csel-optgroup {
+    display: block;
+    font-size: 90%;
+    color: #555;
+}
+
+.csel-option {
+    cursor: default;
+    margin: 0;
+    padding: 0.5ex 1ex;
+    min-height: 2ex;
+}
+
+.csel-option:hover {
+    background: #AF8D60;
+    color: white;
+}
+
+.csel-option:active, .csel-option.chosen {
+    background: #B89F7E;
+    color: white;
+}

@@ -95,26 +95,43 @@ function OWSComboboxSelect(elem) {
     this.options.style.position = "absolute";
     this.options.style.zIndex = 3;
     c.appendChild(this.options);
-    var cf = function(li) {
-        return function(e) {
-            myObj.choose(li);
-            myObj.search.focus();
-            myObj.validate();
-        };
-    };
-    for (var i = 0; i < this.element.length; i++) {
-        var opt = this.element.item(i);
-        t = document.createElement("li");
+
+    var addOption = function(opt, grp) {
+        var t = document.createElement("li");
         t.setAttribute("class", "csel-option");
         t.dataset.value = opt.value;
         t.dataset.option = opt.textContent;
         t.dataset.index = i;
         t.appendChild(document.createTextNode(opt.textContent));
-        t.onclick = cf(t);
-        this.options.appendChild(t);
+        t.onclick = function(e) {
+            myObj.choose(t);
+            myObj.search.focus();
+            myObj.validate();
+        };
+        myObj.options.appendChild(t);
 
-        if (i == this.element.selectedIndex) {
-            this.search.value = opt.textContent;
+        if (grp) {
+            var g = document.createElement("span");
+            g.setAttribute("class", "csel-optgroup");
+            g.appendChild(document.createTextNode(grp.label));
+            t.appendChild(g);
+        }
+
+        if (opt.defaultSelected) {
+            myObj.search.value = opt.textContent;
+        }
+    };
+    var grp, opt;
+    for (var i = 0; i < this.element.childNodes.length; i++) {
+        opt = this.element.childNodes[i];
+        if (opt instanceof HTMLOptGroupElement) {
+            grp = opt;
+            for (var j = 0; j < grp.childNodes.length; j++) {
+                addOption(grp.childNodes[j], grp);
+            }
+        }
+        else {
+            addOption(opt);
         }
     }
 
