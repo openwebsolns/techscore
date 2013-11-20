@@ -79,14 +79,14 @@ class SendMessage extends AbstractAdminUserPane {
 
     $p->add($f = $this->createForm(XForm::GET));
     $f->add($fi = new FItem(sprintf("All %s users:", Conf::$NAME), new XHiddenInput('axis', Outbox::R_ALL)));
-    $fi->add(new XSubmitInput('recipients', "Write message >"));
+    $fi->add(new XSubmitInput('recipients', "Write message →"));
     $fi->add(new XMessage("Broadcast general message to all users. Use sparingly."));
 
     // conference
     $p->add($f = $this->createForm(XForm::GET));
     $f->add($fi = new FItem("All users in conference:", $sel = new XSelectM('list[]')));
     $fi->add(" ");
-    $fi->add(new XSubmitInput('recipients', "Write message >"));
+    $fi->add(new XSubmitInput('recipients', "Write message →"));
     $fi->add(new XHiddenInput('axis', Outbox::R_CONF));
     $sel->set('size', 7);
     foreach (DB::getConferences() as $conf)
@@ -96,7 +96,7 @@ class SendMessage extends AbstractAdminUserPane {
     $p->add($f = $this->createForm(XForm::GET));
     $f->add($fi = new FItem("All users in schools:", $sel = new XSelectM('list[]')));
     $fi->add(" ");
-    $fi->add(new XSubmitInput('recipients', "Write message >"));
+    $fi->add(new XSubmitInput('recipients', "Write message →"));
     $fi->add(new XHiddenInput('axis', Outbox::R_SCHOOL));
     $sel->set('size', 10);
     foreach (DB::getConferences() as $conf) {
@@ -110,13 +110,13 @@ class SendMessage extends AbstractAdminUserPane {
     $p->add($f = $this->createForm(XForm::GET));
     $f->add($fi = new FItem("All users with role:", $sel = XSelect::fromArray('list[]', Account::getRoles())));
     $fi->add(" ");
-    $fi->add(new XSubmitInput('recipients', "Write message >"));
+    $fi->add(new XSubmitInput('recipients', "Write message →"));
     $fi->add(new XHiddenInput('axis', Outbox::R_ROLE));
     $sel->set('size', 3);
 
     $p->add($f = $this->createForm(XForm::GET));
     $f->add($fi = new FItem("Specific user:", new XTextInput('list[]', "", array('required'=>'required'))));
-    $fi->add(new XSubmitInput('recipients', "Write message >"));
+    $fi->add(new XSubmitInput('recipients', "Write message →"));
     $fi->add(new XHiddenInput('axis', Outbox::R_USER));
   }
 
