@@ -96,12 +96,13 @@ function OWSComboboxSelect(elem) {
     this.options.style.zIndex = 3;
     c.appendChild(this.options);
 
+    var num = 0;
     var addOption = function(opt, grp) {
         var t = document.createElement("li");
         t.setAttribute("class", "csel-option");
         t.dataset.value = opt.value;
         t.dataset.option = opt.textContent;
-        t.dataset.index = i;
+        t.dataset.index = num;
         t.appendChild(document.createTextNode(opt.textContent));
         t.onclick = function(e) {
             myObj.choose(t);
@@ -120,6 +121,8 @@ function OWSComboboxSelect(elem) {
         if (opt.defaultSelected) {
             myObj.search.value = opt.textContent;
         }
+
+        num++;
     };
     var grp, opt;
     for (var i = 0; i < this.element.childNodes.length; i++) {
@@ -200,7 +203,7 @@ OWSComboboxSelect.prototype.validate = function() {
         var opt = this.options.childNodes[i];
         var val = opt.dataset.option.toLowerCase();
         if (val == term) {
-            exact = opt.dataset.index;
+            exact = opt;
             break;
         }
         if (val.indexOf(term) == 0) {
@@ -208,7 +211,8 @@ OWSComboboxSelect.prototype.validate = function() {
         }
     }
     if (exact) {
-        this.element.selectedIndex = exact;
+        this.element.selectedIndex = exact.dataset.index;
+        this.search.value = exact.dataset.option;
     }
     else if (near.length == 1) {
         this.element.selectedIndex = near[0].dataset.index;
@@ -277,11 +281,3 @@ OWSComboboxSelect.prototype.chooseFromFilter = function(index) {
     }
     return true;
 };
-
-window.addEventListener('load', function(e) {
-    var selects = document.getElementsByTagName("select");
-    for (var i = 0; i < selects.length; i++) {
-        if (!selects[i].multiple && selects[i].options.length > 10)
-            new OWSComboboxSelect(selects[i]);
-    }
-}, false);

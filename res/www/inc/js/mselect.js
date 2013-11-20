@@ -179,5 +179,7 @@ window.addEventListener('load', function(evt) {
     for (var i = 0; i < selects.length; i++) {
         if (selects[i].multiple)
             new OWSMultSelect(selects[i]);
+        else if (selects[i].options.length > 10)
+            new OWSComboboxSelect(selects[i]);
     }
 }, false);

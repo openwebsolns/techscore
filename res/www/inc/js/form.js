@@ -82,8 +82,9 @@ $(document).ready(function(){
 		                                     currentText: 'Current'
 		                                    });
         };
-        var p = document.getElementsByTagName("script")[0];
-        p.parentNode.insertBefore(s, p);
+        var p = document.getElementById("js:jquery");
+        if (p)
+            p.parentNode.insertBefore(s, p.nextSibling);
 
     }
 });
