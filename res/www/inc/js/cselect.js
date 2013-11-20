@@ -77,9 +77,6 @@ function OWSComboboxSelect(elem) {
         }
         return true;
     };
-    this.search.onblur = function(e) {
-        myObj.validate();
-    };
     b.appendChild(this.search);
 
     var t = document.createElement("span");
@@ -133,18 +130,32 @@ function OWSComboboxSelect(elem) {
             myObj.validate();
         }
     }, false);
+    c.addEventListener('keyup', function(e) {
+        myObj.clickedInEnvironment = true;
+    }, false);
+    window.addEventListener('keyup', function(e) {
+        if (myObj.clickedInEnvironment) {
+            myObj.clickedInEnvironment = false;
+        }
+        else {
+            myObj.validate();
+        }
+    }, false);
 }
 
 OWSComboboxSelect.prototype.filter = function() {
     this.search.classList.remove("invalid");
     var term = this.search.value.trim();
-    var re = null;
-    if (term.length > 0)
-        re = new RegExp("^" + this.search.value, "i");
+    if (term.length == 0) {
+        this.hideOptions();
+        return;
+    }
+
+    var re = new RegExp("^" + this.search.value, "i");
     var matches = [];
     for (var i = 0; i < this.options.childNodes.length; i++) {
         var opt = this.options.childNodes[i];
-        if (re !== null && !re.test(opt.dataset.option)) {
+        if (!re.test(opt.dataset.option)) {
             opt.style.display = "none";
         }
         else {
@@ -156,12 +167,7 @@ OWSComboboxSelect.prototype.filter = function() {
     if (matches.length == 0)
         this.search.classList.add("invalid");
     else if (matches.length == 1) {
-        /*
-        var s = this.search.value.length;
-        this.search.value = matches[0].dataset.option;
-        this.search.setSelectionRange(s, this.search.value.length);
-        this.search.focus();
-         */
+        matches[0].classList.add("chosen");
     }
 };
 
@@ -171,16 +177,25 @@ OWSComboboxSelect.prototype.validate = function() {
     this.hideOptions();
 
     var term = this.search.value.toLowerCase().trim();
-    var found = null;
+    var exact = null;
+    var near = [];
     for (var i = 0; i < this.options.childNodes.length; i++) {
         var opt = this.options.childNodes[i];
-        if (opt.dataset.option.toLowerCase() == term) {
-            found = opt.dataset.index;
+        var val = opt.dataset.option.toLowerCase();
+        if (val == term) {
+            exact = opt.dataset.index;
             break;
         }
+        if (val.indexOf(term) == 0) {
+            near.push(opt);
+        }
     }
-    if (found) {
-        this.element.selectedIndex = found;
+    if (exact) {
+        this.element.selectedIndex = exact;
+    }
+    else if (near.length == 1) {
+        this.element.selectedIndex = near[0].dataset.index;
+        this.search.value = near[0].dataset.option;
     }
     else {
         this.element.selectedIndex = this.defaultSelectedIndex;
