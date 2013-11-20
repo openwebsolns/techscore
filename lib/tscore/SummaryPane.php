@@ -152,6 +152,26 @@ class SummaryPane extends AbstractPane {
                                    (count($recips) > 1) ? "s" : "")));
       }
     }
+
+    // Tweet?
+    if ($summ->summary !== null &&
+        $summ->tweet_sent === null &&
+        $this->REGATTA->private === null &&
+        $this->REGATTA->type->tweet_summary !== null &&
+        count($this->REGATTA->getScoredRaces()) > 0 &&
+        $day->format('Y-m-d') == DB::$NOW->format('Y-m-d') &&
+        $day->format('Y-m-d') != $this->REGATTA->end_date->format('Y-m-d')) {
+
+      require_once('twitter/TweetFactory.php');
+      $fac = new TweetFactory();
+      $twt = $fac->create(TweetFactory::DAILY_SUMMARY, $this->REGATTA, $day);
+      if ($twt !== null) {
+        DB::tweet($twt);
+        Session::pa(new PA("Tweeted: " . $twt));
+        $summ->tweet_sent = 1;
+        DB::set($summ);
+      }
+    }
     return $args;
   }
 

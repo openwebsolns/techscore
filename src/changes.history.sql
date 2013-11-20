@@ -651,3 +651,9 @@ alter table conference add column mail_lists text default null;
 
 -- send messages based on regatta status
 alter table outbox change column recipients recipients enum('all','conferences','roles','users','schools','status') not null default 'all';
+
+-- have we tweeted after a daily summary
+alter table daily_summary add column tweet_sent tinyint default null;
+
+-- which regatta types should tweet daily summaries?
+alter table type add column tweet_summary tinyint default null after mail_lists;

@@ -846,6 +846,7 @@ class Type extends DBObject {
    * @var int the display rank (lower = more important)
    */
   public $rank;
+  public $tweet_summary;
   public $inactive;
   protected $mail_lists;
 
@@ -2489,6 +2490,7 @@ class Daily_Summary extends DBObject {
   public $regatta;
   public $summary;
   public $mail_sent;
+  public $tweet_sent;
   protected $summary_date;
 
   public function db_name() { return 'daily_summary'; }

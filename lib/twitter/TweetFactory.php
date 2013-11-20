@@ -16,6 +16,7 @@ class TweetFactory {
 
   const FINALIZED_EVENT = 'finalized';
   const COMING_SOON_EVENT = 'coming_soon';
+  const DAILY_SUMMARY = 'daily_summary';
 
   private $maxlength;
 
@@ -37,10 +38,11 @@ class TweetFactory {
    *
    * @param Const $action one of the class constants
    * @param FullRegatta $reg the regatta in question
+   * @param mixed $arg optional argument
    * @return String|null the tweet
    * @throws InvalidArgumentException
    */
-  public function create($action, FullRegatta $reg = null) {
+  public function create($action, FullRegatta $reg = null, $arg = null) {
     switch ($action) {
     case self::FINALIZED_EVENT:
       if ($reg === null)
@@ -219,6 +221,86 @@ class TweetFactory {
                        $tms[0]->school->nick_name, $tms[0]->getQualifiedName(), $art, $reg->name);
         $mes = $this->addRegattaURL($mes, $reg);
         return $mes;
+      }
+      break;
+
+      // ------------------------------------------------------------
+      // Daily summary
+      // ------------------------------------------------------------
+    case self::DAILY_SUMMARY:
+      if ($reg === null)
+        throw new InvalidArgumentException("Missing Regatta argument for DAILY_SUMMARY");
+      if (!($arg instanceof DateTime))
+        throw new InvalidArgumentException("Missing day argument DAILY_SUMMARY");
+      $diff = $arg->diff($reg->start_time);
+
+      $mes = "";
+      if ($diff->d == 0) {
+        switch (rand(0, 2)) {
+        case 0:
+          $mes = "After the first day, ";
+          break;
+
+        default:
+          $mes = "First day: ";
+          break;
+        }
+      }
+      else {
+        $mes = sprintf("After %d days, ", ($diff->d + 1));
+      }
+      $tms = $reg->getRankedTeams();
+      $first = array();
+      foreach ($tms as $team) {
+        if ($team->dt_rank != 1)
+          break;
+        $first[] = $team;
+      }
+      if (count($first) == 0)
+        return null;
+
+      // TIED
+      if (count($first) > 1) {
+        $full_list = "";
+        $last = array_pop($first);
+        foreach ($first as $i => $team) {
+          if ($i > 0)
+            $full_list .= ", ";
+          $full_list .= sprintf("%s's %s", $team->school->nick_name, $team->name);
+        }
+        $full_list .= sprintf(" and %s's %s", $last->school->nick_name, $last->name);
+        if (strlen($full_list) < 100) {
+          switch (rand(0, 2)) {
+          case 0:
+            $mes .= sprintf("%s are tied for 1st!", $full_list);
+            return $this->addRegattaURL($mes, $reg);
+
+          default:
+            $mes .= sprintf("a tie for first between %s.", $full_list);
+            return $this->addRegattaURL($mes, $reg);
+          }
+        }
+        else {
+          $mes .= sprintf("a %d-way tie for first place!", count($first));
+          return $this->addRegattaURL($mes, $reg);
+        }
+      }
+
+      // REGULAR
+      switch (rand(0, 2)) {
+      default:
+        $mes .= sprintf("%s's %s lead the fleet, followed by ",
+                        $first[0]->school->nick_name, $first[0]->name);
+        for ($i = 1; $i < count($tms); $i++) {
+          $n = sprintf("%s's %s", $tms[$i]->school->nick_name, $tms[$i]->name);
+          if (strlen($n) + strlen($mes) > 110)
+            break;
+          if ($i > 1)
+            $mes .= ", ";
+          $mes .= $n;
+        }
+        $mes .= ".";
+        return $this->addRegattaURL($mes, $reg);
       }
       break;
 
