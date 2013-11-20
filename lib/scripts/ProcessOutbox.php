@@ -78,6 +78,53 @@ class ProcessOutbox extends AbstractScript {
           }
         }
       }
+      // status
+      if ($outbox->recipients == Outbox::R_STATUS) {
+        $season = Season::forDate(DB::$NOW);
+        if ($season === null)
+          self::errln("No current season for regattas.");
+        else {
+          $list = array();
+          foreach ($season->getRegattas() as $reg) {
+            if ($reg->end_date >= DB::$NOW || count($reg->getScoredRaces()) == 0)
+              continue;
+
+            if (in_array(Outbox::STATUS_PENDING, $outbox->arguments) && $reg->finalized === null) {
+              self::errln(sprintf("Adding scorers from regatta %s for pending.", $reg->name), 3);
+              $list[] = $reg;
+            }
+            if (in_array(Outbox::STATUS_MISSING_RP, $outbox->arguments)) {
+              $rp = $reg->getRpManager();
+              if (!$rp->isComplete()) {
+                self::errln(sprintf("Adding scorers from regatta %s for missing RP.", $reg->name), 3);
+                $list[] = $reg;
+              }
+            }
+            if (in_array(Outbox::STATUS_FINALIZED, $outbox->arguments) && $reg->finalized !== null) {
+              self::errln(sprintf("Adding scorers from regatta %s for finalized RP.", $reg->name), 3);
+              $list[] = $reg;
+            }
+          }
+
+          $schools = array();  // map of school ID to list of accounts
+          $users = array();
+          foreach ($list as $reg) {
+            foreach ($reg->getHosts() as $host) {
+              if (!isset($schools[$host->id])) {
+                $schools[$host->id] = $host->getUsers(Account::STAT_ACTIVE);
+                foreach ($schools[$host->id] as $acc) {
+                  $users[$acc->id] = $acc;
+                }
+              }
+            }
+          }
+          foreach ($users as $acc) {
+            $this->send($outbox->sender, $acc, $outbox->subject, $outbox->content);
+            if ($acc->id == $outbox->sender->id)
+              $sent_to_me = true;
+          }
+        }
+      }
       // user
       if ($outbox->recipients == Outbox::R_USER) {
         foreach ($outbox->arguments as $user) {

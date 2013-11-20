@@ -45,6 +45,7 @@ require_once('users/admin/AbstractAdminUserPane.php');
  * appropriate GET version for their request.
  */
 class SendMessage extends AbstractAdminUserPane {
+
   public function __construct(Account $user) {
     parent::__construct("Send message", $user);
     $this->page_url = 'send-message';
@@ -114,6 +115,15 @@ class SendMessage extends AbstractAdminUserPane {
     $fi->add(new XHiddenInput('axis', Outbox::R_ROLE));
     $sel->set('size', 3);
 
+    // regatta status
+    $p->add($f = $this->createForm(XForm::GET));
+    $f->add($fi = new FItem("Scorers for regattas:", $sel = XSelect::fromArray('list[]', Outbox::getStatusTypes())));
+    $fi->add(" ");
+    $fi->add(new XSubmitInput('recipients', "Write message →"));
+    $fi->add(new XHiddenInput('axis', Outbox::R_STATUS));
+    $sel->set('size', 3);
+
+    // user
     $p->add($f = $this->createForm(XForm::GET));
     $f->add($fi = new FItem("Specific user:", new XTextInput('list[]', "", array('required'=>'required'))));
     $fi->add(new XSubmitInput('recipients', "Write message →"));
@@ -165,6 +175,16 @@ class SendMessage extends AbstractAdminUserPane {
     case Outbox::R_ROLE:
       $title = "2. Send message to users with role(s)";
       $recip = implode(", ", $out->arguments);
+      break;
+
+      // status
+    case Outbox::R_STATUS:
+      $title = "2. Send message to scorers from regattas with status in current season";
+      $recip = array();
+      $stats = Outbox::getStatusTypes();
+      foreach ($out->arguments as $stat)
+        $recip[] = $stats[$stat];
+      $recip = implode(", ", $recip);
       break;
 
       // specific user
@@ -234,6 +254,7 @@ class SendMessage extends AbstractAdminUserPane {
     // require appropriate list
     $list = array();
     $roles = Account::getRoles();
+    $stats = Outbox::getStatusTypes();
     foreach (DB::$V->reqList($args, 'list', null, "Missing list of recipients.") as $m) {
       $obj = null;
       $ind = (string)$m;
@@ -256,6 +277,11 @@ class SendMessage extends AbstractAdminUserPane {
       case Outbox::R_SCHOOL:
         if (($ind = DB::getSchool($ind)) !== null)
           $obj = $ind->id;
+        break;
+
+      case Outbox::R_STATUS:
+        if (isset($stats[$ind]))
+          $obj = $ind;
         break;
 
       default:

@@ -34,13 +34,29 @@ class Outbox extends DBObject {
    * @var String send based on IDs
    */
   const R_USER = 'users';
+  /**
+   * @var String send based on regatta status
+   * @see Regatta::STAT_*
+   */
+  const R_STATUS = 'status';
+
+  const STATUS_PENDING = 'pending';
+  const STATUS_MISSING_RP = 'missingrp';
+  const STATUS_FINALIZED = 'finalized';
 
   public static function getRecipientTypes() {
     return array(self::R_ALL => self::R_ALL,
                  self::R_ROLE => self::R_ROLE,
                  self::R_CONF => self::R_CONF,
                  self::R_SCHOOL => self::R_SCHOOL,
+                 self::R_STATUS => self::R_STATUS,
                  self::R_USER => self::R_USER);
+  }
+
+  public static function getStatusTypes() {
+    return array(self::STATUS_PENDING => "Not-finalized",
+                 self::STATUS_MISSING_RP => "Missing RP",
+                 self::STATUS_FINALIZED => "Finalized");
   }
 
   protected $sender;

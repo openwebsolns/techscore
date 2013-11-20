@@ -648,3 +648,6 @@ alter table message add foreign key (sender) references account(id) on delete se
 
 -- track mailing list per conference
 alter table conference add column mail_lists text default null;
+
+-- send messages based on regatta status
+alter table outbox change column recipients recipients enum('all','conferences','roles','users','schools','status') not null default 'all';
