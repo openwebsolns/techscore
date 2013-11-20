@@ -169,12 +169,17 @@ class RpManager {
    * which should be one of the Sailor gender constants
    *
    * @param Sailor::MALE|FEMALE $gender the gender to check
+   * @param Team $team optional team in the regatta
    * @return boolean true if it has any
    */
-  public function hasGender($gender) {
+  public function hasGender($gender, Team $team = null) {
+    $cond = ($team === null) ?
+      new DBCondIn('race',
+                   DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta->id), array('id'))) :
+      new DBCond('team', $team);
+
     $r = DB::getAll(DB::$RP_ENTRY,
-                    new DBBool(array(new DBCondIn('race',
-                                                  DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta->id), array('id'))),
+                    new DBBool(array($cond,
                                      new DBCondIn('sailor',
                                                   DB::prepGetAll(DB::$SAILOR, new DBCond('gender', $gender), array('id'))))));
     $res = (count($r) > 0);

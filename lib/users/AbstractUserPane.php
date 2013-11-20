@@ -101,6 +101,7 @@ abstract class AbstractUserPane {
                                                 array(new XLi(new XA("/aa", "All-American")),
                                                       new XLi(new XA("/compare-sailors", "Head to head")),
                                                       new XLi(new XA('/team-participation', "Team Record")),
+                                                      new XLi(new XA('/membership', "School participation")),
                                                       )))));
 
     // Messages
@@ -447,6 +448,10 @@ abstract class AbstractUserPane {
     case 'aa':
       require_once('users/AllAmerican.php');
       return new AllAmerican($u);
+
+    case 'membership':
+      require_once('users/MembershipReport.php');
+      return new MembershipReport($u);
 
     case 'send-message':
     case 'send-messages':
