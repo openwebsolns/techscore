@@ -97,12 +97,13 @@ abstract class AbstractUserPane {
     // Reports
     $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
                                   array(new XH4("Reports"),
-                                        new XUl(array(),
-                                                array(new XLi(new XA("/aa", "All-American")),
-                                                      new XLi(new XA("/compare-sailors", "Head to head")),
-                                                      new XLi(new XA('/team-participation', "Team Record")),
-                                                      new XLi(new XA('/membership', "School participation")),
+                                        $list = new XUl(array(),
+                                                        array(new XLi(new XA("/aa", "All-American")),
+                                                              new XLi(new XA("/compare-sailors", "Head to head")),
+                                                              new XLi(new XA('/team-participation', "Team Record")),
                                                       )))));
+    if ($this->USER->isAdmin())
+      $list->add(new XLi(new XA('/membership', "School participation")));
 
     // Messages
     $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),

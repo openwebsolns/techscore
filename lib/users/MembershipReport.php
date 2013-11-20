@@ -111,6 +111,7 @@ class MembershipReport extends AbstractUserPane {
         $this->rowCSV($csv, $row);
 
         require_once('regatta/Regatta.php');
+        $regattas = array(); // cache
         foreach ($confs as $conf) {
           foreach ($conf->getSchools() as $school) {
             $row = array($school->name, $school->conference);
@@ -125,15 +126,15 @@ class MembershipReport extends AbstractUserPane {
               $coed = null;
               $women = null;
               foreach ($regs as $reg) {
-                if ($coed !== null && $women !== null)
-                  break;
+                if (!isset($regattas[$reg->id]))
+                  $regattas[$reg->id] = $reg;
+                else
+                  $reg = $regattas[$reg->id];
 
                 $rp = $reg->getRpManager();
                 foreach ($reg->getTeams($school) as $team) {
-                  /*
                   if (!$rp->isComplete($team))
                     continue;
-                  */
 
                   if (!$rp->hasGender(Sailor::MALE, $team)) {
                     if ($women === null)
@@ -143,6 +144,8 @@ class MembershipReport extends AbstractUserPane {
                     $coed = $reg;
                   }
                 }
+                if ($coed !== null && $women !== null)
+                  break;
               }
 
               if ($coed === null) {
