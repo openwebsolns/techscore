@@ -99,6 +99,15 @@ class NoticeBoardPane extends AbstractPane {
       $doc->author = $this->USER;
       $doc->filedata = file_get_contents($file['tmp_name']);
 
+      // Attempt to retrieve width/height for images
+      if (substr($doc->filetype, 0, 6) == 'image/') {
+        $size = getimagesize($file['tmp_name']);
+        if ($size !== false) {
+          $doc->width = $size[0];
+          $doc->height = $size[1];
+        }
+      }
+
       $this->REGATTA->addDocument($doc);
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DOCUMENT, $doc->url);
       Session::pa(new PA(sprintf("Added %s document \"%s\".", $categories[$doc->category], $doc->name)));
@@ -149,9 +158,13 @@ class NoticeBoardPane extends AbstractPane {
         $num++;
       }
 
-      foreach ($changed as $doc)
-        DB::set($doc);
-      Session::pa(new PA("Reordered the document list."));
+      if (count($changed) > 0) {
+        foreach ($changed as $doc) {
+          DB::set($doc);
+          UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DOCUMENT, $doc->url);
+        }
+        Session::pa(new PA("Reordered the document list."));
+      }
     }
   }
 }

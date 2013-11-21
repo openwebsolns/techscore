@@ -664,3 +664,6 @@ alter table regatta_document add foreign key (regatta) references regatta(id) on
 
 -- add new update type: document
 alter table pub_update_request change column activity activity enum('rotation','score','rp','details','summary','finalized','url','season','rank','team','document') not null default 'score';
+
+-- for images notices, save width and height
+alter table regatta_document add column width mediumint unsigned default null, add column height mediumint unsigned default null;

@@ -201,6 +201,16 @@ body {
     background: #f2ede6;
     box-shadow: 0 1px 3px 0 #888888;
 }
+.notice-preview > img {
+    background: none repeat scroll 0 0 #FFFFFF;
+    border: 1px solid #888888;
+    border-radius: 0.5ex;
+    display: block;
+    height: auto;
+    margin: 0 auto;
+    max-width: 96%;
+    padding: 1%;
+}
 }
 
 #menu li {
@@ -383,6 +393,7 @@ address a {
     min-width: 50em;
     display: table;
     margin: auto;
+    padding: 0 1ex;
 }
 
 .port p {
@@ -1177,6 +1188,16 @@ td.tr-sail {
     vertical-align: top;
     background: #f2ede6;
     box-shadow: 0 1px 3px 0 #888888;
+}
+.notice-preview > img {
+    background: none repeat scroll 0 0 #FFFFFF;
+    border: 1px solid #888888;
+    border-radius: 0.5ex;
+    display: block;
+    height: auto;
+    margin: 0 auto;
+    max-width: 90vw;
+    padding: 1vw;
 }
 }
 

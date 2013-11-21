@@ -308,6 +308,8 @@ class ReportMaker {
                               array(new XH4(new XA($doc->url, $doc->name), array('class'=>'notice-title')))));
         if ($doc->description !== null)
           $d->add(new XP(array('class'=>'notice-description'), $doc->description));
+        if (in_array($doc->filetype, array('image/jpeg', 'image/png', 'image/gif')))
+          $d->add(new XP(array('class'=>'notice-preview'), $doc->asImg($doc->url, sprintf("[Preview for %s]", $doc->name))));
       }
     }
   }

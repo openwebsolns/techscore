@@ -3429,6 +3429,8 @@ class Document_Summary extends DBObject {
   public $filetype;
   public $relative_order;
   public $category;
+  public $width;
+  public $height;
   protected $regatta;
   protected $author;
   protected $last_updated;
@@ -3455,6 +3457,22 @@ class Document_Summary extends DBObject {
 
   public function getFile() {
     return DB::get(DB::$REGATTA_DOCUMENT, $this->id);
+  }
+
+  /**
+   * Creates an XImg object with width/height attrs (if available)
+   *
+   * @param String $src the source to use
+   * @param String $alt the alt text to use
+   * @param Array $attrs optional list of other attributes
+   */
+  public function asImg($src, $alt, Array $attrs = array()) {
+    $img = new XImg($src, $alt, $attrs);
+    if ($this->width !== null) {
+      $img->set('width', $this->width);
+      $img->set('height', $this->height);
+    }
+    return $img;
   }
 
   public static function getCategories() {
