@@ -657,3 +657,10 @@ alter table daily_summary add column tweet_sent tinyint default null;
 
 -- which regatta types should tweet daily summaries?
 alter table type add column tweet_summary tinyint default null after mail_lists;
+
+-- notice board feature: allow documents to be associated with regattas
+create table regatta_document (id int not null primary key auto_increment, regatta int(5) not null, name varchar(100) not null, description text default null, url varchar(120) not null, category enum('notice', 'protest') not null default 'notice', relative_order tinyint unsigned not null default 0, filetype varchar(50) not null, filedata mediumblob not null, author varchar(40) character set latin1 default null, last_updated timestamp not null default current_timestamp) engine=innodb default charset = utf8;
+alter table regatta_document add foreign key (regatta) references regatta(id) on delete cascade on update cascade, add foreign key (author) references account(id) on delete set null on update cascade;
+
+-- add new update type: document
+alter table pub_update_request change column activity activity enum('rotation','score','rp','details','summary','finalized','url','season','rank','team','document') not null default 'score';

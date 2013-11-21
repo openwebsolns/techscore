@@ -1900,7 +1900,135 @@ class FullRegatta extends DBObject {
       if ($rotation->isAssigned())
         $list[] = $root . 'rotations/index.html';
     }
+
+    // Documents?
+    if ($this->private === null) {
+      $docs = $this->getDocuments();
+      if (count($docs) > 0) {
+        $list[] = $root . 'notices/index.html';
+        foreach ($docs as $doc) {
+          $list[] = $root . 'notices/' . $doc->url;
+        }
+      }
+    }
     return $list;
+  }
+
+  // ------------------------------------------------------------
+  // Document management
+  // ------------------------------------------------------------
+
+  /**
+   * Get list of files associated with this regatta
+   *
+   * @param boolean $full set to true to include the full document
+   * @return Array:Document_Summary list of documents
+   */
+  public function getDocuments($full = false) {
+    $obj = ($full !== false) ? DB::$REGATTA_DOCUMENT_SUMMARY : DB::$REGATTA_DOCUMENT;
+    return DB::getAll($obj, new DBCond('regatta', $this->id));
+  }
+
+  /**
+   * Fetch the document, if any, with the given url.
+   *
+   * @param String $url the filename of the document in question
+   * @param boolean $full set to true to return full document
+   */
+  public function getDocument($url, $full = false) {
+    $obj = ($full !== false) ? DB::$REGATTA_DOCUMENT_SUMMARY : DB::$REGATTA_DOCUMENT;
+    $r = DB::getAll($obj, new DBBool(array(new DBCond('regatta',  $this->id),
+                                           new DBCond('url', $url))));
+    $res = null;
+    if (count($r) > 0)
+      $res = $r[0];
+    unset($r);
+    return $res;
+  }
+
+  /**
+   * Append this document to this regatta
+   *
+   * Will automatically set the relative order and the URL for the
+   * document.
+   *
+   * @param Document $doc the document to add
+   */
+  public function addDocument(Document $doc) {
+    $curr = $this->getDocuments();
+    $cnt = count($curr);
+    $doc->relative_order = 1;
+    if ($cnt > 0)
+      $doc->relative_order = $curr[$cnt - 1]->relative_order + 1;
+    $doc->regatta = $this;
+    $doc->id = null;
+
+    // @TODO: set URL
+    if (strlen($doc->name) == 0)
+      throw new InvalidArgumentException("No name provided");
+    $url = strtolower($doc->name);
+    // Remove 's from words
+    $url = str_replace('\'s', '', $url);
+
+    // Convert dashes, slashes and underscores into spaces
+    $url = str_replace('-', ' ', $url);
+    $url = str_replace('/', ' ', $url);
+    $url = str_replace('_', ' ', $url);
+
+    // White list permission
+    $url = preg_replace('/[^0-9a-z\s_+]+/', '', $url);
+
+    // Trim and squeeze spaces
+    $url = trim($url);
+    $url = preg_replace('/\s+/', '-', $url);
+
+    $tokens = explode("-", $url);
+    $blacklist = array("the", "of", "for", "and", "an", "in", "is", "at");
+    $tok_copy = $tokens;
+    foreach ($tok_copy as $i => $t)
+      if (in_array($t, $blacklist))
+        unset($tokens[$i]);
+    $url = implode("-", $tokens);
+
+    // in the unlikely event that *every* token was a blacklisted
+    // element, use the entire token
+    if ($url == "")
+      $url = implode("-", $tok_copy);
+
+    $ext = "";
+    // append the extension
+    switch ($doc->filetype) {
+    case 'application/pdf':  $ext = 'pdf'; break;
+    case 'image/jpeg':       $ext = 'jpg'; break;
+    case 'image/png':        $ext = 'png'; break;
+    case 'image/gif':        $ext = 'gif'; break;
+    default:
+      throw new SoterException("Unsupported filetype: " . $doc->filetype);
+    }
+
+    // make sure it is unique
+    $doc->url = sprintf('%s.%s', $url, $ext);
+    $other_urls = array();
+    foreach ($curr as $other)
+      $other_urls[] = $other->url;
+
+    $suf = 1;
+    while (in_array($doc->url, $other_urls)) {
+      $doc->url = sprintf('%s-%d.%s', $url, $suf, $ext);
+      $suf++;
+    }
+
+    DB::set($doc, false);
+  }
+
+  /**
+   * Remove document with the given URL (whether or not it exists)
+   *
+   * @param String $url the url to remove
+   */
+  public function deleteDocument($url) {
+    DB::removeAll(DB::$REGATTA_DOCUMENT_SUMMARY, new DBBool(array(new DBCond('regatta', $this->id),
+                                                                  new DBCond('url', $url))));
   }
 
   // ------------------------------------------------------------

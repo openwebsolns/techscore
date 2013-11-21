@@ -52,6 +52,8 @@ class DB extends DBM {
   public static $TEXT_ENTRY = null;
   public static $RACE_ORDER = null;
   public static $REGATTA_ROTATION = null;
+  public static $REGATTA_DOCUMENT_SUMMARY = null;
+  public static $REGATTA_DOCUMENT = null;
   public static $ROUND_SLAVE = null;
   public static $AA_REPORT = null;
   public static $PUB_REGATTA_URL = null;
@@ -118,6 +120,8 @@ class DB extends DBM {
     self::$TEXT_ENTRY = new Text_Entry();
     self::$RACE_ORDER = new Race_Order();
     self::$REGATTA_ROTATION = new Regatta_Rotation();
+    self::$REGATTA_DOCUMENT_SUMMARY = new Document_Summary();
+    self::$REGATTA_DOCUMENT = new Document();
     self::$ROUND_SLAVE = new Round_Slave();
     self::$AA_REPORT = new AA_Report();
     self::$PUB_REGATTA_URL = new Pub_Regatta_Url();
@@ -3410,5 +3414,57 @@ class Websession extends DBObject {
       return DB::$NOW;
     }
   }
+}
+
+/**
+ * All information about a regatta document, except for the data.
+ *
+ * @author Dayan Paez
+ * @version 2013-11-21
+ */
+class Document_Summary extends DBObject {
+  public $name;
+  public $description;
+  public $url;
+  public $filetype;
+  public $relative_order;
+  public $category;
+  protected $regatta;
+  protected $author;
+  protected $last_updated;
+
+  const CATEGORY_NOTICE = 'notice';
+  const CATEGORY_PROTEST = 'protest';
+
+  public function db_name() { return 'regatta_document'; }
+  protected function db_order() { return array('relative_order'=>true); }
+  public function db_type($field) {
+    switch ($field) {
+    case 'regatta':
+      require_once('regatta/Regatta.php');
+      return DB::$REGATTA;
+    case 'author':
+      require_once('regatta/Account.php');
+      return DB::$ACCOUNT;
+    case 'last_updated':
+      return DB::$NOW;
+    default:
+      return parent::db_type($field);
+    }
+  }
+
+  public function getFile() {
+    return DB::get(DB::$REGATTA_DOCUMENT, $this->id);
+  }
+}
+
+/**
+ * Full version of the document, includes the filedata
+ *
+ * @author Dayan Paez
+ * @version 2013-11-21
+ */
+class Document extends DBObject {
+  public $filedata;
 }
 ?>

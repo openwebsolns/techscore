@@ -58,6 +58,7 @@ class UpdateRequest extends AbstractUpdate {
   const ACTIVITY_SEASON = 'season';
   const ACTIVITY_RANK = 'rank';
   const ACTIVITY_TEAM = 'team';
+  const ACTIVITY_DOCUMENT = 'document';
 
   /**
    * Returns an associative set of the permissible types
@@ -74,6 +75,7 @@ class UpdateRequest extends AbstractUpdate {
                  self::ACTIVITY_SEASON => self::ACTIVITY_SEASON,
                  self::ACTIVITY_RANK => self::ACTIVITY_RANK,
                  self::ACTIVITY_TEAM => self::ACTIVITY_TEAM,
+                 self::ACTIVITY_DOCUMENT => self::ACTIVITY_DOCUMENT,
                  self::ACTIVITY_ROTATION => self::ACTIVITY_ROTATION);
   }
 
