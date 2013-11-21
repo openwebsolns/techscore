@@ -127,8 +127,7 @@ abstract class AbstractPane {
                                               "finalize"   => "FinalizePane",
                                               "scorers"    => "ScorersPane",
                                               "races"      => "RacesPane",
-                                              "notes"      => "NotesPane",
-                                              "delete"     => "DeleteRegattaPane"),
+                                              "notes"      => "NotesPane"),
                          "Teams"     => array("teams"      => "TeamsPane",
                                               "substitute" => "ReplaceTeamPane",
                                               "remove-team"=> "DeleteTeamsPane"),
@@ -142,6 +141,9 @@ abstract class AbstractPane {
                                               "penalty"  => "EnterPenaltyPane",
                                               "drop-penalty" => "DropPenaltyPane",
                                               "team-penalty" => "TeamPenaltyPane"));
+        if ($this->REGATTA->private === null)
+          $score_i["Regatta"]['notices'] = "NoticeBoardPane";
+        $score_i["Regatta"]['delete'] = "DeleteRegattaPane";
       }
     }
     $access_keys_i = array('finishes' => 'f',
@@ -166,9 +168,7 @@ abstract class AbstractPane {
         else
           $m_list->add(new XLi($t, array("class"=>"inactive")));
       }
-      if ($title == "Regatta")
-        $m_list->add(new XLi(new XA('/', "Close", array('accesskey'=>'w'))));
-      elseif ($title == "RP Forms" and $this->REGATTA->scoring == Regatta::SCORING_TEAM) {
+      if ($title == "RP Forms" and $this->REGATTA->scoring == Regatta::SCORING_TEAM) {
         // Downloads
         if ($this->has_teams) {
           $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp', $id)), "Download")));
@@ -310,6 +310,17 @@ abstract class AbstractPane {
   }
 
   /**
+   * Like createForm, for uploading files
+   *
+   */
+  protected function createFileForm() {
+    $i = get_class($this);
+    if (!isset(self::$URLS[$i]))
+      throw new InvalidArgumentException("Please register URL for pane $i.");
+    return new XFileForm(sprintf("/score/%d/%s", $this->REGATTA->id, self::$URLS[$i]));
+  }
+
+  /**
    * Returns a new instance of a pane with the given URL
    *
    * @param Array $url the URL tokens in order
@@ -372,6 +383,11 @@ abstract class AbstractPane {
     case 'race-notes':
       require_once('tscore/NotesPane.php');
       return new NotesPane($r, $u);
+    case 'notice':
+    case 'notices':
+    case 'board':
+      require_once('tscore/NoticeBoardPane.php');
+      return new NoticeBoardPane($r, $u);
     case 'delete':
       require_once('tscore/DeleteRegattaPane.php');
       return new DeleteRegattaPane($r, $u);
@@ -571,6 +587,7 @@ abstract class AbstractPane {
                                "TeamRaceOrderPane" => "race-order",
 
                                "NotesPane" => "notes",
+                               "NoticeBoardPane" => "notices",
                                "DeleteRegattaPane" => "delete",
                                "TeamsPane" => "teams",
                                "DeleteTeamsPane" => "remove-teams",
@@ -601,6 +618,7 @@ abstract class AbstractPane {
                                  "TeamRacesPane" => "Edit rounds",
                                  "TeamRaceOrderPane" => "Order races",
                                  "NotesPane" => "Race notes",
+                                 "NoticeBoardPane" => "Notice Board",
                                  "DeleteRegattaPane" => "Delete",
                                  "TeamsPane" => "Add team",
                                  "DeleteTeamsPane" => "Remove team",

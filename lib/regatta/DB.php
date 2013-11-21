@@ -3456,6 +3456,11 @@ class Document_Summary extends DBObject {
   public function getFile() {
     return DB::get(DB::$REGATTA_DOCUMENT, $this->id);
   }
+
+  public static function getCategories() {
+    return array(self::CATEGORY_NOTICE => "General notice",
+                 self::CATEGORY_PROTEST => "Protest");
+  }
 }
 
 /**
@@ -3464,7 +3469,7 @@ class Document_Summary extends DBObject {
  * @author Dayan Paez
  * @version 2013-11-21
  */
-class Document extends DBObject {
+class Document extends Document_Summary {
   public $filedata;
 }
 ?>

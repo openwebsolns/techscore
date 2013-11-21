@@ -66,24 +66,8 @@ class UpdateRegatta extends AbstractScript {
     self::remove("$root/C/index.html");
     self::remove("$root/D/index.html");
     self::remove("$root/sailors/index.html");
+    self::remove("$root/all/index.html");
     self::remove("$root/index.html");
-  }
-
-  /**
-   * Deletes the given regatta's information from the public site
-   *
-   * @param Regatta $reg the regatta whose information to delete.
-   */
-  public function runDelete(FullRegatta $reg) {
-    $season = $reg->getSeason();
-    if ((string)$season == "")
-      return;
-
-    // Regatta Nick Name can be empty, if the regatta has always been
-    // personal, in which case there is nothing to delete, right?
-    $nickname = $reg->nick;
-    if (!empty($nickname))
-      self::deleteRegattaFiles(sprintf('/%s/%s', $season, $nickname));
   }
 
   /**
@@ -162,12 +146,16 @@ class UpdateRegatta extends AbstractScript {
 
     $tweet_finalized = false;
 
+    $docs = $reg->getDocuments();
+
     $rotation = false;
     $divisions = false;
     $divisions_history = false;
     $front = false;
     $front_history = false;
     $full = false;
+    $notice = false;
+    $notice_docs = false;
     $rot = $reg->getRotation();
 
     // If any 'index.html' files were added or deleted, then all pages
@@ -184,6 +172,8 @@ class UpdateRegatta extends AbstractScript {
         }
         if ($rot->isAssigned())
           $rotation = true;
+        if (count($docs) > 0)
+          $notice = true;
         break;
       }
     }
@@ -258,6 +248,8 @@ class UpdateRegatta extends AbstractScript {
           $divisions_history = true;
         }
       }
+      if (count($docs) > 0)
+        $notice = true;
     }
     if (in_array(UpdateRequest::ACTIVITY_FINALIZED, $activities)) {
       $sync_rp = true; // some races were removed
@@ -266,6 +258,11 @@ class UpdateRegatta extends AbstractScript {
       $end->setTime(23,59,59);
       if ($end > new DateTime('2 days ago'))
         $tweet_finalized = true;
+    }
+    if (in_array(UpdateRequest::ACTIVITY_DOCUMENT, $activities)) {
+      if (count($docs) > 0)
+        $notice = true;
+      $notice_docs = true;
     }
 
     // ------------------------------------------------------------
@@ -280,6 +277,15 @@ class UpdateRegatta extends AbstractScript {
     if ($front)      $this->createFront($D, $M);
     if ($front_history) $this->createFrontHistory($D, $reg);
     if ($full)       $this->createFull($D, $M);
+    if ($notice)     $this->createNotice($D, $M);
+    if ($notice_docs) {
+      foreach ($docs as $doc) {
+        $doc = $doc->getFile();
+        $name = $D . "notices/" . $doc->url;
+        self::writeFile($name, $doc->filedata);
+        self::errln(sprintf("Wrote file %s.", $doc->name));
+      }
+    }
     if ($divisions) {
       if ($reg->scoring == Regatta::SCORING_STANDARD) {
         foreach ($reg->getDivisions() as $div)
@@ -316,10 +322,14 @@ class UpdateRegatta extends AbstractScript {
 
     $tweet_finalized = false;
 
+    $docs = $reg->getDocuments();
+
     $rotation = false;
     $allraces = false;
     $front = false;
     $full = false;
+    $notice = false;
+    $notice_docs = false;
     $sailors = false;
 
     // If any 'index.html' files were added or deleted, then all pages
@@ -335,6 +345,8 @@ class UpdateRegatta extends AbstractScript {
           $sailors = true;
           $full = true;
         }
+        if (count($docs) > 0)
+          $notice = true;
         break;
       }
     }
@@ -371,6 +383,8 @@ class UpdateRegatta extends AbstractScript {
         $sailors = true;
         $full = true;
       }
+      if (count($docs) > 0)
+        $notice = true;
     }
     if (in_array(UpdateRequest::ACTIVITY_FINALIZED, $activities)) {
       $sync_rp = true; // some races were removed
@@ -383,6 +397,11 @@ class UpdateRegatta extends AbstractScript {
       $sync_rp = true;
       $front = true;
       $full = true;
+    }
+    if (in_array(UpdateRequest::ACTIVITY_DOCUMENT, $activities)) {
+      if (count($docs) > 0)
+        $notice = true;
+      $notice_docs = true;
     }
 
     // ------------------------------------------------------------
@@ -398,6 +417,15 @@ class UpdateRegatta extends AbstractScript {
     if ($full)       $this->createFull($D, $M);
     if ($allraces)   $this->createAllRaces($D, $M);
     if ($sailors)    $this->createSailors($D, $M);
+    if ($notice)     $this->createNotice($D, $M);
+    if ($notice_docs) {
+      foreach ($docs as $doc) {
+        $doc = $doc->getFile();
+        $name = $D . "notices/" . $doc->url;
+        self::writeFile($name, $doc->filedata);
+        self::errln(sprintf("Wrote file %s.", $doc->name));
+      }
+    }
 
     if ($tweet_finalized) {
       require_once('twitter/TweetFactory.php');
@@ -434,6 +462,19 @@ class UpdateRegatta extends AbstractScript {
     $data = '<?xml version="1.0" encoding="UTF-8"?>
 ' . $cont[0]->toXML();
     self::writeFile($filename, $data);
+  }
+
+  /**
+   * Creates and writes the notice board page
+   *
+   * @param String $dirname the directory
+   * @param ReportMaker $maker the maker
+   * @throws RuntimeException when writing is no good
+   */
+  private function createNotice($dirname, ReportMaker $maker) {
+    $page = $maker->getNoticesPage();
+    $path = $dirname . 'notices/index.html';
+    self::writeXml($path, $page);
   }
 
   /**

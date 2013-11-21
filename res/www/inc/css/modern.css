@@ -1136,3 +1136,7 @@ select, .csel-container {
     background: #B89F7E;
     color: white;
 }
+
+.doctable td, .doctable head th {
+    text-align: left;
+}

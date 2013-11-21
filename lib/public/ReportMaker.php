@@ -23,6 +23,7 @@ class ReportMaker {
   private $fullPage;
   private $allracesPage;
   private $sailorsPage;
+  private $noticesPage;
   private $divPage = array();
 
   /**
@@ -287,6 +288,30 @@ class ReportMaker {
     }
   }
 
+  protected function fillNotices() {
+    if ($this->noticesPage !== null) return;
+
+    $reg = $this->regatta;
+    $season = $reg->getSeason();
+    $this->noticesPage = new TPublicPage(sprintf("%s Notice Board | %s", $reg->name, $season->fullString()));
+    $this->prepare($this->noticesPage, 'notices');
+    $this->noticesPage->setDescription(sprintf("Notice board and supporting documents for %s's %s.", $season->fullString(), $reg->name));
+
+    $this->noticesPage->addSection($p = new XPort("Notice board"));
+    $docs = $reg->getDocuments();
+    if (count($docs) == 0) {
+      $p->add(new XP(array('class'=>'notice'), "No notices have been posted at this time."));
+    }
+    else {
+      foreach ($docs as $doc) {
+        $p->add($d = new XDiv(array('class'=>'notice-item'),
+                              array(new XH4(new XA($doc->url, $doc->name), array('class'=>'notice-title')))));
+        if ($doc->description !== null)
+          $d->add(new XP(array('class'=>'notice-description'), $doc->description));
+      }
+    }
+  }
+
   protected function fillCombined() {
     if ($this->combinedPage !== null) return;
 
@@ -366,6 +391,9 @@ class ReportMaker {
       $page->addMenu(new XA($url.'rotations/', "Rotations"));
     if ($reg->scoring == Regatta::SCORING_TEAM && $reg->hasFinishes())
       $page->addMenu(new XA($url.'sailors/', "Sailors"));
+
+    if (count($reg->getDocuments()) > 0)
+      $page->addMenu(new XA($url.'notices/', "Notice Board"));
 
     // Regatta information
     $stime = $reg->start_time;
@@ -456,6 +484,11 @@ class ReportMaker {
   public function getSailorsPage() {
     $this->fillSailors();
     return $this->sailorsPage;
+  }
+
+  public function getNoticesPage() {
+    $this->fillNotices();
+    return $this->noticesPage;
   }
 
   /**

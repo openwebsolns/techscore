@@ -1925,7 +1925,7 @@ class FullRegatta extends DBObject {
    * @return Array:Document_Summary list of documents
    */
   public function getDocuments($full = false) {
-    $obj = ($full !== false) ? DB::$REGATTA_DOCUMENT_SUMMARY : DB::$REGATTA_DOCUMENT;
+    $obj = ($full !== false) ? DB::$REGATTA_DOCUMENT : DB::$REGATTA_DOCUMENT_SUMMARY;
     return DB::getAll($obj, new DBCond('regatta', $this->id));
   }
 
@@ -1936,7 +1936,7 @@ class FullRegatta extends DBObject {
    * @param boolean $full set to true to return full document
    */
   public function getDocument($url, $full = false) {
-    $obj = ($full !== false) ? DB::$REGATTA_DOCUMENT_SUMMARY : DB::$REGATTA_DOCUMENT;
+    $obj = ($full !== false) ? DB::$REGATTA_DOCUMENT : DB::$REGATTA_DOCUMENT_SUMMARY;
     $r = DB::getAll($obj, new DBBool(array(new DBCond('regatta',  $this->id),
                                            new DBCond('url', $url))));
     $res = null;
@@ -1963,7 +1963,6 @@ class FullRegatta extends DBObject {
     $doc->regatta = $this;
     $doc->id = null;
 
-    // @TODO: set URL
     if (strlen($doc->name) == 0)
       throw new InvalidArgumentException("No name provided");
     $url = strtolower($doc->name);
