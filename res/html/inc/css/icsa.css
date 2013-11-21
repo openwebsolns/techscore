@@ -190,6 +190,17 @@ body {
     overflow: auto;
     overflow-y: hidden;
 }
+.notice-item {
+    border: 1px solid #EEEEEE;
+    border-radius: 1ex;
+    display: inline-block;
+    margin: 1ex 1%;
+    padding: 0 1%;
+    vertical-align: top;
+    width: 45%;
+    background: #f2ede6;
+    box-shadow: 0 1px 3px 0 #888888;
+}
 }
 
 #menu li {
@@ -1157,6 +1168,15 @@ td.tr-sail {
 .school-page #page-content,
 .school-summary-page #page-content {
     padding-top: 1.5em;
+}
+.notice-item {
+    border: 1px solid #EEEEEE;
+    border-radius: 1ex;
+    margin-bottom: 1ex;
+    padding: 0 1ex;
+    vertical-align: top;
+    background: #f2ede6;
+    box-shadow: 0 1px 3px 0 #888888;
 }
 }
 
