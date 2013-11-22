@@ -103,7 +103,10 @@ class BillingReport extends AbstractAdminUserPane {
             $hosts[$host->id] = $host;
 
           foreach ($regatta->getTeams() as $team) {
-            if (!isset($regattas[$team->school->id][$regatta->id]) && !isset($hosts[$team->school->id])) {
+            if (isset($schools[$team->school->id]) &&
+                !isset($regattas[$team->school->id][$regatta->id]) &&
+                !isset($hosts[$team->school->id])) {
+
               $totals[$team->school->id] += $types[$regatta->type->id];
               $regattas[$team->school->id][$regatta->id] = $regatta->name;
             }
