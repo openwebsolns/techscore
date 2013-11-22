@@ -28,6 +28,11 @@ class SocialSettingsManagement extends AbstractAdminUserPane {
     $f->add(new FItem("Google GCSE ID:", new XTextInput(STN::GCSE_ID, DB::g(STN::GCSE_ID)), "As provided in the embed code"));
     $f->add(new XSubmitP('set-settings', "Save changes"));
 
+    $this->PAGE->addContent($p = new XPort("Google Analytics"));
+    $p->add($f = $this->createForm());
+    $f->add(new FItem("Google Analytics:", new XTextArea(STN::GOOGLE_ANALYTICS, DB::g(STN::GOOGLE_ANALYTICS)), "Full embed code, without <script> tags."));
+    $f->add(new XSubmitP('set-settings', "Save changes"));
+
     $this->PAGE->addContent($p = new XPort("Facebook settings"));
     $p->add($f = $this->createForm());
     $f->add(new FItem("Facebook username:", new XTextInput(STN::FACEBOOK, DB::g(STN::FACEBOOK)), "Create link to Facebook account."));

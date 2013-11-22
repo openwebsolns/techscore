@@ -3287,6 +3287,7 @@ class STN extends DBObject {
   const ORG_TEAMS_URL = 'org_teams_url';
 
   const GCSE_ID = 'gcse_id';
+  const GOOGLE_ANALYTICS = 'google_analytics';
   const FACEBOOK = 'facebook';
   const FACEBOOK_APP_ID = 'facebook_app_id';
   const TWITTER = 'twitter';
