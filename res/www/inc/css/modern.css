@@ -250,7 +250,7 @@ p.valid {
 p.warning, #announcements .warn {background:#f3f3bb;border:1px solid orange;}
 p.warning {padding: 0.5em;}
 #announcements img {margin-right:0.5em;}
-.left, .left th {text-align:left;}
+.left, .left th, .left td {text-align:left;}
 .strong {font-weight:bold;}
 
 div.conf {
