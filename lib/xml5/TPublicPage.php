@@ -251,14 +251,15 @@ class TPublicPage extends XPage {
       $h1->add(new XSpan("", array('id'=>'right-fill')));
 
       if (count($this->header_table) > 0) {
-        $sub->add($tab = new XTable(array('id'=>'page-info')));
+        $sub->add($ul = new XUl(array('id'=>'page-info')));
         foreach ($this->header_table as $key => $val)
-          $tab->add(new XTR(array(), array(new XTH(array(), $key), new XTD(array(), $val))));
+          $ul->add(new XLi(array(new XSpan($key, array('class'=>'page-info-key')),
+                                 new XSpan($val, array('class'=>'page-info-value')))));
       }
 
       // Social plugins?
       if ($this->add_social_plugins) {
-        $td = new XTD(array('id'=>'social-wrapper', 'colspan'=>2));
+        $td = new XDiv(array('id'=>'social-wrapper'));
         $has_social = false;
         if (DB::g(STN::FACEBOOK_APP_ID) !== null && $this->facebook_like !== null) {
           $has_social = true;
@@ -289,7 +290,7 @@ class TPublicPage extends XPage {
         }
 
         if ($has_social)
-          $tab->add(new XTR(array(), array($td)));
+          $sub->add($td);
       }
     }
 

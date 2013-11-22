@@ -307,7 +307,29 @@ li#logo img {
     width: 100%;
     border-collapse: collapse;
     border: none;
+    padding: 0;
+    list-style-type: none;
+    display: table;
 }
+
+#page-info li {
+    display: table-row;
+    border-bottom: 1px solid #ddd;
+}
+
+#content-header .page-info-key {
+    line-height: 2em;
+    padding: 0 1%;
+    text-align: right;
+    width: 45%;
+}
+
+.page-info-value {
+    font-weight: bold;
+    padding: 0.25em;
+    text-align: left;
+}
+
 #page-info tbody {
     border: none;
 }
