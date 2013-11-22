@@ -97,7 +97,7 @@ class TeamsPane extends AbstractPane {
       if (count($names) > $num_teams)
         $name = $names[$num_teams];
       else
-        $name = sprintf("%s %d", $names[0], count($names) - $num_teams + 2);
+        $name = sprintf("%s %d", $names[0], $num_teams - count($names) + 2);
 
       $team = new Team();
       $team->school = $school;
