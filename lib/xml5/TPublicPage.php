@@ -135,6 +135,7 @@ class TPublicPage extends XPage {
       $this->head->add(new LinkCSS($css, 'screen,print'));
 
     $this->head->add(new XScript('text/javascript', '/inc/js/mobile-switch.js'));
+    $this->head->add(new XScript('text/javascript', '/inc/js/localtime.js', null, array('defer'=>'defer', 'async'=>'async')));
 
     // Add Google Analytics code
     $this->head->add(new XScript('text/javascript', null,
@@ -187,7 +188,7 @@ class TPublicPage extends XPage {
     // Header
     $this->body->add($div = new XDiv(array('id'=>'page-header')));
     $div->add(new XDiv(array('id'=>'top-wrapper'),
-                       array(new XDiv(array('id'=>'last_updated'), array(date('M j, Y @ H:i:s'))),
+                       array(new XDiv(array('id'=>'last_updated'), array(date('M j, Y @ H:i:s T'))),
                              $sc = new XDiv(array('id'=>'social')),
                              $sw = new XDiv(array('id'=>'search-wrapper')))));
     if (DB::g(STN::FACEBOOK) !== null) {
