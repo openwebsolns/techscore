@@ -122,6 +122,20 @@ class ReportMaker {
         $xp->add(" ");
         $xp->add(new XA('rotations/', "View rotations."));
       }
+
+      // Notice items?
+      $docs = $reg->getDocuments();
+      if (count($docs) > 0) {
+        $this->page->addSection($p = new XPort("Notices"));
+        foreach ($docs as $doc) {
+          $p->add($d = new XDiv(array('class'=>'notice-item'),
+                                array(new XH4(new XA($doc->url, $doc->name), array('class'=>'notice-title')))));
+          if ($doc->description !== null)
+            $d->add(new XP(array('class'=>'notice-description'), $doc->description));
+          if (in_array($doc->filetype, array('image/jpeg', 'image/png', 'image/gif')))
+            $d->add(new XP(array('class'=>'notice-preview'), $doc->asImg('notices/' . $doc->url, sprintf("[Preview for %s]", $doc->name))));
+        }
+      }
     }
   }
 
