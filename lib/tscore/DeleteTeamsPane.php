@@ -30,7 +30,7 @@ class DeleteTeamsPane extends AbstractPane {
     }
     $p->add(new XP(array(), "To remove one or more teams, check the appropriate box and hit \"Remove\"."));
     $p->add($form = $this->createForm());
-    $form->add($tab = new XQuickTable(array('class'=>'full'), array("", "", "School", "Team name")));
+    $form->add($tab = new XQuickTable(array('class'=>'full left'), array("", "#", "School", "Team name")));
 
     // Print a row for each team
     $row = 0;
