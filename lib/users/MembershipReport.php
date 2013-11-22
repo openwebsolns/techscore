@@ -120,7 +120,7 @@ class MembershipReport extends AbstractUserPane {
             // 2-Division, Team (coed and women)
             // ------------------------------------------------------------
             foreach (array(self::COED, self::TEAM) as $axis) {
-              $regs = DB::getAll(DB::$REGATTA,
+              $regs = DB::getAll(DB::$PUBLIC_REGATTA,
                                  new DBBool(array($conds[$axis],
                                                   new DBCondIn('id', DB::prepGetAll(DB::$TEAM, new DBCond('school', $school), array('regatta'))))));
               $coed = null;

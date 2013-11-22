@@ -102,8 +102,10 @@ abstract class AbstractUserPane {
                                                               new XLi(new XA("/compare-sailors", "Head to head")),
                                                               new XLi(new XA('/team-participation', "Team Record")),
                                                       )))));
-    if ($this->USER->isAdmin())
+    if ($this->USER->isAdmin()) {
       $list->add(new XLi(new XA('/membership', "School participation")));
+      $list->add(new XLi(new XA('/billing', "Billing report")));
+    }
 
     // Messages
     $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
@@ -453,6 +455,10 @@ abstract class AbstractUserPane {
     case 'membership':
       require_once('users/MembershipReport.php');
       return new MembershipReport($u);
+
+    case 'billing':
+      require_once('users/admin/BillingReport.php');
+      return new BillingReport($u);
 
     case 'send-message':
     case 'send-messages':
