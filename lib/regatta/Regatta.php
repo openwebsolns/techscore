@@ -1187,8 +1187,12 @@ class FullRegatta extends DBObject {
    * @return boolean is this regatta singlehanded?
    */
   public function isSingleHanded() {
+    if ($this->scoring != Regatta::SCORING_STANDARD)
+      return false;
+
     $divisions = $this->getDivisions();
-    if (count($divisions) > 1) return false;
+    if (count($divisions) != 1)
+      return false;
 
     $res = DB::getAll(DB::$RACE,
                       new DBBool(array(new DBCond('regatta', $this),
