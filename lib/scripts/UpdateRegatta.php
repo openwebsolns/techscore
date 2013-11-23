@@ -263,6 +263,8 @@ class UpdateRegatta extends AbstractScript {
       if (count($docs) > 0)
         $notice = true;
       $notice_docs = true;
+      if (!$reg->hasFinishes())
+        $front = true;
     }
 
     // ------------------------------------------------------------

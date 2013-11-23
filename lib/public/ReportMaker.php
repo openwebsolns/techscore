@@ -126,12 +126,19 @@ class ReportMaker {
       // Notice items?
       $docs = $reg->getDocuments();
       if (count($docs) > 0) {
+        $DPE = null;
         $this->page->addSection($p = new XPort("Notices"));
         foreach ($docs as $doc) {
           $p->add($d = new XDiv(array('class'=>'notice-item'),
                                 array(new XH4(new XA($doc->url, $doc->name), array('class'=>'notice-title')))));
-          if ($doc->description !== null)
-            $d->add(new XP(array('class'=>'notice-description'), $doc->description));
+          if ($doc->description !== null) {
+            if ($DPE === null) {
+              // Use DPEditor goodness
+              require_once('xml5/TSEditor.php');
+              $DPE = new TSEditor();
+            }
+            $d->add(new XDiv(array('class'=>'notice-description'), $DPE->parse($doc->description)));
+          }
           if (in_array($doc->filetype, array('image/jpeg', 'image/png', 'image/gif')))
             $d->add(new XP(array('class'=>'notice-preview'), $doc->asImg('notices/' . $doc->url, sprintf("[Preview for %s]", $doc->name))));
         }
@@ -317,11 +324,18 @@ class ReportMaker {
       $p->add(new XP(array('class'=>'notice'), "No notices have been posted at this time."));
     }
     else {
+      $DPE = null;
       foreach ($docs as $doc) {
         $p->add($d = new XDiv(array('class'=>'notice-item'),
                               array(new XH4(new XA($doc->url, $doc->name), array('class'=>'notice-title')))));
-        if ($doc->description !== null)
-          $d->add(new XP(array('class'=>'notice-description'), $doc->description));
+        if ($doc->description !== null) {
+          if ($DPE === null) {
+            // Use DPEditor goodness
+            require_once('xml5/TSEditor.php');
+            $DPE = new TSEditor();
+          }
+          $d->add(new XDiv(array('class'=>'notice-description'), $DPE->parse($doc->description)));
+        }
         if (in_array($doc->filetype, array('image/jpeg', 'image/png', 'image/gif')))
           $d->add(new XP(array('class'=>'notice-preview'), $doc->asImg($doc->url, sprintf("[Preview for %s]", $doc->name))));
       }
