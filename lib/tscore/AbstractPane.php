@@ -94,6 +94,7 @@ abstract class AbstractPane {
                                               "scorers"    => "ScorersPane",
                                               "delete"     => "DeleteRegattaPane"),
                          "Teams"     => array("teams"      => "TeamsPane",
+                                              "edit-teams" => "EditTeamsPane",
                                               "substitute" => "TeamReplaceTeamPane",
                                               "remove-team"=> "DeleteTeamsPane"),
                          "Races"     => array("races"      => "TeamRacesPane",
@@ -129,6 +130,7 @@ abstract class AbstractPane {
                                               "races"      => "RacesPane",
                                               "notes"      => "NotesPane"),
                          "Teams"     => array("teams"      => "TeamsPane",
+                                              "edit-teams" => "EditTeamsPane",
                                               "substitute" => "ReplaceTeamPane",
                                               "remove-team"=> "DeleteTeamsPane"),
                          "Rotations" => array("rotations"  => "SailsPane",
@@ -144,6 +146,8 @@ abstract class AbstractPane {
         if ($this->REGATTA->private === null)
           $score_i["Regatta"]['notices'] = "NoticeBoardPane";
         $score_i["Regatta"]['delete'] = "DeleteRegattaPane";
+        if (count($this->REGATTA->getDivisions()) > 0 && $this->REGATTA->isSingleHanded())
+          unset($score_i["Teams"]["edit-teams"]);
       }
     }
     $access_keys_i = array('finishes' => 'f',
@@ -190,7 +194,7 @@ abstract class AbstractPane {
       // Downloads
       $menu = new XDiv(array('class'=>'menu'), array(new XH4("Download"), $m_list = new XUl()));
       // $m_list->add(new XLi(new XA("/download/$id/regatta", "Regatta")));
-      if ($this->has_teams) {
+      if ($this->has_teams && $this->has_races) {
         $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp', $id)), "Filled RP")));
         require_once('rpwriter/RpFormWriter.php');
         $writer = new RpFormWriter($this->REGATTA);
@@ -465,6 +469,12 @@ abstract class AbstractPane {
     case 'set-team':
       require_once('tscore/TeamsPane.php');
       return new TeamsPane($r, $u);
+    case 'edit-team':
+    case 'edit-teams':
+      if (count($u->getDivisions()) > 0 && $u->isSingleHanded())
+        return null;
+      require_once('tscore/EditTeamsPane.php');
+      return new EditTeamsPane($r, $u);
     case 'remove-team':
     case 'remove-teams':
     case 'delete-team':
@@ -512,9 +522,12 @@ abstract class AbstractPane {
     case 'NotesPane':
       return $this->has_races;
 
+    case 'EditTeamsPane':
+    case 'DeleteTeamsPane':
+      return $this->has_teams;
+
     case 'TeamReplaceTeamPane':
     case 'ReplaceTeamPane':
-    case 'DeleteTeamsPane':
     case 'RpEnterPane':
     case 'TeamRpEnterPane':
     case 'UnregisteredSailorPane':
@@ -590,6 +603,7 @@ abstract class AbstractPane {
                                "NoticeBoardPane" => "notices",
                                "DeleteRegattaPane" => "delete",
                                "TeamsPane" => "teams",
+                               "EditTeamsPane" => "edit-teams",
                                "DeleteTeamsPane" => "remove-teams",
                                "ReplaceTeamPane" => "substitute",
                                "TeamReplaceTeamPane" => "substitute",
@@ -621,6 +635,7 @@ abstract class AbstractPane {
                                  "NoticeBoardPane" => "Notice Board",
                                  "DeleteRegattaPane" => "Delete",
                                  "TeamsPane" => "Add team",
+                                 "EditTeamsPane" => "Edit names",
                                  "DeleteTeamsPane" => "Remove team",
                                  "ReplaceTeamPane" => "Sub team",
                                  "TeamReplaceTeamPane" => "Sub team",
