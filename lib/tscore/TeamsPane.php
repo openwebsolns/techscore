@@ -81,28 +81,46 @@ class TeamsPane extends AbstractPane {
         $new_score = ($new_score == Penalty::DNS) ? new Penalty(Penalty::DNS) : new Breakdown(Breakdown::BYE);
       }
 
-      /*
-       * Add a team for each school into the regatta, using the data
-       * from the preferences regarding allowed team names. If the
-       * list of possible names is exhausted before every team from
-       * that school is assigned one, use the default team name with
-       * an appended numeral (2, 3, etc...)
-       *
-       */
-      $names  = $school->getTeamNames();
+      // Add a team for the school by suffixing a number to the
+      // default name for the school. Track teams affected by the
+      // change
+      $changed = array();
+      $names = $school->getTeamNames();
       if (count($names) == 0)
-        $names[] = $school->nick_name;
+        $names = array($school->nick_name);
+      $name = $names[0];
+      $re = sprintf('/^%s( [0-9]+)?$/', $name);
 
-      $num_teams = count($this->REGATTA->getTeams($school));
-      if (count($names) > $num_teams)
-        $name = $names[$num_teams];
-      else
-        $name = sprintf("%s %d", $names[0], $num_teams - count($names) + 2);
+      $last_team_in_sequence = null;
+      $last_num_in_sequence = 0;
+      foreach ($this->REGATTA->getTeams($school) as $other) {
+        $match = array();
+        if (preg_match($re, $other->name, $match)) {
+          $last_team_in_sequence = $other;
+          if (count($match) > 1)
+            $last_num_in_sequence = $match[1];
+          else
+            $last_num_in_sequence = 1;
+        }
+      }
+
+      if ($last_team_in_sequence !== null) {
+        $name .= " " . ($last_num_in_sequence + 1);
+        if ($last_num_in_sequence == 1) {
+          $last_team_in_sequence->name = $names[0] . " " . 1;
+          $changed[] = $last_team_in_sequence;
+        }
+      }
 
       $team = new Team();
       $team->school = $school;
       $team->name   = $name;
       $this->REGATTA->addTeam($team);
+
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_TEAM, $team->school);
+
+      foreach ($changed as $other)
+        DB::set($other);
 
       // If there are already races, then update details
       if (count($this->REGATTA->getDivisions()) > 0)
@@ -168,43 +186,38 @@ class TeamsPane extends AbstractPane {
     // the only thing to do: register me some teams!
     $map = DB::$V->reqMap($args, array('school', 'number'), null, "Bad input. Please try again.");
 
-    $teams_added = 0;
+    $teams_added = array();
     foreach ($map['school'] as $i => $id) {
       $number = (int)$map['number'][$i];
       if ($number > 0 && ($school = DB::getSchool($id)) !== null) {
         $names = $school->getTeamNames();
-        if (count($names) == 0)
-          $names[] = $school->nick_name;
+        $name = (count($names) == 0) ? $school->nick_name : $names[0];
 
-        for ($num = 0; $num < count($names) && $num < $number; $num++) {
+        for ($num = 0; $num < $number; $num++) {
+          $suf = " " . ($num + 1);
+          if ($number == 1)
+            $suf = "";
+
           $team = new Team();
           $team->school = $school;
-          $team->name = $names[$num];
-          $this->REGATTA->addTeam($team);
-          $teams_added++;
-        }
-
-        // add rest, by appending index to first name
-        $name_index = 2;
-        for (; $num < $number; $num++) {
-          $team = new Team();
-          $team->school = $school;
-          $team->name = sprintf("%s %d", $names[0], $name_index++);
-          $this->REGATTA->addTeam($team);
-          $teams_added++;
+          $team->name = $name . $suf;
+          $teams_added[] = $team;
         }
       }
     }
     // need two teams for a regatta
-    if ($teams_added < 2)
+    if (count($teams_added) < 2)
       throw new SoterException("Please add at least two teams to proceed.");
 
+    foreach ($teams_added as $team)
+      $this->REGATTA->addTeam($team);
+
     if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
-      Session::pa(new PA("Added $teams_added teams. Next, set up the boats to be used throughout the regatta."));
+      Session::pa(new PA(sprintf("Added %d teams. Next, set up the boats to be used throughout the regatta.", count($teams_added))));
       $this->redirect('rotations');
     }
 
-    Session::pa(new PA(array("Added $teams_added teams. Next, ",
+    Session::pa(new PA(array(sprintf("Added %d teams. Next, ", count($teams_added)),
                              new XA(WS::link(sprintf('/score/%s/races', $this->REGATTA->id)), "setup the races"),
                              ".")));
     $this->redirect('races');
