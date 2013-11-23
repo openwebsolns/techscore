@@ -667,3 +667,6 @@ alter table pub_update_request change column activity activity enum('rotation','
 
 -- for images notices, save width and height
 alter table regatta_document add column width mediumint unsigned default null, add column height mediumint unsigned default null;
+
+-- remove incorrectly defined team name preferences
+delete from team_name_prefs where name regexp ' [0-9]+$';

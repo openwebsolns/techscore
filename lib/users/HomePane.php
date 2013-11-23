@@ -156,7 +156,7 @@ class HomePane extends AbstractUserPane {
     if (count($names) == 0)
       $p->add(new XP(array('class'=>'warning'),
                      array(new XStrong("Note:"), " There are no team names for your school. ",
-                           new XA(WS::link($lnk), "add one now"),
+                           new XA(WS::link($lnk), "Add one now"),
                            ".")));
     else {
       $p->add($ul = new XOl());

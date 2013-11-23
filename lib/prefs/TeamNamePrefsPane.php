@@ -21,7 +21,7 @@ class TeamNamePrefsPane extends AbstractPrefsPane {
    * @param Account $usr the user
    */
   public function __construct(Account $usr, School $school) {
-    parent::__construct("Team names", $usr, $school);
+    parent::__construct("Squad names", $usr, $school);
     $this->page_url = 'team';
   }
 
@@ -30,21 +30,11 @@ class TeamNamePrefsPane extends AbstractPrefsPane {
    *
    */
   public function fillHTML(Array $args) {
-    $this->PAGE->addContent($p = new XPort("Choose teams"));
-    $p->add(new XP(array(), "Edit the team names (mascot) that can be used for this school in the regattas. TechScore allows you to choose one primary name and up to four secondary names. The team names are chosen according to this list, with the primary name chosen by default for the first team from this school in the regatta."));
-
-    $p->add(new XP(array(), "If a second team from this school is added, TechScore will choose the next name from the list. If it runs out of names, it will append a numeral suffix to the primary name."));
-
+    $this->PAGE->addContent($p = new XPort("Set squad names"));
+    $p->add(new XP(array(), "Every school consists of at least one squad. Enter all possible squad names (usually a variation of the school's mascot) in the list below. There may be a squad name for coed teams, and a different name for women teams. Or a scshool may have a varsity and junior varisty combination, etc."));
     $p->add(new XP(array(),
-                   array("For instance, suppose there are four teams from a school that has only two possible team names (primary and one secondary): ",
-                         new XEm("Mascot"), ", and ",
-                         new XEm("Other mascot"), ". Then the teams will receive the following names when they are added to a regatta:")));
-
-    $p->add(new XOl(array(),
-                    array(new XLi(new XEm("Mascot")),
-                          new XLi(new XEm("Other mascot")),
-                          new XLi(new XEm("Mascot 2")),
-                          new XLi(new XEm("Mascot 3")))));
+                   array("When a team from this school is added to a regatta, the ", new XStrong("primary"), " squad name (first on the list below) will be chosen automatically. Later, the scorer or the school's coach may choose an alternate name from those specified in the list below.")));
+    $p->add(new XP(array(), "The squad names should all be different. Squad names may not be differentiated with the simple addition of a numeral suffix."));
 
     $p->add($form = $this->createForm());
 
@@ -57,13 +47,13 @@ class TeamNamePrefsPane extends AbstractPrefsPane {
                  array('style'=>'background:#EEEEEE;font-weight:bold'));
 
     // Next four
-    for ($i = 1; $i < 5; $i++) {
+    for ($i = 1; $i < count($names) + 5; $i++) {
       $name = (isset($names[$i])) ? $names[$i] : "";
       $tab->addRow(array("", new XTextInput("name[]", $name, array("maxlength"=>20))));
     }
 
     // Submit
-    $form->add(new XSubmitInput("team_names", "Enter names"));
+    $form->add(new XSubmitP('set-names', "Enter names"));
   }
 
   /**
@@ -72,15 +62,20 @@ class TeamNamePrefsPane extends AbstractPrefsPane {
    * @param Array $args an associative array similar to $_REQUEST
    */
   public function process(Array $args) {
-    if (isset($args['team_names'])) {
+    if (isset($args['set-names'])) {
       $list = DB::$V->reqList($args, 'name', null, "No list of names provided.");
       if (count($list) == 0)
         throw new SoterException("There must be at least one team name, none given.");
+
+      $re = '/ [0-9]+$/';
 
       // There must be a valid primary name
       $pri = trim(array_shift($list));
       if (strlen($pri) == 0)
         throw new SoterException("Primary team name must not be empty.");
+
+      if (preg_match($re, $pri) > 0)
+        throw new SoterException(sprintf("Invalid team name \"%s\": no numeral suffixes allowed.", $pri));
 
       $names = array($pri => $pri);
       $repeats = false;
@@ -89,8 +84,11 @@ class TeamNamePrefsPane extends AbstractPrefsPane {
         if (strlen($name) > 0) {
           if (isset($names[$name]))
             $repeats = true;
-          else
+          else {
+            if (preg_match($re, $name) > 0)
+              throw new SoterException(sprintf("Invalid team name \"%s\": no numeral suffixes allowed.", $name));
             $names[$name] = $name;
+          }
         }
       }
 
