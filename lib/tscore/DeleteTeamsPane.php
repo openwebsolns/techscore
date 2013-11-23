@@ -51,18 +51,23 @@ class DeleteTeamsPane extends AbstractPane {
   public function process(Array $args) {
     // ------------------------------------------------------------
     // Delete team: this time an array of them is possible
+    // Rename multiple teams from a school as needed to maintain
+    // logical numbering order
+    // ------------------------------------------------------------
     if (isset($args['remove'])) {
       $teams = DB::$V->reqList($args, 'teams', null, "Expected list of teams to delete. None found.");
       if (count($teams) == 0)
         throw new SoterException("There must be at least one team to remove.");
 
       $removed = 0;
+      $affected_schools = array();
       foreach ($teams as $id) {
         $team = $this->REGATTA->getTeam($id);
         if ($team !== null) {
           $this->REGATTA->removeTeam($team);
           UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_TEAM, $team->school->id);
           $removed++;
+          $affected_schools[$team->school->id] = $team->school;
         }
       }
       if (count($removed) == 0)
@@ -72,6 +77,60 @@ class DeleteTeamsPane extends AbstractPane {
       if (count($this->REGATTA->getTeams()) == 0) {
         $this->REGATTA->setStatus();
         UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DETAILS);
+      }
+      else {
+        // Rename the teams from the affected school(s)
+        foreach ($affected_schools as $school) {
+          $teams = $this->REGATTA->getTeams($school);
+          if (count($teams) > 0) {
+            // Group the team names by their roots
+            $names = $school->getTeamNames();
+            $res = array();
+            foreach ($names as $name)
+              $res[$name] = sprintf('/^%s( [0-9]+)?$/', $name);
+            $res[$school->nick_name] = sprintf('/^%s( [0-9]+)?$/', $school->nick_name);
+
+            $roots = array();
+            foreach ($teams as $team) {
+              // Find the root
+              $found = false;
+              foreach ($res as $root => $re) {
+                if (preg_match($re, $team->name) > 0) {
+                  if (!isset($roots[$root]))
+                    $roots[$root] = array();
+                  $roots[$root][] = $team;
+                  $found = true;
+                  break;
+                }
+              }
+              if (!$found) {
+                $root = (count($names) == 0) ? $school->nick_name : $names[0];
+                if (!isset($roots[$root]))
+                  $roots[$root] = array();
+                $roots[$root][] = $team;
+              }
+            }
+
+            // Rename, as necessary
+            foreach ($roots as $root => $teams) {
+              if (count($teams) == 1) {
+                if ($teams[0]->name != $root) {
+                  $teams[0]->name = $root;
+                  DB::set($teams[0]);
+                }
+              }
+              else {
+                foreach ($teams as $i => $team) {
+                  $name = $root . ' ' . ($i + 1);
+                  if ($team->name != $name) {
+                    $team->name = $name;
+                    DB::set($team);
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
     return array();
