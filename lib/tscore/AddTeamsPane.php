@@ -7,9 +7,9 @@
  * @package tscore
  */
 
-require_once('AbstractPane.php');
+require_once('AbstractTeamPane.php');
 
-class AddTeamsPane extends AbstractPane {
+class AddTeamsPane extends AbstractTeamPane {
 
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Add Team", $user, $reg);
@@ -21,7 +21,6 @@ class AddTeamsPane extends AbstractPane {
       $this->fillNewRegatta($args);
       return;
     }
-    $confs = DB::getConferences();
 
     // Add teams
     $title = "Add team";
@@ -32,13 +31,7 @@ class AddTeamsPane extends AbstractPane {
     $p->add(new XP(array(), "Choose a school from which to add a new team. Because the regatta is under way, you may only add one team at a time."));
 
     $p->add($form = $this->createForm());
-    $form->add(new FItem("Schools:", $f_sel = new XSelect("addschool", array('size'=>20))));
-    foreach ($confs as $conf) {
-      // Get schools for that conference
-      $f_sel->add($f_grp = new FOptionGroup((string)$conf));
-      foreach ($conf->getSchools() as $school)
-        $f_grp->add(new FOption($school->id, $school->name));
-    }
+    $form->add(new FItem("Schools:", $this->newSchoolSelect()));
 
     // What to do with rotation?
     $form->add($exp = new XP());
@@ -70,7 +63,7 @@ class AddTeamsPane extends AbstractPane {
     // ------------------------------------------------------------
     // Add team
     if (isset($args['invite'])) {
-      $school = DB::$V->reqID($args, 'addschool', DB::$SCHOOL, "Invalid or missing school to add.");
+      $school = DB::$V->reqID($args, 'school', DB::$SCHOOL, "Invalid or missing school to add.");
 
       // Also validate rotation and finish option, if applicable
       if ($this->has_rots && !isset($args['del-rotation']))
@@ -81,42 +74,11 @@ class AddTeamsPane extends AbstractPane {
         $new_score = ($new_score == Penalty::DNS) ? new Penalty(Penalty::DNS) : new Breakdown(Breakdown::BYE);
       }
 
-      // Add a team for the school by suffixing a number to the
-      // default name for the school. Track teams affected by the
-      // change
-      $changed = array();
-      $names = $school->getTeamNames();
-      if (count($names) == 0)
-        $names = array($school->nick_name);
-      $name = $names[0];
-      $re = sprintf('/^%s( [0-9]+)?$/', $name);
-
-      $last_team_in_sequence = null;
-      $last_num_in_sequence = 0;
-      foreach ($this->REGATTA->getTeams($school) as $other) {
-        $match = array();
-        if (preg_match($re, $other->name, $match)) {
-          $last_team_in_sequence = $other;
-          if (count($match) > 1)
-            $last_num_in_sequence = $match[1];
-          else
-            $last_num_in_sequence = 1;
-        }
-      }
-
-      if ($last_team_in_sequence !== null) {
-        $name .= " " . ($last_num_in_sequence + 1);
-        if ($last_num_in_sequence == 1) {
-          $last_team_in_sequence->name = $names[0] . " " . 1;
-          $changed[] = $last_team_in_sequence;
-        }
-      }
-
       $team = new Team();
       $team->school = $school;
-      $team->name   = $name;
-      $this->REGATTA->addTeam($team);
+      $changed = $this->addTeam($team);
 
+      $this->REGATTA->calculateTeamName($team);
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_TEAM, $team->school);
 
       foreach ($changed as $other)

@@ -7,9 +7,9 @@
  * @package tscore
  */
 
-require_once('AbstractPane.php');
+require_once('AbstractTeamPane.php');
 
-class DeleteTeamsPane extends AbstractPane {
+class DeleteTeamsPane extends AbstractTeamPane {
 
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Remove Team", $user, $reg);
@@ -81,55 +81,7 @@ class DeleteTeamsPane extends AbstractPane {
       else {
         // Rename the teams from the affected school(s)
         foreach ($affected_schools as $school) {
-          $teams = $this->REGATTA->getTeams($school);
-          if (count($teams) > 0) {
-            // Group the team names by their roots
-            $names = $school->getTeamNames();
-            $res = array();
-            foreach ($names as $name)
-              $res[$name] = sprintf('/^%s( [0-9]+)?$/', $name);
-            $res[$school->nick_name] = sprintf('/^%s( [0-9]+)?$/', $school->nick_name);
-
-            $roots = array();
-            foreach ($teams as $team) {
-              // Find the root
-              $found = false;
-              foreach ($res as $root => $re) {
-                if (preg_match($re, $team->name) > 0) {
-                  if (!isset($roots[$root]))
-                    $roots[$root] = array();
-                  $roots[$root][] = $team;
-                  $found = true;
-                  break;
-                }
-              }
-              if (!$found) {
-                $root = (count($names) == 0) ? $school->nick_name : $names[0];
-                if (!isset($roots[$root]))
-                  $roots[$root] = array();
-                $roots[$root][] = $team;
-              }
-            }
-
-            // Rename, as necessary
-            foreach ($roots as $root => $teams) {
-              if (count($teams) == 1) {
-                if ($teams[0]->name != $root) {
-                  $teams[0]->name = $root;
-                  DB::set($teams[0]);
-                }
-              }
-              else {
-                foreach ($teams as $i => $team) {
-                  $name = $root . ' ' . ($i + 1);
-                  if ($team->name != $name) {
-                    $team->name = $name;
-                    DB::set($team);
-                  }
-                }
-              }
-            }
-          }
+          $this->fixTeamNames($school);
         }
       }
     }
