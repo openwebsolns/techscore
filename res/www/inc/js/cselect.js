@@ -166,25 +166,31 @@ function OWSComboboxSelect(elem) {
 OWSComboboxSelect.prototype.filter = function() {
     this.search.classList.remove("invalid");
     var term = this.search.value.trim();
-    if (term.length == 0) {
-        this.hideOptions();
-        return;
+    var re = null;
+    if (term.length > 0) {
+        re = new RegExp("^" + this.search.value, "i");
     }
 
-    var re = new RegExp("^" + this.search.value, "i");
     var matches = [];
     for (var i = 0; i < this.options.childNodes.length; i++) {
         var opt = this.options.childNodes[i];
-        if (!re.test(opt.dataset.option)) {
-            opt.style.display = "none";
+        if (re) {
+            if (!re.test(opt.dataset.option)) {
+                opt.style.display = "none";
+            }
+            else {
+                opt.style.display = "";
+                matches.push(opt);
+            }
         }
         else {
             opt.style.display = "";
-            matches.push(opt);
         }
     }
 
-    if (matches.length == 0)
+    if (!re)
+        this.hideOptions();
+    else if (matches.length == 0)
         this.search.classList.add("invalid");
     else if (matches.length == 1) {
         matches[0].classList.add("chosen");
