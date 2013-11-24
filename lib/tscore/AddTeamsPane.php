@@ -9,7 +9,7 @@
 
 require_once('AbstractPane.php');
 
-class TeamsPane extends AbstractPane {
+class AddTeamsPane extends AbstractPane {
 
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Add Team", $user, $reg);

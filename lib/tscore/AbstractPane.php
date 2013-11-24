@@ -93,7 +93,7 @@ abstract class AbstractPane {
                                               "finalize"   => "FinalizePane",
                                               "scorers"    => "ScorersPane",
                                               "delete"     => "DeleteRegattaPane"),
-                         "Teams"     => array("teams"      => "TeamsPane",
+                         "Teams"     => array("teams"      => "AddTeamsPane",
                                               "edit-teams" => "EditTeamsPane",
                                               "substitute" => "TeamReplaceTeamPane",
                                               "remove-team"=> "DeleteTeamsPane"),
@@ -131,7 +131,7 @@ abstract class AbstractPane {
                                               "scorers"    => "ScorersPane",
                                               "races"      => "RacesPane",
                                               "notes"      => "NotesPane"),
-                         "Teams"     => array("teams"      => "TeamsPane",
+                         "Teams"     => array("teams"      => "AddTeamsPane",
                                               "edit-teams" => "EditTeamsPane",
                                               "substitute" => "ReplaceTeamPane",
                                               "remove-team"=> "DeleteTeamsPane"),
@@ -254,7 +254,7 @@ abstract class AbstractPane {
     $this->setupPage();
     if (!$this->participant_mode) {
       if (!$this->has_teams) {
-        if (get_class($this) != 'TeamsPane')
+        if (get_class($this) != 'AddTeamsPane')
           Session::pa(new PA(array("No teams have yet been setup. ",
                                    new XA(sprintf('/score/%s/teams', $this->REGATTA->id), "Add teams now"), "."), PA::I));
       }
@@ -469,8 +469,8 @@ abstract class AbstractPane {
     case 'set-teams':
     case 'add-team':
     case 'set-team':
-      require_once('tscore/TeamsPane.php');
-      return new TeamsPane($r, $u);
+      require_once('tscore/AddTeamsPane.php');
+      return new AddTeamsPane($r, $u);
     case 'edit-team':
     case 'edit-teams':
       if ($u->isSingleHanded())
@@ -605,7 +605,7 @@ abstract class AbstractPane {
                                "NotesPane" => "notes",
                                "NoticeBoardPane" => "notices",
                                "DeleteRegattaPane" => "delete",
-                               "TeamsPane" => "teams",
+                               "AddTeamsPane" => "teams",
                                "EditTeamsPane" => "edit-teams",
                                "DeleteTeamsPane" => "remove-teams",
                                "ReplaceTeamPane" => "substitute",
@@ -637,7 +637,7 @@ abstract class AbstractPane {
                                  "NotesPane" => "Race notes",
                                  "NoticeBoardPane" => "Notice Board",
                                  "DeleteRegattaPane" => "Delete",
-                                 "TeamsPane" => "Add team",
+                                 "AddTeamsPane" => "Add team",
                                  "EditTeamsPane" => "Edit names",
                                  "DeleteTeamsPane" => "Remove team",
                                  "ReplaceTeamPane" => "Sub team",
