@@ -118,9 +118,11 @@ abstract class AbstractPane {
     }
     else {
       if ($this->participant_mode) {
-        $score_i = array("Regatta"  => array("settings"  => "DetailsPane"),
-                         "RP Forms" => array("rp"         => "RpEnterPane",
-                                             "unregistered" => "UnregisteredSailorPane"));
+        $score_i = array("Regatta"  => array("settings"  => "DetailsPane"));
+        if (!$this->REGATTA->isSingleHanded())
+          $score_i["Teams"]  = array("edit-teams" => "EditTeamsPane");
+        $score_i["RP Forms"] = array("rp"         => "RpEnterPane",
+                                     "unregistered" => "UnregisteredSailorPane");
       }
       else {
         $score_i = array("Regatta"   => array("settings"   => "DetailsPane",
@@ -146,7 +148,7 @@ abstract class AbstractPane {
         if ($this->REGATTA->private === null)
           $score_i["Regatta"]['notices'] = "NoticeBoardPane";
         $score_i["Regatta"]['delete'] = "DeleteRegattaPane";
-        if (count($this->REGATTA->getDivisions()) > 0 && $this->REGATTA->isSingleHanded())
+        if ($this->REGATTA->isSingleHanded())
           unset($score_i["Teams"]["edit-teams"]);
       }
     }
@@ -471,7 +473,7 @@ abstract class AbstractPane {
       return new TeamsPane($r, $u);
     case 'edit-team':
     case 'edit-teams':
-      if (count($u->getDivisions()) > 0 && $u->isSingleHanded())
+      if ($u->isSingleHanded())
         return null;
       require_once('tscore/EditTeamsPane.php');
       return new EditTeamsPane($r, $u);
@@ -585,6 +587,7 @@ abstract class AbstractPane {
    */
   private static $PARTICIPANT_MODE = array(
                                            "DetailsPane",
+                                           "EditTeamsPane",
                                            "RpEnterPane",
                                            "TeamRpEnterPane",
                                            "UnregisteredSailorPane",

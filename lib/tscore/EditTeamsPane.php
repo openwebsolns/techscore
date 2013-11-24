@@ -22,15 +22,29 @@ class EditTeamsPane extends AbstractPane {
 
   protected function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new XPort("Edit team names"));
-    $p->add(new XP(array(), "Although the team names are specified by the school's account holders, you may use this pane to choose a different team name from the approved list."));
 
     $p->add($f = $this->createForm());
+    $teams = array();
+    if ($this->participant_mode) {
+      foreach ($this->REGATTA->getTeams() as $team) {
+        if ($this->USER->hasSchool($team->school))
+          $teams[] = $team;
+      }
+      $f->add(new XP(array(),
+                     array("Use this pane to set the squad name to use for your teams in your jurisdiction. To edit the list of squad names, visit the ",
+                           new XA(WS::link('/prefs/' . $this->USER->school->id), "preferences"),
+                           " page.")));
+    }
+    else {
+      $teams = $this->REGATTA->getTeams();
+      $f->add(new XP(array(), "Although the team names are specified by the school's account holders, you may use this pane to choose a different team name from the approved list."));
+    }
     $f->add($tab = new XQuickTable(array('class'=>'full left'),
                                    array("#", "School", "Team name", "Suffix")));
 
     $can_choose = false;
     $options = array();
-    foreach ($this->REGATTA->getTeams() as $i => $team) {
+    foreach ($teams as $i => $team) {
       if (!isset($options[$team->school->id])) {
         $options[$team->school->id] = array();
         $names = $team->school->getTeamNames();
@@ -93,6 +107,9 @@ class EditTeamsPane extends AbstractPane {
       $teams_by_school = array();
       $names_by_school = array();
       foreach ($this->REGATTA->getTeams() as $team) {
+        if ($this->participant_mode && !$this->USER->hasSchool($team->school))
+          continue;
+
         if (!isset($teams_by_school[$team->school->id])) {
           $teams_by_school[$team->school->id] = array();
           $names_by_school[$team->school->id] = $team->school->getTeamNames();
