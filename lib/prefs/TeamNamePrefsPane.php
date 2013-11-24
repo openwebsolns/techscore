@@ -93,10 +93,42 @@ class TeamNamePrefsPane extends AbstractPrefsPane {
       }
 
       // Update the team names
+      $curr = $this->SCHOOL->getTeamNames();
       $this->SCHOOL->setTeamNames(array_values($names));
       Session::pa(new PA("Team name preferences updated."));
       if ($repeats)
         Session::pa(new PA("Team names cannot be repeated.", PA::I));
+
+      // First time? Update previous instances
+      if (count($curr) == 0) {
+        $new_name = array_shift($names);
+        $reg_names = array();
+        $re = sprintf('/^%s( [0-9]+)?$/', $this->SCHOOL->nick_name);
+        foreach ($this->SCHOOL->getRegattas() as $reg) {
+          $changed = false;
+          foreach ($reg->getTeams($this->SCHOOL) as $team) {
+            if (preg_match($re, $team->name) > 0) {
+              $team->name = str_replace($this->SCHOOL->nick_name, $new_name, $team->name);
+              DB::set($team);
+              $changed = true;
+            }
+          }
+          if ($changed) {
+            require_once('public/UpdateManager.php');
+            UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_TEAM, $this->SCHOOL->id);
+            $reg_names[] = sprintf("%s (%s)", $reg->name, $reg->getSeason());
+          }
+        }
+
+        $count = count($reg_names);
+        if ($count > 0) {
+          if ($count <= 5)
+            Session::pa(new PA(sprintf("Updated the following regattas with the new team name: %s.",
+                                       implode(", ", $reg_names))));
+          else
+            Session::pa(new PA(sprintf("Updated %d public regattas with new preferred name.", $count)));
+        }
+      }
     }
   }
 }
