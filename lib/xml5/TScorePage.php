@@ -147,7 +147,6 @@ class TScorePage extends XPage {
     $this->head->add(new LinkCSS('/inc/css/cal.css'));
 
     // Javascript
-    $this->head->add(new XScript('text/javascript', '/inc/js/jquery-1.3.min.js', null, array('id'=>'js:jquery')));
     // Session JS: only if applicable
     if (class_exists("TSSessionHandler") && ($exp = TSSessionHandler::getExpiration()) !== null) {
       $this->head->add(new XScript('text/javascript', null, sprintf('window.SESSION_EXPIRATION=%d;', $exp)));

@@ -63,28 +63,41 @@ function parseRange(str) {
     return list;
 }
 
-// Global jQuery and user interface scripts
-//
-// February 3, 2009
-$(document).ready(function(){
-	  // Automatically hide class "accessible"
-	  $(".accessible").css("display","none");
-
-	  // Calendar
-    var inp = document.getElementById("datepicker");
-    if (inp !== null && inp.type == "text") {
-        var s = document.createElement("script");
-        s.type = "text/javascript";
-        s.src = "/inc/js/ui.datepicker.js";
-        s.onload = function(evt) {
-	          $('#datepicker').datepicker({firstDay: 1,
-		                                     gotoCurrent: true,
-		                                     currentText: 'Current'
-		                                    });
+(function(w,d,g) {
+    var f = function(e) {
+        var acc = d.querySelectorAll(".accessible");
+        for (var i = 0; i < acc.length; i++)
+            acc[i].style.display = "none";
+        
+        var inp = d.getElementById("datepicker");
+        if (inp !== null && inp.type == "text") {
+            var s = d.createElement(g);
+            s.type = "text/javascript";
+            s.src = "/inc/js/jquery-1.3.min.js";
+            s.onload = function(e) {
+                var r = d.createElement(g);
+                r.type = "text/javascript";
+                r.src = "/inc/js/ui.datepicker.js";
+                r.onload = function(e) {
+	                  $('#datepicker').datepicker({firstDay: 1,
+		                                             gotoCurrent: true,
+		                                             currentText: 'Current'
+		                                            });
+                };
+                s.parentNode.insertBefore(r, s.nextSibling);
+            };
+            var p = d.getElementsByTagName(g);
+            p[0].parentNode.insertBefore(s, p[0]);
+        }
+    };
+    if (w.addEventListener)
+        w.addEventListener('load', f, false);
+    else {
+        var old = w.onload;
+        w.onload = function(e) {
+            f(e);
+            if (old)
+                old(e);
         };
-        var p = document.getElementById("js:jquery");
-        if (p)
-            p.parentNode.insertBefore(s, p.nextSibling);
-
     }
-});
+})(window,document,"script");
