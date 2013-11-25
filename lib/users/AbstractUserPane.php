@@ -80,9 +80,11 @@ abstract class AbstractUserPane {
     $items[] = new XLi(new XA("/archive", "All regattas"));
     $items[] = new XLi(new XA("/create", "New regatta", array("accesskey"=>"n")));
     $items[] = new XLi(new XA("/account","My account"));
+    if ($this->USER->isSuper())
+      $items[] = new XLi(new XA('/conf', "Global Conf"));
 
     $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
-                                  array(new XH4("TechScore"),
+                                  array(new XH4(Conf::$NAME),
                                         new XUl(array(), $items))));
 
     // School setup
@@ -472,9 +474,12 @@ abstract class AbstractUserPane {
       return new SearchSailor($u);
 
     case 'org':
-    case 'conf':
       require_once('users/admin/OrganizationConfiguration.php');
       return new OrganizationConfiguration($u);
+
+    case 'conf':
+      require_once('users/super/GlobalSettings.php');
+      return new GlobalSettings($u);
 
     case 'text':
       if (count($uri) != 1)

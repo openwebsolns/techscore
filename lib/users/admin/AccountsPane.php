@@ -52,6 +52,10 @@ class AccountsPane extends AbstractAdminUserPane {
       $chk->set('disabled', 'disabled');
       $chk->set('title', "You may not remove permissions for yourself.");
     }
+    elseif ($user->isSuper()) {
+      $chk->set('disabled', 'disabled');
+      $chk->set('title', "This account may not be disabled.");
+    }
 
     $f->add(new FItem("Regattas created:", new XStrong(count($user->getRegattasCreated()))));
 
@@ -94,7 +98,7 @@ class AccountsPane extends AbstractAdminUserPane {
     
 
     if ($user->status != Account::STAT_INACTIVE) {
-      if ($user->id != $this->USER->id) {
+      if ($user->id != $this->USER->id && !$user->isSuper()) {
         // ------------------------------------------------------------
         // Delete account?
         // ------------------------------------------------------------
@@ -128,7 +132,7 @@ class AccountsPane extends AbstractAdminUserPane {
     // Specific user
     // ------------------------------------------------------------
     if (isset($args['id'])) {
-      if (($user = DB::getAccount($args['id'])) !== null || $user->isSuper()) {
+      if (($user = DB::getAccount($args['id'])) !== null) {
         $this->fillUser($user);
         return;
       }
@@ -267,7 +271,7 @@ class AccountsPane extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     if (isset($args['edit-user'])) {
       $user->role = DB::$V->reqKey($args, 'role', Account::getRoles(), "Invalid role provided.");
-      if ($user != $this->USER)
+      if ($user != $this->USER && !$user->isSuper())
         $user->admin = DB::$V->incInt($args, 'admin', 1, 2, null);
       DB::set($user);
       Session::pa(new PA(sprintf("Updated account information for user %s.", $user)));
@@ -279,7 +283,7 @@ class AccountsPane extends AbstractAdminUserPane {
     // Delete user
     // ------------------------------------------------------------
     if (isset($args['delete-user'])) {
-      if ($user->id == $this->USER->id)
+      if ($user->id == $this->USER->id && !$user->isSuper())
         throw new SoterException("You cannot delete your own account.");
       $user->status = Account::STAT_INACTIVE;
       DB::set($user);
