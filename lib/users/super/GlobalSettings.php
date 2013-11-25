@@ -27,6 +27,10 @@ class GlobalSettings extends AbstractSuperUserPane {
     $f->add(new FItem("Application Name:", new XTextInput(STN::APP_NAME, DB::g(STN::APP_NAME), array('maxlength'=>50))));
     $f->add(new FItem("Send e-mails from:", new XTextInput(STN::TS_FROM_MAIL, DB::g(STN::TS_FROM_MAIL))));
 
+    $f->add(new FItem("Sailor API URL:", new XTextInput(STN::SAILOR_API_URL, DB::g(STN::SAILOR_API_URL))));
+    $f->add(new FItem("Coach API URL:", new XTextInput(STN::COACH_API_URL, DB::g(STN::COACH_API_URL))));
+    $f->add(new FItem("School API URL:", new XTextInput(STN::SCHOOL_API_URL, DB::g(STN::SCHOOL_API_URL))));
+
     $f->add(new XSubmitP('set-params', "Save changes"));
   }
 
@@ -44,6 +48,16 @@ class GlobalSettings extends AbstractSuperUserPane {
       if ($val != DB::g(STN::TS_FROM_MAIL)) {
         $changed = true;
         DB::s(STN::TS_FROM_MAIL, $val);
+      }
+
+      foreach (array(STN::SAILOR_API_URL,
+                     STN::COACH_API_URL,
+                     STN::SCHOOL_API_URL) as $setting) {
+        $val = DB::$V->reqRE($args, $setting, '_^https?://.{5,}$_', "Invalid URL provided.");
+        if ($val[0] != DB::g($setting)) {
+          $changed = true;
+          DB::s($setting, $val[0]);
+        }
       }
 
       if (!$changed)

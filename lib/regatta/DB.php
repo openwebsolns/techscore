@@ -3283,6 +3283,9 @@ class Role_Permission extends DBObject {
 class STN extends DBObject {
   const APP_NAME = 'app_name';
   const TS_FROM_MAIL = 'ts_from_mail';
+  const SAILOR_API_URL = 'sailor_api_url';
+  const COACH_API_URL = 'coach_api_url';
+  const SCHOOL_API_URL = 'school_api_url';
 
   const TWITTER_URL_LENGTH = 'twitter_url_length';
   const SEND_MAIL = 'send_mail';

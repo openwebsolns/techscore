@@ -72,15 +72,15 @@ class SyncDB extends AbstractScript {
   }
 
   public function updateSchools() {
-    if (Conf::$SCHOOL_API_URL === null) {
+    if (DB::g(STN::SCHOOL_API_URL) === null) {
       self::errln("No URL to update schools list.");
       return;
     }
 
-    self::errln("Fetching and parsing schools from " . Conf::$SCHOOL_API_URL);
+    self::errln("Fetching and parsing schools from " . DB::g(STN::SCHOOL_API_URL));
 
-    if (($xml = @simplexml_load_file(Conf::$SCHOOL_API_URL)) === false) {
-      $this->errors[] = "Unable to load XML from " . Conf::$SCHOOL_API_URL;
+    if (($xml = @simplexml_load_file(DB::g(STN::SCHOOL_API_URL))) === false) {
+      $this->errors[] = "Unable to load XML from " . DB::g(STN::SCHOOL_API_URL);
       return;
     }
 
@@ -133,9 +133,9 @@ class SyncDB extends AbstractScript {
   public function updateMember(Member $proto) {
     $src = null;
     if ($proto instanceof Sailor)
-      $src = Conf::$SAILOR_API_URL;
+      $src = DB::g(STN::SAILOR_API_URL);
     elseif ($proto instanceof Coach)
-      $src = Conf::$COACH_API_URL;
+      $src = DB::g(STN::COACH_API_URL);
     else
       throw new TSScriptException("I do not know how to sync that kind of member.");
 

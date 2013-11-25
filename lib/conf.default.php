@@ -32,11 +32,6 @@ Conf::$PASSWORD_SALT = 'Enter password salt here. Longer is better.';
 
 Conf::$WRITERS = array('LocalHtmlWriter.php');
 
-// API updates
-// Conf::$SAILOR_API_URL = '';
-// Conf::$COACH_API_URL = '';
-// Conf::$SCHOOL_API_URL = '';
-
 // Set to the ID of the users that can log in
 // Conf::$DEBUG_USERS = array('admin@localhost');
 
