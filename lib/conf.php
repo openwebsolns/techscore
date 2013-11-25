@@ -44,7 +44,6 @@ class Conf {
   public static $LOG_ROOT = '/var/log/httpd';
 
   public static $ADMIN_MAIL = 'dayan@localhost';
-  public static $TS_FROM_MAIL = 'dayan@localhost';
 
   // MySQL connection
   public static $SQL_HOST = 'localhost';

@@ -256,7 +256,7 @@ class DB extends DBM {
 
     $res = true;
     $header = "";
-    $extra_headers["From"] = Conf::$TS_FROM_MAIL;
+    $extra_headers["From"] = DB::g(STN::TS_FROM_MAIL);
     $extra_headers["Content-Type"] = "text/plain; charset=utf8";
     foreach ($extra_headers as $key => $val)
       $header .= sprintf("%s: %s\r\n", $key, $val);
@@ -305,7 +305,7 @@ class DB extends DBM {
       }
     }
 
-    $headers = sprintf("From: %s\nMIME-Version: 1.0\nContent-Type: multipart/alternative; boundary=%s\n", Conf::$TS_FROM_MAIL, $bdry);
+    $headers = sprintf("From: %s\nMIME-Version: 1.0\nContent-Type: multipart/alternative; boundary=%s\n", DB::g(STN::TS_FROM_MAIL), $bdry);
     $body = "This is a message with multiple parts in MIME format.\n";
     foreach ($segments as $segment)
       $body .= sprintf("--%s\n%s\n", $bdry, $segment);
@@ -417,7 +417,7 @@ class DB extends DBM {
                     $mes->account->id,
                     $mes->content,
                     $reply);
-    $to = ($mes->sender === null) ? Conf::$TS_FROM_MAIL : $mes->sender->id;
+    $to = ($mes->sender === null) ? DB::g(STN::TS_FROM_MAIL) : $mes->sender->id;
     $res = self::mail($to, sprintf("[%s] Message reply", Conf::$NAME), $body, true, array('Reply-To' => $mes->account->id));
   }
 
@@ -775,6 +775,8 @@ class DB extends DBM {
       $res = DB::get(DB::$SETTING, $key);
       if ($res !== null && $res->value !== null)
         self::$settings[$key] = $res->value;
+      else
+        self::$settings[$key] = STN::getDefault($key);
     }
     return self::$settings[$key];
   }
@@ -3279,6 +3281,9 @@ class Role_Permission extends DBObject {
  * @version 2013-09-16
  */
 class STN extends DBObject {
+  const APP_NAME = 'app_name';
+  const TS_FROM_MAIL = 'ts_from_mail';
+
   const TWITTER_URL_LENGTH = 'twitter_url_length';
   const SEND_MAIL = 'send_mail';
   const ALLOW_REGISTER = 'allow_register';
@@ -3304,6 +3309,25 @@ class STN extends DBObject {
   public function db_name() { return 'setting'; }
   protected function db_cache() { return true; }
   public function __toString() { return $this->value; }
+
+  /**
+   * Fetches default value (if none found in database)
+   *
+   * @param Const $name the setting
+   * @return String|null the default value
+   */
+  public static function getDefault($name) {
+    switch ($name) {
+    case self::TS_FROM_MAIL:
+      return Conf::$ADMIN_MAIL;
+
+    case self::APP_NAME:
+      return "Techscore";
+
+    default:
+      return null;
+    }
+  }
 }
 
 /**
