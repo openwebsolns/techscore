@@ -219,7 +219,7 @@ class SummaryPane extends AbstractPane {
 
     $body .= "\n";
     $body .= "-- \n";
-    $body .= wordwrap(sprintf("This message sent by %s on behalf of %s.", Conf::$NAME, $this->USER), $W, " \n");
+    $body .= wordwrap(sprintf("This message sent by %s on behalf of %s.", DB::g(STN::APP_NAME), $this->USER), $W, " \n");
 
     $parts = array('text/plain; charset=utf8' => $body);
     
@@ -257,7 +257,7 @@ class SummaryPane extends AbstractPane {
                                       $this->getResultsHtmlTable())));
     }
     $body->body->add(new XAddress(array('style'=>'color:#555;border-top:1px solid #555;margin-top:4ex;padding:1ex 0;'),
-                                  array(sprintf("This message sent by %s on behalf of %s.", Conf::$NAME, $this->USER))));
+                                  array(sprintf("This message sent by %s on behalf of %s.", DB::g(STN::APP_NAME), $this->USER))));
 
     $parts['text/html; charset=utf8'] = $body->toXML();
     DB::multipartMail($recips, $this->REGATTA->name, $parts);

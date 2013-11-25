@@ -31,7 +31,7 @@ class EditLogoPane extends AbstractPrefsPane {
    */
   public function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new XPort($this->SCHOOL . " logo"));
-    $p->add(new XP(array(), "Upload a logo to use with your school. This logo will replace all uses of the logo throughout " . Conf::$NAME . "."));
+    $p->add(new XP(array(), "Upload a logo to use with your school. This logo will replace all uses of the logo throughout " . DB::g(STN::APP_NAME) . "."));
 
     $p->add(new XP(array(), "Follow these rules for best results:"));
     $p->add(new XUl(array(),

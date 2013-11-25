@@ -119,7 +119,7 @@ Below is a list of regattas that need your attention, as well as an indication o
 Thank you for your time,
 --
 %s Administration",
-                     Conf::$NAME);
+                     DB::g(STN::APP_NAME));
     return $body;
   }
 

@@ -22,7 +22,7 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
     $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/addSwapButton.js')));
 
     $p->add(new XP(array(),
-                   array("Use the list of races, grouped by flight, to enter the order in which teams should meet. ", new XStrong(sprintf("Use numbers 1 through %d to indicate which team %s will use in that race.", $template->num_teams, Conf::$NAME)))));
+                   array("Use the list of races, grouped by flight, to enter the order in which teams should meet. ", new XStrong(sprintf("Use numbers 1 through %d to indicate which team %s will use in that race.", $template->num_teams, DB::g(STN::APP_NAME))))));
     $p->add(new XP(array(),
                    array("For example, to indicate that the second and third team should meet in a race, with the teams \"swapped\", enter ", new XVar("3"), ", ", new XVar("2"), " for that race number.")));
     $p->add(new XP(array(), "A template will not be considered if every team-pairing is not present."));

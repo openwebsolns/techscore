@@ -32,10 +32,10 @@ class EULAPane extends AbstractUserPane {
    */
   public function fillHTML(Array $args) {
     $filename = DB::get(DB::$TEXT_ENTRY, Text_Entry::EULA);
-    $license = ($filename !== null) ? new XRawText($filename->html) : new XP(array(), sprintf("I agree to use %s responsibly.", Conf::$NAME));
+    $license = ($filename !== null) ? new XRawText($filename->html) : new XP(array(), sprintf("I agree to use %s responsibly.", DB::g(STN::APP_NAME)));
 
     $this->PAGE->addContent($p = new XPort("License Agreement"));
-    $p->add(new XP(array(), sprintf("Before using %s, you must read and agree to the terms below. These are short terms of usage that outline what is expected of %s users and your responsibilities as an official scorer. Please read it carefully before clicking on the checkbox below.", Conf::$NAME, Conf::$NAME)));
+    $p->add(new XP(array(), sprintf("Before using %s, you must read and agree to the terms below. These are short terms of usage that outline what is expected of %s users and your responsibilities as an official scorer. Please read it carefully before clicking on the checkbox below.", DB::g(STN::APP_NAME), DB::g(STN::APP_NAME))));
     $p->add(new XDiv(array('id'=>'license'), array($license)));
     $p->add($f = $this->createForm());
     $f->add($i = new FItem(new XCheckBoxInput("agree", "1", array("id"=>"agree")),

@@ -15,17 +15,13 @@
  * @version 2012-01-06
  */
 class Conf {
-  public static $VERSION = '3.0-beta';
+  public static $VERSION = '3.3';
   public static $COPYRIGHT = '© OpenWeb Solutions, LLC 2008-2012';
 
   // Logging options
   public static $DIVERT_MAIL = 'dayan@localhost';
 
   // General constants
-  /**
-   * @var String the name of the program
-   */
-  public static $NAME = 'TechScore';
   /**
    * @var String the hostname (sans protocol) for the scoring
    */

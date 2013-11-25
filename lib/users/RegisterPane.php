@@ -149,7 +149,7 @@ class RegisterPane extends AbstractUserPane {
       foreach (DB::getAdmins() as $admin)
         $admins[] = sprintf('%s <%s>', $admin->getName(), $admin->id);
 
-      DB::mail($admins, sprintf("[%s] New registration", Conf::$NAME), $this->getAdminMessage($acc));
+      DB::mail($admins, sprintf("[%s] New registration", DB::g(STN::APP_NAME)), $this->getAdminMessage($acc));
       WS::go('/register');
     }
 
@@ -182,7 +182,7 @@ class RegisterPane extends AbstractUserPane {
 
       // 6. Create account with status "requested";
       if (DB::mail($acc->id,
-                   sprintf("[%s] New account request", Conf::$NAME),
+                   sprintf("[%s] New account request", DB::g(STN::APP_NAME)),
                    $this->getMessage($acc)) === false)
         throw new SoterException("There was an error with your request. Please try again later.");
 
@@ -202,7 +202,7 @@ class RegisterPane extends AbstractUserPane {
                    "instructions, your account request will be sent to the registration committee for " .
                    "approval. You will be notified as soon as your account is activated.\n\n" .
                    "%3\$sregister/%4\$s\n\nThank you,\n-- \n%2\$s Administration",
-                   $to->first_name, Conf::$NAME, WS::alink('/'), DB::getHash($to));
+                   $to->first_name, DB::g(STN::APP_NAME), WS::alink('/'), DB::getHash($to));
   }
   public function getAdminMessage(Account $about) {
     return sprintf("Dear Administrators,\n\nThere is a new account request at %s. Please login " .
@@ -212,11 +212,11 @@ class RegisterPane extends AbstractUserPane {
                    "School: %s\n" .
                    "  Role: %s\n\n" .
                    "Visit https://%s/pending to approve or reject.\n\nThank you,\n-- \n%s Administration",
-                   Conf::$NAME,
+                   DB::g(STN::APP_NAME),
                    $about->first_name, $about->last_name, $about->id,
                    $about->school->nick_name, $about->role,
                    Conf::$HOME,
-                   Conf::$NAME);
+                   DB::g(STN::APP_NAME));
   }
 }
 ?>

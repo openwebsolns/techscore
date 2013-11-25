@@ -31,7 +31,7 @@ class TScoreDialog extends XPage {
    * @param String $title the title of the page
    */
   public function __construct($title) {
-    parent::__construct((string)$title . " | " . Conf::$NAME);
+    parent::__construct((string)$title . " | " . DB::g(STN::APP_NAME));
     $this->filled = false;
     $this->menu = array();
     $this->header = array();
@@ -53,7 +53,7 @@ class TScoreDialog extends XPage {
 
     // Header
     $this->body->add($div = new XDiv(array('id'=>'headdiv')));
-    $div->add(new XH1(new XImg("/inc/img/techscore.png", Conf::$NAME, array("id"=>"headimg"))));
+    $div->add(new XH1(new XImg("/inc/img/techscore.png", DB::g(STN::APP_NAME), array("id"=>"headimg"))));
     $div->add(new XH4(date("D M j, Y"), array("id"=>"date")));
     foreach ($this->header as $sub)
       $div->add($sub);
@@ -74,7 +74,7 @@ class TScoreDialog extends XPage {
       $c->add($cont);
 
     $this->body->add(new XDiv(array('id'=>'footdiv'),
-                              array(new XP(array(), sprintf("%s v%s %s", Conf::$NAME, Conf::$VERSION, Conf::$COPYRIGHT)))));
+                              array(new XP(array(), sprintf("%s v%s %s", DB::g(STN::APP_NAME), Conf::$VERSION, Conf::$COPYRIGHT)))));
   }
 
   /**

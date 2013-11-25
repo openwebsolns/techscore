@@ -34,11 +34,11 @@ class SailorMergePane extends AbstractPrefsPane {
     $orgname = DB::g(STN::ORG_NAME);
 
     $this->PAGE->addContent($p = new XPort("Merge temporary sailors"));
-    $p->add(new XP(array(), sprintf("When a sailor is not found in the database, the scorers can add the sailor temporarily. These temporary sailors appear throughout %s with an asterisk next to their name.", Conf::$NAME)));
+    $p->add(new XP(array(), sprintf("When a sailor is not found in the database, the scorers can add the sailor temporarily. These temporary sailors appear throughout %s with an asterisk next to their name.", DB::g(STN::APP_NAME))));
 
     $p->add(new XP(array(), sprintf("It is the school's responsibilities to match the temporary sailors with the actual sailor from the %s database once the missing sailor has been approved.", $orgname)));
 
-    $p->add(new XP(array(), sprintf("Use this form to update the database by matching the temporary sailor with the actual one from the %s database. If the sailor does not appear, he/she may have to be approved before the changes are reflected in %s. Also, bear in mind that %s's copy of the membership database might lag the official copy by as much as a week.", $orgname, Conf::$NAME, Conf::$NAME)));
+    $p->add(new XP(array(), sprintf("Use this form to update the database by matching the temporary sailor with the actual one from the %s database. If the sailor does not appear, he/she may have to be approved before the changes are reflected in %s. Also, bear in mind that %s's copy of the membership database might lag the official copy by as much as a week.", $orgname, DB::g(STN::APP_NAME), DB::g(STN::APP_NAME))));
 
     // Get all the temporary sailors
     $temp = $this->SCHOOL->getUnregisteredSailors();

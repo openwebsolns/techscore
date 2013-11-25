@@ -418,7 +418,7 @@ class DB extends DBM {
                     $mes->content,
                     $reply);
     $to = ($mes->sender === null) ? DB::g(STN::TS_FROM_MAIL) : $mes->sender->id;
-    $res = self::mail($to, sprintf("[%s] Message reply", Conf::$NAME), $body, true, array('Reply-To' => $mes->account->id));
+    $res = self::mail($to, sprintf("[%s] Message reply", DB::g(STN::APP_NAME)), $body, true, array('Reply-To' => $mes->account->id));
   }
 
   // ------------------------------------------------------------

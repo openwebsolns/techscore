@@ -79,7 +79,7 @@ class SendMessage extends AbstractAdminUserPane {
     $p->add(new XP(array(), "You may send a message to as many individuals as you'd like at a time. First, select the recipients using this port. Once you have added all recipients, use the form below to send the message."));
 
     $p->add($f = $this->createForm(XForm::GET));
-    $f->add($fi = new FItem(sprintf("All %s users:", Conf::$NAME), new XHiddenInput('axis', Outbox::R_ALL)));
+    $f->add($fi = new FItem(sprintf("All %s users:", DB::g(STN::APP_NAME)), new XHiddenInput('axis', Outbox::R_ALL)));
     $fi->add(new XSubmitInput('recipients', "Write message →"));
     $fi->add(new XMessage("Broadcast general message to all users. Use sparingly."));
 
