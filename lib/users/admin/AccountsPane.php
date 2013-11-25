@@ -128,7 +128,7 @@ class AccountsPane extends AbstractAdminUserPane {
     // Specific user
     // ------------------------------------------------------------
     if (isset($args['id'])) {
-      if (($user = DB::getAccount($args['id'])) !== null) {
+      if (($user = DB::getAccount($args['id'])) !== null || $user->isSuper()) {
         $this->fillUser($user);
         return;
       }

@@ -91,7 +91,11 @@ class Account extends DBObject {
   }
 
   public function isAdmin() {
-    return $this->admin > 0;
+    return $this->admin !== null;
+  }
+
+  public function isSuper() {
+    return $this->admin > 1;
   }
 
   /**
