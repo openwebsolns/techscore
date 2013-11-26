@@ -237,7 +237,10 @@ class Daemon extends AbstractScript {
       // ------------------------------------------------------------
       require_once('scripts/UpdateFile.php');
       $P = new UpdateFile();
-      foreach ($pending as $r) {
+      foreach ($pending as $i => $r) {
+        if ($i >= 200)
+          break;
+
         $requests[] = $r;
 
         $hash = $r->hash();
@@ -320,7 +323,10 @@ class Daemon extends AbstractScript {
       $schools = array(); // map of schools indexed by ID
       $seasons = array(); // map of seasons to update indexed by school
 
-      foreach ($pending as $r) {
+      foreach ($pending as $i => $r) {
+        if ($i >= 200)
+          break;
+
         $requests[] = $r;
         if ($r->activity == UpdateSchoolRequest::ACTIVITY_BURGEE)
           $burgees[$r->school->id] = $r->school;
@@ -437,7 +443,10 @@ class Daemon extends AbstractScript {
       $seasons = array();
       $general404 = false;
       $school404 = false;
-      foreach ($pending as $r) {
+      foreach ($pending as $i => $r) {
+        if ($i >= 200)
+          break;
+
         $requests[] = $r;
 
         if ($r->activity == UpdateSeasonRequest::ACTIVITY_FRONT)
@@ -571,7 +580,10 @@ class Daemon extends AbstractScript {
       // ------------------------------------------------------------
       // Loop through the regatta requests
       // ------------------------------------------------------------
-      foreach ($pending as $r) {
+      foreach ($pending as $i => $r) {
+        if ($i >= 200)
+          break;
+
         $requests[] = $r;
 
         $reg = $r->regatta;
