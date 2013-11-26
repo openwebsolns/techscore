@@ -138,6 +138,7 @@ function OWSComboboxSelect(elem) {
         }
     }
 
+    this.lastValidatedValue = this.search.value;
     this.clickedInEnvironment = false;
     c.addEventListener('click', function(e) {
         myObj.clickedInEnvironment = true;
@@ -198,6 +199,9 @@ OWSComboboxSelect.prototype.filter = function() {
 };
 
 OWSComboboxSelect.prototype.validate = function() {
+    if (this.search.value == this.lastValidatedValue)
+        return;
+
     // this.search.setSelectionRange(this.search.selectionEnd, this.search.selectionEnd);
     this.search.classList.remove("invalid");
     this.hideOptions();
@@ -217,16 +221,21 @@ OWSComboboxSelect.prototype.validate = function() {
         }
     }
     if (exact) {
-        this.element.selectedIndex = exact.dataset.index;
         this.search.value = exact.dataset.option;
+        this.lastValidatedValue = this.search.value;
+        this.element.selectedIndex = exact.dataset.index;
+        this.element.onchange();
     }
     else if (near.length == 1) {
-        this.element.selectedIndex = near[0].dataset.index;
         this.search.value = near[0].dataset.option;
+        this.lastValidatedValue = this.search.value;
+        this.element.selectedIndex = near[0].dataset.index;
+        this.element.onchange();
     }
     else {
         this.element.selectedIndex = this.defaultSelectedIndex;
         this.search.value = this.options.childNodes[this.element.selectedIndex].dataset.option;
+        this.lastValidatedValue = this.search.value;
         // @TODO: warning about invalid value
     }
 };
