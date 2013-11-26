@@ -86,7 +86,7 @@ class RegisterPane extends AbstractUserPane {
 
     $p->add(new XP(array(), "Once your account request has been approved by the registration committee, you will receive another e-mail from TechScore with instructions on logging in."));
     $p->add($f = $this->createForm());
-    $f->add(new FItem("Email:", new XTextInput("email", "")));
+    $f->add(new FItem("Email:", new XInput('email', 'email', "")));
     $f->add(new FItem("First name:", new XTextInput("first_name", "")));
     $f->add(new FItem("Last name:",  new XTextInput("last_name", "")));
     $f->add(new FItem("Password:", new XPasswordInput("passwd", "")));
@@ -149,7 +149,12 @@ class RegisterPane extends AbstractUserPane {
       foreach (DB::getAdmins() as $admin)
         $admins[] = sprintf('%s <%s>', $admin->getName(), $admin->id);
 
-      DB::mail($admins, sprintf("[%s] New registration", DB::g(STN::APP_NAME)), $this->getAdminMessage($acc));
+      if (DB::g(STN::MAIL_REGISTER_ADMIN)) {
+        $body = str_replace('{BODY}',
+                            $this->getAdminBody($acc),
+                            DB::keywordReplace($acc, DB::g(STN::MAIL_REGISTER_ADMIN)));
+        DB::mail($admins, sprintf("[%s] New registration", DB::g(STN::APP_NAME)), $body);
+      }
       WS::go('/register');
     }
 
@@ -181,9 +186,14 @@ class RegisterPane extends AbstractUserPane {
       $acc->password = DB::createPasswordHash($acc, $pw1);
 
       // 6. Create account with status "requested";
+      if (DB::g(STN::MAIL_REGISTER_USER) === null)
+        throw new SoterException("Registrations are currently not allowed; please notify the administrators.");
+
+      $body = DB::keywordReplace($acc, DB::g(STN::MAIL_REGISTER_USER));
+      $body = str_replace('{BODY}', sprintf('%sregister/%s', WS::alink('/'), DB::getHash($acc)), $body);
       if (DB::mail($acc->id,
                    sprintf("[%s] New account request", DB::g(STN::APP_NAME)),
-                   $this->getMessage($acc)) === false)
+                   $body) === false)
         throw new SoterException("There was an error with your request. Please try again later.");
 
       DB::set($acc);
@@ -193,30 +203,13 @@ class RegisterPane extends AbstractUserPane {
     return $args;
   }
 
-  public function getMessage(Account $to) {
-    return sprintf("Dear %1\$s,\n\nYou are receiving this message because you, or someone in your name, " .
-                   "has requested an account at %2\$s under this e-mail address. If you did not " .
-                   "request an account with %2\$s, kindly disregard this message.\n\n" .
-                   "To activate your account, you will need to follow the link below. You may need to " .
-                   "copy and paste the link into your browser's location bar. After you follow the " .
-                   "instructions, your account request will be sent to the registration committee for " .
-                   "approval. You will be notified as soon as your account is activated.\n\n" .
-                   "%3\$sregister/%4\$s\n\nThank you,\n-- \n%2\$s Administration",
-                   $to->first_name, DB::g(STN::APP_NAME), WS::alink('/'), DB::getHash($to));
-  }
-  public function getAdminMessage(Account $about) {
-    return sprintf("Dear Administrators,\n\nThere is a new account request at %s. Please login " .
-                   "and approve or reject as soon as possible.\n\n" .
-                   "  Name: %s %s\n" .
+  public function getAdminBody(Account $about) {
+    return sprintf("  Name: %s %s\n" .
                    " Email: %s\n" .
                    "School: %s\n" .
-                   "  Role: %s\n\n" .
-                   "Visit https://%s/pending to approve or reject.\n\nThank you,\n-- \n%s Administration",
-                   DB::g(STN::APP_NAME),
+                   "  Role: %s",
                    $about->first_name, $about->last_name, $about->id,
-                   $about->school->nick_name, $about->role,
-                   Conf::$HOME,
-                   DB::g(STN::APP_NAME));
+                   $about->school->nick_name, $about->role);
   }
 }
 ?>

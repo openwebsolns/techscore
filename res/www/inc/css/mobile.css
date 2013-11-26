@@ -432,3 +432,14 @@ p.warning {padding: 0.5em;}
 .current-session td {
     padding: 0.5em 2.5px;
 }
+
+#keyword-replace {
+    margin: 0 auto 2em;
+}
+#keyword-replace thead th, #keyword-replace td {
+    text-align: left;
+    padding: 0 0.5em;
+}
+#keyword-replace td {
+    padding: 0.25em 0.5em;
+}

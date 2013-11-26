@@ -227,6 +227,22 @@ class DB extends DBM {
   }
 
   /**
+   * Perform keyword replacement using given account
+   *
+   * @param Account $to the account whose values to replace in message
+   * @param String $mes the template message
+   * @return String the replaced message
+   */
+  public static function keywordReplace(Account $to, $mes) {
+    $mes = str_replace('{FIRST_NAME}', $to->first_name, $mes);
+    $mes = str_replace('{LAST_NAME}', $to->last_name, $mes);
+    $mes = str_replace('{ROLE}', ucfirst($to->role), $mes);
+    $mes = str_replace('{FULL_NAME}', $to->getName(), $mes);
+    $mes = str_replace('{SCHOOL}',    $to->school, $mes);
+    return $mes;
+  }
+
+  /**
    * Sends a generic mail message to the given user with the given
    * subject, appending the correct headers (i.e., the "from"
    * field). This method uses the standard PHP mail function
@@ -3308,6 +3324,10 @@ class STN extends DBObject {
   const USERVOICE_FORUM = 'uservoice_forum';
   const FLICKR_NAME = 'flickr_name';
   const FLICKR_ID = 'flickr_id';
+
+  const MAIL_REGISTER_USER = 'mail_register_user';
+  const MAIL_REGISTER_ADMIN = 'mail_register_admin';
+  const MAIL_APPROVED_USER = 'mail_approved_user';
 
   public $value;
   public function db_name() { return 'setting'; }

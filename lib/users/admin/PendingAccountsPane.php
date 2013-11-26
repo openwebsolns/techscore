@@ -121,7 +121,7 @@ class PendingAccountsPane extends AbstractAdminUserPane {
             DB::set($acc);
             // Notify user
             if ($action == 'approve') {
-              if (!$this->notifyUser($acc))
+              if (!$this->notifyApprovedUser($acc))
                 $unnotified[] = sprintf('%s <%s>', $acc->getName(), $acc->id);
             }
             $success[] = $acc->id;
@@ -140,19 +140,6 @@ class PendingAccountsPane extends AbstractAdminUserPane {
       }
     }
     return array();
-  }
-
-  /**
-   * Sends message to approved user
-   *
-   * @param Account $acc the account to notify
-   * @return boolean the result of DB::mail
-   */
-  private function notifyUser(Account $acc) {
-    return DB::mail($acc->id,
-                    sprintf("[%s] Account approved", DB::g(STN::APP_NAME)),
-                    sprintf("Dear %1\$s,\n\nYou are receiving this message as notification that your account at %2\$s has been approved. To start using %2\$s, please login now at:\n\n%3\$s\n\nWhen you login the first time, you will be asked to sign an End-User License Agreement (EULA).\n\nIt is *strongly* recommended that all new users become acquainted with the proper use of the program and member responsibilities by reading the user manual available on every page of the site (look for the \"Help\" link in to the top right corner).\n\nThank you for using %2\$s,\n-- \n%2\$s Administration",
-                            $acc->first_name, DB::g(STN::APP_NAME), WS::alink('/')));
   }
 }
 ?>

@@ -114,8 +114,10 @@ abstract class AbstractUserPane {
                                   array(new XH4("Messages"),
                                         $list = new XUl())));
     $list->add(new XLi(new XA("/inbox", "Inbox")));
-    if ($this->USER->isAdmin())
+    if ($this->USER->isAdmin()) {
       $list->add(new XLi(new XA("/send-message", "Send message")));
+      $list->add(new XLi(new XA('/email-templates', "Email templates")));
+    }
 
     // Admin
     if ($this->USER->isAdmin()) {
@@ -468,6 +470,11 @@ abstract class AbstractUserPane {
     case 'send-emails':
       require_once('users/admin/SendMessage.php');
       return new SendMessage($u);
+
+    case 'email-template':
+    case 'email-templates':
+      require_once('users/admin/EmailTemplateManagement.php');
+      return new EmailTemplateManagement($u);
 
     case 'search':
       require_once('users/SearchSailor.php');

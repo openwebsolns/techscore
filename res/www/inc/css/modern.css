@@ -1140,3 +1140,14 @@ select, .csel-container {
 .doctable td, .doctable head th {
     text-align: left;
 }
+
+#keyword-replace {
+    margin: 0 auto 2em;
+}
+#keyword-replace thead th, #keyword-replace td {
+    text-align: left;
+    padding: 0 0.5em;
+}
+#keyword-replace td {
+    padding: 0.25em 0.5em;
+}
