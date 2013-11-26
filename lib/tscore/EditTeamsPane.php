@@ -133,8 +133,8 @@ class EditTeamsPane extends AbstractTeamPane {
         $names = $names_by_school[$id];
         $res = array();
         foreach ($names as $name)
-          $res[$name] = sprintf('/^%s( [0-9]+)?$/', $name);
-        $res[$school->nick_name] = sprintf('/^%s( [0-9]+)?$/', $school->nick_name);
+          $res[$name] = sprintf('/^%s( [0-9]+)?$/', str_replace('/', '\/', $name));
+        $res[$school->nick_name] = sprintf('/^%s( [0-9]+)?$/', str_replace('/', '\/', $school->nick_name));
 
         $roots = array();
         foreach ($teams as $team) {
