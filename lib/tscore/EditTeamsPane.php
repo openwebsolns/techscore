@@ -60,7 +60,7 @@ class EditTeamsPane extends AbstractTeamPane {
       $suf = "";
       foreach ($options[$team->school->id] as $name) {
         $match = array();
-        if (preg_match(sprintf('/%s ([0-9])+$/', $name), $team->name, $match) > 0) {
+        if (preg_match(sprintf('/%s ([0-9])+$/', str_replace('/', '\/', $name)), $team->name, $match) > 0) {
           $cur = $name;
           $suf = $match[1];
           break;
