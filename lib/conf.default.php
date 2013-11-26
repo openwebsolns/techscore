@@ -19,7 +19,6 @@
 
 Conf::$HOME = 'ts.collegesailing.org';
 Conf::$PUB_HOME = 'scores.collegesailing.org';
-// Conf::$HELP_HOME = 'www.collegesailing.org/ts-help';
 Conf::$ADMIN_MAIL = 'admin@localhost';
 
 // MySQL connection

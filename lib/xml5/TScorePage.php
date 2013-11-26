@@ -183,11 +183,13 @@ class TScorePage extends XPage {
       $this->header->add(new XDiv(array('id'=>'close'), array(new XA('/', "Close", array('accesskey'=>'w')))));
     }
 
-    $this->header->add(new XDiv(array('id'=>'help'),
-                                array($a = new XA('http://'.Conf::$HELP_HOME, new XSpan("H", array('style'=>"text-decoration:underline")),
-                                                  array('onclick'=>'this.target="help"',
-                                                        "accesskey"=>"h")))));
-    $a->add("elp?");
+    if (DB::g(STN::HELP_HOME) !== null) {
+      $this->header->add(new XDiv(array('id'=>'help'),
+                                  array($a = new XA(DB::g(STN::HELP_HOME), new XSpan("H", array('style'=>"text-decoration:underline")),
+                                                    array('onclick'=>'this.target="help"',
+                                                          "accesskey"=>"h")))));
+      $a->add("elp?");
+    }
   }
 
   /**

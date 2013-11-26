@@ -3286,6 +3286,7 @@ class STN extends DBObject {
   const SAILOR_API_URL = 'sailor_api_url';
   const COACH_API_URL = 'coach_api_url';
   const SCHOOL_API_URL = 'school_api_url';
+  const HELP_HOME = 'help_home';
 
   const TWITTER_URL_LENGTH = 'twitter_url_length';
   const SEND_MAIL = 'send_mail';

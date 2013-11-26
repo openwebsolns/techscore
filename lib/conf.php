@@ -31,10 +31,6 @@ class Conf {
    */
   public static $PUB_HOME = 'scores.collegesailing.org';
   /**
-   * @var String the hostname (sans protocol) for the help pages
-   */
-  public static $HELP_HOME = 'collegesailing.org/ts-help';
-  /**
    * @var filepath the path to the directory containing the logs
    */
   public static $LOG_ROOT = '/var/log/httpd';
