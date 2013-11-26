@@ -80,16 +80,18 @@ abstract class AbstractTeamPane extends AbstractPane {
    * Fix names of teams from given school in the current regatta
    *
    * @param School $school the school
+   * @return Array:Team list of teams changed
    */
-  protected function fixTeamNames(School $school) {
+  public function fixTeamNames(School $school) {
+    $changed = array();
     $teams = $this->REGATTA->getTeams($school);
     if (count($teams) > 0) {
       // Group the team names by their roots
       $names = $school->getTeamNames();
       $res = array();
       foreach ($names as $name)
-        $res[$name] = sprintf('/^%s( [0-9]+)?$/', $name);
-      $res[$school->nick_name] = sprintf('/^%s( [0-9]+)?$/', $school->nick_name);
+        $res[$name] = sprintf('/^%s( [0-9]+)?$/', str_replace('/', '\/', $name));
+      $res[$school->nick_name] = sprintf('/^%s( [0-9]+)?$/', str_replace('/', '\/', $school->nick_name));
 
       $roots = array();
       foreach ($teams as $team) {
@@ -118,6 +120,7 @@ abstract class AbstractTeamPane extends AbstractPane {
           if ($teams[0]->name != $root) {
             $teams[0]->name = $root;
             DB::set($teams[0]);
+            $changed[] = $teams[0];
           }
         }
         else {
@@ -126,11 +129,13 @@ abstract class AbstractTeamPane extends AbstractPane {
             if ($team->name != $name) {
               $team->name = $name;
               DB::set($team);
+              $changed[] = $team;
             }
           }
         }
       }
     }
+    return $changed;
   }
 }
 ?>

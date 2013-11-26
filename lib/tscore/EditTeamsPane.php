@@ -6,7 +6,7 @@
  * @package tscore
  */
 
-require_once('tscore/AbstractPane.php');
+require_once('tscore/AbstractTeamPane.php');
 
 /**
  * Edit the names of the teams based on preferences.
@@ -14,7 +14,7 @@ require_once('tscore/AbstractPane.php');
  * @author Dayan Paez
  * @created 2013-11-22
  */
-class EditTeamsPane extends AbstractPane {
+class EditTeamsPane extends AbstractTeamPane {
 
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Edit team names", $user, $reg);
