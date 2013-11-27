@@ -146,7 +146,7 @@ class UpdateSchool extends AbstractScript {
 
     // ------------------------------------------------------------
     // SCHOOL season summary
-    $table = array("Conference" => $school->conference,
+    $table = array(DB::g(STN::CONFERENCE_TITLE) => $school->conference,
                    "Number of Regattas" => $total);
     // "Finish percentile" => $avg;
     $season_link = new XA('/'.(string)$season.'/', $season->fullString());

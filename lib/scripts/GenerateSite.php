@@ -59,7 +59,7 @@ class GenerateSite extends AbstractScript {
       $P = new UpdateSchool();
 
       foreach (DB::getConferences() as $conf) {
-        self::errln(sprintf("  - Conference: %s", $conf));
+        self::errln(sprintf("  - %s: %s", DB::g(STN::CONFERENCE_TITLE), $conf));
         foreach ($conf->getSchools() as $school) {
           self::errln(sprintf("    - School: (%8s) %s", $school->id, $school));
           foreach ($seasons as $season) {

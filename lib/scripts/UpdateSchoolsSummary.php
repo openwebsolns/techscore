@@ -42,7 +42,7 @@ class UpdateSchoolsSummary extends AbstractScript {
     // Summary of each conference
     // count the number of regattas this school has teams in
     foreach ($confs as $conf) {
-      $page->addSection($p = new XPort($conf . " Conference"));
+      $page->addSection($p = new XPort($conf . " " . DB::g(STN::CONFERENCE_TITLE)));
       $p->set('id', $conf);
       $p->add($tab = new XQuickTable(array('class'=>'schools-table'), array("Mascot", "School", "City", "State")));
 
@@ -59,10 +59,10 @@ class UpdateSchoolsSummary extends AbstractScript {
       }
     }
 
-    $header = "Conferences";
+    $header = DB::g(STN::CONFERENCE_TITLE) . "s";
     if (($n = DB::g(STN::ORG_NAME)) !== null)
       $header = sprintf("%s %s", $n, $header);
-    $page->setHeader($header, array("# of Conferences" => count($confs), "# of Schools" => $num_schools));
+    $page->setHeader($header, array(sprintf("# of %ss", DB::g(STN::CONFERENCE_TITLE)) => count($confs), "# of Schools" => $num_schools));
 
     // Write to file!
     $f = '/schools/index.html';
