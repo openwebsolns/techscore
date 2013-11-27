@@ -95,7 +95,7 @@ class AllAmerican extends AbstractUserPane {
       $form->add(new FItem("Boat role:", XSelect::fromArray('role', array(RP::SKIPPER => "Skipper", RP::CREW => "Crew"))));
       $form->add(new FItem("Seasons:", $this->seasonList('', array($now, $then))));
 
-      $form->add($fi = new FItem("Conferences:", $this->conferenceList('conf-')));
+      $form->add($fi = new FItem(sprintf("%ss:", DB::g(STN::CONFERENCE_TITLE)), $this->conferenceList('conf-')));
       $fi->set('title', "Only choose sailors from selected conference(s) automatically. You can manually choose sailors from other divisions.");
 
       $form->add($fi = new FItem("Min. # Regattas", new XTextInput('min-regattas', 2, array('size'=>3, 'maxlength'=>3, 'style'=>'min-width:3em'))));
@@ -119,7 +119,7 @@ class AllAmerican extends AbstractUserPane {
         $p->add(new XP(array(), "Open or deleted a saved report by selecting from the table below and clicking the appropriate button."));
         $p->add($form = $this->createForm());
         $form->add($tab = new XQuickTable(array('id'=>'saved-aa-reports'),
-                                          array("", "Name", "Type", "Role", "Seasons", "Conferences", "Regs.", "Sailors")));
+                                          array("", "Name", "Type", "Role", "Seasons", sprintf("%ss", DB::g(STN::CONFERENCE_TITLE)), "Regs.", "Sailors")));
         $num_confs = count(DB::getConferences());
         foreach ($reports as $i => $report) {
           $id = 'ri-' . $report->id;
@@ -381,7 +381,7 @@ class AllAmerican extends AbstractUserPane {
       }
       if (count($this->AA['report-confs']) == 0) {
         DB::remove($report);
-        throw new SoterException("Chosen report is outdated and contains no valid conferences. Report has been removed.");
+        throw new SoterException(sprintf("Chosen report is outdated and contains no valid %ss. Report has been removed.", strtolower(DB::g(STN::CONFERENCE_TITLE))));
       }
 
       // Regattas

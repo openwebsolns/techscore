@@ -44,13 +44,13 @@ class SchoolParticipationReportPane extends AbstractUserPane {
         $pos_confs = array();
         foreach ($this->USER->getConferences() as $conf)
           $pos_confs[$conf->id] = $conf;
-        foreach (DB::$V->reqList($args, 'confs', null, "Missing conferences for report.") as $id) {
+        foreach (DB::$V->reqList($args, 'confs', null, sprintf("Missing %s for report.", DB::g(STN::CONFERENCE_TITLE))) as $id) {
           if (!isset($pos_confs[$id]))
-            throw new SoterException("Invalid conference provided: $id.");
+            throw new SoterException(sprintf("Invalid %s provided: %s.", DB::g(STN::CONFERENCE_TITLE), $id));
           $confs[$id] = $pos_confs[$id];
         }
         if (count($confs) == 0)
-          throw new SoterException("No conferences provided.");
+          throw new SoterException(sprintf("No %s provided.", DB::g(STN::CONFERENCE_TITLE)));
 
         $pos_types = array();
         foreach (DB::getAll(DB::$ACTIVE_TYPE) as $t)
@@ -113,7 +113,7 @@ class SchoolParticipationReportPane extends AbstractUserPane {
           throw new SoterException("No data available for chosen parameters.");
 
         $csv = "";
-        $row = array("Conference/School", "Events");
+        $row = array(sprintf("%s/School", DB::g(STN::CONFERENCE_TITLE)), "Events");
         foreach ($regattas as $reg) {
           $name = $reg->name;
           if (count($seasons) > 1)
@@ -168,13 +168,14 @@ class SchoolParticipationReportPane extends AbstractUserPane {
     // Step 1: choose seasons and other parameters
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new XPort("Choose parameters"));
-    $p->add(new XP(array(), "Use this form to create a report of school participation across different regattas. The report can be exported as a CSV file. The columns are the regattas that meet the criteria chosen below, and the rows are the schools that participated in those events (but only from the chosen conferences). The corresponding cell is the number of teams from that school in that regatta."));
+    $p->add(new XP(array(),
+                   sprintf("Use this form to create a report of school participation across different regattas. The report can be exported as a CSV file. The columns are the regattas that meet the criteria chosen below, and the rows are the schools that participated in those events (but only from the chosen %ss). The corresponding cell is the number of teams from that school in that regatta.", DB::g(STN::CONFERENCE_TITLE))));
     $p->add($form = $this->createForm(XForm::GET));
     $form->add(new FItem("Seasons:", $this->seasonList('sea-', $seasons)));
 
-    $form->add(new FItem("Conferences:", $this->conferenceList('conf-', $confs)));
-    $form->add($fi = new FItem("Limit to conferences:", $chk = new XCheckboxInput('within-confs', 1, array('id'=>'chk-limit'))));
-    $fi->add(new XLabel('chk-limit', "Only include regattas hosted by the conferences chosen above."));
+    $form->add(new FItem(sprintf("%ss:", DB::g(STN::CONFERENCE_TITLE)), $this->conferenceList('conf-', $confs)));
+    $form->add($fi = new FItem(sprintf("Limit to %ss:", DB::g(STN::CONFERENCE_TITLE)), $chk = new XCheckboxInput('within-confs', 1, array('id'=>'chk-limit'))));
+    $fi->add(new XLabel('chk-limit', sprintf("Only include regattas hosted by the %ss chosen above.", DB::g(STN::CONFERENCE_TITLE))));
     if ($limit > 0)
       $chk->set('checked', 'checked');
 
