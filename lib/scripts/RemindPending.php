@@ -34,6 +34,11 @@ class RemindPending extends AbstractScript {
   }
 
   public function run() {
+    if (DB::g(STN::MAIL_UNFINALIZED_REMINDER) === null) {
+      self::errln("No e-mail template for unfinalized reminder (MAIL_UNFINALIZED_REMINDER).");
+      return;
+    }
+
     $season = Season::forDate(DB::$NOW);
     if ($season === null) {
       self::errln("No current season.");
@@ -81,9 +86,10 @@ class RemindPending extends AbstractScript {
         $subject = (count($regattas[$id]) == 1) ?
           sprintf("[Techscore] Please finalized %s", $regattas[$id][0]->name) :
           "[Techscore] Please finalize your regattas";
-        DB::mail($user->id,
-                 $subject,
-                 $this->getMessage($user, $regattas[$id], $missing));
+        $mes = str_replace('{BODY}',
+                           $this->getMessage($user, $regattas[$id], $missing),
+                           DB::keywordReplace($user, DB::g(STN::MAIL_UNFINALIZED_REMINDER)));
+        DB::mail($user->id, $subject, $mes);
       }
       self::errln(sprintf("Sent email to %s (%s) regarding %d regatta(s).", $user, $user->id, count($regattas[$id])));
     }
@@ -98,28 +104,16 @@ class RemindPending extends AbstractScript {
    * each regatta
    */
   private function getMessage(Account $user, Array $regs, Array $missing) {
-    $body = sprintf("Dear %s,
-
-You are receiving this message because one or more of your regattas are not yet finalized. All official regattas *must* be finalized, and all RP information must be accounted for, in order to be included in reports and on the website.
-
-Below is a list of regattas that need your attention, as well as an indication of what needs to be addressed:
-
-",
-                    $user);
-    foreach ($regs as $reg) {
-      $body .= sprintf("%s\n", $reg->name);
+    $body = "";
+    foreach ($regs as $i => $reg) {
+      if ($i > 0)
+        $body .= "\n\n";
+      $body .= sprintf("%s", $reg->name);
       if ($missing[$reg->id] & self::PENDING)
-        $body .= sprintf("Finalize:   https://%s/score/%s/finalize\n", Conf::$HOME, $reg->id);
+        $body .= sprintf("\nFinalize:   https://%s/score/%s/finalize", Conf::$HOME, $reg->id);
       if ($missing[$reg->id] & self::MISSING_RP)
-        $body .= sprintf("Missing RP: https://%s/score/%s/missing\n", Conf::$HOME, $reg->id);
-      $body .= "\n";
+        $body .= sprintf("\nMissing RP: https://%s/score/%s/missing", Conf::$HOME, $reg->id);
     }
-    $body .= sprintf("Please take a minute to log in using the links above. If you have any questions, contact Danielle Richards at intersectionals@collegesailing.org.
-
-Thank you for your time,
---
-%s Administration",
-                     DB::g(STN::APP_NAME));
     return $body;
   }
 

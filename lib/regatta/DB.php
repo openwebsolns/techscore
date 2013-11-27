@@ -3328,6 +3328,7 @@ class STN extends DBObject {
   const MAIL_REGISTER_USER = 'mail_register_user';
   const MAIL_REGISTER_ADMIN = 'mail_register_admin';
   const MAIL_APPROVED_USER = 'mail_approved_user';
+  const MAIL_UNFINALIZED_REMINDER = 'mail_unfinalized_reminder';
 
   public $value;
   public function db_name() { return 'setting'; }

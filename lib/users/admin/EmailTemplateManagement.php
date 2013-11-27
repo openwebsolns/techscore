@@ -19,7 +19,9 @@ class EmailTemplateManagement extends AbstractAdminUserPane {
 
   private static $TEMPLATES = array(STN::MAIL_REGISTER_USER => "Account requested",
                                     STN::MAIL_REGISTER_ADMIN => "New user admin message",
-                                    STN::MAIL_APPROVED_USER => "Account approved");
+                                    STN::MAIL_APPROVED_USER => "Account approved",
+                                    STN::MAIL_UNFINALIZED_REMINDER => "Unfinalized regattas reminder",
+                                    );
 
   public function __construct(Account $user) {
     parent::__construct("E-mail templates", $user);
@@ -87,12 +89,22 @@ class EmailTemplateManagement extends AbstractAdminUserPane {
                      array("This is the message sent to users when the account is approved by an administrator. It ",
                            new XStrong("does not"),
                            " use a {BODY} section. Use this message to welcome the new user.")));
+      break;
+
+    case STN::MAIL_UNFINALIZED_REMINDER:
+      $p->add(new XP(array(),
+                     array("This is the weekly reminder e-mail message sent to scorers regarding any unfinalized regattas or regattas with missing RP information. An empty template means that no message will be sent. It ",
+                           new XStrong("requires"),
+                           " a ",
+                           new XVar("{BODY}"),
+                           " section, in which the list of regattas will appear.")));
+      break;
     }
 
     $p->add($this->keywordReplaceTable());
     $p->add($f = $this->createForm());
     $f->add(new XHiddenInput('template', $const));
-    $f->add(new FItem("Message body:", new XTextArea('content', DB::g($const), array('rows'=>16, 'cols'=>75, 'required'=>'required'))));
+    $f->add(new FItem("Message body:", new XTextArea('content', DB::g($const), array('rows'=>16, 'cols'=>75))));
     $f->add($fi = new XSubmitP('edit-template', "Save changes"));
     $fi->add(" ");
     $fi->add(new XA(WS::link('/' . $this->page_url), "Go back"));
@@ -111,8 +123,9 @@ class EmailTemplateManagement extends AbstractAdminUserPane {
 
       $req_body = array(STN::MAIL_REGISTER_USER,
                         STN::MAIL_REGISTER_ADMIN,
+                        STN::MAIL_UNFINALIZED_REMINDER,
                         );
-      if (in_array($templ, $req_body) && strpos($body, '{BODY}') === false)
+      if ($body !== null && in_array($templ, $req_body) && strpos($body, '{BODY}') === false)
         throw new SoterException("Missing {BODY} element for template.");
 
       if ($body == DB::g($templ))
