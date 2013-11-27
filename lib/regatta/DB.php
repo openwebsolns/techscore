@@ -3298,6 +3298,8 @@ class Role_Permission extends DBObject {
  */
 class STN extends DBObject {
   const APP_NAME = 'app_name';
+  const APP_VERSION = 'app_version';
+  const APP_COPYRIGHT = 'app_copyright';
   const TS_FROM_MAIL = 'ts_from_mail';
   const SAILOR_API_URL = 'sailor_api_url';
   const COACH_API_URL = 'coach_api_url';
@@ -3348,6 +3350,12 @@ class STN extends DBObject {
 
     case self::APP_NAME:
       return "Techscore";
+
+    case self::APP_VERSION:
+      return "3.3";
+
+    case self::APP_COPYRIGHT:
+      return "© OpenWeb Solutions, LLC 2008-2013";
 
     default:
       return null;

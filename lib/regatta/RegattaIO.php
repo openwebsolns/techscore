@@ -31,7 +31,7 @@ class RegattaIO {
     // Standard sections
     // ------------------------------------------------------------
     $root = new XElem("Regatta");
-    $root->set("version", Conf::$VERSION);
+    $root->set("version", DB::g(STN::APP_VERSION));
     $root->set("xmlns", "http://techscore.mit.edu");
     $root->set("tsid", $reg->id);
 

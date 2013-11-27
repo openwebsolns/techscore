@@ -333,7 +333,7 @@ UserVoice.push(["showTab", "classic_widget", {
     }
 
     // Copyright
-    $foot->add(new XAddress(array(), array(new XA('http://www.openweb-solutions.net', Conf::$COPYRIGHT))));
+    $foot->add(new XAddress(array(), array(new XA('http://www.openweb-solutions.net', DB::g(STN::APP_COPYRIGHT)))));
 
     $this->filled = true;
   }

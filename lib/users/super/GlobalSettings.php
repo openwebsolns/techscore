@@ -25,6 +25,8 @@ class GlobalSettings extends AbstractSuperUserPane {
     $p->add($f = $this->createForm());
 
     $f->add(new FItem("Application Name:", new XTextInput(STN::APP_NAME, DB::g(STN::APP_NAME), array('maxlength'=>50))));
+    $f->add(new FItem("Version:", new XTextInput(STN::APP_VERSION, DB::g(STN::APP_VERSION))));
+    $f->add(new FItem("Copyright:", new XTextInput(STN::APP_COPYRIGHT, DB::g(STN::APP_COPYRIGHT))));
     $f->add(new FItem("Send e-mails from:", new XTextInput(STN::TS_FROM_MAIL, DB::g(STN::TS_FROM_MAIL))));
 
     $f->add(new FItem("Sailor API URL:", new XInput('url', STN::SAILOR_API_URL, DB::g(STN::SAILOR_API_URL), array('size'=>60))));
@@ -40,10 +42,14 @@ class GlobalSettings extends AbstractSuperUserPane {
     if (isset($args['set-params'])) {
       $changed = false;
 
-      $val = DB::$V->reqString($args, STN::APP_NAME, 1, 51, "Invalid application name provided.");
-      if ($val != DB::g(STN::APP_NAME)) {
-        $changed = true;
-        DB::s(STN::APP_NAME, $val);
+      foreach (array(STN::APP_NAME => "application name",
+                     STN::APP_VERSION => "version",
+                     STN::APP_COPYRIGHT => "copyright") as $setting => $title) {
+        $val = DB::$V->reqString($args, $setting, 1, 51, sprintf("Invalid %s provided.", $title));
+        if ($val != DB::g($setting)) {
+          $changed = true;
+          DB::s($setting, $val);
+        }
       }
 
       $val = DB::$V->reqString($args, STN::TS_FROM_MAIL, 1, 1001, "No from address provided.");

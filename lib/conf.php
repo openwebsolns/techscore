@@ -15,9 +15,6 @@
  * @version 2012-01-06
  */
 class Conf {
-  public static $VERSION = '3.3';
-  public static $COPYRIGHT = '© OpenWeb Solutions, LLC 2008-2012';
-
   // Logging options
   public static $DIVERT_MAIL = 'dayan@localhost';
 

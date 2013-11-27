@@ -115,7 +115,7 @@ class TScorePage extends XPage {
 
     // Footer
     $this->body->add(new XDiv(array('id'=>'footdiv'),
-                              array(new XAddress(array(), array(sprintf("%s v%s %s", DB::g(STN::APP_NAME), Conf::$VERSION, Conf::$COPYRIGHT))))));
+                              array(new XAddress(array(), array(sprintf("%s v%s %s", DB::g(STN::APP_NAME), DB::g(STN::APP_VERSION), DB::g(STN::APP_COPYRIGHT)))))));
   }
 
   /**

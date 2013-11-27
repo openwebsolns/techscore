@@ -25,7 +25,7 @@ class TRegattaFeed extends AtomFeed {
 
     $updated = new AtomUpdated(DB::$NOW);
     $author = new AtomAuthor(sprintf("%s Scores", DB::g(STN::ORG_NAME)), $url);
-    $rights = new AtomRights(Conf::$COPYRIGHT);
+    $rights = new AtomRights(DB::g(STN::APP_COPYRIGHT));
 
     $this->add($author);
     $this->add($updated);
