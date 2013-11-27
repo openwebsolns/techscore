@@ -37,6 +37,8 @@ class SoterException extends Exception {
   const FILE_OUT_OF_BOUNDS = 32768;
   const NO_FILE = 65536;
   const REGEX = 131072;
+  const EMAIL_MISS = 111;
+  const EMAIL_NONE = 112;
 }
 
 /**
@@ -369,6 +371,26 @@ class Soter {
     return $matches;
   }
 
+  /**
+   * Requires that $args[$key] exist and be a real e-mail address.
+   *
+   * This function uses PHP's internal filter_var method for its
+   * magic.
+   *
+   * @param Array $args the list in which to check for $key
+   * @param String $key the key
+   * @param String $mes the exception message upon failure
+   * @return String the email address
+   * @throws SoterException
+   */
+  final public function reqEmail(Array $args, $key, $mes = "GSE") {
+    if (!isset($args[$key]) || !is_string($args[$key]) || strlen($args[$key]) == 0)
+      throw new SoterException($mes, SoterException::EMAIL_MISS);
+    if (($email = filter_var($args[$key], FILTER_VALIDATE_EMAIL)) === false)
+      throw new SoterException($mes, SoterException::EMAIL_NONE);
+    return $email;
+  }
+
   // ------------------------------------------------------------
   // Include wrappers
   // ------------------------------------------------------------
@@ -490,6 +512,15 @@ class Soter {
   final public function incRE(Array $args, $key, $regex, Array $default = array()) {
     try {
       return $this->reqRE($args, $key, $regex);
+    }
+    catch (SoterException $e) {
+      return $default;
+    }
+  }
+
+  final public function incEmail(Array $args, $key, $default = null) {
+    try {
+      return $this->reqEmail($args, $key);
     }
     catch (SoterException $e) {
       return $default;

@@ -256,12 +256,12 @@ class DB extends DBM {
    * @return boolean the result, as returned by mail
    */
   public static function mail($to, $subject, $body, $wrap = true, Array $extra_headers = array()) {
-    if (Conf::$DIVERT_MAIL !== null) {
+    if (DB::g(STN::DIVERT_MAIL) !== null) {
       $meant = $to;
       if (is_array($to))
         $meant = implode(", ", $to);
       $body = "Message meant for $meant\n\n" . $body;
-      $to = Conf::$DIVERT_MAIL;
+      $to = DB::g(STN::DIVERT_MAIL);
       $subject = 'DIVERTED: ' . $subject;
     }
     if ($wrap)
@@ -292,8 +292,8 @@ class DB extends DBM {
    * @return boolean the result, as returned by mail
    */
   public static function multipartMail($to, $subject, Array $parts) {
-    if (Conf::$DIVERT_MAIL !== null) {
-      $to = Conf::$DIVERT_MAIL;
+    if (DB::g(STN::DIVERT_MAIL) !== null) {
+      $to = DB::g(STN::DIVERT_MAIL);
       $subject = 'DIVERTED: ' . $subject;
     }
 
@@ -3305,6 +3305,7 @@ class STN extends DBObject {
   const COACH_API_URL = 'coach_api_url';
   const SCHOOL_API_URL = 'school_api_url';
   const HELP_HOME = 'help_home';
+  const DIVERT_MAIL = 'divert_mail';
 
   const TWITTER_URL_LENGTH = 'twitter_url_length';
   const SEND_MAIL = 'send_mail';

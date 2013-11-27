@@ -15,10 +15,6 @@
  * @version 2012-01-06
  */
 class Conf {
-  // Logging options
-  public static $DIVERT_MAIL = 'dayan@localhost';
-
-  // General constants
   /**
    * @var String the hostname (sans protocol) for the scoring
    */

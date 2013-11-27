@@ -29,6 +29,8 @@ class GlobalSettings extends AbstractSuperUserPane {
     $f->add(new FItem("Copyright:", new XTextInput(STN::APP_COPYRIGHT, DB::g(STN::APP_COPYRIGHT))));
     $f->add(new FItem("Send e-mails from:", new XTextInput(STN::TS_FROM_MAIL, DB::g(STN::TS_FROM_MAIL))));
 
+    $f->add(new FItem("Divert e-mails to:", new XInput('email', STN::DIVERT_MAIL, DB::g(STN::DIVERT_MAIL)), "For production, this value should be blank"));
+
     $f->add(new FItem("Sailor API URL:", new XInput('url', STN::SAILOR_API_URL, DB::g(STN::SAILOR_API_URL), array('size'=>60))));
     $f->add(new FItem("Coach API URL:", new XInput('url', STN::COACH_API_URL, DB::g(STN::COACH_API_URL), array('size'=>60))));
     $f->add(new FItem("School API URL:", new XInput('url', STN::SCHOOL_API_URL, DB::g(STN::SCHOOL_API_URL), array('size'=>60))));
@@ -45,7 +47,7 @@ class GlobalSettings extends AbstractSuperUserPane {
       foreach (array(STN::APP_NAME => "application name",
                      STN::APP_VERSION => "version",
                      STN::APP_COPYRIGHT => "copyright") as $setting => $title) {
-        $val = DB::$V->reqString($args, $setting, 1, 51, sprintf("Invalid %s provided.", $title));
+        $val = DB::$V->reqString($args, $setting, 1, 101, sprintf("Invalid %s provided.", $title));
         if ($val != DB::g($setting)) {
           $changed = true;
           DB::s($setting, $val);
@@ -56,6 +58,12 @@ class GlobalSettings extends AbstractSuperUserPane {
       if ($val != DB::g(STN::TS_FROM_MAIL)) {
         $changed = true;
         DB::s(STN::TS_FROM_MAIL, $val);
+      }
+
+      $val = DB::$V->incString($args, STN::DIVERT_MAIL, 1, 101);
+      if ($val != DB::g(STN::DIVERT_MAIL)) {
+        $changed = true;
+        DB::s(STN::DIVERT_MAIL, $val);
       }
 
       foreach (array(STN::SAILOR_API_URL,
