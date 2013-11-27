@@ -3307,6 +3307,8 @@ class STN extends DBObject {
   const HELP_HOME = 'help_home';
   const DIVERT_MAIL = 'divert_mail';
   const SCORING_OPTIONS = 'scoring_options';
+  const CONFERENCE_TITLE = 'conference_title';
+  const CONFERENCE_SHORT = 'conference_short';
 
   const TWITTER_URL_LENGTH = 'twitter_url_length';
   const SEND_MAIL = 'send_mail';
@@ -3361,6 +3363,12 @@ class STN extends DBObject {
 
     case self::SCORING_OPTIONS:
       return sprintf("%s\0%s\0%s", Regatta::SCORING_STANDARD, Regatta::SCORING_COMBINED, Regatta::SCORING_TEAM);
+
+    case self::CONFERENCE_TITLE:
+      return "Conference";
+
+    case self::CONFERENCE_SHORT:
+      return "Conf.";
 
     default:
       return null;

@@ -29,6 +29,9 @@ class GlobalSettings extends AbstractSuperUserPane {
     $f->add(new FItem("Copyright:", new XTextInput(STN::APP_COPYRIGHT, DB::g(STN::APP_COPYRIGHT))));
     $f->add(new FItem("Send e-mails from:", new XTextInput(STN::TS_FROM_MAIL, DB::g(STN::TS_FROM_MAIL))));
 
+    $f->add(new FItem("Conference name:", new XTextInput(STN::CONFERENCE_TITLE, DB::g(STN::CONFERENCE_TITLE))));
+    $f->add(new FItem("Conf. abbreviation:", new XTextInput(STN::CONFERENCE_SHORT, DB::g(STN::CONFERENCE_SHORT))));
+
     $f->add(new FItem("Divert e-mails to:", new XInput('email', STN::DIVERT_MAIL, DB::g(STN::DIVERT_MAIL)), "For production, this value should be blank"));
 
     $f->add(new FItem("Sailor API URL:", new XInput('url', STN::SAILOR_API_URL, DB::g(STN::SAILOR_API_URL), array('size'=>60))));
@@ -58,6 +61,8 @@ class GlobalSettings extends AbstractSuperUserPane {
       $changed = false;
 
       foreach (array(STN::APP_NAME => "application name",
+                     STN::CONFERENCE_TITLE => "conference title",
+                     STN::CONFERENCE_SHORT => "conference abbreviation",
                      STN::APP_VERSION => "version",
                      STN::APP_COPYRIGHT => "copyright") as $setting => $title) {
         $val = DB::$V->reqString($args, $setting, 1, 101, sprintf("Invalid %s provided.", $title));
