@@ -3306,6 +3306,7 @@ class STN extends DBObject {
   const SCHOOL_API_URL = 'school_api_url';
   const HELP_HOME = 'help_home';
   const DIVERT_MAIL = 'divert_mail';
+  const SCORING_OPTIONS = 'scoring_options';
 
   const TWITTER_URL_LENGTH = 'twitter_url_length';
   const SEND_MAIL = 'send_mail';
@@ -3357,6 +3358,9 @@ class STN extends DBObject {
 
     case self::APP_COPYRIGHT:
       return "© OpenWeb Solutions, LLC 2008-2013";
+
+    case self::SCORING_OPTIONS:
+      return sprintf("%s\0%s\0%s", Regatta::SCORING_STANDARD, Regatta::SCORING_COMBINED, Regatta::SCORING_TEAM);
 
     default:
       return null;

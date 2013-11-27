@@ -37,6 +37,19 @@ class GlobalSettings extends AbstractSuperUserPane {
 
     $f->add(new FItem("Help base URL:", new XInput('url', STN::HELP_HOME, DB::g(STN::HELP_HOME), array('size'=>60))));
 
+    // Scoring options
+    $n = STN::SCORING_OPTIONS . '[]';
+    $lst = Regatta::getScoringOptions();
+    foreach (array(Regatta::SCORING_STANDARD => "Standard fleet scoring",
+                   Regatta::SCORING_COMBINED => "Combined fleet scoring",
+                   Regatta::SCORING_TEAM => "Team racing") as $setting => $desc) {
+      $id = 'chk-' . $setting;
+      $f->add($fi = new FItem("", $chk = new XCheckboxInput($n, $setting, array('id'=>$id))));
+      $fi->add(new XLabel($id, sprintf("Allow %s", $desc)));
+      if (isset($lst[$setting]))
+        $chk->set('checked', 'checked');
+    }
+
     $f->add(new XSubmitP('set-params', "Save changes"));
   }
 
@@ -76,6 +89,30 @@ class GlobalSettings extends AbstractSuperUserPane {
           DB::s($setting, $val[0]);
         }
       }
+
+      // Scoring options
+      $opts = array();
+      $list = DB::$V->reqList($args, STN::SCORING_OPTIONS, null, "No list of scoring options provided.");
+      $is_different = false;
+      $current = Regatta::getScoringOptions();
+      $valid = array(Regatta::SCORING_STANDARD,
+                     Regatta::SCORING_COMBINED,
+                     Regatta::SCORING_TEAM);
+      foreach ($list as $opt) {
+        if (!in_array($opt, $valid))
+          throw new SoterException("Invalid scoring option provided: $opt.");
+        if (!isset($current[$opt]))
+          $is_different = true;
+        else
+          unset($current[$opt]);
+        $opts[] = $opt;
+      }
+      if (count($opts) == 0)
+        throw new SoterException("No scoring options makes for a useless program.");
+      if ($is_different || count($current) > 0) {
+        $changed = true;
+        DB::s(STN::SCORING_OPTIONS, implode("\0", $opts));
+      }      
 
       if (!$changed)
         throw new SoterException("No changes to save.");

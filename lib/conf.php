@@ -60,14 +60,6 @@ class Conf {
   public static $DEBUG_USERS = null;
 
   /**
-   * @var Array the list of scoring NOT to allow. This will prevent
-   * the creation or changing of a regatta scoring to one of these
-   * values. It will NOT prevent the display or editing of those
-   * regattas.
-   */
-  public static $REGATTA_SCORING_BLACKLIST = array();
-
-  /**
    * @var Array the list of class names of AbstractWriter's which
    * should be used when creating the public pages. These class names
    * should correspond with writers/<classname>.php files. If empty,

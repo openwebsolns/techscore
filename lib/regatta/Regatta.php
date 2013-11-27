@@ -69,11 +69,17 @@ class FullRegatta extends DBObject {
    * @return Array a dict of scoring rules
    */
   public static function getScoringOptions() {
-    $lst = array(Regatta::SCORING_STANDARD => "Standard",
-                 Regatta::SCORING_COMBINED => "Combined divisions",
-                 Regatta::SCORING_TEAM => "Team racing");
-    foreach (Conf::$REGATTA_SCORING_BLACKLIST as $rem)
-      unset($lst[$rem]);
+    $lst = array();
+    foreach (explode("\0", DB::g(STN::SCORING_OPTIONS)) as $opt) {
+      $n = null;
+      switch ($opt) {
+      case Regatta::SCORING_STANDARD: $n = "Standard"; break;
+      case Regatta::SCORING_COMBINED: $n = "Combined divisions"; break;
+      case Regatta::SCORING_TEAM:     $n = "Team racing"; break;
+      default:                        $n = ucfirst($opt);
+      }
+      $lst[$opt] = $n;
+    }
     return $lst;
   }
 
