@@ -53,7 +53,7 @@ class BillingReport extends AbstractAdminUserPane {
         $pos_confs = array();
         foreach ($this->USER->getConferences() as $conf)
           $pos_confs[$conf->id] = $conf;
-        foreach (DB::$V->reqList($args, 'confs', null, "Missing conferences for report.") as $id) {
+        foreach (DB::$V->reqList($args, 'confs', null, sprintf("Missing %ss for report.", strtolower(DB::g(STN::CONFERENCE_TITLE)))) as $id) {
           if (!isset($pos_confs[$id]))
             throw new SoterException("Invalid conference provided: $id.");
           $confs[$id] = $pos_confs[$id];
@@ -114,7 +114,7 @@ class BillingReport extends AbstractAdminUserPane {
         }
 
         $csv = "";
-        $row = array("School", "Conf.", "Total", "# of Regattas", "List of regattas");
+        $row = array("School", DB::g(STN::CONFERENCE_SHORT), "Total", "# of Regattas", "List of regattas");
         $this->rowCSV($csv, $row);
 
         foreach ($schools as $id => $school) {
@@ -151,7 +151,7 @@ class BillingReport extends AbstractAdminUserPane {
     $p->add(new XP(array(), "Each row in this CSV report represents a different school from the conference(s) chosen below. The columns are:"));
     $p->add(new XUl(array(),
                     array(new XLi("School name"),
-                          new XLi("Conference"),
+                          new XLi(DB::g(STN::CONFERENCE_TITLE)),
                           new XLi(new XEm("Billing total")),
                           new XLi("# of regattas attended"),
                           new XLi("List of regattas attended"))));
@@ -159,7 +159,7 @@ class BillingReport extends AbstractAdminUserPane {
 
     $p->add($form = $this->createForm(XForm::GET));
     $form->add(new FItem("Seasons:", $this->seasonList('sea-', $seasons)));
-    $form->add(new FItem("Conferences:", $this->conferenceList('conf-', $confs)));
+    $form->add(new FItem(sprintf("%ss:", DB::g(STN::CONFERENCE_TITLE)), $this->conferenceList('conf-', $confs)));
 
     $form->add(new FItem("Regatta types:", $ul = new XUl(array('class'=>'inline-list'))));
     foreach (DB::getAll(DB::$ACTIVE_TYPE) as $t) {

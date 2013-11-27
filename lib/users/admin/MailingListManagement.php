@@ -52,8 +52,8 @@ class MailingListManagement extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     $confs = DB::getConferences();
     if (count($confs) > 0) {
-      $this->PAGE->addContent($p = new XPort("Conference mailing lists"));
-      $p->add(new XP(array(), "For each conference, specify the e-mail addresses (one per line) which will receive the daily summary messages."));
+      $this->PAGE->addContent($p = new XPort(sprintf("%s mailing lists", DB::g(STN::COFERENCE_TITLE))));
+      $p->add(new XP(array(), sprintf("For each %s, specify the e-mail addresses (one per line) which will receive the daily summary messages.", DB::g(STN::CONFERENCE_TITLE))));
 
       foreach ($confs as $conf) {
         $p->add($f = $this->createForm());

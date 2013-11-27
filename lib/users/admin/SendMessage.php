@@ -85,7 +85,7 @@ class SendMessage extends AbstractAdminUserPane {
 
     // conference
     $p->add($f = $this->createForm(XForm::GET));
-    $f->add($fi = new FItem("All users in conference:", $sel = new XSelectM('list[]')));
+    $f->add($fi = new FItem(sprintf("All users in %s:", DB::g(STN::CONFERENCE_TITLE)), $sel = new XSelectM('list[]')));
     $fi->add(" ");
     $fi->add(new XSubmitInput('recipients', "Write message →"));
     $fi->add(new XHiddenInput('axis', Outbox::R_CONF));
@@ -153,7 +153,7 @@ class SendMessage extends AbstractAdminUserPane {
 
       // conference
     case Outbox::R_CONF:
-      $title = "2. Send message to users from conference(s)";
+      $title = sprintf("2. Send message to users from %s(s)", DB::g(STN::CONFERENCE_TITLE));
       $recip = implode(", ", $out->arguments);
       break;
 
