@@ -112,7 +112,7 @@ class RpEnterPane extends AbstractPane {
       $sailor_options[$key][$s->id] = (string)$s;
 
     // Other schools?
-    if (DB::g(STN::ALLOW_CROSS_RP)) {
+    if (!$this->REGATTA->isSingleHanded() && DB::g(STN::ALLOW_CROSS_RP)) {
       foreach ($this->REGATTA->getTeams() as $team) {
 	$key = $team->school->nick_name;
 	if (!isset($sailor_options[$key])) {
@@ -291,7 +291,7 @@ class RpEnterPane extends AbstractPane {
         $sailors[$sailor->id] = $sailor;
 
       // Other schools?
-      if (DB::g(STN::ALLOW_CROSS_RP)) {
+      if (!$this->REGATTA->isSingleHanded() && DB::g(STN::ALLOW_CROSS_RP)) {
 	$done = array($team->school->id => 1);
 	foreach ($this->REGATTA->getTeams() as $other) {
 	  if (!isset($done[$other->school->id])) {
