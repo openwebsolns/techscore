@@ -3093,7 +3093,7 @@ class Text_Entry extends DBObject {
    * @return Map
    */
   public static function getSections() {
-    return array(self::ANNOUNCEMENTS => "Announcements",
+    return array(self::ANNOUNCEMENTS => "Announcement",
                  self::REGISTER_MESSAGE => "Registration Message",
                  self::EULA => "EULA",
                  self::WELCOME => "Public Welcome",

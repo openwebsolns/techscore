@@ -140,13 +140,13 @@ abstract class AbstractUserPane {
                                                         new XLi(new XA("/logged-in", "Logged-in")),
                                                         )))));
       $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
-                                    array(new XH4("Configure"),
+                                    array(new XH4("Text"),
                                           $ul = new XUl())));
       foreach (Text_Entry::getSections() as $sec => $title)
         $ul->add(new XLi(new XA(WS::link(sprintf('/text/%s', $sec)), $title)));
 
       $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
-                                    array(new XH4("Public site"),
+                                    array(new XH4("Configure"),
                                           new XUl(array(),
                                                   array(
                                                         new XLi(new XA("/social", "Social settings")),
