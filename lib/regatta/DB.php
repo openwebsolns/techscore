@@ -3310,6 +3310,7 @@ class STN extends DBObject {
   const SCORING_OPTIONS = 'scoring_options';
   const CONFERENCE_TITLE = 'conference_title';
   const CONFERENCE_SHORT = 'conference_short';
+  const ALLOW_CROSS_RP = 'allow_cross_rp';
 
   const TWITTER_URL_LENGTH = 'twitter_url_length';
   const SEND_MAIL = 'send_mail';

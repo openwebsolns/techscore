@@ -53,6 +53,11 @@ class GlobalSettings extends AbstractSuperUserPane {
         $chk->set('checked', 'checked');
     }
 
+    $f->add($fi = new FItem("Allow cross RP?", $chk = new XCheckboxInput(STN::ALLOW_CROSS_RP, 1, array('id'=>'chk-' . STN::ALLOW_CROSS_RP))));
+    $fi->add(new XLabel('chk-' . STN::ALLOW_CROSS_RP, "RP entries may contain teams from other schools in the regatta."));
+    if (DB::g(STN::ALLOW_CROSS_RP) !== null)
+      $chk->set('checked', 'checked');
+
     $f->add(new XSubmitP('set-params', "Save changes"));
   }
 
@@ -117,7 +122,13 @@ class GlobalSettings extends AbstractSuperUserPane {
       if ($is_different || count($current) > 0) {
         $changed = true;
         DB::s(STN::SCORING_OPTIONS, implode("\0", $opts));
-      }      
+      }
+
+      $val = DB::$V->incInt($args, STN::ALLOW_CROSS_RP, 1, 2);
+      if ($val != DB::g(STN::ALLOW_CROSS_RP)) {
+	$changed = true;
+	DB::s(STN::ALLOW_CROSS_RP, $val);
+      }
 
       if (!$changed)
         throw new SoterException("No changes to save.");

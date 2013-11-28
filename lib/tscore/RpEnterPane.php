@@ -103,14 +103,30 @@ class RpEnterPane extends AbstractPane {
     $sailors = $chosen_team->school->getSailors($gender, $active);
     $un_slrs = $chosen_team->school->getUnregisteredSailors($gender);
 
-    $sailor_options = array("" => "",
-                            "Sailors" => array(),
-                            "Non-Registered" => array(),
-                            "No-show" => array('NULL' => "No show"));
+    $key = $chosen_team->school->nick_name;
+    $sailor_options = array("" => "", $key => array());
+    
     foreach ($sailors as $s)
-      $sailor_options["Sailors"][$s->id] = (string)$s;
+      $sailor_options[$key][$s->id] = (string)$s;
     foreach ($un_slrs as $s)
-      $sailor_options["Non-Registered"][$s->id] = (string)$s;
+      $sailor_options[$key][$s->id] = (string)$s;
+
+    // Other schools?
+    if (DB::g(STN::ALLOW_CROSS_RP)) {
+      foreach ($this->REGATTA->getTeams() as $team) {
+	$key = $team->school->nick_name;
+	if (!isset($sailor_options[$key])) {
+	  $sailor_options[$key] = array();
+	  foreach ($team->school->getSailors($gender, $active) as $s)
+	    $sailor_options[$key][$s->id] = (string)$s;
+	  foreach ($team->school->getUnregisteredSailors($gender, $active) as $s)
+	    $sailor_options[$key][$s->id] = (string)$s;
+	}
+      }
+    }
+
+    // No show option
+    $sailor_options["No-show"] = array('NULL' => "No show");
 
     // Representative
     $rep = $rpManager->getRepresentative($chosen_team);
@@ -273,6 +289,21 @@ class RpEnterPane extends AbstractPane {
         $sailors[$sailor->id] = $sailor;
       foreach ($team->school->getUnregisteredSailors($gender) as $sailor)
         $sailors[$sailor->id] = $sailor;
+
+      // Other schools?
+      if (DB::g(STN::ALLOW_CROSS_RP)) {
+	$done = array($team->school->id => 1);
+	foreach ($this->REGATTA->getTeams() as $other) {
+	  if (!isset($done[$other->school->id])) {
+	    $done[$other->school->id] = 1;
+	    foreach ($other->school->getSailors($gender, $active) as $s)
+	      $sailors[$s->id] = $s;
+	    foreach ($other->school->getUnregisteredSailors($gender, $active) as $s)
+	      $sailors[$s->id] = $s;
+	  }
+	}
+      }
+
 
       // Insert representative
       $rpManager->setRepresentative($team, DB::$V->incString($args, 'rep', 1, 256, null));
