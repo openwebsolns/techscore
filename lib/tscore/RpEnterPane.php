@@ -113,13 +113,13 @@ class RpEnterPane extends AbstractPane {
 
     // Other schools?
     if (!$this->REGATTA->isSingleHanded() && DB::g(STN::ALLOW_CROSS_RP)) {
-      foreach ($this->REGATTA->getTeams() as $team) {
-	$key = $team->school->nick_name;
+      foreach ($this->REGATTA->getSchools() as $other) {
+	$key = $other->nick_name;
 	if (!isset($sailor_options[$key])) {
 	  $sailor_options[$key] = array();
-	  foreach ($team->school->getSailors($gender, $active) as $s)
+	  foreach ($other->getSailors($gender, $active) as $s)
 	    $sailor_options[$key][$s->id] = (string)$s;
-	  foreach ($team->school->getUnregisteredSailors($gender, $active) as $s)
+	  foreach ($other->getUnregisteredSailors($gender, $active) as $s)
 	    $sailor_options[$key][$s->id] = (string)$s;
 	}
       }
@@ -292,13 +292,11 @@ class RpEnterPane extends AbstractPane {
 
       // Other schools?
       if (!$this->REGATTA->isSingleHanded() && DB::g(STN::ALLOW_CROSS_RP)) {
-	$done = array($team->school->id => 1);
-	foreach ($this->REGATTA->getTeams() as $other) {
-	  if (!isset($done[$other->school->id])) {
-	    $done[$other->school->id] = 1;
-	    foreach ($other->school->getSailors($gender, $active) as $s)
+	foreach ($this->REGATTA->getSchools() as $other) {
+	  if ($other->id != $team->school->id) {
+	    foreach ($other->getSailors($gender, $active) as $s)
 	      $sailors[$s->id] = $s;
-	    foreach ($other->school->getUnregisteredSailors($gender, $active) as $s)
+	    foreach ($other->getUnregisteredSailors($gender, $active) as $s)
 	      $sailors[$s->id] = $s;
 	  }
 	}

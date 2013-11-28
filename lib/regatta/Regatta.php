@@ -360,6 +360,16 @@ class FullRegatta extends DBObject {
   }
 
   /**
+   * Gets a list of schools in the regatta
+   *
+   * @return Array:School the schools
+   */
+  public function getSchools() {
+    return DB::getAll(DB::$SCHOOL,
+		      new DBCondIn('id', DB::prepGetAll(DB::$TEAM, new DBCond('regatta', $this->id), array('school'))));
+  }
+
+  /**
    * Gets a list of team objects for this regatta.
    *
    * @param School $school the optional school whose teams to return
