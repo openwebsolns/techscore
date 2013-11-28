@@ -90,6 +90,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
                                                                    $penalty_th = new XTH(),
                                                                    new XTH(array(), "Total"),
                                                                    new XTH(array(), "Sailors"),
+								   new XTH(array(), ""),
                                                                    new XTH(array(), ""))))),
                                     $tab = new XTBody())));
     $has_penalties = false;
@@ -98,6 +99,8 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
     //  - keep track of different ranks and tiebrakers
     $tiebreakers = array("" => "");
     $ranks = $this->REGATTA->getRanks($division);
+
+    $outside_sailors = array();
 
     if (count($ranks) == 0)
       return array();
@@ -162,6 +165,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
         if (count($sailors) == 0) {
           $headerRows[$index]->add(new XTD()); // name
           $headerRows[$index]->add(new XTD()); // races
+	  $headerRows[$index]->add(new XTD()); // outside sailors
         }
         foreach ($sailors as $s) {
           if ($is_first) {
@@ -178,8 +182,16 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
             $amt = "";
           else
             $amt = DB::makeRange($s->races_nums);
-          $row->add($s_cell = new XTD(array('class'=>'sailor-name'), $s->getSailor(true)));
-          $row->add($r_cell = new XTD(array('class'=>'races'), $amt));
+
+	  $sup = "";
+	  if ($s->sailor !== null && $s->sailor->school != $rank->team->school) {
+	    if (!isset($outside_sailors[$s->sailor->school->nick_name]))
+	      $outside_sailors[$s->sailor->school->nick_name] = count($outside_sailors) + 1;
+	    $sup = $outside_sailors[$s->sailor->school->nick_name];
+	  }
+          $row->add(new XTD(array('class'=>'sailor-name'), $s->getSailor(true)));
+          $row->add(new XTD(array('class'=>'races'), $amt));
+	  $row->add(new XTD(array('class'=>'superscript'), $sup));
         }
 
         // Add rows
@@ -203,8 +215,8 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
     }
 
     // Print tiebreakers $table
-    if (count($tiebreakers) > 1)
-      $ELEMS[] = $this->getLegend($tiebreakers);
+    if (count($tiebreakers) > 1 || count($outside_sailors) > 0)
+      $ELEMS[] = $this->getLegend($tiebreakers, $outside_sailors);
     return $ELEMS;
   }
 }

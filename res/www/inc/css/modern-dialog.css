@@ -422,3 +422,7 @@ td.tr-sail {
 .noshow {
     font-style: italic;
 }
+
+.tiebreaker thead th, .tiebreaker .explanation {
+    text-align: left;
+}
