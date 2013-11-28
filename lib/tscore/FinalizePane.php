@@ -75,8 +75,7 @@ class FinalizePane extends AbstractPane {
     // RP
     $mess = "All RP info is present.";
     $icon = $VALID;
-    $rpm = $this->REGATTA->getRpManager();
-    if (!$rpm->isComplete()) {
+    if (!$this->REGATTA->isRpComplete()) {
       $mess = array("There is ",
                     new XA($this->link('missing'), "missing RP"),
                     " information. Note that this may be edited after finalization.");

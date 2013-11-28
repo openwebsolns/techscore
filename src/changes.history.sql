@@ -670,3 +670,6 @@ alter table regatta_document add column width mediumint unsigned default null, a
 
 -- remove incorrectly defined team name preferences
 delete from team_name_prefs where name regexp ' [0-9]+$';
+
+-- cache rp completeness for teams
+alter table team add column dt_complete_rp tinyint default null;

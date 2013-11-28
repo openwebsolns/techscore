@@ -351,6 +351,7 @@ class RpEnterPane extends AbstractPane {
 
       // insert all!
       $rpManager->setRP($rps);
+      $rpManager->setCacheComplete($team);
       $rpManager->updateLog();
 
       // Announce

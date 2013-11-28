@@ -133,7 +133,7 @@ class MembershipReport extends AbstractUserPane {
 
                 $rp = $reg->getRpManager();
                 foreach ($reg->getTeams($school) as $team) {
-                  if (!$rp->isComplete($team))
+                  if ($team->dt_complete_rp === null)
                     continue;
 
                   if (!$rp->hasGender(Sailor::MALE, $team)) {
@@ -179,7 +179,7 @@ class MembershipReport extends AbstractUserPane {
 
               $rp = $reg->getRpManager();
               foreach ($reg->getTeams($school) as $team) {
-                if ($rp->isComplete($team)) {
+                if ($team->dt_complete_rp !== null) {
                   $coed = $reg;
                   break;
                 }

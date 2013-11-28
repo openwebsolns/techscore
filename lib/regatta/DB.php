@@ -1585,6 +1585,7 @@ class Team extends DBObject {
   public $dt_wins;
   public $dt_losses;
   public $dt_ties;
+  public $dt_complete_rp;
 
   public function db_name() { return 'team'; }
   protected function db_order() { return array('school'=>true, 'id'=>true); }

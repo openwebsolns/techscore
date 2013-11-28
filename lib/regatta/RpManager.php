@@ -261,6 +261,16 @@ class RpManager {
     return (count($tot) >= $sum);
   }
 
+  public function setCacheComplete(Team $team) {
+    $val = null;
+    if ($this->isComplete($team))
+      $val = 1;
+    if ($val != $team->dt_complete_rp) {
+      $team->dt_complete_rp = $val;
+      DB::set($team);
+    }
+  }
+
   /**
    * Convenience method returns the maximum number of crews
    *
@@ -303,6 +313,10 @@ class RpManager {
   public function reset(Team $team) {
     DB::removeAll(DB::$RP_ENTRY, new DBCond('team', $team));
     DB::removeAll(DB::$REPRESENTATIVE, new DBCond('team', $team));
+    if ($team->dt_complete_rp !== null) {
+      $team->dt_complete_rp = null;
+      DB::set($team);
+    }
   }
 
   // RP form functions

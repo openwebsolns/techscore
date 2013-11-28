@@ -94,8 +94,7 @@ class ProcessOutbox extends AbstractScript {
               $list[] = $reg;
             }
             if (in_array(Outbox::STATUS_MISSING_RP, $outbox->arguments)) {
-              $rp = $reg->getRpManager();
-              if (!$rp->isComplete()) {
+	      if (!$reg->isRpComplete()) {
                 self::errln(sprintf("Adding scorers from regatta %s for missing RP.", $reg->name), 3);
                 $list[] = $reg;
               }

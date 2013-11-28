@@ -69,12 +69,11 @@ class UserRegattaTable extends XTable {
     $finalized = '--';
     if ($reg->finalized !== null) {
       $is_complete = true;
-      $rpm = $reg->getRpManager();
 
       if ($is_participant) {
         foreach ($this->schools as $school) {
           foreach ($reg->getTeams($school) as $team) {
-            if (!$rpm->isComplete($team)) {
+            if ($team->dt_complete_rp === null) {
               $finalized = new XA(WS::link(sprintf('/score/%s/rp?chosen_team=%s', $reg->id, $team->id)), "Missing RP",
                                   array('class'=>'stat missing-rp',
                                         'title'=>"At least one skipper/crew is missing."));
@@ -86,7 +85,7 @@ class UserRegattaTable extends XTable {
             break;
         }
       }
-      elseif (!$rpm->isComplete()) {
+      elseif (!$reg->isRpComplete()) {
         $is_complete = false;
         $finalized = new XA(WS::link(sprintf('/score/%s/missing-rp', $reg->id)), "Missing RP",
                             array('class'=>'stat missing-rp',

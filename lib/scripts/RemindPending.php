@@ -55,8 +55,7 @@ class RemindPending extends AbstractScript {
       $notify = 0;
       if ($reg->end_date < $threshold && $reg->hasFinishes() && $reg->finalized === null)
         $notify |= self::PENDING;
-      $rp = $reg->getRpManager();
-      if (!$rp->isComplete())
+      if (!$reg->isRpComplete())
         $notify |= self::MISSING_RP;
 
       if ($notify > 0) {

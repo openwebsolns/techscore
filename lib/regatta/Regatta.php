@@ -1603,6 +1603,20 @@ class FullRegatta extends DBObject {
   }
 
   /**
+   * Determine whether all team's RP information is complete
+   *
+   * Looks at the cached information only. May be misleading if there
+   * are no teams in the regatta.
+   *
+   * @return boolean true if every team claims to be complete
+   */
+  public function isRpComplete() {
+    $res = DB::getAll(DB::$TEAM, new DBBool(array(new DBCond('regatta', $this->id),
+						  new DBCond('dt_complete_rp', null))));
+    return count($res) == 0;
+  }
+
+  /**
    * Sets the Dt_RP entries for this regatta, or particular division
    *
    * @param Division $division the optional division to set
