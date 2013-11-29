@@ -130,7 +130,7 @@ class EnterFinishPane extends AbstractPane {
           $current_sail = $rotation->getSail($finishes[$i]->race, $finishes[$i]->team);
           $current_pen = $finishes[$i]->getModifier();
         }
-        $tab->addRow(array(new XTD(array('name'=>'pos_sail', 'class'=>'pos_sail','id'=>'pos_sail'), $aPS),
+        $tab->addRow(array(new XTD(array('name'=>'pos_sail', 'class'=>'pos_sail'), $aPS),
                            new XImg("/inc/img/question.png", "Waiting for input", array("id"=>"check" . $i)),
                            new XTextInput("p" . $i, $current_sail,
                                           array("id"=>"sail" . $i,
