@@ -67,12 +67,14 @@ class ScoresCombinedDialog extends AbstractScoresDialog {
                                                                    $penalty_th = new XTH(),
                                                                    new XTH(array(), "Total"),
                                                                    new XTH(array(), "Sailors"),
+                                                                   new XTH(array(), ""),
                                                                    new XTH(array(), ""))))),
                                     $tab = new XTBody())));
     $has_penalties = false;
 
     // print each ranked team
     //  - keep track of different ranks and tiebrakers
+    $outside_sailors = array();
     $tiebreakers = array("" => "");
     $ranks = $this->REGATTA->getRanks();
     foreach ($ranks as $rank) {
@@ -135,6 +137,7 @@ class ScoresCombinedDialog extends AbstractScoresDialog {
         if (count($sailors) == 0) {
           $headerRows[$index]->add(new XTD()); // name
           $headerRows[$index]->add(new XTD()); // races
+          $headerRows[$index]->add(new XTD()); // outside sailors
         }
         foreach ($sailors as $s) {
           if ($is_first) {
@@ -144,23 +147,32 @@ class ScoresCombinedDialog extends AbstractScoresDialog {
           else {
             $row = new XTR(array('class'=>'row'.($rowIndex % 2)));
             $s_rows[] = $row;
-	    $num_sailors++;
+            $num_sailors++;
           }
 
           if (count($s->races_nums) == $total_races)
             $amt = "";
           else
             $amt = DB::makeRange($s->races_nums);
-          $row->add($s_cell = new XTD(array('class'=>'sailor-name'), $s->getSailor(true)));
-          $row->add($r_cell = new XTD(array('class'=>'races'), $amt));
+
+          $sup = "";
+          if ($s->sailor !== null && $s->sailor->school != $rank->team->school) {
+            if (!isset($outside_sailors[$s->sailor->school->nick_name]))
+              $outside_sailors[$s->sailor->school->nick_name] = count($outside_sailors) + 1;
+            $sup = $outside_sailors[$s->sailor->school->nick_name];
+          }
+
+          $row->add(new XTD(array('class'=>'sailor-name'), $s->getSailor(true)));
+          $row->add(new XTD(array('class'=>'races'), $amt));
+          $row->add(new XTD(array('class'=>'superscript'), $sup));
         }
 
         // Add rows
         $tab->add($headerRows[$index]);
-	if ($role == RP::SKIPPER)
-	  $r1c4->set('rowspan', (count($s_rows) + 1));
-	else
-	  $r2c4->set('rowspan', (count($s_rows) + 1));
+        if ($role == RP::SKIPPER)
+          $r1c4->set('rowspan', (count($s_rows) + 1));
+        else
+          $r2c4->set('rowspan', (count($s_rows) + 1));
         foreach ($s_rows as $r)
           $tab->add($r);
       }
@@ -172,13 +184,14 @@ class ScoresCombinedDialog extends AbstractScoresDialog {
       $r1cDiv->set('rowspan', $num_sailors);
       $rowIndex++;
     } // end of table
+
     if ($has_penalties) {
       $penalty_th->add("P");
     }
 
     // Print tiebreakers $table
-    if (count($tiebreakers) > 1)
-      $ELEMS[] = $this->getLegend($tiebreakers);
+    if (count($tiebreakers) > 1 || count($outside_sailors) > 0)
+      $ELEMS[] = $this->getLegend($tiebreakers, $outside_sailors);
     return $ELEMS;
   }
 }
