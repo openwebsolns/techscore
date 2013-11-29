@@ -124,10 +124,10 @@ class GlobalSettings extends AbstractSuperUserPane {
         DB::s(STN::SCORING_OPTIONS, implode("\0", $opts));
       }
 
-      $val = DB::$V->incInt($args, STN::ALLOW_CROSS_RP, 1, 2);
+      $val = DB::$V->incInt($args, STN::ALLOW_CROSS_RP, 1, 2, null);
       if ($val != DB::g(STN::ALLOW_CROSS_RP)) {
-	$changed = true;
-	DB::s(STN::ALLOW_CROSS_RP, $val);
+        $changed = true;
+        DB::s(STN::ALLOW_CROSS_RP, $val);
       }
 
       if (!$changed)
