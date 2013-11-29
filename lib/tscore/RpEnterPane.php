@@ -15,8 +15,8 @@ require_once("conf.php");
  */
 class RpEnterPane extends AbstractPane {
 
-  public function __construct(Account $user, Regatta $reg, $title = "Enter RP") {
-    parent::__construct($title, $user, $reg);
+  public function __construct(Account $user, Regatta $reg) {
+    parent::__construct("Enter RP", $user, $reg);
   }
 
   protected function fillHTML(Array $args) {
