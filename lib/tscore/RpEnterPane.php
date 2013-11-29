@@ -87,6 +87,57 @@ class RpEnterPane extends AbstractPane {
     }
 
     // ------------------------------------------------------------
+    // Fetch, and organize, all RPs
+    // ------------------------------------------------------------
+    $schools = array($chosen_team->school->id => $chosen_team->school);
+    $rps = array();
+    $roles = array(RP::SKIPPER, RP::CREW);
+    foreach ($divisions as $div) {
+      $d = (string)$div;
+      $rps[$d] = array();
+      foreach ($roles as $role) {
+        $lst = $rpManager->getRP($chosen_team, $div, $role);
+        foreach ($lst as $entry) {
+          if ($entry->sailor !== null)
+            $schools[$entry->sailor->school->id] = $entry->sailor->school;
+        }
+        $rps[$d][$role] = $lst;
+      }
+    }
+
+    // ------------------------------------------------------------
+    // Provide option to include sailors from other schools
+    // ------------------------------------------------------------
+    if (!$this->REGATTA->isSingleHanded() && DB::g(STN::ALLOW_CROSS_RP) !== null) {
+      $present_schools = $this->REGATTA->getSchools();
+      if (count($present_schools) > 1) {
+        $lst = DB::$V->incList($args, 'schools');
+
+        $this->PAGE->addContent($p = new XPort("Include sailors from other schools?"));
+        $p->add($f = $this->createForm(XForm::GET));
+        $f->add(new XHiddenInput('chosen_team', $chosen_team->id));
+        $f->add(new FItem("Other schools:", $ul = new XUl(array('class' => 'inline-list'))));
+        foreach ($present_schools as $school) {
+          if ($school->id != $chosen_team->school->id) {
+            $id = 'chk-other-' . $school->id;
+            $ul->add(new XLi(array($chk = new XCheckboxInput('schools[]', $school->id, array('id'=>$id)),
+                                   new XLabel($id, $school))));
+            if (isset($schools[$school->id])) {
+              $chk->set('checked', 'checked');
+              $chk->set('disabled', 'disabled');
+              $chk->set('title', "There are already sailors from this school in the RP form.");
+            }
+            elseif (in_array($school->id, $lst)) {
+              $chk->set('checked', 'checked');
+              $schools[$school->id] = $school;
+            }
+          }
+        }
+        $f->add(new XSubmitP('go', "Fetch sailors"));
+      }
+    }
+
+    // ------------------------------------------------------------
     // RP Form
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new XPort(sprintf("Fill out form for %s", $chosen_team)));
@@ -103,26 +154,14 @@ class RpEnterPane extends AbstractPane {
     $sailors = $chosen_team->school->getSailors($gender, $active);
     $un_slrs = $chosen_team->school->getUnregisteredSailors($gender);
 
-    $key = $chosen_team->school->nick_name;
-    $sailor_options = array("" => "", $key => array());
-    
-    foreach ($sailors as $s)
-      $sailor_options[$key][$s->id] = (string)$s;
-    foreach ($un_slrs as $s)
-      $sailor_options[$key][$s->id] = (string)$s;
+    $sailor_options = array("" => "");
 
-    // Other schools?
-    if (!$this->REGATTA->isSingleHanded() && DB::g(STN::ALLOW_CROSS_RP)) {
-      foreach ($this->REGATTA->getSchools() as $other) {
-	$key = $other->nick_name;
-	if (!isset($sailor_options[$key])) {
-	  $sailor_options[$key] = array();
-	  foreach ($other->getSailors($gender, $active) as $s)
-	    $sailor_options[$key][$s->id] = (string)$s;
-	  foreach ($other->getUnregisteredSailors($gender, $active) as $s)
-	    $sailor_options[$key][$s->id] = (string)$s;
-	}
-      }
+    foreach ($schools as $school) {
+      $key = $school->nick_name;
+      foreach ($school->getSailors($gender, $active) as $s)
+        $sailor_options[$key][$s->id] = (string)$s;
+      foreach ($school->getUnregisteredSailors($gender, $active) as $s)
+        $sailor_options[$key][$s->id] = (string)$s;
     }
 
     // No show option
@@ -153,8 +192,8 @@ class RpEnterPane extends AbstractPane {
       $occ = $this->getOccupantsRaces($div, $chosen_team);
 
       // Fetch current rp's
-      $cur_sk = $rpManager->getRP($chosen_team, $div, RP::SKIPPER);
-      $cur_cr = $rpManager->getRP($chosen_team, $div, RP::CREW);
+      $cur_sk = $rps[(string)$div][RP::SKIPPER];
+      $cur_cr = $rps[(string)$div][RP::CREW];
 
       if (count($divisions) > 1)
         $form->add(new XHeading("Division $div"));
@@ -292,14 +331,14 @@ class RpEnterPane extends AbstractPane {
 
       // Other schools?
       if (!$this->REGATTA->isSingleHanded() && DB::g(STN::ALLOW_CROSS_RP)) {
-	foreach ($this->REGATTA->getSchools() as $other) {
-	  if ($other->id != $team->school->id) {
-	    foreach ($other->getSailors($gender, $active) as $s)
-	      $sailors[$s->id] = $s;
-	    foreach ($other->getUnregisteredSailors($gender, $active) as $s)
-	      $sailors[$s->id] = $s;
-	  }
-	}
+        foreach ($this->REGATTA->getSchools() as $other) {
+          if ($other->id != $team->school->id) {
+            foreach ($other->getSailors($gender, $active) as $s)
+              $sailors[$s->id] = $s;
+            foreach ($other->getUnregisteredSailors($gender, $active) as $s)
+              $sailors[$s->id] = $s;
+          }
+        }
       }
 
 
