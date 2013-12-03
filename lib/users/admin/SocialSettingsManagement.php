@@ -33,6 +33,19 @@ class SocialSettingsManagement extends AbstractAdminUserPane {
     $f->add(new FItem("Google Analytics:", new XTextArea(STN::GOOGLE_ANALYTICS, DB::g(STN::GOOGLE_ANALYTICS)), "Full embed code, without <script> tags."));
     $f->add(new XSubmitP('set-settings', "Save changes"));
 
+    $this->PAGE->addContent($p = new XPort("Google+"));
+    $p->add($f = $this->createForm());
+    $f->add($fi = new FItem("Include +1:", $yes = new XRadioInput(STN::GOOGLE_PLUS, 1, array('id'=>'chk-yes-' . STN::GOOGLE_PLUS))));
+    $fi->add(new XLabel('chk-yes-' . STN::GOOGLE_PLUS, "Yes"));
+    $fi->add(" ");
+    $fi->add($no = new XRadioInput(STN::GOOGLE_PLUS, "", array('id'=>'chk-no-' . STN::GOOGLE_PLUS)));
+    $fi->add(new XLabel('chk-no-' . STN::GOOGLE_PLUS, "No"));
+    if (DB::g(STN::GOOGLE_PLUS) !== null)
+      $yes->set('checked', 'checked');
+    else
+      $no->set('checked', 'checked');
+    $f->add(new XSubmitP('set-settings', "Save changes"));
+
     $this->PAGE->addContent($p = new XPort("Facebook settings"));
     $p->add($f = $this->createForm());
     $f->add(new FItem("Facebook username:", new XTextInput(STN::FACEBOOK, DB::g(STN::FACEBOOK)), "Create link to Facebook account."));

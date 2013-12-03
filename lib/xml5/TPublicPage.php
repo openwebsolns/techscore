@@ -277,8 +277,13 @@ class TPublicPage extends XPage {
 
           $td->add(new XDiv(array('id'=>'twitter-wrapper'), array(new XA('https://twitter.com/share', $lnk, array('class'=>'twitter-share-button', 'data-via'=>DB::g(STN::TWITTER))))));
           // data-hashtags
-          $this->head->add($scr = new XScript('text/javascript', '//platform.twitter.com/widgets.js'));
-          $scr->set('id', 'twitter-wjs');
+          $this->head->add(new XScript('text/javascript', '//platform.twitter.com/widgets.js', null, array('id'=>'twitter-wjs', 'async'=>'async', 'defer'=>'defer')));
+        }
+        if (DB::g(STN::GOOGLE_PLUS) !== null) {
+          $has_social = true;
+
+          $td->add(new XDiv(array('id'=>'gplus-wrapper', 'class'=>'g-plusone', 'data-size'=>'medium')));
+          $this->head->add(new XScript('text/javascript', 'https://apis.google.com/js/plusone.js?onload=onLoadCallback', null, array('async'=>'async', 'defer'=>'defer')));
         }
 
         if ($has_social)
