@@ -136,7 +136,7 @@ class IcsaRpFormABCD extends AbstractIcsaRpForm {
   }
 
   public function getPdfName() {
-    return 'ICSA-RP-ABCD.pdf';
+    return __DIR__ . '/ICSA-RP-ABCD.pdf';
   }
 }
 ?>

@@ -200,7 +200,7 @@ class IcsaRpFormTeam extends AbstractIcsaRpForm {
   }
 
   public function getPdfName() {
-    return 'ICSA-RP-TEAM.pdf';
+    return __DIR__ . '/ICSA-RP-TEAM.pdf';
   }
 }
 ?>

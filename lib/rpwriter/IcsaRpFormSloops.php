@@ -102,7 +102,7 @@ class IcsaRpFormSloops extends AbstractIcsaRpForm {
   }
 
   public function getPdfName() {
-    return 'ICSA-RP-SLOOPS.pdf';
+    return __DIR__ . '/ICSA-RP-SLOOPS.pdf';
   }
 }
 ?>

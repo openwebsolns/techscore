@@ -112,7 +112,7 @@ class IcsaRpFormAB extends AbstractIcsaRpForm {
   }
 
   public function getPdfName() {
-    return 'ICSA-RP-AB.pdf';
+    return __DIR__ . '/ICSA-RP-AB.pdf';
   }
 }
 ?>

@@ -93,7 +93,7 @@ class IcsaRpFormSingles extends AbstractIcsaRpForm {
   }
 
   public function getPdfName() {
-    return 'ICSA-RP-SINGLES.pdf';
+    return __DIR__ . '/ICSA-RP-SINGLES.pdf';
   }
 }
 ?>

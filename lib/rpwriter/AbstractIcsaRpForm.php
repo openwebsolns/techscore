@@ -190,7 +190,7 @@ abstract class AbstractIcsaRpForm {
   abstract protected function getBody();
 
   /**
-   * Gets the basename of the file to use as background
+   * Gets the full path of the file to use as background
    *
    * @return String the filename
    */
@@ -203,8 +203,7 @@ abstract class AbstractIcsaRpForm {
    * @see getPdfName
    */
   protected function getIncludeGraphics() {
-    return sprintf('\includegraphics[width=\textwidth]{%s}',
-                   sprintf('%s/www/inc/rp/%s', dirname(dirname(__DIR__)), $this->getPdfName()));
+    return sprintf('\includegraphics[width=\textwidth]{%s}', sprintf('%s', $this->getPdfName()));
   }
 
   /**
