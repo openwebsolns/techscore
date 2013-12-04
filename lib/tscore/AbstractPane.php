@@ -178,10 +178,7 @@ abstract class AbstractPane {
         // Downloads
         if ($this->has_teams) {
           $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp', $id)), "Download")));
-          require_once('rpwriter/RpFormWriter.php');
-          $writer = new RpFormWriter($this->REGATTA);
-          $form = $writer->getForm();
-          $m_list->add(new XLi(new XA(WS::link(sprintf('/inc/rp/%s', $form->getPdfName())), "RP Template")));
+          $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp-template', $id)), "RP Template")));
         }
         else {
           $m_list->add(new XLi("Download", array('class'=>'inactive')));
@@ -198,10 +195,7 @@ abstract class AbstractPane {
       // $m_list->add(new XLi(new XA("/download/$id/regatta", "Regatta")));
       if ($this->has_teams && $this->has_races) {
         $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp', $id)), "Filled RP")));
-        require_once('rpwriter/RpFormWriter.php');
-        $writer = new RpFormWriter($this->REGATTA);
-        $form = $writer->getForm();
-        $m_list->add(new XLi(new XA(WS::link(sprintf('/inc/rp/%s', $form->getPdfName())), "RP Template")));
+        $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp-template', $id)), "RP Template")));
       }
       else {
         $m_list->add(new XLi("Filled RP", array('class'=>'inactive')));

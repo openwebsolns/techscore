@@ -227,6 +227,19 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
       echo $data;
       exit;
 
+      // --------------- RP Templates ---------------//
+    case 'rp-template':
+    case 'rp-empty':
+      require_once('rpwriter/RpFormWriter.php');
+      $writer = new RpFormWriter($REG);
+      $form = $writer->getForm();
+      $name = $form->getPdfName();
+
+      header('Content-type: application/pdf');
+      header(sprintf('Content-Disposition: attachment; filename="%s"', basename($name)));
+      echo file_get_contents($name);
+      exit;
+
     // --------------- default ---------------//
     default:
       $mes = sprintf("Invalid download requested (%s)", $_GET['d']);
