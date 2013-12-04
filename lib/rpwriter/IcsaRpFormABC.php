@@ -5,7 +5,7 @@
  * @package rpwriter
  */
 
-require_once('rpwriter/AbstractIcsaRpForm.php');
+require_once('rpwriter/AbstractRpForm.php');
 
 /**
  * Class for writing three division forms
@@ -13,7 +13,7 @@ require_once('rpwriter/AbstractIcsaRpForm.php');
  * @author Dayan Paez
  * @version 2010-02-08
  */
-class IcsaRpFormABC extends AbstractIcsaRpForm {
+class IcsaRpFormABC extends AbstractRpForm {
 
   /**
    * Creates a new form for two divisions

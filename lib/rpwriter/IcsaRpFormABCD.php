@@ -5,7 +5,7 @@
  * @package rpwriter
  */
 
-require_once('rpwriter/AbstractIcsaRpForm.php');
+require_once('rpwriter/AbstractRpForm.php');
 
 /**
  * RP Form for (four divisions) {
@@ -14,7 +14,7 @@ require_once('rpwriter/AbstractIcsaRpForm.php');
  * @author Dayan Paez
  * @version 2010-02-08
  */
-class IcsaRpFormABCD extends AbstractIcsaRpForm {
+class IcsaRpFormABCD extends AbstractRpForm {
 
   /**
    * Creates a new form for fur divisions. Unfortunately, the ICSA

@@ -5,7 +5,7 @@
  * @package rpwriter
  */
 
-require_once('rpwriter/AbstractIcsaRpForm.php');
+require_once('rpwriter/AbstractRpForm.php');
 
 /**
  * Stand-in for RP object allows manipulation of race numbers
@@ -45,7 +45,7 @@ class FauxRP extends RP {
  * @author Dayan Paez
  * @version 2010-02-08
  */
-class IcsaRpFormTeam extends AbstractIcsaRpForm {
+class IcsaRpFormTeam extends AbstractRpForm {
 
   private $regatta;
 

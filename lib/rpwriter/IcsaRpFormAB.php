@@ -5,7 +5,7 @@
  * @package rpwriter
  */
 
-require_once('rpwriter/AbstractIcsaRpForm.php');
+require_once('rpwriter/AbstractRpForm.php');
 
 /**
  * This file is a new visualization of the RP form writing process. In
@@ -17,7 +17,7 @@ require_once('rpwriter/AbstractIcsaRpForm.php');
  * @author Dayan Paez
  * @version 2010-02-08
  */
-class IcsaRpFormAB extends AbstractIcsaRpForm {
+class IcsaRpFormAB extends AbstractRpForm {
 
   /**
    * Creates a new form for two divisions

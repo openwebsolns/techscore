@@ -22,7 +22,7 @@ require_once('rpwriter/RpBlock.php');
  * @author Dayan Paez
  * @version 2010-02-08
  */
-abstract class AbstractIcsaRpForm {
+abstract class AbstractRpForm {
 
   // Constants
 

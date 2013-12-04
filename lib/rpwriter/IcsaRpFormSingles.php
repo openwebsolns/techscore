@@ -5,7 +5,7 @@
  * @package rpwriter
  */
 
-require_once('rpwriter/AbstractIcsaRpForm.php');
+require_once('rpwriter/AbstractRpForm.php');
 
 /**
  * Class for writing RP forms for singlehanded events
@@ -13,7 +13,7 @@ require_once('rpwriter/AbstractIcsaRpForm.php');
  * @author Dayan Paez
  * @version 2010-02-08
  */
-class IcsaRpFormSingles extends AbstractIcsaRpForm {
+class IcsaRpFormSingles extends AbstractRpForm {
 
   /**
    * Creates a new form for single handed events

@@ -39,7 +39,7 @@ class RpFormWriter {
   /**
    * Fetches the form to use for the given regatta
    *
-   * @return AbstractIcsaRpForm the form
+   * @return AbstractRpForm the form
    */
   public function getForm() {
     if ($this->form === null) {
