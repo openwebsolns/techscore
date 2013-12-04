@@ -36,6 +36,7 @@ lib/ChangeLog
 etc/*
 
 lib/scripts/hooks-installed/*
+lib/rpwriter/
 
 # Public files
 syntax: regexp
