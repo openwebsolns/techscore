@@ -31,11 +31,11 @@ abstract class AbstractRpBlockForm extends AbstractRpForm {
   // Constants
 
   protected $num_skipper_A = 3;
-  protected $num_skipper_B = 3;
+  protected $num_skipper_B = 0;
   protected $num_skipper_C = 0;
   protected $num_skipper_D = 0;
   protected $num_crew_A    = 3;
-  protected $num_crew_B    = 3;
+  protected $num_crew_B    = 0;
   protected $num_crew_C    = 0;
   protected $num_crew_D    = 0;
 
