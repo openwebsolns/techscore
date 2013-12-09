@@ -176,13 +176,16 @@ abstract class AbstractPane {
       }
       if ($title == "RP Forms" and $this->REGATTA->scoring == Regatta::SCORING_TEAM) {
         // Downloads
-        if ($this->has_teams) {
+        if ($this->has_teams && ($form = DB::getRpFormWriter($this->REGATTA)) !== null) {
           $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp', $id)), "Download")));
-          $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp-template', $id)), "RP Template")));
+          if (($name = $form->getPdfName()) !== null)
+            $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp-template', $id)), "RP Template")));
+          else
+            $m_list->add(new XLi("RP Template", array('class'=>'inactive')));
         }
         else {
-          $m_list->add(new XLi("Download", array('class'=>'inactive')));
-          $m_list->add(new XLi("RP Template", array('class'=>'inactive')));
+          $m_list->add(new XLi("Download", array('class'=>'inactive', 'title'=>"No PDF forms available.")));
+          $m_list->add(new XLi("RP Template", array('class'=>'inactive', 'title'=>"No PDF forms available.")));
         }
       }
 
@@ -192,16 +195,17 @@ abstract class AbstractPane {
     if ($this->REGATTA->scoring != Regatta::SCORING_TEAM) {
       // Downloads
       $menu = new XDiv(array('class'=>'menu'), array(new XH4("Download"), $m_list = new XUl()));
-      // $m_list->add(new XLi(new XA("/download/$id/regatta", "Regatta")));
+      $add = false;
       if ($this->has_teams && $this->has_races) {
-        $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp', $id)), "Filled RP")));
-        $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp-template', $id)), "RP Template")));
+        if (($form = DB::getRpFormWriter($this->REGATTA)) !== null) {
+          $add = true;
+          $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp', $id)), "Filled RP")));
+          if (($name = $form->getPdfName()) !== null)
+            $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp-template', $id)), "RP Template")));
+        }
       }
-      else {
-        $m_list->add(new XLi("Filled RP", array('class'=>'inactive')));
-        $m_list->add(new XLi("RP Template", array('class'=>'inactive')));
-      }
-      $this->PAGE->addMenu($menu);
+      if ($add)
+        $this->PAGE->addMenu($menu);
     }
 
     // Dialogs

@@ -15,6 +15,13 @@ require_once('users/admin/AbstractAdminUserPane.php');
  */
 class OrganizationConfiguration extends AbstractAdminUserPane {
 
+  private static $TEMPLATES = array(STN::RP_SINGLEHANDED => "Singlehanded",
+                                    STN::RP_1_DIVISION => "1 Division",
+                                    STN::RP_2_DIVISION => "2 Divisions",
+                                    STN::RP_3_DIVISION => "3 Divisions",
+                                    STN::RP_4_DIVISION => "4 Divisions",
+                                    STN::RP_TEAM_RACE => "Team racing");
+
   public function __construct(Account $user) {
     parent::__construct("Organization settings", $user);
     $this->page_url = 'org';
@@ -33,6 +40,28 @@ class OrganizationConfiguration extends AbstractAdminUserPane {
     $fi->add(new XMessage("Full URL (with protocol) to list of teams. Optional."));
 
     $f->add(new XSubmitP('set-params', "Save changes"));
+
+    $this->PAGE->addContent($p = new XPort("RP Form Templates"));
+    $p->add(new XP(array(),
+                   array("To have the  program generate PDF RP forms from the information entered, you must create and install an RP form writer by extending ", new XVar("AbstractRpForm"), " from the ", new XVar("lib/rpwriter"), " directory. Use the form below to specify the classname of the template to be used for each of the given regatta formats.")));
+    $p->add(new XP(array(),
+                   array("To install a template, create a file with the same name as the classname (and with a ", new XVar(".php"), " extension), which subclasses ", new XVar("AbstractRpForm"), ". Then, specify the classname below.")));
+
+    $p->add($f = $this->createForm());
+    foreach (self::$TEMPLATES as $setting => $title) {
+      $val = DB::g($setting);
+      $mes = null;
+      if ($val !== null) {
+        try {
+          $this->verifyRpTemplate($val);
+        } catch (SoterException $e) {
+          $val = null;
+          $mes = $e->getMessage();
+        }
+      }
+      $f->add(new FItem($title . ":", new XTextInput($setting, $val), $mes));
+    }
+    $f->add(new XSubmitP('set-rp-templates', "Save changes"));
   }
 
   public function process(Array $args) {
@@ -60,6 +89,57 @@ class OrganizationConfiguration extends AbstractAdminUserPane {
         throw new SoterException("No changes to save.");
       Session::pa(new PA("Saved settings. Changes will take effect on future pages."));
     }
+
+    // ------------------------------------------------------------
+    // RP Templates
+    // ------------------------------------------------------------
+    if (isset($args['set-rp-templates'])) {
+      $changed = false;
+      foreach (self::$TEMPLATES as $setting => $title) {
+        $val = DB::$V->incString($args, $setting, 1, 101);
+        if ($val !== null) {
+          $val = basename($val);
+          $this->verifyRpTemplate($val);
+        }
+        if ($val !== DB::g($setting)) {
+          DB::s($setting, $val);
+          $changed = true;
+        }
+      }
+
+      if (!$changed)
+        throw new SoterException("No changes to save.");
+      Session::pa(new PA("Set the RP forms."));
+    }
+  }
+
+  private function verifyRpTemplate($classname) {
+    if (class_exists($classname, false)) {
+      $obj = new $classname("", "", "", "");
+      if ($obj instanceof AbstractRpForm)
+        return true;
+      throw new SoterException(sprintf("Classname %s exists and does not subclass AbstractRpForm.", $classname));
+    }
+
+    $path = sprintf('%s/rpwriter/%s.php', dirname(dirname(__DIR__)), $classname);
+    if (!file_exists($path))
+      throw new SoterException("File does not exist. Expected path " . $path);
+
+    ob_start();
+    require_once($path);
+    $len = ob_get_length();
+    ob_end_clean();
+    if ($len > 0)
+      throw new SoterException("File invalid because it echoes to standard output.");
+
+    if (!class_exists($classname, false))
+      throw new SoterException("File does not define class " . $classname);
+
+    $obj = new $classname("", "", "", "");
+    if (!($obj instanceof AbstractRpForm))
+      throw new SoterException(sprintf("Class %s does not subclass AbstractRpForm."));
+
+    return true;
   }
 }
 ?>

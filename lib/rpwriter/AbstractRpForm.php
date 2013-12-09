@@ -21,7 +21,7 @@ abstract class AbstractRpForm {
   /**
    * Gets the full path of the file to use as background
    *
-   * @return String the filename
+   * @return String the filename or null if not supported
    */
   abstract public function getPdfName();
 

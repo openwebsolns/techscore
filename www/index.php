@@ -214,9 +214,13 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
       if ($rp->isFormRecent())
         $data = $rp->getForm();
       else {
-        require_once('rpwriter/RpFormWriter.php');
-        $writer = new RpFormWriter($REG);
-        $path = $writer->makePDF();
+        $form = DB::getRpFormWriter($REG);
+        if ($form === null) {
+          Session::pa(new PA("Downloadable PDF forms are not available for this regatta type.", PA::I));
+          WS::go('/score/'.$REG->id);
+        }
+
+        $path = $form->makePdf($REG);
         $data = file_get_contents($path);
         unlink($path);
         $rp->setForm($data);
@@ -230,10 +234,11 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
       // --------------- RP Templates ---------------//
     case 'rp-template':
     case 'rp-empty':
-      require_once('rpwriter/RpFormWriter.php');
-      $writer = new RpFormWriter($REG);
-      $form = $writer->getForm();
-      $name = $form->getPdfName();
+      $form = DB::getRpFormWriter($REG);
+      if ($form === null || ($name = $form->getPdfName()) === null) {
+        Session::pa(new PA("Empty PDF forms are not available for this regatta type.", PA::I));
+        WS::go('/score/'.$REG->id);
+      }
 
       header('Content-type: application/pdf');
       header(sprintf('Content-Disposition: attachment; filename="%s"', basename($name)));

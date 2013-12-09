@@ -826,6 +826,41 @@ class DB extends DBM {
   private static $settings = array();
   private static $setting_names;
 
+  /**
+   * Fetches the form to use for the given regatta
+   *
+   * @return AbstractRpForm the form, if any
+   */
+  public static function getRpFormWriter(FullRegatta $reg) {
+    $divisions = count($reg->getDivisions());
+    if ($reg->scoring == Regatta::SCORING_TEAM) {
+      $form = self::g(STN::RP_TEAM_RACE);
+    }
+    elseif ($reg->isSingleHanded()) {
+      $form = self::g(STN::RP_SINGLEHANDED);
+    }
+    elseif ($divisions == 2) {
+      $form = self::g(STN::RP_2_DIVISION);
+    }
+    elseif ($divisions == 3) {
+      $form = self::g(STN::RP_3_DIVISION);
+    }
+    elseif ($divisions == 4) {
+      $form = self::g(STN::RP_4_DIVISION);
+    }
+    elseif ($divisions == 1) {
+      $form = self::g(STN::RP_1_DIVISION);
+    }
+    else
+      throw new InvalidArgumentException("Regattas of this type are not supported.");
+
+    if ($form === null)
+      return null;
+
+    require_once(sprintf('rpwriter/%s.php', $form));
+    return new $form();
+  }
+
   // ------------------------------------------------------------
   // Tweet
   // ------------------------------------------------------------
@@ -3311,6 +3346,13 @@ class STN extends DBObject {
   const CONFERENCE_TITLE = 'conference_title';
   const CONFERENCE_SHORT = 'conference_short';
   const ALLOW_CROSS_RP = 'allow_cross_rp';
+
+  const RP_SINGLEHANDED = 'rp-singlehanded';
+  const RP_1_DIVISION = 'rp-1-division';
+  const RP_2_DIVISION = 'rp-2-division';
+  const RP_3_DIVISION = 'rp-3-division';
+  const RP_4_DIVISION = 'rp-4-division';
+  const RP_TEAM_RACE = 'rp-team-race';
 
   const TWITTER_URL_LENGTH = 'twitter_url_length';
   const SEND_MAIL = 'send_mail';

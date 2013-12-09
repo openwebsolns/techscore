@@ -124,6 +124,14 @@ abstract class AbstractRpBlockForm extends AbstractRpForm {
           }
         }
       }
+
+      // Add an articifial block if none available for the team
+      if (count($team_blocks) == 0) {
+        $block = new RpBlock();
+        $block->team = $team;
+        $block->representative = $representative;
+        $this->blocks[] = $block;
+      }
     }
   }
 
