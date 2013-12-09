@@ -46,39 +46,27 @@ class RpFormWriter {
       $divisions = $this->reg->getDivisions();
       if ($this->reg->scoring == Regatta::SCORING_TEAM) {
         require_once('rpwriter/IcsaRpFormTeam.php');
-        $this->form = new IcsaRpFormTeam($this->reg,
-                                   $this->host,
-                                   $this->reg->start_time->format("Y-m-d"));
+        $this->form = new IcsaRpFormTeam();
       }
       elseif ($this->reg->isSingleHanded()) {
         require_once('rpwriter/IcsaRpFormSingles.php');
-        $this->form = new IcsaRpFormSingles($this->reg->name,
-                                      $this->host,
-                                      $this->reg->start_time->format("Y-m-d"));
+        $this->form = new IcsaRpFormSingles();
       }
       elseif (count($divisions) == 2) {
         require_once('rpwriter/IcsaRpFormAB.php');
-        $this->form = new IcsaRpFormAB($this->reg->name,
-                                 $this->host,
-                                 $this->reg->start_time->format("Y-m-d"));
+        $this->form = new IcsaRpFormAB();
       }
       elseif (count($divisions) == 3) {
         require_once('rpwriter/IcsaRpFormABC.php');
-        $this->form = new IcsaRpFormABC($this->reg->name,
-                                  $this->host,
-                                  $this->reg->start_time->format("Y-m-d"));
+        $this->form = new IcsaRpFormABC();
       }
       elseif (count($divisions) == 4) {
         require_once('rpwriter/IcsaRpFormABCD.php');
-        $this->form = new IcsaRpFormABCD($this->reg->name,
-                                   $this->host,
-                                   $this->reg->start_time->format("Y-m-d"));
+        $this->form = new IcsaRpFormABCD();
       }
       elseif (count($divisions) == 1) {
         require_once('rpwriter/IcsaRpFormSloops.php');
-        $this->form = new IcsaRpFormSloops($this->reg->name,
-                                     $this->host,
-                                     $this->reg->start_time->format("Y-m-d"));
+        $this->form = new IcsaRpFormSloops();
       }
       else
         throw new InvalidArgumentException("Regattas of this type are not supported.");

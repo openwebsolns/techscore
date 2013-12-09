@@ -7,12 +7,16 @@
 
 /**
  * Encompasses an RP form block: a thin wrapper around two lists of
- * skippers and crews
+ * skippers and crews (one for each division) and their respective
+ * RP objects, a representative, and a team name.
  *
  * @author Dayan Paez
  * @version 2010-02-08
  */ 
 class RpBlock {
+  public $representative;
+  public $team;
+
   public $skipper_A = array();
   public $skipper_B = array();
   public $skipper_C = array();
