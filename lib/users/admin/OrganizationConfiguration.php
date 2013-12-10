@@ -104,6 +104,18 @@ class OrganizationConfiguration extends AbstractAdminUserPane {
         if ($val !== DB::g($setting)) {
           DB::s($setting, $val);
           $changed = true;
+
+          // Queue all regattas of this type
+          $updated = 0;
+          require_once('public/UpdateManager.php');
+          foreach ($this->getRegattasByRpType($setting) as $reg) {
+            $rp = $reg->getRpManager();
+            $rp->updateLog();
+            $updated++;
+          }
+
+          if ($updated > 0)
+            Session::pa(new PA(sprintf("Updated PDF RP form for %d regattas.", $updated)));
         }
       }
 
@@ -140,6 +152,52 @@ class OrganizationConfiguration extends AbstractAdminUserPane {
       throw new SoterException(sprintf("Class %s does not subclass AbstractRpForm."));
 
     return true;
+  }
+
+  /**
+   * Fetches regattas based on RP form type
+   *
+   * @param Const $type one of the STN::RP_* settings.
+   * @return Array:Regatta
+   */
+  private function getRegattasByRpType($type) {
+    require_once('regatta/Regatta.php');
+    $cond = null;
+    switch ($type) {
+    case STN::RP_SINGLEHANDED:
+      $cond = new DBCond('dt_singlehanded', null, DBCond::NE);
+      break;
+
+    case STN::RP_1_DIVISION:
+      $cond = new DBBool(array(new DBCond('dt_singlehanded', null),
+                               new DBCond('scoring', Regatta::SCORING_STANDARD),
+                               new DBCond('dt_num_divisions', 1)));
+      break;
+
+    case STN::RP_2_DIVISION:
+      $cond = new DBBool(array(new DBCond('dt_num_divisions', 2),
+                               new DBCond('scoring', Regatta::SCORING_TEAM, DBCond::NE)));
+      break;
+
+    case STN::RP_3_DIVISION:
+      $cond = new DBBool(array(new DBCond('dt_num_divisions', 3),
+                               new DBCond('scoring', Regatta::SCORING_TEAM, DBCond::NE)));
+      break;
+
+    case STN::RP_4_DIVISION:
+      $cond = new DBBool(array(new DBCond('dt_num_divisions', 4),
+                               new DBCond('scoring', Regatta::SCORING_TEAM, DBCond::NE)));
+      break;
+
+    case STN::RP_TEAM_RACE:
+      $cond = new DBCond('scoring', Regatta::SCORING_TEAM);
+      break;
+
+    default:
+      throw new InvalidArgumentException("Unknown regatta RP type: $type.");
+    }
+
+    return DB::getAll(DB::$REGATTA, $cond);
   }
 }
 ?>
