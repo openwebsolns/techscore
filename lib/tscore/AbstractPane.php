@@ -92,14 +92,15 @@ abstract class AbstractPane {
                                               "summaries"  => "SummaryPane",
                                               "finalize"   => "FinalizePane",
                                               "scorers"    => "ScorersPane",
+                                              "notes"      => "NotesPane",
                                               "delete"     => "DeleteRegattaPane"),
                          "Teams"     => array("teams"      => "AddTeamsPane",
                                               "edit-teams" => "EditTeamsPane",
                                               "substitute" => "TeamReplaceTeamPane",
                                               "remove-team"=> "DeleteTeamsPane"),
-                         "Races"     => array("races"      => "TeamRacesPane",
+                         "Rounds"     => array("races"      => "TeamRacesPane",
+                                               "rounds"    => "TeamEditRoundPane",
                                               "race-order" => "TeamRaceOrderPane",
-                                              "notes"      => "NotesPane",
                                               "rotations"  => "TeamSailsPane",
                                               // "tweak-sails"=> "TweakSailsPane",
                                               // "manual-rotation" => "ManualTweakPane"
@@ -405,6 +406,14 @@ abstract class AbstractPane {
       }
       require_once('tscore/RacesPane.php');
       return new RacesPane($r, $u);
+
+    case 'round':
+    case 'rounds':
+      if ($u->scoring != Regatta::SCORING_TEAM)
+        return null;
+      require_once('tscore/TeamEditRoundPane.php');
+      return new TeamEditRoundPane($r, $u);
+
     case 'race-order':
     case 'order':
       if ($u->scoring != Regatta::SCORING_TEAM)
@@ -543,6 +552,9 @@ abstract class AbstractPane {
     case 'RacesPane':
       return $this->has_teams;
 
+    case 'TeamEditRoundPane':
+      return count($this->REGATTA->getRounds()) > 0;
+
     case 'ManualTweakPane':
     case 'TweakSailsPane':
     case 'rotation':
@@ -597,6 +609,7 @@ abstract class AbstractPane {
                                "ScorersPane" => "scorers",
 
                                "TeamRacesPane" => "races",
+                               "TeamEditRoundPane" => "rounds",
                                "RacesPane" => "races",
                                "TeamRaceOrderPane" => "race-order",
 
@@ -630,7 +643,8 @@ abstract class AbstractPane {
                                  "FinalizePane"=> "Finalize",
                                  "ScorersPane" => "Scorers",
                                  "RacesPane" => "Add/edit races",
-                                 "TeamRacesPane" => "Edit rounds",
+                                 "TeamRacesPane" => "Add round",
+                                 "TeamEditRoundPane" => "Edit round",
                                  "TeamRaceOrderPane" => "Order races",
                                  "NotesPane" => "Race notes",
                                  "NoticeBoardPane" => "Notice Board",
