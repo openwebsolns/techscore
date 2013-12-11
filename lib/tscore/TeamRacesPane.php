@@ -208,10 +208,13 @@ class TeamRacesPane extends AbstractPane {
     // ------------------------------------------------------------
     // Race order
     // ------------------------------------------------------------
-    $templates = DB::getRaceOrders($num_teams, count($this->REGATTA->getDivisions()));
+    $num_divs = count($this->REGATTA->getDivisions());
+    if ($num_divs == 0)
+      $num_divs = 3; // new regattas
+    $templates = DB::getRaceOrders($num_teams, $num_divs);
     $form->add(new XH4("Race order"));
     if (count($templates) == 0)
-      $form->add(new XP(array('class'=>'notice'), "There are no templates in the system for this number of teams. As such, a standard race order will be applied, which you may manually alter later."));
+      $form->add(new XP(array('class'=>'warning'), "There are no templates in the system for this number of teams. As such, a standard race order will be applied, which you may manually alter later."));
     else {
       $form->add($tab = new XQuickTable(array('class'=>'tr-race-order-list'), array("", "Name", "# of boats", "Description")));
       foreach ($templates as $i => $template) {
