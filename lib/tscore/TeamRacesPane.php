@@ -26,7 +26,7 @@
 class TeamRacesPane extends AbstractPane {
 
   public function __construct(Account $user, Regatta $reg) {
-    parent::__construct("Edit Rounds", $user, $reg);
+    parent::__construct("Add Round", $user, $reg);
     if ($reg->scoring != Regatta::SCORING_TEAM)
       throw new InvalidArgumentException("TeamRacesPane only available for team race regattas.");
   }
@@ -39,6 +39,18 @@ class TeamRacesPane extends AbstractPane {
    */
   protected function fillHTML(Array $args) {
     $rounds = $this->REGATTA->getRounds();
+
+    // ------------------------------------------------------------
+    // New round?
+    // ------------------------------------------------------------
+    if (isset($args['new-round'])) {
+      try {
+        $this->fillNewRound($args);
+        return;
+      } catch (SoterException $e) {
+        Session::pa(new PA($e->getMessage(), PA::E));
+      }
+    }
 
     // ------------------------------------------------------------
     // Create from previous
