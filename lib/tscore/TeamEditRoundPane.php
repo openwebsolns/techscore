@@ -66,14 +66,14 @@ class TeamEditRoundPane extends AbstractPane {
     while (count($sole_rounds) > 0) {
       $round = array_shift($sole_rounds);
       $rel = array($round->relative_order);
-      $lnk = array(new XA($this->link('races', array('r'=>$round->id)), $round));
+      $lnk = array(new XA($this->link('round', array('r'=>$round->id)), $round));
       if ($round->round_group !== null) {
         foreach ($round->round_group->getRounds() as $other_round) {
           if (isset($sole_rounds['r-' . $other_round->id])) {
             unset($sole_rounds['r-' . $other_round->id]);
             $rel[] = $other_round->relative_order;
             $lnk[] = ", ";
-            $lnk[] = new XA($this->link('races', array('r'=>$other_round->id)), $other_round);
+            $lnk[] = new XA($this->link('round', array('r'=>$other_round->id)), $other_round);
           }
         }
       }
