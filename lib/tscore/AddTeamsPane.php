@@ -76,9 +76,9 @@ class AddTeamsPane extends AbstractTeamPane {
 
       $team = new Team();
       $team->school = $school;
-      $changed = $this->addTeam($team);
+      $changed = $this->calculateTeamName($team);
+      $this->REGATTA->addTeam($team);
 
-      $this->REGATTA->calculateTeamName($team);
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_TEAM, $team->school);
 
       foreach ($changed as $other)
