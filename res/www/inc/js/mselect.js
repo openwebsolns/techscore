@@ -16,17 +16,17 @@ function OWSMultSelect(elem) {
     this.fromElement.ondblclick = function(evt) {
         myObj.promoteSelected();
     };
-    var w = document.createElement("div");
-    w.setAttribute("class", "msel-wrapper");
-    w.setAttribute("title", "Move items from list on the left to the right to choose.");
-    w.style.display = "inline-block";
-    this.fromElement.parentNode.insertBefore(w, this.fromElement);
+    this.wrapper = document.createElement("div");
+    this.wrapper.setAttribute("class", "msel-wrapper");
+    this.wrapper.setAttribute("title", "Move items from list on the left to the right to choose.");
+    this.wrapper.style.display = "inline-block";
+    this.fromElement.parentNode.insertBefore(this.wrapper, this.fromElement);
 
     // First cell
     var c = document.createElement("div");
     c.setAttribute("class", "msel-from-wrapper");
     c.style.display = "table-cell";
-    w.appendChild(c);
+    this.wrapper.appendChild(c);
 
     var s = (this.fromElement.length > 10);
     if (s) {
@@ -45,7 +45,7 @@ function OWSMultSelect(elem) {
     c.setAttribute("class", "msel-button-wrapper");
     c.style.display = "table-cell";
     c.style.verticalAlign = "middle";
-    w.appendChild(c);
+    this.wrapper.appendChild(c);
 
     var b = document.createElement("button");
     b.setAttribute("type", "button");
@@ -71,7 +71,7 @@ function OWSMultSelect(elem) {
     c = document.createElement("div");
     c.setAttribute("class", "msel-to-wrapper");
     c.style.display = "table-cell";
-    w.appendChild(c);
+    this.wrapper.appendChild(c);
 
     if (s) {
         this.toSearch = document.createElement("input");

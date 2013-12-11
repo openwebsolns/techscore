@@ -121,6 +121,8 @@ class AddTeamsPane extends AbstractTeamPane {
   // ------------------------------------------------------------
 
   private function fillNewRegatta(Array $args) {
+    $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/addTeams.js'), null, array('async'=>'async', 'defer'=>'defer')));
+
     $confs = DB::getConferences();
     $title = "Add teams";
     if (($n = DB::g(STN::ORG_NAME)) !== null)
@@ -128,15 +130,13 @@ class AddTeamsPane extends AbstractTeamPane {
     $this->PAGE->addContent($p = new XPort($title));
     $p->add(new XP(array(), "Choose schools which are participating by indicating how many teams are invited from each school. Use your browser's search function to help you."));
     $p->add($form = $this->createForm());
-    $form->add($cuts = new XUl(array('id'=>'teams-shortcuts')));
     $form->add($list = new XUl(array('id'=>'teams-list')));
 
     foreach ($confs as $conf) {
-      $cuts->add(new XLi(new XA('#'.$conf->id, $conf)));
       $list->add(new XLi(array(new XHeading($conf, array('id'=>$conf->id)), $sub = new XUl())));
       foreach ($conf->getSchools() as $school) {
         $sub->add(new XLi(array(new XHiddenInput('school[]', $school->id),
-                                new XTextInput('number[]', "", array('id'=>$school->id)),
+                                new XInput('number', 'number[]', "", array('id'=>$school->id, 'step'=>1, 'min'=>0)),
                                 new XLabel($school->id, $school,
 					   array('onclick'=>sprintf('var o=document.getElementById("%s");o.value=Number(o.value)+1;', $school->id))))));
       }

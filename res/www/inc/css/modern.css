@@ -1151,3 +1151,29 @@ select, .csel-container {
 #keyword-replace td {
     padding: 0.25em 0.5em;
 }
+
+/* Add teams box */
+
+#teams-list-select-wrapper {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    width: 100%;
+    display: table;
+}
+
+#teams-list-select-wrapper .msel-from-wrapper,
+#teams-list-select-wrapper .msel-to-wrapper {
+    width: 45%;
+}
+#teams-list-select-wrapper select {
+    width: 100%;
+    height: 20em;
+}
+
+#teams-list-select-wrapper .msel-button-wrapper {
+    width: 10%;
+}
+
+#teams-list-select-wrapper button {
+    margin: 1ex auto;
+}
