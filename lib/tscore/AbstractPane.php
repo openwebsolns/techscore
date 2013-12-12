@@ -644,7 +644,7 @@ abstract class AbstractPane {
                                  "ScorersPane" => "Scorers",
                                  "RacesPane" => "Add/edit races",
                                  "TeamRacesPane" => "Add round",
-                                 "TeamEditRoundPane" => "Edit round",
+                                 "TeamEditRoundPane" => "Edit rounds",
                                  "TeamRaceOrderPane" => "Order races",
                                  "NotesPane" => "Race notes",
                                  "NoticeBoardPane" => "Notice Board",
