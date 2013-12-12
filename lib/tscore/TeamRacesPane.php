@@ -272,7 +272,7 @@ class TeamRacesPane extends AbstractPane {
       $this->REGATTA->setData(); // new races
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA(array(sprintf("Added new round %s based on %s. ", $round, $templ),
-                               new XA($this->link('race-order', array('order-rounds'=>'', 'round'=>array($round->id))), "Order races"),
+                               new XA($this->link('round', array('order-rounds'=>'', 'round'=>array($round->id))), "Order races"),
                                ".")));
     }
 
@@ -526,7 +526,7 @@ class TeamRacesPane extends AbstractPane {
       $this->REGATTA->setData(); // added new races
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA(array("Added new \"completion\" round. ",
-                               new XA($this->link('race-order', array('order-rounds'=>'', 'round'=>array($round->id))), "Order races"),
+                               new XA($this->link('round', array('order-rounds'=>'', 'round'=>array($round->id))), "Order races"),
                                ".")));
       return array();
     }

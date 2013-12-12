@@ -100,7 +100,6 @@ abstract class AbstractPane {
                                               "remove-team"=> "DeleteTeamsPane"),
                          "Rounds"     => array("races"      => "TeamRacesPane",
                                                "rounds"    => "TeamEditRoundPane",
-                                              "race-order" => "TeamRaceOrderPane",
                                               "rotations"  => "TeamSailsPane",
                                               // "tweak-sails"=> "TweakSailsPane",
                                               // "manual-rotation" => "ManualTweakPane"
@@ -414,12 +413,6 @@ abstract class AbstractPane {
       require_once('tscore/TeamEditRoundPane.php');
       return new TeamEditRoundPane($r, $u);
 
-    case 'race-order':
-    case 'order':
-      if ($u->scoring != Regatta::SCORING_TEAM)
-        return null;
-      require_once('tscore/TeamRaceOrderPane.php');
-      return new TeamRaceOrderPane($r, $u);
     case 'substitute':
     case 'substitute-team':
     case 'sub-team':
@@ -527,7 +520,6 @@ abstract class AbstractPane {
     case 'DropPenaltyPane':
       return $this->has_penalty;
 
-    case 'TeamRaceOrderPane':
     case 'NotesPane':
       return $this->has_races;
 
@@ -611,7 +603,6 @@ abstract class AbstractPane {
                                "TeamRacesPane" => "races",
                                "TeamEditRoundPane" => "rounds",
                                "RacesPane" => "races",
-                               "TeamRaceOrderPane" => "race-order",
 
                                "NotesPane" => "notes",
                                "NoticeBoardPane" => "notices",
@@ -645,7 +636,6 @@ abstract class AbstractPane {
                                  "RacesPane" => "Add/edit races",
                                  "TeamRacesPane" => "Add round",
                                  "TeamEditRoundPane" => "Edit rounds",
-                                 "TeamRaceOrderPane" => "Order races",
                                  "NotesPane" => "Race notes",
                                  "NoticeBoardPane" => "Notice Board",
                                  "DeleteRegattaPane" => "Delete",
