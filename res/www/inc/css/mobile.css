@@ -446,9 +446,6 @@ p.warning {padding: 0.5em;}
 
 #teams-list {
     border:1px solid #aaa;
-    max-height:35em;
-    overflow:scroll;
-    overflow-x:auto;
     padding:0;
     background:#eee;
     margin-top: 0;
