@@ -673,3 +673,6 @@ delete from team_name_prefs where name regexp ' [0-9]+$';
 
 -- cache rp completeness for teams
 alter table team add column dt_complete_rp tinyint default null;
+
+-- session data needs to be bigger
+alter table websession change column sessiondata sessiondata mediumtext default null;
