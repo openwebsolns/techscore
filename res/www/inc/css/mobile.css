@@ -443,3 +443,36 @@ p.warning {padding: 0.5em;}
 #keyword-replace td {
     padding: 0.25em 0.5em;
 }
+
+#teams-list {
+    border:1px solid #aaa;
+    max-height:35em;
+    overflow:scroll;
+    overflow-x:auto;
+    padding:0;
+    background:#eee;
+    margin-top: 0;
+}
+#teams-list ul {
+    padding:0.25em;
+    margin:0;
+}
+#teams-list > li {
+    list-style-type:none;
+    padding:0;
+    margin:0.25em 0;
+}
+#teams-list ul li {
+    margin:0.2em 0;
+}
+#teams-list h4 {
+    margin: 0;
+    padding: 0.5em;
+    border-bottom:1px solid #aaa;
+}
+#teams-list input {
+    width:3em;
+}
+#teams-list label {
+    padding-left:1em;
+}

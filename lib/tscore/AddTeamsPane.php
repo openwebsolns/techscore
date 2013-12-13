@@ -121,7 +121,8 @@ class AddTeamsPane extends AbstractTeamPane {
   // ------------------------------------------------------------
 
   private function fillNewRegatta(Array $args) {
-    $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/addTeams.js'), null, array('async'=>'async', 'defer'=>'defer')));
+    if (!$this->PAGE->isMobile())
+      $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/addTeams.js'), null, array('async'=>'async', 'defer'=>'defer')));
 
     $confs = DB::getConferences();
     $title = "Add teams";
