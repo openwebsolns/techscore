@@ -176,12 +176,14 @@ class AddTeamsPane extends AbstractTeamPane {
       $this->REGATTA->addTeam($team);
 
     if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
-      Session::pa(new PA(sprintf("Added %d teams. Next, set up the boats to be used throughout the regatta.", count($teams_added))));
-      $this->redirect('rotations');
+      Session::pa(new PA(array(sprintf("Added %d teams. Next, ", count($teams_added)),
+                               new XA($this->link('races'), "setup the rounds"),
+                               ".")));
+      $this->redirect('races');
     }
 
     Session::pa(new PA(array(sprintf("Added %d teams. Next, ", count($teams_added)),
-                             new XA(WS::link(sprintf('/score/%s/races', $this->REGATTA->id)), "setup the races"),
+                             new XA($this->link('races'), "setup the races"),
                              ".")));
     $this->redirect('races');
   }
