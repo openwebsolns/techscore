@@ -128,7 +128,7 @@ class AddTeamsPane extends AbstractTeamPane {
     if (($n = DB::g(STN::ORG_NAME)) !== null)
       $title = sprintf("Add teams from %s schools", $n);
     $this->PAGE->addContent($p = new XPort($title));
-    $p->add(new XP(array(), "Choose schools which are participating by indicating how many teams are invited from each school. Use your browser's search function to help you."));
+    $p->add(new XP(array('id'=>'explanation'), "Choose schools which are participating by indicating how many teams are invited from each school."));
     $p->add($form = $this->createForm());
     $form->add($list = new XUl(array('id'=>'teams-list')));
 

@@ -2,6 +2,10 @@ window.addEventListener('load', function(e) {
 var t = document.getElementById("teams-list");
 if (!t)
 return;
+var x = document.getElementById("explanation");
+if (x) {
+x.appendChild(document.createTextNode(" Promote the school from the list on the left to the right. You may promote the school multiple times to indicate multiple teams."));
+}
 var s = document.createElement("select");
 var h = document.createElement("div");
 s.id = "teams-list-select";
