@@ -25,6 +25,10 @@
  */
 class TeamRacesPane extends AbstractPane {
 
+  const SIMPLE = 'simple';
+  const COPY = 'copy';
+  const COMPLETION = 'completion';
+
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Add Round", $user, $reg);
     if ($reg->scoring != Regatta::SCORING_TEAM)
@@ -38,8 +42,6 @@ class TeamRacesPane extends AbstractPane {
    * @param Array $args (ignored)
    */
   protected function fillHTML(Array $args) {
-    $rounds = $this->REGATTA->getRounds();
-
     // ------------------------------------------------------------
     // New round?
     // ------------------------------------------------------------
@@ -52,10 +54,17 @@ class TeamRacesPane extends AbstractPane {
       }
     }
 
+    $rounds = $this->REGATTA->getRounds();
+    $master_rounds = array();
+    foreach ($rounds as $round) {
+      if (count($round->getMasters()) == 0)
+        $master_rounds[] = $round;
+    }
+
     // ------------------------------------------------------------
     // Create from previous
     // ------------------------------------------------------------
-    if (count($rounds) > 0) {
+    if (isset($args['create-round']) && $args['create-round'] == self::COPY && count($rounds) > 0) {
       $this->PAGE->addContent($p = new XPort("Create from existing round"));
       $p->add($f = $this->createForm());
       $f->add(new XP(array(), "Create a new round by copying an existing round's races."));
@@ -63,31 +72,18 @@ class TeamRacesPane extends AbstractPane {
       $f->add(new FItem("Previous round:", XSelect::fromDBM('template', $rounds)));
       $f->add($fi = new FItem("Swap teams:", new XCheckboxInput('swap', 1, array('id'=>'chk-swap'))));
       $fi->add(new XLabel('chk-swap', "Reverse the teams in each race."));
-      $f->add(new XSubmitP('create-from-existing', "Add round"));
+      $f->add($xp = new XSubmitP('create-from-existing', "Add round"));
+      $xp->add(" ");
+      $xp->add(new XA($this->link('races'), "Cancel"));
+      return;
     }
-
-    // ------------------------------------------------------------
-    // Add round
-    // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new XPort("Create new round"));
-    $p->add($form = $this->createForm(XForm::GET));
-    $form->add(new XP(array(),
-                      array("To create a (",
-                            new XSpan("simple", array('class'=>'tooltip', 'title'=>"A regular round-robin, as opposed to a \"completion\" round-robin.")),
-                            ") round-robin, choose the number of teams which will participate in the round and click \"Next →\". On the following screen, you will have the option to choose the teams, the name, and the race order.")));
-    $form->add(new FItem("Number of teams:", new XTextInput('num_teams', count($this->REGATTA->getTeams()))));
-    $form->add(new XSubmitP('new-round', "Next →"));
 
     // ------------------------------------------------------------
     // Create "completion" (slave) round, if there are at least two
     // non-slave rounds available
     // ------------------------------------------------------------
-    $master_rounds = array();
-    foreach ($rounds as $round) {
-      if (count($round->getMasters()) == 0)
-        $master_rounds[] = $round;
-    }
-    if (count($master_rounds) > 1) {
+    if (isset($args['create-round']) && $args['create-round'] == self::COMPLETION && count($rounds) > 0 && count($master_rounds) > 1) {
+
       $this->PAGE->addContent($p = new XPort("Create a round to complete previous round(s)"));
       $p->add($form = $this->createForm());
       $form->add(new XP(array(),
@@ -107,7 +103,51 @@ class TeamRacesPane extends AbstractPane {
                                  new XLabel($cid, $team))));
         }
       }
-      $form->add(new XSubmitP('add-slave-round', "Add round"));
+      $form->add($xp = new XSubmitP('add-slave-round', "Add round"));
+      $xp->add(" ");
+      $xp->add(new XA($this->link('races'), "Cancel"));
+      return;
+    }
+
+    if ((isset($args['create-round']) && $args['create-round'] == self::SIMPLE) || count($rounds) == 0) {
+      // ------------------------------------------------------------
+      // Add round
+      // ------------------------------------------------------------
+      $this->PAGE->addContent($p = new XPort("Create new round"));
+      $p->add($form = $this->createForm(XForm::GET));
+      $form->add(new XP(array(),
+                        array("To create a (",
+                              new XSpan("simple", array('class'=>'tooltip', 'title'=>"A regular round-robin, as opposed to a \"completion\" round-robin.")),
+                              ") round-robin, choose the number of teams which will participate in the round and click \"Next →\". On the following screen, you will have the option to choose the teams, the name, and the race order.")));
+      $form->add(new FItem("Number of teams:", new XTextInput('num_teams', count($this->REGATTA->getTeams()))));
+      $form->add($p = new XSubmitP('new-round', "Next →"));
+      if (count($rounds) > 0) {
+        $p->add(" ");
+        $p->add(new XA($this->link('races'), "Cancel"));
+      }
+    }
+    else {
+      // ------------------------------------------------------------
+      // Offer choice
+      // ------------------------------------------------------------
+      $this->PAGE->addContent($p = new XPort("Add round"));
+      $p->add(new XP(array(), "To get started, choose the  kind of round you would like to add."));
+      $p->add($f = $this->createForm(XForm::GET));
+
+      $opts = array(self::SIMPLE => "New simple round",
+                    self::COPY => "Using existing round as template");
+      if (count($master_rounds) > 1)
+        $opts[self::COMPLETION] = "Completion round";
+      $f->add(new FItem("Add round:", XSelect::fromArray('create-round', $opts)));
+      $f->add(new XSubmitP('go', "Next →"));
+
+      $this->PAGE->addContent($p = new XPort("Explanation"));
+      $p->add($ul = new XUl(array(),
+                            array(new XLi(array(new XStrong("New simple round"), " refers to a regular round robin whose races do not depend on any other round. This is the default choice.")),
+                                  new XLi(array(new XStrong("Using existing round as template"), " will create a round by copying races and teams from a previously-existing round.")))));
+      if (isset($opts[self::COMPLETION]))
+        $ul->add(new XLi(array(new XStrong("Completion round"), " refers to a round where some of the races come from previously existing round(s).")));
+
     }
   }
 
@@ -272,7 +312,7 @@ class TeamRacesPane extends AbstractPane {
       $this->REGATTA->setData(); // new races
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA(array(sprintf("Added new round %s based on %s. ", $round, $templ),
-                               new XA($this->link('round', array('order-rounds'=>'', 'round'=>array($round->id))), "Order races"),
+                               new XA($this->link('round', array('r'=>$round->id)), "Order races"),
                                ".")));
     }
 
@@ -526,7 +566,7 @@ class TeamRacesPane extends AbstractPane {
       $this->REGATTA->setData(); // added new races
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA(array("Added new \"completion\" round. ",
-                               new XA($this->link('round', array('order-rounds'=>'', 'round'=>array($round->id))), "Order races"),
+                               new XA($this->link('round', array('r'=>$round->id)), "Order races"),
                                ".")));
       return array();
     }
