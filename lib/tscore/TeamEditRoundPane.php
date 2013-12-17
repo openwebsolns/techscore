@@ -212,12 +212,14 @@ class TeamEditRoundPane extends AbstractPane {
         $p->add(new XP(array(), "Order the races automatically by using one of the templates below. Pay close attention to the number of boats per flight. If none of the templates apply, manually order the races by using the form below."));
         $p->add(new XP(array(), "Choose the seeding order for the round by placing incrementing numbers next to the team names."));
         $p->add($form = $this->createForm());
-        $form->add($tab = new XQuickTable(array(), array("", "Name", "Boats/flight", "Description")));
+        $form->add($tab = new XQuickTable(array(), array("", "Boats/flight", "Boat rotation", "Description")));
+
+        $frequencies = Race_Order::getFrequencyTypes();
         foreach ($templates as $template) {
           $id = 'inp-' . $template->id;
           $tab->addRow(array($ri = new XRadioInput('template', $template->id, array('id'=>$id)),
-                             new XLabel($id, $template->name),
                              new XLabel($id, $template->num_boats),
+                             new XLabel($id, $frequencies[$template->frequency]),
                              new XLabel($id, $template->description)),
                        array('title' => $template->description));
         }

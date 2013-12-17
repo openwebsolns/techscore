@@ -203,22 +203,23 @@ class TeamRacesPane extends AbstractPane {
     if (count($templates) == 0)
       $form->add(new XP(array('class'=>'warning'), "There are no templates in the system for this number of teams. As such, a standard race order will be applied, which you may manually alter later."));
     else {
-      $form->add($tab = new XQuickTable(array('class'=>'tr-race-order-list'), array("", "Name", "# of boats", "Description")));
+      $frequencies = Race_Order::getFrequencyTypes();
+      $form->add($tab = new XQuickTable(array('class'=>'tr-race-order-list'), array("", "# of boats", "Boat rotation", "Description")));
       foreach ($templates as $i => $template) {
         $id = 'inp-' . $template->id;
         $tab->addRow(array($ri = new XRadioInput('template', $template->id, array('id'=>$id)),
-                           new XLabel($id, $template->name),
                            new XLabel($id, $template->num_boats),
+                           new XLabel($id, $frequencies[$template->frequency]),
                            new XLabel($id, $template->description)),
                      array('class' => 'row'.($i % 2)));
       }
       if (count($templates) == 1)
         $ri->set('checked', 'checked');
       $tab->addRow(array(new XRadioInput('template', '', array('id'=>'inp-no-template')),
-                         new XLabel('inp-no-template', "No special order."),
                          new XLabel('inp-no-template', "N/A"),
-                         new XLabel('inp-no-template', "This option will group all of the first team's races, followed by those of the second team, etc. Use as a last resort.")),
-                   array('class' => 'row'.($i % 2)));
+                         new XLabel('inp-no-template', "N/A"),
+                         new XLabel('inp-no-template', "Group all of the first team's races, followed by those of the second team, etc. Use as a last resort.")),
+                   array('class' => 'row'.(++$i % 2)));
     }
 
     // ------------------------------------------------------------
