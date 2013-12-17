@@ -762,6 +762,25 @@ class DB extends DBM {
   }
 
   /**
+   * Fetches any existing race order that matches the given fields
+   *
+   * @param String $num_divisions (3 is the usual)
+   * @param String $num_teams the number of teams
+   * @param String $num_boats the number of boats
+   * @param Const $frequency one of Race_Order::FREQUENCY_*
+   */
+  public static function getRaceOrder($num_divisions, $num_teams, $num_boats, $frequency) {
+    $r = DB::getAll(DB::$RACE_ORDER,
+                    new DBBool(array(new DBCond('num_teams', $num_teams),
+                                     new DBCond('num_boats', $num_boats),
+                                     new DBCond('frequency', $frequency),
+                                     new DBCond('num_divisions', $num_divisions))));
+    if (count($r) == 0)
+      return null;
+    return $r[0];
+  }
+
+  /**
    * Fetches all the race order templates for given parameters
    *
    * @param int $num_teams how many teams in the template
@@ -3162,10 +3181,16 @@ class Text_Entry extends DBObject {
  * @version 2013-05-08
  */
 class Race_Order extends DBObject {
+
+  const FREQUENCY_FREQUENT = 'frequent';
+  const FREQUENCY_INFREQUENT = 'infrequent';
+  const FREQUENCY_NONE = 'none';
+
   public $num_teams;
   public $num_divisions;
   public $num_boats;
   public $name;
+  public $frequency;
   public $description;
   protected $template;
   protected $author;
@@ -3182,11 +3207,32 @@ class Race_Order extends DBObject {
     }
   }
 
+  protected function db_order() {
+    return array('num_divisions'=>true, 'num_teams'=>true, 'num_boats'=>true, 'frequency' => true);
+  }
+
   public function getPair($index) {
     if ($this->template === null || $index < 0  || $index > count($this->__get('template')))
       return array(null, null);
     $pairings = $this->__get('template');
     return explode('-', $pairings[$index]);
+  }
+
+  public static function getFrequencyTypes() {
+    return array(self::FREQUENCY_FREQUENT => "Frequent rotation",
+                 self::FREQUENCY_INFREQUENT => "Infrequent rotation",
+                 self::FREQUENCY_NONE => "No rotation");
+  }
+
+  /**
+   * Concatenation of num_divisions, num_teams, num_boats, and frequency
+   *
+   * These values ought to be globally unique per race order.
+   *
+   * @return String the hash
+   */
+  public function hash() {
+    return sprintf('%s-%s-%s-%s', $this->num_divisions, $this->num_teams, $this->num_boats, $this->frequency);
   }
 }
 

@@ -676,3 +676,11 @@ alter table team add column dt_complete_rp tinyint default null;
 
 -- session data needs to be bigger
 alter table websession change column sessiondata sessiondata mediumtext default null;
+
+-- race order templates get a frequency type and must be unique
+alter table race_order add column frequency enum ('frequent', 'infrequent', 'none') not null default 'frequent' after num_boats;
+update race_order set frequency = 'frequent';
+create temporary table race_order_unique (select min(id) as id from race_order group by num_divisions, num_boats, num_teams, frequency);
+delete from race_order where id not in (select id from race_order_unique);
+drop temporary table race_order_unique;
+
