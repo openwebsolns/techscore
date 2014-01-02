@@ -684,3 +684,5 @@ create temporary table race_order_unique (select min(id) as id from race_order g
 delete from race_order where id not in (select id from race_order_unique);
 drop temporary table race_order_unique;
 
+-- outbox arguments should be large
+alter table outbox change column arguments arguments text default null;
