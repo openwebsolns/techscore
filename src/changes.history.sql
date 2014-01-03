@@ -52,6 +52,7 @@ alter table school add foreign key (conference) references conference(id) on del
 alter table race drop column wind_mph, drop column wind_gust_mph, drop column wind_dir, drop column temp_f;
 alter table race add column number tinyint unsigned not null after division;
 update race, race_num set race.number = race_num.number where race.id = race_num.id;
+drop table if exists race_num;
 alter table race add unique key (regatta, division, number);
 
 -- fix issues with rp --
@@ -99,7 +100,7 @@ CREATE TABLE `dt_team_division` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `team` (`team`,`division`),
   CONSTRAINT `dt_team_division_ibfk_3` FOREIGN KEY (`team`) REFERENCES `dt_team` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Rank teams within divisions, and account for possible penalt'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Rank teams within divisions, and account for possible penalt';
 
 -- temporary sailors --
 alter table sailor add column regatta_added int default null comment "For temp sailors, regatta when it was added.";
@@ -115,7 +116,7 @@ CREATE TABLE `host_school` (
   KEY `school` (`school`),
   CONSTRAINT `host_school_ibfk_1` FOREIGN KEY (`regatta`) REFERENCES `regatta` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `host_school_ibfk_2` FOREIGN KEY (`school`) REFERENCES `school` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB;
+) ENGINE=InnoDB default charset=latin1;
 insert into host_school (school, regatta) (select distinct account.school, host.regatta from host inner join account on (host.account = account.username) where host.principal > 0);
 CREATE TABLE `account_school` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -126,7 +127,7 @@ CREATE TABLE `account_school` (
   KEY `school` (`school`),
   CONSTRAINT `account_school_ibfk_1` FOREIGN KEY (`account`) REFERENCES `account` (`username`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `account_school_ibfk_2` FOREIGN KEY (`school`) REFERENCES `school` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB;
+) ENGINE=InnoDB default charset=latin1;
 
 -- track regatta creators --
 alter table regatta add column creator varchar(40) default null;
