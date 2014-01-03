@@ -61,45 +61,6 @@ CREATE TABLE IF NOT EXISTS `temp_regatta` ( `regatta` int(5) NOT NULL, `original
 
 CREATE TABLE IF NOT EXISTS `venue` ( `id` int(4) NOT NULL AUTO_INCREMENT, `name` varchar(40) NOT NULL, `address` varchar(40) DEFAULT NULL, `city` varchar(20) DEFAULT NULL, `state` varchar(2) DEFAULT NULL, `zipcode` char(5) DEFAULT NULL, `weather_station_id` varchar(30) DEFAULT NULL, PRIMARY KEY (`id`) ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 
-SET FOREIGN_KEY_CHECKS=1;
-
-
-create table season (id int primary key auto_increment, season enum ('fall', 'winter', 'spring', 'summer') default 'fall', start_date date not null, end_date date not null) engine=innodb default charset=latin1;
-
-
-
--- Changes related to public API
-drop table score_update;
-
-
-CREATE TABLE `pub_update_season` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `season` varchar(3) NOT NULL,
-  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `season` (`season`)
-) ENGINE=InnoDB;
-
-
-CREATE TABLE `pub_update_request` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `regatta` int(11) NOT NULL,
-  `activity` enum('rotation','score') NOT NULL DEFAULT 'score',
-  `request_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB;
-
-
-CREATE TABLE `pub_update_log` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `request` int(11) NOT NULL,
-  `attempt_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `return_code` tinyint(4) DEFAULT '0',
-  PRIMARY KEY (`id`),
-  KEY `request` (`request`),
-  CONSTRAINT `pub_update_log_ibfk_1` FOREIGN KEY (`request`) REFERENCES `pub_update_request` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB;
-
 create table dt_score (explanation text default null) engine=innodb;
 
 CREATE TABLE IF NOT EXISTS `dt_regatta` ( `id` int(5) NOT NULL AUTO_INCREMENT, `name` varchar(35) NOT NULL, `nick` varchar(30) DEFAULT NULL, `start_time` datetime DEFAULT NULL COMMENT 'Date and time when regatta started', `end_date` date DEFAULT NULL, `venue` int(4) DEFAULT NULL, `type` enum('conference','intersectional','championship','personal') NOT NULL DEFAULT 'conference', `finalized` datetime DEFAULT NULL, `scoring` enum('standard','combined') NOT NULL DEFAULT 'standard', `num_divisions` tinyint(4) NOT NULL DEFAULT '1', `num_races` tinyint(3) unsigned NOT NULL DEFAULT '1', `hosts` varchar(255) DEFAULT NULL COMMENT 'Comma-delimited list of school ID', `confs` varchar(255) DEFAULT NULL COMMENT 'Comma-delimited list of conference IDs', `boats` varchar(255) DEFAULT NULL COMMENT 'Comma-delimited list of boat names', `singlehanded` tinyint(4) DEFAULT NULL, `season` enum('fall','winter','spring','summer') NOT NULL DEFAULT 'fall', PRIMARY KEY (`id`), KEY `venue` (`venue`), CONSTRAINT `dt_regatta_ibfk_1` FOREIGN KEY (`id`) REFERENCES `regatta` (`id`) ON DELETE CASCADE ON UPDATE CASCADE ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
@@ -109,3 +70,5 @@ CREATE TABLE IF NOT EXISTS `race_num` ( `id` int(7), `number` bigint(21) ) ENGIN
 create table dt_rp (id int not null) engine=innodb;
 
 CREATE TABLE IF NOT EXISTS `dt_team` ( `id` int(7) NOT NULL AUTO_INCREMENT, `regatta` int(5) NOT NULL, `school` varchar(10) DEFAULT NULL, `name` varchar(20) NOT NULL, `rank` tinyint(3) unsigned DEFAULT NULL, `rank_explanation` varchar(100) DEFAULT NULL, PRIMARY KEY (`id`), KEY `regatta` (`regatta`), KEY `school` (`school`), CONSTRAINT `dt_team_ibfk_1` FOREIGN KEY (`id`) REFERENCES `team` (`id`) ON DELETE CASCADE ON UPDATE CASCADE ) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=latin1;
+
+SET FOREIGN_KEY_CHECKS=1;
