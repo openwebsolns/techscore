@@ -12,5 +12,5 @@
 $this->bucket = '';
 $this->access_key = '';
 $this->secret_key = '';
-$this->hose_base = '';
+$this->host_base = '';
 ?>
