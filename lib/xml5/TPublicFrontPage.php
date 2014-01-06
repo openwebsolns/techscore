@@ -24,9 +24,5 @@ class TPublicFrontPage extends TPublicPage {
     parent::__construct("Scores");
     $this->setDescription("Official site for live regatta results of the Intercollegiate Sailing Association.");
   }
-
-  protected function getCSS() {
-    return array('/inc/css/icsa.css');
-  }
 }
 ?>
