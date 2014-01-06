@@ -472,7 +472,7 @@ UserVoice.push(["showTab", "classic_widget", {
    * @return Array:URLs the links to the CSS files
    */
   protected function getCSS() {
-    return array('/inc/css/icsa.css');
+    return array('/inc/css/style.css');
   }
 
   /**
