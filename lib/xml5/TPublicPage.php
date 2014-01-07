@@ -109,7 +109,7 @@ class TPublicPage extends XPage {
     $this->header_attrs = array();
     $this->header_table = array();
 
-    $this->keywords = array("regatta", "results", "scores", "icsa", "sailing");
+    $this->keywords = array("regatta", "results", "scores", "sailing");
     $this->title = $title;
   }
 
