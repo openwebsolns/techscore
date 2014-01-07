@@ -331,7 +331,7 @@ class RpManager {
     $r = DB::get(DB::$RP_FORM, $this->regatta->id);
     if ($r === null)
       return false;
-    return base64_decode($r->filedata);
+    return $r->filedata;
   }
 
   /**
@@ -343,7 +343,7 @@ class RpManager {
     $r = new RP_Form();
     $r->id = $this->regatta->id;
     $r->created_at = DB::$NOW;
-    $r->filedata = base64_encode($data);
+    $r->filedata = $data;
     DB::set($r);
   }
 
@@ -557,7 +557,6 @@ class RP_Form extends DBObject {
   public function db_type($field) {
     switch ($field) {
     case 'created_at': return DB::$NOW;
-    case 'filedata': return DBQuery::A_BLOB;
     default:
       return parent::db_type($field);
     }

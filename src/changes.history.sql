@@ -687,3 +687,6 @@ drop temporary table race_order_unique;
 
 -- outbox arguments should be large
 alter table outbox change column arguments arguments text default null;
+
+-- do not use base64 for rp forms
+delete from rp_form;
