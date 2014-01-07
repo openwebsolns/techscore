@@ -22,7 +22,8 @@ class Update404 extends AbstractScript {
 
     // SETUP navigation, get latest season
     $seasons = DB::getAll(DB::$SEASON, new DBCond('start_date', DB::$NOW, DBCond::LE));
-    $season = $seasons[0];
+    if (count($seasons) > 0)
+      $season = $seasons[0];
 
     $page->addMenu(new XA('/', "Home"));
     $page->addMenu(new XA('/schools/', "Schools"));
