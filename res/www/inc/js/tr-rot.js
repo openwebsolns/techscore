@@ -36,7 +36,11 @@ window.onload = function(evt) {
     if (old)
         old(evt);
 
-    var inputs = document.getElementsByTagName("input");
+    var form = document.getElementById("tr-rotation-form");
+    if (!form)
+        return;
+
+    var inputs = form.getElementsByTagName("input");
     for (var i = 0; i < inputs.length; i++) {
         if (inputs[i].type == "text" && inputs[i].name != "name") {
             SAIL_INPUTS.push(inputs[i]);

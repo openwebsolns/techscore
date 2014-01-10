@@ -161,6 +161,13 @@ class TeamRotationDialog extends AbstractDialog {
    * @return Array:Xmlable
    */
   public function getTable(Round $round, $link_schools = false) {
+    $races = ($round->round_group === null) ?
+      $this->REGATTA->getRacesInRound($round, Division::A(), false) :
+      $this->REGATTA->getRacesInRoundGroup($round->round_group, Division::A(), false);
+
+    if (count($races) == 0)
+      return $this->getEmptyTable($round);
+
     $rotation = $this->REGATTA->getRotation();
 
     $divs = $this->REGATTA->getDivisions();
@@ -179,10 +186,6 @@ class TeamRotationDialog extends AbstractDialog {
                                                            new XTH(array('colspan'=>count($divs)), "Sails"),
                                                            new XTH(array('colspan'=>2), "Team 2"))))),
                             $body = new XTBody()));
-
-    $races = ($round->round_group === null) ?
-      $this->REGATTA->getRacesInRound($round, Division::A(), false) :
-      $this->REGATTA->getRacesInRoundGroup($round->round_group, Division::A(), false);
 
     $flight = count($rotation->getCommonSails($races)) / 2;
     foreach ($races as $i => $race) {
@@ -237,6 +240,108 @@ class TeamRotationDialog extends AbstractDialog {
 
       $row->add(new XTD(array('class'=>'team2'), $team2));
       $row->add(new XTD(array('class'=>'team2'), $burg2));
+    }
+    return array($tab);
+  }
+
+  /**
+   * Fetches the list of tables that comprise this display
+   *
+   * @param Round $round round or group member
+   * @param boolean $link_schools true to link schools
+   * @return Array:Xmlable
+   */
+  public function getEmptyTable(Round $round) {
+    $divisions = $this->REGATTA->getDivisions();
+    if (count($divisions) == 0)
+      $divisions = array(Division::A(), Division::B(), Division::C());
+
+    $tab = new XTable(array('class'=>'tr-rotation-table'),
+                      array(new XTHead(array(),
+                                       array(new XTR(array(),
+                                                     array(new XTH(array(), "#"),
+                                                           new XTH(array(), "Team 1"),
+                                                           new XTH(array('colspan'=>count($divisions)), "Sails"),
+                                                           new XTH(array(), ""),
+                                                           new XTH(array('colspan'=>count($divisions)), "Sails"),
+                                                           new XTH(array(), "Team 2"))))),
+                            $body = new XTBody()));
+
+    $teams = array();
+    for ($i = 0; $i < $round->num_teams; $i++) {
+        $teams[] = new XEm(sprintf("Team %d", ($i + 1)), array('class'=>'no-team'));
+    }
+
+    $rotation = $round->rotation;
+    $group_size = 2 * count($divisions);
+
+    $flight = $round->num_boats / $group_size;
+    $team_sails = array();
+    $race_num = 0;
+    for ($i = 0; $i < count($round->race_order); $i++) {
+      // spacer
+      if ($flight > 0 && $i % $flight == 0) {
+        $body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => 8 + 2 * count($divisions)), sprintf("Flight %d", ($i / $flight + 1))))));
+      }
+
+      $pair = $round->getRaceOrderPair($i);
+      $team1 = $teams[$pair[0] - 1];
+      $team2 = $teams[$pair[1] - 1];
+
+      // Sails
+      $sails1 = array();
+      $sails2 = array();
+      for ($j = 0; $j < count($divisions); $j++) {
+        $ind = ($i * count($divisions) + $j) % $round->rotation->count();
+        $s1 = new Sail();
+        $s1->sail = $round->rotation->sails1[$ind];
+        $s1->color = $round->rotation->colors1[$ind];
+
+        $s2 = new Sail();
+        $s2->sail = $round->rotation->sails2[$ind];
+        $s2->color = $round->rotation->colors2[$ind];
+
+        if ($round->rotation_frequency == Race_Order::FREQUENCY_FREQUENT) {
+          $sails1[] = $s1;
+          $sails2[] = $s2;
+        }
+        else {
+          if (!isset($team_sails[$pair[0]]))
+            $team_sails[$pair[0]] = $s1;
+          $sails1[] = $team_sails[$pair[0]];
+
+          if (!isset($team_sails[$pair[1]]))
+            $team_sails[$pair[1]] = $s2;
+          $sails2[] = $team_sails[$pair[1]];
+        }
+        // TODO: infrequent rotation
+      }
+
+      $body->add($row = new XTR(array(), array(new XTD(array(), ($i + 1)),
+                                               new XTD(array('class'=>'team1'), $team1))));
+      // first team
+      for ($j = 0; $j < count($divisions); $j++) {
+        $sail = null;
+        if (isset($sails1[$j]))
+          $sail = $sails1[$j];
+        $row->add($s = new XTD(array('class'=>'team1 tr-sail'), $sail));
+        if ($sail !== null && $sail->color !== null)
+          $s->set('style', sprintf('background:%s;', $sail->color));
+      }
+
+      $row->add(new XTD(array('class'=>'vscell'), "vs"));
+
+      // second team
+      for ($j = 0; $j < count($divisions); $j++) {
+        $sail = null;
+        if (isset($sails2[$j]))
+          $sail = $sails2[$j];
+        $row->add($s = new XTD(array('class'=>'team2 tr-sail'), $sail));
+        if ($sail !== null && $sail->color !== null)
+          $s->set('style', sprintf('background:%s;', $sail->color));
+      }
+
+      $row->add(new XTD(array('class'=>'team2'), $team2));
     }
     return array($tab);
   }

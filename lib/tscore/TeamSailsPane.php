@@ -411,6 +411,7 @@ class TeamSailsPane extends AbstractPane {
 
     $step = count($divisions) * 2;
     $form = $this->createForm();
+    $form->set('id', 'tr-rotation-form');
     $form->add(new XP(array(), "Assign the sail numbers using the table below. If applicable, choose the color that goes with the sail. This color will be displayed in the \"Rotations\" dialog."));
     $form->add(new XP(array(),
                       array("The flight size for this rotation is ", new XStrong($flight / $step), " races.")));

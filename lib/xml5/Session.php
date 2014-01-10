@@ -158,6 +158,13 @@ class Session {
     return self::$DATA[$key];
   }
 
+  /**
+   * Removes the given value, whether or not it exists.
+   */
+  public static function d($key) {
+    unset(self::$DATA[$key]);
+  }
+
   public static function has($key) {
     return isset(self::$DATA[$key]);
   }

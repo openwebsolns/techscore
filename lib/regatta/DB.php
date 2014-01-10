@@ -66,6 +66,7 @@ class DB extends DBM {
   public static $ROLE = null;
   public static $ROLE_PERMISSION = null;
   public static $SETTING = null;
+  public static $TEAM_ROTATION = null;
 
   public static $OUTBOX = null;
   public static $MESSAGE = null;
@@ -1908,6 +1909,14 @@ class Round extends DBObject {
   public $title;
   public $scoring;
   public $relative_order;
+
+  public $num_teams;
+  public $num_boats;
+  public $rotation_frequency;
+  protected $race_order;
+  protected $rotation;
+  protected $boat;
+
   /**
    * @var Race_Group since team races can be "grouped" for ordering purposes
    */
@@ -1918,6 +1927,14 @@ class Round extends DBObject {
       return DB::$REGATTA;
     if ($field == 'round_group')
       return DB::$ROUND_GROUP;
+    if ($field == 'race_order')
+      return array();
+    if ($field == 'boat')
+      return DB::$BOAT;
+    if ($field == 'rotation') {
+      require_once('regatta/TeamRotation.php');
+      return DB::$TEAM_ROTATION;
+    }
     return parent::db_type($field);
   }
   protected function db_order() { return array('relative_order'=>true); }
@@ -1978,6 +1995,19 @@ class Round extends DBObject {
 
   private $_masters;
   private $_slaves;
+
+  /**
+   * Fetches the pair of team indices
+   *
+   * @param int $index the index within the race_order
+   * @return Array with two indices: team1, and team2
+   */
+  public function getRaceOrderPair($index) {
+    if ($this->race_order === null || $index < 0  || $index > count($this->__get('race_order')))
+      return array(null, null);
+    $pairings = $this->__get('race_order');
+    return explode('-', $pairings[$index]);
+  }
 }
 
 /**
@@ -3252,7 +3282,8 @@ class Regatta_Rotation extends DBObject {
     case 'regatta':
       return DB::$REGATTA;
     case 'rotation':
-      return new TeamRotation();
+      require_once('regatta/TeamRotation.php');
+      return DB::$TEAM_ROTATION;
     default:
       return parent::db_type($field);
     }

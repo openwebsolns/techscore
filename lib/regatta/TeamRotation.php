@@ -75,5 +75,8 @@ class TeamRotation {
       }
     }
   }
+
 }
+
+DB::$TEAM_ROTATION = new TeamRotation();
 ?>

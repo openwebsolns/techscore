@@ -226,7 +226,20 @@ h2 {color:#b89f7e;}
 table {border-spacing:0px;border-collapse:collapse;font-size:0.9em;}
 table td {border:1px solid #bbbbbb;text-align:right;margin:0px;padding:2.5px;}
 table th {border:1px solid #bbbbbb;}
-table thead {background:#b89f7e;background-image:url('img/table_bg.png');background-repeat:repeat-x;border:1px solid #555555;height:20px;color:black;}
+table thead {    
+    background: #f3ebdf; /* Old browsers */
+    background: -moz-linear-gradient(top, #f3ebdf 0%, #e6dfd3 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f3ebdf), color-stop(100%,#e6dfd3)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #f3ebdf 0%,#e6dfd3 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #f3ebdf 0%,#e6dfd3 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #f3ebdf 0%,#e6dfd3 100%); /* IE10+ */
+    background: linear-gradient(to bottom, #f3ebdf 0%,#e6dfd3 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f3ebdf', endColorstr='#e6dfd3',GradientType=0 ); /* IE6-9 */
+
+    border:1px solid #555555;
+    height:20px;
+    color:black;
+}
 thead th {padding:0px 1em;}
 table.narrow {display:inline-block;vertical-align:top;}
 table.full {width:100%;margin-bottom:1em;}
@@ -1176,4 +1189,35 @@ select, .csel-container {
 
 #teams-list-select-wrapper button {
     margin: 1ex auto;
+}
+
+td.tr-sail {
+    font-size: 80%;
+    font-weight: bold;
+    padding: 0 0.35em;
+    text-align: center;
+    color: #ddd;
+    text-shadow: 1px 1px 0px #222;
+}
+
+.tr-rotation-table td {
+    border-right: 0;
+    border-left: 0;
+}
+.tr-flight td {
+    text-align: center;
+    font-size: 75%;
+}
+.tr-rotation-table img, .teamscorelist img {
+    height: 20px;
+    width: auto;
+}
+.vscell {
+    text-align: center;
+}
+.team1 {
+    text-align: right;
+}
+.team2 {
+    text-align: left;
 }
