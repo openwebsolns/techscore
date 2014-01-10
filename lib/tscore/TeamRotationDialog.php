@@ -272,12 +272,20 @@ class TeamRotationDialog extends AbstractDialog {
         $teams[] = new XEm(sprintf("Team %d", ($i + 1)), array('class'=>'no-team'));
     }
 
-    $rotation = $round->rotation;
-    $group_size = 2 * count($divisions);
-
-    $flight = $round->num_boats / $group_size;
-    $team_sails = array();
+    // calculate appropriate race number
     $race_num = 0;
+    foreach ($this->REGATTA->getRounds() as $r) {
+      if ($r->id == $round->id)
+        break;
+      $race_num += count($this->REGATTA->getRacesInRound($r, Division::A(), false));
+    }
+
+
+    $rotation = $round->rotation;
+    $sails = $round->rotation->assignSails($round, $teams, $divisions, $round->rotation_frequency);
+
+    $group_size = 2 * count($divisions);
+    $flight = $round->num_boats / $group_size;
     for ($i = 0; $i < count($round->race_order); $i++) {
       // spacer
       if ($flight > 0 && $i % $flight == 0) {
@@ -288,42 +296,13 @@ class TeamRotationDialog extends AbstractDialog {
       $team1 = $teams[$pair[0] - 1];
       $team2 = $teams[$pair[1] - 1];
 
-      // Sails
-      $sails1 = array();
-      $sails2 = array();
-      for ($j = 0; $j < count($divisions); $j++) {
-        $ind = ($i * count($divisions) + $j) % $round->rotation->count();
-        $s1 = new Sail();
-        $s1->sail = $round->rotation->sails1[$ind];
-        $s1->color = $round->rotation->colors1[$ind];
-
-        $s2 = new Sail();
-        $s2->sail = $round->rotation->sails2[$ind];
-        $s2->color = $round->rotation->colors2[$ind];
-
-        if ($round->rotation_frequency == Race_Order::FREQUENCY_FREQUENT) {
-          $sails1[] = $s1;
-          $sails2[] = $s2;
-        }
-        else {
-          if (!isset($team_sails[$pair[0]]))
-            $team_sails[$pair[0]] = $s1;
-          $sails1[] = $team_sails[$pair[0]];
-
-          if (!isset($team_sails[$pair[1]]))
-            $team_sails[$pair[1]] = $s2;
-          $sails2[] = $team_sails[$pair[1]];
-        }
-        // TODO: infrequent rotation
-      }
-
-      $body->add($row = new XTR(array(), array(new XTD(array(), ($i + 1)),
+      $body->add($row = new XTR(array(), array(new XTD(array(), ++$race_num),
                                                new XTD(array('class'=>'team1'), $team1))));
       // first team
-      for ($j = 0; $j < count($divisions); $j++) {
+      foreach ($divisions as $div) {
         $sail = null;
-        if (isset($sails1[$j]))
-          $sail = $sails1[$j];
+        if (isset($sails[$i]))
+          $sail = $sails[$i][$pair[0]][(string)$div];
         $row->add($s = new XTD(array('class'=>'team1 tr-sail'), $sail));
         if ($sail !== null && $sail->color !== null)
           $s->set('style', sprintf('background:%s;', $sail->color));
@@ -332,10 +311,10 @@ class TeamRotationDialog extends AbstractDialog {
       $row->add(new XTD(array('class'=>'vscell'), "vs"));
 
       // second team
-      for ($j = 0; $j < count($divisions); $j++) {
+      foreach ($divisions as $div) {
         $sail = null;
-        if (isset($sails2[$j]))
-          $sail = $sails2[$j];
+        if (isset($sails[$i]))
+          $sail = $sails[$i][$pair[1]][(string)$div];
         $row->add($s = new XTD(array('class'=>'team2 tr-sail'), $sail));
         if ($sail !== null && $sail->color !== null)
           $s->set('style', sprintf('background:%s;', $sail->color));

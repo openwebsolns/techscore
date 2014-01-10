@@ -76,6 +76,75 @@ class TeamRotation {
     }
   }
 
+  /**
+   * Creates and returns sail #/color assignment for given frequency
+   *
+   * @param Round $round the round whose race_order to use
+   * @param Array:Team $teams ordered list of teams
+   * @param Array:Division the number of divisions
+   * @param Const $frequency one of Race_Order::FREQUENCY_*
+   * @return Array a map indexed first by race number, and then by
+   * team index, and then by divisions
+   */
+  public function assignSails(Round $round, Array $teams, Array $divisions, $frequency) {
+    if ($round->race_order === null)
+      return array();
+
+    if ($this->count() == 0)
+      return array();
+
+    $sails1 = $this->__get('sails1');
+    $sails2 = $this->__get('sails2');
+    $colors1 = $this->__get('colors1');
+    $colors2 = $this->__get('colors2');
+
+    $list = array();
+    if ($frequency == Race_Order::FREQUENCY_FREQUENT) {
+      $sailIndex = 0;
+      for ($i = 0; $i < count($round->race_order); $i++) {
+        $pair = $round->getRaceOrderPair($i);
+        $list[$i] = array($pair[0] => array(), $pair[1] => array());
+        foreach ($divisions as $div) {
+          $sail = new Sail();
+          $sail->sail = $sails1[$sailIndex];
+          $sail->color = $colors1[$sailIndex];
+          $list[$i][$pair[0]][(string)$div] = $sail;
+
+          $sail = new Sail();
+          $sail->sail = $sails2[$sailIndex];
+          $sail->color = $colors2[$sailIndex];
+          $list[$i][$pair[1]][(string)$div] = $sail;
+
+          $sailIndex = ($sailIndex + 1) % count($sails1);
+        }
+      }
+    }
+
+    if ($frequency == Race_Order::FREQUENCY_NONE) {
+      // Assign the sails to the teams
+      $sailIndex = 0;
+
+      $team_sails = array();
+      foreach ($teams as $i => $team) {
+        $team_sails[$i] = array();
+        foreach ($divisions as $div) {
+          $sail = new Sail();
+          $sail->sail = $sails1[$sailIndex];
+          $sail->color = $colors1[$sailIndex];
+          $team_sails[$i][(string)$div] = $sail;
+
+          $sailIndex++;
+        }
+      }
+
+      for ($i = 0; $i < count($round->race_order); $i++) {
+        $pair = $round->getRaceOrderPair($i);
+        $list[] = array($pair[0] => $team_sails[$pair[0] - 1],
+                        $pair[1] => $team_sails[$pair[1] - 1]);
+      }
+    }
+    return $list;
+  }
 }
 
 DB::$TEAM_ROTATION = new TeamRotation();
