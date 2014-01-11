@@ -827,7 +827,8 @@ class TeamRacesPane extends AbstractPane {
         }
 
         // Insert all at once
-        DB::insertAll($new_races);
+        foreach ($new_races as $race)
+          DB::set($race, false);
         DB::insertAll($new_sails);
         $message = "Created new round.";
       }
