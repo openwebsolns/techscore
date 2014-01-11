@@ -117,8 +117,10 @@ class TeamRacesPane extends AbstractPane {
 
     // Calculate step
     $MAX_STEP = 0;
-    if (count($rounds) == 0)
+    if ($ROUND === null && count($rounds) == 0) {
       $ROUND = new Round();
+      Session::s('round', $ROUND);
+    }
 
     $team_ids = Session::g('round_teams');
     if ($ROUND !== null) {
@@ -690,7 +692,7 @@ class TeamRacesPane extends AbstractPane {
       // @TODO: self::COPY
       // @TODO: self::COMPLETION???
 
-      if ($args['create-round'] == self::SIMPLE || count($rounds) == 0) {
+      if ($args['create-round'] == self::SIMPLE) {
         $ROUND = new Round();
         Session::s('round', $ROUND);
         $this->redirect('races');
