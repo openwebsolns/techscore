@@ -277,7 +277,10 @@ class TeamRotationDialog extends AbstractDialog {
     foreach ($this->REGATTA->getRounds() as $r) {
       if ($r->id == $round->id)
         break;
-      $race_num += count($this->REGATTA->getRacesInRound($r, Division::A(), false));
+      if ($r->race_order != null)
+        $race_num += count($r->race_order);
+      else
+        $race_num += count($this->REGATTA->getRacesInRound($r, Division::A(), false));
     }
 
 

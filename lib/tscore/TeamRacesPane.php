@@ -152,8 +152,9 @@ class TeamRacesPane extends AbstractPane {
       $p->add(new XP(array(), "To get started, choose the  kind of round you would like to add."));
       $p->add($f = $this->createForm());
 
-      $opts = array(self::SIMPLE => "Standard round robin",
-                    self::COPY => "Using existing round as template");
+      $opts = array(self::SIMPLE => "Standard round robin");
+      if (count($rounds) > 0)
+        $opts[self::COPY] = "Using existing round as template";
       if (count($master_rounds) > 1)
         $opts[self::COMPLETION] = "Completion round";
       $f->add(new FItem("Add round:", XSelect::fromArray('create-round', $opts)));
@@ -161,8 +162,9 @@ class TeamRacesPane extends AbstractPane {
 
       $this->PAGE->addContent($p = new XPort("Explanation"));
       $p->add($ul = new XUl(array(),
-                            array(new XLi(array(new XStrong("Standard round robin"), " refers to a regular round robin whose races do not depend on any other round. This is the default choice.")),
-                                  new XLi(array(new XStrong("Using existing round as template"), " will create a round by copying races and teams from a previously-existing round.")))));
+                            array(new XLi(array(new XStrong("Standard round robin"), " refers to a regular round robin whose races do not depend on any other round. This is the default choice.")))));
+      if (isset($opts[self::COPY]))
+        $ul->add(new XLi(array(new XStrong("Using existing round as template"), " will create a round by copying races and teams from a previously-existing round.")));
       if (isset($opts[self::COMPLETION]))
         $ul->add(new XLi(array(new XStrong("Completion round"), " refers to a round where some of the races come from previously existing round(s).")));
       return;
@@ -803,12 +805,18 @@ class TeamRacesPane extends AbstractPane {
             $new_races[] = $race;
 
             if (isset($sails[$i])) {
-              $sail = $sails[$i][$pair[0]][(string)$div];
+              $templ = $sails[$i][$pair[0]][(string)$div];
+              $sail = new Sail();
+              $sail->sail = $templ->sail;
+              $sail->color = $templ->color;
               $sail->race = $race;
               $sail->team = $t1;
               $new_sails[] = $sail;
 
-              $sail = $sails[$i][$pair[1]][(string)$div];
+              $templ = $sails[$i][$pair[1]][(string)$div];
+              $sail = new Sail();
+              $sail->sail = $templ->sail;
+              $sail->color = $templ->color;
               $sail->race = $race;
               $sail->team = $t2;
               $new_sails[] = $sail;
@@ -1350,7 +1358,10 @@ class TeamRacesPane extends AbstractPane {
     foreach ($this->REGATTA->getRounds() as $r) {
       if ($r->id == $round->id)
         break;
-      $race_num += count($this->REGATTA->getRacesInRound($r, Division::A(), false));
+      if ($r->race_order != null)
+        $race_num += count($r->race_order);
+      else
+        $race_num += count($this->REGATTA->getRacesInRound($r, Division::A(), false));
     }
     return $race_num;
   }
