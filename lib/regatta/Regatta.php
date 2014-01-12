@@ -325,6 +325,9 @@ class FullRegatta extends DBObject {
    * @return list of divisions in this regatta
    */
   public function getDivisions() {
+    if ($this->scoring == Regatta::SCORING_TEAM)
+      return array(Division::A(), Division::B(), Division::C());
+
     $q = DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->id), array('division'));
     $q->distinct(true);
     $q->order_by(array('division'=>true));
