@@ -41,17 +41,18 @@ class TeamSailsPane extends AbstractPane {
    *
    */
   protected function fillHTML(Array $args) {
-    // New regatta?
-    $divisions = $this->REGATTA->getDivisions();
-    if (count($divisions) == 0) {
-      $this->fillNewRegatta($args);
-      return;
-    }
-    $step = count($divisions) * 2;
-
     $rounds = array();
     foreach ($this->REGATTA->getRounds() as $round)
       $rounds[$round->id] = $round;
+
+    // New regatta?
+    if (count($rounds) == 0) {
+      $this->fillNewRegatta($args);
+      return;
+    }
+
+    $divisions = $this->REGATTA->getDivisions();
+    $step = count($divisions) * 2;
 
     // ------------------------------------------------------------
     // 2. Enter values
@@ -265,21 +266,24 @@ class TeamSailsPane extends AbstractPane {
 
   /**
    * Provides a way to store one or more rotations for use when
-   * creating rounds. Assumes 3 divisions!
+   * creating rounds.
    *
    */
   protected function fillNewRegatta(Array $args) {
+    $divisions = $this->REGATTA->getDivisions();
+    $step = count($divisions) * 2;
+
     // ------------------------------------------------------------
     // Creating a new rotation?
     // ------------------------------------------------------------
     if (isset($args['new-rotation'])) {
       try {
-        $num_boats = DB::$V->reqInt($args, 'num_boats', 6, 100, "Invalid number of boats.");
-        if (($num_boats % 6) != 0)
-          throw new SoterException("Number of boats must be divisible by 6.");
+        $num_boats = DB::$V->reqInt($args, 'num_boats', $step, 100, "Invalid number of boats.");
+        if (($num_boats % $step) != 0)
+          throw new SoterException(sprintf("Number of boats must be divisible by %d.", $step));
 
         $this->PAGE->addContent($p = new XPort("2. Specify name and sail numbers"));
-        $p->add($form = $this->getSailsForm(new TeamRotation(), $num_boats, array(Division::A(), Division::B(), Division::C())));
+        $p->add($form = $this->getSailsForm(new TeamRotation(), $num_boats, $divisions));
         return;
       }
       catch (SoterException $e) {
@@ -300,7 +304,7 @@ class TeamSailsPane extends AbstractPane {
     $this->PAGE->addContent($p = new XPort("1. Create new rotation template"));
 
     $p->add($form = $this->createForm(XForm::GET));
-    $form->add(new FItem("Number of boats:", new XInput('number', 'num_boats', 18, array('step'=>6, 'min'=>6))));
+    $form->add(new FItem("Number of boats:", new XInput('number', 'num_boats', $step * 3, array('step'=>$step, 'min'=>$step))));
     $form->add(new XSubmitP('new-rotation', "Next →"));
 
     if (count($current) > 0) {
@@ -313,15 +317,15 @@ class TeamSailsPane extends AbstractPane {
         $tab->addRow(array(new XCheckboxInput('regatta_rotation[]', $rotation->id, array('id'=>$id)),
                            new XA($this->link('rotations', array('r'=>$rotation->id)), $rotation->name),
                            new XLabel($id, $rotation->rotation->count()),
-                           $this->getSummaryTable($rotation->rotation)),
+                           $this->getSummaryTable($rotation->rotation, $divisions)),
                      array('class'=>'row'.($i % 2)));
       }
       $form->add(new XSubmitP('delete', "Delete selected"));
     }
   }
 
-  protected function getSummaryTable(TeamRotation $rot) {
-    $num_divs = 3;
+  protected function getSummaryTable(TeamRotation $rot, Array $divisions) {
+    $num_divs = count($divisions);
     $tab = new XTable(array('class'=>'tr-rotation-summary'),
                       array(new XTHead(array(),
                                        array(new XTR(array(),
@@ -389,7 +393,7 @@ class TeamSailsPane extends AbstractPane {
         $rot->regatta = $this->REGATTA;
       }
 
-      $rot->rotation = $this->processSailsForm(array(Division::A(), Division::B(), Division::C()), $args);
+      $rot->rotation = $this->processSailsForm($this->REGATTA->getDivisions(), $args);
 
       DB::set($rot);
       Session::pa(new PA(sprintf("Saved the rotation as \"%s\".", $name)));

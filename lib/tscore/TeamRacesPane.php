@@ -179,8 +179,6 @@ class TeamRacesPane extends AbstractPane {
     // Step 1: Settings
     // ------------------------------------------------------------
     $divisions = $this->REGATTA->getDivisions();
-    if (count($divisions) == 0)
-      $divisions = array(Division::A(), Division::B(), Division::C());
     $num_divs = count($divisions);
     $group_size = 2 * $num_divs;
 
@@ -617,8 +615,6 @@ class TeamRacesPane extends AbstractPane {
     // Race order
     // ------------------------------------------------------------
     $num_divs = count($this->REGATTA->getDivisions());
-    if ($num_divs == 0)
-      $num_divs = 3; // new regattas
     $templates = DB::getRaceOrders($num_teams, $num_divs);
     $form->add(new XH4("Race order"));
     if (count($templates) == 0)
@@ -702,8 +698,6 @@ class TeamRacesPane extends AbstractPane {
     }
 
     $divisions = $this->REGATTA->getDivisions();
-    if (count($divisions) == 0)
-      $divisions = array(Division::A(), Division::B(), Division::C());
     $group_size = 2 * count($divisions);
 
     // ------------------------------------------------------------

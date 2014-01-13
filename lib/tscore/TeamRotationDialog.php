@@ -253,8 +253,6 @@ class TeamRotationDialog extends AbstractDialog {
    */
   public function getEmptyTable(Round $round) {
     $divisions = $this->REGATTA->getDivisions();
-    if (count($divisions) == 0)
-      $divisions = array(Division::A(), Division::B(), Division::C());
 
     $tab = new XTable(array('class'=>'tr-rotation-table'),
                       array(new XTHead(array(),
