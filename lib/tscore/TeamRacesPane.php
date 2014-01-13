@@ -352,7 +352,7 @@ class TeamRacesPane extends AbstractPane {
               $sel->add(new XOption("", array(), "[None]"));
               foreach ($COLORS as $code => $title) {
                 $attrs = array('style'=>sprintf('background:%1$s;color:%1$s;', $code));
-                $sel->add($opt1 = new XOption($code, $attrs, $title));
+                $sel->add($opt = new XOption($code, $attrs, $title));
                 if ($code == $color)
                   $opt->set('selected', 'selected');
               }
