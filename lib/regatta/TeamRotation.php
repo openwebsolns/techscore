@@ -106,6 +106,76 @@ class TeamRotation {
       }
     }
 
+    if ($frequency == Race_Order::FREQUENCY_INFREQUENT) {
+      // Group sails by number of divisions, indexed non-numerically
+      $sail_groups = array();
+      for ($i = 0; $i < $this->count(); $i++) {
+        $num = floor($i / count($divisions));
+        $id = 'group' . $num;
+        if (!isset($sail_groups[$id]))
+          $sail_groups[$id] = array();
+
+        $div = $divisions[$i % count($divisions)];
+
+        $sail = new Sail();
+        $sail->sail = $this->sails[$i];
+        $sail->color = $this->colors[$i];
+        $sail_groups[$id][(string)$div] = $sail;
+      }
+
+      // Group races into flights
+      $race_groups = array();
+      $flight_size = $this->count() / (2 * count($divisions));
+      for ($i = 0; $i < count($round->race_order); $i++) {
+        $flight = floor($i / $flight_size);
+        if (!isset($race_groups[$flight]))
+          $race_groups[$flight] = array();
+
+        $race_groups[$flight][] = $i;
+      }
+
+      // Keep teams on same sail numbers when going from one flight to
+      // the next. Organize by "sail group index"
+      $group_names = array_keys($sail_groups);
+      $prev_flight = array();
+      $next_flight = null;
+
+      foreach ($race_groups as $group) {
+        $next_flight = array();
+        $available_groups = $group_names;
+        foreach ($group as $race_num) {
+          $pair = $round->getRaceOrderPair($race_num);
+          $list[$race_num] = array();
+
+          // First team
+          if (isset($prev_flight[$pair[0]])) {
+            $group_name = $prev_flight[$pair[0]];
+            $i = array_search($group_name, $available_groups);
+            array_splice($available_groups, $i, 1);
+          }
+          else {
+            $group_name = array_shift($available_groups);
+          }
+          $list[$race_num][$pair[0]] = $sail_groups[$group_name];
+          $next_flight[$pair[0]] = $group_name;
+
+          // Second team
+          if (isset($prev_flight[$pair[1]])) {
+            $group_name = $prev_flight[$pair[1]];
+            $i = array_search($group_name, $available_groups);
+            array_splice($available_groups, $i, 1);
+          }
+          else {
+            $group_name = array_shift($available_groups);
+          }
+          $list[$race_num][$pair[1]] = $sail_groups[$group_name];
+          $next_flight[$pair[1]] = $group_name;
+
+        }
+        $prev_flight = $next_flight;
+      }
+    }
+
     if ($frequency == Race_Order::FREQUENCY_NONE) {
       // Assign the sails to the teams
       $sailIndex = 0;
