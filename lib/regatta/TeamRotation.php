@@ -10,9 +10,6 @@
 /**
  * Grouping of sail numbers and colors for a team regatta
  *
- * This provides TS the ability to remember what rotation(s) have been
- * utilized in a given regatta.
- *
  * Objects of this class are meant to be serialized to the database,
  * and the class is intentionally kept lightweight.
  *
@@ -23,21 +20,13 @@ class TeamRotation {
   private $_count;
 
   /**
-   * @var Array the list of sails for the first team
+   * @var Array the list of sails
    */
-  protected $sails1 = array();
+  protected $sail = array();
   /**
-   * @var Array the list of sails for the second team
+   * @var Array the corresponding list of colors
    */
-  protected $sails2 = array();
-  /**
-   * @var Array the list of colors for the first team
-   */
-  protected $colors1 = array();
-  /**
-   * @var Array the list of colors for the second team
-   */
-  protected $colors2 = array();
+  protected $colors = array();
 
   public function __get($name) {
     if (property_exists($this, $name))
@@ -62,7 +51,7 @@ class TeamRotation {
   }
 
   public function __sleep() {
-    return array('sails1', 'sails2', 'colors1', 'colors2');
+    return array('sails', 'colors');
   }
 
   public function __wakeup() {
@@ -93,30 +82,27 @@ class TeamRotation {
     if ($this->count() == 0)
       return array();
 
-    $sails1 = $this->__get('sails1');
-    $sails2 = $this->__get('sails2');
-    $colors1 = $this->__get('colors1');
-    $colors2 = $this->__get('colors2');
-
     $list = array();
     if ($frequency == Race_Order::FREQUENCY_FREQUENT) {
       $sailIndex = 0;
+      $num_divs = count($divisions);
       for ($i = 0; $i < count($round->race_order); $i++) {
         $pair = $round->getRaceOrderPair($i);
         $list[$i] = array($pair[0] => array(), $pair[1] => array());
         foreach ($divisions as $div) {
           $sail = new Sail();
-          $sail->sail = $sails1[$sailIndex];
-          $sail->color = $colors1[$sailIndex];
+          $sail->sail = $this->sails[$sailIndex];
+          $sail->color = $this->colors[$sailIndex];
           $list[$i][$pair[0]][(string)$div] = $sail;
 
           $sail = new Sail();
-          $sail->sail = $sails2[$sailIndex];
-          $sail->color = $colors2[$sailIndex];
+          $sail->sail = $this->sails[$sailIndex + $num_divs];
+          $sail->color = $this->colors[$sailIndex + $num_divs];
           $list[$i][$pair[1]][(string)$div] = $sail;
 
-          $sailIndex = ($sailIndex + 1) % count($sails1);
+          $sailIndex = ($sailIndex + 1) % $this->count();
         }
+        $sailIndex = ($sailIndex + $num_divs) % $this->count();
       }
     }
 
@@ -129,8 +115,8 @@ class TeamRotation {
         $team_sails[$i] = array();
         foreach ($divisions as $div) {
           $sail = new Sail();
-          $sail->sail = $sails1[$sailIndex];
-          $sail->color = $colors1[$sailIndex];
+          $sail->sail = $this->sails[$sailIndex];
+          $sail->color = $this->colors[$sailIndex];
           $team_sails[$i][(string)$div] = $sail;
 
           $sailIndex++;
