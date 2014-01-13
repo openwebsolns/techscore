@@ -698,3 +698,7 @@ alter table round add column boat int(2) default null, add foreign key (boat) re
 -- re-structure Team_Rotation object
 drop table regatta_rotation;
 update round set rotation = null;
+
+-- record the seeded teams for each round
+create table round_seed (id int not null primary key auto_increment, round int not null, team int(7) not null, seed tinyint unsigned not null default 0) engine=innodb;
+alter table round_seed add foreign key (round) references round(id) on delete cascade on update cascade, add foreign key (team) references team(id) on delete cascade on update cascade;

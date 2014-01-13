@@ -36,6 +36,7 @@ class DB extends DBM {
   public static $NOTE = null;
   public static $ROUND = null;
   public static $ROUND_GROUP = null;
+  public static $ROUND_SEED = null;
   public static $RACE = null;
   public static $RACE_ROUND = null;
   public static $FINISH = null;
@@ -107,6 +108,7 @@ class DB extends DBM {
     self::$NOTE = new Note();
     self::$ROUND = new Round();
     self::$ROUND_GROUP = new Round_Group();
+    self::$ROUND_SEED = new Round_Seed();
     self::$RACE = new Race();
     self::$RACE_ROUND = new Race_Round();
     self::$FINISH = new Finish();
@@ -2006,6 +2008,37 @@ class Round extends DBObject {
     $pairings = $this->__get('race_order');
     return explode('-', $pairings[$index]);
   }
+
+  // ------------------------------------------------------------
+  // Seeding
+  // ------------------------------------------------------------
+
+  /**
+   * Set the ordered list of teams
+   *
+   * @param Array:Round_Seed $seeds the seeds (need not be continuous)
+   */
+  public function setSeeds(Array $seeds) {
+    DB::removeAll(DB::$ROUND_SEED, new DBCond('round', $this));
+    $list = array();
+    foreach ($seeds as $seed) {
+      $seed->round = $this;
+      if ($seed->id === null)
+        $list[] = $seed;
+      else
+        DB::set($seed, true);
+    }
+    if (count($list) > 0)
+      DB::insertAll($list);
+  }
+
+  /**
+   * Retrieve the list of ordered teams for this round, if any
+   *
+   */
+  public function getSeeds() {
+    return DB::getAll(DB::$ROUND_SEED, new DBCond('round', $this));
+  }
 }
 
 /**
@@ -2039,6 +2072,30 @@ class Round_Slave extends DBObject {
     default:
       return parent::db_type($field);
     }
+  }
+}
+
+/**
+ * The seeded teams for a round
+ *
+ * @author Dayan Paez
+ * @version 2014-01-13
+ */
+class Round_Seed extends DBObject {
+  public $seed;
+  protected $round;
+  protected $team;
+
+  public function db_type($field) {
+    if ($field == 'round')
+      return DB::$ROUND;
+    if ($field == 'team')
+      return DB::$TEAM;
+    return parent::db_type($field);
+  }
+
+  protected function db_order() {
+    return array('order'=>true);
   }
 }
 
