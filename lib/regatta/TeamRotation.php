@@ -22,7 +22,7 @@ class TeamRotation {
   /**
    * @var Array the list of sails
    */
-  protected $sail = array();
+  protected $sails = array();
   /**
    * @var Array the corresponding list of colors
    */
