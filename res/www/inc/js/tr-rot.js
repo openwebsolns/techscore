@@ -20,7 +20,7 @@ function checkRotation() {
         }
         if (val in values) {
             SUBMIT_INPUT.disabled = true;
-            SUBMIT_EXPL.appendChild(document.createTextNode("Duplicate sail " + value));
+            SUBMIT_EXPL.appendChild(document.createTextNode("Duplicate sail " + val));
             return;
         }
         values[val] = val;
@@ -54,7 +54,6 @@ window.onload = function(evt) {
         }
     }
 
-    inputs = document.getElementsByTagName("select");
     var masterChangeFactory = function(master, slaves) {
         return function(evt) {
             updateRotationStyle(master);
@@ -70,30 +69,21 @@ window.onload = function(evt) {
         };
     };
 
-    var masters = {"1" : null, "2": null};
-    var slaves = {"1": [], "2": []};
-    for (i = 0; i < inputs.length; i++) {
-        var stub = inputs[i].name.substring(7, 8);
-        var div = inputs[i].name.substring(5, 6);
-        if (div == "A") {
-            if (masters[stub] != null) {
-                masters[stub].onchange = masterChangeFactory(masters[stub], slaves[stub]);
+    var tables = form.getElementsByTagName("table");
+    for (i = 0; i < tables.length; i++) {
+        if (tables[i].classList.contains("sail-list")) {
+            inputs = tables[i].getElementsByTagName("select");
+            if (inputs.length > 1) {
+                inputs[0].onchange = masterChangeFactory(inputs[0], inputs);
             }
-            masters[stub] = inputs[i];
-            slaves[stub] = [];
+            if (inputs.length > 0) {
+                updateRotationStyle(inputs[0]);
+            }
+            for (var j = 1; j < inputs.length; j++) {
+                inputs[j].onchange = slaveChangeFactory(inputs[j]);
+                updateRotationStyle(inputs[j]);
+            }
         }
-        else {
-            slaves[stub].push(inputs[i]);
-            inputs[i].onchange = slaveChangeFactory(inputs[i]);
-            inputs[i].classList.add("tr-slave");
-        }
-        updateRotationStyle(inputs[i]);
-    }
-    if (masters["1"] != null) {
-        masters["1"].onchange = masterChangeFactory(masters["1"], slaves["1"]);
-    }
-    if (masters["2"] != null) {
-        masters["2"].onchange = masterChangeFactory(masters["2"], slaves["2"]);
     }
 
     checkRotation();
