@@ -51,7 +51,6 @@ class DB extends DBM {
   public static $DT_RP = null;
   public static $TEXT_ENTRY = null;
   public static $RACE_ORDER = null;
-  public static $REGATTA_ROTATION = null;
   public static $REGATTA_DOCUMENT_SUMMARY = null;
   public static $REGATTA_DOCUMENT = null;
   public static $ROUND_SLAVE = null;
@@ -120,7 +119,6 @@ class DB extends DBM {
     self::$SEASON = new Season();
     self::$TEXT_ENTRY = new Text_Entry();
     self::$RACE_ORDER = new Race_Order();
-    self::$REGATTA_ROTATION = new Regatta_Rotation();
     self::$REGATTA_DOCUMENT_SUMMARY = new Document_Summary();
     self::$REGATTA_DOCUMENT = new Document();
     self::$ROUND_SLAVE = new Round_Slave();
@@ -3263,30 +3261,6 @@ class Race_Order extends DBObject {
    */
   public function hash() {
     return sprintf('%s-%s-%s-%s', $this->num_divisions, $this->num_teams, $this->num_boats, $this->frequency);
-  }
-}
-
-/**
- * Rotation used for team racing regatta
- *
- * @author Dayan Paez
- * @version 2013-05-16
- */
-class Regatta_Rotation extends DBObject {
-  public $name;
-  protected $regatta;
-  protected $rotation;
-
-  public function db_type($field) {
-    switch ($field) {
-    case 'regatta':
-      return DB::$REGATTA;
-    case 'rotation':
-      require_once('regatta/TeamRotation.php');
-      return DB::$TEAM_ROTATION;
-    default:
-      return parent::db_type($field);
-    }
   }
 }
 

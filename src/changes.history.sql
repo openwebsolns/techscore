@@ -694,3 +694,7 @@ delete from rp_form;
 -- rounds should know how they are "created"
 alter table round add column num_teams tinyint unsigned not null, add column num_boats tinyint unsigned not null, add column race_order text not null, add column rotation text default null, add column rotation_frequency enum('frequent', 'infrequent', 'none') not null default 'frequent';
 alter table round add column boat int(2) default null, add foreign key (boat) references boat(id) on delete set null on update cascade;
+
+-- re-structure Team_Rotation object
+drop table regatta_rotation;
+update round set rotation = null;

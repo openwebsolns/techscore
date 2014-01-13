@@ -639,31 +639,6 @@ class TeamRacesPane extends AbstractPane {
                    array('class' => 'row'.(++$i % 2)));
     }
 
-    // ------------------------------------------------------------
-    // Rotation
-    // ------------------------------------------------------------
-    $form->add(new XH4("Rotation"));
-    $list = $this->REGATTA->getTeamRotations();
-    if (count($list) == 0)
-      $form->add(new XP(array('class'=>'notice'), "There are no saved rotations for this regatta at this time. Rotations may be manually set for this round after creation by visiting \"Races\" → \"Set rotation\"."));
-    else {
-      $form->add(new XP(array(),
-                        array("Choose a rotation to use from the list below, or no rotation at all to manually set one later. ", new XStrong("For best results, the number of boats in the rotation should match the number of boats in the race order template shown above, if applicable."))));
-
-      $form->add($tab = new XQuickTable(array('class'=>'tr-rotation-template'),
-                                        array("", "Name", "# of Boats")));
-      foreach ($list as $i => $rot) {
-        $id = 'inp-rot-' . $rot->id;
-        $tab->addRow(array(new XRadioInput('regatta_rotation', $rot->id, array('id'=>$id)),
-                           new XLabel($id, $rot->name),
-                           new XLabel($id, $rot->rotation->count())),
-                     array('class'=>'row' . ($i % 2)));
-      }
-      $tab->addRow(array(new XRadioInput('regatta_rotation', '', array('id'=>'inp-no-rot')),
-                         new XLabel('inp-no-rot', "No rotation"),
-                         new XLabel('inp-no-rot', "N/A")));
-    }
-
     $form->add(new XSubmitP('add-round', "Add round"));
   }
 
@@ -954,12 +929,6 @@ class TeamRacesPane extends AbstractPane {
         }
       }
 
-      // Rotation? Allow cross-regatta rotation
-      $rotation_count = null;
-      $rotation = DB::$V->incID($args, 'regatta_rotation', DB::$REGATTA_ROTATION);
-      if ($rotation != null)
-        $rotation_count = $rotation->rotation->count();
-
       // Assign next race number
       $count = count($this->REGATTA->getRaces(Division::A()));
 
@@ -980,24 +949,6 @@ class TeamRacesPane extends AbstractPane {
           $race->tr_team1 = $pair[0];
           $race->tr_team2 = $pair[1];
           $added[] = $race;
-
-          if ($rotation != null) {
-            $sail = new Sail();
-            $sail->race = $race;
-            $sail->team = $race->tr_team1;
-            $sail->sail = $rotation->rotation->sails1[$sailI];
-            $sail->color = $rotation->rotation->colors1[$sailI];
-            $sails_added[] = $sail;
-
-            $sail = new Sail();
-            $sail->race = $race;
-            $sail->team = $race->tr_team2;
-            $sail->sail = $rotation->rotation->sails2[$sailI];
-            $sail->color = $rotation->rotation->colors2[$sailI];
-            $sails_added[] = $sail;
-
-            $sailI = ($sailI + 1) % $rotation_count;
-          }
         }
         $num_added++;
       }

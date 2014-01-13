@@ -100,7 +100,6 @@ abstract class AbstractPane {
                                               "remove-team"=> "DeleteTeamsPane"),
                          "Rounds"     => array("races"      => "TeamRacesPane",
                                                "rounds"    => "TeamEditRoundPane",
-                                              "rotations"  => "TeamSailsPane",
                                               // "tweak-sails"=> "TweakSailsPane",
                                               // "manual-rotation" => "ManualTweakPane"
                                               ),
@@ -256,7 +255,7 @@ abstract class AbstractPane {
           Session::pa(new PA(array("No teams have yet been setup. ",
                                    new XA(sprintf('/score/%s/teams', $this->REGATTA->id), "Add teams now"), "."), PA::I));
       }
-      elseif (!$this->has_races && get_class($this) != 'RacesPane' && get_class($this) != 'TeamRacesPane' && get_class($this) != 'TeamSailsPane')
+      elseif (!$this->has_races && get_class($this) != 'RacesPane' && get_class($this) != 'TeamRacesPane')
         Session::pa(new PA(array("No races exist for this regatta. Please ",
                                  new XA(sprintf('/score/%s/races', $this->REGATTA->id), "add races"),
                                  " now."), PA::I));
@@ -444,8 +443,7 @@ abstract class AbstractPane {
     case 'create-rotation':
     case 'create-rotations':
       if ($u->scoring == Regatta::SCORING_TEAM) {
-        require_once('tscore/TeamSailsPane.php');
-        return new TeamSailsPane($r, $u);
+        return null;
       }
       require_once('tscore/SailsPane.php');
       return new SailsPane($r, $u);
@@ -557,7 +555,6 @@ abstract class AbstractPane {
     case 'scores':
       return $this->has_scores;
 
-    case 'TeamSailsPane':
     default:
       return true;
     }
@@ -613,7 +610,6 @@ abstract class AbstractPane {
                                "ReplaceTeamPane" => "substitute",
                                "TeamReplaceTeamPane" => "substitute",
                                "SailsPane" => "rotations",
-                               "TeamSailsPane" => "rotations",
                                "TweakSailsPane" => "tweak-sails",
                                "ManualTweakPane" => "manual-rotation",
                                "RpEnterPane" => "rp",
@@ -645,7 +641,6 @@ abstract class AbstractPane {
                                  "ReplaceTeamPane" => "Sub team",
                                  "TeamReplaceTeamPane" => "Sub team",
                                  "SailsPane" => "Set rotation",
-                                 "TeamSailsPane" => "Set rotation",
                                  "TweakSailsPane" => "Tweak sails",
                                  "ManualTweakPane" => "Manual setup",
                                  "RpEnterPane" => "Enter RP",
