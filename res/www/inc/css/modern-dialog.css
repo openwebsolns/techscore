@@ -337,6 +337,9 @@ p.warning {padding: 0.5em;}
 .team2 {
     text-align: left;
 }
+.tr-incomplete {
+    opacity: 0.7;
+}
 
 .teamranking .sailor {
     text-align: left;

@@ -2095,7 +2095,7 @@ class Round_Seed extends DBObject {
   }
 
   protected function db_order() {
-    return array('order'=>true);
+    return array('seed'=>true);
   }
 }
 

@@ -420,8 +420,7 @@ class TeamRacesPane extends AbstractPane {
       $this->PAGE->addContent($p = new XPort("Teams (optional)"));
       $p->add($form = $this->createForm());
       $form->add(new XP(array(),
-                        array(new XStrong("(Optional)"),
-                              " Specify and seed the teams that will participate in this round. You may specify the teams at a later time. Note that all teams must be entered at the same time.")));
+                        array("Specify and seed the teams that will participate in this round. You may specify the teams at a later time.")));
       $form->add(new XP(array(), sprintf("Place numbers 1-%d next to the teams to be included in this round.", $ROUND->num_teams)));
 
       $form->add($ul = new XUl(array('id'=>'teams-list')));
@@ -447,17 +446,16 @@ class TeamRacesPane extends AbstractPane {
       $p->add($form = $this->createForm());
       $form->add(new XP(array(), "Verify that all the information is correct. Click \"Create\" to create the round, or use the progress bar above to go back to a different step."));
 
+      $seeds = Session::g('round_teams');
       $teams = array();
-      $ids = Session::g('round_teams');
-      if ($ids !== null) {
-        foreach ($ids as $id) {
-          $team = $this->REGATTA->getTeam($id);
-          if ($team !== null)
-            $teams[] = $team;
+      for ($i = 1; $i <= $ROUND->num_teams; $i++) {
+        $team = null;
+        if (isset($seeds[$i])) {
+          $team = $this->REGATTA->getTeam($seeds[$i]);
         }
-      }
-      for ($i = count($teams); $i < $ROUND->num_teams; $i++) {
-        $teams[] = new XEm(sprintf("Team %d", ($i + 1)), array('class'=>'no-team'));
+        if ($team === null)
+          $team = new XEm(sprintf("Team %d", $i), array('class'=>'no-team'));
+        $teams[] = $team;
       }
 
       $sails = $ROUND->rotation->assignSails($ROUND, $teams, $divisions, $ROUND->rotation_frequency);
@@ -541,9 +539,11 @@ class TeamRacesPane extends AbstractPane {
           $form->add(new XHiddenInput('colors[]', $rotation->colors[$i]));
         }
       }
-      foreach ($teams as $team) {
-        if ($team instanceof Team)
+      foreach ($teams as $i => $team) {
+        if ($team instanceof Team) {
           $form->add(new XHiddenInput('team[]', $team->id));
+          $form->add(new XHiddenInput('order[]', ($i + 1)));
+        }
       }
       $form->add(new XSubmitP('create', "Create round"));
     }
@@ -725,8 +725,11 @@ class TeamRacesPane extends AbstractPane {
       if ($ROUND->rotation === null)
         throw new SoterException("Order error: no rotation found.");
 
-      $teams = $this->processStep4($args, $ROUND);
-      Session::s('round_teams', array_keys($teams));
+      $seeds = $this->processStep4($args, $ROUND);
+      $list = array();
+      foreach ($seeds as $seed)
+        $list[$seed->seed] = $seed->team->id;
+      Session::s('round_teams', $list);
       $this->redirect('races');
       return;
     }
@@ -740,64 +743,73 @@ class TeamRacesPane extends AbstractPane {
       $this->processStep1($args, $round, $rounds, $divisions);
       $this->processStep2($args, $round);
       $this->processStep3($args, $round, $divisions);
-      $teams = $this->processStep4($args, $round);
-      $teams = array_values($teams);
+      $seeds = $this->processStep4($args, $round);
+      $teams = array();
+      for ($i = 1; $i <= $round->num_teams; $i++) {
+        if (isset($seeds[$i]))
+          $teams[] = $seeds[$i]->team;
+        else
+          $teams[] = null;
+      }
 
       $round->regatta = $this->REGATTA;
       $message = "Created new empty round.";
       DB::set($round);
-      if (count($teams) > 0) {
-        $racenum = $this->calculateNextRaceNumber($round);
+      $round->setSeeds($seeds);
 
-        // Actually create the races
-        $sails = array();
-        if ($round->rotation !== null)
-          $sails = $round->rotation->assignSails($round, $teams, $divisions, $round->rotation_frequency);
-        $new_races = array();
-        $new_sails = array();
-        for ($i = 0; $i < count($round->race_order); $i++) {
-          $racenum++;
-          $pair = $round->getRaceOrderPair($i);
-          $t1 = $teams[$pair[0] - 1];
-          $t2 = $teams[$pair[1] - 1];
+      // Actually create the races
+      $racenum = $this->calculateNextRaceNumber($round);
 
-          foreach ($divisions as $div) {
-            $race = new Race();
-            $race->regatta = $this->REGATTA;
-            $race->division = $div;
-            $race->number = $racenum;
-            $race->boat = $round->boat;
-            $race->round = $round;
-            $race->tr_team1 = $t1;
-            $race->tr_team2 = $t2;
-            $new_races[] = $race;
+      $sails = array();
+      if ($round->rotation !== null)
+        $sails = $round->rotation->assignSails($round, $teams, $divisions, $round->rotation_frequency);
+      $new_races = array();
+      $new_sails = array();
+      for ($i = 0; $i < count($round->race_order); $i++) {
+        $racenum++;
+        $pair = $round->getRaceOrderPair($i);
+        $t1 = $teams[$pair[0] - 1];
+        $t2 = $teams[$pair[1] - 1];
 
-            if (isset($sails[$i])) {
-              $templ = $sails[$i][$pair[0]][(string)$div];
-              $sail = new Sail();
-              $sail->sail = $templ->sail;
-              $sail->color = $templ->color;
-              $sail->race = $race;
-              $sail->team = $t1;
-              $new_sails[] = $sail;
+        foreach ($divisions as $div) {
+          $race = new Race();
+          $race->regatta = $this->REGATTA;
+          $race->division = $div;
+          $race->number = $racenum;
+          $race->boat = $round->boat;
+          $race->round = $round;
+          $race->tr_team1 = $t1;
+          $race->tr_team2 = $t2;
+          $new_races[] = $race;
 
-              $templ = $sails[$i][$pair[1]][(string)$div];
-              $sail = new Sail();
-              $sail->sail = $templ->sail;
-              $sail->color = $templ->color;
-              $sail->race = $race;
-              $sail->team = $t2;
-              $new_sails[] = $sail;
-            }
+          if ($t1 !== null && isset($sails[$i])) {
+            $templ = $sails[$i][$pair[0]][(string)$div];
+            $sail = new Sail();
+            $sail->sail = $templ->sail;
+            $sail->color = $templ->color;
+            $sail->race = $race;
+            $sail->team = $t1;
+            $new_sails[] = $sail;
+          }
+
+          if ($t2 !== null && isset($sails[$i])) {
+            $templ = $sails[$i][$pair[1]][(string)$div];
+            $sail = new Sail();
+            $sail->sail = $templ->sail;
+            $sail->color = $templ->color;
+            $sail->race = $race;
+            $sail->team = $t2;
+            $new_sails[] = $sail;
           }
         }
-
-        // Insert all at once
-        foreach ($new_races as $race)
-          DB::set($race, false);
-        DB::insertAll($new_sails);
-        $message = "Created new round.";
       }
+
+      // Insert all at once
+      foreach ($new_races as $race)
+        DB::set($race, false);
+      DB::insertAll($new_sails);
+      $message = "Created new round.";
+
       $this->REGATTA->setData(); // new races
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA(array($message, " ", new XA($this->link('races'), "Add another round"), ".")));
@@ -1250,19 +1262,27 @@ class TeamRacesPane extends AbstractPane {
       array_multisort($order, SORT_NUMERIC, $ids);
 
     $teams = array();
+    $seeds = array();
     foreach ($ids as $index => $id) {
       if (!isset($order[$index]) || $order[$index] > 0) {
         if (!isset($all_teams[$id]))
           throw new SoterException("Invalid team ID provided: $id.");
-        if (!isset($teams[$id]))
-          $teams[$id] = $all_teams[$id];
+        if (isset($teams[$id]))
+          throw new SoterException("Team provided twice: $id.");
+        if ($order[$index] < 1 || $order[$index] > $round->num_teams)
+          throw new SoterException(sprintf("Invalid seed value: %d.", $order[$index]));
+        if (isset($seeds[$order[$index]]))
+          throw new SoterException(sprintf("Seed value duplicate found: %d.", $order[$index]));
+
+        $teams[$id] = $all_teams[$id];
+        $seed = new Round_Seed();
+        $seed->team = $all_teams[$id];
+        $seed->seed = $order[$index];
+        $seeds[$order[$index]] = $seed;
       }
     }
 
-    if (count($teams) > 0 && count($teams) != $round->num_teams)
-      throw new SoterException("Invalid number of teams specified: either all teams or none.");
-
-    return $teams;
+    return $seeds;
   }
 
   private function calculateNextRaceNumber(Round $round) {
