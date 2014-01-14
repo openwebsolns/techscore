@@ -58,6 +58,9 @@ class TeamRacesDialog extends AbstractScoresDialog {
       foreach ($this->REGATTA->getRacesInRound($round, Division::A()) as $race) {
         $team1 = $race->tr_team1;
         $team2 = $race->tr_team2;
+        if ($team1 === null || $team2 === null)
+          continue;
+
         if ($link_schools !== false) {
           $team1 = array(new XA(sprintf('/schools/%s/%s/', $team1->school->id, $season), $team1->school), " ", $team1->getQualifiedName());
           $team2 = array(new XA(sprintf('/schools/%s/%s/', $team2->school->id, $season), $team2->school), " ", $team2->getQualifiedName());

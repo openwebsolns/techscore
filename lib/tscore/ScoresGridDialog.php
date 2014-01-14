@@ -97,7 +97,7 @@ class ScoresGridDialog extends AbstractScoresDialog {
     $scores = array();
     $carried = array();
     foreach ($races as $race) {
-      if ($race->round != $round)
+      if ($race->round->id != $round->id)
         $carried[$race->number] = $race;
 
       $ts = $this->REGATTA->getRaceTeams($race);
