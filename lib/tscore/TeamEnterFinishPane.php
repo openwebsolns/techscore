@@ -63,10 +63,8 @@ class TeamEnterFinishPane extends EnterFinishPane {
       // ------------------------------------------------------------
       // Choose race: provide grid
       // ------------------------------------------------------------
-      require_once('tscore/ScoresGridDialog.php');
-      $D = new ScoresGridDialog($this->REGATTA);
       foreach ($this->REGATTA->getRounds() as $round)
-        $p->add($D->getRoundTable($round, true));
+        $p->add($this->getRoundTable($round));
       return;
     }
 
@@ -75,6 +73,73 @@ class TeamEnterFinishPane extends EnterFinishPane {
     // ------------------------------------------------------------
     $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/finish.js'));
     $this->fillFinishesPort($race);
+  }
+
+  /**
+   * Creates grid with links to score races
+   *
+   */
+  protected function getRoundTable(Round $round) {
+    $teams = array();
+    $table = array();
+    for ($i = 0; $i < $round->num_teams; $i++) {
+      $teams[] = new XEm(sprintf("Team %d", ($i + 1)), array('class'=>'no-team'));
+
+      $row = array();
+      for ($j = 0; $j < $round->num_teams; $j++)
+        $row[] = array();
+      $table[] = $row;
+    }
+    foreach ($round->getSeeds() as $seed) {
+      $teams[$seed->seed - 1] = $seed->team;
+    }
+
+    $races = $this->REGATTA->getRacesInRound($round, Division::A(), false);
+    for ($i = 0; $i < count($round->race_order); $i++) {
+      $pair = $round->getRaceOrderPair($i);
+
+      $t1 = $pair[0] - 1;
+      $t2 = $pair[1] - 1;
+
+      if ($teams[$t1] instanceof Team && $teams[$t2] instanceof Team) {
+        // Scorable race
+        $race = $races[$i];
+        $cont = new XA($this->link('finishes', array('race' => $race->number)), "Score");
+
+        $finishes = $this->REGATTA->getFinishes($race);
+        if (count($finishes) > 0) {
+          $cont = new XA($this->link('finishes', array('race' => $race->number)), "Re-score");
+        }
+        $table[$t1][$t2][] = $cont;
+        $table[$t2][$t1][] = $cont;
+      }
+      else {
+        // Unscorable race
+        $cont = new XEm("N/A", array('class'=>'no-team', 'title'=>"Both teams must be present."));
+        $table[$t1][$t2][] = $cont;
+        $table[$t2][$t1][] = $cont;
+      }
+    }
+
+    $tab = new XTable(array('class'=>'teamscores'), array($bod = new XTBody()));
+    $bod->add($header = new XTR(array('class'=>'tr-cols')));
+    $header->add(new XTD(array('class'=>'tr-pivot'), "↓ vs →"));
+    $rows = array();
+    foreach ($teams as $i => $team) {
+      $disp = $team;
+      if ($team instanceof Team)
+        $disp = $team->school->nick_name;
+      $header->add(new XTH(array('class'=>'tr-vert-label'), $disp));
+      $bod->add($row = new XTR(array('class'=>sprintf('tr-row team-%s', $i)),
+                               array(new XTH(array('class'=>'tr-horiz-label'), $team))));
+      foreach ($table[$i] as $j => $cont) {
+        $row->add($td = new XTD(array(), $cont));
+        if ($i == $j)
+          $td->set('class', 'tr-ns');
+      }
+    }
+
+    return $tab;
   }
 }
 ?>
