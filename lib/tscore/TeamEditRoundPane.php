@@ -92,7 +92,7 @@ class TeamEditRoundPane extends AbstractPane {
     // ------------------------------------------------------------
     // Round groups
     // ------------------------------------------------------------
-    if (count($independent_rounds) > 0) {
+    if (count($independent_rounds) > 1) {
       $this->PAGE->addContent($p = new XPort("Group Rounds"));
       $p->add(new XP(array(), "Round groups are rounds that are sailed at the same time. The race order is changed so that a number of races from one round are followed by the same number from the next round in the group. This is call the \"collation\" of the group."));
 

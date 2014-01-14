@@ -1,0 +1,41 @@
+/* Styling specific only to Adding rounds listing */
+
+#progressdiv {
+    background: none repeat scroll 0 0 #CCCCCC;
+    border: 1px solid #555555;
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    box-shadow: 0 1px 3px #555555 inset;
+    display: inline-block;
+    margin: 0 0 1em;
+    padding: 0;
+    overflow: hidden;
+}
+
+#progressdiv a {
+    color: black;
+    text-decoration: none;
+}
+
+#progressdiv span, #progressdiv input {
+    display: inline-block;
+    border-radius: none;
+    background: none;
+    border: none;
+    border-left: 1px solid #888;
+    margin: 0;
+    padding: 0.5em;
+}
+
+#progressdiv input {
+    cursor: pointer;
+    background: #FFF6D5;
+}
+
+#progressdiv .completed {
+    cursor: default;
+    background: #FFF6D5;
+}
+
+#progressdiv .current {
+    background: #FFEEAA;
+}
