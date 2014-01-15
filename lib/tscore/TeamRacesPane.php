@@ -114,6 +114,7 @@ class TeamRacesPane extends AbstractPane {
     // ------------------------------------------------------------
     $this->PAGE->head->add(new LinkCSS('/inc/css/round.css'));
     $ROUND = Session::g('round');
+    $type = Session::g('round_type');
 
     // Calculate step
     $MAX_STEP = 0;
@@ -185,22 +186,34 @@ class TeamRacesPane extends AbstractPane {
     if ($STEP == 1) {
       if ($ROUND->title === null)
         $ROUND->title = sprintf("Round %d", count($rounds) + 1);
-      if ($ROUND->num_teams === null)
-        $ROUND->num_teams = count($this->REGATTA->getTeams());
-      if ($ROUND->num_boats === null)
-        $ROUND->num_boats = $group_size * 3;
-      $boat = null;
-      if ($ROUND->boat !== null)
-        $boat = $ROUND->boat->id;
 
-      $this->PAGE->addContent($p = new XPort("New round settings"));
-      $p->add($form = $this->createForm());
-      $form->add(new FItem("Round name:", new XTextInput('title', $ROUND->title)));
-      $form->add(new FItem("Number of teams:", new XTextInput('num_teams', $ROUND->num_teams)));
+      if ($type == self::SIMPLE) {
+        if ($ROUND->num_teams === null)
+          $ROUND->num_teams = count($this->REGATTA->getTeams());
+        if ($ROUND->num_boats === null)
+          $ROUND->num_boats = $group_size * 3;
+        $boat = null;
+        if ($ROUND->boat !== null)
+          $boat = $ROUND->boat->id;
 
-      $form->add(new FItem("Number of boats:", new XInput('number', 'num_boats', $ROUND->num_boats, array('min'=>$group_size, 'step'=>$group_size))));
-      $form->add(new FItem("Rotation frequency:", XSelect::fromArray('rotation_frequency', Race_Order::getFrequencyTypes())));
-      $form->add(new FItem("Boat:", XSelect::fromArray('boat', $boats, $boat)));
+        $this->PAGE->addContent($p = new XPort("New round settings"));
+        $p->add($form = $this->createForm());
+        $form->add(new FItem("Round name:", new XTextInput('title', $ROUND->title)));
+        $form->add(new FItem("Number of teams:", new XTextInput('num_teams', $ROUND->num_teams)));
+
+        $form->add(new FItem("Number of boats:", new XInput('number', 'num_boats', $ROUND->num_boats, array('min'=>$group_size, 'step'=>$group_size))));
+        $form->add(new FItem("Rotation frequency:", XSelect::fromArray('rotation_frequency', Race_Order::getFrequencyTypes())));
+        $form->add(new FItem("Boat:", XSelect::fromArray('boat', $boats, $boat)));
+      }
+
+      elseif ($type == self::COPY) {
+        $this->PAGE->addContent($p = new XPort("New round settings"));
+        $p->add($form = $this->createForm());
+        $form->add(new FItem("Round name:", new XTextInput('title', $ROUND->title)));
+        $form->add(new FItem("Template round:", XSelect::fromDBM('template', $rounds, Session::g('round_template'))));
+        $form->add($fi = new FItem("Swap teams:", new XCheckboxInput('swap', 1, array('id'=>'chk-swap'))));
+        $fi->add(new XLabel('chk-swap', "Reverse the teams in each race."));
+      }
       $form->add($p = new XSubmitP('create-settings', "Next →"));
       return;
     }
@@ -644,6 +657,7 @@ class TeamRacesPane extends AbstractPane {
    */
   public function process(Array $args) {
     $ROUND = Session::g('round');
+    $type = Session::g('round_type');
 
     $rounds = array();
     $master_rounds = array();
@@ -657,11 +671,11 @@ class TeamRacesPane extends AbstractPane {
     // Step 0: Round type
     // ------------------------------------------------------------
     if (isset($args['create-round'])) {
-      // @TODO: self::COPY
       // @TODO: self::COMPLETION???
 
-      if ($args['create-round'] == self::SIMPLE) {
+      if ($args['create-round'] == self::SIMPLE || $args['create-round'] == self::COPY) {
         $ROUND = new Round();
+        Session::s('round_type', $args['create-round']);
         Session::s('round', $ROUND);
         $this->redirect('races');
         return;
@@ -679,7 +693,10 @@ class TeamRacesPane extends AbstractPane {
       if ($ROUND === null)
         throw new SoterException("Order error: no round to work with.");
 
-      $this->processStep1($args, $ROUND, $rounds, $divisions);
+      if ($type == self::SIMPLE)
+        $this->processStep1($args, $ROUND, $rounds, $divisions);
+      elseif ($type == self::COPY)
+        $this->processStep1Copy($args, $ROUND, $rounds);
       $this->redirect('races');
       return;
     }
@@ -1162,6 +1179,39 @@ class TeamRacesPane extends AbstractPane {
 
     $round->boat = DB::$V->reqID($args, 'boat', DB::$BOAT, "Invalid or missing boat.");
     return array();
+  }
+
+  private function processStep1Copy(Array $args, Round $round, Array $rounds) {
+    $round->title = DB::$V->reqString($args, 'title', 1, 61, "Invalid or missing name.");
+    foreach ($rounds as $r) {
+      if ($r->title == $round->title)
+        throw new SoterException("Duplicate round title provided.");
+    }
+
+    $templ = DB::$V->reqID($args, 'template', DB::$ROUND, "Invalid template round provided.");
+    if ($templ->regatta->id != $this->REGATTA->id)
+      throw new SoterException("Invalid template round.");
+
+    // Copy values over
+    $round->num_teams = $templ->num_teams;
+    $round->num_boats = $templ->num_boats;
+    $round->rotation_frequency = $templ->rotation_frequency;
+    $round->race_order = $templ->race_order;
+    $round->boat = $templ->boat;
+
+    if (DB::$V->incInt($args, 'swap', 1, 2, 0) > 0) {
+      $pairings = array();
+      for ($i = 0; $i < count($round->race_order); $i++) {
+        $pair = $round->getRaceOrderPair($i);
+        $pairings[] = sprintf('%s-%s', $pair[1], $pair[0]);
+      }
+      $round->race_order = $pairings;
+    }
+
+    // Rotation
+    $round->rotation = $templ->rotation;
+    Session::d('round_teams');
+    Session::s('round_template', $templ->id);
   }
 
   private function processStep2(Array $args, Round $round) {
