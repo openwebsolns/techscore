@@ -143,6 +143,8 @@ class TeamRotation {
       foreach ($race_groups as $group) {
         $next_flight = array();
         $available_groups = $group_names;
+
+        // First, assign all carry overs, then distribute remaining
         foreach ($group as $race_num) {
           $pair = $round->getRaceOrderPair($race_num);
           $list[$race_num] = array();
@@ -152,25 +154,35 @@ class TeamRotation {
             $group_name = $prev_flight[$pair[0]];
             $i = array_search($group_name, $available_groups);
             array_splice($available_groups, $i, 1);
+            $list[$race_num][$pair[0]] = $sail_groups[$group_name];
+            $next_flight[$pair[0]] = $group_name;
           }
-          else {
-            $group_name = array_shift($available_groups);
-          }
-          $list[$race_num][$pair[0]] = $sail_groups[$group_name];
-          $next_flight[$pair[0]] = $group_name;
 
           // Second team
           if (isset($prev_flight[$pair[1]])) {
             $group_name = $prev_flight[$pair[1]];
             $i = array_search($group_name, $available_groups);
             array_splice($available_groups, $i, 1);
+            $list[$race_num][$pair[1]] = $sail_groups[$group_name];
+            $next_flight[$pair[1]] = $group_name;
           }
-          else {
-            $group_name = array_shift($available_groups);
-          }
-          $list[$race_num][$pair[1]] = $sail_groups[$group_name];
-          $next_flight[$pair[1]] = $group_name;
+        }
 
+        // Next, use up the boats not yet assigned
+        foreach ($group as $race_num) {
+          $pair = $round->getRaceOrderPair($race_num);
+
+          if (!isset($list[$race_num][$pair[0]])) {
+            $group_name = array_shift($available_groups);
+            $list[$race_num][$pair[0]] = $sail_groups[$group_name];
+            $next_flight[$pair[0]] = $group_name;
+          }
+
+          if (!isset($list[$race_num][$pair[1]])) {
+            $group_name = array_shift($available_groups);
+            $list[$race_num][$pair[1]] = $sail_groups[$group_name];
+            $next_flight[$pair[1]] = $group_name;
+          }
         }
         $prev_flight = $next_flight;
       }
