@@ -144,28 +144,52 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     // Current ones
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new XPort("Current race orders"));
     if (count($current) == 0) {
-      $p->add(new XP(array('class'=>'warning'), "No race order templates exist."));
       return;
     }
-    $p->add(new XP(array(), "Click on the \"Edit\" link next to the template name to edit that template. To delete a template, check the box in the last column and click \"Delete\" at the bottom of the form."));
-    $p->add($form = $this->createForm());
-    $form->add($tab = new XQuickTable(array('id'=>'tr-race-order'), array("Name", "Teams", "Total boats", "T/B", "Rotation", "Desc.", "Author", "Edit", "Delete?")));
-    $rowIndex = 0;
+
+    // Group by # of divisions, then by # of teams, then by # of boats
+    $orders = array();
     foreach ($current as $order) {
-      $tab->addRow(array($order->name,
-                         $order->num_teams,
-                         $order->num_boats,
-                         $order->num_divisions,
-                         $frequencies[$order->frequency],
-                         $order->description,
-                         $order->author,
-                         new XA(WS::link('/race-order', array('template'=>$order->id)), "Edit"),
-                         new XCheckboxInput('template[]', $order->id)),
-                   array('class'=>'row' . ($rowIndex++ % 2)));
+      if (!isset($orders[$order->num_divisions]))
+        $orders[$order->num_divisions] = array();
+      if (!isset($orders[$order->num_divisions][$order->num_teams]))
+        $orders[$order->num_divisions][$order->num_teams] = array();
+      if (!isset($orders[$order->num_divisions][$order->num_teams][$order->num_boats]))
+        $orders[$order->num_divisions][$order->num_teams][$order->num_boats] = array();
+      $orders[$order->num_divisions][$order->num_teams][$order->num_boats][] = $order;
     }
-    $form->add(new XSubmitP('delete', "Delete"));
+
+    foreach ($orders as $num_divs => $current) {
+      $this->PAGE->addContent($p = new XPort(sprintf("%d vs. %d", $num_divs, $num_divs)));
+      $p->add(new XP(array(), "Click on the \"Edit\" link next to the template name to edit that template. To delete a template, check the box in the last column and click \"Delete\" at the bottom of the form."));
+      $p->add($form = $this->createForm());
+
+      foreach ($current as $num_teams => $orders) {
+        $form->add(new XH4(sprintf("%d Teams", $num_teams)));
+
+        $form->add($tab = new XQuickTable(array('id'=>'tr-race-order'), array("Total boats", "Rotation", "Desc.", "Author", "Edit", "Delete?")));
+
+        $rowIndex = 0;
+        foreach ($orders as $num_boats => $list) {
+          foreach ($list as $i => $order) {
+            $row = array();
+            if ($i == 0)
+              $row[] = new XTH(array('rowspan' => count($list)), $order->num_boats);
+
+            $row[] = $frequencies[$order->frequency];
+            $row[] = $order->description;
+            $row[] = $order->author;
+            $row[] = new XA(WS::link('/race-order', array('template'=>$order->id)), "Edit");
+            $row[] = new XCheckboxInput('template[]', $order->id);
+
+            $tab->addRow($row, array('class'=>'row' . ($rowIndex % 2)));
+          }
+          $rowIndex++;
+        }
+      }
+      $form->add(new XSubmitP('delete', "Delete"));
+    }
   }
 
   public function process(Array $args) {
