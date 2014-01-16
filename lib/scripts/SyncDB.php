@@ -72,7 +72,7 @@ class SyncDB extends AbstractScript {
   }
 
   public function updateSchools() {
-    if (DB::g(STN::SCHOOL_API_URL) === null) {
+    if (strlen(DB::g(STN::SCHOOL_API_URL)) == 0) {
       self::errln("No URL to update schools list.");
       return;
     }
@@ -140,7 +140,7 @@ class SyncDB extends AbstractScript {
       throw new TSScriptException("I do not know how to sync that kind of member.");
 
     $role = ($proto instanceof Sailor) ? 'sailor' : 'coach';
-    if ($src === null) {
+    if (strlen($src) == 0) {
       $this->errors[] = "No URL found for $role list.";
       return;
     }
