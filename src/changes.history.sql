@@ -702,3 +702,7 @@ update round set rotation = null;
 -- record the seeded teams for each round
 create table round_seed (id int not null primary key auto_increment, round int not null, team int(7) not null, seed tinyint unsigned not null default 0) engine=innodb;
 alter table round_seed add foreign key (round) references round(id) on delete cascade on update cascade, add foreign key (team) references team(id) on delete cascade on update cascade;
+
+-- race order templates must include carry over teams
+alter table race_order add column master_teams text default null after num_teams;
+alter table race_order drop column name;

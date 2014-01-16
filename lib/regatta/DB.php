@@ -769,10 +769,15 @@ class DB extends DBM {
    * @param String $num_teams the number of teams
    * @param String $num_boats the number of boats
    * @param Const $frequency one of Race_Order::FREQUENCY_*
+   * @param Array $master the distribution of teams to carry over
    */
-  public static function getRaceOrder($num_divisions, $num_teams, $num_boats, $frequency) {
+  public static function getRaceOrder($num_divisions, $num_teams, $num_boats, $frequency, Array $master = null) {
+    $master_teams = null;
+    if ($master !== null && count($master) > 0)
+      $master_teams = implode("\0", $master);
     $r = DB::getAll(DB::$RACE_ORDER,
                     new DBBool(array(new DBCond('num_teams', $num_teams),
+                                     new DBCond('master_teams', $master_teams),
                                      new DBCond('num_boats', $num_boats),
                                      new DBCond('frequency', $frequency),
                                      new DBCond('num_divisions', $num_divisions))));
@@ -3274,15 +3279,16 @@ class Race_Order extends DBObject {
   public $num_teams;
   public $num_divisions;
   public $num_boats;
-  public $name;
   public $frequency;
   public $description;
   protected $template;
   protected $author;
+  protected $master_teams;
 
   public function db_type($field) {
     switch ($field) {
     case 'template':
+    case 'master_teams':
       return array();
     case 'author':
       require_once('regatta/Account.php');
@@ -3293,7 +3299,7 @@ class Race_Order extends DBObject {
   }
 
   protected function db_order() {
-    return array('num_divisions'=>true, 'num_teams'=>true, 'num_boats'=>true, 'frequency' => true);
+    return array('num_divisions'=>true, 'num_teams'=>true, 'num_boats'=>true, 'master_teams' => true, 'frequency' => true);
   }
 
   public function getPair($index) {
