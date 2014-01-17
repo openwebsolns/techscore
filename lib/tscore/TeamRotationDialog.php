@@ -102,6 +102,14 @@ class TeamRotationDialog extends AbstractDialog {
 
       $team1 = $race->tr_team1;
       $team2 = $race->tr_team2;
+      if ($team1 === null || $team2 === null) {
+        $body->add(new XTR(array('class'=>'tr-incomplete'),
+                           array(new XTD(array(), $race->number),
+                                 new XTD(array('colspan'=>5 + 2 * count($divs), 'class'=>'vscell'),
+                                         new XEm("Missing team")))));
+        continue;
+      }
+
       if ($link_schools !== false) {
         $team1 = array(new XA(sprintf('/schools/%s/%s/', $team1->school->id, $season), $team1->school), " ", $team1->getQualifiedName());
         $team2 = array(new XA(sprintf('/schools/%s/%s/', $team2->school->id, $season), $team2->school), " ", $team2->getQualifiedName());
