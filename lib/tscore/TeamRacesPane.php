@@ -859,6 +859,7 @@ class TeamRacesPane extends AbstractPane {
 
       $round = new Round();
       $round->relative_order = count($rounds) + 1;
+      $masters = array();
       if ($type == self::COMPLETION) {
         $masters = $this->processStep1Completion($args, $round, $rounds, $divisions);
         $this->processStep2($args, $round, $masters);
@@ -885,6 +886,8 @@ class TeamRacesPane extends AbstractPane {
       $round->regatta = $this->REGATTA;
       DB::set($round);
       $round->setSeeds($seeds);
+      foreach ($masters as $master)
+        $round->addMaster($master->master, $master->num_teams);
 
       // Actually create the races
       $racenum = $this->calculateNextRaceNumber($round);
