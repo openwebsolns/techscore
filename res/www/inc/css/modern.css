@@ -613,6 +613,12 @@ a.empty, .user-active {
 .teamscores td {
     text-align: center;
 }
+.teamscores .re-score {
+    background: #dfd;
+}
+.teamscores .no-teams {
+    opacity: 0.8;
+}
 .tr-ns {
     background: #ccc;
     color: #ccc;

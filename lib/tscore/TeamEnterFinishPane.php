@@ -87,7 +87,7 @@ class TeamEnterFinishPane extends EnterFinishPane {
 
       $row = array();
       for ($j = 0; $j < $round->num_teams; $j++)
-        $row[] = array();
+        $row[] = new XTD();
       $table[] = $row;
     }
     foreach ($round->getSeeds() as $seed) {
@@ -109,15 +109,19 @@ class TeamEnterFinishPane extends EnterFinishPane {
         $finishes = $this->REGATTA->getFinishes($race);
         if (count($finishes) > 0) {
           $cont = new XA($this->link('finishes', array('race' => $race->number)), "Re-score");
+          $table[$t1][$t2]->set('class', 're-score');
+          $table[$t2][$t1]->set('class', 're-score');
         }
-        $table[$t1][$t2][] = $cont;
-        $table[$t2][$t1][] = $cont;
+        $table[$t1][$t2]->add($cont);
+        $table[$t2][$t1]->add($cont);
       }
       else {
         // Unscorable race
         $cont = new XEm("N/A", array('class'=>'no-team', 'title'=>"Both teams must be present."));
-        $table[$t1][$t2][] = $cont;
-        $table[$t2][$t1][] = $cont;
+        $table[$t1][$t2]->set('class', 'no-teams');
+        $table[$t2][$t1]->set('class', 'no-teams');
+        $table[$t1][$t2]->add($cont);
+        $table[$t2][$t1]->add($cont);
       }
     }
 
@@ -133,9 +137,9 @@ class TeamEnterFinishPane extends EnterFinishPane {
       $bod->add($row = new XTR(array('class'=>sprintf('tr-row team-%s', $i)),
                                array(new XTH(array('class'=>'tr-horiz-label'), $team))));
       foreach ($table[$i] as $j => $cont) {
-        $row->add($td = new XTD(array(), $cont));
+        $row->add($cont);
         if ($i == $j)
-          $td->set('class', 'tr-ns');
+          $cont->set('class', 'tr-ns');
       }
     }
 
