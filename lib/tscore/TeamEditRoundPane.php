@@ -94,21 +94,17 @@ class TeamEditRoundPane extends AbstractPane {
     // ------------------------------------------------------------
     if (count($independent_rounds) > 1) {
       $this->PAGE->addContent($p = new XPort("Group Rounds"));
-      $p->add(new XP(array(), "Round groups are rounds that are sailed at the same time. The race order is changed so that a number of races from one round are followed by the same number from the next round in the group. This is call the \"collation\" of the group."));
+      $p->add(new XP(array(), "Round groups are rounds that are sailed at the same time. The race order is changed so that one flight from one round is followed by a flight from the next round in the group."));
 
       $p->add($f = $this->createForm());
       $f->add(new FItem("Rounds:", $ul = new XUl(array('class'=>'inline-list'))));
-      $max_collation = null;
       foreach ($independent_rounds as $round) {
         $id = 'chk-round-' . $round->id;
         $ul->add(new XLi(array(new XCheckboxInput('round[]', $round->id, array('id'=>$id)),
                                new XLabel($id, $round))));
 
         $num_races = count($this->REGATTA->getRacesInRound($round, Division::A(), false));
-        if ($max_collation === null || $num_races < $max_collation)
-          $max_collation = $num_races;
       }
-      $f->add(new FItem("Collate every:", new XInput('number', 'collation', count($this->REGATTA->getDivisions()), array('min'=>1, 'max'=>($num_races - 1), 'step'=>1)), "Races"));
       $f->add(new XSubmitP('group-rounds', "Group rounds"));
     }
 
@@ -526,10 +522,14 @@ class TeamEditRoundPane extends AbstractPane {
     // Group rounds
     // ------------------------------------------------------------
     if (isset($args['group-rounds'])) {
+      $other_divisions = $this->REGATTA->getDivisions();
+
       // Validate
-      $max_collation = null;
-      $rounds = array(); // list of list of races
       $affected_rounds = array();
+      $rounds = array();
+      $races = array();
+      $race_index = array();
+      $flight_size = array();
       foreach (DB::$V->reqList($args, 'round', null, "No rounds provided.") as $rid) {
         if (($round = DB::get(DB::$ROUND, $rid)) === null || $round->regatta != $this->REGATTA)
           throw new SoterException("Invalid round provided: $rid.");
@@ -537,55 +537,51 @@ class TeamEditRoundPane extends AbstractPane {
         if ($round->round_group !== null)
           throw new SoterException("Only independent rounds can be grouped.");
 
-        $races = $this->REGATTA->getRacesInRound($round, Division::A(), false);
-        $num_races = count($races);
-        if ($max_collation === null || $num_races < $max_collation)
-          $max_collation = $num_races;
-
-        $list = array();
-        foreach ($races as $race)
-          $list[] = $race;
-        $rounds[] = $list;
-        $affected_rounds[$round->id] = $round;
+        if (!isset($affected_rounds[$round->id])) {
+          $races[$round->id] = $this->REGATTA->getRacesInRound($round, Division::A(), false);
+          $race_index[$round->id] = 0;
+          $flight_size[$round->id] = $round->num_boats / (2 * count($other_divisions));
+          $affected_rounds[$round->id] = $round;
+          $rounds[] = $round;
+        }
       }
       if (count($rounds) < 2)
         throw new SoterException("At least two rounds must be specified for grouping.");
 
-      $collate = DB::$V->reqInt($args, 'collation', 1, $max_collation, "Invalid collation provided.");
-
       // Other divisions
-      $other_divisions = $this->REGATTA->getDivisions();
       array_shift($other_divisions);
 
       // Perform collation
       $to_save = array();
 
-      $race_num = $rounds[0][0]->number;
-      $race_i = 0;
-      $round_i = 0;
+      $race_num = $races[$rounds[0]->id][0]->number;
+      $round_index = 0;
       while (true) {
-        $race = array_shift($rounds[$round_i]);
-        if ($race->number != $race_num) {
-          foreach ($other_divisions as $div) {
-            $r = $this->REGATTA->getRace($div, $race->number);
-            $r->number = $race_num;
-            $to_save[] = $r;
+        $round = $rounds[$round_index];
+        $end = $race_index[$round->id] + $flight_size[$round->id];
+        for (; $race_index[$round->id] < count($races[$round->id]) && $race_index[$round->id] < $end; $race_index[$round->id]++) {
+          $race = $races[$round->id][$race_index[$round->id]];
+          if ($race->number != $race_num) {
+            foreach ($other_divisions as $div) {
+              $r = $this->REGATTA->getRace($div, $race->number);
+              $r->number = $race_num;
+              $to_save[] = $r;
+            }
+            $race->number = $race_num;
+            $to_save[] = $race;
           }
-          $race->number = $race_num;
-          $to_save[] = $race;
+          $race_num++;
         }
-        
-        $race_num++;
-        $race_i++;
-
-        if (count($rounds[$round_i]) == 0)
-          array_splice($rounds, $round_i, 1);
-
+        if ($race_index[$round->id] >= count($races[$round->id])) {
+          array_splice($rounds, $round_index, 1);
+        }
+        else {
+          $round_index++;
+        }
         if (count($rounds) == 0)
           break;
 
-        if (($race_i % $collate) == 0 || !isset($rounds[$round_i]))
-          $round_i = ($round_i + 1) % count($rounds);
+        $round_index = $round_index % count($rounds);
       }
 
       // Save races
