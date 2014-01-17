@@ -207,8 +207,10 @@ class ReportMaker {
       foreach ($reg->getScoredRounds() as $round)
         array_unshift($rounds, $round);
       foreach ($rounds as $round) {
-        $this->fullPage->addSection($p = new XPort($round));
-        $p->add($maker->getRoundTable($round));
+        if (count($round->getSeeds()) > 0) {
+          $this->fullPage->addSection($p = new XPort($round));
+          $p->add($maker->getRoundTable($round));
+        }
       }
     }
     else {

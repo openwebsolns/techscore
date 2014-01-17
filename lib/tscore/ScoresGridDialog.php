@@ -47,10 +47,17 @@ class ScoresGridDialog extends AbstractScoresDialog {
     // We need to provide either all the rounds, or just some of the
     // rounds. For completeness, we provide all rounds.
     $rounds = $this->REGATTA->getRounds();
+    $cnt = 0;
     foreach ($rounds as $round) {
-      $this->PAGE->addContent($p = new XPort("Round $round"));
-      $p->add($this->getRoundTable($round));
+      if (count($round->getSeeds()) > 0) {
+        $this->PAGE->addContent($p = new XPort("Round $round"));
+        $p->add($this->getRoundTable($round));
+        $cnt++;
+      }
     }
+
+    if ($cnt == 0)
+      $this->PAGE->addContent(new XP(array('class'=>'warning'), "There are no rounds to show."));
   }
 
   /**
