@@ -706,3 +706,6 @@ alter table round_seed add foreign key (round) references round(id) on delete ca
 -- race order templates must include carry over teams
 alter table race_order add column master_teams text default null after num_teams;
 alter table race_order drop column name;
+
+-- track original round for seeds of completion rounds
+alter table round_seed add column original_round int default null, add foreign key (original_round) references round(id) on delete set null on update cascade;

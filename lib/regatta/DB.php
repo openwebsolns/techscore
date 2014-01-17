@@ -2089,10 +2089,11 @@ class Round_Slave extends DBObject {
 class Round_Seed extends DBObject {
   public $seed;
   protected $round;
+  protected $original_round;
   protected $team;
 
   public function db_type($field) {
-    if ($field == 'round')
+    if ($field == 'round' || $field == 'original_round')
       return DB::$ROUND;
     if ($field == 'team')
       return DB::$TEAM;
