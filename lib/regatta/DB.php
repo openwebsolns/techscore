@@ -1967,8 +1967,8 @@ class Round extends DBObject {
       throw new InvalidArgumentException("Master rounds muts come before slave rounds.");
 
     // Is it already a master?
-    foreach ($this->getMasters() as $old_master) {
-      if ($old_master->id == $master->id)
+    foreach ($this->getMasters() as $old_rel) {
+      if ($old_rel->master->id == $master->id)
         return;
     }
 
@@ -1984,9 +1984,16 @@ class Round extends DBObject {
     if ($this->_masters === null) {
       $this->_masters = array();
       foreach (DB::getAll(DB::$ROUND_SLAVE, new DBCond('slave', $this->id)) as $rel)
-        $this->_masters[] = $rel->master;
+        $this->_masters[] = $rel;
     }
     return $this->_masters;
+  }
+
+  public function getMasterRounds() {
+    $list = array();
+    foreach ($this->getMasters() as $rel)
+      $list[] = $rel->master;
+    return $list;
   }
 
   public function getSlaves() {

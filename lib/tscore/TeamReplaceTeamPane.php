@@ -28,7 +28,7 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
       throw new SoterException("Invalid round chosen.");
     if (count($round->getSlaves()) > 0)
       throw new SoterException(sprintf("Races from %s are being carried over. Therefore, teams cannot be substituted.", $round));
-    if (count($round->getMasters()) > 0)
+    if (count($round->getMasterRounds()) > 0)
       throw new SoterException(sprintf("Some races for %s are carried over from other rounds. This is currently not allowed."));
     return $round;
   }
@@ -63,7 +63,7 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
         $p->add($form = $this->createForm());
         $form->add(new XP(array(), "On the left below are all the teams that are currently participating in the chosen round. To replace a team, choose a different one from the list on the right. Leave blank for no replacement."));
 
-        $from_rounds = $round->getMasters();
+        $from_rounds = $round->getMasterRounds();
         if (count($from_rounds) > 0)
           $form->add(new XP(array('class'=>'warning'),
                             array(new XStrong("Warning:"),
@@ -106,7 +106,7 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
         $ri->set('title', $mes);
         $lb->set('title', $mes);
       }
-      elseif (count($round->getMasters()) > 0) {
+      elseif (count($round->getMasterRounds()) > 0) {
         $mes = "Races for this round are carried over from other rounds.";
         $ri->set('disabled', 'disabled');
         $ri->set('title', $mes);
@@ -163,7 +163,7 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
       // create list of races that should be used as carry over,
       // indexed by team, then opponent, then division
       $carried_races = array();
-      foreach ($round->getMasters() as $other_round) {
+      foreach ($round->getMasterRounds() as $other_round) {
         foreach ($this->REGATTA->getRacesInRound($other_round, null, false) as $race) {
           $t1 = $race->tr_team1;
           $t2 = $race->tr_team2;

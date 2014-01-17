@@ -689,7 +689,7 @@ class TeamEditRoundPane extends AbstractPane {
         $round = $rounds[$rid];
 
         // does this round depend on others?
-        foreach ($round->getMasters() as $other) {
+        foreach ($round->getMasterRounds() as $other) {
           if (!isset($edited[$other->id]))
             throw new SoterException(sprintf("Round \"%s\" must come after \"%s\" because it contains races carried over.", $round, $other));
         }

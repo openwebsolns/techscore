@@ -265,6 +265,25 @@ class TeamRotationDialog extends AbstractDialog {
     return array($tab);
   }
 
+  private function getPlaceholderTeamNames(Round $round) {
+    $names = array();
+    $masters = $round->getMasters();
+
+    if (count($masters) == 0) {
+      for ($i = 0; $i < $round->num_teams; $i++) {
+        $names[] = new XEm(sprintf("Team %d", ($i + 1)), array('class'=>'no-team'));
+      }
+    }
+    else {
+      foreach ($masters as $master) {
+        for ($i = 0; $i < $master->num_teams; $i++) {
+          $names[] = new XEm(sprintf("%s, #%d", $master->master, ($i + 1)), array('class'=>'no-team'));
+        }
+      }
+    }
+    return $names;
+  }
+
   /**
    * Fetches the list of tables that comprise this display
    *
@@ -286,10 +305,7 @@ class TeamRotationDialog extends AbstractDialog {
                                                            new XTH(array('colspan'=>2), "Team 2"))))),
                             $body = new XTBody()));
 
-    $teams = array();
-    for ($i = 0; $i < $round->num_teams; $i++) {
-      $teams[] = new XEm(sprintf("Team %d", ($i + 1)), array('class'=>'no-team'));
-    }
+    $teams = $this->getPlaceholderTeamNames($round);
     foreach ($round->getSeeds() as $seed) {
       $teams[$seed->seed - 1] = $seed->team;
     }
