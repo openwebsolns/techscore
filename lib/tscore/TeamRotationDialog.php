@@ -40,14 +40,10 @@ class TeamRotationDialog extends AbstractDialog {
    * @return XTable|null
    */
   public function getCurrentTable($link_schools = false) {
-    $last_race = $this->REGATTA->getLastScoredRace(Division::A());
-    if ($last_race === null)
+    $last_races = $this->REGATTA->getUnscoredRaces(Division::A());
+    if (count($last_races) == 0)
       return null;
-
-    // Get the NEXT race
-    $next_race = $this->REGATTA->getRace(Division::A(), ($last_race->number + 1));
-    if ($next_race === null) // end of regatta
-      return null;
+    $next_race = $last_races[0];
 
     $round = $next_race->round;
     $label = (string)$round;
