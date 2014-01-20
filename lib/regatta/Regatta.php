@@ -762,9 +762,16 @@ class FullRegatta extends DBObject {
    * @see setRaceTeams
    */
   public function getRaceTeams(Race $race) {
-    if ($race->tr_team1 !== null && $race->tr_team2 !== null)
-      return array($race->tr_team1, $race->tr_team2);
-    return $this->getTeams();
+    if ($this->scoring == Regatta::SCORING_TEAM) {
+      $list = array();
+      if ($race->tr_team1 !== null)
+        $list[] = $race->tr_team1;
+      if ($race->tr_team2 !== null)
+        $list[] = $race->tr_team2;
+      return $list;
+    }
+    else
+      return $this->getTeams();
   }
 
   /**
