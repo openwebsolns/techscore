@@ -73,13 +73,10 @@ class ScoresGridDialog extends AbstractScoresDialog {
    * @param Round $round the round number to fetch (number must be,
    * incidentally, round)
    *
-   * @param boolean $score_mode true to include links to score races.
-   * Suitable for display within EnterFinish pane.
-   *
    * @return XTable a grid
    * @throws InvalidArgumentException if this regatta has no such round
    */
-  public function getRoundTable(Round $round, $score_mode = false) {
+  public function getRoundTable(Round $round) {
     $races = $this->REGATTA->getRacesInRound($round);
     if (count($races) == 0)
       throw new InvalidArgumentException("No such round $round in this regatta.");
@@ -178,30 +175,21 @@ class ScoresGridDialog extends AbstractScoresDialog {
 
             // Calculate display
             $cont = Finish::displayPlaces($places);
-            if ($score_mode) {
-              if (count($places) == 0)
-                $cont = new XA(WS::link($lroot, array('race' => $race_num), '#finish_form'), "Score");
-              else
-                $cont = new XA(WS::link($lroot, array('race' => $race_num), '#finish_form'), $cont);
-            }
             if ($total1 < $total2) {
-	      if (!$score_mode)
-		$cont = sprintf('W (%s)', $cont);
+              $cont = sprintf('W (%s)', $cont);
               $subrow->add(new XTD(array('class'=>'tr-win' . $extra_class), $cont));
-	      $win++;
-	    }
+              $win++;
+            }
             elseif ($total1 > $total2) {
-	      if (!$score_mode)
-		$cont = sprintf('L (%s)', $cont);
+              $cont = sprintf('L (%s)', $cont);
               $subrow->add(new XTD(array('class'=>'tr-lose' . $extra_class), $cont));
-	      $los++;
-	    }
+              $los++;
+            }
             elseif ($total1 != 0) {
-	      if (!$score_mode)
-		$cont = sprintf('T (%s)', $cont);
+              $cont = sprintf('T (%s)', $cont);
               $subrow->add(new XTD(array('class'=>'tr-tie' . $extra_class), $cont));
-	      $tie++;
-	    }
+              $tie++;
+            }
             else
               $subrow->add(new XTD(array(), $cont));
           }
@@ -210,7 +198,7 @@ class ScoresGridDialog extends AbstractScoresDialog {
       $tbody->add($row);
       $mes = $win . '-' . $los;
       if ($tie > 0)
-	$mes .= '-' . $tie;
+        $mes .= '-' . $tie;
       $rec->add($mes);
     }
     return $table;
