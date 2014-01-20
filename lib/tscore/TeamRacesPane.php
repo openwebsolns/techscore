@@ -52,6 +52,8 @@ class TeamRacesPane extends AbstractPane {
     $this->PAGE->head->add(new LinkCSS('/inc/css/round.css'));
     $ROUND = Session::g('round');
     $type = Session::g('round_type');
+    if ($type === null)
+      $type = self::SIMPLE;
 
     // Calculate step
     $MAX_STEP = 0;
@@ -609,6 +611,10 @@ class TeamRacesPane extends AbstractPane {
   public function process(Array $args) {
     $ROUND = Session::g('round');
     $type = Session::g('round_type');
+    if ($type === null) {
+      $type = self::SIMPLE;
+      Session::s('round_type', $type);
+    }
 
     $rounds = array();
     $master_rounds = array();
