@@ -825,6 +825,30 @@ class FullRegatta extends DBObject {
     return $list;
   }
 
+  /**
+   * Returns races in which the given teams sailed against each other.
+   *
+   * This is particularly useful for team racing regattas.
+   *
+   * @param Team $t1 one of the teams
+   * @param Team $t2 the second team
+   * @param Round $round the optional round to limit races
+   * @param Division $div the optional division to limit
+   */
+  public function getRacesForMatchup(Team $t1, Team $t2, Round $round = null, Division $div = null) {
+    $cond = new DBBool(array(new DBCond('regatta', $this->id),
+                             new DBBool(array(new DBBool(array(new DBCond('tr_team1', $t1),
+                                                               new DBCond('tr_team2', $t2))),
+                                              new DBBool(array(new DBCond('tr_team1', $t2),
+                                                               new DBCond('tr_team2', $t1)))),
+                                        DBBool::mOR)));
+    if ($round !== null)
+      $cond->add(new DBCond('round', $round));
+    if ($div !== null)
+      $cond->add(new DBCond('division', (string)$div));
+    return DB::getAll(DB::$RACE, $cond);
+  }
+
 
   // ------------------------------------------------------------
   // Finishes
