@@ -103,7 +103,7 @@ class TeamEditRoundPane extends AbstractPane {
         $ul->add(new XLi(array(new XCheckboxInput('round[]', $round->id, array('id'=>$id)),
                                new XLabel($id, $round))));
 
-        $num_races = count($this->REGATTA->getRacesInRound($round, Division::A(), false));
+        $num_races = count($this->REGATTA->getRacesInRound($round, Division::A()));
       }
       $f->add(new XSubmitP('group-rounds', "Group rounds"));
     }
@@ -261,7 +261,7 @@ class TeamEditRoundPane extends AbstractPane {
 
       // order races by number
       $races = array();
-      foreach ($this->REGATTA->getRacesInRound($round, Division::A(), false) as $race)
+      foreach ($this->REGATTA->getRacesInRound($round, Division::A()) as $race)
         $races[] = $race;
       usort($races, 'Race::compareNumber');
 
@@ -304,7 +304,7 @@ class TeamEditRoundPane extends AbstractPane {
 
       $races = array(); // map of race in A division's ID to races
       $nums = array();  // list of race numbers
-      foreach ($this->REGATTA->getRacesInRound($round, Division::A(), false) as $race) {
+      foreach ($this->REGATTA->getRacesInRound($round, Division::A()) as $race) {
         $races[$race->id] = array($race);
         foreach ($other_divisions as $div)
           $races[$race->id][] = $this->REGATTA->getRace($div, $race->number);
@@ -498,7 +498,7 @@ class TeamEditRoundPane extends AbstractPane {
 
       $next_number = null;
       foreach ($rounds as $round) {
-        foreach ($this->REGATTA->getRacesInRound($round, Division::A(), false) as $race) {
+        foreach ($this->REGATTA->getRacesInRound($round, Division::A()) as $race) {
           if ($next_number === null) {
             $next_number = $race->number + 1;
             continue;
@@ -538,7 +538,7 @@ class TeamEditRoundPane extends AbstractPane {
           throw new SoterException("Only independent rounds can be grouped.");
 
         if (!isset($affected_rounds[$round->id])) {
-          $races[$round->id] = $this->REGATTA->getRacesInRound($round, Division::A(), false);
+          $races[$round->id] = $this->REGATTA->getRacesInRound($round, Division::A());
           $race_index[$round->id] = 0;
           $flight_size[$round->id] = $round->num_boats / (2 * count($other_divisions));
           $affected_rounds[$round->id] = $round;
@@ -614,7 +614,7 @@ class TeamEditRoundPane extends AbstractPane {
       $others_changed = array();
       foreach ($other_rounds as $round) {
         $changed = false;
-        foreach ($this->REGATTA->getRacesInRound($round, Division::A(), false) as $race) {
+        foreach ($this->REGATTA->getRacesInRound($round, Division::A()) as $race) {
           foreach ($other_divisions as $div) {
             $r = $this->REGATTA->getRace($div, $race->number);
             if ($r->number != $next_number) {
@@ -697,7 +697,7 @@ class TeamEditRoundPane extends AbstractPane {
             $other_round->relative_order = $roundnum++;
             $edited[$other_round->id] = $other_round;
           }
-          foreach ($this->REGATTA->getRacesInRoundGroup($round->round_group, Division::A(), false) as $race) {
+          foreach ($this->REGATTA->getRacesInRoundGroup($round->round_group, Division::A()) as $race) {
             foreach ($divs as $div) {
               $r = $this->REGATTA->getRace($div, $race->number);
               $r->number = $racenum;
@@ -707,7 +707,7 @@ class TeamEditRoundPane extends AbstractPane {
           }
         }
         else {
-          foreach ($this->REGATTA->getRacesInRound($round, Division::A(), false) as $race) {
+          foreach ($this->REGATTA->getRacesInRound($round, Division::A()) as $race) {
             foreach ($divs as $div) {
               $r = $this->REGATTA->getRace($div, $race->number);
               $r->number = $racenum;
@@ -770,7 +770,7 @@ class TeamEditRoundPane extends AbstractPane {
         }
       }
       // Remove this round from each race, or entire race if only round
-      foreach ($this->REGATTA->getRacesInRound($round, null, false) as $race)
+      foreach ($this->REGATTA->getRacesInRound($round) as $race)
         DB::remove($race);
       DB::remove($round);
 
@@ -781,13 +781,13 @@ class TeamEditRoundPane extends AbstractPane {
       $race_num = 1;
       foreach ($rounds as $rid => $other) {
         if ($other->relative_order < $round->relative_order) {
-          $race_num += count($this->REGATTA->getRacesInRound($other, Division::A(), false));
+          $race_num += count($this->REGATTA->getRacesInRound($other, Division::A()));
           $round_num++;
           continue;
         }
         $other->relative_order = $round_num++;
         DB::set($other, true);
-        foreach ($this->REGATTA->getRacesInRound($other, Division::A(), false) as $race) {
+        foreach ($this->REGATTA->getRacesInRound($other, Division::A()) as $race) {
           foreach ($divs as $div) {
             $r = $this->REGATTA->getRace($div, $race->number);
             if ($r !== null) {

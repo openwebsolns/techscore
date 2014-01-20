@@ -94,7 +94,7 @@ class TeamEnterFinishPane extends EnterFinishPane {
       $teams[$seed->seed - 1] = $seed->team;
     }
 
-    $races = $this->REGATTA->getRacesInRound($round, Division::A(), false);
+    $races = $this->REGATTA->getRacesInRound($round, Division::A());
     for ($i = 0; $i < count($round->race_order); $i++) {
       $pair = $round->getRaceOrderPair($i);
 

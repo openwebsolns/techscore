@@ -52,9 +52,9 @@ class TeamRotationDialog extends AbstractDialog {
     $round = $next_race->round;
     $label = (string)$round;
     if ($round->round_group === null)
-      $races = $this->REGATTA->getRacesInRound($round, Division::A(), false);
+      $races = $this->REGATTA->getRacesInRound($round, Division::A());
     else {
-      $races = $this->REGATTA->getRacesInRoundGroup($round->round_group, Division::A(), false);
+      $races = $this->REGATTA->getRacesInRoundGroup($round->round_group, Division::A());
       $label = array();
       foreach ($round->round_group->getRounds() as $other)
         $label[] = (string)$other;
@@ -225,8 +225,8 @@ class TeamRotationDialog extends AbstractDialog {
 
     // calculate appropriate race number
     $races = ($round->round_group === null) ?
-      $this->REGATTA->getRacesInRound($round, Division::A(), false) :
-      $this->REGATTA->getRacesInRoundGroup($round->round_group, Division::A(), false);
+      $this->REGATTA->getRacesInRound($round, Division::A()) :
+      $this->REGATTA->getRacesInRoundGroup($round->round_group, Division::A());
 
     $group_size = 2 * count($divisions);
     $flight = $round->num_boats / $group_size;

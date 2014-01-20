@@ -48,7 +48,7 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
 
         // get teams that have participated in chosen rounds
         $teams = array();
-        foreach ($this->REGATTA->getRacesInRound($round, Division::A(), false) as $race) {
+        foreach ($this->REGATTA->getRacesInRound($round, Division::A()) as $race) {
           $teams[$race->tr_team1->id] = $race->tr_team1;
           $teams[$race->tr_team2->id] = $race->tr_team2;
 
@@ -164,7 +164,7 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
       // indexed by team, then opponent, then division
       $carried_races = array();
       foreach ($round->getMasterRounds() as $other_round) {
-        foreach ($this->REGATTA->getRacesInRound($other_round, null, false) as $race) {
+        foreach ($this->REGATTA->getRacesInRound($other_round) as $race) {
           $t1 = $race->tr_team1;
           $t2 = $race->tr_team2;
           if (!isset($carried_races[$t1->id]))

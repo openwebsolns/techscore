@@ -1193,10 +1193,7 @@ class TeamRacesPane extends AbstractPane {
     foreach ($this->REGATTA->getRounds() as $r) {
       if ($r->id == $round->id)
         break;
-      if ($r->race_order != null)
-        $race_num += count($r->race_order);
-      else
-        $race_num += count($this->REGATTA->getRacesInRound($r, Division::A(), false));
+      $race_num += count($this->REGATTA->getRacesInRound($r, Division::A()));
     }
     return $race_num;
   }

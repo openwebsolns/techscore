@@ -562,12 +562,10 @@ class FullRegatta extends DBObject {
    *
    * @param Round $round the round
    * @param Division $div the specific division (if any)
-   * @param boolean $inc_carry_over set to true (default) to include
-   * races carried over from previous rounds
    *
    * @return Array:Race the list of races
    */
-  public function getRacesInRound(Round $round, Division $div = null, $inc_carry_over = true) {
+  public function getRacesInRound(Round $round, Division $div = null) {
     $cond = new DBBool(array(new DBCond('regatta', $this->id),
                              new DBCond('round', $round)));
 
@@ -581,12 +579,10 @@ class FullRegatta extends DBObject {
    *
    * @param Round_Group the group of rounds
    * @param Division $div the specific division (if any)
-   * @param boolean $inc_carry_over set to true (default) to include
-   * races carried over from previous rounds
    *
    * @return Array:Race the list of races
    */
-  public function getRacesInRoundGroup(Round_Group $group, Division $div = null, $inc_carry_over = true) {
+  public function getRacesInRoundGroup(Round_Group $group, Division $div = null) {
     $cond = new DBBool(array(new DBCond('regatta', $this->id),
                              new DBCondIn('round', DB::prepGetAll(DB::$ROUND, new DBCond('round_group', $group), array('id')))));
 
