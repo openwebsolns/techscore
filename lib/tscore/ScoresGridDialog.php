@@ -94,16 +94,15 @@ class ScoresGridDialog extends AbstractScoresDialog {
     // {Team1ID : {Team2ID : {Race# : [Ascore, Bscore,...] } } }
     //
     // Also track corresponding team objects
-    $teams = array();
-    foreach ($this->REGATTA->getTeamsInRound($round) as $team)
-      $teams[$team->id] = $team;
-
     $scores = array();
+    $teams = array();
+    foreach ($round->getSeeds() as $seed) {
+      $teams[$seed->team->id] = $seed->team;
+      $scores[$seed->team->id] = array();
+    }
+
     $carried = array();
     foreach ($races as $race) {
-      if ($race->round->id != $round->id)
-        $carried[$race->number] = $race;
-
       $ts = $this->REGATTA->getRaceTeams($race);
       foreach ($ts as $t) {
         if (!isset($scores[$t->id]))
@@ -127,6 +126,36 @@ class ScoresGridDialog extends AbstractScoresDialog {
       if ($s0 !== null && $s1 !== null) {
         $scores[$t0->id][$t1->id][$race->number][] = $s0;
         $scores[$t1->id][$t0->id][$race->number][] = $s1;
+      }
+    }
+
+    // fill in with masters
+    foreach ($round->getMasters() as $master) {
+      foreach ($this->REGATTA->getRacesInRound($master->master) as $race) {
+        $t0 = $race->tr_team1;
+        $t1 = $race->tr_team2;
+
+        if ($t0 !== null && $race->tr_team2 !== null &&
+            isset($teams[$t0->id]) && isset($teams[$race->tr_team2->id])) {
+          $carried[$race->number] = $race;
+
+          if (!isset($scores[$t0->id][$t1->id]))
+            $scores[$t0->id][$t1->id] = array();
+          if (!isset($scores[$t1->id][$t0->id]))
+            $scores[$t1->id][$t0->id] = array();
+
+          if (!isset($scores[$t0->id][$t1->id][$race->number]))
+            $scores[$t0->id][$t1->id][$race->number] = array();
+          if (!isset($scores[$t1->id][$t0->id][$race->number]))
+            $scores[$t1->id][$t0->id][$race->number] = array();
+      
+          $s0 = $this->REGATTA->getFinish($race, $t0);
+          $s1 = $this->REGATTA->getFinish($race, $t1);
+          if ($s0 !== null && $s1 !== null) {
+            $scores[$t0->id][$t1->id][$race->number][] = $s0;
+            $scores[$t1->id][$t0->id][$race->number][] = $s1;
+          }
+        }
       }
     }
 
