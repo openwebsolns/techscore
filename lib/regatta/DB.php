@@ -38,7 +38,6 @@ class DB extends DBM {
   public static $ROUND_GROUP = null;
   public static $ROUND_SEED = null;
   public static $RACE = null;
-  public static $RACE_ROUND = null;
   public static $FINISH = null;
   public static $FINISH_MODIFIER = null;
   public static $TEAM_PENALTY = null;
@@ -110,7 +109,6 @@ class DB extends DBM {
     self::$ROUND_GROUP = new Round_Group();
     self::$ROUND_SEED = new Round_Seed();
     self::$RACE = new Race();
-    self::$RACE_ROUND = new Race_Round();
     self::$FINISH = new Finish();
     self::$FINISH_MODIFIER = new FinishModifier();
     self::$TEAM_PENALTY = new TeamPenalty();
@@ -2113,29 +2111,6 @@ class Round_Seed extends DBObject {
 }
 
 /**
- * Linking table between round and races.
- *
- * This is applicable for races that are carried over from one round
- * to another one.
- *
- * @author Dayan Paez
- * @version 2013-04-29
- */
-class Race_Round extends DBObject {
-  protected $race;
-  protected $round;
-
-  public function db_type($field) {
-    switch ($field) {
-    case 'race': return DB::$RACE;
-    case 'round': return DB::$ROUND;
-    default:
-      return parent::db_type($field);
-    }
-  }
-}
-
-/**
  * Race object: a number and a division
  *
  * @author Dayan Paez
@@ -2207,90 +2182,6 @@ class Race extends DBObject {
          count($this->__get('regatta')->getDivisions()) == 1))
       return (string)$this->number;
     return $this->number . $this->division;
-  }
-
-  // ------------------------------------------------------------
-  // Rounds carried over
-  // ------------------------------------------------------------
-
-  /**
-   * @var Array internal cache of extra rounds for this given race
-   */
-  private $_rounds = null;
-
-  /**
-   * Get list of rounds for this race
-   *
-   * @return Array:Round the rounds
-   */
-  public function getRounds() {
-    if ($this->_rounds === null) {
-      $this->_rounds = array();
-      foreach (DB::getAll(DB::$RACE_ROUND, new DBCond('race', $this)) as $r)
-        $this->_rounds[] = $r->round;
-      usort($this->_rounds, 'Round::compare');
-    }
-    return $this->_rounds;
-  }
-
-  /**
-   * Set the rounds to use for this race
-   *
-   * @param Array:Round $rounds the rounds to use
-   */
-  public function setRounds(Array $rounds) {
-    $this->_rounds = array();
-    $queue = array();
-    foreach ($rounds as $round) {
-      if ($round->id === null)
-        DB::set($round, false);
-
-      if (isset($queue[$round->id]))
-        continue;
-
-      $r = new Race_Round();
-      $r->race = $this;
-      $r->round = $round;
-      $queue[$round->id] = $r;
-      $this->_rounds[] = $round;
-    }
-    DB::removeAll(DB::$RACE_ROUND, new DBCond('race', $this));
-    DB::insertAll($queue);
-  }
-
-  /**
-   * Adds the given round to this race's list of extra rounds
-   *
-   * Only if the round is not already in the list of rounds
-   *
-   * @param Round $newRound the round to add
-   */
-  public function addRound(Round $newRound) {
-    if ($newRound->id === null)
-      DB::set($newRound, false);
-
-    // check for uniqueness
-    $curr = array();
-    foreach ($this->getRounds() as $round)
-      $curr[$round->id] = $round;
-    if (isset($curr[$newRound->id]))
-      return;
-
-    // create new one
-    $r = new Race_Round();
-    $r->race = $this;
-    $r->round = $newRound;
-    DB::set($r, false);
-  }
-
-  /**
-   * Removes any race-round relationship
-   *
-   * @param Round $oldRound
-   */
-  public function deleteRound(Round $oldRound) {
-    DB::removeAll(DB::$RACE_ROUND, new DBBool(array(new DBCond('race', $this), new DBCond('round', $oldRound))));
-    $this->_rounds = null;
   }
 
   /**

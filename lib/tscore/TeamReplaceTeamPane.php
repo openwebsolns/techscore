@@ -226,10 +226,6 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
                 // remove the old race: is the old race from this round?
                 if ($race->round == $round)
                   DB::remove($race);
-                else
-                  $race->deleteRound($round);
-
-                $new_race->addRound($round);
               }
               else {
                 $race->$prop = $new_team;

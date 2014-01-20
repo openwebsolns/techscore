@@ -568,12 +568,8 @@ class FullRegatta extends DBObject {
    * @return Array:Race the list of races
    */
   public function getRacesInRound(Round $round, Division $div = null, $inc_carry_over = true) {
-    $cond = new DBCond('round', $round);
-    if ($inc_carry_over !== false)
-      $cond = new DBBool(array($cond,
-                               new DBCondIn('id', DB::prepGetAll(DB::$RACE_ROUND, new DBCond('round', $round), array('race')))),
-                         DBBool::mOR);
-    $cond = new DBBool(array(new DBCond('regatta', $this->id), $cond));
+    $cond = new DBBool(array(new DBCond('regatta', $this->id),
+                             new DBCond('round', $round)));
 
     if ($div !== null)
       $cond->add(new DBCond('division', (string)$div));
@@ -591,12 +587,8 @@ class FullRegatta extends DBObject {
    * @return Array:Race the list of races
    */
   public function getRacesInRoundGroup(Round_Group $group, Division $div = null, $inc_carry_over = true) {
-    $cond = new DBCondIn('round', DB::prepGetAll(DB::$ROUND, new DBCond('round_group', $group), array('id')));
-    if ($inc_carry_over !== false)
-      $cond = new DBBool(array($cond,
-                               new DBCondIn('id', DB::prepGetAll(DB::$RACE_ROUND, $cond, array('race')))),
-                         DBBool::mOR);
-    $cond = new DBBool(array(new DBCond('regatta', $this->id), $cond));
+    $cond = new DBBool(array(new DBCond('regatta', $this->id),
+                             new DBCondIn('round', DB::prepGetAll(DB::$ROUND, new DBCond('round_group', $group), array('id')))));
 
     if ($div !== null)
       $cond->add(new DBCond('division', (string)$div));

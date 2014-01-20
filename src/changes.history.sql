@@ -709,3 +709,6 @@ alter table race_order drop column name;
 
 -- track original round for seeds of completion rounds
 alter table round_seed add column original_round int default null, add foreign key (original_round) references round(id) on delete set null on update cascade;
+
+-- do away with race_round relationship, this to be derived "manually"
+drop table race_round;
