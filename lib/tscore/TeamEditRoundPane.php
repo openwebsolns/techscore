@@ -7,13 +7,15 @@
  * @package tscore
  */
 
+require_once('tscore/AbstractRoundPane.php');
+
 /**
  * Page for editing rounds.
  *
  * @author Dayan Paez
  * @version 2012-03-05
  */
-class TeamEditRoundPane extends AbstractPane {
+class TeamEditRoundPane extends AbstractRoundPane {
 
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Edit Rounds", $user, $reg);
@@ -196,7 +198,9 @@ class TeamEditRoundPane extends AbstractPane {
       }
     }
 
-    
+    // ------------------------------------------------------------
+    // Order?
+    // ------------------------------------------------------------
     if ($round->round_group !== null) {
       $this->PAGE->addContent($p = new XPort("Races order"));
       $p->add(new XP(array('class'=>'warning'),
@@ -205,12 +209,9 @@ class TeamEditRoundPane extends AbstractPane {
                            " pane.")));
     }
     else {
-      // ------------------------------------------------------------
-      // Manual ordering
-      // ------------------------------------------------------------
       $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/tablesort.js'));
       $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/toggle-tablesort.js'));
-      $this->PAGE->addContent($p = new XPort("Manual race order"));
+      $this->PAGE->addContent($p = new XPort("Race order"));
       $p->add($form = $this->createForm());
       $form->set('id', 'edit-races-form');
       $form->add(new XNoScript("To reorder the races, indicate the relative desired order in the first cell."));
@@ -257,6 +258,11 @@ class TeamEditRoundPane extends AbstractPane {
       $form->add($p = new XSubmitP('manual-order', "Edit races"));
       $p->add(new XHiddenInput('round', $round->id));
     }
+
+    // ------------------------------------------------------------
+    // Rotation
+    // ------------------------------------------------------------
+    $this->PAGE->addContent($p = new XPort("Sail numbers and colors"));
   }
 
   /**

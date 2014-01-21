@@ -7,6 +7,8 @@
  * @package tscore
  */
 
+require_once('tscore/AbstractRoundPane.php');
+
 /**
  * Page for editing races when using team scoring. These team races
  * require not just a number, but also the two teams from the set of
@@ -23,7 +25,7 @@
  * @author Dayan Paez
  * @version 2012-03-05
  */
-class TeamRacesPane extends AbstractPane {
+class TeamRacesPane extends AbstractRoundPane {
 
   const SIMPLE = 'simple';
   const COPY = 'copy';
