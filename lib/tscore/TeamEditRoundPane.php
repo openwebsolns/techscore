@@ -21,6 +21,19 @@ class TeamEditRoundPane extends AbstractPane {
       throw new InvalidArgumentException("TeamRacesPane only available for team race regattas.");
   }
 
+  private function fillProgressDiv($rounds, Round $round = null) {
+    $this->PAGE->head->add(new LinkCSS('/inc/css/round.css'));
+    $this->PAGE->addContent($p = new XP(array('id'=>'progressdiv')));
+    $p->add($span = new XSpan(new XA($this->link('round'), "All rounds")));
+    if ($round === null)
+      $span->set('class', 'current');
+    foreach ($rounds as $r) {
+      $p->add($span = new XSpan(new XA($this->link('round', array('r'=>$r->id)), $r)));
+      if ($round !== null && $round->id == $r->id)
+        $span->set('class', 'current');
+    }
+  }
+
   /**
    * Fills out the pane, allowing the user to add up to 10 races at a
    * time, or edit any one of the previous races
@@ -35,6 +48,7 @@ class TeamEditRoundPane extends AbstractPane {
     if (($round = DB::$V->incID($args, 'r', DB::$ROUND)) !== null) {
       foreach ($rounds as $r) {
         if ($r->id == $round->id) {
+          $this->fillProgressDiv($rounds, $round);
           $this->fillRound($round);
           return;
         }
@@ -42,6 +56,8 @@ class TeamEditRoundPane extends AbstractPane {
       Session::pa(new PA("Invalid round requested.", PA::E));
       $this->redirect();
     }
+
+    $this->fillProgressDiv($rounds);
 
     // ------------------------------------------------------------
     // Current rounds (offer to reorder them)
@@ -60,21 +76,20 @@ class TeamEditRoundPane extends AbstractPane {
     $independent_rounds = array();
 
     $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/tablesort.js'));
-    $this->PAGE->addContent($p = new XPort("Current rounds"));
+    $this->PAGE->addContent($p = new XPort("Reorder rounds"));
     $p->add($f = $this->createForm());
-    $f->add(new XP(array(), "Click on the round below to edit that round."));
     $f->add(new FItem("Round order:", $tab = new XQuickTable(array('id'=>'divtable', 'class'=>'narrow'), array("#", "Order", "Title"))));
     while (count($sole_rounds) > 0) {
       $round = array_shift($sole_rounds);
       $rel = array($round->relative_order);
-      $lnk = array(new XA($this->link('round', array('r'=>$round->id)), $round));
+      $lnk = array($round);
       if ($round->round_group !== null) {
         foreach ($round->round_group->getRounds() as $other_round) {
           if (isset($sole_rounds['r-' . $other_round->id])) {
             unset($sole_rounds['r-' . $other_round->id]);
             $rel[] = $other_round->relative_order;
             $lnk[] = ", ";
-            $lnk[] = new XA($this->link('round', array('r'=>$other_round->id)), $other_round);
+            $lnk[] = $other_round;
           }
         }
       }
@@ -134,7 +149,7 @@ class TeamEditRoundPane extends AbstractPane {
   }
 
   private function fillRound($round) {
-    $this->PAGE->addContent(new XP(array(), new XA($this->link('round'), "← Back to list of rounds")));
+    // $this->PAGE->addContent(new XP(array(), new XA($this->link('round'), "← Back to list of rounds")));
 
     $teamOpts = array();
     $teamFullOpts = array("null" => "");
