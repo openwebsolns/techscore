@@ -68,6 +68,29 @@ function parseRange(str) {
         var acc = d.querySelectorAll(".accessible");
         for (var i = 0; i < acc.length; i++)
             acc[i].style.display = "none";
+
+        // Announcements
+        var ul = d.getElementById("announcements");
+        if (ul) {
+            var cf = function(li) {
+                return function(e) {
+                    li.parentNode.removeChild(li);
+                };
+            };
+            for (i = 0; i < ul.childNodes.length; i++) {
+                var li = ul.childNodes[i];
+                li.style.position = "relative";
+                var a = document.createElement("img");
+                a.src = "/inc/img/c.png";
+                a.setAttribute("alt", "X");
+                a.style.position = "absolute";
+                a.style.top = "30%";
+                a.style.right = "0";
+                a.style.cursor = "pointer";
+                a.onclick = cf(li);
+                li.appendChild(a);
+            }
+        }
     };
     if (w.addEventListener)
         w.addEventListener('load', f, false);
