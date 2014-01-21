@@ -27,15 +27,15 @@ abstract class AbstractRoundPane extends AbstractPane {
    * @param XForm $form the form to fill
    * @param Round $ROUND the round with which to fill
    * @param Array $masters the optional list of masters to use
-   * @param Array $ids the optional list of existing seeded team IDs
+   * @param Array $seeds the optional map of team ID => seed #
    */
-  protected function fillTeamsForm(XForm $form, Round $ROUND, Array $masters = null, Array $ids = null) {
+  protected function fillTeamsForm(XForm $form, Round $ROUND, Array $masters = null, Array $seeds = null) {
     if ($masters === null)
       $masters = $ROUND->getMasters();
-    if ($ids === null) {
-      $ids = array();
+    if ($seeds === null) {
+      $seeds = array();
       foreach ($ROUND->getSeeds() as $seed)
-        $ids[] = $seed->team->id;
+        $seeds[$seed->team->id] = $seed->seed;
     }
 
     if (count($masters) == 0) {
@@ -43,19 +43,30 @@ abstract class AbstractRoundPane extends AbstractPane {
       $form->add(new XP(array(), sprintf("Place numbers 1-%d next to the teams to be included in this round.", $ROUND->num_teams)));
 
       $form->add($ul = new XUl(array('id'=>'teams-list')));
+      $has_finishes = false;
       foreach ($this->REGATTA->getTeams() as $team) {
         $id = 'team-'.$team->id;
-        $order = array_search($team->id, $ids);
-        $order = ($order === false) ? "" : $order + 1;
-        $ul->add(new XLi(array(new XHiddenInput('team[]', $team->id),
-                               new XTextInput('order[]', $order, array('id'=>$id)),
-                               new XLabel($id, $team,
-                                          array('onclick'=>sprintf('addTeamToRound("%s");', $id))))));
+        $order = "";
+        if (isset($seeds[$team->id]))
+          $order = $seeds[$team->id];
+        $ul->add($li = new XLi(array(new XHiddenInput('team[]', $team->id),
+                                     $ti = new XTextInput('order[]', $order, array('id'=>$id)),
+                                     new XLabel($id, $team,
+                                                array('onclick'=>sprintf('addTeamToRound("%s");', $id))))));
+        if ($this->teamHasScoresInRound($ROUND, $team)) {
+          $li->add(new XMessage("*"));
+          $ti->set('title', "There are finishes for this team, so it must be part of this round.");
+          $has_finishes = true;
+        }
       }
+
+      if ($has_finishes)
+        $form->add(new XMessage("* = Team must be present in this round"));
     }
     else {
       // Completion round: choose team from other round
       $first = 1;
+      $has_finishes = false;
       foreach ($masters as $master) {
         $last = $first + $master->num_teams - 1;
         $round = $master->master;
@@ -66,16 +77,33 @@ abstract class AbstractRoundPane extends AbstractPane {
         $form->add($ul = new XUl(array('class'=>'teams-list')));
         foreach ($round->getSeeds() as $seed) {
           $id = 'team-' . $seed->team->id;
-          $order = array_search($seed->team->id, $ids);
-          $order = ($order === false) ? "" : $order + 1;
-          $ul->add(new XLi(array(new XHiddenInput('team[]', $seed->team->id),
-                                 new XTextInput('order[]', $order, array('id'=>$id)),
-                                 new XLabel($id, $seed->team,
-                                            array('onclick'=>sprintf('addTeamToRound("%s");', $id))))));
+          $order = "";
+          if (isset($seeds[$seed->team->id]))
+            $order = $seeds[$seed->team->id];
+          $ul->add($li = new XLi(array(new XHiddenInput('team[]', $seed->team->id),
+                                       $ti = new XTextInput('order[]', $order, array('id'=>$id)),
+                                       new XLabel($id, $seed->team,
+                                                  array('onclick'=>sprintf('addTeamToRound("%s");', $id))))));
+          if ($this->teamHasScoresInRound($ROUND, $seed->team)) {
+            $li->add(new XMessage("*"));
+            $ti->set('title', "There are finishes for this team, so it must be part of this round.");
+            $has_finishes = true;
+          }
         }
         $first = $last + 1;
       }
+
+      if ($has_finishes)
+        $form->add(new XMessage("* = Team must be present in this round"));
     }
+  }
+
+  protected function teamHasScoresInRound(Round $round, Team $team) {
+    foreach ($this->REGATTA->getScoredRacesForTeam(Division::A(), $team) as $race) {
+      if ($race->round->id == $round->id)
+        return true;
+    }
+    return false;
   }
 
   protected function createRotationForm(Round $ROUND, $rounds = null, $num_divs = null) {

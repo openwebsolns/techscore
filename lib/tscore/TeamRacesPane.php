@@ -273,8 +273,11 @@ class TeamRacesPane extends AbstractRoundPane {
     // ------------------------------------------------------------
     if ($STEP == 4) {
       $ids = Session::g('round_teams');
-      if ($ids === null)
-        $ids = array();
+      $seeds = array();
+      if ($ids !== null) {
+        foreach ($ids as $num => $id)
+          $seeds[$id] = $num;
+      }
 
       $this->PAGE->addContent($p = new XPort("Teams (optional)"));
       $p->add($form = $this->createForm());
@@ -296,7 +299,7 @@ class TeamRacesPane extends AbstractRoundPane {
         }
       }
 
-      $this->fillTeamsForm($form, $ROUND, $masters, $ids);
+      $this->fillTeamsForm($form, $ROUND, $masters, $seeds);
       $form->add(new XSubmitP('create-teams', "Next →"));
       return;
     }
