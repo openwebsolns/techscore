@@ -83,7 +83,7 @@ class RemindPending extends AbstractScript {
     foreach ($users as $id => $user) {
       if (!$this->dry_run) {
         $subject = (count($regattas[$id]) == 1) ?
-          sprintf("[Techscore] Please finalized %s", $regattas[$id][0]->name) :
+          sprintf("[Techscore] Please finalize %s", $regattas[$id][0]->name) :
           "[Techscore] Please finalize your regattas";
         $mes = str_replace('{BODY}',
                            $this->getMessage($user, $regattas[$id], $missing),
