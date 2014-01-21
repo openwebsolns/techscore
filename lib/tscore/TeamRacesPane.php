@@ -278,48 +278,25 @@ class TeamRacesPane extends AbstractRoundPane {
 
       $this->PAGE->addContent($p = new XPort("Teams (optional)"));
       $p->add($form = $this->createForm());
-      $form->add(new XP(array(), "Specify and seed the teams that will participate in this round. You may specify the teams at a later time."));
+      $form->add(new XP(array(),
+                        array("Specify and seed the teams that will participate in this round. ",
+                              new XStrong("You may specify the teams at a later time."))));
 
+      $masters = array();
       $master_ids = Session::g('round_masters');
-      if ($master_ids === null) {
-        // Simple round
-        $form->add(new XP(array(), sprintf("Place numbers 1-%d next to the teams to be included in this round.", $ROUND->num_teams)));
-
-        $form->add($ul = new XUl(array('id'=>'teams-list')));
-        foreach ($this->REGATTA->getTeams() as $team) {
-          $id = 'team-'.$team->id;
-          $order = array_search($team->id, $ids);
-          $order = ($order === false) ? "" : $order + 1;
-          $ul->add(new XLi(array(new XHiddenInput('team[]', $team->id),
-                                 new XTextInput('order[]', $order, array('id'=>$id)),
-                                 new XLabel($id, $team,
-                                            array('onclick'=>sprintf('addTeamToRound("%s");', $id))))));
-        }
-      }
-      else {
-        // Completion round: choose team from other round
-        $first = 1;
+      if ($master_ids !== null) {
         foreach ($master_ids as $id => $cnt) {
-          $last = $first + $cnt - 1;
           $round = DB::get(DB::$ROUND, $id);
           if ($round !== null) {
-            $form->add(new XH4($round));
-            $form->add(new XP(array(), sprintf("Place numbers %d-%d next to the teams to be included from this round.", $first, $last)));
-
-            $form->add($ul = new XUl(array('class'=>'teams-list')));
-            foreach ($round->getSeeds() as $seed) {
-              $id = 'team-' . $seed->team->id;
-              $order = array_search($seed->team->id, $ids);
-              $order = ($order === false) ? "" : $order + 1;
-              $ul->add(new XLi(array(new XHiddenInput('team[]', $seed->team->id),
-                                     new XTextInput('order[]', $order, array('id'=>$id)),
-                                     new XLabel($id, $seed->team,
-                                                array('onclick'=>sprintf('addTeamToRound("%s");', $id))))));
-            }
+            $master = new Round_Slave();
+            $master->master = $round;
+            $master->num_teams = $cnt;
+            $masters[] = $master;
           }
-          $first = $last + 1;
         }
       }
+
+      $this->fillTeamsForm($form, $ROUND, $masters, $ids);
       $form->add(new XSubmitP('create-teams', "Next →"));
       return;
     }
@@ -573,7 +550,7 @@ class TeamRacesPane extends AbstractRoundPane {
       if ($ROUND->num_boats === null)
         throw new SoterException("Order error: number of teams unknown.");
 
-      $this->processStep3($args, $ROUND, $divisions);
+      $this->processSails($args, $ROUND, $divisions);
       $this->redirect('races');
       return;
     }

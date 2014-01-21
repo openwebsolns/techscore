@@ -21,6 +21,63 @@ abstract class AbstractRoundPane extends AbstractPane {
   const COPY = 'copy';
   const COMPLETION = 'completion';
 
+  /**
+   * Fills the form where teams are seeded for a particular round
+   *
+   * @param XForm $form the form to fill
+   * @param Round $ROUND the round with which to fill
+   * @param Array $masters the optional list of masters to use
+   * @param Array $ids the optional list of existing seeded team IDs
+   */
+  protected function fillTeamsForm(XForm $form, Round $ROUND, Array $masters = null, Array $ids = null) {
+    if ($masters === null)
+      $masters = $ROUND->getMasters();
+    if ($ids === null) {
+      $ids = array();
+      foreach ($ROUND->getSeeds() as $seed)
+        $ids[] = $seed->team->id;
+    }
+
+    if (count($masters) == 0) {
+      // Simple round
+      $form->add(new XP(array(), sprintf("Place numbers 1-%d next to the teams to be included in this round.", $ROUND->num_teams)));
+
+      $form->add($ul = new XUl(array('id'=>'teams-list')));
+      foreach ($this->REGATTA->getTeams() as $team) {
+        $id = 'team-'.$team->id;
+        $order = array_search($team->id, $ids);
+        $order = ($order === false) ? "" : $order + 1;
+        $ul->add(new XLi(array(new XHiddenInput('team[]', $team->id),
+                               new XTextInput('order[]', $order, array('id'=>$id)),
+                               new XLabel($id, $team,
+                                          array('onclick'=>sprintf('addTeamToRound("%s");', $id))))));
+      }
+    }
+    else {
+      // Completion round: choose team from other round
+      $first = 1;
+      foreach ($masters as $master) {
+        $last = $first + $master->num_teams - 1;
+        $round = $master->master;
+
+        $form->add(new XH4($round));
+        $form->add(new XP(array(), sprintf("Place numbers %d-%d next to the teams to be included from this round.", $first, $last)));
+
+        $form->add($ul = new XUl(array('class'=>'teams-list')));
+        foreach ($round->getSeeds() as $seed) {
+          $id = 'team-' . $seed->team->id;
+          $order = array_search($seed->team->id, $ids);
+          $order = ($order === false) ? "" : $order + 1;
+          $ul->add(new XLi(array(new XHiddenInput('team[]', $seed->team->id),
+                                 new XTextInput('order[]', $order, array('id'=>$id)),
+                                 new XLabel($id, $seed->team,
+                                            array('onclick'=>sprintf('addTeamToRound("%s");', $id))))));
+        }
+        $first = $last + 1;
+      }
+    }
+  }
+
   protected function createRotationForm(Round $ROUND, $rounds = null, $num_divs = null) {
     if ($rounds === null)
       $rounds = $this->REGATTA->getRounds();

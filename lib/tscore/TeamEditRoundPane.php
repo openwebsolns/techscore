@@ -283,6 +283,14 @@ class TeamEditRoundPane extends AbstractRoundPane {
     $form = $this->createRotationForm($round);
     $form->add(new XSubmitP('set-rotation', "Set sails"));
     $form->add(new XHiddenInput('round', $round->id));
+
+    // ------------------------------------------------------------
+    // Teams
+    // ------------------------------------------------------------
+    $this->PAGE->addContent($p = new XPort("Teams (seeds)"));
+    $p->add($form = $this->createForm());
+    $this->fillTeamsForm($form, $round);
+    $form->add(new XSubmitP('set-seeds', "Set seeds"));
   }
 
   /**
