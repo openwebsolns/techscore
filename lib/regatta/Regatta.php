@@ -809,15 +809,14 @@ class FullRegatta extends DBObject {
    * @return Array
    */
   public function getScoredRacesForTeam(Division $div, Team $team) {
-    $races = $this->getScoredRaces($div);
-    if ($this->scoring != Regatta::SCORING_TEAM)
-      return $races;
-    $list = array();
-    foreach ($races as $race) {
-      if ($race->tr_team1->id == $team->id || $race->tr_team2->id == $team->id)
-        $list[] = $race;
+    if ($this->scoring == Regatta::SCORING_TEAM) {
+      return DB::getAll(DB::$RACE,
+                        new DBBool(array(new DBCond('regatta', $this->id),
+                                         new DBCondIn('id', DB::prepGetAll(DB::$FINISH, new DBCond('team', $team->id), array('race'))))));
     }
-    return $list;
+    else {
+      return $this->getScoredRaces($div);
+    }
   }
 
   /**
