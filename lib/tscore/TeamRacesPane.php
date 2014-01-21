@@ -27,10 +27,6 @@ require_once('tscore/AbstractRoundPane.php');
  */
 class TeamRacesPane extends AbstractRoundPane {
 
-  const SIMPLE = 'simple';
-  const COPY = 'copy';
-  const COMPLETION = 'completion';
-
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Create Round", $user, $reg);
     if ($reg->scoring != Regatta::SCORING_TEAM)

@@ -16,6 +16,11 @@ require_once('AbstractPane.php');
  * @created 2014-01-21
  */
 abstract class AbstractRoundPane extends AbstractPane {
+
+  const SIMPLE = 'simple';
+  const COPY = 'copy';
+  const COMPLETION = 'completion';
+
   protected function createRotationForm(Round $ROUND, $rounds = null, $num_divs = null) {
     if ($rounds === null)
       $rounds = $this->REGATTA->getRounds();
