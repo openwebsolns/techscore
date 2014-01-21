@@ -181,6 +181,7 @@ class TeamEditRoundPane extends AbstractPane {
       }
     }
 
+    
     if ($round->round_group !== null) {
       $this->PAGE->addContent($p = new XPort("Races order"));
       $p->add(new XP(array('class'=>'warning'),
@@ -189,55 +190,6 @@ class TeamEditRoundPane extends AbstractPane {
                            " pane.")));
     }
     else {
-      // ------------------------------------------------------------
-      // Templates
-      // ------------------------------------------------------------
-      $races = $this->REGATTA->getRacesInRound($round, Division::A());
-      $teams = array();
-      foreach ($races as $race) {
-        $teams[$race->tr_team1->id] = $race->tr_team1;
-        $teams[$race->tr_team2->id] = $race->tr_team2;
-      }
-      $divs = $this->REGATTA->getDivisions();
-
-      $templates = DB::getRaceOrders(count($teams), count($divs));
-      if (count($templates) > 0) {
-        $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/addTeamToRound.js'));
-
-        $this->PAGE->addContent($p = new XPort("Order races using template"));
-        $p->add(new XP(array(), "Order the races automatically by using one of the templates below. Pay close attention to the number of boats per flight. If none of the templates apply, manually order the races by using the form below."));
-        $p->add(new XP(array(), "Choose the seeding order for the round by placing incrementing numbers next to the team names."));
-        $p->add($form = $this->createForm());
-        $form->add($tab = new XQuickTable(array(), array("", "Boats/flight", "Boat rotation", "Description")));
-
-        $frequencies = Race_Order::getFrequencyTypes();
-        foreach ($templates as $template) {
-          $id = 'inp-' . $template->id;
-          $tab->addRow(array($ri = new XRadioInput('template', $template->id, array('id'=>$id)),
-                             new XLabel($id, $template->num_boats),
-                             new XLabel($id, $frequencies[$template->frequency]),
-                             new XLabel($id, $template->description)),
-                       array('title' => $template->description));
-        }
-        if (count($templates) == 1)
-          $ri->set('checked', 'checked');
-
-        $form->add(new XH4("Specify seeding order"));
-        $form->add($ul = new XUl(array('id'=>'teams-list')));
-        $num = 1;
-        foreach ($teams as $team) {
-          $id = 'team-'.$team->id;
-          $ul->add(new XLi(array(new XHiddenInput('team[]', $team->id),
-                                 new XTextInput('order[]', $num++, array('id'=>$id)),
-                                 new XLabel($id, $team,
-                                            array('onclick'=>sprintf('addTeamToRound("%s");', $id))))));
-        }
-
-        $form->add(new XP(array('class'=>'p-submit'),
-                          array(new XSubmitInput('use-template', "Order races"),
-                                new XHiddenInput('round', $round->id))));
-      }
-
       // ------------------------------------------------------------
       // Manual ordering
       // ------------------------------------------------------------
@@ -259,29 +211,34 @@ class TeamEditRoundPane extends AbstractPane {
       $header[] = "Boat";
       $form->add($tab = new XQuickTable(array('id'=>'divtable', 'class'=>'teamtable'), $header));
 
-      // order races by number
-      $races = array();
-      foreach ($this->REGATTA->getRacesInRound($round, Division::A()) as $race)
-        $races[] = $race;
-      usort($races, 'Race::compareNumber');
-
       $boats = DB::getBoats();
       $boatOptions = array();
       foreach ($boats as $boat)
         $boatOptions[$boat->id] = $boat->name;
 
-      foreach ($races as $i => $race) {
-        $teams = $this->REGATTA->getRaceTeams($race);
-        $tab->addRow(array(new XTD(array(),
-                                   array(new XTextInput('order[]', ($i + 1), array('size'=>2)),
-                                         new XHiddenInput('race[]', $race->id))),
-                           new XTD(array('class'=>'drag'), $race->number),
-                           $teams[0],
-                           new XCheckboxInput('swap[]', $race->id),
-                           $teams[1],
+      $teams = array();
+      for ($i = 0; $i < $round->num_teams; $i++)
+        $teams[] = new XEm(sprintf("Team %d", ($i + 1)));
+      foreach ($round->getSeeds() as $seed)
+        $teams[$seed->seed - 1] = $seed->team;
+
+      $races = $this->REGATTA->getRacesInRound($round, Division::A());
+      for ($i = 0; $i < count($round->race_order); $i++) {
+        $race = $races[$i];
+        $pair = $round->getRaceOrderPair($i);
+        $t0 = $teams[$pair[0] - 1];
+        $t1 = $teams[$pair[1] - 1];
+
+        $tab->addRow(array(array(new XTextInput('order[]', ($i + 1), array('size'=>2)),
+                                 new XHiddenInput('race[]', $i)),
+                           new XTD(array('class'=>'drag'), ($i + 1)),
+                           $t0,
+                           new XCheckboxInput('swap[]', $i),
+                           $t1,
                            XSelect::fromArray('boat[]', $boatOptions, $race->boat->id)),
                      array('class'=>'sortable'));
       }
+
       $form->add($p = new XSubmitP('manual-order', "Edit races"));
       $p->add(new XHiddenInput('round', $round->id));
     }
@@ -304,10 +261,11 @@ class TeamEditRoundPane extends AbstractPane {
 
       $races = array(); // map of race in A division's ID to races
       $nums = array();  // list of race numbers
-      foreach ($this->REGATTA->getRacesInRound($round, Division::A()) as $race) {
-        $races[$race->id] = array($race);
+      foreach ($this->REGATTA->getRacesInRound($round, Division::A()) as $i => $race) {
+        $list = array($race);
         foreach ($other_divisions as $div)
-          $races[$race->id][] = $this->REGATTA->getRace($div, $race->number);
+          $list[] = $this->REGATTA->getRace($div, $race->number);
+        $races[] = $list;
         $nums[] = $race->number;
       }
 
@@ -315,20 +273,27 @@ class TeamEditRoundPane extends AbstractPane {
       $next_number = $nums[0];
       unset($nums);
 
-      $map = DB::$V->reqMap($args, array('race', 'boat'), null, "Invalid list of race and boats.");
+      $map = DB::$V->reqMap($args, array('race', 'boat'), count($races), "Invalid list of race and boats.");
       // If order list provided (and valid), then use it
       $ord = DB::$V->incList($args, 'order', count($map['race']));
       if (count($ord) > 0)
         array_multisort($ord, SORT_NUMERIC, $map['race'], $map['boat']);
 
-      $rotation = $this->REGATTA->getRotation();
+      // Make sure that boat contains all indices
+      for ($i = 0; $i < count($races); $i++) {
+        if (!in_array($i, $map['race']))
+          throw new SoterException(sprintf("Missing race index %d.", $i));
+      }
+
+      $neworder = array();
       $swaplist = DB::$V->incList($args, 'swap');
       $to_save = array();
-      $sails_to_save = array();
       $races_to_reset = array();
       foreach ($map['race'] as $i => $rid) {
         if (!isset($races[$rid]))
           throw new SoterException("Invalid race provided.");
+
+        $pair = $round->getRaceOrderPair($rid);
 
         $boat = DB::getBoat($map['boat'][$i]);
         if ($boat === null)
@@ -347,7 +312,7 @@ class TeamEditRoundPane extends AbstractPane {
           foreach ($list as $r)
             $r->number = $next_number;
         }
-        if (in_array($race->id, $swaplist)) {
+        if (in_array($i, $swaplist)) {
           $edited = true;
           $team1 = $race->tr_team1;
           $ignore1 = $race->tr_ignore1; // also swap ignore list
@@ -356,36 +321,34 @@ class TeamEditRoundPane extends AbstractPane {
             $r->tr_team2 = $team1;
             $r->tr_ignore1 = $r->tr_ignore2;
             $r->tr_ignore2 = $ignore1;
-
-            // also swap sails, if set
-            if ($rotation->isAssigned($r)) {
-              $s1 = $rotation->getSail($r, $r->tr_team1);
-              $s2 = $rotation->getSail($r, $r->tr_team2);
-
-              $s1->team = $r->tr_team2;
-              $s2->team = $r->tr_team1;
-              $sails_to_save[] = $s1;
-              $sails_to_save[] = $s2;
-              $races_to_reset[] = $r;
-            }
           }
+
+          $swap = $pair[0];
+          $pair[0] = $pair[1];
+          $pair[1] = $swap;
         }
         if ($edited) {
           foreach ($list as $r)
             $to_save[] = $r;
         }
         unset($races[$rid]);
+        $neworder[] = sprintf("%d-%d", $pair[0], $pair[1]);
         $next_number++;
       }
       if (count($races) > 0)
         throw new SoterException("Not all races in round are accounted for.");
 
+      $round->race_order = $neworder;
+      DB::set($round);
+
       foreach ($to_save as $race)
         DB::set($race, true);
-      foreach ($races_to_reset as $race)
-        $rotation->reset($race);
-      foreach ($sails_to_save as $sail)
-        $rotation->setSail($sail);
+
+      // Fix rotation, if any
+      if ($round->rotation !== null) {
+        $this->reassignRotation($round);
+        Session::pa(new PA("Round rotation has been updated.", PA::I));
+      }
         
       if (count($to_save) == 0)
         Session::pa(new PA("No races were updated.", PA::I));
@@ -809,6 +772,45 @@ class TeamEditRoundPane extends AbstractPane {
       }
     }
     return array();
+  }
+
+  /**
+   * Helper function to (re-)apply rotation to a round
+   *
+   * @param Round $round the round
+   */
+  private function reassignRotation(Round $round) {
+    $divisions = $this->REGATTA->getDivisions();
+    $teams = array();
+    for ($i = 0; $i < $round->num_teams; $i++)
+      $teams[] = null;
+    foreach ($round->getSeeds() as $seed)
+      $teams[$seed->seed - 1] = $seed->team;
+
+    $rotation = $this->REGATTA->getRotation();
+    $sails = $round->rotation->assignSails($round, $teams, $divisions, $round->rotation_frequency);
+    $races = $this->REGATTA->getRacesInRound($round, Division::A());
+    array_shift($divisions);
+    foreach ($races as $i => $race) {
+      $pair = $round->getRaceOrderPair($i);
+
+      foreach (array(0, 1) as $pairIndex) {
+        $team = $teams[$pair[$pairIndex] - 1];
+        if ($team !== null) {
+          $sail = $sails[$i][$pair[$pairIndex]][(string)$race->division];
+          $sail->race = $race;
+          $sail->team = $team;
+          $rotation->setSail($sail);
+          foreach ($divisions as $div) {
+            $r = $this->REGATTA->getRace($div, $race->number);
+            $sail = $sails[$i][$pair[$pairIndex]][(string)$r->division];
+            $sail->race = $r;
+            $sail->team = $team;
+            $rotation->setSail($sail);
+          }
+        }
+      }
+    }
   }
 }
 ?>
