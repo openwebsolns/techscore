@@ -286,7 +286,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
     }
 
     // ------------------------------------------------------------
-    // Manual order
+    // Order
     // ------------------------------------------------------------
     if (isset($args['manual-order'])) {
       $other_divisions = $this->REGATTA->getDivisions();
@@ -396,94 +396,6 @@ class TeamEditRoundPane extends AbstractRoundPane {
         Session::pa(new PA(sprintf("Races updated for round %s.", $round)));
         UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       }
-    }
-
-    // ------------------------------------------------------------
-    // Use template
-    // ------------------------------------------------------------
-    if (isset($args['use-template'])) {
-      $divs = $this->REGATTA->getDivisions();
-
-      $template = DB::$V->reqID($args, 'template', DB::$RACE_ORDER, "Invalid or missing template.");
-      if ($template->num_divisions != count($divs))
-        throw new SoterException("Chosen template is incompatible with this regatta.");
-
-      $round = DB::$V->reqID($args, 'round', DB::$ROUND, "Invalid or missing round.");
-      if ($round->regatta != $this->REGATTA)
-        throw new SoterException("Invalid round provided.");
-
-      $races = $this->REGATTA->getRacesInRound($round);
-      $teams = array();
-      $matches = array();
-      $nums = array();
-      foreach ($races as $race) {
-        if ($race->round == $round)
-          $nums[] = $race->number;
-
-        $teams[$race->tr_team1->id] = $race->tr_team1;
-        $teams[$race->tr_team2->id] = $race->tr_team2;
-
-        $name1 = sprintf("%s-%s", $race->tr_team1->id, $race->tr_team2->id);
-        $name2 = sprintf("%s-%s", $race->tr_team2->id, $race->tr_team1->id);
-        if (!isset($matches[$name1])) {
-          $matches[$name1] = array();
-          $matches[$name2] = array();
-        }
-        $matches[$name1][] = $race;
-        $matches[$name2][] = $race;
-      }
-
-      if ($template->num_teams != count($teams))
-        throw new SoterException("Chosen template is incompatible with number of teams in round.");
-
-      // Seed the teams. Seed them!
-      $ids = DB::$V->reqList($args, 'team', count($teams), "Invalid list of team seeds.");
-      $order = DB::$V->reqList($args, 'order', count($teams), "Missing list to order teams by.");
-      array_multisort($order, SORT_NUMERIC, $ids);
-
-      $seeding = array();
-      foreach ($ids as $id) {
-        if (!isset($teams[$id]))
-          throw new SoterException("Invalid team ID specified.");
-        $seeding[] = $teams[$id];
-      }
-
-      sort($nums, SORT_NUMERIC);
-      $next_number = $nums[0];
-      unset($nums);
-
-      $other_divisions = $divs;
-      array_shift($other_divisions);
-
-      foreach ($template->template as $pair) {
-        $tokens = explode('-', $pair);
-        
-        $team1 = $seeding[$tokens[0] - 1];
-        $team2 = $seeding[$tokens[1] - 1];
-
-        $match = sprintf('%s-%s', $team1->id, $team2->id);
-        $races = $matches[$match];
-        $race = $races[0];
-
-        if ($race->round == $round) {
-          $swap = ($race->tr_team1 != $team1);
-          if ($race->number != $next_number || $swap) {
-            foreach ($races as $race) {
-              $race->number = $next_number;
-              if ($swap) {
-                $race->tr_team1 = $team1;
-                $race->tr_team2 = $team2;
-                $ignore1 = $race->tr_ignore1;
-                $race->tr_ignore1 = $race->tr_ignore2;
-                $race->tr_ignore2 = $ignore1;
-              }
-              DB::set($race);
-            }
-          }
-          $next_number++;
-        }
-      }
-      Session::pa(new PA("Races sorted according to template."));
     }
 
     // ------------------------------------------------------------
