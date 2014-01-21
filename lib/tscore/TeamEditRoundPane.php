@@ -262,13 +262,29 @@ class TeamEditRoundPane extends AbstractRoundPane {
     // ------------------------------------------------------------
     // Rotation
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new XPort("Sail numbers and colors"));
+    $form = $this->createRotationForm($round);
+    $form->add(new XSubmitP('set-rotation', "Set sails"));
+    $form->add(new XHiddenInput('round', $round->id));
   }
 
   /**
    * Processes new races and edits to existing races
    */
   public function process(Array $args) {
+    // ------------------------------------------------------------
+    // Rotation
+    // ------------------------------------------------------------
+    if (isset($args['set-rotation'])) {
+      $round = DB::$V->reqID($args, 'round', DB::$ROUND, "No round provided.");
+      if ($round->regatta->id != $this->REGATTA->id || $round->round_group !== null)
+        throw new SoterException(sprintf("Invalid round provided: %s.", $round));
+
+      $this->processSails($args, $round);
+      $this->reassignRotation($round);
+      DB::set($round);
+      Session::pa(new PA(sprintf("Updated rotation for \"%s\".", $round)));
+    }
+
     // ------------------------------------------------------------
     // Manual order
     // ------------------------------------------------------------

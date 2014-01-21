@@ -267,141 +267,7 @@ class TeamRacesPane extends AbstractRoundPane {
     // Step 3: Sails
     // ------------------------------------------------------------
     if ($STEP == 3) {
-      $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/tr-rot.js')));
-      $this->PAGE->addContent($p = new XPort("Sail numbers and colors"));
-      $p->add($form = $this->createForm());
-      $form->set('id', 'tr-rotation-form');
-
-      $COLORS = array(
-                      "#eee" => "White",
-                      "#ccc" => "Light Grey",
-                      "#666" => "Grey",
-                      "#000" => "Black",
-                      "#884B2A" => "Brown",
-                      "#f80" => "Orange",
-                      "#f00" => "Red",
-                      "#fcc" => "Pink",
-                      "#add8e6" => "Light Blue",
-                      "#00f" => "Blue",
-                      "#808" => "Purple",
-                      "#0f0" => "Lime Green",
-                      "#080" => "Green",
-                      "#ff0" => "Yellow"
-                      );
-
-      $flight = $ROUND->num_boats;
-      $rotation = $ROUND->rotation;
-      if ($rotation === null) {
-        // Find another rotation for this number of boats
-        for ($i = count($rounds) - 1; $i >= 0; $i--) {
-          $other = $rounds[$i];
-          if ($other->num_boats == $ROUND->num_boats && $other->rotation !== null) {
-            $rotation = $other->rotation;
-            break;
-          }
-        }
-      }
-
-      $form->add(new XP(array(), "Assign the sail numbers using the table below. If applicable, choose the color that goes with the sail. This color will be displayed in the \"Rotations\" dialog."));
-      if ($ROUND->rotation_frequency == Race_Order::FREQUENCY_FREQUENT ||
-          $ROUND->rotation_frequency == Race_Order::FREQUENCY_INFREQUENT) {
-
-        // Prefill
-        if ($rotation === null) {
-          $rotation = new TeamRotation();
-          $s = array();
-          $c = array();
-          for ($i = 0; $i < $flight; $i++) {
-            $s[] = ($i + 1);
-            $c[] = "";
-          }
-          $rotation->sails = $s;
-          $rotation->colors = $c;
-        }
-
-        $form->add(new XP(array(), array("The flight size for this rotation is ", new XStrong($flight / $group_size), " races.")));
-
-        $form->add(new XTable(array('class'=>'tr-rotation-sails'),
-                              array(new XTHead(array(),
-                                               array(new XTR(array(),
-                                                             array(new XTH(array(), "#"),
-                                                                   new XTH(array(), "Team A"),
-                                                                   new XTH(array(), "Team B"))))),
-                                    $bod = new XTBody())));
-
-        $sailIndex = 0;
-        for ($race_num = 0; $race_num < $flight / $group_size; $race_num++) {
-          $bod->add($row = new XTR(array()));
-          $row->add(new XTH(array(), sprintf("Race %d", ($race_num + 1))));
-
-          // Team A, then Team B
-          for ($teamIndex = 0; $teamIndex < 2; $teamIndex++) {
-            $row->add(new XTD(array(), new XTable(array('class'=>'sail-list'), array($tab = new XTBody()))));
-            for ($i = 0; $i < $num_divs; $i++) {
-              $sail = $rotation->sails[$sailIndex];
-              $color = $rotation->colors[$sailIndex];
-
-              $tab->add(new XTR(array(),
-                                array(new XTD(array(), new XTextInput('sails[]', $sail, array('size'=>5, 'tabindex'=>($sailIndex + 1)))),
-                                      new XTD(array('title'=>"Optional"), $sel = new XSelect('colors[]')))));
-              $sel->set('class', 'color-chooser');
-              $sel->set('tabindex', ($sailIndex + 1 + $flight));
-              $sel->add(new XOption("", array(), "[None]"));
-              foreach ($COLORS as $code => $title) {
-                $attrs = array('style'=>sprintf('background:%1$s;color:%1$s;', $code));
-                $sel->add($opt = new XOption($code, $attrs, $title));
-                if ($code == $color)
-                  $opt->set('selected', 'selected');
-              }
-
-              $sailIndex++;
-            }
-          }
-        }
-      }
-      else {
-        // Prefill
-        if ($rotation === null) {
-          $rotation = new TeamRotation();
-          $s = array();
-          $c = array();
-          for ($i = 0; $i < $flight; $i++) {
-            $s[] = ($i + 1);
-            $c[] = "";
-          }
-          $rotation->sails = $s;
-          $rotation->colors = $c;
-        }
-
-        // No rotation frequency: display an entry PER team
-        $form->add($tab = new XQuickTable(array('class'=>'tr-rotation-sails'),
-                                          array("Team #", "Sail #", "Color")));
-
-        for ($i = 0; $i < $rotation->count(); $i++) {
-          $row = array();
-          if ($i % $num_divs == 0)
-            $row[] = new XTH(array('rowspan'=>$num_divs), sprintf("Team %d", floor($i / $num_divs)));
-
-          $sail = $rotation->sails[$i];
-          $color = $rotation->colors[$i];
-
-          $sel = new XSelect('colors[]', array('class'=>'color-chooser', 'tabindex'=>($i + 1 + $rotation->count())));
-          $row[] = new XTextInput('sails[]', $sail, array('size'=>5, 'tabindex'=>($i + 1)));
-          $row[] = $sel;
-
-          $sel->add(new XOption("", array(), "[None]"));
-          foreach ($COLORS as $code => $title) {
-            $attrs = array('style'=>sprintf('background:%1$s;color:%1$s;', $code));
-            $sel->add($opt = new XOption($code, $attrs, $title));
-
-            if ($code == $color)
-              $opt->set('selected', 'selected');
-          }
-
-          $tab->addRow($row);
-        }
-
-      }
+      $form = $this->createRotationForm($ROUND, $rounds, $num_divs);
       $form->add(new XSubmitP('create-sails', "Next →"));
       return;
     }
@@ -761,14 +627,14 @@ class TeamRacesPane extends AbstractRoundPane {
       if ($type == self::COMPLETION) {
         $masters = $this->processStep1Completion($args, $round, $rounds, $divisions);
         $this->processStep2($args, $round, $masters);
-        $this->processStep3($args, $round, $divisions);
+        $this->processSails($args, $round, $divisions);
         $seeds = $this->processStep4($args, $round, $masters);
         $message = "Created new empty completion round.";
       }
       else {
         $this->processStep1($args, $round, $rounds, $divisions);
         $this->processStep2($args, $round);
-        $this->processStep3($args, $round, $divisions);
+        $this->processSails($args, $round, $divisions);
         $seeds = $this->processStep4($args, $round);
         $message = "Created new empty round.";
       }
@@ -1057,51 +923,6 @@ class TeamRacesPane extends AbstractRoundPane {
       throw new SoterException("Not all pairings have been accounted for.");
 
     $round->race_order = $pairings;
-    return array();
-  }
-
-  private function processStep3(Array $args, Round $round, Array $divisions) {
-    $group_size = 2 * count($divisions);
-
-    $s = array();
-    $c = array();
-
-    if ($round->rotation_frequency == Race_Order::FREQUENCY_FREQUENT ||
-        $round->rotation_frequency == Race_Order::FREQUENCY_INFREQUENT) {
-      $sails = DB::$V->reqList($args, 'sails', $round->num_boats, "Missing list of sails.");
-      $c = DB::$V->incList($args, 'colors', $round->num_boats);
-
-      // make sure all sails are present and distinct
-      foreach ($sails as $sail) {
-        $sail = trim($sail);
-        if ($sail == "")
-          throw new SoterException("Empty sail provided.");
-        if (in_array($sail, $s))
-          throw new SoterException("Duplicate sail \"$sail\" provided.");
-        $s[] = $sail;
-      }
-    }
-    else {
-      $num_entries = $round->num_teams * count($divisions);
-
-      // Assign all sails and colors to sails1 and colors1
-      $sails = DB::$V->reqList($args, 'sails', $num_entries, "Invalid list of sails provided.");
-      $c = DB::$V->incList($args, 'colors', $num_entries);
-
-      foreach ($sails as $i => $sail) {
-        $sail = trim($sail);
-        if ($sail == "")
-          throw new SoterException("Empty sail provided.");
-        if (in_array($sail, $s))
-          throw new SoterException("Duplicate sail \"$sail\" provided.");
-        $s[] = $sail;
-      }
-    }
-    $rot = new TeamRotation();
-    $rot->sails = $s;
-    $rot->colors = $c;
-
-    $round->rotation = $rot;
     return array();
   }
 
