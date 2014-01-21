@@ -1998,7 +1998,7 @@ class Round extends DBObject {
     if ($this->_slaves === null) {
       $this->_slaves = array();
       foreach (DB::getAll(DB::$ROUND_SLAVE, new DBCond('master', $this->id)) as $rel)
-        $this->_slaves[] = $rel->slave;
+        $this->_slaves[] = $rel;
     }
     return $this->_slaves;
   }
