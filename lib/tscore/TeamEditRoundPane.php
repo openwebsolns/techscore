@@ -303,6 +303,7 @@ class TeamEditRoundPane extends AbstractPane {
       $neworder = array();
       $swaplist = DB::$V->incList($args, 'swap');
       $to_save = array();
+      $redo_rotation = false;
       $races_to_reset = array();
       foreach ($map['race'] as $i => $rid) {
         if (!isset($races[$rid]))
@@ -323,11 +324,13 @@ class TeamEditRoundPane extends AbstractPane {
             $r->boat = $boat;
         }
         if ($race->number != $next_number) {
+          $redo_rotation = true;
           $edited = true;
           foreach ($list as $r)
             $r->number = $next_number;
         }
         if (in_array($i, $swaplist)) {
+          $redo_rotation = true;
           $edited = true;
           $team1 = $race->tr_team1;
           $ignore1 = $race->tr_ignore1; // also swap ignore list
@@ -360,7 +363,7 @@ class TeamEditRoundPane extends AbstractPane {
         DB::set($race, true);
 
       // Fix rotation, if any
-      if ($round->rotation !== null) {
+      if ($redo_rotation && $round->rotation !== null) {
         $this->reassignRotation($round);
         Session::pa(new PA("Round rotation has been updated.", PA::I));
       }
