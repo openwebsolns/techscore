@@ -291,12 +291,124 @@ class TeamEditRoundPane extends AbstractRoundPane {
     $p->add($form = $this->createForm());
     $this->fillTeamsForm($form, $round);
     $form->add(new XSubmitP('set-seeds', "Set seeds"));
+    $form->add(new XHiddenInput('round', $round->id));
   }
 
   /**
    * Processes new races and edits to existing races
    */
   public function process(Array $args) {
+    // ------------------------------------------------------------
+    // Seeds
+    // ------------------------------------------------------------
+    if (isset($args['set-seeds'])) {
+      $round = DB::$V->reqID($args, 'round', DB::$ROUND, "No round provided.");
+      if ($round->regatta->id != $this->REGATTA->id || $round->round_group !== null)
+        throw new SoterException(sprintf("Invalid round provided: %s.", $round));
+
+      $seeds = $this->processSeeds($args, $round, $round->getMasters());
+      $teams_in_seeds = array();
+      foreach ($seeds as $seed)
+        $teams_in_seeds[$seed->team->id] = $seed->team;
+        
+      // Determine which teams must remain due to scored races, and
+      // keep those races for future reference
+      $locked_teams = array();
+      foreach ($round->getSeeds() as $seed) {
+        if ($this->teamHasScoresInRound($round, $seed->team)) {
+          if (!isset($teams_in_seeds[$seed->team->id]))
+            throw new SoterException(sprintf("Team %s must be present in round due to scored races.", $seed->team));
+          $locked_teams[$seed->team->id] = $seed->team;
+        }
+      }
+
+      // Scored races complicate matters because they need to be moved
+      // according to the matchup, because of foreign key constraints.
+      // Map each existing race by team pairing
+      $teamRaceMap = array();
+      $restRaceMap = array();
+
+      $races = $this->REGATTA->getRacesInRound($round);
+      $racenum = null;
+      foreach ($races as $i => $race) {
+        if ($i == 0)
+          $racenum = $race->number;
+
+        if (count($this->REGATTA->getFinishes($race)) > 0) {
+          $id = sprintf('%s-%s', $race->tr_team1->id,  $race->tr_team2->id);
+          if ($race->tr_team1->id > $race->tr_team2->id)
+            $id = sprintf('%s-%s', $race->tr_team2->id,  $race->tr_team1->id);
+
+          if (!isset($teamRaceMap[$id]))
+            $teamRaceMap[$id] = array();
+          $teamRaceMap[$id][(string)$race->division] = $race;
+        }
+        else {
+          if (!isset($restRaceMap[$race->number]))
+            $restRaceMap[$race->number] = array();
+          $restRaceMap[$race->number][(string)$race->division] = $race;
+        }
+      }
+
+      $teams = array();
+      for ($i = 1; $i <= $round->num_teams; $i++) {
+        if (isset($seeds[$i]))
+          $teams[] = $seeds[$i]->team;
+        else
+          $teams[] = null;
+      }
+
+      $to_save = array();
+      for ($i = 0; $i < count($round->race_order); $i++) {
+        $pair = $round->getRaceOrderPair($i);
+        $t1 = $teams[$pair[0] - 1];
+        $t2 = $teams[$pair[1] - 1];
+
+        if ($t1 !== null && $t2 !== null) {
+          $id = sprintf('%s-%s', $t1->id, $t2->id);
+          if ($t1->id > $t2->id)
+            $id = sprintf('%s-%s', $t2->id, $t1->id);
+
+          if (isset($teamRaceMap[$id])) {
+            foreach ($teamRaceMap[$id] as $race) {
+              if ($race->number != $racenum || $race->tr_team1 != $t1) {
+                $race->number = $racenum;
+                $race->tr_team1 = $t1;
+                $race->tr_team2 = $t2;
+                $to_save[] = $race;
+              }
+            }
+            unset($teamRaceMap[$id]);
+            $racenum++;
+            continue;
+          }
+        }
+
+        $list = array_shift($restRaceMap);
+        foreach ($list as $race) {
+          if ($race->number != $racenum || $race->tr_team1 != $t1 || $race->tr_team2 != $t2) {
+            $race->number = $racenum;
+            $race->tr_team1 = $t1;
+            $race->tr_team2 = $t2;
+            $to_save[] = $race;
+          }
+        }
+        
+        $racenum++;
+      }
+
+      // Save all information
+      $round->setSeeds($seeds);
+      foreach ($to_save as $race)
+        DB::set($race);
+
+      Session::pa(new PA(sprintf("Updated seeds for \"%s\".", $round)));
+      if ($round->rotation !== null) {
+        $this->reassignRotation($round);
+        Session::pa(new PA("Updated the rotation as well.", PA::I));
+      }
+    }
+
     // ------------------------------------------------------------
     // Rotation
     // ------------------------------------------------------------

@@ -61,7 +61,7 @@ abstract class AbstractRoundPane extends AbstractPane {
       }
 
       if ($has_finishes)
-        $form->add(new XMessage("* = Team must be present in this round"));
+        $form->add(new XP(array(), new XMessage("* = Team must be present in this round because of scored races.")));
     }
     else {
       // Completion round: choose team from other round
@@ -94,7 +94,7 @@ abstract class AbstractRoundPane extends AbstractPane {
       }
 
       if ($has_finishes)
-        $form->add(new XMessage("* = Team must be present in this round"));
+        $form->add(new XP(array(), new XMessage("* = Team must be present in this round because of scored races.")));
     }
   }
 
@@ -302,6 +302,98 @@ abstract class AbstractRoundPane extends AbstractPane {
 
     $round->rotation = $rot;
     return array();
+  }
+
+  /**
+   * Processes arguments and return list of seeds for given round
+   *
+   * @param Array $args the arguments, from fillTeamsForm
+   * @param Round $round the round in question
+   * @param Array $masters the optional list of master rounds
+   */
+  protected function processSeeds(Array $args, Round $round, Array $masters = null) {
+    $seeds = array();
+
+    $ids = DB::$V->incList($args, 'team');
+    if (count($ids) == 0)
+      return $seeds;
+
+    $order = DB::$V->reqList($args, 'order', count($ids), "Missing list of seed values.");
+    array_multisort($order, SORT_NUMERIC, $ids);
+
+    if ($masters !== null && count($masters) > 0) {
+      // Group the teams by masters
+      $all_teams = array();
+      $orig_round = array();
+      $index_delims = array();
+
+      $last = 0;
+      foreach ($masters as $slave) {
+        $last += $slave->num_teams;
+        $index_delims[$last] = $slave->master;
+
+        $all_teams[$slave->master->id] = array();
+        $orig_round[$slave->master->id] = $slave->master;
+        foreach ($slave->master->getSeeds() as $seed)
+          $all_teams[$slave->master->id][$seed->team->id] = $seed->team;
+      }
+
+      $teams = array();
+      foreach ($ids as $index => $id) {
+        $rank = $order[$index];
+        if ($rank > 0) {
+          if ($rank < 1 || $rank > $round->num_teams)
+            throw new SoterException(sprintf("Invalid seed value: %d.", $rank));
+          if (isset($seeds[$rank]))
+            throw new SoterException(sprintf("Duplicate seed specified: %d.", $rank));
+
+          foreach ($index_delims as $last => $master_round) {
+            if ($rank <= $last)
+              break;
+          }
+
+          if (!isset($all_teams[$master_round->id][$id]))
+            throw new SoterException(sprintf("Invalid round for seed %d provided.", $rank));
+          if (isset($teams[$id]))
+            throw new SoterException(sprintf("Team provided twice: %s.", $id));
+
+          $team = $all_teams[$master_round->id][$id];
+          $teams[$id] = $team;
+          $seed = new Round_Seed();
+          $seed->team = $team;
+          $seed->seed = $rank;
+          $seed->original_round = $master_round;
+          $seeds[$rank] = $seed;
+        }
+      }
+    }
+    else {
+      $all_teams = array();
+      foreach ($this->REGATTA->getTeams() as $team)
+        $all_teams[$team->id] = $team;
+      
+      $teams = array();
+      foreach ($ids as $index => $id) {
+        if ($order[$index] > 0) {
+          if (!isset($all_teams[$id]))
+            throw new SoterException("Invalid team ID provided: $id.");
+          if (isset($teams[$id]))
+            throw new SoterException("Team provided twice: $id.");
+          if ($order[$index] < 1 || $order[$index] > $round->num_teams)
+            throw new SoterException(sprintf("Invalid seed value: %d.", $order[$index]));
+          if (isset($seeds[$order[$index]]))
+            throw new SoterException(sprintf("Seed value duplicate found: %d.", $order[$index]));
+
+          $teams[$id] = $all_teams[$id];
+          $seed = new Round_Seed();
+          $seed->team = $all_teams[$id];
+          $seed->seed = $order[$index];
+          $seeds[$order[$index]] = $seed;
+        }
+      }
+    }
+
+    return $seeds;
   }
 }
 ?>
