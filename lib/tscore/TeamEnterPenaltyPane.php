@@ -75,6 +75,9 @@ class TeamEnterPenaltyPane extends EnterPenaltyPane {
       $teams = array();
       $matches = array();
       foreach ($this->REGATTA->getRacesInRound($round, Division::A()) as $race) {
+        if ($race->tr_team1 === null || $race->tr_team2 === null)
+          continue;
+
         if (!isset($teams[$race->tr_team1->id])) {
           $teams[$race->tr_team1->id] = $race->tr_team1;
           $matches[$race->tr_team1->id] = array();
@@ -110,7 +113,7 @@ class TeamEnterPenaltyPane extends EnterPenaltyPane {
               $row->add(new XTD(array('class' => 'tr-na'), "N/A"));
           }
           else {
-            $row->add(new XTable(array(), array($sub = new XTBody())));
+            $row->add(new XTD(array(), new XTable(array(), array($sub = new XTBody()))));
             foreach ($races as $race) {
               if (count($this->REGATTA->getFinishes($race)) > 0) {
                 $has_races = true;
