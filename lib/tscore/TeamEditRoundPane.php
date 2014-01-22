@@ -219,63 +219,54 @@ class TeamEditRoundPane extends AbstractRoundPane {
     // ------------------------------------------------------------
     // Order?
     // ------------------------------------------------------------
-    if ($round->round_group !== null) {
-      $this->PAGE->addContent($p = new XPort("Races order"));
-      $p->add(new XP(array('class'=>'warning'),
-                     array(new XStrong("Note:"), " You may not order the races in this round because the round is currently part of a group. To order the races, you must first \"unlink\" the round group by visiting the ",
-                           new XA($this->link('round'), "Edit rounds"),
-                           " pane.")));
+    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/tablesort.js'));
+    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/toggle-tablesort.js'));
+    $this->PAGE->addContent($p = new XPort("Race order"));
+    $p->add($form = $this->createForm());
+    $form->set('id', 'edit-races-form');
+    $form->add(new XNoScript("To reorder the races, indicate the relative desired order in the first cell."));
+    $form->add(new XScript('text/javascript', null, 'var f = document.getElementById("edit-races-form"); var p = document.createElement("p"); p.appendChild(document.createTextNode("To reorder the races, move the rows below by clicking and dragging on the first cell (\"#\") of that row.")); f.appendChild(p);'));
+    $form->add(new XP(array(), "You may also edit the associated boat for each race. Click the \"Edit races\" button to save changes. Extra (unused) races will be removed at the end of the regatta."));
+    $form->add(new XP(array('class'=>'warning'), "Hint: For large rotations, click \"Edit races\" at the bottom of page often to save your work."));
+    $form->add(new XNoScript(array(new XP(array(),
+                                          array(new XStrong("Important:"), " check the edit column if you wish to edit that race. The race will not be updated regardless of changes made otherwise.")))));
+    $header = array("Order", "#");
+    $header[] = "First team";
+    $header[] = "← Swap →";
+    $header[] = "Second team";
+    $header[] = "Boat";
+    $form->add($tab = new XQuickTable(array('id'=>'divtable', 'class'=>'teamtable'), $header));
+
+    $boats = DB::getBoats();
+    $boatOptions = array();
+    foreach ($boats as $boat)
+      $boatOptions[$boat->id] = $boat->name;
+
+    $teams = array();
+    for ($i = 0; $i < $round->num_teams; $i++)
+      $teams[] = new XEm(sprintf("Team %d", ($i + 1)));
+    foreach ($round->getSeeds() as $seed)
+      $teams[$seed->seed - 1] = $seed->team;
+
+    $races = $this->REGATTA->getRacesInRound($round, Division::A());
+    for ($i = 0; $i < count($round->race_order); $i++) {
+      $race = $races[$i];
+      $pair = $round->getRaceOrderPair($i);
+      $t0 = $teams[$pair[0] - 1];
+      $t1 = $teams[$pair[1] - 1];
+
+      $tab->addRow(array(array(new XTextInput('order[]', ($i + 1), array('size'=>2)),
+                               new XHiddenInput('race[]', $i)),
+                         new XTD(array('class'=>'drag'), ($i + 1)),
+                         $t0,
+                         new XCheckboxInput('swap[]', $i),
+                         $t1,
+                         XSelect::fromArray('boat[]', $boatOptions, $race->boat->id)),
+                   array('class'=>'sortable'));
     }
-    else {
-      $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/tablesort.js'));
-      $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/toggle-tablesort.js'));
-      $this->PAGE->addContent($p = new XPort("Race order"));
-      $p->add($form = $this->createForm());
-      $form->set('id', 'edit-races-form');
-      $form->add(new XNoScript("To reorder the races, indicate the relative desired order in the first cell."));
-      $form->add(new XScript('text/javascript', null, 'var f = document.getElementById("edit-races-form"); var p = document.createElement("p"); p.appendChild(document.createTextNode("To reorder the races, move the rows below by clicking and dragging on the first cell (\"#\") of that row.")); f.appendChild(p);'));
-      $form->add(new XP(array(), "You may also edit the associated boat for each race. Click the \"Edit races\" button to save changes. Extra (unused) races will be removed at the end of the regatta."));
-      $form->add(new XP(array('class'=>'warning'), "Hint: For large rotations, click \"Edit races\" at the bottom of page often to save your work."));
-      $form->add(new XNoScript(array(new XP(array(),
-                                            array(new XStrong("Important:"), " check the edit column if you wish to edit that race. The race will not be updated regardless of changes made otherwise.")))));
-      $header = array("Order", "#");
-      $header[] = "First team";
-      $header[] = "← Swap →";
-      $header[] = "Second team";
-      $header[] = "Boat";
-      $form->add($tab = new XQuickTable(array('id'=>'divtable', 'class'=>'teamtable'), $header));
 
-      $boats = DB::getBoats();
-      $boatOptions = array();
-      foreach ($boats as $boat)
-        $boatOptions[$boat->id] = $boat->name;
-
-      $teams = array();
-      for ($i = 0; $i < $round->num_teams; $i++)
-        $teams[] = new XEm(sprintf("Team %d", ($i + 1)));
-      foreach ($round->getSeeds() as $seed)
-        $teams[$seed->seed - 1] = $seed->team;
-
-      $races = $this->REGATTA->getRacesInRound($round, Division::A());
-      for ($i = 0; $i < count($round->race_order); $i++) {
-        $race = $races[$i];
-        $pair = $round->getRaceOrderPair($i);
-        $t0 = $teams[$pair[0] - 1];
-        $t1 = $teams[$pair[1] - 1];
-
-        $tab->addRow(array(array(new XTextInput('order[]', ($i + 1), array('size'=>2)),
-                                 new XHiddenInput('race[]', $i)),
-                           new XTD(array('class'=>'drag'), ($i + 1)),
-                           $t0,
-                           new XCheckboxInput('swap[]', $i),
-                           $t1,
-                           XSelect::fromArray('boat[]', $boatOptions, $race->boat->id)),
-                     array('class'=>'sortable'));
-      }
-
-      $form->add($p = new XSubmitP('manual-order', "Edit races"));
-      $p->add(new XHiddenInput('round', $round->id));
-    }
+    $form->add($p = new XSubmitP('set-order', "Edit races"));
+    $p->add(new XHiddenInput('round', $round->id));
 
     // ------------------------------------------------------------
     // Rotation
@@ -428,12 +419,12 @@ class TeamEditRoundPane extends AbstractRoundPane {
     // ------------------------------------------------------------
     // Order
     // ------------------------------------------------------------
-    if (isset($args['manual-order'])) {
+    if (isset($args['set-order'])) {
       $other_divisions = $this->REGATTA->getDivisions();
       array_shift($other_divisions);
 
       $round = DB::$V->reqID($args, 'round', DB::$ROUND, "No round provided.");
-      if ($round->regatta->id != $this->REGATTA->id || $round->round_group !== null)
+      if ($round->regatta->id != $this->REGATTA->id)
         throw new SoterException(sprintf("Invalid round provided: %s.", $round));
 
       $races = array(); // map of race in A division's ID to races
@@ -447,8 +438,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
       }
 
       sort($nums, SORT_NUMERIC);
-      $next_number = $nums[0];
-      unset($nums);
+      $next_number = array_shift($nums);
 
       $map = DB::$V->reqMap($args, array('race', 'boat'), count($races), "Invalid list of race and boats.");
       // If order list provided (and valid), then use it
@@ -513,7 +503,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
         }
         unset($races[$rid]);
         $neworder[] = sprintf("%d-%d", $pair[0], $pair[1]);
-        $next_number++;
+        $next_number = array_shift($nums);
       }
       if (count($races) > 0)
         throw new SoterException("Not all races in round are accounted for.");
