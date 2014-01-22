@@ -99,7 +99,7 @@ abstract class AbstractPane {
                                               "substitute" => "TeamReplaceTeamPane",
                                               "remove-team"=> "DeleteTeamsPane"),
                          "Rounds"     => array("races"      => "TeamRacesPane",
-                                               "rounds"    => "TeamEditRoundPane",
+                                               "order-rounds" => "TeamOrderRoundsPane",
                                               // "tweak-sails"=> "TweakSailsPane",
                                               // "manual-rotation" => "ManualTweakPane"
                                               ),
@@ -173,7 +173,7 @@ abstract class AbstractPane {
         else
           $m_list->add(new XLi($t, array("class"=>"inactive")));
       }
-      if ($title == "RP Forms" and $this->REGATTA->scoring == Regatta::SCORING_TEAM) {
+      if ($title == "RP Forms" && $this->REGATTA->scoring == Regatta::SCORING_TEAM) {
         // Downloads
         if ($this->has_teams && ($form = DB::getRpFormWriter($this->REGATTA)) !== null) {
           $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp', $id)), "Download")));
@@ -185,6 +185,12 @@ abstract class AbstractPane {
         else {
           $m_list->add(new XLi("Download", array('class'=>'inactive', 'title'=>"No PDF forms available.")));
           $m_list->add(new XLi("RP Template", array('class'=>'inactive', 'title'=>"No PDF forms available.")));
+        }
+      }
+      if ($title == "Rounds") {
+        // Add one for each round
+        foreach ($this->REGATTA->getRounds() as $round) {
+          $m_list->add(new XLi(new XA($this->link('round', array('r'=>$round->id)), $round)));
         }
       }
 
@@ -405,6 +411,13 @@ abstract class AbstractPane {
       require_once('tscore/RacesPane.php');
       return new RacesPane($r, $u);
 
+    case 'order-rounds':
+    case 'group':
+      if ($u->scoring != Regatta::SCORING_TEAM)
+        return null;
+      require_once('tscore/TeamOrderRoundsPane.php');
+      return new TeamOrderRoundsPane($r, $u);
+
     case 'round':
     case 'rounds':
       if ($u->scoring != Regatta::SCORING_TEAM)
@@ -543,6 +556,7 @@ abstract class AbstractPane {
       return $this->has_teams;
 
     case 'TeamEditRoundPane':
+    case 'TeamOrderRoundsPane':
       return count($this->REGATTA->getRounds()) > 0;
 
     case 'ManualTweakPane':
@@ -598,6 +612,7 @@ abstract class AbstractPane {
                                "ScorersPane" => "scorers",
 
                                "TeamRacesPane" => "races",
+                               "TeamOrderRoundsPane" => "order-rounds",
                                "TeamEditRoundPane" => "rounds",
                                "RacesPane" => "races",
 
@@ -631,7 +646,8 @@ abstract class AbstractPane {
                                  "ScorersPane" => "Scorers",
                                  "RacesPane" => "Add/edit races",
                                  "TeamRacesPane" => "Add round",
-                                 "TeamEditRoundPane" => "Edit rounds",
+                                 "TeamOrderRoundsPane" => "Order rounds",
+                                 "TeamEditRoundPane" => "Edit round",
                                  "NotesPane" => "Race notes",
                                  "NoticeBoardPane" => "Notice Board",
                                  "DeleteRegattaPane" => "Delete",
