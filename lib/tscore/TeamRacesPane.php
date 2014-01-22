@@ -171,7 +171,7 @@ class TeamRacesPane extends AbstractRoundPane {
         foreach ($master_rounds as $round) {
           $id = 'r-' . $round->id;
           $ul->add(new XLi(array(new XHiddenInput('master_round[]', $round->id),
-                                 new XInput('number', 'num_teams_per_round[]', '', array('min'=>0, 'max'=>($ROUND->num_teams - 1), 'id'=>$id)),
+                                 new XInput('number', 'num_teams_per_round[]', '', array('min'=>0, 'max'=>($round->num_teams - 1), 'id'=>$id)),
                                  new XLabel($id, $round))));
                                  
         }
