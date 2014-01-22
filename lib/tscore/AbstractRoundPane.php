@@ -39,11 +39,14 @@ abstract class AbstractRoundPane extends AbstractPane {
     }
 
     if (count($masters) == 0) {
+      $slaves = $ROUND->getSlaves();
+
       // Simple round
       $form->add(new XP(array(), sprintf("Place numbers 1-%d next to the teams to be included in this round.", $ROUND->num_teams)));
 
       $form->add($ul = new XUl(array('id'=>'teams-list')));
       $has_finishes = false;
+      $has_carries = false;
       foreach ($this->REGATTA->getTeams() as $team) {
         $id = 'team-'.$team->id;
         $order = "";
@@ -58,10 +61,17 @@ abstract class AbstractRoundPane extends AbstractPane {
           $ti->set('title', "There are finishes for this team, so it must be part of this round.");
           $has_finishes = true;
         }
+        elseif ($this->teamInSlaveRounds($ROUND, $slaves, $team)) {
+          $li->add(new XMessage("†"));
+          $ti->set('title', "This team is being carried over to another round.");
+          $has_carries = true;
+        }
       }
 
       if ($has_finishes)
         $form->add(new XP(array(), new XMessage("* = Team must be present in this round because of scored races.")));
+      if ($has_carries)
+        $form->add(new XP(array(), new XMessage("† = Team must be present in this round because it is being carried over to another round.")));
     }
     else {
       // Completion round: choose team from other round
@@ -102,6 +112,18 @@ abstract class AbstractRoundPane extends AbstractPane {
     foreach ($this->REGATTA->getScoredRacesForTeam(Division::A(), $team) as $race) {
       if ($race->round->id == $round->id)
         return true;
+    }
+    return false;
+  }
+
+  protected function teamInSlaveRounds(Round $round, Array $slaves, Team $team) {
+    if (count($slaves) == 0)
+      return false;
+    foreach ($slaves as $slave) {
+      foreach ($slave->slave->getSeeds() as $seed) {
+        if ($seed->team->id == $team->id && $seed->original_round->id == $round->id)
+          return true;
+      }
     }
     return false;
   }

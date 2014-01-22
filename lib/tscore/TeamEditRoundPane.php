@@ -303,7 +303,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
     // ------------------------------------------------------------
     if (isset($args['set-seeds'])) {
       $round = DB::$V->reqID($args, 'round', DB::$ROUND, "No round provided.");
-      if ($round->regatta->id != $this->REGATTA->id || $round->round_group !== null)
+      if ($round->regatta->id != $this->REGATTA->id)
         throw new SoterException(sprintf("Invalid round provided: %s.", $round));
 
       $seeds = $this->processSeeds($args, $round, $round->getMasters());
@@ -311,13 +311,18 @@ class TeamEditRoundPane extends AbstractRoundPane {
       foreach ($seeds as $seed)
         $teams_in_seeds[$seed->team->id] = $seed->team;
         
-      // Determine which teams must remain due to scored races, and
-      // keep those races for future reference
+      // Determine which teams must remain
+      $slaves = $round->getSlaves();
       $locked_teams = array();
       foreach ($round->getSeeds() as $seed) {
         if ($this->teamHasScoresInRound($round, $seed->team)) {
           if (!isset($teams_in_seeds[$seed->team->id]))
             throw new SoterException(sprintf("Team %s must be present in round due to scored races.", $seed->team));
+          $locked_teams[$seed->team->id] = $seed->team;
+        }
+        elseif ($this->teamInSlaveRounds($round, $slaves, $seed->team)) {
+          if (!isset($teams_in_seeds[$seed->team->id]))
+            throw new SoterException(sprintf("Team %s must be present in round because it is being carried over to other round(s).", $seed->team));
           $locked_teams[$seed->team->id] = $seed->team;
         }
       }
@@ -329,10 +334,9 @@ class TeamEditRoundPane extends AbstractRoundPane {
       $restRaceMap = array();
 
       $races = $this->REGATTA->getRacesInRound($round);
-      $racenum = null;
+      $racenums = array();
       foreach ($races as $i => $race) {
-        if ($i == 0)
-          $racenum = $race->number;
+        $racenums[$race->number] = $race->number;
 
         if (count($this->REGATTA->getFinishes($race)) > 0) {
           $id = sprintf('%s-%s', $race->tr_team1->id,  $race->tr_team2->id);
@@ -360,6 +364,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
 
       $to_save = array();
       for ($i = 0; $i < count($round->race_order); $i++) {
+        $racenum = array_shift($racenums);
         $pair = $round->getRaceOrderPair($i);
         $t1 = $teams[$pair[0] - 1];
         $t2 = $teams[$pair[1] - 1];
@@ -379,7 +384,6 @@ class TeamEditRoundPane extends AbstractRoundPane {
               }
             }
             unset($teamRaceMap[$id]);
-            $racenum++;
             continue;
           }
         }
@@ -393,8 +397,6 @@ class TeamEditRoundPane extends AbstractRoundPane {
             $to_save[] = $race;
           }
         }
-        
-        $racenum++;
       }
 
       // Save all information
@@ -414,7 +416,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
     // ------------------------------------------------------------
     if (isset($args['set-rotation'])) {
       $round = DB::$V->reqID($args, 'round', DB::$ROUND, "No round provided.");
-      if ($round->regatta->id != $this->REGATTA->id || $round->round_group !== null)
+      if ($round->regatta->id != $this->REGATTA->id)
         throw new SoterException(sprintf("Invalid round provided: %s.", $round));
 
       $this->processSails($args, $round);
