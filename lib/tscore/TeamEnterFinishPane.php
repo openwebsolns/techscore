@@ -58,6 +58,9 @@ class TeamEnterFinishPane extends EnterFinishPane {
                                                               "maxlength"=>"3",
                                                               "id"=>"chosen_race",
                                                               "class"=>"narrow"))));
+
+      $form->add(new FItem("Using:", XSelect::fromArray('finish_using', $this->ACTIONS, $using)));
+
       // Add next unscored, or last scored race
       $races = $this->REGATTA->getUnscoredRaces();
       if (count($races) > 0)
