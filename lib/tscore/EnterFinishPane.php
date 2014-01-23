@@ -187,6 +187,7 @@ class EnterFinishPane extends AbstractPane {
     // ------------------------------------------------------------
     $rotation = $this->REGATTA->getRotation();
     if (isset($args['f_places']) || isset($args['f_teams'])) {
+      $args['finish_using'] = self::ROTATION;
       $race = DB::$V->reqRace($args, 'race', $this->REGATTA, "No such race in this regatta.");
 
       // Ascertain that there are as many finishes as there are sails
@@ -294,7 +295,7 @@ class EnterFinishPane extends AbstractPane {
                      ".");
       }
       Session::pa(new PA($mes));
-      $this->redirect('finishes');
+      $this->redirect('finishes', array('finish_using'=>$args['finish_using']));
     }
 
     // ------------------------------------------------------------
