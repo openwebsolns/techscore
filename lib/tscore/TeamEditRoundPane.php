@@ -556,6 +556,14 @@ class TeamEditRoundPane extends AbstractRoundPane {
     $races = $this->REGATTA->getRacesInRound($round, Division::A());
     array_shift($divisions);
     foreach ($races as $i => $race) {
+      $rotation->reset($race);
+      $other_races = array();
+      foreach ($divisions as $div) {
+        $r = $this->REGATTA->getRace($div, $race->number);
+        $rotation->reset($r);
+        $other_races[] = $r;
+      }
+
       $pair = $round->getRaceOrderPair($i);
 
       foreach (array(0, 1) as $pairIndex) {
@@ -565,8 +573,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
           $sail->race = $race;
           $sail->team = $team;
           $rotation->setSail($sail);
-          foreach ($divisions as $div) {
-            $r = $this->REGATTA->getRace($div, $race->number);
+          foreach ($other_races as $r) {
             $sail = $sails[$i][$pair[$pairIndex]][(string)$r->division];
             $sail->race = $r;
             $sail->team = $team;
