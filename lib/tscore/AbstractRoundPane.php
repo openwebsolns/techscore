@@ -57,7 +57,7 @@ abstract class AbstractRoundPane extends AbstractPane {
                                      new XLabel($id, $team,
                                                 array('onclick'=>sprintf('addTeamToRound("%s");', $id))))));
         if ($team->dt_rank !== null) {
-          $li->add(new XMessage(sprintf(" (Rank: %2d, %s-%s)", $team->dt_rank, $team->dt_wins, $team->dt_losses)));
+          $li->add(new XMessage(sprintf(" Rank: %2d, (%s-%s) %s", $team->dt_rank, $team->dt_wins, $team->dt_losses, $team->dt_explanation)));
         }
         if ($this->teamHasScoresInRound($ROUND, $team)) {
           $li->add(new XMessage("*"));
