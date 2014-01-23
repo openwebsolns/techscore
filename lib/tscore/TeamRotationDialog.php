@@ -232,7 +232,7 @@ class TeamRotationDialog extends AbstractDialog {
 
       // spacer
       if ($flight > 0 && $i % $flight == 0) {
-        $body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => 8 + 2 * count($divisions)), sprintf("Flight %d", ($i / $flight + 1))))));
+        $body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => 8 + 2 * count($divisions)), sprintf("Flight %d in %s", ($i / $flight + 1), $round->boat)))));
       }
 
       $rowattrs = array();
