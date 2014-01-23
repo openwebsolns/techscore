@@ -143,10 +143,11 @@ class ICSATeamRanker extends ICSARanker {
         $open_records[] = $rank;
     }
 
+    usort($open_records, array($this, 'compare'));
     // separate into tiedGroups and tiebreak as necessary
     $tiedGroups = array();
-    foreach ($this->order($open_records) as $rank) {
-      $id = sprintf("%s-%s", $rank->wins, $rank->losses);
+    foreach ($open_records as $rank) {
+      $id = $rank->getRecord();
       if (!isset($tiedGroups[$id]))
         $tiedGroups[$id] = array();
       $tiedGroups[$id][] = $rank;
@@ -217,61 +218,6 @@ class ICSATeamRanker extends ICSARanker {
       $openIndex++;
     }
     return $records;
-  }
-
-  /**
-   * Merge-sort implementation
-   */
-  private function order(Array $teams, $lower = 0, $upper = null) {
-    if ($upper === null)
-      $upper = count($teams);
-    if (count($teams) == 0)
-      return array();
-    if (($upper - $lower) < 2) {
-      return array($teams[$lower]);
-    }
-    $mid = floor(($upper + $lower) / 2);
-
-    $left = $this->order($teams, $lower, $mid);
-    $right = $this->order($teams, $mid, $upper);
-
-    $union = array();
-    $l = 0; $r = 0;
-
-    $nextRank = null;
-    while ($l < count($left) && $r < count($right)) {
-      $res = $this->compare($left[$l], $right[$r]);
-      if ($res < 0) {
-        $nextRank = $left[$l];
-        $l++;
-      }
-      elseif ($res > 0) {
-        $nextRank = $right[$r];
-        $r++;
-      }
-      else {
-        $res = strcmp((string)$left[$l]->team, (string)$right[$r]->team);
-        if ($res <= 0) {
-          $nextRank = $left[$l];
-          $l++;
-        }
-        else {
-          $nextRank = $right[$r];
-          $r++;
-        }
-      }
-      $union[] = $nextRank;
-    }
-    // add the remainder of each list
-    while ($l < count($left)) {
-      $union[] = $left[$l];
-      $l++;
-    }
-    while ($r < count($right)) {
-      $union[] = $right[$r];
-      $r++;
-    }
-    return $union;
   }
 
   /**
