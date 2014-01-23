@@ -107,7 +107,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
       if ($round->round_group !== null) {
         $p->add(new XP(array('class'=>'warning'),
                        array(new XStrong("Note:"), " You may not delete this round because it is being sailed as part of a group. In order to delete the round, you must first \"unlink\" the round group by visiting the ",
-                             new XA($this->link('round'), "Edit rounds"),
+                             new XA($this->link('order-rounds'), "Order rounds"),
                              " pane.")));
       }
       else {
