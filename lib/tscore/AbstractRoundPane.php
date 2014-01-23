@@ -47,7 +47,7 @@ abstract class AbstractRoundPane extends AbstractPane {
       $form->add($ul = new XUl(array('id'=>'teams-list')));
       $has_finishes = false;
       $has_carries = false;
-      foreach ($this->REGATTA->getTeams() as $team) {
+      foreach ($this->REGATTA->getRankedTeams() as $team) {
         $id = 'team-'.$team->id;
         $order = "";
         if (isset($seeds[$team->id]))
@@ -56,6 +56,9 @@ abstract class AbstractRoundPane extends AbstractPane {
                                      $ti = new XTextInput('order[]', $order, array('id'=>$id)),
                                      new XLabel($id, $team,
                                                 array('onclick'=>sprintf('addTeamToRound("%s");', $id))))));
+        if ($team->dt_rank !== null) {
+          $li->add(new XMessage(sprintf(" (Rank: %2d, %s-%s)", $team->dt_rank, $team->dt_wins, $team->dt_losses)));
+        }
         if ($this->teamHasScoresInRound($ROUND, $team)) {
           $li->add(new XMessage("*"));
           $ti->set('title', "There are finishes for this team, so it must be part of this round.");
@@ -85,16 +88,27 @@ abstract class AbstractRoundPane extends AbstractPane {
         $form->add(new XP(array(), sprintf("Place numbers %d-%d next to the teams to be included from this round.", $first, $last)));
 
         $form->add($ul = new XUl(array('class'=>'teams-list')));
+
+        $teams = array();
         foreach ($round->getSeeds() as $seed) {
-          $id = 'team-' . $seed->team->id;
+          $teams[$seed->team->id] = $seed->team;
+        }
+
+        foreach ($this->REGATTA->getRankedTeams() as $team) {
+          if (!isset($teams[$team->id]))
+            continue;
+
+          $id = 'team-' . $team->id;
           $order = "";
-          if (isset($seeds[$seed->team->id]))
-            $order = $seeds[$seed->team->id];
-          $ul->add($li = new XLi(array(new XHiddenInput('team[]', $seed->team->id),
+          if (isset($seeds[$team->id]))
+            $order = $seeds[$team->id];
+          $ul->add($li = new XLi(array(new XHiddenInput('team[]', $team->id),
                                        $ti = new XTextInput('order[]', $order, array('id'=>$id)),
-                                       new XLabel($id, $seed->team,
-                                                  array('onclick'=>sprintf('addTeamToRound("%s");', $id))))));
-          if ($this->teamHasScoresInRound($ROUND, $seed->team)) {
+                                       new XLabel($id, $team,
+                                                  array('onclick'=>sprintf('addTeamToRound("%s");', $id))),
+                                       new XMessage(sprintf(" Rank: %2d, (%s-%s) %s", $team->dt_rank, $team->dt_wins, $team->dt_losses, $team->dt_explanation)))));
+
+          if ($this->teamHasScoresInRound($ROUND, $team)) {
             $li->add(new XMessage("*"));
             $ti->set('title', "There are finishes for this team, so it must be part of this round.");
             $has_finishes = true;
