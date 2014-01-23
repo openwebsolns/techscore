@@ -142,12 +142,12 @@ class EnterFinishPane extends AbstractPane {
       }
 
       // Submit buttom
-      $this->fillRaceObservation($form, $race);
       $form->add($xp = new XSubmitP("f_places",
                                     sprintf("Enter finish for race %s", $race),
                                     array("id"=>"submitfinish", "tabindex"=>($i+1))));
       $xp->add(" ");
       $xp->add(new XA($this->link('finishes'), "Cancel"));
+      $this->fillRaceObservation($form, $race);
     }
     else {
       // ------------------------------------------------------------
@@ -157,12 +157,12 @@ class EnterFinishPane extends AbstractPane {
                            $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'finish_table'),
                                                   array("Team", "→", "Finish", "Pen."))));
       $i = $this->fillFinishesTable($tab, $race, $finishes);
-      $this->fillRaceObservation($form, $race);
       $form->add($xp = new XSubmitP('f_teams',
                                     sprintf("Enter finish for race %s", $race),
                                     array('id'=>'submitfinish', 'tabindex'=>($i+1))));
       $xp->add(" ");
       $xp->add(new XA($this->link('finishes'), "Cancel"));
+      $this->fillRaceObservation($form, $race);
     }
 
     // ------------------------------------------------------------
@@ -191,9 +191,9 @@ class EnterFinishPane extends AbstractPane {
       $teams = array();
       $races = array();
       if (isset($args['f_teams'])) {
-        $t = ($this->REGATTA->scoring == Regatta::SCORING_TEAM) ?
-          $this->REGATTA->getRaceTeams($race) :
-          $this->REGATTA->getTeams();
+        $t = $this->REGATTA->getRaceTeams($race);
+        if ($this->REGATTA->scoring == Regatta::SCORING_TEAM && count($t) < 2)
+          throw new SoterException(sprintf("Cannot score race %s until all teams are present.", $race));
 
         $args['finish_using'] = self::TEAMS;
         $opts = array();
