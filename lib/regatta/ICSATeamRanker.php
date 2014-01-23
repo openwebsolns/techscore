@@ -151,7 +151,23 @@ class ICSATeamRanker extends ICSARanker {
         return strcmp((string)$r1->team, (string)$r2->team);
       });
 
-    usort($open_records, array($this, 'compare'));
+    usort($open_records, function(TeamRank $a, TeamRank $b) {
+        $perA = $a->getWinPercentage();
+        $perB = $b->getWinPercentage();
+        if ($perA == $perB) {
+          if ($a->wins == $b->wins) {
+            if ($a->losses == $b->losses) {
+              return 0;
+            }
+            return $a->losses - $b->losses;
+          }
+          return $b->wins - $a->wins;
+        }
+        if ($perA - $perB > 0)
+          return -1;
+        return 1;
+      });
+
     // separate into tiedGroups and tiebreak as necessary
     $tiedGroups = array();
     foreach ($open_records as $rank) {
@@ -230,34 +246,6 @@ class ICSATeamRanker extends ICSARanker {
     }
     return $records;
   }
-
-  /**
-   * Compares first record with second.
-   *
-   * Comparison is done first by win percentage, then by total number
-   * of wins, then by fewest number of losses.
-   *
-   * @param TeamRank $a the first team
-   * @param TeamRank $b the second team
-   * @return int < 0 if first team ranks higher, > 0 otherwise
-   */
-  public function compare(TeamRank $a, TeamRank $b) {
-    $perA = $a->getWinPercentage();
-    $perB = $b->getWinPercentage();
-    if ($perA == $perB) {
-      if ($a->wins == $b->wins) {
-        if ($a->losses == $b->losses) {
-          return 0;
-        }
-        return $a->losses - $b->losses;
-      }
-      return $b->wins - $a->wins;
-    }
-    if ($perA - $perB > 0)
-      return -1;
-    return 1;
-  }
-
 
   protected function breakHeadToHead(Array $ranks, Array &$matchups) {
     $matchesWon = array_fill(0, count($ranks), 0);
