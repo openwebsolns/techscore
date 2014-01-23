@@ -38,10 +38,10 @@ class TeamRacesDialog extends AbstractScoresDialog {
    */
   public function getTable($link_schools = false) {
     $divs = $this->REGATTA->getDivisions();
-    $rounds = $this->REGATTA->getRounds();
     $season = $this->REGATTA->getSeason();
-    if (count($rounds) == 0)
-      return array(new XP(array('class'=>'warning'), "There are no rounds for this regatta."));
+    $races = $this->REGATTA->getRaces(Division::A());
+    if (count($races) == 0)
+      return array(new XP(array('class'=>'warning'), "There are no races for this regatta."));
 
     $tab = new XTable(array('class'=>'teamscorelist', 'id'=>'rotation-table'),
                       array(new XTHead(array(),
@@ -52,41 +52,54 @@ class TeamRacesDialog extends AbstractScoresDialog {
                                                                    new XTH(array(), ""),
                                                                    new XTH(array(), "Record"),
                                                                    new XTH(array('colspan'=>2), "Team 2")))))));
-    foreach ($rounds as $round) {
-      $tab->add($body = new XTBody(array(), array(new XTR(array('class'=>'roundrow'),
-                                                          array(new XTH(array('colspan'=>8), $round))))));
-      foreach ($this->REGATTA->getRacesInRound($round, Division::A()) as $race) {
-        $team1 = $race->tr_team1;
-        $team2 = $race->tr_team2;
-        if ($team1 === null || $team2 === null)
-          continue;
+    $prevround = null;
+    foreach ($races as $race) {
+      if ($race->round != $prevround) {
+        $tab->add($body = new XTBody(array(), array(new XTR(array('class'=>'roundrow'),
+                                                            array(new XTH(array('colspan'=>8), $race->round))))));
+        $prevround = $race->round;
+      }
 
-        if ($link_schools !== false) {
-          $team1 = array(new XA(sprintf('/schools/%s/%s/', $team1->school->id, $season), $team1->school), " ", $team1->getQualifiedName());
-          $team2 = array(new XA(sprintf('/schools/%s/%s/', $team2->school->id, $season), $team2->school), " ", $team2->getQualifiedName());
+      $team1 = $race->tr_team1;
+      $team2 = $race->tr_team2;
+      if ($team1 === null || $team2 === null)
+        continue;
+
+      if ($link_schools !== false) {
+        $team1 = array(new XA(sprintf('/schools/%s/%s/', $team1->school->id, $season), $team1->school), " ", $team1->getQualifiedName());
+        $team2 = array(new XA(sprintf('/schools/%s/%s/', $team2->school->id, $season), $team2->school), " ", $team2->getQualifiedName());
+      }
+
+      $burg1 = $race->tr_team1->school->drawSmallBurgee("");
+      $burg2 = $race->tr_team2->school->drawSmallBurgee("");
+
+      $body->add($row = new XTR(array(), array(new XTD(array(), $race->number),
+                                               $b1 = new XTD(array('class'=>'team1'), $burg1),
+                                               $t1 = new XTD(array('class'=>'team1'), $team1),
+                                               $r1 = new XTD(),
+                                               new XTD(array('class'=>'vscell'), "vs"),
+                                               $r2 = new XTD(),
+                                               $t2 = new XTD(array('class'=>'team2'), $team2),
+                                               $b2 = new XTD(array('class'=>'team2'), $burg2))));
+      $finishes = $this->REGATTA->getFinishes($race);
+      if (count($finishes) > 0) {
+        $places1 = array();
+        $places2 = array();
+        $score1 = 0;
+        $score2 = 0;
+        foreach ($finishes as $finish) {
+          if ($finish->team == $race->tr_team1) {
+            $places1[] = $finish;
+            $score1 += $finish->score;
+          }
+          elseif ($finish->team == $race->tr_team2) {
+            $places2[] = $finish;
+            $score2 += $finish->score;
+          }
         }
-
-        $burg1 = $race->tr_team1->school->drawSmallBurgee("");
-        $burg2 = $race->tr_team2->school->drawSmallBurgee("");
-
-        $attrs = array();
-        if ($race->round != $round)
-          $attrs['class'] = 'tr-carried';
-        $body->add($row = new XTR($attrs, array(new XTD(array(), $race->number),
-                                                $b1 = new XTD(array('class'=>'team1'), $burg1),
-                                                $t1 = new XTD(array('class'=>'team1'), $team1),
-                                                $r1 = new XTD(),
-                                                new XTD(array('class'=>'vscell'), "vs"),
-                                                $r2 = new XTD(),
-                                                $t2 = new XTD(array('class'=>'team2'), $team2),
-                                                $b2 = new XTD(array('class'=>'team2'), $burg2))));
-        $finishes = $this->REGATTA->getFinishes($race);
-        if (count($finishes) > 0) {
-          $places1 = array();
-          $places2 = array();
-          $score1 = 0;
-          $score2 = 0;
-          foreach ($finishes as $finish) {
+        // repeat with remaining divisions
+        for ($i = 1; $i < count($divs); $i++) {
+          foreach ($this->REGATTA->getFinishes($this->REGATTA->getRace($divs[$i], $race->number)) as $finish) {
             if ($finish->team == $race->tr_team1) {
               $places1[] = $finish;
               $score1 += $finish->score;
@@ -96,40 +109,27 @@ class TeamRacesDialog extends AbstractScoresDialog {
               $score2 += $finish->score;
             }
           }
-          // repeat with remaining divisions
-          for ($i = 1; $i < count($divs); $i++) {
-            foreach ($this->REGATTA->getFinishes($this->REGATTA->getRace($divs[$i], $race->number)) as $finish) {
-              if ($finish->team == $race->tr_team1) {
-                $places1[] = $finish;
-                $score1 += $finish->score;
-              }
-              elseif ($finish->team == $race->tr_team2) {
-                $places2[] = $finish;
-                $score2 += $finish->score;
-              }
-            }
-          }
-          $r1->add(Finish::displayPlaces($places1));
-          $r2->add(Finish::displayPlaces($places2));
+        }
+        $r1->add(Finish::displayPlaces($places1));
+        $r2->add(Finish::displayPlaces($places2));
 
-          if ($score1 < $score2) {
-            $t1->set('class', 'tr-win team1');
-            $r1->set('class', 'tr-win team1');
-            $t2->set('class', 'tr-lose team2');
-            $r2->set('class', 'tr-lose team2');
-          }
-          elseif ($score1 > $score2) {
-            $t1->set('class', 'tr-lose team1');
-            $r1->set('class', 'tr-lose team1');
-            $t2->set('class', 'tr-win team2');
-            $r2->set('class', 'tr-win team2');
-          }
-          else {
-            $t1->set('class', 'tr-tie team1');
-            $r1->set('class', 'tr-tie team1');
-            $t2->set('class', 'tr-tie team2');
-            $r2->set('class', 'tr-tie team2');
-          }
+        if ($score1 < $score2) {
+          $t1->set('class', 'tr-win team1');
+          $r1->set('class', 'tr-win team1');
+          $t2->set('class', 'tr-lose team2');
+          $r2->set('class', 'tr-lose team2');
+        }
+        elseif ($score1 > $score2) {
+          $t1->set('class', 'tr-lose team1');
+          $r1->set('class', 'tr-lose team1');
+          $t2->set('class', 'tr-win team2');
+          $r2->set('class', 'tr-win team2');
+        }
+        else {
+          $t1->set('class', 'tr-tie team1');
+          $r1->set('class', 'tr-tie team1');
+          $t2->set('class', 'tr-tie team2');
+          $r2->set('class', 'tr-tie team2');
         }
       }
     }
