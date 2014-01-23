@@ -125,10 +125,14 @@ class TeamRacesPane extends AbstractRoundPane {
         $ROUND->title = sprintf("Round %d", count($rounds) + 1);
 
       if ($type == self::SIMPLE) {
-        if ($ROUND->num_teams === null)
-          $ROUND->num_teams = count($this->REGATTA->getTeams());
-        if ($ROUND->num_boats === null)
-          $ROUND->num_boats = $group_size * 3;
+        $num_teams = count($this->REGATTA->getTeams());
+        if ($ROUND->num_teams !== null)
+          $num_teams = $ROUND->num_teams;
+
+        $num_boats = $group_size * 3;
+        if ($ROUND->num_boats !== null)
+          $num_boats = $ROUND->num_boats;
+
         $boat = null;
         if ($ROUND->boat !== null)
           $boat = $ROUND->boat->id;
@@ -136,9 +140,9 @@ class TeamRacesPane extends AbstractRoundPane {
         $this->PAGE->addContent($p = new XPort("New round settings"));
         $p->add($form = $this->createForm());
         $form->add(new FItem("Round name:", new XTextInput('title', $ROUND->title)));
-        $form->add(new FItem("Number of teams:", new XTextInput('num_teams', $ROUND->num_teams)));
+        $form->add(new FItem("Number of teams:", new XTextInput('num_teams', $num_teams)));
 
-        $form->add(new FItem("Number of boats:", new XInput('number', 'num_boats', $ROUND->num_boats, array('min'=>$group_size, 'step'=>$group_size))));
+        $form->add(new FItem("Number of boats:", new XInput('number', 'num_boats', $num_boats, array('min'=>$group_size, 'step'=>$group_size))));
         $form->add(new FItem("Rotation frequency:", XSelect::fromArray('rotation_frequency', Race_Order::getFrequencyTypes())));
         $form->add(new FItem("Boat:", XSelect::fromArray('boat', $boats, $boat)));
         $form->add($p = new XSubmitP('create-settings', "Next →"));
@@ -698,9 +702,9 @@ class TeamRacesPane extends AbstractRoundPane {
    *
    */
   private function processStep1(Array $args, Round $round, Array $rounds, Array $divisions) {
-    $round->title = DB::$V->reqString($args, 'title', 1, 61, "Invalid or missing name.");
+    $title = DB::$V->reqString($args, 'title', 1, 61, "Invalid or missing name.");
     foreach ($rounds as $r) {
-      if ($r->title == $round->title)
+      if ($r->title == $title)
         throw new SoterException("Duplicate round title provided.");
     }
 
@@ -711,31 +715,34 @@ class TeamRacesPane extends AbstractRoundPane {
 
     $num_teams = DB::$V->reqInt($args, 'num_teams', 2, count($this->REGATTA->getTeams()) + 1, "Invalid number of teams provided.");
     if ($num_teams != $round->num_teams) {
-      $round->num_teams = $num_teams;
       $clean_races = true;
       $clean_teams = true;
     }
 
     $freq = DB::$V->reqKey($args, 'rotation_frequency', Race_Order::getFrequencyTypes(), "Invalid rotation frequency requested.");
     if ($freq != $round->rotation_frequency) {
-      $round->rotation_frequency = $freq;
       $clean_races = true;
       $clean_rotation = true;
     }
 
+    $num_boats = null;
     if ($round->rotation_frequency == Race_Order::FREQUENCY_NONE) {
-      $round->num_boats = count($divisions) * $round->num_teams;
+      $num_boats = count($divisions) * $round->num_teams;
     }
     else {
       $num_boats = DB::$V->reqInt($args, 'num_boats', $group_size, 101, "Invalid number of boats provided.");
       if ($num_boats % $group_size != 0)
         throw new SoterException(sprintf("Number of boats must be divisible by %d.", $group_size));
       if ($num_boats != $round->num_boats) {
-        $round->num_boats = $num_boats;
         $clean_races = true;
         $clean_rotation = true;
       }
     }
+
+    $round->title = $title;
+    $round->num_teams = $num_teams;
+    $round->num_boats = $num_boats;
+    $round->rotation_frequency = $freq;
 
     if ($clean_teams)
       Session::d('round_teams');
