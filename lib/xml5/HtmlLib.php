@@ -686,6 +686,10 @@ class XSelect extends XAbstractHtml {
   public static function fromDBM($name, $opts, $chosen = null, Array $attrs = array()) {
     if (!is_array($chosen))
       $chosen = array($chosen);
+    foreach ($chosen as $i => $item) {
+      if ($item instanceof DBObject)
+        $chosen[$i] = $item->id;
+    }
     $sel = new XSelect($name, $attrs);
     foreach ($opts as $v) {
       $sel->add($opt = new XOption($v->id, array(), $v));
