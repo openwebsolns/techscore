@@ -220,19 +220,33 @@ class TeamRotationDialog extends AbstractDialog {
     }
 
     // calculate appropriate race number
-    $races = ($round->round_group === null) ?
-      $this->REGATTA->getRacesInRound($round, Division::A()) :
-      $this->REGATTA->getRacesInRoundGroup($round->round_group, Division::A());
+    $flightsize = null;
+    $prevround = null;
+    $races = null;
+    if ($round->round_group === null) {
+      $races = $this->REGATTA->getRacesInRound($round, Division::A());
+      $flightsize = $round->num_boats / (2 * count($divisions));
+    }
+    else {
+      $races = $this->REGATTA->getRacesInRoundGroup($round->round_group, Division::A());
+    }
 
-    $group_size = 2 * count($divisions);
-    $flight = $round->num_boats / $group_size;
+    $flight = 0;
     foreach ($races as $i => $race) {
       $round = $race->round;
       $race_i = $race_index[$round->id];
 
       // spacer
-      if ($flight > 0 && $i % $flight == 0) {
-        $body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => 8 + 2 * count($divisions)), sprintf("Flight %d in %s", ($i / $flight + 1), $round->boat)))));
+      if ($flightsize !== null) {
+        if ($i % $flightsize == 0) {
+          $flight++;
+          $body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => 8 + 2 * count($divisions)), sprintf("Flight %d in %s", $flight, $round->boat)))));
+        }
+      }
+      elseif ($prevround != $round) {
+        $flight++;
+        $body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => 8 + 2 * count($divisions)), sprintf("Flight %d in %s", $flight, $round->boat)))));
+        $prevround = $round;
       }
 
       $rowattrs = array();
