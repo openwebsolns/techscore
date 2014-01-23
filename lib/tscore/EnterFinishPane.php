@@ -25,8 +25,8 @@ class EnterFinishPane extends AbstractPane {
   const ROTATION = 'ROT';
   const TEAMS = 'TMS';
 
-  private $ACTIONS = array(self::ROTATION => "Sail numbers from rotation",
-                           self::TEAMS => "Team names");
+  protected $ACTIONS = array(self::ROTATION => "Sail numbers from rotation",
+                             self::TEAMS => "Team names");
 
   /**
    * @var Map penalty options available when entering finishes
@@ -100,7 +100,11 @@ class EnterFinishPane extends AbstractPane {
     // ------------------------------------------------------------
     // Enter finishes
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new XPort("Add/edit finish for race " . $race));
+    $title = sprintf("Add/edit finish for race %s", $race);
+    $teams = $this->REGATTA->getRaceTeams($race);
+    if (count($teams) == 2)
+      $title .= sprintf(" (%s vs. %s)", $teams[0], $teams[1]);
+    $this->PAGE->addContent($p = new XPort($title));
     $p->add($form = $this->createForm());
     $form->set("id", "finish_form");
 

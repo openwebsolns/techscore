@@ -36,6 +36,14 @@ class TeamEnterFinishPane extends EnterFinishPane {
         $race = null;
       }
     }
+
+    $rotation = $this->REGATTA->getRotation();
+    $using = DB::$V->incKey($args, 'finish_using', $this->ACTIONS, self::ROTATION);
+    if (!$rotation->isAssigned($race)) {
+      unset($this->ACTIONS[self::ROTATION]);
+      $using = self::TEAMS;
+    }
+
     // ------------------------------------------------------------
     // Choose race: provide either numerical input, or direct selection
     // ------------------------------------------------------------
@@ -72,7 +80,7 @@ class TeamEnterFinishPane extends EnterFinishPane {
     // Enter finishes
     // ------------------------------------------------------------
     $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/finish.js'));
-    $this->fillFinishesPort($race);
+    $this->fillFinishesPort($race, ($using == self::ROTATION) ? $rotation : null);
   }
 
   /**
