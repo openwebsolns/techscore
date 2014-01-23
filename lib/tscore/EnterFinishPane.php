@@ -319,7 +319,7 @@ class EnterFinishPane extends AbstractPane {
    * @return int the total number of options added
    */
   private function fillFinishesTable(XQuickTable $tab, Race $race, $finishes) {
-    $teams = $this->REGATTA->getTeams();
+    $teams = $this->REGATTA->getRaceTeams($race);
     $team_opts = array("" => "");
     $attrs = array("name"=>"pos_team", "class"=>"pos_sail left", "id"=>"pos_team");
     if ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) {
@@ -348,8 +348,6 @@ class EnterFinishPane extends AbstractPane {
     else {
       // Combined and team scoring
       $divisions = $this->REGATTA->getDivisions();
-      if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
-        $teams = $this->REGATTA->getRaceTeams($race);
 
       $t = $r = array();
       $this->fillTeamOpts($team_opts, $t, $r, $teams, $race, $divisions);
