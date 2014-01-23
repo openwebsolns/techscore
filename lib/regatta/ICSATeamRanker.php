@@ -333,7 +333,19 @@ class ICSATeamRanker extends ICSARanker {
         $tiedGroups[$pointsTotal[$i]] = array();
       $tiedGroups[$pointsTotal[$i]][] = $rank;
     }
-    return $tiedGroups;
+
+    $newGroups = array();
+    foreach ($tiedGroups as $group) {
+      if (count($group) > 1) {
+        usort($group, function(TeamRank $a, TeamRank $b) {
+            return strcmp((string)$a->team, (string)$b->team);
+          });
+        foreach ($group as $rank)
+          $rank->explanation = "Tie stands.";
+      }
+      $newGroups[] = $group;
+    }
+    return $newGroups;
   }
 }
 ?>
