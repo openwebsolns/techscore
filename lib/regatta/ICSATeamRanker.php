@@ -143,6 +143,14 @@ class ICSATeamRanker extends ICSARanker {
         $open_records[] = $rank;
     }
 
+    usort($locked_records, function(TeamRank $r1, TeamRank $r2) {
+        if ($r1->team->dt_rank < $r2->team->dt_rank)
+          return -1;
+        if ($r1->team->dt_rank > $r2->team->dt_rank)
+          return 1;
+        return strcmp((string)$r1->team, (string)$r2->team);
+      });
+
     usort($open_records, array($this, 'compare'));
     // separate into tiedGroups and tiebreak as necessary
     $tiedGroups = array();
@@ -153,31 +161,24 @@ class ICSATeamRanker extends ICSARanker {
       $tiedGroups[$id][] = $rank;
     }
 
-    // rebuild order
-    $open_records = array();
+    // breakties
+    $newGroups = array();
     foreach ($tiedGroups as $group) {
       if (count($group) > 1) {
-        // Tiebreak
-        $group = $this->breakHeadToHead($group, $matchups);
+        foreach ($this->breakHeadToHead($group, $matchups) as $group) {
+          $newGroups[] = $group;
+        }
       }
-      foreach ($group as $rank) {
-        $open_records[] = $rank;
+      else {
+        $newGroups[] = $group;
       }
     }
-
-    usort($locked_records, function(TeamRank $r1, TeamRank $r2) {
-        if ($r1->team->dt_rank < $r2->team->dt_rank)
-          return -1;
-        if ($r1->team->dt_rank > $r2->team->dt_rank)
-          return 1;
-        return strcmp((string)$r1->team, (string)$r2->team);
-      });
 
     // Assign ranks by reassembling lists
     $records = array();
     $openIndex = 0; $lockedIndex = 0;
     $prevRank = null;
-    while ($openIndex < count($open_records) && $lockedIndex < count($locked_records)) {
+    while ($openIndex < count($newGroups) && $lockedIndex < count($locked_records)) {
       // Add the appropriate locked_records
       if (($prevRank === null && $locked_records[$lockedIndex]->team->dt_rank == $min_rank) ||
           ($prevRank !== null && $locked_records[$lockedIndex]->team->dt_rank <= $prevRank->rank + 1)) {
@@ -188,16 +189,23 @@ class ICSATeamRanker extends ICSARanker {
         $lockedIndex++;
         continue;
       }
+
+      // Deal with "open" records
       if ($prevRank === null ||
           $prevRank->team->lock_rank !== null ||
-          $this->compare($prevRank, $open_records[$openIndex]) != 0) {
-        $open_records[$openIndex]->rank = $min_rank + count($records);
+          $prevRank->getRecord() != $newGroups[$openIndex][0]->getRecord()) {
+
+        foreach ($newGroups[$openIndex] as $rank)
+          $rank->rank = $min_rank + count($records);
       }
       else {
-        $open_records[$openIndex]->rank = $prevRank->rank;
+        foreach ($newGroups[$openIndex] as $rank)
+          $rank->rank = $prevRank->rank;
       }
-      $records[] = $open_records[$openIndex];
-      $prevRank = $open_records[$openIndex];
+
+      foreach ($newGroups[$openIndex] as $rank)
+        $records[] = $rank;
+      $prevRank = $rank;
       $openIndex++;
     }
     // Add remaining ones
@@ -206,15 +214,18 @@ class ICSATeamRanker extends ICSARanker {
       $records[] = $locked_records[$lockedIndex];
       $lockedIndex++;
     }
-    while ($openIndex < count($open_records)) {
-      if ($prevRank === null || $this->compare($prevRank, $open_records[$openIndex]) != 0) {
-        $open_records[$openIndex]->rank = $min_rank + count($records);
+    while ($openIndex < count($newGroups)) {
+      if ($prevRank === null || $prevRank->getRecord() != $newGroups[$openIndex][0]->getRecord()) {
+        foreach ($newGroups[$openIndex] as $rank)
+          $rank->rank = $min_rank + count($records);
       }
       else {
-        $open_records[$openIndex]->rank = $prevRank->rank;
+        foreach ($newGroups[$openIndex] as $rank)
+          $rank->rank = $prevRank->rank;
       }
-      $records[] = $open_records[$openIndex];
-      $prevRank = $open_records[$openIndex];
+      foreach ($newGroups[$openIndex] as $rank)
+        $records[] = $rank;
+      $prevRank = $rank;
       $openIndex++;
     }
     return $records;
@@ -281,27 +292,25 @@ class ICSATeamRanker extends ICSARanker {
 
     $tiedGroups = array();
     foreach ($ranks as $i => $rank) {
+      $rank->explanation = "Number of races won when tied teams met";
       if (!isset($tiedGroups[$matchesWon[$i]]))
         $tiedGroups[$matchesWon[$i]] = array();
       $tiedGroups[$matchesWon[$i]][] = $rank;
     }
 
-    $newRank = array();
+    $newGroups = array();
     foreach ($tiedGroups as $group) {
-      $replaceExplanation = true;
       if (count($group) > 1) {
-        // Tiebreak based on points
-        $group = $this->breakByPoints($group, $matchups);
-        $replaceExplanation = false;
+        foreach ($this->breakByPoints($group, $matchups) as $group) {
+          $newGroups[] = $group;
+        }
       }
-      foreach ($group as $rank) {
-        if ($replaceExplanation)
-          $rank->explanation = "Number of races won when tied teams met";
-        $newRank[] = $rank;
+      else {
+        $newGroups[] = $group;
       }
     }
 
-    return $newRank;
+    return $newGroups;
   }
 
   protected function breakByPoints(Array $ranks, Array &$matchups) {
@@ -328,72 +337,15 @@ class ICSATeamRanker extends ICSARanker {
 
     array_multisort($pointsTotal, SORT_NUMERIC, $ranks);
 
-    $newRanks = array();
-    foreach ($ranks as $rank) {
-      $rank->explanation = "Total points scored when tied teams met";
-      $newRanks[] = $rank;
+    $tiedGroups = array();
+    foreach ($ranks as $i => $rank) {
+      if ($pointsTotal[$i] > 0)
+        $rank->explanation = "Total points scored when tied teams met";
+      if (!isset($tiedGroups[$pointsTotal[$i]]))
+        $tiedGroups[$pointsTotal[$i]] = array();
+      $tiedGroups[$pointsTotal[$i]][] = $rank;
     }
-    return $newRanks;
-  }
-
-  /**
-   * Break ties by looking at head-to-head matchups, as provided
-   *
-   */
-  protected function compareHeadToHead(TeamRank $a, TeamRank $b, Array &$matchups) {
-    if (!isset($matchups[$a->team->id]) || !isset($matchups[$b->team->id]) ||
-        !isset($matchups[$a->team->id][$b->team->id]))
-      return 0;
-
-    $aPointsTotal = 0;
-    $bPointsTotal = 0;
-
-    $aWinsTotal = 0;
-    $bWinsTotal = 0;
-
-    foreach ($matchups[$a->team->id][$b->team->id] as $num => $a_finishes) {
-      $aRaceTotal = 0;
-      $bRaceTotal = 0;
-      foreach ($a_finishes as $finish) {
-        $aRaceTotal += $finish->score;
-        $aPointsTotal += $finish->score;
-      }
-      foreach ($matchups[$b->team->id][$a->team->id][$num] as $finish) {
-        $bRaceTotal += $finish->score;
-        $bPointsTotal += $finish->score;
-      }
-
-      if ($aRaceTotal < $bRaceTotal)
-        $aWinsTotal++;
-      elseif ($aRaceTotal > $bRaceTotal)
-        $bWinsTotal++;
-    }
-
-    if ($aWinsTotal > $bWinsTotal) {
-      $a->explanation = "Number of races won";
-      $b->explanation = "Number of races won";
-      return -1;
-    }
-    elseif ($aWinsTotal < $bWinsTotal) {
-      $a->explanation = "Number of races won";
-      $b->explanation = "Number of races won";
-      return 1;
-    }
-
-    // Look at total number of points
-    if ($aPointsTotal < $bPointsTotal) {
-      $a->explanation = "Total points scored when tied teams met";
-      $b->explanation = "Total points scored when tied teams met";
-      return -1;
-    }
-    elseif ($aPointsTotal > $bPointsTotal) {
-      $a->explanation = "Total points scored when tied teams met";
-      $b->explanation = "Total points scored when tied teams met";
-      return 1;
-    }
-
-    // Tie stands
-    return 0;
+    return $tiedGroups;
   }
 }
 ?>
