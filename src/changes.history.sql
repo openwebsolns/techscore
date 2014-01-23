@@ -712,3 +712,7 @@ alter table round_seed add column original_round int default null, add foreign k
 
 -- do away with race_round relationship, this to be derived "manually"
 drop table race_round;
+
+-- some rounds are tiebreakers, and they do not count towards records
+alter table round change column scoring tiebreaker tinyint unsigned default null;
+update round set tiebreaker = null;

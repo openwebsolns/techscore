@@ -1910,7 +1910,7 @@ class Round_Group extends DBObject {
 class Round extends DBObject {
   protected $regatta;
   public $title;
-  public $scoring;
+  public $tiebreaker;
   public $relative_order;
 
   public $num_teams;
