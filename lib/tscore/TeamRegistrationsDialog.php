@@ -49,6 +49,9 @@ class TeamRegistrationsDialog extends AbstractDialog {
         continue;
 
       $ts = $this->REGATTA->getRaceTeams($race);
+      if (count($ts) < 2)
+        continue;
+
       foreach ($ts as $t) {
         $teams[$t->id] = $t;
         if (!isset($map[$t->id]))

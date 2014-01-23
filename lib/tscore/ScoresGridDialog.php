@@ -104,6 +104,9 @@ class ScoresGridDialog extends AbstractScoresDialog {
     $carried = array();
     foreach ($races as $race) {
       $ts = $this->REGATTA->getRaceTeams($race);
+      if (count($ts) < 2)
+        continue;
+
       foreach ($ts as $t) {
         if (!isset($scores[$t->id]))
           $scores[$t->id] = array();
@@ -120,7 +123,7 @@ class ScoresGridDialog extends AbstractScoresDialog {
         $scores[$t0->id][$t1->id][$race->number] = array();
       if (!isset($scores[$t1->id][$t0->id][$race->number]))
         $scores[$t1->id][$t0->id][$race->number] = array();
-      
+
       $s0 = $this->REGATTA->getFinish($race, $t0);
       $s1 = $this->REGATTA->getFinish($race, $t1);
       if ($s0 !== null && $s1 !== null) {
