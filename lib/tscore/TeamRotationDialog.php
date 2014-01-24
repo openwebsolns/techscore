@@ -167,9 +167,11 @@ class TeamRotationDialog extends AbstractDialog {
       }
     }
     else {
+      $j = 0;
       foreach ($masters as $master) {
         for ($i = 0; $i < $master->num_teams; $i++) {
-          $names[] = new XEm(sprintf("%s, #%d", $master->master, ($i + 1)), array('class'=>'no-team'));
+          $names[] = new XEm(sprintf("Team %d", ($j + 1)), array('class'=>'no-team'));
+          $j++;
         }
       }
     }
