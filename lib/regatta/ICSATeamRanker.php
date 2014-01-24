@@ -36,9 +36,19 @@ class ICSATeamRanker extends ICSARanker {
     // Track matchups as Team ID => Team ID => Races in A
     $matchups = array();
 
+    // Teams of interest
+    $teams = array();
+
     // Determine records for each team in given races
     $records = array();
     foreach ($races as $race) {
+      $teams[$race->tr_team1->id] = $race->tr_team1;
+      $teams[$race->tr_team2->id] = $race->tr_team2;
+
+      $a_finishes = $reg->getFinishes($race);
+      if (count($a_finishes) == 0)
+        continue;
+
       // initialize TeamRank objects
       if (!isset($records[$race->tr_team1->id])) {
         $records[$race->tr_team1->id] = new TeamRank($race->tr_team1);
@@ -55,64 +65,61 @@ class ICSATeamRanker extends ICSARanker {
       if (!isset($matchups[$race->tr_team2->id][$race->tr_team1->id]))
         $matchups[$race->tr_team2->id][$race->tr_team1->id] = array();
 
-      $a_finishes = $reg->getFinishes($race);
-      if (count($a_finishes) > 0) {
-        $matchups[$race->tr_team1->id][$race->tr_team2->id][$race->number] = array();
-        $matchups[$race->tr_team2->id][$race->tr_team1->id][$race->number] = array();
+      $matchups[$race->tr_team1->id][$race->tr_team2->id][$race->number] = array();
+      $matchups[$race->tr_team2->id][$race->tr_team1->id][$race->number] = array();
 
-        $finishes = array();
-        foreach ($a_finishes as $finish) {
+      $finishes = array();
+      foreach ($a_finishes as $finish) {
+        $finishes[] = $finish;
+        if ($finish->team == $race->tr_team1)
+          $matchups[$race->tr_team1->id][$race->tr_team2->id][$race->number][] = $finish;
+        else
+          $matchups[$race->tr_team2->id][$race->tr_team1->id][$race->number][] = $finish;
+      }
+      for ($i = 1; $i < count($divisions); $i++) {
+        foreach ($reg->getFinishes($reg->getRace($divisions[$i], $race->number)) as $finish) {
           $finishes[] = $finish;
           if ($finish->team == $race->tr_team1)
             $matchups[$race->tr_team1->id][$race->tr_team2->id][$race->number][] = $finish;
           else
             $matchups[$race->tr_team2->id][$race->tr_team1->id][$race->number][] = $finish;
         }
-        for ($i = 1; $i < count($divisions); $i++) {
-          foreach ($reg->getFinishes($reg->getRace($divisions[$i], $race->number)) as $finish) {
-            $finishes[] = $finish;
-            if ($finish->team == $race->tr_team1)
-              $matchups[$race->tr_team1->id][$race->tr_team2->id][$race->number][] = $finish;
-            else
-              $matchups[$race->tr_team2->id][$race->tr_team1->id][$race->number][] = $finish;
-          }
-        }
+      }
 
-        // "Tiebreaker" races do not factor into records
-        if ($race->round->tiebreaker !== null)
-          continue;
+      // "Tiebreaker" races do not factor into records
+      if ($race->round->tiebreaker !== null)
+        continue;
 
-        $myScore = 0;
-        $theirScore = 0;
+      $myScore = 0;
+      $theirScore = 0;
 
-        foreach ($finishes as $finish) {
-          if ($finish->team->id == $race->tr_team1->id)
-            $myScore += $finish->score;
-          else
-            $theirScore += $finish->score;
-        }
-        if ($race->tr_ignore1 === null) {
-          if ($myScore < $theirScore)
-            $records[$race->tr_team1->id]->wins++;
-          elseif ($myScore > $theirScore)
-            $records[$race->tr_team1->id]->losses++;
-          else
-            $records[$race->tr_team1->id]->ties++;
-        }
-        if ($race->tr_ignore2 === null) {
-          if ($myScore < $theirScore)
-            $records[$race->tr_team2->id]->losses++;
-          elseif ($myScore > $theirScore)
-            $records[$race->tr_team2->id]->wins++;
-          else
-            $records[$race->tr_team2->id]->ties++;
-        }
+      foreach ($finishes as $finish) {
+        if ($finish->team->id == $race->tr_team1->id)
+          $myScore += $finish->score;
+        else
+          $theirScore += $finish->score;
+      }
+      if ($race->tr_ignore1 === null) {
+        if ($myScore < $theirScore)
+          $records[$race->tr_team1->id]->wins++;
+        elseif ($myScore > $theirScore)
+          $records[$race->tr_team1->id]->losses++;
+        else
+          $records[$race->tr_team1->id]->ties++;
+      }
+      if ($race->tr_ignore2 === null) {
+        if ($myScore < $theirScore)
+          $records[$race->tr_team2->id]->losses++;
+        elseif ($myScore > $theirScore)
+          $records[$race->tr_team2->id]->wins++;
+        else
+          $records[$race->tr_team2->id]->ties++;
       }
     }
 
     $min_rank = 1;
     $all_ranks = array();
-    foreach ($reg->getTeamsInRankGroups() as $group) {
+    foreach ($reg->getTeamsInRankGroups($teams) as $group) {
       $group = $this->rankGroup($reg, $group, $records, $min_rank, $matchups);
       foreach ($group as $rank)
         $all_ranks[] = $rank;
@@ -280,7 +287,7 @@ class ICSATeamRanker extends ICSARanker {
 
     $tiedGroups = array();
     foreach ($ranks as $i => $rank) {
-      $rank->explanation = "Number of races won when tied teams met";
+      $rank->explanation = sprintf("Number of races won when tied teams met (%d)", $matchesWon[$i]);
       if (!isset($tiedGroups[$matchesWon[$i]]))
         $tiedGroups[$matchesWon[$i]] = array();
       $tiedGroups[$matchesWon[$i]][] = $rank;
@@ -328,7 +335,7 @@ class ICSATeamRanker extends ICSARanker {
     $tiedGroups = array();
     foreach ($ranks as $i => $rank) {
       if ($pointsTotal[$i] > 0)
-        $rank->explanation = "Total points scored when tied teams met";
+        $rank->explanation = sprintf("Total points scored when tied teams met (%d)", $pointsTotal[$i]);
       if (!isset($tiedGroups[$pointsTotal[$i]]))
         $tiedGroups[$pointsTotal[$i]] = array();
       $tiedGroups[$pointsTotal[$i]][] = $rank;
@@ -341,7 +348,7 @@ class ICSATeamRanker extends ICSARanker {
             return strcmp((string)$a->team, (string)$b->team);
           });
         foreach ($group as $rank)
-          $rank->explanation = "Tie stands.";
+          $rank->explanation = "Tie stands";
       }
       $newGroups[] = $group;
     }

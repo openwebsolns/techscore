@@ -80,6 +80,7 @@ abstract class AbstractRoundPane extends AbstractPane {
       // Completion round: choose team from other round
       $first = 1;
       $has_finishes = false;
+      $ranker = $this->REGATTA->getRanker();
       foreach ($masters as $master) {
         $last = $first + $master->num_teams - 1;
         $round = $master->master;
@@ -88,15 +89,9 @@ abstract class AbstractRoundPane extends AbstractPane {
         $form->add(new XP(array(), sprintf("Place numbers %d-%d next to the teams to be included from this round.", $first, $last)));
 
         $form->add($ul = new XUl(array('class'=>'teams-list')));
-
-        $teams = array();
-        foreach ($round->getSeeds() as $seed) {
-          $teams[$seed->team->id] = $seed->team;
-        }
-
-        foreach ($this->REGATTA->getRankedTeams() as $team) {
-          if (!isset($teams[$team->id]))
-            continue;
+        $races = $this->REGATTA->getRacesInRound($round, Division::A());
+        foreach ($ranker->rank($this->REGATTA, $races) as $seed) {
+          $team = $seed->team;
 
           $id = 'team-' . $team->id;
           $order = "";
@@ -106,7 +101,7 @@ abstract class AbstractRoundPane extends AbstractPane {
                                        $ti = new XTextInput('order[]', $order, array('id'=>$id)),
                                        new XLabel($id, $team,
                                                   array('onclick'=>sprintf('addTeamToRound("%s");', $id))),
-                                       new XMessage(sprintf(" Rank: %2d, (%s-%s) %s", $team->dt_rank, $team->dt_wins, $team->dt_losses, $team->dt_explanation)))));
+                                       new XMessage(sprintf(" Rank: %2d, (%s) %s", $seed->rank, $seed->getRecord(), $seed->explanation)))));
 
           if ($this->teamHasScoresInRound($ROUND, $team)) {
             $li->add(new XMessage("*"));

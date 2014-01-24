@@ -123,7 +123,7 @@ class TeamRank extends Rank {
    * @param int $losses the number of losses
    * @param int $ties number of ties (default = 0)
    */
-  public function __construct(Team $team, $wins = 0, $losses = 0, $ties = 0) {
+  public function __construct(Team $team, $wins = 0, $losses = 0, $ties = 0, $exp = "") {
     parent::__construct($team, null);
     $this->team = $team;
     $this->wins = (int)$wins;
@@ -131,8 +131,7 @@ class TeamRank extends Rank {
     $this->ties = (int)$ties;
 
     // Preserve explanation, if one exists
-    if ($team->dt_explanation !== null)
-      $this->explanation = $team->dt_explanation;
+    $this->explanation = $exp;
   }
 
   public function getWinPercentage() {

@@ -53,7 +53,7 @@ class RankTeamsPane extends AbstractPane {
       }
 
       if (!isset($rows[$race->round->id])) {
-        $records[$race->round->id] = new TeamRank($team);
+        $records[$race->round->id] = new TeamRank($team, 0, 0, 0, $team->dt_explanation);
         $recTDs[$race->round->id] = new XTD(array('class'=>'rank-record'), "");
         $rows[$race->round->id] = new XTR(array(), array($recTDs[$race->round->id], new XTH(array(), $team)));
         $cells[$race->round->id] = array();

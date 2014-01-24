@@ -1812,13 +1812,25 @@ class FullRegatta extends DBObject {
   /**
    * Return the teams grouped by ordered rank groups
    *
-   * @param Rank_Group $group
+   * @param Array:Team $teams the optional list of teams to limit to
    * @return Array:Array:Team
    */
-  public function getTeamsInRankGroups() {
+  public function getTeamsInRankGroups(Array $teams = array()) {
     $groups = array();
     $ungrouped = array();
     foreach ($this->getTeams() as $team) {
+      if (count($teams) > 0) {
+        $in_list = false;
+        foreach ($teams as $t) {
+          if ($t->id == $team->id) {
+            $in_list = true;
+            break;
+          }
+        }
+        if (!$in_list)
+          continue;
+      }
+
       if ($team->rank_group === null)
         $ungrouped[] = $team;
       else {
