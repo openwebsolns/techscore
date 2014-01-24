@@ -115,9 +115,12 @@ class TeamEditRoundPane extends AbstractRoundPane {
       else {
         $slaves = $round->getSlaves();
         if (count($slaves) > 0) {
+          $list = array();
+          foreach ($slaves as $rel)
+            $list[] = $rel->slave;
           $p->add(new XP(array('class'=>'warning'),
                          array(new XStrong("Note:"),
-                               sprintf(" Races in this round are carried over to %s. Because of this, this round may not be deleted, as this would create incomplete round robins. To delete this round, you must first delete the dependent rounds above.", implode(", ", $slaves)))));
+                               sprintf(" Races in this round are carried over to %s. Because of this, this round may not be deleted, as this would create incomplete round robins. To delete this round, you must first delete the dependent rounds above.", implode(", ", $list)))));
         }
         else {
           $p->add(new XP(array('class'=>'warning'),
