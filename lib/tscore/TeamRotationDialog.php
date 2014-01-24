@@ -67,6 +67,7 @@ class TeamRotationDialog extends AbstractDialog {
     if ($next_race->number <= $flight * 3) // beginning of regatta
       return null;
 
+    $season = $this->REGATTA->getSeason();
     $tab = new XTable(array('class'=>'tr-rotation-table tr-current'),
                           array(new XTHead(array(),
                                            array(new XTR(array(),
@@ -191,6 +192,7 @@ class TeamRotationDialog extends AbstractDialog {
   public function getTable(Round $round, $link_schools = false) {
     $divisions = $this->REGATTA->getDivisions();
 
+    $season = $this->REGATTA->getSeason();
     $tab = new XTable(array('class'=>'tr-rotation-table'),
                       array(new XTHead(array(),
                                        array(new XTR(array(),
