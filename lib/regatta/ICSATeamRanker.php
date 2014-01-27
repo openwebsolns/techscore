@@ -42,6 +42,9 @@ class ICSATeamRanker extends ICSARanker {
     // Determine records for each team in given races
     $records = array();
     foreach ($races as $race) {
+      if ($race->tr_team1 === null || $race->tr_team2 === null)
+        continue;
+
       $teams[$race->tr_team1->id] = $race->tr_team1;
       $teams[$race->tr_team2->id] = $race->tr_team2;
 
