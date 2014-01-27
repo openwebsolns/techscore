@@ -1025,7 +1025,8 @@ class TeamRacesPane extends AbstractRoundPane {
 
   private function processCopyFinishes(Array $args, Array $rounds) {
     $other_rounds = array();
-    $map = DB::$V->incMap($args, array('copy_round', 'copy_order'), null, array(array(), array()));
+    $map = array('copy_round'=>array(), 'copy_order'=>array());
+    $map = DB::$V->incMap($args, array('copy_round', 'copy_order'), null, $map);
     array_multisort($map['copy_order'], SORT_NUMERIC, $map['copy_round']);
     foreach ($map['copy_round'] as $i => $id) {
       if ($map['copy_order'][$i] == 0)
