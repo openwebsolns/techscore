@@ -866,7 +866,7 @@ class FullRegatta extends DBObject {
    * @return Finish
    */
   public function createFinish(Race $race, Team $team) {
-    $id = sprintf('%s-%d', (string)$race, $team->id);
+    $id = sprintf('%s-%s', $race->id, $team->id);
     $fin = new Finish(null, $race, $team);
     $this->finishes[$id] = $fin;
     return $fin;
