@@ -61,6 +61,7 @@ class TeamRacesPane extends AbstractRoundPane {
     }
 
     $team_ids = Session::g('round_teams');
+    $finish_round_ids = Session::g('round_finishes');
     if ($ROUND !== null) {
       $MAX_STEP = 1;
       if ($ROUND->num_teams !== null) {
@@ -69,8 +70,12 @@ class TeamRacesPane extends AbstractRoundPane {
           $MAX_STEP = 3;
           if ($ROUND->rotation !== null) {
             $MAX_STEP = 4;
-            if ($team_ids !== null)
+            if ($team_ids !== null) {
               $MAX_STEP = 5;
+              if (count($rounds) == 0 || count($team_ids) < 2 || $finish_round_ids !== null) {
+                $MAX_STEP = 6;
+              }
+            }
           }
         }
       }
@@ -309,9 +314,53 @@ class TeamRacesPane extends AbstractRoundPane {
     }
 
     // ------------------------------------------------------------
-    // Step 5: Review
+    // Step 5: Copy finishes
     // ------------------------------------------------------------
     if ($STEP == 5) {
+      $this->PAGE->addContent($p = new XPort("Copy finishes (optional)"));
+      $p->add($form = $this->createForm());
+      if (count($rounds) == 0) {
+        $form->add(new XP(array('class'=>'warning'), "There are no rounds from which to copy races."));
+      }
+      elseif (count($team_ids) < 2) {
+        $form->add(new XP(array('class'=>'warning'), "At least two teams must be seeded in order to copy finishes."));
+      }
+      else {
+        $ids = Session::g('round_finishes');
+        if ($ids === null)
+          $ids = array();
+
+        $form->add(new XP(array(), "This optional step allows you to import finishes from previous races for matchups that appear in this round. This step will save you the work of re-entering scores for races already sailed. Note that this is not the same as carrying races from previous rounds."));
+        if (count($rounds) > 1) {
+          $form->add(new XP(array(), "Order the rounds below to determine which race's finishes to copy in case multiple races exist for the same matchup."));
+          $form->add($tab = new XQuickTable(array('class'=>'copy-finishes-table'), array("Order", "Round")));
+          foreach ($rounds as $round) {
+            $id = 'round-' . $round->id;
+            $order = "";
+            $num = array_search($round->id, $ids);
+            if ($num !== false)
+              $order = $num + 1;
+            $tab->addRow(array(new XTD(array(),
+                                       array(new XInput('number', 'copy_order[]', $order, array('min'=>0, 'max'=>count($rounds), 'step'=>1, 'size'=>3, 'id'=>$id)),
+                                             new XHiddenInput('copy_round[]', $round->id))),
+                               new XLabel($id, $round)));
+          }
+        }
+        else {
+          $round = $rounds[0];
+          $id = 'round-' . $round->id;
+          $form->add($fi = new FItem($round . ":", new XCheckboxInput('copy_round[]', $round->id, array('id'=>$id))));
+          $fi->add(new XLabel($id, "Copy races for matchups from this round."));
+          $fi->add(new XHiddenInput('copy_order[]', 1));
+        }
+      }
+      $form->add(new XSubmitP('create-finishes', "Next →"));
+    }
+
+    // ------------------------------------------------------------
+    // Step 6: Review
+    // ------------------------------------------------------------
+    if ($STEP == 6) {
       $this->PAGE->addContent($p = new XPort("Review"));
       $p->add($form = $this->createForm());
       $form->add(new XP(array(), "Verify that all the information is correct. Click \"Create\" to create the round, or use the progress bar above to go back to a different step."));
@@ -328,6 +377,15 @@ class TeamRacesPane extends AbstractRoundPane {
         $teams[] = $team;
       }
 
+      $copy_rounds = array();
+      $copy_ids = Session::g('round_finishes');
+      if ($copy_ids !== null) {
+        foreach ($rounds as $round) {
+          if (in_array($round->id, $copy_ids))
+            $copy_rounds[] = $round;
+        }
+      }
+
       $sails = $ROUND->rotation->assignSails($ROUND, $teams, $divisions, $ROUND->rotation_frequency);
       $tab = new XTable(array('class'=>'tr-rotation-table'),
                         array(new XTHead(array(),
@@ -337,14 +395,15 @@ class TeamRacesPane extends AbstractRoundPane {
                                                              new XTH(array('colspan'=>count($divisions)), "Sails"),
                                                              new XTH(array(), ""),
                                                              new XTH(array('colspan'=>count($divisions)), "Sails"),
-                                                             new XTH(array('colspan'=>2), "Team 2"))))),
+                                                             new XTH(array('colspan'=>2), "Team 2"),
+                                                             new XTH(array(), "Copy finishes?"))))),
                               $body = new XTBody()));
 
       $flight = $ROUND->num_boats / $group_size;
       for ($i = 0; $i < count($ROUND->race_order); $i++) {
         // spacer
         if ($flight > 0 && $i % $flight == 0) {
-          $body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => 8 + 2 * count($divisions)), sprintf("Flight %d", ($i / $flight + 1))))));
+          $body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => 9 + 2 * count($divisions)), sprintf("Flight %d", ($i / $flight + 1))))));
         }
 
         $pair = $ROUND->getRaceOrderPair($i);
@@ -386,6 +445,19 @@ class TeamRacesPane extends AbstractRoundPane {
 
         $row->add(new XTD(array('class'=>'team2'), $team2));
         $row->add(new XTD(array('class'=>'team2'), $burg2));
+
+        // copy finishes?
+        $copy = "";
+        if ($team1 instanceof Team && $team2 instanceof Team) {
+          foreach ($copy_rounds as $round) {
+            $races = $this->REGATTA->getRacesForMatchup($team1, $team2, $round, Division::A());
+            if (count($races) > 0) {
+              $copy = $round;
+              break;
+            }
+          }
+        }
+        $row->add(new XTD(array(), $copy));
       }
 
       $form->add($tab);
@@ -397,6 +469,10 @@ class TeamRacesPane extends AbstractRoundPane {
       $form->add(new XHiddenInput('num_boats', $ROUND->num_boats));
       $form->add(new XHiddenInput('rotation_frequency', $ROUND->rotation_frequency));
       $form->add(new XHiddenInput('boat', $ROUND->boat->id));
+      foreach ($copy_rounds as $i => $round) {
+        $form->add(new XHiddenInput('copy_order[]', $i + 1));
+        $form->add(new XHiddenInput('copy_round[]', $round->id));
+      }
       for ($i = 0; $i < count($ROUND->race_order); $i++) {
         $pair = $ROUND->getRaceOrderPair($i);
         $form->add(new XHiddenInput('team1[]', $pair[0]));
@@ -433,6 +509,7 @@ class TeamRacesPane extends AbstractRoundPane {
                    "Race Order",
                    "Sail # and Colors",
                    "Teams",
+                   "Finishes",
                    "Review");
     for ($i = 0; $i < $max + 1; $i++) {
       $prog->add($span = new XSpan(new XA($this->link('races', array('step' => $i)), $steps[$i])));
@@ -596,6 +673,15 @@ class TeamRacesPane extends AbstractRoundPane {
     }
 
     // ------------------------------------------------------------
+    // Step 5: Finishes
+    // ------------------------------------------------------------
+    if (isset($args['create-finishes'])) {
+      $list = $this->processCopyFinishes($args, $rounds);
+      Session::s('round_finishes', array_keys($list));
+      $this->redirect('races');
+    }
+
+    // ------------------------------------------------------------
     // Create round
     // ------------------------------------------------------------
     if (isset($args['create'])) {
@@ -618,6 +704,7 @@ class TeamRacesPane extends AbstractRoundPane {
         $seeds = $this->processSeeds($args, $round);
         $message = "Created new empty round.";
       }
+      $copy_finishes = $this->processCopyFinishes($args, $rounds);
 
       $teams = array();
       for ($i = 1; $i <= $round->num_teams; $i++) {
@@ -641,6 +728,8 @@ class TeamRacesPane extends AbstractRoundPane {
         $sails = $round->rotation->assignSails($round, $teams, $divisions, $round->rotation_frequency);
       $new_races = array();
       $new_sails = array();
+      $new_finishes = array();
+      $races_to_score = array();
       for ($i = 0; $i < count($round->race_order); $i++) {
         $racenum++;
         $pair = $round->getRaceOrderPair($i);
@@ -677,6 +766,25 @@ class TeamRacesPane extends AbstractRoundPane {
             $sail->team = $t2;
             $new_sails[] = $sail;
           }
+
+          // Any finishes
+          if ($t1 !== null && $t2 !== null) {
+            foreach ($copy_finishes as $copy_round) {
+              $races = $this->REGATTA->getRacesForMatchup($t1, $t2, $copy_round, $div);
+              if (count($races) > 0) {
+                $r = $races[0];
+                foreach ($this->REGATTA->getFinishes($r) as $finish) {
+                  $copy = clone($finish);
+                  $copy->id = null;
+                  $copy->race = $race;
+                  foreach ($finish->getModifiers() as $mod)
+                    $copy->addModifier($mod);
+                  $new_finishes[] = $copy;
+                }
+                $races_to_score[$race->number] = $race;
+              }
+            }
+          }
         }
       }
 
@@ -684,7 +792,12 @@ class TeamRacesPane extends AbstractRoundPane {
       foreach ($new_races as $race)
         DB::set($race, false);
       DB::insertAll($new_sails);
-      $message = "Created new round.";
+      if (count($races_to_score) > 0) {
+        $this->REGATTA->commitFinishes($new_finishes);
+        foreach ($races_to_score as $race)
+          $this->REGATTA->runScore($race);
+        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
+      }
 
       $this->REGATTA->setData(); // new races
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
@@ -692,6 +805,7 @@ class TeamRacesPane extends AbstractRoundPane {
       Session::d('round');
       Session::d('round_teams');
       Session::d('round_masters');
+      Session::d('round_finishes');
     }
 
     return array();
@@ -907,6 +1021,21 @@ class TeamRacesPane extends AbstractRoundPane {
 
     $round->race_order = $pairings;
     return array();
+  }
+
+  private function processCopyFinishes(Array $args, Array $rounds) {
+    $other_rounds = array();
+    $map = DB::$V->incMap($args, array('copy_round', 'copy_order'), null, array(array(), array()));
+    array_multisort($map['copy_order'], SORT_NUMERIC, $map['copy_round']);
+    foreach ($map['copy_round'] as $i => $id) {
+      if ($map['copy_order'][$i] == 0)
+        continue;
+
+      if (!isset($rounds[$id]))
+        throw new SoterException(sprintf("Invalid round from which to copy finishes: %s.", $id));
+      $other_rounds[$id] = $rounds[$id];
+    }
+    return $other_rounds;
   }
 
   private function calculateNextRaceNumber(Round $round) {
