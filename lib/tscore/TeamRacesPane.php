@@ -350,7 +350,7 @@ class TeamRacesPane extends AbstractRoundPane {
           $round = $rounds[0];
           $id = 'round-' . $round->id;
           $form->add($fi = new FItem($round . ":", new XCheckboxInput('copy_round[]', $round->id, array('id'=>$id))));
-          $fi->add(new XLabel($id, "Copy races for matchups from this round."));
+          $fi->add(new XLabel($id, "Copy scores from this round."));
           $fi->add(new XHiddenInput('copy_order[]', 1));
         }
       }
@@ -729,7 +729,6 @@ class TeamRacesPane extends AbstractRoundPane {
       $new_races = array();
       $new_sails = array();
       $new_finishes = array();
-      $races_to_score = array();
       for ($i = 0; $i < count($round->race_order); $i++) {
         $racenum++;
         $pair = $round->getRaceOrderPair($i);
@@ -781,7 +780,7 @@ class TeamRacesPane extends AbstractRoundPane {
                     $copy->addModifier($mod);
                   $new_finishes[] = $copy;
                 }
-                $races_to_score[$race->number] = $race;
+                break;
               }
             }
           }
@@ -792,10 +791,9 @@ class TeamRacesPane extends AbstractRoundPane {
       foreach ($new_races as $race)
         DB::set($race, false);
       DB::insertAll($new_sails);
-      if (count($races_to_score) > 0) {
+      if (count($new_finishes) > 0) {
         $this->REGATTA->commitFinishes($new_finishes);
-        foreach ($races_to_score as $race)
-          $this->REGATTA->runScore($race);
+        $this->REGATTA->doScore();
         UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
       }
 
