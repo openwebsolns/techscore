@@ -67,6 +67,10 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
                          new XTextInput('team2[]', $pair[1], array('size'=>2, 'min'=>1, 'max'=>$template->num_teams))));
     }
 
+    // Add template as dump
+    $form->add(new XP(array(), "Alternatively, you can dump the order directly into the space below."));
+    $form->add(new FItem("Dump template:", new XTextArea('race_order', ""), "One pairing per line, separated by whitespace"));
+
     if ($template->template === null) {
       $form->add($xp = new XP(array('class'=>'p-submit'),
                               array(new XA(WS::link('/race-order'), "← Cancel"), " ",
@@ -324,8 +328,27 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
       foreach ($template->master_teams as $num)
         $num_races -= ($num * ($num - 1)) / 2;
     }
-    $teams1 = DB::$V->reqList($args, 'team1', $num_races, "Invalid or incomplete list for \"Team A\".");
-    $teams2 = DB::$V->reqList($args, 'team2', $num_races, "Invalid or incomplete list for \"Team B\".");
+
+    $dump = DB::$V->incString($args, 'race_order', 3, 16000, null);
+    if ($dump !== null) {
+      $teams1 = array();
+      $teams2 = array();
+      foreach (explode("\r\n", $dump) as $i => $line) {
+        $line = preg_replace('/[^0-9]+/', ' ', trim($line));
+        if (strlen($line) == 0)
+          continue;
+
+        $tokens = explode(" ", $line);
+        if (count($tokens) != 2)
+          throw new SoterException(sprintf("Invalid team pairing in line %d.", $i));
+        $teams1[] = $tokens[0];
+        $teams2[] = $tokens[1];
+      }
+    }
+    else {
+      $teams1 = DB::$V->reqList($args, 'team1', $num_races, "Invalid or incomplete list for \"Team A\".");
+      $teams2 = DB::$V->reqList($args, 'team2', $num_races, "Invalid or incomplete list for \"Team B\".");
+    }
 
     // All handshakes must be accounted for
     $handshakes = array();
