@@ -538,7 +538,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
         Session::pa(new PA("Re-ranked teams.", PA::I));
       }
     }
-    return array();
+    $this->redirect('races');
   }
 
   /**
