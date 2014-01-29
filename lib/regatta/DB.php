@@ -1910,12 +1910,12 @@ class Round_Group extends DBObject {
 class Round extends DBObject {
   protected $regatta;
   public $title;
-  public $tiebreaker;
   public $relative_order;
 
   public $num_teams;
   public $num_boats;
   public $rotation_frequency;
+  protected $sailoff_for_round;
   protected $race_order;
   protected $rotation;
   protected $boat;
@@ -1928,6 +1928,8 @@ class Round extends DBObject {
   public function db_type($field) {
     if ($field == 'regatta')
       return DB::$REGATTA;
+    if ($field == 'sailoff_for_round')
+      return DB::$ROUND;
     if ($field == 'round_group')
       return DB::$ROUND_GROUP;
     if ($field == 'race_order')

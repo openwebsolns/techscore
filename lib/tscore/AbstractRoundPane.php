@@ -19,6 +19,7 @@ abstract class AbstractRoundPane extends AbstractPane {
 
   const SIMPLE = 'simple';
   const COPY = 'copy';
+  const SAILOFF = 'sailoff';
   const COMPLETION = 'completion';
 
   /**
@@ -30,6 +31,8 @@ abstract class AbstractRoundPane extends AbstractPane {
    * @param Array $seeds the optional map of team ID => seed #
    */
   protected function fillTeamsForm(XForm $form, Round $ROUND, Array $masters = null, Array $seeds = null) {
+    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/tr-sort-teams.js'));
+
     if ($masters === null)
       $masters = $ROUND->getMasters();
     if ($seeds === null) {
@@ -47,7 +50,18 @@ abstract class AbstractRoundPane extends AbstractPane {
       $form->add($ul = new XUl(array('id'=>'teams-list')));
       $has_finishes = false;
       $has_carries = false;
-      foreach ($this->REGATTA->getRankedTeams() as $team) {
+
+      $teams = array();
+      if ($ROUND->sailoff_for_round !== null) {
+        foreach ($ROUND->sailoff_for_round->getSeeds() as $seed) {
+          $teams[] = $seed->team;
+        }
+      }
+      else {
+        $teams = $this->REGATTA->getRankedTeams();
+      }
+
+      foreach ($teams as $team) {
         $id = 'team-'.$team->id;
         $order = "";
         if (isset($seeds[$team->id]))
@@ -400,8 +414,15 @@ abstract class AbstractRoundPane extends AbstractPane {
     }
     else {
       $all_teams = array();
-      foreach ($this->REGATTA->getTeams() as $team)
-        $all_teams[$team->id] = $team;
+      if ($round->sailoff_for_round !== null) {
+        foreach ($round->sailoff_for_round->getSeeds() as $seed) {
+          $all_teams[$seed->team->id] = $seed->team;
+        }
+      }
+      else {
+        foreach ($this->REGATTA->getTeams() as $team)
+          $all_teams[$team->id] = $team;
+      }
       
       $teams = array();
       foreach ($ids as $index => $id) {

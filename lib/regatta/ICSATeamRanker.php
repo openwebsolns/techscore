@@ -90,7 +90,7 @@ class ICSATeamRanker extends ICSARanker {
       }
 
       // "Tiebreaker" races do not factor into records
-      if ($race->round->tiebreaker !== null)
+      if ($race->round->sailoff_for_round !== null)
         continue;
 
       $myScore = 0;
