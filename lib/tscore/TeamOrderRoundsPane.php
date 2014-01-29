@@ -334,6 +334,8 @@ class TeamOrderRoundsPane extends AbstractRoundPane {
           if (!isset($edited[$other->id]))
             throw new SoterException(sprintf("Round \"%s\" must come after \"%s\" because it contains races carried over.", $round, $other));
         }
+        if ($round->sailoff_for_round !== null && !isset($edited[$round->sailoff_for_round->id]))
+          throw new SoterException(sprintf("Round \"%s\" must come after \"%s\" because it is a sailoff round.", $round, $round->sailoff_for_round));
 
         $round->relative_order = $roundnum++;
 
