@@ -227,6 +227,43 @@ class TeamOrderRoundsPane extends AbstractRoundPane {
         $round_index = $round_index % count($rounds);
       }
 
+      // Ensure proper numbering of other races
+      $other_rounds = array();
+      $do_add = false;
+      $rounds_copy = $affected_rounds;
+      foreach ($this->REGATTA->getRounds() as $round) {
+        if (!isset($rounds_copy[$round->id])) {
+          if ($do_add)
+            $other_rounds[] = $round;
+        }
+        else {
+          $do_add = true;
+          unset($rounds_copy[$round->id]);
+        }
+        if (count($rounds_copy) == 0)
+          break;
+      }
+
+      $others_changed = array();
+      foreach ($other_rounds as $round) {
+        $changed = false;
+        foreach ($this->REGATTA->getRacesInRound($round, Division::A()) as $race) {
+          foreach ($other_divisions as $div) {
+            $r = $this->REGATTA->getRace($div, $race->number);
+            if ($r->number != $race_num) {
+              $changed = true;
+              $r->number = $race_num;
+              $to_save[] = $r;
+            }
+            $race->number = $race_num;
+            $to_save[] = $race;
+          }
+          $race_num++;
+        }
+        if ($changed)
+          $others_changed[] = $round;
+      }
+
       // Save races
       foreach ($to_save as $race) {
         DB::set($race);
@@ -239,44 +276,9 @@ class TeamOrderRoundsPane extends AbstractRoundPane {
         DB::set($round);
       }
 
-      // Ensure proper numbering of other races
-      $other_rounds = array();
-      $do_add = false;
-      foreach ($this->REGATTA->getRounds() as $round) {
-        if (!isset($affected_rounds[$round->id])) {
-          if ($do_add)
-            $other_rounds[] = $round;
-        }
-        else {
-          $do_add = true;
-          unset($affected_rounds[$round->id]);
-        }
-        if (count($affected_rounds) == 0)
-          break;
-      }
-      $others_changed = array();
-      foreach ($other_rounds as $round) {
-        $changed = false;
-        foreach ($this->REGATTA->getRacesInRound($round, Division::A()) as $race) {
-          foreach ($other_divisions as $div) {
-            $r = $this->REGATTA->getRace($div, $race->number);
-            if ($r->number != $next_number) {
-              $changed = true;
-              $r->number = $next_number;
-              DB::set($r);
-            }
-            $race->number = $next_number;
-            DB::set($race);
-          }
-          $next_number++;
-        }
-        if ($changed)
-          $others_changed[] = $round;
-      }
-
       Session::pa(new PA("Created round group."));
       if (count($others_changed) > 0)
-        Session::pa(new PA(sprintf("Also re-numbered races for round(s) %s.", implode(", ", $other_changed)), PA::I));
+        Session::pa(new PA(sprintf("Also re-numbered races for round(s) %s.", implode(", ", $others_changed)), PA::I));
     }
 
     // ------------------------------------------------------------
