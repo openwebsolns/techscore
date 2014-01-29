@@ -202,6 +202,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
       // ------------------------------------------------------------
       // Teams
       // ------------------------------------------------------------
+      $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/tr-sort-teams.js'));
       $this->PAGE->addContent($p = new XPort("Teams (seeds)"));
       $p->add($form = $this->createForm());
       $this->fillTeamsForm($form, $round);
