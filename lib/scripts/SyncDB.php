@@ -141,7 +141,7 @@ class SyncDB extends AbstractScript {
 
     $role = ($proto instanceof Sailor) ? 'sailor' : 'coach';
     if (strlen($src) == 0) {
-      $this->errors[] = "No URL found for $role list.";
+      self::errln("No URL found for $role list.");
       return;
     }
 
