@@ -84,7 +84,7 @@ abstract class AbstractUserPane {
       $items[] = new XLi(new XA('/conf', "Global Conf"));
 
     $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
-                                  array(new XH4(DB::g(STN::APP_NAME)),
+                                  array(new XH4("Regattas"),
                                         new XUl(array(), $items))));
 
     // School setup
