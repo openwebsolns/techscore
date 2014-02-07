@@ -6,14 +6,15 @@
 var FINISH_INPUT = [];
 var FINISH_CHECK = [];
 var FINISH_OUTPUT = [];
+var POSSIBLE_VALUES = [];
 var SUBMIT_BUTTON = null;
 var EMPTY_VALUE = "";
 var EMPTY_CONTENT = null;
 var ERROR_CONTENT = null;
 
-function replaceCheckValue(oldValue, newValue) {
-    oldValue.parentNode.replaceChild(newValue, oldValue);
-    return newValue;
+function setCheckValue(i, newValue) {
+    FINISH_CHECK[i].parentNode.replaceChild(newValue, FINISH_CHECK[i]);
+    FINISH_CHECK[i] = newValue;
 }
 
 function validateSails() {
@@ -28,37 +29,41 @@ function validateSails() {
     for (i = 0; i < FINISH_OUTPUT.length; i++) {
         var value = FINISH_OUTPUT[i].value;
         if (value == EMPTY_VALUE) {
-            FINISH_CHECK[i] = replaceCheckValue(FINISH_CHECK[i], EMPTY_CONTENT.cloneNode());
+            setCheckValue(i, EMPTY_CONTENT.cloneNode());
             can_submit = false;
         }
         else {
             var checkContent = document.createTextNode(i + 1);
 
-            // Hide the value FINISH_INPUT
-            for (j = 0; j < FINISH_INPUT.length; j++) {
-                if (FINISH_INPUT[j].dataset.value == value) {
-                    FINISH_INPUT[j].style.visibility = "hidden";
-                    break;
+            // Does the value exist?
+            j = POSSIBLE_VALUES.indexOf(value);
+            if (j < 0) {
+                can_submit = false;
+                checkContent = ERROR_CONTENT.cloneNode();
+                checkContent.setAttribute("title", "Invalid value provided.");
+            }
+            else {
+                // Hide the value FINISH_INPUT
+                FINISH_INPUT[j].style.visibility = "hidden";
+
+                // Check against all previous others
+                for (j = 0; j < i; j++) {
+                    if (FINISH_OUTPUT[j].value == value) {
+                        can_submit = false;
+                        // Error: alert both!
+                        checkContent = ERROR_CONTENT.cloneNode();
+                        checkContent.setAttribute("title", "Error: duplicate of entry #" + (j + 1));
+
+                        var otherContent = ERROR_CONTENT.cloneNode();
+                        otherContent.setAttribute("title", "Error: duplicate of entry #" + (i + 1));
+                        
+                        setCheckValue(j, otherContent);
+                        break;
+                    }
                 }
             }
 
-            // Check against all previous others
-            for (j = 0; j < i; j++) {
-                if (FINISH_OUTPUT[j].value == value) {
-                    can_submit = false;
-                    // Error: alert both!
-                    checkContent = ERROR_CONTENT.cloneNode();
-                    checkContent.setAttribute("title", "Error: duplicate of entry #" + (j + 1));
-
-                    var otherContent = ERROR_CONTENT.cloneNode();
-                    otherContent.setAttribute("title", "Error: duplicate of entry #" + (i + 1));
-                    
-                    FINISH_CHECK[j] = replaceCheckValue(FINISH_CHECK[j], otherContent);
-                    break;
-                }
-            }
-
-            FINISH_CHECK[i] = replaceCheckValue(FINISH_CHECK[i], checkContent);
+            setCheckValue(i, checkContent);
         }
     }
 
@@ -106,6 +111,7 @@ window.addEventListener('load', function(e) {
         s[i].style.cursor = "pointer";
         s[i].onclick = cf(s[i]);
         FINISH_INPUT.push(s[i]);
+        POSSIBLE_VALUES.push(s[i].dataset.value);
     }
     s = table.querySelectorAll(".finish_check");
     for (i = 0; i < s.length; i++) {
