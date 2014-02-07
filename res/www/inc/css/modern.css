@@ -372,7 +372,7 @@ label { cursor: pointer; padding: 0 0.25em; }
 #teams-list label, .teams-list label {
     padding-left:1em;
 }
-.pos_sail:hover, .pos_team:hover {background:#3465a4;color:white;}
+
 tr.disabled {background:#ddd;color:#555;}
 .inline-list {list-style-type:none;display:inline-block;zoom:1;*display:inline;margin:0;padding:0;}
 
@@ -1226,4 +1226,14 @@ td.tr-sail {
 }
 .team2 {
     text-align: left;
+}
+
+.finish_check {
+    font-weight: bold;
+    color: #87c552;
+    font-size: 100%;
+}
+.finish_input:hover {
+    background:#3465a4;
+    color:white;
 }

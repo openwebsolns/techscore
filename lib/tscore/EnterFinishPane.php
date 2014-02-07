@@ -108,7 +108,6 @@ class EnterFinishPane extends AbstractPane {
     $p->add($form = $this->createForm());
     $form->set("id", "finish_form");
 
-    $form->add(new XHiddenInput("race", $race));
     $finishes = ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ?
       $this->REGATTA->getFinishes($race) :
       $this->REGATTA->getCombinedFinishes($race);
@@ -134,23 +133,23 @@ class EnterFinishPane extends AbstractPane {
           $current_sail = $rotation->getSail($finishes[$i]->race, $finishes[$i]->team);
           $current_pen = $finishes[$i]->getModifier();
         }
-        $tab->addRow(array(new XTD(array('name'=>'pos_sail', 'class'=>'pos_sail'), $aPS),
-                           new XImg("/inc/img/question.png", "Waiting for input", array("id"=>"check" . $i)),
-                           new XTextInput("p" . $i, $current_sail,
-                                          array("id"=>"sail" . $i,
-                                                "tabindex"=>($i+1),
-                                                "onkeyup"=>"checkSails()",
-                                                "class"=>"small",
-                                                "size"=>"2")),
+        $tab->addRow(array(new XTD(array('class'=>'finish_input', 'data-value'=>$aPS), $aPS),
+                           new XTD(array('class'=>'finish_check')),
+                           new XTextInput('p' . $i, $current_sail,
+                                          array('id'=> 'sail' . $i,
+                                                'tabindex' => ($i+1),
+                                                'class'=>'small finish_output',
+                                                'size'=>'2')),
                            XSelect::fromArray('m' . $i, $this->pen_opts, $current_pen)));
       }
 
       // Submit buttom
-      $form->add($xp = new XSubmitP("f_places",
+      $form->add($xp = new XSubmitP('f_places',
                                     sprintf("Enter finish for race %s", $race),
                                     array("id"=>"submitfinish", "tabindex"=>($i+1))));
       $xp->add(" ");
       $xp->add(new XA($this->link('finishes'), "Cancel"));
+      $xp->add(new XHiddenInput('race', $race));
       $this->fillRaceObservation($form, $race);
     }
     else {
@@ -166,6 +165,7 @@ class EnterFinishPane extends AbstractPane {
                                     array('id'=>'submitfinish', 'tabindex'=>($i+1))));
       $xp->add(" ");
       $xp->add(new XA($this->link('finishes'), "Cancel"));
+      $xp->add(new XHiddenInput('race', $race));
       $this->fillRaceObservation($form, $race);
     }
 
@@ -321,13 +321,13 @@ class EnterFinishPane extends AbstractPane {
   private function fillFinishesTable(XQuickTable $tab, Race $race, $finishes) {
     $teams = $this->REGATTA->getRaceTeams($race);
     $team_opts = array("" => "");
-    $attrs = array("name"=>"pos_team", "class"=>"pos_sail left", "id"=>"pos_team");
+    $attrs = array('class'=>'finish_input left');
     if ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) {
       $t = $r = array();
       $this->fillTeamOpts($team_opts, $t, $r, $teams, $race);
 
       foreach ($teams as $i => $team) {
-        $attrs['value'] = $team->id;
+        $attrs['data-value'] = $team->id;
 
         $current_team = "";
         $current_pen = null;
@@ -336,12 +336,12 @@ class EnterFinishPane extends AbstractPane {
           $current_pen = $finishes[$i]->getModifier();
         }
         $tab->addRow(array(new XTD($attrs, $team_opts[$team->id]),
-                           new XImg("/inc/img/question.png", "Waiting for input", array("id"=>"check" . $i)),
-                           $sel = XSelect::fromArray("p" . $i, $team_opts, $current_team),
+                           new XTD(array('class'=>'finish_check')),
+                           $sel = XSelect::fromArray('p' . $i, $team_opts, $current_team),
                            XSelect::fromArray('m' . $i, $this->pen_opts, $current_pen)));
         $sel->set('id', "team$i");
         $sel->set('tabindex', $i + 1);
-        $sel->set('onchange', 'checkTeams()');
+        $sel->set('class', 'finish_output');
       }
       return $i;
     }
@@ -371,7 +371,6 @@ class EnterFinishPane extends AbstractPane {
                              XSelect::fromArray('m' . $i, $this->pen_opts, $current_pen)));
           $sel->set('id', "team$i");
           $sel->set('tabindex', $i + 1);
-          $sel->set('onchange', 'checkTeams()');
           $i++;
         }
       }

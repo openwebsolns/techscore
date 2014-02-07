@@ -479,3 +479,9 @@ p.warning {padding: 0.5em;}
 #teams-list label {
     padding-left:1em;
 }
+
+.finish_check {
+    font-weight: bold;
+    color: #87c552;
+    font-size: 100%;
+}
