@@ -32,7 +32,7 @@ class NewRegattaPane extends AbstractUserPane {
     return array('name' => '',
                  'private' => null,
                  'start_date' => $day->format('m/d/Y'),
-                 'start_time'  =>  '10:00',
+                 'start_time'  => DB::g(STN::DEFAULT_START_TIME),
                  'duration' => 2,
                  'venue' => '',
                  'scoring' => Regatta::SCORING_STANDARD,

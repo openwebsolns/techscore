@@ -3396,6 +3396,8 @@ class STN extends DBObject {
   const MAIL_APPROVED_USER = 'mail_approved_user';
   const MAIL_UNFINALIZED_REMINDER = 'mail_unfinalized_reminder';
 
+  const DEFAULT_START_TIME = 'default_start_time';
+
   public $value;
   public function db_name() { return 'setting'; }
   protected function db_cache() { return true; }
@@ -3429,6 +3431,9 @@ class STN extends DBObject {
 
     case self::CONFERENCE_SHORT:
       return "Conf.";
+
+    case self::DEFAULT_START_TIME:
+      return "10:00";
 
     default:
       return null;

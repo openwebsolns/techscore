@@ -39,6 +39,8 @@ class OrganizationConfiguration extends AbstractAdminUserPane {
     $f->add($fi = new FItem("Team URL:", new XInput('url', STN::ORG_TEAMS_URL, DB::g(STN::ORG_TEAMS_URL))));
     $fi->add(new XMessage("Full URL (with protocol) to list of teams. Optional."));
 
+    $f->add(new FItem("Default regatta start time:", new XInput('time', STN::DEFAULT_START_TIME, DB::g(STN::DEFAULT_START_TIME))));
+
     $f->add(new XSubmitP('set-params', "Save changes"));
 
     $this->PAGE->addContent($p = new XPort("RP Form Templates"));
@@ -83,6 +85,16 @@ class OrganizationConfiguration extends AbstractAdminUserPane {
       if ($val != DB::g(STN::ORG_TEAMS_URL)) {
         $changed = true;
         DB::s(STN::ORG_TEAMS_URL, $val);
+      }
+
+      $val = null;
+      if (!empty($args[STN::DEFAULT_START_TIME])) {
+        $val = DB::$V->reqDate($args, STN::DEFAULT_START_TIME, null, null, "Invalid time format.");
+        $val = $val->format('H:i');
+      }
+      if ($val != DB::g(STN::DEFAULT_START_TIME)) {
+        $changed = true;
+        DB::s(STN::DEFAULT_START_TIME, $val);
       }
 
       if (!$changed)
