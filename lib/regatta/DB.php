@@ -3361,6 +3361,7 @@ class STN extends DBObject {
   const CONFERENCE_TITLE = 'conference_title';
   const CONFERENCE_SHORT = 'conference_short';
   const ALLOW_CROSS_RP = 'allow_cross_rp';
+  const PDFLATEX_SOCKET = 'pdflatex_socket';
 
   const RP_SINGLEHANDED = 'rp-singlehanded';
   const RP_1_DIVISION = 'rp-1-division';

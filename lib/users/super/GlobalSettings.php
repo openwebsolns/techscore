@@ -58,6 +58,8 @@ class GlobalSettings extends AbstractSuperUserPane {
     if (DB::g(STN::ALLOW_CROSS_RP) !== null)
       $chk->set('checked', 'checked');
 
+    $f->add(new FItem("PDF Socket:", new XTextInput(STN::PDFLATEX_SOCKET, DB::g(STN::PDFLATEX_SOCKET)), "Full path, or leave blank to use \"exec\" function."));
+
     $f->add(new XSubmitP('set-params', "Save changes"));
   }
 
@@ -128,6 +130,12 @@ class GlobalSettings extends AbstractSuperUserPane {
       if ($val != DB::g(STN::ALLOW_CROSS_RP)) {
         $changed = true;
         DB::s(STN::ALLOW_CROSS_RP, $val);
+      }
+
+      $val = DB::$V->incString($args, STN::PDFLATEX_SOCKET, 1, 101);
+      if ($val != DB::g(STN::PDFLATEX_SOCKET)) {
+        $changed = true;
+        DB::s(STN::PDFLATEX_SOCKET, $val);
       }
 
       if (!$changed)

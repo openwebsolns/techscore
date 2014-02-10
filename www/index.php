@@ -220,9 +220,11 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
           WS::go('/score/'.$REG->id);
         }
 
-        $path = $form->makePdf($REG);
-        $data = file_get_contents($path);
-        unlink($path);
+        $sock = DB::g(STN::PDFLATEX_SOCKET);
+        if ($sock === null)
+          $data = $form->makePdf($REG);
+        else
+          $data = $form->socketPdf($REG, $sock);
         $rp->setForm($data);
       }
 

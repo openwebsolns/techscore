@@ -51,19 +51,7 @@ abstract class AbstractRpBlockForm extends AbstractRpForm {
   protected $blocks = array();
 
   public function makePdf(FullRegatta $reg, $basename = 'ts2') {
-    $this->blocks = array();
-
-    $host = array();
-    foreach ($reg->getHosts() as $school)
-      $host[$school->id] = $school->nick_name;
-    $host = implode("/", $host);
-
-    $this->fillBlocks($reg);
-
-    $body = sprintf("%s %s %s", 
-                    str_replace('#', '\#', $this->HEAD), 
-                    str_replace('#', '\#', $this->draw($reg->name, $host, $reg->start_time->format('Y-m-d'), $this->blocks)), 
-                    str_replace('#', '\#', $this->TAIL));
+    $body = $this->getLatexCode($reg);
 
     // generate PDF
     $tmp = sys_get_temp_dir();
@@ -80,9 +68,70 @@ abstract class AbstractRpBlockForm extends AbstractRpForm {
     }
 
     // clean up (including base created by tempnam call (last in list)
-    foreach (array('.aux', '.log', '') as $suffix)
+    $data = file_get_contents($filename . '.pdf');
+    foreach (array('.aux', '.log', '.pdf', '') as $suffix)
       unlink(sprintf('%s%s', $filename, $suffix));
-    return sprintf('%s.pdf', $filename);
+    return $data;
+  }
+
+  /**
+   * Generates PDF by attempting to connect to socket in $USE_SOCKET.
+   *
+   * @return mixed the binary PDF data
+   * @throws InvalidArgumentException if unable to generate PDF
+   */
+  public function socketPDF(FullRegatta $reg, $socket) {
+    if (($s = socket_create(AF_UNIX, SOCK_STREAM, 0)) === false)
+      throw new InvalidArgumentException("Unable to create socket connection.");
+    if (socket_connect($s, $socket) === false) {
+      socket_close($s);
+      throw new InvalidArgumentException("Unable to connect to socket at " . $socket);
+    }
+    $mess = $this->getLatexCode($reg);
+    $full = sprintf('%08d%s', strlen($mess), $mess);
+    if (socket_send($s, $full, strlen($full), 0) === false) {
+      socket_close($s);
+      throw new InvalidArgumentException("Unable to send data to socket at " . $socket);
+    }
+    $mess = ""; // clear the message
+
+    // Get back the PDF binary data
+    $size = "";
+    if (socket_recv($s, $size, 8, 0) === false) {
+      socket_close($s);
+      throw new InvalidArgumentException("Unable to read data to socket at " . $socket);
+    }
+    $size = (int)$size;
+    if ($size > 0) {
+      $pack = "";
+      while (strlen($mess) < $size) {
+        if (socket_recv($s, $pack, 1024, 0) === false)
+          break;
+        $mess .= $pack;
+      }
+    }
+    socket_close($s);
+    if (is_numeric($mess))
+      throw new InvalidArgumentException("Error while generating PDF: $mess");
+    return $mess;
+  }
+  
+  protected function getLatexCode(FullRegatta $reg) {
+    $this->blocks = array();
+
+    $host = array();
+    foreach ($reg->getHosts() as $school)
+      $host[$school->id] = $school->nick_name;
+    $host = implode("/", $host);
+
+    $this->fillBlocks($reg);
+
+    $body = sprintf("%s %s %s", 
+                    str_replace('#', '\#', $this->HEAD), 
+                    str_replace('#', '\#', $this->draw($reg->name, $host, $reg->start_time->format('Y-m-d'), $this->blocks)), 
+                    str_replace('#', '\#', $this->TAIL));
+
+    return $body;
   }
 
   protected function fillBlocks(FullRegatta $reg) {
