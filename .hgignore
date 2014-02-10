@@ -42,3 +42,8 @@ lib/rpwriter/
 syntax: regexp
 
 ^html/.*
+
+# PDFLaTeX socket
+src/pdflatexd/params.py
+src/pdflatexd/*.pyc
+src/pdflatexd/pdflatex_server.pid
