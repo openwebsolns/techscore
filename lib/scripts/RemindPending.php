@@ -53,23 +53,25 @@ class RemindPending extends AbstractScript {
     $threshold = new DateTime('2 days ago');
     foreach ($season->getRegattas() as $reg) {
       $notify = 0;
-      if ($reg->end_date < $threshold && $reg->hasFinishes() && $reg->finalized === null)
-        $notify |= self::PENDING;
-      if (!$reg->isRpComplete())
-        $notify |= self::MISSING_RP;
+      if ($reg->end_date < $threshold) {
+        if ($reg->hasFinishes() && $reg->finalized === null)
+          $notify |= self::PENDING;
+        if (!$reg->isRpComplete())
+          $notify |= self::MISSING_RP;
 
-      if ($notify > 0) {
-        // Notify every account affiliated with the given school
-        foreach ($reg->getHosts() as $host) {
-          if (!isset($schools[$host->id]))
-            $schools[$host->id] = $host->getUsers(Account::STAT_ACTIVE);
-          foreach ($schools[$host->id] as $acc) {
-            if (!isset($users[$acc->id])) {
-              $users[$acc->id] = $acc;
-              $regattas[$acc->id] = array();
+        if ($notify > 0) {
+          // Notify every account affiliated with the given school
+          foreach ($reg->getHosts() as $host) {
+            if (!isset($schools[$host->id]))
+              $schools[$host->id] = $host->getUsers(Account::STAT_ACTIVE);
+            foreach ($schools[$host->id] as $acc) {
+              if (!isset($users[$acc->id])) {
+                $users[$acc->id] = $acc;
+                $regattas[$acc->id] = array();
+              }
+              $regattas[$acc->id][] = $reg;
+              $missing[$reg->id] = $notify;
             }
-            $regattas[$acc->id][] = $reg;
-            $missing[$reg->id] = $notify;
           }
         }
       }
