@@ -197,6 +197,7 @@ class TeamRotationDialog extends AbstractDialog {
                       array(new XTHead(array(),
                                        array(new XTR(array(),
                                                      array(new XTH(array(), "#"),
+                                                           new XTH(array(), "Boat"),
                                                            new XTH(array('colspan'=>2), "Team 1"),
                                                            new XTH(array('colspan'=>count($divisions)), "Sails"),
                                                            new XTH(array(), ""),
@@ -244,12 +245,12 @@ class TeamRotationDialog extends AbstractDialog {
       if ($flightsize !== null) {
         if ($i % $flightsize == 0) {
           $flight++;
-          $body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => 8 + 2 * count($divisions)), sprintf("Flight %d in %s", $flight, $round->boat)))));
+          $body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => 9 + 2 * count($divisions)), sprintf("Flight %d", $flight)))));
         }
       }
       elseif ($prevround != $round) {
         $flight++;
-        $body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => 8 + 2 * count($divisions)), sprintf("Flight %d in %s", $flight, $round->boat)))));
+        $body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => 9 + 2 * count($divisions)), sprintf("Flight %d", $flight)))));
         $prevround = $round;
       }
 
@@ -280,6 +281,7 @@ class TeamRotationDialog extends AbstractDialog {
       }
 
       $body->add($row = new XTR($rowattrs, array(new XTD(array(), $race->number),
+                                                 new XTD(array('class'=>'boat'), $race->boat),
                                                  new XTD(array('class'=>'team1'), $burg1),
                                                  new XTD(array('class'=>'team1'), $team1))));
       // first team
