@@ -106,6 +106,18 @@ class LoginPage extends AbstractUserPane {
     // If "remember", then destroy session and create a new,
     // long-lasting one
     if ($remember !== null) {
+      // How many active sessions exist, and how many allowed
+      $limit = DB::g(STN::LONG_SESSION_LIMIT);
+      if ($limit !== null) {
+        $other = TSSessionHandler::getLongTermActive($user);
+        $count = count($other);
+        $removed = 0;
+        for ($i = $count - 1; $i >= $limit - 1; $i--) {
+          DB::remove($other[$i]);
+          $removed++;
+        }
+      }      
+
       session_regenerate_id(true);
       $id = session_id();
       session_destroy();
@@ -113,6 +125,8 @@ class LoginPage extends AbstractUserPane {
       session_set_cookie_params(345600, WS::link('/'), Conf::$HOME, true, true);
       session_start();
       TSSessionHandler::setLifetime(864000);
+      if ($removed > 0)
+        Session::pa(new PA(sprintf("Removed %d other long-term session(s) for security reasons.", $removed), PA::I));
     }
     Session::s('user', $user->id);
 

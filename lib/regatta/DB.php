@@ -3362,6 +3362,7 @@ class STN extends DBObject {
   const CONFERENCE_SHORT = 'conference_short';
   const ALLOW_CROSS_RP = 'allow_cross_rp';
   const PDFLATEX_SOCKET = 'pdflatex_socket';
+  const LONG_SESSION_LIMIT = 'long_session_limit';
 
   const RP_SINGLEHANDED = 'rp-singlehanded';
   const RP_1_DIVISION = 'rp-1-division';
@@ -3435,6 +3436,9 @@ class STN extends DBObject {
 
     case self::DEFAULT_START_TIME:
       return "10:00";
+
+    case self::LONG_SESSION_LIMIT:
+      return 3;
 
     default:
       return null;
