@@ -134,5 +134,19 @@ class TSSessionHandler {
                                                         new DBCond('last_modified', new DateTime(sprintf('%d seconds ago', self::IDLE_TIME)), DBCond::GT)))),
                                  DBBool::mOR));
   }
+
+  /**
+   * Returns all non-expired long-term sessions for given user
+   *
+   * @param Account $user optional user
+   */
+  public static function getLongTermActive(Account $user = null) {
+    $cond = new DBCond('expires', DB::$NOW, DBCond::GT);
+    if ($user !== null) {
+      $term = sprintf('%%"user";s:%d:"%s"%%', mb_strlen($user->id), $user->id);
+      $cond = new DBBool(array(new DBCond('sessiondata', $term, DBCond::LIKE), $cond));
+    }
+    return DB::getAll(DB::$WEBSESSION, $cond);
+  }
 }
 ?>
