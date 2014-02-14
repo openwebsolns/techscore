@@ -126,6 +126,8 @@ class EditLogoPane extends AbstractPrefsPane {
       // they can be regenerated!
       require_once('public/UpdateManager.php');
       if ($this->SCHOOL->burgee === null) {
+        UpdateManager::queueSchool($this->SCHOOL, UpdateSchoolRequest::ACTIVITY_DETAILS);
+
         $affected = 0;
         foreach ($this->SCHOOL->getRegattas() as $reg) {
           UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_DETAILS);
@@ -151,6 +153,8 @@ class EditLogoPane extends AbstractPrefsPane {
 
       // If a burgee exists, then update all existing regattas as well
       if ($this->SCHOOL->burgee !== null) {
+        UpdateManager::queueSchool($this->SCHOOL, UpdateSchoolRequest::ACTIVITY_DETAILS);
+
         $affected = 0;
         foreach ($this->SCHOOL->getRegattas() as $reg) {
           UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_DETAILS);

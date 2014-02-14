@@ -110,10 +110,12 @@ class UpdateSchoolRequest extends AbstractUpdate {
 
   const ACTIVITY_BURGEE = 'burgee';
   const ACTIVITY_SEASON = 'season';
+  const ACTIVITY_DETAILS = 'details';
 
   public static function getTypes() {
     return array(self::ACTIVITY_BURGEE => self::ACTIVITY_BURGEE,
-		 self::ACTIVITY_SEASON => self::ACTIVITY_SEASON);
+                 self::ACTIVITY_DETAILS => self::ACTIVITY_DETAILS,
+                 self::ACTIVITY_SEASON => self::ACTIVITY_SEASON);
   }
 
   public function hash() {

@@ -330,12 +330,12 @@ class Daemon extends AbstractScript {
         $requests[] = $r;
         if ($r->activity == UpdateSchoolRequest::ACTIVITY_BURGEE)
           $burgees[$r->school->id] = $r->school;
-        else { // season summary
+        else { // season summary, or details
           $schools[$r->school->id] = $r->school;
           if (!isset($seasons[$r->school->id]))
             $seasons[$r->school->id] = array();
           
-          // special case: season value is null: do all
+          // season value is null: do all (such as for ACTIVITY_DETAILS)
           if ($r->season !== null)
             $seasons[$r->school->id][(string)$r->season] = $r->season;
           else {

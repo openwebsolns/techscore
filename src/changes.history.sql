@@ -719,3 +719,6 @@ update round set tiebreaker = null;
 
 -- track the round for which a round is a sailoff, and deprecate (unused) tiebreaker
 alter table round drop column tiebreaker, add column sailoff_for_round int default null, add foreign key (sailoff_for_round) references round(id) on delete cascade on update cascade;
+
+-- add 'details' as possible activity for school updates
+alter table pub_update_school change column activity activity enum('burgee', 'season', 'details') not null default 'burgee';
