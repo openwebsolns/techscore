@@ -524,9 +524,9 @@ class TeamRacesPane extends AbstractRoundPane {
       $rotation = $ROUND->rotation;
       $num_divs = count($divisions);
       if ($rotation != null) {
-        foreach ($rotation->sails as $i => $sail) {
-          $form->add(new XHiddenInput('sails[]', $sail));
-          $form->add(new XHiddenInput('colors[]', $rotation->colors[$i]));
+        for ($i = 0; $i < $rotation->count(); $i++) {
+          $form->add(new XHiddenInput('sails[]', $rotation->sailAt($i)));
+          $form->add(new XHiddenInput('colors[]', $rotation->colorAt($i)));
         }
       }
       foreach ($teams as $i => $team) {

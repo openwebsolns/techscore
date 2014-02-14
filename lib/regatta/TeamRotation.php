@@ -66,6 +66,21 @@ class TeamRotation {
   }
 
   /**
+   * Shelter client code from discrepancies in internal representation
+   *
+   */
+  public function sailAt($i) {
+    if (isset($this->sails[$i]))
+      return $this->sails[$i];
+    return null;
+  }
+  public function colorAt($i) {
+    if (isset($this->colors[$i]))
+      return $this->colors[$i];
+    return null;
+  }
+
+  /**
    * Creates and returns sail #/color assignment for given frequency
    *
    * @param Round $round the round whose race_order to use

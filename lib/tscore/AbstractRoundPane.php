@@ -210,6 +210,7 @@ abstract class AbstractRoundPane extends AbstractPane {
         $rotation->colors = $c;
       }
 
+      $boatOptions = DB::getBoats();
       $form->add(new XP(array(), array("The flight size for this rotation is ", new XStrong($flight / $group_size), " races.")));
 
       $form->add(new XTable(array('class'=>'tr-rotation-sails'),
@@ -229,8 +230,8 @@ abstract class AbstractRoundPane extends AbstractPane {
         for ($teamIndex = 0; $teamIndex < 2; $teamIndex++) {
           $row->add(new XTD(array(), new XTable(array('class'=>'sail-list'), array($tab = new XTBody()))));
           for ($i = 0; $i < $num_divs; $i++) {
-            $sail = $rotation->sails[$sailIndex];
-            $color = $rotation->colors[$sailIndex];
+            $sail = $rotation->sailAt($sailIndex);
+            $color = $rotation->colorAt($sailIndex);
 
             $tab->add(new XTR(array(),
                               array(new XTD(array(), new XTextInput('sails[]', $sail, array('size'=>5, 'tabindex'=>($sailIndex + 1)))),
@@ -273,8 +274,8 @@ abstract class AbstractRoundPane extends AbstractPane {
         if ($i % $num_divs == 0)
           $row[] = new XTH(array('rowspan'=>$num_divs), sprintf("Team %d", floor($i / $num_divs)));
 
-        $sail = $rotation->sails[$i];
-        $color = $rotation->colors[$i];
+        $sail = $rotation->sailAt($i);
+        $color = $rotation->colorAt($i);
 
         $sel = new XSelect('colors[]', array('class'=>'color-chooser', 'tabindex'=>($i + 1 + $rotation->count())));
         $row[] = new XTextInput('sails[]', $sail, array('size'=>5, 'tabindex'=>($i + 1)));
