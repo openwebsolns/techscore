@@ -62,6 +62,8 @@ class Daemon extends AbstractScript {
 
   private static $lock_files = array(); // full path, used below
 
+  public static $MAX_REQUESTS_PER_CYCLE = 50;
+
   // ------------------------------------------------------------
   // Public pages that need to be updated, after parsing through all
   // the update requests
@@ -238,7 +240,7 @@ class Daemon extends AbstractScript {
       require_once('scripts/UpdateFile.php');
       $P = new UpdateFile();
       foreach ($pending as $i => $r) {
-        if ($i >= 200)
+        if ($i >= self::$MAX_REQUESTS_PER_CYCLE)
           break;
 
         $requests[] = $r;
@@ -324,7 +326,7 @@ class Daemon extends AbstractScript {
       $seasons = array(); // map of seasons to update indexed by school
 
       foreach ($pending as $i => $r) {
-        if ($i >= 200)
+        if ($i >= self::$MAX_REQUESTS_PER_CYCLE)
           break;
 
         $requests[] = $r;
@@ -444,7 +446,7 @@ class Daemon extends AbstractScript {
       $general404 = false;
       $school404 = false;
       foreach ($pending as $i => $r) {
-        if ($i >= 200)
+        if ($i >= self::$MAX_REQUESTS_PER_CYCLE)
           break;
 
         $requests[] = $r;
@@ -581,7 +583,7 @@ class Daemon extends AbstractScript {
       // Loop through the regatta requests
       // ------------------------------------------------------------
       foreach ($pending as $i => $r) {
-        if ($i >= 200)
+        if ($i >= 50)
           break;
 
         $requests[] = $r;
@@ -630,7 +632,7 @@ class Daemon extends AbstractScript {
           foreach ($reg->getTeams() as $team)
             $this->queueSchoolSeason($team->school, $season);
           if ($reg->nick !== null) {
-            $root = $reg->getURL();
+            $root = sprintf('/%s/%s', $season->id, $reg->nick);
             $to_delete[$root] = $root;
           }
           continue;
