@@ -241,22 +241,22 @@ class ReportMaker {
 
       $covered = array();
       foreach ($this->regatta->getRounds() as $round) {
-	if (!isset($covered[$round->id])) {
-	  $covered[$round->id] = $round;
-	  $label = (string)$round;
-	  if ($round->round_group !== null) {
-	    foreach ($round->round_group->getRounds() as $i => $other) {
-	      if ($i > 0) {
-		$label .= ", " . $other;
-		$covered[$other->id] = $other;
-	      }
-	    }
-	  }
+        if (!isset($covered[$round->id])) {
+          $covered[$round->id] = $round;
+          $label = (string)$round;
+          if ($round->round_group !== null) {
+            foreach ($round->round_group->getRounds() as $i => $other) {
+              if ($i > 0) {
+                $label .= ", " . $other;
+                $covered[$other->id] = $other;
+              }
+            }
+          }
 
-	  $this->rotPage->addSection($p = new XPort($label));
-	  foreach ($maker->getTable($round, true) as $tab)
-	    $p->add($tab);
-	}
+          $this->rotPage->addSection($p = new XPort($label));
+          foreach ($maker->getTable($round, true) as $tab)
+            $p->add($tab);
+        }
       }
     }
     else {
