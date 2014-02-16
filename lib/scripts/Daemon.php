@@ -257,7 +257,7 @@ class Daemon extends AbstractScript {
           $P->run($r->file);
         }
         catch (TSWriterException $e) {
-          self::errln("Error while writing: " . $e->getMessage());
+          self::errln("Error while writing: " . $e->getMessage(), 0);
           sleep(3);
           continue;
         }
@@ -376,7 +376,7 @@ class Daemon extends AbstractScript {
         $P->run();
       }
       catch (TSWriterException $e) {
-        self::errln("Error while writing: " . $e->getMessage());
+        self::errln("Error while writing: " . $e->getMessage(), 0);
         sleep(3);
         continue;
       }
@@ -496,7 +496,7 @@ class Daemon extends AbstractScript {
         }
       }
       catch (TSWriterException $e) {
-        self::errln("Error while writing: " . $e->getMessage());
+        self::errln("Error while writing: " . $e->getMessage(), 0);
         sleep(2);
         continue;
       }
@@ -682,7 +682,7 @@ class Daemon extends AbstractScript {
         DB::commit();
       }
       catch (TSWriterException $e) {
-        self::errln("Error while writing: " . $e->getMessage());
+        self::errln("Error while writing: " . $e->getMessage(), 0);
         sleep(1);
         continue;
       }
