@@ -59,6 +59,7 @@ class GlobalSettings extends AbstractSuperUserPane {
       $chk->set('checked', 'checked');
 
     $f->add(new FItem("PDF Socket:", new XTextInput(STN::PDFLATEX_SOCKET, DB::g(STN::PDFLATEX_SOCKET)), "Full path, or leave blank to use \"exec\" function."));
+    $f->add(new FItem("Notice board limit:", new XTextInput(STN::NOTICE_BOARD_SIZE, DB::g(STN::NOTICE_BOARD_SIZE)), "Size in bytes for each item."));
 
     $f->add(new XSubmitP('set-params', "Save changes"));
   }
@@ -136,6 +137,12 @@ class GlobalSettings extends AbstractSuperUserPane {
       if ($val != DB::g(STN::PDFLATEX_SOCKET)) {
         $changed = true;
         DB::s(STN::PDFLATEX_SOCKET, $val);
+      }
+
+      $val = DB::$V->reqInt($args, STN::NOTICE_BOARD_SIZE, 100, 16777215, "Invalid notice size provided (must be between 100B and 16MB.");
+      if ($val != DB::g(STN::NOTICE_BOARD_SIZE)) {
+        $changed = true;
+        DB::s(STN::NOTICE_BOARD_SIZE, $val);
       }
 
       if (!$changed)

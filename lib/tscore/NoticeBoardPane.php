@@ -41,8 +41,9 @@ class NoticeBoardPane extends AbstractPane {
     // ------------------------------------------------------------
     $this->PAGE->addContent(new XP(array(),
                    array("Items posted here will be published under the \"Notice Board\" link for this regatta. This is an appropriate place to post Sailing Instructions (SI), notices of race, and protest notices. This is ", new XStrong("not"), " the place to post daily summaries.")));
+    $size_limit = DB::g(STN::NOTICE_BOARD_SIZE);
     $this->PAGE->addContent(new XP(array(),
-                   array("Only ", new XStrong("PDF"), ", ", new XStrong("JPG"), ", ", new XStrong("GIF"), ", and ", new XStrong("PNG"), " files are allowed. The maximum file size is ", new XStrong("5MB"), " for each file.")));
+                                   array("Only ", new XStrong("PDF"), ", ", new XStrong("JPG"), ", ", new XStrong("GIF"), ", and ", new XStrong("PNG"), " files are allowed. The maximum file size is ", new XStrong(sprintf("%0.1fMB", $size_limit / 1048576)), " for each file.")));
     $this->PAGE->addContent(new XP(array(),
                    array("Please provide meaningful (unique) names to all the documents, and attach a description whenever possible. Also, order them appropriately. ",
                          new XStrong("Make sure to specify the correct notice category!"))));
@@ -72,6 +73,7 @@ class NoticeBoardPane extends AbstractPane {
 
     $this->PAGE->addContent($p = new XPort("New notice"));
     $p->add($f = $this->createFileForm());
+    $f->add(new XHiddenInput('MAX_FILE_SIZE', $size_limit));
     $f->add(new FItem("Name:", new XTextInput('name', "", array('maxlength'=>100))));
     $f->add(new FItem("Description:", new XTextArea('description', "", array('placeholder'=>"Optional, but highly recommended, description."))));
     $f->add(new FItem("Category:", XSelect::fromArray('category', $categories)));
@@ -85,7 +87,7 @@ class NoticeBoardPane extends AbstractPane {
     // Add new
     // ------------------------------------------------------------
     if (isset($args['upload'])) {
-      $file = DB::$V->reqFile($_FILES, 'file', 1, 16777215, "No document provided.");
+      $file = DB::$V->reqFile($_FILES, 'file', 1, DB::g(STN::NOTICE_BOARD_SIZE), "No document provided, or document too large.");
       $info = new FInfo(FILEINFO_MIME_TYPE);
 
       $doc = new Document();

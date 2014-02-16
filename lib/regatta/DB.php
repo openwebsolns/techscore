@@ -3363,6 +3363,7 @@ class STN extends DBObject {
   const ALLOW_CROSS_RP = 'allow_cross_rp';
   const PDFLATEX_SOCKET = 'pdflatex_socket';
   const LONG_SESSION_LIMIT = 'long_session_limit';
+  const NOTICE_BOARD_SIZE = 'notice_board_size';
 
   const RP_SINGLEHANDED = 'rp-singlehanded';
   const RP_1_DIVISION = 'rp-1-division';
@@ -3439,6 +3440,9 @@ class STN extends DBObject {
 
     case self::LONG_SESSION_LIMIT:
       return 3;
+
+    case self::NOTICE_BOARD_SIZE:
+      return 5242880; // 5MB
 
     default:
       return null;
