@@ -12,6 +12,7 @@
  * @package error
  */
 class MailHandler {
+  public static $CENSORED_POST = array('userid', 'pass');
   public static function handleErrors($errno, $errstr, $errfile, $errline) {
     $fmt = "%6s: %s\n";
     $body  = sprintf($fmt, "Time",   date('Y-m-d H:i:s'));
@@ -25,6 +26,16 @@ class MailHandler {
       foreach (array('file', 'line', 'class', 'function') as $index) {
         if (isset($list[$index]))
           $body .= sprintf($fmt, ucfirst($index), $list[$index]);
+      }
+    }
+    if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
+      $body .= "--------------------\n";
+      $body .= "Post:\n";
+      
+      foreach ($_POST as $key => $val) {
+        if (in_array($key, self::$CENSORED_POST))
+          $val = str_repeat("*", mb_strlen($val));
+        $body .= sprintf("%30s: %s\n", $key, $val);
       }
     }
     require_once('regatta/DB.php');
@@ -50,7 +61,16 @@ class MailHandler {
     $body .= sprintf($fmt, "Request", $_SERVER['REQUEST_URI']);
     $body .= "--------------------\n";
     $body .= sprintf($fmt, "Trace",  $e->getTraceAsString());
-    $body .= "====================\n";
+    if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
+      $body .= "--------------------\n";
+      $body .= "Post:\n";
+      
+      foreach ($_POST as $key => $val) {
+        if (in_array($key, self::$CENSORED_POST))
+          $val = str_repeat("*", mb_strlen($val));
+        $body .= sprintf("%30s: %s\n", $key, $val);
+      }
+    }
     require_once('regatta/DB.php');
     DB::mail(Conf::$ADMIN_MAIL, sprintf("[Techscore Exception] %s", $e->getMessage()), $body);
 
