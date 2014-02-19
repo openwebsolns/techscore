@@ -28,7 +28,7 @@ class S3Writer extends AbstractWriter {
    * Helper method: prepare the S3 request
    *
    */
-  protected function prepRequest(&$fname) {
+  protected function prepRequest($fname) {
     if (empty($this->bucket) ||
         empty($this->access_key) ||
         empty($this->secret_key) ||
@@ -165,11 +165,81 @@ class S3Writer extends AbstractWriter {
    *
    */
   public function remove($fname) {
-    $headers = $this->getHeaders('DELETE', null, null, $fname);
-                              
+    $objs = $this->listobjects(substr($fname, 1), true);
+    $cnt = count($objs);
+    if ($cnt == 0)
+      return;
+
+    require_once('xml5/XmlLib.php');
+    for ($round = 0; $round < (int)($cnt / 1000) + 1; $round++) {
+      // create XML doc
+      $P = new XDoc('Delete', array(), array(new XElem('Quiet', array(), array(new XText("true")))));
+      for ($i = $round * 1000; $i < ($round + 1) * 1000 && $i < $cnt; $i++) {
+        $P->add(new XElem('Object', array(),
+                          array(new XElem('Key', array(), array(new XText(substr($objs[$i], 1)))))));
+      }
+
+      // Submit form
+      $mes = $P->toXML();
+      $md5 = base64_encode(md5($mes, true));
+      $headers = $this->getHeaders('POST', $md5, 'application/xml', '/?delete');
+      $headers[] = sprintf('Content-Length: %s', strlen($mes));
+
+      $ch = $this->prepRequest('/?delete');
+      curl_setopt($ch, CURLOPT_POST, 1);
+      curl_setopt($ch, CURLOPT_POSTFIELDS, $mes);
+      curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+      if (($output = curl_exec($ch)) === false) {
+        $mes = curl_error($ch);
+        curl_close($ch);
+        throw new TSWriterException($mes);
+      }
+
+      $data = curl_getinfo($ch);
+      if ($data['http_code'] >= 400)
+        throw new TSWriterException(sprintf("HTTP error %s: %s", $data['http_code'], $output));
+      curl_close($ch);
+    }
+  }
+
+  public function listdir($dirname) {
+    if ($dirname[strlen($dirname) - 1] != '/')
+      $dirname .= '/';
+    return $this->listobjects(substr($dirname, 1), false);
+  }
+
+  /**
+   * Helper method will list the contents of a given bucket under a
+   * given prefix, which may be a directory. The third argument will
+   * only include in the return set the objects directly underneath
+   * the prefix, that is any objects that share the prefix and whose
+   * filename remainder contains no more slashes.
+   *
+   * @param Site $dept the site
+   * @param String $prefix the prefix to fetch
+   * @param boolean $recursive true (default) to get EVERY subobject
+   * @param String $marker used internally to split into multiple requests
+   */
+  public function listobjects($prefix, $recursive = true, $marker = null) {
+    $fname = '/?prefix=' . $prefix;
+    if ($recursive === false)
+      $fname .= '&delimiter=/';
+    if ($marker !== null)
+      $fname .= '&marker=' . $marker;
+
+    $date = date('D, d M Y H:i:s T');
+
+    $headers = array();
+    $headers[] = sprintf('Host: %s.%s', $this->bucket, $this->host_base);
+    $headers[] = sprintf('Date: %s', $date);
+
+    $signature = $this->sign("GET", "", "", $date, '/');
+    $headers[] = sprintf('Authorization: AWS %s:%s', $this->access_key, $signature);
+
     $ch = $this->prepRequest($fname);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+
     if (($output = curl_exec($ch)) === false) {
       $mes = curl_error($ch);
       curl_close($ch);
@@ -180,6 +250,28 @@ class S3Writer extends AbstractWriter {
     if ($data['http_code'] >= 400)
       throw new TSWriterException(sprintf("HTTP error %s: %s", $data['http_code'], $output));
     curl_close($ch);
+
+    // Parse output
+    libxml_use_internal_errors(true);
+    $doc = simplexml_load_string($output);
+    if (!$doc) {
+      $errors = "";
+      foreach(libxml_get_errors() as $error)
+        $errors .= '@' . $error->line . ',' . $error->column . ': ' . $error->message . "\n";
+      throw new TSWriterException("Invalid response: $errors");
+    }
+
+    // Step through XML
+    $list = array();
+    foreach ($doc->Contents as $sub)
+      $list[] = '/' . $sub->Key;
+
+    // Fetch the remaining
+    if ((string)$doc->IsTruncated == 'true') {
+      foreach ($this->listobjects($prefix, $recursive, substr($list[count($list) - 1], 1)) as $sub)
+        $list[] = $sub;
+    }
+    return $list;
   }
 }
 ?>
