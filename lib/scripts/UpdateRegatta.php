@@ -50,27 +50,6 @@ require_once('AbstractScript.php');
 class UpdateRegatta extends AbstractScript {
 
   /**
-   * Helper method will delete all the individual regatta files.
-   *
-   * $root should be the filesystem path to the root of the regatta's
-   * directory. This method will then delete all the individual files
-   * that could exist under that root.
-   *
-   * @param String $root the root to delete
-   */
-  public static function deleteRegattaFiles($root) {
-    self::remove("$root/rotations/index.html");
-    self::remove("$root/full-scores/index.html");
-    self::remove("$root/A/index.html");
-    self::remove("$root/B/index.html");
-    self::remove("$root/C/index.html");
-    self::remove("$root/D/index.html");
-    self::remove("$root/sailors/index.html");
-    self::remove("$root/all/index.html");
-    self::remove("$root/index.html");
-  }
-
-  /**
    * Compare list of cached URLs to current ones
    *
    * Delete URLs that are no longer valid, and save the current

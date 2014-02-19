@@ -607,7 +607,7 @@ class Daemon extends AbstractScript {
           if ($prior_season !== null) {
             $this->seasons[$prior_season->id] = $prior_season;
             // Queue for deletion
-            $root = sprintf('/%s/%s', $prior_season->id, $reg->nick);
+            $root = sprintf('/%s/%s/', $prior_season->id, $reg->nick);
             $to_delete[$root] = $root;
 
             foreach ($reg->getTeams() as $team)
@@ -632,7 +632,7 @@ class Daemon extends AbstractScript {
           foreach ($reg->getTeams() as $team)
             $this->queueSchoolSeason($team->school, $season);
           if ($reg->nick !== null) {
-            $root = sprintf('/%s/%s', $season->id, $reg->nick);
+            $root = $reg->getUrl();
             $to_delete[$root] = $root;
           }
           continue;
@@ -668,7 +668,7 @@ class Daemon extends AbstractScript {
         // ------------------------------------------------------------
         require_once('scripts/UpdateRegatta.php');
         foreach ($to_delete as $root)
-          UpdateRegatta::deleteRegattaFiles($root);
+          self::remove($root);
 
         // ------------------------------------------------------------
         // Perform regatta level updates
