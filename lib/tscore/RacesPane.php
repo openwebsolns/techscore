@@ -90,6 +90,11 @@ class RacesPane extends AbstractPane {
     $form->add(new FItem("Number of races:",
                          $f_rac = new XTextInput("num_races",
                                                  count($this->REGATTA->getRaces(Division::A())))));
+
+    $attrs = ($final) ? array('disabled'=>'disabled') : array();
+    $form->add($xp = new XSubmitP("set-races", "Save changes", $attrs));
+    $xp->add(new XMessage("Unsailed races are automatically removed when the regatta is finalized."));
+
     if ($final) {
       $f_div->set("disabled", "disabled");
       $f_rac->set("disabled", "disabled");
@@ -111,9 +116,6 @@ class RacesPane extends AbstractPane {
         }
       }
     }
-    $attrs = ($final) ? array('disabled'=>'disabled') : array();
-    $form->add($xp = new XSubmitP("set-races", "Set races", $attrs));
-    $xp->add(new XMessage("Unsailed races are automatically removed when the regatta is finalized."));
 
     //------------------------------------------------------------
     // Edit existing boats
