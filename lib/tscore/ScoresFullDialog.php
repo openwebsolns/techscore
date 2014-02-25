@@ -117,17 +117,17 @@ class ScoresFullDialog extends AbstractScoresDialog {
           $r->add(new XTD(array("class"=>"strong"), $ln));
         }
         elseif ($div == "A") {
-          $r->add(new XTD(array("title" => $team->dt_explanation), $tiebreakers[$team->dt_explanation]));
-          $r->add(new XTD(array(), $order++));
-          $r->add(new XTD(array('class'=>'strong'), $team->getQualifiedName()));
-        }
-        elseif ($div == "B") {
           $ln = $team->school->nick_name;
           if ($link_schools !== false)
             $ln = new XA(sprintf('/schools/%s/%s/', $team->school->id, $this->REGATTA->getSeason()), $ln);
-          $r->add(new XTD());
-          $r->add(new XTD());
+          $r->add(new XTD(array("title" => $team->dt_explanation), $tiebreakers[$team->dt_explanation]));
+          $r->add(new XTD(array(), $order++));
           $r->add(new XTD(array(), $ln));
+        }
+        elseif ($div == "B") {
+          $r->add(new XTD());
+          $r->add(new XTD());
+          $r->add(new XTD(array(), $team->getQualifiedName()));
         }
         else {
           $r->add(new XTD());
@@ -135,7 +135,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
           $r->add(new XTD());
         }
         if ($num_divs > 1)
-          $r->add(new XTD(array("class"=>"strong"), $div));
+          $r->add(new XTD(array('class'=>'strong'), $div));
 
         // ...for each race
         for ($i = 1; $i <= $largest_num; $i++) {
