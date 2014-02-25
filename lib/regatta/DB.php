@@ -1734,6 +1734,22 @@ class Team extends DBObject {
     foreach (DB::getAll(DB::$DT_RP, new DBCondIn('team_division', $q)) as $rp)
       DB::remove($rp);
   }
+
+  // Comparators
+
+  /**
+   * Sorts the teams based on school's full name
+   *
+   * @param Team $t1 the first team
+   * @param Team $t2 the second team
+   * @return int < 0 if $t1 comes before $t2...
+   */
+  public static function compare(Team $t1, Team $t2) {
+    $diff = strcmp($t1->__get('school')->name, $t2->__get('school')->name);
+    if ($diff == 0)
+      return $t1->id - $t2->id;
+    return $diff;
+  }
 }
 
 /**

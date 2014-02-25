@@ -382,7 +382,15 @@ class FullRegatta extends DBObject {
     $cond = new DBBool(array(new DBCond('regatta', $this->id)));
     if ($school !== null)
       $cond->add(new DBCond('school', $school));
-    return DB::getAll($this->isSingleHanded() ? DB::$SINGLEHANDED_TEAM : DB::$TEAM, $cond);
+    $res = DB::getAll($this->isSingleHanded() ? DB::$SINGLEHANDED_TEAM : DB::$TEAM, $cond);
+    if ($school !== null)
+      return $res;
+
+    $list = array();
+    foreach ($res as $team)
+      $list[] = $team;
+    usort($list, 'Team::compare');
+    return $list;
   }
 
   /**
