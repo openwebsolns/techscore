@@ -2,6 +2,7 @@ window.addEventListener('load', function(e) {
 var t = document.getElementById("teams-list");
 if (!t)
 return;
+var load = function() {
 var x = document.getElementById("explanation");
 if (x) {
 x.appendChild(document.createTextNode(" Promote the school from the list on the left to the right. You may promote the school multiple times to indicate multiple teams."));
@@ -67,4 +68,17 @@ c.value = Number(c.value) - 1;
 }
 }
 };
+};
+var num = 0;
+var checkMultSelect = function() {
+if (!OWSMultSelect) {
+num++;
+if (num < 10)
+window.setTimeout(checkMultSelect, 100);
+}
+else {
+load();
+}
+};
+checkMultSelect();
 }, false);
