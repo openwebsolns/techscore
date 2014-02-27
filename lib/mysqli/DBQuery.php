@@ -119,7 +119,7 @@ class DBQuery {
           return null;
         }
         if ($stmt->errno != 1205 && $stmt->errno != 1213) {
-          throw new DBQueryException("MySQL error " . $stmt->errno . " (" . $this->toSQL() . "): " . $stmt->error);
+          throw new DBQueryException("MySQL error " . $stmt->errno . " (" . $this->toSQL() . ") Args: (\"" . implode("\", \"", array_slice($args, 1)) . "\"): " . $stmt->error);
         }
       }
       $stmt->close();
