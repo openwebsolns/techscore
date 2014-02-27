@@ -271,7 +271,7 @@ abstract class AbstractRoundPane extends AbstractPane {
 
       $sailIndex = 0;
       for ($i = 0; $i < $rotation->count() / $num_divs; $i++) {
-        $tab->addRow(array(new XTH(array(), sprintf("Team %d", floor($i / $num_divs) + 1)),
+        $tab->addRow(array(new XTH(array(), sprintf("Team %d", $i + 1)),
                            new XTable(array('class'=>'sail-list'), array($bod = new XTBody()))));
 
         for ($j = 0; $j < $num_divs; $j++) {
