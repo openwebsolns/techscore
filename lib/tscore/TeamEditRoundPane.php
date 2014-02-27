@@ -555,9 +555,12 @@ class TeamEditRoundPane extends AbstractRoundPane {
       $teams[$seed->seed - 1] = $seed->team;
 
     $rotation = $this->REGATTA->getRotation();
+    $rotation->initQueue();
+
     $sails = $round->rotation->assignSails($round, $teams, $divisions, $round->rotation_frequency);
     $races = $this->REGATTA->getRacesInRound($round, Division::A());
     array_shift($divisions);
+
     foreach ($races as $i => $race) {
       $rotation->reset($race);
       $other_races = array();
@@ -572,19 +575,20 @@ class TeamEditRoundPane extends AbstractRoundPane {
       foreach (array(0, 1) as $pairIndex) {
         $team = $teams[$pair[$pairIndex] - 1];
         if ($team !== null) {
-          $sail = $sails[$i][$pair[$pairIndex]][(string)$race->division];
+          $sail = clone($sails[$i][$pair[$pairIndex]][(string)$race->division]);
           $sail->race = $race;
           $sail->team = $team;
-          $rotation->setSail($sail);
+          $rotation->queue($sail);
           foreach ($other_races as $r) {
-            $sail = $sails[$i][$pair[$pairIndex]][(string)$r->division];
+            $sail = clone($sails[$i][$pair[$pairIndex]][(string)$r->division]);
             $sail->race = $r;
             $sail->team = $team;
-            $rotation->setSail($sail);
+            $rotation->queue($sail);
           }
         }
       }
     }
+    $rotation->commit();
   }
 }
 ?>
