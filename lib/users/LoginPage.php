@@ -35,11 +35,11 @@ class LoginPage extends AbstractUserPane {
     if (isset($args['dir']) && $args['dir'] == "out") {
       Session::s('user', null);
       session_destroy();
-      WS::go('/');
+      $this->redirect('');
     }
 
     if (Conf::$USER !== null)
-      WS::go('/');
+      $this->redirect('');
 
     // LOGIN MENU
     $this->PAGE->addContent($p = new XPort("Sign-in"));
@@ -79,11 +79,11 @@ class LoginPage extends AbstractUserPane {
     if (isset($args['dir']) && $args['dir'] == "out") {
       Session::s('user', null);
       session_destroy();
-      WS::go('/');
+      $this->redirect('');
     }
 
     if (Conf::$USER !== null)
-      WS::go('/');
+      $this->redirect('');
 
     // ------------------------------------------------------------
     // Log-in

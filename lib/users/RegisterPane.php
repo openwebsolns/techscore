@@ -155,7 +155,7 @@ class RegisterPane extends AbstractUserPane {
                             DB::keywordReplace($acc, DB::g(STN::MAIL_REGISTER_ADMIN)));
         DB::mail($admins, sprintf("[%s] New registration", DB::g(STN::APP_NAME)), $body);
       }
-      WS::go('/register');
+      $this->redirect('register');
     }
 
     if (isset($args['register'])) {
