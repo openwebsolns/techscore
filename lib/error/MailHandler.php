@@ -35,6 +35,8 @@ class MailHandler {
       foreach ($_POST as $key => $val) {
         if (in_array($key, self::$CENSORED_POST))
           $val = str_repeat("*", mb_strlen($val));
+        elseif (is_array($val))
+          $val = serialize($val);
         $body .= sprintf("%30s: %s\n", $key, $val);
       }
     }
@@ -68,6 +70,8 @@ class MailHandler {
       foreach ($_POST as $key => $val) {
         if (in_array($key, self::$CENSORED_POST))
           $val = str_repeat("*", mb_strlen($val));
+        elseif (is_array($val))
+          $val = serialize($val);
         $body .= sprintf("%30s: %s\n", $key, $val);
       }
     }
