@@ -822,6 +822,7 @@ class FullRegatta extends DBObject {
     if ($this->scoring == Regatta::SCORING_TEAM) {
       return DB::getAll(DB::$RACE,
                         new DBBool(array(new DBCond('regatta', $this->id),
+                                         new DBCond('division', $div),
                                          new DBCondIn('id', DB::prepGetAll(DB::$FINISH, new DBCond('team', $team->id), array('race'))))));
     }
     else {
