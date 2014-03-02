@@ -163,7 +163,7 @@ class Soter {
    * @throws SoterException
    */
   final public function reqString(Array $args, $key, $min = 0, $max = 8388608, $mes = "GSE") {
-    return self::reqRaw($args, $key, $min, $max, $mes, array('trim'));
+    return $this->reqRaw($args, $key, $min, $max, $mes, array('trim'));
   }
 
   /**

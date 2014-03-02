@@ -128,7 +128,7 @@ class TSSoter extends Soter {
     if (!isset($args[$key]))
       throw new SoterException($mes);
     try {
-      $race = Race::parse($args[$key]);
+      $race = Race::parse($this->reqString($args, $key, 1, 100, $mes));
       $race = $reg->getRace($race->division, $race->number);
       if ($race === null)
         throw new SoterException($mes);
