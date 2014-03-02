@@ -49,6 +49,7 @@ class MailHandler {
     $P->addContent(new XPageTitle("Server error"));
     $P->addContent(new XP(array(), "There was an error while handling your request. Administrators have been notified of the problem and it will be addressed as soon as possible."));
     $P->addContent(new XP(array(), "Sorry for the inconvenience."));
+    http_response_code(500);
     $P->printXML();
     DB::rollback();
     exit;
@@ -84,6 +85,7 @@ class MailHandler {
     $P->addContent(new XPageTitle("Server error"));
     $P->addContent(new XP(array(), "There was an error while handling your request. Administrators have been notified of the problem and it will be addressed as soon as possible."));
     $P->addContent(new XP(array(), "Sorry for the inconvenience."));
+    http_response_code(500);
     $P->printXML();
     DB::rollback();
     exit;
