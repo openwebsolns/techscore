@@ -567,7 +567,7 @@ class TeamRacesPane extends AbstractRoundPane {
 
   private function getBoatOptions() {
     $boats = DB::getBoats();
-    $boatOptions = array();
+    $boatOptions = array("" => "");
     foreach ($boats as $boat)
       $boatOptions[$boat->id] = $boat->name;
     return $boatOptions;
@@ -967,6 +967,8 @@ class TeamRacesPane extends AbstractRoundPane {
       }
     }
 
+    $round->boat = DB::$V->reqID($args, 'boat', DB::$BOAT, "No boat provided.");
+
     $round->title = $title;
     $round->num_teams = $num_teams;
     $round->num_boats = $num_boats;
@@ -979,7 +981,6 @@ class TeamRacesPane extends AbstractRoundPane {
     if ($clean_rotation)
       $round->rotation = null;
 
-    $round->boat = DB::$V->reqID($args, 'boat', DB::$BOAT, "Invalid or missing boat.");
     return array();
   }
 
