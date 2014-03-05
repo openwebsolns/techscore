@@ -28,6 +28,7 @@ DocumentRoot {DIRECTORY}/www
 SSLEngine on
 SSLCertificateFile {HTTP_CERTPATH}
 SSLCertificateKeyFile {HTTP_CERTKEYPATH}
+{HTTP_CERTCHAINPATH}
 SetEnvIf User-Agent ".*MSIE.*" nokeepalive ssl-unclean-shutdown
 
 <Directory "{DIRECTORY}/www">

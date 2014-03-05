@@ -64,7 +64,12 @@ if (isset($args['apache.conf'])) {
   $str = str_replace('{HTTP_LOGROOT}', Conf::$LOG_ROOT, $str);
   $str = str_replace('{HTTP_CERTPATH}', Conf::$HTTP_CERTPATH, $str);
   $str = str_replace('{HTTP_CERTKEYPATH}', Conf::$HTTP_CERTKEYPATH, $str);
-  $str = str_replace('{HTTP_CERTCHAINPATH}', Conf::$HTTP_CERTCHAINPATH, $str);
+  if (Conf::$HTTP_CERTCHAINPATH !== null)
+    $str = str_replace('{HTTP_CERTCHAINPATH}',
+                       sprintf("SSLCertificateChainFile %s", Conf::$HTTP_CERTCHAINPATH),
+                       $str);
+  else
+    $str = str_replace('{HTTP_CERTCHAINPATH}', '', $str);
 
   $output = $pwd . '/src/apache.conf';
   if (file_put_contents($output, $str) === false)
