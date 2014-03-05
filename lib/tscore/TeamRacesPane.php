@@ -872,17 +872,8 @@ class TeamRacesPane extends AbstractRoundPane {
         }
       }
 
-      // Insert all at once
-      foreach ($new_races as $race)
-        DB::set($race, false);
-      DB::insertAll($new_sails);
-      if (count($new_finishes) > 0) {
-        $this->REGATTA->commitFinishes($new_finishes);
-        $this->REGATTA->doScore();
-        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
-      }
-
       // Displaced rounds?
+      $updated_races = array();
       if ($round->sailoff_for_round !== null) {
         $other_rounds = array_values($rounds);
         $round_to_check = $round->sailoff_for_round;
@@ -903,13 +894,26 @@ class TeamRacesPane extends AbstractRoundPane {
             for ($j = 1; $j < count($divisions); $j++) {
               $r = $this->REGATTA->getRace($divisions[$j], $race->number);
               $r->number = $racenum;
-              DB::set($r, true);
+	      $updated_races[] = $r;
             }
             $race->number = $racenum;
-            DB::set($race, true);
+	    $updated_races[] = $race;
           }
           DB::set($other_rounds[$i], true);
         }
+      }
+
+      // Update all
+      foreach ($updated_races as $race)
+	DB::set($race, true);
+      // Insert all at once
+      foreach ($new_races as $race)
+        DB::set($race, false);
+      DB::insertAll($new_sails);
+      if (count($new_finishes) > 0) {
+        $this->REGATTA->commitFinishes($new_finishes);
+        $this->REGATTA->doScore();
+        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
       }
 
       $this->REGATTA->setData(); // new races
