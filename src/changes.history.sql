@@ -722,10 +722,3 @@ alter table round drop column tiebreaker, add column sailoff_for_round int defau
 
 -- add 'details' as possible activity for school updates
 alter table pub_update_school change column activity activity enum('burgee', 'season', 'details') not null default 'burgee';
-
--- remove unique key(s) in race table
-alter table race drop key `regatta_2`;
-alter table race drop key `regatta_3`;
-alter table race drop key `regatta_4`;
-alter table race drop key `regatta_5`;
-alter table race drop key `regatta_6`;
