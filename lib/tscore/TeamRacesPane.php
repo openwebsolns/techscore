@@ -444,6 +444,7 @@ window.addEventListener("load", function(e) {
                               $body = new XTBody()));
 
       $flight = $ROUND->num_boats / $group_size;
+
       for ($i = 0; $i < count($ROUND->race_order); $i++) {
         // spacer
         if ($flight > 0 && $i % $flight == 0) {
@@ -1042,7 +1043,7 @@ window.addEventListener("load", function(e) {
 
     // If only two teams, involved, assign sail order
     if ($num_teams == 2) {
-      $round->race_order = $templ->race_order;
+      $round->race_order = array("1-2");
       $round->rotation = $templ->rotation;
     }
     return array();
