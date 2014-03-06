@@ -175,22 +175,11 @@ class TeamRacesPane extends AbstractRoundPane {
         if ($ROUND->num_teams !== null)
           $num_teams = $ROUND->num_teams;
 
-        $freq = array("" => "");
-        foreach (Race_Order::getFrequencyTypes() as $key => $val)
-          $freq[$key] = $val;
-
-        $boats[""] = "";
-
         $this->PAGE->addContent($p = new XPort("Sailoff round settings"));
         $p->add($form = $this->createForm());
         $form->add(new FItem("Round name:", new XTextInput('title', $ROUND->title)));
         $form->add(new FItem("Round to sailoff:", XSelect::fromDBM('sailoff_for_round', $sailoff_rounds)));
         $form->add(new FItem("Number of teams:", new XTextInput('num_teams', $num_teams)));
-
-        $form->add(new XP(array(), "To use the same settings as the round chosen above, leave the following settings blank."));
-        $form->add(new FItem("Number of boats:", new XInput('number', 'num_boats', '', array('min'=>0, 'step'=>$group_size))));
-        $form->add(new FItem("Rotation frequency:", XSelect::fromArray('rotation_frequency', $freq)));
-        $form->add(new FItem("Boat:", XSelect::fromArray('boat', $boats, "")));
         $form->add($p = new XSubmitP('create-settings', "Next →"));
       }
 
@@ -1050,6 +1039,12 @@ window.addEventListener("load", function(e) {
     }
     $round->boat = DB::$V->incID($args, 'boat', DB::$BOAT, $templ->boat);
     $round->sailoff_for_round = $templ;
+
+    // If only two teams, involved, assign sail order
+    if ($num_teams == 2) {
+      $round->race_order = $templ->race_order;
+      $round->rotation = $templ->rotation;
+    }
     return array();
   }
 
