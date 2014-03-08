@@ -7,11 +7,11 @@
  *
  * <code>
  * // old method
- * header('Location: http://www.fiu.edu');
+ * header('Location: http://www.example.com');
  * exit;
  *
  * // now becomes
- * WS::go('http://www.fiu.edu');
+ * WS::go('http://www.example.com');
  * </code>
  *
  * WS also respects short-hand redirection techniques, although it is
