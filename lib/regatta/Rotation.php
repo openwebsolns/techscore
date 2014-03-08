@@ -577,11 +577,17 @@ class Rotation {
    * @throws InvalidArgumentException
    */
   public function queueCombinedOffset(Array $nums, $offset) {
+    $divisions = $this->regatta->getDivisions();
+    $queued_races = array();
     foreach ($nums as $num) {
-      $race = new Race();
-      $race->number = $num;
+      $races = array();
+      foreach ($divisions as $div) {
+        $race = $this->regatta->getRace($div, $num);
+        $races[] = $race;
+        $queued_races[] = $race;
+      }
+      $sails = $this->getCommonSails($races);
 
-      $sails = $this->getCombinedSails($race);
       $upper = count($sails);
       foreach ($sails as $j => $sail) {
         $offset_sail = $sails[($j + $offset + $upper) % $upper];
@@ -592,6 +598,7 @@ class Rotation {
         $this->queue($new_sail);
       }
     }
+    return $queued_races;
   }
 
   /**
