@@ -281,17 +281,17 @@ class SailsPane extends AbstractPane {
       // current divisions for which there are rotations entered
       // and the offset amount
       if ($chosen_rot == "OFF") {
-	if (count($exist_div) == 0) {
-	  $form->add(new XP(array('class'=>'warning'), "There are no valid divisions to serve as templates for offset."));
-	  $form->add(new XP(array('class'=>'p-submit'),
-			    array(new XA(WS::link(sprintf('/score/%d/sails', $this->REGATTA->id)), "← Start over"))));
-	}
-	if (count($exist_div) == 1) {
-	  $divs = array_values($exist_div);
-	  $form->add(new XHiddenInput('from_div', $divs[0]));
-	}
-	else
-	  $form->add(new FItem("Template Division:", XSelect::fromArray('from_div', $exist_div)));
+        if (count($exist_div) == 0) {
+          $form->add(new XP(array('class'=>'warning'), "There are no valid divisions to serve as templates for offset."));
+          $form->add(new XP(array('class'=>'p-submit'),
+                            array(new XA(WS::link(sprintf('/score/%d/sails', $this->REGATTA->id)), "← Start over"))));
+        }
+        if (count($exist_div) == 1) {
+          $divs = array_values($exist_div);
+          $form->add(new XHiddenInput('from_div', $divs[0]));
+        }
+        else
+          $form->add(new FItem("Template Division:", XSelect::fromArray('from_div', $exist_div)));
         $form->add(new FItem("Amount to offset (+/-):",
                              new XTextInput("offset", (int)(count($p_teams) / count($divisions)),
                                             array("size"=>"2",
@@ -362,7 +362,7 @@ class SailsPane extends AbstractPane {
     $race_nums = array();
     foreach ($races as $num) {
       if ($this->REGATTA->getRace(Division::A(), $num) !== null)
-	$race_nums[] = $num;
+        $race_nums[] = $num;
     }
     if (count($race_nums) == 0)
       throw new SoterException("Invalid race numbers provided.");
@@ -383,7 +383,9 @@ class SailsPane extends AbstractPane {
 
       // Queue the sail offset
       $rotation->initQueue();
-      $rotation->queueCombinedOffset($race_nums, $offset);
+      $queued = $rotation->queueCombinedOffset($race_nums, $offset);
+      foreach ($queued as $race)
+        $rotation->reset($race);
       $rotation->commit();
 
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
@@ -467,8 +469,8 @@ class SailsPane extends AbstractPane {
     // reset
     UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
     Session::pa(new PA(array("New rotation successfully created. ",
-			     new XA(sprintf('/view/%s/rotation', $this->REGATTA->id), "View", array('onclick'=> 'javascript:this.target="rotation";')),
-			     ".")));
+                             new XA(sprintf('/view/%s/rotation', $this->REGATTA->id), "View", array('onclick'=> 'javascript:this.target="rotation";')),
+                             ".")));
     unset($args['rottype']);
     $this->redirect('finishes');
   }
@@ -613,8 +615,8 @@ class SailsPane extends AbstractPane {
             $race_nums[] = $num;
           }
         }
-	if (count($race_nums) == 0)
-	  throw new SoterException("No valid races chosen.");
+        if (count($race_nums) == 0)
+          throw new SoterException("No valid races chosen.");
         $ordered_races = $race_nums;
 
         // Perform template rotation
@@ -622,7 +624,7 @@ class SailsPane extends AbstractPane {
         case "STD":
         case "NOR":
           $rotation->createStandard($sails, $teams, $ordered_divs, $ordered_races, $repeats);
-          break;
+        break;
 
         case "SWP":
           // ascertain that there are an even number of teams
@@ -637,8 +639,10 @@ class SailsPane extends AbstractPane {
 
         // Offset subsequent divisions, but first queue this one
         $rotation->initQueue();
+        $all_queued = array();
         foreach ($race_nums as $num) {
           $race = $this->REGATTA->getRace($template, $num);
+          $all_queued[] = $race;
           foreach ($teams as $team) {
             if (($sail = $rotation->getSail($race, $team)) !== null)
               $rotation->queue($sail);
@@ -647,11 +651,15 @@ class SailsPane extends AbstractPane {
 
         $index = 0;
         foreach ($divisions as $div) {
-          $rotation->queueOffset($template,
-                                 $div,
-                                 $race_nums,
-                                 $offset * (++$index));
+          $queued = $rotation->queueOffset($template,
+                                           $div,
+                                           $race_nums,
+                                           $offset * (++$index));
+          foreach ($queued as $race)
+            $all_queued[] = $race;
         }
+        foreach ($all_queued as $race)
+          $rotation->reset($race);
         $rotation->commit();
 
         // Reset
@@ -670,18 +678,18 @@ class SailsPane extends AbstractPane {
         foreach ($divisions as $div) {
           $repi = 0;
           while ($repi < $repeats && ($racei + $repi) < count($races)) {
-	    $num = $races[$racei + $repi];
-	    if ($this->REGATTA->getRace($div, $num) !== null) {
-	      $ordered_races[] = $num;
-	      $ordered_divs[]  = $div;
-	    }
+            $num = $races[$racei + $repi];
+            if ($this->REGATTA->getRace($div, $num) !== null) {
+              $ordered_races[] = $num;
+              $ordered_divs[]  = $div;
+            }
             $repi++;
           }
         }
         $racei += $repeats;
       }
       if (count($ordered_races) == 0)
-	throw new SoterException("No valid races chosen.");
+        throw new SoterException("No valid races chosen.");
 
       // With copy style, the "set" includes all divisions
       if ($style == "copy") $repeats *= count($divisions);
@@ -732,37 +740,42 @@ class SailsPane extends AbstractPane {
       // keep only race numbers compatible with all divisions
       $race_nums = array();
       foreach ($races as $num)
-	$race_nums[$num] = $num;
+        $race_nums[$num] = $num;
 
       foreach ($regDivisions as $division) {
         if (!in_array($division, $divisions)) {
           foreach ($races as $num) {
             $race = $this->REGATTA->getRace($division, $num);
-	    if ($race === null) {
-	      unset($race_nums[$num]);
-	      continue;
-	    }
-	    $tmpl = $this->REGATTA->getRace($from_div, $num);
-	    if ($tmpl === null) {
-	      unset($race_nums[$num]);
-	      continue;
-	    }
-	    foreach ($teams as $team) {
-	      if (($sail = $rotation->getSail($race, $team)) !== null)
-		$rotation->queue($sail);
-	    }
+            if ($race === null) {
+              unset($race_nums[$num]);
+              continue;
+            }
+            $tmpl = $this->REGATTA->getRace($from_div, $num);
+            if ($tmpl === null) {
+              unset($race_nums[$num]);
+              continue;
+            }
+            foreach ($teams as $team) {
+              if (($sail = $rotation->getSail($race, $team)) !== null)
+                $rotation->queue($sail);
+            }
           }
         }
       }
 
       if (count($race_nums) == 0)
-	throw new SoterException("No valid races chosen.");
+        throw new SoterException("No valid races chosen.");
 
+      $all_queued = array();
       foreach ($divisions as $div) {
-        $rotation->queueOffset($from_div, $div, $race_nums, $offset);
+        $queued = $rotation->queueOffset($from_div, $div, $race_nums, $offset);
+        foreach ($queued as $race)
+          $all_queued[] = $race;
       }
 
       // Reset
+      foreach ($all_queued as $race)
+        $rotation->reset($race);
       $rotation->commit();
       Session::pa(new PA(array("Offset rotation successfully created. ",
                                new XA(sprintf('/view/%s/rotation', $this->REGATTA->id), "View", array('onclick'=> 'javascript:this.target="rotation";')),

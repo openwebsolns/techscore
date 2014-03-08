@@ -267,30 +267,33 @@ abstract class AbstractRoundPane extends AbstractPane {
 
       // No rotation frequency: display an entry PER team
       $form->add($tab = new XQuickTable(array('class'=>'tr-rotation-sails'),
-                                        array("Team #", "Sail #", "Color")));
+                                        array("Team #", "Sail # & Color")));
 
-      for ($i = 0; $i < $rotation->count(); $i++) {
-        $row = array();
-        if ($i % $num_divs == 0)
-          $row[] = new XTH(array('rowspan'=>$num_divs), sprintf("Team %d", floor($i / $num_divs)));
+      $sailIndex = 0;
+      for ($i = 0; $i < $rotation->count() / $num_divs; $i++) {
+        $tab->addRow(array(new XTH(array(), sprintf("Team %d", $i + 1)),
+                           new XTable(array('class'=>'sail-list'), array($bod = new XTBody()))));
 
-        $sail = $rotation->sailAt($i);
-        $color = $rotation->colorAt($i);
+        for ($j = 0; $j < $num_divs; $j++) {
+          $sail = $rotation->sailAt($sailIndex);
+          $color = $rotation->colorAt($sailIndex);
 
-        $sel = new XSelect('colors[]', array('class'=>'color-chooser', 'tabindex'=>($i + 1 + $rotation->count())));
-        $row[] = new XTextInput('sails[]', $sail, array('size'=>5, 'tabindex'=>($i + 1)));
-        $row[] = $sel;
+          
+          $bod->add(new XTR(array(),
+                            array(new XTD(array(), new XTextInput('sails[]', $sail, array('size'=>5, 'tabindex'=>($i + 1)))),
+                                  new XTD(array('title'=>"Optional"), $sel = new XSelect('colors[]', array('class'=>'color-chooser', 'tabindex'=>($i + 1 + $rotation->count())))))));
 
-        $sel->add(new XOption("", array(), "[None]"));
-        foreach ($COLORS as $code => $title) {
-          $attrs = array('style'=>sprintf('background:%1$s;color:%1$s;', $code));
-          $sel->add($opt = new XOption($code, $attrs, $title));
+          $sel->add(new XOption("", array(), "[None]"));
+          foreach ($COLORS as $code => $title) {
+            $attrs = array('style'=>sprintf('background:%1$s;color:%1$s;', $code));
+            $sel->add($opt = new XOption($code, $attrs, $title));
 
-          if ($code == $color)
-            $opt->set('selected', 'selected');
+            if ($code == $color)
+              $opt->set('selected', 'selected');
+          }
+
+          $sailIndex++;
         }
-
-        $tab->addRow($row);
       }
     }
     return $form;

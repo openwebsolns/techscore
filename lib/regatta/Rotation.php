@@ -272,6 +272,8 @@ class Rotation {
     $teams = array_values($teams);
     $races = array_values($races);
 
+    $race_objs = array(); // race objects to reset
+
     // verify parameters
     $num_sails = count($sails);
     $num_teams = count($teams);
@@ -290,8 +292,8 @@ class Rotation {
         throw new InvalidArgumentException("The list of divisions must be of the same size as the list of races.");
       $table = $this->createStandardTable($sails, $num_races, $repeats, $updir);
       foreach ($races as $r => $num) {
-// @TODO getRace()
         $race = $this->regatta->getRace($divisions[$r], $num);
+        $race_objs[$race->id] = $race;
         foreach ($teams as $t => $team) {
           $sail = new Sail();
           $sail->race = $race;
@@ -313,8 +315,8 @@ class Rotation {
       $table = $this->createStandardTable($sails, $num_races, $repeats, $updir);
       foreach ($races as $r => $num) {
         foreach ($teams as $t => $team) {
-// @TODO getRace()
           $race = $this->regatta->getRace($divisions[$t], $num);
+          $race_objs[$race->id] = $race;
 
           $sail = new Sail();
           $sail->race = $race;
@@ -325,6 +327,8 @@ class Rotation {
         }
       }
     }
+    foreach ($race_objs as $race)
+      $this->reset($race);
     $this->commit();
   }
 
@@ -378,6 +382,8 @@ class Rotation {
     $teams = array_values($teams);
     $races = array_values($races);
 
+    $race_objs = array(); // races to reset
+
     // verify parameters
     $num_sails = count($sails);
     $num_teams = count($teams);
@@ -397,8 +403,8 @@ class Rotation {
 
       $table = $this->createSwapTable($sails, $num_races, $repeats, $updir);
       foreach ($races as $r => $num) {
-// @TODO getRace()
         $race = $this->regatta->getRace($divisions[$r], $num);
+        $race_objs[$race->id] = $race;
         foreach ($teams as $t => $team) {
           $sail = new Sail();
           $sail->race = $race;
@@ -420,8 +426,8 @@ class Rotation {
       $table = $this->createSwapTable($sails, $num_races, $repeats, $updir);
       foreach ($races as $r => $num) {
         foreach ($teams as $t => $team) {
-// @TODO getRace()
           $race = $this->regatta->getRace($divisions[$t], $num);
+          $race_objs[$race->id] = $race;
 
           $sail = new Sail();
           $sail->race = $race;
@@ -432,6 +438,8 @@ class Rotation {
         }
       }
     }
+    foreach ($race_objs as $race)
+      $this->reset($race);
     $this->commit();
   }
 
@@ -530,9 +538,12 @@ class Rotation {
    * @param Array:Race $fromraces list of template races
    * @param Array:Race $toraces matching list of races to affect
    * @param int $offset the number of places to shift
+   * @return Array:Race list of races whose sails were queued
    * @throws InvalidArgumentException if the array sizes do not match
    */
   public function queueOffset(Division $fromdiv, Division $todiv, Array $nums, $offset) {
+    $queued_races = array();
+
     foreach ($nums as $num) {
       $from = $this->regatta->getRace($fromdiv, $num);
       $to = $this->regatta->getRace($todiv, $num);
@@ -550,7 +561,10 @@ class Rotation {
 
         $this->queue($new_sail);
       }
+
+      $queued_races[] = $to;
     }
+    return $queued_races;
   }
 
   /**
@@ -563,11 +577,17 @@ class Rotation {
    * @throws InvalidArgumentException
    */
   public function queueCombinedOffset(Array $nums, $offset) {
+    $divisions = $this->regatta->getDivisions();
+    $queued_races = array();
     foreach ($nums as $num) {
-      $race = new Race();
-      $race->number = $num;
+      $races = array();
+      foreach ($divisions as $div) {
+        $race = $this->regatta->getRace($div, $num);
+        $races[] = $race;
+        $queued_races[] = $race;
+      }
+      $sails = $this->getCommonSails($races);
 
-      $sails = $this->getCombinedSails($race);
       $upper = count($sails);
       foreach ($sails as $j => $sail) {
         $offset_sail = $sails[($j + $offset + $upper) % $upper];
@@ -578,6 +598,7 @@ class Rotation {
         $this->queue($new_sail);
       }
     }
+    return $queued_races;
   }
 
   /**
@@ -669,20 +690,13 @@ class Rotation {
   }
 
   /**
-   * As of 2011-02-06, this function no longer notifies the update
-   * manager that a rotation change has happened. Instead, client code
-   * is responsible for doing so. This function, which is currently
-   * empty, should be called anyways, because it is possible that in
-   * the future a call to this method will be required in order to
-   * actually commit the changes to the database. At the moment,
-   * however, each call to <pre>replaceSail</pre> and its brethren
-   * issues a SQL query on its own.
-   *
    * This method is now necessary to use in conjunction with
    * Rotation::queue
+   *
+   * Client code is responsible for resetting the appropriate races
+   * prior to calling this function.
    */
   public function commit() {
-    $this->reset();
     DB::insertAll($this->queued_sails);
   }
 
@@ -707,6 +721,13 @@ class Rotation {
       return;
     $this->queued_sails[$sail->hash()] = $sail;
   }
+
+
+  public function dumpQueue() {
+    echo "<pre>"; print_r($this->queued_sails); "</pre>";
+    exit;
+  }
+
   private $queued_sails;
 
   /**

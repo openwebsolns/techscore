@@ -192,22 +192,27 @@ h4#regatta {
 }
 
 .port {border:1px solid #cccccc;padding:0 1em 0.5em;margin-bottom:1.5em;}
-.port.collapsed  {
+.collapsed  {
     background: #eee;
     height: 2em;
 }
-.port.collapsed * {
+.collapsed * {
     display: none;
 }
-.port.collapsed h3 {
+.collapsable legend {
     display:inline-block;
     border: 1px solid #ddd;
+    background: white;
+    cursor: pointer;
 }
-.port.collapsed h3:after {
-    content: "click to expand";
+.collapsable legend:after {
+    content: "click to collapse";
     font-weight: bold;
     font-size: 70%;
     margin-left: 1em;
+}
+.collapsable.collapsed legend:after {
+    content: "click to expand";
 }
 .port h3 {
     color:#555555;

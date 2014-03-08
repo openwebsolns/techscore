@@ -74,8 +74,10 @@ class TeamEnterFinishPane extends EnterFinishPane {
       // ------------------------------------------------------------
       // Choose race: provide grid
       // ------------------------------------------------------------
-      foreach ($this->REGATTA->getRounds() as $round)
+      foreach ($this->REGATTA->getRounds() as $round) {
+        $p->add(new XH4($round));
         $p->add($this->getRoundTable($round));
+      }
       return;
     }
 

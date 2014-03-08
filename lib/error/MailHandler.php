@@ -14,13 +14,16 @@
 class MailHandler {
   public static $CENSORED_POST = array('userid', 'pass');
   public static function handleErrors($errno, $errstr, $errfile, $errline) {
-    $fmt = "%6s: %s\n";
+    $fmt = "%7s: %s\n";
     $body  = sprintf($fmt, "Time",   date('Y-m-d H:i:s'));
     $body .= sprintf($fmt, "Number", $errno);
     $body .= sprintf($fmt, "String", $errstr);
     $body .= sprintf($fmt, "File",   $errfile);
     $body .= sprintf($fmt, "Line",   $errline);
     $body .= @sprintf($fmt, "Request", $_SERVER['REQUEST_URI']);
+    $body .= sprintf($fmt, "User", (Conf::$USER !== null) ? Conf::$USER->id : "--");
+    $body .= sprintf($fmt, "Browser", (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : "--");
+    $body .= sprintf($fmt, "Method", (isset($_SERVER['REQUEST_METHOD'])) ? $_SERVER['REQUEST_METHOD'] : "--");
     foreach (debug_backtrace() as $list) {
       $body .= "--------------------\n";
       foreach (array('file', 'line', 'class', 'function') as $index) {
@@ -49,18 +52,22 @@ class MailHandler {
     $P->addContent(new XPageTitle("Server error"));
     $P->addContent(new XP(array(), "There was an error while handling your request. Administrators have been notified of the problem and it will be addressed as soon as possible."));
     $P->addContent(new XP(array(), "Sorry for the inconvenience."));
+    http_response_code(500);
     $P->printXML();
     DB::rollback();
     exit;
   }
   public static function handleExceptions(Exception $e) {
-    $fmt = "%6s: %s\n";
+    $fmt = "%7s: %s\n";
     $body  = sprintf($fmt, "Time",   date('Y-m-d H:i:s'));
     $body .= sprintf($fmt, "Number", $e->getCode());
     $body .= sprintf($fmt, "String", $e->getMessage());
     $body .= sprintf($fmt, "File",   $e->getFile());
     $body .= sprintf($fmt, "Line",   $e->getLine());
     $body .= sprintf($fmt, "Request", $_SERVER['REQUEST_URI']);
+    $body .= sprintf($fmt, "User", (Conf::$USER !== null) ? Conf::$USER->id : "--");
+    $body .= sprintf($fmt, "Browser", (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : "--");
+    $body .= sprintf($fmt, "Method", (isset($_SERVER['REQUEST_METHOD'])) ? $_SERVER['REQUEST_METHOD'] : "--");
     $body .= "--------------------\n";
     $body .= sprintf($fmt, "Trace",  $e->getTraceAsString());
     if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -84,6 +91,7 @@ class MailHandler {
     $P->addContent(new XPageTitle("Server error"));
     $P->addContent(new XP(array(), "There was an error while handling your request. Administrators have been notified of the problem and it will be addressed as soon as possible."));
     $P->addContent(new XP(array(), "Sorry for the inconvenience."));
+    http_response_code(500);
     $P->printXML();
     DB::rollback();
     exit;

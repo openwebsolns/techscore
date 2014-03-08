@@ -175,22 +175,11 @@ class TeamRacesPane extends AbstractRoundPane {
         if ($ROUND->num_teams !== null)
           $num_teams = $ROUND->num_teams;
 
-        $freq = array("" => "");
-        foreach (Race_Order::getFrequencyTypes() as $key => $val)
-          $freq[$key] = $val;
-
-        $boats[""] = "";
-
         $this->PAGE->addContent($p = new XPort("Sailoff round settings"));
         $p->add($form = $this->createForm());
         $form->add(new FItem("Round name:", new XTextInput('title', $ROUND->title)));
         $form->add(new FItem("Round to sailoff:", XSelect::fromDBM('sailoff_for_round', $sailoff_rounds)));
         $form->add(new FItem("Number of teams:", new XTextInput('num_teams', $num_teams)));
-
-        $form->add(new XP(array(), "To use the same settings as the round chosen above, leave the following settings blank."));
-        $form->add(new FItem("Number of boats:", new XInput('number', 'num_boats', '', array('min'=>0, 'step'=>$group_size))));
-        $form->add(new FItem("Rotation frequency:", XSelect::fromArray('rotation_frequency', $freq)));
-        $form->add(new FItem("Boat:", XSelect::fromArray('boat', $boats, "")));
         $form->add($p = new XSubmitP('create-settings', "Next →"));
       }
 
@@ -232,18 +221,17 @@ class TeamRacesPane extends AbstractRoundPane {
       $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/toggle-tablesort.js'));
       $this->PAGE->addContent($p = new XPort("Race orders"));
       $p->add($form = $this->createForm());
-      $form->set('id', 'edit-races-form');
 
       $order = null;
-      $message = null;
+      $collapse = false;
       if ($ROUND->race_order !== null) {
         $order = new Race_Order();
         $order->template = $ROUND->race_order;
-        $message = "The saved race order is shown below.";
+        $form->add(new XP(array('class'=>'valid'), "The saved race order is shown below."));
+        $collapse = true;
       }
       else {
         $order = DB::getRaceOrder($num_divs, $ROUND->num_teams, $ROUND->num_boats, $ROUND->rotation_frequency, $master_count);
-        $message = "A race order template has been automatically chosen below.";
       }
       if ($order === null) {
         // Create basic order
@@ -269,19 +257,24 @@ class TeamRacesPane extends AbstractRoundPane {
         }
         $order = new Race_Order();
         $order->template = array_keys($template);
-        $message = new XStrong("Please set the race order below.");
+        $form->add(new XP(array('class'=>'warning'), "No race order template exists for the chosen settings. Please set the race order below before continuing."));
+      }
+      else {
+        $form->add(new XP(array('class'=>'valid'), "Great! A race order template has been automatically chosen based on the round settings!"));
+        $form->add(new XP(array(), "You may choose to revise the race order below, but we recommend you use the pre-chosen template."));
+        $collapse = true;
       }
 
-      $form->add(new XNoScript("To reorder the races, indicate the relative desired order in the first cell."));
-      $form->add(new XScript('text/javascript', null, 'var f = document.getElementById("edit-races-form"); var p = document.createElement("p"); p.appendChild(document.createTextNode("To reorder the races, move the rows below by clicking and dragging on the first cell (\"#\") of that row.")); f.appendChild(p);'));
-      $form->add(new XP(array(), $message));
-      $form->add(new XNoScript(array(new XP(array(),
+      $form->add($div = new XFieldSet("Manual setting", array('id'=>'race-order-container')));
+      $div->add(new XNoScript("To reorder the races, indicate the relative desired order in the first cell."));
+      $div->add(new XScript('text/javascript', null, 'var f = document.getElementById("race-order-container"); var p = document.createElement("p"); p.appendChild(document.createTextNode("To reorder the races, move the rows below by clicking and dragging on the first cell (\"#\") of that row.")); f.appendChild(p);'));
+      $div->add(new XNoScript(array(new XP(array(),
                                             array(new XStrong("Important:"), " check the edit column if you wish to edit that race. The race will not be updated regardless of changes made otherwise.")))));
       $header = array("Order", "#");
       $header[] = "First team";
       $header[] = "← Swap →";
       $header[] = "Second team";
-      $form->add($tab = new XQuickTable(array('id'=>'divtable', 'class'=>'teamtable'), $header));
+      $div->add($tab = new XQuickTable(array('id'=>'divtable', 'class'=>'teamtable'), $header));
       for ($i = 0; $i < count($order->template); $i++) {
         $pair = $order->getPair($i);
         $tab->addRow(array(new XTextInput('order[]', ($i + 1), array('size'=>2)),
@@ -296,6 +289,16 @@ class TeamRacesPane extends AbstractRoundPane {
                      array('class'=>'sortable'));
       }
       $form->add(new XSubmitP('create-order', "Next →"));
+
+      if ($collapse) {
+        $div->set('class', 'collapsable');
+        $this->PAGE->head->add(new XScript('text/javascript', null, '
+window.addEventListener("load", function(e) {
+  var d = document.getElementById("race-order-container");
+  d.classList.toggle("collapsed");
+  d.childNodes[0].onclick = function(e) { d.classList.toggle("collapsed"); };
+}, false);'));
+      }
       return;
     }
 
@@ -441,6 +444,7 @@ class TeamRacesPane extends AbstractRoundPane {
                               $body = new XTBody()));
 
       $flight = $ROUND->num_boats / $group_size;
+
       for ($i = 0; $i < count($ROUND->race_order); $i++) {
         // spacer
         if ($flight > 0 && $i % $flight == 0) {
@@ -567,7 +571,7 @@ class TeamRacesPane extends AbstractRoundPane {
 
   private function getBoatOptions() {
     $boats = DB::getBoats();
-    $boatOptions = array();
+    $boatOptions = array("" => "");
     foreach ($boats as $boat)
       $boatOptions[$boat->id] = $boat->name;
     return $boatOptions;
@@ -872,17 +876,8 @@ class TeamRacesPane extends AbstractRoundPane {
         }
       }
 
-      // Insert all at once
-      foreach ($new_races as $race)
-        DB::set($race, false);
-      DB::insertAll($new_sails);
-      if (count($new_finishes) > 0) {
-        $this->REGATTA->commitFinishes($new_finishes);
-        $this->REGATTA->doScore();
-        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
-      }
-
       // Displaced rounds?
+      $updated_races = array();
       if ($round->sailoff_for_round !== null) {
         $other_rounds = array_values($rounds);
         $round_to_check = $round->sailoff_for_round;
@@ -903,13 +898,26 @@ class TeamRacesPane extends AbstractRoundPane {
             for ($j = 1; $j < count($divisions); $j++) {
               $r = $this->REGATTA->getRace($divisions[$j], $race->number);
               $r->number = $racenum;
-              DB::set($r, true);
+	      $updated_races[] = $r;
             }
             $race->number = $racenum;
-            DB::set($race, true);
+	    $updated_races[] = $race;
           }
           DB::set($other_rounds[$i], true);
         }
+      }
+
+      // Update all
+      foreach ($updated_races as $race)
+	DB::set($race, true);
+      // Insert all at once
+      foreach ($new_races as $race)
+        DB::set($race, false);
+      DB::insertAll($new_sails);
+      if (count($new_finishes) > 0) {
+        $this->REGATTA->commitFinishes($new_finishes);
+        $this->REGATTA->doScore();
+        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
       }
 
       $this->REGATTA->setData(); // new races
@@ -967,6 +975,8 @@ class TeamRacesPane extends AbstractRoundPane {
       }
     }
 
+    $round->boat = DB::$V->reqID($args, 'boat', DB::$BOAT, "No boat provided.");
+
     $round->title = $title;
     $round->num_teams = $num_teams;
     $round->num_boats = $num_boats;
@@ -979,7 +989,6 @@ class TeamRacesPane extends AbstractRoundPane {
     if ($clean_rotation)
       $round->rotation = null;
 
-    $round->boat = DB::$V->reqID($args, 'boat', DB::$BOAT, "Invalid or missing boat.");
     return array();
   }
 
@@ -1031,6 +1040,12 @@ class TeamRacesPane extends AbstractRoundPane {
     }
     $round->boat = DB::$V->incID($args, 'boat', DB::$BOAT, $templ->boat);
     $round->sailoff_for_round = $templ;
+
+    // If only two teams, involved, assign sail order
+    if ($num_teams == 2) {
+      $round->race_order = array("1-2");
+      $round->rotation = $templ->rotation;
+    }
     return array();
   }
 

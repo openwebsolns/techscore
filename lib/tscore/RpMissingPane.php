@@ -38,6 +38,8 @@ class RpMissingPane extends AbstractPane {
     $rows = array();
     foreach ($divisions as $divNumber => $div) {
       $name = "Division " . $div;
+      if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
+        $name = $div->getLevel(count($divisions));
       $header->add(new XTH(array('colspan'=>2), $name));
 
       foreach ($this->REGATTA->getScoredRacesForTeam($div, $chosen_team) as $race) {
