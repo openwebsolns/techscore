@@ -160,7 +160,7 @@ class VenueManagement extends AbstractAdminUserPane {
       DB::set($venue);
       if ($old_id == $venue->id) {
         Session::pa(new PA(sprintf('Edited venue "%s".', $venue->name)));
-        WS::go('/venue');
+        $this->redirect('venue');
       }
       Session::pa(new PA('Added new venue.'));
       return array();

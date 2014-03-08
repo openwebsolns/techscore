@@ -114,7 +114,7 @@ class BoatManagement extends AbstractAdminUserPane {
 
       DB::set($boat);
       Session::pa(new PA($mess));
-      WS::go('/boats');
+      $this->redirect('boats');
     }
 
     // ------------------------------------------------------------

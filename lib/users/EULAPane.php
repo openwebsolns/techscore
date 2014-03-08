@@ -50,7 +50,7 @@ class EULAPane extends AbstractUserPane {
       $this->USER->status = Account::STAT_ACTIVE;
       DB::set($this->USER);
       Session::pa(new PA("Thank you for activating your account!"));
-      WS::go('/');
+      $this->redirect('');
     }
     return array();
   }

@@ -82,7 +82,7 @@ class PasswordRecoveryPane extends AbstractUserPane {
       else
         Session::pa(new PA("Account password successfully reset."));
       DB::set($acc);
-      WS::go('/');
+      $this->redirect('');
     }
 
     // ------------------------------------------------------------

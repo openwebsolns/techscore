@@ -223,7 +223,7 @@ class SendMessage extends AbstractAdminUserPane {
 
     DB::set($out);
     Session::pa(new PA("Successfully queued message to be sent."));
-    WS::go('/send-message');
+    $this->redirect('send-message');
   }
 
   /**

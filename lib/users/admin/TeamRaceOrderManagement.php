@@ -286,7 +286,7 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
       Session::pa(new PA(sprintf("Saved team race order template for %d teams in %d boats.",
                                  $template->num_teams,
                                  $template->num_boats)));
-      WS::go('/race-order');
+      $this->redirect('race-order');
     }
 
     // ------------------------------------------------------------
@@ -299,7 +299,7 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
       Session::pa(new PA(sprintf("Edited template for %d teams in %d boats.",
                                  $template->num_teams,
                                  $template->num_boats)));
-      WS::go('/race-order');
+      $this->redirect('race-order');
     }
 
     // ------------------------------------------------------------

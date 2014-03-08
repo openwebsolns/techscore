@@ -151,7 +151,7 @@ class SponsorsManagement extends AbstractAdminUserPane {
       $sponsor = DB::$V->reqID($args, 'sponsor', DB::$PUB_SPONSOR, "Invalid sponsor to edit.");
       DB::remove($sponsor);
       Session::pa(new PA(sprintf("Removed sponsor \"%s\". Future files will not have this sponsor.", $sponsor->name)));
-      WS::go('/' . $this->page_url);
+      $this->redirect($this->page_url);
     }
   }
 
