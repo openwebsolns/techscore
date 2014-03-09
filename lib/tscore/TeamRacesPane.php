@@ -277,7 +277,7 @@ class TeamRacesPane extends AbstractRoundPane {
       $div->add($tab = new XQuickTable(array('id'=>'divtable', 'class'=>'teamtable'), $header));
       for ($i = 0; $i < count($order->template); $i++) {
         $pair = $order->getPair($i);
-        $tab->addRow(array(new XTextInput('order[]', ($i + 1), array('size'=>2)),
+        $tab->addRow(array(new XNumberInput('order[]', ($i + 1), 1, count($order->template), 1, array('size'=>2)),
                            new XTD(array('class'=>'drag'), ($i + 1)),
                            new XTD(array(),
                                    array(new XEm(sprintf("Team %d", $pair[0])),

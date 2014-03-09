@@ -52,7 +52,7 @@ class RacesPane extends AbstractPane {
                                                                       $divs,
                                                                       count($this->REGATTA->getDivisions()))));
     }
-    $form->add(new FItem("Number of races:", new XTextInput('num_races', count($this->REGATTA->getTeams()))));
+    $form->add(new FItem("Number of races:", new XNumberInput('num_races', count($this->REGATTA->getTeams()), 1, null, 1)));
     $form->add($fi = new FItem("Boat:", XSelect::fromArray('boat', $boatOptions)));
     $fi->add(new XMessage("Boats can be assigned per division or race afterwards."));
     $fi->add(new XSubmitP("set-races", "Add races"));
@@ -88,8 +88,9 @@ class RacesPane extends AbstractPane {
                                                                                count($this->REGATTA->getDivisions()))));
     }
     $form->add(new FItem("Number of races:",
-                         $f_rac = new XTextInput("num_races",
-                                                 count($this->REGATTA->getRaces(Division::A())))));
+                         $f_rac = new XNumberInput("num_races",
+                                                   count($this->REGATTA->getRaces(Division::A())),
+                                                   1, null, 1)));
 
     $attrs = ($final) ? array('disabled'=>'disabled') : array();
     $form->add($xp = new XSubmitP("set-races", "Save changes", $attrs));

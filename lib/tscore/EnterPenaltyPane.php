@@ -71,11 +71,8 @@ class EnterPenaltyPane extends AbstractPane {
       $p->add($form = $this->createForm(XForm::GET));
 
       $form->add(new FItem("Possible races:", $this->getRaceTable()));
-      $form->add(new FItem("Race:", new XTextInput("race", $theRace,
-                                                   array("size"=>"4",
-                                                         "maxlength"=>"4",
-                                                         "id"=>"chosen_race",
-                                                         "class"=>"narrow"))));
+      $form->add(new FItem("Race:", new XTextInput("race", $theRace)));
+
       $this->fillAlternateRaceSelection($form);
 
       // Penalty type
@@ -243,8 +240,8 @@ class EnterPenaltyPane extends AbstractPane {
     $new_score->add(new XLabel("avg_box", $average));
     $form->add($new_score);
 
-    $new_score = new FItem("OR Assign score:", new XTextInput("p_amount", "", array("size"=>"2", "id"=>"p_amount")));
-    $new_score->add(new XCheckboxInput("displace", "yes", array("id"=>"displace_box")));
+    $new_score = new FItem("OR Assign score:", new XNumberInput('p_amount', "", 1, null, 1, array('size'=>'2', 'id'=>'p_amount')));
+    $new_score->add(new XCheckboxInput('displace', 'yes', array('id'=>'displace_box')));
     $new_score->add(new XLabel('displace_box', 'Displace finishes'));
     $form->add($new_score);
 

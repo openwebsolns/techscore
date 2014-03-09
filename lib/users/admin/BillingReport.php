@@ -161,7 +161,7 @@ class BillingReport extends AbstractAdminUserPane {
     $form->add(new FItem("Seasons:", $this->seasonList('sea-', $seasons)));
     $form->add(new FItem(sprintf("%ss:", DB::g(STN::CONFERENCE_TITLE)), $this->conferenceList('conf-', $confs)));
 
-    $form->add(new FItem("Regatta types:", $ul = new XUl(array('class'=>'inline-list'))));
+    $form->add(new FItem("Regatta costs:", $ul = new XUl(array('class'=>'inline-list'))));
     foreach (DB::getAll(DB::$ACTIVE_TYPE) as $t) {
       $id = 'types-' . $t->id;
       $cost = (isset($types[$t->id])) ? $types[$t->id] : "";

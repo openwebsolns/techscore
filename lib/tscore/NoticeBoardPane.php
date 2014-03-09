@@ -58,7 +58,7 @@ class NoticeBoardPane extends AbstractPane {
                                      array("Order", "#", "Name", "Description", "Category", "Download", "Delete?")));
       foreach ($files as $i => $file) {
         $tab->addRow(array(new XTD(array(),
-                                   array(new XTextInput('order[]', ($i + 1), array('size'=>2)),
+                                   array(new XNumberInput('order[]', ($i + 1), 1, count($files), 1, array('size'=>2)),
                                          new XHiddenInput('document[]', $file->url))),
                            new XTD(array('class'=>'drag'), ($i + 1)),
                            new XStrong($file->name),

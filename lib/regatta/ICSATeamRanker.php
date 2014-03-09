@@ -146,7 +146,7 @@ class ICSATeamRanker extends ICSARanker {
       $rank = (isset($ranks[$team->id])) ? $ranks[$team->id] : new TeamRank($team);
       if ($team->lock_rank !== null && $team->dt_rank !== null) {
         if ($team->dt_rank < $min_rank || $team->dt_rank > $max_rank)
-          throw new InvalidArgumentException(sprintf("Locked rank of %d for %s outside the range of group %d-%d.", $team, $team->dt_rank, $min_rank, $max_rank));
+          throw new InvalidArgumentException(sprintf("Locked rank of %d for %s outside the range of group %d-%d.", $team->dt_rank, $team, $team->dt_rank, $min_rank, $max_rank));
         $locked_records[] = $rank;
       }
       else

@@ -98,7 +98,7 @@ class AllAmerican extends AbstractUserPane {
       $form->add($fi = new FItem(sprintf("%ss:", DB::g(STN::CONFERENCE_TITLE)), $this->conferenceList('conf-')));
       $fi->set('title', "Only choose sailors from selected conference(s) automatically. You can manually choose sailors from other divisions.");
 
-      $form->add($fi = new FItem("Min. # Regattas", new XTextInput('min-regattas', 2, array('size'=>3, 'maxlength'=>3, 'style'=>'min-width:3em'))));
+      $form->add($fi = new FItem("Min. # Regattas", new XNumberInput('min-regattas', 2, 1, null, 1, array('size'=>3))));
       $fi->add(new XMessage("Sailors must qualify for at least this many regattas to be automatically considered."));
 
       $form->add(new XSubmitP('set-report', "Choose regattas →"));

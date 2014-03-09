@@ -32,7 +32,6 @@ class NotesPane extends AbstractPane {
                                   new XTextInput('race', "",
                                                  array("size"=>"4",
                                                        "maxlength"=>"4",
-                                                       "id"=>"chosen_race",
                                                        "class"=>"narrow"))));
 
     // Table of possible races

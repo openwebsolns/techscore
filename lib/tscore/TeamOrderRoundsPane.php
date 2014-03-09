@@ -69,7 +69,7 @@ class TeamOrderRoundsPane extends AbstractRoundPane {
       else {
         $independent_rounds[] = $round;
       }
-      $tab->addRow(array(new XTD(array(), array(new XTextInput('order[]', $round->relative_order, array('size'=>2, 'class'=>'small')),
+      $tab->addRow(array(new XTD(array(), array(new XNumberInput('order[]', $round->relative_order, 1, null, 1, array('size'=>2, 'class'=>'small')),
                                                 new XHiddenInput('round[]', $round->id))),
                          new XTD(array('class'=>'drag'), DB::makeRange($rel)),
                          $lnk),

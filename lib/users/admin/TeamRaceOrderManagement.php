@@ -63,8 +63,8 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
       if ($num % $races_per_flight == 0)
         $form->add($tab = new XQuickTable(array('class'=>'tr-order-race'), array("#", "Team A", "Team B")));
       $tab->addRow(array($num + 1,
-                         new XTextInput('team1[]', $pair[0], array('size'=>2, 'min'=>1, 'max'=>$template->num_teams)),
-                         new XTextInput('team2[]', $pair[1], array('size'=>2, 'min'=>1, 'max'=>$template->num_teams))));
+                         new XNumberInput('team1[]', $pair[0], 1, $template->num_teams, 1, array('size'=>2)),
+                         new XNumberInput('team2[]', $pair[1], 1, $template->num_teams, 1, array('size'=>2))));
     }
 
     // Add template as dump
@@ -176,8 +176,8 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
     $fi->add(new XStrong("OR"));
 
     $form->add(new FItem("# of teams carried over:", new XTextInput('master_teams', ''), "As a comma-separated list, e.g. \"4, 4\"."));
-    $form->add(new FItem("# of boats/team:", new XTextInput('divs', 3, array('size'=>2, 'min'=>1, 'max'=>4)), "Use 3 for a \"3 on 3\" team race, for example"));
-    $form->add(new FItem("# of boats:", new XTextInput('boats', "", array('size'=>2)), "Total number of boats, i.e. 18, 24"));
+    $form->add(new FItem("# of boats/team:", new XNumberInput('divs', 3, 1, 4, 1, array('size'=>2)), "Use 3 for a \"3 on 3\" team race, for example"));
+    $form->add(new FItem("# of boats:", new XNumberInput('boats', "", 1, null, 1, array('size'=>2)), "Total number of boats, i.e. 18, 24"));
     $form->add(new FItem("Boat rotation:", XSelect::fromArray('frequency', $frequencies)));
     $form->add(new XSubmitP('create', "Create template"));
 

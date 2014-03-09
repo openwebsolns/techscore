@@ -46,7 +46,7 @@ class TeamEnterPenaltyPane extends EnterPenaltyPane {
       $new_score->add(new XLabel('def_box', sprintf("Use standard scoring (%s)", $default)));
       $form->add($new_score);
 
-      $new_score = new FItem("OR set amount:", new XTextInput('p_amount', "", array('size'=>2, 'id'=>'p_amount')));
+      $new_score = new FItem("OR set amount:", new XNumberInput('p_amount', "", 1, null, 1, array('size'=>2, 'id'=>'p_amount')));
       $form->add($new_score);
 
       $form->add(new XScript('text/javascript', null,
@@ -55,7 +55,7 @@ class TeamEnterPenaltyPane extends EnterPenaltyPane {
     }
     else {
       // Assign score only
-      $form->add(new FItem("New place:", new XTextInput('p_amount', "", array('size'=>2, 'id'=>'p_amount'))));
+      $form->add(new FItem("New place:", new XNumberInput('p_amount', "", 1, null, 1, array('size'=>2, 'id'=>'p_amount'))));
     }
   }
 

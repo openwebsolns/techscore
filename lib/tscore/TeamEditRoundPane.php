@@ -175,7 +175,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
         $t0 = $teams[$pair[0] - 1];
         $t1 = $teams[$pair[1] - 1];
 
-        $tab->addRow(array(array(new XTextInput('order[]', ($i + 1), array('size'=>2)),
+        $tab->addRow(array(array(new XNumberInput('order[]', ($i + 1), 1, count($round->race_order), 1, array('size'=>2)),
                                  new XHiddenInput('race[]', $i)),
                            new XTD(array('class'=>'drag'), ($i + 1)),
                            $t0,

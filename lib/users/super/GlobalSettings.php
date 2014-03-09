@@ -59,7 +59,7 @@ class GlobalSettings extends AbstractSuperUserPane {
       $chk->set('checked', 'checked');
 
     $f->add(new FItem("PDF Socket:", new XTextInput(STN::PDFLATEX_SOCKET, DB::g(STN::PDFLATEX_SOCKET)), "Full path, or leave blank to use \"exec\" function."));
-    $f->add(new FItem("Notice board limit:", new XTextInput(STN::NOTICE_BOARD_SIZE, DB::g(STN::NOTICE_BOARD_SIZE)), "Size in bytes for each item."));
+    $f->add(new FItem("Notice board limit:", new XNumberInput(STN::NOTICE_BOARD_SIZE, DB::g(STN::NOTICE_BOARD_SIZE), 1), "Size in bytes for each item."));
 
     $f->add(new XSubmitP('set-params', "Save changes"));
   }

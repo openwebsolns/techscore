@@ -39,12 +39,13 @@ class RegattaTypeManagement extends AbstractAdminUserPane {
                                          "Delete")));
     require_once('regatta/Regatta.php');
     $i = 1;
-    foreach (DB::getAll(DB::$ACTIVE_TYPE) as $type) {
+    $types = DB::getAll(DB::$ACTIVE_TYPE);
+    foreach ($types as $type) {
       $del = "";
       if (count(DB::getAll(DB::$FULL_REGATTA, new DBCond('type', $type))) == 0)
         $del = new XCheckboxInput('delete[]', $type->id, array('title'=>"Check to delete type."));
 
-      $tab->addRow(array(new XTD(array(), array(new XTextInput('order[]', $i, array('size'=>2)),
+      $tab->addRow(array(new XTD(array(), array(new XNumberInput('order[]', $i, 1, count($types) + 1, 1, array('size'=>2)),
                                                 new XHiddenInput('type[]', $type->id))),
                          new XTD(array('class'=>'drag'), ""),
                          new XTextInput('title[]', $type->title, array('maxlength'=>30)),
@@ -58,7 +59,7 @@ class RegattaTypeManagement extends AbstractAdminUserPane {
 
       $i++;
     }
-    $tab->addRow(array(new XTD(array(), array(new XTextInput('order[]', $i, array('size'=>2)),
+    $tab->addRow(array(new XTD(array(), array(new XNumberInput('order[]', $i, 1, count($types) + 1, 1, array('size'=>2)),
                                               new XHiddenInput('type[]', '-new-'))),
                        new XTD(array('class'=>'drag'), "New"),
                        new XTextInput('title[]', "", array('maxlength'=>30)),

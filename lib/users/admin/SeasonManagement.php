@@ -42,16 +42,16 @@ class SeasonManagement extends AbstractAdminUserPane {
                   Season::SPRING => "Spring",
                   Season::WINTER => "Winter");
     $tab->addRow(array(new XTD(array(), array(XSelect::fromArray('season[]', $opts), new XHiddenInput('id[]', ""))),
-                       new XTextInput('start_date[]', ''),
-                       new XTextInput('end_date[]', ''),
+                       new XDateInput('start_date[]', null),
+                       new XDateInput('end_date[]', null),
                        new XEm("New")));
 
     $rowIndex = 1;
     foreach (DB::getAll(DB::$SEASON) as $season) {
       $sel = XSelect::fromArray('season[]', $opts, $season->getSeason());
       $tab->addRow(array(new XTD(array(), array($sel, new XHiddenInput('id[]', $season->id))),
-                         new XTextInput('start_date[]', $season->start_date->format('m/d/Y')),
-                         new XTextInput('end_date[]', $season->end_date->format('m/d/Y')),
+                         new XDateInput('start_date[]', $season->start_date),
+                         new XDateInput('end_date[]', $season->end_date),
                          count($season->getRegattas(true))),
                    array('class'=>'row'. ($rowIndex++ % 2)));
     }

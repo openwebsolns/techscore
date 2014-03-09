@@ -98,8 +98,7 @@ class LinksDiv extends XDiv {
     $f->add('Jump:');
     foreach ($args as $k => $value)
       $f->add(new XHiddenInput($k, $value));
-    $f->add(new XTextInput($key, $cur, array('size'=>'2',
-                                             'maxlength'=>strlen((string)$num))));
+    $f->add(new XNumberInput($key, $cur, 1, $num, 1, array('size'=>'2')));
     $f->add(new XSubmitInput('go', "Go"));
   }
 }

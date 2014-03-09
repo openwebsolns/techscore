@@ -80,11 +80,11 @@ class TweakSailsPane extends AbstractPane {
     }
 
     $range_races = sprintf('1-%d', count($this->REGATTA->getRaces(Division::A())));
-    $form->add(new FItem("Races:", new XTextInput("races", $range_races, array("size"=>"12"))));
+    $form->add(new FItem("Races:", new XTextInput('races', $range_races, array('size'=>'12'))));
 
     if ( $edittype === "ADD") {
-      $form->add(new FItem("Add/subtract:",
-                           $f = new XTextInput('addamount', "", array("size"=>"3"))));
+      $form->add(new FItem("Add amount (±):",
+                           $f = new XNumberInput('addamount', "", null, null, 1, array('size'=>'3'))));
       $f->set("maxlength", "3");
       $form->add(new XP(array('class'=>'p-submit'),
                         array(new XA($this->link('tweak-sails'), "← Start over"), " ",

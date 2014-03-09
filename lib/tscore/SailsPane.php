@@ -56,11 +56,11 @@ class SailsPane extends AbstractPane {
     // Races
     $range_races = sprintf('1-%d', count($this->REGATTA->getRaces(Division::A())));
     $form->add(new FItem(sprintf("Races (%s):", $range_races),
-                         new XTextInput("races", $range_races, array("id"=>"frace"))));
+                         new XTextInput('races', $range_races)));
 
     if ($chosen_rot == "OFF") {
       $form->add(new XHiddenInput('from_div', Division::A()));
-      $form->add(new FItem("Amount to offset (±):", new XTextInput('offset', (int)(count($teams) / 2))));
+      $form->add(new FItem("Amount to offset (±):", new XNumberInput('offset', (int)(count($teams) / 2))));
 
       $form->add(new XP(array('class'=>'p-submit'),
                         array(new XA($this->link('rotations'), "← Start over"), " ",
@@ -73,7 +73,7 @@ class SailsPane extends AbstractPane {
     // ------------------------------------------------------------
     // Set size
     if ($chosen_rot != "NOR")
-      $form->add($fitem = new FItem("Races in set:", $f_text = new XTextInput("repeat", 2, array('size'=>2, 'id'=>'repeat'))));
+      $form->add($fitem = new FItem("Races in set:", $f_text = new XNumberInput('repeat', 2, 1, null, null, array('size'=>2))));
 
     // Teams table
     $bye_team = null;
@@ -251,7 +251,7 @@ class SailsPane extends AbstractPane {
         $form->add(new FItem("Order:", $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'divtable'), array("#", "Div."))));
         $i = 0;
         foreach ($chosen_div as $div) {
-          $tab->addRow(array(new XTextInput("order[]", ++$i, array('class'=>'small', 'size'=>2, 'maxlength'=>1)),
+          $tab->addRow(array(new XNumberInput("order[]", ++$i, 1, count($chosen_div), 1, array('class'=>'small', 'size'=>2)),
                              new XTD(array('class'=>'drag'), array($div, new XHiddenInput('division[]', $div)))),
                        array('class'=>'sortable'));
         }
@@ -293,9 +293,8 @@ class SailsPane extends AbstractPane {
         else
           $form->add(new FItem("Template Division:", XSelect::fromArray('from_div', $exist_div)));
         $form->add(new FItem("Amount to offset (+/-):",
-                             new XTextInput("offset", (int)(count($p_teams) / count($divisions)),
-                                            array("size"=>"2",
-                                                  "maxlength"=>"2"))));
+                             new XNumberInput('offset', (int)(count($p_teams) / count($divisions)),
+                                              null, null, 1, array('size'=>'2'))));
 
         $form->add(new XP(array('class'=>'p-submit'),
                           array(new XA(WS::link(sprintf('/score/%d/sails', $this->REGATTA->id)), "← Start over"), " ",
@@ -304,9 +303,7 @@ class SailsPane extends AbstractPane {
       else {
         if ($chosen_rot != "NOR") {
           $form->add(new FItem("Races in set:",
-                               $f_text = new XTextInput("repeat", $repeats,
-                                                        array("size"=>"2",
-                                                              "id"=>"repeat"))));
+                               $f_text = new XNumberInput('repeat', $repeats, 1, null, 1, array('size'=>'2'))));
         }
         $divs = array_values($chosen_div);
         $form->add(new FItem("Enter sail numbers in first race of div. " . $divs[0],

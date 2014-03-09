@@ -68,7 +68,7 @@ class SponsorsManagement extends AbstractAdminUserPane {
           $log = new XImg(sprintf('data:%s;base64,%s', $file->filetype, base64_encode($file->filedata)), "");
         }
         $tab->addRow(array(new XTD(array(),
-                                   array(new XTextInput('order[]', ($i + 1), array('size'=>2)),
+                                   array(new XNumberInput('order[]', ($i + 1), 1, count($curr), 1, array('size'=>2)),
                                          new XHiddenInput('sponsor[]', $sponsor->id))),
                            new XTD(array('class'=>'drag'), ($i + 1)),
                            $sponsor->name,
@@ -157,7 +157,7 @@ class SponsorsManagement extends AbstractAdminUserPane {
 
   private function fillForm(XForm $f, Pub_Sponsor $sponsor) {
     $f->add(new FItem("Name:", new XTextInput('name', $sponsor->name, array('maxlength'=>50))));
-    $f->add(new FItem("URL:", new XTextInput('url', $sponsor->url, array('maxlength'=>255))));
+    $f->add(new FItem("URL:", new XUrlInput('url', $sponsor->url, array('maxlength'=>255))));
     $f->add(new FItem("Logo:", $sel = new XSelect('logo')));
     $sel->add(new FOption("", ""));
     foreach (DB::getAll(DB::$PUB_FILE_SUMMARY, new DBCond('filetype', 'image/%', DBCond::LIKE)) as $file) {

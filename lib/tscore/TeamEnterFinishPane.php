@@ -56,7 +56,6 @@ class TeamEnterFinishPane extends EnterFinishPane {
                            $race_input = new XTextInput('race', "",
                                                         array("size"=>"4",
                                                               "maxlength"=>"3",
-                                                              "id"=>"chosen_race",
                                                               "class"=>"narrow"))));
 
       $form->add(new FItem("Using:", XSelect::fromArray('finish_using', $this->ACTIONS, $using)));

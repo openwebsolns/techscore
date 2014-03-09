@@ -67,7 +67,7 @@ abstract class AbstractRoundPane extends AbstractPane {
         if (isset($seeds[$team->id]))
           $order = $seeds[$team->id];
         $ul->add($li = new XLi(array(new XHiddenInput('team[]', $team->id),
-                                     $ti = new XTextInput('order[]', $order, array('id'=>$id)),
+                                     $ti = new XNumberInput('order[]', $order, 0, count($teams), 1, array('id'=>$id)),
                                      new XLabel($id, $team,
                                                 array('onclick'=>sprintf('addTeamToRound("%s");', $id))))));
         if ($team->dt_rank !== null) {
@@ -112,7 +112,7 @@ abstract class AbstractRoundPane extends AbstractPane {
           if (isset($seeds[$team->id]))
             $order = $seeds[$team->id];
           $ul->add($li = new XLi(array(new XHiddenInput('team[]', $team->id),
-                                       $ti = new XTextInput('order[]', $order, array('id'=>$id)),
+                                       $ti = new XNumberInput('order[]', $order, 0, null, 1, array('id'=>$id)),
                                        new XLabel($id, $team,
                                                   array('onclick'=>sprintf('addTeamToRound("%s");', $id))),
                                        new XMessage(sprintf(" Rank: %2d, (%s) %s", $seed->rank, $seed->getRecord(), $seed->explanation)))));

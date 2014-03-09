@@ -53,16 +53,16 @@ class NewRegattaPane extends AbstractUserPane {
         $r[$key] = $args[$key];
     }
 
-    $f->add(new FItem("Name:", new XTextInput("name", $r["name"], array('maxlength'=>35))));
+    $f->add(new FItem("Name:", new XTextInput('name', $r['name'], array('maxlength'=>35))));
 
     $f->add($fi = new FItem("Private:", $chk = new XCheckboxInput('private', 1, array('id'=>'chk-priv'))));
     if ($r['private'] !== null)
       $chk->set('checked', 'checked');
 
     $fi->add(new XLabel('chk-priv', "Private regattas are not published and are temporary."));
-    $f->add(new FItem("Start date:", new XTextInput("start_date", $r["start_date"])));
-    $f->add(new FItem("On the water:", new XTextInput("start_time", $r["start_time"])));
-    $f->add(new FItem("Duration (days):", new XTextInput("duration", $r["duration"])));
+    $f->add(new FItem("Start date:", new XDateInput('start_date', new DateTime($r['start_date']))));
+    $f->add(new FItem("On the water:", new XTimeInput('start_time', new DateTime($r['start_time']))));
+    $f->add(new FItem("Duration (days):", new XNumberInput('duration', $r['duration'], 1, 99, 1)));
     $f->add(new FItem("Venue:",   $sel = new XSelect("venue")));
     $f->add(new FItem("Scoring:", XSelect::fromArray("scoring", Regatta::getScoringOptions(), $r["scoring"])));
     $f->add(new FItem("Type:", XSelect::fromDBM('type', DB::getAll(DB::$ACTIVE_TYPE), $r['type'])));
