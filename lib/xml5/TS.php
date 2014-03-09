@@ -116,6 +116,19 @@ class FItem extends XDiv {
 }
 
 /**
+ * A required form entry
+ *
+ * @author Dayan Paez
+ * @version 2014-03-08
+ */
+class FReqItem extends FItem {
+  public function __construct($message, $form_input, $expl = null) {
+    parent::__construct($message, $form_input, $expl);
+    $this->set('class', 'form_entry required');
+  }
+}
+
+/**
  * Submit button for accessibility for non-javascript pages
  * Automatically adds class "accessible" to submit button
  */
