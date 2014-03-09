@@ -21,7 +21,7 @@ class ScorersPane extends AbstractPane {
     // ------------------------ Scorers -------------------//
     // Forms to remove scorers
     $this->PAGE->addContent($p = new XPort("Approved Scorers"));
-    $p->addHelp("node9.html#SECTION00522000000000000000");
+    $p->addHelp('/node13.html#sec:scorers');
 
     // Get scorers
     $p->add($tab = new XQuickTable(array('class'=>'full left'), array("Name", "Affiliation", "")));

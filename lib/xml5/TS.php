@@ -32,7 +32,9 @@ class XPort extends XDiv {
       $this->add($child);
   }
   public function addHelp($href) {
-    $this->title->add(new XHLink($href));
+    $root = DB::g(STN::HELP_HOME);
+    if ($root !== null)
+      $this->title->add(new XHLink($root . $href));
   }
 }
 
@@ -85,7 +87,7 @@ class XHeading extends XH4 {
  */
 class XHLink extends XA {
   public function __construct($href) {
-    parent::__construct("../help/html/$href", "[?]", array("onclick"=>"this.target=\"help\"", 'class'=>'hlink'));
+    parent::__construct($href, "[?]", array("onclick"=>"this.target=\"help\"", 'class'=>'hlink'));
   }
 }
 

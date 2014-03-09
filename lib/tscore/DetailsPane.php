@@ -55,7 +55,7 @@ class DetailsPane extends AbstractPane {
     // Regatta details
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new XPort('Regatta details'));
-    $p->addHelp("node9.html#SECTION00521000000000000000");
+    $p->addHelp('/node12.html');
 
     $p->add($reg_form = $this->createForm());
     // Name

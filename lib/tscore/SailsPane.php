@@ -241,7 +241,7 @@ class SailsPane extends AbstractPane {
       $this->PAGE->addContent($p = new XPort(sprintf("2. %s for Div. %s",
                                                      $chosen_rot_desc[0],
                                                      implode(", ", $chosen_div))));
-      $p->addHelp("node13.html");
+      $p->addHelp('/node17.html#sec:rotations');
       $p->add($form = $this->createForm());
 
       $form->add(new XHiddenInput("rottype", $chosen_rot));
