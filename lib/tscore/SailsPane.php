@@ -55,12 +55,11 @@ class SailsPane extends AbstractPane {
 
     // Races
     $range_races = sprintf('1-%d', count($this->REGATTA->getRaces(Division::A())));
-    $form->add(new FItem(sprintf("Races (%s):", $range_races),
-                         new XTextInput('races', $range_races)));
+    $form->add(new FReqItem(sprintf("Races (%s):", $range_races), new XTextInput('races', $range_races)));
 
     if ($chosen_rot == "OFF") {
       $form->add(new XHiddenInput('from_div', Division::A()));
-      $form->add(new FItem("Amount to offset (±):", new XNumberInput('offset', (int)(count($teams) / 2))));
+      $form->add(new FReqItem("Amount to offset (±):", new XNumberInput('offset', (int)(count($teams) / 2))));
 
       $form->add(new XP(array('class'=>'p-submit'),
                         array(new XA($this->link('rotations'), "← Start over"), " ",
@@ -73,7 +72,7 @@ class SailsPane extends AbstractPane {
     // ------------------------------------------------------------
     // Set size
     if ($chosen_rot != "NOR")
-      $form->add($fitem = new FItem("Races in set:", $f_text = new XNumberInput('repeat', 2, 1, null, null, array('size'=>2))));
+      $form->add($fitem = new FReqItem("Races in set:", $f_text = new XNumberInput('repeat', 2, 1, null, null, array('size'=>2))));
 
     // Teams table
     $bye_team = null;
@@ -81,7 +80,7 @@ class SailsPane extends AbstractPane {
       $bye_team = new ByeTeam();
       $form->add(new XP(array(), "Swap divisions require an even number of total teams at the time of creation. If you choose swap division, TechScore will add a \"BYE Team\" as needed to make the total number of teams even. This will produce an unused boat in every race."));
     }
-    $form->add(new FItem("Enter sail numbers in first race:", $tab = new XTable(array('class'=>'narrow'))));
+    $form->add(new FReqItem("Enter sail numbers in first race:", $tab = new XTable(array('class'=>'narrow'))));
 
     $i = 1;
     if (count($divisions) == 1) {
@@ -92,6 +91,7 @@ class SailsPane extends AbstractPane {
                                 new XTH(array(), new XTextInput($name, $i++,
                                                                 array("size"=>"2",
                                                                       "maxlength"=>"8",
+                                                                      'required'=>'required',
                                                                       "class"=>"small"))))));
       }
       if ($bye_team !== null)
@@ -100,6 +100,7 @@ class SailsPane extends AbstractPane {
                                 new XTD(array(), new XTextInput($bye_team->id, $i++,
                                                                 array("size"=>"2",
                                                                       "maxlength"=>"8",
+                                                                      'required'=>'required',
                                                                       "class"=>"small"))))));
     }
     else {
@@ -114,7 +115,7 @@ class SailsPane extends AbstractPane {
         foreach ($divisions as $div) {
           $num = $i + $off * $num_teams;
           $name = sprintf("%s,%s", $div, $team->id);
-          $row->add(new XTD(array(), new XTextInput($name, $num, array('size'=>'2', 'class'=>'small', 'maxlength'=>'8'))));
+          $row->add(new XTD(array(), new XTextInput($name, $num, array('size'=>'2', 'class'=>'small', 'maxlength'=>'8', 'required'=>'required'))));
           $off++;
         }
         $i++;
@@ -131,7 +132,7 @@ class SailsPane extends AbstractPane {
     }
 
     // order
-    $form->add(new FItem("Order sails in first race:", XSelect::fromArray('sort', $this->SORT, 'num')));
+    $form->add(new FReqItem("Order sails in first race:", XSelect::fromArray('sort', $this->SORT, 'num')));
 
     // Submit form
     $form->add(new XP(array('class'=>'p-submit'),
@@ -203,14 +204,14 @@ class SailsPane extends AbstractPane {
       $the_rots = $this->ROTS;
       if (count($exist_div) == 0)
         unset($the_rots["OFF"]);
-      $form->add(new FItem("Type of rotation:", XSelect::fromArray('rottype', $the_rots, $chosen_rot)));
+      $form->add(new FReqItem("Type of rotation:", XSelect::fromArray('rottype', $the_rots, $chosen_rot)));
 
       // No need for this choice if combined
       if (!$combined) {
         $div_opts = array();
         foreach ($divisions as $div)
           $div_opts[(string)$div] = (string)$div;
-        $form->add(new FItem("Divisions to affect:", XSelectM::fromArray('division[]', $div_opts, $chosen_div, array('class'=>'small'))));
+        $form->add(new FReqItem("Divisions to affect:", XSelectM::fromArray('division[]', $div_opts, $chosen_div, array('class'=>'small'))));
       }
       $form->add(new XSubmitP("choose_rot", "Next >>"));
 
@@ -248,7 +249,7 @@ class SailsPane extends AbstractPane {
       if (count($chosen_div) > 1) {
         $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/tablesort.js'));
 
-        $form->add(new FItem("Order:", $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'divtable'), array("#", "Div."))));
+        $form->add(new FReqItem("Order:", $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'divtable'), array("#", "Div."))));
         $i = 0;
         foreach ($chosen_div as $div) {
           $tab->addRow(array(new XNumberInput("order[]", ++$i, 1, count($chosen_div), 1, array('class'=>'small', 'size'=>2)),
@@ -265,7 +266,7 @@ class SailsPane extends AbstractPane {
       if (count($chosen_div) > 1 &&
           $chosen_rot != "NOR" &&
           $chosen_rot != "OFF") {
-        $form->add(new FItem("Style:", XSelect::fromArray('style', $this->STYLES, 'copy')));
+        $form->add(new FReqItem("Style:", XSelect::fromArray('style', $this->STYLES, 'copy')));
       }
       else {
         $form->add(new XHiddenInput("style", "copy"));
@@ -273,9 +274,7 @@ class SailsPane extends AbstractPane {
 
       // Races
       $range = sprintf("1-%d", count($this->REGATTA->getRaces(Division::A())));
-      $form->add(new FItem(sprintf("Races (%s):", $range),
-                           new XTextInput("races", $range,
-                                          array("id"=>"frace"))));
+      $form->add(new FReqItem(sprintf("Races (%s):", $range), new XTextInput('races', $range, array('id'=>'frace'))));
 
       // For Offset rotations, print only the 
       // current divisions for which there are rotations entered
@@ -291,8 +290,8 @@ class SailsPane extends AbstractPane {
           $form->add(new XHiddenInput('from_div', $divs[0]));
         }
         else
-          $form->add(new FItem("Template Division:", XSelect::fromArray('from_div', $exist_div)));
-        $form->add(new FItem("Amount to offset (+/-):",
+          $form->add(new FReqItem("Template Division:", XSelect::fromArray('from_div', $exist_div)));
+        $form->add(new FReqItem("Amount to offset (+/-):",
                              new XNumberInput('offset', (int)(count($p_teams) / count($divisions)),
                                               null, null, 1, array('size'=>'2'))));
 
@@ -302,11 +301,11 @@ class SailsPane extends AbstractPane {
       }
       else {
         if ($chosen_rot != "NOR") {
-          $form->add(new FItem("Races in set:",
+          $form->add(new FReqItem("Races in set:",
                                $f_text = new XNumberInput('repeat', $repeats, 1, null, 1, array('size'=>'2'))));
         }
         $divs = array_values($chosen_div);
-        $form->add(new FItem("Enter sail numbers in first race of div. " . $divs[0],
+        $form->add(new FReqItem("Enter sail numbers in first race of div. " . $divs[0],
                              $tab = new XQuickTable(array('class'=>'narrow'))));
 
         // require a BYE team if the total number of teams
@@ -319,11 +318,12 @@ class SailsPane extends AbstractPane {
                              new XTextInput($team->id, $i++,
                                             array("size"=>"2",
                                                   "class"=>"small",
+                                                  'required'=>'required',
                                                   "maxlength"=>"8"))));
         }
 
         // order
-        $form->add(new FItem("Order sails in first race:", XSelect::fromArray('sort', $this->SORT, 'num')));
+        $form->add(new FReqItem("Order sails in first race:", XSelect::fromArray('sort', $this->SORT, 'num')));
 
         // Submit form
         $form->add(new XP(array('class'=>'p-submit'),
