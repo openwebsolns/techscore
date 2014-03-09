@@ -251,7 +251,24 @@ table.full {width:100%;margin-bottom:1em;}
 th.noborder, td.noborder {border:none;}
 div.form_entry {margin-bottom:1em;}
 div.form_entry * {vertical-align:top;}
-.form_h {display:inline-block;zoom:1;*display:inline;width:10em;text-align:right;margin-right:1em;font-weight:bold;color:#5b6065;vertical-align:top;}
+.form_h {
+    display:inline-block;
+    zoom:1;
+    *display:inline;
+    width:10em;
+    text-align:right;
+    margin-right:1em;
+    color:#5b6065;
+    vertical-align:top;
+    font-weight:bold;
+}
+.required .form_h:before {
+    content: "*";
+    font-size: 90%;
+    color: #3465A4;
+    font-weight: bold;
+    padding-right: 5px;
+}
 .form_b {display:inline-block;zoom:1;*display:inline;vertical-align:top;margin-left:1em;}
 #announcements {
     margin: 0.5em auto;

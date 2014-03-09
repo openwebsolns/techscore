@@ -33,6 +33,13 @@ select {
     text-align: left;
     color: black;
 }
+.required .form_h:before {
+    content: "*";
+    font-size: 90%;
+    color: #3465A4;
+    font-weight: bold;
+    padding-right: 5px;
+}
 .form_entry input, .form_entry textarea, .form_entry select {
     width: 95%;
     border-radius: 0.25em;
