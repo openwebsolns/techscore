@@ -173,7 +173,7 @@ class RankTeamsPane extends AbstractPane {
       if (count($groups) > 1)
         $tab->addRow(array(new XTD(array('colspan'=>5, 'class'=>'tr-rank-group'), sprintf("Ranks %d-%d", $min, $max))));
       foreach ($group as $team) {
-        $tab->addRow(array(new XTD(array(), array(new XInput('number', 'rank[]', $team->dt_rank, array('size'=>2, 'min'=>$min, 'max'=>$max, 'step'=>1)),
+        $tab->addRow(array(new XTD(array(), array(new XNumberInput('rank[]', $team->dt_rank, $min, $max, 1, array('size'=>2)),
                                                   new XHiddenInput('team[]', $team->id))),
                            new XA($this->link('rank', array('team' => $team->id)), $team->getRecord()),
                            new XTD(array('class'=>'drag'), $team),

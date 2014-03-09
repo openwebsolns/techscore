@@ -86,7 +86,7 @@ class RegisterPane extends AbstractUserPane {
 
     $p->add(new XP(array(), "Once your account request has been approved by the registration committee, you will receive another e-mail from TechScore with instructions on logging in."));
     $p->add($f = $this->createForm());
-    $f->add(new FItem("Email:", new XInput('email', 'email', "")));
+    $f->add(new FItem("Email:", new XEmailInput('email', "")));
     $f->add(new FItem("First name:", new XTextInput("first_name", "")));
     $f->add(new FItem("Last name:",  new XTextInput("last_name", "")));
     $f->add(new FItem("Password:", new XPasswordInput("passwd", "")));

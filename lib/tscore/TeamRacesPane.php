@@ -152,9 +152,9 @@ class TeamRacesPane extends AbstractRoundPane {
         $this->PAGE->addContent($p = new XPort("New round settings"));
         $p->add($form = $this->createForm());
         $form->add(new FItem("Round name:", new XTextInput('title', $ROUND->title)));
-        $form->add(new FItem("Number of teams:", new XTextInput('num_teams', $num_teams)));
+        $form->add(new FItem("Number of teams:", new XNumberInput('num_teams', $num_teams, 1, $num_teams, 1)));
 
-        $form->add(new FItem("Number of boats:", new XInput('number', 'num_boats', $num_boats, array('min'=>$group_size, 'step'=>$group_size))));
+        $form->add(new FItem("Number of boats:", new XNumberInput('num_boats', $num_boats, $group_size, null, $group_size)));
         $form->add(new FItem("Rotation frequency:", XSelect::fromArray('rotation_frequency', Race_Order::getFrequencyTypes())));
         $form->add(new FItem("Boat:", XSelect::fromArray('boat', $boats, $boat)));
         $form->add($p = new XSubmitP('create-settings', "Next →"));
@@ -179,7 +179,7 @@ class TeamRacesPane extends AbstractRoundPane {
         $p->add($form = $this->createForm());
         $form->add(new FItem("Round name:", new XTextInput('title', $ROUND->title)));
         $form->add(new FItem("Round to sailoff:", XSelect::fromDBM('sailoff_for_round', $sailoff_rounds)));
-        $form->add(new FItem("Number of teams:", new XTextInput('num_teams', $num_teams)));
+        $form->add(new FItem("Number of teams:", new XNumberInput('num_teams', $num_teams, 1)));
         $form->add($p = new XSubmitP('create-settings', "Next →"));
       }
 
@@ -191,7 +191,7 @@ class TeamRacesPane extends AbstractRoundPane {
         $this->PAGE->addContent($p = new XPort("Completion round settings"));
         $p->add($form = $this->createForm());
         $form->add(new FItem("Round name:", new XTextInput('title', $ROUND->title)));
-        $form->add(new FItem("Number of boats:", new XInput('number', 'num_boats', $ROUND->num_boats, array('min'=>$group_size, 'step'=>$group_size))));
+        $form->add(new FItem("Number of boats:", new XNumberInput('num_boats', $ROUND->num_boats, $group_size, null, $group_size)));
         $form->add(new FItem("Rotation frequency:", XSelect::fromArray('rotation_frequency', Race_Order::getFrequencyTypes())));
         $form->add(new FItem("Boat:", XSelect::fromArray('boat', $boats, $boat)));
 
@@ -200,7 +200,7 @@ class TeamRacesPane extends AbstractRoundPane {
         foreach ($master_rounds as $round) {
           $id = 'r-' . $round->id;
           $ul->add(new XLi(array(new XHiddenInput('master_round[]', $round->id),
-                                 new XInput('number', 'num_teams_per_round[]', '', array('min'=>0, 'max'=>($round->num_teams - 1), 'id'=>$id)),
+                                 new XNumberInput('num_teams_per_round[]', '', 0, ($round->num_teams - 1), 1, array('id'=>$id)),
                                  new XLabel($id, $round))));
                                  
         }
@@ -385,7 +385,7 @@ window.addEventListener("load", function(e) {
             if ($num !== false)
               $order = $num + 1;
             $tab->addRow(array(new XTD(array(),
-                                       array(new XInput('number', 'copy_order[]', $order, array('min'=>0, 'max'=>count($rounds), 'step'=>1, 'size'=>3, 'id'=>$id)),
+                                       array(new XNumberInput('copy_order[]', $order, 0, count($rounds), 1, array('size'=>3, 'id'=>$id)),
                                              new XHiddenInput('copy_round[]', $round->id))),
                                new XLabel($id, $round)));
           }

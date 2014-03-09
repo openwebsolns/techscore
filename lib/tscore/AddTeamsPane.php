@@ -137,7 +137,7 @@ class AddTeamsPane extends AbstractTeamPane {
       $list->add(new XLi(array(new XHeading($conf, array('id'=>$conf->id)), $sub = new XUl())));
       foreach ($conf->getSchools() as $school) {
         $sub->add(new XLi(array(new XHiddenInput('school[]', $school->id),
-                                new XInput('number', 'number[]', "", array('id'=>$school->id, 'step'=>1, 'min'=>0)),
+                                new XNumberInput('number[]', "", 0, null, 1, array('id'=>$school->id)),
                                 new XLabel($school->id, $school,
 					   array('onclick'=>sprintf('var o=document.getElementById("%s");o.value=Number(o.value)+1;', $school->id))))));
       }

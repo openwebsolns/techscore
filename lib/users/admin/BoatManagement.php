@@ -63,8 +63,8 @@ class BoatManagement extends AbstractAdminUserPane {
     $form->add(new XP(array(), "For example, MIT's Techs can be sailed as singlehanded or with at most one crew. However, when they are sailed with a crew, every team sails with a crew. Thus, you should create 2 boat classes: one for Tech (single) and one for Tech (double). The latter would have a minimum and maximum requirement of 1 crew."));
 
     $form->add(new FItem("Name:", new XTextInput('name', $boat->name, array('maxlength'=>'15', 'required'=>'required'))));
-    $form->add(new FItem("Minimum # Crews:", new XInput('number', 'min_crews', $boat->min_crews, array('required'=>'required', 'min'=>0, 'max'=>127, 'step'=>1))));
-    $form->add(new FItem("Maximum # Crews:", new XInput('number', 'max_crews', $boat->max_crews, array('required'=>'required', 'min'=>0, 'max'=>127, 'step'=>1))));
+    $form->add(new FItem("Minimum # Crews:", new XNumberInput('min_crews', $boat->min_crews, 0, 127, 1, array('required'=>'required'))));
+    $form->add(new FItem("Maximum # Crews:", new XNumberInput('max_crews', $boat->max_crews, 0, 127, 1, array('required'=>'required'))));
     $form->add($hidd);
     $form->add(new XSubmitInput("set-boat", $mess));
     if ($link !== null) {

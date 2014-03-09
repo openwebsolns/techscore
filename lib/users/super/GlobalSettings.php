@@ -32,13 +32,13 @@ class GlobalSettings extends AbstractSuperUserPane {
     $f->add(new FItem("Conference name:", new XTextInput(STN::CONFERENCE_TITLE, DB::g(STN::CONFERENCE_TITLE))));
     $f->add(new FItem("Conf. abbreviation:", new XTextInput(STN::CONFERENCE_SHORT, DB::g(STN::CONFERENCE_SHORT))));
 
-    $f->add(new FItem("Divert e-mails to:", new XInput('email', STN::DIVERT_MAIL, DB::g(STN::DIVERT_MAIL)), "For production, this value should be blank"));
+    $f->add(new FItem("Divert e-mails to:", new XEmailInput(STN::DIVERT_MAIL, DB::g(STN::DIVERT_MAIL)), "For production, this value should be blank"));
 
-    $f->add(new FItem("Sailor API URL:", new XInput('url', STN::SAILOR_API_URL, DB::g(STN::SAILOR_API_URL), array('size'=>60))));
-    $f->add(new FItem("Coach API URL:", new XInput('url', STN::COACH_API_URL, DB::g(STN::COACH_API_URL), array('size'=>60))));
-    $f->add(new FItem("School API URL:", new XInput('url', STN::SCHOOL_API_URL, DB::g(STN::SCHOOL_API_URL), array('size'=>60))));
+    $f->add(new FItem("Sailor API URL:", new XUrlInput(STN::SAILOR_API_URL, DB::g(STN::SAILOR_API_URL), array('size'=>60))));
+    $f->add(new FItem("Coach API URL:", new XUrlInput(STN::COACH_API_URL, DB::g(STN::COACH_API_URL), array('size'=>60))));
+    $f->add(new FItem("School API URL:", new XUrlInput(STN::SCHOOL_API_URL, DB::g(STN::SCHOOL_API_URL), array('size'=>60))));
 
-    $f->add(new FItem("Help base URL:", new XInput('url', STN::HELP_HOME, DB::g(STN::HELP_HOME), array('size'=>60))));
+    $f->add(new FItem("Help base URL:", new XUrlInput(STN::HELP_HOME, DB::g(STN::HELP_HOME), array('size'=>60))));
 
     // Scoring options
     $n = STN::SCORING_OPTIONS . '[]';

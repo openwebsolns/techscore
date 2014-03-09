@@ -33,13 +33,13 @@ class OrganizationConfiguration extends AbstractAdminUserPane {
     $p->add($f = $this->createForm());
     $f->add(new FItem("Name:", new XTextInput(STN::ORG_NAME, DB::g(STN::ORG_NAME), array('maxlength'=>50))));
 
-    $f->add($fi = new FItem("URL:", new XInput('url', STN::ORG_URL, DB::g(STN::ORG_URL))));
+    $f->add($fi = new FItem("URL:", new XUrlInput(STN::ORG_URL, DB::g(STN::ORG_URL))));
     $fi->add(new XMessage("Include protocol, i.e. \"http://\""));
 
-    $f->add($fi = new FItem("Team URL:", new XInput('url', STN::ORG_TEAMS_URL, DB::g(STN::ORG_TEAMS_URL))));
+    $f->add($fi = new FItem("Team URL:", new XUrlInput(STN::ORG_TEAMS_URL, DB::g(STN::ORG_TEAMS_URL))));
     $fi->add(new XMessage("Full URL (with protocol) to list of teams. Optional."));
 
-    $f->add(new FItem("Default regatta start time:", new XInput('time', STN::DEFAULT_START_TIME, DB::g(STN::DEFAULT_START_TIME))));
+    $f->add(new FItem("Default regatta start time:", new XTimeInput(STN::DEFAULT_START_TIME, new DateTime(DB::g(STN::DEFAULT_START_TIME)))));
 
     $f->add(new XSubmitP('set-params', "Save changes"));
 

@@ -171,7 +171,7 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
 
     $p->add($form = $this->createForm(XForm::GET));
 
-    $form->add($fi = new FItem("# of teams:", new XInput('number', 'teams', "", array('min'=>2, 'size'=>2))));
+    $form->add($fi = new FItem("# of teams:", new XNumberInput('teams', "", 2, null, 1, array('size'=>2))));
     $fi->add(" ");
     $fi->add(new XStrong("OR"));
 

@@ -370,6 +370,81 @@ class XCheckboxInput extends XInput {
 }
 
 /**
+ * E-mail input element
+ *
+ */
+class XEmailInput extends XInput {
+  public function __construct($name, $value, Array $attrs = array()) {
+    parent::__construct('email', $name, $value, $attrs);
+  }
+}
+
+/**
+ * URL input element
+ *
+ */
+class XUrlInput extends XInput {
+  public function __construct($name, $value, Array $attrs = array()) {
+    parent::__construct('url', $name, $value, $attrs);
+  }
+}
+
+/**
+ * Number input
+ *
+ */
+class XNumberInput extends XInput {
+  public function __construct($name, $value, $min = null, $max = null, $step = null, Array $attrs = array()) {
+    parent::__construct('number', $name, $value, $attrs);
+    if ($min !== null)
+      $this->set('min', $min);
+    if ($max !== null)
+      $this->set('max', $max);
+    if ($step !== null)
+      $this->set('step', $step);
+  }
+}
+
+class XDateInput extends XInput {
+  public function __construct($name, DateTime $value = null, DateTime $min = null, DateTime $max = null, $step = null, Array $attrs = array()) {
+    parent::__construct('text', $name, "", $attrs);
+    $this->set('type', $this->typeName());
+    if ($value !== null)
+      $this->set('value', $this->format($value));
+    if ($min !== null)
+      $this->set('min', $this->format($min));
+    if ($max !== null)
+      $this->set('max', $this->format($max));
+    if ($step !== null)
+      $this->set('step', $step);
+  }
+  protected function format(DateTime $dt) {
+    return $dt->format('Y-m-d');
+  }
+  protected function typeName() {
+    return 'date';
+  }
+}
+
+class XTimeInput extends XDateInput {
+  protected function format(DateTime $dt) {
+    return $dt->format('H:i:s');
+  }
+  protected function typeName() {
+    return 'time';
+  }
+}
+
+class XDateTimeInput extends XDateInput {
+  protected function format(DateTime $dt) {
+    return $dt->format('c');
+  }
+  protected function typeName() {
+    return 'datetime';
+  }
+}
+
+/**
  * A form label
  *
  */
