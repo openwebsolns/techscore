@@ -7,6 +7,9 @@ body {
     position: relative;
     margin: 0;
 }
+a {
+    color: #3465A4;
+}
 #bodydiv {
     padding: 0em;
 }
@@ -171,6 +174,8 @@ div.message {
     padding: 1em;
 }
 
+span.message {font-size: 90%; color:#555;margin-left:1em;}
+
 table.left * {
     text-align: left;
 }
@@ -217,15 +222,6 @@ div.menu a {
     text-decoration: none;
     color: black;
 }
-/*
-h4#date {
-    position: absolute;
-    top: -1.5em;
-    left: 14em;
-    font-size: 80%;
-    color: white;
-}
-*/
 #headdiv {
     background: #3465a4;
     border-bottom: 1px solid #ccc;
@@ -241,9 +237,6 @@ h4#date {
 }
 #headdiv img {
     vertical-align: middle;
-}
-h4#date {
-    display: none;
 }
 h4#user {
     margin: 0;

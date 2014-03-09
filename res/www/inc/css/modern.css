@@ -11,6 +11,13 @@ body {
 a img {
     border: none;
 }
+a {
+    color: #194884;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
 #footdiv {
     color:#555;
     font-size:70%;
@@ -64,7 +71,6 @@ a img {
     cursor:pointer;
     font-size:0.9em;
     color: #333;
-    border-right: 1px solid white;
 }
 #menubar .menu:hover h4 {
     color: black;
@@ -120,9 +126,45 @@ input, select {
     min-width:3em;
     width: auto;
 }
+
+input[type="submit"], input[type="reset"] {
+    background: rgb(255,255,255); /* Old browsers */
+    background: -moz-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(232,232,232,1) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(100%,rgba(232,232,232,1))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(232,232,232,1) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(232,232,232,1) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(232,232,232,1) 100%); /* IE10+ */
+    background: linear-gradient(to bottom, rgba(255,255,255,1) 0%,rgba(232,232,232,1) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#e8e8e8',GradientType=0 ); /* IE6-9 */
+
+    border: 1px solid #AAAAAA;
+    border-radius: 2px;
+    color: #222222;
+    font-size: 95%;
+    padding: 0.5em 1em;
+    cursor: pointer;
+    text-shadow: 1px 1px 1px #FFFFFF;
+}
+
+input[type="submit"]:hover, input[type="reset"]:hover {
+    border-color: #555;
+}
+
+input[type="submit"]:active, input[type="reset"]:active {
+    background: rgb(232,232,232); /* Old browsers */
+    background: -moz-linear-gradient(top, rgba(232,232,232,1) 0%, rgba(255,255,255,1) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(232,232,232,1)), color-stop(100%,rgba(255,255,255,1))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, rgba(232,232,232,1) 0%,rgba(255,255,255,1) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, rgba(232,232,232,1) 0%,rgba(255,255,255,1) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, rgba(232,232,232,1) 0%,rgba(255,255,255,1) 100%); /* IE10+ */
+    background: linear-gradient(to bottom, rgba(232,232,232,1) 0%,rgba(255,255,255,1) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e8e8e8', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */
+}
+
 #headdiv {
     padding:0px;
     background:#3465a4;
+    height: 2.5em;
 }
 #headdiv h1 {margin:0px 10px;float:left;}
 #headdiv img {
@@ -138,7 +180,7 @@ input, select {
     font-weight:normal;
     padding:10px 5px;
     margin:0;
-    border-left:1px solid #457dc4;
+    margin-left: 1.5em;
 }
 h4#regatta {
     font-weight:bold;
@@ -182,13 +224,14 @@ h4#regatta {
     margin: 0.5em 0.25em;
 }
 #logout a, #close a {
+    color: #fff;
     text-decoration:none;
-    background:#f3ebe0;
-    border:1px solid white;
+    background:#759DD1;
+    border:1px solid #eee;
     padding:0.2em;
     font-size:1em;
-    border-radius: 0.5em;
-    -moz-border-radius: 0.5em;
+    border-radius: 2px;
+    -moz-border-radius: 2px;
 }
 
 .port {border:1px solid #cccccc;padding:0 1em 0.5em;margin-bottom:1.5em;}
