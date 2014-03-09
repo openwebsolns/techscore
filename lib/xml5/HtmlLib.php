@@ -390,6 +390,16 @@ class XUrlInput extends XInput {
 }
 
 /**
+ * Search input element
+ *
+ */
+class XSearchInput extends XInput {
+  public function __construct($name, $value, Array $attrs = array()) {
+    parent::__construct('search', $name, $value, $attrs);
+  }
+}
+
+/**
  * Number input
  *
  */

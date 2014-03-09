@@ -35,7 +35,7 @@ class PageWhiz {
     if ($this->num_pages > 3 || $query !== null) {
       $div->add($f = new XForm($this->base, XForm::GET));
       $f->add($pa = new XP(array('class'=>'search'),
-                           array($leadin, new XTextInput($var, $query, array('size'=>60)),
+                           array($leadin, new XSearchInput($var, $query, array('size'=>60)),
                                  new XSubmitInput('go', "Go"))));
       if ($query !== null) {
         $pa->add(" ");

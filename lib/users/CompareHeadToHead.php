@@ -310,7 +310,7 @@ class CompareHeadToHead extends AbstractUserPane {
       $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/aa.js')));
       $form->add($p = new XPort("1. Choose sailors"));
       $p->add(new XNoScript(new XP(array(), "Right now, you need to enable Javascript to use this form. Sorry for the inconvenience, and thank you for your understanding.")));
-      $p->add(new FItem('Name:', $search = new XTextInput('name-search', "", array('id'=>'name-search'))));
+      $p->add(new FItem('Name:', $search = new XSearchInput('name-search', "", array('id'=>'name-search'))));
       $p->add(new XUl(array('id'=>'aa-input'), array(new XLi("No sailors", array('class'=>'message')))));
     }
 
