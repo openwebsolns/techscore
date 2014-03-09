@@ -38,14 +38,14 @@ class SailorMergePane extends AbstractPrefsPane {
 
     $p->add(new XP(array(), sprintf("It is the school's responsibilities to match the temporary sailors with the actual sailor from the %s database once the missing sailor has been approved.", $orgname)));
 
-    $p->add(new XP(array(), sprintf("Use this form to update the database by matching the temporary sailor with the actual one from the %s database. If the sailor does not appear, he/she may have to be approved before the changes are reflected in %s. Also, bear in mind that %s's copy of the membership database might lag the official copy by as much as a week.", $orgname, DB::g(STN::APP_NAME), DB::g(STN::APP_NAME))));
-
     // Get all the temporary sailors
     $temp = $this->SCHOOL->getUnregisteredSailors();
-    if (empty($temp)) {
-      $p->add(new XP(array('class'=>'strong center'), "No temporary sailors for this school."));
+    if (count($temp) == 0) {
+      $p->add(new XP(array('class'=>'valid'), "Great! No temporary sailors for this school."));
       return;
     }
+
+    $p->add(new XP(array(), sprintf("Use this form to update the database by matching the temporary sailor with the actual one from the %s database. If the sailor does not appear, he/she may have to be approved before the changes are reflected in %s. Also, bear in mind that %s's copy of the membership database might lag the official copy by as much as a week.", $orgname, DB::g(STN::APP_NAME), DB::g(STN::APP_NAME))));
 
     $p->add($form = $this->createForm());
     $form->add($tab = new XQuickTable(array('class'=>'narrow'), array("Temporary sailor", sprintf("%s Match", $orgname))));
