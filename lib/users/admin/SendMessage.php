@@ -194,11 +194,11 @@ class SendMessage extends AbstractAdminUserPane {
     $this->PAGE->addContent($p = new XPort($title));
     $p->add($f = $this->createForm());
 
-    $f->add(new FItem("Recipients:", new XSpan($recip, array('class'=>'strong'))));
-    $f->add($fi = new FItem("Subject:", new XTextInput('subject', $out->subject, array('required'=>'required', 'maxlength'=>100))));
+    $f->add(new FReqItem("Recipients:", new XSpan($recip, array('class'=>'strong'))));
+    $f->add($fi = new FReqItem("Subject:", new XTextInput('subject', $out->subject, array('maxlength'=>100))));
     $fi->add(new XMessage("Less than 100 characters"));
 
-    $f->add(new FItem("Message body:", new XTextArea('content', $out->content, array('rows'=>16, 'cols'=>75, 'required'=>'required'))));
+    $f->add(new FReqItem("Message body:", new XTextArea('content', $out->content, array('rows'=>16, 'cols'=>75, 'required'=>'required'))));
     $f->add($fi = new FItem("Copy me:", new XCheckboxInput('copy-me', 1, array('id'=>'copy-me'))));
     $fi->add(new XLabel('copy-me', "Send me a copy of message, whether or not I would otherwise receive one."));
     $f->add($para = new XP(array('class'=>'p-submit'), array(new XHiddenInput('axis', $out->recipients))));

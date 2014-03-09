@@ -24,13 +24,13 @@ class GlobalSettings extends AbstractSuperUserPane {
     $this->PAGE->addContent($p = new XPort("General parameters"));
     $p->add($f = $this->createForm());
 
-    $f->add(new FItem("Application Name:", new XTextInput(STN::APP_NAME, DB::g(STN::APP_NAME), array('maxlength'=>50))));
-    $f->add(new FItem("Version:", new XTextInput(STN::APP_VERSION, DB::g(STN::APP_VERSION))));
+    $f->add(new FReqItem("Application Name:", new XTextInput(STN::APP_NAME, DB::g(STN::APP_NAME), array('maxlength'=>50))));
+    $f->add(new FReqItem("Version:", new XTextInput(STN::APP_VERSION, DB::g(STN::APP_VERSION))));
     $f->add(new FItem("Copyright:", new XTextInput(STN::APP_COPYRIGHT, DB::g(STN::APP_COPYRIGHT))));
     $f->add(new FItem("Send e-mails from:", new XTextInput(STN::TS_FROM_MAIL, DB::g(STN::TS_FROM_MAIL))));
 
-    $f->add(new FItem("Conference name:", new XTextInput(STN::CONFERENCE_TITLE, DB::g(STN::CONFERENCE_TITLE))));
-    $f->add(new FItem("Conf. abbreviation:", new XTextInput(STN::CONFERENCE_SHORT, DB::g(STN::CONFERENCE_SHORT))));
+    $f->add(new FReqItem("Conference name:", new XTextInput(STN::CONFERENCE_TITLE, DB::g(STN::CONFERENCE_TITLE))));
+    $f->add(new FReqItem("Conf. abbreviation:", new XTextInput(STN::CONFERENCE_SHORT, DB::g(STN::CONFERENCE_SHORT))));
 
     $f->add(new FItem("Divert e-mails to:", new XEmailInput(STN::DIVERT_MAIL, DB::g(STN::DIVERT_MAIL)), "For production, this value should be blank"));
 

@@ -60,13 +60,13 @@ class DetailsPane extends AbstractPane {
     $p->add($reg_form = $this->createForm());
     // Name
     $value = $this->REGATTA->name;
-    $reg_form->add(new FItem("Name:",
-                             ($this->participant_mode) ?
-                             new XStrong($value) :
-                             new XTextInput("reg_name",
-                                            $value,
-                                            array("maxlength"=>35,
-                                                  "size"     =>20))));
+    $reg_form->add(new FReqItem("Name:",
+                                ($this->participant_mode) ?
+                                new XStrong($value) :
+                                new XTextInput("reg_name",
+                                               $value,
+                                               array("maxlength"=>35,
+                                                     "size"     =>20))));
 
     // Private
     if (!$this->participant_mode) {
@@ -79,20 +79,20 @@ class DetailsPane extends AbstractPane {
 
     // Date
     $start_time = $this->REGATTA->start_time;
-    $reg_form->add(new FItem("Date:",
+    $reg_form->add(new FReqItem("Date:",
                              ($this->participant_mode) ?
                              new XStrong($start_time->format('Y-m-d')) :
                              new XDateInput('sdate', $start_time, null, null, null,
                                             array('size'=>20))));
     // Duration
     $value = $this->REGATTA->getDuration();
-    $reg_form->add(new FItem("Duration (days):",
+    $reg_form->add(new FReqItem("Duration (days):",
                              ($this->participant_mode) ?
                              new XStrong($value) :
                              new XNumberInput('duration', $value, 1, 99, 1,
                                               array('maxlength'=>2, 'size'=>2))));
     // On the water
-    $reg_form->add(new FItem("On the water:",
+    $reg_form->add(new FReqItem("On the water:",
                              ($this->participant_mode) ?
                              new XStrong($start_time->format('H:i')) :
                              new XTimeInput('stime', $start_time, null, null, null,
@@ -115,9 +115,9 @@ class DetailsPane extends AbstractPane {
     // Regatta type
     $value = $this->REGATTA->type;
     if ($this->participant_mode)
-      $reg_form->add(new FItem("Type:", new XStrong($value)));
+      $reg_form->add(new FReqItem("Type:", new XStrong($value)));
     else {
-      $reg_form->add(new FItem("Type:", $r_type = new XSelect('type')));
+      $reg_form->add(new FReqItem("Type:", $r_type = new XSelect('type')));
       $r_type->add(new FOption("", "[Choose type]"));
       foreach (DB::getAll(DB::$ACTIVE_TYPE) as $v) {
         $r_type->add($opt = new FOption($v->id, $v));
@@ -130,9 +130,9 @@ class DetailsPane extends AbstractPane {
     $value = $this->REGATTA->participant;
     $options = Regatta::getParticipantOptions();
     if ($this->participant_mode)
-      $reg_form->add(new FItem("Participation:", new XStrong($options[$value])));
+      $reg_form->add(new FReqItem("Participation:", new XStrong($options[$value])));
     else {
-      $reg_form->add($item = new FItem("Participation:",
+      $reg_form->add($item = new FReqItem("Participation:",
                                        XSelect::fromArray('participant',
                                                           $options,
                                                           $value)));
@@ -145,13 +145,13 @@ class DetailsPane extends AbstractPane {
     $options = Regatta::getScoringOptions();
     $value = $this->REGATTA->scoring;
     if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
-      $reg_form->add(new FItem("Scoring:", new XStrong("Team racing")));
+      $reg_form->add(new FReqItem("Scoring:", new XStrong("Team racing")));
     else {
       if ($this->participant_mode)
-        $reg_form->add(new FItem("Scoring:", new XStrong($options[$value])));
+        $reg_form->add(new FReqItem("Scoring:", new XStrong($options[$value])));
       else {
         unset($options[Regatta::SCORING_TEAM]);
-        $reg_form->add($fi = new FItem("Scoring:", XSelect::fromArray('scoring', $options, $value)));
+        $reg_form->add($fi = new FReqItem("Scoring:", XSelect::fromArray('scoring', $options, $value)));
         if ($this->REGATTA->scoring != Regatta::SCORING_COMBINED &&
             $this->REGATTA->hasFinishes() &&
             isset($options[Regatta::SCORING_COMBINED]))
@@ -166,17 +166,17 @@ class DetailsPane extends AbstractPane {
       $val = array();
       foreach ($hosts as $school)
         $val[] = $school->nick_name;
-      $reg_form->add(new FItem("Host:", new XStrong(implode(", ", $val))));
+      $reg_form->add(new FReqItem("Host:", new XStrong(implode(", ", $val))));
     }
     else {
       // special case that there is only one host AND the user has no
       // more than one school associated with them
       if (count($this->USER->getSchools()) == 1 && count($hosts) == 1) {
-        $reg_form->add($fitem = new FItem("Host:", new XSpan($hosts[0]->nick_name)));
+        $reg_form->add($fitem = new FReqItem("Host:", new XSpan($hosts[0]->nick_name)));
         $fitem->add(new XHiddenInput('host[]', $hosts[0]->id));
       }
       else {
-        $reg_form->add($f_item = new FItem('Host(s):', $f_sel = new XSelectM("host[]", array('size'=>10))));
+        $reg_form->add($f_item = new FReqItem('Host(s):', $f_sel = new XSelectM("host[]", array('size'=>10))));
 
         $schools = array(); // track these so as not to include them later
         foreach ($hosts as $host) {

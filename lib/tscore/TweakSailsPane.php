@@ -55,11 +55,11 @@ class TweakSailsPane extends AbstractPane {
       $p->add($form = $this->createForm(XForm::GET));
 
       // Action
-      $form->add(new FItem("Action:", XSelect::fromArray('edittype', $this->ACTIONS, $edittype)));
-      $form->add(new FItem("Division(s):", XSelectM::fromArray('division[]',
-                                                               array_combine($exist_div, $exist_div),
-                                                               $chosen_div,
-                                                               array('class'=>'small'))));
+      $form->add(new FReqItem("Action:", XSelect::fromArray('edittype', $this->ACTIONS, $edittype)));
+      $form->add(new FReqItem("Division(s):", XSelectM::fromArray('division[]',
+                                                                  array_combine($exist_div, $exist_div),
+                                                                  $chosen_div,
+                                                                  array('class'=>'small'))));
       $form->add(new XSubmitP("choose_act", "Next →"));
       return;
     }
@@ -80,12 +80,12 @@ class TweakSailsPane extends AbstractPane {
     }
 
     $range_races = sprintf('1-%d', count($this->REGATTA->getRaces(Division::A())));
-    $form->add(new FItem("Races:", new XTextInput('races', $range_races, array('size'=>'12'))));
+    $form->add(new FReqItem("Races:", new XTextInput('races', $range_races, array('size'=>'12'))));
 
     if ( $edittype === "ADD") {
-      $form->add(new FItem("Add amount (±):",
-                           $f = new XNumberInput('addamount', "", null, null, 1, array('size'=>'3'))));
-      $f->set("maxlength", "3");
+      $form->add(new FReqItem("Add amount (±):",
+                              new XNumberInput('addamount', "", null, null, 1, array('size'=>'3'))));
+
       $form->add(new XP(array('class'=>'p-submit'),
                         array(new XA($this->link('tweak-sails'), "← Start over"), " ",
                               new XSubmitInput('addsails', "Edit sails"))));
@@ -97,9 +97,9 @@ class TweakSailsPane extends AbstractPane {
         $sails[$sail->sail] = $sail;
 
       $sails = array_combine($sails, $sails);
-      $form->add($f_item = new FItem("Replace sail:", XSelect::fromArray('from_sail', $sails)));
+      $form->add($f_item = new FReqItem("Replace sail:", XSelect::fromArray('from_sail', $sails)));
       $f_item->add(" with ");
-      $f_item->add(new XTextInput('to_sail', '', array("size"=>"3")));
+      $f_item->add(new XTextInput('to_sail', '', array('size'=>'3', 'required'=>'required')));
 
       $form->add(new XP(array('class'=>'p-submit'),
                         array(new XA($this->link('tweak-sails'), "← Start over"), " ",

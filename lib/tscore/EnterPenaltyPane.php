@@ -71,13 +71,13 @@ class EnterPenaltyPane extends AbstractPane {
       $p->add($form = $this->createForm(XForm::GET));
 
       $form->add(new FItem("Possible races:", $this->getRaceTable()));
-      $form->add(new FItem("Race:", $this->newRaceInput('race', $theRace)));
+      $form->add(new FReqItem("Race:", $this->newRaceInput('race', $theRace)));
 
       $this->fillAlternateRaceSelection($form);
 
       // Penalty type
-      $form->add(new FItem("Penalty type:", XSelect::fromArray('type', array("Penalties" => $this->penalties,
-									     "Breakdowns" => $this->breakdowns))));
+      $form->add(new FReqItem("Penalty type:", XSelect::fromArray('type', array("Penalties" => $this->penalties,
+                                                                                "Breakdowns" => $this->breakdowns))));
       // Submit
       $form->add(new XSubmitP('c_race', "Next →"));
     }
@@ -90,7 +90,7 @@ class EnterPenaltyPane extends AbstractPane {
       $title = sprintf("2. %s in race %s", $type, $theRace);
       $this->PAGE->addContent($p = new XPort($title));
       $p->add($form = $this->createForm());
-      $form->add(new FItem("Team:", $f_sel = new XSelectM("finish[]", array('size'=>10))));
+      $form->add(new FReqItem("Team:", $f_sel = new XSelectM("finish[]", array('size'=>10))));
 
       $bkds = Breakdown::getList();
       foreach ($finishes as $fin) {

@@ -55,7 +55,7 @@ class EnterFinishPane extends AbstractPane {
       $p->add($form = $this->createForm(XForm::GET));
       $form->set("id", "race_form");
 
-      $form->add(new FItem("Race:", $sel = new XSelect('race')));
+      $form->add(new FReqItem("Race:", $sel = new XSelect('race')));
       $scored = array();
       $unscored = array();
       $races = ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ?
@@ -78,7 +78,7 @@ class EnterFinishPane extends AbstractPane {
         $using = self::TEAMS;
       }
 
-      $form->add(new FItem("Using:", XSelect::fromArray('finish_using', $this->ACTIONS, $using)));
+      $form->add(new FReqItem("Using:", XSelect::fromArray('finish_using', $this->ACTIONS, $using)));
       $form->add(new XSubmitP("go", "Enter finishes →"));
       return;
     }
@@ -117,7 +117,7 @@ class EnterFinishPane extends AbstractPane {
       // ------------------------------------------------------------
       // Rotation-based
       // ------------------------------------------------------------
-      $form->add(new FItem("Enter sail numbers:",
+      $form->add(new FReqItem("Enter sail numbers:",
                            $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'finish_table'),
                                                   array("Sail", "→", "Finish", "Pen."))));
 
@@ -139,6 +139,7 @@ class EnterFinishPane extends AbstractPane {
                                           array('id'=> 'sail' . $i,
                                                 'tabindex' => ($i+1),
                                                 'class'=>'small finish_output',
+                                                'required'=>'required',
                                                 'size'=>'2')),
                            XSelect::fromArray('m' . $i, $this->pen_opts, $current_pen)));
       }
@@ -156,7 +157,7 @@ class EnterFinishPane extends AbstractPane {
       // ------------------------------------------------------------
       // Team lists
       // ------------------------------------------------------------
-      $form->add(new FItem("Enter teams:",
+      $form->add(new FReqItem("Enter teams:",
                            $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'finish_table'),
                                                   array("Team", "→", "Finish", "Pen."))));
       $i = $this->fillFinishesTable($tab, $race, $finishes);
@@ -342,6 +343,7 @@ class EnterFinishPane extends AbstractPane {
         $sel->set('id', "team$i");
         $sel->set('tabindex', $i + 1);
         $sel->set('class', 'finish_output');
+        $sel->set('required', 'required');
       }
       return $i;
     }

@@ -72,7 +72,7 @@ class TeamRpEnterPane extends AbstractPane {
       // ------------------------------------------------------------
       $this->PAGE->addContent($p = new XPort("Choose a team"));
       $p->add($form = $this->createForm(XForm::GET));
-      $form->add(new FItem("Team:", $sel = XSelect::fromArray('chosen_team', $teams, $chosen_team->id)));
+      $form->add(new FReqItem("Team:", $sel = XSelect::fromArray('chosen_team', $teams, $chosen_team->id)));
       $sel->set('onchange', 'submit(this);');
       $form->add(new XSubmitAccessible("change_team", "Get form"));
     }

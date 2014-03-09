@@ -51,7 +51,7 @@ class TeamOrderRoundsPane extends AbstractRoundPane {
     $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/tablesort.js'));
     $this->PAGE->addContent($p = new XPort("Reorder rounds"));
     $p->add($f = $this->createForm());
-    $f->add(new FItem("Round order:", $tab = new XQuickTable(array('id'=>'divtable', 'class'=>'narrow'), array("#", "Order", "Title"))));
+    $f->add(new FReqItem("Round order:", $tab = new XQuickTable(array('id'=>'divtable', 'class'=>'narrow'), array("#", "Order", "Title"))));
     while (count($sole_rounds) > 0) {
       $round = array_shift($sole_rounds);
       $rel = array($round->relative_order);
@@ -69,7 +69,7 @@ class TeamOrderRoundsPane extends AbstractRoundPane {
       else {
         $independent_rounds[] = $round;
       }
-      $tab->addRow(array(new XTD(array(), array(new XNumberInput('order[]', $round->relative_order, 1, null, 1, array('size'=>2, 'class'=>'small')),
+      $tab->addRow(array(new XTD(array(), array(new XNumberInput('order[]', $round->relative_order, 1, null, 1, array('size'=>2, 'class'=>'small', 'required'=>'required')),
                                                 new XHiddenInput('round[]', $round->id))),
                          new XTD(array('class'=>'drag'), DB::makeRange($rel)),
                          $lnk),
@@ -85,7 +85,7 @@ class TeamOrderRoundsPane extends AbstractRoundPane {
       $p->add(new XP(array(), "Round groups are rounds that are sailed at the same time. The race order is changed so that one flight from one round is followed by a flight from the next round in the group."));
 
       $p->add($f = $this->createForm());
-      $f->add(new FItem("Rounds:", $ul = new XUl(array('class'=>'inline-list'))));
+      $f->add(new FReqItem("Rounds:", $ul = new XUl(array('class'=>'inline-list'))));
       foreach ($independent_rounds as $round) {
         $id = 'chk-round-' . $round->id;
         $ul->add(new XLi(array(new XCheckboxInput('round[]', $round->id, array('id'=>$id)),

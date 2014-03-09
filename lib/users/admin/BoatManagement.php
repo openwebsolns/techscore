@@ -62,9 +62,9 @@ class BoatManagement extends AbstractAdminUserPane {
     $form->add(new XP(array(), "The number of occupants will be used when entering RP information to determine how many crews to ask for in an RP form. It is assumed that all teams sail in the same boat class in a given race. Because of this, you may need to create a different boat class if the minimum and maximum number of crews allowed differ."));
     $form->add(new XP(array(), "For example, MIT's Techs can be sailed as singlehanded or with at most one crew. However, when they are sailed with a crew, every team sails with a crew. Thus, you should create 2 boat classes: one for Tech (single) and one for Tech (double). The latter would have a minimum and maximum requirement of 1 crew."));
 
-    $form->add(new FItem("Name:", new XTextInput('name', $boat->name, array('maxlength'=>'15', 'required'=>'required'))));
-    $form->add(new FItem("Minimum # Crews:", new XNumberInput('min_crews', $boat->min_crews, 0, 127, 1, array('required'=>'required'))));
-    $form->add(new FItem("Maximum # Crews:", new XNumberInput('max_crews', $boat->max_crews, 0, 127, 1, array('required'=>'required'))));
+    $form->add(new FReqItem("Name:", new XTextInput('name', $boat->name, array('maxlength'=>'15'))));
+    $form->add(new FReqItem("Minimum # Crews:", new XNumberInput('min_crews', $boat->min_crews, 0, 127, 1)));
+    $form->add(new FReqItem("Maximum # Crews:", new XNumberInput('max_crews', $boat->max_crews, 0, 127, 1)));
     $form->add($hidd);
     $form->add(new XSubmitInput("set-boat", $mess));
     if ($link !== null) {

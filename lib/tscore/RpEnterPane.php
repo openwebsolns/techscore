@@ -66,7 +66,7 @@ class RpEnterPane extends AbstractPane {
                            ".")));
 
       $p->add($form = $this->createForm(XForm::GET));
-      $form->add(new FItem("Team:", $f_sel = new XSelect("chosen_team", array("onchange"=>"submit(this)"))));
+      $form->add(new FReqItem("Team:", $f_sel = new XSelect("chosen_team", array("onchange"=>"submit(this)"))));
       $team_opts = array();
       foreach ($teams as $team) {
         $f_sel->add($opt = new FOption($team->id, $team));

@@ -171,15 +171,15 @@ class SchoolParticipationReportPane extends AbstractUserPane {
     $p->add(new XP(array(),
                    sprintf("Use this form to create a report of school participation across different regattas. The report can be exported as a CSV file. The columns are the regattas that meet the criteria chosen below, and the rows are the schools that participated in those events (but only from the chosen %ss). The corresponding cell is the number of teams from that school in that regatta.", DB::g(STN::CONFERENCE_TITLE))));
     $p->add($form = $this->createForm(XForm::GET));
-    $form->add(new FItem("Seasons:", $this->seasonList('sea-', $seasons)));
+    $form->add(new FReqItem("Seasons:", $this->seasonList('sea-', $seasons)));
 
-    $form->add(new FItem(sprintf("%ss:", DB::g(STN::CONFERENCE_TITLE)), $this->conferenceList('conf-', $confs)));
+    $form->add(new FReqItem(sprintf("%ss:", DB::g(STN::CONFERENCE_TITLE)), $this->conferenceList('conf-', $confs)));
     $form->add($fi = new FItem(sprintf("Limit to %ss:", DB::g(STN::CONFERENCE_TITLE)), $chk = new XCheckboxInput('within-confs', 1, array('id'=>'chk-limit'))));
     $fi->add(new XLabel('chk-limit', sprintf("Only include regattas hosted by the %ss chosen above.", DB::g(STN::CONFERENCE_TITLE))));
     if ($limit > 0)
       $chk->set('checked', 'checked');
 
-    $form->add(new FItem("Regatta type:", $this->regattaTypeList('types-', $types)));
+    $form->add(new FReqItem("Regatta type:", $this->regattaTypeList('types-', $types)));
 
     $form->add(new XSubmitP('create', "Create report"));
   }

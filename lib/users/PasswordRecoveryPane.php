@@ -35,8 +35,8 @@ class PasswordRecoveryPane extends AbstractUserPane {
       $this->PAGE->addContent($p = new XPort("Reset password"));
       $p->add($f = $this->createForm());
       $f->add(new XP(array(), "Welcome $acc. Please enter the new password for your account."));
-      $f->add(new FItem("New Password:", new XPasswordInput('new-password', "")));
-      $f->add(new FItem("Confirm Password:", new XPasswordInput('confirm-password', "")));
+      $f->add(new FReqItem("New Password:", new XPasswordInput('new-password', "")));
+      $f->add(new FReqItem("Confirm Password:", new XPasswordInput('confirm-password', "")));
       $f->add(new XHiddenInput('acc', trim($_GET['acc'])));
       $f->add(new XSubmitP('reset-password', "Reset password"));
       return;
@@ -60,7 +60,7 @@ class PasswordRecoveryPane extends AbstractUserPane {
     $p->add(new XP(array(), "To reset the password, please enter your username below. You will receive an e-mail at the address provided with a link. Click that link to reset your password."));
 
     $p->add($f = $this->createForm());
-    $f->add(new FItem("Email:", new XEmailInput('email', "")));
+    $f->add(new FReqItem("Email:", new XEmailInput('email', "")));
     $f->add(new XSubmitP("send-message", "Send message"));
   }
 

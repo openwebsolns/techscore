@@ -55,7 +55,7 @@ class TeamEnterPenaltyPane extends EnterPenaltyPane {
     }
     else {
       // Assign score only
-      $form->add(new FItem("New place:", new XNumberInput('p_amount', "", 1, null, 1, array('size'=>2, 'id'=>'p_amount'))));
+      $form->add(new FReqItem("New place:", new XNumberInput('p_amount', "", 1, null, 1, array('size'=>2, 'id'=>'p_amount'))));
     }
   }
 

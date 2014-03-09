@@ -56,7 +56,10 @@ class EditLogoPane extends AbstractPrefsPane {
     // Form
     $p->add($form = $this->createFileForm());
     $form->add(new XHiddenInput("MAX_FILE_SIZE","200000"));
-    $form->add(new FItem("Picture:", new XFileInput("logo_file")));
+    if ($this->SCHOOL->burgee !== null)
+      $form->add(new FReqItem("Picture:", new XFileInput("logo_file")));
+    else
+      $form->add(new FItem("Picture:", new XFileInput("logo_file")));
     $form->add($xp = new XSubmitP('upload', "Upload"));
     if ($this->SCHOOL->burgee !== null) {
       $xp->add(" ");

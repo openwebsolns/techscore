@@ -74,10 +74,10 @@ class NoticeBoardPane extends AbstractPane {
     $this->PAGE->addContent($p = new XPort("New notice"));
     $p->add($f = $this->createFileForm());
     $f->add(new XHiddenInput('MAX_FILE_SIZE', $size_limit));
-    $f->add(new FItem("Name:", new XTextInput('name', "", array('maxlength'=>100))));
+    $f->add(new FReqItem("Name:", new XTextInput('name', "", array('maxlength'=>100))));
     $f->add(new FItem("Description:", new XTextArea('description', "", array('placeholder'=>"Optional, but highly recommended, description."))));
-    $f->add(new FItem("Category:", XSelect::fromArray('category', $categories)));
-    $f->add(new FItem("Document:", new XFileInput('file')));
+    $f->add(new FReqItem("Category:", XSelect::fromArray('category', $categories)));
+    $f->add(new FReqItem("Document:", new XFileInput('file')));
     $f->add(new XSubmitP('upload', "Add document"));
   }
 

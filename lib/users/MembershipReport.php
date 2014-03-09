@@ -232,9 +232,9 @@ class MembershipReport extends AbstractUserPane {
                           new XLi("Team race women's"),
                           new XLi("Singlehanded"))));
     $p->add($form = $this->createForm(XForm::GET));
-    $form->add(new FItem("Seasons:", $this->seasonList('sea-', $seasons)));
-    $form->add(new FItem(sprintf("%ss:", DB::g(STN::CONFERENCE_TITLE)), $this->conferenceList('conf-', $confs)));
-    $form->add(new FItem("Regatta type:", $this->regattaTypeList('types-', $types)));
+    $form->add(new FReqItem("Seasons:", $this->seasonList('sea-', $seasons)));
+    $form->add(new FReqItem(sprintf("%ss:", DB::g(STN::CONFERENCE_TITLE)), $this->conferenceList('conf-', $confs)));
+    $form->add(new FReqItem("Regatta type:", $this->regattaTypeList('types-', $types)));
     $form->add(new XSubmitP('create', "Create report"));
   }
 

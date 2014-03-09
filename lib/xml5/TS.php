@@ -125,6 +125,11 @@ class FReqItem extends FItem {
   public function __construct($message, $form_input, $expl = null) {
     parent::__construct($message, $form_input, $expl);
     $this->set('class', 'form_entry required');
+    if ($form_input instanceof XInput
+        || $form_input instanceof XTextArea
+        || $form_input instanceof XSelect) {
+      $form_input->set('required', 'required');
+    }
   }
 }
 

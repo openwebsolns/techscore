@@ -31,9 +31,9 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
 
     $p->add($form = $this->createForm());
     $form->add(new FItem("Description:", new XTextArea('description', $template->description)));
-    $form->add(new FItem("Num. of teams:", new XStrong($template->num_teams)));
+    $form->add(new FReqItem("Num. of teams:", new XStrong($template->num_teams)));
     if (count($template->master_teams) > 0) {
-      $form->add($fi = new FItem("Teams carried over:", new XStrong(implode(", ", $template->master_teams))));
+      $form->add($fi = new FReqItem("Teams carried over:", new XStrong(implode(", ", $template->master_teams))));
       $fi->add(" (Use ");
 
       $last = 1;
@@ -45,10 +45,10 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
       }
       $fi->add(")");
     }
-    $form->add(new FItem("Num. of boats/team:", new XStrong($template->num_divisions)));
-    $form->add(new FItem("Num. of boats:", new XStrong($template->num_boats)));
-    $form->add(new FItem("Boat rotation:", new XStrong($frequencies[$template->frequency])));
-    $form->add(new FItem("Race order:", new XSpan("(Table below)", array('class'=>'hidden'))));
+    $form->add(new FReqItem("Num. of boats/team:", new XStrong($template->num_divisions)));
+    $form->add(new FReqItem("Num. of boats:", new XStrong($template->num_boats)));
+    $form->add(new FReqItem("Boat rotation:", new XStrong($frequencies[$template->frequency])));
+    $form->add(new FReqItem("Race order:", new XSpan("(Table below)", array('class'=>'hidden'))));
 
     $num_races = $template->num_teams * ($template->num_teams - 1) / 2;
     if ($template->master_teams !== null) {
@@ -176,9 +176,9 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
     $fi->add(new XStrong("OR"));
 
     $form->add(new FItem("# of teams carried over:", new XTextInput('master_teams', ''), "As a comma-separated list, e.g. \"4, 4\"."));
-    $form->add(new FItem("# of boats/team:", new XNumberInput('divs', 3, 1, 4, 1, array('size'=>2)), "Use 3 for a \"3 on 3\" team race, for example"));
-    $form->add(new FItem("# of boats:", new XNumberInput('boats', "", 1, null, 1, array('size'=>2)), "Total number of boats, i.e. 18, 24"));
-    $form->add(new FItem("Boat rotation:", XSelect::fromArray('frequency', $frequencies)));
+    $form->add(new FReqItem("# of boats/team:", new XNumberInput('divs', 3, 1, 4, 1, array('size'=>2)), "Use 3 for a \"3 on 3\" team race, for example"));
+    $form->add(new FReqItem("# of boats:", new XNumberInput('boats', "", 1, null, 1, array('size'=>2)), "Total number of boats, i.e. 18, 24"));
+    $form->add(new FReqItem("Boat rotation:", XSelect::fromArray('frequency', $frequencies)));
     $form->add(new XSubmitP('create', "Create template"));
 
     // ------------------------------------------------------------

@@ -156,7 +156,7 @@ class SponsorsManagement extends AbstractAdminUserPane {
   }
 
   private function fillForm(XForm $f, Pub_Sponsor $sponsor) {
-    $f->add(new FItem("Name:", new XTextInput('name', $sponsor->name, array('maxlength'=>50))));
+    $f->add(new FReqItem("Name:", new XTextInput('name', $sponsor->name, array('maxlength'=>50))));
     $f->add(new FItem("URL:", new XUrlInput('url', $sponsor->url, array('maxlength'=>255))));
     $f->add(new FItem("Logo:", $sel = new XSelect('logo')));
     $sel->add(new FOption("", ""));

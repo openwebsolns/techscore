@@ -86,13 +86,13 @@ class RegisterPane extends AbstractUserPane {
 
     $p->add(new XP(array(), "Once your account request has been approved by the registration committee, you will receive another e-mail from TechScore with instructions on logging in."));
     $p->add($f = $this->createForm());
-    $f->add(new FItem("Email:", new XEmailInput('email', "")));
-    $f->add(new FItem("First name:", new XTextInput("first_name", "")));
-    $f->add(new FItem("Last name:",  new XTextInput("last_name", "")));
-    $f->add(new FItem("Password:", new XPasswordInput("passwd", "")));
-    $f->add(new FItem("Confirm password:", new XPasswordInput("confirm", "")));
-    $f->add(new FItem("Affiliation: ", $aff = new XSelect("school")));
-    $f->add(new FItem("Role: ", XSelect::fromArray('role', Account::getRoles())));
+    $f->add(new FReqItem("Email:", new XEmailInput('email', "")));
+    $f->add(new FReqItem("First name:", new XTextInput("first_name", "")));
+    $f->add(new FReqItem("Last name:",  new XTextInput("last_name", "")));
+    $f->add(new FReqItem("Password:", new XPasswordInput("passwd", "")));
+    $f->add(new FReqItem("Confirm password:", new XPasswordInput("confirm", "")));
+    $f->add(new FReqItem("Affiliation: ", $aff = new XSelect("school")));
+    $f->add(new FReqItem("Role: ", XSelect::fromArray('role', Account::getRoles())));
     $f->add(new XSubmitP("register", "Request account"));
 
     // Fill out the selection boxes

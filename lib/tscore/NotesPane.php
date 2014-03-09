@@ -28,7 +28,7 @@ class NotesPane extends AbstractPane {
 
     // Form
     $p->add($form = $this->createForm());
-    $form->add($fitem = new FItem("Race:", $this->newRaceInput('race')));
+    $form->add($fitem = new FReqItem("Race:", $this->newRaceInput('race')));
 
     // Table of possible races
     if ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) {
@@ -40,18 +40,14 @@ class NotesPane extends AbstractPane {
     }
 
     // Observation
-    $form->add(new FItem("Observation:",
-                         new XTextArea("observation","",
-                                       array("rows"=>3,
-                                             "cols"=>30))));
+    $form->add(new FReqItem("Observation:",
+                            new XTextArea('observation', "", array('rows'=>3, 'cols'=>30))));
     // Observer
-    $form->add(new FItem("Observer:",
-                         new XTextInput("observer",
-                                        $this->USER->getName(),
-                                        array("maxlength"=>"50"))));
+    $form->add(new FReqItem("Observer:",
+                            new XTextInput('observer', $this->USER->getName(), array('maxlength'=>'50'))));
 
-    $form->add(new XSubmitInput("observe",
-                                "Add note"));
+    $form->add(new XSubmitInput('observe', "Add note"));
+
     // CURRENT NOTES
     $notes = $this->REGATTA->getNotes();
     if (count($notes) > 0) {

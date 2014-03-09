@@ -23,7 +23,7 @@ class DeleteRegattaPane extends AbstractPane {
                    array("Deleting a regatta is ", new XStrong("permanent"), ". The regatta and all information associated with it will be permanently deleted from the database. If you wish to merely remove the regatta from publication, while keeping it around, go to ", new XA(WS::link(sprintf('/score/%s', $this->REGATTA->id)), "the settings page"), " and mark it as \"Private\" instead.")));
 
     $p->add($form = $this->createForm());
-    $form->add($fitem = new FItem("Confirm:", new XCheckboxInput("confirm", 1, array('id'=>'chk-confirm'))));
+    $form->add($fitem = new FReqItem("Confirm:", new XCheckboxInput("confirm", 1, array('id'=>'chk-confirm'))));
     $fitem->add(new XLabel('chk-confirm', " I understand that all data from this regatta will be deleted."));
     $form->add(new XSubmitP('delete', "Delete"));
   }

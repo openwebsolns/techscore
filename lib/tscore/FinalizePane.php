@@ -106,10 +106,10 @@ class FinalizePane extends AbstractPane {
 
     if ($can_finalize) {
       $p->add($f = $this->createForm());
-      $f->add(new FItem($chk = new XCheckboxInput('approve', 1, array('id'=>'approve')),
-                        new XLabel('approve',
-                                   "I have reviewed the information above and wish to finalize this regatta.",
-                                   array("class"=>"strong"))));
+      $f->add(new FReqItem($chk = new XCheckboxInput('approve', 1, array('id'=>'approve')),
+                           new XLabel('approve',
+                                      "I have reviewed the information above and wish to finalize this regatta.",
+                                      array("class"=>"strong"))));
       $f->add(new XSubmitP("finalize", "Finalize!"));
     }
   }

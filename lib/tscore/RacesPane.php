@@ -48,12 +48,12 @@ class RacesPane extends AbstractPane {
       $divs = array(1=>1, 2=>2, 3=>3, 4=>4);
       if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED)
         $divs = array(2=>2, 3=>3, 4=>4);
-      $form->add(new FItem("Number of divisions:", XSelect::fromArray('num_divisions',
-                                                                      $divs,
-                                                                      count($this->REGATTA->getDivisions()))));
+      $form->add(new FReqItem("Number of divisions:", XSelect::fromArray('num_divisions',
+                                                                         $divs,
+                                                                         count($this->REGATTA->getDivisions()))));
     }
-    $form->add(new FItem("Number of races:", new XNumberInput('num_races', count($this->REGATTA->getTeams()), 1, null, 1)));
-    $form->add($fi = new FItem("Boat:", XSelect::fromArray('boat', $boatOptions)));
+    $form->add(new FReqItem("Number of races:", new XNumberInput('num_races', count($this->REGATTA->getTeams()), 1, null, 1)));
+    $form->add($fi = new FReqItem("Boat:", XSelect::fromArray('boat', $boatOptions)));
     $fi->add(new XMessage("Boats can be assigned per division or race afterwards."));
     $fi->add(new XSubmitP("set-races", "Add races"));
   }
@@ -83,14 +83,16 @@ class RacesPane extends AbstractPane {
       $divs = array(1=>1, 2=>2, 3=>3, 4=>4);
       if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED)
 	$divs = array(2=>2, 3=>3, 4=>4);
-      $form->add(new FItem("Number of divisions:", $f_div = XSelect::fromArray('num_divisions',
-                                                                               $divs,
-                                                                               count($this->REGATTA->getDivisions()))));
+      $form->add(new FReqItem("Number of divisions:",
+                              $f_div = XSelect::fromArray(
+                                'num_divisions',
+                                $divs,
+                                count($this->REGATTA->getDivisions()))));
     }
-    $form->add(new FItem("Number of races:",
-                         $f_rac = new XNumberInput("num_races",
-                                                   count($this->REGATTA->getRaces(Division::A())),
-                                                   1, null, 1)));
+    $form->add(new FReqItem("Number of races:",
+                            $f_rac = new XNumberInput('num_races',
+                                                      count($this->REGATTA->getRaces(Division::A())),
+                                                      1, null, 1)));
 
     $attrs = ($final) ? array('disabled'=>'disabled') : array();
     $form->add($xp = new XSubmitP("set-races", "Save changes", $attrs));

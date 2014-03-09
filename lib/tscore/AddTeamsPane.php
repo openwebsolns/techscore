@@ -31,7 +31,7 @@ class AddTeamsPane extends AbstractTeamPane {
     $p->add(new XP(array(), "Choose a school from which to add a new team. Because the regatta is under way, you may only add one team at a time."));
 
     $p->add($form = $this->createForm());
-    $form->add(new FItem("Schools:", $this->newSchoolSelect()));
+    $form->add(new FReqItem("Schools:", $this->newSchoolSelect()));
 
     // What to do with rotation?
     $form->add($exp = new XP());
@@ -47,7 +47,7 @@ class AddTeamsPane extends AbstractTeamPane {
     // What to do with scores?
     if ($this->has_scores) {
       $exp->add(new XText("The regatta already has finishes entered. After adding the new teams, what should their score be?"));
-      $form->add(new FItem("New score:", XSelect::fromArray('new-score', array('DNS' => 'DNS', 'BYE' => 'BYE'))));
+      $form->add(new FReqItem("New score:", XSelect::fromArray('new-score', array('DNS' => 'DNS', 'BYE' => 'BYE'))));
     }
     $form->add(new XSubmitP("invite", "Register team"));
   }

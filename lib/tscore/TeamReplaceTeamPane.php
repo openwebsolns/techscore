@@ -93,25 +93,26 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new XPort("Replace a team in a round"));
     $p->add($form = $this->createForm(XForm::GET));
-    $form->add(new XP(array(), "To start, choose the round or rounds in which to replace teams."));
-    $form->add(new FItem("Rounds:", $ul = new XUl(array('class'=>'inline-list'))));
+    $form->add(new XP(array(), "To start, choose the round in which to replace teams."));
+    $form->add(new FReqItem("Round:", $ul = new XSelect('round')));
 
+    $hasValid = false;
     foreach ($this->REGATTA->getRounds() as $round) {
-      $id = 'chk-' . $round->id;
-      $ul->add(new XLi(array($ri = new XRadioInput('round', $round->id, array('id'=>$id)),
-                             $lb = new XLabel($id, $round))));
+      $label = (string)$round;
+      $attrs = array();
+
       if (count($round->getSlaves()) > 0) {
-        $mes = "Races from this round are being carried over to other rounds.";
-        $ri->set('disabled', 'disabled');
-        $ri->set('title', $mes);
-        $lb->set('title', $mes);
+        $attrs['title'] = "Races from this round are being carried over to other rounds.";
+        $attrs['disabled'] = 'disabled';
       }
       elseif (count($round->getMasterRounds()) > 0) {
-        $mes = "Races for this round are carried over from other rounds.";
-        $ri->set('disabled', 'disabled');
-        $ri->set('title', $mes);
-        $lb->set('title', $mes);
+        $attrs['title'] = "Races for this round are carried over from other rounds.";
+        $attrs['disabled'] = 'disabled';
       }
+      else {
+        $hasValid = true;
+      }
+      $ul->add(new FOption($round->id, $label, $attrs));
     }
     $form->add(new XSubmitP('replace-round', "Choose teams →"));
 

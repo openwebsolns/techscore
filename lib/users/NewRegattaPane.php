@@ -53,20 +53,20 @@ class NewRegattaPane extends AbstractUserPane {
         $r[$key] = $args[$key];
     }
 
-    $f->add(new FItem("Name:", new XTextInput('name', $r['name'], array('maxlength'=>35))));
+    $f->add(new FReqItem("Name:", new XTextInput('name', $r['name'], array('maxlength'=>35))));
 
     $f->add($fi = new FItem("Private:", $chk = new XCheckboxInput('private', 1, array('id'=>'chk-priv'))));
     if ($r['private'] !== null)
       $chk->set('checked', 'checked');
 
     $fi->add(new XLabel('chk-priv', "Private regattas are not published and are temporary."));
-    $f->add(new FItem("Start date:", new XDateInput('start_date', new DateTime($r['start_date']))));
-    $f->add(new FItem("On the water:", new XTimeInput('start_time', new DateTime($r['start_time']))));
-    $f->add(new FItem("Duration (days):", new XNumberInput('duration', $r['duration'], 1, 99, 1)));
+    $f->add(new FReqItem("Start date:", new XDateInput('start_date', new DateTime($r['start_date']))));
+    $f->add(new FReqItem("On the water:", new XTimeInput('start_time', new DateTime($r['start_time']))));
+    $f->add(new FReqItem("Duration (days):", new XNumberInput('duration', $r['duration'], 1, 99, 1)));
     $f->add(new FItem("Venue:",   $sel = new XSelect("venue")));
-    $f->add(new FItem("Scoring:", XSelect::fromArray("scoring", Regatta::getScoringOptions(), $r["scoring"])));
-    $f->add(new FItem("Type:", XSelect::fromDBM('type', DB::getAll(DB::$ACTIVE_TYPE), $r['type'])));
-    $f->add(new FItem("Participation:", XSelect::fromArray("participant", Regatta::getParticipantOptions(),
+    $f->add(new FReqItem("Scoring:", XSelect::fromArray("scoring", Regatta::getScoringOptions(), $r["scoring"])));
+    $f->add(new FReqItem("Type:", XSelect::fromDBM('type', DB::getAll(DB::$ACTIVE_TYPE), $r['type'])));
+    $f->add(new FReqItem("Participation:", XSelect::fromArray("participant", Regatta::getParticipantOptions(),
                                                            $r["participant"])));
 
     // select
@@ -82,7 +82,7 @@ class NewRegattaPane extends AbstractUserPane {
     $schools = $this->USER->getSchools();
     if (count($schools) == 1) {
       $school = $schools[0];
-      $f->add(new FItem("Host:", new XSpan($school)));
+      $f->add(new FReqItem("Host:", new XSpan($school)));
       $f->add(new XHiddenInput('host[]', $school->id));
     }
     else {
@@ -92,7 +92,7 @@ class NewRegattaPane extends AbstractUserPane {
           $confs[$school->conference->id] = array();
         $confs[$school->conference->id][$school->id] = $school;
       }
-      $f->add($fi = new FItem("Host(s):", $sel = XSelectM::fromArray('host[]', $confs)));
+      $f->add($fi = new FReqItem("Host(s):", $sel = XSelectM::fromArray('host[]', $confs)));
       $fi->add(new XMessage("There must be at least one"));
       $sel->set('size', 10);
     }

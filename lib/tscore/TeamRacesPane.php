@@ -107,7 +107,7 @@ class TeamRacesPane extends AbstractRoundPane {
       }
       if (count($master_rounds) > 1)
         $opts[self::COMPLETION] = "Completion round";
-      $f->add(new FItem("Add round:", XSelect::fromArray('create-round', $opts)));
+      $f->add(new FReqItem("Add round:", XSelect::fromArray('create-round', $opts)));
       $f->add(new XSubmitP('go', "Next →"));
 
       $this->PAGE->addContent($p = new XPort("Explanation"));
@@ -151,20 +151,20 @@ class TeamRacesPane extends AbstractRoundPane {
 
         $this->PAGE->addContent($p = new XPort("New round settings"));
         $p->add($form = $this->createForm());
-        $form->add(new FItem("Round name:", new XTextInput('title', $ROUND->title)));
-        $form->add(new FItem("Number of teams:", new XNumberInput('num_teams', $num_teams, 1, $num_teams, 1)));
+        $form->add(new FReqItem("Round name:", new XTextInput('title', $ROUND->title)));
+        $form->add(new FReqItem("Number of teams:", new XNumberInput('num_teams', $num_teams, 1, $num_teams, 1)));
 
-        $form->add(new FItem("Number of boats:", new XNumberInput('num_boats', $num_boats, $group_size, null, $group_size)));
-        $form->add(new FItem("Rotation frequency:", XSelect::fromArray('rotation_frequency', Race_Order::getFrequencyTypes())));
-        $form->add(new FItem("Boat:", XSelect::fromArray('boat', $boats, $boat)));
+        $form->add(new FReqItem("Number of boats:", new XNumberInput('num_boats', $num_boats, $group_size, null, $group_size)));
+        $form->add(new FReqItem("Rotation frequency:", XSelect::fromArray('rotation_frequency', Race_Order::getFrequencyTypes())));
+        $form->add(new FReqItem("Boat:", XSelect::fromArray('boat', $boats, $boat)));
         $form->add($p = new XSubmitP('create-settings', "Next →"));
       }
 
       elseif ($type == self::COPY) {
         $this->PAGE->addContent($p = new XPort("New round settings"));
         $p->add($form = $this->createForm());
-        $form->add(new FItem("Round name:", new XTextInput('title', $ROUND->title)));
-        $form->add(new FItem("Template round:", XSelect::fromDBM('template', $rounds, Session::g('round_template'))));
+        $form->add(new FReqItem("Round name:", new XTextInput('title', $ROUND->title)));
+        $form->add(new FReqItem("Template round:", XSelect::fromDBM('template', $rounds, Session::g('round_template'))));
         $form->add($fi = new FItem("Swap teams:", new XCheckboxInput('swap', 1, array('id'=>'chk-swap'))));
         $fi->add(new XLabel('chk-swap', "Reverse the teams in each race."));
         $form->add($p = new XSubmitP('create-settings', "Next →"));
@@ -177,9 +177,9 @@ class TeamRacesPane extends AbstractRoundPane {
 
         $this->PAGE->addContent($p = new XPort("Sailoff round settings"));
         $p->add($form = $this->createForm());
-        $form->add(new FItem("Round name:", new XTextInput('title', $ROUND->title)));
-        $form->add(new FItem("Round to sailoff:", XSelect::fromDBM('sailoff_for_round', $sailoff_rounds)));
-        $form->add(new FItem("Number of teams:", new XNumberInput('num_teams', $num_teams, 1)));
+        $form->add(new FReqItem("Round name:", new XTextInput('title', $ROUND->title)));
+        $form->add(new FReqItem("Round to sailoff:", XSelect::fromDBM('sailoff_for_round', $sailoff_rounds)));
+        $form->add(new FReqItem("Number of teams:", new XNumberInput('num_teams', $num_teams, 1)));
         $form->add($p = new XSubmitP('create-settings', "Next →"));
       }
 
@@ -190,10 +190,10 @@ class TeamRacesPane extends AbstractRoundPane {
 
         $this->PAGE->addContent($p = new XPort("Completion round settings"));
         $p->add($form = $this->createForm());
-        $form->add(new FItem("Round name:", new XTextInput('title', $ROUND->title)));
-        $form->add(new FItem("Number of boats:", new XNumberInput('num_boats', $ROUND->num_boats, $group_size, null, $group_size)));
-        $form->add(new FItem("Rotation frequency:", XSelect::fromArray('rotation_frequency', Race_Order::getFrequencyTypes())));
-        $form->add(new FItem("Boat:", XSelect::fromArray('boat', $boats, $boat)));
+        $form->add(new FReqItem("Round name:", new XTextInput('title', $ROUND->title)));
+        $form->add(new FReqItem("Number of boats:", new XNumberInput('num_boats', $ROUND->num_boats, $group_size, null, $group_size)));
+        $form->add(new FReqItem("Rotation frequency:", XSelect::fromArray('rotation_frequency', Race_Order::getFrequencyTypes())));
+        $form->add(new FReqItem("Boat:", XSelect::fromArray('boat', $boats, $boat)));
 
         $form->add(new XP(array(), "Enter the number of teams to carry over from each of the possible rounds below."));
         $form->add($ul = new XUl(array('id' => 'teams-list')));

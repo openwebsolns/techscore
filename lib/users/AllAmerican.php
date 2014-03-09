@@ -90,15 +90,15 @@ class AllAmerican extends AbstractUserPane {
         $then = DB::getSeason(sprintf('f%0d', ($now->start_date->format('Y') - 1)));
 
       $p->add($form = $this->createForm());
-      $form->add(new FItem("Report type:", XSelect::fromArray('type', $this->types)));
+      $form->add(new FReqItem("Report type:", XSelect::fromArray('type', $this->types)));
 
-      $form->add(new FItem("Boat role:", XSelect::fromArray('role', array(RP::SKIPPER => "Skipper", RP::CREW => "Crew"))));
-      $form->add(new FItem("Seasons:", $this->seasonList('', array($now, $then))));
+      $form->add(new FReqItem("Boat role:", XSelect::fromArray('role', array(RP::SKIPPER => "Skipper", RP::CREW => "Crew"))));
+      $form->add(new FReqItem("Seasons:", $this->seasonList('', array($now, $then))));
 
-      $form->add($fi = new FItem(sprintf("%ss:", DB::g(STN::CONFERENCE_TITLE)), $this->conferenceList('conf-')));
+      $form->add($fi = new FReqItem(sprintf("%ss:", DB::g(STN::CONFERENCE_TITLE)), $this->conferenceList('conf-')));
       $fi->set('title', "Only choose sailors from selected conference(s) automatically. You can manually choose sailors from other divisions.");
 
-      $form->add($fi = new FItem("Min. # Regattas", new XNumberInput('min-regattas', 2, 1, null, 1, array('size'=>3))));
+      $form->add($fi = new FReqItem("Min. # Regattas", new XNumberInput('min-regattas', 2, 1, null, 1, array('size'=>3))));
       $fi->add(new XMessage("Sailors must qualify for at least this many regattas to be automatically considered."));
 
       $form->add(new XSubmitP('set-report', "Choose regattas →"));

@@ -38,11 +38,10 @@ class AccountsPane extends AbstractAdminUserPane {
       $p->add(new XP(array('class'=>'warning'), "This account is not able to log in and use the system because their account has either been rejected or deleted."));
 
     $p->add($f = $this->createForm());
-    $f->add($fi = new FItem("Name:", new XStrong($user)));
-    $fi->add(new XMessage("Only the user can change the name using the \"My Account\" page."));
+    $f->add($fi = new FReqItem("Name:", new XStrong($user), "Only the user can change the name using the \"My Account\" page."));
 
-    $f->add(new FItem("Email:", new XA('mailto:'.$user->id, $user->id)));
-    $f->add(new FItem("Role: ", XSelect::fromArray('role', Account::getRoles(), $user->role)));
+    $f->add(new FReqItem("Email:", new XA('mailto:'.$user->id, $user->id)));
+    $f->add(new FReqItem("Role: ", XSelect::fromArray('role', Account::getRoles(), $user->role)));
 
     $f->add($fi = new FItem("Admin:", $chk = new XCheckboxInput('admin', 1, array('id'=>'chk-admin'))));
     $fi->add(new XLabel('chk-admin', "Does this account have admin privileges?"));
@@ -81,7 +80,7 @@ class AccountsPane extends AbstractAdminUserPane {
     $f->add(new XHiddenInput('user', $user->id));
 
     require_once('xml5/XMultipleSelect.php');
-    $f->add(new FItem("Primary school:", XSelect::fromArray('school', $opts, $user->school->id)));
+    $f->add(new FReqItem("Primary school:", XSelect::fromArray('school', $opts, $user->school->id)));
     $f->add(new FItem("Other schools:", $sel = new XMultipleSelect('schools[]')));
 
     $my_schools = array();

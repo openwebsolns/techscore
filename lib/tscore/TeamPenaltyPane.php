@@ -43,7 +43,7 @@ class TeamPenaltyPane extends AbstractPane {
     $p->add($form = $this->createForm());
     $form->add(new FItem("Team:", XSelect::fromArray('team', $teams)));
     if (count($divisions) > 1) {
-      $form->add($fi = new FItem("Division(s):", XSelectM::fromArray('division[]', $divisions)));
+      $form->add($fi = new FReqItem("Division(s):", XSelectM::fromArray('division[]', $divisions)));
       $fi->add(new XMessage("Hold down Ctrl to select multiple"));
     }
     else
@@ -51,7 +51,7 @@ class TeamPenaltyPane extends AbstractPane {
 
     // Penalty type
     $opts = array_merge(array(""=>""), TeamPenalty::getList());
-    $form->add(new FItem("Penalty type:", XSelect::fromArray('penalty', $opts)));
+    $form->add(new FReqItem("Penalty type:", XSelect::fromArray('penalty', $opts)));
 
     $form->add(new FItem("Comments:",
                          new XTextArea("comments", "",

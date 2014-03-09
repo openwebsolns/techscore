@@ -75,7 +75,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
       // ------------------------------------------------------------
       $this->PAGE->addContent($p = new XPort("Edit round information"));
       $p->add($form = $this->createForm());
-      $form->add(new FItem("Label:", new XTextInput('title', $round->title)));
+      $form->add(new FReqItem("Label:", new XTextInput('title', $round->title)));
 
       $masters = $round->getMasters();
       $type = "Simple round robin";
@@ -94,7 +94,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
       $types = Race_Order::getFrequencyTypes();
       $form->add(new FItem("Rotation:", new XStrong($types[$round->rotation_frequency])));
 
-      $form->add(new FItem("Boat:", XSelect::fromDBM('boat', DB::getBoats(), $round->boat)));
+      $form->add(new FReqItem("Boat:", XSelect::fromDBM('boat', DB::getBoats(), $round->boat)));
       
       $form->add($p = new XSubmitP('edit-round', "Edit"));
       $p->add(new XHiddenInput('round', $round->id));

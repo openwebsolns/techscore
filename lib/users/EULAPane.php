@@ -38,10 +38,10 @@ class EULAPane extends AbstractUserPane {
     $p->add(new XP(array(), sprintf("Before using %s, you must read and agree to the terms below. These are short terms of usage that outline what is expected of %s users and your responsibilities as an official scorer. Please read it carefully before clicking on the checkbox below.", DB::g(STN::APP_NAME), DB::g(STN::APP_NAME))));
     $p->add(new XDiv(array('id'=>'license'), array($license)));
     $p->add($f = $this->createForm());
-    $f->add($i = new FItem(new XCheckBoxInput("agree", "1", array("id"=>"agree")),
-                           new XLabel("agree", "I agree with the terms above")));
-    $i->set("style", "margin:1em 0em;background:#ccc;border:black;padding:0.25em;font-size:110%;");
-    $f->add(new XSubmitInput("agree-form", "Sign"));
+    $f->add($i = new FReqItem(new XCheckBoxInput('agree', '1', array('id'=>'agree')),
+                              new XLabel('agree', "I agree with the terms above")));
+    $i->set('style', 'margin:1em 0em;background:#ccc;border:black;padding:0.25em;font-size:110%;');
+    $f->add(new XSubmitInput('agree-form', "Sign"));
   }
 
   public function process(Array $args) {

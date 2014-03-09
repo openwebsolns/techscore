@@ -33,7 +33,7 @@ class ManualTweakPane extends AbstractPane {
       $port_title = "Manual rotation for division " . $chosen_div;
 
       // Provide links to change division
-      $d = new FItem("Choose division:", "");
+      $d = new FReqItem("Choose division:", "");
       foreach ($exist_div as $div) {
         $mes = new XStrong($div);
         if ($div != $chosen_div)
