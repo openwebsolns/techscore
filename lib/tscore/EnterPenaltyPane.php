@@ -71,7 +71,7 @@ class EnterPenaltyPane extends AbstractPane {
       $p->add($form = $this->createForm(XForm::GET));
 
       $form->add(new FItem("Possible races:", $this->getRaceTable()));
-      $form->add(new FItem("Race:", new XTextInput("race", $theRace)));
+      $form->add(new FItem("Race:", $this->newRaceInput('race', $theRace)));
 
       $this->fillAlternateRaceSelection($form);
 

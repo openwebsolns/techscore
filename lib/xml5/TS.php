@@ -202,4 +202,31 @@ class XSubmitP extends XP {
     parent::__construct(array('class'=>'p-submit'), new XSubmitInput($name, $value, $attrs));
   }
 }
+
+/**
+ * Input field appropriate for races from a standard race (up to 4 divisions)
+ *
+ * @author Dayan Paez
+ * @version 2014-03-09
+ */
+class XRaceInput extends XTextInput {
+  public function __construct($name, $value, Array $attrs = array()) {
+    parent::__construct($name, $value, $attrs);
+    $this->set('pattern', '^[0-9]+[A-Da-d]$');
+    $this->set('class', 'race-input');
+  }
+}
+
+/**
+ * Input field appropriate for races from combined/team racing
+ *
+ * @author Dayan Paez
+ * @version 2014-03-09
+ */
+class XCombinedRaceInput extends XNumberInput {
+  public function __construct($name, $value, $max = null, Array $attrs = array()) {
+    parent::__construct($name, $value, 1, $max, 1, $attrs);
+    $this->set('class', 'race-input');
+  }
+}
 ?>

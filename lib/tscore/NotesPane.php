@@ -28,18 +28,16 @@ class NotesPane extends AbstractPane {
 
     // Form
     $p->add($form = $this->createForm());
-    $form->add($fitem = new FItem("Race:", 
-                                  new XTextInput('race', "",
-                                                 array("size"=>"4",
-                                                       "maxlength"=>"4",
-                                                       "class"=>"narrow"))));
+    $form->add($fitem = new FItem("Race:", $this->newRaceInput('race')));
 
     // Table of possible races
-    $fitem->add($tab = new XQuickTable(array('class'=>'narrow'), $divisions));
-    $cells = array();
-    foreach ($divisions as $div)
-      $cells[] = count($this->REGATTA->getRaces($div));
-    $tab->addRow($cells);
+    if ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) {
+      $fitem->add($tab = new XQuickTable(array('class'=>'narrow'), $divisions));
+      $cells = array();
+      foreach ($divisions as $div)
+        $cells[] = count($this->REGATTA->getRaces($div));
+      $tab->addRow($cells);
+    }
 
     // Observation
     $form->add(new FItem("Observation:",

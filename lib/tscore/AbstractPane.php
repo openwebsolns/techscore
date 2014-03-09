@@ -330,6 +330,21 @@ abstract class AbstractPane {
   }
 
   /**
+   * Creates a new race input, tailored to the regatta type
+   *
+   * @param String $name the name of the input field to create
+   * @param Race $value the race to select
+   * @param Array $attrs the extra attributes to use
+   * @return XInput one of XRaceInput or XCombinedRaceInput
+   */
+  protected function newRaceInput($name, Race $value = null, Array $attrs = array()) {
+    if ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) {
+      return new XRaceInput($name, (string)$value, $attrs);
+    }
+    return new XCombinedRaceInput($name, (string)$value, count($this->REGATTA->getRaces(Division::A())), $attrs);
+  }
+
+  /**
    * Returns a new instance of a pane with the given URL
    *
    * @param Array $url the URL tokens in order

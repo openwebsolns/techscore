@@ -52,12 +52,7 @@ class TeamEnterFinishPane extends EnterFinishPane {
       $p->add($form = $this->createForm(XForm::GET));
       $form->set("id", "race_form");
 
-      $form->add(new FItem("Race number:", 
-                           $race_input = new XTextInput('race', "",
-                                                        array("size"=>"4",
-                                                              "maxlength"=>"3",
-                                                              "class"=>"narrow"))));
-
+      $form->add(new FItem("Race number:", $race_input = $this->newRaceInput('race', null)));
       $form->add(new FItem("Using:", XSelect::fromArray('finish_using', $this->ACTIONS, $using)));
 
       // Add next unscored, or last scored race
