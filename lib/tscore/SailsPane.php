@@ -755,10 +755,6 @@ class SailsPane extends AbstractPane {
               unset($race_nums[$num]);
               continue;
             }
-            foreach ($teams as $team) {
-              if (($sail = $rotation->getSail($race, $team)) !== null)
-                $rotation->queue($sail);
-            }
           }
         }
       }
