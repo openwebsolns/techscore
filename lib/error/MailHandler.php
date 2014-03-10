@@ -44,7 +44,7 @@ class MailHandler {
       }
     }
     require_once('regatta/DB.php');
-    DB::mail(Conf::$ADMIN_MAIL, sprintf("[Techscore Error] %s", $errstr), $body);
+    DB::mail(Conf::$ADMIN_MAIL, sprintf("[Techscore Error] %s", substr($errstr, 0, 100)), $body);
 
     // Prepare XHTML
     require_once('xml5/TScorePage.php');
@@ -83,7 +83,7 @@ class MailHandler {
       }
     }
     require_once('regatta/DB.php');
-    DB::mail(Conf::$ADMIN_MAIL, sprintf("[Techscore Exception] %s", $e->getMessage()), $body);
+    DB::mail(Conf::$ADMIN_MAIL, sprintf("[Techscore Exception] %s", substr($e->getMessage(), 0, 100)), $body);
 
     // Prepare XHTML
     require_once('xml5/TScorePage.php');
