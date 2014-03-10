@@ -25,7 +25,7 @@ class DeleteRegattaPane extends AbstractPane {
     $p->add($form = $this->createForm());
     $form->add($fitem = new FReqItem("Confirm:", new XCheckboxInput("confirm", 1, array('id'=>'chk-confirm'))));
     $fitem->add(new XLabel('chk-confirm', " I understand that all data from this regatta will be deleted."));
-    $form->add(new XSubmitP('delete', "Delete"));
+    $form->add(new XSubmitP('delete', "Delete", array(), true));
   }
 
   public function process(Array $args) {

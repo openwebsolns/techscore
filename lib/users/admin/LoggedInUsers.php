@@ -70,7 +70,7 @@ class LoggedInUsers extends AbstractAdminUserPane {
       elseif ($user !== null) {
         $f = $this->createForm();
         $f->add(new XHiddenInput('websession', $session->id));
-        $f->add(new XSubmitInput('delete', "Log-off user"));
+        $f->add(new XSubmitDelete('delete', "Log-off user"));
       }
       else {
         $user = new XEm("Not logged-in");

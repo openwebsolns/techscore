@@ -129,7 +129,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
 
           $p->add($form = $this->createForm());
           $form->add(new XP(array('class'=>'p-submit'),
-                            array(new XSubmitInput('delete-round', "Delete", $attr),
+                            array(new XSubmitDelete('delete-round', "Delete", $attr),
                                   new XHiddenInput('round', $round->id))));
         }
       }

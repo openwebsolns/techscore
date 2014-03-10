@@ -177,7 +177,7 @@ class EnterFinishPane extends AbstractPane {
       $this->PAGE->addContent($p = new XPort("Drop finishes"));
       $p->add(new XP(array(), "To drop the finishes for this race, click the button below. Note that this action is not undoable. All information associated with the finishes will be lost, including penalties and breakdowns that may have been entered."));
       $p->add($f = $this->createForm());
-      $f->add($p = new XSubmitP('delete-finishes', "Delete"));
+      $f->add($p = new XSubmitP('delete-finishes', "Delete", array(), true));
       $p->add(new XHiddenInput('race', $race));
     }
   }

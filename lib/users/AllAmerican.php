@@ -144,9 +144,8 @@ class AllAmerican extends AbstractUserPane {
         }
 
         $form->add($p = new XSubmitP('load-report', "Load report"));
-        $p->add(new XSubmitInput('delete-report', "Delete report",
-                                 array('style'=>'margin-left: 2em;',
-                                       'onclick'=>'return confirm("Are you sure you wish to delete the selected report?\n\nDeletions are permanent.")')));
+        $p->add(new XSubmitDelete('delete-report', "Delete report",
+                                 array('onclick'=>'return confirm("Are you sure you wish to delete the selected report?\n\nDeletions are permanent.")')));
       }
       return;
     }

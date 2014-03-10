@@ -38,7 +38,7 @@ class SponsorsManagement extends AbstractAdminUserPane {
         $this->PAGE->addContent($p = new XPort("Delete " . $sponsor->name));
         $p->add(new XP(array(), sprintf("To delete \"%s\" as a sponsor, click the button below. Note that previously generated files will not be affected, only files generated after the deletion.", $sponsor->name)));
         $p->add($f = $this->createForm());
-        $f->add($xp = new XSubmitP('delete', "Delete"));
+        $f->add($xp = new XSubmitP('delete', "Delete", array(), true));
         $xp->add(new XHiddenInput('sponsor', $sponsor->id));
         return;
       } catch (SoterException $e) {

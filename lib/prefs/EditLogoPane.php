@@ -57,13 +57,13 @@ class EditLogoPane extends AbstractPrefsPane {
     $p->add($form = $this->createFileForm());
     $form->add(new XHiddenInput("MAX_FILE_SIZE","200000"));
     if ($this->SCHOOL->burgee !== null)
-      $form->add(new FReqItem("Picture:", new XFileInput("logo_file")));
-    else
       $form->add(new FItem("Picture:", new XFileInput("logo_file")));
+    else
+      $form->add(new FReqItem("Picture:", new XFileInput("logo_file")));
     $form->add($xp = new XSubmitP('upload', "Upload"));
     if ($this->SCHOOL->burgee !== null) {
       $xp->add(" ");
-      $xp->add(new XSubmitInput('delete', "Delete", array('onclick'=>'return confirm("Are you sure you wish to delete the logo?");')));
+      $xp->add(new XSubmitDelete('delete', "Delete", array('onclick'=>'return confirm("Are you sure you wish to delete the logo?");')));
     }
   }
 

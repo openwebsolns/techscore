@@ -234,7 +234,7 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
           $rowIndex++;
         }
       }
-      $form->add(new XSubmitP('delete', "Delete"));
+      $form->add(new XSubmitP('delete', "Delete", array(), true));
     }
   }
 

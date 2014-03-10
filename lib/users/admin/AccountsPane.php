@@ -105,7 +105,7 @@ class AccountsPane extends AbstractAdminUserPane {
         $p->add($f = $this->createForm());
         $f->add(new XP(array(), "Delete this account by clicking the button below. The user will no longer be allowed to use the application, or create a new account."));
         $f->add(new XP(array('class'=>'p-submit'),
-                       array(new XSubmitInput('delete-user', "Delete user", array('onclick'=>'return confirm("Are you sure you wish to delete this user?");')),
+                       array(new XSubmitDelete('delete-user', "Delete user", array('onclick'=>'return confirm("Are you sure you wish to delete this user?");')),
                              new XHiddenInput('user', $user->id))));
       }
     }

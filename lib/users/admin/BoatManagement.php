@@ -88,7 +88,7 @@ class BoatManagement extends AbstractAdminUserPane {
                          $boat->getNumCrews(),
                          $del));
     }
-    $f->add(new XSubmitP('delete-boats', "Delete"));
+    $f->add(new XSubmitP('delete-boats', "Delete", array(), true));
   }
 
   public function process(Array $args) {

@@ -146,6 +146,19 @@ class XSubmitAccessible extends XSubmitInput {
 }
 
 /**
+ * Submit button for delete actions
+ *
+ * @author Dayan Paez
+ * @version 2014-03-09
+ */
+class XSubmitDelete extends XSubmitInput {
+  public function __construct($name, $value, Array $attrs = array()) {
+    parent::__construct($name, $value, $attrs);
+    $this->set('class', 'delete-button');
+  }
+}
+
+/**
  * Encapsulates a Reset button
  *
  * @author Dayan Paez
@@ -205,8 +218,12 @@ class XSubmitP extends XP {
    * Creates a new paragraph wrapping a submit input
    *
    */
-  public function __construct($name, $value, Array $attrs = array()) {
-    parent::__construct(array('class'=>'p-submit'), new XSubmitInput($name, $value, $attrs));
+  public function __construct($name, $value, Array $attrs = array(), $delete = false) {
+    parent::__construct(array('class'=>'p-submit'));
+    if ($delete !== false)
+      $this->add(new XSubmitDelete($name, $value, $attrs));
+    else
+      $this->add(new XSubmitInput($name, $value, $attrs));
   }
 }
 
