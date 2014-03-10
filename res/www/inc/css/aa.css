@@ -78,6 +78,10 @@
 #progressdiv input {
     cursor: pointer;
     background: #f3f3bb;
+    color: #000000;
+    cursor: pointer;
+    font-weight: normal;
+    text-shadow: none;
 }
 
 input#progress-active {

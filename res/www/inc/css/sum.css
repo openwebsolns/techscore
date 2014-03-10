@@ -22,7 +22,10 @@
 
 #progressdiv input {
     cursor: pointer;
-}
+    color: #000000;
+    cursor: pointer;
+    font-weight: normal;
+    text-shadow: none;}
 
 #progressdiv span {
     background: #f3f3bb;

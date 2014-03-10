@@ -60,6 +60,7 @@ a:hover {
     font-size:1em;
     height:auto;
     margin:0px;
+    background: none;
 }
 #menubar div.menu:first-child {
     margin-left:5px;
@@ -82,11 +83,8 @@ a:hover {
     font-size:0.9em;
 }
 #menubar div.menu:hover {
-    background: #dadada;
-    background-image: url('img/menu_bg_top.png');
-    background-repeat: repeat-x;
-    background-position: 0px 0px;
-    border-bottom: 1px solid #aaa;
+    background: #ddd;
+    box-shadow: 0 2px 5px #aaa;
 }
 #menubar div.menu:hover ul {
     display:block;
@@ -164,24 +162,10 @@ input[type="submit"]:hover, input[type="reset"]:hover {
 
 input[type="submit"]:hover {
     background: rgb(52,101,164); /* Old browsers */
-    background: -moz-linear-gradient(top, rgba(52,101,164,1) 0%, rgba(0,72,160,1) 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(52,101,164,1)), color-stop(100%,rgba(0,72,160,1))); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top, rgba(52,101,164,1) 0%,rgba(0,72,160,1) 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top, rgba(52,101,164,1) 0%,rgba(0,72,160,1) 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top, rgba(52,101,164,1) 0%,rgba(0,72,160,1) 100%); /* IE10+ */
-    background: linear-gradient(to bottom, rgba(52,101,164,1) 0%,rgba(0,72,160,1) 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3465a4', endColorstr='#0048a0',GradientType=0 ); /* IE6-9 */
 }
 
 input[type="reset"]:active {
     background: rgb(232,232,232); /* Old browsers */
-    background: -moz-linear-gradient(top, rgba(232,232,232,1) 0%, rgba(255,255,255,1) 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(232,232,232,1)), color-stop(100%,rgba(255,255,255,1))); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top, rgba(232,232,232,1) 0%,rgba(255,255,255,1) 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top, rgba(232,232,232,1) 0%,rgba(255,255,255,1) 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top, rgba(232,232,232,1) 0%,rgba(255,255,255,1) 100%); /* IE10+ */
-    background: linear-gradient(to bottom, rgba(232,232,232,1) 0%,rgba(255,255,255,1) 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e8e8e8', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */
 }
 
 input[type="submit"]:active {
