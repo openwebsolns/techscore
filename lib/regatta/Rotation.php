@@ -558,6 +558,7 @@ class Rotation {
         $new_sail->race = $to;
         $new_sail->team = $sail->team;
         $new_sail->sail = $offset_sail->sail;
+        $new_sail->color = $offset_sail->color;
 
         $this->queue($new_sail);
       }

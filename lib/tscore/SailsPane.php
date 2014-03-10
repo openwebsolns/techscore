@@ -752,10 +752,6 @@ class SailsPane extends AbstractPane {
               unset($race_nums[$num]);
               continue;
             }
-            foreach ($teams as $team) {
-              if (($sail = $rotation->getSail($race, $team)) !== null)
-                $rotation->queue($sail);
-            }
           }
         }
       }
@@ -774,6 +770,8 @@ class SailsPane extends AbstractPane {
       foreach ($all_queued as $race)
         $rotation->reset($race);
       $rotation->commit();
+
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA(array("Offset rotation successfully created. ",
                                new XA(sprintf('/view/%s/rotation', $this->REGATTA->id), "View", array('onclick'=> 'javascript:this.target="rotation";')),
                                ".")));
