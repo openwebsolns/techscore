@@ -103,8 +103,8 @@ class DetailsPane extends AbstractPane {
     if ($this->participant_mode)
       $reg_form->add(new FItem("Venue:", new XStrong($venue)));
     else {
-      $reg_form->add(new FItem("Venue:", $r_type = new XSelect("venue")));
-      $r_type->add(new FOption("", "[Leave blank if not found]"));
+      $reg_form->add(new FItem("Venue:", $r_type = new XSelect("venue"), "Leave blank if not found"));
+      $r_type->add(new FOption("", ""));
       foreach (DB::getVenues() as $v) {
         $r_type->add($opt = new FOption($v->id, $v->name));
         if ($venue !== null && $venue->id == $v->id)
@@ -201,7 +201,7 @@ class DetailsPane extends AbstractPane {
 
     // Update button
     if (!$this->participant_mode)
-      $reg_form->add(new XP(array(), new XSubmitInput("edit_reg", "Edit")));
+      $reg_form->add(new XSubmitP('edit_reg', "Save changes"));
   }
 
   /**
