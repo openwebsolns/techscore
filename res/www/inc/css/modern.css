@@ -128,6 +128,23 @@ input, select {
 }
 
 input[type="submit"], input[type="reset"] {
+    border: 1px solid #AAAAAA;
+    border-radius: 2px;
+    font-size: 95%;
+    padding: 0.5em 1em;
+    cursor: pointer;
+    margin-right: 1em;
+}
+
+input[type="submit"] {
+    background: rgb(52,101,164);
+    color: #fff;
+    text-shadow: 1px 1px 1px #222;
+    border: 1px solid #555;
+    font-weight: bold;
+}
+
+input[type="reset"] {
     background: rgb(255,255,255); /* Old browsers */
     background: -moz-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(232,232,232,1) 100%); /* FF3.6+ */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(100%,rgba(232,232,232,1))); /* Chrome,Safari4+ */
@@ -137,12 +154,7 @@ input[type="submit"], input[type="reset"] {
     background: linear-gradient(to bottom, rgba(255,255,255,1) 0%,rgba(232,232,232,1) 100%); /* W3C */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#e8e8e8',GradientType=0 ); /* IE6-9 */
 
-    border: 1px solid #AAAAAA;
-    border-radius: 2px;
     color: #222222;
-    font-size: 95%;
-    padding: 0.5em 1em;
-    cursor: pointer;
     text-shadow: 1px 1px 1px #FFFFFF;
 }
 
@@ -150,7 +162,18 @@ input[type="submit"]:hover, input[type="reset"]:hover {
     border-color: #555;
 }
 
-input[type="submit"]:active, input[type="reset"]:active {
+input[type="submit"]:hover {
+    background: rgb(52,101,164); /* Old browsers */
+    background: -moz-linear-gradient(top, rgba(52,101,164,1) 0%, rgba(0,72,160,1) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(52,101,164,1)), color-stop(100%,rgba(0,72,160,1))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, rgba(52,101,164,1) 0%,rgba(0,72,160,1) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, rgba(52,101,164,1) 0%,rgba(0,72,160,1) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, rgba(52,101,164,1) 0%,rgba(0,72,160,1) 100%); /* IE10+ */
+    background: linear-gradient(to bottom, rgba(52,101,164,1) 0%,rgba(0,72,160,1) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3465a4', endColorstr='#0048a0',GradientType=0 ); /* IE6-9 */
+}
+
+input[type="reset"]:active {
     background: rgb(232,232,232); /* Old browsers */
     background: -moz-linear-gradient(top, rgba(232,232,232,1) 0%, rgba(255,255,255,1) 100%); /* FF3.6+ */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(232,232,232,1)), color-stop(100%,rgba(255,255,255,1))); /* Chrome,Safari4+ */
@@ -159,6 +182,21 @@ input[type="submit"]:active, input[type="reset"]:active {
     background: -ms-linear-gradient(top, rgba(232,232,232,1) 0%,rgba(255,255,255,1) 100%); /* IE10+ */
     background: linear-gradient(to bottom, rgba(232,232,232,1) 0%,rgba(255,255,255,1) 100%); /* W3C */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e8e8e8', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */
+}
+
+input[type="submit"]:disabled {
+    background: rgba(52,101,164, 0.5);
+}
+
+input[type="submit"]:active {
+    background: rgb(0,72,160); /* Old browsers */
+    background: -moz-linear-gradient(top, rgba(0,72,160,1) 0%, rgba(52,101,164,1) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,72,160,1)), color-stop(100%,rgba(52,101,164,1))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, rgba(0,72,160,1) 0%,rgba(52,101,164,1) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, rgba(0,72,160,1) 0%,rgba(52,101,164,1) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, rgba(0,72,160,1) 0%,rgba(52,101,164,1) 100%); /* IE10+ */
+    background: linear-gradient(to bottom, rgba(0,72,160,1) 0%,rgba(52,101,164,1) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0048a0', endColorstr='#3465a4',GradientType=0 ); /* IE6-9 */
 }
 
 #headdiv {
