@@ -113,7 +113,26 @@ a:hover {
     color:#777;
 }
 
-.form_entry input[type="text"], input[type="email"], input[type="date"], input[type="time"], .form_entry input[type="password"], .form_entry select, .form_entry input[type="number"], .form_entry input[type="time"], .form_entry .csel-container {
+.form_entry select, .form_entry .csel-container {
+    min-width:15em;
+    padding:0.15em;
+    border: 1px outset #aaa;
+    border-radius: 2px;
+    color: #111111;
+    min-width: 15em;
+    padding: 0.35em;
+
+    background: rgb(242,242,242);
+    background: -moz-linear-gradient(top, rgba(252,252,252,1) 0%, rgba(242,242,242,1) 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(252,252,252,1)), color-stop(100%,rgba(242,242,242,1)));
+    background: -webkit-linear-gradient(top, rgba(252,252,252,1) 0%,rgba(242,242,242,1) 100%);
+    background: -o-linear-gradient(top, rgba(252,252,252,1) 0%,rgba(242,242,242,1) 100%);
+    background: -ms-linear-gradient(top, rgba(252,252,252,1) 0%,rgba(242,242,242,1) 100%);
+    background: linear-gradient(to bottom, rgba(252,252,252,1) 0%,rgba(242,242,242,1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#f2f2f2',GradientType=0 );
+}
+
+.form_entry input[type="text"], input[type="email"], input[type="date"], input[type="time"], .form_entry input[type="password"], .form_entry input[type="number"], .form_entry input[type="time"], .form_entry select:focus {
     min-width:15em;
     padding:0.15em;
     border: 1px inset #aaa;
@@ -122,6 +141,8 @@ a:hover {
     min-width: 15em;
     padding: 0.35em;
     box-shadow: 0 2px 5px #DDDDDD inset;
+    outline: 0;
+    -moz-outline: 0;
 
     background: rgb(242,242,242);
     background: -moz-linear-gradient(top, rgba(242,242,242,1) 0%, rgba(252,252,252,1) 100%);
@@ -132,6 +153,7 @@ a:hover {
     background: linear-gradient(to bottom, rgba(242,242,242,1) 0%,rgba(252,252,252,1) 100%);
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f2f2f2', endColorstr='#fcfcfc',GradientType=0 );
 }
+
 .form_entry input.race_text, .form_entry input.small, .form_entry select.small {
     min-width:3em;
     width: auto;
