@@ -32,6 +32,24 @@ abstract class AbstractTeamPane extends AbstractPane {
   }
 
   /**
+   * Does the given name start with root prefix, optionally followed
+   * by integers?
+   *
+   * @return int|false which place in sequence
+   */
+  private function nameHasRoot($root, $name) {
+    if ($root == $name)
+      return 1;
+
+    $length = mb_strlen($name);
+    if (mb_substr($name, 0,$length) == $name
+        && preg_match('/^ ([0-9]+)$/', mb_substr($name, $length), $match))
+      return $match[1];
+
+    return false;
+  }
+
+  /**
    * Add a new team choosing the name from the list of team name
    * preferences for its school. Returns list of affected teams.
    *
@@ -49,18 +67,15 @@ abstract class AbstractTeamPane extends AbstractPane {
     if (count($names) == 0)
       $names = array($school->nick_name);
     $name = $names[0];
-    $re = sprintf('/^%s( [0-9]+)?$/', $name);
+    $length = mb_strlen($name);
 
     $last_team_in_sequence = null;
     $last_num_in_sequence = 0;
     foreach ($this->REGATTA->getTeams($school) as $other) {
-      $match = array();
-      if (preg_match($re, $other->name, $match)) {
+      $num = $this->nameHasRoot($name, $other->name);
+      if ($num !== false) {
         $last_team_in_sequence = $other;
-        if (count($match) > 1)
-          $last_num_in_sequence = $match[1];
-        else
-          $last_num_in_sequence = 1;
+        $last_num_in_sequence = $num;
       }
     }
 
@@ -88,17 +103,14 @@ abstract class AbstractTeamPane extends AbstractPane {
     if (count($teams) > 0) {
       // Group the team names by their roots
       $names = $school->getTeamNames();
-      $res = array();
-      foreach ($names as $name)
-        $res[$name] = sprintf('/^%s( [0-9]+)?$/', str_replace('/', '\/', $name));
-      $res[$school->nick_name] = sprintf('/^%s( [0-9]+)?$/', str_replace('/', '\/', $school->nick_name));
+      $names[] = $school->nick_name;
 
       $roots = array();
       foreach ($teams as $team) {
         // Find the root
         $found = false;
-        foreach ($res as $root => $re) {
-          if (preg_match($re, $team->name) > 0) {
+        foreach ($names as $root) {
+          if ($this->nameHasRoot($root, $team->name) !== false) {
             if (!isset($roots[$root]))
               $roots[$root] = array();
             $roots[$root][] = $team;
@@ -106,8 +118,9 @@ abstract class AbstractTeamPane extends AbstractPane {
             break;
           }
         }
+        // Catch-all: reset to first name
         if (!$found) {
-          $root = (count($names) == 0) ? $school->nick_name : $names[0];
+          $root = $names[0];
           if (!isset($roots[$root]))
             $roots[$root] = array();
           $roots[$root][] = $team;
