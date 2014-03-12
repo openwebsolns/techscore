@@ -1245,21 +1245,13 @@ h4 a:hover {
 
 /* Combobox selects */
 
-select, .csel-container {
-    background: none repeat scroll 0 0 #dcdad5;
-    border-top: 1px solid #fdfdfd;
-    border-bottom: 1px solid #888;
-    border-left: 1px solid #fdfdfd;
-    border-right: 1px solid #888;
-    border-radius: 2px;
-}
-
 .csel-filter {
     background: none;
     border: medium none;
     height: 100%;
     width: 100%;
     vertical-align: middle;
+    padding: 0.35em;
 }
 
 .csel-filter.invalid {

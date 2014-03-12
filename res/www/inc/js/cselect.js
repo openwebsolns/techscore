@@ -37,7 +37,10 @@ function OWSComboboxSelect(elem) {
     c.style.width = this.element.innerWidth + "px";
     c.style.position = "relative";
     this.element.parentNode.insertBefore(c, this.element);
-    this.element.style.display = "none";
+    this.element.style.visibility = "hidden";
+    this.element.style.zIndex = -1;
+    this.element.style.position = "absolute";
+    this.element.removeAttribute("size");
     c.appendChild(this.element);
 
     var b = document.createElement("div");
@@ -97,6 +100,7 @@ function OWSComboboxSelect(elem) {
     c.appendChild(this.options);
 
     var num = 0;
+    var sel = null;
     var addOption = function(opt, grp) {
         var t = document.createElement("li");
         t.setAttribute("class", "csel-option");
@@ -120,6 +124,7 @@ function OWSComboboxSelect(elem) {
 
         if (opt.defaultSelected) {
             myObj.search.value = opt.textContent;
+            sel = opt;
         }
 
         num++;
@@ -136,6 +141,11 @@ function OWSComboboxSelect(elem) {
         else {
             addOption(opt);
         }
+    }
+
+    // Select first element if none selected
+    if (sel == null && num > 0) {
+        myObj.search.value = this.element.options[0].textContent;
     }
 
     this.lastValidatedValue = this.search.value;
