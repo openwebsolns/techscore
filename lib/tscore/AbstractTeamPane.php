@@ -37,12 +37,12 @@ abstract class AbstractTeamPane extends AbstractPane {
    *
    * @return int|false which place in sequence
    */
-  private function nameHasRoot($root, $name) {
+  protected function nameHasRoot($root, $name) {
     if ($root == $name)
       return 1;
 
-    $length = mb_strlen($name);
-    if (mb_substr($name, 0,$length) == $name
+    $length = mb_strlen($root);
+    if (mb_substr($name, 0, $length) == $root
         && preg_match('/^ ([0-9]+)$/', mb_substr($name, $length), $match))
       return $match[1];
 
@@ -95,11 +95,14 @@ abstract class AbstractTeamPane extends AbstractPane {
    * Fix names of teams from given school in the current regatta
    *
    * @param School $school the school
+   * @param Array:Team optional list of teams to use
    * @return Array:Team list of teams changed
    */
-  public function fixTeamNames(School $school) {
+  public function fixTeamNames(School $school, Array $teams = array()) {
     $changed = array();
-    $teams = $this->REGATTA->getTeams($school);
+    if (count($teams) == 0)
+      $teams = $this->REGATTA->getTeams($school);
+
     if (count($teams) > 0) {
       // Group the team names by their roots
       $names = $school->getTeamNames();

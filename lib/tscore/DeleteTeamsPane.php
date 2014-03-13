@@ -73,6 +73,8 @@ class DeleteTeamsPane extends AbstractTeamPane {
       if (count($removed) == 0)
         throw new SoterException("No valid teams to remove provided.");
       Session::pa(new PA("Removed $removed team(s)."));
+      $rpManager = $this->REGATTA->getRpManager();
+      $rpManager->updateLog();
 
       if (count($this->REGATTA->getTeams()) == 0) {
         $this->REGATTA->setStatus();

@@ -44,25 +44,29 @@ class EditTeamsPane extends AbstractTeamPane {
 
     $can_choose = false;
     $options = array();
+    $options_plus_nickname = array();
     foreach ($teams as $i => $team) {
       if (!isset($options[$team->school->id])) {
         $options[$team->school->id] = array();
+        $options_plus_nickname[$team->school->id] = array($team->school->nick_name);
         $names = $team->school->getTeamNames();
 
         if (count($names) > 1)
           $can_choose = true;
 
-        foreach ($names as $name)
+        foreach ($names as $name) {
           $options[$team->school->id][$name] = $name;
+          $options_plus_nickname[$team->school->id][] = $name;
+        }
       }
 
       $cur = $team->name;
       $suf = "";
-      foreach ($options[$team->school->id] as $name) {
-        $match = array();
-        if (preg_match(sprintf('/%s ([0-9])+$/', str_replace('/', '\/', $name)), $team->name, $match) > 0) {
+      foreach ($options_plus_nickname[$team->school->id] as $name) {
+        $len = mb_strlen($name);
+        if ($name != $team->name && ($num = $this->nameHasRoot($name, $team->name)) !== false) {
           $cur = $name;
-          $suf = $match[1];
+          $suf = $num;
           break;
         }
       }
@@ -118,7 +122,10 @@ class EditTeamsPane extends AbstractTeamPane {
         if (isset($new_names[$team->id])) {
           if (!in_array($new_names[$team->id], $names_by_school[$team->school->id]))
             throw new SoterException(sprintf("Invalid new name specified for %s: %s.", $team->school, $new_names[$team->id]));
-          $team->name = $new_names[$team->id];
+          if ($team->name != $new_names[$team->id]) {
+            $team->name = $new_names[$team->id];
+            DB::set($team);
+          }
           unset($new_names[$team->id]);
         }
       }
@@ -129,49 +136,11 @@ class EditTeamsPane extends AbstractTeamPane {
 
       foreach ($teams_by_school as $id => $teams) {
         $school = $teams[0]->school;
-        // Group names by their roots
-        $names = $names_by_school[$id];
-        $res = array();
-        foreach ($names as $name)
-          $res[$name] = sprintf('/^%s( [0-9]+)?$/', str_replace('/', '\/', $name));
-        $res[$school->nick_name] = sprintf('/^%s( [0-9]+)?$/', str_replace('/', '\/', $school->nick_name));
-
-        $roots = array();
-        foreach ($teams as $team) {
-          // Find the root
-          $found = false;
-          foreach ($res as $root => $re) {
-            if (preg_match($re, $team->name) > 0) {
-              if (!isset($roots[$root]))
-                $roots[$root] = array();
-              $roots[$root][] = $team;
-              $found = true;
-              break;
-            }
-          }
-          if (!$found) {
-            $root = (count($names) == 0) ? $school->nick_name : $names[0];
-            if (!isset($roots[$root]))
-              $roots[$root] = array();
-            $roots[$root][] = $team;
-          }
-        }
-
-        // Rename, as necessary
-        foreach ($roots as $root => $teams) {
-          if (count($teams) == 1) {
-            $teams[0]->name = $root;
-            DB::set($teams[0]);
-          }
-          else {
-            foreach ($teams as $i => $team) {
-              $team->name = $root . ' ' . ($i + 1);
-              DB::set($team);
-            }
-          }
-        }
+        $this->fixTeamNames($school, $teams);
       }
 
+      $rpManager = $this->REGATTA->getRpManager();
+      $rpManager->updateLog();
       Session::pa(new PA("Renamed the teams."));
     }
   }

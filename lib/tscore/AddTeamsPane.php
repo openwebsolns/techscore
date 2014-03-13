@@ -110,6 +110,10 @@ class AddTeamsPane extends AbstractTeamPane {
         UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
       }
 
+      // RP Log
+      $rpManager = $this->REGATTA->getRpManager();
+      $rpManager->updateLog();
+
       // Messages
       Session::pa(new PA("Added team $team."));
     }
