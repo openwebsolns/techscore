@@ -60,6 +60,7 @@ class ReplaceTeamPane extends AbstractTeamPane {
       // delete RP
       $rp = $this->REGATTA->getRpManager();
       $rp->reset($team);
+      $rp->updateLog();
 
       // request team change
       Session::pa(new PA(sprintf("Replaced team \"%s\" with \"%s\".", $old_name, $team)));

@@ -172,6 +172,8 @@ class EditTeamsPane extends AbstractTeamPane {
         }
       }
 
+      $rpManager = $this->REGATTA->getRpManager();
+      $rpManager->updateLog();
       Session::pa(new PA("Renamed the teams."));
     }
   }
