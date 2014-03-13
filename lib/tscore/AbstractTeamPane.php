@@ -37,7 +37,7 @@ abstract class AbstractTeamPane extends AbstractPane {
    *
    * @return int|false which place in sequence
    */
-  private function nameHasRoot($root, $name) {
+  protected function nameHasRoot($root, $name) {
     if ($root == $name)
       return 1;
 

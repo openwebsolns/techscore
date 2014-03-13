@@ -44,25 +44,29 @@ class EditTeamsPane extends AbstractTeamPane {
 
     $can_choose = false;
     $options = array();
+    $options_plus_nickname = array();
     foreach ($teams as $i => $team) {
       if (!isset($options[$team->school->id])) {
         $options[$team->school->id] = array();
+        $options_plus_nickname[$team->school->id] = array($team->school->nick_name);
         $names = $team->school->getTeamNames();
 
         if (count($names) > 1)
           $can_choose = true;
 
-        foreach ($names as $name)
+        foreach ($names as $name) {
           $options[$team->school->id][$name] = $name;
+          $options_plus_nickname[$team->school->id][] = $name;
+        }
       }
 
       $cur = $team->name;
       $suf = "";
-      foreach ($options[$team->school->id] as $name) {
-        $match = array();
-        if (preg_match(sprintf('/%s ([0-9])+$/', str_replace('/', '\/', $name)), $team->name, $match) > 0) {
+      foreach ($options_plus_nickname[$team->school->id] as $name) {
+        $len = mb_strlen($name);
+        if ($name != $team->name && ($num = $this->nameHasRoot($name, $team->name)) !== false) {
           $cur = $name;
-          $suf = $match[1];
+          $suf = $num;
           break;
         }
       }
