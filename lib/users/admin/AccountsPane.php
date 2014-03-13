@@ -79,9 +79,8 @@ class AccountsPane extends AbstractAdminUserPane {
     $p->add($f = $this->createForm());
     $f->add(new XHiddenInput('user', $user->id));
 
-    require_once('xml5/XMultipleSelect.php');
     $f->add(new FReqItem("Primary school:", XSelect::fromArray('school', $opts, $user->school->id)));
-    $f->add(new FItem("Other schools:", $sel = new XMultipleSelect('schools[]')));
+    $f->add(new FItem("Other schools:", $sel = new XSelectM('schools[]', array('size'=>10))));
 
     $my_schools = array();
     foreach ($user->getSchools(null, false) as $school) {
@@ -89,9 +88,13 @@ class AccountsPane extends AbstractAdminUserPane {
         $my_schools[$school->id] = $school;
     }
     foreach ($opts as $conf => $schools) {
-      $sel->addOptgroup($conf);
-      foreach ($schools as $key => $val)
-        $sel->addOption($key, $val, isset($my_schools[$key]));
+      $sel->add($grp = new FOptionGroup($conf));
+      foreach ($schools as $key => $val) {
+        $attrs = array();
+        if (isset($my_schools[$key]))
+          $attrs['selected'] = 'selected';
+        $grp->add(new FOption($key, $val, $attrs));
+      }
     }
     $f->add(new XSubmitP('user-schools', "Set affiliations"));
     

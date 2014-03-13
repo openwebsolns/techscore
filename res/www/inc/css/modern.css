@@ -113,7 +113,7 @@ a:hover {
     color:#777;
 }
 
-.form_entry select, .form_entry .csel-container {
+.form_entry select, .form_entry .csel-container, .multiple-select {
     min-width:15em;
     padding:0.15em;
     border: 1px outset #aaa;
@@ -314,9 +314,9 @@ h4#regatta {
     text-decoration:none;
     background:#759DD1;
     border:1px solid #eee;
-    padding:0.2em;
+    padding:0.2em 0.75em;
     font-size:1em;
-    border-radius: 2px;
+    border-radius: 15px;
     -moz-border-radius: 2px;
 }
 
@@ -1163,13 +1163,13 @@ h4 a:hover {
 .multiple-select {
     display: inline-block;
     vertical-align: top;
-    min-width: 30em;
     width: auto;
+    min-width: 4em;
     max-height: 15em;
     overflow: auto;
     overflow-x: hidden;
-    border: 1px solid #555;
-    border-radius: 0.5em;
+    border: 1px inset #555;
+    border-radius: 2px;
     list-style-type: none;
     margin: 0;
     padding: 0;
@@ -1183,14 +1183,24 @@ h4 a:hover {
 }
 .multiple-select label {
     display: block;
-    padding: 0.5em;
+    padding: 0.25em 0.5em;
+}
+.multiple-select > li {
+    margin: 2.5px 0;
+    padding: 0;
 }
 .multiple-select label:hover {
-    background: #f3f3bb;
+    background: #3465a4;
+    color: white;
 }
-.multiple-select input[checked="checked"] + label:hover {
-    background: #e0f3e0;
+.multiple-select label:active {
+    background: #888;
 }
+.multiple-select input:checked + label {
+    background: #355c8e;
+    color: white;
+}
+
 .has-raced {
     color: #555;
     font-style: italic;

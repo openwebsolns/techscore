@@ -208,10 +208,10 @@ class SailsPane extends AbstractPane {
 
       // No need for this choice if combined
       if (!$combined) {
-        $div_opts = array();
+        require_once('xml5/XMultipleSelect.php');
+        $form->add(new FReqItem("Divisions to affect:", $sel = new XMultipleSelect('division[]')));
         foreach ($divisions as $div)
-          $div_opts[(string)$div] = (string)$div;
-        $form->add(new FReqItem("Divisions to affect:", XSelectM::fromArray('division[]', $div_opts, $chosen_div, array('class'=>'small'))));
+          $sel->addOption((string)$div, $div);
       }
       $form->add(new XSubmitP("choose_rot", "Next >>"));
 

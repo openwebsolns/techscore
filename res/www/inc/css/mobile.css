@@ -490,3 +490,44 @@ p.warning {padding: 0.5em;}
     color: #87c552;
     font-size: 100%;
 }
+
+.multiple-select {
+    display: inline-block;
+    vertical-align: top;
+    width: auto;
+    min-width: 4em;
+    max-height: 15em;
+    overflow: auto;
+    overflow-x: hidden;
+    border: 1px inset #555;
+    border-radius: 2px;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+.multiple-select-group {
+    font-weight: bold;
+    padding: 0.5em;
+}
+.multiple-select input {
+    display: none;
+}
+.multiple-select label {
+    display: block;
+    padding: 0.25em 0.5em;
+}
+.multiple-select > li {
+    margin: 2.5px 0;
+    padding: 0;
+}
+.multiple-select label:hover {
+    background: #3465a4;
+    color: white;
+}
+.multiple-select label:active {
+    background: #888;
+}
+.multiple-select input:checked + label {
+    background: #355c8e;
+    color: white;
+}
