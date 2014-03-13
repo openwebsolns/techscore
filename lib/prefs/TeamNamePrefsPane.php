@@ -103,11 +103,14 @@ class TeamNamePrefsPane extends AbstractPrefsPane {
       if (count($curr) == 0) {
         $new_name = array_shift($names);
         $reg_names = array();
-        $re = sprintf('/^%s( [0-9]+)?$/', $this->SCHOOL->nick_name);
+        $re = '/^ [0-9]+$/';
+        $length = mb_strlen($this->SCHOOL->nick_name);
         foreach ($this->SCHOOL->getRegattas() as $reg) {
           $changed = false;
           foreach ($reg->getTeams($this->SCHOOL) as $team) {
-            if (preg_match($re, $team->name) > 0) {
+            if ($team->name == $this->SCHOOL->nick_name
+                || (mb_substr($team->name, 0, $length) == $this->SCHOOL->nick_name
+                    && preg_match($re, mb_substr($team->name, $length)) > 0)) {
               $team->name = str_replace($this->SCHOOL->nick_name, $new_name, $team->name);
               DB::set($team);
               $changed = true;
