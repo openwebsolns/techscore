@@ -146,6 +146,7 @@ function OWSComboboxSelect(elem) {
     // Select first element if none selected
     if (sel == null && num > 0) {
         myObj.search.value = this.element.options[0].textContent;
+        this.element.selectedIndex = 0;
     }
 
     this.lastValidatedValue = this.search.value;
