@@ -136,7 +136,7 @@ a:hover {
     padding: 0;
 }
 
-.form_entry input[type="text"], input[type="email"], input[type="date"], input[type="time"], .form_entry input[type="password"], .form_entry input[type="number"], .form_entry input[type="time"], .form_entry select:focus {
+#bodydiv input[type="text"], #bodydiv input[type="search"], input[type="email"], input[type="date"], input[type="time"], #bodydiv input[type="password"], #bodydiv input[type="number"], #bodydiv input[type="time"], #bodydiv select:focus {
     min-width:15em;
     padding:0.15em;
     border: 1px inset #aaa;
@@ -245,6 +245,15 @@ input[type="submit"].delete-button:active {
 
 input[type="submit"]:disabled {
     background: rgba(52,101,164, 0.5);
+}
+
+input[type="submit"].inline {
+    padding: 0.25em;
+}
+
+#bodydiv .pagination-form input {
+    font-size: 90%;
+    min-width: 0;
 }
 
 #headdiv {

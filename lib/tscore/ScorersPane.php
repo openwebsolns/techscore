@@ -54,8 +54,8 @@ class ScorersPane extends AbstractPane {
     $p->add($s_form = $this->createForm(XForm::GET));
     $s_form->add(new XP(array('class'=>'search'),
                         array("Search by name: ",
-                              new XSearchInput('search', $search, array('size'=>60)),
-                              new XSubmitInput('go', "Go"))));
+                              new XSearchInput('search', $search, array('size'=>60)), " ",
+                              new XSubmitInput('go', "Go", array('class'=>'inline')))));
 
     if ($search !== null) {
       if (strlen($search) < 5) {

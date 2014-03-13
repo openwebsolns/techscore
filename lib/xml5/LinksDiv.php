@@ -94,7 +94,7 @@ class LinksDiv extends XDiv {
 
     // Form
     unset($args[$key]);
-    $this->add(new XForm(WS::link($base, array(), $anchor), XForm::GET, array(), array($f = new XP())));
+    $this->add(new XForm(WS::link($base, array(), $anchor), XForm::GET, array('class'=>'pagination-form'), array($f = new XP())));
     $f->add('Jump:');
     foreach ($args as $k => $value)
       $f->add(new XHiddenInput($k, $value));

@@ -25,7 +25,7 @@ class PageWhiz {
    * @param String $var the name of the search variable for the form
    * @param String $empty_mes the message to provide when there are no results
    */
-  public function getSearchForm($query = null, $var = 'q', $empty_mes = "There are no items to show.", $leadin = "Search:") {
+  public function getSearchForm($query = null, $var = 'q', $empty_mes = "There are no items to show.", $leadin = "Search") {
     $div = new XDiv(array('class'=>'navsearch'));
     if ($this->count == 0 && $query == null) {
       $div->add(new XP(array('class'=>'warning'), $empty_mes));
@@ -33,10 +33,10 @@ class PageWhiz {
     }
 
     if ($this->num_pages > 3 || $query !== null) {
-      $div->add($f = new XForm($this->base, XForm::GET));
+      $div->add($f = new XForm($this->base, XForm::GET, array('class'=>'search-form')));
       $f->add($pa = new XP(array('class'=>'search'),
-                           array($leadin, new XSearchInput($var, $query, array('size'=>60)),
-                                 new XSubmitInput('go', "Go"))));
+                           array(new XSearchInput($var, $query, array('size'=>60, 'placeholder'=>$leadin)), " ",
+                                 new XSubmitInput('go', "Go", array('class'=>'inline')))));
       if ($query !== null) {
         $pa->add(" ");
         $pa->add(new XA($this->base, "Cancel"));

@@ -67,7 +67,7 @@ class UserArchivePane extends AbstractUserPane {
     // Offer pagination awesomeness
     require_once('xml5/PageWhiz.php');
     $whiz = new PageWhiz($num_regattas, self::NUM_PER_PAGE, '/archive', $_GET);
-    $p->add($whiz->getSearchForm($qry, 'q', $empty_mes, "Search your regattas: "));
+    $p->add($whiz->getSearchForm($qry, 'q', $empty_mes, "Search your regattas"));
     $p->add($ldiv = $whiz->getPages('r', $_GET));
 
     // Create table of regattas, if applicable
