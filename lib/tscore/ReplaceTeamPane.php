@@ -28,6 +28,7 @@ class ReplaceTeamPane extends AbstractTeamPane {
     $form->add(new XSubmitP("replace", "Replace"));
 
     // team select
+    $sel1->add(new FOption("", ""));
     foreach ($teams as $team)
       $sel1->add(new FOption($team->id, (string)$team));
   }

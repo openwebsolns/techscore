@@ -22,6 +22,7 @@ abstract class AbstractTeamPane extends AbstractPane {
    */
   protected function newSchoolSelect($name = 'school') {
     $f_sel = new XSelect($name, array('size'=>20));
+    $f_sel->add(new FOption("", ""));
     foreach (DB::getConferences() as $conf) {
       // Get schools for that conference
       $f_sel->add($f_grp = new FOptionGroup((string)$conf));
