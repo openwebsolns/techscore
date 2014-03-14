@@ -327,24 +327,6 @@ class RpEnterPane extends AbstractPane {
         Sailor::FEMALE : null;
 
       $cross_rp = !$this->REGATTA->isSingleHanded() && DB::g(STN::ALLOW_CROSS_RP);
-      $sailors = array();
-      foreach ($team->school->getSailors($gender, $active) as $sailor)
-        $sailors[$sailor->id] = $sailor;
-      foreach ($team->school->getUnregisteredSailors($gender) as $sailor)
-        $sailors[$sailor->id] = $sailor;
-
-      // Other schools?
-      if (!$this->REGATTA->isSingleHanded() && DB::g(STN::ALLOW_CROSS_RP)) {
-        foreach ($this->REGATTA->getSchools() as $other) {
-          if ($other->id != $team->school->id) {
-            foreach ($other->getSailors($gender, $active) as $s)
-              $sailors[$s->id] = $s;
-            foreach ($other->getUnregisteredSailors($gender, $active) as $s)
-              $sailors[$s->id] = $s;
-          }
-        }
-      }
-
 
       // Insert representative
       $rpManager->setRepresentative($team, DB::$V->incString($args, 'rep', 1, 256, null));
