@@ -109,32 +109,34 @@ class RpEnterPane extends AbstractPane {
     // Provide option to include sailors from other schools
     // ------------------------------------------------------------
     if (!$this->REGATTA->isSingleHanded() && DB::g(STN::ALLOW_CROSS_RP) !== null) {
-      $present_schools = $this->REGATTA->getSchools();
-      if (count($present_schools) > 1) {
-        $lst = DB::$V->incList($args, 'schools');
+      $lst = DB::$V->incList($args, 'schools');
 
-        $this->PAGE->addContent($p = new XPort("Include sailors from other schools?"));
-        $p->add($f = $this->createForm(XForm::GET));
-        $f->add(new XHiddenInput('chosen_team', $chosen_team->id));
-        $f->add(new FItem("Other schools:", $ul = new XUl(array('class' => 'inline-list'))));
-        foreach ($present_schools as $school) {
-          if ($school->id != $chosen_team->school->id) {
-            $id = 'chk-other-' . $school->id;
-            $ul->add(new XLi(array($chk = new XCheckboxInput('schools[]', $school->id, array('id'=>$id)),
-                                   new XLabel($id, $school))));
-            if (isset($schools[$school->id])) {
-              $chk->set('checked', 'checked');
-              $chk->set('disabled', 'disabled');
-              $chk->set('title', "There are already sailors from this school in the RP form.");
-            }
-            elseif (in_array($school->id, $lst)) {
-              $chk->set('checked', 'checked');
-              $schools[$school->id] = $school;
-            }
+      $this->PAGE->addContent($p = new XPort("Include sailors from other schools?"));
+      $p->add($f = $this->createForm(XForm::GET));
+      $f->add(new XHiddenInput('chosen_team', $chosen_team->id));
+      $f->add(new FItem("Other schools:", $ul = new XSelectM('schools[]', array('size' => '10'))));
+      foreach (DB::getConferences() as $conf) {
+        $opts = array();
+        foreach ($conf->getSchools() as $school) {
+          if ($school->id == $chosen_team->school->id)
+            continue;
+
+          $opt = new FOption($school->id, $school);
+          if (isset($schools[$school->id])) {
+            $opt->set('selected', 'selected');
+            $opt->set('disabled', 'disabled');
+            $opt->set('title', "There are already sailors from this school in the RP form.");
           }
+          elseif (in_array($school->id, $lst)) {
+            $opt->set('selected', 'selected');
+            $schools[$school->id] = $school;
+          }
+          $opts[] = $opt;
         }
-        $f->add(new XSubmitP('go', "Fetch sailors"));
+        if (count($opts) > 0)
+          $ul->add(new FOptionGroup($conf, $opts));
       }
+      $f->add(new XSubmitP('go', "Fetch sailors"));
     }
 
     // ------------------------------------------------------------

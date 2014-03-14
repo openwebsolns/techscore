@@ -54,7 +54,7 @@ class GlobalSettings extends AbstractSuperUserPane {
     }
 
     $f->add($fi = new FItem("Allow cross RP?", $chk = new XCheckboxInput(STN::ALLOW_CROSS_RP, 1, array('id'=>'chk-' . STN::ALLOW_CROSS_RP))));
-    $fi->add(new XLabel('chk-' . STN::ALLOW_CROSS_RP, "RP entries may contain teams from other schools in the regatta."));
+    $fi->add(new XLabel('chk-' . STN::ALLOW_CROSS_RP, "RP entries may contain teams from other schools in the system."));
     if (DB::g(STN::ALLOW_CROSS_RP) !== null)
       $chk->set('checked', 'checked');
 
