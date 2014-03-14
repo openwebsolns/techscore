@@ -62,7 +62,7 @@ class UserRegattaTable extends XTable {
     if ($this->user->isAdmin()) {
       $hosts = array();
       foreach ($reg->getHosts() as $host)
-        $hosts[$host->id] = $host->id;
+        $hosts[$host->id] = $host->nick_name;
       $row[] = new XTD(array(), implode("/", $hosts));
     }
 
