@@ -325,6 +325,8 @@ class RpEnterPane extends AbstractPane {
         $active = true;
       $gender = ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) ?
         Sailor::FEMALE : null;
+
+      $cross_rp = !$this->REGATTA->isSingleHanded() && DB::g(STN::ALLOW_CROSS_RP);
       $sailors = array();
       foreach ($team->school->getSailors($gender, $active) as $sailor)
         $sailors[$sailor->id] = $sailor;
@@ -390,8 +392,10 @@ class RpEnterPane extends AbstractPane {
           $s_obj = false;
           if ($s_value == 'NULL')
             $s_obj = null;
-          elseif (isset($sailors[$s_value]))
-            $s_obj = $sailors[$s_value];
+          elseif (($sailor = DB::getSailor($s_value)) !== null) {
+            if ($cross_rp || $sailor->school->id == $team->school->id)
+              $s_obj = $sailor;
+          }
 
           if ($s_race !== null && $s_obj !== false) {
             // Eliminate those races from $s_race for which there is
