@@ -119,7 +119,7 @@ class EnterFinishPane extends AbstractPane {
       // ------------------------------------------------------------
       $form->add(new FReqItem("Enter sail numbers:",
                            $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'finish_table'),
-                                                  array("Sail", "→", "Finish", "Pen."))));
+                                                  array("Sail", "→", "Finish", "Type"))));
 
       // - Fill possible sails and input box
       $pos_sails = ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ?
@@ -159,7 +159,7 @@ class EnterFinishPane extends AbstractPane {
       // ------------------------------------------------------------
       $form->add(new FReqItem("Enter teams:",
                            $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'finish_table'),
-                                                  array("Team", "→", "Finish", "Pen."))));
+                                                  array("Team", "→", "Finish", "Type"))));
       $i = $this->fillFinishesTable($tab, $race, $finishes);
       $form->add($xp = new XSubmitP('f_teams',
                                     sprintf("Enter finish for race %s", $race),
