@@ -50,9 +50,6 @@ RewriteRule . - [L]
 RewriteRule ^ index.php [qsa]
 
 # Caching
-# Header unset Pragma
-FileETag None
-Header unset ETag
 
 # Cache forever
 <FilesMatch "\.(jpg|jpeg|png|gif|js|css)$">

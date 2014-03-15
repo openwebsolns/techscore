@@ -98,6 +98,19 @@ window.addEventListener('load', function(e) {
 
     SUBMIT_BUTTON = document.getElementById("submitfinish");
     SUBMIT_BUTTON.disabled = true;
+    var form = document.getElementById("finish_form");
+    if (form) {
+        var he = document.createElement("input");
+        he.type = "hidden";
+        he.name = SUBMIT_BUTTON.name;
+        he.value = SUBMIT_BUTTON.value;
+        form.appendChild(he);
+        SUBMIT_BUTTON.onclick = function(e) {
+            SUBMIT_BUTTON.disabled = true;
+            form.submit();
+            return false;
+        };
+    }
 
     // Grab inputs
     var cf = function(sail) {
