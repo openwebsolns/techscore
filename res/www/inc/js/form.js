@@ -76,17 +76,13 @@ function parseRange(str) {
         if (ul && s1) {
             i = 0;
             while (i < s1.sheet.cssRules.length) {
-                if (s1.sheet.cssRules[i].selectorText.indexOf(" .menu:hover") >= 0)
+                if (s1.sheet.cssRules[i].selectorText == "#menubar .menu:hover ul"
+                    || s1.sheet.cssRules[i].selectorText == "#menubar .menu:hover")
                     s1.sheet.deleteRule(i);
                 else
                     i++;
             }
-            var s = document.createElement("link");
-            s.setAttribute("type", "text/css");
-            s.setAttribute("rel", "stylesheet");
-            s.setAttribute("media", "screen");
-            s.setAttribute("href", "/inc/css/menu-off.css?v=3");
-            document.head.appendChild(s);
+
             cf = function(h4) {
                 return function(e) {
                     var open = !h4.parentNode.classList.contains("open");

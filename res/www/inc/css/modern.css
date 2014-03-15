@@ -73,13 +73,12 @@ a:hover {
     font-size:0.9em;
     color: #333;
 }
-#menubar .menu:hover h4 {
+#menubar .menu:hover h4, #menubar .menu.open h4 {
     color: black;
-    background: #aaa;
-}
-#menubar .menu.open h4 {
-    color: black;
-    background: #aaa;
+    background: #bbb;
+    background-image: url(/inc/img/down.png);
+    background-repeat: no-repeat;
+    background-position: 90% 50%;
 }
 #menubar ul {
     margin:0px;
@@ -98,7 +97,8 @@ a:hover {
     background-repeat:repeat-x;
     background-position:0px 100%;
     padding:0px;
-    box-shadow: 0 2px 5px #aaa;
+    border: 1px solid #AAAAAA;
+    box-shadow: 2px 2px 4px #CCCCCC;
 }
 #menubar .menu.open ul {
     display:block;
@@ -106,12 +106,13 @@ a:hover {
     background-repeat:repeat-x;
     background-position:0px 100%;
     padding:0px;
-    box-shadow: 0 2px 5px #aaa;
+    border: 1px solid #AAAAAA;
+    box-shadow: 2px 2px 4px #CCCCCC;
 }
 #menubar li {
     display:block;
-    margin:0.25em 0px;
-    padding:0.25em 0.5em;
+    margin: 0;
+    padding:0.5em;
     list-style-type:none;
 }
 #menubar li a {
