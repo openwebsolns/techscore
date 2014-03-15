@@ -51,7 +51,6 @@ class LoginPage extends AbstractUserPane {
     $fi->add(new XMessage(new XA('/password-recover', "Forgot your password?")));
     $form->add($fi = new FItem("", new XCheckboxInput("remember", 1, array('id'=>'chk-remember'))));
     $fi->add(new XLabel('chk-remember', "Keep me signed in"));
-    $fi->add(new XMessage("Beta! Do not use on a public network or computer."));
 
     $form->add(new XSubmitP("login", "Login"));
 
