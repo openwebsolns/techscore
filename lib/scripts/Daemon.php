@@ -255,8 +255,10 @@ class Daemon extends AbstractScript {
           // Perform the updates
           // ------------------------------------------------------------
           $P->run($r->file);
+          DB::commit();
         }
         catch (TSWriterException $e) {
+          DB::commit();
           self::errln("Error while writing: " . $e->getMessage(), 0);
           sleep(3);
           continue;
@@ -356,6 +358,7 @@ class Daemon extends AbstractScript {
           $P = new UpdateBurgee();
           foreach ($burgees as $school) {
             $P->run($school);
+            DB::commit();
             self::errln(sprintf('generated burgee for %s', $school));
           }
         }
@@ -366,6 +369,7 @@ class Daemon extends AbstractScript {
           foreach ($seasons as $id => $list) {
             foreach ($list as $season) {
               $P->run($schools[$id], $season);
+              DB::commit();
               self::errln(sprintf('generated school %s/%-6s %s', $season, $schools[$id], $schools[$id]));
             }
           }
@@ -374,8 +378,10 @@ class Daemon extends AbstractScript {
         require_once('scripts/UpdateSchoolsSummary.php');
         $P = new UpdateSchoolsSummary();
         $P->run();
+        DB::commit();
       }
       catch (TSWriterException $e) {
+        DB::commit();
         self::errln("Error while writing: " . $e->getMessage(), 0);
         sleep(3);
         continue;
@@ -473,6 +479,7 @@ class Daemon extends AbstractScript {
           $P = new UpdateSeason();
           foreach ($seasons as $season) {
             $P->run($season);
+            DB::commit();
             self::errln(sprintf("processed season update %s: %s", $season->id, $season->fullString()));
           }
         }
@@ -480,22 +487,26 @@ class Daemon extends AbstractScript {
           require_once('scripts/UpdateSeasonsSummary.php');
           $P = new UpdateSeasonsSummary();
           $P->run();
+          DB::commit();
           self::errln('generated seasons summary page');
         }
         if ($front) {
           require_once('scripts/UpdateFront.php');
           $P = new UpdateFront();
           $P->run();
+          DB::commit();
           self::errln('generated front page');
         }
         if ($general404 || $school404) {
           require_once('scripts/Update404.php');
           $P = new Update404();
           $P->run($general404, $school404);
+          DB::commit();
           self::errln('generated 404 page(s)');
         }
       }
       catch (TSWriterException $e) {
+        DB::commit();
         self::errln("Error while writing: " . $e->getMessage(), 0);
         sleep(2);
         continue;
@@ -676,12 +687,14 @@ class Daemon extends AbstractScript {
         $P = new UpdateRegatta();
         foreach ($this->regattas as $id => $reg) {
           $P->run($reg, $this->activities[$id]);
+          DB::commit();
           foreach ($this->activities[$id] as $act)
             self::errln(sprintf("performed activity %s on %4d: %s", $act, $id, $reg->name));
         }
         DB::commit();
       }
       catch (TSWriterException $e) {
+        DB::commit();
         self::errln("Error while writing: " . $e->getMessage(), 0);
         sleep(1);
         continue;
