@@ -249,7 +249,7 @@ class SailsPane extends AbstractPane {
       if (count($chosen_div) > 1) {
         $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/tablesort.js'));
 
-        $form->add(new FReqItem("Order:", $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'divtable'), array("#", "Div."))));
+        $form->add(new FReqItem("Order:", $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'divtable'), array("#", "Division"))));
         $i = 0;
         foreach ($chosen_div as $div) {
           $tab->addRow(array(new XNumberInput("order[]", ++$i, 1, count($chosen_div), 1, array('class'=>'small', 'size'=>2)),
