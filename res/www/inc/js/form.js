@@ -65,14 +65,49 @@ function parseRange(str) {
 
 (function(w,d,g) {
     var f = function(e) {
+        var ul, cf, i;
         var acc = d.querySelectorAll(".accessible");
-        for (var i = 0; i < acc.length; i++)
+        for (i = 0; i < acc.length; i++)
             acc[i].style.display = "none";
 
+        // Menus
+        ul = d.getElementById("menubar");
+        var s1 = d.getElementById("main-style");
+        if (ul && s1) {
+            i = 0;
+            while (i < s1.sheet.cssRules.length) {
+                if (s1.sheet.cssRules[i].selectorText.indexOf(" .menu:hover") >= 0)
+                    s1.sheet.deleteRule(i);
+                else
+                    i++;
+            }
+            var s = document.createElement("link");
+            s.setAttribute("type", "text/css");
+            s.setAttribute("rel", "stylesheet");
+            s.setAttribute("media", "screen");
+            s.setAttribute("href", "/inc/css/menu-off.css?v=3");
+            document.head.appendChild(s);
+            cf = function(h4) {
+                return function(e) {
+                    var open = !h4.parentNode.classList.contains("open");
+                    for (var i = 0; i < h4.parentNode.parentNode.childNodes.length; i++) {
+                        h4.parentNode.parentNode.childNodes[i].classList.remove("open");
+                    }
+                    if (open) {
+                        h4.parentNode.classList.add("open");
+                    }
+                };
+            };
+            for (i = 0; i < ul.childNodes.length; i++) {
+                var h4 = ul.childNodes[i].childNodes[0];
+                h4.onclick = cf(h4);
+            }
+        }
+
         // Announcements
-        var ul = d.getElementById("announcements");
+        ul = d.getElementById("announcements");
         if (ul) {
-            var cf = function(li) {
+            cf = function(li) {
                 return function(e) {
                     li.parentNode.removeChild(li);
                 };

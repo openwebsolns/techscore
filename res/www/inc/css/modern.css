@@ -43,13 +43,13 @@ a:hover {
     background: #ddd;
     border-bottom: 1px solid #888;
     border-top: 1px solid white;
-    height: 2em;
+    height: 35px;
     min-width: 55em;
 }
 #menubar {
     position: absolute;
     overflow: visible;
-    height: 2em;
+    height: 35px;
     z-index:10;
 }
 
@@ -68,7 +68,7 @@ a:hover {
 #menubar h4 {
     font-weight:heavy;
     margin: 0;
-    padding: 0.35em 0.5em;
+    padding: 8px 0.5em;
     cursor:pointer;
     font-size:0.9em;
     color: #333;
@@ -77,21 +77,36 @@ a:hover {
     color: black;
     background: #aaa;
 }
+#menubar .menu.open h4 {
+    color: black;
+    background: #aaa;
+}
 #menubar ul {
     margin:0px;
     display:none;
     font-size:0.9em;
 }
-#menubar div.menu:hover {
+#menubar .menu:hover {
     background: #ddd;
-    box-shadow: 0 2px 5px #aaa;
 }
-#menubar div.menu:hover ul {
+#menubar .menu.open {
+    background: #ddd;
+}
+#menubar .menu:hover ul {
     display:block;
     background-image:url('img/menu_bg_bot.png');
     background-repeat:repeat-x;
     background-position:0px 100%;
     padding:0px;
+    box-shadow: 0 2px 5px #aaa;
+}
+#menubar .menu.open ul {
+    display:block;
+    background-image:url('img/menu_bg_bot.png');
+    background-repeat:repeat-x;
+    background-position:0px 100%;
+    padding:0px;
+    box-shadow: 0 2px 5px #aaa;
 }
 #menubar li {
     display:block;

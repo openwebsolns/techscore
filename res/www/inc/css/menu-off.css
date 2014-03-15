@@ -1,0 +1,12 @@
+/*
+ * Turn off hover-menus for clicable ones in JS
+ *
+ */
+
+#menubar .menu:hover h4 {
+    background: #ccc;
+    background-image: url(/inc/img/down.png);
+    background-repeat: no-repeat;
+    background-position: 90% 50%;
+    color: black;
+}
