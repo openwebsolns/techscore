@@ -223,7 +223,7 @@ class SailsPane extends AbstractPane {
         $p->add($form = $this->createForm());
         $form->add(new XP(array(), "You can replace an existing rotation simply by creating a new one using the form above. Note that rotation changes will not affect finishes already entered."));
         $form->add(new XP(array(), "If you wish to not use rotations at all, click the button below. Note that you will still be able to enter finishes using team names instead of sail numbers."));
-        $form->add(new XSubmitP('remove-rotation', "Remove rotation"));
+        $form->add(new XSubmitP('remove-rotation', "Remove rotation", array(), true));
       }
     }
     // ------------------------------------------------------------

@@ -137,12 +137,10 @@ a:hover {
 }
 
 #bodydiv input[type="text"], #bodydiv input[type="search"], input[type="email"], input[type="date"], input[type="time"], #bodydiv input[type="password"], #bodydiv input[type="number"], #bodydiv input[type="time"], #bodydiv select:focus {
-    min-width:15em;
     padding:0.15em;
     border: 1px inset #aaa;
     border-radius: 2px;
     color: #111111;
-    min-width: 15em;
     padding: 0.35em;
     box-shadow: 0 2px 5px #DDDDDD inset;
     outline: 0;
@@ -156,6 +154,10 @@ a:hover {
     background: -ms-linear-gradient(top, rgba(242,242,242,1) 0%,rgba(252,252,252,1) 100%);
     background: linear-gradient(to bottom, rgba(242,242,242,1) 0%,rgba(252,252,252,1) 100%);
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f2f2f2', endColorstr='#fcfcfc',GradientType=0 );
+}
+
+.form_entry input {
+    min-width: 15em;
 }
 
 .form_entry input.race_text, .form_entry input.small, .form_entry select.small {
