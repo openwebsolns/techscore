@@ -113,13 +113,11 @@ a:hover {
     color:#777;
 }
 
-.form_entry select, .form_entry .csel-container, .multiple-select {
-    min-width:15em;
+select, .csel-container, .multiple-select {
     padding:0.15em;
     border: 1px outset #aaa;
     border-radius: 2px;
     color: #111111;
-    min-width: 15em;
     padding: 0.35em;
 
     background: rgb(242,242,242);
@@ -130,6 +128,10 @@ a:hover {
     background: -ms-linear-gradient(top, rgba(252,252,252,1) 0%,rgba(242,242,242,1) 100%);
     background: linear-gradient(to bottom, rgba(252,252,252,1) 0%,rgba(242,242,242,1) 100%);
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#f2f2f2',GradientType=0 );
+}
+
+.form_entry select, .form_entry .csel-container, .form_entry .multiple-select {
+    min-width:15em;
 }
 
 .form_entry .csel-container {
@@ -158,6 +160,10 @@ a:hover {
 
 .form_entry input {
     min-width: 15em;
+}
+
+.form_entry input[type="checkbox"] {
+    min-width: 0;
 }
 
 .form_entry input.race_text, .form_entry input.small, .form_entry select.small {
@@ -683,10 +689,25 @@ td.schoolname, td.teamname {
     text-align: left;
     padding: 0 0.25em;
 }
+.regatta-list th {
+    border: none;
+}
+.regatta-list thead {
+    border: none;
+    border-bottom: 1px solid #aaa;
+    border-top: 1px solid #aaa;
+}
 .regatta-list td {
     padding: 0.25em;
     border: none;
     border-bottom: 1px solid #ddd;
+}
+
+#bodydiv select.tr-filter, #bodydiv select.tr-filter:active, #bodydiv select.tr-filter:focus {
+    background: none;
+    border: none;
+    font-weight: inherit;
+    font-size: inherit;
 }
 
 /* Current regattas */

@@ -53,7 +53,7 @@ function TableFilter(table) {
             var opt;
             opt = document.createElement("option");
             opt.value = "";
-            opt.appendChild(document.createTextNode("[All]"));
+            opt.appendChild(document.createTextNode(header.childNodes[i].textContent));
             sel.appendChild(opt);
             for (val in opts) {
                 opt = document.createElement("option");
@@ -61,6 +61,8 @@ function TableFilter(table) {
                 opt.appendChild(document.createTextNode(val));
                 sel.appendChild(opt);
             }
+            while (header.childNodes[i].childNodes.length > 0)
+                header.childNodes[i].removeChild(header.childNodes[i].childNodes[0]);
             header.childNodes[i].appendChild(sel);
         }
     }
