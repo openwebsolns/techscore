@@ -130,7 +130,7 @@ class ReportMaker {
         $this->page->addSection($p = new XPort("Notices"));
         foreach ($docs as $doc) {
           $p->add($d = new XDiv(array('class'=>'notice-item'),
-                                array(new XH4(new XA($doc->url, $doc->name), array('class'=>'notice-title')))));
+                                array(new XH4(new XA(sprintf('notices/%s', $doc->url), $doc->name), array('class'=>'notice-title')))));
           if ($doc->description !== null) {
             if ($DPE === null) {
               // Use DPEditor goodness
