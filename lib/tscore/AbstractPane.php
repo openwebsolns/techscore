@@ -79,6 +79,12 @@ abstract class AbstractPane {
     $this->PAGE = new TScorePage($title, $this->USER, $this->REGATTA);
     $this->PAGE->addContent(new XPageTitle($this->name));
 
+    $root = sprintf('/score/%s/', $this->REGATTA->id);
+    $this->setContextMenu(array("Settings" => $root,
+                                "Finishes" => $root . 'finishes',
+                                "Penalties" => $root . 'penalties',
+                                "RP forms" => $root . 'rp'));
+
     // ------------------------------------------------------------
     // Menu
     if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
@@ -610,6 +616,30 @@ abstract class AbstractPane {
       return self::$TITLES[$i];
     throw new InvalidArgumentException("No title registered for pane $i.");
   }
+
+  /**
+   * Adds the given menu to the page and sets it as the body's contextmenu
+   *
+   * @param Array $entries the map of Name => URL
+   * @param Array $icons optional map of Name => image URL
+   */
+  protected function setContextMenu(Array $entries, Array $icons = array()) {
+    if ($this->PAGE === null)
+      return;
+
+    $id = 'context-menu';
+    $m = new XElem('menu', array('id'=>$id, 'type'=>'context', 'style'=>'display:none;position:fixed;'));
+
+    foreach ($entries as $name => $url) {
+      $m->add($i = new XElem('menuitem', array('label'=>$name, 'onclick'=>sprintf('window.location="%s";', $url))));
+      if (isset($icons[$name]))
+        $i->set('icon', $icons[$name]);
+    }
+
+    $this->PAGE->body->add($m);
+  }
+
+
   /**
    * @var Array list of panes that support "participant" UI mode
    */

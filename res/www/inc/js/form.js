@@ -70,6 +70,11 @@ function parseRange(str) {
         for (i = 0; i < acc.length; i++)
             acc[i].style.display = "none";
 
+        // Context menu?
+        ul = d.getElementById("context-menu");
+        if (ul)
+            d.body.setAttribute("contextmenu", "context-menu");
+
         // Menus
         ul = d.getElementById("menubar");
         var s1 = d.getElementById("main-style");
