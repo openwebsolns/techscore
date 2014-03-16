@@ -29,6 +29,20 @@ class RegistrationsDialog extends AbstractDialog {
     $rpManager = $this->REGATTA->getRpManager();
 
     $this->PAGE->addContent($p = new XPort("Registrations"));
+
+    $count = 0;
+    $races_in_div = array();
+    foreach ($divisions as $div) {
+      $num = count($this->REGATTA->getRaces($div));
+      $races_in_div[(string)$div] = $num;
+      $count += $num;
+    }
+
+    if ($count == 0) {
+      $p->add(new XP(array('class'=>'warning'), "There are no races in the regatta."));
+      return;
+    }
+
     $p->add(new XTable(array('class'=>'coordinate sailors'),
                        array(new XTHead(array(),
                                         array(new XTR(array(),
@@ -39,10 +53,6 @@ class RegistrationsDialog extends AbstractDialog {
                                                             new XTH(array(), "Crew"),
                                                             new XTH(array(), "Races"))))),
                              $tab = new XTBody())));
-
-    $races_in_div = array();
-    foreach ($divisions as $div)
-      $races_in_div[(string)$div] = count($this->REGATTA->getRaces($div));
     $row_index = 0;
     foreach ($teams as $team) {
       $row_index++;
