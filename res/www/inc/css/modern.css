@@ -1451,3 +1451,73 @@ td.tr-sail {
     background:#3465a4;
     color:white;
 }
+
+/* Helpful notes */
+
+.note {
+    display: inline-block;
+    margin-left: 1em;
+}
+
+.note-link {
+    background: none repeat scroll 0 0 #5186CB;
+    border-radius: 10px;
+    color: #FFFFFF;
+    display: block;
+    font-size: 80%;
+    font-weight: bold;
+    height: 20px;
+    text-align: center;
+    width: 20px;
+    margin-top: 0.25em;
+    opacity: 0.5;
+}
+
+.note-link:hover {
+    background: #3465A4;
+    text-decoration: none;
+    opacity: 1;
+}
+
+.note-screen {
+    display: none;
+}
+
+.note-screen:target {
+    display: block;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 10;
+}
+
+.note-body {
+    display: block;
+    max-width: 15em;
+    margin: 3em auto;
+    background: white;
+    border-radius: 5px;
+    padding: 1em;
+    position: relative;
+}
+
+.note-close {
+    background: none repeat scroll 0 0 #111111;
+    border: 2px solid #AAAAAA;
+    border-radius: 15px;
+    color: #FFFFFF;
+    display: block;
+    font-family: sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    height: 22px;
+    padding-top: 3px;
+    position: absolute;
+    right: -15px;
+    text-align: center;
+    top: -15px;
+    width: 25px;
+}

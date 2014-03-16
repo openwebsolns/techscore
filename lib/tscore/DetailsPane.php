@@ -138,7 +138,7 @@ class DetailsPane extends AbstractPane {
                                                           $value)));
       // will changing this value affect the RP information?
       if ($value == Regatta::PARTICIPANT_COED)
-        $item->add(new XMessage("Changing this value may affect RP info"));
+        $item->add(new XNote("Changing this value may affect RP info"));
     }
 
     // Scoring rules
@@ -155,7 +155,7 @@ class DetailsPane extends AbstractPane {
         if ($this->REGATTA->scoring != Regatta::SCORING_COMBINED &&
             $this->REGATTA->hasFinishes() &&
             isset($options[Regatta::SCORING_COMBINED]))
-          $fi->add(new XMessage("Changing to \"Combined\" will remove incomplete finishes and rotations."));
+          $fi->add(new XNote("Changing to \"Combined\" will remove incomplete finishes and rotations."));
       }
     }
 
@@ -182,7 +182,6 @@ class DetailsPane extends AbstractPane {
         foreach ($hosts as $host) {
           $schools[$host->id] = $host;
         }
-        $f_item->add(new XMessage("Hold down Ctrl to choose more than one"));
 
         // go through each conference
         foreach (DB::getConferences() as $conf) {

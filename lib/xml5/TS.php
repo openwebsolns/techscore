@@ -55,6 +55,31 @@ class XMessage extends XSpan {
 }
 
 /**
+ * An explanatory note
+ *
+ * @author Dayan Paez
+ * @version 2014-03-15
+ */
+class XNote extends XDiv {
+  public static $counter = 0;
+
+  /**
+   * Creates a new note
+   *
+   */
+  public function __construct($content) {
+    parent::__construct(array('class'=>'note'), array(
+                          new XA("#n" . self::$counter, "?", array('class'=>'note-link', 'title'=>$content)),
+                          new XDiv(array('class'=>'note-screen', 'id' => "n" . self::$counter),
+                                   array(
+                                     new XDiv(array('class'=>'note-body'), array(
+                                                new XA("#_", "X", array('class'=>'note-close')),
+                                                $content))))));
+    self::$counter++;
+  }
+}
+
+/**
  * Encapsulates a page title (using h2)
  *
  * @author Dayan Paez
@@ -113,7 +138,7 @@ class FItem extends XDiv {
       $this->add($message);
     $this->add($form_input);
     if ($expl !== null)
-      $this->add(new XMessage($expl));
+      $this->add(new XNote($expl));
   }
 }
 
