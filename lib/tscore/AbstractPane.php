@@ -79,12 +79,6 @@ abstract class AbstractPane {
     $this->PAGE = new TScorePage($title, $this->USER, $this->REGATTA);
     $this->PAGE->addContent(new XPageTitle($this->name));
 
-    $root = sprintf('/score/%s/', $this->REGATTA->id);
-    $this->setContextMenu(array("Settings" => $root,
-                                "Finishes" => $root . 'finishes',
-                                "Penalties" => $root . 'penalties',
-                                "RP forms" => $root . 'rp'));
-
     // ------------------------------------------------------------
     // Menu
     if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
@@ -157,6 +151,15 @@ abstract class AbstractPane {
           unset($score_i["Teams"]["edit-teams"]);
       }
     }
+
+    $root = sprintf('/score/%s/', $this->REGATTA->id);
+    $context_menu_i = array('settings' => null,
+                            'finishes' => null,
+                            'penalty' => null,
+                            'rotations' => null,
+                            'rp' => null);
+    $context_menu_labels = array();
+
     $access_keys_i = array('finishes' => 'f',
                            'rotations' => 's',
                            'rp' => 'r');
@@ -171,13 +174,21 @@ abstract class AbstractPane {
       $menu = new XDiv(array('class'=>'menu'), array(new XH4($title), $m_list = new XUl()));
       foreach ($panes as $url => $pane) {
         $t = $this->doTitle($pane);
+        $full_url = sprintf('/score/%d/%s', $id, $url);
         if ($this->doActive($pane)) {
-          $m_list->add(new XLi($a = new XA("/score/$id/$url", $t)));
+          $m_list->add(new XLi($a = new XA($full_url, $t)));
           if (isset($access_keys_i[$url]))
             $a->set('accesskey', $access_keys_i[$url]);
+
+          if (array_key_exists($url, $context_menu_i)) {
+            $context_menu_i[$url] = $full_url;
+            $context_menu_labels[$url] = $t;
+          }
         }
-        else
+        else {
           $m_list->add(new XLi($t, array("class"=>"inactive")));
+          unset($context_menu_i[$url]);
+        }
       }
       if ($title == "RP Forms" && $this->REGATTA->scoring == Regatta::SCORING_TEAM) {
         // Downloads
@@ -233,6 +244,14 @@ abstract class AbstractPane {
       $m_list->add($item);
     }
     $this->PAGE->addMenu($menu);
+
+    $this->setContextMenu($context_menu_i, $context_menu_labels,
+                          array('finishes' => WS::link('/inc/img/finish.png'),
+                                'rp' => WS::link('/inc/img/rp.png'),
+                                'rotations' => WS::link('/inc/img/rot.png'),
+                                'settings' => WS::link('/inc/img/set.png')));
+
+
   }
 
   /**
@@ -620,20 +639,21 @@ abstract class AbstractPane {
   /**
    * Adds the given menu to the page and sets it as the body's contextmenu
    *
-   * @param Array $entries the map of Name => URL
-   * @param Array $icons optional map of Name => image URL
+   * @param Array $entries list of URLs
+   * @param Array $labels matching list of labels
+   * @param Array $icons optional list of icon URLs
    */
-  protected function setContextMenu(Array $entries, Array $icons = array()) {
+  protected function setContextMenu(Array $entries, Array $labels, Array $icons = array()) {
     if ($this->PAGE === null)
       return;
 
     $id = 'context-menu';
     $m = new XElem('menu', array('id'=>$id, 'type'=>'context', 'style'=>'display:none;position:fixed;'));
 
-    foreach ($entries as $name => $url) {
-      $m->add($i = new XElem('menuitem', array('label'=>$name, 'onclick'=>sprintf('window.location="%s";', $url))));
-      if (isset($icons[$name]))
-        $i->set('icon', $icons[$name]);
+    foreach ($entries as $key => $url) {
+      $m->add($i = new XElem('menuitem', array('label'=>DB::$V->incString($labels, $key, 1, 1000, $key), 'onclick'=>sprintf('window.location="%s";', $url))));
+      if (isset($icons[$key]))
+        $i->set('icon', $icons[$key]);
     }
 
     $this->PAGE->body->add($m);
