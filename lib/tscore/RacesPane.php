@@ -37,7 +37,7 @@ class RacesPane extends AbstractPane {
    */
   private function fillNewRegatta(Array $args) {
     $boats     = DB::getBoats();
-    $boatOptions = array();
+    $boatOptions = array("" => "");
     foreach ($boats as $boat) {
       $boatOptions[$boat->id] = $boat->name;
     }
@@ -53,9 +53,8 @@ class RacesPane extends AbstractPane {
                                                                          count($this->REGATTA->getDivisions()))));
     }
     $form->add(new FReqItem("Number of races:", new XNumberInput('num_races', count($this->REGATTA->getTeams()), 1, null, 1)));
-    $form->add($fi = new FReqItem("Boat:", XSelect::fromArray('boat', $boatOptions)));
-    $fi->add(new XMessage("Boats can be assigned per division or race afterwards."));
-    $fi->add(new XSubmitP("set-races", "Add races"));
+    $form->add(new FReqItem("Boat:", XSelect::fromArray('boat', $boatOptions), "Boats can be re-assigned per division or race afterwards."));
+    $form->add(new XSubmitP("set-races", "Add races"));
   }
 
   protected function fillHTML(Array $args) {
@@ -114,8 +113,7 @@ class RacesPane extends AbstractPane {
                                       new XStrong("This is not recoverable."))));
         if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED) {
           $xp->add(" If adding divisions, you will need to specify how to score the teams in the previously scored races by selecting the appropriate choice below.");
-          $form->add($fi = new FItem("New score:", XSelect::fromArray('new-score', self::$NEW_SCORES)));
-          $fi->add(new XMessage("Only needed when adding divisions"));
+          $form->add(new FItem("New score:", XSelect::fromArray('new-score', self::$NEW_SCORES), "Only needed when adding divisions"));
         }
       }
     }

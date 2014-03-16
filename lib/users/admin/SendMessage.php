@@ -79,9 +79,9 @@ class SendMessage extends AbstractAdminUserPane {
     $p->add(new XP(array(), "You may send a message to as many individuals as you'd like at a time. First, select the recipients using this port. Once you have added all recipients, use the form below to send the message."));
 
     $p->add($f = $this->createForm(XForm::GET));
-    $f->add($fi = new FItem(sprintf("All %s users:", DB::g(STN::APP_NAME)), new XHiddenInput('axis', Outbox::R_ALL)));
+    $f->add($fi = new FItem("All users:", new XHiddenInput('axis', Outbox::R_ALL)));
     $fi->add(new XSubmitInput('recipients', "Write message →"));
-    $fi->add(new XMessage("Broadcast general message to all users. Use sparingly."));
+    $fi->add(new XNote("Broadcast general message to all users. Use sparingly."));
 
     // conference
     $p->add($f = $this->createForm(XForm::GET));
@@ -195,8 +195,9 @@ class SendMessage extends AbstractAdminUserPane {
     $p->add($f = $this->createForm());
 
     $f->add(new FReqItem("Recipients:", new XSpan($recip, array('class'=>'strong'))));
-    $f->add($fi = new FReqItem("Subject:", new XTextInput('subject', $out->subject, array('maxlength'=>100))));
-    $fi->add(new XMessage("Less than 100 characters"));
+    $f->add(new FReqItem("Subject:",
+                         new XTextInput('subject', $out->subject, array('maxlength'=>100)),
+                         "Fewer than 100 characters"));
 
     $f->add(new FReqItem("Message body:", new XTextArea('content', $out->content, array('rows'=>16, 'cols'=>75))));
     $f->add($fi = new FItem("Copy me:", new XCheckboxInput('copy-me', 1, array('id'=>'copy-me'))));

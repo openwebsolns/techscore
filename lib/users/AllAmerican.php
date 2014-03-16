@@ -99,7 +99,7 @@ class AllAmerican extends AbstractUserPane {
       $fi->set('title', "Only choose sailors from selected conference(s) automatically. You can manually choose sailors from other divisions.");
 
       $form->add($fi = new FReqItem("Min. # Regattas", new XNumberInput('min-regattas', 2, 1, null, 1, array('size'=>3))));
-      $fi->add(new XMessage("Sailors must qualify for at least this many regattas to be automatically considered."));
+      $fi->add(new XNote("Sailors must qualify for at least this many regattas to be automatically considered."));
 
       $form->add(new XSubmitP('set-report', "Choose regattas →"));
 

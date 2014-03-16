@@ -40,11 +40,11 @@ class TeamPenaltyPane extends AbstractPane {
       return;
     }
 
+    require_once('xml5/XMultipleSelect.php');
     $p->add($form = $this->createForm());
     $form->add(new FItem("Team:", XSelect::fromArray('team', $teams)));
     if (count($divisions) > 1) {
-      $form->add($fi = new FReqItem("Division(s):", XSelectM::fromArray('division[]', $divisions)));
-      $fi->add(new XMessage("Hold down Ctrl to select multiple"));
+      $form->add(new FReqItem("Division(s):", new XMultipleSelect('division[]', $divisions)));
     }
     else
       $form->add(new XHiddenInput('division[]', array_shift($divisions)));

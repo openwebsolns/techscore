@@ -70,7 +70,7 @@ class NewRegattaPane extends AbstractUserPane {
                                                            $r["participant"])));
 
     // select
-    $sel->add(new FOption("", "[No venue]"));
+    $sel->add(new FOption("", ""));
     foreach (DB::getVenues() as $venue) {
       $sel->add($opt = new FOption($venue->id, $venue));
       if ($venue->id == $r["venue"])
@@ -92,8 +92,7 @@ class NewRegattaPane extends AbstractUserPane {
           $confs[$school->conference->id] = array();
         $confs[$school->conference->id][$school->id] = $school;
       }
-      $f->add($fi = new FReqItem("Host(s):", $sel = XSelectM::fromArray('host[]', $confs)));
-      $fi->add(new XMessage("There must be at least one"));
+      $f->add(new FReqItem("Host(s):", $sel = XSelectM::fromArray('host[]', $confs), "There must be at least one"));
       $sel->set('size', 10);
     }
     $f->add(new XSubmitP("new-regatta", "Create"));

@@ -184,8 +184,7 @@ class RpEnterPane extends AbstractPane {
                          " You may only submit up to two sailors in the same role in the same division at a time. To add a third or more skipper or crew in a given division, submit the form multiple times.")));
 
     $form->add(new XHiddenInput("chosen_team", $chosen_team->id));
-    $form->add($fi = new FItem("Representative:", new XTextInput('rep', $rep)));
-    $fi->add(new XMessage("For contact purposes only."));
+    $form->add(new FItem("Representative:", new XTextInput('rep', $rep), "For contact purposes only"));
 
     // ------------------------------------------------------------
     // - Fill out form

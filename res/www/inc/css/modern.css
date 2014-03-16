@@ -146,7 +146,7 @@ select, .csel-container, .multiple-select {
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#f2f2f2',GradientType=0 );
 }
 
-.form_entry select, .form_entry .csel-container, .form_entry .multiple-select {
+.form_entry select, .form_entry .csel-container {
     min-width:15em;
 }
 
@@ -154,7 +154,7 @@ select, .csel-container, .multiple-select {
     padding: 0;
 }
 
-#bodydiv input[type="text"], #bodydiv input[type="search"], input[type="email"], input[type="date"], input[type="time"], #bodydiv input[type="password"], #bodydiv input[type="number"], #bodydiv input[type="time"], #bodydiv select:focus {
+#bodydiv input[type="text"], #bodydiv input[type="search"], input[type="email"], input[type="date"], input[type="time"], #bodydiv input[type="url"], #bodydiv input[type="password"], #bodydiv input[type="number"], #bodydiv input[type="time"], #bodydiv select:focus {
     padding:0.15em;
     border: 1px inset #aaa;
     border-radius: 2px;

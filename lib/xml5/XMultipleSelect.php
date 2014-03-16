@@ -10,10 +10,12 @@ class XMultipleSelect extends XUl {
   protected $input_name;
   protected $counter = 0;
 
-  public function __construct($name, Array $attrs = array()) {
+  public function __construct($name, Array $values = array(), Array $attrs = array()) {
     parent::__construct($attrs);
     $this->set('class', 'multiple-select');
     $this->input_name = (string)$name;
+    foreach ($values as $key => $value)
+      $this->addOption($key, $value);
   }
 
   public function addOption($value, $display, $checked = false) {

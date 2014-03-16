@@ -109,8 +109,7 @@ class TeamRpEnterPane extends AbstractPane {
                       array(new XStrong("Note:"), " To clear an RP entry for a given race, leave the sailor list blank, while selecting the race.")));
 
     $form->add(new XHiddenInput("chosen_team", $chosen_team->id));
-    $form->add($fi = new FItem("Representative:", new XTextInput('rep', $rep)));
-    $fi->add(new XMessage("For contact purposes only."));
+    $form->add(new FItem("Representative:", new XTextInput('rep', $rep), "For contact purposes only."));
 
     foreach ($sailors as $s)
       $sailor_options["Sailors"][$s->id] = (string)$s;
