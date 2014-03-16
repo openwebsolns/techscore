@@ -94,9 +94,16 @@ function parseRange(str) {
                     }
                 };
             };
+            var mf = function(ul) {
+                return function(e) {
+                    ul.parentNode.classList.remove("open");
+                };
+            };
             for (i = 0; i < ul.childNodes.length; i++) {
                 var h4 = ul.childNodes[i].childNodes[0];
                 h4.onclick = cf(h4);
+                var sl = ul.childNodes[i].childNodes[1];
+                sl.onclick = mf(sl);
             }
         }
 

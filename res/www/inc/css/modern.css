@@ -120,6 +120,7 @@ a:hover {
     color:inherit;
     display:block;
     width:7.2em;
+    padding: 0.5em;
 }
 #menubar li:hover {
     background:#b89f7e;
@@ -127,6 +128,7 @@ a:hover {
 }
 #menubar li.inactive {
     color:#777;
+    padding: 0.5em;
 }
 
 select, .csel-container, .multiple-select {
