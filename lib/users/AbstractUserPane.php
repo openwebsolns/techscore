@@ -215,13 +215,10 @@ abstract class AbstractUserPane {
    * @return XUl
    */
   protected function seasonList($prefix, Array $preselect = array()) {
-    $ul = new XUl(array('class'=>'inline-list'));
+    require_once('xml5/XMultipleSelect.php');
+    $ul = new XMultipleSelect('seasons[]', array(), array('style'=>'width:10em;'));
     foreach (Season::getActive() as $season) {
-      $id = $prefix . $season;
-      $ul->add(new XLi(array($chk = new XCheckboxInput('seasons[]', $season, array('id' => $id)),
-                             new XLabel($id, $season->fullString()))));
-      if (isset($preselect[$season->id]))
-        $chk->set('checked', 'checked');
+      $ul->addOption($season, $season->fullString(), isset($preselect[$season->id]));
     }
     return $ul;
   }
@@ -233,13 +230,10 @@ abstract class AbstractUserPane {
    * @param Array:Conference $chosen conferences to choose, or all if empty
    */
   protected function conferenceList($prefix, Array $chosen = array()) {
-    $ul = new XUl(array('class'=>'inline-list'));
+    require_once('xml5/XMultipleSelect.php');
+    $ul = new XMultipleSelect('confs[]', array(), array('style'=>'width:10em;'));
     foreach ($this->USER->getConferences() as $conf) {
-      $id = $prefix . $conf->id;
-      $ul->add(new XLi(array($chk = new XCheckboxInput('confs[]', $conf, array('id' => $id)),
-                             new XLabel($id, $conf))));
-      if (count($chosen) == 0 || in_array($conf, $chosen))
-        $chk->set('checked', 'checked');
+      $ul->addOption($conf->id, $conf, in_array($conf, $chosen));
     }
     return $ul;
   }
@@ -251,13 +245,10 @@ abstract class AbstractUserPane {
    * @param Array:Type $chosen the types to choose, or all if empty
    */
   protected function regattaTypeList($prefix, Array $chosen = array()) {
-    $ul = new XUl(array('class'=>'inline-list'));
+    require_once('xml5/XMultipleSelect.php');
+    $ul = new XMultipleSelect('types[]', array(), array('style'=>'width:10em;'));
     foreach (DB::getAll(DB::$ACTIVE_TYPE) as $t) {
-      $id = $prefix . $t;
-      $ul->add(new XLi(array($chk = new XCheckboxInput('types[]', $t->id, array('id'=>$id)),
-                             new XLabel($id, $t))));
-      if (count($chosen) == 0 || in_array($t, $chosen))
-        $chk->set('checked', 'checked');
+      $ul->addOption($t->id, $t, in_array($t, $chosen));
     }
     return $ul;
   }

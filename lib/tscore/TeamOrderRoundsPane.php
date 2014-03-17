@@ -85,13 +85,10 @@ class TeamOrderRoundsPane extends AbstractRoundPane {
       $p->add(new XP(array(), "Round groups are rounds that are sailed at the same time. The race order is changed so that one flight from one round is followed by a flight from the next round in the group."));
 
       $p->add($f = $this->createForm());
-      $f->add(new FReqItem("Rounds:", $ul = new XUl(array('class'=>'inline-list'))));
+      require_once('xml5/XMultipleSelect.php');
+      $f->add(new FReqItem("Rounds:", $ul = new XMultipleSelect('round[]')));
       foreach ($independent_rounds as $round) {
-        $id = 'chk-round-' . $round->id;
-        $ul->add(new XLi(array(new XCheckboxInput('round[]', $round->id, array('id'=>$id)),
-                               new XLabel($id, $round))));
-
-        $num_races = count($this->REGATTA->getRacesInRound($round, Division::A()));
+        $ul->addOption($round->id, $round);
       }
       $f->add(new XSubmitP('group-rounds', "Group rounds"));
     }
