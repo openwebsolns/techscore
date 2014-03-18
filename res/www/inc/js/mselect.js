@@ -25,7 +25,7 @@ function OWSMultSelect(elem) {
     // First cell
     var c = document.createElement("div");
     c.setAttribute("class", "msel-from-wrapper");
-    c.style.display = "table-cell";
+    c.style.display = "block";
     this.wrapper.appendChild(c);
 
     var s = (this.fromElement.length > 10);
@@ -41,39 +41,37 @@ function OWSMultSelect(elem) {
     c.appendChild(this.fromElement);
 
     // Button cell
-    c = document.createElement("div");
-    c.setAttribute("class", "msel-button-wrapper");
-    c.style.display = "table-cell";
-    c.style.verticalAlign = "middle";
-    this.wrapper.appendChild(c);
+    var c2 = document.createElement("div");
+    c2.setAttribute("class", "msel-button-wrapper");
+    c2.style.display = "block";
+    c2.style.verticalAlign = "middle";
+    this.wrapper.insertBefore(c2, c);
 
     var b = document.createElement("button");
     b.setAttribute("type", "button");
     b.setAttribute("class", "msel-button-promote");
-    b.style.display = "block";
-    b.appendChild(document.createTextNode(">>"));
+    b.appendChild(document.createTextNode("↑"));
     b.onclick = function(evt) {
         myObj.promoteSelected();
     };
-    c.appendChild(b);
+    c2.appendChild(b);
 
     b = document.createElement("button");
     b.setAttribute("type", "button");
     b.setAttribute("class", "msel-button-demote");
-    b.style.display = "block";
-    b.appendChild(document.createTextNode("<<"));
+    b.appendChild(document.createTextNode("↓"));
     b.onclick = function(evt) {
         myObj.demoteSelected();
     };
-    c.appendChild(b);
+    c2.appendChild(b);
 
     // Results cell
     c = document.createElement("div");
     c.setAttribute("class", "msel-to-wrapper");
-    c.style.display = "table-cell";
-    this.wrapper.appendChild(c);
+    c.style.display = "block";
+    this.wrapper.insertBefore(c, c2);
 
-    if (s) {
+    if (s && false) {
         this.toSearch = document.createElement("input");
         this.toSearch.setAttribute("class", "msel-search");
         this.toSearch.style.display = "block";
@@ -90,7 +88,6 @@ function OWSMultSelect(elem) {
     this.toElement.style.display = "block";
     this.toElement.style.height = "100%";
     this.toElement.style.width = this.fromElement.innerWidth + "px";
-    this.toElement.setAttribute("size", Math.max(3, this.fromElement.getAttribute("size")));
     this.toElement.ondblclick = function(evt) {
         myObj.demoteSelected();
     };
@@ -106,6 +103,7 @@ function OWSMultSelect(elem) {
 
     // Load any existing ones
     this.promoteSelected();
+    this.toElement.setAttribute("size", Math.max(3, this.payload.childNodes.length));
 }
 
 OWSMultSelect.prototype.performFromSearch = function() {
@@ -176,11 +174,20 @@ OWSMultSelect.prototype.demoteSelected = function() {
 
 window.addEventListener('load', function(evt) {
     var selects = document.getElementsByTagName("select");
+    var mults = [];
+    var combos = [];
     for (var i = 0; i < selects.length; i++) {
         if (selects[i].multiple)
-            new OWSMultSelect(selects[i]);
+            mults.push(selects[i]);
         else if (selects[i].options.length > 10 && !selects[i].classList.contains("color-chooser") && !selects[i].classList.contains("finish_output") && !selects[i].classList.contains("boat-chooser")) {
-            new OWSComboboxSelect(selects[i]);
+            combos.push(selects[i]);
         }
+    }
+
+    for (var i = 0; i < mults.length; i++) {
+        new OWSMultSelect(mults[i]);
+    }
+    for (var i = 0; i < combos.length; i++) {
+        new OWSComboboxSelect(combos[i]);
     }
 }, false);
