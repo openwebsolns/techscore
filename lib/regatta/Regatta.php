@@ -1164,6 +1164,25 @@ class FullRegatta extends DBObject {
   }
 
   /**
+   * Returns suitable host venue for this regatta
+   *
+   * If ALLOW_HOST_VENUE is on and $this->host_venue is not null, then
+   * return that value. Otherwise, an implosion of hosts nick_names
+   */
+  public function getHostVenue() {
+    if (DB::g(STN::ALLOW_HOST_VENUE) && $this->host_venue !== null)
+      return $this->host_venue;
+
+    if ($this->dt_hosts !== null)
+      return implode("/", $this->__get('dt_hosts'));
+
+    $schools = array();
+    foreach ($this->getHosts() as $host)
+      $schools[$host->id] = $host->nick_name;
+    return implode("/", $schools);
+  }
+
+  /**
    * Return a list of scorers for this regatta
    *
    * @return Array:Account a list of scorers

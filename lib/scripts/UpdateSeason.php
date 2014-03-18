@@ -135,7 +135,7 @@ class UpdateSeason extends AbstractScript {
           $link = new XA($reg->nick, $reg->name);
           $burg = $wt->school->drawSmallBurgee($wt->school->nick_name);
           $rows[] = array($link,
-                          implode("/", $reg->dt_hosts),
+                          $reg->getHostVenue(),
                           $reg->type,
                           $reg->getDataScoring(),
                           $reg->start_time->format('m/d/Y'),
@@ -163,7 +163,7 @@ class UpdateSeason extends AbstractScript {
                                            "Start time")));
       foreach ($coming_regattas as $reg) {
         $tab->addRow(array(new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name),
-                           implode("/", $reg->dt_hosts),
+                           $reg->getHostVenue(),
                            $reg->type,
                            $reg->getDataScoring(),
                            $reg->start_time->format('m/d/Y @ H:i')));

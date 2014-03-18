@@ -439,18 +439,13 @@ class ReportMaker {
     else // different year
       $date = $stime->format('F j, Y') . ' - ' . $etime->format('F y, Y');
 
-    $hosts = $reg->getHosts();
-    $schools = array();
-    foreach ($hosts as $host)
-      $schools[$host->id] = $host->nick_name;
-
     $type = sprintf('%s Regatta', $reg->type);
 
     $boats = array();
     foreach ($reg->getBoats() as $boat)
       $boats[] = (string)$boat;
 
-    $table = array("Host" => new XSpan(implode("/", $schools), array('itemprop'=>'location')),
+    $table = array("Host" => new XSpan($reg->getHostVenue(), array('itemprop'=>'location')),
                    "Date" => new XElem('time', array('datetime'=>$reg->start_time->format('Y-m-d\TH:i'),
                                                      'itemprop'=>'startDate'),
                                        array(new XText($date))),

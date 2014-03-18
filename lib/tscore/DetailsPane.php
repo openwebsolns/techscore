@@ -415,8 +415,9 @@ class DetailsPane extends AbstractPane {
       }
 
       // Host venue
-      if (DB::$V->hasString($V, $args, 'host_venue', 1, 256) && $V !== $this->REGATTA->host_venue) {
-        $this->REGATTA->host_venue = $V;
+      $host_venue = DB::$V->incString($args, 'host_venue', 1, 256);
+      if ($host_venue !== $this->REGATTA->host_venue) {
+        $this->REGATTA->host_venue = $host_venue;
         $edited = true;
       }
 
