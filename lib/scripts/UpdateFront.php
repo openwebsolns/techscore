@@ -124,7 +124,7 @@ class UpdateFront extends AbstractScript {
                                            "Start time")));
       foreach ($regs as $reg) {
         $tab->addRow(array(new XA($reg->getURL(), $reg->name),
-                           implode("/", $reg->dt_hosts),
+                           $reg->getHostVenue(),
                            $reg->type,
                            $reg->getDataScoring(),
                            $reg->start_time->format('m/d/Y @ H:i')));

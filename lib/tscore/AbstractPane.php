@@ -92,8 +92,7 @@ abstract class AbstractPane {
                                               "summaries"  => "SummaryPane",
                                               "finalize"   => "FinalizePane",
                                               "scorers"    => "ScorersPane",
-                                              "notes"      => "NotesPane",
-                                              "delete"     => "DeleteRegattaPane"),
+                                              "notes"      => "NotesPane"),
                          "Teams"     => array("teams"      => "AddTeamsPane",
                                               "edit-teams" => "EditTeamsPane",
                                               "substitute" => "TeamReplaceTeamPane",
@@ -113,6 +112,9 @@ abstract class AbstractPane {
                          "Ranks"     => array("rank"        => "RankTeamsPane",
                                               "groups"      => "TeamRankGroupPane"),
                          );
+        if ($this->REGATTA->private === null)
+          $score_i["Regatta"]['notices'] = "NoticeBoardPane";
+        $score_i["Regatta"]['delete'] = "DeleteRegattaPane";
       }
     }
     else {
