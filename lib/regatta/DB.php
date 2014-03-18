@@ -3416,6 +3416,7 @@ class STN extends DBObject {
   const MAIL_UNFINALIZED_REMINDER = 'mail_unfinalized_reminder';
 
   const DEFAULT_START_TIME = 'default_start_time';
+  const ALLOW_HOST_VENUE = 'allow_host_venue';
 
   public $value;
   public function db_name() { return 'setting'; }

@@ -201,7 +201,7 @@ class UpdateSchool extends AbstractScript {
 
         $link = new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name);
         $tab->addRow(array($link,
-                           implode("/", $reg->dt_hosts),
+                           $reg->getHostVenue(),
                            $reg->type,
                            $reg->getDataScoring(),
                            $status,
@@ -222,7 +222,7 @@ class UpdateSchool extends AbstractScript {
                                            "Start time")));
       foreach ($coming as $reg) {
         $tab->addRow(array(new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name),
-                           implode("/", $reg->dt_hosts),
+                           $reg->getHostVenue(),
                            $reg->type,
                            $reg->getDataScoring(),
                            $reg->start_time->format('m/d/Y @ H:i')));
@@ -243,7 +243,7 @@ class UpdateSchool extends AbstractScript {
                        new XSpan($reg->name, array('itemprop'=>'name')),
                        array('itemprop'=>'url'));
         $tab->addRow(array($link,
-                           implode("/", $reg->dt_hosts),
+                           $reg->getHostVenue(),
                            $reg->type,
                            $reg->getDataScoring(),
                            new XElem('time', array('datetime'=>$reg->start_time->format('Y-m-d\TH:i'),
