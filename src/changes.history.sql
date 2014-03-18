@@ -722,3 +722,6 @@ alter table round drop column tiebreaker, add column sailoff_for_round int defau
 
 -- add 'details' as possible activity for school updates
 alter table pub_update_school change column activity activity enum('burgee', 'season', 'details') not null default 'burgee';
+
+-- add 'host_venue' as optional field in regatta
+alter table regatta add column host_venue varchar(255) default null after participant;

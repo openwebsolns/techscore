@@ -105,6 +105,7 @@ class FullRegatta extends DBObject {
   public $participant;
   public $scoring;
   public $private;
+  public $host_venue;
   protected $inactive;
 
   // Data properties

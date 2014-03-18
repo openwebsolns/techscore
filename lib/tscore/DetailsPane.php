@@ -179,11 +179,16 @@ class DetailsPane extends AbstractPane {
       // special case that there is only one host AND the user has no
       // more than one school associated with them
       if (count($this->USER->getSchools()) == 1 && count($hosts) == 1) {
-        $reg_form->add($fitem = new FItem("Host:", new XSpan($hosts[0]->nick_name)));
-        $fitem->add(new XHiddenInput('host[]', $hosts[0]->id));
+        // Include as a hidden field if host venue option
+        if (DB::g(STN::ALLOW_HOST_VENUE))
+          $reg_form->add(new XHiddenInput('host[]', $hosts[0]->id));
+        else {
+          $reg_form->add($fitem = new FItem("Host School:", new XSpan($hosts[0]->nick_name)));
+          $fitem->add(new XHiddenInput('host[]', $hosts[0]->id));
+        }
       }
       else {
-        $reg_form->add($f_item = new FItem('Host(s):', $f_sel = new XSelectM("host[]", array('size'=>10))));
+        $reg_form->add($f_item = new FItem('Host School(s):', $f_sel = new XSelectM("host[]", array('size'=>10))));
 
         $schools = array(); // track these so as not to include them later
         foreach ($hosts as $host) {
@@ -204,6 +209,12 @@ class DetailsPane extends AbstractPane {
             $f_sel->add(new FOptionGroup($conf, $opts));
         }
       }
+
+      // Host venue?
+      if (DB::g(STN::ALLOW_HOST_VENUE)) {
+        $reg_form->add(new FItem("Host venue:", new XTextInput('host_venue', $this->REGATTA->host_venue), "Use this optional field as the public \"Host\" identifier."));
+      }
+
     }
 
     // Update button
@@ -402,6 +413,13 @@ class DetailsPane extends AbstractPane {
           Session::pa(new PA("Edited regatta host(s)."));
         }
       }
+
+      // Host venue
+      if (DB::$V->hasString($V, $args, 'host_venue', 1, 256) && $V !== $this->REGATTA->host_venue) {
+        $this->REGATTA->host_venue = $V;
+        $edited = true;
+      }
+
 
       if ($create_nick) {
         try {

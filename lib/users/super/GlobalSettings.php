@@ -58,6 +58,12 @@ class GlobalSettings extends AbstractSuperUserPane {
     if (DB::g(STN::ALLOW_CROSS_RP) !== null)
       $chk->set('checked', 'checked');
 
+    $f->add($fi = new FItem("Allow Host Venue?", $chk = new XCheckboxInput(STN::ALLOW_HOST_VENUE, 1, array('id'=>'chk-' . STN::ALLOW_HOST_VENUE))));
+    $fi->add(new XLabel('chk-' . STN::ALLOW_HOST_VENUE, "Allow scorers to manually specify the regatta host."));
+    if (DB::g(STN::ALLOW_HOST_VENUE) !== null)
+      $chk->set('checked', 'checked');
+    
+
     $f->add(new FItem("PDF Socket:", new XTextInput(STN::PDFLATEX_SOCKET, DB::g(STN::PDFLATEX_SOCKET)), "Full path, or leave blank to use \"exec\" function."));
     $f->add(new FItem("Notice board limit:", new XTextInput(STN::NOTICE_BOARD_SIZE, DB::g(STN::NOTICE_BOARD_SIZE)), "Size in bytes for each item."));
 
@@ -131,6 +137,12 @@ class GlobalSettings extends AbstractSuperUserPane {
       if ($val != DB::g(STN::ALLOW_CROSS_RP)) {
         $changed = true;
         DB::s(STN::ALLOW_CROSS_RP, $val);
+      }
+
+      $val = DB::$V->incInt($args, STN::ALLOW_HOST_VENUE, 1, 2, null);
+      if ($val != DB::g(STN::ALLOW_HOST_VENUE)) {
+        $changed = true;
+        DB::s(STN::ALLOW_HOST_VENUE, $val);
       }
 
       $val = DB::$V->incString($args, STN::PDFLATEX_SOCKET, 1, 101);
