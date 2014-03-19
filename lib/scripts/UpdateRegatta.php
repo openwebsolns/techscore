@@ -157,6 +157,11 @@ class UpdateRegatta extends AbstractScript {
       }
     }
 
+    if (in_array(UpdateRequest::ACTIVITY_URL, $activities)) {
+      // Also regen the documents, if any
+      if (count($docs) > 0)
+        $notice_docs = true;
+    }
     if (in_array(UpdateRequest::ACTIVITY_ROTATION, $activities)) {
       if ($rot->isAssigned()) {
         $rotation = true;
@@ -332,6 +337,11 @@ class UpdateRegatta extends AbstractScript {
       }
     }
 
+    if (in_array(UpdateRequest::ACTIVITY_URL, $activities)) {
+      // Also regen the documents, if any
+      if (count($docs) > 0)
+        $notice_docs = true;
+    }
     if (in_array(UpdateRequest::ACTIVITY_ROTATION, $activities)) {
       $rotation = true;
       $allraces = true;

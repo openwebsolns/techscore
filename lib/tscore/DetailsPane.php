@@ -427,9 +427,9 @@ class DetailsPane extends AbstractPane {
           $url = $this->REGATTA->createNick();
           if ($url != $this->REGATTA->nick) {
             $this->REGATTA->nick = $url;
-            UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_URL, $this->REGATTA->getURL());
             Session::pa(new PA("Regatta's public URL is now: " . $this->REGATTA->getURL()));
           }
+          UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_URL, $this->REGATTA->getURL());
         } catch (InvalidArgumentException $e) {
           throw new SoterException("Unable to publish the regatta. Most likely, you attempted to activate a regatta that is under the same name as another already-activated regatta in the same season. Before you can do that, please make sure that the other regatta with the same name as this one is removed or de-activated (made private) before proceeding.");
         }
