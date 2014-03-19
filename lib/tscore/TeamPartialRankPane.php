@@ -101,8 +101,8 @@ class TeamPartialRankPane extends AbstractPane {
     $p->add($form = $this->createForm(XForm::GET));
 
     $scored_races = $this->REGATTA->getScoredRaces(Division::A());
-    $form->add(new FItem("Start race:", new XTextInput('start_race', 1)));
-    $form->add(new FItem("End race:", new XTextInput('end_race', $scored_races[count($scored_races) - 1])));
+    $form->add(new FItem("Start race:", $this->newRaceInput('start_race', $scored_races[0])));
+    $form->add(new FItem("End race:", $this->newRaceInput('end_race', $scored_races[count($scored_races) - 1])));
     $form->add(new XSubmitP('rank', "Show ranks"));
   }
 
