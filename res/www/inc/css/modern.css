@@ -136,7 +136,7 @@ select, .csel-container, .multiple-select {
     border: 1px outset #aaa;
     border-radius: 2px;
     color: #111111;
-    padding: 0.35em;
+    padding: 0.5em;
 
     background: rgb(242,242,242);
     background: -moz-linear-gradient(top, rgba(252,252,252,1) 0%, rgba(242,242,242,1) 100%);
@@ -156,12 +156,12 @@ select, .csel-container, .multiple-select {
     padding: 0;
 }
 
-#bodydiv input[type="text"], #bodydiv input[type="search"], input[type="email"], input[type="date"], input[type="time"], #bodydiv input[type="url"], #bodydiv input[type="password"], #bodydiv input[type="number"], #bodydiv input[type="time"], #bodydiv select:focus {
+#bodydiv input[type="text"], #bodydiv input[type="search"], input[type="email"], input[type="date"], input[type="time"], #bodydiv input[type="url"], #bodydiv input[type="password"], #bodydiv input[type="number"], #bodydiv input[type="time"], #bodydiv select:focus, #bodydiv textarea {
     padding:0.15em;
     border: 1px inset #aaa;
     border-radius: 2px;
     color: #111111;
-    padding: 0.35em;
+    padding: 0.5em;
     box-shadow: 0 2px 5px #DDDDDD inset;
     outline: 0;
     -moz-outline: 0;
