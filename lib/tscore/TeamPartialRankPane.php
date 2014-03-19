@@ -58,6 +58,7 @@ class TeamPartialRankPane extends AbstractPane {
         if (count($races) == 0)
           throw new SoterException("No scored races to rank in rounds provided! Please try again.");
 
+        $this->PAGE->addContent(new XP(array(), new XA($this->link('partial'), "← Start Over")));
         $this->PAGE->addContent($p = new XPort($title));
         $p->add(new XP(array('class'=>'warning'), "Note: only teams that participated in chosen races are shown."));
         $p->add($tab = new XQuickTable(array('id'=>'ranktable', 'class'=>'teamtable'),
@@ -71,8 +72,6 @@ class TeamPartialRankPane extends AbstractPane {
                              $rank->team,
                              $rank->explanation));
         }
-
-        $p->add(new XP(array(), new XA($this->link('partial'), "Start Over")));
         return;
 
       } catch (SoterException $e) {
