@@ -131,7 +131,7 @@ class ICSATeamRanker extends ICSARanker {
       }
     }
     else {
-      foreach ($this->rankGroup($reg, $teams, $records, $min_rank, $matchups) as $rank)
+      foreach ($this->rankGroup($reg, $teams, $records, $min_rank, $matchups, true) as $rank)
         $all_ranks[] = $rank;
     }
     return $all_ranks;
@@ -140,9 +140,10 @@ class ICSATeamRanker extends ICSARanker {
   /**
    * Ranks the team according to their winning percentages.
    *
-   * Respect the locked ranks, and also the groupings
+   * Respect the locked ranks, and also the groupings, unless
+   * otherwise noted with $ignore_locks
    */
-  public function rankGroup(FullRegatta $reg, $teams, &$ranks, $min_rank, Array $matchups) {
+  public function rankGroup(FullRegatta $reg, $teams, &$ranks, $min_rank, Array $matchups, $ignore_locks = false) {
     $max_rank = $min_rank + count($teams) - 1;
 
     // separate teams into "locked" and "open" groups
@@ -150,7 +151,7 @@ class ICSATeamRanker extends ICSARanker {
     $open_records = array();
     foreach ($teams as $team) {
       $rank = (isset($ranks[$team->id])) ? $ranks[$team->id] : new TeamRank($team);
-      if ($team->lock_rank !== null && $team->dt_rank !== null) {
+      if ($team->lock_rank !== null && $team->dt_rank !== null && $ignore_locks === false) {
         if ($team->dt_rank < $min_rank || $team->dt_rank > $max_rank)
           throw new InvalidArgumentException(sprintf("Locked rank of %d for %s outside the range of group %d-%d.", $team, $team->dt_rank, $min_rank, $max_rank));
         $locked_records[] = $rank;

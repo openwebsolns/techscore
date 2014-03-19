@@ -60,7 +60,7 @@ class TeamPartialRankPane extends AbstractPane {
 
         $this->PAGE->addContent(new XP(array(), new XA($this->link('partial'), "← Start Over")));
         $this->PAGE->addContent($p = new XPort($title));
-        $p->add(new XP(array('class'=>'warning'), "Note: only teams that participated in chosen races are shown."));
+        $p->add(new XP(array('class'=>'warning'), "Note: only teams that participated in chosen races are shown. Rank locks and rank groups are ignored."));
         $p->add($tab = new XQuickTable(array('id'=>'ranktable', 'class'=>'teamtable'),
                                        array("#", "Record", "Team", "Explanation")));
 
