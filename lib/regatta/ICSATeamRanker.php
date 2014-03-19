@@ -28,7 +28,7 @@ class ICSATeamRanker extends ICSARanker {
    *
    * Respect the locked ranks, and also the groupings
    */
-  public function rank(FullRegatta $reg, $races = null) {
+  public function rank(FullRegatta $reg, $races = null, $ignore_rank_groups = false) {
     $divisions = $reg->getDivisions();
     if ($races === null)
       $races = $reg->getScoredRaces(Division::A());
@@ -122,11 +122,17 @@ class ICSATeamRanker extends ICSARanker {
 
     $min_rank = 1;
     $all_ranks = array();
-    foreach ($reg->getTeamsInRankGroups($teams) as $group) {
-      $group = $this->rankGroup($reg, $group, $records, $min_rank, $matchups);
-      foreach ($group as $rank)
+    if ($ignore_rank_groups === false) {
+      foreach ($reg->getTeamsInRankGroups($teams) as $group) {
+        $group = $this->rankGroup($reg, $group, $records, $min_rank, $matchups);
+        foreach ($group as $rank)
+          $all_ranks[] = $rank;
+        $min_rank += count($group);
+      }
+    }
+    else {
+      foreach ($this->rankGroup($reg, $teams, $records, $min_rank, $matchups) as $rank)
         $all_ranks[] = $rank;
-      $min_rank += count($group);
     }
     return $all_ranks;
   }

@@ -112,7 +112,8 @@ abstract class AbstractPane {
                                               "drop-penalty" => "DropPenaltyPane",
                                               "team-penalty" => "TeamPenaltyPane"),
                          "Ranks"     => array("rank"        => "RankTeamsPane",
-                                              "groups"      => "TeamRankGroupPane"),
+                                              "groups"      => "TeamRankGroupPane",
+                                              "partial"     => "TeamPartialRankPane"),
                          );
       }
     }
@@ -374,6 +375,14 @@ abstract class AbstractPane {
         return null;
       require_once('tscore/TeamRankGroupPane.php');
       return new TeamRankGroupPane($r, $u);
+
+    case 'partial':
+    case 'partial-rank':
+      if ($u->scoring != Regatta::SCORING_TEAM)
+        return null;
+      require_once('tscore/TeamPartialRankPane.php');
+      return new TeamPartialRankPane($r, $u);
+      
     case 'add-penalty':
     case 'penalties':
     case 'penalty':
@@ -522,6 +531,7 @@ abstract class AbstractPane {
     case 'TeamEnterPenaltyPane':
     case 'RankTeamsPane':
     case 'TeamRankGroupPane':
+    case 'TeamPartialRankPane':
     case 'RpMissingPane':
       return $this->has_scores;
 
@@ -637,6 +647,7 @@ abstract class AbstractPane {
                                "TeamEnterPenaltyPane" => "penalty",
                                "RankTeamsPane" => "rank",
                                "TeamRankGroupPane" => "group",
+                               "TeamPartialRankPane" => "partial",
                                "DropPenaltyPane" => "drop-penalty",
                                "TeamPenaltyPane" => "team-penalty");
 
@@ -669,6 +680,7 @@ abstract class AbstractPane {
                                  "TeamEnterPenaltyPane" => "Add penalty",
                                  "RankTeamsPane" => "Rank teams",
                                  "TeamRankGroupPane" => "Rank groups",
+                                 "TeamPartialRankPane" => "Partial ranking",
                                  "DropPenaltyPane" => "Drop penalty",
                                  "TeamPenaltyPane" => "Team penalty");
 }
