@@ -496,20 +496,6 @@ class FullRegatta extends DBObject {
     return $r;
   }
 
-  /**
-   * Return the total number of races participating, for efficiency
-   * purposes
-   *
-   * @return int the number of races
-   */
-  public function getRacesCount() {
-    if ($this->total_races !== null)
-      return $this->total_races;
-    $this->total_races = count(DB::getAll(DB::$RACE, new DBCond('regatta', $this->id)));
-    return $this->total_races;
-  }
-  private $total_races;
-
   // ------------------------------------------------------------
   // Races and boats
   // ------------------------------------------------------------
@@ -716,7 +702,7 @@ class FullRegatta extends DBObject {
   /**
    * Returns the rounds that have at least one scored race
    *
-   * This does not include rounds for which they only scored races are
+   * This does not include rounds for which the only scored races are
    * carried over from previous rounds.
    *
    * @return Array:Round the list of (partially) scored rounds
