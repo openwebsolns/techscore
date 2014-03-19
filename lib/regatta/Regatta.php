@@ -496,20 +496,6 @@ class FullRegatta extends DBObject {
     return $r;
   }
 
-  /**
-   * Return the total number of races participating, for efficiency
-   * purposes
-   *
-   * @return int the number of races
-   */
-  public function getRacesCount() {
-    if ($this->total_races !== null)
-      return $this->total_races;
-    $this->total_races = count(DB::getAll(DB::$RACE, new DBCond('regatta', $this->id)));
-    return $this->total_races;
-  }
-  private $total_races;
-
   // ------------------------------------------------------------
   // Races and boats
   // ------------------------------------------------------------
@@ -716,7 +702,7 @@ class FullRegatta extends DBObject {
   /**
    * Returns the rounds that have at least one scored race
    *
-   * This does not include rounds for which they only scored races are
+   * This does not include rounds for which the only scored races are
    * carried over from previous rounds.
    *
    * @return Array:Round the list of (partially) scored rounds
@@ -1487,6 +1473,7 @@ class FullRegatta extends DBObject {
     // rank as the team itself, so do those rankings here as well
     $divs = ($division === null ) ? $this->getDivisions() : array($division);
 
+    $ranked_teams = array();
     $ranker = $this->getRanker();
     foreach ($ranker->rank($this) as $rank) {
       $rank->team->dt_rank = $rank->rank;
@@ -1503,7 +1490,28 @@ class FullRegatta extends DBObject {
           $this->setDivisionRank($div, $rank);
         }
       }
+      $ranked_teams[$rank->team->id] = $rank->team;
       DB::set($rank->team);
+    }
+
+    // In team racing, the ranker may not return all teams, so reset
+    // the record for the remaining teams
+    if ($this->scoring == Regatta::SCORING_TEAM) {
+      foreach ($this->getTeams() as $team) {
+        if (!isset($ranked_teams[$team->id])) {
+          $team->dt_rank = count($ranked_teams) + 1;
+          $team->dt_wins = 0;
+          $team->dt_losses = 0;
+          $team->dt_ties = 0;
+          $team->dt_explanation = "";
+
+          $rank = new TeamRank($team);
+          foreach ($divs as $div) {
+            $this->setDivisionRank($div, $rank);
+          }
+          DB::set($rank->team);
+        }
+      }
     }
 
     // ------------------------------------------------------------
