@@ -1473,6 +1473,7 @@ class FullRegatta extends DBObject {
     // rank as the team itself, so do those rankings here as well
     $divs = ($division === null ) ? $this->getDivisions() : array($division);
 
+    $ranked_teams = array();
     $ranker = $this->getRanker();
     foreach ($ranker->rank($this) as $rank) {
       $rank->team->dt_rank = $rank->rank;
@@ -1489,7 +1490,28 @@ class FullRegatta extends DBObject {
           $this->setDivisionRank($div, $rank);
         }
       }
+      $ranked_teams[$rank->team->id] = $rank->team;
       DB::set($rank->team);
+    }
+
+    // In team racing, the ranker may not return all teams, so reset
+    // the record for the remaining teams
+    if ($this->scoring == Regatta::SCORING_TEAM) {
+      foreach ($this->getTeams() as $team) {
+        if (!isset($ranked_teams[$team->id])) {
+          $team->dt_rank = count($ranked_teams) + 1;
+          $team->dt_wins = 0;
+          $team->dt_losses = 0;
+          $team->dt_ties = 0;
+          $team->dt_explanation = "";
+
+          $rank = new TeamRank($team);
+          foreach ($divs as $div) {
+            $this->setDivisionRank($div, $rank);
+          }
+          DB::set($rank->team);
+        }
+      }
     }
 
     // ------------------------------------------------------------
