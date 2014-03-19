@@ -247,6 +247,7 @@ class RankTeamsPane extends AbstractPane {
       $locked = DB::$V->incList($args, 'lock_rank', null, array());
 
       // rank groups help ascertain that assigned rank is not outside range
+      $ranked = array();
       $groups = array();
       $ungrouped = array();
       // Fetch the old rankings as we need these objects to update the
@@ -261,10 +262,18 @@ class RankTeamsPane extends AbstractPane {
             $groups[$r->team->rank_group] = array();
           $groups[$r->team->rank_group][] = $r->team;
         }
+        $ranked[$r->team->id] = $r->team;
+      }
+
+      // Any teams not ranked by ranker?
+      foreach ($teams as $team) {
+        if (!isset($ranked[$team->id]))
+          $ungrouped[] = $team;
       }
 
       if (count($ungrouped) > 0)
         $groups[] = $ungrouped;
+
 
       $min_ranks = array();
       $max_ranks = array();
@@ -277,7 +286,7 @@ class RankTeamsPane extends AbstractPane {
         }
         $min = $max + 1;
       }
-      
+
 
       $divisions = $this->REGATTA->getDivisions();
       $ranks = array();
