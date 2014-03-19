@@ -181,6 +181,9 @@ class TScorePage extends XPage {
       if ($reg->private)
         $h4->add(new XImg(WS::link('/inc/img/priv.png'), "Private", array('title'=>'Regatta is not public')));
       $this->header->add(new XDiv(array('id'=>'close'), array(new XA('/', "Close", array('accesskey'=>'w')))));
+      if ($reg->private === null) {
+        $this->header->add(new XDiv(array('id'=>'public-link'), array(new XA(sprintf('http://%s%s', Conf::$PUB_HOME, $reg->getURL()), "Public Site", array('accesskey'=>'s', 'onclick'=>'this.target="public"')))));
+      }
     }
 
     if (DB::g(STN::HELP_HOME) !== null) {

@@ -335,7 +335,7 @@ h4#regatta {
     text-decoration: none;
     color: white;
 }
-#logout, #close {
+#logout, #close, #public-link {
     display: inline-block;
     zoom: 1;
     *display: inline;
@@ -344,7 +344,7 @@ h4#regatta {
     font-size:0.8em;
     margin: 0.5em 0.25em;
 }
-#logout a, #close a {
+#logout a, #close a, #public-link a {
     color: #fff;
     text-decoration:none;
     background:#759DD1;
