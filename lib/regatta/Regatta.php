@@ -614,8 +614,6 @@ class FullRegatta extends DBObject {
     $cur = $this->getRace($race->division, $race->number);
     if ($cur !== null)
       $race->id = $cur->id;
-    else
-      $this->total_races++;
     $race->regatta = $this;
     DB::set($race);
   }
