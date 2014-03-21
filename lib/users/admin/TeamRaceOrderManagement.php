@@ -98,6 +98,23 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
     $frequencies = Race_Order::getFrequencyTypes();
 
     // ------------------------------------------------------------
+    // Request to export?
+    // ------------------------------------------------------------
+    if (isset($args['export'])) {
+      if (!isset($current[$args['export']]))
+        Session::pa(new PA("Invalid template ID requested for exporting. Please try again.", PA::E));
+      else {
+        header('Content-Type: text/plain');
+        $template = $current[$args['export']];
+        for ($i = 0; $i < count($template->template); $i++) {
+          $pair = $template->getPair($i);
+          printf("%s\t%s\n", $pair[0], $pair[1]);
+        }
+        exit;
+      }
+    }
+
+    // ------------------------------------------------------------
     // Request to edit?
     // ------------------------------------------------------------
     if (isset($args['template'])) {
@@ -213,7 +230,7 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
       foreach ($current as $num_teams => $orders) {
         $form->add(new XH4(sprintf("%d Teams", $num_teams)));
 
-        $form->add($tab = new XQuickTable(array('id'=>'tr-race-order'), array("Total boats", "Teams carried?", "Rotation", "Desc.", "Author", "Edit", "Delete?")));
+        $form->add($tab = new XQuickTable(array('id'=>'tr-race-order'), array("Total boats", "Teams carried?", "Rotation", "Desc.", "Author", "Edit", "Export", "Delete?")));
 
         $rowIndex = 0;
         foreach ($orders as $list) {
@@ -227,6 +244,7 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
             $row[] = $order->description;
             $row[] = $order->author;
             $row[] = new XA(WS::link('/race-order', array('template'=>$order->id)), "Edit");
+            $row[] = new XA(WS::link('/race-order', array('export'=>$order->id)), "Export");
             $row[] = new XCheckboxInput('template[]', $order->id);
 
             $tab->addRow($row, array('class'=>'row' . ($rowIndex % 2)));
