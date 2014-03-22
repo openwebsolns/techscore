@@ -1,5 +1,7 @@
 .hidden {display:none;}
-html {background:#eee;}
+html {
+    background:#fff;
+}
 body {
     padding:0px;
     margin:0px auto;
@@ -26,16 +28,13 @@ a:hover {
 }
 
 #bodydiv {
-    background:white;
-    border-bottom: 1px solid #aaa;
-    margin-bottom: 0.5em;
+    background: none repeat scroll 0 0 #FFFFFF;
+    border-bottom: 1px solid #AAAAAA;
+    margin: 0 auto 0.5em;
+    max-width: 70em;
     padding: 0.5em 1em;
 }
 
-#bodydiv, #menudiv, #headerdiv {
-    border-left: 1px solid #888;
-    border-right: 1px solid #888;
-}
 
 /* Menus */
 #menudiv {
@@ -46,11 +45,14 @@ a:hover {
     height: 35px;
     min-width: 55em;
 }
+
 #menubar {
-    position: absolute;
-    overflow: visible;
     height: 35px;
-    z-index:10;
+    margin: 0 auto;
+    max-width: 70em;
+    overflow: visible;
+    position: relative;
+    z-index: 10;
 }
 
 #menubar div.menu {
@@ -355,7 +357,16 @@ h4#regatta {
     -moz-border-radius: 2px;
 }
 
-.port {border:1px solid #cccccc;padding:0 1em 0.5em;margin-bottom:1.5em;}
+.port {
+    background: none repeat scroll 0 0 #FAFAFA;
+    border: 1px solid #CCCCCC;
+    border-radius: 3px;
+    margin-bottom: 1.5em;
+    margin-top: 3.5em;
+    padding: 1em 1em 0.5em;
+    position: relative;
+}
+
 .collapsed  {
     background: #eee;
     height: 2em;
@@ -378,19 +389,26 @@ h4#regatta {
 .collapsable.collapsed legend:after {
     content: "click to expand";
 }
+
 .port h3 {
-    color:#555555;
-    margin:0;
-    background:white;
-    padding:0.2em;
-    position:relative;
-    top:-0.7em;
-    font-size:1em;
-    font-weight:normal;
-    display:inline-block;
-    zoom:1;
-    *display:inline;
+    background: none repeat scroll 0 0 #FAFAFA;
+    border-color: #BBBBBB #BBBBBB -moz-use-text-color;
+    border-image: none;
+    border-radius: 3px 3px 0 0;
+    border-style: solid solid none;
+    border-width: 1px 1px medium;
+    color: #333333;
+    display: inline-block;
+    font-size: 1em;
+    font-weight: normal;
+    left: 0;
+    margin: 0;
+    padding: 0.5em 1em;
+    position: absolute;
+    text-shadow: 1px 1px 1px #FFFFFF;
+    top: -2.3em;
 }
+
 .port h3 + p {
     margin-top: 0;
 }
