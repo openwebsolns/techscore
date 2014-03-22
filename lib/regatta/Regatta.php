@@ -1504,6 +1504,11 @@ class FullRegatta extends DBObject {
           $team->dt_explanation = "";
 
           $rank = new TeamRank($team);
+          $rank->rank = $team->dt_rank;
+          $rank->wins = 0;
+          $rank->losses = 0;
+          $rank->ties = 0;
+          $rank->explanation = $team->dt_explanation;
           foreach ($divs as $div) {
             $this->setDivisionRank($div, $rank);
           }
