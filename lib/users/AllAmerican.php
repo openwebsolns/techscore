@@ -95,14 +95,9 @@ class AllAmerican extends AbstractUserPane {
       $form->add(new FReqItem("Boat role:", XSelect::fromArray('role', array(RP::SKIPPER => "Skipper", RP::CREW => "Crew"))));
       $form->add(new FReqItem("Seasons:", $this->seasonList('', array($now, $then))));
 
-<<<<<<< local
-      $form->add($fi = new FReqItem(sprintf("%ss:", DB::g(STN::CONFERENCE_TITLE)), $this->conferenceList('conf-')));
-      $fi->set('title', "Only choose sailors from selected conference(s) automatically. You can manually choose sailors from other divisions.");
-=======
       $title = DB::g(STN::CONFERENCE_TITLE);
       $mes = sprintf("Only choose sailors from selected %s(s) automatically. You can manually add sailors from other %ss.", $title, $title);
-      $form->add($fi = new FItem(sprintf("%ss:", $title), $this->conferenceList('conf-', array(), true), $mes));
->>>>>>> other
+      $form->add($fi = new FReqItem(sprintf("%ss:", $title), $this->conferenceList('conf-', array(), true), $mes));
 
       $form->add($fi = new FReqItem("Min. # Regattas", new XNumberInput('min-regattas', 2, 1, null, 1, array('size'=>3))));
       $fi->add(new XNote("Sailors must qualify for at least this many regattas to be automatically considered."));
