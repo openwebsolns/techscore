@@ -157,8 +157,14 @@ abstract class AbstractPane {
     $context_menu_i = array('settings' => null,
                             'finishes' => null,
                             'penalty' => null,
-                            'rotations' => null,
                             'rp' => null);
+    if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
+      $context_menu_i['races'] = null;
+    }
+    else {
+      $context_menu_i['rotations'] = null;
+    }
+
     $context_menu_labels = array();
 
     $access_keys_i = array('finishes' => 'f',
@@ -250,6 +256,7 @@ abstract class AbstractPane {
                           array('finishes' => WS::link('/inc/img/finish.png'),
                                 'rp' => WS::link('/inc/img/rp.png'),
                                 'rotations' => WS::link('/inc/img/rot.png'),
+                                'races' => WS::link('/inc/img/rot.png'),
                                 'settings' => WS::link('/inc/img/set.png')));
 
 
