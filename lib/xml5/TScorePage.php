@@ -105,7 +105,7 @@ class TScorePage extends XPage {
     $this->body->add(new XHr(array('class'=>'hidden')));
 
     // Content
-    $this->body->add($c = new XDiv(array('id'=>'bodydiv')));
+    $this->body->add(new XDiv(array('id'=>'bodywrap'), array($c = new XDiv(array('id'=>'bodydiv')))));
 
     // Announcement
     if (class_exists('Session', false))

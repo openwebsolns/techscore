@@ -1,6 +1,6 @@
 .hidden {display:none;}
 html {
-    background:#fff;
+    background:#f8f8f8;
 }
 body {
     padding:0px;
@@ -20,17 +20,28 @@ a {
 a:hover {
     text-decoration: underline;
 }
+
 #footdiv {
-    color:#555;
-    font-size:70%;
-    text-align: right;
-    margin-bottom:0px;
+    border-top: 1px solid #bbb;
+    bottom: 0;
+    color: #555555;
+    font-size: 70%;
+    margin-bottom: 0;
+    padding: 1em 0;
+    text-align: center;
+    width: 100%;
+}
+
+address {
+    font-style: normal;
+}
+
+#bodywrap {
+    background: #fff;
 }
 
 #bodydiv {
-    background: none repeat scroll 0 0 #FFFFFF;
-    border-bottom: 1px solid #AAAAAA;
-    margin: 0 auto 0.5em;
+    margin: 0 auto;
     max-width: 70em;
     padding: 0.5em 1em;
 }
