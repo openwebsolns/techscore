@@ -103,7 +103,6 @@ function OWSMultSelect(elem) {
 
     // Load any existing ones
     this.promoteSelected();
-    this.toElement.setAttribute("size", Math.max(3, this.payload.childNodes.length));
 }
 
 OWSMultSelect.prototype.performFromSearch = function() {
@@ -139,6 +138,7 @@ OWSMultSelect.prototype.performToSearch = function() {
 };
 
 OWSMultSelect.prototype.promoteSelected = function() {
+    var cnt = 0;
     for (var i = 0; i < this.fromElement.length; i++) {
         var opt = this.fromElement.item(i);
         if (opt.selected) {
@@ -154,8 +154,10 @@ OWSMultSelect.prototype.promoteSelected = function() {
                 this.payloadMap[opt.value] = c;
                 this.fromMap[opt.value] = opt;
             }
+            cnt++;
         }
     }
+    this.toElement.setAttribute("size", Math.max(2, this.toElement.length));
 };
 
 OWSMultSelect.prototype.demoteSelected = function() {

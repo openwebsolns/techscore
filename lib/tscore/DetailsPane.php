@@ -35,7 +35,7 @@ class DetailsPane extends AbstractPane {
           if ($this->REGATTA->hasFinishes()) {
             $this->PAGE->addContent($p = new XPort("Finalize regatta"));
             $p->set('id', 'finalize');
-            $p->add(new XP(array('class'=>'warning'),
+            $p->add(new XP(array(),
                            array(new XStrong("Note:"), " all official regattas must be finalized, or they will be flagged as incomplete.")));
             $p->add(new XP(array(),
                            array("Once finalized, all unsailed races will be removed from the system. This means that no new races can be created. However, existing races can be re-scored, if needed. In addition, RP information will still be available for edits after finalization.")));

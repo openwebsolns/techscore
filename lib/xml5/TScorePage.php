@@ -49,7 +49,7 @@ class TScorePage extends XPage {
     $this->content = array();
     $this->filled = false;
     $this->menu = new XDiv(array('id'=>'menubar'));
-    $this->header = new XDiv(array('id'=>'headdiv'));
+    $this->header = new XDiv(array('id'=>'headbar'));
 
     // Favicon the W3C way
     $this->head->add(new XLink(array('rel'=>'icon', 'type'=>'image/x-icon', 'href'=>WS::link('/inc/img/favicon.ico'))));
@@ -94,7 +94,7 @@ class TScorePage extends XPage {
     $this->filled = true;
 
     // Header
-    $this->body->add($this->header);
+    $this->body->add(new XDiv(array('id'=>'headdiv'), array($this->header)));
     $this->fillPageHeader($this->user, $this->reg);
 
     // Menu
