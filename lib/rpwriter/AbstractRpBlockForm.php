@@ -80,7 +80,7 @@ abstract class AbstractRpBlockForm extends AbstractRpForm {
    * @return mixed the binary PDF data
    * @throws InvalidArgumentException if unable to generate PDF
    */
-  public function socketPDF(FullRegatta $reg, $socket) {
+  public function socketPdf(FullRegatta $reg, $socket) {
     if (($s = socket_create(AF_UNIX, SOCK_STREAM, 0)) === false)
       throw new InvalidArgumentException("Unable to create socket connection.");
     if (socket_connect($s, $socket) === false) {

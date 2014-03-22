@@ -29,9 +29,17 @@ abstract class AbstractRpForm {
    * Generates a PDF file with a random name, and returns the filename
    *
    * @param string $tmpbase the basename of the random file
-   * @return string $path the path to the generated PDF
+   * @return mixed the binar data
    * @throws RuntimeException should something go wrong
    */
   abstract public function makePdf(FullRegatta $reg, $tmpbase = 'ts2');
+
+  /**
+   * Generates PDF by attempting to connect to socket in $USE_SOCKET.
+   *
+   * @return mixed the binary PDF data
+   * @throws InvalidArgumentException if unable to generate PDF
+   */
+  abstract public function socketPdf(FullRegatta $reg, $socket);
 }
 ?>
