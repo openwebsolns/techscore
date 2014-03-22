@@ -225,6 +225,12 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
           $data = $form->makePdf($REG);
         else
           $data = $form->socketPdf($REG, $sock);
+
+        if ($data === null) {
+          Session::pa(new PA("Downloadable PDF forms are not available for this regatta type.", PA::I));
+          WS::go('/score/'.$REG->id);
+        }
+
         $rp->setForm($data);
       }
 
