@@ -228,11 +228,13 @@ abstract class AbstractUserPane {
    *
    * @param String $prefix to use for checkbox IDs
    * @param Array:Conference $chosen conferences to choose, or all if empty
+   * @param boolean $ignore_memberhip true to use all conferences
    */
-  protected function conferenceList($prefix, Array $chosen = array()) {
+  protected function conferenceList($prefix, Array $chosen = array(), $ignore_memberhip = false) {
     require_once('xml5/XMultipleSelect.php');
     $ul = new XMultipleSelect('confs[]', array(), array('style'=>'width:10em;'));
-    foreach ($this->USER->getConferences() as $conf) {
+    $confs = ($ignore_memberhip) ? DB::getConferences() : $this->USER->getConferences();
+    foreach ($confs as $conf) {
       $ul->addOption($conf->id, $conf, in_array($conf, $chosen));
     }
     return $ul;
