@@ -355,8 +355,8 @@ class EnterFinishPane extends AbstractPane {
       $i = 0;
       foreach ($divisions as $div) {
         foreach ($teams as $team) {
-          $attrs['value'] = sprintf('%s,%s', $div, $team->id);
-          $name = $team_opts[$attrs['value']];
+          $attrs['data-value'] = sprintf('%s,%s', $div, $team->id);
+          $name = $team_opts[$attrs['data-value']];
 
           $current_team = "";
           $current_pen = null;
@@ -366,11 +366,12 @@ class EnterFinishPane extends AbstractPane {
           }
 
           $tab->addRow(array(new XTD($attrs, $name),
-                             new XImg("/inc/img/question.png", "Waiting for input",  array("id"=>"check" . $i)),
+                             new XTD(array('class'=>'finish_check')),
                              $sel = XSelect::fromArray("p" . $i, $team_opts, $current_team),
                              XSelect::fromArray('m' . $i, $this->pen_opts, $current_pen)));
           $sel->set('id', "team$i");
           $sel->set('tabindex', $i + 1);
+          $sel->set('class', 'finish_output');
           $i++;
         }
       }
