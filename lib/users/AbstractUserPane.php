@@ -231,10 +231,12 @@ abstract class AbstractUserPane {
    *
    * @param String $prefix to use for checkbox IDs
    * @param Array:Conference $chosen conferences to choose, or all if empty
+   * @param boolean $ignore_memberhip true to use all conferences
    */
-  protected function conferenceList($prefix, Array $chosen = array()) {
+  protected function conferenceList($prefix, Array $chosen = array(), $ignore_memberhip = false) {
     $ul = new XUl(array('class'=>'inline-list'));
-    foreach ($this->USER->getConferences() as $conf) {
+    $confs = ($ignore_memberhip) ? DB::getConferences() : $this->USER->getConferences();
+    foreach ($confs as $conf) {
       $id = $prefix . $conf->id;
       $ul->add(new XLi(array($chk = new XCheckboxInput('confs[]', $conf, array('id' => $id)),
                              new XLabel($id, $conf))));
