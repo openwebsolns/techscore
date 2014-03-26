@@ -16,7 +16,7 @@ function OWSComboboxSelect(elem) {
     // Replace the select element with the following structure:
     //
     //   DIV .csel-container         {inline-block}
-    //     DIV .csel-filter-wrapper  {table-row}
+    //     DIV .csel-filter-wrapper  {table}
     //       INPUT .csel-filter      {table-cell}
     //       BUTTON .csel-drop       {table-cell}
     //     UL .csel-options          {auto}
@@ -45,7 +45,8 @@ function OWSComboboxSelect(elem) {
 
     var b = document.createElement("div");
     b.setAttribute("class", "csel-filter-wrapper");
-    b.style.display = "table-row";
+    b.style.display = "table";
+    b.style.width = "100%";
     c.appendChild(b);
 
     this.search = document.createElement("input");
