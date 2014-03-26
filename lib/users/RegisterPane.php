@@ -189,11 +189,7 @@ class RegisterPane extends AbstractUserPane {
       if (DB::g(STN::MAIL_REGISTER_USER) === null)
         throw new SoterException("Registrations are currently not allowed; please notify the administrators.");
 
-      $body = DB::keywordReplace($acc, DB::g(STN::MAIL_REGISTER_USER));
-      $body = str_replace('{BODY}', sprintf('%sregister/%s', WS::alink('/'), DB::getHash($acc)), $body);
-      if (DB::mail($acc->id,
-                   sprintf("[%s] New account request", DB::g(STN::APP_NAME)),
-                   $body) === false)
+      if (!$this->sendRegistrationEmail($acc))
         throw new SoterException("There was an error with your request. Please try again later.");
 
       DB::set($acc);

@@ -273,6 +273,25 @@ abstract class AbstractUserPane {
   }
 
   /**
+   * Sends e-mail to user to verify account.
+   *
+   * E-mail will not be sent if no e-mail template exists
+   *
+   * @param Account $account the account to notify
+   * @return true if template exists, and message sent
+   */
+  protected function sendRegistrationEmail(Account $acc) {
+    if (DB::g(STN::MAIL_REGISTER_USER) === null)
+      return false;
+
+    $body = DB::keywordReplace($acc, DB::g(STN::MAIL_REGISTER_USER));
+    $body = str_replace('{BODY}', sprintf('%sregister/%s', WS::alink('/'), DB::getHash($acc)), $body);
+    return DB::mail($acc->id,
+		    sprintf("[%s] New account request", DB::g(STN::APP_NAME)),
+		    $body);
+  }
+
+  /**
    * Fill this page's content
    *
    * @param Array $args the arguments to process

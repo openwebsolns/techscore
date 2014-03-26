@@ -100,6 +100,16 @@ class AccountsPane extends AbstractAdminUserPane {
     
 
     if ($user->status != Account::STAT_INACTIVE) {
+      if ($user->status == Account::STAT_REQUESTED && DB::g(STN::MAIL_REGISTER_USER)) {
+	// ------------------------------------------------------------
+	// Resend registration
+	// ------------------------------------------------------------
+	$this->PAGE->addContent($p = new XPort("Resend registration e-mail"));
+	$p->add($f = $this->createForm());
+	$f->add(new XP(array(), "Resend user registration e-mail in order to verify user account."));
+	$f->add($xp = new XSubmitP('resend-registration', "Resend e-mail"));
+	$xp->add(new XHiddenInput('user', $user->id));
+      }
       if ($user->id != $this->USER->id && !$user->isSuper()) {
         // ------------------------------------------------------------
         // Delete account?
@@ -279,6 +289,19 @@ class AccountsPane extends AbstractAdminUserPane {
       Session::pa(new PA(sprintf("Updated account information for user %s.", $user)));
       if ($user->admin !== null)
         Session::pa(new PA("User has \"admin\" privileges and can change key program settings.", PA::I));
+    }
+
+    // ------------------------------------------------------------
+    // Resend registration e-mail
+    // ------------------------------------------------------------
+    if (isset($args['resend-registration'])) {
+      if ($user->status != Account::STAT_REQUESTED)
+	throw new SoterException("Registration e-mails can only be sent to requested accounts.");
+      if (DB::g(STN::MAIL_REGISTER_USER) === null)
+	throw new SoterException("No e-mail template exists. No message sent.");
+      if (!$this->sendRegistrationEmail($user))
+	throw new SoterException("There was a problem sending e-mails. Please notify the system administrator.");
+      Session::pa(new PA(sprintf("Resent registration email for user %s.", $user)));
     }
 
     // ------------------------------------------------------------
