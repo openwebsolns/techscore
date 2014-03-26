@@ -592,9 +592,10 @@ class DB extends DBM {
    * @throws InvalidArgumentException if provided role is invalid
    */
   public static function searchAccounts($qry, $role = null, $status = null) {
+    $fields = array('first_name', 'last_name', 'id', 'concat(first_name, " ", last_name)');
     require_once('regatta/Account.php');
     if ($role === null && $status === null)
-      return self::search(DB::$ACCOUNT, $qry);
+      return self::search(DB::$ACCOUNT, $qry, $fields);
 
     $cond = new DBBool(array());
     if ($role !== null) {
@@ -610,7 +611,7 @@ class DB extends DBM {
       $cond->add(new DBCond('status', $status));
     }
 
-    $q = self::prepSearch(DB::$ACCOUNT, $qry);
+    $q = self::prepSearch(DB::$ACCOUNT, $qry, $fields);
     $q->where($cond);
     $r = self::query($q);
     return new DBDelegate($r, new DBObject_Delegate(get_class(DB::$ACCOUNT)));
