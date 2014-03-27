@@ -371,7 +371,7 @@ abstract class AbstractPane {
    * @return XInput one of XRaceInput or XCombinedRaceInput
    */
   protected function newRaceInput($name, Race $value = null, Array $attrs = array()) {
-    if ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) {
+    if ($this->REGATTA->scoring == Regatta::SCORING_STANDARD && count($this->REGATTA->getDivisions()) > 1) {
       return new XRaceInput($name, (string)$value, $attrs);
     }
     return new XCombinedRaceInput($name, (string)$value, count($this->REGATTA->getRaces(Division::A())), $attrs);
