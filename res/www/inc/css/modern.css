@@ -145,11 +145,11 @@ address {
 }
 
 select, .csel-container, .multiple-select {
-    padding:0.15em;
     border: 1px outset #aaa;
     border-radius: 2px;
     color: #111111;
-    padding: 0.5em;
+    padding: 0.25em 0.5em;
+    font-size: 1em;
 
     background: rgb(242,242,242);
     background: -moz-linear-gradient(top, rgba(252,252,252,1) 0%, rgba(242,242,242,1) 100%);
@@ -163,6 +163,7 @@ select, .csel-container, .multiple-select {
 
 .form_entry select, .form_entry .csel-container {
     min-width:15em;
+    font-size: 1em;
 }
 
 .form_entry .csel-container {
@@ -170,14 +171,14 @@ select, .csel-container, .multiple-select {
 }
 
 #bodydiv input[type="text"], #bodydiv input[type="search"], input[type="email"], input[type="date"], input[type="time"], #bodydiv input[type="url"], #bodydiv input[type="password"], #bodydiv input[type="number"], #bodydiv input[type="time"], #bodydiv select:focus, #bodydiv textarea, .msel-wrapper select {
-    padding:0.15em;
     border: 1px inset #aaa;
     border-radius: 2px;
     color: #111111;
-    padding: 0.5em;
+    padding: 0.25em 0.5em;
     box-shadow: 0 2px 5px #DDDDDD inset;
     outline: 0;
     -moz-outline: 0;
+    font-size: 1em;
 
     background: white;
 }
@@ -1322,12 +1323,21 @@ h4 a:hover {
 .msel-wrapper {
     border: 1px solid #aaa;
     border-radius: 0.5ex 0.5ex 0.5ex 0.5ex;
-    padding: 1ex;
     background: #eee;
+    padding: 0.25em 0.5em;
+    font-size: 1em;
 }
 
 .msel-search {
-    width: 98%;
+    width: 100%;
+    font-size: 1em;
+    border: 1px inset #aaa;
+    border-radius: 2px;
+    padding: 0.25em 0.5em;
+    box-shadow: 0 2px 5px #DDDDDD inset;
+    color: #111111;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
 }
 
 .msel-button-promote, .msel-button-demote {
@@ -1350,6 +1360,10 @@ h4 a:hover {
     background:#f3f3bb;
 }
 
+.msel-button-wrapper {
+    text-align: center;
+}
+
 .msel-button-promote:hover, .msel-button-demote:hover {
     opacity: 1;
     box-shadow: 0 0 2px 2px #aaa;
@@ -1364,6 +1378,7 @@ h4 a:hover {
     width: 100%;
     vertical-align: middle;
     padding: 0.35em;
+    font-size: 1em;
 }
 
 .csel-filter.invalid {
