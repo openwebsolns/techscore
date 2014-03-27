@@ -220,7 +220,7 @@ class AccountsPane extends AbstractAdminUserPane {
                          new XSpan("Status:", array('class'=>'span_h')),
                          XSelect::fromArray('status', $stat_opts, $stat_chosen),
                          " ",
-                         new XSubmitInput('go', "Apply"))));
+                         new XSubmitInput('go', "Apply", array('class'=>'inline')))));
 
     $p->add($ldiv = $whiz->getPages('r', $_GET));
 
