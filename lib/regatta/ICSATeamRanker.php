@@ -248,14 +248,8 @@ class ICSATeamRanker extends ICSARanker {
       $lockedIndex++;
     }
     while ($openIndex < count($newGroups)) {
-      if ($prevRank === null || $prevRank->getRecord() != $newGroups[$openIndex][0]->getRecord()) {
-        foreach ($newGroups[$openIndex] as $rank)
-          $rank->rank = $min_rank + count($records);
-      }
-      else {
-        foreach ($newGroups[$openIndex] as $rank)
-          $rank->rank = $prevRank->rank;
-      }
+      foreach ($newGroups[$openIndex] as $rank)
+	$rank->rank = $min_rank + count($records);
       foreach ($newGroups[$openIndex] as $rank)
         $records[] = $rank;
       $prevRank = $rank;
