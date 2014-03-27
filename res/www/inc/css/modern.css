@@ -183,6 +183,10 @@ select, .csel-container, .multiple-select {
     background: white;
 }
 
+#bodydiv input[disabled] {
+    background: #ddd;
+}
+
 .form_entry input {
     min-width: 15em;
 }
