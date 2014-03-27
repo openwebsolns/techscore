@@ -83,8 +83,7 @@ class SummaryPane extends AbstractPane {
     $form->add(new XP(array(), new XTextArea('summary', $summ, array('rows'=>30, 'id'=>'summary-textarea'))));
 
     if ($can_mail && ($summ === null || $summ->mail_sent === null)) {
-      $form->add($fi = new FItem("Send e-mail:", new XCheckboxInput('email', 1, array('id'=>'chk-mail'))));
-      $fi->add(new XLabel('chk-mail', "Click to send e-mail to appropriate mailing lists with regatta details."));
+      $form->add(new FItem("Send e-mail:", new FCheckbox('email', 1, "Click to send e-mail to appropriate mailing lists with regatta details.")));
     }
     $form->add(new XSubmitP('set_comment', 'Save summary'));
 

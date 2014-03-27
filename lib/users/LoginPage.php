@@ -49,8 +49,7 @@ class LoginPage extends AbstractUserPane {
     $form->add(new FReqItem("Email:", new XEmailInput('userid', "", array("maxlength"=>"40"))));
     $form->add($fi = new FReqItem("Password:", new XPasswordInput("pass", "", array("maxlength"=>"48"))));
     $fi->add(new XMessage(new XA('/password-recover', "Forgot your password?")));
-    $form->add($fi = new FItem("", new XCheckboxInput("remember", 1, array('id'=>'chk-remember'))));
-    $fi->add(new XLabel('chk-remember', "Keep me signed in"));
+    $form->add(new FItem("", new FCheckbox('remember', 1, "Keep me signed in")));
 
     $form->add(new XSubmitP("login", "Login"));
 

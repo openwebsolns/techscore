@@ -36,14 +36,13 @@ class TeamEnterPenaltyPane extends EnterPenaltyPane {
   protected function fillPenaltyScheme(XForm $form, $type) {
     $b = Penalty::getList();
     if (isset($b[$type])) {
-      $new_score = new FItem("New score:", $cb = new XCheckboxInput('average', 'yes', array('id'=>'def_box')));
-      $cb->set('onclick', 'document.getElementById("p_amount").disabled = this.checked;');
       $default = "+6";
       if ($type == Penalty::OCS)
         $default = "+10";
       elseif ($type == Penalty::DNS || $type == Penalty::DNF)
         $default = "6";
-      $new_score->add(new XLabel('def_box', sprintf("Use standard scoring (%s)", $default)));
+
+      $new_score = new FItem("New score:", new FCheckbox('average', 'yes', sprintf("Use standard scoring (%s)", $default), false, array('onclick' => 'document.getElementById("p_amount").disabled = this.checked;', 'id'=>'def_box')));
       $form->add($new_score);
 
       $new_score = new FItem("OR set amount:", new XNumberInput('p_amount', "", 1, null, 1, array('size'=>2, 'id'=>'p_amount')));

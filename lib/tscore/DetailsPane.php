@@ -70,11 +70,8 @@ class DetailsPane extends AbstractPane {
 
     // Private
     if (!$this->participant_mode) {
-      $reg_form->add($fi = new FItem("Private:",
-                                     $chk = new XCheckboxInput('private', 1, array('id'=>'chk-priv'))));
-      $fi->add(new XLabel('chk-priv', "Private regattas are not published and are temporary."));
-      if ($this->REGATTA->private)
-        $chk->set('checked', 'checked');
+      $reg_form->add(new FItem("Private:",
+			       new FCheckbox('private', 1, "Private regattas are not published and are temporary.", $this->REGATTA->private)));
     }
 
     // Date

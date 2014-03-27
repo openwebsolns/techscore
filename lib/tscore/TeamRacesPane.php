@@ -165,8 +165,7 @@ class TeamRacesPane extends AbstractRoundPane {
         $p->add($form = $this->createForm());
         $form->add(new FReqItem("Round name:", new XTextInput('title', $ROUND->title)));
         $form->add(new FReqItem("Template round:", XSelect::fromDBM('template', $rounds, Session::g('round_template'))));
-        $form->add($fi = new FItem("Swap teams:", new XCheckboxInput('swap', 1, array('id'=>'chk-swap'))));
-        $fi->add(new XLabel('chk-swap', "Reverse the teams in each race."));
+        $form->add(new FItem("Swap teams:", new FCheckbox('swap', 1, "Reverse the teams in each race.")));
         $form->add($p = new XSubmitP('create-settings', "Next →"));
       }
 
