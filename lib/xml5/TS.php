@@ -278,4 +278,28 @@ class XCombinedRaceInput extends XNumberInput {
     $this->set('class', 'race-input');
   }
 }
+
+/**
+ * Combination of checkbox input and sibling label, inside a span
+ *
+ * @author Dayan Paez
+ * @version 2014-03-27
+ */
+class FCheckbox extends XSpan {
+  private static $counter = 0;
+
+  public function __construct($name, $value, $label, $checked = false, Array $attrs = array()) {
+    parent::__construct($chk = new XCheckboxInput($name, $value, $attrs));
+    if (!isset($attrs['id'])) {
+      $id = 'chk-' . self::$counter++;
+      $chk->set('id', $id);
+    }
+    else {
+      $id = $attrs['id'];
+    }
+    $this->add(new XLabel($id, $label));
+    if ($checked)
+      $chk->set('checked', 'checked');
+  }
+}
 ?>
