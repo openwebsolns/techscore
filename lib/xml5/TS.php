@@ -306,7 +306,7 @@ class FCheckbox extends XSpan {
   }
 
   public function set($name, $value) {
-    if ($name == 'required')
+    if (in_array($name, array('required', 'disabled', 'readonly')))
       $this->box->set($name, $value);
     else
       parent::set($name, $value);
