@@ -328,19 +328,10 @@ class CompareHeadToHead extends AbstractUserPane {
     if (!isset($sailors) || count($sailors) > 1) {
       $form->add($p = new XPort("3. Submit"));
       $mes = "By default, the report includes every regatta in which each sailor participated. Check the box below to limit the list to the regattas in which all sailors participated.";
-      $p->add($fi = new FItem("Limit regattas:", $chk = new XCheckboxInput('head-to-head', 1, array('id' => 'f-req'))));
-      $fi->add(new XLabel('f-req', "Only include records in which all sailors participated head-to-head."));
-      $fi->add(new XNote($mes));
-      if (!$fullreq)
-        $chk->set('checked', 'checked');
+      $p->add(new FItem("Limit regattas:", new FCheckbox('head-to-head', 1, "Only include records in which all sailors participated head-to-head.", !$fullreq), $mes));
 
       $mes = "Head to head compares sailors that race against each other, that is: in the same division in the same regatta. To compare the sailors' records within the regatta regardless of division, check the box. Note that this choice is only applicable if using full-records.";
-
-      $p->add($fi = new FItem("Group divisions:", $chk = new XCheckboxInput('grouped', 1, array('id' => 'f-grp'))));
-      $fi->add(new XLabel('f-grp', "Group separate divisions in the same regatta in one row, instead of separately."));
-      $fi->add(new XNote($mes));
-      if ($grouped)
-        $chk->set('checked', 'checked');
+      $p->add($fi = new FItem("Group divisions:", new FCheckbox('grouped', 1, "Group separate divisions in the same regatta in one row, instead of separately.", $grouped), $mes));
 
       $mes = "You may limit inclusion in the report to a specific boat role (skipper or crew). The default, \"Both roles\" will include the sailor's role next to their score.";
       $p->add(new FItem("Sailing as:", XSelect::fromArray('boat_role',

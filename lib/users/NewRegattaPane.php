@@ -54,12 +54,7 @@ class NewRegattaPane extends AbstractUserPane {
     }
 
     $f->add(new FReqItem("Name:", new XTextInput('name', $r['name'], array('maxlength'=>35))));
-
-    $f->add($fi = new FItem("Private:", $chk = new XCheckboxInput('private', 1, array('id'=>'chk-priv'))));
-    if ($r['private'] !== null)
-      $chk->set('checked', 'checked');
-
-    $fi->add(new XLabel('chk-priv', "Private regattas are not published and are temporary."));
+    $f->add(new FItem("Private:", new FCheckbox('private', 1, "Private regattas are not published and are temporary.", $r['private'] !== null)));
     $f->add(new FReqItem("Start date:", new XDateInput('start_date', new DateTime($r['start_date']))));
     $f->add(new FReqItem("On the water:", new XTimeInput('start_time', new DateTime($r['start_time']))));
     $f->add(new FReqItem("Duration (days):", new XNumberInput('duration', $r['duration'], 1, 99, 1)));

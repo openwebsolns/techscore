@@ -43,13 +43,10 @@ class AccountsPane extends AbstractAdminUserPane {
     $f->add(new FReqItem("Email:", new XA('mailto:'.$user->id, $user->id)));
     $f->add(new FReqItem("Role: ", XSelect::fromArray('role', Account::getRoles(), $user->role)));
 
-    $f->add($fi = new FItem("Admin:", $chk = new XCheckboxInput('admin', 1, array('id'=>'chk-admin'))));
-    $fi->add(new XLabel('chk-admin', "Does this account have admin privileges?"));
-    if ($user->isAdmin())
-      $chk->set('checked', 'checked');
+    $f->add(new FItem("Admin:", $chk = new FCheckbox('admin', 1, "Does this account have admin privileges?", $user->isAdmin())));
     if ($user == $this->USER) {
       $chk->set('disabled', 'disabled');
-      $chk->set('title', "You may not remove permissions for yourself.");
+      $chk->set('title', "You may not remove permissions from yourself.");
     }
     elseif ($user->isSuper()) {
       $chk->set('disabled', 'disabled');

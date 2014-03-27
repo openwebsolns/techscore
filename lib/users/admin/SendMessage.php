@@ -200,8 +200,7 @@ class SendMessage extends AbstractAdminUserPane {
                          "Fewer than 100 characters"));
 
     $f->add(new FReqItem("Message body:", new XTextArea('content', $out->content, array('rows'=>16, 'cols'=>75))));
-    $f->add($fi = new FItem("Copy me:", new XCheckboxInput('copy-me', 1, array('id'=>'copy-me'))));
-    $fi->add(new XLabel('copy-me', "Send me a copy of message, whether or not I would otherwise receive one."));
+    $f->add(new FItem("Copy me:", new FCheckbox('copy-me', 1, "Send me a copy of message, whether or not I would otherwise receive one.")));
     $f->add($para = new XP(array('class'=>'p-submit'), array(new XHiddenInput('axis', $out->recipients))));
     if ($out->arguments !== null) {
       foreach ($out->arguments as $item)

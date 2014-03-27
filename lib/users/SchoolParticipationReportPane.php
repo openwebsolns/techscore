@@ -174,10 +174,8 @@ class SchoolParticipationReportPane extends AbstractUserPane {
     $form->add(new FReqItem("Seasons:", $this->seasonList('sea-', $seasons)));
 
     $form->add(new FReqItem(sprintf("%ss:", DB::g(STN::CONFERENCE_TITLE)), $this->conferenceList('conf-', $confs)));
-    $form->add($fi = new FItem(sprintf("Limit to %ss:", DB::g(STN::CONFERENCE_TITLE)), $chk = new XCheckboxInput('within-confs', 1, array('id'=>'chk-limit'))));
-    $fi->add(new XLabel('chk-limit', sprintf("Only include regattas hosted by the %ss chosen above.", DB::g(STN::CONFERENCE_TITLE))));
-    if ($limit > 0)
-      $chk->set('checked', 'checked');
+    $form->add(new FItem(sprintf("Limit to %ss:", DB::g(STN::CONFERENCE_TITLE)),
+			 new FCheckbox('within-confs', 1, sprintf("Only include regattas hosted by the %ss chosen above.", DB::g(STN::CONFERENCE_TITLE)), $limit > 0)));
 
     $form->add(new FReqItem("Regatta type:", $this->regattaTypeList('types-', $types)));
 

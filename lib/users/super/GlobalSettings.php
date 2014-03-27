@@ -47,22 +47,12 @@ class GlobalSettings extends AbstractSuperUserPane {
                    Regatta::SCORING_COMBINED => "Combined fleet scoring",
                    Regatta::SCORING_TEAM => "Team racing") as $setting => $desc) {
       $id = 'chk-' . $setting;
-      $f->add($fi = new FItem("", $chk = new XCheckboxInput($n, $setting, array('id'=>$id))));
-      $fi->add(new XLabel($id, sprintf("Allow %s", $desc)));
-      if (isset($lst[$setting]))
-        $chk->set('checked', 'checked');
+      $f->add(new FItem("", new FCheckbox($n, $setting, sprintf("Allow %s", $desc), isset($lst[$setting]))));
     }
 
-    $f->add($fi = new FItem("Allow cross RP?", $chk = new XCheckboxInput(STN::ALLOW_CROSS_RP, 1, array('id'=>'chk-' . STN::ALLOW_CROSS_RP))));
-    $fi->add(new XLabel('chk-' . STN::ALLOW_CROSS_RP, "RP entries may contain teams from other schools in the system."));
-    if (DB::g(STN::ALLOW_CROSS_RP) !== null)
-      $chk->set('checked', 'checked');
+    $f->add(new FItem("Allow cross RP?", new FCheckbox(STN::ALLOW_CROSS_RP, 1, "RP entries may contain teams from other schools in the system.", DB::g(STN::ALLOW_CROSS_RP) !== null)));
 
-    $f->add($fi = new FItem("Allow Host Venue?", $chk = new XCheckboxInput(STN::ALLOW_HOST_VENUE, 1, array('id'=>'chk-' . STN::ALLOW_HOST_VENUE))));
-    $fi->add(new XLabel('chk-' . STN::ALLOW_HOST_VENUE, "Allow scorers to manually specify the regatta host."));
-    if (DB::g(STN::ALLOW_HOST_VENUE) !== null)
-      $chk->set('checked', 'checked');
-    
+    $f->add(new FItem("Allow Host Venue?", new FCheckbox(STN::ALLOW_HOST_VENUE, 1, "Allow scorers to manually specify the regatta host.", DB::g(STN::ALLOW_HOST_VENUE) !== null)));    
 
     $f->add(new FItem("PDF Socket:", new XTextInput(STN::PDFLATEX_SOCKET, DB::g(STN::PDFLATEX_SOCKET)), "Full path, or leave blank to use \"exec\" function."));
     $f->add(new FItem("Notice board limit:", new XNumberInput(STN::NOTICE_BOARD_SIZE, DB::g(STN::NOTICE_BOARD_SIZE), 1), "Size in bytes for each item."));

@@ -24,13 +24,10 @@ class MailingListManagement extends AbstractAdminUserPane {
     $this->PAGE->addContent($p = new XPort("Enable summary emails"));
     $p->add($f = $this->createForm());
     $f->add(new XP(array(), "To allow scorers to send e-mail with the daily summaries, check the box below."));
-    $f->add($fi = new FItem("Allow mail:", $chk = new XCheckboxInput(STN::SEND_MAIL, 1, array('id'=>'chk-mail'))));
-    $fi->add(new XLabel('chk-mail', "Check to allow scorers to send mail with daily summaries."));
+    $f->add(new FItem("Allow mail:", new FCheckbox(STN::SEND_MAIL, 1, "Check to allow scorers to send mail with daily summaries.", (string)DB::g(STN::SEND_MAIL) == 1)));
     $f->add(new XSubmitP('set-mail', "Save changes"));
 
-    if ((string)DB::g(STN::SEND_MAIL) == 1)
-      $chk->set('checked', 'checked');
-    else
+    if (!(string)DB::g(STN::SEND_MAIL) == 1)
       return;
     
     $this->PAGE->addContent($p = new XPort("Mailing lists by regatta types"));

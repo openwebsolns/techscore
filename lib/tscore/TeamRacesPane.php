@@ -391,10 +391,8 @@ window.addEventListener("load", function(e) {
         }
         else {
           $round = $rounds[0];
-          $id = 'round-' . $round->id;
-          $form->add($fi = new FItem($round . ":", new XCheckboxInput('copy_round[]', $round->id, array('id'=>$id))));
-          $fi->add(new XLabel($id, "Copy scores from this round."));
-          $fi->add(new XHiddenInput('copy_order[]', 1));
+          $form->add(new FItem($round . ":", new FCheckbox('copy_round[]', $round->id, "Copy scores from this round.")));
+          $form->add(new XHiddenInput('copy_order[]', 1));
         }
       }
       $form->add(new XSubmitP('create-finishes', "Next →"));
