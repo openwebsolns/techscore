@@ -154,6 +154,7 @@ class FReqItem extends FItem {
     $this->set('class', 'form_entry required');
     if ($form_input instanceof XInput
         || $form_input instanceof XTextArea
+	|| $form_input instanceof FCheckbox
         || $form_input instanceof XSelect) {
       $form_input->set('required', 'required');
     }
@@ -288,18 +289,27 @@ class XCombinedRaceInput extends XNumberInput {
 class FCheckbox extends XSpan {
   private static $counter = 0;
 
+  private $box = null;
+
   public function __construct($name, $value, $label, $checked = false, Array $attrs = array()) {
-    parent::__construct($chk = new XCheckboxInput($name, $value, $attrs));
+    parent::__construct($this->box = new XCheckboxInput($name, $value, $attrs));
     if (!isset($attrs['id'])) {
       $id = 'chk-' . self::$counter++;
-      $chk->set('id', $id);
+      $this->box->set('id', $id);
     }
     else {
       $id = $attrs['id'];
     }
     $this->add(new XLabel($id, $label));
     if ($checked)
-      $chk->set('checked', 'checked');
+      $this->box->set('checked', 'checked');
+  }
+
+  public function set($name, $value) {
+    if ($name == 'required')
+      $this->box->set($name, $value);
+    else
+      parent::set($name, $value);
   }
 }
 ?>
