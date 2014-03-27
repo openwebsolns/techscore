@@ -1246,7 +1246,7 @@ h4 a:hover {
 .multiple-select {
     display: inline-block;
     vertical-align: top;
-    width: auto;
+    width: 10em;
     min-width: 4em;
     max-height: 15em;
     overflow: auto;
@@ -1273,7 +1273,7 @@ h4 a:hover {
     padding: 0;
 }
 .multiple-select label:hover {
-    background: #3465a4;
+    background: #888;
     color: white;
 }
 .multiple-select label:active {

@@ -315,39 +315,40 @@ class CompareHeadToHead extends AbstractUserPane {
     }
 
     // Season selection
+    require_once('xml5/XMultipleSelect.php');
     $form->add($p = new XPort("2. Seasons to compare"));
     $p->add(new XP(array(), "Choose at least one season to compare from the list below, then choose the sailors in the next panel."));
-    $p->add($ul = new XUl(array('style'=>'list-style-type:none')));
+    $p->add(new FReqItem("Seasons:", $ul = new XMultipleSelect('seasons[]')));
 
     foreach ($all_seasons as $season) {
-      $ul->add(new XLi(array($chk = new XCheckboxInput('seasons[]', $season, array('id' => $season)),
-                             new XLabel($season, $season->fullString()))));;
-      if (in_array((string)$season, $seasons))
-        $chk->set('checked', 'checked');
+      $ul->addOption($season, $season->fullString(), in_array((string)$season, $seasons));
     }
 
     // Other options, and submit
     if (!isset($sailors) || count($sailors) > 1) {
       $form->add($p = new XPort("3. Submit"));
-      $p->add(new XP(array(), "By default, the report includes every regatta each sailor participated. Check the box below to limit the list to the regattas in which all sailors participated."));
-      $p->add(new FItem($chk = new XCheckboxInput('head-to-head', 1, array('id' => 'f-req')),
-                        new XLabel('f-req', "Only include records in which all sailors participated head-to-head.")));
+      $mes = "By default, the report includes every regatta in which each sailor participated. Check the box below to limit the list to the regattas in which all sailors participated.";
+      $p->add($fi = new FItem("Limit regattas:", $chk = new XCheckboxInput('head-to-head', 1, array('id' => 'f-req'))));
+      $fi->add(new XLabel('f-req', "Only include records in which all sailors participated head-to-head."));
+      $fi->add(new XNote($mes));
       if (!$fullreq)
         $chk->set('checked', 'checked');
 
-      $p->add(new XP(array(), "Head to head compares sailors that race against each other, that is: in the same division in the same regatta. To compare the sailors' records within the regatta regardless of division, check the box below. Note that this choice is only applicable if using full-records."));
+      $mes = "Head to head compares sailors that race against each other, that is: in the same division in the same regatta. To compare the sailors' records within the regatta regardless of division, check the box. Note that this choice is only applicable if using full-records.";
 
-      $p->add(new FItem($chk = new XCheckboxInput('grouped', 1, array('id' => 'f-grp')),
-                        new XLabel('f-grp', "Group separate divisions in the same regatta in one row, instead of separately.")));
+      $p->add($fi = new FItem("Group divisions:", $chk = new XCheckboxInput('grouped', 1, array('id' => 'f-grp'))));
+      $fi->add(new XLabel('f-grp', "Group separate divisions in the same regatta in one row, instead of separately."));
+      $fi->add(new XNote($mes));
       if ($grouped)
         $chk->set('checked', 'checked');
 
-      $p->add(new XP(array(), "You may limit inclusion in the report to a specific boat role (skipper or crew). The default, \"Both roles\" will include the sailor's role next to their score."));
+      $mes = "You may limit inclusion in the report to a specific boat role (skipper or crew). The default, \"Both roles\" will include the sailor's role next to their score.";
       $p->add(new FItem("Sailing as:", XSelect::fromArray('boat_role',
                                                           array("" => "Both roles",
                                                                 RP::SKIPPER => "Skipper only",
                                                                 RP::CREW => "Crew only"),
-                                                          $role)));
+                                                          $role),
+			$mes));
     }
 
     $form->add(new XSubmitP('set-sailors', "Fetch records"));
