@@ -197,7 +197,7 @@ class TeamRotationDialog extends AbstractDialog {
                       array(new XTHead(array(),
                                        array(new XTR(array(),
                                                      array(new XTH(array(), "#"),
-                                                           new XTH(array(), "Boat"),
+                                                           // new XTH(array(), "Boat"),
                                                            new XTH(array('colspan'=>2), "Team 1"),
                                                            new XTH(array('colspan'=>count($divisions)), "Sails"),
                                                            new XTH(array(), ""),
@@ -281,7 +281,7 @@ class TeamRotationDialog extends AbstractDialog {
       }
 
       $body->add($row = new XTR($rowattrs, array(new XTD(array(), $race->number),
-                                                 new XTD(array('class'=>'boat'), $race->boat),
+                                                 // new XTD(array('class'=>'boat'), $race->boat),
                                                  new XTD(array('class'=>'team1'), $burg1),
                                                  new XTD(array('class'=>'team1'), $team1))));
       // first team
