@@ -148,7 +148,7 @@ select, .csel-container, .multiple-select {
     border: 1px outset #aaa;
     border-radius: 2px;
     color: #111111;
-    padding: 0.25em 0.5em;
+    padding: 0.5em;
     font-size: 1em;
 
     background: rgb(242,242,242);
@@ -174,7 +174,7 @@ select, .csel-container, .multiple-select {
     border: 1px inset #aaa;
     border-radius: 2px;
     color: #111111;
-    padding: 0.25em 0.5em;
+    padding: 0.5em;
     box-shadow: 0 2px 5px #DDDDDD inset;
     outline: 0;
     -moz-outline: 0;
@@ -462,6 +462,7 @@ div.form_entry * {vertical-align:top;}
     color:#5b6065;
     vertical-align:top;
     font-weight:bold;
+    padding-top: 0.25em;
 }
 .required .form_h:before {
     content: "*";
