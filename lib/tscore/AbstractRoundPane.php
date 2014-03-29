@@ -235,16 +235,7 @@ abstract class AbstractRoundPane extends AbstractPane {
 
             $tab->add(new XTR(array(),
                               array(new XTD(array(), new XSailInput('sails[]', $sail, false, array('tabindex'=>($sailIndex + 1)))),
-                                    new XTD(array('title'=>"Optional"), $sel = new XSelect('colors[]')))));
-            $sel->set('class', 'color-chooser');
-            $sel->set('tabindex', ($sailIndex + 1 + $flight));
-            $sel->add(new XOption("", array(), "[None]"));
-            foreach ($COLORS as $code => $title) {
-              $attrs = array('style'=>sprintf('background:%1$s;color:%1$s;', $code));
-              $sel->add($opt = new XOption($code, $attrs, $title));
-              if ($code == $color)
-                $opt->set('selected', 'selected');
-            }
+                                    new XTD(array('title'=>"Optional"), new XSailColorInput('colors[]', $color, array('tabindex' => ($sailIndex + 1 + $flight)))))));
 
             $sailIndex++;
           }

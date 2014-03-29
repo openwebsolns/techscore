@@ -285,6 +285,42 @@ class XSailInput extends XTextInput {
 }
 
 /**
+ * Input field to choose sail colors
+ *
+ */
+class XSailColorInput extends XSelect {
+
+  public static $COLORS = array(
+    "#eee" => "White",
+    "#ccc" => "Light Grey",
+    "#666" => "Grey",
+    "#000" => "Black",
+    "#884B2A" => "Brown",
+    "#f80" => "Orange",
+    "#f00" => "Red",
+    "#fcc" => "Pink",
+    "#add8e6" => "Light Blue",
+    "#00f" => "Blue",
+    "#808" => "Purple",
+    "#0f0" => "Lime Green",
+    "#080" => "Green",
+    "#ff0" => "Yellow"
+  );
+
+  public function __construct($name, $chosen = null, Array $attrs = array()) {
+    parent::__construct($name, $attrs);
+    $this->set('class', 'color-chooser');
+    $this->add(new XOption("", array(), "[None]"));
+    foreach (self::$COLORS as $code => $title) {
+      $attrs = array('style'=>sprintf('background:%1$s;color:%1$s;', $code));
+      $this->add($opt = new XOption($code, $attrs, $title));
+      if ($code == $chosen)
+        $opt->set('selected', 'selected');
+    }
+  }
+}
+
+/**
  * Input field appropriate for races from combined/team racing
  *
  * @author Dayan Paez
