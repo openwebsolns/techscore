@@ -195,7 +195,7 @@ select, .csel-container, .multiple-select {
     min-width: 0;
 }
 
-.form_entry input.race_text, .form_entry input.small, .form_entry select.small {
+.form_entry input.race_text, .form_entry input.small, .form_entry select.small, .form_entry .sail-input {
     min-width:3em;
     width: auto;
 }

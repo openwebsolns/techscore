@@ -268,6 +268,23 @@ class XRaceInput extends XTextInput {
 }
 
 /**
+ * Input field appropriate for sail values
+ *
+ * @author Dayan Paez
+ * @version 2014-03-29
+ */
+class XSailInput extends XTextInput {
+  public function __construct($name, $value, $required = true, Array $attrs = array()) {
+    parent::__construct($name, $value, $attrs);
+    if ($required !== false)
+      $this->set('required', 'required');
+    $this->set('class', 'sail-input');
+    $this->set('size', 4);
+    $this->set('maxlength', 15);
+  }
+}
+
+/**
  * Input field appropriate for races from combined/team racing
  *
  * @author Dayan Paez

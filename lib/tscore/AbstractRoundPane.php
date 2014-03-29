@@ -234,7 +234,7 @@ abstract class AbstractRoundPane extends AbstractPane {
             $color = $rotation->colorAt($sailIndex);
 
             $tab->add(new XTR(array(),
-                              array(new XTD(array(), new XTextInput('sails[]', $sail, array('size'=>5, 'tabindex'=>($sailIndex + 1), 'maxlength'=>15))),
+                              array(new XTD(array(), new XSailInput('sails[]', $sail, false, array('tabindex'=>($sailIndex + 1)))),
                                     new XTD(array('title'=>"Optional"), $sel = new XSelect('colors[]')))));
             $sel->set('class', 'color-chooser');
             $sel->set('tabindex', ($sailIndex + 1 + $flight));
@@ -280,7 +280,7 @@ abstract class AbstractRoundPane extends AbstractPane {
 
           
           $bod->add(new XTR(array(),
-                            array(new XTD(array(), new XTextInput('sails[]', $sail, array('size'=>5, 'tabindex'=>($i + 1), 'maxlength'=>15))),
+                            array(new XTD(array(), new XSailInput('sails[]', $sail, false, array('tabindex'=>($i + 1)))),
                                   new XTD(array('title'=>"Optional"), $sel = new XSelect('colors[]', array('class'=>'color-chooser', 'tabindex'=>($i + 1 + $rotation->count())))))));
 
           $sel->add(new XOption("", array(), "[None]"));
