@@ -48,6 +48,7 @@ class SailsPane extends AbstractPane {
       $message = sprintf("2. %s for all divisions", $chosen_rot_desc[0]);
     $this->PAGE->addContent($p = new XPort($message));
     $p->add($form = $this->createForm());
+    $form->set('id', 'rotation-form');
     $form->add(new XHiddenInput("rottype", $chosen_rot));
 
     $teams = $this->REGATTA->getTeams();
@@ -70,6 +71,7 @@ class SailsPane extends AbstractPane {
     // ------------------------------------------------------------
     // Else
     // ------------------------------------------------------------
+    $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/rot.js')));
     // Set size
     if ($chosen_rot != "NOR")
       $form->add($fitem = new FReqItem("Races in set:", $f_text = new XNumberInput('repeat', 2, 1, null, null, array('size'=>2))));
@@ -80,7 +82,7 @@ class SailsPane extends AbstractPane {
       $bye_team = new ByeTeam();
       $form->add(new XP(array(), "Swap divisions require an even number of total teams at the time of creation. If you choose swap division, TechScore will add a \"BYE Team\" as needed to make the total number of teams even. This will produce an unused boat in every race."));
     }
-    $form->add(new FReqItem("Enter sail numbers in first race:", $tab = new XTable(array('class'=>'narrow'))));
+    $form->add(new FReqItem("Enter sails in first race:", $tab = new XTable(array('class'=>'narrow', 'id'=>'sails-table'))));
 
     $i = 1;
     if (count($divisions) == 1) {
@@ -235,6 +237,7 @@ class SailsPane extends AbstractPane {
                                                      implode(", ", $chosen_div))));
       $p->addHelp('/node17.html#sec:rotations');
       $p->add($form = $this->createForm());
+      $form->set('id', 'rotation-form');
 
       $form->add(new XHiddenInput("rottype", $chosen_rot));
       // Divisions
@@ -292,13 +295,14 @@ class SailsPane extends AbstractPane {
                                 new XSubmitInput("offsetrot", "Offset"))));
       }
       else {
+        $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/rot.js')));
         if ($chosen_rot != "NOR") {
           $form->add(new FReqItem("Races in set:",
                                $f_text = new XNumberInput('repeat', $repeats, 1, null, 1, array('size'=>'2'))));
         }
         $divs = array_values($chosen_div);
-        $form->add(new FReqItem("Enter sail numbers in first race of div. " . $divs[0],
-                             $tab = new XQuickTable(array('class'=>'narrow'))));
+        $form->add(new FReqItem("Enter sails in first race:",
+                                $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'sails-table'))));
 
         // require a BYE team if the total number of teams
         // (divisions * number of teams) is not even
@@ -306,7 +310,7 @@ class SailsPane extends AbstractPane {
           $p_teams[] = new ByeTeam();
         $i = 1;
         foreach ($p_teams as $team) {
-          $tab->addRow(array($team, new XSailInput($team->id, $i++)));
+          $tab->addRow(array($team, new XSailInput($team->id, $i++), new XSailColorInput('color-' . $team->id)));
         }
 
         // order
