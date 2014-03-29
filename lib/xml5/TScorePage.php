@@ -145,7 +145,6 @@ class TScorePage extends XPage {
       $css->set('id', 'main-style');
     }
     $this->head->add(new LinkCSS('/inc/css/print.css','print'));
-    $this->head->add(new LinkCSS('/inc/css/cal.css'));
 
     // Javascript
     // Session JS: only if applicable
