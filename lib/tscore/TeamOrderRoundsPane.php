@@ -139,6 +139,7 @@ class TeamOrderRoundsPane extends AbstractRoundPane {
       $other_divisions = $this->REGATTA->getDivisions();
       array_shift($other_divisions);
 
+      $races_changed = array();
       $next_number = null;
       foreach ($rounds as $round) {
         foreach ($this->REGATTA->getRacesInRound($round, Division::A()) as $race) {
@@ -150,14 +151,17 @@ class TeamOrderRoundsPane extends AbstractRoundPane {
             foreach ($other_divisions as $division) {
               $r = $this->REGATTA->getRace($division, $race->number);
               $r->number = $next_number;
-              DB::set($r);
+              $races_changed[] = $r;
             }
             $race->number = $next_number;
-            DB::set($race);
+            $races_changed[] = $race;
           }
           $next_number++;
         }
       }
+
+      foreach ($races_changed as $r)
+        DB::set($r);
       Session::pa(new PA("Unlinked rounds and re-numbered races."));
     }
 
