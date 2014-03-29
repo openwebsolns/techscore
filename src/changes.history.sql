@@ -725,3 +725,6 @@ alter table pub_update_school change column activity activity enum('burgee', 'se
 
 -- add 'host_venue' as optional field in regatta
 alter table regatta add column host_venue varchar(255) default null after participant;
+
+-- longer sail numbers
+alter table rotation change column sail sail varchar(15) not null;
