@@ -91,7 +91,7 @@ class SailsPane extends AbstractPane {
                           array(new XTH(array(), $team),
                                 new XTH(array(), new XTextInput($name, $i++,
                                                                 array("size"=>"2",
-                                                                      "maxlength"=>"8",
+                                                                      "maxlength"=>"15",
                                                                       "class"=>"small"))))));
       }
       if ($bye_team !== null)
@@ -99,7 +99,7 @@ class SailsPane extends AbstractPane {
                           array(new XTH(array(), $bye_team),
                                 new XTD(array(), new XTextInput($bye_team->id, $i++,
                                                                 array("size"=>"2",
-                                                                      "maxlength"=>"8",
+                                                                      "maxlength"=>"15",
                                                                       "class"=>"small"))))));
     }
     else {
@@ -114,7 +114,7 @@ class SailsPane extends AbstractPane {
         foreach ($divisions as $div) {
           $num = $i + $off * $num_teams;
           $name = sprintf("%s,%s", $div, $team->id);
-          $row->add(new XTD(array(), new XTextInput($name, $num, array('size'=>'2', 'class'=>'small', 'maxlength'=>'8'))));
+          $row->add(new XTD(array(), new XTextInput($name, $num, array('size'=>'2', 'class'=>'small', 'maxlength'=>'15'))));
           $off++;
         }
         $i++;
@@ -123,7 +123,7 @@ class SailsPane extends AbstractPane {
       if ($bye_team !== null) {
         $num = $i + ($off - 1) * $num_teams;
         $bod->add($row = new XTR(array(), array(new XTD(array(), $bye_team))));
-        $row->add(new XTD(array(), new XTextInput($bye_team->id, $num, array('size'=>'2', 'class'=>'small', 'maxlength'=>'8'))));
+        $row->add(new XTD(array(), new XTextInput($bye_team->id, $num, array('size'=>'2', 'class'=>'small', 'maxlength'=>'15'))));
         for ($i = 1; $i < count($divisions); $i++) {
           $row->add(new XTD());
         }
@@ -322,7 +322,7 @@ class SailsPane extends AbstractPane {
                              new XTextInput($team->id, $i++,
                                             array("size"=>"2",
                                                   "class"=>"small",
-                                                  "maxlength"=>"8"))));
+                                                  "maxlength"=>"15"))));
         }
 
         // order
