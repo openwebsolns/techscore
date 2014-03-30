@@ -321,7 +321,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
         DB::set($race);
 
       Session::pa(new PA(sprintf("Updated seeds for \"%s\".", $round)));
-      if ($round->rotation !== null) {
+      if ($round->hasRotation()) {
         $this->reassignRotation($round);
         Session::pa(new PA("Updated the rotation as well.", PA::I));
       }
@@ -440,7 +440,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
         DB::set($race, true);
 
       // Fix rotation, if any
-      if ($redo_rotation && $round->rotation !== null) {
+      if ($redo_rotation && $round->hasRotation()) {
         $this->reassignRotation($round);
         Session::pa(new PA("Round rotation has been updated.", PA::I));
       }

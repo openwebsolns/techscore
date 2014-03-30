@@ -1964,6 +1964,15 @@ class Round extends DBObject {
   // No indication as to natural ordering
   public function __toString() { return $this->title; }
 
+  /**
+   * Does this round have an associated rotation?
+   *
+   * @return boolean
+   */
+  public function hasRotation() {
+    return $this->rotation !== null;
+  }
+
   public static function compare(Round $r1, Round $r2) {
     return (int)$r1->relative_order - (int)$r2->relative_order;
   }

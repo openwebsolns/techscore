@@ -71,7 +71,7 @@ class TeamRacesPane extends AbstractRoundPane {
         $MAX_STEP = 2;
         if ($ROUND->race_order !== null) {
           $MAX_STEP = 3;
-          if ($ROUND->rotation !== null) {
+          if ($ROUND->hasRotation()) {
             $MAX_STEP = 4;
             if ($team_ids !== null) {
               $MAX_STEP = 5;
@@ -721,7 +721,7 @@ window.addEventListener("load", function(e) {
         throw new SoterException("Order error: number of teams unknown.");
       if ($ROUND->race_order === null)
         throw new SoterException("Order error: race order not known.");
-      if ($ROUND->rotation === null)
+      if (!$ROUND->hasRotation())
         throw new SoterException("Order error: no rotation found.");
 
       $masters = array();
@@ -813,7 +813,7 @@ window.addEventListener("load", function(e) {
       $racenum = $this->calculateNextRaceNumber($round);
 
       $sails = array();
-      if ($round->rotation !== null)
+      if ($round->hasRotation())
         $sails = $round->rotation->assignSails($round, $teams, $divisions, $round->rotation_frequency);
       $new_races = array();
       $new_sails = array();

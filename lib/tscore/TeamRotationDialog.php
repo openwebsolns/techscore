@@ -208,7 +208,7 @@ class TeamRotationDialog extends AbstractDialog {
     // Group teams and sails by round
     $teams = array($round->id => $this->getTeams($round));
     $sails = array($round->id => array());
-    if ($round->rotation !== null)
+    if ($round->hasRotation())
       $sails[$round->id] = $round->rotation->assignSails($round, $teams[$round->id], $divisions, $round->rotation_frequency);
 
     $race_index = array($round->id => 0);
@@ -217,7 +217,7 @@ class TeamRotationDialog extends AbstractDialog {
         if (!isset($teams[$r->id])) {
           $teams[$r->id] = $this->getTeams($r);
           $sails[$r->id] = array();
-          if ($r->rotation !== null)
+          if ($r->hasRotation())
             $sails[$r->id] = $r->rotation->assignSails($r, $teams[$r->id], $divisions, $r->rotation_frequency);
           $race_index[$r->id] = 0;
         }
