@@ -162,6 +162,7 @@ class TeamOrderRoundsPane extends AbstractRoundPane {
 
       foreach ($races_changed as $r)
         DB::set($r);
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA("Unlinked rounds and re-numbered races."));
     }
 
@@ -280,6 +281,7 @@ class TeamOrderRoundsPane extends AbstractRoundPane {
         DB::set($round);
       }
 
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA("Created round group."));
       if (count($others_changed) > 0)
         Session::pa(new PA(sprintf("Also re-numbered races for round(s) %s.", implode(", ", $others_changed)), PA::I));
