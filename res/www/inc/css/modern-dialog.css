@@ -377,7 +377,7 @@ p.warning {padding: 0.5em;}
     border-bottom: none;
 }
 
-td.tr-sail {
+td.tr-sail, td.sail {
     font-size: 80%;
     font-weight: bold;
     padding: 0 0.35em;
