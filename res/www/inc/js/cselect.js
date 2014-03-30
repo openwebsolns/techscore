@@ -16,7 +16,7 @@ function OWSComboboxSelect(elem) {
     // Replace the select element with the following structure:
     //
     //   DIV .csel-container         {inline-block}
-    //     DIV .csel-filter-wrapper  {table-row}
+    //     DIV .csel-filter-wrapper  {table}
     //       INPUT .csel-filter      {table-cell}
     //       BUTTON .csel-drop       {table-cell}
     //     UL .csel-options          {auto}
@@ -37,12 +37,16 @@ function OWSComboboxSelect(elem) {
     c.style.width = this.element.innerWidth + "px";
     c.style.position = "relative";
     this.element.parentNode.insertBefore(c, this.element);
-    this.element.style.display = "none";
+    this.element.style.visibility = "hidden";
+    this.element.style.zIndex = -1;
+    this.element.style.position = "absolute";
+    this.element.removeAttribute("size");
     c.appendChild(this.element);
 
     var b = document.createElement("div");
     b.setAttribute("class", "csel-filter-wrapper");
-    b.style.display = "table-row";
+    b.style.display = "table";
+    b.style.width = "100%";
     c.appendChild(b);
 
     this.search = document.createElement("input");
@@ -97,6 +101,7 @@ function OWSComboboxSelect(elem) {
     c.appendChild(this.options);
 
     var num = 0;
+    var sel = null;
     var addOption = function(opt, grp) {
         var t = document.createElement("li");
         t.setAttribute("class", "csel-option");
@@ -120,6 +125,7 @@ function OWSComboboxSelect(elem) {
 
         if (opt.defaultSelected) {
             myObj.search.value = opt.textContent;
+            sel = opt;
         }
 
         num++;
@@ -137,6 +143,17 @@ function OWSComboboxSelect(elem) {
             addOption(opt);
         }
     }
+
+    // Select first element if none selected
+    if (sel == null && num > 0) {
+        myObj.search.value = this.element.options[0].textContent;
+        this.element.selectedIndex = 0;
+    }
+
+    // Listen to changes
+    this.element.addEventListener('change', function(e) {
+	myObj.search.value = myObj.element.options.item(myObj.element.selectedIndex).textContent;
+    }, false);
 
     this.lastValidatedValue = this.search.value;
     this.clickedInEnvironment = false;

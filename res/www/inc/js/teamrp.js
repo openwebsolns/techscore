@@ -64,6 +64,7 @@ function initRP() {
                                 var opt = RPSAILORS[i].options.item(j);
                                 if (opt.childNodes.length > 0 && opt.childNodes[0].nodeValue == sailor) {
                                     RPSAILORS[i].selectedIndex = j;
+				    RPSAILORS[i].dispatchEvent(new Event('change'));
                                     break;
                                 }
                             }
@@ -141,10 +142,7 @@ function invalidateSubmitRP(expl) {
     RPEXPL.appendChild(document.createTextNode(expl));
 }
 
-var old = window.onload;
-window.onload = function(evt) {
-    if (old)
-        old(evt);
+window.addEventListener('load', function(evt) {
     if (initRP())
         checkRP();
-};
+}, false);
