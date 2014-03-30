@@ -204,7 +204,6 @@ class TeamRpEnterPane extends AbstractPane {
                       array(new XReset("reset", "Reset"),
                             new XSubmitInput("rpform", "Submit form",
                                              array("id"=>"rpsubmit")))));
-    $p->add(new XScript('text/javascript', null, "check()"));
   }
 
 
