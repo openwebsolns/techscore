@@ -267,5 +267,25 @@ class TSSoter extends Soter {
       return $default;
     }
   }
+  public function reqHexColor(Array $args, $key, $mes = "GSE") {
+    return $this->reqRe($args, $key, '/^#[A-Fa-f0-9]{3,6}$/', $mes);
+  }
+  public function incHexColor(Array $args, $key, $default = null) {
+    try {
+      return $this->reqHexColor($args, $key);
+    }
+    catch (SoterException $e) {
+      return $default;
+    }
+  }
+  public function hasHexColor(&$value, Array $args, $key) {
+    try {
+      $value = $this->reqHexColor($args, $key);
+      return true;
+    }
+    catch (SoterException $e) {
+      return false;
+    }
+  }
 }
 ?>

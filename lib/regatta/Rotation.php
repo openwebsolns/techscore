@@ -250,8 +250,9 @@ class Rotation {
    * If the regatta is a combined scoring regatta, then the list of
    * divisions must match the list of sails and teams instead.
    *
-   * @param Array<Team> teams the list of teams in order
    * @param Array<int>  sails the list of sail numbers in order
+   * @param Array<color> corresponding colors
+   * @param Array<Team> teams the list of teams in order
    * @param Array<Division> the list of divisions
    * @param Array<int>  races the list of race numbers in order
    * @param int repeats the number of races per set
@@ -261,6 +262,7 @@ class Rotation {
    * lists be incorrect
    */
   public function createStandard(Array $sails,
+                                 Array $colors,
                                  Array $teams,
                                  Array $divisions,
                                  Array $races,
@@ -269,6 +271,7 @@ class Rotation {
     $this->initQueue();
 
     $sails = array_values($sails);
+    $colors = array_values($colors);
     $teams = array_values($teams);
     $races = array_values($races);
 
@@ -283,6 +286,12 @@ class Rotation {
       throw new InvalidArgumentException("There must be the same number of sails and teams.");
     if ($repeats < 1)
       throw new InvalidArgumentException("The number of races per set ($repeats) must be at least one.");
+    if ($num_sails != count($colors))
+      throw new InvalidArgumentException("There must be the same number of sails as colors.");
+
+    $sail_colors = array();
+    foreach ($sails as $i => $sail)
+      $sail_colors[$sail] = $colors[$i];
 
     // standard scoring regatta
     if ($this->regatta->scoring == Regatta::SCORING_STANDARD &&
@@ -299,6 +308,7 @@ class Rotation {
           $sail->race = $race;
           $sail->team = $team;
           $sail->sail = $table[$t][$r];
+          $sail->color = $sail_colors[$sail->sail];
 
           $this->queue($sail);
         }
@@ -322,6 +332,7 @@ class Rotation {
           $sail->race = $race;
           $sail->team = $team;
           $sail->sail = $table[$t][$r];
+          $sail->color = $sail_colors[$sail->sail];
 
           $this->queue($sail);
         }
@@ -362,8 +373,9 @@ class Rotation {
    * If the regatta is a combined scoring regatta, then the list of
    * divisions must match the list of sails and teams instead.
    *
-   * @param Array<Team> teams the list of teams in order
    * @param Array<int>  sails the list of sail numbers in order
+   * @param Array<color> corresponding colors
+   * @param Array<Team> teams the list of teams in order
    * @param Array<Division> the list of divisions
    * @param Array<int>  races the list of race numbers in order
    * @param int repeats the number of races per set
@@ -371,6 +383,7 @@ class Rotation {
    * "true"
    */
   public function createSwap(Array $sails,
+                             Array $colors,
                              Array $teams,
                              Array $divisions,
                              Array $races,
@@ -379,6 +392,7 @@ class Rotation {
     $this->initQueue();
 
     $sails = array_values($sails);
+    $colors = array_values($colors);
     $teams = array_values($teams);
     $races = array_values($races);
 
@@ -393,6 +407,12 @@ class Rotation {
       throw new InvalidArgumentException("There must be the same number of sails and teams.");
     if ($repeats < 1)
       throw new InvalidArgumentException("The number of races per set ($repeats) must be at least one.");
+    if ($num_sails != count($colors))
+      throw new InvalidArgumentException("The number of sails must match the number of colors.");
+
+    $sail_colors = array();
+    foreach ($sails as $i => $sail)
+      $sail_colors[$sail] = $colors[$i];
 
     // standard scoring regatta
     if ($this->regatta->scoring == Regatta::SCORING_STANDARD &&
@@ -410,6 +430,7 @@ class Rotation {
           $sail->race = $race;
           $sail->team = $team;
           $sail->sail = $table[$t][$r];
+          $sail->color = $sail_colors[$sail->sail];
 
           $this->queue($sail);
         }
@@ -433,6 +454,7 @@ class Rotation {
           $sail->race = $race;
           $sail->team = $team;
           $sail->sail = $table[$t][$r];
+          $sail->color = $sail_colors[$sail->sail];
 
           $this->queue($sail);
         }
@@ -595,6 +617,7 @@ class Rotation {
 
         $new_sail = clone $sail;
         $new_sail->sail = $offset_sail->sail;
+        $new_sail->color = $offset_sail->color;
 
         $this->queue($new_sail);
       }

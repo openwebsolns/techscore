@@ -101,7 +101,7 @@ class SailsPane extends AbstractPane {
       $num_teams = count($teams);
       $tab->add(new XTHead(array(), array($row = new XTR(array(), array(new XTH(array(), "Team"))))));
       foreach ($divisions as $div)
-        $row->add(new XTH(array(), "Div. $div"));
+        $row->add(new XTH(array('colspan'=>2), "Div. $div"));
       $tab->add($bod = new XTBody());
       foreach ($teams as $team) {
         $bod->add($row = new XTR(array(), array(new XTD(array(), $team))));
@@ -110,6 +110,7 @@ class SailsPane extends AbstractPane {
           $num = $i + $off * $num_teams;
           $name = sprintf("%s,%s", $div, $team->id);
           $row->add(new XTD(array(), new XSailInput($name, $num)));
+          $row->add(new XTD(array('title'=>"Optional"), new XSailColorInput('color-' . $name)));
           $off++;
         }
         $i++;
@@ -400,15 +401,18 @@ class SailsPane extends AbstractPane {
     // validate teams (sails must all be different)
     $keys = array_keys($args);
     $sails = array();
+    $colors = array();
     $divs  = array();                      // keep track of divisions
     $tlist = array();                      // keep track of teams for multisorting
     $teams = $this->REGATTA->getTeams();
     foreach ($divisions as $div) {
       foreach ($teams as $team) {
-        $sail = DB::$V->reqString($args, sprintf("%s,%s", $div, $team->id), 1, 9, "Missing sail for team $team in division $div");
+        $id = sprintf('%s,%s', $div, $team->id);
+        $sail = DB::$V->reqString($args, $id, 1, 9, "Missing sail for team $team in division $div");
         if (in_array($sail, $sails))
           throw new SoterException("Duplicate sail number $sail.");
         $sails[] = $sail;
+        $colors[] = DB::$V->incHexColor($args, 'color-' . $id);
         $tlist[] = $team;
         $divs[] = $div;
       }
@@ -432,22 +436,22 @@ class SailsPane extends AbstractPane {
       $sort = $args['sort'];
     switch ($sort) {
     case "num":
-      array_multisort($sails, SORT_NUMERIC, $tlist);
+      array_multisort($sails, SORT_NUMERIC, $colors, $tlist);
       break;
 
     case "alph":
-      array_multisort($sails, SORT_STRING, $tlist);
+      array_multisort($sails, SORT_STRING, $colors, $tlist);
       break;
     }
 
     switch ($rottype) {
     case "STD":
     case "NOR":
-      $rotation->createStandard($sails, $tlist, $divs, $races, $repeats);
+      $rotation->createStandard($sails, $colors, $tlist, $divs, $races, $repeats);
     break;
 
     case "SWP":
-      $rotation->createSwap($sails, $tlist, $divs, $races, $repeats);
+      $rotation->createSwap($sails, $colors, $tlist, $divs, $races, $repeats);
       break;
 
     default:
@@ -540,7 +544,6 @@ class SailsPane extends AbstractPane {
     // 3. Create new rotation
     // ------------------------------------------------------------
     if (isset($args['createrot'])) {
-
       // 3a. validate repeats
       $repeats = null;
       if ($rottype === "NOR")
@@ -551,6 +554,7 @@ class SailsPane extends AbstractPane {
       // 3b. validate teams: every signed-in team must exist
       $keys  = array_keys($args);
       $sails = array();
+      $colors = array();
       $teams = array();
       $missing = array();
       foreach ($this->REGATTA->getTeams() as $team) {
@@ -561,6 +565,7 @@ class SailsPane extends AbstractPane {
         if (in_array($sail, $sails))
           throw new SoterException("Duplicate sail number $sail.");
         $sails[] = $sail;
+        $colors[] = DB::$V->incHexColor($args, 'color-' . $id);
       }
       // Add BYE team if requested
       if (isset($args['BYE'])) {
@@ -568,6 +573,7 @@ class SailsPane extends AbstractPane {
         if (in_array($args['BYE'], $sails))
           throw new SoterException("Duplicate sail number in BYE team.");
         $sails[] = $args['BYE'];
+        $colors[] = DB::$V->incHexColor($args, 'color-BYE');
       }
       if (count($missing) > 0)
         throw new SoterException(sprintf("Missing team or sail for %s.", implode(", ", $missing)));
@@ -575,11 +581,11 @@ class SailsPane extends AbstractPane {
       // 3c. sorting
       switch (DB::$V->incKey($args, 'sort', $this->SORT, 'none')) {
       case "num":
-        array_multisort($sails, SORT_NUMERIC, $teams);
+        array_multisort($sails, SORT_NUMERIC, $colors, $teams);
         break;
 
       case "alph":
-        array_multisort($sails, SORT_STRING, $teams);
+        array_multisort($sails, SORT_STRING, $colors, $teams);
         break;
       }
 
@@ -611,14 +617,14 @@ class SailsPane extends AbstractPane {
         switch ($rottype) {
         case "STD":
         case "NOR":
-          $rotation->createStandard($sails, $teams, $ordered_divs, $ordered_races, $repeats);
+          $rotation->createStandard($sails, $colors, $teams, $ordered_divs, $ordered_races, $repeats);
         break;
 
         case "SWP":
           // ascertain that there are an even number of teams
           if (count($teams) % 2 > 0)
             throw new SoterException("There must be an even number of teams for swap rotation.");
-          $rotation->createSwap($sails, $teams, $ordered_divs, $ordered_races, $repeats);
+          $rotation->createSwap($sails, $colors, $teams, $ordered_divs, $ordered_races, $repeats);
           break;
 
         default:
@@ -686,14 +692,14 @@ class SailsPane extends AbstractPane {
       switch ($rottype) {
       case "STD":
       case "NOR":
-        $rotation->createStandard($sails, $teams, $ordered_divs, $ordered_races, $repeats);
+        $rotation->createStandard($sails, $colors, $teams, $ordered_divs, $ordered_races, $repeats);
       break;
 
       case "SWP":
         // ascertain that there are an even number of teams
         if (count($teams) % 2 > 0)
           throw new SoterException("There must be an even number of teams for swap rotation.");
-        $rotation->createSwap($sails, $teams, $ordered_divs, $ordered_races, $repeats);
+        $rotation->createSwap($sails, $colors, $teams, $ordered_divs, $ordered_races, $repeats);
         break;
 
       default:
