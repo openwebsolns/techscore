@@ -2038,6 +2038,17 @@ class Round extends DBObject {
     return explode('-', $pairings[$index]);
   }
 
+  /**
+   * The number of races in internal order
+   *
+   * @return int the count
+   */
+  public function getRaceOrderCount() {
+    if ($this->race_order === null)
+      return 0;
+    return count($this->__get('race_order'));
+  }
+
   // ------------------------------------------------------------
   // Seeding
   // ------------------------------------------------------------

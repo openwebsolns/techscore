@@ -169,7 +169,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
         $teams[$seed->seed - 1] = $seed->team;
 
       $races = $this->REGATTA->getRacesInRound($round, Division::A());
-      for ($i = 0; $i < count($round->race_order); $i++) {
+      for ($i = 0; $i < $round->getRaceOrderCount(); $i++) {
         $race = $races[$i];
         $pair = $round->getRaceOrderPair($i);
         $t0 = $teams[$pair[0] - 1];
@@ -279,7 +279,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
       }
 
       $to_save = array();
-      for ($i = 0; $i < count($round->race_order); $i++) {
+      for ($i = 0; $i < $round->getRaceOrderCount(); $i++) {
         $racenum = array_shift($racenums);
         $pair = $round->getRaceOrderPair($i);
         $t1 = $teams[$pair[0] - 1];

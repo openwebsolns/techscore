@@ -445,7 +445,7 @@ window.addEventListener("load", function(e) {
 
       $flight = $ROUND->num_boats / $group_size;
 
-      for ($i = 0; $i < count($ROUND->race_order); $i++) {
+      for ($i = 0; $i < $ROUND->getRaceOrderCount(); $i++) {
         // spacer
         if ($flight > 0 && $i % $flight == 0) {
           $body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => 9 + 2 * count($divisions)), sprintf("Flight %d", ($i / $flight + 1))))));
@@ -520,7 +520,7 @@ window.addEventListener("load", function(e) {
         $form->add(new XHiddenInput('copy_order[]', $i + 1));
         $form->add(new XHiddenInput('copy_round[]', $round->id));
       }
-      for ($i = 0; $i < count($ROUND->race_order); $i++) {
+      for ($i = 0; $i < $ROUND->getRaceOrderCount(); $i++) {
         $pair = $ROUND->getRaceOrderPair($i);
         $form->add(new XHiddenInput('team1[]', $pair[0]));
         $form->add(new XHiddenInput('team2[]', $pair[1]));
@@ -818,7 +818,7 @@ window.addEventListener("load", function(e) {
       $new_races = array();
       $new_sails = array();
       $new_finishes = array();
-      for ($i = 0; $i < count($round->race_order); $i++) {
+      for ($i = 0; $i < $round->getRaceOrderCount(); $i++) {
         $racenum++;
         $pair = $round->getRaceOrderPair($i);
         $t1 = $teams[$pair[0] - 1];
@@ -1069,7 +1069,7 @@ window.addEventListener("load", function(e) {
 
     if (DB::$V->incInt($args, 'swap', 1, 2, 0) > 0) {
       $pairings = array();
-      for ($i = 0; $i < count($round->race_order); $i++) {
+      for ($i = 0; $i < $round->getRaceOrderCount(); $i++) {
         $pair = $round->getRaceOrderPair($i);
         $pairings[] = sprintf('%s-%s', $pair[1], $pair[0]);
       }
