@@ -525,12 +525,11 @@ window.addEventListener("load", function(e) {
         $form->add(new XHiddenInput('team1[]', $pair[0]));
         $form->add(new XHiddenInput('team2[]', $pair[1]));
       }
-      $rotation = $ROUND->rotation;
       $num_divs = count($divisions);
-      if ($rotation != null) {
-        for ($i = 0; $i < $rotation->count(); $i++) {
-          $form->add(new XHiddenInput('sails[]', $rotation->sailAt($i)));
-          $form->add(new XHiddenInput('colors[]', $rotation->colorAt($i)));
+      if ($ROUND->hasRotation()) {
+        for ($i = 0; $i < $ROUND->getRotationCount(); $i++) {
+          $form->add(new XHiddenInput('sails[]', $ROUND->getSailAt($i)));
+          $form->add(new XHiddenInput('colors[]', $ROUND->getColorAt($i)));
         }
       }
       foreach ($teams as $i => $team) {

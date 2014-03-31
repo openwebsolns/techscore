@@ -2059,6 +2059,28 @@ class Round extends DBObject {
   }
 
   // ------------------------------------------------------------
+  // Rotation
+  // ------------------------------------------------------------
+
+  public function getRotationCount() {
+    if ($this->rotation === null)
+      return 0;
+    return $this->__get('rotation')->count();
+  }
+
+  public function getSailAt($i) {
+    if ($this->rotation === null)
+      return null;
+    return $this->__get('rotation')->sailAt($i);
+  }
+
+  public function getColorAt($i) {
+    if ($this->rotation === null)
+      return null;
+    return $this->__get('rotation')->colorAt($i);
+  }
+
+  // ------------------------------------------------------------
   // Seeding
   // ------------------------------------------------------------
 

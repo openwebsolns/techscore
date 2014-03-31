@@ -186,7 +186,7 @@ abstract class AbstractRoundPane extends AbstractPane {
       // Find another rotation for this number of boats
       for ($i = count($rounds) - 1; $i >= 0; $i--) {
         $other = $rounds[$i];
-        if ($other->num_boats == $ROUND->num_boats && $other->rotation !== null) {
+        if ($other->num_boats == $ROUND->num_boats && $other->hasRotation()) {
           $rotation = $other->rotation;
           break;
         }
