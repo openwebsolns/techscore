@@ -2062,6 +2062,60 @@ class Round extends DBObject {
   // Rotation
   // ------------------------------------------------------------
 
+  /**
+   * Fetch the list of sails
+   *
+   * @return Array:String list of sails
+   */
+  public function getSails() {
+    if ($this->rotation === null)
+      return array();
+    return $this->__get('rotation')->sails;
+  }
+
+  /**
+   * Fetch the list of colors
+   *
+   * @return Array:String corresponding list of colors
+   */
+  public function getColors() {
+    if ($this->rotation === null)
+      return array();
+    return $this->__get('rotation')->colors;
+  }
+
+  /**
+   * Sets the list of sails
+   *
+   * @param Array:String $sails
+   */
+  public function setSails(Array $sails = array()) {
+    if ($this->rotation === null)
+      $this->rotation = new TeamRotation();
+    $this->__get('rotation')->sails = $sails;
+  }
+
+  /**
+   * Sets the list of colors
+   *
+   * @param Array:String $colors
+   */
+  public function setColors(Array $colors = array()) {
+    if ($this->rotation === null)
+      $this->rotation = new TeamRotation();
+    $this->__get('rotation')->colors = $colors;
+  }
+
+  public function setRotation(Array $sails, Array $colors) {
+    $this->rotation = new TeamRotation();
+    $this->setSails($sails);
+    $this->setColors($colors);
+  }
+
+  public function removeRotation() {
+    $this->rotation = null;
+  }
+
   public function getRotationCount() {
     if ($this->rotation === null)
       return 0;

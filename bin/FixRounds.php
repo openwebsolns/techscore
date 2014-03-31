@@ -81,10 +81,7 @@ foreach (DB::getAll(DB::$ROUND) as $round) {
 
     // Rotation?
     if (count($sails) > 0) {
-      $rot = new TeamRotation();
-      $rot->sails = $sails;
-      $rot->colors = $colors;
-      $round->rotation = $rot;
+      $round->setRotation($sails, $colors);
       $round->num_boats = count($sails);
     }
     else {

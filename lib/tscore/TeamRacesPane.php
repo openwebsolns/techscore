@@ -986,7 +986,7 @@ window.addEventListener("load", function(e) {
     if ($clean_races)
       $round->race_order = null;
     if ($clean_rotation)
-      $round->rotation = null;
+      $round->removeRotation();
 
     return array();
   }
@@ -1030,12 +1030,12 @@ window.addEventListener("load", function(e) {
     if ($round->num_boats != $num_boats) {
       $round->num_boats = $num_boats;
       $round->race_order = null;
-      $round->rotation = null;
+      $round->removeRotation();
     }
     if ($round->rotation_frequency != $freq) {
       $round->rotation_frequency = $templ->rotation_frequency;
       $round->race_order = null;
-      $round->rotation = null;
+      $round->removeRotation();
     }
     $round->boat = DB::$V->incID($args, 'boat', DB::$BOAT, $templ->boat);
     $round->sailoff_for_round = $templ;
@@ -1043,7 +1043,7 @@ window.addEventListener("load", function(e) {
     // If only two teams, involved, assign sail order
     if ($num_teams == 2) {
       $round->race_order = array("1-2");
-      $round->rotation = $templ->rotation;
+      $round->setRotation($templ->getSails(), $templ->getColors());
     }
     return array();
   }
@@ -1076,7 +1076,7 @@ window.addEventListener("load", function(e) {
     }
 
     // Rotation
-    $round->rotation = $templ->rotation;
+    $round->setRotation($templ->getSails(), $templ->getColors());
     Session::d('round_teams');
     Session::s('round_template', $templ->id);
   }
@@ -1142,7 +1142,7 @@ window.addEventListener("load", function(e) {
 
     Session::d('round_teams');
     $round->race_order = null;
-    $round->rotation = null;
+    $round->removeRotation();
 
     $round->boat = DB::$V->reqID($args, 'boat', DB::$BOAT, "Invalid or missing boat.");
     return $master_rounds;

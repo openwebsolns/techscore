@@ -181,13 +181,12 @@ abstract class AbstractRoundPane extends AbstractPane {
                     );
 
     $flight = $ROUND->num_boats;
-    $rotation = $ROUND->rotation;
-    if ($rotation === null) {
+    if (!$ROUND->hasRotation()) {
       // Find another rotation for this number of boats
       for ($i = count($rounds) - 1; $i >= 0; $i--) {
         $other = $rounds[$i];
         if ($other->num_boats == $ROUND->num_boats && $other->hasRotation()) {
-          $rotation = $other->rotation;
+	  $ROUND->setRotation($other->getSails(), $other->getColors());
           break;
         }
       }
@@ -198,16 +197,14 @@ abstract class AbstractRoundPane extends AbstractPane {
         $ROUND->rotation_frequency == Race_Order::FREQUENCY_INFREQUENT) {
 
       // Prefill
-      if ($rotation === null) {
-        $rotation = new TeamRotation();
+      if (!$ROUND->hasRotation()) {
         $s = array();
         $c = array();
         for ($i = 0; $i < $flight; $i++) {
           $s[] = ($i + 1);
           $c[] = "";
         }
-        $rotation->sails = $s;
-        $rotation->colors = $c;
+	$ROUND->setRotation($s, $c);
       }
 
       $boatOptions = DB::getBoats();
@@ -230,8 +227,8 @@ abstract class AbstractRoundPane extends AbstractPane {
         for ($teamIndex = 0; $teamIndex < 2; $teamIndex++) {
           $row->add(new XTD(array(), new XTable(array('class'=>'sail-list'), array($tab = new XTBody()))));
           for ($i = 0; $i < $num_divs; $i++) {
-            $sail = $rotation->sailAt($sailIndex);
-            $color = $rotation->colorAt($sailIndex);
+            $sail = $ROUND->getSailAt($sailIndex);
+            $color = $ROUND->getColorAt($sailIndex);
 
             $tab->add(new XTR(array(),
                               array(new XTD(array(), new XTextInput('sails[]', $sail, array('size'=>5, 'tabindex'=>($sailIndex + 1), 'maxlength'=>15))),
@@ -253,16 +250,14 @@ abstract class AbstractRoundPane extends AbstractPane {
     }
     else {
       // Prefill
-      if ($rotation === null) {
-        $rotation = new TeamRotation();
+      if (!$ROUND->hasRotation()) {
         $s = array();
         $c = array();
         for ($i = 0; $i < $flight; $i++) {
           $s[] = ($i + 1);
           $c[] = "";
         }
-        $rotation->sails = $s;
-        $rotation->colors = $c;
+	$ROUND->setRotation($s, $c);
       }
 
       // No rotation frequency: display an entry PER team
@@ -270,18 +265,18 @@ abstract class AbstractRoundPane extends AbstractPane {
                                         array("Team #", "Sail # & Color")));
 
       $sailIndex = 0;
-      for ($i = 0; $i < $rotation->count() / $num_divs; $i++) {
+      for ($i = 0; $i < $ROUND->getRotationCount() / $num_divs; $i++) {
         $tab->addRow(array(new XTH(array(), sprintf("Team %d", $i + 1)),
                            new XTable(array('class'=>'sail-list'), array($bod = new XTBody()))));
 
         for ($j = 0; $j < $num_divs; $j++) {
-          $sail = $rotation->sailAt($sailIndex);
-          $color = $rotation->colorAt($sailIndex);
+          $sail = $ROUND->getSailAt($sailIndex);
+          $color = $ROUND->getColorAt($sailIndex);
 
           
           $bod->add(new XTR(array(),
                             array(new XTD(array(), new XTextInput('sails[]', $sail, array('size'=>5, 'tabindex'=>($i + 1), 'maxlength'=>15))),
-                                  new XTD(array('title'=>"Optional"), $sel = new XSelect('colors[]', array('class'=>'color-chooser', 'tabindex'=>($i + 1 + $rotation->count())))))));
+                                  new XTD(array('title'=>"Optional"), $sel = new XSelect('colors[]', array('class'=>'color-chooser', 'tabindex'=>($i + 1 + $ROUND->getRotationCount())))))));
 
           $sel->add(new XOption("", array(), "[None]"));
           foreach ($COLORS as $code => $title) {
@@ -345,11 +340,8 @@ abstract class AbstractRoundPane extends AbstractPane {
         $s[] = $sail;
       }
     }
-    $rot = new TeamRotation();
-    $rot->sails = $s;
-    $rot->colors = $c;
 
-    $round->rotation = $rot;
+    $round->setRotation($s, $c);
     return array();
   }
 
