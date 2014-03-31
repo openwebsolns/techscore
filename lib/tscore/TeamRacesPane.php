@@ -430,7 +430,7 @@ window.addEventListener("load", function(e) {
         }
       }
 
-      $sails = $ROUND->rotation->assignSails($ROUND, $teams, $divisions, $ROUND->rotation_frequency);
+      $sails = $ROUND->assignSails($teams, $divisions);
       $tab = new XTable(array('class'=>'tr-rotation-table'),
                         array(new XTHead(array(),
                                          array(new XTR(array(),
@@ -813,7 +813,7 @@ window.addEventListener("load", function(e) {
 
       $sails = array();
       if ($round->hasRotation())
-        $sails = $round->rotation->assignSails($round, $teams, $divisions, $round->rotation_frequency);
+        $sails = $round->assignSails($teams, $divisions);
       $new_races = array();
       $new_sails = array();
       $new_finishes = array();

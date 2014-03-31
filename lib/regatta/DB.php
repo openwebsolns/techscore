@@ -2134,6 +2134,27 @@ class Round extends DBObject {
     return $this->__get('rotation')->colorAt($i);
   }
 
+  /**
+   * Creates and returns sail #/color assignment for given frequency
+   *
+   * @param Round $round the round whose race_order to use
+   * @param Array:Team $teams ordered list of teams
+   * @param Array:Division the number of divisions
+   * @param Const $frequency one of Race_Order::FREQUENCY_*
+   * @return Array a map of sails indexed first by race number, and then by
+   *   team index, and then by divisions
+   * @throws InvalidArgumentException
+   */
+  public function assignSails(Array $teams, Array $divisions, $frequency = null) {
+    if ($frequency === null)
+      $frequency = $this->rotation_frequency;
+    if ($frequency === null)
+      throw new InvalidArgumentException("No rotation frequency provided.");
+    if ($this->rotation === null)
+      return array();
+    return $this->__get('rotation')->assignSails($this, $teams, $divisions, $frequency);
+  }
+
   // ------------------------------------------------------------
   // Seeding
   // ------------------------------------------------------------

@@ -557,7 +557,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
     $rotation = $this->REGATTA->getRotation();
     $rotation->initQueue();
 
-    $sails = $round->rotation->assignSails($round, $teams, $divisions, $round->rotation_frequency);
+    $sails = $round->assignSails($teams, $divisions);
     $races = $this->REGATTA->getRacesInRound($round, Division::A());
     array_shift($divisions);
 
