@@ -89,6 +89,7 @@ foreach (DB::getAll(DB::$ROUND) as $round) {
     }
 
     DB::set($round);
+    $round->saveRaceOrder();
     DB::commit();
     print("...done\n");
   }

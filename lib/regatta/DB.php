@@ -2081,6 +2081,14 @@ class Round extends DBObject {
   }
 
   /**
+   * Actually commits the internal race order
+   *
+   */
+  public function saveRaceOrder() {
+    DB::set($this);
+  }
+
+  /**
    * Fetches the list of race orders, as pairs
    *
    * @return Array:Array

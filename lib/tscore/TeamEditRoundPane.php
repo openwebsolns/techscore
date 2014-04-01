@@ -434,7 +434,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
         throw new SoterException("Not all races in round are accounted for.");
 
       $round->setRaceOrder($neworder);
-      DB::set($round);
+      $round->saveRaceOrder();
 
       foreach ($to_save as $race)
         DB::set($race, true);

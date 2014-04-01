@@ -804,6 +804,7 @@ window.addEventListener("load", function(e) {
 
       $round->regatta = $this->REGATTA;
       DB::set($round);
+      $round->saveRaceOrder();
       $round->setSeeds($seeds);
       foreach ($masters as $master)
         $round->addMaster($master->master, $master->num_teams);
