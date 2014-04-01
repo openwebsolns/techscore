@@ -69,7 +69,7 @@ class TeamRacesPane extends AbstractRoundPane {
       $MAX_STEP = 1;
       if ($ROUND->num_teams !== null) {
         $MAX_STEP = 2;
-        if ($ROUND->race_order !== null) {
+        if ($ROUND->hasRaceOrder()) {
           $MAX_STEP = 3;
           if ($ROUND->hasRotation()) {
             $MAX_STEP = 4;
@@ -224,9 +224,9 @@ class TeamRacesPane extends AbstractRoundPane {
 
       $order = null;
       $collapse = false;
-      if ($ROUND->race_order !== null) {
+      if ($ROUND->hasRaceOrder()) {
         $order = new Race_Order();
-        $order->template = $ROUND->race_order;
+        $order->setPairs($ROUND->getRaceOrder());
         $form->add(new XP(array('class'=>'valid'), "The saved race order is shown below."));
         $collapse = true;
       }
@@ -239,7 +239,7 @@ class TeamRacesPane extends AbstractRoundPane {
         for ($i = 0; $i < $ROUND->num_teams - 1; $i++) {
           for ($j = $i + 1; $j < $ROUND->num_teams; $j++) {
             $shake = sprintf("%d-%d", ($i + 1), ($j + 1));
-            $template[$shake] = $shake;
+            $template[$shake] = array(($i + 1), ($j + 1));
           }
         }
         if ($master_count !== null) {
@@ -256,7 +256,7 @@ class TeamRacesPane extends AbstractRoundPane {
           }
         }
         $order = new Race_Order();
-        $order->template = array_keys($template);
+        $order->setPairs($template);
         $form->add(new XP(array('class'=>'warning'), "No race order template exists for the chosen settings. Please set the race order below before continuing."));
       }
       else {
@@ -718,7 +718,7 @@ window.addEventListener("load", function(e) {
         throw new SoterException("Order error: no round to work with.");
       if ($ROUND->num_teams === null)
         throw new SoterException("Order error: number of teams unknown.");
-      if ($ROUND->race_order === null)
+      if (!$ROUND->hasRaceOrder())
         throw new SoterException("Order error: race order not known.");
       if (!$ROUND->hasRotation())
         throw new SoterException("Order error: no rotation found.");
@@ -984,7 +984,7 @@ window.addEventListener("load", function(e) {
     if ($clean_teams)
       Session::d('round_teams');
     if ($clean_races)
-      $round->race_order = null;
+      $round->removeRaceOrder();
     if ($clean_rotation)
       $round->removeRotation();
 
@@ -1024,17 +1024,17 @@ window.addEventListener("load", function(e) {
     // Assign the values
     if ($round->num_teams != $num_teams) {
       $round->num_teams = $num_teams;
-      $round->race_order = null;
+      $round->removeRaceOrder();
       Session::d('round_teams');
     }
     if ($round->num_boats != $num_boats) {
       $round->num_boats = $num_boats;
-      $round->race_order = null;
+      $round->removeRaceOrder();
       $round->removeRotation();
     }
     if ($round->rotation_frequency != $freq) {
       $round->rotation_frequency = $templ->rotation_frequency;
-      $round->race_order = null;
+      $round->removeRaceOrder();
       $round->removeRotation();
     }
     $round->boat = DB::$V->incID($args, 'boat', DB::$BOAT, $templ->boat);
@@ -1042,7 +1042,7 @@ window.addEventListener("load", function(e) {
 
     // If only two teams, involved, assign sail order
     if ($num_teams == 2) {
-      $round->race_order = array("1-2");
+      $round->setRaceOrder(array(array(1, 2)));
       $round->setRotation($templ->getSails(), $templ->getColors());
     }
     return array();
@@ -1063,16 +1063,16 @@ window.addEventListener("load", function(e) {
     $round->num_teams = $templ->num_teams;
     $round->num_boats = $templ->num_boats;
     $round->rotation_frequency = $templ->rotation_frequency;
-    $round->race_order = $templ->race_order;
+    $round->setRaceOrder($templ->getRaceOrder());
     $round->boat = $templ->boat;
 
     if (DB::$V->incInt($args, 'swap', 1, 2, 0) > 0) {
       $pairings = array();
       for ($i = 0; $i < $round->getRaceOrderCount(); $i++) {
         $pair = $round->getRaceOrderPair($i);
-        $pairings[] = sprintf('%s-%s', $pair[1], $pair[0]);
+        $pairings[] = array($pair[1], $pair[0]);
       }
-      $round->race_order = $pairings;
+      $round->setRaceOrder($pairings);
     }
 
     // Rotation
@@ -1141,7 +1141,7 @@ window.addEventListener("load", function(e) {
     }
 
     Session::d('round_teams');
-    $round->race_order = null;
+    $round->removeRaceOrder();
     $round->removeRotation();
 
     $round->boat = DB::$V->reqID($args, 'boat', DB::$BOAT, "Invalid or missing boat.");
@@ -1186,7 +1186,7 @@ window.addEventListener("load", function(e) {
       if ($team1 == $team2)
         throw new SoterException("Teams cannot sail against themselves.");
       $shake = sprintf("%d-%d", $team1, $team2);
-      $pair = $shake;
+      $pair = array($team1, $team2);
       if ($team2 < $team1)
         $shake = sprintf("%d-%d", $team2, $team1);
       if (!isset($handshakes[$shake]))
@@ -1198,7 +1198,7 @@ window.addEventListener("load", function(e) {
     if (count($pairings) < $num_races)
       throw new SoterException("Not all pairings have been accounted for.");
 
-    $round->race_order = $pairings;
+    $round->setRaceOrder($pairings);
     return array();
   }
 

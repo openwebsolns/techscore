@@ -2062,6 +2062,41 @@ class Round extends DBObject {
     return count($this->__get('race_order'));
   }
 
+  /**
+   * Sets or unsets the race order
+   *
+   * @param Array:Array list of pairs
+   */
+  public function setRaceOrder(Array $order) {
+    $this->race_order = array();
+    foreach ($order as $i => $pair) {
+      if (!is_array($pair) || count($pair) != 2)
+	throw new InvalidArgumentException("Missing pair for index $i.");
+      $this->race_order[] = implode('-', $pair);
+    }
+  }
+
+  public function removeRaceOrder() {
+    $this->race_order = null;
+  }
+
+  /**
+   * Fetches the list of race orders, as pairs
+   *
+   * @return Array:Array
+   */
+  public function getRaceOrder() {
+    $res = array();
+    for ($i = 0; $i < $this->getRaceOrderCount(); $i++) {
+      $res[] = $this->getRaceOrderPair($i);
+    }
+    return $res;
+  }
+
+  public function hasRaceOrder() {
+    return $this->race_order !== null;
+  }
+
   // ------------------------------------------------------------
   // Rotation
   // ------------------------------------------------------------
@@ -3309,7 +3344,7 @@ class Text_Entry extends DBObject {
  * @author Dayan Paez
  * @version 2013-05-08
  */
-class Race_Order extends DBObject {
+class Race_Order extends DBObject implements Countable {
 
   const FREQUENCY_FREQUENT = 'frequent';
   const FREQUENCY_INFREQUENT = 'infrequent';
@@ -3346,6 +3381,21 @@ class Race_Order extends DBObject {
       return array(null, null);
     $pairings = $this->__get('template');
     return explode('-', $pairings[$index]);
+  }
+
+  public function count() {
+    if ($this->template === null)
+      return 0;
+    return count($this->__get('template'));
+  }
+
+  public function setPairs(Array $pairs = array()) {
+    $this->template = array();
+    foreach ($pairs as $i => $pair) {
+      if (!is_array($pair) || count($pair) != 2)
+	throw new InvalidArgumentException("Invalid pair entry with index $i.");
+      $this->template[] = implode('-', $pair);
+    }
   }
 
   public static function getFrequencyTypes() {

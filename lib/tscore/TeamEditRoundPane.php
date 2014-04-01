@@ -427,13 +427,13 @@ class TeamEditRoundPane extends AbstractRoundPane {
             $to_save[] = $r;
         }
         unset($races[$rid]);
-        $neworder[] = sprintf("%d-%d", $pair[0], $pair[1]);
+        $neworder[] = array($pair[0], $pair[1]);
         $next_number = array_shift($nums);
       }
       if (count($races) > 0)
         throw new SoterException("Not all races in round are accounted for.");
 
-      $round->race_order = $neworder;
+      $round->setRaceOrder($neworder);
       DB::set($round);
 
       foreach ($to_save as $race)

@@ -91,7 +91,7 @@ class TeamRotation {
    * team index, and then by divisions
    */
   public function assignSails(Round $round, Array $teams, Array $divisions, $frequency) {
-    if ($round->race_order === null)
+    if (!$round->hasRaceOrder())
       return array();
 
     if ($this->count() == 0)

@@ -54,7 +54,7 @@ foreach (DB::getAll(DB::$ROUND) as $round) {
     $sails = array();
     $colors = array();
     foreach ($races as $race) {
-      $order[] = sprintf("%d-%d", $team2seed[$race->tr_team1->id], $team2seed[$race->tr_team2->id]);
+      $order[] = array($team2seed[$race->tr_team1->id], $team2seed[$race->tr_team2->id]);
       $sail = $rotation->getSail($race, $race->tr_team1);
       if ($sail !== null) {
         $sails[$sail->sail] = $sail->sail;
@@ -77,7 +77,7 @@ foreach (DB::getAll(DB::$ROUND) as $round) {
         }
       }
     }
-    $round->race_order = $order;
+    $round->setRaceOrder($order);
 
     // Rotation?
     if (count($sails) > 0) {
