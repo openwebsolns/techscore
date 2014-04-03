@@ -37,6 +37,7 @@ class DB extends DBM {
   public static $ROUND = null;
   public static $ROUND_GROUP = null;
   public static $ROUND_SEED = null;
+  public static $ROUND_TEMPLATE = null;
   public static $RACE = null;
   public static $FINISH = null;
   public static $FINISH_MODIFIER = null;
@@ -108,6 +109,7 @@ class DB extends DBM {
     self::$ROUND = new Round();
     self::$ROUND_GROUP = new Round_Group();
     self::$ROUND_SEED = new Round_Seed();
+    self::$ROUND_TEMPLATE = new Round_Template();
     self::$RACE = new Race();
     self::$FINISH = new Finish();
     self::$FINISH_MODIFIER = new FinishModifier();
@@ -2038,6 +2040,10 @@ class Round extends DBObject {
   private $_masters;
   private $_slaves;
 
+  // ------------------------------------------------------------
+  // Race orders
+  // ------------------------------------------------------------
+
   /**
    * Fetches the pair of team indices
    *
@@ -2045,10 +2051,21 @@ class Round extends DBObject {
    * @return Array with two indices: team1, and team2
    */
   public function getRaceOrderPair($index) {
-    if ($this->race_order === null || $index < 0  || $index > count($this->__get('race_order')))
+    if (($tmpl = $this->getTemplate()) === null || $index < 0  || $index >= count($tmpl))
       return array(null, null);
-    $pairings = $this->__get('race_order');
-    return explode('-', $pairings[$index]);
+    return array($tmpl[$index]->team1, $tmpl[$index]->team2);
+  }
+
+  /**
+   * Fetches the boat for given index
+   *
+   * @param int $index the index within the race order
+   * @return Boat the corresponding boat
+   */
+  public function getRaceOrderBoat($index) {
+    if (($tmpl = $this->getTemplate()) === null || $index < 0  || $index >= count($tmpl))
+      return null;
+    return $tmpl[$index]->boat;
   }
 
   /**
@@ -2057,27 +2074,37 @@ class Round extends DBObject {
    * @return int the count
    */
   public function getRaceOrderCount() {
-    if ($this->race_order === null)
+    if (($tmpl = $this->getTemplate()) === null)
       return 0;
-    return count($this->__get('race_order'));
+    return count($tmpl);
   }
 
   /**
    * Sets or unsets the race order
    *
    * @param Array:Array list of pairs
+   * @param Array:Boat if provided, the boat to use in each race
+   * @throws InvalidArgumentException if list of boats is invalid
    */
-  public function setRaceOrder(Array $order) {
-    $this->race_order = array();
+  public function setRaceOrder(Array $order, Array $boats = null) {
+    if ($boats !== null && count($boats) != count($order))
+      throw new InvalidArgumentException("List of boats must match list of races.");
+
+    $this->_template = array();
     foreach ($order as $i => $pair) {
       if (!is_array($pair) || count($pair) != 2)
 	throw new InvalidArgumentException("Missing pair for index $i.");
-      $this->race_order[] = implode('-', $pair);
+      $elem = new Round_Template();
+      $elem->round = $this;
+      $elem->team1 = array_shift($pair);
+      $elem->team2 = array_shift($pair);
+      $elem->boat = ($boats === null) ? $this->__get('boat') : $boats[$i];
+      $this->_template[] = $elem;
     }
   }
 
   public function removeRaceOrder() {
-    $this->race_order = null;
+    $this->_template = null;
   }
 
   /**
@@ -2085,7 +2112,12 @@ class Round extends DBObject {
    *
    */
   public function saveRaceOrder() {
-    DB::set($this);
+    if ($this->_template === false)
+      return;
+
+    DB::removeAll(DB::$ROUND_TEMPLATE, new DBCond('round', $this));
+    if ($this->_template !== null)
+      DB::insertAll($this->_template);
   }
 
   /**
@@ -2102,8 +2134,22 @@ class Round extends DBObject {
   }
 
   public function hasRaceOrder() {
-    return $this->race_order !== null;
+    return $this->getTemplate() !== null;
   }
+
+  public function getTemplate() {
+    if ($this->_template === false) {
+      $this->_template = null;
+      $list = array();
+      foreach (DB::getAll(DB::$ROUND_TEMPLATE, new DBCond('round', $this)) as $entry)
+	$list[] = $entry;
+      if (count($list) > 0)
+	$this->_template = $list;
+    }
+    return $this->_template;
+  }
+
+  private $_template = false;
 
   // ------------------------------------------------------------
   // Rotation
@@ -2290,6 +2336,27 @@ class Round_Seed extends DBObject {
 
   protected function db_order() {
     return array('seed'=>true);
+  }
+}
+
+/**
+ * Race order for round
+ *
+ * @author Dayan Paez
+ * @version 2014-04-02
+ */
+class Round_Template extends DBObject {
+  public $team1;
+  public $team2;
+  protected $round;
+  protected $boat;
+
+  public function db_type($field) {
+    if ($field == 'round')
+      return DB::$ROUND;
+    if ($field == 'boat')
+      return DB::$BOAT;
+    return parent::db_type($field);
   }
 }
 
