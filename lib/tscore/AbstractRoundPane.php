@@ -218,6 +218,7 @@ abstract class AbstractRoundPane extends AbstractPane {
                                                                  new XTH(array(), "Team B"))))),
                                   $bod = new XTBody())));
 
+      $boat = Session::g('round_boat');
       $sailIndex = 0;
       for ($race_num = 0; $race_num < $flight / $group_size; $race_num++) {
         $bod->add($row = new XTR(array()));
@@ -232,7 +233,10 @@ abstract class AbstractRoundPane extends AbstractPane {
 
             $tab->add(new XTR(array(),
                               array(new XTD(array(), new XTextInput('sails[]', $sail, array('size'=>5, 'tabindex'=>($sailIndex + 1), 'maxlength'=>15))),
-                                    new XTD(array('title'=>"Optional"), $sel = new XSelect('colors[]')))));
+                                    $td = new XTD(array('title'=>"Optional"), $sel = new XSelect('colors[]')))));
+	    if ($ROUND->rotation_frequency == Race_Order::FREQUENCY_FREQUENT)
+	      $td->add(new XHiddenInput('boats[]', $boat->id));
+
             $sel->set('class', 'color-chooser');
             $sel->set('tabindex', ($sailIndex + 1 + $flight));
             $sel->add(new XOption("", array(), "[None]"));
@@ -308,20 +312,31 @@ abstract class AbstractRoundPane extends AbstractPane {
 
     $s = array();
     $c = array();
+    $boats = array();
 
     if ($round->rotation_frequency == Race_Order::FREQUENCY_FREQUENT ||
         $round->rotation_frequency == Race_Order::FREQUENCY_INFREQUENT) {
       $sails = DB::$V->reqList($args, 'sails', $round->num_boats, "Missing list of sails.");
       $c = DB::$V->incList($args, 'colors', $round->num_boats);
+      $b = DB::$V->incList($args, 'boats', $round->num_boats);
 
       // make sure all sails are present and distinct
-      foreach ($sails as $sail) {
+      foreach ($sails as $i => $sail) {
         $sail = trim($sail);
         if ($sail == "")
           throw new SoterException("Empty sail provided.");
         if (in_array($sail, $s))
           throw new SoterException("Duplicate sail \"$sail\" provided.");
         $s[] = $sail;
+
+	if ($round->rotation_frequency == Race_Order::FREQUENCY_FREQUENT)
+	  $boats[] = DB::$V->reqID($b, $i, DB::$BOAT, "Invalid/missing boat #$i.");
+      }
+
+      if ($round->rotation_frequency == Race_Order::FREQUENCY_FREQUENT) {
+	for ($i = 0; $i < $round->getRaceOrderCount(); $i++) {
+	  $round->setRaceOrderBoat($i, $boats[$i % count($boats)]);
+	}
       }
     }
     else {

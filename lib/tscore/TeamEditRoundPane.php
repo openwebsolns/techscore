@@ -94,7 +94,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
       $types = Race_Order::getFrequencyTypes();
       $form->add(new FItem("Rotation:", new XStrong($types[$round->rotation_frequency])));
 
-      $form->add(new FItem("Boat:", XSelect::fromDBM('boat', DB::getBoats(), $round->boat)));
+      $form->add(new FItem("Boat:", XSelect::fromDBM('boat', DB::getBoats(), $round->getBoat())));
       
       $form->add($p = new XSubmitP('edit-round', "Edit"));
       $p->add(new XHiddenInput('round', $round->id));
@@ -460,18 +460,22 @@ class TeamEditRoundPane extends AbstractRoundPane {
       $round = DB::$V->reqID($args, 'round', DB::$ROUND, "Invalid round to edit.");
       $title = DB::$V->reqString($args, 'title', 1, 81, "Invalid new label for round.");
       $boat = DB::$V->reqID($args, 'boat', DB::$BOAT, "Invalid boat provided.");
-      if ($boat != $round->boat) {
-        // Update races
-        foreach ($this->REGATTA->getRacesInRound($round) as $race) {
-          if ($race->boat == $round->boat) {
-            $race->boat = $boat;
-            DB::set($race, true);
-          }
-        }
-        $round->boat = $boat;
+
+      // Update races?
+      foreach ($this->REGATTA->getRacesInRound($round) as $race) {
+	if ($race->boat != $boat) {
+	  $race->boat = $boat;
+	  DB::set($race, true);
+	}
       }
+
+      for ($i = 0; $i < $round->getRaceOrderCount(); $i++) {
+        $round->setRaceOrderBoat($i, $boat);
+      }
+
       $round->title = $title;
       DB::set($round);
+      $round->saveRaceOrder();
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA(sprintf("Edited round data for %s.", $round)));
     }

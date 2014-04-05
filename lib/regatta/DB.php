@@ -2069,6 +2069,15 @@ class Round extends DBObject {
   }
 
   /**
+   * Convenience method returns first boat in race order
+   *
+   * @return Boat|null boat in first race
+   */
+  public function getBoat() {
+    return $this->getRaceOrderBoat(0);
+  }
+
+  /**
    * The number of races in internal order
    *
    * @return int the count
@@ -2103,6 +2112,13 @@ class Round extends DBObject {
     }
   }
 
+  public function setRaceOrderBoat($index, Boat $boat) {
+    $this->getTemplate();
+    if ($index < 0 || $index >= count($this->_template))
+      return;
+    $this->_template[$index]->boat = $boat;
+  }
+
   public function removeRaceOrder() {
     $this->_template = null;
   }
@@ -2135,6 +2151,14 @@ class Round extends DBObject {
 
   public function hasRaceOrder() {
     return $this->getTemplate() !== null;
+  }
+
+  public function getRaceBoats() {
+    $res = array();
+    for ($i = 0; $i < $this->getRaceOrderCount(); $i++) {
+      $res[] = $this->getRaceOrderBoat($i);
+    }
+    return $res;
   }
 
   public function getTemplate() {
