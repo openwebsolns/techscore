@@ -1976,7 +1976,7 @@ class Round extends DBObject {
    * @return boolean
    */
   public function hasRotation() {
-    return $this->rotation !== null;
+    return ($this->rotation !== null);
   }
 
   public static function compare(Round $r1, Round $r2) {

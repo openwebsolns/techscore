@@ -71,7 +71,7 @@ class TeamRacesPane extends AbstractRoundPane {
         $MAX_STEP = 2;
         if ($ROUND->hasRaceOrder()) {
           $MAX_STEP = 3;
-          if ($ROUND->hasRotation()) {
+          if ($ROUND->hasRotation() && $ROUND->getBoat() !== null) {
             $MAX_STEP = 4;
             if ($team_ids !== null) {
               $MAX_STEP = 5;
@@ -123,8 +123,6 @@ class TeamRacesPane extends AbstractRoundPane {
 
     }
 
-    $boats = $this->getBoatOptions();
-    
     // ------------------------------------------------------------
     // Step 1: Settings
     // ------------------------------------------------------------
@@ -145,20 +143,13 @@ class TeamRacesPane extends AbstractRoundPane {
         if ($ROUND->num_boats !== null)
           $num_boats = $ROUND->num_boats;
 
-        $boat = $ROUND->getBoat();
-	if ($boat === null)
-	  $boat = Session::g('round_boat');
-	if ($boat !== null)
-	  $boat = $boat->id;
-
         $this->PAGE->addContent($p = new XPort("New round settings"));
         $p->add($form = $this->createForm());
         $form->add(new FItem("Round name:", new XTextInput('title', $ROUND->title)));
         $form->add(new FItem("Number of teams:", new XTextInput('num_teams', $num_teams)));
 
         $form->add(new FItem("Number of boats:", new XInput('number', 'num_boats', $num_boats, array('min'=>$group_size, 'step'=>$group_size))));
-        $form->add(new FItem("Rotation frequency:", XSelect::fromArray('rotation_frequency', Race_Order::getFrequencyTypes())));
-        $form->add(new FItem("Boat:", XSelect::fromArray('boat', $boats, $boat)));
+        $form->add(new FItem("Rotation frequency:", XSelect::fromArray('rotation_frequency', Race_Order::getFrequencyTypes()), "Note: multiple fleets require \"Frequent rotation\"."));
         $form->add($p = new XSubmitP('create-settings', "Next →"));
       }
 
@@ -186,18 +177,11 @@ class TeamRacesPane extends AbstractRoundPane {
       }
 
       elseif ($type == self::COMPLETION) {
-        $boat = $ROUND->getBoat();
-	if ($boat === null)
-	  $boat = Session::g('round_boat');
-	if ($boat !== null)
-	  $boat = $boat->id;
-
         $this->PAGE->addContent($p = new XPort("Completion round settings"));
         $p->add($form = $this->createForm());
         $form->add(new FItem("Round name:", new XTextInput('title', $ROUND->title)));
         $form->add(new FItem("Number of boats:", new XInput('number', 'num_boats', $ROUND->num_boats, array('min'=>$group_size, 'step'=>$group_size))));
         $form->add(new FItem("Rotation frequency:", XSelect::fromArray('rotation_frequency', Race_Order::getFrequencyTypes())));
-        $form->add(new FItem("Boat:", XSelect::fromArray('boat', $boats, $boat)));
 
         $form->add(new XP(array(), "Enter the number of teams to carry over from each of the possible rounds below."));
         $form->add($ul = new XUl(array('id' => 'teams-list')));
@@ -525,10 +509,17 @@ window.addEventListener("load", function(e) {
       }
       for ($i = 0; $i < $ROUND->getRaceOrderCount(); $i++) {
         $pair = $ROUND->getRaceOrderPair($i);
-	$boat = $ROUND->getRaceOrderBoat($i);
         $form->add(new XHiddenInput('team1[]', $pair[0]));
         $form->add(new XHiddenInput('team2[]', $pair[1]));
-	$form->add(new XHiddenInput('boat[]', $boat->id));
+      }
+      // boats
+      if ($ROUND->rotation_frequency == Race_Order::FREQUENCY_FREQUENT) {
+	for ($i = 0; $i < $ROUND->num_boats / $flight; $i++)
+	  $form->add(new XHiddenInput('boats[]', $ROUND->getRaceOrderBoat($i)));
+      }
+      else {
+	$boat = $ROUND->getBoat();
+	$form->add(new XHiddenInput('boat', $boat->id));
       }
       $num_divs = count($divisions);
       if ($ROUND->hasRotation()) {
@@ -571,14 +562,6 @@ window.addEventListener("load", function(e) {
     }
     for ($i = $max + 1; $i < count($steps); $i++)
       $prog->add(new XSpan($steps[$i]));
-  }
-
-  private function getBoatOptions() {
-    $boats = DB::getBoats();
-    $boatOptions = array("" => "");
-    foreach ($boats as $boat)
-      $boatOptions[$boat->id] = $boat->name;
-    return $boatOptions;
   }
 
   /**
@@ -931,7 +914,6 @@ window.addEventListener("load", function(e) {
       Session::pa(new PA(array($message, " ", new XA($this->link('races'), "Add another round"), ".")));
       Session::d('round');
       Session::d('round_type');
-      Session::d('round_boat');
       Session::d('round_teams');
       Session::d('round_masters');
       Session::d('round_finishes');
@@ -981,8 +963,6 @@ window.addEventListener("load", function(e) {
         $clean_rotation = true;
       }
     }
-
-    Session::s('round_boat', DB::$V->reqID($args, 'boat', DB::$BOAT, "No boat provided."));
 
     $round->title = $title;
     $round->num_teams = $num_teams;
@@ -1045,7 +1025,7 @@ window.addEventListener("load", function(e) {
       $round->removeRaceOrder();
       $round->removeRotation();
     }
-    Session::s('round_boat', DB::$V->incID($args, 'boat', DB::$BOAT, $templ->boat));
+
     $round->sailoff_for_round = $templ;
 
     // If only two teams, involved, assign sail order
@@ -1153,7 +1133,6 @@ window.addEventListener("load", function(e) {
     $round->removeRaceOrder();
     $round->removeRotation();
 
-    Session::s('round_boat', DB::$V->reqID($args, 'boat', DB::$BOAT, "Invalid or missing boat."));
     return $master_rounds;
   }
 

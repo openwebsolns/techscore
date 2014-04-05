@@ -38,19 +38,16 @@
         if (!form)
             return;
 
-        var inputs = form.getElementsByTagName("input");
-        for (var i = 0; i < inputs.length; i++) {
-            if (inputs[i].type == "text" && inputs[i].name != "name") {
-                SAIL_INPUTS.push(inputs[i]);
-                inputs[i].onchange = checkRotation;
-            }
-            else if (inputs[i].type == "submit") {
-                SUBMIT_INPUT = inputs[i];
-                SUBMIT_EXPL = d.createElement("span");
-                SUBMIT_EXPL.className = "message";
-                SUBMIT_INPUT.parentNode.appendChild(SUBMIT_EXPL);
-            }
-        }
+	var inputs = d.getElementsByTagName("input");
+	for (i = inputs.length - 1; i >= 0; i--) {
+	    if (inputs[i].type == "submit") {
+		SUBMIT_INPUT = inputs[i];
+		SUBMIT_EXPL = d.createElement("span");
+		SUBMIT_EXPL.className = "message";
+		SUBMIT_INPUT.parentNode.appendChild(SUBMIT_EXPL);
+		break;
+	    }
+	}
 
         var masterChangeFactory = function(master, slaves) {
             return function(evt) {
@@ -68,8 +65,16 @@
         };
 
         var tables = form.getElementsByTagName("table");
-        for (i = 0; i < tables.length; i++) {
+        for (var i = 0; i < tables.length; i++) {
             if (tables[i].classList.contains("sail-list")) {
+		inputs = tables[i].getElementsByTagName("input");
+		for (var j = 0; j < inputs.length; j++) {
+		    if (inputs[j].type == "text" && inputs[j].name != "name") {
+			SAIL_INPUTS.push(inputs[j]);
+			inputs[j].onchange = checkRotation;
+		    }
+		}
+
                 inputs = tables[i].getElementsByTagName("select");
                 if (inputs.length > 1) {
                     inputs[0].onchange = masterChangeFactory(inputs[0], inputs);
@@ -77,7 +82,7 @@
                 if (inputs.length > 0) {
                     updateRotationStyle(inputs[0]);
                 }
-                for (var j = 1; j < inputs.length; j++) {
+                for (j = 1; j < inputs.length; j++) {
                     inputs[j].onchange = slaveChangeFactory(inputs[j]);
                     updateRotationStyle(inputs[j]);
                 }
