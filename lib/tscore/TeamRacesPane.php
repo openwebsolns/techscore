@@ -419,24 +419,27 @@ window.addEventListener("load", function(e) {
       }
 
       $sails = $ROUND->assignSails($teams, $divisions);
+      $boats = $ROUND->getBoats();
+      $header = array(new XTH(array(), "#"));
+      if (count($boats) > 1)
+	$header[] = new XTH(array(), "Boat");
+      $header[] = new XTH(array('colspan'=>2), "Team 1");
+      $header[] = new XTH(array('colspan'=>count($divisions)), "Sails");
+      $header[] = new XTH(array(), "");
+      $header[] = new XTH(array('colspan'=>count($divisions)), "Sails");
+      $header[] = new XTH(array('colspan'=>2), "Team 2");
+      $header[] = new XTH(array(), "Copy finishes?");
+
       $tab = new XTable(array('class'=>'tr-rotation-table'),
-                        array(new XTHead(array(),
-                                         array(new XTR(array(),
-                                                       array(new XTH(array(), "#"),
-                                                             new XTH(array('colspan'=>2), "Team 1"),
-                                                             new XTH(array('colspan'=>count($divisions)), "Sails"),
-                                                             new XTH(array(), ""),
-                                                             new XTH(array('colspan'=>count($divisions)), "Sails"),
-                                                             new XTH(array('colspan'=>2), "Team 2"),
-                                                             new XTH(array(), "Copy finishes?"))))),
-                              $body = new XTBody()));
+			array(new XTHead(array(), array(new XTR(array(), $header))), $body = new XTBody()));
 
       $flight = $ROUND->num_boats / $group_size;
 
+      $numcols = count($header) + 2 * (count($divisions) - 1);
       for ($i = 0; $i < $ROUND->getRaceOrderCount(); $i++) {
         // spacer
         if ($flight > 0 && $i % $flight == 0) {
-          $body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => 9 + 2 * count($divisions)), sprintf("Flight %d", ($i / $flight + 1))))));
+          $body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => $numcols), sprintf("Flight %d", ($i / $flight + 1))))));
         }
 
         $pair = $ROUND->getRaceOrderPair($i);
@@ -451,9 +454,12 @@ window.addEventListener("load", function(e) {
         if ($team2 instanceof Team)
           $burg2 = $team2->school->drawSmallBurgee("");
 
-        $body->add($row = new XTR(array(), array(new XTD(array(), ($i + 1)),
-                                                 new XTD(array('class'=>'team1'), $burg1),
-                                                 new XTD(array('class'=>'team1'), $team1))));
+        $body->add($row = new XTR(array(), array(new XTD(array(), ($i + 1)))));
+	if (count($boats) > 1)
+	  $row->add(new XTD(array('class'=>'boat'), $ROUND->getRaceOrderBoat($i)));
+	$row->add(new XTD(array('class'=>'team1'), $burg1));
+	$row->add(new XTD(array('class'=>'team1'), $team1));
+
         // first team
         foreach ($divisions as $div) {
           $sail = null;
@@ -514,8 +520,10 @@ window.addEventListener("load", function(e) {
       }
       // boats
       if ($ROUND->rotation_frequency == Race_Order::FREQUENCY_FREQUENT) {
-	for ($i = 0; $i < $ROUND->num_boats / $flight; $i++)
-	  $form->add(new XHiddenInput('boats[]', $ROUND->getRaceOrderBoat($i)));
+	for ($i = 0; $i < $ROUND->num_boats / $group_size; $i++) {
+	  $boat = $ROUND->getRaceOrderBoat($i);
+	  $form->add(new XHiddenInput('boats[]', $boat->id));
+	}
       }
       else {
 	$boat = $ROUND->getBoat();

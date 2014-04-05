@@ -3,6 +3,7 @@
 
 (function(w, d) {
     var SAIL_INPUTS = Array();
+    var BOAT_INPUTS = Array();
     var SUBMIT_INPUT = null;
     var SUBMIT_EXPL = null;
 
@@ -14,11 +15,19 @@
         var values = {};
         for (var i = 0; i < SAIL_INPUTS.length; i++) {
             var val = SAIL_INPUTS[i].value.trim();
+
             if (val.length == 0) {
                 SUBMIT_INPUT.disabled = true;
                 SUBMIT_EXPL.appendChild(d.createTextNode("Not all sails have been provided."));
                 return;
             }
+
+	    if (BOAT_INPUTS.length > 0) {
+		var fl = (SAIL_INPUTS.length / BOAT_INPUTS.length);
+		var ix = Math.floor(i / fl) % BOAT_INPUTS.length;
+		val += "," + BOAT_INPUTS[ix].value;
+	    }
+
             if (val in values) {
                 SUBMIT_INPUT.disabled = true;
                 SUBMIT_EXPL.appendChild(d.createTextNode("Duplicate sail " + val));
@@ -88,6 +97,12 @@
                 }
             }
         }
+
+	// boats?
+	inputs = form.querySelectorAll(".boat");
+	for (i = 0; i < inputs.length; i++) {
+	    BOAT_INPUTS.push(inputs[i]);
+	}
 
         checkRotation();
     }, false);

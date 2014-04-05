@@ -2078,6 +2078,21 @@ class Round extends DBObject {
   }
 
   /**
+   * Return all the boats used in this round's template
+   *
+   * @return Array:Boat
+   */
+  public function getBoats() {
+    $list = array();
+    for ($i = 0; $i < $this->getRaceOrderCount(); $i++) {
+      $boat = $this->getRaceOrderBoat($i);
+      if ($boat !== null)
+	$list[$boat->id] = $boat;
+    }
+    return array_values($list);
+  }
+
+  /**
    * The number of races in internal order
    *
    * @return int the count

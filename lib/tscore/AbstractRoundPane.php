@@ -264,7 +264,7 @@ abstract class AbstractRoundPane extends AbstractPane {
 	  $boat = $ROUND->getRaceOrderBoat($race_num);
 	  if ($boat !== null)
 	    $boat = $boat->id;
-	  $row->add(new XTD(array(), XSelect::fromArray('boats[]', $boats, $boat, array('required'=>'required'))));
+	  $row->add(new XTD(array(), XSelect::fromArray('boats[]', $boats, $boat, array('required'=>'required', 'class'=>'boat'))));
 	}
       }
     }
@@ -337,8 +337,38 @@ abstract class AbstractRoundPane extends AbstractPane {
     $c = array();
     $boats = array();
 
-    if ($round->rotation_frequency == Race_Order::FREQUENCY_FREQUENT ||
-        $round->rotation_frequency == Race_Order::FREQUENCY_INFREQUENT) {
+    if ($round->rotation_frequency == Race_Order::FREQUENCY_FREQUENT) {
+      $flight = $round->num_boats / $group_size;
+      $boats = array();
+      foreach (DB::$V->reqList($args, 'boats', $flight, "Missing list of boats.") as $i => $id) {
+	if (($boat = DB::getBoat($id)) === null)
+	  throw new SoterException(sprintf("Invalid boat provided for race %d.", ($i + 1)));
+	$boats[] = $boat;
+      }
+	  
+      for ($i = 0; $i < $round->getRaceOrderCount(); $i++) {
+	$round->setRaceOrderBoat($i, $boats[$i % count($boats)]);
+      }
+
+      $sails = DB::$V->reqList($args, 'sails', $round->num_boats, "Missing list of sails.");
+      $c = DB::$V->incList($args, 'colors', $round->num_boats);
+
+      // make sure all sails are present and distinct
+      $sail_boats = array();
+      foreach ($sails as $i => $sail) {
+        $sail = trim($sail);
+        if ($sail == "")
+          throw new SoterException("Empty sail provided.");
+
+	$boat = $boats[floor($i / $group_size)];
+	$id = sprintf('%s-%s', $boat->id, $sail);
+	if (isset($sail_boats[$id]))
+          throw new SoterException("Duplicate sail \"$sail\" provided.");
+        $s[] = $sail;
+	$sail_boats[$id] = $sail;
+      }
+    }
+    elseif ($round->rotation_frequency == Race_Order::FREQUENCY_INFREQUENT) {
       $sails = DB::$V->reqList($args, 'sails', $round->num_boats, "Missing list of sails.");
       $c = DB::$V->incList($args, 'colors', $round->num_boats);
 
@@ -352,23 +382,9 @@ abstract class AbstractRoundPane extends AbstractPane {
         $s[] = $sail;
       }
 
-      if ($round->rotation_frequency == Race_Order::FREQUENCY_FREQUENT) {
-	$boats = array();
-	foreach (DB::$V->reqList($args, 'boats', $round->num_boats / $group_size, "Missing list of boats.") as $i => $id) {
-	  if (($boat = DB::getBoat($id)) === null)
-	    throw new SoterException(sprintf("Invalid boat provided for race %d.", ($i + 1)));
-	  $boats[] = $boat;
-	}
-	  
-	for ($i = 0; $i < $round->getRaceOrderCount(); $i++) {
-	  $round->setRaceOrderBoat($i, $boats[$i % count($boats)]);
-	}
-      }
-      else {
-	$boat = DB::$V->reqID($args, 'boat', DB::$BOAT, "Missing boat. Please try again.");
-	for ($i = 0; $i < $round->getRaceOrderCount(); $i++) {
-	  $round->setRaceOrderBoat($i, $boat);
-	}
+      $boat = DB::$V->reqID($args, 'boat', DB::$BOAT, "Missing boat. Please try again.");
+      for ($i = 0; $i < $round->getRaceOrderCount(); $i++) {
+	$round->setRaceOrderBoat($i, $boat);
       }
     }
     else {
