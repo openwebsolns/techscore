@@ -192,17 +192,18 @@ class TeamRotationDialog extends AbstractDialog {
   public function getTable(Round $round, $link_schools = false) {
     $divisions = $this->REGATTA->getDivisions();
 
+    $boats = $round->getBoats();
     $season = $this->REGATTA->getSeason();
+    $header = array(new XTH(array(), "#"));
+    if (count($boats) > 1)
+      $header[] = new XTH(array(), "Boat");
+    $header[] = new XTH(array('colspan'=>2), "Team 1");
+    $header[] = new XTH(array('colspan'=>count($divisions)), "Sails");
+    $header[] = new XTH(array(), "");
+    $header[] = new XTH(array('colspan'=>count($divisions)), "Sails");
+    $header[] = new XTH(array('colspan'=>2), "Team 2");
     $tab = new XTable(array('class'=>'tr-rotation-table'),
-                      array(new XTHead(array(),
-                                       array(new XTR(array(),
-                                                     array(new XTH(array(), "#"),
-                                                           // new XTH(array(), "Boat"),
-                                                           new XTH(array('colspan'=>2), "Team 1"),
-                                                           new XTH(array('colspan'=>count($divisions)), "Sails"),
-                                                           new XTH(array(), ""),
-                                                           new XTH(array('colspan'=>count($divisions)), "Sails"),
-                                                           new XTH(array('colspan'=>2), "Team 2"))))),
+                      array(new XTHead(array(), array(new XTR(array(), $header))),
                             $body = new XTBody()));
 
     // Group teams and sails by round
@@ -237,6 +238,7 @@ class TeamRotationDialog extends AbstractDialog {
     }
 
     $flight = 0;
+    $numcols = count($header) + 2 * (count($divisions) - 1);
     foreach ($races as $i => $race) {
       $round = $race->round;
       $race_i = $race_index[$round->id];
@@ -245,12 +247,12 @@ class TeamRotationDialog extends AbstractDialog {
       if ($flightsize !== null) {
         if ($i % $flightsize == 0) {
           $flight++;
-          $body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => 9 + 2 * count($divisions)), sprintf("Flight %d", $flight)))));
+          $body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => $numcols), sprintf("Flight %d", $flight)))));
         }
       }
       elseif ($prevround != $round) {
         $flight++;
-        $body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => 9 + 2 * count($divisions)), sprintf("Flight %d", $flight)))));
+        $body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => $numcols), sprintf("Flight %d", $flight)))));
         $prevround = $round;
       }
 
@@ -280,10 +282,13 @@ class TeamRotationDialog extends AbstractDialog {
         $rowattrs['class'] = 'tr-incomplete';
       }
 
-      $body->add($row = new XTR($rowattrs, array(new XTD(array(), $race->number),
-                                                 // new XTD(array('class'=>'boat'), $race->boat),
-                                                 new XTD(array('class'=>'team1'), $burg1),
-                                                 new XTD(array('class'=>'team1'), $team1))));
+      $body->add($row = new XTR($rowattrs, array(new XTD(array(), $race->number))));
+      if (count($boats) > 1) {
+	$row->add(new XTD(array('class'=>'boat'), $race->boat));
+      }
+      $row->add(new XTD(array('class'=>'team1'), $burg1));
+      $row->add(new XTD(array('class'=>'team1'), $team1));
+
       // first team
       foreach ($divisions as $div) {
         $sail = null;
