@@ -2,7 +2,7 @@
 
 #progressdiv {
     background: none repeat scroll 0 0 #F8F8F8;
-    border: 1px solid #555555;
+    border: 3px solid #888;
     border-radius: 2em;
     box-shadow: 0 1px 2px #AAAAAA inset;
     display: inline-block;
@@ -23,7 +23,7 @@
     border-radius: none;
     background: none;
     border: none;
-    border-left: 1px solid #888;
+    border-left: 1px solid #ccc;
     margin: 0;
     padding: 0.5em;
     color: #888;
@@ -36,6 +36,9 @@
 #progressdiv input {
     cursor: pointer;
     background: #FFF6D5;
+    color: black;
+    font-weight: normal;
+    text-shadow: 0 1px white;
 }
 
 #progressdiv .completed {
@@ -43,7 +46,7 @@
     background: #FFF6D5;
 }
 
-#progressdiv .current {
+#progressdiv .current, #progressdiv #progress-active {
     background: #FFEEAA;
     cursor: default;
 }
