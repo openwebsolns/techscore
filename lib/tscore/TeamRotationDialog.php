@@ -161,7 +161,7 @@ class TeamRotationDialog extends AbstractDialog {
 
       $body->add($row = new XTR($rowattrs, array(new XTD(array(), $race->number))));
       if (count($boats) > 1) {
-	$row->add(new XTD(array('class'=>'boat'), $race->boat));
+	$row->add(new XTD(array('class'=>'boat-cell'), new XSpan($race->boat, array('class'=>'boat'))));
       }
       $row->add(new XTD(array('class'=>'team1'), $burg1));
       $row->add(new XTD(array('class'=>'team1'), $team1));
