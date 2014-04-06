@@ -386,8 +386,17 @@ h4#regatta {
     background: #eee;
     height: 2em;
 }
+.port.collapsed {
+    height: 0;
+}
 .collapsed * {
     display: none;
+}
+.port.js h3 {
+    cursor: n-resize;
+}
+.port.js.collapsed h3 {
+    cursor: s-resize;
 }
 .collapsable legend {
     display:inline-block;

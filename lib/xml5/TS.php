@@ -39,6 +39,20 @@ class XPort extends XDiv {
 }
 
 /**
+ * Adds extra class "collapsible", which indicates that it should be
+ * initially rendered "closed", or collapsed
+ *
+ * @author Dayan Paez
+ * @version 2014-04-06
+ */
+class XCollapsiblePort extends XPort {
+  public function __construct($title, Array $children = array(), Array $attrs = array()) {
+    parent::__construct($title, $children, $attrs);
+    $this->set('class', 'port collapsible');
+  }
+}
+
+/**
  * A span of class 'message'
  *
  */

@@ -70,6 +70,22 @@ function parseRange(str) {
         for (i = 0; i < acc.length; i++)
             acc[i].style.display = "none";
 
+	// Collapsible
+	acc = d.querySelectorAll(".collapsible");
+	var rf = function(p) {
+	    return function(e) {
+		p.classList.toggle("collapsed");
+		return false;
+	    };
+	};
+	if (acc.length > 0) {
+	    for (i = 0; i < acc.length; i++) {
+		acc[i].classList.add("collapsed");
+		acc[i].classList.add("js");
+		acc[i].childNodes[0].onclick = rf(acc[i]);
+	    }
+	}
+
         // Context menu?
         ul = d.getElementById("context-menu");
         if (ul)

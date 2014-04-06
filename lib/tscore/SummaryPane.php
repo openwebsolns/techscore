@@ -61,7 +61,7 @@ class SummaryPane extends AbstractPane {
 
     $can_mail = ((string)DB::g(STN::SEND_MAIL) == 1);
 
-    $this->PAGE->addContent($xp = new XPort("About the daily summaries"));
+    $this->PAGE->addContent($xp = new XCollapsiblePort("About the daily summaries"));
     $xp->add($p = new XP(array(), "A text summary is required for each day of competition for all public regattas."));
     if ($this->REGATTA->private == null) {
       $p->add(" The summaries will be printed as part of the ");
