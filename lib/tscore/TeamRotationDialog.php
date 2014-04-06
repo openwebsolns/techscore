@@ -67,6 +67,9 @@ class TeamRotationDialog extends AbstractDialog {
     // multiple boats?
     $boats = array();
 
+    // flightsizes per round?
+    $flightsize = array();
+
     // Group teams and sails by round
     $teams = array($round->id => $this->getTeams($round));
     $sails = array($round->id => array());
@@ -85,16 +88,16 @@ class TeamRotationDialog extends AbstractDialog {
         }
 	foreach ($r->getBoats() as $boat)
 	  $boats[$boat->id] = $boat;
+	$flightsize[$r->id] = $r->num_boats / (2 * count($divisions));
       }
     }
 
     // calculate appropriate race number
-    $flightsize = null;
     $prevround = null;
     $races = null;
     if ($round->round_group === null) {
       $races = $this->REGATTA->getRacesInRound($round, Division::A());
-      $flightsize = $round->num_boats / (2 * count($divisions));
+      $flightsize[$round->id] = $round->num_boats / (2 * count($divisions));
       $boats = $round->getBoats();
     }
     else {
@@ -116,21 +119,22 @@ class TeamRotationDialog extends AbstractDialog {
 
     $flight = 0;
     $numcols = count($header) + 2 * count($divisions);
+    $num_in_round = 0;
     foreach ($races as $i => $race) {
       $round = $race->round;
       $race_i = $race_index[$round->id];
+      $num_in_round++;
 
       // spacer
-      if ($flightsize !== null) {
-        if ($i % $flightsize == 0) {
-          $flight++;
-          $body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => $numcols), sprintf("Flight %d", $flight)))));
-        }
-      }
-      elseif ($prevround != $round) {
+      if ($prevround != $round) {
         $flight++;
         $body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => $numcols), sprintf("Flight %d", $flight)))));
         $prevround = $round;
+	$num_in_round = 0;
+      }
+      elseif ($num_in_round % $flightsize[$round->id] == 0) {
+	$flight++;
+	$body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => $numcols), sprintf("Flight %d", $flight)))));
       }
 
       $rowattrs = array();
