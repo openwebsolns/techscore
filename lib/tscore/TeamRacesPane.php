@@ -50,7 +50,6 @@ class TeamRacesPane extends AbstractRoundPane {
         $sailoff_rounds[] = $round;
     }
 
-    $this->PAGE->head->add(new LinkCSS('/inc/css/round.css'));
     $ROUND = Session::g('round');
     $type = Session::g('round_type');
     if ($type === null)

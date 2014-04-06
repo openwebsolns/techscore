@@ -36,7 +36,6 @@ class TeamEditRoundPane extends AbstractRoundPane {
                                    self::DELETE => "Delete");
   
   private function fillProgressDiv(Round $round, $section) {
-    $this->PAGE->head->add(new LinkCSS('/inc/css/round.css'));
     $this->PAGE->addContent($p = new XP(array('id'=>'progressdiv')));
     foreach (self::$SECTIONS as $key => $title) {
       $p->add($span = new XSpan(new XA($this->link('round', array('r'=>$round->id, 'section'=>$key)), $title)));

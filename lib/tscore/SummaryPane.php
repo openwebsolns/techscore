@@ -24,7 +24,6 @@ class SummaryPane extends AbstractPane {
   }
 
   protected function fillHTML(Array $args) {
-    $this->PAGE->head->add(new LinkCSS('/inc/css/round.css'));
 
     $duration = $this->REGATTA->getDuration();
 

@@ -70,7 +70,6 @@ class AllAmerican extends AbstractUserPane {
   }
 
   public function fillHTML(Array $args) {
-    $this->PAGE->head->add(new LinkCSS('/inc/css/round.css'));
     $this->PAGE->head->add(new LinkCSS('/inc/css/aa.css'));
     $this->PAGE->addContent($f = $this->createForm());
     $f->add($prog = new XP(array('id'=>'progressdiv')));
