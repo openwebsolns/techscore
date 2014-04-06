@@ -64,19 +64,8 @@ class TeamRotationDialog extends AbstractDialog {
   public function getTable(Round $round, $link_schools = false) {
     $divisions = $this->REGATTA->getDivisions();
 
-    $boats = $round->getBoats();
-    $season = $this->REGATTA->getSeason();
-    $header = array(new XTH(array(), "#"));
-    if (count($boats) > 1)
-      $header[] = new XTH(array(), "Boat");
-    $header[] = new XTH(array('colspan'=>2), "Team 1");
-    $header[] = new XTH(array('colspan'=>count($divisions)), "Sails");
-    $header[] = new XTH(array(), "");
-    $header[] = new XTH(array('colspan'=>count($divisions)), "Sails");
-    $header[] = new XTH(array('colspan'=>2), "Team 2");
-    $tab = new XTable(array('class'=>'tr-rotation-table'),
-                      array(new XTHead(array(), array(new XTR(array(), $header))),
-                            $body = new XTBody()));
+    // multiple boats?
+    $boats = array();
 
     // Group teams and sails by round
     $teams = array($round->id => $this->getTeams($round));
@@ -94,6 +83,8 @@ class TeamRotationDialog extends AbstractDialog {
             $sails[$r->id] = $r->assignSails($teams[$r->id], $divisions);
           $race_index[$r->id] = 0;
         }
+	foreach ($r->getBoats() as $boat)
+	  $boats[$boat->id] = $boat;
       }
     }
 
@@ -104,10 +95,24 @@ class TeamRotationDialog extends AbstractDialog {
     if ($round->round_group === null) {
       $races = $this->REGATTA->getRacesInRound($round, Division::A());
       $flightsize = $round->num_boats / (2 * count($divisions));
+      $boats = $round->getBoats();
     }
     else {
       $races = $this->REGATTA->getRacesInRoundGroup($round->round_group, Division::A());
     }
+
+    $season = $this->REGATTA->getSeason();
+    $header = array(new XTH(array(), "#"));
+    if (count($boats) > 1)
+      $header[] = new XTH(array(), "Boat");
+    $header[] = new XTH(array('colspan'=>2), "Team 1");
+    $header[] = new XTH(array('colspan'=>count($divisions)), "Sails");
+    $header[] = new XTH(array(), "");
+    $header[] = new XTH(array('colspan'=>count($divisions)), "Sails");
+    $header[] = new XTH(array('colspan'=>2), "Team 2");
+    $tab = new XTable(array('class'=>'tr-rotation-table'),
+                      array(new XTHead(array(), array(new XTR(array(), $header))),
+                            $body = new XTBody()));
 
     $flight = 0;
     $numcols = count($header) + 2 * count($divisions);
