@@ -435,7 +435,7 @@ window.addEventListener("load", function(e) {
 
       $flight = $ROUND->num_boats / $group_size;
 
-      $numcols = count($header) + 2 * (count($divisions) - 1);
+      $numcols = count($header) + 2 * (count($divisions) + 1);
       for ($i = 0; $i < $ROUND->getRaceOrderCount(); $i++) {
         // spacer
         if ($flight > 0 && $i % $flight == 0) {
