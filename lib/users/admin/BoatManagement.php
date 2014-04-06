@@ -81,7 +81,7 @@ class BoatManagement extends AbstractAdminUserPane {
     $f->add($tab = new XQuickTable(array(), array("Name", "No. Crews", "Delete")));
     foreach (DB::getBoats() as $boat) {
       $del = '';
-      if (count($boat->getRaces()) == 0)
+      if (count($boat->getRaces()) == 0 && count($boat->getRounds()) == 0)
         $del = new XCheckboxInput('boat[]', $boat->id, array('title'=>"Delete this boat class."));
 
       $tab->addRow(array(new XTD(array('class'=>'left'), new XA(sprintf("boats?b=%d", $boat->id), $boat->name)),
@@ -127,6 +127,8 @@ class BoatManagement extends AbstractAdminUserPane {
       foreach ($list as $id) {
         if (($boat = DB::getBoat($id)) === null)
           throw new SoterException("Invalid boat to delete: $id.");
+	if (count($boat->getRaces()) > 0 || count($boat->getRounds()) > 0)
+	  throw new SoterException("Boat may not be removed as it is being used in races.");
         $boats[] = $boat;
       }
 

@@ -152,9 +152,9 @@ class Session {
    * @param String $key the key
    * @return mixed the value, or null
    */
-  public static function g($key) {
+  public static function g($key, $default = null) {
     if (!self::has($key))
-      return null;
+      return $default;
     return self::$DATA[$key];
   }
 

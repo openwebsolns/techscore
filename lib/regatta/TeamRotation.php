@@ -91,7 +91,7 @@ class TeamRotation {
    * team index, and then by divisions
    */
   public function assignSails(Round $round, Array $teams, Array $divisions, $frequency) {
-    if ($round->race_order === null)
+    if (!$round->hasRaceOrder())
       return array();
 
     if ($this->count() == 0)
@@ -101,7 +101,7 @@ class TeamRotation {
     if ($frequency == Race_Order::FREQUENCY_FREQUENT) {
       $sailIndex = 0;
       $num_divs = count($divisions);
-      for ($i = 0; $i < count($round->race_order); $i++) {
+      for ($i = 0; $i < $round->getRaceOrderCount(); $i++) {
         $pair = $round->getRaceOrderPair($i);
         $list[$i] = array($pair[0] => array(), $pair[1] => array());
         foreach ($divisions as $div) {
@@ -141,7 +141,7 @@ class TeamRotation {
       // Group races into flights
       $race_groups = array();
       $flight_size = $this->count() / (2 * count($divisions));
-      for ($i = 0; $i < count($round->race_order); $i++) {
+      for ($i = 0; $i < $round->getRaceOrderCount(); $i++) {
         $flight = floor($i / $flight_size);
         if (!isset($race_groups[$flight]))
           $race_groups[$flight] = array();
@@ -220,7 +220,7 @@ class TeamRotation {
         }
       }
 
-      for ($i = 0; $i < count($round->race_order); $i++) {
+      for ($i = 0; $i < $round->getRaceOrderCount(); $i++) {
         $pair = $round->getRaceOrderPair($i);
         $list[] = array($pair[0] => $team_sails[$pair[0] - 1],
                         $pair[1] => $team_sails[$pair[1] - 1]);
