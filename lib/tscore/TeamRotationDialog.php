@@ -110,7 +110,7 @@ class TeamRotationDialog extends AbstractDialog {
     }
 
     $flight = 0;
-    $numcols = count($header) + 2 * (count($divisions) - 1);
+    $numcols = count($header) + 2 * count($divisions);
     foreach ($races as $i => $race) {
       $round = $race->round;
       $race_i = $race_index[$round->id];
