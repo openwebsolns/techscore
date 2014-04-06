@@ -166,7 +166,7 @@ select, .csel-container, .multiple-select {
     font-size: 1em;
 }
 
-.form_entry .csel-container {
+.csel-container {
     padding: 0;
 }
 
