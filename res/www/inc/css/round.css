@@ -16,6 +16,7 @@
     color: black;
     text-decoration: none;
     text-shadow: 0 1px white;
+    padding: 0.5em;
 }
 
 #progressdiv span, #progressdiv input {
@@ -49,4 +50,5 @@
 #progressdiv .current, #progressdiv #progress-active {
     background: #FFEEAA;
     cursor: default;
+    color: black;
 }

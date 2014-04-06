@@ -24,13 +24,29 @@ class SummaryPane extends AbstractPane {
   }
 
   protected function fillHTML(Array $args) {
-    $this->PAGE->head->add(new LinkCSS('/inc/css/sum.css'));
+    $this->PAGE->head->add(new LinkCSS('/inc/css/round.css'));
 
     $duration = $this->REGATTA->getDuration();
-    $f = $this->createForm(XForm::GET);
-    $f->add($prog = new XP(array('id'=>'progressdiv')));
-    if ($duration > 1)
-      $this->PAGE->addContent($f);
+
+    // Which day's summary?
+    $summary_day = clone($this->REGATTA->start_time);
+    if ($duration > 1) {
+      $day = DB::$V->incInt($args, 'day', 1, $duration + 1, 1);
+      $prog = new XP(array('id'=>'progressdiv'));
+      $this->PAGE->addContent($prog);
+
+      $s = clone($this->REGATTA->start_time);
+      for ($i = 1; $i <= $duration; $i++) {
+	if ($i == $day) {
+	  $prog->add(new XSpan($s->format('l, F j, Y'), array('class'=>'current')));
+	  $summary_day = clone($s);
+	}
+	else {
+	  $prog->add(new XA($this->link('summary', array('day'=>$i)), $s->format('l, F j, Y')));
+	}
+	$s->add(new DateInterval('P1DT0H'));
+      }
+    }
 
     $can_mail = ((string)DB::g(STN::SEND_MAIL) == 1);
 
@@ -57,45 +73,15 @@ class SummaryPane extends AbstractPane {
     $this->PAGE->addContent($p = new XPort("Daily summary"));
     $p->add($form = $this->createForm());
 
-    // Which day's summary?
-    $s = clone($this->REGATTA->start_time);
-    $s->setTime(0, 0, 0);
-    $e = clone($this->REGATTA->end_date);
-    $e->setTime(23, 59, 59);
-    
-    $day = DB::$V->incDate($args, 'day', $s, $e, null);
-    if ($day === null) {
-      $now = clone(DB::$NOW);
-      $now->setTime(0, 0);
-      $diff = $now->diff($s);
-      if ($now <= $s)
-        $day = $s;
-      elseif ($diff->days >= $duration)
-        $day = $e;
-      else {
-        $day = clone($s);
-        $day->add(new DateInterval(sprintf('P%dDT0H', $diff->days)));
-      }
-    }
-    $summ = $this->REGATTA->getSummary($day);
-    $form->add(new XHiddenInput('day', $day->format('Y-m-d')));
-    $form->add(new XH4($day->format('l, F j')));
+    $summ = $this->REGATTA->getSummary($summary_day);
+    $form->add(new XHiddenInput('day', $summary_day->format('Y-m-d')));
+    $form->add(new XH4($summary_day->format('l, F j')));
     $form->add(new XP(array(), new XTextArea('summary', $summ, array('rows'=>30, 'id'=>'summary-textarea'))));
 
     if ($can_mail && ($summ === null || $summ->mail_sent === null)) {
       $form->add(new FItem("Send e-mail:", new FCheckbox('email', 1, "Click to send e-mail to appropriate mailing lists with regatta details.")));
     }
     $form->add(new XSubmitP('set_comment', 'Save summary'));
-
-    $day = $day->format('Y-m-d');
-    for ($i = 0; $i < $duration; $i++) {
-      if ($s->format('Y-m-d') == $day)
-        $prog->add(new XSpan($s->format('l, F j, Y')));
-      else {
-        $prog->add($sub = new XSubmitInput('day', $s->format('l, F j, Y')));
-      }
-      $s->add(new DateInterval('P1DT0H'));
-    }
   }
 
   /**
