@@ -175,7 +175,7 @@ class UpdateSeason extends AbstractScript {
     // Complete SUMMARY
     $summary_table["Number of Weekends"] = $num_weeks;
     $summary_table["Number of Regattas"] = $total;
-    $summary_table["Number of Teams"] = $num_teams;
+    $summary_table["Number of Entries"] = $num_teams;
 
     // Summary report
     $page->setHeader($season->fullString(), $summary_table);
