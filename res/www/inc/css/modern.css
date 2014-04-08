@@ -1673,3 +1673,28 @@ td.tr-sail, td.sail {
     cursor: default;
     color: black;
 }
+
+.sail-combo {
+    position: relative;
+    overflow: hidden;
+}
+
+#bodydiv .sail-combo .sail-input {
+    padding-right: 2.25em;
+    text-align: right;
+}
+
+#bodydiv .sail-combo select {
+    padding: 0.25em;
+    position: absolute;
+    right: 2px;
+    top: 2px;
+    width: 20px;
+    z-index: 3;
+    border-left: 1px solid #aaa;
+    color: rgba(255, 255, 255, 0);
+}
+
+#bodydiv .sail-combo .color-chooser:focus {
+    border-left: 1px solid #aaa;
+}

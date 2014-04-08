@@ -324,13 +324,27 @@ class XSailColorInput extends XSelect {
   public function __construct($name, $chosen = null, Array $attrs = array()) {
     parent::__construct($name, $attrs);
     $this->set('class', 'color-chooser');
-    $this->add(new XOption("", array(), "[None]"));
+    $this->add(new XOption("", array(), ""));
     foreach (self::$COLORS as $code => $title) {
       $attrs = array('style'=>sprintf('background:%1$s;color:%1$s;', $code));
       $this->add($opt = new XOption($code, $attrs, $title));
       if ($code == $chosen)
         $opt->set('selected', 'selected');
     }
+  }
+}
+
+/**
+ * Sail and color input combo
+ *
+ * @author Dayan Paez
+ * @version 2014-04-07
+ */
+class XSailCombo extends XSpan {
+  public function __construct($sail_name, $color_name, $sail_chosen = null, $color_chosen = null) {
+    parent::__construct("", array('class'=>'sail-combo'));
+    $this->add(new XSailInput($sail_name, $sail_chosen));
+    $this->add(new XSailColorInput($color_name, $color_chosen));
   }
 }
 

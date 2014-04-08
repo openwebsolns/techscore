@@ -101,7 +101,7 @@ class SailsPane extends AbstractPane {
       $num_teams = count($teams);
       $tab->add(new XTHead(array(), array($row = new XTR(array(), array(new XTH(array(), "Team"))))));
       foreach ($divisions as $div)
-        $row->add(new XTH(array('colspan'=>2), "Div. $div"));
+        $row->add(new XTH(array(), "Div. $div"));
       $tab->add($bod = new XTBody());
       foreach ($teams as $team) {
         $bod->add($row = new XTR(array(), array(new XTD(array(), $team))));
@@ -109,8 +109,7 @@ class SailsPane extends AbstractPane {
         foreach ($divisions as $div) {
           $num = $i + $off * $num_teams;
           $name = sprintf("%s,%s", $div, $team->id);
-          $row->add(new XTD(array(), new XSailInput($name, $num)));
-          $row->add(new XTD(array('title'=>"Optional"), new XSailColorInput('color-' . $name)));
+          $row->add(new XTD(array(), new XSailCombo($name, 'color-' . $name, $num)));
           $off++;
         }
         $i++;
