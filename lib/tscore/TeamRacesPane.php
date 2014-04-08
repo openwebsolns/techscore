@@ -213,7 +213,6 @@ class TeamRacesPane extends AbstractRoundPane {
       if ($ROUND->hasRaceOrder()) {
         $order = new Race_Order();
         $order->setPairs($ROUND->getRaceOrder());
-        $form->add(new XP(array('class'=>'valid'), "The saved race order is shown below."));
         $collapse = true;
       }
       else {
