@@ -242,7 +242,7 @@ abstract class AbstractRoundPane extends AbstractPane {
             $color = $ROUND->getColorAt($sailIndex);
 
             $tab->add(new XTR(array(),
-			      array(new XTD(array(), new XSailInput('sails[]', $sail, false, array('tabindex'=>($sailIndex + 1)))),
+                              array(new XTD(array(), new XSailInput('sails[]', $sail, false, array('tabindex'=>($sailIndex + 1)))),
                                     $td = new XTD(array('title'=>"Optional"), new XSailColorInput('colors[]', $color, array('tabindex' => ($sailIndex + 1 + $flight)))))));
 
             $sailIndex++;
@@ -290,17 +290,8 @@ abstract class AbstractRoundPane extends AbstractPane {
 
 
           $bod->add(new XTR(array(),
-			    array(new XTD(array(), new XSailInput('sails[]', $sail, false, array('tabindex'=>($i + 1)))),
-                                  new XTD(array('title'=>"Optional"), $sel = new XSelect('colors[]', array('class'=>'color-chooser', 'tabindex'=>($i + 1 + $ROUND->getRotationCount())))))));
-
-          $sel->add(new XOption("", array(), "[None]"));
-          foreach ($COLORS as $code => $title) {
-            $attrs = array('style'=>sprintf('background:%1$s;color:%1$s;', $code));
-            $sel->add($opt = new XOption($code, $attrs, $title));
-
-            if ($code == $color)
-              $opt->set('selected', 'selected');
-          }
+                            array(new XTD(array(), new XSailInput('sails[]', $sail, false, array('tabindex'=>($i + 1)))),
+                                  new XTD(array('title'=>"Optional"), new XSailColorInput('colors[]', $color, array('tabindex'=>($i + 1 + $ROUND->getRotationCount())))))));
 
           $sailIndex++;
         }
