@@ -1693,6 +1693,7 @@ td.tr-sail, td.sail {
     z-index: 3;
     border-left: 1px solid #aaa;
     color: rgba(255, 255, 255, 0);
+    background: url('/inc/img/trans.png');
 }
 
 #bodydiv .sail-combo .color-chooser:focus {
