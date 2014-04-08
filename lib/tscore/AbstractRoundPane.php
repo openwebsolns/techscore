@@ -164,21 +164,21 @@ abstract class AbstractRoundPane extends AbstractPane {
     $form->set('id', 'tr-rotation-form');
 
     $COLORS = array(
-                    "#eee" => "White",
-                    "#ccc" => "Light Grey",
-                    "#666" => "Grey",
-                    "#000" => "Black",
-                    "#884B2A" => "Brown",
-                    "#f80" => "Orange",
-                    "#f00" => "Red",
-                    "#fcc" => "Pink",
-                    "#add8e6" => "Light Blue",
-                    "#00f" => "Blue",
-                    "#808" => "Purple",
-                    "#0f0" => "Lime Green",
-                    "#080" => "Green",
-                    "#ff0" => "Yellow"
-                    );
+      "#eee" => "White",
+      "#ccc" => "Light Grey",
+      "#666" => "Grey",
+      "#000" => "Black",
+      "#884B2A" => "Brown",
+      "#f80" => "Orange",
+      "#f00" => "Red",
+      "#fcc" => "Pink",
+      "#add8e6" => "Light Blue",
+      "#00f" => "Blue",
+      "#808" => "Purple",
+      "#0f0" => "Lime Green",
+      "#080" => "Green",
+      "#ff0" => "Yellow"
+    );
 
     $flight = $ROUND->num_boats;
     if (!$ROUND->hasRotation()) {
@@ -186,7 +186,7 @@ abstract class AbstractRoundPane extends AbstractPane {
       for ($i = count($rounds) - 1; $i >= 0; $i--) {
         $other = $rounds[$i];
         if ($other->num_boats == $ROUND->num_boats && $other->hasRotation()) {
-	  $ROUND->setRotation($other->getSails(), $other->getColors());
+          $ROUND->setRotation($other->getSails(), $other->getColors());
           break;
         }
       }
@@ -205,29 +205,29 @@ abstract class AbstractRoundPane extends AbstractPane {
           $s[] = ($i + 1);
           $c[] = "";
         }
-	$ROUND->setRotation($s, $c);
+        $ROUND->setRotation($s, $c);
       }
 
       $form->add($xp = new XP(array(), array("The flight size for this rotation is ", new XStrong($flight / $group_size), " races.")));
       if ($ROUND->rotation_frequency == Race_Order::FREQUENCY_FREQUENT)
-	$xp->add(" Remember to set the boat in the last column.");
+        $xp->add(" Remember to set the boat in the last column.");
       else {
-	$boat = $ROUND->getBoat();
-	if ($boat !== null)
-	  $boat = $boat->id;
-	$form->add(new FItem("Boat:", XSelect::fromArray('boat', $boats, $boat, array('required'=>'required'))));
+        $boat = $ROUND->getBoat();
+        if ($boat !== null)
+          $boat = $boat->id;
+        $form->add(new FItem("Boat:", XSelect::fromArray('boat', $boats, $boat, array('required'=>'required'))));
       }
 
       $form->add(new XTable(array('class'=>'tr-rotation-sails'),
                             array(new XTHead(array(),
                                              array($h = new XTR(array(),
-								array(new XTH(array(), "#"),
-								      new XTH(array(), "Team A"),
-								      new XTH(array(), "Team B"))))),
+                                                                array(new XTH(array(), "#"),
+                                                                      new XTH(array(), "Team A"),
+                                                                      new XTH(array(), "Team B"))))),
                                   $bod = new XTBody())));
 
       if ($ROUND->rotation_frequency == Race_Order::FREQUENCY_FREQUENT)
-	$h->add(new XTH(array(), "Boat"));
+        $h->add(new XTH(array(), "Boat"));
 
       $sailIndex = 0;
       for ($race_num = 0; $race_num < $flight / $group_size; $race_num++) {
@@ -249,13 +249,13 @@ abstract class AbstractRoundPane extends AbstractPane {
           }
         }
 
-	// Race number?
-	if ($ROUND->rotation_frequency == Race_Order::FREQUENCY_FREQUENT) {
-	  $boat = $ROUND->getRaceOrderBoat($race_num);
-	  if ($boat !== null)
-	    $boat = $boat->id;
-	  $row->add(new XTD(array(), XSelect::fromArray('boats[]', $boats, $boat, array('required'=>'required', 'class'=>'boat'))));
-	}
+        // Race number?
+        if ($ROUND->rotation_frequency == Race_Order::FREQUENCY_FREQUENT) {
+          $boat = $ROUND->getRaceOrderBoat($race_num);
+          if ($boat !== null)
+            $boat = $boat->id;
+          $row->add(new XTD(array(), XSelect::fromArray('boats[]', $boats, $boat, array('required'=>'required', 'class'=>'boat'))));
+        }
       }
     }
     else {
@@ -267,12 +267,12 @@ abstract class AbstractRoundPane extends AbstractPane {
           $s[] = ($i + 1);
           $c[] = "";
         }
-	$ROUND->setRotation($s, $c);
+        $ROUND->setRotation($s, $c);
       }
 
       $boat = $ROUND->getBoat();
       if ($boat !== null)
-	$boat = $boat->id;
+        $boat = $boat->id;
       $form->add(new FItem("Boat:", XSelect::fromArray('boat', $boats, $boat, array('required'=>'required'))));
 
       // No rotation frequency: display an entry PER team
@@ -288,7 +288,7 @@ abstract class AbstractRoundPane extends AbstractPane {
           $sail = $ROUND->getSailAt($sailIndex);
           $color = $ROUND->getColorAt($sailIndex);
 
-          
+
           $bod->add(new XTR(array(),
 			    array(new XTD(array(), new XSailInput('sails[]', $sail, false, array('tabindex'=>($i + 1)))),
                                   new XTD(array('title'=>"Optional"), $sel = new XSelect('colors[]', array('class'=>'color-chooser', 'tabindex'=>($i + 1 + $ROUND->getRotationCount())))))));
@@ -331,13 +331,13 @@ abstract class AbstractRoundPane extends AbstractPane {
       $flight = $round->num_boats / $group_size;
       $boats = array();
       foreach (DB::$V->reqList($args, 'boats', $flight, "Missing list of boats.") as $i => $id) {
-	if (($boat = DB::getBoat($id)) === null)
-	  throw new SoterException(sprintf("Invalid boat provided for race %d.", ($i + 1)));
-	$boats[] = $boat;
+        if (($boat = DB::getBoat($id)) === null)
+          throw new SoterException(sprintf("Invalid boat provided for race %d.", ($i + 1)));
+        $boats[] = $boat;
       }
-	  
+
       for ($i = 0; $i < $round->getRaceOrderCount(); $i++) {
-	$round->setRaceOrderBoat($i, $boats[$i % count($boats)]);
+        $round->setRaceOrderBoat($i, $boats[$i % count($boats)]);
       }
 
       $sails = DB::$V->reqList($args, 'sails', $round->num_boats, "Missing list of sails.");
@@ -350,12 +350,12 @@ abstract class AbstractRoundPane extends AbstractPane {
         if ($sail == "")
           throw new SoterException("Empty sail provided.");
 
-	$boat = $boats[floor($i / $group_size)];
-	$id = sprintf('%s-%s', $boat->id, $sail);
-	if (isset($sail_boats[$id]))
+        $boat = $boats[floor($i / $group_size)];
+        $id = sprintf('%s-%s', $boat->id, $sail);
+        if (isset($sail_boats[$id]))
           throw new SoterException("Duplicate sail \"$sail\" provided.");
         $s[] = $sail;
-	$sail_boats[$id] = $sail;
+        $sail_boats[$id] = $sail;
       }
     }
     elseif ($round->rotation_frequency == Race_Order::FREQUENCY_INFREQUENT) {
@@ -374,7 +374,7 @@ abstract class AbstractRoundPane extends AbstractPane {
 
       $boat = DB::$V->reqID($args, 'boat', DB::$BOAT, "Missing boat. Please try again.");
       for ($i = 0; $i < $round->getRaceOrderCount(); $i++) {
-	$round->setRaceOrderBoat($i, $boat);
+        $round->setRaceOrderBoat($i, $boat);
       }
     }
     else {
@@ -395,7 +395,7 @@ abstract class AbstractRoundPane extends AbstractPane {
 
       $boat = DB::$V->reqID($args, 'boat', DB::$BOAT, "Missing boat. Please try again.");
       for ($i = 0; $i < $round->getRaceOrderCount(); $i++) {
-	$round->setRaceOrderBoat($i, $boat);
+        $round->setRaceOrderBoat($i, $boat);
       }
     }
 
@@ -477,7 +477,7 @@ abstract class AbstractRoundPane extends AbstractPane {
         foreach ($this->REGATTA->getTeams() as $team)
           $all_teams[$team->id] = $team;
       }
-      
+
       $teams = array();
       foreach ($ids as $index => $id) {
         if ($order[$index] > 0) {
