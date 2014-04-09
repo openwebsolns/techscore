@@ -274,22 +274,18 @@ abstract class AbstractRoundPane extends AbstractPane {
 
       // No rotation frequency: display an entry PER team
       $form->add($tab = new XQuickTable(array('class'=>'tr-rotation-sails'),
-                                        array("Team #", "Sail # & Color")));
+                                        array("Team #", "Sail")));
 
       $sailIndex = 0;
       for ($i = 0; $i < $ROUND->getRotationCount() / $num_divs; $i++) {
         $tab->addRow(array(new XTH(array(), sprintf("Team %d", $i + 1)),
-                           new XTable(array('class'=>'sail-list'), array($bod = new XTBody()))));
+                           new XTable(array('class'=>'sail-list'), array(new XTBody(array(), array($bod = new XTR()))))),
+                     array('class'=>'row'.($i % 2)));
 
         for ($j = 0; $j < $num_divs; $j++) {
           $sail = $ROUND->getSailAt($sailIndex);
           $color = $ROUND->getColorAt($sailIndex);
-
-
-          $bod->add(new XTR(array(),
-                            array(new XTD(array(), new XSailInput('sails[]', $sail, false, array('tabindex'=>($i + 1)))),
-                                  new XTD(array('title'=>"Optional"), new XSailColorInput('colors[]', $color, array('tabindex'=>($i + 1 + $ROUND->getRotationCount())))))));
-
+          $bod->add(new XTD(array(), new XSailCombo('sails[]', 'colors[]', $sail, $color)));
           $sailIndex++;
         }
       }

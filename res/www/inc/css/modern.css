@@ -1691,7 +1691,7 @@ td.tr-sail, td.sail {
     right: 2px;
     top: 0px;
     width: 20px;
-    z-index: 3;
+    z-index: 2;
     border-left: 1px solid #aaa;
     color: rgba(255, 255, 255, 0);
     background: url('/inc/img/trans.png');
