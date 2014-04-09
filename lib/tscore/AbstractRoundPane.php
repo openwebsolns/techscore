@@ -231,20 +231,17 @@ abstract class AbstractRoundPane extends AbstractPane {
 
       $sailIndex = 0;
       for ($race_num = 0; $race_num < $flight / $group_size; $race_num++) {
-        $bod->add($row = new XTR(array()));
-        $row->add(new XTH(array(), sprintf("Race %d", ($race_num + 1))));
+        $bod->add($row = new XTR(array('class'=>'row' . ($race_num % 2))));
+        $row->add(new XTH(array(), $race_num + 1));
 
         // Team A, then Team B
         for ($teamIndex = 0; $teamIndex < 2; $teamIndex++) {
-          $row->add(new XTD(array(), new XTable(array('class'=>'sail-list'), array($tab = new XTBody()))));
+          $row->add(new XTD(array(), new XTable(array('class'=>'sail-list'), array(new XTBody(array(), array($tab = new XTR()))))));
           for ($i = 0; $i < $num_divs; $i++) {
             $sail = $ROUND->getSailAt($sailIndex);
             $color = $ROUND->getColorAt($sailIndex);
 
-            $tab->add(new XTR(array(),
-                              array(new XTD(array(), new XSailInput('sails[]', $sail, false, array('tabindex'=>($sailIndex + 1)))),
-                                    $td = new XTD(array('title'=>"Optional"), new XSailColorInput('colors[]', $color, array('tabindex' => ($sailIndex + 1 + $flight)))))));
-
+            $tab->add(new XTD(array(), new XSailCombo('sails[]', 'colors[]', $sail, $color)));
             $sailIndex++;
           }
         }
