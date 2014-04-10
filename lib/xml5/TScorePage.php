@@ -141,8 +141,9 @@ class TScorePage extends XPage {
       $this->head->add(new LinkCSS('/inc/css/mobile.css'));
     }
     else {
-      $this->head->add($css = new LinkCSS('/inc/css/modern.css'));
+      $this->head->add($css = new LinkCSS('/inc/css/modern.css', 'screen and (min-width:800px)'));
       $css->set('id', 'main-style');
+      $this->head->add(new LinkCSS('/inc/css/mobile.css', 'screen and (max-width:799px)'));
     }
     $this->head->add(new LinkCSS('/inc/css/print.css','print'));
 
