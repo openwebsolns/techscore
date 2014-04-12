@@ -5,10 +5,11 @@ html {
 body {
     padding:0px;
     margin:0px auto;
-    font-family:"Lucida Grande", Tahoma, Verdana, sans-serif;
+    font-family: Verdana, sans-serif;
     line-height:1.25em;
     display: table;
     min-width: 100%;
+    font-size: 12pt;
 }
 a img {
     border: none;
