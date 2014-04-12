@@ -182,7 +182,7 @@ table.left * {
 div#menudiv {
     background: #ccc;
     text-align: left;
-    margin: 0.35em 0em;
+    margin: 0 0 50px;
     width: 100%;
 }
 div#menudiv li.inactive { color: #777; }
@@ -190,110 +190,96 @@ div#menudiv.show {
     display: block;
 }
 div.menu {
-    display: inline-block;
-    width: 33%;
     background: #cccccc;
     padding: 0;
     vertical-align: top;
-    border-left: 1px solid #555555;
-    border-bottom: 1px solid white;
+    border-bottom: 1px solid #555;
     text-align: left;
 }
 div.menu h4 {
-    padding: 0.25em;
-    background: #3465a4;
-    margin: 0;
-    padding: 0;
-    color: white;
+    background: none repeat scroll 0 center #282828;
+    color: #FFFFFF;
     font-weight: normal;
+    margin: 0;
+    padding: 10px;
+    text-align: center;
 }
-div.menu ul, div.menu li {
+div.menu ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
 }
+
 div.menu li {
-    border-bottom: 1px solid #555;
-    border-top: 1px solid white;
-    padding: 0.25em;
-    background: #ddd;
+    background: none repeat scroll 0 0 #DDDDDD;
+    border-bottom: 1px solid #555555;
+    border-top: 1px solid #FFFFFF;
+    font-size: 95%;
+    padding: 0 0 0 2.5em;
 }
+
 div.menu a {
+    color: #000000;
+    display: block;
+    padding: 10px 0;
     text-decoration: none;
-    color: black;
 }
+
 #headdiv {
     background: #3465a4;
-    border-bottom: 1px solid #ccc;
-    padding-top: 0.25em;
 }
+#headbar {
+    display: table;
+    width: 100%;
+} 
 #headdiv h1 {
-    display: inline-block;
-    padding: 0;
-    margin: 0;
-    font-size: 0.6em;
-    margin-left: 1em;
-    margin-top: 0.25em;
+    display: table-cell;
+    width: 50px;
+    background: rgba(255,255,255,0.6);
 }
 #headdiv img {
-    vertical-align: middle;
+    display: none;
 }
-h4#user {
-    margin: 0;
-    padding-left: 1em;
-    display: inline-block;
-    font-size: 0.8em;
-    font-weight: normal;
-    color: white;
-    vertical-align: middle;
+#user, #public-link {
+    display: none;
 }
 #logout {
-    display: inline-block;
-    margin-left: 1em;
-    padding: 0 0.25em;
-    background: #eee;
-    font-size: 0.8em;
+    background: none repeat scroll 0 0 #EEEEEE;
+    border: 1px solid #888888;
     border-radius: 0.25em;
+    font-size: 0.8em;
+    margin-bottom: 0;
+    padding: 2px 5px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
     vertical-align: middle;
-    margin-right: 3em;
 }
-#logout a, #help a {
+#logout a, #help a, #public-link {
     text-decoration: none;
 }
 
 #help {
-    position: absolute;
-    top: 0.5em;
-    right: 1em;
-    padding: 0.15em 0.25em;
-    background: #eee;
-    font-size: 90%;
-    border-radius: 0.25em;
-    vertical-align: middle;
-    font-size: 0.6em;
+    display: none;
 }
 
 #regatta {
-    display: inline-block;
-    width: 96%;
-    padding: 0.25em 2%;
-    color: white;
-    margin: 0.25em 0 0;
-    background: white;
+    display: table-cell;
+    padding: 13px 0;
     font-size: 1em;
     text-align: center;
-}
-
-#regatta > img {
-    margin-left: 0.25em;
-    vertical-align: bottom;
+    overflow: hidden;
 }
 
 #regatta a {
-    color: #3465a4;
+    color: white;
     text-decoration: none;
 }
 #close {
+    display: table-cell;
+    width: 85px;
+}
+#close a {
     display: none;
 }
 
