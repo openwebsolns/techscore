@@ -230,6 +230,7 @@ div.menu a {
 
 #headdiv {
     background: #3465a4;
+    height: 50px;
 }
 #headbar {
     display: table;
@@ -273,27 +274,32 @@ div.menu a {
     text-decoration: none;
 }
 
-#help {
+#close {
     display: none;
 }
 
-#regatta {
+#regatta, #m-header {
     display: table-cell;
     padding: 13px 0;
     font-size: 1em;
     text-align: center;
     overflow: hidden;
+    height: 25px;
+}
+
+#m-header {
+    background: url(/inc/img/techscore.png) no-repeat 50% 50%;
 }
 
 #regatta a {
     color: white;
     text-decoration: none;
 }
-#close {
+#help {
     display: table-cell;
     width: 85px;
 }
-#close a {
+#help a {
     display: none;
 }
 
