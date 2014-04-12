@@ -70,21 +70,33 @@ function parseRange(str) {
         for (i = 0; i < acc.length; i++)
             acc[i].style.display = "none";
 
-	// Collapsible
-	acc = d.querySelectorAll(".collapsible");
-	var rf = function(p) {
-	    return function(e) {
-		p.classList.toggle("collapsed");
-		return false;
-	    };
-	};
-	if (acc.length > 0) {
-	    for (i = 0; i < acc.length; i++) {
-		acc[i].classList.add("collapsed");
-		acc[i].classList.add("js");
-		acc[i].childNodes[0].onclick = rf(acc[i]);
-	    }
-	}
+	      // Collapsible
+	      acc = d.querySelectorAll(".collapsible");
+	      var rf = function(p) {
+	          return function(e) {
+		            p.classList.toggle("collapsed");
+		            return false;
+	          };
+	      };
+	      if (acc.length > 0) {
+	          for (i = 0; i < acc.length; i++) {
+		            acc[i].classList.add("collapsed");
+		            acc[i].classList.add("js");
+		            acc[i].childNodes[0].onclick = rf(acc[i]);
+	          }
+	      }
+
+        // Mobile menu
+        var m = d.getElementById("menudiv");
+        var h = d.getElementById("logo");
+        if (m && h) {
+            m.classList.add("m-menu-hidden");
+            h.classList.add("m-menu-hidden");
+            h.onclick = function(e) {
+                m.classList.toggle("m-menu-hidden");
+                h.classList.toggle("m-menu-hidden");
+            };
+        }
 
         // Context menu?
         ul = d.getElementById("context-menu");

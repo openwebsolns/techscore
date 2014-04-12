@@ -169,7 +169,7 @@ class TScorePage extends XPage {
    */
   private function fillPageHeader(Account $user = null, Regatta $reg = null) {
     $img = ($this->mobile) ? 'techscore-m.png' : 'techscore.png';
-    $this->header->add(new XH1(new XA('/', new XImg('/inc/img/' . $img, DB::g(STN::APP_NAME), array("id"=>"headimg")))));
+    $this->header->add(new XH1(new XA('/', new XImg('/inc/img/' . $img, DB::g(STN::APP_NAME), array('id'=>'headimg'))), array('id'=>'logo')));
     if ($user !== null) {
       $this->header->add(new XH4($user->id, array('id'=>'user')));
       $this->header->add(new XDiv(array('id'=>'logout'), array(new XA('/logout', "Logout", array('accesskey'=>'l')))));

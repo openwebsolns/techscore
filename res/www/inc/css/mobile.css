@@ -179,14 +179,17 @@ span.message {font-size: 90%; color:#555;margin-left:1em;}
 table.left * {
     text-align: left;
 }
-div#menudiv {
+#menudiv {
     background: #ccc;
     text-align: left;
     margin: 0 0 50px;
     width: 100%;
 }
-div#menudiv li.inactive { color: #777; }
-div#menudiv.show {
+#menudiv.m-menu-hidden {
+    display: none;
+}
+#menudiv li.inactive { color: #777; }
+#menudiv.show {
     display: block;
 }
 div.menu {
@@ -215,13 +218,13 @@ div.menu li {
     border-bottom: 1px solid #555555;
     border-top: 1px solid #FFFFFF;
     font-size: 95%;
-    padding: 0 0 0 2.5em;
+    padding: 0;
 }
 
 div.menu a {
     color: #000000;
     display: block;
-    padding: 10px 0;
+    padding: 10px 0 10px 40px;
     text-decoration: none;
 }
 
@@ -236,6 +239,17 @@ div.menu a {
     display: table-cell;
     width: 50px;
     background: rgba(255,255,255,0.6);
+    vertical-align: middle;
+}
+#headdiv h1:hover {
+    box-shadow: 0 0 2px 2px #888;
+}
+#headdiv h1:after {
+    content: "☰";
+    display: block;
+    padding: 5px;
+    cursor: pointer;
+    color: #3465a4;
 }
 #headdiv img {
     display: none;
