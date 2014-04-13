@@ -55,11 +55,12 @@ class TweakSailsPane extends AbstractPane {
       $p->add($form = $this->createForm(XForm::GET));
 
       // Action
+      require_once('xml5/XMultipleSelect.php');
       $form->add(new FReqItem("Action:", XSelect::fromArray('edittype', $this->ACTIONS, $edittype)));
-      $form->add(new FReqItem("Division(s):", XSelectM::fromArray('division[]',
+      $form->add(new FReqItem("Division(s):", new XMultipleSelect('division[]',
                                                                   array_combine($exist_div, $exist_div),
-                                                                  $chosen_div,
-                                                                  array('class'=>'small'))));
+                                                                  array(),
+                                                                  $chosen_div)));
       $form->add(new XSubmitP("choose_act", "Next →"));
       return;
     }
