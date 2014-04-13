@@ -879,3 +879,39 @@ address {
 #finalize > h3 {
     display: none;
 }
+
+.port h3 + p {
+    margin-top: 0;
+}
+.p-submit {
+    margin-bottom: 0.5em;
+}
+
+/* Fancy checkboxes */
+
+.checkbox-span {
+    position: relative;
+}
+
+.checkbox-span input {
+    height: 0;
+    min-width: 0;
+    width: 0;
+    visibility: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+.checkbox-span label {
+    padding: 5px 5px 5px 40px;
+    display: block;
+    font-size: 90%;
+    background: url(/inc/img/check.png);
+    background-repeat: no-repeat;
+    background-position: 5px 6px;
+    cursor: pointer;
+}
+
+.checkbox-span input:checked + label {
+    background-position: 5px -23px;
+}
