@@ -310,7 +310,7 @@ class SailsPane extends AbstractPane {
           $p_teams[] = new ByeTeam();
         $i = 1;
         foreach ($p_teams as $team) {
-          $tab->addRow(array($team, new XSailInput($team->id, $i++), new XSailColorInput('color-' . $team->id)));
+          $tab->addRow(array($team, new XSailCombo($team->id, 'color-' . $team->id, $i++)));
         }
 
         // order
