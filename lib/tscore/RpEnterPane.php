@@ -361,14 +361,20 @@ class RpEnterPane extends AbstractPane {
             continue;
           }
 
+          if (!isset($occupants[$s_div]))
+            throw new SoterException("Invalid division provided: " . $s_div);
+
           $div = new Division($s_div);
           if (trim($args["r" . $s]) == "*") {
-            $s_race = array();
-            foreach ($this->REGATTA->getRaces($div) as $race)
-              $s_race[] = $race->number;
+            $s_race = array_keys($occupants[(string)$div]);
           }
-          else
-            $s_race = DB::parseRange($args["r" . $s]);
+          else {
+            $s_race = array();
+            foreach (DB::parseRange($args["r" . $s]) as $num) {
+              if (array_key_exists($num, $occupants[(string)$div]))
+                $s_race[] = $num;
+            }
+          }
 
           $s_obj = false;
           if ($s_value == 'NULL')
