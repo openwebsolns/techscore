@@ -201,7 +201,7 @@ select, .csel-container, .multiple-select {
     width: auto;
 }
 
-input[type="submit"], input[type="reset"] {
+input[type="submit"], input[type="reset"], button {
     border: 1px solid #AAAAAA;
     border-radius: 2px;
     font-size: 95%;
@@ -287,6 +287,10 @@ input[type="submit"]:disabled {
 
 input[type="submit"].inline {
     padding: 0.25em;
+}
+
+.growable-row button {
+    padding: 2.5px 5px;
 }
 
 #bodydiv .pagination-form input {

@@ -7,7 +7,6 @@ var ENFORCE_DIV_SWITCH = true;
 
 // Daddy function
 function check() {
-    var DEBUG = document.getElementById("jsdebug");
 
     // Get skippers and crews
     var elems = document.getElementsByTagName("select");
@@ -67,9 +66,9 @@ function check() {
 	      // Get check box and data for this sailor
 	      var checkTD = getCheckTD(skcrs[s]);
 	      checkTD.innerHTML = "";
-	      typ_s = getType(skcrs[s]);
-	      div_s = getDiv (skcrs[s]);
-	      pos_s = getPos (skcrs[s]);
+	      var typ_s = getType(skcrs[s]);
+	      var div_s = getDiv (skcrs[s]);
+	      var pos_s = getPos (skcrs[s]);
 
         // parse '*' as "all races"
         var val_s = skcrv[s].value.replace(" ", "");
@@ -139,10 +138,10 @@ function check() {
 	          // Compare these values against all others in the form
 	          for ( var s2 = 0; s2 < skcrs.length; s2++ ) {
 
-		            typ_s2 = getType(skcrs[s2]);
-		            div_s2 = getDiv (skcrs[s2]);
-		            pos_s2 = getPos (skcrs[s2]);
-		            val_s2 = parseRange(skcrv[s2].value.replace(" ", ""));
+		            var typ_s2 = getType(skcrs[s2]);
+		            var div_s2 = getDiv (skcrs[s2]);
+		            var pos_s2 = getPos (skcrs[s2]);
+		            var val_s2 = parseRange(skcrv[s2].value.replace(" ", ""));
 
 		            if ( s != s2 &&
 		                 skcrs[s2].value != "" &&
@@ -194,10 +193,9 @@ function check() {
 			                        div_s != div_s2 &&
 			                        skcrs[s].value == skcrs[s2].value ) {
 			                            // Let's make sure they're not switching back and forth
-			                            val_all = val_s.concat(val_s2);
+			                            var val_all = val_s.concat(val_s2);
 			                            val_all.sort(function(a,b){return a-b});
 
-			                            // DEBUG.innerHTML += "<h5>ready to begin switch checking" + val_all + "</h5>";
 			                            
 			                            // For each race in val_all, check in which array it is located
 			                            // If it switches arrays more than once, then rule is broken
@@ -207,8 +205,6 @@ function check() {
 			                            var curr;
 			                            while ( switches <= 2 && val_all.length > 0 ) {
 			                                var r = val_all.shift();
-			                                // DEBUG.innerHTML += "<h5>r: " + r + "</h5>";
-			                                // DEBUG.innerHTML += "<p>com: " + arrayCommon(new Array(r), val_s) + "</p>";
 			                                var r_array = new Array();
 			                                r_array[0]  = r;
 			                                if ( arrayCommon(r_array, val_s).length > 0 ) {

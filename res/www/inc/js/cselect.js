@@ -236,13 +236,15 @@ OWSComboboxSelect.prototype.validate = function() {
         this.search.value = exact.dataset.option;
         this.lastValidatedValue = this.search.value;
         this.element.selectedIndex = exact.dataset.index;
-        this.element.onchange();
+        if (this.element.onchange)
+            this.element.onchange();
     }
     else if (near.length == 1) {
         this.search.value = near[0].dataset.option;
         this.lastValidatedValue = this.search.value;
         this.element.selectedIndex = near[0].dataset.index;
-        this.element.onchange();
+        if (this.element.onchange)
+            this.element.onchange();
     }
     else {
         this.element.selectedIndex = this.defaultSelectedIndex;

@@ -162,6 +162,46 @@ function parseRange(str) {
                 li.appendChild(a);
             }
         }
+
+        // Growable tables
+        var tables = d.querySelectorAll("table.growable");
+        if (tables.length > 0) {
+            var tcf = function(tmpl, ins) {
+                return function(e) {
+                    var row = tmpl.cloneNode(true);
+                    // reset inputs
+                    var s = row.getElementsByTagName("select");
+                    for (var i = 0; i < s.length; i++) {
+                        s[i].setSelectedIndex = 0;
+                        if (s[i].onchange)
+                            s[i].onchange();
+                    }
+                    s = row.getElementsByTagName("input");
+                    for (i = 0; i < s.length; i++) {
+                        s[i].value = "";
+                        if (s[i].onchange)
+                            s[i].onchange();
+                    }
+                    ins.parentNode.insertBefore(row, ins);
+                };
+            };
+            for (i = 0; i < tables.length; i++) {
+                if (tables[i].tBodies.length > 0) {
+                    var t = tables[i].tBodies[tables[i].tBodies.length - 1];
+                    if (t.childNodes.length > 0) {
+                        var row = tables[i].insertRow();
+                        row.classList.add("growable-row");
+                        var td = row.insertCell();
+                        td.setAttribute("colspan", t.childNodes[0].cells.length);
+                        var bt = d.createElement("button");
+                        bt.type = "button";
+                        bt.appendChild(d.createTextNode("+"));
+                        bt.onclick = tcf(t.childNodes[0], row);
+                        td.appendChild(bt);
+                    }
+                }
+            }
+        }
     };
     if (w.addEventListener)
         w.addEventListener('load', f, false);
