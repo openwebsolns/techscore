@@ -33,10 +33,10 @@ class SummaryPane extends AbstractPane {
       $now = new DateTime();
       $day = DB::$V->incInt($args, 'day', 1, $duration + 1, null);
       if ($day === null) {
-	// pick the one closest to today
-	$diff = $now->diff($summary_day);
-	if ($diff->invert == 0)
-	  $day = 1;
+        // pick the one closest to today
+        $diff = $now->diff($summary_day);
+        if ($diff->invert == 0)
+          $day = 1;
       }
 
       $prog = new XP(array('id'=>'progressdiv'));
@@ -45,17 +45,17 @@ class SummaryPane extends AbstractPane {
       $s = clone($this->REGATTA->start_time);
       $now = $now->format('Y-m-d');
       for ($i = 1; $i <= $duration; $i++) {
-	if ($day === null && $s->format('Y-m-d') == $now)
-	  $day = $i;
+        if ($day === null && $s->format('Y-m-d') == $now)
+          $day = $i;
 
-	if ($i == $day) {
-	  $prog->add(new XSpan($s->format('l, F j, Y'), array('class'=>'current')));
-	  $summary_day = clone($s);
-	}
-	else {
-	  $prog->add(new XA($this->link('summary', array('day'=>$i)), $s->format('l, F j, Y')));
-	}
-	$s->add(new DateInterval('P1DT0H'));
+        if ($i == $day) {
+          $prog->add(new XSpan($s->format('l, F j, Y'), array('class'=>'current')));
+          $summary_day = clone($s);
+        }
+        else {
+          $prog->add(new XA($this->link('summary', array('day'=>$i)), $s->format('l, F j, Y')));
+        }
+        $s->add(new DateInterval('P1DT0H'));
       }
     }
 
@@ -71,15 +71,15 @@ class SummaryPane extends AbstractPane {
       $p->add($txt);
       $p->add(".");
       if ($can_mail)
-          $p->add(" In addition, the summaries will be used in the daily e-mail message report, if the checkbox is selected below. Note that e-mails may only be sent once per day.");
+        $p->add(" In addition, the summaries will be used in the daily e-mail message report, if the checkbox is selected below. Note that e-mails may only be sent once per day.");
     }
     $xp->add(new XP(array(), "Tips for writing summaries:"));
     $xp->add(new XUl(array(),
-                                    array(new XLi("Write directly in the form below, or copy and paste from Notepad or similar plain-text editor. Some Office Productivity Suites add invalid encoding characters that may not render properly."),
-                                          new XLi("Leave an empty line to create a new paragraph. Short paragraphs are easier to read."),
-                                          new XLi("Good summaries consist of a few sentences (at least 3) that describe the event, race conditions, and acknowledge the staff at the event."),
-                                          new XLi("Do not include a reference to the day in the summary, as this is automatically included in all reports and is thus redundant."),
-                                          new XLi("Do not include hyperlinks to the scores site, as these can change and should be generated only by the program."))));
+                     array(new XLi("Write directly in the form below, or copy and paste from Notepad or similar plain-text editor. Some Office Productivity Suites add invalid encoding characters that may not render properly."),
+                           new XLi("Leave an empty line to create a new paragraph. Short paragraphs are easier to read."),
+                           new XLi("Good summaries consist of a few sentences (at least 3) that describe the event, race conditions, and acknowledge the staff at the event."),
+                           new XLi("Do not include a reference to the day in the summary, as this is automatically included in all reports and is thus redundant."),
+                           new XLi("Do not include hyperlinks to the scores site, as these can change and should be generated only by the program."))));
 
     $this->PAGE->addContent($p = new XPort("Daily summary"));
     $p->add($form = $this->createForm());
