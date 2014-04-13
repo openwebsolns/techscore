@@ -33,13 +33,13 @@ class ManualTweakPane extends AbstractPane {
       $port_title = "Manual rotation for division " . $chosen_div;
 
       // Provide links to change division
-      $d = new FReqItem("Choose division:", "");
+      $this->PAGE->addContent($prog = new XP(array('id'=>'progressdiv')));
       foreach ($exist_div as $div) {
-        $mes = new XStrong($div);
+        $mes = sprintf("Division %s", $div);
         if ($div != $chosen_div)
-          $mes = new XA($this->link('manual-rotation', array('division'=>(string)$div)), $mes);
-        $d->add(" ");
-        $d->add($mes);
+          $prog->add(new XA($this->link('manual-rotation', array('division'=>(string)$div)), $mes));
+        else
+          $prog->add(new XSpan($mes, array('class'=>'current')));
       }
 
       $divraces = $this->REGATTA->getRaces($chosen_div);
@@ -52,7 +52,6 @@ class ManualTweakPane extends AbstractPane {
     }
     else {
       $port_title = "Manual rotation";
-      $d = "";
       $races = $rotation->getRaces($exist_div[0]);
 
       // Include all teams across all divisions
@@ -71,7 +70,6 @@ class ManualTweakPane extends AbstractPane {
 
     // OUTPUT
     $this->PAGE->addContent($p = new XPort($port_title));
-    $p->add($d);
     $p->add($form = $this->createForm());
 
     $row = array("");
