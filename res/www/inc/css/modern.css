@@ -450,7 +450,7 @@ table {
 td, tbody th {
     border-top: 1px solid #CCCCCC;
     margin:0px;
-    padding:2.5px;
+    padding: 5px;
 }
 th {
     color: #222;
@@ -1729,6 +1729,11 @@ td.tr-sail, td.sail {
 
 .checkbox-span {
     position: relative;
+    min-height: 30px;
+}
+
+.form_entry .checkbox-span {
+    top: 5px;
 }
 
 .checkbox-span input {
@@ -1745,12 +1750,12 @@ td.tr-sail, td.sail {
     font-size: 90%;
     background: url(/inc/img/check.png);
     background-repeat: no-repeat;
-    background-position: 5px 6px;
+    background-position: 5px 3px;
     cursor: pointer;
 }
 
 .checkbox-span input:checked + label {
-    background-position: 5px -23px;
+    background-position: 5px -26px;
 }
 
 /* Team names table */
