@@ -32,14 +32,14 @@ class UnregisteredSailorPane extends AbstractPane {
     $p->add($form = $this->createForm());
 
     // Create set of schools
-    $schools = array();
+    $schools = array("" => "");
     foreach ($this->REGATTA->getTeams() as $team) {
       if (!$this->participant_mode || $this->USER->hasSchool($team->school))
         $schools[$team->school->id] = $team->school->nick_name;
     }
     asort($schools);
 
-    $form->add($tab = new XQuickTable(array('class'=>'short'),
+    $form->add($tab = new XQuickTable(array('class'=>'short full'),
                                       array("School", "First name", "Last name", "Year", "Gender")));
     $gender = XSelect::fromArray('gender[]', $genders);
     $school = null;
