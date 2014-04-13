@@ -310,7 +310,7 @@ class Daemon extends AbstractScript {
           self::errln("Sleeping...");
           DB::commit();
           DB::resetCache();
-          sleep(73);
+          sleep(123);
           $this->checkLock('sch', $mypid);
           $md5 = $this->checkMD5sum($md5);
           continue;
@@ -431,7 +431,7 @@ class Daemon extends AbstractScript {
           self::errln("Sleeping...");
           DB::commit();
           DB::resetCache();
-          sleep(37);
+          sleep(57);
           $this->checkLock('sea', $mypid);
           $md5 = $this->checkMD5sum($md5);
           continue;
@@ -508,7 +508,7 @@ class Daemon extends AbstractScript {
       catch (TSWriterException $e) {
         DB::commit();
         self::errln("Error while writing: " . $e->getMessage(), 0);
-        sleep(2);
+        sleep(3);
         continue;
       }
 
@@ -559,7 +559,7 @@ class Daemon extends AbstractScript {
           self::errln("Sleeping...");
           DB::commit();
           DB::resetCache();
-          sleep(10);
+          sleep(23);
           $this->checkLock('reg', $mypid);
           $md5 = $this->checkMD5sum($md5);
           continue;
@@ -696,7 +696,7 @@ class Daemon extends AbstractScript {
       catch (TSWriterException $e) {
         DB::commit();
         self::errln("Error while writing: " . $e->getMessage(), 0);
-        sleep(1);
+        sleep(3);
         continue;
       }
 

@@ -1002,6 +1002,7 @@ class FullRegatta extends DBObject {
           DB::set($mod);
         }
       }
+      $this->finishes[$finish->race->id . '-' . $finish->team->id] = $finish;
     }
   }
 
