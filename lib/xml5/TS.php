@@ -372,7 +372,7 @@ class FCheckbox extends XSpan {
 
   private $box = null;
 
-  public function __construct($name, $value, $label, $checked = false, Array $attrs = array()) {
+  public function __construct($name, $value, $label = "", $checked = false, Array $attrs = array()) {
     parent::__construct($this->box = new XCheckboxInput($name, $value, $attrs), array('class'=>'checkbox-span'));
     if (!isset($attrs['id'])) {
       $id = 'chk-' . self::$counter++;

@@ -57,7 +57,7 @@ class PublicFilesManagement extends AbstractAdminUserPane {
         $tab->addRow(array($file->id,
                            $file->filetype,
                            $pre,
-                           new XCheckboxInput('delete[]', $file->id)),
+                           new FCheckbox('delete[]', $file->id)),
                      array('class'=>'row' . ($i % 2)));
       }
     }

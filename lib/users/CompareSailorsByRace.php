@@ -194,18 +194,13 @@ class CompareSailorsByRace extends AbstractUserPane {
     // Season selection
     $form->add($p = new XPort("Seasons to compare"));
     $p->add(new XP(array(), "Choose at least one season to compare from the list below, then choose the sailors in the next panel."));
-    $p->add($ul = new XUl(array('style'=>'list-style-type:none;')));
 
     $now = Season::forDate(DB::$NOW);
     $then = null;
     if ($now->season == Season::SPRING)
       $then = DB::getSeason(sprintf('f%0d', ($now->start_date->format('Y') - 1)));
-    foreach (Season::getActive() as $season) {
-      $ul->add(new XLi(array($chk = new XCheckboxInput('seasons[]', $season, array('id' => $season)),
-                             new XLabel($season, $season->fullString()))));
-      if ((string)$season == (string)$now || (string)$season == (string)$then)
-        $chk->set('checked', 'checked');
-    }
+    $p->add(new FReqItem("Seasons:", $this->seasonList('', array($now, $then))));
+    $p->add($ul = new XUl(array('style'=>'list-style-type:none;')));
 
     // Sailor search
     $form->add($p = new XPort("New sailors"));

@@ -267,7 +267,7 @@ class TeamRacesPane extends AbstractRoundPane {
                            new XTD(array(),
                                    array(new XEm(sprintf("Team %d", $pair[0])),
                                          new XHiddenInput('team1[]', $pair[0]))),
-                           new XCheckboxInput('swap[]', $i),
+                           new FCheckbox('swap[]', $i),
                            new XTD(array(),
                                    array(new XEm(sprintf("Team %d", $pair[1])),
                                          new XHiddenInput('team2[]', $pair[1])))),

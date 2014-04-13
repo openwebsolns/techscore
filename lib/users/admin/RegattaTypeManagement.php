@@ -43,14 +43,14 @@ class RegattaTypeManagement extends AbstractAdminUserPane {
     foreach ($types as $type) {
       $del = "";
       if (count(DB::getAll(DB::$FULL_REGATTA, new DBCond('type', $type))) == 0)
-        $del = new XCheckboxInput('delete[]', $type->id, array('title'=>"Check to delete type."));
+        $del = new FCheckbox('delete[]', $type->id, "", false, array('title'=>"Check to delete type."));
 
       $tab->addRow(array(new XTD(array(), array(new XNumberInput('order[]', $i, 1, count($types) + 1, 1, array('size'=>2)),
                                                 new XHiddenInput('type[]', $type->id))),
                          new XTD(array('class'=>'drag'), ""),
                          new XTextInput('title[]', $type->title, array('maxlength'=>30)),
                          // new XTextArea('description[]', $type->description, array('max'=>250)),
-                         $chk = new XCheckboxInput('tweet[]', $type->id),
+                         $chk = new FCheckbox('tweet[]', $type->id),
                          $del),
                    array('class'=>'sortable row'.($i % 2)));
 
@@ -63,7 +63,7 @@ class RegattaTypeManagement extends AbstractAdminUserPane {
                                               new XHiddenInput('type[]', '-new-'))),
                        new XTD(array('class'=>'drag'), "New"),
                        new XTextInput('title[]', "", array('maxlength'=>30)),
-                       new XCheckboxInput('tweet[]', '-new-'),
+                       new FCheckbox('tweet[]', '-new-'),
                        ""),
                  array('class'=>'sortable row'.($i % 2)));
     $f->add(new XSubmitP('edit-types', "Edit types"));

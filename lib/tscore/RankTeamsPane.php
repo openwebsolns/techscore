@@ -178,10 +178,8 @@ class RankTeamsPane extends AbstractPane {
                            new XA($this->link('rank', array('team' => $team->id)), $team->getRecord()),
                            new XTD(array('class'=>'drag'), $team),
                            new XTextInput('explanation[]', $team->dt_explanation, array('size'=>40)),
-                           $chk = new XCheckboxInput('lock_rank[]', $team->id, array('size'=>2))),
+                           $chk = new FCheckbox('lock_rank[]', $team->id, "", $team->lock_rank !== null)),
                      array('class'=>'sortable row' . ($i++ % 2)));
-        if ($team->lock_rank !== null)
-          $chk->set('checked', 'checked');
       }
 
       $min = $max + 1;

@@ -59,7 +59,7 @@ class PendingAccountsPane extends AbstractAdminUserPane {
       $row = 0;
       for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < $count; $i++) {
         $acc = $list[$i];
-        $tab->addRow(array(new XCheckboxInput('accounts[]', $acc->id, array('id'=>$acc->id)),
+        $tab->addRow(array(new FCheckbox('accounts[]', $acc->id, "", false, array('id'=>$acc->id)),
                            new XLabel($acc->id, $acc->getName()),
                            new XLabel($acc->id, new XA(sprintf("mailto:%s", $acc->id), $acc->id)),
                            new XLabel($acc->id, $acc->school->nick_name),
@@ -74,10 +74,7 @@ class PendingAccountsPane extends AbstractAdminUserPane {
     $this->PAGE->addContent($p = new XPort("Allow registrations"));
     $p->add($f = $this->createForm());
     $f->add(new XP(array(), "Check the box below to allow users to register for accounts. If unchecked, users will not be allowed to apply for new accounts. Note that this action has no effect on any pending users listed above."));
-    $f->add($fi = new FItem("Allow:", $chk = new XCheckboxInput(STN::ALLOW_REGISTER, 1, array('id'=>'chk-register'))));
-    $fi->add(new XLabel('chk-register', "Users may register for new accounts through the site."));
-    if (DB::g(STN::ALLOW_REGISTER) !== null)
-      $chk->set('checked', 'checked');
+    $f->add(new FItem("Allow:", new FCheckbox(STN::ALLOW_REGISTER, 1, "Users may register for new accounts through the site.", DB::g(STN::ALLOW_REGISTER) !== null)));
     $f->add(new XSubmitP('set-register', "Save changes"));
   }
 

@@ -238,8 +238,7 @@ class EnterPenaltyPane extends AbstractPane {
     $form->add($new_score);
 
     $new_score = new FItem("OR Assign score:", new XNumberInput('p_amount', "", 1, null, 1, array('size'=>'2', 'id'=>'p_amount')));
-    $new_score->add(new XCheckboxInput('displace', 'yes', array('id'=>'displace_box')));
-    $new_score->add(new XLabel('displace_box', 'Displace finishes'));
+    $new_score->add(new FCheckbox('displace', 'yes', "Displace finishes", false, array('id'=>'displace_box')));
     $form->add($new_score);
 
     // script to turn off the two by default

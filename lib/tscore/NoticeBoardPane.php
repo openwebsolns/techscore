@@ -65,7 +65,7 @@ class NoticeBoardPane extends AbstractPane {
                            new XTD(array('style'=>'max-width:15em', 'class'=>'left'), $file->description),
                            $categories[$file->category],
                            new XA($this->link('notices', array('file'=>$file->url)), "Download"),
-                           new XCheckboxInput('delete[]', $file->url)),
+                           new FCheckbox('delete[]', $file->url)),
                      array('class'=>'sortable row' . ($i % 2)));
       }
       $f->add(new XSubmitP('reorder', "Order/Delete"));

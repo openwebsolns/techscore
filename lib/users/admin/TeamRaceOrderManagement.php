@@ -245,7 +245,7 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
             $row[] = $order->author;
             $row[] = new XA(WS::link('/race-order', array('template'=>$order->id)), "Edit");
             $row[] = new XA(WS::link('/race-order', array('export'=>$order->id)), "Export");
-            $row[] = new XCheckboxInput('template[]', $order->id);
+            $row[] = new FCheckbox('template[]', $order->id);
 
             $tab->addRow($row, array('class'=>'row' . ($rowIndex % 2)));
           }

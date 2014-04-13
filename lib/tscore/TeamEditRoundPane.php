@@ -176,7 +176,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
                                  new XHiddenInput('race[]', $i)),
                            new XTD(array('class'=>'drag'), ($i + 1)),
                            $t0,
-                           new XCheckboxInput('swap[]', $i),
+                           new FCheckbox('swap[]', $i),
                            $t1,
                            XSelect::fromArray('boat[]', $boatOptions, $race->boat->id)),
                      array('class'=>'sortable'));
