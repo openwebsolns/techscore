@@ -70,7 +70,7 @@ class TeamPenaltyPane extends AbstractPane {
     if (count($penalties) == 0)
       $p->add(new XP(array(), "There are no team penalties."));
     else {
-      $p->add($tab = new XQuickTable(array('class'=>'narrow'), array("Team name", "Division", "Penalty", "Comments", "Action")));
+      $p->add($tab = new XQuickTable(array('class'=>'full penaltytable'), array("Team name", "Division", "Penalty", "Comments", "Action")));
       foreach ($penalties as $p) {
         $tab->addRow(array($p->team,
                            $p->division,

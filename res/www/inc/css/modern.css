@@ -439,11 +439,13 @@ h4#regatta {
     margin-bottom: 0.5em;
 }
 h2 {color:#b89f7e;}
+
 table {
     border: 3px solid #CCCCCC;
     border-radius: 5px;
     border-spacing: 0;
     font-size: 0.9em;
+    margin-bottom: 1em;
 }
 td, tbody th {
     border-top: 1px solid #CCCCCC;
@@ -470,7 +472,11 @@ table thead {
     height:20px;
     color:black;
 }
-table.narrow {display:inline-block;vertical-align:top;}
+table.narrow {
+    display:inline-block;
+    vertical-align:top;
+    margin-right: 1em;
+}
 table.full {width:100%;margin-bottom:1em;}
 th.noborder, td.noborder {border:none;}
 div.form_entry {margin-bottom:1em;}
@@ -1460,6 +1466,15 @@ h4 a:hover {
 .doctable td.left {
     text-align: left;
 }
+
+.penaltytable td, .penaltytable head th {
+    text-align: center;
+}
+
+.penaltytable td.left {
+    text-align: left;
+}
+
 
 #keyword-replace {
     margin: 0 auto 2em;

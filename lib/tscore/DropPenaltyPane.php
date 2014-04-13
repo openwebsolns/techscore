@@ -42,7 +42,7 @@ class DropPenaltyPane extends AbstractPane {
       $p->add(new XP(array(), "There are currently no penalties."));
     }
     else {
-      $p->add($tab = new XQuickTable(array(), array("Race", "Team", "Type", "Comments", "Amount", "Displace?", "Action")));
+      $p->add($tab = new XQuickTable(array('class'=>'full penaltytable'), array("Race", "Team", "Type", "Comments", "Amount", "Displace?", "Action")));
       foreach ($penalties as $modifier) {
         $amount = $modifier->amount;
         if ($amount < 1)
@@ -56,7 +56,7 @@ class DropPenaltyPane extends AbstractPane {
         $tab->addRow(array($modifier->finish->race,
                            $team,
                            $modifier->type,
-                           $modifier->comments,
+                           new XTD(array('class'=>'left'), $modifier->comments),
                            $amount,
                            $displace,
                            $form = $this->createForm()));
