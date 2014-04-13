@@ -191,11 +191,18 @@ span.message {font-size: 90%; color:#555;margin-left:1em;}
 table.left * {
     text-align: left;
 }
+
 #menudiv {
-    background: #ccc;
-    text-align: left;
+    background: none repeat scroll 0 0 rgba(0, 0, 0, 0.9);
+    bottom: 0;
+    left: 0;
     margin: 0 0 50px;
+    position: absolute;
+    right: 0;
+    text-align: left;
+    top: 50px;
     width: 100%;
+    z-index: 10;
 }
 #menudiv.m-menu-hidden {
     display: none;
@@ -878,6 +885,10 @@ address {
 
 #finalize > h3 {
     display: none;
+}
+
+#finalize h3 + p {
+    margin-top: 1em;
 }
 
 .port h3 + p {
