@@ -1744,7 +1744,6 @@ td.tr-sail, td.sail {
     height: 0;
     min-width: 0;
     width: 0;
-    visibility: hidden;
     position: absolute;
     z-index: -1;
 }
