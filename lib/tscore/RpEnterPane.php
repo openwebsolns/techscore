@@ -80,7 +80,7 @@ class RpEnterPane extends AbstractPane {
     // What's missing
     // ------------------------------------------------------------
     if ($this->REGATTA->hasFinishes()) {
-      $this->PAGE->addContent($p = new XPort(sprintf("What's missing from %s", $chosen_team)));
+      $this->PAGE->addContent($p = new XCollapsiblePort(sprintf("What's missing from %s", $chosen_team)));
       $p->add(new XP(array(), "This port shows what information is missing for this team. Note that only scored races are considered."));
 
       $this->fillMissing($p, $chosen_team);
@@ -111,7 +111,7 @@ class RpEnterPane extends AbstractPane {
     if (!$this->REGATTA->isSingleHanded() && DB::g(STN::ALLOW_CROSS_RP) !== null) {
       $lst = DB::$V->incList($args, 'schools');
 
-      $this->PAGE->addContent($p = new XPort("Include sailors from other schools?"));
+      $this->PAGE->addContent($p = new XCollapsiblePort("Include sailors from other schools?"));
       $p->add($f = $this->createForm(XForm::GET));
       $f->add(new XHiddenInput('chosen_team', $chosen_team->id));
       $f->add(new FItem("Other schools:", $ul = new XSelectM('schools[]', array('size' => '10'))));
