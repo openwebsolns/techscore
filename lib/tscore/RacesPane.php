@@ -140,7 +140,7 @@ class RacesPane extends AbstractPane {
     $form->add($tab = new XQuickTable(array('class'=>'narrow'), $head));
 
     //  - Global boat
-    $row = array("All");
+    $row = array(new XTH(array(), "All"));
     foreach ($divisions as $div) {
       $c = new XTD();
       $c->add(XSelect::fromArray($div, $boatFullOptions));

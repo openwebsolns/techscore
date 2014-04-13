@@ -26,7 +26,7 @@ class ScorersPane extends AbstractPane {
     // Get scorers
     $p->add($tab = new XQuickTable(array('class'=>'full left'), array("Name", "Affiliation", "")));
     $scorers = array();
-    foreach ($this->REGATTA->getScorers() as $s) {
+    foreach ($this->REGATTA->getScorers() as $i => $s) {
       $scorers[$s->id] = $s;
 
       // Create form to delete scorer
@@ -41,7 +41,7 @@ class ScorersPane extends AbstractPane {
       }
 
       // Fill row
-      $tab->addRow(array(new XA("mailto:" . $s->id, $s->getName()), $s->school->name, $f2));
+      $tab->addRow(array(new XA("mailto:" . $s->id, $s->getName()), $s->school->name, $f2), array('class'=>'row' . ($i % 2)));
     }
     if (count($scorers) == 1) {
       $button->set("disabled", "disabled");

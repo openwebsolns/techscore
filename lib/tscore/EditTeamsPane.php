@@ -39,7 +39,7 @@ class EditTeamsPane extends AbstractTeamPane {
       $teams = $this->REGATTA->getTeams();
       $f->add(new XP(array(), "Although the team names are specified by the school's account holders, you may use this pane to choose a different team name from the approved list."));
     }
-    $f->add($tab = new XQuickTable(array('class'=>'full left'),
+    $f->add($tab = new XQuickTable(array('class'=>'full left', 'id'=>'team-names'),
                                    array("#", "School", "Team name", "Suffix")));
 
     $can_choose = false;

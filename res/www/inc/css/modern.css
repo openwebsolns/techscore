@@ -439,9 +439,23 @@ h4#regatta {
     margin-bottom: 0.5em;
 }
 h2 {color:#b89f7e;}
-table {border-spacing:0px;border-collapse:collapse;font-size:0.9em;}
-table td {border:1px solid #bbbbbb;text-align:right;margin:0px;padding:2.5px;}
-table th {border:1px solid #bbbbbb;}
+table {
+    border: 3px solid #CCCCCC;
+    border-radius: 5px;
+    border-spacing: 0;
+    font-size: 0.9em;
+}
+td, tbody th {
+    border-top: 1px solid #CCCCCC;
+    margin:0px;
+    padding:2.5px;
+}
+th {
+    color: #222;
+    font-size: 80%;
+    min-width: 2.25em;
+    padding: 0.5em;
+}
 table thead {    
     background: #f3ebdf; /* Old browsers */
     background: -moz-linear-gradient(top, #f3ebdf 0%, #e6dfd3 100%); /* FF3.6+ */
@@ -456,7 +470,6 @@ table thead {
     height:20px;
     color:black;
 }
-thead th {padding:0px 1em;}
 table.narrow {display:inline-block;vertical-align:top;}
 table.full {width:100%;margin-bottom:1em;}
 th.noborder, td.noborder {border:none;}
@@ -696,15 +709,6 @@ tr.disabled {background:#ddd;color:#555;}
     margin-left: 1em;
 }
 
-table th 
-{
-  border: 1px solid #bbbbbb;
-  text-align: right;
-  min-width: 2.25em;
-  padding: 0 0.25em;
-  font-size: 90%;
-}
-
 table.finishes tbody *
 {
   border: none;
@@ -735,9 +739,15 @@ td.races {
     padding-left: 0.5em;
 }
 
+tbody tr {
+    background: #fff;
+}
+
+
 .row1 {
     background: #F2EDE6;
 }
+
 
 td.schoolname, td.teamname {
     text-align: left;
@@ -1444,6 +1454,10 @@ h4 a:hover {
 }
 
 .doctable td, .doctable head th {
+    text-align: center;
+}
+
+.doctable td.left {
     text-align: left;
 }
 
@@ -1722,4 +1736,14 @@ td.tr-sail, td.sail {
 
 .checkbox-span input:checked + label {
     background-position: 5px -23px;
+}
+
+/* Team names table */
+
+#team-names td {
+    height: 2.5em;
+}
+
+#team-names select {
+    width: 100%;
 }

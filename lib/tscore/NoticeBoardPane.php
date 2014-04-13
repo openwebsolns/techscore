@@ -54,15 +54,15 @@ class NoticeBoardPane extends AbstractPane {
       $this->PAGE->addContent($p = new XPort("Current items"));
 
       $p->add($f = $this->createForm());
-      $f->add($tab = new XQuickTable(array('id'=>'divtable', 'class'=>'doctable'),
+      $f->add($tab = new XQuickTable(array('id'=>'divtable', 'class'=>'doctable full'),
                                      array("Order", "#", "Name", "Description", "Category", "Download", "Delete?")));
       foreach ($files as $i => $file) {
         $tab->addRow(array(new XTD(array(),
                                    array(new XNumberInput('order[]', ($i + 1), 1, count($files), 1, array('size'=>2)),
                                          new XHiddenInput('document[]', $file->url))),
                            new XTD(array('class'=>'drag'), ($i + 1)),
-                           new XStrong($file->name),
-                           new XTD(array('style'=>'max-width:15em'), $file->description),
+                           new XTD(array('class'=>'left'), $file->name),
+                           new XTD(array('style'=>'max-width:15em', 'class'=>'left'), $file->description),
                            $categories[$file->category],
                            new XA($this->link('notices', array('file'=>$file->url)), "Download"),
                            new XCheckboxInput('delete[]', $file->url)),
