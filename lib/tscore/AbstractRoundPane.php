@@ -47,7 +47,7 @@ abstract class AbstractRoundPane extends AbstractPane {
       // Simple round
       $form->add(new XP(array(), sprintf("Place numbers 1-%d next to the teams to be included in this round.", $ROUND->num_teams)));
 
-      $form->add($ul = new XUl(array('id'=>'teams-list')));
+      $form->add($ul = new XUl(array('class'=>'assoc-list', 'id'=>'teams-list')));
       $has_finishes = false;
       $has_carries = false;
 
@@ -102,7 +102,7 @@ abstract class AbstractRoundPane extends AbstractPane {
         $form->add(new XH4($round));
         $form->add(new XP(array(), sprintf("Place numbers %d-%d next to the teams to be included from this round.", $first, $last)));
 
-        $form->add($ul = new XUl(array('class'=>'teams-list')));
+        $form->add($ul = new XUl(array('class'=>'assoc-list', 'id'=>'teams-list')));
         $races = $this->REGATTA->getRacesInRound($round, Division::A());
         foreach ($ranker->rank($this->REGATTA, $races) as $seed) {
           $team = $seed->team;

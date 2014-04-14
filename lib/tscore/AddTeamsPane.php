@@ -132,7 +132,7 @@ class AddTeamsPane extends AbstractTeamPane {
     $this->PAGE->addContent($p = new XPort($title));
     $p->add(new XP(array('id'=>'explanation'), "Choose schools which are participating by indicating how many teams are invited from each school."));
     $p->add($form = $this->createForm());
-    $form->add($list = new XUl(array('id'=>'teams-list')));
+    $form->add($list = new XUl(array('class'=>'assoc-list')));
 
     foreach ($confs as $conf) {
       $list->add(new XLi(array(new XHeading($conf, array('id'=>$conf->id)), $sub = new XUl())));

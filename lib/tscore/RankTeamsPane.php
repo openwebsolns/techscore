@@ -58,7 +58,7 @@ class RankTeamsPane extends AbstractPane {
         $rows[$race->round->id] = new XTR(array(), array($recTDs[$race->round->id], new XTH(array(), $team)));
         $cells[$race->round->id] = array();
 
-        $f->add(new XH3("Round: " . $race->round));
+        $f->add(new XH4("Round: " . $race->round));
         $f->add(new XTable(array('class'=>'rank-table'), array($rows[$race->round->id])));
       }
 

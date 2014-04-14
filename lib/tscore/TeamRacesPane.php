@@ -182,7 +182,7 @@ class TeamRacesPane extends AbstractRoundPane {
         $form->add(new FReqItem("Rotation frequency:", XSelect::fromArray('rotation_frequency', Race_Order::getFrequencyTypes()), "Note: multiple fleets require \"Frequent rotation\"."));
 
         $form->add(new XP(array(), "Enter the number of teams to carry over from each of the possible rounds below."));
-        $form->add($ul = new XUl(array('id' => 'teams-list')));
+        $form->add($ul = new XUl(array('class' => 'assoc-list')));
         foreach ($master_rounds as $round) {
           $id = 'r-' . $round->id;
           $ul->add(new XLi(array(new XHiddenInput('master_round[]', $round->id),
