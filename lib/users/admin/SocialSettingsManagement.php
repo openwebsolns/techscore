@@ -74,6 +74,11 @@ class SocialSettingsManagement extends AbstractAdminUserPane {
     $f->add(new FItem("Flickr username:", new XTextInput(STN::FLICKR_NAME, DB::g(STN::FLICKR_NAME)), "Will be used to link to account"));
     $f->add(new FItem("Slideshow ID:", new XTextInput(STN::FLICKR_ID, DB::g(STN::FLICKR_ID)), "Embeds slideshow in front page on non-sailing days"));
     $f->add(new XSubmitP('set-settings', "Save changes"));
+
+    $this->PAGE->addContent($p = new XPort("PayPal Donate Button"));
+    $p->add($f = $this->createForm());
+    $f->add(new FItem("PayPal Hosted Button ID:", new XTextInput(STN::PAYPAL_HOSTED_BUTTON_ID, DB::g(STN::PAYPAL_HOSTED_BUTTON_ID)), "Alphanumeric string provided in snippet."));
+    $f->add(new XSubmitP('set-settings', "Save changes"));
   }
 
   public function process(Array $args) {

@@ -207,6 +207,10 @@ class TPublicPage extends XPage {
       $sc->add(new XA(sprintf('//www.flickr.com/photos/%s', DB::g(STN::FLICKR_NAME)), $lnk));
     }
 
+    if (DB::g(STN::PAYPAL_HOSTED_BUTTON_ID) !== null) {
+      $sc->add($this->createPayPalForm());
+    }
+
     if (DB::g(STN::GCSE_ID) !== null) {
       $this->head->add(new XScript('text/javascript', sprintf('//www.google.com/cse/cse.js?cx=%s', DB::g(STN::GCSE_ID)), null, array('async'=>'async', 'defer'=>'defer')));
       $sw->add(new XDiv(array('class'=>'gcse-search')));
@@ -284,6 +288,11 @@ class TPublicPage extends XPage {
 
           $td->add(new XDiv(array('id'=>'gplus-wrapper', 'class'=>'g-plusone', 'data-size'=>'medium')));
           $this->head->add(new XScript('text/javascript', 'https://apis.google.com/js/plusone.js?onload=onLoadCallback', null, array('async'=>'async', 'defer'=>'defer')));
+        }
+        if (DB::g(STN::PAYPAL_HOSTED_BUTTON_ID) !== null) {
+          $has_social = true;
+
+          $td->add($this->createPayPalForm());
         }
 
         if ($has_social)
@@ -496,5 +505,18 @@ UserVoice.push(["showTab", "classic_widget", {
       return new XA($u, sprintf("%s Teams", $n));
     return null;
   }
+
+  private function createPayPalForm() {
+    $f = new XForm('https://www.paypal.com/cgi-bin/webscr', XForm::POST);
+    $f->set('class', 'paypal-donate-form');
+    $f->set('target', '_blank');
+    $f->add(new XHiddenInput('cmd', '_s-xclick'));
+    $f->add(new XHiddenInput('hosted_button_id', DB::g(STN::PAYPAL_HOSTED_BUTTON_ID)));
+    $f->add(new XInput('image', 'submit', null, array('src'=>'https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif', 'border'=>0, 'alt'=>"Donate with PayPal")));
+    $f->add(new XImg('https://www.paypalobjects.com/en_US/i/scr/pixel.gif', "", array('width'=>1, 'height'=>1)));
+
+    return $f;
+  }
+
 }
 ?>
