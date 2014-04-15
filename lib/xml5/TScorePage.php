@@ -55,12 +55,8 @@ class TScorePage extends XPage {
     $this->head->add(new XLink(array('rel'=>'icon', 'type'=>'image/x-icon', 'href'=>WS::link('/inc/img/favicon.ico'))));
     $this->head->set('profile', 'http://www.w3.org/2005/10/profile');
 
-    // Must be done PRIOR to fill method so that child additions are
-    // properly placed in the queue.
-    if ($this->mobile)
-      $this->head->add(new XMeta('viewport', "width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"));
-    else
-      $this->head->add(new XMetaHTTP('X-UA-Compatible', 'IE=Edge'));
+    $this->head->add(new XMeta('viewport', "width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"));
+    $this->head->add(new XMetaHTTP('X-UA-Compatible', 'IE=Edge'));
 
     // Deal with IE7 and below
     $this->head->add(new XRawText('<!--[if lt IE 9]> '));
@@ -98,9 +94,6 @@ class TScorePage extends XPage {
     $this->fillPageHeader($this->user, $this->reg);
 
     // Menu
-    if ($this->mobile) {
-      $this->body->add(new XButton(array('onclick'=>'toggleMenu()', 'type'=>'button', 'id'=>'menubut'), array("Menu")));
-    }
     $this->body->add(new XDiv(array('id'=>'menudiv'), array($this->menu)));
     $this->body->add(new XHr(array('class'=>'hidden')));
 
@@ -137,14 +130,9 @@ class TScorePage extends XPage {
     $this->head->add(new XMetaHTTP('Content-Type', 'text/html; charset=UTF-8'));
 
     // CSS Stylesheets
-    if ($this->mobile) {
-      $this->head->add(new LinkCSS('/inc/css/mobile.css'));
-    }
-    else {
-      $this->head->add($css = new LinkCSS('/inc/css/modern.css', 'screen and (min-width:800px)'));
-      $css->set('id', 'main-style');
-      $this->head->add(new LinkCSS('/inc/css/mobile.css', 'screen and (max-width:799px)'));
-    }
+    $this->head->add($css = new LinkCSS('/inc/css/default.css', 'screen'));
+    $css->set('id', 'main-style');
+    $this->head->add(new LinkCSS('/inc/css/mobile.css', 'screen and (max-width:799px)'));
     $this->head->add(new LinkCSS('/inc/css/print.css','print'));
 
     // Javascript
@@ -153,14 +141,11 @@ class TScorePage extends XPage {
       $this->head->add(new XScript('text/javascript', null, sprintf('window.SESSION_EXPIRATION=%d;', $exp)));
       $this->head->add(new XScript('text/javascript', '/inc/js/check-session-load.js'));
     }
-    if ($this->mobile) {
-      $this->head->add(new XScript('text/javascript', '/inc/js/mobile.js'));
-    }
-    else {
+    if (!$this->mobile) {
       $this->head->add(new XScript('text/javascript', '/inc/js/cselect.js', null, array('id'=>'cselect-js', 'async'=>'async', 'defer'=>'defer')));
       $this->head->add(new XScript('text/javascript', '/inc/js/mselect.js', null, array('id'=>'mselect-js', 'async'=>'async', 'defer'=>'defer')));
-      $this->head->add(new XScript('text/javascript', '/inc/js/form.js'));
     }
+    $this->head->add(new XScript('text/javascript', '/inc/js/form.js'));
   }
 
   /**
@@ -168,7 +153,7 @@ class TScorePage extends XPage {
    *
    */
   private function fillPageHeader(Account $user = null, Regatta $reg = null) {
-    $img = ($this->mobile) ? 'techscore-m.png' : 'techscore.png';
+    $img = 'techscore.png';
     $this->header->add(new XH1(new XA('/', new XImg('/inc/img/' . $img, DB::g(STN::APP_NAME), array('id'=>'headimg'))), array('id'=>'logo')));
     if ($user !== null) {
       $this->header->add(new XH4($user->id, array('id'=>'user')));
