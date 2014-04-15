@@ -512,7 +512,7 @@ UserVoice.push(["showTab", "classic_widget", {
     $f->set('target', '_blank');
     $f->add(new XHiddenInput('cmd', '_s-xclick'));
     $f->add(new XHiddenInput('hosted_button_id', DB::g(STN::PAYPAL_HOSTED_BUTTON_ID)));
-    $f->add(new XInput('image', 'submit', null, array('src'=>'https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif', 'border'=>0, 'alt'=>"Donate with PayPal")));
+    $f->add(new XElem('input', array('type'=>'image', 'name'=>'submit', 'src'=>'https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif', 'alt'=>"Donate with PayPal")));
     $f->add(new XImg('https://www.paypalobjects.com/en_US/i/scr/pixel.gif', "", array('width'=>1, 'height'=>1)));
 
     return $f;
