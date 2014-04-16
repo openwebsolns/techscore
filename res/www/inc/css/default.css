@@ -490,6 +490,48 @@ input[type="number"] {
     box-shadow: 0 0 2px 2px #aaa;
 }
 
+
+
+
+/* Add teams box */
+
+#teams-list-select-wrapper {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    width: 100%;
+    display: table;
+}
+
+#teams-list-select-wrapper .msel-from-wrapper {
+    float: left;
+    width: 45%;
+}
+#teams-list-select-wrapper .msel-to-wrapper {
+    float: right;
+    width: 45%;
+}
+#teams-list-select-wrapper .msel-button-wrapper {
+    padding-top: 14%;
+    width: 10%;
+    float: right;
+}
+#teams-list-select-wrapper button {
+    display: block;
+    width: 90%;
+}
+
+#teams-list-select-wrapper select {
+    width: 100%;
+    height: 20em;
+}
+
+#teams-list-select-wrapper button {
+    margin: 1ex auto;
+}
+
+
+
+
 /* Combobox selects */
 
 .csel-filter {
