@@ -25,7 +25,6 @@ function OWSMultSelect(elem) {
     // First cell
     var c = document.createElement("div");
     c.setAttribute("class", "msel-from-wrapper");
-    c.style.display = "block";
     this.wrapper.appendChild(c);
 
     var s = (this.fromElement.length > 10);
@@ -43,32 +42,30 @@ function OWSMultSelect(elem) {
     // Button cell
     var c2 = document.createElement("div");
     c2.setAttribute("class", "msel-button-wrapper");
-    c2.style.display = "block";
     c2.style.verticalAlign = "middle";
     this.wrapper.insertBefore(c2, c);
 
-    var b = document.createElement("button");
-    b.setAttribute("type", "button");
-    b.setAttribute("class", "msel-button-promote");
-    b.appendChild(document.createTextNode("↑"));
-    b.onclick = function(evt) {
+    this.promoteButton = document.createElement("button");
+    this.promoteButton.setAttribute("type", "button");
+    this.promoteButton.setAttribute("class", "msel-button-promote");
+    this.promoteButton.appendChild(document.createTextNode("↑"));
+    this.promoteButton.onclick = function(evt) {
         myObj.promoteSelected();
     };
-    c2.appendChild(b);
+    c2.appendChild(this.promoteButton);
 
-    b = document.createElement("button");
-    b.setAttribute("type", "button");
-    b.setAttribute("class", "msel-button-demote");
-    b.appendChild(document.createTextNode("↓"));
-    b.onclick = function(evt) {
+    this.demoteButton = document.createElement("button");
+    this.demoteButton.setAttribute("type", "button");
+    this.demoteButton.setAttribute("class", "msel-button-demote");
+    this.demoteButton.appendChild(document.createTextNode("↓"));
+    this.demoteButton.onclick = function(evt) {
         myObj.demoteSelected();
     };
-    c2.appendChild(b);
+    c2.appendChild(this.demoteButton);
 
     // Results cell
     c = document.createElement("div");
     c.setAttribute("class", "msel-to-wrapper");
-    c.style.display = "block";
     this.wrapper.insertBefore(c, c2);
 
     if (s && false) {

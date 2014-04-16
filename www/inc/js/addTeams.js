@@ -43,6 +43,10 @@ var m = new OWSMultSelect(s);
 m.wrapper.id = "teams-list-select-wrapper";
 m.wrapper.style.display = "table";
 m.toElement.style.height = "";
+m.promoteButton.removeChild(m.promoteButton.childNodes[0]);
+m.promoteButton.appendChild(document.createTextNode("→"));
+m.demoteButton.removeChild(m.demoteButton.childNodes[0]);
+m.demoteButton.appendChild(document.createTextNode("←"));
 m.promoteSelected = function() {
 for (var i = 0; i < m.fromElement.length; i++) {
 var opt = m.fromElement.item(i);
