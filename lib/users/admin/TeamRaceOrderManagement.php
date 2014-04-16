@@ -230,7 +230,7 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
       foreach ($current as $num_teams => $orders) {
         $form->add(new XH4(sprintf("%d Teams", $num_teams)));
 
-        $form->add($tab = new XQuickTable(array('id'=>'tr-race-order'), array("Total boats", "Teams carried?", "Rotation", "Desc.", "Author", "Edit", "Export", "Delete?")));
+        $form->add($tab = new XQuickTable(array('class'=>'tr-race-order full'), array("Total boats", "Teams carried?", "Rotation", "Description", "Author", "Edit", "Export", "Delete?")));
 
         $rowIndex = 0;
         foreach ($orders as $list) {
