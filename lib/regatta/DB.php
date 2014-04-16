@@ -3695,6 +3695,7 @@ class STN extends DBObject {
   const USERVOICE_FORUM = 'uservoice_forum';
   const FLICKR_NAME = 'flickr_name';
   const FLICKR_ID = 'flickr_id';
+  const PAYPAL_HOSTED_BUTTON_ID = 'paypal_hosted_button_id';
 
   const MAIL_REGISTER_USER = 'mail_register_user';
   const MAIL_REGISTER_ADMIN = 'mail_register_admin';
