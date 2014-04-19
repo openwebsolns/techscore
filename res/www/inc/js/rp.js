@@ -257,24 +257,6 @@ function arrayCommon(arr1, arr2) {
     return arr3;
 }
 
-function sort_unique(list) {
-    // Create a copy of list with pointers
-    var l2 = new Array();
-    for (var c in list) {
-	      l2[list[c]] = c;
-    }
-    // Translate back
-    var l3 = new Array();
-    var i = 0;
-    for (var c in l2) {
-	      l3[i] = c;
-	      i++;
-    }
-
-    l3.sort(function(a,b){return a - b});
-    return l3;
-}
-
 // Returns list of races in the element
 function getRaceList(element) {
     var value = element.value;
