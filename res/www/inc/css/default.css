@@ -189,6 +189,24 @@ h4 a:hover {
 
 
 
+/* Menu */
+#menubar .menu:hover {
+    background: #ddd;
+}
+
+#menubar .menu:hover ul {
+    display:block;
+    background-image:url('img/menu_bg_bot.png');
+    background-repeat:repeat-x;
+    background-position:0px 100%;
+    padding:0px;
+    border: 1px solid #AAAAAA;
+    box-shadow: 2px 2px 4px #CCCCCC;
+}
+
+
+
+
 /* Inputs */
 
 select, .csel-container, .multiple-select {
@@ -1431,20 +1449,8 @@ td.tr-sail, td.sail {
     display:none;
     font-size:0.9em;
 }
-#menubar .menu:hover {
-    background: #ddd;
-}
 #menubar .menu.open {
     background: #ddd;
-}
-#menubar .menu:hover ul {
-    display:block;
-    background-image:url('img/menu_bg_bot.png');
-    background-repeat:repeat-x;
-    background-position:0px 100%;
-    padding:0px;
-    border: 1px solid #AAAAAA;
-    box-shadow: 2px 2px 4px #CCCCCC;
 }
 #menubar .menu.open ul {
     display:block;
