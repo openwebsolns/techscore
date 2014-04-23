@@ -15,7 +15,68 @@ class DeleteTeamsPane extends AbstractTeamPane {
     parent::__construct("Remove Team", $user, $reg);
   }
 
+  private function fillTeamScoringHTML(Array $args) {
+    // create table of removal teams
+    $tab = new XQuickTable(array('class'=>'full left'), array("", "#", "School", "Team name", "Rounds"));
+    $underway = false;
+    $possible = false;
+    foreach ($this->REGATTA->getTeams() as $i => $team) {
+      $id = 'team-' . $team->id;
+      $rounds = array();
+      foreach ($this->REGATTA->getRacesForTeam(Division::A(), $team) as $race)
+        $rounds[$race->round->id] = $race->round;
+
+      $chk = new XCheckboxInput('teams[]', $team->id, array('id'=>$id));
+      if (count($rounds) > 0) {
+        $underway = true;
+        $chk->set('disabled', 'disabled');
+      }
+      else {
+        $possible = true;
+      }
+
+      $tab->addRow(array($chk,
+                         new XLabel($id, $i + 1),
+                         new XLabel($id, $team->school),
+                         new XLabel($id, $team->getQualifiedName()),
+                         new XLabel($id, implode(", ", $rounds))),
+                   array('class'=>'row' . ($i % 2)));
+                   
+    }
+
+    $this->PAGE->addContent($p = new XPort("Remove present teams"));
+    if ($underway) {
+      $p->add(new XP(array(),
+                     array("Because the number of teams in a round is fixed, you may not remove teams from the regatta that have are currently sailing in an existing round. You may wish to ",
+                           new XA($this->link('substitute'), "substitute a team"),
+                           " instead, or change the seeding in the round(s) for the team in question.")));
+    }
+
+    $p->add($form = $this->createForm());
+    $form->add($tab);
+    if ($possible) {
+      $form->add(new XSubmitP('remove', "Remove"));
+    }
+
+    // Helpful message?
+    if ($underway) {
+      $this->PAGE->addContent($p = new XPort("How do I..."));
+      $p->add(new XH3("A team dropped out of the regatta..."));
+      $p->add(new XP(array(), "If you need to remove a team that is already present in a round, but there is no substitute for that team, then you will need to follow these steps to replace the round in question with a new one:"));
+      $p->add(new XOl(array(),
+                      array(new Xli("Create a new round, with a different name from the one to remove."),
+                            new XLi("In the \"Copy finishes\" tab, pick the round to be replaced."),
+                            new XLi("Delete the original round."),
+                            new XLi("Rename the new round accordingly."))));
+    }
+  }
+
   protected function fillHTML(Array $args) {
+    if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
+      $this->fillTeamScoringHTML($args);
+      return;
+    }
+
     $teams = $this->REGATTA->getTeams();
 
     $this->PAGE->addContent($p = new XPort("Remove present teams"));
@@ -59,11 +120,18 @@ class DeleteTeamsPane extends AbstractTeamPane {
       if (count($teams) == 0)
         throw new SoterException("There must be at least one team to remove.");
 
+      $possible = array();
+      foreach ($this->REGATTA->getTeams() as $team) {
+        if ($this->REGATTA->scoring != Regatta::SCORING_TEAM
+            || count($this->REGATTA->getRacesForTeam(Division::A(), $team)) == 0)
+          $possible[$team->id] = $team;
+      }
+
       $removed = 0;
       $affected_schools = array();
       foreach ($teams as $id) {
-        $team = $this->REGATTA->getTeam($id);
-        if ($team !== null) {
+        if (isset($possible[$id])) {
+          $team = $possible[$id];
           $this->REGATTA->removeTeam($team);
           UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_TEAM, $team->school->id);
           $removed++;
