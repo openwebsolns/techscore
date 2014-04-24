@@ -525,7 +525,7 @@ class AllAmerican extends AbstractUserPane {
         return false;
       }
 
-      $header1 = array("ID", "Sailor", "YR", "School", "Conf");
+      $header1 = array("ID", "First", "Last", "YR", "School", "Conf");
       $header2 = array("", "", "", "", "Races/Div");
       $spacer  = array("", "", "", "", "");
       $rows = array();
@@ -541,7 +541,8 @@ class AllAmerican extends AbstractUserPane {
 
       foreach ($this->AA['sailors'] as $id => $sailor) {
         $row = array($sailor->id,
-                     sprintf("%s %s", $sailor->first_name, $sailor->last_name),
+                     $sailor->first_name,
+                     $sailor->last_name,
                      $sailor->year,
                      $sailor->school->nick_name,
                      $sailor->school->conference);
