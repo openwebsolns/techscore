@@ -1733,4 +1733,223 @@ table.full {
  */
 @media screen and (max-width:799px) {
 
+/* General overrides */
+body {
+    font-size: 14pt;
+    font-family: "Lucida Grande", Tahoma, Verdana, sans-serif;
+    line-height: 1.25em;
+    position: relative;
+    margin: 0;
+}
+
+#bodydiv {
+    padding: 20px 10px;
+}
+
+.port {
+    background: none repeat scroll 0 0 #FAFAFA;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    margin-bottom: 1.5em;
+    margin-top: 50px;
+    padding: 0 1em 0.5em;
+    position: relative;
+}
+
+.port h3 {
+    background: #fafafa;
+    border: 1px solid #CCCCCC;
+    border-bottom: none;
+    border-radius: 3px 3px 0 0;
+    color: #555555;
+    font-size: 90%;
+    font-weight: normal;
+    margin: 0 auto;
+    padding: 0.25em;
+    position: relative;
+    text-align: center;
+    top: -1.5em;
+    width: 90%;
+    box-shadow: 0 -5px 11px #ddd;
+}
+
+
+#headdiv {
+    background: #3465a4;
+    height: 50px;
+}
+#headbar {
+    display: table;
+    width: 100%;
+} 
+
+
+
+/* Menus */
+
+#headdiv h1 {
+    display: table-cell;
+    width: 50px;
+    background: rgba(255,255,255,0.6);
+    vertical-align: middle;
+}
+#headdiv h1:after {
+    content: "☰";
+    display: block;
+    padding: 5px;
+    cursor: pointer;
+    color: #3465a4;
+}
+#headdiv img {
+    display: none;
+}
+#user, #public-link {
+    display: none;
+}
+#logout {
+    background: none repeat scroll 0 0 #EEEEEE;
+    border: 1px solid #888888;
+    border-radius: 0.25em;
+    font-size: 0.8em;
+    margin-bottom: 0;
+    padding: 2px 5px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    vertical-align: middle;
+}
+#logout a, #help a, #public-link {
+    text-decoration: none;
+}
+
+#close {
+    display: none;
+}
+
+#regatta, #m-header {
+    display: table-cell;
+    padding: 13px 0;
+    font-size: 1em;
+    text-align: center;
+    overflow: hidden;
+    height: 25px;
+}
+
+#m-header {
+    background: url(/inc/img/techscore.png) no-repeat 50% 50%;
+}
+
+#regatta a {
+    color: white;
+    text-decoration: none;
+}
+#help {
+    display: table-cell;
+    width: 85px;
+}
+#help a {
+    display: none;
+}
+
+#menubut {
+    display: block;
+    border: 1px solid #aaa;
+    padding: 0.25em;
+    background: #eee;
+    text-align: middle;
+    border-radius: 0.5em;
+    width: 90%;
+    margin: 0.5em 5%;
+    border-bottom: 1px solid #555;
+    font-size: 80%;
+}
+
+#menudiv {
+    background: none repeat scroll 0 0 rgba(0, 0, 0, 0.9);
+    bottom: 0;
+    left: 0;
+    margin: 0 0 50px;
+    position: absolute;
+    right: 0;
+    text-align: left;
+    top: 50px;
+    width: 100%;
+    z-index: 10;
+    overflow: auto;
+    overflow-x: hidden;
+}
+#menudiv.m-menu-hidden {
+    display: none;
+}
+#menudiv li.inactive { color: #777; }
+#menudiv.show {
+    display: block;
+}
+div.menu {
+    background: #cccccc;
+    padding: 0;
+    vertical-align: top;
+    border-bottom: 1px solid #555;
+    text-align: left;
+}
+div.menu h4 {
+    background: none repeat scroll 0 center #282828;
+    color: #FFFFFF;
+    font-weight: normal;
+    margin: 0;
+    padding: 10px;
+    text-align: center;
+}
+div.menu ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+div.menu li {
+    background: none repeat scroll 0 0 #DDDDDD;
+    border-bottom: 1px solid #555555;
+    border-top: 1px solid #FFFFFF;
+    font-size: 95%;
+    padding: 0;
+}
+
+div.menu a {
+    color: #000000;
+    display: block;
+    padding: 10px 0 10px 40px;
+    text-decoration: none;
+}
+
+
+
+/* Announcements */
+
+#announcements {
+    font-size: 75%;
+}
+
+
+
+/* Input elements */
+
+input, button {
+    font-size: 16pt;
+}
+
+.form_h {
+    display: block;
+    text-align: left;
+    color: black;
+    font-size: 90%;
+    margin-bottom: 5px;
+}
+
+.form_entry input, .form_entry textarea, .form_entry select {
+    width: 100%;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+
 }
