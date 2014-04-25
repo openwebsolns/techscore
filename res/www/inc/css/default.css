@@ -1770,7 +1770,6 @@ body {
     text-align: center;
     top: -1.5em;
     width: 90%;
-    box-shadow: 0 -5px 11px #ddd;
 }
 
 
@@ -1952,4 +1951,39 @@ input, button {
 }
 
 
+
+/* Tables */
+
+/* Current regattas: as list */
+.regatta-list-current tr {
+    display: block;
+    position: relative;
+}
+
+.regatta-list-current tr td {
+    display: inline-block;
+    font-size: 95%;
+    float: right;
+}
+
+.regatta-list-current tr td:nth-child(1) {
+    float: left;
+}
+
+.regatta-list-current tr td:nth-child(2) {
+    display: block;
+    width: 70%;
+    font-size: 110%;
+    float: none;
+}
+
+.regatta-list-current tr td:nth-child(3) {
+    clear: both;
+}
+
+.regatta-list-current tr td:last-child {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
 }
