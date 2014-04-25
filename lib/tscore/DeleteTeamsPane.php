@@ -26,7 +26,7 @@ class DeleteTeamsPane extends AbstractTeamPane {
       foreach ($this->REGATTA->getRacesForTeam(Division::A(), $team) as $race)
         $rounds[$race->round->id] = $race->round;
 
-      $chk = new XCheckboxInput('teams[]', $team->id, array('id'=>$id));
+      $chk = new FCheckbox('teams[]', $team->id, "", false, array('id'=>$id));
       if (count($rounds) > 0) {
         $underway = true;
         $chk->set('disabled', 'disabled');
