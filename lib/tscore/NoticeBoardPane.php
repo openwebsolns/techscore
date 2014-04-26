@@ -55,7 +55,7 @@ class NoticeBoardPane extends AbstractPane {
 
       $p->add($f = $this->createForm());
       $f->add($tab = new XQuickTable(array('id'=>'divtable', 'class'=>'doctable'),
-                                     array("Order", "#", "Name", "Description", "Category", "Download", "Delete?")));
+                                     array("Order", "#", "Name", "Description", "Category", "Races", "Download", "Delete?")));
       foreach ($files as $i => $file) {
         $tab->addRow(array(new XTD(array(),
                                    array(new XTextInput('order[]', ($i + 1), array('size'=>2)),
@@ -64,6 +64,7 @@ class NoticeBoardPane extends AbstractPane {
                            new XStrong($file->name),
                            new XTD(array('style'=>'max-width:15em'), $file->description),
                            $categories[$file->category],
+                           $this->createRaceRange($file),
                            new XA($this->link('notices', array('file'=>$file->url)), "Download"),
                            new XCheckboxInput('delete[]', $file->url)),
                      array('class'=>'sortable row' . ($i % 2)));
@@ -168,6 +169,40 @@ class NoticeBoardPane extends AbstractPane {
         Session::pa(new PA("Reordered the document list."));
       }
     }
+  }
+
+  /**
+   * Creates a display-ready representation of races for given document
+   *
+   */
+  private function createRaceRange(Document_Summary $file) {
+    $div = null;
+    if ($this->REGATTA->scoring != Regatta::SCORING_STANDARD)
+      $div = Division::A();
+
+    $races = $this->REGATTA->getDocumentRaces($file, $div);
+    if (count($races) == 0)
+      return new XEm("All");
+
+    // Distribute race by division
+    $by_divs = array();
+    foreach ($races as $race) {
+      $div = (string)$race->division;
+
+      if (!isset($by_divs[$div]))
+        $by_divs[$div] = array();
+      $by_divs[$div][] = $race->number;
+    }
+
+    if ($this->REGATTA->scoring != Regatta::SCORING_STANDARD)
+      return new XSpan(DB::makeRange($by_divs[(string)Division::A()]), array('class'=>'document-races'));
+
+    $list = new XUl(array('class'=>'document-races-list'));
+    foreach ($by_divs as $div => $nums) {
+      $list->add(new XLi(array(new XStrong($div),
+                               new XSpan(DB::makeRange($nums), array('class'=>'document-races')))));
+    }
+    return $list;
   }
 }
 ?>
