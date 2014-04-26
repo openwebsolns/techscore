@@ -2172,7 +2172,7 @@ class FullRegatta extends DBObject {
    * @param Array $races list of races. Empty means "whole regatta"
    * @throws InvalidArgumentException if invalid document or race
    */
-  public function setDocumentRaces(Document_Summary $doc, Array $races = array()) {
+  public function setDocumentRaces(Document_Summary $doc, $races = array()) {
     if ($doc->id === null || $doc->regatta === null || $doc->regatta->id != $this->id)
       throw new InvalidArgumentException("Invalid document provided: " . $doc->id);
 

@@ -78,6 +78,19 @@ class NoticeBoardPane extends AbstractPane {
     $f->add(new FItem("Name:", new XTextInput('name', "", array('maxlength'=>100))));
     $f->add(new FItem("Description:", new XTextArea('description', "", array('placeholder'=>"Optional, but highly recommended, description."))));
     $f->add(new FItem("Category:", XSelect::fromArray('category', $categories)));
+
+    // Races?
+    if ($this->REGATTA->scoring != Regatta::SCORING_STANDARD || $this->REGATTA->isSingleHanded()) {
+      $f->add(new FItem("Races:", new XTextInput('races-A', ""), "Blank means the document applies to \"All races\"."));
+    }
+    else {
+      $f->add(new FItem("Races by division:", $ul = new XUl(array('class'=>'inline-list')), "Leave all blank to indicate \"All races\"."));
+      foreach ($this->REGATTA->getDivisions() as $div) {
+        $id = 'races-' . $div;
+        $ul->add(new XLi(array(new XLabel($id, $div), new XTextInput($id, "", array('id'=>$id))), array('class'=>'document-races-input')));
+      }
+    }
+
     $f->add(new FItem("Document:", new XFileInput('file')));
     $f->add(new XSubmitP('upload', "Add document"));
   }
@@ -111,7 +124,19 @@ class NoticeBoardPane extends AbstractPane {
         }
       }
 
+      // Races?
+      $races = array();
+      foreach ($this->REGATTA->getDivisions() as $div) {
+        $range = DB::$V->incString($args, 'races-' . $div, 1);
+        foreach (DB::parseRange($range) as $num) {
+          $race = $this->REGATTA->getRace($div, $num);
+          if ($race !== null)
+            $races[] = $race;
+        }
+      }
+
       $this->REGATTA->addDocument($doc);
+      $this->REGATTA->setDocumentRaces($doc, $races);
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DOCUMENT, $doc->url);
       Session::pa(new PA(sprintf("Added %s document \"%s\".", $categories[$doc->category], $doc->name)));
     }
@@ -176,8 +201,10 @@ class NoticeBoardPane extends AbstractPane {
    *
    */
   private function createRaceRange(Document_Summary $file) {
+    $no_divs = $this->REGATTA->scoring != Regatta::SCORING_STANDARD || $this->REGATTA->isSingleHanded();
+
     $div = null;
-    if ($this->REGATTA->scoring != Regatta::SCORING_STANDARD)
+    if ($no_divs)
       $div = Division::A();
 
     $races = $this->REGATTA->getDocumentRaces($file, $div);
@@ -194,7 +221,7 @@ class NoticeBoardPane extends AbstractPane {
       $by_divs[$div][] = $race->number;
     }
 
-    if ($this->REGATTA->scoring != Regatta::SCORING_STANDARD)
+    if ($no_divs)
       return new XSpan(DB::makeRange($by_divs[(string)Division::A()]), array('class'=>'document-races'));
 
     $list = new XUl(array('class'=>'document-races-list'));
