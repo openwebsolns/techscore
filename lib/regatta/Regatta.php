@@ -341,6 +341,22 @@ class FullRegatta extends DBObject {
   }
 
   /**
+   * Get effective number of divisions
+   *
+   * A regatta has effectively 1 division if any of these conditions
+   * apply:
+   *
+   *   - Only division A exists
+   *   - Divisions sail combined (i.e. combined or team racing)
+   *
+   */
+  public function getEffectiveDivisionCount() {
+    if ($this->scoring != self::SCORING_STANDARD)
+      return 1;
+    return count($this->getDivisions());
+  }
+
+  /**
    * Fetches the team with the given ID, or null
    *
    * @param int $id the id of the team
