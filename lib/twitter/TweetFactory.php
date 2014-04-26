@@ -323,7 +323,8 @@ class TweetFactory {
           $mes .= ", ";
         if ($i == count($tms) - 1 || strlen($n) + strlen($mes) > 90) {
           $end = true;
-          $mes .= "and ";
+          if ($i > 1)
+            $mes .= "and ";
         }
         $mes .= $n;
 
