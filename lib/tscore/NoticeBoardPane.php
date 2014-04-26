@@ -20,6 +20,27 @@ class NoticeBoardPane extends AbstractPane {
     parent::__construct("Notice board", $user, $reg);
   }
 
+  private function fillDocument(Document_Summary $doc, Array $args) {
+    $categories = Document::getCategories();
+
+    $this->PAGE->addContent($p = new XPort("Edit document"));
+    $p->add($form = $this->createForm());
+    $form->add(new FItem("Name:", new XStrong($doc->name)));
+    $form->add(new FItem("Category:", new XStrong($categories[$doc->category])));
+    $form->add(new FItem("Description:", new XTextArea('description', $doc->description, array('placeholder'=>"Optional, but highly recommended, description."))));
+    $form->add($this->createRaceFitem($doc));
+
+    $download = new XA($this->link('notices', array('file'=>$doc->url)), "Download");
+    if (substr($doc->filetype, 0, 6) == 'image/')
+      $download = $doc->asImg($this->link('notices', array('file'=>$doc->url)), $doc->description, array('class'=>'document-race-preview'));
+    $form->add(new FItem("Document:", $download));
+
+    $form->add($x = new XSubmitP('edit-document', "Edit"));
+    $x->add(" ");
+    $x->add(new XA($this->link('notices'), "Cancel"));
+    $x->add(new XHiddenInput('file', $doc->url));
+  }
+
   protected function fillHTML(Array $args) {
     // ------------------------------------------------------------
     // Download file?
@@ -33,6 +54,19 @@ class NoticeBoardPane extends AbstractPane {
       }
       else
         Session::pa(new PA(sprintf("Invalid file requested: %s.", $args['file']), PA::E));
+    }
+
+    // ------------------------------------------------------------
+    // Edit file?
+    // ------------------------------------------------------------
+    elseif (isset($args['edit'])) {
+      $file = $this->REGATTA->getDocument($args['edit']);
+      if ($file !== null) {
+        $this->fillDocument($file, $args);
+        return;
+      }
+      else
+        Session::pa(new PA(sprintf("Invalid file requested: %s.", $args['edit']), PA::E));
     }
 
     $categories = Document::getCategories();
@@ -59,6 +93,7 @@ class NoticeBoardPane extends AbstractPane {
       $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/tablesort.js'));
       $this->PAGE->addContent($p = new XPort("Current items"));
 
+      $p->add(new XP(array(), "Click on document name to edit description or races."));
       $p->add($f = $this->createForm());
       $f->add($tab = new XQuickTable(array('id'=>'divtable', 'class'=>'doctable'),
                                      array("Order", "#", "Name", "Description", "Category", "Races", "Download", "Delete?")));
@@ -67,7 +102,7 @@ class NoticeBoardPane extends AbstractPane {
                                    array(new XTextInput('order[]', ($i + 1), array('size'=>2)),
                                          new XHiddenInput('document[]', $file->url))),
                            new XTD(array('class'=>'drag'), ($i + 1)),
-                           new XStrong($file->name),
+                           new XA($this->link('notices', array('edit'=>$file->url)), $file->name),
                            new XTD(array('style'=>'max-width:15em'), $file->description),
                            $categories[$file->category],
                            $this->createRaceRange($file),
@@ -86,16 +121,7 @@ class NoticeBoardPane extends AbstractPane {
     $f->add(new FItem("Category:", XSelect::fromArray('category', $categories)));
 
     // Races?
-    if ($this->REGATTA->scoring != Regatta::SCORING_STANDARD || $this->REGATTA->isSingleHanded()) {
-      $f->add(new FItem("Races:", new XTextInput('races-A', ""), "Blank means the document applies to \"All races\"."));
-    }
-    else {
-      $f->add(new FItem("Races by division:", $ul = new XUl(array('class'=>'inline-list')), "Leave all blank to indicate \"All races\"."));
-      foreach ($this->REGATTA->getDivisions() as $div) {
-        $id = 'races-' . $div;
-        $ul->add(new XLi(array(new XLabel($id, $div), new XTextInput($id, "", array('id'=>$id))), array('class'=>'document-races-input')));
-      }
-    }
+    $f->add($this->createRaceFitem());
 
     $f->add(new FItem("Document:", new XFileInput('file')));
     $f->add(new XSubmitP('upload', "Add document"));
@@ -106,36 +132,45 @@ class NoticeBoardPane extends AbstractPane {
     // ------------------------------------------------------------
     // Add new
     // ------------------------------------------------------------
-    if (isset($args['upload'])) {
-      $file = DB::$V->reqFile($_FILES, 'file', 1, DB::g(STN::NOTICE_BOARD_SIZE), "No document provided, or document too large.");
-      $info = new FInfo(FILEINFO_MIME_TYPE);
+    if (isset($args['upload']) || isset($args['edit-document'])) {
+      $edit = isset($args['edit-document']);
 
-      $doc = new Document();
-      $doc->filetype = $info->file($file['tmp_name']);
-      if (!in_array($doc->filetype, array('application/pdf', 'image/jpeg', 'image/gif', 'image/png')))
-        throw new SoterException("Invalid file type. Must be PDF, JPG, GIF, or PNG.");
-
-      $doc->name = DB::$V->reqString($args, 'name', 3, 101, "No name provided, or too short (must be 3-100 characters long).");
-      $doc->description = DB::$V->incString($args, 'description', 1, 16000);
-      $doc->category = DB::$V->reqKey($args, 'category', $categories, "Invalid document category.");
-      $doc->author = $this->USER;
-      $doc->filedata = file_get_contents($file['tmp_name']);
-
-      // Course format must be an image
-      if ($doc->category == Document_Summary::CATEGORY_COURSE_FORMAT) {
-        $type = explode('/', $doc->filetype);
-        if ($type[0] != 'image')
-          throw new SoterException("Only images are allowed for \"Course format\".");
+      if ($edit) {
+        $doc = $this->REGATTA->getDocument(DB::$V->reqString($args, 'file', 1, 101, "Missing document to edit."));
+        if ($doc === null)
+          throw new SoterException("Invalid document to edit specified.");
       }
+      else {
+        $file = DB::$V->reqFile($_FILES, 'file', 1, DB::g(STN::NOTICE_BOARD_SIZE), "No document provided, or document too large.");
+        $info = new FInfo(FILEINFO_MIME_TYPE);
 
-      // Attempt to retrieve width/height for images
-      if (substr($doc->filetype, 0, 6) == 'image/') {
-        $size = getimagesize($file['tmp_name']);
-        if ($size !== false) {
-          $doc->width = $size[0];
-          $doc->height = $size[1];
+        $doc = new Document();
+        $doc->filetype = $info->file($file['tmp_name']);
+        if (!in_array($doc->filetype, array('application/pdf', 'image/jpeg', 'image/gif', 'image/png')))
+          throw new SoterException("Invalid file type. Must be PDF, JPG, GIF, or PNG.");
+
+        $doc->name = DB::$V->reqString($args, 'name', 3, 101, "No name provided, or too short (must be 3-100 characters long).");
+        $doc->category = DB::$V->reqKey($args, 'category', $categories, "Invalid document category.");
+        $doc->filedata = file_get_contents($file['tmp_name']);
+
+        // Attempt to retrieve width/height for images
+        $type = explode('/', $doc->filetype);
+        // Course format must be an image
+        if ($doc->category == Document_Summary::CATEGORY_COURSE_FORMAT && $type[0] != 'image') {
+          throw new SoterException("Only images are allowed for \"Course format\".");
+        }
+
+        if ($type[0] == 'image') {
+          $size = getimagesize($file['tmp_name']);
+          if ($size !== false) {
+            $doc->width = $size[0];
+            $doc->height = $size[1];
+          }
         }
       }
+
+      $doc->description = DB::$V->incString($args, 'description', 1, 16000);
+      $doc->author = $this->USER;
 
       // Races?
       $races = array();
@@ -144,7 +179,9 @@ class NoticeBoardPane extends AbstractPane {
         foreach (DB::parseRange($range) as $num) {
           $race = $this->REGATTA->getRace($div, $num);
           if ($race !== null) {
-            if ($doc->category != Document::CATEGORY_COURSE_FORMAT || $this->REGATTA->getRaceCourseFormat($race) === null) {
+            if ($doc->category != Document::CATEGORY_COURSE_FORMAT
+                || ($other = $this->REGATTA->getRaceCourseFormat($race)) === null
+                || $other->id == $doc->id) {
               $races[] = $race;
             }
           }
@@ -152,16 +189,21 @@ class NoticeBoardPane extends AbstractPane {
       }
 
       // Any course formats for "all" races?
-      if ($doc->category == Document::CATEGORY_COURSE_FORMAT
-          && count($races) == 0
-          && count($this->REGATTA->getDocuments(false, $doc->category)) > 0) {
-        throw new SoterException("Only one course format is allowed per race.");
+      if ($doc->category == Document::CATEGORY_COURSE_FORMAT && count($races) == 0) {
+        $others = $this->REGATTA->getDocuments(false, $doc->category);
+        if (count($others) > 0 && $others[0]->id != $doc->id)
+          throw new SoterException("Only one course format is allowed per race.");
       }
 
-      $this->REGATTA->addDocument($doc);
+      if ($edit)
+        DB::set($doc);
+      else
+        $this->REGATTA->addDocument($doc);
       $this->REGATTA->setDocumentRaces($doc, $races);
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DOCUMENT, $doc->url);
-      Session::pa(new PA(sprintf("Added %s document \"%s\".", $categories[$doc->category], $doc->name)));
+
+      $mes = ($edit) ? "Edited" : "Added";
+      Session::pa(new PA(sprintf("%s %s document \"%s\".", $mes, $categories[$doc->category], $doc->name)));
     }
 
     // ------------------------------------------------------------
@@ -253,6 +295,26 @@ class NoticeBoardPane extends AbstractPane {
                                new XSpan(DB::makeRange($nums), array('class'=>'document-races')))));
     }
     return $list;
+  }
+
+  private function createRaceFitem(Document_Summary $doc = null) {
+    if ($this->REGATTA->scoring != Regatta::SCORING_STANDARD || $this->REGATTA->isSingleHanded()) {
+      $val = ($doc === null) ? "" : $this->createRaceRange($doc);
+      return new FItem("Races:", new XTextInput('races-A', $val), "Blank means the document applies to \"All races\".");
+    }
+
+    $f = new FItem("Races by division:", $ul = new XUl(array('class'=>'inline-list')), "Leave all blank to indicate \"All races\".");
+    foreach ($this->REGATTA->getDivisions() as $div) {
+      $nums = array();
+      if ($doc !== null) {
+        foreach ($this->REGATTA->getDocumentRaces($doc, $div) as $race)
+          $nums[] = $race->number;
+      }
+        
+      $id = 'races-' . $div;
+      $ul->add(new XLi(array(new XLabel($id, $div), new XTextInput($id, DB::makeRange($nums), array('id'=>$id))), array('class'=>'document-races-input')));
+    }
+    return $f;
   }
 }
 ?>
