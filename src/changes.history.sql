@@ -737,3 +737,6 @@ alter table round change column race_order race_order text default null;
 -- optional association between notice board item and races
 create table regatta_document_race (id int unsigned primary key auto_increment, document int not null, race int(7) not null) engine=innodb default charset=utf8;
 alter table regatta_document_race add foreign key (document) references regatta_document(id) on delete cascade on update cascade, add foreign key (race) references race(id) on delete cascade on update cascade;
+
+-- add course format as possible notice board item
+alter table regatta_document change column category category enum('notice','protest', 'course_format') not null default 'notice';

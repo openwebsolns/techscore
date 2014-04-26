@@ -48,6 +48,12 @@ class NoticeBoardPane extends AbstractPane {
                    array("Please provide meaningful (unique) names to all the documents, and attach a description whenever possible. Also, order them appropriately. ",
                          new XStrong("Make sure to specify the correct notice category!"))));
 
+    $this->PAGE->addContent(new XH3("Course formats"));
+    $this->PAGE->addContent(new XP(array(),
+                                   array("Use the \"Course format\" category to upload an image and a text description of the course layout. The image will be published on the public site on the notice board as well as on the home page until the regatta gets under way.")));
+    $this->PAGE->addContent(new XP(array('class'=>'warning'),
+                                   array(new XStrong("Note:"), " There may only be one course format per race in the regatta.")));
+
     $files = $this->REGATTA->getDocuments();
     if (count($files) > 0) {
       $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/tablesort.js'));
@@ -115,6 +121,13 @@ class NoticeBoardPane extends AbstractPane {
       $doc->author = $this->USER;
       $doc->filedata = file_get_contents($file['tmp_name']);
 
+      // Course format must be an image
+      if ($doc->category == Document_Summary::CATEGORY_COURSE_FORMAT) {
+        $type = explode('/', $doc->filetype);
+        if ($type[0] != 'image')
+          throw new SoterException("Only images are allowed for \"Course format\".");
+      }
+
       // Attempt to retrieve width/height for images
       if (substr($doc->filetype, 0, 6) == 'image/') {
         $size = getimagesize($file['tmp_name']);
@@ -130,9 +143,19 @@ class NoticeBoardPane extends AbstractPane {
         $range = DB::$V->incString($args, 'races-' . $div, 1);
         foreach (DB::parseRange($range) as $num) {
           $race = $this->REGATTA->getRace($div, $num);
-          if ($race !== null)
-            $races[] = $race;
+          if ($race !== null) {
+            if ($doc->category != Document::CATEGORY_COURSE_FORMAT || $this->REGATTA->getRaceCourseFormat($race) === null) {
+              $races[] = $race;
+            }
+          }
         }
+      }
+
+      // Any course formats for "all" races?
+      if ($doc->category == Document::CATEGORY_COURSE_FORMAT
+          && count($races) == 0
+          && count($this->REGATTA->getDocuments(false, $doc->category)) > 0) {
+        throw new SoterException("Only one course format is allowed per race.");
       }
 
       $this->REGATTA->addDocument($doc);

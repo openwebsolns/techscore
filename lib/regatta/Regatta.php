@@ -2053,11 +2053,16 @@ class FullRegatta extends DBObject {
    * Get list of files associated with this regatta
    *
    * @param boolean $full set to true to include the full document
+   * @param Const $category limit to only those of given type
    * @return Array:Document_Summary list of documents
    */
-  public function getDocuments($full = false) {
+  public function getDocuments($full = false, $category = null) {
+    $cond = new DBCond('regatta', $this->id);
+    if ($category !== null)
+      $cond = new DBBool(array($cond, new DBCond('category', $category)));
+
     $obj = ($full !== false) ? DB::$REGATTA_DOCUMENT : DB::$REGATTA_DOCUMENT_SUMMARY;
-    return DB::getAll($obj, new DBCond('regatta', $this->id));
+    return DB::getAll($obj, $cond);
   }
 
   /**
@@ -2209,6 +2214,27 @@ class FullRegatta extends DBObject {
     // Remove old ones, add new ones
     DB::removeAll(DB::$REGATTA_DOCUMENT_RACE, new DBCond('document', $doc->id));
     DB::insertAll($list);
+  }
+
+  /**
+   * Retrieves the (first) regatta document of type COURSE_FORMAT
+   * associated with the given race
+   *
+   * @param Race $race the race
+   * @return Document_Summary the document, if any
+   */
+  public function getRaceCourseFormat(Race $race) {
+    foreach ($this->getDocuments(false, Document::CATEGORY_COURSE_FORMAT) as $doc) {
+      $races = $this->getDocumentRaces($doc);
+      if (count($races) == 0)
+        return $doc;
+
+      foreach ($races as $other) {
+        if ($other->id == $race->id)
+          return $doc;
+      }
+    }
+    return null;
   }
 
   // ------------------------------------------------------------

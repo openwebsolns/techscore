@@ -3888,6 +3888,7 @@ class Document_Summary extends DBObject {
 
   const CATEGORY_NOTICE = 'notice';
   const CATEGORY_PROTEST = 'protest';
+  const CATEGORY_COURSE_FORMAT = 'course_format';
 
   public function db_name() { return 'regatta_document'; }
   protected function db_order() { return array('relative_order'=>true); }
@@ -3928,7 +3929,9 @@ class Document_Summary extends DBObject {
 
   public static function getCategories() {
     return array(self::CATEGORY_NOTICE => "General notice",
-                 self::CATEGORY_PROTEST => "Protest");
+                 self::CATEGORY_PROTEST => "Protest",
+                 self::CATEGORY_COURSE_FORMAT => "Course format",
+    );
   }
 }
 
