@@ -209,7 +209,7 @@ class NoticeBoardPane extends AbstractPane {
 
     $races = $this->REGATTA->getDocumentRaces($file, $div);
     if (count($races) == 0)
-      return new XEm("All");
+      return new XSpan("All", array('class'=>'document-races'));
 
     // Distribute race by division
     $by_divs = array();
