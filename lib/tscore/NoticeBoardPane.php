@@ -298,9 +298,13 @@ class NoticeBoardPane extends AbstractPane {
   }
 
   private function createRaceFitem(Document_Summary $doc = null) {
-    if ($this->REGATTA->scoring != Regatta::SCORING_STANDARD || $this->REGATTA->isSingleHanded()) {
-      $val = ($doc === null) ? "" : $this->createRaceRange($doc);
-      return new FItem("Races:", new XTextInput('races-A', $val), "Blank means the document applies to \"All races\".");
+    if ($this->REGATTA->getEffectiveDivisionCount() == 1) {
+      $val = array();
+      if ($doc !== null) {
+        foreach ($this->REGATTA->getDocumentRaces($doc, Division::A()) as $race)
+          $val[] = $race->number;
+      }
+      return new FItem("Races:", new XTextInput('races-A', DB::makeRange($val)), "Blank means the document applies to \"All races\".");
     }
 
     $f = new FItem("Races by division:", $ul = new XUl(array('class'=>'inline-list')), "Leave all blank to indicate \"All races\".");
