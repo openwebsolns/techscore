@@ -33,6 +33,13 @@ class TweetFactory {
     return $mes;
   }
 
+  protected function getTeamShortName(FullRegatta $reg, Team $team) {
+    $name = $team->school->nick_name;
+    if (count($reg->getTeams($team->school)) > 1)
+      $name .= "'s " . $team->getQualifiedName();
+    return $name;
+  }
+
   /**
    * Creates a tweet for the given action
    *
@@ -236,18 +243,25 @@ class TweetFactory {
 
       $mes = "";
       if ($diff->d == 0) {
-        switch (rand(0, 2)) {
+        switch (rand(0, 3)) {
         case 0:
-          $mes = "After the first day, ";
+          $mes = sprintf("%s, first day: ", $reg->name);
           break;
 
+        case 1:
+          $mes = sprintf("%s after day 1: ", $reg->name);
+          break;
+
+        case 2:
+          $mes = sprintf("%s day 1 report: ", $reg->name);
+
         default:
-          $mes = "First day: ";
+          $mes = sprintf("Day 1 at %s: ", $reg->name);
           break;
         }
       }
       else {
-        $mes = sprintf("After %d days, ", ($diff->d + 1));
+        $mes = sprintf("After %d days at %s, ", ($diff->d + 1), $reg->name);
       }
       $tms = $reg->getRankedTeams();
       $first = array();
@@ -266,9 +280,11 @@ class TweetFactory {
         foreach ($first as $i => $team) {
           if ($i > 0)
             $full_list .= ", ";
-          $full_list .= sprintf("%s's %s", $team->school->nick_name, $team->name);
+          $full_list .= $this->getTeamShortName($reg, $team);
         }
-        $full_list .= sprintf(" and %s's %s", $last->school->nick_name, $last->name);
+
+        $full_list .= " and " . $this->getTeamShortName($reg, $last);
+
         if (strlen($full_list) < 100) {
           switch (rand(0, 2)) {
           case 0:
@@ -288,20 +304,35 @@ class TweetFactory {
 
       // REGULAR
       switch (rand(0, 2)) {
+      case 0:
+        $mes .= sprintf("%s in first, followed by ", $this->getTeamShortName($reg, $first[0]));
+        break;
+
+      case 1:
+        $mes .= sprintf("in first is %s, then ", $this->getTeamShortName($reg, $first[0]));
+        break;
+
       default:
-        $mes .= sprintf("%s's %s lead the fleet, followed by ",
-                        $first[0]->school->nick_name, $first[0]->name);
-        for ($i = 1; $i < count($tms); $i++) {
-          $n = sprintf("%s's %s", $tms[$i]->school->nick_name, $tms[$i]->name);
-          if (strlen($n) + strlen($mes) > 110)
-            break;
-          if ($i > 1)
-            $mes .= ", ";
-          $mes .= $n;
-        }
-        $mes .= ".";
-        return $this->addRegattaURL($mes, $reg);
+        $mes .= sprintf("%s leading, then ", $this->getTeamShortName($reg, $first[0]));
+        break;
       }
+      $end = false;
+      for ($i = 1; $i < count($tms); $i++) {
+        $n = sprintf("%s", $this->getTeamShortName($reg, $tms[$i]));
+        if ($i > 1)
+          $mes .= ", ";
+        if ($i == count($tms) - 1 || strlen($n) + strlen($mes) > 90) {
+          $end = true;
+          if ($i > 1)
+            $mes .= "and ";
+        }
+        $mes .= $n;
+
+        if ($end)
+          break;
+      }
+      $mes .= ".";
+      return $this->addRegattaURL($mes, $reg);
       break;
 
       // ------------------------------------------------------------

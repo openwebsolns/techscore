@@ -733,3 +733,10 @@ alter table rotation change column sail sail varchar(15) not null;
 create table round_template (id int unsigned not null primary key auto_increment, round int not null, team1 tinyint unsigned not null, team2 tinyint unsigned not null, boat int(2) null) engine=innodb;
 alter table round_template add foreign key (boat) references boat(id) on delete set null on update cascade;
 alter table round change column race_order race_order text default null;
+
+-- optional association between notice board item and races
+create table regatta_document_race (id int unsigned primary key auto_increment, document int not null, race int(7) not null) engine=innodb default charset=utf8;
+alter table regatta_document_race add foreign key (document) references regatta_document(id) on delete cascade on update cascade, add foreign key (race) references race(id) on delete cascade on update cascade;
+
+-- add course format as possible notice board item
+alter table regatta_document change column category category enum('notice','protest', 'course_format') not null default 'notice';

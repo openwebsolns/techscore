@@ -54,6 +54,7 @@ class DB extends DBM {
   public static $RACE_ORDER = null;
   public static $REGATTA_DOCUMENT_SUMMARY = null;
   public static $REGATTA_DOCUMENT = null;
+  public static $REGATTA_DOCUMENT_RACE = null;
   public static $ROUND_SLAVE = null;
   public static $AA_REPORT = null;
   public static $PUB_REGATTA_URL = null;
@@ -123,6 +124,7 @@ class DB extends DBM {
     self::$RACE_ORDER = new Race_Order();
     self::$REGATTA_DOCUMENT_SUMMARY = new Document_Summary();
     self::$REGATTA_DOCUMENT = new Document();
+    self::$REGATTA_DOCUMENT_RACE = new Document_Race();
     self::$ROUND_SLAVE = new Round_Slave();
     self::$AA_REPORT = new AA_Report();
     self::$PUB_REGATTA_URL = new Pub_Regatta_Url();
@@ -3886,6 +3888,7 @@ class Document_Summary extends DBObject {
 
   const CATEGORY_NOTICE = 'notice';
   const CATEGORY_PROTEST = 'protest';
+  const CATEGORY_COURSE_FORMAT = 'course_format';
 
   public function db_name() { return 'regatta_document'; }
   protected function db_order() { return array('relative_order'=>true); }
@@ -3926,7 +3929,9 @@ class Document_Summary extends DBObject {
 
   public static function getCategories() {
     return array(self::CATEGORY_NOTICE => "General notice",
-                 self::CATEGORY_PROTEST => "Protest");
+                 self::CATEGORY_PROTEST => "Protest",
+                 self::CATEGORY_COURSE_FORMAT => "Course format",
+    );
   }
 }
 
@@ -3938,5 +3943,25 @@ class Document_Summary extends DBObject {
  */
 class Document extends Document_Summary {
   public $filedata;
+}
+
+/**
+ * Linking table between documents and races
+ *
+ * @author Dayan Paez
+ * @version 2014-04-26
+ */
+class Document_Race extends DBObject {
+  protected $race;
+  protected $document;
+
+  public function db_name() { return 'regatta_document_race'; }
+  public function db_type($field) {
+    if ($field == 'race')
+      return DB::$RACE;
+    if ($field == 'document')
+      return DB::$REGATTA_DOCUMENT_SUMMARY;
+    return parent::db_type($field);
+  }
 }
 ?>
