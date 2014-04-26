@@ -201,7 +201,7 @@ class NoticeBoardPane extends AbstractPane {
    *
    */
   private function createRaceRange(Document_Summary $file) {
-    $no_divs = $this->REGATTA->scoring != Regatta::SCORING_STANDARD || $this->REGATTA->isSingleHanded();
+    $no_divs = $this->REGATTA->getEffectiveDivisionCount() == 1;
 
     $div = null;
     if ($no_divs)

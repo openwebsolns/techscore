@@ -330,6 +330,30 @@ class ReportMaker {
       foreach ($docs as $doc) {
         $p->add($d = new XDiv(array('class'=>'notice-item'),
                               array(new XH4(new XA($doc->url, $doc->name), array('class'=>'notice-title')))));
+
+
+        $races = $reg->getDocumentRaces($doc);
+        if (count($races) > 0) {
+          $d->add($ul = new XUl(array('class'=>'notice-races')));
+          $list = array();
+          foreach ($races as $race) {
+            $div = (string)$race->division;
+            if (!isset($list[$div]))
+              $list[$div] = array();
+            $list[$div][] = $race->number;
+          }
+
+          foreach ($list as $div => $nums) {
+            $ul->add($li = new XLi(""));
+            if ($reg->getEffectiveDivisionCount() > 1) {
+              $li->add(new XSpan("Division " . $div . ":", array('class'=>'notice-division')));
+              $li->add(" ");
+            }
+            $li->add(new XSpan(str_replace(",", ", ", DB::makeRange($nums)), array('class'=>'notice-race-nums')));
+          }
+        }
+
+
         if ($doc->description !== null) {
           if ($DPE === null) {
             // Use DPEditor goodness
