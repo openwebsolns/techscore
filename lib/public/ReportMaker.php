@@ -334,7 +334,9 @@ class ReportMaker {
 
         $races = $reg->getDocumentRaces($doc);
         if (count($races) > 0) {
-          $d->add($ul = new XUl(array('class'=>'notice-races')));
+          $d->add(new XDiv(array('class'=>'notice-races'),
+                           array(new XH5("Races"),
+                                 $ul = new XUl(array('class'=>'notice-races-list')))));
           $list = array();
           foreach ($races as $race) {
             $div = (string)$race->division;
