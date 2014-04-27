@@ -1309,6 +1309,10 @@ td.tr-sail, td.sail {
 
 /* Header */
 
+#m-user-menudiv {
+    display: none;
+}
+
 #headdiv {
     padding:0px;
     background:#3465a4;
@@ -1412,6 +1416,7 @@ td.tr-sail, td.sail {
     margin: 0 auto;
     max-width: 70em;
     padding: 0.5em 1em;
+    color: #111;
 }
 
 
@@ -1819,30 +1824,11 @@ body {
 #headdiv img {
     display: none;
 }
-#user, #public-link {
-    display: none;
-}
-#logout {
-    background: none repeat scroll 0 0 #EEEEEE;
-    border: 1px solid #888888;
-    border-radius: 0.25em;
-    font-size: 0.8em;
-    margin-bottom: 0;
-    padding: 2px 5px;
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    vertical-align: middle;
-}
-#logout a, #help a, #public-link {
-    text-decoration: none;
-}
-
-#close {
+#user, #public-link, #logout, #help, #close {
     display: none;
 }
 
-#regatta, #m-header {
+#regatta, #m-header, #m-user-menudiv {
     display: table-cell;
     padding: 13px 0;
     font-size: 1em;
@@ -1855,16 +1841,56 @@ body {
     background: url(/inc/img/techscore.png) no-repeat 50% 50%;
 }
 
+#m-user-menudiv {
+    height: 0;
+    padding: 0;
+    width: 50px;
+    background: rgba(255,255,255,0.6);
+    cursor: pointer;
+}
+
+#m-user-menudiv:after {
+    content: "?";
+    color: #3465a4;
+    font-size: 150%;
+    font-family: Arial;
+}
+
+#m-user-menu {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 50px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.8);
+    text-align: right;
+    z-index: 5;
+}
+
+#m-user-menu.m-menu-hidden {
+    display: none;
+}
+
+#m-user-menu > li {
+    background: none repeat scroll 0 0 #DDDDDD;
+    border-bottom: 1px solid #555555;
+    border-top: 1px solid #FFFFFF;
+    font-size: 95%;
+    padding: 0;
+}
+#m-user-menu a {
+    text-decoration: none;
+    color: black;
+    display: block;
+    padding: 10px 60px 10px 0;
+}
+
 #regatta a {
     color: white;
     text-decoration: none;
-}
-#help {
-    display: table-cell;
-    width: 85px;
-}
-#help a {
-    display: none;
 }
 
 #menubut {

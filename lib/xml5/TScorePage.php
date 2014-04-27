@@ -160,18 +160,28 @@ class TScorePage extends XPage {
 
     }
 
+    $m_user_menu = new XUl(array('id'=>'m-user-menu'));
+
     if ($reg !== null) {
       $this->header->add($h4 = new XH4(new XA(sprintf('/score/%s/', $reg->id), $reg->name), array('id'=>'regatta')));
       if ($reg->private)
         $h4->add(new XImg(WS::link('/inc/img/priv.png'), "Private", array('title'=>'Regatta is not public')));
+
       $this->header->add(new XDiv(array('id'=>'close'), array(new XA('/', "Close", array('accesskey'=>'w')))));
+      $m_user_menu->add(new XLi(new XA('/', "Close"), array('id'=>'m-close')));
+
       if (!$reg->private) {
-        $this->header->add(new XDiv(array('id'=>'public-link'), array(new XA(sprintf('http://%s%s', Conf::$PUB_HOME, $reg->getURL()), "Public Site", array('accesskey'=>'s', 'onclick'=>'this.target="public"')))));
+        $link = new XA(sprintf('http://%s%s', Conf::$PUB_HOME, $reg->getURL()), "Public Site", array('accesskey'=>'s', 'onclick'=>'this.target="public"'));
+        $this->header->add(new XDiv(array('id'=>'public-link'), array($link)));
+        $m_user_menu->add(new XLi($link, array('id'=>'m-public-link')));
       }
     }
     else {
       $this->header->add(new XH4(new XRawText('&nbsp;'), array('id'=>'m-header')));
     }
+
+    // Mobile user menu
+    $this->header->add(new XDiv(array('id'=>'m-user-menudiv'), array($m_user_menu)));
 
     if (DB::g(STN::HELP_HOME) !== null) {
       $this->header->add(new XDiv(array('id'=>'help'),
@@ -179,6 +189,11 @@ class TScorePage extends XPage {
                                                     array('onclick'=>'this.target="help"',
                                                           "accesskey"=>"h")))));
       $a->add("elp?");
+      $m_user_menu->add(new XLi(new XA(DB::g(STN::HELP_HOME), "Help"), array('id'=>'m-help')));
+    }
+
+    if ($user !== null) {
+      $m_user_menu->add(new XLi(new XA('/logout', "Logout", array('id'=>'m-logout'))));
     }
   }
 
