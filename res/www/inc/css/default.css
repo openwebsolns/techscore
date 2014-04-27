@@ -71,6 +71,9 @@ address {
     font-size: 85%;
     font-weight: bold;
     display: block;
+    text-align: center;
+    background: #eee;
+    text-shadow: 1px 1px 0 white;
 }
 a.pending, .user-rejected, .user-inactive {
     color:red;
@@ -1989,5 +1992,9 @@ input, button {
     position: absolute;
     top: 0;
     right: 0;
+}
+
+.regatta-list .reg-host, .regatta-list .reg-type {
+    display: none;
 }
 }

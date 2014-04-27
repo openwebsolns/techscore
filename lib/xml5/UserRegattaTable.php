@@ -28,13 +28,13 @@ class UserRegattaTable extends XTable {
     $this->schools = $this->user->getSchools();
 
     $row->add(new XTH(array('title'=>"Involvement in regatta"), "Inv."));
-    $row->add(new XTH(array(), "Name"));
+    $row->add(new XTH(array('class'=>'reg-name'), "Name"));
     if ($this->user->isAdmin())
-      $row->add(new XTH(array(), "Host(s)"));
-    $row->add(new XTH(array(), "Date"));
-    $row->add(new XTH(array(), "Type"));
-    $row->add(new XTH(array(), "Scoring"));
-    $row->add(new XTH(array(), "Finalized"));
+      $row->add(new XTH(array('class'=>'reg-host'), "Host(s)"));
+    $row->add(new XTH(array('class'=>'reg-date'), "Date"));
+    $row->add(new XTH(array('class'=>'reg-type'), "Type"));
+    $row->add(new XTH(array('class'=>'reg-scoring'), "Scoring"));
+    $row->add(new XTH(array('class'=>'reg-finalized'), "Finalized"));
 
     $this->counter = 0;
   }
@@ -57,13 +57,13 @@ class UserRegattaTable extends XTable {
       $inv = new XImg(WS::link('/inc/img/part.png'), "Part.", array('title'=>"Your school is a participant in this regatta"));
     }
     $link = new XA(WS::link('/score/' . $reg->id), $reg->name);
-    $row = array(new XTD(array(), $inv), new XTD(array(), $link));
+    $row = array(new XTD(array(), $inv), new XTD(array('class'=>'reg-name'), $link));
 
     if ($this->user->isAdmin()) {
       $hosts = array();
       foreach ($reg->getHosts() as $host)
         $hosts[$host->id] = $host->nick_name;
-      $row[] = new XTD(array(), implode("/", $hosts));
+      $row[] = new XTD(array('class'=>'reg-host'), implode("/", $hosts));
     }
 
     $finalized = '--';
@@ -110,10 +110,10 @@ class UserRegattaTable extends XTable {
     $scoring = ucfirst($reg->scoring);
     if ($reg->isSinglehanded())
       $scoring = "Singlehanded";
-    $row[] = new XTD(array(), $reg->start_time->format("Y-m-d"));
-    $row[] = new XTD(array(), $reg->type);
-    $row[] = new XTD(array(), $scoring);
-    $row[] = new XTD(array(), $finalized);
+    $row[] = new XTD(array('class'=>'reg-date'), $reg->start_time->format("Y-m-d"));
+    $row[] = new XTD(array('class'=>'reg-type'), $reg->type);
+    $row[] = new XTD(array('class'=>'reg-scoring'), $scoring);
+    $row[] = new XTD(array('class'=>'reg-finalized'), $finalized);
 
     $class = "";
     if ($reg->private)
