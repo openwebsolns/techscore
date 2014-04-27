@@ -48,7 +48,7 @@ class UpdateSchoolsSummary extends AbstractScript {
 
       foreach ($conf->getSchools() as $i => $school) {
         $num_schools++;
-        $link = sprintf('/schools/%s', $school->id);
+        $link = $school->getURL();
 
         $burg = $school->drawSmallBurgee("");
         $tab->addRow(array(new XTD(array('class'=>'burgeecell'), $burg),

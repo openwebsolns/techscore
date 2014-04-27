@@ -1183,7 +1183,7 @@ class School extends DBObject {
   /**
    * Returns the public URL root for this school
    *
-   * This is /schools/<url>, where <url> is the "url" property if one
+   * This is /schools/<url>/, where <url> is the "url" property if one
    * exists, or the ID otherwise
    *
    * @return String the URL
@@ -1191,10 +1191,10 @@ class School extends DBObject {
    */
   public function getURL() {
     if ($this->url !== null)
-      return '/schools/' . $this->url;
+      return '/schools/' . $this->url . '/';
     if ($this->id === null)
       throw new InvalidArgumentException("No ID exists for this school.");
-    return '/schools/' . $this->id;
+    return '/schools/' . $this->id . '/';
   }
 
   /**

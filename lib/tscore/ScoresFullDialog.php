@@ -111,7 +111,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
         if ($num_divs == 1) {
           $ln = array($team->getQualifiedName(), new XBr(), $team->school->nick_name);
           if ($link_schools !== false)
-            $ln[2] = new XA(sprintf('/schools/%s/%s/', $team->school->id, $this->REGATTA->getSeason()), $ln[2]);
+            $ln[2] = new XA(sprintf('%s%s/', $team->school->getURL(), $this->REGATTA->getSeason()), $ln[2]);
           $r->add(new XTD(array("title" => $team->dt_explanation, "class" => "tiebreaker"), $tiebreakers[$team->dt_explanation]));
           $r->add(new XTD(array(), $order++));
           $r->add(new XTD(array("class"=>"strong"), $ln));
@@ -119,7 +119,7 @@ class ScoresFullDialog extends AbstractScoresDialog {
         elseif ($div == "A") {
           $ln = $team->school->nick_name;
           if ($link_schools !== false)
-            $ln = new XA(sprintf('/schools/%s/%s/', $team->school->id, $this->REGATTA->getSeason()), $ln);
+            $ln = new XA(sprintf('%s%s/', $team->school->getURL(), $this->REGATTA->getSeason()), $ln);
           $r->add(new XTD(array("title" => $team->dt_explanation), $tiebreakers[$team->dt_explanation]));
           $r->add(new XTD(array(), $order++));
           $r->add(new XTD(array(), $ln));

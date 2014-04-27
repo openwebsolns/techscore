@@ -744,3 +744,4 @@ alter table regatta_document change column category category enum('notice','prot
 -- add url to schools
 alter table school add column url varchar(50) not null after nick_name;
 alter table school change column url url varchar(50) null;
+update school set url = null where url = "";
