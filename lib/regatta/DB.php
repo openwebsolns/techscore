@@ -1181,6 +1181,23 @@ class School extends DBObject {
   }
 
   /**
+   * Returns the public URL root for this school
+   *
+   * This is /schools/<url>, where <url> is the "url" property if one
+   * exists, or the ID otherwise
+   *
+   * @return String the URL
+   * @throws InvalidArgumentException if no "url" or "id" provided
+   */
+  public function getURL() {
+    if ($this->url !== null)
+      return '/schools/' . $this->url;
+    if ($this->id === null)
+      throw new InvalidArgumentException("No ID exists for this school.");
+    return '/schools/' . $this->id;
+  }
+
+  /**
    * Returns a list of sailors for the specified school
    *
    * @param School $school the school object
