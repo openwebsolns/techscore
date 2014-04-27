@@ -1309,7 +1309,7 @@ td.tr-sail, td.sail {
 
 /* Header */
 
-#m-user-menudiv {
+#m-title, #menubar .menu.mobile {
     display: none;
 }
 
@@ -1755,6 +1755,10 @@ table.full {
  */
 @media screen and (max-width:799px) {
 
+html {
+    background: #333;
+}
+
 /* General overrides */
 body {
     font-size: 14pt;
@@ -1802,6 +1806,7 @@ body {
 #headbar {
     display: table;
     width: 100%;
+    background: url(/inc/img/techscore-m.png) no-repeat 20px 50%;
 } 
 
 
@@ -1811,15 +1816,22 @@ body {
 #headdiv h1 {
     display: table-cell;
     width: 50px;
-    background: rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.3);
     vertical-align: middle;
 }
+#headdiv h1.m-menu-hidden {
+    background: rgba(255,255,255,0.6);
+}
 #headdiv h1:after {
+    color: white;
     content: "☰";
-    display: block;
-    padding: 5px;
     cursor: pointer;
-    color: #3465a4;
+    display: block;
+    height: 38px;
+    padding: 12px 5px 0;
+}
+#headdiv h1.m-menu-hidden:after {
+    color: #3465A4;
 }
 #headdiv img {
     display: none;
@@ -1828,82 +1840,19 @@ body {
     display: none;
 }
 
-#regatta, #m-header, #m-user-menudiv {
+#regatta, #m-title {
     display: table-cell;
     padding: 13px 0;
     font-size: 1em;
     text-align: center;
     overflow: hidden;
     height: 25px;
-}
-
-#m-header {
-    background: url(/inc/img/techscore.png) no-repeat 50% 50%;
-}
-
-#m-user-menudiv {
-    height: 0;
-    padding: 0;
-    width: 50px;
-    background: rgba(255,255,255,0.6);
-    cursor: pointer;
-}
-
-#m-user-menudiv:after {
-    content: "?";
-    color: #3465a4;
-    font-size: 150%;
-    font-family: Arial;
-}
-
-#m-user-menu {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    position: absolute;
-    top: 50px;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.8);
-    text-align: right;
-    z-index: 5;
-}
-
-#m-user-menu.m-menu-hidden {
-    display: none;
-}
-
-#m-user-menu > li {
-    background: none repeat scroll 0 0 #DDDDDD;
-    border-bottom: 1px solid #555555;
-    border-top: 1px solid #FFFFFF;
-    font-size: 95%;
-    padding: 0;
-}
-#m-user-menu a {
-    text-decoration: none;
-    color: black;
-    display: block;
-    padding: 10px 60px 10px 0;
+    color: white;
 }
 
 #regatta a {
     color: white;
     text-decoration: none;
-}
-
-#menubut {
-    display: block;
-    border: 1px solid #aaa;
-    padding: 0.25em;
-    background: #eee;
-    text-align: middle;
-    border-radius: 0.5em;
-    width: 90%;
-    margin: 0.5em 5%;
-    border-bottom: 1px solid #555;
-    font-size: 80%;
 }
 
 #menudiv {
@@ -1927,14 +1876,14 @@ body {
 #menudiv.show {
     display: block;
 }
-div.menu {
+.menu {
     background: #cccccc;
     padding: 0;
     vertical-align: top;
     border-bottom: 1px solid #555;
     text-align: left;
 }
-div.menu h4 {
+.menu h4 {
     background: none repeat scroll 0 center #282828;
     color: #FFFFFF;
     font-weight: normal;
@@ -1942,13 +1891,16 @@ div.menu h4 {
     padding: 10px;
     text-align: center;
 }
-div.menu ul {
+.menu.mobile h4 {
+    background: #3465a4;
+}
+.menu ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
 }
 
-div.menu li {
+.menu li {
     background: none repeat scroll 0 0 #DDDDDD;
     border-bottom: 1px solid #555555;
     border-top: 1px solid #FFFFFF;
@@ -1956,11 +1908,20 @@ div.menu li {
     padding: 0;
 }
 
-div.menu a {
+.menu a {
     color: #000000;
     display: block;
     padding: 10px 0 10px 40px;
     text-decoration: none;
+}
+
+
+
+#footdiv {
+    color: #CCCCCC;
+    font-size: 80%;
+    padding: 1em 0;
+    text-align: center;
 }
 
 

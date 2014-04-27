@@ -116,17 +116,6 @@ function parseRange(str) {
             };
         }
 
-        var m1 = d.getElementById("m-user-menu");
-        var h1 = d.getElementById("m-user-menudiv");
-        if (m1 && h1) {
-            m1.classList.add("m-menu-hidden");
-            h1.classList.add("m-menu-hidden");
-            h1.onclick = function(e) {
-                m1.classList.toggle("m-menu-hidden");
-                h1.classList.toggle("m-menu-hidden");
-            };
-        }
-
         // Context menu?
         ul = d.getElementById("context-menu");
         if (ul)

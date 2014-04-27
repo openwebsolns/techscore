@@ -31,6 +31,8 @@ class TScorePage extends XPage {
   private $mobile;
   private $filled;
 
+  private $title;
+
   /**
    * Creates a new page with the given title
    *
@@ -41,6 +43,7 @@ class TScorePage extends XPage {
    */
   public function __construct($title, Account $user = null, Regatta $reg = null) {
     parent::__construct($title . " | " . DB::g(STN::APP_NAME));
+    $this->title = $title;
     $this->user = $user;
     $this->reg = $reg;
 
@@ -160,7 +163,7 @@ class TScorePage extends XPage {
 
     }
 
-    $m_user_menu = new XUl(array('id'=>'m-user-menu'));
+    $m_user_menu = new XUl();
 
     if ($reg !== null) {
       $this->header->add($h4 = new XH4(new XA(sprintf('/score/%s/', $reg->id), $reg->name), array('id'=>'regatta')));
@@ -177,11 +180,8 @@ class TScorePage extends XPage {
       }
     }
     else {
-      $this->header->add(new XH4(new XRawText('&nbsp;'), array('id'=>'m-header')));
+      $this->header->add(new XH4($this->title, array('id'=>'m-title')));
     }
-
-    // Mobile user menu
-    $this->header->add(new XDiv(array('id'=>'m-user-menudiv'), array($m_user_menu)));
 
     if (DB::g(STN::HELP_HOME) !== null) {
       $this->header->add(new XDiv(array('id'=>'help'),
@@ -194,6 +194,10 @@ class TScorePage extends XPage {
 
     if ($user !== null) {
       $m_user_menu->add(new XLi(new XA('/logout', "Logout", array('id'=>'m-logout'))));
+    }
+
+    if (count($m_user_menu->children()) > 0) {
+      $this->addMenu(new XDiv(array('class'=>'menu mobile'), array(new XH4("Site navigation"), $m_user_menu)));
     }
   }
 
