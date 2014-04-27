@@ -237,11 +237,10 @@ class RpEnterPane extends AbstractPane {
         }
         $select_cell = XSelect::fromArray("sk$div$spot", $sailor_options, $cur_sk_id, array('onchange'=>'check()'));
         $tab_skip->addRow(array($select_cell,
-                                new XTextInput("rsk$div$spot", $value,
-                                               array("size"=>$size,
-                                                     "class"=>"race_text",
-                                                     "onchange"=>
-                                                     "check()")),
+                                new XRangeInput("rsk$div$spot", $value, array(),
+                                                array('size'=>$size,
+                                                      'class'=>'race_text',
+                                                      'onchange'=>'check()')),
                                 new XTD(array('id'=>"csk$div$spot"),
                                         new XImg("/inc/img/question.png", "Waiting to verify"))),
                           array("class"=>"skipper"));

@@ -362,6 +362,21 @@ class XCombinedRaceInput extends XNumberInput {
 }
 
 /**
+ * Input element for a range of numbers
+ *
+ * @author Dayan Paez
+ * @version 2014-04-26
+ */
+class XRangeInput extends XTextInput {
+  public function __construct($name, $value, Array $possible_values = array(), Array $attrs = array()) {
+    parent::__construct($name, $value, $attrs);
+    $this->set('pattern', '^\s*([0-9]+\s*([-,]\s*[0-9]+)*)+\s*$');
+    if (!isset($attrs['placeholder']) && count($possible_values) > 0)
+      $this->set('placeholder', "E.g. " . DB::makeRange($possible_values));
+  }
+}
+
+/**
  * Combination of checkbox input and sibling label, inside a span
  *
  * @author Dayan Paez

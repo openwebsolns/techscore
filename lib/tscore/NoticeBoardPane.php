@@ -304,7 +304,7 @@ class NoticeBoardPane extends AbstractPane {
         foreach ($this->REGATTA->getDocumentRaces($doc, Division::A()) as $race)
           $val[] = $race->number;
       }
-      return new FItem("Races:", new XTextInput('races-A', DB::makeRange($val)), "Blank means the document applies to \"All races\".");
+      return new FItem("Races:", new XRangeInput('races-A', DB::makeRange($val)), "Blank means the document applies to \"All races\".");
     }
 
     $f = new FItem("Races by division:", $ul = new XUl(array('class'=>'inline-list')), "Leave all blank to indicate \"All races\".");
