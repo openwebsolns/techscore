@@ -1341,7 +1341,7 @@ class FullRegatta extends DBObject {
 
   /**
    * Creates a regatta nick name for this regatta based on this
-   * regatta's name. Nick names are guaranteed to be a unique per
+   * regatta's name. Nick names are guaranteed to be unique per
    * season. As such, this function will throw an error if there is
    * already a regatta with the same nick name as this one. This is
    * meant to establish some order from users who fail to read
@@ -1355,43 +1355,16 @@ class FullRegatta extends DBObject {
    * @throw InvalidArgumentException if the nick name is not unique
    */
   public function createNick() {
-    $name = strtolower($this->name);
-    // Remove 's from words
-    $name = str_replace('\'s', '', $name);
+    // list of regatta names in the same season as this one
+    $season = $this->getSeason();
+    if ($season === null)
+      throw new InvalidArgumentException("No season for this regatta.");
 
-    // Convert dashes, slashes and underscores into spaces
-    $name = str_replace('-', ' ', $name);
-    $name = str_replace('/', ' ', $name);
-    $name = str_replace('_', ' ', $name);
-
-    // White list permission
-    $name = preg_replace('/[^0-9a-z\s_+]+/', '', $name);
-
-    // Remove '80th'
-    $name = preg_replace('/[0-9]+th/', '', $name);
-    $name = preg_replace('/[0-9]*1st/', '', $name);
-    $name = preg_replace('/[0-9]*2nd/', '', $name);
-    $name = preg_replace('/[0-9]*3rd/', '', $name);
-
-    // Trim and squeeze spaces
-    $name = trim($name);
-    $name = preg_replace('/\s+/', '-', $name);
-
-    $tokens = explode("-", $name);
-    $blacklist = array("the", "of", "for", "and", "an", "in", "is", "at",
-                       "trophy", "championship", "intersectional",
-                       "college", "university", "regatta", "memorial",
-                       "professor");
-    $tok_copy = $tokens;
-    foreach ($tok_copy as $i => $t)
-      if (in_array($t, $blacklist))
-        unset($tokens[$i]);
-    $name = implode("-", $tokens);
-
-    // in the unlikely event that *every* token was a blacklisted
-    // element, use the entire token
-    if ($name == "")
-      $name = implode("-", $tok_copy);
+    $name = DB::slugify($this->name, true, array(
+                          "the", "of", "for", "and", "an", "in", "is", "at",
+                          "trophy", "championship", "intersectional",
+                          "college", "university", "regatta", "memorial",
+                          "professor"));
 
     // eastern -> east
     $name = str_replace("eastern", "east", $name);
@@ -1403,10 +1376,6 @@ class FullRegatta extends DBObject {
     $name = str_replace("semifinals", "semis", $name);
     $name = str_replace("semifinal",  "semis", $name);
 
-    // list of regatta names in the same season as this one
-    $season = $this->getSeason();
-    if ($season === null)
-      throw new InvalidArgumentException("No season for this regatta.");
     foreach ($season->getRegattas() as $n) {
       if ($n->nick == $name && $n->id != $this->id)
         throw new InvalidArgumentException(sprintf("Nick name \"%s\" already in use by (%d).", $name, $n->id));
