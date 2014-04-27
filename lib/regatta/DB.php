@@ -3081,6 +3081,23 @@ class Season extends DBObject {
   }
 
   /**
+   * Fetches the regatta, if any, with given URL
+   *
+   * @param String $url the URL to fetch
+   * @return Regatta|null
+   */
+  public function getRegattaWithURL($url) {
+    require_once('regatta/Regatta.php');
+    $res = DB::getAll(DB::$PUBLIC_REGATTA,
+                      new DBBool(array(new DBCond('start_time', $this->start_date, DBCond::GE),
+                                       new DBCond('start_time', $this->end_date,   DBCond::LT),
+                                       new DBCond('nick', $url))));
+    if (count($res) == 0)
+      return null;
+    return $res[0];
+  }
+
+  /**
    * Get a list of regattas in this season in which the given
    * school participated. This is a convenience method.
    *

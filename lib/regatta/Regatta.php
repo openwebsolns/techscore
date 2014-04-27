@@ -1376,10 +1376,10 @@ class FullRegatta extends DBObject {
     $name = str_replace("semifinals", "semis", $name);
     $name = str_replace("semifinal",  "semis", $name);
 
-    foreach ($season->getRegattas() as $n) {
-      if ($n->nick == $name && $n->id != $this->id)
-        throw new InvalidArgumentException(sprintf("Nick name \"%s\" already in use by (%d).", $name, $n->id));
-    }
+    // Any other with this exact name?
+    $other = $season->getRegattaWithURL($name);
+    if ($other !== null && $other->id != $this->id)
+      throw new InvalidArgumentException(sprintf("Nick name \"%s\" already in use by (%d).", $name, $other->id));
     return $name;
   }
 
