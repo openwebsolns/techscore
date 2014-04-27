@@ -81,7 +81,7 @@ class TweakSailsPane extends AbstractPane {
     }
 
     $range_races = sprintf('1-%d', count($this->REGATTA->getRaces(Division::A())));
-    $form->add(new FReqItem("Races:", new XTextInput('races', $range_races, array('size'=>'12'))));
+    $form->add(new FReqItem("Races:", new XRangeInput('races', $range_races)));
 
     if ( $edittype === "ADD") {
       $form->add(new FReqItem("Add amount (±):",
