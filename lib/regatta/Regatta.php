@@ -2070,34 +2070,8 @@ class FullRegatta extends DBObject {
 
     if (strlen($doc->name) == 0)
       throw new InvalidArgumentException("No name provided");
-    $url = strtolower($doc->name);
-    // Remove 's from words
-    $url = str_replace('\'s', '', $url);
 
-    // Convert dashes, slashes and underscores into spaces
-    $url = str_replace('-', ' ', $url);
-    $url = str_replace('/', ' ', $url);
-    $url = str_replace('_', ' ', $url);
-
-    // White list permission
-    $url = preg_replace('/[^0-9a-z\s_+]+/', '', $url);
-
-    // Trim and squeeze spaces
-    $url = trim($url);
-    $url = preg_replace('/\s+/', '-', $url);
-
-    $tokens = explode("-", $url);
-    $blacklist = array("the", "of", "for", "and", "an", "in", "is", "at");
-    $tok_copy = $tokens;
-    foreach ($tok_copy as $i => $t)
-      if (in_array($t, $blacklist))
-        unset($tokens[$i]);
-    $url = implode("-", $tokens);
-
-    // in the unlikely event that *every* token was a blacklisted
-    // element, use the entire token
-    if ($url == "")
-      $url = implode("-", $tok_copy);
+    $url = DB::slugify($doc->name, true, array("the", "of", "for", "and", "an", "in", "is", "at"));
 
     $ext = "";
     // append the extension
