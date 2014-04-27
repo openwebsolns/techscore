@@ -15,7 +15,10 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="New document 1">
+   sodipodi:docname="checks.svg"
+   inkscape:export-filename="/home/dayan/sites/collegesailing.org/techscore-web/www/inc/img/check.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
   <defs
      id="defs4">
     <linearGradient
@@ -29,16 +32,6 @@
          offset="1"
          id="stop3805" />
     </linearGradient>
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient3801"
-       id="linearGradient3807"
-       x1="102.35714"
-       y1="403.07648"
-       x2="102.28572"
-       y2="386.29077"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(60.482884,2.1465741)" />
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient3801"
@@ -58,7 +51,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="7.9195959"
-     inkscape:cx="162.65309"
+     inkscape:cx="162.90563"
      inkscape:cy="649.67465"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -89,7 +82,7 @@
      inkscape:groupmode="layer"
      id="layer1">
     <rect
-       style="opacity:0.88580243999999997;fill:url(#linearGradient3807);fill-opacity:1;stroke:#808080"
+       style="opacity:0.88580243999999986;fill:#1a1a1a;fill-opacity:1;stroke:#808080"
        id="rect3031"
        width="20"
        height="20"
@@ -101,8 +94,8 @@
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <path
-       style="fill:#000000;stroke:#000000;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
-       d="m 152.38457,395.51049 c 3.22664,3.25723 3.57506,5.03361 4.41942,6.43973 2.7098,-5.23037 5.84367,-8.84631 8.9651,-12.62691 -2.98837,2.22704 -6.69102,5.13988 -8.9651,8.20749 -1.56592,-1.23012 -2.96099,-1.43513 -4.41942,-2.02031 z"
+       style="fill:#f2f2f2;stroke:#f2f2f2;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
+       d="m 154.27861,396.89945 c 3.22664,3.25723 3.57506,5.03361 4.41942,6.43973 2.7098,-5.23037 5.84367,-8.84631 8.9651,-12.62691 -2.98837,2.22704 -6.69102,5.13988 -8.9651,8.20749 -1.56592,-1.23012 -2.96099,-1.43513 -4.41942,-2.02031 z"
        id="path3809"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccccc"
