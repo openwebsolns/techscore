@@ -748,3 +748,5 @@ update school set url = null where url = "";
 
 -- add url as possible change to school
 alter table pub_update_school change column activity activity enum('burgee','season','details','url') not null default 'burgee';
+-- add argument as attribute to pub_update_school
+alter table pub_update_school add column argument varchar(255) null default null after season;

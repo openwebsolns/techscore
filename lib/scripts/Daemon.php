@@ -326,6 +326,8 @@ class Daemon extends AbstractScript {
 
       $schools = array(); // map of schools indexed by ID
       $seasons = array(); // map of seasons to update indexed by school
+      $to_delete = array();
+      $regattas = array();
 
       foreach ($pending as $i => $r) {
         if ($i >= self::$MAX_REQUESTS_PER_CYCLE)
@@ -335,12 +337,23 @@ class Daemon extends AbstractScript {
         if ($r->activity == UpdateSchoolRequest::ACTIVITY_BURGEE)
           $burgees[$r->school->id] = $r->school;
         else { // season summary, or details
+          // URL: delete old one
+          if ($r->activity == UpdateSchoolRequest::ACTIVITY_URL) {
+            if ($r->argument !== null)
+              $to_delete[$r->argument] = $r->argument;
+
+            // trigger all the school's regattas
+            foreach ($r->school->getRegattas() as $reg) {
+              UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_TEAM);
+            }
+          }
+
           $schools[$r->school->id] = $r->school;
           if (!isset($seasons[$r->school->id]))
             $seasons[$r->school->id] = array();
           
           // season value is null: do all (such as for ACTIVITY_DETAILS)
-          if ($r->season !== null)
+          if ($r->season !== null && $r->activity != UpdateSchoolRequest::ACTIVITY_URL)
             $seasons[$r->school->id][(string)$r->season] = $r->season;
           else {
             foreach (DB::getAll(DB::$SEASON) as $season)
@@ -353,6 +366,10 @@ class Daemon extends AbstractScript {
         // ------------------------------------------------------------
         // Perform the updates
         // ------------------------------------------------------------
+        foreach ($to_delete as $root) {
+          self::remove($root);
+        }
+
         if (count($burgees) > 0) {
           require_once('scripts/UpdateBurgee.php');
           $P = new UpdateBurgee();

@@ -98,6 +98,7 @@ class UpdateRequest extends AbstractUpdate {
 class UpdateSchoolRequest extends AbstractUpdate {
   protected $school;
   protected $season;
+  public $argument;
 
   public function db_name() { return 'pub_update_school'; }
   public function db_type($field) {
