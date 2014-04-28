@@ -88,17 +88,22 @@ class SyncDB extends AbstractScript {
     DB::inactivateSchools();
     self::errln("Schools deactivated", 2);
 
+    $used_urls = array();
     // parse data
     foreach ($xml->school as $school) {
       try {
         $id = trim((string)$school->school_code);
         $sch = DB::getSchool($id);
         $upd = true;
+        $old_url = null;
         if ($sch === null) {
           $this->warnings[] = sprintf("New school: %s", $school->school_code);
           $sch = new School();
           $sch->id = $id;
           $upd = false;
+        }
+        else {
+          $old_url = $sch->getURL();
         }
         $dist = trim((string)$school->district);
         $sch->conference = DB::getConference($dist);
@@ -116,8 +121,29 @@ class SyncDB extends AbstractScript {
         $sch->state = trim((string)$school->school_state);
         $sch->inactive = null;
 
+        $url = DB::slugify($sch->nick_name);
+        if (isset($used_urls[$url])) {
+          $root = $sch->nick_name . " " . $sch->conference;
+          $url = DB::slugify($root);
+          $suf = 1;
+          while (isset($used_urls[$url])) {
+            $url = DB::slugify($root . ' ' . $suf);
+            $suf++;
+          }
+        }
+        $sch->url = $url;
+        $used_urls[$url] = $url;
+
         DB::set($sch, $upd);
         self::errln(sprintf("Activated school %10s: %s", $sch->id, $sch->name), 2);
+
+        // URL change?
+        $new_url = $sch->getURL();
+        if ($old_url !== null && $old_url != $new_url) {
+          self::errln(sprintf("URL change for school %10s: %s -> %s", $sch->name, $old_url, $new_url), 2);
+          require_once('public/UpdateManager.php');
+          UpdateManager::queueSchool($sch, UpdateSchoolRequest::ACTIVITY_URL, null, $old_url);
+        }
 
       } catch (Exception $e) {
         $this->errors[] = "Invalid school information: " . $e->getMessage();

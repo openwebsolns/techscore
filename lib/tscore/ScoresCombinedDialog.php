@@ -100,7 +100,7 @@ class ScoresCombinedDialog extends AbstractScoresDialog {
 
       $ln = $rank->team->school->name;
       if ($link_schools !== false)
-        $ln = new XA(sprintf('/schools/%s/%s/', $rank->team->school->id, $this->REGATTA->getSeason()), $ln);
+        $ln = new XA(sprintf('%s%s/', $rank->team->school->getURL(), $this->REGATTA->getSeason()), $ln);
 
       // deal with explanations
       $sym = $tiebreakers[$rank->explanation];

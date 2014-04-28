@@ -102,7 +102,7 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
     foreach ($ranks as $tID => $rank) {
       $ln = new XSpan($rank->school->name, array('itemprop'=>'name'));
       if ($link_schools !== false)
-        $ln = new XA(sprintf('/schools/%s/%s/', $rank->school->id, $this->REGATTA->getSeason()), $ln, array('itemprop'=>'url'));
+        $ln = new XA(sprintf('%s%s/', $rank->school->getURL(), $this->REGATTA->getSeason()), $ln, array('itemprop'=>'url'));
       $tab->add($r = new XTR(array('class'=>'row' . ($row++ % 2), 'itemscope'=>'itemscope', 'itemtype'=>'http://schema.org/CollegeOrUniversity', 'itemprop'=>'attendee'),
                              array(new XTD(array('title'=>$rank->dt_explanation, 'class'=>'tiebreaker'),
                                            $tiebreakers[$rank->dt_explanation]),

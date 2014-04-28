@@ -740,3 +740,13 @@ alter table regatta_document_race add foreign key (document) references regatta_
 
 -- add course format as possible notice board item
 alter table regatta_document change column category category enum('notice','protest', 'course_format') not null default 'notice';
+
+-- add url to schools
+alter table school add column url varchar(50) not null after nick_name;
+alter table school change column url url varchar(50) null;
+update school set url = null where url = "";
+
+-- add url as possible change to school
+alter table pub_update_school change column activity activity enum('burgee','season','details','url') not null default 'burgee';
+-- add argument as attribute to pub_update_school
+alter table pub_update_school add column argument varchar(255) null default null after season;

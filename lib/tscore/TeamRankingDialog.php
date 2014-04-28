@@ -66,7 +66,7 @@ class TeamRankingDialog extends AbstractScoresDialog {
       $mascot = $team->school->drawSmallBurgee("");
       $school = (string)$team->school;
       if ($link_schools !== false)
-        $school = new XA(sprintf('/schools/%s/%s/', $team->school->id, $season), $school);
+        $school = new XA(sprintf('%s%s/', $team->school->getURL(), $season), $school);
 
       $b->add($row = new XTR(array('class'=>sprintf('topborder row%d team-%s', ($rowIndex % 2), $team->id)),
                              array(new XTD(array('class'=>'tiebreaker', 'title'=>$team->dt_explanation), $explanations[$team->dt_explanation]),
@@ -145,7 +145,7 @@ class TeamRankingDialog extends AbstractScoresDialog {
       $mascot = $team->school->drawSmallBurgee("");
       $school = (string)$team->school;
       if ($link_schools !== false)
-        $school = new XA(sprintf('/schools/%s/%s/', $team->school->id, $season), $school);
+        $school = new XA(sprintf('%s%s/', $team->school->getURL(), $season), $school);
 
       $rowspan = max(1, count($skips), count($crews));
       $rowindex = 'row' . ($rowIndex % 2);

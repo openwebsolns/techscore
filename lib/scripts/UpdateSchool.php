@@ -53,7 +53,7 @@ class UpdateSchool extends AbstractScript {
     $page->addMetaKeyword($season->getYear());
     $page->addSocialPlugins(true);
 
-    $url = sprintf('http://%s/schools/%s/', Conf::$PUB_HOME, $school->id);
+    $url = sprintf('http://%s%s', Conf::$PUB_HOME, $school->getURL());
     $og = array('type'=>'website', 'url'=>$url);
     if ($school->hasBurgee()) {
       $imgurl = sprintf('http://%s/inc/img/schools/%s.png', Conf::$PUB_HOME, $school->id);
@@ -71,7 +71,7 @@ class UpdateSchool extends AbstractScript {
     $page->addMenu(new XA('/', "Home"));
     $page->addMenu(new XA('/schools/', "Schools"));
     $page->addMenu(new XA('/seasons/', "Seasons"));
-    $page->addMenu(new XA(sprintf("/schools/%s/", $school->id), $school->nick_name));
+    $page->addMenu(new XA($school->getURL(), $school->nick_name));
     if (($link = $this->getBlogLink()) !== null)
       $page->addMenu(new XA($link, "Blog", array('itemprop'=>'url')));
     if (($link = $page->getOrgTeamsLink()) !== null)
@@ -262,12 +262,12 @@ class UpdateSchool extends AbstractScript {
     // Add links to all seasons
     $ul = new XUl(array('id'=>'other-seasons'));
     $num = 0;
-    $root = sprintf('/schools/%s', $school->id);
+    $root = $school->getURL();
     foreach (DB::getAll(DB::$SEASON) as $s) {
       $regs = $s->getParticipation($school);
       if (count($regs) > 0) {
         $num++;
-        $ul->add(new XLi(new XA($root . '/' . $s->id, $s->fullString())));
+        $ul->add(new XLi(new XA($root . $s->id . '/', $s->fullString())));
       }
     }
     if ($num > 0)
@@ -284,14 +284,14 @@ class UpdateSchool extends AbstractScript {
    * @param Season $season the season
    */
   public function run(School $school, Season $season) {
-    $dirname = '/schools/' . $school->id;
+    $dirname = $school->getURL();
 
     // Do season
     $today = Season::forDate(DB::$NOW);
     $base = (string)$season;
 
     // Create season directory
-    $fullname = "$dirname/$base";
+    $fullname = $dirname . $base;
 
     // is this current season
     $current = false;
@@ -305,7 +305,7 @@ class UpdateSchool extends AbstractScript {
     
     // If current, do we also need to create index page?
     if ($current) {
-      $filename = "$dirname/index.html";
+      $filename = $dirname . 'index.html';
       self::writeXml($filename, $content);
       self::errln("Wrote current summary for $school.", 2);
     }

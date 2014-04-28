@@ -25,11 +25,10 @@ if ($season === null) {
   usage();
 }
 
-foreach ($season->getRegattas() as $reg) {
-  if ($reg->nick == $argv[2]) {
-    printf("%d\n", $reg->id);
-    exit;
-  }
+$reg = $season->getRegattaWithURL($argv[2]);
+if ($reg !== null) {
+  printf("%d\n", $reg->id);
+  exit;
 }
 exit(255);
 ?>

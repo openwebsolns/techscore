@@ -806,6 +806,39 @@ class DB extends DBM {
     return DB::get(DB::$PUB_FILE, $name);
   }
 
+  /**
+   * Creates a suitable URL from given string
+   *
+   * @param String $seed the input
+   * @param boolean $apply_rule_c false to NOT remove short words
+   * @param Array $blacklist additional words to remove
+   * return String the URL-safe equivalent
+   */
+  public static function slugify($seed, $apply_rule_c = true, Array $blacklist = array()) {
+    // remove spaces, ('s)'s
+    $url = strtolower($seed);
+    $url = str_replace('\'s', '', $url);
+    $url = str_replace('/', '-', $url);
+    $url = str_replace(' ', '-', $url);
+    $url = str_replace('_', '-', $url);
+
+    // remove unwarranted characters and squeeze dashes
+    $url = preg_replace('/[^a-z0-9-]/', '', $url);
+    $url = preg_replace('/-+/', '-', $url);
+
+    // short words and blacklist
+    $tokens = explode('-', $url);
+    $copy = $tokens;
+    foreach ($copy as $i => $token) {
+      if (in_array($token, $blacklist) || ($apply_rule_c && strlen($token) < 2))
+        unset($tokens[$i]);
+    }
+    $tokens = implode('-', $tokens);
+    if (strlen($tokens) < 3)
+      return $url;
+    return $tokens;
+  }
+
   // ------------------------------------------------------------
   // Settings
   // ------------------------------------------------------------
@@ -1040,6 +1073,7 @@ class Burgee extends DBObject {
 class School extends DBObject {
   public $nick_name;
   public $name;
+  public $url;
   public $city;
   public $state;
   protected $conference;
@@ -1144,6 +1178,23 @@ class School extends DBObject {
     case 'square': return $this->burgee_square !== null;
     default:       return $this->burgee !== null;
     }
+  }
+
+  /**
+   * Returns the public URL root for this school
+   *
+   * This is /schools/<url>/, where <url> is the "url" property if one
+   * exists, or the ID otherwise
+   *
+   * @return String the URL
+   * @throws InvalidArgumentException if no "url" or "id" provided
+   */
+  public function getURL() {
+    if ($this->url !== null)
+      return '/schools/' . $this->url . '/';
+    if ($this->id === null)
+      throw new InvalidArgumentException("No ID exists for this school.");
+    return '/schools/' . $this->id . '/';
   }
 
   /**
@@ -3044,6 +3095,23 @@ class Season extends DBObject {
     return DB::getAll(($inc_private !== false) ? DB::$REGATTA : DB::$PUBLIC_REGATTA,
                       new DBBool(array(new DBCond('start_time', $this->start_date, DBCond::GE),
                                        new DBCond('start_time', $this->end_date,   DBCond::LT))));
+  }
+
+  /**
+   * Fetches the regatta, if any, with given URL
+   *
+   * @param String $url the URL to fetch
+   * @return Regatta|null
+   */
+  public function getRegattaWithURL($url) {
+    require_once('regatta/Regatta.php');
+    $res = DB::getAll(DB::$PUBLIC_REGATTA,
+                      new DBBool(array(new DBCond('start_time', $this->start_date, DBCond::GE),
+                                       new DBCond('start_time', $this->end_date,   DBCond::LT),
+                                       new DBCond('nick', $url))));
+    if (count($res) == 0)
+      return null;
+    return $res[0];
   }
 
   /**

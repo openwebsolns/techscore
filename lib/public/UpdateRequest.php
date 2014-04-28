@@ -98,6 +98,7 @@ class UpdateRequest extends AbstractUpdate {
 class UpdateSchoolRequest extends AbstractUpdate {
   protected $school;
   protected $season;
+  public $argument;
 
   public function db_name() { return 'pub_update_school'; }
   public function db_type($field) {
@@ -111,10 +112,12 @@ class UpdateSchoolRequest extends AbstractUpdate {
   const ACTIVITY_BURGEE = 'burgee';
   const ACTIVITY_SEASON = 'season';
   const ACTIVITY_DETAILS = 'details';
+  const ACTIVITY_URL = 'url';
 
   public static function getTypes() {
     return array(self::ACTIVITY_BURGEE => self::ACTIVITY_BURGEE,
                  self::ACTIVITY_DETAILS => self::ACTIVITY_DETAILS,
+                 self::ACTIVITY_URL => self::ACTIVITY_URL,
                  self::ACTIVITY_SEASON => self::ACTIVITY_SEASON);
   }
 

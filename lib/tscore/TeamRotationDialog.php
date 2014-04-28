@@ -147,7 +147,7 @@ class TeamRotationDialog extends AbstractDialog {
       if ($team1 instanceof Team) {
         $burg1 = $team1->school->drawSmallBurgee("");
         if ($link_schools !== false)
-          $team1 = array(new XA(sprintf('/schools/%s/%s/', $team1->school->id, $season), $team1->school), " ", $team1->getQualifiedName());
+          $team1 = array(new XA(sprintf('%s%s/', $team1->school->getURL(), $season), $team1->school), " ", $team1->getQualifiedName());
       }
       else {
         $rowattrs['class'] = 'tr-incomplete';
@@ -157,7 +157,7 @@ class TeamRotationDialog extends AbstractDialog {
       if ($team2 instanceof Team) {
         $burg2 = $team2->school->drawSmallBurgee("");
         if ($link_schools !== false)
-          $team2 = array(new XA(sprintf('/schools/%s/%s/', $team2->school->id, $season), $team2->school), " ", $team2->getQualifiedName());
+          $team2 = array(new XA(sprintf('%s%s/', $team2->school->getURL(), $season), $team2->school), " ", $team2->getQualifiedName());
       }
       else {
         $rowattrs['class'] = 'tr-incomplete';
