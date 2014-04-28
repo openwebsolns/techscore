@@ -38,7 +38,7 @@ class UpdateManager {
   /**
    * @see queueRequest
    */
-  public static function queueSchool(School $school, $type, Season $season = null) {
+  public static function queueSchool(School $school, $type, Season $season = null, $arg = null) {
     if (!in_array($type, UpdateSchoolRequest::getTypes()))
       throw new InvalidArgumentException("Illegal update request type $type.");
 
@@ -46,6 +46,7 @@ class UpdateManager {
     $obj->school = $school;
     $obj->activity = $type;
     $obj->season = $season;
+    $obj->argument = $arg;
     DB::set($obj);
   }
 
