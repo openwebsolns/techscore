@@ -30,7 +30,7 @@ class HelpPost extends AbstractUserPane {
     $response = array('error'=>0, 'message'=>'');
     $api = isset($_SERVER['HTTP_ACCEPT']) && $_SERVER['HTTP_ACCEPT'] == 'application/json';
     try {
-      $sub = DB::$V->reqString($args, 'subject', 3, 255, "Invalid subject provided.");
+      $sub = '[TS Question] ' . DB::$V->reqString($args, 'subject', 3, 151, "Invalid subject provided.");
       $body = sprintf('------------------------------------------------------------
 User:    %s
 Page:    %s

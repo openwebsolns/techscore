@@ -48,6 +48,7 @@ a:hover {
 
 address {
     font-style: normal;
+    text-align: center;
 }
 
 #bodywrap {
@@ -370,6 +371,14 @@ input[type="number"] {
     font-style: italic;
 }
 
+
+
+.help-item input, .help-item textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+}
 
 
 
@@ -1405,11 +1414,17 @@ td.tr-sail, td.sail {
     color: #555555;
     font-size: 70%;
     margin-bottom: 0;
-    padding: 1em 0;
-    text-align: center;
-    width: 100%;
+    padding: 1em;
 }
 
+
+
+/* Help form */
+
+#help-form {
+    max-width: 30em;
+    margin: 0 auto;
+}
 
 
 
@@ -1928,8 +1943,7 @@ body {
 #footdiv {
     color: #CCCCCC;
     font-size: 80%;
-    padding: 1em 0;
-    text-align: center;
+    padding: 1em;
 }
 
 

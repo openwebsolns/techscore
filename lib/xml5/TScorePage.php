@@ -110,8 +110,16 @@ class TScorePage extends XPage {
       $c->add($cont);
 
     // Footer
-    $this->body->add(new XDiv(array('id'=>'footdiv'),
-                              array(new XAddress(array(), array(sprintf("%s v%s %s", DB::g(STN::APP_NAME), DB::g(STN::APP_VERSION), DB::g(STN::APP_COPYRIGHT)))))));
+    $this->body->add($div = new XDiv(array('id'=>'footdiv')));
+    $div->add(new XAddress(array(), array(sprintf("%s v%s %s", DB::g(STN::APP_NAME), DB::g(STN::APP_VERSION), DB::g(STN::APP_COPYRIGHT)))));
+    if ($this->user !== null) {
+      $div->add(new XForm('/help', XForm::POST, array('id'=>'help-form'),
+                          array(
+                            new XH3("Have a question?"),
+                            new XP(array('class'=>'help-item'), new XTextInput('subject', "", array('min'=>3, 'max'=>150, 'placeholder'=>"Subject"))),
+                            new XP(array('class'=>'help-item'), new XTextArea('message', "", array('min'=>10, 'max'=>3000, 'placeholder'=>"What seems to be the problem?"))),
+                            new XSubmitP('ask', "Ask the Admins!"))));
+    }
   }
 
   /**
