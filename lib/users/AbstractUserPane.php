@@ -508,6 +508,10 @@ abstract class AbstractUserPane {
         throw new PaneException(sprintf("Invalid text section: %s.", $uri[0]));
       require_once('users/admin/TextManagement.php');
       return new TextManagement($u, $uri[0]);
+
+    case 'help':
+      require_once('users/HelpPost.php');
+      return new HelpPost($u);
     }
     throw new PaneException(sprintf("Invalid page requested (%s).", $base));
   }
