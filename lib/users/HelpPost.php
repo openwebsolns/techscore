@@ -28,6 +28,7 @@ class HelpPost extends AbstractUserPane {
 
   public function process(Array $args) {
     $response = array('error'=>0, 'message'=>'');
+    $api = isset($_SERVER['HTTP_ACCEPT']) && $_SERVER['HTTP_ACCEPT'] == 'application/json';
     try {
       $sub = DB::$V->reqString($args, 'subject', 3, 255, "Invalid subject provided.");
       $body = sprintf('------------------------------------------------------------
@@ -60,13 +61,20 @@ user.',
       $response['message'] = "Message successfully sent.";
     }
     catch (SoterException $e) {
+      if (!$api)
+        throw $e;
+
       $response['error'] = 1;
       $response['message'] = $e->getMessage();
     }
 
-    header('Content-Type: application/json');
-    echo json_encode($response);
-    exit;
+    if ($api) {
+      header('Content-Type: application/json');
+      echo json_encode($response);
+      exit;
+    }
+    else
+      Session::pa(new PA($response['message']));
   }
 }
 ?>
