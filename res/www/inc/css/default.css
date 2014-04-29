@@ -1312,6 +1312,60 @@ td.tr-sail, td.sail {
 
 
 
+/* Help form screen */
+
+#help-form-screen {
+    position: fixed;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 20;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    cursor: pointer;
+}
+
+#help-form-screen.tucked-away {
+    bottom: 0;
+    left: 5%;
+    top: auto;
+    overflow: hidden;
+    height: 0;
+    right: auto;
+    width: 8em;
+    padding-top: 2em;
+    background: #ccc;
+    border-radius: 5px 5px 0 0;
+    border: 1px solid #fff;
+    box-shadow: 0 1px 0 3px #ddd;
+    z-index: 2;
+}
+
+#help-form-screen.tucked-away:hover {
+    height: 1em;
+}
+
+#help-form-screen.tucked-away:after {
+    color: #333333;
+    content: "Questions?";
+    font-weight: bold;
+    left: 5px;
+    position: absolute;
+    right: 5px;
+    text-align: center;
+    top: 0;
+}
+
+#help-form-screen #help-form {
+    background: none repeat scroll 0 0 #EEEEEE;
+    border-radius: 5px;
+    font-size: 120%;
+    margin-top: 3em;
+    padding: 0.5em 1em;
+}
+
+
+
 /*
  * -------------------------------
  * Desktop view
@@ -1945,6 +1999,19 @@ body {
     font-size: 80%;
     padding: 1em;
 }
+
+
+
+/* Help form */
+
+#help-form-screen.tucked-away {
+    width: 3em;
+}
+
+#help-form-screen.tucked-away:after {
+    content: "?";
+}
+
 
 
 

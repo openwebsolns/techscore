@@ -181,6 +181,23 @@ function parseRange(str) {
             }
         }
 
+        // Help form
+        var hf = d.getElementById("help-form");
+        if (hf) {
+            var scr = d.createElement("div");
+            scr.setAttribute("id", "help-form-screen");
+            scr.classList.add("tucked-away");
+            hf.parentNode.insertBefore(scr, hf);
+            scr.appendChild(hf);
+            scr.addEventListener('click', function() {
+                scr.classList.toggle("tucked-away");
+            }, false);
+            hf.addEventListener('click', function(e) {
+                e.stopPropagation();
+                return false;
+            }, false);
+        }
+
         // Growable tables
         var tables = d.querySelectorAll("table.growable");
         if (tables.length > 0) {
