@@ -1314,26 +1314,15 @@ td.tr-sail, td.sail {
 
 /* Help form screen */
 
-#help-form-screen {
+#help-me {
     position: fixed;
-    background: rgba(0, 0, 0, 0.8);
-    z-index: 20;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    cursor: pointer;
-}
-
-#help-form-screen.tucked-away {
     bottom: 0;
     left: 5%;
     top: auto;
     overflow: hidden;
-    height: 0;
+    height: 2em;
     right: auto;
     width: 8em;
-    padding-top: 2em;
     background: #ccc;
     border-radius: 5px 5px 0 0;
     border: 1px solid #fff;
@@ -1341,27 +1330,53 @@ td.tr-sail, td.sail {
     z-index: 2;
 }
 
-#help-form-screen.tucked-away:hover {
-    height: 1em;
+#help-me:hover {
+    height: 3em;
 }
 
-#help-form-screen.tucked-away:after {
-    color: #333333;
-    content: "Questions?";
+#help-form-trigger {
+    display: block;
     font-weight: bold;
-    left: 5px;
-    position: absolute;
-    right: 5px;
     text-align: center;
-    top: 0;
+    font-weight: bold;
 }
 
-#help-form-screen #help-form {
+#help-me-close {
+    display: none;
+}
+
+#help-me #help-form {
     background: none repeat scroll 0 0 #EEEEEE;
     border-radius: 5px;
     font-size: 120%;
     margin-top: 3em;
     padding: 0.5em 1em;
+    position: relative;
+}
+
+#help-me:target {
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 20;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: auto;
+    width: auto;
+    border-radius: 0;
+    border: none;
+    padding: 0 1em;
+}
+
+#help-me:target #help-form-trigger {
+    display: none;
+}
+
+#help-me:target #help-form-close {
+    display: block;
+    position: absolute;
+    top: 5px;
+    right: 1em;
 }
 
 
@@ -2004,12 +2019,12 @@ body {
 
 /* Help form */
 
-#help-form-screen.tucked-away {
+#help-me {
     width: 3em;
 }
 
-#help-form-screen.tucked-away:after {
-    content: "?";
+#help-desk {
+    display: none;
 }
 
 

@@ -113,12 +113,17 @@ class TScorePage extends XPage {
     $this->body->add($div = new XDiv(array('id'=>'footdiv')));
     $div->add(new XAddress(array(), array(sprintf("%s v%s %s", DB::g(STN::APP_NAME), DB::g(STN::APP_VERSION), DB::g(STN::APP_COPYRIGHT)))));
     if ($this->user !== null) {
-      $div->add(new XForm('/help', XForm::POST, array('id'=>'help-form'),
-                          array(
-                            new XH3("Have a question?"),
-                            new XP(array('class'=>'help-item'), new XTextInput('subject', "", array('min'=>3, 'max'=>150, 'placeholder'=>"Subject"))),
-                            new XP(array('class'=>'help-item'), new XTextArea('message', "", array('min'=>10, 'max'=>3000, 'placeholder'=>"What seems to be the problem?"))),
-                            new XSubmitP('ask', "Ask the Admins!"))));
+      $div->add(
+        new XDiv(array('id'=>'help-me'), array(
+                   new XDiv(array('id'=>'help-form-screen')),
+                   new XA('#help-me', array(new XSpan("Questions", array('id'=>'help-desk')), "?"), array('id'=>'help-form-trigger')),
+                   new XForm('/help', XForm::POST, array('id'=>'help-form'),
+                             array(
+                               new XA('#_', "Close", array('id'=>'help-form-close')),
+                               new XH3("Have a question?"),
+                               new XP(array('class'=>'help-item'), new XTextInput('subject', "", array('min'=>3, 'max'=>150, 'placeholder'=>"Subject"))),
+                               new XP(array('class'=>'help-item'), new XTextArea('message', "", array('min'=>10, 'max'=>3000, 'placeholder'=>"What seems to be the problem?"))),
+                               new XSubmitP('ask', "Ask the Admins!"))))));
     }
   }
 

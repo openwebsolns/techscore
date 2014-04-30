@@ -51,7 +51,15 @@ class XA extends XAbstractHtml {
    * @param Array $attrs the attributes
    */
   public function __construct($href, $link, Array $attrs = array()) {
-    parent::__construct("a", $attrs, array($link));
+    parent::__construct("a", $attrs);
+    if (is_array($link)) {
+      foreach ($link as $item) {
+        $this->add($item);
+      }
+    }
+    else {
+      $this->add($link);
+    }
     $this->set("href", $href);
   }
 }

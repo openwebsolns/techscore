@@ -179,6 +179,7 @@ function parseRange(str) {
         }
 
         // Help form
+        /*
         var hf = d.getElementById("help-form");
         if (hf) {
             var scr = d.createElement("div");
@@ -194,6 +195,7 @@ function parseRange(str) {
                 return false;
             }, false);
         }
+         */
 
         // Growable tables
         var tables = d.querySelectorAll("table.growable");
