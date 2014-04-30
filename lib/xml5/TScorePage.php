@@ -121,8 +121,8 @@ class TScorePage extends XPage {
                              array(
                                new XA('#_', "Close", array('id'=>'help-form-close')),
                                new XH3("Have a question?"),
-                               new XP(array('class'=>'help-item'), new XTextInput('subject', "", array('min'=>3, 'max'=>150, 'placeholder'=>"Subject"))),
-                               new XP(array('class'=>'help-item'), new XTextArea('message', "", array('min'=>10, 'max'=>3000, 'placeholder'=>"What seems to be the problem?"))),
+                               new XP(array('class'=>'help-item'), new XTextInput('subject', "", array('min'=>3, 'max'=>150, 'placeholder'=>"Subject", 'required'=>'required'))),
+                               new XP(array('class'=>'help-item'), new XTextArea('message', "", array('min'=>10, 'max'=>3000, 'placeholder'=>"What seems to be the problem?", 'required'=>'required'))),
                                new XSubmitP('ask', "Ask the Admins!"))))));
     }
   }

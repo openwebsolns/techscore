@@ -1168,14 +1168,14 @@ td.tr-sail, td.sail {
     max-width:820px;
     padding:0;
 }
-#announcements li {
+#announcements li, #help-alert {
     border-radius: 3px;
     box-shadow: 0 -1px 1px #AAAAAA inset;
     list-style-type: none;
     padding: 0.5em;
     margin-bottom: 0.5em;
 }
-#announcements .error {
+#announcements .error, #help-alert.error {
     background: #eed2c0;
     border: 1px solid brown;
 }
@@ -1377,6 +1377,10 @@ td.tr-sail, td.sail {
     position: absolute;
     top: 5px;
     right: 1em;
+}
+
+#help-alert {
+    color: #222;
 }
 
 

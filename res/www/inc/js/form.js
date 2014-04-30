@@ -179,23 +179,49 @@ function parseRange(str) {
         }
 
         // Help form
-        /*
         var hf = d.getElementById("help-form");
-        if (hf) {
-            var scr = d.createElement("div");
-            scr.setAttribute("id", "help-form-screen");
-            scr.classList.add("tucked-away");
-            hf.parentNode.insertBefore(scr, hf);
-            scr.appendChild(hf);
-            scr.addEventListener('click', function() {
-                scr.classList.toggle("tucked-away");
-            }, false);
-            hf.addEventListener('click', function(e) {
-                e.stopPropagation();
+        if (hf && XMLHttpRequest && FormData) {
+            var mH = d.createElement("p");
+            mH.id = "help-alert";
+            mH.style.display = "none";
+            hf.insertBefore(mH, hf.childNodes[2]);
+            hf.addEventListener('submit', function(e) {
+                // Perform request via AJAX
+                var req = new XMLHttpRequest();
+                req.onreadystatechange = function(s) {
+                    if (s.target.readyState == 4) {
+                        mH.style.display = "block";
+                        while (mH.childNodes.length > 0)
+                            mH.removeChild(mH.childNodes[0]);
+
+                        if (s.target.response.error == 0) {
+                            // Add message as success
+                            mH.className = "valid";
+                            mH.appendChild(d.createTextNode(s.target.response.message));
+                            for (i = 0; i < hf.length; i++) {
+                                if (hf[i].type != "submit") {
+                                    hf[i].value = "";
+                                }
+                            }
+                        }
+                        else {
+                            mH.className = "error";
+                            mH.appendChild(d.createTextNode(s.target.response.message));
+                        }
+
+                        window.setTimeout(function() {
+                            mH.style.display = "none";
+                        }, 10000);
+                    }
+                };
+                req.open("POST", hf.action);
+                req.setRequestHeader("Accept", "application/json");
+                req.responseType = "json";
+                req.send(new FormData(hf));
+                e.preventDefault();
                 return false;
             }, false);
         }
-         */
 
         // Growable tables
         var tables = d.querySelectorAll("table.growable");
