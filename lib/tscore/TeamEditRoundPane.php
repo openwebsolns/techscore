@@ -325,6 +325,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
         $this->reassignRotation($round);
         Session::pa(new PA("Updated the rotation as well.", PA::I));
       }
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
     }
 
     // ------------------------------------------------------------
@@ -339,6 +340,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
       $this->reassignRotation($round);
       DB::set($round);
       Session::pa(new PA(sprintf("Updated rotation for \"%s\".", $round)));
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
     }
 
     // ------------------------------------------------------------
