@@ -59,9 +59,6 @@ function makeRange(list) {
 // Example: 1-4,5,6-8 means 1,2,3,4,5,6,7,8
 function parseRange(str) {
 
-    if ( str.toUpperCase() == "ALL" )
-	      return allowed;
-
     if ( str.length == 0 )
 	      return new Array();
 
