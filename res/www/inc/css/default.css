@@ -361,11 +361,26 @@ input[type="number"] {
     color: #87c552;
     font-size: 100%;
 }
+.finish_input {
+    text-align: center;
+}
 .finish_input:hover {
     background:#3465a4;
     color:white;
 }
-
+.finish_check {
+    text-align: center;
+}
+.form_entry .finish_input, .form_entry .finish_check {
+    vertical-align: middle;
+}
+.finish_input.promoted {
+    color: #CCCCCC;
+}
+.finish_input.promoted:hover {
+    background: white;
+    color: #CCCCCC;
+}
 .has-raced {
     color: #555;
     font-style: italic;

@@ -22,7 +22,7 @@ function validateSails() {
 
     // Reset inputs
     for (i = 0; i < FINISH_INPUT.length; i++) {
-        FINISH_INPUT[i].style.visibility = "visible";
+        FINISH_INPUT[i].classList.remove("promoted");
     }
 
     // Iterate over outputs
@@ -44,7 +44,7 @@ function validateSails() {
             }
             else {
                 // Hide the value FINISH_INPUT
-                FINISH_INPUT[j].style.visibility = "hidden";
+                FINISH_INPUT[j].classList.add("promoted");
 
                 // Check against all previous others
                 for (j = 0; j < i; j++) {
@@ -115,8 +115,10 @@ window.addEventListener('load', function(e) {
     // Grab inputs
     var cf = function(sail) {
         return function(e) {
-            appendToList(sail.dataset.value);
-            validateSails();
+            if (!sail.classList.contains("promoted")) {
+                appendToList(sail.dataset.value);
+                validateSails();
+            }
         };
     };
     var s = table.querySelectorAll(".finish_input");
