@@ -48,7 +48,7 @@ class TScoreDialog extends XPage {
     $this->head->set('profile', 'http://www.w3.org/2005/10/profile');
 
     // CSS Stylesheets
-    $this->head->add(new LinkCSS('/inc/css/modern-dialog.css'));
+    $this->head->add(new LinkCSS('/inc/css/dialog.css', 'screen'));
     $this->head->add(new LinkCSS('/inc/css/print.css','print'));
 
     // Header

@@ -1,0 +1,334 @@
+/* Dialog Stylesheet for Techscore
+ *
+ * @author Dayan Paez, OpenWeb-Solutions.net
+ *
+ */
+
+/*
+ * ----------------------------------------
+ * General Styles, applies to all media 
+ * ----------------------------------------
+ */
+
+.hidden {
+    display:none;
+}
+
+html {
+    background:#f8f8f8;
+}
+
+body {
+    padding:0px;
+    margin:0px auto;
+    font-family: Verdana, sans-serif;
+    line-height:1.25em;
+    display: table;
+    min-width: 100%;
+    font-size: 12pt;
+}
+
+a img {
+    border: none;
+}
+
+a {
+    color: #194884;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.strong {
+    font-weight: bold;
+}
+
+.right {
+    text-align: right;
+}
+
+address {
+    font-style: normal;
+    text-align: center;
+}
+
+#bodywrap {
+    background: #fff;
+}
+
+
+
+/* Header */
+#headdiv 
+{
+  padding: 0px;
+  background: #3465a4;
+  border-top: 1px solid #555555;
+}
+
+#headdiv * {
+    vertical-align: middle;
+}
+
+#headdiv h1 
+{
+  margin: 0px 10px;
+  display: inline-block;
+  width: 4em;
+}
+#headdiv img 
+{
+    display: block;
+    width: auto;
+    padding: 0.25em 0;
+}
+#headdiv h4 
+{
+    padding: 0 0.5em;
+    margin: 0;
+    display: inline-block;
+    color: white;
+    font-size: 0.9em;
+    font-weight: normal;
+}
+
+
+
+
+/* Menu */
+
+#menudiv 
+{
+    background: #ddd;
+    border-bottom: 1px solid #888;
+    border-top: 1px solid white;
+    height: 35px;
+    min-width: 55em;
+}
+
+.menu ul {
+    display: table;
+    font-size: 0.9em;
+    height: 35px;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+#menudiv li {
+    display: table-cell;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+#menudiv li a {
+    color: #333333;
+    display: block;
+    font-weight: bold;
+    height: 25px;
+    padding: 5px 0;
+    text-decoration: none;
+    width: 100%;
+}
+
+#menudiv li:hover {
+  background: #bbb;
+}
+
+
+
+/* Body div */
+#bodydiv 
+{
+    padding: 0.5em;
+    border-bottom: 1px solid #BBBBBB;
+    margin-bottom: 0;
+    background: white;
+}
+
+div.port 
+{
+    padding: 1em;
+    padding-top: 0em;
+    padding-bottom: 1em;
+    margin-bottom: 1.5em;
+}
+div.port h3 
+{
+    color: #555555;
+    margin: 0px;
+    background: white;
+    padding: 0.2em;
+    position: relative;
+    top: -0.7em;
+    font-size: 1em;
+    font-weight: normal;
+    display: inline-block;
+    zoom: 1;
+    *display: inline;
+}
+
+h2 
+{
+    color: #b89f7e;
+}
+
+
+
+/* Announce */
+#announcements {
+    margin:1em auto;
+    font-size:0.9em;
+    width:820px;
+    padding:0;
+}
+#announcements li {    list-style-type: none; padding: 0.5em;}
+#announcements .error {background:#eed2c0;border:1px solid brown;}
+p.valid, #announcements .success {background:#e0f3e0;border:1px solid green;}
+p.warning, #announcements .warn {background:#f3f3bb;border:1px solid orange;}
+p.warning {padding: 0.5em;}
+#announcements img {margin-right:0.5em;}
+
+
+
+
+/* Footer */
+
+#footdiv 
+{
+  font-size: 0.7em;
+  color: #555;
+  text-align: center;
+}
+
+
+
+
+/*
+ * --------------------
+ * Tables
+ * --------------------
+ */
+
+table {
+    border: 3px solid #CCCCCC;
+    border-radius: 5px;
+    border-spacing: 0;
+    font-size: 0.9em;
+    margin-bottom: 1em;
+}
+td, tbody th {
+    border-top: 1px solid #CCCCCC;
+    margin:0px;
+    padding: 5px;
+}
+th {
+    color: #222;
+    font-size: 80%;
+    min-width: 2.25em;
+    padding: 0.75em 0.5em;
+}
+table thead {    
+    background: #f3ebdf; /* Old browsers */
+    background: -moz-linear-gradient(top, #f3ebdf 0%, #e6dfd3 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f3ebdf), color-stop(100%,#e6dfd3)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #f3ebdf 0%,#e6dfd3 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #f3ebdf 0%,#e6dfd3 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #f3ebdf 0%,#e6dfd3 100%); /* IE10+ */
+    background: linear-gradient(to bottom, #f3ebdf 0%,#e6dfd3 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f3ebdf', endColorstr='#e6dfd3',GradientType=0 ); /* IE6-9 */
+
+    border:1px solid #555555;
+    height:20px;
+    color:black;
+}
+
+th.noborder, td.noborder {
+    border:none;
+}
+
+tr.disabled {
+    background:#ddd;
+    color:#555;
+}
+
+tr.row1 {
+    background: #F2EDE6;
+}
+
+tr.checked {
+    background: #e0f3e0;
+}
+
+
+
+/* Team finishes table */
+
+.teamscores td {
+    text-align: center;
+}
+.teamscores .re-score {
+    background: #dfd;
+}
+.teamscores .no-teams {
+    opacity: 0.8;
+}
+.tr-ns {
+    background: #ccc;
+    color: #ccc;
+}
+.tr-win {
+    background: #e0f3e0;
+    font-weight: bold;
+}
+.tr-lose {
+    background: #eed2c0;
+    color: #555;
+}
+.tr-tie {
+    background:#f3f3bb;
+}
+.tr-multtable {
+    border: medium none;
+    height: 100%;
+    width: 100%;
+}
+.tr-multtable td {
+    border: none;
+}
+
+
+.totalrow, .totalcell
+{
+  background: #F2EDE6;
+  color: #333;
+  font-weight: bold;
+  height: 55px;
+}
+
+.totalcell {
+    text-align: right;
+}
+
+tr.totalrow td {
+  border-bottom: 1px solid #bbbbbb;
+}
+
+td.races {
+    text-align: left;
+    font-size: 95%;
+    color: #555;
+    padding-left: 0.5em;
+}
+
+
+td.schoolname, td.teamname, .results th.teamname {
+    text-align: left;
+}
+
+
+
