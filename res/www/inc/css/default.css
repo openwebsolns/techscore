@@ -1343,10 +1343,12 @@ td.tr-sail, td.sail {
     border: 1px solid #fff;
     box-shadow: 0 1px 0 3px #ddd;
     z-index: 2;
+    opacity: 0.7;
 }
 
 #help-me:hover {
     height: 3em;
+    opacity: 1;
 }
 
 #help-form-trigger {

@@ -175,9 +175,7 @@ class TeamRotationDialog extends AbstractDialog {
         $sail = null;
         if (isset($sails[$round->id][$race_i]))
           $sail = $sails[$round->id][$race_i][$pair[0]][(string)$div];
-        $row->add($s = new XTD(array('class'=>'team1 tr-sail'), $sail));
-        if ($sail !== null && $sail->color !== null)
-          $s->set('style', sprintf('background:%s;', $sail->color));
+        $row->add(new SailTD($sail, array('class'=>'team1')));
       }
 
       $row->add(new XTD(array('class'=>'vscell'), "vs"));
@@ -187,9 +185,7 @@ class TeamRotationDialog extends AbstractDialog {
         $sail = null;
         if (isset($sails[$round->id][$race_i]))
           $sail = $sails[$round->id][$race_i][$pair[1]][(string)$div];
-        $row->add($s = new XTD(array('class'=>'team2 tr-sail'), $sail));
-        if ($sail !== null && $sail->color !== null)
-          $s->set('style', sprintf('background:%s;', $sail->color));
+        $row->add(new SailTD($sail, array('class'=>'team2')));
       }
 
       $row->add(new XTD(array('class'=>'team2'), $team2));

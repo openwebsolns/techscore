@@ -44,12 +44,6 @@ table.divisional tr {
     word-break: hyphenate;
 }
 
-.tr-horiz-label {
-    height: 7em;
-    text-align: right;
-    vertical-align: middle;
-    width: 12em;
-}
 
 .tr-rec-th, .tr-pivot {
     vertical-align: bottom;
@@ -89,22 +83,6 @@ table.divisional tr {
 .teamscorelist th, .tr-rotation-table thead th {
     text-align: center;
 }
-.roundrow th {
-    padding: 0.5em 0;
-}
-.vscell {
-    text-align: center;
-}
-.team1 {
-    text-align: right;
-}
-.team2 {
-    text-align: left;
-}
-.tr-incomplete {
-    opacity: 0.8;
-}
-
 .teamranking .sailor {
     text-align: left;
     padding: 0 1em;
@@ -121,51 +99,6 @@ table.divisional tr {
 .teamregistrations > tbody > tr:first-child:hover {
     background: none;
 }
-.tr-boats, .tr-boats * {
-    border: 0;
-}
-.tr-boats {
-    width: 100%;
-}
-.tr-boats tr {
-    border-bottom: 1px dashed #aaa;
-}
-.tr-boats td {
-    height: 3em;
-    font-size: 90%;
-}
-.tr-boats td:hover {
-    background: #fafaea;
-}
-.tr-boats tr:last-child {
-    border-bottom: none;
-}
-
-.tr-rotation-table td {
-    border-right: 0;
-    border-left: 0;
-}
-.tr-flight td {
-    text-align: center;
-    font-size: 75%;
-}
-
-.tr-carried {
-    opacity: 0.5;
-}
-.tr-rank-group {
-    height: 1.25em;
-    background: #ccc;
-}
-
-.tr-current {
-    font-size: 105%;
-}
-.tr-sailed {
-    opacity: 0.5;
-}
-
-
 .tiebreaker thead th, .tiebreaker .explanation {
     text-align: left;
 }

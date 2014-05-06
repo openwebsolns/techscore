@@ -71,9 +71,9 @@ class TeamRankingDialog extends AbstractScoresDialog {
       $b->add($row = new XTR(array('class'=>sprintf('topborder row%d team-%s', ($rowIndex % 2), $team->id)),
                              array(new XTD(array('class'=>'tiebreaker', 'title'=>$team->dt_explanation), $explanations[$team->dt_explanation]),
                                    new XTD(array(), $team->dt_rank),
-                                   new XTD(array(), $mascot),
+                                   new XTD(array('class'=>'burgee-cell'), $mascot),
                                    new XTD(array(), $school),
-                                   new XTD(array('class'=>'teamname'), new XStrong($team->getQualifiedName())),
+                                   new XTD(array('class'=>'teamname'), $team->getQualifiedName()),
                                    new XTD(array(), $team->getRecord()),
                                    new XTD(array(), sprintf('%0.1f', (100 * $team->getWinPercentage()))))));
     }
@@ -152,9 +152,9 @@ class TeamRankingDialog extends AbstractScoresDialog {
       $b->add($row = new XTR(array('class'=>sprintf('topborder %s team-%s', $rowindex, $team->id)),
                              array(new XTD(array('rowspan'=>$rowspan, 'title'=>$team->dt_explanation, 'class'=>'tiebreaker'), $explanations[$team->dt_explanation]),
                                    new XTD(array('rowspan'=>$rowspan), $team->dt_rank),
-                                   new XTD(array('rowspan'=>$rowspan), $mascot),
+                                   new XTD(array('rowspan'=>$rowspan, 'class'=>'burgee-cell'), $mascot),
                                    new XTD(array('rowspan'=>$rowspan), $school),
-                                   new XTD(array('class'=>'teamname', 'rowspan'=>$rowspan), new XStrong($team->getQualifiedName())),
+                                   new XTD(array('class'=>'teamname', 'rowspan'=>$rowspan), $team->getQualifiedName()),
                                    new XTD(array('rowspan'=>$rowspan), $team->getRecord()))));
       // Special case: no RP information
       if (count($skips) + count($crews) == 0) {

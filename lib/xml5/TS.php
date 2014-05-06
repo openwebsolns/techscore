@@ -418,7 +418,10 @@ class FCheckbox extends XSpan {
 class SailTD extends XTD {
   public function __construct(Sail $sail, Array $attrs = array()) {
     parent::__construct($attrs, array($sail));
-    $this->set('class', 'sail');
+    $class = 'sail';
+    if (isset($attrs['class']))
+      $class .= ' ' . $attrs['class'];
+    $this->set('class', $class);
     if ($sail->color !== null)
       $this->add(new XSpan("", array('class'=>'sail-color', 'style' => sprintf('background:%s;', $sail->color))));
   }
