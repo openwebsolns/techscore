@@ -177,6 +177,27 @@ h2
     color: #b89f7e;
 }
 
+.burgee-cell {
+    padding: 0 5px;
+}
+
+.burgee-cell img {
+    height: 30px;
+    width: auto;
+}
+.teamranking img {
+    height: 40px;
+    width: auto;
+}
+.tr-rotation-table img, .teamscorelist img {
+    height: 20px;
+    width: auto;
+}
+.noshow {
+    font-style: italic;
+}
+
+
 
 
 /* Announce */
@@ -266,6 +287,7 @@ tr.checked {
 
 
 
+
 /* Team finishes table */
 
 .teamscores td {
@@ -307,10 +329,10 @@ tr.checked {
   background: #F2EDE6;
   color: #333;
   font-weight: bold;
-  height: 55px;
+  height: 40px;
 }
 
-.totalcell {
+.totalcell, .total {
     text-align: right;
 }
 
@@ -326,9 +348,30 @@ td.races {
 }
 
 
-td.schoolname, td.teamname, .results th.teamname {
-    text-align: left;
+
+
+
+
+/* Rotation table */
+
+.rotation td {
+    height: 35px;
 }
 
+.rotation .teamname {
+    padding-right: 15px;
+}
 
+.tr-sail, .sail {
+    font-size: 80%;
+    padding: 0 0.35em;
+    text-align: center;
+}
 
+.sail-color {
+    border: 1px solid #FFFFFF;
+    box-shadow: 0 1px 2px 0 #888888;
+    display: block;
+    height: 3px;
+    width: 100%;
+}

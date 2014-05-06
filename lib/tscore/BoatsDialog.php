@@ -30,6 +30,7 @@ class BoatsDialog extends AbstractScoresDialog {
   }
 
   public function fillHTML(Array $args) {
+    $boats = array();
     $sails = array();
     $total = array(); // sail num => total
     $earned = array();
@@ -39,7 +40,8 @@ class BoatsDialog extends AbstractScoresDialog {
         $sail = $this->rotation->getSail($race, $finish->team);
         $id = sprintf('%s %s', $race->boat, $sail);
         if (!isset($sails[$id])) {
-          $sails[$id] = $id;
+          $boats[$id] = $race->boat;
+          $sails[$id] = $sail;
           $total[$id] = 0;
           $races[$id] = 0;
           $earned[$id] = 0;
@@ -58,7 +60,7 @@ class BoatsDialog extends AbstractScoresDialog {
     asort($total, SORT_NUMERIC);
 
     $this->PAGE->addContent($tab = new XQuickTable(array('class'=>'boatrank result'),
-                                                   array("Rank", "Sail #", "Race count", "Total score", "Minus penalties")));
+                                                   array("Rank", "Boat", "Sail", "Race count", "Total score", "Minus penalties")));
 
     $overall = 0;
     $rank = 0;
@@ -68,7 +70,12 @@ class BoatsDialog extends AbstractScoresDialog {
       if ($prevTotal === null || $amt != $prevTotal)
         $rank = $overall;
       $prevTotal = $amt;
-      $tab->addRow(array($rank, $sails[$id], $races[$id], new XStrong($amt), $earned[$id]),
+      $tab->addRow(array($rank,
+                         $boats[$id],
+                         new SailTD($sails[$id]),
+                         new XTD(array('class'=>'right'), $races[$id]),
+                         new XTD(array('class'=>'total'), $amt),
+                         new XTD(array('class'=>'totalcell'), $earned[$id])),
                    array('class'=>'row' . ($overall % 2)));
     }
   }

@@ -38,7 +38,7 @@ class RotationDialog extends AbstractDialog {
     foreach ($races as $race)
       $header[] = (string)$race;
 
-    $tab = new XQuickTable(array('class'=>'coordinate rotation'), $header);
+    $tab = new XQuickTable(array('class'=>'rotation'), $header);
 
     $rowIndex = 0;
     foreach ($this->REGATTA->getTeams() as $team) {
@@ -55,12 +55,7 @@ class RotationDialog extends AbstractDialog {
 
       foreach ($races as $race) {
         $sail = $this->rotation->getSail($race, $team);
-        $td = new XTD(array(), $sail);
-        if ($sail !== null && $sail->color !== null) {
-          $td->set('style', sprintf('background:%s;', $sail->color));
-          $td->set('class', 'sail');
-        }
-        $row[] = $td;
+        $row[] = new SailTD($sail);
       }
       $tab->addRow($row, array('class'=>'row'.($rowIndex++%2)));
     }

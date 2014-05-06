@@ -1332,11 +1332,11 @@ td.tr-sail, td.sail {
 #help-me {
     position: fixed;
     bottom: 0;
-    left: 5%;
+    right: 5%;
     top: auto;
     overflow: hidden;
     height: 2em;
-    right: auto;
+    left: auto;
     width: 8em;
     background: #ccc;
     border-radius: 5px 5px 0 0;

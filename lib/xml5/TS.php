@@ -408,4 +408,19 @@ class FCheckbox extends XSpan {
       parent::set($name, $value);
   }
 }
+
+/**
+ * Table cell to represent a sail
+ *
+ * @author Dayan Paez
+ * @version 2014-05-05
+ */
+class SailTD extends XTD {
+  public function __construct(Sail $sail, Array $attrs = array()) {
+    parent::__construct($attrs, array($sail));
+    $this->set('class', 'sail');
+    if ($sail->color !== null)
+      $this->add(new XSpan("", array('class'=>'sail-color', 'style' => sprintf('background:%s;', $sail->color))));
+  }
+}
 ?>

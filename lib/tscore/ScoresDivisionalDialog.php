@@ -108,8 +108,8 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
                                            $tiebreakers[$rank->dt_explanation]),
                                    new XTD(array(), $tID + 1),
                                    $bc = new XTD(array('class'=>'burgee-cell')),
-                                   new XTD(array('class'=>'strong'), $ln),
-                                   new XTD(array('class'=>'left'), $rank->getQualifiedName()))));
+                                   new XTD(array('class'=>'schoolname'), $ln),
+                                   new XTD(array('class'=>'teamname'), $rank->getQualifiedName()))));
       $bc->add($rank->school->drawSmallBurgee(null, array('itemprop'=>'image')));
 
       $scoreTeam    = 0;

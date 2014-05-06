@@ -17,10 +17,6 @@ colgroup
   border-right: 1px solid #bbbbbb;
   }
 
-td.total 
-{
-  color: black;
-}
 
 table.divisional tr {
     border-bottom: 1px solid #bbb;
@@ -145,15 +141,6 @@ table.divisional tr {
     border-bottom: none;
 }
 
-td.tr-sail, td.sail {
-    font-size: 80%;
-    font-weight: bold;
-    padding: 0 0.35em;
-    text-align: center;
-    color: #ddd;
-    text-shadow: 1px 1px 0px #222;
-}
-
 .tr-rotation-table td {
     border-right: 0;
     border-left: 0;
@@ -178,21 +165,6 @@ td.tr-sail, td.sail {
     opacity: 0.5;
 }
 
-.burgee-cell img {
-    height: 30px;
-    width: auto;
-}
-.teamranking img {
-    height: 40px;
-    width: auto;
-}
-.tr-rotation-table img, .teamscorelist img {
-    height: 20px;
-    width: auto;
-}
-.noshow {
-    font-style: italic;
-}
 
 .tiebreaker thead th, .tiebreaker .explanation {
     text-align: left;
