@@ -684,6 +684,7 @@ input[type="number"] {
 .pagination-form input {
     font-size: 90%;
     min-width: 0;
+    width: 3em;
 }
 
 h2 {
@@ -1223,13 +1224,11 @@ td.tr-sail, td.sail {
 /* Navigation links */
 
 .page-nav {
-    margin-top: 0.5em;
+    margin: 0.5em 0;
     padding: 0;
 }
 .page-nav a {
     display: inline-block;
-    zoom: 1;
-    *display: inline;
     padding: 0.05em 0.35em;
     background: #3465a4;
     color: white;
@@ -1237,6 +1236,7 @@ td.tr-sail, td.sail {
     font-size: 85%;
     border-right: 1px solid white;
     border-left: 1px solid #ccc;
+    border-radius: 4px;
 }
 
 .page-nav a.current {
@@ -1254,7 +1254,7 @@ td.tr-sail, td.sail {
     margin: 0;
 }
 .page-nav input {
-    padding: 0;
+    padding: 0.25em 0;
 }
 .page-nav input[type="submit"] {
     display: none;
