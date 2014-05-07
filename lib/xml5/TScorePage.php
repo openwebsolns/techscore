@@ -202,7 +202,8 @@ class TScorePage extends XPage {
 
       $this->header->add(new XDiv(array('id'=>'user-menudiv'),
 				  array(new XUl(array('id'=>'user-menu'),
-						array(new XLi(new XA('/', "Home")),
+						array(new XLi(new XSpan($user)),
+						      new XLi(new XA('/', "Home")),
 						      new XLi(new XA('/account', "My Account")),
 						      new XLi(new XA('/logout', "Logout", array('accesskey'=>'l'))))))));
     }
