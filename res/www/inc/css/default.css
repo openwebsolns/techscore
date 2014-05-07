@@ -194,6 +194,50 @@ h4 a:hover {
 
 
 /* Menu */
+
+#user-menudiv {
+    background: url(/inc/img/user.png) no-repeat scroll 50% 50% #759DD1;
+    float: right;
+    height: 28px;
+    margin-right: 5px;
+    margin-top: 5px;
+    position: relative;
+    width: 30px;
+    border-radius: 3px;
+    border: 1px solid #888;
+}
+
+#user-menu {
+    background: none repeat scroll 0 0 #DDDDDD;
+    border: 1px solid #AAAAAA;
+    box-shadow: 0 1px 1px #BBBBBB;
+    font-size: 90%;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    right: 0;
+    top: 28px;
+    width: 10em;
+    z-index: 11;
+    display: none;
+}
+
+#user-menudiv:hover #user-menu {
+    display: block;
+}
+
+#user-menu a {
+    padding: 5px 10px;
+    display: block;
+}
+
+#user-menu a:hover {
+    text-decoration: none;
+    color: white;
+    background: #b89f7e;
+}
+
 #menubar .menu:hover {
     background: #ddd;
 }
@@ -1942,6 +1986,9 @@ body {
     color: #3465A4;
 }
 #headdiv img {
+    display: none;
+}
+#user-menudiv {
     display: none;
 }
 #user, #public-link, #logout, #help, #close {
