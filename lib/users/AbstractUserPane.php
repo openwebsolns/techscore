@@ -79,7 +79,6 @@ abstract class AbstractUserPane {
 
     $items[] = new XLi(new XA("/archive", "All regattas"));
     $items[] = new XLi(new XA("/create", "New regatta", array("accesskey"=>"n")));
-    $items[] = new XLi(new XA("/account","My account"));
     if ($this->USER->isSuper())
       $items[] = new XLi(new XA('/conf', "Global Conf"));
 
