@@ -3692,6 +3692,16 @@ class Role extends DBObject {
     }
     $this->permissions = $perms;
   }
+
+  /**
+   * Get accounts that have this role
+   *
+   * @return Array:Account the account list
+   */
+  public function getAccounts() {
+    require_once('regatta/Account.php');
+    return DB::getAll(DB::$ACCOUNT, new DBCond('ts_role', $this));
+  }
 }
 
 /**
