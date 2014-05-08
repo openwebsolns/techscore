@@ -750,3 +750,10 @@ update school set url = null where url = "";
 alter table pub_update_school change column activity activity enum('burgee','season','details','url') not null default 'burgee';
 -- add argument as attribute to pub_update_school
 alter table pub_update_school add column argument varchar(255) null default null after season;
+
+-- add category to permissions, to organize them
+alter table permission add column category varchar(40) not null after title;
+update permission set category = "Scoring" where id in ("create_regatta", "delete_regatta", "edit_regatta", "finalize_regatta");
+update permission set category = "School Management" where id in ("edit_school_logo", "edit_team_names", "edit_unregistered_sailors");
+update permission set category = "Reports" where id in ("use_head_to_head_report", "use_team_record_report", "download_aa_report", "edit_aa_report");
+update permission set category = "Techscore Management" where id in ("edit_regatta_types", "edit_seasons", "edit_announcements", "edit_boats", "edit_tr_templates", "edit_users", "edit_welcome", "send_message", "edit_venues");

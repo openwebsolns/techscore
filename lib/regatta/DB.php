@@ -3640,8 +3640,10 @@ class AA_Report extends DBObject {
  */
 class Permission extends DBObject {
   public $title;
+  public $category;
   public $description;
   protected function db_cache() { return true; }
+  protected function db_order() { return array('category'=>true); }
   public function __toString() { return $this->title; }
 }
 

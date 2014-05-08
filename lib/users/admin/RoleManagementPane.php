@@ -32,7 +32,23 @@ class RoleManagementPane extends AbstractAdminUserPane {
 
         $form->add(new FReqItem("Name:", new XTextInput('title', $role->title, array('max'=>256))));
         $form->add(new FItem("Description:", new XTextArea('description', $role->description, array('placeholder'=>"Helpful descriptors help you stay organized."))));
-        $form->add(new FReqItem("Permissions:", XSelectM::fromDBM('permissions[]', DB::getAll(DB::$PERMISSION), $role->getPermissions(), array('size'=>10))));
+        $form->add(new FReqItem("Permissions:", $sel = new XSelectM('permissions[]', array('size'=>10))));
+
+        // Fill select
+        $existing = array();
+        foreach ($role->getPermissions() as $perm)
+          $existing[$perm->id] = $perm;
+
+        $groups = array();
+        foreach (DB::getAll(DB::$PERMISSION) as $perm) {
+          if (!isset($groups[$perm->category])) {
+            $sel->add($group = new FOptionGroup($perm->category));
+            $groups[$perm->category] = $group;
+          }
+          $groups[$perm->category]->add($opt = new FOption($perm->id, $perm));
+          if (isset($existing[$perm->id]))
+            $opt->set('selected', 'selected');
+        }
 
         $form->add($xp = new XSubmitP('edit', "Save Changes"));
         $xp->add(new XHiddenInput('role', $role->id));
