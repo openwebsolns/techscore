@@ -563,10 +563,11 @@ class DB extends DBM {
    *
    * @param String|null $role a possible Account role
    * @param String|null $status a possible Account status
+   * @param Role|null $ts_role the role to limit by
    * @return Array:Account the list of accounts
    * @throws InvalidArgumentException if provided role is invalid
    */
-  public static function getAccounts($role = null, $status = null) {
+  public static function getAccounts($role = null, $status = null, Role $ts_role = null) {
     require_once('regatta/Account.php');
     $cond = null;
     if ($role !== null) {
@@ -584,6 +585,12 @@ class DB extends DBM {
       else
         $cond = new DBBool(array($cond, new DBCond('status', $status)));
     }
+    if ($ts_role !== null) {
+      if ($cond === null)
+	$cond = new DBCond('ts_role', $ts_role->id);
+      else
+	$cond = new DBBool(array($cond, new DBCond('ts_role', $ts_role->id)));
+    }
     return self::getAll(self::$ACCOUNT, $cond);
   }
 
@@ -592,13 +599,14 @@ class DB extends DBM {
    *
    * @param String|null $role a possible Account role
    * @param String|null $status a possible Account status
+   * @param Role|null $ts_role limit to those roles
    * @return Array:Account the list of accounts
    * @throws InvalidArgumentException if provided role is invalid
    */
-  public static function searchAccounts($qry, $role = null, $status = null) {
+  public static function searchAccounts($qry, $role = null, $status = null, Role $ts_role = null) {
     $fields = array('first_name', 'last_name', 'id', 'concat(first_name, " ", last_name)');
     require_once('regatta/Account.php');
-    if ($role === null && $status === null)
+    if ($role === null && $status === null && $ts_role === null)
       return self::search(DB::$ACCOUNT, $qry, $fields);
 
     $cond = new DBBool(array());
@@ -613,6 +621,9 @@ class DB extends DBM {
       if (!isset($statuses[$status]))
         throw new InvalidArgumentException("Invalid status provided: $status.");
       $cond->add(new DBCond('status', $status));
+    }
+    if ($ts_role !== null) {
+      $cond->add(new DBCond('ts_role', $ts_role->id));
     }
 
     $q = self::prepSearch(DB::$ACCOUNT, $qry, $fields);

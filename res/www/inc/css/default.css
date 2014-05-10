@@ -1828,8 +1828,6 @@ td.tr-sail, td.sail {
 
 .form_h {
     display:inline-block;
-    zoom:1;
-    *display:inline;
     width:10em;
     text-align:right;
     margin-right:1em;
@@ -1850,6 +1848,15 @@ td.tr-sail, td.sail {
     display: inline-block;
     vertical-align: top;
     margin-left: 1em;
+}
+
+.span_h {
+    margin-right: 0.5em;
+}
+
+.form-group {
+    display: inline-block;
+    margin-right: 1em;
 }
 
 .form_entry input {

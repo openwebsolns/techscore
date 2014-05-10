@@ -161,6 +161,9 @@ class AccountsPane extends AbstractAdminUserPane {
     $p->add(new XP(array(), "Click on the user's name to edit."));
 
     // Filter?
+    $ts_roles = DB::getAll(DB::$ROLE);
+    $ts_role_chosen = DB::$V->incID($_GET, 'ts_role', DB::$ROLE, null);
+
     $roles = Account::getRoles();
     $role_chosen = DB::$V->incKey($_GET, 'role', $roles, null);
 
@@ -178,14 +181,14 @@ class AccountsPane extends AbstractAdminUserPane {
       if (strlen($qry) < 3)
         $empty_mes = "Search query is too short.";
       else {
-        $users = DB::searchAccounts($qry, $role_chosen, $stat_chosen);
+        $users = DB::searchAccounts($qry, $role_chosen, $stat_chosen, $ts_role_chosen);
         $num_users = count($users);
         if ($startint > 0 && $startint >= $num_users)
           $startint = (int)(($num_users - 1) / self::NUM_PER_PAGE) * self::NUM_PER_PAGE;
       }
     }
     else {
-      $users = DB::getAccounts($role_chosen, $stat_chosen);
+      $users = DB::getAccounts($role_chosen, $stat_chosen, $ts_role_chosen);
       $num_users = count($users);
     }
 
@@ -195,6 +198,10 @@ class AccountsPane extends AbstractAdminUserPane {
     $p->add($whiz->getSearchForm($qry, 'q', $empty_mes, "Search users: "));
 
     // Filter
+    $ts_role_opts = array("" => "[All]");
+    foreach ($ts_roles as $val)
+      $ts_role_opts[$val->id] = $val;
+
     $role_opts = array("" => "[All]");
     foreach ($roles as $key => $val)
       $role_opts[$key] = $val;
@@ -211,12 +218,15 @@ class AccountsPane extends AbstractAdminUserPane {
         $f->add(new XHiddenInput($key, $val));
     }
     $f->add(new XP(array(),
-                   array(new XSpan("Role:", array('class'=>'span_h')),
-                         XSelect::fromArray('role', $role_opts, $role_chosen),
-                         " ",
-                         new XSpan("Status:", array('class'=>'span_h')),
-                         XSelect::fromArray('status', $stat_opts, $stat_chosen),
-                         " ",
+                   array(new XDiv(array('class'=>'form-group'),
+				  array(new XSpan("Role:", array('class'=>'span_h')),
+					XSelect::fromArray('ts_role', $ts_role_opts, ($ts_role_chosen) ? $ts_role_chosen->id : null))),
+			 new XDiv(array('class'=>'form-group'),
+				  array(new XSpan("School Role:", array('class'=>'span_h')),
+					XSelect::fromArray('role', $role_opts, $role_chosen))),
+			 new XDiv(array('class'=>'form-group'),
+				  array(new XSpan("Status:", array('class'=>'span_h')),
+					XSelect::fromArray('status', $stat_opts, $stat_chosen))),
                          new XSubmitInput('go', "Apply", array('class'=>'inline')))));
 
     $p->add($ldiv = $whiz->getPages('r', $_GET));
