@@ -33,6 +33,7 @@ class Account extends DBObject {
   public $admin;
   public $status;
   public $password;
+  public $message;
   protected $school;
   protected $ts_role;
 

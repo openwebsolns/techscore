@@ -91,8 +91,9 @@ class RegisterPane extends AbstractUserPane {
     $f->add(new FReqItem("Last name:",  new XTextInput("last_name", "")));
     $f->add(new FReqItem("Password:", new XPasswordInput("passwd", "")));
     $f->add(new FReqItem("Confirm password:", new XPasswordInput("confirm", "")));
-    $f->add(new FReqItem("Affiliation: ", $aff = new XSelect("school")));
-    $f->add(new FReqItem("Role: ", XSelect::fromArray('role', Account::getRoles())));
+    $f->add(new FReqItem("Affiliation:", $aff = new XSelect("school")));
+    $f->add(new FReqItem("School Role:", XSelect::fromArray('role', Account::getRoles())));
+    $f->add(new FItem("Notes:", new XTextArea('message', "", array('placeholder'=>"Optional message to send to the admins."))));
     $f->add(new XSubmitP("register", "Request account"));
 
     // Fill out the selection boxes
@@ -167,6 +168,7 @@ class RegisterPane extends AbstractUserPane {
       $acc = new Account();
       $acc->status = Account::STAT_REQUESTED;
       $acc->id = $id;
+      $acc->message = DB::$V->incString($args, 'message', 1, 16000);
 
       // 2. Approve first and last name
       $acc->last_name  = DB::$V->reqString($args, 'last_name', 1, 31, "Last name must not be empty and less than 30 characters.");

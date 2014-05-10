@@ -55,7 +55,7 @@ class PendingAccountsPane extends AbstractAdminUserPane {
                            " ", new XSubmitInput("reject",  "Reject"))));
 
       $f->add($tab = new XQuickTable(array('style'=>'width:100%;'),
-                                     array("", "Name", "E-mail", "School", "Role")));
+                                     array("", "Name", "E-mail", "School", "Role", "Notes")));
       $row = 0;
       for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < $count; $i++) {
         $acc = $list[$i];
@@ -63,7 +63,8 @@ class PendingAccountsPane extends AbstractAdminUserPane {
                            new XLabel($acc->id, $acc->getName()),
                            new XLabel($acc->id, new XA(sprintf("mailto:%s", $acc->id), $acc->id)),
                            new XLabel($acc->id, $acc->school->nick_name),
-                           new XLabel($acc->id, $acc->role)));
+                           new XLabel($acc->id, $acc->role),
+			   new XLabel($acc->id, $acc->message)));
       }
       if ($num_pages > 1) {
         require_once('xml5/LinksDiv.php');
