@@ -234,7 +234,7 @@ class AccountsPane extends AbstractAdminUserPane {
     // Create table, if applicable
     if ($num_users > 0) {
       $p->add($tab = new XQuickTable(array('class'=>'users-table'),
-                                     array("Name", "Email", "Schools", "Role", "Status")));
+                                     array("Name", "Email", "Schools", "Role", "School Role", "Status")));
       for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < $num_users; $i++) {
         $user = $users[$i];
         if ($user->isAdmin())
@@ -251,6 +251,7 @@ class AccountsPane extends AbstractAdminUserPane {
         $tab->addRow(array(new XA(WS::link('/' . $this->page_url, array('id'=>$user->id)), $user),
                            $user->id,
                            $schools,
+			   $user->ts_role,
                            ucwords($user->role),
                            new XSpan(ucwords($user->status), array('class'=>'stat user-' . $user->status))),
                      array('class'=>'row'.($i % 2)));
