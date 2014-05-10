@@ -23,7 +23,8 @@ class RoleManagementPane extends AbstractAdminUserPane {
   protected function fillRoleForm(XForm $form, Role $role) {
     $form->add(new FReqItem("Name:", new XTextInput('title', $role->title, array('min'=>5, 'max'=>256))));
     $form->add(new FReqItem("Description:", new XTextArea('description', $role->description, array('placeholder'=>"Helpful descriptors help you stay organized."))));
-    $form->add(new FReqItem("Permissions:", $sel = new XSelectM('permissions[]', array('size'=>10))));
+    $form->add(new FItem("All permissions:", new FCheckbox('has_all', 1, "This role has all permissions.", $role->has_all !== null), "Use sparingly. This grants access to all permissions now, and in the future."));
+    $form->add(new FItem("Permissions:", $sel = new XSelectM('permissions[]', array('size'=>10))));
 
     // Fill select
     $existing = array();
@@ -123,9 +124,14 @@ class RoleManagementPane extends AbstractAdminUserPane {
                                         array("Role", "Description", "Permissions", "# of Users", "")));
       $can_delete = false;
       foreach ($roles as $i => $role) {
-        $perms = new XUl(array('class'=>'role-permissions'));
-        foreach ($role->getPermissions() as $perm) {
-          $perms->add(new XLi($perm, array('title' => $perm->description)));
+	$perms = "";
+	if ($role->has_all)
+	  $perms = new XEm("All permissions");
+	else {
+	  $perms = new XUl(array('class'=>'role-permissions'));
+	  foreach ($role->getPermissions() as $perm) {
+	    $perms->add(new XLi($perm, array('title' => $perm->description)));
+	  }
 	}
 
         $count = count($role->getAccounts());
@@ -167,16 +173,20 @@ class RoleManagementPane extends AbstractAdminUserPane {
 	  throw new SoterException("Duplicate role title provided.");
       }
 
+      $all = DB::$V->incInt($args, 'has_all', 1, 2, null);
       $perms = array();
-      foreach (DB::$V->reqList($args, 'permissions', null, "No list of permissions provided.") as $id) {
-	$perm = DB::get(DB::$PERMISSION, $id);
-	if ($perm === null)
-	  throw new SoterException("Invalid permission provided: " . $id);
-	$perms[] = $perm;
-      }
+      if ($all === null) {
+	foreach (DB::$V->reqList($args, 'permissions', null, "No list of permissions provided.") as $id) {
+	  $perm = DB::get(DB::$PERMISSION, $id);
+	  if ($perm === null)
+	    throw new SoterException("Invalid permission provided: " . $id);
+	  $perms[] = $perm;
+	}
 
-      if (count($perms) == 0)
-	throw new SoterException("Roles must have at least one permission set.");
+	if (count($perms) == 0)
+	  throw new SoterException("Roles must have at least one permission set.");
+      }
+      $role->setHasAll($all !== null);
 
       DB::set($role);
       $role->setPermissions($perms);

@@ -3656,6 +3656,7 @@ class Permission extends DBObject {
 class Role extends DBObject {
   public $title;
   public $description;
+  public $has_all;
   protected function db_cache() { return true; }
   public function __toString() { return $this->title; }
 
@@ -3671,9 +3672,13 @@ class Role extends DBObject {
    */
   public function getPermissions() {
     if ($this->permissions === null) {
-      $this->permissions = array();
-      foreach (DB::getAll(DB::$ROLE_PERMISSION, new DBCond('role', $this)) as $link) {
-        $this->permissions[] = $link->permission;
+      if ($this->has_all)
+	$this->permissions = DB::getAll(DB::$PERMISSION);
+      else {
+	$this->permissions = array();
+	foreach (DB::getAll(DB::$ROLE_PERMISSION, new DBCond('role', $this)) as $link) {
+	  $this->permissions[] = $link->permission;
+	}
       }
     }
     return $this->permissions;
@@ -3684,7 +3689,7 @@ class Role extends DBObject {
    *
    * @param Array:Permission $persm the list of permissions
    */
-  public function setPermissions(Array $perms) {
+  public function setPermissions(Array $perms = array()) {
     DB::removeAll(DB::$ROLE_PERMISSION, new DBCond('role', $this));
     foreach ($perms as $perm) {
       $link = new Role_Permission();
@@ -3693,6 +3698,24 @@ class Role extends DBObject {
       DB::set($link);
     }
     $this->permissions = $perms;
+  }
+
+  /**
+   * Indicate that this role has all permissions
+   *
+   * This method will set the 'has_all' attribute, AND remove any
+   * individual permissions associated with this role, if true
+   *
+   * @param boolean $flag true to set this role as having all
+   */
+  public function setHasAll($flag = true) {
+    if ($flag !== false) {
+      $this->has_all = 1;
+      $this->setPermissions();
+    }
+    else {
+      $this->has_all = null;
+    }
   }
 
   /**

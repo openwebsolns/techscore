@@ -757,3 +757,6 @@ update permission set category = "Scoring" where id in ("create_regatta", "delet
 update permission set category = "School Management" where id in ("edit_school_logo", "edit_team_names", "edit_unregistered_sailors");
 update permission set category = "Reports" where id in ("use_head_to_head_report", "use_team_record_report", "download_aa_report", "edit_aa_report");
 update permission set category = "Techscore Management" where id in ("edit_regatta_types", "edit_seasons", "edit_announcements", "edit_boats", "edit_tr_templates", "edit_users", "edit_welcome", "send_message", "edit_venues");
+
+-- add "all" attribute to roles
+alter table role add column has_all tinyint null default null;
