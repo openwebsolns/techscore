@@ -42,16 +42,8 @@ class AccountsPane extends AbstractAdminUserPane {
 
     $f->add(new FReqItem("Email:", new XA('mailto:'.$user->id, $user->id)));
     $f->add(new FReqItem("School Role: ", XSelect::fromArray('role', Account::getRoles(), $user->role)));
-    $f->add(new FReqItem("Role:", XSelect::fromDBM('ts_role', DB::getAll(DB::$ROLE), $user->ts_role, array(), "")));
-
-    if ($user == $this->USER) {
-      $chk->set('disabled', 'disabled');
-      $chk->set('title', "You may not remove permissions from yourself.");
-    }
-    elseif ($user->isSuper()) {
-      $chk->set('disabled', 'disabled');
-      $chk->set('title', "This account may not be disabled.");
-    }
+    if ($user != $this->USER && !$user->isSuper())
+      $f->add(new FReqItem("Role:", XSelect::fromDBM('ts_role', DB::getAll(DB::$ROLE), $user->ts_role, array(), "")));
 
     $f->add(new FItem("Regattas created:", new XStrong(count($user->getRegattasCreated()))));
 
@@ -290,13 +282,11 @@ class AccountsPane extends AbstractAdminUserPane {
     // Edit user
     // ------------------------------------------------------------
     if (isset($args['edit-user'])) {
-      $user->role = DB::$V->reqKey($args, 'role', Account::getRoles(), "Invalid role provided.");
+      $user->role = DB::$V->reqKey($args, 'role', Account::getRoles(), "Invalid school role provided.");
       if ($user != $this->USER && !$user->isSuper())
-        $user->admin = DB::$V->incInt($args, 'admin', 1, 2, null);
+	$user->ts_role = DB::$V->reqID($args, 'ts_role', DB::$ROLE, "Invalid role provided.");
       DB::set($user);
       Session::pa(new PA(sprintf("Updated account information for user %s.", $user)));
-      if ($user->admin !== null)
-        Session::pa(new PA("User has \"admin\" privileges and can change key program settings.", PA::I));
     }
 
     // ------------------------------------------------------------
