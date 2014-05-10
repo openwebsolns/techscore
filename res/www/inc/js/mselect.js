@@ -18,7 +18,7 @@ function OWSMultSelect(elem) {
     };
     this.wrapper = document.createElement("div");
     this.wrapper.setAttribute("class", "msel-wrapper");
-    this.wrapper.setAttribute("title", "Move items from list on the left to the right to choose.");
+    this.wrapper.setAttribute("title", "Move items from one list to another to choose.");
     this.wrapper.style.display = "inline-block";
     this.fromElement.parentNode.insertBefore(this.wrapper, this.fromElement);
 
