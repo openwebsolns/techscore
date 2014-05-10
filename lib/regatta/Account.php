@@ -91,7 +91,7 @@ class Account extends DBObject {
   }
 
   public function isAdmin() {
-    return $this->admin !== null;
+    return ($this->ts_role !== null && $this->__get('ts_role')->has_all !== null);
   }
 
   public function isSuper() {
