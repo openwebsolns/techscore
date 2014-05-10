@@ -91,7 +91,7 @@ class Account extends DBObject {
   }
 
   public function isAdmin() {
-    return ($this->ts_role !== null && $this->__get('ts_role')->has_all !== null);
+    return $this->admin > 1 || ($this->ts_role !== null && $this->__get('ts_role')->has_all !== null);
   }
 
   public function isSuper() {
@@ -186,7 +186,7 @@ class Account extends DBObject {
    * @return boolean true if account can edit regatta
    */
   public function hasJurisdiction(Regatta $reg) {
-    if ($this->admin > 0)
+    if ($this->isAdmin())
       return true;
     $res = DB::getAll(DB::$SCORER, new DBBool(array(new DBCond('regatta', $reg->id), new DBCond('account', $this))));
     $r = (count($res) > 0);
