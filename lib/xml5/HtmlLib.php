@@ -740,6 +740,7 @@ class XSelect extends XAbstractHtml {
    * @param Array:String $opts a map of option values and labels
    * @param Array|String $chosen the list or item to select
    * @param Array $attrs the optional attributes to add
+   * @param boolean $strict determines how comparison is made
    */
   public static function fromArray($name, Array $opts, $chosen = null, Array $attrs = array(), $strict = false) {
     if (!is_array($chosen))
@@ -774,9 +775,10 @@ class XSelect extends XAbstractHtml {
    * @param ArrayIterator:DBObject $opts the list of DBObject
    * @param Array|String $chosen the list or item to select
    * @param $attrs the optional attributes to add
+   * @param String $first_option if given, the text of the first option
    * @see fromArray
    */
-  public static function fromDBM($name, $opts, $chosen = null, Array $attrs = array()) {
+  public static function fromDBM($name, $opts, $chosen = null, Array $attrs = array(), $first_option = null) {
     if (!is_array($chosen))
       $chosen = array($chosen);
     foreach ($chosen as $i => $item) {
@@ -784,6 +786,8 @@ class XSelect extends XAbstractHtml {
         $chosen[$i] = $item->id;
     }
     $sel = new XSelect($name, $attrs);
+    if ($first_option !== null)
+      $sel->add(new XOption("", array(), $first_option));
     foreach ($opts as $v) {
       $sel->add($opt = new XOption($v->id, array(), $v));
       if (in_array($v->id, $chosen))
@@ -811,8 +815,8 @@ class XSelectM extends XSelect {
     return $sel;
   }
 
-  public static function fromDBM($name, $opts, $chosen = null, Array $attrs = array()) {
-    $sel = XSelect::fromDBM($name, $opts, $chosen, $attrs);
+  public static function fromDBM($name, $opts, $chosen = null, Array $attrs = array(), $first_option = null) {
+    $sel = XSelect::fromDBM($name, $opts, $chosen, $attrs, $first_option);
     $sel->set('multiple', 'multiple');
     return $sel;
   }

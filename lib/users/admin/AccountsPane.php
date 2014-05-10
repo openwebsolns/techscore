@@ -41,9 +41,9 @@ class AccountsPane extends AbstractAdminUserPane {
     $f->add($fi = new FReqItem("Name:", new XStrong($user), "Only the user can change the name using the \"My Account\" page."));
 
     $f->add(new FReqItem("Email:", new XA('mailto:'.$user->id, $user->id)));
-    $f->add(new FReqItem("Role: ", XSelect::fromArray('role', Account::getRoles(), $user->role)));
+    $f->add(new FReqItem("School Role: ", XSelect::fromArray('role', Account::getRoles(), $user->role)));
+    $f->add(new FReqItem("Role:", XSelect::fromDBM('ts_role', DB::getAll(DB::$ROLE), $user->ts_role, array(), "")));
 
-    $f->add(new FItem("Admin:", $chk = new FCheckbox('admin', 1, "Does this account have admin privileges?", $user->isAdmin())));
     if ($user == $this->USER) {
       $chk->set('disabled', 'disabled');
       $chk->set('title', "You may not remove permissions from yourself.");
@@ -62,7 +62,7 @@ class AccountsPane extends AbstractAdminUserPane {
     // Schools
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new XPort("School affiliations"));
-    $p->add(new XP(array(), "Each account has one primary school affiliation, and any number of secondary school affiliations. The user has access to edit the information for all affiliated schools. In addition, all schools will be considered in determining whether the account has access to a regatta as a \"participant\"."));
+    $p->add(new XP(array(), "Each account has one primary school affiliation, and any number of secondary school affiliations. These affiliations will be used along with the role to determine the full set of permissions for a given account."));
     if ($user->isAdmin())
       $p->add(new XP(array('class'=>'warning'), "As this account has administrator privileges, the user has access to every regatta and every school in the system."));
 
