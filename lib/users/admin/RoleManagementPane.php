@@ -205,6 +205,25 @@ window.addEventListener("load", function(e) {
       Session::pa(new PA(sprintf("Role \"%s\" %s.", $role, $mes)));
       $this->redirect('roles');
     }
+
+    // ------------------------------------------------------------
+    // Delete
+    // ------------------------------------------------------------
+    if (isset($args['delete'])) {
+      $to_delete = array();
+      foreach (DB::$V->reqList($args, 'roles', null, "No roles provided.") as $id) {
+	$role = DB::get(DB::$ROLE, $id);
+	if ($role === null)
+	  throw new SoterException("Invalid role provided to delete: " . $id);
+	if (count($role->getAccounts()) > 0)
+	  throw new SoterException(sprintf("Cannot delete %s because there are accounts associated with it.", $role));
+	$to_delete[] = $role;
+      }
+
+      foreach ($to_delete as $role)
+	DB::remove($role);
+      Session::pa(new PA(sprintf("Removed role(s): %s.", implode(", ", $to_delete))));
+    }
   }
 }
 ?>
