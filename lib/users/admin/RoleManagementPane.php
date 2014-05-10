@@ -21,10 +21,22 @@ class RoleManagementPane extends AbstractAdminUserPane {
   }
 
   protected function fillRoleForm(XForm $form, Role $role) {
+    $this->PAGE->head->add(new XScript('text/javascript', null, '
+window.addEventListener("load", function(e) {
+  var c = document.getElementById("chk-all");
+  var r = document.getElementById("perms-list");
+  c.onchange = function(e) {
+    r.style.display = (c.checked) ? "none" : "block";
+  };
+  r.style.display = (c.checked) ? "none" : "block";
+}, false);
+'));
+
     $form->add(new FReqItem("Name:", new XTextInput('title', $role->title, array('min'=>5, 'max'=>256))));
     $form->add(new FReqItem("Description:", new XTextArea('description', $role->description, array('placeholder'=>"Helpful descriptors help you stay organized."))));
-    $form->add(new FItem("All permissions:", new FCheckbox('has_all', 1, "This role has all permissions.", $role->has_all !== null), "Use sparingly. This grants access to all permissions now, and in the future."));
-    $form->add(new FItem("Permissions:", $sel = new XSelectM('permissions[]', array('size'=>10))));
+    $form->add(new FItem("All permissions:", new FCheckbox('has_all', 1, "This role has all permissions.", $role->has_all !== null, array('id'=>'chk-all')), "Use sparingly. This grants access to all permissions now, and in the future."));
+    $form->add($fi = new FItem("Permissions:", $sel = new XSelectM('permissions[]', array('size'=>10))));
+    $fi->set('id', 'perms-list');
 
     // Fill select
     $existing = array();
