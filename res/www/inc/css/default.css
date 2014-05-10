@@ -793,6 +793,11 @@ label {
     opacity: 1;
 }
 
+.role-permissions {
+    margin: 0;
+    padding: 0;
+}
+
 
 
 /* Associative lists */

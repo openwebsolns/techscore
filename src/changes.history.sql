@@ -760,3 +760,7 @@ update permission set category = "Techscore Management" where id in ("edit_regat
 
 -- add "all" attribute to roles
 alter table role add column has_all tinyint null default null;
+
+-- add "administrator" role, and transfer users there
+insert into role values (2, 'Administrator', "Administer the Techscore installation.", 1);
+update account set ts_role = 2 where admin is not null;
