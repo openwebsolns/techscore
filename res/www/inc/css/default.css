@@ -796,6 +796,16 @@ label {
 .role-permissions {
     margin: 0;
     padding: 0;
+    list-style-type: none;
+}
+.role-permissions li {
+    font-size: 80%;
+    padding: 1px 3px;
+    background: #f8f8f8;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    margin: 5px 0;
+    color: #555;
 }
 
 
