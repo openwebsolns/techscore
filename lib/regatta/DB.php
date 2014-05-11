@@ -230,6 +230,16 @@ class DB extends DBM {
   }
 
   /**
+   * Gets the first Role designated as "is_default"
+   *
+   * @return Role should always return a Role
+   */
+  public static function getDefaultRole() {
+    $res = self::getAll(self::$ROLE, new DBCond('is_default', 1));
+    return (count($res) == 0) ? null : $res[0];
+  }
+
+  /**
    * Perform keyword replacement using given account
    *
    * @param Account $to the account whose values to replace in message

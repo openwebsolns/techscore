@@ -159,6 +159,9 @@ class RegisterPane extends AbstractUserPane {
       $this->redirect('register');
     }
 
+    // ------------------------------------------------------------
+    // Register
+    // ------------------------------------------------------------
     if (isset($args['register'])) {
       // 1. Check for existing account
       $id = DB::$V->reqString($args, 'email', 1, 41, "Email must not be empty or exceed 40 characters.");
@@ -169,6 +172,7 @@ class RegisterPane extends AbstractUserPane {
       $acc->status = Account::STAT_REQUESTED;
       $acc->id = $id;
       $acc->message = DB::$V->incString($args, 'message', 1, 16000);
+      $acc->ts_role = DB::getDefaultRole();
 
       // 2. Approve first and last name
       $acc->last_name  = DB::$V->reqString($args, 'last_name', 1, 31, "Last name must not be empty and less than 30 characters.");
