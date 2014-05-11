@@ -312,16 +312,20 @@ if ($URI_TOKENS[0] == 'inc') {
 require_once('users/AbstractUserPane.php');
 try {
   $PAGE = AbstractUserPane::getPane($URI_TOKENS, Conf::$USER);
+  if (Conf::$METHOD == 'POST') {
+    Session::s('POST', $PAGE->processPOST($_POST));
+    WS::goBack('/');
+  }
+  $post = Session::g('POST');
+  $args = array_merge((is_array($post)) ? $post : array(), $_GET);
+  $PAGE->getHTML($args);
 }
 catch (PaneException $e) {
   Session::pa(new PA($e->getMessage(), PA::E));
   WS::go('/');  
 }
-if (Conf::$METHOD == 'POST') {
-  Session::s('POST', $PAGE->processPOST($_POST));
+catch (PermissionException $e) {
+  Session::pa(new PA("Insuficcient permission for requested action.", PA::E));
   WS::goBack('/');
 }
-$post = Session::g('POST');
-$args = array_merge((is_array($post)) ? $post : array(), $_GET);
-$PAGE->getHTML($args);
 ?>
