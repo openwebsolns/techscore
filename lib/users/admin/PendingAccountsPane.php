@@ -5,13 +5,13 @@
  * @package users-admin
  */
 
-require_once('users/admin/AbstractAdminUserPane.php');
+require_once('users/admin/AbstractAccountPane.php');
 
 /**
  * Pane to edit (approve/reject) pending accounts
  *
  */
-class PendingAccountsPane extends AbstractAdminUserPane {
+class PendingAccountsPane extends AbstractAccountPane {
 
   const NUM_PER_PAGE = 10;
 
@@ -32,6 +32,36 @@ class PendingAccountsPane extends AbstractAdminUserPane {
    *
    */
   protected function fillHTML(Array $args) {
+    // ------------------------------------------------------------
+    // Specific account?
+    // ------------------------------------------------------------
+    if (isset($args['account'])) {
+      try {
+	$account = DB::getAccount($args['account']);
+	if ($account === null || $account->status != Account::STAT_PENDING)
+	  throw new SoterException("Invalid account requested.");
+
+	$this->PAGE->addContent($p = new XPort("Approve or reject"));
+	$p->set('id', 'approve-port');
+	$p->add($f = $this->createForm());
+	$f->add(new XHiddenInput('account', $account->id));
+	$f->add(new XP(array(), "This account's status is still pending approval. Please take a moment to review the account details below, before clicking one of the buttons below."));
+	$f->add($xp = new XSubmitP('approve', "Approve"));
+	$xp->add(" ");
+	$xp->add(new XSubmitDelete('reject', "Reject"));
+
+	$this->fillUser($account);
+
+	return;
+      }
+      catch (SoterException $e) {
+	Session::pa(new PA($e->getMessage(), PA::E));
+      }
+    }
+
+    // ------------------------------------------------------------
+    // List pending
+    // ------------------------------------------------------------
     $pageset  = (isset($args['page'])) ? (int)$args['page'] : 1;
     if ($pageset < 1)
       WS::go('/pending');
@@ -47,24 +77,18 @@ class PendingAccountsPane extends AbstractAdminUserPane {
       $p->add(new XP(array(), "There are no pending accounts."));
     }
     else {
-      $p->add(new XP(array(), "Use the checkboxes below to select the accounts, and then click on the appropriate button to approve/reject."));
-      $p->add($f = $this->createForm());
-      $f->add(new XP(array(),
-                     array("With selected: ",
-                           new XSubmitInput("approve", "Approve"),
-                           " ", new XSubmitInput("reject",  "Reject"))));
+      $p->add(new XP(array(), "Below is a list of pending accounts. Click on the account name to approve or reject that account."));
 
-      $f->add($tab = new XQuickTable(array('style'=>'width:100%;'),
-                                     array("", "Name", "E-mail", "School", "Role", "Notes")));
+      $p->add($tab = new XQuickTable(array('class'=>'full pending-accounts'),
+                                     array("Name", "E-mail", "School", "Role", "Notes")));
       $row = 0;
       for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < $count; $i++) {
         $acc = $list[$i];
-        $tab->addRow(array(new FCheckbox('accounts[]', $acc->id, "", false, array('id'=>$acc->id)),
-                           new XLabel($acc->id, $acc->getName()),
-                           new XLabel($acc->id, new XA(sprintf("mailto:%s", $acc->id), $acc->id)),
-                           new XLabel($acc->id, $acc->school->nick_name),
-                           new XLabel($acc->id, $acc->role),
-			   new XLabel($acc->id, $acc->message)));
+        $tab->addRow(array(new XA(WS::link('/pending', array('account'=>$acc->id)), $acc->getName()),
+                           new XA(sprintf("mailto:%s", $acc->id), $acc->id),
+                           $acc->school->nick_name,
+                           $acc->role,
+			   $acc->message));
       }
       if ($num_pages > 1) {
         require_once('xml5/LinksDiv.php');
@@ -80,6 +104,9 @@ class PendingAccountsPane extends AbstractAdminUserPane {
   }
 
   public function process(Array $args) {
+    // ------------------------------------------------------------
+    // Update register flag
+    // ------------------------------------------------------------
     if (isset($args['set-register'])) {
       $val = DB::$V->incInt($args, STN::ALLOW_REGISTER, 1, 2, null);
       if ($val != DB::g(STN::ALLOW_REGISTER)) {
@@ -92,52 +119,36 @@ class PendingAccountsPane extends AbstractAdminUserPane {
       return;
     }
 
-    $legend = array("approve"=>array("success"=>"Approved accounts(s):",
-                                     "error"  =>"Unable to approve",
-                                     "status" =>"accepted"),
-                    "reject" =>array("success"=>"Rejected account(s):",
-                                     "error"  =>"Unable to reject",
-                                     "status" =>"rejected"));
     // ------------------------------------------------------------
     // Approve / Reject
     // ------------------------------------------------------------
-    foreach (array("approve", "reject") as $action) {
-      if (isset($args[$action])) {
-        $accounts = DB::$V->reqList($args, 'accounts', null, "No account list provided.");
-        if (count($accounts) == 0)
-          throw new SoterException("No accounts chosen.");
+    if (isset($args['account'])) {
+      $account = DB::getAccount($args['account']);
+      if ($account === null || $account->status != Account::STAT_PENDING)
+	throw new SoterException("Invalid account provided.");
 
-        $unnotified = array();
-        $success = array();
-        $errors  = 0;
-        foreach ($accounts as $id) {
-          $acc = DB::getAccount($id);
-          if ($acc === null || $acc->status != Account::STAT_PENDING)
-            $errors++;
-          else {
-            $acc->status = $legend[$action]["status"];
-            DB::set($acc);
-            // Notify user
-            if ($action == 'approve') {
-              if (!$this->notifyApprovedUser($acc))
-                $unnotified[] = sprintf('%s <%s>', $acc->getName(), $acc->id);
-            }
-            $success[] = $acc->id;
-          }
-        }
+      // Approve
+      if (isset($args['approve'])) {
+	$account->status = Account::STAT_ACCEPTED;
+	DB::set($account);
 
-        // Announce the good news
-        if ($errors > 0) {
-          Session::pa(new PA(sprintf("%s %d accounts.", $legend[$action]["error"], $errors), PA::I));
-        }
-        if (count($unnotified) > 0)
-          Session::pa(new PA(sprintf("Unable to notify the following accounts: %s.", implode(", ", $unnotified)), PA::I));
-        if (count($success) > 0) {
-          Session::pa(new PA(sprintf("%s %s.", $legend[$action]["success"], implode(", ", $success))));
-        }
+	// Notify user
+	if (!$this->notifyApprovedUser($account))
+	  Session::pa(new PA("Unable to notify user of account approval. Consider sending manual e-mail.", PA::I));
+	Session::pa(new PA(sprintf("Approved account for %s.", $account)));
       }
+      elseif (isset($args['reject'])) {
+	$account->status = Account::STAT_REJECTED;
+	DB::set($account);
+	Session::pa(new PA(sprintf("Rejected account for %s.", $account)));
+      }
+      else
+	throw new SoterException("Invalid action provided.");
+
+      $this->redirect('pending');
     }
-    return array();
+
+    return parent::process($args);
   }
 }
 ?>
