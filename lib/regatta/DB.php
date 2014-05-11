@@ -3668,6 +3668,7 @@ class Role extends DBObject {
   public $title;
   public $description;
   public $has_all;
+  public $is_default;
   protected function db_cache() { return true; }
   public function __toString() { return $this->title; }
 

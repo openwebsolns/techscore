@@ -767,3 +767,7 @@ update account set ts_role = 2 where admin is not null;
 
 -- add "message" field to account table
 alter table account add column message text null default null;
+
+-- add default field for role
+alter table role add column is_default tinyint null default null;
+update role set is_default = 1 where id = 1;

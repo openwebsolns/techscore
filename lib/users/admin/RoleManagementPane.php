@@ -134,7 +134,7 @@ window.addEventListener("load", function(e) {
       $p->add($form = $this->createForm());
       $form->add($tab = new XQuickTable(array('class'=>'roles-table full'),
                                         array("Default", "Role", "Description", "Permissions", "# of Users", "")));
-      $can_delete = false;
+
       foreach ($roles as $i => $role) {
 	$perms = "";
 	if ($role->has_all)
@@ -149,12 +149,11 @@ window.addEventListener("load", function(e) {
         $count = count($role->getAccounts());
         $del = "";
         if ($count == 0) {
-	  $can_delete = true;
-          $del = new FCheckbox('roles[]', $role->id, "");
+          $del = new FCheckbox('delete[]', $role->id, "");
 	}
 
         $tab->addRow(array(
-		       new FRadio('default-role', $role->id, "", false),
+		       new FRadio('default-role', $role->id, "", $role->is_default),
                        new XA(sprintf('/roles?id=%s', $role->id), $role),
                        $perm->description,
                        $perms,
@@ -164,8 +163,7 @@ window.addEventListener("load", function(e) {
                      array('class' => 'row' . ($i % 2)));
       }
 
-      if ($can_delete)
-	$form->add(new XSubmitP('delete', "Delete checked", array(), true));
+      $form->add(new XSubmitP('set-roles', "Save Changes"));
     }
   }
 
@@ -208,11 +206,25 @@ window.addEventListener("load", function(e) {
     }
 
     // ------------------------------------------------------------
+    // Set default
+    // ------------------------------------------------------------
+    if (isset($args['set-roles'])) {
+      $def = DB::$V->reqID($args, 'default-role', DB::$ROLE, "Invalid default role provided.");
+      foreach (DB::getAll(DB::$ROLE) as $role) {
+	$role->is_default = null;
+	if ($role->id == $def->id)
+	  $role->is_default = 1;
+	DB::set($role);
+      }
+      Session::pa(new PA(sprintf("Set \"%s\" as the default role for new accounts.", $def)));
+    }
+
+    // ------------------------------------------------------------
     // Delete
     // ------------------------------------------------------------
     if (isset($args['delete'])) {
       $to_delete = array();
-      foreach (DB::$V->reqList($args, 'roles', null, "No roles provided.") as $id) {
+      foreach (DB::$V->reqList($args, 'delete', null, "No roles provided.") as $id) {
 	$role = DB::get(DB::$ROLE, $id);
 	if ($role === null)
 	  throw new SoterException("Invalid role provided to delete: " . $id);
