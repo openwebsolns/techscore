@@ -150,5 +150,20 @@ class PendingAccountsPane extends AbstractAccountPane {
 
     return parent::process($args);
   }
+
+  /**
+   * Sends message to approved user
+   *
+   * @param Account $acc the account to notify
+   * @return boolean the result of DB::mail
+   */
+  protected function notifyApprovedUser(Account $acc) {
+    if (DB::g(STN::MAIL_APPROVED_USER) === null)
+      return false;
+
+    return DB::mail($acc->id,
+                    sprintf("[%s] Account approved", DB::g(STN::APP_NAME)),
+                    DB::keywordReplace($acc, DB::g(STN::MAIL_APPROVED_USER)));
+  }
 }
 ?>
