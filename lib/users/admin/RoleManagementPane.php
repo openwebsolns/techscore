@@ -206,20 +206,6 @@ window.addEventListener("load", function(e) {
     }
 
     // ------------------------------------------------------------
-    // Set default
-    // ------------------------------------------------------------
-    if (isset($args['set-roles'])) {
-      $def = DB::$V->reqID($args, 'default-role', DB::$ROLE, "Invalid default role provided.");
-      foreach (DB::getAll(DB::$ROLE) as $role) {
-	$role->is_default = null;
-	if ($role->id == $def->id)
-	  $role->is_default = 1;
-	DB::set($role);
-      }
-      Session::pa(new PA(sprintf("Set \"%s\" as the default role for new accounts.", $def)));
-    }
-
-    // ------------------------------------------------------------
     // Delete
     // ------------------------------------------------------------
     if (isset($args['delete'])) {
@@ -236,6 +222,20 @@ window.addEventListener("load", function(e) {
       foreach ($to_delete as $role)
 	DB::remove($role);
       Session::pa(new PA(sprintf("Removed role(s): %s.", implode(", ", $to_delete))));
+    }
+
+    // ------------------------------------------------------------
+    // Set default
+    // ------------------------------------------------------------
+    if (isset($args['set-roles'])) {
+      $def = DB::$V->reqID($args, 'default-role', DB::$ROLE, "Invalid default role provided.");
+      foreach (DB::getAll(DB::$ROLE) as $role) {
+	$role->is_default = null;
+	if ($role->id == $def->id)
+	  $role->is_default = 1;
+	DB::set($role);
+      }
+      Session::pa(new PA(sprintf("Set \"%s\" as the default role for new accounts.", $def)));
     }
   }
 }
