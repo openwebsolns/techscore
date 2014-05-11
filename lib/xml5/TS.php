@@ -384,11 +384,14 @@ class XRangeInput extends XTextInput {
  */
 class FCheckbox extends XSpan {
   private static $counter = 0;
-
   private $box = null;
 
+  protected $classname = 'checkbox-span';
+
   public function __construct($name, $value, $label = "", $checked = false, Array $attrs = array()) {
-    parent::__construct($this->box = new XCheckboxInput($name, $value, $attrs), array('class'=>'checkbox-span'));
+    parent::__construct("");
+    $this->set('class', $this->classname);
+    $this->add($this->box = $this->createInput($name, $value, $attrs));
     if (!isset($attrs['id'])) {
       $id = 'chk-' . self::$counter++;
       $this->box->set('id', $id);
@@ -406,6 +409,23 @@ class FCheckbox extends XSpan {
       $this->box->set($name, $value);
     else
       parent::set($name, $value);
+  }
+
+  protected function createInput($name, $value, Array $attrs) {
+    return new XCheckboxInput($name, $value, $attrs);
+  }
+}
+
+/**
+ * Like FCheckbox, but with a radio button instead
+ *
+ * @author Dayan Paez
+ * @version 2014-05-11
+ */
+class FRadio extends FCheckbox {
+  protected $classname = 'radio-span';
+  protected function createInput($name, $value, Array $attrs) {
+    return new XRadioInput($name, $value, $attrs);
   }
 }
 

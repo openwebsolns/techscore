@@ -129,11 +129,11 @@ window.addEventListener("load", function(e) {
     // ------------------------------------------------------------
     if (count($roles) > 0) {
       $this->PAGE->addContent($p = new XPort("Existing roles"));
-      $p->add(new XP(array(), "Below is a list of existing roles and their associated permissions. You may only delete roles which are not assigned. Click on the role name to edit that role."));
+      $p->add(new XP(array(), "Below is a list of existing roles and their associated permissions. You may only delete roles which are not assigned. Click on the role name to edit that role. On the first column, choose the default role for new accounts."));
 
       $p->add($form = $this->createForm());
       $form->add($tab = new XQuickTable(array('class'=>'roles-table full'),
-                                        array("Role", "Description", "Permissions", "# of Users", "")));
+                                        array("Default", "Role", "Description", "Permissions", "# of Users", "")));
       $can_delete = false;
       foreach ($roles as $i => $role) {
 	$perms = "";
@@ -154,6 +154,7 @@ window.addEventListener("load", function(e) {
 	}
 
         $tab->addRow(array(
+		       new FRadio('default-role', $role->id, "", false),
                        new XA(sprintf('/roles?id=%s', $role->id), $role),
                        $perm->description,
                        $perms,
