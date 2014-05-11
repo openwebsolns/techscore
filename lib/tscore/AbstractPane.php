@@ -54,15 +54,15 @@ abstract class AbstractPane {
   }
 
   /**
-   * Determine whether to use the participant moden
+   * Determine whether to use the participant mode
    *
    * @param boolean $participant true to set to partcipant mode
-   * @throws InvalidArgumentException
+   * @throws PermissionException
    */
   public function setParticipantUIMode($participant = false) {
     $this->participant_mode = ($participant !== false);
     if ($this->participant_mode && !in_array(get_class($this), self::$PARTICIPANT_MODE))
-      throw new InvalidArgumentException("Participant UI not available for this pane.");
+      throw new PermissionException("Participant UI not available for this pane.");
   }
 
   /**

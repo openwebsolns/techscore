@@ -135,138 +135,142 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
   }
 
   // User and regatta authorized, delegate to AbstractPane
-  $PAGE = null;
-  if ($BASE == 'score') {
-    require_once('tscore/AbstractPane.php');
-    $PAGE = AbstractPane::getPane($URI_TOKENS, Conf::$USER, $REG);
-    if ($PAGE === null) {
-      $mes = sprintf("Invalid page requested (%s)", implode('/', $URI_TOKENS));
-      Session::pa(new PA($mes, PA::I));
-      WS::go('/score/'.$REG->id);
-    }
-    if (!$PAGE->isActive()) {
-      $title = $PAGE->getTitle();
-      Session::pa(new PA("\"$title\" is not available.", PA::I));
-      WS::go('/score/'.$REG->id);
-    }
-    // Participant?
-    if ($is_participant) {
-      try {
+  try {
+    $PAGE = null;
+    if ($BASE == 'score') {
+      require_once('tscore/AbstractPane.php');
+      $PAGE = AbstractPane::getPane($URI_TOKENS, Conf::$USER, $REG);
+      if ($PAGE === null) {
+	$mes = sprintf("Invalid page requested (%s)", implode('/', $URI_TOKENS));
+	Session::pa(new PA($mes, PA::I));
+	WS::go('/score/'.$REG->id);
+      }
+      if (!$PAGE->isActive()) {
+	$title = $PAGE->getTitle();
+	Session::pa(new PA("\"$title\" is not available.", PA::I));
+	WS::go('/score/'.$REG->id);
+      }
+      // Participant?
+      if ($is_participant) {
         $PAGE->setParticipantUIMode($is_participant);
-      } catch (InvalidArgumentException $e) {
-        Session::pa(new PA("Insufficient permissions for requested page.", PA::E));
-        WS::go('/');
-      }
-    }
-    // process, if so requested
-    if (Conf::$METHOD == 'POST') {
-      require_once('public/UpdateManager.php');
-      Session::s('POST', $PAGE->processPOST($_POST));
-      WS::goBack('/');
-    }
-  }
-
-  // 'view' and 'download' requires GET method only
-  if (Conf::$METHOD != 'GET')
-    Conf::do405("Only GET method supported for dialogs and downloads.");
-
-  if ($BASE == 'view') {
-    require_once('tscore/AbstractDialog.php');
-    $PAGE = AbstractDialog::getDialog($URI_TOKENS, Conf::$USER, $REG);
-    if ($PAGE === null) {
-      $mes = sprintf("Invalid page requested (%s)", implode('/', $URI_TOKENS));
-      Session::pa(new PA($mes, PA::I));
-      WS::go('/view/'.$REG->id);
-    }
-  }
-
-  if ($BASE == 'download') {
-    $st = $REG->start_time;
-    $nn = $REG->nick;
-    if (count($REG->getTeams()) == 0 || count($REG->getDivisions()) == 0) {
-      Session::pa(new PA("First create teams and divisions before downloading.", PA::I));
-      WS::go('/score/'.$REG->id);
-    }
-
-    if (count($URI_TOKENS) == 0) {
-      Session::pa(new PA("Nothing to download. Please try again.", PA::I));
-      WS::go('/score/'.$REG->id);
-    }
-    switch ($URI_TOKENS[0]) {
-
-      // --------------- REGATTA ---------------//
-      /*
-        case "":
-        case "regatta":
-        $name = sprintf("%s-%s.tsr", $st->format("Y"), $nn);
-        header("Content-type: text/xml");
-        header(sprintf('Content-disposition: attachment; filename="%s"', $name));
-        echo RegattaIO::toXML($REG);
-        break;
-      */
-
-      // --------------- RP FORMS --------------//
-    case 'rp':
-    case 'rpform':
-    case 'rps':
-      $name = sprintf('%s-%s-rp', $st->format('Y'), $nn);
-      $rp = $REG->getRpManager();
-      if ($rp->isFormRecent())
-        $data = $rp->getForm();
-      else {
-        $form = DB::getRpFormWriter($REG);
-        if ($form === null) {
-          Session::pa(new PA("Downloadable PDF forms are not available for this regatta type.", PA::I));
-          WS::go('/score/'.$REG->id);
-        }
-
-        $sock = DB::g(STN::PDFLATEX_SOCKET);
-        if ($sock === null)
-          $data = $form->makePdf($REG);
-        else
-          $data = $form->socketPdf($REG, $sock);
-
-        if ($data === null) {
-          Session::pa(new PA("Downloadable PDF forms are not available for this regatta type.", PA::I));
-          WS::go('/score/'.$REG->id);
-        }
-
-        $rp->setForm($data);
       }
 
-      header('Content-type: application/pdf');
-      header(sprintf('Content-Disposition: attachment; filename="%s.pdf"', $name));
-      echo $data;
-      exit;
+      // process, if so requested
+      if (Conf::$METHOD == 'POST') {
+	require_once('public/UpdateManager.php');
+	Session::s('POST', $PAGE->processPOST($_POST));
+	WS::goBack('/');
+      }
+    }
 
-      // --------------- RP Templates ---------------//
-    case 'rp-template':
-    case 'rp-empty':
-      $form = DB::getRpFormWriter($REG);
-      if ($form === null || ($name = $form->getPdfName()) === null) {
-        Session::pa(new PA("Empty PDF forms are not available for this regatta type.", PA::I));
-        WS::go('/score/'.$REG->id);
+    // 'view' and 'download' requires GET method only
+    if (Conf::$METHOD != 'GET')
+      Conf::do405("Only GET method supported for dialogs and downloads.");
+
+    if ($BASE == 'view') {
+      require_once('tscore/AbstractDialog.php');
+      $PAGE = AbstractDialog::getDialog($URI_TOKENS, Conf::$USER, $REG);
+      if ($PAGE === null) {
+	$mes = sprintf("Invalid page requested (%s)", implode('/', $URI_TOKENS));
+	Session::pa(new PA($mes, PA::I));
+	WS::go('/view/'.$REG->id);
+      }
+    }
+
+    if ($BASE == 'download') {
+      $st = $REG->start_time;
+      $nn = $REG->nick;
+      if (count($REG->getTeams()) == 0 || count($REG->getDivisions()) == 0) {
+	Session::pa(new PA("First create teams and divisions before downloading.", PA::I));
+	WS::go('/score/'.$REG->id);
       }
 
-      header('Content-type: application/pdf');
-      header(sprintf('Content-Disposition: attachment; filename="%s"', basename($name)));
-      echo file_get_contents($name);
-      exit;
+      if (count($URI_TOKENS) == 0) {
+	Session::pa(new PA("Nothing to download. Please try again.", PA::I));
+	WS::go('/score/'.$REG->id);
+      }
+      switch ($URI_TOKENS[0]) {
 
-    // --------------- default ---------------//
-    default:
-      $mes = sprintf("Invalid download requested (%s)", $_GET['d']);
-      Session::pa(new PA("Invalid download requested.", PA::I));
-      WS::go('/score/'.$REG->id);
+	// --------------- REGATTA ---------------//
+	/*
+	  case "":
+	  case "regatta":
+	  $name = sprintf("%s-%s.tsr", $st->format("Y"), $nn);
+	  header("Content-type: text/xml");
+	  header(sprintf('Content-disposition: attachment; filename="%s"', $name));
+	  echo RegattaIO::toXML($REG);
+	  break;
+	*/
+
+	// --------------- RP FORMS --------------//
+      case 'rp':
+      case 'rpform':
+      case 'rps':
+	$name = sprintf('%s-%s-rp', $st->format('Y'), $nn);
+	$rp = $REG->getRpManager();
+	if ($rp->isFormRecent())
+	  $data = $rp->getForm();
+	else {
+	  $form = DB::getRpFormWriter($REG);
+	  if ($form === null) {
+	    Session::pa(new PA("Downloadable PDF forms are not available for this regatta type.", PA::I));
+	    WS::go('/score/'.$REG->id);
+	  }
+
+	  $sock = DB::g(STN::PDFLATEX_SOCKET);
+	  if ($sock === null)
+	    $data = $form->makePdf($REG);
+	  else
+	    $data = $form->socketPdf($REG, $sock);
+
+	  if ($data === null) {
+	    Session::pa(new PA("Downloadable PDF forms are not available for this regatta type.", PA::I));
+	    WS::go('/score/'.$REG->id);
+	  }
+
+	  $rp->setForm($data);
+	}
+
+	header('Content-type: application/pdf');
+	header(sprintf('Content-Disposition: attachment; filename="%s.pdf"', $name));
+	echo $data;
+	exit;
+
+	// --------------- RP Templates ---------------//
+      case 'rp-template':
+      case 'rp-empty':
+	$form = DB::getRpFormWriter($REG);
+	if ($form === null || ($name = $form->getPdfName()) === null) {
+	  Session::pa(new PA("Empty PDF forms are not available for this regatta type.", PA::I));
+	  WS::go('/score/'.$REG->id);
+	}
+
+	header('Content-type: application/pdf');
+	header(sprintf('Content-Disposition: attachment; filename="%s"', basename($name)));
+	echo file_get_contents($name);
+	exit;
+
+	// --------------- default ---------------//
+      default:
+	$mes = sprintf("Invalid download requested (%s)", $_GET['d']);
+	Session::pa(new PA("Invalid download requested.", PA::I));
+	WS::go('/score/'.$REG->id);
+      }
     }
-  }
 
-  $args = $_GET;
-  $post = Session::g('POST');
-  if (is_array($post))
-    $args = array_merge($post, $args);
-  $PAGE->getHTML($args);
-  exit;
+    $args = $_GET;
+    $post = Session::g('POST');
+    if (is_array($post))
+      $args = array_merge($post, $args);
+    $PAGE->getHTML($args);
+    exit;
+  }
+  catch (PermissionException $e) {
+    Session::pa(new PA("Insufficient permissions for requested action.", PA::E));
+    if ($e->regatta !== null)
+      WS::go('/score/' . $e->regatta->id);
+    WS::go('/');
+  }
 }
 
 // ------------------------------------------------------------
