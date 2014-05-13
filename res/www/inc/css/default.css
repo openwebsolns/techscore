@@ -689,16 +689,16 @@ input[type="number"] {
 
 /* Fancy checkboxes */
 
-.checkbox-span {
+.checkbox-span, .radio-span {
     position: relative;
     min-height: 30px;
 }
 
-.form_entry .checkbox-span {
+.form_entry .checkbox-span, .form_entry .radio-span {
     top: 5px;
 }
 
-.checkbox-span input {
+.checkbox-span input, .radio-span input {
     height: 0;
     min-width: 0;
     width: 0;
@@ -706,7 +706,7 @@ input[type="number"] {
     z-index: -1;
 }
 
-.checkbox-span label {
+.checkbox-span label, .radio-span label {
     padding: 5px 5px 5px 40px;
     font-size: 90%;
     background: url(/inc/img/check.png);
@@ -714,12 +714,15 @@ input[type="number"] {
     background-position: 5px 3px;
     cursor: pointer;
 }
+.radio-span label {
+    background-image: url(/inc/img/radio.png);
+}
 
-.checkbox-span input:disabled + label {
+.checkbox-span input:disabled + label, .radio-span input:disabled + label {
     color: #aaa;
 }
 
-.checkbox-span input:checked + label {
+.checkbox-span input:checked + label, .radio-span input:checked + label {
     background-position: 5px -26px;
 }
 
