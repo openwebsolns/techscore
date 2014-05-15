@@ -202,6 +202,8 @@ class AccountsPane extends AbstractAccountPane {
       Session::pa(new PA("You're now logged in as " . $user));
       $this->redirect('');
     }
+
+    parent::process($args);
   }
 }
 ?>
