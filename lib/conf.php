@@ -180,7 +180,7 @@ if (isset($_SERVER['HTTP_HOST'])) {
   TSSessionHandler::register();
   Session::init();
   Conf::$USER = DB::getAccount(Session::g('user'));
-  if (($id = Session::g('usurped_user')) !== null) {
+  if (Conf::$USER !== null && ($id = Session::g('usurped_user')) !== null) {
     $usurped = DB::getAccount($id);
     if ($usurped !== null && $usurped->status == Account::STAT_ACTIVE) {
       Conf::$USURPER = Conf::$USER;
