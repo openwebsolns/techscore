@@ -199,13 +199,16 @@ class TScorePage extends XPage {
     if ($user !== null) {
       $m_user_menu->add(new XLi(new XA('/account', "My Account")));
       $m_user_menu->add(new XLi(new XA('/logout', "Logout", array('id'=>'m-logout'))));
+      if (Conf::$USURPER !== null)
+	$m_user_menu->add(new XLi(new XA('/account?reset', "Reset Session")));
 
       $this->header->add(new XDiv(array('id'=>'user-menudiv'),
-				  array(new XUl(array('id'=>'user-menu'),
-						array(new XLi(new XSpan($user)),
-						      new XLi(new XA('/', "Home")),
-						      new XLi(new XA('/account', "My Account")),
-						      new XLi(new XA('/logout', "Logout", array('accesskey'=>'l'))))))));
+				  array($ul = new XUl(array('id'=>'user-menu'),
+						      array(new XLi(new XSpan($user)),
+							    new XLi(new XA('/', "Home")),
+							    new XLi(new XA('/account', "My Account")),
+							    new XLi(new XA('/logout', "Logout", array('accesskey'=>'l'))))))));
+      $ul->add(new XLi(new XA('/account?reset', "Reset Session")));
     }
 
     if (count($m_user_menu->children()) > 0) {

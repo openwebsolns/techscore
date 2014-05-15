@@ -128,8 +128,11 @@ class AccountsPane extends AbstractAccountPane {
 
     // Create table, if applicable
     if ($num_users > 0) {
-      $p->add($tab = new XQuickTable(array('class'=>'users-table'),
-                                     array("Name", "Email", "Schools", "Role", "School Role", "Status")));
+      $headers = array("Name", "Email", "Schools", "Role", "School Role", "Status");
+      if ($this->USER->isSuper())
+	$headers[] = "Usurp";
+      $p->add($tab = new XQuickTable(array('class'=>'users-table'), $headers));
+
       for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < $num_users; $i++) {
         $user = $users[$i];
         if ($user->isAdmin())
@@ -143,13 +146,22 @@ class AccountsPane extends AbstractAccountPane {
           }
         }
         
-        $tab->addRow(array(new XA(WS::link('/' . $this->page_url, array('id'=>$user->id)), $user),
-                           $user->id,
-                           $schools,
-			   $user->ts_role,
-                           ucwords($user->role),
-                           new XSpan(ucwords($user->status), array('class'=>'stat user-' . $user->status))),
-                     array('class'=>'row'.($i % 2)));
+        $row = array(new XA(WS::link('/' . $this->page_url, array('id'=>$user->id)), $user),
+		     $user->id,
+		     $schools,
+		     $user->ts_role,
+		     ucwords($user->role),
+		     new XSpan(ucwords($user->status), array('class'=>'stat user-' . $user->status)));
+	if ($this->USER->isSuper()) {
+	  $form = "";
+	  if ($user->status == Account::STAT_ACTIVE) {
+	    $form = $this->createForm();
+	    $form->add(new XHiddenInput('user', $user->id));
+	    $form->add(new XSubmitInput('usurp-user', "Usurp"));
+	  }
+	  $row[] = $form;
+	}
+	$tab->addRow($row, array('class'=>'row'.($i % 2)));
       }
     }
     $p->add($ldiv);
@@ -175,6 +187,21 @@ class AccountsPane extends AbstractAccountPane {
 
     $tab->addRow(array(new XSpan(ucwords(Account::STAT_INACTIVE), array('class'=>'stat user-' . Account::STAT_INACTIVE)),
                        "The account has been removed. Functionally similar to a \"rejected\" status."));
+  }
+
+  public function process(Array $args) {
+    if (isset($args['usurp-user'])) {
+      if (!$this->USER->isSuper())
+	throw new SoterException("No access to this feature.");
+      $user = DB::$V->reqID($args, 'user', DB::$ACCOUNT, "No user provided.");
+      if ($user == $this->USER)
+	throw new SoterException("What's the point of usurping yourself?");
+      if ($user->status != Account::STAT_ACTIVE)
+	throw new SoterException("Only active users can be usurped.");
+      Session::s('usurped_user', $user->id);
+      Session::pa(new PA("You're now logged in as " . $user));
+      $this->redirect('');
+    }
   }
 }
 ?>

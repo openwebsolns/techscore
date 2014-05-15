@@ -21,6 +21,14 @@ class AccountPane extends AbstractUserPane {
   }
 
   protected function fillHTML(Array $args) {
+    // ------------------------------------------------------------
+    // Reset session
+    // ------------------------------------------------------------
+    if (array_key_exists('reset', $args)) {
+      Session::d('usurped_user');
+      $this->redirect();
+    }
+
     $this->PAGE->addContent($p = new XPort("My information"));
     $p->add($form = $this->createForm());
     $form->add(new FReqItem("First name:", new XTextInput("first_name", $this->USER->first_name, array('maxlength'=>30))));

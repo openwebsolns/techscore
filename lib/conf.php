@@ -55,6 +55,11 @@ class Conf {
   public static $USER = null;
 
   /**
+   * @var Account|null the usurper
+   */
+  public static $USURPER = null;
+
+  /**
    * @var Array ids of allowed users, or null to allow all
    */
   public static $DEBUG_USERS = null;
@@ -175,5 +180,12 @@ if (isset($_SERVER['HTTP_HOST'])) {
   TSSessionHandler::register();
   Session::init();
   Conf::$USER = DB::getAccount(Session::g('user'));
+  if (($id = Session::g('usurped_user')) !== null) {
+    $usurped = DB::getAccount($id);
+    if ($usurped !== null && $usurped->status == Account::STAT_ACTIVE) {
+      Conf::$USURPER = Conf::$USER;
+      Conf::$USER = $usurped;
+    }
+  }
 }
 ?>
