@@ -282,6 +282,8 @@ class Account extends DBObject {
   /**
    * Does this account's role have the necessary permission?
    *
+   * @param Permission $perm the permission to check
+   * @return boolean true if access granted
    */
   public function can(Permission $perm) {
     if ($this->isAdmin())
@@ -290,6 +292,20 @@ class Account extends DBObject {
       return false;
     foreach ($this->__get('ts_role')->getPermissions() as $other) {
       if ($other == $perm)
+        return true;
+    }
+    return false;
+  }
+
+  /**
+   * Does this account's role have access to at least one of the given permissions?
+   *
+   * @param Array:Permission list of permissions
+   * @return boolean true if role has access to one of those permissions
+   */
+  public function canAny(Array $perms) {
+    foreach ($perms as $perm) {
+      if ($this->can($perm))
         return true;
     }
     return false;
