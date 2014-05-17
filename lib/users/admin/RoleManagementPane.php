@@ -46,12 +46,12 @@ window.addEventListener("load", function(e) {
     $groups = array();
     foreach (DB::getAll(DB::$PERMISSION) as $perm) {
       if (!isset($groups[$perm->category])) {
-	$sel->add($group = new FOptionGroup($perm->category));
-	$groups[$perm->category] = $group;
+        $sel->add($group = new FOptionGroup($perm->category));
+        $groups[$perm->category] = $group;
       }
       $groups[$perm->category]->add($opt = new FOption($perm->id, $perm, array('title'=>$perm->description)));
       if (isset($existing[$perm->id]))
-	$opt->set('selected', 'selected');
+        $opt->set('selected', 'selected');
     }
   }
 
@@ -62,9 +62,9 @@ window.addEventListener("load", function(e) {
     if (isset($args['create-from'])) {
       $role = DB::$V->incID($args, 'create-from', DB::$ROLE);
       if ($role === null)
-	$role = new Role();
+        $role = new Role();
       else {
-	$role->title .= " (Copy)";
+        $role->title .= " (Copy)";
       }
 
       $this->PAGE->addContent($p = new XPort("Add role"));
@@ -86,13 +86,13 @@ window.addEventListener("load", function(e) {
         $this->PAGE->addContent($p = new XPort("Edit role"));
         $p->add($form = $this->createForm());
 
-	$users = $role->getAccounts();
-	if (count($users) > 0) {
-	  $form->add(new XP(array(),
-			    array(new XStrong("Note:"), " these permissions will instantly apply to all ", count($users), " users that are associated with it.")));
-	}
+        $users = $role->getAccounts();
+        if (count($users) > 0) {
+          $form->add(new XP(array(),
+                            array(new XStrong("Note:"), " these permissions will instantly apply to all ", count($users), " users that are associated with it.")));
+        }
 
-	$this->fillRoleForm($form, $role);
+        $this->fillRoleForm($form, $role);
 
         $form->add($xp = new XSubmitP('edit', "Save Changes"));
         $xp->add(new XHiddenInput('role', $role->id));
@@ -117,7 +117,7 @@ window.addEventListener("load", function(e) {
       $form->add(new FItem("Copy existing:", $sel = new XSelect('create-from')));
       $sel->add(new FOption('new', "[Start from scratch]"));
       foreach ($roles as $role)
-	$sel->add(new FOption($role->id, $role, array('title'=>$role->description)));
+        $sel->add(new FOption($role->id, $role, array('title'=>$role->description)));
     }
     else {
       $form->add(new XHiddenInput('create-from', 'new'));
@@ -136,26 +136,26 @@ window.addEventListener("load", function(e) {
                                         array("Default", "Role", "Description", "Permissions", "# of Users", "")));
 
       foreach ($roles as $i => $role) {
-	$perms = "";
-	if ($role->has_all)
-	  $perms = new XEm("All permissions");
-	else {
-	  $perms = new XUl(array('class'=>'role-permissions'));
-	  foreach ($role->getPermissions() as $perm) {
-	    $perms->add(new XLi($perm, array('title' => $perm->description)));
-	  }
-	}
+        $perms = "";
+        if ($role->has_all)
+          $perms = new XEm("All permissions");
+        else {
+          $perms = new XUl(array('class'=>'role-permissions'));
+          foreach ($role->getPermissions() as $perm) {
+            $perms->add(new XLi($perm, array('title' => $perm->description)));
+          }
+        }
 
         $count = count($role->getAccounts());
         $del = "";
         if ($count == 0) {
           $del = new FCheckbox('delete[]', $role->id, "");
-	}
+        }
 
         $tab->addRow(array(
-		       new FRadio('default-role', $role->id, "", $role->is_default),
+                       new FRadio('default-role', $role->id, "", $role->is_default),
                        new XA(sprintf('/roles?id=%s', $role->id), $role),
-                       $perm->description,
+                       $role->description,
                        $perms,
                        new XTD(array('class'=>'right'), $count),
                        $del
@@ -172,30 +172,30 @@ window.addEventListener("load", function(e) {
       $role = new Role();
       $mes = "added";
       if (isset($args['edit'])) {
-	$role = DB::$V->reqID($args, 'role', DB::$ROLE, "Invalid role provided.");
-	$mes = "updated";
+        $role = DB::$V->reqID($args, 'role', DB::$ROLE, "Invalid role provided.");
+        $mes = "updated";
       }
       $role->title = DB::$V->reqString($args, 'title', 5, 256, "Invalid title provided for role.");
       $role->description = DB::$V->reqString($args, 'description', 5, 1000, "Invalid description. Did you include enough?");
 
       // Duplicate title?
       foreach (DB::getAll(DB::$ROLE) as $other) {
-	if ($other->id != $role->id && $other->title == $role->title)
-	  throw new SoterException("Duplicate role title provided.");
+        if ($other->id != $role->id && $other->title == $role->title)
+          throw new SoterException("Duplicate role title provided.");
       }
 
       $all = DB::$V->incInt($args, 'has_all', 1, 2, null);
       $perms = array();
       if ($all === null) {
-	foreach (DB::$V->reqList($args, 'permissions', null, "No list of permissions provided.") as $id) {
-	  $perm = DB::get(DB::$PERMISSION, $id);
-	  if ($perm === null)
-	    throw new SoterException("Invalid permission provided: " . $id);
-	  $perms[] = $perm;
-	}
+        foreach (DB::$V->reqList($args, 'permissions', null, "No list of permissions provided.") as $id) {
+          $perm = DB::get(DB::$PERMISSION, $id);
+          if ($perm === null)
+            throw new SoterException("Invalid permission provided: " . $id);
+          $perms[] = $perm;
+        }
 
-	if (count($perms) == 0)
-	  throw new SoterException("Roles must have at least one permission set.");
+        if (count($perms) == 0)
+          throw new SoterException("Roles must have at least one permission set.");
       }
       $role->setHasAll($all !== null);
 
@@ -211,16 +211,16 @@ window.addEventListener("load", function(e) {
     if (isset($args['delete'])) {
       $to_delete = array();
       foreach (DB::$V->reqList($args, 'delete', null, "No roles provided.") as $id) {
-	$role = DB::get(DB::$ROLE, $id);
-	if ($role === null)
-	  throw new SoterException("Invalid role provided to delete: " . $id);
-	if (count($role->getAccounts()) > 0)
-	  throw new SoterException(sprintf("Cannot delete %s because there are accounts associated with it.", $role));
-	$to_delete[] = $role;
+        $role = DB::get(DB::$ROLE, $id);
+        if ($role === null)
+          throw new SoterException("Invalid role provided to delete: " . $id);
+        if (count($role->getAccounts()) > 0)
+          throw new SoterException(sprintf("Cannot delete %s because there are accounts associated with it.", $role));
+        $to_delete[] = $role;
       }
 
       foreach ($to_delete as $role)
-	DB::remove($role);
+        DB::remove($role);
       Session::pa(new PA(sprintf("Removed role(s): %s.", implode(", ", $to_delete))));
     }
 
@@ -230,10 +230,10 @@ window.addEventListener("load", function(e) {
     if (isset($args['set-roles'])) {
       $def = DB::$V->reqID($args, 'default-role', DB::$ROLE, "Invalid default role provided.");
       foreach (DB::getAll(DB::$ROLE) as $role) {
-	$role->is_default = null;
-	if ($role->id == $def->id)
-	  $role->is_default = 1;
-	DB::set($role);
+        $role->is_default = null;
+        if ($role->id == $def->id)
+          $role->is_default = 1;
+        DB::set($role);
       }
       Session::pa(new PA(sprintf("Set \"%s\" as the default role for new accounts.", $def)));
     }
