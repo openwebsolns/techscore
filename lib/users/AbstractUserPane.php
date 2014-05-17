@@ -520,5 +520,213 @@ abstract class AbstractUserPane {
     }
     throw new PaneException(sprintf("Invalid page requested (%s).", $base));
   }
+
+  // ------------------------------------------------------------
+  // Routing setup
+  // ------------------------------------------------------------
+
+  const R_URLS = 'url';
+  const R_NAME = 'name';
+  const R_PERM = 'perm';
+
+  public static $ROUTES = array(
+    'AccountPane' => array(
+      self::R_NAME => "My Account",
+      self::R_URLS => array('account'),
+      self::R_PERM => array()
+    ),
+
+    'AllAmerican' => array(
+      self::R_NAME => "All-American",
+      self::R_URLS => array('aa', 'all-american'),
+      self::R_PERM => array(Permission::DOWNLOAD_AA_REPORT, Permission::EDIT_AA_REPORT)
+    ),
+
+    'CompareHeadToHead' => array(
+      self::R_NAME => "Head to head",
+      self::R_URLS => array('compare-sailors', 'compare-head-to-head', 'compare-head-head', 'head-to-head'),
+      self::R_PERM => array(Permission::USE_HEAD_TO_HEAD_REPORT)
+    ),
+
+    'CompareSailorsByRace' => array(
+      self::R_NAME => "Compare by race",
+      self::R_URLS => array('compare-by-race'),
+      self::R_PERM => array(Permission::USE_HEAD_TO_HEAD_REPORT)
+    ),
+
+    'EULAPane' => array(
+      self::R_NAME => "Sign agreement",
+      self::R_URLS => array('license'),
+      self::R_PERM => array()
+    ),
+
+    'HelpPost' => array(
+      self::R_NAME => "Help",
+      self::R_URLS => array('help'),
+      self::R_PERM => array()
+    ),
+
+    'HomePane' => array(
+      self::R_NAME => "Home",
+      self::R_URLS => array('', 'home'),
+      self::R_PERM => array()
+    ),
+
+    'MembershipReport' => array(
+      self::R_NAME => "School participation",
+      self::R_URLS => array('membership'),
+      self::R_PERM => array(Permission::USE_MEMBERSHIP_REPORT)
+    ),
+
+    'MessagePane' => array(
+      self::R_NAME => "Inbox",
+      self::R_URLS => array('inbox'),
+      self::R_PERM => array()
+    ),
+
+    'NewRegattaPane' => array(
+      self::R_NAME => "New regatta",
+      self::R_URLS => array('create'),
+      self::R_PERM => array(Permission::CREATE_REGATTA)
+    ),
+
+    'SchoolParticipationReportPane' => array(
+      self::R_NAME => "Team record",
+      self::R_URLS => array('team-participation'),
+      self::R_PERM => array(Permission::USE_TEAM_RECORD_REPORT)
+    ),
+
+    'SearchSailor' => array(
+      self::R_NAME => "Search sailors",
+      self::R_URLS => array('search'),
+      self::R_PERM => array()
+    ),
+
+    'UserArchivePane' => array(
+      self::R_NAME => "All regattas",
+      self::R_URLS => array('archive'),
+      self::R_PERM => array(Permission::EDIT_REGATTA /* TODO: Participation */)
+    ),
+
+    'UserSeasonPane' => array(
+      self::R_NAME => "Season summary",
+      self::R_URLS => array('season'),
+      self::R_PERM => array(Permission::EDIT_REGATTA /* TODO: Participation */)
+    ),
+
+    'AccountsPane' => array(
+      self::R_NAME => "All users",
+      self::R_URLS => array('users', 'accounts'),
+      self::R_PERM => array(Permission::EDIT_USERS),
+    ),
+
+    'BillingReport' => array(
+      self::R_NAME => "Billing report",
+      self::R_URLS => array('billing'),
+      self::R_PERM => array(Permission::USE_BILLING_REPORT)
+    ),
+
+    'BoatManagement' => array(
+      self::R_NAME => "Boats",
+      self::R_URLS => array('boats', 'boat'),
+      self::R_PERM => array(Permission::EDIT_BOATS)
+    ),
+
+    'EmailTemplateManagement' => array(
+      self::R_NAME => "Email templates",
+      self::R_URLS => array('email-templates', 'email-template'),
+      self::R_PERM => array(Permission::EDIT_EMAIL_TEMPLATES)
+    ),
+
+    'LoggedInUsers' => array(
+      self::R_NAME => "Logged-in",
+      self::R_URLS => array('logged-in', 'active'),
+      self::R_PERM => array(Permission::EDIT_USERS)
+    ),
+
+    'MailingListManagement' => array(
+      self::R_NAME => "Mailing lists",
+      self::R_URLS => array('lists', 'mailing'),
+      self::R_PERM => array(Permission::EDIT_MAILING_LISTS)
+    ),
+
+    'OrganizationConfiguration' => array(
+      self::R_NAME => "Organization",
+      self::R_URLS => array('org'),
+      self::R_PERM => array(Permission::EDIT_ORGANIZATION)
+    ),
+
+    'PendingAccountsPane' => array(
+      self::R_NAME => "Pending users",
+      self::R_URLS => array('pending'),
+      self::R_PERM => array(Permission::EDIT_USERS)
+    ),
+
+    'PublicFilesManagement' => array(
+      self::R_NAME => "Files",
+      self::R_URLS => array('files', 'file'),
+      self::R_PERM => array(Permission::EDIT_PUBLIC_FILES)
+    ),
+
+    'RegattaTypeManagement' => array(
+      self::R_NAME => "Regatta types",
+      self::R_URLS => array('types', 'type'),
+      self::R_PERM => array(Permission::EDIT_REGATTA_TYPES)
+    ),
+
+    'RoleManagementPane' => array(
+      self::R_NAME => "Roles",
+      self::R_URLS => array('roles', 'permissions'),
+      self::R_PERM => array(Permission::EDIT_PERMISSIONS)
+    ),
+
+    'SeasonManagement' => array(
+      self::R_NAME => "Seasons",
+      self::R_URLS => array('season'),
+      self::R_PERM => array(Permission::EDIT_SEASONS)
+    ),
+
+    'SendMessage' => array(
+      self::R_NAME => "Send message",
+      self::R_URLS => array('send-message', 'send-messages', 'send-email', 'send-emails'),
+      self::R_PERM => array(Permission::SEND_MESSAGE)
+    ),
+
+    'SocialSettingsManagement' => array(
+      self::R_NAME => "Social settings",
+      self::R_URLS => array('social'),
+      self::R_PERM => array(Permission::EDIT_PUBLIC_FILES)
+    ),
+
+    'SponsorsManagement' => array(
+      self::R_NAME => "Sponsors",
+      self::R_URLS => array('sponsor', 'sponsors'),
+      self::R_PERM => array(Permission::EDIT_SPONSORS)
+    ),
+
+    'TeamRaceOrderManagement' => array(
+      self::R_NAME => "Team race orders",
+      self::R_URLS => array('race-orders', 'race-order'),
+      self::R_PERM => array(Permission::EDIT_TR_TEMPLATES)
+    ),
+
+    'TextManagement' => array(
+      self::R_NAME => "Text settings",
+      self::R_URLS => array('text'),
+      self::R_PERM => array(Permission::EDIT_PUBLIC_FILES)
+    ),
+
+    'VenueManagement' => array(
+      self::R_NAME => "Venues",
+      self::R_URLS => array('venues', 'venue'),
+      self::R_PERM => array(Permission::EDIT_VENUES)
+    ),
+
+    'GlobalSettings' => array(
+      self::R_NAME => "Global conf.",
+      self::R_URLS => array('conf'),
+      self::R_PERM => array(Permission::EDIT_GLOBAL_CONF)
+    ),
+  );
 }
 ?>

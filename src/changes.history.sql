@@ -771,3 +771,14 @@ alter table account add column message text null default null;
 -- add default field for role
 alter table role add column is_default tinyint null default null;
 update role set is_default = 1 where id = 1;
+
+-- add permissions
+insert into permission values ('use_membership_report', "Use Membership Report", "Reports", "View and generate the school membership report.");
+insert into permission values ('use_billing_report', "Use Billing Report", "Reports", "View and generate the billing report.");
+insert into permission values ('edit_email_templates', "Edit e-mail templates", "Techscore Management", "Edit the wording for the e-mails sent by Techscore.");
+insert into permission values ('edit_mailing_lists', "Edit mailing lists", "Techscore Management", "Assign the mailing lists used for daily summaries.");
+insert into permission values ('edit_organization', "Edit Organization settings", "Techscore Management", "Edit global settings about the Techscore installation");
+insert into permission values ('edit_public_files', "Edit Files for Public Site", "Techscore Management", "Edit resources (images, CSS files, etc) associated with the public version of Techscore.");
+insert into permission values ('edit_permissions', "Edit Roles and Permissions", "Techscore Management", "Edit the list of roles and associated access permissions.");
+insert into permission values ('edit_sponsors', "Edit Public Sponsors", "Techscore Management", "Edit list of public sponsors shown on the public site.");
+insert into role_permission (role, permission) values (2, 'use_membership_report'), (2, 'use_billing_report'), (2, 'edit_email_templates'), (2, 'edit_mailing_lists'), (2, 'edit_organization'), (2, 'edit_public_files'), (2, 'edit_permissions'), (2, 'edit_sponsors');
