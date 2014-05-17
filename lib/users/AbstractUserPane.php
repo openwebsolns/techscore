@@ -70,91 +70,83 @@ abstract class AbstractUserPane {
     // ------------------------------------------------------------
     // menu
 
-    // User Preferences
-    $items = array(new XLi(new XA("/", "Home")));
+    $menus = array(
+      'Regattas' => array(
+        'HomePane',
+        'UserSeasonPane',
+        'UserArchivePane',
+        'NewRegattaPane',
+        'GlobalSettings',
+      ),
 
-    $season = Season::forDate(DB::$NOW);
-    if ($season !== null)
-      $items[] = new XLi(new XA('/season', $season->fullString()));
+      'My School' => array(
+        'PrefsHomePane',
+        'EditLogoPane',
+        'TeamNamePrefsPane',
+        'SailorMergePane',
+      ),
 
-    $items[] = new XLi(new XA("/archive", "All regattas"));
-    $items[] = new XLi(new XA("/create", "New regatta", array("accesskey"=>"n")));
-    if ($this->USER->isSuper())
-      $items[] = new XLi(new XA('/conf', "Global Conf"));
+      'Reports' => array(
+        'AllAmerican',
+        'CompareHeadToHead',
+        'SchoolParticipationReportPane',
+        'MembershipReport',
+        'BillingReport',
+      ),
 
-    $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
-                                  array(new XH4("Regattas"),
-                                        new XUl(array(), $items))));
+      'Messages' => array(
+        'MessagePane',
+        'SendMessage',
+        'EmailTemplateManagement',
+      ),
 
-    // School setup
-    $S = $this->SCHOOL->id;
-    $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
-                                  array(new XH4("My School"),
-                                        new XUl(array(),
-                                                array(new XLi(new XA("/prefs/$S",        "Instructions")),
-                                                      new XLi(new XA("/prefs/$S/logo",   "School logo")),
-                                                      new XLi(new XA("/prefs/$S/team",   "Team names")),
-                                                      new XLi(new XA("/prefs/$S/sailor", "Sailors")))))));
-    // Reports
-    $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
-                                  array(new XH4("Reports"),
-                                        $list = new XUl(array(),
-                                                        array(new XLi(new XA("/aa", "All-American")),
-                                                              new XLi(new XA("/compare-sailors", "Head to head")),
-                                                              new XLi(new XA('/team-participation', "Team Record")),
-                                                      )))));
-    if ($this->USER->isAdmin()) {
-      $list->add(new XLi(new XA('/membership', "School participation")));
-      $list->add(new XLi(new XA('/billing', "Billing report")));
+      'Admin' => array(
+        'VenueManagement',
+        'BoatManagement',
+        'RegattaTypeManagement',
+        'MailingListManagement',
+        'TeamRaceOrderManagement',
+        'SeasonManagement',
+      ),
+
+      'Users' => array(
+        'PendingAccountsPane',
+        'AccountsPane',
+        'LoggedInUsers',
+        'RoleManagementPane',
+      ),
+
+      'Text' => array(
+      ),
+
+      'Configure' => array(
+        'SocialSettingsManagement',
+        'SponsorsManagement',
+        'PublicFilesManagement',
+        'OrganizationConfiguration',
+      ),
+    );
+
+    foreach ($menus as $title => $items) {
+      $list = array();
+      foreach ($items as $pane) {
+        $li = new XLi(new XA(WS::link('/' . $this->pane_url($pane)), $this->pane_title($pane)));
+        if ($this->pane_has_access($pane))
+          $list[] = $li;
+      }
+      
+      // Special case: Text menu
+      if ($title == 'Text' && $this->pane_has_access('TextManagement')) {
+        foreach (Text_Entry::getSections() as $sec => $tname)
+          $list[] = new XLi(new XA(WS::link($this->pane_url('TextManagement') . '/' . $sec), $tname));
+      }
+
+      if (count($list) > 0)
+        $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
+                                      array(new XH4($title),
+                                            new XUl(array(), $list))));
     }
 
-    // Messages
-    $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
-                                  array(new XH4("Messages"),
-                                        $list = new XUl())));
-    $list->add(new XLi(new XA("/inbox", "Inbox")));
-    if ($this->USER->isAdmin()) {
-      $list->add(new XLi(new XA("/send-message", "Send message")));
-      $list->add(new XLi(new XA('/email-templates', "Email templates")));
-    }
-
-    // Admin
-    if ($this->USER->isAdmin()) {
-      $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
-                                    array(new XH4("Admin"),
-                                          new XUl(array(),
-                                                  array(new XLi(new XA("/venue",     "Venues")),
-                                                        new XLi(new XA("/boats",     "Boats")),
-                                                        new XLi(new XA("/types",     "Regatta types")),
-                                                        new XLi(new XA("/lists",     "Mailing lists")),
-                                                        new XLi(new XA("/race-orders", "Team race orders")),
-                                                        new XLi(new XA("/seasons",   "Seasons")),
-                                                        )))));
-      $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
-                                    array(new XH4("Users"),
-                                          new XUl(array(),
-                                                  array(
-                                                        new XLi(new XA("/pending",   "Pending users")),
-                                                        new XLi(new XA("/users", "All users")),
-                                                        new XLi(new XA("/logged-in", "Logged-in")),
-                                                        new XLi(new XA('/roles', "Roles")),
-                                                        )))));
-      $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
-                                    array(new XH4("Text"),
-                                          $ul = new XUl())));
-      foreach (Text_Entry::getSections() as $sec => $title)
-        $ul->add(new XLi(new XA(WS::link(sprintf('/text/%s', $sec)), $title)));
-
-      $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
-                                    array(new XH4("Configure"),
-                                          new XUl(array(),
-                                                  array(
-                                                        new XLi(new XA("/social", "Social settings")),
-                                                        new XLi(new XA("/sponsor", "Sponsors")),
-                                                        new XLi(new XA("/files",  "Files")),
-                                                        new XLi(new XA("/org", "Organization")),
-                                                        )))));
-    }
     $this->PAGE->addContent(new XPageTitle($this->title));
     $this->fillHTML($args);
     $this->PAGE->printXML();
@@ -178,15 +170,16 @@ abstract class AbstractUserPane {
    * @return XForm
    */
   protected function createForm($method = XForm::POST) {
-    return new XForm('/'.$this->page_url, $method);
+    return new XForm('/'.$this->pane_url(), $method);
   }
 
   protected function createFileForm() {
-    return new XFileForm('/'.$this->page_url);
+    return new XFileForm('/'.$this->pane_url());
   }
 
   /**
    * @var String the relative URL of the page
+   * @deprecated. Use 'pane_url()' method instead.
    */
   protected $page_url = '';
 
@@ -525,6 +518,67 @@ abstract class AbstractUserPane {
   // Routing setup
   // ------------------------------------------------------------
 
+  /**
+   * Returns the canonical URL for pane identified by classname
+   *
+   * @param String $classname leave null to use current class
+   * @return String the URL (sans leading /)
+   * @throws InvalidArgumentException if unknown classname provided
+   */
+  public function pane_url($classname = null) {
+    if ($classname === null)
+      $classname = get_class($this);
+    if (!isset(self::$ROUTES[$classname]))
+      throw new InvalidArgumentException("No routes exist for class " . $classname);
+
+    // Treat preferences URLs different
+    if (in_array($classname, array('PrefsHomePane', 'EditLogoPane', 'SailorMergePane', 'TeamNamePrefsPane')))
+      return sprintf(self::$ROUTES[$classname][self::R_URLS][0], $this->SCHOOL->id);
+    return self::$ROUTES[$classname][self::R_URLS][0];
+  }
+
+  /**
+   * Returns the label to use for pane identified by classname
+   *
+   * @param String $classname leave null to use current class
+   * @return String
+   * @throws InvalidArgumentException if unknown classname provided
+   */
+  public function pane_title($classname = null) {
+    if ($classname === null)
+      $classname = get_class($this);
+    if (!isset(self::$ROUTES[$classname]))
+      throw new InvalidArgumentException("No routes exist for class " . $classname);
+    return self::$ROUTES[$classname][self::R_NAME];
+  }
+
+  /**
+   * Does this pane's user have access?
+   *
+   * @param String $classname leave null to use current class
+   * @return boolean true if access to any of pane's list of permissions
+   * @throws InvalidArgumentException if unknown classname provided
+   */
+  public function pane_has_access($classname = null) {
+    if ($classname === null)
+      $classname = get_class($this);
+    if (!isset(self::$ROUTES[$classname]))
+      throw new InvalidArgumentException("No routes exist for class " . $classname);
+
+    if ($this->USER->isSuper())
+      return true;
+
+    if (count(self::$ROUTES[$classname][self::R_PERM]) == 0)
+      return true;
+
+    foreach (self::$ROUTES[$classname][self::R_PERM] as $id) {
+      $perm = Permission::g($id);
+      if ($perm !== null && $this->USER->can($perm))
+        return true;
+    }
+    return false;
+  }
+
   const R_URLS = 'url';
   const R_NAME = 'name';
   const R_PERM = 'perm';
@@ -726,6 +780,34 @@ abstract class AbstractUserPane {
       self::R_NAME => "Global conf.",
       self::R_URLS => array('conf'),
       self::R_PERM => array(Permission::EDIT_GLOBAL_CONF)
+    ),
+
+    'EditLogoPane' => array(
+      self::R_NAME => "School logo",
+      self::R_URLS => array('prefs/%s/logo', 'prefs/%s/burgee'),
+      self::R_PERM => array(Permission::EDIT_SCHOOL_LOGO)
+    ),
+
+    'SailorMergePane' => array(
+      self::R_NAME => "Sailors",
+      self::R_URLS => array('prefs/%s/sailor', 'prefs/%s/sailors'),
+      self::R_PERM => array(Permission::EDIT_UNREGISTERED_SAILORS)
+    ),
+
+    'TeamNamePrefsPane' => array(
+      self::R_NAME => "Team names",
+      self::R_URLS => array('prefs/%s/team', 'prefs/%s/teams'),
+      self::R_PERM => array(Permission::EDIT_TEAM_NAMES)
+    ),
+
+    'PrefsHomePane' => array(
+      self::R_NAME => "Instructions",
+      self::R_URLS => array('prefs/%s/home'),
+      self::R_PERM => array(
+        Permission::EDIT_SCHOOL_LOGO,
+        Permission::EDIT_UNREGISTERED_SAILORS,
+        Permission::EDIT_TEAM_NAMES,
+      )
     ),
   );
 }
