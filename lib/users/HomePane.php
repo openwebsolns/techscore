@@ -37,7 +37,7 @@ class HomePane extends AbstractUserPane {
     // ------------------------------------------------------------
     // Pending users
     // ------------------------------------------------------------
-    if ($this->USER->isAdmin()) {
+    if ($this->USER->can(Permission::EDIT_USERS)) {
       $pending = DB::getPendingUsers();
       if (($num_pending = count($pending)) > 0) {
         $this->PAGE->addContent($p = new XPort("Pending users"));
