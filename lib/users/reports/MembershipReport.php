@@ -5,7 +5,7 @@
  * @package users
  */
 
-require_once('users/AbstractUserPane.php');
+require_once('AbstractReportPane.php');
 
 /**
  * Generate the "membership" report.
@@ -31,7 +31,7 @@ require_once('users/AbstractUserPane.php');
  * @author Dayan Paez
  * @created 2013-11-20
  */
-class MembershipReport extends AbstractUserPane {
+class MembershipReport extends AbstractReportPane {
 
   const COED = 'coed';
   const TEAM = 'team';

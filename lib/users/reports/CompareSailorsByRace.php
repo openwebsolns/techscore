@@ -5,7 +5,7 @@
  * @package users
  */
 
-require_once('users/AbstractUserPane.php');
+require_once('AbstractReportPane.php');
 
 /**
  * Compares up to three sailors head to head across a season or more,
@@ -14,7 +14,7 @@ require_once('users/AbstractUserPane.php');
  * @author Dayan Paez
  * @version 2011-03-29
  */
-class CompareSailorsByRace extends AbstractUserPane {
+class CompareSailorsByRace extends AbstractReportPane {
   /**
    * Creates a new pane
    */

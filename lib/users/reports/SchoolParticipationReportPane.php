@@ -5,7 +5,7 @@
  * @package users
  */
 
-require_once('users/AbstractUserPane.php');
+require_once('AbstractReportPane.php');
 
 /**
  * Prepare CSV file of school participations in chosen set of regattas
@@ -13,7 +13,7 @@ require_once('users/AbstractUserPane.php');
  * @author Dayan Paez
  * @created 2013-05-24
  */
-class SchoolParticipationReportPane extends AbstractUserPane {
+class SchoolParticipationReportPane extends AbstractReportPane {
   public function __construct(Account $user) {
     parent::__construct("Record of team participation", $user);
   }

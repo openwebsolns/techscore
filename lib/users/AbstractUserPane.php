@@ -479,21 +479,21 @@ abstract class AbstractUserPane {
 
     'AllAmerican' => array(
       self::R_NAME => "All-American",
-      self::R_PATH => 'users',
+      self::R_PATH => 'users/reports',
       self::R_URLS => array('aa', 'all-american'),
       self::R_PERM => array(Permission::DOWNLOAD_AA_REPORT, Permission::EDIT_AA_REPORT)
     ),
 
     'CompareHeadToHead' => array(
       self::R_NAME => "Head to head",
-      self::R_PATH => 'users',
+      self::R_PATH => 'users/reports',
       self::R_URLS => array('compare-sailors', 'compare-head-to-head', 'compare-head-head', 'head-to-head'),
       self::R_PERM => array(Permission::USE_HEAD_TO_HEAD_REPORT)
     ),
 
     'CompareSailorsByRace' => array(
       self::R_NAME => "Compare by race",
-      self::R_PATH => 'users',
+      self::R_PATH => 'users/reports',
       self::R_URLS => array('compare-by-race'),
       self::R_PERM => array(Permission::USE_HEAD_TO_HEAD_REPORT)
     ),
@@ -521,7 +521,7 @@ abstract class AbstractUserPane {
 
     'MembershipReport' => array(
       self::R_NAME => "School participation",
-      self::R_PATH => 'users',
+      self::R_PATH => 'users/reports',
       self::R_URLS => array('membership'),
       self::R_PERM => array(Permission::USE_MEMBERSHIP_REPORT)
     ),
@@ -542,7 +542,7 @@ abstract class AbstractUserPane {
 
     'SchoolParticipationReportPane' => array(
       self::R_NAME => "Team record",
-      self::R_PATH => 'users',
+      self::R_PATH => 'users/reports',
       self::R_URLS => array('team-participation'),
       self::R_PERM => array(Permission::USE_TEAM_RECORD_REPORT)
     ),
@@ -577,7 +577,7 @@ abstract class AbstractUserPane {
 
     'BillingReport' => array(
       self::R_NAME => "Billing report",
-      self::R_PATH => 'users/admin',
+      self::R_PATH => 'users/reports',
       self::R_URLS => array('billing'),
       self::R_PERM => array(Permission::USE_BILLING_REPORT)
     ),

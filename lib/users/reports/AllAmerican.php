@@ -5,7 +5,7 @@
  * @package users
  */
 
-require_once('users/AbstractUserPane.php');
+require_once('AbstractReportPane.php');
 
 /**
  * Generates All-American reports.
@@ -38,7 +38,7 @@ require_once('users/AbstractUserPane.php');
  * @author Dayan Paez
  * @version 2011-03-29
  */
-class AllAmerican extends AbstractUserPane {
+class AllAmerican extends AbstractReportPane {
   private $AA;
 
   const TYPE_COED = 'coed';

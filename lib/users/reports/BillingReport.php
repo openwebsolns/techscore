@@ -5,7 +5,7 @@
  * @package users
  */
 
-require_once('AbstractAdminUserPane.php');
+require_once('AbstractReportPane.php');
 
 /**
  * Generate the billing report.
@@ -22,7 +22,7 @@ require_once('AbstractAdminUserPane.php');
  * @author Dayan Paez
  * @created 2013-11-21
  */
-class BillingReport extends AbstractAdminUserPane {
+class BillingReport extends AbstractReportPane {
 
   public function __construct(Account $user) {
     parent::__construct("Billing report", $user);
