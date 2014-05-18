@@ -131,12 +131,12 @@ abstract class AbstractUserPane {
       $list = array();
       foreach ($items as $pane) {
         $li = new XLi(new XA(WS::link('/' . $this->pane_url($pane)), $this->pane_title($pane)));
-        if ($this->pane_has_access($pane))
+        if ($this->isPermitted($pane))
           $list[] = $li;
       }
       
       // Special case: Text menu
-      if ($title == 'Text' && $this->pane_has_access('TextManagement')) {
+      if ($title == 'Text' && $this->isPermitted('TextManagement')) {
         foreach (Text_Entry::getSections() as $sec => $tname)
           $list[] = new XLi(new XA(WS::link($this->pane_url('TextManagement') . '/' . $sec), $tname));
       }
@@ -332,7 +332,7 @@ abstract class AbstractUserPane {
 
       require_once(self::pane_path($pane) . '/' . $pane . '.php');
       $obj = new $pane($u, $school);
-      if (!$obj->pane_has_access())
+      if (!$obj->isPermitted())
         throw new PermissionException("No access for preferences page requested.");
       return $obj;
     }
@@ -348,7 +348,7 @@ abstract class AbstractUserPane {
 
       require_once('users/admin/TextManagement.php');
       $obj = new TextManagement($u, $uri[0]);
-      if (!$obj->pane_has_access())
+      if (!$obj->isPermitted())
         throw new PermissionException("No access to edit requested text entry.");
       return $obj;
     }
@@ -361,7 +361,7 @@ abstract class AbstractUserPane {
       throw new PaneException(sprintf("Invalid page requested (%s).", $base));
     require_once(self::pane_path($pane) . '/' . $pane . '.php');
     $obj = new $pane($u);
-    if (!$obj->pane_has_access())
+    if (!$obj->isPermitted())
       throw new PermissionException("No access to requested page.");
     return $obj;
   }
@@ -440,7 +440,7 @@ abstract class AbstractUserPane {
    * @return boolean true if access to any of pane's list of permissions
    * @throws InvalidArgumentException if unknown classname provided
    */
-  public function pane_has_access($classname = null) {
+  public function isPermitted($classname = null) {
     if ($classname === null)
       $classname = get_class($this);
     if (!isset(self::$ROUTES[$classname]))
