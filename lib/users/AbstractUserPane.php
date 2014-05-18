@@ -310,6 +310,7 @@ abstract class AbstractUserPane {
    * @param Account $u the responsible account
    * @return AbstractUserPane the specified pane
    * @throws PaneException if malformed request
+   * @throws PermissionException if insufficient permissions
    */
   public static function getPane(Array $uri, Account $u) {
     $base = array_shift($uri);
@@ -322,201 +323,66 @@ abstract class AbstractUserPane {
         throw new PaneException("No school provided.");
       if (($school = DB::getSchool(array_shift($uri))) === null)
         throw new PaneException("Invalid school requested.");
-      
+
       $arg = (count($uri) == 0) ? 'home' : array_shift($uri);
-      switch ($arg) {
-      case 'home':
-        require_once('prefs/PrefsHomePane.php');
-        return new PrefsHomePane($u, $school);
-
-        // --------------- LOGO --------------- //
-      case 'logo':
-      case 'burgee':
-        require_once('prefs/EditLogoPane.php');
-        return new EditLogoPane($u, $school);
-
-        // --------------- SAILOR ------------- //
-      case 'sailor':
-      case 'sailors':
-        require_once('prefs/SailorMergePane.php');
-        return new SailorMergePane($u, $school);
-
-        // --------------- TEAMS ------------- //
-      case 'team':
-      case 'teams':
-      case 'name':
-      case 'names':
-        require_once('prefs/TeamNamePrefsPane.php');
-        return new TeamNamePrefsPane($u, $school);
-
-      default:
+      $path = 'prefs/%s/' . $arg;
+      $pane = self::pane_from_url($path);
+      if ($pane === null)
         throw new PaneException("Invalid preferences page requested.");
-      }
+
+      require_once(self::pane_path($pane) . '/' . $pane . '.php');
+      $obj = new $pane($u, $school);
+      if (!$obj->pane_has_access())
+        throw new PermissionException("No access for preferences page requested.");
+      return $obj;
     }
-
     // ------------------------------------------------------------
-    // User-related
+    // Text?
     // ------------------------------------------------------------
-    switch ($base) {
-    case '':
-    case 'home':
-      require_once('users/HomePane.php');
-      return new HomePane($u);
-
-    case 'archive':
-      require_once('users/UserArchivePane.php');
-      return new UserArchivePane($u);
-
-    case 'inbox':
-      require_once('users/MessagePane.php');
-      return new MessagePane($u);
-
-    case 'season':
-      require_once('users/UserSeasonPane.php');
-      return new UserSeasonPane($u);
-
-    case 'create':
-      require_once('users/NewRegattaPane.php');
-      return new NewRegattaPane($u);
-
-    case 'users':
-    case 'accounts':
-      require_once('users/admin/AccountsPane.php');
-      return new AccountsPane($u);
-
-    case 'roles':
-    case 'permissions':
-      require_once('users/admin/RoleManagementPane.php');
-      return new RoleManagementPane($u);
-
-    case 'logged-in':
-    case 'active':
-      require_once('users/admin/LoggedInUsers.php');
-      return new LoggedInUsers($u);
-
-    case 'pending':
-      require_once('users/admin/PendingAccountsPane.php');
-      return new PendingAccountsPane($u);
-
-    case 'venues':
-    case 'venue':
-      require_once('users/admin/VenueManagement.php');
-      return new VenueManagement($u);
-
-    case 'boat':
-    case 'boats':
-      require_once('users/admin/BoatManagement.php');
-      return new BoatManagement($u);
-
-    case 'types':
-    case 'type':
-      require_once('users/admin/RegattaTypeManagement.php');
-      return new RegattaTypeManagement($u);
-
-    case 'lists':
-    case 'mailing':
-      require_once('users/admin/MailingListManagement.php');
-      return new MailingListManagement($u);
-
-    case 'social':
-      require_once('users/admin/SocialSettingsManagement.php');
-      return new SocialSettingsManagement($u);
-
-    case 'sponsor':
-    case 'sponsors':
-      require_once('users/admin/SponsorsManagement.php');
-      return new SponsorsManagement($u);
-
-    case 'file':
-    case 'files':
-      require_once('users/admin/PublicFilesManagement.php');
-      return new PublicFilesManagement($u);
-
-    case 'season':
-    case 'seasons':
-      require_once('users/admin/SeasonManagement.php');
-      return new SeasonManagement($u);
-
-    case 'race-order':
-    case 'race-orders':
-      require_once('users/admin/TeamRaceOrderManagement.php');
-      return new TeamRaceOrderManagement($u);
-
-    case 'team-participation':
-      require_once('users/SchoolParticipationReportPane.php');
-      return new SchoolParticipationReportPane($u);
-
-    case 'account':
-    case 'accounts':
-      require_once('users/AccountPane.php');
-      return new AccountPane($u);
-
-    case 'compare-by-race':
-      require_once('users/CompareSailorsByRace.php');
-      return new CompareSailorsByRace($u);
-
-    case 'compare-sailors':
-    case 'compare-head-to-head':
-    case 'compare-head-head':
-    case 'head-to-head':
-      require_once('users/CompareHeadToHead.php');
-      return new CompareHeadToHead($u);
-
-    case 'aa':
-      require_once('users/AllAmerican.php');
-      return new AllAmerican($u);
-
-    case 'membership':
-      require_once('users/MembershipReport.php');
-      return new MembershipReport($u);
-
-    case 'billing':
-      require_once('users/admin/BillingReport.php');
-      return new BillingReport($u);
-
-    case 'send-message':
-    case 'send-messages':
-    case 'send-email':
-    case 'send-emails':
-      require_once('users/admin/SendMessage.php');
-      return new SendMessage($u);
-
-    case 'email-template':
-    case 'email-templates':
-      require_once('users/admin/EmailTemplateManagement.php');
-      return new EmailTemplateManagement($u);
-
-    case 'search':
-      require_once('users/SearchSailor.php');
-      return new SearchSailor($u);
-
-    case 'org':
-      require_once('users/admin/OrganizationConfiguration.php');
-      return new OrganizationConfiguration($u);
-
-    case 'conf':
-      require_once('users/super/GlobalSettings.php');
-      return new GlobalSettings($u);
-
-    case 'text':
+    if ($base == 'text') {
       if (count($uri) != 1)
         throw new PaneException("Invalid or missing text section to edit.");
       $secs = Text_Entry::getSections();
       if (!isset($secs[$uri[0]]))
         throw new PaneException(sprintf("Invalid text section: %s.", $uri[0]));
-      require_once('users/admin/TextManagement.php');
-      return new TextManagement($u, $uri[0]);
 
-    case 'help':
-      require_once('users/HelpPost.php');
-      return new HelpPost($u);
+      require_once('users/admin/TextManagement.php');
+      $obj = new TextManagement($u, $uri[0]);
+      if (!$obj->pane_has_access())
+        throw new PermissionException("No access to edit requested text entry.");
+      return $obj;
     }
-    throw new PaneException(sprintf("Invalid page requested (%s).", $base));
+
+    // ------------------------------------------------------------
+    // Handle the rest
+    // ------------------------------------------------------------
+    $pane = self::pane_from_url($base);
+    if ($pane === null)
+      throw new PaneException(sprintf("Invalid page requested (%s).", $base));
+    require_once(self::pane_path($pane) . '/' . $pane . '.php');
+    $obj = new $pane($u);
+    if (!$obj->pane_has_access())
+      throw new PermissionException("No access to requested page.");
+    return $obj;
   }
 
   // ------------------------------------------------------------
   // Routing setup
   // ------------------------------------------------------------
+
+  /**
+   * Returns the name of the (first) pane for given URL
+   *
+   * @param String the URL to match
+   * @return String|null the classname of matching pane
+   */
+  public static function pane_from_url($url) {
+    foreach (self::$ROUTES as $classname => $obj) {
+      if (in_array($url, $obj[self::R_URLS]))
+        return $classname;
+    }
+    return null;
+  }
 
   /**
    * Returns the canonical URL for pane identified by classname
@@ -553,6 +419,21 @@ abstract class AbstractUserPane {
   }
 
   /**
+   * Returns the path to the classname in question
+   *
+   * @param String $classname leave null to use current class
+   * @return String
+   * @throws InvalidArgumentException if unknown classname provided
+   */
+  public static function pane_path($classname) {
+    if ($classname === null)
+      $classname = get_class($this);
+    if (!isset(self::$ROUTES[$classname]))
+      throw new InvalidArgumentException("No routes exist for class " . $classname);
+    return self::$ROUTES[$classname][self::R_PATH];
+  }
+
+  /**
    * Does this pane's user have access?
    *
    * @param String $classname leave null to use current class
@@ -582,227 +463,265 @@ abstract class AbstractUserPane {
   const R_URLS = 'url';
   const R_NAME = 'name';
   const R_PERM = 'perm';
+  const R_PATH = 'path';
 
   public static $ROUTES = array(
     'AccountPane' => array(
       self::R_NAME => "My Account",
+      self::R_PATH => 'users',
       self::R_URLS => array('account'),
       self::R_PERM => array()
     ),
 
     'AllAmerican' => array(
       self::R_NAME => "All-American",
+      self::R_PATH => 'users',
       self::R_URLS => array('aa', 'all-american'),
       self::R_PERM => array(Permission::DOWNLOAD_AA_REPORT, Permission::EDIT_AA_REPORT)
     ),
 
     'CompareHeadToHead' => array(
       self::R_NAME => "Head to head",
+      self::R_PATH => 'users',
       self::R_URLS => array('compare-sailors', 'compare-head-to-head', 'compare-head-head', 'head-to-head'),
       self::R_PERM => array(Permission::USE_HEAD_TO_HEAD_REPORT)
     ),
 
     'CompareSailorsByRace' => array(
       self::R_NAME => "Compare by race",
+      self::R_PATH => 'users',
       self::R_URLS => array('compare-by-race'),
       self::R_PERM => array(Permission::USE_HEAD_TO_HEAD_REPORT)
     ),
 
     'EULAPane' => array(
       self::R_NAME => "Sign agreement",
+      self::R_PATH => 'users',
       self::R_URLS => array('license'),
       self::R_PERM => array()
     ),
 
     'HelpPost' => array(
       self::R_NAME => "Help",
+      self::R_PATH => 'users',
       self::R_URLS => array('help'),
       self::R_PERM => array()
     ),
 
     'HomePane' => array(
       self::R_NAME => "Home",
+      self::R_PATH => 'users',
       self::R_URLS => array('', 'home'),
       self::R_PERM => array()
     ),
 
     'MembershipReport' => array(
       self::R_NAME => "School participation",
+      self::R_PATH => 'users',
       self::R_URLS => array('membership'),
       self::R_PERM => array(Permission::USE_MEMBERSHIP_REPORT)
     ),
 
     'MessagePane' => array(
       self::R_NAME => "Inbox",
+      self::R_PATH => 'users',
       self::R_URLS => array('inbox'),
       self::R_PERM => array()
     ),
 
     'NewRegattaPane' => array(
       self::R_NAME => "New regatta",
+      self::R_PATH => 'users',
       self::R_URLS => array('create'),
       self::R_PERM => array(Permission::CREATE_REGATTA)
     ),
 
     'SchoolParticipationReportPane' => array(
       self::R_NAME => "Team record",
+      self::R_PATH => 'users',
       self::R_URLS => array('team-participation'),
       self::R_PERM => array(Permission::USE_TEAM_RECORD_REPORT)
     ),
 
     'SearchSailor' => array(
       self::R_NAME => "Search sailors",
+      self::R_PATH => 'users',
       self::R_URLS => array('search'),
       self::R_PERM => array()
     ),
 
     'UserArchivePane' => array(
       self::R_NAME => "All regattas",
+      self::R_PATH => 'users',
       self::R_URLS => array('archive'),
       self::R_PERM => array(Permission::EDIT_REGATTA /* TODO: Participation */)
     ),
 
     'UserSeasonPane' => array(
       self::R_NAME => "Season summary",
+      self::R_PATH => 'users',
       self::R_URLS => array('season'),
       self::R_PERM => array(Permission::EDIT_REGATTA /* TODO: Participation */)
     ),
 
     'AccountsPane' => array(
       self::R_NAME => "All users",
+      self::R_PATH => 'users/admin',
       self::R_URLS => array('users', 'accounts'),
       self::R_PERM => array(Permission::EDIT_USERS),
     ),
 
     'BillingReport' => array(
       self::R_NAME => "Billing report",
+      self::R_PATH => 'users/admin',
       self::R_URLS => array('billing'),
       self::R_PERM => array(Permission::USE_BILLING_REPORT)
     ),
 
     'BoatManagement' => array(
       self::R_NAME => "Boats",
+      self::R_PATH => 'users/admin',
       self::R_URLS => array('boats', 'boat'),
       self::R_PERM => array(Permission::EDIT_BOATS)
     ),
 
     'EmailTemplateManagement' => array(
       self::R_NAME => "Email templates",
+      self::R_PATH => 'users/admin',
       self::R_URLS => array('email-templates', 'email-template'),
       self::R_PERM => array(Permission::EDIT_EMAIL_TEMPLATES)
     ),
 
     'LoggedInUsers' => array(
       self::R_NAME => "Logged-in",
+      self::R_PATH => 'users/admin',
       self::R_URLS => array('logged-in', 'active'),
       self::R_PERM => array(Permission::EDIT_USERS)
     ),
 
     'MailingListManagement' => array(
       self::R_NAME => "Mailing lists",
+      self::R_PATH => 'users/admin',
       self::R_URLS => array('lists', 'mailing'),
       self::R_PERM => array(Permission::EDIT_MAILING_LISTS)
     ),
 
     'OrganizationConfiguration' => array(
       self::R_NAME => "Organization",
+      self::R_PATH => 'users/admin',
       self::R_URLS => array('org'),
       self::R_PERM => array(Permission::EDIT_ORGANIZATION)
     ),
 
     'PendingAccountsPane' => array(
       self::R_NAME => "Pending users",
+      self::R_PATH => 'users/admin',
       self::R_URLS => array('pending'),
       self::R_PERM => array(Permission::EDIT_USERS)
     ),
 
     'PublicFilesManagement' => array(
       self::R_NAME => "Files",
+      self::R_PATH => 'users/admin',
       self::R_URLS => array('files', 'file'),
       self::R_PERM => array(Permission::EDIT_PUBLIC_FILES)
     ),
 
     'RegattaTypeManagement' => array(
       self::R_NAME => "Regatta types",
+      self::R_PATH => 'users/admin',
       self::R_URLS => array('types', 'type'),
       self::R_PERM => array(Permission::EDIT_REGATTA_TYPES)
     ),
 
     'RoleManagementPane' => array(
       self::R_NAME => "Roles",
+      self::R_PATH => 'users/admin',
       self::R_URLS => array('roles', 'permissions'),
       self::R_PERM => array(Permission::EDIT_PERMISSIONS)
     ),
 
     'SeasonManagement' => array(
       self::R_NAME => "Seasons",
+      self::R_PATH => 'users/admin',
       self::R_URLS => array('season'),
       self::R_PERM => array(Permission::EDIT_SEASONS)
     ),
 
     'SendMessage' => array(
       self::R_NAME => "Send message",
+      self::R_PATH => 'users/admin',
       self::R_URLS => array('send-message', 'send-messages', 'send-email', 'send-emails'),
       self::R_PERM => array(Permission::SEND_MESSAGE)
     ),
 
     'SocialSettingsManagement' => array(
       self::R_NAME => "Social settings",
+      self::R_PATH => 'users/admin',
       self::R_URLS => array('social'),
       self::R_PERM => array(Permission::EDIT_PUBLIC_FILES)
     ),
 
     'SponsorsManagement' => array(
       self::R_NAME => "Sponsors",
+      self::R_PATH => 'users/admin',
       self::R_URLS => array('sponsor', 'sponsors'),
       self::R_PERM => array(Permission::EDIT_SPONSORS)
     ),
 
     'TeamRaceOrderManagement' => array(
       self::R_NAME => "Team race orders",
+      self::R_PATH => 'users/admin',
       self::R_URLS => array('race-orders', 'race-order'),
       self::R_PERM => array(Permission::EDIT_TR_TEMPLATES)
     ),
 
     'TextManagement' => array(
       self::R_NAME => "Text settings",
+      self::R_PATH => 'users/admin',
       self::R_URLS => array('text'),
       self::R_PERM => array(Permission::EDIT_PUBLIC_FILES)
     ),
 
     'VenueManagement' => array(
       self::R_NAME => "Venues",
+      self::R_PATH => 'users/admin',
       self::R_URLS => array('venues', 'venue'),
       self::R_PERM => array(Permission::EDIT_VENUES)
     ),
 
     'GlobalSettings' => array(
       self::R_NAME => "Global conf.",
+      self::R_PATH => 'users/super',
       self::R_URLS => array('conf'),
       self::R_PERM => array(Permission::EDIT_GLOBAL_CONF)
     ),
 
     'EditLogoPane' => array(
       self::R_NAME => "School logo",
+      self::R_PATH => 'prefs',
       self::R_URLS => array('prefs/%s/logo', 'prefs/%s/burgee'),
       self::R_PERM => array(Permission::EDIT_SCHOOL_LOGO)
     ),
 
     'SailorMergePane' => array(
       self::R_NAME => "Sailors",
+      self::R_PATH => 'prefs',
       self::R_URLS => array('prefs/%s/sailor', 'prefs/%s/sailors'),
       self::R_PERM => array(Permission::EDIT_UNREGISTERED_SAILORS)
     ),
 
     'TeamNamePrefsPane' => array(
       self::R_NAME => "Team names",
+      self::R_PATH => 'prefs',
       self::R_URLS => array('prefs/%s/team', 'prefs/%s/teams'),
       self::R_PERM => array(Permission::EDIT_TEAM_NAMES)
     ),
 
     'PrefsHomePane' => array(
       self::R_NAME => "Instructions",
-      self::R_URLS => array('prefs/%s/home'),
+      self::R_PATH => 'prefs',
+      self::R_URLS => array('prefs/%s/home', 'prefs/%s', 'prefs/%s/'),
       self::R_PERM => array(
         Permission::EDIT_SCHOOL_LOGO,
         Permission::EDIT_UNREGISTERED_SAILORS,
