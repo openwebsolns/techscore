@@ -54,13 +54,18 @@ class UserSeasonPane extends AbstractUserPane {
 
     if (count($regattas) == 0) {
       $this->PAGE->addContent($p = new XPort(sprintf("Regattas for %s", $season->fullString())));
-      $p->add(new XP(array('class'=>'warning'),
-                     array("You have no regattas for season ",
-                           $season->fullString(),
-                           ". Try ",
-                           new XA(WS::link('/archive'), "browsing the archive"),
-                           " or ",
-                           new XA("create", "create one"), ".")));
+      $p->add($xp = new XP(array('class'=>'warning'),
+                           array("You have no regattas for season ",
+                                 $season->fullString(),
+                                 ". Try ",
+                                 new XA(WS::link('/archive'), "browsing the archive"))));
+      if ($this->USER->can(Permission::g(Permission::CREATE_REGATTA))) {
+        $xp->add(" or ");
+        $xp->add(new XA("create", "create one"), ".");
+      }
+      else {
+        $xp->add(".");
+      }
       return;
     }
 
