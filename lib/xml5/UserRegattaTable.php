@@ -29,8 +29,7 @@ class UserRegattaTable extends XTable {
 
     $row->add(new XTH(array('title'=>"Involvement in regatta"), "Inv."));
     $row->add(new XTH(array('class'=>'reg-name'), "Name"));
-    if ($this->user->isAdmin())
-      $row->add(new XTH(array('class'=>'reg-host'), "Host(s)"));
+    $row->add(new XTH(array('class'=>'reg-host'), "Host(s)"));
     $row->add(new XTH(array('class'=>'reg-date'), "Date"));
     $row->add(new XTH(array('class'=>'reg-type'), "Type"));
     $row->add(new XTH(array('class'=>'reg-scoring'), "Scoring"));
@@ -59,12 +58,10 @@ class UserRegattaTable extends XTable {
     $link = new XA(WS::link('/score/' . $reg->id), $reg->name);
     $row = array(new XTD(array(), $inv), new XTD(array('class'=>'reg-name'), $link));
 
-    if ($this->user->isAdmin()) {
-      $hosts = array();
-      foreach ($reg->getHosts() as $host)
-        $hosts[$host->id] = $host->nick_name;
-      $row[] = new XTD(array('class'=>'reg-host'), implode("/", $hosts));
-    }
+    $hosts = array();
+    foreach ($reg->getHosts() as $host)
+      $hosts[$host->id] = $host->nick_name;
+    $row[] = new XTD(array('class'=>'reg-host'), implode("/", $hosts));
 
     $finalized = '--';
     if ($reg->finalized !== null) {
