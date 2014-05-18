@@ -115,8 +115,8 @@ class TScorePage extends XPage {
     if ($this->user !== null) {
       $manual = "";
       if (DB::g(STN::HELP_HOME) !== null)
-	$manual = new XP(array(),
-			 array("Maybe the ", new XA(DB::g(STN::HELP_HOME), "user manual", array('accesskey'=>'h')), " can help!"));
+        $manual = new XP(array(),
+                         array("Maybe the ", new XA(DB::g(STN::HELP_HOME), "user manual", array('accesskey'=>'h')), " can help!"));
       $div->add(
         new XDiv(array('id'=>'help-me'), array(
                    new XDiv(array('id'=>'help-form-screen')),
@@ -125,7 +125,7 @@ class TScorePage extends XPage {
                              array(
                                new XA('#_', "Close", array('id'=>'help-form-close')),
                                new XH3("Have a question?"),
-			       $manual,
+                               $manual,
                                new XP(array('class'=>'help-item'), new XTextInput('subject', "", array('min'=>3, 'max'=>150, 'placeholder'=>"Subject", 'required'=>'required'))),
                                new XP(array('class'=>'help-item'), new XTextArea('message', "", array('min'=>10, 'max'=>3000, 'placeholder'=>"What seems to be the problem?", 'required'=>'required'))),
                                new XSubmitP('ask', "Ask the Admins!"))))));
@@ -199,16 +199,17 @@ class TScorePage extends XPage {
     if ($user !== null) {
       $m_user_menu->add(new XLi(new XA('/account', "My Account")));
       $m_user_menu->add(new XLi(new XA('/logout', "Logout", array('id'=>'m-logout'))));
-      if (Conf::$USURPER !== null)
-	$m_user_menu->add(new XLi(new XA('/account?reset', "Reset Session")));
 
       $this->header->add(new XDiv(array('id'=>'user-menudiv'),
-				  array($ul = new XUl(array('id'=>'user-menu'),
-						      array(new XLi(new XSpan($user)),
-							    new XLi(new XA('/', "Home")),
-							    new XLi(new XA('/account', "My Account")),
-							    new XLi(new XA('/logout', "Logout", array('accesskey'=>'l'))))))));
-      $ul->add(new XLi(new XA('/account?reset', "Reset Session")));
+                                  array($ul = new XUl(array('id'=>'user-menu'),
+                                                      array(new XLi(new XSpan($user)),
+                                                            new XLi(new XA('/', "Home")),
+                                                            new XLi(new XA('/account', "My Account")),
+                                                            new XLi(new XA('/logout', "Logout", array('accesskey'=>'l'))))))));
+      if (Conf::$USURPER !== null) {
+        $m_user_menu->add(new XLi(new XA('/account?reset', "Reset Session")));
+        $ul->add(new XLi(new XA('/account?reset', "Reset Session")));
+      }
     }
 
     if (count($m_user_menu->children()) > 0) {
