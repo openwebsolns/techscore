@@ -384,18 +384,10 @@ abstract class AbstractUserPane {
     if (!isset(self::$ROUTES[$classname]))
       throw new InvalidArgumentException("No routes exist for class " . $classname);
 
-    if ($this->USER->isSuper())
-      return true;
-
     if (count(self::$ROUTES[$classname][self::R_PERM]) == 0)
       return true;
 
-    foreach (self::$ROUTES[$classname][self::R_PERM] as $id) {
-      $perm = Permission::g($id);
-      if ($perm !== null && $this->USER->can($perm))
-        return true;
-    }
-    return false;
+    return $this->USER->canAny(self::$ROUTES[$classname][self::R_PERM]);
   }
 
   const R_URLS = 'url';

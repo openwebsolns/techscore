@@ -59,13 +59,11 @@ class UserSeasonPane extends AbstractUserPane {
                                  $season->fullString(),
                                  ". Try ",
                                  new XA(WS::link('/archive'), "browsing the archive"))));
-      if ($this->USER->can(Permission::g(Permission::CREATE_REGATTA))) {
+      if ($this->USER->can(Permission::CREATE_REGATTA)) {
         $xp->add(" or ");
         $xp->add(new XA("create", "create one"), ".");
       }
-      else {
-        $xp->add(".");
-      }
+      $xp->add(".");
       return;
     }
 
