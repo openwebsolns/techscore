@@ -53,11 +53,20 @@ class PrintHandler {
     DB::rollback();
     exit;
   }
+  public static function handleFatal() {
+    $error = error_get_last();
+    if ($error !== null) {
+      self::handleErrors($error['type'], $error['message'], $error['file'], $error['line']);
+    }
+  }
   public static function registerErrors($errors) {
     return set_error_handler("PrintHandler::handleErrors", $errors);
   }
   public static function registerExceptions() {
     return set_exception_handler("PrintHandler::handleExceptions");
+  }
+  public static function registerFatalHandler() {
+    register_shutdown_function("PrintHandler::handleFatal");
   }
 }
 ?>

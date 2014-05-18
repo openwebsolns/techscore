@@ -96,11 +96,20 @@ class MailHandler {
     DB::rollback();
     exit;
   }
+  public static function handleFatal() {
+    $error = error_get_last();
+    if ($error !== null) {
+      self::handleErrors($error['type'], $error['message'], $error['file'], $error['line']);
+    }
+  }
   public static function registerErrors($errors) {
     return set_error_handler("MailHandler::handleErrors", $errors);
   }
   public static function registerExceptions() {
     return set_exception_handler("MailHandler::handleExceptions");
+  }
+  public static function registerFatalHandler() {
+    register_shutdown_function("MailHandler::handleFatal");
   }
 }
 ?>
