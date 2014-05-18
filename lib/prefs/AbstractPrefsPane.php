@@ -27,7 +27,7 @@ abstract class AbstractPrefsPane extends AbstractUserPane {
   public function __construct($title, Account $user, School $school) {
     parent::__construct($title, $user);
     if (!$user->hasSchool($school))
-      throw new PaneException(sprintf("No permissions to edit school %s.", $this->SCHOOL));
+      throw new PaneException(sprintf("No permissions to edit school %s.", $school));
     $this->SCHOOL = $school;
   }
 
