@@ -17,7 +17,6 @@ class SeasonManagement extends AbstractAdminUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Season management", $user);
-    $this->page_url = 'seasons';
   }
 
   public function fillHTML(Array $args) {

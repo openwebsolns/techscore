@@ -17,7 +17,6 @@ class RegattaTypeManagement extends AbstractAdminUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Regatta types", $user);
-    $this->page_url = 'types';
   }
 
   public function fillHTML(Array $args) {

@@ -20,7 +20,6 @@ class VenueManagement extends AbstractAdminUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Venue management", $user);
-    $this->page_url = 'venue';
   }
 
   public function fillHTML(Array $args) {
@@ -95,13 +94,13 @@ class VenueManagement extends AbstractAdminUserPane {
     if ($count > 0) {
       $p->add($t = new XQuickTable(array('id'=>'venue-table'), array("Name", "Address")));
       for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < $count; $i++) {
-	$venue = $list[$i];
-	$t->addRow(array(new XA(sprintf('/%s?v=%d', $this->page_url, $venue->id), $venue),
-			 sprintf("%s %s, %s %s",
-				 $venue->address,
-				 $venue->city,
-				 $venue->state,
-				 $venue->zipcode)));
+        $venue = $list[$i];
+        $t->addRow(array(new XA($this->link(array('v'=>$venue->id)), $venue),
+                         sprintf("%s %s, %s %s",
+                                 $venue->address,
+                                 $venue->city,
+                                 $venue->state,
+                                 $venue->zipcode)));
       }
     }
     $p->add($ldiv);

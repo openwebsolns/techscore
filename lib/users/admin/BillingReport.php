@@ -26,7 +26,6 @@ class BillingReport extends AbstractAdminUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Billing report", $user);
-    $this->page_url = 'billing';
   }
 
   public function fillHTML(Array $args) {

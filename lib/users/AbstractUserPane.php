@@ -164,6 +164,16 @@ abstract class AbstractUserPane {
   }
 
   /**
+   * Creates a link to this pane with optional GET arguments
+   *
+   * @param Array $args the optional list of parameters
+   * @return String the link
+   */
+  protected function link(Array $args = array()) {
+    return WS::link('/' . $this->pane_url(), $args);
+  }
+
+  /**
    * Creates a new form HTML element using the page_name attribute
    *
    * @param Const $method XForm::POST or XForm::GET
@@ -176,12 +186,6 @@ abstract class AbstractUserPane {
   protected function createFileForm() {
     return new XFileForm('/'.$this->pane_url());
   }
-
-  /**
-   * @var String the relative URL of the page
-   * @deprecated. Use 'pane_url()' method instead.
-   */
-  protected $page_url = '';
 
   /**
    * Wrapper around process method to be used by web clients. Wraps

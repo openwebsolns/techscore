@@ -24,7 +24,6 @@ class AccountsPane extends AbstractAccountPane {
    */
   public function __construct(Account $user) {
     parent::__construct("All users", $user);
-    $this->page_url = 'users';
   }
 
   /**
@@ -89,7 +88,7 @@ class AccountsPane extends AbstractAccountPane {
 
     // Offer pagination
     require_once('xml5/PageWhiz.php');
-    $whiz = new PageWhiz($num_users, self::NUM_PER_PAGE, '/' . $this->page_url, $_GET);
+    $whiz = new PageWhiz($num_users, self::NUM_PER_PAGE, $this->link(), $_GET);
     $p->add($whiz->getSearchForm($qry, 'q', $empty_mes, "Search users: "));
 
     // Filter
@@ -114,14 +113,14 @@ class AccountsPane extends AbstractAccountPane {
     }
     $f->add(new XP(array(),
                    array(new XDiv(array('class'=>'form-group'),
-				  array(new XSpan("Role:", array('class'=>'span_h')),
-					XSelect::fromArray('ts_role', $ts_role_opts, ($ts_role_chosen) ? $ts_role_chosen->id : null))),
-			 new XDiv(array('class'=>'form-group'),
-				  array(new XSpan("School Role:", array('class'=>'span_h')),
-					XSelect::fromArray('role', $role_opts, $role_chosen))),
-			 new XDiv(array('class'=>'form-group'),
-				  array(new XSpan("Status:", array('class'=>'span_h')),
-					XSelect::fromArray('status', $stat_opts, $stat_chosen))),
+                                  array(new XSpan("Role:", array('class'=>'span_h')),
+                                        XSelect::fromArray('ts_role', $ts_role_opts, ($ts_role_chosen) ? $ts_role_chosen->id : null))),
+                         new XDiv(array('class'=>'form-group'),
+                                  array(new XSpan("School Role:", array('class'=>'span_h')),
+                                        XSelect::fromArray('role', $role_opts, $role_chosen))),
+                         new XDiv(array('class'=>'form-group'),
+                                  array(new XSpan("Status:", array('class'=>'span_h')),
+                                        XSelect::fromArray('status', $stat_opts, $stat_chosen))),
                          new XSubmitInput('go', "Apply", array('class'=>'inline')))));
 
     $p->add($ldiv = $whiz->getPages('r', $_GET));
@@ -130,7 +129,7 @@ class AccountsPane extends AbstractAccountPane {
     if ($num_users > 0) {
       $headers = array("Name", "Email", "Schools", "Role", "School Role", "Status");
       if ($this->USER->isSuper())
-	$headers[] = "Usurp";
+        $headers[] = "Usurp";
       $p->add($tab = new XQuickTable(array('class'=>'users-table'), $headers));
 
       for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < $num_users; $i++) {
@@ -146,22 +145,22 @@ class AccountsPane extends AbstractAccountPane {
           }
         }
         
-        $row = array(new XA(WS::link('/' . $this->page_url, array('id'=>$user->id)), $user),
-		     $user->id,
-		     $schools,
-		     $user->ts_role,
-		     ucwords($user->role),
-		     new XSpan(ucwords($user->status), array('class'=>'stat user-' . $user->status)));
-	if ($this->USER->isSuper()) {
-	  $form = "";
-	  if ($user->status == Account::STAT_ACTIVE) {
-	    $form = $this->createForm();
-	    $form->add(new XHiddenInput('user', $user->id));
-	    $form->add(new XSubmitInput('usurp-user', "Usurp"));
-	  }
-	  $row[] = $form;
-	}
-	$tab->addRow($row, array('class'=>'row'.($i % 2)));
+        $row = array(new XA($this->link(array('id'=>$user->id)), $user),
+                     $user->id,
+                     $schools,
+                     $user->ts_role,
+                     ucwords($user->role),
+                     new XSpan(ucwords($user->status), array('class'=>'stat user-' . $user->status)));
+        if ($this->USER->isSuper()) {
+          $form = "";
+          if ($user->status == Account::STAT_ACTIVE) {
+            $form = $this->createForm();
+            $form->add(new XHiddenInput('user', $user->id));
+            $form->add(new XSubmitInput('usurp-user', "Usurp"));
+          }
+          $row[] = $form;
+        }
+        $tab->addRow($row, array('class'=>'row'.($i % 2)));
       }
     }
     $p->add($ldiv);
@@ -192,12 +191,12 @@ class AccountsPane extends AbstractAccountPane {
   public function process(Array $args) {
     if (isset($args['usurp-user'])) {
       if (!$this->USER->isSuper())
-	throw new SoterException("No access to this feature.");
+        throw new SoterException("No access to this feature.");
       $user = DB::$V->reqID($args, 'user', DB::$ACCOUNT, "No user provided.");
       if ($user == $this->USER)
-	throw new SoterException("What's the point of usurping yourself?");
+        throw new SoterException("What's the point of usurping yourself?");
       if ($user->status != Account::STAT_ACTIVE)
-	throw new SoterException("Only active users can be usurped.");
+        throw new SoterException("Only active users can be usurped.");
       Session::s('usurped_user', $user->id);
       Session::pa(new PA("You're now logged in as " . $user));
       $this->redirect('');

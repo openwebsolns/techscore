@@ -17,7 +17,6 @@ class SponsorsManagement extends AbstractAdminUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Sponsors list", $user);
-    $this->page_url = 'sponsors';
   }
 
   public function fillHTML(Array $args) {
@@ -32,7 +31,7 @@ class SponsorsManagement extends AbstractAdminUserPane {
         $this->fillForm($f, $sponsor);
         $f->add($xp = new XSubmitP('edit', "Edit"));
         $xp->add(" ");
-        $xp->add(new XA(WS::link('/' . $this->page_url), "Cancel"));
+        $xp->add(new XA($this->link(), "Cancel"));
         $xp->add(new XHiddenInput('sponsor', $sponsor->id));
 
         $this->PAGE->addContent($p = new XPort("Delete " . $sponsor->name));
@@ -43,7 +42,7 @@ class SponsorsManagement extends AbstractAdminUserPane {
         return;
       } catch (SoterException $e) {
         Session::pa(new PA($e->getMessage(), PA::E));
-        WS::go('/' . $this->page_url);
+        WS::go($this->link());
       }
     }
 
@@ -74,7 +73,7 @@ class SponsorsManagement extends AbstractAdminUserPane {
                            $sponsor->name,
                            $url,
                            $log,
-                           new XA(WS::link('/' . $this->page_url, array('r'=>$sponsor->id)), "Edit")),
+                           new XA($this->link(array('r'=>$sponsor->id)), "Edit")),
                      array('class'=>'sortable row'.($i % 2)));
       }
       $f->add(new XSubmitP('reorder', "Edit order"));
@@ -151,7 +150,7 @@ class SponsorsManagement extends AbstractAdminUserPane {
       $sponsor = DB::$V->reqID($args, 'sponsor', DB::$PUB_SPONSOR, "Invalid sponsor to edit.");
       DB::remove($sponsor);
       Session::pa(new PA(sprintf("Removed sponsor \"%s\". Future files will not have this sponsor.", $sponsor->name)));
-      $this->redirect($this->page_url);
+      WS::go($this->link());
     }
   }
 

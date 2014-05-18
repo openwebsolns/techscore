@@ -22,7 +22,7 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
    *
    */
   protected function fillUser(Account $user) {
-    $this->PAGE->addContent(new XP(array(), new XA(WS::link('/'.$this->page_url), "← Go back")));
+    $this->PAGE->addContent(new XP(array(), new XA($this->link(), "← Go back")));
 
     // ------------------------------------------------------------
     // General information

@@ -20,7 +20,6 @@ class CompareSailorsByRace extends AbstractUserPane {
    */
   public function __construct(Account $user) {
     parent::__construct("Compare sailors by race", $user);
-    $this->page_url = 'compare-by-race';
   }
 
   private function doSailors(Array $args) {

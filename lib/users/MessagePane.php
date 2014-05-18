@@ -19,7 +19,6 @@ class MessagePane extends AbstractUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Messages", $user);
-    $this->page_url = 'inbox';
   }
 
   protected function fillHTML(Array $args) {

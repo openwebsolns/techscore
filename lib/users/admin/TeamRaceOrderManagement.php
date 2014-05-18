@@ -15,7 +15,6 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Race orders for team racing", $user);
-    $this->page_url = 'race-order';
   }
 
   private function fillRaceList(XPort $p, Race_Order $template) {

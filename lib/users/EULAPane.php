@@ -18,7 +18,6 @@ class EULAPane extends AbstractUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Sign agreement", $user);
-    $this->page_url = 'license';
     if ($user->status != Account::STAT_ACCEPTED) {
       Session::pa(new PA("This page is not available.", PA::I));
       WS::go('/');

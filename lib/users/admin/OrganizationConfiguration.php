@@ -24,7 +24,6 @@ class OrganizationConfiguration extends AbstractAdminUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Organization settings", $user);
-    $this->page_url = 'org';
   }
 
   public function fillHTML(Array $args) {

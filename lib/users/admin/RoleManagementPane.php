@@ -17,7 +17,6 @@ class RoleManagementPane extends AbstractAdminUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Roles", $user);
-    $this->page_url = 'roles';
   }
 
   protected function fillRoleForm(XForm $form, Role $role) {

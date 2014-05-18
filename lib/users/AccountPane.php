@@ -17,7 +17,6 @@ class AccountPane extends AbstractUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("My Account", $user);
-    $this->page_url = 'account';
   }
 
   protected function fillHTML(Array $args) {

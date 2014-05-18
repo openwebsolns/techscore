@@ -17,7 +17,6 @@ class GlobalSettings extends AbstractSuperUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Global settings", $user);
-    $this->page_url = 'conf';
   }
 
   public function fillHTML(Array $args) {

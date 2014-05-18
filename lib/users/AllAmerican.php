@@ -66,7 +66,6 @@ class AllAmerican extends AbstractUserPane {
                              'report-id' => null,
                              ));
     $this->AA = Session::g('aa');
-    $this->page_url = 'aa';
   }
 
   public function fillHTML(Array $args) {

@@ -17,7 +17,6 @@ class SocialSettingsManagement extends AbstractAdminUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Social settings", $user);
-    $this->page_url = 'social';
   }
 
   public function fillHTML(Array $args) {

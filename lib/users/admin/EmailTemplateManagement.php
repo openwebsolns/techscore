@@ -25,7 +25,6 @@ class EmailTemplateManagement extends AbstractAdminUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("E-mail templates", $user);
-    $this->page_url = 'email-templates';
   }
 
   /**
@@ -61,7 +60,7 @@ class EmailTemplateManagement extends AbstractAdminUserPane {
         $val = new XPre(wordwrap(DB::g($name), 50));
         $exm = new XPre(wordwrap(DB::keywordReplace($this->USER, DB::g($name)), 50));
       }
-      $tab->addRow(array(new XA(WS::link('/' . $this->page_url, array('r'=>$name)), $title),
+      $tab->addRow(array(new XA($this->link(array('r'=>$name)), $title),
                          $val, $exm),
                    array('class'=>'row' . ($i++ % 2)));
     }
@@ -107,7 +106,7 @@ class EmailTemplateManagement extends AbstractAdminUserPane {
     $f->add(new FItem("Message body:", new XTextArea('content', DB::g($const), array('rows'=>16, 'cols'=>75))));
     $f->add($fi = new XSubmitP('edit-template', "Save changes"));
     $fi->add(" ");
-    $fi->add(new XA(WS::link('/' . $this->page_url), "Go back"));
+    $fi->add(new XA($this->link(), "Go back"));
   }
 
   public function process(Array $args) {

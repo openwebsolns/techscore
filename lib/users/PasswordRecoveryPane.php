@@ -19,7 +19,6 @@ class PasswordRecoveryPane extends AbstractUserPane {
 
   public function __construct() {
     parent::__construct("Recover Password");
-    $this->page_url = 'password-recover';
   }
 
   protected function fillHTML(Array $args) {

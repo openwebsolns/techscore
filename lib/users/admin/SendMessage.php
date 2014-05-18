@@ -48,7 +48,6 @@ class SendMessage extends AbstractAdminUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Send message", $user);
-    $this->page_url = 'send-message';
   }
 
   /**

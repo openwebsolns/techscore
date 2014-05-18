@@ -16,7 +16,6 @@ require_once('users/AbstractUserPane.php');
 class SchoolParticipationReportPane extends AbstractUserPane {
   public function __construct(Account $user) {
     parent::__construct("Record of team participation", $user);
-    $this->page_url = 'team-participation';
   }
 
   public function fillHTML(Array $args) {

@@ -17,7 +17,6 @@ class MailingListManagement extends AbstractAdminUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Mailing lists", $user);
-    $this->page_url = 'lists';
   }
 
   public function fillHTML(Array $args) {

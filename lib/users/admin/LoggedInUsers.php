@@ -19,7 +19,6 @@ class LoggedInUsers extends AbstractAdminUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Logged-in Users", $user);
-    $this->page_url = 'logged-in';
   }
 
   protected function fillHTML(Array $args) {
@@ -45,7 +44,7 @@ class LoggedInUsers extends AbstractAdminUserPane {
     if ($num_pages > 1) {
       $p->add(new XP(array('class'=>'warning'), sprintf("There are %d logged-in users.", $num_sessions)));
       require_once('xml5/PageWhiz.php');
-      $whiz = new PageWhiz($num_sessions, self::NUM_PER_PAGE, '/' . $this->page_url, $_GET);
+      $whiz = new PageWhiz($num_sessions, self::NUM_PER_PAGE, $this->link(), $_GET);
       $p->add($whiz->getPages());
     }
                          

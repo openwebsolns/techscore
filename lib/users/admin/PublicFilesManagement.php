@@ -17,7 +17,6 @@ class PublicFilesManagement extends AbstractAdminUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Public files", $user);
-    $this->page_url = 'files';
   }
 
   public function fillHTML(Array $args) {
@@ -45,7 +44,7 @@ class PublicFilesManagement extends AbstractAdminUserPane {
       $f->add($tab = new XQuickTable(array('id'=>'files-table'),
                                      array("Name", "Type", "Download", "Delete?")));
       foreach ($files as $i => $file) {
-        $pre = new XA(WS::link('/'.$this->page_url, array('file'=>$file->id)), "Download");
+        $pre = new XA($this->link(array('file'=>$file->id)), "Download");
         if (substr($file->filetype, 0, 6) == 'image/') {
           $full = $file->getFile();
           $pre = new XImg(sprintf('data:%s;base64,%s', $full->filetype, base64_encode($full->filedata)), "");

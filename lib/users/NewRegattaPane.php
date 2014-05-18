@@ -23,7 +23,6 @@ class NewRegattaPane extends AbstractUserPane {
    */
   public function __construct(Account $user) {
     parent::__construct("New regatta", $user);
-    $this->page_url = 'create';
   }
 
   private function defaultRegatta() {

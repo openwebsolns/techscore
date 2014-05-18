@@ -39,7 +39,6 @@ class MembershipReport extends AbstractUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("School participation report", $user);
-    $this->page_url = 'membership';
   }
 
   public function fillHTML(Array $args) {

@@ -24,7 +24,6 @@ class PendingAccountsPane extends AbstractAccountPane {
    */
   public function __construct(Account $user) {
     parent::__construct("Pending users", $user);
-    $this->page_url = 'pending';
   }
 
   /**

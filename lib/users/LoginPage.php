@@ -21,7 +21,6 @@ class LoginPage extends AbstractUserPane {
    */
   public function __construct() {
     parent::__construct("Welcome!");
-    $this->page_url = 'login';
   }
 
   /**

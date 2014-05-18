@@ -29,7 +29,12 @@ class TextManagement extends AbstractAdminUserPane {
     $secs = Text_Entry::getSections();
     if (!isset($secs[$section]))
       throw new InvalidArgumentException("Invalid section provided: $section.");
-    $this->page_url = sprintf('text/%s', $section);
+  }
+
+  public function pane_url($classname = null) {
+    if ($classname == null || $classname == get_class($this))
+      return sprintf('text/%s', $this->section);
+    return parent::pane_url($classname);
   }
 
   public function fillHTML(Array $args) {

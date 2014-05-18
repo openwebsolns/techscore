@@ -22,7 +22,6 @@ class UserArchivePane extends AbstractUserPane {
    */
   public function __construct(Account $user) {
     parent::__construct("Regatta archive", $user);
-    $this->page_url = 'archive';
   }
 
   /**

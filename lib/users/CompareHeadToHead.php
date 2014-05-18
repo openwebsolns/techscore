@@ -21,7 +21,6 @@ class CompareHeadToHead extends AbstractUserPane {
    */
   public function __construct(Account $user) {
     parent::__construct("Compare sailors head to head", $user);
-    $this->page_url = 'compare-sailors';
   }
 
   /**

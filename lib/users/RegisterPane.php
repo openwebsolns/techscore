@@ -41,7 +41,6 @@ class RegisterPane extends AbstractUserPane {
 
   public function __construct() {
     parent::__construct("Registration");
-    $this->page_url = 'register';
   }
 
   /**
