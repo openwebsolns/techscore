@@ -127,8 +127,9 @@ class AccountsPane extends AbstractAccountPane {
 
     // Create table, if applicable
     if ($num_users > 0) {
+      $can_usurp = $this->USER->can(Permission::USURP_USER);
       $headers = array("Name", "Email", "Schools", "Role", "School Role", "Status");
-      if ($this->USER->isSuper())
+      if ($can_usurp)
         $headers[] = "Usurp";
       $p->add($tab = new XQuickTable(array('class'=>'users-table'), $headers));
 
@@ -151,7 +152,7 @@ class AccountsPane extends AbstractAccountPane {
                      $user->ts_role,
                      ucwords($user->role),
                      new XSpan(ucwords($user->status), array('class'=>'stat user-' . $user->status)));
-        if ($this->USER->can(Permission::USURP_USER)) {
+        if ($can_usurp) {
           $form = "";
           if ($user->status == Account::STAT_ACTIVE) {
             $form = $this->createForm();
@@ -190,7 +191,7 @@ class AccountsPane extends AbstractAccountPane {
 
   public function process(Array $args) {
     if (isset($args['usurp-user'])) {
-      if (!$this->USER->isSuper())
+      if (!$this->USER->can(Permission::USURP_USER))
         throw new SoterException("No access to this feature.");
       $user = DB::$V->reqID($args, 'user', DB::$ACCOUNT, "No user provided.");
       if ($user == $this->USER)
