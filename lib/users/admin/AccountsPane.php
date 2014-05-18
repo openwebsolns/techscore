@@ -151,7 +151,7 @@ class AccountsPane extends AbstractAccountPane {
                      $user->ts_role,
                      ucwords($user->role),
                      new XSpan(ucwords($user->status), array('class'=>'stat user-' . $user->status)));
-        if ($this->USER->isSuper()) {
+        if ($this->USER->can(Permission::USURP_USER)) {
           $form = "";
           if ($user->status == Account::STAT_ACTIVE) {
             $form = $this->createForm();

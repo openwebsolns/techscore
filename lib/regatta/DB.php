@@ -3725,6 +3725,7 @@ class Permission extends DBObject {
   const USE_BILLING_REPORT = 'use_billing_report';
 
   const EDIT_GLOBAL_CONF = 'edit_global_conf';
+  const USURP_USER = 'usurp_user';
 }
 
 /**
