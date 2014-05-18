@@ -266,7 +266,7 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
     exit;
   }
   catch (PermissionException $e) {
-    Session::pa(new PA("Insufficient permissions for requested action.", PA::E));
+    Session::pa(new PA($e->getMessage(), PA::E));
     if ($e->regatta !== null)
       WS::go('/score/' . $e->regatta->id);
     WS::go('/');
@@ -325,7 +325,7 @@ catch (PaneException $e) {
   WS::go('/');  
 }
 catch (PermissionException $e) {
-  Session::pa(new PA("Insuficcient permission for requested action.", PA::E));
+  Session::pa(new PA($e->getMessage(), PA::E));
   WS::goBack('/');
 }
 ?>
