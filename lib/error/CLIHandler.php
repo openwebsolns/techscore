@@ -62,5 +62,10 @@ class CLIHandler {
   public static function registerFatalHandler() {
     register_shutdown_function("CLIHandler::handleFatal");
   }
+  public static function registerAll($errors) {
+    self::registerErrors($errors);
+    self::registerExceptions();
+    self::registerFatalHandler();
+  }
 }
 ?>

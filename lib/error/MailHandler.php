@@ -111,5 +111,10 @@ class MailHandler {
   public static function registerFatalHandler() {
     register_shutdown_function("MailHandler::handleFatal");
   }
+  public static function registerAll($errors) {
+    self::registerErrors($errors);
+    self::registerExceptions();
+    self::registerFatalHandler();
+  }
 }
 ?>

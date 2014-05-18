@@ -148,21 +148,15 @@ require_once(dirname(__FILE__) . '/conf.local.php');
 // Error handler: use CLI if not online
 if (PHP_SAPI == 'cli') {
   require_once('error/CLIHandler.php');
-  CLIHandler::registerErrors(E_ALL | E_STRICT);
-  CLIHandler::registerExceptions();
-  CLIHandler::registerFatalHandler();
+  CLIHandler::registerAll(E_ALL | E_STRICT);
 }
 elseif (Conf::$ERROR_HANDLER == 'mail') {
   require_once('error/MailHandler.php');
-  MailHandler::registerErrors(E_ALL | E_STRICT);
-  MailHandler::registerExceptions();
-  MailHandler::registerFatalHandler();
+  MailHandler::registerAll(E_ALL | E_STRICT);
 }
 else {
   require_once('error/PrintHandler.php');
-  PrintHandler::registerErrors(E_ALL | E_STRICT | E_NOTICE);
-  PrintHandler::registerExceptions();
-  PrintHandler::registerFatalHandler();
+  PrintHandler::registerAll(E_ALL | E_STRICT | E_NOTICE);
 }
 
 // Database connection

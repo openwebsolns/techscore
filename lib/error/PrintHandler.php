@@ -68,5 +68,10 @@ class PrintHandler {
   public static function registerFatalHandler() {
     register_shutdown_function("PrintHandler::handleFatal");
   }
+  public static function registerAll($errors) {
+    self::registerErrors($errors);
+    self::registerExceptions();
+    self::registerFatalHandler();
+  }
 }
 ?>
