@@ -146,7 +146,7 @@ ini_set('include_path', sprintf(".:%s", dirname(__FILE__)));
 require_once(dirname(__FILE__) . '/conf.local.php');
 
 // Error handler: use CLI if not online
-if (!isset($_SERVER['HTTP_HOST'])) {
+if (PHP_SAPI == 'cli') {
   require_once('error/CLIHandler.php');
   CLIHandler::registerErrors(E_ALL | E_STRICT);
   CLIHandler::registerExceptions();
@@ -168,7 +168,7 @@ DB::setConnectionParams(Conf::$SQL_HOST, Conf::$SQL_USER, Conf::$SQL_PASS, Conf:
 DB::setLogfile(Conf::$LOG_QUERIES);
 
 // Start the session, if run from the web
-if (isset($_SERVER['HTTP_HOST'])) {
+if (PHP_SAPI != 'cli') {
   if (!isset($_SERVER['REQUEST_METHOD']))
     throw new RuntimeException("Script can only be run from web server.");
   Conf::$METHOD = $_SERVER['REQUEST_METHOD'];
