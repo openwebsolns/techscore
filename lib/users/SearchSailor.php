@@ -15,7 +15,7 @@ require_once('users/AbstractUserPane.php');
  */
 class SearchSailor extends AbstractUserPane {
   public function __construct(Account $user) {
-    parent::__construct("Fetch sailors");
+    parent::__construct("Fetch sailors", $user);
   }
 
   /**
