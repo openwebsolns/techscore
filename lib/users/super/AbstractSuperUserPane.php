@@ -14,9 +14,6 @@ require_once('users/AbstractUserPane.php');
 abstract class AbstractSuperUserPane extends AbstractUserPane {
   public function __construct($title, Account $user) {
     parent::__construct($title, $user);
-
-    if (!$user->isSuper())
-      throw new PaneException("Insufficient permission.");
   }
 }
 ?>
