@@ -118,50 +118,52 @@ class HomePane extends AbstractUserPane {
     // ------------------------------------------------------------
     // Unregistered sailors
     // ------------------------------------------------------------
-    $sailors = $this->USER->school->getUnregisteredSailors();
-    if (count($sailors) > 0) {
-      $lnk = WS::link(sprintf('/prefs/%s/sailor', $this->USER->school->id));
-      $this->PAGE->addContent($p = new XPort(new XA($lnk, "Unreg. sailors for " . $this->USER->school->nick_name)));
-      $p->set('id', 'port-unregistered');
-      $limit = 5;
-      if (count($sailors) > 5)
-        $limit = 4;
-      $p->add($ul = new XUl());
-      for ($i = 0; $i < $limit; $i++)
-        $ul->add(new XLi($sailors[$i]));
-      if ($limit == 4)
-        $ul->add(new XLi(new XEm(sprintf("%d more...", (count($sailors) - $limit)))));
-    }
+    if ($this->SCHOOL !== null) {
+      $sailors = $this->SCHOOL->getUnregisteredSailors();
+      if (count($sailors) > 0) {
+        $lnk = WS::link(sprintf('/prefs/%s/sailor', $this->SCHOOL->id));
+        $this->PAGE->addContent($p = new XPort(new XA($lnk, "Unreg. sailors for " . $this->SCHOOL->nick_name)));
+        $p->set('id', 'port-unregistered');
+        $limit = 5;
+        if (count($sailors) > 5)
+          $limit = 4;
+        $p->add($ul = new XUl());
+        for ($i = 0; $i < $limit; $i++)
+          $ul->add(new XLi($sailors[$i]));
+        if ($limit == 4)
+          $ul->add(new XLi(new XEm(sprintf("%d more...", (count($sailors) - $limit)))));
+      }
 
-    // ------------------------------------------------------------
-    // Mascot/burgee
-    // ------------------------------------------------------------
-    $lnk = WS::link(sprintf('/prefs/%s/logo', $this->USER->school->id));
-    $this->PAGE->addContent($p = new XPort(new XA($lnk, $this->USER->school->nick_name . " logo")));
-    $p->set('id', 'port-burgee');
-    if ($this->USER->school->burgee === null)
-      $p->add(new XP(array('class'=>'message'),
-                     new XA($lnk, "Add one now")));
-    else
-      $p->add(new XP(array('class'=>'burgee-cell'),
-                     new XA($lnk, new XImg('data:image/png;base64,'.$this->SCHOOL->burgee->filedata, $this->SCHOOL->nick_name))));
+      // ------------------------------------------------------------
+      // Mascot/burgee
+      // ------------------------------------------------------------
+      $lnk = WS::link(sprintf('/prefs/%s/logo', $this->SCHOOL->id));
+      $this->PAGE->addContent($p = new XPort(new XA($lnk, $this->SCHOOL->nick_name . " logo")));
+      $p->set('id', 'port-burgee');
+      if ($this->SCHOOL->burgee === null)
+        $p->add(new XP(array('class'=>'message'),
+                       new XA($lnk, "Add one now")));
+      else
+        $p->add(new XP(array('class'=>'burgee-cell'),
+                       new XA($lnk, new XImg('data:image/png;base64,'.$this->SCHOOL->burgee->filedata, $this->SCHOOL->nick_name))));
 
-    // ------------------------------------------------------------
-    // Team names
-    // ------------------------------------------------------------
-    $lnk = sprintf('/prefs/%s/team', $this->USER->school->id);
-    $this->PAGE->addContent($p = new XPort(new XA($lnk, "Team names for " . $this->USER->school->nick_name)));
-    $p->set('id', 'port-team-names');
-    $names = $this->USER->school->getTeamNames();
-    if (count($names) == 0)
-      $p->add(new XP(array('class'=>'warning'),
-                     array(new XStrong("Note:"), " There are no team names for your school. ",
-                           new XA(WS::link($lnk), "Add one now"),
-                           ".")));
-    else {
-      $p->add($ul = new XOl());
-      foreach ($names as $name)
-        $ul->add(new XLi($name));
+      // ------------------------------------------------------------
+      // Team names
+      // ------------------------------------------------------------
+      $lnk = sprintf('/prefs/%s/team', $this->SCHOOL->id);
+      $this->PAGE->addContent($p = new XPort(new XA($lnk, "Team names for " . $this->SCHOOL->nick_name)));
+      $p->set('id', 'port-team-names');
+      $names = $this->SCHOOL->getTeamNames();
+      if (count($names) == 0)
+        $p->add(new XP(array('class'=>'warning'),
+                       array(new XStrong("Note:"), " There are no team names for your school. ",
+                             new XA(WS::link($lnk), "Add one now"),
+                             ".")));
+      else {
+        $p->add($ul = new XOl());
+        foreach ($names as $name)
+          $ul->add(new XLi($name));
+      }
     }
   }
 

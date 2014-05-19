@@ -160,6 +160,7 @@ class Account extends DBObject {
    * @return School|null
    */
   public function getFirstSchool(Conference $conf = null) {
+    return $this->__get('school');
     $schools = $this->getSchools($conf);
     return (count($schools) == 0) ? null : $schools[0];
   }

@@ -205,12 +205,20 @@ class RegisterPane extends AbstractUserPane {
   }
 
   public function getAdminBody(Account $about) {
-    return sprintf("  Name: %s %s\n" .
-                   " Email: %s\n" .
-                   "School: %s\n" .
-                   "  Role: %s",
+    $mes = sprintf("       Name: %s %s\n" .
+                   "      Email: %s\n" .
+                   "Affiliation: %s\n" .
+                   "School Role: %s",
                    $about->first_name, $about->last_name, $about->id,
-                   $about->school->nick_name, $about->role);
+                   $about->getAffiliation(), $about->role);
+    if ($about->message !== null)
+      $mes .= sprintf("
+
+User notes:
+
+%s",
+                      $about->message);
+    return $mes;
   }
 }
 ?>

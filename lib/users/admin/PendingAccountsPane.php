@@ -85,7 +85,7 @@ class PendingAccountsPane extends AbstractAccountPane {
         $acc = $list[$i];
         $tab->addRow(array(new XA(WS::link('/pending', array('account'=>$acc->id)), $acc->getName()),
                            new XA(sprintf("mailto:%s", $acc->id), $acc->id),
-                           $acc->school->nick_name,
+                           $acc->getAffiliation(),
                            $acc->role,
 			   $acc->message));
       }
