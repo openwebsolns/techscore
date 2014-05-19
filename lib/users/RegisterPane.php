@@ -93,7 +93,7 @@ class RegisterPane extends AbstractUserPane {
     $f->add(new FReqItem(DB::g(STN::ORG_NAME) . " Role:", XSelect::fromArray('role', Account::getRoles())));
 
     $f->add(new XP(array(), "In order to score or participate in individual regattas, you must be affiliated with at least one school. Please choose a school from the list below."));
-    $f->add(new FReqItem("Affiliation:", $aff = new XSelect("school")));
+    $f->add(new FItem("Affiliation:", $aff = new XSelect('school')));
 
     $f->add(new FItem("Notes:", new XTextArea('message', "", array('placeholder'=>"Optional message to send to the admins."))));
     $f->add(new XSubmitP("register", "Request account"));
@@ -180,9 +180,6 @@ class RegisterPane extends AbstractUserPane {
       $acc->last_name  = DB::$V->reqString($args, 'last_name', 1, 31, "Last name must not be empty and less than 30 characters.");
       $acc->first_name = DB::$V->reqString($args, 'first_name', 1, 31, "First name must not be empty and less than 30 characters.");
 
-      // 3. Affiliation
-      $acc->school = DB::$V->reqSchool($args, 'school', "Invalid school requested.");
-
       // 4. Role (assume Staff if not recognized)
       $acc->role = DB::$V->reqKey($args, 'role', Account::getRoles(), "Invalid account role.");
 
@@ -201,6 +198,10 @@ class RegisterPane extends AbstractUserPane {
         throw new SoterException("There was an error with your request. Please try again later.");
 
       DB::set($acc);
+      $school = DB::$V->incSchool($args, 'school');
+      if ($school !== null)
+        $acc->setSchools(array($school));
+
       Session::pa(new PA("Account successfully created."));
       return array("registration-step"=>1);
     }

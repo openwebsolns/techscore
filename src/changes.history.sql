@@ -782,3 +782,8 @@ insert into permission values ('edit_public_files', "Edit Files for Public Site"
 insert into permission values ('edit_permissions', "Edit Roles and Permissions", "Techscore Management", "Edit the list of roles and associated access permissions.");
 insert into permission values ('edit_sponsors', "Edit Public Sponsors", "Techscore Management", "Edit list of public sponsors shown on the public site.");
 insert into role_permission (role, permission) values (2, 'use_membership_report'), (2, 'use_billing_report'), (2, 'edit_email_templates'), (2, 'edit_mailing_lists'), (2, 'edit_organization'), (2, 'edit_public_files'), (2, 'edit_permissions'), (2, 'edit_sponsors');
+
+-- schools as optional association
+delete from account_school where (account, school) in (select id, school from account);
+insert into account_school (account, school) (select id, school from account where school is not null);
+alter table account drop foreign key `account_ibfk_1`, drop column school;

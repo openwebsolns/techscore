@@ -50,7 +50,7 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
     // Schools
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new XPort("School affiliations"));
-    $p->add(new XP(array(), "Each account has one primary school affiliation, and any number of secondary school affiliations. These affiliations will be used along with the role to determine the full set of permissions for a given account."));
+    $p->add(new XP(array(), "Each account may be associated with one or more schools. These affiliations will be used along with the role to determine the full set of permissions for a given account. For instance, users with access to edit school information can only do so on the schools associated with their account via this form."));
     if ($user->isAdmin())
       $p->add(new XP(array('class'=>'warning'), "As this account has administrator privileges, the user has access to every regatta and every school in the system."));
 
@@ -64,13 +64,11 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
     $p->add($f = $this->createForm());
     $f->add(new XHiddenInput('user', $user->id));
 
-    $f->add(new FReqItem("Primary school:", XSelect::fromArray('school', $opts, $user->school->id)));
-    $f->add(new FItem("Other schools:", $sel = new XSelectM('schools[]', array('size'=>10))));
+    $f->add(new FItem("Schools:", $sel = new XSelectM('schools[]', array('size'=>10))));
 
     $my_schools = array();
     foreach ($user->getSchools(null, false) as $school) {
-      if ($school->id != $user->school->id)
-        $my_schools[$school->id] = $school;
+      $my_schools[$school->id] = $school;
     }
     foreach ($opts as $conf => $schools) {
       $sel->add($grp = new FOptionGroup($conf));
@@ -180,13 +178,10 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
     // Set affiliations
     // ------------------------------------------------------------
     if (isset($args['user-schools'])) {
-      $user->school = DB::$V->reqID($args, 'school', DB::$SCHOOL, "Invalid school ID provided.");
-      DB::set($user);
-
       // Other school affiliations
       $schools = array();
       foreach (DB::$V->incList($args, 'schools') as $id) {
-        if (($school = DB::get(DB::$SCHOOL, $id)) !== null && $school != $user->school)
+        if (($school = DB::get(DB::$SCHOOL, $id)) !== null)
           $schools[$school->id] = $school;
       }
 

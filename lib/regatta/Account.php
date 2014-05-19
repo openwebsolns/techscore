@@ -34,13 +34,10 @@ class Account extends DBObject {
   public $status;
   public $password;
   public $message;
-  protected $school;
   protected $ts_role;
 
   public function db_type($field) {
     switch ($field) {
-    case 'school':
-      return DB::$SCHOOL;
     case 'ts_role':
       return DB::$ROLE;
     default:
@@ -127,13 +124,11 @@ class Account extends DBObject {
     if ($this->isAdmin())
       return DB::getConferences();
     return DB::getAll(DB::$CONFERENCE,
-                      new DBBool(array(new DBCond('id', $this->__get('school')->conference->id),
-                                       new DBCondIn('id',
-                                                    DB::prepGetAll(DB::$SCHOOL,
-                                                                   new DBCondIn('id',
-                                                                                DB::prepGetAll(DB::$ACCOUNT_SCHOOL, new DBCond('account', $this), array('school'))),
-                                                                   array('conference')))),
-                                 DBBool::mOR));
+                      new DBCondIn('id',
+                                   DB::prepGetAll(DB::$SCHOOL,
+                                                  new DBCondIn('id',
+                                                               DB::prepGetAll(DB::$ACCOUNT_SCHOOL, new DBCond('account', $this), array('school'))),
+                                                  array('conference'))));
   }
 
   /**
@@ -160,7 +155,6 @@ class Account extends DBObject {
    * @return School|null
    */
   public function getFirstSchool(Conference $conf = null) {
-    return $this->__get('school');
     $schools = $this->getSchools($conf);
     return (count($schools) == 0) ? null : $schools[0];
   }
@@ -184,7 +178,6 @@ class Account extends DBObject {
     }
     else {
       $cond = new DBCondIn('id', DB::prepGetAll(DB::$ACCOUNT_SCHOOL, new DBCond('account', $this), array('school')));
-      $cond = new DBBool(array($cond, new DBCond('id', $this->school)), DBBool::mOR);
       if ($conf !== null)
         $cond = new DBBool(array($cond, new DBCond('conference', $conf)));
     }
@@ -199,8 +192,6 @@ class Account extends DBObject {
    */
   public function hasSchool(School $school) {
     if ($this->isAdmin())
-      return true;
-    if ($school == $this->__get('school'))
       return true;
     $res = DB::getAll(DB::$ACCOUNT_SCHOOL, new DBBool(array(new DBCond('account', $this), new DBCond('school', $school))));
     $r = (count($res) > 0);
