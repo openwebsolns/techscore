@@ -90,8 +90,11 @@ class RegisterPane extends AbstractUserPane {
     $f->add(new FReqItem("Last name:",  new XTextInput("last_name", "")));
     $f->add(new FReqItem("Password:", new XPasswordInput("passwd", "")));
     $f->add(new FReqItem("Confirm password:", new XPasswordInput("confirm", "")));
-    $f->add(new FReqItem("Affiliation:", $aff = new XSelect("school")));
     $f->add(new FReqItem(DB::g(STN::ORG_NAME) . " Role:", XSelect::fromArray('role', Account::getRoles())));
+
+    $f->add(new XP(array(), "In order to score or participate in individual regattas, you must be affiliated with at least one school. Please choose a school from the list below."));
+    $f->add(new FReqItem("Affiliation:", $aff = new XSelect("school")));
+
     $f->add(new FItem("Notes:", new XTextArea('message', "", array('placeholder'=>"Optional message to send to the admins."))));
     $f->add(new XSubmitP("register", "Request account"));
 
