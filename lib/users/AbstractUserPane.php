@@ -34,7 +34,7 @@ abstract class AbstractUserPane {
     $this->title = (string)$title;
     $this->USER  = $user;
     if ($this->USER !== null)
-      $this->SCHOOL = $this->USER->school;
+      $this->SCHOOL = $this->USER->getFirstSchool();
   }
 
   /**
