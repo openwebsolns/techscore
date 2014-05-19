@@ -445,6 +445,13 @@ abstract class AbstractUserPane {
       self::R_PERM => array()
     ),
 
+    'LoginPage' => array(
+      self::R_NAME => "Login",
+      self::R_PATH => 'users',
+      self::R_URLS => array('login', 'logout'),
+      self::R_PERM => array()
+    ),
+
     'MembershipReport' => array(
       self::R_NAME => "School participation",
       self::R_PATH => 'users/reports',
