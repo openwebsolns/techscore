@@ -148,7 +148,11 @@ class ProcessOutbox extends AbstractScript {
   }
 
   private function send(Account $from, Account $to, $subject, $content) {
-    DB::queueMessage($from, $to, DB::keywordReplace($to, $subject), DB::keywordReplace($to, $content), true);
+    DB::queueMessage($from,
+                     $to,
+                     $to->getFirstSchool(),
+                     DB::keywordReplace($subject, $to, $school),
+                     DB::keywordReplace($content, $to, $school), true);
     self::errln(sprintf("Sent message to %s.", $to), 2);
     $this->sent++;
   }

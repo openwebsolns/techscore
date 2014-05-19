@@ -89,7 +89,7 @@ class RemindPending extends AbstractScript {
           "[Techscore] Please finalize your regattas";
         $mes = str_replace('{BODY}',
                            $this->getMessage($user, $regattas[$id], $missing),
-                           DB::keywordReplace($user, DB::g(STN::MAIL_UNFINALIZED_REMINDER)));
+                           DB::keywordReplace(DB::g(STN::MAIL_UNFINALIZED_REMINDER), $user, $user->getFirstSchool()));
         DB::mail($user->id, $subject, $mes);
       }
       self::errln(sprintf("Sent email to %s (%s) regarding %d regatta(s).", $user, $user->id, count($regattas[$id])));

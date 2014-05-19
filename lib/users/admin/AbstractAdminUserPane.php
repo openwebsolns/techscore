@@ -27,7 +27,7 @@ abstract class AbstractAdminUserPane extends AbstractUserPane {
                  );
 
     foreach ($kws as $kw => $desc)
-      $tab->addRow(array($kw, $desc, DB::keywordReplace($this->USER, $kw)));
+      $tab->addRow(array($kw, $desc, DB::keywordReplace($kw, $this->USER, $this->USER->getFirstSchool())));
 
     return $tab;
   }

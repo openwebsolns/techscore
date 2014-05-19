@@ -215,7 +215,7 @@ abstract class AbstractUserPane {
     if (DB::g(STN::MAIL_REGISTER_USER) === null)
       return false;
 
-    $body = DB::keywordReplace($acc, DB::g(STN::MAIL_REGISTER_USER));
+    $body = DB::keywordReplace(DB::g(STN::MAIL_REGISTER_USER), $acc, $acc->getFirstSchool());
     $body = str_replace('{BODY}', sprintf('%sregister/%s', WS::alink('/'), DB::getHash($acc)), $body);
     return DB::mail($acc->id,
 		    sprintf("[%s] New account request", DB::g(STN::APP_NAME)),

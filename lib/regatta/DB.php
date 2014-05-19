@@ -242,16 +242,17 @@ class DB extends DBM {
   /**
    * Perform keyword replacement using given account
    *
-   * @param Account $to the account whose values to replace in message
    * @param String $mes the template message
+   * @param Account $to the account whose values to replace in message
+   * @param School $school the school involved (optional)
    * @return String the replaced message
    */
-  public static function keywordReplace(Account $to, $mes) {
+  public static function keywordReplace($mes, Account $to, School $school = null) {
     $mes = str_replace('{FIRST_NAME}', $to->first_name, $mes);
     $mes = str_replace('{LAST_NAME}', $to->last_name, $mes);
     $mes = str_replace('{ROLE}', ucfirst($to->role), $mes);
     $mes = str_replace('{FULL_NAME}', $to->getName(), $mes);
-    $mes = str_replace('{SCHOOL}',    $to->school, $mes);
+    $mes = str_replace('{SCHOOL}',    $school, $mes);
     return $mes;
   }
 

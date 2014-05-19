@@ -58,7 +58,7 @@ class EmailTemplateManagement extends AbstractAdminUserPane {
       $exm = new XEm("No template set.");
       if (DB::g($name) !== null) {
         $val = new XPre(wordwrap(DB::g($name), 50));
-        $exm = new XPre(wordwrap(DB::keywordReplace($this->USER, DB::g($name)), 50));
+        $exm = new XPre(wordwrap(DB::keywordReplace(DB::g($name), $this->USER, $this->USER->getFirstSchool()), 50));
       }
       $tab->addRow(array(new XA($this->link(array('r'=>$name)), $title),
                          $val, $exm),
