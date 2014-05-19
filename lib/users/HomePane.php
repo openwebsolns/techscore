@@ -68,57 +68,60 @@ class HomePane extends AbstractUserPane {
     // ------------------------------------------------------------
     // Regattas
     // ------------------------------------------------------------
-    $season = Season::forDate(DB::$NOW);
-    if ($season === null) {
-      $this->PAGE->addContent($p = new XPort("No season"));
-      $p->add(new XP(array('class'=>'warning'),
-                     array("There is no current season in the program. Please contact the administrator. No regattas can be created to start in the \"off-season\". You may wish to ",
-                           new XA(WS::link('/archive'), "browse the archive"),
-                           " instead.")));
-    }
-    else {
-      $start = clone(DB::$NOW);
-      $start->add(new DateInterval('P3DT0H'));
-      $start->setTime(0, 0);
-
-      $end = clone(DB::$NOW);
-      $end->sub(new DateInterval('P3DT0H'));
-      $end->setTime(0, 0);
-
-      require_once('regatta/Regatta.php');
-      DB::$REGATTA->db_set_order(array('start_time' => true));
-      $regattas = DB::getAll(DB::$REGATTA,
-                             new DBBool(array(new DBCond('start_time', $start, DBCond::LE),
-                                              new DBCond('end_date', $end, DBCond::GE))));
-      DB::$REGATTA->db_set_order();
-
-      require_once('xml5/UserRegattaTable.php');
-      $cur_tab = new UserRegattaTable($this->USER, true);
-
-      $schools = $this->USER->getSchools();
-
-      // Sort all current regattas
-      foreach ($regattas as $reg) {
-        if ($this->USER->hasJurisdiction($reg) || $this->hasSchoolIn($reg, $schools))
-          $cur_tab->addRegatta($reg);
+    if ($this->isPermitted('UserSeasonPane')) {
+      $season = Season::forDate(DB::$NOW);
+      if ($season === null) {
+        $this->PAGE->addContent($p = new XPort("No season"));
+        $p->add(new XP(array('class'=>'warning'),
+                       array("There is no current season in the program. Please contact the administrator. No regattas can be created to start in the \"off-season\". You may wish to ",
+                             new XA(WS::link('/archive'), "browse the archive"),
+                             " instead.")));
       }
+      else {
+        $start = clone(DB::$NOW);
+        $start->add(new DateInterval('P3DT0H'));
+        $start->setTime(0, 0);
 
-      $this->PAGE->addContent($p = new XPort("In focus"));
-      $p->set('id', 'port-in-focus');
-      if ($cur_tab->count() > 0)
-        $p->add($cur_tab);
-      $p->add(new XP(array(),
-                     array("See all the regattas for ",
-                           new XA(WS::link('/season'), $season->fullString()),
-                           " or browse the ",
-                           new XA(WS::link('/archive'), "archives"),
-                           ".")));
+        $end = clone(DB::$NOW);
+        $end->sub(new DateInterval('P3DT0H'));
+        $end->setTime(0, 0);
+
+        require_once('regatta/Regatta.php');
+        DB::$REGATTA->db_set_order(array('start_time' => true));
+        $regattas = DB::getAll(DB::$REGATTA,
+                               new DBBool(array(new DBCond('start_time', $start, DBCond::LE),
+                                                new DBCond('end_date', $end, DBCond::GE))));
+        DB::$REGATTA->db_set_order();
+
+        require_once('xml5/UserRegattaTable.php');
+        $cur_tab = new UserRegattaTable($this->USER, true);
+
+        $schools = $this->USER->getSchools();
+
+        // Sort all current regattas
+        foreach ($regattas as $reg) {
+          if ($this->USER->hasJurisdiction($reg) || $this->hasSchoolIn($reg, $schools))
+            $cur_tab->addRegatta($reg);
+        }
+
+        $this->PAGE->addContent($p = new XPort("In focus"));
+        $p->set('id', 'port-in-focus');
+        if ($cur_tab->count() > 0)
+          $p->add($cur_tab);
+        $p->add(new XP(array(),
+                       array("See all the regattas for ",
+                             new XA(WS::link('/season'), $season->fullString()),
+                             " or browse the ",
+                             new XA(WS::link('/archive'), "archives"),
+                             ".")));
+      }
     }
 
+    // Access for school editors
+    if ($this->isPermitted('PrefsHomePane')) {
     // ------------------------------------------------------------
     // Unregistered sailors
     // ------------------------------------------------------------
-    if ($this->SCHOOL !== null) {
       $sailors = $this->SCHOOL->getUnregisteredSailors();
       if (count($sailors) > 0) {
         $lnk = WS::link(sprintf('/prefs/%s/sailor', $this->SCHOOL->id));
