@@ -466,6 +466,13 @@ abstract class AbstractUserPane {
       self::R_PERM => array(Permission::CREATE_REGATTA)
     ),
 
+    'RegisterPane' => array(
+      self::R_NAME => "Register",
+      self::R_PATH => 'users',
+      self::R_URLS => array('register'),
+      self::R_PERM => array()
+    ),
+
     'SchoolParticipationReportPane' => array(
       self::R_NAME => "Team record",
       self::R_PATH => 'users/reports',
