@@ -61,8 +61,7 @@ class ProcessOutbox extends AbstractScript {
           if ($school === null)
             throw new RuntimeException("School $id does not exist.");
           foreach ($school->getUsers(Account::STAT_ACTIVE, false) as $acc) {
-            $acc->school = $school; // temporarily assign
-            $this->send($outbox->sender, $acc, $outbox->subject, $outbox->content);
+            $this->send($outbox->sender, $acc, $outbox->subject, $outbox->content, $school);
             if ($acc->id == $outbox->sender->id)
               $sent_to_me = true;
           }
@@ -94,7 +93,7 @@ class ProcessOutbox extends AbstractScript {
               $list[] = $reg;
             }
             if (in_array(Outbox::STATUS_MISSING_RP, $outbox->arguments)) {
-	      if (!$reg->isRpComplete()) {
+              if (!$reg->isRpComplete()) {
                 self::errln(sprintf("Adding scorers from regatta %s for missing RP.", $reg->name), 3);
                 $list[] = $reg;
               }
@@ -147,10 +146,11 @@ class ProcessOutbox extends AbstractScript {
     self::errln(sprintf("Processed %d requests, sending %d messages.", $num, $this->sent));
   }
 
-  private function send(Account $from, Account $to, $subject, $content) {
+  private function send(Account $from, Account $to, $subject, $content, School $school = null) {
+    if ($school === null)
+      $school = $to->getFirstSchool();
     DB::queueMessage($from,
                      $to,
-                     $to->getFirstSchool(),
                      DB::keywordReplace($subject, $to, $school),
                      DB::keywordReplace($content, $to, $school), true);
     self::errln(sprintf("Sent message to %s.", $to), 2);
