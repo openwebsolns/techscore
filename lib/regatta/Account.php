@@ -91,6 +91,23 @@ class Account extends DBObject {
                  );
   }
 
+  /**
+   * Gets String representation of account's main affiliation
+   *
+   * If account is assigned to one school only, then use that as the
+   * affiliation. If admin, use organization name as affiliation.
+   *
+   * @return String
+   */
+  public function getAffiliation() {
+    if ($this->isAdmin())
+      return DB::g(STN::ORG_NAME);
+    $schools = $this->getSchools();
+    if (count($schools) == 1)
+      return $schools[0]->name;
+    return sprintf("%d schools", count($schools));
+  }
+
   public function isAdmin() {
     return $this->admin > 1 || ($this->ts_role !== null && $this->__get('ts_role')->has_all !== null);
   }

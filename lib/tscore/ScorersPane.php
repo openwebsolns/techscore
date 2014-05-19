@@ -24,7 +24,7 @@ class ScorersPane extends AbstractPane {
     $p->addHelp('/node13.html#sec:scorers');
 
     // Get scorers
-    $p->add($tab = new XQuickTable(array('class'=>'full left'), array("Name", "Affiliation", "")));
+    $p->add($tab = new XQuickTable(array('id'=>'scorers-table'), array("Name", "Affiliation", "")));
     $scorers = array();
     foreach ($this->REGATTA->getScorers() as $i => $s) {
       $scorers[$s->id] = $s;
@@ -41,7 +41,11 @@ class ScorersPane extends AbstractPane {
       }
 
       // Fill row
-      $tab->addRow(array(new XA("mailto:" . $s->id, $s->getName()), $s->school->name, $f2), array('class'=>'row' . ($i % 2)));
+      $tab->addRow(array(
+                     new XA("mailto:" . $s->id, $s->getName()),
+                     $s->getAffiliation(),
+                     $f2),
+                   array('class'=>'row' . ($i % 2)));
     }
     if (count($scorers) == 1) {
       $button->set("disabled", "disabled");
@@ -70,7 +74,7 @@ class ScorersPane extends AbstractPane {
         else {
           // Make sure that there are some sailors left to add
           $num = 0;
-          $tab = new XQuickTable(array('class'=>'full left'), array("", "First name", "Last name", "School"));
+          $tab = new XQuickTable(array('class'=>'potential-scorers'), array("", "First name", "Last name", "E-mail", "School"));
           $i = 0;
           foreach ($accnts as $user) {
             if (!isset($scorers[$user->id])) {
@@ -78,7 +82,8 @@ class ScorersPane extends AbstractPane {
               $tab->addRow(array(new XRadioInput('account', $user->id, array('id'=>$id)),
                                  new XLabel($id, $user->first_name),
                                  new XLabel($id, $user->last_name),
-                                 new XLabel($id, $user->school->name)),
+                                 new XLabel($id, $user->id),
+                                 new XLabel($id, $user->getAffiliation())),
                            array('class'=>'row'.($i++ % 2)));
               $num++;
             }
