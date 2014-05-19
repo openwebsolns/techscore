@@ -91,7 +91,7 @@ class RegisterPane extends AbstractUserPane {
     $f->add(new FReqItem("Password:", new XPasswordInput("passwd", "")));
     $f->add(new FReqItem("Confirm password:", new XPasswordInput("confirm", "")));
     $f->add(new FReqItem("Affiliation:", $aff = new XSelect("school")));
-    $f->add(new FReqItem("School Role:", XSelect::fromArray('role', Account::getRoles())));
+    $f->add(new FReqItem(DB::g(STN::ORG_NAME) . " Role:", XSelect::fromArray('role', Account::getRoles())));
     $f->add(new FItem("Notes:", new XTextArea('message', "", array('placeholder'=>"Optional message to send to the admins."))));
     $f->add(new XSubmitP("register", "Request account"));
 
@@ -205,12 +205,21 @@ class RegisterPane extends AbstractUserPane {
   }
 
   public function getAdminBody(Account $about) {
-    $mes = sprintf("       Name: %s %s\n" .
-                   "      Email: %s\n" .
-                   "Affiliation: %s\n" .
-                   "School Role: %s",
-                   $about->first_name, $about->last_name, $about->id,
-                   $about->getAffiliation(), $about->role);
+    $fields = array(
+      'Name' => $about,
+      'Email' => $about->id,
+      'Affiliation' => $about->getAffiliation(),
+      DB::g(STN::ORG_NAME) . ' Role' => $about->role);
+
+    $len = 0;
+    foreach ($fields as $key => $val) {
+      $len = max($len, strlen($key));
+    }
+
+    $fmt = "%" . $len . "s: %s\n";
+    $mes = '';
+    foreach ($fields as $key => $val)
+      $mes .= sprintf($fmt, $key, $val);
     if ($about->message !== null)
       $mes .= sprintf("
 
