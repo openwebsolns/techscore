@@ -3696,10 +3696,6 @@ class Permission extends DBObject {
   // database with ID matching that of the constant below. Permissions
   // that don't exist in the database are implied reserved for super
   // admins.
-  const CREATE_REGATTA = 'create_regatta';
-  const DELETE_REGATTA = 'delete_regatta';
-  const DOWNLOAD_AA_REPORT = 'download_aa_report';
-  const EDIT_AA_REPORT = 'edit_aa_report';
   const EDIT_ANNOUNCEMENTS = 'edit_announcements';
   const EDIT_BOATS = 'edit_boats';
   const EDIT_EMAIL_TEMPLATES = 'edit_email_templates';
@@ -3707,23 +3703,30 @@ class Permission extends DBObject {
   const EDIT_ORGANIZATION = 'edit_organization';
   const EDIT_PERMISSIONS = 'edit_permissions';
   const EDIT_PUBLIC_FILES = 'edit_public_files';
-  const EDIT_REGATTA = 'edit_regatta';
   const EDIT_REGATTA_TYPES = 'edit_regatta_types';
-  const EDIT_SCHOOL_LOGO = 'edit_school_logo';
   const EDIT_SEASONS = 'edit_seasons';
   const EDIT_SPONSORS = 'edit_sponsors';
-  const EDIT_TEAM_NAMES = 'edit_team_names';
   const EDIT_TR_TEMPLATES = 'edit_tr_templates';
-  const EDIT_UNREGISTERED_SAILORS = 'edit_unregistered_sailors';
   const EDIT_USERS = 'edit_users';
   const EDIT_VENUES = 'edit_venues';
   const EDIT_WELCOME = 'edit_welcome';
-  const FINALIZE_REGATTA = 'finalize_regatta';
   const SEND_MESSAGE = 'send_message';
+
+  const DOWNLOAD_AA_REPORT = 'download_aa_report';
+  const EDIT_AA_REPORT = 'edit_aa_report';
   const USE_HEAD_TO_HEAD_REPORT = 'use_head_to_head_report';
   const USE_TEAM_RECORD_REPORT = 'use_team_record_report';
   const USE_MEMBERSHIP_REPORT = 'use_membership_report';
   const USE_BILLING_REPORT = 'use_billing_report';
+
+  const EDIT_REGATTA = 'edit_regatta';
+  const FINALIZE_REGATTA = 'finalize_regatta';
+  const CREATE_REGATTA = 'create_regatta';
+  const DELETE_REGATTA = 'delete_regatta';
+
+  const EDIT_SCHOOL_LOGO = 'edit_school_logo';
+  const EDIT_UNREGISTERED_SAILORS = 'edit_unregistered_sailors';
+  const EDIT_TEAM_NAMES = 'edit_team_names';
 
   const EDIT_GLOBAL_CONF = 'edit_global_conf';
   const USURP_USER = 'usurp_user';
