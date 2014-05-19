@@ -154,6 +154,17 @@ class Account extends DBObject {
   }
 
   /**
+   * Gets one school from the list of schools associated with account
+   *
+   * @param Conference $conf the optional conference to limit to
+   * @return School|null
+   */
+  public function getFirstSchool(Conference $conf = null) {
+    $schools = $this->getSchools($conf);
+    return (count($schools) == 0) ? null : $schools[0];
+  }
+
+  /**
    * Returns all the schools that this user is affiliated with
    *
    * @param Conference $conf the possible to conference to narrow down
