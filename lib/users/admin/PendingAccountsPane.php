@@ -79,14 +79,14 @@ class PendingAccountsPane extends AbstractAccountPane {
       $p->add(new XP(array(), "Below is a list of pending accounts. Click on the account name to approve or reject that account."));
 
       $p->add($tab = new XQuickTable(array('class'=>'full pending-accounts'),
-                                     array("Name", "E-mail", "School", "Role", "Notes")));
+                                     array("Name", "E-mail", "Affiliation", "Role", "Notes")));
       $row = 0;
       for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < $count; $i++) {
         $acc = $list[$i];
         $tab->addRow(array(new XA(WS::link('/pending', array('account'=>$acc->id)), $acc->getName()),
                            new XA(sprintf("mailto:%s", $acc->id), $acc->id),
                            $acc->getAffiliation(),
-                           $acc->role,
+                           ucfirst($acc->role),
 			   $acc->message));
       }
       if ($num_pages > 1) {
