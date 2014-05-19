@@ -26,14 +26,21 @@ class EditTeamsPane extends AbstractTeamPane {
     $p->add($f = $this->createForm());
     $teams = array();
     if ($this->participant_mode) {
+      $school = null;
       foreach ($this->REGATTA->getTeams() as $team) {
-        if ($this->USER->hasSchool($team->school))
+        if ($this->USER->hasSchool($team->school)) {
           $teams[] = $team;
+          if ($school === null)
+            $school = $team->school;
+        }
       }
-      $f->add(new XP(array(),
-                     array("Use this pane to set the squad name to use for your teams in your jurisdiction. To edit the list of squad names, visit the ",
-                           new XA(WS::link('/prefs/' . $this->USER->school->id), "preferences"),
-                           " page.")));
+      $f->add($xp = new XP(array(),
+                           array("Use this pane to set the squad name to use for the teams in your jurisdiction.")));
+      if ($this->USER->can(Permission::EDIT_TEAM_NAMES)) {
+        $xp->add("To edit the list of available squad names for your school, visit the ");
+        $xp->add(new XA(WS::link('/prefs/' . $school->id), "preferences"));
+        $xp->add(" page.");
+      }
     }
     else {
       $teams = $this->REGATTA->getTeams();
