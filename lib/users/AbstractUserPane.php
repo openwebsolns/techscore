@@ -130,9 +130,9 @@ abstract class AbstractUserPane {
     foreach ($menus as $title => $items) {
       $list = array();
       foreach ($items as $pane) {
-        $li = new XLi(new XA(WS::link('/' . $this->pane_url($pane)), $this->pane_title($pane)));
-        if ($this->isPermitted($pane))
-          $list[] = $li;
+        if ($this->isPermitted($pane)) {
+          $list[] = new XLi(new XA(WS::link('/' . $this->pane_url($pane)), $this->pane_title($pane)));
+        }
       }
       
       // Special case: Text menu
@@ -387,6 +387,24 @@ abstract class AbstractUserPane {
     if (count(self::$ROUTES[$classname][self::R_PERM]) == 0)
       return true;
 
+    // Limit the list of permissions if schools involved
+    if ($this->SCHOOL === null) {
+      $perms = array();
+      foreach (self::$ROUTES[$classname][self::R_PERM] as $perm) {
+        if (!in_array($perm, array(
+                        Permission::EDIT_SCHOOL_LOGO,
+                        Permission::EDIT_UNREGISTERED_SAILORS,
+                        Permission::EDIT_TEAM_NAMES,
+                        Permission::EDIT_REGATTA,
+                        Permission::FINALIZE_REGATTA,
+                        Permission::CREATE_REGATTA,
+                        Permission::DELETE_REGATTA)))
+          $perms[] = $perm;
+      }
+      if (count($perms) == 0)
+        return false;
+      return $this->USER->canAny($perms);
+    }
     return $this->USER->canAny(self::$ROUTES[$classname][self::R_PERM]);
   }
 
