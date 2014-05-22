@@ -44,7 +44,7 @@ class HomePane extends AbstractUserPane {
         $p->set('id', 'port-pending-users');
         if ($num_pending == 1)
           $p->add(new XP(array(),
-                         array("There is one pending account request for ", new XA(WS::link('/pending'), $pending[0]), ".")));
+                         array("There is one pending account request for ", new XA(WS::link('/pending', array('account'=>$pending[0]->id)), $pending[0]), ".")));
         else
           $p->add(new XP(array(),
                          array("There are ", new XA(WS::link('/pending'), "$num_pending pending account requests"), ".")));

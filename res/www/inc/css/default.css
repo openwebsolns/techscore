@@ -1752,7 +1752,7 @@ td.tr-sail, td.sail {
 
 /* Finalize port */
 
-#finalize {
+#finalize, #approve-port {
     margin-top: 1.5em;
 
     background: #f3f3bb;
@@ -1767,7 +1767,7 @@ td.tr-sail, td.sail {
     box-shadow: 0 2px 3px 1px #AAAAAA;
 }
 
-#finalize > h3 {
+#finalize > h3, #approve-port > h3 {
     display: none;
 }
 

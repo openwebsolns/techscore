@@ -35,7 +35,7 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
     $f->add($fi = new FReqItem("Name:", new XStrong($user), "Only the user can change the name using the \"My Account\" page."));
 
     $f->add(new FReqItem("Email:", new XA('mailto:'.$user->id, $user->id)));
-    $f->add(new FReqItem("School Role: ", XSelect::fromArray('role', Account::getRoles(), $user->role)));
+    $f->add(new FReqItem(DB::g(STN::ORG_NAME) . " Role: ", XSelect::fromArray('role', Account::getRoles(), $user->role)));
     if ($user != $this->USER && !$user->isSuper())
       $f->add(new FReqItem("Role:", XSelect::fromDBM('ts_role', DB::getAll(DB::$ROLE), $user->ts_role, array(), "")));
 

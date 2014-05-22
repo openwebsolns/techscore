@@ -44,7 +44,7 @@ class PendingAccountsPane extends AbstractAccountPane {
 	$p->set('id', 'approve-port');
 	$p->add($f = $this->createForm());
 	$f->add(new XHiddenInput('account', $account->id));
-	$f->add(new XP(array(), "This account's status is still pending approval. Please take a moment to review the account details below, before clicking one of the buttons below."));
+	$f->add(new XP(array(), "This account's status is still pending approval. Please take a moment to review the account details below, before clicking one of the following buttons."));
 	$f->add($xp = new XSubmitP('approve', "Approve"));
 	$xp->add(" ");
 	$xp->add(new XSubmitDelete('reject', "Reject"));
