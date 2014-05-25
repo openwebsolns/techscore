@@ -96,7 +96,7 @@ class AllAmerican extends AbstractReportPane {
 
       $title = DB::g(STN::CONFERENCE_TITLE);
       $mes = sprintf("Only choose sailors from selected %s(s) automatically. You can manually add sailors from other %ss.", $title, $title);
-      $form->add($fi = new FReqItem(sprintf("%ss:", $title), $this->conferenceList('conf-', array(), true), $mes));
+      $form->add($fi = new FReqItem(sprintf("%ss:", $title), $this->conferenceList('conf-', array()), $mes));
 
       $form->add($fi = new FReqItem("Min. # Regattas", new XNumberInput('min-regattas', 2, 1, null, 1, array('size'=>3))));
       $fi->add(new XNote("Sailors must qualify for at least this many regattas to be automatically considered."));
@@ -105,14 +105,9 @@ class AllAmerican extends AbstractReportPane {
 
       // existing?
       $all_reports = DB::getAll(DB::$AA_REPORT);
-      $pos_confs = array();
-      foreach ($this->USER->getConferences() as $conf)
-        $pos_confs[$conf->id] = $conf;
-
       $reports = array();
       foreach ($all_reports as $report) {
-        if ($this->isValidReportForUser($report, $pos_confs))
-          $reports[] = $report;
+        $reports[] = $report;
       }
       if (count($reports) > 0) {
         $this->PAGE->addContent($p = new XPort("Saved reports"));
@@ -350,8 +345,7 @@ class AllAmerican extends AbstractReportPane {
     // ------------------------------------------------------------
     if (isset($args['delete-report'])) {
       $report = DB::$V->reqID($args, 'id', DB::$AA_REPORT, "Invalid report chosen.");
-      if (!$this->isValidReportForUser($report))
-        throw new SoterException("You do not have permission to delete this report.");
+      // TODO: permission to delete?
 
       DB::remove($report);
       Session::pa(new PA(sprintf("Deleted report \"%s\".", $report->id)));
@@ -363,8 +357,7 @@ class AllAmerican extends AbstractReportPane {
     // ------------------------------------------------------------
     if (isset($args['load-report'])) {
       $report = DB::$V->reqID($args, 'id', DB::$AA_REPORT, "Invalid report chosen.");
-      if (!$this->isValidReportForUser($report))
-        throw new SoterException("You do not have permission to use this report.");
+      // TODO: permission to download?
 
       $this->AA['report-type'] = $report->type;
       $this->AA['report-role'] = $report->role;
@@ -712,21 +705,6 @@ class AllAmerican extends AbstractReportPane {
     }
 
     return $list;
-  }
-
-  private function isValidReportForUser(AA_Report $report, Array $pos_confs = array()) {
-    return true;
-
-    if (count($pos_confs) == 0) {
-      foreach ($this->USER->getConferences() as $conf)
-        $pos_confs[$conf->id] = $conf;
-    }
-
-    foreach ($report->conferences as $conf) {
-      if (!isset($pos_confs[$conf]))
-        return false;
-    }
-    return true;
   }
 }
 ?>

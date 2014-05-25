@@ -63,7 +63,7 @@ class MembershipReport extends AbstractReportPane {
           throw new SoterException("No seasons provided.");
 
         $pos_confs = array();
-        foreach ($this->USER->getConferences() as $conf)
+        foreach (DB::getConferences() as $conf)
           $pos_confs[$conf->id] = $conf;
         foreach (DB::$V->reqList($args, 'confs', null, sprintf("Missing %ss for report.", strtolower(DB::g(STN::CONFERENCE_TITLE)))) as $id) {
           if (!isset($pos_confs[$id]))
