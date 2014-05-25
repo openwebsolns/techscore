@@ -56,32 +56,28 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
       $my_confs[$conf->id] = $conf;
 
 
-    $this->PAGE->addContent($p = new XPort($conf_title . " Affiliations"));
+    $this->PAGE->addContent($p = new XPort("Affiliations"));
+    $p->add(new XP(array(), "Affiliations will be used along with the role to determine the full set of permissions for a given account. For instance, users with access to edit school information can only do so on the schools affiliated with their account."));
     $p->add(new XP(array(),
-                   array("Each account may be associated at the ", $conf_title, " level, which will grant the user implicit access to all the schools in those ", $conf_title, "s, including those that may be added at a later time.")));
+                   array("An account may be affiliated at the individual school level or at the ", $conf_title, " level, which will grant the user implicit access to all the schools in that ", $conf_title, ", including those that may be added at a later time.")));
     if ($user->isAdmin())
       $p->add(new XP(array('class'=>'warning'), "As this account has administrator privileges, the user already has access to every school in the system."));
 
     $p->add($f = $this->createForm());
     $f->add(new XHiddenInput('user', $user->id));
 
-
-    require_once('xml5/XMultipleSelect.php');
-    $f->add(new FItem($conf_title . "s:", $sel = new XMultipleSelect('conferences[]')));
+    $f->add(new FItem($conf_title . "s:", $sel = new XSelectM('conferences[]'), "It is recommended to affiliate accounts either at the " . $conf_title . " level, or the School level, but not both."));
     $sel->set('id', 'conference-associations');
     foreach ($confs as $conf) {
-      $sel->addOption($conf->id, $conf, isset($my_confs[$conf->id]));
+      $attrs = array();
+      if (isset($my_confs[$conf->id]))
+        $attrs['selected'] = 'selected';
+      $sel->add(new FOption($conf->id, $conf, $attrs));
     }
-    $f->add(new XSubmitP('user-conferences', "Set " . $conf_title));
 
     // ------------------------------------------------------------
     // Schools
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new XPort("School affiliations"));
-    $p->add(new XP(array(), "Each account may be associated with one or more schools. These affiliations will be used along with the role to determine the full set of permissions for a given account. For instance, users with access to edit school information can only do so on the schools associated with their account."));
-    if ($user->isAdmin())
-      $p->add(new XP(array('class'=>'warning'), "As this account has administrator privileges, the user has access to every regatta and every school in the system."));
-
     $opts = array();
     foreach ($confs as $conf) {
       $subs = array();
@@ -89,10 +85,8 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
         $subs[$school->id] = $school;
       $opts[(string)$conf] = $subs;
     }
-    $p->add($f = $this->createForm());
-    $f->add(new XHiddenInput('user', $user->id));
 
-    $f->add(new FItem("Schools:", $sel = new XSelectM('schools[]', array('size'=>10))));
+    $f->add(new FItem("Schools:", $sel = new XSelectM('schools[]', array('size'=>10)), "You need only include schools that are not part of a " . $conf_title . " chosen above."));
 
     $my_schools = array();
     foreach ($user->getSchools(null, false) as $school) {
@@ -107,7 +101,8 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
         $grp->add(new FOption($key, $val, $attrs));
       }
     }
-    $f->add(new XSubmitP('user-schools', "Set schools"));
+
+    $f->add(new XSubmitP('user-affiliations', "Set affiliations"));
     
 
     if ($user->status != Account::STAT_INACTIVE) {
@@ -205,31 +200,23 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     // Set affiliations
     // ------------------------------------------------------------
-    if (isset($args['user-schools'])) {
+    if (isset($args['user-affiliations'])) {
       // Other school affiliations
       $schools = array();
       foreach (DB::$V->incList($args, 'schools') as $id) {
         if (($school = DB::getSchool($id)) !== null)
           $schools[$school->id] = $school;
       }
-
       $user->setSchools($schools);
-      Session::pa(new PA(sprintf("Updated school affiliations for user %s.", $user)));
-    }
 
-    // ------------------------------------------------------------
-    // Set conferences
-    // ------------------------------------------------------------
-    if (isset($args['user-conferences'])) {
       // Other conference affiliations
       $conferences = array();
       foreach (DB::$V->incList($args, 'conferences') as $id) {
         if (($conference = DB::getConference($id)) !== null)
           $conferences[$conference->id] = $conference;
       }
-
       $user->setConferences($conferences);
-      Session::pa(new PA(sprintf("Updated conference affiliations for user %s.", $user)));
+      Session::pa(new PA(sprintf("Updated affiliations for user %s.", $user)));
     }
     
     return array();
