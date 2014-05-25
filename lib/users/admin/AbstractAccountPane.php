@@ -39,12 +39,10 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
     if ($user != $this->USER && !$user->isSuper())
       $f->add(new FReqItem("Role:", XSelect::fromDBM('ts_role', DB::getAll(DB::$ROLE), $user->ts_role, array(), "")));
 
-    if ($user->status != Account::STAT_PENDING) {
-      $f->add(new FItem("Regattas created:", new XStrong(count($user->getRegattasCreated()))));
-    }
-
     $f->add($xp = new XSubmitP('edit-user', "Edit user"));
     $xp->add(new XHiddenInput('user', $user->id));
+    if ($this->USER->can(Permission::USURP_USER))
+      $xp->add(new XSubmitInput('usurp-user', "Usurp"));
 
     // ------------------------------------------------------------
     // Conferences
@@ -218,7 +216,23 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
       $user->setConferences($conferences);
       Session::pa(new PA(sprintf("Updated affiliations for user %s.", $user)));
     }
-    
+
+    // ------------------------------------------------------------
+    // Usurp user
+    // ------------------------------------------------------------
+    if (isset($args['usurp-user'])) {
+      if (!$this->USER->can(Permission::USURP_USER))
+        throw new SoterException("No access to this feature.");
+      $user = DB::$V->reqID($args, 'user', DB::$ACCOUNT, "No user provided.");
+      if ($user == $this->USER)
+        throw new SoterException("What's the point of usurping yourself?");
+      if ($user->status != Account::STAT_ACTIVE)
+        throw new SoterException("Only active users can be usurped.");
+      Session::s('usurped_user', $user->id);
+      Session::pa(new PA("You're now logged in as " . $user));
+      $this->redirect('');
+    }
+
     return array();
   }
 }

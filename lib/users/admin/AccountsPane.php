@@ -188,22 +188,5 @@ class AccountsPane extends AbstractAccountPane {
     $tab->addRow(array(new XSpan(ucwords(Account::STAT_INACTIVE), array('class'=>'stat user-' . Account::STAT_INACTIVE)),
                        "The account has been removed. Functionally similar to a \"rejected\" status."));
   }
-
-  public function process(Array $args) {
-    if (isset($args['usurp-user'])) {
-      if (!$this->USER->can(Permission::USURP_USER))
-        throw new SoterException("No access to this feature.");
-      $user = DB::$V->reqID($args, 'user', DB::$ACCOUNT, "No user provided.");
-      if ($user == $this->USER)
-        throw new SoterException("What's the point of usurping yourself?");
-      if ($user->status != Account::STAT_ACTIVE)
-        throw new SoterException("Only active users can be usurped.");
-      Session::s('usurped_user', $user->id);
-      Session::pa(new PA("You're now logged in as " . $user));
-      $this->redirect('');
-    }
-
-    parent::process($args);
-  }
 }
 ?>
