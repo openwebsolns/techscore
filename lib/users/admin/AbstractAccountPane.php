@@ -47,15 +47,43 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
     $xp->add(new XHiddenInput('user', $user->id));
 
     // ------------------------------------------------------------
+    // Conferences
+    // ------------------------------------------------------------
+    $confs = DB::getConferences();
+    $conf_title = DB::g(STN::CONFERENCE_TITLE);
+    $my_confs = array();
+    foreach ($user->getConferences() as $conf)
+      $my_confs[$conf->id] = $conf;
+
+
+    $this->PAGE->addContent($p = new XPort($conf_title . " Affiliations"));
+    $p->add(new XP(array(),
+                   array("Each account may be associated at the ", $conf_title, " level, which will grant the user implicit access to all the schools in those ", $conf_title, "s, including those that may be added at a later time.")));
+    if ($user->isAdmin())
+      $p->add(new XP(array('class'=>'warning'), "As this account has administrator privileges, the user already has access to every school in the system."));
+
+    $p->add($f = $this->createForm());
+    $f->add(new XHiddenInput('user', $user->id));
+
+
+    require_once('xml5/XMultipleSelect.php');
+    $f->add(new FItem($conf_title . "s:", $sel = new XMultipleSelect('conferences[]')));
+    $sel->set('id', 'conference-associations');
+    foreach ($confs as $conf) {
+      $sel->addOption($conf->id, $conf, isset($my_confs[$conf->id]));
+    }
+    $f->add(new XSubmitP('user-conferences', "Set " . $conf_title));
+
+    // ------------------------------------------------------------
     // Schools
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new XPort("School affiliations"));
-    $p->add(new XP(array(), "Each account may be associated with one or more schools. These affiliations will be used along with the role to determine the full set of permissions for a given account. For instance, users with access to edit school information can only do so on the schools associated with their account via this form."));
+    $p->add(new XP(array(), "Each account may be associated with one or more schools. These affiliations will be used along with the role to determine the full set of permissions for a given account. For instance, users with access to edit school information can only do so on the schools associated with their account."));
     if ($user->isAdmin())
       $p->add(new XP(array('class'=>'warning'), "As this account has administrator privileges, the user has access to every regatta and every school in the system."));
 
     $opts = array();
-    foreach (DB::getConferences() as $conf) {
+    foreach ($confs as $conf) {
       $subs = array();
       foreach ($conf->getSchools() as $school)
         $subs[$school->id] = $school;
@@ -79,7 +107,7 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
         $grp->add(new FOption($key, $val, $attrs));
       }
     }
-    $f->add(new XSubmitP('user-schools', "Set affiliations"));
+    $f->add(new XSubmitP('user-schools', "Set schools"));
     
 
     if ($user->status != Account::STAT_INACTIVE) {
@@ -181,13 +209,29 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
       // Other school affiliations
       $schools = array();
       foreach (DB::$V->incList($args, 'schools') as $id) {
-        if (($school = DB::get(DB::$SCHOOL, $id)) !== null)
+        if (($school = DB::getSchool($id)) !== null)
           $schools[$school->id] = $school;
       }
 
       $user->setSchools($schools);
       Session::pa(new PA(sprintf("Updated school affiliations for user %s.", $user)));
     }
+
+    // ------------------------------------------------------------
+    // Set conferences
+    // ------------------------------------------------------------
+    if (isset($args['user-conferences'])) {
+      // Other conference affiliations
+      $conferences = array();
+      foreach (DB::$V->incList($args, 'conferences') as $id) {
+        if (($conference = DB::getConference($id)) !== null)
+          $conferences[$conference->id] = $conference;
+      }
+
+      $user->setConferences($conferences);
+      Session::pa(new PA(sprintf("Updated conference affiliations for user %s.", $user)));
+    }
+    
     return array();
   }
 }

@@ -787,3 +787,15 @@ insert into role_permission (role, permission) values (2, 'use_membership_report
 delete from account_school where (account, school) in (select id, school from account);
 insert into account_school (account, school) (select id, school from account where school is not null);
 alter table account drop foreign key `account_ibfk_1`, drop column school;
+
+-- add conference association to accounts
+CREATE TABLE `account_conference` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `account` varchar(40) NOT NULL,
+  `conference` varchar(8) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `account` (`account`,`conference`),
+  KEY `conference` (`conference`),
+  CONSTRAINT `account_conference_ibfk_1` FOREIGN KEY (`conference`) REFERENCES `conference` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `account_conference_ibfk_2` FOREIGN KEY (`account`) REFERENCES `account` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1

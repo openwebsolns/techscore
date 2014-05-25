@@ -116,7 +116,8 @@ class Account extends DBObject {
   /**
    * Returns all the conferences this user is affiliated with
    *
-   * Affiliation is transitory: depending on school
+   * 'Admins' have access to all conferences, while others are
+   * assigned.
    *
    * @return Array:Conference
    */
@@ -125,10 +126,24 @@ class Account extends DBObject {
       return DB::getConferences();
     return DB::getAll(DB::$CONFERENCE,
                       new DBCondIn('id',
-                                   DB::prepGetAll(DB::$SCHOOL,
-                                                  new DBCondIn('id',
-                                                               DB::prepGetAll(DB::$ACCOUNT_SCHOOL, new DBCond('account', $this), array('school'))),
-                                                  array('conference'))));
+                                   DB::prepGetAll(DB::$ACCOUNT_CONFERENCE, new DBCond('account', $this), array('conference'))));
+  }
+
+  /**
+   * Sets the conference affiliations for this account
+   *
+   * @param Array:Conference the conferences to associate
+   */
+  public function setConferences(Array $conferences) {
+    DB::removeAll(DB::$ACCOUNT_CONFERENCE, new DBCond('account', $this));
+    $new = array();
+    foreach ($conferences as $conf) {
+      $link = new Account_Conference();
+      $link->account = $this;
+      $link->conference = $conf;
+      $new[] = $link;
+    }
+    DB::insertAll($new);
   }
 
   /**
@@ -355,6 +370,27 @@ class Account_School extends DBObject {
     }
   }
 }
+
+/**
+ * Many-tomany relationship between accounts and conferences
+ *
+ * @author Dayan Paez
+ * @version 2014-05-25
+ */
+class Account_Conference extends DBObject {
+  protected $account;
+  protected $conference;
+  public function db_type($field) {
+    switch ($field) {
+    case 'account': return DB::$ACCOUNT;
+    case 'school':  return DB::$SCHOOL;
+    default:
+      return parent::db_type($field);
+    }
+  }
+}
+
 DB::$ACCOUNT = new Account();
 DB::$ACCOUNT_SCHOOL = new Account_School();
+DB::$ACCOUNT_CONFERENCE = new Account_Conference();
 ?>
