@@ -139,10 +139,19 @@ class AccountsPane extends AbstractAccountPane {
           $schools = new XEm("All (admin)");
         else {
           $schools = "";
-          foreach ($user->getSchools() as $j => $school) {
+          $j = 0;
+          foreach ($user->getConferences() as $conf) {
+            if ($j > 0)
+              $schools .= ", ";
+            $schools .= $conf;
+            $j++;
+          }
+
+          foreach ($user->getSchools(null, false) as $school) {
             if ($j > 0)
               $schools .= ", ";
             $schools .= $school->nick_name;
+            $j++;
           }
         }
         
