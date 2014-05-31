@@ -127,6 +127,11 @@ abstract class AbstractUserPane {
       ),
     );
 
+    // Are database syncs allowed?
+    if (DB::g(STN::SAILOR_API_URL) || DB::g(STN::SCHOOL_API_URL) || DB::g(STN::COACH_API_URL)) {
+      $menus['Configure'][] = 'DatabaseSyncManagement';
+    }
+
     foreach ($menus as $title => $items) {
       $list = array();
       foreach ($items as $pane) {
@@ -622,6 +627,13 @@ abstract class AbstractUserPane {
       self::R_PATH => 'users/admin',
       self::R_URLS => array('social'),
       self::R_PERM => array(Permission::EDIT_PUBLIC_FILES)
+    ),
+
+    'DatabaseSyncManagement' => array(
+      self::R_NAME => "Database sync",
+      self::R_PATH => 'users/admin',
+      self::R_URLS => array('sync'),
+      self::R_PERM => array(Permission::SYNC_DATABASE)
     ),
 
     'SponsorsManagement' => array(

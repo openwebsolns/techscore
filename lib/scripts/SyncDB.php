@@ -155,11 +155,6 @@ class SyncDB extends AbstractScript {
         $this->errors[] = "Invalid school information: " . $e->getMessage();
       }
     }
-
-    // Update the summary page for completeness
-    require_once('UpdateSchoolsSummary.php');
-    $P = new UpdateSchoolsSummary();
-    $P->run();
   }
 
   /**
@@ -264,6 +259,7 @@ class SyncDB extends AbstractScript {
 
     $log->ended_at = new DateTime();
     DB::set($log);
+    return $log;
   }
 }
 
@@ -291,6 +287,13 @@ if (isset($argv) && basename(__FILE__) == basename($argv[0])) {
     }
   }
   $P->run($tosync[Sync_Log::SCHOOLS], $tosync[Sync_Log::SAILORS], $tosync[Sync_Log::COACHES]);
+  if ($tosync[Sync_Log::SCHOOLS]) {
+    // Update the summary page for completeness
+    require_once('UpdateSchoolsSummary.php');
+    $P2 = new UpdateSchoolsSummary();
+    $P2->run();
+
+  }
   $err = $P->errors();
   if (count($err) > 0) {
     echo "----------Error(s)\n";

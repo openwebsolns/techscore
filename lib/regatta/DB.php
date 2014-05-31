@@ -769,6 +769,72 @@ class DB extends DBM {
   }
 
   /**
+   * Return a human-readable representation of time difference
+   *
+   * @param DateTime $timestamp the timestamp in question
+   * @param DateTime $relative current time
+   * @return String e.g. "about 5 minutes ago"
+   * @throws InvalidArgumentException if $timestamp in the future
+   */
+  public static function howLongAgo(DateTime $timestamp, DateTime $relative = null) {
+    if ($relative === null)
+      $relative = DB::$NOW;
+    if ($timestamp > $relative)
+      throw new InvalidArgumentException("Timestamp in the future relative to \"current\" time.");
+
+    $interval = $relative->diff($timestamp);
+    if ($interval->y > 1)
+      return sprintf("over %d years ago", $interval->y);
+    if ($interval->y == 1)
+      return "over a year ago";
+    if ($interval->m > 1)
+      return sprintf("about %d months ago", $interval->m);
+    if ($interval->d > 1)
+      return sprintf("%d days ago", $interval->d);
+    if ($interval->d == 1)
+      return "yesterday";
+    if ($interval->h > 0)
+      return sprintf("%d hour%s ago", $interval->h, ($interval->h > 1) ? "s" : "");
+    if ($interval->i > 55)
+      return "about an hour ago";
+    if ($interval->i > 0)
+      return sprintf("%d minute%s ago", $interval->i, ($interval->i > 1) ? "s" : "");
+    return "less than a minute ago";
+  }
+
+  /**
+   * Return a human-readable representation of time interval
+   *
+   * @param DateTime $timestamp the timestamp in question
+   * @param DateTime $relative current time
+   * @return String e.g. "5 minutes"
+   * @throws InvalidArgumentException if $timestamp in the past
+   */
+  public static function howLongUntil(DateTime $timestamp, DateTime $relative = null) {
+    if ($relative === null)
+      $relative = DB::$NOW;
+    if ($timestamp < $relative)
+      throw new InvalidArgumentException("Timestamp in the past relative to \"current\" time.");
+
+    $interval = $relative->diff($timestamp);
+    if ($interval->y > 1)
+      return sprintf("%d years", $interval->y);
+    if ($interval->y == 1)
+      return "a year";
+    if ($interval->m > 1)
+      return sprintf("%d months", $interval->m);
+    if ($interval->d > 1)
+      return sprintf("%d days", $interval->d);
+    if ($interval->d == 1)
+      return "tomorrow";
+    if ($interval->h > 0)
+      return sprintf("%d hour%s", $interval->h, ($interval->h > 1) ? "s" : "");
+    if ($interval->i > 1)
+      return sprintf("%d minutes", $interval->i);
+    return "about a minute";
+  }
+
+  /**
    * Perfect for transition, creates ONE and only ONE regatta
    *
    * @param String $id the regatta ID
@@ -3718,6 +3784,7 @@ class Permission extends DBObject {
   const EDIT_VENUES = 'edit_venues';
   const EDIT_WELCOME = 'edit_welcome';
   const SEND_MESSAGE = 'send_message';
+  const SYNC_DATABASE = 'sync_database';
 
   const DOWNLOAD_AA_REPORT = 'download_aa_report';
   const EDIT_AA_REPORT = 'edit_aa_report';
@@ -4189,6 +4256,37 @@ class Sync_Log extends DBObject {
     default:
       return parent::db_type($field);
     }
+  }
+
+  protected function db_order() {
+    return array('started_at' => false);
+  }
+
+  /**
+   * Gets the schools added in this sync process
+   *
+   * @return Array:School
+   */
+  public function getSchools() {
+    return DB::getAll(DB::$SCHOOL, new DBCond('sync_log', $this));
+  }
+
+  /**
+   * Gets the sailors added in this sync process
+   *
+   * @return Array:Sailor
+   */
+  public function getSailors() {
+    return DB::getAll(DB::$SAILOR, new DBCond('sync_log', $this));
+  }
+
+  /**
+   * Gets the coaches added in this sync process
+   *
+   * @return Array:Coach
+   */
+  public function getCoaches() {
+    return DB::getAll(DB::$COACH, new DBCond('sync_log', $this));
   }
 }
 ?>
