@@ -799,3 +799,16 @@ CREATE TABLE `account_conference` (
   CONSTRAINT `account_conference_ibfk_1` FOREIGN KEY (`conference`) REFERENCES `conference` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `account_conference_ibfk_2` FOREIGN KEY (`account`) REFERENCES `account` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1
+
+-- track the membership sync
+create table sync_log (
+  id int unsigned not null auto_increment primary key,
+  started_at timestamp not null default current_timestamp,
+  ended_at datetime null default null,
+  updated varchar(255) not null,
+  error text null default null
+) engine=innodb default charset=utf8;
+
+-- associate sync log with school
+alter table school add column sync_log int unsigned null default null, add foreign key `school_sync_log1` (sync_log) references sync_log(id) on delete set null on update cascade;
+alter table sailor add column sync_log int unsigned null default null, add foreign key `sailor_sync_log1` (sync_log) references sync_log(id) on delete set null on update cascade;

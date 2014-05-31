@@ -1632,6 +1632,7 @@ td.tr-sail, td.sail {
     cursor:pointer;
     font-size:0.9em;
     color: #333;
+    text-shadow: 0 1px 0 #FFFFFF;
 }
 #menubar .menu:hover h4, #menubar .menu.open h4 {
     color: black;

@@ -68,6 +68,7 @@ class DB extends DBM {
   public static $ROLE_PERMISSION = null;
   public static $SETTING = null;
   public static $TEAM_ROTATION = null;
+  public static $SYNC_LOG = null;
 
   public static $OUTBOX = null;
   public static $MESSAGE = null;
@@ -133,6 +134,7 @@ class DB extends DBM {
     self::$PUB_FILE_SUMMARY = new Pub_File_Summary();
     self::$PUB_SPONSOR = new Pub_Sponsor();
     self::$WEBSESSION = new Websession();
+    self::$SYNC_LOG = new Sync_Log();
 
     self::$PERMISSION = new Permission();
     self::$ROLE = new Role();
@@ -1118,6 +1120,7 @@ class School extends DBObject {
   protected $burgee_small;
   protected $burgee_square;
   protected $inactive;
+  protected $sync_log;
 
   public function db_name() { return 'school'; }
   public function db_type($field) {
@@ -1128,6 +1131,7 @@ class School extends DBObject {
     case 'burgee_square':
       return DB::$BURGEE;
     case 'inactive': return DB::$NOW;
+    case 'sync_log': return DB::$SYNC_LOG;
     default:
       return parent::db_type($field);
     }
@@ -1605,6 +1609,7 @@ class Member extends DBObject {
   public $gender;
   public $active;
   public $regatta_added;
+  protected $sync_log;
 
   const MALE = 'M';
   const FEMALE = 'F';
@@ -1615,6 +1620,7 @@ class Member extends DBObject {
   public function db_type($field) {
     switch ($field) {
     case 'school': return DB::$SCHOOL;
+    case 'sync_log': return DB::$SYNC_LOG;
     default:
       return parent::db_type($field);
     }
@@ -4153,6 +4159,36 @@ class Document_Race extends DBObject {
     if ($field == 'document')
       return DB::$REGATTA_DOCUMENT_SUMMARY;
     return parent::db_type($field);
+  }
+}
+
+/**
+ * Log of every database sync process run
+ *
+ * @author Dayan Paez
+ * @version 2014-05-31
+ */
+class Sync_Log extends DBObject {
+  protected $started_at;
+  protected $ended_at;
+  protected $updated;
+  protected $error;
+
+  const SCHOOLS = 'schools';
+  const SAILORS = 'sailors';
+  const COACHES = 'coaches';
+
+  public function db_type($field) {
+    switch ($field) {
+    case 'started_at':
+    case 'ended_at':
+      return DB::$NOW;
+    case 'updated':
+    case 'error':
+      return array();
+    default:
+      return parent::db_type($field);
+    }
   }
 }
 ?>

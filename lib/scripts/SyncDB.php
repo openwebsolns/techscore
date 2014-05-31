@@ -29,10 +29,6 @@ class SyncDB extends AbstractScript {
    */
   private $warnings;
 
-  const SCHOOLS = 'schools';
-  const SAILORS = 'sailors';
-  const COACHES = 'coaches';
-
   /**
    * Creates a new SyncDB object
    *
@@ -56,8 +52,9 @@ class SyncDB extends AbstractScript {
    * Updates the information in the database about the given sailor
    *
    * @param Sailor $sailor the sailor
+   * @param Sync_Log $log
    */
-  private function updateSailor(Member $sailor) {
+  private function updateSailor(Member $sailor, Sync_Log $log) {
     $sailor->active = 1;
     $cur = DB::getRegisteredSailor($sailor->icsa_id);
 
@@ -66,12 +63,20 @@ class SyncDB extends AbstractScript {
       $sailor->id = $cur->id;
       $update = true;
     }
+    else {
+      $sailor->sync_log = $log;
+    }
     if ($sailor->gender === null)
       $sailor->gender = Sailor::MALE;
     DB::set($sailor, $update);
   }
 
-  public function updateSchools() {
+  /**
+   * Sync the schools
+   *
+   * @param Sync_Log $log the sync log to associate with updated schools
+   */
+  public function updateSchools(Sync_Log $log) {
     if (strlen(DB::g(STN::SCHOOL_API_URL)) == 0) {
       self::errln("No URL to update schools list.");
       return;
@@ -100,6 +105,7 @@ class SyncDB extends AbstractScript {
           $this->warnings[] = sprintf("New school: %s", $school->school_code);
           $sch = new School();
           $sch->id = $id;
+          $sch->sync_log = $log;
           $upd = false;
         }
         else {
@@ -156,7 +162,13 @@ class SyncDB extends AbstractScript {
     $P->run();
   }
 
-  public function updateMember(Member $proto) {
+  /**
+   * Sync sailor/coaches, depending on argument
+   *
+   * @param Member $proto one of Sailor|Coach
+   * @param Sync_Log $log the log to save as
+   */
+  public function updateMember(Member $proto, Sync_Log $log) {
     $src = null;
     if ($proto instanceof Sailor)
       $src = DB::g(STN::SAILOR_API_URL);
@@ -196,7 +208,7 @@ class SyncDB extends AbstractScript {
             $s->gender = $sailor->gender;
           }
 
-          $this->updateSailor($s);
+          $this->updateSailor($s, $log);
           self::errln("Activated $role $s", 2);
         }
         else
@@ -215,26 +227,43 @@ class SyncDB extends AbstractScript {
    * @param boolean $coaches true to sync coaches
    */
   public function run($schools = true, $sailors = true, $coaches = true) {
+    // Create log entry
+    $log = new Sync_Log();
+    $log->updated = array();
+    $log->error = array();
+    DB::set($log);
+
     // ------------------------------------------------------------
     // Schools
     // ------------------------------------------------------------
-    if ($schools !== false)
-      $this->updateSchools();
+    if ($schools !== false) {
+      $this->updateSchools($log);
+      $log->updated[] = Sync_Log::SCHOOLS;
+    }
 
     // ------------------------------------------------------------
     // Sailors
     // ------------------------------------------------------------
-    if ($sailors !== false)
-      $this->updateMember(DB::$SAILOR);
+    if ($sailors !== false) {
+      $this->updateMember(DB::$SAILOR, $log);
+      $log->updated[] = Sync_Log::SAILORS;
+    }
 
     // ------------------------------------------------------------
     // Coaches
     // ------------------------------------------------------------
-    if ($coaches !== false)
-      $this->updateMember(DB::$COACH);
+    if ($coaches !== false) {
+      $this->updateMember(DB::$COACH, $log);
+      $log->updated[] = Sync_Log::COACHES;
+    }
 
-    foreach ($this->warnings as $mes)
+    foreach ($this->warnings as $mes) {
       self::errln("Warning: $mes");
+      $log->error[] = $mes;
+    }
+
+    $log->ended_at = new DateTime();
+    DB::set($log);
   }
 }
 
@@ -246,14 +275,14 @@ if (isset($argv) && basename(__FILE__) == basename($argv[0])) {
   $opts = $P->getOpts($argv);
   if (count($opts) == 0)
     throw new TSScriptException("Missing update argument");
-  $tosync = array(SyncDB::SCHOOLS => false,
-                  SyncDB::SAILORS => false,
-                  SyncDB::COACHES => false);
+  $tosync = array(Sync_Log::SCHOOLS => false,
+                  Sync_Log::SAILORS => false,
+                  Sync_Log::COACHES => false);
   foreach ($opts as $arg) {
     switch ($arg) {
-    case SyncDB::SCHOOLS:
-    case SyncDB::SAILORS:
-    case SyncDB::COACHES:
+    case Sync_Log::SCHOOLS:
+    case Sync_Log::SAILORS:
+    case Sync_Log::COACHES:
       $tosync[$arg] = true;
       break;
 
@@ -261,7 +290,7 @@ if (isset($argv) && basename(__FILE__) == basename($argv[0])) {
       throw new TSScriptException("Invalid argument $arg");
     }
   }
-  $P->run($tosync[SyncDB::SCHOOLS], $tosync[SyncDB::SAILORS], $tosync[SyncDB::COACHES]);
+  $P->run($tosync[Sync_Log::SCHOOLS], $tosync[Sync_Log::SAILORS], $tosync[Sync_Log::COACHES]);
   $err = $P->errors();
   if (count($err) > 0) {
     echo "----------Error(s)\n";
