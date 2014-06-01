@@ -207,13 +207,21 @@ class TScorePage extends XPage {
       $m_user_menu->add(new XLi(new XA('/inbox', $inbox_title)));
       $m_user_menu->add(new XLi(new XA('/logout', "Logout", array('id'=>'m-logout'))));
 
-      $this->header->add(new XDiv(array('id'=>'user-menudiv'),
+      $this->header->add($md = new XDiv(array('id'=>'user-menudiv'),
                                   array($ul = new XUl(array('id'=>'user-menu'),
                                                       array(new XLi(new XSpan($user)),
                                                             new XLi(new XA('/', "Home")),
                                                             new XLi(new XA('/account', "My Account")),
                                                             new XLi(new XA('/inbox', $inbox_title)),
                                                             new XLi(new XA('/logout', "Logout", array('accesskey'=>'l'))))))));
+      if ($unread > 0) {
+        $md->add(new XSpan(sprintf("%s Message%s",
+                                   ($unread > 100) ? "100+" : $unread,
+                                   ($unread > 1) ? "s" : ""
+                           ),
+                           array('id'=>'unread-messages')));
+      }
+
       if (Conf::$USURPER !== null) {
         $m_user_menu->add(new XLi(new XA('/account?reset', "Reset Session")));
         $ul->add(new XLi(new XA('/account?reset', "Reset Session")));

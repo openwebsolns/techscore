@@ -242,6 +242,19 @@ h4 a:hover {
     background: #b89f7e;
 }
 
+#unread-messages {
+    background: none;
+    background-image: url(/inc/img/message-callout.png);
+    background-repeat: no-repeat;
+    font-size: 80%;
+    padding: 3px 10px 3px 3px;
+    position: absolute;
+    right: 33px;
+    text-align: right;
+    width: 95px;
+    display: block;
+}
+
 #menubar .menu:hover {
     background: #ddd;
 }
