@@ -20,6 +20,7 @@ require_once('users/admin/AbstractAdminUserPane.php');
 class DatabaseSyncManagement extends AbstractAdminUserPane {
 
   const TIMEOUT_SECONDS = 300;
+  const NUM_PER_PAGE = 20;
 
   private $sailors_url;
   private $coaches_url;
@@ -37,6 +38,51 @@ class DatabaseSyncManagement extends AbstractAdminUserPane {
   }
 
   public function fillHTML(Array $args) {
+    // ------------------------------------------------------------
+    // Specific log?
+    // ------------------------------------------------------------
+    if (isset($args['log'])) {
+      try {
+        $log = DB::$V->reqID($args, 'log', DB::$SYNC_LOG, "Invalid log requested.");
+        $this->PAGE->addContent(new XP(array(), new XA($this->link(), "← Go back")));
+        $this->PAGE->addContent($p = new XPort("Database Sync Details"));
+        $p->add(new FItem("Type:", new XStrong(ucwords(implode(", ", $log->updated)))));
+        $p->add(new FItem("Started:", new XStrong(DB::howLongAgo($log->started_at))));
+
+        $schools = $log->getSchools();
+        $message = new XEm("No new schools.");
+        if (count($schools) > 0) {
+          $message = new XUl(array('class'=>'inline-list'));
+          foreach ($schools as $school)
+            $message->add(new XLi(array($school, " ", new XSpan("(" . $school->conference . ")"))));
+        }
+        $p->add(new FItem("New Schools:", $message));
+
+        $sailors = $log->getSailors();
+        $message = new XEm("No new sailors.");
+        if (count($sailors) > 0) {
+          $message = new XUl(array('class'=>'inline-list'));
+          foreach ($sailors as $sailor)
+            $message->add(new XLi(array($sailor, " ", new XSpan("(" . $sailor->school . ")"))));
+        }
+        $p->add(new FItem("New Sailors:", $message));
+
+        $coaches = $log->getCoaches();
+        $message = new XEm("No new coaches.");
+        if (count($coaches) > 0) {
+          $message = new XUl(array('class'=>'inline-list'));
+          foreach ($coaches as $coach)
+            $message->add(new XLi(array($coach, " ", new XSpan("(" . $coach->school . ")"))));
+        }
+        $p->add(new FItem("New Coaches:", $message));
+
+        return;
+      }
+      catch (SoterException $e) {
+        Session::pa(new PA($e->getMessage(), PA::E));
+      }
+    }
+
     $past_syncs = DB::getAll(DB::$SYNC_LOG);
 
     // ------------------------------------------------------------
@@ -45,6 +91,7 @@ class DatabaseSyncManagement extends AbstractAdminUserPane {
     $this->PAGE->addContent($p = new XPort("Sync Databases"));
 
     // Timeout?
+    $can_submit = true;
     if (count($past_syncs) > 0) {
       $interval = new DateInterval('P0DT' . self::TIMEOUT_SECONDS . 'S');
       $cutoff = new DateTime();
@@ -56,26 +103,79 @@ class DatabaseSyncManagement extends AbstractAdminUserPane {
         $until->add($interval);
         $p->add(new XP(array('class'=>'warning'),
                        array("The databases were last synced ", DB::howLongAgo($last->started_at), ". Please try again in ", DB::howLongUntil($until), ".")));
-        return;
+        $can_submit = false;
       }
     }
 
-    $p->add($form = $this->createForm());
-    $form->add(new XP(array(), "Select which part(s) of the database to sync from the list below."));
-    $prefix = "Sync:";
-    if ($this->sailors_url !== null) {
-      $form->add(new FItem($prefix, new FCheckbox(Sync_Log::SAILORS, 1, "Sailors", true)));
-      $prefix = "";
-    }
-    if ($this->coaches_url !== null) {
-      $form->add(new FItem($prefix, new FCheckbox(Sync_Log::COACHES, 1, "Coaches", true)));
-      $prefix = "";
-    }
-    if ($this->schools_url !== null) {
-      $form->add(new FItem($prefix, new FCheckbox(Sync_Log::SCHOOLS, 1, "Schools", true)));
+    if ($can_submit) {
+      $p->add($form = $this->createForm());
+      $form->add(new XP(array(), "Select which part(s) of the database to sync from the list below."));
+      $prefix = "Sync:";
+      if ($this->sailors_url !== null) {
+        $form->add(new FItem($prefix, new FCheckbox(Sync_Log::SAILORS, 1, "Sailors", true)));
+        $prefix = "";
+      }
+      if ($this->coaches_url !== null) {
+        $form->add(new FItem($prefix, new FCheckbox(Sync_Log::COACHES, 1, "Coaches", true)));
+        $prefix = "";
+      }
+      if ($this->schools_url !== null) {
+        $form->add(new FItem($prefix, new FCheckbox(Sync_Log::SCHOOLS, 1, "Schools", true)));
+      }
+
+      $form->add(new XSubmitP('sync', "Sync now"));
     }
 
-    $form->add(new XSubmitP('sync', "Sync now"));
+    // ------------------------------------------------------------
+    // Past syncs
+    // ------------------------------------------------------------
+    if (count($past_syncs) > 0) {
+      $this->PAGE->addContent($p = new XPort("Previous syncs"));
+
+      require_once('xml5/PageWhiz.php');
+      $whiz = new PageWhiz(count($past_syncs), self::NUM_PER_PAGE, $this->link(), $args);
+      $p->add($ldiv = $whiz->getPages('r', $args));
+
+      $pageset = DB::$V->incInt($args, 'r', 1, count($past_syncs) / self::NUM_PER_PAGE, 1);
+      $p->add($tab = new XQuickTable(array('class'=>'full sync-log'),
+                                     array("Type", "Run time", "Messages", "New Schools", "New Sailors")));
+      $startint = ($pageset - 1) * self::NUM_PER_PAGE;
+      for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < count($past_syncs); $i++) {
+        $log = $past_syncs[$i];
+
+        $errors = new XEm("No messages");
+        if ($log->error !== null && count($log->error) > 0) {
+          $errors = new XUl(array('class' => 'sync-log-errors'));
+          foreach ($log->error as $j => $error) {
+            $errors->add(new XLi($error));
+            if ($j >= 5) {
+              $errors->add(new XLi(new XEm(count($log->error) - $j . " more")));
+              break;
+            }
+          }
+        }
+
+        $num_schools = count($log->getSchools());
+        if ($num_schools > 0)
+          $num_schools = new XTD(array(),
+                                 array($num_schools, " ",
+                                       new XA($this->link(array('log' => $log->id)), "[View]")));
+        $num_sailors = count($log->getSailors()) + count($log->getCoaches());
+        if ($num_sailors > 0)
+          $num_sailors = new XTD(array(),
+                                 array($num_sailors, " ",
+                                       new XA($this->link(array('log' => $log->id)), "[View]")));
+
+        $tab->addRow(array(
+                       ucwords(implode(", ", $log->updated)),
+                       DB::howLongAgo($log->started_at),
+                       $errors,
+                       $num_schools,
+                       $num_sailors,
+                     ),
+                     array('class' => 'row' . ($i % 2)));
+      }
+    }
   }
 
   public function process(Array $args) {

@@ -843,8 +843,12 @@ class DBObject {
       $this->$name = DBM::get($type, $this->$name);
     elseif ($type instanceof DateTime && is_string($this->$name))
       $this->$name = new DateTime($this->$name);
-    elseif (is_array($type) && !is_array($this->$name))
-      $this->$name = explode("\0", $this->$name);
+    elseif (is_array($type) && !is_array($this->$name)) {
+      if (strlen($this->$name) == 0)
+        $this->$name = array();
+      else
+        $this->$name = explode("\0", $this->$name);
+    }
     elseif (is_object($type) && is_string($this->$name))
       $this->$name = unserialize($this->$name);
     return $this->$name;
