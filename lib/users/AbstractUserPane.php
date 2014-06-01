@@ -95,7 +95,6 @@ abstract class AbstractUserPane {
       ),
 
       'Messages' => array(
-        'MessagePane',
         'SendMessage',
         'EmailTemplateManagement',
       ),

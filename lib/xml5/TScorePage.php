@@ -197,7 +197,14 @@ class TScorePage extends XPage {
     }
 
     if ($user !== null) {
+      $unread = count(DB::getUnreadMessages($user));
+      $inbox_title = "My Inbox";
+      if ($unread > 0) {
+        $inbox_title .= sprintf(" (%s)", ($unread >= 100) ? "99+" : $unread);
+      }
+
       $m_user_menu->add(new XLi(new XA('/account', "My Account")));
+      $m_user_menu->add(new XLi(new XA('/inbox', $inbox_title)));
       $m_user_menu->add(new XLi(new XA('/logout', "Logout", array('id'=>'m-logout'))));
 
       $this->header->add(new XDiv(array('id'=>'user-menudiv'),
@@ -205,6 +212,7 @@ class TScorePage extends XPage {
                                                       array(new XLi(new XSpan($user)),
                                                             new XLi(new XA('/', "Home")),
                                                             new XLi(new XA('/account', "My Account")),
+                                                            new XLi(new XA('/inbox', $inbox_title)),
                                                             new XLi(new XA('/logout', "Logout", array('accesskey'=>'l'))))))));
       if (Conf::$USURPER !== null) {
         $m_user_menu->add(new XLi(new XA('/account?reset', "Reset Session")));
