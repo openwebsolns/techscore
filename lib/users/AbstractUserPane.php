@@ -94,10 +94,6 @@ abstract class AbstractUserPane {
         'BillingReport',
       ),
 
-      'Messages' => array(
-        'EmailTemplateManagement',
-      ),
-
       'Admin' => array(
         'VenueManagement',
         'BoatManagement',
@@ -123,6 +119,7 @@ abstract class AbstractUserPane {
         'SponsorsManagement',
         'PublicFilesManagement',
         'OrganizationConfiguration',
+        'EmailTemplateManagement',
       ),
     );
 
