@@ -774,64 +774,45 @@ class DB extends DBM {
    * @param DateTime $timestamp the timestamp in question
    * @param DateTime $relative current time
    * @return String e.g. "about 5 minutes ago"
-   * @throws InvalidArgumentException if $timestamp in the future
    */
-  public static function howLongAgo(DateTime $timestamp, DateTime $relative = null) {
+  public static function howLongFrom(DateTime $timestamp, DateTime $relative = null) {
     if ($relative === null)
       $relative = DB::$NOW;
-    if ($timestamp > $relative)
-      throw new InvalidArgumentException("Timestamp in the future relative to \"current\" time.");
-
     $interval = $relative->diff($timestamp);
-    if ($interval->y > 1)
-      return sprintf("over %d years ago", $interval->y);
-    if ($interval->y == 1)
-      return "over a year ago";
-    if ($interval->m > 1)
-      return sprintf("about %d months ago", $interval->m);
-    if ($interval->d > 1)
-      return sprintf("%d days ago", $interval->d);
-    if ($interval->d == 1)
-      return "yesterday";
-    if ($interval->h > 0)
-      return sprintf("%d hour%s ago", $interval->h, ($interval->h > 1) ? "s" : "");
-    if ($interval->i > 55)
-      return "about an hour ago";
-    if ($interval->i > 0)
-      return sprintf("%d minute%s ago", $interval->i, ($interval->i > 1) ? "s" : "");
-    return "less than a minute ago";
+    $result = self::howLong($interval);
+    if ($result == '1 day')
+      return ($interval->invert) ? "yesterday" : "tomorrow";
+    if ($interval->invert)
+      return $result . " ago";
+    return "in " . $result;
   }
 
   /**
-   * Return a human-readable representation of time interval
+   * Format a time interval as a human-readable string
    *
-   * @param DateTime $timestamp the timestamp in question
    * @param DateTime $relative current time
-   * @return String e.g. "5 minutes"
-   * @throws InvalidArgumentException if $timestamp in the past
+   * @return String e.g. "about 5 minutes ago"
    */
-  public static function howLongUntil(DateTime $timestamp, DateTime $relative = null) {
-    if ($relative === null)
-      $relative = DB::$NOW;
-    if ($timestamp < $relative)
-      throw new InvalidArgumentException("Timestamp in the past relative to \"current\" time.");
-
-    $interval = $relative->diff($timestamp);
+  public static function howLong(DateInterval $interval) {
     if ($interval->y > 1)
-      return sprintf("%d years", $interval->y);
+      return sprintf("more than %d years", $interval->y);
     if ($interval->y == 1)
-      return "a year";
+      return "more than a year";
     if ($interval->m > 1)
       return sprintf("%d months", $interval->m);
     if ($interval->d > 1)
       return sprintf("%d days", $interval->d);
     if ($interval->d == 1)
-      return "tomorrow";
+      return "1 day";
     if ($interval->h > 0)
       return sprintf("%d hour%s", $interval->h, ($interval->h > 1) ? "s" : "");
+    if ($interval->i > 55)
+      return "about an hour";
     if ($interval->i > 1)
       return sprintf("%d minutes", $interval->i);
-    return "about a minute";
+    if ($interval->i > 0)
+      return "a minute";
+    return "less than a minute";
   }
 
   /**

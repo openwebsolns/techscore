@@ -77,8 +77,8 @@ class LoggedInUsers extends AbstractAdminUserPane {
 
       $tab->addRow(array($user,
                          $type,
-                         "in " . DB::howLongUntil($exp),
-                         DB::howLongAgo($session->last_modified), // time ago?
+                         DB::howLongFrom($exp),
+                         DB::howLongFrom($session->last_modified), // time ago?
                          $f),
                    array('class'=>$class));
     }

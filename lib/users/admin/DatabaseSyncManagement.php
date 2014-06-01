@@ -47,7 +47,7 @@ class DatabaseSyncManagement extends AbstractAdminUserPane {
         $this->PAGE->addContent(new XP(array(), new XA($this->link(), "← Go back")));
         $this->PAGE->addContent($p = new XPort("Database Sync Details"));
         $p->add(new FItem("Type:", new XStrong(ucwords(implode(", ", $log->updated)))));
-        $p->add(new FItem("Started:", new XStrong(DB::howLongAgo($log->started_at))));
+        $p->add(new FItem("Started:", new XStrong(DB::howLongFrom($log->started_at))));
 
         $schools = $log->getSchools();
         $message = new XEm("No new schools.");
@@ -102,7 +102,7 @@ class DatabaseSyncManagement extends AbstractAdminUserPane {
         $until = clone($last->started_at);
         $until->add($interval);
         $p->add(new XP(array('class'=>'warning'),
-                       array("The databases were last synced ", DB::howLongAgo($last->started_at), ". Please try again in ", DB::howLongUntil($until), ".")));
+                       array("The databases were last synced ", DB::howLongFrom($last->started_at), ". Please try again ", DB::howLongFrom($until), ".")));
         $can_submit = false;
       }
     }
@@ -168,7 +168,7 @@ class DatabaseSyncManagement extends AbstractAdminUserPane {
 
         $tab->addRow(array(
                        ucwords(implode(", ", $log->updated)),
-                       DB::howLongAgo($log->started_at),
+                       DB::howLongFrom($log->started_at),
                        $errors,
                        $num_schools,
                        $num_sailors,
