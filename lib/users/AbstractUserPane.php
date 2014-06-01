@@ -95,7 +95,6 @@ abstract class AbstractUserPane {
       ),
 
       'Messages' => array(
-        'SendMessage',
         'EmailTemplateManagement',
       ),
 
@@ -109,6 +108,7 @@ abstract class AbstractUserPane {
       ),
 
       'Users' => array(
+        'SendMessage',
         'PendingAccountsPane',
         'AccountsPane',
         'LoggedInUsers',
