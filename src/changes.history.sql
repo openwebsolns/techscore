@@ -798,7 +798,7 @@ CREATE TABLE `account_conference` (
   KEY `conference` (`conference`),
   CONSTRAINT `account_conference_ibfk_1` FOREIGN KEY (`conference`) REFERENCES `conference` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `account_conference_ibfk_2` FOREIGN KEY (`account`) REFERENCES `account` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- track the membership sync
 create table sync_log (
