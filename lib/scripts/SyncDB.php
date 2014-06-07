@@ -254,6 +254,9 @@ class SyncDB extends AbstractScript {
 
     foreach ($this->warnings as $mes) {
       self::errln("Warning: $mes");
+    }
+
+    foreach ($this->errors as $mes) {
       $log->error[] = $mes;
     }
 
