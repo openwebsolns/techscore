@@ -109,6 +109,7 @@ abstract class AbstractUserPane {
         'AccountsPane',
         'LoggedInUsers',
         'RoleManagementPane',
+        'PermissionManagement',
       ),
 
       'Text' => array(
@@ -600,7 +601,7 @@ abstract class AbstractUserPane {
     'RoleManagementPane' => array(
       self::R_NAME => "Roles",
       self::R_PATH => 'users/admin',
-      self::R_URLS => array('roles', 'permissions'),
+      self::R_URLS => array('roles'),
       self::R_PERM => array(Permission::EDIT_PERMISSIONS)
     ),
 
@@ -665,6 +666,13 @@ abstract class AbstractUserPane {
       self::R_PATH => 'users/super',
       self::R_URLS => array('conf'),
       self::R_PERM => array(Permission::EDIT_GLOBAL_CONF)
+    ),
+
+    'PermissionManagement' => array(
+      self::R_NAME => "Permissions",
+      self::R_PATH => 'users/admin',
+      self::R_URLS => array('permissions'),
+      self::R_PERM => array(Permission::DEFINE_PERMISSIONS)
     ),
 
     'EditLogoPane' => array(

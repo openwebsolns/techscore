@@ -3766,6 +3766,7 @@ class Permission extends DBObject {
   const EDIT_WELCOME = 'edit_welcome';
   const SEND_MESSAGE = 'send_message';
   const SYNC_DATABASE = 'sync_database';
+  const DEFINE_PERMISSIONS = 'define_permission';
 
   const DOWNLOAD_AA_REPORT = 'download_aa_report';
   const EDIT_AA_REPORT = 'edit_aa_report';
@@ -3785,6 +3786,11 @@ class Permission extends DBObject {
 
   const EDIT_GLOBAL_CONF = 'edit_global_conf';
   const USURP_USER = 'usurp_user';
+
+  public static function getPossible() {
+    $reflection = new ReflectionClass(DB::$PERMISSION);
+    return $reflection->getConstants();
+  }
 }
 
 /**
