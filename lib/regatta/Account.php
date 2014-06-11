@@ -213,6 +213,11 @@ class Account extends DBObject {
     if ($this->isAdmin())
       return true;
     $res = DB::getAll(DB::$ACCOUNT_SCHOOL, new DBBool(array(new DBCond('account', $this), new DBCond('school', $school))));
+    if (count($res) > 0) {
+      unset($res);
+      return true;
+    }
+    $res = DB::getAll(DB::$ACCOUNT_CONFERENCE, new DBBool(array(new DBCond('account', $this), new DBCond('conference', $school->conference))));
     $r = (count($res) > 0);
     unset($res);
     return $r;
