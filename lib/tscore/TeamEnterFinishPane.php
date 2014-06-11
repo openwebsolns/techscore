@@ -108,7 +108,14 @@ class TeamEnterFinishPane extends EnterFinishPane {
       $t1 = $pair[0] - 1;
       $t2 = $pair[1] - 1;
 
-      if ($teams[$t1] instanceof Team && $teams[$t2] instanceof Team) {
+      if ($i >= count($races)) {
+        $cont = new XEm("N/A", array('class'=>'no-team', 'title'=>"Race does not exist"));
+        $table[$t1][$t2]->set('class', 'no-teams');
+        $table[$t2][$t1]->set('class', 'no-teams');
+        $table[$t1][$t2]->add($cont);
+        $table[$t2][$t1]->add($cont);
+      }
+      elseif ($teams[$t1] instanceof Team && $teams[$t2] instanceof Team) {
         // Scorable race
         $race = $races[$i];
         $cont = new XA($this->link('finishes', array('race' => $race->number)), "Score");
