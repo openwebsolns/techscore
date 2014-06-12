@@ -152,23 +152,6 @@ class HomePane extends AbstractUserPane {
     }
   }
 
-  private function addUnregisteredSailorsPort(School $school) {
-    $sailors = $school->getUnregisteredSailors();
-    if (count($sailors) > 0) {
-      $lnk = WS::link(sprintf('/prefs/%s/sailor', $school->id));
-      $this->PAGE->addContent($p = new XPort(new XA($lnk, "Unreg. sailors for " . $school->nick_name)));
-      $p->set('id', 'port-unregistered');
-      $limit = 5;
-      if (count($sailors) > 5)
-        $limit = 4;
-      $p->add($ul = new XUl());
-      for ($i = 0; $i < $limit; $i++)
-        $ul->add(new XLi($sailors[$i]));
-      if ($limit == 4)
-        $ul->add(new XLi(new XEm(sprintf("%d more...", (count($sailors) - $limit)))));
-    }
-  }
-
   private function addUnregisteredSummaryPort(Conference $conf) {
     $schools = DB::getAll(DB::$SCHOOL,
                           new DBBool(array(new DBCond('conference', $conf),
@@ -202,18 +185,6 @@ class HomePane extends AbstractUserPane {
     }
   }
 
-  private function addBurgeePort(School $school) {
-    $lnk = WS::link(sprintf('/prefs/%s/logo', $school->id));
-    $this->PAGE->addContent($p = new XPort(new XA($lnk, $school->nick_name . " logo")));
-    $p->set('id', 'port-burgee');
-    if ($school->burgee === null)
-      $p->add(new XP(array('class'=>'message'),
-                     new XA($lnk, "Add one now")));
-    else
-      $p->add(new XP(array('class'=>'burgee-cell'),
-                     new XA($lnk, new XImg('data:image/png;base64,'.$school->burgee->filedata, $school->nick_name))));
-  }
-
   private function addBurgeeSummaryPort($conferences) {
     $schools = DB::getAll(DB::$SCHOOL,
                           new DBBool(array(new DBCond('burgee', null),
@@ -237,23 +208,6 @@ class HomePane extends AbstractUserPane {
                            " schools with no mascot/logo. Visit the ",
                            new XA(sprintf('/prefs/%s/logo', $schools[0]->id), "Preferences"),
                            " page to fix.")));
-    }
-  }
-
-  private function addTeamNamesPort(School $school) {
-    $lnk = sprintf('/prefs/%s/team', $school->id);
-    $this->PAGE->addContent($p = new XPort(new XA($lnk, "Team names for " . $school->nick_name)));
-    $p->set('id', 'port-team-names');
-    $names = $school->getTeamNames();
-    if (count($names) == 0)
-      $p->add(new XP(array('class'=>'warning'),
-                     array(new XStrong("Note:"), " There are no team names for your school. ",
-                           new XA(WS::link($lnk), "Add one now"),
-                           ".")));
-    else {
-      $p->add($ul = new XOl());
-      foreach ($names as $name)
-        $ul->add(new XLi($name));
     }
   }
 

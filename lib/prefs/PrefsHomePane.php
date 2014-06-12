@@ -37,6 +37,11 @@ class PrefsHomePane extends AbstractPrefsPane {
 
     $p->add(new XP(array(), "If you have any questions, send them to paez@mit.edu. Please note that this part of TechScore is still under development."));
 
+    // Summary of items
+    $this->addUnregisteredSailorsPort($this->SCHOOL);
+    $this->addBurgeePort($this->SCHOOL);
+    $this->addTeamNamesPort($this->SCHOOL);
+
     // Allow for editing of other schools
     $schools = $this->USER->getSchools();
     if (count($schools) > 1) {
