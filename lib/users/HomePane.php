@@ -35,8 +35,6 @@ class HomePane extends AbstractUserPane {
    */
   protected function fillHTML(Array $args) {
 
-    $this->addUnreadMessagesPort();
-
     if ($this->isPermitted('UserSeasonPane')) {
       $this->addInFocusPort();
     }
@@ -87,19 +85,6 @@ class HomePane extends AbstractUserPane {
       else
         $p->add(new XP(array(),
                        array("There are ", new XA(WS::link('/pending'), "$num_pending pending account requests"), ".")));
-    }
-  }
-
-  private function addUnreadMessagesPort() {
-    $num_messages = count(DB::getUnreadMessages($this->USER));
-    if ($num_messages > 0) {
-      $this->PAGE->addContent($p = new XPort("Messages"));
-      $p->set('id', 'port-messages');
-      $p->add($para = new XP(array(), "You have "));
-      if ($num_messages == 1)
-        $para->add(new XA("inbox", "1 unread message."));
-      else
-        $para->add(new XA("inbox", "$num_messages unread messages."));
     }
   }
 
