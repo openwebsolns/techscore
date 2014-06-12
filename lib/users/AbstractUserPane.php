@@ -407,11 +407,13 @@ abstract class AbstractUserPane {
     $this->PAGE->addContent($p = new XPort(new XA($lnk, "Team names for " . $school->nick_name)));
     $p->set('id', 'port-team-names');
     $names = $school->getTeamNames();
-    if (count($names) == 0)
-      $p->add(new XP(array('class'=>'warning'),
+    if (count($names) == 0) {
+      $p->set('id', 'port-team-names-missing');
+      $p->add(new XP(array(),
                      array(new XStrong("Note:"), " There are no team names for your school. ",
                            new XA(WS::link($lnk), "Add one now"),
                            ".")));
+    }
     else {
       $p->add($ul = new XOl());
       foreach ($names as $name)

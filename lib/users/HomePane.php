@@ -35,14 +35,14 @@ class HomePane extends AbstractUserPane {
    */
   protected function fillHTML(Array $args) {
 
-    if ($this->USER->can(Permission::EDIT_USERS)) {
-      $this->addPendingUsersPort();
-    }
-
     $this->addUnreadMessagesPort();
 
     if ($this->isPermitted('UserSeasonPane')) {
       $this->addInFocusPort();
+    }
+
+    if ($this->USER->can(Permission::EDIT_USERS)) {
+      $this->addPendingUsersPort();
     }
 
     // Access for school editors

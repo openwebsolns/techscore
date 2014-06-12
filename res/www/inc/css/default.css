@@ -1823,14 +1823,21 @@ td.tr-sail, td.sail {
     margin: 1em;
 }
 
-#port-team-names {
-    width: 20em;
+#port-team-names, #port-team-names-missing, #port-pending-users {
+    width: 18em;
     display: inline-block;
     vertical-align: top;
     height: 9em;
+    margin-right: 1em;
 }
 #port-team-names ol {
     margin-top: 0;
+}
+#port-pending-users, #port-pending-users > h3:first-child,
+#port-team-names-missing > h3:first-child,
+#port-team-names-missing {
+    background: #f3f3bb;
+    border-color: orange;
 }
 #port-unregistered {
     width: 20em;
@@ -1840,6 +1847,10 @@ td.tr-sail, td.sail {
     margin-right: 1em;
     border-color: orange;
     height: 9em;
+}
+#port-unregistered > h3:first-child {
+    background: #f3f3bb;
+    border-color: orange;
 }
 #port-unregistered ul {
     margin: 0 auto;
