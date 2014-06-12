@@ -41,7 +41,7 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
 
     $f->add($xp = new XSubmitP('edit-user', "Edit user"));
     $xp->add(new XHiddenInput('user', $user->id));
-    if ($this->USER->can(Permission::USURP_USER))
+    if ($user->status == Account::STAT_ACTIVE && $this->USER->can(Permission::USURP_USER))
       $xp->add(new XSubmitInput('usurp-user', "Usurp"));
 
     // ------------------------------------------------------------
