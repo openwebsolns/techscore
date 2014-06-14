@@ -234,9 +234,15 @@ class Account extends DBObject {
     if ($this->isAdmin())
       return true;
     $res = DB::getAll(DB::$SCORER, new DBBool(array(new DBCond('regatta', $reg->id), new DBCond('account', $this))));
-    $r = (count($res) > 0);
-    unset($res);
-    return $r;
+    if (count($res) > 0)
+      return true;
+
+    $schools = array();
+    foreach ($reg->getHosts() as $school) {
+      if ($this->hasSchool($school))
+        return true;
+    }
+    return false;
   }
 
   /**
@@ -247,6 +253,57 @@ class Account extends DBObject {
   public function getRegattasCreated() {
     require_once('regatta/Regatta.php');
     return DB::getAll(DB::$REGATTA, new DBCond('creator', $this->id));
+  }
+
+  /**
+   * Create a DBExpression to match the schools for this account,
+   * suitable to use in subqueries
+   *
+   * @param String $attr the attribute that represents the ID of the school
+   * @return DBExpression
+   */
+  private function getSchoolCondition($attr) {
+    return new DBBool(
+      array(
+        new DBCondIn($attr, DB::prepGetAll(DB::$ACCOUNT_SCHOOL,
+                                           new DBCond('account', $this),
+                                           array('school'))),
+        new DBCondIn($attr, DB::prepGetAll(DB::$SCHOOL,
+                                           new DBCondIn('conference', DB::prepGetAll(DB::$ACCOUNT_CONFERENCE,
+                                                                                     new DBCond('account', $this),
+                                                                                     array('conference'))),
+                                           array('id'))),
+      ),
+      DBBool::mOR
+    );
+  }
+
+  /**
+   * Create a DBExpression to fetch regattas for this user
+   *
+   * @param String $reg_attr name of ID attribute
+   * which the user is participating
+   * @return DBExpression
+   */
+  private function getJurisdictionCondition($reg_attr = 'id') {
+    $school_cond = $this->getSchoolCondition('school');
+    return new DBBool(
+      array(
+        new DBCondIn($reg_attr, DB::prepGetAll(DB::$SCORER, new DBCond('account', $this), array('regatta'))),
+        new DBCondIn($reg_attr, DB::prepGetAll(DB::$HOST_SCHOOL,
+                                               $school_cond,
+                                               array('regatta'))),
+      ),
+      DBBool::mOR
+    );
+  }
+
+  private function getParticipantCondition() {
+    $school_cond = $this->getSchoolCondition('school');
+    return new DBCondIn('id',
+                        DB::prepGetAll(DB::$TEAM,
+                                       $school_cond,
+                                       array('regatta')));
   }
 
   /**
@@ -266,14 +323,9 @@ class Account extends DBObject {
     require_once('regatta/Regatta.php');
     $cond = null;
     if (!$this->isAdmin()) { // regular user
-      $cond = new DBCondIn('id', DB::prepGetAll(DB::$SCORER, new DBCond('account', $this), array('regatta')));
-      if ($inc_participating !== false)
-        $cond = new DBBool(array($cond,
-                                 new DBCondIn('id',
-                                              DB::prepGetAll(DB::$TEAM,
-                                                             new DBCondIn('school', $this->getSchools()),
-                                                             array('regatta')))),
-                           DBBool::mOR);
+      $cond = $this->getJurisdictionCondition();
+      if ($inc_participating)
+        $cond->add($this->getParticipantCondition());
     }
     if ($season !== null) {
       $scond = new DBBool(array(new DBCond('start_time', $season->start_date, DBCond::GE),
@@ -297,12 +349,9 @@ class Account extends DBObject {
     $cond = new DBCond('name', "%$qry%", DBCond::LIKE);
 
     if (!$this->isAdmin()) { // regular user
-      $c = new DBBool(array(new DBCondIn('id', DB::prepGetAll(DB::$SCORER, new DBCond('account', $this), array('regatta'))),
-                            new DBCondIn('id',
-                                         DB::prepGetAll(DB::$TEAM,
-                                                        new DBCondIn('school', $this->getSchools()),
-                                                        array('regatta')))),
-                      DBBool::mOR);
+      $c = $this->getJurisdictionCondition();
+      if ($inc_participating)
+        $c->add($this->getParticipantCondition());
       $cond = new DBBool(array($cond, $c));
     }
 
