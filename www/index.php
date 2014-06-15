@@ -120,15 +120,10 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
   }
   $is_participant = false;
   if (!Conf::$USER->hasJurisdiction($REG)) {
-    if ($REG->private === null) {
-      foreach (Conf::$USER->getSchools() as $school) {
-        if (count($REG->getTeams($school)) > 0) {
-          $is_participant = true;
-          break;
-        }
-      }
+    if ($REG->private === null && Conf::$USER->isParticipantIn($REG)) {
+      $is_participant = true;
     }
-    if (!$is_participant) {
+    else {
       Session::pa(new PA("You do not have permission to edit that regatta.", PA::I));
       WS::go('/');
     }

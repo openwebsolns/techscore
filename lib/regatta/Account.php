@@ -237,12 +237,23 @@ class Account extends DBObject {
     if (count($res) > 0)
       return true;
 
-    $schools = array();
-    foreach ($reg->getHosts() as $school) {
-      if ($this->hasSchool($school))
-        return true;
-    }
-    return false;
+    $res = DB::getAll(DB::$HOST_SCHOOL,
+                      new DBBool(array(new DBCond('regatta', $reg),
+                                       $this->getSchoolCondition('school'))));
+    return count($res) > 0;
+  }
+
+  /**
+   * Does any of the account's schools have a team in the given regatta
+   *
+   * @param Regatta $reg the regatta
+   * @return boolean
+   */
+  public function isParticipantIn(FullRegatta $reg) {
+    $res = DB::getAll(DB::$TEAM,
+                      new DBBool(array(new DBCond('regatta', $reg),
+                                       $this->getSchoolCondition('school'))));
+    return count($res) > 0;
   }
 
   /**
