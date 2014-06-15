@@ -108,29 +108,30 @@ DB::requireActive(Conf::$USER);
 // Process regatta requests
 // ------------------------------------------------------------
 if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
-  $BASE = array_shift($URI_TOKENS);
-  if (count($URI_TOKENS) == 0) {
-    Session::pa(new PA("Missing regatta.", PA::I));
-    WS::go('/');
-  }
-  $REG = DB::getRegatta(array_shift($URI_TOKENS));
-  if ($REG === null) {
-    Session::pa(new PA("No such regatta.", PA::I));
-    WS::go('/');
-  }
-  $is_participant = false;
-  if (!Conf::$USER->hasJurisdiction($REG) || !Conf::$USER->can(Permission::EDIT_REGATTA)) {
-    if ($REG->private === null && Conf::$USER->isParticipantIn($REG)) {
-      $is_participant = true;
-    }
-    else {
-      Session::pa(new PA("You do not have permission to edit that regatta.", PA::I));
-      WS::go('/');
-    }
-  }
-
-  // User and regatta authorized, delegate to AbstractPane
   try {
+    if (!Conf::$USER->can(Permission::EDIT_REGATTA))
+      throw new PermissionException("No permission to edit regattas.");
+
+    $BASE = array_shift($URI_TOKENS);
+    if (count($URI_TOKENS) == 0) {
+      throw new PermissionException("Missing regatta.");
+    }
+    $REG = DB::getRegatta(array_shift($URI_TOKENS));
+    if ($REG === null) {
+      throw new PermissionException("No such regatta.");
+    }
+
+    $is_participant = false;
+    if (!Conf::$USER->hasJurisdiction($REG)) {
+      if ($REG->private === null && Conf::$USER->isParticipantIn($REG)) {
+        $is_participant = true;
+      }
+      else {
+        throw new PermissionException("You do not have permission to edit that regatta.");
+      }
+    }
+
+    // User and regatta authorized, delegate to AbstractPane
     $PAGE = null;
     if ($BASE == 'score') {
       require_once('tscore/AbstractPane.php');
