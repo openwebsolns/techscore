@@ -46,7 +46,8 @@ class DetailsPane extends AbstractPane {
       }
       else {
         $this->PAGE->addContent($p = new XPort("Finalize regatta"));
-        $p->add(new XP(array('class'=>'valid'),
+        $p->set('id', 'finalize-valid');
+        $p->add(new XP(array(),
                        sprintf("This regatta was finalized on %s.", $this->REGATTA->finalized->format("l, F j Y"))));
       }
     }

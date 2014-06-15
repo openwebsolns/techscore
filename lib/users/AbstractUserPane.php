@@ -566,14 +566,14 @@ abstract class AbstractUserPane {
       self::R_NAME => "All regattas",
       self::R_PATH => 'users',
       self::R_URLS => array('archive'),
-      self::R_PERM => array(Permission::EDIT_REGATTA /* TODO: Participation */)
+      self::R_PERM => array(Permission::EDIT_REGATTA)
     ),
 
     'UserSeasonPane' => array(
       self::R_NAME => "Season summary",
       self::R_PATH => 'users',
       self::R_URLS => array('season'),
-      self::R_PERM => array(Permission::EDIT_REGATTA /* TODO: Participation */)
+      self::R_PERM => array(Permission::EDIT_REGATTA)
     ),
 
     'AccountsPane' => array(
