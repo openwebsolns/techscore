@@ -119,7 +119,7 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
     WS::go('/');
   }
   $is_participant = false;
-  if (!Conf::$USER->hasJurisdiction($REG)) {
+  if (!Conf::$USER->hasJurisdiction($REG) || !Conf::$USER->can(Permission::EDIT_REGATTA)) {
     if ($REG->private === null && Conf::$USER->isParticipantIn($REG)) {
       $is_participant = true;
     }
