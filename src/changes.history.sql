@@ -812,3 +812,22 @@ create table sync_log (
 -- associate sync log with school
 alter table school add column sync_log int unsigned null default null, add foreign key `school_sync_log1` (sync_log) references sync_log(id) on delete set null on update cascade;
 alter table sailor add column sync_log int unsigned null default null, add foreign key `sailor_sync_log1` (sync_log) references sync_log(id) on delete set null on update cascade;
+
+-- updates for conferences
+CREATE TABLE `pub_update_conference` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `conference` varchar(8) NOT NULL,
+  `activity` enum('details','season','display','url') NOT NULL DEFAULT 'details',
+  `season` varchar(3) DEFAULT NULL,
+  `argument` varchar(255) DEFAULT NULL,
+  `request_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `completion_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `conference` (`conference`),
+  KEY `season` (`season`),
+  CONSTRAINT `pub_update_conference_ibfk_1` FOREIGN KEY (`conference`) REFERENCES `conference` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `pub_update_conference_ibfk_2` FOREIGN KEY (`season`) REFERENCES `season` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- add url to conferences
+alter table conference add column url varchar(255) null;

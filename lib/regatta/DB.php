@@ -84,6 +84,7 @@ class DB extends DBM {
   public static $UPDATE_SCHOOL = null; // UpdateRequest.php
   public static $UPDATE_SEASON = null; // UpdateRequest.php
   public static $UPDATE_FILE = null;   // UpdateRequest.php
+  public static $UPDATE_CONFERENCE = null; // UpdateRequest.php
 
   // The validation engine
   public static $V = null;
@@ -1085,6 +1086,7 @@ class Active_Type extends Type {
  */
 class Conference extends DBObject {
   public $name;
+  public $url;
   protected $mail_lists;
   public function __toString() {
     return $this->id;
@@ -3957,6 +3959,7 @@ class STN extends DBObject {
 
   const DEFAULT_START_TIME = 'default_start_time';
   const ALLOW_HOST_VENUE = 'allow_host_venue';
+  const PUBLISH_CONFERENCE_SUMMARY = 'publish_conference_summary';
 
   public $value;
   public function db_name() { return 'setting'; }

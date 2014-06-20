@@ -51,7 +51,9 @@ class GlobalSettings extends AbstractSuperUserPane {
 
     $f->add(new FItem("Allow cross RP?", new FCheckbox(STN::ALLOW_CROSS_RP, 1, "RP entries may contain teams from other schools in the system.", DB::g(STN::ALLOW_CROSS_RP) !== null)));
 
-    $f->add(new FItem("Allow Host Venue?", new FCheckbox(STN::ALLOW_HOST_VENUE, 1, "Allow scorers to manually specify the regatta host.", DB::g(STN::ALLOW_HOST_VENUE) !== null)));    
+    $f->add(new FItem("Allow Host Venue?", new FCheckbox(STN::ALLOW_HOST_VENUE, 1, "Allow scorers to manually specify the regatta host.", DB::g(STN::ALLOW_HOST_VENUE) !== null)));
+
+    $f->add(new FItem("Conference Pages", new FCheckbox(STN::PUBLISH_CONFERENCE_SUMMARY, 1, "Publish conference summary pages in public site.", DB::g(STN::PUBLISH_CONFERENCE_SUMMARY) !== null)));
 
     $f->add(new FItem("PDF Socket:", new XTextInput(STN::PDFLATEX_SOCKET, DB::g(STN::PDFLATEX_SOCKET)), "Full path, or leave blank to use \"exec\" function."));
     $f->add(new FItem("Notice board limit:", new XNumberInput(STN::NOTICE_BOARD_SIZE, DB::g(STN::NOTICE_BOARD_SIZE), 1), "Size in bytes for each item."));
@@ -132,6 +134,22 @@ class GlobalSettings extends AbstractSuperUserPane {
       if ($val != DB::g(STN::ALLOW_HOST_VENUE)) {
         $changed = true;
         DB::s(STN::ALLOW_HOST_VENUE, $val);
+      }
+
+      $val = DB::$V->incInt($args, STN::PUBLISH_CONFERENCE_SUMMARY, 1, 2, null);
+      if ($val != DB::g(STN::PUBLISH_CONFERENCE_SUMMARY)) {
+        $changed = true;
+        DB::s(STN::PUBLISH_CONFERENCE_SUMMARY, $val);
+
+        require_once('public/UpdateManager.php');
+        foreach (DB::getConferences() as $conf) {
+          UpdateManager::queueConference(
+            $conf,
+            UpdateConferenceRequest::ACTIVITY_DISPLAY,
+            null, // season
+            $conf->url
+          );
+        }
       }
 
       $val = DB::$V->incString($args, STN::PDFLATEX_SOCKET, 1, 101);

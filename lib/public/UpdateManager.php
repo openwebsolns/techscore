@@ -53,6 +53,21 @@ class UpdateManager {
   /**
    * @see queueRequest
    */
+  public static function queueConference(Conference $conf, $type, Season $season = null, $arg = null) {
+    if (!in_array($type, UpdateConferenceRequest::getTypes()))
+      throw new InvalidArgumentException("Illegal update request type $type.");
+
+    $obj = new UpdateConferenceRequest();
+    $obj->conference = $conf;
+    $obj->activity = $type;
+    $obj->season = $season;
+    $obj->argument = $arg;
+    DB::set($obj);
+  }
+
+  /**
+   * @see queueRequest
+   */
   public static function queueSeason(Season $season, $type) {
     if (!in_array($type, UpdateSeasonRequest::getTypes()))
       throw new InvalidArgumentException("Illegal update request type $type.");
@@ -88,6 +103,13 @@ class UpdateManager {
    */
   public static function getPendingSchools() {
     return DB::getAll(DB::$UPDATE_SCHOOL, new DBCond('completion_time', null));
+  }
+
+  /**
+   * @see getPendingRequests
+   */
+  public static function getPendingConferences() {
+    return DB::getAll(DB::$UPDATE_CONFERENCE, new DBCond('completion_time', null));
   }
 
   /**
