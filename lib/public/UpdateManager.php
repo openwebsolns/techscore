@@ -51,9 +51,13 @@ class UpdateManager {
   }
 
   /**
+   * Will not queue if setting is off
+   *
    * @see queueRequest
    */
   public static function queueConference(Conference $conf, $type, Season $season = null, $arg = null) {
+    if (DB::g(STN::PUBLISH_CONFERENCE_SUMMARY) === null)
+      return;
     if (!in_array($type, UpdateConferenceRequest::getTypes()))
       throw new InvalidArgumentException("Illegal update request type $type.");
 
