@@ -1126,6 +1126,20 @@ class Conference extends DBObject {
   public function getSchools() {
     return DB::getAll(DB::$SCHOOL, new DBCond('conference', $this));
   }
+
+  /**
+   * Creates the full URL to this conference's public summary page
+   *
+   * The URL is built from /<STN::CONFERENCE_URL>/<url>/, where <url>
+   * is the lowercase version of the ID
+   *
+   * @return String the full URL
+   */
+  public function createUrl() {
+    if ($this->id === null)
+      throw new InvalidArgumentException("No ID exists for this conference.");
+    return sprintf('/%s/%s/', DB::g(STN::CONFERENCE_URL), strtolower($this->id));
+  }
 }
 
 /**
@@ -3917,6 +3931,7 @@ class STN extends DBObject {
   const SCORING_OPTIONS = 'scoring_options';
   const CONFERENCE_TITLE = 'conference_title';
   const CONFERENCE_SHORT = 'conference_short';
+  const CONFERENCE_URL = 'conference_url';
   const ALLOW_CROSS_RP = 'allow_cross_rp';
   const PDFLATEX_SOCKET = 'pdflatex_socket';
   const LONG_SESSION_LIMIT = 'long_session_limit';
@@ -3994,6 +4009,9 @@ class STN extends DBObject {
 
     case self::CONFERENCE_SHORT:
       return "Conf.";
+
+    case self::CONFERENCE_URL:
+      return 'conferences';
 
     case self::DEFAULT_START_TIME:
       return "10:00";

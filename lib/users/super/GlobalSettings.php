@@ -20,25 +20,32 @@ class GlobalSettings extends AbstractSuperUserPane {
   }
 
   public function fillHTML(Array $args) {
-    $this->PAGE->addContent($p = new XPort("General parameters"));
-    $p->add($f = $this->createForm());
+    $this->PAGE->addContent($p = $this->createForm());
+    $p->add($f = new XPort("General parameters"));
+    
 
     $f->add(new FReqItem("Application Name:", new XTextInput(STN::APP_NAME, DB::g(STN::APP_NAME), array('maxlength'=>50))));
     $f->add(new FReqItem("Version:", new XTextInput(STN::APP_VERSION, DB::g(STN::APP_VERSION))));
     $f->add(new FItem("Copyright:", new XTextInput(STN::APP_COPYRIGHT, DB::g(STN::APP_COPYRIGHT))));
     $f->add(new FItem("Send e-mails from:", new XTextInput(STN::TS_FROM_MAIL, DB::g(STN::TS_FROM_MAIL))));
-
-    $f->add(new FReqItem("Conference name:", new XTextInput(STN::CONFERENCE_TITLE, DB::g(STN::CONFERENCE_TITLE))));
-    $f->add(new FReqItem("Conf. abbreviation:", new XTextInput(STN::CONFERENCE_SHORT, DB::g(STN::CONFERENCE_SHORT))));
-
     $f->add(new FItem("Divert e-mails to:", new XEmailInput(STN::DIVERT_MAIL, DB::g(STN::DIVERT_MAIL)), "For production, this value should be blank"));
 
+
+    $p->add($f = new XPort("Conference Settings"));
+    $f->add(new FReqItem("Conference name:", new XTextInput(STN::CONFERENCE_TITLE, DB::g(STN::CONFERENCE_TITLE))));
+    $f->add(new FReqItem("Conf. abbreviation:", new XTextInput(STN::CONFERENCE_SHORT, DB::g(STN::CONFERENCE_SHORT))));
+    $f->add(new FReqItem("Conferences URL:", new XTextInput(STN::CONFERENCE_URL, DB::g(STN::CONFERENCE_URL))));
+    $f->add(new FItem("Conference Pages", new FCheckbox(STN::PUBLISH_CONFERENCE_SUMMARY, 1, "Publish conference summary pages in public site.", DB::g(STN::PUBLISH_CONFERENCE_SUMMARY) !== null)));
+
+
+    $p->add($f = new XPort("Database Sync"));
     $f->add(new FItem("Sailor API URL:", new XUrlInput(STN::SAILOR_API_URL, DB::g(STN::SAILOR_API_URL), array('size'=>60))));
     $f->add(new FItem("Coach API URL:", new XUrlInput(STN::COACH_API_URL, DB::g(STN::COACH_API_URL), array('size'=>60))));
     $f->add(new FItem("School API URL:", new XUrlInput(STN::SCHOOL_API_URL, DB::g(STN::SCHOOL_API_URL), array('size'=>60))));
 
     $f->add(new FItem("Help base URL:", new XUrlInput(STN::HELP_HOME, DB::g(STN::HELP_HOME), array('size'=>60))));
 
+    $p->add($f = new XPort("Scoring Options"));
     // Scoring options
     $n = STN::SCORING_OPTIONS . '[]';
     $lst = Regatta::getScoringOptions();
@@ -53,12 +60,12 @@ class GlobalSettings extends AbstractSuperUserPane {
 
     $f->add(new FItem("Allow Host Venue?", new FCheckbox(STN::ALLOW_HOST_VENUE, 1, "Allow scorers to manually specify the regatta host.", DB::g(STN::ALLOW_HOST_VENUE) !== null)));
 
-    $f->add(new FItem("Conference Pages", new FCheckbox(STN::PUBLISH_CONFERENCE_SUMMARY, 1, "Publish conference summary pages in public site.", DB::g(STN::PUBLISH_CONFERENCE_SUMMARY) !== null)));
 
+    $p->add($f = new XPort("System Settings"));
     $f->add(new FItem("PDF Socket:", new XTextInput(STN::PDFLATEX_SOCKET, DB::g(STN::PDFLATEX_SOCKET)), "Full path, or leave blank to use \"exec\" function."));
     $f->add(new FItem("Notice board limit:", new XNumberInput(STN::NOTICE_BOARD_SIZE, DB::g(STN::NOTICE_BOARD_SIZE), 1), "Size in bytes for each item."));
 
-    $f->add(new XSubmitP('set-params', "Save changes"));
+    $p->add(new XSubmitP('set-params', "Save changes"));
   }
 
   public function process(Array $args) {
@@ -68,6 +75,7 @@ class GlobalSettings extends AbstractSuperUserPane {
       foreach (array(STN::APP_NAME => "application name",
                      STN::CONFERENCE_TITLE => "conference title",
                      STN::CONFERENCE_SHORT => "conference abbreviation",
+                     STN::CONFERENCE_URL => "conferences URL",
                      STN::APP_VERSION => "version",
                      STN::APP_COPYRIGHT => "copyright") as $setting => $title) {
         $val = DB::$V->reqString($args, $setting, 1, 101, sprintf("Invalid %s provided.", $title));
@@ -143,6 +151,10 @@ class GlobalSettings extends AbstractSuperUserPane {
 
         require_once('public/UpdateManager.php');
         foreach (DB::getConferences() as $conf) {
+          if ($conf->url === null && $val !== null) {
+            $conf->url = $conf->createUrl();
+            DB::set($conf);
+          }
           UpdateManager::queueConference(
             $conf,
             UpdateConferenceRequest::ACTIVITY_DISPLAY,
