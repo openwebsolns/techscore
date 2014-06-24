@@ -12,13 +12,25 @@ require_once('AbstractScript.php');
 /**
  * The page that summarizes the schools in the system.
  *
+ * 2014-06-23: Use this page for the conference summary page
+ *
  * @author Dayan Paez
  * @version 2011-02-08
  * @package www
  */
 class UpdateSchoolsSummary extends AbstractScript {
 
-  public function run() {
+  /**
+   * Creates and writes the page to file
+   *
+   * This same page is used for both school and conference "landing"
+   * pages.
+   *
+   * @param boolean $as_conference true to write "conference-mode"
+   */
+  public function run($as_conference = false) {
+    $are_conferences_published = (DB::g(STN::PUBLISH_CONFERENCE_SUMMARY) !== null);
+
     require_once('xml5/TPublicPage.php');
     $page = new TPublicPage("All Schools");
     $page->body->set('class', 'school-summary-page');
@@ -42,7 +54,10 @@ class UpdateSchoolsSummary extends AbstractScript {
     // Summary of each conference
     // count the number of regattas this school has teams in
     foreach ($confs as $conf) {
-      $page->addSection($p = new XPort($conf . " " . DB::g(STN::CONFERENCE_TITLE)));
+      $title = $conf . " " . DB::g(STN::CONFERENCE_TITLE);
+      if ($are_conferences_published)
+        $title = new XA($conf->url, $title);
+      $page->addSection($p = new XPort($title));
       $p->set('id', $conf);
       $p->add($tab = new XQuickTable(array('class'=>'schools-table'), array("Mascot", "School", "City", "State")));
 
@@ -66,9 +81,17 @@ class UpdateSchoolsSummary extends AbstractScript {
 
     // Write to file!
     $f = '/schools/index.html';
+    $mes = "Wrote schools summary page";
+    if ($as_conference) {
+      $f = sprintf('/%s/index.html', DB::g(STN::CONFERENCE_URL));
+      $mes = sprintf("Wrote %ss summary page", DB::g(STN::CONFERENCE_TITLE));
+    }
     self::writeXml($f, $page);
-    self::errln("Wrote schools summary page");
+    self::errln($mes);
   }
+
+  protected $cli_opts = '-c';
+  protected $cli_usage = ' -c, --conf  write conference summary page instead';
 }
 
 if (isset($argv) && basename($argv[0]) == basename(__FILE__)) {
@@ -76,8 +99,19 @@ if (isset($argv) && basename($argv[0]) == basename(__FILE__)) {
 
   $P = new UpdateSchoolsSummary();
   $opts = $P->getOpts($argv);
-  if (count($opts) > 0)
-    throw new TSScriptException("Invalid argument");
-  $P->run();
+  $as_conference = false;
+  while (count($opts) > 0) {
+    $arg = array_shift($opts);
+    switch ($arg) {
+    case '-c':
+    case '--conf':
+      $as_conference = true;
+      break;
+
+    default:
+      throw new TSScriptException("Invalid argument: " . $opt);
+    }
+  }
+  $P->run($as_conference);
 }
 ?>
