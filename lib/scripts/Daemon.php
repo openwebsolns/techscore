@@ -443,7 +443,7 @@ class Daemon extends AbstractScript {
    * @param boolean $daemon run in daemon mode
    */
   public function runConferences($daemon = false) {
-    $this->checkLock('sch');
+    $this->checkLock('cnf');
     $md5 = $this->checkMD5sum();
     if ($daemon)
       $mypid = $this->daemonize();
