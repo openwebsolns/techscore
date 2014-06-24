@@ -181,6 +181,7 @@ class GlobalSettings extends AbstractSuperUserPane {
           $conf->url = $conf->createUrl();
           DB::set($conf);
         }
+        DB::s(STN::CONFERENCE_URL, $val);
       }
 
       $val = DB::$V->incString($args, STN::PDFLATEX_SOCKET, 1, 101);
