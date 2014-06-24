@@ -11,6 +11,7 @@ MAILTO = {CRON_MAILTO}
 */5 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php -d regatta > /dev/null && echo "Started regatta daemon."
 */5 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php -d season > /dev/null && echo "Started season daemon."
 */5 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php -d school > /dev/null && echo "Started school daemon."
+*/5 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php -d conference > /dev/null && echo "Started conference daemon."
 */5 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php -d file > /dev/null && echo "Started file daemon."
 
 #--------------------------------
