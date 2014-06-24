@@ -94,6 +94,14 @@ class Daemon extends AbstractScript {
    * @var Map of school ID => list of seasons to update
    */
   private $school_seasons;
+  /**
+   * @var Map of Conference objects for reference (ID => School)
+   */
+  private $conferences;
+  /**
+   * @var Map of Conference ID => list of seasons to update
+   */
+  private $conference_seasons;
 
   /**
    * Creates or complains about lock file
@@ -327,7 +335,6 @@ class Daemon extends AbstractScript {
       $schools = array(); // map of schools indexed by ID
       $seasons = array(); // map of seasons to update indexed by school
       $to_delete = array();
-      $regattas = array();
 
       foreach ($pending as $i => $r) {
         if ($i >= self::$MAX_REQUESTS_PER_CYCLE)
@@ -356,8 +363,11 @@ class Daemon extends AbstractScript {
           if ($r->season !== null && $r->activity != UpdateSchoolRequest::ACTIVITY_URL)
             $seasons[$r->school->id][(string)$r->season] = $r->season;
           else {
-            foreach (DB::getAll(DB::$SEASON) as $season)
-              $seasons[$r->school->id][(string)$season] = $season;
+            foreach (DB::getAll(DB::$SEASON) as $season) {
+              if (count($season->getParticipation($r->school)) > 0) {
+                $seasons[$r->school->id][(string)$season] = $season;
+              }
+            }
           }
         }
       }
@@ -395,6 +405,146 @@ class Daemon extends AbstractScript {
         require_once('scripts/UpdateSchoolsSummary.php');
         $P = new UpdateSchoolsSummary();
         $P->run();
+        DB::commit();
+      }
+      catch (TSWriterException $e) {
+        DB::commit();
+        self::errln("Error while writing: " . $e->getMessage(), 0);
+        sleep(3);
+        continue;
+      }
+
+      // ------------------------------------------------------------
+      // Mark all requests as completed
+      // ------------------------------------------------------------
+      foreach ($requests as $r)
+        UpdateManager::log($r);
+
+      // ------------------------------------------------------------
+      // Perform all hooks
+      // ------------------------------------------------------------
+      foreach (self::getHooks() as $hook) {
+        $ret = 0;
+        passthru($hook, $ret);
+        if ($ret != 0)
+          throw new RuntimeException("Hook $hook", $ret);
+        self::errln("Hook $hook run");
+      }
+      DB::commit();
+      DB::resetCache();
+    }
+
+    self::errln('done');
+  }
+
+  /**
+   * Checks for conference-level updates and performs them
+   *
+   * @param boolean $daemon run in daemon mode
+   */
+  public function runConferences($daemon = false) {
+    $this->checkLock('sch');
+    $md5 = $this->checkMD5sum();
+    if ($daemon)
+      $mypid = $this->daemonize();
+    $this->createLock('sch');
+
+    $con = DB::connection();
+    $con->autocommit(true);
+    while (true) {
+      $pending = UpdateManager::getPendingConferences();
+      if (count($pending) == 0) {
+        if ($daemon) {
+          self::errln("Sleeping...");
+          DB::commit();
+          DB::resetCache();
+          sleep(123);
+          $this->checkLock('sch', $mypid);
+          $md5 = $this->checkMD5sum($md5);
+          continue;
+        }
+        break;
+      }
+
+      $requests = array();
+      // ------------------------------------------------------------
+      // Loop through the conference requests
+      // ------------------------------------------------------------
+      $conferences = array(); // map of conferences indexed by ID
+      $seasons = array(); // map of seasons to update indexed by conference
+      $to_delete = array();
+
+      foreach ($pending as $i => $r) {
+        if ($i >= self::$MAX_REQUESTS_PER_CYCLE)
+          break;
+
+        $requests[] = $r;
+
+        $conferences[$r->conference->id] = $r->conference;
+        if (!isset($seasons[$r->conference->id]))
+          $seasons[$r->conference->id] = array();
+          
+        // DISPLAY
+        if ($r->activity == UpdateConferenceRequest::ACTIVITY_DISPLAY) {
+          if (DB::g(STN::PUBLISH_CONFERENCE_SUMMARY) === null) {
+            if ($r->argument !== null) {
+              $to_delete[$r->argument] = $r->argument;
+            }
+          }
+          else {
+            foreach (DB::getAll(DB::$SEASON) as $season) {
+              if (count($season->getConferenceParticipation($r->conference)) > 0) {
+                $seasons[$r->conference->id][(string)$season] = $season;
+              }
+            }
+          }
+
+          // trigger all the conference's schools
+          foreach ($r->conference->getSchools() as $school) {
+            UpdateManager::queueSchool($school, UpdateRequest::ACTIVITY_DETAILS);
+          }
+        }
+
+        // URL
+        if ($r->activity == UpdateConferenceRequest::ACTIVITY_URL) {
+          if ($r->argument !== null)
+            $to_delete[$r->argument] = $r->argument;
+
+          // trigger all the conference's schools
+          foreach ($r->conference->getSchools() as $school) {
+            UpdateManager::queueSchool($school, UpdateRequest::ACTIVITY_DETAILS);
+          }
+        }
+
+        // SEASON
+        if ($r->activity == UpdateConferenceRequest::ACTIVITY_SEASON && $r->season !== null) {
+          $seasons[$r->conference->id][(string)$r->season] = $r->season;
+        }
+      }
+
+      try {
+        // ------------------------------------------------------------
+        // Perform the updates
+        // ------------------------------------------------------------
+        foreach ($to_delete as $root) {
+          self::remove($root);
+        }
+
+        if (count($seasons) > 0) {
+          require_once('scripts/UpdateConference.php');
+          $P = new UpdateConference();
+          foreach ($seasons as $id => $list) {
+            foreach ($list as $season) {
+              $P->run($conferences[$id], $season);
+              DB::commit();
+              self::errln(sprintf('generated conference %s/%-6s %s', $season, $conferences[$id], $conferences[$id]));
+            }
+          }
+        }
+
+        require_once('scripts/UpdateSchoolsSummary.php');
+        $P = new UpdateSchoolsSummary();
+        $P->run(true);
         DB::commit();
       }
       catch (TSWriterException $e) {
@@ -599,6 +749,8 @@ class Daemon extends AbstractScript {
       $this->season_activities = array();
       $this->schools = array();
       $this->school_seasons = array();
+      $this->conferences = array();
+      $this->conference_seasons = array();
 
       // URLs to delete
       $to_delete = array();
@@ -738,6 +890,16 @@ class Daemon extends AbstractScript {
       }
 
       // ------------------------------------------------------------
+      // Queue conference updates
+      // ------------------------------------------------------------
+      foreach ($this->conference_seasons as $id => $seasons) {
+        foreach ($seasons as $season) {
+          UpdateManager::queueConference($this->conferences[$id], UpdateConferenceRequest::ACTIVITY_SEASON, $season);
+          self::errln(sprintf('queued conference %s/%-6s %s', $season, $id, $this->conferences[$id]));
+        }
+      }
+
+      // ------------------------------------------------------------
       // Mark all requests as completed
       // ------------------------------------------------------------
       foreach ($requests as $r)
@@ -805,6 +967,8 @@ class Daemon extends AbstractScript {
   /**
    * Convenience method fills the school and seasons map
    *
+   * 2014-06-24: Also fills conference and seasons map
+   *
    * @param School $school the ID of the school to queue
    * @param Season $season the season to queue
    */
@@ -814,6 +978,12 @@ class Daemon extends AbstractScript {
       $this->school_seasons[$school->id] = array();
     }
     $this->school_seasons[$school->id][(string)$season] = $season;
+
+    if (!isset($this->conferences[$school->conference->id])) {
+      $this->conferences[$school->conference->id] = $school->conference;
+      $this->conference_seasons[$school->conference->id] = array();
+    }
+    $this->conference_seasons[$school->conference->id][(string)$season] = $season;
   }
 
   private function queueSeason(Season $season, $activity) {
@@ -921,6 +1091,40 @@ class Daemon extends AbstractScript {
   }
 
   /**
+   * Produce a list of pending conference-level updates to standard output
+   *
+   */
+  public function listConferences() {
+    // Merely list the pending requests
+    $requests = UpdateManager::getPendingConferences();
+    $conferences = array();
+    foreach ($requests as $req) {
+      $activity = $req->activity;
+      if ($req->activity == UpdateConferenceRequest::ACTIVITY_SEASON)
+        $activity .= sprintf(' (%s)', $req->season);
+      if (!isset($conferences[$req->conference->id])) $conferences[$req->conference->id] = array();
+      if (!isset($conferences[$req->conference->id][$activity]))
+        $conferences[$req->conference->id][$activity] = 0;
+      $conferences[$req->conference->id][$activity]++;
+    }
+
+    // Print them out and exit
+    foreach ($conferences as $id => $list) {
+      try {
+        $reg = DB::getConference($id);
+        if ($reg === null)
+          throw new RuntimeException("Invalid conference ID $id.");
+        printf("--------------------\nConference: %s\n--------------------\n", $reg);
+        foreach ($list as $activity => $num)
+          printf("%12s: %d\n", $activity, $num);
+      }
+      catch (Exception $e) {
+        printf("(EE) %s: %s\n.", $id, $e->getMessage());
+      }
+    }
+  }
+
+  /**
    * Produce a list of pending season-level updates to standard output
    *
    */
@@ -955,13 +1159,14 @@ class Daemon extends AbstractScript {
   // ------------------------------------------------------------
   // CLI setup
   // ------------------------------------------------------------
-  protected $cli_opts = '[-l] [-d] {regatta|season|school|file}';
+  protected $cli_opts = '[-l] [-d] {regatta|season|school|conference|file}';
   protected $cli_usage = ' -l --list    only list the pending updates
  -d --daemon  run as a daemon
 
- regatta: perform pending regatta-level updates
- season:  perform pending season-level updates
- school:  perform pending school-level updates
+ regatta:    perform pending regatta-level updates
+ season:     perform pending season-level updates
+ school:     perform pending school-level updates
+ conference: perform pending conference-level updates
  file:    perform pending file-level updates';
 }
 
@@ -994,6 +1199,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
 
     case 'regatta':
     case 'school':
+    case 'conference':
     case 'season':
     case 'file':
       if ($axis !== null)
@@ -1018,6 +1224,8 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
       $P->listSeasons();
     elseif ($axis == 'school')
       $P->listSchools();
+    elseif ($axis == 'conference')
+      $P->listConferences();
     elseif ($axis == 'file')
       $P->listFiles();
   }
@@ -1028,6 +1236,8 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
       $P->runSeasons($daemon);
     elseif ($axis == 'school')
       $P->runSchools($daemon);
+    elseif ($axis == 'conference')
+      $P->runConferences($daemon);
     elseif ($axis == 'file')
       $P->runFiles($daemon);
   }
