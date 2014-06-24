@@ -447,7 +447,7 @@ class Daemon extends AbstractScript {
     $md5 = $this->checkMD5sum();
     if ($daemon)
       $mypid = $this->daemonize();
-    $this->createLock('sch');
+    $this->createLock('cnf');
 
     $con = DB::connection();
     $con->autocommit(true);
@@ -459,7 +459,7 @@ class Daemon extends AbstractScript {
           DB::commit();
           DB::resetCache();
           sleep(123);
-          $this->checkLock('sch', $mypid);
+          $this->checkLock('cnf', $mypid);
           $md5 = $this->checkMD5sum($md5);
           continue;
         }
@@ -578,7 +578,7 @@ class Daemon extends AbstractScript {
   }
 
   /**
-   * Checks for school-level updates and performs them
+   * Checks for season-level updates and performs them
    *
    * @param boolean $daemon run in daemon mode
    */
