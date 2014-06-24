@@ -3239,6 +3239,31 @@ class Season extends DBObject {
   }
 
   /**
+   * Get a list of regattas in this season in which any school from
+   * the given conference participated. This is a convenience method.
+   *
+   * Only non-personal regattas are fetched
+   *
+   * @param Conference $conference the conference whose participation to verify
+   * @param boolean $inc_private true to include private regattas
+   * @return Array:Regatta
+   * @see getParticipation
+   */
+  public function getConferenceParticipation(Conference $conference, $inc_private = false) {
+    require_once('regatta/Regatta.php');
+    return DB::getAll(($inc_private !== false) ? DB::$REGATTA : DB::$PUBLIC_REGATTA,
+                      new DBBool(array(new DBCond('start_time', $this->start_date, DBCond::GE),
+                                       new DBCond('start_time', $this->end_date,   DBCond::LT),
+                                       new DBCondIn('id', DB::prepGetAll(
+                                                      DB::$TEAM,
+                                                      new DBCondIn('school', DB::prepGetAll(
+                                                                     DB::$SCHOOL,
+                                                                     new DBCond('conference', $conference),
+                                                                     array('id'))),
+                                                      array('regatta'))))));
+  }
+
+  /**
    * Return the next season if it exists in the database.
    *
    * The "next" season is one of either spring or fall.
