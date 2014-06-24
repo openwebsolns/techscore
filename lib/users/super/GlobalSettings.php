@@ -75,7 +75,6 @@ class GlobalSettings extends AbstractSuperUserPane {
       foreach (array(STN::APP_NAME => "application name",
                      STN::CONFERENCE_TITLE => "conference title",
                      STN::CONFERENCE_SHORT => "conference abbreviation",
-                     STN::CONFERENCE_URL => "conferences URL",
                      STN::APP_VERSION => "version",
                      STN::APP_COPYRIGHT => "copyright") as $setting => $title) {
         $val = DB::$V->reqString($args, $setting, 1, 101, sprintf("Invalid %s provided.", $title));
@@ -161,6 +160,26 @@ class GlobalSettings extends AbstractSuperUserPane {
             null, // season
             $conf->url
           );
+        }
+      }
+
+      $val = DB::$V->reqString($args, STN::CONFERENCE_URL, 1, 101, "Invalid conference URL");
+      if ($val != DB::g(STN::CONFERENCE_URL)) {
+        $changed = true;
+
+        // Queue deletion of old URLs
+        require_once('public/UpdateManager.php');
+        foreach (DB::getConferences() as $conf) {
+          if ($conf->url !== null) {
+            UpdateManager::queueConference(
+              $conf,
+              UpdateConferenceRequest::ACTIVITY_URL,
+              null, // season
+              $conf->url
+            );
+          }
+          $conf->url = $conf->createUrl();
+          DB::set($conf);
         }
       }
 
