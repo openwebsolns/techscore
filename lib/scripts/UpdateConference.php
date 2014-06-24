@@ -43,7 +43,6 @@ class UpdateConference extends AbstractScript {
 
     // SETUP navigation
     $page->addMenu(new XA('/', "Home"));
-    $page->addMenu(new XA('/' . DB::g(STN::CONFERENCE_URL) . '/', $CONFERENCE . "s"));
     $page->addMenu(new XA('/schools/', "Schools"));
     $page->addMenu(new XA('/seasons/', "Seasons"));
     $page->addMenu(new XA($conference->url, $conference));
