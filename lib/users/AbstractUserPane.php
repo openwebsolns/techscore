@@ -140,7 +140,7 @@ abstract class AbstractUserPane {
       // Special case: Text menu
       if ($title == 'Text' && $this->isPermitted('TextManagement')) {
         foreach (Text_Entry::getSections() as $sec => $tname)
-          $list[] = new XLi(new XA(WS::link($this->pane_url('TextManagement') . '/' . $sec), $tname));
+          $list[] = new XLi(new XA(WS::link($this->pane_url('TextManagement'), array('r'=>$sec)), $tname));
       }
 
       if (count($list) > 0)
@@ -276,22 +276,6 @@ abstract class AbstractUserPane {
         throw new PermissionException("No access for preferences page requested.");
       return $obj;
     }
-    // ------------------------------------------------------------
-    // Text?
-    // ------------------------------------------------------------
-    if ($base == 'text') {
-      if (count($uri) != 1)
-        throw new PaneException("Invalid or missing text section to edit.");
-      $secs = Text_Entry::getSections();
-      if (!isset($secs[$uri[0]]))
-        throw new PaneException(sprintf("Invalid text section: %s.", $uri[0]));
-
-      require_once('users/admin/TextManagement.php');
-      $obj = new TextManagement($u, $uri[0]);
-      if (!$obj->isPermitted())
-        throw new PermissionException("No access to edit requested text entry.");
-      return $obj;
-    }
 
     // ------------------------------------------------------------
     // Handle the rest
@@ -331,7 +315,7 @@ abstract class AbstractUserPane {
    * @return String the URL (sans leading /)
    * @throws InvalidArgumentException if unknown classname provided
    */
-  public function pane_url($classname = null) {
+  final public function pane_url($classname = null) {
     if ($classname === null)
       $classname = get_class($this);
     if (!isset(self::$ROUTES[$classname]))
