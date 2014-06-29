@@ -21,6 +21,7 @@
     margin-left: 1em;
     width: 44%;
     padding: 0 1em;
+    min-height: 19.5em;
 }
 .dpe-preview:before {
     content: "Preview";
