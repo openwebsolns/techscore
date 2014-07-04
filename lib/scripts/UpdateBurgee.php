@@ -83,6 +83,7 @@ class UpdateBurgee extends AbstractScript {
 To cleanup stale burgees, use -c (--clean) flag and optionally
 include the school ID(s) to remove.
 
+  --all          Apply to all schools
   -c  --clean    Remove stale burgees';
 }
 
@@ -93,11 +94,14 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
 
   $P = new UpdateBurgee();
   $opts = $P->getOpts($argv);
+  $all = false;
   $clean = false;
   $schools = array();
   foreach ($opts as $opt) {
     if ($opt == '-c' || $opt == '--clean')
       $clean = true;
+    elseif ($opt == '--all')
+      $all = true;
     else {
       if (($school = DB::getSchool($opt)) === null)
         throw new TSScriptException("Invalid school ID: $opt");
@@ -106,7 +110,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   }
 
   if ($clean) {
-    if (count($schools) == 0)
+    if (count($schools) == 0 || $all)
       $P->runCleanup();
     else {
       foreach ($schools as $school)
@@ -114,6 +118,8 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
     }
   }
   else {
+    if ($all)
+      $schools = DB::getAll(DB::$SCHOOL);
     if (count($schools) == 0)
       throw new TSScriptException("No schools provided.");
     foreach ($schools as $school)
