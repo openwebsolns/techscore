@@ -137,13 +137,17 @@ abstract class AbstractScript {
    */
   protected static function &getWriters() {
     if (self::$writers === null) {
-      self::$writers = array();
-      foreach (Conf::$WRITERS as $writer) {
-        require_once(sprintf('writers/%s.php', $writer));
-        self::$writers[] = new $writer();
-      }
+      self::setWriters(Conf::$WRITERS);
     }
     return self::$writers;
+  }
+
+  protected static function setWriters($class_list) {
+    self::$writers = array();
+    foreach ($class_list as $writer) {
+      require_once(sprintf('writers/%s.php', $writer));
+      self::$writers[] = new $writer();
+    }
   }
 
   /**
@@ -217,7 +221,10 @@ abstract class AbstractScript {
     // Gobble up verbosity and others
     $verb = 0;
     $list = array();
-    foreach ($args as $opt) {
+    $writers = array();
+    while (count($args) > 0) {
+      $opt = array_shift($args);
+
       switch ($opt) {
       case '-h':
       case '--help':
@@ -234,10 +241,21 @@ abstract class AbstractScript {
         self::printFilenames();
         break;
 
+      case '-w':
+      case '--writers':
+        if (count($args) == 0)
+          throw new TSScriptException("Missing writers argument");
+        foreach (explode(',', array_shift($args)) as $writer)
+          $writers[$writer] = $writer;
+        break;
+
       default:
         $list[] = $opt;
       }
     }
+    // validate writers
+    if (count($writers) > 0)
+      self::setWriters($writers);
     self::setVerbosity($verb);
     return $list;
   }
@@ -276,6 +294,7 @@ abstract class AbstractScript {
     if ($mes === null) {
       echo "Global options:
 
+ -w --writers <name>  Comma-separated list of writers to use
  -v --verbose [+]     Increase communication on standard error
  -f --print-filename  Print names of files written to standard output
  -h --help            Print this message and exit
