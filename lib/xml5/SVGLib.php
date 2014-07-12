@@ -337,8 +337,7 @@ class SVGTspan extends SVGAbstractLeaf {
   public function __construct($text, Array $attrs = array()) {
     $this->text = new XText($text, $attrs);
   }
-  public function toXML() { return $this->text->toXML(); }
-  public function printXML() { return $this->text->printXML(); }
+  public function writeXML($resource) { $this->text->writeXML($resource); }
 }
 /**
  * @see XA

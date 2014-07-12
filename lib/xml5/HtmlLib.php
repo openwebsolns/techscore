@@ -633,10 +633,12 @@ class XPre extends XAbstractHtml {
 }
 
 /**
- * A simple Script. The content is NOT HTML-encoded
+ * A simple script, with raw content
  *
+ * @author Dayan Paez
+ * @version 2013-10-07
  */
-class XScript extends XAbstractHtml {
+class XRawScript extends XAbstractHtml {
   /**
    * Creates a script element of the given type, using the given
    * source and/or content
@@ -654,6 +656,27 @@ class XScript extends XAbstractHtml {
       $this->set("src", $src);
     if ($text !== null)
       $this->add(new XRawText($text));
+  }
+}
+
+/**
+ * A simple Script. The content is NOT HTML-encoded
+ *
+ */
+class XScript extends XRawScript {
+  /**
+   * Creates a script element of the given type, using the given
+   * source and/or content
+   *
+   * @param String $type the type
+   * @param String $src the "src" attribute. Use null to exclude
+   * @param String $text the content
+   * @param Array $attrs optional list of attributes
+   */
+  public function __construct($type, $src = null, $text = null, Array $attrs = array()) {
+    parent::__construct($type, $src, null, $attrs);
+    if ($text !== null)
+      $this->add(new XCData($text));
   }
 }
 
@@ -931,17 +954,11 @@ class XTable extends XAbstractHtml {
     }
     throw new InvalidArgumentException("XTable children must be one of XHead|XBody|XTR");
   }
-  public function toXML() {
+  public function writeXML($resource) {
     $e = new XElem("table", $this->attrs);
     if ($this->caption !== null)    $e->add($this->caption);
     foreach ($this->child as $c) $e->add($c);
-    return $e->toXML();
-  }
-  public function printXML() {
-    $e = new XElem("table", $this->attrs);
-    if ($this->caption !== null)    $e->add($this->caption);
-    foreach ($this->child as $c) $e->add($c);
-    $e->printXML();
+    $e->writeXML($resource);
   }
   public function children() {
     $a = $this->child;

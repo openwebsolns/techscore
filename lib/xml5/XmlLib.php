@@ -14,6 +14,15 @@
  */
 
 /**
+ * Interface for producing JSON output
+ *
+ */
+interface Jsonable {
+  public function printJSON();
+  public function toJSON();
+}
+
+/**
  * Interface for XML objects requires toXML method
  *
  * @author Dayan Paez
@@ -33,6 +42,13 @@ interface Xmlable {
    *
    */
   public function printXML();
+
+  /**
+   * Writes content to the given resource
+   *
+   * @param resource $resource a writeable resource
+   */
+  public function writeXML($resource);
 }
 
 /**
@@ -41,7 +57,7 @@ interface Xmlable {
  * @author Dayan Paez
  * @date   2010-03-16
  */
-class XElem implements Xmlable {
+class XElem implements Xmlable, Jsonable {
 
   protected $name;
   protected $child;
@@ -80,7 +96,7 @@ class XElem implements Xmlable {
    * @param String $val the value
    */
   public function set($key, $val) {
-    $this->attrs[htmlspecialchars((string)$key, ENT_QUOTES, 'UTF-8')] = htmlspecialchars((string)$val, ENT_QUOTES, 'UTF-8');
+    $this->attrs[(string)$key] = (string)$val;
   }
 
   /**
@@ -100,53 +116,101 @@ class XElem implements Xmlable {
    * @return String the XML object
    */
   public function toXML() {
-    $text = sprintf('<%s', $this->name);
-    foreach ($this->attrs as $key => $value)
-      $text .= sprintf(' %s="%s"', $key, $value);
+    $res = fopen('php://temp', 'rw');
+    $this->writeXML($res);
+    fseek($res, 0);
+    $str = stream_get_contents($res);
+    fclose($res);
+    return $str;
+  }
 
-    // check for empty
-    if (count($this->child) == 0) {
-      if ($this->non_empty)
-        $text .= sprintf('></%s>', $this->name);
-      else
-        $text .= ' />';
-      return $text;
-    }
-    $text .= '>';
-
-    // children
-    foreach ($this->child as $c)
-      $text .= $c->toXML();
-
-    $text .= sprintf('</%s>', $this->name);
-    return $text;
+  /**
+   * Implementation of Xmlable
+   *
+   * Forwards the request to writeXML
+   */
+  public function printXML() {
+    $res = fopen('php://output', 'w');
+    $this->writeXML($res);
+    fclose($res);
   }
 
   /**
    * Implementation of Xmlable function
    *
-   * @return String the XML object
    */
-  public function printXML() {
-    printf('<%s', $this->name);
-    foreach ($this->attrs as $key => $value)
-      echo sprintf(' %s="%s"', $key, $value);
+  public function writeXML($resource) {
+    fwrite($resource, '<' . $this->name);
+    foreach ($this->attrs as $key => $val)
+      fwrite($resource,
+             sprintf(' %s="%s"',
+                     htmlspecialchars($key, ENT_QUOTES | ENT_DISALLOWED, 'UTF-8'),
+                     htmlspecialchars($val, ENT_QUOTES | ENT_DISALLOWED, 'UTF-8')));
 
     // check for empty
     if (count($this->child) == 0) {
       if ($this->non_empty)
-        echo sprintf('></%s>', $this->name);
+        fwrite($resource, '></' . $this->name . '>');
       else
-        echo ' />';
+        fwrite($resource, ' />');
       return;
     }
-    echo '>';
+    fwrite($resource, '>');
 
     // children
     foreach ($this->child as $c)
-      $c->printXML();
+      $c->writeXML($resource);
 
-    printf('</%s>', $this->name);
+    fwrite($resource, '</' . $this->name  . '>');
+  }
+
+  /**
+   * Implementation of Jsonable
+   *
+   * @return String the JSON string
+   */
+  public function toJSON() {
+    $text = sprintf('{"%s":{"attrs":{', $this->name);
+    $index = 0;
+    foreach ($this->attrs as $key => $value) {
+      if ($index++ > 0)
+        $text .= ',';
+      $text .= sprintf('"%s":"%s"', str_replace('"', '\\"', $key), str_replace('"', '\\"', $value));
+    }
+    $text .= '},"elems":[';
+
+    $index = 0;
+    foreach ($this->child as $c) {
+      if ($index++ > 0)
+        $text .= ',';
+      $text .= $c->toJSON();
+    }
+    $text .= ']}}';
+    return $text;
+  }
+
+  /**
+   * Implementation of Jsonable
+   *
+   * Prints the JSON string
+   */
+  public function printJSON() {
+    printf('{"%s":{"attrs":{', $this->name);
+    $index = 0;
+    foreach ($this->attrs as $key => $value) {
+      if ($index++ > 0)
+        echo ',';
+      printf('"%s":"%s"', str_replace('"', '\\"', $key), str_replace('"', '\\"', $value));
+    }
+    echo '},"elems":[';
+
+    $index = 0;
+    foreach ($this->child as $c) {
+      if ($index++ > 0)
+        echo ',';
+      $c->printJSON();
+    }
+    echo ']}}';
   }
 
   /**
@@ -192,7 +256,7 @@ class XHeader implements Xmlable {
     $this->tagname = (string)$tag;
     if (empty($this->tagname))
       throw new InvalidArgumentException("Tagname must not be empty.");
-
+    
     $this->attrs = array();
     foreach ($attrs as $key => $value) {
       $this->set($key, $value);
@@ -210,27 +274,41 @@ class XHeader implements Xmlable {
   }
 
   /**
-   * Gets String representation of XML
+   * Implementation of Xmlable function
    *
-   * @return String the XML
+   * @return String the XML object
    */
   public function toXML() {
-    $text = "";
-    foreach ($this->attrs as $key => $value) {
-      $text .= sprintf(' %s="%s"', $key, $value);
-    }
-    return sprintf('<?%s%s?>', $this->tagname, $text);
+    $res = fopen('php://temp', 'rw');
+    $this->writeXML($res);
+    fseek($res, 0);
+    $str = stream_get_contents($res);
+    fclose($res);
+    return $str;
+  }
+
+  /**
+   * Implementation of Xmlable
+   *
+   * Forwards the request to writeXML
+   */
+  public function printXML() {
+    $res = fopen('php://output', 'w');
+    $this->writeXML($res);
+    fclose($res);
   }
 
   /**
    * Prints the header
    * @see toXML
    */
-  public function printXML() {
-    echo '<?'.$this->tagname;
-    foreach ($this->attrs as $key => $value)
-      printf(' %s="%s"', $key, $value);
-    echo '?>';
+  public function writeXML($resource) {
+    fwrite($resource, '<?'.$this->tagname);
+    foreach ($this->attrs as $key => $val) {
+      fwrite($resource, ' ' . htmlspecialchars($key, ENT_QUOTES | ENT_DISALLOWED, 'UTF-8'));
+      fwrite($resource, '="'. htmlspecialchars($val, ENT_QUOTES | ENT_DISALLOWED, 'UTF-8') . '"');
+    }
+    fwrite($resource, '?>');
   }
 }
 
@@ -271,42 +349,20 @@ class XDoc extends XElem {
   }
 
   /**
-   * Returns the <?xml?> declaration and the rest of the tree
-   *
-   * @return String the XML code
-   */
-  public function toXML() {
-    $text = '';
-    if ($this->inc_headers) {
-      foreach ($this->headers as $header)
-        $text .= sprintf("%s\n", $header->toXML());
-    }
-    return $text . parent::toXML();
-  }
-
-  /**
    * Prints the page suitably for a browser, along with the correct
    * header (application/xml)
    *
    */
   public function printXML() {
-    if ($this->inc_headers) {
+    if (!headers_sent())
       header("Content-type: " . $this->ct);
-      foreach ($this->headers as $header)
-        $header->printXML();
-    }
     parent::printXML();
   }
 
-  private $inc_headers = true;
-
-  /**
-   * True to include XML headers and Content-type when printing XML
-   *
-   * @param boolean $flag true (default) to include headers
-   */
-  public function setIncludeHeaders($flag = true) {
-    $this->inc_headers = ($flag != false);
+  public function writeXML($resource) {
+    foreach ($this->headers as $header)
+      $header->writeXML($resource);
+    parent::writeXML($resource);
   }
 }
 
@@ -319,7 +375,7 @@ class XDoc extends XElem {
  */
 class XRawText implements Xmlable {
 
-  private $value;
+  protected $value;
 
   /**
    * Creates a new raw text with the given value (default is empty)
@@ -341,19 +397,27 @@ class XRawText implements Xmlable {
   public function printXML() {
     echo $this->value;
   }
+  public function writeXML($resource) {
+    fwrite($resource, $this->value);
+  }
+
+  /**
+   * Returns value within double quotes, escaping other double quotes
+   *
+   */
+  public function toJSON() {
+    return '"' . str_replace('"', '\\"', $this->value) . '"';
+  }
+  public function printJSON() {
+    echo '"' . str_replace('"', '\\"', $this->value) . '"';
+  }
 }
 
 class XCData extends XRawText {
-  public function __construct($value = "") {
-    parent::__construct($value);
-  }
-  public function toXML() {
-    return sprintf('<![CDATA[ %s ]]>', parent::toXML());
-  }
-  public function printXML() {
-    echo '<![CDATA[ ';
-    parent::printXML();
-    echo ']]>';
+  public function writeXML($resource) {
+    fwrite($resource, '<![CDATA[ ');
+    parent::writeXML($resource);
+    fwrite($resource, ']]>');
   }
 }
 
@@ -365,21 +429,17 @@ class XCData extends XRawText {
  * @date   2010-03-16
  */
 class XText extends XRawText {
-
-  /**
-   * Creates a new text with the given value (defaults to empty)
-   *
-   * @param String $value
-   */
-  public function __construct($value = "") {
-    parent::__construct(htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8'));
+  public function writeXML($resource) {
+    fwrite($resource, htmlspecialchars((string)$this->value, ENT_QUOTES | ENT_DISALLOWED, 'UTF-8'));
   }
 }
 
 /**
  * XHTML page/HTML. Prints the 1.0 Strict DOCTYPE by default. Of
  * course, it is still possible to write non-legal HTML even though
- * the XML will most likely be valid
+ * the XML will most likely be valid.
+ *
+ * XHTML-1.0 doctype no longer prints the XML declaration
  *
  * @author Dayan Paez
  * @version 2010-05-21
@@ -395,9 +455,9 @@ class XPage extends XElem {
   const HTML_5  = "HTML-5";
 
   private $doctype = "XHTML-1.0";
-  private $doctypes = array("XHTML-1.0" =>'<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',
-                            "HTML-4.01" =>'<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">',
-                            "HTML-5"    =>'<!DOCTYPE html>');
+  private $doctypes = array("XHTML-1.0" =>'<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',
+			    "HTML-4.01" =>'<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">',
+			    "HTML-5"    =>'<!DOCTYPE html>');
 
   /**
    * Creates a new page with the given title
@@ -410,7 +470,7 @@ class XPage extends XElem {
     if (!($title instanceof XRawText))
       $title = new XText($title);
     $this->head = new XElem("head", array(),
-                            array(new XElem("title", array(), array($title))));
+			    array(new XElem("title", array(), array($title))));
     $this->body = new XElem("body");
     $this->body->non_empty = true;
 
@@ -440,37 +500,28 @@ class XPage extends XElem {
   }
 
   /**
-   * Overrides parent toXML method to include DOCTYPE declaration
-   *
-   * @return String the XML
-   */
-  public function toXML() {
-    if ($this->doctype == XPage::XHTML_1) {
-      $this->set("xmlns", "http://www.w3.org/1999/xhtml");
-      $this->set("xml:lang", "en");
-      $this->set("lang",     "en");
-    }
-    $text  = $this->doctypes[$this->doctype];
-    return $text . "\n" . parent::toXML();
-  }
-
-  /**
    * Prints the page back to the browser, feeding the correct header
    * (application/xml) content type
    *
    */
   public function printXML() {
-    if (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/xhtml+xml') !== false)
-      header("Content-type: application/xhtml+xml;charset=UTF-8");
-    else
-      header("Content-type: text/html;charset=UTF-8");
+    if (!headers_sent()) {
+      if ($this->doctype == XPage::XHTML_1 && isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/xhtml+xml') !== false)
+        header("Content-type: application/xhtml+xml;charset=UTF-8");
+      else
+        header("Content-type: text/html;charset=UTF-8");
+    }
+    parent::printXML();
+  }
+
+  public function writeXML($resource) {
     if ($this->doctype == XPage::XHTML_1) {
       $this->set("xmlns", "http://www.w3.org/1999/xhtml");
       $this->set("xml:lang", "en");
       $this->set("lang",     "en");
     }
-    echo $this->doctypes[$this->doctype];
-    parent::printXML();
+    fwrite($resource, $this->doctypes[$this->doctype]);
+    parent::writeXML($resource);
   }
 
   /**
@@ -481,12 +532,5 @@ class XPage extends XElem {
   public function setDoctype($doctype) {
     $this->doctype = $doctype;
   }
-}
-
-if (isset($argv[0]) && __FILE__ == $argv[0]) {
-  $p = new XPage("My Title");
-  $p->body->add(new XElem("p", array("class"=>"port"),
-                          array(new XText("A statement."))));
-  $p->printXML();
 }
 ?>
