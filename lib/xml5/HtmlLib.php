@@ -954,11 +954,11 @@ class XTable extends XAbstractHtml {
     }
     throw new InvalidArgumentException("XTable children must be one of XHead|XBody|XTR");
   }
-  public function writeXML($resource) {
+  public function write($resource) {
     $e = new XElem("table", $this->attrs);
     if ($this->caption !== null)    $e->add($this->caption);
     foreach ($this->child as $c) $e->add($c);
-    $e->writeXML($resource);
+    $e->write($resource);
   }
   public function children() {
     $a = $this->child;

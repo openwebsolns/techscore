@@ -70,8 +70,7 @@ class ReportMaker {
       $p->set('id', 'summary');
       foreach ($summaries as $h => $i) {
         $p->add(new XH4($h));
-        $DPE->parse($i);
-        $p->add(new XDiv(array(), array(new XRawText($DPE->toXML()))));
+        $p->add(new XDiv(array(), $DPE->parse($i)));
       }
     }
 
@@ -264,7 +263,7 @@ class ReportMaker {
       $maker = new RotationDialog($reg);
       foreach ($reg->getRotation()->getDivisions() as $div) {
         $this->rotPage->addSection($p = new XPort("$div Division"));
-        $p->add(new XRawText($maker->getTable($div, true)->toXML()));
+        $p->add($maker->getTable($div, true));
       }
     }
   }

@@ -450,8 +450,7 @@ class UpdateRegatta extends AbstractScript {
       return;
 
     $filename = $dirname . 'history.svg';
-    $data = '<?xml version="1.0" encoding="UTF-8"?>
-' . $cont[0]->toXML();
+    $data = $cont[0]->toXML();
     self::writeFile($filename, $data);
   }
 
@@ -505,8 +504,7 @@ class UpdateRegatta extends AbstractScript {
       return;
 
     $filename = $dirname . $div . '/history.svg';
-    $data = '<?xml version="1.0" encoding="UTF-8"?>
-' . $cont[0]->toXML();
+    $data = $cont[0]->toXML();
     self::writeFile($filename, $data);
   }
 

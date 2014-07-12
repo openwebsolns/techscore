@@ -51,7 +51,7 @@ class SVGDoc extends XDoc {
    * @param String $height
    * @param String $title the title of the document (optional)
    */
-  public function __construct($width, $height, $title = null, $inc_header = false) {
+  public function __construct($width, $height, $title = null, $inc_header = true) {
     parent::__construct("svg", array("width" => $width,
                                      "height" => $height,
                                      "xmlns:xlink" => "http://www.w3.org/1999/xlink"),
@@ -337,7 +337,7 @@ class SVGTspan extends SVGAbstractLeaf {
   public function __construct($text, Array $attrs = array()) {
     $this->text = new XText($text, $attrs);
   }
-  public function writeXML($resource) { $this->text->writeXML($resource); }
+  public function write($resource) { $this->text->write($resource); }
 }
 /**
  * @see XA

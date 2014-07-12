@@ -14,6 +14,14 @@
  */
 
 /**
+ * Interface for serializing to a resource
+ *
+ */
+interface Writeable {
+  public function write($resource);
+}
+
+/**
  * Interface for producing JSON output
  *
  */
@@ -42,13 +50,6 @@ interface Xmlable {
    *
    */
   public function printXML();
-
-  /**
-   * Writes content to the given resource
-   *
-   * @param resource $resource a writeable resource
-   */
-  public function writeXML($resource);
 }
 
 /**
@@ -57,7 +58,7 @@ interface Xmlable {
  * @author Dayan Paez
  * @date   2010-03-16
  */
-class XElem implements Xmlable, Jsonable {
+class XElem implements Writeable, Xmlable, Jsonable {
 
   protected $name;
   protected $child;
@@ -117,7 +118,7 @@ class XElem implements Xmlable, Jsonable {
    */
   public function toXML() {
     $res = fopen('php://temp', 'rw');
-    $this->writeXML($res);
+    $this->write($res);
     fseek($res, 0);
     $str = stream_get_contents($res);
     fclose($res);
@@ -127,11 +128,11 @@ class XElem implements Xmlable, Jsonable {
   /**
    * Implementation of Xmlable
    *
-   * Forwards the request to writeXML
+   * Forwards the request to write
    */
   public function printXML() {
     $res = fopen('php://output', 'w');
-    $this->writeXML($res);
+    $this->write($res);
     fclose($res);
   }
 
@@ -139,7 +140,7 @@ class XElem implements Xmlable, Jsonable {
    * Implementation of Xmlable function
    *
    */
-  public function writeXML($resource) {
+  public function write($resource) {
     fwrite($resource, '<' . $this->name);
     foreach ($this->attrs as $key => $val)
       fwrite($resource,
@@ -159,7 +160,7 @@ class XElem implements Xmlable, Jsonable {
 
     // children
     foreach ($this->child as $c)
-      $c->writeXML($resource);
+      $c->write($resource);
 
     fwrite($resource, '</' . $this->name  . '>');
   }
@@ -240,7 +241,7 @@ class XElem implements Xmlable, Jsonable {
  * @author Dayan Paez
  * @version 2010-04-30
  */
-class XHeader implements Xmlable {
+class XHeader implements Writeable, Xmlable {
 
   private $tagname;
   private $attrs;
@@ -280,7 +281,7 @@ class XHeader implements Xmlable {
    */
   public function toXML() {
     $res = fopen('php://temp', 'rw');
-    $this->writeXML($res);
+    $this->write($res);
     fseek($res, 0);
     $str = stream_get_contents($res);
     fclose($res);
@@ -290,11 +291,11 @@ class XHeader implements Xmlable {
   /**
    * Implementation of Xmlable
    *
-   * Forwards the request to writeXML
+   * Forwards the request to write
    */
   public function printXML() {
     $res = fopen('php://output', 'w');
-    $this->writeXML($res);
+    $this->write($res);
     fclose($res);
   }
 
@@ -302,7 +303,7 @@ class XHeader implements Xmlable {
    * Prints the header
    * @see toXML
    */
-  public function writeXML($resource) {
+  public function write($resource) {
     fwrite($resource, '<?'.$this->tagname);
     foreach ($this->attrs as $key => $val) {
       fwrite($resource, ' ' . htmlspecialchars($key, ENT_QUOTES | ENT_DISALLOWED, 'UTF-8'));
@@ -335,8 +336,8 @@ class XDoc extends XElem {
   public function __construct($tag, $attrs = array(), $children = array(), $inc_header = true) {
     parent::__construct($tag, $attrs, $children);
     $this->headers = array();
-    if ($inc_header)
-      $this->header(new XHeader("xml", array("version" =>"1.0", "encoding"=>"UTF-8")));
+    $this->header(new XHeader("xml", array("version" =>"1.0", "encoding"=>"UTF-8")));
+    $this->setIncludeHeaders($inc_header);
   }
 
   /**
@@ -348,21 +349,34 @@ class XDoc extends XElem {
     $this->headers[] = $header;
   }
 
+  private $inc_headers = true;
+
+  /**
+   * True to include XML headers and Content-type when printing XML
+   *
+   * @param boolean $flag true (default) to include headers
+   */
+  public function setIncludeHeaders($flag = true) {
+    $this->inc_headers = ($flag != false);
+  }
+
   /**
    * Prints the page suitably for a browser, along with the correct
    * header (application/xml)
    *
    */
   public function printXML() {
-    if (!headers_sent())
+    if (!headers_sent() && $this->inc_headers)
       header("Content-type: " . $this->ct);
     parent::printXML();
   }
 
-  public function writeXML($resource) {
-    foreach ($this->headers as $header)
-      $header->writeXML($resource);
-    parent::writeXML($resource);
+  public function write($resource) {
+    if ($this->inc_headers) {
+      foreach ($this->headers as $header)
+        $header->write($resource);
+    }
+    parent::write($resource);
   }
 }
 
@@ -373,7 +387,7 @@ class XDoc extends XElem {
  * @author Dayan Paez
  * @date   2010-04-22
  */
-class XRawText implements Xmlable {
+class XRawText implements Writeable, Xmlable {
 
   protected $value;
 
@@ -397,7 +411,7 @@ class XRawText implements Xmlable {
   public function printXML() {
     echo $this->value;
   }
-  public function writeXML($resource) {
+  public function write($resource) {
     fwrite($resource, $this->value);
   }
 
@@ -414,9 +428,9 @@ class XRawText implements Xmlable {
 }
 
 class XCData extends XRawText {
-  public function writeXML($resource) {
+  public function write($resource) {
     fwrite($resource, '<![CDATA[ ');
-    parent::writeXML($resource);
+    parent::write($resource);
     fwrite($resource, ']]>');
   }
 }
@@ -429,7 +443,7 @@ class XCData extends XRawText {
  * @date   2010-03-16
  */
 class XText extends XRawText {
-  public function writeXML($resource) {
+  public function write($resource) {
     fwrite($resource, htmlspecialchars((string)$this->value, ENT_QUOTES | ENT_DISALLOWED, 'UTF-8'));
   }
 }
@@ -514,14 +528,14 @@ class XPage extends XElem {
     parent::printXML();
   }
 
-  public function writeXML($resource) {
+  public function write($resource) {
     if ($this->doctype == XPage::XHTML_1) {
       $this->set("xmlns", "http://www.w3.org/1999/xhtml");
       $this->set("xml:lang", "en");
       $this->set("lang",     "en");
     }
     fwrite($resource, $this->doctypes[$this->doctype]);
-    parent::writeXML($resource);
+    parent::write($resource);
   }
 
   /**

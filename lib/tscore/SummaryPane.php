@@ -238,10 +238,9 @@ class SummaryPane extends AbstractPane {
 
     require_once('xml5/TSEditor.php');
     $DPE = new TSEditor();
-    $DPE->parse((string)$summ);
-    $body->body->add(new XDiv(array('id'=>'summary'),
-                              array(new XH2($summ->summary_date->format('l, F j'), $h2args),
-                                    new XRawText($DPE->toXML()))));
+    $list = $DPE->parse((string)$summ);
+    array_unshift($list, new XH2($summ->summary_date->format('l, F j'), $h2args));
+    $body->body->add(new XDiv(array('id'=>'summary'), $list));
 
     if ($this->REGATTA->hasFinishes()) {
       $body->body->add(new XDiv(array('id'=>'scores'),
