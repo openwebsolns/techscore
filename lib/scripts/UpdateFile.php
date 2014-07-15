@@ -42,7 +42,7 @@ class UpdateFile extends AbstractScript {
       self::errln("Removed file $path.");
     }
     else {
-      self::writeFile($path, $obj->filedata);
+      self::write($path, $obj);
       self::errln("Serialized file $path.");
     }
   }

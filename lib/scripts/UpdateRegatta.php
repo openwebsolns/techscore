@@ -266,9 +266,8 @@ class UpdateRegatta extends AbstractScript {
     if ($notice)     $this->createNotice($D, $M);
     if ($notice_docs) {
       foreach ($docs as $doc) {
-        $doc = $doc->getFile();
         $name = $D . "notices/" . $doc->url;
-        self::writeFile($name, $doc->filedata);
+        self::write($name, $doc);
         self::errln(sprintf("Wrote file %s.", $doc->name));
       }
     }
@@ -411,9 +410,8 @@ class UpdateRegatta extends AbstractScript {
     if ($notice)     $this->createNotice($D, $M);
     if ($notice_docs) {
       foreach ($docs as $doc) {
-        $doc = $doc->getFile();
         $name = $D . "notices/" . $doc->url;
-        self::writeFile($name, $doc->filedata);
+        self::write($name, $doc);
         self::errln(sprintf("Wrote file %s.", $doc->name));
       }
     }
@@ -450,8 +448,7 @@ class UpdateRegatta extends AbstractScript {
       return;
 
     $filename = $dirname . 'history.svg';
-    $data = $cont[0]->toXML();
-    self::writeFile($filename, $data);
+    self::write($filename, $cont[0]);
   }
 
   /**
@@ -504,8 +501,7 @@ class UpdateRegatta extends AbstractScript {
       return;
 
     $filename = $dirname . $div . '/history.svg';
-    $data = $cont[0]->toXML();
-    self::writeFile($filename, $data);
+    self::write($filename, $cont[0]);
   }
 
   /**

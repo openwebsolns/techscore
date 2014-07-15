@@ -46,8 +46,7 @@ class UpdateBurgee extends AbstractScript {
       }
       else {
         // Write to file
-        $data = base64_decode($school->$prop->filedata);
-        self::writeFile($file, $data);
+        self::write($file, $school->$prop);
         self::errln("Serialized $prop for school $school");
       }
     }

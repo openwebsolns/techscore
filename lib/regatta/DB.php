@@ -1025,6 +1025,14 @@ class DB extends DBM {
 }
 
 /**
+ * Interface for serializing to a resource
+ *
+ */
+interface Writeable {
+  public function write($resource);
+}
+
+/**
  * Exception class for permission-related issues
  *
  * @author Dayan Paez
@@ -1148,7 +1156,7 @@ class Conference extends DBObject {
  * @author Dayan Paez
  * @version 2012-01-07
  */
-class Burgee extends DBObject {
+class Burgee extends DBObject implements Writeable {
   public $filedata;
   public $width;
   public $height;
@@ -1163,6 +1171,10 @@ class Burgee extends DBObject {
     default:
       return parent::db_type($field);
     }
+  }
+
+  public function write($resource) {
+    fwrite($resource, base64_decode($this->filedata));
   }
 }
 
@@ -4076,7 +4088,7 @@ class Pub_Regatta_Url extends DBObject {
  * @author Dayan Paez
  * @version 2013-10-04
  */
-class Pub_File_Summary extends DBObject {
+class Pub_File_Summary extends DBObject implements Writeable {
   public $filetype;
   public $width;
   public $height;
@@ -4106,6 +4118,11 @@ class Pub_File_Summary extends DBObject {
     }
     return $img;
   }
+
+  public function write($resource) {
+    $file = $this->getFile();
+    fwrite($resource, $file->filedata);
+  }
 }
 
 /**
@@ -4117,6 +4134,9 @@ class Pub_File_Summary extends DBObject {
 class Pub_File extends Pub_File_Summary {
   public $filedata;
   protected function db_cache() { return true; }
+  public function getFile() {
+    return $this;
+  }
 }
 
 /**
@@ -4170,7 +4190,7 @@ class Websession extends DBObject {
  * @author Dayan Paez
  * @version 2013-11-21
  */
-class Document_Summary extends DBObject {
+class Document_Summary extends DBObject implements Writeable {
   public $name;
   public $description;
   public $url;
@@ -4224,6 +4244,11 @@ class Document_Summary extends DBObject {
     return $img;
   }
 
+  public function write($resource) {
+    $file = $this->getFile();
+    fwrite($resource, $file->filedata);
+  }
+
   public static function getCategories() {
     return array(self::CATEGORY_NOTICE => "General notice",
                  self::CATEGORY_PROTEST => "Protest",
@@ -4240,6 +4265,7 @@ class Document_Summary extends DBObject {
  */
 class Document extends Document_Summary {
   public $filedata;
+  public function getFile() { return $this; }
 }
 
 /**

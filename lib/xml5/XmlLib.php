@@ -14,14 +14,6 @@
  */
 
 /**
- * Interface for serializing to a resource
- *
- */
-interface Writeable {
-  public function write($resource);
-}
-
-/**
  * Interface for producing JSON output
  *
  */
