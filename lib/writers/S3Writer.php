@@ -131,36 +131,7 @@ class S3Writer extends AbstractWriter {
     return $headers;
   }
 
-  public function write($fname, &$contents) {
-    $type = $this->getMIME($fname);
-    $size = strlen($contents);
-    $md5 = base64_encode(md5($contents, true));
-    $headers = $this->getHeaders('PUT', $md5, $type, $fname);
-
-    $ch = $this->prepRequest($fname);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
-    if (($fp = fopen('php://temp', 'w+')) === false)
-      throw new TSWriterException("Unable to create temporary file for $fname");
-    fwrite($fp, $contents);
-    fseek($fp, 0);
-
-    curl_setopt($ch, CURLOPT_PUT, true);
-    curl_setopt($ch, CURLOPT_INFILE, $fp);
-    curl_setopt($ch, CURLOPT_INFILESIZE, $size);
-    if (($output = curl_exec($ch)) === false) {
-      $mes = curl_error($ch);
-      curl_close($ch);
-      throw new TSWriterException($mes);
-    }
-
-    $data = curl_getinfo($ch);
-    if ($data['http_code'] >= 400)
-      throw new TSWriterException(sprintf("HTTP error %s: %s", $data['http_code'], $output));
-    curl_close($ch);
-  }
-
-  public function writeWriteable($fname, Writeable $elem) {
+  public function write($fname, Writeable $elem) {
     $fp = tmpfile();
     $data = stream_get_meta_data($fp);
     $filename = $data['uri'];

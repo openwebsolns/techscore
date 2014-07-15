@@ -26,7 +26,7 @@ class TSWriterException extends Exception {}
 abstract class AbstractWriter {
 
   /**
-   * Serializes the given contents to the given filename.
+   * Handle Writeable object directly.
    *
    * This is the basic serialization method. Note that the filename
    * will start with a leading slash, like a relative URL. Also note
@@ -35,32 +35,10 @@ abstract class AbstractWriter {
    * passed by reference.
    *
    * @param String $fname the relative path to the file
-   * @param String $contents the content of the file
-   * @throws TSWriterException if unable to write
-   */
-  abstract public function write($fname, &$contents);
-
-  /**
-   * Handle Writeable object directly.
-   *
-   * This is the preferred method to use, in order to avoid dealing
-   * with direct Strings. For the time being, however, this method is
-   * simply a wrapper around the "write" method.
-   *
-   * Subclasses are strongly encouraged to re-implement intelligently
-   *
-   * @param String $fname the relative path to the file
    * @param Writeable $elem the element to write
    * @throws TSWriterException
    */
-  public function writeWriteable($fname, Writeable $elem) {
-    $file = fopen('php://temp', 'w+');
-    $elem->write($file);
-    fseek($file, 0);
-    $contents = stream_get_contents($file);
-    fclose($file);
-    $this->write($fname, $contents);
-  }
+  abstract public function write($fname, Writeable $elem);
 
   /**
    * Removes the tree rooted at given filename.

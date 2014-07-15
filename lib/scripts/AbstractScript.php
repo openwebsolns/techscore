@@ -112,7 +112,7 @@ abstract class AbstractScript {
    */
   protected static function write($fname, Writeable $p) {
     foreach (self::getWriters() as $writer)
-      $writer->writeWriteable($fname, $p);
+      $writer->write($fname, $p);
     self::out($fname);
   }
 

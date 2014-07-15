@@ -44,18 +44,7 @@ class LocalHtmlWriter extends AbstractWriter {
    *
    * @see AbstractWriter::write
    */
-  public function write($fname, &$contents) {
-    $R = $this->getRoot();
-    $dir = dirname($fname);
-    $root = $R . $dir;
-    if (!is_dir($root) && mkdir($root, 0777, true) === false)
-      throw new TSWriterException("Unable to create directory $root", 2);
-
-    if (file_put_contents($R . '/' . $fname, $contents) === false)
-      throw new TSWriterException("ERROR: unable to write to file $fname.\n", 8);
-  }
-
-  public function writeWriteable($fname, Writeable $elem) {
+  public function write($fname, Writeable $elem) {
     $R = $this->getRoot();
     $dir = dirname($fname);
     $root = $R . $dir;
