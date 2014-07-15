@@ -160,6 +160,37 @@ class S3Writer extends AbstractWriter {
     curl_close($ch);
   }
 
+  public function writeWriteable($fname, Writeable $elem) {
+    $fp = tmpfile();
+    $data = stream_get_meta_data($fp);
+    $filename = $data['uri'];
+    $elem->write($fp);
+    fseek($fp, 0);
+
+    $type = $this->getMIME($fname);
+    $size = filesize($filename);
+    $md5 = base64_encode(md5_file($filename, true));
+    $headers = $this->getHeaders('PUT', $md5, $type, $fname);
+
+    $ch = $this->prepRequest($fname);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_PUT, true);
+    curl_setopt($ch, CURLOPT_INFILE, $fp);
+    curl_setopt($ch, CURLOPT_INFILESIZE, $size);
+    if (($output = curl_exec($ch)) === false) {
+      $mes = curl_error($ch);
+      fclose($fp);
+      curl_close($ch);
+      throw new TSWriterException($mes);
+    }
+
+    $data = curl_getinfo($ch);
+    fclose($fp);
+    curl_close($ch);
+    if ($data['http_code'] >= 400)
+      throw new TSWriterException(sprintf("HTTP error %s: %s", $data['http_code'], $output));
+  }
+
   /**
    * Removes the given file, which must not be a directory
    *
