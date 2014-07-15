@@ -41,6 +41,28 @@ abstract class AbstractWriter {
   abstract public function write($fname, &$contents);
 
   /**
+   * Handle Writeable object directly.
+   *
+   * This is the preferred method to use, in order to avoid dealing
+   * with direct Strings. For the time being, however, this method is
+   * simply a wrapper around the "write" method.
+   *
+   * Subclasses are strongly encouraged to re-implement intelligently
+   *
+   * @param String $fname the relative path to the file
+   * @param Writeable $elem the element to write
+   * @throws TSWriterException
+   */
+  public function writeWriteable($fname, Writeable $elem) {
+    $file = fopen('php://temp', 'w+');
+    $elem->write($file);
+    fseek($file, 0);
+    $contents = stream_get_contents($file);
+    fclose($file);
+    $this->write($fname, $contents);
+  }
+
+  /**
    * Removes the tree rooted at given filename.
    *
    * The filename could point to a file or directory, and it may or

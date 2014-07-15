@@ -410,22 +410,12 @@ UserVoice.push(["showTab", "classic_widget", {
   }
 
   /**
-   * Delays the creation of the page and returns it as a string
-   *
-   * @return String the page
-   */
-  public function toXML() {
-    $this->fill();
-    return parent::toXML();
-  }
-
-  /**
-   * Delays the creation of the page and echoes it to standard outpout
+   * Delays the creation of the page and writes to given resource
    *
    */
-  public function printXML() {
+  public function write($resource) {
     $this->fill();
-    parent::printXML();
+    parent::write($resource);
   }
 
   /**

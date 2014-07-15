@@ -117,7 +117,7 @@ class XElem implements Writeable, Xmlable, Jsonable {
    * @return String the XML object
    */
   public function toXML() {
-    $res = fopen('php://temp', 'rw');
+    $res = fopen('php://temp', 'w+');
     $this->write($res);
     fseek($res, 0);
     $str = stream_get_contents($res);
@@ -280,7 +280,7 @@ class XHeader implements Writeable, Xmlable {
    * @return String the XML object
    */
   public function toXML() {
-    $res = fopen('php://temp', 'rw');
+    $res = fopen('php://temp', 'w+');
     $this->write($res);
     fseek($res, 0);
     $str = stream_get_contents($res);

@@ -101,8 +101,13 @@ abstract class AbstractScript {
    * @see AbstractWriter::write
    */
   protected static function writeXml($fname, Xmlable $p) {
-    $x = $p->toXML();
-    self::writeFile($fname, $x);
+    self::write($fname, $p);
+  }
+
+  protected static function write($fname, Writeable $p) {
+    foreach (self::getWriters() as $writer)
+      $writer->writeWriteable($fname, $p);
+    self::out($fname);
   }
 
   /**
