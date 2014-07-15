@@ -51,7 +51,7 @@ class UpdateSeasonsSummary extends AbstractScript {
    *
    */
   public function run() {
-    self::writeXml('/seasons/index.html', $this->getPage());
+    self::write('/seasons/index.html', $this->getPage());
   }
 }
 

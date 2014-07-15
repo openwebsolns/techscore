@@ -86,7 +86,7 @@ class UpdateSchoolsSummary extends AbstractScript {
       $f = sprintf('/%s/index.html', DB::g(STN::CONFERENCE_URL));
       $mes = sprintf("Wrote %ss summary page", DB::g(STN::CONFERENCE_TITLE));
     }
-    self::writeXml($f, $page);
+    self::write($f, $page);
     self::errln($mes);
   }
 

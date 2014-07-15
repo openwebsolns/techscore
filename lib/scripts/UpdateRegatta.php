@@ -437,7 +437,7 @@ class UpdateRegatta extends AbstractScript {
   private function createFront($dirname, ReportMaker $maker) {
     $filename = $dirname . 'index.html';
     $page = $maker->getScoresPage();
-    self::writeXml($filename, $page);
+    self::write($filename, $page);
   }
 
   private function createFrontHistory($dirname, FullRegatta $reg) {
@@ -461,7 +461,7 @@ class UpdateRegatta extends AbstractScript {
   private function createNotice($dirname, ReportMaker $maker) {
     $page = $maker->getNoticesPage();
     $path = $dirname . 'notices/index.html';
-    self::writeXml($path, $page);
+    self::write($path, $page);
   }
 
   /**
@@ -475,7 +475,7 @@ class UpdateRegatta extends AbstractScript {
   private function createFull($dirname, ReportMaker $maker) {
     $page = $maker->getFullPage();
     $path = $dirname . 'full-scores/index.html';
-    self::writeXml($path, $page);
+    self::write($path, $page);
   }
 
   /**
@@ -490,7 +490,7 @@ class UpdateRegatta extends AbstractScript {
   private function createDivision($dirname, ReportMaker $maker, Division $div) {
     $path = $dirname . $div . '/index.html';
     $page = $maker->getDivisionPage($div);
-    self::writeXml($path, $page);
+    self::write($path, $page);
   }
 
   private function createDivisionHistory($dirname, FullRegatta $reg, Division $div) {
@@ -515,7 +515,7 @@ class UpdateRegatta extends AbstractScript {
   private function createCombined($dirname, ReportMaker $maker) {
     $path = $dirname . 'divisions/index.html';
     $page = $maker->getCombinedPage();
-    self::writeXml($path, $page);
+    self::write($path, $page);
   }
 
   /**
@@ -529,7 +529,7 @@ class UpdateRegatta extends AbstractScript {
   private function createRotation($dirname, ReportMaker $maker) {
     $path = $dirname . 'rotations/index.html';
     $page = $maker->getRotationPage();
-    self::writeXml($path, $page);
+    self::write($path, $page);
   }
 
   /**
@@ -543,7 +543,7 @@ class UpdateRegatta extends AbstractScript {
   private function createAllRaces($dirname, ReportMaker $maker) {
     $path = $dirname . 'all/index.html';
     $page = $maker->getAllRacesPage();
-    self::writeXml($path, $page);
+    self::write($path, $page);
   }
 
   /**
@@ -557,7 +557,7 @@ class UpdateRegatta extends AbstractScript {
   private function createSailors($dirname, ReportMaker $maker) {
     $path = $dirname . 'sailors/index.html';
     $page = $maker->getSailorsPage();
-    self::writeXml($path, $page);
+    self::write($path, $page);
   }
 
   // ------------------------------------------------------------

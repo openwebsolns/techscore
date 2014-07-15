@@ -75,10 +75,10 @@ class Update404 extends AbstractScript {
    */
   public function run($general = false, $schools = false) {
     if ($general !== false)
-      self::writeXml('/404.html', $this->generalPage());
+      self::write('/404.html', $this->generalPage());
 
     if ($schools !== false)
-      self::writeXML('/schools/404.html', $this->schoolsPage());
+      self::write('/schools/404.html', $this->schoolsPage());
   }
 
   // ------------------------------------------------------------

@@ -167,7 +167,7 @@ class UpdateFront extends AbstractScript {
    *
    */
   public function run() {
-    self::writeXml('/index.html', $this->getPage());
+    self::write('/index.html', $this->getPage());
   }
 }
 

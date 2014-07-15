@@ -208,7 +208,7 @@ class UpdateSeason extends AbstractScript {
   public function run(Season $season) {
     // Do season
     $dirname = "/$season/index.html";
-    self::writeXml($dirname, $this->getPage($season));
+    self::write($dirname, $this->getPage($season));
   }
 
   // ------------------------------------------------------------

@@ -104,22 +104,15 @@ abstract class AbstractScript {
     self::write($fname, $p);
   }
 
+  /**
+   * Commits the given Writeable to given filename.
+   *
+   * @param String $fname the name of the file
+   * @param Writeable $p the object to serialize
+   */
   protected static function write($fname, Writeable $p) {
     foreach (self::getWriters() as $writer)
       $writer->writeWriteable($fname, $p);
-    self::out($fname);
-  }
-
-  /**
-   * Writes the given contents to the given file.
-   *
-   * @param String $fname the name of the file
-   * @param String $contents the contents
-   * @see AbstractWriter::write
-   */
-  protected static function writeFile(&$fname, &$contents) {
-    foreach (self::getWriters() as $writer)
-      $writer->write($fname, $contents);
     self::out($fname);
   }
 
