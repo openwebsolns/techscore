@@ -24,7 +24,8 @@ class GenerateSite extends AbstractScript {
   const SCHOOL_SUMMARY = 16;
   const FRONT    = 32;
   const BURGEES  = 64;
-  const ALL      = 127;
+  const CONFERENCES = 128;
+  const ALL      = 255;
 
   /**
    * Generate the codez
@@ -52,13 +53,14 @@ class GenerateSite extends AbstractScript {
       }
     }
 
+    $conferences = DB::getConferences();
     if ($do & self::SCHOOLS) {
       // Schools
       self::errln("* Generating schools");
       require_once('UpdateSchool.php');
       $P = new UpdateSchool();
 
-      foreach (DB::getConferences() as $conf) {
+      foreach ($conferences as $conf) {
         self::errln(sprintf("  - %s: %s", DB::g(STN::CONFERENCE_TITLE), $conf));
         foreach ($conf->getSchools() as $school) {
           self::errln(sprintf("    - School: (%8s) %s", $school->id, $school));
@@ -66,6 +68,21 @@ class GenerateSite extends AbstractScript {
             $P->run($school, $season);
             self::errln(sprintf("      - %s", $season->fullString()));
           }
+        }
+      }
+    }
+
+    if ($do & self::CONFERENCES && DB::g(STN::PUBLISH_CONFERENCE_SUMMARY)) {
+      // Conferences
+      self::errln("* Generating conferences");
+      require_once('UpdateConference.php');
+      $P = new UpdateConference();
+
+      foreach ($conferences as $conf) {
+        self::errln(sprintf("  - %s: %s", DB::g(STN::CONFERENCE_TITLE), $conf));
+        foreach ($seasons as $season) {
+          $P->run($conf, $season);
+          self::errln(sprintf("    - %s", $season->fullString()));
         }
       }
     }
@@ -129,7 +146,8 @@ class GenerateSite extends AbstractScript {
   protected $cli_opts = '[-RSC4MFA]';
   protected $cli_usage = ' -R  Generate regattas
  -S  Generate seasons
- -C  Generate schools (C as in college)
+ -C  Generate schools (C as in college and confusing)
+ -D  Generate conferences (D as in district) NB: only if allowed
  -B  Generate burgees
  -M  Generate schools summary page
  -4  Generate 404 page
@@ -155,6 +173,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
     case '-R': $do |= GenerateSite::REGATTAS; break;
     case '-S': $do |= GenerateSite::SEASONS; break;
     case '-C': $do |= GenerateSite::SCHOOLS; break;
+    case '-D': $do |= GenerateSite::CONFERENCES; break;
     case '-M': $do |= GenerateSite::SCHOOL_SUMMARY; break;
     case '-F': $do |= GenerateSite::FRONT; break;
     case '-4': $do |= GenerateSite::E404; break;
