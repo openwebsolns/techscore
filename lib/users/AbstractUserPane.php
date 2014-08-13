@@ -640,7 +640,7 @@ abstract class AbstractUserPane {
     'SeasonManagement' => array(
       self::R_NAME => "Seasons",
       self::R_PATH => 'users/admin',
-      self::R_URLS => array('season'),
+      self::R_URLS => array('seasons'),
       self::R_PERM => array(Permission::EDIT_SEASONS)
     ),
 
