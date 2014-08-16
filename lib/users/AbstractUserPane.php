@@ -532,6 +532,13 @@ abstract class AbstractUserPane {
       self::R_PERM => array()
     ),
 
+    'PasswordRecoveryPane' => array(
+      self::R_NAME => "Password Recovery",
+      self::R_PATH => 'users',
+      self::R_URLS => array('password-recover'),
+      self::R_PERM => array()
+    ),
+
     'SchoolParticipationReportPane' => array(
       self::R_NAME => "Team record",
       self::R_PATH => 'users/reports',
