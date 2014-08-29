@@ -38,11 +38,17 @@ abstract class AbstractPrefsPane extends AbstractUserPane {
    * @return XForm
    */
   protected function createForm($method = XForm::POST) {
-    return new XForm(sprintf('/prefs/%s/%s', $this->SCHOOL->id, $this->page_url), $method);
+    $form = new XForm(sprintf('/prefs/%s/%s', $this->SCHOOL->id, $this->page_url), $method);
+    if ($method == XForm::POST && class_exists('Session'))
+      $form->add(new XHiddenInput('csrf_token', Session::getCsrfToken()));
+    return $form;
   }
 
   protected function createFileForm() {
-    return new XFileForm(sprintf('/prefs/%s/%s', $this->SCHOOL->id, $this->page_url));
+    $form = new XFileForm(sprintf('/prefs/%s/%s', $this->SCHOOL->id, $this->page_url));
+    if (class_exists('Session'))
+      $form->add(new XHiddenInput('csrf_token', Session::getCsrfToken()));
+    return $form;
   }
 
 }

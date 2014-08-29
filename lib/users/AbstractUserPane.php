@@ -182,11 +182,17 @@ abstract class AbstractUserPane {
    * @return XForm
    */
   protected function createForm($method = XForm::POST) {
-    return new XForm('/'.$this->pane_url(), $method);
+    $form = new XForm('/'.$this->pane_url(), $method);
+    if ($method == XForm::POST && class_exists('Session'))
+      $form->add(new XHiddenInput('csrf_token', Session::getCsrfToken()));
+    return $form;
   }
 
   protected function createFileForm() {
-    return new XFileForm('/'.$this->pane_url());
+    $form = new XFileForm('/'.$this->pane_url());
+    if (class_exists('Session'))
+      $form->add(new XHiddenInput('csrf_token', Session::getCsrfToken()));
+    return $form;
   }
 
   /**
@@ -198,6 +204,9 @@ abstract class AbstractUserPane {
    */
   public function processPOST(Array $args) {
     try {
+      $token = DB::$V->reqString($args, 'csrf_token', 10, 100, "Invalid request provided (missing CSRF)");
+      if ($token !== Session::getCsrfToken())
+        throw new SoterException("Stale form. For your security, please try again.");
       return $this->process($args);
     } catch (SoterException $e) {
       Session::pa(new PA($e->getMessage(), PA::E));

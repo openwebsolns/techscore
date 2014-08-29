@@ -330,6 +330,9 @@ abstract class AbstractPane {
    */
   final public function processPOST(Array $args) {
     try {
+      $token = DB::$V->reqString($args, 'csrf_token', 10, 100, "Invalid request provided (missing CSRF)");
+      if ($token !== Session::getCsrfToken())
+        throw new SoterException("Stale form. For your security, please try again.");
       return $this->process($args);
     } catch (SoterException $e) {
       Session::pa(new PA($e->getMessage(), PA::E));
@@ -348,7 +351,10 @@ abstract class AbstractPane {
     $i = get_class($this);
     if (!isset(self::$URLS[$i]))
       throw new InvalidArgumentException("Please register URL for pane $i.");
-    return new XForm(sprintf("/score/%d/%s", $this->REGATTA->id, self::$URLS[$i]), $method);
+    $form = new XForm(sprintf("/score/%d/%s", $this->REGATTA->id, self::$URLS[$i]), $method);
+    if ($method == XForm::POST && class_exists('Session'))
+      $form->add(new XHiddenInput('csrf_token', Session::getCsrfToken()));
+    return $form;
   }
 
   /**
@@ -359,7 +365,10 @@ abstract class AbstractPane {
     $i = get_class($this);
     if (!isset(self::$URLS[$i]))
       throw new InvalidArgumentException("Please register URL for pane $i.");
-    return new XFileForm(sprintf("/score/%d/%s", $this->REGATTA->id, self::$URLS[$i]));
+    $form = new XFileForm(sprintf("/score/%d/%s", $this->REGATTA->id, self::$URLS[$i]));
+    if (class_exists('Session'))
+      $form->add(new XHiddenInput('csrf_token', Session::getCsrfToken()));
+    return $form;
   }
 
   /**

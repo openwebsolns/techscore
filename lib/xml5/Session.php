@@ -168,5 +168,27 @@ class Session {
   public static function has($key) {
     return isset(self::$DATA[$key]);
   }
+
+  /**
+   * Return session-wide CSRF token
+   *
+   * Calculates a deterministic token based on the session ID, which
+   * must exist.
+   *
+   * @return String
+   * @throws RuntimeException if session does not exist
+   */
+  public static function getCsrfToken() {
+    $id = session_id();
+    if ($id == "")
+      throw new RuntimeException("Session must be started, before CSRF token can be generated.");
+
+    return hash_hmac('sha256', 'CSRFToken' . self::$CSRF_SALT, $id);
+  }
+
+  /**
+   * @var String the random salt to use when generating CSTF tokens.
+   */
+  public static $CSRF_SALT = '849b0e2e595689b413963f52f9ab0f0b';
 }
 ?>
