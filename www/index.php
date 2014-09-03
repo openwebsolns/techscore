@@ -51,6 +51,7 @@ if (Conf::$USER === null) {
     if (count($URI_TOKENS) > 1) {
       Conf::$METHOD = 'POST';
       $_POST['acc'] = $URI_TOKENS[1];
+      $_POST['csrf_token'] = Session::getCsrfToken();
     }
     require_once('users/RegisterPane.php');
     $PAGE = new RegisterPane();
