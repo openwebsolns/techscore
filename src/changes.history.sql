@@ -831,3 +831,7 @@ CREATE TABLE `pub_update_conference` (
 
 -- add url to conferences
 alter table conference add column url varchar(255) null;
+
+-- for security, password-recovery tokens should have expiry date
+alter table account add column recovery_token varchar(64) null, add column recovery_deadline datetime null;
+

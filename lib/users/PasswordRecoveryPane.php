@@ -25,10 +25,14 @@ class PasswordRecoveryPane extends AbstractUserPane {
     // ------------------------------------------------------------
     // 3. Request to reset password
     // ------------------------------------------------------------
-    if (DB::$V->hasString($hash, $args, 'acc', 1, 41)) {
-      $acc = DB::getAccountFromHash($hash);
+    if (DB::$V->hasString($hash, $args, 'acc', 1, 65)) {
+      $acc = DB::getAccountFromToken($hash);
       if ($acc === null) {
         Session::pa(new PA("Invalid account to reset.", PA::E));
+        return $args;
+      }
+      if (!$acc->isTokenActive()) {
+        Session::pa(new PA("Token provided has expired. Please try again.", PA::E));
         return $args;
       }
       $this->PAGE->addContent($p = new XPort("Reset password"));
@@ -68,14 +72,17 @@ class PasswordRecoveryPane extends AbstractUserPane {
     // 3. Reset password
     // ------------------------------------------------------------
     if (isset($args['reset-password'])) {
-      if (($acc = DB::getAccountFromHash(DB::$V->reqString($args, 'acc', 1, 41, "Missing hash."))) === null)
+      if (($acc = DB::getAccountFromToken(DB::$V->reqString($args, 'acc', 1, 65, "Missing hash."))) === null)
         throw new SoterException("Invalid hash provided.");
+      if (!$acc->isTokenActive())
+        throw new SoterException("Token provided has expired.");
 
       $pw1 = DB::$V->reqRaw($args, 'new-password', 8, 101, "Password must be at least 8 characters long..");
       $pw2 = DB::$V->reqRaw($args, 'confirm-password', 8, 101, "Invalid confirmation.");
       if ($pw1 !== $pw2)
         throw new SoterException("Password mismatch. Make sure the passwords match and that it is at least 8 characters long.");
       $acc->password = DB::createPasswordHash($acc, $pw1);
+      $acc->resetToken();
       if (!DB::mail($acc->id, '[TechScore] Account password reset', $this->getSuccessMessage($acc)))
         Session::pa(new PA("No e-mail message could be sent, but password has been reset. Please log in with your new password now.", PA::I));
       else
@@ -90,19 +97,21 @@ class PasswordRecoveryPane extends AbstractUserPane {
     if (isset($args['send-message'])) {
       if (($acc = DB::getAccount(DB::$V->reqString($args, 'email', 1, 41, "No e-mail provided."))) === null)
         throw new SoterException("Invalid e-mail provided.");
+      $acc->createToken();
       if (!DB::mail($acc->id, '[TechScore] Reset password request', $this->getMessage($acc)))
         throw new SoterException("Unable to send message. Please try again later.");
+      DB::set($acc);
       Session::pa(new PA("Message sent."));
       return array('password-recovery-sent'=>true);
     }
   }
 
-  public function getMessage(Account $to) {
+  private function getMessage(Account $to) {
     return sprintf("Dear %s,\n\nYou are receiving this message because you, or someone in your name, has requested to reset the password for this account. If you did not request to reset your password, kindly disregard this message.\n\nTo enter a new password, please follow the link below. You may need to copy and paste the link into your browser's location bar.\n\n%s/password-recover?acc=%s\n\nThank you,\n\nTechScore Administration",
-                   $to->first_name, WS::alink('/'), DB::getHash($to));
+                   $to->first_name, WS::alink('/'), $to->recovery_token);
   }
 
-  public function getSuccessMessage(Account $to) {
+  private function getSuccessMessage(Account $to) {
     return sprintf("Dear %s,\n\nWe are sending this message to let you know that your account password has been successfully reset. Please log-in now using the password you chose.\n\nThank you,\n\nTechScore Administration",
                    $to->first_name);
   }

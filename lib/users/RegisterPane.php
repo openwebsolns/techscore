@@ -139,11 +139,14 @@ class RegisterPane extends AbstractUserPane {
     // Mail verification
     // ------------------------------------------------------------
     if (isset($args['acc'])) {
-      $acc = DB::getAccountFromHash(DB::$V->reqString($args, 'acc', 1, 41, "Invalid has provided."));
+      $acc = DB::getAccountFromToken(DB::$V->reqString($args, 'acc', 1, 65, "Invalid token provided."));
       if ($acc === null)
         throw new SoterException("Invalid account to approve.");
+      if (!$acc->isTokenActive())
+        throw new SoterException("Token provided has expired.");
 
       $acc->status = Account::STAT_PENDING;
+      $acc->resetToken();
       DB::set($acc);
       Session::pa(new PA("Account verified. Please wait until the account is approved. You will be notified by mail."));
       Session::s('POST', array('registration-step' => 2));
@@ -194,6 +197,7 @@ class RegisterPane extends AbstractUserPane {
       if (DB::g(STN::MAIL_REGISTER_USER) === null)
         throw new SoterException("Registrations are currently not allowed; please notify the administrators.");
 
+      $acc->createToken();
       if (!$this->sendRegistrationEmail($acc))
         throw new SoterException("There was an error with your request. Please try again later.");
 

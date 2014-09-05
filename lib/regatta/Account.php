@@ -35,11 +35,15 @@ class Account extends DBObject {
   public $password;
   public $message;
   protected $ts_role;
+  public $recovery_token;
+  protected $recovery_deadline;
 
   public function db_type($field) {
     switch ($field) {
     case 'ts_role':
       return DB::$ROLE;
+    case 'recovery_deadline':
+      return DB::$NOW;
     default:
       return parent::db_type($field);
     }
@@ -418,6 +422,33 @@ class Account extends DBObject {
         return true;
     }
     return false;
+  }
+
+  // ------------------------------------------------------------
+  // Password recovery
+  // ------------------------------------------------------------
+
+  public function resetToken() {
+    $this->recovery_token = null;
+    $this->recovery_deadline = null;
+  }
+
+  /**
+   * Creates and returns a new unique password token
+   *
+   * @return String the generated token
+   */
+  public function createToken() {
+    $code = $this->id . '\0' . Conf::$PASSWORD_SALT . '\0' . date('U');
+    $this->recovery_token = hash('sha256', $code);
+    $this->recovery_deadline = new DateTime('20 minutes');
+    return $this->recovery_token;
+  }
+
+  public function isTokenActive() {
+    return ($this->recovery_token !== null
+            && $this->recovery_deadline !== null
+            && $this->__get('recovery_deadline') > DB::$NOW);
   }
 }
 

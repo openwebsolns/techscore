@@ -168,8 +168,10 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
         throw new SoterException("Registration e-mails can only be sent to requested accounts.");
       if (DB::g(STN::MAIL_REGISTER_USER) === null)
         throw new SoterException("No e-mail template exists. No message sent.");
+      $user->createToken();
       if (!$this->sendRegistrationEmail($user))
         throw new SoterException("There was a problem sending e-mails. Please notify the system administrator.");
+      DB::set($user);
       Session::pa(new PA(sprintf("Resent registration email for user %s.", $user)));
     }
 
