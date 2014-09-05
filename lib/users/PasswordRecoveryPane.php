@@ -29,20 +29,20 @@ class PasswordRecoveryPane extends AbstractUserPane {
       $acc = DB::getAccountFromToken($hash);
       if ($acc === null) {
         Session::pa(new PA("Invalid account to reset.", PA::E));
-        return $args;
       }
-      if (!$acc->isTokenActive()) {
+      elseif (!$acc->isTokenActive()) {
         Session::pa(new PA("Token provided has expired. Please try again.", PA::E));
-        return $args;
       }
-      $this->PAGE->addContent($p = new XPort("Reset password"));
-      $p->add($f = $this->createForm());
-      $f->add(new XP(array(), "Welcome $acc. Please enter the new password for your account."));
-      $f->add(new FReqItem("New Password:", new XPasswordInput('new-password', "")));
-      $f->add(new FReqItem("Confirm Password:", new XPasswordInput('confirm-password', "")));
-      $f->add(new XHiddenInput('acc', trim($_GET['acc'])));
-      $f->add(new XSubmitP('reset-password', "Reset password"));
-      return;
+      else {
+        $this->PAGE->addContent($p = new XPort("Reset password"));
+        $p->add($f = $this->createForm());
+        $f->add(new XP(array(), "Welcome $acc. Please enter the new password for your account."));
+        $f->add(new FReqItem("New Password:", new XPasswordInput('new-password', "")));
+        $f->add(new FReqItem("Confirm Password:", new XPasswordInput('confirm-password', "")));
+        $f->add(new XHiddenInput('acc', trim($_GET['acc'])));
+        $f->add(new XSubmitP('reset-password', "Reset password"));
+        return;
+      }
     }
 
     // ------------------------------------------------------------
