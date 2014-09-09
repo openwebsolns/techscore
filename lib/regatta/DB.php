@@ -1439,12 +1439,9 @@ class School extends DBObject {
    */
   public function getUsers($status = null, $effective = true) {
     require_once('regatta/Account.php');
-    $cond = new DBCond('school', $this->id);
+    $cond = new DBCondIn('id', DB::prepGetAll(DB::$ACCOUNT_SCHOOL, new DBCond('school', $this->id), array('account')));
     if ($effective !== false) {
-      $cond = new DBBool(array(new DBCond('admin', null, DBCond::NE),
-                               $cond,
-                               new DBCondIn('id', DB::prepGetAll(DB::$ACCOUNT_SCHOOL, new DBCond('school', $this->id), array('account')))),
-                         DBBool::mOR);
+      $cond = new DBBool(array(new DBCond('admin', null, DBCond::NE), $cond), DBBool::mOR);
     }
     if ($status !== null) {
       $statuses = Account::getStatuses();
