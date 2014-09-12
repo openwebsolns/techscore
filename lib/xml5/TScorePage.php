@@ -123,6 +123,7 @@ class TScorePage extends XPage {
                    new XA('#help-me', array(new XSpan("Questions", array('id'=>'help-desk')), "?"), array('id'=>'help-form-trigger')),
                    new XForm('/help', XForm::POST, array('id'=>'help-form'),
                              array(
+                               new XHiddenInput('csrf_token', Session::getCsrfToken()),
                                new XA('#_', "Close", array('id'=>'help-form-close')),
                                new XH3("Have a question?"),
                                $manual,
