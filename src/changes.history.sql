@@ -835,3 +835,28 @@ alter table conference add column url varchar(255) null;
 -- for security, password-recovery tokens should have expiry date
 alter table account add column recovery_token varchar(64) null, add column recovery_deadline datetime null;
 
+-- log for unregistered sailor auto-merges
+create table merge_log (
+  id int unsigned not null auto_increment primary key,
+  started_at timestamp not null default current_timestamp,
+  ended_at datetime null default null,
+  error text null default null
+) engine=innodb default charset=utf8;
+create table merge_sailor_log (
+  id int unsigned not null auto_increment primary key,
+  merge_log int unsigned not null,
+  `school` varchar(10) character set latin1 not null,
+  `last_name` text NOT NULL,
+  `first_name` text NOT NULL,
+  `year` char(4) DEFAULT NULL,
+  `gender` enum('M','F') NOT NULL DEFAULT 'M',
+  `regatta_added` int(11) default null,
+  registered_sailor mediumint(9) not null
+) engine=innodb default charset=utf8;
+alter table merge_sailor_log add foreign key (merge_log) references merge_log(id) on delete cascade on update cascade, add foreign key (school) references school(id) on delete cascade on update cascade, add foreign key (registered_sailor) references sailor(id) on delete cascade on update cascade, add foreign key (regatta_added) references regatta(id) on delete set null on update cascade;
+create table merge_rp_log (
+  id int unsigned not null auto_increment primary key,
+  merge_sailor_log int unsigned not null,
+  rp int(11) not null
+) engine=innodb default charset=utf8;
+alter table merge_rp_log add foreign key (merge_sailor_log) references merge_sailor_log(id) on delete cascade on update cascade, add foreign key (rp) references rp(id) on delete cascade on update cascade;

@@ -86,6 +86,10 @@ class DB extends DBM {
   public static $UPDATE_FILE = null;   // UpdateRequest.php
   public static $UPDATE_CONFERENCE = null; // UpdateRequest.php
 
+  public static $MERGE_LOG = null; // MergeLog.php
+  public static $MERGE_SAILOR_LOG = null; // MergeLog.php
+  public static $MERGE_RP_LOG = null; // MergeLog.php
+
   // The validation engine
   public static $V = null;
 
