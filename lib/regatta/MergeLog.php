@@ -51,7 +51,7 @@ class Merge_Log extends DBObject {
 class Merge_Sailor_Log extends DBObject {
   protected $merge_log;
   protected $school;
-  protected $sailor;
+  protected $registered_sailor;
   public $last_name;
   public $first_name;
   public $year;
@@ -62,7 +62,7 @@ class Merge_Sailor_Log extends DBObject {
     switch ($field) {
     case 'merge_log': return DB::$MERGE_LOG;
     case 'school':    return DB::$SCHOOL;
-    case 'sailor':    return DB::$SAILOR;
+    case 'registered_sailor':    return DB::$SAILOR;
     default: return parent::db_type($field);
     }
   }
@@ -87,41 +87,22 @@ class Merge_Sailor_Log extends DBObject {
     $sailor->regatta_added = $this->regatta_added;
     return $sailor;
   }
-
-  /**
-   * Fetch list of RP entries affected by this merge
-   *
-   * @return Array:RPEntry
-   */
-  public function getRpEntries() {
-    return DB::getAll(
-      DB::$RP_ENTRY,
-      new DBCondIn(
-        'id',
-        DB::prepGetAll(
-          DB::$MERGE_RP_LOG,
-          new DBCond('merge_sailor_log', $this),
-          array('rp')
-        )
-      )
-    );
-  }
 }
 
 /**
- * The individual RP entries that were changed in the merge
+ * The individual Regattas that were changed in the merge
  *
  * @author Dayan Paez
  * @version 2014-09-14
  */
-class Merge_Rp_Log extends DBObject {
+class Merge_Regatta_Log extends DBObject {
   protected $merge_sailor_log;
-  protected $rp;
+  protected $regatta;
 
   public function db_type($field) {
     switch ($field) {
     case 'merge_sailor_log': return DB::$MERGE_SAILOR_LOG;
-    case 'rp': return DB::$RP_ENTRY;
+    case 'regatta': return DB::$FULL_REGATTA;
     default: return parent::db_type($field);
     }
   }
@@ -129,5 +110,5 @@ class Merge_Rp_Log extends DBObject {
 
 DB::$MERGE_LOG = new Merge_Log();
 DB::$MERGE_SAILOR_LOG = new Merge_Sailor_Log();
-DB::$MERGE_RP_LOG = new Merge_Rp_Log();
+DB::$MERGE_REGATTA_LOG = new Merge_Regatta_Log();
 ?>

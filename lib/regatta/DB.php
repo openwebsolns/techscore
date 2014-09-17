@@ -88,7 +88,7 @@ class DB extends DBM {
 
   public static $MERGE_LOG = null; // MergeLog.php
   public static $MERGE_SAILOR_LOG = null; // MergeLog.php
-  public static $MERGE_RP_LOG = null; // MergeLog.php
+  public static $MERGE_REGATTA_LOG = null; // MergeLog.php
 
   // The validation engine
   public static $V = null;

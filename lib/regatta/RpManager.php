@@ -293,8 +293,19 @@ class RpManager {
    *
    * @param Sailor $key the temporary sailor to replace
    * @param Sailor $replace the replacement sailor
+   * @param boolean $queueUpdate (default:true) to queue regatta update
+   * @param Array $affected will fill this list with map of affected
+   *   regattas, indexed by ID.
    */
-  public static function replaceTempActual(Sailor $key, Sailor $replace) {
+  public static function replaceTempActual(Sailor $key, Sailor $replace, $queueUpdate = true, Array &$affected = array()) {
+    foreach ($key->getRegattas() as $reg) {
+      if ($queueUpdate) {
+        require_once('public/UpdateManager.php');
+        UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_RP, $key->school);
+      }
+      $affected[$reg->id] = $reg;
+    }
+
     $q = DB::createQuery(DBQuery::UPDATE);
     $q->values(array('sailor'), array(DBQuery::A_STR), array($replace->id), DB::$RP_ENTRY->db_name());
     $q->where(new DBCond('sailor', $key));

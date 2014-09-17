@@ -860,3 +860,12 @@ create table merge_rp_log (
   rp int(11) not null
 ) engine=innodb default charset=utf8;
 alter table merge_rp_log add foreign key (merge_sailor_log) references merge_sailor_log(id) on delete cascade on update cascade, add foreign key (rp) references rp(id) on delete cascade on update cascade;
+
+-- track regatta from which unregistered sailor was migrated, instead of RP
+create table merge_regatta_log (
+  id int unsigned not null auto_increment primary key,
+  merge_sailor_log int unsigned not null,
+  regatta int(5) not null
+) engine=innodb default charset=utf8;
+alter table merge_regatta_log add foreign key (merge_sailor_log) references merge_sailor_log(id) on delete cascade on update cascade, add foreign key (regatta) references regatta(id) on delete cascade on update cascade;
+drop table merge_rp_log;

@@ -72,7 +72,6 @@ class SailorMergePane extends AbstractPrefsPane {
    * @param Array $args an associative array similar to $_REQUEST
    */
   public function process(Array $args) {
-    require_once('public/UpdateManager.php');
 
     // Check $args
     if (isset($args['match_sailors'])) {
@@ -99,14 +98,7 @@ class SailorMergePane extends AbstractPrefsPane {
           $real = $reals[$value];
           $temp = $temps[$id];
 
-          // Notify the affected regattas to redo their RPs
-          foreach ($temp->getRegattas() as $reg) {
-            UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_RP, $this->SCHOOL);
-            $affected[$reg->id] = $reg;
-          }
-
-          // Replace
-          RpManager::replaceTempActual($temp, $real);
+          RpManager::replaceTempActual($temp, $real, true, $affected);
           $replaced++;
         }
       }
