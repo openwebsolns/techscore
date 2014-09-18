@@ -4005,6 +4005,10 @@ class STN extends DBObject {
   const ALLOW_HOST_VENUE = 'allow_host_venue';
   const PUBLISH_CONFERENCE_SUMMARY = 'publish_conference_summary';
 
+  const AUTO_MERGE_SAILORS = 'auto_merge_sailors';
+  const AUTO_MERGE_GENDER = 'auto_merge_gender';
+  const AUTO_MERGE_YEAR = 'auto_merge_year';
+
   public $value;
   public function db_name() { return 'setting'; }
   protected function db_cache() { return true; }

@@ -46,12 +46,42 @@ class MergeUnregisteredSailors extends AbstractScript {
   }
 
   /**
+   * Entry point of application.
+   *
+   * Runs a merge operation, if the feature is so enabled. It creates
+   * one merge log for the entire operation.
+   *
+   * @param Array:School the list of schools
+   */
+  public function run($schools) {
+    // Allowed?
+    if (DB::g(STN::AUTO_MERGE_SAILORS) === null) {
+      self::errln("Auto-merging is not allowed.");
+      return;
+    }
+
+    // Create log
+    $log = new Merge_Log();
+    $log->started_at = DB::$NOW;
+    $log->error = 'Interrupted';
+    DB::set($log);
+
+    foreach ($schools as $school) {
+      $this->runSchool($school, $log);
+    }
+
+    $log->error = null;
+    $log->ended_at = DB::$NOW;
+    DB::set($log);
+  }
+
+  /**
    * Automatically merge sailors from given school
    *
    * @param School $school
    * @param Merge_Log $log optional log in which to record changes
    */
-  public function run(School $school, Merge_Log $log = null) {
+  public function runSchool(School $school, Merge_Log $log = null) {
     // Fetch all would be unregistered sailors
     $registered = array();
     foreach ($school->getSailors() as $sailor)
@@ -178,18 +208,6 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   if (count($schools) == 0)
     $schools = DB::getAll(DB::$SCHOOL);
 
-  // Create log
-  $log = new Merge_Log();
-  $log->started_at = DB::$NOW;
-  $log->error = 'Interrupted';
-  DB::set($log);
-
-  foreach ($schools as $school) {
-    $P->run($school, $log);
-  }
-
-  $log->error = null;
-  $log->ended_at = DB::$NOW;
-  DB::set($log);
+  $P->run($schools);
 }
 ?>

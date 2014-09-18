@@ -65,6 +65,9 @@ class GlobalSettings extends AbstractSuperUserPane {
     $f->add(new FItem("PDF Socket:", new XTextInput(STN::PDFLATEX_SOCKET, DB::g(STN::PDFLATEX_SOCKET)), "Full path, or leave blank to use \"exec\" function."));
     $f->add(new FItem("Notice board limit:", new XNumberInput(STN::NOTICE_BOARD_SIZE, DB::g(STN::NOTICE_BOARD_SIZE), 1), "Size in bytes for each item."));
 
+    $p->add($f = new XPort("Features"));
+    $f->add(new FItem("Auto-merge sailors:", new FCheckbox(STN::AUTO_MERGE_SAILORS, 1, "Auto-merge unregistered sailors on a daily basis.", DB::g(STN::AUTO_MERGE_SAILORS) !== null)));
+
     $p->add(new XSubmitP('set-params', "Save changes"));
   }
 
@@ -194,6 +197,12 @@ class GlobalSettings extends AbstractSuperUserPane {
       if ($val != DB::g(STN::NOTICE_BOARD_SIZE)) {
         $changed = true;
         DB::s(STN::NOTICE_BOARD_SIZE, $val);
+      }
+
+      $val = DB::$V->incInt($args, STN::AUTO_MERGE_SAILORS, 1, 2, null);
+      if ($val != DB::g(STN::AUTO_MERGE_SAILORS)) {
+        $changed = true;
+        DB::s(STN::AUTO_MERGE_SAILORS, $val);
       }
 
       if (!$changed)
