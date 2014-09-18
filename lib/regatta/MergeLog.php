@@ -36,6 +36,35 @@ class Merge_Log extends DBObject {
   protected function db_order() {
     return array('started_at' => false);
   }
+
+  /**
+   * Fetch Merge_Sailor_Log associated with this log
+   *
+   * @return Array:Merge_Sailor_Log
+   */
+  public function getMergeSailorLogs() {
+    return DB::getAll(DB::$MERGE_SAILOR_LOG, new DBCond('merge_log', $this));
+  }
+
+  public function getMergedRegattas() {
+    require_once('regatta/Regatta.php');
+
+    // Only count public regattas
+    return DB::getAll(
+      DB::$REGATTA,
+      new DBCondIn(
+        'id',
+        DB::prepGetAll(
+          DB::$MERGE_REGATTA_LOG,
+          new DBCondIn(
+            'merge_sailor_log',
+            DB::prepGetAll(DB::$MERGE_SAILOR_LOG, new DBCond('merge_log', $this), array('id'))
+          ),
+          array('regatta')
+        )
+      )
+    );
+  }
 }
 
 /**

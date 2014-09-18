@@ -26,6 +26,7 @@ class MergeUnregisteredSailors extends AbstractScript {
 
   private $dry_run = false;
   private $use_gender = false;
+  private $use_year = false;
 
   /**
    * Sets dry run flag
@@ -37,12 +38,27 @@ class MergeUnregisteredSailors extends AbstractScript {
   }
 
   /**
-   * Set whether to ues gender in criteria
+   * Set whether to use gender in criteria
    *
    * @param boolean $flag true to turn on
    */
   public function useGender($flag = false) {
     $this->use_gender = ($flag !== false);
+  }
+
+  /**
+   * Set whether to use year in criteria
+   *
+   * @param boolean $flag true to turn on
+   */
+  public function useYear($flag = false) {
+    $this->use_year = ($flag !== false);
+  }
+
+  public function __construct() {
+    parent::__construct();
+    $this->use_gender = (DB::g(STN::AUTO_MERGE_GENDER) !== null);
+    $this->use_year = (DB::g(STN::AUTO_MERGE_YEAR) !== null);
   }
 
   /**
@@ -73,6 +89,7 @@ class MergeUnregisteredSailors extends AbstractScript {
     $log->error = null;
     $log->ended_at = DB::$NOW;
     DB::set($log);
+    return $log;
   }
 
   /**
@@ -165,7 +182,7 @@ class MergeUnregisteredSailors extends AbstractScript {
       if (strtolower($other->first_name) == $fn &&
           strtolower($other->last_name) == $ln &&
           $other->school == $needle->school &&
-          ($needle->year === null || $other->year == $needle->year) &&
+          (!$this->use_year || $needle->year === null || $other->year == $needle->year) &&
           (!$this->use_gender || $other->gender == $needle->gender)) {
 
         self::errln("match found!", 3);

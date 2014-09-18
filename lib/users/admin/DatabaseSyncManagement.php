@@ -127,6 +127,19 @@ class DatabaseSyncManagement extends AbstractAdminUserPane {
     }
 
     // ------------------------------------------------------------
+    // Auto-merging sailors
+    // ------------------------------------------------------------
+    if (DB::g(STN::AUTO_MERGE_SAILORS) !== null) {
+      $this->PAGE->addContent($p = new XPort("Auto-merging Unregistered Sailors"));
+      $p->add($f = $this->createForm());
+      $f->add(new FItem("Use year:", new FCheckbox(STN::AUTO_MERGE_YEAR, 1, "Match sailors' class years when merging.", DB::g(STN::AUTO_MERGE_YEAR) !== null)));
+      $f->add(new FItem("Use gender:", new FCheckbox(STN::AUTO_MERGE_GENDER, 1, "Match sailors' reported genders when merging.", DB::g(STN::AUTO_MERGE_GENDER) !== null)));
+      $f->add($xp = new XSubmitP('set-auto-merge', "Save changes"));
+      $xp->add(new XSubmitInput('set-auto-merge-and-run', "Save and Run", array('class'=>'secondary')));
+      $xp->add(new XMessage("Sailors are auto-merged on a daily basis."));
+    }
+
+    // ------------------------------------------------------------
     // Past syncs
     // ------------------------------------------------------------
     if (count($past_syncs) > 0) {
@@ -179,6 +192,9 @@ class DatabaseSyncManagement extends AbstractAdminUserPane {
   }
 
   public function process(Array $args) {
+    // ------------------------------------------------------------
+    // Run sync
+    // ------------------------------------------------------------
     if (isset($args['sync'])) {
       $sailors = ($this->sailors_url !== null && DB::$V->incInt($args, Sync_Log::SAILORS, 1, 2) == 1);
       $coaches = ($this->coaches_url !== null && DB::$V->incInt($args, Sync_Log::COACHES, 1, 2) == 1);
@@ -195,6 +211,30 @@ class DatabaseSyncManagement extends AbstractAdminUserPane {
                                  count($log->getSchools()),
                                  count($log->getSailors()),
                                  count($log->getCoaches()))));
+    }
+
+    // ------------------------------------------------------------
+    // Auto-merging settings
+    // ------------------------------------------------------------
+    if (isset($args['set-auto-merge']) || isset($args['set-auto-merge-and-run'])) {
+      if (DB::g(STN::AUTO_MERGE_SAILORS) === null)
+        throw new SoterException("Auto-merging is not allowed.");
+
+      DB::s(STN::AUTO_MERGE_YEAR, DB::$V->incInt($args, STN::AUTO_MERGE_YEAR, 1, 2, null));
+      DB::s(STN::AUTO_MERGE_GENDER, DB::$V->incInt($args, STN::AUTO_MERGE_GENDER, 1, 2, null));
+
+      Session::pa(new PA("Settings changed."));
+      if (isset($args['set-auto-merge-and-run'])) {
+        require_once('scripts/MergeUnregisteredSailors.php');
+        require_once('regatta/MergeLog.php');
+
+        $merger = new MergeUnregisteredSailors();
+        $log = $merger->run(DB::getAll(DB::$SCHOOL));
+
+        Session::pa(new PA(sprintf("Auto-merge run: %d sailors throughout %d regattas.",
+                                   count($log->getMergeSailorLogs()),
+                                   count($log->getMergedRegattas()))));
+      }
     }
   }
 }
