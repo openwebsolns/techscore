@@ -56,6 +56,19 @@ class Selector extends AbstractScript {
   private $scoring = array();
 
   /**
+   * Limit selection by RP status
+   *
+   * Passing strictly true/false will limit by those that are/are not
+   * missing RPs, respectively. Anything else means "do not filter"
+   *
+   * @param mixed $flag
+   */
+  public function filterByRpMissing($flag = 'all') {
+    $this->rp_missing = $flag;
+  }
+  private $rp_missing = 'all';
+
+  /**
    * Fetches all regattas matching the given criteria
    *
    */
@@ -86,6 +99,18 @@ class Selector extends AbstractScript {
       $cond->add($subcond);
     }
 
+    // RP?
+    if ($this->rp_missing === true || $this->rp_missing === false) {
+      $comparator = ($this->rp_missing) ? DBCondIn::IN : DBCondIn::NOT_IN;
+      $cond->add(
+        new DBCondIn(
+          'id',
+          DB::prepGetAll(DB::$TEAM, new DBCond('dt_complete_rp', null), array('regatta')),
+          $comparator
+        )
+      );
+    }
+
     require_once('regatta/Regatta.php');
     return DB::getAll(DB::$REGATTA, $cond);
   }
@@ -95,7 +120,10 @@ class Selector extends AbstractScript {
 
   -s, --seasons   Comma-delimited list of seasons (e.g. f11,s12)
   -t, --types     Comma-delimited list of types (e.g. championship)
-  -g, --scoring   Comma-delimited scoring types: standard,combined,team";
+  -g, --scoring   Comma-delimited scoring types: standard,combined,team
+
+  --rp-missing    Limit to regattas missing RP
+  --no-rp-missing Limit to regattas that are not missing RP";
 }
 
 // ------------------------------------------------------------
@@ -112,6 +140,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   $types = array();
   $scoring = array();
   $scoring_options = Regatta::getScoringOptions();
+  $rp_missing = 'all';
   while (count($opts) > 0) {
     $arg = array_shift($opts);
     switch ($arg) {
@@ -153,6 +182,14 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
       }
       break;
 
+    case '--rp-missing':
+      $rp_missing = true;
+      break;
+
+    case '--no-rp-missing':
+      $rp_missing = false;
+      break;
+
     default:
       throw new TSScriptException("Invalid option: $arg.");
     }
@@ -161,6 +198,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   $P->setSeasons($seasons);
   $P->setTypes($types);
   $P->setScoringTypes($scoring);
+  $P->filterByRpMissing($rp_missing);
 
   $fmt = "%s\n";
   foreach ($P->run() as $reg) {
