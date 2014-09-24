@@ -94,8 +94,6 @@ class TeamEditRoundPane extends AbstractRoundPane {
       $types = Race_Order::getFrequencyTypes();
       $form->add(new FItem("Rotation:", new XStrong($types[$round->rotation_frequency])));
 
-      $form->add(new FItem("Boat:", XSelect::fromDBM('boat', DB::getBoats(), $round->boat)));
-      
       $form->add($p = new XSubmitP('edit-round', "Edit"));
       $p->add(new XHiddenInput('round', $round->id));
 
@@ -169,7 +167,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
         $teams[$seed->seed - 1] = $seed->team;
 
       $races = $this->REGATTA->getRacesInRound($round, Division::A());
-      for ($i = 0; $i < count($round->race_order); $i++) {
+      for ($i = 0; $i < $round->getRaceOrderCount(); $i++) {
         $race = $races[$i];
         $pair = $round->getRaceOrderPair($i);
         $t0 = $teams[$pair[0] - 1];
@@ -279,7 +277,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
       }
 
       $to_save = array();
-      for ($i = 0; $i < count($round->race_order); $i++) {
+      for ($i = 0; $i < $round->getRaceOrderCount(); $i++) {
         $racenum = array_shift($racenums);
         $pair = $round->getRaceOrderPair($i);
         $t1 = $teams[$pair[0] - 1];
@@ -321,7 +319,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
         DB::set($race);
 
       Session::pa(new PA(sprintf("Updated seeds for \"%s\".", $round)));
-      if ($round->rotation !== null) {
+      if ($round->hasRotation()) {
         $this->reassignRotation($round);
         Session::pa(new PA("Updated the rotation as well.", PA::I));
       }
@@ -336,7 +334,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
         throw new SoterException(sprintf("Invalid round provided: %s.", $round));
 
       $this->processSails($args, $round);
-      $this->reassignRotation($round);
+      $this->reassignRotation($round, true);
       DB::set($round);
       Session::pa(new PA(sprintf("Updated rotation for \"%s\".", $round)));
     }
@@ -378,6 +376,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
       }
 
       $neworder = array();
+      $newboats = array();
       $swaplist = DB::$V->incList($args, 'swap');
       $to_save = array();
       $redo_rotation = false;
@@ -427,20 +426,21 @@ class TeamEditRoundPane extends AbstractRoundPane {
             $to_save[] = $r;
         }
         unset($races[$rid]);
-        $neworder[] = sprintf("%d-%d", $pair[0], $pair[1]);
+        $neworder[] = array($pair[0], $pair[1]);
+	$newboats[] = $boat;
         $next_number = array_shift($nums);
       }
       if (count($races) > 0)
         throw new SoterException("Not all races in round are accounted for.");
 
-      $round->race_order = $neworder;
-      DB::set($round);
+      $round->setRaceOrder($neworder, $newboats);
+      $round->saveRaceOrder();
 
       foreach ($to_save as $race)
         DB::set($race, true);
 
       // Fix rotation, if any
-      if ($redo_rotation && $round->rotation !== null) {
+      if ($redo_rotation && $round->hasRotation()) {
         $this->reassignRotation($round);
         Session::pa(new PA("Round rotation has been updated.", PA::I));
       }
@@ -459,19 +459,10 @@ class TeamEditRoundPane extends AbstractRoundPane {
     if (isset($args['edit-round'])) {
       $round = DB::$V->reqID($args, 'round', DB::$ROUND, "Invalid round to edit.");
       $title = DB::$V->reqString($args, 'title', 1, 81, "Invalid new label for round.");
-      $boat = DB::$V->reqID($args, 'boat', DB::$BOAT, "Invalid boat provided.");
-      if ($boat != $round->boat) {
-        // Update races
-        foreach ($this->REGATTA->getRacesInRound($round) as $race) {
-          if ($race->boat == $round->boat) {
-            $race->boat = $boat;
-            DB::set($race, true);
-          }
-        }
-        $round->boat = $boat;
-      }
+
       $round->title = $title;
       DB::set($round);
+      $round->saveRaceOrder();
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA(sprintf("Edited round data for %s.", $round)));
     }
@@ -538,7 +529,6 @@ class TeamEditRoundPane extends AbstractRoundPane {
         Session::pa(new PA("Re-ranked teams.", PA::I));
       }
     }
-    $this->redirect('races');
   }
 
   /**
@@ -546,7 +536,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
    *
    * @param Round $round the round
    */
-  private function reassignRotation(Round $round) {
+  private function reassignRotation(Round $round, $reset_boats = false) {
     $divisions = $this->REGATTA->getDivisions();
     $teams = array();
     for ($i = 0; $i < $round->num_teams; $i++)
@@ -557,10 +547,11 @@ class TeamEditRoundPane extends AbstractRoundPane {
     $rotation = $this->REGATTA->getRotation();
     $rotation->initQueue();
 
-    $sails = $round->rotation->assignSails($round, $teams, $divisions, $round->rotation_frequency);
+    $sails = $round->assignSails($teams, $divisions);
     $races = $this->REGATTA->getRacesInRound($round, Division::A());
     array_shift($divisions);
 
+    $races_to_update = array();
     foreach ($races as $i => $race) {
       $rotation->reset($race);
       $other_races = array();
@@ -587,8 +578,23 @@ class TeamEditRoundPane extends AbstractRoundPane {
           }
         }
       }
+
+      // Reset boats
+      if ($reset_boats !== false) {
+	$boat = $round->getRaceOrderBoat($i);
+	if ($race->boat != $boat) {
+	  $race->boat = $boat;
+	  $races_to_update[] = $race;
+	  foreach ($other_races as $r) {
+	    $r->boat = $boat;
+	    $races_to_update[] = $r;
+	  }
+	}
+      }
     }
     $rotation->commit();
+    foreach ($races_to_update as $race)
+      DB::set($race, true);
   }
 }
 ?>

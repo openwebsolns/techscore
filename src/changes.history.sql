@@ -728,3 +728,8 @@ alter table regatta add column host_venue varchar(255) default null after partic
 
 -- longer sail numbers
 alter table rotation change column sail sail varchar(15) not null;
+
+-- save boat race orders in database
+create table round_template (id int unsigned not null primary key auto_increment, round int not null, team1 tinyint unsigned not null, team2 tinyint unsigned not null, boat int(2) null) engine=innodb;
+alter table round_template add foreign key (boat) references boat(id) on delete set null on update cascade;
+alter table round change column race_order race_order text default null;
