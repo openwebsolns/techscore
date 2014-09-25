@@ -11,8 +11,8 @@ require_once('regatta/Regatta.php');
 
 $to_add = array();
 foreach (DB::getAll(DB::$ROUND) as $round) {
-  if (count(DB::getAll(DB::$ROUND_TEMPLATE)) > 0)
-    return;
+  if (count(DB::getAll(DB::$ROUND_TEMPLATE, new DBCond('round', $round))) > 0)
+    continue;
 
   try {
     if ($round->race_order !== null) {
@@ -29,7 +29,7 @@ foreach (DB::getAll(DB::$ROUND) as $round) {
       }
     }
   }
-  catch (Exception $e) {}
+  catch (Exception $e) { echo "ERROR: $round\n";}
 }
 
 DB::insertAll($to_add);
