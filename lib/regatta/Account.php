@@ -441,7 +441,7 @@ class Account extends DBObject {
   public function createToken() {
     $code = $this->id . '\0' . Conf::$PASSWORD_SALT . '\0' . date('U');
     $this->recovery_token = hash('sha256', $code);
-    $this->recovery_deadline = new DateTime('20 minutes');
+    $this->recovery_deadline = new DateTime('2 hours');
     return $this->recovery_token;
   }
 
