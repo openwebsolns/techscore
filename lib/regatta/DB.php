@@ -3965,6 +3965,7 @@ class STN extends DBObject {
   const PDFLATEX_SOCKET = 'pdflatex_socket';
   const LONG_SESSION_LIMIT = 'long_session_limit';
   const NOTICE_BOARD_SIZE = 'notice_board_size';
+  const REGISTRATION_TIMEOUT = 'registration_timeout';
 
   const RP_SINGLEHANDED = 'rp-singlehanded';
   const RP_1_DIVISION = 'rp-1-division';
@@ -4054,6 +4055,9 @@ class STN extends DBObject {
 
     case self::NOTICE_BOARD_SIZE:
       return 5242880; // 5MB
+
+    case self::REGISTRATION_TIMEOUT:
+      return "2 hours";
 
     default:
       return null;

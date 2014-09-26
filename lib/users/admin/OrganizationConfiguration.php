@@ -38,6 +38,8 @@ class OrganizationConfiguration extends AbstractAdminUserPane {
 
     $f->add(new FReqItem("Default regatta start time:", new XTimeInput(STN::DEFAULT_START_TIME, new DateTime(DB::g(STN::DEFAULT_START_TIME)))));
 
+    $f->add(new FReqItem("Registration timeout:", new XTextInput(STN::REGISTRATION_TIMEOUT, DB::g(STN::REGISTRATION_TIMEOUT)), "Amount of time before registration token expires. Example: \"2 hours\" or \"1 day\"."));
+
     $f->add(new XSubmitP('set-params', "Save changes"));
 
     $this->PAGE->addContent($p = new XPort("RP Form Templates"));
@@ -67,13 +69,13 @@ class OrganizationConfiguration extends AbstractAdminUserPane {
     if (isset($args['set-params'])) {
       $changed = false;
       $val = DB::$V->incString($args, STN::ORG_NAME, 1, 51);
-      if ($val != DB::g(STN::ORG_NAME)) {
+      if ($val !== null && $val != DB::g(STN::ORG_NAME)) {
         $changed = true;
         DB::s(STN::ORG_NAME, $val);
       }
 
       $val = DB::$V->incString($args, STN::ORG_URL, 1, 1001);
-      if ($val != DB::g(STN::ORG_URL)) {
+      if ($val !== null && $val != DB::g(STN::ORG_URL)) {
         $changed = true;
         DB::s(STN::ORG_URL, $val);
       }
@@ -93,6 +95,22 @@ class OrganizationConfiguration extends AbstractAdminUserPane {
         $changed = true;
         DB::s(STN::DEFAULT_START_TIME, $val);
       }
+
+      $val = DB::$V->incString($args, STN::REGISTRATION_TIMEOUT, 1, 101, DB::g(STN::REGISTRATION_TIMEOUT));
+      if ($val !== DB::g(STN::REGISTRATION_TIMEOUT)) {
+        try {
+          $expiration = new DateTime($val);
+        } catch (Exception $e) {
+          throw new SoterException("Invalid time format specified for registration timeout.");
+        }
+
+        if ($expiration <= DB::$NOW)
+          throw new SoterException("Registration token timeout must be in the future.");
+
+        $changed = true;
+        DB::s(STN::REGISTRATION_TIMEOUT, $val);
+      }
+      
 
       if (!$changed)
         throw new SoterException("No changes to save.");
