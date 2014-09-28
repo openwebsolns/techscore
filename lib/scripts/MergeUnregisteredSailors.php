@@ -223,7 +223,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
     }
   }
   if (count($schools) == 0)
-    $schools = DB::getAll(DB::$SCHOOL);
+    $schools = DB::getSchools(false);
 
   $P->run($schools);
 }

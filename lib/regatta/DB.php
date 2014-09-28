@@ -186,6 +186,16 @@ class DB extends DBM {
   }
 
   /**
+   * Returns list of all schools
+   *
+   * @param boolean $active true (default) to only return active ones
+   */
+  public static function getSchools($active = true) {
+    $obj = ($active) ? DB::$ACTIVE_SCHOOL : DB::$SCHOOL;
+    return self::getAll($obj);
+  }
+
+  /**
    * Sets the inactive flag on all the schools in the DB.
    *
    */
@@ -1106,11 +1116,13 @@ class Conference extends DBObject {
    * Returns a list of users from this conference
    *
    * @param String|null $status a possible Account status
+   * @param boolean $active_schools true (default) to limit
    * @return Array:Account list of users
    */
-  public function getUsers($status = null) {
+  public function getUsers($status = null, $active_schools = true) {
     require_once('regatta/Account.php');
-    $cond = new DBCondIn('school', DB::prepGetAll(DB::$SCHOOL, new DBCond('conference', $this), array('id')));
+    $obj = ($active_schools) ? DB::$ACTIVE_SCHOOL : DB::$SCHOOL;
+    $cond = new DBCondIn('school', DB::prepGetAll($obj, new DBCond('conference', $this), array('id')));
     if ($status !== null) {
       $statuses = Account::getStatuses();
       if (!isset($statuses[$status]))

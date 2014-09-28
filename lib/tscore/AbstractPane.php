@@ -416,6 +416,16 @@ abstract class AbstractPane {
   }
 
   /**
+   * Get the school object to use (active, vs. regular)
+   *
+   * @return School (or Active_School if regatta in current season)
+   */
+  protected function getSchoolPrototype() {
+    $season = $this->REGATTA->getSeason();
+    return ($season->isCurrent()) ? DB::$ACTIVE_SCHOOL : DB::$SCHOOL;
+  }
+
+  /**
    * Returns a new instance of a pane with the given URL
    *
    * @param Array $url the URL tokens in order

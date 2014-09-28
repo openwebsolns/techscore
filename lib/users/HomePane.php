@@ -138,7 +138,7 @@ class HomePane extends AbstractUserPane {
   }
 
   private function addUnregisteredSummaryPort(Conference $conf) {
-    $schools = DB::getAll(DB::$SCHOOL,
+    $schools = DB::getAll(DB::$ACTIVE_SCHOOL,
                           new DBBool(array(new DBCond('conference', $conf),
                                            new DBCondIn('id',
                                                         DB::prepGetAll(DB::$SAILOR,
@@ -171,7 +171,7 @@ class HomePane extends AbstractUserPane {
   }
 
   private function addBurgeeSummaryPort($conferences) {
-    $schools = DB::getAll(DB::$SCHOOL,
+    $schools = DB::getAll(DB::$ACTIVE_SCHOOL,
                           new DBBool(array(new DBCond('burgee', null),
                                            new DBCondIn('conference', $conferences))));
     $count = count($schools);
@@ -197,7 +197,7 @@ class HomePane extends AbstractUserPane {
   }
 
   private function addTeamNamesSummaryPort($conferences) {
-    $schools = DB::getAll(DB::$SCHOOL,
+    $schools = DB::getAll(DB::$ACTIVE_SCHOOL,
                           new DBBool(array(new DBCondIn('conference', $conferences),
                                            new DBCondIn('id',
                                                         DB::prepGetAll(DB::$TEAM_NAME_PREFS, null, array('school')),

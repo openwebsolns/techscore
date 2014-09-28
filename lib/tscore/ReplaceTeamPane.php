@@ -42,7 +42,7 @@ class ReplaceTeamPane extends AbstractTeamPane {
     // replace team
     if (isset($args['replace'])) {
       $team = DB::$V->reqTeam($args, 'team', $this->REGATTA, "Invalid or missing team to replace.");
-      $school = DB::$V->reqID($args, 'school', DB::$SCHOOL, "Invalid or missing school with which to replace $team.");
+      $school = DB::$V->reqID($args, 'school', $this->getSchoolPrototype(), "Invalid or missing school with which to replace $team.");
 
       // is the team to be substituted from the chosen school?
       $old_school = $team->school;

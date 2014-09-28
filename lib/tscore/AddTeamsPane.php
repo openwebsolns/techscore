@@ -60,7 +60,7 @@ class AddTeamsPane extends AbstractTeamPane {
     // ------------------------------------------------------------
     // Add team
     if (isset($args['invite'])) {
-      $school = DB::$V->reqID($args, 'school', DB::$SCHOOL, "Invalid or missing school to add.");
+      $school = DB::$V->reqID($args, 'school', $this->getSchoolPrototype(), "Invalid or missing school to add.");
 
       // Also validate rotation and finish option, if applicable
       if ($this->has_rots && !isset($args['del-rotation']))
