@@ -46,7 +46,7 @@ class ReplaceTeamPane extends AbstractTeamPane {
 
       // is the team to be substituted from the chosen school?
       $old_school = $team->school;
-      if ($school == $old_school)
+      if ($school->id == $old_school->id)
         throw new SoterException("It is useless to replace a team from the same school with itself. I'll ignore that.");
 
       $new = new Team();
