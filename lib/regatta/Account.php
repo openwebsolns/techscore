@@ -187,9 +187,11 @@ class Account extends DBObject {
    * @param boolean $effective false to ignore permissions and return
    * only assigned values
    *
+   * @param boolean $active true (default) to return only active schools
+   *
    * @return Array:School, indexed by school ID
    */
-  public function getSchools(Conference $conf = null, $effective = true) {
+  public function getSchools(Conference $conf = null, $effective = true, $active = true) {
     $cond = null;
     if ($this->isAdmin() && $effective !== false) {
       if ($conf !== null)
@@ -204,7 +206,8 @@ class Account extends DBObject {
       if ($conf !== null)
         $cond = new DBBool(array($cond, new DBCond('conference', $conf)));
     }
-    return DB::getAll(DB::$SCHOOL, $cond);
+    $obj = ($active) ? DB::$ACTIVE_SCHOOL : DB::$SCHOOL;
+    return DB::getAll($obj, $cond);
   }
 
   /**

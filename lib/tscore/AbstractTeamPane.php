@@ -26,7 +26,7 @@ abstract class AbstractTeamPane extends AbstractPane {
     foreach (DB::getConferences() as $conf) {
       // Get schools for that conference
       $f_sel->add($f_grp = new FOptionGroup((string)$conf));
-      foreach ($conf->getSchools() as $school)
+      foreach ($this->getConferenceSchools($conf) as $school)
         $f_grp->add(new FOption($school->id, $school->name));
     }
     return $f_sel;

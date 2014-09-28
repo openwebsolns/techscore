@@ -39,6 +39,8 @@ Browser: %s
 ------------------------------------------------------------
 
 %s
+
+Reply through Techscore: %s
 -- 
 Techscore
 
@@ -48,7 +50,10 @@ user.',
                       DB::$V->reqString($_SERVER, 'HTTP_REFERER', 1, 1000, "No referrer found."),
                       date('Y-m-d H:i:s'),
                       DB::$V->incString($_SERVER, 'HTTP_USER_AGENT', 1, 300, "--"),
-                      DB::$V->reqString($args, 'message', 10, 3000, "Message too short."));
+                      DB::$V->reqString($args, 'message', 10, 3000, "Message too short."),
+                      WS::alink(WS::link('/send-message',
+                                         array('list' => array($this->USER->id), 'axis' => 'users')))
+      );
 
       $res = false;
       foreach (DB::getAdmins() as $admin) {

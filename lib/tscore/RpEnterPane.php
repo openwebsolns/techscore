@@ -23,7 +23,7 @@ class RpEnterPane extends AbstractPane {
     $orgname = (string)(DB::g(STN::ORG_NAME));
     if ($this->participant_mode) {
       $teams = array();
-      foreach ($this->USER->getSchools() as $school) {
+      foreach ($this->getUserSchools() as $school) {
         foreach ($this->REGATTA->getTeams($school) as $team)
           $teams[$team->id] = $team;
       }
@@ -117,7 +117,7 @@ class RpEnterPane extends AbstractPane {
       $f->add(new FItem("Other schools:", $ul = new XSelectM('schools[]', array('size' => '10'))));
       foreach (DB::getConferences() as $conf) {
         $opts = array();
-        foreach ($conf->getSchools() as $school) {
+        foreach ($this->getConferenceSchools($conf) as $school) {
           if ($school->id == $chosen_team->school->id)
             continue;
 
@@ -292,7 +292,7 @@ class RpEnterPane extends AbstractPane {
   public function process(Array $args) {
     if ($this->participant_mode) {
       $teams = array();
-      foreach ($this->USER->getSchools() as $school) {
+      foreach ($this->getUserSchools() as $school) {
         foreach ($this->REGATTA->getTeams($school) as $team)
           $teams[$team->id] = $team;
       }

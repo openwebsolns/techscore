@@ -169,7 +169,7 @@ class DetailsPane extends AbstractPane {
     else {
       // special case that there is only one host AND the user has no
       // more than one school associated with them
-      if (count($this->USER->getSchools()) == 1 && count($hosts) == 1) {
+      if (count($this->getUserSchools()) == 1 && count($hosts) == 1) {
         // Include as a hidden field if host venue option
         if (DB::g(STN::ALLOW_HOST_VENUE))
           $reg_form->add(new XHiddenInput('host[]', $hosts[0]->id));
@@ -189,7 +189,7 @@ class DetailsPane extends AbstractPane {
         // go through each conference
         foreach (DB::getConferences() as $conf) {
           $opts = array();
-          foreach ($this->USER->getSchools($conf) as $school) {
+          foreach ($this->getUserSchools($conf) as $school) {
             $opt = new FOption($school->id, $school);
             if (isset($schools[$school->id]))
               $opt->set('selected', 'selected');

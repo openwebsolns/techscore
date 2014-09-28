@@ -21,7 +21,7 @@ class TeamRpEnterPane extends AbstractPane {
     $orgname = DB::g(STN::ORG_NAME);
     if ($this->participant_mode) {
       $pos_teams = array();
-      foreach ($this->USER->getSchools() as $school) {
+      foreach ($this->getUserSchools() as $school) {
         foreach ($this->REGATTA->getTeams($school) as $team)
           $pos_teams[] = $team;
       }
@@ -213,7 +213,7 @@ class TeamRpEnterPane extends AbstractPane {
     // ------------------------------------------------------------
     $pos_teams = array();
     if ($this->participant_mode) {
-      foreach ($this->USER->getSchools() as $school) {
+      foreach ($this->getUserSchools() as $school) {
         foreach ($this->REGATTA->getTeams($school) as $team)
           $pos_teams[$team->id] = $team;
       }

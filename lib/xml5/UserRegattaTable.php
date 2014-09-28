@@ -25,7 +25,7 @@ class UserRegattaTable extends XTable {
     $this->add($this->body);
 
     $this->user = $user;
-    $this->schools = $this->user->getSchools();
+    $this->schools = $this->user->getSchools(null, true, false);
 
     $row->add(new XTH(array('title'=>"Involvement in regatta"), "Inv."));
     $row->add(new XTH(array('class'=>'reg-name'), "Name"));

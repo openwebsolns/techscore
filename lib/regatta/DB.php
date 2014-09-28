@@ -1124,10 +1124,12 @@ class Conference extends DBObject {
    * Returns a list of school objects which are in the specified
    * conference.
    *
+   * @param boolean $active true (default) to return only active
    * @return a list of schools in the conference
    */
-  public function getSchools() {
-    return DB::getAll(DB::$SCHOOL, new DBCond('conference', $this));
+  public function getSchools($active = true) {
+    $obj = ($active) ? DB::$ACTIVE_SCHOOL : DB::$SCHOOL;
+    return DB::getAll($obj, new DBCond('conference', $this));
   }
 
   /**
@@ -4009,6 +4011,15 @@ class STN extends DBObject {
   const AUTO_MERGE_SAILORS = 'auto_merge_sailors';
   const AUTO_MERGE_GENDER = 'auto_merge_gender';
   const AUTO_MERGE_YEAR = 'auto_merge_year';
+
+  /**
+   * Enforce uniqueness for each sailor by appending each upstream ID
+   * with three extra digits (YYS) representing the year (YY) and then
+   * the season (S) as either 1=fall, etc.
+   *
+   * @see SAILOR_API_URL
+   */
+  const UNIQUE_SEASON_SAILOR = 'unique_season_sailor';
 
   public $value;
   public function db_name() { return 'setting'; }

@@ -387,6 +387,35 @@ abstract class AbstractPane {
   }
 
   /**
+   * Gets all the schools for a given conference
+   *
+   * This method will take the regatta into consideration, and return
+   * only the appropriate list of schools, based on regatta date.
+   *
+   * @return Array:School the list of schools
+   */
+  protected function getConferenceSchools(Conference $conf) {
+    $season = $this->REGATTA->getSeason();
+    return $conf->getSchools($season->isCurrent());
+  }
+
+  /**
+   * Gets all the schools for the current user
+   *
+   * This method will take the regatta into consideration, and return
+   * only the appropriate list of schools, based on regatta date.
+   *
+   * @param Conference $conf the possible conference
+   * @param boolean $effective
+   * @return Array:School the list of schools
+   * @see User::getSchools
+   */
+  protected function getUserSchools(Conference $conf = null, $effective = true) {
+    $season = $this->REGATTA->getSeason();
+    return $this->USER->getSchools($conf, $effective, $season->isCurrent());
+  }
+
+  /**
    * Returns a new instance of a pane with the given URL
    *
    * @param Array $url the URL tokens in order

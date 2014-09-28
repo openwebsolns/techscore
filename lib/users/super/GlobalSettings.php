@@ -29,7 +29,7 @@ class GlobalSettings extends AbstractSuperUserPane {
     $f->add(new FItem("Copyright:", new XTextInput(STN::APP_COPYRIGHT, DB::g(STN::APP_COPYRIGHT))));
     $f->add(new FItem("Send e-mails from:", new XTextInput(STN::TS_FROM_MAIL, DB::g(STN::TS_FROM_MAIL))));
     $f->add(new FItem("Divert e-mails to:", new XEmailInput(STN::DIVERT_MAIL, DB::g(STN::DIVERT_MAIL)), "For production, this value should be blank"));
-
+    $f->add(new FItem("Help base URL:", new XUrlInput(STN::HELP_HOME, DB::g(STN::HELP_HOME), array('size'=>60))));
 
     $p->add($f = new XPort("Conference Settings"));
     $f->add(new FReqItem("Conference name:", new XTextInput(STN::CONFERENCE_TITLE, DB::g(STN::CONFERENCE_TITLE))));
@@ -42,8 +42,8 @@ class GlobalSettings extends AbstractSuperUserPane {
     $f->add(new FItem("Sailor API URL:", new XUrlInput(STN::SAILOR_API_URL, DB::g(STN::SAILOR_API_URL), array('size'=>60))));
     $f->add(new FItem("Coach API URL:", new XUrlInput(STN::COACH_API_URL, DB::g(STN::COACH_API_URL), array('size'=>60))));
     $f->add(new FItem("School API URL:", new XUrlInput(STN::SCHOOL_API_URL, DB::g(STN::SCHOOL_API_URL), array('size'=>60))));
+    $f->add(new FItem("Unique sailors/season?", new FCheckbox(STN::UNIQUE_SEASON_SAILOR, 1, "Enforce unique IDs for sailors from one season to the next.", DB::g(STN::UNIQUE_SEASON_SAILOR) !== null)));
 
-    $f->add(new FItem("Help base URL:", new XUrlInput(STN::HELP_HOME, DB::g(STN::HELP_HOME), array('size'=>60))));
 
     $p->add($f = new XPort("Scoring Options"));
     // Scoring options
@@ -185,6 +185,12 @@ class GlobalSettings extends AbstractSuperUserPane {
           DB::set($conf);
         }
         DB::s(STN::CONFERENCE_URL, $val);
+      }
+
+      $val = DB::$V->incString($args, STN::UNIQUE_SEASON_SAILOR, 1, 2);
+      if ($val != DB::g(STN::UNIQUE_SEASON_SAILOR)) {
+        $changed = true;
+        DB::s(STN::UNIQUE_SEASON_SAILOR, $val);
       }
 
       $val = DB::$V->incString($args, STN::PDFLATEX_SOCKET, 1, 101);
