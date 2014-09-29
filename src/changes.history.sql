@@ -887,3 +887,7 @@ insert ignore into sailor_season (sailor, season) (select sailor.id, season.id f
 -- add sync date to *_seasons
 alter table school_season add column activated timestamp not null default current_timestamp;
 alter table sailor_season add column activated timestamp not null default current_timestamp;
+
+-- also backfill past seasons for current users, "to be safe"
+insert ignore into school_season (school, season) (select school.id, season.id from school, season where school.inactive is null and (season.start_date > now() || season.end_date < now()));
+insert ignore into sailor_season (sailor, season) (select sailor.id, season.id from sailor, season where sailor.active is not null and (season.start_date > now() || season.end_date < now()));
