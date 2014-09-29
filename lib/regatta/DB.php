@@ -62,6 +62,8 @@ class DB extends DBM {
   public static $PUB_FILE_SUMMARY = null;
   public static $PUB_SPONSOR = null;
   public static $WEBSESSION = null;
+  public static $SAILOR_SEASON = null;
+  public static $SCHOOL_SEASON = null;
 
   public static $PERMISSION = null;
   public static $ROLE = null;
@@ -140,6 +142,8 @@ class DB extends DBM {
     self::$PUB_SPONSOR = new Pub_Sponsor();
     self::$WEBSESSION = new Websession();
     self::$SYNC_LOG = new Sync_Log();
+    self::$SAILOR_SEASON = new Sailor_Season();
+    self::$SCHOOL_SEASON = new School_Season();
 
     self::$PERMISSION = new Permission();
     self::$ROLE = new Role();
@@ -198,8 +202,9 @@ class DB extends DBM {
   /**
    * Sets the inactive flag on all the schools in the DB.
    *
+   * @param Season $season the season for which to inactivate
    */
-  public static function inactivateSchools() {
+  public static function inactivateSchools(Season $season) {
     $q = self::createQuery(DBQuery::UPDATE);
     $q->values(array(new DBField('inactive')),
                array(DBQuery::A_STR),
@@ -4369,6 +4374,58 @@ class Sync_Log extends DBObject {
    */
   public function getCoaches() {
     return DB::getAll(DB::$COACH, new DBCond('sync_log', $this));
+  }
+}
+
+/**
+ * Parent class of database elements that may be inactivated from one
+ * season to the next.
+ *
+ * @author Dayan Paez
+ * @version 2014-09-28
+ */
+abstract class Element_Season extends DBObject {
+  protected $season;
+  protected $activated;
+
+  public function db_type($field) {
+    if ($field == 'season')
+      return DB::$SEASON;
+    if ($field == 'activated')
+      return DB::$NOW;
+    return parent::db_type($field);
+  }
+}
+
+/**
+ * Indicator of which seasons a sailor was active in
+ *
+ * @author Dayan Paez
+ * @version 2014-09-28
+ */
+class Sailor_Season extends Element_Season {
+  protected $sailor;
+
+  public function db_type($field) {
+    if ($field == 'sailor')
+      return DB::$MEMBER;
+    return parent::db_type($field);
+  }
+}
+
+/**
+ * Indicator of which seasons a school was active in
+ *
+ * @author Dayan Paez
+ * @version 2014-09-28
+ */
+class School_Season extends Element_Season {
+  protected $school;
+
+  public function db_type($field) {
+    if ($field == 'school')
+      return DB::$SCHOOL;
+    return parent::db_type($field);
   }
 }
 ?>

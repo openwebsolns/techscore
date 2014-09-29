@@ -30,6 +30,11 @@ class SyncDB extends AbstractScript {
   private $warnings;
 
   /**
+   * @var boolean true to store entries in *_season logs
+   */
+  private $log_activation;
+
+  /**
    * Creates a new SyncDB object
    *
    */
@@ -37,8 +42,21 @@ class SyncDB extends AbstractScript {
     parent::__construct();
     $this->errors = array();
     $this->warnings = array();
-    $this->cli_opts = 'schools | sailors | coaches';
-    $this->cli_usage = "Provide at least one argument to update";
+    $this->log_activation = false;
+    $this->cli_opts = '[--log] schools | sailors | coaches';
+    $this->cli_usage = "Provide at least one argument to run.
+
+ --log   Save activation for each entry.
+         This is most suitable when run as a cron task.";
+  }
+
+  /**
+   * Whether to save an entry for each activated object.
+   *
+   * @param boolean $flag true (default) to track activity
+   */
+  public function setLogActivation($flag = true) {
+    $this->log_activation = ($flag !== false);
   }
 
   /**
@@ -53,8 +71,9 @@ class SyncDB extends AbstractScript {
    *
    * @param Sailor $sailor the sailor
    * @param Sync_Log $log
+   * @param Season $season
    */
-  private function updateSailor(Member $sailor, Sync_Log $log) {
+  private function updateSailor(Member $sailor, Sync_Log $log, Season $season) {
     $sailor->active = 1;
     $cur = DB::getRegisteredSailor($sailor->icsa_id);
 
@@ -69,6 +88,14 @@ class SyncDB extends AbstractScript {
     if ($sailor->gender === null)
       $sailor->gender = Sailor::MALE;
     DB::set($sailor, $update);
+
+    // Activate season entry
+    if ($this->log_activation) {
+      $season_entry = new Sailor_Season();
+      $season_entry->season = $season;
+      $season_entry->sailor = $sailor;
+      DB::set($season_entry);
+    }
   }
 
   /**
@@ -77,6 +104,12 @@ class SyncDB extends AbstractScript {
    * @param Sync_Log $log the sync log to associate with updated schools
    */
   public function updateSchools(Sync_Log $log) {
+    $season = Season::forDate(DB::$NOW);
+    if ($season === null) {
+      self::errln("No current season available.");
+      return;
+    }
+
     if (strlen(DB::g(STN::SCHOOL_API_URL)) == 0) {
       self::errln("No URL to update schools list.");
       return;
@@ -90,7 +123,7 @@ class SyncDB extends AbstractScript {
     }
 
     self::errln("Inactivating schools", 2);
-    DB::inactivateSchools();
+    DB::inactivateSchools($season);
     self::errln("Schools deactivated", 2);
 
     $used_urls = array();
@@ -141,6 +174,15 @@ class SyncDB extends AbstractScript {
         $used_urls[$url] = $url;
 
         DB::set($sch, $upd);
+
+        // Activate season entry
+        if ($this->log_activation) {
+          $season_entry = new School_Season();
+          $season_entry->season = $season;
+          $season_entry->school = $sch;
+          DB::set($season_entry);
+        }
+
         self::errln(sprintf("Activated school %10s: %s", $sch->id, $sch->name), 2);
 
         // URL change?
@@ -164,6 +206,12 @@ class SyncDB extends AbstractScript {
    * @param Sync_Log $log the log to save as
    */
   public function updateMember(Member $proto, Sync_Log $log) {
+    $season = Season::forDate(DB::$NOW);
+    if ($season === null) {
+      self::errln("No current season available.");
+      return;
+    }
+
     $src = null;
     if ($proto instanceof Sailor)
       $src = DB::g(STN::SAILOR_API_URL);
@@ -203,7 +251,7 @@ class SyncDB extends AbstractScript {
             $s->gender = $sailor->gender;
           }
 
-          $this->updateSailor($s, $log);
+          $this->updateSailor($s, $log, $season);
           self::errln("Activated $role $s", 2);
         }
         else
@@ -277,6 +325,7 @@ if (isset($argv) && basename(__FILE__) == basename($argv[0])) {
   $tosync = array(Sync_Log::SCHOOLS => false,
                   Sync_Log::SAILORS => false,
                   Sync_Log::COACHES => false);
+  $log = false;
   foreach ($opts as $arg) {
     switch ($arg) {
     case Sync_Log::SCHOOLS:
@@ -285,10 +334,15 @@ if (isset($argv) && basename(__FILE__) == basename($argv[0])) {
       $tosync[$arg] = true;
       break;
 
+    case '--log':
+      $log = true;
+      break;
+
     default:
       throw new TSScriptException("Invalid argument $arg");
     }
   }
+  $P->setLogActivation($log);
   $P->run($tosync[Sync_Log::SCHOOLS], $tosync[Sync_Log::SAILORS], $tosync[Sync_Log::COACHES]);
   if ($tosync[Sync_Log::SCHOOLS]) {
     // Update the summary page for completeness

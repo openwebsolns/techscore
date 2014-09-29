@@ -869,3 +869,21 @@ create table merge_regatta_log (
 ) engine=innodb default charset=utf8;
 alter table merge_regatta_log add foreign key (merge_sailor_log) references merge_sailor_log(id) on delete cascade on update cascade, add foreign key (regatta) references regatta(id) on delete cascade on update cascade;
 drop table merge_rp_log;
+
+-- track which seasons a sailor and school have been active
+create table sailor_season (id int unsigned primary key auto_increment, sailor mediumint(9) not null, season varchar(3) character set latin1 not null) engine=innodb default charset=utf8;
+alter table sailor_season add foreign key (sailor) references sailor(id) on delete cascade on update cascade, add foreign key (season) references season(id) on delete cascade on update cascade;
+create table school_season (id int unsigned primary key auto_increment, school varchar(10) character set latin1 not null, season varchar(3) character set latin1 not null) engine=innodb default charset=utf8;
+alter table school_season add foreign key (school) references school(id) on delete cascade on update cascade, add foreign key (season) references season(id) on delete cascade on update cascade;
+
+-- backfill school_seasons
+insert ignore into school_season (school, season) (select school.id, season.id from school, season where school.inactive is not null and (season.start_date > now() || season.end_date < now()));
+insert ignore into school_season (school, season) (select school.id, season.id from school, season where school.inactive is null and season.start_date < now() and season.end_date > now());
+
+-- backfill sailor_seasons
+insert ignore into sailor_season (sailor, season) (select sailor.id, season.id from sailor, season where sailor.active is null and (season.start_date > now() || season.end_date < now()));
+insert ignore into sailor_season (sailor, season) (select sailor.id, season.id from sailor, season where sailor.active is not null and season.start_date < now() and season.end_date > now());
+
+-- add sync date to *_seasons
+alter table school_season add column activated timestamp not null default current_timestamp;
+alter table sailor_season add column activated timestamp not null default current_timestamp;
