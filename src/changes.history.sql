@@ -891,3 +891,6 @@ alter table sailor_season add column activated timestamp not null default curren
 -- also backfill past seasons for current users, "to be safe"
 insert ignore into school_season (school, season) (select school.id, season.id from school, season where school.inactive is null and (season.start_date > now() || season.end_date < now()));
 insert ignore into sailor_season (sailor, season) (select sailor.id, season.id from sailor, season where sailor.active is not null and (season.start_date > now() || season.end_date < now()));
+
+-- sailor icsa_id needs more room
+alter table sailor change column icsa_id icsa_id int unsigned null default null;

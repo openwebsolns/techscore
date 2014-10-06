@@ -3287,6 +3287,22 @@ class Season extends DBObject {
   }
 
   /**
+   * Get list of schools active during this season.
+   *
+   * A school will be returned so long as it was once found active
+   * throughout the season.
+   *
+   * @param Conference $conference optional conference to limit
+   * @return Array:School the list of schools
+   */
+  public function getSchools(Conference $conference = null) {
+    $cond = new DBCondIn('id', DB::prepGetAll(DB::$SCHOOL_SEASON, new DBCond('season', $this), array('school')));
+    if ($conference !== null)
+      $cond = new DBBool(array(new DBCond('conference', $conference), $cond));
+    return DB::getAll(DB::$SCHOOL, $cond);
+  }
+
+  /**
    * Return the next season if it exists in the database.
    *
    * The "next" season is one of either spring or fall.
