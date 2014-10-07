@@ -28,11 +28,21 @@ class GzipS3Writer extends S3Writer {
     return $headers;
   }
 
-  public function write($fname, &$contents) {
-    $gzip = gzencode($contents, 9);
-    if ($gzip === false)
-      throw new TSWriterException("Unable to compress file $fname", 8);
-    parent::write($fname, $gzip);
+  protected function getWrittenResource(Writeable $elem) {
+    $fp = tmpfile();
+    $elem->write($fp);
+    fseek($fp, 0);
+
+    $zptemp = tmpfile();
+    $zname = $this->getResourceFilename($zptemp);
+    $zp = gzopen($zname, 'w');
+
+    while (!feof($fp)) {
+      gzwrite($zp, fread($fp, 8192));
+    }
+    gzclose($zp);
+    fclose($fp);
+    return $zptemp;
   }
 }
 ?>

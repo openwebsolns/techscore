@@ -131,12 +131,21 @@ class S3Writer extends AbstractWriter {
     return $headers;
   }
 
-  public function write($fname, Writeable $elem) {
+  protected function getResourceFilename($resource) {
+    $data = stream_get_meta_data($resource);
+    return $data['uri'];
+  }
+
+  protected function getWrittenResource(Writeable $elem) {
     $fp = tmpfile();
-    $data = stream_get_meta_data($fp);
-    $filename = $data['uri'];
     $elem->write($fp);
+    return $fp;
+  }
+
+  public function write($fname, Writeable $elem) {
+    $fp = $this->getWrittenResource($elem);
     fseek($fp, 0);
+    $filename = $this->getResourceFilename($fp);
 
     $type = $this->getMIME($fname);
     $size = filesize($filename);
