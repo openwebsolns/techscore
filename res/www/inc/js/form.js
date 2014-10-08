@@ -180,12 +180,14 @@ function parseRange(str) {
 
         // Help form
         var hf = d.getElementById("help-form");
-        if (hf && XMLHttpRequest && FormData) {
+        var hs = d.getElementById("help-wrap");
+        if (hs && hf && XMLHttpRequest && FormData) {
             var mH = d.createElement("p");
             mH.id = "help-alert";
             mH.style.display = "none";
             hf.insertBefore(mH, hf.childNodes[2]);
             hf.addEventListener('submit', function(e) {
+                hs.style.display = "none";
                 // Perform request via AJAX
                 var req = new XMLHttpRequest();
                 req.onreadystatechange = function(s) {
@@ -199,19 +201,24 @@ function parseRange(str) {
                             mH.className = "valid";
                             mH.appendChild(d.createTextNode(s.target.response.message));
                             for (i = 0; i < hf.length; i++) {
-                                if (hf[i].type != "submit") {
+                                if (hf[i].type != "submit" && hf[i].type != "hidden") {
                                     hf[i].value = "";
                                 }
                             }
+                            window.setTimeout(function() {
+                                mH.style.display = "none";
+                                hs.style.display = "block";
+                                
+                            }, 20000);
                         }
                         else {
                             mH.className = "error";
                             mH.appendChild(d.createTextNode(s.target.response.message));
+                            hs.style.display = "block";
+                            window.setTimeout(function() {
+                                mH.style.display = "none";
+                            }, 10000);
                         }
-
-                        window.setTimeout(function() {
-                            mH.style.display = "none";
-                        }, 10000);
                     }
                 };
                 req.open("POST", hf.action);

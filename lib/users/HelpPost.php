@@ -63,7 +63,7 @@ user.',
       if (!$res)
         throw new SoterException("Unable to send mail at this time. Please try again later.");
 
-      $response['message'] = "Message successfully sent.";
+      $response['message'] = "Message successfully sent. Please give us time to review your request and get back to you.";
     }
     catch (SoterException $e) {
       if (!$api)

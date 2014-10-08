@@ -125,11 +125,13 @@ class TScorePage extends XPage {
                              array(
                                new XHiddenInput('csrf_token', Session::getCsrfToken()),
                                new XA('#_', "Close", array('id'=>'help-form-close')),
-                               new XH3("Have a question?"),
-                               $manual,
-                               new XP(array('class'=>'help-item'), new XTextInput('subject', "", array('min'=>3, 'max'=>150, 'placeholder'=>"Subject", 'required'=>'required'))),
-                               new XP(array('class'=>'help-item'), new XTextArea('message', "", array('min'=>10, 'max'=>3000, 'placeholder'=>"What seems to be the problem?", 'required'=>'required'))),
-                               new XSubmitP('ask', "Ask the Admins!"))))));
+                               new XDiv(array('id'=>'help-wrap'),
+                                        array(
+                                          new XH3("Have a question?"),
+                                          $manual,
+                                          new XP(array('class'=>'help-item'), new XTextInput('subject', "", array('min'=>3, 'max'=>150, 'placeholder'=>"Subject", 'required'=>'required'))),
+                                          new XP(array('class'=>'help-item'), new XTextArea('message', "", array('min'=>10, 'max'=>3000, 'placeholder'=>"What seems to be the problem?", 'required'=>'required'))),
+                                          new XSubmitP('ask', "Ask the Admins!", array('id'=>'help-submit')))))))));
     }
   }
 
@@ -166,7 +168,7 @@ class TScorePage extends XPage {
       $this->head->add(new XScript('text/javascript', '/inc/js/cselect.js', null, array('id'=>'cselect-js', 'async'=>'async', 'defer'=>'defer')));
       $this->head->add(new XScript('text/javascript', '/inc/js/mselect.js', null, array('id'=>'mselect-js', 'async'=>'async', 'defer'=>'defer')));
     }
-    $this->head->add(new XScript('text/javascript', '/inc/js/form.js'));
+    $this->head->add(new XScript('text/javascript', '/inc/js/form.js?v=1'));
   }
 
   /**
