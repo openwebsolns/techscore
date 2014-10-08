@@ -1127,7 +1127,21 @@ class Conference extends DBObject {
   public function getUsers($status = null, $active_schools = true) {
     require_once('regatta/Account.php');
     $obj = ($active_schools) ? DB::$ACTIVE_SCHOOL : DB::$SCHOOL;
-    $cond = new DBCondIn('school', DB::prepGetAll($obj, new DBCond('conference', $this), array('id')));
+    $cond = new DBCondIn(
+      'id',
+      DB::prepGetAll(
+        DB::$ACCOUNT_SCHOOL,
+        new DBCondIn(
+          'school',
+          DB::prepGetAll(
+            $obj,
+            new DBCond('conference', $this),
+            array('id')
+          )
+        ),
+        array('account')
+      )
+    );
     if ($status !== null) {
       $statuses = Account::getStatuses();
       if (!isset($statuses[$status]))
