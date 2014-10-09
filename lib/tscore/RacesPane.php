@@ -262,6 +262,7 @@ class RacesPane extends AbstractPane {
           $race->boat = $boat;
           $race->number = ($i + 1);
           $this->REGATTA->setRace($race);
+          $new_races[] = $race;
         }
       }
 
@@ -279,6 +280,12 @@ class RacesPane extends AbstractPane {
         $this->REGATTA->doScore();
         Session::pa(new PA("Re-scored regatta."));
         UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
+      }
+
+      $rot = $this->REGATTA->getRotation();
+      if ($rot->isAssigned() && ($removed_races || count($new_races) > 0)) {
+        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
+        Session::pa(new PA("Rotations altered due to new races.", PA::I));
       }
 
       $this->REGATTA->setData(); // num_races changed
