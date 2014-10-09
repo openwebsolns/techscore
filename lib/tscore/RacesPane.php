@@ -179,6 +179,7 @@ class RacesPane extends AbstractPane {
       // ------------------------------------------------------------
       // Add new divisions
       //   1. Get host's preferred boat
+      $added_races = false;
       $hosts = $this->REGATTA->getHosts();
       $host = $hosts[0];
       $boat = DB::$V->incID($args, 'boat', DB::$BOAT, DB::getPreferredBoat($host));
@@ -218,6 +219,7 @@ class RacesPane extends AbstractPane {
           if (isset($scored_numbers[$race->number]))
             $new_races[] = $race;
         }
+        $added_races = true;
       }
       if ($new_score !== false) {
         $finishes = array();
@@ -262,7 +264,7 @@ class RacesPane extends AbstractPane {
           $race->boat = $boat;
           $race->number = ($i + 1);
           $this->REGATTA->setRace($race);
-          $new_races[] = $race;
+          $added_races = true;
         }
       }
 
@@ -282,8 +284,11 @@ class RacesPane extends AbstractPane {
         UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
       }
 
+      if (!$removed_races && !$added_races)
+        throw new SoterException("Nothing to change.");
+
       $rot = $this->REGATTA->getRotation();
-      if ($rot->isAssigned() && ($removed_races || count($new_races) > 0)) {
+      if ($rot->isAssigned()) {
         UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
         Session::pa(new PA("Rotations altered due to new races.", PA::I));
       }
