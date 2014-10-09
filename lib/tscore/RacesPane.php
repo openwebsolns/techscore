@@ -170,6 +170,9 @@ class RacesPane extends AbstractPane {
    * Process edits to races for the regatta
    */
   public function process(Array $args) {
+
+    $was_singlehanded = $this->REGATTA->isSingleHanded();
+
     // ------------------------------------------------------------
     // Set races
     // ------------------------------------------------------------
@@ -300,6 +303,10 @@ class RacesPane extends AbstractPane {
                                  new XA($this->link('finishes'), "skip this step"),
                                  " to enter finishes directly.")));
         $this->redirect('rotations');
+      }
+      if ($was_singlehanded != $this->REGATTA->isSingleHanded()) {
+        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DETAILS);
+        Session::pa(new PA("The regatta's singlehanded status has changed as a result of this update.", PA::I));
       }
       Session::pa(new PA("Set number of races."));
     }
