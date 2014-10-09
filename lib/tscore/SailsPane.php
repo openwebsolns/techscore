@@ -205,7 +205,7 @@ class SailsPane extends AbstractPane {
         require_once('xml5/XMultipleSelect.php');
         $form->add(new FReqItem("Divisions to affect:", $sel = new XMultipleSelect('division[]')));
         foreach ($divisions as $div)
-          $sel->addOption((string)$div, $div);
+          $sel->addOption((string)$div, $div, true);
       }
       $form->add(new XSubmitP("choose_rot", "Next >>"));
 
