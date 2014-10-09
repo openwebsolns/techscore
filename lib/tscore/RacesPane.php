@@ -319,14 +319,19 @@ class RacesPane extends AbstractPane {
     if (isset($args['editboats'])) {
       unset($args['editboats']);
 
+      $changed = false;
+
       // Is there an assignment for all the races in the division?
       foreach ($copy as $i => $div) {
         if (($val = DB::$V->incID($args, (string)$div, DB::$BOAT, null)) !== null) {
           unset($args[(string)$div]);
           unset($remaining_divisions[$i]);
           foreach ($this->REGATTA->getRaces($div) as $race) {
-            $race->boat = $val;
-            $this->REGATTA->setRace($race);
+            if ($race->boat != $val) {
+              $race->boat = $val;
+              $this->REGATTA->setRace($race);
+              $changed = true;
+            }
           }
         }
       }
@@ -339,9 +344,16 @@ class RacesPane extends AbstractPane {
               $val != $race->boat) {
             $race->boat = $val;
             DB::set($race);
+            $changed = true;
           }
         }
       }
+
+      if (!$changed)
+        throw new SoterException("Nothing to change.");
+
+      $this->REGATTA->setData(); // boats changed, possibly singlehanded
+      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_DETAILS);
       Session::pa(new PA("Updated boat assignments."));
     }
     return array();
