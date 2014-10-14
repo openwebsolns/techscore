@@ -31,10 +31,14 @@ class TeamNamePrefsPane extends AbstractPrefsPane {
    */
   public function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new XPort("Set squad names"));
-    $p->add(new XP(array(), "Every school consists of at least one squad. Enter all possible squad names (usually a variation of the school's mascot) in the list below. There may be a squad name for coed teams, and a different name for women teams. Or a scshool may have a varsity and junior varsity combination, etc."));
+    $p->add(new XP(array(), "Every school consists of at least one squad. Enter all possible squad names (usually a variation of the school's mascot) in the list below. There may be a squad name for coed teams, and a different name for women teams. Or a school may have a varsity and junior varsity combination, etc."));
     $p->add(new XP(array(),
                    array("When a team from this school is added to a regatta, the ", new XStrong("primary"), " squad name (first on the list below) will be chosen automatically. Later, the scorer or the school's coach may choose an alternate name from those specified in the list below.")));
-    $p->add(new XP(array(), "The squad names should all be different. Squad names may not be differentiated with the simple addition of a numeral suffix."));
+    $p->add(new XP(array(),
+                   array("The squad names should all be different. ",
+                         new XStrong("Squad names may not be differentiated with the simple addition of a numeral suffix."),
+                         " This will be done automatically by the program.",
+                   )));
 
     $p->add($form = $this->createForm());
 
@@ -67,7 +71,7 @@ class TeamNamePrefsPane extends AbstractPrefsPane {
       if (count($list) == 0)
         throw new SoterException("There must be at least one team name, none given.");
 
-      $re = '/ [0-9]+$/';
+      $re = '/ ?[0-9]+$/';
 
       // There must be a valid primary name
       $pri = trim(array_shift($list));
