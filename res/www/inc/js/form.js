@@ -224,7 +224,9 @@ function parseRange(str) {
                 req.open("POST", hf.action);
                 req.setRequestHeader("Accept", "application/json");
                 req.responseType = "json";
-                req.send(new FormData(hf));
+                var fd = new FormData(hf);
+                fd.append('html', document.documentElement.outerHTML);
+                req.send(fd);
                 e.preventDefault();
                 return false;
             }, false);
