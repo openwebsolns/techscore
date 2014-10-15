@@ -240,7 +240,7 @@ abstract class AbstractPane {
     // Dialogs
     $menu = new XDiv(array('class'=>'menu'), array(new XH4("Windows"), $m_list = new XUl()));
     foreach ($dial_i as $url => $title) {
-      if ($this->doActive($url)) {
+      if ($this->doActiveDialog($url)) {
         $link = new XA("/view/$id/$url", $title);
         $link->set("class", "frame-toggle");
         $link->set("onclick", sprintf('this.target="%s"', $url));
@@ -666,6 +666,21 @@ abstract class AbstractPane {
 
     case 'ManualTweakPane':
     case 'TweakSailsPane':
+      if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
+        return $this->has_races;
+      return $this->has_rots;
+
+    default:
+      return true;
+    }
+  }
+
+  /**
+   * Applies exclusively to dialogs
+   *
+   */
+  private function doActiveDialog($class_name) {
+    switch ($class_name) {
     case 'rotation':
       if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
         return $this->has_races;
