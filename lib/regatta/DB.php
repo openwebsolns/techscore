@@ -3873,6 +3873,7 @@ class Permission extends DBObject {
   const FINALIZE_REGATTA = 'finalize_regatta';
   const CREATE_REGATTA = 'create_regatta';
   const DELETE_REGATTA = 'delete_regatta';
+  const PARTICIPATE_IN_REGATTA = 'participate_in_regatta';
 
   const EDIT_SCHOOL_LOGO = 'edit_school_logo';
   const EDIT_UNREGISTERED_SAILORS = 'edit_unregistered_sailors';

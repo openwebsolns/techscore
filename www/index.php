@@ -110,7 +110,7 @@ DB::requireActive(Conf::$USER);
 // ------------------------------------------------------------
 if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
   try {
-    if (!Conf::$USER->can(Permission::EDIT_REGATTA))
+    if (!Conf::$USER->canAny(array(Permission::EDIT_REGATTA, Permission::PARTICIPATE_IN_REGATTA)))
       throw new PermissionException("No permission to edit regattas.");
 
     $BASE = array_shift($URI_TOKENS);

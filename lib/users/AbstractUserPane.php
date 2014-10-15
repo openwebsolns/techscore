@@ -435,6 +435,7 @@ abstract class AbstractUserPane {
       return true;
 
     // Limit the list of permissions if schools involved
+    // The permissions below require school affiliation
     if ($this->SCHOOL === null) {
       $perms = array();
       foreach (self::$ROUTES[$classname][self::R_PERM] as $perm) {
@@ -442,6 +443,7 @@ abstract class AbstractUserPane {
                         Permission::EDIT_SCHOOL_LOGO,
                         Permission::EDIT_UNREGISTERED_SAILORS,
                         Permission::EDIT_TEAM_NAMES,
+                        Permission::PARTICIPATE_IN_REGATTA,
                         Permission::EDIT_REGATTA,
                         Permission::FINALIZE_REGATTA,
                         Permission::CREATE_REGATTA,
@@ -570,14 +572,14 @@ abstract class AbstractUserPane {
       self::R_NAME => "All regattas",
       self::R_PATH => 'users',
       self::R_URLS => array('archive'),
-      self::R_PERM => array(Permission::EDIT_REGATTA)
+      self::R_PERM => array(Permission::EDIT_REGATTA, Permission::PARTICIPATE_IN_REGATTA)
     ),
 
     'UserSeasonPane' => array(
       self::R_NAME => "Season summary",
       self::R_PATH => 'users',
       self::R_URLS => array('season'),
-      self::R_PERM => array(Permission::EDIT_REGATTA)
+      self::R_PERM => array(Permission::EDIT_REGATTA, Permission::PARTICIPATE_IN_REGATTA)
     ),
 
     'AccountsPane' => array(
