@@ -301,7 +301,7 @@ class DB extends DBM {
 
     require_once('xml5/TSEditor.php');
     $parser = new TSEditor();
-    $page->body->add(new XDiv(array(), $parser->parse($body)));
+    $page->append(new XDiv(array(), $parser->parse($body)));
 
     $parts = array(
       'text/plain; charset=utf8' => $body,
