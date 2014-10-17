@@ -296,13 +296,16 @@ class DB extends DBM {
     if ($wrap)
       $body = wordwrap($body, 72);
 
+    require_once('xml5/TEmailMessage.php');
+    $page = new TEmailMessage($subject);
+
     require_once('xml5/TSEditor.php');
     $parser = new TSEditor();
-    $parser->parse($body);
+    $page->body->add(new XDiv(array(), $parser->parse($body)));
 
     $parts = array(
       'text/plain; charset=utf8' => $body,
-      'text/html; charset=utf8' => $parser->toXML(),
+      'text/html; charset=utf8' => $page->toXML(),
     );
 
     return self::multipartMail($to, $subject, $parts, $extra_headers);
