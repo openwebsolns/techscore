@@ -293,29 +293,19 @@ class DB extends DBM {
    * @return boolean the result, as returned by mail
    */
   public static function mail($to, $subject, $body, $wrap = true, Array $extra_headers = array()) {
-    if (DB::g(STN::DIVERT_MAIL) !== null) {
-      $meant = $to;
-      if (is_array($to))
-        $meant = implode(", ", $to);
-      $body = "Message meant for $meant\n\n" . $body;
-      $to = DB::g(STN::DIVERT_MAIL);
-      $subject = 'DIVERTED: ' . $subject;
-    }
     if ($wrap)
       $body = wordwrap($body, 72);
 
-    if (!is_array($to))
-      $to = array($to);
+    require_once('xml5/TSEditor.php');
+    $parser = new TSEditor();
+    $parser->parse($body);
 
-    $res = true;
-    $header = "";
-    $extra_headers["From"] = DB::g(STN::TS_FROM_MAIL);
-    $extra_headers["Content-Type"] = "text/plain; charset=utf8";
-    foreach ($extra_headers as $key => $val)
-      $header .= sprintf("%s: %s\r\n", $key, $val);
-    foreach ($to as $recipient)
-      $res = $res && @mail($recipient, $subject, $body, $header);
-    return $res;
+    $parts = array(
+      'text/plain; charset=utf8' => $body,
+      'text/html; charset=utf8' => $parser->toXML(),
+    );
+
+    return self::multipartMail($to, $subject, $parts, $extra_headers);
   }
 
   /**
@@ -326,9 +316,10 @@ class DB extends DBM {
    * @param String|Array $to the e-mail address(es) to send to
    * @param String $subject the subject
    * @param Array $parts the different MIME parts, indexed by MIME type.
+   * @param Array $extra_headers optional map of extra headers to send
    * @return boolean the result, as returned by mail
    */
-  public static function multipartMail($to, $subject, Array $parts) {
+  public static function multipartMail($to, $subject, Array $parts, Array $extra_headers = array()) {
     if (DB::g(STN::DIVERT_MAIL) !== null) {
       $to = DB::g(STN::DIVERT_MAIL);
       $subject = 'DIVERTED: ' . $subject;
@@ -359,6 +350,8 @@ class DB extends DBM {
     }
 
     $headers = sprintf("From: %s\nMIME-Version: 1.0\nContent-Type: multipart/alternative; boundary=%s\n", DB::g(STN::TS_FROM_MAIL), $bdry);
+    foreach ($extra_headers as $key => $val)
+      $headers .= sprintf("%s: %s\n", $key, $val);
     $body = "This is a message with multiple parts in MIME format.\n";
     foreach ($segments as $segment)
       $body .= sprintf("--%s\n%s\n", $bdry, $segment);
