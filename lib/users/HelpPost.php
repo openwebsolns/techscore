@@ -32,15 +32,18 @@ class HelpPost extends AbstractUserPane {
     try {
       $sub = '[TS Question] ' . DB::$V->reqString($args, 'subject', 3, 151, "Invalid subject provided.");
       $body = sprintf('------------------------------------------------------------
-User:    %s
-Page:    %s
-Time:    %s
-Browser: %s
+
+  - *User*:    %s
+  - *Page*:    %s
+  - *Time*:    %s
+  - *Browser*: %s
+
 ------------------------------------------------------------
 
 %s
 
 Reply through Techscore: %s
+
 -- 
 Techscore
 
