@@ -17,8 +17,6 @@ require_once('users/AbstractUserPane.php');
  */
 class HelpPost extends AbstractUserPane {
 
-  private $submitCSS = 'background:rgb(52,101,164); color: #fff; text-shadow: 1px 1px 1px #222; border: 1px solid #555; font-weight: bold; font-size: 85%; text-decoration: none; padding: 0.5em 1em; cursor:pointer; border-radius: 2px; border: 1px solid #aaa;';
-
   public function __construct(Account $user) {
     parent::__construct("Help", $user);
   }
@@ -71,11 +69,10 @@ user.',
       $html = new TEmailMessage($sub);
       $html->append(
         new XTable(
-          array('style'=>'border:1px solid #ccc; border-collapse:collapse;background:#eee;'),
+          array('style'=>'border:1px solid #ccc; border-collapse:collapse;background:#eee; width: 100%;'),
           array(
-            new XCaption('About the requester'),
             new XTBody(
-              array(),
+              array('style' => 'text-align: left'),
               array(
                 new XTR(array(), array(new XTH(array(), "User"), new XTD(array(), $this->USER))),
                 new XTR(array(), array(new XTH(array(), "Page"), new XTD(array(), $ref))),
@@ -90,7 +87,7 @@ user.',
       $html->append(
         new XP(
           array('style'=>'margin-top: 3em'),
-          array(new XA($mail_link, "Reply through Techscore", array('style'=>$this->submitCSS)))
+          array(new XA($mail_link, "Reply through Techscore", array('style'=>$html->getCSS(TEmailMessage::SUBMIT))))
         )
       );
 
