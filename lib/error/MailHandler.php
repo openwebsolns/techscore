@@ -14,7 +14,7 @@
 class MailHandler {
   public static $CENSORED_POST = array('userid', 'pass');
   public static function handleErrors($errno, $errstr, $errfile, $errline) {
-    $fmt = "%7s: %s\n";
+    $fmt = "  - %-7s %s\n";
     $body  = sprintf($fmt, "Time",   date('Y-m-d H:i:s'));
     $body .= sprintf($fmt, "Number", $errno);
     $body .= sprintf($fmt, "String", $errstr);
@@ -32,7 +32,7 @@ class MailHandler {
       }
     }
     if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
-      $body .= "--------------------\n";
+      $body .= "\n\n--------------------\n\n";
       $body .= "Post:\n";
       
       foreach ($_POST as $key => $val) {
@@ -58,7 +58,7 @@ class MailHandler {
     exit;
   }
   public static function handleExceptions(Exception $e) {
-    $fmt = "%7s: %s\n";
+    $fmt = "  - %-7s: %s\n";
     $body  = sprintf($fmt, "Time",   date('Y-m-d H:i:s'));
     $body .= sprintf($fmt, "Number", $e->getCode());
     $body .= sprintf($fmt, "String", $e->getMessage());
@@ -68,10 +68,10 @@ class MailHandler {
     $body .= sprintf($fmt, "User", (Conf::$USER !== null) ? Conf::$USER->id : "--");
     $body .= sprintf($fmt, "Browser", (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : "--");
     $body .= sprintf($fmt, "Method", (isset($_SERVER['REQUEST_METHOD'])) ? $_SERVER['REQUEST_METHOD'] : "--");
-    $body .= "--------------------\n";
+    $body .= "\n--------------------\n\n";
     $body .= sprintf($fmt, "Trace",  $e->getTraceAsString());
     if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
-      $body .= "--------------------\n";
+      $body .= "\n--------------------\n\n";
       $body .= "Post:\n";
       
       foreach ($_POST as $key => $val) {

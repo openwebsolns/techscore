@@ -58,6 +58,11 @@
     }
     ,
 
+    "html" : {
+        "background": "none repeat scroll 0 0 #f8f8f8"
+    }
+    ,
+
     "bodywrap": {
         "background": "#fff"
     }

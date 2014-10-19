@@ -22,6 +22,7 @@ class TEmailMessage extends XPage {
    * Constants for CSS rules
    */
 
+  const HTML = 'html';
   const BODY = 'body';
   const SUBMIT = 'submit';
   const HEADDIV = 'headdiv';
@@ -53,6 +54,7 @@ class TEmailMessage extends XPage {
   public function __construct($title) {
     parent::__construct($title);
 
+    $this->set('style', $this->getCSS(self::HTML));
     $this->head->add(new XMetaHTTP('Content-Type', 'text/html; charset=UTF-8'));
     $this->body->set('style', $this->getCSS(self::BODY));
 

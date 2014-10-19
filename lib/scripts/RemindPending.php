@@ -109,11 +109,11 @@ class RemindPending extends AbstractScript {
     foreach ($regs as $i => $reg) {
       if ($i > 0)
         $body .= "\n\n";
-      $body .= sprintf("%s", $reg->name);
+      $body .= sprintf("*%s*\n", $reg->name);
       if ($missing[$reg->id] & self::PENDING)
-        $body .= sprintf("\nFinalize:   https://%s/score/%s/finalize", Conf::$HOME, $reg->id);
+        $body .= sprintf("\n - Finalize:   https://%s/score/%s/finalize", Conf::$HOME, $reg->id);
       if ($missing[$reg->id] & self::MISSING_RP)
-        $body .= sprintf("\nMissing RP: https://%s/score/%s/missing", Conf::$HOME, $reg->id);
+        $body .= sprintf("\n - Missing RP: https://%s/score/%s/missing", Conf::$HOME, $reg->id);
     }
     return $body;
   }

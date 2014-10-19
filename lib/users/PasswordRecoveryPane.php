@@ -83,7 +83,7 @@ class PasswordRecoveryPane extends AbstractUserPane {
         throw new SoterException("Password mismatch. Make sure the passwords match and that it is at least 8 characters long.");
       $acc->password = DB::createPasswordHash($acc, $pw1);
       $acc->resetToken();
-      if (!DB::mail($acc->id, '[TechScore] Account password reset', $this->getSuccessMessage($acc)))
+      if (!DB::mail($acc->id, sprintf('[%s] Account password reset', DB::g(STN::APP_NAME)), $this->getSuccessMessage($acc)))
         Session::pa(new PA("No e-mail message could be sent, but password has been reset. Please log in with your new password now.", PA::I));
       else
         Session::pa(new PA("Account password successfully reset."));
@@ -98,7 +98,7 @@ class PasswordRecoveryPane extends AbstractUserPane {
       if (($acc = DB::getAccount(DB::$V->reqString($args, 'email', 1, 41, "No e-mail provided."))) === null)
         throw new SoterException("Invalid e-mail provided.");
       $acc->createToken();
-      if (!DB::mail($acc->id, '[TechScore] Reset password request', $this->getMessage($acc)))
+      if (!DB::mail($acc->id, sprintf('[%s] Reset password request', DB::g(STN::APP_NAME)), $this->getMessage($acc)))
         throw new SoterException("Unable to send message. Please try again later.");
       DB::set($acc);
       Session::pa(new PA("Message sent."));

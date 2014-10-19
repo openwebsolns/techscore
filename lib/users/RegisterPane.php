@@ -214,17 +214,17 @@ class RegisterPane extends AbstractUserPane {
 
   public function getAdminBody(Account $about) {
     $fields = array(
-      'Name' => $about,
-      'Email' => $about->id,
-      'Affiliation' => $about->getAffiliation(),
-      DB::g(STN::ORG_NAME) . ' Role' => $about->role);
+      'Name:' => $about,
+      'Email:' => $about->id,
+      'Affiliation:' => $about->getAffiliation(),
+      DB::g(STN::ORG_NAME) . ' Role:' => $about->role);
 
     $len = 0;
     foreach ($fields as $key => $val) {
       $len = max($len, strlen($key));
     }
 
-    $fmt = "%" . $len . "s: %s\n";
+    $fmt = "  - %-" . $len . "s %s\n";
     $mes = '';
     foreach ($fields as $key => $val)
       $mes .= sprintf($fmt, $key, $val);
