@@ -69,4 +69,19 @@
         "max-width": "70em",
         "padding": "0.5em 1em"
     }
+    ,
+
+    "footdiv" : {
+        "border-top": "1px solid #bbb",
+        "bottom": "0",
+        "color": "#555555",
+        "font-size": "70%",
+        "margin-bottom": "0",
+        "padding": "1em"
+    },
+
+    "footaddress" : {
+        "font-style": "normal",
+        "text-align": "center"
+    }
 }

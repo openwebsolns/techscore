@@ -31,6 +31,8 @@ class TEmailMessage extends XPage {
   const LOGO = 'logo';
   const BODYWRAP = 'bodywrap';
   const BODYDIV = 'bodydiv';
+  const FOOTDIV = 'footdiv';
+  const FOOTADDRESS = 'footaddress';
 
   private $editor;
 
@@ -51,6 +53,7 @@ class TEmailMessage extends XPage {
   public function __construct($title) {
     parent::__construct($title);
 
+    $this->head->add(new XMetaHTTP('Content-Type', 'text/html; charset=UTF-8'));
     $this->body->set('style', $this->getCSS(self::BODY));
 
     // Header
@@ -82,6 +85,21 @@ class TEmailMessage extends XPage {
         array('style' => $this->getCSS(self::BODYWRAP)),
         array(
           $this->container
+        )
+      )
+    );
+
+    // Footer
+    $this->body->add(
+      new XDiv(
+        array('style' => $this->getCSS(self::FOOTDIV)),
+        array(
+          new XAddress(
+            array('style' => $this->getCSS(self::FOOTADDRESS)),
+            array(
+              sprintf("%s v%s %s", DB::g(STN::APP_NAME), DB::g(STN::APP_VERSION), DB::g(STN::APP_COPYRIGHT))
+            )
+          )
         )
       )
     );
