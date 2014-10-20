@@ -292,7 +292,7 @@ class DB extends DBM {
    * @param Array $extra_headers optional map of extra headers to send
    * @return boolean the result, as returned by mail
    */
-  public static function mail($to, $subject, $body, $wrap = true, Array $extra_headers = array()) {
+  public static function mail($to, $subject, $body, $wrap = true, Array $extra_headers = array(), Array $attachments = array()) {
     if ($wrap)
       $body = wordwrap($body, 72);
 
@@ -308,7 +308,7 @@ class DB extends DBM {
       'text/html; charset=utf8' => $page->toXML(),
     );
 
-    return self::multipartMail($to, $subject, $parts, $extra_headers);
+    return self::multipartMail($to, $subject, $parts, $extra_headers, $attachments);
   }
 
   /**
@@ -321,51 +321,14 @@ class DB extends DBM {
    * @param Array $parts the different MIME parts, indexed by MIME type.
    * @param Array $extra_headers optional map of extra headers to send
    * @return boolean the result, as returned by mail
+   * @see TSMailer::multipartMail
    */
-  public static function multipartMail($to, $subject, Array $parts, Array $extra_headers = array()) {
-    if (DB::g(STN::DIVERT_MAIL) !== null) {
-      $to = DB::g(STN::DIVERT_MAIL);
-      $subject = 'DIVERTED: ' . $subject;
-    }
-
-    $segments = array();
-    foreach ($parts as $mime => $part) {
-      $segment = sprintf("Content-Type: %s\n", $mime);
-      if (substr($mime, 0, strlen('text/plain')) != 'text/plain') {
-        $segment .= "Content-Transfer-Encoding: base64\n";
-        $part = base64_encode($part);
-      }
-      $segment .= "\n";
-      $segment .= $part;
-      $segments[] = $segment;
-    }
-
-    $found = true;
-    while ($found) {
-      $bdry = uniqid(rand(100, 999), true);
-      $found = false;
-      foreach ($segments as $segment) {
-        if (strstr($segment, $bdry) !== false) {
-          $found = true;
-          break;
-        }
-      }
-    }
-
-    $headers = sprintf("From: %s\nMIME-Version: 1.0\nContent-Type: multipart/alternative; boundary=%s\n", DB::g(STN::TS_FROM_MAIL), $bdry);
-    foreach ($extra_headers as $key => $val)
-      $headers .= sprintf("%s: %s\n", $key, $val);
-    $body = "This is a message with multiple parts in MIME format.\n";
-    foreach ($segments as $segment)
-      $body .= sprintf("--%s\n%s\n", $bdry, $segment);
-    $body .= sprintf("--%s--", $bdry);
-
-    if (!is_array($to))
-      $to = array($to);
-    $res = true;
-    foreach ($to as $recipient)
-      $res = $res && @mail($recipient, $subject, $body, $headers);
-    return $res;
+  public static function multipartMail($to, $subject, Array $parts, Array $extra_headers = array(), Array $attachments = array()) {
+    require_once('mail/TSMailer.php');
+    require_once('mail/Attachment.php');
+    foreach ($attachments as $i => $file)
+      $attachments[$i] = new Attachment($file);
+    return TSMailer::sendMultipart($to, $subject, $parts, $extra_headers, $attachments);
   }
 
   /**
