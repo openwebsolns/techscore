@@ -39,12 +39,10 @@ class HelpPost extends AbstractUserPane {
     try {
       $sub = '[TS Question] ' . DB::$V->reqString($args, 'subject', 3, 151, "Invalid subject provided.");
       $body = sprintf('------------------------------------------------------------
-
-  - User:    %s
-  - Page:    %s
-  - Time:    %s
-  - Browser: %s
-
+ User:    %s
+ Page:    %s
+ Time:    %s
+ Browser: %s
 ------------------------------------------------------------
 
 %s
@@ -97,6 +95,9 @@ user.',
         $file = str_replace('</title>', sprintf('</title><base href="https://%s"/>', Conf::$HOME), $file);
         require_once('mail/StringAttachment.php');
         $attachments[] = new StringAttachment('page.html', 'text/html', $file);
+        $message = "For best results, view attached file in its own browser window.";
+        $body .= "\n\n" . $message;
+        $html->append(new XP(array(), new XEm($message)));
       }
       $res = false;
       foreach (DB::getAdmins() as $admin) {
