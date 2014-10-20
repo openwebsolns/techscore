@@ -92,13 +92,21 @@ user.',
       );
 
 
+      $attachments = array();
+      if (DB::$V->hasString($file, $args, 'html', 1, 16000)) {
+        $file = str_replace('</title>', sprintf('</title><base href="https://%s"/>', Conf::$HOME), $file);
+        require_once('mail/StringAttachment.php');
+        $attachments[] = new StringAttachment('page.html', 'text/html', $file);
+      }
       $res = false;
       foreach (DB::getAdmins() as $admin) {
         if (DB::multipartMail(
               $admin->id,
               $sub,
               array('text/plain' => $body, 'text/html' => $html->toXML()),
-              array('Reply-To' => $this->USER->id)))
+              array('Reply-To' => $this->USER->id),
+              $attachments
+            ))
           $res = true;
       }
       if (!$res)

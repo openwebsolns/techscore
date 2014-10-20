@@ -13,19 +13,19 @@ class Attachment {
   /**
    * @var String MIME type for attached file
    */
-  private $mime_type;
+  protected $mime_type;
   /**
    * @var String full filepath to file (optional)
    */
-  private $filepath;
+  protected $filepath;
   /**
    * @var String the name for the attachment
    */
-  private $name;
+  protected $name;
   /**
    * @var resource stream pointing to file (optional)
    */
-  private $stream;
+  protected $stream;
 
   /**
    * Creates a new attachment

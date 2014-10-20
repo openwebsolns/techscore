@@ -290,6 +290,7 @@ class DB extends DBM {
    * 72 characters
    * @param boolean $wrap whether to wrap message (default = true)
    * @param Array $extra_headers optional map of extra headers to send
+   * @param Array $attachments list of Attachment objects or file paths
    * @return boolean the result, as returned by mail
    */
   public static function mail($to, $subject, $body, $wrap = true, Array $extra_headers = array(), Array $attachments = array()) {
@@ -320,14 +321,17 @@ class DB extends DBM {
    * @param String $subject the subject
    * @param Array $parts the different MIME parts, indexed by MIME type.
    * @param Array $extra_headers optional map of extra headers to send
+   * @param Array $attachments list of Attachment objects or file paths
    * @return boolean the result, as returned by mail
    * @see TSMailer::multipartMail
    */
   public static function multipartMail($to, $subject, Array $parts, Array $extra_headers = array(), Array $attachments = array()) {
     require_once('mail/TSMailer.php');
     require_once('mail/Attachment.php');
-    foreach ($attachments as $i => $file)
-      $attachments[$i] = new Attachment($file);
+    foreach ($attachments as $i => $file) {
+      if (!($file instanceof Attachment))
+        $attachments[$i] = new Attachment($file);
+    }
     return TSMailer::sendMultipart($to, $subject, $parts, $extra_headers, $attachments);
   }
 
