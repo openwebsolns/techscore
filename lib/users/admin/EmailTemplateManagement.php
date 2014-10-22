@@ -21,6 +21,7 @@ class EmailTemplateManagement extends AbstractAdminUserPane {
                                     STN::MAIL_REGISTER_ADMIN => "New user admin message",
                                     STN::MAIL_APPROVED_USER => "Account approved",
                                     STN::MAIL_UNFINALIZED_REMINDER => "Unfinalized regattas reminder",
+                                    STN::MAIL_MISSING_RP_REMINDER => "Missing RP reminder (participants)",
                                     );
 
   public function __construct(Account $user) {
@@ -98,6 +99,15 @@ class EmailTemplateManagement extends AbstractAdminUserPane {
                            new XVar("{BODY}"),
                            " section, in which the list of regattas will appear.")));
       break;
+
+    case STN::MAIL_MISSING_RP_REMINDER:
+      $p->add(new XP(array(),
+                     array("This is the weekly reminder e-mail message sent to participants regarding any teams for which there is missing RP information. An empty template disables sending this message. It ",
+                           new XStrong("requires"),
+                           " a ",
+                           new XVar("{BODY}"),
+                           " section, in which the list of regattas will appear.")));
+      break;
     }
 
     $p->add($this->keywordReplaceTable());
@@ -123,6 +133,7 @@ class EmailTemplateManagement extends AbstractAdminUserPane {
       $req_body = array(STN::MAIL_REGISTER_USER,
                         STN::MAIL_REGISTER_ADMIN,
                         STN::MAIL_UNFINALIZED_REMINDER,
+                        STN::MAIL_MISSING_RP_REMINDER,
                         );
       if ($body !== null && in_array($templ, $req_body) && strpos($body, '{BODY}') === false)
         throw new SoterException("Missing {BODY} element for template.");

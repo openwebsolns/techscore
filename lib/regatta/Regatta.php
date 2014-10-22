@@ -1670,9 +1670,27 @@ class FullRegatta extends DBObject {
    * @return boolean true if every team claims to be complete
    */
   public function isRpComplete() {
-    $res = DB::getAll(DB::$TEAM, new DBBool(array(new DBCond('regatta', $this->id),
-						  new DBCond('dt_complete_rp', null))));
+    $res = $this->getTeamsMissingRpComplete();
     return count($res) == 0;
+  }
+
+  /**
+   * Which of this regatta's teams are missing RP?
+   *
+   * Calculation is done based on saved status (dt_complete)
+   *
+   * @return Array:Team
+   */
+  public function getTeamsMissingRpComplete() {
+    return DB::getAll(
+      DB::$TEAM,
+      new DBBool(
+        array(
+          new DBCond('regatta', $this->id),
+          new DBCond('dt_complete_rp', null),
+        )
+      )
+    );
   }
 
   /**

@@ -13,6 +13,7 @@ require_once('AbstractScript.php');
  * Sends mail to users regarding unfinalized regattas
  *
  * 2013-10-07: Include missing RP regattas
+ * 2014-10-21: Also send to *participants* with missing RP
  *
  * @author Dayan Paez
  * @version 2013-10-02
@@ -119,7 +120,7 @@ class RemindPending extends AbstractScript {
   }
 
   protected $cli_opts = '[-n]';
-  protected $cli_usage = ' -n, --dry-run  Do not perform deletion';
+  protected $cli_usage = ' -n, --dry-run  Do not send mail';
 }
 
 // ------------------------------------------------------------
