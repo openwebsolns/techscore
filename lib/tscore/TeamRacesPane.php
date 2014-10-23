@@ -12,8 +12,7 @@ require_once('tscore/AbstractRoundPane.php');
 /**
  * Page for editing races when using team scoring. These team races
  * require not just a number, but also the two teams from the set of
- * teams which will be participating. Note that this pane will
- * automatically allocate 3 divisions for the regatta.
+ * teams which will be participating.
  *
  * Each race must also belong to a particular "round". In a particular
  * round, each team races against every other team in a round robin.
@@ -138,7 +137,7 @@ class TeamRacesPane extends AbstractRoundPane {
         if ($ROUND->num_teams !== null)
           $num_teams = $ROUND->num_teams;
 
-        $num_boats = $group_size * 3;
+        $num_boats = $group_size * $num_divs;
         if ($ROUND->num_boats !== null)
           $num_boats = $ROUND->num_boats;
 
@@ -1033,8 +1032,19 @@ window.addEventListener("load", function(e) {
 
     // If only two teams, involved, assign sail order
     if ($num_teams == 2) {
-      $round->setRaceOrder(array(array(1, 2)));
-      $round->setRotation($templ->getSails(), $templ->getColors());
+      $round->setRaceOrder(array(array(1, 2)), array($templ->getRaceOrderBoat(0)));
+
+      $new_sails = array();
+      $new_colors = array();
+      $sails = $templ->getSails();
+      $colors = $templ->getColors();
+
+      for ($i = 0; $i < count($sails) && $i < $group_size; $i++) {
+        $new_sails[] = $sails[$i];
+        $new_colors[] = $colors[$i];
+      }
+
+      $round->setRotation($new_sails, $new_colors);
     }
     return array();
   }
