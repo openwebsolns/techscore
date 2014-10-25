@@ -4015,6 +4015,7 @@ class STN extends DBObject {
   const MAIL_APPROVED_USER = 'mail_approved_user';
   const MAIL_UNFINALIZED_REMINDER = 'mail_unfinalized_reminder';
   const MAIL_MISSING_RP_REMINDER = 'mail_missing_rp_reminder';
+  const MAIL_UPCOMING_REMINDER = 'mail_upcoming_reminder';
 
   const DEFAULT_START_TIME = 'default_start_time';
   const ALLOW_HOST_VENUE = 'allow_host_venue';

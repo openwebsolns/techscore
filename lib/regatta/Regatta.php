@@ -1169,6 +1169,8 @@ class FullRegatta extends DBObject {
    *
    * If ALLOW_HOST_VENUE is on and $this->host_venue is not null, then
    * return that value. Otherwise, an implosion of hosts nick_names
+   *
+   * @return String
    */
   public function getHostVenue() {
     if (DB::g(STN::ALLOW_HOST_VENUE) && $this->host_venue !== null)
