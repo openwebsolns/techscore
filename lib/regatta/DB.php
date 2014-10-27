@@ -3004,6 +3004,7 @@ class Daily_Summary extends DBObject {
   public $regatta;
   public $summary;
   public $mail_sent;
+  public $rp_mail_sent;
   public $tweet_sent;
   protected $summary_date;
 
@@ -4016,6 +4017,10 @@ class STN extends DBObject {
   const MAIL_UNFINALIZED_REMINDER = 'mail_unfinalized_reminder';
   const MAIL_MISSING_RP_REMINDER = 'mail_missing_rp_reminder';
   const MAIL_UPCOMING_REMINDER = 'mail_upcoming_reminder';
+  /**
+   * Sent at the end of each day of competition
+   */
+  const MAIL_RP_REMINDER = 'mail_rp_reminder';
 
   const DEFAULT_START_TIME = 'default_start_time';
   const ALLOW_HOST_VENUE = 'allow_host_venue';

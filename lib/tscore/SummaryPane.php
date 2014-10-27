@@ -59,7 +59,10 @@ class SummaryPane extends AbstractPane {
       }
     }
 
-    $can_mail = ((string)DB::g(STN::SEND_MAIL) == 1);
+    $can_mail = ($this->REGATTA->private === null) && ((string)DB::g(STN::SEND_MAIL) == 1);
+    $can_rp_mail = ($this->REGATTA->private === null) 
+      && (DB::g(STN::MAIL_RP_REMINDER) !== null)
+      && (DB::$NOW->format('Y-m-d') == $summary_day->format('Y-m-d'));
 
     $this->PAGE->addContent($xp = new XCollapsiblePort("About the daily summaries"));
     $xp->add($p = new XP(array(), "A text summary is required for each day of competition for all public regattas."));
@@ -90,7 +93,10 @@ class SummaryPane extends AbstractPane {
     $form->add(new XP(array(), new XTextArea('summary', $summ, array('rows'=>30, 'id'=>'summary-textarea'))));
 
     if ($can_mail && ($summ === null || $summ->mail_sent === null)) {
-      $form->add(new FItem("Send e-mail:", new FCheckbox('email', 1, "Click to send e-mail to appropriate mailing lists with regatta details.")));
+      $form->add(new FItem("Send e-mail report:", new FCheckbox('email', 1, "Click to send e-mail to appropriate mailing lists with regatta details.")));
+    }
+    if ($can_rp_mail && ($summ === null || $summ->rp_mail_sent === null)) {
+      $form->add(new FItem("Send RP reminder:", new FCheckbox('rp_email', 1, "Click to send RP reminder e-mail to participants"), "These messages may be sent only once per day, preferably at the end."));
     }
     $form->add(new XSubmitP('set_comment', 'Save summary'));
   }
@@ -146,6 +152,46 @@ class SummaryPane extends AbstractPane {
         Session::pa(new PA(sprintf("Sent e-mail message to the %s list%s.",
                                    implode(", ", array_keys($recips)),
                                    (count($recips) > 1) ? "s" : "")));
+      }
+
+      // Send RP mail?
+      if (($template = DB::g(STN::MAIL_RP_REMINDER)) !== null &&
+          $summ->summary !== null && $summ->rp_mail_sent === null && $this->REGATTA->private === null &&
+          DB::$V->incInt($args, 'rp_email', 1, 2, null) !== null) {
+
+        $users = array();
+        $teams = array(); // map of user ID => list of teams
+        foreach ($this->REGATTA->getSchools() as $school) {
+          $my_teams = $this->REGATTA->getTeams($school);
+          $my_users = $school->getUsers(Account::STAT_ACTIVE, false);
+          foreach ($my_users as $user) {
+            if (!isset($users[$user->id])) {
+              $users[$user->id] = $user;
+              $teams[$user->id] = array();
+            }
+            foreach ($my_teams as $team)
+              $teams[$user->id][] = $team;
+          }
+        }
+
+        // Send each message to each user
+        $rp_sent = 0;
+        foreach ($users as $id => $user) {
+          $subject = sprintf("[%s] Update RP for %s", DB::g(STN::APP_NAME), $this->REGATTA->name);
+          $mes = str_replace(
+            '{BODY}',
+            $this->getRpMessage($user, $teams[$id]),
+            DB::keywordReplace($template, $user, $user->getFirstSchool())
+          );
+          DB::mail($user->id, $subject, $mes);
+          $rp_sent++;
+        }
+
+        $summ->rp_mail_sent = 1;
+        DB::set($summ);
+        Session::pa(new PA(sprintf("Sent RP reminder message to %d user%s.",
+                                   $rp_sent,
+                                   ($rp_sent > 1) ? "s" : "")));
       }
     }
 
@@ -498,6 +544,19 @@ class SummaryPane extends AbstractPane {
       }
     }
     return $table;
+  }
+
+  private function getRpMessage(Account $user, Array $teams) {
+    $body = sprintf("*%s* https://%s/score/%s/missing\n", 
+                    $this->REGATTA->name, 
+                    Conf::$HOME, 
+                    $this->REGATTA->id);
+    foreach ($teams as $team) {
+      $body .= sprintf("\n - %s%s",
+                       $team,
+                       ($team->dt_complete_rp) ? ""  : " (incomplete)");
+    }
+    return $body;
   }
 }
 ?>

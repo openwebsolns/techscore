@@ -894,3 +894,6 @@ insert ignore into sailor_season (sailor, season) (select sailor.id, season.id f
 
 -- sailor icsa_id needs more room
 alter table sailor change column icsa_id icsa_id int unsigned null default null;
+
+-- track the daily summary rp-reminder e-mails
+alter table daily_summary add column rp_mail_sent tinyint default null;

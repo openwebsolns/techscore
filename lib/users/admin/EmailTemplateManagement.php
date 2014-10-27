@@ -20,6 +20,7 @@ class EmailTemplateManagement extends AbstractAdminUserPane {
   private static $TEMPLATES = array(STN::MAIL_REGISTER_USER => "Account requested",
                                     STN::MAIL_REGISTER_ADMIN => "New user admin message",
                                     STN::MAIL_APPROVED_USER => "Account approved",
+                                    STN::MAIL_RP_REMINDER => "Daily summary RP reminder",
                                     STN::MAIL_UNFINALIZED_REMINDER => "Unfinalized regattas reminder",
                                     STN::MAIL_MISSING_RP_REMINDER => "Missing RP reminder (participants)",
                                     STN::MAIL_UPCOMING_REMINDER => "Upcoming regatta reminder",
@@ -117,6 +118,15 @@ class EmailTemplateManagement extends AbstractAdminUserPane {
                            new XVar("{BODY}"),
                            " section, in which the list of regattas will appear.")));
       break;
+
+    case STN::MAIL_RP_REMINDER:
+      $p->add(new XP(array(),
+                     array("This is the message sent by the scorer at the end of each day of competition reminding teams to look after their RP form. It ",
+                           new XStrong("requires"),
+                           " a ",
+                           new XVar("{BODY}"),
+                           " section, in which the regatta name and team(s) for that user will be inserted.")));
+      break;
     }
 
     $p->add($this->keywordReplaceTable());
@@ -144,6 +154,7 @@ class EmailTemplateManagement extends AbstractAdminUserPane {
                         STN::MAIL_UNFINALIZED_REMINDER,
                         STN::MAIL_MISSING_RP_REMINDER,
                         STN::MAIL_UPCOMING_REMINDER,
+                        STN::MAIL_RP_REMINDER,
                         );
       if ($body !== null && in_array($templ, $req_body) && strpos($body, '{BODY}') === false)
         throw new SoterException("Missing {BODY} element for template.");
