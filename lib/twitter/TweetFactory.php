@@ -35,8 +35,13 @@ class TweetFactory {
 
   protected function getTeamShortName(FullRegatta $reg, Team $team) {
     $name = $team->school->nick_name;
-    if (count($reg->getTeams($team->school)) > 1)
-      $name .= "'s " . $team->getQualifiedName();
+    if ($reg->isSingleHanded() || count($reg->getTeams($team->school)) > 1) {
+      // Some school names end in 's
+      $len = mb_strlen($name);
+      if ($len <= 2 || mb_substr($name, $len - 2) != "'s")
+        $name .= "'s";
+      $name .= " " . $team->getQualifiedName();
+    }
     return $name;
   }
 
@@ -60,8 +65,11 @@ class TweetFactory {
         $art = "the ";
 
       $suf = "";
-      if ($reg->isSingleHanded())
-        $suf .= "s";
+      $suf2 = "";
+      if ($reg->isSingleHanded()) {
+        $suf = "s";
+        $suf2 = "es";
+      }
 
       // Fleet racing
       if ($reg->scoring != Regatta::SCORING_TEAM) {
@@ -75,18 +83,20 @@ class TweetFactory {
             switch (rand(0, 4)) {
             case 0:
             case 1:
-              $mes = sprintf("Team %s %s wins %s%s. Congrats to %s's %s %s division on 1st place all-around.",
-                             $tms[0]->school->nick_name, $tms[0]->getQualifiedName(),
+              $mes = sprintf("%s wins %s%s. Congrats to %s %s division on 1st place all-around.",
+                             $this->getTeamShortName($reg, $tms[0]),
                              $art, $reg->name,
-                             $divtms[0]->team->school->nick_name, $divtms[0]->team->getQualifiedName(), $divtms[0]->division);
+                             $this->getTeamShortName($reg, $divtms[0]->team),
+                             $divtms[0]->division);
               return $this->addRegattaURL($mes, $reg);
 
             case 2:
             case 3:
-              $mes = sprintf("%s's %s win%s %s%s, while %s's %s %s division squad takes combined top honors.",
-                             $tms[0]->school->nick_name, $tms[0]->getQualifiedName(), $suf,
+              $mes = sprintf("%s win%s %s%s, while %s %s division squad takes combined top honors.",
+                             $this->getTeamShortName($reg, $tms[0]), $suf,
                              $art, $reg->name,
-                             $divtms[0]->team->school->nick_name, $divtms[0]->team->getQualifiedName(), $divtms[0]->division);
+                             $this->getTeamShortName($reg, $divtms[0]->team),
+                             $divtms[0]->division);
               return $this->addRegattaURL($mes, $reg);
             }
           }
@@ -97,16 +107,16 @@ class TweetFactory {
           switch (rand(0, 1)) {
           case 0:
             if (strlen($tms[0]->dt_explanation) > 0) {
-              $mes = sprintf("The winner for %s%s is %s's %s: %s.",
+              $mes = sprintf("The winner for %s%s is %s: %s.",
                              $art, $reg->name,
-                             $tms[0]->school->nick_name, $tms[0]->getQualifiedName(),
+                             $this->getTeamShortName($reg, $tms[0]),
                              strtolower($tms[0]->dt_explanation));
               return  $this->addRegattaURL($mes, $reg);
             }
             
           default:
-            $mes = sprintf("%s's %s win%s %s%s on a tiebreaker.",
-                           $tms[0]->school->nick_name, $tms[0]->getQualifiedName(), $suf, $art, $reg->name);
+            $mes = sprintf("%s win%s %s%s on a tiebreaker.",
+                           $this->getTeamShortName($reg, $tms[0]), $suf, $art, $reg->name);
             return  $this->addRegattaURL($mes, $reg);
           }
         }
@@ -115,14 +125,14 @@ class TweetFactory {
           switch (rand(0, 4)) {
           case 0:
           case 1:
-            $mes = sprintf("%s's %s edge%s out the competition to win %s%s.",
-                           $tms[0]->school->nick_name, $tms[0]->getQualifiedName(), $suf, $art, $reg->name);
+            $mes = sprintf("%s edge%s out the competition to win %s%s.",
+                           $this->getTeamShortName($reg, $tms[0]), $suf, $art, $reg->name);
             return $this->addRegattaURL($mes, $reg);
 
           case 2:
           case 3:
-            $mes = sprintf("%s's %s win%s a close one at %s%s!",
-                           $tms[0]->school->nick_name, $tms[0]->getQualifiedName(), $suf, $art, $reg->name);
+            $mes = sprintf("%s win%s a close one at %s%s!",
+                           $this->getTeamShortName($reg, $tms[0]), $suf, $art, $reg->name);
             return $this->addRegattaURL($mes, $reg);
           }
         }
@@ -130,18 +140,18 @@ class TweetFactory {
         if (($tms[1]->dt_score - $tms[0]->dt_score) > 2 * count($tms)) {
           switch (rand(0, 3)) {
           case 0:
-            $mes = sprintf("%s's %s dominant in victory at %s%s.",
-                           $tms[0]->school->nick_name, $tms[0]->getQualifiedName(), $art, $reg->name);
+            $mes = sprintf("%s dominant in victory at %s%s.",
+                           $this->getTeamShortName($reg, $tms[0]), $art, $reg->name);
             return $this->addRegattaURL($mes, $reg);
 
           case 1:
-            $mes = sprintf("%s's %s win%s comfortably with a strong perfomance at %s%s.",
-                           $tms[0]->school->nick_name, $tms[0]->getQualifiedName(), $suf, $art, $reg->name);
+            $mes = sprintf("%s win%s comfortably with a strong perfomance at %s%s.",
+                           $this->getTeamShortName($reg, $tms[0]), $suf, $art, $reg->name);
             return $this->addRegattaURL($mes, $reg);
 
           case 2:
-            $mes = sprintf("An impressive performance by %s's %s as they finish in first place at %s%s.",
-                           $tms[0]->school->nick_name, $tms[0]->getQualifiedName(), $art, $reg->name);
+            $mes = sprintf("An impressive performance by %s in finishing in first place at %s%s.",
+                           $this->getTeamShortName($reg, $tms[0]), $art, $reg->name);
             return $this->addRegattaURL($mes, $reg);
           }
         }
@@ -161,21 +171,21 @@ class TweetFactory {
             case 0:
             case 1:
             case 2:
-              $mes = sprintf("%s's %s come%s back to take first place at %s%s.",
-                             $tms[0]->school->nick_name, $tms[0]->getQualifiedName(), $suf, $art, $reg->name);
+              $mes = sprintf("%s come%s back to take first place at %s%s.",
+                             $this->getTeamShortName($reg, $tms[0]), $suf, $art, $reg->name);
               return $this->addRegattaURL($mes, $reg);
 
             case 3:
             case 4:
             case 5:
-              $mes = sprintf("%s's %s stage%s a come-from-behind victory at %s%s.",
-                             $tms[0]->school->nick_name, $tms[0]->getQualifiedName(), $suf, $art, $reg->name);
+              $mes = sprintf("%s stage%s a come-from-behind victory at %s%s.",
+                             $this->getTeamShortName($reg, $tms[0]), $suf, $art, $reg->name);
               return $this->addRegattaURL($mes, $reg);
 
             case 6:
             case 7:
-              $mes = sprintf("Last minute upset by %s's %s to secure the win at %s%s.",
-                             $tms[0]->school->nick_name, $tms[0]->getQualifiedName(), $art, $reg->name);
+              $mes = sprintf("Last minute upset by %s to secure the win at %s%s.",
+                             $this->getTeamShortName($reg, $tms[0]), $art, $reg->name);
               return $this->addRegattaURL($mes, $reg);
             }
             
@@ -186,16 +196,16 @@ class TweetFactory {
             switch (rand(0, 6)) {
             case 0:
             case 1:
-              $mes = sprintf("Kudos to %s's %s for first place finish against %d teams at %s%s.",
-                             $tms[0]->school->nick_name, $tms[0]->getQualifiedName(),
+              $mes = sprintf("Kudos to %s for first place finish against %d teams at %s%s.",
+                             $this->getTeamShortName($reg, $tms[0]),
                              count($tms) - 1,
                              $art, $reg->name);
               return $this->addRegattaURL($mes, $reg);
 
             case 2:
             case 3:
-              $mes = sprintf("%s's %s triumphant over a field of %d teams at %s%s.",
-                             $tms[0]->school->nick_name, $tms[0]->getQualifiedName(),
+              $mes = sprintf("%s triumphant over a field of %d teams at %s%s.",
+                             $this->getTeamShortName($reg, $tms[0]),
                              count($tms) - 1,
                              $art, $reg->name);
               return $this->addRegattaURL($mes, $reg);
@@ -208,24 +218,24 @@ class TweetFactory {
       switch ($num) {
       case 0:
       case 1:
-        $mes = sprintf("Final results: %s's %s win%s %s%s.",
-                       $tms[0]->school->nick_name, $tms[0]->getQualifiedName(), $suf, $art, $reg->name);
+        $mes = sprintf("Final results: %s win%s %s%s.",
+                       $this->getTeamShortName($reg, $tms[0]), $suf, $art, $reg->name);
         return $this->addRegattaURL($mes, $reg);
 
       case 2:
-        $mes = sprintf("It's official! The winner of %s%s is %s's %s.",
-                       $art, $reg->name, $tms[0]->school->nick_name, $tms[0]->getQualifiedName());
+        $mes = sprintf("Official: the winner of %s%s is %s.",
+                       $art, $reg->name, $this->getTeamShortName($reg, $tms[0]));
         return $this->addRegattaURL($mes, $reg);
 
       case 3:
       case 4:
-        $mes = sprintf("%s's %s finish in first place at %s%s.",
-                       $tms[0]->school->nick_name, $tms[0]->getQualifiedName(), $art, $reg->name);
+        $mes = sprintf("%s finish%s in first place at %s%s.",
+                       $this->getTeamShortName($reg, $tms[0]), $suf2, $art, $reg->name);
         return $this->addRegattaURL($mes, $reg);
 
       default:
-        $mes = sprintf("Congratulations to %s's %s on winning %s%s!",
-                       $tms[0]->school->nick_name, $tms[0]->getQualifiedName(), $art, $reg->name);
+        $mes = sprintf("Congratulations to %s on winning %s%s!",
+                       $this->getTeamShortName($reg, $tms[0]), $art, $reg->name);
         $mes = $this->addRegattaURL($mes, $reg);
         return $mes;
       }
