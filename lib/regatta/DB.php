@@ -485,14 +485,25 @@ class DB extends DBM {
   // ------------------------------------------------------------
 
   /**
-   * Returns the account with the given username
+   * Returns the account with the given id
    *
-   * @return Account the account with the given username, null if none
+   * @return Account the account with the given id, null if none
    * exist
    */
   public static function getAccount($id) {
     require_once('regatta/Account.php');
     return self::get(self::$ACCOUNT, $id);
+  }
+
+  /**
+   * Returns account with given e-mail/username
+   *
+   * @return Account the account with the given email, null if none
+   */
+  public static function getAccountByEmail($email) {
+    require_once('regatta/Account.php');
+    $res = self::getAll(DB::$ACCOUNT, new DBCond('id', $email));
+    return (count($res) > 0) ? $res[0] : null;
   }
 
   /**

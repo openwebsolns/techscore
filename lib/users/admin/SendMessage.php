@@ -267,7 +267,7 @@ class SendMessage extends AbstractAdminUserPane {
         break;
 
       case Outbox::R_USER:
-        if (($ind = DB::getAccount($ind)) !== null)
+        if (($ind = DB::getAccountByEmail($ind)) !== null)
           $obj = $ind->id;
         break;
 

@@ -84,7 +84,7 @@ class PendingAccountsPane extends AbstractAccountPane {
       for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < $count; $i++) {
         $acc = $list[$i];
         $tab->addRow(array(new XA(WS::link('/pending', array('account'=>$acc->id)), $acc->getName()),
-                           new XA(sprintf("mailto:%s", $acc->id), $acc->id),
+                           new XA(sprintf("mailto:%s", $acc->email), $acc->email),
                            $acc->getAffiliation(),
                            ucfirst($acc->role),
 			   $acc->message));
@@ -160,7 +160,7 @@ class PendingAccountsPane extends AbstractAccountPane {
     if (DB::g(STN::MAIL_APPROVED_USER) === null)
       return false;
 
-    return DB::mail($acc->id,
+    return DB::mail($acc->email,
                     sprintf("[%s] Account approved", DB::g(STN::APP_NAME)),
                     DB::keywordReplace(DB::g(STN::MAIL_APPROVED_USER), $acc, $acc->getFirstSchool()));
   }

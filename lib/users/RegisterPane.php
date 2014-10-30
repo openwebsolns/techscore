@@ -153,7 +153,7 @@ class RegisterPane extends AbstractUserPane {
       // notify all admins
       $admins = array();
       foreach (DB::getAdmins() as $admin)
-        $admins[] = sprintf('%s <%s>', $admin->getName(), $admin->id);
+        $admins[] = sprintf('%s <%s>', $admin->getName(), $admin->email);
 
       if (DB::g(STN::MAIL_REGISTER_ADMIN)) {
         $body = str_replace('{BODY}',
@@ -169,13 +169,13 @@ class RegisterPane extends AbstractUserPane {
     // ------------------------------------------------------------
     if (isset($args['register'])) {
       // 1. Check for existing account
-      $id = DB::$V->reqString($args, 'email', 1, 41, "Email must not be empty or exceed 40 characters.");
-      $acc = DB::getAccount($id);
+      $email = DB::$V->reqString($args, 'email', 1, 41, "Email must not be empty or exceed 40 characters.");
+      $acc = DB::getAccount($email);
       if ($acc !== null)
         throw new SoterException("Invalid email provided.");
       $acc = new Account();
       $acc->status = Account::STAT_REQUESTED;
-      $acc->id = $id;
+      $acc->email = $email;
       $acc->message = DB::$V->incString($args, 'message', 1, 16000);
       $acc->ts_role = DB::getDefaultRole();
 
@@ -215,7 +215,7 @@ class RegisterPane extends AbstractUserPane {
   public function getAdminBody(Account $about) {
     $fields = array(
       'Name:' => $about,
-      'Email:' => $about->id,
+      'Email:' => $about->email,
       'Affiliation:' => $about->getAffiliation(),
       DB::g(STN::ORG_NAME) . ' Role:' => $about->role);
 

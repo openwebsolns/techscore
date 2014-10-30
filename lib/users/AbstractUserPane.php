@@ -232,7 +232,7 @@ abstract class AbstractUserPane {
     }
     $body = DB::keywordReplace(DB::g(STN::MAIL_REGISTER_USER), $acc, $acc->getFirstSchool());
     $body = str_replace('{BODY}', sprintf('%sregister/%s', WS::alink('/'), $acc->recovery_token), $body);
-    return DB::mail($acc->id,
+    return DB::mail($acc->email,
 		    sprintf("[%s] New account request", DB::g(STN::APP_NAME)),
 		    $body);
   }

@@ -34,7 +34,7 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
     $p->add($f = $this->createForm());
     $f->add($fi = new FReqItem("Name:", new XStrong($user), "Only the user can change the name using the \"My Account\" page."));
 
-    $f->add(new FReqItem("Email:", new XA('mailto:'.$user->id, $user->id)));
+    $f->add(new FReqItem("Email:", new XA('mailto:'.$user->email, $user->email)));
     $f->add(new FReqItem(DB::g(STN::ORG_NAME) . " Role: ", XSelect::fromArray('role', Account::getRoles(), $user->role)));
     if ($user != $this->USER && !$user->isSuper())
       $f->add(new FReqItem("Role:", XSelect::fromDBM('ts_role', DB::getAll(DB::$ROLE), $user->ts_role, array(), "")));
@@ -179,11 +179,13 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
     // Delete user
     // ------------------------------------------------------------
     if (isset($args['delete-user'])) {
-      if ($user->id == $this->USER->id && !$user->isSuper())
+      if ($user->id == $this->USER->id)
         throw new SoterException("You cannot delete your own account.");
+      if ($user->isSuper())
+        throw new SoterException("You cannot delete this account.");
       $user->status = Account::STAT_INACTIVE;
       DB::set($user);
-      Session::pa(new PA(sprintf("Removed account %s for %s.", $user->id, $user)));
+      Session::pa(new PA(sprintf("Removed account %s for %s.", $user->email, $user)));
     }
 
     // ------------------------------------------------------------
@@ -194,7 +196,7 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
         throw new SoterException("Only inactivated accounts may be reactivated.");
       $user->status = Account::STAT_ACCEPTED;
       DB::set($user);
-      Session::pa(new PA(sprintf("Reactivated account %s for %s.", $user->id, $user)));
+      Session::pa(new PA(sprintf("Reactivated account %s for %s.", $user->email, $user)));
     }
 
     // ------------------------------------------------------------

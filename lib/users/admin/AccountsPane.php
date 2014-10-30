@@ -156,7 +156,7 @@ class AccountsPane extends AbstractAccountPane {
         }
         
         $row = array(new XA($this->link(array('id'=>$user->id)), $user),
-                     $user->id,
+                     $user->email,
                      $schools,
                      $user->ts_role,
                      ucwords($user->role),

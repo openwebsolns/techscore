@@ -93,6 +93,24 @@ class Account extends DBObject {
   }
 
   /**
+   * In preparation for using ID as an auto-increment PK, simulate
+   * 'email' as attribute, and delegate to parent
+   *
+   */
+  public function &__get($name) {
+    if ($name == 'email')
+      return $this->id;
+    $val = parent::__get($name);
+    return $val;
+  }
+
+  public function __set($name, $value) {
+    if ($name == 'email')
+      $name = 'id';
+    parent::__set($name, $value);
+  }
+
+  /**
    * Gets String representation of account's main affiliation
    *
    * If account is assigned to one school only, then use that as the

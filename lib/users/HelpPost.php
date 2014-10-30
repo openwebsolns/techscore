@@ -34,7 +34,7 @@ class HelpPost extends AbstractUserPane {
     $agent = DB::$V->incString($_SERVER, 'HTTP_USER_AGENT', 1, 300, "--");
     $message = DB::$V->reqString($args, 'message', 10, 3000, "Message too short.");
     $mail_link = WS::alink(WS::link('/send-message',
-                                    array('list' => array($this->USER->id), 'axis' => 'users')));
+                                    array('list' => array($this->USER->email), 'axis' => 'users')));
 
     try {
       $sub = '[TS Question] ' . DB::$V->reqString($args, 'subject', 3, 151, "Invalid subject provided.");
@@ -102,10 +102,10 @@ user.',
       $res = false;
       foreach (DB::getAdmins() as $admin) {
         if (DB::multipartMail(
-              $admin->id,
+              $admin->email,
               $sub,
               array('text/plain' => $body, 'text/html' => $html->toXML()),
-              array('Reply-To' => $this->USER->id),
+              array('Reply-To' => $this->USER->email),
               $attachments
             ))
           $res = true;
