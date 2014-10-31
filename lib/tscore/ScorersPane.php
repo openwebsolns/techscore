@@ -63,7 +63,7 @@ class ScorersPane extends AbstractPane {
 
     if ($search !== null) {
       if (strlen($search) < 5) {
-      $p->add(new XP(array('class'=>'warning'), "Search term is too short. Must be at least 5 characters long."));
+        $p->add(new XP(array('class'=>'warning'), "Search term is too short. Must be at least 5 characters long."));
       }
       else {
         require_once('regatta/Account.php');
@@ -82,7 +82,7 @@ class ScorersPane extends AbstractPane {
               $tab->addRow(array(new XRadioInput('account', $user->id, array('id'=>$id)),
                                  new XLabel($id, $user->first_name),
                                  new XLabel($id, $user->last_name),
-                                 new XLabel($id, $user->id),
+                                 new XLabel($id, $user->email),
                                  new XLabel($id, $user->getAffiliation())),
                            array('class'=>'row'.($i++ % 2)));
               $num++;
