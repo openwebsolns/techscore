@@ -38,8 +38,14 @@ class TweetFactory {
     if ($reg->isSingleHanded() || count($reg->getTeams($team->school)) > 1) {
       // Some school names end in 's
       $len = mb_strlen($name);
-      if ($len <= 2 || mb_substr($name, $len - 2) != "'s")
-        $name .= "'s";
+      if ($len <= 2 || mb_substr($name, $len - 2) != "'s") {
+        $suf = "'";
+        // Avoid Foos's
+        if (mb_substr($name, $len - 1) != "s") {
+          $suf .= "s";
+        }
+        $name .= $suf;
+      }
       $name .= " " . $team->getQualifiedName();
     }
     return $name;
