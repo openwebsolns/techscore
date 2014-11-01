@@ -21,7 +21,7 @@ class MailHandler {
     $body .= sprintf($fmt, "File",   $errfile);
     $body .= sprintf($fmt, "Line",   $errline);
     $body .= @sprintf($fmt, "Request", $_SERVER['REQUEST_URI']);
-    $body .= sprintf($fmt, "User", (Conf::$USER !== null) ? Conf::$USER->id : "--");
+    $body .= sprintf($fmt, "User", (Conf::$USER !== null) ? Conf::$USER->email : "--");
     $body .= sprintf($fmt, "Browser", (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : "--");
     $body .= sprintf($fmt, "Method", (isset($_SERVER['REQUEST_METHOD'])) ? $_SERVER['REQUEST_METHOD'] : "--");
     foreach (debug_backtrace() as $list) {
@@ -65,7 +65,7 @@ class MailHandler {
     $body .= sprintf($fmt, "File",   $e->getFile());
     $body .= sprintf($fmt, "Line",   $e->getLine());
     $body .= sprintf($fmt, "Request", $_SERVER['REQUEST_URI']);
-    $body .= sprintf($fmt, "User", (Conf::$USER !== null) ? Conf::$USER->id : "--");
+    $body .= sprintf($fmt, "User", (Conf::$USER !== null) ? Conf::$USER->email : "--");
     $body .= sprintf($fmt, "Browser", (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : "--");
     $body .= sprintf($fmt, "Method", (isset($_SERVER['REQUEST_METHOD'])) ? $_SERVER['REQUEST_METHOD'] : "--");
     $body .= "\n--------------------\n\n";
