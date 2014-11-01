@@ -105,6 +105,7 @@ class ManualTweakPane extends AbstractPane {
     // ------------------------------------------------------------
     if (isset($args['editboat'])) {
       unset($args['editboat']);
+      unset($args['csrf_token']);
 
       $races = array(); // assoc map of affected race ID => Race
       $sails = array(); // assoc map of race ID => map team ID => sail
