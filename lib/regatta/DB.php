@@ -395,7 +395,7 @@ class DB extends DBM {
     self::set($mes, false);
 
     if ($email !== false)
-      self::mail($acc->email, $sub, $mes, true, array('Reply-To' => sprintf('%s <%s>', $from, $from->id)));
+      self::mail($acc->email, $sub, $mes, true, array('Reply-To' => sprintf('%s <%s>', $from, $from->email)));
 
     return $mes;
   }
