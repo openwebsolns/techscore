@@ -395,7 +395,7 @@ class DB extends DBM {
     self::set($mes, false);
 
     if ($email !== false)
-      self::mail($acc->id, $sub, $mes, true, array('Reply-To' => sprintf('%s <%s>', $from, $from->id)));
+      self::mail($acc->email, $sub, $mes, true, array('Reply-To' => sprintf('%s <%s>', $from, $from->id)));
 
     return $mes;
   }
@@ -430,11 +430,11 @@ class DB extends DBM {
    */
   public static function reply(Message $mes, $reply) {
     $body = sprintf("Reply from: %s\n---------------------\n%s\n-------------------\n%s",
-                    $mes->account->id,
+                    $mes->account->email,
                     $mes->content,
                     $reply);
-    $to = ($mes->sender === null) ? DB::g(STN::TS_FROM_MAIL) : $mes->sender->id;
-    $res = self::mail($to, sprintf("[%s] Message reply", DB::g(STN::APP_NAME)), $body, true, array('Reply-To' => $mes->account->id));
+    $to = ($mes->sender === null) ? DB::g(STN::TS_FROM_MAIL) : $mes->sender->email;
+    $res = self::mail($to, sprintf("[%s] Message reply", DB::g(STN::APP_NAME)), $body, true, array('Reply-To' => $mes->account->email));
   }
 
   // ------------------------------------------------------------
@@ -513,7 +513,7 @@ class DB extends DBM {
    * @param String $passwd the plain text password
    */
   public static function createPasswordHash(Account $user, $passwd) {
-    return hash('sha512', $user->id . "\0" . sha1($passwd) . "\0" . Conf::$PASSWORD_SALT);
+    return hash('sha512', $user->email . "\0" . sha1($passwd) . "\0" . Conf::$PASSWORD_SALT);
   }
 
   /**
