@@ -183,7 +183,7 @@ class SummaryPane extends AbstractPane {
             $this->getRpMessage($user, $teams[$id]),
             DB::keywordReplace($template, $user, $user->getFirstSchool())
           );
-          DB::mail($user->id, $subject, $mes);
+          DB::mail($user->email, $subject, $mes);
           $rp_sent++;
         }
 

@@ -42,7 +42,7 @@ class ScorersPane extends AbstractPane {
 
       // Fill row
       $tab->addRow(array(
-                     new XA("mailto:" . $s->id, $s->getName()),
+                     new XA("mailto:" . $s->email, $s->getName()),
                      $s->getAffiliation(),
                      $f2),
                    array('class'=>'row' . ($i % 2)));
