@@ -49,7 +49,7 @@ class DBQuery {
   /**
    * @var Const the kind of query
    */
-  private $axis;
+  protected $axis;
 
   /**
    * @var MySQLi the connection for escaping strings
@@ -60,10 +60,10 @@ class DBQuery {
    * @var String the table involved in the query. Along with fields,
    * this describes the fields to use
    */
-  private $table;
-  private $types;
-  private $fields;
-  private $values;
+  protected $table;
+  protected $types;
+  protected $fields;
+  protected $values;
 
   /**
    * @var Array the array to use for multiple inserts in one query
@@ -82,7 +82,7 @@ class DBQuery {
    * @throws DBQueryException if the query type is not supported
    */
   public function __construct(MySQLi $con, $axis = self::SELECT) {
-    if (!in_array($axis, array(self::SELECT, self::UPDATE, self::DELETE, self::INSERT)))
+    if (!in_array($axis, $this->getAxes()))
       throw new DBQueryException("Unsupported query axis $axis.");
     $this->axis = $axis;
     $this->con  = $con;
@@ -96,9 +96,20 @@ class DBQuery {
   }
 
   /**
+   * Return list of acceptable query "methods"
+   *
+   * @return Array
+   */
+  protected function getAxes() {
+    static $axes = array(self::SELECT, self::UPDATE, self::DELETE, self::INSERT);
+    return $axes;
+  }
+
+  /**
    * Executes the query, returning a MySQLi_Result object, or null.
    *
    * @return MySQLi_Result|null the query result or null
+   * @throws DBQueryException
    */
   public function query() {
     if ($this->axis == self::INSERT) {

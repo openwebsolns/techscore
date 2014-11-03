@@ -184,7 +184,7 @@ class DBM {
    * Sends a query to the database
    *
    * @param DBQuery $q the query to send
-   * @return DBResult the result
+   * @return MySQLi_Result the result
    * @throws BadFunctionCallException if the query reveals errors
    */
   public static function query(DBQuery $q) {
