@@ -707,8 +707,11 @@ class DBObject {
       $this->_db_fields = array();
       $class = new ReflectionClass($this);
       foreach ($class->getProperties(ReflectionProperty::IS_PUBLIC |
-                                     ReflectionProperty::IS_PROTECTED) as $field)
-        $this->_db_fields[] = $field->name;
+                                     ReflectionProperty::IS_PROTECTED) as $field) {
+        if (!$field->isStatic()) {
+          $this->_db_fields[] = $field->name;
+        }
+      }
     }
     return $this->_db_fields;
   }
