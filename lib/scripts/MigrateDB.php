@@ -103,12 +103,7 @@ strongly recommended that privilege is granted.
     // DOWNGRADE FIRST
     $res = DB::getAll(
       $PROTO,
-      new DBBool(
-        array(
-          new DBCond('downgrade', null, DBCond::NE),
-          new DBCondIn('id', DB::prepGetAll($TEMPP, null, array('id')), DBCondIn::NOT_IN)
-        )
-      )
+      new DBCondIn('id', DB::prepGetAll($TEMPP, null, array('id')), DBCondIn::NOT_IN)
     );
     foreach ($res as $version) {
       $this->runDowngrade($version);
