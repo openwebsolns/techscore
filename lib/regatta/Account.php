@@ -29,6 +29,7 @@ class Account extends DBObject {
   // Variables
   public $first_name;
   public $last_name;
+  public $email;
   public $role;
   public $admin;
   public $status;
@@ -90,24 +91,6 @@ class Account extends DBObject {
                  self::STAT_ACTIVE => 'Active',
                  self::STAT_INACTIVE => 'Inactive',
                  );
-  }
-
-  /**
-   * In preparation for using ID as an auto-increment PK, simulate
-   * 'email' as attribute, and delegate to parent
-   *
-   */
-  public function &__get($name) {
-    if ($name == 'email')
-      return $this->id;
-    $val = parent::__get($name);
-    return $val;
-  }
-
-  public function __set($name, $value) {
-    if ($name == 'email')
-      $name = 'id';
-    parent::__set($name, $value);
   }
 
   /**

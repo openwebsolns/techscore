@@ -1,6 +1,6 @@
 LIBSRC := $(shell find lib -name "*.php")
 
-default: lib/conf.local.php src/apache.conf src/changes.current.sql src/crontab css-admin js-admin src/md5sum
+default: lib/conf.local.php src/apache.conf src/changes.current.sql src/crontab css-admin js-admin src/md5sum db
 
 lib/conf.local.php: lib/conf.default.php
 	@echo "Manually create lib/conf.local.php from lib/conf.default.php" && exit 1
@@ -21,7 +21,10 @@ src/changes.current.sql: src/changes.history.sql
 src/md5sum: $(LIBSRC) bin/Make.php
 	php bin/Make.php md5sum
 
-.PHONY:	doc school-404
+.PHONY:	doc school-404 db
+
+db:
+	php lib/scripts/MigrateDB.php
 
 school-404: lib/scripts/Update404.php
 	php lib/scripts/Update404.php schools

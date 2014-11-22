@@ -81,6 +81,15 @@ abstract class AbstractScript {
   }
 
   /**
+   * Gets the set verbosity level
+   *
+   * @return int
+   */
+  public static function getVerbosity() {
+    return self::$verbosity;
+  }
+
+  /**
    * Set whether to print the name of the files affected
    *
    * This will print relative filenames of files written or removed.

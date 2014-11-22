@@ -502,7 +502,7 @@ class DB extends DBM {
    */
   public static function getAccountByEmail($email) {
     require_once('regatta/Account.php');
-    $res = self::getAll(DB::$ACCOUNT, new DBCond('id', $email));
+    $res = self::getAll(DB::$ACCOUNT, new DBCond('email', $email));
     return (count($res) > 0) ? $res[0] : null;
   }
 
