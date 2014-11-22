@@ -18,13 +18,20 @@ src/changes.current.sql: src/changes.history.sql
 	mysql -v -u $$(php bin/Make.php getprop DB_ROOT_USER) -p $$(php bin/Make.php getprop SQL_DB) && \
 	cp src/changes.history.sql src/changes.current.sql
 
+src/db/schema.sql: src/db/up/*.sql src/db/down/*.sql
+	mysqldump -u $$(php bin/Make.php getprop DB_ROOT_USER) -p $$(php bin/Make.php getprop SQL_DB) \
+	  --no-data --skip-comments | \
+	sed 's/ AUTO_INCREMENT=[0-9]*\b//' > src/db/schema.sql
+
 src/md5sum: $(LIBSRC) bin/Make.php
 	php bin/Make.php md5sum
 
-.PHONY:	doc school-404 db
+.PHONY:	doc school-404 db schema
 
 db:
 	php lib/scripts/MigrateDB.php
+
+schema: src/db/schema.sql
 
 school-404: lib/scripts/Update404.php
 	php lib/scripts/Update404.php schools
