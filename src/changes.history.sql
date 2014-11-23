@@ -965,3 +965,16 @@ ALTER TABLE `type` CONVERT TO CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 ALTER TABLE `venue` CONVERT TO CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 ALTER TABLE `websession` CONVERT TO CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 set foreign_key_checks = 1;
+
+-- ********************************************************************
+--
+--                    OFFICIAL DEPRECATION NOTICE
+--                    ---------------------------
+--
+-- The use of this file for tracking schema changes is officially
+-- deprecated. This file is being kept in version control for
+-- historical reasons and for the benefit of existing project
+-- installations. Please do not include any further schema changes in
+-- this file. Instead, use the system described in db/README.
+--
+-- ********************************************************************
