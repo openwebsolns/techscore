@@ -50,8 +50,6 @@ CREATE TABLE `account` (
   `admin` tinyint(4) DEFAULT NULL,
   `ts_role` mediumint(9) DEFAULT NULL,
   `message` mediumtext COLLATE utf8_unicode_ci,
-  `recovery_token` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `recovery_deadline` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   KEY `ts_role` (`ts_role`),
@@ -179,6 +177,19 @@ CREATE TABLE `dt_team_division` (
   UNIQUE KEY `team` (`team`,`division`),
   CONSTRAINT `dt_team_division_ibfk_4` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Rank teams within divisions, and account for possible penalt';
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `email_token`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `email_token` (
+  `id` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
+  `account` int(10) unsigned NOT NULL,
+  `email` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `deadline` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `account` (`account`),
+  CONSTRAINT `fk_email_token_account` FOREIGN KEY (`account`) REFERENCES `account` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `finish`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -558,7 +569,7 @@ CREATE TABLE `regatta_document` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `regatta` int(5) NOT NULL,
   `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `description` mediumtext COLLATE utf8_unicode_ci,
+  `description` text COLLATE utf8_unicode_ci,
   `url` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
   `category` enum('notice','protest','course_format') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'notice',
   `relative_order` tinyint(3) unsigned NOT NULL DEFAULT '0',

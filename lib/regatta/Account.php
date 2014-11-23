@@ -36,15 +36,11 @@ class Account extends DBObject {
   public $password;
   public $message;
   protected $ts_role;
-  public $recovery_token;
-  protected $recovery_deadline;
 
   public function db_type($field) {
     switch ($field) {
     case 'ts_role':
       return DB::$ROLE;
-    case 'recovery_deadline':
-      return DB::$NOW;
     default:
       return parent::db_type($field);
     }
@@ -432,27 +428,65 @@ class Account extends DBObject {
   // Password recovery
   // ------------------------------------------------------------
 
-  public function resetToken() {
-    $this->recovery_token = null;
-    $this->recovery_deadline = null;
+  /**
+   * Resets token associated with given e-mail
+   *
+   * @param String $email if not given, use account's email
+   */
+  public function resetToken($email = null) {
+    if ($email === null)
+      $email = $this->email;
+    DB::removeAll(
+      DB::$EMAIL_TOKEN,
+      new DBBool(
+        array(
+          new DBCond('account', $this),
+          new DBCond('email', $email)
+        )));
   }
 
   /**
    * Creates and returns a new unique password token
    *
+   * @param String $email the email to use (default: account's email)
    * @return String the generated token
    */
-  public function createToken() {
-    $code = $this->id . '\0' . Conf::$PASSWORD_SALT . '\0' . date('U');
-    $this->recovery_token = hash('sha256', $code);
-    $this->recovery_deadline = new DateTime(DB::g(STN::REGISTRATION_TIMEOUT));
-    return $this->recovery_token;
+  public function createToken($email = null) {
+    if ($email === null)
+      $email = $this->email;
+    if ($email === null)
+      throw new InvalidArgumentException("No e-mail available for token");
+
+    do {
+      $salt = uniqid();
+      $code = $email . '\0' . Conf::$PASSWORD_SALT . '\0' . date('U') . '\0' . $salt;
+
+      $token = DB::get(DB::$EMAIL_TOKEN, $code);
+    } while ($token !== null);
+
+    $token = new Email_Token();
+    $token->id = $code;
+    $token->account = $this;
+    $token->email = $email;
+    $token->deadline = new DateTime(DB::g(STN::REGISTRATION_TIMEOUT));
+    DB::set($token);
+    return $token->id;
   }
 
-  public function isTokenActive() {
-    return ($this->recovery_token !== null
-            && $this->recovery_deadline !== null
-            && $this->__get('recovery_deadline') > DB::$NOW);
+  public function isTokenActive($email = null) {
+    if ($email === null)
+      $email = $this->email;
+
+    $tokens = DB::getAll(
+      DB::$EMAIL_TOKEN,
+      new DBBool(
+        array(
+          new DBCond('account', $this),
+          new DBCond('email', $email))));
+
+    if (count($tokens) == 0)
+      return false;
+    return $tokens[0]->isTokenActive();
   }
 }
 
