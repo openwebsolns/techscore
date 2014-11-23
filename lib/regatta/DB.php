@@ -145,6 +145,7 @@ class DB extends DBM {
     self::$SYNC_LOG = new Sync_Log();
     self::$SAILOR_SEASON = new Sailor_Season();
     self::$SCHOOL_SEASON = new School_Season();
+    self::$EMAIL_TOKEN = new Email_Token();
 
     self::$PERMISSION = new Permission();
     self::$ROLE = new Role();
@@ -552,10 +553,10 @@ class DB extends DBM {
    */
   public static function getAccountFromToken($hash) {
     require_once('regatta/Account.php');
-    $res = self::getAll(self::$ACCOUNT, new DBCond('recovery_token', $hash));
-    $r = (count($res) == 0) ? null : $res[0];
-    unset($res);
-    return $r;
+    $token = DB::get(DB::$EMAIL_TOKEN, $hash);
+    if ($token === null)
+      return null;
+    return $token->account;
   }
 
   /**
@@ -4475,6 +4476,10 @@ class Email_Token extends DBObject {
       $this->deadline !== null
       && $this->__get('deadline') > DB::$NOW
     );
+  }
+
+  public function __toString() {
+    return $this->id;
   }
 }
 ?>

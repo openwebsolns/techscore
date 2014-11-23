@@ -95,10 +95,10 @@ class PasswordRecoveryPane extends AbstractUserPane {
     // 1. Send message
     // ------------------------------------------------------------
     if (isset($args['send-message'])) {
-      if (($acc = DB::getAccount(DB::$V->reqString($args, 'email', 1, 41, "No e-mail provided."))) === null)
+      if (($acc = DB::getAccountByEmail(DB::$V->reqString($args, 'email', 1, 41, "No e-mail provided."))) === null)
         throw new SoterException("Invalid e-mail provided.");
-      $acc->createToken();
-      if (!DB::mail($acc->email, sprintf('[%s] Reset password request', DB::g(STN::APP_NAME)), $this->getMessage($acc)))
+      $token = $acc->createToken();
+      if (!DB::mail($acc->email, sprintf('[%s] Reset password request', DB::g(STN::APP_NAME)), $this->getMessage($acc, $token)))
         throw new SoterException("Unable to send message. Please try again later.");
       DB::set($acc);
       Session::pa(new PA("Message sent."));
@@ -106,9 +106,9 @@ class PasswordRecoveryPane extends AbstractUserPane {
     }
   }
 
-  private function getMessage(Account $to) {
-    return sprintf("Dear %s,\n\nYou are receiving this message because you, or someone in your name, has requested to reset the password for this account. If you did not request to reset your password, kindly disregard this message.\n\nTo enter a new password, please follow the link below. You may need to copy and paste the link into your browser's location bar.\n\n%s/password-recover?acc=%s\n\nThank you,\n\nTechScore Administration",
-                   $to->first_name, WS::alink('/'), $to->recovery_token);
+  private function getMessage(Account $to, Email_Token $token) {
+    return sprintf("Dear %s,\n\nYou are receiving this message because you, or someone in your name, has requested to reset the password for this account. If you did not request to reset your password, kindly disregard this message.\n\nTo enter a new password, please follow the link below. You may need to copy and paste the link into your browser's location bar.\n\n%s?acc=%s\n\nThank you,\n\nTechScore Administration",
+                   $to->first_name, WS::alink('/password-recover'), $token);
   }
 
   private function getSuccessMessage(Account $to) {

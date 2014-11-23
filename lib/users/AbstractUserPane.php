@@ -222,16 +222,14 @@ abstract class AbstractUserPane {
    * @param Account $account the account to notify
    * @return true if template exists, and message sent
    */
-  protected function sendRegistrationEmail(Account $acc) {
+  protected function sendRegistrationEmail(Email_Token $token) {
     if (DB::g(STN::MAIL_REGISTER_USER) === null)
       return false;
 
-    if (!$acc->isTokenActive()) {
-      $acc->createToken();
-      DB::set($acc);
-    }
+    $acc = $token->account;
+
     $body = DB::keywordReplace(DB::g(STN::MAIL_REGISTER_USER), $acc, $acc->getFirstSchool());
-    $body = str_replace('{BODY}', sprintf('%sregister/%s', WS::alink('/'), $acc->recovery_token), $body);
+    $body = str_replace('{BODY}', sprintf('%sregister/%s', WS::alink('/'), $token), $body);
     return DB::mail($acc->email,
 		    sprintf("[%s] New account request", DB::g(STN::APP_NAME)),
 		    $body);

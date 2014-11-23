@@ -449,7 +449,7 @@ class Account extends DBObject {
    * Creates and returns a new unique password token
    *
    * @param String $email the email to use (default: account's email)
-   * @return String the generated token
+   * @return Email_Token the generated token
    */
   public function createToken($email = null) {
     if ($email === null)
@@ -460,6 +460,7 @@ class Account extends DBObject {
     do {
       $salt = uniqid();
       $code = $email . '\0' . Conf::$PASSWORD_SALT . '\0' . date('U') . '\0' . $salt;
+      $code = hash('sha256', $code);
 
       $token = DB::get(DB::$EMAIL_TOKEN, $code);
     } while ($token !== null);
@@ -470,10 +471,16 @@ class Account extends DBObject {
     $token->email = $email;
     $token->deadline = new DateTime(DB::g(STN::REGISTRATION_TIMEOUT));
     DB::set($token);
-    return $token->id;
+    return $token;
   }
 
-  public function isTokenActive($email = null) {
+  /**
+   * Retrieve the token for given email
+   *
+   * @param $email the email to use (default: account->email)
+   * @return Email_Token
+   */
+  public function getToken($email = null) {
     if ($email === null)
       $email = $this->email;
 
@@ -485,8 +492,13 @@ class Account extends DBObject {
           new DBCond('email', $email))));
 
     if (count($tokens) == 0)
-      return false;
-    return $tokens[0]->isTokenActive();
+      return null;
+    return $tokens[0];
+  }
+
+  public function isTokenActive($email = null) {
+    $token = $this->getToken($email);
+    return ($token !== null && $token->isTokenActive());
   }
 }
 

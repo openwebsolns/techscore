@@ -197,8 +197,8 @@ class RegisterPane extends AbstractUserPane {
       if (DB::g(STN::MAIL_REGISTER_USER) === null)
         throw new SoterException("Registrations are currently not allowed; please notify the administrators.");
 
-      $acc->createToken();
-      if (!$this->sendRegistrationEmail($acc))
+      $token = $acc->createToken();
+      if (!$this->sendRegistrationEmail($token))
         throw new SoterException("There was an error with your request. Please try again later.");
 
       DB::set($acc);
