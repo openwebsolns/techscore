@@ -9,18 +9,14 @@ log/*.log*
 *~
 
 # Errors and local files
-_errors.log
 conf.local*.php
 apache.conf
 sync-up
-Makefile.local
-changes.current.sql
 S3Writer.conf.local*.php
 src/md5sum
 
 # Crontab
 crontab
-crontab.orig
 
 # Cache
 cache/*.db
@@ -38,12 +34,12 @@ etc/*
 lib/scripts/hooks-installed/*
 lib/rpwriter/
 
-# Public files
-syntax: regexp
-
-^html/.*
-
 # PDFLaTeX socket
 src/pdflatexd/params.py
 src/pdflatexd/*.pyc
 src/pdflatexd/pdflatex_server.pid
+
+# Public files
+syntax: regexp
+
+^html/.*
