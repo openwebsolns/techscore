@@ -41,6 +41,29 @@ class AccountPane extends AbstractUserPane {
     $form->add(new FReqItem("New password:",     new XPasswordInput("sake1", "")));
     $form->add(new FReqItem("Confirm password:", new XPasswordInput("sake2", "")));
     $form->add(new XSubmitP('edit-password', "Change"));
+
+    if (DB::g(STN::MAIL_VERIFY_EMAIL) !== null) {
+      $this->PAGE->addContent($p = new XPort("Change e-mail/username"));
+      $p->add($form = $this->createForm());
+      $form->add(new XP(array(),
+                        array("Your e-mail, ", new XStrong($this->USER->email), ", is our primary point of contact and your username for the program. In order to change your e-mail address, we will need to send a verification message to the new address.")));
+
+      $message = null;
+      if ($this->USER->new_email) {
+        if ($this->USER->isTokenActive($this->USER->new_email)) {
+          $form->add(new XP(array('class'=>'warning'), sprintf("An active validation token has been sent. Please follow the link sent to %s.", $this->USER->new_email)));
+        }
+        $token = $this->USER->getToken($this->USER->new_email);
+        $message = "We're currently validating this e-mail address. If you change the value, this e-mail address (and all validation e-mails) will be automatically expired.";
+        $submitp = new XSubmitP('change-email', "Resend verification e-mail");
+        $submitp->add(new XSubmitDelete('remove-email', "Cancel verification"));
+      }
+      else {
+        $submitp = new XSubmitP('change-email', "Send verification e-mail");
+      }
+      $form->add(new FReqItem("New email:", new XEmailInput('new_email', $this->USER->new_email)), $message);
+      $form->add($submitp);
+    }
   }
 
   public function process(Array $args) {
@@ -71,7 +94,64 @@ class AccountPane extends AbstractUserPane {
       DB::set($this->USER);
       Session::pa(new PA("Password reset."));
     }
+
+    // ------------------------------------------------------------
+    // new e-mail
+    // ------------------------------------------------------------
+    if (isset($args['change-email'])) {
+      $new_email = DB::$V->reqEmail($args, 'new_email', "Invalid new email provided.");
+      if ($new_email == $this->USER->email)
+        throw new SoterException("The new e-mail address matches the old one.");
+      if ($new_email != $this->USER->new_email && !DB::isAccountEmailAvailable($new_email))
+        throw new SoterException("Invalid e-mail provided.");
+
+      // Reset previous token
+      if ($this->USER->new_email !== null && $this->USER->isTokenActive($this->USER->new_email)) {
+        $this->USER->resetToken($this->USER->new_email);
+        Session::pa(new PA(sprintf("Invalidated previous e-mail message for %s.", $this->USER->new_email), PA::I));
+      }
+
+      // Send new message
+      $this->USER->new_email = $new_email;
+      $token = $this->USER->createToken($new_email);
+      if (!$this->sendVerificationEmail($token)) {
+        DB::remove($token);
+        throw new SoterException("There was an error attempting to send the e-mail. Please try again later.");
+      }
+
+      DB::set($this->USER);
+      Session::pa(new PA(sprintf("To finish, please follow instructions sent to %s.", $this->USER->new_email)));
+    }
+
+    // ------------------------------------------------------------
+    // remove e-mail
+    // ------------------------------------------------------------
+    if (isset($args['remove-email'])) {
+      if ($this->USER->new_email === null)
+        throw new SoterException("No new e-mail exists in the system for this user.");
+      if (!$this->USER->isTokenActive($this->USER->new_email))
+        throw new SoterException(sprintf("No active validation token exists for %s.", $this->USER->new_email));
+      $this->USER->resetToken($this->USER->new_email);
+      Session::pa(new PA(sprintf("Canceled verification message sent to %s.", $this->USER->new_email)));
+      $this->USER->new_email = null;
+      DB::set($this->USER);
+    }
     return array();
+  }
+
+  private function sendVerificationEmail(Email_Token $token) {
+    $verify_message = DB::g(STN::MAIL_VERIFY_EMAIL);
+    if ($verify_message === null)
+      return false;
+
+    $acc = $token->account;
+    $body = DB::keywordReplace($verify_message, $acc, $acc->getFirstSchool());
+    $body = str_replace('{BODY}', sprintf('%sregister/%s?verify=new', WS::alink('/'), $token), $body);
+    return DB::mail(
+      $token->email,
+      sprintf("[%s] Verify new e-mail address", DB::g(STN::APP_NAME)),
+      $body
+    );
   }
 }
 ?>

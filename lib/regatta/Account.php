@@ -30,6 +30,7 @@ class Account extends DBObject {
   public $first_name;
   public $last_name;
   public $email;
+  public $new_email;
   public $role;
   public $admin;
   public $status;

@@ -44,6 +44,7 @@ CREATE TABLE `account` (
   `first_name` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
   `last_name` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
   `email` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `new_email` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `role` enum('student','coach','staff') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'coach',
   `password` varchar(128) COLLATE utf8_unicode_ci DEFAULT NULL,
   `status` enum('requested','pending','accepted','rejected','active','inactive') COLLATE utf8_unicode_ci DEFAULT 'pending',
