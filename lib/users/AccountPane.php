@@ -146,7 +146,7 @@ class AccountPane extends AbstractUserPane {
 
     $acc = $token->account;
     $body = DB::keywordReplace($verify_message, $acc, $acc->getFirstSchool());
-    $body = str_replace('{BODY}', sprintf('%sverify-email/%s', WS::alink('/'), $token), $body);
+    $body = str_replace('{BODY}', sprintf('%sregister/%s?verify=new', WS::alink('/'), $token), $body);
     return DB::mail(
       $token->email,
       sprintf("[%s] Verify new e-mail address", DB::g(STN::APP_NAME)),

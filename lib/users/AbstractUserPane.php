@@ -53,9 +53,9 @@ abstract class AbstractUserPane {
       $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
                                     array(new XH4("Useful Links"),
                                           $m = new XUl(array(),
-                                                       array(new XLi(new XA('/', "Sign-in")))))));
+                                                       array(new XLi(new XA(".", "Sign-in")))))));
       if (DB::g(STN::ALLOW_REGISTER) !== null)
-        $m->add(new XLi(new XA('/register', "Register")));
+        $m->add(new XLi(new XA("register", "Register")));
       if (($n = DB::g(STN::ORG_NAME)) !== null &&
           ($u = DB::g(STN::ORG_URL)) !== null)
         $m->add(new XLi(new XA($u, sprintf("%s Website", $n))));

@@ -38,24 +38,6 @@ if (count($URI_TOKENS) == 0)
   $URI_TOKENS = array('home');
 
 // ------------------------------------------------------------
-// Email verification
-// ------------------------------------------------------------
-if ($URI_TOKENS[0] == 'verify-email') {
-  $_GET['verify-email'] = true;
-  if (count($URI_TOKENS) > 1) {
-    $_GET['token'] = $URI_TOKENS[1];
-  }
-  require_once('users/RegisterPane.php');
-  $PAGE = new RegisterPane();
-  if (Conf::$METHOD == 'POST') {
-    Session::s('POST', $PAGE->processPOST($_POST));
-    WS::goBack('/');
-  }
-  $PAGE->getHTML($_GET);
-  exit;
-}
-
-// ------------------------------------------------------------
 // Not logged-in?
 // ------------------------------------------------------------
 if (Conf::$USER === null) {

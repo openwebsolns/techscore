@@ -85,7 +85,7 @@ class LoginPage extends AbstractUserPane {
     // ------------------------------------------------------------
     // Log-in
     // ------------------------------------------------------------
-    $userid = DB::$V->reqString($args, 'userid', 1, 101, "No username provided.");
+    $userid = DB::$V->reqString($args, 'userid', 1, 41, "No username provided.");
     $passwd = DB::$V->reqRaw($args, 'pass', 1, 101, "Please enter a password.");
     $remember = DB::$V->incInt($args, 'remember', 1, 2, null);
 
