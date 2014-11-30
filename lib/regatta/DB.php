@@ -509,25 +509,6 @@ class DB extends DBM {
   }
 
   /**
-   * Determines whether e-mail sent is being used already
-   *
-   * @param String $email the email to verify
-   * @return boolean
-   */
-  public static function isAccountEmailAvailable($email) {
-    require_once('regatta/Account.php');
-    $res = self::getAll(
-      DB::$ACCOUNT,
-      new DBBool(
-        array(
-          new DBCond('email', $email),
-          new DBCond('new_email', $email)
-        ),
-        DBBool::mOR));
-    return (count($res) == 0);
-  }
-
-  /**
    * Create a new hash for the given user using the plain-text password.
    *
    * @param Account $user the user
@@ -4044,7 +4025,6 @@ class STN extends DBObject {
   const PAYPAL_HOSTED_BUTTON_ID = 'paypal_hosted_button_id';
 
   const MAIL_REGISTER_USER = 'mail_register_user';
-  const MAIL_VERIFY_EMAIL = 'mail_verify_email';
   const MAIL_REGISTER_ADMIN = 'mail_register_admin';
   const MAIL_APPROVED_USER = 'mail_approved_user';
   const MAIL_UNFINALIZED_REMINDER = 'mail_unfinalized_reminder';

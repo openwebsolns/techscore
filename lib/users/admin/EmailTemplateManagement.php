@@ -20,7 +20,6 @@ class EmailTemplateManagement extends AbstractAdminUserPane {
   private static $TEMPLATES = array(STN::MAIL_REGISTER_USER => "Account requested",
                                     STN::MAIL_REGISTER_ADMIN => "New user admin message",
                                     STN::MAIL_APPROVED_USER => "Account approved",
-                                    STN::MAIL_VERIFY_EMAIL => "User's change of address verification",
                                     STN::MAIL_RP_REMINDER => "Daily summary RP reminder",
                                     STN::MAIL_UNFINALIZED_REMINDER => "Unfinalized regattas reminder",
                                     STN::MAIL_MISSING_RP_REMINDER => "Missing RP reminder (participants)",
@@ -94,15 +93,6 @@ class EmailTemplateManagement extends AbstractAdminUserPane {
                            " use a {BODY} section. Use this message to welcome the new user.")));
       break;
 
-    case STN::MAIL_VERIFY_EMAIL:
-      $p->add(new XP(array(),
-                     array("This message is sent as requested by users to change their e-mail address. It ",
-                           new XStrong("requires"),
-                           " a ",
-                           new XVar("{BODY}"),
-                           " section, where the verification link will be injected. If left blank, this feature will be disabled.")));
-      break;
-
     case STN::MAIL_UNFINALIZED_REMINDER:
       $p->add(new XP(array(),
                      array("This is the weekly reminder e-mail message sent to scorers regarding any unfinalized regattas or regattas with missing RP information. An empty template means that no message will be sent. It ",
@@ -161,7 +151,6 @@ class EmailTemplateManagement extends AbstractAdminUserPane {
 
       $req_body = array(STN::MAIL_REGISTER_USER,
                         STN::MAIL_REGISTER_ADMIN,
-                        STN::MAIL_VERIFY_EMAIL,
                         STN::MAIL_UNFINALIZED_REMINDER,
                         STN::MAIL_MISSING_RP_REMINDER,
                         STN::MAIL_UPCOMING_REMINDER,
