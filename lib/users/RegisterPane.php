@@ -49,6 +49,11 @@ class RegisterPane extends AbstractUserPane {
    *
    */
   protected function fillHTML(Array $args) {
+    if (isset($args['verify-email'])) {
+      $this->fillVerifyEmail($args);
+      return;
+    }
+
     $step = null;
     $post = Session::g('POST');
     if (isset($post['registration-step']))
@@ -70,6 +75,36 @@ class RegisterPane extends AbstractUserPane {
     }
     unset($post['registration-step']);
     Session::s('POST', $post);
+  }
+
+  /**
+   * Method used to verify new e-mail address and complete email
+   * migration for account.
+   *
+   */
+  private function fillVerifyEmail(Array $args) {
+    $this->PAGE->addContent($p = new XPort("Verify e-mail"));
+
+    // ------------------------------------------------------------
+    // Validation
+    // ------------------------------------------------------------
+    try {
+      $token = $this->extractToken($args);
+    } catch (SoterException $e) {
+      $p->add(new XP(array('class'=>'warning'),
+                     array($e->getMessage(),
+                           " Please check the link sent and try again.")));
+      return;
+    }
+
+    // ------------------------------------------------------------
+    // Password form
+    // ------------------------------------------------------------
+    $p->add($form = $this->createForm());
+    $form->add(new XP(array(), "To finish the e-mail verification process, please enter your password below."));
+    $form->add(new FReqItem("Password:", new XPasswordInput('password', '')));
+    $form->add(new XHiddenInput('token', $token));
+    $form->add(new XSubmitP('verify-email', "Change username"));
   }
 
   /**
@@ -135,6 +170,27 @@ class RegisterPane extends AbstractUserPane {
    *
    */
   public function process(Array $args) {
+    // ------------------------------------------------------------
+    // Change e-mail address
+    // ------------------------------------------------------------
+    if (isset($args['verify-email'])) {
+      $token = $this->extractToken($args);
+      $account = $token->account;
+      $password = DB::$V->reqString($args, 'password', 1, 256, "No password provided.");
+      $hash = DB::createPasswordHash($account, $password);
+      if ($account->password !== $hash)
+        throw new SoterException("Invalid password provided.");
+
+      // Change e-mail address
+      $account->resetToken($token->email);
+      $account->email = $token->email;
+      $account->new_email = null;
+      $account->password = DB::createPasswordHash($account, $password);
+      DB::set($account);
+      Session::pa(new PA(sprintf("E-mail address changed to %s.", $account->email)));
+      $this->redirect('account');
+    }
+
     // ------------------------------------------------------------
     // Mail verification
     // ------------------------------------------------------------
@@ -235,6 +291,24 @@ User notes:
 %s",
                       $about->message);
     return $mes;
+  }
+
+  /**
+   * Extract token from arguments
+   *
+   * @param Array $args the request arguments
+   * @return Email_Token the active token
+   * @throws SoterException if invalid
+   */
+  private function extractToken(Array $args) {
+    $token = DB::$V->reqID($args, 'token', DB::$EMAIL_TOKEN, "Invalid token provided.");
+    if (!$token->isTokenActive())
+      throw new SoterException("Token provided has expired.");
+    if ($token->account === null || $token->account->status != Account::STAT_ACTIVE)
+      throw new SoterException("Account associated with this token is not active.");
+    if ($token->account->new_email != $token->email)
+      throw new SoterException("E-mail associated with token has changed.");
+    return $token;
   }
 }
 ?>
