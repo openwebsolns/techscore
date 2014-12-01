@@ -966,20 +966,6 @@ CREATE TABLE `temp_regatta` (
   CONSTRAINT `temp_regatta_ibfk_3` FOREIGN KEY (`original`) REFERENCES `regatta` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `temp_sailor`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `temp_sailor` (
-  `icsa_id` int(10) unsigned NOT NULL,
-  `first_name` mediumtext COLLATE utf8_unicode_ci NOT NULL,
-  `last_name` mediumtext COLLATE utf8_unicode_ci NOT NULL,
-  `year` char(4) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `school` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
-  `school_name` mediumtext COLLATE utf8_unicode_ci NOT NULL,
-  `conference` varchar(8) COLLATE utf8_unicode_ci NOT NULL,
-  PRIMARY KEY (`icsa_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `text_entry`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
