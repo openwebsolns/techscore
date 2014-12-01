@@ -509,6 +509,16 @@ class DB extends DBM {
   }
 
   /**
+   * Determines whether e-mail sent is being used already
+   *
+   * @param String $email the email to verify
+   * @return boolean
+   */
+  public static function isAccountEmailAvailable($email) {
+    return (self::getAccountByEmail($email) === null);
+  }
+
+  /**
    * Create a new hash for the given user using the plain-text password.
    *
    * @param Account $user the user
@@ -4025,6 +4035,7 @@ class STN extends DBObject {
   const PAYPAL_HOSTED_BUTTON_ID = 'paypal_hosted_button_id';
 
   const MAIL_REGISTER_USER = 'mail_register_user';
+  const MAIL_VERIFY_EMAIL = 'mail_verify_email';
   const MAIL_REGISTER_ADMIN = 'mail_register_admin';
   const MAIL_APPROVED_USER = 'mail_approved_user';
   const MAIL_UNFINALIZED_REMINDER = 'mail_unfinalized_reminder';
@@ -4100,6 +4111,9 @@ class STN extends DBObject {
 
     case self::REGISTRATION_TIMEOUT:
       return "2 hours";
+
+    case self::MAIL_VERIFY_EMAIL:
+      return "Dear {FIRST_NAME},\n\nThis message is part of a request to change e-mail addresses associated with your account. To finish, please paste the token provided below as instructed on the site. If you did not request this message, kindly disregard this message.\n\nToken: {BODY}\n\nThank you";
 
     default:
       return null;

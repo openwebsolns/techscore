@@ -100,7 +100,7 @@ class EmailTemplateManagement extends AbstractAdminUserPane {
                            new XStrong("requires"),
                            " a ",
                            new XVar("{BODY}"),
-                           " section, where the verification link will be injected. If left blank, this feature will be disabled.")));
+                           " section, where the verification token will be injected.")));
       break;
 
     case STN::MAIL_UNFINALIZED_REMINDER:
