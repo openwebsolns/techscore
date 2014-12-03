@@ -247,6 +247,7 @@ class Daemon extends AbstractScript {
       // ------------------------------------------------------------
       require_once('scripts/UpdateFile.php');
       $P = new UpdateFile();
+      $initJS = false;
       foreach ($pending as $i => $r) {
         if ($i >= self::$MAX_REQUESTS_PER_CYCLE)
           break;
@@ -257,6 +258,10 @@ class Daemon extends AbstractScript {
         if (isset($hashes[$hash]))
           continue;
         $hashes[$hash] = $r;
+
+        // Any JS file?
+        if (substr($r->file, -3) == '.js')
+          $initJS = true;
 
         try {
           // ------------------------------------------------------------
@@ -271,6 +276,9 @@ class Daemon extends AbstractScript {
           sleep(3);
           continue;
         }
+      }
+      if ($initJS) {
+        $P->runInitJs();
       }
 
       // ------------------------------------------------------------

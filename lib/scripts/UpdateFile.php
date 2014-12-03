@@ -47,10 +47,24 @@ class UpdateFile extends AbstractScript {
     }
   }
 
+  /**
+   * Writes the init.js file
+   *
+   */
+  public function runInitJs() {
+    require_once('public/InitJs.php');
+    $path = '/init.js';
+    $obj = new InitJs();
+    self::write($path, $obj);
+    self::errln("Serialized init JS file $path.");
+  }
+
   protected $cli_opts = '[filename] [...]';
   protected $cli_usage = "
 If provided, filename will be either removed or serialized.
-Leave blank to serialize all files.";
+Leave blank to serialize all files.
+
+Use 'init' to serialize special /init.js file.";
 }
 
 // ------------------------------------------------------------
@@ -61,14 +75,22 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   $P = new UpdateFile();
   $opts = $P->getOpts($argv);
   $files = array();
-  foreach ($opts as $opt)
-    $files[] = $opt;
+  $init = false;
+  foreach ($opts as $opt) {
+    if ($opt == 'init')
+      $init = true;
+    else
+      $files[] = $opt;
+  }
 
   if (count($files) == 0) {
     foreach (DB::getAll(DB::$PUB_FILE_SUMMARY) as $file)
       $files[] = $file->id;
+    $init = true;
   }
   foreach ($files as $file)
     $P->run($file);
+  if ($init)
+    $P->runInitJs();
 }
 ?>
