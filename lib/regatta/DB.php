@@ -871,8 +871,26 @@ class DB extends DBM {
                                        new DBCond('num_divisions', $num_divisions))));
   }
 
+  /**
+   * Get files with the given filename
+   *
+   * @param String $name the name to search
+   * @return Pub_File|null
+   */
   public static function getFile($name) {
     return DB::get(DB::$PUB_FILE, $name);
+  }
+
+  /**
+   * Return files whose name match filter provided
+   *
+   * @param String $filter SQL-compliant string
+   * @param boolean $full set to true to get Pub_File
+   * @return Array:Pub_File_Summary
+   */
+  public static function getFilesLike($filter, $full = false) {
+    $obj = ($full !== false) ? DB::$PUB_FILE_SUMMARY : DB::$PUB_FILE;
+    return DB::getAll($obj, new DBCond('id', $filter, DBCond::LIKE));
   }
 
   /**

@@ -134,8 +134,9 @@ class TPublicPage extends XPage {
     foreach ($this->getCSS() as $css)
       $this->head->add(new LinkCSS($css, 'screen,print'));
 
-    $this->head->add(new XScript('text/javascript', '/inc/js/mobile-switch.js'));
-    $this->head->add(new XScript('text/javascript', '/inc/js/localtime.js', null, array('defer'=>'defer', 'async'=>'async')));
+    // $this->head->add(new XScript('text/javascript', '/inc/js/mobile-switch.js'));
+    // $this->head->add(new XScript('text/javascript', '/inc/js/localtime.js', null, array('defer'=>'defer', 'async'=>'async')));
+    $this->head->add(new XScript('text/javascript', '/init.js'));
 
     // Add Google Analytics code
     if (DB::g(STN::GOOGLE_ANALYTICS) !== null)

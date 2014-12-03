@@ -83,7 +83,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
       $files[] = $opt;
   }
 
-  if (count($files) == 0) {
+  if (count($files) == 0 && !$init) {
     foreach (DB::getAll(DB::$PUB_FILE_SUMMARY) as $file)
       $files[] = $file->id;
     $init = true;
