@@ -134,13 +134,7 @@ class TPublicPage extends XPage {
     foreach ($this->getCSS() as $css)
       $this->head->add(new LinkCSS($css, 'screen,print'));
 
-    // $this->head->add(new XScript('text/javascript', '/inc/js/mobile-switch.js'));
-    // $this->head->add(new XScript('text/javascript', '/inc/js/localtime.js', null, array('defer'=>'defer', 'async'=>'async')));
     $this->head->add(new XScript('text/javascript', '/init.js'));
-
-    // Add Google Analytics code
-    if (DB::g(STN::GOOGLE_ANALYTICS) !== null)
-      $this->head->add(new XScript('text/javascript', null, DB::g(STN::GOOGLE_ANALYTICS)));
 
     // Twitter summary cards
     $this->head->add(new XMeta('twitter:card', 'summary'));
@@ -182,7 +176,9 @@ class TPublicPage extends XPage {
     $div->add(new XDiv(array('id'=>'top-wrapper'),
                        array(new XDiv(array('id'=>'last_updated'), array(date('M j, Y @ H:i:s T'))),
                              $sc = new XDiv(array('id'=>'social')),
-                             $sw = new XDiv(array('id'=>'search-wrapper')))));
+                             new XDiv(array('id'=>'search-wrapper'),
+                                      array(new XDiv(array('class'=>'gcse-search')))))));
+
     if (DB::g(STN::FACEBOOK) !== null) {
       $lnk = "Facebook";
       $img = DB::getFile('fb.png');
@@ -210,11 +206,6 @@ class TPublicPage extends XPage {
 
     if (DB::g(STN::PAYPAL_HOSTED_BUTTON_ID) !== null) {
       $sc->add($this->createPayPalForm());
-    }
-
-    if (DB::g(STN::GCSE_ID) !== null) {
-      $this->head->add(new XScript('text/javascript', sprintf('//www.google.com/cse/cse.js?cx=%s', DB::g(STN::GCSE_ID)), null, array('async'=>'async', 'defer'=>'defer')));
-      $sw->add(new XDiv(array('class'=>'gcse-search')));
     }
 
     $div->add(new XDiv(array('id'=>'menu-wrapper'),
@@ -306,25 +297,6 @@ class TPublicPage extends XPage {
       $this->page_content->add($sub);
 
     $this->body->add($sep);
-
-    // UserVoice
-    if (DB::g(STN::USERVOICE_ID) !== null && DB::g(STN::USERVOICE_FORUM) !== null) {
-      $this->head->add(new XScript('text/javascript', sprintf('//widget.uservoice.com/%s.js', DB::g(STN::USERVOICE_ID)), null, array('async'=>'async', 'defer'=>'defer')));
-      $this->head->add(new XScript('text/javascript', null,
-                                   sprintf('
-UserVoice = window.UserVoice || [];
-UserVoice.push(["showTab", "classic_widget", {
-  mode: "feedback",
-  primary_color: "#6C6D6F",
-  link_color: "#3465a4",
-  forum_id: %d,
-  tab_label: "Feedback",
-  tab_color: "#6c6d6f",
-  tab_position: "bottom-left",
-  tab_inverted: true
-}]);
-', DB::g(STN::USERVOICE_FORUM))));
-    }
 
     // Footer
     $this->body->add($foot = new XDiv(array('id'=>'page-footer')));
