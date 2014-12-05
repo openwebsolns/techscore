@@ -4165,6 +4165,12 @@ class Pub_Regatta_Url extends DBObject {
 class Pub_File_Summary extends DBObject implements Writeable {
 
   /**
+   * Name of the init.js file
+   * @see public/InitJs
+   */
+  const INIT_FILE = 'init';
+
+  /**
    * Different options available
    */
   const AUTOLOAD_SYNC = 'auto-sync';

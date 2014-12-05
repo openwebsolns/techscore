@@ -259,6 +259,12 @@ class Daemon extends AbstractScript {
           continue;
         $hashes[$hash] = $r;
 
+        // Init?
+        if ($r->file == Pub_File::INIT_FILE) {
+          $initJS = true;
+          continue;
+        }
+
         // Any JS file?
         if (substr($r->file, -3) == '.js')
           $initJS = true;

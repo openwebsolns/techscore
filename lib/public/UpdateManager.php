@@ -92,6 +92,18 @@ class UpdateManager {
   }
 
   /**
+   * Update the /init.js file
+   *
+   * @see queueRequest
+   * @see public/InitJs
+   */
+  public static function queueInitJsFile() {
+    $obj = new UpdateFileRequest();
+    $obj->file = Pub_File::INIT_FILE;
+    DB::set($obj);
+  }
+
+  /**
    * Fetches all pending items from the queue in the order in which
    * they are found
    *

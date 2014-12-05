@@ -59,12 +59,16 @@ class UpdateFile extends AbstractScript {
     self::errln("Serialized init JS file $path.");
   }
 
-  protected $cli_opts = '[filename] [...]';
-  protected $cli_usage = "
+  public function __construct() {
+    parent::__construct();
+    $this->cli_opts = '[filename] [...]';
+    $this->cli_usage = sprintf("
 If provided, filename will be either removed or serialized.
 Leave blank to serialize all files.
 
-Use 'init' to serialize special /init.js file.";
+Use '%s' to serialize special /init.js file.",
+                                   Pub_File::INIT_FILE);
+  }
 }
 
 // ------------------------------------------------------------
@@ -77,7 +81,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   $files = array();
   $init = false;
   foreach ($opts as $opt) {
-    if ($opt == 'init')
+    if ($opt == Pub_File::INIT_FILE)
       $init = true;
     else
       $files[] = $opt;
