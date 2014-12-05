@@ -31,15 +31,24 @@ var f=function(u,a){
  var g=d.createElement(s);
  g.src=u;
  g.type="text/javascript";
- if (a!=undefined){g.async=true;g.defer=true;}
+ if (a){g.async=true;g.defer=true;}
  m.parentNode.insertBefore(g,m);
 };';
 
       // Add JS files
       // For now, assume they're all ASYNC
       foreach (DB::getFilesLike('%.js') as $file) {
+        if ($file->options === null)
+          continue;
+
+        $async = false;
+        if (in_array(Pub_File::AUTOLOAD_ASYNC, $file->options))
+          $async = true;
+        elseif (!in_array(Pub_File::AUTOLOAD_SYNC, $file->options))
+          continue;
+
         $this->filedata .= sprintf('
-f("/inc/js/%s",true);', $file);
+f("/inc/js/%s",%s);', $file, $async);
       }
 
       $this->filedata .= '

@@ -15,6 +15,13 @@ require_once('users/admin/AbstractAdminUserPane.php');
  */
 class PublicFilesManagement extends AbstractAdminUserPane {
 
+  private static $JS_AUTOLOAD_OPTIONS = array(
+    '' => "",
+    Pub_File::AUTOLOAD_SYNC => "Sync",
+    Pub_File::AUTOLOAD_ASYNC => "Async"
+  );
+
+
   public function __construct(Account $user) {
     parent::__construct("Public files", $user);
   }
@@ -42,7 +49,11 @@ class PublicFilesManagement extends AbstractAdminUserPane {
     $files = DB::getAll(DB::$PUB_FILE_SUMMARY);
     if (count($files) > 0) {
       $f->add($tab = new XQuickTable(array('id'=>'files-table'),
-                                     array("Name", "Type", "Download", "Delete?")));
+                                     array("Name",
+                                           "Type",
+                                           "Download",
+                                           "Autoload",
+                                           "Delete?")));
       foreach ($files as $i => $file) {
         $pre = new XA($this->link(array('file'=>$file->id)), "Download");
         if (substr($file->filetype, 0, 6) == 'image/') {
@@ -53,9 +64,23 @@ class PublicFilesManagement extends AbstractAdminUserPane {
             $pre->set('height', $full->height);
           }
         }
+
+        $auto_inc = "";
+        if ($file->filetype == 'application/javascript') {
+          // TODO
+          $chosen = null;
+          if (count($file->options) > 0)
+            $chosen = $file->options[0];
+          $auto_inc = XSelect::fromArray(sprintf('options[%s]', $file->id),
+                                         self::$JS_AUTOLOAD_OPTIONS,
+                                         $chosen
+                                         );
+        }
+
         $tab->addRow(array($file->id,
                            $file->filetype,
                            $pre,
+                           $auto_inc,
                            new FCheckbox('delete[]', $file->id)),
                      array('class'=>'row' . ($i % 2)));
       }
@@ -84,6 +109,30 @@ class PublicFilesManagement extends AbstractAdminUserPane {
       }
       if (count($deleted) > 0)
         Session::pa(new PA(sprintf("Removed file(s): %s.", implode(", ", $deleted))));
+
+      // ------------------------------------------------------------
+      // Edit file options
+      // ------------------------------------------------------------
+      $updated = 0;
+      foreach (DB::$V->incList($args, 'options') as $id => $option) {
+        $file = DB::getFile($id);
+        if ($file === null)
+          throw new SoterException("Invalid valid whose option to set.");
+
+        if ($file->filetype == 'application/javascript') {
+          if (!array_key_exists($option, self::$JS_AUTOLOAD_OPTIONS))
+            throw new SoterException("Invalid option provided for Javascript file $file");
+          $options = array();
+          if ($option != '')
+            $options[] = $option;
+          $file->options = $options;
+          DB::set($file);
+          $updated++;
+          UpdateManager::queueFile($file);
+        }
+      }
+      if ($updated > 0)
+        Session::pa(new PA(sprintf("Updated options for %d file%s.", $updated, ($updated > 0) ? "s" : "")));
 
       // ------------------------------------------------------------
       // Upload new files

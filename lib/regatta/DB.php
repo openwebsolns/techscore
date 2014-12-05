@@ -4163,11 +4163,25 @@ class Pub_Regatta_Url extends DBObject {
  * @version 2013-10-04
  */
 class Pub_File_Summary extends DBObject implements Writeable {
+
+  /**
+   * Different options available
+   */
+  const AUTOLOAD_SYNC = 'auto-sync';
+  const AUTOLOAD_ASYNC = 'auto-async';
+
   public $filetype;
   public $width;
   public $height;
+  protected $options;
   public function db_name() { return 'pub_file'; }
   protected function db_order() { return array('filetype'=>true, 'id'=>true); }
+
+  public function db_type($field) {
+    if ($field == 'options')
+      return array();
+    return parent::db_type($field);
+  }
 
   public function getFile() {
     return DB::get(DB::$PUB_FILE, $this->id);

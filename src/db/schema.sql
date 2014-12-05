@@ -371,6 +371,7 @@ CREATE TABLE `pub_file` (
   `filedata` mediumblob NOT NULL,
   `width` mediumint(8) unsigned DEFAULT NULL,
   `height` mediumint(8) unsigned DEFAULT NULL,
+  `options` text COLLATE utf8_unicode_ci,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;

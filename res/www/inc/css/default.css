@@ -1192,7 +1192,7 @@ select.tr-filter, select.tr-filter:active, select.tr-filter:focus {
 /* Table of public files */
 
 #files-table img {
-    max-width: 30em;
+    max-width: 20em;
     height: auto;
 }
 
