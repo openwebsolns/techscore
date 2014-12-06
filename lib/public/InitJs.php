@@ -33,6 +33,7 @@ var f=function(u,a){
  g.type="text/javascript";
  if (a){g.async=true;g.defer=true;}
  m.parentNode.insertBefore(g,m);
+ return g;
 };';
 
       // Add JS files
@@ -75,9 +76,35 @@ UserVoice.push(["showTab", "classic_widget", {
   tab_color: "#6c6d6f",
   tab_position: "bottom-left",
   tab_inverted: true
-}]);
-',
+}]);',
                                    DB::g(STN::USERVOICE_FORUM));
+      }
+
+      // Facebook
+      if (DB::g(STN::FACEBOOK_APP_ID) !== null) {
+        $this->filedata .= sprintf('
+w.addEventListener("load",function(){
+ if(d.getElementById("fb-root")){var g=f("%s",true);g.id="facebook-jssdk";}
+});',
+                                   sprintf('//connect.facebook.net/en_US/all.js#xfbml=1&appId=%s', DB::g(STN::FACEBOOK_APP_ID)));
+      }
+
+      // Twitter
+      if (DB::g(STN::TWITTER) !== null) {
+        $this->filedata .= sprintf('
+w.addEventListener("load",function(){
+ if(d.getElementById("twitter-wrapper")){var g=f("%s",true);g.id="twitter-wjs";}
+});',
+                                   '//platform.twitter.com/widgets.js');
+      }
+
+      // Google+
+      if (DB::g(STN::GOOGLE_PLUS) !== null) {
+        $this->filedata .= sprintf('
+w.addEventListener("load",function(){
+ if(d.getElementById("gplus-wrapper")){var g=f("%s",true);}
+});',
+                                   'https://apis.google.com/js/plusone.js?onload=onLoadCallback');
       }
 
       $this->filedata .= '

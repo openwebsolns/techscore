@@ -259,9 +259,6 @@ class TPublicPage extends XPage {
                                                  'data-layout'=>'button_count',
                                                  'data-show-faces'=>'false',
                                                  'data-send'=>'false')))));
-        
-          $this->head->add($scr = new XScript('text/javascript', sprintf('//connect.facebook.net/en_US/all.js#xfbml=1&appId=%s', DB::g(STN::FACEBOOK_APP_ID)), null, array('async'=>'async', 'defer'=>'defer')));
-          $scr->set('id', 'facebook-jssdk');
         }
         if (DB::g(STN::TWITTER) !== null) {
           $has_social = true;
@@ -273,13 +270,11 @@ class TPublicPage extends XPage {
 
           $td->add(new XDiv(array('id'=>'twitter-wrapper'), array(new XA('https://twitter.com/share', $lnk, array('class'=>'twitter-share-button', 'data-via'=>DB::g(STN::TWITTER))))));
           // data-hashtags
-          $this->head->add(new XScript('text/javascript', '//platform.twitter.com/widgets.js', null, array('id'=>'twitter-wjs', 'async'=>'async', 'defer'=>'defer')));
         }
         if (DB::g(STN::GOOGLE_PLUS) !== null) {
           $has_social = true;
 
           $td->add(new XDiv(array('id'=>'gplus-wrapper', 'class'=>'g-plusone', 'data-size'=>'medium')));
-          $this->head->add(new XScript('text/javascript', 'https://apis.google.com/js/plusone.js?onload=onLoadCallback', null, array('async'=>'async', 'defer'=>'defer')));
         }
         if (DB::g(STN::PAYPAL_HOSTED_BUTTON_ID) !== null) {
           $has_social = true;
