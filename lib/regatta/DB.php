@@ -4217,6 +4217,53 @@ class Pub_File_Summary extends DBObject implements Writeable {
     $file = $this->getFile();
     fwrite($resource, $file->filedata);
   }
+
+  // ------------------------------------------------------------
+  // Options API
+  // ------------------------------------------------------------
+
+  public function getOptions() {
+    if ($this->options === null)
+      $this->options = array();
+    return $this->__get('options');
+  }
+
+  /**
+   * Adds the option
+   *
+   * @param String $option to add
+   * @return boolean true if option was not already present
+   */
+  public function addOption($option) {
+    $options = $this->getOptions();
+    if (in_array($option, $options))
+      return false;
+    $options[] = $option;
+    sort($options);
+    $this->options = $options;
+    return true;
+  }
+
+  /**
+   * Removes option from this file's set
+   *
+   * @param String $option the option to remove
+   * @return boolean true if option existed
+   */
+  public function removeOption($option) {
+    $options = $this->getOptions();
+    $position = array_search($option, $options);
+    if ($position === false)
+      return false;
+    array_splice($options, $position, 1);
+    $this->options = $options;
+    return true;
+  }
+
+  public function hasOption($option) {
+    $options = $this->getOptions();
+    return in_array($option, $options);
+  }
 }
 
 /**

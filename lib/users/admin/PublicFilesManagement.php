@@ -122,13 +122,23 @@ class PublicFilesManagement extends AbstractAdminUserPane {
         if ($file->filetype == 'application/javascript') {
           if (!array_key_exists($option, self::$JS_AUTOLOAD_OPTIONS))
             throw new SoterException("Invalid option provided for Javascript file $file");
-          $options = array();
-          if ($option != '')
-            $options[] = $option;
-          $file->options = $options;
-          DB::set($file);
-          $updated++;
-          UpdateManager::queueFile($file);
+
+          $changed = false;
+          if ($option == '') {
+            $changed = $file->removeOption(Pub_File::AUTOLOAD_SYNC);
+            $changed = $file->removeOption(Pub_File::AUTOLOAD_ASYNC) || $changed;
+          } elseif (!$file->hasOption($option)) {
+            $file->removeOption(Pub_File::AUTOLOAD_SYNC);
+            $file->removeOption(Pub_File::AUTOLOAD_ASYNC);
+            $file->addOption($option);
+            $changed = true;
+          }
+
+          if ($changed) {
+            DB::set($file);
+            $updated++;
+            UpdateManager::queueFile($file);
+          }
         }
       }
       if ($updated > 0)
