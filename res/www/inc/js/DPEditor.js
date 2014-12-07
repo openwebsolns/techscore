@@ -527,7 +527,7 @@ DPEditor.prototype.parse = function(evt) {
 		continue;
 	    }
 	}
-	if (do_parse && (chr == "*" || chr == "/" || chr == "✂")) {
+	if (do_parse && (chr == "*" || chr == "✂")) {
 	    // (possible) start of inline environment
 	    //
 	    // if not the first character, then previous must be word
@@ -545,7 +545,6 @@ DPEditor.prototype.parse = function(evt) {
 		env = null;
 		switch (chr) {
 		case "*": env = this.newElement("strong"); break;
-		case "/": env = this.newElement("em"); break;
 		case "✂": env = this.newElement("del"); break;
 		}
 		context.unshift(env, "", chr, 0);

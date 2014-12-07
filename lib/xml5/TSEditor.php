@@ -13,11 +13,15 @@ require_once(dirname(__FILE__).'/DPEditor.php');
  */
 class TSEditor extends DPEditor {
 
-  public function __construct() {
-    parent::__construct();
+  public function __construct($inline = false) {
+    parent::__construct($inline);
     $this->setFirstHeading(new XH3(""));
     $this->setSecondHeading(new XH4(""));
     $this->setThirdHeading(new XH5(""));
+  }
+
+  protected function getInlineDelimiters() {
+    return array('*', '✂');
   }
 
   protected function preParse($inp) {

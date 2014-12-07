@@ -47,12 +47,6 @@ DPEditor.prototype.uiInit = function(allowUploads) {
     label.appendChild(document.createTextNode("B"));
     butt.onclick = function(evt) { myObj.insertOrWrap("*", "BOLD"); };
 
-    // ITALICS
-    butt = this.newElement("button", {"type":"button", "title":"Emphasized (italics) text"}, this.myToolbar);
-    label = this.newElement("em", {}, butt);
-    label.appendChild(document.createTextNode("I"));
-    butt.onclick = function(evt) { myObj.insertOrWrap("/", "ITALIC"); };
-
     // STRIKETHROUGH
     butt = this.newElement("button", {"type":"button", "title":"Deleted (strikethrough) text"}, this.myToolbar);
     label = this.newElement("del", {}, butt);
