@@ -4,6 +4,9 @@
  * structure and strict XHTML output. This version uses a more
  * intelligent gobbling-style parser.
  *
+ * In addition, it supports inline mode, in which only inline elements
+ * are parsed and new lines have no meaning (replaced with spaces).
+ *
  * @author Dayan Paez
  * @created 2011-06-08
  */
@@ -18,11 +21,18 @@ require_once(dirname(__FILE__).'/HtmlLib.php');
  * @version 2011-06-08
  */
 class DPEditor {
-
+  
   /**
    * @var Array the list of elements as parsed
    */
   private $list;
+
+  /**
+   * @var Array associative map of headings for the table of contents,
+   * indexed by their level. For each level, (1, 2, 3), track the last
+   * parent of that heading as a tuple of XLi and its child XOl.
+   */
+  private $toc;
 
   /**
    * @var int a counter used to automatically generate an image ID
@@ -40,13 +50,30 @@ class DPEditor {
   private $figure_class = null;
 
   /**
-   * Create a new template
+   * @var boolean true for inline parsing only (default: false)
    */
-  public function __construct() {
+  private $inlineMode = false;
+
+  /**
+   * Create a new template
+   *
+   * @param boolean $inline_mode true to parse as one "line"
+   */
+  public function __construct($inline_mode = false) {
     $this->setFirstHeading(new XH1(""));
     $this->setSecondHeading(new XH2(""));
     $this->setThirdHeading(new XH3(""));
     $this->setFigureClass('figure');
+    $this->setInlineMode($inline_mode !== false);
+  }
+
+  /**
+   * Sets the parsing mode, inline vs. "block" (default)
+   *
+   * @param boolean $flag true to set to inline
+   */
+  public function setInlineMode($flag = true) {
+    $this->inlineMode = ($flag !== false);
   }
 
   /**
@@ -80,6 +107,29 @@ class DPEditor {
   }
 
   /**
+   * Creates a new instance of a heading at given level.
+   *
+   * By default, this method will use the heading elements provided
+   * via set*Heading as templates. If the level exceeds 3, then this
+   * method returns null (no heading at all).
+   *
+   * Subclasses may choose to override this method, instead of using
+   * set*Heading, in order to have better control of the creation
+   * process.
+   *
+   * @param int $level the level of the heading
+   * @return XAbstractHtml|null the heading, or null
+   */
+  protected function newHeading($level) {
+    switch ($level) {
+    case 1: return clone($this->oneast_tpl);
+    case 2: return clone($this->twoast_tpl);
+    case 3: return clone($this->thrast_tpl);
+    default: return null;
+    }
+  }
+
+  /**
    * If a paragraph consists of ONLY images, then it will receive the
    * special 'figure' class (default: figure)
    *
@@ -89,6 +139,50 @@ class DPEditor {
    */
   public function setFigureClass($class) {
     $this->figure_class = $class;
+  }
+
+  /**
+   * Appends a new heading at the given level to the internal TOC
+   *
+   * @param int $level the level of the heading
+   * @param String $text the label
+   */
+  protected function addTOC($level, $text) {
+    // Malformed?
+    if (!isset($this->toc[$level - 1]))
+      return;
+
+    // Bubble to the current level
+    while (count($this->toc) > $level) {
+      $i = count($this->toc) - 1;
+      if (count($this->toc[$i]) > 0) {
+        $size = count($this->toc[$i - 1]);
+        $this->toc[$i - 1][$size - 1]->add(new XOl(array(), $this->toc[$i]));
+      }
+      unset($this->toc[$i]);
+    }
+
+    // Add the new one
+    $this->toc[$level - 1][] = new XLi($text);
+    $this->toc[$level] = array();
+  }
+
+  /**
+   * Fetches the internally-generated TOC.
+   *
+   * @return XOl|null
+   */
+  public function getTOC() {
+    // Bubble?
+    while (count($this->toc) > 1) {
+      $i = count($this->toc) - 1;
+      if (count($this->toc[$i]) > 0) {
+        $size = count($this->toc[$i - 1]);
+        $this->toc[$i - 1][$size - 1]->add(new XOl(array(), $this->toc[$i]));
+      }
+      unset($this->toc[$i]);
+    }
+    return (count($this->toc[0]) == 0) ? null : new XOl(array(), $this->toc[0]);
   }
 
   /**
@@ -105,10 +199,14 @@ class DPEditor {
 
     $input = $this->preParse($input);
     $this->list = array();
+    $this->toc = array(array());
 
     // prep the string
-    $input = str_replace("\r\n", "\n", $input) . "\n\n";
-    $input = preg_replace('/^[         ]+$/m', '', $input);
+    $input = str_replace("\r\n", "\n", $input);
+    $input = preg_replace('/^[ 	]+$/m', '', $input);
+
+    if (!$this->inlineMode)
+      $input .= "\n\n";
 
     // context: three associated stacks, 'env' contains the nested
     // environments (such as p, li, strong, a, etc). 'buf' contains
@@ -150,238 +248,255 @@ class DPEditor {
     $table = null;
     $row = null;
 
+    $classStart = '<';
+    $classEnd = '>';
+    $allowClass = true;
+
     // gobble up characters
     $len = mb_strlen($input);
     $i = 0;
 
+    $delimiters = $this->getInlineDelimiters();
     while ($i < $len) {
       $char = mb_substr($input, $i, 1);
 
-      // beginning of "new" environment
-      if (count($context) == 0) {
-        $inlist = (count($lists) > 0 && $num_new_lines == 1);
+      // Inline mode?
+      if ($this->inlineMode) {
+        if (count($context) == 0) {
+          $env = new XDiv();
+          $context->unshift($env);
+          $this->appendEnvironment($env);
+        }
+        if ($char == "\n")
+          $char = " ";
+      }
+      else {
+        // beginning of "new" environment
+        if (count($context) == 0) {
+          $inlist = (count($lists) > 0 && $num_new_lines == 1);
 
-        // ------------------------------------------------------------
-        // Headings
-        if ($char == '*' && !$inlist) {
-          // gobble up to the first non-asterisk
-          $buf = '';
-          while (++$i < $len && mb_substr($input, $i, 1) == "*")
-            $buf .= '*';
-          if ($i < $len && mb_substr($input, $i, 1) == " ") {
-            switch (strlen($buf)) {
-            case 0:
-              $context->unshift(clone $this->oneast_tpl); break;
-            case 1:
-              $context->unshift(clone $this->twoast_tpl); break;
-            case 2:
-              $context->unshift(clone $this->thrast_tpl); break;
-            default:
-              $context->unshift(new XP(), $buf);
+          // ------------------------------------------------------------
+          // Headings
+          if ($char == '*' && !$inlist) {
+            // gobble up to the first non-asterisk
+            $buf = '';
+            while (++$i < $len && mb_substr($input, $i, 1) == "*")
+              $buf .= '*';
+            if ($i < $len && mb_substr($input, $i, 1) == " ") {
+              $lev = mb_strlen($buf) + 1;
+              $item = $this->newHeading($lev);
+              if ($item !== null) {
+                $this->addToc($lev, $item);
+                $context->unshift($item);
+              }
+              else {
+                $context->unshift(new XP(), $buf);
+              }
+              $lists = new DPEList();
+              $i++;
+              continue;
             }
+            else
+              $i--;
+          }
+
+          // ------------------------------------------------------------
+          // Tables
+          elseif ($char == '|' && !$inlist) {
             $lists = new DPEList();
+
+            // are we already in a table
+            if ($table === null) {
+              $table = new XTable();
+              $trows = array();
+              $this->appendEnvironment($table);
+            }
+            // are we already in a row?
+            if ($row === null) {
+              $row = new XTR();
+              $trows[] = $row;
+            }
+
+            $row->add($td = new XTD());
+            $context->unshift($td);
             $i++;
             continue;
           }
-          else
-            $i--;
-        }
-
-        // ------------------------------------------------------------
-        // Tables
-        elseif ($char == '|' && !$inlist) {
-          $lists = new DPEList();
-
-          // are we already in a table
-          if ($table === null) {
-            $table = new XTable();
+          elseif ($char == '-' && $table !== null) {
+            // all previous rows belong in THEAD. This is particularly
+            // painful because the entire content is inside an XTD
+            // element thus far.
+            $table->add($env = new XTHead());
+            foreach ($trows as $j) {
+              $env->add(new XRawText(str_replace('</td>','</th>',
+                                                 str_replace('<td>','<th>', $j->toXML()))));
+	    
+            }
             $trows = array();
-            $this->list[] = $table;
-          }
-          // are we already in a row?
-          if ($row === null) {
-            $row = new XTR();
-            $trows[] = $row;
+            // consume until the end of the line
+            do { $i++; } while ($i < $len && mb_substr($input, $i, 1) != "\n");
+            $i++;
+            continue;
           }
 
-          $row->add($td = new XTD());
-          $context->unshift($td);
-          $i++;
-          continue;
-        }
-        elseif ($char == '-' && $table !== null) {
-          // all previous rows belong in THEAD. This is particularly
-          // painful because the entire content is inside an XTD
-          // element thus far.
-          $table->add($env = new XTHead());
-          foreach ($trows as $j) {
-            $env->add(new XRawText(str_replace('</td>','</th>',
-                                               str_replace('<td>','<th>', $j->toXML()))));
-
-          }
-          $trows = array();
-          // consume until the end of the line
-          do { $i++; } while ($i < $len && mb_substr($input, $i, 1) != "\n");
-          $i++;
-          continue;
-        }
-
-        // ------------------------------------------------------------
-        // Lists. These are mighty complicated, because they can be
-        // nested to any depth
-        // ------------------------------------------------------------
-        elseif ($char == ' ') {
-          $buf = ''; // depth
-          while (++$i < $len && mb_substr($input, $i, 1) == ' ')
-            $buf .= ' ';
-          if ($i < $len - 2) {
-            $sub = mb_substr($input, $i, 2);
-            if ($sub == "- " || $sub == "+ ") {
-              $sym = ($buf . $sub);
-              // if the previous environment is one of the lists
-              // environments, then append this list item there.
-              // Recall that that we are more lenient with list items,
-              // allowing one empty line between successive entries.
-              if (count($lists) == 0) {
-                $lists->unshift(($sub == "- ") ? new XUl() : new XOl(), null, $sym);
-                $this->list[] = $lists->ul[0];
-              }
-              elseif ($lists->sym[0] == $sym) {
-                // most likely case: just another entry => do nothing here
-              }
-              elseif (strlen($lists->sym[0]) < strlen($sym)) {
-                $env = $lists->li[0];
-                $lists->unshift(($sub == "- ") ? new XUl() : new XOl(), null, $sym);
-                $env->add($lists->ul[0]);
-              }
-              else {
-                // find the matching depth
-                $env = null;
-                foreach ($lists->sym as $j => $depth) {
-                  if ($depth == $sym) {
-                    $env = $lists->li[$j];
-                    break;
-                  }
+          // ------------------------------------------------------------
+          // Lists. These are mighty complicated, because they can be
+          // nested to any depth
+          // ------------------------------------------------------------
+          elseif ($char == ' ') {
+            $buf = ''; // depth
+            while (++$i < $len && mb_substr($input, $i, 1) == ' ')
+              $buf .= ' ';
+            if ($i < $len - 2) {
+              $sub = mb_substr($input, $i, 2);
+              if ($sub == "- " || $sub == "+ ") {
+                $sym = ($buf . $sub);
+                // if the previous environment is one of the lists
+                // environments, then append this list item there.
+                // Recall that that we are more lenient with list items,
+                // allowing one empty line between successive entries.
+                if (count($lists) == 0) {
+                  $lists->unshift(($sub == "- ") ? new XUl() : new XOl(), null, $sym);
+                  $this->appendEnvironment($lists->ul[0]);
                 }
-                if ($env !== null) {
-                  for ($k = 0; $k < $j; $k++)
-                    $lists->shift();
+                elseif ($lists->sym[0] == $sym) {
+                  // most likely case: just another entry => do nothing here
+                }
+                elseif (mb_strlen($lists->sym[0]) < mb_strlen($sym)) {
+                  $env = $lists->li[0];
+                  $lists->unshift(($sub == "- ") ? new XUl() : new XOl(), null, $sym);
+                  $env->add($lists->ul[0]);
                 }
                 else {
-                  // reverse compatibility: not actually a sublist,
-                  // but a misaligned -/+. Treat as regular text
-                  $context->unshift($lists->li[0], (' ' . $sub), '', 0);
-                  $i += 2;
-                  continue;
-                }
-              }
-
-              $context->unshift(new XLi(""));
-              $lists->ul[0]->add($context->env[0]);
-              $lists->set('li', 0, $context->env[0]);
-
-              $i += 2;
-              continue;
-            }
-          }
-          $i -= strlen($buf);
-        }
-        elseif ($char == " " || $char == "\t") {
-          // trim whitespace
-          $i++;
-          continue;
-        }
-      }
-
-      // ------------------------------------------------------------
-      // Table cell endings
-      // ------------------------------------------------------------
-      if ($char == '|' && $context->env[0] instanceof XTD) {
-        // are we at the end of a line? Let the new line handler do it
-        if ($i + 1 >= $len || mb_substr($input, $i + 1, 1) == "\n") {
-          $i++;
-          continue;
-        }
-
-        $cont = '';
-        for ($j = count($context) - 1; $j >= 0; $j--)
-          $cont .= ($context->sym[$j] . $context->buf[$j]);
-        $context->env[0]->add(rtrim($cont));
-        $context = new DPEConMap();
-        continue;
-      }
-
-      // ------------------------------------------------------------
-      // New lines? Are we at the end of some environment?
-      // ------------------------------------------------------------
-      if ($char == "\n") {
-        $num_new_lines++;
-        $num_envs = count($context);
-
-        if ($num_envs > 0) {
-          $env = $context->env[$num_envs - 1];
-
-          if ($num_new_lines >= 2 || $env instanceof XLi || $env instanceof XTD) {
-            $buf = '';
-            for ($j = $num_envs - 1; $j >= 0; $j--)
-              $buf .= ($context->sym[$j] . $context->buf[$j]);
-            $env->add(rtrim($buf));
-
-            if (!($env instanceof XLi || $env instanceof XTD)) {
-              $this->list[] = $env;
-
-              // ------------------------------------------------------------
-              // Handle special 'figures' case
-              // ------------------------------------------------------------
-              if ($this->figure_class !== null && $env instanceof XP) {
-                $is_figure = true;
-                foreach ($env->children() as $child) {
-                  if ($child instanceof XImg)
-                    continue;
-                  if ($child instanceof XRawText) {
-                    if (trim($child->toXML()) == "")
-                      continue;
+                  // find the matching depth
+                  $env = null;
+                  foreach ($lists->sym as $j => $depth) {
+                    if ($depth == $sym) {
+                      $env = $lists->li[$j];
+                      break;
+                    }
                   }
-                  $is_figure = false;
-                  break;
+                  if ($env !== null) {
+                    for ($k = 0; $k < $j; $k++)
+                      $lists->shift();
+                  }
+                  else {
+                    // reverse compatibility: not actually a sublist,
+                    // but a misaligned -/+. Treat as regular text
+                    $context->unshift($lists->li[0], (' ' . $sub), '', 0);
+                    $i += 2;
+                    continue;
+                  }
                 }
-                if ($is_figure)
-                  $env->set('class', $this->figure_class);
+
+                $context->unshift(new XLi(""));
+                $lists->ul[0]->add($context->env[0]);
+                $lists->set('li', 0, $context->env[0]);
+
+                $i += 2;
+                continue;
               }
             }
-            $context = new DPEConMap();
-
-            if ($env instanceof XTD)
-              $row = null;
+            $i -= mb_strlen($buf) + 1;
           }
-          else // replace new line with space
-            $context->set('buf', 0, ($context->buf[0] . ' '));
-        }
-        // hard reset the list
-        if ($num_new_lines >= 3)
-          $lists = new DPEList();
-
-        // hard reset the table
-        if ($table !== null && $num_new_lines >= 2) {
-          $table->add(new XTBody(array(), $trows));
-          $table = null;
+          elseif ($char == " " || $char == "\t") {
+            // trim whitespace
+            $i++;
+            continue;
+          }
         }
 
-
-        $i++;
-        continue;
-      }
-
-      // ------------------------------------------------------------
-      // Create an P element by default
-      // ------------------------------------------------------------
-      if (count($context) == 0) {
-        if (!$inlist) {
-          $context->unshift(new XP());
-          $lists = new DPEList();
+        // ------------------------------------------------------------
+        // Table cell endings
+        // ------------------------------------------------------------
+        if ($char == '|' && $context->env[0] instanceof XTD) {
+          // are we at the end of a line? Let the new line handler do it
+          if ($i + 1 >= $len || mb_substr($input, $i + 1, 1) == "\n") {
+            $i++;
+            continue;
+          }
+	
+          $cont = '';
+          for ($j = count($context) - 1; $j >= 0; $j--)
+            $cont .= ($context->sym[$j] . $context->buf[$j]);
+          $context->env[0]->add(rtrim($cont));
+          $context = new DPEConMap();
+          continue;
         }
-        else {
-          $context->unshift($lists->li[0], ' ');
+
+        // ------------------------------------------------------------
+        // New lines? Are we at the end of some environment?
+        // ------------------------------------------------------------
+        if ($char == "\n") {
+          $num_new_lines++;
+          $num_envs = count($context);
+
+          if ($num_envs > 0) {
+            $env = $context->env[$num_envs - 1];
+
+            // End of environment
+            if ($num_new_lines >= 2 || $env instanceof XLi || $env instanceof XTD) {
+              $buf = '';
+              for ($j = $num_envs - 1; $j >= 0; $j--)
+                $buf .= ($context->sym[$j] . $context->buf[$j]);
+              $env->add(rtrim($buf));
+
+              if (!($env instanceof XLi || $env instanceof XTD)) {
+                $this->appendEnvironment($env);
+
+                // ------------------------------------------------------------
+                // Handle special 'figures' case
+                // ------------------------------------------------------------
+                if ($this->figure_class !== null && $env instanceof XP) {
+                  $is_figure = true;
+                  foreach ($env->children() as $child) {
+                    if ($child instanceof XImg)
+                      continue;
+                    if ($child instanceof XRawText) {
+                      if (trim($child->toXML()) == "")
+                        continue;
+                    }
+                    $is_figure = false;
+                    break;
+                  }
+                  if ($is_figure)
+                    $env->set('class', $this->figure_class);
+                }
+              }
+              $context = new DPEConMap();
+	    
+              if ($env instanceof XTD)
+                $row = null;
+            }
+            else { // replace new line with space
+              $context->set('buf', 0, ($context->buf[0] . ' '));
+            }
+          }
+          // hard reset the list
+          if ($num_new_lines >= 3)
+            $lists = new DPEList();
+	
+          // hard reset the table
+          if ($table !== null && $num_new_lines >= 2) {
+            $table->add(new XTBody(array(), $trows));
+            $table = null;
+          }
+
+          $i++;
+          continue;
+        }
+
+        // ------------------------------------------------------------
+        // Create an P element by default
+        // ------------------------------------------------------------
+        if (count($context) == 0) {
+          if (!$inlist) {
+            $context->unshift(new XP());
+            $lists = new DPEList();
+          }
+          else {
+            $context->unshift($lists->li[0], ' ');
+          }
         }
       }
 
@@ -393,7 +508,7 @@ class DPEditor {
         $next = mb_substr($input, $i + 1, 1);
         $num_envs = count($context);
         $env = $context->env[$num_envs - 1];
-
+	
         if ($next == "\n" && !($env instanceof XTD)) {
           $buf = '';
           for ($j = $num_envs - 1; $j >= 0; $j--)
@@ -416,26 +531,21 @@ class DPEditor {
           continue;
         }
       }
-      if ($do_parse && ($char == '*' || $char == '/' || $char == '✂')) {
+      if ($do_parse && in_array($char, $delimiters)) {
         // (possible) start of inline environment
         //
         // if not the first character, then previous must be word
         // boundary; there must be a 'next' character, and it must be
-        // the beginning of a word; and the environment must not
-        // already be in use.
+        // the beginning of a word; and it must not be the same
+        // character; and it is allowed
         $a = $context->buf[0];
-        if (!in_array($char, $context->sym)
-            && ($i + 1) < $len
+        if (($i + 1) < $len
+            && mb_substr($input, $i + 1, 1) != $char
             && mb_substr($input, $i + 1, 1) != " "
             && mb_substr($input, $i + 1, 1) != "\t"
-            && ($a == '' || preg_match('/\B/', $a[strlen($a) - 1]) > 0)) {
+            && ($a == '' || preg_match('/\B/u', mb_substr($a, mb_strlen($a) - 1, 1)) > 0)
+            && ($env = $this->getInlineEnvironment($char, $context)) !== null) {
 
-          $env = null;
-          switch ($char) {
-          case '*': $env = new XStrong(""); break;
-          case '/': $env = new XEm(""); break;
-          case '✂': $env = new XDel(""); break;
-          }
           $context->unshift($env, '', $char, 0);
           $i++;
           continue;
@@ -483,12 +593,35 @@ class DPEditor {
       // Opening {} environments (img) and anchors (a), (e)
       // ------------------------------------------------------------
       if ($do_parse && $char == '{') {
+        // Possible badge?
+        $res = array();
+        if (preg_match('/^[[:alnum:]-\/]+\}/u', mb_substr($input, $i + 1), $res) > 0) {
+          $badge = $this->getBadge(mb_substr($res[0], 0, mb_strlen($res[0]) - 1));
+          if ($badge !== null) {
+            $context->env[0]->add($badge);
+            $i += mb_strlen($res[0]) + 1;
+            continue;
+          }
+        }
+
         // Attempt to find the resource tag: alphanumeric characters
         // followed by a colon (:), e.g. "a:", "img:", etc
         $colon_i = mb_strpos($input, ':', $i);
         if ($colon_i !== false && $colon_i > ($i + 1)) {
           $tag = mb_substr($input, $i + 1, ($colon_i - $i - 1));
-          if (preg_match('/^[A-Za-z0-9]+$/', $tag) > 0 && ($xtag = $this->getResourceTag($tag)) !== null) {
+          if (preg_match('/^[[:alnum:]-\/]+$/u', $tag) > 0 && ($xtag = $this->getResourceTag($tag)) !== null) {
+            // Is a new context necessary?
+            if ($this->isResourceBlockLevel($tag)) {
+              if (count($context->env) > 1 || mb_strlen($context->buf[0]) > 0) {
+                $cont = '';
+                for ($j = count($context) - 1; $j >= 0; $j--)
+                  $cont .= ($context->sym[$j] . $context->buf[$j]);
+                $context->env[0]->add(rtrim($cont));
+                $this->appendEnvironment($context->env[0]);
+              }
+              $context = new DPEConMap();
+              $context->unshift(new XDiv());
+            }
             $context->unshift($xtag, '', ('{' . $tag . ':'), 0);
             $i += 2 + mb_strlen($tag);
             $do_parse = false;
@@ -504,7 +637,7 @@ class DPEditor {
         // see note about */- elements
         $closed = false;
         foreach ($context->sym as $j => $aChar) {
-          if (strlen($aChar) > 0 && $aChar[0] == '{') {
+          if (mb_strlen($aChar) > 0 && $aChar[0] == '{') {
             $closed = true;
             break;
           }
@@ -530,12 +663,12 @@ class DPEditor {
           $context->set('buf', 1, '');
           $context->shift();
           $i++;
-
+	  
           $do_parse = true;
           continue;
         }
       } // end closing environments
-
+ 
       // ------------------------------------------------------------
       // commas are important immediately inside A's and IMG's, as
       // they delineate between HREF and innerHTML, or SRC and ALT
@@ -543,11 +676,12 @@ class DPEditor {
       // The last condition limits two arguments per resource
       // ------------------------------------------------------------
       if ($char == ','
-          && preg_match('/^\{[A-Za-z0-9]+:$/', $context->sym[0]) > 0
+          && preg_match('/^\{[[:alnum:]-\/]+:$/u', $context->sym[0]) > 0
           && $context->arg[0] == 0) {
 
         $tag = mb_substr($context->sym[0], 1, mb_strlen($context->sym[0]) - 2);
         $this->setResourceParam(0, $context->env[0], $tag, trim($context->buf[0]));
+        $do_parse = $this->getParseForParam(1, $context->env[0], $tag);
         $context->set('buf', 0, '');
 
         $i++;
@@ -556,11 +690,25 @@ class DPEditor {
       }
 
       // ------------------------------------------------------------
+      // closing delimiter for classes?
+      // ------------------------------------------------------------
+      if ($char == $classEnd && $context->env[0] instanceof XP
+          && $i < $len - 2 && mb_substr($input, $i + 1, 1) == "\n"
+          && preg_match('/[^\s]/', mb_substr($input, $i + 2, 1)) > 0
+          && preg_match(sprintf('/^%s[[:alnum:]]+$/', $classStart), $context->buf[0]) > 0) {
+        $context->env[0]->set('class', mb_substr($context->buf[0], 1));
+        $context->set('buf', 0, '');
+        $i++;
+        continue;
+      }
+
+      // ------------------------------------------------------------
       // empty space at the beginning of block environment have no meaning
       // ------------------------------------------------------------
-      if (($char == ' ' || $char == "\t") &&
-          count($context) == 0 &&
-          $context->buf[0] == '') {
+      if (($char == ' ' || $char == "\t") && count($context) == 0) {
+        if ($context->buf[0] == '') {
+          $context->set('buf', 0, ' ');
+        }
         $i++;
         continue;
       }
@@ -572,9 +720,93 @@ class DPEditor {
       $context->set('buf', 0, $context->buf[0] . $char);
       $i++;
     }
+    // The extra newlines at the end in non-inline mode ascertain that
+    // the remaining buffer is "flushed". With inlineMode, the buffer
+    // must be manually flushed instead
+    if ($this->inlineMode) {
+      $j = count($context) - 1;
+      $context->env[$j]->add($context->buf[$j]);
+      for ($k = $j - 1; $k >= 0; $k--) {
+        $context->env[$j]->add($context->sym[$k]);
+        $context->env[$j]->add($context->buf[$k]);
+      }
+      for ($k = 0; $k < $j; $k++)
+        $context->shift();      
+    }
 
     mb_internal_encoding($old_enc);
     return $this->list;
+  }
+
+  /**
+   * Convenience method: appends $elem to list of block-level environments
+   *
+   * This provides a rudimentary method by which subclasses may wish
+   * to edit the $elem before it gets appended. At all times, do not
+   * forget to call this base method. Otherwise, the element won't be
+   * included.
+   *
+   * @param XAbstractHtml $elem the block-level element to add
+   */
+  protected function appendEnvironment(XAbstractHtml $elem) {
+    $this->list[] = $elem;
+  }
+
+  /**
+   * Return list of possible "inline" tags to catch, depending on context
+   *
+   * @return Array:String list of possible tags, such as '*', '/'.
+   */
+  protected function getInlineDelimiters() {
+    return array('*', '/', '✂');
+  }
+
+  /**
+   * Return the XAbstractHtml environment for given delimiter
+   *
+   * @param String $delim one from list returned getInlineDelimiters
+   * @param DPEConMap $con the context for the environment
+   * @return XAbstractHtml the environment, if any
+   */
+  protected function getInlineEnvironment($delim, DPEConMap $con) {
+    if (in_array($delim, $con->sym))
+      return null;
+
+    switch ($delim) {
+    case '*': return new XStrong("");
+    case '/': return new XEm("");
+    case '✂': return new XDel("");
+    default: return null;
+    }
+  }
+
+  /**
+   * Is the resource a BLOCK (vs. INLINE) environment?
+   *
+   * If the resource is a block-level element, then the current
+   * block-level environment (usually P) will be closed.
+   *
+   * @return boolean default: false
+   */
+  protected function isResourceBlockLevel($tag) {
+    return false;
+  }
+
+  /**
+   * Returns the XAbstractHtml represented by the tag
+   *
+   * A badge is a string of the form alphanumeric chars in braces {}.
+   * The argument to this function is the tag (without braces), and the
+   * default return value is null.
+   *
+   * If the return value is NOT null, it should be an HTMLElement which
+   * will be added to the current environment at that point.
+   *
+   * @param String tag alphanumeric string representing tag
+   * @return XAbstractHtml|null null to indicate no tag (default)
+   */
+  protected function getBadge($tag) {
+    return null;
   }
 
   /**
@@ -649,6 +881,25 @@ class DPEditor {
     default:
       $env->add($cont);
     }
+  }
+
+  /**
+   * Toggles parsing on/off (true/false) for resource.
+   *
+   * Some resources like images, use the second parameter for
+   * attributes like alt-text, for which there is no inline
+   * parsing. Others, like hyperlinks, allow inline elements to appear
+   * as the second argument.
+   *
+   * @param int $num the argument number
+   * @param XAbstractHtml $env the resource in question
+   * @param String $tag the tag used
+   * @return boolean true if inline parsing should be allowed
+   * @see getResourceTag
+   * @see setResourceParam
+   */
+  protected function getParseForParam($num, XAbstractHtml $env, $tag) {
+    return !($env instanceof XImg);
   }
 
   /**
