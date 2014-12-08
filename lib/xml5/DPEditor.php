@@ -404,6 +404,37 @@ class DPEditor {
             $i++;
             continue;
           }
+
+          // ------------------------------------------------------------
+          // Blockquotes
+          // ------------------------------------------------------------
+          elseif ($char == '>') {
+            // Fetch entire block, and recurse
+            $buf = '';
+            while (++$i < $len) {
+              $char = mb_substr($input, $i, 1);
+              if ($char == "\n") {
+                if ($i + 1 >= $len || mb_substr($input, $i + 1, 1) != '>')
+                  break;
+
+                $buf .= $char;
+                $i++;
+              }
+              else {
+                $buf .= $char;
+              }
+            }
+            $blockquote = new XBlockquote("");
+            $this->appendEnvironment($blockquote);
+
+            // Recurse
+            $classname = get_class($this);
+            $child_parser = new $classname();
+            foreach ($child_parser->parse($buf) as $child) {
+              $blockquote->add($child);
+            }
+            continue;
+          }
         }
 
         // ------------------------------------------------------------
