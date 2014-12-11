@@ -1,41 +1,28 @@
 
 /* CSS for previewing pages using DPEditor */
 #content {
-    margin: 0;
-    width: 95%;
-    padding: 0.5em;
+    box-sizing: border-box;
     font-size: 11pt;
+    margin: 0;
+    padding: 0.5em;
     vertical-align: top;
+    width: 100%;
+    height: 25em;
 }
 .c-editor .no-width {
     width: auto;
 }
 .dpe-preview {
     display: inline-block;
-    background: #eee;
+    background: white;
     border: 1px solid #555;
     border-radius: 5px;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     vertical-align: top;
-    margin-left: 1em;
-    width: 44%;
     padding: 0 1em;
-    min-height: 19.5em;
-}
-.dpe-preview:before {
-    content: "Preview";
-    font-weight: bold;
-    font-size: 80%;
-    position: relative;
-    top: -0.5em;
-    left: 1em;
-    background: white;
-    padding: 0.2em 0.5em;
-    border: 1px solid #555;
-    border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
+    height: 25em;
+    box-shadow: 0 0 2px 2px #ccc inset;
 }
 
 .dpe-preview ul {
@@ -92,8 +79,6 @@
 /* DPEditor goodness */
 .dpe-wrapper {
     margin-top: 0;
-    display: inline-block;
-    width: 48%;
     background: #eee;
     border: 1px solid #555;
     border-radius: 5px;
@@ -121,6 +106,11 @@
     background-repeat: no-repeat;
     background-color: #ccc;
 }
+
+.dpe-toolbar button.preview-button {
+    width: auto;
+}
+
 .dpe-toolbar select {
     color: #333;
     letter-spacing: normal;

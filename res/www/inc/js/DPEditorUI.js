@@ -86,6 +86,20 @@ DPEditor.prototype.uiInit = function(allowUploads) {
     label = this.newElement("img", {"alt":"table", "src":"data:img/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAMCAMAAABcOc2zAAAAM1BMVEVAAAAMJE0eQ2wpZpFTco5Af6dJmMRzk65wtdmcrbyPsMexs69fyfy2yNWj0+vP4erm6eaHHisrAAAAAXRSTlMAQObYZgAAAGhJREFUCNdlzksOwzAIBNDEgPnYY3z/0zamajcZzeqBENf1ysjcWdmJ8cCec1lfJhYk+8Ba+RSBDC+YltYjRIO4wA4gJJz/EApXB2tBFwiFNta7FQB56kj/HiUCN+X7tzHcz7jq4/34B2J4Bao4kdcKAAAAAElFTkSuQmCC"}, butt);
     butt.onclick = function(evt) { myObj.insertTable(); };
 
+    // PREVIEW
+    this.myToolbar.appendChild(document.createTextNode(" "));
+    this.previewButton = this.newElement("button", {"type":"button", "title":"Preview the changes"}, this.myToolbar);
+    this.previewLabel = document.createTextNode("Preview");
+    this.editLabel = document.createTextNode("Edit");
+    this.previewButton.appendChild(this.previewLabel);
+    this.previewButton.classList.add("preview-button");
+    this.previewButton.onclick = function(evt) { myObj.togglePreview(); };
+    this.editingMode = true;
+
+    this.myDisplay = this.newElement("div", {"class":"dpe-preview", "id":this.myID + "_display"});
+    this.myElement.parentNode.appendChild(this.myDisplay);
+    this.myDisplay.style.display = "none";
+
     this.myWrapper.insertBefore(this.myToolbar, this.myElement);
 
     // ------------------------------------------------------------
@@ -93,53 +107,53 @@ DPEditor.prototype.uiInit = function(allowUploads) {
     // ------------------------------------------------------------
     this.myScreen = this.newElement("div", {"class":"dpe-screen", "id":this.myID+"_screen"}, document.body);
     var css = {
-	"position":"fixed",
-	"width":"100%",
-	"height":"100%",
-	"background":"rgba(0,0,0,0.8)",
-	"zIndex":100,
-	"display":"none",
-	"overflow":"auto",
-	"top":0,
-	"left":0
+	      "position":"fixed",
+	      "width":"100%",
+	      "height":"100%",
+	      "background":"rgba(0,0,0,0.8)",
+	      "zIndex":100,
+	      "display":"none",
+	      "overflow":"auto",
+	      "top":0,
+	      "left":0
     };
     var rule;
     for (rule in css)
-	this.myScreen.style[rule] = css[rule];
+	      this.myScreen.style[rule] = css[rule];
 
     var closeLink = this.newElement("p", {}, this.myScreen);
     closeLink.appendChild(document.createTextNode("Close"));
     closeLink.onclick = function(evt) { myObj.showDialog(false); };
     css = {
-	"width":"40em",
-	"textAlign":"right",
-	"color":"#aaa",
-	"margin":"2em auto 0.5em",
-	"cursor":"pointer"
+	      "width":"40em",
+	      "textAlign":"right",
+	      "color":"#aaa",
+	      "margin":"2em auto 0.5em",
+	      "cursor":"pointer"
     };
     for (rule in css)
-	closeLink.style[rule] = css[rule];
+	      closeLink.style[rule] = css[rule];
 
     this.myDialog = this.newElement("div", {"class":"dpe-dialog", "id":this.myID+"_dialog"}, this.myScreen);
     css = {
-	"background":"#f2f2f2",
-	"width":"40em",
-	"margin":"0 auto",
-	"borderRadius":"0.25em",
-	"padding":"1em",
-	"zIndex":101
+	      "background":"#f2f2f2",
+	      "width":"40em",
+	      "margin":"0 auto",
+	      "borderRadius":"0.25em",
+	      "padding":"1em",
+	      "zIndex":101
     };
     for (rule in css)
-	this.myDialog.style[rule] = css[rule];
+	      this.myDialog.style[rule] = css[rule];
 };
 
 DPEditor.prototype.showDialog = function(flag) {
     if (flag)
-	this.myScreen.style.display = "block";
+	      this.myScreen.style.display = "block";
     else {
-	this.myScreen.style.display = "none";
-	while (this.myDialog.hasChildNodes())
-	    this.myDialog.removeChild(this.myDialog.childNodes[0]);
+	      this.myScreen.style.display = "none";
+	      while (this.myDialog.hasChildNodes())
+	          this.myDialog.removeChild(this.myDialog.childNodes[0]);
     }
 };
 
@@ -156,27 +170,27 @@ DPEditor.prototype.insertOrWrap = function(chr, cont) {
 
     var select = true;
     if (spos != epos) {
-	cont = this.myElement.value.substring(spos, epos);
-	select = false;
+	      cont = this.myElement.value.substring(spos, epos);
+	      select = false;
     }
 
     // are we at the edge of a word?
     var lrep = "", rrep = "";
     var loff = 0;
     if (spos > 0 && this.myElement.value.charAt(spos - 1).match(/\B/) == null) {
-	lrep = " ";
-	loff = 1;
+	      lrep = " ";
+	      loff = 1;
     }
     if (spos < this.myElement.value.length - 1 && this.myElement.value.charAt(epos).match(/\B/) == null) {
-	rrep = " ";
+	      rrep = " ";
     }
     this.myElement.value = prefix + lrep + chr + cont + chr + rrep + suffix;
     this.myElement.focus();
     if (select)
-	this.myElement.setSelectionRange(spos + 1 + loff, spos + 1 + loff + cont.length);
+	      this.myElement.setSelectionRange(spos + 1 + loff, spos + 1 + loff + cont.length);
     else {
-	spos = spos + 2 + loff + cont.length;
-	this.myElement.setSelectionRange(spos, spos);
+	      spos = spos + 2 + loff + cont.length;
+	      this.myElement.setSelectionRange(spos, spos);
     }
 };
 
@@ -191,20 +205,20 @@ DPEditor.prototype.insertOrWrapResource = function(elem, title) {
 
     var cont = "URL";
     if (spos != epos) {
-	title = this.myElement.value.substring(spos, epos);
-	if (elem == 'e')
-	    cont = title;
+	      title = this.myElement.value.substring(spos, epos);
+	      if (elem == 'e')
+	          cont = title;
     }
 
     // are we at the edge of a word?
     var lrep = "", rrep = "";
     var loff = 0;
     if (spos > 0 && this.myElement.value.charAt(spos - 1).match(/\B/) == null) {
-	lrep = " ";
-	loff = 1;
+	      lrep = " ";
+	      loff = 1;
     }
     if (epos < this.myElement.value.length - 1 && this.myElement.value.charAt(epos).match(/\B/) == null) {
-	rrep = " ";
+	      rrep = " ";
     }
     this.myElement.value = prefix + lrep + '{' + elem + ':' + cont + rrep + ',' + title + '}' + suffix;
     this.myElement.focus();
@@ -229,22 +243,22 @@ DPEditor.prototype.insertTable = function() {
     var pre = "\n\n";
     if (pos == 0) pre = "";
     else if (pos == 1 && this.myElement.value.charAt(0) == "\n")
-	pre = "\n";
+	      pre = "\n";
     else {
-	if (this.myElement.value.charAt(pos - 1) == "\n")
-	    pre = "\n";
-	if (this.myElement.value.charAt(pos - 2) == "\n")
-	    pre = "";
+	      if (this.myElement.value.charAt(pos - 1) == "\n")
+	          pre = "\n";
+	      if (this.myElement.value.charAt(pos - 2) == "\n")
+	          pre = "";
     }
     var suf = "\n\n";
     if (pos <= length - 2 && this.myElement.value.charAt(pos + 1) == "\n")
-	suf = "\n";
+	      suf = "\n";
     else if (pos <= length - 3 && this.myElement.value.substring(pos + 1, pos + 2) == "\n\n")
-	suf = "";
+	      suf = "";
 
     this.myElement.value = (this.myElement.value.substring(0, pos) + pre +
-		   "| Header 1 | Header 2 |\n---\n| Cell 1   | Cell 2   |" +
-		   suf + this.myElement.value.substring(pos));
+		                        "| Header 1 | Header 2 |\n---\n| Cell 1   | Cell 2   |" +
+		                        suf + this.myElement.value.substring(pos));
     this.myElement.focus();
     this.myElement.setSelectionRange(pos + pre.length + 2, pos + pre.length + 10);
 };
@@ -258,23 +272,23 @@ DPEditor.prototype.changeBlock = function(block) {
     // remove any visage of heading and track how many removed
     var removed = 0;
     for (var i = 0; i < 3; i++) {
-	if (suffix.charAt(0) == "*") {
-	    suffix = suffix.substring(1);
-	    removed++;
-	}
+	      if (suffix.charAt(0) == "*") {
+	          suffix = suffix.substring(1);
+	          removed++;
+	      }
     }
     if (suffix.charAt(0) == " ") {
-	suffix = suffix.substring(1);
-	removed++;
+	      suffix = suffix.substring(1);
+	      removed++;
     }
 
     var extra = "";
     if (block.value == 'h1')
-	extra = "* ";
+	      extra = "* ";
     if (block.value == 'h2')
-	extra = "** ";
+	      extra = "** ";
     if (block.value == 'h3')
-	extra = "*** ";
+	      extra = "*** ";
     block.selectedIndex = 0;
     this.myElement.value = prefix + extra + suffix;
     this.myElement.focus();
@@ -291,7 +305,7 @@ DPEditor.prototype.insertImage = function() {
 
     var title = "";
     if (spos != epos)
-	title = this.myElement.value.substring(spos, epos);
+	      title = this.myElement.value.substring(spos, epos);
 
     var altBox = this.newElement("input", {"type":"text", "value":title});
     this.newFormEntry("Short description", altBox, this.myDialog);
@@ -304,72 +318,72 @@ DPEditor.prototype.insertImage = function() {
     this.myImageFetchCheck = this.newElement("img", {}, urlBox.parentNode);
     this.myImageFetchCheck.style.marginLeft = "1em";
     urlBox.onkeyup = function(evt) {
-	var val = urlBox.value.trim();
-	if (val == myObj.myImageFetchURL)
-	    return;
-	myObj.myImageFetchURL = val;
-	// Attempt to fetch it
-	if (myObj.myImageFetchTimeout)
-	    window.clearTimeout(myObj.myImageFetchTimeout);
-	myObj.myImageFetchTimeout = window.setTimeout(function() {
-	    var xhr = myObj.getXMLHttpRequestObject();
-	    xhr.open("GET", val, true);
-	    xhr.onreadystatechange = function(e) {
-		if (xhr.readyState != 4)
-		    return;
-		if (xhr.status == 200 || xhr.status == 302 || xhr.status == 301) {
-		    subBox.disabled = false;
-		    myObj.myImageFetchCheck.src = "/inc/img/s.png";
-		    myObj.myImageFetchCheck.setAttribute("alt", "✓");
-		    myObj.myImageFetchCheck.setAttribute("title", "Image found.");
-		}
-		else {
-		    subBox.disabled = true;
-		    myObj.myImageFetchCheck.src = "/inc/img/e.png";
-		    myObj.myImageFetchCheck.setAttribute("alt", "X");
-		    myObj.myImageFetchCheck.setAttribute("title", "Image cannot be found.");
-		}
-	    };
-	    xhr.send();
-	}, 1000);
+	      var val = urlBox.value.trim();
+	      if (val == myObj.myImageFetchURL)
+	          return;
+	      myObj.myImageFetchURL = val;
+	      // Attempt to fetch it
+	      if (myObj.myImageFetchTimeout)
+	          window.clearTimeout(myObj.myImageFetchTimeout);
+	      myObj.myImageFetchTimeout = window.setTimeout(function() {
+	          var xhr = myObj.getXMLHttpRequestObject();
+	          xhr.open("GET", val, true);
+	          xhr.onreadystatechange = function(e) {
+		            if (xhr.readyState != 4)
+		                return;
+		            if (xhr.status == 200 || xhr.status == 302 || xhr.status == 301) {
+		                subBox.disabled = false;
+		                myObj.myImageFetchCheck.src = "/inc/img/s.png";
+		                myObj.myImageFetchCheck.setAttribute("alt", "✓");
+		                myObj.myImageFetchCheck.setAttribute("title", "Image found.");
+		            }
+		            else {
+		                subBox.disabled = true;
+		                myObj.myImageFetchCheck.src = "/inc/img/e.png";
+		                myObj.myImageFetchCheck.setAttribute("alt", "X");
+		                myObj.myImageFetchCheck.setAttribute("title", "Image cannot be found.");
+		            }
+	          };
+	          xhr.send();
+	      }, 1000);
     };
 
     var p = this.newElement("p", {"class":"submit"}, this.myDialog);
     subBox = this.newElement("button", {"type":"button", "disabled":"disabled"}, p);
     subBox.appendChild(document.createTextNode("Insert image"));
     subBox.onclick = function(evt) {
-	var cont = urlBox.value.trim();
-	if (cont.length == 0) {
-	    alert("Empty URL specified. Please add a URL for the image.");
-	    return;
-	}
+	      var cont = urlBox.value.trim();
+	      if (cont.length == 0) {
+	          alert("Empty URL specified. Please add a URL for the image.");
+	          return;
+	      }
 
-	var title = altBox.value.trim();
-	if (title.length == 0)
-	    title = "Image";
+	      var title = altBox.value.trim();
+	      if (title.length == 0)
+	          title = "Image";
 
-	// Check the URL for an image?
+	      // Check the URL for an image?
 
-	var prefix = myObj.myElement.value.substring(0, spos);
-	var suffix = myObj.myElement.value.substring(epos);
+	      var prefix = myObj.myElement.value.substring(0, spos);
+	      var suffix = myObj.myElement.value.substring(epos);
 
-	// are we at the edge of a word?
-	var lrep = "", rrep = "";
-	var loff = 0;
-	if (spos > 0 && myObj.myElement.value.charAt(spos - 1).match(/\B/) == null) {
-	    lrep = " ";
-	    loff = 1;
-	}
-	if (epos < myObj.myElement.value.length - 1 && myObj.myElement.value.charAt(epos).match(/\B/) == null) {
-	    rrep = " ";
-	}
-	myObj.myElement.value = prefix + lrep + '{img:' + cont + rrep + ',' + title + '}' + suffix;
-	myObj.myElement.focus();
+	      // are we at the edge of a word?
+	      var lrep = "", rrep = "";
+	      var loff = 0;
+	      if (spos > 0 && myObj.myElement.value.charAt(spos - 1).match(/\B/) == null) {
+	          lrep = " ";
+	          loff = 1;
+	      }
+	      if (epos < myObj.myElement.value.length - 1 && myObj.myElement.value.charAt(epos).match(/\B/) == null) {
+	          rrep = " ";
+	      }
+	      myObj.myElement.value = prefix + lrep + '{img:' + cont + rrep + ',' + title + '}' + suffix;
+	      myObj.myElement.focus();
 
-	// Always select the "URL" text
-	var pos = 5 + spos + loff + cont.length + 2 + title.length;
-	myObj.myElement.setSelectionRange(pos, pos);
-	myObj.showDialog(false);
+	      // Always select the "URL" text
+	      var pos = 5 + spos + loff + cont.length + 2 + title.length;
+	      myObj.myElement.setSelectionRange(pos, pos);
+	      myObj.showDialog(false);
     };
     
     this.showDialog(true);
@@ -381,6 +395,46 @@ DPEditor.prototype.newFormEntry = function(title, value, parent) {
     span.appendChild(document.createTextNode(title));
     elem.appendChild(value);
     if (parent)
-	parent.appendChild(elem);
+	      parent.appendChild(elem);
     return elem;
+};
+
+DPEditor.prototype.togglePreview = function() {
+    var myObj = this;
+    if (this.editingMode) {
+        var form = this.myElement.parentNode;
+        while (form && form.nodeName.toLowerCase() != "form")
+            form = form.parentNode;
+        if (!form) {
+            console.log("Unable to find parent form");
+            return;
+        }
+	      var xhr = myObj.getXMLHttpRequestObject();
+	      xhr.open("POST", "/parse", true);
+        xhr.responseType = "document";
+	      xhr.onreadystatechange = function(e) {
+            if (xhr.readyState == 4) {
+                if (xhr.status == 200) {
+                    var doc = xhr.responseXML;
+                    var body = doc.getElementsByTagName("body")[0];
+                    while (myObj.myDisplay.childNodes.length > 0)
+                        myObj.myDisplay.removeChild(myObj.myDisplay.childNodes[0]);
+
+                    for (var i = 0; i < body.childNodes.length; i++) {
+                        myObj.myDisplay.appendChild(document.importNode(body.childNodes[i], true));
+                    }
+
+                    myObj.myDisplay.style.display = "block";
+                    myObj.myElement.style.display = "none";
+                    myObj.previewButton.replaceChild(myObj.editLabel, myObj.previewLabel);
+                }
+            }
+        };
+        xhr.send(new FormData(form));
+    } else {
+        myObj.myDisplay.style.display = "none";
+        myObj.myElement.style.display = "block";
+        myObj.previewButton.replaceChild(myObj.previewLabel, myObj.editLabel);
+    }
+    this.editingMode = !this.editingMode;
 };

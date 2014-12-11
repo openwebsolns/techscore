@@ -706,6 +706,13 @@ abstract class AbstractUserPane {
       self::R_PERM => array(Permission::EDIT_PUBLIC_FILES)
     ),
 
+    'EditorParser' => array(
+      self::R_NAME => "Text Parser",
+      self::R_PATH => 'users',
+      self::R_URLS => array('parse', 'parser'),
+      self::R_PERM => array()
+    ),
+
     'VenueManagement' => array(
       self::R_NAME => "Venues",
       self::R_PATH => 'users/admin',

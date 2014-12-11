@@ -72,7 +72,7 @@ class TextManagement extends AbstractAdminUserPane {
     $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/DPEditor.js')));
     $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/DPEditorUI.js')));
     $this->PAGE->head->add(new XScript('text/javascript', null,
-                                       'window.onload = function(evt) { new DPEditor("content").uiInit();};'));
+                                       'window.onload = function(evt) { new DPEditor("content", false).uiInit();};'));
 
     $this->PAGE->addContent($p = new XPort("Edit " . $section));
     $p->add(new XP(array(), $this->getExplanation($section)));
