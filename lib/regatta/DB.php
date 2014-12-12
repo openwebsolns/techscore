@@ -65,6 +65,7 @@ class DB extends DBM {
   public static $SAILOR_SEASON = null;
   public static $SCHOOL_SEASON = null;
   public static $EMAIL_TOKEN = null;
+  public static $QUESTION = null;
 
   public static $PERMISSION = null;
   public static $ROLE = null;
@@ -146,6 +147,7 @@ class DB extends DBM {
     self::$SAILOR_SEASON = new Sailor_Season();
     self::$SCHOOL_SEASON = new School_Season();
     self::$EMAIL_TOKEN = new Email_Token();
+    self::$QUESTION = new Question();
 
     self::$PERMISSION = new Permission();
     self::$ROLE = new Role();
@@ -4579,6 +4581,32 @@ class Email_Token extends DBObject {
 
   public function __toString() {
     return $this->id;
+  }
+}
+
+/**
+ * Questions asked by end-users
+ *
+ * @author Dayan Paez
+ * @version 2014-12-11
+ */
+class Question extends DBObject {
+  protected $asker;
+  protected $asked_on;
+  public $subject;
+  public $question;
+  public $referer;
+
+  public function db_type($field) {
+    switch ($field) {
+    case 'asker':
+      require_once('regatta/Account.php');
+      return DB::$ACCOUNT;
+    case 'asked_on':
+      return DB::$NOW;
+    default:
+      return parent::db_type($field);
+    }
   }
 }
 ?>

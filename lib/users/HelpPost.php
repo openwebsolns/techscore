@@ -37,7 +37,8 @@ class HelpPost extends AbstractUserPane {
                                     array('list' => array($this->USER->email), 'axis' => 'users')));
 
     try {
-      $sub = '[TS Question] ' . DB::$V->reqString($args, 'subject', 3, 151, "Invalid subject provided.");
+      $subject = DB::$V->reqString($args, 'subject', 3, 151, "Invalid subject provided.");
+      $sub = '[TS Question] ' . $subject;
       $body = sprintf('------------------------------------------------------------
  User:    %s (%s)
  Page:    %s
@@ -114,6 +115,13 @@ user.',
         throw new SoterException("Unable to send mail at this time. Please try again later.");
 
       $response['message'] = "Message successfully sent. Please give us time to review your request and get back to you.";
+
+      $question = new Question();
+      $question->asker = $this->USER;
+      $question->subject = $subject;
+      $question->question = $message;
+      $question->referer = $ref;
+      DB::set($question);
     }
     catch (SoterException $e) {
       if (!$api)
