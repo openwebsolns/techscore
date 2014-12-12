@@ -21,7 +21,7 @@ require_once('users/admin/AbstractAdminUserPane.php');
  * number of ways, which must be specified in the submission with the
  * following POST/GET parameters:
  *
- *   - recipients: [all|conferences|roles|users]
+ *   - recipients: [all|conferences|schools|roles|users|regattaStatus]
  *
  * Based on the intended recipients type, there must then be a
  * corresponding variable as a list, except for 'all':
@@ -30,6 +30,7 @@ require_once('users/admin/AbstractAdminUserPane.php');
  *   - roles:       list of roles (student, staff, coach)
  *   - schools:     list of users with access to schools
  *   - users:       list of account IDs
+ *   - regattaStatus: one of Not-finalized, Missing RP, or Finalized
  *
  * If this pane is accessed through GET with the above parameters set,
  * then the program will present the user with a form to fill in the
@@ -46,8 +47,18 @@ require_once('users/admin/AbstractAdminUserPane.php');
  */
 class SendMessage extends AbstractAdminUserPane {
 
+  private $AXES;
+
   public function __construct(Account $user) {
     parent::__construct("Send message", $user);
+    $this->AXES = array(
+      Outbox::R_ALL => "All users",
+      Outbox::R_CONF => sprintf("Users in %s", DB::g(STN::CONFERENCE_TITLE)),
+      Outbox::R_SCHOOL => "Users in school(s)",
+      Outbox::R_ROLE => "Assigned to Role",
+      Outbox::R_STATUS => "With regatta status",
+      Outbox::R_USER => "Specific user(s)"
+    );
   }
 
   /**
@@ -64,69 +75,85 @@ class SendMessage extends AbstractAdminUserPane {
       try {
         $this->fillMessage($this->parseArgs($args));
         return;
-      }
-      catch (SoterException $e) {
+      } catch (SoterException $e) {
+        if (isset($this->AXES[$args['axis']])) {
+          $this->fillCategory($args['axis']);
+          return;
+        }
         Session::pa(new PA($e->getMessage(), PA::E));
         WS::go('/send-message');
       }
     }
 
     // ------------------------------------------------------------
-    // Choose message
+    // Choose message category
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new XPort("1. Choose recipients"));
+    $this->PAGE->addContent($p = new XPort("1. Message type"));
+    $p->add(new XP(array(), "To send a message, first choose the type of message you wish to send. You will then choose the list of recipients based on the category chosen."));
+    $p->add($f = $this->createForm(XForm::GET));
+    $f->add(new FReqItem("Recipients in category:", XSelect::fromArray('axis', $this->AXES), "We recommend selecting the most specific category possible for your message, to avoid spamming all users."));
+    $f->add(new XSubmitP('choose-axis', "Next →"));
+  }
+
+  /**
+   * Fill the second step: choosen recipients based on category
+   *
+   * @param String $axis one of the constants from Outbox
+   */
+  private function fillCategory($axis) {
+
+    // ------------------------------------------------------------
+    // Choose message recipients
+    // ------------------------------------------------------------
+    $this->PAGE->addContent($p = new XPort("2. Choose recipients"));
     $p->add(new XP(array(), "You may send a message to as many individuals as you'd like at a time. First, select the recipients using this port. Once you have added all recipients, use the form below to send the message."));
 
     $p->add($f = $this->createForm(XForm::GET));
-    $f->add($fi = new FItem("All users:", new XHiddenInput('axis', Outbox::R_ALL)));
-    $fi->add(new XSubmitInput('recipients', "Write message →"));
-    $fi->add(new XNote("Broadcast general message to all users. Use sparingly."));
+    $f->add(new XHiddenInput('axis', $axis));
 
-    // conference
-    $p->add($f = $this->createForm(XForm::GET));
-    $f->add($fi = new FItem(sprintf("All users in %s:", DB::g(STN::CONFERENCE_TITLE)), $sel = new XSelectM('list[]')));
-    $fi->add(" ");
-    $fi->add(new XSubmitInput('recipients', "Write message →"));
-    $fi->add(new XHiddenInput('axis', Outbox::R_CONF));
-    $sel->set('size', 7);
-    foreach (DB::getConferences() as $conf)
-      $sel->add(new FOption($conf->id, $conf));
+    switch ($axis) {
+      // conference
+    case Outbox::R_CONF:
+      $f->add(new FItem(sprintf("All users in %s:", DB::g(STN::CONFERENCE_TITLE)), $sel = new XSelectM('list[]')));
+      $sel->set('size', 7);
+      foreach (DB::getConferences() as $conf)
+        $sel->add(new FOption($conf->id, $conf));
+      break;
 
-    // schools
-    $p->add($f = $this->createForm(XForm::GET));
-    $f->add($fi = new FItem("All users in schools:", $sel = new XSelectM('list[]')));
-    $fi->add(" ");
-    $fi->add(new XSubmitInput('recipients', "Write message →"));
-    $fi->add(new XHiddenInput('axis', Outbox::R_SCHOOL));
-    $sel->set('size', 10);
-    foreach (DB::getConferences() as $conf) {
-      $sel->add($grp = new XOptionGroup($conf));
-      foreach ($conf->getSchools() as $school) {
-        $grp->add(new FOption($school->id, $school));
+    case Outbox::R_SCHOOL:
+      // schools
+      $p->add($f = $this->createForm(XForm::GET));
+      $f->add(new FItem("All users in schools:", $sel = new XSelectM('list[]')));
+      $sel->set('size', 10);
+      foreach (DB::getConferences() as $conf) {
+        $sel->add($grp = new XOptionGroup($conf));
+        foreach ($conf->getSchools() as $school) {
+          $grp->add(new FOption($school->id, $school));
+        }
       }
+      break;
+
+    case Outbox::R_ROLE:
+      // roles
+      $p->add($f = $this->createForm(XForm::GET));
+      $f->add(new FItem("All users with role:", $sel = XSelect::fromArray('list[]', Account::getRoles())));
+      break;
+
+    case Outbox::R_STATUS:
+      // regatta status
+      $p->add($f = $this->createForm(XForm::GET));
+      $f->add(new FItem("Scorers for regattas:", $sel = XSelect::fromArray('list[]', Outbox::getStatusTypes())));
+      break;
+
+    case Outbox::R_USER:
+      // user
+      $p->add($f = $this->createForm(XForm::GET));
+      $f->add(new FItem("Specific user:", new XTextInput('list[]', "", array('required'=>'required'))));
+      break;
     }
 
-    // roles
-    $p->add($f = $this->createForm(XForm::GET));
-    $f->add($fi = new FItem("All users with role:", $sel = XSelect::fromArray('list[]', Account::getRoles())));
-    $fi->add(" ");
-    $fi->add(new XSubmitInput('recipients', "Write message →"));
-    $fi->add(new XHiddenInput('axis', Outbox::R_ROLE));
-    $sel->set('size', 3);
-
-    // regatta status
-    $p->add($f = $this->createForm(XForm::GET));
-    $f->add($fi = new FItem("Scorers for regattas:", $sel = XSelect::fromArray('list[]', Outbox::getStatusTypes())));
-    $fi->add(" ");
-    $fi->add(new XSubmitInput('recipients', "Write message →"));
-    $fi->add(new XHiddenInput('axis', Outbox::R_STATUS));
-    $sel->set('size', 3);
-
-    // user
-    $p->add($f = $this->createForm(XForm::GET));
-    $f->add($fi = new FItem("Specific user:", new XTextInput('list[]', "", array('required'=>'required'))));
-    $fi->add(new XSubmitInput('recipients', "Write message →"));
-    $fi->add(new XHiddenInput('axis', Outbox::R_USER));
+    $f->add($xp = new XSubmitP('recipients', "Write message →"));
+    $xp->add(new XA($this->link(), "Cancel"));
   }
 
   /**
@@ -137,7 +164,6 @@ class SendMessage extends AbstractAdminUserPane {
    */
   private function fillMessage(Outbox $out) {
     $orgname = DB::g(STN::ORG_NAME);
-    $this->PAGE->addContent(new XP(array(), new XA(WS::link('/send-message'), "← Discard changes and restart")));
     $this->PAGE->addContent($p = new XPort("Instructions"));
     $p->add(new XP(array(), "When filling out the message, you may use the keywords in the table below to customize each message."));
     $p->add($this->keywordReplaceTable());
@@ -205,7 +231,8 @@ class SendMessage extends AbstractAdminUserPane {
       foreach ($out->arguments as $item)
         $para->add(new XHiddenInput('list[]', $item));
     }
-    $para->add(new XSubmitInput('send-message', "Send message now"));
+    $para->add(new XSubmitInput('send-message', "Send message"));
+    $para->add(new XA($this->link(), "Cancel"));
   }
 
   /**
