@@ -29,15 +29,27 @@ class HelpPost extends AbstractUserPane {
   public function process(Array $args) {
     $response = array('error'=>0, 'message'=>'');
     $api = isset($_SERVER['HTTP_ACCEPT']) && $_SERVER['HTTP_ACCEPT'] == 'application/json';
-    $ref = DB::$V->reqString($_SERVER, 'HTTP_REFERER', 1, 1000, "No referrer found.");
     $date = date('Y-m-d H:i:s');
     $agent = DB::$V->incString($_SERVER, 'HTTP_USER_AGENT', 1, 300, "--");
-    $message = DB::$V->reqString($args, 'message', 10, 3000, "Message too short.");
-    $mail_link = WS::alink(WS::link('/send-message',
-                                    array('list' => array($this->USER->email), 'axis' => 'users')));
 
     try {
+      $ref = DB::$V->reqString($_SERVER, 'HTTP_REFERER', 1, 1000, "No referrer found.");
+      $message = DB::$V->reqString($args, 'message', 10, 3000, "Message too short.");
       $subject = DB::$V->reqString($args, 'subject', 3, 151, "Invalid subject provided.");
+
+      // Save the question
+      $question = new Question();
+      $question->asker = $this->USER;
+      $question->subject = $subject;
+      $question->question = $message;
+      $question->referer = $ref;
+      DB::set($question);
+
+      $mail_link = WS::alink(WS::link('/send-message',
+                                      array('list' => array($this->USER->email),
+                                          'q' => $question->id,
+                                          'axis' => 'users')));
+
       $sub = '[TS Question] ' . $subject;
       $body = sprintf('------------------------------------------------------------
  User:    %s (%s)
@@ -62,7 +74,6 @@ user.',
                       $message,
                       $mail_link
       );
-
 
       require_once('xml5/TEmailMessage.php');
       $html = new TEmailMessage($sub);
@@ -115,13 +126,6 @@ user.',
         throw new SoterException("Unable to send mail at this time. Please try again later.");
 
       $response['message'] = "Message successfully sent. Please give us time to review your request and get back to you.";
-
-      $question = new Question();
-      $question->asker = $this->USER;
-      $question->subject = $subject;
-      $question->question = $message;
-      $question->referer = $ref;
-      DB::set($question);
     }
     catch (SoterException $e) {
       if (!$api)
