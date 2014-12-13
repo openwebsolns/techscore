@@ -4,7 +4,7 @@
  * @author OpenWeb Solutions, LLC
  */
 
-function OWSMultSelect(elem) {
+function OWSMultSelect(elem, incSearch) {
     if (!(elem instanceof HTMLSelectElement) || !elem.multiple)
         return;
 
@@ -27,7 +27,7 @@ function OWSMultSelect(elem) {
     c.setAttribute("class", "msel-from-wrapper");
     this.wrapper.appendChild(c);
 
-    var s = (this.fromElement.length > 10);
+    var s = (this.fromElement.length > 10 || incSearch);
     if (s) {
         this.fromSearch = document.createElement("input");
         this.fromSearch.setAttribute("class", "msel-search");

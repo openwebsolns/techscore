@@ -546,6 +546,7 @@ input[type="number"] {
 
 .msel-wrapper select {
     width: 40ex;
+    min-height: 5em;
 }
 
 .msel-wrapper {

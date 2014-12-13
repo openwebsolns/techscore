@@ -8,39 +8,26 @@
 
 window.addEventListener('load', function(e) {
     var textArea = document.getElementById('user-select');
-    if (!textArea || !XMLHttpRequest)
+    if (!textArea || !OWSMultSelect)
         return;
 
-    // Transform into:
-    //   DIV
-    //     DIV
-    //       INPUT[text]
-    //     UL for suggestions
-    //     UL for chosen
+    var TIMEOUT_FLAG = false;
+    var TIMEOUT = 0; // ms
 
-    var divWrap = document.createElement("div");
-    divWrap.classList.add("user-select-wrapper");
+    // Transform into multiple dropdown, backed by AJAX search
+    var select = document.createElement("select");
+    select.name = "list[]";
+    select.multiple = true;
+    textArea.parentNode.replaceChild(select, textArea);
 
-    var divInputWrap = document.createElement("div");
-    divInputWrap.classList.add("user-select-input-wrapper");
-    divWrap.appendChild(divInputWrap);
+    var combo = new OWSMultSelect(select, true);
+    combo.fromSearch.setAttribute("placeholder", "Search by name or email");
+    var oldHandler = combo.fromSearch.onkeyup;
+    combo.fromSearch.onkeyup = function(e) {
+        var input = combo.fromSearch.value.trim();
+        if (TIMEOUT_FLAG)
+            return;
 
-    var emailInput = document.createElement("input");
-    emailInput.classList.add("user-select-input");
-    emailInput.type = "text";
-    emailInput.setAttribute("placholder", "Search by e-mail or name");
-    divInputWrap.appendChild(emailInput);
-
-    var suggestionList = document.createElement("ul");
-    suggestionList.classList.add("user-select-suggestion-list");
-    divWrap.appendChild(suggestionList);
-
-    var chosenList = document.createElement("ul");
-    chosenList.classList.add("user-select-chosen-list");
-    divWrap.appendChild(chosenList);
-
-    emailInput.addEventListener('keyup', function(e) {
-        var input = emailInput.value.trim();
         if (input.length > 2) {
             var xhr = new XMLHttpRequest();
             xhr.open('GET', '/users?q=' + encodeURIComponent(input), true);
@@ -48,13 +35,31 @@ window.addEventListener('load', function(e) {
             xhr.setRequestHeader('Accept', 'application/json');
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4 && xhr.status == 200) {
-                    var obj = xhr.response;
-                    console.log(obj);
+                    var users = xhr.response;
+                    // Clear the field
+                    while (combo.fromElement.length > 0)
+                        combo.fromElement.remove(0);
+                    for (var i = 0; i < users.length; i++) {
+                        var option = document.createElement("option");
+                        option.value = users[i].email;
+                        option.appendChild(document.createTextNode(
+                            users[i].first_name + " " + users[i].last_name
+                            + " (" + users[i].email + ")"
+                        ));
+                        option.setAttribute("title", users[i].role);
+                        combo.fromElement.appendChild(option);
+                    }
+                    window.setTimeout(function() {
+                        TIMEOUT_FLAG = false;
+                    }, TIMEOUT);
+                    TIMEOUT_FLAG = true;
+                    oldHandler();
                 }
             };
             xhr.send();
+        } else {
+            while (combo.fromElement.length > 0)
+                combo.fromElement.remove(0);
         }
-    }, false);
-
-    textArea.parentNode.replaceChild(divWrap, textArea);
+    };
 }, false);
