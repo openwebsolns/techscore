@@ -69,20 +69,28 @@ class SendMessage extends AbstractAdminUserPane {
    */
   public function fillHTML(Array $args) {
     // ------------------------------------------------------------
-    // Request for recipient?
+    // Where in the process are we?
     // ------------------------------------------------------------
-    if (isset($args['axis'])) {
-      try {
-        $this->fillMessage($this->parseArgs($args));
-        return;
-      } catch (SoterException $e) {
-        if (isset($this->AXES[$args['axis']])) {
-          $this->fillCategory($args['axis']);
-          return;
-        }
-        Session::pa(new PA($e->getMessage(), PA::E));
-        WS::go('/send-message');
-      }
+    $outbox = new Outbox();
+    try {
+      $this->parseArgs($outbox, $args);
+    } catch (SoterException $e) {}
+
+    // ------------------------------------------------------------
+    // Progress report
+    // ------------------------------------------------------------
+    $this->PAGE->addContent($f = $this->createForm(XForm::GET));
+    $f->add($prog = new XP(array('id'=>'progressdiv')));
+    $step = $this->calculateProgress($prog, $outbox);
+
+    switch ($step) {
+    case 1:
+      $this->fillCategory($args['axis']);
+      return;
+
+    case 2:
+      $this->fillMessage($outbox);
+      return;
     }
 
     // ------------------------------------------------------------
@@ -122,7 +130,6 @@ class SendMessage extends AbstractAdminUserPane {
 
     case Outbox::R_SCHOOL:
       // schools
-      $p->add($f = $this->createForm(XForm::GET));
       $f->add(new FItem("All users in schools:", $sel = new XSelectM('list[]')));
       $sel->set('size', 10);
       foreach (DB::getConferences() as $conf) {
@@ -135,19 +142,16 @@ class SendMessage extends AbstractAdminUserPane {
 
     case Outbox::R_ROLE:
       // roles
-      $p->add($f = $this->createForm(XForm::GET));
-      $f->add(new FItem("All users with role:", $sel = XSelect::fromArray('list[]', Account::getRoles())));
+      $f->add(new FItem("All users with role:", XSelect::fromArray('list[]', Account::getRoles())));
       break;
 
     case Outbox::R_STATUS:
       // regatta status
-      $p->add($f = $this->createForm(XForm::GET));
-      $f->add(new FItem("Scorers for regattas:", $sel = XSelect::fromArray('list[]', Outbox::getStatusTypes())));
+      $f->add(new FItem("Scorers for regattas:", XSelect::fromArray('list[]', Outbox::getStatusTypes())));
       break;
 
     case Outbox::R_USER:
       // user
-      $p->add($f = $this->createForm(XForm::GET));
       $f->add(new FItem("Specific user:", new XTextInput('list[]', "", array('required'=>'required'))));
       break;
     }
@@ -242,7 +246,8 @@ class SendMessage extends AbstractAdminUserPane {
    * @throws SoterException (as usual)
    */
   public function process(Array $args) {
-    $out = $this->parseArgs($args, true);
+    $out = new Outbox();
+    $this->parseArgs($out, $args, true);
     $out->sender = $this->USER;
     if (isset($args['copy-me']))
       $out->copy_sender =  1;
@@ -257,14 +262,14 @@ class SendMessage extends AbstractAdminUserPane {
    * $_POST) and returns the appropriate recipient 'axis' and
    * corresponding list.
    *
+   * @param Outbox $res the outbox object to fill
    * @param Array $args the variables to parse
    * @param boolean $req_message if true, require non-empty subject
    *   and message
    * @return Outbox the message
    * @throws SoterException if user is trying to pull a fast one
    */
-  private function parseArgs($args, $req_message = false) {
-    $res = new Outbox();
+  private function parseArgs(Outbox &$res, $args, $req_message = false) {
     $res->recipients = DB::$V->reqKey($args, 'axis', Outbox::getRecipientTypes(), "Invalid recipient type provided.");
     $res->subject = DB::$V->incString($args, 'subject', 1, 101);
     if ($req_message && $res->subject === null)
@@ -272,8 +277,10 @@ class SendMessage extends AbstractAdminUserPane {
     $res->content = DB::$V->incString($args, 'content', 1, 16000);
     if ($req_message && $res->content === null)
       throw new SoterException("Missing content for message, or possibly too long.");
-    if ($res->recipients == Outbox::R_ALL)
+    if ($res->recipients == Outbox::R_ALL) {
+      $res->arguments = array();
       return $res;
+    }
 
     // require appropriate list
     $list = array();
@@ -318,6 +325,39 @@ class SendMessage extends AbstractAdminUserPane {
       throw new SoterException("No valid recipients provided.");
     $res->arguments = $list;
     return $res;
+  }
+
+  /**
+   * Helper function to fill in the progress bar at the top of page
+   *
+   * @return $int the step, zero-indexed
+   */
+  private function calculateProgress(XP $prog, Outbox $outbox) {
+    $steps = array(
+      "Message Type",
+      "Recipients",
+      "Message",
+    );
+
+    if ($outbox->recipients) {
+      $prog->add(new XSpan(new XA($this->link(), $steps[0]), array('class'=>'completed')));
+
+      if ($outbox->arguments !== null) {
+        $prog->add(new XSpan(new XA($this->link(array('axis' => $outbox->recipients)), $steps[1]), array('class'=>'completed')));
+        $prog->add(new XSpan($steps[2], array('class'=>'current')));
+        return 2;
+      }
+
+      $prog->add(new XSpan(new XA($this->link(array('axis' => $outbox->recipients)), $steps[1]), array('class'=>'current')));
+      $prog->add(new XSpan($steps[2]));
+      return 1;
+    }
+
+    // Step 0
+    $prog->add(new XSpan(new XA($this->link(), $steps[0]), array('class'=>'current')));
+    $prog->add(new XSpan($steps[1]));
+    $prog->add(new XSpan($steps[2]));
+    return 0;
   }
 }
 ?>
