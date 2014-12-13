@@ -152,7 +152,7 @@ class SendMessage extends AbstractAdminUserPane {
 
     case Outbox::R_USER:
       // user
-      $f->add(new FItem("Specific user:", new XTextInput('list[]', "", array('required'=>'required'))));
+      $f->add(new FItem("Specific users:", new XTextArea('inline-list', "", array('required'=>'required')), "Add one e-mail address per line."));
       break;
     }
 
@@ -217,7 +217,13 @@ class SendMessage extends AbstractAdminUserPane {
       // specific user
     case Outbox::R_USER:
       $title = "2. Send message to specific user";
-      $recip = implode(", ", $out->arguments);
+      $recip = "";
+      foreach ($out->arguments as $i => $email) {
+        if ($i > 0)
+          $recip .= ", ";
+        $recip .= DB::getAccountByEmail($email);
+      }
+      break;
     }
 
     $this->PAGE->addContent($p = new XPort($title));
@@ -282,11 +288,18 @@ class SendMessage extends AbstractAdminUserPane {
       return $res;
     }
 
+    $inputList = DB::$V->incList($args, 'list');
+    if (count($inputList) == 0) {
+      $inlineList = DB::$V->reqString($args, 'inline-list', 1, 10000, "Missing list of recipients.");
+      $inlineList = preg_replace('/\s+/', ' ', $inlineList);
+      $inputList = explode(' ', $inlineList);
+    }
+
     // require appropriate list
     $list = array();
     $roles = Account::getRoles();
     $stats = Outbox::getStatusTypes();
-    foreach (DB::$V->reqList($args, 'list', null, "Missing list of recipients.") as $m) {
+    foreach ($inputList as $m) {
       $obj = null;
       $ind = (string)$m;
       switch ($res->recipients) {
@@ -302,7 +315,7 @@ class SendMessage extends AbstractAdminUserPane {
 
       case Outbox::R_USER:
         if (($ind = DB::getAccountByEmail($ind)) !== null)
-          $obj = $ind->id;
+          $obj = $ind->email;
         break;
 
       case Outbox::R_SCHOOL:
@@ -323,7 +336,7 @@ class SendMessage extends AbstractAdminUserPane {
     }
     if (count($list) == 0)
       throw new SoterException("No valid recipients provided.");
-    $res->arguments = $list;
+    $res->arguments = array_keys($list);
     return $res;
   }
 

@@ -126,7 +126,7 @@ class ProcessOutbox extends AbstractScript {
       // user
       if ($outbox->recipients == Outbox::R_USER) {
         foreach ($outbox->arguments as $user) {
-          $acc = DB::getAccount($user);
+          $acc = DB::getAccountByEmail($user);
           if ($acc !== null) {
             $this->send($outbox->sender, $acc, $outbox->subject, $outbox->content);
             if ($acc->id == $outbox->sender->id)
