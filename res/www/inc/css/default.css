@@ -1485,7 +1485,12 @@ td.tr-sail, td.sail {
     margin-top: 2em;
 }
 
-
+/*
+ * Fancy user select (userSelect.js)
+ */
+.user-select-wrapper {
+    display: inline-block;
+}
 
 /*
  * -------------------------------

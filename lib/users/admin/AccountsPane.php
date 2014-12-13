@@ -125,6 +125,8 @@ class AccountsPane extends AbstractAccountPane {
 
     $p->add($ldiv = $whiz->getPages('r', $_GET));
 
+    $ajaxResult = array();
+
     // Create table, if applicable
     if ($num_users > 0) {
       $can_usurp = $this->USER->can(Permission::USURP_USER);
@@ -171,9 +173,26 @@ class AccountsPane extends AbstractAccountPane {
           $row[] = $form;
         }
         $tab->addRow($row, array('class'=>'row'.($i % 2)));
+        $ajaxResult[] = array(
+          'id' => $user->id,
+          'email' => $user->email,
+          'first_name' => $user->first_name,
+          'last_name' => $user->last_name,
+          'role' => $user->role,
+          'status' => $user->status,
+        );
       }
     }
     $p->add($ldiv);
+
+    // AJAX?
+    $accept = null;
+    if (DB::$V->hasString($accept, $_SERVER, 'HTTP_ACCEPT', 1, 1000)
+        && $accept == 'application/json') {
+      header('Content-Type: application/json');
+      echo json_encode($ajaxResult);
+      exit;
+    }
 
     $this->PAGE->addContent($p = new XPort("Legend"));
     $p->add(new XP(array(), "The \"Status\" indicators have the following meaning:"));

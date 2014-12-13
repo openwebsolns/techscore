@@ -122,7 +122,7 @@ class SendMessage extends AbstractAdminUserPane {
     switch ($axis) {
       // conference
     case Outbox::R_CONF:
-      $f->add(new FItem(sprintf("All users in %s:", DB::g(STN::CONFERENCE_TITLE)), $sel = new XSelectM('list[]')));
+      $f->add(new FReqItem(sprintf("All users in %s:", DB::g(STN::CONFERENCE_TITLE)), $sel = new XSelectM('list[]')));
       $sel->set('size', 7);
       foreach (DB::getConferences() as $conf)
         $sel->add(new FOption($conf->id, $conf));
@@ -130,7 +130,7 @@ class SendMessage extends AbstractAdminUserPane {
 
     case Outbox::R_SCHOOL:
       // schools
-      $f->add(new FItem("All users in schools:", $sel = new XSelectM('list[]')));
+      $f->add(new FReqItem("All users in schools:", $sel = new XSelectM('list[]')));
       $sel->set('size', 10);
       foreach (DB::getConferences() as $conf) {
         $sel->add($grp = new XOptionGroup($conf));
@@ -142,17 +142,18 @@ class SendMessage extends AbstractAdminUserPane {
 
     case Outbox::R_ROLE:
       // roles
-      $f->add(new FItem("All users with role:", XSelect::fromArray('list[]', Account::getRoles())));
+      $f->add(new FReqItem("All users with role:", XSelect::fromArray('list[]', Account::getRoles())));
       break;
 
     case Outbox::R_STATUS:
       // regatta status
-      $f->add(new FItem("Scorers for regattas:", XSelect::fromArray('list[]', Outbox::getStatusTypes())));
+      $f->add(new FReqItem("Scorers for regattas:", XSelect::fromArray('list[]', Outbox::getStatusTypes())));
       break;
 
     case Outbox::R_USER:
       // user
-      $f->add(new FItem("Specific users:", new XTextArea('inline-list', "", array('required'=>'required')), "Add one e-mail address per line."));
+      $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/userSelect.js')));
+      $f->add(new FReqItem("Specific users:", new XTextArea('inline-list', "", array('id'=>'user-select')), "Add one e-mail address per line."));
       break;
     }
 
