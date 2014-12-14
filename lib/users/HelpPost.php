@@ -47,8 +47,7 @@ class HelpPost extends AbstractUserPane {
 
       $mail_link = WS::alink(WS::link('/send-message',
                                       array('list' => array($this->USER->email),
-                                          'q' => $question->id,
-                                          'axis' => 'users')));
+                                          'q' => $question->id)));
 
       $sub = '[TS Question] ' . $subject;
       $body = sprintf('------------------------------------------------------------

@@ -237,7 +237,7 @@ class SendMessage extends AbstractAdminUserPane {
 
     $f->add(new FReqItem("Message body:", new XTextArea('content', $out->content, array('rows'=>16, 'cols'=>75))));
     if (count(DB::getAdmins()) > 1) {
-      $is_chosen = DB::$V->hasInt($value, $args, 'copy_admin', 1, 2);
+      $is_chosen = DB::$V->hasInt($value, $args, 'copy_admin', 1, 2) || isset($args['q']);
       $f->add(new FItem("Copy other Admins:", new FCheckbox('copy_admin', 1, "Send a blind carbon copy to all other admins.", $is_chosen),
                         "This is recommended when answering questions to users so others are aware that the question has been answered."));
     }
@@ -261,8 +261,6 @@ class SendMessage extends AbstractAdminUserPane {
     $out = new Outbox();
     $this->parseArgs($out, $args, true);
     $out->sender = $this->USER;
-    if (isset($args['copy-me']))
-      $out->copy_sender =  1;
 
     DB::set($out);
     Session::pa(new PA("Successfully queued message to be sent."));
@@ -282,6 +280,22 @@ class SendMessage extends AbstractAdminUserPane {
    * @throws SoterException if user is trying to pull a fast one
    */
   private function parseArgs(Outbox &$res, $args, $req_message = false) {
+    $res->copy_admin = DB::$V->incInt($args, 'copy_admin', 1, 2, null);
+    $res->copy_sender = DB::$V->incInt($args, 'copy-me', 1, 2, null);
+
+    // If answering a question, autofill most items
+    if (isset($args['q'])) {
+      $question = DB::$V->reqID($args, 'q', DB::$QUESTION, "Invalid question provided in argument.");
+      $res->recipients = Outbox::R_USER;
+      $res->arguments = array($question->asker->email);
+      $res->subject = DB::$V->incString($args, 'subject', 1, 101, "RE: " . $question->subject);
+      $res->content = DB::$V->incString($args, 'content', 1, 16000);
+      if ($res->content === null) {
+        $res->content = "\n\n> " . str_replace("\n", "\n> ", $question->question);
+      }
+      return $res;
+    }
+
     $res->recipients = DB::$V->reqKey($args, 'axis', Outbox::getRecipientTypes(), "Invalid recipient type provided.");
     $res->subject = DB::$V->incString($args, 'subject', 1, 101);
     if ($req_message && $res->subject === null)
@@ -289,7 +303,6 @@ class SendMessage extends AbstractAdminUserPane {
     $res->content = DB::$V->incString($args, 'content', 1, 16000);
     if ($req_message && $res->content === null)
       throw new SoterException("Missing content for message, or possibly too long.");
-    $res->copy_admin = DB::$V->incInt($args, 'copy_admin', 1, 2, null);
     if ($res->recipients == Outbox::R_ALL) {
       $res->arguments = array();
       return $res;
