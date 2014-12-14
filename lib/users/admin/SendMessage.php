@@ -262,8 +262,17 @@ class SendMessage extends AbstractAdminUserPane {
     $this->parseArgs($out, $args, true);
     $out->sender = $this->USER;
 
-    DB::set($out);
-    Session::pa(new PA("Successfully queued message to be sent."));
+    // If the number of recipients is small enough, send now
+    if ($out->recipients == Outbox::R_USER && count($out->arguments) <= 5) {
+      require_once('scripts/ProcessOutbox.php');
+      $P = new ProcessOutbox();
+      $P->process($out);
+      Session::pa(new PA("Message successfully sent."));
+    }
+    else {
+      DB::set($out);
+      Session::pa(new PA("Successfully queued message to be sent."));
+    }
     $this->redirect('send-message');
   }
 
