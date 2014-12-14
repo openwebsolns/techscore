@@ -68,11 +68,7 @@ class TextManagement extends AbstractAdminUserPane {
   }
 
   private function fillText(Array $args, $section) {
-    $this->PAGE->head->add(new XLinkCSS('text/css', WS::link('/inc/css/preview.css'), 'screen', 'stylesheet'));
-    $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/DPEditor.js')));
-    $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/DPEditorUI.js')));
-    $this->PAGE->head->add(new XScript('text/javascript', null,
-                                       'window.onload = function(evt) { new DPEditor("content", false).uiInit();};'));
+    $this->setupTextEditors(array('content'));
 
     $this->PAGE->addContent($p = new XPort("Edit " . $section));
     $p->add(new XP(array(), $this->getExplanation($section)));
@@ -82,8 +78,8 @@ class TextManagement extends AbstractAdminUserPane {
       $entry = new Text_Entry();
 
     $p->add($f = $this->createForm());
-    $f->add(new XDiv(array(), array(new XTextArea('content', $entry->plain,
-                                                  array('id'=>'content', 'cols'=>'80', 'rows'=>'10')))));
+    $f->add(new XTextEditor('content', 'content', $entry->plain));
+
     $f->add($xp = new XSubmitP('set-text', "Save changes"));
     $xp->add(new XHiddenInput('section', $section));
     $xp->add(new XA($this->link(), "Cancel"));

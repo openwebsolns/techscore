@@ -446,4 +446,34 @@ class SailTD extends XTD {
       $this->add(new XSpan("", array('class'=>'sail-color', 'style' => sprintf('background:%s;', $sail->color))));
   }
 }
+
+/**
+ * DIV for rich textarea containment
+ *
+ * @author Dayan Paez
+ * @version 2014-12-14
+ */
+class XTextEditor extends XDiv {
+
+  public $textarea;
+
+  /**
+   * Creates a new rich-text area element
+   *
+   * @param String $name the name of the textarea form element
+   * @param String $value the value of the textarea form element
+   * @param Array $taAttrs extra attributes for textarea element
+   * @param Array $dAttrs extra attributes for DIV wrapper element
+   */
+  public function __construct($id, $name, $value = '', Array $taAttrs = array(), Array $dAttrs = array()) {
+    parent::__construct($dAttrs);
+    $this->set('class', 'dpeditor-container');
+
+    $taAttrs['id'] = $id;
+    $taAttrs['rows'] = 16;
+    $taAttrs['cols'] = 80;
+    $this->textarea = new XTextArea($name, $value, $taAttrs);
+    $this->add($this->textarea);
+  }
+}
 ?>

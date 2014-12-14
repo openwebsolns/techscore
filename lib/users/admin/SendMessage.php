@@ -168,6 +168,8 @@ class SendMessage extends AbstractAdminUserPane {
    * @param Outbox $out the message object
    */
   private function fillMessage(Outbox $out, Array $args) {
+    $this->setupTextEditors(array('content'));
+
     $title = "";
     $recip = "";
     $omit_instructions = false;
@@ -251,7 +253,13 @@ class SendMessage extends AbstractAdminUserPane {
                            )
                          )));
 
-    $f->add(new FReqItem("Message body:", new XTextArea('content', $out->content, array('rows'=>16, 'cols'=>75))));
+    $f->add(
+      new XTextEditor(
+        'content', 'content', $out->content,
+        array(
+          'required'=>'required',
+          'placeholder'=>"Message body (required).")));
+
     if (count(DB::getAdmins()) > 1) {
       $is_chosen = DB::$V->hasInt($value, $args, 'copy_admin', 1, 2) || isset($args['q']);
       $f->add(new FItem("Copy other Admins:", new FCheckbox('copy_admin', 1, "Send a blind carbon copy to all other admins.", $is_chosen),

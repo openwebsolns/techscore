@@ -416,6 +416,18 @@ abstract class AbstractUserPane {
     }
   }
 
+  protected function setupTextEditors(Array $ids) {
+    $this->PAGE->head->add(new XLinkCSS('text/css', WS::link('/inc/css/preview.css'), 'screen', 'stylesheet'));
+    $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/DPEditor.js')));
+    $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/DPEditorUI.js')));
+
+    $script = 'window.addEventListener("load", function(e){';
+    foreach ($ids as $id)
+      $script .= sprintf('new DPEditor("%s", false).uiInit();', $id);
+    $script .= '}, false);';
+    $this->PAGE->head->add(new XScript('text/javascript', null, $script));
+  }
+
   /**
    * Does this pane's user have access?
    *
