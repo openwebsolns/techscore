@@ -168,13 +168,9 @@ class SendMessage extends AbstractAdminUserPane {
    * @param Outbox $out the message object
    */
   private function fillMessage(Outbox $out, Array $args) {
-    $orgname = DB::g(STN::ORG_NAME);
-    $this->PAGE->addContent($p = new XPort("Instructions"));
-    $p->add(new XP(array(), "When filling out the message, you may use the keywords in the table below to customize each message."));
-    $p->add($this->keywordReplaceTable());
-
     $title = "";
     $recip = "";
+    $omit_instructions = false;
     switch ($out->recipients) {
     case Outbox::R_ALL:
       $title = "2. Send message to all users";
@@ -222,18 +218,38 @@ class SendMessage extends AbstractAdminUserPane {
       foreach ($out->arguments as $i => $email) {
         if ($i > 0)
           $recip .= ", ";
-        $recip .= DB::getAccountByEmail($email);
+        $acc = DB::getAccountByEmail($email);
+        $recip .= $acc;
+        if (count($out->arguments) == 1) {
+          $omit_instructions = true;
+          $recip .= sprintf(', %s at %s', $acc->role, $acc->getAffiliation());
+        }
       }
       break;
     }
 
+    // Instructions on replacements available
+    if (!$omit_instructions) {
+      $this->PAGE->addContent($p = new XPort("Instructions"));
+      $p->add(new XP(array(), "When filling out the message, you may use the keywords in the table below to customize each message."));
+      $p->add($this->keywordReplaceTable());
+    }
+
+    // Form to send messages
     $this->PAGE->addContent($p = new XPort($title));
     $p->add($f = $this->createForm());
 
     $f->add(new FReqItem("Recipients:", new XSpan($recip, array('class'=>'strong'))));
     $f->add(new FReqItem("Subject:",
-                         new XTextInput('subject', $out->subject, array('maxlength'=>100)),
-                         "Fewer than 100 characters"));
+                         new XTextInput(
+                           'subject',
+                           $out->subject,
+                           array(
+                             'maxlength'=>100,
+                             'size'=>75,
+                             'placeholder' => "Fewer than 100 characters"
+                           )
+                         )));
 
     $f->add(new FReqItem("Message body:", new XTextArea('content', $out->content, array('rows'=>16, 'cols'=>75))));
     if (count(DB::getAdmins()) > 1) {
