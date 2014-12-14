@@ -44,7 +44,7 @@ class TEmailMessage extends XPage {
    * Start with value of 'false' due to 'null' return value of
    * json_decode
    */
-  private $css = false;
+  private static $CSS_JSON = false;
 
   /**
    * @var Xmlable the container for appended content
@@ -54,25 +54,25 @@ class TEmailMessage extends XPage {
   public function __construct($title) {
     parent::__construct($title);
 
-    $this->set('style', $this->getCSS(self::HTML));
+    $this->set('style', self::getCSS(self::HTML));
     $this->head->add(new XMetaHTTP('Content-Type', 'text/html; charset=UTF-8'));
-    $this->body->set('style', $this->getCSS(self::BODY));
+    $this->body->set('style', self::getCSS(self::BODY));
 
     // Header
     $this->body->add(
       new XDiv(
-        array('style' => $this->getCSS(self::HEADDIV)),
+        array('style' => self::getCSS(self::HEADDIV)),
         array(
           new XDiv(
-            array('style' => $this->getCSS(self::HEADBAR)),
+            array('style' => self::getCSS(self::HEADBAR)),
             array(
               new XH1(
                 new XA(
                   $this->link('/'),
-                  new XImg($this->link('/inc/img/techscore.png'), DB::g(STN::APP_NAME), array('style' => $this->getCSS(self::HEADIMG))),
-                  array('style' => $this->getCSS(self::HEADLINK))
+                  new XImg($this->link('/inc/img/techscore.png'), DB::g(STN::APP_NAME), array('style' => self::getCSS(self::HEADIMG))),
+                  array('style' => self::getCSS(self::HEADLINK))
                 ),
-                array('style' => $this->getCSS(self::LOGO))
+                array('style' => self::getCSS(self::LOGO))
               ),
             )
           )
@@ -81,10 +81,10 @@ class TEmailMessage extends XPage {
     );
 
     // Content
-    $this->container = new XDiv(array('style' => $this->getCSS(self::BODYDIV)));
+    $this->container = new XDiv(array('style' => self::getCSS(self::BODYDIV)));
     $this->body->add(
       new XDiv(
-        array('style' => $this->getCSS(self::BODYWRAP)),
+        array('style' => self::getCSS(self::BODYWRAP)),
         array(
           $this->container
         )
@@ -94,10 +94,10 @@ class TEmailMessage extends XPage {
     // Footer
     $this->body->add(
       new XDiv(
-        array('style' => $this->getCSS(self::FOOTDIV)),
+        array('style' => self::getCSS(self::FOOTDIV)),
         array(
           new XAddress(
-            array('style' => $this->getCSS(self::FOOTADDRESS)),
+            array('style' => self::getCSS(self::FOOTADDRESS)),
             array(
               sprintf("%s v%s %s", DB::g(STN::APP_NAME), DB::g(STN::APP_VERSION), DB::g(STN::APP_COPYRIGHT))
             )
@@ -114,6 +114,8 @@ class TEmailMessage extends XPage {
    */
   public function append($elem) {
     $this->container->add($elem);
+    if (($css = self::getCSS($elem->name)) !== null)
+      $elem->set('style', $css);
   }
 
   /**
@@ -146,19 +148,42 @@ class TEmailMessage extends XPage {
    * @param String $key the index to find in TEmailMessageCSS
    * @return String the rule
    */
-  public function getCSS($key) {
-    if ($this->css === false) {
-      $this->css = json_decode(file_get_contents(__DIR__ . '/TEmailMessageCSS.json'), true);
+  public static function getCSS($key) {
+    if (self::$CSS_JSON === false) {
+      self::$CSS_JSON = json_decode(file_get_contents(__DIR__ . '/TEmailMessageCSS.json'), true);
     }
 
-    if (is_array($this->css) && isset($this->css[$key])) {
+    if (is_array(self::$CSS_JSON) && isset(self::$CSS_JSON[$key])) {
       $resp = "";
-      foreach ($this->css[$key] as $selector => $value) {
+      foreach (self::$CSS_JSON[$key] as $selector => $value) {
         $resp .= $selector . ':' . $value . ';';
       }
       return $resp;
     }
     return null;
+  }
+
+  /**
+   * Returns all the rules in one string
+   *
+   * @return String
+   */
+  public static function getCSSStylesheet() {
+    if (self::$CSS_JSON === false) {
+      self::$CSS_JSON = json_decode(file_get_contents(__DIR__ . '/TEmailMessageCSS.json'), true);
+    }
+
+    $sheet = '';
+    if (is_array(self::$CSS_JSON)) {
+      foreach (self::$CSS_JSON as $target => $rules) {
+        $sheet .= sprintf('%s {', $target);
+        foreach ($rules as $selector => $value) {
+          $sheet .= $selector . ':' . $value . ';';
+        }
+        $sheet .= '}';
+      }
+    }
+    return $sheet;
   }
 
   public function link($path) {

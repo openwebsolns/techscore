@@ -85,6 +85,14 @@
         "padding": "1em"
     },
 
+    "blockquote" : {
+        "background": "none repeat scroll 0 0 #f3f3f3",
+        "border-left": "3px solid green",
+        "font-size": "95%",
+        "margin-left": "1em",
+        "padding": "0.125em 1em"
+    },
+
     "footaddress" : {
         "font-style": "normal",
         "text-align": "center"

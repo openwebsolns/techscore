@@ -254,11 +254,13 @@ class SendMessage extends AbstractAdminUserPane {
                          )));
 
     $f->add(
-      new XTextEditor(
+      $te = new XTextEditor(
         'content', 'content', $out->content,
         array(
           'required'=>'required',
           'placeholder'=>"Message body (required).")));
+    require_once('xml5/TEmailMessage.php');
+    $te->add(new XStyle('text/css', TEmailMessage::getCSSStylesheet(), array('scoped'=>'scoped')));
 
     if (count(DB::getAdmins()) > 1) {
       $is_chosen = DB::$V->hasInt($value, $args, 'copy_admin', 1, 2) || isset($args['q']);

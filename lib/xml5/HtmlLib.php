@@ -909,8 +909,9 @@ class XStyle extends XAbstractHtml {
    * @param String $type the type attribute
    * @param String $content the content
    */
-  public function __construct($type, $content) {
-    parent::__construct("style", array("type"=>$type), array(new XRawText($content)));
+  public function __construct($type, $content, Array $attrs = array()) {
+    parent::__construct("style", $attrs, array(new XRawText($content)));
+    $this->set('type', $type);
   }
 }
 
