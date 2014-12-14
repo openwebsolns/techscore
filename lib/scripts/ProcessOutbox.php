@@ -31,6 +31,14 @@ class ProcessOutbox extends AbstractScript {
     foreach (DB::getPendingOutgoing() as $outbox) {
       $num++;
       $sent_to_me = false;
+      $other_admins = array();
+      if ($outbox->copy_admin) {
+        foreach (DB::getAdmins() as $admin) {
+          if ($admin->id != $outbox->sender->id)
+            $other_admins[$admin->id] = $admin;
+        }
+      }
+          
       // all
       if ($outbox->recipients == Outbox::R_ALL) {
         foreach (DB::getConferences() as $conf) {
@@ -38,6 +46,7 @@ class ProcessOutbox extends AbstractScript {
             $this->send($outbox->sender, $acc, $outbox->subject, $outbox->content);
             if ($acc->id == $outbox->sender->id)
               $sent_to_me = true;
+            unset($other_admins[$acc->id]);
           }
         }
       }
@@ -51,6 +60,7 @@ class ProcessOutbox extends AbstractScript {
             $this->send($outbox->sender, $acc, $outbox->subject, $outbox->content);
             if ($acc->id == $outbox->sender->id)
               $sent_to_me = true;
+            unset($other_admins[$acc->id]);
           }
         }
       }
@@ -64,6 +74,7 @@ class ProcessOutbox extends AbstractScript {
             $this->send($outbox->sender, $acc, $outbox->subject, $outbox->content, $school);
             if ($acc->id == $outbox->sender->id)
               $sent_to_me = true;
+            unset($other_admins[$acc->id]);
           }
         }
       }
@@ -74,6 +85,7 @@ class ProcessOutbox extends AbstractScript {
             $this->send($outbox->sender, $acc, $outbox->subject, $outbox->content);
             if ($acc->id == $outbox->sender->id)
               $sent_to_me = true;
+            unset($other_admins[$acc->id]);
           }
         }
       }
@@ -120,6 +132,7 @@ class ProcessOutbox extends AbstractScript {
             $this->send($outbox->sender, $acc, $outbox->subject, $outbox->content);
             if ($acc->id == $outbox->sender->id)
               $sent_to_me = true;
+            unset($other_admins[$acc->id]);
           }
         }
       }
@@ -140,6 +153,13 @@ class ProcessOutbox extends AbstractScript {
         $this->send($outbox->sender, $outbox->sender, "COPY OF: ".$outbox->subject, $outbox->content);
         self::errln("Also sent copy to sender {$outbox->sender}");
       }
+
+      // other admins?
+      foreach ($other_admins as $admin) {
+        $this->send($outbox->sender, $admin, "COPY OF: " . $outbox->subject, $outbox->content);
+        self::errln(sprintf("Also sent copy to admin %s", $admin));
+      }
+
       $outbox->completion_time = DB::$NOW;
       DB::set($outbox);
     }

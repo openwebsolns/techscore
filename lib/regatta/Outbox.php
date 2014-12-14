@@ -67,6 +67,7 @@ class Outbox extends DBObject {
   public $copy_sender;
   public $subject;
   public $content;
+  public $copy_admin;
 
   public function db_type($field) {
     switch ($field) {

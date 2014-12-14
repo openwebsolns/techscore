@@ -89,7 +89,7 @@ class SendMessage extends AbstractAdminUserPane {
       return;
 
     case 2:
-      $this->fillMessage($outbox);
+      $this->fillMessage($outbox, $args);
       return;
     }
 
@@ -167,7 +167,7 @@ class SendMessage extends AbstractAdminUserPane {
    *
    * @param Outbox $out the message object
    */
-  private function fillMessage(Outbox $out) {
+  private function fillMessage(Outbox $out, Array $args) {
     $orgname = DB::g(STN::ORG_NAME);
     $this->PAGE->addContent($p = new XPort("Instructions"));
     $p->add(new XP(array(), "When filling out the message, you may use the keywords in the table below to customize each message."));
@@ -236,6 +236,11 @@ class SendMessage extends AbstractAdminUserPane {
                          "Fewer than 100 characters"));
 
     $f->add(new FReqItem("Message body:", new XTextArea('content', $out->content, array('rows'=>16, 'cols'=>75))));
+    if (count(DB::getAdmins()) > 1) {
+      $is_chosen = DB::$V->hasInt($value, $args, 'copy_admin', 1, 2);
+      $f->add(new FItem("Copy other Admins:", new FCheckbox('copy_admin', 1, "Send a blind carbon copy to all other admins.", $is_chosen),
+                        "This is recommended when answering questions to users so others are aware that the question has been answered."));
+    }
     $f->add(new FItem("Copy me:", new FCheckbox('copy-me', 1, "Send me a copy of message, whether or not I would otherwise receive one.")));
     $f->add($para = new XP(array('class'=>'p-submit'), array(new XHiddenInput('axis', $out->recipients))));
     if ($out->arguments !== null) {
@@ -284,6 +289,7 @@ class SendMessage extends AbstractAdminUserPane {
     $res->content = DB::$V->incString($args, 'content', 1, 16000);
     if ($req_message && $res->content === null)
       throw new SoterException("Missing content for message, or possibly too long.");
+    $res->copy_admin = DB::$V->incInt($args, 'copy_admin', 1, 2, null);
     if ($res->recipients == Outbox::R_ALL) {
       $res->arguments = array();
       return $res;

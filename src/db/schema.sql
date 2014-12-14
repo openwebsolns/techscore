@@ -333,6 +333,7 @@ CREATE TABLE `outbox` (
   `content` text COLLATE utf8_unicode_ci NOT NULL,
   `copy_sender` tinyint(4) DEFAULT NULL,
   `completion_time` datetime DEFAULT NULL,
+  `copy_admin` tinyint(4) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `sender` (`sender`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
