@@ -434,12 +434,9 @@ class DB extends DBM {
    * @param String $reply the reply
    */
   public static function reply(Message $mes, $reply) {
-    $body = sprintf("Reply from: %s\n---------------------\n%s\n-------------------\n%s",
-                    $mes->account->email,
-                    $mes->content,
-                    $reply);
+    $body = $reply . "\n\n> " . str_replace("\n", "\n> ", $mes->content);
     $to = ($mes->sender === null) ? DB::g(STN::TS_FROM_MAIL) : $mes->sender->email;
-    $res = self::mail($to, sprintf("[%s] Message reply", DB::g(STN::APP_NAME)), $body, true, array('Reply-To' => $mes->account->email));
+    $res = self::mail($to, sprintf("Re: %s", $mes->subject), $body, true, array('Reply-To' => $mes->account->email));
   }
 
   // ------------------------------------------------------------

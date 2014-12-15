@@ -408,7 +408,7 @@ class DPEditor {
           // ------------------------------------------------------------
           // Blockquotes
           // ------------------------------------------------------------
-          elseif ($char == '>') {
+          elseif ($char == '>' &&  $i + 1 < $len) {
             // Fetch entire block, and recurse
             $buf = '';
             while (++$i < $len) {
@@ -424,6 +424,10 @@ class DPEditor {
                 $buf .= $char;
               }
             }
+
+            // Remove leading spaces
+            $buf = preg_replace('/^ +/m', '', $buf);
+
             $blockquote = new XBlockquote("");
             $this->appendEnvironment($blockquote);
 
