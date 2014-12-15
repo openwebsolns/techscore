@@ -56,6 +56,7 @@ class TEmailMessage extends XPage {
 
     $this->set('style', self::getCSS(self::HTML));
     $this->head->add(new XMetaHTTP('Content-Type', 'text/html; charset=UTF-8'));
+    $this->head->add(new XStyle('text/css', self::getCSSStylesheet()));
     $this->body->set('style', self::getCSS(self::BODY));
 
     // Header

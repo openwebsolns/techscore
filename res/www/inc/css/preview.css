@@ -23,57 +23,8 @@
     padding: 0 1em;
     height: 25em;
     box-shadow: 0 0 2px 2px #ccc inset;
-}
-
-.dpe-preview ul {
-    margin-left: 3em;
-}
-
-.dpe-preview p {
-    text-align: justify;
-}
-
-.dpe-preview h1 {
-    font-size: 160%;
-}
-
-.dpe-preview h2 {
-    color:#003366;
-    font-weight:bold;
-    margin-top: 40px;
-    padding-bottom:1px;
-    padding-top:6px;
-    font-size: 16px;
-    width: 100%;
-    margin-top: 1em;
-    border: none;
-}
-.dpe-preview #p_title {
-    border-bottom:1px dotted #999999;
-}
-.dpe-preview h3 {
-    font-family:Helvetica,Arial,sans-serif;
-    font-size:100%;
-    color:#c5960c;
-}
-.dpe-preview h2 + h3 {
-    margin-top: 1em;
-}
-
-.dpe-preview table {
-    border-collapse: collapse;
-    border: 1px solid #aaa;
-    margin: auto;
-}
-.dpe-preview td {
-    border: 1px solid #aaa;
-    padding: 0.3em;
-}
-.dpe-preview th {
-    font-weight: bold;
-    background: #b3cadc;
-    color: black;
-    padding: 0.3em;
+    overflow-x: hidden;
+    overflow-y: scroll;
 }
 
 /* DPEditor goodness */

@@ -93,6 +93,41 @@
         "padding": "0.125em 1em"
     },
 
+    "table" : {
+        "border": "3px solid #CCCCCC",
+        "border-radius": "5px",
+        "border-spacing": "0",
+        "font-size": "0.9em",
+        "margin": "0 auto 1em"
+    },
+
+    "td" : {
+        "border-top": "1px solid #CCCCCC",
+        "margin": "0px",
+        "padding": "5px"
+    },
+
+    "th" : {
+        "color": "#222",
+        "font-size": "80%",
+        "min-width": "2.25em",
+        "padding": "0.75em 0.5em"
+    },
+
+    "thead" : {    
+        "background": "#f3ebdf",
+        "background": "-moz-linear-gradient(top, #f3ebdf 0%, #e6dfd3 100%)",
+        "background": "-webkit-gradient(linear, left top, left bottom, color-stop(0%,#f3ebdf), color-stop(100%,#e6dfd3))",
+        "background": "-webkit-linear-gradient(top, #f3ebdf 0%,#e6dfd3 100%)",
+        "background": "-o-linear-gradient(top, #f3ebdf 0%,#e6dfd3 100%)",
+        "background": "-ms-linear-gradient(top, #f3ebdf 0%,#e6dfd3 100%)",
+        "background": "linear-gradient(to bottom, #f3ebdf 0%,#e6dfd3 100%)",
+        "filter": "progid:DXImageTransform.Microsoft.gradient( startColorstr='#f3ebdf', endColorstr='#e6dfd3',GradientType=0 )",
+        "border": "1px solid #555555",
+        "height": "20px",
+        "color": "black"
+    },
+
     "footaddress" : {
         "font-style": "normal",
         "text-align": "center"
