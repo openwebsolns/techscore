@@ -84,6 +84,23 @@ CREATE TABLE `account_school` (
   CONSTRAINT `fk_account_school_account` FOREIGN KEY (`account`) REFERENCES `account` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `answer`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `answer` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `question` int(10) unsigned NOT NULL,
+  `answered_by` int(10) unsigned NOT NULL,
+  `answered_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `answer` text COLLATE utf8_unicode_ci NOT NULL,
+  `publishable` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `question` (`question`),
+  KEY `answered_by` (`answered_by`),
+  CONSTRAINT `fk_answer_answered_by` FOREIGN KEY (`answered_by`) REFERENCES `account` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_answer_question` FOREIGN KEY (`question`) REFERENCES `question` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `boat`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;

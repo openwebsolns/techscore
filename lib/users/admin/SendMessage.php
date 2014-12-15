@@ -73,7 +73,7 @@ class SendMessage extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     $outbox = new Outbox();
     try {
-      $this->parseArgs($outbox, $args);
+      $question = $this->parseArgs($outbox, $args);
     } catch (SoterException $e) {}
 
     // ------------------------------------------------------------
@@ -89,7 +89,7 @@ class SendMessage extends AbstractAdminUserPane {
       return;
 
     case 2:
-      $this->fillMessage($outbox, $args);
+      $this->fillMessage($outbox, $question);
       return;
     }
 
@@ -166,8 +166,9 @@ class SendMessage extends AbstractAdminUserPane {
    * content (or message) to be sent.
    *
    * @param Outbox $out the message object
+   * @param Question $question is this answering a question?
    */
-  private function fillMessage(Outbox $out, Array $args) {
+  private function fillMessage(Outbox $out, Question $question = null) {
     $this->setupTextEditors(array('content'));
 
     $title = "";
@@ -175,19 +176,19 @@ class SendMessage extends AbstractAdminUserPane {
     $omit_instructions = false;
     switch ($out->recipients) {
     case Outbox::R_ALL:
-      $title = "2. Send message to all users";
+      $title = "3. Send message to all users";
       $recip = "All users";
       break;
 
       // conference
     case Outbox::R_CONF:
-      $title = sprintf("2. Send message to users from %s(s)", DB::g(STN::CONFERENCE_TITLE));
+      $title = sprintf("3. Send message to users from %s(s)", DB::g(STN::CONFERENCE_TITLE));
       $recip = implode(", ", $out->arguments);
       break;
 
       // schools
     case Outbox::R_SCHOOL:
-      $title = "2. Send message to users from school(s)";
+      $title = "3. Send message to users from school(s)";
       $recip = "";
       $i = 0;
       foreach ($out->arguments as $id) {
@@ -199,13 +200,13 @@ class SendMessage extends AbstractAdminUserPane {
 
       // roles
     case Outbox::R_ROLE:
-      $title = "2. Send message to users with role(s)";
+      $title = "3. Send message to users with role(s)";
       $recip = implode(", ", $out->arguments);
       break;
 
       // status
     case Outbox::R_STATUS:
-      $title = "2. Send message to scorers from regattas with status in current season";
+      $title = "3. Send message to scorers from regattas with status in current season";
       $recip = array();
       $stats = Outbox::getStatusTypes();
       foreach ($out->arguments as $stat)
@@ -215,7 +216,7 @@ class SendMessage extends AbstractAdminUserPane {
 
       // specific user
     case Outbox::R_USER:
-      $title = "2. Send message to specific user";
+      $title = "3. Send message to specific user";
       $recip = "";
       foreach ($out->arguments as $i => $email) {
         if ($i > 0)
@@ -263,15 +264,33 @@ class SendMessage extends AbstractAdminUserPane {
     $te->add(new XStyle('text/css', TEmailMessage::getCSSStylesheet(), array('scoped'=>'scoped')));
 
     if (count(DB::getAdmins()) > 1) {
-      $is_chosen = DB::$V->hasInt($value, $args, 'copy_admin', 1, 2) || isset($args['q']);
-      $f->add(new FItem("Copy other Admins:", new FCheckbox('copy_admin', 1, "Send a blind carbon copy to all other admins.", $is_chosen),
-                        "This is recommended when answering questions to users so others are aware that the question has been answered."));
+      $copy_admin = false;
+      if ($question !== null) {
+        $copy_admin = true;
+        $f->add(new FItem(
+                  "Answer is publishable?",
+                  new FCheckbox(
+                    'publishable', 1,
+                    "Check if answer may be shown to other users asking a similar question."),
+                  "Make sure no personal information is present anywhere in the message (including the original message quoted)."
+                ));
+      }
+      $f->add(new FItem(
+                "Copy other Admins:",
+                new FCheckbox(
+                  'copy_admin', 1,
+                  "Send a blind carbon copy to all other admins.",
+                  $copy_admin),
+                "This is recommended when answering questions to users so others are aware that the question has been answered."));
     }
     $f->add(new FItem("Copy me:", new FCheckbox('copy-me', 1, "Send me a copy of message, whether or not I would otherwise receive one.")));
     $f->add($para = new XP(array('class'=>'p-submit'), array(new XHiddenInput('axis', $out->recipients))));
     if ($out->arguments !== null) {
       foreach ($out->arguments as $item)
         $para->add(new XHiddenInput('list[]', $item));
+    }
+    if ($question !== null) {
+      $para->add(new XHiddenInput('q', $question->id));
     }
     $para->add(new XSubmitInput('send-message', "Send message"));
     $para->add(new XA($this->link(), "Cancel"));
@@ -285,7 +304,7 @@ class SendMessage extends AbstractAdminUserPane {
    */
   public function process(Array $args) {
     $out = new Outbox();
-    $this->parseArgs($out, $args, true);
+    $question = $this->parseArgs($out, $args, true);
     $out->sender = $this->USER;
 
     // If the number of recipients is small enough, send now
@@ -299,6 +318,19 @@ class SendMessage extends AbstractAdminUserPane {
       DB::set($out);
       Session::pa(new PA("Successfully queued message to be sent."));
     }
+
+    // Is this a question being answered?
+    if ($question !== null) {
+      $answer = new Answer();
+      $answer->answered_by = $this->USER;
+      $answer->answer = $out->content;
+      $answer->publishable = DB::$V->incInt($args, 'publishable', 1, 2);
+      $question->addAnswer($answer);
+      Session::pa(new PA(sprintf("Marked message as answer to question \"%s\".", $question->subject)));
+
+      // TODO: Redirect to page with question/answers?
+    }
+
     $this->redirect('send-message');
   }
 
@@ -311,7 +343,7 @@ class SendMessage extends AbstractAdminUserPane {
    * @param Array $args the variables to parse
    * @param boolean $req_message if true, require non-empty subject
    *   and message
-   * @return Outbox the message
+   * @return Question|null the question if this is a reply
    * @throws SoterException if user is trying to pull a fast one
    */
   private function parseArgs(Outbox &$res, $args, $req_message = false) {
@@ -320,7 +352,7 @@ class SendMessage extends AbstractAdminUserPane {
 
     // If answering a question, autofill most items
     if (isset($args['q'])) {
-      $question = DB::$V->reqID($args, 'q', DB::$QUESTION, "Invalid question provided in argument.");
+      $question = DB::$V->reqID($args, 'q', new Question(), "Invalid question provided in argument.");
       $res->recipients = Outbox::R_USER;
       $res->arguments = array($question->asker->email);
       $res->subject = DB::$V->incString($args, 'subject', 1, 101, "RE: " . $question->subject);
@@ -328,7 +360,7 @@ class SendMessage extends AbstractAdminUserPane {
       if ($res->content === null) {
         $res->content = "\n\n> " . str_replace("\n", "\n> ", $question->question);
       }
-      return $res;
+      return $question;
     }
 
     $res->recipients = DB::$V->reqKey($args, 'axis', Outbox::getRecipientTypes(), "Invalid recipient type provided.");
@@ -340,7 +372,7 @@ class SendMessage extends AbstractAdminUserPane {
       throw new SoterException("Missing content for message, or possibly too long.");
     if ($res->recipients == Outbox::R_ALL) {
       $res->arguments = array();
-      return $res;
+      return null;
     }
 
     $inputList = DB::$V->incList($args, 'list');
@@ -392,7 +424,7 @@ class SendMessage extends AbstractAdminUserPane {
     if (count($list) == 0)
       throw new SoterException("No valid recipients provided.");
     $res->arguments = array_keys($list);
-    return $res;
+    return null;
   }
 
   /**
