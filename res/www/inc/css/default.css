@@ -774,15 +774,14 @@ dt {
 
 }
 .email-message {
-    background:#f3ebe0;
+    background: white;
     border:1px solid #3465a4;
     margin:10px 0px;
     padding:1em;
 }
 
-.email-message pre {
-    font-size: 110%;
-    margin: 0;
+.email-message {
+    font-size: 90%;
 }
 
 label {
@@ -826,6 +825,13 @@ label {
     color: #555;
 }
 
+blockquote {
+    background: none repeat scroll 0 0 #f3f3f3;
+    border-left: 3px solid green;
+    font-size: 95%;
+    margin-left: 1em;
+    padding: 0.125em 1em;
+}
 
 
 /* Associative lists */

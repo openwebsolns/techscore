@@ -43,27 +43,24 @@ class MessagePane extends AbstractUserPane {
         $this->redirect('inbox');
       }
 
+      require_once('xml5/TSEditor.php');
+      $parser = new TSEditor();
+
       $sub = (empty($message->subject)) ? "[No subject]" : $message->subject;
       $this->PAGE->addContent($p = new XPort($sub));
-      $p->add(new XDiv(array('class'=>'email-message'),
-                       array(new XPre(wordwrap($message->content, 90)))));
-      $p->add($form = $this->createForm());
+      $p->add(new XDiv(array('class'=>'email-message'), $parser->parse($message->content)));
 
       // Fill out form
-      $form->add(new XButton(array("name" =>"delete",
-                                   "type"=>"submit",
-                                   "value"=>$message->id),
-                             array("Delete")));
-      $form->add(new XText(" "));
-      $form->add(new XA("/inbox", "Close"));
+      $p->add($form = $this->createForm());
+      $form->add($xp = new XSubmitP('delete-message', "Delete"));
+      $xp->add(new XHiddenInput('delete', $message->id));
+      $xp->add(new XA(WS::link('/inbox'), "Close"));
 
       if ($message->sender !== null) {
         $p->add($form = $this->createForm());
-        $form->add(new XTextArea("text", "", array("style"=>"width: 100%", "rows" =>"3")));
-        $form->add(new XButton(array("name" =>"reply",
-                                     "type" =>"submit",
-                                     "value"=>$message->id),
-                               array("Reply")));
+        $form->add(new XTextArea('text', "", array('style'=>'width:100%;box-sizing:border-box;', 'rows' =>'5')));
+        $form->add($xp = new XSubmitP('reply-message', "Reply"));
+        $xp->add(new XHiddenInput('reply', $message->id));
       }
 
       // Mark the message as read
