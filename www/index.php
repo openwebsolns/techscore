@@ -43,6 +43,11 @@ if (count($URI_TOKENS) == 0)
 if (Conf::$USER === null) {
   // Registration?
   switch ($URI_TOKENS[0]) {
+  case 'logo.png':
+    require_once('users/LogoPane.php');
+    $PAGE = new LogoPane();
+    break;
+
   case 'register':
     if (DB::g(STN::ALLOW_REGISTER) === null)
       WS::go('/');

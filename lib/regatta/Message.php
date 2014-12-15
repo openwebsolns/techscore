@@ -18,6 +18,7 @@ class Message extends DBObject {
   protected $created;
   protected $read_time;
   public $content;
+  public $read_token;
   public $subject;
   public $inactive;
 

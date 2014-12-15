@@ -51,13 +51,24 @@ class TEmailMessage extends XPage {
    */
   private $container;
 
-  public function __construct($title) {
+  /**
+   * Creates a new HTML page
+   *
+   * @param String $title usually the subject of the message
+   * @param String $unique_token if provided, will be added to logo request
+   */
+  public function __construct($title, $unique_token = null) {
     parent::__construct($title);
 
     $this->set('style', self::getCSS(self::HTML));
     $this->head->add(new XMetaHTTP('Content-Type', 'text/html; charset=UTF-8'));
     $this->head->add(new XStyle('text/css', self::getCSSStylesheet()));
     $this->body->set('style', self::getCSS(self::BODY));
+
+    // Logo URL: unique_token
+    $logo_url = '/inc/img/techscore.png';
+    if ($unique_token !== null)
+      $logo_url = '/logo.png?q=' . $unique_token;
 
     // Header
     $this->body->add(
@@ -70,7 +81,7 @@ class TEmailMessage extends XPage {
               new XH1(
                 new XA(
                   $this->link('/'),
-                  new XImg($this->link('/inc/img/techscore.png'), DB::g(STN::APP_NAME), array('style' => self::getCSS(self::HEADIMG))),
+                  new XImg($this->link($logo_url), DB::g(STN::APP_NAME), array('style' => self::getCSS(self::HEADIMG))),
                   array('style' => self::getCSS(self::HEADLINK))
                 ),
                 array('style' => self::getCSS(self::LOGO))

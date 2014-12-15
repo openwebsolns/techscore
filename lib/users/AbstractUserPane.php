@@ -557,6 +557,13 @@ abstract class AbstractUserPane {
       self::R_PERM => array()
     ),
 
+    'LogoPane' => array(
+      self::R_NAME => "Logo",
+      self::R_PATH => 'users',
+      self::R_URLS => array('logo.png'),
+      self::R_PERM => array()
+    ),
+
     'PasswordRecoveryPane' => array(
       self::R_NAME => "Password Recovery",
       self::R_PATH => 'users',

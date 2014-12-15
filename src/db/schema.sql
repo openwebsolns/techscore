@@ -299,6 +299,7 @@ CREATE TABLE `message` (
   `subject` varchar(100) COLLATE utf8_unicode_ci DEFAULT '',
   `content` mediumtext COLLATE utf8_unicode_ci,
   `inactive` tinyint(4) DEFAULT NULL,
+  `read_token` varchar(40) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_message_account` (`account`),
   KEY `fk_message_sender` (`sender`),

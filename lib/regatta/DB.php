@@ -284,6 +284,25 @@ class DB extends DBM {
   }
 
   /**
+   * Convenience method to e-mail out a Message object
+   *
+   * @param Message $message the e-mail to send
+   * @return boolean result of sending e-mail
+   * @see mail
+   */
+  public static function mailMessage(Message $message) {
+    self::mail(
+      $message->account->email,
+      $message->subject,
+      $message->content,
+      true,
+      array('Reply-To' => sprintf('%s <%s>', $message->sender, $message->sender->email)),
+      array(),
+      $message->read_token
+    );
+  }
+
+  /**
    * Sends a generic mail message to the given user with the given
    * subject, appending the correct headers (i.e., the "from"
    * field). This method uses the standard PHP mail function
@@ -295,14 +314,15 @@ class DB extends DBM {
    * @param boolean $wrap whether to wrap message (default = true)
    * @param Array $extra_headers optional map of extra headers to send
    * @param Array $attachments list of Attachment objects or file paths
+   * @param String $read_token a token to embed in the HTML version of message
    * @return boolean the result, as returned by mail
    */
-  public static function mail($to, $subject, $body, $wrap = true, Array $extra_headers = array(), Array $attachments = array()) {
+  public static function mail($to, $subject, $body, $wrap = true, Array $extra_headers = array(), Array $attachments = array(), $read_token = null) {
     if ($wrap)
       $body = wordwrap($body, 72);
 
     require_once('xml5/TEmailMessage.php');
-    $page = new TEmailMessage($subject);
+    $page = new TEmailMessage($subject, $read_token);
 
     require_once('xml5/TSEditor.php');
     $parser = new TSEditor();
@@ -368,6 +388,17 @@ class DB extends DBM {
   }
 
   /**
+   * Retrieves all messages with given read_token
+   *
+   * @param String $token the read_token to search
+   * @return Array:Message
+   */
+  public static function getMessagesWithReadToken($token) {
+    require_once('regatta/Message.php');
+    return self::getAll(self::$MESSAGE, new DBCond('read_token', $token));
+  }
+
+  /**
    * Retrieve all messages for the given account in order
    *
    * @param Account $acc the account
@@ -397,11 +428,13 @@ class DB extends DBM {
     $mes->account = $acc;
     $mes->subject = $sub;
     $mes->content = $con;
+
+    if ($email !== false) {
+      $mes->read_token = sha1(uniqid(true));
+      self::mailMessage($mes);
+    }
+
     self::set($mes, false);
-
-    if ($email !== false)
-      self::mail($acc->email, $sub, $mes, true, array('Reply-To' => sprintf('%s <%s>', $from, $from->email)));
-
     return $mes;
   }
 
