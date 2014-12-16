@@ -52,8 +52,8 @@ class MessagePane extends AbstractUserPane {
 
       // Fill out form
       $p->add($form = $this->createForm());
-      $form->add($xp = new XSubmitP('delete-message', "Delete"));
-      $xp->add(new XHiddenInput('delete', $message->id));
+      $form->add($xp = new XSubmitP('delete', "Delete"));
+      $xp->add(new XHiddenInput('message[]', $message->id));
       $xp->add(new XA(WS::link('/inbox'), "Close"));
 
       if ($message->sender !== null) {
@@ -71,13 +71,19 @@ class MessagePane extends AbstractUserPane {
     // Message browser
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new XPort("All messages"));
-    $p->add(new XTable(array('class'=>'left', 'style'=>'width:100%;'),
-                       array(new XTHead(array(),
-                                        array(new XTR(array(),
-                                                      array(new XTH(array('width'=>'20%'), "Subject"),
-                                                            new XTH(array('width'=>'60%'), "Content"),
-                                                            new XTH(array('width'=>'20%'), "Sent"))))),
-                             $tab = new XTBody())));
+    $p->add($f = $this->createForm());
+    $f->add(new XTable(
+              array('class'=>'full', 'id'=>'message-table'),
+              array(new XTHead(
+                      array(),
+                      array(new XTR(
+                              array(),
+                              array(
+                                new XTH(array('id'=>'message-table-checkall'), ""),
+                                new XTH(array('width'=>'20%'), "Subject"),
+                                new XTH(array('width'=>'60%'), "Content"),
+                                new XTH(array('width'=>'20%'), "Sent"))))),
+                    $tab = new XTBody())));
     foreach ($messages as $mes) {
       $sub = (empty($mes->subject)) ? "[No subject]" : $mes->subject;
       $con = (strlen($mes->content) > 50) ?
@@ -86,10 +92,20 @@ class MessagePane extends AbstractUserPane {
 
       $attrs = ($mes->read_time === null) ? array('class'=>'strong') : array();
       $tab->add(new XTR($attrs,
-                        array(new XTD(array('class'=>'left'), new XA(WS::link('/inbox', array('message'=>$mes->id)), $sub)),
+                        array(
+                          new XTD(array(), new FCheckbox('message[]', $mes->id)),
+                          new XTD(array('class'=>'left'), new XA(WS::link('/inbox', array('message'=>$mes->id)), $sub)),
                               new XTD(array('class'=>'left'), $con),
                               new XTD(array(), $mes->created->format('Y-m-d H:i')))));
     }
+
+    $f->add($fi = new XP(
+              array(),
+              array(
+                "With checked: ",
+                new XSubmitInput('mark-read', "Mark as Read"),
+                new XSubmitDelete('delete', "Delete")
+              )));
   }
 
   public function process(Array $args) {
@@ -98,12 +114,36 @@ class MessagePane extends AbstractUserPane {
     // Delete
     // ------------------------------------------------------------
     if (isset($args['delete'])) {
-      $mes = DB::getMessage($args['delete']);
-      if ($mes === null || $mes->account != $this->USER)
-        throw new SoterException("Invalid message to delete.");
-      DB::deleteMessage($mes);
-      Session::pa(new PA("Message deleted."));
+      $messages = $this->extractMessageList($args);
+      foreach ($messages as $mes) {
+        DB::deleteMessage($mes);
+      }
+      $reply = sprintf("Deleted %d messages.", count($messages));
+      if (count($messages) == 1)
+        $reply = sprintf("Deleted message \"%s\".", $messages[0]->subject);
+      Session::pa(new PA($reply));
       $this->redirect('inbox');
+    }
+
+    // ------------------------------------------------------------
+    // Mark as read
+    // ------------------------------------------------------------
+    if (isset($args['mark-read'])) {
+      $messages = $this->extractMessageList($args);
+      $marked = 0;
+      foreach ($messages as $message) {
+        if ($message->read_time === null) {
+          $message->read_time = DB::$NOW;
+          DB::set($message);
+          $marked++;
+        }
+      }
+      if ($marked == 0)
+        Session::pa(new PA("No new messages to mark read.", PA::I));
+      elseif ($marked == 1)
+        Session::pa(new PA(sprintf("Marked message \"%s\" as read.", $messages[0]->subject)));
+      else
+        Session::pa(new PA(sprintf("Marked %d messages as read.", $marked)));
     }
 
     // ------------------------------------------------------------
@@ -121,6 +161,19 @@ class MessagePane extends AbstractUserPane {
       $this->redirect('inbox');
     }
     return array();
+  }
+
+  private function extractMessageList(Array $args) {
+    $messages = array();
+    foreach (DB::$V->incList($args, 'message') as $id) {
+      $mes = DB::getMessage($id);
+      if ($mes === null || $mes->account != $this->USER)
+        throw new SoterException("Invalid message to delete.");
+      $messages[] = $mes;
+    }
+    if (count($messages) == 0)
+      throw new SoterException("No messages selected.");
+    return $messages;
   }
 }
 ?>
