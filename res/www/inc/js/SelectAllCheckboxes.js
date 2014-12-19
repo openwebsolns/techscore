@@ -1,10 +1,9 @@
 /*
  * Adds a JS-backed "check/uncheck all" box to the specified element
- * of the table.
  *
- * Given a TH/TD HtmlElement, look for other checkboxes in the same
- *  column position of other rows in the table, and toggle their state
- *  whenever the reference element is toggled as well.
+ * Given the inputs' name, look for other checkboxes in the same
+ *  document with that name and toggle their state according to the
+ *  state of a reference checkbox appended to the element ID provided.
  *
  * @author Dayan Paez, Openweb Solutions
  */
@@ -12,18 +11,7 @@
 var SelectAllTableCheckboxes = function(referenceName, referenceId) {
     var myObj = this;
     this.reference = document.getElementById(referenceId);
-
-    // Validation
-    if (!this.reference || !(this.reference instanceof HTMLTableCellElement)) {
-        return;
-    }
-
-    // Find parent table
-    this.table = this.reference.parentNode;
-    while (this.table != null && !(this.table instanceof HTMLTableElement)) {
-        this.table = this.table.parentNode;
-    }
-    if (!this.table) {
+    if (!this.reference) {
         return;
     }
 
@@ -51,7 +39,7 @@ var SelectAllTableCheckboxes = function(referenceName, referenceId) {
     label.setAttribute("for", this.referenceBox.id);
     span.appendChild(label);
 
-    // Replace contents of table cell
+    // Append to reference ID
     while (this.reference.childNodes.length > 0)
         this.reference.removeChild(this.reference.childNodes[0]);
     this.reference.appendChild(span);
@@ -68,7 +56,7 @@ var SelectAllTableCheckboxes = function(referenceName, referenceId) {
  */
 SelectAllTableCheckboxes.prototype.getCheckboxes = function() {
     var boxes = [];
-    var inputs = this.table.getElementsByTagName("input");
+    var inputs = document.getElementsByTagName("input");
     for (var i = 0; i < inputs.length; i++) {
         if (inputs[i].type == "checkbox" && inputs[i].name == this.referenceName)
             boxes.push(inputs[i]);

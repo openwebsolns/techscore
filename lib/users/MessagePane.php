@@ -72,7 +72,7 @@ class MessagePane extends AbstractUserPane {
     // ------------------------------------------------------------
     $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/SelectAllTableCheckboxes.js')));
     $this->PAGE->head->add(new XScript('text/javascript', null,
-                                       'window.addEventListener("load",function(e){new SelectAllTableCheckboxes("message[]","message-table-checkall");},false);'));
+                                       'window.addEventListener("load",function(e){new SelectAllCheckboxes("message[]","message-table-checkall");},false);'));
     $this->PAGE->addContent($p = new XPort("All messages"));
     $p->add($f = $this->createForm());
     $f->add(new XTable(
