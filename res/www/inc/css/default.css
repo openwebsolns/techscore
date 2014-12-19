@@ -915,9 +915,8 @@ td, tbody th {
 }
 th {
     color: #222;
-    font-size: 80%;
     min-width: 2.25em;
-    padding: 0.75em 0.5em;
+    padding: 0.5em 0.25em;
 }
 table thead {    
     background: #f3ebdf; /* Old browsers */
