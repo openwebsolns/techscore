@@ -8,10 +8,19 @@
  * @author Dayan Paez, Openweb Solutions
  */
 
-var SelectAllTableCheckboxes = function(referenceName, referenceId) {
+var SelectAllCheckboxes = function(referenceName, referenceId) {
     var myObj = this;
     this.reference = document.getElementById(referenceId);
     if (!this.reference) {
+        return;
+    }
+
+    // Find reference form
+    this.form = this.reference.parentNode;
+    while (this.form != null && !(this.form instanceof HTMLFormElement)) {
+        this.form = this.form.parentNode;
+    }
+    if (!this.form) {
         return;
     }
 
@@ -54,9 +63,9 @@ var SelectAllTableCheckboxes = function(referenceName, referenceId) {
  * Get list of checkboxes in same position as reference
  *
  */
-SelectAllTableCheckboxes.prototype.getCheckboxes = function() {
+SelectAllCheckboxes.prototype.getCheckboxes = function() {
     var boxes = [];
-    var inputs = document.getElementsByTagName("input");
+    var inputs = this.form.getElementsByTagName("input");
     for (var i = 0; i < inputs.length; i++) {
         if (inputs[i].type == "checkbox" && inputs[i].name == this.referenceName)
             boxes.push(inputs[i]);
@@ -68,7 +77,7 @@ SelectAllTableCheckboxes.prototype.getCheckboxes = function() {
  * Toggle all checkboxes based on value of referenceBox
  *
  */
-SelectAllTableCheckboxes.prototype.toggle = function() {
+SelectAllCheckboxes.prototype.toggle = function() {
     var isChecked = this.referenceBox.checked;
     var boxes = this.getCheckboxes();
     for (var i = 0; i < boxes.length; i++) {
