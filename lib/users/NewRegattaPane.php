@@ -167,7 +167,8 @@ class NewRegattaPane extends AbstractUserPane {
       $end->add(new DateInterval(sprintf('P%dD', ($duration - 1))));
 
       // If there is no season, then quit
-      if (Season::forDate($sdate) === null)
+      $season = Season::forDate($sdate);
+      if ($season === null)
         throw new SoterException("There is no season in the database for the requested regatta. Please contact the administrators for more information.");
       try {
         $reg = Regatta::createRegatta($name,
@@ -180,6 +181,12 @@ class NewRegattaPane extends AbstractUserPane {
         $reg->venue = $venue;
         $reg->creator = $this->USER;
         $reg->addScorer($this->USER);
+
+        // sponsor?
+        if (DB::g(STN::REGATTA_SPONSORS)) {
+          $reg->sponsor = $season->sponsor;
+        }
+
         DB::set($reg);
         foreach ($hosts as $school)
           $reg->addHost($school);
