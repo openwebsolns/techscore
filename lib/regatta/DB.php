@@ -4447,6 +4447,10 @@ class Pub_Sponsor extends DBObject {
   public static function getSponsorsForRegattas() {
     return DB::getAll(DB::$PUB_SPONSOR, new DBCond('regatta_logo', null, DBCond::NE));
   }
+
+  public function __toString() {
+    return $this->name;
+  }
 }
 
 /**

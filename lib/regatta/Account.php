@@ -403,11 +403,7 @@ class Account extends DBObject {
       return false;
     if ($this->isAdmin())
       return true;
-    foreach ($this->__get('ts_role')->getPermissions() as $other) {
-      if ($other == $perm)
-        return true;
-    }
-    return false;
+    return $this->__get('ts_role')->hasPermission($perm);
   }
 
   /**

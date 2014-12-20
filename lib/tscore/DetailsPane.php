@@ -207,6 +207,21 @@ class DetailsPane extends AbstractPane {
 
     }
 
+    // Sponsor?
+    $sponsors = Pub_Sponsor::getSponsorsForRegattas();
+    if (DB::g(STN::REGATTA_SPONSORS)
+        && $this->USER->can(Permission::USE_REGATTA_SPONSOR)
+        && count($sponsors) > 0) {
+      $reg_form->add(new FItem("Sponsor:", $sel = new XSelect('sponsor')));
+      $sel->add(new FOption("", ""));
+      foreach ($sponsors as $sponsor) {
+        $opt = new FOption($sponsor->id, $sponsor->name);
+        if ($this->REGATTA->sponsor !== null && $this->REGATTA->sponsor->id = $sponsor->id)
+          $opt->set('selected', 'selected');
+        $sel->add($opt);
+      }
+    }
+
     // Update button
     if (!$this->participant_mode)
       $reg_form->add(new XSubmitP('edit_reg', "Save changes"));
@@ -408,6 +423,25 @@ class DetailsPane extends AbstractPane {
       $host_venue = DB::$V->incString($args, 'host_venue', 1, 256);
       if ($host_venue !== $this->REGATTA->host_venue) {
         $this->REGATTA->host_venue = $host_venue;
+        $edited = true;
+      }
+
+      // Sponsor?
+      $sponsors = Pub_Sponsor::getSponsorsForRegattas();
+      if (DB::g(STN::REGATTA_SPONSORS)
+          && count($sponsors) > 0) {
+
+        if ($this->USER->can(Permission::USE_REGATTA_SPONSOR)) {
+          $sponsor = DB::$V->incID($args, 'sponsor', DB::$PUB_SPONSOR);
+          if ($sponsor !== null && !$sponsor->canSponsorRegattas())
+            throw new SoterException("Invalid sponsor provided for regatta.");
+          if ($sponsor != $this->REGATTA->sponsor) {
+            $this->REGATTA->sponsor = $sponsor;
+            $edited = true;
+          }
+        }
+      } elseif ($this->REGATTA->sponsor !== null) {
+        $this->REGATTA->sponsor = null;
         $edited = true;
       }
 
