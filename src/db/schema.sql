@@ -414,10 +414,13 @@ CREATE TABLE `pub_sponsor` (
   `name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `url` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `logo` varchar(32) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `regatta_logo` varchar(32) COLLATE utf8_unicode_ci DEFAULT NULL,
   `relative_order` tinyint(3) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `logo` (`logo`),
-  CONSTRAINT `pub_sponsor_ibfk_1` FOREIGN KEY (`logo`) REFERENCES `pub_file` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  KEY `fk_pub_sponsor_regatta_logo` (`regatta_logo`),
+  CONSTRAINT `fk_pub_sponsor_logo` FOREIGN KEY (`logo`) REFERENCES `pub_file` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_pub_sponsor_regatta_logo` FOREIGN KEY (`regatta_logo`) REFERENCES `pub_file` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `pub_update_conference`;

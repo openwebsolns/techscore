@@ -55,8 +55,20 @@ class SponsorsManagement extends AbstractAdminUserPane {
       $this->PAGE->addContent($p = new XPort("Current list"));
       $p->add($f = $this->createForm());
       $f->add(new XP(array(), "Edit the order of the sponsors by specifying the order in the first cell, or (if available) dragging the rows around. Click \"Edit order\" to save changes. To delete a sponsor, click \"Edit\" in the last column."));
-      $f->add($tab = new XQuickTable(array('class'=>'sponsors-list', 'id'=>'divtable'),
-                                     array("Order", "#", "Name", "URL", "Logo", "")));
+
+      if (DB::g(STN::REGATTA_SPONSORS)) {
+        $f->add(new XP(array(),
+                       array("To make a sponsor available to use as a ",
+                             new XStrong("regatta-level sponsor"),
+                             ", assign a picture for the \"Regatta Logo\" field.")));
+      }
+
+      $headers = array("Order", "#", "Name", "URL", "Logo");
+      if (DB::g(STN::REGATTA_SPONSORS))
+        $headers[] = "Regatta Logo";
+      $headers[] = "";
+
+      $f->add($tab = new XQuickTable(array('class'=>'sponsors-list', 'id'=>'divtable'), $headers));
       foreach ($curr as $i => $sponsor) {
         $url = "";
         if ($sponsor->url !== null)
@@ -66,15 +78,25 @@ class SponsorsManagement extends AbstractAdminUserPane {
           $file = $sponsor->logo->getFile();
           $log = new XImg(sprintf('data:%s;base64,%s', $file->filetype, base64_encode($file->filedata)), "");
         }
-        $tab->addRow(array(new XTD(array(),
-                                   array(new XNumberInput('order[]', ($i + 1), 1, count($curr), 1, array('size'=>2)),
-                                         new XHiddenInput('sponsor[]', $sponsor->id))),
-                           new XTD(array('class'=>'drag'), ($i + 1)),
-                           $sponsor->name,
-                           $url,
-                           $log,
-                           new XA($this->link(array('r'=>$sponsor->id)), "Edit")),
-                     array('class'=>'sortable row'.($i % 2)));
+        $reg_log = "";
+        if ($sponsor->regatta_logo !== null) {
+          $file = $sponsor->regatta_logo->getFile();
+          $reg_log = new XImg(sprintf('data:%s;base64,%s', $file->filetype, base64_encode($file->filedata)), "");
+        }
+
+        $row = array(
+          new XTD(array(),
+                  array(new XNumberInput('order[]', ($i + 1), 1, count($curr), 1, array('size'=>2)),
+                        new XHiddenInput('sponsor[]', $sponsor->id))),
+          new XTD(array('class'=>'drag'), ($i + 1)),
+          $sponsor->name,
+          $url,
+          $log);
+        if (DB::g(STN::REGATTA_SPONSORS))
+          $row[] = $reg_log;
+        $row[] = new XA($this->link(array('r'=>$sponsor->id)), "Edit");
+
+        $tab->addRow($row, array('class'=>'sortable row'.($i % 2)));
       }
       $f->add(new XSubmitP('reorder', "Edit order"));
     }
@@ -88,6 +110,12 @@ class SponsorsManagement extends AbstractAdminUserPane {
                    array("Each sponsor should have a name, an optional URL to link to, and an optional logo. The logo to be used must be one of the public files. Visit ",
                          new XA(WS::link('/files'), "Public files"),
                          " to upload a logo first.")));
+
+    if (DB::g(STN::REGATTA_SPONSORS)) {
+      $f->add(new XP(array('class'=>'warning'),
+                     "Note: in order to make the sponsor available at the regatta level, you must include an image in the \"Regatta Logo\" field."));
+    }
+
     $this->fillForm($f, new Pub_Sponsor());
     $f->add(new XSubmitP('add', "Add sponsor"));
   }
@@ -103,6 +131,9 @@ class SponsorsManagement extends AbstractAdminUserPane {
       $sponsor->logo = DB::$V->incID($args, 'logo', DB::$PUB_FILE_SUMMARY);
       if ($sponsor->logo !== null && substr($sponsor->logo->filetype, 0, 6) != 'image/')
         throw new SoterException("Only images may be used for the sponsor logo.");
+      $sponsor->regatta_logo = DB::$V->incID($args, 'regatta_logo', DB::$PUB_FILE_SUMMARY);
+      if ($sponsor->regatta_logo !== null && substr($sponsor->regatta_logo->filetype, 0, 6) != 'image/')
+        throw new SoterException("Only images may be used for the regatta sponsor logo.");
       $sponsor->relative_order = count(DB::getAll(DB::$PUB_SPONSOR)) + 1;
       DB::set($sponsor);
       Session::pa(new PA(sprintf("Added \"%s\" as new sponsor.", $sponsor->name)));
@@ -159,10 +190,23 @@ class SponsorsManagement extends AbstractAdminUserPane {
     $f->add(new FItem("URL:", new XUrlInput('url', $sponsor->url, array('maxlength'=>255))));
     $f->add(new FItem("Logo:", $sel = new XSelect('logo')));
     $sel->add(new FOption("", ""));
+
+    $reg_sel = null;
+    if (DB::g(STN::REGATTA_SPONSORS)) {
+      $f->add(new FItem("Regatta Logo:", $reg_sel = new XSelect('regatta_logo')));
+      $reg_sel->add(new FOption("", ""));
+    }
+
     foreach (DB::getAll(DB::$PUB_FILE_SUMMARY, new DBCond('filetype', 'image/%', DBCond::LIKE)) as $file) {
       $sel->add($opt = new FOption($file->id, $file->id));
       if ($sponsor->logo !== null && $file->id == $sponsor->logo->id)
         $opt->set('selected', 'selected');
+
+      if ($reg_sel !== null) {
+        $reg_sel->add($opt = new FOption($file->id, $file->id));
+        if ($sponsor->regatta_logo !== null && $file->id == $sponsor->regatta_logo->id)
+          $opt->set('selected', 'selected');
+      }
     }
   }
 }

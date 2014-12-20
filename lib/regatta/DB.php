@@ -4427,9 +4427,10 @@ class Pub_Sponsor extends DBObject {
   public $url;
   public $relative_order;
   protected $logo;
+  protected $regatta_logo;
 
   public function db_type($field) {
-    if ($field == 'logo')
+    if ($field == 'logo' || $field == 'regatta_logo')
       return DB::$PUB_FILE_SUMMARY;
     return parent::db_type($field);
   }
