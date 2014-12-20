@@ -193,7 +193,7 @@ class SponsorsManagement extends AbstractAdminUserPane {
 
     $reg_sel = null;
     if (DB::g(STN::REGATTA_SPONSORS)) {
-      $f->add(new FItem("Regatta Logo:", $reg_sel = new XSelect('regatta_logo')));
+      $f->add(new FItem("Regatta Logo:", $reg_sel = new XSelect('regatta_logo'), "Regatta logo images should be no larger than 50px high."));
       $reg_sel->add(new FOption("", ""));
     }
 

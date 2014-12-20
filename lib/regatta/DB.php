@@ -3175,12 +3175,15 @@ class Season extends DBObject {
   public $season;
   protected $start_date;
   protected $end_date;
+  protected $sponsor;
 
   public function db_type($field) {
     switch ($field) {
     case 'start_date':
     case 'end_date':
       return DB::$NOW;
+    case 'sponsor':
+      return DB::$PUB_SPONSOR;
     default:
       return parent::db_type($field);
     }
@@ -4436,6 +4439,14 @@ class Pub_Sponsor extends DBObject {
   }
 
   protected function db_order() { return array('relative_order'=>true); }
+
+  public function canSponsorRegattas() {
+    return $this->regatta_logo !== null;
+  }
+
+  public static function getSponsorsForRegattas() {
+    return DB::getAll(DB::$PUB_SPONSOR, new DBCond('regatta_logo', null, DBCond::NE));
+  }
 }
 
 /**

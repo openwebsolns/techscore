@@ -578,6 +578,7 @@ CREATE TABLE `regatta` (
   `scoring` enum('standard','combined','team') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'standard',
   `participant` enum('women','coed') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'coed',
   `host_venue` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `sponsor` tinyint(3) unsigned DEFAULT NULL,
   `private` tinyint(4) DEFAULT NULL,
   `inactive` datetime DEFAULT NULL COMMENT 'Deleted regattas, to be removed by the system.',
   `creator` int(10) unsigned DEFAULT NULL,
@@ -594,7 +595,9 @@ CREATE TABLE `regatta` (
   KEY `type` (`type`),
   KEY `dt_season` (`dt_season`),
   KEY `fk_regatta_creator` (`creator`),
+  KEY `fk_regatta_sponsor` (`sponsor`),
   CONSTRAINT `fk_regatta_creator` FOREIGN KEY (`creator`) REFERENCES `account` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_regatta_sponsor` FOREIGN KEY (`sponsor`) REFERENCES `pub_sponsor` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `regatta_ibfk_1` FOREIGN KEY (`venue`) REFERENCES `venue` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `regatta_ibfk_3` FOREIGN KEY (`type`) REFERENCES `type` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `regatta_ibfk_4` FOREIGN KEY (`dt_season`) REFERENCES `season` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -928,7 +931,10 @@ CREATE TABLE `season` (
   `season` enum('fall','winter','spring','summer') COLLATE utf8_unicode_ci DEFAULT 'fall',
   `start_date` date NOT NULL,
   `end_date` date NOT NULL,
-  PRIMARY KEY (`id`)
+  `sponsor` tinyint(3) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_season_sponsor` (`sponsor`),
+  CONSTRAINT `fk_season_sponsor` FOREIGN KEY (`sponsor`) REFERENCES `pub_sponsor` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `setting`;

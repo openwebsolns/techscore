@@ -107,6 +107,7 @@ class FullRegatta extends DBObject {
   public $private;
   public $host_venue;
   protected $inactive;
+  protected $sponsor;
 
   // Data properties
   public $dt_num_divisions;
@@ -160,6 +161,8 @@ class FullRegatta extends DBObject {
       return DB::$VENUE;
     case 'type':
       return DB::$TYPE;
+    case 'sponsor':
+      return DB::$PUB_SPONSOR;
     case 'dt_hosts':
     case 'dt_confs':
     case 'dt_boats':

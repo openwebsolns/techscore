@@ -21,7 +21,7 @@ class SeasonManagement extends AbstractAdminUserPane {
 
   public function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new XPort("Seasons"));
-    $p->add(new XP(array(), "Use the table below to edit the endpoints of the seasons. Every regatta must belong to one and only one season. Because of this, the following constraints are in effect:"));
+    $p->add(new XP(array(), "Use the table below to edit the start and end points of the seasons. Every regatta must belong to one and only one season. Because of this, the following constraints are in effect:"));
     $p->add(new XOl(array(),
                     array(new XLi("Seasons may not overlap."),
                           new XLi("There may only be one \"season type\" (Fall, Spring, etc) per year."),
@@ -32,27 +32,51 @@ class SeasonManagement extends AbstractAdminUserPane {
                    array("You must bear in mind points 3 and 4 when editing the end-points for past seasons: a rare occurrence. Note that the season's year is automatically calculated from the ",
                          new XStrong("start date"), " of the season.")));
 
+    $headers = array("Season", "Start time", "End time", "# Regattas");
+
+    $sponsors = array("" => "");
+    foreach (Pub_Sponsor::getSponsorsForRegattas() as $sponsor)
+      $sponsors[$sponsor->id] = $sponsor->name;
+
+    $inc_sponsors = (DB::g(STN::REGATTA_SPONSORS) && count($sponsors) > 1);
+    if ($inc_sponsors) {
+      $p->add(new XP(array(), "You can also specify a sponsor to be used as default for all new regattas created during that season. Note that sponsor changes only affect newly created regattas. You can override the sponsor assignment on a per-regatta basis."));
+      $headers[] = "Default sponsor";
+    }
+
     $p->add($f = $this->createForm());
-    $f->add($tab = new XQuickTable(array('id'=>'season-table'),
-                                   array("Season", "Start time", "End time", "# Regattas")));
+    $f->add($tab = new XQuickTable(array('id'=>'season-table'), $headers));
 
     $opts = array(Season::FALL => "Fall",
                   Season::SUMMER => "Summer",
                   Season::SPRING => "Spring",
                   Season::WINTER => "Winter");
-    $tab->addRow(array(new XTD(array(), array(XSelect::fromArray('season[]', $opts), new XHiddenInput('id[]', ""))),
+    $row = array(new XTD(array(), array(XSelect::fromArray('season[]', $opts), new XHiddenInput('id[]', ""))),
                        new XDateInput('start_date[]', null),
                        new XDateInput('end_date[]', null),
-                       new XEm("New")));
+                       new XEm("New"));
+
+    if ($inc_sponsors)
+      $row[] = XSelect::fromArray('sponsor[]', $sponsors);
+
+    $tab->addRow($row);
 
     $rowIndex = 1;
     foreach (DB::getAll(DB::$SEASON) as $season) {
       $sel = XSelect::fromArray('season[]', $opts, $season->getSeason());
-      $tab->addRow(array(new XTD(array(), array($sel, new XHiddenInput('id[]', $season->id))),
+      $row = array(new XTD(array(), array($sel, new XHiddenInput('id[]', $season->id))),
                          new XDateInput('start_date[]', $season->start_date),
                          new XDateInput('end_date[]', $season->end_date),
-                         count($season->getRegattas(true))),
-                   array('class'=>'row'. ($rowIndex++ % 2)));
+                         count($season->getRegattas(true)));
+
+      if ($inc_sponsors) {
+        $sponsor = null;
+        if ($season->sponsor !== null)
+          $sponsor = $season->sponsor->id;
+        $row[] = XSelect::fromArray('sponsor[]', $sponsors, $sponsor);
+      }
+
+      $tab->addRow($row, array('class'=>'row'. ($rowIndex++ % 2)));
     }
     $f->add(new XSubmitP('edit-seasons', "Edit seasons"));
   }
@@ -64,6 +88,9 @@ class SeasonManagement extends AbstractAdminUserPane {
       // indicating ID, Season, start_date and end_date.
       // ------------------------------------------------------------
       $curr_map = DB::$V->reqMap($args, array('id', 'season', 'start_date', 'end_date'), null, "Invalid arguments for current seasons.");
+
+      // Optionally, a corresponding list of sponsors may be provided
+      $sponsors = DB::$V->incList($args, 'sponsor', count($curr_map['id']));
 
       $opts = array(Season::FALL, Season::SUMMER, Season::SPRING, Season::WINTER);
 
@@ -81,6 +108,13 @@ class SeasonManagement extends AbstractAdminUserPane {
             $obj->start_date = DB::$V->reqDate($curr_map['start_date'], $rowIndex, null, null, "Invalid start date.");
           if (DB::$V->incString($curr_map['end_date'], $rowIndex, 1) !== null)
             $obj->end_date = DB::$V->reqDate($curr_map['end_date'], $rowIndex, null, null, "Invalid end date.");
+
+          // Sponsor provided?
+          if (count($sponsors) > 0) {
+            $obj->sponsor = DB::$V->incID($sponsors, $rowIndex, DB::$PUB_SPONSOR);
+            if ($obj->sponsor !== null && !$obj->sponsor->canSponsorRegattas())
+              throw new SoterException("Invalid sponsor provided for season.");
+          }
 
           // Is one, but not both of the dates null? And, are they in
           // the right order?
@@ -120,6 +154,17 @@ class SeasonManagement extends AbstractAdminUserPane {
           $changed = true;
           $obj->season = $season;
           $obj->id = Season::createID($obj);
+        }
+
+        // Sponsor provided?
+        if (count($sponsors) > 0) {
+          $sponsor = DB::$V->incID($sponsors, $rowIndex, DB::$PUB_SPONSOR);
+          if ($sponsor !== null && !$sponsor->canSponsorRegattas())
+            throw new SoterException("Invalid sponsor provided for season.");
+          if ($sponsor != $obj->sponsor) {
+            $obj->sponsor = $sponsor;
+            $changed = true;
+          }
         }
 
         if ($changed)
