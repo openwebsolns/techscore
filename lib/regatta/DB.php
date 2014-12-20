@@ -3940,7 +3940,21 @@ class Permission extends DBObject {
 
   public static function getPossible() {
     $reflection = new ReflectionClass(DB::$PERMISSION);
-    return $reflection->getConstants();
+    $list = array();
+    foreach ($reflection->getConstants() as $constant => $value) {
+      if (self::isAvailable($value))
+        $list[$constant] = $value;
+    }
+    return $list;
+  }
+
+  public static function isAvailable($permission_name) {
+    switch ($permission_name) {
+    case self::USE_REGATTA_SPONSOR:
+      return DB::g(STN::REGATTA_SPONSORS) !== null;
+    default:
+      return true;
+    }
   }
 
   /**

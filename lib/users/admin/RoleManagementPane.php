@@ -44,13 +44,15 @@ window.addEventListener("load", function(e) {
 
     $groups = array();
     foreach (DB::getAll(DB::$PERMISSION) as $perm) {
-      if (!isset($groups[$perm->category])) {
-        $sel->add($group = new FOptionGroup($perm->category));
-        $groups[$perm->category] = $group;
+      if (Permission::isAvailable($perm->id)) {
+        if (!isset($groups[$perm->category])) {
+          $sel->add($group = new FOptionGroup($perm->category));
+          $groups[$perm->category] = $group;
+        }
+        $groups[$perm->category]->add($opt = new FOption($perm->id, $perm, array('title'=>$perm->description)));
+        if (isset($existing[$perm->id]))
+          $opt->set('selected', 'selected');
       }
-      $groups[$perm->category]->add($opt = new FOption($perm->id, $perm, array('title'=>$perm->description)));
-      if (isset($existing[$perm->id]))
-        $opt->set('selected', 'selected');
     }
   }
 
@@ -141,7 +143,9 @@ window.addEventListener("load", function(e) {
         else {
           $perms = new XUl(array('class'=>'role-permissions'));
           foreach ($role->getPermissions() as $perm) {
-            $perms->add(new XLi($perm, array('title' => $perm->description)));
+            if (Permission::isAvailable($perm->id)) {
+              $perms->add(new XLi($perm, array('title' => $perm->description)));
+            }
           }
         }
 

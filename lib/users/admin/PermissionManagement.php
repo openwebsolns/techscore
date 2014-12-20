@@ -72,14 +72,16 @@ class PermissionManagement extends AbstractAdminUserPane {
 
     $added = 0;
     $tab = new XQuickTable(array('class' => 'permission-table'), array("", "Title", "Description", "Category"));
-    foreach (DB::getAll(DB::$PERMISSION) as $i => $permission) {
-      $tab->addRow(array(new FCheckbox('delete[]', $permission->id),
-                         new XA($this->link(array('id' => $permission->id)), $permission),
-                         $permission->description,
-                         $permission->category),
-                   array('class' => 'row' . ($i % 2)));
-      unset($available[$permission->id]);
-      $added++;
+    foreach (DB::getAll(DB::$PERMISSION) as $permission) {
+      if (array_key_exists($permission->id, $available)) {
+        $tab->addRow(array(new FCheckbox('delete[]', $permission->id),
+                           new XA($this->link(array('id' => $permission->id)), $permission),
+                           $permission->description,
+                           $permission->category),
+                     array('class' => 'row' . ($added % 2)));
+        unset($available[$permission->id]);
+        $added++;
+      }
     }
 
     if (count($added) == 0) {
