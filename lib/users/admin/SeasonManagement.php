@@ -26,10 +26,10 @@ class SeasonManagement extends AbstractAdminUserPane {
                     array(new XLi("Seasons may not overlap."),
                           new XLi("There may only be one \"season type\" (Fall, Spring, etc) per year."),
                           new XLi("Each regatta's start time must belong to a season, which implies:"),
-                          new XLi("You cannot reomve seasons which contain regattas."),
+                          new XLi("You cannot remove seasons which contain regattas."),
                           new XLi("Season's end date must come after the start date."))));
     $p->add(new XP(array(),
-                   array("You must bear points 3 and 4 when editing the end-points for past seasons; a rare occurrence. Note that the season's year is automatically calculated from the ",
+                   array("You must bear in mind points 3 and 4 when editing the end-points for past seasons: a rare occurrence. Note that the season's year is automatically calculated from the ",
                          new XStrong("start date"), " of the season.")));
 
     $p->add($f = $this->createForm());
