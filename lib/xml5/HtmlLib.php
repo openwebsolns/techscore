@@ -802,18 +802,20 @@ class XSelect extends XAbstractHtml {
    * @see fromArray
    */
   public static function fromDBM($name, $opts, $chosen = null, Array $attrs = array(), $first_option = null) {
-    if (!is_array($chosen))
+    $converted_chosen = array();
+    if (!is_array($chosen) && !($chosen instanceof ArrayIterator))
       $chosen = array($chosen);
     foreach ($chosen as $i => $item) {
       if ($item instanceof DBObject)
-        $chosen[$i] = $item->id;
+        $item = $item->id;
+      $converted_chosen[] = $item;
     }
     $sel = new XSelect($name, $attrs);
     if ($first_option !== null)
       $sel->add(new XOption("", array(), $first_option));
     foreach ($opts as $v) {
       $sel->add($opt = new XOption($v->id, array(), $v));
-      if (in_array($v->id, $chosen))
+      if (in_array($v->id, $converted_chosen))
         $opt->set('selected', 'selected');
     }
     return $sel;

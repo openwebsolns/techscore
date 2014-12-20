@@ -631,9 +631,9 @@ class DB extends DBM {
     }
     if ($ts_role !== null) {
       if ($cond === null)
-	$cond = new DBCond('ts_role', $ts_role->id);
+        $cond = new DBCond('ts_role', $ts_role->id);
       else
-	$cond = new DBBool(array($cond, new DBCond('ts_role', $ts_role->id)));
+        $cond = new DBBool(array($cond, new DBCond('ts_role', $ts_role->id)));
     }
     return self::getAll(self::$ACCOUNT, $cond);
   }
@@ -2320,7 +2320,7 @@ class Round extends DBObject {
     for ($i = 0; $i < $this->getRaceOrderCount(); $i++) {
       $boat = $this->getRaceOrderBoat($i);
       if ($boat !== null)
-	$list[$boat->id] = $boat;
+        $list[$boat->id] = $boat;
     }
     return array_values($list);
   }
@@ -2350,7 +2350,7 @@ class Round extends DBObject {
     $this->_template = array();
     foreach ($order as $i => $pair) {
       if (!is_array($pair) || count($pair) != 2)
-	throw new InvalidArgumentException("Missing pair for index $i.");
+        throw new InvalidArgumentException("Missing pair for index $i.");
       $elem = new Round_Template();
       $elem->round = $this;
       $elem->team1 = array_shift($pair);
@@ -2414,9 +2414,9 @@ class Round extends DBObject {
       $this->_template = null;
       $list = array();
       foreach (DB::getAll(DB::$ROUND_TEMPLATE, new DBCond('round', $this)) as $entry)
-	$list[] = $entry;
+        $list[] = $entry;
       if (count($list) > 0)
-	$this->_template = $list;
+        $this->_template = $list;
     }
     return $this->_template;
   }
@@ -3799,7 +3799,7 @@ class Race_Order extends DBObject implements Countable {
     $this->template = array();
     foreach ($pairs as $i => $pair) {
       if (!is_array($pair) || count($pair) != 2)
-	throw new InvalidArgumentException("Invalid pair entry with index $i.");
+        throw new InvalidArgumentException("Invalid pair entry with index $i.");
       $this->template[] = implode('-', $pair);
     }
   }
@@ -3869,6 +3869,23 @@ class Permission extends DBObject {
   public function __toString() { return $this->title; }
 
   /**
+   * Fetch a list of roles that have this permission explicitly
+   *
+   * @return Array:Role the list of roles
+   */
+  public function getRoles() {
+    return DB::getAll(
+      DB::$ROLE,
+      new DBCondIn(
+        'id',
+        DB::prepGetAll(
+          DB::$ROLE_PERMISSION,
+          new DBCond('permission', $this),
+          array('role')
+        )));
+  }
+
+  /**
    * Gets the permission specified by the given ID
    *
    * @param Const $id the ID of the permission
@@ -3912,6 +3929,7 @@ class Permission extends DBObject {
   const CREATE_REGATTA = 'create_regatta';
   const DELETE_REGATTA = 'delete_regatta';
   const PARTICIPATE_IN_REGATTA = 'participate_in_regatta';
+  const USE_REGATTA_SPONSOR = 'use_regatta_sponsor';
 
   const EDIT_SCHOOL_LOGO = 'edit_school_logo';
   const EDIT_UNREGISTERED_SAILORS = 'edit_unregistered_sailors';
@@ -3923,6 +3941,22 @@ class Permission extends DBObject {
   public static function getPossible() {
     $reflection = new ReflectionClass(DB::$PERMISSION);
     return $reflection->getConstants();
+  }
+
+  /**
+   * Returns map of different categories that exist
+   *
+   * @return Array list of strings
+   */
+  public static function getPermissionCategories() {
+    $q = DB::prepGetAll(DB::$PERMISSION, new DBCond('category', null, DBCond::NE), array('category'));
+    $q->distinct(true);
+    $q->order_by(array('category' => true));
+    $res = DB::query($q);
+    $list = array();
+    foreach ($res->fetch_all() as $r)
+      $list[] = $r[0];
+    return $list;
   }
 }
 
@@ -3954,12 +3988,12 @@ class Role extends DBObject {
   public function getPermissions() {
     if ($this->permissions === null) {
       if ($this->has_all)
-	$this->permissions = DB::getAll(DB::$PERMISSION);
+        $this->permissions = DB::getAll(DB::$PERMISSION);
       else {
-	$this->permissions = array();
-	foreach (DB::getAll(DB::$ROLE_PERMISSION, new DBCond('role', $this)) as $link) {
-	  $this->permissions[] = $link->permission;
-	}
+        $this->permissions = array();
+        foreach (DB::getAll(DB::$ROLE_PERMISSION, new DBCond('role', $this)) as $link) {
+          $this->permissions[] = $link->permission;
+        }
       }
     }
     return $this->permissions;
@@ -3979,6 +4013,46 @@ class Role extends DBObject {
       DB::set($link);
     }
     $this->permissions = $perms;
+  }
+
+  public function hasPermission(Permission $permission) {
+    foreach ($this->getPermissions() as $perm) {
+      if ($perm->id == $permission->id)
+        return true;
+    }
+    return false;
+  }
+
+  public function removePermission(Permission $permission) {
+    DB::removeAll(
+      DB::$ROLE_PERMISSION,
+      new DBBool(array(
+                   new DBCond('role', $this),
+                   new DBCond('permission', $permission))));
+    $this->permissions = null;
+  }
+
+  /**
+   * Adds a specific permission to the set
+   *
+   * When adding multiple permissions, it is more efficient to use the
+   * setPermissions method, rather than calling this method multiple
+   * times.
+   *
+   * @param Permission $permission the permission to add
+   * @return boolean true if it was added. False if already present
+   * @see setPermissions
+   */
+  public function addPermission(Permission $permission) {
+    if (!$this->hasPermission($permission)) {
+      $link = new Role_Permission();
+      $link->role = $this;
+      $link->permission = $permission;
+      DB::set($link);
+      $this->permissions[] = $permission;
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -4007,6 +4081,19 @@ class Role extends DBObject {
   public function getAccounts() {
     require_once('regatta/Account.php');
     return DB::getAll(DB::$ACCOUNT, new DBCond('ts_role', $this));
+  }
+
+  /**
+   * Get all the roles that are defined
+   *
+   * @param boolean $only_non_admin set to true to exclude has_all
+   * @return Array:Role
+   */
+  public static function getRoles($only_non_admin = false) {
+    $cond = null;
+    if ($only_non_admin !== false)
+      $cond = new DBCond('has_all', null);
+    return DB::getAll(DB::$ROLE, $cond);
   }
 }
 
@@ -4104,6 +4191,8 @@ class STN extends DBObject {
   const AUTO_MERGE_SAILORS = 'auto_merge_sailors';
   const AUTO_MERGE_GENDER = 'auto_merge_gender';
   const AUTO_MERGE_YEAR = 'auto_merge_year';
+
+  const REGATTA_SPONSORS = 'regatta_sponsors';
 
   /**
    * Enforce uniqueness for each sailor by appending each upstream ID

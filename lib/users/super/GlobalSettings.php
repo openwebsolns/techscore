@@ -67,6 +67,7 @@ class GlobalSettings extends AbstractSuperUserPane {
 
     $p->add($f = new XPort("Features"));
     $f->add(new FItem("Auto-merge sailors:", new FCheckbox(STN::AUTO_MERGE_SAILORS, 1, "Auto-merge unregistered sailors on a daily basis.", DB::g(STN::AUTO_MERGE_SAILORS) !== null)));
+    $f->add(new FItem("Regatta sponsors:", new FCheckbox(STN::REGATTA_SPONSORS, 1, "Allow scorers to choose from list of sponsors at regatta level.", DB::g(STN::REGATTA_SPONSORS) !== null)));
 
     $p->add(new XSubmitP('set-params', "Save changes"));
   }
@@ -209,6 +210,22 @@ class GlobalSettings extends AbstractSuperUserPane {
       if ($val != DB::g(STN::AUTO_MERGE_SAILORS)) {
         $changed = true;
         DB::s(STN::AUTO_MERGE_SAILORS, $val);
+      }
+
+      $val = DB::$V->incInt($args, STN::REGATTA_SPONSORS, 1, 2, null);
+      if ($val != DB::g(STN::REGATTA_SPONSORS)) {
+        $changed = true;
+        DB::s(STN::REGATTA_SPONSORS, $val);
+        if ($val !== null) {
+          Session::pa(new PA(
+                        array("To make sponsors available to regattas, you will need to ",
+                              new XA(WS::link('/sponsor'), "configure the list of sponsors"),
+                              ". You may also wish to ",
+                              new XA(WS::link('/roles'), "grant the appropriate permission"),
+                              " to one or more roles."
+                        ),
+                        PA::I));
+        }
       }
 
       if (!$changed)

@@ -31,8 +31,17 @@ class PermissionManagement extends AbstractAdminUserPane {
         $p->add($form = $this->createForm());
         $form->add(new FReqItem("ID:", new XStrong(strtoupper($permission->id))));
         $form->add(new FReqItem("Title:", new XTextInput('title', $permission->title)));
-        $form->add(new FReqItem("Category:", new XTextInput('category', $permission->category), "Strongly recommend using existing value."));
+        $form->add($fi = new FReqItem("Category:", new XTextInput('category', $permission->category, array('list'=>'category-list')), "Strongly recommend using existing value."));
+        $fi->add(new XDataList('category-list', Permission::getPermissionCategories()));
         $form->add(new FItem("Description:", new XTextArea('description', $permission->description)));
+
+        $form->add(new FItem(
+                     "Assigned to roles:",
+                     XSelectM::fromDBM(
+                       'roles[]',
+                       Role::getRoles(true),
+                       $permission->getRoles()
+                     )));
 
         $form->add($xp = new XSubmitP('edit-permission', "Edit"));
         $xp->add(new XHiddenInput('permission', $permission->id));
@@ -89,7 +98,8 @@ class PermissionManagement extends AbstractAdminUserPane {
       $add_port->add($form = $this->createForm());
       $form->add(new FReqItem("Permission:", XSelect::fromArray('permission', $available)));
       $form->add(new FReqItem("Title:", new XTextInput('title', "")));
-      $form->add(new FReqItem("Category:", new XTextInput('category', ""), "Strongly recommend using existing value."));
+      $form->add($fi = new FReqItem("Category:", new XTextInput('category', "", array('list'=>'category-list')), "Strongly recommend using existing value."));
+      $fi->add(new XDataList('category-list', Permission::getPermissionCategories()));
       $form->add(new FItem("Description:", new XTextArea('description', "")));
       $form->add(new XSubmitP('add-permission', "Add Permission"));
     }
@@ -122,6 +132,17 @@ class PermissionManagement extends AbstractAdminUserPane {
       $perm->category = DB::$V->reqString($args, 'category', 1, 41, "Invalid/missing category provided.");
       $perm->description = DB::$V->incString($args, 'description', 1, 16000);
       DB::set($perm);
+
+      // Roles? Remove first, then add new ones
+      $chosen_roles = DB::$V->incList($args, 'roles');
+      foreach (Role::getRoles(true) as $role) {
+        if (in_array($role->id, $chosen_roles)) {
+          $role->addPermission($perm);
+        } else {
+          $role->removePermission($perm);
+        }
+      }
+
       Session::pa(new PA(sprintf("Edited permission \"%s\".", $perm)));
     }
 

@@ -448,6 +448,46 @@ class SailTD extends XTD {
 }
 
 /**
+ * Datalist element
+ *
+ * @author Dayan Paez
+ * @version 2014-12-20
+ */
+class XDataList extends XAbstractHtml {
+  /**
+   * Creates a new datalist
+   *
+   * @param String $id the ID of the element
+   * @param Array:String $options simple list of options
+   * @param Array $attrs
+   */
+  public function __construct($id, Array $options = array(), Array $attrs = array()) {
+    parent::__construct('datalist', $attrs);
+    $this->set('id', $id);
+    foreach ($options as $option)
+      $this->addOption($option);
+  }
+  public function addOption($option, $content = null) {
+    $this->add(new XDataListOption($option, $content));
+  }
+}
+
+/**
+ * Option entry for datalist
+ *
+ * @author Dayan Paez
+ * @version 2014-12-20
+ */
+class XDataListOption extends XAbstractHtml {
+  public function __construct($value, $content = null, Array $attrs = array()) {
+    parent::__construct('option', $attrs);
+    $this->set('value', $value);
+    if ($content !== null)
+      $this->add($content);
+  }
+}
+
+/**
  * DIV for rich textarea containment
  *
  * @author Dayan Paez
