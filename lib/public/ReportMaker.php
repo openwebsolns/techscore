@@ -66,7 +66,7 @@ class ReportMaker {
       require_once('xml5/TSEditor.php');
       $DPE = new TSEditor();
 
-      $this->page->addSection($p = new XPort("Summary"));
+      $this->page->addSection($p = $this->newXPort("Summary"));
       $p->set('id', 'summary');
       foreach ($summaries as $h => $i) {
         $p->add(new XH4($h));
@@ -83,24 +83,24 @@ class ReportMaker {
         $maker = new TeamRankingDialog($reg);
         
         if ($reg->finalized === null) {
-          $this->page->addSection($p = new XPort("Rankings"));
+          $this->page->addSection($p = $this->newXPort("Rankings"));
           $p->add(new XP(array(), array(new XEm("Note:"), " Preliminary results; teams ranked by winning percentage.")));
         }
         else
-          $this->page->addSection($p = new XPort("Final Results"));
+          $this->page->addSection($p = $this->newXPort("Final Results"));
         foreach ($maker->getTable(true) as $elem)
           $p->add($elem);
       }
       else {
         require_once('tscore/ScoresDivisionalDialog.php');
         $maker = new ScoresDivisionalDialog($reg);
-        $this->page->addSection($p = new XPort("Score summary"));
+        $this->page->addSection($p = $this->newXPort("Score summary"));
         foreach ($maker->getTable(true) as $elem)
           $p->add($elem);
 
         // SVG history diagram
         if (count($reg->getScoredRaces(($reg->scoring == Regatta::SCORING_COMBINED) ? Division::A() : null)) > 1) { 
-          $this->page->addSection($p = new XPort("Score history"));
+          $this->page->addSection($p = $this->newXPort("Score history", false));
           $p->set('id', 'history-port');
           $p->add(new XDiv(array('id'=>'history-expl'),
                            array(new XP(array(), "The following chart shows the relative rank of the teams as of the race indicated. Note that the races are ordered by number, then division, which may not represent the order in which the races were actually sailed."),
@@ -114,7 +114,7 @@ class ReportMaker {
       }
     }
     else {
-      $this->page->addSection($p = new XPort("No scores have been entered"));
+      $this->page->addSection($p = $this->newXPort("No scores have been entered"));
       $p->add($xp = new XP(array('class'=>'notice'), "No scores have been entered yet for this regatta."));
       $rot = $reg->getRotation();
       if ($rot->isAssigned() || $reg->scoring == Regatta::SCORING_TEAM) {
@@ -126,7 +126,7 @@ class ReportMaker {
       $docs = $reg->getDocuments();
       if (count($docs) > 0) {
         $DPE = null;
-        $this->page->addSection($p = new XPort("Notices"));
+        $this->page->addSection($p = $this->newXPort("Notices", false));
         foreach ($docs as $doc) {
           $p->add($d = new XDiv(array('class'=>'notice-item'),
                                 array(new XH4(new XA(sprintf('notices/%s', $doc->url), $doc->name), array('class'=>'notice-title')))));
@@ -158,7 +158,7 @@ class ReportMaker {
 
     require_once('tscore/ScoresDivisionDialog.php');
     $maker = new ScoresDivisionDialog($reg, $div);
-    $page->addSection($p = new XPort("Scores for Division $div"));
+    $page->addSection($p = $this->newXPort("Scores for Division $div"));
     $elems = $maker->getTable(true);
     if (count($elems) == 0)
       $p->add(new XP(array('class'=>'notice'), "No scores have been entered yet for Division $div."));
@@ -168,7 +168,7 @@ class ReportMaker {
 
       // SVG history diagram
       if (count($reg->getScoredRaces($div)) > 1) {
-        $page->addSection($p = new XPort("Score history"));
+        $page->addSection($p = $this->newXPort("Score history", false));
         $p->set('id', 'history-port');
         $p->add(new XDiv(array('id'=>'history-expl'),
                          array(new XP(array(), "The following chart shows the relative rank of the teams as of the race indicated."),
@@ -194,7 +194,7 @@ class ReportMaker {
 
       require_once('tscore/TeamRankingDialog.php');
       $maker = new TeamRankingDialog($reg);
-      $this->fullPage->addSection($p = new XPort("Ranking summary"));
+      $this->fullPage->addSection($p = $this->newXPort("Ranking summary"));
       if ($reg->finalized === null)
         $p->add(new XP(array(), array(new XEm("Note:"), " Preliminary results; order may not be accurate due to unbroken ties and incomplete round robins.")));
       foreach ($maker->getSummaryTable(true) as $elem)
@@ -207,7 +207,7 @@ class ReportMaker {
         array_unshift($rounds, $round);
       foreach ($rounds as $round) {
         if (count($round->getSeeds()) > 0) {
-          $this->fullPage->addSection($p = new XPort($round));
+          $this->fullPage->addSection($p = $this->newXPort($round, false));
           $p->add($maker->getRoundTable($round));
         }
       }
@@ -218,7 +218,7 @@ class ReportMaker {
       // Total scores
       require_once('tscore/ScoresFullDialog.php');
       $maker = new ScoresFullDialog($reg);
-      $this->fullPage->addSection($p = new XPort("Race by race"));
+      $this->fullPage->addSection($p = $this->newXPort("Race by race"));
       foreach ($maker->getTable(true) as $elem)
         $p->add($elem);
     }
@@ -252,7 +252,7 @@ class ReportMaker {
             }
           }
 
-          $this->rotPage->addSection($p = new XPort($label));
+          $this->rotPage->addSection($p = $this->newXPort($label, false));
           foreach ($maker->getTable($round, true) as $tab)
             $p->add($tab);
         }
@@ -262,7 +262,7 @@ class ReportMaker {
       require_once('tscore/RotationDialog.php');
       $maker = new RotationDialog($reg);
       foreach ($reg->getRotation()->getDivisions() as $div) {
-        $this->rotPage->addSection($p = new XPort("$div Division"));
+        $this->rotPage->addSection($p = $this->newXPort("$div Division", $div == Division::A()));
         $p->add($maker->getTable($div, true));
       }
     }
@@ -280,7 +280,7 @@ class ReportMaker {
     $this->allracesPage->head->add(new XScript('text/javascript', '/inc/js/tr-allraces-select.js'));
     require_once('tscore/TeamRacesDialog.php');
     $maker = new TeamRacesDialog($reg);
-    $this->allracesPage->addSection($p = new XPort("All races"));
+    $this->allracesPage->addSection($p = $this->newXPort("All races"));
     foreach ($maker->getTable(true) as $elem)
       $p->add($elem);
   }
@@ -298,13 +298,13 @@ class ReportMaker {
     $maker = new TeamRegistrationsDialog($reg);
     $rounds = $reg->getScoredRounds();
     if (count($rounds) == 0) {
-      $this->sailorsPage->addSection($p = new XPort("Sailors"));
+      $this->sailorsPage->addSection($p = $this->newXPort("Sailors", false));
       $p->add(new XP(array('class'=>'notice'), "There are no scored races yet in this regatta."));
     }
     else {
       $this->sailorsPage->addSection(new XP(array('class'=>'notice'), "Note that only races that have been scored are shown."));
       foreach ($rounds as $round) {
-        $this->sailorsPage->addSection($p = new XPort($round));
+        $this->sailorsPage->addSection($p = $this->newXPort($round, false));
         $p->add($maker->getRoundTable($round));
       }
     }
@@ -319,7 +319,7 @@ class ReportMaker {
     $this->prepare($this->noticesPage, 'notices');
     $this->noticesPage->setDescription(sprintf("Notice board and supporting documents for %s's %s.", $season->fullString(), $reg->name));
 
-    $this->noticesPage->addSection($p = new XPort("Notice board"));
+    $this->noticesPage->addSection($p = $this->newXPort("Notice board"));
     $docs = $reg->getDocuments();
     if (count($docs) == 0) {
       $p->add(new XP(array('class'=>'notice'), "No notices have been posted at this time."));
@@ -381,9 +381,26 @@ class ReportMaker {
 
     require_once('tscore/ScoresCombinedDialog.php');
     $maker = new ScoresCombinedDialog($reg);
-    $this->combinedPage->addSection($p = new XPort("Scores for all divisions"));
+    $this->combinedPage->addSection($p = $this->newXPort("Scores for all divisions"));
     foreach ($maker->getTable(true) as $elem)
       $p->add($elem);
+  }
+
+  protected function newXPort($title, $inc_sponsor = true, Array $attrs = array()) {
+    $port = new XPort($title, $attrs);
+    if ($inc_sponsor && DB::g(STN::REGATTA_SPONSORS) && $this->regatta->sponsor !== null) {
+      $file = $this->regatta->sponsor->regatta_logo;
+      $link = $file->asImg(
+        sprintf('/inc/img/%s', $file->id),
+        $this->regatta->sponsor,
+        array('class'=>'sp'));
+      if ($this->regatta->sponsor->url !== null)
+        $link = new XA($this->regatta->sponsor->url, $link);
+      $port->add(new XDiv(
+                   array('class'=>'sp-block'),
+                   array(new XSpan("Sponsored by ", array('class'=>'sp-leadin')), $link)));
+    }
+    return $port;
   }
 
   /**

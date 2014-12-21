@@ -297,7 +297,7 @@ class TPublicPage extends XPage {
     $this->body->add($foot = new XDiv(array('id'=>'page-footer')));
 
     // Sponsors
-    $sponsors = DB::getAll(DB::$PUB_SPONSOR);
+    $sponsors = Pub_Sponsor::getSponsorsForSite();
     if (count($sponsors) > 0) {
       $nav->add(new XLi(new XA('#sponsors', "Our sponsors")));
       $foot->add(new XDiv(array('id'=>'sponsors'),

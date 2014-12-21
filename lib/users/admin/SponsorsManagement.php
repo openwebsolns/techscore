@@ -107,7 +107,7 @@ class SponsorsManagement extends AbstractAdminUserPane {
     $this->PAGE->addContent($p = new XPort("Add sponsor"));
     $p->add($f = $this->createForm());
     $f->add(new XP(array(),
-                   array("Each sponsor should have a name, an optional URL to link to, and an optional logo. The logo to be used must be one of the public files. Visit ",
+                   array("Each sponsor should have a name, an optional URL. In order to be used as a site-wide sponsor, a logo must be assigned. The logo to be used must be one of the public files. Visit ",
                          new XA(WS::link('/files'), "Public files"),
                          " to upload a logo first.")));
 
@@ -188,7 +188,7 @@ class SponsorsManagement extends AbstractAdminUserPane {
   private function fillForm(XForm $f, Pub_Sponsor $sponsor) {
     $f->add(new FReqItem("Name:", new XTextInput('name', $sponsor->name, array('maxlength'=>50))));
     $f->add(new FItem("URL:", new XUrlInput('url', $sponsor->url, array('maxlength'=>255))));
-    $f->add(new FItem("Logo:", $sel = new XSelect('logo')));
+    $f->add(new FItem("Logo:", $sel = new XSelect('logo'), "Image must be present for sponsor to be listed on public site footer."));
     $sel->add(new FOption("", ""));
 
     $reg_sel = null;
