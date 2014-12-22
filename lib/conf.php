@@ -138,7 +138,7 @@ class Conf {
 
 function __autoload($name) {
   // Check only in the 'regatta' folder
-  require_once("regatta/$name.php");
+  require_once("model/$name.php");
 }
 
 ini_set('include_path', sprintf(".:%s", dirname(__FILE__)));

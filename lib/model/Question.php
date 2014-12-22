@@ -57,4 +57,3 @@ class Question extends DBObject {
     DB::set($answer);
   }
 }
-?>

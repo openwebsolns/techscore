@@ -39,4 +39,3 @@ class Answer extends DBObject {
     return array('answered_on' => false);
   }
 }
-?>

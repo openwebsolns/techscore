@@ -132,4 +132,3 @@ class RP {
     return array(RP::SKIPPER => "Skipper", RP::CREW => "Crew");
   }
 }
-?>

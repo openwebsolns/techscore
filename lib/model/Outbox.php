@@ -83,4 +83,3 @@ class Outbox extends DBObject {
     }
   }
 }
-?>

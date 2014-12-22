@@ -768,4 +768,3 @@ class Rotation {
     DB::removeAll(DB::T(DB::SAIL), $cond);
   }
 }
-?>

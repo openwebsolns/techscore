@@ -47,4 +47,3 @@ class Message extends DBObject {
     return $this->content;
   }
 }
-?>
