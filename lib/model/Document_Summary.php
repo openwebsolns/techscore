@@ -33,10 +33,8 @@ class Document_Summary extends DBObject implements Writeable {
   public function db_type($field) {
     switch ($field) {
     case 'regatta':
-      require_once('regatta/Regatta.php');
       return DB::T(DB::REGATTA);
     case 'author':
-      require_once('regatta/Account.php');
       return DB::T(DB::ACCOUNT);
     case 'last_updated':
       return DB::T(DB::NOW);

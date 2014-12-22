@@ -214,7 +214,6 @@ class SeasonManagement extends AbstractAdminUserPane {
       // ------------------------------------------------------------
       // Step 4: Any orphaned regattas?
       // ------------------------------------------------------------
-      require_once('regatta/Regatta.php');
       $regs = DB::getAll(DB::T(DB::REGATTA), $cond);
       if (count($regs) > 0) {
         $mes = array("The following regattas conflict with the season dates:", $ul = new XUl());

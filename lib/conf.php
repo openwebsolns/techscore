@@ -138,7 +138,7 @@ class Conf {
 
 function __autoload($name) {
   // Check only in the 'regatta' folder
-  require_once("model/$name.php");
+  require_once(__DIR__ . '/model/' . $name . '.php');
 }
 
 ini_set('include_path', sprintf(".:%s", dirname(__FILE__)));
@@ -160,7 +160,6 @@ else {
 }
 
 // Database connection
-require_once('regatta/DB.php');
 DB::setConnectionParams(Conf::$SQL_HOST, Conf::$SQL_USER, Conf::$SQL_PASS, Conf::$SQL_DB);
 DB::setLogfile(Conf::$LOG_QUERIES);
 

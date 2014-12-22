@@ -5,7 +5,6 @@
  * @package regatta
  */
 
-require_once('regatta/DB.php');
 
 /**
  * Answer to a Question asked by an end-user
@@ -23,10 +22,8 @@ class Answer extends DBObject {
   public function db_type($field) {
     switch ($field) {
     case 'question':
-      require_once('regatta/Question.php');
       return DB::T(DB::QUESTION);
     case 'answered_by':
-      require_once('regatta/Account.php');
       return DB::T(DB::ACCOUNT);
     case 'answered_on':
       return DB::T(DB::NOW);

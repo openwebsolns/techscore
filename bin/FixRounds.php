@@ -7,7 +7,6 @@
  */
 
 require_once(dirname(__DIR__) . '/lib/conf.php');
-require_once('regatta/Regatta.php');
 
 foreach (DB::getAll(DB::T(DB::ROUND)) as $round) {
   if ($round->regatta !== null && $round->num_teams == 0) {

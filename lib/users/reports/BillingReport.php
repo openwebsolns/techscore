@@ -90,7 +90,6 @@ class BillingReport extends AbstractReportPane {
           }
         }
 
-        require_once('regatta/Regatta.php');
         $all = DB::getAll(DB::T(DB::PUBLIC_REGATTA),
                           new DBBool(array(new DBCond('finalized', null, DBCond::NE),
                                            new DBCondIn('type', array_keys($types)),

@@ -36,7 +36,6 @@ class RegattaTypeManagement extends AbstractAdminUserPane {
                                          "Tweet",
                                          // "Description",
                                          "Delete")));
-    require_once('regatta/Regatta.php');
     $i = 1;
     $types = DB::getAll(DB::T(DB::ACTIVE_TYPE));
     foreach ($types as $type) {
@@ -107,7 +106,6 @@ class RegattaTypeManagement extends AbstractAdminUserPane {
           $type = DB::$V->reqID($map['type'], $i, DB::T(DB::ACTIVE_TYPE), "Invalid type provided.");
           // Deletion?
           if (in_array($type->id, $del)) {
-            require_once('regatta/Regatta.php');
             if (count(DB::getAll(DB::T(DB::FULL_REGATTA), new DBCond('type', $type))) > 0)
               throw new SoterException("Cannot delete types in use.");
             $type->inactive = 1;
@@ -149,7 +147,6 @@ class RegattaTypeManagement extends AbstractAdminUserPane {
           DB::set($type);
           if (in_array($type, $regen_required)) {
             // Update all regattas!
-            require_once('regatta/Regatta.php');
             require_once('public/UpdateManager.php');
             foreach (DB::getAll(DB::T(DB::REGATTA), new DBCond('type', $type)) as $reg) {
               UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_DETAILS);

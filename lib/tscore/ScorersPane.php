@@ -66,7 +66,6 @@ class ScorersPane extends AbstractPane {
         $p->add(new XP(array('class'=>'warning'), "Search term is too short. Must be at least 5 characters long."));
       }
       else {
-        require_once('regatta/Account.php');
         $accnts = DB::searchAccounts($search, null, Account::STAT_ACTIVE);
         if (count($accnts) == 0) {
           $p->add(new XP(array('class'=>'warning'), "No results match your request. Please try again."));

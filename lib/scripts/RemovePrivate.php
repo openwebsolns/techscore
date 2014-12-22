@@ -34,7 +34,6 @@ class RemovePrivate extends AbstractScript {
     // ------------------------------------------------------------
     // Delete regattas
     // ------------------------------------------------------------
-    require_once('regatta/Regatta.php');
     $regs = DB::getAll(DB::T(DB::FULL_REGATTA),
                        new DBBool(array(new DBCond('inactive', null, DBCond::NE),
                                         new DBBool(array(new DBCond('private', null, DBCond::NE),

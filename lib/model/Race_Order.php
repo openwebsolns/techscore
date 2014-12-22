@@ -50,7 +50,6 @@ class Race_Order extends DBObject implements Countable {
     case 'master_teams':
       return array();
     case 'author':
-      require_once('regatta/Account.php');
       return DB::T(DB::ACCOUNT);
     default:
       return parent::db_type($field);

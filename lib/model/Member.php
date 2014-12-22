@@ -76,7 +76,6 @@ class Member extends DBObject {
    */
   public function getRegattas($inc_private = false) {
     $cond = new DBCondIn('id', DB::prepGetAll(DB::T(DB::RP_ENTRY), new DBCond('sailor', $this), array('race')));
-    require_once('regatta/Regatta.php');
     return DB::getAll(($inc_private !== false) ? DB::T(DB::REGATTA) : DB::T(DB::PUBLIC_REGATTA),
                       new DBCondIn('id', DB::prepGetAll(DB::T(DB::RACE), $cond, array('regatta'))));
   }

@@ -54,7 +54,6 @@ class RenameTeams extends AbstractScript {
 // When run as a script
 if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
   require_once(dirname(dirname(__FILE__)).'/conf.php');
-  require_once('regatta/Regatta.php');
 
   $P = new RenameTeams();
   $opts = $P->getOpts($argv);

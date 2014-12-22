@@ -109,7 +109,6 @@ class MembershipReport extends AbstractReportPane {
                      "Singlehanded", "Date");
         $this->rowCSV($csv, $row);
 
-        require_once('regatta/Regatta.php');
         $regattas = array(); // cache
         foreach ($confs as $conf) {
           foreach ($conf->getSchools() as $school) {

@@ -146,7 +146,6 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
    * @see fillUser
    */
   public function process(Array $args) {
-    require_once('regatta/Account.php');
     $user = DB::$V->reqID($args, 'user', DB::T(DB::ACCOUNT), "No user provided.");
 
     // ------------------------------------------------------------

@@ -38,7 +38,6 @@ class UpdateFront extends AbstractScript {
     $page->addMenu(new XA('/seasons/', "Seasons"));
 
     // Get current season's coming regattas
-    require_once('regatta/Regatta.php');
 
     $success = false;
     $seasons = Season::getActive();

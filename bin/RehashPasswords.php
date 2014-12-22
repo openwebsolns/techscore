@@ -7,7 +7,6 @@
  * This is a one-time use script.
  */
 require_once(dirname(__DIR__). '/lib/conf.php');
-require_once('regatta/Account.php');
 
 if (strlen(Conf::$PASSWORD_SALT) == 0)
   throw new RuntimeException("PASSWORD_SALT MUST NOT BE EMPTY!");

@@ -5,7 +5,6 @@
  * @package regatta
  */
 
-require_once('regatta/DB.php');
 
 /**
  * Encompasses a request for an outgoing message

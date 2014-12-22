@@ -34,7 +34,6 @@ class Conference extends DBObject {
    * @return Array:Account list of users
    */
   public function getUsers($status = null, $active_schools = true) {
-    require_once('regatta/Account.php');
     $obj = ($active_schools) ? DB::T(DB::ACTIVE_SCHOOL) : DB::T(DB::SCHOOL);
     $cond = new DBCondIn(
       'id',

@@ -5,7 +5,6 @@
  * @package scripts
  */
 
-require_once('regatta/Regatta.php');
 
 abstract class AbstractUpdate extends DBObject {
   public $activity;
@@ -42,7 +41,6 @@ class UpdateRequest extends AbstractUpdate {
   public function db_name() { return 'pub_update_request'; }
   public function db_type($field) {
     if ($field == 'regatta') {
-      require_once('regatta/Regatta.php');
       return DB::T(DB::FULL_REGATTA);
     }
     return parent::db_type($field);
@@ -219,9 +217,4 @@ class UpdateFileRequest extends AbstractUpdate {
   public function db_name() { return 'pub_update_file'; }
   public function hash() { return $this->file; }
 }
-DB::T(DB::UPDATE_REQUEST) = new UpdateRequest();
-DB::T(DB::UPDATE_SCHOOL) = new UpdateSchoolRequest();
-DB::T(DB::UPDATE_SEASON) = new UpdateSeasonRequest();
-DB::T(DB::UPDATE_FILE) = new UpdateFileRequest();
-DB::T(DB::UPDATE_CONFERENCE) = new UpdateConferenceRequest();
 ?>

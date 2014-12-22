@@ -5,7 +5,6 @@
  * @package regatta
  */
 
-require_once('regatta/DB.php');
 
 /**
  * Questions asked by end-users
@@ -23,7 +22,6 @@ class Question extends DBObject {
   public function db_type($field) {
     switch ($field) {
     case 'asker':
-      require_once('regatta/Account.php');
       return DB::T(DB::ACCOUNT);
     case 'asked_on':
       return DB::T(DB::NOW);
@@ -43,7 +41,6 @@ class Question extends DBObject {
     if ($publishable !== false)
       $cond = new DBBool(array($cond, new DBCond('publishable', 1)));
 
-    require_once('regatta/Answer.php');
     return DB::getAll(DB::T(DB::ANSWER), $cond);
   }
 

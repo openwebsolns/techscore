@@ -39,7 +39,6 @@ class TRegattaFeed extends AtomFeed {
     // Add the last week's regattas, or the last ten, whichever is
     // greatest
     $cutoff = new DateTime('2 weeks ago');
-    require_once('regatta/Regatta.php');
     require_once('public/ReportMaker.php');
     $regs = DB::getAll(DB::T(DB::PUBLIC_REGATTA),
                        new DBBool(array(new DBCond('finalized', null, DBCond::NE),

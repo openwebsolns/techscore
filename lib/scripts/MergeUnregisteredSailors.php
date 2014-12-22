@@ -204,7 +204,6 @@ Specify one or more school IDs to update, or blank for all.';
 // When run as a script
 if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
   require_once(dirname(dirname(__FILE__)).'/conf.php');
-  require_once('regatta/MergeLog.php');
 
 
   $P = new MergeUnregisteredSailors();

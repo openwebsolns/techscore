@@ -47,7 +47,6 @@ class Merge_Log extends DBObject {
   }
 
   public function getMergedRegattas() {
-    require_once('regatta/Regatta.php');
 
     // Only count public regattas
     return DB::getAll(

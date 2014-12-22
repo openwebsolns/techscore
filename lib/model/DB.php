@@ -317,7 +317,6 @@ class DB extends DBM {
    * @return Array:Outbox the messages
    */
   public static function getPendingOutgoing() {
-    require_once('regatta/Outbox.php');
     return self::getAll(self::T(DB::OUTBOX), new DBCond('completion_time', null));
   }
 
@@ -334,7 +333,6 @@ class DB extends DBM {
    * @return Message|null the message, if any
    */
   public static function getMessage($id) {
-    require_once('regatta/Message.php');
     return self::get(self::T(DB::MESSAGE), $id);
   }
 
@@ -345,7 +343,6 @@ class DB extends DBM {
    * @return Array:Message
    */
   public static function getMessagesWithReadToken($token) {
-    require_once('regatta/Message.php');
     return self::getAll(self::T(DB::MESSAGE), new DBCond('read_token', $token));
   }
 
@@ -355,7 +352,6 @@ class DB extends DBM {
    * @param Account $acc the account
    */
   public static function getUnreadMessages(Account $acc) {
-    require_once('regatta/Message.php');
     self::T(DB::MESSAGE)->db_set_order(array('created'=>true));
     $l = self::getAll(self::T(DB::MESSAGE), new DBBool(array(new DBCond('account', $acc->id), new DBCond('read_time', null))));
     self::T(DB::MESSAGE)->db_set_order();
@@ -373,7 +369,6 @@ class DB extends DBM {
    * @return Message the queued message
    */
   public static function queueMessage(Account $from, Account $acc, $sub, $con, $email = false) {
-    require_once('regatta/Message.php');
     $mes = new Message();
     $mes->sender = $from;
     $mes->account = $acc;
@@ -477,7 +472,6 @@ class DB extends DBM {
    * exist
    */
   public static function getAccount($id) {
-    require_once('regatta/Account.php');
     return self::get(self::T(DB::ACCOUNT), $id);
   }
 
@@ -487,7 +481,6 @@ class DB extends DBM {
    * @return Account the account with the given email, null if none
    */
   public static function getAccountByEmail($email) {
-    require_once('regatta/Account.php');
     $res = self::getAll(DB::T(DB::ACCOUNT), new DBCond('email', $email));
     return (count($res) > 0) ? $res[0] : null;
   }
@@ -521,7 +514,6 @@ class DB extends DBM {
    * @return Array:Account
    */
   public static function getPendingUsers() {
-    require_once('regatta/Account.php');
     return self::getAll(self::T(DB::ACCOUNT), new DBCond('status', Account::STAT_PENDING));
   }
 
@@ -531,7 +523,6 @@ class DB extends DBM {
    * @return Array:Account
    */
   public static function getAdmins() {
-    require_once('regatta/Account.php');
     return self::getAll(self::T(DB::ACCOUNT), new DBBool(array(new DBCond('status', Account::STAT_ACTIVE),
                                                          new DBCond('admin', 0, DBCond::GT))));
   }
@@ -546,7 +537,6 @@ class DB extends DBM {
    * @see Account::isTokenActive
    */
   public static function getAccountFromToken($hash) {
-    require_once('regatta/Account.php');
     $token = DB::get(DB::T(DB::EMAIL_TOKEN), $hash);
     if ($token === null)
       return null;
@@ -563,7 +553,6 @@ class DB extends DBM {
    * @throws InvalidArgumentException if provided role is invalid
    */
   public static function getAccounts($role = null, $status = null, Role $ts_role = null) {
-    require_once('regatta/Account.php');
     $cond = null;
     if ($role !== null) {
       $roles = Account::getRoles();
@@ -600,7 +589,6 @@ class DB extends DBM {
    */
   public static function searchAccounts($qry, $role = null, $status = null, Role $ts_role = null) {
     $fields = array('first_name', 'last_name', 'id', 'concat(first_name, " ", last_name)');
-    require_once('regatta/Account.php');
     if ($role === null && $status === null && $ts_role === null)
       return self::search(DB::T(DB::ACCOUNT), $qry, $fields);
 
@@ -804,7 +792,6 @@ class DB extends DBM {
    * @throws InvalidArgumentException if illegal value
    */
   public static function getRegatta($id) {
-    require_once('regatta/Regatta.php');
     return DB::get(DB::T(DB::REGATTA), $id);
   }
 

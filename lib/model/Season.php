@@ -121,7 +121,6 @@ class Season extends DBObject {
    * @return Array:Regatta
    */
   public function getRegattas($inc_private = false) {
-    require_once('regatta/Regatta.php');
     return DB::getAll(($inc_private !== false) ? DB::T(DB::REGATTA) : DB::T(DB::PUBLIC_REGATTA),
                       new DBBool(array(new DBCond('start_time', $this->start_date, DBCond::GE),
                                        new DBCond('start_time', $this->end_date,   DBCond::LT))));
@@ -134,7 +133,6 @@ class Season extends DBObject {
    * @return Regatta|null
    */
   public function getRegattaWithURL($url) {
-    require_once('regatta/Regatta.php');
     $res = DB::getAll(DB::T(DB::PUBLIC_REGATTA),
                       new DBBool(array(new DBCond('start_time', $this->start_date, DBCond::GE),
                                        new DBCond('start_time', $this->end_date,   DBCond::LT),
@@ -155,7 +153,6 @@ class Season extends DBObject {
    * @return Array:Regatta
    */
   public function getParticipation(School $school, $inc_private = false) {
-    require_once('regatta/Regatta.php');
     return DB::getAll(($inc_private !== false) ? DB::T(DB::REGATTA) : DB::T(DB::PUBLIC_REGATTA),
                       new DBBool(array(new DBCond('start_time', $this->start_date, DBCond::GE),
                                        new DBCond('start_time', $this->end_date,   DBCond::LT),
@@ -174,7 +171,6 @@ class Season extends DBObject {
    * @see getParticipation
    */
   public function getConferenceParticipation(Conference $conference, $inc_private = false) {
-    require_once('regatta/Regatta.php');
     return DB::getAll(($inc_private !== false) ? DB::T(DB::REGATTA) : DB::T(DB::PUBLIC_REGATTA),
                       new DBBool(array(new DBCond('start_time', $this->start_date, DBCond::GE),
                                        new DBCond('start_time', $this->end_date,   DBCond::LT),
@@ -281,7 +277,6 @@ class Season extends DBObject {
       $cond->add(new DBBool(array(new DBCond('start_time', $season->start_date, DBCond::GE),
                                   new DBCond('start_time', $season->end_date,   DBCond::LT))));
     }
-    require_once('regatta/Regatta.php');
     return DB::getAll(DB::T(DB::REGATTA), $cond);
   }
 

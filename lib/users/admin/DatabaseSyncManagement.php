@@ -226,7 +226,6 @@ class DatabaseSyncManagement extends AbstractAdminUserPane {
       Session::pa(new PA("Settings changed."));
       if (isset($args['set-auto-merge-and-run'])) {
         require_once('scripts/MergeUnregisteredSailors.php');
-        require_once('regatta/MergeLog.php');
 
         $merger = new MergeUnregisteredSailors();
         $log = $merger->run(DB::getAll(DB::T(DB::SCHOOL)));

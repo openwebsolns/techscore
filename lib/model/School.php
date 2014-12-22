@@ -255,7 +255,6 @@ class School extends DBObject {
    * @return Array:Regatta the regatta list
    */
   public function getRegattas($inc_private = false) {
-    require_once('regatta/Regatta.php');
     return DB::getAll(($inc_private !== false) ? DB::T(DB::REGATTA) : DB::T(DB::PUBLIC_REGATTA),
                       new DBCondIn('id', DB::prepGetAll(DB::T(DB::TEAM),
                                                         new DBCond('school', $this),
@@ -274,7 +273,6 @@ class School extends DBObject {
    * @return Array:Account
    */
   public function getUsers($status = null, $effective = true) {
-    require_once('regatta/Account.php');
     $cond = new DBCondIn('id', DB::prepGetAll(DB::T(DB::ACCOUNT_SCHOOL), new DBCond('school', $this->id), array('account')));
     if ($effective !== false) {
       $cond = new DBBool(array(new DBCond('admin', null, DBCond::NE), $cond), DBBool::mOR);

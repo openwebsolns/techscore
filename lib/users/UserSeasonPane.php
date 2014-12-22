@@ -47,7 +47,6 @@ class UserSeasonPane extends AbstractUserPane {
       return;
     }
 
-    require_once('regatta/Regatta.php');
     DB::T(DB::REGATTA)->db_set_order(array('start_time' => true));
     $regattas = $this->USER->getRegattas($season, true);
     DB::T(DB::REGATTA)->db_set_order();

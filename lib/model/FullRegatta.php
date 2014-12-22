@@ -5,7 +5,6 @@
  * @package regatta
  */
 
-require_once('regatta/DB.php');
 
 /**
  * Encapsulates a regatta object.
@@ -155,7 +154,6 @@ class FullRegatta extends DBObject {
     case 'inactive':
       return DB::T(DB::NOW);
     case 'creator':
-      require_once('regatta/Account.php');
       return DB::T(DB::ACCOUNT);
     case 'venue':
       return DB::T(DB::VENUE);
@@ -1234,7 +1232,6 @@ class FullRegatta extends DBObject {
    */
   public function getRotation() {
     if ($this->rotation === null) {
-      require_once('regatta/Rotation.php');
       $this->rotation = new Rotation($this);
     }
     return $this->rotation;
@@ -1247,7 +1244,6 @@ class FullRegatta extends DBObject {
    */
   public function getRpManager() {
     if ($this->rp === null) {
-      require_once('regatta/RpManager.php');
       $this->rp = new RpManager($this);
     }
     return $this->rp;

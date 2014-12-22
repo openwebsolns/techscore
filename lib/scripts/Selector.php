@@ -111,7 +111,6 @@ class Selector extends AbstractScript {
       );
     }
 
-    require_once('regatta/Regatta.php');
     return DB::getAll(DB::T(DB::REGATTA), $cond);
   }
 

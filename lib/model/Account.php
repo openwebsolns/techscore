@@ -5,7 +5,6 @@
  * @package regatta
  */
 
-require_once('regatta/DB.php');
 
 /**
  * Encapsulates an account: a user devoid of "extra" information and a
@@ -266,7 +265,6 @@ class Account extends DBObject {
    * @return Array:Regatta
    */
   public function getRegattasCreated() {
-    require_once('regatta/Regatta.php');
     return DB::getAll(DB::T(DB::REGATTA), new DBCond('creator', $this->id));
   }
 
@@ -335,7 +333,6 @@ class Account extends DBObject {
    * @return Array:Regatta
    */
   public function getRegattas(Season $season = null, $inc_participating = false) {
-    require_once('regatta/Regatta.php');
     $cond = null;
     if (!$this->isAdmin()) { // regular user
       $cond = $this->getJurisdictionCondition();
@@ -360,7 +357,6 @@ class Account extends DBObject {
    * @return Array:Regatta the regattas
    */
   public function searchRegattas($qry, $inc_participating = false) {
-    require_once('regatta/Regatta.php');
     $cond = new DBCond('name', "%$qry%", DBCond::LIKE);
 
     if (!$this->isAdmin()) { // regular user
@@ -379,7 +375,6 @@ class Account extends DBObject {
    * @return Array:Message the messages
    */
   public function getMessages() {
-    require_once('regatta/Message.php');
     return DB::getAll(DB::T(DB::MESSAGE), new DBCond('account', $this));
   }
 

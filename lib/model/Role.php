@@ -124,7 +124,6 @@ class Role extends DBObject {
    * @return Array:Account the account list
    */
   public function getAccounts() {
-    require_once('regatta/Account.php');
     return DB::getAll(DB::T(DB::ACCOUNT), new DBCond('ts_role', $this));
   }
 

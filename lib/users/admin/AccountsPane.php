@@ -50,7 +50,6 @@ class AccountsPane extends AbstractAccountPane {
     // ------------------------------------------------------------
     // Current users
     // ------------------------------------------------------------
-    require_once('regatta/Account.php');
     $this->PAGE->addContent($p = new XPort("Current users"));
     $p->add(new XP(array(), "Click on the user's name to edit."));
 

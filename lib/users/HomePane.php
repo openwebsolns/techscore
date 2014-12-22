@@ -106,7 +106,6 @@ class HomePane extends AbstractUserPane {
       $end->sub(new DateInterval('P3DT0H'));
       $end->setTime(0, 0);
 
-      require_once('regatta/Regatta.php');
       DB::T(DB::REGATTA)->db_set_order(array('start_time' => true));
       $regattas = DB::getAll(DB::T(DB::REGATTA),
                              new DBBool(array(new DBCond('start_time', $start, DBCond::LE),

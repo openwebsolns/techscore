@@ -355,7 +355,6 @@ class TweetFactory {
       // Coming soon
       // ------------------------------------------------------------
     case self::COMING_SOON_EVENT:
-      require_once('regatta/Regatta.php');
       // Look at regattas starting in the next 7 days
       $start = clone(DB::T(DB::NOW));
       $start->add(new DateInterval('P7DT0H'));

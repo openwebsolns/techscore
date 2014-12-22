@@ -188,7 +188,6 @@ class OrganizationConfiguration extends AbstractAdminUserPane {
    * @return Array:Regatta
    */
   private function getRegattasByRpType($type) {
-    require_once('regatta/Regatta.php');
     $cond = null;
     switch ($type) {
     case STN::RP_SINGLEHANDED:

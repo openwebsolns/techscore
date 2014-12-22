@@ -516,7 +516,6 @@ class RpManager {
     if ($div !== null)
       $cond = new DBBool(array($cond, new DBCond('division', (string)$div)));
 
-    require_once('regatta/Regatta.php');
     return DB::getAll(DB::T(DB::REGATTA), new DBCondIn('id', DB::prepGetAll(DB::T(DB::RACE), $cond, array('regatta'))));
   }
 
