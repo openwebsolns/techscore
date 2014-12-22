@@ -110,7 +110,7 @@ class UnregisteredSailorPane extends AbstractPane {
       $genders = Sailor::getGenders();
       for ($i = 0; $i < count($cnt['school']); $i++) {
         $s = new Sailor();
-        if (DB::$V->hasID($s->school, $cnt['school'], $i, DB::$SCHOOL) &&
+        if (DB::$V->hasID($s->school, $cnt['school'], $i, DB::T(DB::SCHOOL)) &&
             isset($schools[$s->school->id]) &&
             DB::$V->hasString($s->first_name, $cnt['first_name'], $i, 1, 101) &&
             DB::$V->hasString($s->last_name, $cnt['last_name'], $i, 1, 101) &&
@@ -131,7 +131,7 @@ class UnregisteredSailorPane extends AbstractPane {
     // ------------------------------------------------------------
     if (isset($args['remove-temp'])) {
       $rp = $this->REGATTA->getRpManager();
-      $sailor = DB::$V->reqID($args, 'sailor', DB::$SAILOR, "No sailor to delete.");
+      $sailor = DB::$V->reqID($args, 'sailor', DB::T(DB::SAILOR), "No sailor to delete.");
       if (!isset($schools[$sailor->school->id]))
         throw new SoterException("Insufficient permissions to remove temporary sailor.");
       if ($rp->removeTempSailor($sailor))

@@ -49,7 +49,7 @@ class OrganizationConfiguration extends AbstractAdminUserPane {
                    array("To install a template, create a file with the same name as the classname (and with a ", new XVar(".php"), " extension), which subclasses ", new XVar("AbstractRpForm"), ". Then, specify the classname below.")));
 
     $p->add($f = $this->createForm());
-    foreach (self::$TEMPLATES as $setting => $title) {
+    foreach (self::T(DB::TEMPLATES) as $setting => $title) {
       $val = DB::g($setting);
       $mes = null;
       if ($val !== null) {
@@ -104,7 +104,7 @@ class OrganizationConfiguration extends AbstractAdminUserPane {
           throw new SoterException("Invalid time format specified for registration timeout.");
         }
 
-        if ($expiration <= DB::$NOW)
+        if ($expiration <= DB::T(DB::NOW))
           throw new SoterException("Registration token timeout must be in the future.");
 
         $changed = true;
@@ -122,7 +122,7 @@ class OrganizationConfiguration extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     if (isset($args['set-rp-templates'])) {
       $changed = false;
-      foreach (self::$TEMPLATES as $setting => $title) {
+      foreach (self::T(DB::TEMPLATES) as $setting => $title) {
         $val = DB::$V->incString($args, $setting, 1, 101);
         if ($val !== null) {
           $val = basename($val);
@@ -224,7 +224,7 @@ class OrganizationConfiguration extends AbstractAdminUserPane {
       throw new InvalidArgumentException("Unknown regatta RP type: $type.");
     }
 
-    return DB::getAll(DB::$REGATTA, $cond);
+    return DB::getAll(DB::T(DB::REGATTA), $cond);
   }
 }
 ?>

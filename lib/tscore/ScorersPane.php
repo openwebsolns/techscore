@@ -140,7 +140,7 @@ class ScorersPane extends AbstractPane {
     if (isset($args['add_scorer'])) {
       $success = array();
       $errors  = array();
-      $account = DB::$V->reqID($args, 'account', DB::$ACCOUNT, "Invalid account provided.");
+      $account = DB::$V->reqID($args, 'account', DB::T(DB::ACCOUNT), "Invalid account provided.");
       $this->REGATTA->addScorer($account);
       Session::pa(new PA(sprintf('Added scorer(s) %s.', implode(", ", $success))));
     }

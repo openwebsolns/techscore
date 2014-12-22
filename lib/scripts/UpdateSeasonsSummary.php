@@ -34,7 +34,7 @@ class UpdateSeasonsSummary extends AbstractScript {
       $page->addMenu($lnk);
 
     $table = array();
-    $current = Season::forDate(DB::$NOW);
+    $current = Season::forDate(DB::T(DB::NOW));
     foreach (Season::getActive() as $season) {
       $mes = count($season->getRegattas());
       $mes .= ($mes == 1) ? " regatta" : " regattas";

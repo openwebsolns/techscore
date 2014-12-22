@@ -55,8 +55,8 @@ class AccountsPane extends AbstractAccountPane {
     $p->add(new XP(array(), "Click on the user's name to edit."));
 
     // Filter?
-    $ts_roles = DB::getAll(DB::$ROLE);
-    $ts_role_chosen = DB::$V->incID($_GET, 'ts_role', DB::$ROLE, null);
+    $ts_roles = DB::getAll(DB::T(DB::ROLE));
+    $ts_role_chosen = DB::$V->incID($_GET, 'ts_role', DB::T(DB::ROLE), null);
 
     $roles = Account::getRoles();
     $role_chosen = DB::$V->incKey($_GET, 'role', $roles, null);

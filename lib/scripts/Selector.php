@@ -105,14 +105,14 @@ class Selector extends AbstractScript {
       $cond->add(
         new DBCondIn(
           'id',
-          DB::prepGetAll(DB::$TEAM, new DBCond('dt_complete_rp', null), array('regatta')),
+          DB::prepGetAll(DB::T(DB::TEAM), new DBCond('dt_complete_rp', null), array('regatta')),
           $comparator
         )
       );
     }
 
     require_once('regatta/Regatta.php');
-    return DB::getAll(DB::$REGATTA, $cond);
+    return DB::getAll(DB::T(DB::REGATTA), $cond);
   }
 
   protected $cli_opts = '[-s]';
@@ -163,7 +163,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
         throw new TSScriptException("No type list provided.");
       $opt = array_shift($opts);
       foreach (explode(',', $opt) as $id) {
-        $type = DB::get(DB::$ACTIVE_TYPE, $id);
+        $type = DB::get(DB::T(DB::ACTIVE_TYPE), $id);
         if ($type === null)
           throw new TSScriptException("Invalid type provided: $id.");
         $types[$type->id] = $type;

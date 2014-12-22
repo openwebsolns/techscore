@@ -24,9 +24,9 @@ class Question extends DBObject {
     switch ($field) {
     case 'asker':
       require_once('regatta/Account.php');
-      return DB::$ACCOUNT;
+      return DB::T(DB::ACCOUNT);
     case 'asked_on':
-      return DB::$NOW;
+      return DB::T(DB::NOW);
     default:
       return parent::db_type($field);
     }
@@ -44,7 +44,7 @@ class Question extends DBObject {
       $cond = new DBBool(array($cond, new DBCond('publishable', 1)));
 
     require_once('regatta/Answer.php');
-    return DB::getAll(DB::$ANSWER, $cond);
+    return DB::getAll(DB::T(DB::ANSWER), $cond);
   }
 
   /**
@@ -57,6 +57,4 @@ class Question extends DBObject {
     DB::set($answer);
   }
 }
-
-DB::$QUESTION = new Question();
 ?>

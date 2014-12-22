@@ -110,7 +110,7 @@ class ManualTweakPane extends AbstractPane {
       $races = array(); // assoc map of affected race ID => Race
       $sails = array(); // assoc map of race ID => map team ID => sail
 
-      DB::$SAIL->db_set_cache(true);
+      DB::T(DB::SAIL)->db_set_cache(true);
       foreach ($args as $rAndt => $value) {
         $value = DB::$V->reqString($args, $rAndt, 1, 9, "Invalid value for sail.");
         $rAndt = explode(",", $rAndt);
@@ -159,7 +159,7 @@ class ManualTweakPane extends AbstractPane {
         }
       }
 
-      DB::$SAIL->db_set_cache();
+      DB::T(DB::SAIL)->db_set_cache();
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA(sprintf("Updated %d sail(s).", $count)));
     }

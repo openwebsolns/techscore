@@ -43,7 +43,7 @@ class MembershipReport extends AbstractReportPane {
 
   public function fillHTML(Array $args) {
     $seasons = array();
-    if (($season = Season::forDate(DB::$NOW)) !== null)
+    if (($season = Season::forDate(DB::T(DB::NOW))) !== null)
       $seasons[$season->id] = $season;
     $confs = array();
     $types = array();
@@ -74,7 +74,7 @@ class MembershipReport extends AbstractReportPane {
           throw new SoterException(sprintf("No %ss provided.", DB::g(STN::CONFERENCE_TITLE)));
 
         $pos_types = array();
-        foreach (DB::getAll(DB::$ACTIVE_TYPE) as $t)
+        foreach (DB::getAll(DB::T(DB::ACTIVE_TYPE)) as $t)
           $pos_types[$t->id] = $t;
         foreach (DB::$V->reqList($args, 'types', null, "Missing regatta type list.") as $id) {
           if (!isset($pos_types[$id]))
@@ -119,9 +119,9 @@ class MembershipReport extends AbstractReportPane {
             // 2-Division, Team (coed and women)
             // ------------------------------------------------------------
             foreach (array(self::COED, self::TEAM) as $axis) {
-              $regs = DB::getAll(DB::$PUBLIC_REGATTA,
+              $regs = DB::getAll(DB::T(DB::PUBLIC_REGATTA),
                                  new DBBool(array($conds[$axis],
-                                                  new DBCondIn('id', DB::prepGetAll(DB::$TEAM, new DBCond('school', $school), array('regatta'))))));
+                                                  new DBCondIn('id', DB::prepGetAll(DB::T(DB::TEAM), new DBCond('school', $school), array('regatta'))))));
               $coed = null;
               $women = null;
               foreach ($regs as $reg) {
@@ -169,9 +169,9 @@ class MembershipReport extends AbstractReportPane {
             // Singlehanded
             // ------------------------------------------------------------
             $coed = null;
-            $regs = DB::getAll(DB::$REGATTA,
+            $regs = DB::getAll(DB::T(DB::REGATTA),
                                new DBBool(array($conds[self::SINGLE],
-                                                new DBCondIn('id', DB::prepGetAll(DB::$TEAM, new DBCond('school', $school), array('regatta'))))));
+                                                new DBCondIn('id', DB::prepGetAll(DB::T(DB::TEAM), new DBCond('school', $school), array('regatta'))))));
             foreach ($regs as $reg) {
               if ($coed !== null)
                 break;

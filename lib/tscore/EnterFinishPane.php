@@ -263,7 +263,7 @@ class EnterFinishPane extends AbstractPane {
       $obs = DB::$V->incString($args, 'observation', 1, 16000, null);
       if ($obs !== null) {
         $note = new Note();
-        $note->noted_at = DB::$NOW;
+        $note->noted_at = DB::T(DB::NOW);
         $note->observation = $obs;
         $note->observer = DB::$V->incString($args, 'observer', 1, 51, null);
         $note->race = $race;

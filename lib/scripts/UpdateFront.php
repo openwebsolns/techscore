@@ -28,7 +28,7 @@ class UpdateFront extends AbstractScript {
     $page->addSection($div = new XDiv(array('id'=>'message-container')));
     $div->add($sub = new XDiv(array('id'=>'welcome'), array($this->h1("Welcome"))));
 
-    $entry = DB::get(DB::$TEXT_ENTRY, Text_Entry::WELCOME);
+    $entry = DB::get(DB::T(DB::TEXT_ENTRY), Text_Entry::WELCOME);
     if ($entry !== null && $entry->html !== null)
       $sub->add(new XRawText($entry->html));
 
@@ -64,7 +64,7 @@ class UpdateFront extends AbstractScript {
     $start->setTime(23, 59, 59);
     $end = new DateTime();
     $end->setTime(0, 0, 0);
-    $potential = DB::getAll(DB::$PUBLIC_REGATTA,
+    $potential = DB::getAll(DB::T(DB::PUBLIC_REGATTA),
                             new DBBool(array(new DBCond('start_time', $start, DBCond::LE),
                                              new DBCond('end_date', $end, DBCond::GE),
                                              new DBCond('dt_status', Regatta::STAT_SCHEDULED, DBCond::NE))));
@@ -107,13 +107,13 @@ class UpdateFront extends AbstractScript {
     // Fill list of coming soon regattas
     $now = new DateTime('tomorrow');
     $now->setTime(0, 0);
-    DB::$PUBLIC_REGATTA->db_set_order(array('start_time'=>true));
+    DB::T(DB::PUBLIC_REGATTA)->db_set_order(array('start_time'=>true));
     $regs = array();
-    foreach (DB::getAll(DB::$PUBLIC_REGATTA, new DBCond('start_time', $now, DBCond::GE)) as $reg) {
+    foreach (DB::getAll(DB::T(DB::PUBLIC_REGATTA), new DBCond('start_time', $now, DBCond::GE)) as $reg) {
       if ($reg->dt_status !== null && $reg->dt_status != Regatta::STAT_SCHEDULED)
         $regs[] = $reg;
     }
-    DB::$PUBLIC_REGATTA->db_set_order();
+    DB::T(DB::PUBLIC_REGATTA)->db_set_order();
     if (count($regs) > 0) {
       $page->addSection($p = new XPort("Upcoming schedule"));
       $p->add($tab = new XQuickTable(array('class'=>'coming-regattas'),

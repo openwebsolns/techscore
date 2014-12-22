@@ -39,7 +39,7 @@ class RemindUpcoming extends AbstractScript {
   }
 
   public function setThreshold(DateTime $date) {
-    if ($date <= DB::$NOW)
+    if ($date <= DB::T(DB::NOW))
       throw new TSScriptException("Threshold date must be in the future");
     $this->threshold = $date;
   }
@@ -50,7 +50,7 @@ class RemindUpcoming extends AbstractScript {
       return;
     }
 
-    $season = Season::forDate(DB::$NOW);
+    $season = Season::forDate(DB::T(DB::NOW));
     if ($season === null) {
       self::errln("No current season.");
       return;
@@ -63,7 +63,7 @@ class RemindUpcoming extends AbstractScript {
                          // of missing team names)
 
     foreach ($season->getRegattas() as $reg) {
-      if ($reg->start_time > DB::$NOW && $reg->start_time < $this->threshold) {
+      if ($reg->start_time > DB::T(DB::NOW) && $reg->start_time < $this->threshold) {
         if ($reg->dt_status == Regatta::STAT_SCHEDULED) {
           self::errln(sprintf("Skipping regatta \"%s\" (%s) because it is in scheduled state.",
                               $reg->name, $reg->id), 2);

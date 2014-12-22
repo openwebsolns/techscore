@@ -46,7 +46,7 @@ class PublicFilesManagement extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new XPort("Current files"));
     $p->add($f = $this->createFileForm());
-    $files = DB::getAll(DB::$PUB_FILE_SUMMARY);
+    $files = DB::getAll(DB::T(DB::PUB_FILE_SUMMARY));
     if (count($files) > 0) {
       $f->add($tab = new XQuickTable(array('id'=>'files-table'),
                                      array("Name",
@@ -72,7 +72,7 @@ class PublicFilesManagement extends AbstractAdminUserPane {
           if (count($file->options) > 0)
             $chosen = $file->options[0];
           $auto_inc = XSelect::fromArray(sprintf('options[%s]', $file->id),
-                                         self::$JS_AUTOLOAD_OPTIONS,
+                                         self::T(DB::JS_AUTOLOAD_OPTIONS),
                                          $chosen
                                          );
         }
@@ -120,7 +120,7 @@ class PublicFilesManagement extends AbstractAdminUserPane {
           throw new SoterException("Invalid valid whose option to set.");
 
         if ($file->filetype == 'application/javascript') {
-          if (!array_key_exists($option, self::$JS_AUTOLOAD_OPTIONS))
+          if (!array_key_exists($option, self::T(DB::JS_AUTOLOAD_OPTIONS)))
             throw new SoterException("Invalid option provided for Javascript file $file");
 
           $changed = false;

@@ -136,7 +136,7 @@ class MessagePane extends AbstractUserPane {
       $marked = 0;
       foreach ($messages as $message) {
         if ($message->read_time === null) {
-          $message->read_time = DB::$NOW;
+          $message->read_time = DB::T(DB::NOW);
           DB::set($message);
           $marked++;
         }

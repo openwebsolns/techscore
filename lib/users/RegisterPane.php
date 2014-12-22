@@ -77,7 +77,7 @@ class RegisterPane extends AbstractUserPane {
    */
   private function fillDefault() {
     $this->PAGE->addContent($p = new XPort("Request new account"));
-    $cont = DB::get(DB::$TEXT_ENTRY, Text_Entry::REGISTER_MESSAGE);
+    $cont = DB::get(DB::T(DB::TEXT_ENTRY), Text_Entry::REGISTER_MESSAGE);
     if ($cont !== null)
       $p->add(new XRawText($cont->html));
 

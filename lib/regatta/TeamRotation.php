@@ -229,6 +229,4 @@ class TeamRotation {
     return $list;
   }
 }
-
-DB::$TEAM_ROTATION = new TeamRotation();
 ?>

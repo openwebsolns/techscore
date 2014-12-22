@@ -87,7 +87,7 @@ class TeamRpEnterPane extends AbstractPane {
     //   If the regatta is in the current season, then only choose
     //   from 'active' sailors
     $active = 'all';
-    $cur_season = Season::forDate(DB::$NOW);
+    $cur_season = Season::forDate(DB::T(DB::NOW));
     if ((string)$cur_season ==  (string)$this->REGATTA->getSeason())
       $active = true;
     $gender = ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) ?
@@ -234,7 +234,7 @@ class TeamRpEnterPane extends AbstractPane {
       $divisions = $this->REGATTA->getDivisions();
       $rpManager = $this->REGATTA->getRpManager();
 
-      $cur_season = Season::forDate(DB::$NOW);
+      $cur_season = Season::forDate(DB::T(DB::NOW));
       $active = 'all';
       if ((string)$cur_season ==  (string)$this->REGATTA->getSeason())
         $active = true;

@@ -26,7 +26,7 @@ class NewRegattaPane extends AbstractUserPane {
   }
 
   private function defaultRegatta() {
-    $types = DB::getAll(DB::$ACTIVE_TYPE);
+    $types = DB::getAll(DB::T(DB::ACTIVE_TYPE));
     $day = new DateTime('next Saturday');
     return array('name' => '',
                  'private' => null,
@@ -59,7 +59,7 @@ class NewRegattaPane extends AbstractUserPane {
     $f->add(new FReqItem("Duration (days):", new XNumberInput('duration', $r['duration'], 1, 99, 1)));
     $f->add(new FItem("Venue:",   $sel = new XSelect("venue")));
     $f->add(new FReqItem("Scoring:", XSelect::fromArray("scoring", Regatta::getScoringOptions(), $r["scoring"])));
-    $f->add(new FReqItem("Type:", XSelect::fromDBM('type', DB::getAll(DB::$ACTIVE_TYPE), $r['type'])));
+    $f->add(new FReqItem("Type:", XSelect::fromDBM('type', DB::getAll(DB::T(DB::ACTIVE_TYPE)), $r['type'])));
     $f->add(new FReqItem("Participation:", XSelect::fromArray("participant", Regatta::getParticipantOptions(),
                                                            $r["participant"])));
 
@@ -122,14 +122,14 @@ class NewRegattaPane extends AbstractUserPane {
         $error = true;
       }
       // 5. Venue
-      $venue = DB::$V->incID($args, 'venue', DB::$VENUE);
+      $venue = DB::$V->incID($args, 'venue', DB::T(DB::VENUE));
       // 6. Scoring
       if (!DB::$V->hasKey($scoring, $args, 'scoring', Regatta::getScoringOptions())) {
         Session::pa(new PA("Invalid regatta type.", PA::E));
         $error = true;
       }
       // 7. Type
-      if (!DB::$V->hasID($type, $args, 'type', DB::$ACTIVE_TYPE)) {
+      if (!DB::$V->hasID($type, $args, 'type', DB::T(DB::ACTIVE_TYPE))) {
         Session::pa(new PA("Invalid regatta type.", PA::E));
         $error = true;
       }

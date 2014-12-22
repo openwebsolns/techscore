@@ -34,7 +34,7 @@ class GenerateSite extends AbstractScript {
   public function run($do = self::ALL) {
     require_once('xml5/TS.php');
 
-    $seasons = DB::getAll(DB::$SEASON);
+    $seasons = DB::getAll(DB::T(DB::SEASON));
     if ($do & self::REGATTAS) {
       // Go through all the regattas
       require_once('UpdateRegatta.php');

@@ -91,7 +91,7 @@ class UserRegattaTable extends XTable {
       if ($is_complete)
         $finalized = new XSpan("Finalized", array('class'=>'stat finalized'));
     }
-    elseif ($reg->end_date < DB::$NOW) {
+    elseif ($reg->end_date < DB::T(DB::NOW)) {
       if (count($reg->getTeams()) == 0 || count($reg->getRaces()) == 0)
         $finalized = new XSpan("Incomplete", array('class'=>'stat incomplete', 'title'=>"Missing races or teams."));
       elseif (!$reg->hasFinishes())

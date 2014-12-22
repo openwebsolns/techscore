@@ -29,7 +29,7 @@ class TeamPartialRankPane extends AbstractPane {
         if (isset($args['round'])) {
           $rounds = array();
           foreach (DB::$V->reqList($args, 'round', null, "No list of rounds provided.") as $id) {
-            $round = DB::get(DB::$ROUND, $id);
+            $round = DB::get(DB::T(DB::ROUND), $id);
             if ($round === null || $round->regatta != $this->REGATTA)
               throw new SoterException("Invalid round requested: " . $id);
 

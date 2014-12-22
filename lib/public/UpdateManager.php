@@ -111,35 +111,35 @@ class UpdateManager {
    * 'activity', with 'regatta' being an ID
    */
   public static function getPendingRequests() {
-    return DB::getAll(DB::$UPDATE_REQUEST, new DBCond('completion_time', null));
+    return DB::getAll(DB::T(DB::UPDATE_REQUEST), new DBCond('completion_time', null));
   }
 
   /**
    * @see getPendingRequests
    */
   public static function getPendingSchools() {
-    return DB::getAll(DB::$UPDATE_SCHOOL, new DBCond('completion_time', null));
+    return DB::getAll(DB::T(DB::UPDATE_SCHOOL), new DBCond('completion_time', null));
   }
 
   /**
    * @see getPendingRequests
    */
   public static function getPendingConferences() {
-    return DB::getAll(DB::$UPDATE_CONFERENCE, new DBCond('completion_time', null));
+    return DB::getAll(DB::T(DB::UPDATE_CONFERENCE), new DBCond('completion_time', null));
   }
 
   /**
    * @see getPendingRequests
    */
   public static function getPendingSeasons() {
-    return DB::getAll(DB::$UPDATE_SEASON, new DBCond('completion_time', null));
+    return DB::getAll(DB::T(DB::UPDATE_SEASON), new DBCond('completion_time', null));
   }
 
   /**
    * @see getPendingRequests
    */
   public static function getPendingFiles() {
-    return DB::getAll(DB::$UPDATE_FILE, new DBCond('completion_time', null));
+    return DB::getAll(DB::T(DB::UPDATE_FILE), new DBCond('completion_time', null));
   }
 
   /**
@@ -148,7 +148,7 @@ class UpdateManager {
    * @param UpdateRequest $req the update request to log
    */
   public static function log(AbstractUpdate $req) {
-    $req->completion_time = DB::$NOW;
+    $req->completion_time = DB::T(DB::NOW);
     DB::set($req, true);
   }
 }

@@ -23,7 +23,7 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
    *
    */
   private function parseRound(Array $args) {
-    $round = DB::$V->reqID($args, 'round', DB::$ROUND, "Invalid round ID provided.");
+    $round = DB::$V->reqID($args, 'round', DB::T(DB::ROUND), "Invalid round ID provided.");
     if ($round->regatta != $this->REGATTA)
       throw new SoterException("Invalid round chosen.");
     if (count($round->getSlaves()) > 0)

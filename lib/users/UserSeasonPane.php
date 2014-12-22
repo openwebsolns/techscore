@@ -37,7 +37,7 @@ class UserSeasonPane extends AbstractUserPane {
     // ------------------------------------------------------------
     // Regattas
     // ------------------------------------------------------------
-    $season = Season::forDate(DB::$NOW);
+    $season = Season::forDate(DB::T(DB::NOW));
     if ($season === null) {
       $this->PAGE->addContent($p = new XPort("No season"));
       $p->add(new XP(array('class'=>'warning'),
@@ -48,9 +48,9 @@ class UserSeasonPane extends AbstractUserPane {
     }
 
     require_once('regatta/Regatta.php');
-    DB::$REGATTA->db_set_order(array('start_time' => true));
+    DB::T(DB::REGATTA)->db_set_order(array('start_time' => true));
     $regattas = $this->USER->getRegattas($season, true);
-    DB::$REGATTA->db_set_order();
+    DB::T(DB::REGATTA)->db_set_order();
 
     if (count($regattas) == 0) {
       $this->PAGE->addContent($p = new XPort(sprintf("Regattas for %s", $season->fullString())));
@@ -78,7 +78,7 @@ class UserSeasonPane extends AbstractUserPane {
     $cur_tab = new UserRegattaTable($this->USER, true);
 
     // Sort all current regattas
-    $start = clone(DB::$NOW);
+    $start = clone(DB::T(DB::NOW));
     $start->add(new DateInterval('P3DT0H'));
     $start->setTime(0, 0);
 
@@ -115,7 +115,7 @@ class UserSeasonPane extends AbstractUserPane {
       return false;
     $end = clone($reg->end_date);
     $end->add(new DateInterval('P3DT0H'));
-    return $end > DB::$NOW;
+    return $end > DB::T(DB::NOW);
   }
 
   /**

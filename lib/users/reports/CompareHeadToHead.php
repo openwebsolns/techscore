@@ -38,30 +38,30 @@ class CompareHeadToHead extends AbstractReportPane {
         return array();
 
     // NON-TEAM SCORING REGATTAS
-    $regs1 = DB::prepGetAll(DB::$PUBLIC_REGATTA,
+    $regs1 = DB::prepGetAll(DB::T(DB::PUBLIC_REGATTA),
                             new DBBool(array(new DBCond('scoring', Regatta::SCORING_TEAM, DBCond::NE),
                                              $db = new DBBool(array(), DBBool::mOR))), array('id'));
     foreach ($seasons as $season)
       $db->add(new DBCond('dt_season', (string)$season));
 
-    $team_cond1 = DB::prepGetAll(DB::$TEAM, new DBCondIn('regatta', $regs1), array('id'));
-    $dteam_cond1 = DB::prepGetAll(DB::$DT_TEAM_DIVISION, new DBCondIn('team', $team_cond1), array('id'));
+    $team_cond1 = DB::prepGetAll(DB::T(DB::TEAM), new DBCondIn('regatta', $regs1), array('id'));
+    $dteam_cond1 = DB::prepGetAll(DB::T(DB::DT_TEAM_DIVISION), new DBCondIn('team', $team_cond1), array('id'));
     $rp_cond1 = new DBBool(array(new DBCond('sailor', $sailor->id), new DBCondIn('team_division', $dteam_cond1)));
     if ($role !== null)
       $rp_cond1->add(new DBCond('boat_role', $role));
-    $res1 = DB::getAll(DB::$DT_RP, $rp_cond1);
+    $res1 = DB::getAll(DB::T(DB::DT_RP), $rp_cond1);
 
     // TEAM SCORING REGATTAS
-    $regs2 = DB::prepGetAll(DB::$PUBLIC_REGATTA,
+    $regs2 = DB::prepGetAll(DB::T(DB::PUBLIC_REGATTA),
                             new DBBool(array(new DBCond('scoring', Regatta::SCORING_TEAM),
                                              $db)), array('id'));
 
-    $team_cond2 = DB::prepGetAll(DB::$TEAM, new DBCondIn('regatta', $regs2), array('id'));
-    $dteam_cond2 = DB::prepGetAll(DB::$DT_TEAM_DIVISION, new DBCondIn('team', $team_cond2), array('id'));
+    $team_cond2 = DB::prepGetAll(DB::T(DB::TEAM), new DBCondIn('regatta', $regs2), array('id'));
+    $dteam_cond2 = DB::prepGetAll(DB::T(DB::DT_TEAM_DIVISION), new DBCondIn('team', $team_cond2), array('id'));
     $rp_cond2 = new DBBool(array(new DBCond('sailor', $sailor->id), new DBCondIn('team_division', $dteam_cond2)));
     if ($role !== null)
       $rp_cond2->add(new DBCond('boat_role', $role));
-    $res2 = DB::getAll(DB::$DT_RP, $rp_cond2);
+    $res2 = DB::getAll(DB::T(DB::DT_RP), $rp_cond2);
 
     if (count($res2) == 0)
       return $res1;
@@ -106,7 +106,7 @@ class CompareHeadToHead extends AbstractReportPane {
     $seasons = array();
     if (isset($args['seasons']) && is_array($args['seasons'])) {
       foreach ($args['seasons'] as $s) {
-        if (($season = DB::get(DB::$SEASON, $s)) !== null)
+        if (($season = DB::get(DB::T(DB::SEASON), $s)) !== null)
           $seasons[] = $season;
       }
     }
@@ -154,7 +154,7 @@ class CompareHeadToHead extends AbstractReportPane {
       // get sailors
       $sailors = array();
       foreach ($list as $id) {
-        $sailor = DB::get(DB::$SAILOR, $id);
+        $sailor = DB::get(DB::T(DB::SAILOR), $id);
         if ($sailor !== null && $sailor->icsa_id !== null)
           $sailors[$sailor->id] = $sailor;
         else

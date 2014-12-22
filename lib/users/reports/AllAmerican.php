@@ -83,7 +83,7 @@ class AllAmerican extends AbstractReportPane {
       $prog->add(new XSpan("Download", array('class'=>'progress-disabled')));
 
       $this->PAGE->addContent($p = new XPort("New report"));
-      $now = Season::forDate(DB::$NOW);
+      $now = Season::forDate(DB::T(DB::NOW));
       $then = null;
       if ($now != null && $now->season == Season::SPRING)
         $then = DB::getSeason(sprintf('f%0d', ($now->start_date->format('Y') - 1)));
@@ -104,7 +104,7 @@ class AllAmerican extends AbstractReportPane {
       $form->add(new XSubmitP('set-report', "Choose regattas →"));
 
       // existing?
-      $all_reports = DB::getAll(DB::$AA_REPORT);
+      $all_reports = DB::getAll(DB::T(DB::AA_REPORT));
       $reports = array();
       foreach ($all_reports as $report) {
         $reports[] = $report;
@@ -302,7 +302,7 @@ class AllAmerican extends AbstractReportPane {
     $ul->add(new XLi(array(new XRadioInput('id', '-new-', array('id'=>'ri-new')),
                            new XLabel('ri-new', "New file:"),
                            new XTextInput('-new-', $this->getFilename()))));
-    foreach (DB::getAll(DB::$AA_REPORT) as $rep) {
+    foreach (DB::getAll(DB::T(DB::AA_REPORT)) as $rep) {
       $id = 'ri-'.$rep->id;
       $ul->add(new XLi(array($ri = new XRadioInput('id', $rep->id, array('id'=>$id)),
                              new XLabel($id, $rep->id))));
@@ -344,7 +344,7 @@ class AllAmerican extends AbstractReportPane {
     // Delete report
     // ------------------------------------------------------------
     if (isset($args['delete-report'])) {
-      $report = DB::$V->reqID($args, 'id', DB::$AA_REPORT, "Invalid report chosen.");
+      $report = DB::$V->reqID($args, 'id', DB::T(DB::AA_REPORT), "Invalid report chosen.");
       // TODO: permission to delete?
 
       DB::remove($report);
@@ -356,7 +356,7 @@ class AllAmerican extends AbstractReportPane {
     // Load saved report
     // ------------------------------------------------------------
     if (isset($args['load-report'])) {
-      $report = DB::$V->reqID($args, 'id', DB::$AA_REPORT, "Invalid report chosen.");
+      $report = DB::$V->reqID($args, 'id', DB::T(DB::AA_REPORT), "Invalid report chosen.");
       // TODO: permission to download?
 
       $this->AA['report-type'] = $report->type;
@@ -422,7 +422,7 @@ class AllAmerican extends AbstractReportPane {
       }
       if (count($this->AA['report-seasons']) == 0) {
         $now = new DateTime();
-        $season = Season::forDate(DB::$NOW);
+        $season = Season::forDate(DB::T(DB::NOW));
         $this->AA['report-seasons'][] = (string)$season;
         if ($season->season == Season::SPRING) {
           $now->setDate($now->format('Y') - 1, 10, 1);
@@ -613,7 +613,7 @@ class AllAmerican extends AbstractReportPane {
         }
 
         // already exists?
-        if (DB::get(DB::$AA_REPORT, $id) !== null)
+        if (DB::get(DB::T(DB::AA_REPORT), $id) !== null)
           throw new SoterException("A report with this name already exists.");
 
         $rep = new AA_Report();
@@ -621,7 +621,7 @@ class AllAmerican extends AbstractReportPane {
         $mes = "Saved new report with filename \"%s\".";
       }
       else {
-        $rep = DB::get(DB::$AA_REPORT, $id);
+        $rep = DB::get(DB::T(DB::AA_REPORT), $id);
         if ($rep === null)
           throw new SoterException("Invalid report to replace.");
         $mes = "Replaced report with filename \"%s\".";
@@ -634,7 +634,7 @@ class AllAmerican extends AbstractReportPane {
         return false;
       }
 
-      $rep->last_updated = DB::$NOW;
+      $rep->last_updated = DB::T(DB::NOW);
       $rep->type = $this->AA['report-type'];
       $rep->role = $this->AA['report-role'];
       $rep->min_regattas = $this->AA['report-min-regattas'];
@@ -690,7 +690,7 @@ class AllAmerican extends AbstractReportPane {
       if ($reg->scoring == Regatta::SCORING_TEAM || $div == Division::A())
         $max_places = 5;
 
-      $rps = DB::getAll(DB::$DT_RP,
+      $rps = DB::getAll(DB::T(DB::DT_RP),
                         new DBBool(array(new DBCond('rank', $max_places, DBCond::LE),
                                          new DBCond('boat_role', $this->AA['report-role']),
                                          new DBCondIn('team_division', $reg->getRanks($div)))));

@@ -25,7 +25,7 @@ class SponsorsManagement extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     if (isset($args['r'])) {
       try {
-        $sponsor = DB::$V->reqID($args, 'r', DB::$PUB_SPONSOR, "Invalid sponsor requested.");
+        $sponsor = DB::$V->reqID($args, 'r', DB::T(DB::PUB_SPONSOR), "Invalid sponsor requested.");
         $this->PAGE->addContent($p = new XPort("Edit " . $sponsor->name));
         $p->add($f = $this->createForm());
         $this->fillForm($f, $sponsor);
@@ -49,7 +49,7 @@ class SponsorsManagement extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     // Current list
     // ------------------------------------------------------------
-    $curr = DB::getAll(DB::$PUB_SPONSOR);
+    $curr = DB::getAll(DB::T(DB::PUB_SPONSOR));
     if (count($curr) > 0) {
       $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/tablesort.js'));
       $this->PAGE->addContent($p = new XPort("Current list"));
@@ -128,13 +128,13 @@ class SponsorsManagement extends AbstractAdminUserPane {
       $sponsor = new Pub_Sponsor();
       $sponsor->name = DB::$V->reqString($args, 'name', 1, 51, "No name provided for new sponsor.");
       $sponsor->url = DB::$V->incString($args, 'url', 1, 256);
-      $sponsor->logo = DB::$V->incID($args, 'logo', DB::$PUB_FILE_SUMMARY);
+      $sponsor->logo = DB::$V->incID($args, 'logo', DB::T(DB::PUB_FILE_SUMMARY));
       if ($sponsor->logo !== null && substr($sponsor->logo->filetype, 0, 6) != 'image/')
         throw new SoterException("Only images may be used for the sponsor logo.");
-      $sponsor->regatta_logo = DB::$V->incID($args, 'regatta_logo', DB::$PUB_FILE_SUMMARY);
+      $sponsor->regatta_logo = DB::$V->incID($args, 'regatta_logo', DB::T(DB::PUB_FILE_SUMMARY));
       if ($sponsor->regatta_logo !== null && substr($sponsor->regatta_logo->filetype, 0, 6) != 'image/')
         throw new SoterException("Only images may be used for the regatta sponsor logo.");
-      $sponsor->relative_order = count(DB::getAll(DB::$PUB_SPONSOR)) + 1;
+      $sponsor->relative_order = count(DB::getAll(DB::T(DB::PUB_SPONSOR))) + 1;
       DB::set($sponsor);
       Session::pa(new PA(sprintf("Added \"%s\" as new sponsor.", $sponsor->name)));
     }
@@ -151,7 +151,7 @@ class SponsorsManagement extends AbstractAdminUserPane {
       $num = 1;
       $changed = array();
       foreach ($map as $i => $id) {
-        $sponsor = DB::$V->reqID($map, $i, DB::$PUB_SPONSOR, "Invalid sponsor provided: " . $id);
+        $sponsor = DB::$V->reqID($map, $i, DB::T(DB::PUB_SPONSOR), "Invalid sponsor provided: " . $id);
         $sponsor->relative_order = $num++;
         $changed[] = $sponsor;
       }
@@ -164,10 +164,10 @@ class SponsorsManagement extends AbstractAdminUserPane {
     // Edit existing one
     // ------------------------------------------------------------
     if (isset($args['edit'])) {
-      $sponsor = DB::$V->reqID($args, 'sponsor', DB::$PUB_SPONSOR, "Invalid sponsor to edit.");
+      $sponsor = DB::$V->reqID($args, 'sponsor', DB::T(DB::PUB_SPONSOR), "Invalid sponsor to edit.");
       $sponsor->name = DB::$V->reqString($args, 'name', 1, 51, "No name provided for sponsor.");
       $sponsor->url = DB::$V->incString($args, 'url', 1, 256);
-      $sponsor->logo = DB::$V->incID($args, 'logo', DB::$PUB_FILE_SUMMARY);
+      $sponsor->logo = DB::$V->incID($args, 'logo', DB::T(DB::PUB_FILE_SUMMARY));
       if ($sponsor->logo !== null && substr($sponsor->logo->filetype, 0, 6) != 'image/')
         throw new SoterException("Only images may be used for the sponsor logo.");
       DB::set($sponsor);
@@ -178,7 +178,7 @@ class SponsorsManagement extends AbstractAdminUserPane {
     // Delete
     // ------------------------------------------------------------
     if (isset($args['delete'])) {
-      $sponsor = DB::$V->reqID($args, 'sponsor', DB::$PUB_SPONSOR, "Invalid sponsor to edit.");
+      $sponsor = DB::$V->reqID($args, 'sponsor', DB::T(DB::PUB_SPONSOR), "Invalid sponsor to edit.");
       DB::remove($sponsor);
       Session::pa(new PA(sprintf("Removed sponsor \"%s\". Future files will not have this sponsor.", $sponsor->name)));
       WS::go($this->link());
@@ -197,7 +197,7 @@ class SponsorsManagement extends AbstractAdminUserPane {
       $reg_sel->add(new FOption("", ""));
     }
 
-    foreach (DB::getAll(DB::$PUB_FILE_SUMMARY, new DBCond('filetype', 'image/%', DBCond::LIKE)) as $file) {
+    foreach (DB::getAll(DB::T(DB::PUB_FILE_SUMMARY), new DBCond('filetype', 'image/%', DBCond::LIKE)) as $file) {
       $sel->add($opt = new FOption($file->id, $file->id));
       if ($sponsor->logo !== null && $file->id == $sponsor->logo->id)
         $opt->set('selected', 'selected');

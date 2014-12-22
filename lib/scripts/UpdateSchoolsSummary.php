@@ -48,7 +48,7 @@ class UpdateSchoolsSummary extends AbstractScript {
     if (($lnk = $page->getOrgLink()) !== null)
       $page->addMenu($lnk);
 
-    $confs = DB::getAll(DB::$CONFERENCE);
+    $confs = DB::getAll(DB::T(DB::CONFERENCE));
     $num_schools = 0;
     // ------------------------------------------------------------
     // Summary of each conference

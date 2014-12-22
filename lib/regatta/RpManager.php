@@ -34,7 +34,7 @@ class RpManager {
    * @return Representative the rep, or null if none
    */
   public function getRepresentative(Team $team) {
-    $res = DB::getAll(DB::$REPRESENTATIVE, new DBCond('team', $team));
+    $res = DB::getAll(DB::T(DB::REPRESENTATIVE), new DBCond('team', $team));
     return (count($res) == 0) ? null : $res[0];
   }
 
@@ -48,7 +48,7 @@ class RpManager {
    */
   public function setRepresentative(Team $team, $name = null) {
     if ($name === null) {
-      DB::removeAll(DB::$REPRESENTATIVE, new DBCond('team', $team));
+      DB::removeAll(DB::T(DB::REPRESENTATIVE), new DBCond('team', $team));
       return;
     }
 
@@ -71,7 +71,7 @@ class RpManager {
    * @return Array:RPEntry objects
    */
   public function getRpEntries(Team $team, Race $race, $role) {
-    return DB::getAll(DB::$RP_ENTRY,
+    return DB::getAll(DB::T(DB::RP_ENTRY),
                       new DBBool(array(new DBCond('team', $team),
                                        new DBCond('race', $race),
                                        new DBCond('boat_role', RP::parseRole($role)))));
@@ -101,7 +101,7 @@ class RpManager {
     if ($role == RP::CREW && count($sailors) > $race->boat->max_crews)
       throw new InvalidArgumentException("Number of crews exceeds capacity for race's boat.");
 
-    DB::removeAll(DB::$RP_ENTRY,
+    DB::removeAll(DB::T(DB::RP_ENTRY),
                   new DBBool(array(new DBCond('team', $team),
                                    new DBCond('race', $race),
                                    new DBCond('boat_role', $role))));
@@ -127,10 +127,10 @@ class RpManager {
    */
   public function getRP(Team $team, Division $div, $role) {
     // Get sailors
-    $res = DB::getAll(DB::$RP_ENTRY,
+    $res = DB::getAll(DB::T(DB::RP_ENTRY),
                       new DBBool(array(new DBCond('team', $team),
                                        new DBCond('boat_role', RP::parseRole($role)),
-                                       new DBCondIn('race', DB::prepGetAll(DB::$RACE,
+                                       new DBCondIn('race', DB::prepGetAll(DB::T(DB::RACE),
                                                                            new DBCond('division', (string)$div),
                                                                            array('id'))))));
     $rps = array();
@@ -175,13 +175,13 @@ class RpManager {
   public function hasGender($gender, Team $team = null) {
     $cond = ($team === null) ?
       new DBCondIn('race',
-                   DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta->id), array('id'))) :
+                   DB::prepGetAll(DB::T(DB::RACE), new DBCond('regatta', $this->regatta->id), array('id'))) :
       new DBCond('team', $team);
 
-    $r = DB::getAll(DB::$RP_ENTRY,
+    $r = DB::getAll(DB::T(DB::RP_ENTRY),
                     new DBBool(array($cond,
                                      new DBCondIn('sailor',
-                                                  DB::prepGetAll(DB::$SAILOR, new DBCond('gender', $gender), array('id'))))));
+                                                  DB::prepGetAll(DB::T(DB::SAILOR), new DBCond('gender', $gender), array('id'))))));
     $res = (count($r) > 0);
     unset($r);
     return $res;
@@ -194,11 +194,11 @@ class RpManager {
    * @param Sailor::MALE|FEMALE $gender the gender
    */
   public function removeGender($gender) {
-    DB::removeAll(DB::$RP_ENTRY,
+    DB::removeAll(DB::T(DB::RP_ENTRY),
                   new DBBool(array(new DBCondIn('race',
-                                                DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta->id), array('id'))),
+                                                DB::prepGetAll(DB::T(DB::RACE), new DBCond('regatta', $this->regatta->id), array('id'))),
                                    new DBCondIn('sailor',
-                                                DB::prepGetAll(DB::$SAILOR, new DBCond('gender', $gender), array('id'))))));
+                                                DB::prepGetAll(DB::T(DB::SAILOR), new DBCond('gender', $gender), array('id'))))));
   }
 
   /**
@@ -218,7 +218,7 @@ class RpManager {
    */
   public function isMissingSkipper() {
     $races = $this->regatta->getRaces();
-    $res = DB::getAll(DB::$RP_ENTRY,
+    $res = DB::getAll(DB::T(DB::RP_ENTRY),
                       new DBBool(array(new DBCond('boat_role', RP::SKIPPER),
                                        new DBCondIn('race', $races))));
     return count($res) < (count($races) * count($this->regatta->getTeams()));
@@ -257,7 +257,7 @@ class RpManager {
     if ($team !== null)
       $cond = new DBBool(array(new DBCond('team', $team), $cond));
 
-    $tot = DB::getAll(DB::$RP_ENTRY, $cond);
+    $tot = DB::getAll(DB::T(DB::RP_ENTRY), $cond);
     return (count($tot) >= $sum);
   }
 
@@ -307,7 +307,7 @@ class RpManager {
     }
 
     $q = DB::createQuery(DBQuery::UPDATE);
-    $q->values(array('sailor'), array(DBQuery::A_STR), array($replace->id), DB::$RP_ENTRY->db_name());
+    $q->values(array('sailor'), array(DBQuery::A_STR), array($replace->id), DB::T(DB::RP_ENTRY)->db_name());
     $q->where(new DBCond('sailor', $key));
     DB::query($q);
 
@@ -322,8 +322,8 @@ class RpManager {
    * @param Team $team the team
    */
   public function reset(Team $team) {
-    DB::removeAll(DB::$RP_ENTRY, new DBCond('team', $team));
-    DB::removeAll(DB::$REPRESENTATIVE, new DBCond('team', $team));
+    DB::removeAll(DB::T(DB::RP_ENTRY), new DBCond('team', $team));
+    DB::removeAll(DB::T(DB::REPRESENTATIVE), new DBCond('team', $team));
     if ($team->dt_complete_rp !== null) {
       $team->dt_complete_rp = null;
       DB::set($team);
@@ -339,7 +339,7 @@ class RpManager {
    * @return String|false the data, or <pre>false</pre> otherwise
    */
   public function getForm() {
-    $r = DB::get(DB::$RP_FORM, $this->regatta->id);
+    $r = DB::get(DB::T(DB::RP_FORM), $this->regatta->id);
     if ($r === null)
       return false;
     return $r->filedata;
@@ -353,7 +353,7 @@ class RpManager {
   public function setForm($data) {
     $r = new RP_Form();
     $r->id = $this->regatta->id;
-    $r->created_at = DB::$NOW;
+    $r->created_at = DB::T(DB::NOW);
     $r->filedata = $data;
     DB::set($r);
   }
@@ -366,11 +366,11 @@ class RpManager {
    * it has a timestamp later than the update timestamp on the RP
    */
   public function isFormRecent() {
-    $r = DB::get(DB::$RP_FORM, $this->regatta->id);
+    $r = DB::get(DB::T(DB::RP_FORM), $this->regatta->id);
     if ($r === null)
       return false;
 
-    $l = DB::getAll(DB::$RP_LOG, new DBCond('regatta', $this->regatta->id));
+    $l = DB::getAll(DB::T(DB::RP_LOG), new DBCond('regatta', $this->regatta->id));
     if (count($l) == 0)
       return true;
     return ($l[0]->updated_at < $r->created_at);
@@ -421,7 +421,7 @@ class RpManager {
    * @return Array:Sailor temporary sailor list
    */
   public function getAddedSailors() {
-    return DB::getAll(DB::$SAILOR, new DBCond('regatta_added', $this->regatta->id));
+    return DB::getAll(DB::T(DB::SAILOR), new DBCond('regatta_added', $this->regatta->id));
   }
 
   /**
@@ -432,9 +432,9 @@ class RpManager {
    * @return boolean true if the sailor is participating (has RP)
    */
   public function isParticipating(Sailor $sailor) {
-    $res = DB::getAll(DB::$RP_ENTRY,
+    $res = DB::getAll(DB::T(DB::RP_ENTRY),
                       new DBBool(array(new DBCond('sailor', $sailor),
-                                       new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta->id), array('id'))))));
+                                       new DBCondIn('race', DB::prepGetAll(DB::T(DB::RACE), new DBCond('regatta', $this->regatta->id), array('id'))))));
     $part = count($res) > 0;
     unset($res);
     return $part;
@@ -461,11 +461,11 @@ class RpManager {
         $c = new DBBool(array(new DBCond('sailor', $sailor),
                               new DBCond('boat_role', $role),
                               new DBCondIn('race',
-                                           DB::prepGetAll(DB::$RACE,
+                                           DB::prepGetAll(DB::T(DB::RACE),
                                                           new DBBool(array(new DBCond('regatta', $this->regatta->id),
                                                                            new DBCond('division', (string)$div))),
                                                           array('id')))));
-        $res = DB::getAll(DB::$RP_ENTRY, $c);
+        $res = DB::getAll(DB::T(DB::RP_ENTRY), $c);
         if (count($res) > 0)
           $rps[] = new RP($res);
       }
@@ -494,9 +494,9 @@ class RpManager {
     $c = new DBBool(array(new DBCond('sailor', $sailor)));
     if ($role !== null)
       $c->add(new DBCond('boat_role', $role));
-    $c->add(new DBCondIn('race', DB::prepGetAll(DB::$RACE, $r, array('id'))));
+    $c->add(new DBCondIn('race', DB::prepGetAll(DB::T(DB::RACE), $r, array('id'))));
 
-    return DB::getAll(DB::$RP_ENTRY, $c);
+    return DB::getAll(DB::T(DB::RP_ENTRY), $c);
   }
 
   /**
@@ -512,12 +512,12 @@ class RpManager {
     if ($role !== null)
       $cond->add(new DBCond('boat_role', $role));
 
-    $cond = new DBCondIn('id', DB::prepGetAll(DB::$RP_ENTRY, $cond, array('race')));
+    $cond = new DBCondIn('id', DB::prepGetAll(DB::T(DB::RP_ENTRY), $cond, array('race')));
     if ($div !== null)
       $cond = new DBBool(array($cond, new DBCond('division', (string)$div)));
 
     require_once('regatta/Regatta.php');
-    return DB::getAll(DB::$REGATTA, new DBCondIn('id', DB::prepGetAll(DB::$RACE, $cond, array('regatta'))));
+    return DB::getAll(DB::T(DB::REGATTA), new DBCondIn('id', DB::prepGetAll(DB::T(DB::RACE), $cond, array('regatta'))));
   }
 
   /**
@@ -528,7 +528,7 @@ class RpManager {
    */
   public static function inactivateRole($role) {
     $q = DB::createQuery(DBQuery::UPDATE);
-    $q->values(array('active'), array(DBQuery::A_STR), array(null), DB::$SAILOR->db_name());
+    $q->values(array('active'), array(DBQuery::A_STR), array(null), DB::T(DB::SAILOR)->db_name());
     $q->where(new DBCond('role', $role));
     DB::query($q);
   }
@@ -547,7 +547,7 @@ class RP_Log extends DBObject {
   public function db_name() { return 'rp_log'; }
   public function db_type($field) {
     switch ($field) {
-    case 'updated_at': return DB::$NOW;
+    case 'updated_at': return DB::T(DB::NOW);
     default:
       return parent::db_type($field);
     }
@@ -567,13 +567,10 @@ class RP_Form extends DBObject {
 
   public function db_type($field) {
     switch ($field) {
-    case 'created_at': return DB::$NOW;
+    case 'created_at': return DB::T(DB::NOW);
     default:
       return parent::db_type($field);
     }
   }
 }
-
-DB::$RP_LOG = new RP_Log();
-DB::$RP_FORM = new RP_Form();
 ?>

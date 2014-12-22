@@ -29,7 +29,7 @@ class DetailsPane extends AbstractPane {
     // ------------------------------------------------------------
     // Finalize regatta
     // ------------------------------------------------------------
-    if ($this->REGATTA->end_date < DB::$NOW) {
+    if ($this->REGATTA->end_date < DB::T(DB::NOW)) {
       if ($this->REGATTA->finalized === null) {
         if (!$this->participant_mode) {
           if ($this->REGATTA->hasFinishes()) {
@@ -117,7 +117,7 @@ class DetailsPane extends AbstractPane {
     else {
       $reg_form->add(new FReqItem("Type:", $r_type = new XSelect('type')));
       $r_type->add(new FOption("", "[Choose type]"));
-      foreach (DB::getAll(DB::$ACTIVE_TYPE) as $v) {
+      foreach (DB::getAll(DB::T(DB::ACTIVE_TYPE)) as $v) {
         $r_type->add($opt = new FOption($v->id, $v));
         if ($v->id == $value->id)
           $opt->set('selected', 'selected');
@@ -250,7 +250,7 @@ class DetailsPane extends AbstractPane {
       }
 
       // Type
-      if (DB::$V->hasID($V, $args, 'type', DB::$ACTIVE_TYPE) && $V != $this->REGATTA->type) {
+      if (DB::$V->hasID($V, $args, 'type', DB::T(DB::ACTIVE_TYPE)) && $V != $this->REGATTA->type) {
         $this->REGATTA->type = $V;
         $edited = true;
       }
@@ -300,7 +300,7 @@ class DetailsPane extends AbstractPane {
         $edited = true;
       }
 
-      $V = DB::$V->incID($args, 'venue', DB::$VENUE);
+      $V = DB::$V->incID($args, 'venue', DB::T(DB::VENUE));
       if ($V != $this->REGATTA->venue) {
         $this->REGATTA->venue = $V;
         $edited = true;
@@ -432,7 +432,7 @@ class DetailsPane extends AbstractPane {
           && count($sponsors) > 0) {
 
         if ($this->USER->can(Permission::USE_REGATTA_SPONSOR)) {
-          $sponsor = DB::$V->incID($args, 'sponsor', DB::$PUB_SPONSOR);
+          $sponsor = DB::$V->incID($args, 'sponsor', DB::T(DB::PUB_SPONSOR));
           if ($sponsor !== null && !$sponsor->canSponsorRegattas())
             throw new SoterException("Invalid sponsor provided for regatta.");
           if ($sponsor != $this->REGATTA->sponsor) {

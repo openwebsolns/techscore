@@ -53,7 +53,7 @@ class LoginPage extends AbstractUserPane {
     $form->add(new XSubmitP("login", "Login"));
 
     // ANNOUNCEMENTS?
-    $entry = DB::get(DB::$TEXT_ENTRY, Text_Entry::ANNOUNCEMENTS);
+    $entry = DB::get(DB::T(DB::TEXT_ENTRY), Text_Entry::ANNOUNCEMENTS);
     if ($entry !== null && $entry->html !== null) {
       $this->PAGE->addContent($p = new XPort("Announcements"));
       $p->add(new XRawText($entry->html));

@@ -108,17 +108,17 @@ class EditLogoPane extends AbstractPrefsPane {
 
       // Update database: first create the burgee, then assign it to the
       // school object (for history control, mostly)
-      $full->last_updated = DB::$NOW;
+      $full->last_updated = DB::T(DB::NOW);
       $full->school = $this->SCHOOL;
       $full->updated_by = $this->USER->id;
       DB::set($full);
 
-      $small->last_updated = DB::$NOW;
+      $small->last_updated = DB::T(DB::NOW);
       $small->school = $this->SCHOOL;
       $small->updated_by = $this->USER->id;
       DB::set($small);
 
-      $square->last_updated = DB::$NOW;
+      $square->last_updated = DB::T(DB::NOW);
       $square->school = $this->SCHOOL;
       $square->updated_by = $this->USER->id;
       DB::set($square);

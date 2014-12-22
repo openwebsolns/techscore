@@ -40,7 +40,7 @@ class Account extends DBObject {
   public function db_type($field) {
     switch ($field) {
     case 'ts_role':
-      return DB::$ROLE;
+      return DB::T(DB::ROLE);
     default:
       return parent::db_type($field);
     }
@@ -125,9 +125,9 @@ class Account extends DBObject {
   public function getConferences() {
     if ($this->isAdmin())
       return DB::getConferences();
-    return DB::getAll(DB::$CONFERENCE,
+    return DB::getAll(DB::T(DB::CONFERENCE),
                       new DBCondIn('id',
-                                   DB::prepGetAll(DB::$ACCOUNT_CONFERENCE, new DBCond('account', $this), array('conference'))));
+                                   DB::prepGetAll(DB::T(DB::ACCOUNT_CONFERENCE), new DBCond('account', $this), array('conference'))));
   }
 
   /**
@@ -136,7 +136,7 @@ class Account extends DBObject {
    * @param Array:Conference the conferences to associate
    */
   public function setConferences(Array $conferences) {
-    DB::removeAll(DB::$ACCOUNT_CONFERENCE, new DBCond('account', $this));
+    DB::removeAll(DB::T(DB::ACCOUNT_CONFERENCE), new DBCond('account', $this));
     $new = array();
     foreach ($conferences as $conf) {
       $link = new Account_Conference();
@@ -153,7 +153,7 @@ class Account extends DBObject {
    * @param Array:School the schools to associate
    */
   public function setSchools(Array $schools) {
-    DB::removeAll(DB::$ACCOUNT_SCHOOL, new DBCond('account', $this));
+    DB::removeAll(DB::T(DB::ACCOUNT_SCHOOL), new DBCond('account', $this));
     $new = array();
     foreach ($schools as $school) {
       $link = new Account_School();
@@ -195,15 +195,15 @@ class Account extends DBObject {
         $cond = new DBCond('conference', $conf);
     }
     else {
-      $cond = new DBCondIn('id', DB::prepGetAll(DB::$ACCOUNT_SCHOOL, new DBCond('account', $this), array('school')));
+      $cond = new DBCondIn('id', DB::prepGetAll(DB::T(DB::ACCOUNT_SCHOOL), new DBCond('account', $this), array('school')));
       if ($effective !== false)
         $cond = new DBBool(array($cond,
-                                 new DBCondIn('conference', DB::prepGetAll(DB::$ACCOUNT_CONFERENCE, new DBCond('account', $this), array('conference')))),
+                                 new DBCondIn('conference', DB::prepGetAll(DB::T(DB::ACCOUNT_CONFERENCE), new DBCond('account', $this), array('conference')))),
                            DBBool::mOR);
       if ($conf !== null)
         $cond = new DBBool(array($cond, new DBCond('conference', $conf)));
     }
-    $obj = ($active) ? DB::$ACTIVE_SCHOOL : DB::$SCHOOL;
+    $obj = ($active) ? DB::T(DB::ACTIVE_SCHOOL) : DB::T(DB::SCHOOL);
     return DB::getAll($obj, $cond);
   }
 
@@ -216,12 +216,12 @@ class Account extends DBObject {
   public function hasSchool(School $school) {
     if ($this->isAdmin())
       return true;
-    $res = DB::getAll(DB::$ACCOUNT_SCHOOL, new DBBool(array(new DBCond('account', $this), new DBCond('school', $school))));
+    $res = DB::getAll(DB::T(DB::ACCOUNT_SCHOOL), new DBBool(array(new DBCond('account', $this), new DBCond('school', $school))));
     if (count($res) > 0) {
       unset($res);
       return true;
     }
-    $res = DB::getAll(DB::$ACCOUNT_CONFERENCE, new DBBool(array(new DBCond('account', $this), new DBCond('conference', $school->conference))));
+    $res = DB::getAll(DB::T(DB::ACCOUNT_CONFERENCE), new DBBool(array(new DBCond('account', $this), new DBCond('conference', $school->conference))));
     $r = (count($res) > 0);
     unset($res);
     return $r;
@@ -237,11 +237,11 @@ class Account extends DBObject {
   public function hasJurisdiction(Regatta $reg) {
     if ($this->isAdmin())
       return true;
-    $res = DB::getAll(DB::$SCORER, new DBBool(array(new DBCond('regatta', $reg->id), new DBCond('account', $this))));
+    $res = DB::getAll(DB::T(DB::SCORER), new DBBool(array(new DBCond('regatta', $reg->id), new DBCond('account', $this))));
     if (count($res) > 0)
       return true;
 
-    $res = DB::getAll(DB::$HOST_SCHOOL,
+    $res = DB::getAll(DB::T(DB::HOST_SCHOOL),
                       new DBBool(array(new DBCond('regatta', $reg),
                                        $this->getSchoolCondition('school'))));
     return count($res) > 0;
@@ -254,7 +254,7 @@ class Account extends DBObject {
    * @return boolean
    */
   public function isParticipantIn(FullRegatta $reg) {
-    $res = DB::getAll(DB::$TEAM,
+    $res = DB::getAll(DB::T(DB::TEAM),
                       new DBBool(array(new DBCond('regatta', $reg),
                                        $this->getSchoolCondition('school'))));
     return count($res) > 0;
@@ -267,7 +267,7 @@ class Account extends DBObject {
    */
   public function getRegattasCreated() {
     require_once('regatta/Regatta.php');
-    return DB::getAll(DB::$REGATTA, new DBCond('creator', $this->id));
+    return DB::getAll(DB::T(DB::REGATTA), new DBCond('creator', $this->id));
   }
 
   /**
@@ -280,11 +280,11 @@ class Account extends DBObject {
   private function getSchoolCondition($attr) {
     return new DBBool(
       array(
-        new DBCondIn($attr, DB::prepGetAll(DB::$ACCOUNT_SCHOOL,
+        new DBCondIn($attr, DB::prepGetAll(DB::T(DB::ACCOUNT_SCHOOL),
                                            new DBCond('account', $this),
                                            array('school'))),
-        new DBCondIn($attr, DB::prepGetAll(DB::$SCHOOL,
-                                           new DBCondIn('conference', DB::prepGetAll(DB::$ACCOUNT_CONFERENCE,
+        new DBCondIn($attr, DB::prepGetAll(DB::T(DB::SCHOOL),
+                                           new DBCondIn('conference', DB::prepGetAll(DB::T(DB::ACCOUNT_CONFERENCE),
                                                                                      new DBCond('account', $this),
                                                                                      array('conference'))),
                                            array('id'))),
@@ -304,8 +304,8 @@ class Account extends DBObject {
     $school_cond = $this->getSchoolCondition('school');
     return new DBBool(
       array(
-        new DBCondIn($reg_attr, DB::prepGetAll(DB::$SCORER, new DBCond('account', $this), array('regatta'))),
-        new DBCondIn($reg_attr, DB::prepGetAll(DB::$HOST_SCHOOL,
+        new DBCondIn($reg_attr, DB::prepGetAll(DB::T(DB::SCORER), new DBCond('account', $this), array('regatta'))),
+        new DBCondIn($reg_attr, DB::prepGetAll(DB::T(DB::HOST_SCHOOL),
                                                $school_cond,
                                                array('regatta'))),
       ),
@@ -316,7 +316,7 @@ class Account extends DBObject {
   private function getParticipantCondition() {
     $school_cond = $this->getSchoolCondition('school');
     return new DBCondIn('id',
-                        DB::prepGetAll(DB::$TEAM,
+                        DB::prepGetAll(DB::T(DB::TEAM),
                                        $school_cond,
                                        array('regatta')));
   }
@@ -349,7 +349,7 @@ class Account extends DBObject {
         $scond->add($cond);
       $cond = $scond;
     }
-    return DB::getAll(DB::$REGATTA, $cond);
+    return DB::getAll(DB::T(DB::REGATTA), $cond);
   }
 
   /**
@@ -370,7 +370,7 @@ class Account extends DBObject {
       $cond = new DBBool(array($cond, $c));
     }
 
-    return DB::getAll(DB::$REGATTA, $cond);
+    return DB::getAll(DB::T(DB::REGATTA), $cond);
   }
 
   /**
@@ -380,7 +380,7 @@ class Account extends DBObject {
    */
   public function getMessages() {
     require_once('regatta/Message.php');
-    return DB::getAll(DB::$MESSAGE, new DBCond('account', $this));
+    return DB::getAll(DB::T(DB::MESSAGE), new DBCond('account', $this));
   }
 
   // ------------------------------------------------------------
@@ -433,7 +433,7 @@ class Account extends DBObject {
     if ($email === null)
       $email = $this->email;
     DB::removeAll(
-      DB::$EMAIL_TOKEN,
+      DB::T(DB::EMAIL_TOKEN),
       new DBBool(
         array(
           new DBCond('account', $this),
@@ -458,7 +458,7 @@ class Account extends DBObject {
       $code = $email . '\0' . Conf::$PASSWORD_SALT . '\0' . date('U') . '\0' . $salt;
       $code = hash('sha256', $code);
 
-      $token = DB::get(DB::$EMAIL_TOKEN, $code);
+      $token = DB::get(DB::T(DB::EMAIL_TOKEN), $code);
     } while ($token !== null);
 
     $token = new Email_Token();
@@ -481,7 +481,7 @@ class Account extends DBObject {
       $email = $this->email;
 
     $tokens = DB::getAll(
-      DB::$EMAIL_TOKEN,
+      DB::T(DB::EMAIL_TOKEN),
       new DBBool(
         array(
           new DBCond('account', $this),
@@ -509,8 +509,8 @@ class Account_School extends DBObject {
   protected $school;
   public function db_type($field) {
     switch ($field) {
-    case 'account': return DB::$ACCOUNT;
-    case 'school':  return DB::$SCHOOL;
+    case 'account': return DB::T(DB::ACCOUNT);
+    case 'school':  return DB::T(DB::SCHOOL);
     default:
       return parent::db_type($field);
     }
@@ -528,15 +528,11 @@ class Account_Conference extends DBObject {
   protected $conference;
   public function db_type($field) {
     switch ($field) {
-    case 'account': return DB::$ACCOUNT;
-    case 'school':  return DB::$SCHOOL;
+    case 'account': return DB::T(DB::ACCOUNT);
+    case 'school':  return DB::T(DB::SCHOOL);
     default:
       return parent::db_type($field);
     }
   }
 }
-
-DB::$ACCOUNT = new Account();
-DB::$ACCOUNT_SCHOOL = new Account_School();
-DB::$ACCOUNT_CONFERENCE = new Account_Conference();
 ?>

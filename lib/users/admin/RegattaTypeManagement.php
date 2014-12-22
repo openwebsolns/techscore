@@ -38,10 +38,10 @@ class RegattaTypeManagement extends AbstractAdminUserPane {
                                          "Delete")));
     require_once('regatta/Regatta.php');
     $i = 1;
-    $types = DB::getAll(DB::$ACTIVE_TYPE);
+    $types = DB::getAll(DB::T(DB::ACTIVE_TYPE));
     foreach ($types as $type) {
       $del = "";
-      if (count(DB::getAll(DB::$FULL_REGATTA, new DBCond('type', $type))) == 0)
+      if (count(DB::getAll(DB::T(DB::FULL_REGATTA), new DBCond('type', $type))) == 0)
         $del = new FCheckbox('delete[]', $type->id, "", false, array('title'=>"Check to delete type."));
 
       $tab->addRow(array(new XTD(array(), array(new XNumberInput('order[]', $i, 1, count($types) + 1, 1, array('size'=>2)),
@@ -90,7 +90,7 @@ class RegattaTypeManagement extends AbstractAdminUserPane {
           $title = DB::$V->incString($map['title'], $i, 1, 31);
           if ($title !== null) {
             $new_id = $this->genID($title);
-            $type = DB::get(DB::$TYPE, $new_id);
+            $type = DB::get(DB::T(DB::TYPE), $new_id);
             if ($type === null) {
               $type = new Type();
               $type->id = $new_id;
@@ -104,11 +104,11 @@ class RegattaTypeManagement extends AbstractAdminUserPane {
           }
         }
         else {
-          $type = DB::$V->reqID($map['type'], $i, DB::$ACTIVE_TYPE, "Invalid type provided.");
+          $type = DB::$V->reqID($map['type'], $i, DB::T(DB::ACTIVE_TYPE), "Invalid type provided.");
           // Deletion?
           if (in_array($type->id, $del)) {
             require_once('regatta/Regatta.php');
-            if (count(DB::getAll(DB::$FULL_REGATTA, new DBCond('type', $type))) > 0)
+            if (count(DB::getAll(DB::T(DB::FULL_REGATTA), new DBCond('type', $type))) > 0)
               throw new SoterException("Cannot delete types in use.");
             $type->inactive = 1;
             $deleted_types[] = $type;
@@ -151,7 +151,7 @@ class RegattaTypeManagement extends AbstractAdminUserPane {
             // Update all regattas!
             require_once('regatta/Regatta.php');
             require_once('public/UpdateManager.php');
-            foreach (DB::getAll(DB::$REGATTA, new DBCond('type', $type)) as $reg) {
+            foreach (DB::getAll(DB::T(DB::REGATTA), new DBCond('type', $type)) as $reg) {
               UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_DETAILS);
               $num_regs++;
             }

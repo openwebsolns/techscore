@@ -78,7 +78,7 @@ class MergeUnregisteredSailors extends AbstractScript {
 
     // Create log
     $log = new Merge_Log();
-    $log->started_at = DB::$NOW;
+    $log->started_at = DB::T(DB::NOW);
     $log->error = 'Interrupted';
     DB::set($log);
 
@@ -87,7 +87,7 @@ class MergeUnregisteredSailors extends AbstractScript {
     }
 
     $log->error = null;
-    $log->ended_at = DB::$NOW;
+    $log->ended_at = DB::T(DB::NOW);
     DB::set($log);
     return $log;
   }

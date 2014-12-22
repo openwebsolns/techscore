@@ -26,7 +26,7 @@ class PermissionManagement extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     if (isset($args['id'])) {
       try {
-        $permission = DB::$V->reqID($args, 'id', DB::$PERMISSION, "Invalid permission requested.");
+        $permission = DB::$V->reqID($args, 'id', DB::T(DB::PERMISSION), "Invalid permission requested.");
         $this->PAGE->addContent($p = new XPort("Edit permission"));
         $p->add($form = $this->createForm());
         $form->add(new FReqItem("ID:", new XStrong(strtoupper($permission->id))));
@@ -54,7 +54,7 @@ class PermissionManagement extends AbstractAdminUserPane {
     }
 
     $available = array_flip(Permission::getPossible());
-    $added = DB::getAll(DB::$PERMISSION, new DBCondIn('id', $available));
+    $added = DB::getAll(DB::T(DB::PERMISSION), new DBCondIn('id', $available));
 
     $add_port = null;
     if (count($added) < count($available)) {
@@ -72,7 +72,7 @@ class PermissionManagement extends AbstractAdminUserPane {
 
     $added = 0;
     $tab = new XQuickTable(array('class' => 'permission-table'), array("", "Title", "Description", "Category"));
-    foreach (DB::getAll(DB::$PERMISSION) as $permission) {
+    foreach (DB::getAll(DB::T(DB::PERMISSION)) as $permission) {
       if (array_key_exists($permission->id, $available)) {
         $tab->addRow(array(new FCheckbox('delete[]', $permission->id),
                            new XA($this->link(array('id' => $permission->id)), $permission),
@@ -129,7 +129,7 @@ class PermissionManagement extends AbstractAdminUserPane {
     // Edit
     // ------------------------------------------------------------
     if (isset($args['edit-permission'])) {
-      $perm = DB::$V->reqID($args, 'permission', DB::$PERMISSION, "Invalid permission to edit.");
+      $perm = DB::$V->reqID($args, 'permission', DB::T(DB::PERMISSION), "Invalid permission to edit.");
       $perm->title = DB::$V->reqString($args, 'title', 1, 51, "Invalid/missing title provided.");
       $perm->category = DB::$V->reqString($args, 'category', 1, 41, "Invalid/missing category provided.");
       $perm->description = DB::$V->incString($args, 'description', 1, 16000);

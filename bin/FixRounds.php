@@ -9,7 +9,7 @@
 require_once(dirname(__DIR__) . '/lib/conf.php');
 require_once('regatta/Regatta.php');
 
-foreach (DB::getAll(DB::$ROUND) as $round) {
+foreach (DB::getAll(DB::T(DB::ROUND)) as $round) {
   if ($round->regatta !== null && $round->num_teams == 0) {
     printf("%4d: %35s from %s", $round->id, $round, $round->regatta->name);
 

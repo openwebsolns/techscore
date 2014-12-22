@@ -24,12 +24,12 @@ class Answer extends DBObject {
     switch ($field) {
     case 'question':
       require_once('regatta/Question.php');
-      return DB::$QUESTION;
+      return DB::T(DB::QUESTION);
     case 'answered_by':
       require_once('regatta/Account.php');
-      return DB::$ACCOUNT;
+      return DB::T(DB::ACCOUNT);
     case 'answered_on':
-      return DB::$NOW;
+      return DB::T(DB::NOW);
     default:
       return parent::db_type($field);
     }
@@ -39,6 +39,4 @@ class Answer extends DBObject {
     return array('answered_on' => false);
   }
 }
-
-DB::$ANSWER = new Answer();
 ?>

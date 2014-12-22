@@ -30,7 +30,7 @@ class EULAPane extends AbstractUserPane {
    *
    */
   public function fillHTML(Array $args) {
-    $filename = DB::get(DB::$TEXT_ENTRY, Text_Entry::EULA);
+    $filename = DB::get(DB::T(DB::TEXT_ENTRY), Text_Entry::EULA);
     $license = ($filename !== null) ? new XRawText($filename->html) : new XP(array(), sprintf("I agree to use %s responsibly.", DB::g(STN::APP_NAME)));
 
     $this->PAGE->addContent($p = new XPort("License Agreement"));

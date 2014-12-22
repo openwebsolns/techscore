@@ -226,7 +226,7 @@ class UpdateConference extends AbstractScript {
     $ul = new XUl(array('id'=>'other-seasons'));
     $num = 0;
     $root = $conference->url;
-    foreach (DB::getAll(DB::$SEASON) as $s) {
+    foreach (DB::getAll(DB::T(DB::SEASON)) as $s) {
       $regs = $s->getConferenceParticipation($conference);
       if (count($regs) > 0) {
         $num++;
@@ -254,7 +254,7 @@ class UpdateConference extends AbstractScript {
     $dirname = $conference->url;
 
     // Do season
-    $today = Season::forDate(DB::$NOW);
+    $today = Season::forDate(DB::T(DB::NOW));
     $base = (string)$season;
 
     // Create season directory
@@ -305,7 +305,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   // Season
   if (count($opts) > 1)
     throw new TSScriptException("Invalid argument provided");
-  $season = Season::forDate(DB::$NOW);
+  $season = Season::forDate(DB::T(DB::NOW));
   if (count($opts) > 0) {
     $id = array_shift($opts);
     if (($season = DB::getSeason($id)) === null)

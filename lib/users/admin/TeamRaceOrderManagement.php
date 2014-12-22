@@ -91,7 +91,7 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
 
   public function fillHTML(Array $args) {
     $current = array();
-    foreach (DB::getAll(DB::$RACE_ORDER) as $order)
+    foreach (DB::getAll(DB::T(DB::RACE_ORDER)) as $order)
       $current[$order->id] = $order;
 
     $frequencies = Race_Order::getFrequencyTypes();
@@ -310,7 +310,7 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
     // Edit existing
     // ------------------------------------------------------------
     if (isset($args['edit'])) {
-      $template = DB::$V->reqID($args, 'template', DB::$RACE_ORDER, "Invalid template to edit.");
+      $template = DB::$V->reqID($args, 'template', DB::T(DB::RACE_ORDER), "Invalid template to edit.");
       $template->description = DB::$V->incString($args, 'description', 1, 16000);
       $this->processPairings($template, $args);
       Session::pa(new PA(sprintf("Edited template for %d teams in %d boats.",
@@ -325,7 +325,7 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
     if (isset($args['delete'])) {
       $deleted = 0;
       foreach (DB::$V->reqList($args, 'template', null, "No list of templates to delete provided.") as $id) {
-        $templ = DB::get(DB::$RACE_ORDER, $id);
+        $templ = DB::get(DB::T(DB::RACE_ORDER), $id);
         if ($templ === null)
           throw new SoterException("Invalid template to delete: $id");
         DB::remove($templ);

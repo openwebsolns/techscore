@@ -43,7 +43,7 @@ class DatabaseSyncManagement extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     if (isset($args['log'])) {
       try {
-        $log = DB::$V->reqID($args, 'log', DB::$SYNC_LOG, "Invalid log requested.");
+        $log = DB::$V->reqID($args, 'log', DB::T(DB::SYNC_LOG), "Invalid log requested.");
         $this->PAGE->addContent(new XP(array(), new XA($this->link(), "← Go back")));
         $this->PAGE->addContent($p = new XPort("Database Sync Details"));
         $p->add(new FItem("Type:", new XStrong(ucwords(implode(", ", $log->updated)))));
@@ -83,7 +83,7 @@ class DatabaseSyncManagement extends AbstractAdminUserPane {
       }
     }
 
-    $past_syncs = DB::getAll(DB::$SYNC_LOG);
+    $past_syncs = DB::getAll(DB::T(DB::SYNC_LOG));
 
     // ------------------------------------------------------------
     // Trigger a database sync
@@ -229,7 +229,7 @@ class DatabaseSyncManagement extends AbstractAdminUserPane {
         require_once('regatta/MergeLog.php');
 
         $merger = new MergeUnregisteredSailors();
-        $log = $merger->run(DB::getAll(DB::$SCHOOL));
+        $log = $merger->run(DB::getAll(DB::T(DB::SCHOOL)));
 
         Session::pa(new PA(sprintf("Auto-merge run: %d sailors throughout %d regattas.",
                                    count($log->getMergeSailorLogs()),

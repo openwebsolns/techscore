@@ -357,10 +357,10 @@ class TweetFactory {
     case self::COMING_SOON_EVENT:
       require_once('regatta/Regatta.php');
       // Look at regattas starting in the next 7 days
-      $start = clone(DB::$NOW);
+      $start = clone(DB::T(DB::NOW));
       $start->add(new DateInterval('P7DT0H'));
-      $potential = DB::getAll(DB::$PUBLIC_REGATTA,
-                              new DBBool(array(new DBCond('start_time', DB::$NOW, DBCond::GE),
+      $potential = DB::getAll(DB::T(DB::PUBLIC_REGATTA),
+                              new DBBool(array(new DBCond('start_time', DB::T(DB::NOW), DBCond::GE),
                                                new DBCond('start_time', $start, DBCond::LE),
                                                new DBCond('dt_status', Regatta::STAT_SCHEDULED, DBCond::NE))));
 
@@ -391,7 +391,7 @@ class TweetFactory {
         switch (rand(0, 2)) {
         case 0:
           $day = array_pop($keys);
-          $now = clone(DB::$NOW);
+          $now = clone(DB::T(DB::NOW));
           $now->setTime(0, 0);
           $diff = $now->diff(new DateTime($day));
           $dur = sprintf("%d days", $diff->days);
@@ -424,7 +424,7 @@ class TweetFactory {
           $num = sprintf("at %d different regattas", $cnt);
         }
 
-        $now = clone(DB::$NOW);
+        $now = clone(DB::T(DB::NOW));
         $now->setTime(0, 0);
         $diff = $now->diff(new DateTime($day));
         $dur = sprintf("In %d days", $diff->days);

@@ -104,7 +104,7 @@ class SyncDB extends AbstractScript {
    * @param Sync_Log $log the sync log to associate with updated schools
    */
   public function updateSchools(Sync_Log $log) {
-    $season = Season::forDate(DB::$NOW);
+    $season = Season::forDate(DB::T(DB::NOW));
     if ($season === null) {
       self::errln("No current season available.");
       return;
@@ -206,7 +206,7 @@ class SyncDB extends AbstractScript {
    * @param Sync_Log $log the log to save as
    */
   public function updateMember(Member $proto, Sync_Log $log) {
-    $season = Season::forDate(DB::$NOW);
+    $season = Season::forDate(DB::T(DB::NOW));
     if ($season === null) {
       self::errln("No current season available.");
       return;
@@ -288,7 +288,7 @@ class SyncDB extends AbstractScript {
     // Sailors
     // ------------------------------------------------------------
     if ($sailors !== false) {
-      $this->updateMember(DB::$SAILOR, $log);
+      $this->updateMember(DB::T(DB::SAILOR), $log);
       $log->updated[] = Sync_Log::SAILORS;
     }
 
@@ -296,7 +296,7 @@ class SyncDB extends AbstractScript {
     // Coaches
     // ------------------------------------------------------------
     if ($coaches !== false) {
-      $this->updateMember(DB::$COACH, $log);
+      $this->updateMember(DB::T(DB::COACH), $log);
       $log->updated[] = Sync_Log::COACHES;
     }
 

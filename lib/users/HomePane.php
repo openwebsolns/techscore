@@ -89,7 +89,7 @@ class HomePane extends AbstractUserPane {
   }
 
   private function addInFocusPort() {
-    $season = Season::forDate(DB::$NOW);
+    $season = Season::forDate(DB::T(DB::NOW));
     if ($season === null) {
       $this->PAGE->addContent($p = new XPort("No season"));
       $p->add(new XP(array('class'=>'warning'),
@@ -98,20 +98,20 @@ class HomePane extends AbstractUserPane {
                            " instead.")));
     }
     else {
-      $start = clone(DB::$NOW);
+      $start = clone(DB::T(DB::NOW));
       $start->add(new DateInterval('P3DT0H'));
       $start->setTime(0, 0);
 
-      $end = clone(DB::$NOW);
+      $end = clone(DB::T(DB::NOW));
       $end->sub(new DateInterval('P3DT0H'));
       $end->setTime(0, 0);
 
       require_once('regatta/Regatta.php');
-      DB::$REGATTA->db_set_order(array('start_time' => true));
-      $regattas = DB::getAll(DB::$REGATTA,
+      DB::T(DB::REGATTA)->db_set_order(array('start_time' => true));
+      $regattas = DB::getAll(DB::T(DB::REGATTA),
                              new DBBool(array(new DBCond('start_time', $start, DBCond::LE),
                                               new DBCond('end_date', $end, DBCond::GE))));
-      DB::$REGATTA->db_set_order();
+      DB::T(DB::REGATTA)->db_set_order();
 
       require_once('xml5/UserRegattaTable.php');
       $cur_tab = new UserRegattaTable($this->USER, true);
@@ -138,10 +138,10 @@ class HomePane extends AbstractUserPane {
   }
 
   private function addUnregisteredSummaryPort(Conference $conf) {
-    $schools = DB::getAll(DB::$ACTIVE_SCHOOL,
+    $schools = DB::getAll(DB::T(DB::ACTIVE_SCHOOL),
                           new DBBool(array(new DBCond('conference', $conf),
                                            new DBCondIn('id',
-                                                        DB::prepGetAll(DB::$SAILOR,
+                                                        DB::prepGetAll(DB::T(DB::SAILOR),
                                                                        new DBBool(array(new DBCond('icsa_id', null),
                                                                                         new DBCond('active', null, DBCond::NE))),
                                                                        array('school'))))));
@@ -171,7 +171,7 @@ class HomePane extends AbstractUserPane {
   }
 
   private function addBurgeeSummaryPort($conferences) {
-    $schools = DB::getAll(DB::$ACTIVE_SCHOOL,
+    $schools = DB::getAll(DB::T(DB::ACTIVE_SCHOOL),
                           new DBBool(array(new DBCond('burgee', null),
                                            new DBCondIn('conference', $conferences))));
     $count = count($schools);
@@ -197,10 +197,10 @@ class HomePane extends AbstractUserPane {
   }
 
   private function addTeamNamesSummaryPort($conferences) {
-    $schools = DB::getAll(DB::$ACTIVE_SCHOOL,
+    $schools = DB::getAll(DB::T(DB::ACTIVE_SCHOOL),
                           new DBBool(array(new DBCondIn('conference', $conferences),
                                            new DBCondIn('id',
-                                                        DB::prepGetAll(DB::$TEAM_NAME_PREFS, null, array('school')),
+                                                        DB::prepGetAll(DB::T(DB::TEAM_NAME_PREFS), null, array('school')),
                                                         DBCondIn::NOT_IN))));
     $count = count($schools);
     if ($count == 1) {

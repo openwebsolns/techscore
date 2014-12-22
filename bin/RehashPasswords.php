@@ -14,7 +14,7 @@ if (strlen(Conf::$PASSWORD_SALT) == 0)
 
 $updated = 0;
 $skipped = 0;
-foreach (DB::getAll(DB::$ACCOUNT) as $acc) {
+foreach (DB::getAll(DB::T(DB::ACCOUNT)) as $acc) {
   if (strlen($acc->password) == 128) {
     $skipped++;
     continue;

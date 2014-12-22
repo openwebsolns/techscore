@@ -90,7 +90,7 @@ class NotesPane extends AbstractPane {
     // Remove existing
     // ------------------------------------------------------------
     if (isset($args['remove'])) {
-      $note = DB::$V->reqID($args, 'observation', DB::$NOTE, "Invalid or missing observation to delete.");
+      $note = DB::$V->reqID($args, 'observation', DB::T(DB::NOTE), "Invalid or missing observation to delete.");
       if ($note->race->regatta != $this->REGATTA)
         throw new SoterException("Chosen note does not belong to the given regatta.");
       $this->REGATTA->deleteNote($note);

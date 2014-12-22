@@ -113,7 +113,7 @@ class RacesPane extends AbstractPane {
                                       new XStrong("This is not recoverable."))));
         if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED) {
           $xp->add(" If adding divisions, you will need to specify how to score the teams in the previously scored races by selecting the appropriate choice below.");
-          $form->add(new FItem("New score:", XSelect::fromArray('new-score', self::$NEW_SCORES), "Only needed when adding divisions"));
+          $form->add(new FItem("New score:", XSelect::fromArray('new-score', self::T(DB::NEW_SCORES)), "Only needed when adding divisions"));
         }
       }
     }
@@ -185,7 +185,7 @@ class RacesPane extends AbstractPane {
       $added_races = false;
       $hosts = $this->REGATTA->getHosts();
       $host = $hosts[0];
-      $boat = DB::$V->incID($args, 'boat', DB::$BOAT, DB::getPreferredBoat($host));
+      $boat = DB::$V->incID($args, 'boat', DB::T(DB::BOAT), DB::getPreferredBoat($host));
 
       $cur_divisions = $this->REGATTA->getDivisions();
       $new_regatta = (count($cur_divisions) == 0);
@@ -201,7 +201,7 @@ class RacesPane extends AbstractPane {
       $new_score = false;
       $scored_numbers = array();
       if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED && $this->REGATTA->hasFinishes()) {
-        $new_score = DB::$V->incKey($args, 'new-score', self::$NEW_SCORES, 'DNS');
+        $new_score = DB::$V->incKey($args, 'new-score', self::T(DB::NEW_SCORES), 'DNS');
         $teams = $this->REGATTA->getTeams();
         foreach ($this->REGATTA->getScoredRaces(Division::A()) as $race)
           $scored_numbers[$race->number] = $race->number;
@@ -229,7 +229,7 @@ class RacesPane extends AbstractPane {
         foreach ($new_races as $race) {
           foreach ($teams as $team) {
             $finish = $this->REGATTA->createFinish($race, $team);
-            $finish->entered = DB::$NOW;
+            $finish->entered = DB::T(DB::NOW);
             $finish->setModifier(new Penalty($new_score));
             $finishes[] = $finish;
           }
@@ -323,7 +323,7 @@ class RacesPane extends AbstractPane {
 
       // Is there an assignment for all the races in the division?
       foreach ($copy as $i => $div) {
-        if (($val = DB::$V->incID($args, (string)$div, DB::$BOAT, null)) !== null) {
+        if (($val = DB::$V->incID($args, (string)$div, DB::T(DB::BOAT), null)) !== null) {
           unset($args[(string)$div]);
           unset($remaining_divisions[$i]);
           foreach ($this->REGATTA->getRaces($div) as $race) {
@@ -340,7 +340,7 @@ class RacesPane extends AbstractPane {
       // with. Just keep track of whether there were errors.
       foreach ($remaining_divisions as $div) {
         foreach ($this->REGATTA->getRaces($div) as $race) {
-          if (($val = DB::$V->incID($args, (string)$race, DB::$BOAT, null)) !== null &&
+          if (($val = DB::$V->incID($args, (string)$race, DB::T(DB::BOAT), null)) !== null &&
               $val != $race->boat) {
             $race->boat = $val;
             DB::set($race);

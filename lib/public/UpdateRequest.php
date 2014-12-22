@@ -16,7 +16,7 @@ abstract class AbstractUpdate extends DBObject {
     switch ($field) {
     case 'request_time':
     case 'completion_time':
-      return DB::$NOW;
+      return DB::T(DB::NOW);
     }
     return parent::db_type($field);
   }
@@ -43,7 +43,7 @@ class UpdateRequest extends AbstractUpdate {
   public function db_type($field) {
     if ($field == 'regatta') {
       require_once('regatta/Regatta.php');
-      return DB::$FULL_REGATTA;
+      return DB::T(DB::FULL_REGATTA);
     }
     return parent::db_type($field);
   }
@@ -103,9 +103,9 @@ class UpdateSchoolRequest extends AbstractUpdate {
   public function db_name() { return 'pub_update_school'; }
   public function db_type($field) {
     if ($field == 'school')
-      return DB::$SCHOOL;
+      return DB::T(DB::SCHOOL);
     if ($field == 'season')
-      return DB::$SEASON;
+      return DB::T(DB::SEASON);
     return parent::db_type($field);
   }
 
@@ -142,9 +142,9 @@ class UpdateConferenceRequest extends AbstractUpdate {
   public function db_name() { return 'pub_update_conference'; }
   public function db_type($field) {
     if ($field == 'conference')
-      return DB::$CONFERENCE;
+      return DB::T(DB::CONFERENCE);
     if ($field == 'season')
-      return DB::$SEASON;
+      return DB::T(DB::SEASON);
     return parent::db_type($field);
   }
 
@@ -195,7 +195,7 @@ class UpdateSeasonRequest extends AbstractUpdate {
   public function db_name() { return 'pub_update_season'; }
   public function db_type($field) {
     switch ($field) {
-    case 'season': return DB::$SEASON;
+    case 'season': return DB::T(DB::SEASON);
     default:
       return parent::db_type($field);
     }
@@ -219,9 +219,9 @@ class UpdateFileRequest extends AbstractUpdate {
   public function db_name() { return 'pub_update_file'; }
   public function hash() { return $this->file; }
 }
-DB::$UPDATE_REQUEST = new UpdateRequest();
-DB::$UPDATE_SCHOOL = new UpdateSchoolRequest();
-DB::$UPDATE_SEASON = new UpdateSeasonRequest();
-DB::$UPDATE_FILE = new UpdateFileRequest();
-DB::$UPDATE_CONFERENCE = new UpdateConferenceRequest();
+DB::T(DB::UPDATE_REQUEST) = new UpdateRequest();
+DB::T(DB::UPDATE_SCHOOL) = new UpdateSchoolRequest();
+DB::T(DB::UPDATE_SEASON) = new UpdateSeasonRequest();
+DB::T(DB::UPDATE_FILE) = new UpdateFileRequest();
+DB::T(DB::UPDATE_CONFERENCE) = new UpdateConferenceRequest();
 ?>

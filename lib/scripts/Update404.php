@@ -21,7 +21,7 @@ class Update404 extends AbstractScript {
     $page->setDescription("School page not found. Possible linking or URL error.");
 
     // SETUP navigation, get latest season
-    $seasons = DB::getAll(DB::$SEASON, new DBCond('start_date', DB::$NOW, DBCond::LE));
+    $seasons = DB::getAll(DB::T(DB::SEASON), new DBCond('start_date', DB::T(DB::NOW), DBCond::LE));
     $season = null;
     if (count($seasons) > 0)
       $season = $seasons[0];
@@ -38,7 +38,7 @@ class Update404 extends AbstractScript {
 
     $page->setHeader("404: School page not found");
     $page->addSection($p = new XPort("Page overboard!"));
-    $cont = DB::get(DB::$TEXT_ENTRY, Text_Entry::SCHOOL_404);
+    $cont = DB::get(DB::T(DB::TEXT_ENTRY), Text_Entry::SCHOOL_404);
     if ($cont !== null)
       $p->add(new XRawText($cont->html));
     return $page;
@@ -50,7 +50,7 @@ class Update404 extends AbstractScript {
     $page->setDescription("Page not found. Possible linking or URL error.");
 
     // SETUP navigation
-    $season = Season::forDate(DB::$NOW);
+    $season = Season::forDate(DB::T(DB::NOW));
     $page->addMenu(new XA('/', "Home"));
     $page->addMenu(new XA('/schools/', "Schools"));
     $page->addMenu(new XA('/seasons/', "Seasons"));
@@ -63,7 +63,7 @@ class Update404 extends AbstractScript {
 
     $page->setHeader("404: File not found");
     $page->addSection($p = new XPort("Page overboard!"));
-    $cont = DB::get(DB::$TEXT_ENTRY, Text_Entry::GENERAL_404);
+    $cont = DB::get(DB::T(DB::TEXT_ENTRY), Text_Entry::GENERAL_404);
     if ($cont !== null)
       $p->add(new XRawText($cont->html));
     return $page;

@@ -68,7 +68,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   $regs = array();
   foreach ($opts as $opt) {
     if ($opt == '--all') {
-      $regs = DB::getAll(DB::$PUBLIC_REGATTA);
+      $regs = DB::getAll(DB::T(DB::PUBLIC_REGATTA));
       break;
     }
     $reg = DB::getRegatta($opt);

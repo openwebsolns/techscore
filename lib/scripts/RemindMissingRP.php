@@ -34,7 +34,7 @@ class RemindMissingRP extends AbstractScript {
       return;
     }
 
-    $season = Season::forDate(DB::$NOW);
+    $season = Season::forDate(DB::T(DB::NOW));
     if ($season === null) {
       self::errln("No current season.");
       return;

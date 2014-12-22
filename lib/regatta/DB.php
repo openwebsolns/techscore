@@ -15,148 +15,99 @@ require_once('mysqli/DBM.php');
 class DB extends DBM {
 
   // Template objects
-  public static $TYPE = null;
-  public static $ACTIVE_TYPE = null;
-  public static $CONFERENCE = null;
-  public static $SCHOOL = null;
-  public static $ACTIVE_SCHOOL = null;
-  public static $BURGEE = null;
-  public static $BOAT = null;
-  public static $VENUE = null;
-  public static $MEMBER = null;
-  public static $SAILOR = null;
-  public static $COACH = null;
-  public static $SCORER = null;
-  public static $TEAM = null;
-  public static $RANKED_TEAM = null;
-  public static $SINGLEHANDED_TEAM = null;
-  public static $RANKED_SINGLEHANDED_TEAM = null;
-  public static $TEAM_NAME_PREFS = null;
-  public static $SAIL = null;
-  public static $NOTE = null;
-  public static $ROUND = null;
-  public static $ROUND_GROUP = null;
-  public static $ROUND_SEED = null;
-  public static $ROUND_TEMPLATE = null;
-  public static $RACE = null;
-  public static $FINISH = null;
-  public static $FINISH_MODIFIER = null;
-  public static $TEAM_PENALTY = null;
-  public static $HOST_SCHOOL = null;
-  public static $DAILY_SUMMARY = null;
-  public static $REPRESENTATIVE = null;
-  public static $RP_ENTRY = null;
-  public static $SEASON = null;
-  public static $NOW = null;
-  public static $DT_TEAM_DIVISION = null;
-  public static $DT_RP = null;
-  public static $TEXT_ENTRY = null;
-  public static $RACE_ORDER = null;
-  public static $REGATTA_DOCUMENT_SUMMARY = null;
-  public static $REGATTA_DOCUMENT = null;
-  public static $REGATTA_DOCUMENT_RACE = null;
-  public static $ROUND_SLAVE = null;
-  public static $AA_REPORT = null;
-  public static $PUB_REGATTA_URL = null;
-  public static $PUB_FILE = null;
-  public static $PUB_FILE_SUMMARY = null;
-  public static $PUB_SPONSOR = null;
-  public static $WEBSESSION = null;
-  public static $SAILOR_SEASON = null;
-  public static $SCHOOL_SEASON = null;
-  public static $EMAIL_TOKEN = null;
-
-  public static $PERMISSION = null;
-  public static $ROLE = null;
-  public static $ROLE_PERMISSION = null;
-  public static $SETTING = null;
-  public static $TEAM_ROTATION = null;
-  public static $SYNC_LOG = null;
-
-  public static $OUTBOX = null;
-  public static $MESSAGE = null;
-  public static $ACCOUNT = null;
-  public static $ACCOUNT_SCHOOL = null;
-  public static $ACCOUNT_CONFERENCE = null;
-  public static $FULL_REGATTA = null;
-  public static $REGATTA = null;
-  public static $PUBLIC_REGATTA = null;
-  public static $QUESTION = null;
-  public static $ANSWER = null;
-  public static $RP_LOG = null; // RpManager.php
-  public static $RP_FORM = null; // RpManager.php
-  public static $UPDATE_REQUEST = null; // UpdateRequest.php
-  public static $UPDATE_SCHOOL = null; // UpdateRequest.php
-  public static $UPDATE_SEASON = null; // UpdateRequest.php
-  public static $UPDATE_FILE = null;   // UpdateRequest.php
-  public static $UPDATE_CONFERENCE = null; // UpdateRequest.php
-
-  public static $MERGE_LOG = null; // MergeLog.php
-  public static $MERGE_SAILOR_LOG = null; // MergeLog.php
-  public static $MERGE_REGATTA_LOG = null; // MergeLog.php
+  const AA_REPORT = 'AA_Report';
+  const ACCOUNT = 'Account';
+  const ACCOUNT_CONFERENCE = 'Account_Conference';
+  const ACCOUNT_SCHOOL = 'Account_School';
+  const ACTIVE_SCHOOL = 'Active_School';
+  const ACTIVE_TYPE = 'Active_Type';
+  const ANSWER = 'Answer';
+  const BOAT = 'Boat';
+  const BURGEE = 'Burgee';
+  const COACH = 'Coach';
+  const CONFERENCE = 'Conference';
+  const DAILY_SUMMARY = 'Daily_Summary';
+  const DT_RP = 'Dt_Rp';
+  const DT_TEAM_DIVISION = 'Dt_Team_Division';
+  const EMAIL_TOKEN = 'Email_Token';
+  const FINISH = 'Finish';
+  const FINISH_MODIFIER = 'FinishModifier';
+  const FULL_REGATTA = 'FullRegatta';
+  const HOST_SCHOOL = 'Host_School';
+  const MEMBER = 'Member';
+  const MERGE_LOG = 'Merge_Log';
+  const MERGE_REGATTA_LOG = 'Merge_Regatta_Log';
+  const MERGE_SAILOR_LOG = 'Merge_Sailor_Log';
+  const MESSAGE = 'Message';
+  const NOTE = 'Note';
+  const NOW = 'DateTime';
+  const OUTBOX = 'Outbox';
+  const PERMISSION = 'Permission';
+  const PUB_FILE = 'Pub_File';
+  const PUB_FILE_SUMMARY = 'Pub_File_Summary';
+  const PUBLIC_REGATTA = 'Public_Regatta';
+  const PUB_REGATTA_URL = 'Pub_Regatta_Url';
+  const PUB_SPONSOR = 'Pub_Sponsor';
+  const QUESTION = 'Question';
+  const RACE_ORDER = 'Race_Order';
+  const RACE = 'Race';
+  const RANKED_SINGLEHANDED_TEAM = 'RankedSinglehandedTeam';
+  const RANKED_TEAM = 'RankedTeam';
+  const REGATTA_DOCUMENT = 'Document';
+  const REGATTA_DOCUMENT_RACE = 'Document_Race';
+  const REGATTA_DOCUMENT_SUMMARY = 'Document_Summary';
+  const REGATTA = 'Regatta';
+  const REPRESENTATIVE = 'Representative';
+  const ROLE_PERMISSION = 'Role_Permission';
+  const ROLE = 'Role';
+  const ROUND_GROUP = 'Round_Group';
+  const ROUND = 'Round';
+  const ROUND_SEED = 'Round_Seed';
+  const ROUND_SLAVE = 'Round_Slave';
+  const ROUND_TEMPLATE = 'Round_Template';
+  const RP_ENTRY = 'RPEntry';
+  const RP_FORM = 'RP_Form';
+  const RP_LOG = 'RP_Log';
+  const SAILOR = 'Sailor';
+  const SAILOR_SEASON = 'Sailor_Season';
+  const SAIL = 'Sail';
+  const SCHOOL = 'School';
+  const SCHOOL_SEASON = 'School_Season';
+  const SCORER = 'Scorer';
+  const SEASON = 'Season';
+  const SETTING = 'STN';
+  const SINGLEHANDED_TEAM = 'SinglehandedTeam';
+  const SYNC_LOG = 'Sync_Log';
+  const TEAM_NAME_PREFS = 'Team_Name_Prefs';
+  const TEAM_PENALTY = 'TeamPenalty';
+  const TEAM_ROTATION = 'TeamRotation';
+  const TEAM = 'Team';
+  const TEXT_ENTRY = 'Text_Entry';
+  const TYPE = 'Type';
+  const UPDATE_CONFERENCE = 'UpdateConferenceRequest';
+  const UPDATE_FILE = 'UpdateFileRequest';
+  const UPDATE_REQUEST = 'UpdateRequest';
+  const UPDATE_SCHOOL = 'UpdateSchoolRequest';
+  const UPDATE_SEASON = 'UpdateSeasonRequest';
+  const VENUE = 'Venue';
+  const WEBSESSION = 'Websession';
 
   // The validation engine
   public static $V = null;
 
+  // Template object stash
+  public static $T = array();
+
+  public static function T($name) {
+    if (!array_key_exists($name, self::$T)) {
+      if (!class_exists($name, true))
+        throw new RuntimeException("Unable to find class $name.");
+      self::$T[$name] = new $name();
+    }
+    return self::$T[$name];
+  }
+
   public static function setConnectionParams($host, $user, $pass, $db) {
-    // Template objects serialization
-    self::$TYPE = new Type();
-    self::$ACTIVE_TYPE = new Active_Type();
-    self::$CONFERENCE = new Conference();
-    self::$SCHOOL = new School();
-    self::$ACTIVE_SCHOOL = new Active_School();
-    self::$BURGEE = new Burgee();
-    self::$BOAT = new Boat();
-    self::$VENUE = new Venue();
-    self::$MEMBER = new Member();
-    self::$SAILOR = new Sailor();
-    self::$COACH = new Coach();
-    self::$SCORER = new Scorer();
-    self::$TEAM = new Team();
-    self::$RANKED_TEAM = new RankedTeam();
-    self::$SINGLEHANDED_TEAM = new SinglehandedTeam();
-    self::$RANKED_SINGLEHANDED_TEAM = new RankedSinglehandedTeam();
-    self::$TEAM_NAME_PREFS = new Team_Name_Prefs();
-    self::$SAIL = new Sail();
-    self::$NOTE = new Note();
-    self::$ROUND = new Round();
-    self::$ROUND_GROUP = new Round_Group();
-    self::$ROUND_SEED = new Round_Seed();
-    self::$ROUND_TEMPLATE = new Round_Template();
-    self::$RACE = new Race();
-    self::$FINISH = new Finish();
-    self::$FINISH_MODIFIER = new FinishModifier();
-    self::$TEAM_PENALTY = new TeamPenalty();
-    self::$HOST_SCHOOL = new Host_School();
-    self::$DAILY_SUMMARY = new Daily_Summary();
-    self::$REPRESENTATIVE = new Representative();
-    self::$RP_ENTRY = new RPEntry();
-    self::$SEASON = new Season();
-    self::$TEXT_ENTRY = new Text_Entry();
-    self::$RACE_ORDER = new Race_Order();
-    self::$REGATTA_DOCUMENT_SUMMARY = new Document_Summary();
-    self::$REGATTA_DOCUMENT = new Document();
-    self::$REGATTA_DOCUMENT_RACE = new Document_Race();
-    self::$ROUND_SLAVE = new Round_Slave();
-    self::$AA_REPORT = new AA_Report();
-    self::$PUB_REGATTA_URL = new Pub_Regatta_Url();
-    self::$PUB_FILE = new Pub_File();
-    self::$PUB_FILE_SUMMARY = new Pub_File_Summary();
-    self::$PUB_SPONSOR = new Pub_Sponsor();
-    self::$WEBSESSION = new Websession();
-    self::$SYNC_LOG = new Sync_Log();
-    self::$SAILOR_SEASON = new Sailor_Season();
-    self::$SCHOOL_SEASON = new School_Season();
-    self::$EMAIL_TOKEN = new Email_Token();
-
-    self::$PERMISSION = new Permission();
-    self::$ROLE = new Role();
-    self::$ROLE_PERMISSION = new Role_Permission();
-    self::$SETTING = new STN();
-
-    self::$DT_TEAM_DIVISION = new Dt_Team_Division();
-    self::$DT_RP = new Dt_Rp();
-    self::$NOW = new DateTime();
 
     DBM::setConnectionParams($host, $user, $pass, $db);
 
@@ -172,7 +123,7 @@ class DB extends DBM {
    * @return Conference the conference object
    */
   public static function getConference($id) {
-    return self::get(self::$CONFERENCE, $id);
+    return self::get(self::T(DB::CONFERENCE), $id);
   }
 
   /**
@@ -181,7 +132,7 @@ class DB extends DBM {
    * @return a list of conferences
    */
   public static function getConferences() {
-    return self::getAll(self::$CONFERENCE);
+    return self::getAll(self::T(DB::CONFERENCE));
   }
 
   /**
@@ -190,7 +141,7 @@ class DB extends DBM {
    * @return School|null $school with the given ID
    */
   public static function getSchool($id) {
-    return self::get(self::$SCHOOL, $id);
+    return self::get(self::T(DB::SCHOOL), $id);
   }
 
   /**
@@ -199,7 +150,7 @@ class DB extends DBM {
    * @param boolean $active true (default) to only return active ones
    */
   public static function getSchools($active = true) {
-    $obj = ($active) ? DB::$ACTIVE_SCHOOL : DB::$SCHOOL;
+    $obj = ($active) ? DB::T(DB::ACTIVE_SCHOOL) : DB::T(DB::SCHOOL);
     return self::getAll($obj);
   }
 
@@ -212,8 +163,8 @@ class DB extends DBM {
     $q = self::createQuery(DBQuery::UPDATE);
     $q->values(array(new DBField('inactive')),
                array(DBQuery::A_STR),
-               array(DB::$NOW->format('Y-m-d H:i:s')),
-               DB::$SCHOOL->db_name());
+               array(DB::T(DB::NOW)->format('Y-m-d H:i:s')),
+               DB::T(DB::SCHOOL)->db_name());
     $q->where(new DBCond('inactive', null));
     self::query($q);
   }
@@ -224,7 +175,7 @@ class DB extends DBM {
    * @return Array<Boat> list of boats
    */
   public static function getBoats() {
-    return self::getAll(self::$BOAT);
+    return self::getAll(self::T(DB::BOAT));
   }
 
   /**
@@ -234,7 +185,7 @@ class DB extends DBM {
    * @return Boat|null
    */
   public static function getBoat($id) {
-    return self::get(self::$BOAT, $id);
+    return self::get(self::T(DB::BOAT), $id);
   }
 
   /**
@@ -244,7 +195,7 @@ class DB extends DBM {
    * @return Venue the venue object, or null
    */
   public static function getVenue($id) {
-    return self::get(self::$VENUE, $id);
+    return self::get(self::T(DB::VENUE), $id);
   }
 
   /**
@@ -253,7 +204,7 @@ class DB extends DBM {
    * @return Array of Venue objects
    */
   public static function getVenues($start = null, $end = null) {
-    return self::getAll(self::$VENUE);
+    return self::getAll(self::T(DB::VENUE));
   }
 
   /**
@@ -262,7 +213,7 @@ class DB extends DBM {
    * @return Role should always return a Role
    */
   public static function getDefaultRole() {
-    $res = self::getAll(self::$ROLE, new DBCond('is_default', 1));
+    $res = self::getAll(self::T(DB::ROLE), new DBCond('is_default', 1));
     return (count($res) == 0) ? null : $res[0];
   }
 
@@ -367,7 +318,7 @@ class DB extends DBM {
    */
   public static function getPendingOutgoing() {
     require_once('regatta/Outbox.php');
-    return self::getAll(self::$OUTBOX, new DBCond('completion_time', null));
+    return self::getAll(self::T(DB::OUTBOX), new DBCond('completion_time', null));
   }
 
   // ------------------------------------------------------------
@@ -377,14 +328,14 @@ class DB extends DBM {
   /**
    * Retrieves the message with the given ID. Note that the Message
    * class is not auto-loaded. Using this method ascertains that the
-   * class is loaded, and that DB::$MESSAGE is not null.
+   * class is loaded, and that DB::T(DB::MESSAGE) is not null.
    *
    * @param String $id the id of the message to retrieve
    * @return Message|null the message, if any
    */
   public static function getMessage($id) {
     require_once('regatta/Message.php');
-    return self::get(self::$MESSAGE, $id);
+    return self::get(self::T(DB::MESSAGE), $id);
   }
 
   /**
@@ -395,7 +346,7 @@ class DB extends DBM {
    */
   public static function getMessagesWithReadToken($token) {
     require_once('regatta/Message.php');
-    return self::getAll(self::$MESSAGE, new DBCond('read_token', $token));
+    return self::getAll(self::T(DB::MESSAGE), new DBCond('read_token', $token));
   }
 
   /**
@@ -405,9 +356,9 @@ class DB extends DBM {
    */
   public static function getUnreadMessages(Account $acc) {
     require_once('regatta/Message.php');
-    self::$MESSAGE->db_set_order(array('created'=>true));
-    $l = self::getAll(self::$MESSAGE, new DBBool(array(new DBCond('account', $acc->id), new DBCond('read_time', null))));
-    self::$MESSAGE->db_set_order();
+    self::T(DB::MESSAGE)->db_set_order(array('created'=>true));
+    $l = self::getAll(self::T(DB::MESSAGE), new DBBool(array(new DBCond('account', $acc->id), new DBCond('read_time', null))));
+    self::T(DB::MESSAGE)->db_set_order();
     return $l;
   }
 
@@ -446,7 +397,7 @@ class DB extends DBM {
    * @param DateTime $time
    */
   public static function markRead(Message $mes, DateTime $time = null) {
-    $mes->read_time = ($time === null) ? self::$NOW : $time;
+    $mes->read_time = ($time === null) ? self::T(DB::NOW) : $time;
     self::set($mes);
   }
 
@@ -483,7 +434,7 @@ class DB extends DBM {
    * @return Sailor|null the sailor
    */
   public static function getSailor($id) {
-    return DB::get(DB::$SAILOR, $id);
+    return DB::get(DB::T(DB::SAILOR), $id);
   }
 
   /**
@@ -493,7 +444,7 @@ class DB extends DBM {
    * @return Sailor|null the sailor
    */
   public static function getRegisteredSailor($id) {
-    $r = DB::getAll(DB::$MEMBER, new DBCond('icsa_id', $id));
+    $r = DB::getAll(DB::T(DB::MEMBER), new DBCond('icsa_id', $id));
     $s = (count($r) == 0) ? null : $r[0];
     unset($r);
     return $s;
@@ -507,12 +458,12 @@ class DB extends DBM {
    * to ignore registration status
    */
   public static function searchSailors($str, $registered = 'all') {
-    $q = self::prepSearch(self::$SAILOR, $str, array('first_name', 'last_name', 'concat(first_name, " ", last_name)'));
+    $q = self::prepSearch(self::T(DB::SAILOR), $str, array('first_name', 'last_name', 'concat(first_name, " ", last_name)'));
     if ($registered === true)
       $q->where(new DBCond('icsa_id', null, DBCond::NE));
     elseif ($registered === false)
       $q->where(new DBCond('icsa_id', null));
-    return new DBDelegate(self::query($q), new DBObject_Delegate(get_class(DB::$SAILOR)));
+    return new DBDelegate(self::query($q), new DBObject_Delegate(get_class(DB::T(DB::SAILOR))));
   }
 
   // ------------------------------------------------------------
@@ -527,7 +478,7 @@ class DB extends DBM {
    */
   public static function getAccount($id) {
     require_once('regatta/Account.php');
-    return self::get(self::$ACCOUNT, $id);
+    return self::get(self::T(DB::ACCOUNT), $id);
   }
 
   /**
@@ -537,7 +488,7 @@ class DB extends DBM {
    */
   public static function getAccountByEmail($email) {
     require_once('regatta/Account.php');
-    $res = self::getAll(DB::$ACCOUNT, new DBCond('email', $email));
+    $res = self::getAll(DB::T(DB::ACCOUNT), new DBCond('email', $email));
     return (count($res) > 0) ? $res[0] : null;
   }
 
@@ -571,7 +522,7 @@ class DB extends DBM {
    */
   public static function getPendingUsers() {
     require_once('regatta/Account.php');
-    return self::getAll(self::$ACCOUNT, new DBCond('status', Account::STAT_PENDING));
+    return self::getAll(self::T(DB::ACCOUNT), new DBCond('status', Account::STAT_PENDING));
   }
 
   /**
@@ -581,7 +532,7 @@ class DB extends DBM {
    */
   public static function getAdmins() {
     require_once('regatta/Account.php');
-    return self::getAll(self::$ACCOUNT, new DBBool(array(new DBCond('status', Account::STAT_ACTIVE),
+    return self::getAll(self::T(DB::ACCOUNT), new DBBool(array(new DBCond('status', Account::STAT_ACTIVE),
                                                          new DBCond('admin', 0, DBCond::GT))));
   }
 
@@ -596,7 +547,7 @@ class DB extends DBM {
    */
   public static function getAccountFromToken($hash) {
     require_once('regatta/Account.php');
-    $token = DB::get(DB::$EMAIL_TOKEN, $hash);
+    $token = DB::get(DB::T(DB::EMAIL_TOKEN), $hash);
     if ($token === null)
       return null;
     return $token->account;
@@ -635,7 +586,7 @@ class DB extends DBM {
       else
         $cond = new DBBool(array($cond, new DBCond('ts_role', $ts_role->id)));
     }
-    return self::getAll(self::$ACCOUNT, $cond);
+    return self::getAll(self::T(DB::ACCOUNT), $cond);
   }
 
   /**
@@ -651,7 +602,7 @@ class DB extends DBM {
     $fields = array('first_name', 'last_name', 'id', 'concat(first_name, " ", last_name)');
     require_once('regatta/Account.php');
     if ($role === null && $status === null && $ts_role === null)
-      return self::search(DB::$ACCOUNT, $qry, $fields);
+      return self::search(DB::T(DB::ACCOUNT), $qry, $fields);
 
     $cond = new DBBool(array());
     if ($role !== null) {
@@ -670,10 +621,10 @@ class DB extends DBM {
       $cond->add(new DBCond('ts_role', $ts_role->id));
     }
 
-    $q = self::prepSearch(DB::$ACCOUNT, $qry, $fields);
+    $q = self::prepSearch(DB::T(DB::ACCOUNT), $qry, $fields);
     $q->where($cond);
     $r = self::query($q);
-    return new DBDelegate($r, new DBObject_Delegate(get_class(DB::$ACCOUNT)));
+    return new DBDelegate($r, new DBObject_Delegate(get_class(DB::T(DB::ACCOUNT))));
   }
 
   /**
@@ -705,7 +656,7 @@ class DB extends DBM {
    * @return Boat the boat
    */
   public static function getPreferredBoat(School $school) {
-    $res = self::getAll(self::$BOAT);
+    $res = self::getAll(self::T(DB::BOAT));
     $r = (count($res) == 0) ? null : $res[0];
     unset($res);
     return $r;
@@ -807,7 +758,7 @@ class DB extends DBM {
    */
   public static function howLongFrom(DateTime $timestamp, DateTime $relative = null) {
     if ($relative === null)
-      $relative = DB::$NOW;
+      $relative = DB::T(DB::NOW);
     $interval = $relative->diff($timestamp);
     $result = self::howLong($interval);
     if ($result == '1 day')
@@ -854,7 +805,7 @@ class DB extends DBM {
    */
   public static function getRegatta($id) {
     require_once('regatta/Regatta.php');
-    return DB::get(DB::$REGATTA, $id);
+    return DB::get(DB::T(DB::REGATTA), $id);
   }
 
   /**
@@ -864,7 +815,7 @@ class DB extends DBM {
    * @return Season|null
    */
   public static function getSeason($id) {
-    return DB::get(DB::$SEASON, $id);
+    return DB::get(DB::T(DB::SEASON), $id);
   }
 
   /**
@@ -880,7 +831,7 @@ class DB extends DBM {
     $master_teams = null;
     if ($master !== null && count($master) > 0)
       $master_teams = implode("\0", $master);
-    $r = DB::getAll(DB::$RACE_ORDER,
+    $r = DB::getAll(DB::T(DB::RACE_ORDER),
                     new DBBool(array(new DBCond('num_teams', $num_teams),
                                      new DBCond('master_teams', $master_teams),
                                      new DBCond('num_boats', $num_boats),
@@ -899,7 +850,7 @@ class DB extends DBM {
    * @return Array:Race_Order
    */
   public static function getRaceOrders($num_teams, $num_divisions) {
-    return DB::getAll(DB::$RACE_ORDER,
+    return DB::getAll(DB::T(DB::RACE_ORDER),
                       new DBBool(array(new DBCond('num_teams', $num_teams),
                                        new DBCond('num_divisions', $num_divisions))));
   }
@@ -911,7 +862,7 @@ class DB extends DBM {
    * @return Pub_File|null
    */
   public static function getFile($name) {
-    return DB::get(DB::$PUB_FILE, $name);
+    return DB::get(DB::T(DB::PUB_FILE), $name);
   }
 
   /**
@@ -922,7 +873,7 @@ class DB extends DBM {
    * @return Array:Pub_File_Summary
    */
   public static function getFilesLike($filter, $full = false) {
-    $obj = ($full !== false) ? DB::$PUB_FILE_SUMMARY : DB::$PUB_FILE;
+    $obj = ($full !== false) ? DB::T(DB::PUB_FILE_SUMMARY) : DB::T(DB::PUB_FILE);
     return DB::getAll($obj, new DBCond('id', $filter, DBCond::LIKE));
   }
 
@@ -969,7 +920,7 @@ class DB extends DBM {
       throw new InvalidArgumentException("Invalid setting $key.");
     if (!array_key_exists($key, self::$settings)) {
       self::$settings[$key] = null;
-      $res = DB::get(DB::$SETTING, $key);
+      $res = DB::get(DB::T(DB::SETTING), $key);
       if ($res !== null && $res->value !== null)
         self::$settings[$key] = $res->value;
       else
@@ -985,7 +936,7 @@ class DB extends DBM {
     if ($value !== null)
       $value = (string)$value;
 
-    $res = DB::get(DB::$SETTING, $key);
+    $res = DB::get(DB::T(DB::SETTING), $key);
     $upd = true;
     if ($res === null) {
       $res = new STN();
@@ -999,7 +950,7 @@ class DB extends DBM {
 
   public static function getSettingNames() {
     if (self::$setting_names === null) {
-      $r = new ReflectionClass(DB::$SETTING);
+      $r = new ReflectionClass(DB::T(DB::SETTING));
       self::$setting_names = $r->getConstants();
     }
     return self::$setting_names;
@@ -1163,11 +1114,11 @@ class Conference extends DBObject {
    */
   public function getUsers($status = null, $active_schools = true) {
     require_once('regatta/Account.php');
-    $obj = ($active_schools) ? DB::$ACTIVE_SCHOOL : DB::$SCHOOL;
+    $obj = ($active_schools) ? DB::T(DB::ACTIVE_SCHOOL) : DB::T(DB::SCHOOL);
     $cond = new DBCondIn(
       'id',
       DB::prepGetAll(
-        DB::$ACCOUNT_SCHOOL,
+        DB::T(DB::ACCOUNT_SCHOOL),
         new DBCondIn(
           'school',
           DB::prepGetAll(
@@ -1185,7 +1136,7 @@ class Conference extends DBObject {
         throw new InvalidArgumentException("Invalid status provided: $status.");
       $cond = new DBBool(array($cond, new DBCond('status', $status)));
     }
-    return DB::getAll(DB::$ACCOUNT, $cond);
+    return DB::getAll(DB::T(DB::ACCOUNT), $cond);
   }
 
   /**
@@ -1196,7 +1147,7 @@ class Conference extends DBObject {
    * @return a list of schools in the conference
    */
   public function getSchools($active = true) {
-    $obj = ($active) ? DB::$ACTIVE_SCHOOL : DB::$SCHOOL;
+    $obj = ($active) ? DB::T(DB::ACTIVE_SCHOOL) : DB::T(DB::SCHOOL);
     return DB::getAll($obj, new DBCond('conference', $this));
   }
 
@@ -1231,8 +1182,8 @@ class Burgee extends DBObject implements Writeable {
 
   public function db_type($field) {
     switch ($field) {
-    case 'last_updated': return DB::$NOW;
-    case 'school': return DB::$SCHOOL;
+    case 'last_updated': return DB::T(DB::NOW);
+    case 'school': return DB::T(DB::SCHOOL);
     default:
       return parent::db_type($field);
     }
@@ -1265,13 +1216,13 @@ class School extends DBObject {
   public function db_name() { return 'school'; }
   public function db_type($field) {
     switch ($field) {
-    case 'conference': return DB::$CONFERENCE;
+    case 'conference': return DB::T(DB::CONFERENCE);
     case 'burgee':
     case 'burgee_small':
     case 'burgee_square':
-      return DB::$BURGEE;
-    case 'inactive': return DB::$NOW;
-    case 'sync_log': return DB::$SYNC_LOG;
+      return DB::T(DB::BURGEE);
+    case 'inactive': return DB::T(DB::NOW);
+    case 'sync_log': return DB::T(DB::SYNC_LOG);
     default:
       return parent::db_type($field);
     }
@@ -1397,7 +1348,7 @@ class School extends DBObject {
       $cond->add(new DBCond('active', null));
     if ($gender !== null)
       $cond->add(new DBCond('gender', $gender));
-    return DB::getAll(DB::$SAILOR, $cond);
+    return DB::getAll(DB::T(DB::SAILOR), $cond);
   }
 
   /**
@@ -1419,7 +1370,7 @@ class School extends DBObject {
       $cond->add(new DBCond('active', null));
     if ($gender !== null)
       $cond->add(new DBCond('gender', $gender));
-    return DB::getAll(DB::$SAILOR, $cond);
+    return DB::getAll(DB::T(DB::SAILOR), $cond);
   }
 
   /**
@@ -1443,7 +1394,7 @@ class School extends DBObject {
       $cond->add(new DBCond('active', null));
     if ($only_registered !== false)
       $cond->add(new DBCond('icsa_id', null, DBCond::NE));
-    return DB::getAll(DB::$COACH, $cond);
+    return DB::getAll(DB::T(DB::COACH), $cond);
   }
 
   /**
@@ -1453,7 +1404,7 @@ class School extends DBObject {
    */
   public function getTeamNames() {
     $list = array();
-    foreach (DB::getAll(DB::$TEAM_NAME_PREFS, new DBCond('school', $this)) as $pref)
+    foreach (DB::getAll(DB::T(DB::TEAM_NAME_PREFS), new DBCond('school', $this)) as $pref)
       $list[] = (string)$pref;
     return $list;
   }
@@ -1468,7 +1419,7 @@ class School extends DBObject {
     // Strategy, update as many as are the same, then remove old extra
     // ones, or add any new ones
     $top_rank = count($names);
-    $curr = DB::getAll(DB::$TEAM_NAME_PREFS, new DBCond('school', $this));
+    $curr = DB::getAll(DB::T(DB::TEAM_NAME_PREFS), new DBCond('school', $this));
     for ($i = 0; $i < count($names) && $i < count($curr); $i++) {
       $tnp = $curr[$i];
       $tnp->name = $names[$i];
@@ -1494,8 +1445,8 @@ class School extends DBObject {
    */
   public function getRegattas($inc_private = false) {
     require_once('regatta/Regatta.php');
-    return DB::getAll(($inc_private !== false) ? DB::$REGATTA : DB::$PUBLIC_REGATTA,
-                      new DBCondIn('id', DB::prepGetAll(DB::$TEAM,
+    return DB::getAll(($inc_private !== false) ? DB::T(DB::REGATTA) : DB::T(DB::PUBLIC_REGATTA),
+                      new DBCondIn('id', DB::prepGetAll(DB::T(DB::TEAM),
                                                         new DBCond('school', $this),
                                                         array('regatta'))));
   }
@@ -1513,7 +1464,7 @@ class School extends DBObject {
    */
   public function getUsers($status = null, $effective = true) {
     require_once('regatta/Account.php');
-    $cond = new DBCondIn('id', DB::prepGetAll(DB::$ACCOUNT_SCHOOL, new DBCond('school', $this->id), array('account')));
+    $cond = new DBCondIn('id', DB::prepGetAll(DB::T(DB::ACCOUNT_SCHOOL), new DBCond('school', $this->id), array('account')));
     if ($effective !== false) {
       $cond = new DBBool(array(new DBCond('admin', null, DBCond::NE), $cond), DBBool::mOR);
     }
@@ -1523,7 +1474,7 @@ class School extends DBObject {
         throw new InvalidArgumentException("Invalid status provided: $status.");
       $cond = new DBBool(array($cond, new DBCond('status', $status)));
     }
-    return DB::getAll(DB::$ACCOUNT, $cond);
+    return DB::getAll(DB::T(DB::ACCOUNT), $cond);
   }
 
   /**
@@ -1571,11 +1522,11 @@ class Boat extends DBObject {
   public function __toString() { return $this->name; }
 
   public function getRaces() {
-    return DB::getAll(DB::$RACE, new DBCond('boat', $this));
+    return DB::getAll(DB::T(DB::RACE), new DBCond('boat', $this));
   }
 
   public function getRounds() {
-    return DB::getAll(DB::$ROUND, new DBCond('boat', $this));
+    return DB::getAll(DB::T(DB::ROUND), new DBCond('boat', $this));
   }
 
   public function getNumCrews() {
@@ -1756,8 +1707,8 @@ class Member extends DBObject {
 
   public function db_type($field) {
     switch ($field) {
-    case 'school': return DB::$SCHOOL;
-    case 'sync_log': return DB::$SYNC_LOG;
+    case 'school': return DB::T(DB::SCHOOL);
+    case 'sync_log': return DB::T(DB::SYNC_LOG);
     default:
       return parent::db_type($field);
     }
@@ -1800,10 +1751,10 @@ class Member extends DBObject {
    *
    */
   public function getRegattas($inc_private = false) {
-    $cond = new DBCondIn('id', DB::prepGetAll(DB::$RP_ENTRY, new DBCond('sailor', $this), array('race')));
+    $cond = new DBCondIn('id', DB::prepGetAll(DB::T(DB::RP_ENTRY), new DBCond('sailor', $this), array('race')));
     require_once('regatta/Regatta.php');
-    return DB::getAll(($inc_private !== false) ? DB::$REGATTA : DB::$PUBLIC_REGATTA,
-                      new DBCondIn('id', DB::prepGetAll(DB::$RACE, $cond, array('regatta'))));
+    return DB::getAll(($inc_private !== false) ? DB::T(DB::REGATTA) : DB::T(DB::PUBLIC_REGATTA),
+                      new DBCondIn('id', DB::prepGetAll(DB::T(DB::RACE), $cond, array('regatta'))));
   }
 
   /**
@@ -1856,7 +1807,7 @@ class Scorer extends DBObject {
 
   public function db_type($field) {
     switch ($field) {
-    case 'account': return DB::$ACCOUNT;
+    case 'account': return DB::T(DB::ACCOUNT);
     default:
       return parent::db_type($field);
     }
@@ -1890,8 +1841,8 @@ class Team extends DBObject {
   protected function db_cache() { return true; }
   public function db_type($field) {
     switch ($field) {
-    case 'school': return DB::$SCHOOL;
-    case 'regatta': return DB::$REGATTA;
+    case 'school': return DB::T(DB::SCHOOL);
+    case 'regatta': return DB::T(DB::REGATTA);
     default:
       return parent::db_type($field);
     }
@@ -1930,7 +1881,7 @@ class Team extends DBObject {
    * @return Dt_Team_Division|null the rank
    */
   public function getRank(Division $division) {
-    $r = DB::getAll(DB::$DT_TEAM_DIVISION, new DBBool(array(new DBCond('team', $this),
+    $r = DB::getAll(DB::T(DB::DT_TEAM_DIVISION), new DBBool(array(new DBCond('team', $this),
                                                             new DBCond('division', $division))));
     $b;
     if (count($r) == 0) $b = null;
@@ -1957,8 +1908,8 @@ class Team extends DBObject {
         return array();
       return $rank->getRP($role);
     }
-    $q = DB::prepGetAll(DB::$DT_TEAM_DIVISION, new DBCond('team', $this->id), array('id'));
-    return DB::getAll(DB::$DT_RP, new DBBool(array(new DBCond('boat_role', $role),
+    $q = DB::prepGetAll(DB::T(DB::DT_TEAM_DIVISION), new DBCond('team', $this->id), array('id'));
+    return DB::getAll(DB::T(DB::DT_RP), new DBBool(array(new DBCond('boat_role', $role),
                                                    new DBCondIn('team_division', $q))));
   }
 
@@ -1968,10 +1919,10 @@ class Team extends DBObject {
    * @param Division $div the division whose RP info to reset
    */
   public function resetRpData(Division $div) {
-    $q = DB::prepGetAll(DB::$DT_TEAM_DIVISION,
+    $q = DB::prepGetAll(DB::T(DB::DT_TEAM_DIVISION),
                         new DBBool(array(new DBCond('team', $this->id), new DBCond('division', $div))),
                         array('id'));
-    foreach (DB::getAll(DB::$DT_RP, new DBCondIn('team_division', $q)) as $rp)
+    foreach (DB::getAll(DB::T(DB::DT_RP), new DBCondIn('team_division', $q)) as $rp)
       DB::remove($rp);
   }
 
@@ -2060,7 +2011,7 @@ class Team_Name_Prefs extends DBObject {
   public function db_name() { return 'team_name_prefs'; }
   public function db_type($field) {
     if ($field == 'school')
-      return DB::$SCHOOL;
+      return DB::T(DB::SCHOOL);
     return parent::db_type($field);
   }
   protected function db_order() { return array('school'=>true, 'rank'=>false); }
@@ -2083,8 +2034,8 @@ class Sail extends DBObject {
   public function db_name() { return 'rotation'; }
   public function db_type($field) {
     switch ($field) {
-    case 'team': return DB::$TEAM;
-    case 'race': return DB::$RACE;
+    case 'team': return DB::T(DB::TEAM);
+    case 'race': return DB::T(DB::RACE);
     default:
       return parent::db_type($field);
     }
@@ -2119,8 +2070,8 @@ class Note extends DBObject {
   public function db_name() { return 'observation'; }
   public function db_type($field) {
     switch ($field) {
-    case 'noted_at': return DB::$NOW;
-    case 'race': return DB::$RACE;
+    case 'noted_at': return DB::T(DB::NOW);
+    case 'race': return DB::T(DB::RACE);
     default:
       return parent::db_type($field);
     }
@@ -2139,7 +2090,7 @@ class Round_Group extends DBObject {
   public function __toString() { return $this->id; }
 
   public function getRounds() {
-    return DB::getAll(DB::$ROUND, new DBCond('round_group', $this));
+    return DB::getAll(DB::T(DB::ROUND), new DBCond('round_group', $this));
   }
 
   /**
@@ -2183,18 +2134,18 @@ class Round extends DBObject {
 
   public function db_type($field) {
     if ($field == 'regatta')
-      return DB::$REGATTA;
+      return DB::T(DB::REGATTA);
     if ($field == 'sailoff_for_round')
-      return DB::$ROUND;
+      return DB::T(DB::ROUND);
     if ($field == 'round_group')
-      return DB::$ROUND_GROUP;
+      return DB::T(DB::ROUND_GROUP);
     if ($field == 'race_order')
       return array();
     if ($field == 'boat')
-      return DB::$BOAT;
+      return DB::T(DB::BOAT);
     if ($field == 'rotation') {
       require_once('regatta/TeamRotation.php');
-      return DB::$TEAM_ROTATION;
+      return DB::T(DB::TEAM_ROTATION);
     }
     return parent::db_type($field);
   }
@@ -2248,7 +2199,7 @@ class Round extends DBObject {
   public function getMasters() {
     if ($this->_masters === null) {
       $this->_masters = array();
-      foreach (DB::getAll(DB::$ROUND_SLAVE, new DBCond('slave', $this->id)) as $rel)
+      foreach (DB::getAll(DB::T(DB::ROUND_SLAVE), new DBCond('slave', $this->id)) as $rel)
         $this->_masters[] = $rel;
     }
     return $this->_masters;
@@ -2264,7 +2215,7 @@ class Round extends DBObject {
   public function getSlaves() {
     if ($this->_slaves === null) {
       $this->_slaves = array();
-      foreach (DB::getAll(DB::$ROUND_SLAVE, new DBCond('master', $this->id)) as $rel)
+      foreach (DB::getAll(DB::T(DB::ROUND_SLAVE), new DBCond('master', $this->id)) as $rel)
         $this->_slaves[] = $rel;
     }
     return $this->_slaves;
@@ -2379,7 +2330,7 @@ class Round extends DBObject {
     if ($this->_template === false)
       return;
 
-    DB::removeAll(DB::$ROUND_TEMPLATE, new DBCond('round', $this));
+    DB::removeAll(DB::T(DB::ROUND_TEMPLATE), new DBCond('round', $this));
     if ($this->_template !== null)
       DB::insertAll($this->_template);
   }
@@ -2413,7 +2364,7 @@ class Round extends DBObject {
     if ($this->_template === false) {
       $this->_template = null;
       $list = array();
-      foreach (DB::getAll(DB::$ROUND_TEMPLATE, new DBCond('round', $this)) as $entry)
+      foreach (DB::getAll(DB::T(DB::ROUND_TEMPLATE), new DBCond('round', $this)) as $entry)
         $list[] = $entry;
       if (count($list) > 0)
         $this->_template = $list;
@@ -2530,7 +2481,7 @@ class Round extends DBObject {
    * @param Array:Round_Seed $seeds the seeds (need not be continuous)
    */
   public function setSeeds(Array $seeds) {
-    DB::removeAll(DB::$ROUND_SEED, new DBCond('round', $this));
+    DB::removeAll(DB::T(DB::ROUND_SEED), new DBCond('round', $this));
     $list = array();
     foreach ($seeds as $seed) {
       $seed->round = $this;
@@ -2548,7 +2499,7 @@ class Round extends DBObject {
    *
    */
   public function getSeeds() {
-    return DB::getAll(DB::$ROUND_SEED, new DBCond('round', $this));
+    return DB::getAll(DB::T(DB::ROUND_SEED), new DBCond('round', $this));
   }
 }
 
@@ -2579,7 +2530,7 @@ class Round_Slave extends DBObject {
     switch ($field) {
     case 'master':
     case 'slave':
-      return DB::$ROUND;
+      return DB::T(DB::ROUND);
     default:
       return parent::db_type($field);
     }
@@ -2600,9 +2551,9 @@ class Round_Seed extends DBObject {
 
   public function db_type($field) {
     if ($field == 'round' || $field == 'original_round')
-      return DB::$ROUND;
+      return DB::T(DB::ROUND);
     if ($field == 'team')
-      return DB::$TEAM;
+      return DB::T(DB::TEAM);
     return parent::db_type($field);
   }
 
@@ -2625,9 +2576,9 @@ class Round_Template extends DBObject {
 
   public function db_type($field) {
     if ($field == 'round')
-      return DB::$ROUND;
+      return DB::T(DB::ROUND);
     if ($field == 'boat')
-      return DB::$BOAT;
+      return DB::T(DB::BOAT);
     return parent::db_type($field);
   }
 }
@@ -2668,12 +2619,12 @@ class Race extends DBObject {
   public function db_type($field) {
     switch ($field) {
     case 'division': return DBQuery::A_STR;
-    case 'boat': return DB::$BOAT;
-    case 'regatta': return DB::$REGATTA;
-    case 'round': return DB::$ROUND;
+    case 'boat': return DB::T(DB::BOAT);
+    case 'regatta': return DB::T(DB::REGATTA);
+    case 'round': return DB::T(DB::ROUND);
     case 'tr_team1':
     case 'tr_team2':
-      return DB::$TEAM;
+      return DB::T(DB::TEAM);
     default:
       return parent::db_type($field);
     }
@@ -2789,9 +2740,9 @@ class Finish extends DBObject {
   protected function db_cache() { return true; }
   public function db_type($field) {
     switch ($field) {
-    case 'race': return DB::$RACE;
-    case 'team': return DB::$TEAM;
-    case 'entered': return DB::$NOW;
+    case 'race': return DB::T(DB::RACE);
+    case 'team': return DB::T(DB::TEAM);
+    case 'entered': return DB::T(DB::NOW);
     case 'score': return DBQuery::A_STR;
     default:
       return parent::db_type($field);
@@ -2890,7 +2841,7 @@ class Finish extends DBObject {
   public function getModifiers() {
     if ($this->modifiers === null) {
       $this->modifiers = array();
-      foreach (DB::getAll(DB::$FINISH_MODIFIER, new DBCond('finish', $this)) as $mod)
+      foreach (DB::getAll(DB::T(DB::FINISH_MODIFIER), new DBCond('finish', $this)) as $mod)
         $this->modifiers[] = $mod;
     }
     return $this->modifiers;
@@ -3014,7 +2965,7 @@ class TeamPenalty extends DBObject {
   public function db_name() { return 'penalty_team'; }
   public function db_type($field) {
     switch ($field) {
-    case 'team': return DB::$TEAM;
+    case 'team': return DB::T(DB::TEAM);
     case 'division': return DBQuery::A_STR;
     default:
       return parent::db_type($field);
@@ -3060,8 +3011,8 @@ class Host_School extends DBObject {
   protected $school;
   public function db_type($field) {
     switch ($field) {
-    case 'school': return DB::$SCHOOL;
-    case 'regatta': return DB::$REGATTA;
+    case 'school': return DB::T(DB::SCHOOL);
+    case 'regatta': return DB::T(DB::REGATTA);
     default:
       return parent::db_type($field);
     }
@@ -3086,7 +3037,7 @@ class Daily_Summary extends DBObject {
   protected function db_order() { return array('regatta'=>true, 'summary_date'=>true); }
   public function db_type($field) {
     switch ($field) {
-    case 'summary_date': return DB::$NOW;
+    case 'summary_date': return DB::T(DB::NOW);
     default:
       return parent::db_type($field);
     }
@@ -3106,7 +3057,7 @@ class Representative extends DBObject {
 
   public function db_type($field) {
     switch ($field) {
-    case 'team': return DB::$TEAM;
+    case 'team': return DB::T(DB::TEAM);
     default:
       return parent::db_type($field);
     }
@@ -3131,9 +3082,9 @@ class RPEntry extends DBObject {
   public function db_name() { return 'rp'; }
   public function db_type($field) {
     switch ($field) {
-    case 'race': return DB::$RACE;
-    case 'team': return DB::$TEAM;
-    case 'sailor': return DB::$SAILOR;
+    case 'race': return DB::T(DB::RACE);
+    case 'team': return DB::T(DB::TEAM);
+    case 'sailor': return DB::T(DB::SAILOR);
     default:
       return parent::db_type($field);
     }
@@ -3181,9 +3132,9 @@ class Season extends DBObject {
     switch ($field) {
     case 'start_date':
     case 'end_date':
-      return DB::$NOW;
+      return DB::T(DB::NOW);
     case 'sponsor':
-      return DB::$PUB_SPONSOR;
+      return DB::T(DB::PUB_SPONSOR);
     default:
       return parent::db_type($field);
     }
@@ -3247,7 +3198,7 @@ class Season extends DBObject {
     if ($this->__get('start_date') === null || $this->__get('end_date') === null)
       return false;
     if ($time === null)
-      $time = DB::$NOW;
+      $time = DB::T(DB::NOW);
     return ($time > $this->__get('start_date') && $time < $this->__get('end_date'));
   }
 
@@ -3276,7 +3227,7 @@ class Season extends DBObject {
    */
   public function getRegattas($inc_private = false) {
     require_once('regatta/Regatta.php');
-    return DB::getAll(($inc_private !== false) ? DB::$REGATTA : DB::$PUBLIC_REGATTA,
+    return DB::getAll(($inc_private !== false) ? DB::T(DB::REGATTA) : DB::T(DB::PUBLIC_REGATTA),
                       new DBBool(array(new DBCond('start_time', $this->start_date, DBCond::GE),
                                        new DBCond('start_time', $this->end_date,   DBCond::LT))));
   }
@@ -3289,7 +3240,7 @@ class Season extends DBObject {
    */
   public function getRegattaWithURL($url) {
     require_once('regatta/Regatta.php');
-    $res = DB::getAll(DB::$PUBLIC_REGATTA,
+    $res = DB::getAll(DB::T(DB::PUBLIC_REGATTA),
                       new DBBool(array(new DBCond('start_time', $this->start_date, DBCond::GE),
                                        new DBCond('start_time', $this->end_date,   DBCond::LT),
                                        new DBCond('nick', $url))));
@@ -3310,10 +3261,10 @@ class Season extends DBObject {
    */
   public function getParticipation(School $school, $inc_private = false) {
     require_once('regatta/Regatta.php');
-    return DB::getAll(($inc_private !== false) ? DB::$REGATTA : DB::$PUBLIC_REGATTA,
+    return DB::getAll(($inc_private !== false) ? DB::T(DB::REGATTA) : DB::T(DB::PUBLIC_REGATTA),
                       new DBBool(array(new DBCond('start_time', $this->start_date, DBCond::GE),
                                        new DBCond('start_time', $this->end_date,   DBCond::LT),
-                                       new DBCondIn('id', DB::prepGetAll(DB::$TEAM, new DBCond('school', $school), array('regatta'))))));
+                                       new DBCondIn('id', DB::prepGetAll(DB::T(DB::TEAM), new DBCond('school', $school), array('regatta'))))));
   }
 
   /**
@@ -3329,13 +3280,13 @@ class Season extends DBObject {
    */
   public function getConferenceParticipation(Conference $conference, $inc_private = false) {
     require_once('regatta/Regatta.php');
-    return DB::getAll(($inc_private !== false) ? DB::$REGATTA : DB::$PUBLIC_REGATTA,
+    return DB::getAll(($inc_private !== false) ? DB::T(DB::REGATTA) : DB::T(DB::PUBLIC_REGATTA),
                       new DBBool(array(new DBCond('start_time', $this->start_date, DBCond::GE),
                                        new DBCond('start_time', $this->end_date,   DBCond::LT),
                                        new DBCondIn('id', DB::prepGetAll(
-                                                      DB::$TEAM,
+                                                      DB::T(DB::TEAM),
                                                       new DBCondIn('school', DB::prepGetAll(
-                                                                     DB::$SCHOOL,
+                                                                     DB::T(DB::SCHOOL),
                                                                      new DBCond('conference', $conference),
                                                                      array('id'))),
                                                       array('regatta'))))));
@@ -3351,10 +3302,10 @@ class Season extends DBObject {
    * @return Array:School the list of schools
    */
   public function getSchools(Conference $conference = null) {
-    $cond = new DBCondIn('id', DB::prepGetAll(DB::$SCHOOL_SEASON, new DBCond('season', $this), array('school')));
+    $cond = new DBCondIn('id', DB::prepGetAll(DB::T(DB::SCHOOL_SEASON), new DBCond('season', $this), array('school')));
     if ($conference !== null)
       $cond = new DBBool(array(new DBCond('conference', $conference), $cond));
-    return DB::getAll(DB::$SCHOOL, $cond);
+    return DB::getAll(DB::T(DB::SCHOOL), $cond);
   }
 
   /**
@@ -3384,7 +3335,7 @@ class Season extends DBObject {
     default:
       throw new InvalidArgumentException("Next season only valid for spring and fall.");
     }
-    return DB::get(DB::$SEASON, $next . $year);
+    return DB::get(DB::T(DB::SEASON), $next . $year);
   }
 
   /**
@@ -3414,7 +3365,7 @@ class Season extends DBObject {
     default:
       throw new InvalidArgumentException("Next season only valid for spring and fall.");
     }
-    return DB::get(DB::$SEASON, $next . $year);
+    return DB::get(DB::T(DB::SEASON), $next . $year);
   }
 
   // ------------------------------------------------------------
@@ -3436,7 +3387,7 @@ class Season extends DBObject {
                                   new DBCond('start_time', $season->end_date,   DBCond::LT))));
     }
     require_once('regatta/Regatta.php');
-    return DB::getAll(DB::$REGATTA, $cond);
+    return DB::getAll(DB::T(DB::REGATTA), $cond);
   }
 
   /**
@@ -3451,7 +3402,7 @@ class Season extends DBObject {
   public static function forDate(DateTime $date) {
     $time = clone $date;
     $time->setTime(0, 0, 0);
-    $res = DB::getAll(DB::$SEASON, new DBBool(array(new DBCond('start_date', $time, DBCond::LE),
+    $res = DB::getAll(DB::T(DB::SEASON), new DBBool(array(new DBCond('start_date', $time, DBCond::LE),
                                                     new DBCond('end_date', $time, DBCond::GE))));
     $r = (count($res) == 0) ? null : $res[0];
     unset($res);
@@ -3467,7 +3418,7 @@ class Season extends DBObject {
   public static function getActive() {
     $cond = new DBBool(array(new DBCond('private', null),
                              new DBCond('dt_status',Regatta::STAT_SCHEDULED, DBCond::NE)));
-    return DB::getAll(DB::$SEASON, new DBCondIn('id', DB::prepGetAll(DB::$REGATTA, $cond, array('dt_season'))));
+    return DB::getAll(DB::T(DB::SEASON), new DBCondIn('id', DB::prepGetAll(DB::T(DB::REGATTA), $cond, array('dt_season'))));
   }
 
   /**
@@ -3565,7 +3516,7 @@ class FinishModifier extends DBObject {
   public function db_name() { return 'finish_modifier'; }
   public function db_type($field) {
     if ($field == 'finish')
-      return DB::$FINISH;
+      return DB::T(DB::FINISH);
     return parent::db_type($field);
   }
 
@@ -3658,9 +3609,9 @@ class Dt_Rp extends DBObject {
   public $explanation;
 
   public function db_type($field) {
-    if ($field == 'sailor') return DB::$MEMBER;
+    if ($field == 'sailor') return DB::T(DB::MEMBER);
     if ($field == 'race_nums') return array();
-    if ($field == 'team_division') return DB::$DT_TEAM_DIVISION;
+    if ($field == 'team_division') return DB::T(DB::DT_TEAM_DIVISION);
     return parent::db_type($field);
   }
   protected function db_order() { return array('race_nums'=>true); }
@@ -3686,13 +3637,13 @@ class Dt_Team_Division extends DBObject {
 
   public function db_name() { return 'dt_team_division'; }
   public function db_type($field) {
-    if ($field == 'team') return DB::$TEAM;
+    if ($field == 'team') return DB::T(DB::TEAM);
     return parent::db_type($field);
   }
   protected function db_order() { return array('rank'=>true); }
 
   public function getRP($role = Dt_Rp::SKIPPER) {
-    return DB::getAll(DB::$DT_RP, new DBBool(array(new DBCond('boat_role', $role),
+    return DB::getAll(DB::T(DB::DT_RP), new DBBool(array(new DBCond('boat_role', $role),
                                                    new DBCond('team_division', $this->id))));
   }
 }
@@ -3775,7 +3726,7 @@ class Race_Order extends DBObject implements Countable {
       return array();
     case 'author':
       require_once('regatta/Account.php');
-      return DB::$ACCOUNT;
+      return DB::T(DB::ACCOUNT);
     default:
       return parent::db_type($field);
     }
@@ -3850,7 +3801,7 @@ class AA_Report extends DBObject {
     case 'seasons':
       return array();
     case 'last_updated':
-      return DB::$NOW;
+      return DB::T(DB::NOW);
     default:
       return parent::db_type($field);
     }
@@ -3878,11 +3829,11 @@ class Permission extends DBObject {
    */
   public function getRoles() {
     return DB::getAll(
-      DB::$ROLE,
+      DB::T(DB::ROLE),
       new DBCondIn(
         'id',
         DB::prepGetAll(
-          DB::$ROLE_PERMISSION,
+          DB::T(DB::ROLE_PERMISSION),
           new DBCond('permission', $this),
           array('role')
         )));
@@ -3895,7 +3846,7 @@ class Permission extends DBObject {
    * @return Permission|null
    */
   public static function g($id) {
-    return DB::get(DB::$PERMISSION, $id);
+    return DB::get(DB::T(DB::PERMISSION), $id);
   }
 
   // List of permissions. There should be a corresponding entry in the
@@ -3942,7 +3893,7 @@ class Permission extends DBObject {
   const USURP_USER = 'usurp_user';
 
   public static function getPossible() {
-    $reflection = new ReflectionClass(DB::$PERMISSION);
+    $reflection = new ReflectionClass(DB::T(DB::PERMISSION));
     $list = array();
     foreach ($reflection->getConstants() as $constant => $value) {
       if (self::isAvailable($value))
@@ -3966,7 +3917,7 @@ class Permission extends DBObject {
    * @return Array list of strings
    */
   public static function getPermissionCategories() {
-    $q = DB::prepGetAll(DB::$PERMISSION, new DBCond('category', null, DBCond::NE), array('category'));
+    $q = DB::prepGetAll(DB::T(DB::PERMISSION), new DBCond('category', null, DBCond::NE), array('category'));
     $q->distinct(true);
     $q->order_by(array('category' => true));
     $res = DB::query($q);
@@ -4005,10 +3956,10 @@ class Role extends DBObject {
   public function getPermissions() {
     if ($this->permissions === null) {
       if ($this->has_all)
-        $this->permissions = DB::getAll(DB::$PERMISSION);
+        $this->permissions = DB::getAll(DB::T(DB::PERMISSION));
       else {
         $this->permissions = array();
-        foreach (DB::getAll(DB::$ROLE_PERMISSION, new DBCond('role', $this)) as $link) {
+        foreach (DB::getAll(DB::T(DB::ROLE_PERMISSION), new DBCond('role', $this)) as $link) {
           $this->permissions[] = $link->permission;
         }
       }
@@ -4022,7 +3973,7 @@ class Role extends DBObject {
    * @param Array:Permission $persm the list of permissions
    */
   public function setPermissions(Array $perms = array()) {
-    DB::removeAll(DB::$ROLE_PERMISSION, new DBCond('role', $this));
+    DB::removeAll(DB::T(DB::ROLE_PERMISSION), new DBCond('role', $this));
     foreach ($perms as $perm) {
       $link = new Role_Permission();
       $link->role = $this;
@@ -4042,7 +3993,7 @@ class Role extends DBObject {
 
   public function removePermission(Permission $permission) {
     DB::removeAll(
-      DB::$ROLE_PERMISSION,
+      DB::T(DB::ROLE_PERMISSION),
       new DBBool(array(
                    new DBCond('role', $this),
                    new DBCond('permission', $permission))));
@@ -4097,7 +4048,7 @@ class Role extends DBObject {
    */
   public function getAccounts() {
     require_once('regatta/Account.php');
-    return DB::getAll(DB::$ACCOUNT, new DBCond('ts_role', $this));
+    return DB::getAll(DB::T(DB::ACCOUNT), new DBCond('ts_role', $this));
   }
 
   /**
@@ -4110,7 +4061,7 @@ class Role extends DBObject {
     $cond = null;
     if ($only_non_admin !== false)
       $cond = new DBCond('has_all', null);
-    return DB::getAll(DB::$ROLE, $cond);
+    return DB::getAll(DB::T(DB::ROLE), $cond);
   }
 }
 
@@ -4126,8 +4077,8 @@ class Role_Permission extends DBObject {
 
   public function db_type($field) {
     switch ($field) {
-    case 'role': return DB::$ROLE;
-    case 'permission': return DB::$PERMISSION;
+    case 'role': return DB::T(DB::ROLE);
+    case 'permission': return DB::T(DB::PERMISSION);
     default: return parent::db_type($field);
     }
   }
@@ -4290,7 +4241,7 @@ class Pub_Regatta_Url extends DBObject {
 
   public function db_type($field) {
     if ($field == 'regatta')
-      return DB::$FULL_REGATTA;
+      return DB::T(DB::FULL_REGATTA);
     return parent::db_type($field);
   }
 }
@@ -4329,7 +4280,7 @@ class Pub_File_Summary extends DBObject implements Writeable {
   }
 
   public function getFile() {
-    return DB::get(DB::$PUB_FILE, $this->id);
+    return DB::get(DB::T(DB::PUB_FILE), $this->id);
   }
 
   public function __toString() {
@@ -4434,7 +4385,7 @@ class Pub_Sponsor extends DBObject {
 
   public function db_type($field) {
     if ($field == 'logo' || $field == 'regatta_logo')
-      return DB::$PUB_FILE_SUMMARY;
+      return DB::T(DB::PUB_FILE_SUMMARY);
     return parent::db_type($field);
   }
 
@@ -4445,11 +4396,11 @@ class Pub_Sponsor extends DBObject {
   }
 
   public static function getSponsorsForRegattas() {
-    return DB::getAll(DB::$PUB_SPONSOR, new DBCond('regatta_logo', null, DBCond::NE));
+    return DB::getAll(DB::T(DB::PUB_SPONSOR), new DBCond('regatta_logo', null, DBCond::NE));
   }
 
   public static function getSponsorsForSite() {
-    return DB::getAll(DB::$PUB_SPONSOR, new DBCond('logo', null, DBCond::NE));
+    return DB::getAll(DB::T(DB::PUB_SPONSOR), new DBCond('logo', null, DBCond::NE));
   }
 
   public function __toString() {
@@ -4476,7 +4427,7 @@ class Websession extends DBObject {
     case 'created':
     case 'last_modified':
     case 'expires':
-      return DB::$NOW;
+      return DB::T(DB::NOW);
     }
   }
 }
@@ -4510,19 +4461,19 @@ class Document_Summary extends DBObject implements Writeable {
     switch ($field) {
     case 'regatta':
       require_once('regatta/Regatta.php');
-      return DB::$REGATTA;
+      return DB::T(DB::REGATTA);
     case 'author':
       require_once('regatta/Account.php');
-      return DB::$ACCOUNT;
+      return DB::T(DB::ACCOUNT);
     case 'last_updated':
-      return DB::$NOW;
+      return DB::T(DB::NOW);
     default:
       return parent::db_type($field);
     }
   }
 
   public function getFile() {
-    return DB::get(DB::$REGATTA_DOCUMENT, $this->id);
+    return DB::get(DB::T(DB::REGATTA_DOCUMENT), $this->id);
   }
 
   /**
@@ -4578,9 +4529,9 @@ class Document_Race extends DBObject {
   public function db_name() { return 'regatta_document_race'; }
   public function db_type($field) {
     if ($field == 'race')
-      return DB::$RACE;
+      return DB::T(DB::RACE);
     if ($field == 'document')
-      return DB::$REGATTA_DOCUMENT_SUMMARY;
+      return DB::T(DB::REGATTA_DOCUMENT_SUMMARY);
     return parent::db_type($field);
   }
 }
@@ -4605,7 +4556,7 @@ class Sync_Log extends DBObject {
     switch ($field) {
     case 'started_at':
     case 'ended_at':
-      return DB::$NOW;
+      return DB::T(DB::NOW);
     case 'updated':
     case 'error':
       return array();
@@ -4624,7 +4575,7 @@ class Sync_Log extends DBObject {
    * @return Array:School
    */
   public function getSchools() {
-    return DB::getAll(DB::$SCHOOL, new DBCond('sync_log', $this));
+    return DB::getAll(DB::T(DB::SCHOOL), new DBCond('sync_log', $this));
   }
 
   /**
@@ -4633,7 +4584,7 @@ class Sync_Log extends DBObject {
    * @return Array:Sailor
    */
   public function getSailors() {
-    return DB::getAll(DB::$SAILOR, new DBCond('sync_log', $this));
+    return DB::getAll(DB::T(DB::SAILOR), new DBCond('sync_log', $this));
   }
 
   /**
@@ -4642,7 +4593,7 @@ class Sync_Log extends DBObject {
    * @return Array:Coach
    */
   public function getCoaches() {
-    return DB::getAll(DB::$COACH, new DBCond('sync_log', $this));
+    return DB::getAll(DB::T(DB::COACH), new DBCond('sync_log', $this));
   }
 }
 
@@ -4659,9 +4610,9 @@ abstract class Element_Season extends DBObject {
 
   public function db_type($field) {
     if ($field == 'season')
-      return DB::$SEASON;
+      return DB::T(DB::SEASON);
     if ($field == 'activated')
-      return DB::$NOW;
+      return DB::T(DB::NOW);
     return parent::db_type($field);
   }
 }
@@ -4677,7 +4628,7 @@ class Sailor_Season extends Element_Season {
 
   public function db_type($field) {
     if ($field == 'sailor')
-      return DB::$MEMBER;
+      return DB::T(DB::MEMBER);
     return parent::db_type($field);
   }
 }
@@ -4693,7 +4644,7 @@ class School_Season extends Element_Season {
 
   public function db_type($field) {
     if ($field == 'school')
-      return DB::$SCHOOL;
+      return DB::T(DB::SCHOOL);
     return parent::db_type($field);
   }
 }
@@ -4713,9 +4664,9 @@ class Email_Token extends DBObject {
     switch ($field) {
     case 'account':
       require_once('Account.php');
-      return DB::$ACCOUNT;
+      return DB::T(DB::ACCOUNT);
     case 'deadline':
-      return DB::$NOW;
+      return DB::T(DB::NOW);
     default:
       return parent::db_type($field);
     }
@@ -4729,7 +4680,7 @@ class Email_Token extends DBObject {
   public function isTokenActive() {
     return (
       $this->deadline !== null
-      && $this->__get('deadline') > DB::$NOW
+      && $this->__get('deadline') > DB::T(DB::NOW)
     );
   }
 

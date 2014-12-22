@@ -20,7 +20,7 @@ class SchoolParticipationReportPane extends AbstractReportPane {
 
   public function fillHTML(Array $args) {
     $seasons = array();
-    if (($season = Season::forDate(DB::$NOW)) !== null)
+    if (($season = Season::forDate(DB::T(DB::NOW))) !== null)
       $seasons[$season->id] = $season;
     $confs = array();
     $types = array();
@@ -52,7 +52,7 @@ class SchoolParticipationReportPane extends AbstractReportPane {
           throw new SoterException(sprintf("No %s provided.", DB::g(STN::CONFERENCE_TITLE)));
 
         $pos_types = array();
-        foreach (DB::getAll(DB::$ACTIVE_TYPE) as $t)
+        foreach (DB::getAll(DB::T(DB::ACTIVE_TYPE)) as $t)
           $pos_types[$t->id] = $t;
         foreach (DB::$V->reqList($args, 'types', null, "Missing regatta type list.") as $id) {
           if (!isset($pos_types[$id]))

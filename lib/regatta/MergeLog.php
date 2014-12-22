@@ -25,7 +25,7 @@ class Merge_Log extends DBObject {
     switch ($field) {
     case 'started_at':
     case 'ended_at':
-      return DB::$NOW;
+      return DB::T(DB::NOW);
     case 'error':
       return array();
     default:
@@ -43,7 +43,7 @@ class Merge_Log extends DBObject {
    * @return Array:Merge_Sailor_Log
    */
   public function getMergeSailorLogs() {
-    return DB::getAll(DB::$MERGE_SAILOR_LOG, new DBCond('merge_log', $this));
+    return DB::getAll(DB::T(DB::MERGE_SAILOR_LOG), new DBCond('merge_log', $this));
   }
 
   public function getMergedRegattas() {
@@ -51,14 +51,14 @@ class Merge_Log extends DBObject {
 
     // Only count public regattas
     return DB::getAll(
-      DB::$REGATTA,
+      DB::T(DB::REGATTA),
       new DBCondIn(
         'id',
         DB::prepGetAll(
-          DB::$MERGE_REGATTA_LOG,
+          DB::T(DB::MERGE_REGATTA_LOG),
           new DBCondIn(
             'merge_sailor_log',
-            DB::prepGetAll(DB::$MERGE_SAILOR_LOG, new DBCond('merge_log', $this), array('id'))
+            DB::prepGetAll(DB::T(DB::MERGE_SAILOR_LOG), new DBCond('merge_log', $this), array('id'))
           ),
           array('regatta')
         )
@@ -89,9 +89,9 @@ class Merge_Sailor_Log extends DBObject {
 
   public function db_type($field) {
     switch ($field) {
-    case 'merge_log': return DB::$MERGE_LOG;
-    case 'school':    return DB::$SCHOOL;
-    case 'registered_sailor':    return DB::$SAILOR;
+    case 'merge_log': return DB::T(DB::MERGE_LOG);
+    case 'school':    return DB::T(DB::SCHOOL);
+    case 'registered_sailor':    return DB::T(DB::SAILOR);
     default: return parent::db_type($field);
     }
   }
@@ -130,14 +130,10 @@ class Merge_Regatta_Log extends DBObject {
 
   public function db_type($field) {
     switch ($field) {
-    case 'merge_sailor_log': return DB::$MERGE_SAILOR_LOG;
-    case 'regatta': return DB::$FULL_REGATTA;
+    case 'merge_sailor_log': return DB::T(DB::MERGE_SAILOR_LOG);
+    case 'regatta': return DB::T(DB::FULL_REGATTA);
     default: return parent::db_type($field);
     }
   }
 }
-
-DB::$MERGE_LOG = new Merge_Log();
-DB::$MERGE_SAILOR_LOG = new Merge_Sailor_Log();
-DB::$MERGE_REGATTA_LOG = new Merge_Regatta_Log();
 ?>

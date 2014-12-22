@@ -10,8 +10,8 @@ require_once(dirname(__DIR__) . '/lib/conf.php');
 require_once('regatta/Regatta.php');
 
 $to_add = array();
-foreach (DB::getAll(DB::$ROUND) as $round) {
-  if (count(DB::getAll(DB::$ROUND_TEMPLATE, new DBCond('round', $round))) > 0)
+foreach (DB::getAll(DB::T(DB::ROUND)) as $round) {
+  if (count(DB::getAll(DB::T(DB::ROUND_TEMPLATE), new DBCond('round', $round))) > 0)
     continue;
 
   try {

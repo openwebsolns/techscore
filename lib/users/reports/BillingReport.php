@@ -30,7 +30,7 @@ class BillingReport extends AbstractReportPane {
 
   public function fillHTML(Array $args) {
     $seasons = array();
-    if (($season = Season::forDate(DB::$NOW)) !== null)
+    if (($season = Season::forDate(DB::T(DB::NOW))) !== null)
       $seasons[$season->id] = $season;
     $confs = array();
     $types = array(); // map of type ID => cost
@@ -61,7 +61,7 @@ class BillingReport extends AbstractReportPane {
           throw new SoterException("No conferences provided.");
 
         $pos_types = array();
-        foreach (DB::getAll(DB::$ACTIVE_TYPE) as $t)
+        foreach (DB::getAll(DB::T(DB::ACTIVE_TYPE)) as $t)
           $pos_types[$t->id] = $t;
         $costs = DB::$V->incList($args, 'costs');
         foreach (DB::$V->reqList($args, 'types', null, "Missing regatta type list.") as $i => $id) {
@@ -91,7 +91,7 @@ class BillingReport extends AbstractReportPane {
         }
 
         require_once('regatta/Regatta.php');
-        $all = DB::getAll(DB::$PUBLIC_REGATTA,
+        $all = DB::getAll(DB::T(DB::PUBLIC_REGATTA),
                           new DBBool(array(new DBCond('finalized', null, DBCond::NE),
                                            new DBCondIn('type', array_keys($types)),
                                            new DBCondIn('dt_season', array_keys($seasons)))));
@@ -161,7 +161,7 @@ class BillingReport extends AbstractReportPane {
     $form->add(new FReqItem(sprintf("%ss:", DB::g(STN::CONFERENCE_TITLE)), $this->conferenceList('conf-', $confs)));
 
     $form->add(new FReqItem("Regatta costs:", $ul = new XUl(array('class'=>'inline-list'))));
-    foreach (DB::getAll(DB::$ACTIVE_TYPE) as $t) {
+    foreach (DB::getAll(DB::T(DB::ACTIVE_TYPE)) as $t) {
       $id = 'types-' . $t->id;
       $cost = (isset($types[$t->id])) ? $types[$t->id] : "";
       $ul->add(new XLi(array(new XTextInput('costs[]', $cost, array('class'=>'small', 'id'=>$id, 'size'=>4, 'style'=>'text-align:right;')),

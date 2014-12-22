@@ -99,7 +99,7 @@ class LoggedInUsers extends AbstractAdminUserPane {
 
   public function process(Array $args) {
     if (isset($args['delete'])) {
-      $sess = DB::$V->reqID($args, 'websession', DB::$WEBSESSION, "Invalid session provided.");
+      $sess = DB::$V->reqID($args, 'websession', DB::T(DB::WEBSESSION), "Invalid session provided.");
       if ($sess->id == session_id())
         throw new SoterException("To kick yourself out, use the \"Logout\" button.");
       $user = $this->extractUser($sess);

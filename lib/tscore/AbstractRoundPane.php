@@ -356,7 +356,7 @@ abstract class AbstractRoundPane extends AbstractPane {
         $s[] = $sail;
       }
 
-      $boat = DB::$V->reqID($args, 'boat', DB::$BOAT, "Missing boat. Please try again.");
+      $boat = DB::$V->reqID($args, 'boat', DB::T(DB::BOAT), "Missing boat. Please try again.");
       for ($i = 0; $i < $round->getRaceOrderCount(); $i++) {
         $round->setRaceOrderBoat($i, $boat);
       }
@@ -377,7 +377,7 @@ abstract class AbstractRoundPane extends AbstractPane {
         $s[] = $sail;
       }
 
-      $boat = DB::$V->reqID($args, 'boat', DB::$BOAT, "Missing boat. Please try again.");
+      $boat = DB::$V->reqID($args, 'boat', DB::T(DB::BOAT), "Missing boat. Please try again.");
       for ($i = 0; $i < $round->getRaceOrderCount(); $i++) {
         $round->setRaceOrderBoat($i, $boat);
       }

@@ -127,7 +127,7 @@ class TeamOrderRoundsPane extends AbstractRoundPane {
     // Unlink group
     // ------------------------------------------------------------
     if (isset($args['unlink-group'])) {
-      $group = DB::$V->reqID($args, 'round_group', DB::$ROUND_GROUP, "Invalid or missing group of rounds to unlink.");
+      $group = DB::$V->reqID($args, 'round_group', DB::T(DB::ROUND_GROUP), "Invalid or missing group of rounds to unlink.");
       $rounds = $group->getRounds();
       DB::remove($group);
 
@@ -176,7 +176,7 @@ class TeamOrderRoundsPane extends AbstractRoundPane {
       $race_index = array();
       $flight_size = array();
       foreach (DB::$V->reqList($args, 'round', null, "No rounds provided.") as $rid) {
-        if (($round = DB::get(DB::$ROUND, $rid)) === null || $round->regatta != $this->REGATTA)
+        if (($round = DB::get(DB::T(DB::ROUND), $rid)) === null || $round->regatta != $this->REGATTA)
           throw new SoterException("Invalid round provided: $rid.");
 
         if ($round->round_group !== null)

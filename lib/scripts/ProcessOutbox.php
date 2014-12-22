@@ -102,13 +102,13 @@ class ProcessOutbox extends AbstractScript {
     }
     // status
     if ($outbox->recipients == Outbox::R_STATUS) {
-      $season = Season::forDate(DB::$NOW);
+      $season = Season::forDate(DB::T(DB::NOW));
       if ($season === null)
         self::errln("No current season for regattas.");
       else {
         $list = array();
         foreach ($season->getRegattas() as $reg) {
-          if ($reg->end_date >= DB::$NOW || count($reg->getScoredRaces()) == 0)
+          if ($reg->end_date >= DB::T(DB::NOW) || count($reg->getScoredRaces()) == 0)
             continue;
 
           if (in_array(Outbox::STATUS_PENDING, $outbox->arguments) && $reg->finalized === null) {
@@ -171,7 +171,7 @@ class ProcessOutbox extends AbstractScript {
       self::errln(sprintf("Also sent copy to admin %s", $admin));
     }
 
-    $outbox->completion_time = DB::$NOW;
+    $outbox->completion_time = DB::T(DB::NOW);
     DB::set($outbox);
   }
 

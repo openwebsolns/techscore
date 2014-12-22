@@ -56,7 +56,7 @@ class CompareSailorsByRace extends AbstractReportPane {
       }
     }
     else {
-      $seasons[] = Season::forDate(DB::$NOW);
+      $seasons[] = Season::forDate(DB::T(DB::NOW));
       if ($seasons[0]->season == Season::SPRING)
         $seasons[] = DB::getSeason('f' . ($seasons[0]->start_date->format('Y') - 1));
     }
@@ -194,7 +194,7 @@ class CompareSailorsByRace extends AbstractReportPane {
     $form->add($p = new XPort("Seasons to compare"));
     $p->add(new XP(array(), "Choose at least one season to compare from the list below, then choose the sailors in the next panel."));
 
-    $now = Season::forDate(DB::$NOW);
+    $now = Season::forDate(DB::T(DB::NOW));
     $then = null;
     if ($now->season == Season::SPRING)
       $then = DB::getSeason(sprintf('f%0d', ($now->start_date->format('Y') - 1)));

@@ -44,7 +44,7 @@ abstract class AbstractReportPane extends AbstractUserPane {
   protected function regattaTypeList($prefix, Array $chosen = array()) {
     require_once('xml5/XMultipleSelect.php');
     $ul = new XMultipleSelect('types[]', array(), array('style'=>'width:10em;'));
-    foreach (DB::getAll(DB::$ACTIVE_TYPE) as $t) {
+    foreach (DB::getAll(DB::T(DB::ACTIVE_TYPE)) as $t) {
       $ul->addOption($t->id, $t, in_array($t, $chosen));
     }
     return $ul;

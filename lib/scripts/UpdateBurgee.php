@@ -37,7 +37,7 @@ class UpdateBurgee extends AbstractScript {
                       'burgee_small' => '-40',
                       'burgee_square' => '-sq');
     foreach ($versions as $prop => $suffix) {
-      $file = sprintf('%s/%s%s.png', self::$filepath, $school->id, $suffix);
+      $file = sprintf('%s/%s%s.png', self::T(DB::filepath), $school->id, $suffix);
 
       // There is no burgee
       if ($school->$prop === null) {
@@ -59,16 +59,16 @@ class UpdateBurgee extends AbstractScript {
    * this school
    */
   public function runCleanup(School $school = null) {
-    $cond = new DBBool(array(new DBCondIn('id', DB::prepGetAll(DB::$SCHOOL, new DBCond('burgee', null, DBCond::NE), array('burgee')), DBCondIn::NOT_IN),
-                             new DBCondIn('id', DB::prepGetAll(DB::$SCHOOL, new DBCond('burgee_small', null, DBCond::NE), array('burgee_small')), DBCondIn::NOT_IN),
-                             new DBCondIn('id', DB::prepGetAll(DB::$SCHOOL, new DBCond('burgee_square', null, DBCond::NE), array('burgee_square')), DBCondIn::NOT_IN)));
+    $cond = new DBBool(array(new DBCondIn('id', DB::prepGetAll(DB::T(DB::SCHOOL), new DBCond('burgee', null, DBCond::NE), array('burgee')), DBCondIn::NOT_IN),
+                             new DBCondIn('id', DB::prepGetAll(DB::T(DB::SCHOOL), new DBCond('burgee_small', null, DBCond::NE), array('burgee_small')), DBCondIn::NOT_IN),
+                             new DBCondIn('id', DB::prepGetAll(DB::T(DB::SCHOOL), new DBCond('burgee_square', null, DBCond::NE), array('burgee_square')), DBCondIn::NOT_IN)));
     $mes = "Removed stale burgees.";
     if ($school !== null) {
       $cond->add(new DBCond('school', $school));
       $mes = sprintf("Removed stale burgees for %s.", $school->name);
     }
 
-    $all = DB::getAll(DB::$BURGEE, $cond);
+    $all = DB::getAll(DB::T(DB::BURGEE), $cond);
     foreach ($all as $bur) {
       DB::remove($bur);
       self::errln(sprintf("Removed burgee with ID %s.", $bur->id), 2);
@@ -118,7 +118,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   }
   else {
     if ($all)
-      $schools = DB::getAll(DB::$SCHOOL);
+      $schools = DB::getAll(DB::T(DB::SCHOOL));
     if (count($schools) == 0)
       throw new TSScriptException("No schools provided.");
     foreach ($schools as $school)

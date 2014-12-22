@@ -23,7 +23,7 @@ class TRegattaFeed extends AtomFeed {
   private function fill() {
     $url = sprintf('http://%s', Conf::$PUB_HOME);
 
-    $updated = new AtomUpdated(DB::$NOW);
+    $updated = new AtomUpdated(DB::T(DB::NOW));
     $author = new AtomAuthor(sprintf("%s Scores", DB::g(STN::ORG_NAME)), $url);
     $rights = new AtomRights(DB::g(STN::APP_COPYRIGHT));
 
@@ -41,9 +41,9 @@ class TRegattaFeed extends AtomFeed {
     $cutoff = new DateTime('2 weeks ago');
     require_once('regatta/Regatta.php');
     require_once('public/ReportMaker.php');
-    $regs = DB::getAll(DB::$PUBLIC_REGATTA,
+    $regs = DB::getAll(DB::T(DB::PUBLIC_REGATTA),
                        new DBBool(array(new DBCond('finalized', null, DBCond::NE),
-                                        new DBCond('start_time', DB::$NOW, DBCond::LE))));
+                                        new DBCond('start_time', DB::T(DB::NOW), DBCond::LE))));
     $count = 0;
     foreach ($regs as $reg) {
       if ($reg->start_time < $cutoff && $count > 10)

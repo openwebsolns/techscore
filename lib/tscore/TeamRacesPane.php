@@ -326,7 +326,7 @@ window.addEventListener("load", function(e) {
       $master_ids = Session::g('round_masters');
       if ($master_ids !== null) {
         foreach ($master_ids as $id => $cnt) {
-          $round = DB::get(DB::$ROUND, $id);
+          $round = DB::get(DB::T(DB::ROUND), $id);
           if ($round !== null) {
             $master = new Round_Slave();
             $master->master = $round;
@@ -718,7 +718,7 @@ window.addEventListener("load", function(e) {
       if ($master_ids !== null) {
         foreach ($master_ids as $id => $cnt) {
           $s = new Round_Slave();
-          $s->master = DB::get(DB::$ROUND, $id);
+          $s->master = DB::get(DB::T(DB::ROUND), $id);
           $s->num_teams = $cnt;
           $masters[] = $s;
         }
@@ -990,7 +990,7 @@ window.addEventListener("load", function(e) {
 
     $group_size = 2 * count($divisions);
 
-    $templ = DB::$V->reqID($args, 'sailoff_for_round', DB::$ROUND, "Invalid template round provided.");
+    $templ = DB::$V->reqID($args, 'sailoff_for_round', DB::T(DB::ROUND), "Invalid template round provided.");
     if ($templ->regatta->id != $this->REGATTA->id)
       throw new SoterException("Invalid template round.");
     if ($templ->sailoff_for_round !== null)
@@ -1056,7 +1056,7 @@ window.addEventListener("load", function(e) {
         throw new SoterException("Duplicate round title provided.");
     }
 
-    $templ = DB::$V->reqID($args, 'template', DB::$ROUND, "Invalid template round provided.");
+    $templ = DB::$V->reqID($args, 'template', DB::T(DB::ROUND), "Invalid template round provided.");
     if ($templ->regatta->id != $this->REGATTA->id)
       throw new SoterException("Invalid template round.");
 
@@ -1104,7 +1104,7 @@ window.addEventListener("load", function(e) {
       if ($num_teams[$i] == 0)
         continue;
 
-      $r = DB::get(DB::$ROUND, $id);
+      $r = DB::get(DB::T(DB::ROUND), $id);
       if ($r === null || isset($master_rounds[$r->id]) || $r->regatta != $this->REGATTA || count($r->getMasters()) > 0)
         throw new SoterException("Invalid master round provided.");
 

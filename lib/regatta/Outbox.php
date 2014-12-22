@@ -73,16 +73,14 @@ class Outbox extends DBObject {
     switch ($field) {
     case 'queue_time':
     case 'completion_time':
-      return DB::$NOW;
+      return DB::T(DB::NOW);
     case 'arguments':
       return array();
     case 'sender':
-      return DB::$ACCOUNT;
+      return DB::T(DB::ACCOUNT);
     default:
       return parent::db_type($field);      
     }
   }
 }
-// Create template item
-DB::$OUTBOX = new Outbox();
 ?>

@@ -62,7 +62,7 @@ class SeasonManagement extends AbstractAdminUserPane {
     $tab->addRow($row);
 
     $rowIndex = 1;
-    foreach (DB::getAll(DB::$SEASON) as $season) {
+    foreach (DB::getAll(DB::T(DB::SEASON)) as $season) {
       $sel = XSelect::fromArray('season[]', $opts, $season->getSeason());
       $row = array(new XTD(array(), array($sel, new XHiddenInput('id[]', $season->id))),
                          new XDateInput('start_date[]', $season->start_date),
@@ -111,7 +111,7 @@ class SeasonManagement extends AbstractAdminUserPane {
 
           // Sponsor provided?
           if (count($sponsors) > 0) {
-            $obj->sponsor = DB::$V->incID($sponsors, $rowIndex, DB::$PUB_SPONSOR);
+            $obj->sponsor = DB::$V->incID($sponsors, $rowIndex, DB::T(DB::PUB_SPONSOR));
             if ($obj->sponsor !== null && !$obj->sponsor->canSponsorRegattas())
               throw new SoterException("Invalid sponsor provided for season.");
           }
@@ -158,7 +158,7 @@ class SeasonManagement extends AbstractAdminUserPane {
 
         // Sponsor provided?
         if (count($sponsors) > 0) {
-          $sponsor = DB::$V->incID($sponsors, $rowIndex, DB::$PUB_SPONSOR);
+          $sponsor = DB::$V->incID($sponsors, $rowIndex, DB::T(DB::PUB_SPONSOR));
           if ($sponsor !== null && !$sponsor->canSponsorRegattas())
             throw new SoterException("Invalid sponsor provided for season.");
           if ($sponsor != $obj->sponsor) {
@@ -189,7 +189,7 @@ class SeasonManagement extends AbstractAdminUserPane {
         $all_seasons[$season->id] = $season;
       }
       // Add already existing seasons
-      foreach (DB::getAll(DB::$SEASON) as $season) {
+      foreach (DB::getAll(DB::T(DB::SEASON)) as $season) {
         if (!isset($all_seasons[$season->id]))
           $all_seasons[$season->id] = $season;
       }
@@ -215,7 +215,7 @@ class SeasonManagement extends AbstractAdminUserPane {
       // Step 4: Any orphaned regattas?
       // ------------------------------------------------------------
       require_once('regatta/Regatta.php');
-      $regs = DB::getAll(DB::$REGATTA, $cond);
+      $regs = DB::getAll(DB::T(DB::REGATTA), $cond);
       if (count($regs) > 0) {
         $mes = array("The following regattas conflict with the season dates:", $ul = new XUl());
         foreach ($regs as $i => $reg) {

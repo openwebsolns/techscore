@@ -33,7 +33,7 @@ class MailingListManagement extends AbstractAdminUserPane {
     $p->add(new XP(array(), "Scorers have the option of sending a summary e-mail once for each day of competition. This auto-generated message will be sent to the mailing lists associated with that regatta's type. Use the form below to specify which mailing lists to use for each regatta type."));
     $p->add(new XP(array(), "Please note that in all cases, the e-mail will be sent to the participating conferences; so there is no need to specify those below. Enter each e-mail address on a newline."));
 
-    foreach (DB::getAll(DB::$ACTIVE_TYPE) as $type) {
+    foreach (DB::getAll(DB::T(DB::ACTIVE_TYPE)) as $type) {
       $p->add($f = $this->createForm());
       $list = $type->mail_lists;
       if ($list === null)
@@ -69,7 +69,7 @@ class MailingListManagement extends AbstractAdminUserPane {
       Session::pa(new PA("Settings updated."));
     }
     if (isset($args['set-lists'])) {
-      $type = DB::$V->reqID($args, 'type', DB::$ACTIVE_TYPE, "Invalid or missing type.");
+      $type = DB::$V->reqID($args, 'type', DB::T(DB::ACTIVE_TYPE), "Invalid or missing type.");
       $lists = DB::$V->incString($args, 'lists', 1, 16000, null);
       if ($lists !== null)
         $lists = explode(" ", preg_replace('/[\s,]+/', ' ', $lists));
@@ -78,7 +78,7 @@ class MailingListManagement extends AbstractAdminUserPane {
       Session::pa(new PA(sprintf("Updated mailing lists for regattas of type \"%s\".", $type)));
     }
     if (isset($args['set-conf-list'])) {
-      $conf = DB::$V->reqID($args, 'conference', DB::$CONFERENCE, "Invalid or missing conference.");
+      $conf = DB::$V->reqID($args, 'conference', DB::T(DB::CONFERENCE), "Invalid or missing conference.");
       $lists = DB::$V->incString($args, 'lists', 1, 16000, null);
       if ($lists !== null)
         $lists = explode(" ", preg_replace('/[\s,]+/', ' ', $lists));

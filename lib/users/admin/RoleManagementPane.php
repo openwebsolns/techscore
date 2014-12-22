@@ -43,7 +43,7 @@ window.addEventListener("load", function(e) {
       $existing[$perm->id] = $perm;
 
     $groups = array();
-    foreach (DB::getAll(DB::$PERMISSION) as $perm) {
+    foreach (DB::getAll(DB::T(DB::PERMISSION)) as $perm) {
       if (Permission::isAvailable($perm->id)) {
         if (!isset($groups[$perm->category])) {
           $sel->add($group = new FOptionGroup($perm->category));
@@ -61,7 +61,7 @@ window.addEventListener("load", function(e) {
     // Add new one?
     // ------------------------------------------------------------
     if (isset($args['create-from'])) {
-      $role = DB::$V->incID($args, 'create-from', DB::$ROLE);
+      $role = DB::$V->incID($args, 'create-from', DB::T(DB::ROLE));
       if ($role === null)
         $role = new Role();
       else {
@@ -83,7 +83,7 @@ window.addEventListener("load", function(e) {
     // ------------------------------------------------------------
     if (isset($args['id'])) {
       try {
-        $role = DB::$V->reqID($args, 'id', DB::$ROLE, "Invalid role requested.");
+        $role = DB::$V->reqID($args, 'id', DB::T(DB::ROLE), "Invalid role requested.");
         $this->PAGE->addContent($p = new XPort("Edit role"));
         $p->add($form = $this->createForm());
 
@@ -106,7 +106,7 @@ window.addEventListener("load", function(e) {
       }
     }
 
-    $roles = DB::getAll(DB::$ROLE);
+    $roles = DB::getAll(DB::T(DB::ROLE));
 
     // ------------------------------------------------------------
     // Add a role
@@ -175,14 +175,14 @@ window.addEventListener("load", function(e) {
       $role = new Role();
       $mes = "added";
       if (isset($args['edit'])) {
-        $role = DB::$V->reqID($args, 'role', DB::$ROLE, "Invalid role provided.");
+        $role = DB::$V->reqID($args, 'role', DB::T(DB::ROLE), "Invalid role provided.");
         $mes = "updated";
       }
       $role->title = DB::$V->reqString($args, 'title', 5, 256, "Invalid title provided for role.");
       $role->description = DB::$V->reqString($args, 'description', 5, 1000, "Invalid description. Did you include enough?");
 
       // Duplicate title?
-      foreach (DB::getAll(DB::$ROLE) as $other) {
+      foreach (DB::getAll(DB::T(DB::ROLE)) as $other) {
         if ($other->id != $role->id && $other->title == $role->title)
           throw new SoterException("Duplicate role title provided.");
       }
@@ -191,7 +191,7 @@ window.addEventListener("load", function(e) {
       $perms = array();
       if ($all === null) {
         foreach (DB::$V->reqList($args, 'permissions', null, "No list of permissions provided.") as $id) {
-          $perm = DB::get(DB::$PERMISSION, $id);
+          $perm = DB::get(DB::T(DB::PERMISSION), $id);
           if ($perm === null)
             throw new SoterException("Invalid permission provided: " . $id);
           $perms[] = $perm;
@@ -214,7 +214,7 @@ window.addEventListener("load", function(e) {
     if (isset($args['delete'])) {
       $to_delete = array();
       foreach (DB::$V->reqList($args, 'delete', null, "No roles provided.") as $id) {
-        $role = DB::get(DB::$ROLE, $id);
+        $role = DB::get(DB::T(DB::ROLE), $id);
         if ($role === null)
           throw new SoterException("Invalid role provided to delete: " . $id);
         if (count($role->getAccounts()) > 0)
@@ -231,8 +231,8 @@ window.addEventListener("load", function(e) {
     // Set default
     // ------------------------------------------------------------
     if (isset($args['set-roles'])) {
-      $def = DB::$V->reqID($args, 'default-role', DB::$ROLE, "Invalid default role provided.");
-      foreach (DB::getAll(DB::$ROLE) as $role) {
+      $def = DB::$V->reqID($args, 'default-role', DB::T(DB::ROLE), "Invalid default role provided.");
+      foreach (DB::getAll(DB::T(DB::ROLE)) as $role) {
         $role->is_default = null;
         if ($role->id == $def->id)
           $role->is_default = 1;

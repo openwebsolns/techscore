@@ -25,16 +25,16 @@ class TSSessionHandler {
   }
 
   public static function destroy($session_id) {
-    DB::removeAll(DB::$WEBSESSION, new DBCond('id', $session_id));
+    DB::removeAll(DB::T(DB::WEBSESSION), new DBCond('id', $session_id));
     return true;
   }
 
   public static function gc($maxlifetime) {
     $t1 = new DateTime(sprintf('%d seconds ago', self::IDLE_TIME));
-    DB::removeAll(DB::$WEBSESSION,
+    DB::removeAll(DB::T(DB::WEBSESSION),
                   new DBBool(array(new DBCond('expires', null),
                                    new DBCond('last_modified', $t1, DBCond::LT))));
-    DB::removeAll(DB::$WEBSESSION, new DBCond('expires', DB::$NOW, DBCond::LT));
+    DB::removeAll(DB::T(DB::WEBSESSION), new DBCond('expires', DB::T(DB::NOW), DBCond::LT));
   }
 
   public static function open($save_path, $name) {
@@ -42,7 +42,7 @@ class TSSessionHandler {
   }
 
   public static function read($session_id) {
-    $s = DB::get(DB::$WEBSESSION, $session_id);
+    $s = DB::get(DB::T(DB::WEBSESSION), $session_id);
     if ($s === null)
       return null;
     if (self::isExpired($s))
@@ -51,20 +51,20 @@ class TSSessionHandler {
   }
 
   public static function write($session_id, $session_data) {
-    $s = DB::get(DB::$WEBSESSION, $session_id);
+    $s = DB::get(DB::T(DB::WEBSESSION), $session_id);
     $update = true;
     if ($s === null) {
       $s = new Websession();
       $s->id = $session_id;
-      $s->created = DB::$NOW;
+      $s->created = DB::T(DB::NOW);
       $update = false;
     }
 
-    if (isset(self::$expires[$session_id]))
-      $s->expires = self::$expires[$session_id];
+    if (isset(self::T(DB::expires)[$session_id]))
+      $s->expires = self::T(DB::expires)[$session_id];
 
     $s->sessiondata = $session_data;
-    $s->last_modified = DB::$NOW;
+    $s->last_modified = DB::T(DB::NOW);
     DB::set($s, $update);
     DB::commit();
     return true;
@@ -84,9 +84,9 @@ class TSSessionHandler {
   }
 
   public static function setLifetime($lifetime) {
-    $t = clone(DB::$NOW);
+    $t = clone(DB::T(DB::NOW));
     $t->add(new DateInterval(sprintf('P0DT%dS', $lifetime)));
-    self::$expires[session_id()] = $t;
+    self::T(DB::expires)[session_id()] = $t;
   }
 
   /**
@@ -116,7 +116,7 @@ class TSSessionHandler {
       if ($s->last_modified->format('U') < time() - self::IDLE_TIME)
         return true;
     }
-    elseif ($s->expires < DB::$NOW) {
+    elseif ($s->expires < DB::T(DB::NOW)) {
       return true;
     }
     return false;
@@ -128,8 +128,8 @@ class TSSessionHandler {
    * @return Array:Websession sessions
    */
   public static function getActive() {
-    return DB::getAll(DB::$WEBSESSION,
-                      new DBBool(array(new DBCond('expires', DB::$NOW, DBCond::GT),
+    return DB::getAll(DB::T(DB::WEBSESSION),
+                      new DBBool(array(new DBCond('expires', DB::T(DB::NOW), DBCond::GT),
                                        new DBBool(array(new DBCond('expires', null),
                                                         new DBCond('last_modified', new DateTime(sprintf('%d seconds ago', self::IDLE_TIME)), DBCond::GT)))),
                                  DBBool::mOR));
@@ -141,12 +141,12 @@ class TSSessionHandler {
    * @param Account $user optional user
    */
   public static function getLongTermActive(Account $user = null) {
-    $cond = new DBCond('expires', DB::$NOW, DBCond::GT);
+    $cond = new DBCond('expires', DB::T(DB::NOW), DBCond::GT);
     if ($user !== null) {
       $term = sprintf('%%"user";s:%d:"%s"%%', mb_strlen($user->id), $user->id);
       $cond = new DBBool(array(new DBCond('sessiondata', $term, DBCond::LIKE), $cond));
     }
-    return DB::getAll(DB::$WEBSESSION, $cond);
+    return DB::getAll(DB::T(DB::WEBSESSION), $cond);
   }
 }
 ?>

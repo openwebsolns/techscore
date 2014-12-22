@@ -62,7 +62,7 @@ class SummaryPane extends AbstractPane {
     $can_mail = ($this->REGATTA->private === null) && ((string)DB::g(STN::SEND_MAIL) == 1);
     $can_rp_mail = ($this->REGATTA->private === null) 
       && (DB::g(STN::MAIL_RP_REMINDER) !== null)
-      && (DB::$NOW->format('Y-m-d') == $summary_day->format('Y-m-d'));
+      && (DB::T(DB::NOW)->format('Y-m-d') == $summary_day->format('Y-m-d'));
 
     $this->PAGE->addContent($xp = new XCollapsiblePort("About the daily summaries"));
     $xp->add($p = new XP(array(), "A text summary is required for each day of competition for all public regattas."));
@@ -201,7 +201,7 @@ class SummaryPane extends AbstractPane {
         $this->REGATTA->private === null &&
         $this->REGATTA->type->tweet_summary !== null &&
         count($this->REGATTA->getScoredRaces()) > 0 &&
-        $day->format('Y-m-d') == DB::$NOW->format('Y-m-d') &&
+        $day->format('Y-m-d') == DB::T(DB::NOW)->format('Y-m-d') &&
         $day->format('Y-m-d') != $this->REGATTA->end_date->format('Y-m-d')) {
 
       require_once('twitter/TweetFactory.php');

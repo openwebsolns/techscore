@@ -36,7 +36,7 @@ class LogoPane extends AbstractUserPane {
     if (isset($args['q'])) {
       $messages = DB::getMessagesWithReadToken((string)$args['q']);
       foreach ($messages as $message) {
-        $message->read_time = DB::$NOW;
+        $message->read_time = DB::T(DB::NOW);
         DB::set($message);
       }
     }

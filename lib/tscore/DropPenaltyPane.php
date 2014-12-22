@@ -108,7 +108,7 @@ class DropPenaltyPane extends AbstractPane {
     // ------------------------------------------------------------
     if (isset($args['p_remove'])) {
 
-      $penalty = DB::$V->reqID($args, 'modifier', DB::$FINISH_MODIFIER, "Missing penalty/breakdown provided.");
+      $penalty = DB::$V->reqID($args, 'modifier', DB::T(DB::FINISH_MODIFIER), "Missing penalty/breakdown provided.");
       if ($penalty->finish->race->regatta != $this->REGATTA)
         throw new SoterException("Invalid penalty/breakdown provided.");
       if ($penalty->finish->removeModifier($penalty)) {

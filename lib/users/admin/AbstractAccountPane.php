@@ -37,7 +37,7 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
     $f->add(new FReqItem("Email:", new XA('mailto:'.$user->email, $user->email)));
     $f->add(new FReqItem(DB::g(STN::ORG_NAME) . " Role: ", XSelect::fromArray('role', Account::getRoles(), $user->role)));
     if ($user != $this->USER && !$user->isSuper())
-      $f->add(new FReqItem("Role:", XSelect::fromDBM('ts_role', DB::getAll(DB::$ROLE), $user->ts_role, array(), "")));
+      $f->add(new FReqItem("Role:", XSelect::fromDBM('ts_role', DB::getAll(DB::T(DB::ROLE)), $user->ts_role, array(), "")));
 
     $f->add($xp = new XSubmitP('edit-user', "Edit user"));
     $xp->add(new XHiddenInput('user', $user->id));
@@ -147,7 +147,7 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
    */
   public function process(Array $args) {
     require_once('regatta/Account.php');
-    $user = DB::$V->reqID($args, 'user', DB::$ACCOUNT, "No user provided.");
+    $user = DB::$V->reqID($args, 'user', DB::T(DB::ACCOUNT), "No user provided.");
 
     // ------------------------------------------------------------
     // Edit user
@@ -155,7 +155,7 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
     if (isset($args['edit-user'])) {
       $user->role = DB::$V->reqKey($args, 'role', Account::getRoles(), "Invalid school role provided.");
       if ($user != $this->USER && !$user->isSuper())
-        $user->ts_role = DB::$V->reqID($args, 'ts_role', DB::$ROLE, "Invalid role provided.");
+        $user->ts_role = DB::$V->reqID($args, 'ts_role', DB::T(DB::ROLE), "Invalid role provided.");
       DB::set($user);
       Session::pa(new PA(sprintf("Updated account information for user %s.", $user)));
     }
@@ -227,7 +227,7 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
     if (isset($args['usurp-user'])) {
       if (!$this->USER->can(Permission::USURP_USER))
         throw new SoterException("No access to this feature.");
-      $user = DB::$V->reqID($args, 'user', DB::$ACCOUNT, "No user provided.");
+      $user = DB::$V->reqID($args, 'user', DB::T(DB::ACCOUNT), "No user provided.");
       if ($user == $this->USER)
         throw new SoterException("What's the point of usurping yourself?");
       if ($user->status != Account::STAT_ACTIVE)

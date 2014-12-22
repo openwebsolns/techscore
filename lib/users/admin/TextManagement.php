@@ -51,7 +51,7 @@ class TextManagement extends AbstractAdminUserPane {
 
     $i = 0;
     foreach ($this->sections as $section => $name) {
-      $entry = DB::get(DB::$TEXT_ENTRY, $section);
+      $entry = DB::get(DB::T(DB::TEXT_ENTRY), $section);
       $display = new XEm("No entry exists.");
       if ($entry !== null)
         $display = new XDiv(array('class'=>'entry-preview'), array(new XRawText($entry->html)));
@@ -73,7 +73,7 @@ class TextManagement extends AbstractAdminUserPane {
     $this->PAGE->addContent($p = new XPort("Edit " . $section));
     $p->add(new XP(array(), $this->getExplanation($section)));
 
-    $entry = DB::get(DB::$TEXT_ENTRY, $section);
+    $entry = DB::get(DB::T(DB::TEXT_ENTRY), $section);
     if ($entry === null)
       $entry = new Text_Entry();
 
@@ -87,7 +87,7 @@ class TextManagement extends AbstractAdminUserPane {
 
   public function process(Array $args) {
     $section = DB::$V->reqKey($args, 'section', $this->sections, "Invalid or missing text section to edit.");
-    $entry = DB::get(DB::$TEXT_ENTRY, $section);
+    $entry = DB::get(DB::T(DB::TEXT_ENTRY), $section);
     if ($entry === null) {
       $entry = new Text_Entry();
       $entry->id = $section;
@@ -112,7 +112,7 @@ class TextManagement extends AbstractAdminUserPane {
     DB::set($entry);
 
     // Notify appropriate updates (requires seasons)
-    $seasons = DB::getAll(DB::$SEASON);
+    $seasons = DB::getAll(DB::T(DB::SEASON));
     if (count($seasons) > 0) {
       require_once('public/UpdateManager.php');
       switch ($section) {

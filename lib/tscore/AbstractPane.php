@@ -61,7 +61,7 @@ abstract class AbstractPane {
    */
   public function setParticipantUIMode($participant = false) {
     $this->participant_mode = ($participant !== false);
-    if ($this->participant_mode && !in_array(get_class($this), self::$PARTICIPANT_MODE))
+    if ($this->participant_mode && !in_array(get_class($this), self::T(DB::PARTICIPANT_MODE)))
       throw new PermissionException("Participant UI not available for this pane.");
   }
 
@@ -349,9 +349,9 @@ abstract class AbstractPane {
    */
   protected function createForm($method = XForm::POST) {
     $i = get_class($this);
-    if (!isset(self::$URLS[$i]))
+    if (!isset(self::T(DB::URLS)[$i]))
       throw new InvalidArgumentException("Please register URL for pane $i.");
-    $form = new XForm(sprintf("/score/%d/%s", $this->REGATTA->id, self::$URLS[$i]), $method);
+    $form = new XForm(sprintf("/score/%d/%s", $this->REGATTA->id, self::T(DB::URLS)[$i]), $method);
     if ($method == XForm::POST && class_exists('Session'))
       $form->add(new XHiddenInput('csrf_token', Session::getCsrfToken()));
     return $form;
@@ -363,9 +363,9 @@ abstract class AbstractPane {
    */
   protected function createFileForm() {
     $i = get_class($this);
-    if (!isset(self::$URLS[$i]))
+    if (!isset(self::T(DB::URLS)[$i]))
       throw new InvalidArgumentException("Please register URL for pane $i.");
-    $form = new XFileForm(sprintf("/score/%d/%s", $this->REGATTA->id, self::$URLS[$i]));
+    $form = new XFileForm(sprintf("/score/%d/%s", $this->REGATTA->id, self::T(DB::URLS)[$i]));
     if (class_exists('Session'))
       $form->add(new XHiddenInput('csrf_token', Session::getCsrfToken()));
     return $form;
@@ -422,7 +422,7 @@ abstract class AbstractPane {
    */
   protected function getSchoolPrototype() {
     $season = $this->REGATTA->getSeason();
-    return ($season->isCurrent()) ? DB::$ACTIVE_SCHOOL : DB::$SCHOOL;
+    return ($season->isCurrent()) ? DB::T(DB::ACTIVE_SCHOOL) : DB::T(DB::SCHOOL);
   }
 
   /**
@@ -618,7 +618,7 @@ abstract class AbstractPane {
   }
 
   private function doActive($class_name) {
-    if ($this->participant_mode && !in_array($class_name, self::$PARTICIPANT_MODE))
+    if ($this->participant_mode && !in_array($class_name, self::T(DB::PARTICIPANT_MODE)))
       return false;
 
     switch ($class_name) {
@@ -711,8 +711,8 @@ abstract class AbstractPane {
     return $this->doTitle(get_class($this));
   }
   private function doTitle($i) {
-    if (isset(self::$TITLES[$i]))
-      return self::$TITLES[$i];
+    if (isset(self::T(DB::TITLES)[$i]))
+      return self::T(DB::TITLES)[$i];
     throw new InvalidArgumentException("No title registered for pane $i.");
   }
 

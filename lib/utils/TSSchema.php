@@ -19,7 +19,7 @@ class TSSchema extends DBObject {
   public function db_name() { return '_schema_'; }
   public function db_type($field) {
     if ($field == 'performed_at')
-      return DB::$NOW;
+      return DB::T(DB::NOW);
     return parent::db_type($field);
   }
   protected function db_order() { return array('performed_at' => false); }
@@ -32,7 +32,7 @@ class TSSchema extends DBObject {
     $obj = new TSSchema();
     $obj->id = (string)$file;
     $obj->downgrade = $downgrade;
-    $obj->performed_at = DB::$NOW;
+    $obj->performed_at = DB::T(DB::NOW);
     DB::set($obj);
     return $obj;
   }

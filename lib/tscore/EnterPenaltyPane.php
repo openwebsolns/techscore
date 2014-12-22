@@ -39,7 +39,7 @@ class EnterPenaltyPane extends AbstractPane {
     }
 
     // Check for race by ID
-    if (DB::$V->hasID($theRace, $args, 'race_id', DB::$RACE)) {
+    if (DB::$V->hasID($theRace, $args, 'race_id', DB::T(DB::RACE))) {
       if ($theRace->regatta != $this->REGATTA || count($this->REGATTA->getFinishes($theRace)) == 0) {
         $this->PAGE->addContent(new XP(array('class'=>'warning'), "Invalid race ID provided. Using latest scored race instead."));
         $theRace = null;
@@ -138,7 +138,7 @@ class EnterPenaltyPane extends AbstractPane {
       $finishes = array();
       $teams = array();
       foreach ($fins as $i => $f) {
-        $finish = DB::$V->reqID($fins, $i, DB::$FINISH, "Invalid finish provided.");
+        $finish = DB::$V->reqID($fins, $i, DB::T(DB::FINISH), "Invalid finish provided.");
         $finishes[] = $finish;
         $teams[] = $finish->team;
       }

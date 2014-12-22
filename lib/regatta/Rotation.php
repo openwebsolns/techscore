@@ -37,11 +37,11 @@ class Rotation {
   public function isAssigned(Race $race = null) {
     if ($race === null) {
       // Curious fact: this version is much faster!
-      return count(DB::getAll(DB::$RACE,
+      return count(DB::getAll(DB::T(DB::RACE),
                               new DBBool(array(new DBCond('regatta', $this->regatta),
-                                               new DBCondIn('id', DB::prepGetAll(DB::$SAIL, null, array('race'))))))) > 0;
+                                               new DBCondIn('id', DB::prepGetAll(DB::T(DB::SAIL), null, array('race'))))))) > 0;
     }
-    return count(DB::getAll(DB::$SAIL, new DBCond('race', $race))) > 0;
+    return count(DB::getAll(DB::T(DB::SAIL), new DBCond('race', $race))) > 0;
   }
 
   /**
@@ -52,7 +52,7 @@ class Rotation {
    * @param String $sail the sail number
    */
   public function getTeam(Race $race, $sail) {
-    $res = DB::getAll(DB::$SAIL, new DBBool(array(new DBCond('race', $race), new DBCond('sail', $sail))));
+    $res = DB::getAll(DB::T(DB::SAIL), new DBBool(array(new DBCond('race', $race), new DBCond('sail', $sail))));
     if (count($res) == 0)
       return null;
     return $res[0]->team;
@@ -66,7 +66,7 @@ class Rotation {
    * @return Sail the sail number, null if none
    */
   public function getSail(Race $race, Team $team) {
-    $res = DB::getAll(DB::$SAIL, new DBBool(array(new DBCond('race', $race), new DBCond('team', $team))));
+    $res = DB::getAll(DB::T(DB::SAIL), new DBBool(array(new DBCond('race', $race), new DBCond('team', $team))));
     if (count($res) == 0)
       return null;
     return $res[0];
@@ -82,9 +82,9 @@ class Rotation {
     if ($race !== null)
       $cond = new DBCond('race', $race);
     else
-      $cond = new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta), array('id')));
+      $cond = new DBCondIn('race', DB::prepGetAll(DB::T(DB::RACE), new DBCond('regatta', $this->regatta), array('id')));
     $list = array();
-    foreach (DB::getAll(DB::$SAIL, $cond) as $sail)
+    foreach (DB::getAll(DB::T(DB::SAIL), $cond) as $sail)
       $list[] = $sail;
     usort($list, 'Rotation::compareSails');
     return $list;
@@ -130,8 +130,8 @@ class Rotation {
    * @return Array:Sail rotations
    */
   public function getSailsInRound(Round $round) {
-    return DB::getAll(DB::$SAIL,
-                      new DBCondIn('race', DB::prepGetAll(DB::$RACE,
+    return DB::getAll(DB::T(DB::SAIL),
+                      new DBCondIn('race', DB::prepGetAll(DB::T(DB::RACE),
                                                           new DBBool(array(new DBCond('regatta', $this->regatta->id),
                                                                            new DBCond('round', $round))),
                                                           array('id'))));
@@ -144,9 +144,9 @@ class Rotation {
    * @return Array:Sail rotations
    */
   public function getSailsInRoundGroup(Round_Group $group) {
-    $cond = new DBCondIn('round', DB::prepGetAll(DB::$ROUND, new DBCond('round_group', $group), array('id')));
-    return DB::getAll(DB::$SAIL,
-                      new DBCondIn('race', DB::prepGetAll(DB::$RACE,
+    $cond = new DBCondIn('round', DB::prepGetAll(DB::T(DB::ROUND), new DBCond('round_group', $group), array('id')));
+    return DB::getAll(DB::T(DB::SAIL),
+                      new DBCondIn('race', DB::prepGetAll(DB::T(DB::RACE),
                                                           new DBBool(array(new DBCond('regatta', $this->regatta->id),
                                                                            $cond)),
                                                           array('id'))));
@@ -160,10 +160,10 @@ class Rotation {
    */
   public function getRaces(Division $div = null) {
     $conds = array(new DBCond('regatta', $this->regatta),
-                   new DBCondIn('id', DB::prepGetAll(DB::$SAIL, null, array('race'))));
+                   new DBCondIn('id', DB::prepGetAll(DB::T(DB::SAIL), null, array('race'))));
     if ($div !== null)
       $conds[] = new DBCond('division', (string)$div);
-    return DB::getAll(DB::$RACE, new DBBool($conds));
+    return DB::getAll(DB::T(DB::RACE), new DBBool($conds));
   }
 
   /**
@@ -172,10 +172,10 @@ class Rotation {
    * @return Array:Division list of divisions
    */
   public function getDivisions() {
-    $q = DB::prepGetAll(DB::$RACE,
+    $q = DB::prepGetAll(DB::T(DB::RACE),
                         new DBBool(array(new DBCond('regatta', $this->regatta),
-                                         new DBCondIn('id', DB::prepGetAll(DB::$SAIL, null, array('race'))))));
-    $q->fields(array('division'), DB::$RACE->db_name());
+                                         new DBCondIn('id', DB::prepGetAll(DB::T(DB::SAIL), null, array('race'))))));
+    $q->fields(array('division'), DB::T(DB::RACE)->db_name());
     $q->distinct(true);
     $q->order_by(array('division'=>true));
 
@@ -192,11 +192,11 @@ class Rotation {
    * @return Array:Round
    */
   public function getRounds() {
-    $q = DB::prepGetAll(DB::$RACE,
-                        new DBCondIn('id', DB::prepGetAll(DB::$SAIL, null, array('race'))),
+    $q = DB::prepGetAll(DB::T(DB::RACE),
+                        new DBCondIn('id', DB::prepGetAll(DB::T(DB::SAIL), null, array('race'))),
                         array('round'));
 
-    return DB::getAll(DB::$ROUND,
+    return DB::getAll(DB::T(DB::ROUND),
                       new DBBool(array(new DBCond('regatta', $this->regatta),
                                        new DBCondIn('id', $q))));
   }
@@ -708,7 +708,7 @@ class Rotation {
   public function replaceSail(Race $race, $orig, $repl) {
     // Ultimate cheating
     $q = DB::createQuery(DBQuery::UPDATE);
-    $q->values(array('sail'), array(DBQuery::A_STR), array($repl), DB::$SAIL->db_name());
+    $q->values(array('sail'), array(DBQuery::A_STR), array($repl), DB::T(DB::SAIL)->db_name());
     $q->where(new DBBool(array(new DBCond('race', $race), new DBCond('sail', $orig))));
     DB::query($q);
   }
@@ -764,8 +764,8 @@ class Rotation {
     if ($race !== null)
       $cond = new DBCond('race', $race);
     else
-      $cond = new DBCondIn('race', DB::prepGetAll(DB::$RACE, new DBCond('regatta', $this->regatta), array('id')));
-    DB::removeAll(DB::$SAIL, $cond);
+      $cond = new DBCondIn('race', DB::prepGetAll(DB::T(DB::RACE), new DBCond('regatta', $this->regatta), array('id')));
+    DB::removeAll(DB::T(DB::SAIL), $cond);
   }
 }
 ?>
