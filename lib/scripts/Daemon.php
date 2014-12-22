@@ -109,12 +109,12 @@ class Daemon extends AbstractScript {
    * @param String $suffix the identifier for the lock file
    */
   private function createLock($suffix) {
-    if (file_exists(self::T(DB::lock_files)[$suffix]) && !@unlink(self::T(DB::lock_files)[$suffix]))
+    if (file_exists(self::$lock_files[$suffix]) && !@unlink(self::$lock_files[$suffix]))
       throw new TSScriptException("Unable to remove PID file.", 2);
 
     // Create file lock
     register_shutdown_function("Daemon::cleanup");
-    if (file_put_contents(self::T(DB::lock_files)[$suffix], getmypid()) === false)
+    if (file_put_contents(self::$lock_files[$suffix], getmypid()) === false)
       throw new TSScriptException("Unable to create PID file.", 4);
   }
 
@@ -126,10 +126,10 @@ class Daemon extends AbstractScript {
    *
    */
   private function checkLock($suffix, $pid = null) {
-    self::T(DB::lock_files)[$suffix] = sprintf("%s/%s-" . $suffix, sys_get_temp_dir(), Conf::$LOCK_FILENAME);
+    self::$lock_files[$suffix] = sprintf("%s/%s-" . $suffix, sys_get_temp_dir(), Conf::$LOCK_FILENAME);
     if ($pid === null) {
-      if (@file_exists(self::T(DB::lock_files)[$suffix])) {
-        $pid = file_get_contents(self::T(DB::lock_files)[$suffix]);
+      if (@file_exists(self::$lock_files[$suffix])) {
+        $pid = file_get_contents(self::$lock_files[$suffix]);
 
         $old = set_error_handler(function($errno, $errstr) {
             if ($errno == E_WARNING)
@@ -143,9 +143,9 @@ class Daemon extends AbstractScript {
       return;
     }
     
-    if (!@file_exists(self::T(DB::lock_files)[$suffix]))
+    if (!@file_exists(self::$lock_files[$suffix]))
       throw new TSScriptException("Lock file is gone.", 16);
-    $content = @file_get_contents(self::T(DB::lock_files)[$suffix]);
+    $content = @file_get_contents(self::$lock_files[$suffix]);
     if ($content != $pid)
       throw new TSScriptException("Lock file owned by different process.", 18);
   }
@@ -249,7 +249,7 @@ class Daemon extends AbstractScript {
       $P = new UpdateFile();
       $initJS = false;
       foreach ($pending as $i => $r) {
-        if ($i >= self::T(DB::MAX_REQUESTS_PER_CYCLE))
+        if ($i >= self::$MAX_REQUESTS_PER_CYCLE)
           break;
 
         $requests[] = $r;
@@ -351,7 +351,7 @@ class Daemon extends AbstractScript {
       $to_delete = array();
 
       foreach ($pending as $i => $r) {
-        if ($i >= self::T(DB::MAX_REQUESTS_PER_CYCLE))
+        if ($i >= self::$MAX_REQUESTS_PER_CYCLE)
           break;
 
         $requests[] = $r;
@@ -489,7 +489,7 @@ class Daemon extends AbstractScript {
       $to_delete = array();
 
       foreach ($pending as $i => $r) {
-        if ($i >= self::T(DB::MAX_REQUESTS_PER_CYCLE))
+        if ($i >= self::$MAX_REQUESTS_PER_CYCLE)
           break;
 
         $requests[] = $r;
@@ -633,7 +633,7 @@ class Daemon extends AbstractScript {
       $general404 = false;
       $school404 = false;
       foreach ($pending as $i => $r) {
-        if ($i >= self::T(DB::MAX_REQUESTS_PER_CYCLE))
+        if ($i >= self::$MAX_REQUESTS_PER_CYCLE)
           break;
 
         $requests[] = $r;
@@ -949,7 +949,7 @@ class Daemon extends AbstractScript {
    *
    */
   public static function cleanup() {
-    foreach (self::T(DB::lock_files) as $file) {
+    foreach (self::$lock_files as $file) {
       if (file_exists($file) && !@unlink($file))
         throw new RuntimeException("(EE) Unable to delete lock file $file while cleaning up!");
     }

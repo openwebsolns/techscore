@@ -37,7 +37,7 @@ class UpdateBurgee extends AbstractScript {
                       'burgee_small' => '-40',
                       'burgee_square' => '-sq');
     foreach ($versions as $prop => $suffix) {
-      $file = sprintf('%s/%s%s.png', self::T(DB::filepath), $school->id, $suffix);
+      $file = sprintf('%s/%s%s.png', self::$filepath, $school->id, $suffix);
 
       // There is no burgee
       if ($school->$prop === null) {

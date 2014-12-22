@@ -60,8 +60,8 @@ class TSSessionHandler {
       $update = false;
     }
 
-    if (isset(self::T(DB::expires)[$session_id]))
-      $s->expires = self::T(DB::expires)[$session_id];
+    if (isset(self::$expires[$session_id]))
+      $s->expires = self::$expires[$session_id];
 
     $s->sessiondata = $session_data;
     $s->last_modified = DB::T(DB::NOW);
@@ -86,7 +86,7 @@ class TSSessionHandler {
   public static function setLifetime($lifetime) {
     $t = clone(DB::T(DB::NOW));
     $t->add(new DateInterval(sprintf('P0DT%dS', $lifetime)));
-    self::T(DB::expires)[session_id()] = $t;
+    self::$expires[session_id()] = $t;
   }
 
   /**

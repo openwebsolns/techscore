@@ -113,7 +113,7 @@ class RacesPane extends AbstractPane {
                                       new XStrong("This is not recoverable."))));
         if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED) {
           $xp->add(" If adding divisions, you will need to specify how to score the teams in the previously scored races by selecting the appropriate choice below.");
-          $form->add(new FItem("New score:", XSelect::fromArray('new-score', self::T(DB::NEW_SCORES)), "Only needed when adding divisions"));
+          $form->add(new FItem("New score:", XSelect::fromArray('new-score', self::$NEW_SCORES), "Only needed when adding divisions"));
         }
       }
     }
@@ -201,7 +201,7 @@ class RacesPane extends AbstractPane {
       $new_score = false;
       $scored_numbers = array();
       if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED && $this->REGATTA->hasFinishes()) {
-        $new_score = DB::$V->incKey($args, 'new-score', self::T(DB::NEW_SCORES), 'DNS');
+        $new_score = DB::$V->incKey($args, 'new-score', self::$NEW_SCORES, 'DNS');
         $teams = $this->REGATTA->getTeams();
         foreach ($this->REGATTA->getScoredRaces(Division::A()) as $race)
           $scored_numbers[$race->number] = $race->number;

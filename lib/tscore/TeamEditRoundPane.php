@@ -37,7 +37,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
   
   private function fillProgressDiv(Round $round, $section) {
     $this->PAGE->addContent($p = new XP(array('id'=>'progressdiv')));
-    foreach (self::T(DB::SECTIONS) as $key => $title) {
+    foreach (self::$SECTIONS as $key => $title) {
       $p->add($span = new XSpan(new XA($this->link('round', array('r'=>$round->id, 'section'=>$key)), $title)));
       if ($section == $key)
         $span->set('class', 'current');
@@ -65,7 +65,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
 
     $this->PAGE->addContent(new XH3($round));
 
-    $section = DB::$V->incKey($args, 'section', self::T(DB::SECTIONS), self::SETTINGS);
+    $section = DB::$V->incKey($args, 'section', self::$SECTIONS, self::SETTINGS);
     $this->fillProgressDiv($round, $section);
 
     if ($section == self::SETTINGS) {
