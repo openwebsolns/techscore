@@ -272,7 +272,7 @@ class UpdateSchool extends AbstractScript {
       $regs = $s->getParticipation($school);
       if (count($regs) > 0) {
         $num++;
-        $ul->add(new XLi(new XA($root . $s->id . '/', $s->fullString())));
+        $ul->add(new XLi(new XA($root . $s->shortString() . '/', $s->fullString())));
       }
     }
     if ($num > 0)
