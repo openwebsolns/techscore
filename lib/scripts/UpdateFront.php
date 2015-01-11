@@ -50,7 +50,7 @@ class UpdateFront extends AbstractScript {
       return $page;
     }
 
-    $page->addMenu(new XA('/'.$seasons[0]->id.'/', $seasons[0]->fullString()));
+    $page->addMenu(new XA($seasons[0]->getURL(), $seasons[0]->fullString()));
     if (($lnk = $page->getOrgLink()) !== null)
       $page->addMenu($lnk);
 

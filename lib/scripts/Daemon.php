@@ -638,6 +638,7 @@ class Daemon extends AbstractScript {
 
         $requests[] = $r;
 
+        // TODO: handle URL changes?
         if ($r->activity == UpdateSeasonRequest::ACTIVITY_FRONT)
           $front = true;
         elseif ($r->activity == UpdateSeasonRequest::ACTIVITY_404)
@@ -801,7 +802,7 @@ class Daemon extends AbstractScript {
           if ($prior_season !== null) {
             $this->seasons[$prior_season->id] = $prior_season;
             // Queue for deletion
-            $root = sprintf('/%s/%s/', $prior_season->id, $reg->nick);
+            $root = $reg->getURL($prior_season);
             $to_delete[$root] = $root;
 
             foreach ($reg->getTeams() as $team)

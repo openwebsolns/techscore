@@ -43,6 +43,7 @@ class SeasonManagement extends AbstractAdminUserPane {
       $p->add(new XP(array(), "You can also specify a sponsor to be used as default for all new regattas created during that season. Note that sponsor changes only affect newly created regattas. You can override the sponsor assignment on a per-regatta basis."));
       $headers[] = "Default sponsor";
     }
+    $headers[] = "Delete?";
 
     $p->add($f = $this->createForm());
     $f->add($tab = new XQuickTable(array('id'=>'season-table'), $headers));
@@ -58,16 +59,18 @@ class SeasonManagement extends AbstractAdminUserPane {
 
     if ($inc_sponsors)
       $row[] = XSelect::fromArray('sponsor[]', $sponsors);
+    $row[] = "";
 
     $tab->addRow($row);
 
     $rowIndex = 1;
     foreach (DB::getAll(DB::T(DB::SEASON)) as $season) {
+      $count = count($season->getRegattas(true));
       $sel = XSelect::fromArray('season[]', $opts, $season->getSeason());
       $row = array(new XTD(array(), array($sel, new XHiddenInput('id[]', $season->id))),
-                         new XDateInput('start_date[]', $season->start_date),
-                         new XDateInput('end_date[]', $season->end_date),
-                         count($season->getRegattas(true)));
+                   new XDateInput('start_date[]', $season->start_date),
+                   new XDateInput('end_date[]', $season->end_date),
+                   $count);
 
       if ($inc_sponsors) {
         $sponsor = null;
@@ -76,6 +79,11 @@ class SeasonManagement extends AbstractAdminUserPane {
         $row[] = XSelect::fromArray('sponsor[]', $sponsors, $sponsor);
       }
 
+      $del = "";
+      if ($count == 0)
+        $del = new FCheckbox('delete[]', $season->id, "");
+      $row[] = $del;
+
       $tab->addRow($row, array('class'=>'row'. ($rowIndex++ % 2)));
     }
     $f->add(new XSubmitP('edit-seasons', "Edit seasons"));
@@ -83,6 +91,25 @@ class SeasonManagement extends AbstractAdminUserPane {
 
   public function process(Array $args) {
     if (isset($args['edit-seasons'])) {
+
+      // Delete any?
+      $deleted = array();
+      foreach (DB::$V->incList($args, 'delete') as $id) {
+        $season = DB::getSeason($id);
+        if ($season === null)
+          throw new SoterException("Invalid season ID provided for deletion.");
+        if (count($season->getRegattas(true)) > 0)
+          throw new SoterException("Cannot delete seasons for which there are regattas.");
+        $deleted[$season->id] = $season;
+      }
+
+      $count_deleted = count($deleted);
+      if ($count_deleted > 0) {
+        foreach ($deleted as $season)
+          DB::remove($season);
+        Session::pa(new PA(sprintf("Deleted %d season%s.", $count_deleted, ($count_deleted > 1) ? "s" : ""), PA::I));
+      }
+
       // ------------------------------------------------------------
       // Step 1: Parse all current input. We expect a 4-way map
       // indicating ID, Season, start_date and end_date.
@@ -99,7 +126,12 @@ class SeasonManagement extends AbstractAdminUserPane {
       // a map indexed by the season's ID.
       $original_seasons = array();
       $changed_seasons = array();
+      $url_changed_seasons = array();
       foreach ($curr_map['id'] as $rowIndex => $id) {
+        // Ignored if it's deleted
+        if (isset($deleted[$id]))
+          continue;
+
         $obj = DB::getSeason($id);
         if ($obj === null) {
           $obj = new Season();
@@ -123,7 +155,7 @@ class SeasonManagement extends AbstractAdminUserPane {
           if ($obj->start_date !== null && $obj->end_date !== null) {
             if ($obj->start_date >= $obj->end_date)
               throw new SoterException("Start dates must come before end dates.");
-            $obj->id = Season::createID($obj);
+            $obj->url = Season::createUrl($obj);
             $changed_seasons[] = $obj;
           }
           continue;
@@ -153,7 +185,12 @@ class SeasonManagement extends AbstractAdminUserPane {
         if ($season != $obj->getSeason()) {
           $changed = true;
           $obj->season = $season;
-          $obj->id = Season::createID($obj);
+
+          $new_url = Season::createUrl($obj);
+          if ($new_url != $obj->url) {
+            $obj->url = $new_url;
+            $url_changed_seasons[] = $obj;
+          }
         }
 
         // Sponsor provided?
@@ -175,7 +212,8 @@ class SeasonManagement extends AbstractAdminUserPane {
       // Step 2: Any changes?
       // ------------------------------------------------------------
       if (count($changed_seasons) == 0) {
-        Session::pa(new PA("No changes requested.", PA::I));
+        if (count($deleted) == 0)
+          Session::pa(new PA("No changes requested.", PA::I));
         return;
       }
 
@@ -260,6 +298,13 @@ class SeasonManagement extends AbstractAdminUserPane {
           $reg->setData();
         }
         Session::pa(new PA(sprintf("%d regatta(s) affected by change.", count($regs)), PA::I));
+      }
+
+      if (count($url_changed_seasons) > 0) {
+        require_once('public/UpdateManager.php');
+        foreach ($url_changed_seasons as $season) {
+          UpdateManager::queueSeason($season, UpdateSeasonRequest::ACTIVITY_URL);
+        }
       }
 
       foreach ($changed_seasons as $season)

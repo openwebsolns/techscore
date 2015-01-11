@@ -58,7 +58,7 @@ class UpdateSeason extends AbstractScript {
     $page->addMenu(new XA('/', "Home"));
     $page->addMenu(new XA('/schools/', "Schools"));
     $page->addMenu(new XA('/seasons/', "Seasons"));
-    $page->addMenu(new XA(sprintf('/%s/', $season->id), $season->fullString()));
+    $page->addMenu(new XA($season->getURL(), $season->fullString()));
     if (($lnk = $page->getOrgLink()) !== null)
       $page->addMenu($lnk);
 

@@ -796,13 +796,18 @@ class DB extends DBM {
   }
 
   /**
-   * Returns the season with the given ID, or null.
+   * Returns the season with the given ID or shortString, or null.
    *
-   * @param String $id the ID of the season
+   * @param String $id the ID or shortString of the season
    * @return Season|null
    */
   public static function getSeason($id) {
-    return DB::get(DB::T(DB::SEASON), $id);
+    $res = DB::get(DB::T(DB::SEASON), $id);
+    if ($res !== null)
+      return $res;
+
+    $res = DB::getAll(DB::T(DB::SEASON), new DBCond('url', $id));
+    return (count($res) == 0) ? null : $res[0];
   }
 
   /**

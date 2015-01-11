@@ -18,6 +18,7 @@ class Season extends DBObject {
   const SPRING = "spring";
   const WINTER = "winter";
 
+  public $url;
   public $season;
   protected $start_date;
   protected $end_date;
@@ -73,7 +74,16 @@ class Season extends DBObject {
    *
    */
   public function __toString() {
-    return $this->id;
+    return $this->shortString();
+  }
+
+  /**
+   * Return short representation, such as "f13"
+   *
+   * @return String
+   */
+  public function shortString() {
+    return $this->url;
   }
 
   /**
@@ -81,6 +91,14 @@ class Season extends DBObject {
    */
   public function fullString() {
     return sprintf("%s %s", ucfirst((string)$this->season), $this->getYear());
+  }
+
+  /**
+   * Generates public-facing URL: e.g. /f13/
+   *
+   */
+  public function getURL() {
+    return sprintf('/%s/', $this->shortString());
   }
 
   /**
@@ -226,7 +244,7 @@ class Season extends DBObject {
     default:
       throw new InvalidArgumentException("Next season only valid for spring and fall.");
     }
-    return DB::get(DB::T(DB::SEASON), $next . $year);
+    return DB::getSeason(sprintf('%s%02d', $next, $year));
   }
 
   /**
@@ -256,7 +274,7 @@ class Season extends DBObject {
     default:
       throw new InvalidArgumentException("Next season only valid for spring and fall.");
     }
-    return DB::get(DB::T(DB::SEASON), $next . $year);
+    return DB::getSeason(sprintf('%s%02d', $next, $year));
   }
 
   // ------------------------------------------------------------
@@ -312,17 +330,17 @@ class Season extends DBObject {
   }
 
   /**
-   * Creates appropriate ID for given Season object.
+   * Creates appropriate shortString or URL for given Season object.
    *
-   * Does not assign the ID, but uses the object's start_date and
-   * reported "season" to determine the appropriate ID, such as f11
+   * Does not assign the url, but uses the object's start_date and
+   * reported "season" to determine the appropriate url, such as f11
    * for "Fall 2011"
    *
    * @param Season $obj the object whose ID to create
-   * @return String the suitable ID
+   * @return String the suitable url
    * @throws InvalidArgumentException if attributes missing
    */
-  public static function createID(Season $obj) {
+  public static function createUrl(Season $obj) {
     if ($obj->start_date === null || $obj->season === null)
       throw new InvalidArgumentException("Missing either start_date or season.");
     switch ($obj->season) {

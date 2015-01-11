@@ -106,7 +106,7 @@ class CompareHeadToHead extends AbstractReportPane {
     $seasons = array();
     if (isset($args['seasons']) && is_array($args['seasons'])) {
       foreach ($args['seasons'] as $s) {
-        if (($season = DB::get(DB::T(DB::SEASON), $s)) !== null)
+        if (($season = DB::getSeason($s)) !== null)
           $seasons[] = $season;
       }
     }
