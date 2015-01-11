@@ -858,13 +858,18 @@ class DB extends DBM {
   }
 
   /**
-   * Returns the season with the given ID, or null.
+   * Returns the season with the given ID or shortString, or null.
    *
-   * @param String $id the ID of the season
+   * @param String $id the ID or shortString of the season
    * @return Season|null
    */
   public static function getSeason($id) {
-    return DB::get(DB::$SEASON, $id);
+    $res = DB::get(DB::$SEASON, $id);
+    if ($res !== null)
+      return $res;
+
+    $res = DB::getAll(DB::$SEASON, new DBCond('url', $id));
+    return (count($res) == 0) ? null : $res[0];
   }
 
   /**
@@ -3172,6 +3177,7 @@ class Season extends DBObject {
   const SPRING = "spring";
   const WINTER = "winter";
 
+  public $url;
   public $season;
   protected $start_date;
   protected $end_date;
@@ -3236,7 +3242,7 @@ class Season extends DBObject {
    * @return String
    */
   public function shortString() {
-    return $this->id;
+    return $this->url;
   }
 
   /**
@@ -3401,7 +3407,7 @@ class Season extends DBObject {
     default:
       throw new InvalidArgumentException("Next season only valid for spring and fall.");
     }
-    return DB::get(DB::$SEASON, $next . $year);
+    return DB::getSeason(sprintf('%s%02d', $next, $year));
   }
 
   /**
@@ -3431,7 +3437,7 @@ class Season extends DBObject {
     default:
       throw new InvalidArgumentException("Next season only valid for spring and fall.");
     }
-    return DB::get(DB::$SEASON, $next . $year);
+    return DB::getSeason(sprintf('%s%02d', $next, $year));
   }
 
   // ------------------------------------------------------------
@@ -3488,17 +3494,17 @@ class Season extends DBObject {
   }
 
   /**
-   * Creates appropriate ID for given Season object.
+   * Creates appropriate shortString or URL for given Season object.
    *
-   * Does not assign the ID, but uses the object's start_date and
-   * reported "season" to determine the appropriate ID, such as f11
+   * Does not assign the url, but uses the object's start_date and
+   * reported "season" to determine the appropriate url, such as f11
    * for "Fall 2011"
    *
    * @param Season $obj the object whose ID to create
-   * @return String the suitable ID
+   * @return String the suitable url
    * @throws InvalidArgumentException if attributes missing
    */
-  public static function createID(Season $obj) {
+  public static function createUrl(Season $obj) {
     if ($obj->start_date === null || $obj->season === null)
       throw new InvalidArgumentException("Missing either start_date or season.");
     switch ($obj->season) {

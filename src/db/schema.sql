@@ -430,15 +430,15 @@ CREATE TABLE `pub_update_conference` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `conference` varchar(8) COLLATE utf8_unicode_ci NOT NULL,
   `activity` enum('details','season','display','url') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'details',
-  `season` varchar(3) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `season` mediumint(8) unsigned DEFAULT NULL,
   `argument` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `request_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `completion_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `conference` (`conference`),
-  KEY `season` (`season`),
-  CONSTRAINT `pub_update_conference_ibfk_1` FOREIGN KEY (`conference`) REFERENCES `conference` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `pub_update_conference_ibfk_2` FOREIGN KEY (`season`) REFERENCES `season` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `fk_pub_update_conference_season` (`season`),
+  CONSTRAINT `fk_pub_update_conference_season` FOREIGN KEY (`season`) REFERENCES `season` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `pub_update_conference_ibfk_1` FOREIGN KEY (`conference`) REFERENCES `conference` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `pub_update_file`;
@@ -475,15 +475,15 @@ CREATE TABLE `pub_update_school` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `school` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
   `activity` enum('burgee','season','details','url') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'burgee',
-  `season` varchar(3) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `season` mediumint(8) unsigned DEFAULT NULL,
   `argument` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `request_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `completion_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `school` (`school`),
-  KEY `season` (`season`),
-  CONSTRAINT `pub_update_school_ibfk_1` FOREIGN KEY (`school`) REFERENCES `school` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `pub_update_school_ibfk_2` FOREIGN KEY (`season`) REFERENCES `season` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `fk_pub_update_school_season` (`season`),
+  CONSTRAINT `fk_pub_update_school_season` FOREIGN KEY (`season`) REFERENCES `season` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `pub_update_school_ibfk_1` FOREIGN KEY (`school`) REFERENCES `school` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `pub_update_season`;
@@ -588,19 +588,19 @@ CREATE TABLE `regatta` (
   `dt_confs` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `dt_boats` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `dt_singlehanded` tinyint(3) unsigned DEFAULT NULL,
-  `dt_season` varchar(3) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `dt_season` mediumint(8) unsigned DEFAULT NULL,
   `dt_status` varchar(40) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `venue` (`venue`),
   KEY `type` (`type`),
-  KEY `dt_season` (`dt_season`),
   KEY `fk_regatta_creator` (`creator`),
   KEY `fk_regatta_sponsor` (`sponsor`),
+  KEY `fk_regatta_dt_season` (`dt_season`),
   CONSTRAINT `fk_regatta_creator` FOREIGN KEY (`creator`) REFERENCES `account` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_regatta_dt_season` FOREIGN KEY (`dt_season`) REFERENCES `season` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_regatta_sponsor` FOREIGN KEY (`sponsor`) REFERENCES `pub_sponsor` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `regatta_ibfk_1` FOREIGN KEY (`venue`) REFERENCES `venue` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `regatta_ibfk_3` FOREIGN KEY (`type`) REFERENCES `type` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `regatta_ibfk_4` FOREIGN KEY (`dt_season`) REFERENCES `season` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `regatta_ibfk_3` FOREIGN KEY (`type`) REFERENCES `type` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `regatta_document`;
@@ -848,13 +848,13 @@ DROP TABLE IF EXISTS `sailor_season`;
 CREATE TABLE `sailor_season` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `sailor` mediumint(9) NOT NULL,
-  `season` varchar(3) COLLATE utf8_unicode_ci NOT NULL,
+  `season` mediumint(8) unsigned NOT NULL,
   `activated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `sailor` (`sailor`),
-  KEY `season` (`season`),
-  CONSTRAINT `sailor_season_ibfk_1` FOREIGN KEY (`sailor`) REFERENCES `sailor` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `sailor_season_ibfk_2` FOREIGN KEY (`season`) REFERENCES `season` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `fk_sailor_season_season` (`season`),
+  CONSTRAINT `fk_sailor_season_season` FOREIGN KEY (`season`) REFERENCES `season` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `sailor_season_ibfk_1` FOREIGN KEY (`sailor`) REFERENCES `sailor` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `sailor_update`;
@@ -899,13 +899,13 @@ DROP TABLE IF EXISTS `school_season`;
 CREATE TABLE `school_season` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `school` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
-  `season` varchar(3) COLLATE utf8_unicode_ci NOT NULL,
+  `season` mediumint(8) unsigned NOT NULL,
   `activated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `school` (`school`),
-  KEY `season` (`season`),
-  CONSTRAINT `school_season_ibfk_1` FOREIGN KEY (`school`) REFERENCES `school` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `school_season_ibfk_2` FOREIGN KEY (`season`) REFERENCES `season` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `fk_school_season_season` (`season`),
+  CONSTRAINT `fk_school_season_season` FOREIGN KEY (`season`) REFERENCES `season` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `school_season_ibfk_1` FOREIGN KEY (`school`) REFERENCES `school` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `scorer`;
@@ -927,12 +927,14 @@ DROP TABLE IF EXISTS `season`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `season` (
-  `id` varchar(3) COLLATE utf8_unicode_ci NOT NULL,
+  `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
+  `url` varchar(3) COLLATE utf8_unicode_ci NOT NULL,
   `season` enum('fall','winter','spring','summer') COLLATE utf8_unicode_ci DEFAULT 'fall',
   `start_date` date NOT NULL,
   `end_date` date NOT NULL,
   `sponsor` tinyint(3) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_season_url` (`url`),
   KEY `fk_season_sponsor` (`sponsor`),
   CONSTRAINT `fk_season_sponsor` FOREIGN KEY (`sponsor`) REFERENCES `pub_sponsor` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

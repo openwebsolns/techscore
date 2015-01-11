@@ -123,7 +123,7 @@ class SeasonManagement extends AbstractAdminUserPane {
           if ($obj->start_date !== null && $obj->end_date !== null) {
             if ($obj->start_date >= $obj->end_date)
               throw new SoterException("Start dates must come before end dates.");
-            $obj->id = Season::createID($obj);
+            $obj->url = Season::createUrl($obj);
             $changed_seasons[] = $obj;
           }
           continue;
@@ -153,7 +153,7 @@ class SeasonManagement extends AbstractAdminUserPane {
         if ($season != $obj->getSeason()) {
           $changed = true;
           $obj->season = $season;
-          $obj->id = Season::createID($obj);
+          $obj->url = Season::createUrl($obj);
         }
 
         // Sponsor provided?
