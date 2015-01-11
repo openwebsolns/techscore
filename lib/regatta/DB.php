@@ -3227,6 +3227,15 @@ class Season extends DBObject {
    *
    */
   public function __toString() {
+    return $this->shortString();
+  }
+
+  /**
+   * Return short representation, such as "f13"
+   *
+   * @return String
+   */
+  public function shortString() {
     return $this->id;
   }
 
