@@ -40,7 +40,7 @@ class UpdateSeasonsSummary extends AbstractScript {
       $mes .= ($mes == 1) ? " regatta" : " regattas";
       if ((string)$current == (string)$season)
         $mes .= " (current)";
-      $table[$season->fullString()] = new XA(sprintf('/%s/', $season->id), $mes);
+      $table[$season->fullString()] = new XA($season->getURL(), $mes);
     }
     $page->setHeader("All Seasons", $table);
     return $page;

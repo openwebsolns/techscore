@@ -421,7 +421,7 @@ class ReportMaker {
     // Menu
     // Links to season
     $season = $reg->getSeason();
-    $url = sprintf('/%s/', $season->id);
+    $url = $season->getURL();
     $page->addMenu(new XA($url, $season->fullString()));
     $page->addMetaKeyword($season->getSeason());
     $page->addMetaKeyword($season->getYear());

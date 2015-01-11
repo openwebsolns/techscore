@@ -1393,19 +1393,18 @@ class FullRegatta extends DBObject {
    *
    * The path is /<season>/<name>/
    *
+   * @param Season $season optional season override for URL generation
    * @return String the path, calculating it once
    * @throws InvalidArgumentException for regattas that have no
    * nick_names, (i.e. personal regattas)
    */
-  public function getURL() {
+  public function getURL(Season $season = null) {
     if ($this->nick === null)
       throw new InvalidArgumentException("Private regattas are not published.");
-    if ($this->url !== null)
-      return $this->url;
-    $s = $this->getSeason();
-    return sprintf('/%s/%s/', $s->id, $this->nick);
+    if ($season === null)
+      $season = $this->getSeason();
+    return sprintf('%s%s/', $season->getURL(), $this->nick);
   }
-  private $url;
 
   // ------------------------------------------------------------
   // Data caching

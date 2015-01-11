@@ -3247,6 +3247,14 @@ class Season extends DBObject {
   }
 
   /**
+   * Generates public-facing URL: e.g. /f13/
+   *
+   */
+  public function getURL() {
+    return sprintf('/%s/', $this->shortString());
+  }
+
+  /**
    * Is this the season for the given date (or right now)?
    *
    * @param DateTime|null $time if given, the time to check, or "now"
