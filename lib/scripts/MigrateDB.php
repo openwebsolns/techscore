@@ -310,8 +310,12 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
         throw new TSScriptException("Missing argument for --down");
       $arg = array_shift($opts);
       $downgrade = DB::get(new TSSchema(), $arg);
-      if ($downgrade === null)
-        throw new TSScriptException("Invalid ID provided for downgrade: $arg");
+      if ($downgrade === null) {
+        $matches = DB::getAll(new TSSchema(), new DBCond('id', '%' . $arg . '%', DBCond::LIKE));
+        if (count($matches) != 1)
+          throw new TSScriptException("Invalid ID provided for downgrade: $arg");
+        $downgrade = $matches[0];
+      }
     }
     else {
       throw new TSScriptException("Invalid option provided: $opt");

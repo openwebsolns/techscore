@@ -126,6 +126,7 @@ class SeasonManagement extends AbstractAdminUserPane {
       // a map indexed by the season's ID.
       $original_seasons = array();
       $changed_seasons = array();
+      $url_changed_seasons = array();
       foreach ($curr_map['id'] as $rowIndex => $id) {
         // Ignored if it's deleted
         if (isset($deleted[$id]))
@@ -184,7 +185,12 @@ class SeasonManagement extends AbstractAdminUserPane {
         if ($season != $obj->getSeason()) {
           $changed = true;
           $obj->season = $season;
-          $obj->url = Season::createUrl($obj);
+
+          $new_url = Season::createUrl($obj);
+          if ($new_url != $obj->url) {
+            $obj->url = $new_url;
+            $url_changed_seasons[] = $obj;
+          }
         }
 
         // Sponsor provided?
@@ -293,6 +299,13 @@ class SeasonManagement extends AbstractAdminUserPane {
           $reg->setData();
         }
         Session::pa(new PA(sprintf("%d regatta(s) affected by change.", count($regs)), PA::I));
+      }
+
+      if (count($url_changed_seasons) > 0) {
+        require_once('public/UpdateManager.php');
+        foreach ($url_changed_seasons as $season) {
+          UpdateManager::queueSeason($season, UpdateSeasonRequest::ACTIVITY_URL);
+        }
       }
 
       foreach ($changed_seasons as $season)

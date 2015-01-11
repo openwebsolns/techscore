@@ -492,7 +492,7 @@ DROP TABLE IF EXISTS `pub_update_season`;
 CREATE TABLE `pub_update_season` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `season` varchar(3) COLLATE utf8_unicode_ci NOT NULL,
-  `activity` enum('regatta','details','front','404','school404') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'regatta',
+  `activity` enum('regatta','details','front','404','school404','url') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'regatta',
   `request_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `completion_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),

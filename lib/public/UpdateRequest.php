@@ -183,12 +183,14 @@ class UpdateSeasonRequest extends AbstractUpdate {
   const ACTIVITY_FRONT = 'front';
   const ACTIVITY_404 = '404';
   const ACTIVITY_SCHOOL_404 = 'school404';
+  const ACTIVITY_URL = 'url';
 
   public static function getTypes() {
     return array(self::ACTIVITY_REGATTA => self::ACTIVITY_REGATTA,
                  self::ACTIVITY_FRONT => self::ACTIVITY_FRONT,
                  self::ACTIVITY_404 => self::ACTIVITY_404,
                  self::ACTIVITY_SCHOOL_404 => self::ACTIVITY_SCHOOL_404,
+                 self::ACTIVITY_URL => self::ACTIVITY_URL,
                  self::ACTIVITY_DETAILS => self::ACTIVITY_DETAILS);
   }
 

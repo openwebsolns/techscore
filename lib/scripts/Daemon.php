@@ -638,6 +638,7 @@ class Daemon extends AbstractScript {
 
         $requests[] = $r;
 
+        // TODO: handle URL changes?
         if ($r->activity == UpdateSeasonRequest::ACTIVITY_FRONT)
           $front = true;
         elseif ($r->activity == UpdateSeasonRequest::ACTIVITY_404)
