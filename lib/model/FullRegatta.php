@@ -1120,7 +1120,6 @@ class FullRegatta extends DBObject {
    * @return DateTime, or null if no update found
    */
   public function getLastScoreUpdate() {
-    require_once('public/UpdateRequest.php');
     DB::T(DB::UPDATE_REQUEST)->db_set_order(array('request_time'=>false));
     $res = DB::getAll(DB::T(DB::UPDATE_REQUEST), new DBCond('regatta', $this->id));
     $r = (count($res) == 0) ? null : $res[0]->request_time;

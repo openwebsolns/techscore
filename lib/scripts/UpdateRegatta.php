@@ -6,7 +6,6 @@
  */
 
 require_once(dirname(__FILE__).'/../conf.php');
-require_once('public/UpdateRequest.php');
 require_once('public/ReportMaker.php');
 require_once('xml5/TPublicPage.php');
 require_once('AbstractScript.php');
