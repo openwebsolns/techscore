@@ -3,8 +3,6 @@
  * This file is part of Techscore
  */
 
-
-
 /**
  * Tokens created to validate emails
  *
@@ -19,7 +17,6 @@ class Email_Token extends DBObject {
   public function db_type($field) {
     switch ($field) {
     case 'account':
-      require_once('Account.php');
       return DB::T(DB::ACCOUNT);
     case 'deadline':
       return DB::T(DB::NOW);

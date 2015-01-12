@@ -22,7 +22,6 @@ class RankTeamsPane extends AbstractPane {
   }
 
   protected function fillTeam(Team $team) {
-    require_once('regatta/Rank.php');
 
     $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/team-rank.js')));
     $this->PAGE->addContent($p = new XPort("Race record for " . $team));

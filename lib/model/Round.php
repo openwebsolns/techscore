@@ -41,7 +41,6 @@ class Round extends DBObject {
     if ($field == 'boat')
       return DB::T(DB::BOAT);
     if ($field == 'rotation') {
-      require_once('regatta/TeamRotation.php');
       return DB::T(DB::TEAM_ROTATION);
     }
     return parent::db_type($field);

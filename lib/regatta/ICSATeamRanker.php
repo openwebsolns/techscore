@@ -8,7 +8,6 @@
  */
 
 require_once('ICSARanker.php');
-require_once('Rank.php');
 
 /**
  * Ranks a team-racing regatta according to win percentages.
