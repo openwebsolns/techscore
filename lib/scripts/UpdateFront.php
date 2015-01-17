@@ -67,39 +67,29 @@ class UpdateFront extends AbstractScript {
                             new DBBool(array(new DBCond('start_time', $start, DBCond::LE),
                                              new DBCond('end_date', $end, DBCond::GE),
                                              new DBCond('dt_status', Regatta::STAT_SCHEDULED, DBCond::NE))));
-    $in_prog = array();
-    foreach ($potential as $reg) {
-      $in_prog[] = $reg;
+    if (count($potential) > 0) {
+      $div->add($this->createInProgressPort($potential, "In progress"));
     }
-    if (count($in_prog) > 0) {
-      usort($in_prog, 'Regatta::cmpTypes');
-      $div->add(new XDiv(array('id'=>'in-progress'),
-                         array($this->h1("In progress"),
-                               $tab = new XQuickTable(array('class'=>'season-summary'),
-                                                      array("Name",
-                                                            "Type",
-                                                            "Scoring",
-                                                            "Status",
-                                                            "Leading")))));
-      foreach ($in_prog as $i => $reg) {
-        $row = array(new XA($reg->getURL(), $reg->name), $reg->type, $reg->getDataScoring());
-        $tms = $reg->getRankedTeams();
-        if ($reg->dt_status == Regatta::STAT_READY || count($tms) == 0) {
-          $row[] = new XTD(array('colspan'=>2), new XEm("No scores yet"));
-        }
-        else {
-          $row[] = new XStrong(ucwords($reg->dt_status));
-          $row[] = $tms[0]->school->drawSmallBurgee((string)$tms[0]);
-        }
-        $tab->addRow($row, array('class'=>'row'.($i % 2)));
+    else {
+      // ------------------------------------------------------------
+      // Are there any regattas that ended no more than 2 days ago?
+      // Let's show those, too
+      $start->sub(new DateInterval('P2DT0H'));
+      $end->sub(new DateInterval('P2DT0H'));
+      $potential = DB::getAll(DB::T(DB::PUBLIC_REGATTA),
+                              new DBBool(array(new DBCond('start_time', $start, DBCond::LE),
+                                               new DBCond('end_date', $end, DBCond::GE),
+                                               new DBCond('dt_status', Regatta::STAT_SCHEDULED, DBCond::NE))));
+      if (count($potential) > 0) {
+        $div->add($this->createInProgressPort($potential, "Recent regattas"));
       }
-    }
-    elseif (DB::g(STN::FLICKR_ID) !== null) {
-      $div->add(new XDiv(array('id'=>'flickwrap'),
-                         array(new XElem('iframe', array('src'=>sprintf('//www.flickr.com/slideShow/index.gne?group_id=&user_id=%s', urlencode(DB::g(STN::FLICKR_ID))),
-                                                         'width'=>500,
-                                                         'height'=>500),
-                                         array(new XText(""))))));
+      elseif (DB::g(STN::FLICKR_ID) !== null) {
+        $div->add(new XDiv(array('id'=>'flickwrap'),
+                           array(new XElem('iframe', array('src'=>sprintf('//www.flickr.com/slideShow/index.gne?group_id=&user_id=%s', urlencode(DB::g(STN::FLICKR_ID))),
+                                                           'width'=>500,
+                                                           'height'=>500),
+                                           array(new XText(""))))));
+      }
     }
 
     // ------------------------------------------------------------
@@ -145,6 +135,44 @@ class UpdateFront extends AbstractScript {
       $page->addSection(new XDiv(array('id'=>'submenu-wrapper'),
                                        array(new XH3("Other seasons", array('class'=>'nav')), $ul)));
     return $page;
+  }
+
+  /**
+   * Creates an "#in-progress" port with the list of regattas given
+   *
+   * @param Array $regs the list of regattas
+   * @param String $title the title to use for the port
+   * @return XDiv the div created
+   */
+  private function createInProgressPort($regs, $title) {
+    if (!is_array($regs)) {
+      $in_prog = array();
+      foreach ($regs as $reg) {
+        $in_prog[] = $reg;
+      }
+    }
+    usort($in_prog, 'Regatta::cmpTypes');
+    $div = new XDiv(array('id'=>'in-progress'),
+                    array($this->h1($title),
+                          $tab = new XQuickTable(array('class'=>'season-summary'),
+                                                 array("Name",
+                                                       "Type",
+                                                       "Scoring",
+                                                       "Status",
+                                                       "Leading"))));
+    foreach ($in_prog as $i => $reg) {
+      $row = array(new XA($reg->getURL(), $reg->name), $reg->type, $reg->getDataScoring());
+      $tms = $reg->getRankedTeams();
+      if ($reg->dt_status == Regatta::STAT_READY || count($tms) == 0) {
+        $row[] = new XTD(array('colspan'=>2), new XEm("No scores yet"));
+      }
+      else {
+        $row[] = new XStrong(ucwords($reg->dt_status));
+        $row[] = $tms[0]->school->drawSmallBurgee((string)$tms[0]);
+      }
+      $tab->addRow($row, array('class'=>'row'.($i % 2)));
+    }
+    return $div;
   }
 
   /**
