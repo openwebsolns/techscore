@@ -73,7 +73,7 @@ class SyncDB extends AbstractScript {
    * @param Sync_Log $log
    * @param Season $season
    */
-  private function updateSailor(Member $sailor, Sync_Log $log, Season $season) {
+  private function updateSailor(Member $sailor, Sync_Log $log, Season $season, Array &$used_urls) {
     $sailor->active = 1;
     $cur = DB::getRegisteredSailor($sailor->icsa_id);
 
@@ -87,6 +87,34 @@ class SyncDB extends AbstractScript {
     }
     if ($sailor->gender === null)
       $sailor->gender = Sailor::MALE;
+
+    // URL
+    $old_url = $sailor->getURL();
+    $name = $sailor->getName();
+    $url = DB::slugify($name);
+    if (isset($used_urls[$url])) {
+      if ($sailor->year > 0)
+        $root = $name . " " . $sailor->year;
+      else
+        $root = $name . " " . $sailor->school->nick_name;
+      $url = DB::slugify($root);
+      $suf = 1;
+      while (isset($used_urls[$url])) {
+        $url = DB::slugify($root . ' ' . $suf);
+        $suf++;
+      }
+    }
+    $sailor->url = $url;
+    $used_urls[$url] = $url;
+
+    // URL change?
+    $new_url = $sch->getURL();
+    if ($old_url !== null && $old_url != $new_url) {
+      self::errln(sprintf("URL change for sailor %s: %s -> %s", $name, $old_url, $new_url), 3);
+      require_once('public/UpdateManager.php');
+      UpdateManager::queueSailor($sailor, UpdateSailorRequest::ACTIVITY_URL, null, $old_url);
+    }
+
     DB::set($sailor, $update);
 
     // Activate season entry
@@ -235,6 +263,7 @@ class SyncDB extends AbstractScript {
     self::errln("Inactivating role $role", 2);
     RpManager::inactivateRole($proto->role);
     self::errln(sprintf("%s role deactivated", ucfirst($role)), 2);
+    $used_urls = array();
     foreach ($xml->$role as $sailor) {
       try {
         $s = clone $proto;
@@ -251,7 +280,7 @@ class SyncDB extends AbstractScript {
             $s->gender = $sailor->gender;
           }
 
-          $this->updateSailor($s, $log, $season);
+          $this->updateSailor($s, $log, $season, $used_urls);
           self::errln("Activated $role $s", 2);
         }
         else

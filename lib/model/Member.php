@@ -3,8 +3,6 @@
  * This file is part of Techscore
  */
 
-
-
 /**
  * Represents either a student or a coach as a member of a school
  *
@@ -19,6 +17,7 @@ class Member extends DBObject {
   public $role;
   public $icsa_id;
   public $gender;
+  public $url;
   public $active;
   public $regatta_added;
   protected $sync_log;
@@ -47,6 +46,7 @@ class Member extends DBObject {
   public function isRegistered() {
     return $this->icsa_id !== null;
   }
+
   public function getName() {
     $name = "";
     if ($this->first_name !== null)
@@ -60,6 +60,7 @@ class Member extends DBObject {
       return "[No Name]";
     return $name;
   }
+
   public function __toString() {
     $year = "";
     if ($this->role == 'student')
@@ -68,6 +69,20 @@ class Member extends DBObject {
     if (!$this->isRegistered())
       $name .= " *";
     return $name;
+  }
+
+  /**
+   * Returns the public URL root for this member
+   *
+   * This is /sailors/<url>/, where <url> is the "url" property of the
+   * sailor.
+   *
+   * @return String the URL, or null
+   */
+  public function getURL() {
+    if ($this->url === null)
+      return null;
+    return sprintf('/sailors/%s/', $this->url);
   }
 
   /**

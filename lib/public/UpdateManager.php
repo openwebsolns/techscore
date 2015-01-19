@@ -49,6 +49,21 @@ class UpdateManager {
   }
 
   /**
+   * @see queueRequest
+   */
+  public static function queueSailor(Sailor $sailor, $type, Season $season = null, $arg = null) {
+    if (!in_array($type, UpdateSailorRequest::getTypes()))
+      throw new InvalidArgumentException("Illegal update request type $type.");
+
+    $obj = new UpdateSailorRequest();
+    $obj->sailor = $sailor;
+    $obj->activity = $type;
+    $obj->season = $season;
+    $obj->argument = $arg;
+    DB::set($obj);
+  }
+
+  /**
    * Will not queue if setting is off
    *
    * @see queueRequest
