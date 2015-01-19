@@ -3,8 +3,6 @@
  * This file is part of Techscore
  */
 
-
-
 /**
  * "Sticky" key-value pairs for the application, as handled by DB
  *
@@ -82,6 +80,11 @@ class STN extends DBObject {
   const AUTO_MERGE_YEAR = 'auto_merge_year';
 
   const REGATTA_SPONSORS = 'regatta_sponsors';
+
+  /**
+   * Publish sailor profiles to the public site
+   */
+  const SAILOR_PROFILES = 'sailor_profiles';
 
   /**
    * Enforce uniqueness for each sailor by appending each upstream ID

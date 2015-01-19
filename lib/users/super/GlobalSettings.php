@@ -68,6 +68,7 @@ class GlobalSettings extends AbstractSuperUserPane {
     $p->add($f = new XPort("Features"));
     $f->add(new FItem("Auto-merge sailors:", new FCheckbox(STN::AUTO_MERGE_SAILORS, 1, "Auto-merge unregistered sailors on a daily basis.", DB::g(STN::AUTO_MERGE_SAILORS) !== null)));
     $f->add(new FItem("Regatta sponsors:", new FCheckbox(STN::REGATTA_SPONSORS, 1, "Allow scorers to choose from list of sponsors at regatta level.", DB::g(STN::REGATTA_SPONSORS) !== null)));
+    $f->add(new FItem("Sailor profiles:", new FCheckbox(STN::SAILOR_PROFILES, 1, "Publish sailor profiles on public site.", DB::g(STN::SAILOR_PROFILES) !== null)));
 
     $p->add(new XSubmitP('set-params', "Save changes"));
   }
@@ -226,6 +227,12 @@ class GlobalSettings extends AbstractSuperUserPane {
                         ),
                         PA::I));
         }
+      }
+
+      $val = DB::$V->incInt($args, STN::SAILOR_PROFILES, 1, 2, null);
+      if ($val != DB::g(STN::SAILOR_PROFILES)) {
+        $changed = true;
+        DB::s(STN::SAILOR_PROFILES, $val);
       }
 
       if (!$changed)

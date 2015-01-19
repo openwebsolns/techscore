@@ -109,7 +109,7 @@ class SyncDB extends AbstractScript {
 
     // URL change?
     $new_url = $sailor->getURL();
-    if ($old_url != $new_url) {
+    if (DB::g(STN::SAILOR_PROFILES) !== null && $old_url != $new_url) {
       self::errln(sprintf("URL change for sailor %s: %s -> %s", $name, $old_url, $new_url), 3);
       require_once('public/UpdateManager.php');
       UpdateManager::queueSailor($sailor, UpdateSailorRequest::ACTIVITY_URL, null, $old_url);
