@@ -468,6 +468,24 @@ CREATE TABLE `pub_update_request` (
   CONSTRAINT `pub_update_request_ibfk_1` FOREIGN KEY (`regatta`) REFERENCES `regatta` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `pub_update_sailor`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pub_update_sailor` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sailor` mediumint(9) NOT NULL,
+  `activity` enum('name','season','details','url') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'name',
+  `season` mediumint(8) unsigned DEFAULT NULL,
+  `argument` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `request_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `completion_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `sailor` (`sailor`),
+  KEY `fk_pub_update_sailor_season` (`season`),
+  CONSTRAINT `fk_pub_update_sailor_sailor` FOREIGN KEY (`sailor`) REFERENCES `sailor` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_pub_update_sailor_season` FOREIGN KEY (`season`) REFERENCES `season` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `pub_update_school`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -830,6 +848,7 @@ CREATE TABLE `sailor` (
   `year` char(4) COLLATE utf8_unicode_ci DEFAULT NULL,
   `role` enum('student','coach') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'student',
   `gender` enum('M','F') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'M',
+  `url` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `regatta_added` int(11) DEFAULT NULL COMMENT 'For temp sailors, regatta when it was added.',
   `active` tinyint(4) DEFAULT NULL,
   `sync_log` int(10) unsigned DEFAULT NULL,
