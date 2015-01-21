@@ -47,8 +47,9 @@ class UpdateSchool extends AbstractScript {
     $page = new TPublicPage(sprintf("%s | %s", $school, $season->fullString()));
     $page->body->set('class', 'school-page');
     $page->setDescription(sprintf("Summary of activity for %s during the %s season.", $school, $season->fullString()));
-    $page->addMetaKeyword($school->id);
     $page->addMetaKeyword($school->name);
+    if ($school->name != $school->nick_name)
+      $page->addMetaKeyword($school->nick_name);
     $page->addMetaKeyword($season->getSeason());
     $page->addMetaKeyword($season->getYear());
     $page->addSocialPlugins(true);
@@ -92,44 +93,9 @@ class UpdateSchool extends AbstractScript {
     $past = array();    // past regattas from the current season
     $coming = array();  // upcoming schedule
 
-    $skippers = array(); // associative array of sailor id => num times participating
-    $skip_objs = array();
-    $crews = array();
-    $crew_objs = array();
-    // get average placement
-    $places = 0;
-    $avg_total = 0;
     foreach ($regs as $reg) {
-      if ($reg->dt_status === null || $reg->dt_status == Regatta::STAT_SCHEDULED)
+      if ($reg->dt_status === null || $reg->dt_status == Regatta::STAT_SCHEDULED) {
         continue;
-      $teams = $reg->getRankedTeams();
-      $num = count($teams);
-      if ($reg->finalized !== null) {
-        foreach ($teams as $pl => $team) {
-          if ($team->school->id == $school->id) {
-            // track placement
-            $places += (1 - (1 + $pl) / (1 + $num));
-            $avg_total++;
-
-            // track participation
-            $sk = $team->getRpData(null, 'skipper');
-            $cr = $team->getRpData(null, 'crew');
-            foreach ($sk as $rp) {
-              if (!isset($skippers[$rp->sailor->id])) {
-                $skippers[$rp->sailor->id] = 0;
-                $skip_objs[$rp->sailor->id] = $rp->sailor;
-              }
-              $skippers[$rp->sailor->id]++;
-            }
-            foreach ($cr as $rp) {
-              if (!isset($crews[$rp->sailor->id])) {
-                $crews[$rp->sailor->id] = 0;
-                $crew_objs[$rp->sailor->id] = $rp->sailor;
-              }
-              $crews[$rp->sailor->id]++;
-            }
-          }
-        }
       }
       if ($reg->start_time < $tomorrow && $reg->end_date >= $today) {
         $current[] = $reg;
@@ -137,12 +103,10 @@ class UpdateSchool extends AbstractScript {
       if ($reg->end_date < $today) {
         $past[] = $reg;
       }
-      if ($reg->start_time >= $tomorrow)
+      if ($reg->start_time >= $tomorrow) {
         $coming[] = $reg;
+      }
     }
-    $avg = "Not applicable";
-    if ($avg_total > 0)
-      $avg = sprintf('%3.1f%%', 100 * ($places / $avg_total));
 
     // ------------------------------------------------------------
     // SCHOOL season summary
@@ -150,39 +114,8 @@ class UpdateSchool extends AbstractScript {
     if (DB::g(STN::PUBLISH_CONFERENCE_SUMMARY) !== null) {
       $conference_link = new XA($school->conference->url, $conference_link);
     }
-
     $table = array(DB::g(STN::CONFERENCE_TITLE) => $conference_link,
                    "Number of Regattas" => $total);
-    // "Finish percentile" => $avg;
-    $season_link = new XA('/'.(string)$season.'/', $season->fullString());
-
-    // most active sailor?
-    /*
-    arsort($skippers, SORT_NUMERIC);
-    arsort($crews, SORT_NUMERIC);
-    if (count($skippers) > 0) {
-      $txt = array();
-      $i = 0;
-      foreach ($skippers as $id => $num) {
-        if ($i++ >= 2)
-          break;
-        $mes = ($num == 1) ? "race" : "races";
-        $txt[] = sprintf("%s (%d %s)", $skip_objs[$id], $num, $mes);
-      }
-      $table["Most active skipper"] = implode(", ", $txt);
-    }
-    if (count($crews) > 0) {
-      $txt = array();
-      $i = 0;
-      foreach ($crews as $id => $num) {
-        if ($i++ >= 2)
-          break;
-        $mes = ($num == 1) ? "race" : "races";
-        $txt[] = sprintf("%s (%d %s)", $crew_objs[$id], $num, $mes);
-      }
-      $table["Most active crew"] = implode(", ", $txt);
-    }
-    */
     $page->setHeader($school, $table, array('itemprop'=>'name'));
 
     // ------------------------------------------------------------
@@ -237,6 +170,7 @@ class UpdateSchool extends AbstractScript {
     // ------------------------------------------------------------
     // SCHOOL past regattas
     if (count($past) > 0) {
+      $season_link = new XA('/'.(string)$season.'/', $season->fullString());
       $page->addSection($p = new XPort(array("Season history for ", $season_link)));
       $p->set('id', 'history');
 
