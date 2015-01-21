@@ -60,7 +60,6 @@ class MigrateDB extends AbstractScript {
    *
    */
   public function run() {
-    require_once('utils/TSSchema.php');
 
     // SETUP ENVIRONMENT
     if (!$this->schemaTableExists()) {
@@ -305,7 +304,6 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
     elseif ($opt == '-q' || $opt == '--quiet')
       $quiet = true;
     elseif ($opt == '--down') {
-      require_once('utils/TSSchema.php');
       if (count($opts) == 0)
         throw new TSScriptException("Missing argument for --down");
       $arg = array_shift($opts);
