@@ -71,12 +71,10 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
   /**
    * Fetches just the table of results
    *
-   * @param String $link_schools true to include link to school's season
-   * link from the school's name using the school's ID
-   *
+   * @param boolean public_mode true to create links to public resources
    * @return Array the table element
    */
-  public function getTable($link_schools = false) {
+  public function getTable($public_mode = false) {
     $rpManager = $this->REGATTA->getRpManager();
     $division = $this->division;
 
@@ -127,7 +125,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
     foreach ($ranks as $rank) {
 
       $ln = $rank->team->school->name;
-      if ($link_schools !== false)
+      if ($public_mode !== false)
         $ln = new XA(sprintf('%s%s/', $rank->team->school->getURL(), $this->REGATTA->getSeason()), $ln);
 
       // deal with explanations
@@ -189,7 +187,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
               $outside_sailors[$s->sailor->school->nick_name] = count($outside_sailors) + 1;
             $sup = $outside_sailors[$s->sailor->school->nick_name];
           }
-          $row->add(new XTD(array('class'=>'sailor-name ' . $role), $s->getSailor(true)));
+          $row->add(new XTD(array('class'=>'sailor-name ' . $role), $s->getSailor(true, true)));
           $row->add(new XTD(array('class'=>'races'), $amt));
           $row->add(new XTD(array('class'=>'superscript'), $sup));
         }

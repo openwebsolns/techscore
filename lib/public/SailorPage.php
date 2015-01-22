@@ -64,7 +64,7 @@ class SailorPage extends TPublicPage {
   private function fillNavigation() {
     $this->addMenu(new XA('/', "Home"));
     $this->addMenu(new XA('/schools/', "Schools"));
-    $this->addMenu(new XA('/seasons/', "Seasons"));
+    $this->addMenu(new XA($this->season->getUrl(), $this->season->fullString()));
     $this->addMenu(new XA($this->sailor->school->getURL(), $this->sailor->school->nick_name));
     $this->addMenu(new XA($this->sailor->getURL(), $this->sailor));
   }

@@ -66,17 +66,25 @@ class RP {
    * Returns "No show" if sailor is null
    *
    * @param boolean $xml true to wrap No shows in XSpan
+   * @param boolean $public true to create links to sailor profiles
    * @return String|null normally: (string)$sailor
    */
-  public function getSailor($xml = false) {
+  public function getSailor($xml = false, $public = false) {
     if (count($this->rps) == 0)
       return null;
-    if ($this->rps[0]->sailor === null) {
+    $sailor = $this->rps[0]->sailor;
+    if ($sailor === null) {
       if ($xml !== false)
         return new XSpan("No show", array('class'=>'noshow'));
       return "No show";
     }
-    return (string)$this->rps[0]->sailor;
+    $result = (string)$sailor;
+    if ($public !== false
+        && DB::g(STN::SAILOR_PROFILES) !== null
+        && ($url = $sailor->getUrl()) !== null) {
+      $result = new XA($url, $result);
+    }
+    return $result;
   }
 
   /**
