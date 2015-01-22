@@ -187,7 +187,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
               $outside_sailors[$s->sailor->school->nick_name] = count($outside_sailors) + 1;
             $sup = $outside_sailors[$s->sailor->school->nick_name];
           }
-          $row->add(new XTD(array('class'=>'sailor-name ' . $role), $s->getSailor(true, true)));
+          $row->add(new XTD(array('class'=>'sailor-name ' . $role), $s->getSailor(true, $public_mode)));
           $row->add(new XTD(array('class'=>'races'), $amt));
           $row->add(new XTD(array('class'=>'superscript'), $sup));
         }

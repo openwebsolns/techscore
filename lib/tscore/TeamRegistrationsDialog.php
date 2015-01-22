@@ -28,7 +28,13 @@ class TeamRegistrationsDialog extends AbstractDialog {
     }
   }
 
-  public function getRoundTable(Round $round) {
+  /**
+   * Return the table for a given round
+   *
+   * @param Round $round the round in question
+   * @param boolean $public_mode true to create links to public profiles
+   */
+  public function getRoundTable(Round $round, $public_mode = false) {
     $races = $this->REGATTA->getRacesInRound($round);
     if (count($races) == 0)
       throw new InvalidArgumentException("No such round $round in this regatta.");
@@ -113,7 +119,7 @@ class TeamRegistrationsDialog extends AbstractDialog {
               foreach ($rp->getRpEntries($t0, $race, $role) as $entry) {
                 if ($e++ > 0)
                   $cell->add(new XBr());
-                $cell->add($entry->getSailor(true));
+                $cell->add($entry->getSailor(true, $public_mode));
               }
             }
           }

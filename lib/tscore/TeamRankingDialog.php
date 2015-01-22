@@ -26,8 +26,9 @@ class TeamRankingDialog extends AbstractScoresDialog {
   /**
    * Retrieves the short version of the table (without RP)
    *
+   * @param boolean $public_mode true to include links to profile pages
    */
-  public function getSummaryTable($link_schools = false) {
+  public function getSummaryTable($public_mode = false) {
     $ELEMS = array(new XTable(array('class'=>'teamranking results', 'id'=>'teamranking-summary'),
                               array(new XTHead(array(),
                                                array(new XTR(array(),
@@ -65,7 +66,7 @@ class TeamRankingDialog extends AbstractScoresDialog {
 
       $mascot = $team->school->drawSmallBurgee("");
       $school = (string)$team->school;
-      if ($link_schools !== false)
+      if ($public_mode !== false)
         $school = new XA(sprintf('%s%s/', $team->school->getURL(), $season), $school);
 
       $b->add($row = new XTR(array('class'=>sprintf('topborder row%d team-%s', ($rowIndex % 2), $team->id)),
@@ -87,10 +88,10 @@ class TeamRankingDialog extends AbstractScoresDialog {
   /**
    * Fetches the rankings table
    *
-   * @param String $link_schools true to include link to schools' season
+   * @param boolean $public_mode true to include link to public profiles
    * @return Array the table element(s)
    */
-  public function getTable($link_schools = false) {
+  public function getTable($public_mode = false) {
     $ELEMS = array(new XTable(array('class'=>'teamranking results'),
                               array(new XTHead(array(),
                                                array(new XTR(array(),
@@ -134,17 +135,17 @@ class TeamRankingDialog extends AbstractScoresDialog {
       foreach ($divs as $div) {
         foreach ($rpm->getRP($team, $div, RP::SKIPPER) as $s) {
           if ($s->sailor !== null)
-            $skips[$s->sailor->id] = $s->getSailor(true);
+            $skips[$s->sailor->id] = $s->getSailor(true, $public_mode);
         }
         foreach ($rpm->getRP($team, $div, RP::CREW) as $s) {
           if ($s->sailor !== null)
-            $crews[$s->sailor->id] = $s->getSailor(true);
+            $crews[$s->sailor->id] = $s->getSailor(true, $public_mode);
         }
       }
 
       $mascot = $team->school->drawSmallBurgee("");
       $school = (string)$team->school;
-      if ($link_schools !== false)
+      if ($public_mode !== false)
         $school = new XA(sprintf('%s%s/', $team->school->getURL(), $season), $school);
 
       $rowspan = max(1, count($skips), count($crews));

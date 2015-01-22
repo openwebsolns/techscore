@@ -197,7 +197,7 @@ class ReportMaker {
       $this->fullPage->addSection($p = $this->newXPort("Ranking summary"));
       if ($reg->finalized === null)
         $p->add(new XP(array(), array(new XEm("Note:"), " Preliminary results; order may not be accurate due to unbroken ties and incomplete round robins.")));
-      foreach ($maker->getSummaryTable(true) as $elem)
+      foreach ($maker->getSummaryTable(true, true) as $elem)
         $p->add($elem);
       
       require_once('tscore/ScoresGridDialog.php');
@@ -305,7 +305,7 @@ class ReportMaker {
       $this->sailorsPage->addSection(new XP(array('class'=>'notice'), "Note that only races that have been scored are shown."));
       foreach ($rounds as $round) {
         $this->sailorsPage->addSection($p = $this->newXPort($round, false));
-        $p->add($maker->getRoundTable($round));
+        $p->add($maker->getRoundTable($round, true));
       }
     }
   }
