@@ -137,7 +137,7 @@ class UpdateSchool extends AbstractScript {
           $status = new XStrong(ucwords($reg->dt_status));
         }
 
-        $link = new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name);
+        $link = new XA($reg->getURL(), $reg->name);
         $tab->addRow(array($link,
                            $reg->getHostVenue(),
                            $reg->type,
@@ -159,7 +159,7 @@ class UpdateSchool extends AbstractScript {
                                            "Scoring",
                                            "Start time")));
       foreach ($coming as $reg) {
-        $tab->addRow(array(new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name),
+        $tab->addRow(array(new XA($reg->getURL(), $reg->name),
                            $reg->getHostVenue(),
                            $reg->type,
                            $reg->getDataScoring(),
@@ -170,7 +170,7 @@ class UpdateSchool extends AbstractScript {
     // ------------------------------------------------------------
     // SCHOOL past regattas
     if (count($past) > 0) {
-      $season_link = new XA('/'.(string)$season.'/', $season->fullString());
+      $season_link = new XA($season->getURL(), $season->fullString());
       $page->addSection($p = new XPort(array("Season history for ", $season_link)));
       $p->set('id', 'history');
 
@@ -185,9 +185,7 @@ class UpdateSchool extends AbstractScript {
                            $reg->getHostVenue(),
                            $reg->type,
                            $reg->getDataScoring(),
-                           new XElem('time', array('datetime'=>$reg->start_time->format('Y-m-d\TH:i'),
-                                                   'itemprop'=>'startDate'),
-                                     array(new XText($reg->start_time->format('M d')))),
+                           new XTime($reg->start_time, 'M d', array('itemprop'=>'startDate')),
                            ($reg->finalized === null) ? "Pending" : new XStrong("Official"),
                            $this->getPlaces($reg, $school)),
                      array('class' => sprintf('row' . ($row % 2)),

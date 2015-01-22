@@ -862,6 +862,27 @@ class XSpan extends XAbstractHtml {
 }
 
 /**
+ * Time input
+ *
+ * @author Dayan Paez
+ * @version 2015-01-21
+ */
+class XTime extends XAbstractHtml {
+
+  /**
+   * Creates a new <time> tag
+   *
+   * @param DateTime $date the full date to enclose
+   * @param String $format the format to display
+   * @param Array $attrs extra attributes to assign
+   */
+  public function __construct(DateTime $date, $display_format = 'r', Array $attrs = array()) {
+    parent::__construct('time', $attrs, array($date->format($display_format)));
+    $this->set('datetime', $date->format('c'));
+  }
+}
+
+/**
  * Strong element
  *
  */
