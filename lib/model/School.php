@@ -143,9 +143,7 @@ class School extends DBObject {
   /**
    * Returns a list of sailors for the specified school
    *
-   * @param School $school the school object
    * @param Sailor::const $gender null for both or the gender code
-   *
    * @param mixed $active default "all", true returns ONLY the active ones,
    * false to return ONLY the inactive ones, anything else for all.
    *
@@ -157,6 +155,36 @@ class School extends DBObject {
       $cond->add(new DBCond('active', null, DBCond::NE));
     if ($active === false)
       $cond->add(new DBCond('active', null));
+    if ($gender !== null)
+      $cond->add(new DBCond('gender', $gender));
+    return DB::getAll(DB::T(DB::SAILOR), $cond);
+  }
+
+  /**
+   * Returns list of sailors active in the given season
+   *
+   * @param Season $season
+   * @param Sailor::const $gender null for both
+   * @param boolean $registered true/false to limit
+   */
+  public function getSailorsInSeason(Season $season, $gender = null, $registered = null) {
+    $cond = new DBBool(
+      array(
+        new DBCond('school', $this),
+        new DBCondIn(
+          'id',
+          DB::prepGetAll(
+            DB::T(DB::SAILOR_SEASON),
+            new DBCond('season', $season),
+            array('sailor')
+          )
+        )
+      )
+    );
+    if ($registered === true)
+      $cond->add(new DBCond('icsa_id', null, DBCond::NE));
+    elseif ($registered === false)
+      $cond->add(new DBCond('icsa_id', null));
     if ($gender !== null)
       $cond->add(new DBCond('gender', $gender));
     return DB::getAll(DB::T(DB::SAILOR), $cond);
