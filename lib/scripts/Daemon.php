@@ -558,7 +558,7 @@ class Daemon extends AbstractScript {
 
         require_once('scripts/UpdateSchoolsSummary.php');
         $P = new UpdateSchoolsSummary();
-        $P->run(true);
+        $P->run();
         DB::commit();
       }
       catch (TSWriterException $e) {
