@@ -19,6 +19,7 @@ class SchoolReportMaker {
   private $season;
 
   private $mainPage;
+  private $rosterPage;
 
   /**
    * Creates a new report for given school and season
@@ -41,6 +42,16 @@ class SchoolReportMaker {
     return $this->mainPage;
   }
 
+  /**
+   * Gets the page showing the team roster
+   *
+   * @return XPage the page
+   */
+  public function getRosterPage() {
+    $this->fillRosterPage();
+    return $this->rosterPage;
+  }
+
   private function fillMainPage() {
     if ($this->mainPage !== null)
       return;
@@ -51,39 +62,7 @@ class SchoolReportMaker {
     $this->mainPage = new TPublicPage(sprintf("%s | %s", $school, $season->fullString()));
     $this->mainPage->body->set('class', 'school-page');
     $this->mainPage->setDescription(sprintf("Summary of activity for %s during the %s season.", $school, $season->fullString()));
-    $this->mainPage->addMetaKeyword($school->name);
-    if ($school->name != $school->nick_name)
-      $this->mainPage->addMetaKeyword($school->nick_name);
-    $this->mainPage->addMetaKeyword($season->getSeason());
-    $this->mainPage->addMetaKeyword($season->getYear());
-    $this->mainPage->addSocialPlugins(true);
-
-    $url = sprintf('http://%s%s', Conf::$PUB_HOME, $school->getURL());
-    $og = array('type'=>'website', 'url'=>$url);
-    if ($school->hasBurgee()) {
-      $imgurl = sprintf('http://%s/inc/img/schools/%s.png', Conf::$PUB_HOME, $school->id);
-      $this->mainPage->setTwitterImage($imgurl);
-      $og['image'] = $imgurl;
-    }
-
-    $this->mainPage->setFacebookLike($url);
-    $this->mainPage->setOpenGraphProperties($og);
-
-    $this->mainPage->body->set('itemscope', 'itemscope');
-    $this->mainPage->body->set('itemtype', 'http://schema.org/CollegeOrUniversity');
-
-    // SETUP navigation
-    $this->mainPage->addMenu(new XA('/', "Home"));
-    $this->mainPage->addMenu(new XA('/schools/', "Schools"));
-    $this->mainPage->addMenu(new XA('/seasons/', "Seasons"));
-    $this->mainPage->addMenu(new XA($school->getURL(), $school->nick_name));
-    if (($link = $this->getBlogLink()) !== null)
-      $this->mainPage->addMenu(new XA($link, "Blog", array('itemprop'=>'url')));
-    if (($link = $this->mainPage->getOrgTeamsLink()) !== null)
-      $this->mainPage->addMenu($link);
-
-    if (($img = $school->drawBurgee(null, array('itemprop'=>'image'))) !== null)
-      $this->mainPage->addSection(new XP(array('class'=>'burgee'), $img));
+    $this->setupPage($this->mainPage);
 
     // current season
     $today = new DateTime();
@@ -201,20 +180,65 @@ class SchoolReportMaker {
 
     // ------------------------------------------------------------
     // Add links to all seasons
-    $ul = new XUl(array('id'=>'other-seasons'));
-    $num = 0;
-    $root = $school->getURL();
-    foreach (DB::getAll(DB::T(DB::SEASON)) as $s) {
-      $regs = $s->getParticipation($school);
-      if (count($regs) > 0) {
-        $num++;
-        $ul->add(new XLi(new XA($root . $s->shortString() . '/', $s->fullString())));
+    $this->addLinksToOtherSeason($this->mainPage);
+  }
+
+  private function fillRosterPage() {
+    if ($this->rosterPage !== null)
+      return;
+
+    $school = $this->school;
+    $season = $this->season;
+
+    $this->rosterPage = new TPublicPage(sprintf("Team Roster for %s | %s", $school, $season->fullString()));
+    $this->rosterPage->body->set('class', 'school-roster-page');
+    $this->rosterPage->setDescription(sprintf("Roster for %s during the %s season.", $school, $season->fullString()));
+    $this->setupPage($this->rosterPage);
+
+    // ------------------------------------------------------------
+    // SAILOR list
+    $sailors = $school->getSailorsInSeason($season);
+    $season_link = new XA($season->getURL(), $season->fullString());
+    $this->rosterPage->addSection($p = new XPort(array("Roster for ", $season_link)));
+    if (count($sailors) == 0) {
+      $p->add(new XP(array('class'=>'notice'),
+                     array("There are no registered sailors for this school for the ",
+                           $season_link,
+                           " season.")));
+    } else {
+      $p->add(
+        $tab = new XQuickTable(
+          array('class'=>'roster-table'),
+          array("Name", "Class")));
+
+      foreach ($sailors as $i => $sailor) {
+        $tab->addRow(
+          array(
+            new XA($sailor->getURL(), $sailor->getName(), array('itemprop'=>'name')),
+            $sailor->year,
+          ),
+          array(
+            'class' => 'row' . ($i % 2),
+            'itemscope' => 'itemscope',
+            'itemtype' => 'http://schema.org/Person',
+          )
+        );
       }
     }
-    if ($num > 0)
-      $this->mainPage->addSection(new XDiv(array('id'=>'submenu-wrapper'),
-                                           array(new XH3("Other seasons", array('class'=>'nav')),
-                                                 $ul)));
+
+    // ------------------------------------------------------------
+    // SCHOOL season summary
+    $conference_link = $school->conference;
+    if (DB::g(STN::PUBLISH_CONFERENCE_SUMMARY) !== null) {
+      $conference_link = new XA($school->conference->url, $conference_link);
+    }
+    $table = array(
+      DB::g(STN::CONFERENCE_TITLE) => $conference_link,
+      "Number of Sailors" => count($sailors));
+    $this->rosterPage->setHeader($school, $table, array('itemprop'=>'name'));
+
+    // Links to other seasons
+    $this->addLinksToOtherSeason($this->rosterPage);
   }
 
   /**
@@ -238,6 +262,72 @@ class SchoolReportMaker {
     // Turned off until we can figure out a consistent way of doing
     $link_fmt = 'http://collegesailing.info/blog/teams/%s';
     return sprintf($link_fmt, str_replace(' ', '-', strtolower($this->school->name)));
+  }
+
+  private function setupPage(XPage $page) {
+    $school = $this->school;
+    $season = $this->season;
+
+    $page->addMetaKeyword($school->name);
+    if ($school->name != $school->nick_name)
+      $page->addMetaKeyword($school->nick_name);
+    $page->addMetaKeyword($season->getSeason());
+    $page->addMetaKeyword($season->getYear());
+    $page->addSocialPlugins(true);
+
+    $url = sprintf('http://%s%s', Conf::$PUB_HOME, $school->getURL());
+    $og = array('type'=>'website', 'url'=>$url);
+    if ($school->hasBurgee()) {
+      $imgurl = sprintf('http://%s/inc/img/schools/%s.png', Conf::$PUB_HOME, $school->id);
+      $page->setTwitterImage($imgurl);
+      $og['image'] = $imgurl;
+    }
+
+    $page->setFacebookLike($url);
+    $page->setOpenGraphProperties($og);
+
+    $page->body->set('itemscope', 'itemscope');
+    $page->body->set('itemtype', 'http://schema.org/CollegeOrUniversity');
+
+    // SETUP navigation
+    $season_link = $school->getURL() . $season->shortString() . '/';
+    $page->addMenu(new XA('/', "Home"));
+    $page->addMenu(new XA('/schools/', "Schools"));
+    $page->addMenu(new XA('/seasons/', "Seasons"));
+    $page->addMenu(new XA($school->getURL(), $school->nick_name));
+    if (DB::g(STN::SAILOR_PROFILES) !== null)
+      $page->addMenu(new XA($season_link . 'roster/', "Roster"));
+    if (($link = $this->getBlogLink()) !== null)
+      $page->addMenu(new XA($link, "Blog", array('itemprop'=>'url')));
+    if (($link = $page->getOrgTeamsLink()) !== null)
+      $page->addMenu($link);
+
+    if (($img = $school->drawBurgee(null, array('itemprop'=>'image'))) !== null)
+      $page->addSection(new XP(array('class'=>'burgee'), $img));
+  }
+
+  private function addLinksToOtherSeason(XPage $page) {
+    $ul = new XUl(array('id'=>'other-seasons'));
+    $num = 0;
+    $root = $this->school->getURL();
+    foreach (DB::getAll(DB::T(DB::SEASON)) as $s) {
+      $regs = $s->getParticipation($this->school);
+      if (count($regs) > 0) {
+        $num++;
+        $ul->add(new XLi(new XA($root . $s->shortString() . '/', $s->fullString())));
+      }
+    }
+    if ($num > 0) {
+      $page->addSection(
+        new XDiv(
+          array('id'=>'submenu-wrapper'),
+          array(
+            new XH3("Other seasons", array('class'=>'nav')),
+            $ul,
+          )
+        )
+      );
+    }
   }
 }
 ?>
