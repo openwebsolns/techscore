@@ -57,11 +57,12 @@ class UpdateSchoolsSummary extends AbstractScript {
       $title = $conf . " " . DB::g(STN::CONFERENCE_TITLE);
       if ($are_conferences_published)
         $title = new XA($conf->url, $title);
-      $page->addSection($p = new XPort($title));
+      $p = new XPort($title);
       $p->set('id', $conf);
       $p->add($tab = new XQuickTable(array('class'=>'schools-table'), array("Mascot", "School", "City", "State")));
 
-      foreach ($conf->getSchools() as $i => $school) {
+      $schools = $conf->getSchools();
+      foreach ($schools as $i => $school) {
         $num_schools++;
         $link = $school->getURL();
 
@@ -71,6 +72,10 @@ class UpdateSchoolsSummary extends AbstractScript {
                            $school->city,
                            $school->state),
                      array('class'=>'row'.($i%2)));
+      }
+
+      if (count($schools) > 0) {
+        $page->addSection($p);
       }
     }
 
