@@ -25,7 +25,8 @@ class GenerateSite extends AbstractScript {
   const FRONT    = 32;
   const BURGEES  = 64;
   const CONFERENCES = 128;
-  const ALL      = 255;
+  const SAILORS  = 256;
+  const ALL      = 511;
 
   /**
    * Generate the codez
@@ -87,6 +88,27 @@ class GenerateSite extends AbstractScript {
       }
     }
 
+    if ($do & self::SAILORS && DB::g(STN::SAILOR_PROFILES)) {
+      // Sailors
+      self::errln("* Generating sailors");
+      require_once('UpdateSailor.php');
+      $P = new UpdateSailor();
+
+      foreach ($conferences as $conf) {
+        self::errln(sprintf("  - %s: %s", DB::g(STN::CONFERENCE_TITLE), $conf));
+        foreach ($conf->getSchools() as $school) {
+          self::errln(sprintf("    - School: (%8s) %s", $school->id, $school));
+          foreach ($seasons as $season) {
+            self::errln(sprintf("      - Season: %s", $season->fullString()));
+            foreach ($school->getSailorsInSeason($season) as $sailor) {
+              $P->run($sailor, $season);
+              self::errln(sprintf("        - %s", $sailor));
+            }
+          }
+        }
+      }
+    }
+
     if ($do & self::BURGEES) {
       // Schools
       self::errln("* Generating burgees");
@@ -143,12 +165,13 @@ class GenerateSite extends AbstractScript {
   // CLI API
   // ------------------------------------------------------------
 
-  protected $cli_opts = '[-RSC4MFA]';
+  protected $cli_opts = '[-RSCPM4F] [-A]';
   protected $cli_usage = ' -R  Generate regattas
  -S  Generate seasons
  -C  Generate schools (C as in college and confusing)
  -D  Generate conferences (D as in district) NB: only if allowed
  -B  Generate burgees
+ -P  Generate sailors (P for participants; if available)
  -M  Generate schools summary page
  -4  Generate 404 page
  -F  Generate front page (consider using UpdateFront if only desired update)
@@ -174,6 +197,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
     case '-S': $do |= GenerateSite::SEASONS; break;
     case '-C': $do |= GenerateSite::SCHOOLS; break;
     case '-D': $do |= GenerateSite::CONFERENCES; break;
+    case '-P': $do |= GenerateSite::SAILORS; break;
     case '-M': $do |= GenerateSite::SCHOOL_SUMMARY; break;
     case '-F': $do |= GenerateSite::FRONT; break;
     case '-4': $do |= GenerateSite::E404; break;
