@@ -21,82 +21,67 @@ require_once('AbstractScript.php');
 class UpdateSchoolsSummary extends AbstractScript {
 
   /**
-   * Creates and writes the page to file
+   * Creates all versions of schools summary pages
    *
-   * This same page is used for both school and conference "landing"
-   * pages.
-   *
-   * @param boolean $as_conference true to write "conference-mode"
    */
-  public function run($as_conference = false) {
-    $are_conferences_published = (DB::g(STN::PUBLISH_CONFERENCE_SUMMARY) !== null);
-
-    require_once('xml5/TPublicPage.php');
-    $page = new TPublicPage("All Schools");
-    $page->body->set('class', 'school-summary-page');
-    $desc = "Listing of schools, with regatta participation.";
-    if (($n = DB::g(STN::ORG_NAME)) !== null)
-      $desc = sprintf("Listing of schools in %s, with regatta participation.", $n);
-    $page->setDescription($desc);
-    $page->addMetaKeyword("schools");
-
-    $page->addMenu(new XA('/', "Home"));
-    $page->addMenu(new XA('/schools/', "Schools"));
-    $page->addMenu(new XA('/seasons/', "Seasons"));
-    if (($lnk = $page->getOrgTeamsLink()) !== null)
-      $page->addMenu($lnk);
-    if (($lnk = $page->getOrgLink()) !== null)
-      $page->addMenu($lnk);
-
-    $confs = DB::getAll(DB::T(DB::CONFERENCE));
-    $num_schools = 0;
-    // ------------------------------------------------------------
-    // Summary of each conference
-    // count the number of regattas this school has teams in
-    foreach ($confs as $conf) {
-      $title = $conf . " " . DB::g(STN::CONFERENCE_TITLE);
-      if ($are_conferences_published)
-        $title = new XA($conf->url, $title);
-      $p = new XPort($title);
-      $p->set('id', $conf);
-      $p->add($tab = new XQuickTable(array('class'=>'schools-table'), array("Mascot", "School", "City", "State")));
-
-      $schools = $conf->getSchools();
-      foreach ($schools as $i => $school) {
-        $num_schools++;
-        $link = $school->getURL();
-
-        $burg = $school->drawSmallBurgee("");
-        $tab->addRow(array(new XTD(array('class'=>'burgeecell'), $burg),
-                           new XTD(array('class'=>'schoolname'), new XA($link, $school->name)),
-                           $school->city,
-                           $school->state),
-                     array('class'=>'row'.($i%2)));
-      }
-
-      if (count($schools) > 0) {
-        $page->addSection($p);
-      }
-    }
-
-    $header = DB::g(STN::CONFERENCE_TITLE) . "s";
-    if (($n = DB::g(STN::ORG_NAME)) !== null)
-      $header = sprintf("%s %s", $n, $header);
-    $page->setHeader($header, array(sprintf("# of %ss", DB::g(STN::CONFERENCE_TITLE)) => count($confs), "# of Schools" => $num_schools));
-
-    // Write to file!
-    $f = '/schools/index.html';
-    $mes = "Wrote schools summary page";
-    if ($as_conference) {
-      $f = sprintf('/%s/index.html', DB::g(STN::CONFERENCE_URL));
-      $mes = sprintf("Wrote %ss summary page", DB::g(STN::CONFERENCE_TITLE));
-    }
-    self::write($f, $page);
-    self::errln($mes);
+  public function run() {
+    $this->runSchools();
+    $this->runConferences();
+    $this->runSailors();
   }
 
-  protected $cli_opts = '-c';
-  protected $cli_usage = ' -c, --conf  write conference summary page instead';
+  /**
+   * Creates and writes the page to file
+   *
+   */
+  public function runSchools() {
+    $f = '/schools/index.html';
+    $page = $this->maker->getSchoolsPage();
+    self::write($f, $page);
+    self::errln("Wrote schools summary page");
+  }
+
+  /**
+   * Creates the conference summary page only
+   *
+   */
+  public function runConferences() {
+    $f = sprintf('/%s/index.html', DB::g(STN::CONFERENCE_URL));
+    $page = $this->maker->getConferencesPage();
+    self::write($f, $page);
+    self::errln(sprintf("Wrote %ss summary page", DB::g(STN::CONFERENCE_TITLE)));
+  }
+
+  /**
+   * Creates the sailor summary page only
+   *
+   */
+  public function runSailors() {
+    if (DB::g(STN::SAILOR_PROFILES) === null) {
+      self::errln("Sailor profile feature disabled.");
+      return;
+    }
+
+    $f = '/sailors/index.html';
+    $page = $this->maker->getSailorsPage();
+    self::write($f, $page);
+    self::errln("Wrote sailors summary page");
+  }
+
+  public function __construct() {
+    parent::__construct();
+    $this->cli_opts = '[schools] [conferences] [sailors]';
+    $this->cli_usage = sprintf('
+ schools      write /schools/ URL
+ conferences  write /%s/ URL
+ sailors      write /sailors/ URL',
+                               DB::g(STN::CONFERENCE_URL));
+
+    require_once('public/SchoolsSummaryReportMaker.php');
+    $this->maker = new SchoolsSummaryReportMaker();
+  }
+
+  private $maker;
 }
 
 if (isset($argv) && basename($argv[0]) == basename(__FILE__)) {
@@ -104,19 +89,34 @@ if (isset($argv) && basename($argv[0]) == basename(__FILE__)) {
 
   $P = new UpdateSchoolsSummary();
   $opts = $P->getOpts($argv);
-  $as_conference = false;
+  $bitmask = 0;
   while (count($opts) > 0) {
     $arg = array_shift($opts);
     switch ($arg) {
-    case '-c':
-    case '--conf':
-      $as_conference = true;
+    case 'schools':
+      $bitmask |= 1;
+      break;
+
+    case 'conferences':
+      $bitmask |= 2;
+      break;
+
+    case 'sailors':
+      $bitmask |= 4;
       break;
 
     default:
-      throw new TSScriptException("Invalid argument: " . $opt);
+      throw new TSScriptException("Invalid argument: " . $arg);
     }
   }
-  $P->run($as_conference);
+
+  if ($bitmask === 0)
+    $P->run();
+  if ($bitmask & 1)
+    $P->runSchools();
+  if ($bitmask & 2)
+    $P->runConferences();
+  if ($bitmask & 4)
+    $P->runSailors();
 }
 ?>
