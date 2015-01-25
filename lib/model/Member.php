@@ -80,7 +80,7 @@ class Member extends DBObject {
    * @return String the URL, or null
    */
   public function getURL() {
-    if ($this->url === null)
+    if ($this->url === null || $this->icsa_id === null)
       return null;
     return sprintf('/sailors/%s/', $this->url);
   }
