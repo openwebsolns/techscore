@@ -233,7 +233,7 @@ class RegisterPane extends AbstractUserPane {
 
 User notes:
 
-%s",
+> %s",
                       $about->message);
     return $mes;
   }
