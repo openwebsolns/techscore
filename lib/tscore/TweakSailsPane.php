@@ -29,7 +29,7 @@ class TweakSailsPane extends AbstractPane {
     $exist_div = $rotation->getDivisions();
 
     // Chosen divisions
-    $chosen_div = null;
+    $chosen_div = array();
     if (isset($args['division']) &&
         is_array($args['division'])) {
       foreach ($args['division'] as $div) {
@@ -37,7 +37,7 @@ class TweakSailsPane extends AbstractPane {
           $chosen_div[] = new Division($div);
       }
     }
-    else {
+    if (count($chosen_div) == 0) {
       $chosen_div = $exist_div;
     }
 
