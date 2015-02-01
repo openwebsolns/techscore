@@ -13,6 +13,7 @@ MAILTO = {CRON_MAILTO}
 */5 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php -d school > /dev/null && echo "Started school daemon."
 */5 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php -d conference > /dev/null && echo "Started conference daemon."
 */5 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php -d file > /dev/null && echo "Started file daemon."
+*/5 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php -d sailor > /dev/null && echo "Started sailor daemon."
 
 #--------------------------------
 # Update sailor information: do this every day around 4AM
