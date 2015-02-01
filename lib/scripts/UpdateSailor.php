@@ -17,7 +17,7 @@ require_once('AbstractScript.php');
  */
 class UpdateSailor extends AbstractScript {
 
-  private function getPage(Sailor $sailor, Season $season) {
+  private function getPage(Member $sailor, Season $season) {
     require_once('public/SailorPage.php');
 
     $page = new SailorPage($sailor, $season);
@@ -27,10 +27,10 @@ class UpdateSailor extends AbstractScript {
   /**
    * Creates the given season summary for the given sailor
    *
-   * @param Sailor $sailor the sailor whose summary to generate
+   * @param Member $sailor the sailor whose summary to generate
    * @param Season $season the season
    */
-  public function run(Sailor $sailor, Season $season) {
+  public function run(Member $sailor, Season $season) {
     $dirname = $sailor->getURL();
 
     // Do season

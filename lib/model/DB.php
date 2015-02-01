@@ -89,6 +89,7 @@ class DB extends DBM {
   const UPDATE_REQUEST = 'UpdateRequest';
   const UPDATE_SCHOOL = 'UpdateSchoolRequest';
   const UPDATE_SEASON = 'UpdateSeasonRequest';
+  const UPDATE_SAILOR = 'UpdateSailorRequest';
   const VENUE = 'Venue';
   const WEBSESSION = 'Websession';
 

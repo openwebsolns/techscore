@@ -23,7 +23,7 @@ class SailorPage extends TPublicPage {
    * Creates a new public page for given sailor
    *
    */
-  public function __construct(Sailor $sailor, Season $season) {
+  public function __construct(Member $sailor, Season $season) {
     parent::__construct(sprintf("%s | %s", $sailor, $season->fullString()));
     $this->sailor = $sailor;
     $this->season = $season;
@@ -122,6 +122,8 @@ class SailorPage extends TPublicPage {
             $overall_percentage += (1 - ($place - 1) / $num_teams);
             $overall_total++;
             $placement[$reg->id] = sprintf('%d/%d', $place, $num_teams);
+          } else {
+            $placement[$reg->id] = 'N/A';
           }
         }
       }

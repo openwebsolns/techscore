@@ -474,7 +474,7 @@ DROP TABLE IF EXISTS `pub_update_sailor`;
 CREATE TABLE `pub_update_sailor` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `sailor` mediumint(9) NOT NULL,
-  `activity` enum('name','season','details','url') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'name',
+  `activity` enum('name','season','details','url','display') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'name',
   `season` mediumint(8) unsigned DEFAULT NULL,
   `argument` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `request_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -492,7 +492,7 @@ DROP TABLE IF EXISTS `pub_update_school`;
 CREATE TABLE `pub_update_school` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `school` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
-  `activity` enum('burgee','season','details','url') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'burgee',
+  `activity` enum('burgee','season','details','url','roster') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'burgee',
   `season` mediumint(8) unsigned DEFAULT NULL,
   `argument` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `request_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,

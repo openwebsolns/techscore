@@ -449,7 +449,7 @@ class RpManager {
    * @param Division $div the division, if any, to narrow down to.
    * @return Array:RP the teams
    */
-  public function getParticipation(Sailor $sailor, $role = null, Division $div = null) {
+  public function getParticipation(Member $sailor, $role = null, Division $div = null) {
     // Since RP objects all have the same role and division, we
     // create lists of roles and divisions
     $roles = ($role === null) ? array_keys(RP::getRoles()) : array($role);

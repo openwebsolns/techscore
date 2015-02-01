@@ -312,6 +312,157 @@ class Daemon extends AbstractScript {
   }
 
   /**
+   * Checks for sailor-level updates and performs them
+   *
+   * @param boolean $daemon run in daemon mode
+   */
+  public function runSailors($daemon = false) {
+    $this->checkLock('slr');
+    $md5 = $this->checkMD5sum();
+    if ($daemon)
+      $mypid = $this->daemonize();
+    $this->createLock('slr');
+
+    /**
+     * Helper function to trigger sailor dependencies
+     */
+    function triggerDependencies(Member $sailor) {
+      foreach ($sailor->getRegattas() as $regatta) {
+        UpdateManager::queueRequest($regatta, UpdateRequest::ACTIVITY_RP);
+      }
+      foreach ($sailor->getSeasons() as $season) {
+        UpdateManager::queueSchool($sailor->school, UpdateSchoolRequest::ACTIVITY_ROSTER, $season);
+      }
+    }
+
+    $con = DB::connection();
+    $con->autocommit(true);
+    while (true) {
+      $pending = UpdateManager::getPendingSailors();
+      if (count($pending) == 0) {
+        if ($daemon) {
+          self::errln("Sleeping...");
+          DB::commit();
+          DB::resetCache();
+          sleep(639);
+          $this->checkLock('slr', $mypid);
+          $md5 = $this->checkMD5sum($md5);
+          continue;
+        }
+        break;
+      }
+
+      $requests = array();
+      // ------------------------------------------------------------
+      // Loop through the sailor requests
+      // ------------------------------------------------------------
+      $sailors = array(); // map of sailors indexed by ID
+      $seasons = array(); // map of seasons to update indexed by sailor
+      $to_delete = array();
+
+      foreach ($pending as $i => $r) {
+        if ($i >= self::$MAX_REQUESTS_PER_CYCLE)
+          break;
+
+        $requests[] = $r;
+
+        $sailors[$r->sailor->id] = $r->sailor;
+        if (!isset($seasons[$r->sailor->id]))
+          $seasons[$r->sailor->id] = array();
+          
+        // DISPLAY
+        if ($r->activity == UpdateSailorRequest::ACTIVITY_DISPLAY) {
+          if (DB::g(STN::SAILOR_PROFILES) === null) {
+            if ($r->argument !== null) {
+              $to_delete[$r->argument] = $r->argument;
+            }
+          }
+        }
+
+        // URL
+        if ($r->activity == UpdateSailorRequest::ACTIVITY_URL) {
+          if ($r->argument !== null) {
+            $to_delete[$r->argument] = $r->argument;
+          }
+        }
+
+        // SEASON
+        if ($r->activity == UpdateSailorRequest::ACTIVITY_SEASON && $r->season !== null) {
+          $seasons[$r->sailor->id][(string)$r->season] = $r->season;
+        }
+
+        // The following updates trigger changes across dependencies
+        if ($r->activity == UpdateSailorRequest::ACTIVITY_DISPLAY
+            || $r->activity == UpdateSailorRequest::ACTIVITY_URL
+            || $r->activity == UpdateSailorRequest::ACTIVITY_NAME) {
+
+          triggerDependencies($r->sailor);
+          foreach ($r->sailor->getSeasons() as $season) {
+            $seasons[$r->sailor->id][(string)$season] = $season;
+          }
+        }
+      }
+
+      try {
+        // ------------------------------------------------------------
+        // Perform the updates
+        // ------------------------------------------------------------
+        foreach ($to_delete as $root) {
+          self::remove($root);
+        }
+
+        if (count($seasons) > 0) {
+          require_once('scripts/UpdateSailor.php');
+          $P = new UpdateSailor();
+          foreach ($seasons as $id => $list) {
+            foreach ($list as $season) {
+              $P->run($sailors[$id], $season);
+              DB::commit();
+              self::errln(
+                sprintf(
+                  'generated sailor %s: %s/%s', $sailors[$id]->getURL(), $season, $sailors[$id]
+                )
+              );
+            }
+          }
+        }
+
+        require_once('scripts/UpdateSchoolsSummary.php');
+        $P = new UpdateSchoolsSummary();
+        $P->runSailors();
+        DB::commit();
+      }
+      catch (TSWriterException $e) {
+        DB::commit();
+        self::errln("Error while writing: " . $e->getMessage(), 0);
+        sleep(3);
+        continue;
+      }
+
+      // ------------------------------------------------------------
+      // Mark all requests as completed
+      // ------------------------------------------------------------
+      foreach ($requests as $r)
+        UpdateManager::log($r);
+
+      // ------------------------------------------------------------
+      // Perform all hooks
+      // ------------------------------------------------------------
+      foreach (self::getHooks() as $hook) {
+        $ret = 0;
+        passthru($hook, $ret);
+        if ($ret != 0)
+          throw new RuntimeException("Hook $hook", $ret);
+        self::errln("Hook $hook run");
+      }
+      DB::commit();
+      DB::resetCache();
+    }
+
+    self::errln('done');
+  }
+
+  /**
    * Checks for school-level updates and performs them
    *
    * @param boolean $daemon run in daemon mode
@@ -1174,13 +1325,14 @@ class Daemon extends AbstractScript {
   // ------------------------------------------------------------
   // CLI setup
   // ------------------------------------------------------------
-  protected $cli_opts = '[-l] [-d] {regatta|season|school|conference|file}';
+  protected $cli_opts = '[-l] [-d] {regatta|season|school|sailor|conference|file}';
   protected $cli_usage = ' -l --list    only list the pending updates
  -d --daemon  run as a daemon
 
  regatta:    perform pending regatta-level updates
  season:     perform pending season-level updates
  school:     perform pending school-level updates
+ sailor:     perform pending sailor-level updates
  conference: perform pending conference-level updates
  file:    perform pending file-level updates';
 }
@@ -1216,6 +1368,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
     case 'school':
     case 'conference':
     case 'season':
+    case 'sailor':
     case 'file':
       if ($axis !== null)
         throw new TSScriptException("Only one axis may be performed at a time.");
@@ -1251,6 +1404,8 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
       $P->runSeasons($daemon);
     elseif ($axis == 'school')
       $P->runSchools($daemon);
+    elseif ($axis == 'sailor')
+      $P->runSailors($daemon);
     elseif ($axis == 'conference')
       $P->runConferences($daemon);
     elseif ($axis == 'file')
