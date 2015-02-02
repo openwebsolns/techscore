@@ -497,6 +497,9 @@ class Daemon extends AbstractScript {
       // ------------------------------------------------------------
       $burgees = array(); // map of schools whose burgees to update
 
+      $rosters = array(); // map of schools whose rosters to update
+      $roster_seasons = array(); // map of seasons indexed by school
+
       $schools = array(); // map of schools indexed by ID
       $seasons = array(); // map of seasons to update indexed by school
       $to_delete = array();
@@ -506,8 +509,38 @@ class Daemon extends AbstractScript {
           break;
 
         $requests[] = $r;
-        if ($r->activity == UpdateSchoolRequest::ACTIVITY_BURGEE)
+        if ($r->activity == UpdateSchoolRequest::ACTIVITY_BURGEE) {
           $burgees[$r->school->id] = $r->school;
+        }
+        elseif ($r->activity == UpdateSchoolRequest::ACTIVITY_ROSTER) {
+          $rosters[$r->school->id] = $r->school;
+
+          if (!isset($roster_seasons[$r->school->id]))
+            $roster_seasons[$r->school->id] = array();
+
+          // season value is null: do all (such as for ACTIVITY_DETAILS)
+          if ($r->season !== null)
+            $roster_seasons[$r->school->id][(string)$r->season] = $r->season;
+          else {
+            foreach ($r->school->getSeasons() as $season) {
+              $roster_seasons[$r->school->id][(string)$season] = $season;
+            }
+          }
+        }
+        elseif ($r->activity == UpdateSchoolRequest::ACTIVITY_SEASON) {
+          $schools[$r->school->id] = $r->school;
+          if (!isset($seasons[$r->school->id]))
+            $seasons[$r->school->id] = array();
+
+          if ($r->season !== null) {
+            $seasons[$r->school->id][(string)$r->season] = $r->season;
+          }
+          else {
+            foreach ($r->school->getSeasons() as $season) {
+              $seasons[$r->school->id][(string)$season] = $season;
+            }
+          }
+        }
         else { // season summary, or details
           // URL: delete old one
           if ($r->activity == UpdateSchoolRequest::ACTIVITY_URL) {
@@ -523,15 +556,18 @@ class Daemon extends AbstractScript {
           $schools[$r->school->id] = $r->school;
           if (!isset($seasons[$r->school->id]))
             $seasons[$r->school->id] = array();
+          if (!isset($roster_seasons[$r->school->id]))
+            $roster_seasons[$r->school->id] = array();
           
           // season value is null: do all (such as for ACTIVITY_DETAILS)
-          if ($r->season !== null && $r->activity != UpdateSchoolRequest::ACTIVITY_URL)
+          if ($r->season !== null && $r->activity != UpdateSchoolRequest::ACTIVITY_URL) {
             $seasons[$r->school->id][(string)$r->season] = $r->season;
+            $roster_seasons[$r->school->id][(string)$r->season] = $r->season;
+          }
           else {
-            foreach (DB::getAll(DB::T(DB::SEASON)) as $season) {
-              if (count($season->getParticipation($r->school)) > 0) {
-                $seasons[$r->school->id][(string)$season] = $season;
-              }
+            foreach ($r->school->getSeasons() as $season) {
+              $seasons[$r->school->id][(string)$season] = $season;
+              $roster_seasons[$r->school->id][(string)$season] = $season;
             }
           }
         }
@@ -555,6 +591,7 @@ class Daemon extends AbstractScript {
           }
         }
 
+        $P = null;
         if (count($seasons) > 0) {
           require_once('scripts/UpdateSchool.php');
           $P = new UpdateSchool();
@@ -563,6 +600,20 @@ class Daemon extends AbstractScript {
               $P->run($schools[$id], $season);
               DB::commit();
               self::errln(sprintf('generated school %s/%-6s %s', $season, $schools[$id], $schools[$id]));
+            }
+          }
+        }
+
+        if (count($roster_seasons) > 0) {
+          if ($P === null) {
+            require_once('scripts/UpdateSchool.php');
+            $P = new UpdateSchool();
+          }
+          foreach ($roster_seasons as $id => $list) {
+            foreach ($list as $season) {
+              $P->runRoster($rosters[$id], $season);
+              DB::commit();
+              self::errln(sprintf('generated roster for school %s/%-6s %s', $season, $rosters[$id], $rosters[$id]));
             }
           }
         }

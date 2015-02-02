@@ -191,6 +191,23 @@ class School extends DBObject {
   }
 
   /**
+   * Fetch list of seasons a member of this school has participated in.
+   *
+   * @param boolean $inc_private by default only include public regattas
+   * @return Array:Season
+   */
+  public function getSeasons($inc_private = false) {
+    $seasons = array();
+    foreach (DB::getAll(DB::T(DB::SEASON)) as $season) {
+      $participation = $season->getParticipation($this, $inc_private);
+      if (count($participation) > 0) {
+        $seasons[] = $season;
+      }
+    }
+    return $seasons;
+  }
+
+  /**
    * Returns a list of unregistered sailors for the specified school
    *
    * @param School $school the school object
