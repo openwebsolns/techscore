@@ -80,6 +80,7 @@ class SyncDB extends AbstractScript {
     $update = false;
     if ($cur !== null) {
       $sailor->id = $cur->id;
+      $sailor->url = $cur->url;
       $update = true;
     }
     else {
@@ -113,6 +114,13 @@ class SyncDB extends AbstractScript {
       self::errln(sprintf("URL change for sailor %s: %s -> %s", $name, $old_url, $new_url), 3);
       require_once('public/UpdateManager.php');
       UpdateManager::queueSailor($sailor, UpdateSailorRequest::ACTIVITY_URL, null, $old_url);
+
+      // queue school DETAILS as well, if entirely new URL. This will
+      // cause all the seasons to be regenerated, without affecting
+      // the regattas.
+      if ($old_url === null) {
+        UpdateManager::queueSchool($sailor->school, UpdateSailorRequest::ACTIVITY_DETAILS);
+      }
     }
 
     DB::set($sailor, $update);
@@ -286,7 +294,7 @@ class SyncDB extends AbstractScript {
         else
           $this->warnings[$school_id] = "Missing school " . $school_id;
       } catch (Exception $e) {
-        $this->warnings[] = "Invalid sailor information: " . print_r($sailor, true);
+        $this->warnings[] = "Invalid sailor information: " . $e->getMessage() . "\n\n" . print_r($sailor, true);
       }
     }
   }
