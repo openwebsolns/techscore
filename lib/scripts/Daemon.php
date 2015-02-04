@@ -1307,6 +1307,40 @@ class Daemon extends AbstractScript {
   }
 
   /**
+   * Produce a list of pending sailor-level updates to standard output
+   *
+   */
+  public function listSailors() {
+    // Merely list the pending requests
+    $requests = UpdateManager::getPendingSailors();
+    $sailors = array();
+    foreach ($requests as $req) {
+      $activity = $req->activity;
+      if ($req->activity == UpdateSailorRequest::ACTIVITY_SEASON)
+        $activity .= sprintf(' (%s)', $req->season);
+      if (!isset($sailors[$req->sailor->id])) $sailors[$req->sailor->id] = array();
+      if (!isset($sailors[$req->sailor->id][$activity]))
+        $sailors[$req->sailor->id][$activity] = 0;
+      $sailors[$req->sailor->id][$activity]++;
+    }
+
+    // Print them out and exit
+    foreach ($sailors as $id => $list) {
+      try {
+        $reg = DB::getSailor($id);
+        if ($reg === null)
+          throw new RuntimeException("Invalid sailor ID $id.");
+        printf("--------------------\nSailor: [%s] %s\n--------------------\n", $reg->id, $reg);
+        foreach ($list as $activity => $num)
+          printf("%12s: %d\n", $activity, $num);
+      }
+      catch (Exception $e) {
+        printf("(EE) %s: %s\n.", $id, $e->getMessage());
+      }
+    }
+  }
+
+  /**
    * Produce a list of pending conference-level updates to standard output
    *
    */
@@ -1442,6 +1476,8 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
       $P->listSeasons();
     elseif ($axis == 'school')
       $P->listSchools();
+    elseif ($axis == 'sailor')
+      $P->listSailors();
     elseif ($axis == 'conference')
       $P->listConferences();
     elseif ($axis == 'file')

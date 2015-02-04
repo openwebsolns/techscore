@@ -214,8 +214,14 @@ class SchoolReportMaker {
       foreach ($sailors as $i => $sailor) {
         $tab->addRow(
           array(
-            new XA($sailor->getURL(), $sailor->getName(), array('itemprop'=>'name')),
-            $sailor->year,
+            new XTD(
+              array('class'=>'sailor-name'),
+              new XA($sailor->getURL(), $sailor->getName(), array('itemprop'=>'name'))
+            ),
+            new XTD(
+              array('class'=>'sailor-year'),
+              $sailor->year
+            ),
           ),
           array(
             'class' => 'row' . ($i % 2),

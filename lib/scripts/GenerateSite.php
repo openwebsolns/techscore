@@ -61,12 +61,16 @@ class GenerateSite extends AbstractScript {
       require_once('UpdateSchool.php');
       $P = new UpdateSchool();
 
+      $andRosters = (DB::g(STN::SAILOR_PROFILES) !== null);
       foreach ($conferences as $conf) {
         self::errln(sprintf("  - %s: %s", DB::g(STN::CONFERENCE_TITLE), $conf));
         foreach ($conf->getSchools() as $school) {
           self::errln(sprintf("    - School: (%8s) %s", $school->id, $school));
           foreach ($seasons as $season) {
             $P->run($school, $season);
+            if ($andRosters) {
+              $P->runRoster($school, $season);
+            }
             self::errln(sprintf("      - %s", $season->fullString()));
           }
         }
