@@ -37,12 +37,21 @@ class CompareHeadToHead extends AbstractReportPane {
     if (count($seasons) == 0)
         return array();
 
-    // NON-TEAM SCORING REGATTAS
-    $regs1 = DB::prepGetAll(DB::T(DB::PUBLIC_REGATTA),
-                            new DBBool(array(new DBCond('scoring', Regatta::SCORING_TEAM, DBCond::NE),
-                                             $db = new DBBool(array(), DBBool::mOR))), array('id'));
+    $scond = new DBBool(array(), DBBool::mOR);
     foreach ($seasons as $season)
-      $db->add(new DBCond('dt_season', (string)$season));
+      $scond->add(new DBCond('dt_season', $season));
+
+    // NON-TEAM SCORING REGATTAS
+    $regs1 = DB::prepGetAll(
+      DB::T(DB::PUBLIC_REGATTA),
+      new DBBool(
+        array(
+          new DBCond('scoring', Regatta::SCORING_TEAM, DBCond::NE),
+          $scond
+        )
+      ),
+      array('id')
+    );
 
     $team_cond1 = DB::prepGetAll(DB::T(DB::TEAM), new DBCondIn('regatta', $regs1), array('id'));
     $dteam_cond1 = DB::prepGetAll(DB::T(DB::DT_TEAM_DIVISION), new DBCondIn('team', $team_cond1), array('id'));
@@ -52,9 +61,16 @@ class CompareHeadToHead extends AbstractReportPane {
     $res1 = DB::getAll(DB::T(DB::DT_RP), $rp_cond1);
 
     // TEAM SCORING REGATTAS
-    $regs2 = DB::prepGetAll(DB::T(DB::PUBLIC_REGATTA),
-                            new DBBool(array(new DBCond('scoring', Regatta::SCORING_TEAM),
-                                             $db)), array('id'));
+    $regs2 = DB::prepGetAll(
+      DB::T(DB::PUBLIC_REGATTA),
+      new DBBool(
+        array(
+          new DBCond('scoring', Regatta::SCORING_TEAM),
+          $scond
+        )
+      ),
+      array('id')
+    );
 
     $team_cond2 = DB::prepGetAll(DB::T(DB::TEAM), new DBCondIn('regatta', $regs2), array('id'));
     $dteam_cond2 = DB::prepGetAll(DB::T(DB::DT_TEAM_DIVISION), new DBCondIn('team', $team_cond2), array('id'));
