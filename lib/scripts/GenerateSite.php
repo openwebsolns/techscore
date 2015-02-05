@@ -105,8 +105,10 @@ class GenerateSite extends AbstractScript {
           foreach ($seasons as $season) {
             self::errln(sprintf("      - Season: %s", $season->fullString()));
             foreach ($school->getSailorsInSeason($season) as $sailor) {
-              $P->run($sailor, $season);
-              self::errln(sprintf("        - %s", $sailor));
+              if ($sailor->getURL() !== null) {
+                $P->run($sailor, $season);
+                self::errln(sprintf("        - %s", $sailor));
+              }
             }
           }
         }

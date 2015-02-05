@@ -330,7 +330,7 @@ class Daemon extends AbstractScript {
       foreach ($sailor->getRegattas() as $regatta) {
         UpdateManager::queueRequest($regatta, UpdateRequest::ACTIVITY_RP);
       }
-      foreach ($sailor->getSeasons() as $season) {
+      foreach ($sailor->getSeasonsActive() as $season) {
         UpdateManager::queueSchool($sailor->school, UpdateSchoolRequest::ACTIVITY_ROSTER, $season);
       }
     }
@@ -397,7 +397,7 @@ class Daemon extends AbstractScript {
             || $r->activity == UpdateSailorRequest::ACTIVITY_NAME) {
 
           triggerDependencies($r->sailor);
-          foreach ($r->sailor->getSeasons() as $season) {
+          foreach ($r->sailor->getSeasonsActive() as $season) {
             $seasons[$r->sailor->id][(string)$season] = $season;
           }
         }

@@ -103,7 +103,7 @@ class Member extends DBObject {
    * @param boolean $inc_private by default only include public regattas
    * @return Array:Season
    */
-  public function getSeasons($inc_private = false) {
+  public function getSeasonsParticipated($inc_private = false) {
     $seasons = array();
     foreach (DB::getAll(DB::T(DB::SEASON)) as $season) {
       $participation = $season->getSailorParticipation($this, $inc_private);
@@ -112,6 +112,25 @@ class Member extends DBObject {
       }
     }
     return $seasons;
+  }
+
+  /**
+   * Fetch list of seasons the sailor was "active" in.
+   *
+   * @return Array:Season
+   */
+  public function getSeasonsActive() {
+    return DB::getAll(
+      DB::T(DB::SEASON),
+      new DBCondIn(
+        'id',
+        DB::prepGetAll(
+          DB::T(DB::SAILOR_SEASON),
+          new DBCond('sailor', $this),
+          array('season')
+        )
+      )
+    );
   }
 
   /**
