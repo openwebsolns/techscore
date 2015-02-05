@@ -182,11 +182,11 @@ class SailorPage extends TPublicPage {
 
     // ------------------------------------------------------------
     // SAILOR past regattas
-    if (count($past) > 0) {
-      $season_link = new XA($this->season->getURL(), $this->season->fullString());
-      $this->addSection($p = new XPort(array("Season history for ", $season_link)));
-      $p->set('id', 'history');
+    $season_link = new XA($this->season->getURL(), $this->season->fullString());
+    $this->addSection($p = new XPort(array("Season history for ", $season_link)));
+    $p->set('id', 'history');
 
+    if (count($past) > 0) {
       $p->add($tab = new XQuickTable(
                 array('class'=>'participation-table'),
                 array("Name", "Host", "Type", "Scoring", "Date", "Status", "Place(s)")));
@@ -211,6 +211,17 @@ class SailorPage extends TPublicPage {
             'itemscope'=>'itemscope',
             'itemtype'=>'http://schema.org/SportsEvent'));
       }
+    }
+    else {
+      $p->add(
+        new XP(
+          array('class'=>'notice'),
+          sprintf(
+            "It appears %s has not participated in any regattas this season.",
+            $this->sailor->getName()
+          )
+        )
+      );
     }
 
     // ------------------------------------------------------------
