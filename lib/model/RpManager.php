@@ -63,6 +63,44 @@ class RpManager {
   }
 
   /**
+   * Get list of individual RPEntry matching given conditions.
+   *
+   * This method is useful to determine if there are any "no show"
+   * entries at all in a given regatta. This is different than
+   * checking if the regatta isComplete(), because "No show" entries
+   * count towards completion.
+   *
+   * @param Team $team if provided, limit to given team.
+   * @param Race $race if provided, limit to given race.
+   * @param RP:Const $role if non-null, limit ro role (SKIPPER, CREW)
+   * @return Array:RPEntry the list
+   */
+  public function getNoShowRpEntries(Team $team = null, Race $race = null, $role = null) {
+    $cond = new DBBool(array(new DBCond('sailor', null)));
+    if ($team === null && $race === null) {
+      $cond->add(
+        new DBCondIn(
+          'race',
+          DB::prepGetAll(DB::T(DB::RACE), new DBCond('regatta', $this->regatta), array('id'))
+        )
+      );
+    }
+    else {
+      if ($team !== null) {
+        $cond->add(new DBCond('team', $team));
+      }
+      if ($race !== null) {
+        $cond->add(new DBCond('race', $race));
+      }
+    }
+
+    if ($role !== null) {
+      $cond->add(new DBCond('boat_role', RP::parseRole($role)));
+    }
+    return DB::getAll(DB::T(DB::RP_ENTRY), $cond);
+  }
+
+  /**
    * Fetches single RPEntry for given team-race-role combo
    *
    * @param Team $team the team whose entry to fetch

@@ -11,7 +11,7 @@ require_once('AbstractReportPane.php');
  * Generate the "membership" report.
  *
  * The membership report specifies, for each school (grouped by
- * conference),the last regatta in the following categories:
+ * conference), the last regatta in the following categories:
  *
  *  - 2 Division fleet race (coed)
  *  - 2 Division women's (see note)
@@ -88,8 +88,6 @@ class MembershipReport extends AbstractReportPane {
         // Create table
         // ------------------------------------------------------------
 
-        // DB::setLogFile('/tmp/queries.log');
-
         $base_cond = new DBBool(array(new DBCond('dt_status', Regatta::STAT_FINAL),
                                       new DBCondIn('type', array_keys($types)),
                                       new DBCondIn('dt_season', array_keys($seasons))));
@@ -131,7 +129,7 @@ class MembershipReport extends AbstractReportPane {
 
                 $rp = $reg->getRpManager();
                 foreach ($reg->getTeams($school) as $team) {
-                  if ($team->dt_complete_rp === null)
+                  if ($team->dt_complete_rp === null || count($rp->getNoShowRpEntries()) > 0)
                     continue;
 
                   if (!$rp->hasGender(Sailor::MALE, $team)) {
