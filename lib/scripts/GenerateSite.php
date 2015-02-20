@@ -26,7 +26,8 @@ class GenerateSite extends AbstractScript {
   const BURGEES  = 64;
   const CONFERENCES = 128;
   const SAILORS  = 256;
-  const ALL      = 511;
+  const FILES    = 512;
+  const ALL      = 1023;
 
   /**
    * Generate the codez
@@ -165,13 +166,23 @@ class GenerateSite extends AbstractScript {
       $P->run();
       self::errln("* Generated front page");
     }
+
+    if ($do & self::FILES) {
+      // Files
+      require_once('UpdateFile.php');
+      $P = new UpdateFile();
+      foreach (DB::getAll(DB::T(DB::PUB_FILE_SUMMARY)) as $file) {
+        $P->run($file->id);
+      }
+      $P->runInitJs();
+    }
   }
 
   // ------------------------------------------------------------
   // CLI API
   // ------------------------------------------------------------
 
-  protected $cli_opts = '[-RSCPM4F] [-A]';
+  protected $cli_opts = '[-RSCPM4FG] [-A]';
   protected $cli_usage = ' -R  Generate regattas
  -S  Generate seasons
  -C  Generate schools (C as in college and confusing)
@@ -181,6 +192,7 @@ class GenerateSite extends AbstractScript {
  -M  Generate schools summary page
  -4  Generate 404 page
  -F  Generate front page (consider using UpdateFront if only desired update)
+ -G  Generate files
 
  -A  Generate ALL';
 }
@@ -208,6 +220,7 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
     case '-F': $do |= GenerateSite::FRONT; break;
     case '-4': $do |= GenerateSite::E404; break;
     case '-B': $do |= GenerateSite::BURGEES; break;
+    case '-G': $do |= GenerateSite::FILES; break;
     default:
       throw new TSScriptException("Invalid option provided: $opt");
     }
