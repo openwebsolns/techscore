@@ -38,7 +38,7 @@ class S3Writer extends AbstractWriter {
     $ch = curl_init(sprintf('http://%s.%s%s', $this->bucket, $this->host_base, $fname));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HEADER, false);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
     curl_setopt($ch, CURLOPT_USERAGENT, 'TS3 Bot');
     if ($this->port !== null)
       curl_setopt($ch, CURLOPT_PORT, $this->port);
@@ -144,7 +144,6 @@ class S3Writer extends AbstractWriter {
 
   public function write($fname, Writeable $elem) {
     $fp = $this->getWrittenResource($elem);
-    fseek($fp, 0);
     $filename = $this->getResourceFilename($fp);
 
     $type = $this->getMIME($fname);
@@ -152,16 +151,35 @@ class S3Writer extends AbstractWriter {
     $md5 = base64_encode(md5_file($filename, true));
     $headers = $this->getHeaders('PUT', $md5, $type, $fname);
 
-    $ch = $this->prepRequest($fname);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($ch, CURLOPT_PUT, true);
-    curl_setopt($ch, CURLOPT_INFILE, $fp);
-    curl_setopt($ch, CURLOPT_INFILESIZE, $size);
-    if (($output = curl_exec($ch)) === false) {
-      $mes = curl_error($ch);
-      fclose($fp);
+    $retryableErrors = array(
+      CURLE_OPERATION_TIMEDOUT,
+    );
+    $attempts = 0;
+    while (true) {
+      fseek($fp, 0);
+      $attempts++;
+
+      $ch = $this->prepRequest($fname);
+      curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+      curl_setopt($ch, CURLOPT_PUT, true);
+      curl_setopt($ch, CURLOPT_INFILE, $fp);
+      curl_setopt($ch, CURLOPT_INFILESIZE, $size);
+
+      if (($output = curl_exec($ch)) !== false) {
+        break;
+      }
+
+      $num = curl_errno($ch);
+      if (!in_array($num, $retryableErrors) || $attempts >= 5) {
+        $mes = curl_error($ch);
+        fclose($fp);
+        curl_close($ch);
+        throw new TSWriterException(sprintf('%d: %s', $num, $mes));
+      }
+
+      // retry
       curl_close($ch);
-      throw new TSWriterException($mes);
+      sleep(2);
     }
 
     $data = curl_getinfo($ch);
