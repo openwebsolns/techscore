@@ -145,7 +145,7 @@ class QueuedUpdates extends AbstractAdminUserPane {
         array('class'=>'pending-queue-table full'),
         array(
           "Time",
-          $this->labels[$section],
+          "Resource",
           "Activity",
           "Argument",
         )
@@ -157,7 +157,7 @@ class QueuedUpdates extends AbstractAdminUserPane {
           DB::howLongFrom($update->request_time),
           $this->getObjectNameForUpdate($update),
           ucwords($update->activity),
-          ($update->argument === null) ? '--' : $update->argument,
+          $this->getArgumentForUpdate($update),
         )
       );
     }
@@ -203,6 +203,14 @@ class QueuedUpdates extends AbstractAdminUserPane {
     if ($obj instanceof UpdateSailorRequest)
       return $obj->sailor;
     return new XEm("Unknown");
+  }
+
+  private function getArgumentForUpdate(AbstractUpdate $obj) {
+    if ($obj instanceof UpdateSeasonRequest)
+      return '--';
+    if ($obj instanceof UpdateFileRequest)
+      return '--';
+    return ($obj->argument === null) ? '--' : $obj->argument;
   }
 
   public function process(Array $args) {
