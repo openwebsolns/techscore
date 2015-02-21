@@ -81,18 +81,20 @@ class QueuedUpdates extends AbstractAdminUserPane {
         $date
       ));
 
-    $last = UpdateManager::getLastConferenceCompleted();
-    $count = count(UpdateManager::getPendingConferences());
-    if ($count == 0) {
-      $count = new XImg('/inc/img/s.png', "✓");
+    if (DB::g(STN::PUBLISH_CONFERENCE_SUMMARY)) {
+      $last = UpdateManager::getLastConferenceCompleted();
+      $count = count(UpdateManager::getPendingConferences());
+      if ($count == 0) {
+        $count = new XImg('/inc/img/s.png', "✓");
+      }
+      $date = ($last === null) ? "N/A" : DB::howLongFrom($last->completion_time);
+      $table->addRow(
+        array(
+          new XA($this->link(array('r'=>self::CONFERENCE)), $this->labels[self::CONFERENCE]),
+          $count,
+          $date
+        ));
     }
-    $date = ($last === null) ? "N/A" : DB::howLongFrom($last->completion_time);
-    $table->addRow(
-      array(
-        new XA($this->link(array('r'=>self::CONFERENCE)), $this->labels[self::CONFERENCE]),
-        $count,
-        $date
-      ));
 
     if (DB::g(STN::SAILOR_PROFILES)) {
       $last = UpdateManager::getLastSailorCompleted();
