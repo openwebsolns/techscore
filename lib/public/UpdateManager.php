@@ -118,7 +118,7 @@ class UpdateManager {
 
   private static function getLastCompleted(AbstractUpdate $obj) {
     $obj->db_set_order(array('completion_time' => false));
-    $all = DB::getAll($obj, new DBCond('completion_time', null, DBCond::NE));
+    $all = DB::getAll($obj, new DBCond('completion_time', null, DBCond::NE), 1);
     $res = null;
     if (count($all) > 0) {
       $res = $all[0];

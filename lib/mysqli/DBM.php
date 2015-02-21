@@ -485,12 +485,13 @@ class DBM {
    *
    * @param DBObject $obj the object type to retrieve
    * @param String $where the where statement to add, such as 'field = 4'
+   * @param int $limit set to limit, if any
    * @return Array<DBObject> the list of objects
    * @throws DatabaseException related to an invalid where statement
    * @see filter
    */
-  public static function getAll(DBObject $obj, DBExpression $where = null) {
-    $r = self::query(self::prepGetAll($obj, $where));
+  public static function getAll(DBObject $obj, DBExpression $where = null, $limit = null) {
+    $r = self::query(self::prepGetAll($obj, $where, array(), $limit));
 
     $del = new DBObject_Delegate(get_class($obj));
     return new DBDelegate($r, $del);
@@ -534,13 +535,15 @@ class DBM {
    * @since 2010-08-23
    * @see prepGet
    */
-  public static function prepGetAll(DBObject $obj, DBExpression $where = null, Array $fields = array()) {
+  public static function prepGetAll(DBObject $obj, DBExpression $where = null, Array $fields = array(), $limit = null) {
     $f = (count($fields) == 0) ? $obj->db_fields() : $fields;
     $q = self::createQuery();
     $q->fields($f, $obj->db_name());
     $q->order_by($obj->db_get_order());
     $q->where($obj->db_where());
     $q->where($where);
+    if ($limit !== null)
+      $q->limit($limit);
     return $q;
   }
 
