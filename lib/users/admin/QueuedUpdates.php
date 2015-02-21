@@ -45,7 +45,12 @@ class QueuedUpdates extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     if (isset($args['section'])) {
       try {
-        $section = DB::$V->reqKey($args, 'section', $this->labels, "Invalid section requested.");
+        $labels = $this->labels;
+        if (DB::g(STN::PUBLISH_CONFERENCE_SUMMARY) === null)
+          unset($labels[self::CONFERENCE]);
+        if (DB::g(STN::SAILOR_PROFILES) === null)
+          unset($labels[self::SAILOR]);
+        $section = DB::$V->reqKey($args, 'section', $labels, "Invalid section requested.");
         $this->fillSection($section, $args);
         return;
       }
