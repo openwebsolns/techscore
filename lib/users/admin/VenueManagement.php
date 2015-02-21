@@ -16,7 +16,7 @@ require_once('users/admin/AbstractAdminUserPane.php');
  */
 class VenueManagement extends AbstractAdminUserPane {
 
-  const NUM_PER_PAGE = 30;
+  const NUM_PER_PAGE = 20;
 
   public function __construct(Account $user) {
     parent::__construct("Venue management", $user);
@@ -70,9 +70,6 @@ class VenueManagement extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     // 2. List current venues
     // ------------------------------------------------------------
-    $pageset  = (isset($args['r'])) ? (int)$args['r'] : 1;
-    if ($pageset < 1)
-      $this->redirect('venue');
     $list = DB::getVenues();
     $this->PAGE->addContent($p = new XPort("Current venue list"));
     $p->set('id', 'venue-port');
@@ -80,30 +77,31 @@ class VenueManagement extends AbstractAdminUserPane {
       $p->add(new XP(array(), "There are no venues in the database."));
       return;
     }
-    $startint = self::NUM_PER_PAGE * ($pageset - 1);
     $count = count($list);
     $num_pages = ceil($count / self::NUM_PER_PAGE);
-    if ($startint > $count)
-      WS::go('/venue', array('r' => $num_pages));
     $p->add(new XP(array(), "Click on the venue name in the table below to edit."));
+
     // Offer pagination awesomeness
     require_once('xml5/PageWhiz.php');
-    $whiz = new PageWhiz($count, self::NUM_PER_PAGE, '/venue', $_GET);
-    $p->add($ldiv = $whiz->getPages('r', $_GET, '#venue-port'));
+    $whiz = new PageWhiz($count, self::NUM_PER_PAGE, $this->link(), $args);
+    $ldiv = $whiz->getPageLinks('#venue-port');
+    $list = $whiz->getSlice($list);
 
     if ($count > 0) {
+      $p->add($ldiv);
       $p->add($t = new XQuickTable(array('id'=>'venue-table'), array("Name", "Address")));
-      for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < $count; $i++) {
-        $venue = $list[$i];
+      foreach ($list as $i => $venue) {
         $t->addRow(array(new XA($this->link(array('v'=>$venue->id)), $venue),
                          sprintf("%s %s, %s %s",
                                  $venue->address,
                                  $venue->city,
                                  $venue->state,
-                                 $venue->zipcode)));
+                                 $venue->zipcode)),
+                   array('class' => 'row'.($i % 2))
+        );
       }
+      $p->add($ldiv);
     }
-    $p->add($ldiv);
   }
 
   public function process(Array $args) {
