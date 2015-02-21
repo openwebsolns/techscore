@@ -54,6 +54,10 @@ MAILTO = {CRON_MAILTO}
 43 * * * *  /usr/bin/php {DIRECTORY}/lib/scripts/CleanupSessions.php
 
 #--------------------------------
+# Remove completed update queues from database
+31 3 3 * * /usr/bin/php {DIRECTORY}/lib/scripts/CleanupCompletedUpdates.php
+
+#--------------------------------
 # Email users about pending regattas
 0 18 * * 2 /usr/bin/php {DIRECTORY}/lib/scripts/RemindPending.php
 2 18 * * 2 /usr/bin/php {DIRECTORY}/lib/scripts/RemindMissingRP.php
