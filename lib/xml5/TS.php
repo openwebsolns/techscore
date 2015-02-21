@@ -507,10 +507,21 @@ class FormGroup extends XDiv {
  * @version 2015-02-21
  */
 class XWarning extends XP {
-  public function __construct($content = '', $nonprint = false) {
+  public function __construct($content = '') {
     parent::__construct(array('class' => 'warning'), $content);
-    if ($nonprint !== false)
-      $this->set('class', 'warning nonprint');
+  }
+}
+
+/**
+ * A paragraph element that warns, and is not to be printed.
+ *
+ * @author Dayan Paez
+ * @version 2015-02-21
+ */
+class XNonprintWarning extends XWarning {
+  public function __construct($content) {
+    parent::__construct($content);
+    $this->set('class', 'warning nonprint');
   }
 }
 
