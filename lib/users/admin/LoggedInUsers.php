@@ -28,7 +28,7 @@ class LoggedInUsers extends AbstractAdminUserPane {
     $sessions = TSSessionHandler::getActive();
     $num_sessions = count($sessions);
     if ($num_sessions == 0) {
-      $p->add(new XP(array('class'=>'warning'), "There are no active sessions. Which is troubling, considering you seem to be logged-in."));
+      $p->add(new XWarning("There are no active sessions. Which is troubling, considering you seem to be logged-in."));
       return;
     }
 
@@ -39,7 +39,7 @@ class LoggedInUsers extends AbstractAdminUserPane {
     // Pagination
     $num_pages = intval($num_sessions / self::NUM_PER_PAGE) + 1;
     if ($num_pages > 1) {
-      $p->add(new XP(array('class'=>'warning'), sprintf("There are %d logged-in users.", $num_sessions)));
+      $p->add(new XWarning( sprintf("There are %d logged-in users.", $num_sessions)));
       require_once('xml5/PageWhiz.php');
       $whiz = new PageWhiz($num_sessions, self::NUM_PER_PAGE, $this->link(), $args);
       $p->add($whiz->getPageLinks());

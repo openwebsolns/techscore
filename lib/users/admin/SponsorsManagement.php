@@ -112,7 +112,7 @@ class SponsorsManagement extends AbstractAdminUserPane {
                          " to upload a logo first.")));
 
     if (DB::g(STN::REGATTA_SPONSORS)) {
-      $f->add(new XP(array('class'=>'warning'),
+      $f->add(new XWarning(
                      "Note: in order to make the sponsor available at the regatta level, you must include an image in the \"Regatta Logo\" field."));
     }
 

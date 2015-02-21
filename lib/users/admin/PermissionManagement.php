@@ -85,7 +85,7 @@ class PermissionManagement extends AbstractAdminUserPane {
     }
 
     if (count($added) == 0) {
-      $form->add(new XP(array('class'=>'warning'), "There are no permissions in the database. This means that only super-users can actually use the application."));
+      $form->add(new XWarning("There are no permissions in the database. This means that only super-users can actually use the application."));
     }
     else {
       $form->add($tab);
@@ -94,7 +94,7 @@ class PermissionManagement extends AbstractAdminUserPane {
 
     // Fill the "Add permissions" port
     if (count($available) == 0) {
-      $add_port->add(new XP(array('class'=>'warning'), "There are no available permissions to add."));
+      $add_port->add(new XWarning("There are no available permissions to add."));
     }
     else {
       $add_port->add($form = $this->createForm());

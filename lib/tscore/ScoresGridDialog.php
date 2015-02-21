@@ -57,7 +57,7 @@ class ScoresGridDialog extends AbstractScoresDialog {
     }
 
     if ($cnt == 0)
-      $this->PAGE->addContent(new XP(array('class'=>'warning'), "There are no rounds to show."));
+      $this->PAGE->addContent(new XWarning("There are no rounds to show."));
   }
 
   /**

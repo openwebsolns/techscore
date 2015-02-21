@@ -36,7 +36,7 @@ class TeamOrderRoundsPane extends AbstractRoundPane {
     // Current rounds (offer to reorder them)
     // ------------------------------------------------------------
     if (count($rounds) == 0) {
-      $this->PAGE->addContent(new XP(array('class'=>'warning'), "No rounds exist in this regatta."));
+      $this->PAGE->addContent(new XWarning("No rounds exist in this regatta."));
       return;
     }
     // create map of rounds indexed by ID. The extra "r-" in key is

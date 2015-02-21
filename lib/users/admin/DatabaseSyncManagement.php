@@ -101,7 +101,7 @@ class DatabaseSyncManagement extends AbstractAdminUserPane {
       if ($last->started_at > $cutoff) {
         $until = clone($last->started_at);
         $until->add($interval);
-        $p->add(new XP(array('class'=>'warning'),
+        $p->add(new XWarning(
                        array("The databases were last synced ", DB::howLongFrom($last->started_at), ". Please try again ", DB::howLongFrom($until), ".")));
         $can_submit = false;
       }

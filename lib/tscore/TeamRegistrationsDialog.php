@@ -20,7 +20,7 @@ class TeamRegistrationsDialog extends AbstractDialog {
   }
 
   protected function fillHTML(Array $args) {
-    $this->PAGE->addContent(new XP(array('class'=>'warning'), "Only scored races are displayed."));
+    $this->PAGE->addContent(new XWarning("Only scored races are displayed."));
     $rounds = $this->REGATTA->getScoredRounds();
     foreach ($rounds as $round) {
       $this->PAGE->addContent($p = new XPort("Round $round"));
@@ -77,7 +77,7 @@ class TeamRegistrationsDialog extends AbstractDialog {
       $map[$t1->id][$t0->id][$race->number][(string)$race->division] = $race;
     }
     if (count($map) == 0)
-      return new XP(array('class'=>'warning'), "No races sailed in this round.");
+      return new XWarning("No races sailed in this round.");
 
     // Create table
     $table = new XTable(array('class'=>'teamregistrations'), array($tbody = new XTBody()));

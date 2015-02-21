@@ -53,10 +53,10 @@ class BoatsDialog extends AbstractScoresDialog {
     }
 
     if (count($sails) == 0) {
-      $this->PAGE->addContent(new XP(array('class'=>'warning'), "There are no boats to rank."));
+      $this->PAGE->addContent(new XWarning("There are no boats to rank."));
       return;
     }
-    $this->PAGE->addContent(new XP(array('class'=>'warning'), "Note: only boats that have sailed in scored races are shown."));
+    $this->PAGE->addContent(new XWarning("Note: only boats that have sailed in scored races are shown."));
     asort($total, SORT_NUMERIC);
 
     $this->PAGE->addContent($tab = new XQuickTable(array('class'=>'boatrank result'),

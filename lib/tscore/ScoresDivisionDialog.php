@@ -41,7 +41,7 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
     $this->PAGE->addContent($p = new XPort(sprintf("Division %s results", $this->division)));
     $races = $this->REGATTA->getScoredRaces($this->division);
     if (count($races) == 0) {
-      $p->add(new XP(array('class'=>'warning'), sprintf("There are no finishes for division %s.", $this->division)));
+      $p->add(new XWarning( sprintf("There are no finishes for division %s.", $this->division)));
       return;
     }
     $elems = $this->getTable();

@@ -41,13 +41,13 @@ class EnterPenaltyPane extends AbstractPane {
     // Check for race by ID
     if (DB::$V->hasID($theRace, $args, 'race_id', DB::T(DB::RACE))) {
       if ($theRace->regatta != $this->REGATTA || count($this->REGATTA->getFinishes($theRace)) == 0) {
-        $this->PAGE->addContent(new XP(array('class'=>'warning'), "Invalid race ID provided. Using latest scored race instead."));
+        $this->PAGE->addContent(new XWarning("Invalid race ID provided. Using latest scored race instead."));
         $theRace = null;
       }
     }
     elseif (DB::$V->hasRace($theRace, $args, 'race', $this->REGATTA)) {
       if (count($this->REGATTA->getFinishes($theRace)) == 0) {
-        $this->PAGE->addContent(new XP(array('class'=>'warning'), "Invalid race chosen ($theRace). Using latest scored race instead."));
+        $this->PAGE->addContent(new XWarning("Invalid race chosen ($theRace). Using latest scored race instead."));
         $theRace = null;
       }
     }
@@ -61,7 +61,7 @@ class EnterPenaltyPane extends AbstractPane {
     $type = DB::$V->incKey($args, 'type', $this->penalties, null);
     $type = DB::$V->incKey($args, 'type', $this->breakdowns, $type);
     if (isset($args['type']) && $type === null)
-      $this->PAGE->addContent(new XP(array('class'=>'warning'), "Invalid type chosen. Please choose again."));
+      $this->PAGE->addContent(new XWarning("Invalid type chosen. Please choose again."));
     if ($type == null) {
 
       // ------------------------------------------------------------

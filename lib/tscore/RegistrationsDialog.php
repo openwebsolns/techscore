@@ -39,7 +39,7 @@ class RegistrationsDialog extends AbstractDialog {
     }
 
     if ($count == 0) {
-      $p->add(new XP(array('class'=>'warning'), "There are no races in the regatta."));
+      $p->add(new XWarning("There are no races in the regatta."));
       return;
     }
 

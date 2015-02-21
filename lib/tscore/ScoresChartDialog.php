@@ -51,7 +51,7 @@ class ScoresChartDialog extends AbstractScoresDialog {
   public function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new XPort("Regatta ranking history"));
     if (count($this->races) < 2) {
-      $p->add(new XP(array('class'=>'warning'), "There are insufficient finishes entered for the chart."));
+      $p->add(new XWarning("There are insufficient finishes entered for the chart."));
       return;
     }
     require_once('xml5/SVGLib.php');

@@ -202,8 +202,9 @@ class TeamRotationDialog extends AbstractDialog {
    */
   public function fillHTML(Array $args) {
     $this->PAGE->body->set('class', 'tr-rotation-page');
-    $this->PAGE->addContent(new XP(array('class'=>'warning nonprint'),
-                                   array(new XStrong("Hint:"), " to print the sail colors, enable \"Print background colors\" in your printer dialog.")));
+    $this->PAGE->addContent(new XWarning(
+                              array(new XStrong("Hint:"), " to print the sail colors, enable \"Print background colors\" in your printer dialog."),
+                              true));
 
     $covered = array();
     foreach ($this->REGATTA->getRounds() as $round) {

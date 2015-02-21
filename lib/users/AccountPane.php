@@ -39,7 +39,7 @@ class AccountPane extends AbstractUserPane {
     // ------------------------------------------------------------
     if ($this->new_email && $this->new_token) {
       $this->PAGE->addContent($p = new XPort("Change e-mail/username"));
-      $p->add(new XP(array('class'=>'warning'),
+      $p->add(new XWarning(
                      array("You are currently in the process of changing your e-mail address to ",
                            new XStrong($this->new_email),
                            ". To continue, please enter the token sent to that address below. Please note that this process will be abandoned if you logout without verifying new e-mail address.")));

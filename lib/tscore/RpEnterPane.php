@@ -172,7 +172,7 @@ class RpEnterPane extends AbstractPane {
     // Representative
     $rep = $rpManager->getRepresentative($chosen_team);
     $p->add($form = $this->createForm());
-    $form->add(new XP(array('class'=>'warning'),
+    $form->add(new XWarning(
                       array(new XStrong("Note:"), " It is not possible to add sailors without adding races. When unsure, mark a sailor as sailing all races, and edit later as more information becomes available. ",
                             new XStrong("Hint:"), " Use \"*\" to automatically select all races. Use the ",
                             new XA(WS::link(sprintf('/view/%s/sailors', $this->REGATTA->id)), "Sailors dialog",

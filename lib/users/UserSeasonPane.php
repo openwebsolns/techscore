@@ -40,7 +40,7 @@ class UserSeasonPane extends AbstractUserPane {
     $season = Season::forDate(DB::T(DB::NOW));
     if ($season === null) {
       $this->PAGE->addContent($p = new XPort("No season"));
-      $p->add(new XP(array('class'=>'warning'),
+      $p->add(new XWarning(
                      array("There is no current season in the program. Please contact the administrator. No regattas can be created to start in the \"off-season\". You may wish to ",
                            new XA(WS::link('/archive'), "browse the archive"),
                            " instead.")));
@@ -53,7 +53,7 @@ class UserSeasonPane extends AbstractUserPane {
 
     if (count($regattas) == 0) {
       $this->PAGE->addContent($p = new XPort(sprintf("Regattas for %s", $season->fullString())));
-      $p->add($xp = new XP(array('class'=>'warning'),
+      $p->add($xp = new XWarning(
                            array("You have no regattas for season ",
                                  $season->fullString(),
                                  ". Try ",

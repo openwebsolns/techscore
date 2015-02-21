@@ -145,7 +145,7 @@ class RankTeamsPane extends AbstractPane {
     $p->add(new XP(array(), "Use this form to set the rank for the teams in the regatta. By default, teams are ranked by the system according to win percentage; followed by number of head-to-head wins; followed by total number of points when tied teams met. After that, the tie stands, and must be broken manually."));
     $p->add(new XP(array(), "To edit a particular team's record by setting which races count towards their record, click on the win-loss record for that team. Remember to click \"Set ranks\" to save the order before editing a team's record."));
     $p->add(new XP(array(), "Use the \"Lock\" checkbox to lock/unlock a team's rank in the regatta. When locked, the rank will not change when new finishes are entered."));
-    $p->add(new XP(array('class'=>'warning'), sprintf("Please note that %s will re-rank the teams with every new race scored.", DB::g(STN::APP_NAME))));
+    $p->add(new XWarning( sprintf("Please note that %s will re-rank the teams with every new race scored.", DB::g(STN::APP_NAME))));
 
     // group the teams
     $groups = array();

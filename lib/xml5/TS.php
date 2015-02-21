@@ -510,7 +510,7 @@ class XWarning extends XP {
   public function __construct($content = '', $nonprint = false) {
     parent::__construct(array('class' => 'warning'), $content);
     if ($nonprint !== false)
-      $this->set('class' => 'warning nonprint');
+      $this->set('class', 'warning nonprint');
   }
 }
 

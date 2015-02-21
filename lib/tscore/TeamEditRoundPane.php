@@ -104,7 +104,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
       // ------------------------------------------------------------
       $this->PAGE->addContent($p = new XPort("Delete round"));
       if ($round->round_group !== null) {
-        $p->add(new XP(array('class'=>'warning'),
+        $p->add(new XWarning(
                        array(new XStrong("Note:"), " You may not delete this round because it is being sailed as part of a group. In order to delete the round, you must first \"unlink\" the round group by visiting the ",
                              new XA($this->link('order-rounds'), "Order rounds"),
                              " pane.")));
@@ -115,12 +115,12 @@ class TeamEditRoundPane extends AbstractRoundPane {
           $list = array();
           foreach ($slaves as $rel)
             $list[] = $rel->slave;
-          $p->add(new XP(array('class'=>'warning'),
+          $p->add(new XWarning(
                          array(new XStrong("Note:"),
                                sprintf(" Races in this round are carried over to %s. Because of this, this round may not be deleted, as this would create incomplete round robins. To delete this round, you must first delete the dependent rounds above.", implode(", ", $list)))));
         }
         else {
-          $p->add(new XP(array('class'=>'warning'),
+          $p->add(new XWarning(
                          array(new XStrong("Note:"), " Deleting the round will also delete all the races in the round and all information associated with that race, including finishes, penalties, and rotations.")));
           $attr = array('onclick'=>'return confirm("Are you sure you wish to delete this round\ncurrently underway? All score data will be lost.");');
 
@@ -144,7 +144,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
       $form->add(new XNoScript("To reorder the races, indicate the relative desired order in the first cell."));
       $form->add(new XScript('text/javascript', null, 'var f = document.getElementById("edit-races-form"); var p = document.createElement("p"); p.appendChild(document.createTextNode("To reorder the races, move the rows below by clicking and dragging on the first cell (\"#\") of that row.")); f.appendChild(p);'));
       $form->add(new XP(array(), "You may also edit the associated boat for each race. Click the \"Edit races\" button to save changes. Extra (unused) races will be removed at the end of the regatta."));
-      $form->add(new XP(array('class'=>'warning'), "Hint: For large rotations, click \"Edit races\" at the bottom of page often to save your work."));
+      $form->add(new XWarning("Hint: For large rotations, click \"Edit races\" at the bottom of page often to save your work."));
       $form->add(new XNoScript(array(new XP(array(),
                                             array(new XStrong("Important:"), " check the edit column if you wish to edit that race. The race will not be updated regardless of changes made otherwise.")))));
       $header = array("Order", "#");

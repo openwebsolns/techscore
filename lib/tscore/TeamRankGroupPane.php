@@ -40,7 +40,7 @@ class TeamRankGroupPane extends AbstractPane {
         $has_locked = true;
     }
     if ($has_locked)
-      $form->add(new XP(array('class'=>'warning'),
+      $form->add(new XWarning(
                         array(new XStrong("Warning:"),
                               " Teams whose ranks are locked may have to be unlocked if the locked rank lies outside range of possible ranks assigned above.")));
     $form->add(new XSubmitP('set-groups', "Set groups", array('id'=>'submit-input')));

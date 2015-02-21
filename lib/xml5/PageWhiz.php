@@ -48,7 +48,7 @@ class PageWhiz {
   public function getSearchForm($query = null, $var = 'q', $empty_mes = "There are no items to show.", $leadin = "Search") {
     $div = new XDiv(array('class'=>'navsearch'));
     if ($this->count == 0 && $query == null) {
-      $div->add(new XP(array('class'=>'warning'), $empty_mes));
+      $div->add(new XWarning( $empty_mes));
       return $div;
     }
 
@@ -62,7 +62,7 @@ class PageWhiz {
         $pa->add(new XA($this->base, "Cancel"));
 
         if ($this->count == 0)
-          $f->add(new XP(array('class'=>'warning'), $empty_mes));
+          $f->add(new XWarning( $empty_mes));
       }
     }
     return $div;

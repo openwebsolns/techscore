@@ -105,7 +105,7 @@ class TeamRpEnterPane extends AbstractPane {
     $form->set('id', 'rp-form');
     $form->add(new XP(array(), "Fill out the form using one set of sailors at a time. A \"set\" refers to the group of sailors out on the water at the same time. Submit more than once for each different configuration of sailors. Invalid configurations will be ignored."));
     $form->add(new XP(array(), "Remember to choose the races that apply to the specified \"set\" by selecting the opponent from the list of races that appear below."));
-    $form->add(new XP(array('class'=>'warning'),
+    $form->add(new XWarning(
                       array(new XStrong("Note:"), " To clear an RP entry for a given race, leave the sailor list blank, while selecting the race.")));
 
     $form->add(new XHiddenInput("chosen_team", $chosen_team->id));

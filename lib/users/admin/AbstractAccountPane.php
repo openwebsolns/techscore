@@ -29,7 +29,7 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new XPort("General information"));
     if ($user->status == Account::STAT_INACTIVE || $user->status == Account::STAT_REJECTED)
-      $p->add(new XP(array('class'=>'warning'), "This account is not able to log in and use the system because their account has either been rejected or deleted."));
+      $p->add(new XWarning("This account is not able to log in and use the system because their account has either been rejected or deleted."));
 
     $p->add($f = $this->createForm());
     $f->add($fi = new FReqItem("Name:", new XStrong($user), "Only the user can change the name using the \"My Account\" page."));
@@ -59,7 +59,7 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
     $p->add(new XP(array(),
                    array("An account may be affiliated at the individual school level or at the ", $conf_title, " level, which will grant the user implicit access to all the schools in that ", $conf_title, ", including those that may be added at a later time.")));
     if ($user->isAdmin())
-      $p->add(new XP(array('class'=>'warning'), "As this account has administrator privileges, the user already has access to every school in the system."));
+      $p->add(new XWarning("As this account has administrator privileges, the user already has access to every school in the system."));
 
     $p->add($f = $this->createForm());
     $f->add(new XHiddenInput('user', $user->id));

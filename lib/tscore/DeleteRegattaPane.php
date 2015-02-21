@@ -19,7 +19,7 @@ class DeleteRegattaPane extends AbstractPane {
 
   protected function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new XPort("Delete regatta"));
-    $p->add(new XP(array('class'=>'warning'),
+    $p->add(new XWarning(
                    array("Deleting a regatta is ", new XStrong("permanent"), ". The regatta and all information associated with it will be permanently deleted from the database. If you wish to merely remove the regatta from publication, while keeping it around, go to ", new XA(WS::link(sprintf('/score/%s', $this->REGATTA->id)), "the settings page"), " and mark it as \"Private\" instead.")));
 
     $p->add($form = $this->createForm());

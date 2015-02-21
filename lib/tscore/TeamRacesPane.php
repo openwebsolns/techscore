@@ -241,7 +241,7 @@ class TeamRacesPane extends AbstractRoundPane {
         }
         $order = new Race_Order();
         $order->setPairs($template);
-        $form->add(new XP(array('class'=>'warning'), "No race order template exists for the chosen settings. Please set the race order below before continuing."));
+        $form->add(new XWarning("No race order template exists for the chosen settings. Please set the race order below before continuing."));
       }
       else {
         $form->add(new XP(array('class'=>'valid'), "Great! A race order template has been automatically chosen based on the round settings!"));
@@ -348,10 +348,10 @@ window.addEventListener("load", function(e) {
       $this->PAGE->addContent($p = new XPort("Copy finishes (optional)"));
       $p->add($form = $this->createForm());
       if (count($rounds) == 0) {
-        $form->add(new XP(array('class'=>'warning'), "There are no rounds from which to copy races."));
+        $form->add(new XWarning("There are no rounds from which to copy races."));
       }
       elseif (count($team_ids) < 2) {
-        $form->add(new XP(array('class'=>'warning'), "At least two teams must be seeded in order to copy finishes."));
+        $form->add(new XWarning("At least two teams must be seeded in order to copy finishes."));
       }
       else {
         $ids = Session::g('round_finishes');

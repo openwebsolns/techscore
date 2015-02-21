@@ -85,7 +85,7 @@ class NoticeBoardPane extends AbstractPane {
     $this->PAGE->addContent(new XH3("Course formats"));
     $this->PAGE->addContent(new XP(array(),
                                    array("Use the \"Course format\" category to upload an image and a text description of the course layout. The image will be published on the public site on the notice board as well as on the home page until the regatta gets under way.")));
-    $this->PAGE->addContent(new XP(array('class'=>'warning'),
+    $this->PAGE->addContent(new XWarning(
                                    array(new XStrong("Note:"), " There may only be one course format per race in the regatta.")));
 
     $files = $this->REGATTA->getDocuments();

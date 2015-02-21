@@ -65,7 +65,7 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
 
         $from_rounds = $round->getMasterRounds();
         if (count($from_rounds) > 0)
-          $form->add(new XP(array('class'=>'warning'),
+          $form->add(new XWarning(
                             array(new XStrong("Warning:"),
                                   sprintf(" This round contains races carried over from %s. If the new team has races in the previous round(s), then those races will be carried over. Otherwise, new races will be created in this round in order to maintain the full round robin. This means that some scores may be lost and race numbers might be altered as a result of this operation.", implode(", ", $from_rounds)))));
 

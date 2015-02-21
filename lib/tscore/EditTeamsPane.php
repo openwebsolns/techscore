@@ -97,7 +97,7 @@ class EditTeamsPane extends AbstractTeamPane {
     if ($can_choose)
       $f->add(new XSubmitP('set-names', "Set names"));
     else {
-      $f->add(new XP(array('class'=>'warning'), "None of the teams in this regattas has more than one registered team name."));
+      $f->add(new XWarning("None of the teams in this regattas has more than one registered team name."));
     }
   }
 

@@ -276,7 +276,7 @@ class SailsPane extends AbstractPane {
       // and the offset amount
       if ($chosen_rot == "OFF") {
         if (count($exist_div) == 0) {
-          $form->add(new XP(array('class'=>'warning'), "There are no valid divisions to serve as templates for offset."));
+          $form->add(new XWarning("There are no valid divisions to serve as templates for offset."));
           $form->add(new XP(array('class'=>'p-submit'),
                             array(new XA(WS::link(sprintf('/score/%d/sails', $this->REGATTA->id)), "← Start over"))));
         }

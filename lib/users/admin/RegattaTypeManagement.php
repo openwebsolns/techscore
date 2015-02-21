@@ -25,7 +25,7 @@ class RegattaTypeManagement extends AbstractAdminUserPane {
     $p->add(new XP(array(), "Use the table below to edit the regatta types available in the program. Order the different regatta types by how they should appear in the public interface, with the most important first. Regatta types in use may not be deleted."));
     $p->add(new XP(array(), "To add a new regatta type, add a title in the row labeled \"New\". To delete a type, check the box in its row. Please note that only types not in use may be deleted."));
     $p->add(new XP(array(), "Check the \"Tweet\" box to specify that a tweet should be sent after a daily summary is entered for regattas of a given type. Note that Twitter integration is contingent on the feature being enabled under \"Social settings\"."));
-    $p->add(new XP(array('class'=>'warning'), "Editing a regatta type's title will cause the program to regenerate all affected regattas. Make sure you know what you are doing before proceeding."));
+    $p->add(new XWarning("Editing a regatta type's title will cause the program to regenerate all affected regattas. Make sure you know what you are doing before proceeding."));
     $p->add($f = $this->createForm());
 
     // Do not allow re ID of in-use regatta types either

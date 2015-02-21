@@ -41,7 +41,7 @@ class TeamRacesDialog extends AbstractScoresDialog {
     $season = $this->REGATTA->getSeason();
     $races = $this->REGATTA->getRaces(Division::A());
     if (count($races) == 0)
-      return array(new XP(array('class'=>'warning'), "There are no races for this regatta."));
+      return array(new XWarning("There are no races for this regatta."));
 
     $tab = new XTable(array('class'=>'teamscorelist', 'id'=>'rotation-table'),
                       array(new XTHead(array(),

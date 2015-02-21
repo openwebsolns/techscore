@@ -63,12 +63,12 @@ class ScorersPane extends AbstractPane {
 
     if ($search !== null) {
       if (strlen($search) < 5) {
-        $p->add(new XP(array('class'=>'warning'), "Search term is too short. Must be at least 5 characters long."));
+        $p->add(new XWarning("Search term is too short. Must be at least 5 characters long."));
       }
       else {
         $accnts = DB::searchAccounts($search, null, Account::STAT_ACTIVE);
         if (count($accnts) == 0) {
-          $p->add(new XP(array('class'=>'warning'), "No results match your request. Please try again."));
+          $p->add(new XWarning("No results match your request. Please try again."));
         }
         else {
           // Make sure that there are some sailors left to add
@@ -94,7 +94,7 @@ class ScorersPane extends AbstractPane {
             $f->add(new XSubmitP("add_scorer", "Add scorer"));
           }
           else {
-            $p->add(new XP(array('class'=>'warning'), "There are no accounts left to register. Please try a different one."));
+            $p->add(new XWarning("There are no accounts left to register. Please try a different one."));
           }
         }
       }
