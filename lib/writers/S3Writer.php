@@ -152,7 +152,7 @@ class S3Writer extends AbstractWriter {
     $headers = $this->getHeaders('PUT', $md5, $type, $fname);
 
     $retryableErrors = array(
-      CURLE_OPERATION_TIMEDOUT,
+      28, // CURLE_OPERATION_TIMEDOUT,
     );
     $attempts = 0;
     while (true) {
