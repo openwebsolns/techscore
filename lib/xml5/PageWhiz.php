@@ -73,9 +73,12 @@ class PageWhiz {
    *
    * @param String $anchor optional page anchor
    * @return LinksDiv
-   * @see LinksDiv::__construct
+   * @see LinksDiv::__construct or null
    */
   public function getPageLinks($anchor = '') {
+    if ($this->num_pages == 1)
+      return null;
+
     require_once('xml5/LinksDiv.php');
     return new LinksDiv(
       $this->num_pages,
@@ -119,20 +122,6 @@ class PageWhiz {
    */
   public function getCurrentPage() {
     return DB::$V->incInt($this->args, $this->page_variable, 1, $this->num_pages + 1, 1);
-  }
-
-  /**
-   *
-   * @deprecated use getPageLinks
-   */
-  public function getPages($var = 'r', Array $get = array(), $anchor = '') {
-    require_once('xml5/LinksDiv.php');
-    return new LinksDiv($this->num_pages,
-                        DB::$V->incInt($get, $var, 1, $this->num_pages + 1, 1),
-                        $this->base,
-                        $this->args,
-                        $var,
-                        $anchor);
   }
 }
 ?>

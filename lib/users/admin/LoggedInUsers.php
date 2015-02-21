@@ -15,7 +15,7 @@ require_once('users/admin/AbstractAdminUserPane.php');
  */
 class LoggedInUsers extends AbstractAdminUserPane {
 
-  const NUM_PER_PAGE = 20;
+  const NUM_PER_PAGE = 5;
 
   public function __construct(Account $user) {
     parent::__construct("Logged-in Users", $user);
@@ -32,26 +32,23 @@ class LoggedInUsers extends AbstractAdminUserPane {
       return;
     }
 
-    // Pagination
-    $num_pages = intval($num_sessions / self::NUM_PER_PAGE) + 1;
-    $pageset  = DB::$V->incInt($args, 'r', 1, $num_pages + 1, 1);
-    $startint = self::NUM_PER_PAGE * ($pageset - 1);
-
     $p->add(new XP(array(),
                    array("Logging-off a user will invalidate that user's current session immediately. The next time that user refreshes the page or visits or clicks a link, they will be prompted to re-login. ",
                          new XStrong("This may result in data loss for the user!"))));
 
+    // Pagination
+    $num_pages = intval($num_sessions / self::NUM_PER_PAGE) + 1;
     if ($num_pages > 1) {
       $p->add(new XP(array('class'=>'warning'), sprintf("There are %d logged-in users.", $num_sessions)));
       require_once('xml5/PageWhiz.php');
-      $whiz = new PageWhiz($num_sessions, self::NUM_PER_PAGE, $this->link(), $_GET);
-      $p->add($whiz->getPages());
+      $whiz = new PageWhiz($num_sessions, self::NUM_PER_PAGE, $this->link(), $args);
+      $p->add($whiz->getPageLinks());
+      $sessions = $whiz->getSlice($sessions);
     }
                          
     $p->add($tab = new XQuickTable(array('class'=>'sessions-table'),
                                    array("Account", "Type", "Expires", "Last modified", "")));
-    for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < count($sessions); $i++) {
-      $session = $sessions[$i];
+    foreach ($sessions as $i => $session) {
       $user = $this->extractUser($session);
       $type = "Session";
       $exp = $session->expires;
