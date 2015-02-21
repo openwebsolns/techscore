@@ -92,14 +92,20 @@ class PageWhiz {
   /**
    * Returns list of elements from array, according to settings.
    *
+   * In the event that there is only one page, return the same object.
+   *
    * @param iterator $items either an array of ArrayIterator
-   * @return Array
+   * @return iterator
    * @throws InvalidArgumentException
    */
   public function getSlice($items) {
     if (!is_array($items) && !($items instanceof ArrayIterator)) {
       throw new InvalidArgumentException("Provided list is not iterable.");
     }
+    if ($this->num_pages <= 1) {
+      return $items;
+    }
+
     $list = array();
     $currentPage = $this->getCurrentPage();
     $start = ($currentPage - 1) * $this->num_per_page;

@@ -144,17 +144,16 @@ class DatabaseSyncManagement extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     if (count($past_syncs) > 0) {
       $this->PAGE->addContent($p = new XPort("Previous syncs"));
+      $p->set('id', 'list');
 
       require_once('xml5/PageWhiz.php');
       $whiz = new PageWhiz(count($past_syncs), self::NUM_PER_PAGE, $this->link(), $args);
-      $p->add($ldiv = $whiz->getPages('r', $args));
+      $p->add($whiz->getPageLinks('#list'));
+      $past_syncs = $whiz->getSlice($past_syncs);
 
-      $pageset = DB::$V->incInt($args, 'r', 1, count($past_syncs) / self::NUM_PER_PAGE, 1);
       $p->add($tab = new XQuickTable(array('class'=>'full sync-log'),
                                      array("Type", "Run time", "Messages", "New Schools", "New Sailors")));
-      $startint = ($pageset - 1) * self::NUM_PER_PAGE;
-      for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < count($past_syncs); $i++) {
-        $log = $past_syncs[$i];
+      foreach ($past_syncs as $i => $log) {
 
         $errors = new XEm("No messages");
         if ($log->error !== null && count($log->error) > 0) {
