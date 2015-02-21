@@ -501,8 +501,7 @@ class RpEnterPane extends AbstractPane {
       }
     }
     else
-      $p->add(new XP(array('class'=>'valid'),
-                     array(new XImg(WS::link('/inc/img/s.png'), "✓"), " Information is complete.")));
+      $p->add(new XValid("Information is complete."));
   }
 }
 ?>

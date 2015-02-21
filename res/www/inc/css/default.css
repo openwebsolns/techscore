@@ -1295,6 +1295,12 @@ td.tr-sail, td.sail {
     border-radius: 3px;
     box-shadow: 0 -1px 1px #AAAAAA inset;
 }
+.bg-check {
+    background-image: url(/inc/img/s.png);
+    background-position: 5px 50%;
+    background-repeat: no-repeat;
+    padding-left: 1.75em;
+}
 .warning, #announcements .warn {
     background: #f3f3bb;
     border: 1px solid orange;

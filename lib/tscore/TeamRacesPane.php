@@ -244,7 +244,7 @@ class TeamRacesPane extends AbstractRoundPane {
         $form->add(new XWarning("No race order template exists for the chosen settings. Please set the race order below before continuing."));
       }
       else {
-        $form->add(new XP(array('class'=>'valid'), "Great! A race order template has been automatically chosen based on the round settings!"));
+        $form->add(new XValid("Great! A race order template has been automatically chosen based on the round settings!"));
         $form->add(new XP(array(), "You may choose to revise the race order below, but we recommend you use the pre-chosen template."));
         $collapse = true;
       }

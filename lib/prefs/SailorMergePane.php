@@ -41,7 +41,7 @@ class SailorMergePane extends AbstractPrefsPane {
     // Get all the temporary sailors
     $temp = $this->SCHOOL->getUnregisteredSailors();
     if (count($temp) == 0) {
-      $p->add(new XP(array('class'=>'valid'), "Great! No temporary sailors for this school."));
+      $p->add(new XValid("Great! No temporary sailors for this school."));
       return;
     }
 

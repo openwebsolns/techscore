@@ -519,9 +519,21 @@ class XWarning extends XP {
  * @version 2015-02-21
  */
 class XNonprintWarning extends XWarning {
-  public function __construct($content) {
+  public function __construct($content = '') {
     parent::__construct($content);
     $this->set('class', 'warning nonprint');
+  }
+}
+
+/**
+ * A paragraph for happy news, using the "valid" class.
+ *
+ * @author Dayan Paez
+ * @version 2015-02-21
+ */
+class XValid extends XP {
+  public function __construct($content = '') {
+    parent::__construct(array('class' => 'valid bg-check'), $content);
   }
 }
 
