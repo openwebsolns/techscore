@@ -770,6 +770,12 @@ class DB extends DBM {
       return "more than a year";
     if ($interval->m > 1)
       return sprintf("%d months", $interval->m);
+    if ($interval->m == 1) {
+      $ret = "1 month";
+      if ($interval->d > 1)
+        $ret .= sprintf(" and %d days", $interval->d);
+      return $ret;
+    }
     if ($interval->d > 1)
       return sprintf("%d days", $interval->d);
     if ($interval->d == 1)
