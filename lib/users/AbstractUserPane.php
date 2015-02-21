@@ -709,7 +709,7 @@ abstract class AbstractUserPane {
       self::R_NAME => "Pending updates",
       self::R_PATH => 'users/admin',
       self::R_URLS => array('updates', 'queue'),
-      self::R_PERM => array(Permission::EDIT_PUBLIC_FILES)
+      self::R_PERM => array(Permission::EDIT_GLOBAL_CONF)
     ),
 
     'SponsorsManagement' => array(
