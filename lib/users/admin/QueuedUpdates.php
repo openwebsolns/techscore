@@ -42,87 +42,64 @@ class QueuedUpdates extends AbstractAdminUserPane {
     $p->add($table = new XQuickTable(array('id'=>'queues-table'), array("Type", "Pending", "Last run")));
 
     require_once('public/UpdateManager.php');
-    $last = UpdateManager::getLastRegattaCompleted();
-    $count = count(UpdateManager::getPendingRequests());
-    if ($count == 0) {
-      $count = new XImg('/inc/img/s.png', "✓");
-    }
-    $date = ($last === null) ? "N/A" : DB::howLongFrom($last->completion_time);
-    $table->addRow(
+    $segments = array(
       array(
-        new XA($this->link(array('r'=>self::REGATTA)), $this->labels[self::REGATTA]),
-        $count,
-        $date
-      ));
+        self::REGATTA,
+        UpdateManager::getLastRegattaCompleted(),
+        count(UpdateManager::getPendingRequests()),
+      ),
 
-    $last = UpdateManager::getLastSeasonCompleted();
-    $count = count(UpdateManager::getPendingSeasons());
-    if ($count == 0) {
-      $count = new XImg('/inc/img/s.png', "✓");
-    }
-    $date = ($last === null) ? "N/A" : DB::howLongFrom($last->completion_time);
-    $table->addRow(
       array(
-        new XA($this->link(array('r'=>self::SEASON)), $this->labels[self::SEASON]),
-        $count,
-        $date
-      ));
+        self::SEASON,
+        UpdateManager::getLastSeasonCompleted(),
+        count(UpdateManager::getPendingSeasons()),
+      ),
 
-    $last = UpdateManager::getLastSchoolCompleted();
-    $count = count(UpdateManager::getPendingSchools());
-    if ($count == 0) {
-      $count = new XImg('/inc/img/s.png', "✓");
-    }
-    $date = ($last === null) ? "N/A" : DB::howLongFrom($last->completion_time);
-    $table->addRow(
       array(
-        new XA($this->link(array('r'=>self::SCHOOL)), $this->labels[self::SCHOOL]),
-        $count,
-        $date
-      ));
+        self::SCHOOL,
+        UpdateManager::getLastSchoolCompleted(),
+        count(UpdateManager::getPendingSchools()),
+      ),
+
+      array(
+        self::FILE,
+        UpdateManager::getLastFileCompleted(),
+        count(UpdateManager::getPendingFiles()),
+      ),
+    );
 
     if (DB::g(STN::PUBLISH_CONFERENCE_SUMMARY)) {
-      $last = UpdateManager::getLastConferenceCompleted();
-      $count = count(UpdateManager::getPendingConferences());
-      if ($count == 0) {
-        $count = new XImg('/inc/img/s.png', "✓");
-      }
-      $date = ($last === null) ? "N/A" : DB::howLongFrom($last->completion_time);
-      $table->addRow(
-        array(
-          new XA($this->link(array('r'=>self::CONFERENCE)), $this->labels[self::CONFERENCE]),
-          $count,
-          $date
-        ));
+      $segments[] = array(
+        self::CONFERENCE,
+        UpdateManager::getLastConferenceCompleted(),
+        count(UpdateManager::getPendingConferences()),
+      );
     }
 
     if (DB::g(STN::SAILOR_PROFILES)) {
-      $last = UpdateManager::getLastSailorCompleted();
-      $count = count(UpdateManager::getPendingSailors());
+      $segments[] = array(
+        self::SAILOR,
+        UpdateManager::getLastSailorCompleted(),
+        count(UpdateManager::getPendingSailors()),
+      );
+    }
+
+    // Populate the table
+    foreach ($segments as $segment) {
+      $label = $segment[0];
+      $last = $segment[1];
+      $count = $segment[2];
+      $link = $this->labels[$label];
       if ($count == 0) {
         $count = new XImg('/inc/img/s.png', "✓");
       }
+      else {
+        $link = new XA($this->link(array('r'=>$label)), $link);
+      }
       $date = ($last === null) ? "N/A" : DB::howLongFrom($last->completion_time);
-      $table->addRow(
-        array(
-          new XA($this->link(array('r'=>self::SAILOR)), $this->labels[self::SAILOR]),
-          $count,
-          $date
-        ));
-    }
 
-    $last = UpdateManager::getLastFileCompleted();
-    $count = count(UpdateManager::getPendingFiles());
-    if ($count == 0) {
-      $count = new XImg('/inc/img/s.png', "✓");
+      $table->addRow(array($link, $count, $date));
     }
-    $date = ($last === null) ? "N/A" : DB::howLongFrom($last->completion_time);
-    $table->addRow(
-      array(
-        new XA($this->link(array('r'=>self::FILE)), $this->labels[self::FILE]),
-        $count,
-        $date
-      ));
   }
 
   public function process(Array $args) {
