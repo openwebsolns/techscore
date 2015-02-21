@@ -87,8 +87,10 @@ class AccountsPane extends AbstractAccountPane {
 
     // Offer pagination
     require_once('xml5/PageWhiz.php');
-    $whiz = new PageWhiz($num_users, self::NUM_PER_PAGE, $this->link(), $_GET);
+    $whiz = new PageWhiz($num_users, self::NUM_PER_PAGE, $this->link(), $args);
     $p->add($whiz->getSearchForm($qry, 'q', $empty_mes, "Search users: "));
+    $users = $whiz->getSlice($users);
+    $ldiv = $whiz->getPageLinks();
 
     // Filter
     $ts_role_opts = array("" => "[All]");
@@ -106,7 +108,7 @@ class AccountsPane extends AbstractAccountPane {
     $p->add($fs = new XFieldSet("Filter options", array('class'=>'filter')));
     $fs->add($f = $this->createForm(XForm::GET));
 
-    foreach ($_GET as $key => $val) {
+    foreach ($args as $key => $val) {
       if (!in_array($key, array('role', 'status')))
         $f->add(new XHiddenInput($key, $val));
     }
@@ -122,20 +124,19 @@ class AccountsPane extends AbstractAccountPane {
                                         XSelect::fromArray('status', $stat_opts, $stat_chosen))),
                          new XSubmitInput('go', "Apply", array('class'=>'inline')))));
 
-    $p->add($ldiv = $whiz->getPages('r', $_GET));
-
     $ajaxResult = array();
 
     // Create table, if applicable
     if ($num_users > 0) {
+      $p->add($ldiv);
+
       $can_usurp = $this->USER->can(Permission::USURP_USER);
       $headers = array("Name", "Email", "Schools", "Role", "School Role", "Status");
       if ($can_usurp)
         $headers[] = "Usurp";
       $p->add($tab = new XQuickTable(array('class'=>'users-table'), $headers));
 
-      for ($i = $startint; $i < $startint + self::NUM_PER_PAGE && $i < $num_users; $i++) {
-        $user = $users[$i];
+      foreach ($users as $i => $user) {
         if ($user->isAdmin())
           $schools = new XEm("All (admin)");
         else {
@@ -181,8 +182,8 @@ class AccountsPane extends AbstractAccountPane {
           'status' => $user->status,
         );
       }
+      $p->add($ldiv);
     }
-    $p->add($ldiv);
 
     // AJAX?
     $accept = null;
