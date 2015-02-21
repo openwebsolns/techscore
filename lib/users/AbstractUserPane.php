@@ -94,17 +94,22 @@ abstract class AbstractUserPane {
         'BillingReport',
       ),
 
-      'Admin' => array(
+      'Settings' => array(
+        'OrganizationConfiguration',
         'VenueManagement',
         'BoatManagement',
         'RegattaTypeManagement',
-        'MailingListManagement',
         'TeamRaceOrderManagement',
         'SeasonManagement',
       ),
 
-      'Users' => array(
+      'Messaging' => array(
         'SendMessage',
+        'MailingListManagement',
+        'EmailTemplateManagement',
+      ),
+
+      'Users' => array(
         'PendingAccountsPane',
         'AccountsPane',
         'LoggedInUsers',
@@ -112,21 +117,21 @@ abstract class AbstractUserPane {
         'PermissionManagement',
       ),
 
-      'Text' => array(
-      ),
-
-      'Configure' => array(
+      'Public site' => array(
         'SocialSettingsManagement',
         'SponsorsManagement',
         'PublicFilesManagement',
-        'OrganizationConfiguration',
-        'EmailTemplateManagement',
+        'TextManagement',
+      ),
+
+      'Database' => array(
+        'QueuedUpdates',
       ),
     );
 
     // Are database syncs allowed?
     if (DB::g(STN::SAILOR_API_URL) || DB::g(STN::SCHOOL_API_URL) || DB::g(STN::COACH_API_URL)) {
-      $menus['Configure'][] = 'DatabaseSyncManagement';
+      $menus['Database'][] = 'DatabaseSyncManagement';
     }
 
     foreach ($menus as $title => $items) {
@@ -137,12 +142,6 @@ abstract class AbstractUserPane {
         }
       }
       
-      // Special case: Text menu
-      if ($title == 'Text' && $this->isPermitted('TextManagement')) {
-        foreach (Text_Entry::getSections() as $sec => $tname)
-          $list[] = new XLi(new XA(WS::link($this->pane_url('TextManagement'), array('r'=>$sec)), $tname));
-      }
-
       if (count($list) > 0)
         $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
                                       array(new XH4($title),
@@ -702,6 +701,15 @@ abstract class AbstractUserPane {
       self::R_PATH => 'users/admin',
       self::R_URLS => array('sync'),
       self::R_PERM => array(Permission::SYNC_DATABASE)
+    ),
+
+    // TODO: add special permission?
+
+    'QueuedUpdates' => array(
+      self::R_NAME => "Pending updates",
+      self::R_PATH => 'users/admin',
+      self::R_URLS => array('updates', 'queue'),
+      self::R_PERM => array(Permission::EDIT_PUBLIC_FILES)
     ),
 
     'SponsorsManagement' => array(

@@ -116,6 +116,71 @@ class UpdateManager {
     DB::set($obj);
   }
 
+  private static function getLastCompleted(AbstractUpdate $obj) {
+    $obj->db_set_order(array('completion_time' => false));
+    $all = DB::getAll($obj, new DBCond('completion_time', null, DBCond::NE));
+    $res = null;
+    if (count($all) > 0) {
+      $res = $all[0];
+    }
+    $obj->db_set_order();
+    return $res;
+  }
+
+  /**
+   * Get the last completed entry.
+   *
+   * @return UpdateRequest, or null.
+   */
+  public static function getLastRegattaCompleted() {
+    return self::getLastCompleted(DB::T(DB::UPDATE_REQUEST));
+  }
+
+  /**
+   * Get the last completed entry.
+   *
+   * @return UpdateSeasonRequest, or null.
+   */
+  public static function getLastSeasonCompleted() {
+    return self::getLastCompleted(DB::T(DB::UPDATE_SEASON));
+  }
+
+  /**
+   * Get the last completed entry.
+   *
+   * @return UpdateSchoolRequest, or null.
+   */
+  public static function getLastSchoolCompleted() {
+    return self::getLastCompleted(DB::T(DB::UPDATE_SCHOOL));
+  }
+
+  /**
+   * Get the last completed entry.
+   *
+   * @return UpdateConferenceRequest, or null.
+   */
+  public static function getLastConferenceCompleted() {
+    return self::getLastCompleted(DB::T(DB::UPDATE_CONFERENCE));
+  }
+
+  /**
+   * Get the last completed entry.
+   *
+   * @return UpdateSailorRequest, or null.
+   */
+  public static function getLastSailorCompleted() {
+    return self::getLastCompleted(DB::T(DB::UPDATE_SAILOR));
+  }
+
+  /**
+   * Get the last completed entry.
+   *
+   * @return UpdateFileRequest, or null.
+   */
+  public static function getLastFileCompleted() {
+    return self::getLastCompleted(DB::T(DB::UPDATE_FILE));
+  }
+
   /**
    * Fetches all pending items from the queue in the order in which
    * they are found
