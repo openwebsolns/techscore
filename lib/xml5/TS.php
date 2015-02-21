@@ -501,6 +501,20 @@ class FormGroup extends XDiv {
 }
 
 /**
+ * A paragraph element, as a warning.
+ *
+ * @author Dayan Paez
+ * @version 2015-02-21
+ */
+class XWarning extends XP {
+  public function __construct($content = '', $nonprint = false) {
+    parent::__construct(array('class' => 'warning'), $content);
+    if ($nonprint !== false)
+      $this->set('class' => 'warning nonprint');
+  }
+}
+
+/**
  * DIV for rich textarea containment
  *
  * @author Dayan Paez
