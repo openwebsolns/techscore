@@ -131,7 +131,7 @@ class QueuedUpdates extends AbstractAdminUserPane {
     $this->PAGE->addContent($p = new XPort(sprintf("Pending items for %s", $this->labels[$section])));
     $pending = $this->getPendingBySection($section);
     if (count($pending) == 0) {
-      $p->add(new XP(array('class'=>'warning'), "No pending items for this queue."));
+      $p->add(new XP(array('class'=>'valid'), "No pending items for this queue."));
       return;
     }
 
