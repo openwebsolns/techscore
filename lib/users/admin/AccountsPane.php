@@ -112,17 +112,25 @@ class AccountsPane extends AbstractAccountPane {
       if (!in_array($key, array('role', 'status')))
         $f->add(new XHiddenInput($key, $val));
     }
-    $f->add(new XP(array(),
-                   array(new XDiv(array('class'=>'form-group'),
-                                  array(new XSpan("Role:", array('class'=>'span_h')),
-                                        XSelect::fromArray('ts_role', $ts_role_opts, ($ts_role_chosen) ? $ts_role_chosen->id : null))),
-                         new XDiv(array('class'=>'form-group'),
-                                  array(new XSpan("School Role:", array('class'=>'span_h')),
-                                        XSelect::fromArray('role', $role_opts, $role_chosen))),
-                         new XDiv(array('class'=>'form-group'),
-                                  array(new XSpan("Status:", array('class'=>'span_h')),
-                                        XSelect::fromArray('status', $stat_opts, $stat_chosen))),
-                         new XSubmitInput('go', "Apply", array('class'=>'inline')))));
+    $f->add(new XP(
+              array(),
+              array(
+                new FormGroup(
+                  array(
+                    new XSpan("Role:", array('class'=>'span_h')),
+                    XSelect::fromArray('ts_role', $ts_role_opts, ($ts_role_chosen) ? $ts_role_chosen->id : null))
+                ),
+                new FormGroup(
+                  array(
+                    new XSpan("School Role:", array('class'=>'span_h')),
+                    XSelect::fromArray('role', $role_opts, $role_chosen))
+                ),
+                new FormGroup(
+                  array(
+                    new XSpan("Status:", array('class'=>'span_h')),
+                    XSelect::fromArray('status', $stat_opts, $stat_chosen))
+                ),
+                new XSubmitInput('go', "Apply", array('class'=>'inline')))));
 
     $ajaxResult = array();
 

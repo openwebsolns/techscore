@@ -488,6 +488,19 @@ class XDataListOption extends XAbstractHtml {
 }
 
 /**
+ * DIV with the class 'form-group'
+ *
+ * @author Dayan Paez
+ * @version 2015-02-21
+ */
+class FormGroup extends XDiv {
+  public function __construct(Array $children = array(), Array $attrs = array()) {
+    parent::__construct($attrs, $children);
+    $this->set('class', 'form-group');
+  }
+}
+
+/**
  * DIV for rich textarea containment
  *
  * @author Dayan Paez
