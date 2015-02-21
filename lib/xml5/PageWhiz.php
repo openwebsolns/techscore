@@ -17,6 +17,26 @@ class PageWhiz {
 
   private $count;
   private $num_pages;
+  private $num_per_page;
+  private $page_variable;
+
+  /**
+   * Creates a new wizard.
+   *
+   * @param int $count the total number
+   * @param int $NPP the number per page
+   * @param Array $args the GET arguments to use to build request
+   * @param String $var the GET variable that holds the page
+   * @param Array $items the size of the result set
+   */
+  public function __construct($count, $NPP, $base, Array $args = array(), $var = 'r') {
+    $this->count = $count;
+    $this->args = $args;
+    $this->num_per_page = $NPP;
+    $this->num_pages = ceil($this->count / $this->num_per_page);
+    $this->base = $base;
+    $this->page_variable = $var;
+  }
 
   /**
    * Creates and returns a search form
@@ -48,7 +68,63 @@ class PageWhiz {
     return $div;
   }
 
+  /**
+   * Creates a LinksDiv section from parameters.
+   *
+   * @param String $anchor optional page anchor
+   * @return LinksDiv
+   * @see LinksDiv::__construct
+   */
+  public function getPageLinks($anchor = '') {
+    require_once('xml5/LinksDiv.php');
+    return new LinksDiv(
+      $this->num_pages,
+      $this->getCurrentPage(),
+      $this->base,
+      $this->args,
+      $this->page_variable,
+      $anchor);
+  }
 
+  /**
+   * Returns list of elements from array, according to settings.
+   *
+   * @param iterator $items either an array of ArrayIterator
+   * @return Array
+   * @throws InvalidArgumentException
+   */
+  public function getSlice($items) {
+    if (!is_array($items) && !($items instanceof ArrayIterator)) {
+      throw new InvalidArgumentException("Provided list is not iterable.");
+    }
+    $list = array();
+    $currentPage = $this->getCurrentPage();
+    $start = ($currentPage - 1) * $this->num_per_page;
+    $end = $start + $this->num_per_page;
+
+    if ($start > count($items)) {
+      throw new InvalidArgumentException("List of items provided shorter than current page.");
+    }
+
+    for ($i = $start; $i < $end && $i < count($items); $i++) {
+      $list[] = $items[$i];
+    }
+    return $list;
+  }
+
+  /**
+   * Returns the currently chosen page based on args.
+   *
+   * @return int the page num, 1-based.
+   */
+  public function getCurrentPage() {
+    return DB::$V->incInt($this->args, $this->page_variable, 1, $this->num_pages + 1, 1);
+  }
+
+  /**
+   *
+   * @deprecated use getPageLinks
+   */
   public function getPages($var = 'r', Array $get = array(), $anchor = '') {
     require_once('xml5/LinksDiv.php');
     return new LinksDiv($this->num_pages,
@@ -56,22 +132,7 @@ class PageWhiz {
                         $this->base,
                         $this->args,
                         $var,
-			$anchor);
-  }
-
-  /**
-   * Creates a new wizard
-   *
-   * @param Array $items the size of the result set
-   */
-  public function __construct($count, $NPP, $base, Array $args = array()) {
-    $this->count = $count;
-    $this->args = $args;
-    $this->num_pages = ceil($count / $NPP);
-    $this->base = $base;
-
-    // Do not include page argument
-    unset($this->args['p']);
+                        $anchor);
   }
 }
 ?>
