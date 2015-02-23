@@ -9,7 +9,7 @@
  * @author Dayan Paez
  * @version 2012-02-07
  */
-class Member extends DBObject {
+class Member extends DBObject implements Publishable {
   protected $school;
   public $last_name;
   public $first_name;

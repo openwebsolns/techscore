@@ -17,7 +17,7 @@
  * @author Dayan Paez
  * @version 2009-11-30
  */
-class FullRegatta extends DBObject {
+class FullRegatta extends DBObject implements Publishable {
 
   /**
    * Standard scoring

@@ -3,15 +3,13 @@
  * This file is part of Techscore
  */
 
-
-
 /**
  * Encapsulates a conference
  *
  * @author Dayan Paez
  * @version 2012-01-07
  */
-class Conference extends DBObject {
+class Conference extends DBObject implements Publishable {
   public $name;
   public $url;
   protected $mail_lists;
@@ -83,5 +81,9 @@ class Conference extends DBObject {
     if ($this->id === null)
       throw new InvalidArgumentException("No ID exists for this conference.");
     return sprintf('/%s/%s/', DB::g(STN::CONFERENCE_URL), strtolower($this->id));
+  }
+
+  public function getURL() {
+    return $this->url;
   }
 }

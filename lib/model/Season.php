@@ -3,8 +3,6 @@
  * This file is part of Techscore
  */
 
-
-
 /**
  * Encapsulates a season, either fall/spring, etc, with a start and
  * end date
@@ -12,7 +10,7 @@
  * @author Dayan Paez
  * @version 2012-01-16
  */
-class Season extends DBObject {
+class Season extends DBObject implements Publishable {
   const FALL = "fall";
   const SUMMER = "summer";
   const SPRING = "spring";

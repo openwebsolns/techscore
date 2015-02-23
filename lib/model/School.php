@@ -3,15 +3,13 @@
  * This file is part of Techscore
  */
 
-
-
 /**
  * Schools
  *
  * @author Dayan Paez
  * @version 2012-01-07
  */
-class School extends DBObject {
+class School extends DBObject implements Publishable {
   public $nick_name;
   public $name;
   public $url;

@@ -32,7 +32,7 @@ class UpdateConference extends AbstractScript {
     $page->addMetaKeyword($season->getYear());
     $page->addSocialPlugins(true);
 
-    $url = sprintf('http://%s%s', Conf::$PUB_HOME, $conference->url);
+    $url = sprintf('http://%s%s', Conf::$PUB_HOME, $conference->getURL());
     $og = array('type'=>'website', 'url'=>$url);
 
     $page->setFacebookLike($url);
@@ -45,7 +45,7 @@ class UpdateConference extends AbstractScript {
     $page->addMenu(new XA('/', "Home"));
     $page->addMenu(new XA('/schools/', "Schools"));
     $page->addMenu(new XA('/seasons/', "Seasons"));
-    $page->addMenu(new XA($conference->url, $conference));
+    $page->addMenu(new XA($conference->getURL(), $conference));
     if (($link = $page->getOrgTeamsLink()) !== null)
       $page->addMenu($link);
 
@@ -225,7 +225,7 @@ class UpdateConference extends AbstractScript {
     // Add links to all seasons
     $ul = new XUl(array('id'=>'other-seasons'));
     $num = 0;
-    $root = $conference->url;
+    $root = $conference->getURL();
     foreach (DB::getAll(DB::T(DB::SEASON)) as $s) {
       $regs = $s->getConferenceParticipation($conference);
       if (count($regs) > 0) {
@@ -248,10 +248,9 @@ class UpdateConference extends AbstractScript {
    * @throws InvalidArgumentException
    */
   public function run(Conference $conference, Season $season) {
-    if ($conference->url === null)
+    $dirname = $conference->getURL();
+    if ($dirname === null)
       throw new InvalidArgumentException(sprintf("Conference %s does not have a URL.", $conference));
-
-    $dirname = $conference->url;
 
     // Do season
     $today = Season::forDate(DB::T(DB::NOW));
