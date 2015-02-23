@@ -233,7 +233,7 @@ class UpdateManager {
    * @param UpdateRequest $req the update request to log
    */
   public static function log(AbstractUpdate $req) {
-    $req->completion_time = DB::T(DB::NOW);
+    $req->completion_time = new DateTime();
     DB::set($req, true);
   }
 }
