@@ -703,13 +703,11 @@ abstract class AbstractUserPane {
       self::R_PERM => array(Permission::SYNC_DATABASE)
     ),
 
-    // TODO: add special permission?
-
     'QueuedUpdates' => array(
       self::R_NAME => "Pending updates",
       self::R_PATH => 'users/admin',
       self::R_URLS => array('updates', 'queue'),
-      self::R_PERM => array(Permission::EDIT_GLOBAL_CONF)
+      self::R_PERM => array(Permission::VIEW_PENDING_UPDATES)
     ),
 
     'SponsorsManagement' => array(

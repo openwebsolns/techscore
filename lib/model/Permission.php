@@ -66,6 +66,7 @@ class Permission extends DBObject {
   const EDIT_WELCOME = 'edit_welcome';
   const SEND_MESSAGE = 'send_message';
   const SYNC_DATABASE = 'sync_database';
+  const VIEW_PENDING_UPDATES = 'view_pending_updates';
   const DEFINE_PERMISSIONS = 'define_permission';
 
   const DOWNLOAD_AA_REPORT = 'download_aa_report';
