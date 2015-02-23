@@ -119,6 +119,11 @@ class Conf {
   // ------------------------------------------------------------
 
   /**
+   * @var String the HTTP_REQUEST method for web requets: POST, GET
+   */
+  public static $METHOD = null;
+
+  /**
    * Issues a 405 HTTP error with the message provided
    *
    * @param String $mes the explanation to issue for the 405 error
@@ -131,57 +136,65 @@ class Conf {
   }
 
   /**
-   * @var String the HTTP_REQUEST method for web requets: POST, GET
+   * Autoloads classes by name from the model subdirectory.
+   *
    */
-  public static $METHOD = null;
-}
+  public static function autoload($name) {
+    // Check only in the 'regatta' folder
+    $name = __DIR__ . '/model/' . $name . '.php';
+    if (file_exists($name)) {
+      require_once($name);
+    }
+  }
 
-function __autoload($name) {
-  // Check only in the 'regatta' folder
-  require_once(__DIR__ . '/model/' . $name . '.php');
-}
+  public static function init() {
+    spl_autoload_register('Conf::autoload');
 
-ini_set('include_path', sprintf(".:%s", dirname(__FILE__)));
+    ini_set('include_path', sprintf(".:%s", dirname(__FILE__)));
 
-require_once(dirname(__FILE__) . '/conf.local.php');
+    require_once(dirname(__FILE__) . '/conf.local.php');
 
-// Error handler: use CLI if not online
-if (PHP_SAPI == 'cli') {
-  require_once('error/CLIHandler.php');
-  CLIHandler::registerAll(E_ALL | E_STRICT);
-}
-elseif (Conf::$ERROR_HANDLER == 'mail') {
-  require_once('error/MailHandler.php');
-  MailHandler::registerAll(E_ALL | E_STRICT);
-}
-else {
-  require_once('error/PrintHandler.php');
-  PrintHandler::registerAll(E_ALL | E_STRICT | E_NOTICE);
-}
+    // Error handler: use CLI if not online
+    if (PHP_SAPI == 'cli') {
+      require_once('error/CLIHandler.php');
+      CLIHandler::registerAll(E_ALL | E_STRICT);
+    }
+    elseif (Conf::$ERROR_HANDLER == 'mail') {
+      require_once('error/MailHandler.php');
+      MailHandler::registerAll(E_ALL | E_STRICT);
+    }
+    else {
+      require_once('error/PrintHandler.php');
+      PrintHandler::registerAll(E_ALL | E_STRICT | E_NOTICE);
+    }
 
-// Database connection
-DB::setConnectionParams(Conf::$SQL_HOST, Conf::$SQL_USER, Conf::$SQL_PASS, Conf::$SQL_DB);
-DB::setLogfile(Conf::$LOG_QUERIES);
+    // Database connection
+    DB::setConnectionParams(Conf::$SQL_HOST, Conf::$SQL_USER, Conf::$SQL_PASS, Conf::$SQL_DB);
+    DB::setLogfile(Conf::$LOG_QUERIES);
 
-// Start the session, if run from the web
-if (PHP_SAPI != 'cli') {
-  if (!isset($_SERVER['REQUEST_METHOD']))
-    throw new RuntimeException("Script can only be run from web server.");
-  Conf::$METHOD = $_SERVER['REQUEST_METHOD'];
+    // Start the session, if run from the web
+    if (PHP_SAPI != 'cli') {
+      if (!isset($_SERVER['REQUEST_METHOD']))
+        throw new RuntimeException("Script can only be run from web server.");
+      Conf::$METHOD = $_SERVER['REQUEST_METHOD'];
 
-  require_once('WS.php');
-  require_once('TSSessionHandler.php');
-  require_once('xml5/HtmlLib.php');
-  require_once('xml5/Session.php');
-  TSSessionHandler::register();
-  Session::init();
-  Conf::$USER = DB::getAccount(Session::g('user'));
-  if (Conf::$USER !== null && ($id = Session::g('usurped_user')) !== null) {
-    $usurped = DB::getAccount($id);
-    if ($usurped !== null && $usurped->status == Account::STAT_ACTIVE) {
-      Conf::$USURPER = Conf::$USER;
-      Conf::$USER = $usurped;
+      require_once('WS.php');
+      require_once('TSSessionHandler.php');
+      require_once('xml5/HtmlLib.php');
+      require_once('xml5/Session.php');
+      TSSessionHandler::register();
+      Session::init();
+      Conf::$USER = DB::getAccount(Session::g('user'));
+      if (Conf::$USER !== null && ($id = Session::g('usurped_user')) !== null) {
+        $usurped = DB::getAccount($id);
+        if ($usurped !== null && $usurped->status == Account::STAT_ACTIVE) {
+          Conf::$USURPER = Conf::$USER;
+          Conf::$USER = $usurped;
+        }
+      }
     }
   }
 }
+
+Conf::init();
 ?>
