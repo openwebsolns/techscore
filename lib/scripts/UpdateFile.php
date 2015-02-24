@@ -24,17 +24,7 @@ class UpdateFile extends AbstractScript {
    *
    */
   public function run($filename) {
-    $path = '/' . $filename;
-    $tokens = explode('.', $filename);
-    if (count($tokens) > 1) {
-      $ext = array_pop($tokens);
-      if ($ext == 'css')
-        $path = '/inc/css/' . $filename;
-      elseif ($ext == 'js')
-        $path = '/inc/js/' . $filename;
-      elseif (in_array($ext, array('png', 'gif', 'jpg', 'jpeg')))
-        $path = '/inc/img/' . $filename;
-    }
+    $path = Pub_File_Summary::getUrlFromFilename($filename);
 
     $obj = DB::getFile($filename);
     if ($obj === null) {

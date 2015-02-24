@@ -11,7 +11,7 @@
  * @author Dayan Paez
  * @version 2013-10-04
  */
-class Pub_File_Summary extends DBObject implements Writeable {
+class Pub_File_Summary extends DBObject implements Writeable, Publishable {
 
   /**
    * Name of the init.js file
@@ -65,6 +65,36 @@ class Pub_File_Summary extends DBObject implements Writeable {
   public function write($resource) {
     $file = $this->getFile();
     fwrite($resource, $file->filedata);
+  }
+
+  /**
+   * Publishable interface requirement.
+   *
+   * @return String
+   */
+  public function getURL() {
+    return self::getUrlFromFilename($this->id);
+  }
+
+  /**
+   * Calculates the path a file would have based on filename.
+   *
+   * @param String $filename basename of the file (with extension).
+   * @return String
+   */
+  public static function getUrlFromFilename($filename) {
+    $path = '/' . $filename;
+    $tokens = explode('.', $filename);
+    if (count($tokens) > 1) {
+      $ext = array_pop($tokens);
+      if ($ext == 'css')
+        $path = '/inc/css/' . $filename;
+      elseif ($ext == 'js')
+        $path = '/inc/js/' . $filename;
+      elseif (in_array($ext, array('png', 'gif', 'jpg', 'jpeg')))
+        $path = '/inc/img/' . $filename;
+    }
+    return $path;
   }
 
   // ------------------------------------------------------------
