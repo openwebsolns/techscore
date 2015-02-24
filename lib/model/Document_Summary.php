@@ -3,15 +3,13 @@
  * This file is part of Techscore
  */
 
-
-
 /**
  * All information about a regatta document, except for the data.
  *
  * @author Dayan Paez
  * @version 2013-11-21
  */
-class Document_Summary extends DBObject implements Writeable {
+class Document_Summary extends DBObject implements Writeable, Publishable {
   public $name;
   public $description;
   public $url;
@@ -66,6 +64,21 @@ class Document_Summary extends DBObject implements Writeable {
   public function write($resource) {
     $file = $this->getFile();
     fwrite($resource, $file->filedata);
+  }
+
+  /**
+   * Returns the URL to this document.
+   *
+   * @return String.
+   * @throws InvalidArgumentException if no regatta exists.
+   */
+  public function getURL() {
+    if ($this->regatta === null)
+      throw new InvalidArgumentException("Documents must be associated with regattas for URLs to exist.");
+    if ($this->url === null)
+      throw new InvalidArgumentException("Documents must have URL property set.");
+    $reg = $this->__get('regatta');
+    return sprintf('%snotices/%s', $reg->getURL(), $this->url);
   }
 
   public static function getCategories() {

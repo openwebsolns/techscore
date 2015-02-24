@@ -265,7 +265,7 @@ class UpdateRegatta extends AbstractScript {
     if ($notice)     $this->createNotice($D, $M);
     if ($notice_docs) {
       foreach ($docs as $doc) {
-        $name = $D . "notices/" . $doc->url;
+        $name = $doc->getURL();
         self::write($name, $doc);
         self::errln(sprintf("Wrote file %s.", $doc->name));
       }
@@ -409,7 +409,7 @@ class UpdateRegatta extends AbstractScript {
     if ($notice)     $this->createNotice($D, $M);
     if ($notice_docs) {
       foreach ($docs as $doc) {
-        $name = $D . "notices/" . $doc->url;
+        $name = $doc->getURL();
         self::write($name, $doc);
         self::errln(sprintf("Wrote file %s.", $doc->name));
       }
