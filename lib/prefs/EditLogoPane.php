@@ -99,9 +99,9 @@ class EditLogoPane extends AbstractPrefsPane {
         throw new SoterException("Image too small.");
 
       // resize image to fix in bounding boxes
-      $full = $this->resizeToSize($src, $size[0], $size[1], 180, 120);
-      $small = $this->resizeToSize($src, $size[0], $size[1], 60, 40);
-      $square = $this->resizeToSize($src, $size[0], $size[1], 120, 120);
+      $full = $this->resizeToSize($src, $size[0], $size[1], Burgee::FULL_WIDTH, Burgee::FULL_HEIGHT);
+      $small = $this->resizeToSize($src, $size[0], $size[1], Burgee::SMALL_WIDTH, Burgee::SMALL_HEIGHT);
+      $square = $this->resizeToSize($src, $size[0], $size[1], Burgee::SQUARE_LENGTH, Burgee::SQUARE_LENGTH);
       imagedestroy($src);
       if ($full === null || $small === null)
         throw new SoterException("Invalid image conversion.");

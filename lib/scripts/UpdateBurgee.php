@@ -33,11 +33,11 @@ class UpdateBurgee extends AbstractScript {
    * @throw RuntimeException if unable to execute an action
    */
   public function run(School $school) {
-    $versions = array('burgee' => '',
-                      'burgee_small' => '-40',
-                      'burgee_square' => '-sq');
-    foreach ($versions as $prop => $suffix) {
-      $file = sprintf('%s/%s%s.png', self::$filepath, $school->id, $suffix);
+    $versions = array('burgee' => Burgee::SIZE_FULL,
+                      'burgee_small' => Burgee::SIZE_SMALL,
+                      'burgee_square' => Burgee::SIZE_SQUARE);
+    foreach ($versions as $prop => $size) {
+      $file = Burgee::getUrlForSize($school, $size);
 
       // There is no burgee
       if ($school->$prop === null) {
