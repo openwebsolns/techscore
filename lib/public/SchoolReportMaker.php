@@ -180,7 +180,7 @@ class SchoolReportMaker {
 
     // ------------------------------------------------------------
     // Add links to all seasons
-    $this->addLinksToOtherSeason($this->mainPage);
+    $this->addLinksToOtherSeasons($this->mainPage);
   }
 
   private function fillRosterPage() {
@@ -244,7 +244,7 @@ class SchoolReportMaker {
     $this->rosterPage->setHeader($school, $table, array('itemprop'=>'name'));
 
     // Links to other seasons
-    $this->addLinksToOtherSeason($this->rosterPage);
+    $this->addLinksToOtherSeasons($this->rosterPage, 'roster');
   }
 
   /**
@@ -312,15 +312,25 @@ class SchoolReportMaker {
       $page->addSection(new XP(array('class'=>'burgee'), $img));
   }
 
-  private function addLinksToOtherSeason(XPage $page) {
+  /**
+   * Appends the links to other seasons submenu to the given page.
+   *
+   * @param XPage $page the page to which append the season links.
+   * @param String $subpage optional subpage to link to (i.e. 'roster').
+   */
+  private function addLinksToOtherSeasons(XPage $page, $subpage = null) {
     $ul = new XUl(array('id'=>'other-seasons'));
     $num = 0;
     $root = $this->school->getURL();
+    $leaf = '/';
+    if ($subpage !== null) {
+      $leaf .= $subpage . '/';
+    }
     foreach (DB::getAll(DB::T(DB::SEASON)) as $s) {
       $regs = $s->getParticipation($this->school);
       if (count($regs) > 0) {
         $num++;
-        $ul->add(new XLi(new XA($root . $s->shortString() . '/', $s->fullString())));
+        $ul->add(new XLi(new XA($root . $s->shortString() . $leaf, $s->fullString())));
       }
     }
     if ($num > 0) {
