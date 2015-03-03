@@ -421,13 +421,13 @@ class RpManager {
    *
    */
   private function prepareAttendee(School $school, Sailor $sailor) {
-    $obj = new Attendee();
-    $obj->regatta = $this->regatta;
-    $obj->school = $school;
-    $obj->sailor = $sailor;
-    $obj->added_by = Conf::$USER;
-    $obj->added_on = DB::T(DB::NOW);
-    return $obj;
+    $attendee = new Attendee();
+    $attendee->regatta = $this->regatta;
+    $attendee->school = $school;
+    $attendee->sailor = $sailor;
+    $attendee->added_by = Conf::$USER;
+    $attendee->added_on = DB::T(DB::NOW);
+    return $attendee;
   }
 
   // Static variable and functions
