@@ -196,8 +196,6 @@ class RpEnterPane extends AbstractPane {
       $cur_sk = $rps[(string)$div][RP::SKIPPER];
       $cur_cr = $rps[(string)$div][RP::CREW];
 
-      if (count($divisions) > 1)
-        $form->add(new XHeading("Division $div"));
       $tab_races = new XQuickTable(array(), array("Race #", "Crews"));
 
       // Create races table
@@ -205,16 +203,41 @@ class RpEnterPane extends AbstractPane {
       // participating in (which would be all except for team racing
       // regattas). This will enable us to issue an appropriate message,
       // rather than displaying the input tables.
+      //
+      // In most cases, there will only be one number of crews per
+      // given division. For these cases, rather than displaying a
+      // table with only one row, show the number of crews required
+      // for all races as a parenthetical note in the "Crews" table.
+      $division_explanation = '';
+      $crews_explanation = '';
       $num_entries = 0;
       foreach ($occ as $crews => $races) {
+        $range = DB::makeRange($races);
+        $division_explanation = sprintf(' (%s)', $range);
+        $crews_explanation = sprintf(' (%s)', $crews);
+
         $num_entries++;
-        $tab_races->addRow(array(new XTD(array("name"=>"races" . $div), DB::makeRange($races)),
+        $tab_races->addRow(array(new XTD(array("name"=>"races" . $div), $range),
                                  new XTD(array("name"=>"occ" . $div),   $crews)));
       }
       if ($num_entries == 0) {
-        $tab_races->addRow(array("N/A", "N/A"));
         $form->add(new XP(array('class'=>'message'), "The current team is not participating in the regatta."));
         continue;
+      }
+
+      if ($num_entries > 1) {
+        $division_explanation = '';
+        $crews_explanation = '';
+      }
+      else {
+        $tab_races->set('class', 'hidden');
+      }
+
+      if (count($divisions) > 1) {
+        $form->add(new XHeading(sprintf("Division %s%s", $div, $division_explanation)));
+      }
+      else if ($division_explanation != '') {
+        $form->add(new XHeading(sprintf("Races: %s", $division_explanation)));
       }
 
       $form->add($tab_races);
@@ -250,7 +273,7 @@ class RpEnterPane extends AbstractPane {
       // Print table only if there is room in the boat for crews
       if ( $num_crews > 0 ) {
         // update crew table
-        $form->add($tab_crew = new XQuickTable(array('class'=>'narrow'), array("Crews", "Races sailed", "")));
+        $form->add($tab_crew = new XQuickTable(array('class'=>'narrow'), array("Crews" . $crews_explanation, "Races sailed", "")));
 
         //    write already filled-in spots + 2 more
         for ($spot = 0; $spot < count($cur_cr) + 2; $spot++) {
