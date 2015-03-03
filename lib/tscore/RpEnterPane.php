@@ -208,10 +208,15 @@ class RpEnterPane extends AbstractPane {
     // RP Form
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new XPort(sprintf("Fill out form for %s", $chosen_team)));
-    // TODO: this will change to list of attendees
+
     $sailor_options = array(self::NO_SAILOR_OPTION => '');
-    foreach ($attendee_sailors as $group => $list) {
-      $sailor_options[$group] = $list;
+    foreach ($attendees as $attendee) {
+      $sailor = $attendee->sailor;
+      $school = $sailor->school;
+      if (!array_key_exists($school->nick_name, $sailor_options)) {
+        $sailor_options[$school->nick_name] = array();
+      }
+      $sailor_options[$school->nick_name][$sailor->id] = (string)$sailor;
     }
     // No show option
     $sailor_options[self::NO_SHOW_OPTION_GROUP] = array('NULL' => "No show");
@@ -379,7 +384,6 @@ class RpEnterPane extends AbstractPane {
     $id = DB::$V->reqKey($args, 'chosen_team', $teams, "Missing or invalid team choice.");
     $team = $teams[$id];
     $rpManager = $this->REGATTA->getRpManager();
-    $attendees = $rpManager->getAttendees($team->school);
 
     // ------------------------------------------------------------
     // Attendees
@@ -425,11 +429,11 @@ class RpEnterPane extends AbstractPane {
 
       $rpManager->reset($team);
 
-      $cur_season = Season::forDate(DB::T(DB::NOW));
-      $gender = ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) ?
-        Sailor::FEMALE : null;
-
-      $cross_rp = !$this->REGATTA->isSingleHanded() && DB::g(STN::ALLOW_CROSS_RP);
+      $attendees = $rpManager->getAttendees($team->school);
+      $sailors = array();
+      foreach ($attendees as $attendee) {
+        $sailors[$attendee->sailor->id] = $attendee->sailor;
+      }
 
       // Insert representative
       $rpManager->setRepresentative($team, DB::$V->incString($args, 'rep', 1, 256, null));
@@ -483,9 +487,8 @@ class RpEnterPane extends AbstractPane {
           $s_obj = false;
           if ($s_value == 'NULL')
             $s_obj = null;
-          elseif (($sailor = DB::getSailor($s_value)) !== null) {
-            if ($cross_rp || $sailor->school->id == $team->school->id)
-              $s_obj = $sailor;
+          elseif (array_key_exists($s_value, $sailors)) {
+            $s_obj = $sailors[$s_value];
           }
 
           if ($s_race !== null && $s_obj !== false) {
