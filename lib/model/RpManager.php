@@ -12,6 +12,10 @@ require_once('conf.php');
 /**
  * Encapsulates and manages RPs for a regatta
  *
+ * 2015-03-02: Also handle attendees. Attendees are the list of
+ * sailors which are present at a given regatta from a given
+ * school. Sailors that end up in the RP form are called participants;
+ * the rest are labeled reserves.
  */
 class RpManager {
 
@@ -321,6 +325,102 @@ class RpManager {
         $max = $boat->max_crews;
     }
     return $max;
+  }
+
+  // ------------------------------------------------------------
+  // Attendees functionality
+  // ------------------------------------------------------------
+
+  /**
+   * Gets the attendees for this regatta.
+   *
+   * @param School $school the optional school to search.
+   * @return Array:Attendee the list of attendees.
+   */
+  public function getAttendees(School $school = null) {
+    $cond = new DBCond('regatta', $this->regatta);
+    if ($school !== null) {
+      $cond = new DBBool(array($cond, new DBCond('school', $school)));
+    }
+    return DB::getAll(DB::T(DB::ATTENDEE), $cond);
+  }
+
+  /**
+   * Set the list of attendees for the given school.
+   *
+   * @param School $school the school in question.
+   * @param Array $sailors the sailors to register.
+   */
+  public function setAttendees(School $school, Array $sailors) {
+    $list = array();
+    foreach ($sailors as $sailor) {
+      if (!($sailor instanceof Sailor)) {
+        throw new InvalidArgumentException(
+          sprintf("Expected list of sailors; found %s.", gettype($sailor)));
+      }
+      $list[] = $this->prepareAttendee($school, $sailor);
+    }
+
+    // As these records should not cascade to others, set the list
+    // efficiently by removing all for the given school and assigning
+    // in bulk.
+    DB::removeAll(
+      DB::T(DB::ATTENDEE),
+      new DBBool(
+        array(
+          new DBCond('regatta', $this->regatta),
+          new DBCond('school', $school),
+        )));
+
+    DB::insertAll($list);
+  }
+
+  /**
+   * Adds the given individual attendee, if not already registered.
+   *
+   * @param School $school the school to add.
+   * @param Sailor $sailor the sailor in attendance.
+   * @return boolean true if added; false if already present.
+   */
+  public function addAttendee(School $school, Sailor $sailor) {
+    if (!$this->isAttending($sailor, $school)) {
+      DB::set($this->prepareAttendee($school, $sailor));
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Determines whether given sailor is attending this regatta.
+   *
+   * @param Sailor $sailor the sailor in question.
+   * @param School $school the optional school to limit search to.
+   * @return boolean true if attending.
+   */
+  public function isAttending(Sailor $sailor, School $school = null) {
+    $cond = new DBBool(
+      array(
+        new DBCond('regatta', $this),
+        new DBCond('sailor', $sailor)));
+    if ($school !== null) {
+      $cond->add(new DBCond('school', $school));
+    }
+    $res = DB::getAll(DB::T(DB::ATTENDEE), $cond);
+    return count($res) > 0;
+  }
+
+  /**
+   * Helper method to create and setup the Attendee object.
+   *
+   */
+  private function prepareAttendee(School $school, Sailor $sailor) {
+    $obj = new Attendee();
+    $obj->regatta = $this->regatta;
+    $obj->school = $school;
+    $obj->sailor = $sailor;
+    $obj->added_by = Conf::$USER;
+    $obj->added_on = DB::T(DB::NOW);
+    return $obj;
   }
 
   // Static variable and functions

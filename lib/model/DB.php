@@ -22,6 +22,7 @@ class DB extends DBM {
   const ACTIVE_SCHOOL = 'Active_School';
   const ACTIVE_TYPE = 'Active_Type';
   const ANSWER = 'Answer';
+  const ATTENDEE = 'Attendee';
   const BOAT = 'Boat';
   const BURGEE = 'Burgee';
   const COACH = 'Coach';
