@@ -15,6 +15,9 @@ require_once("conf.php");
  */
 class RpEnterPane extends AbstractPane {
 
+  const NO_SAILOR_OPTION = '';
+  const NO_SHOW_OPTION_GROUP = "No-show";
+
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Enter RP", $user, $reg);
   }
@@ -140,9 +143,27 @@ class RpEnterPane extends AbstractPane {
     }
 
     // ------------------------------------------------------------
-    // RP Form
+    // Attendees
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new XPort(sprintf("Fill out form for %s", $chosen_team)));
+    $attendees = $rpManager->getAttendees($chosen_team->school);
+    if (count($attendees) == 0) {
+      $p = new XPort("Setup Attendees");
+      $p->add(new XP(array(), "Before filling out the RP form, we need to know who in your roster is attending the regatta. You will then be able to choose participants from this list."));
+      $p->add(new XP(
+                array(),
+                array("You can edit this information later, if needed. If sailors do not appear, they may need to be added as a ",
+                      new XA($this->link('unregistered'), "temporary (unregistered) sailor"),
+                      ".")));
+    }
+    else {
+      $p = new XCollapsiblePort("Attendees");
+    }
+    $this->PAGE->addContent($p);
+    $p->add(new XWarning("Note: all attendees that do not participate will automatically be labeled as \"Reserves\" for this regatta. For this reason, it is important that this information be entered accurately."));
+    $p->add($f = $this->createForm());
+    $f->add(new XHiddenInput("chosen_team", $chosen_team->id));
+    $rpManager = $this->REGATTA->getRpManager();
+
     // ------------------------------------------------------------
     // - Create option lists
     //   If the regatta is in the current season, then only choose
@@ -156,18 +177,44 @@ class RpEnterPane extends AbstractPane {
     $sailors = $chosen_team->school->getSailors($gender, $active);
     $un_slrs = $chosen_team->school->getUnregisteredSailors($gender);
 
-    $sailor_options = array("" => "");
-
+    $attendee_sailors = array();
     foreach ($schools as $school) {
       $key = $school->nick_name;
       foreach ($school->getSailors($gender, $active) as $s)
-        $sailor_options[$key][$s->id] = (string)$s;
+        $attendee_sailors[$key][$s->id] = (string)$s;
       foreach ($school->getUnregisteredSailors($gender, $active) as $s)
-        $sailor_options[$key][$s->id] = (string)$s;
+        $attendee_sailors[$key][$s->id] = (string)$s;
     }
 
+    $current_attendees = array();
+    foreach ($attendees as $attendee) {
+      $current_attendees[] = $attendee->sailor->id;
+    }
+
+    $f->add(
+      new FReqItem(
+        "Sailors:", 
+        XSelectM::fromArray('attendees[]', $attendee_sailors, $current_attendees, array('id'=>'attendee-list'))
+      )
+    );
+
+    $f->add(new XSubmitP('set-attendees', "Set attendees"));
+
+    if (count($attendees) == 0) {
+      return;
+    }
+
+    // ------------------------------------------------------------
+    // RP Form
+    // ------------------------------------------------------------
+    $this->PAGE->addContent($p = new XPort(sprintf("Fill out form for %s", $chosen_team)));
+    // TODO: this will change to list of attendees
+    $sailor_options = array(self::NO_SAILOR_OPTION => '');
+    foreach ($attendee_sailors as $group => $list) {
+      $sailor_options[$group] = $list;
+    }
     // No show option
-    $sailor_options["No-show"] = array('NULL' => "No show");
+    $sailor_options[self::NO_SHOW_OPTION_GROUP] = array('NULL' => "No show");
 
     // Representative
     $rep = $rpManager->getRepresentative($chosen_team);
@@ -331,19 +378,54 @@ class RpEnterPane extends AbstractPane {
     // ------------------------------------------------------------
     $id = DB::$V->reqKey($args, 'chosen_team', $teams, "Missing or invalid team choice.");
     $team = $teams[$id];
+    $rpManager = $this->REGATTA->getRpManager();
+    $attendees = $rpManager->getAttendees($team->school);
+
+    // ------------------------------------------------------------
+    // Attendees
+    // ------------------------------------------------------------
+    if (isset($args['set-attendees'])) {
+      $school = $team->school;
+
+      $cur_season = Season::forDate(DB::T(DB::NOW));
+      $active = 'all';
+      if ((string)$cur_season ==  (string)$this->REGATTA->getSeason())
+        $active = true;
+      $gender = ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) ?
+        Sailor::FEMALE : null;
+
+      $cross_rp = !$this->REGATTA->isSingleHanded() && DB::g(STN::ALLOW_CROSS_RP);
+
+      $sailors = array();
+      foreach (DB::$V->reqList($args, 'attendees', null, "Missing list of attendees.") as $id) {
+        $sailor = DB::getSailor($id);
+        if ($sailor === null) {
+          throw new SoterException(sprintf("Invalid sailor ID provided: %s.", $id));
+        }
+        if (!$cross_rp && $sailor->school->id != $school->id) {
+          throw new SoterException(sprintf("Sailor provided (%s) cannot sail for given school.", $sailor));
+        }
+        if ($gender !== null && $gender != $sailor->gender) {
+          throw new SoterException(sprintf("Invalid sailor allowed for this regatta (%s).", $sailor));
+        }
+        $sailors[] = $sailor;
+      }
+      if (count($sailors) == 0) {
+        throw new SoterException("No sailors provided for attendance list.");
+      }
+
+      $rpManager->setAttendees($school, $sailors);
+      Session::pa(new PA(sprintf("Added %s as attendees for school %s.", count($sailor), $school->name)));
+    }
 
     // ------------------------------------------------------------
     // RP data
     // ------------------------------------------------------------
     if (isset($args['rpform'])) {
 
-      $rpManager = $this->REGATTA->getRpManager();
       $rpManager->reset($team);
 
       $cur_season = Season::forDate(DB::T(DB::NOW));
-      $active = 'all';
-      if ((string)$cur_season ==  (string)$this->REGATTA->getSeason())
-        $active = true;
       $gender = ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) ?
         Sailor::FEMALE : null;
 
