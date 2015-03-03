@@ -310,7 +310,7 @@ class TeamRpEnterPane extends AbstractPane {
         }
       }
       $rpManager->updateLog();
-      $rpManager->setCacheComplete($team);
+      $rpManager->resetCacheComplete($team);
 
       if (count($chosen_sailors) == 0)
         Session::pa(new PA("Removed RP entries for selected races.", PA::I));

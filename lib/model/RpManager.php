@@ -303,7 +303,13 @@ class RpManager {
     return (count($tot) >= $sum);
   }
 
-  public function setCacheComplete(Team $team) {
+  /**
+   * Recalculates and stores the RP completed cache for given team.
+   *
+   * @param Team $team the team whose RP status to recalculate.
+   * @return boolean true if RP is complete.
+   */
+  public function resetCacheComplete(Team $team) {
     $val = null;
     if ($this->isComplete($team))
       $val = 1;
@@ -311,6 +317,7 @@ class RpManager {
       $team->dt_complete_rp = $val;
       DB::set($team);
     }
+    return ($val !== null);
   }
 
   /**
