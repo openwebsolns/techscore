@@ -663,7 +663,7 @@ window.addEventListener("load", function(e) {
     }
 
     // ------------------------------------------------------------
-    // Step 2: race order
+    // Step 2: Race order
     // ------------------------------------------------------------
     if (isset($args['create-order'])) {
       if ($ROUND === null)
@@ -1174,6 +1174,10 @@ window.addEventListener("load", function(e) {
     $num_races = count($handshakes);
     $map = DB::$V->reqMap($args, array('team1', 'team2'), $num_races, "Invalid team order.");
     $swp = DB::$V->incList($args, 'swap');
+    $ord = DB::$V->incList($args, 'order', count($map['team1']));
+    if (count($ord) > 0) {
+      array_multisort($ord, SORT_NUMERIC, $map['team1'], $map['team2']);
+    }
 
     $pairings = array();
     foreach ($map['team1'] as $i => $team1) {
