@@ -1,5 +1,11 @@
 -*- mode: org -*-
 
+* Code cleanup
+
+** Migrate error handlers to unified library
+
+At least introduce an interface and extend that.
+
 * Preferences API for users
 
   - Timezone settings

@@ -1,4 +1,5 @@
 LIBSRC := $(shell find lib -name "*.php")
+PHPSERVER = php -S localhost:8080 -t www tst/integration/router.php
 
 default: lib/conf.local.php src/apache.conf src/changes.current.sql src/crontab css-admin js-admin src/md5sum db
 
@@ -64,3 +65,20 @@ www/inc/js/%.js: res/www/inc/js/%.js
 	minijs.sh < $^ > $@ || cp $^ $@
 
 js-admin: $(subst res/www,www,$(wildcard res/www/inc/js/*.js))
+
+
+# Unit and integration testing
+unit-test:
+	phpunit --bootstrap tst/conf.php tst/unit
+
+integration-test:
+	${PHPSERVER} & \
+	PID=$$!; \
+	echo "Server started in PID: $$PID"; \
+	phpunit --bootstrap tst/conf.php tst/integration; \
+	kill $$PID
+
+tests: unit-test integration-test
+
+server:
+	${PHPSERVER}

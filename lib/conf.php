@@ -92,6 +92,14 @@ class Conf {
    * @var filepath the path to the bundle file (if any)
    */
   public static $HTTP_CERTCHAINPATH = null;
+  /**
+   * @var boolean default is true. Note: this flag is changed by the
+   * application when in (unit) testing mode, as SSL is not allowed by
+   * the PHP built-in webserver. Do not change this flag for normal,
+   * production boxes.
+   */
+  public static $SECURE_COOKIE = true;
+
   // ------------------------------------------------------------
   // Cron settings
   // ------------------------------------------------------------
@@ -177,6 +185,13 @@ class Conf {
       if (!isset($_SERVER['REQUEST_METHOD']))
         throw new RuntimeException("Script can only be run from web server.");
       Conf::$METHOD = $_SERVER['REQUEST_METHOD'];
+
+      // Only use non-secure cookies when running as built-in PHP
+      // cli-server, since SSL is not supported there.
+      if (PHP_SAPI == 'cli-server') {
+        Conf::$SECURE_COOKIE = false;
+        Conf::$HOME = 'localhost';
+      }
 
       require_once('WS.php');
       require_once('TSSessionHandler.php');
