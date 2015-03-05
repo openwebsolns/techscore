@@ -132,6 +132,12 @@ class Conf {
   public static $METHOD = null;
 
   /**
+   * Known PHP_SAPI values.
+   */  
+  const CLI = 'cli';
+  const CLI_SERVER = 'cli-server';
+
+  /**
    * Issues a 405 HTTP error with the message provided
    *
    * @param String $mes the explanation to issue for the 405 error
@@ -163,7 +169,7 @@ class Conf {
     require_once(dirname(__FILE__) . '/conf.local.php');
 
     // Error handler: use CLI if not online
-    if (PHP_SAPI == 'cli') {
+    if (PHP_SAPI == self::CLI) {
       require_once('error/CLIHandler.php');
       CLIHandler::registerAll(E_ALL | E_STRICT);
     }
@@ -181,14 +187,14 @@ class Conf {
     DB::setLogfile(Conf::$LOG_QUERIES);
 
     // Start the session, if run from the web
-    if (PHP_SAPI != 'cli') {
+    if (PHP_SAPI != self::CLI) {
       if (!isset($_SERVER['REQUEST_METHOD']))
         throw new RuntimeException("Script can only be run from web server.");
       Conf::$METHOD = $_SERVER['REQUEST_METHOD'];
 
       // Only use non-secure cookies when running as built-in PHP
       // cli-server, since SSL is not supported there.
-      if (PHP_SAPI == 'cli-server') {
+      if (PHP_SAPI == self::CLI_SERVER) {
         Conf::$SECURE_COOKIE = false;
         Conf::$HOME = 'localhost';
       }
