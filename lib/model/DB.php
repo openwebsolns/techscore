@@ -589,7 +589,7 @@ class DB extends DBM {
    * @throws InvalidArgumentException if provided role is invalid
    */
   public static function searchAccounts($qry, $role = null, $status = null, Role $ts_role = null) {
-    $fields = array('first_name', 'last_name', 'id', 'concat(first_name, " ", last_name)');
+    $fields = array('first_name', 'last_name', 'email', 'concat(first_name, " ", last_name)');
     if ($role === null && $status === null && $ts_role === null)
       return self::search(DB::T(DB::ACCOUNT), $qry, $fields);
 
