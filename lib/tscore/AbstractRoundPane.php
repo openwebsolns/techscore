@@ -513,9 +513,10 @@ abstract class AbstractRoundPane extends AbstractPane {
    * @return int the number of boats.
    */
   protected function processNumberOfBoats(Array $args, $rotation_frequency, $num_teams, $default_number = null) {
-    $group_size = 2 * count($this->REGATTA->getDivisions());
+    $divisions = $this->REGATTA->getDivisions();
+    $group_size = 2 * count($divisions);
     if ($rotation_frequency == Race_Order::FREQUENCY_NONE) {
-      return $group_size * $num_teams;
+      return count($divisions) * $num_teams;
     }
 
     $num_boats = DB::$V->incInt($args, 'num_boats', $group_size, 101, $default_number);
