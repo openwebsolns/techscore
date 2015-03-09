@@ -139,10 +139,23 @@ class DB extends DBM {
   /**
    * Returns the school with the given ID, or null if none exists
    *
-   * @return School|null $school with the given ID
+   * @return School with the given ID, or null.
    */
   public static function getSchool($id) {
     return self::get(self::T(DB::SCHOOL), $id);
+  }
+
+  /**
+   * Returns school with given URL, if any.
+   *
+   * @return School the school, or null if none found.
+   */
+  public static function getSchoolByUrl($url) {
+    $res = self::getAll(self::T(DB::SCHOOL), new DBCond('url', $url));
+    if (count($res) == 0) {
+      return null;
+    }
+    return $res[0];
   }
 
   /**
