@@ -85,11 +85,11 @@ class GenerateByUrl extends AbstractScript {
     $matches = array();
     if (preg_match(':^/inc/(img|css|png)/([^/]+)$:', $slug, $matches) == 1) {
       require_once('UpdateFile.php');
-      return new GeneratorArguments(new UpdateFile(), $matches[2]);
+      return new GeneratorArguments(new UpdateFile(), array($matches[2]));
     }
-    if (preg_match(':^/inc/([^/]+)$:', $slug, $matches) == 1) {
+    if (preg_match(':^/([^/.]+\.[a-z]+)$:', $slug, $matches) == 1) {
       require_once('UpdateFile.php');
-      return new GeneratorArguments(new UpdateFile(), $matches[1]);
+      return new GeneratorArguments(new UpdateFile(), array($matches[1]));
     }
 
     // Individual season summaries
