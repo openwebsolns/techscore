@@ -55,7 +55,7 @@ class TScorePage extends XPage {
     $this->header = new XDiv(array('id'=>'headbar'));
 
     // Favicon the W3C way
-    $this->head->add(new XLink(array('rel'=>'icon', 'type'=>'image/x-icon', 'href'=>WS::link('/inc/img/favicon.ico'))));
+    $this->head->add(new XLink(array('rel'=>'icon', 'type'=>'image/x-icon', 'href'=>WS::link('/favicon.ico'))));
     $this->head->set('profile', 'http://www.w3.org/2005/10/profile');
 
     $this->head->add(new XMeta('viewport', "width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"));

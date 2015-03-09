@@ -44,7 +44,7 @@ class TScoreDialog extends XPage {
 
     // HTML HEAD element
     // Favicon the W3C way
-    $this->head->add(new XLink(array('rel'=>'icon', 'type'=>'image/x-icon', 'href'=>WS::link('/inc/img/favicon.ico'))));
+    $this->head->add(new XLink(array('rel'=>'icon', 'type'=>'image/x-icon', 'href'=>WS::link('/favicon.ico'))));
     $this->head->set('profile', 'http://www.w3.org/2005/10/profile');
 
     // CSS Stylesheets

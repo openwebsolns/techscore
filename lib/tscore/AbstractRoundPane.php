@@ -493,5 +493,74 @@ abstract class AbstractRoundPane extends AbstractPane {
       $boatOptions[$boat->id] = $boat->name;
     return $boatOptions;
   }
+
+  /**
+   * Delegate method to determine the number of boats requested.
+   *
+   * The number of teams in the round dictate the total number of
+   * races in that round, which then dictates whether a rotation may
+   * be necessary in the first place. For instance, if there are
+   * only 2 teams, then there's only one race, and (for a
+   * three-on-three) we need only 6 boats. Likewise, for three
+   * teams, we need three races, and no more than 18 boats. Thus, we
+   * need to limit the number of boats in the event that there
+   * simply aren't enough races to go around.
+   *
+   * @param Array $args the arguments to be processed.
+   * @param const $rotation_frequency of the round in question.
+   * @param int $num_teams number of teams in the round.
+   * @param int $default_number optional value to default to.
+   * @return int the number of boats.
+   */
+  protected function processNumberOfBoats(Array $args, $rotation_frequency, $num_teams, $default_number = null) {
+    $divisions = $this->REGATTA->getDivisions();
+    $group_size = 2 * count($divisions);
+    if ($rotation_frequency == Race_Order::FREQUENCY_NONE) {
+      return count($divisions) * $num_teams;
+    }
+
+    $num_boats = DB::$V->incInt($args, 'num_boats', $group_size, 101, $default_number);
+    if ($num_boats === null)
+      throw new SoterException("Invalid number of boats provided.");
+    if ($num_boats % $group_size != 0)
+      throw new SoterException(sprintf("Number of boats must be divisible by %d.", $group_size));
+
+    $num_races = $this->calculateNumberOfRaces($num_teams);
+    $maximum_boats_needed = $group_size * $num_races;
+    if ($num_boats > $maximum_boats_needed)
+      $num_boats = $maximum_boats_needed;
+
+    return $num_boats;
+  }
+
+  /**
+   * How many races in a round-robin?
+   *
+   * @param int $num_teams the number of teams in the round
+   * @return int the handshake total.
+   */
+  protected function calculateNumberOfRaces($num_teams) {
+    return ($num_teams * ($num_teams - 1)) / 2;
+  }
+
+  /**
+   * Create a list of handshakes in the form: N-M.
+   *
+   * Each team, identified as an integer from 1 to the number of teams
+   * provided, will be paired with every other team.
+   *
+   * @param int $num_teams the total number of people shaking hands.
+   * @return Array pairings of the form 1-2, 1-3, 2-3, ...
+   */
+  protected function generateHandshakes($num_teams) {
+    $handshakes = array();
+    for ($i = 1; $i <= $num_teams; $i++) {
+      for ($j = $i + 1; $j <= $num_teams; $j++) {
+        $shake = sprintf("%d-%d", $i, $j);
+        $handshakes[$shake] = $shake;
+      }
+    }
+    return $handshakes;
+  }
 }
 ?>
