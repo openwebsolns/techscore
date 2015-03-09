@@ -92,18 +92,56 @@ class GenerateByUrl extends AbstractScript {
       return new GeneratorArguments(new UpdateFile(), array($matches[1]));
     }
 
-    // Individual season summaries
-    if (preg_match(':^/([fsmw][0-9][0-9])/$:', $slug, $matches) == 1) {
-      $season = DB::getSeason($matches[1]);
-      if ($season === null) {
-        throw new TSScriptException("Invalid season provided: $slug.");
-      }
-      require_once('UpdateSeason.php');
-      return new GeneratorArguments(new UpdateSeason(), array($season));
+    // Subtree rooted at seasons
+    if (preg_match(':^/([fsmw][0-9][0-9])/:', $slug, $matches) == 1) {
+      return $this->parseSeasonTree($slug);
     }
 
     // Not handled?
     throw new TSScriptException("Do not know how to generate slug: $slug.");
+  }
+
+  /**
+   * Helper method to parse slugs under, e.g. /f10/
+   *
+   * @param String $slug the full slug.
+   * @return GeneratorArguments the arguments.
+   * @throws TSScriptException if no season or invalid one provided.
+   * @throws InvalidArgumentException if internal contract violated.
+   */
+  private function parseSeasonTree($slug) {
+    $tokens = explode('/', $slug);
+    array_shift($tokens);
+    if ($tokens[count($tokens) - 1] == '') {
+      array_pop($tokens);
+    }
+    if (count($tokens) < 1) {
+      throw new InvalidArgumentException("Expected slug of the form /XNN/...");
+    }
+
+    $season = DB::getSeason(array_shift($tokens));
+    if ($season === null) {
+      throw new TSScriptException("Invalid season provided: $slug.");
+    }
+
+    // Season page itself
+    if (count($tokens) == 0) {
+      require_once('UpdateSeason.php');
+      return new GeneratorArguments(new UpdateSeason(), array($season));
+    }
+
+    $regatta_url = array_shift($tokens);
+    $regatta = $season->getRegattaWithUrl($regatta_url);
+    if ($regatta === null) {
+      throw new TSScriptException("No regatta with slug: $regatta_url.");
+    }
+
+    // TODO: differentiate between subresources?
+    require_once('UpdateRegatta.php');
+    return new GeneratorArguments(
+      new UpdateRegatta(),
+      array($regatta, array(UpdateRequest::ACTIVITY_DETAILS))
+    );
   }
 }
 
