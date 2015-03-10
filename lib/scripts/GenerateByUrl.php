@@ -124,8 +124,14 @@ class GenerateByUrl extends AbstractScript {
       return $this->parseSeasonTree($slug);
     }
 
+    // Subtree rooted at schools
     if (preg_match(':^/schools/:', $slug, $matches) == 1) {
       return $this->parseSchoolTree($slug);
+    }
+
+    // Subtree rooted at sailors
+    if (preg_match(':^/sailors/:', $slug, $matches) == 1) {
+      return $this->parseSailorTree($slug);
     }
 
     // Not handled?
@@ -147,7 +153,7 @@ class GenerateByUrl extends AbstractScript {
       array_pop($tokens);
     }
     if (count($tokens) < 1 || $tokens[0] != 'schools') {
-      throw new InvalidArgumentException("Expected slug of the form /XNN/...");
+      throw new InvalidArgumentException("Expected slug of the form /schools/...");
     }
     array_shift($tokens);
 
@@ -193,6 +199,66 @@ class GenerateByUrl extends AbstractScript {
 
     require_once('UpdateSchool.php');
     return new GeneratorArguments(new UpdateSchool(), array($school, $season), $method);
+  }
+
+  /**
+   * Helper method to parse slugs under, e.g. /sailors/
+   *
+   * @param String $slug the full slug.
+   * @return GeneratorArguments the arguments.
+   * @throws TSScriptException if no season or invalid one provided.
+   * @throws InvalidArgumentException if internal contract violated.
+   */
+  private function parseSailorTree($slug) {
+    if (DB::g(STN::SAILOR_PROFILES) === null) {
+      throw new TSScriptException("Sailor profile feature is diabled.");
+    }
+
+    $tokens = explode('/', $slug);
+    array_shift($tokens);
+    if ($tokens[count($tokens) - 1] == '') {
+      array_pop($tokens);
+    }
+    if (count($tokens) < 1 || $tokens[0] != 'sailors') {
+      throw new InvalidArgumentException("Expected slug of the form /sailors/...");
+    }
+    array_shift($tokens);
+
+    if (count($tokens) == 0) {
+      require_once('UpdateSchoolsSummary.php');
+      return new GeneratorArguments(new UpdateSchoolsSummary(), array(), 'runSailors');
+    }
+
+    $sailor_url = array_shift($tokens);
+    $sailor = DB::getSailorByUrl($sailor_url);
+    if ($sailor === null) {
+      throw new TSScriptException(sprintf("Invalid sailor URL provided: %s.", $sailor_url));
+    }
+
+    // With no season, use current
+    $season = Season::forDate(DB::T(DB::NOW));
+    if (count($tokens) > 0) {
+      if (preg_match(sprintf('/^%s$/', self::SEASON_REGEXP), $tokens[0]) == 1) {
+        $season = DB::getSeason($tokens[0]);
+        array_shift($tokens);
+      }
+    }
+
+    if ($season === null) {
+      throw new TSScriptException(sprintf("Unable to parse %s: No season (or no current one).", $slug));
+    }
+
+    if (count($tokens) > 0) {
+      throw new TSScriptException(
+        sprintf(
+          "Don't know what to do with tail end of slug: %s.",
+          implode('/', $tokens)
+        )
+      );
+    }
+
+    require_once('UpdateSailor.php');
+    return new GeneratorArguments(new UpdateSailor(), array($sailor, $season));
   }
 
   /**

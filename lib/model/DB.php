@@ -460,6 +460,19 @@ class DB extends DBM {
   }
 
   /**
+   * Fetch the Sailor with the given URL, if any.
+   *
+   * @param String $url the sailor's slug to match.
+   * @param Sailor if any found, regardless of public profile setting. 
+   */
+  public static function getSailorByUrl($url) {
+    $r = DB::getAll(DB::T(DB::MEMBER), new DBCond('url', $url));
+    $s = (count($r) == 0) ? null : $r[0];
+    unset($r);
+    return $s;
+  }
+
+  /**
    * Searches for the sailor's first, last, or full name
    *
    * @param String $str the string to search
