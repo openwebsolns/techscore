@@ -10,7 +10,10 @@ require_once('AbstractTester.php');
 class LoginPageTest extends AbstractTester {
 
   public function testGet() {
-    $this->getUrl('/');
+    $response = $this->getUrl('/');
+    $head = $response->getHead();
+    $this->assertEquals(403, $head->getStatus());
+    $this->assertNotEmpty($head->getHeader('Set-Cookie'), "Expected session cookie to be set.");
   }
 }
 ?>
