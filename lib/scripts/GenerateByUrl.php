@@ -18,6 +18,8 @@ require_once('GeneratorArguments.php');
  */
 class GenerateByUrl extends AbstractScript {
 
+  const SEASON_REGEXP = '[fsmw][0-9][0-9]';
+
   /**
    * Attempt to generate the pages for the given slugs.
    *
@@ -27,6 +29,35 @@ class GenerateByUrl extends AbstractScript {
     foreach ($slugs as $slug) {
       $res = $this->parse($slug);
       $res->execute();
+    }
+  }
+
+  /**
+   * Merely parses, and reports on errored ones, without quitting.
+   *
+   * @param Array $slug the slugs to parse.
+   */
+  public function runParse(Array $slugs) {
+    foreach ($slugs as $slug) {
+      try {
+        $res = $this->parse($slug);
+        $args = array();
+        foreach ($res->getParameters() as $arg) {
+          if ($arg instanceof DBObject) {
+            $args[] = sprintf('%s:%s', get_class($arg), $arg->id);
+          }
+        }
+        printf(
+          "%-15s\t%s\t%s\t%s\n",
+          get_class($res->getGenerator()),
+          $res->getMethod(),
+          implode(', ', $args),
+          $slug
+        );
+      }
+      catch (TSScriptException $e) {
+        printf("ERROR\t%s\t%s\n", $slug, $e->getMessage());
+      }
     }
   }
 
@@ -48,7 +79,7 @@ class GenerateByUrl extends AbstractScript {
     }
 
     if ($slug == '' || mb_substr($slug, 0, 1) != '/') {
-      throw new TSScriptException("Invalid URL slug provided: \"$slug\".");
+      throw new TSScriptException(sprintf("Invalid URL slug provided: \"%s\".", $slug));
     }
 
     // Root level
@@ -67,10 +98,6 @@ class GenerateByUrl extends AbstractScript {
     if ($slug == '/seasons/') {
       require_once('UpdateSeasonsSummary.php');
       return new GeneratorArguments(new UpdateSeasonsSummary());
-    }
-    if ($slug == '/schools/') {
-      require_once('UpdateSchoolsSummary.php');
-      return new GeneratorArguments(new UpdateSchoolsSummary(), array(), 'runSchools');
     }
     if ($slug == '/sailors/') {
       require_once('UpdateSchoolsSummary.php');
@@ -93,12 +120,79 @@ class GenerateByUrl extends AbstractScript {
     }
 
     // Subtree rooted at seasons
-    if (preg_match(':^/([fsmw][0-9][0-9])/:', $slug, $matches) == 1) {
+    if (preg_match(sprintf(':^/(%s)/:', self::SEASON_REGEXP), $slug, $matches) == 1) {
       return $this->parseSeasonTree($slug);
+    }
+
+    if (preg_match(':^/schools/:', $slug, $matches) == 1) {
+      return $this->parseSchoolTree($slug);
     }
 
     // Not handled?
     throw new TSScriptException("Do not know how to generate slug: $slug.");
+  }
+
+  /**
+   * Helper method to parse slugs under, e.g. /schools/
+   *
+   * @param String $slug the full slug.
+   * @return GeneratorArguments the arguments.
+   * @throws TSScriptException if no season or invalid one provided.
+   * @throws InvalidArgumentException if internal contract violated.
+   */
+  private function parseSchoolTree($slug) {
+    $tokens = explode('/', $slug);
+    array_shift($tokens);
+    if ($tokens[count($tokens) - 1] == '') {
+      array_pop($tokens);
+    }
+    if (count($tokens) < 1 || $tokens[0] != 'schools') {
+      throw new InvalidArgumentException("Expected slug of the form /XNN/...");
+    }
+    array_shift($tokens);
+
+    if (count($tokens) == 0) {
+      require_once('UpdateSchoolsSummary.php');
+      return new GeneratorArguments(new UpdateSchoolsSummary(), array(), 'runSchools');
+    }
+
+    $school_url = array_shift($tokens);
+    $school = DB::getSchoolByUrl($school_url);
+    if ($school === null) {
+      throw new TSScriptException(sprintf("Invalid school URL provided: %s.", $school_url));
+    }
+
+    // With no season, use current
+    $season = Season::forDate(DB::T(DB::NOW));
+    if (count($tokens) > 0) {
+      if (preg_match(sprintf('/^%s$/', self::SEASON_REGEXP), $tokens[0]) == 1) {
+        $season = DB::getSeason($tokens[0]);
+        array_shift($tokens);
+      }
+    }
+
+    if ($season === null) {
+      throw new TSScriptException(sprintf("Unable to parse %s: No season (or no current one).", $slug));
+    }
+
+    // Roster?
+    $method = 'run';
+    if (count($tokens) > 0 && $tokens[0] == 'roster') {
+      array_shift($tokens);
+      $method = 'runRoster';
+    }
+
+    if (count($tokens) > 0) {
+      throw new TSScriptException(
+        sprintf(
+          "Don't know what to do with tail end of slug: %s.",
+          implode('/', $tokens)
+        )
+      );
+    }
+
+    require_once('UpdateSchool.php');
+    return new GeneratorArguments(new UpdateSchool(), array($school, $season), $method);
   }
 
   /**
@@ -121,7 +215,7 @@ class GenerateByUrl extends AbstractScript {
 
     $season = DB::getSeason(array_shift($tokens));
     if ($season === null) {
-      throw new TSScriptException("Invalid season provided: $slug.");
+      throw new TSScriptException(sprintf("Invalid season provided: %s.", $slug));
     }
 
     // Season page itself
@@ -133,7 +227,7 @@ class GenerateByUrl extends AbstractScript {
     $regatta_url = array_shift($tokens);
     $regatta = $season->getRegattaWithUrl($regatta_url);
     if ($regatta === null) {
-      throw new TSScriptException("No regatta with slug: $regatta_url.");
+      throw new TSScriptException(sprintf("No regatta with slug: %s.", $regatta_url));
     }
 
     // TODO: differentiate between subresources?
@@ -143,6 +237,14 @@ class GenerateByUrl extends AbstractScript {
       array($regatta, array(UpdateRequest::ACTIVITY_DETAILS))
     );
   }
+
+  protected $cli_opts = '[--parse] url1 [url2...]';
+  protected $cli_usage = 'Write the resources identified by the given URLs slugs.
+
+The URLs provided should be of the form "/slug/path/" with an optional index.html
+at the end.
+
+  --parse   Do not generate, just parse and print the result.';
 }
 
 // ------------------------------------------------------------
@@ -152,14 +254,24 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
 
   $P = new GenerateByUrl();
   $opts = $P->getOpts($argv);
+  $parseOnly = false;
   $slugs = array();
   foreach ($opts as $opt) {
+    if ($opt == '--parse') {
+      $parseOnly = true;
+      continue;
+    }
     $slugs[] = $opt;
   }
 
   if (count($slugs) == 0) {
     throw new TSScriptException("No slugs provided.");
   }
-  $P->run($slugs);
+  if ($parseOnly) {
+    $P->runParse($slugs);
+  }
+  else {
+    $P->run($slugs);
+  }
 }
 ?>
