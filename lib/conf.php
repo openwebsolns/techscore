@@ -154,8 +154,8 @@ class Conf {
    *
    */
   public static function autoload($name) {
-    // Check only in the 'regatta' folder
-    $name = __DIR__ . '/model/' . $name . '.php';
+    // Check only in the 'model' folder
+    $name = sprintf('%s/model/%s.php', __DIR__, str_replace('\\', '/', $name));
     if (file_exists($name)) {
       require_once($name);
     }
