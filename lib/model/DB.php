@@ -139,10 +139,23 @@ class DB extends DBM {
   /**
    * Returns the school with the given ID, or null if none exists
    *
-   * @return School|null $school with the given ID
+   * @return School with the given ID, or null.
    */
   public static function getSchool($id) {
     return self::get(self::T(DB::SCHOOL), $id);
+  }
+
+  /**
+   * Returns school with given URL, if any.
+   *
+   * @return School the school, or null if none found.
+   */
+  public static function getSchoolByUrl($url) {
+    $res = self::getAll(self::T(DB::SCHOOL), new DBCond('url', $url));
+    if (count($res) == 0) {
+      return null;
+    }
+    return $res[0];
   }
 
   /**
@@ -447,6 +460,19 @@ class DB extends DBM {
   }
 
   /**
+   * Fetch the Sailor with the given URL, if any.
+   *
+   * @param String $url the sailor's slug to match.
+   * @param Sailor if any found, regardless of public profile setting. 
+   */
+  public static function getSailorByUrl($url) {
+    $r = DB::getAll(DB::T(DB::MEMBER), new DBCond('url', $url));
+    $s = (count($r) == 0) ? null : $r[0];
+    unset($r);
+    return $s;
+  }
+
+  /**
    * Searches for the sailor's first, last, or full name
    *
    * @param String $str the string to search
@@ -589,7 +615,7 @@ class DB extends DBM {
    * @throws InvalidArgumentException if provided role is invalid
    */
   public static function searchAccounts($qry, $role = null, $status = null, Role $ts_role = null) {
-    $fields = array('first_name', 'last_name', 'id', 'concat(first_name, " ", last_name)');
+    $fields = array('first_name', 'last_name', 'email', 'concat(first_name, " ", last_name)');
     if ($role === null && $status === null && $ts_role === null)
       return self::search(DB::T(DB::ACCOUNT), $qry, $fields);
 

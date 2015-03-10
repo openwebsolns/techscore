@@ -96,8 +96,16 @@ class LinksDiv extends XDiv {
     unset($args[$key]);
     $this->add(new XForm(WS::link($base, array(), $anchor), XForm::GET, array('class'=>'pagination-form'), array($f = new XP())));
     $f->add('Jump:');
-    foreach ($args as $k => $value)
-      $f->add(new XHiddenInput($k, $value));
+    foreach ($args as $k => $value) {
+      if (is_array($value)) {
+        foreach ($value as $val) {
+          $f->add(new XHiddenInput($k . '[]', $val));
+        }
+      }
+      else {
+        $f->add(new XHiddenInput($k, $value));
+      }
+    }
     $f->add(new XNumberInput($key, $cur, 1, $num, 1, array('size'=>'2')));
     $f->add(new XSubmitInput('go', "Go"));
   }
