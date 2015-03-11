@@ -22,7 +22,7 @@ class Response {
   /**
    * @var String the raw BODY of response.
    */
-  private $bodyRaw;
+  private $body;
 
   /**
    * Creates a new object using optional argument.
@@ -47,19 +47,10 @@ class Response {
 
     $this->head = new ResponseHead(array_shift($parts));
 
-    $this->bodyRaw = null;
+    $this->body = null;
     if (count($parts) > 0) {
-      $this->parseBody(implode("\r\n\r\n", $parts));
+      $this->body = new ResponseBody(implode("\r\n\r\n", $parts));
     }
-  }
-
-  /**
-   * Helper method to parse the BODY part of response.
-   *
-   * @param String $rawBody
-   */
-  private function parseBody($rawBody) {
-    $this->bodyRaw = $rawBody;
   }
 
   /**
@@ -76,7 +67,7 @@ class Response {
   }
 
   public function getBody() {
-    return $this->bodyRaw;
+    return $this->body;
   }
 
   public function getStatusLine() {

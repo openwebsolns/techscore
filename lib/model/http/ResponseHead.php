@@ -4,7 +4,7 @@ namespace http;
 use \InvalidArgumentException;
 
 /**
- * The HEAD portion of an HTTP response/request.
+ * The HEAD portion of an HTTP response.
  *
  * @author Dayan Paez
  * @created 2015-03-10
