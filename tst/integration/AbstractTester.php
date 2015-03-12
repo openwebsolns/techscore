@@ -22,6 +22,14 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
   private static $session_id = null;
 
   /**
+   * Has the cleanup function been registered?
+   *
+   * @see setSession
+   * @see cleanup
+   */
+  private static $isCleanupRegistered = false;
+
+  /**
    * Records the session id for next requests...
    *
    * Also logs in the 'super' user through the database.
@@ -33,12 +41,7 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
       require_once('TSSessionHandler.php');
 
       // Extract ID
-      $parts = explode('=', $session_id);
-      if (count($parts) < 2) {
-        throw new InvalidArgumentException("Invalid cookie string: $session_id.");
-      }
-      array_shift($parts);
-      $sid = implode('=', $parts);
+      $sid = self::extractSessionId($session_id);
 
       // Find the session
       $data = TSSessionHandler::read($sid);
@@ -60,9 +63,37 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
       $partial = sprintf('a:1:{s:4:"user";s:%d:"%s";}', $length, $user_id);
       $data = sprintf('data|s:%d:"%s";', strlen($partial), $partial);
       TSSessionHandler::write($sid, $data);
+
+      if (!self::$isCleanupRegistered) {
+        register_shutdown_function('AbstractTester::cleanup');
+        self::$isCleanupRegistered = true;
+      }
     }
 
     self::$session_id = $session_id;
+  }
+
+  /**
+   * Cleanup the session created in database, and other things.
+   *
+   */
+  public static function cleanup() {
+    if (self::$session_id !== null) {
+      TSSessionHandler::destroy(self::extractSessionId(self::$session_id));
+    }
+  }
+
+  /**
+   * Takes in SID=<session_id> and returns <session_id>
+   *
+   */
+  private static function extractSessionId($cookie_string) {
+    $parts = explode('=', $cookie_string);
+    if (count($parts) < 2) {
+      throw new InvalidArgumentException("Invalid cookie string: $cookie_string.");
+    }
+    array_shift($parts);
+    return implode('=', $parts);
   }
 
   protected function fullUrl($url) {
