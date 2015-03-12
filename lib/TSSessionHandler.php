@@ -26,6 +26,7 @@ class TSSessionHandler {
 
   public static function destroy($session_id) {
     DB::removeAll(DB::T(DB::WEBSESSION), new DBCond('id', $session_id));
+    DB::commit();
     return true;
   }
 
