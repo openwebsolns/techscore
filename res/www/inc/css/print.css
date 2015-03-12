@@ -100,10 +100,6 @@ table#divresults td {
     padding-bottom: 1em;
 }
 
-table#rotation td {
-    padding-top: 0.5em;
-}
-
 table img {
     height: 1.5em;
 }
@@ -275,10 +271,43 @@ td.tr-sail {
     text-shadow: 1px 1px 0px #222;
 }
 
+/* Rotation table */
+
+.rotation td {
+    height: 35px;
+}
+
+.rotation .teamname {
+    padding-right: 15px;
+}
+
+.tr-sail, .sail {
+    font-size: 80%;
+    padding: 0 0.35em;
+    text-align: center;
+}
+
+.sail-color {
+    border: 1px solid #FFFFFF;
+    box-shadow: 0 1px 2px 0 #888888;
+    display: block;
+    height: 3px;
+    width: 100%;
+}
+
 .tr-rotation-table td {
     border-right: 0;
     border-left: 0;
 }
+.tr-rotation-table img, .teamscorelist img {
+    height: 20px;
+    width: auto;
+}
+.noshow {
+    font-style: italic;
+}
+
+
 .tr-flight td {
     text-align: center;
     font-size: 75%;
