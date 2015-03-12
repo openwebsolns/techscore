@@ -2,7 +2,8 @@
 require_once('AbstractTester.php');
 
 /**
- * Tests every page to make sure it returns a non-500 error status.
+ * Tests the login page. This needs to be run first so that a session
+ * can be established for future tests.
  *
  * @author Dayan Paez
  * @created 2015-02-22
@@ -13,7 +14,13 @@ class LoginPageTest extends AbstractTester {
     $response = $this->getUrl('/');
     $head = $response->getHead();
     $this->assertEquals(403, $head->getStatus());
-    $this->assertNotEmpty($head->getHeader('Set-Cookie'), "Expected session cookie to be set.");
+
+    $cookie = $head->getHeader('Set-Cookie');
+    $this->assertNotEmpty($cookie, "Expected session cookie to be set.");
+    $cookie_parts = explode(';', $cookie);
+
+    // Cache session ID
+    self::setSession($cookie_parts[0]);
 
     $body = $response->getBody();
     $this->assertNotNull($body);
@@ -35,5 +42,8 @@ class LoginPageTest extends AbstractTester {
     $inputs = $form->xpath('html:input[@name="csrf_token"]');
     $this->assertNotEmpty($inputs, "No CSRF tokens found");
   }
+
+  public function testPost() {
+    // 
+  }
 }
-?>

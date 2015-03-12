@@ -12,4 +12,6 @@ require_once('error/PanicHandler.php');
 
 // Always throw exceptions
 PanicHandler::registerAll();
+
+$_SESSION = array();
 ?>

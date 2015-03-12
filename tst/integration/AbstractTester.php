@@ -14,6 +14,57 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
   const POST = 'POST';
   const HEAD = 'HEAD';
 
+  /**
+   * Session ID cache for subsequent requests.
+   *
+   * @see setSession
+   */
+  private static $session_id = null;
+
+  /**
+   * Records the session id for next requests...
+   *
+   * Also logs in the 'super' user through the database.
+   *
+   * @param String $session_id the session id to set.
+   */
+  protected static function setSession($session_id) {
+    if ($session_id !== null) {
+      require_once('TSSessionHandler.php');
+
+      // Extract ID
+      $parts = explode('=', $session_id);
+      if (count($parts) < 2) {
+        throw new InvalidArgumentException("Invalid cookie string: $session_id.");
+      }
+      array_shift($parts);
+      $sid = implode('=', $parts);
+
+      // Find the session
+      $data = TSSessionHandler::read($sid);
+      if ($data === null) {
+        throw new InvalidArgumentException("Session $sid not saved to database.");
+      }
+
+      // Find me a super user
+      $obj = DB::T(DB::ACCOUNT);
+      $obj->db_set_order(array('ts_role'=>false));
+      $users = DB::getAdmins();
+      if (count($users) == 0) {
+        throw new InvalidArgumentException("No super/admin user exists!");
+      }
+
+      $user_id = $users[0]->id;
+      $length = strlen($user_id);
+
+      $partial = sprintf('a:1:{s:4:"user";s:%d:"%s";}', $length, $user_id);
+      $data = sprintf('data|s:%d:"%s";', strlen($partial), $partial);
+      TSSessionHandler::write($sid, $data);
+    }
+
+    self::$session_id = $session_id;
+  }
+
   protected function fullUrl($url) {
     return sprintf('http://localhost:8080%s', $url);
   }
@@ -26,6 +77,9 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
     }
     if ($method == self::HEAD) {
       curl_setopt($ch, CURLOPT_NOBODY, 1);
+    }
+    if (self::$session_id !== null) {
+      curl_setopt($ch, CURLOPT_COOKIE, self::$session_id);
     }
   }
 
