@@ -11,7 +11,6 @@ class HomePageTest extends AbstractTester {
 
   public function test() {
     $response = $this->getUrl('/');
-    $head = $response->getHead();
-    print_r($head);
+    $this->assertResponseStatus($response, 200);
   }
 }

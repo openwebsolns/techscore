@@ -12,9 +12,9 @@ class LoginPageTest extends AbstractTester {
 
   public function testGet() {
     $response = $this->getUrl('/');
-    $head = $response->getHead();
-    $this->assertEquals(403, $head->getStatus());
+    $this->assertResponseStatus($response, 403);
 
+    $head = $response->getHead();
     $cookie = $head->getHeader('Set-Cookie');
     $this->assertNotEmpty($cookie, "Expected session cookie to be set.");
     $cookie_parts = explode(';', $cookie);

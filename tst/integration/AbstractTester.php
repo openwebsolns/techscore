@@ -105,5 +105,21 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
   protected function headUrl($url) {
     return $this->doUrl($url, self::HEAD);
   }
+
+  //
+  // Assertions
+  //
+
+  /**
+   * Assert that given response has the requested HTTP status.
+   *
+   * @param Response $respone the respone whose head to test.
+   * @param int $status the HTTP status expected.
+   * @param String $message the error message, if any.
+   */
+  protected function assertResponseStatus(Response $response, $status = 200, $message = null) {
+    $head = $response->getHead();
+    $this->assertEquals($status,  $head->getStatus(), $message);
+  }
 }
 ?>
