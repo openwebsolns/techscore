@@ -42,8 +42,4 @@ class LoginPageTest extends AbstractTester {
     $inputs = $form->xpath('html:input[@name="csrf_token"]');
     $this->assertNotEmpty($inputs, "No CSRF tokens found");
   }
-
-  public function testPost() {
-    // 
-  }
 }
