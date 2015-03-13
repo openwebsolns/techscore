@@ -53,6 +53,7 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
       $obj = DB::T(DB::ACCOUNT);
       $obj->db_set_order(array('ts_role'=>false));
       $users = DB::getAdmins();
+      $obj->db_set_order();
       if (count($users) == 0) {
         throw new InvalidArgumentException("No super/admin user exists!");
       }
@@ -100,7 +101,7 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
     return sprintf('http://localhost:8080%s', $url);
   }
 
-  protected function prepareCurlRequest($ch, $method) {
+  protected function prepareCurlRequest($ch, $url, $method, Array $args = array()) {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_HEADER, 1);
     if ($method == self::POST) {
@@ -112,11 +113,28 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
     if (self::$session_id !== null) {
       curl_setopt($ch, CURLOPT_COOKIE, self::$session_id);
     }
+
+    // Any arguments?
+    if (count($args) > 0) {
+      switch ($method) {
+      case self::GET:
+        $url .= '?' . http_build_query($args);
+        break;
+
+      case self::POST:
+      default:
+        throw new InvalidArgumentException("Don't know how to use arguments for $method.");
+      }
+    }
+
+    $url = $this->fullUrl($url);
+    printf("Testing URL: %s\n", $url);
+    curl_setopt($ch, CURLOPT_URL, $url);
   }
 
-  protected function doUrl($url, $method = self::GET) {
-    $ch = curl_init($this->fullUrl($url));
-    $this->prepareCurlRequest($ch, $method);
+  protected function doUrl($url, $method = self::GET, Array $args = array()) {
+    $ch = curl_init();
+    $this->prepareCurlRequest($ch, $url, $method, $args);
     $response = curl_exec($ch);
     return new Response($response);
   }
@@ -126,11 +144,11 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
    *
    */
   protected function getUrl($url, Array $args = array()) {
-    return $this->doUrl($url, self::GET);
+    return $this->doUrl($url, self::GET, $args);
   }
 
   protected function postUrl($url, Array $args = array()) {
-    return $this->doUrl($url, self::POST);
+    return $this->doUrl($url, self::POST, $args);
   }
 
   protected function headUrl($url) {

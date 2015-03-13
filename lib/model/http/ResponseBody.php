@@ -67,4 +67,26 @@ class ResponseBody {
     }
     return $this->xmlVersion;
   }
+
+  /**
+   * Treats the body as XML, and applies the given xpath query.
+   *
+   * @param String $xpath the xpath query
+   * @return Array the result of calling xpath() on SimpleXMLElement.
+   * @throws InvalidArgumentException
+   */
+  public function xpath($xpath) {
+    $root = $this->xmlVersion;
+    if ($root === null) {
+      $root = $this->asXml();
+      
+      // Register default namespace
+      $namespaces = $root->getNamespaces();
+      if (array_key_exists('', $namespaces)) {
+        $root->registerXPathNamespace('html', $namespaces['']);
+      }
+    }
+
+    return $root->xpath($xpath);
+  }
 }
