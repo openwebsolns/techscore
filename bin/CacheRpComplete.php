@@ -25,6 +25,6 @@ if ($reg === null) {
 
 $rp = $reg->getRpManager();
 foreach ($reg->getTeams() as $team) {
-  $rp->setCacheComplete($team);
+  $rp->resetCacheComplete($team);
 }
 ?>
