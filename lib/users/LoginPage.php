@@ -90,13 +90,18 @@ class LoginPage extends AbstractUserPane {
     $remember = DB::$V->incInt($args, 'remember', 1, 2, null);
 
     $user = DB::getAccountByEmail($userid);
-    if ($user === null)
+    if ($user === null) {
+      Metric::publish(Metric::INVALID_USERNAME);
       throw new SoterException("Invalid username/password.");
+    }
     $hash = DB::createPasswordHash($user, $passwd);
-    if ($user->password !== $hash)
+    if ($user->password !== $hash) {
+      Metric::publish(Metric::INVALID_PASSWORD);
       throw new SoterException("Invalid username/password.");
-    if (is_array(Conf::$DEBUG_USERS) && !in_array($user->email, Conf::$DEBUG_USERS))
+    }
+    if (is_array(Conf::$DEBUG_USERS) && !in_array($user->email, Conf::$DEBUG_USERS)) {
       throw new SoterException("We apologize, but log in has been disabled temporarily. Please try again later.");
+    }
 
     $def = Session::g('last_page');
 
