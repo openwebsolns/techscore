@@ -134,9 +134,19 @@ class TeamRpEnterPane extends AbstractPane {
     }
     $form->add($tab = new XQuickTable(array('class'=>'tr-rp-set'), $header));
     foreach ($divisions as $div) {
-      $row = array(XSelect::fromArray(sprintf('sk%s', $div), $sailor_options));
+      $row = array(
+        XSelect::fromArray(
+          sprintf('sk%s', $div),
+          $sailor_options,
+          null, // chosen
+          array('class'=>'no-mselect'))
+      );
       for ($i = 0; $i < $max_crews; $i++) {
-        $row[] = XSelect::fromArray(sprintf('cr%s%d', $div, $i), $sailor_options);
+        $row[] = XSelect::fromArray(
+          sprintf('cr%s%d', $div, $i),
+          $sailor_options,
+          null, // chosen
+          array('class'=>'no-mselect'));
       }
       $tab->addRow($row);
     }
