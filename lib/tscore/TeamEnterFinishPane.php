@@ -29,9 +29,10 @@ class TeamEnterFinishPane extends EnterFinishPane {
     $num = DB::$V->incString($args, 'race', 1, 1001, null);
     if ($num !== null) {
       $race = $this->REGATTA->getRace(Division::A(), $num);
-      if ($race === null)
+      if ($race === null) {
         Session::pa(new PA("Invalid race chosen.", PA::I));
-      if ($race->tr_team1 === null || $race->tr_team2 === null) {
+      }
+      elseif ($race->tr_team1 === null || $race->tr_team2 === null) {
         Session::pa(new PA(sprintf("Race %d cannot be scored until both teams are known.", $race->number), PA::I));
         $race = null;
       }
