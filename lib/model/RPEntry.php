@@ -15,7 +15,7 @@
 class RPEntry extends DBObject {
   protected $race;
   protected $team;
-  protected $sailor;
+  protected $attendee;
   public $boat_role;
 
   public function db_name() { return 'rp'; }
@@ -23,12 +23,28 @@ class RPEntry extends DBObject {
     switch ($field) {
     case 'race': return DB::T(DB::RACE);
     case 'team': return DB::T(DB::TEAM);
-    case 'sailor': return DB::T(DB::SAILOR);
+    case 'attendee': return DB::T(DB::ATTENDEE);
     default:
       return parent::db_type($field);
     }
   }
   protected function db_order() { return array('team'=>true, 'race'=>true); }
+
+  /**
+   * Provide the sailor by proxy of attendee.
+   *
+   */
+  public function &__get($name) {
+    if ($name == 'sailor') {
+      if ($this->attendee === null)
+        return null;
+      $att = $this->__get('attendee');
+      $sailor = $att->sailor;
+      return $sailor;
+    }
+    $ret = parent::__get($name);
+    return $ret;
+  }
 
   /**
    * Returns textual representation of sailor.

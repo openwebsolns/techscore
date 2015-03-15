@@ -101,6 +101,28 @@ CREATE TABLE `answer` (
   CONSTRAINT `fk_answer_question` FOREIGN KEY (`question`) REFERENCES `question` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `attendee`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `attendee` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `regatta` int(5) NOT NULL,
+  `school` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
+  `sailor` mediumint(9) NOT NULL,
+  `added_by` int(10) unsigned DEFAULT NULL,
+  `added_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_regatta_sailor` (`regatta`,`sailor`),
+  KEY `regatta` (`regatta`),
+  KEY `school` (`school`),
+  KEY `sailor` (`sailor`),
+  KEY `added_by` (`added_by`),
+  CONSTRAINT `fk_attendee_added_by` FOREIGN KEY (`added_by`) REFERENCES `account` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_attendee_regatta` FOREIGN KEY (`regatta`) REFERENCES `regatta` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_attendee_sailor` FOREIGN KEY (`sailor`) REFERENCES `sailor` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_attendee_school` FOREIGN KEY (`school`) REFERENCES `school` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `boat`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -813,15 +835,15 @@ CREATE TABLE `rp` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `race` int(7) NOT NULL,
   `team` int(7) NOT NULL,
-  `sailor` mediumint(9) DEFAULT NULL,
   `boat_role` enum('skipper','crew') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'skipper',
+  `attendee` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `race` (`race`),
   KEY `team` (`team`),
-  KEY `sailor` (`sailor`),
+  KEY `attendee` (`attendee`),
+  CONSTRAINT `fk_rp_attendee` FOREIGN KEY (`attendee`) REFERENCES `attendee` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `rp_ibfk_1` FOREIGN KEY (`race`) REFERENCES `race` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `rp_ibfk_2` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `rp_ibfk_4` FOREIGN KEY (`sailor`) REFERENCES `sailor` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `rp_ibfk_2` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `rp_form`;
