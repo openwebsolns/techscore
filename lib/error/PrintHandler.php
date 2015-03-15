@@ -29,6 +29,9 @@ class PrintHandler {
       $line = (isset($trace['line'])) ? $trace['line'] : 'N/A';
       $tab->addRow(array($i + 1, $func, $file, $line));
     }
+    if (!headers_sent()) {
+      http_response_code(500);
+    }
     $P->printXML();
     DB::rollback();
     exit;
@@ -48,6 +51,9 @@ class PrintHandler {
       $file = (isset($trace['file'])) ? $trace['file'] : 'N/A';
       $line = (isset($trace['line'])) ? $trace['line'] : 'N/A';
       $tab->addRow(array(($i + 1), $func, $file, $line));
+    }
+    if (!headers_sent()) {
+      http_response_code(500);
     }
     $P->printXML();
     DB::rollback();
