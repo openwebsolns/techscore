@@ -142,6 +142,8 @@ class RpEnterPane extends AbstractPane {
       $f->add(new XSubmitP('go', "Fetch sailors"));
     }
 
+    $this->PAGE->addContent($rpform = $this->createForm());
+    $rpform->add(new XHiddenInput("chosen_team", $chosen_team->id));
     // ------------------------------------------------------------
     // Attendees
     // ------------------------------------------------------------
@@ -158,10 +160,8 @@ class RpEnterPane extends AbstractPane {
     else {
       $p = new XCollapsiblePort("Attendees");
     }
-    $this->PAGE->addContent($p);
+    $rpform->add($p);
     $p->add(new XWarning("Note: all attendees that do not participate will automatically be labeled as \"Reserves\" for this regatta. For this reason, it is important that this information be entered accurately."));
-    $p->add($f = $this->createForm());
-    $f->add(new XHiddenInput("chosen_team", $chosen_team->id));
     $rpManager = $this->REGATTA->getRpManager();
 
     // ------------------------------------------------------------
@@ -191,8 +191,7 @@ class RpEnterPane extends AbstractPane {
       $current_attendees[] = $attendee->sailor->id;
     }
 
-    $f->add(new XHeading("Attendees"));
-    $f->add(
+    $p->add(
       XSelectM::fromArray(
         'attendees[]',
         $attendee_sailors,
@@ -200,16 +199,13 @@ class RpEnterPane extends AbstractPane {
         array('id'=>'attendee-list'))
     );
 
-    $f->add(new XSubmitP('set-attendees', "Set attendees"));
-
-    if (count($attendees) == 0) {
-      return;
-    }
+    $p->add(new XP(array('class'=>'p-submit'),
+                   new XSubmitAccessible('set-attendees', "Set attendees")));
 
     // ------------------------------------------------------------
     // RP Form
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new XPort(sprintf("Fill out form for %s", $chosen_team)));
+    $rpform->add($p = new XPort(sprintf("Fill out form for %s", $chosen_team)));
 
     $sailor_options = array(self::NO_SAILOR_OPTION => '');
     foreach ($attendees as $attendee) {
@@ -225,20 +221,11 @@ class RpEnterPane extends AbstractPane {
 
     // Representative
     $rep = $rpManager->getRepresentative($chosen_team);
-    $p->add($form = $this->createForm());
-    $form->add(new XWarning(
-                      array(new XStrong("Note:"), " It is not possible to add sailors without adding races. When unsure, mark a sailor as sailing all races, and edit later as more information becomes available. ",
-                            new XStrong("Hint:"), " Use \"*\" to automatically select all races. Use the ",
-                            new XA(WS::link(sprintf('/view/%s/sailors', $this->REGATTA->id)), "Sailors dialog",
-                                   array('onclick'=>'this.target="sailors"')),
-                            " to see current registrations.")));
-
-    $p->add(new XP(array(),
+    $rpform->add(new XP(array(),
                    array(new XStrong("Note:"),
                          " You may only submit up to two sailors in the same role in the same division at a time. To add a third or more skipper or crew in a given division, submit the form multiple times.")));
 
-    $form->add(new XHiddenInput("chosen_team", $chosen_team->id));
-    $form->add(new FItem("Representative:", new XTextInput('rep', $rep), "For contact purposes only"));
+    $p->add(new FItem("Representative:", new XTextInput('rep', $rep), "For contact purposes only"));
 
     // ------------------------------------------------------------
     // - Fill out form
@@ -275,7 +262,7 @@ class RpEnterPane extends AbstractPane {
                                  new XTD(array("name"=>"occ" . $div),   $crews)));
       }
       if ($num_entries == 0) {
-        $form->add(new XP(array('class'=>'message'), "The current team is not participating in the regatta."));
+        $p->add(new XP(array('class'=>'message'), "The current team is not participating in the regatta."));
         continue;
       }
 
@@ -288,14 +275,14 @@ class RpEnterPane extends AbstractPane {
       }
 
       if (count($divisions) > 1) {
-        $form->add(new XHeading(sprintf("Division %s%s", $div, $division_explanation)));
+        $p->add(new XHeading(sprintf("Division %s%s", $div, $division_explanation)));
       }
       else if ($division_explanation != '') {
-        $form->add(new XHeading(sprintf("Races: %s", $division_explanation)));
+        $p->add(new XHeading(sprintf("Races: %s", $division_explanation)));
       }
 
-      $form->add($tab_races);
-      $form->add($tab_skip = new XQuickTable(array('class'=>'narrow'), array("Skippers", "Races sailed", "")));
+      $p->add($tab_races);
+      $p->add($tab_skip = new XQuickTable(array('class'=>'narrow'), array("Skippers", "Races sailed", "")));
       $size = 8;
       // ------------------------------------------------------------
       // - Create skipper table
@@ -327,7 +314,7 @@ class RpEnterPane extends AbstractPane {
       // Print table only if there is room in the boat for crews
       if ( $num_crews > 0 ) {
         // update crew table
-        $form->add($tab_crew = new XQuickTable(array('class'=>'narrow'), array("Crews" . $crews_explanation, "Races sailed", "")));
+        $p->add($tab_crew = new XQuickTable(array('class'=>'narrow'), array("Crews" . $crews_explanation, "Races sailed", "")));
 
         //    write already filled-in spots + 2 more
         for ($spot = 0; $spot < count($cur_cr) + 2; $spot++) {
@@ -358,11 +345,10 @@ class RpEnterPane extends AbstractPane {
 
     // ------------------------------------------------------------
     // - Add submit
-    $form->add(new XP(array(),
-                      array(new XReset("reset", "Reset"),
-                            new XSubmitInput("rpform", "Submit form",
-                                             array("id"=>"rpsubmit")))));
-    $p->add(new XScript('text/javascript', null, "check()"));
+    $p->add(new XP(array(),
+                   array(new XReset('reset', 'Reset'),
+                         new XSubmitInput('rpform', 'Submit form', array('id'=>'rpsubmit')))));
+    $p->add(new XScript('text/javascript', null, 'check()'));
   }
 
 
