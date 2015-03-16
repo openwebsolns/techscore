@@ -544,6 +544,10 @@ input[type="number"] {
 
 /* mselect.js */
 
+.form_entry .msel-wrapper {
+    display: inline-block;
+}
+
 .msel-wrapper select {
     width: 40ex;
     min-height: 5em;
