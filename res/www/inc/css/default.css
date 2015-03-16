@@ -665,7 +665,7 @@ input[type="number"] {
 }
 #msel-attendee-list .msel-button-wrapper {
     position: absolute;
-    top: 25%;
+    top: 15%;
     bottom: 5px;
     left: 45%;
     right: 45%;
@@ -687,6 +687,40 @@ input[type="number"] {
 
 #msel-attendee-list button {
     margin: 1ex auto;
+}
+
+#msel-attendee-list .msel-button-promote {
+    color: #e0f3e0;
+}
+
+#msel-attendee-list .msel-button-promote::before {
+    color: black;
+    content: "Add";
+    display: block;
+    font-weight: bold;
+}
+#msel-attendee-list .msel-button-promote::after {
+    color: black;
+    content: "⟶";
+    display: block;
+    font-weight: bold;
+}
+
+#msel-attendee-list .msel-button-demote {
+    color: #f3f3bb;
+}
+
+#msel-attendee-list .msel-button-demote::before {
+    color: black;
+    content: "Remove";
+    display: block;
+    font-weight: bold;
+}
+#msel-attendee-list .msel-button-demote::after {
+    color: black;
+    content: "⟵";
+    display: block;
+    font-weight: bold;
 }
 
 
