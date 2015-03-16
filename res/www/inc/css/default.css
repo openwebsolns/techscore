@@ -639,6 +639,58 @@ input[type="number"] {
 
 
 
+/* Add attendees box */
+
+#msel-attendee-list {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    width: 100%;
+    height: 12em;
+    position: relative;
+}
+
+#msel-attendee-list .msel-from-wrapper {
+    width: 45%;
+    position: absolute;
+    top: 5px;
+    bottom: 5px;
+    left: 5px;
+}
+#msel-attendee-list .msel-to-wrapper {
+    width: 45%;
+    position: absolute;
+    top: 5px;
+    bottom: 5px;
+    right: 5px;
+}
+#msel-attendee-list .msel-button-wrapper {
+    position: absolute;
+    top: 25%;
+    bottom: 5px;
+    left: 45%;
+    right: 45%;
+}
+#msel-attendee-list button {
+    display: block;
+    width: 90%;
+}
+
+#msel-attendee-list select {
+    width: 100%;
+}
+
+#msel-attendee-list .msel-from-wrapper select {
+    position: absolute;
+    top: 2em;
+    bottom: 0;
+}
+
+#msel-attendee-list button {
+    margin: 1ex auto;
+}
+
+
+
 
 /* Combobox selects */
 

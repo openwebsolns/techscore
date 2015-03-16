@@ -191,11 +191,13 @@ class RpEnterPane extends AbstractPane {
       $current_attendees[] = $attendee->sailor->id;
     }
 
+    $f->add(new XHeading("Attendees"));
     $f->add(
-      new FReqItem(
-        "Sailors:", 
-        XSelectM::fromArray('attendees[]', $attendee_sailors, $current_attendees, array('id'=>'attendee-list'))
-      )
+      XSelectM::fromArray(
+        'attendees[]',
+        $attendee_sailors,
+        $current_attendees,
+        array('id'=>'attendee-list'))
     );
 
     $f->add(new XSubmitP('set-attendees', "Set attendees"));

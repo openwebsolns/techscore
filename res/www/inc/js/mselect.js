@@ -21,6 +21,12 @@ function OWSMultSelect(elem, incSearch) {
     this.wrapper.setAttribute("title", "Move items from one list to another to choose.");
     this.wrapper.style.display = "inline-block";
     this.fromElement.parentNode.insertBefore(this.wrapper, this.fromElement);
+    if (elem.id != null) {
+        this.wrapper.setAttribute("id", "msel-" + elem.id);
+    }
+    for (var i = 0; i < elem.classList.length; i++) {
+        this.wrapper.classList.add("msel-" + elem.classList[i]);
+    }
 
     // First cell
     var c = document.createElement("div");
