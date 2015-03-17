@@ -345,7 +345,7 @@ class RpEnterPane extends AbstractPane {
 
     // ------------------------------------------------------------
     // - Add submit
-    $p->add(new XP(array(),
+    $p->add(new XP(array('class'=>'p-submit'),
                    array(new XReset('reset', 'Reset'),
                          new XSubmitInput('rpform', 'Submit form', array('id'=>'rpsubmit')))));
     $p->add(new XScript('text/javascript', null, 'check()'));
@@ -378,35 +378,7 @@ class RpEnterPane extends AbstractPane {
     // ------------------------------------------------------------
     if (isset($args['set-attendees'])) {
       $school = $team->school;
-
-      $cur_season = Season::forDate(DB::T(DB::NOW));
-      $active = 'all';
-      if ((string)$cur_season ==  (string)$this->REGATTA->getSeason())
-        $active = true;
-      $gender = ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) ?
-        Sailor::FEMALE : null;
-
-      $cross_rp = !$this->REGATTA->isSingleHanded() && DB::g(STN::ALLOW_CROSS_RP);
-
-      $sailors = array();
-      foreach (DB::$V->reqList($args, 'attendees', null, "Missing list of attendees.") as $id) {
-        $sailor = DB::getSailor($id);
-        if ($sailor === null) {
-          throw new SoterException(sprintf("Invalid sailor ID provided: %s.", $id));
-        }
-        if (!$cross_rp && $sailor->school->id != $school->id) {
-          throw new SoterException(sprintf("Sailor provided (%s) cannot sail for given school.", $sailor));
-        }
-        if ($gender !== null && $gender != $sailor->gender) {
-          throw new SoterException(sprintf("Invalid sailor allowed for this regatta (%s).", $sailor));
-        }
-        $sailors[] = $sailor;
-      }
-      if (count($sailors) == 0) {
-        throw new SoterException("No sailors provided for attendance list.");
-      }
-
-      $rpManager->setAttendees($school, $sailors);
+      $this->processAttendees($school, $args);
       Session::pa(new PA(sprintf("Added %s as attendees for school %s.", count($sailor), $school->name)));
     }
 
@@ -417,10 +389,11 @@ class RpEnterPane extends AbstractPane {
 
       $rpManager->reset($team);
 
+      $this->processAttendees($team->school, $args);
       $attendees = $rpManager->getAttendees($team->school);
       $sailors = array();
       foreach ($attendees as $attendee) {
-        $sailors[$attendee->sailor->id] = $attendee->sailor;
+        $sailors[$attendee->sailor->id] = $attendee;
       }
 
       // Insert representative
@@ -498,7 +471,7 @@ class RpEnterPane extends AbstractPane {
               $rp->team = $team;
               $rp->race = $this->REGATTA->getRace($div, $num);
               $rp->boat_role  = $s_role;
-              $rp->sailor     = $s_obj;
+              $rp->attendee   = $s_obj;
               $rps[] = $rp;
             }
           }
@@ -598,6 +571,45 @@ class RpEnterPane extends AbstractPane {
     }
     else
       $p->add(new XValid("Information is complete."));
+  }
+
+  /**
+   * Helper function to update attendee list based on arguments.
+   *
+   * @return list of sailors
+   * @throws SoterException on invalid arguments.
+   */
+  protected function processAttendees(School $school, Array $args) {
+    $cur_season = Season::forDate(DB::T(DB::NOW));
+    $active = 'all';
+    if ((string)$cur_season ==  (string)$this->REGATTA->getSeason())
+      $active = true;
+    $gender = ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) ?
+      Sailor::FEMALE : null;
+
+    $cross_rp = !$this->REGATTA->isSingleHanded() && DB::g(STN::ALLOW_CROSS_RP);
+
+    $sailors = array();
+    foreach (DB::$V->reqList($args, 'attendees', null, "Missing list of attendees.") as $id) {
+      $sailor = DB::getSailor($id);
+      if ($sailor === null) {
+        throw new SoterException(sprintf("Invalid sailor ID provided: %s.", $id));
+      }
+      if (!$cross_rp && $sailor->school->id != $school->id) {
+        throw new SoterException(sprintf("Sailor provided (%s) cannot sail for given school.", $sailor));
+      }
+      if ($gender !== null && $gender != $sailor->gender) {
+        throw new SoterException(sprintf("Invalid sailor allowed for this regatta (%s).", $sailor));
+      }
+      $sailors[] = $sailor;
+    }
+    if (count($sailors) == 0) {
+      throw new SoterException("No sailors provided for attendance list.");
+    }
+
+    $rpManager = $this->REGATTA->getRpManager();
+    $rpManager->setAttendees($school, $sailors);
+    return $sailors;
   }
 }
 ?>

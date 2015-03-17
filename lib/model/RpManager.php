@@ -359,27 +359,29 @@ class RpManager {
    * @param Array $sailors the sailors to register.
    */
   public function setAttendees(School $school, Array $sailors) {
-    $list = array();
+    // Avoid deleting entries due to cascading nature of foreign
+    // keys. Instead, compare the new list (newones) with the current
+    // ones and add/remove accordingly.
+
+    $newones = array();
     foreach ($sailors as $sailor) {
       if (!($sailor instanceof Sailor)) {
         throw new InvalidArgumentException(
           sprintf("Expected list of sailors; found %s.", gettype($sailor)));
       }
-      $list[] = $this->prepareAttendee($school, $sailor);
+      $newones[$sailor->id] = $this->prepareAttendee($school, $sailor);
     }
 
-    // As these records should not cascade to others, set the list
-    // efficiently by removing all for the given school and assigning
-    // in bulk.
-    DB::removeAll(
-      DB::T(DB::ATTENDEE),
-      new DBBool(
-        array(
-          new DBCond('regatta', $this->regatta),
-          new DBCond('school', $school),
-        )));
+    foreach ($this->getAttendees($school) as $attendee) {
+      if (array_key_exists($attendee->sailor->id, $newones)) {
+        unset($newones[$attendee->sailor->id]);
+      }
+      else {
+        DB::remove($attendee);
+      }
+    }
 
-    DB::insertAll($list);
+    DB::insertAll($newones);
   }
 
   /**

@@ -42,7 +42,7 @@ class RPEntry extends DBObject {
       $sailor = $att->sailor;
       return $sailor;
     }
-    $ret = parent::__get($name);
+    $ret = &parent::__get($name);
     return $ret;
   }
 
