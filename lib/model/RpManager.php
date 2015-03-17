@@ -80,7 +80,7 @@ class RpManager {
    * @return Array:RPEntry the list
    */
   public function getNoShowRpEntries(Team $team = null, Race $race = null, $role = null) {
-    $cond = new DBBool(array(new DBCond('sailor', null)));
+    $cond = new DBBool(array(new DBCond('attendee', null)));
     if ($team === null && $race === null) {
       $cond->add(
         new DBCondIn(
@@ -220,10 +220,30 @@ class RpManager {
                    DB::prepGetAll(DB::T(DB::RACE), new DBCond('regatta', $this->regatta->id), array('id'))) :
       new DBCond('team', $team);
 
-    $r = DB::getAll(DB::T(DB::RP_ENTRY),
-                    new DBBool(array($cond,
-                                     new DBCondIn('sailor',
-                                                  DB::prepGetAll(DB::T(DB::SAILOR), new DBCond('gender', $gender), array('id'))))));
+    $r = DB::getAll(
+      DB::T(DB::RP_ENTRY),
+      new DBBool(
+        array(
+          $cond,
+          new DBCondIn(
+            'attendee',
+            DB::prepGetAll(
+              DB::T(DB::ATTENDEE),
+              new DBCondIn(
+                'sailor',
+                DB::prepGetAll(
+                  DB::T(DB::SAILOR),
+                  new DBCond('gender', $gender),
+                  array('id')
+                )
+              ),
+              array('id')
+            )
+          )
+        )
+      )
+    );
+
     $res = (count($r) > 0);
     unset($r);
     return $res;
