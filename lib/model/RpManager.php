@@ -120,39 +120,39 @@ class RpManager {
   }
 
   /**
-   * Sets the individual RP records for given list of sailors
+   * Sets the individual RP records for given list of attendees.
    *
-   * For $role of SKIPPER, $sailors should be at most one item. For
+   * For $role of SKIPPER, $attendees should be at most one item. For
    * crews, this can be any number up to the race's boat's maximum
    * number of crews.
    *
    * In the process, this method will REMOVE all entries for the
    * team-race-role combination provided. Thus, a way to reset a
    * particular RP entry would be to provide an empty list for the
-   * $sailors argument.
+   * $attendees argument.
    *
    * @param Team $team the team whose RP entries to remove
    * @param Race $race the race
    * @param Const $role RP::SKIPPER or RP::CREW
-   * @param Array:Sailor the sailors to assign, if any
+   * @param Array:Attendee the attendees to assign, if any
    */
-  public function setRpEntries(Team $team, Race $race, $role, Array $sailors = array()) {
+  public function setRpEntries(Team $team, Race $race, $role, Array $attendees = array()) {
     $role = RP::parseRole($role);
-    if ($role == RP::SKIPPER && count($sailors) > 1)
+    if ($role == RP::SKIPPER && count($attendees) > 1)
       throw new InvalidArgumentException("Only one skipper allowed per boat.");
-    if ($role == RP::CREW && count($sailors) > $race->boat->max_crews)
+    if ($role == RP::CREW && count($attendees) > $race->boat->max_crews)
       throw new InvalidArgumentException("Number of crews exceeds capacity for race's boat.");
 
     DB::removeAll(DB::T(DB::RP_ENTRY),
                   new DBBool(array(new DBCond('team', $team),
                                    new DBCond('race', $race),
                                    new DBCond('boat_role', $role))));
-    foreach ($sailors as $sailor) {
+    foreach ($attendees as $attendee) {
       $rp = new RPEntry();
       $rp->team = $team;
       $rp->race = $race;
       $rp->boat_role = $role;
-      $rp->sailor = $sailor;
+      $rp->attendee = $attendee;
       DB::set($rp);
     }
   }
@@ -178,8 +178,8 @@ class RpManager {
     $rps = array();
     foreach ($res as $rpentry) {
       $id = "NULL";
-      if ($rpentry->sailor !== null)
-        $id = $rpentry->sailor->id;
+      if ($rpentry->attendee !== null)
+        $id = $rpentry->attendee->sailor->id;
       if (!isset($rps[$id]))
         $rps[$id] = array();
       $rps[$id][] = $rpentry;
@@ -658,7 +658,14 @@ class RpManager {
     if ($div !== null)
       $r = new DBBool(array($r, new DBCond('division', (string)$div)));
 
-    $c = new DBBool(array(new DBCond('sailor', $sailor)));
+    $cond = new DBCondIn(
+      'attendee',
+      DB::prepGetAll(
+        DB::T(DT::ATTENDEE),
+        new DBCond('sailor', $sailor),
+        array('id')));
+
+    $c = new DBBool(array($cond));
     if ($role !== null)
       $c->add(new DBCond('boat_role', $role));
     $c->add(new DBCondIn('race', DB::prepGetAll(DB::T(DB::RACE), $r, array('id'))));

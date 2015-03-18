@@ -37,7 +37,7 @@ class RPEntry extends DBObject {
   public function &__get($name) {
     if ($name == 'sailor') {
       if ($this->attendee === null)
-        return null;
+        return $this->attendee;
       $att = $this->__get('attendee');
       $sailor = $att->sailor;
       return $sailor;

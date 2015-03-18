@@ -10,13 +10,22 @@ require_once('AbstractUnitTester.php');
  */
 class RpManagerTest extends AbstractUnitTester {
 
+  private $standardRegatta;
+
+  /**
+   * Create standard regatta, add school, and some sailors.
+   *
+   */
+  protected function setUp() {
+    $this->standardRegatta = self::getRegatta(Regatta::SCORING_STANDARD);
+  }
+
   /**
    * Test the attendee adding logic: make sure that existing list of
    * attendees is unaffected by addition of new ones.
    *
    */
   public function testSetAttendees() {
-    $reg = self::getRegatta(Regatta::SCORING_STANDARD);
 
     $schools = DB::getSchools();
     if (count($schools) == 0) {
@@ -40,7 +49,7 @@ class RpManagerTest extends AbstractUnitTester {
       $someSailors[] = $sailors[$i];
     }
 
-    $rpManager = $reg->getRpManager();
+    $rpManager = $this->standardRegatta->getRpManager();
     $rpManager->setAttendees($school, $someSailors);
 
     $attendees = $rpManager->getAttendees($school);
@@ -65,5 +74,9 @@ class RpManagerTest extends AbstractUnitTester {
         $this->assertContains($attendee->id, $attendeeIds, "Is old attendee still intact?");
       }
     }
+  }
+
+  public function testGetParticipationEntries() {
+    $rpManager = $this->standardRegatta->getRpManager();
   }
 }
