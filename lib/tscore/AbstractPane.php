@@ -646,6 +646,7 @@ abstract class AbstractPane {
     case 'TeamReplaceTeamPane':
     case 'ReplaceTeamPane':
     case 'RpEnterPane':
+    case 'RpAttendeePane':
     case 'TeamRpEnterPane':
     case 'UnregisteredSailorPane':
     case 'EnterFinishPane':
@@ -747,6 +748,7 @@ abstract class AbstractPane {
                                            "DetailsPane",
                                            "EditTeamsPane",
                                            "RpEnterPane",
+                                           "RpAttendeePane",
                                            "TeamRpEnterPane",
                                            "UnregisteredSailorPane",
                                            );
@@ -773,6 +775,7 @@ abstract class AbstractPane {
                                "TweakSailsPane" => "tweak-sails",
                                "ManualTweakPane" => "manual-rotation",
                                "RpEnterPane" => "rp",
+                               "RpAttendeePane" => "rp",
                                "TeamRpEnterPane" => "rp",
                                "RpMissingPane" => "missing",
                                "UnregisteredSailorPane" => "unregistered",
@@ -806,6 +809,7 @@ abstract class AbstractPane {
                                  "TweakSailsPane" => "Tweak sails",
                                  "ManualTweakPane" => "Manual setup",
                                  "RpEnterPane" => "Enter RP",
+                                 "RpAttendeePane" => "Enter RP",
                                  "TeamRpEnterPane" => "Enter RP",
                                  "RpMissingPane" => "Missing RP",
                                  "UnregisteredSailorPane" => "Unregistered",
