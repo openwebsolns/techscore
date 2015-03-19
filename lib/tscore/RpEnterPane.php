@@ -8,7 +8,13 @@
 require_once("conf.php");
 
 /**
- * Controls the entry of RP information
+ * Controls the entry of RP information.
+ *
+ * 2015-03-18: Since the introduction of the attendee paradigm, this
+ * form has to change, while maintaining its UI as faithful to the
+ * former process as possible. This is done by continuing to expose a
+ * list of all sailors followed by a list of reserves, the two
+ * disjointed and merged during processing to create attendees.
  *
  * @author Dayan Paez
  * @version 2010-01-21
@@ -94,6 +100,7 @@ class RpEnterPane extends AbstractPane {
     // ------------------------------------------------------------
     $schools = array($chosen_team->school->id => $chosen_team->school);
     $rps = array();
+    $participating_sailors = array();
     $roles = array(RP::SKIPPER, RP::CREW);
     foreach ($divisions as $div) {
       $d = (string)$div;
@@ -101,8 +108,10 @@ class RpEnterPane extends AbstractPane {
       foreach ($roles as $role) {
         $lst = $rpManager->getRP($chosen_team, $div, $role);
         foreach ($lst as $entry) {
-          if ($entry->sailor !== null)
+          if ($entry->sailor !== null) {
             $schools[$entry->sailor->school->id] = $entry->sailor->school;
+            $participating_sailors[$entry->sailor->id] = $entry->sailor;
+          }
         }
         $rps[$d][$role] = $lst;
       }
@@ -125,7 +134,7 @@ class RpEnterPane extends AbstractPane {
             continue;
 
           $opt = new FOption($school->id, $school);
-          if (isset($schools[$school->id])) {
+          if (array_key_exists($school->id, $schools)) {
             $opt->set('selected', 'selected');
             $opt->set('disabled', 'disabled');
             $opt->set('title', "There are already sailors from this school in the RP form.");
@@ -142,27 +151,14 @@ class RpEnterPane extends AbstractPane {
       $f->add(new XSubmitP('go', "Fetch sailors"));
     }
 
+
+    // ------------------------------------------------------------
+    // RP Form
+    // ------------------------------------------------------------
     $this->PAGE->addContent($rpform = $this->createForm());
     $rpform->add(new XHiddenInput("chosen_team", $chosen_team->id));
-    // ------------------------------------------------------------
-    // Attendees
-    // ------------------------------------------------------------
-    $attendees = $rpManager->getAttendees($chosen_team->school);
-    if (count($attendees) == 0) {
-      $p = new XPort("Setup Attendees");
-      $p->add(new XP(array(), "Before filling out the RP form, we need to know who in your roster is attending the regatta. You will then be able to choose participants from this list."));
-      $p->add(new XP(
-                array(),
-                array("You can edit this information later, if needed. If sailors do not appear, they may need to be added as a ",
-                      new XA($this->link('unregistered'), "temporary (unregistered) sailor"),
-                      ".")));
-    }
-    else {
-      $p = new XCollapsiblePort("Attendees");
-    }
-    $rpform->add($p);
-    $p->add(new XWarning("Note: all attendees that do not participate will automatically be labeled as \"Reserves\" for this regatta. For this reason, it is important that this information be entered accurately."));
     $rpManager = $this->REGATTA->getRpManager();
+    $attendees = $rpManager->getAttendees($chosen_team->school);
 
     // ------------------------------------------------------------
     // - Create option lists
@@ -177,34 +173,7 @@ class RpEnterPane extends AbstractPane {
     $sailors = $chosen_team->school->getSailors($gender, $active);
     $un_slrs = $chosen_team->school->getUnregisteredSailors($gender);
 
-    $attendee_sailors = array();
-    foreach ($schools as $school) {
-      $key = $school->nick_name;
-      foreach ($school->getSailors($gender, $active) as $s)
-        $attendee_sailors[$key][$s->id] = (string)$s;
-      foreach ($school->getUnregisteredSailors($gender, $active) as $s)
-        $attendee_sailors[$key][$s->id] = (string)$s;
-    }
 
-    $current_attendees = array();
-    foreach ($attendees as $attendee) {
-      $current_attendees[] = $attendee->sailor->id;
-    }
-
-    $p->add(
-      XSelectM::fromArray(
-        'attendees[]',
-        $attendee_sailors,
-        $current_attendees,
-        array('id'=>'attendee-list'))
-    );
-
-    $p->add(new XP(array('class'=>'p-submit'),
-                   new XSubmitAccessible('set-attendees', "Set attendees")));
-
-    // ------------------------------------------------------------
-    // RP Form
-    // ------------------------------------------------------------
     $rpform->add($p = new XPort(sprintf("Fill out form for %s", $chosen_team)));
 
     $sailor_options = array(self::NO_SAILOR_OPTION => '');
@@ -342,6 +311,44 @@ class RpEnterPane extends AbstractPane {
         }
       } // end if
     }
+
+    // ------------------------------------------------------------
+    // Reserves
+    // ------------------------------------------------------------
+    $p->add(new XHeading("Reserves"));
+
+    $attendee_sailors = array();
+    foreach ($schools as $school) {
+      $key = $school->nick_name;
+      foreach ($school->getSailors($gender, $active) as $s) {
+        $attendee_sailors[$key][$s->id] = (string)$s;
+      }
+      foreach ($school->getUnregisteredSailors($gender, $active) as $s) {
+        $attendee_sailors[$key][$s->id] = (string)$s;
+      }
+    }
+
+    $current_attendees = array();
+    foreach ($attendees as $attendee) {
+      if (!array_key_exists($attendee->sailor->id, $participating_sailors)) {
+        $current_attendees[] = $attendee->sailor->id;
+      }
+    }
+
+    $p->add(
+      new FItem(
+        "Sailors:",
+        XSelectM::fromArray(
+          'reserves[]',
+          $attendee_sailors,
+          $current_attendees,
+          array('id'=>'reserve-list')),
+        "Include every sailor in attendance. Sailors added to the form above will be automatically included as reserves and need not be added explicitly here."
+      ));
+
+    $p->add(new XP(array('class'=>'p-submit'),
+                   new XSubmitAccessible('set-attendees', "Set attendees")));
+
 
     // ------------------------------------------------------------
     // - Add submit
