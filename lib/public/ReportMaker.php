@@ -77,7 +77,6 @@ class ReportMaker {
     // Scores, if any
     if ($reg->hasFinishes()) {
       if ($reg->scoring == Regatta::SCORING_TEAM) {
-        $this->page->head->add(new XScript('text/javascript', '/inc/js/tr-full-link.js'));
 
         require_once('tscore/TeamRankingDialog.php');
         $maker = new TeamRankingDialog($reg);
@@ -189,7 +188,6 @@ class ReportMaker {
     $this->fullPage = new TPublicPage("Full scores | " . $reg->name . " | " . $season->fullString());
     $this->prepare($this->fullPage, 'full-scores');
     if ($reg->scoring == Regatta::SCORING_TEAM) {
-      $this->fullPage->head->add(new XScript('text/javascript', '/inc/js/tr-full-select.js'));
       $this->fullPage->setDescription(sprintf("Scoring grids for all rounds in %s's %s.", $season->fullString(), $reg->name));
 
       require_once('tscore/TeamRankingDialog.php');
