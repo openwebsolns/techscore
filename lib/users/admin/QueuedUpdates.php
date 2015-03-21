@@ -198,8 +198,9 @@ class QueuedUpdates extends AbstractAdminUserPane {
       return $obj->school->nick_name;
     if ($obj instanceof UpdateConferenceRequest)
       return $obj->conference->name;
-    if ($obj instanceof UpdateFileRequest)
-      return $obj->file->id;
+    if ($obj instanceof UpdateFileRequest) {
+      return $obj->file;
+    }
     if ($obj instanceof UpdateSailorRequest)
       return $obj->sailor;
     return new XEm("Unknown");
