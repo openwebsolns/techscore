@@ -26,14 +26,22 @@ class InitJs implements Writeable {
       // Function to dynamically add other scripts:
       // Called as f(URL, ASYNC?)
       $this->filedata .= '
-var m=d.getElementsByTagName(s)[0];
+var a=d.getElementsByTagName(s);
+var curr=[];
+for (var i = 0;i < a.length;i++) {
+ curr.push(a[i].getAttribute("src"));
+}
+var m=a[0];
 var f=function(u,a){
- var g=d.createElement(s);
- g.src=u;
- g.type="text/javascript";
- if (a){g.async=true;g.defer=true;}
- m.parentNode.insertBefore(g,m);
- return g;
+ if (curr.indexOf(u)<0) {
+  var g=d.createElement(s);
+  g.src=u;
+  g.type="text/javascript";
+  if (a){g.async=true;g.defer=true;}
+  m.parentNode.insertBefore(g,m);
+  return g;
+ }
+ return null;
 };';
 
       // Add JS files
