@@ -1,4 +1,6 @@
 <?php
+use \data\RotationTable;
+
 /*
  * This file is part of TechScore
  *
@@ -257,11 +259,9 @@ class ReportMaker {
       }
     }
     else {
-      require_once('tscore/RotationDialog.php');
-      $maker = new RotationDialog($reg);
       foreach ($reg->getRotation()->getDivisions() as $div) {
         $this->rotPage->addSection($p = $this->newXPort("$div Division", $div == Division::A()));
-        $p->add($maker->getTable($div, true));
+        $p->add(new RotationTable($reg, $div, true));
       }
     }
   }
