@@ -81,146 +81,77 @@ abstract class AbstractPane {
 
     // ------------------------------------------------------------
     // Menu
+    // ------------------------------------------------------------
+    $menuStructure = $this->getMenuStructure();
+
+    $contextMenu = array(
+      'DetailsPane' => null,
+      'EnterFinishPane' => null,
+      'EnterPenaltyPane' => null,
+      'RpEnterPane' => null,
+    );
     if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
-      if ($this->participant_mode) {
-        $score_i = array("Regatta"  => array("settings"  => "DetailsPane"),
-                         "RP Forms" => array("rp"         => "TeamRpEnterPane",
-                                             "unregistered" => "UnregisteredSailorPane"));
-      }
-      else {
-        $score_i = array("Regatta"   => array("settings"   => "DetailsPane",
-                                              "summaries"  => "SummaryPane",
-                                              "finalize"   => "FinalizePane",
-                                              "scorers"    => "ScorersPane",
-                                              "notes"      => "NotesPane",
-                                              'notices'    => "NoticeBoardPane",
-                                              'delete'     => "DeleteRegattaPane"),
-                         "Teams"     => array("teams"      => "AddTeamsPane",
-                                              "edit-teams" => "EditTeamsPane",
-                                              "substitute" => "TeamReplaceTeamPane",
-                                              "remove-team"=> "DeleteTeamsPane"),
-                         "Rounds"     => array("races"      => "TeamRacesPane",
-                                               "order-rounds" => "TeamOrderRoundsPane",
-                                              // "tweak-sails"=> "TweakSailsPane",
-                                              // "manual-rotation" => "ManualTweakPane"
-                                              ),
-                         "RP Forms"  => array("rp"         => "TeamRpEnterPane",
-                                              "unregistered" => "UnregisteredSailorPane",
-                                              "missing"  => "RpMissingPane"),
-                         "Finishes"  => array("finishes" => "TeamEnterFinishPane",
-                                              "penalty"  => "TeamEnterPenaltyPane",
-                                              "drop-penalty" => "DropPenaltyPane",
-                                              "team-penalty" => "TeamPenaltyPane"),
-                         "Ranks"     => array("rank"        => "RankTeamsPane",
-                                              "groups"      => "TeamRankGroupPane",
-                                              "partial"     => "TeamPartialRankPane"),
-                         );
-      }
+      $contextMenu['TeamRacesPane'] = null;
     }
     else {
-      if ($this->participant_mode) {
-        $score_i = array("Regatta"  => array("settings"  => "DetailsPane"));
-        if (!$this->REGATTA->isSingleHanded())
-          $score_i["Teams"]  = array("edit-teams" => "EditTeamsPane");
-        $score_i["RP Forms"] = array("rp"         => "RpEnterPane",
-                                     "unregistered" => "UnregisteredSailorPane");
-      }
-      else {
-        $score_i = array("Regatta"   => array("settings"   => "DetailsPane",
-                                              "summaries"  => "SummaryPane",
-                                              "finalize"   => "FinalizePane",
-                                              "scorers"    => "ScorersPane",
-                                              "races"      => "RacesPane",
-                                              "notes"      => "NotesPane",
-                                              'notices'    => "NoticeBoardPane",
-                                              'delete'     => "DeleteRegattaPane"),
-                         "Teams"     => array("teams"      => "AddTeamsPane",
-                                              "edit-teams" => "EditTeamsPane",
-                                              "substitute" => "ReplaceTeamPane",
-                                              "remove-team"=> "DeleteTeamsPane"),
-                         "Rotations" => array("rotations"  => "SailsPane",
-                                              "tweak-sails"=> "TweakSailsPane",
-                                              "manual-rotation" => "ManualTweakPane"),
-                         "RP Forms"  => array("rp"         => "RpEnterPane",
-                                              "unregistered" => "UnregisteredSailorPane",
-                                              "missing"  => "RpMissingPane"),
-                         "Finishes"  => array("finishes" => "EnterFinishPane",
-                                              "penalty"  => "EnterPenaltyPane",
-                                              "drop-penalty" => "DropPenaltyPane",
-                                              "team-penalty" => "TeamPenaltyPane"));
-        if ($this->REGATTA->isSingleHanded())
-          unset($score_i["Teams"]["edit-teams"]);
-      }
+      $contextMenu['SailsPane'] = null;
     }
 
-    $root = sprintf('/score/%s/', $this->REGATTA->id);
-    $context_menu_i = array('settings' => null,
-                            'finishes' => null,
-                            'penalty' => null,
-                            'rp' => null);
-    if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
-      $context_menu_i['races'] = null;
-    }
-    else {
-      $context_menu_i['rotations'] = null;
-    }
-
-    $context_menu_labels = array();
-
-    $access_keys_i = array('finishes' => 'f',
-                           'rotations' => 's',
-                           'rp' => 'r');
-
-    $dial_i  = array("rotation" => "Rotation",
-                     "scores"   => "Scores",
-                     "sailors"  => "Sailors");
+    $accessKeys = array(
+      'EnterFinishPane' => 'f',
+      'SailsPane' => 's',
+      'RpEnterPane' => 'r',
+    );
 
     // Fill panes menu
     $id = $this->REGATTA->id;
-    foreach ($score_i as $title => $panes) {
+    foreach ($menuStructure as $title => $panes) {
       $menu = new XDiv(array('class'=>'menu'), array(new XH4($title), $m_list = new XUl()));
-      foreach ($panes as $url => $pane) {
+      foreach ($panes as $pane) {
         $t = $this->doTitle($pane);
-        $full_url = sprintf('/score/%d/%s', $id, $url);
+        $url = $this->doLink($pane);
         if ($this->doActive($pane)) {
-          $m_list->add(new XLi($a = new XA($full_url, $t)));
-          if (isset($access_keys_i[$url]))
-            $a->set('accesskey', $access_keys_i[$url]);
-
-          if (array_key_exists($url, $context_menu_i)) {
-            $context_menu_i[$url] = $full_url;
-            $context_menu_labels[$url] = $t;
+          $m_list->add(new XLi($a = new XA($url, $t)));
+          if (array_key_exists($pane, $accessKeys)) {
+            $a->set('accesskey', $accessKeys[$pane]);
           }
         }
         else {
-          $m_list->add(new XLi($t, array("class"=>"inactive")));
-          unset($context_menu_i[$url]);
+          $m_list->add(new XLi($t, array('class'=>'inactive')));
+          unset($contextMenu[$pane]);
         }
-      }
-      if ($title == "RP Forms" && $this->REGATTA->scoring == Regatta::SCORING_TEAM) {
-        // Downloads
-        if ($this->has_teams && ($form = DB::getRpFormWriter($this->REGATTA)) !== null) {
-          $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp', $id)), "Download")));
-          if (($name = $form->getPdfName()) !== null)
-            $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp-template', $id)), "RP Template")));
-          else
-            $m_list->add(new XLi("RP Template", array('class'=>'inactive')));
-        }
-        else {
-          $m_list->add(new XLi("Download", array('class'=>'inactive', 'title'=>"No PDF forms available.")));
-          $m_list->add(new XLi("RP Template", array('class'=>'inactive', 'title'=>"No PDF forms available.")));
-        }
-      }
-      if ($title == "Rounds") {
-        // Add one for each round
-        foreach ($this->REGATTA->getRounds() as $round) {
-          $m_list->add(new XLi(new XA($this->link('round', array('r'=>$round->id)), $round)));
-        }
-      }
 
+        // Exceptions
+        if ($title == "Rounds") {
+          // Add one for each round
+          foreach ($this->REGATTA->getRounds() as $round) {
+            $m_list->add(new XLi(new XA($this->link('round', array('r'=>$round->id)), $round)));
+          }
+        }
+
+        // Logic to incorporate
+        /*
+        if ($title == "RP Forms" && $this->REGATTA->scoring == Regatta::SCORING_TEAM) {
+          // Downloads
+          if ($this->has_teams && ($form = DB::getRpFormWriter($this->REGATTA)) !== null) {
+            $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp', $id)), "Download")));
+            if (($name = $form->getPdfName()) !== null)
+              $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp-template', $id)), "RP Template")));
+            else
+              $m_list->add(new XLi("RP Template", array('class'=>'inactive')));
+          }
+          else {
+            $m_list->add(new XLi("Download", array('class'=>'inactive', 'title'=>"No PDF forms available.")));
+            $m_list->add(new XLi("RP Template", array('class'=>'inactive', 'title'=>"No PDF forms available.")));
+          }
+        }
+        */
+
+      }
       $this->PAGE->addMenu($menu);
     }
 
+    /*
     if ($this->REGATTA->scoring != Regatta::SCORING_TEAM) {
       // Downloads
       $menu = new XDiv(array('class'=>'menu'), array(new XH4("Download"), $m_list = new XUl()));
@@ -236,28 +167,18 @@ abstract class AbstractPane {
       if ($add)
         $this->PAGE->addMenu($menu);
     }
-
-    // Dialogs
-    $menu = new XDiv(array('class'=>'menu'), array(new XH4("Windows"), $m_list = new XUl()));
-    foreach ($dial_i as $url => $title) {
-      if ($this->doActiveDialog($url)) {
-        $link = new XA("/view/$id/$url", $title);
-        $link->set("onclick", sprintf('this.target="%s"', $url));
-        $item = new XLi($link);
-      }
-      else
-        $item = new XLi($title, array("class"=>"inactive"));
-      $m_list->add($item);
-    }
-    $this->PAGE->addMenu($menu);
+    */
 
     // Context menu
-    $this->setContextMenu($context_menu_i, $context_menu_labels,
-                          array('finishes' => WS::link('/inc/img/finish.png'),
-                                'rp' => WS::link('/inc/img/rp.png'),
-                                'rotations' => WS::link('/inc/img/rot.png'),
-                                'races' => WS::link('/inc/img/rot.png'),
-                                'settings' => WS::link('/inc/img/set.png')));
+    $this->setContextMenu(
+      array_keys($contextMenu),
+      array('EnterFinishPane' => WS::link('/inc/img/finish.png'),
+            'RpEnterPane' => WS::link('/inc/img/rp.png'),
+            'SailsPane' => WS::link('/inc/img/rot.png'),
+            'TeamRacesPane' => WS::link('/inc/img/rot.png'),
+            'DetailsPane' => WS::link('/inc/img/set.png'),
+      )
+    );
   }
 
   /**
@@ -361,20 +282,6 @@ abstract class AbstractPane {
     if (class_exists('Session'))
       $form->add(new XHiddenInput('csrf_token', Session::getCsrfToken()));
     return $form;
-  }
-
-  /**
-   * Returns the internal absolute path to 'this' pane.
-   *
-   * @return String the URL, e.g. /score/<id>/pane.
-   * @throws InvalidArgumentException if pane has not been registered.
-   */
-  protected function getLink() {
-    $i = get_class($this);
-    if (!array_key_exists($i, self::$URLS)) {
-      throw new InvalidArgumentException("Please register URL for pane $i.");
-    }
-    return sprintf(self::$URLS[$i], $this->REGATTA->id);
   }
 
   /**
@@ -676,6 +583,22 @@ abstract class AbstractPane {
         return $this->has_races;
       return $this->has_rots;
 
+    case 'RotationDialog':
+    case 'TeamRotationDialog':
+      if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
+        return $this->has_races;
+      return $this->has_rots;
+
+    case 'ScoresChartDialog':
+    case 'ScoresCombinedDialog':
+    case 'ScoresDivisionalDialog':
+    case 'ScoresDivisionDialog':
+    case 'ScoresFullDialog':
+    case 'ScoresGridDialog':
+    case 'TeamRacesDialog':
+    case 'TeamRankingDialog':
+      return $this->has_scores;
+      
     default:
       return true;
     }
@@ -684,6 +607,7 @@ abstract class AbstractPane {
   /**
    * Applies exclusively to dialogs
    *
+   * @deprecated
    */
   private function doActiveDialog($class_name) {
     switch ($class_name) {
@@ -717,29 +641,62 @@ abstract class AbstractPane {
     return $this->doTitle(get_class($this));
   }
   private function doTitle($i) {
-    if (isset(self::$TITLES[$i]))
+    if (array_key_exists($i, self::$TITLES))
       return self::$TITLES[$i];
     throw new InvalidArgumentException("No title registered for pane $i.");
   }
 
   /**
-   * Adds the given menu to the page and sets it as the body's contextmenu
+   * Returns the internal absolute path to 'this' pane.
    *
-   * @param Array $entries list of URLs
-   * @param Array $labels matching list of labels
-   * @param Array $icons optional list of icon URLs
+   * @return String the URL, e.g. /score/<id>/pane.
+   * @throws InvalidArgumentException if pane has not been registered.
    */
-  protected function setContextMenu(Array $entries, Array $labels, Array $icons = array()) {
+  protected function getLink() {
+    return $this->doLink(get_class($this));
+  }
+
+  /**
+   * Returns the internal absolute path to the given pane.
+   *
+   * @param String $classname of pane whose link to generate.
+   * @return String the URL, e.g. /score/<id>/pane.
+   * @throws InvalidArgumentException if pane has not been registered.
+   */
+  protected function doLink($classname) {
+    if (!array_key_exists($classname, self::$URLS)) {
+      throw new InvalidArgumentException("Please register URL for pane $classname.");
+    }
+    return sprintf(self::$URLS[$classname], $this->REGATTA->id);
+  }
+
+  /**
+   * Adds the given menu to the page and sets it as the body's contextmenu.
+   *
+   * @param Array $entries list of pane classnames.
+   * @param Array $icons optional list of icon URLs.
+   */
+  private function setContextMenu(Array $entries, Array $icons = array()) {
     if ($this->PAGE === null)
       return;
 
     $id = 'context-menu';
     $m = new XElem('menu', array('id'=>$id, 'type'=>'context', 'style'=>'display:none;position:fixed;'));
 
-    foreach ($entries as $key => $url) {
-      $m->add($i = new XElem('menuitem', array('label'=>DB::$V->incString($labels, $key, 1, 1000, $key), 'onclick'=>sprintf('window.location="%s";', $url))));
-      if (isset($icons[$key]))
-        $i->set('icon', $icons[$key]);
+    foreach ($entries as $pane) {
+      $t = $this->doTitle($pane);
+      $url = $this->doLink($pane);
+
+      $i = new XElem(
+        'menuitem',
+        array(
+          'label' => $t,
+          'onclick' => sprintf('window.location="%s";', $url),
+        ));
+
+      if (isset($icons[$pane]))
+        $i->set('icon', $icons[$pane]);
+      $m->add($i);
     }
 
     $this->PAGE->body->add($m);
@@ -817,6 +774,11 @@ abstract class AbstractPane {
           'TeamRankGroupPane',
           'TeamPartialRankPane'
         ),
+        "Windows" => array(
+          'RotationDialog',
+          'ScoresFullDialog',
+          'RegistrationsDialog',
+        ),
       );
     }
 
@@ -880,6 +842,14 @@ abstract class AbstractPane {
         'DropPenaltyPane',
         'TeamPenaltyPane',
         'ScoresFullDialog',
+      ),
+      "Downloads" => array(
+        // TODO
+      ),
+      "Windows" => array(
+        'RotationDialog',
+        'ScoresFullDialog',
+        'RegistrationsDialog',
       ),
     );
   }
