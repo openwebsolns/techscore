@@ -1,5 +1,6 @@
 <?php
 use \data\RotationTable;
+use \data\TeamRotationTable;
 
 /*
  * This file is part of TechScore
@@ -235,8 +236,6 @@ class ReportMaker {
 
     if ($reg->scoring == Regatta::SCORING_TEAM) {
       $this->rotPage->head->add(new XScript('text/javascript', '/inc/js/tr-rotation-select.js'));
-      require_once('tscore/TeamRotationDialog.php');
-      $maker = new TeamRotationDialog($reg);
 
       $covered = array();
       foreach ($this->regatta->getRounds() as $round) {
@@ -253,8 +252,7 @@ class ReportMaker {
           }
 
           $this->rotPage->addSection($p = $this->newXPort($label, false));
-          foreach ($maker->getTable($round, true) as $tab)
-            $p->add($tab);
+          $p->add(new TeamRotationTable($reg, $round, true));
         }
       }
     }
