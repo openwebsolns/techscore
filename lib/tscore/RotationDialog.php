@@ -28,17 +28,6 @@ class RotationDialog extends AbstractDialog {
   }
 
   /**
-   * Generates an HTML table for the given division
-   *
-   * @param Division $div the division
-   * @param boolean $link_schools true to create link to school's summary
-   * @return XTable
-   */
-  public function getTable(Division $div, $link_schools = false) {
-    return new RotationTable($this->REGATTA, $div, $link_schools);
-  }
-
-  /**
    * Creates a table for each division
    *
    */
