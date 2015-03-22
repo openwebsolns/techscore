@@ -14,6 +14,33 @@ class RotationTableTest extends AbstractUnitTester {
   private $multiDivisionRegatta;
   private $singlehandedRegatta;
 
+  /**
+   * Tests the creation of rotation table for regatta with multiple
+   * divisions.
+   *
+   */
+  public function testMultipleDivisions() {
+    $divisions = $this->multiDivisionRegatta->getDivisions();
+    foreach ($divisions as $div) {
+      $r1 = new RotationTable($this->multiDivisionRegatta, $div);
+      $r2 = new RotationTable($this->multiDivisionRegatta, $div, true);
+
+      $this->assertInstanceOf('XTable', $r1);
+      $this->assertInstanceOf('XTable', $r2);
+    }
+  }
+
+  /**
+   * Tests rotation creation for singlehanded events.
+   */
+  public function testSinglehanded() {
+    $r1 = new RotationTable($this->singlehandedRegatta, Division::A());
+    $r2 = new RotationTable($this->singlehandedRegatta, Division::A(), true);
+
+    $this->assertInstanceOf('XTable', $r1);
+    $this->assertInstanceOf('XTable', $r2);
+  }
+
   protected function setUp() {
     // Fetch a regatta with a rotation and multiple divisions
     $regs = DB::getAll(
@@ -76,29 +103,5 @@ class RotationTableTest extends AbstractUnitTester {
     }
 
     $this->singlehandedRegatta = $regs[rand(0, count($regs) - 1)];
-  }
-
-  /**
-   * Tests the creation of rotation table for regatta with multiple
-   * divisions.
-   *
-   */
-  public function testMultipleDivisions() {
-    $divisions = $this->multiDivisionRegatta->getDivisions();
-    foreach ($divisions as $div) {
-      $r1 = new RotationTable($this->multiDivisionRegatta, $div);
-      $r2 = new RotationTable($this->multiDivisionRegatta, $div, true);
-
-      $this->assertInstanceOf('XTable', $r1);
-      $this->assertInstanceOf('XTable', $r2);
-    }
-  }
-
-  public function testSinglehanded() {
-    $r1 = new RotationTable($this->singlehandedRegatta, Division::A());
-    $r2 = new RotationTable($this->singlehandedRegatta, Division::A(), true);
-
-    $this->assertInstanceOf('XTable', $r1);
-    $this->assertInstanceOf('XTable', $r2);
   }
 }
