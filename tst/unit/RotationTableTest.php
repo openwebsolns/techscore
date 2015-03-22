@@ -11,19 +11,22 @@ require_once('AbstractUnitTester.php');
  */
 class RotationTableTest extends AbstractUnitTester {
 
-  private $multiDivisionRegatta;
-  private $singlehandedRegatta;
-
   /**
    * Tests the creation of rotation table for regatta with multiple
    * divisions.
    *
    */
   public function testMultipleDivisions() {
-    $divisions = $this->multiDivisionRegatta->getDivisions();
+    $reg = $this->getMultiDivisionRegatta();
+    if ($reg === null) {
+      $this->markTestSkipped("No regattas with multiple divisions.");
+      return;
+    }
+
+    $divisions = $reg->getDivisions();
     foreach ($divisions as $div) {
-      $r1 = new RotationTable($this->multiDivisionRegatta, $div);
-      $r2 = new RotationTable($this->multiDivisionRegatta, $div, true);
+      $r1 = new RotationTable($reg, $div);
+      $r2 = new RotationTable($reg, $div, true);
 
       $this->assertInstanceOf('XTable', $r1);
       $this->assertInstanceOf('XTable', $r2);
@@ -34,20 +37,27 @@ class RotationTableTest extends AbstractUnitTester {
    * Tests rotation creation for singlehanded events.
    */
   public function testSinglehanded() {
-    $r1 = new RotationTable($this->singlehandedRegatta, Division::A());
-    $r2 = new RotationTable($this->singlehandedRegatta, Division::A(), true);
+    $reg = $this->getSinglehandedRegatta();
+    if ($reg === null) {
+      $this->markTestSkipped("No singlehanded regattas.");
+      return;
+    }
+
+    $r1 = new RotationTable($reg, Division::A());
+    $r2 = new RotationTable($reg, Division::A(), true);
 
     $this->assertInstanceOf('XTable', $r1);
     $this->assertInstanceOf('XTable', $r2);
   }
 
-  protected function setUp() {
+  private function getMultiDivisionRegatta() {
     // Fetch a regatta with a rotation and multiple divisions
     $regs = DB::getAll(
       DB::T(DB::REGATTA),
       new DBBool(
         array(
           new DBCond('dt_num_divisions', 2, DBCond::GE),
+          new DBCond('scoring', Regatta::SCORING_STANDARD),
           new DBCondIn(
             'id',
             DB::prepGetAll(
@@ -68,11 +78,12 @@ class RotationTableTest extends AbstractUnitTester {
     );
 
     if (count($regs) == 0) {
-      throw new InvalidArgumentException("Unable to test: no multi-division regattas with rotations.");
+      return null;
     }
+    return $regs[rand(0, count($regs) - 1)];
+  }
 
-    $this->multiDivisionRegatta = $regs[rand(0, count($regs) - 1)];
-
+  private function getSinglehandedRegatta() {
     // Fetch a singlehanded regatta with a rotation
     $regs = DB::getAll(
       DB::T(DB::REGATTA),
@@ -99,9 +110,8 @@ class RotationTableTest extends AbstractUnitTester {
     );
 
     if (count($regs) == 0) {
-      throw new InvalidArgumentException("Unable to test: no singlehanded regattas with rotations.");
+      return null;
     }
-
-    $this->singlehandedRegatta = $regs[rand(0, count($regs) - 1)];
+    return $regs[rand(0, count($regs) - 1)];
   }
 }
