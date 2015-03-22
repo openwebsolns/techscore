@@ -190,7 +190,7 @@ class TScorePage extends XPage {
       $m_user_menu->add(new XLi(new XA('/', "Close"), array('id'=>'m-close')));
 
       if (!$reg->private) {
-        $link = new XA(sprintf('http://%s%s', Conf::$PUB_HOME, $reg->getURL()), "Public Site", array('accesskey'=>'s', 'onclick'=>'this.target="public"'));
+        $link = new XA(sprintf('http://%s%s', Conf::$PUB_HOME, $reg->getURL()), "Public Site", array('accesskey'=>'p', 'onclick'=>'this.target="public"'));
         $this->header->add(new XDiv(array('id'=>'public-link'), array($link)));
         $m_user_menu->add(new XLi($link, array('id'=>'m-public-link')));
       }
