@@ -251,14 +251,13 @@ abstract class AbstractPane {
     }
     $this->PAGE->addMenu($menu);
 
+    // Context menu
     $this->setContextMenu($context_menu_i, $context_menu_labels,
                           array('finishes' => WS::link('/inc/img/finish.png'),
                                 'rp' => WS::link('/inc/img/rp.png'),
                                 'rotations' => WS::link('/inc/img/rot.png'),
                                 'races' => WS::link('/inc/img/rot.png'),
                                 'settings' => WS::link('/inc/img/set.png')));
-
-
   }
 
   /**
@@ -347,10 +346,7 @@ abstract class AbstractPane {
    * @return Form element
    */
   protected function createForm($method = XForm::POST) {
-    $i = get_class($this);
-    if (!isset(self::$URLS[$i]))
-      throw new InvalidArgumentException("Please register URL for pane $i.");
-    $form = new XForm(sprintf("/score/%d/%s", $this->REGATTA->id, self::$URLS[$i]), $method);
+    $form = new XForm($this->getLink(), $method);
     if ($method == XForm::POST && class_exists('Session'))
       $form->add(new XHiddenInput('csrf_token', Session::getCsrfToken()));
     return $form;
@@ -361,13 +357,24 @@ abstract class AbstractPane {
    *
    */
   protected function createFileForm() {
-    $i = get_class($this);
-    if (!isset(self::$URLS[$i]))
-      throw new InvalidArgumentException("Please register URL for pane $i.");
-    $form = new XFileForm(sprintf("/score/%d/%s", $this->REGATTA->id, self::$URLS[$i]));
+    $form = new XFileForm($this->getLink());
     if (class_exists('Session'))
       $form->add(new XHiddenInput('csrf_token', Session::getCsrfToken()));
     return $form;
+  }
+
+  /**
+   * Returns the internal absolute path to 'this' pane.
+   *
+   * @return String the URL, e.g. /score/<id>/pane.
+   * @throws InvalidArgumentException if pane has not been registered.
+   */
+  protected function getLink() {
+    $i = get_class($this);
+    if (!array_key_exists($i, self::$URLS)) {
+      throw new InvalidArgumentException("Please register URL for pane $i.");
+    }
+    return sprintf(self::$URLS[$i], $this->REGATTA->id);
   }
 
   /**
@@ -738,84 +745,276 @@ abstract class AbstractPane {
     $this->PAGE->body->add($m);
   }
 
+  // ------------------------------------------------------------
+  // Menu and pane registration
+  // ------------------------------------------------------------
+
+  /**
+   * Create menu structure based on regatta/participation.
+   *
+   * The array structure returned consists of a map indexed by menu name, with
+   * corresponding values a list of pane/dialog classnames contained in that
+   * menu.
+   *
+   * @return Array map of menu entries.
+   */
+  private function getMenuStructure() {
+    if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
+      if ($this->participant_mode) {
+        return array(
+          "Regatta"  => array(
+            'DetailsPane',
+            'TeamRotationDialog',
+            'TeamRacesDialog',
+            'TeamRegistrationsDialog',
+          ),
+          "RP Forms" => array(
+            'TeamRpEnterPane',
+            'UnregisteredSailorPane',
+            'TeamRegistrationsDialog',
+          ),
+        );
+      }
+
+      return array(
+        "Regatta" => array(
+          'DetailsPane',
+          'SummaryPane',
+          'FinalizePane',
+          'ScorersPane',
+          'NotesPane',
+          'NoticeBoardPane',
+          'DeleteRegattaPane',
+        ),
+        "Teams" => array(
+          'AddTeamsPane',
+          'EditTeamsPane',
+          'TeamReplaceTeamPane',
+          'DeleteTeamsPane',
+        ),
+        "Rounds" => array(
+          'TeamRacesPane',
+          'TeamOrderRoundsPane',
+          // 'TweakSailsPane',
+          // 'ManualTweakPane',
+          'TeamRotationDialog',
+        ),
+        "RP Forms" => array(
+          'TeamRpEnterPane',
+          'UnregisteredSailorPane',
+          'RpMissingPane',
+          'TeamRegistrationsDialog',
+        ),
+        "Finishes"  => array(
+          'TeamEnterFinishPane',
+          'TeamEnterPenaltyPane',
+          'DropPenaltyPane',
+          'TeamPenaltyPane',
+          'TeamRacesDialog',
+        ),
+        "Ranks" => array(
+          'RankTeamsPane',
+          'TeamRankGroupPane',
+          'TeamPartialRankPane'
+        ),
+      );
+    }
+
+    // Fleet racing
+    if ($this->participant_mode) {
+      $score_i = array(
+        "Regatta" => array(
+          'DetailsPane',
+          'RotationDialog',
+          'ScoresFullDialog',
+          'RegistrationsDialog',
+        )
+      );
+      if (!$this->REGATTA->isSingleHanded()) {
+        $score_i["Teams"]  = array(
+          'EditTeamsPane',
+        );
+      }
+      $score_i["RP Forms"] = array(
+        'RpEnterPane',
+        'UnregisteredSailorPane',
+        'RegistrationsDialog',
+      );
+      return $score_i;
+    }
+
+    $teamList = array('AddTeamsPane');
+    if (!$this->REGATTA->isSingleHanded()) {
+      $teamList[] = 'EditTeamsPane';
+    }
+    $teamList[] = 'ReplaceTeamPane';
+    $teamList[] = 'DeleteTeamsPane';
+
+    return array(
+      "Regatta" => array(
+        'DetailsPane',
+        'SummaryPane',
+        'FinalizePane',
+        'ScorersPane',
+        'RacesPane',
+        'NotesPane',
+        'NoticeBoardPane',
+        'DeleteRegattaPane',
+      ),
+      "Teams" => $teamList,
+      "Rotations" => array(
+        'SailsPane',
+        'TweakSailsPane',
+        'ManualTweakPane',
+        'RotationDialog',
+      ),
+      "RP Forms" => array(
+        'RpEnterPane',
+        'UnregisteredSailorPane',
+        'RpMissingPane',
+        'RegistrationsDialog',
+      ),
+      "Finishes" => array(
+        'EnterFinishPane',
+        'EnterPenaltyPane',
+        'DropPenaltyPane',
+        'TeamPenaltyPane',
+        'ScoresFullDialog',
+      ),
+    );
+  }
 
   /**
    * @var Array list of panes that support "participant" UI mode
    */
   private static $PARTICIPANT_MODE = array(
-                                           "DetailsPane",
-                                           "EditTeamsPane",
-                                           "RpEnterPane",
-                                           "TeamRpEnterPane",
-                                           "UnregisteredSailorPane",
-                                           );
+    'DetailsPane',
+    'EditTeamsPane',
+    'RpEnterPane',
+    'TeamRpEnterPane',
+    'UnregisteredSailorPane',
 
-  private static $URLS = array("DetailsPane" => "settings",
-                               "SummaryPane" => "summaries",
-                               "FinalizePane"=> "finalize",
-                               "ScorersPane" => "scorers",
+    'BoatsDialog',
+    'RegistrationsDialog',
+    'RotationDialog',
+    'ScoresChartDialog',
+    'ScoresCombinedDialog',
+    'ScoresDivisionalDialog',
+    'ScoresDivisionDialog',
+    'ScoresFullDialog',
+    'ScoresGridDialog',
 
-                               "TeamRacesPane" => "races",
-                               "TeamOrderRoundsPane" => "order-rounds",
-                               "TeamEditRoundPane" => "rounds",
-                               "RacesPane" => "races",
+    'TeamRacesDialog',
+    'TeamRankingDialog',
+    'TeamRegistrationsDialog',
+    'TeamRotationDialog',
+  );
 
-                               "NotesPane" => "notes",
-                               "NoticeBoardPane" => "notices",
-                               "DeleteRegattaPane" => "delete",
-                               "AddTeamsPane" => "teams",
-                               "EditTeamsPane" => "edit-teams",
-                               "DeleteTeamsPane" => "remove-teams",
-                               "ReplaceTeamPane" => "substitute",
-                               "TeamReplaceTeamPane" => "substitute",
-                               "SailsPane" => "rotations",
-                               "TweakSailsPane" => "tweak-sails",
-                               "ManualTweakPane" => "manual-rotation",
-                               "RpEnterPane" => "rp",
-                               "TeamRpEnterPane" => "rp",
-                               "RpMissingPane" => "missing",
-                               "UnregisteredSailorPane" => "unregistered",
-                               "EnterFinishPane" => "finishes",
-                               "TeamEnterFinishPane" => "finishes",
-                               "EnterPenaltyPane" => "penalty",
-                               "TeamEnterPenaltyPane" => "penalty",
-                               "RankTeamsPane" => "rank",
-                               "TeamRankGroupPane" => "group",
-                               "TeamPartialRankPane" => "partial",
-                               "DropPenaltyPane" => "drop-penalty",
-                               "TeamPenaltyPane" => "team-penalty");
+  /**
+   * URL generation templates.
+   *
+   * The route format string key contains a %s where the regatta URL is supposed
+   * to go, thus allowing different slugs like /score/<id>/<url> and
+   * /view/<id>/<url>.
+   */
+  private static $URLS = array(
+    'AddTeamsPane'           => '/score/%s/teams',
+    'DeleteRegattaPane'      => '/score/%s/delete',
+    'DeleteTeamsPane'        => '/score/%s/remove-teams',
+    'DetailsPane'            => '/score/%s/settings',
+    'DropPenaltyPane'        => '/score/%s/drop-penalty',
+    'EditTeamsPane'          => '/score/%s/edit-teams',
+    'EnterFinishPane'        => '/score/%s/finishes',
+    'EnterPenaltyPane'       => '/score/%s/penalty',
+    'FinalizePane'           => '/score/%s/finalize',
+    'ManualTweakPane'        => '/score/%s/manual-rotation',
+    'NotesPane'              => '/score/%s/notes',
+    'NoticeBoardPane'        => '/score/%s/notices',
+    'RacesPane'              => '/score/%s/races',
+    'RankTeamsPane'          => '/score/%s/rank',
+    'ReplaceTeamPane'        => '/score/%s/substitute',
+    'RpEnterPane'            => '/score/%s/rp',
+    'RpMissingPane'          => '/score/%s/missing',
+    'SailsPane'              => '/score/%s/rotations',
+    'ScorersPane'            => '/score/%s/scorers',
+    'SummaryPane'            => '/score/%s/summaries',
+    'TeamEditRoundPane'      => '/score/%s/rounds',
+    'TeamEnterFinishPane'    => '/score/%s/finishes',
+    'TeamEnterPenaltyPane'   => '/score/%s/penalty',
+    'TeamOrderRoundsPane'    => '/score/%s/order-rounds',
+    'TeamPartialRankPane'    => '/score/%s/partial',
+    'TeamPenaltyPane'        => '/score/%s/team-penalty',
+    'TeamRacesPane'          => '/score/%s/races',
+    'TeamRankGroupPane'      => '/score/%s/group',
+    'TeamReplaceTeamPane'    => '/score/%s/substitute',
+    'TeamRpEnterPane'        => '/score/%s/rp',
+    'TweakSailsPane'         => '/score/%s/tweak-sails',
+    'UnregisteredSailorPane' => '/score/%s/unregistered',
 
-  private static $TITLES = array("DetailsPane" => "Settings",
-                                 "SummaryPane" => "Summaries",
-                                 "FinalizePane"=> "Finalize",
-                                 "ScorersPane" => "Scorers",
-                                 "RacesPane" => "Add/edit races",
-                                 "TeamRacesPane" => "Add round",
-                                 "TeamOrderRoundsPane" => "Order rounds",
-                                 "TeamEditRoundPane" => "Edit round",
-                                 "NotesPane" => "Race notes",
-                                 "NoticeBoardPane" => "Notice Board",
-                                 "DeleteRegattaPane" => "Delete",
-                                 "AddTeamsPane" => "Add team",
-                                 "EditTeamsPane" => "Edit names",
-                                 "DeleteTeamsPane" => "Remove team",
-                                 "ReplaceTeamPane" => "Sub team",
-                                 "TeamReplaceTeamPane" => "Sub team",
-                                 "SailsPane" => "Set rotation",
-                                 "TweakSailsPane" => "Tweak sails",
-                                 "ManualTweakPane" => "Manual setup",
-                                 "RpEnterPane" => "Enter RP",
-                                 "TeamRpEnterPane" => "Enter RP",
-                                 "RpMissingPane" => "Missing RP",
-                                 "UnregisteredSailorPane" => "Unregistered",
-                                 "EnterFinishPane" => "Enter finish",
-                                 "TeamEnterFinishPane" => "Enter finish",
-                                 "EnterPenaltyPane" => "Add penalty",
-                                 "TeamEnterPenaltyPane" => "Add penalty",
-                                 "RankTeamsPane" => "Rank teams",
-                                 "TeamRankGroupPane" => "Rank groups",
-                                 "TeamPartialRankPane" => "Partial ranking",
-                                 "DropPenaltyPane" => "Drop penalty",
-                                 "TeamPenaltyPane" => "Team penalty");
+    'BoatsDialog'            => '/view/%s/boats',
+    'RegistrationsDialog'    => '/view/%s/sailors',
+    'RotationDialog'         => '/view/%s/rotation',
+    'ScoresChartDialog'      => '/view/%s/chart',
+    'ScoresCombinedDialog'   => '/view/%s/combined',
+    'ScoresDivisionalDialog' => '/view/%s/ranking',
+    'ScoresDivisionDialog'   => '/view/%s/scores/A',
+    'ScoresFullDialog'       => '/view/%s/scores',
+    'ScoresGridDialog'       => '/view/%s/scores',
+
+    'TeamRacesDialog'        => '/view/%s/races',
+    'TeamRankingDialog'      => '/view/%s/ranking',
+    'TeamRegistrationsDialog'=> '/view/%s/sailors',
+    'TeamRotationDialog'     => '/view/%s/rotation',
+  );
+
+  private static $TITLES = array(
+    'AddTeamsPane'           => 'Add team',
+    'DeleteRegattaPane'      => 'Delete',
+    'DeleteTeamsPane'        => 'Remove team',
+    'DetailsPane'            => 'Settings',
+    'DropPenaltyPane'        => 'Drop penalty',
+    'EditTeamsPane'          => 'Edit names',
+    'EnterFinishPane'        => 'Enter finish',
+    'EnterPenaltyPane'       => 'Add penalty',
+    'FinalizePane'           => 'Finalize',
+    'ManualTweakPane'        => 'Manual setup',
+    'NotesPane'              => 'Race notes',
+    'NoticeBoardPane'        => 'Notice Board',
+    'RacesPane'              => 'Add/edit races',
+    'RankTeamsPane'          => 'Rank teams',
+    'ReplaceTeamPane'        => 'Sub team',
+    'RpEnterPane'            => 'Enter RP',
+    'RpMissingPane'          => 'Missing RP',
+    'SailsPane'              => 'Set rotation',
+    'ScorersPane'            => 'Scorers',
+    'SummaryPane'            => 'Summaries',
+    'TeamEditRoundPane'      => 'Edit round',
+    'TeamEnterFinishPane'    => 'Enter finish',
+    'TeamEnterPenaltyPane'   => 'Add penalty',
+    'TeamOrderRoundsPane'    => 'Order rounds',
+    'TeamPartialRankPane'    => 'Partial ranking',
+    'TeamPenaltyPane'        => 'Team penalty',
+    'TeamRacesPane'          => 'Add round',
+    'TeamRankGroupPane'      => 'Rank groups',
+    'TeamReplaceTeamPane'    => 'Sub team',
+    'TeamRpEnterPane'        => 'Enter RP',
+    'TweakSailsPane'         => 'Tweak sails',
+    'UnregisteredSailorPane' => 'Unregistered',
+
+    'BoatsDialog'            => 'Boat rankings',
+    'RegistrationsDialog'    => 'View registrations',
+    'RotationDialog'         => 'View rotations',
+    'ScoresChartDialog'      => 'Rank chart',
+    'ScoresCombinedDialog'   => 'View combined scores',
+    'ScoresDivisionalDialog' => 'View division rank',
+    'ScoresDivisionDialog'   => 'View division scores',
+    'ScoresFullDialog'       => 'View scores',
+    'ScoresGridDialog'       => 'View scores',
+
+    'TeamRacesDialog'        => 'View races',
+    'TeamRankingDialog'      => 'View rankings',
+    'TeamRegistrationsDialog'=> 'View registrations',
+    'TeamRotationDialog'     => 'View rotations',
+  );
 }
 ?>
