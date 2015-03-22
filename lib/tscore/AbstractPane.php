@@ -242,7 +242,6 @@ abstract class AbstractPane {
     foreach ($dial_i as $url => $title) {
       if ($this->doActiveDialog($url)) {
         $link = new XA("/view/$id/$url", $title);
-        $link->set("class", "frame-toggle");
         $link->set("onclick", sprintf('this.target="%s"', $url));
         $item = new XLi($link);
       }
