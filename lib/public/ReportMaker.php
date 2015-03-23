@@ -1,6 +1,7 @@
 <?php
 use \data\RotationTable;
 use \data\TeamRotationTable;
+use \data\TeamRankingTableCreator;
 
 /*
  * This file is part of TechScore
@@ -83,6 +84,7 @@ class ReportMaker {
 
         require_once('tscore/TeamRankingDialog.php');
         $maker = new TeamRankingDialog($reg);
+        $maker = new TeamRankingTableCreator($reg, true);
         
         if ($reg->finalized === null) {
           $this->page->addSection($p = $this->newXPort("Rankings"));
@@ -90,8 +92,11 @@ class ReportMaker {
         }
         else
           $this->page->addSection($p = $this->newXPort("Final Results"));
-        foreach ($maker->getTable(true) as $elem)
-          $p->add($elem);
+        $p->add($maker->getRankTable());
+        $legend = $maker->getLegendTable();
+        if ($legend !== null) {
+          $p->add($legend);
+        }
       }
       else {
         require_once('tscore/ScoresDivisionalDialog.php');
