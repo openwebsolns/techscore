@@ -1,43 +1,47 @@
 <?php
-use \data\TeamRegistrationsTable;
+namespace data;
 
-/*
- * This file is part of TechScore
- *
- * @package tscore-dialog
- */
+use \FullRegatta;
+use \Round;
+use \RP;
 
-require_once('tscore/AbstractDialog.php');
+use \InvalidArgumentException;
+use \LogicException;
+
+use \XTable;
+use \XTHead;
+use \XTBody;
+use \XTR;
+use \XTH;
+use \XTD;
+use \XBr;
+
+require_once('xml5/HtmlLib.php');
 
 /**
- * Sailors in grid format for team racing
+ * Table with sailors who participated in team regatta.
  *
  * @author Dayan Paez
- * @created 2013-03-21
+ * @version 2015-03-23
  */
-class TeamRegistrationsDialog extends AbstractDialog {
-
-  public function __construct(FullRegatta $reg) {
-    parent::__construct("Record of Participation", $reg);
-  }
-
-  protected function fillHTML(Array $args) {
-    $this->PAGE->addContent(new XWarning("Only scored races are displayed."));
-    $rounds = $this->REGATTA->getScoredRounds();
-    foreach ($rounds as $round) {
-      $this->PAGE->addContent($p = new XPort("Round $round"));
-      $p->add(new TeamRegistrationsTable($this->REGATTA, $round));
-    }
-  }
+class TeamRegistrationsTable extends XTable {
 
   /**
-   * Return the table for a given round
+   * Create a new registrations table for team racing.
    *
-   * @param Round $round the round in question
-   * @param boolean $public_mode true to create links to public profiles
+   * Catch the LogicException to show a helpful error message to the end user
+   * instead of the table.
+   *
+   * @param FullRegatta $regatta the regatta.
+   * @param Round $round the specific round (creates a grid)
+   * @param boolean $public_mode true to create links, as with public site.
+   * @throws InvalidArgumentException if bad data supplied.
+   * @throws LogicException (IMPORTANT) when no table can be formed.
    */
-  public function getRoundTable(Round $round, $public_mode = false) {
-    $races = $this->REGATTA->getRacesInRound($round);
+  public function __construct(FullRegatta $regatta, Round $round, $public_mode = false) {
+    parent::__construct(array('class'=>'teamregistrations'), array($tbody = new XTBody()));
+
+    $races = $regatta->getRacesInRound($round);
     if (count($races) == 0)
       throw new InvalidArgumentException("No such round $round in this regatta.");
 
@@ -53,10 +57,10 @@ class TeamRegistrationsDialog extends AbstractDialog {
     $teams = array();
     $map = array();
     foreach ($races as $race) {
-      if (!$this->REGATTA->hasFinishes($race))
+      if (!$regatta->hasFinishes($race))
         continue;
 
-      $ts = $this->REGATTA->getRaceTeams($race);
+      $ts = $regatta->getRaceTeams($race);
       if (count($ts) < 2)
         continue;
 
@@ -78,15 +82,16 @@ class TeamRegistrationsDialog extends AbstractDialog {
       $map[$t0->id][$t1->id][$race->number][(string)$race->division] = $race;
       $map[$t1->id][$t0->id][$race->number][(string)$race->division] = $race;
     }
-    if (count($map) == 0)
-      return new XWarning("No races sailed in this round.");
+    if (count($map) == 0) {
+      throw new LogicException("No races sailed in this round.");
+    }
 
-    // Create table
-    $table = new XTable(array('class'=>'teamregistrations'), array($tbody = new XTBody()));
+
+    // Fill the table
     $tbody->add($header = new XTR(array('class'=>'tr-cols')));
     $header->add(new XTD(array('class'=>'tr-pivot'), "↓ vs →"));
 
-    $rp = $this->REGATTA->getRpManager();
+    $rp = $regatta->getRpManager();
     foreach ($teams as $i0 => $t0) {
       // Header
       $header->add(new XTH(array('class'=>'tr-vert-label'), $t0->school->nick_name));
@@ -129,7 +134,5 @@ class TeamRegistrationsDialog extends AbstractDialog {
       }
       $tbody->add($row);
     }
-    return $table;
   }
 }
-?>
