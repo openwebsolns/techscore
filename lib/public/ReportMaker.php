@@ -3,6 +3,7 @@ use \data\RotationTable;
 use \data\TeamRotationTable;
 use \data\TeamRankingTableCreator;
 use \data\TeamSummaryRankingTableCreator;
+use \data\TeamRacesTable;
 
 /*
  * This file is part of TechScore
@@ -282,11 +283,13 @@ class ReportMaker {
     $this->allracesPage->setDescription(sprintf("Sail rotations in all races for %s's %s.", $season->fullString(), $reg->name));
 
     $this->allracesPage->head->add(new XScript('text/javascript', '/inc/js/tr-allraces-select.js'));
-    require_once('tscore/TeamRacesDialog.php');
-    $maker = new TeamRacesDialog($reg);
     $this->allracesPage->addSection($p = $this->newXPort("All races"));
-    foreach ($maker->getTable(true) as $elem)
-      $p->add($elem);
+    if (count($reg->getRaces()) == 0) {
+      $p->add(new XWarning("There are no races for this regatta."));
+    }
+    else {
+      $p->add(new TeamRacesTable($reg, true));
+    }
   }
 
   protected function fillSailors() {
