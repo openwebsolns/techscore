@@ -4,6 +4,7 @@ use \data\TeamRotationTable;
 use \data\TeamRankingTableCreator;
 use \data\TeamSummaryRankingTableCreator;
 use \data\TeamRacesTable;
+use \data\TeamRegistrationsTable;
 
 /*
  * This file is part of TechScore
@@ -301,8 +302,6 @@ class ReportMaker {
     $this->prepare($this->sailorsPage, 'sailors');
     $this->sailorsPage->setDescription(sprintf("Sailors participating in %s's %s.", $season->fullString(), $reg->name));
 
-    require_once('tscore/TeamRegistrationsDialog.php');
-    $maker = new TeamRegistrationsDialog($reg);
     $rounds = $reg->getScoredRounds();
     if (count($rounds) == 0) {
       $this->sailorsPage->addSection($p = $this->newXPort("Sailors", false));
@@ -312,7 +311,7 @@ class ReportMaker {
       $this->sailorsPage->addSection(new XP(array('class'=>'notice'), "Note that only races that have been scored are shown."));
       foreach ($rounds as $round) {
         $this->sailorsPage->addSection($p = $this->newXPort($round, false));
-        $p->add($maker->getRoundTable($round, true));
+        $p->add(new TeamRegistrationsTable($reg, $round, true));
       }
     }
   }
