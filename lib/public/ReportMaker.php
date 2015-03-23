@@ -2,6 +2,7 @@
 use \data\RotationTable;
 use \data\TeamRotationTable;
 use \data\TeamRankingTableCreator;
+use \data\TeamSummaryRankingTableCreator;
 
 /*
  * This file is part of TechScore
@@ -82,8 +83,6 @@ class ReportMaker {
     if ($reg->hasFinishes()) {
       if ($reg->scoring == Regatta::SCORING_TEAM) {
 
-        require_once('tscore/TeamRankingDialog.php');
-        $maker = new TeamRankingDialog($reg);
         $maker = new TeamRankingTableCreator($reg, true);
         
         if ($reg->finalized === null) {
@@ -198,13 +197,17 @@ class ReportMaker {
     if ($reg->scoring == Regatta::SCORING_TEAM) {
       $this->fullPage->setDescription(sprintf("Scoring grids for all rounds in %s's %s.", $season->fullString(), $reg->name));
 
-      require_once('tscore/TeamRankingDialog.php');
-      $maker = new TeamRankingDialog($reg);
+
+      $maker = new TeamSummaryRankingTableCreator($reg, true);
       $this->fullPage->addSection($p = $this->newXPort("Ranking summary"));
       if ($reg->finalized === null)
         $p->add(new XP(array(), array(new XEm("Note:"), " Preliminary results; order may not be accurate due to unbroken ties and incomplete round robins.")));
-      foreach ($maker->getSummaryTable(true, true) as $elem)
-        $p->add($elem);
+      $p->add($maker->getRankTable());
+      $legend = $maker->getLegendTable();
+      if ($legend !== null) {
+        $p->add($legend);
+      }
+
       
       require_once('tscore/ScoresGridDialog.php');
       $maker = new ScoresGridDialog($reg);
