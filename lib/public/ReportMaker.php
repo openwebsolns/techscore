@@ -5,6 +5,7 @@ use \data\TeamRankingTableCreator;
 use \data\TeamSummaryRankingTableCreator;
 use \data\TeamRacesTable;
 use \data\TeamRegistrationsTable;
+use \data\TeamScoresGrid;
 
 /*
  * This file is part of TechScore
@@ -211,15 +212,13 @@ class ReportMaker {
       }
 
       
-      require_once('tscore/ScoresGridDialog.php');
-      $maker = new ScoresGridDialog($reg);
       $rounds = array();
       foreach ($reg->getScoredRounds() as $round)
         array_unshift($rounds, $round);
       foreach ($rounds as $round) {
         if (count($round->getSeeds()) > 0) {
           $this->fullPage->addSection($p = $this->newXPort($round, false));
-          $p->add($maker->getRoundTable($round));
+          $p->add(new TeamScoresGrid($reg, $round));
         }
       }
     }

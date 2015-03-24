@@ -1,4 +1,6 @@
 <?php
+use \charts\RegattaChartCreator;
+
 /**
  * This file is part of TechScore
  *
@@ -6,6 +8,7 @@
  */
 
 require_once('tscore/AbstractScoresDialog.php');
+require_once('xml5/SVGLib.php');
 
 /**
  * Displays the scores table for a given regatta's division
@@ -57,14 +60,13 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
       $this->PAGE->addContent($p = new XPort(sprintf("Rank history for division %s", $this->division)));
       $p->add(new XP(array(), "The first place team as of a given race will always be at the top of the chart. The spacing from one team to the next shows relative gains/losses made from one race to the next. You may hover over the data points to display the total score as of that race."));
 
-      require_once('xml5/SVGLib.php');
       SVGAbstractElem::$namespace = 'svg';
 
-      require_once('charts/RaceProgressChart.php');
-      $maker = new RaceProgressChart($this->REGATTA);
-      $chart = $maker->getChart($races, sprintf("Rank history for division %s of %s", $this->division, $this->REGATTA->name));
-      $chart->setIncludeHeaders(false);
-      $p->add($chart);
+      $chart = RegattaChartCreator::getChart($this->REGATTA, $this->division);
+      if ($chart !== null) {
+        $chart->setIncludeHeaders(false);
+        $p->add($chart);
+      }
     }
   }
 
