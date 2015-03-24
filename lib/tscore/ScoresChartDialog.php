@@ -1,4 +1,6 @@
 <?php
+use \charts\RegattaChartCreator;
+
 /*
  * This file is part of TechScore
  *
@@ -6,6 +8,7 @@
  */
 
 require_once('tscore/AbstractScoresDialog.php');
+require_once('xml5/SVGLib.php');
 
 /**
  * Displays SVG-based charts of race progress
@@ -54,27 +57,19 @@ class ScoresChartDialog extends AbstractScoresDialog {
       $p->add(new XWarning("There are insufficient finishes entered for the chart."));
       return;
     }
-    require_once('xml5/SVGLib.php');
+
     SVGAbstractElem::$namespace = 'svg';
     $this->PAGE->set('xmlns:svg', 'http://www.w3.org/2000/svg');
 
 
     $p->add(new XP(array(), "The following chart shows the relative rank of the teams as of the race indicated. Note that the races are ordered by number, then division, which may not represent the order in which the races were actually sailed."));
     $p->add(new XP(array(), "The first place team as of a given race will always be at the top of the chart. The spacing from one team to the next shows relative gains/losses made from one race to the next. You may hover over the data points to display the total score as of that race."));
-    foreach ($this->getTable() as $elem) {
-      if ($elem instanceof XDoc)
-        $elem->setIncludeHeaders(false);
+
+    $elem = RegattaChartCreator::getChart($this->REGATTA);
+    if ($elem !== null) {
+      $elem->setIncludeHeaders(false);
       $p->add($elem);
     }
-  }
-
-  public function getTable($link_schools = false) {
-    if (count($this->races) < 2)
-      return array();
-
-    require_once('charts/RaceProgressChart.php');
-    $maker = new RaceProgressChart($this->REGATTA);
-    return array($maker->getChart($this->races, $this->title));
   }
 }
 ?>

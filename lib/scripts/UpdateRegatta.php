@@ -1,4 +1,6 @@
 <?php
+use \charts\RegattaChartCreator;
+
 /*
  * This file is part of TechScore
  *
@@ -440,14 +442,11 @@ class UpdateRegatta extends AbstractScript {
   }
 
   private function createFrontHistory($dirname, FullRegatta $reg) {
-    require_once('tscore/ScoresChartDialog.php');
-    $P = new ScoresChartDialog($reg);
-    $cont = $P->getTable(true);
-    if (count($cont) == 0)
-      return;
-
-    $filename = $dirname . 'history.svg';
-    self::write($filename, $cont[0]);
+    $chart = RegattaChartCreator::getChart($reg);
+    if ($chart !== null) {
+      $filename = $dirname . 'history.svg';
+      self::write($filename, $chart);
+    }
   }
 
   /**
@@ -493,14 +492,11 @@ class UpdateRegatta extends AbstractScript {
   }
 
   private function createDivisionHistory($dirname, FullRegatta $reg, Division $div) {
-    require_once('tscore/ScoresChartDialog.php');
-    $P = new ScoresChartDialog($reg, $div);
-    $cont = $P->getTable(true);
-    if (count($cont) == 0)
-      return;
-
-    $filename = $dirname . $div . '/history.svg';
-    self::write($filename, $cont[0]);
+    $chart = RegattaChartCreator::getChart($reg, $div);
+    if ($chart !== null) {
+      $filename = $dirname . $div . '/history.svg';
+      self::write($filename, $chart);
+    }
   }
 
   /**

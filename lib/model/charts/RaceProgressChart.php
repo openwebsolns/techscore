@@ -1,4 +1,29 @@
 <?php
+namespace charts;
+
+use \InvalidArgumentException;
+
+use \FullRegatta;
+use \Regatta;
+
+use \SVGConnectedGraph;
+use \SVGDefs;
+use \SVGDesc;
+use \SVGDoc;
+use \SVGG;
+use \SVGImage;
+use \SVGLineto;
+use \SVGMoveto;
+use \SVGNode;
+use \SVGPath;
+use \SVGPointAbove;
+use \SVGPointBelow;
+use \SVGRect;
+use \SVGScript;
+use \SVGStyle;
+use \SVGText;
+use \SVGUse;
+
 /*
  * This file is part of TechScore
  *
