@@ -97,7 +97,7 @@ class TScorePage extends XPage {
     $this->fillPageHeader($this->user, $this->reg);
 
     // Menu
-    $this->body->add(new XDiv(array('id'=>'menudiv'), array($this->menu)));
+    $this->body->add(new XDiv(array('id'=>'menudiv', 'class'=>'m-menu-hidden'), array($this->menu)));
     $this->body->add(new XHr(array('class'=>'hidden')));
 
     // Content
@@ -177,7 +177,7 @@ class TScorePage extends XPage {
    */
   private function fillPageHeader(Account $user = null, Regatta $reg = null) {
     $img = 'techscore.png';
-    $this->header->add(new XH1(new XA('/', new XImg('/inc/img/' . $img, DB::g(STN::APP_NAME), array('id'=>'headimg'))), array('id'=>'logo')));
+    $this->header->add(new XH1(new XA('/', new XImg('/inc/img/' . $img, DB::g(STN::APP_NAME), array('id'=>'headimg'))), array('id'=>'logo', 'class'=>'m-menu-hidden')));
 
     $m_user_menu = new XUl();
 
