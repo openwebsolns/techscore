@@ -20,10 +20,11 @@ class BoatsDialog extends AbstractScoresDialog {
   /**
    * Create a new boats ranking dialog for given regatta
    *
+   * @param Account $user the user
    * @param FullRegatta $reg the regatta
    */
-  public function __construct(FullRegatta $reg) {
-    parent::__construct("Boats", $reg);
+  public function __construct(Account $user, FullRegatta $reg) {
+    parent::__construct("Boats", $user, $reg);
     $this->rotation = $this->REGATTA->getRotation();
     if (!$this->rotation->isAssigned())
       throw new InvalidArgumentException("Boats dialog only available when using rotations.");

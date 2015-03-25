@@ -22,7 +22,7 @@ abstract class AbstractDialog {
    * @param String $name the name of the dialog
    * @param Regatta $reg the regatta
    */
-  public function __construct($name, FullRegatta $reg) {
+  public function __construct($name, Account $user, FullRegatta $reg) {
     $this->name = (string)$name;
     $this->REGATTA = $reg;
   }
@@ -70,7 +70,7 @@ abstract class AbstractDialog {
    *
    * @see AbstractPane::getPane
    */
-  public static function getDialog(Array $uri, Account $r, FullRegatta $u) {
+  public static function getDialog(Array $uri, Account $u, FullRegatta $r) {
     if (count($uri) == 0)
       $uri = array('rotation');
     try {
@@ -78,46 +78,46 @@ abstract class AbstractDialog {
         // --------------- ROT DIALOG ---------------//
       case 'rotation':
       case 'rotations':
-        if ($u->scoring == Regatta::SCORING_TEAM) {
+        if ($r->scoring == Regatta::SCORING_TEAM) {
           require_once('tscore/TeamRotationDialog.php');
-          return new TeamRotationDialog($u);
+          return new TeamRotationDialog($u, $r);
         }
         require_once('tscore/RotationDialog.php');
-        return new RotationDialog($u);
+        return new RotationDialog($u, $r);
 
         // --------------- RP DIALOG ----------------//
       case 'sailors':
       case 'sailor':
-        if ($u->scoring == Regatta::SCORING_TEAM) {
+        if ($r->scoring == Regatta::SCORING_TEAM) {
           require_once('tscore/TeamRegistrationsDialog.php');
-          return new TeamRegistrationsDialog($u);
+          return new TeamRegistrationsDialog($u, $r);
         }
         require_once('tscore/RegistrationsDialog.php');
-        return new RegistrationsDialog($u);
+        return new RegistrationsDialog($u, $r);
 
         // --------------- SCORES --------------//
       case 'result':
       case 'results':
       case 'score':
       case 'scores':
-        if ($u->scoring == Regatta::SCORING_TEAM) {
+        if ($r->scoring == Regatta::SCORING_TEAM) {
           require_once('tscore/ScoresGridDialog.php');
-          return new ScoresGridDialog($u);
+          return new ScoresGridDialog($u, $r);
         }
         // look for division argument
         if (count($uri) > 1) {
           require_once('tscore/ScoresDivisionDialog.php');
-          return new ScoresDivisionDialog($u, new Division($uri[1]));
+          return new ScoresDivisionDialog($u, $r, new Division($uri[1]));
         }
         require_once('tscore/ScoresFullDialog.php');
-        return new ScoresFullDialog($u);
+        return new ScoresFullDialog($u, $r);
 
         // --------------- ALL RACES ----------------//
       case 'all':
       case 'races':
-        if ($u->scoring == Regatta::SCORING_TEAM) {
+        if ($r->scoring == Regatta::SCORING_TEAM) {
           require_once('tscore/TeamRacesDialog.php');
-          return new TeamRacesDialog($u);
+          return new TeamRacesDialog($u, $r);
         }
         return null;
 
@@ -126,47 +126,38 @@ abstract class AbstractDialog {
       case 'rank':
       case 'div-score':
       case 'div-scores':
-        if ($u->scoring == Regatta::SCORING_TEAM) {
+        if ($r->scoring == Regatta::SCORING_TEAM) {
           require_once('tscore/TeamRankingDialog.php');
-          return new TeamRankingDialog($u);
+          return new TeamRankingDialog($u, $r);
         }
         require_once('tscore/ScoresDivisionalDialog.php');
-        return new ScoresDivisionalDialog($u);
+        return new ScoresDivisionalDialog($u, $r);
 
         // --------------- COMINED. SCORE --------------//
       case 'combined':
-        if ($u->scoring != Regatta::SCORING_COMBINED)
+        if ($r->scoring != Regatta::SCORING_COMBINED)
           return null;
         require_once('tscore/ScoresCombinedDialog.php');
-        return new ScoresCombinedDialog($u);
+        return new ScoresCombinedDialog($u, $r);
 
         // -------------- CHARTS --------------------//
       case 'chart':
       case 'history':
-        if ($u->scoring != Regatta::SCORING_STANDARD)
+        if ($r->scoring != Regatta::SCORING_STANDARD)
           return null;
         require_once('tscore/ScoresChartDialog.php');
-        return new ScoresChartDialog($u);
+        return new ScoresChartDialog($u, $r);
 
         // -------------- BOATS --------------------//
       case 'boat':
       case 'boats':
-        if ($u->scoring != Regatta::SCORING_STANDARD && $u->scoring != Regatta::SCORING_COMBINED)
+        if ($r->scoring != Regatta::SCORING_STANDARD && $r->scoring != Regatta::SCORING_COMBINED)
           return null;
-        $rot = $u->getRotation();
+        $rot = $r->getRotation();
         if (!$rot->isAssigned())
           return null;
         require_once('tscore/BoatsDialog.php');
-        return new BoatsDialog($u);
-
-        // --------------- LAST UPDATE ------------//
-      case 'last-update':
-        // @TODO: deprecate
-        $t = $u->getLastScoreUpdate();
-        if ($t == null)
-          $t = new DateTime('yesterday');
-        echo $t->format('Y-m-d H:i:s');
-        exit;
+        return new BoatsDialog($u, $r);
 
         // --------------- default ----------------//
       default:

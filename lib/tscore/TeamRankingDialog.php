@@ -19,10 +19,11 @@ class TeamRankingDialog extends AbstractScoresDialog {
   /**
    * Creates a new team ranking dialog
    *
+   * @param Account $user the user
    * @param FullRegatta $reg the regatta
    */
-  public function __construct(FullRegatta $reg) {
-    parent::__construct("Rankings", $reg);
+  public function __construct(Account $user, FullRegatta $reg) {
+    parent::__construct("Rankings", $user, $reg);
   }
 
   public function fillHTML(Array $args) {

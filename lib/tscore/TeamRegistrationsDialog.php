@@ -17,8 +17,8 @@ require_once('tscore/AbstractDialog.php');
  */
 class TeamRegistrationsDialog extends AbstractDialog {
 
-  public function __construct(FullRegatta $reg) {
-    parent::__construct("Record of Participation", $reg);
+  public function __construct(Account $user, FullRegatta $reg) {
+    parent::__construct("Record of Participation", $user, $reg);
   }
 
   protected function fillHTML(Array $args) {

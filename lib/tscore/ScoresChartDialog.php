@@ -30,11 +30,12 @@ class ScoresChartDialog extends AbstractScoresDialog {
   /**
    * Create a new rotation dialog for the given regatta
    *
+   * @param Account $user the user
    * @param FullRegatta $reg the regatta
    * @param Division $div the optional division to limit races to
    */
-  public function __construct(FullRegatta $reg, Division $div = null) {
-    parent::__construct("Regatta ranking history", $reg);
+  public function __construct(Account $user, FullRegatta $reg, Division $div = null) {
+    parent::__construct("Regatta ranking history", $user, $reg);
     if ($reg->scoring == Regatta::SCORING_COMBINED) {
       $div = Division::A();
       $this->title = sprintf("Rank history of combined divisions for %s", $this->REGATTA->name);

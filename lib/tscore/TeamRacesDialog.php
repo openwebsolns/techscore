@@ -26,10 +26,11 @@ class TeamRacesDialog extends AbstractScoresDialog {
   /**
    * Create a new dialog
    *
+   * @param Account $user the user
    * @param FullRegatta $reg the regatta
    */
-  public function __construct(FullRegatta $reg) {
-    parent::__construct("All races", $reg);
+  public function __construct(Account $user, FullRegatta $reg) {
+    parent::__construct("All races", $user, $reg);
   }
 
   /**

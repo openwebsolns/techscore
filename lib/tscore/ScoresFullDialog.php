@@ -19,10 +19,11 @@ class ScoresFullDialog extends AbstractScoresDialog {
   /**
    * Create a new rotation dialog for the given regatta
    *
+   * @param Account $user the user
    * @param FullRegatta $reg the regatta
    */
-  public function __construct(FullRegatta $reg) {
-    parent::__construct("Race results", $reg);
+  public function __construct(Account $user, FullRegatta $reg) {
+    parent::__construct("Race results", $user, $reg);
   }
 
   /**
