@@ -24,11 +24,11 @@ class LegendTable extends XQuickTable {
     parent::__construct(array('class'=>'tiebreaker'), array("Sym.", "Explanation"));
     foreach ($tiebreakers as $exp => $ast) {
       if ($exp != '') {
-        $tab->addRow(array($ast, new XTD(array('class'=>'explanation'), $exp)));
+        $this->addRow(array($ast, new XTD(array('class'=>'explanation'), $exp)));
       }
     }
     foreach ($outside_schools as $exp => $ast) {
-      $tab->addRow(array($ast, new XTD(array('class'=>'explanation'), sprintf("%s sailor", $exp))));
+      $this->addRow(array($ast, new XTD(array('class'=>'explanation'), sprintf("%s sailor", $exp))));
     }
   }
 }

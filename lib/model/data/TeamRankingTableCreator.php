@@ -32,10 +32,9 @@ class TeamRankingTableCreator {
    */
   private $rankTable;
   /**
-   * @var XTable the cached legend able. False means not yet created,
-   * while null means no legend table necessary.
+   * @var XTable the cached legend able.
    */
-  private $legendTable = false;
+  private $legendTable;
   /**
    * @var boolean true will generate links, suitable for publishing.
    */
@@ -58,9 +57,7 @@ class TeamRankingTableCreator {
    * @return XTable
    */
   public function getRankTable() {
-    if ($this->rankTable === null) {
-      $this->generateTables();
-    }
+    $this->generateTables();
     return $this->rankTable;
   }
 
@@ -70,9 +67,7 @@ class TeamRankingTableCreator {
    * @return XTable, or null, if no legend necessary.
    */
   public function getLegendTable() {
-    if ($this->legendTable === false) {
-      $this->generateTables();
-    }
+    $this->generateTables();
     return $this->legendTable;
   }
 
@@ -81,6 +76,9 @@ class TeamRankingTableCreator {
    *
    */
   private function generateTables() {
+    if ($this->rankTable !== null) {
+      return;
+    }
     $this->legendTable = null;
     $this->rankTable = new XTable(
       array('class'=>'teamranking results'),
