@@ -98,28 +98,14 @@ class TeamSummaryRankingTableCreator {
                     new XTH(array('title'=>"Winning percentage"), "%"))))),
         $b = new XTBody()));
 
-    $explanations = array("" => "");
+    $ranks = $this->regatta->getRankedTeams();
+    $explanations = Utils::createTiebreakerMap($ranks);
     $season = $this->regatta->getSeason();
     $prev_group = null;
-    foreach ($this->regatta->getRankedTeams() as $rowIndex => $team) {
+    foreach ($ranks as $rowIndex => $team) {
       if ($prev_group !== null && $team->rank_group != $prev_group)
         $b->add(new XTR(array(), array(new XTD(array('class'=>'tr-rank-group', 'colspan'=>7, 'title'=>"Next group")))));
       $prev_group = $team->rank_group;
-
-      // Explanation
-      if (!empty($team->dt_explanation) && !isset($explanations[$team->dt_explanation])) {
-        $count = count($explanations);
-        switch ($count) {
-        case 1:
-          $explanations[$team->dt_explanation] = "*";
-          break;
-        case 2:
-          $explanations[$team->dt_explanation] = "**";
-          break;
-        default:
-          $explanations[$team->dt_explanation] = chr(95 + $count);
-        }
-      }
 
       $mascot = $team->school->drawSmallBurgee("");
       $school = (string)$team->school;

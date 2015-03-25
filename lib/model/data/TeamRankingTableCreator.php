@@ -99,12 +99,13 @@ class TeamRankingTableCreator {
                 new XTH(array('class'=>'sailor'), "Crews"))))),
         $b = new XTBody()));
 
+    $ranks = $this->regatta->getRankedTeams();
+    $explanations = Utils::createTiebreakerMap($ranks);
     $divs = $this->regatta->getDivisions();
-    $explanations = array("" => "");
     $season = $this->regatta->getSeason();
     $rpm = $this->regatta->getRpManager();
     $prev_group = null;
-    foreach ($this->regatta->getRankedTeams() as $rowIndex => $team) {
+    foreach ($ranks as $rowIndex => $team) {
       if ($prev_group !== null && $team->rank_group != $prev_group) {
         $b->add(
           new XTR(
@@ -114,21 +115,6 @@ class TeamRankingTableCreator {
       }
 
       $prev_group = $team->rank_group;
-
-      // Explanation
-      if (!empty($team->dt_explanation) && !array_key_exists($team->dt_explanation, $explanations)) {
-        $count = count($explanations);
-        switch ($count) {
-        case 1:
-          $explanations[$team->dt_explanation] = "*";
-          break;
-        case 2:
-          $explanations[$team->dt_explanation] = "**";
-          break;
-        default:
-          $explanations[$team->dt_explanation] = chr(95 + $count);
-        }
-      }
 
       $skips = array();
       $crews = array();
