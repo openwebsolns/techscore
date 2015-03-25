@@ -1,8 +1,6 @@
 <?php
 namespace data;
 
-use \InvalidArgumentException;
-
 use \FullRegatta;
 use \Division;
 use \RP;
@@ -34,10 +32,9 @@ class CombinedScoresTableCreator {
    */
   private $scoreTable;
   /**
-   * @var XTable the cached legend able. False means not yet created,
-   * while null means no legend table necessary.
+   * @var XTable the cached legend table.
    */
-  private $legendTable = false;
+  private $legendTable;
   /**
    * @var boolean true will generate links, suitable for publishing.
    */

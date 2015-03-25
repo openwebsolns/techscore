@@ -84,6 +84,17 @@ class XBig extends XAbstractHtml {
 }
 
 /**
+ * Abbreviation
+ *
+ */
+class XAbbr extends XAbstractHtml {
+  public function __construct($text, $title, Array $attrs = array()) {
+    parent::__construct('abbr', $attrs, array($text));
+    $this->set('title', $title);
+  }
+}
+
+/**
  * Blockquotes
  *
  */

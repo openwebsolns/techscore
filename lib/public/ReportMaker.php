@@ -2,6 +2,7 @@
 use \data\RotationTable;
 use \data\DivisionScoresTableCreator;
 use \data\CombinedScoresTableCreator;
+use \data\FleetScoresTableCreator;
 use \data\TeamRotationTable;
 use \data\TeamRankingTableCreator;
 use \data\TeamSummaryRankingTableCreator;
@@ -103,11 +104,13 @@ class ReportMaker {
         }
       }
       else {
-        require_once('tscore/ScoresDivisionalDialog.php');
-        $maker = new ScoresDivisionalDialog($reg);
+        $maker = new FleetScoresTableCreator($reg, true);
         $this->page->addSection($p = $this->newXPort("Score summary"));
-        foreach ($maker->getTable(true) as $elem)
-          $p->add($elem);
+        $p->add($maker->getScoreTable());
+        $legend = $maker->getLegendTable();
+        if ($legend !== null) {
+          $p->add($legend);
+        }
 
         // SVG history diagram
         if (count($reg->getScoredRaces(($reg->scoring == Regatta::SCORING_COMBINED) ? Division::A() : null)) > 1) { 
