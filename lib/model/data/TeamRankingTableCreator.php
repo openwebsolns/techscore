@@ -32,10 +32,9 @@ class TeamRankingTableCreator {
    */
   private $rankTable;
   /**
-   * @var XTable the cached legend able. False means not yet created,
-   * while null means no legend table necessary.
+   * @var XTable the cached legend able.
    */
-  private $legendTable = false;
+  private $legendTable;
   /**
    * @var boolean true will generate links, suitable for publishing.
    */
@@ -58,9 +57,7 @@ class TeamRankingTableCreator {
    * @return XTable
    */
   public function getRankTable() {
-    if ($this->rankTable === null) {
-      $this->generateTables();
-    }
+    $this->generateTables();
     return $this->rankTable;
   }
 
@@ -70,9 +67,7 @@ class TeamRankingTableCreator {
    * @return XTable, or null, if no legend necessary.
    */
   public function getLegendTable() {
-    if ($this->legendTable === false) {
-      $this->generateTables();
-    }
+    $this->generateTables();
     return $this->legendTable;
   }
 
@@ -81,6 +76,9 @@ class TeamRankingTableCreator {
    *
    */
   private function generateTables() {
+    if ($this->rankTable !== null) {
+      return;
+    }
     $this->legendTable = null;
     $this->rankTable = new XTable(
       array('class'=>'teamranking results'),
@@ -101,12 +99,13 @@ class TeamRankingTableCreator {
                 new XTH(array('class'=>'sailor'), "Crews"))))),
         $b = new XTBody()));
 
+    $ranks = $this->regatta->getRankedTeams();
+    $explanations = Utils::createTiebreakerMap($ranks);
     $divs = $this->regatta->getDivisions();
-    $explanations = array("" => "");
     $season = $this->regatta->getSeason();
     $rpm = $this->regatta->getRpManager();
     $prev_group = null;
-    foreach ($this->regatta->getRankedTeams() as $rowIndex => $team) {
+    foreach ($ranks as $rowIndex => $team) {
       if ($prev_group !== null && $team->rank_group != $prev_group) {
         $b->add(
           new XTR(
@@ -116,21 +115,6 @@ class TeamRankingTableCreator {
       }
 
       $prev_group = $team->rank_group;
-
-      // Explanation
-      if (!empty($team->dt_explanation) && !array_key_exists($team->dt_explanation, $explanations)) {
-        $count = count($explanations);
-        switch ($count) {
-        case 1:
-          $explanations[$team->dt_explanation] = "*";
-          break;
-        case 2:
-          $explanations[$team->dt_explanation] = "**";
-          break;
-        default:
-          $explanations[$team->dt_explanation] = chr(95 + $count);
-        }
-      }
 
       $skips = array();
       $crews = array();

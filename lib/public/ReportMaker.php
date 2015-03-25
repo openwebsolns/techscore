@@ -1,5 +1,9 @@
 <?php
 use \data\RotationTable;
+use \data\DivisionScoresTableCreator;
+use \data\CombinedScoresTableCreator;
+use \data\FleetScoresTableCreator;
+use \data\FullScoresTableCreator;
 use \data\TeamRotationTable;
 use \data\TeamRankingTableCreator;
 use \data\TeamSummaryRankingTableCreator;
@@ -101,11 +105,13 @@ class ReportMaker {
         }
       }
       else {
-        require_once('tscore/ScoresDivisionalDialog.php');
-        $maker = new ScoresDivisionalDialog($reg);
+        $maker = new FleetScoresTableCreator($reg, true);
         $this->page->addSection($p = $this->newXPort("Score summary"));
-        foreach ($maker->getTable(true) as $elem)
-          $p->add($elem);
+        $p->add($maker->getScoreTable());
+        $legend = $maker->getLegendTable();
+        if ($legend !== null) {
+          $p->add($legend);
+        }
 
         // SVG history diagram
         if (count($reg->getScoredRaces(($reg->scoring == Regatta::SCORING_COMBINED) ? Division::A() : null)) > 1) { 
@@ -165,28 +171,30 @@ class ReportMaker {
     $page->setDescription(sprintf("Scores for Division %s for %s's %s.",
                                   $div, $season->fullString(), $reg->name));
 
-    require_once('tscore/ScoresDivisionDialog.php');
-    $maker = new ScoresDivisionDialog($reg, $div);
+    $maker = new DivisionScoresTableCreator($reg, $div, true);
     $page->addSection($p = $this->newXPort("Scores for Division $div"));
-    $elems = $maker->getTable(true);
-    if (count($elems) == 0)
-      $p->add(new XP(array('class'=>'notice'), "No scores have been entered yet for Division $div."));
-    else {
-      foreach ($elems as $elem)
-        $p->add($elem);
-
-      // SVG history diagram
-      if (count($reg->getScoredRaces($div)) > 1) {
-        $page->addSection($p = $this->newXPort("Score history", false));
-        $p->set('id', 'history-port');
-        $p->add(new XDiv(array('id'=>'history-expl'),
-                         array(new XP(array(), "The following chart shows the relative rank of the teams as of the race indicated."),
-                               new XP(array(), "The first place team as of a given race will always be at the top of the chart. The spacing from one team to the next shows relative gains/losses made from one race to the next. You may hover over the data points to display the total score as of that race."))));
-        $p->add($sub = new XDiv(array('class'=>'chart-container'),
-                                array(new XElem('object', array('data'=>'history.svg', 'type'=>'image/svg+xml'),
-                                                array(new XP(array('class'=>'notice'),
-                                                             "Your browser does not support SVG elements."))))));
+    try {
+      $p->add($maker->getScoreTable());
+      $legend = $maker->getLegendTable();
+      if ($legend !== null) {
+        $p->add($legend);
       }
+    } catch (InvalidArgumentException $e) {
+      $p->add(new XP(array('class'=>'notice'), "No scores have been entered yet for Division $div."));
+      return;
+    }
+      
+    // SVG history diagram
+    if (count($reg->getScoredRaces($div)) > 1) {
+      $page->addSection($p = $this->newXPort("Score history", false));
+      $p->set('id', 'history-port');
+      $p->add(new XDiv(array('id'=>'history-expl'),
+                       array(new XP(array(), "The following chart shows the relative rank of the teams as of the race indicated."),
+                             new XP(array(), "The first place team as of a given race will always be at the top of the chart. The spacing from one team to the next shows relative gains/losses made from one race to the next. You may hover over the data points to display the total score as of that race."))));
+      $p->add($sub = new XDiv(array('class'=>'chart-container'),
+                              array(new XElem('object', array('data'=>'history.svg', 'type'=>'image/svg+xml'),
+                                              array(new XP(array('class'=>'notice'),
+                                                           "Your browser does not support SVG elements."))))));
     }
   }
 
@@ -226,11 +234,13 @@ class ReportMaker {
       $this->fullPage->setDescription(sprintf("Full scores table for %s's %s.", $season->fullString(), $reg->name));
 
       // Total scores
-      require_once('tscore/ScoresFullDialog.php');
-      $maker = new ScoresFullDialog($reg);
+      $maker = new FullScoresTableCreator($reg, true);
       $this->fullPage->addSection($p = $this->newXPort("Race by race"));
-      foreach ($maker->getTable(true) as $elem)
-        $p->add($elem);
+      $p->add($maker->getScoreTable());
+      $legend = $maker->getLegendTable();
+      if ($legend !== null) {
+        $p->add($legend);
+      }
     }
   }
 
@@ -384,11 +394,13 @@ class ReportMaker {
     $this->combinedPage->setDescription(sprintf("Scores and ranks across all divisions for %s's %s.",
                                                 $season->fullString(), $reg->name));
 
-    require_once('tscore/ScoresCombinedDialog.php');
-    $maker = new ScoresCombinedDialog($reg);
+    $maker = new CombinedScoresTableCreator($reg, true);
     $this->combinedPage->addSection($p = $this->newXPort("Scores for all divisions"));
-    foreach ($maker->getTable(true) as $elem)
-      $p->add($elem);
+    $p->add($maker->getScoreTable());
+    $legend = $maker->getLegendTable();
+    if ($legend !== null) {
+      $p->add($legend);
+    }
   }
 
   protected function newXPort($title, $inc_sponsor = true, Array $attrs = array()) {

@@ -1,4 +1,6 @@
 <?php
+use \data\FleetScoresTableCreator;
+
 /*
  * This file is part of TechScore
  *
@@ -35,115 +37,14 @@ class ScoresDivisionalDialog extends AbstractScoresDialog {
       $p->add(new XWarning("There are no finishes for this regatta."));
       return;
     }
-    $ELEMS = $this->getTable();
-    $p->add(array_shift($ELEMS));
-    if (count($ELEMS) > 0) {
+
+    $maker = new FleetScoresTableCreator($this->REGATTA);
+    $p->add($maker->getScoreTable());
+    $legend = $maker->getLegendTable();
+    if ($legend !== null) {
       $this->PAGE->addContent($p = new XPort("Legend"));
-      $p->add($ELEMS[0]);
+      $p->add($legend);
     }
-  }
-
-  /**
-   * Fetches just the table of results
-   *
-   * @param String $link_schools true to link to school's season page
-   * link the schools using the school's ID
-   *
-   * @return Array the table element
-   */
-  public function getTable($link_schools = false) {
-    $ELEMS = array();
-
-    $divisions = $this->REGATTA->getDivisions();
-
-    $t = new XTable(array('class'=>'results coordinate divisional'),
-                    array(new XTHead(array(),
-                                     array($r = new XTR(array(),
-                                                        array(new XTH(),
-                                                              new XTH(),
-                                                              new XTH(),
-                                                              new XTH(array(), "School"),
-                                                              new XTH(array(), "Team"))))),
-                          $tab = new XTBody()));
-    $ELEMS[] = $t;
-    $penalty_th = array();
-    $division_has_penalty = array();
-    foreach ($divisions as $div) {
-      $r->add(new XTH(array(), $div));
-      $r->add($th = new XTH(array('title'=>"Team penalty in division $div"), ""));
-
-      $penalty_th[(string)$div] = $th;
-      $division_has_penalty[(string)$div] = false;
-    }
-    $r->add(new XTH(array('title'=>"Total for team"), new XElem('abbr', array('title'=>"Total"), array(new XText("TOT")))));
-
-    // In order to print the ranks, go through each ranked team once,
-    // and collect the different tiebreaking categories, giving each
-    // one a successive symbol.
-    $tiebreakers = array("" => "");
-    $ranks = $this->REGATTA->getRankedTeams();
-    foreach ($ranks as $rank) {
-      if (!empty($rank->dt_explanation) && !isset($tiebreakers[$rank->dt_explanation])) {
-        $count = count($tiebreakers);
-        switch ($count) {
-        case 1:
-          $tiebreakers[$rank->dt_explanation] = "*";
-          break;
-        case 2:
-          $tiebreakers[$rank->dt_explanation] = "**";
-          break;
-        default:
-          $tiebreakers[$rank->dt_explanation] = chr(95 + $count);
-        }
-      }
-    }
-
-    $row = 0;
-    foreach ($ranks as $tID => $rank) {
-      $ln = new XSpan($rank->school->name, array('itemprop'=>'name'));
-      if ($link_schools !== false)
-        $ln = new XA(sprintf('%s%s/', $rank->school->getURL(), $this->REGATTA->getSeason()), $ln, array('itemprop'=>'url'));
-      $tab->add($r = new XTR(array('class'=>'row' . ($row++ % 2), 'itemscope'=>'itemscope', 'itemtype'=>'http://schema.org/CollegeOrUniversity', 'itemprop'=>'attendee'),
-                             array(new XTD(array('title'=>$rank->dt_explanation, 'class'=>'tiebreaker'),
-                                           $tiebreakers[$rank->dt_explanation]),
-                                   new XTD(array(), $tID + 1),
-                                   $bc = new XTD(array('class'=>'burgee-cell')),
-                                   new XTD(array('class'=>'schoolname'), $ln),
-                                   new XTD(array('class'=>'teamname'), $rank->getQualifiedName()))));
-      $bc->add($rank->school->drawSmallBurgee(null, array('itemprop'=>'image')));
-
-      $scoreTeam    = 0;
-      // For each division
-      foreach ($divisions as $div) {
-        $r->add($s_cell = new XTD());
-        $r->add($p_cell = new XTD());
-
-        if (($div_rank = $rank->getRank($div)) === null)
-          continue;
-
-        if ($div_rank->penalty !== null) {
-          $p_cell->add($div_rank->penalty);
-          $p_cell->set('title', "+20 points: " . $div_rank->comments);
-
-          $division_has_penalty[(string)$div] = true;
-        }
-        $s_cell->add(new XText($div_rank->score));
-        $s_cell->set("class", "total");
-        $scoreTeam += $div_rank->score;
-      }
-      $r->add(new XTD(array('class'=>'totalcell'), $scoreTeam));
-    }
-
-    // Deal with penalty headers
-    foreach ($division_has_penalty as $id => $val) {
-      if ($val)
-        $penalty_th[$id]->add("P");
-    }
-
-    // Print legend, if necessary
-    if (count($tiebreakers) > 1)
-      $ELEMS[] = $this->getLegend($tiebreakers);
-    return $ELEMS;
   }
 }
 ?>
