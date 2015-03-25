@@ -1,6 +1,7 @@
 <?php
 use \data\RotationTable;
 use \data\DivisionScoresTableCreator;
+use \data\CombinedScoresTableCreator;
 use \data\TeamRotationTable;
 use \data\TeamRankingTableCreator;
 use \data\TeamSummaryRankingTableCreator;
@@ -387,11 +388,13 @@ class ReportMaker {
     $this->combinedPage->setDescription(sprintf("Scores and ranks across all divisions for %s's %s.",
                                                 $season->fullString(), $reg->name));
 
-    require_once('tscore/ScoresCombinedDialog.php');
-    $maker = new ScoresCombinedDialog($reg);
+    $maker = new CombinedScoresTableCreator($reg, true);
     $this->combinedPage->addSection($p = $this->newXPort("Scores for all divisions"));
-    foreach ($maker->getTable(true) as $elem)
-      $p->add($elem);
+    $p->add($maker->getScoreTable());
+    $legend = $maker->getLegendTable();
+    if ($legend !== null) {
+      $p->add($legend);
+    }
   }
 
   protected function newXPort($title, $inc_sponsor = true, Array $attrs = array()) {

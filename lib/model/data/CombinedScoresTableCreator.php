@@ -3,9 +3,8 @@ namespace data;
 
 use \InvalidArgumentException;
 
-use \DB;
-use \Division;
 use \FullRegatta;
+use \Division;
 use \RP;
 
 use \XTable;
@@ -19,21 +18,17 @@ use \XA;
 require_once('xml5/HtmlLib.php');
 
 /**
- * Creates table with scores for a particular division of a fleet regatta.
+ * Creates table with scores for a combined-division fleet regatta.
  *
  * @author Dayan Paez
  * @version 2015-03-24
  */
-class DivisionScoresTableCreator {
+class CombinedScoresTableCreator {
 
   /**
    * @var FullRegatta the regatta we're working with.
    */
   private $regatta;
-  /**
-   * @var Division the division in question.
-   */
-  private $division;
   /**
    * @var XTable the cached full table.
    */
@@ -52,12 +47,10 @@ class DivisionScoresTableCreator {
    * Creates a new scores table.
    *
    * @param FullRegatta $regatta the regatta in question.
-   * @param Division $division one of the divisions in the regatta.
    * @param boolean $publicMode true to create links to schools, etc.
    */
-  public function __construct(FullRegatta $regatta, Division $division, $publicMode = false) {
+  public function __construct(FullRegatta $regatta, $publicMode = false) {
     $this->regatta = $regatta;
-    $this->division = $division;
     $this->publicMode = ($publicMode !== false);
   }
 
@@ -89,15 +82,9 @@ class DivisionScoresTableCreator {
     if ($this->scoreTable !== null) {
       return;
     }
-    $division = $this->division;
-    $rpManager = $this->regatta->getRpManager();
-    $ranks = $this->regatta->getRanks($division);
-    if (count($ranks) == 0) {
-      throw new InvalidArgumentException("There are no teams (ranks) in regatta.");
-    }
 
     $this->scoreTable = new XTable(
-      array('class'=>'results coordinate division ' . $division),
+      array('class'=>'results coordinate division all'),
       array(
         new XTHead(
           array(),
@@ -105,31 +92,33 @@ class DivisionScoresTableCreator {
             new XTR(
               array(),
               array(
-                new XTH(), // asterisks
+                new XTH(), // legend (asterisk)
                 new XTH(), // rank
                 new XTH(),
                 new XTH(array('class'=>'teamname'), "Team"),
+                new XTH(array(), "Div."),
                 $penalty_th = new XTH(),
                 new XTH(array(), "Total"),
                 new XTH(array(), "Sailors"),
                 new XTH(array(), ""),
                 new XTH(array(), ""))))),
-            $tab = new XTBody()));
+        $tab = new XTBody()));
 
     $has_penalties = false;
 
+    $ranks = $this->regatta->getRanks();
     $tiebreakers = Utils::createTiebreakerMap($ranks);
     $outside_sailors = array();
+    $rpManager = $this->regatta->getRpManager();
 
     $rowIndex = 0;
     $order = 1;
-    $total_races = count($this->regatta->getRaces($division));
+    $total_races = count($this->regatta->getRaces(Division::A()));
     foreach ($ranks as $rank) {
 
       $ln = $rank->team->school->name;
-      if ($this->publicMode !== false) {
+      if ($this->publicMode !== false)
         $ln = new XA(sprintf('%s%s/', $rank->team->school->getURL(), $this->regatta->getSeason()), $ln);
-      }
 
       // deal with explanations
       $sym = $tiebreakers[$rank->explanation];
@@ -143,27 +132,28 @@ class DivisionScoresTableCreator {
           $r1c2 = new XTD(array(), $order++),
           $r1c3 = new XTD(array('class'=>'burgee-cell'), $img),
           $r1c4 = new XTD(array('class'=>'schoolname'), $ln),
+          $r1cDiv = new XTD(array('class'=>'division'), $rank->division),
           $r1c5 = new XTD(),
           $r1c6 = new XTD(array('class'=>'totalcell'), $rank->score)));
 
+      // get total score for this team
       if ($rank->penalty != null) {
         $r1c5->add($rank->penalty);
         $r1c5->set('title', sprintf("%s (+20 points)", $rank->comments));
         $has_penalties = true;
       }
 
-      // We use the default team name instead of the qualified name
-      // because we are specifying the sailor names explicitly
       $r2 = new XTR(
         array('class'=>'left row'.($rowIndex % 2)),
-        array($r2c4 = new XTD(array('class'=>'teamname'), $rank->team->name)));
+        array($r2c4 = new XTD(array('class'=>'teamname'), $rank->team->getQualifiedName())));
 
       $headerRows = array($r1, $r2);
       $num_sailors = 2;
+
       // ------------------------------------------------------------
       // Skippers and crews
       foreach (array(RP::SKIPPER, RP::CREW) as $index => $role) {
-        $sailors  = $rpManager->getRP($rank->team, $division, $role);
+        $sailors  = $rpManager->getRP($rank->team, new Division($rank->division), $role);
 
         $is_first = true;
         $s_rows = array();
@@ -183,10 +173,12 @@ class DivisionScoresTableCreator {
             $num_sailors++;
           }
 
-          if (count($s->races_nums) == $total_races)
+          if (count($s->races_nums) == $total_races) {
             $amt = "";
-          else
+          }
+          else {
             $amt = DB::makeRange($s->races_nums);
+          }
 
           $sup = "";
           if ($s->sailor !== null && $s->sailor->school != $rank->team->school) {
@@ -194,6 +186,7 @@ class DivisionScoresTableCreator {
               $outside_sailors[$s->sailor->school->nick_name] = count($outside_sailors) + 1;
             $sup = $outside_sailors[$s->sailor->school->nick_name];
           }
+
           $row->add(new XTD(array('class'=>'sailor-name ' . $role), $s->getSailor(true, $this->publicMode)));
           $row->add(new XTD(array('class'=>'races'), $amt));
           $row->add(new XTD(array('class'=>'superscript'), $sup));
@@ -213,8 +206,10 @@ class DivisionScoresTableCreator {
       $r1c3->set('rowspan', $num_sailors);
       $r1c5->set('rowspan', $num_sailors);
       $r1c6->set('rowspan', $num_sailors);
+      $r1cDiv->set('rowspan', $num_sailors);
       $rowIndex++;
     } // end of table
+
     if ($has_penalties) {
       $penalty_th->add("P");
     }
@@ -222,6 +217,6 @@ class DivisionScoresTableCreator {
     $this->legendTable = null;
     if (count($tiebreakers) + count($outside_sailors) > 1) {
       $this->legendTable = new LegendTable($tiebreakers, $outside_sailors);
-    }
+    }    
   }
 }
