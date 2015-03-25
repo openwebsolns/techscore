@@ -2016,7 +2016,7 @@ html {
 
 /* General overrides */
 body {
-    font-size: 14pt;
+    font-size: 12pt;
     font-family: "Lucida Grande", Tahoma, Verdana, sans-serif;
     line-height: 1.25em;
     position: relative;
@@ -2024,24 +2024,20 @@ body {
 }
 
 #bodydiv {
-    padding: 20px 10px;
+    padding: 10px;
 }
 
 .port {
     background: none repeat scroll 0 0 #FAFAFA;
     border: 1px solid #ddd;
     border-radius: 3px;
-    margin-bottom: 1.5em;
-    margin-top: 50px;
-    padding: 0 1em 0.5em;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    padding: 0 0.5em 0.5em;
     position: relative;
 }
 
 .port h3 {
-    background: #fafafa;
-    border: 1px solid #CCCCCC;
-    border-bottom: none;
-    border-radius: 3px 3px 0 0;
     color: #555555;
     font-size: 90%;
     font-weight: normal;
@@ -2049,8 +2045,6 @@ body {
     padding: 0.25em;
     position: relative;
     text-align: center;
-    top: -1.5em;
-    width: 90%;
 }
 
 
@@ -2071,22 +2065,9 @@ body {
 #headdiv h1 {
     display: table-cell;
     width: 50px;
-    background: rgba(255,255,255,0.3);
+    background-image: url(/inc/img/m-menu.png);
+    background-repeat: no-repeat;
     vertical-align: middle;
-}
-#headdiv h1.m-menu-hidden {
-    background: rgba(255,255,255,0.6);
-}
-#headdiv h1:after {
-    color: white;
-    content: "☰";
-    cursor: pointer;
-    display: block;
-    height: 38px;
-    padding: 12px 5px 0;
-}
-#headdiv h1.m-menu-hidden:after {
-    color: #3465A4;
 }
 #headdiv img {
     display: none;
@@ -2187,6 +2168,12 @@ body {
 }
 
 
+/* General style */
+
+h2 {
+    margin: 10px 0 0;
+}
+
 
 /* Help form */
 
@@ -2237,6 +2224,10 @@ input, button {
     box-sizing: border-box;
 }
 
+.form_entry .sail-combo select {
+    min-width: auto;
+    width: 20px; /* reset */
+}
 
 /* Tables */
 
