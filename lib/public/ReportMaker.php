@@ -3,6 +3,7 @@ use \data\RotationTable;
 use \data\DivisionScoresTableCreator;
 use \data\CombinedScoresTableCreator;
 use \data\FleetScoresTableCreator;
+use \data\FullScoresTableCreator;
 use \data\TeamRotationTable;
 use \data\TeamRankingTableCreator;
 use \data\TeamSummaryRankingTableCreator;
@@ -233,11 +234,13 @@ class ReportMaker {
       $this->fullPage->setDescription(sprintf("Full scores table for %s's %s.", $season->fullString(), $reg->name));
 
       // Total scores
-      require_once('tscore/ScoresFullDialog.php');
-      $maker = new ScoresFullDialog($reg);
+      $maker = new FullScoresTableCreator($reg, true);
       $this->fullPage->addSection($p = $this->newXPort("Race by race"));
-      foreach ($maker->getTable(true) as $elem)
-        $p->add($elem);
+      $p->add($maker->getScoreTable());
+      $legend = $maker->getLegendTable();
+      if ($legend !== null) {
+        $p->add($legend);
+      }
     }
   }
 

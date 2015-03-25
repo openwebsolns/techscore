@@ -1,6 +1,12 @@
 <?php
 namespace data;
 
+use \InvalidArgumentException;
+
+use \Dt_Team_Division;
+use \RankedTeam;
+use \Rank;
+
 /**
  * Provides useful functionality for score table creation.
  *
@@ -12,24 +18,38 @@ class Utils {
   /**
    * Create a basic tiebreaker map from entries in ranks.
    *
-   * @param Array:Rank the list of ranks.
+   * @param Array of either RankedTeam or Ranks.
    * @return Array map of explanation => key in legend.
    */
   public static function createTiebreakerMap($ranks) {
     $tiebreakers = array("" => "");
 
     foreach ($ranks as $rank) {
-      if (!empty($rank->explanation) && !isset($tiebreakers[$rank->explanation])) {
+      $explanation = null;
+      if ($rank instanceof RankedTeam) {
+        $explanation = $rank->dt_explanation;
+      }
+      elseif ($rank instanceof Rank) {
+        $explanation = $rank->explanation;
+      }
+      elseif ($rank instanceof Dt_Team_Division) {
+        $explanation = $rank->explanation;
+      }
+      else {
+        throw new InvalidArgumentException("Invalid object provided: " + get_class($rank));
+      }
+
+      if (!empty($explanation) && !isset($tiebreakers[$explanation])) {
         $count = count($tiebreakers);
         switch ($count) {
         case 1:
-          $tiebreakers[$rank->explanation] = "*";
+          $tiebreakers[$explanation] = "*";
           break;
         case 2:
-          $tiebreakers[$rank->explanation] = "**";
+          $tiebreakers[$explanation] = "**";
           break;
         default:
-          $tiebreakers[$rank->explanation] = chr(95 + $count);
+          $tiebreakers[$explanation] = chr(95 + $count);
         }
       }
     }
