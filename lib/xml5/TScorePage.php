@@ -154,7 +154,7 @@ class TScorePage extends XPage {
     $this->head->add(new XMetaHTTP('Content-Type', 'text/html; charset=UTF-8'));
 
     // CSS Stylesheets
-    $this->head->add($css = new LinkCSS('/inc/css/default.css', 'screen'));
+    $this->head->add($css = new LinkCSS('/inc/css/default.css?v=1', 'screen'));
     $css->set('id', 'main-style');
     $this->head->add(new LinkCSS('/inc/css/print.css','print'));
 
