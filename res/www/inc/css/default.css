@@ -46,6 +46,10 @@ a:hover {
     font-weight: bold;
 }
 
+.right {
+    text-align: right;
+}
+
 address {
     font-style: normal;
     text-align: center;
@@ -2275,6 +2279,29 @@ input, button {
  * --------------------
  */
 
+.dialog .burgee-cell {
+    padding: 0 5px;
+}
+
+.dialog .burgee-cell img {
+    height: 30px;
+    width: auto;
+}
+.dialog .teamranking td {
+    height: 40px;
+}
+.dialog .teamranking img {
+    height: 40px;
+    width: auto;
+}
+.dialog .tr-rotation-table img, .dialog .teamscorelist img {
+    height: 20px;
+    width: auto;
+}
+.dialog .noshow {
+    font-style: italic;
+}
+
 .dialog table {
     border: 3px solid #CCCCCC;
     border-radius: 5px;
@@ -2496,4 +2523,8 @@ input, button {
     display: block;
     height: 3px;
     width: 100%;
+}
+
+.dialog svg {
+    background: white;
 }
