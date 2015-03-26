@@ -1391,7 +1391,7 @@ td.tr-sail, td.sail {
     padding: 0.5em;
 }
 
-#progressdiv span, #progressdiv input {
+#progressdiv span, #progressdiv input, #progressdiv a {
     display: inline-block;
     border-radius: none;
     background: none;
