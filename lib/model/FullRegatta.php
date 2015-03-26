@@ -268,6 +268,43 @@ class FullRegatta extends DBObject implements Publishable {
   }
 
   /**
+   * Determines which summary day (int) the given time represents.
+   *
+   * If the day is one of the regatta days, then return it as an
+   * int. If the day is before the start of the regatta, pick the first
+   * day. If it's the last day of the regatta, pick the last.
+   *
+   * @param DateTime $now which day to compare against.
+   * @return int 1 being the first day of the regatta.
+   */
+  public function getDayBasedOnTime(DateTime $now) {
+    $today = $now->format('Y-m-d');
+
+    // Before the event; only 1 day long; or the day of?
+    $start = $this->__get('start_time')->format('Y-m-d');
+    $end = $this->__get('end_date')->format('Y-m-d');
+    if (strcmp($today, $start) <= 0 || $start == $end) {
+      return 1;
+    }
+
+    // In betweeners
+    $date = clone($this->__get('start_time'));
+    $dayOfCompetition = 1;
+    do {
+      $dayOfCompetition++;
+      $date->add(new DateInterval('P1DT0H'));
+      $day = $date->format('Y-m-d');
+
+      if ($day == $today) {
+        return $dayOfCompetition;
+      }
+    } while (strcmp($day, $end) < 0);
+
+    // Otherwise, return last day of
+    return $this->getDuration();
+  }
+
+  /**
    * Sets the scoring for this regatta.
    *
    * It is important to use this method instead of setting the scoring

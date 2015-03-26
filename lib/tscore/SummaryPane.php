@@ -30,23 +30,21 @@ class SummaryPane extends AbstractPane {
     // Which day's summary?
     $summary_day = clone($this->REGATTA->start_time);
     if ($duration > 1) {
-      $now = new DateTime();
       $day = DB::$V->incInt($args, 'day', 1, $duration + 1, null);
-      if ($day === null) {
-        // pick the one closest to today
-        $diff = $now->diff($summary_day);
-        if ($diff->invert == 0)
-          $day = 1;
+      if ($day == null) {
+        $day = $this->REGATTA->getDayBasedOnTime(DB::T(DB::NOW));
       }
 
       $prog = new XP(array('id'=>'progressdiv'));
       $this->PAGE->addContent($prog);
 
       $s = clone($this->REGATTA->start_time);
+      $now = new DateTime();
       $now = $now->format('Y-m-d');
       for ($i = 1; $i <= $duration; $i++) {
-        if ($day === null && $s->format('Y-m-d') == $now)
+        if ($day === null && $s->format('Y-m-d') == $now) {
           $day = $i;
+        }
 
         if ($i == $day) {
           $prog->add(new XSpan($s->format('l, F j, Y'), array('class'=>'current')));
