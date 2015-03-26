@@ -27,6 +27,7 @@ class TScorePage extends XPage {
   private $header;
   private $menu;
   private $content;
+  private $contentAttrs;
 
   private $mobile;
   private $filled;
@@ -50,6 +51,7 @@ class TScorePage extends XPage {
     $this->mobile = $this->isMobile();
 
     $this->content = array();
+    $this->contentAttrs = array();
     $this->filled = false;
     $this->menu = new XDiv(array('id'=>'menubar'));
     $this->header = new XDiv(array('id'=>'headbar'));
@@ -101,7 +103,8 @@ class TScorePage extends XPage {
     $this->body->add(new XHr(array('class'=>'hidden')));
 
     // Content
-    $this->body->add(new XDiv(array('id'=>'bodywrap'), array($c = new XDiv(array('id'=>'bodydiv')))));
+    $this->body->add(new XDiv(array('id'=>'bodywrap'), array($c = new XDiv($this->contentAttrs))));
+    $c->set('id', 'bodydiv');
 
     // Announcement
     if (class_exists('Session', false))
@@ -154,7 +157,7 @@ class TScorePage extends XPage {
     $this->head->add(new XMetaHTTP('Content-Type', 'text/html; charset=UTF-8'));
 
     // CSS Stylesheets
-    $this->head->add($css = new LinkCSS('/inc/css/default.css?v=1', 'screen'));
+    $this->head->add($css = new LinkCSS('/inc/css/default.css?v=2', 'screen'));
     $css->set('id', 'main-style');
     $this->head->add(new LinkCSS('/inc/css/print.css','print'));
 
@@ -244,6 +247,18 @@ class TScorePage extends XPage {
    */
   public function addContent($elem) {
     $this->content[] = $elem;
+  }
+
+  /**
+   * Add the given attribute to the content wrapper.
+   *
+   * NOTE: id will be overridden.
+   *
+   * @param String $name the name of the attribute
+   * @param String $value the value.
+   */
+  public function setContentAttribute($name, $value) {
+    $this->contentAttrs[$name] = $value;
   }
 
   /**

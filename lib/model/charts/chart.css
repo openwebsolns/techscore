@@ -1,8 +1,16 @@
+svg {
+    background: white;
+}
+
 text {
     fill: #888;
     font-family: Arial, sans-serif;
     font-size: 10pt;
 }
+#scores-history {
+    fill: #fff;
+}
+
 #bubble-below, #bubble-above {
     fill: #f8f8f8;
     stroke: #aaa;

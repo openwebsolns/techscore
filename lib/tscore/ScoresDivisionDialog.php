@@ -24,13 +24,14 @@ class ScoresDivisionDialog extends AbstractScoresDialog {
   /**
    * Create a new rotation dialog for the given regatta
    *
+   * @param Account $user the user
    * @param FullRegatta $reg the regatta
    * @param Division $div the division
    * @throws InvalidArgumentException if the division is not in the
    * regatta
    */
-  public function __construct(FullRegatta $reg, Division $div) {
-    parent::__construct("Race results", $reg);
+  public function __construct(Account $user, FullRegatta $reg, Division $div) {
+    parent::__construct("Race results", $user, $reg);
     if (!in_array($div, $reg->getDivisions())) {
       throw new InvalidArgumentException("No such division ($div) in this regatta.");
     }
