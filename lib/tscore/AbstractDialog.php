@@ -5,16 +5,13 @@
  * @package tscore-dialog
  */
 
+require('AbstractPane.php');
+
 /**
- * Template for all display dialogs. Requires REGATTA.
+ * Template for all display dialogs.
  *
  */
-abstract class AbstractDialog {
-
-  // Variables
-  private $name;
-  protected $REGATTA;
-  protected $PAGE;
+abstract class AbstractDialog extends AbstractPane {
 
   /**
    * Creates a new display dialog with the provided name and regatta
@@ -23,43 +20,18 @@ abstract class AbstractDialog {
    * @param Regatta $reg the regatta
    */
   public function __construct($name, Account $user, FullRegatta $reg) {
-    $this->name = (string)$name;
+    parent::__construct($name, $user, $reg);
     $this->REGATTA = $reg;
   }
 
-  /**
-   * Sets up the HTML page
-   *
-   */
+  public function process(Array $args) {
+    throw new SoterException("Dialogs only display data. Invalid request.");
+  }
+
   protected function setupPage() {
-    require_once('xml5/TScoreDialog.php');
-
-    $this->PAGE = new TScoreDialog($this->name . " | " . $this->REGATTA->name);
-    $this->PAGE->addContent(new XPageTitle($this->name));
-
-    //   -Regatta info
-    $this->PAGE->addHeader(new XH4($this->REGATTA->name, array('id'=>'regata')));
+    parent::setupPage();
+    $this->PAGE->setContentAttribute('class', 'dialog');
   }
-
-  /**
-   * Prints string reprensentation of the HTML page
-   *
-   * @param Array $args the arguments to this page
-   */
-  final public function getHTML(Array $args) {
-    $this->setupPage();
-    $this->fillHTML($args);
-    $this->PAGE->printXML();
-  }
-
-  /**
-   * Children of this class must implement this method to be used when
-   * displaying the page. The method should fill the protected
-   * variable $PAGE, which is an instance of TScorePage
-   *
-   * @param Array $args arguments to customize the display of the page
-   */
-  abstract protected function fillHTML(Array $args);
 
   // ------------------------------------------------------------
   // Static methods
