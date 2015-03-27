@@ -2271,6 +2271,11 @@ input, button {
 .regatta-list .reg-host, .regatta-list .reg-type {
     display: none;
 }
+
+#progressdiv {
+    margin: 15px 0;
+}
+
 }
 
 /*
