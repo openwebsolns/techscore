@@ -42,7 +42,8 @@ class TeamRacesDialog extends AbstractScoresDialog {
       $this->PAGE->addContent(new XWarning("There are no races for this regatta."));
       return;
     }
-    $this->PAGE->addContent(new TeamRacesTable($this->REGATTA));
+    $this->PAGE->addContent($p = new XPort("All races"));
+    $p->add(new TeamRacesTable($this->REGATTA));
   }
 }
 ?>
