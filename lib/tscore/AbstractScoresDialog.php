@@ -52,22 +52,5 @@ abstract class AbstractScoresDialog extends AbstractDialog {
     // Add meta tag
     $this->PAGE->head->add(new XMeta('timestamp', date('Y-m-d H:i:s')));
   }
-
-  /**
-   * Prepares the tiebreakers legend element (now a table) and returns it.
-   *
-   * @param Array $tiebreaker the associative array of symbol => explanation
-   * @param Array $outside_schools optional list of outside schools
-   * @return XElem probably a table
-   */
-  protected function getLegend(Array $tiebreakers, Array $outside_schools = array()) {
-    $tab = new XQuickTable(array('class'=>'tiebreaker'), array("Sym.", "Explanation"));
-    array_shift($tiebreakers);
-    foreach ($tiebreakers as $exp => $ast)
-      $tab->addRow(array($ast, new XTD(array('class'=>'explanation'), $exp)));
-    foreach ($outside_schools as $exp => $ast)
-      $tab->addRow(array($ast, new XTD(array('class'=>'explanation'), sprintf("%s sailor", $exp))));
-    return $tab;
-  }
 }
 ?>
