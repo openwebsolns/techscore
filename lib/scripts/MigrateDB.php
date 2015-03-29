@@ -1,4 +1,6 @@
 <?php
+use \utils\BatchedDirListing;
+
 /*
  * This file is part of TechScore
  *
@@ -85,7 +87,6 @@ strongly recommended that privilege is granted.
     $TEMPP = new TSNewSchema();
 
     // FILL TEMPORARY TABLE
-    require_once('utils/BatchedDirListing.php');
     $vat = new BatchedDirListing($this->getUpDir());
     $vat->filterByRegexp('/^[0-9]{5}_.+\.sql$/');
 
