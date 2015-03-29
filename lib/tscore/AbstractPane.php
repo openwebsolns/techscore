@@ -121,13 +121,15 @@ abstract class AbstractPane {
           unset($contextMenu[$pane]);
         }
 
-        // Exceptions
-        if ($title == "Rounds") {
-          // Add one for each round
-          foreach ($this->REGATTA->getRounds() as $round) {
-            $m_list->add(new XLi(new XA($this->link('round', array('r'=>$round->id)), $round)));
-          }
+      }
+
+      // Exceptions
+      if ($title == "Rounds") {
+        // Add one for each round
+        foreach ($this->REGATTA->getRounds() as $round) {
+          $m_list->add(new XLi(new XA($this->link('round', array('r'=>$round->id)), $round)));
         }
+      }
 
         // Logic to incorporate
         /*
@@ -147,7 +149,6 @@ abstract class AbstractPane {
         }
         */
 
-      }
       $this->PAGE->addMenu($menu);
     }
 
