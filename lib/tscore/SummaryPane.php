@@ -1,4 +1,6 @@
 <?php
+use \ui\ProgressDiv;
+
 /*
  * This file is part of TechScore
  *
@@ -35,7 +37,7 @@ class SummaryPane extends AbstractPane {
         $day = $this->REGATTA->getDayBasedOnTime(DB::T(DB::NOW));
       }
 
-      $prog = new XP(array('id'=>'progressdiv'));
+      $prog = new ProgressDiv();
       $this->PAGE->addContent($prog);
 
       $s = clone($this->REGATTA->start_time);
@@ -47,11 +49,11 @@ class SummaryPane extends AbstractPane {
         }
 
         if ($i == $day) {
-          $prog->add(new XSpan($s->format('l, F j, Y'), array('class'=>'current')));
+          $prog->addCurrent($s->format('l, F j, Y'));
           $summary_day = clone($s);
         }
         else {
-          $prog->add(new XA($this->link('summary', array('day'=>$i)), $s->format('l, F j, Y')));
+          $prog->addStage($s->format('l, F j, Y'), $this->link('summary', array('day'=>$i)));
         }
         $s->add(new DateInterval('P1DT0H'));
       }

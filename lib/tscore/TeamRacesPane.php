@@ -1,4 +1,6 @@
 <?php
+use \ui\ProgressDiv;
+
 /*
  * This file is part of TechScore
  *
@@ -87,7 +89,7 @@ class TeamRacesPane extends AbstractRoundPane {
     // Progress report
     // ------------------------------------------------------------
     $this->PAGE->addContent($f = $this->createForm());
-    $f->add($prog = new XP(array('id'=>'progressdiv')));
+    $f->add($prog = new ProgressDiv());
     $this->fillProgress($prog, $MAX_STEP, $STEP);
 
     // ------------------------------------------------------------
@@ -556,14 +558,15 @@ window.addEventListener("load", function(e) {
                    "Finishes",
                    "Review");
     for ($i = 0; $i < $max + 1; $i++) {
-      $prog->add($span = new XSpan(new XA($this->link('races', array('step' => $i)), $steps[$i])));
-      if ($i == $step)
-        $span->set('class', 'current');
-      else
-        $span->set('class', 'completed');
+      $prog->addStage(
+        $steps[$i],
+        $this->link('races', array('step' => $i)),
+        ($i == $step),
+        true);
     }
-    for ($i = $max + 1; $i < count($steps); $i++)
-      $prog->add(new XSpan($steps[$i]));
+    for ($i = $max + 1; $i < count($steps); $i++) {
+      $prog->addStage($steps[$i]);
+    }
   }
 
   /**

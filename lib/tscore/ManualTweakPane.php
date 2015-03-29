@@ -1,4 +1,6 @@
 <?php
+use \ui\ProgressDiv;
+
 /*
  * This file is part of TechScore
  *
@@ -33,13 +35,13 @@ class ManualTweakPane extends AbstractPane {
       $port_title = "Manual rotation for division " . $chosen_div;
 
       // Provide links to change division
-      $this->PAGE->addContent($prog = new XP(array('id'=>'progressdiv')));
+      $this->PAGE->addContent($prog = new ProgressDiv());
       foreach ($exist_div as $div) {
         $mes = sprintf("Division %s", $div);
-        if ($div != $chosen_div)
-          $prog->add(new XA($this->link('manual-rotation', array('division'=>(string)$div)), $mes));
-        else
-          $prog->add(new XSpan($mes, array('class'=>'current')));
+        $prog->addStage(
+          $mes,
+          $this->link('manual-rotation', array('division'=>(string)$div)),
+          $div == $chosen_div);
       }
 
       $divraces = $this->REGATTA->getRaces($chosen_div);

@@ -1,4 +1,6 @@
 <?php
+use \ui\ProgressDiv;
+
 /*
  * This file is part of TechScore
  *
@@ -36,11 +38,12 @@ class TeamEditRoundPane extends AbstractRoundPane {
                                    self::DELETE => "Delete");
   
   private function fillProgressDiv(Round $round, $section) {
-    $this->PAGE->addContent($p = new XP(array('id'=>'progressdiv')));
+    $this->PAGE->addContent($p = new ProgressDiv());
     foreach (self::$SECTIONS as $key => $title) {
-      $p->add($span = new XSpan(new XA($this->link('round', array('r'=>$round->id, 'section'=>$key)), $title)));
-      if ($section == $key)
-        $span->set('class', 'current');
+      $p->addStage(
+        $title,
+        $this->link('round', array('r'=>$round->id, 'section'=>$key)),
+        ($section == $key));
     }
   }
 
