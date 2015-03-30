@@ -1,4 +1,6 @@
 <?php
+use \ui\ProgressDiv;
+
 /*
  * This file is part of TechScore
  *
@@ -80,7 +82,7 @@ class SendMessage extends AbstractAdminUserPane {
     // Progress report
     // ------------------------------------------------------------
     $this->PAGE->addContent($f = $this->createForm(XForm::GET));
-    $f->add($prog = new XP(array('id'=>'progressdiv')));
+    $f->add($prog = new ProgressDiv());
     $step = $this->calculateProgress($prog, $outbox);
 
     switch ($step) {
@@ -440,23 +442,23 @@ class SendMessage extends AbstractAdminUserPane {
     );
 
     if ($outbox->recipients) {
-      $prog->add(new XSpan(new XA($this->link(), $steps[0]), array('class'=>'completed')));
+      $prog->addCompleted($steps[0], $this->link());
 
       if ($outbox->arguments !== null) {
-        $prog->add(new XSpan(new XA($this->link(array('axis' => $outbox->recipients)), $steps[1]), array('class'=>'completed')));
-        $prog->add(new XSpan($steps[2], array('class'=>'current')));
+        $prog->addCompleted($steps[1], $this->link(array('axis' => $outbox->recipients)));
+        $prog->addCurrent($steps[2]);
         return 2;
       }
 
-      $prog->add(new XSpan(new XA($this->link(array('axis' => $outbox->recipients)), $steps[1]), array('class'=>'current')));
-      $prog->add(new XSpan($steps[2]));
+      $prog->addCurrent($steps[1]);
+      $prog->addStage($steps[2]);
       return 1;
     }
 
     // Step 0
-    $prog->add(new XSpan(new XA($this->link(), $steps[0]), array('class'=>'current')));
-    $prog->add(new XSpan($steps[1]));
-    $prog->add(new XSpan($steps[2]));
+    $prog->addCurrent($steps[0]);
+    $prog->addStage($steps[1]);
+    $prog->addStage($steps[2]);
     return 0;
   }
 }

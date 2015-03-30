@@ -1,4 +1,6 @@
 <?php
+use \ui\Pane;
+
 /*
  * This file is part of TechScore
  *
@@ -13,7 +15,7 @@ require_once('xml5/TS.php');
  * @author Dayan Paez
  * @version 2009-09-27
  */
-abstract class AbstractPane {
+abstract class AbstractPane implements Pane {
 
   // Private variables
   private $name;
@@ -121,13 +123,15 @@ abstract class AbstractPane {
           unset($contextMenu[$pane]);
         }
 
-        // Exceptions
-        if ($title == "Rounds") {
-          // Add one for each round
-          foreach ($this->REGATTA->getRounds() as $round) {
-            $m_list->add(new XLi(new XA($this->link('round', array('r'=>$round->id)), $round)));
-          }
+      }
+
+      // Exceptions
+      if ($title == "Rounds") {
+        // Add one for each round
+        foreach ($this->REGATTA->getRounds() as $round) {
+          $m_list->add(new XLi(new XA($this->link('round', array('r'=>$round->id)), $round)));
         }
+      }
 
         // Logic to incorporate
         /*
@@ -147,7 +151,6 @@ abstract class AbstractPane {
         }
         */
 
-      }
       $this->PAGE->addMenu($menu);
     }
 
@@ -205,7 +208,7 @@ abstract class AbstractPane {
    *
    * @param Array $args the arguments to this page
    */
-  final public function getHTML(Array $args) {
+  final public function processGET(Array $args) {
     $this->setupPage();
     if (!$this->participant_mode) {
       if (!$this->has_teams) {

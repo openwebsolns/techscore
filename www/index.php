@@ -84,7 +84,7 @@ if (Conf::$USER === null) {
     Session::s('POST', $PAGE->processPOST($_POST));
     WS::goBack('/');
   }
-  $PAGE->getHTML($_GET);
+  $PAGE->processGET($_GET);
   exit;
 }
 
@@ -98,14 +98,14 @@ if ($URI_TOKENS[0] == 'license') {
     $PAGE->processPOST($_POST);
     WS::go('/');
   }
-  $PAGE->getHTML($_GET);
+  $PAGE->processGET($_GET);
   exit;
 }
 if ($URI_TOKENS[0] == 'logout') {
   $_GET['dir'] = 'out';
   require_once('users/LoginPage.php');
   $PAGE = new LoginPage();
-  $PAGE->getHTML(array('dir'=>'out'));
+  $PAGE->processGET(array('dir'=>'out'));
   exit;
 }
 DB::requireActive(Conf::$USER);
@@ -264,7 +264,7 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
     $post = Session::g('POST');
     if (is_array($post))
       $args = array_merge($post, $args);
-    $PAGE->getHTML($args);
+    $PAGE->processGET($args);
     exit;
   }
   catch (PermissionException $e) {
@@ -320,7 +320,7 @@ try {
   }
   $post = Session::g('POST');
   $args = array_merge((is_array($post)) ? $post : array(), $_GET);
-  $PAGE->getHTML($args);
+  $PAGE->processGET($args);
 }
 catch (PaneException $e) {
   Session::pa(new PA($e->getMessage(), PA::E));

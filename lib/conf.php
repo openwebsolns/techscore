@@ -154,10 +154,18 @@ class Conf {
    *
    */
   public static function autoload($name) {
+    // Check via namespace. Also check in 'model' directory.
     // Check only in the 'model' folder
-    $name = sprintf('%s/model/%s.php', __DIR__, str_replace('\\', '/', $name));
+    $translation = str_replace('\\', '/', $name);
+    $name = sprintf('%s/%s.php', __DIR__, $translation);
     if (file_exists($name)) {
       require_once($name);
+    }
+    else {
+      $name = sprintf('%s/model/%s.php', __DIR__, $translation);
+      if (file_exists($name)) {
+        require_once($name);
+      }
     }
   }
 
