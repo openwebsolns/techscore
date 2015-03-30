@@ -23,7 +23,7 @@ class SearchSailor extends AbstractUserPane {
    * TScorePage
    *
    */
-  public function getHTML(Array $args) {
+  public function processGET(Array $args) {
     if ($_SERVER['HTTP_ACCEPT'] == 'application/json') {
       // Json output instead
       header('Content-type: application/json');

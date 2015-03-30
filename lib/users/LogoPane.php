@@ -8,7 +8,7 @@
 require_once('users/AbstractUserPane.php');
 
 /**
- * Echoes back the Techscore logo, while tracking for read tokens
+ * Echoes back the Techscore logo, while tracking for read tokens.
  *
  * This pane is only available in GET. Its main function is to return
  * the Techscore logo, which is linked to this page in e-mail
@@ -30,7 +30,7 @@ class LogoPane extends AbstractUserPane {
    * Overrides the parent's method to return logo
    *
    */
-  public function getHTML(Array $args) {
+  public function processGET(Array $args) {
 
     // Is there a token attached?
     if (isset($args['q'])) {

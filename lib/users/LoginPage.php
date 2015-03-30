@@ -64,9 +64,9 @@ class LoginPage extends AbstractUserPane {
    * Override parent in order to supply 403 header
    *
    */
-  public function getHTML(Array $args) {
+  public function processGET(Array $args) {
     header('HTTP/1.1 403 Forbidden');
-    parent::getHTML($args);
+    parent::processGET($args);
   }
 
   public function process(Array $args) {

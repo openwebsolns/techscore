@@ -1,4 +1,5 @@
 <?php
+use \ui\Pane;
 use \utils\RouteManager;
 use \utils\Context;
 
@@ -14,13 +15,13 @@ class PaneException extends Exception {}
 
 /**
  * This is the parent class of all user's editing panes. It insures a
- * function called getHTML() exists which only populates a page if so
- * necessary. This page is modeled after tscore/AbstractPane
+ * function called processGET() exists which only populates a page if so
+ * necessary. This page is modeled after tscore/AbstractPane.
  *
  * @author Dayan Paez
- * @version   2010-04-12
+ * @version 2010-04-12
  */
-abstract class AbstractUserPane {
+abstract class AbstractUserPane implements Pane {
 
   protected $USER;
   protected $PAGE;
@@ -52,7 +53,7 @@ abstract class AbstractUserPane {
    * @param Array $args the arguments to consider
    * @return String the HTML code
    */
-  public function getHTML(Array $args) {
+  public function processGET(Array $args) {
     require_once('xml5/TScorePage.php');
     $this->PAGE = new TScorePage($this->title, $this->USER);
 
