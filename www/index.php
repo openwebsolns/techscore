@@ -1,4 +1,6 @@
 <?php
+use \tscore\AbstractDownloadDialog;
+
 /**
  * Gateway to the program TechScore. Manage all session information
  * and direct traffic.
@@ -180,82 +182,12 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
     }
 
     if ($BASE == 'download') {
-      $st = $REG->start_time;
-      $nn = $REG->nick;
-      if (count($REG->getTeams()) == 0 || count($REG->getDivisions()) == 0) {
-        Session::pa(new PA("First create teams and divisions before downloading.", PA::I));
-        WS::go('/score/'.$REG->id);
-      }
+      require_once('tscore/AbstractDialog.php');
+      $PAGE = AbstractDownloadDialog::getDownloadDialog($URI_TOKENS, Conf::$USER, $REG);
 
-      if (count($URI_TOKENS) == 0) {
-        Session::pa(new PA("Nothing to download. Please try again.", PA::I));
-        WS::go('/score/'.$REG->id);
-      }
-      switch ($URI_TOKENS[0]) {
-
-        // --------------- REGATTA ---------------//
-        /*
-          case "":
-          case "regatta":
-          $name = sprintf("%s-%s.tsr", $st->format("Y"), $nn);
-          header("Content-type: text/xml");
-          header(sprintf('Content-disposition: attachment; filename="%s"', $name));
-          echo RegattaIO::toXML($REG);
-          break;
-        */
-
-        // --------------- RP FORMS --------------//
-      case 'rp':
-      case 'rpform':
-      case 'rps':
-        $name = sprintf('%s-%s-rp', $st->format('Y'), $nn);
-        $rp = $REG->getRpManager();
-        if ($rp->isFormRecent())
-          $data = $rp->getForm();
-        else {
-          $form = DB::getRpFormWriter($REG);
-          if ($form === null) {
-            Session::pa(new PA("Downloadable PDF forms are not available for this regatta type.", PA::I));
-            WS::go('/score/'.$REG->id);
-          }
-
-          $sock = DB::g(STN::PDFLATEX_SOCKET);
-          if ($sock === null)
-            $data = $form->makePdf($REG);
-          else
-            $data = $form->socketPdf($REG, $sock);
-
-          if ($data === null) {
-            Session::pa(new PA("Downloadable PDF forms are not available for this regatta type.", PA::I));
-            WS::go('/score/'.$REG->id);
-          }
-
-          $rp->setForm($data);
-        }
-
-        header('Content-type: application/pdf');
-        header(sprintf('Content-Disposition: attachment; filename="%s.pdf"', $name));
-        echo $data;
-        exit;
-
-        // --------------- RP Templates ---------------//
-      case 'rp-template':
-      case 'rp-empty':
-        $form = DB::getRpFormWriter($REG);
-        if ($form === null || ($name = $form->getPdfName()) === null) {
-          Session::pa(new PA("Empty PDF forms are not available for this regatta type.", PA::I));
-          WS::go('/score/'.$REG->id);
-        }
-
-        header('Content-type: application/pdf');
-        header(sprintf('Content-Disposition: attachment; filename="%s"', basename($name)));
-        echo file_get_contents($name);
-        exit;
-
-        // --------------- default ---------------//
-      default:
-        $mes = sprintf("Invalid download requested (%s)", $_GET['d']);
-        Session::pa(new PA("Invalid download requested.", PA::I));
+      if ($PAGE === null) {
+        $mes = sprintf("Invalid download requested (%s)", implode('/', $URI_TOKENS));
+        Session::pa(new PA($mes, PA::I));
         WS::go('/score/'.$REG->id);
       }
     }
