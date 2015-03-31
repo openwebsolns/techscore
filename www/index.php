@@ -186,23 +186,9 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
       $PAGE = AbstractDownloadDialog::getDownloadDialog($URI_TOKENS, Conf::$USER, $REG);
 
       if ($PAGE === null) {
-        $st = $REG->start_time;
-        $nn = $REG->nick;
-        if (count($REG->getTeams()) == 0 || count($REG->getDivisions()) == 0) {
-          Session::pa(new PA("First create teams and divisions before downloading.", PA::I));
-          WS::go('/score/'.$REG->id);
-        }
-
-        if (count($URI_TOKENS) == 0) {
-          Session::pa(new PA("Nothing to download. Please try again.", PA::I));
-          WS::go('/score/'.$REG->id);
-        }
-        switch ($URI_TOKENS[0]) {
-        default:
-          $mes = sprintf("Invalid download requested (%s)", $_GET['d']);
-          Session::pa(new PA("Invalid download requested.", PA::I));
-          WS::go('/score/'.$REG->id);
-        }
+        $mes = sprintf("Invalid download requested (%s)", implode('/', $URI_TOKENS));
+        Session::pa(new PA($mes, PA::I));
+        WS::go('/score/'.$REG->id);
       }
     }
 
