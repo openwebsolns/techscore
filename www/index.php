@@ -1,4 +1,6 @@
 <?php
+use \tscore\AbstractDownloadDialog;
+
 /**
  * Gateway to the program TechScore. Manage all session information
  * and direct traffic.
@@ -181,7 +183,7 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
 
     if ($BASE == 'download') {
       require_once('tscore/AbstractDialog.php');
-      $PAGE = AbstractDialog::getDownloadDialog($URI_TOKENS, Conf::$USER, $REG);
+      $PAGE = AbstractDownloadDialog::getDownloadDialog($URI_TOKENS, Conf::$USER, $REG);
 
       if ($PAGE === null) {
         $st = $REG->start_time;

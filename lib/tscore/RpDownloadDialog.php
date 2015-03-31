@@ -1,8 +1,6 @@
 <?php
 namespace tscore;
 
-use \AbstractDialog;
-
 use \Session;
 use \PA;
 
@@ -10,8 +8,6 @@ use \Account;
 use \DB;
 use \FullRegatta;
 use \STN;
-
-require_once('AbstractDialog.php');
 
 /**
  * Download the filled RP form for a given regatta.
@@ -21,7 +17,7 @@ require_once('AbstractDialog.php');
  * @author Dayan Paez
  * @version 2015-03-30
  */
-class RpDownloadDialog extends AbstractDialog {
+class RpDownloadDialog extends AbstractDownloadDialog {
 
   /**
    * Create a new RP download dialog.
@@ -31,14 +27,6 @@ class RpDownloadDialog extends AbstractDialog {
    */
   public function __construct(Account $user, FullRegatta $reg) {
     parent::__construct("Download RP", $user, $reg);
-  }
-
-  /**
-   * Not used directly.
-   *
-   */
-  public function fillHTML(Array $args) {
-    // Empty, due to overridden processGET.
   }
 
   /**
