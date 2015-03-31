@@ -198,22 +198,6 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
           WS::go('/score/'.$REG->id);
         }
         switch ($URI_TOKENS[0]) {
-
-          // --------------- RP Templates ---------------//
-        case 'rp-template':
-        case 'rp-empty':
-          $form = DB::getRpFormWriter($REG);
-          if ($form === null || ($name = $form->getPdfName()) === null) {
-            Session::pa(new PA("Empty PDF forms are not available for this regatta type.", PA::I));
-            WS::go('/score/'.$REG->id);
-          }
-
-          header('Content-type: application/pdf');
-          header(sprintf('Content-Disposition: attachment; filename="%s"', basename($name)));
-          echo file_get_contents($name);
-          exit;
-
-          // --------------- default ---------------//
         default:
           $mes = sprintf("Invalid download requested (%s)", $_GET['d']);
           Session::pa(new PA("Invalid download requested.", PA::I));

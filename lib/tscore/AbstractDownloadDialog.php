@@ -58,6 +58,11 @@ abstract class AbstractDownloadDialog extends AbstractDialog {
       return new RpDownloadDialog($u, $r);
 
 
+      // --------------- RP Templates ---------------//
+    case 'rp-template':
+    case 'rp-empty':
+      return new RpTemplateDownload($u, $r);
+
       // --------------- default ----------------//
     default:
       return null;
