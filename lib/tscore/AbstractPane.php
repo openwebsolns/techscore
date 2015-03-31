@@ -29,6 +29,7 @@ abstract class AbstractPane implements Pane {
   protected $has_rots = false;
   protected $has_scores = false;
   protected $has_penalty = false;
+  protected $has_rp_writer = false;
 
   /**
    * @var boolean UI mode (true = participant) default = false
@@ -53,6 +54,7 @@ abstract class AbstractPane implements Pane {
     $this->has_rots = $this->has_teams && $rot->isAssigned();
     $this->has_scores = $this->has_teams && $this->REGATTA->hasFinishes();
     $this->has_penalty = $this->has_scores && $this->REGATTA->hasPenalties();
+    $this->rp_writer = DB::getRpFormWriter($this->REGATTA);
   }
 
   /**
@@ -133,44 +135,8 @@ abstract class AbstractPane implements Pane {
         }
       }
 
-        // Logic to incorporate
-        /*
-        if ($title == "RP Forms" && $this->REGATTA->scoring == Regatta::SCORING_TEAM) {
-          // Downloads
-          if ($this->has_teams && ($form = DB::getRpFormWriter($this->REGATTA)) !== null) {
-            $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp', $id)), "Download")));
-            if (($name = $form->getPdfName()) !== null)
-              $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp-template', $id)), "RP Template")));
-            else
-              $m_list->add(new XLi("RP Template", array('class'=>'inactive')));
-          }
-          else {
-            $m_list->add(new XLi("Download", array('class'=>'inactive', 'title'=>"No PDF forms available.")));
-            $m_list->add(new XLi("RP Template", array('class'=>'inactive', 'title'=>"No PDF forms available.")));
-          }
-        }
-        */
-
       $this->PAGE->addMenu($menu);
     }
-
-    /*
-    if ($this->REGATTA->scoring != Regatta::SCORING_TEAM) {
-      // Downloads
-      $menu = new XDiv(array('class'=>'menu'), array(new XH4("Download"), $m_list = new XUl()));
-      $add = false;
-      if ($this->has_teams && $this->has_races) {
-        if (($form = DB::getRpFormWriter($this->REGATTA)) !== null) {
-          $add = true;
-          $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp', $id)), "Filled RP")));
-          if (($name = $form->getPdfName()) !== null)
-            $m_list->add(new XLi(new XA(WS::link(sprintf('/download/%s/rp-template', $id)), "RP Template")));
-        }
-      }
-      if ($add)
-        $this->PAGE->addMenu($menu);
-    }
-    */
 
     // Context menu
     $this->setContextMenu(
@@ -592,6 +558,12 @@ abstract class AbstractPane implements Pane {
         return $this->has_races;
       return $this->has_rots;
 
+    case 'RpDownloadDialog':
+      return $this->has_teams && $this->rp_writer !== null;
+
+    case 'RpTemplateDownload':
+      return $this->has_teams && $this->rp_writer !== null && $this->rp_writer->getPdfName() !== null;
+
     case 'ScoresChartDialog':
     case 'ScoresCombinedDialog':
     case 'ScoresDivisionalDialog':
@@ -602,26 +574,6 @@ abstract class AbstractPane implements Pane {
     case 'TeamRankingDialog':
       return $this->has_scores;
       
-    default:
-      return true;
-    }
-  }
-
-  /**
-   * Applies exclusively to dialogs
-   *
-   * @deprecated
-   */
-  private function doActiveDialog($class_name) {
-    switch ($class_name) {
-    case 'rotation':
-      if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
-        return $this->has_races;
-      return $this->has_rots;
-
-    case 'scores':
-      return $this->has_scores;
-
     default:
       return true;
     }
@@ -838,6 +790,7 @@ abstract class AbstractPane implements Pane {
         'UnregisteredSailorPane',
         'RpMissingPane',
         'RegistrationsDialog',
+        'RpDownloadDialog',
       ),
       "Finishes" => array(
         'EnterFinishPane',
@@ -847,7 +800,8 @@ abstract class AbstractPane implements Pane {
         'ScoresFullDialog',
       ),
       "Downloads" => array(
-        // TODO
+        'RpDownloadDialog',
+        'RpTemplateDownload',
       ),
       "Windows" => array(
         'RotationDialog',
@@ -927,6 +881,8 @@ abstract class AbstractPane implements Pane {
     'BoatsDialog'            => '/view/%s/boats',
     'RegistrationsDialog'    => '/view/%s/sailors',
     'RotationDialog'         => '/view/%s/rotation',
+    'RpDownloadDialog'       => '/download/%s/rp',
+    'RpTemplateDownload'     => '/download/%s/rp-template',
     'ScoresChartDialog'      => '/view/%s/chart',
     'ScoresCombinedDialog'   => '/view/%s/combined',
     'ScoresDivisionalDialog' => '/view/%s/ranking',
@@ -977,6 +933,8 @@ abstract class AbstractPane implements Pane {
     'BoatsDialog'            => 'Boat rankings',
     'RegistrationsDialog'    => 'View registrations',
     'RotationDialog'         => 'View rotations',
+    'RpDownloadDialog'       => 'Download filled RP',
+    'RpTemplateDownload'     => 'RP Template',
     'ScoresChartDialog'      => 'Rank chart',
     'ScoresCombinedDialog'   => 'View combined scores',
     'ScoresDivisionalDialog' => 'View division rank',
