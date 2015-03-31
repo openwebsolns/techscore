@@ -1,4 +1,6 @@
 <?php
+use \tscore\RpDownloadDialog;
+
 /*
  * This class is part of TechScore
  *
@@ -130,6 +132,37 @@ abstract class AbstractDialog extends AbstractPane {
           return null;
         require_once('tscore/BoatsDialog.php');
         return new BoatsDialog($u, $r);
+
+        // --------------- default ----------------//
+      default:
+        return null;
+      }
+    }
+    catch (Exception $e) { // semaphore exception?
+      return null;
+    }
+  }
+
+  /**
+   * Returns a new instance of a dialog for the given download URL.
+   *
+   * Assumption: full URL is of form /download/<reg>/<args/to/this/method>.
+   *
+   * @see getDialog
+   */
+  public static function getDownloadDialog(Array $uri, Account $u, FullRegatta $r) {
+    if (count($uri) == 0) {
+      return null;
+    }
+
+    try {
+      switch ($uri[0]) {
+        // --------------- RP FORMS --------------//
+      case 'rp':
+      case 'rpform':
+      case 'rps':
+        return new RpDownloadDialog($u, $r);
+
 
         // --------------- default ----------------//
       default:

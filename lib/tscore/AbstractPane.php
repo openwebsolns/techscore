@@ -208,7 +208,7 @@ abstract class AbstractPane implements Pane {
    *
    * @param Array $args the arguments to this page
    */
-  final public function processGET(Array $args) {
+  public function processGET(Array $args) {
     $this->setupPage();
     if (!$this->participant_mode) {
       if (!$this->has_teams) {
