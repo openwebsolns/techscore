@@ -158,7 +158,7 @@ class RpEnterPane extends AbstractPane {
     $this->PAGE->addContent($rpform = $this->createForm());
     $rpform->add(new XHiddenInput("chosen_team", $chosen_team->id));
     $rpManager = $this->REGATTA->getRpManager();
-    $attendees = $rpManager->getAttendees($chosen_team->school);
+    $attendees = $rpManager->getAttendees($chosen_team);
 
     // ------------------------------------------------------------
     // - Create option lists
@@ -384,9 +384,8 @@ class RpEnterPane extends AbstractPane {
     // Attendees
     // ------------------------------------------------------------
     if (isset($args['set-attendees'])) {
-      $school = $team->school;
-      $this->processAttendees($school, $args);
-      Session::pa(new PA(sprintf("Added %s as attendees for school %s.", count($sailor), $school->name)));
+      $this->processAttendees($team, $args);
+      Session::pa(new PA(sprintf("Added %s as attendees for team %s.", count($sailor), $team)));
     }
 
     // ------------------------------------------------------------
@@ -396,7 +395,7 @@ class RpEnterPane extends AbstractPane {
 
       $rpManager->reset($team);
 
-      $this->processAttendees($team->school, $args);
+      $this->processAttendees($team, $args);
       $attendees = $rpManager->getAttendees($team->school);
       $sailors = array();
       foreach ($attendees as $attendee) {
@@ -586,7 +585,7 @@ class RpEnterPane extends AbstractPane {
    * @return list of sailors
    * @throws SoterException on invalid arguments.
    */
-  protected function processAttendees(School $school, Array $args) {
+  protected function processAttendees(Team $team, Array $args) {
     $cur_season = Season::forDate(DB::T(DB::NOW));
     $active = 'all';
     if ((string)$cur_season ==  (string)$this->REGATTA->getSeason())
@@ -602,7 +601,7 @@ class RpEnterPane extends AbstractPane {
       if ($sailor === null) {
         throw new SoterException(sprintf("Invalid sailor ID provided: %s.", $id));
       }
-      if (!$cross_rp && $sailor->school->id != $school->id) {
+      if (!$cross_rp && $sailor->school->id != $team->school->id) {
         throw new SoterException(sprintf("Sailor provided (%s) cannot sail for given school.", $sailor));
       }
       if ($gender !== null && $gender != $sailor->gender) {
@@ -615,7 +614,7 @@ class RpEnterPane extends AbstractPane {
     }
 
     $rpManager = $this->REGATTA->getRpManager();
-    $rpManager->setAttendees($school, $sailors);
+    $rpManager->setAttendees($team, $sailors);
     return $sailors;
   }
 }

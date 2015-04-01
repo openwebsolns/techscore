@@ -18,18 +18,15 @@
  */
 class Attendee extends DBObject {
   
-  protected $regatta;
-  protected $school;
+  protected $team;
   protected $sailor;
   protected $added_by;
   protected $added_on;
 
   public function db_type($field) {
     switch($field) {
-    case 'regatta':
-      return DB::T(DB::FULL_REGATTA);
-    case 'school':
-      return DB::T(DB::SCHOOL);
+    case 'team':
+      return DB::T(DB::TEAM);
     case 'sailor':
       return DB::T(DB::SAILOR);
     case 'added_by':

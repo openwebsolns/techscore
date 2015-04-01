@@ -10,19 +10,17 @@ ALTER TABLE rp
 -- before starting, delete any sailors from rp with no boat role
 DELETE FROM rp WHERE boat_role = '';
 
-INSERT INTO attendee (regatta, school, sailor)
-  (SELECT DISTINCT team.regatta, team.school, rp.sailor
-   FROM rp INNER JOIN team ON (rp.team = team.id)
+INSERT INTO attendee (team, sailor)
+  (SELECT DISTINCT rp.team, rp.sailor
+   FROM rp
    WHERE rp.sailor IS NOT NULL
   )
 ;
 
 UPDATE rp, team, attendee 
  SET rp.attendee = attendee.id
- WHERE rp.team = team.id
+ WHERE rp.team = attendee.team
    AND rp.sailor IS NOT NULL
-   AND team.school = attendee.school
-   AND team.regatta = attendee.regatta
    AND rp.sailor = attendee.sailor
 ;
 

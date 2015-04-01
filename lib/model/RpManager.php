@@ -361,24 +361,20 @@ class RpManager {
   /**
    * Gets the attendees for this regatta.
    *
-   * @param School $school the optional school to search.
+   * @param Team $team the team to search.
    * @return Array:Attendee the list of attendees.
    */
-  public function getAttendees(School $school = null) {
-    $cond = new DBCond('regatta', $this->regatta);
-    if ($school !== null) {
-      $cond = new DBBool(array($cond, new DBCond('school', $school)));
-    }
-    return DB::getAll(DB::T(DB::ATTENDEE), $cond);
+  public function getAttendees(Team $team) {
+    return DB::getAll(DB::T(DB::ATTENDEE), new DBCond('team', $team));
   }
 
   /**
-   * Set the list of attendees for the given school.
+   * Set the list of attendees for the given team.
    *
-   * @param School $school the school in question.
+   * @param Team $team the team in question.
    * @param Array $sailors the sailors to register.
    */
-  public function setAttendees(School $school, Array $sailors) {
+  public function setAttendees(Team $team, Array $sailors) {
     // Avoid deleting entries due to cascading nature of foreign
     // keys. Instead, compare the new list (newones) with the current
     // ones and add/remove accordingly.
@@ -389,10 +385,10 @@ class RpManager {
         throw new InvalidArgumentException(
           sprintf("Expected list of sailors; found %s.", gettype($sailor)));
       }
-      $newones[$sailor->id] = $this->prepareAttendee($school, $sailor);
+      $newones[$sailor->id] = $this->prepareAttendee($team, $sailor);
     }
 
-    foreach ($this->getAttendees($school) as $attendee) {
+    foreach ($this->getAttendees($team) as $attendee) {
       if (array_key_exists($attendee->sailor->id, $newones)) {
         unset($newones[$attendee->sailor->id]);
       }
@@ -407,13 +403,13 @@ class RpManager {
   /**
    * Adds the given individual attendee, if not already registered.
    *
-   * @param School $school the school to add.
+   * @param Team $team the team to add.
    * @param Sailor $sailor the sailor in attendance.
    * @return boolean true if added; false if already present.
    */
-  public function addAttendee(School $school, Sailor $sailor) {
-    if (!$this->isAttending($sailor, $school)) {
-      DB::set($this->prepareAttendee($school, $sailor));
+  public function addAttendee(Team $team, Sailor $sailor) {
+    if (!$this->isAttending($sailor, $team)) {
+      DB::set($this->prepareAttendee($team, $sailor));
       return true;
     }
     return false;
@@ -423,16 +419,16 @@ class RpManager {
    * Determines whether given sailor is attending this regatta.
    *
    * @param Sailor $sailor the sailor in question.
-   * @param School $school the optional school to limit search to.
+   * @param Team $team the optional team to limit search to.
    * @return boolean true if attending.
    */
-  public function isAttending(Sailor $sailor, School $school = null) {
+  public function isAttending(Sailor $sailor, Team $team = null) {
     $cond = new DBBool(
       array(
         new DBCond('regatta', $this),
         new DBCond('sailor', $sailor)));
-    if ($school !== null) {
-      $cond->add(new DBCond('school', $school));
+    if ($team !== null) {
+      $cond->add(new DBCond('team', $team));
     }
     $res = DB::getAll(DB::T(DB::ATTENDEE), $cond);
     return count($res) > 0;
@@ -442,10 +438,9 @@ class RpManager {
    * Helper method to create and setup the Attendee object.
    *
    */
-  private function prepareAttendee(School $school, Sailor $sailor) {
+  private function prepareAttendee(Team $team, Sailor $sailor) {
     $attendee = new Attendee();
-    $attendee->regatta = $this->regatta;
-    $attendee->school = $school;
+    $attendee->team = $team;
     $attendee->sailor = $sailor;
     $attendee->added_by = Conf::$USER;
     $attendee->added_on = DB::T(DB::NOW);

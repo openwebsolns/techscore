@@ -49,10 +49,15 @@ class RpManagerTest extends AbstractUnitTester {
       $someSailors[] = $sailors[$i];
     }
 
-    $rpManager = $this->standardRegatta->getRpManager();
-    $rpManager->setAttendees($school, $someSailors);
+    $team = new Team();
+    $team->school = $school;
+    $team->name = "Unit Test";
+    $this->standardRegatta->addTeam($team);
 
-    $attendees = $rpManager->getAttendees($school);
+    $rpManager = $this->standardRegatta->getRpManager();
+    $rpManager->setAttendees($team, $someSailors);
+
+    $attendees = $rpManager->getAttendees($team);
     $this->assertEquals(count($someSailors), count($attendees), "Comparing initially set attendee list");
 
     $attendeeIds = array();
@@ -64,9 +69,9 @@ class RpManagerTest extends AbstractUnitTester {
     $newSailor = $sailors[$i];
     $someSailors[] = $newSailor;
     array_shift($someSailors);
-    $rpManager->setAttendees($school, $someSailors);
+    $rpManager->setAttendees($team, $someSailors);
 
-    $attendees = $rpManager->getAttendees($school);
+    $attendees = $rpManager->getAttendees($team);
     $this->assertEquals(count($someSailors), count($attendees), "Comparing new attendee list");
 
     foreach ($attendees as $attendee) {
