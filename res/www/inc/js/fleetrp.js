@@ -37,6 +37,7 @@ function FleetRp(formElement, settings) {
 
     // faux constants for validation
     this.WAITING = "waiting";
+    this.WARNING = "warning";
     this.ERROR = "error";
     this.VALID = "valid";
 
@@ -183,7 +184,7 @@ FleetRp.prototype.check = function() {
 
         // missing races?
         if (rpEntry.sailor && rpEntry.races.length == 0) {
-            this.setCheckStatus(rpEntry.checkBox, this.ERROR, "Missing races");
+            this.setCheckStatus(rpEntry.checkBox, this.WARNING, "Missing races");
             globalErrors.push(
                 [rpEntry.role, "for", rpEntry.division, "division is missing races."].join(" ")
             );
@@ -192,7 +193,7 @@ FleetRp.prototype.check = function() {
 
         // missing sailor?
         if (!rpEntry.sailor && rpEntry.races.length > 0) {
-            this.setCheckStatus(rpEntry.checkBox, this.ERROR, "Missing sailor");
+            this.setCheckStatus(rpEntry.checkBox, this.WARNING, "Missing sailor");
             globalErrors.push(
                 [rpEntry.role, "for", rpEntry.division, "division is missing the sailor."].join(" ")
             );
@@ -219,6 +220,8 @@ FleetRp.prototype.check = function() {
         }
 
         // TODO:
+
+        this.setCheckStatus(rpEntry.checkBox, this.VALID);
     }
     console.log(globalErrors);
 };
@@ -231,7 +234,31 @@ FleetRp.prototype.check = function() {
  * @param reason the optional reason to attach.
  */
 FleetRp.prototype.setCheckStatus = function(cell, status, reason) {
-    // TODO:
+    switch (status) {
+    case this.WAITING:
+        cell.src = "/inc/img/question.png";
+        cell.setAttribute("alt", "?");
+        break;
+
+    case this.WARNING:
+        cell.src = "/inc/img/i.png";
+        cell.setAttribute("alt", "⚠");
+        break;
+
+    case this.ERROR:
+        cell.src = "/inc/img/e.png";
+        cell.setAttribute("alt", "X");
+        break;
+
+    case this.VALID:
+        cell.src = "/inc/img/s.png";
+        cell.setAttribute("alt", "✓");
+        break;
+
+    default:
+        throw "Unknown status provided.";
+    }
+    cell.setAttribute("title", reason);
 };
 
 /**

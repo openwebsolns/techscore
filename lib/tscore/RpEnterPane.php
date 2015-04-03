@@ -322,9 +322,10 @@ class RpEnterPane extends AbstractPane {
                 'size' => $size,
                 'class' => 'race_text')),
 
-            new XTD(
-              array('id' => 'rp-check-' . $ENTRY_ID),
-              new XImg('/inc/img/question.png', "Waiting to verify")),
+            new XImg(
+              '/inc/img/question.png',
+              '?',
+              array('id' => 'rp-check-' . $ENTRY_ID))
           ),
           array('class'=>'skipper'));
       }
@@ -371,9 +372,10 @@ class RpEnterPane extends AbstractPane {
                   'size' => $size,
                   'class' => 'race_text')),
 
-              new XTD(
-                array('id' => 'rp-check-' . $ENTRY_ID),
-                new XImg("/inc/img/question.png", "Waiting to verify")),
+              new XImg(
+                '/inc/img/question.png',
+                '?',
+                array('id' => 'rp-check-' . $ENTRY_ID))
             ),
             array('class'=>'crew'));
         }
