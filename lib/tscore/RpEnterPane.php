@@ -16,6 +16,24 @@ require_once("conf.php");
  * list of all sailors followed by a list of reserves, the two
  * disjointed and merged during processing to create attendees.
  *
+ * 2015-04-01: The RP data is now transmitted more properly composed
+ * using the following structure:
+ *
+ *   { rp:
+ *     { division:
+ *       { role:
+ *         [
+ *           { sailor: <sailor id>,
+ *             races:  <race nums>
+ *           },
+ *           ...
+ *         ]
+ *       }
+ *     }
+ *   }
+ *           
+ *     
+ *
  * @author Dayan Paez
  * @version 2010-01-21
  */
@@ -63,7 +81,6 @@ class RpEnterPane extends AbstractPane {
     $rpManager = $this->REGATTA->getRpManager();
     $divisions = $this->REGATTA->getDivisions();
     // Output
-    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/rp.js'));
     if (count($teams) > 1) {
       // ------------------------------------------------------------
       // Change team
@@ -155,8 +172,11 @@ class RpEnterPane extends AbstractPane {
     // ------------------------------------------------------------
     // RP Form
     // ------------------------------------------------------------
+    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/fleetrp.js'));
     $this->PAGE->addContent($rpform = $this->createForm());
-    $rpform->add(new XHiddenInput("chosen_team", $chosen_team->id));
+    $rpform->set('id', 'rpform');
+    $rpform->add(new XHiddenInput('chosen_team', $chosen_team->id));
+
     $rpManager = $this->REGATTA->getRpManager();
     $attendees = $rpManager->getAttendees($chosen_team);
 
@@ -198,9 +218,20 @@ class RpEnterPane extends AbstractPane {
 
     // ------------------------------------------------------------
     // - Fill out form
+    // use a global counter to match corresponding sailor-races-check cells.
+    $ENTRY_ID = 0;
+    // encode the crew participation information for the benefit of fleetrp.js
+    $crews_per_division = array();
     foreach ($divisions as $div) {
       // Get races and its occupants
       $occ = $this->getOccupantsRaces($div, $chosen_team);
+
+      $crews_per_division[(string)$div] = array();
+      foreach ($occ as $num => $races) {
+        foreach ($races as $race) {
+          $crews_per_division[(string)$div][$race] = $num;
+        }
+      }
 
       // Fetch current rp's
       $cur_sk = $rps[(string)$div][RP::SKIPPER];
@@ -257,6 +288,7 @@ class RpEnterPane extends AbstractPane {
       // - Create skipper table
       // Write already filled-in spots + 2 more
       for ($spot = 0; $spot < count($cur_sk) + 2; $spot++) {
+        $ENTRY_ID++;
         $value = ""; // value for "races sailed"
         if ($spot < count($cur_sk))
           $value = DB::makeRange($cur_sk[$spot]->races_nums);
@@ -268,15 +300,33 @@ class RpEnterPane extends AbstractPane {
           else
             $cur_sk_id = $cur_sk[$spot]->sailor->id;
         }
-        $select_cell = XSelect::fromArray("sk$div$spot", $sailor_options, $cur_sk_id, array('onchange'=>'check()'));
-        $tab_skip->addRow(array($select_cell,
-                                new XRangeInput("rsk$div$spot", $value, array(),
-                                                array('size'=>$size,
-                                                      'class'=>'race_text',
-                                                      'onchange'=>'check()')),
-                                new XTD(array('id'=>"csk$div$spot"),
-                                        new XImg("/inc/img/question.png", "Waiting to verify"))),
-                          array("class"=>"skipper"));
+
+        $tab_skip->addRow(
+          array(
+            XSelect::fromArray(
+              "rp[$div][skipper][$spot][sailor]",
+              $sailor_options,
+              $cur_sk_id,
+              array(
+                'id' => 'rp-sailor-' . $ENTRY_ID,
+                'data-rp-division' => $div,
+                'data-rp-role' => RP::SKIPPER,
+                'data-rp-spot' => $spot)),
+
+            new XRangeInput(
+              "rp[$div][skipper][$spot][races]",
+              $value,
+              array(),
+              array(
+                'id' => 'rp-races-' . $ENTRY_ID,
+                'size' => $size,
+                'class' => 'race_text')),
+
+            new XTD(
+              array('id' => 'rp-check-' . $ENTRY_ID),
+              new XImg('/inc/img/question.png', "Waiting to verify")),
+          ),
+          array('class'=>'skipper'));
       }
 
       $num_crews = max(array_keys($occ));
@@ -287,6 +337,8 @@ class RpEnterPane extends AbstractPane {
 
         //    write already filled-in spots + 2 more
         for ($spot = 0; $spot < count($cur_cr) + 2; $spot++) {
+          $ENTRY_ID++;
+
           $value = ""; // value for "races sailed"
           if ($spot < count($cur_cr))
             $value = DB::makeRange($cur_cr[$spot]->races_nums);
@@ -299,15 +351,31 @@ class RpEnterPane extends AbstractPane {
               $cur_cr_id = $cur_cr[$spot]->sailor->id;
           }
 
-          $select_cell = XSelect::fromArray("cr$div$spot", $sailor_options, $cur_cr_id, array('onchange'=>'check()'));
-          $tab_crew->addRow(array($select_cell,
-                                  new XTextInput("rcr$div$spot", $value,
-                                                 array("size"=>$size,
-                                                       "class"=>"race_text",
-                                                       "onchange"=>
-                                                       "check()")),
-                                  new XTD(array('id'=>"ccr$div$spot"),
-                                          new XImg("/inc/img/question.png", "Waiting to verify"))));
+          $tab_crew->addRow(
+            array(
+              XSelect::fromArray(
+                "rp[$div][crew][$spot][sailor]",
+                $sailor_options,
+                $cur_cr_id,
+                array(
+                  'id' => 'rp-sailor-' . $ENTRY_ID,
+                  'data-rp-division' => $div,
+                  'data-rp-role' => RP::CREW,
+                  'data-rp-spot' => $spot)),
+
+              new XTextInput(
+                "rp[$div][crew][$spot][races]",
+                $value,
+                array(
+                  'id' => 'rp-races-' . $ENTRY_ID,
+                  'size' => $size,
+                  'class' => 'race_text')),
+
+              new XTD(
+                array('id' => 'rp-check-' . $ENTRY_ID),
+                new XImg("/inc/img/question.png", "Waiting to verify")),
+            ),
+            array('class'=>'crew'));
         }
       } // end if
     }
@@ -346,16 +414,13 @@ class RpEnterPane extends AbstractPane {
         "Include every sailor in attendance. Sailors added to the form above will be automatically included as reserves and need not be added explicitly here."
       ));
 
-    $p->add(new XP(array('class'=>'p-submit'),
-                   new XSubmitAccessible('set-attendees', "Set attendees")));
-
-
     // ------------------------------------------------------------
     // - Add submit
     $p->add(new XP(array('class'=>'p-submit'),
                    array(new XReset('reset', 'Reset'),
                          new XSubmitInput('rpform', 'Submit form', array('id'=>'rpsubmit')))));
-    $p->add(new XScript('text/javascript', null, 'check()'));
+
+    $rpform->set('data-crews-per-division', json_encode($crews_per_division));
   }
 
 
@@ -394,6 +459,11 @@ class RpEnterPane extends AbstractPane {
     if (isset($args['rpform'])) {
 
       $rpManager->reset($team);
+
+      // compose an artificial list of attendees by combining passed
+      // reserves and sailors
+      echo "<pre>"; print_r($args); "</pre>";
+      exit;
 
       $this->processAttendees($team, $args);
       $attendees = $rpManager->getAttendees($team->school);
@@ -499,15 +569,15 @@ class RpEnterPane extends AbstractPane {
       }
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RP, $team->school->id);
     }
-    return $args;
+    return;
   }
 
   /**
    * Return the number of the races in this division organized by
-   * number of occupants in the boats. The result associative array
-   * has keys which are the ranges of occupants (1-3) and values which
+   * number of crews in the boats. The result associative array
+   * has keys which are the number of crews (1-3) and values which
    * are a comma separated list of the race numbers in the division
-   * with that many occupants
+   * with that many occupants.
    *
    * @param Division $div the division
    * @param Team $team the team whose races to fetch
