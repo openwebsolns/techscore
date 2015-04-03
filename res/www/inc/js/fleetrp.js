@@ -167,8 +167,12 @@ FleetRp.prototype.prepare = function() {
 FleetRp.prototype.check = function() {
     var globalErrors = [];
 
-    // track validated crews per division, in order to check if others fit
-    var crews = {};
+    // track validated entries per role and division, in order to
+    // check if future ones like it fit
+    var validated = {
+        skipper: {},
+        crew: {}
+    };
     var rpEntries = this.prepare();
     for (var i = 0; i < rpEntries.length; i++) {
         var rpEntry = rpEntries[i];
@@ -201,23 +205,23 @@ FleetRp.prototype.check = function() {
         }
 
         // is there room?
-        if (rpEntry.role == "crew") {
-            if (!(rpEntry.division in crews)) {
-                crews[rpEntry.division] = [];
-            }
-
-            var badRaces = this.getRacesWithNoRoomFor(rpEntry, crews[rpEntry.division]);
-            if (badRaces.length > 0) {
-                var message = "Too many crews in " + this.makeRange(badRaces);
-                this.setCheckStatus(rpEntry.checkBox, this.ERROR, message);
-                globalErrors.push(
-                    [message, "for", rpEntry.division, "division."].join(" ")
-                );
-                continue;
-            }
-
-            crews[rpEntry.division].push(rpEntry);
+        if (!(rpEntry.division in validated[rpEntry.role])) {
+            validated[rpEntry.role][rpEntry.division] = [];
         }
+        var badRaces = this.getRacesWithNoRoomFor(
+            rpEntry,
+            validated[rpEntry.role][rpEntry.division]
+        );
+        if (badRaces.length > 0) {
+            var message = "Too many sailors in race(s) " + this.makeRange(badRaces);
+            this.setCheckStatus(rpEntry.checkBox, this.ERROR, message);
+            globalErrors.push(
+                [message, "for", rpEntry.division, "division."].join(" ")
+            );
+            continue;
+        }
+        validated[rpEntry.role][rpEntry.division].push(rpEntry);
+
 
         // TODO:
 
@@ -264,34 +268,37 @@ FleetRp.prototype.setCheckStatus = function(cell, status, reason) {
 /**
  * Determines the races for which the given rpEntry is NOT allowed.
  *
- * Some assumptions: otherCrews contains "valid" crews. No extra validation
+ * Some assumptions: otherEntries contains "valid" entries. No extra validation
  * is performed in this method.
  *
- * @param rpEntry a structure for a crew with division and races.
- * @param otherCrews list of crews in the same division.
+ * @param rpEntry a structure with role, division, and races.
+ * @param otherEntries list of entries in the same division and role
  * @return list of races with problems.
  */
-FleetRp.prototype.getRacesWithNoRoomFor = function(rpEntry, otherCrews) {
+FleetRp.prototype.getRacesWithNoRoomFor = function(rpEntry, otherEntries) {
     var badRaces = [];
 
     // process one race at a time
     for (var i = 0; i < rpEntry.races.length; i++) {
         var race = rpEntry.races[i];
 
-        var numCrews = 1; // counting this one
-        for (var j = 0; j < otherCrews.length; j++) {
-            var otherEntry = otherCrews[j];
+        var numEntries = 1; // counting this one
+        for (var j = 0; j < otherEntries.length; j++) {
+            var otherEntry = otherEntries[j];
             if (otherEntry.races.indexOf(race) >= 0) {
-                numCrews++;
+                numEntries++;
             }
         }
 
-        if (numCrews > this.crewsPerDivision[rpEntry.division][race]) {
+        var maximumAllowed = 1;
+        if (rpEntry.role == "crew") {
+            maximumAllowed = this.crewsPerDivision[rpEntry.division][race];
+        }
+        if (numEntries > maximumAllowed) {
             badRaces.push(race);
         }
     }
 
-    console.log("Bad races=" + badRaces);
     return badRaces;
 };
 
