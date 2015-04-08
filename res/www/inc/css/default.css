@@ -1166,14 +1166,27 @@ select.tr-filter, select.tr-filter:active, select.tr-filter:focus {
 }
 
 
+/* RP error box */
+
+.rp-error-box {
+    font-size: 80%;
+    padding-left: 2em;
+}
+
+.rp-error-error {
+    color: red;
+}
+
+.rp-error-warning {
+    color: #e67b07;
+}
+
 
 /* Missing RP tables */
 
 .missingrp-table td, .tr-missingrp-table td {
     text-align: center;
 }
-
-
 
 
 /* Finalize regatta */
@@ -1997,7 +2010,13 @@ td.tr-sail, td.sail {
 }
 
 
+/* RP error box */
 
+.rp-error-box {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0;
+}
 
 
 /* Form Inputs */

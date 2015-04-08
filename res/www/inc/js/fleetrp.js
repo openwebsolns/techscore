@@ -17,6 +17,7 @@
  *    - maxDivisionSwitches
  *      default = {skipper:0, crew:1}
  *    - enforceDivisionSwitch (default = false)
+ *    - submitInput (optional INPUT to disable/enable with errors.
  */
 function FleetRp(formElement, settings) {
 
@@ -31,11 +32,16 @@ function FleetRp(formElement, settings) {
             skipper: 0,
             crew: 1
         },
+        submitInput: null,
         enforceDivisionSwitch: false
     };
     if (settings) {
         for (var key in this.settings) {
             if (key in settings) {
+                if (key == "submitInput"
+                    && !(settings[key] instanceof HTMLInputElement)) {
+                    throw "submitInput must be an HTMLInputElement.";
+                }
                 this.settings[key] = settings[key];
             }
         }
@@ -46,6 +52,13 @@ function FleetRp(formElement, settings) {
     this.WARNING = "warning";
     this.ERROR = "error";
     this.VALID = "valid";
+
+    // space for printing errors onscreen
+    if (this.settings.submitInput) {
+        this.errorBox = document.createElement("ul");
+        this.errorBox.classList.add("rp-error-box");
+        this.settings.submitInput.parentNode.appendChild(this.errorBox);
+    }
 
     // listener to attach to every input/select element we process
     var myObj = this;
@@ -194,7 +207,7 @@ FleetRp.prototype.check = function() {
         // missing races?
         if (rpEntry.sailor && rpEntry.races.length == 0) {
             this.setCheckStatus(rpEntry.checkBox, this.WARNING, "Missing races");
-            globalWarnings.push(
+            globalErrors.push(
                 [rpEntry.role, "for", rpEntry.division, "division is missing races."].join(" ")
             );
             continue;
@@ -203,7 +216,7 @@ FleetRp.prototype.check = function() {
         // missing sailor?
         if (!rpEntry.sailor && rpEntry.races.length > 0) {
             this.setCheckStatus(rpEntry.checkBox, this.WARNING, "Missing sailor");
-            globalWarnings.push(
+            globalErrors.push(
                 [rpEntry.role, "for", rpEntry.division, "division is missing the sailor."].join(" ")
             );
             continue;
@@ -256,8 +269,7 @@ FleetRp.prototype.check = function() {
         this.setCheckStatus(rpEntry.checkBox, this.VALID);
     }
 
-    console.log(globalErrors);
-    console.log(globalWarnings);
+    this.updateSubmitInput(globalErrors, globalWarnings);
 };
 
 /**
@@ -292,7 +304,44 @@ FleetRp.prototype.setCheckStatus = function(cell, status, reason) {
     default:
         throw "Unknown status provided.";
     }
+    if (reason == undefined) {
+        reason = "";
+    }
     cell.setAttribute("title", reason);
+};
+
+/**
+ * Disable/enable registered submit button (if any) based on errors.
+ *
+ * @param errors list of errors (may be empty)
+ * @param warnings list of warnings
+ */
+FleetRp.prototype.updateSubmitInput = function(errors, warnings) {
+    if (this.settings.submitInput) {
+        this.settings.submitInput.disabled = errors.length > 0;
+
+        // clear out the error box
+        while (this.errorBox.childElementCount > 0) {
+            this.errorBox.firstElementChild.remove();
+        }
+
+        var i = 0;
+        var li;
+        for (i = 0; i < errors.length; i++) {
+            li = document.createElement("li");
+            li.classList.add("rp-error-entry");
+            li.classList.add("rp-error-error");
+            li.appendChild(document.createTextNode(errors[i]));
+            this.errorBox.appendChild(li);
+        }
+        for (i = 0; i < warnings.length; i++) {
+            li = document.createElement("li");
+            li.classList.add("rp-error-entry");
+            li.classList.add("rp-error-warning");
+            li.appendChild(document.createTextNode(warnings[i]));
+            this.errorBox.appendChild(li);
+        }
+    }
 };
 
 /**
@@ -524,6 +573,7 @@ FleetRp.prototype.intersectionOf = function(list1, list2) {
 window.addEventListener('load', function(evt) {
     var settings = {
         // Accept defaults
+        submitInput: document.getElementById("rpsubmit")
     };
     var obj = new FleetRp(document.getElementById("rpform"), settings);
 }, false);
