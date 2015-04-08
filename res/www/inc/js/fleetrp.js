@@ -14,7 +14,9 @@
  * @param formElement the parent element to search for.
  * @param settings a simple map with potential parameters:
  *
- *    - enforceDivisionSwitch (default = true)
+ *    - maxDivisionSwitches
+ *      default = {skipper:0, crew:1}
+ *    - enforceDivisionSwitch (default = false)
  */
 function FleetRp(formElement, settings) {
 
@@ -25,7 +27,11 @@ function FleetRp(formElement, settings) {
 
     // Process settings
     this.settings = {
-        enforceDivisionSwitch: true
+        maxDivisionSwitches: {
+            skipper: 0,
+            crew: 1
+        },
+        enforceDivisionSwitch: false
     };
     if (settings) {
         for (var key in this.settings) {
@@ -166,6 +172,8 @@ FleetRp.prototype.prepare = function() {
  */
 FleetRp.prototype.check = function() {
     var globalErrors = [];
+    var globalWarnings = [];
+    var message;
 
     // track validated entries per role and division, in order to
     // check if future ones like it fit
@@ -183,13 +191,10 @@ FleetRp.prototype.check = function() {
             continue;
         }
 
-        var errors = [];
-        var warnings = [];
-
         // missing races?
         if (rpEntry.sailor && rpEntry.races.length == 0) {
             this.setCheckStatus(rpEntry.checkBox, this.WARNING, "Missing races");
-            globalErrors.push(
+            globalWarnings.push(
                 [rpEntry.role, "for", rpEntry.division, "division is missing races."].join(" ")
             );
             continue;
@@ -198,7 +203,7 @@ FleetRp.prototype.check = function() {
         // missing sailor?
         if (!rpEntry.sailor && rpEntry.races.length > 0) {
             this.setCheckStatus(rpEntry.checkBox, this.WARNING, "Missing sailor");
-            globalErrors.push(
+            globalWarnings.push(
                 [rpEntry.role, "for", rpEntry.division, "division is missing the sailor."].join(" ")
             );
             continue;
@@ -213,7 +218,7 @@ FleetRp.prototype.check = function() {
             validated[rpEntry.role][rpEntry.division]
         );
         if (badRaces.length > 0) {
-            var message = "Too many sailors in race(s) " + this.makeRange(badRaces);
+            message = "Too many sailors in race(s) " + this.makeRange(badRaces);
             this.setCheckStatus(rpEntry.checkBox, this.ERROR, message);
             globalErrors.push(
                 [message, "for", rpEntry.division, "division."].join(" ")
@@ -223,11 +228,36 @@ FleetRp.prototype.check = function() {
         validated[rpEntry.role][rpEntry.division].push(rpEntry);
 
 
-        // TODO:
+        // warn/enforce division switch for skipper
+        if (rpEntry.role in this.settings.maxDivisionSwitches) {
+            var maxAllowed = this.settings.maxDivisionSwitches[rpEntry.role];
+            var allDivisions = this.checkForSwitchedDivisions(rpEntry, validated);
+
+            if (allDivisions.length - 1 > maxAllowed) {
+                message = "Sailor cannot switch divisions";
+                if (maxAllowed > 0) {
+                    message += " more than " + maxAllowed + " time(s)";
+                }
+                if (this.settings.enforceDivisionSwitch) {
+                    this.setCheckStatus(rpEntry.checkBox, this.ERROR, message);
+                    globalErrors.push(
+                        [message, "from", allDivisions.join(" to ")].join(" ")
+                    );
+                } else {
+                    this.setCheckStatus(rpEntry.checkBox, this.WARNING, message);
+                    globalWarnings.push(
+                        [message, "from", allDivisions.join(" to ")].join(" ")
+                    );
+                }
+                continue;
+            }
+        }
 
         this.setCheckStatus(rpEntry.checkBox, this.VALID);
     }
+
     console.log(globalErrors);
+    console.log(globalWarnings);
 };
 
 /**
@@ -300,6 +330,50 @@ FleetRp.prototype.getRacesWithNoRoomFor = function(rpEntry, otherEntries) {
     }
 
     return badRaces;
+};
+
+/**
+ * Returns different divisions of rpEntry's sailor, based on allEntries.
+ *
+ * @param rpEntry the entry (with sailor and division) to check.
+ * @param allEntries dictionary of entries to check against, indexed by
+ *                   role, then division.
+ * @return list of divisions, in order.
+ */
+FleetRp.prototype.checkForSwitchedDivisions = function(rpEntry, allEntries) {
+    var i;
+    // step 1: map sailor's race number to the division it was in
+    var racesMap = {};
+
+    for (i = 0; i < rpEntry.races.length; i++) {
+        racesMap[rpEntry.races[i]] = rpEntry.division;
+    }
+    for (var role in allEntries) {
+        for (var div in allEntries[role]) {
+            for (i = 0; i < allEntries[role][div].length; i++) {
+                var entry = allEntries[role][div][i];
+                if (entry.sailor == rpEntry.sailor) {
+                    for (i = 0; i < entry.races.length; i++) {
+                        racesMap[entry.races[i]] = entry.division;
+                    }
+                }
+            }
+        }
+    }
+
+    // step 2: aggregate division switches
+    var prevDivision = null;
+    var divisions = [];
+    var races = this.sortUnique(Object.keys(racesMap));
+    for (i = 0; i < races.length; i++) {
+        var division = racesMap[races[i]];
+        if (division != prevDivision) {
+            divisions.push(division);
+            prevDivision = division;
+        }
+    }
+
+    return divisions;
 };
 
 /**
