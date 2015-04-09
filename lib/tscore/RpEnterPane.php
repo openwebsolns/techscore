@@ -178,7 +178,6 @@ class RpEnterPane extends AbstractPane {
     $rpform->add(new XHiddenInput('chosen_team', $chosen_team->id));
 
     $rpManager = $this->REGATTA->getRpManager();
-    $attendees = $rpManager->getAttendees($chosen_team);
 
     // ------------------------------------------------------------
     // - Create option lists
@@ -196,15 +195,29 @@ class RpEnterPane extends AbstractPane {
 
     $rpform->add($p = new XPort(sprintf("Fill out form for %s", $chosen_team)));
 
+    // List of sailors
+    $attendee_options = array();
     $sailor_options = array(self::NO_SAILOR_OPTION => '');
-    foreach ($attendees as $attendee) {
-      $sailor = $attendee->sailor;
-      $school = $sailor->school;
-      if (!array_key_exists($school->nick_name, $sailor_options)) {
-        $sailor_options[$school->nick_name] = array();
+    foreach ($schools as $school) {
+      $key = $school->nick_name;
+      foreach ($school->getSailors($gender, $active) as $s) {
+        if (!array_key_exists($key, $sailor_options)) {
+          $sailor_options[$key] = array();
+          $attendee_options[$key] = array();
+        }
+        $sailor_options[$key][$s->id] = (string)$s;
+        $attendee_options[$key][$s->id] = (string)$s;
       }
-      $sailor_options[$school->nick_name][$sailor->id] = (string)$sailor;
+      foreach ($school->getUnregisteredSailors($gender, $active) as $s) {
+        if (!array_key_exists($key, $sailor_options)) {
+          $sailor_options[$key] = array();
+          $attendee_options[$key] = array();
+        }
+        $sailor_options[$key][$s->id] = (string)$s;
+        $attendee_options[$key][$s->id] = (string)$s;
+      }
     }
+
     // No show option
     $sailor_options[self::NO_SHOW_OPTION_GROUP] = array('NULL' => "No show");
 
@@ -387,17 +400,7 @@ class RpEnterPane extends AbstractPane {
     // ------------------------------------------------------------
     $p->add(new XHeading("Reserves"));
 
-    $attendee_sailors = array();
-    foreach ($schools as $school) {
-      $key = $school->nick_name;
-      foreach ($school->getSailors($gender, $active) as $s) {
-        $attendee_sailors[$key][$s->id] = (string)$s;
-      }
-      foreach ($school->getUnregisteredSailors($gender, $active) as $s) {
-        $attendee_sailors[$key][$s->id] = (string)$s;
-      }
-    }
-
+    $attendees = $rpManager->getAttendees($chosen_team);
     $current_attendees = array();
     foreach ($attendees as $attendee) {
       if (!array_key_exists($attendee->sailor->id, $participating_sailors)) {
@@ -410,7 +413,7 @@ class RpEnterPane extends AbstractPane {
         "Sailors:",
         XSelectM::fromArray(
           'reserves[]',
-          $attendee_sailors,
+          $attendee_options,
           $current_attendees,
           array('id'=>'reserve-list')),
         "Include every sailor in attendance. Sailors added to the form above will be automatically included as reserves and need not be added explicitly here."
