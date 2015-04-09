@@ -236,21 +236,31 @@ OWSComboboxSelect.prototype.validate = function() {
         this.search.value = exact.dataset.option;
         this.lastValidatedValue = this.search.value;
         this.element.selectedIndex = exact.dataset.index;
-        if (this.element.onchange)
-            this.element.onchange();
+        this.triggerChangeEvent(this.element);
     }
     else if (near.length == 1) {
         this.search.value = near[0].dataset.option;
         this.lastValidatedValue = this.search.value;
         this.element.selectedIndex = near[0].dataset.index;
-        if (this.element.onchange)
-            this.element.onchange();
+        this.triggerChangeEvent(this.element);
     }
     else {
         this.element.selectedIndex = this.defaultSelectedIndex;
         this.search.value = this.options.childNodes[this.element.selectedIndex].dataset.option;
         this.lastValidatedValue = this.search.value;
         // @TODO: warning about invalid value
+    }
+};
+
+OWSComboboxSelect.prototype.triggerChangeEvent = function(elem) {
+    var eventName = "change";
+    var event = document.createEvent("Event");
+    event.initEvent(eventName, true, true);
+    elem.dispatchEvent(event);
+
+    // Backwards compatibility
+    if (elem.onchange) {
+        elem.onchange();
     }
 };
 
