@@ -364,8 +364,11 @@ FleetRp.prototype.getRacesWithNoRoomFor = function(rpEntry, otherEntries) {
         var numEntries = 1; // counting this one
         for (var j = 0; j < otherEntries.length; j++) {
             var otherEntry = otherEntries[j];
-            if (otherEntry.races.indexOf(race) >= 0) {
-                numEntries++;
+            for (var k = 0; k < otherEntry.races.length; k++) {
+                if (otherEntry.races[k] == race) {
+                    numEntries++;
+                    break;
+                }
             }
         }
 
@@ -373,6 +376,7 @@ FleetRp.prototype.getRacesWithNoRoomFor = function(rpEntry, otherEntries) {
         if (rpEntry.role == "crew") {
             maximumAllowed = this.crewsPerDivision[rpEntry.division][race];
         }
+
         if (numEntries > maximumAllowed) {
             badRaces.push(race);
         }
