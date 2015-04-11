@@ -465,24 +465,21 @@ class RpEnterPane extends AbstractPane {
     // ------------------------------------------------------------
     if (isset($args['rpform'])) {
 
-      $rpManager->reset($team);
-      $divisions = $this->REGATTA->getDivisions();
-
       $validator = new FleetRpValidator($this->REGATTA);
       $validator->validate($args, $team);
       $sailors = $validator->getSailors();
 
+      // Validation done, re-enter all RP information.
+      $rpManager->reset($team);
       $rpManager->setAttendees($team, $sailors);
-      // attendees indexed by sailor ID
+
+      // Convert RpInput to RPEntry:
+      // attendees indexed by sailor ID to facilitate conversion
       $attendees = array();
       foreach ($rpManager->getAttendees($team) as $attendee) {
         $attendees[$attendee->sailor->id] = $attendee;
       }
 
-      // Insert representative
-      $rpManager->setRepresentative($team, DB::$V->incString($args, 'rep', 1, 256, null));
-
-      // Convert RpInput to RPEntry
       $rps = array();
       foreach ($validator->getRpInputs() as $rpInput) {
         foreach ($rpInput->races as $race) {
@@ -495,7 +492,8 @@ class RpEnterPane extends AbstractPane {
         }
       }
 
-      // insert all!
+      // Insert all!
+      $rpManager->setRepresentative($team, DB::$V->incString($args, 'rep', 1, 256, null));
       $rpManager->setRP($rps);
       $rpManager->resetCacheComplete($team);
       $rpManager->updateLog();

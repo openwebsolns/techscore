@@ -241,7 +241,7 @@ FleetRp.prototype.check = function() {
         validated[rpEntry.role][rpEntry.division].push(rpEntry);
 
 
-        // warn/enforce division switch for skipper
+        // warn/enforce division switch
         if (rpEntry.role in this.settings.maxDivisionSwitches) {
             var maxAllowed = this.settings.maxDivisionSwitches[rpEntry.role];
             var allDivisions = this.checkForSwitchedDivisions(rpEntry, validated);
