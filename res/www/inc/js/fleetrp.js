@@ -406,8 +406,8 @@ FleetRp.prototype.checkForSwitchedDivisions = function(rpEntry, allEntries) {
             for (i = 0; i < allEntries[role][div].length; i++) {
                 var entry = allEntries[role][div][i];
                 if (entry.sailor == rpEntry.sailor) {
-                    for (i = 0; i < entry.races.length; i++) {
-                        racesMap[entry.races[i]] = entry.division;
+                    for (var j = 0; j < entry.races.length; j++) {
+                        racesMap[entry.races[j]] = entry.division;
                     }
                 }
             }

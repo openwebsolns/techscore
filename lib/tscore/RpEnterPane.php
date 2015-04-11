@@ -1,4 +1,6 @@
 <?php
+use \tscore\utils\FleetRpValidator;
+
 /*
  * This file is part of TechScore
  *
@@ -464,98 +466,32 @@ class RpEnterPane extends AbstractPane {
     if (isset($args['rpform'])) {
 
       $rpManager->reset($team);
+      $divisions = $this->REGATTA->getDivisions();
 
-      // compose an artificial list of attendees by combining passed
-      // reserves and sailors
-      echo "<pre>"; print_r($args); "</pre>";
-      exit;
+      $validator = new FleetRpValidator($this->REGATTA);
+      $validator->validate($args, $team);
+      $sailors = $validator->getSailors();
 
-      $this->processAttendees($team, $args);
-      $attendees = $rpManager->getAttendees($team->school);
-      $sailors = array();
-      foreach ($attendees as $attendee) {
-        $sailors[$attendee->sailor->id] = $attendee;
+      $rpManager->setAttendees($team, $sailors);
+      // attendees indexed by sailor ID
+      $attendees = array();
+      foreach ($rpManager->getAttendees($team) as $attendee) {
+        $attendees[$attendee->sailor->id] = $attendee;
       }
 
       // Insert representative
       $rpManager->setRepresentative($team, DB::$V->incString($args, 'rep', 1, 256, null));
 
-      // To enter RP information, keep track of the number of crews
-      // available in each race. To do this, keep a stacked
-      // associative array with the following structure:
-      //
-      //  $rot[DIVISION][NUM] = # Max Crews
-      //
-      // that is, for each race number (sorted by divisions), keep
-      // track of the number of occupants available
-      $divisions = $this->REGATTA->getDivisions();
-      $occupants = array();
-      foreach ($divisions as $division) {
-        $div = (string)$division;
-        $occupants[$div] = array();
-        foreach ($this->REGATTA->getRacesForTeam($division, $team) as $race)
-          $occupants[$div][$race->number] = $race->boat->max_crews;
-      }
-
-      // Process each input, which is of the form:
-      // ttDp, where tt = sk/cr, D=A/B/C/D (division) and p is position
-      $errors = array();
-      $rps = array(); // list of RPEntries
-      foreach ($args as $s => $s_value) {
-        if (preg_match('/^(cr|sk)[ABCD][0-9]+/', $s) > 0) {
-          // We have a sailor request upon us
-          $s_role = (substr($s, 0, 2) == "sk") ? RP::SKIPPER : RP::CREW;
-          $s_div  = substr($s, 2, 1);
-          if (!in_array($s_div, $divisions)) {
-            $errors[] = "Invalid division requested: $s_div.";
-            continue;
-          }
-
-          if (!isset($occupants[$s_div]))
-            throw new SoterException("Invalid division provided: " . $s_div);
-
-          $div = new Division($s_div);
-          if (trim($args["r" . $s]) == "*") {
-            $s_race = array_keys($occupants[(string)$div]);
-          }
-          else {
-            $s_race = array();
-            foreach (DB::parseRange($args["r" . $s]) as $num) {
-              if (array_key_exists($num, $occupants[(string)$div]))
-                $s_race[] = $num;
-            }
-          }
-
-          $s_obj = false;
-          if ($s_value == 'NULL')
-            $s_obj = null;
-          elseif (array_key_exists($s_value, $sailors)) {
-            $s_obj = $sailors[$s_value];
-          }
-
-          if ($s_race !== null && $s_obj !== false) {
-            // Eliminate those races from $s_race for which there is
-            // no space for a crew
-            $s_race_copy = $s_race;
-            if ($s_role == RP::CREW) {
-              foreach ($s_race as $i => $num) {
-                if ($occupants[$s_div][$num] < 1) {
-                  unset($s_race_copy[$i]);
-                }
-                else
-                  $occupants[$s_div][$num]--;
-              }
-            }
-            // Create the objects
-            foreach ($s_race_copy as $num) {
-              $rp = new RPEntry();
-              $rp->team = $team;
-              $rp->race = $this->REGATTA->getRace($div, $num);
-              $rp->boat_role  = $s_role;
-              $rp->attendee   = $s_obj;
-              $rps[] = $rp;
-            }
-          }
+      // Convert RpInput to RPEntry
+      $rps = array();
+      foreach ($validator->getRpInputs() as $rpInput) {
+        foreach ($rpInput->races as $race) {
+          $rp = new RPEntry();
+          $rp->team = $rpInput->team;
+          $rp->race = $race;
+          $rp->boat_role = $rpInput->boat_role;
+          $rp->attendee = $attendees[$rpInput->sailor->id];
+          $rps[] = $rp;
         }
       }
 
@@ -565,13 +501,7 @@ class RpEnterPane extends AbstractPane {
       $rpManager->updateLog();
 
       // Announce
-      if (count($errors) > 0) {
-        $mes = "Encountered these errors: " . implode(' ', $errors);;
-        Session::pa(new PA($mes, PA::I));
-      }
-      else {
-        Session::pa(new PA("RP info updated."));
-      }
+      Session::pa(new PA("RP info updated."));
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RP, $team->school->id);
     }
     return;
@@ -661,10 +591,6 @@ class RpEnterPane extends AbstractPane {
    * @throws SoterException on invalid arguments.
    */
   protected function processAttendees(Team $team, Array $args) {
-    $cur_season = Season::forDate(DB::T(DB::NOW));
-    $active = 'all';
-    if ((string)$cur_season ==  (string)$this->REGATTA->getSeason())
-      $active = true;
     $gender = ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) ?
       Sailor::FEMALE : null;
 
