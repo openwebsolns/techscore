@@ -1309,6 +1309,18 @@ class FullRegatta extends DBObject implements Publishable {
   }
 
   /**
+   * Is this regatta represent a fleet racing event?
+   *
+   * @return true for standard + combined.
+   */
+  public function isFleetRacing() {
+    return in_array(
+      $this->scoring,
+      array(self::SCORING_STANDARD, self::SCORING_COMBINED)
+    );
+  }
+
+  /**
    * Calls the 'score' method on this regatta's scorer, feeding it the
    * given race. This new method should be used during scoring, as it
    * updates only the one affected race at a time. Whereas the doScore
