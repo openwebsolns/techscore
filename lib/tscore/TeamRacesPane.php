@@ -514,10 +514,10 @@ window.addEventListener("load", function(e) {
       }
       // boats
       if ($ROUND->rotation_frequency == Race_Order::FREQUENCY_FREQUENT) {
-	for ($i = 0; $i < $ROUND->num_boats / $group_size; $i++) {
-	  $boat = $ROUND->getRaceOrderBoat($i);
-	  $form->add(new XHiddenInput('boats[]', $boat->id));
-	}
+        for ($i = 0; $i < $ROUND->num_boats / $group_size; $i++) {
+          $boat = $ROUND->getRaceOrderBoat($i);
+          $form->add(new XHiddenInput('boats[]', $boat->id));
+        }
       }
       else {
 	$boat = $ROUND->getBoat();
