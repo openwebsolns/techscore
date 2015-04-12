@@ -157,7 +157,7 @@ function initRankGroup() {
     var max_val = 0;
     var val;
     for (var i = 0; i < inputs.length; i++) {
-        if (inputs[i].type != "text")
+        if (inputs[i].type != "text" && inputs[i].type != "number")
             continue;
 
         val = inputs[i].value;
@@ -246,12 +246,9 @@ function initRankGroup() {
     
 }
 
-var old = window.onload;
-window.onload = function(evt) {
-    if (old)
-        old(evt);
+window.addEventListener('load', function(e) {
     initRankGroup();
-};
+}, false);
 
 
 // DRAG and DROP functionality (tablesort.js)
