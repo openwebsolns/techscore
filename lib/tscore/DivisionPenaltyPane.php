@@ -13,7 +13,7 @@ require_once("conf.php");
  * @author Dayan Paez
  * @version 2010-01-25
  */
-class TeamPenaltyPane extends AbstractPane {
+class DivisionPenaltyPane extends AbstractPane {
 
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Team penalty", $user, $reg);

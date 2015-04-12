@@ -458,8 +458,8 @@ abstract class AbstractPane implements Pane {
       return new SummaryPane($r, $u);
     case 'team-penalty':
     case 'team-penalties':
-      require_once('tscore/TeamPenaltyPane.php');
-      return new TeamPenaltyPane($r, $u);
+      require_once('tscore/DivisionPenaltyPane.php');
+      return new DivisionPenaltyPane($r, $u);
     case 'team':
     case 'teams':
     case 'add-teams':
@@ -536,7 +536,7 @@ abstract class AbstractPane implements Pane {
       return $this->has_teams && $this->has_races;
 
     case 'SailsPane':
-    case 'TeamPenaltyPane':
+    case 'DivisionPenaltyPane':
       return $this->has_teams && $this->has_races;
 
     case 'TeamRacesPane':
@@ -722,7 +722,7 @@ abstract class AbstractPane implements Pane {
           'TeamEnterFinishPane',
           'TeamEnterPenaltyPane',
           'DropPenaltyPane',
-          'TeamPenaltyPane',
+          'DivisionPenaltyPane',
           'TeamRacesDialog',
         ),
         "Ranks" => array(
@@ -797,7 +797,7 @@ abstract class AbstractPane implements Pane {
         'EnterFinishPane',
         'EnterPenaltyPane',
         'DropPenaltyPane',
-        'TeamPenaltyPane',
+        'DivisionPenaltyPane',
         'ScoresFullDialog',
       ),
       "Downloads" => array(
@@ -872,7 +872,7 @@ abstract class AbstractPane implements Pane {
     'TeamEnterPenaltyPane'   => '/score/%s/penalty',
     'TeamOrderRoundsPane'    => '/score/%s/order-rounds',
     'TeamPartialRankPane'    => '/score/%s/partial',
-    'TeamPenaltyPane'        => '/score/%s/team-penalty',
+    'DivisionPenaltyPane'        => '/score/%s/team-penalty',
     'TeamRacesPane'          => '/score/%s/races',
     'TeamRankGroupPane'      => '/score/%s/group',
     'TeamReplaceTeamPane'    => '/score/%s/substitute',
@@ -925,7 +925,7 @@ abstract class AbstractPane implements Pane {
     'TeamEnterPenaltyPane'   => 'Add penalty',
     'TeamOrderRoundsPane'    => 'Order rounds',
     'TeamPartialRankPane'    => 'Partial ranking',
-    'TeamPenaltyPane'        => 'Team penalty',
+    'DivisionPenaltyPane'    => 'Team penalty',
     'TeamRacesPane'          => 'Add round',
     'TeamRankGroupPane'      => 'Rank groups',
     'TeamReplaceTeamPane'    => 'Sub team',
