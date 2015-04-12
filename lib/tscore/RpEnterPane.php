@@ -400,26 +400,28 @@ class RpEnterPane extends AbstractPane {
     // ------------------------------------------------------------
     // Reserves
     // ------------------------------------------------------------
-    $p->add(new XHeading("Reserves"));
+    if (DB::g(STN::ALLOW_RESERVES) !== null) {
+      $p->add(new XHeading("Reserves"));
 
-    $attendees = $rpManager->getAttendees($chosen_team);
-    $current_attendees = array();
-    foreach ($attendees as $attendee) {
-      if (!array_key_exists($attendee->sailor->id, $participating_sailors)) {
-        $current_attendees[] = $attendee->sailor->id;
+      $attendees = $rpManager->getAttendees($chosen_team);
+      $current_attendees = array();
+      foreach ($attendees as $attendee) {
+        if (!array_key_exists($attendee->sailor->id, $participating_sailors)) {
+          $current_attendees[] = $attendee->sailor->id;
+        }
       }
-    }
 
-    $p->add(
-      new FItem(
-        "Sailors:",
-        XSelectM::fromArray(
-          'reserves[]',
-          $attendee_options,
-          $current_attendees,
-          array('id'=>'reserve-list')),
-        "Include every sailor in attendance. Sailors added to the form above will be automatically included as reserves and need not be added explicitly here."
-      ));
+      $p->add(
+        new FItem(
+          "Sailors:",
+          XSelectM::fromArray(
+            'reserves[]',
+            $attendee_options,
+            $current_attendees,
+            array('id'=>'reserve-list')),
+          "Include every sailor in attendance. Sailors added to the form above will be automatically included as reserves and need not be added explicitly here."
+        ));
+    }
 
     // ------------------------------------------------------------
     // - Add submit

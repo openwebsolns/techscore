@@ -231,27 +231,29 @@ class TeamRpEnterPane extends AbstractPane {
     // ------------------------------------------------------------
     // Reserves
     // ------------------------------------------------------------
-    $this->PAGE->addContent($p = new XPort("Reserves"));
-    $p->add($form = $this->createForm());
+    if (DB::g(STN::ALLOW_RESERVES) !== null) {
+      $this->PAGE->addContent($p = new XPort("Reserves"));
+      $p->add($form = $this->createForm());
 
-    $attendees = $rpManager->getAttendees($chosen_team);
-    $current_attendees = array();
-    foreach ($attendees as $attendee) {
-      if (!array_key_exists($attendee->id, $participating_attendees)) {
-        $current_attendees[] = $attendee->sailor->id;
+      $attendees = $rpManager->getAttendees($chosen_team);
+      $current_attendees = array();
+      foreach ($attendees as $attendee) {
+        if (!array_key_exists($attendee->id, $participating_attendees)) {
+          $current_attendees[] = $attendee->sailor->id;
+        }
       }
-    }
 
-    $form->add(
-      new FItem(
-        "Sailors:",
-        XSelectM::fromArray(
-          'attendees[]',
-          $sailor_options,
-          $current_attendees,
-          array('id'=>'reserve-list')),
-        "Include every sailor in attendance. Sailors added to the form above will be automatically included as reserves and need not be added explicitly here."
-      ));
+      $form->add(
+        new FItem(
+          "Sailors:",
+          XSelectM::fromArray(
+            'attendees[]',
+            $sailor_options,
+            $current_attendees,
+            array('id'=>'reserve-list')),
+          "Include every sailor in attendance. Sailors added to the form above will be automatically included as reserves and need not be added explicitly here."
+        ));
+    }
 
     foreach ($participating_attendees as $attendee) {
       $form->add(new XHiddenInput('attendees[]', $attendee->sailor->id));

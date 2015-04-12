@@ -95,6 +95,11 @@ class STN extends DBObject {
    */
   const UNIQUE_SEASON_SAILOR = 'unique_season_sailor';
 
+  /**
+   * Allow the "reserves" feature when entering RP information.
+   */
+  const ALLOW_RESERVES = 'allow_reserves';
+
   public $value;
   public function db_name() { return 'setting'; }
   protected function db_cache() { return true; }
