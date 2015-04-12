@@ -146,7 +146,7 @@ class TeamRpEnterPane extends AbstractPane {
           sprintf('cr%s%d', $div, $i),
           $sailor_options,
           null, // chosen
-          array('class'=>'no-mselect'));
+          array('class'=>'no-mselect team-rp-entry'));
       }
       $tab->addRow($row);
     }
@@ -164,9 +164,12 @@ class TeamRpEnterPane extends AbstractPane {
       $round_races[$race->round->id][] = $race;
     }
 
+    // list of attendees participating, indexed by ID
+    $participating_attendees = array();
+
     // create round listings
     foreach ($rounds as $id => $round) {
-      $form->add(new XH4($round));
+      $form->add(new XHeading($round));
       $form->add(new XTable(array('class'=>'tr-rp-roundtable'),
                             array($tab = new XTBody(array(), array($bod = new XTR())))));
       $rows = array();
@@ -193,16 +196,26 @@ class TeamRpEnterPane extends AbstractPane {
           $li = array();
           $r = $this->REGATTA->getRace($div, $race->number);
           $skip = $rpManager->getRpEntries($chosen_team, $r, RP::SKIPPER);
-          if (count($skip) > 0)
+          if (count($skip) > 0) {
             $li[] = new XSpan($skip[0]->getSailor(), array('class' => sprintf('sk%s', $div)));
+            if ($skip[0]->attendee !== null) {
+              $participating_attendees[$skip[0]->attendee->id] = $skip[0]->attendee;
+            }
+          }
           $crew = $rpManager->getRpEntries($chosen_team, $r, RP::CREW);
-          foreach ($crew as $i => $rp)
+          foreach ($crew as $i => $rp) {
             $li[] = new XSpan($rp->getSailor(), array('class' => sprintf('cr%s%d', $div, $i)));
+            if ($rp->attendee !== null) {
+              $participating_attendees[$rp->attendee->id] = $rp->attendee;
+            }
+          }
 
-          if (count($li) > 0)
+          if (count($li) > 0) {
             $rows[(string)$div]->add(new XTD(array(), $li));
-          else
+          }
+          else {
             $rows[(string)$div]->add(new XTD(array(), new XImg(WS::link('/inc/img/question.png'), "?")));
+          }
         }
       }
     }
@@ -210,9 +223,41 @@ class TeamRpEnterPane extends AbstractPane {
     // ------------------------------------------------------------
     // - Add submit
     $form->add(new XP(array(),
-                      array(new XReset("reset", "Reset"),
-                            new XSubmitInput("rpform", "Submit form",
-                                             array("id"=>"rpsubmit")))));
+                      array(new XReset('reset', "Reset"),
+                            new XSubmitInput('rpform', "Submit form",
+                                             array('id'=>'rpsubmit')))));
+
+
+    // ------------------------------------------------------------
+    // Reserves
+    // ------------------------------------------------------------
+    $this->PAGE->addContent($p = new XPort("Reserves"));
+    $p->add($form = $this->createForm());
+
+    $attendees = $rpManager->getAttendees($chosen_team);
+    $current_attendees = array();
+    foreach ($attendees as $attendee) {
+      if (!array_key_exists($attendee->id, $participating_attendees)) {
+        $current_attendees[] = $attendee->sailor->id;
+      }
+    }
+
+    $form->add(
+      new FItem(
+        "Sailors:",
+        XSelectM::fromArray(
+          'attendees[]',
+          $sailor_options,
+          $current_attendees,
+          array('id'=>'reserve-list')),
+        "Include every sailor in attendance. Sailors added to the form above will be automatically included as reserves and need not be added explicitly here."
+      ));
+
+    foreach ($participating_attendees as $attendee) {
+      $form->add(new XHiddenInput('attendees[]', $attendee->sailor->id));
+    }
+    $form->add(new XHiddenInput('chosen_team', $chosen_team->id));
+    $form->add(new XSubmitP('set-attendees', "Update"));
   }
 
 
@@ -235,6 +280,14 @@ class TeamRpEnterPane extends AbstractPane {
 
     $id = DB::$V->reqKey($args, 'chosen_team', $pos_teams, "Missing team choice.");
     $team = $pos_teams[$id];
+
+    // ------------------------------------------------------------
+    // Attendees
+    // ------------------------------------------------------------
+    if (isset($args['set-attendees'])) {
+      $sailors = $this->processAttendees($team, $args);
+      Session::pa(new PA(sprintf("Added %s as attendees for team %s.", count($sailors), $team)));
+    }
 
     // ------------------------------------------------------------
     // RP data
@@ -329,6 +382,41 @@ class TeamRpEnterPane extends AbstractPane {
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RP, $team->school->id);
     }
     return $args;
+  }
+
+  /**
+   * Helper function to update attendee list based on arguments.
+   *
+   * @return list of sailors
+   * @throws SoterException on invalid arguments.
+   */
+  protected function processAttendees(Team $team, Array $args) {
+    $gender = ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) ?
+      Sailor::FEMALE : null;
+
+    $cross_rp = !$this->REGATTA->isSingleHanded() && DB::g(STN::ALLOW_CROSS_RP);
+
+    $sailors = array();
+    foreach (DB::$V->reqList($args, 'attendees', null, "Missing list of attendees.") as $id) {
+      $sailor = DB::getSailor($id);
+      if ($sailor === null) {
+        throw new SoterException(sprintf("Invalid sailor ID provided: %s.", $id));
+      }
+      if (!$cross_rp && $sailor->school->id != $team->school->id) {
+        throw new SoterException(sprintf("Sailor provided (%s) cannot sail for given school.", $sailor));
+      }
+      if ($gender !== null && $gender != $sailor->gender) {
+        throw new SoterException(sprintf("Invalid sailor allowed for this regatta (%s).", $sailor));
+      }
+      $sailors[] = $sailor;
+    }
+    if (count($sailors) == 0) {
+      throw new SoterException("No sailors provided for attendance list.");
+    }
+
+    $rpManager = $this->REGATTA->getRpManager();
+    $rpManager->setAttendees($team, $sailors);
+    return $sailors;
   }
 }
 ?>

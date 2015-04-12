@@ -22,9 +22,12 @@ function initRP() {
     var form = document.getElementById('rp-form');
     if (!form)
         return false;
-    RPSAILORS = form.getElementsByTagName("select");
-    for (var i = 0; i < RPSAILORS.length; i++) {
-        RPSAILORS[i].onchange = checkRP;
+    var selects = form.getElementsByTagName("select");
+    for (var i = 0; i < selects.length; i++) {
+        if (selects[i].classList.contains("team-rp-entry")) {
+            RPSAILORS.push(selects[i]);
+            selects[i].onchange = checkRP;
+        }
     }
 
     var inputs = form.getElementsByTagName("input");
@@ -121,6 +124,7 @@ function checkRP() {
         }
         chosen.push(value);
     }
+
     var hasRaces = false;
     for (i = 0; i < RPRACES.length; i++) {
         if (RPRACES[i].checked) {
@@ -128,15 +132,17 @@ function checkRP() {
             break;
         }
     }
-    if (!hasRaces)
+    if (!hasRaces) {
         invalidateSubmitRP("No races have been selected.");
+    }
 
     // Is warning on submission required?
     RPSUBMIT.onclick = null;
-    if (chosen.length == 0)
+    if (chosen.length == 0) {
         RPSUBMIT.onclick = function(evt) {
             return confirm("Submitting the form with no sailors will reset\nRP entries for chosen races.\n\nIs this the intended action?");
         };
+    }
 }
 
 function invalidateSubmitRP(expl) {

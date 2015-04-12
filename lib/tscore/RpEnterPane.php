@@ -453,14 +453,6 @@ class RpEnterPane extends AbstractPane {
     $rpManager = $this->REGATTA->getRpManager();
 
     // ------------------------------------------------------------
-    // Attendees
-    // ------------------------------------------------------------
-    if (isset($args['set-attendees'])) {
-      $this->processAttendees($team, $args);
-      Session::pa(new PA(sprintf("Added %s as attendees for team %s.", count($sailor), $team)));
-    }
-
-    // ------------------------------------------------------------
     // RP data
     // ------------------------------------------------------------
     if (isset($args['rpform'])) {
@@ -580,41 +572,6 @@ class RpEnterPane extends AbstractPane {
     }
     else
       $p->add(new XValid("Information is complete."));
-  }
-
-  /**
-   * Helper function to update attendee list based on arguments.
-   *
-   * @return list of sailors
-   * @throws SoterException on invalid arguments.
-   */
-  protected function processAttendees(Team $team, Array $args) {
-    $gender = ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) ?
-      Sailor::FEMALE : null;
-
-    $cross_rp = !$this->REGATTA->isSingleHanded() && DB::g(STN::ALLOW_CROSS_RP);
-
-    $sailors = array();
-    foreach (DB::$V->reqList($args, 'attendees', null, "Missing list of attendees.") as $id) {
-      $sailor = DB::getSailor($id);
-      if ($sailor === null) {
-        throw new SoterException(sprintf("Invalid sailor ID provided: %s.", $id));
-      }
-      if (!$cross_rp && $sailor->school->id != $team->school->id) {
-        throw new SoterException(sprintf("Sailor provided (%s) cannot sail for given school.", $sailor));
-      }
-      if ($gender !== null && $gender != $sailor->gender) {
-        throw new SoterException(sprintf("Invalid sailor allowed for this regatta (%s).", $sailor));
-      }
-      $sailors[] = $sailor;
-    }
-    if (count($sailors) == 0) {
-      throw new SoterException("No sailors provided for attendance list.");
-    }
-
-    $rpManager = $this->REGATTA->getRpManager();
-    $rpManager->setAttendees($team, $sailors);
-    return $sailors;
   }
 }
 ?>
