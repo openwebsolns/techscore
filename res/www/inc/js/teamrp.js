@@ -24,7 +24,7 @@ function initRP() {
         return false;
     var selects = form.getElementsByTagName("select");
     for (var i = 0; i < selects.length; i++) {
-        if (selects[i].classList.contains("team-rp-entry")) {
+        if (selects[i].classList.contains("tr-rp-entry")) {
             RPSAILORS.push(selects[i]);
             selects[i].onchange = checkRP;
         }
@@ -66,16 +66,15 @@ function initRP() {
                             for (var j = 0; j < RPSAILORS[i].length; j++) {
                                 var opt = RPSAILORS[i].options.item(j);
                                 if (opt.childNodes.length > 0 && opt.childNodes[0].nodeValue == sailor) {
-                                    console.log(opt);
-                                    console.log(RPSAILORS[i]);
                                     RPSAILORS[i].selectedIndex = j;
 				                            RPSAILORS[i].dispatchEvent(new Event('change'));
                                     break;
                                 }
                             }
                         }
-                        else
+                        else {
                             RPSAILORS[i].selectedIndex = 0;
+                        }
                     }
                 };
             };

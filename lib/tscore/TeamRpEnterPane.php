@@ -80,7 +80,7 @@ class TeamRpEnterPane extends AbstractPane {
     // ------------------------------------------------------------
     // RP Form
     // ------------------------------------------------------------
-    $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/teamrp.js')));
+    $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/teamrp.js?v=1')));
     $this->PAGE->addContent($p = new XPort(sprintf("Fill out form for %s", $chosen_team)));
     // ------------------------------------------------------------
     // - Create option lists
@@ -139,14 +139,14 @@ class TeamRpEnterPane extends AbstractPane {
           sprintf('sk%s', $div),
           $sailor_options,
           null, // chosen
-          array('class'=>'no-mselect'))
+          array('class'=>'no-mselect tr-rp-entry'))
       );
       for ($i = 0; $i < $max_crews; $i++) {
         $row[] = XSelect::fromArray(
           sprintf('cr%s%d', $div, $i),
           $sailor_options,
           null, // chosen
-          array('class'=>'no-mselect team-rp-entry'));
+          array('class'=>'no-mselect tr-rp-entry'));
       }
       $tab->addRow($row);
     }
@@ -253,13 +253,13 @@ class TeamRpEnterPane extends AbstractPane {
             array('id'=>'reserve-list')),
           "Include every sailor in attendance. Sailors added to the form above will be automatically included as reserves and need not be added explicitly here."
         ));
-    }
 
-    foreach ($participating_attendees as $attendee) {
-      $form->add(new XHiddenInput('attendees[]', $attendee->sailor->id));
+      foreach ($participating_attendees as $attendee) {
+        $form->add(new XHiddenInput('attendees[]', $attendee->sailor->id));
+      }
+      $form->add(new XHiddenInput('chosen_team', $chosen_team->id));
+      $form->add(new XSubmitP('set-attendees', "Update"));
     }
-    $form->add(new XHiddenInput('chosen_team', $chosen_team->id));
-    $form->add(new XSubmitP('set-attendees', "Update"));
   }
 
 
@@ -298,6 +298,14 @@ class TeamRpEnterPane extends AbstractPane {
 
       $divisions = $this->REGATTA->getDivisions();
       $rpManager = $this->REGATTA->getRpManager();
+
+      // NOTE: The nature of this form requires that data entered this
+      // way only ADDS to the attendee list; it does not replace it.
+
+      $attendingSailorsById = array();
+      foreach ($rpManager->getAttendees($team) as $attendee) {
+        $attendingSailorsById[$attendee->sailor->id] = $attendee->sailor;
+      }
 
       $cur_season = Season::forDate(DB::T(DB::NOW));
       $active = 'all';
@@ -339,11 +347,13 @@ class TeamRpEnterPane extends AbstractPane {
 
         $id = DB::$V->incKey($args, sprintf('sk%s', $div), $sailors, false);
         if ($id !== false) {
-          if ($id !== 'NULL' && isset($chosen_sailors[$id]))
+          if ($id !== 'NULL' && isset($chosen_sailors[$id])) {
             throw new SoterException(sprintf("%s cannot be involved in more than one role or boat at a time.", $sailors[$id]));
+          }
           $sailor = $sailors[$id];
           $chosen_sailors[$id] = $sailor;
           $config[(string)$div][RP::SKIPPER][] = $sailor;
+          $attendingSailorsById[$sailor->id] = $sailor;
         }
 
         for ($i = 0; $i < $max_crews; $i++) {
@@ -354,16 +364,27 @@ class TeamRpEnterPane extends AbstractPane {
             $sailor = $sailors[$id];
             $chosen_sailors[$id] = $sailor;
             $config[(string)$div][RP::CREW][] = $sailor;
+            $attendingSailorsById[$sailor->id] = $sailor;
           }
         }
       }
 
       // NOTE: With no sailors, resets the entries for the given races
 
+      // reset attendees, and map sailor ID to attendee
+      $rpManager->setAttendees($team, $attendingSailorsById);
+      $attendeesBySailorId = array();
+      foreach ($rpManager->getAttendees($team) as $attendee) {
+        $attendeesBySailorId[$attendee->sailor->id] = $attendee;
+      }
+
       // Place skippers first
       foreach ($divisions as $div) {
         $skipper = $config[(string)$div][RP::SKIPPER];
         $crews = $config[(string)$div][RP::CREW];
+
+        $skipper = $this->translateSailorsToAttendee($skipper, $attendeesBySailorId);
+        $crews = $this->translateSailorsToAttendee($crews, $attendeesBySailorId);
 
         foreach ($races as $race) {
           $r = $this->REGATTA->getRace($div, $race->number);
@@ -384,6 +405,21 @@ class TeamRpEnterPane extends AbstractPane {
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RP, $team->school->id);
     }
     return $args;
+  }
+
+  /**
+   * Very specific helper function used before setRpEntries.
+   *
+   */
+  private function translateSailorsToAttendee(Array $sailors, Array $attendeesBySailorId) {
+    $output = array();
+    foreach ($sailors as $sailor) {
+      if (!array_key_exists($sailor->id, $attendeesBySailorId)) {
+        throw new InvalidArgumentException("Unable to find sailor $sailor in list of attendees.");
+      }
+      $output[] = $attendeesBySailorId[$sailor->id];
+    }
+    return $output;
   }
 
   /**
