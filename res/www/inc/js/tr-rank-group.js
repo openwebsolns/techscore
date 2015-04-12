@@ -4,6 +4,7 @@
 var DRAG_FROM = null;
 var DRAG_TO = null;
 
+var RANK_GROUP_INPUT_CLASSNAME = "tr-rank-group-number";
 var RANK_TABLE = null;
 var RANK_GROUPS = {};
 var RANK_GROUP_CELLS = {};
@@ -65,8 +66,9 @@ function appendNewRankGroup() {
     td.setAttribute("class", "tr-js-grouplabel");
     td.setAttribute("colspan", 2);
 
-    RANK_TABLE.childNodes[1].insertBefore(row,
-                                          RANK_TABLE.childNodes[1].childNodes[RANK_TABLE.childNodes[1].childNodes.length - 2]);
+    RANK_TABLE.childNodes[1].insertBefore(
+        row,
+        RANK_TABLE.childNodes[1].childNodes[RANK_TABLE.childNodes[1].childNodes.length - 2]);
 
     updateRankValues(next);
 }
@@ -82,10 +84,10 @@ function updateRankValues(to_group) {
     else
         last_item = RANK_GROUP_CELLS[to_group].parentNode;
     last_item.parentNode.insertBefore(DRAG_FROM, last_item.nextSibling);
-        
+
     var inputs = DRAG_FROM.getElementsByTagName("input");
     for (var i = 0; i < inputs.length; i++) {
-        if (inputs[i].type == "text") {
+        if (inputs[i].classList.contains(RANK_GROUP_INPUT_CLASSNAME)) {
             inputs[i].setAttribute("value", to_group);
             break;
         }
@@ -157,8 +159,9 @@ function initRankGroup() {
     var max_val = 0;
     var val;
     for (var i = 0; i < inputs.length; i++) {
-        if (inputs[i].type != "text" && inputs[i].type != "number")
+        if (!inputs[i].classList.contains(RANK_GROUP_INPUT_CLASSNAME)) {
             continue;
+        }
 
         val = inputs[i].value;
         if (val.length == 0)
@@ -187,23 +190,23 @@ function initRankGroup() {
         for (var j = 1; j < row.childNodes.length; j++) {
             row.childNodes[j].style.cursor = "move";
             row.childNodes[j].onmousedown = function(evt) {
-		var target = getTargetRow(evt);
-		DRAG_FROM = target;
+                var target = getTargetRow(evt);
+                DRAG_FROM = target;
                 DRAG_FROM.classList.add("js-moving");
-		return false;
-	    };
+                return false;
+            };
         }
         row.onmouseover = function(evt) {
-	    var target = getTargetRow(evt);
-	    if (DRAG_FROM == null || DRAG_FROM == target) return;
+            var target = getTargetRow(evt);
+            if (DRAG_FROM == null || DRAG_FROM == target) return;
             if (DRAG_TO == target) return;
-	    DRAG_TO = target;
+            DRAG_TO = target;
             updateRankValues(getRowRankGroup(DRAG_TO));
-	};
-	row.onmouseout = function(evt) {
-	    if (DRAG_TO == getTargetRow(evt))
-		DRAG_TO = null;
-	};
+        };
+        row.onmouseout = function(evt) {
+            if (DRAG_TO == getTargetRow(evt))
+                DRAG_TO = null;
+        };
 
         val = row.childNodes[0].childNodes[0].value;
         if (val.length == 0)
@@ -243,7 +246,7 @@ function initRankGroup() {
         appendNewRankGroup();
     };
     RANK_TABLE.childNodes[1].appendChild(row);
-    
+
 }
 
 window.addEventListener('load', function(e) {
@@ -263,15 +266,15 @@ function getTargetRow(e) {
     var targ;
     if (!e) var e = window.event;
     if (e.srcElement)
-	targ = e.srcElement;
+        targ = e.srcElement;
     else if (e.target)
-	targ = e.target;
+        targ = e.target;
     if (targ.nodeType == 3) // defeat Safari bug
-	targ = targ.parentNode;
+        targ = targ.parentNode;
 
     // climb up until a tr
     while (targ.nodeName.toLowerCase() != 'tr')
-	targ = targ.parentNode;
+        targ = targ.parentNode;
     return targ;
 }
 
@@ -285,8 +288,8 @@ function getRowRankGroup(row) {
 
 function nodeIndex(elem) {
     for (var i = 0; i < elem.parentNode.childNodes.length; i++) {
-	if (elem == elem.parentNode.childNodes[i])
-	    return (i + 1);
+        if (elem == elem.parentNode.childNodes[i])
+            return (i + 1);
     }
     return null;
 }

@@ -33,9 +33,17 @@ class TeamRankGroupPane extends AbstractPane {
                                       array("Group #", "Name", "Record")));
     $has_locked = false;
     foreach ($this->REGATTA->getRankedTeams() as $team) {
-      $tab->addRow(array(new XNumberInput('group[]', $team->rank_group, 0, null, 1, array('size'=>2)),
-                         array(new XHiddenInput('team[]', $team->id), $team),
-                         $team->getRecord()));
+      $tab->addRow(
+        array(
+          new XNumberInput(
+            'group[]', $team->rank_group, 0, null, 1,
+            array(
+              'size' => 2,
+              'class' => 'tr-rank-group-number'
+            )),
+          array(new XHiddenInput('team[]', $team->id), $team),
+          $team->getRecord())
+      );
       if ($team->lock_rank !== null)
         $has_locked = true;
     }
