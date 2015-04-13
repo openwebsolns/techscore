@@ -192,7 +192,7 @@ class FullScoresTableCreator {
         }
 
         // print penalty, should it exist
-        $team_pen = $this->regatta->getTeamPenalty($team, new Division($div));
+        $team_pen = $this->regatta->getDivisionPenalty($team, new Division($div));
         if ($team_pen !== null) {
           $r->add(new XTD(array('title'=>$team_pen->comments, 'class'=>'right'), $team_pen->type));
           $scoreDiv += 20;

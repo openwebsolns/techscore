@@ -3,15 +3,13 @@
  * This file is part of Techscore
  */
 
-
-
 /**
  * Penalty for a team in a division
  *
  * @author Dayan Paez
  * @version 2012-01-13
  */
-class TeamPenalty extends DBObject {
+class DivisionPenalty extends DBObject {
   // Constants
   const PFD = "PFD";
   const LOP = "LOP";
@@ -19,10 +17,10 @@ class TeamPenalty extends DBObject {
   const GDQ = "GDQ";
 
   public static function getList() {
-    return array(TeamPenalty::PFD=>"PFD: Illegal lifejacket",
-                 TeamPenalty::LOP=>"LOP: Missing pinnie",
-                 TeamPenalty::MRP=>"MRP: Missing RP info",
-                 TeamPenalty::GDQ=>"GDQ: General disqualification");
+    return array(DivisionPenalty::PFD=>"PFD: Illegal lifejacket",
+                 DivisionPenalty::LOP=>"LOP: Missing pinnie",
+                 DivisionPenalty::MRP=>"MRP: Missing RP info",
+                 DivisionPenalty::GDQ=>"GDQ: General disqualification");
   }
 
   protected $team;
@@ -30,7 +28,7 @@ class TeamPenalty extends DBObject {
   public $type;
   public $comments;
 
-  public function db_name() { return 'penalty_team'; }
+  public function db_name() { return 'penalty_division'; }
   public function db_type($field) {
     switch ($field) {
     case 'team': return DB::T(DB::TEAM);

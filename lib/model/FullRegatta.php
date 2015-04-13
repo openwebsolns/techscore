@@ -1087,31 +1087,31 @@ class FullRegatta extends DBObject implements Publishable {
   }
 
   // ------------------------------------------------------------
-  // Team penalties
+  // Division penalties
   // ------------------------------------------------------------
 
   /**
-   * Set team penalty
+   * Set the division penalty.
    *
-   * @param TeamPenalty $penalty the penalty to register
+   * @param DivisionPenalty $penalty the penalty to register
    */
-  public function setTeamPenalty(TeamPenalty $penalty) {
+  public function setDivisionPenalty(DivisionPenalty $penalty) {
     // Ascertain unique key compliance
-    $cur = $this->getTeamPenalty($penalty->team, $penalty->division);
+    $cur = $this->getDivisionPenalty($penalty->team, $penalty->division);
     if ($cur !== null)
       $penalty->id = $cur->id;
     DB::set($penalty);
   }
 
   /**
-   * Drops the team penalty for the given team in the given division
+   * Drops the division penalty for the given team in the given division
    *
    * @param Team $team the team whose penalty to drop
    * @param Division $div the division to drop
    * @return boolean true if a penalty was dropped
    */
-  public function dropTeamPenalty(Team $team, Division $div) {
-    $cur = $this->getTeamPenalty($team, $div);
+  public function dropDivisionPenalty(Team $team, Division $div) {
+    $cur = $this->getDivisionPenalty($team, $div);
     if ($cur === null)
       return false;
     DB::remove($cur);
@@ -1119,28 +1119,27 @@ class FullRegatta extends DBObject implements Publishable {
   }
 
   /**
-   * Returns the team penalty, or null
+   * Returns the division penalty, or null
    *
    * @param Team $team the team
    * @param Division $div the division
-   * @return TeamPenalty if one exists, or null otherwise
+   * @return DivisionPenalty if one exists, or null otherwise
    */
-  public function getTeamPenalty(Team $team, Division $div) {
-    $res = $this->getTeamPenalties($team, $div);
+  public function getDivisionPenalty(Team $team, Division $div) {
+    $res = $this->getDivisionPenalties($team, $div);
     $r = (count($res) == 0) ? null : $res[0];
     unset($res);
     return $r;
   }
 
   /**
-   * Returns list of all the team penalties for the given team, or all
-   * if null
+   * Returns list of all the division penalties for the given team, or all.
    *
    * @param Team $team the team whose penalties to return, or all if null
    * @param Division $div the division to fetch, or all if null
-   * @return Array:TeamPenalty list of team penalties
+   * @return Array:DivisionPenalty list of team penalties
    */
-  public function getTeamPenalties(Team $team = null, Division $div = null) {
+  public function getDivisionPenalties(Team $team = null, Division $div = null) {
     $cond = new DBBool(array());
     if ($team === null)
       $cond->add(new DBCondIn('team', DB::prepGetAll(DB::T(DB::TEAM), new DBCond('regatta', $this->id), array('id'))));
@@ -1148,7 +1147,7 @@ class FullRegatta extends DBObject implements Publishable {
       $cond->add(new DBCond('team', $team));
     if ($div !== null)
       $cond->add(new DBCond('division', (string)$div));
-    return DB::getAll(DB::T(DB::TEAM_PENALTY), $cond);
+    return DB::getAll(DB::T(DB::DIVISION_PENALTY), $cond);
   }
 
   /**
@@ -1482,7 +1481,7 @@ class FullRegatta extends DBObject implements Publishable {
     $team_division->comments = null;
 
     // Penalty?
-    if (($pen = $this->getTeamPenalty($rank->team, $div)) !== null) {
+    if (($pen = $this->getDivisionPenalty($rank->team, $div)) !== null) {
       $team_division->penalty = $pen->type;
       $team_division->comments = $pen->comments;
     }

@@ -106,21 +106,18 @@ DROP TABLE IF EXISTS `attendee`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `attendee` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `regatta` int(5) NOT NULL,
-  `school` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
+  `team` int(7) NOT NULL,
   `sailor` mediumint(9) NOT NULL,
   `added_by` int(10) unsigned DEFAULT NULL,
   `added_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uniq_regatta_sailor` (`regatta`,`sailor`),
-  KEY `regatta` (`regatta`),
-  KEY `school` (`school`),
+  UNIQUE KEY `uniq_regatta_sailor` (`team`,`sailor`),
+  KEY `team` (`team`),
   KEY `sailor` (`sailor`),
   KEY `added_by` (`added_by`),
   CONSTRAINT `fk_attendee_added_by` FOREIGN KEY (`added_by`) REFERENCES `account` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `fk_attendee_regatta` FOREIGN KEY (`regatta`) REFERENCES `regatta` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_attendee_sailor` FOREIGN KEY (`sailor`) REFERENCES `sailor` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_attendee_school` FOREIGN KEY (`school`) REFERENCES `school` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_attendee_team` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `boat`;
@@ -389,10 +386,10 @@ CREATE TABLE `outbox` (
   KEY `sender` (`sender`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `penalty_team`;
+DROP TABLE IF EXISTS `penalty_division`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `penalty_team` (
+CREATE TABLE `penalty_division` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `team` int(7) NOT NULL,
   `division` enum('A','B','C','D') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'A',
@@ -400,7 +397,7 @@ CREATE TABLE `penalty_team` (
   `comments` mediumtext COLLATE utf8_unicode_ci,
   PRIMARY KEY (`id`),
   UNIQUE KEY `team` (`team`,`division`),
-  CONSTRAINT `penalty_team_ibfk_1` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_penalty_division_team` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `permission`;

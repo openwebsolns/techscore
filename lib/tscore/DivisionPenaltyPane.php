@@ -50,7 +50,7 @@ class DivisionPenaltyPane extends AbstractPane {
       $form->add(new XHiddenInput('division[]', array_shift($divisions)));
 
     // Penalty type
-    $opts = array_merge(array(""=>""), TeamPenalty::getList());
+    $opts = array_merge(array(""=>""), DivisionPenalty::getList());
     $form->add(new FReqItem("Penalty type:", XSelect::fromArray('penalty', $opts)));
 
     $form->add(new FItem("Comments:",
@@ -65,7 +65,7 @@ class DivisionPenaltyPane extends AbstractPane {
     // Existing penalties
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new XPort("Team penalties"));
-    $penalties = $this->REGATTA->getTeamPenalties();
+    $penalties = $this->REGATTA->getDivisionPenalties();
 
     if (count($penalties) == 0)
       $p->add(new XP(array(), "There are no team penalties."));
@@ -94,17 +94,17 @@ class DivisionPenaltyPane extends AbstractPane {
     // ------------------------------------------------------------
     if (isset($args['t_submit'])) {
       $team = DB::$V->reqTeam($args, 'team', $this->REGATTA, "Invalid or missing team.");
-      $pnty = DB::$V->reqKey($args, 'penalty', TeamPenalty::getList(), "Invalid or missing penalty type.");
+      $pnty = DB::$V->reqKey($args, 'penalty', DivisionPenalty::getList(), "Invalid or missing penalty type.");
       $comm = DB::$V->incString($args, 'comments', 1, 16000, null);
       $divs = DB::$V->reqDivisions($args, 'division', $this->REGATTA->getDivisions(), 1, "Division list not provided.");
 
       foreach ($divs as $div) {
-        $pen = new TeamPenalty();
+        $pen = new DivisionPenalty();
         $pen->team = $team;
         $pen->type = $pnty;
         $pen->comments = $comm;
         $pen->division = $div;
-        $this->REGATTA->setTeamPenalty($pen);
+        $this->REGATTA->setDivisionPenalty($pen);
       }
       $this->REGATTA->setRanks();
       Session::pa(new PA("Added team penalty."));
@@ -117,7 +117,7 @@ class DivisionPenaltyPane extends AbstractPane {
     if (isset($args['t_remove'])) {
       $team = DB::$V->reqTeam($args, 'r_team', $this->REGATTA, "Invalid or missing team.");
       $div = DB::$V->reqDivision($args, 'r_div', $this->REGATTA->getDivisions(), "Invalid or missing division.");
-      if ($this->REGATTA->dropTeamPenalty($team, $div)) {
+      if ($this->REGATTA->dropDivisionPenalty($team, $div)) {
         $this->REGATTA->setRanks($div);
         Session::pa(new PA(sprintf("Dropped team penalty for %s in division %s.", $team, $div)));
         UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);

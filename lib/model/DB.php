@@ -28,6 +28,7 @@ class DB extends DBM {
   const COACH = 'Coach';
   const CONFERENCE = 'Conference';
   const DAILY_SUMMARY = 'Daily_Summary';
+  const DIVISION_PENALTY = 'DivisionPenalty';
   const DT_RP = 'Dt_Rp';
   const DT_TEAM_DIVISION = 'Dt_Team_Division';
   const EMAIL_TOKEN = 'Email_Token';
@@ -80,7 +81,6 @@ class DB extends DBM {
   const SINGLEHANDED_TEAM = 'SinglehandedTeam';
   const SYNC_LOG = 'Sync_Log';
   const TEAM_NAME_PREFS = 'Team_Name_Prefs';
-  const TEAM_PENALTY = 'TeamPenalty';
   const TEAM_ROTATION = 'TeamRotation';
   const TEAM = 'Team';
   const TEXT_ENTRY = 'Text_Entry';
