@@ -279,8 +279,15 @@ class DBI {
     $this->query($this->prepSet($obj, $update));
 
     // Update ID if necessary
-    if ($obj->id === null)
+    if ($obj->id === null) {
       $obj->id = $this->connection()->insert_id;
+    }
+    elseif ($obj->db_get_cache()) {
+      $i = get_class($obj) . '_' . $obj->id;
+      if (array_key_exists($i, self::$objs)) {
+        self::$objs[$i] = $obj;
+      }
+    }
   }
 
   public function prepSet(DBObject $obj, $update = "guess") {
