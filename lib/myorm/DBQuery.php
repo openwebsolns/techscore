@@ -74,7 +74,7 @@ class DBQuery {
    * @throws DBQueryException if the query type is not supported
    */
   public function __construct(\MySQLi $con, $axis = self::SELECT) {
-    if (!in_array($axis, array(self::SELECT, self::UPDATE, self::DELETE, self::INSERT)))
+    if (!in_array($axis, $this->getAxes()))
       throw new DBQueryException("Unsupported query axis $axis.");
     $this->axis = $axis;
     $this->con  = $con;
@@ -85,6 +85,16 @@ class DBQuery {
 
     if ($axis == DBQuery::INSERT)
       $this->multipleValues = array();
+  }
+
+  /**
+   * Return list of acceptable query "methods"
+   *
+   * @return Array
+   */
+  protected function getAxes() {
+    static $axes = array(self::SELECT, self::UPDATE, self::DELETE, self::INSERT);
+    return $axes;
   }
 
   /**
