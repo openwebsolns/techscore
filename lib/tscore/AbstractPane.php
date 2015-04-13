@@ -1,5 +1,6 @@
 <?php
 use \ui\Pane;
+use \tscore\TeamDivisionPenaltyPane;
 
 /*
  * This file is part of TechScore
@@ -458,6 +459,9 @@ abstract class AbstractPane implements Pane {
       return new SummaryPane($r, $u);
     case 'team-penalty':
     case 'team-penalties':
+      if ($u->scoring == Regatta::SCORING_TEAM) {
+        return new TeamDivisionPenaltyPane($r, $u);
+      }
       require_once('tscore/DivisionPenaltyPane.php');
       return new DivisionPenaltyPane($r, $u);
     case 'team':
@@ -537,6 +541,7 @@ abstract class AbstractPane implements Pane {
 
     case 'SailsPane':
     case 'DivisionPenaltyPane':
+    case 'TeamDivisionPenaltyPane':
       return $this->has_teams && $this->has_races;
 
     case 'TeamRacesPane':
@@ -722,7 +727,7 @@ abstract class AbstractPane implements Pane {
           'TeamEnterFinishPane',
           'TeamEnterPenaltyPane',
           'DropPenaltyPane',
-          'DivisionPenaltyPane',
+          // 'TeamDivisionPenaltyPane',
           'TeamRacesDialog',
         ),
         "Ranks" => array(
@@ -872,7 +877,8 @@ abstract class AbstractPane implements Pane {
     'TeamEnterPenaltyPane'   => '/score/%s/penalty',
     'TeamOrderRoundsPane'    => '/score/%s/order-rounds',
     'TeamPartialRankPane'    => '/score/%s/partial',
-    'DivisionPenaltyPane'        => '/score/%s/team-penalty',
+    'DivisionPenaltyPane'    => '/score/%s/team-penalty',
+    'TeamDivisionPenaltyPane'=> '/score/%s/team-penalty',
     'TeamRacesPane'          => '/score/%s/races',
     'TeamRankGroupPane'      => '/score/%s/group',
     'TeamReplaceTeamPane'    => '/score/%s/substitute',
@@ -926,6 +932,7 @@ abstract class AbstractPane implements Pane {
     'TeamOrderRoundsPane'    => 'Order rounds',
     'TeamPartialRankPane'    => 'Partial ranking',
     'DivisionPenaltyPane'    => 'Team penalty',
+    'TeamDivisionPenaltyPane'=> 'Team penalty',
     'TeamRacesPane'          => 'Add round',
     'TeamRankGroupPane'      => 'Rank groups',
     'TeamReplaceTeamPane'    => 'Sub team',

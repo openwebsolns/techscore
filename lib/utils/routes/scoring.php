@@ -191,6 +191,13 @@ return array(
     RouteManager::PERMISSIONS => array()
   ),
 
+  '\tscore\TeamDivisionPenaltyPane' => array(
+    RouteManager::NAME => "Team penalty",
+    RouteManager::PATH => '',
+    RouteManager::URLS => array('/score/%s/team-penalty'),
+    RouteManager::PERMISSIONS => array()
+  ),
+
   'TeamRacesPane' => array(
     RouteManager::NAME => "Add round",
     RouteManager::PATH => 'tscore',
