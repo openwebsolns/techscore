@@ -296,7 +296,7 @@ class DBI {
       $exist = $this->get($obj, $obj->id);
       return $this->prepSet($obj, ($exist instanceof DBObject));
     }
-    $this->fillSetQuery($obj, $q);
+    $this->fillSetQuery($obj, $q, array(), !$update);
     $obj->db_set_dbi($this);
     $q->limit(1);
     return $q;
@@ -310,16 +310,22 @@ class DBI {
    *
    * @param Array $fields provide this flag to use 'multipleValues'
    * instead of just 'values'
+   * @param boolean $inc_id false to suppress ID column in update query.
    */
-  private function fillSetQuery(DBObject $obj, DBQuery $q, Array $fields = array()) {
+  private function fillSetQuery(DBObject $obj, DBQuery $q, Array $fields = array(), $inc_id = true) {
     $multiple = true;
     if (count($fields) == 0) {
       $multiple = false;
       $fields = $obj->db_fields();
     }
+    $all_fields = array();
     $values = array();
     $types  = array();
     foreach ($fields as $field) {
+      if ($field == 'id' && $inc_id === false) {
+        continue;
+      }
+      $all_fields[] = $field;
       $value =& $obj->$field;
       $type = "";
       if ($value instanceof DBObject) {
@@ -347,7 +353,7 @@ class DBI {
     if ($multiple)
       $q->multipleValues($types, $values, $obj->db_name());
     else
-      $q->values($fields, $types, $values, $obj->db_name());
+      $q->values($all_fields, $types, $values, $obj->db_name());
   }
 
   /**
