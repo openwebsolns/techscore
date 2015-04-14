@@ -12,7 +12,7 @@ require_once('mysqli/DBM.php');
  * @version 2012-01-07
  * @package dbm
  */
-class DB extends DBM {
+class DB {
 
   // Template objects
   const AA_REPORT = 'AA_Report';
@@ -115,7 +115,71 @@ class DB extends DBM {
 
     require_once('regatta/TSSoter.php');
     self::$V = new TSSoter();
-    self::$V->setDBM('DB');
+    self::$V->setDBM('DBM');
+  }
+
+  public static function commit() {
+    return DBM::commit();
+  }
+
+  public static function remove(DBObject $obj) {
+    return DBM::remove($obj);
+  }
+
+  public static function removeAll(DBObject $obj, DBExpression $where = null) {
+    return DBM::remove($obj, $where);
+  }
+
+  public static function getAll(DBObject $obj, DBExpression $where = null, $limit = null) {
+    return DBM::getAll($obj, $where, $limit);
+  }
+
+  public static function prepGetAll(DBObject $obj, DBExpression $where = null, Array $fields = array(), $limit = null) {
+    return DBM::prepGetAll($obj, $where, $fields, $limit);
+  }
+
+  public static function connection() {
+    return DBM::connection();
+  }
+
+  public static function resetCache() {
+    return DBM::resetCache();
+  }
+
+  public static function insertAll($list) {
+    return DBM::insertAll($list);
+  }
+
+  public static function set(DBObject $obj, $update = "guess") {
+    return DBM::set($obj, $update);
+  }
+
+  public static function query(DBQuery $q) {
+    return DBM::query($q);
+  }
+
+  public static function rollback() {
+    return DBM::rollback();
+  }
+
+  public static function createQuery($type = DBQuery::SELECT) {
+    return DBM::createQuery($type);
+  }
+
+  public static function setLogfile($path = null) {
+    return DBM::setLogfile($path);
+  }
+
+  public static function get(DBObject $obj, $id) {
+    return DBM::get($obj, $id);
+  }
+
+  public static function search(DBObject $obj, $qry, Array $fields = array()) {
+    return DBM::search($obj, $qry, $fields);
+  }
+
+  public static function prepSearch(DBObject $obj, $qry, Array $fields = array()) {
+    return DBM::prepSearch($obj, $qry, $fields);
   }
 
   /**
