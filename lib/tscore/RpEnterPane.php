@@ -153,11 +153,11 @@ class RpEnterPane extends AbstractPane {
       $active = true;
     $gender = ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) ?
       Sailor::FEMALE : null;
-    $sailors = $chosen_team->school->getSailors($gender, $active);
-    $un_slrs = $chosen_team->school->getUnregisteredSailors($gender);
+
+    // regardless of above settings, all currently participating
+    // sailors must also show up in the drop down list of RP entries.
 
     $sailor_options = array("" => "");
-
     foreach ($schools as $school) {
       $key = $school->nick_name;
       foreach ($school->getSailors($gender, $active) as $s)
