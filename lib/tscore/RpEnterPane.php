@@ -191,9 +191,6 @@ class RpEnterPane extends AbstractPane {
       $active = true;
     $gender = ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) ?
       Sailor::FEMALE : null;
-    $sailors = $chosen_team->school->getSailors($gender, $active);
-    $un_slrs = $chosen_team->school->getUnregisteredSailors($gender);
-
 
     $rpform->add($p = new XPort(sprintf("Fill out form for %s", $chosen_team)));
 
@@ -210,6 +207,7 @@ class RpEnterPane extends AbstractPane {
         $sailor_options[$key][$s->id] = (string)$s;
         $attendee_options[$key][$s->id] = (string)$s;
       }
+      $key .= ' (Unregistered)';
       foreach ($school->getUnregisteredSailors($gender, $active) as $s) {
         if (!array_key_exists($key, $sailor_options)) {
           $sailor_options[$key] = array();
@@ -217,6 +215,24 @@ class RpEnterPane extends AbstractPane {
         }
         $sailor_options[$key][$s->id] = (string)$s;
         $attendee_options[$key][$s->id] = (string)$s;
+      }
+    }
+
+    // regardless of above settings, all currently participating
+    // sailors must also show up in the drop down list of RP entries.
+    $participating_sailors = $rpManager->getParticipatingSailors($chosen_team);
+    foreach ($participating_sailors as $s) {
+      $key = $s->school->nick_name;
+      if (!array_key_exists($key, $sailor_options)) {
+        $sailor_options[$key] = array();
+      }
+      $sailor_options[$key][$s->id] = (string)$s;
+    }
+
+    // Sort each list
+    foreach ($sailor_options as $key => $list) {
+      if (is_array($sailor_options[$key])) {
+        asort($sailor_options[$key]);
       }
     }
 

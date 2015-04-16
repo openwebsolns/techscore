@@ -68,10 +68,10 @@ class UserArchivePane extends AbstractUserPane {
     $whiz = new PageWhiz($num_regattas, self::NUM_PER_PAGE, '/archive', $args);
     $p->add($whiz->getSearchForm($qry, 'q', $empty_mes, "Search your regattas"));
     $ldiv = $whiz->getPageLinks();
-    $regs = $whiz->getSlice($regs);
 
     // Create table of regattas, if applicable
     if ($num_regattas > 0) {
+      $regs = $whiz->getSlice($regs);
       $p->add($ldiv);
 
       require_once('xml5/UserRegattaTable.php');
