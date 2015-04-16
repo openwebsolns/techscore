@@ -1055,6 +1055,7 @@ class DB {
    */
   public static function getRpFormWriter(FullRegatta $reg) {
     $divisions = count($reg->getDivisions());
+    $form = null;
     if ($reg->scoring == Regatta::SCORING_TEAM) {
       $form = self::g(STN::RP_TEAM_RACE);
     }
@@ -1073,8 +1074,6 @@ class DB {
     elseif ($divisions == 1) {
       $form = self::g(STN::RP_1_DIVISION);
     }
-    else
-      throw new InvalidArgumentException("Regattas of this type are not supported.");
 
     if ($form === null)
       return null;

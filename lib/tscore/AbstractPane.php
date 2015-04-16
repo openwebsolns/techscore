@@ -30,7 +30,10 @@ abstract class AbstractPane implements Pane {
   protected $has_rots = false;
   protected $has_scores = false;
   protected $has_penalty = false;
-  protected $has_rp_writer = false;
+  /**
+   * AbstractRpForm the form which will make the PDF.
+   */
+  protected $rp_writer = false;
 
   /**
    * @var boolean UI mode (true = participant) default = false
@@ -55,6 +58,10 @@ abstract class AbstractPane implements Pane {
     $this->has_rots = $this->has_teams && $rot->isAssigned();
     $this->has_scores = $this->has_teams && $this->REGATTA->hasFinishes();
     $this->has_penalty = $this->has_scores && $this->REGATTA->hasPenalties();
+
+    // The calculation of RpWriter may require knowledge of the races
+    // in the regatta (so as to discern between 1 division and 2
+    // division, etc).
     $this->rp_writer = DB::getRpFormWriter($this->REGATTA);
   }
 
