@@ -1,0 +1,228 @@
+/*
+ * --------------------
+ * Tables
+ * --------------------
+ */
+
+.dialog table {
+    border: 3px solid #CCCCCC;
+    border-radius: 5px;
+    border-spacing: 0;
+    font-size: 0.9em;
+    margin-bottom: 1em;
+}
+.dialog td, .dialog tbody th {
+    border-top: 1px solid #CCCCCC;
+    margin:0px;
+    padding: 5px;
+}
+.dialog th {
+    color: #222;
+    font-size: 80%;
+    min-width: 2.25em;
+    padding: 0.75em 0.5em;
+}
+.dialog table thead {    
+    background: #f3ebdf; /* Old browsers */
+    background: -moz-linear-gradient(top, #f3ebdf 0%, #e6dfd3 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f3ebdf), color-stop(100%,#e6dfd3)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #f3ebdf 0%,#e6dfd3 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #f3ebdf 0%,#e6dfd3 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #f3ebdf 0%,#e6dfd3 100%); /* IE10+ */
+    background: linear-gradient(to bottom, #f3ebdf 0%,#e6dfd3 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f3ebdf', endColorstr='#e6dfd3',GradientType=0 ); /* IE6-9 */
+
+    border:1px solid #555555;
+    height:20px;
+    color:black;
+}
+
+.dialog th.noborder, .dialog td.noborder {
+    border:none;
+}
+
+.dialog tr.disabled {
+    background:#ddd;
+    color:#555;
+}
+
+.dialog tr.row1 {
+    background: #F2EDE6;
+}
+
+.dialog tr.checked {
+    background: #e0f3e0;
+}
+
+
+
+
+/* Team finishes table */
+
+.dialog .teamscores td {
+    text-align: center;
+}
+.dialog .teamscores .re-score {
+    background: #dfd;
+}
+.dialog .teamscores .no-teams {
+    opacity: 0.8;
+}
+.dialog .tr-ns {
+    background: #fff;
+    color: #fff;
+}
+.dialog .tr-win {
+    background: #e0f3e0;
+    font-weight: bold;
+}
+.dialog .tr-lose {
+    background: #eed2c0;
+    color: #555;
+}
+.dialog .tr-tie {
+    background:#f3f3bb;
+}
+.dialog .tr-multtable {
+    border: medium none;
+    height: 100%;
+    width: 100%;
+}
+.dialog .tr-multtable td {
+    border: none;
+}
+
+.dialog .tr-row td {
+    height: 60px;
+    width: 60px;
+    font-size: 80%;
+}
+
+.dialog .tr-horiz-label {
+    vertical-align: middle;
+    max-width: 12em;
+}
+
+
+
+
+.dialog .totalrow, .dialog .totalcell {
+  background: #F2EDE6;
+  color: #333;
+  font-weight: bold;
+  height: 40px;
+}
+
+.dialog .totalcell, .dialog .total {
+    text-align: right;
+}
+
+.dialog tr.totalrow td {
+  border-bottom: 1px solid #bbbbbb;
+}
+
+.dialog td.races {
+    text-align: left;
+    font-size: 95%;
+    color: #555;
+    padding-left: 0.5em;
+}
+
+
+
+
+
+/* Team racing */
+
+.dialog .roundrow th {
+    padding: 0.5em 0;
+}
+.dialog .vscell {
+    text-align: center;
+    font-size: 90%;
+    color: #555;
+}
+.dialog .team1 {
+    text-align: right;
+}
+.dialog .team2 {
+    text-align: left;
+}
+.dialog .tr-incomplete {
+    opacity: 0.8;
+}
+
+.dialog .tr-boats, .dialog .tr-boats * {
+    border: 0;
+}
+.dialog .tr-boats {
+    width: 100%;
+}
+.dialog .tr-boats tr {
+    border-bottom: 1px dashed #aaa;
+}
+.dialog .tr-boats td {
+    height: 3em;
+    font-size: 90%;
+}
+.dialog .tr-boats td:hover {
+    background: #fafaea;
+}
+.dialog .tr-boats tr:last-child {
+    border-bottom: none;
+}
+
+.dialog .tr-rotation-table td {
+    border-right: 0;
+    border-left: 0;
+}
+.dialog .tr-flight {
+    background: #F2EDE6;
+}
+.dialog .tr-flight td {
+    text-align: center;
+    font-size: 75%;
+}
+
+.dialog .tr-carried {
+    opacity: 0.5;
+}
+.dialog .tr-rank-group {
+    height: 1.25em;
+    background: #ccc;
+}
+
+.dialog .tr-current {
+    font-size: 105%;
+}
+.dialog .tr-sailed {
+    opacity: 0.5;
+}
+
+
+
+
+
+/* Rotation table */
+
+.dialog .rotation td {
+    height: 35px;
+}
+
+.dialog .rotation .teamname {
+    padding-right: 15px;
+}
+
+.dialog .tr-sail, .dialog .sail {
+    font-size: 80%;
+    padding: 0 0.35em;
+    text-align: center;
+}
+
+.dialog .sail-color {
+    border: 1px solid #FFFFFF;
+    box-shadow: 0 1px 2px 0 #888888;
+    display: block;
+    height: 3px;
+    width: 100%;
+}

@@ -16,15 +16,15 @@ foreach (DB::getAll(DB::T(DB::ROUND)) as $round) {
   try {
     if ($round->race_order !== null) {
       foreach ($round->race_order as $entry) {
-	$pair = explode('-', $entry);
+        $pair = explode('-', $entry);
 
-	$elem = new Round_Template();
-	$elem->round = $round;
-	$elem->team1 = $pair[0];
-	$elem->team2 = $pair[1];
-	$elem->boat = $round->boat;
+        $elem = new Round_Template();
+        $elem->round = $round;
+        $elem->team1 = $pair[0];
+        $elem->team2 = $pair[1];
+        $elem->boat = $round->boat;
 
-	$to_add[] = $elem;
+        $to_add[] = $elem;
       }
     }
   }
