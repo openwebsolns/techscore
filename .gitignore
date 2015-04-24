@@ -1,9 +1,5 @@
-syntax: glob
-
 # Documentation HTML files
-www/help/*
 doc/*
-log/*.log*
 
 # Backup and image sources
 *~
@@ -17,10 +13,6 @@ src/md5sum
 
 # Crontab
 crontab
-
-# Cache
-cache/*.db
-cache/*.html
 
 # CSS and JS
 www/inc/css/*.css
@@ -39,9 +31,7 @@ src/pdflatexd/params.py
 src/pdflatexd/*.pyc
 src/pdflatexd/pdflatex_server.pid
 
-# Public files
-syntax: regexp
+html/
 
-^html/.*
-
-.git*
+# Mercurial
+.hg*
