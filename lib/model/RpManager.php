@@ -699,6 +699,43 @@ class RpManager {
   }
 
   /**
+   * Returns list of sailors from the given team with no RP entries.
+   *
+   * @param Team $team the team whose RP entries to search.
+   * @return Array:Sailor the reserve sailors (may be from other schools).
+   */
+  public function getReserveSailors(Team $team) {
+    if ($this->regatta->getTeam($team->id) === null) {
+      throw new InvalidArgumentException("Given team ($team) is not from this regatta.");
+    }
+
+    DB::setLogfile('/tmp/queries.log');
+    $sailorCond = new DBCondIn(
+      'id',
+      DB::prepGetAll(
+        DB::T(DB::ATTENDEE),
+        new DBBool(
+          array(
+            new DBCond('team', $team),
+            new DBCondIn(
+              'id',
+              DB::prepGetAll(
+                DB::T(DB::RP_ENTRY),
+                new DBCond('team', $team),
+                array('attendee')
+              ),
+              DBCondIn::NOT_IN
+            ),
+          )
+        ),
+        array('sailor')
+      )
+    );
+
+    return DB::getAll(DB::T(DB::SAILOR), $sailorCond);
+  }
+
+  /**
    * Get all the regattas the given sailor has participated in
    *
    * @param Sailor $sailor the sailor

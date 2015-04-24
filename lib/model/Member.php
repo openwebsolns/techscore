@@ -86,6 +86,23 @@ class Member extends DBObject implements Publishable {
   }
 
   /**
+   * Return sailor (HTML) representation, as link to profile, if supported.
+   *
+   * @param boolean $public true to include URL.
+   * @return Xmlable or text.
+   */
+  public function toView($public = false) {
+    $result = (string)$this;
+
+    $url = $this->getURL();
+    if ($public !== false && $url !== null && DB::g(STN::SAILOR_PROFILES)) {
+      $result = new XA($url, $result);
+    }
+
+    return $result;
+  }
+
+  /**
    * Fetch list of regattas member has participated in
    *
    * @param boolean $inc_private by default only include public regattas

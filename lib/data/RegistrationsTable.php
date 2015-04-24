@@ -4,6 +4,7 @@ namespace data;
 use \FullRegatta;
 use \RP;
 use \DB;
+use \STN;
 
 use \XTable;
 use \XTHead;
@@ -108,8 +109,41 @@ class RegistrationsTable extends XTable {
           }
           $tab->add($row);
         }
-        $team_td->set('rowspan', $num_rows);
       }
+
+      // Reserves
+      if (DB::g(STN::ALLOW_RESERVES)) {
+        $reserves = $rpManager->getReserveSailors($team);
+        // OPTION 1: One line for all reserves spanning 4 columns
+        if (count($reserves) > 0) {
+          $tab->add($row = new XTR(array('class'=>'reserves-row row'.($row_index % 2))));
+          $num_rows++;
+
+          $row->add(new XTD(array('title' => "Reserves"), "Res."));
+          $row->add($td = new XTD(array('class'=>'reserves-cell', 'colspan' => 4)));
+          foreach ($reserves as $reserve) {
+            $td->add(new XSpan($reserve->toView(), array('class'=>'reserve-entry')));
+          }
+        }
+
+        /*
+        // OPTION 2: Each reserve on its own line
+        foreach ($reserves as $i => $reserve) {
+          $row = new XTR(array('class'=>'reserves-row row'.($row_index % 2)));
+          if ($i == 0) {
+            $row->add(new XTD(array('rowspan' => count($reserves), 'title' => "Reserves"), "Res."));
+          }
+          $row->add(new XTD(array(), $reserve->toView()));
+          $row->add(new XTD(array())); // "races"
+          $row->add(new XTD(array())); // "crew"
+          $row->add(new XTD(array())); // "races"
+          $tab->add($row);
+          $num_rows++;
+        }
+        */
+      }
+
+      $team_td->set('rowspan', $num_rows);
     }
   }
 }

@@ -1376,6 +1376,23 @@ td.tr-sail, td.sail {
 
 
 
+/* Registrations (RP) table */
+
+.reserves-cell {
+    max-width: 30em;
+}
+
+.reserve-entry {
+    font-size: 85%;
+    padding: 0.25em 0.5em;
+    display: inline-block;
+    border-radius: 3px;
+    margin-right: 0.5em;
+    margin-bottom: 0.5em;
+    background: rgba(255,255,255,0.7);
+}
+
+
 
 /* Announcements */
 
