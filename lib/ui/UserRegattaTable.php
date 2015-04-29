@@ -1,4 +1,22 @@
 <?php
+namespace ui;
+
+use \Account;
+use \DB;
+use \Regatta;
+
+use \XTable;
+use \XTHead;
+use \XTBody;
+use \XTR;
+use \XTH;
+use \XTD;
+use \XImg;
+use \XA;
+use \XSpan;
+
+use \WS;
+
 /**
  * Convenience table to display a user's regattas
  *

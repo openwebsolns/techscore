@@ -125,22 +125,6 @@ class RegistrationsTable extends XTable {
             $td->add(new XSpan($reserve->toView(), array('class'=>'reserve-entry')));
           }
         }
-
-        /*
-        // OPTION 2: Each reserve on its own line
-        foreach ($reserves as $i => $reserve) {
-          $row = new XTR(array('class'=>'reserves-row row'.($row_index % 2)));
-          if ($i == 0) {
-            $row->add(new XTD(array('rowspan' => count($reserves), 'title' => "Reserves"), "Res."));
-          }
-          $row->add(new XTD(array(), $reserve->toView()));
-          $row->add(new XTD(array())); // "races"
-          $row->add(new XTD(array())); // "crew"
-          $row->add(new XTD(array())); // "races"
-          $tab->add($row);
-          $num_rows++;
-        }
-        */
       }
 
       $team_td->set('rowspan', $num_rows);

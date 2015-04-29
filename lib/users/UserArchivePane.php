@@ -1,4 +1,7 @@
 <?php
+use \ui\UserRegattaTable;
+use \ui\RegattaSearchParams;
+
 /*
  * This file is part of TechScore
  *
@@ -30,33 +33,29 @@ class UserArchivePane extends AbstractUserPane {
    * @param Array $args the arguments to consider
    */
   protected function fillHTML(Array $args) {
-    $pageset  = (isset($args['r'])) ? (int)$args['r'] : 1;
-    if ($pageset < 1)
-      $this->redirect('archive');
-    $startint = self::NUM_PER_PAGE * ($pageset - 1);
+    $params = RegattaSearchParams::fromArgs($args);
 
     // ------------------------------------------------------------
     // Regatta list
     // ------------------------------------------------------------
 
     // Search?
-    $qry = null;
     $empty_mes = array("You have no regattas. Go ", new XA("create", "create one"), "!");
     $regattas = array();
     $num_regattas = 0;
-    DB::$V->hasString($qry, $_GET, 'q', 1, 256);
+    $qry = $params->query;
     if ($qry !== null) {
       $empty_mes = "No regattas match your request.";
-      if (strlen($qry) < 3)
+      if (strlen($qry) < 3) {
         $empty_mes = "Search string is too short.";
+      }
       else {
         $regs = $this->USER->searchRegattas($qry, true);
         $num_regattas = count($regs);
-        if ($startint > 0 && $startint >= $num_regattas)
-          WS::go('/archive?q=' . $qry);
       }
     }
     else {
+      // Filter?
       $regs = $this->USER->getRegattas(null, true);
       $num_regattas = count($regs);
     }
@@ -65,7 +64,7 @@ class UserArchivePane extends AbstractUserPane {
 
     // Offer pagination awesomeness
     require_once('xml5/PageWhiz.php');
-    $whiz = new PageWhiz($num_regattas, self::NUM_PER_PAGE, '/archive', $args);
+    $whiz = new PageWhiz($num_regattas, self::NUM_PER_PAGE, $this->link(), $args);
     $p->add($whiz->getSearchForm($qry, 'q', $empty_mes, "Search your regattas"));
     $ldiv = $whiz->getPageLinks();
 
@@ -74,7 +73,6 @@ class UserArchivePane extends AbstractUserPane {
       $regs = $whiz->getSlice($regs);
       $p->add($ldiv);
 
-      require_once('xml5/UserRegattaTable.php');
       $p->add($tab = new UserRegattaTable($this->USER));
       foreach ($regs as $reg) {
         $tab->addRegatta($reg);

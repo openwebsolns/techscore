@@ -1,4 +1,6 @@
 <?php
+use \ui\UserRegattaTable;
+
 /*
  * This file is part of TechScore
  *
@@ -72,7 +74,6 @@ class UserSeasonPane extends AbstractUserPane {
     // to list there.
     $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/tablefilter.js')));
     $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/tfinit.js')));
-    require_once('xml5/UserRegattaTable.php');
     $all_tab = new UserRegattaTable($this->USER);
     $cur_tab = new UserRegattaTable($this->USER, true);
 

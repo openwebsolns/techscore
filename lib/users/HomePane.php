@@ -1,4 +1,6 @@
 <?php
+use \ui\UserRegattaTable;
+
 /*
  * This file is part of TechScore
  *
@@ -112,7 +114,6 @@ class HomePane extends AbstractUserPane {
                                               new DBCond('end_date', $end, DBCond::GE))));
       DB::T(DB::REGATTA)->db_set_order();
 
-      require_once('xml5/UserRegattaTable.php');
       $cur_tab = new UserRegattaTable($this->USER, true);
 
       $schools = $this->USER->getSchools();
