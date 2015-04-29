@@ -1,6 +1,6 @@
 <?php
 use \ui\UserRegattaTable;
-use \ui\RegattaSearchParams;
+use \utils\RegattaSearcher;
 
 /*
  * This file is part of TechScore
@@ -33,7 +33,7 @@ class UserArchivePane extends AbstractUserPane {
    * @param Array $args the arguments to consider
    */
   protected function fillHTML(Array $args) {
-    $params = RegattaSearchParams::fromArgs($args);
+    $params = RegattaSearcher::fromArgs($args);
 
     // ------------------------------------------------------------
     // Regatta list

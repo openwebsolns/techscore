@@ -298,7 +298,8 @@ class Account extends DBObject {
    * which the user is participating
    * @return DBExpression
    */
-  private function getJurisdictionCondition($reg_attr = 'id') {
+  private function getJurisdictionCondition() {
+    $reg_attr = 'id';
     $school_cond = $this->getSchoolCondition('school');
     return new DBBool(
       array(
