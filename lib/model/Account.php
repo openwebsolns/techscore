@@ -292,66 +292,6 @@ class Account extends DBObject {
   }
 
   /**
-   * Create a DBExpression to fetch regattas for this user
-   *
-   * @param String $reg_attr name of ID attribute
-   * which the user is participating
-   * @return DBExpression
-   * @deprecated
-   */
-  private function getJurisdictionCondition() {
-    $reg_attr = 'id';
-    $school_cond = $this->getSchoolCondition('school');
-    return new DBBool(
-      array(
-        new DBCondIn($reg_attr, DB::prepGetAll(DB::T(DB::SCORER), new DBCond('account', $this), array('regatta'))),
-        new DBCondIn($reg_attr, DB::prepGetAll(DB::T(DB::HOST_SCHOOL),
-                                               $school_cond,
-                                               array('regatta'))),
-      ),
-      DBBool::mOR
-    );
-  }
-
-  private function getParticipantCondition() {
-    $school_cond = $this->getSchoolCondition('school');
-    return new DBCondIn('id',
-                        DB::prepGetAll(DB::T(DB::TEAM),
-                                       $school_cond,
-                                       array('regatta')));
-  }
-
-  /**
-   * Returns user's regattas
-   *
-   * These are regattas for which this user has jurdisdiction,
-   * optionally limiting the list to a particular season.
-   *
-   * If the second parameter is true, then regattas in which one of
-   * the user's schools is participating will also be included.
-   *
-   * @param Season $season optional season to limit listing to
-   * @param boolean $inc_participating default false
-   * @return Array:Regatta
-   */
-  public function getRegattas(Season $season = null, $inc_participating = false) {
-    $cond = null;
-    if (!$this->isAdmin()) { // regular user
-      $cond = $this->getJurisdictionCondition();
-      if ($inc_participating)
-        $cond->add($this->getParticipantCondition());
-    }
-    if ($season !== null) {
-      $scond = new DBBool(array(new DBCond('start_time', $season->start_date, DBCond::GE),
-                                new DBCond('start_time', $season->end_date,   DBCond::LT)));
-      if ($cond !== null)
-        $scond->add($cond);
-      $cond = $scond;
-    }
-    return DB::getAll(DB::T(DB::REGATTA), $cond);
-  }
-
-  /**
    * Retrieve all messages for the given account in order
    *
    * @return Array:Message the messages

@@ -46,6 +46,10 @@ class RegattaSearcher {
    * @var Array:Season the seasons to limit to.
    */
   private $seasons;
+  /**
+   * @var Array regatta order override.
+   */
+  private $orderOverride;
 
   public function __construct() {
     $this->includeAccountAsParticipant = false;
@@ -105,12 +109,20 @@ class RegattaSearcher {
       $condList[] = $cond;
     }
 
+    $obj = DB::T(DB::REGATTA);
     $cond = null;
     if (count($condList) > 0) {
       $cond = new DBBool($condList);
     }
-    $obj = DB::T(DB::REGATTA);
-    return DB::getAll($obj, $cond);
+
+    if ($this->orderOverride !== null) {
+      $obj->db_set_order($this->orderOverride);
+    }
+    $res = DB::getAll($obj, $cond);
+    if ($this->orderOverride !== null) {
+      $obj->db_set_order();
+    }
+    return $res;
   }
 
   /**
@@ -227,6 +239,9 @@ class RegattaSearcher {
     foreach ($seasons as $season) {
       $this->addSeason($season);
     }
+  }
+  public function setOrderOverride(Array $orderOverride = null) {
+    $this->orderOverride = $orderOverride;
   }
 
   public function __get($name) {

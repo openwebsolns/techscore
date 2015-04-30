@@ -1,5 +1,6 @@
 <?php
 use \ui\UserRegattaTable;
+use \utils\RegattaSearcher;
 
 /*
  * This file is part of TechScore
@@ -49,9 +50,12 @@ class UserSeasonPane extends AbstractUserPane {
       return;
     }
 
-    DB::T(DB::REGATTA)->db_set_order(array('start_time' => true));
-    $regattas = $this->USER->getRegattas($season, true);
-    DB::T(DB::REGATTA)->db_set_order();
+    $searcher = new RegattaSearcher();
+    $searcher->setAccount($this->USER);
+    $searcher->setIncludeAccountAsParticipant(true);
+    $searcher->addSeason($season);
+    $searcher->setOrderOverride(array('start_time' => true));
+    $regattas = $searcher->doSearch();
 
     if (count($regattas) == 0) {
       $this->PAGE->addContent($p = new XPort(sprintf("Regattas for %s", $season->fullString())));
