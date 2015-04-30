@@ -352,26 +352,6 @@ class Account extends DBObject {
   }
 
   /**
-   * Searches and returns a list of matching regattas.
-   *
-   * @param String $qry the query to search
-   * @param boolean $inc_participating default false
-   * @return Array:Regatta the regattas
-   */
-  public function searchRegattas($qry, $inc_participating = false) {
-    $cond = new DBCond('name', "%$qry%", DBCond::LIKE);
-
-    if (!$this->isAdmin()) { // regular user
-      $c = $this->getJurisdictionCondition();
-      if ($inc_participating)
-        $c->add($this->getParticipantCondition());
-      $cond = new DBBool(array($cond, $c));
-    }
-
-    return DB::getAll(DB::T(DB::REGATTA), $cond);
-  }
-
-  /**
    * Retrieve all messages for the given account in order
    *
    * @return Array:Message the messages
