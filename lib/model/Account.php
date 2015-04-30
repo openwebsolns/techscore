@@ -275,7 +275,7 @@ class Account extends DBObject {
    * @param String $attr the attribute that represents the ID of the school
    * @return DBExpression
    */
-  private function getSchoolCondition($attr) {
+  public function getSchoolCondition($attr = 'school') {
     return new DBBool(
       array(
         new DBCondIn($attr, DB::prepGetAll(DB::T(DB::ACCOUNT_SCHOOL),
@@ -297,6 +297,7 @@ class Account extends DBObject {
    * @param String $reg_attr name of ID attribute
    * which the user is participating
    * @return DBExpression
+   * @deprecated
    */
   private function getJurisdictionCondition() {
     $reg_attr = 'id';

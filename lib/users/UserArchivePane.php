@@ -33,7 +33,8 @@ class UserArchivePane extends AbstractUserPane {
    * @param Array $args the arguments to consider
    */
   protected function fillHTML(Array $args) {
-    $params = RegattaSearcher::fromArgs($args);
+    $searcher = RegattaSearcher::fromArgs($args);
+    $searcher->setIncludeAccountAsParticipant(true);
 
     // ------------------------------------------------------------
     // Regatta list
@@ -41,23 +42,11 @@ class UserArchivePane extends AbstractUserPane {
 
     // Search?
     $empty_mes = array("You have no regattas. Go ", new XA("create", "create one"), "!");
-    $regattas = array();
-    $num_regattas = 0;
-    $qry = $params->query;
+    $regs = $searcher->doSearch();
+    $num_regattas = count($regs);
+    $qry = $searcher->query;
     if ($qry !== null) {
       $empty_mes = "No regattas match your request.";
-      if (strlen($qry) < 3) {
-        $empty_mes = "Search string is too short.";
-      }
-      else {
-        $regs = $this->USER->searchRegattas($qry, true);
-        $num_regattas = count($regs);
-      }
-    }
-    else {
-      // Filter?
-      $regs = $this->USER->getRegattas(null, true);
-      $num_regattas = count($regs);
     }
 
     $this->PAGE->addContent($p = new XPort("Regattas from all seasons"));
