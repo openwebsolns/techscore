@@ -183,6 +183,10 @@ class RegattaSearcher {
   /**
    * Creates and return object based on input parameters.
    *
+   *   - q: (string) query for searching.
+   *   - scoring: (array) list of scoring types
+   *   - type: (array) list of regatta type IDs.
+   *
    * @param Array $args GET request.
    * @param int $pageSize the size of the pages (optional).
    * @return RegattaSearcher
@@ -192,7 +196,11 @@ class RegattaSearcher {
     $params->query = DB::$V->incString($args, 'q', 1, 256);
 
     foreach (DB::$V->incList($args, 'scoring') as $scoring) {
-      $params->addScoringFilter($scoring);
+      // Do not include empty ones
+      $scoring = trim($scoring);
+      if ($scoring != '') {
+        $params->addScoringFilter($scoring);
+      }
     }
 
     $typeList = DB::$V->incList($args, 'type');
@@ -216,8 +224,10 @@ class RegattaSearcher {
     }
   }
   public function addScoringFilter($scoringType) {
-    self::validateScoringFilter($scoringType);
-    $this->scoringFilters[] = $scoringFilter;
+    if ($scoringType !== null) {
+      self::validateScoringFilter($scoringType);
+      $this->scoringFilters[] = $scoringType;
+    }
   }
   public function setScoringFilters(Array $scoringFilters = array()) {
     $this->scoringFilters = array();
@@ -244,18 +254,27 @@ class RegattaSearcher {
     $this->orderOverride = $orderOverride;
   }
 
-  public function __get($name) {
-    if (!property_exists($this, $name)) {
-      throw new InvalidArgumentException("Invalid property requested: $name.");
-    }
-    return $this->$name;
+  public function getQuery() {
+    return $this->query;
+  }
+  public function getAccount() {
+    return $this->account;
+  }
+  public function getSeasons() {
+    return array_values($this->seasons);
+  }
+  public function getTypes() {
+    return array_values($this->types);
+  }
+  public function getScoringFilters() {
+    return array_values($this->scoringFilters);
   }
 
   private static function validateScoringFilter($scoring) {
     if (self::$SCORING_OPTIONS === null) {
       self::$SCORING_OPTIONS = Regatta::getScoringOptions();
     }
-    if ($scoring !== null && !array_key_exists($scoring, self::$SCORING_OPTIONS)) {
+    if (!array_key_exists($scoring, self::$SCORING_OPTIONS)) {
       throw new InvalidArgumentException("Invalid scoring option: $scoring.");
     }
   }

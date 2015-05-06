@@ -1,4 +1,5 @@
 <?php
+use \ui\FilterFieldset;
 use \ui\UserRegattaTable;
 use \utils\RegattaSearcher;
 
@@ -41,10 +42,10 @@ class UserArchivePane extends AbstractUserPane {
     // ------------------------------------------------------------
 
     // Search?
-    $empty_mes = array("You have no regattas. Go ", new XA("create", "create one"), "!");
+    $empty_mes = array("You have no regattas. Go ", new XA('/create', "create one"), "!");
     $regs = $searcher->doSearch();
     $num_regattas = count($regs);
-    $qry = $searcher->query;
+    $qry = $searcher->getQuery();
     if ($qry !== null) {
       $empty_mes = "No regattas match your request.";
     }
@@ -54,7 +55,10 @@ class UserArchivePane extends AbstractUserPane {
     // Offer pagination awesomeness
     require_once('xml5/PageWhiz.php');
     $whiz = new PageWhiz($num_regattas, self::NUM_PER_PAGE, $this->link(), $args);
-    $p->add($whiz->getSearchForm($qry, 'q', $empty_mes, "Search your regattas"));
+    $p->add($whiz->getSearchForm($qry, 'q', $empty_mes, "Search by name"));
+    if ($qry == null) {
+      $p->add($this->getFilterForm($searcher));
+    }
     $ldiv = $whiz->getPageLinks();
 
     // Create table of regattas, if applicable
@@ -75,6 +79,61 @@ class UserArchivePane extends AbstractUserPane {
    *
    * @param Array $args can be an empty array
    */
-  public function process(Array $args) { return $args; }
+  public function process(Array $args) {
+    throw new SoterException("Nothing to do.");
+  }
+
+  private function getFilterForm(RegattaSearcher $searcher) {
+    $types = array('' => '[All]');
+    foreach (DB::getAll(DB::T(DB::TYPE)) as $type) {
+      $types[$type->id] = (string) $type;
+    }
+    $chosenType = null;
+    $list = $searcher->getTypes();
+    if (count($list) > 0) {
+      $chosenType = $list[0]->id;
+    }
+
+    $scoringOptions = array('' => '[All]');
+    foreach (Regatta::getScoringOptions() as $key => $val) {
+      $scoringOptions[$key] = $val;
+    }
+    $chosenScoring = null;
+    $list = $searcher->getScoringFilters();
+    if (count($list) > 0) {
+      $chosenScoring = $list[0];
+    }
+
+    $cancelLink = '';
+    if ($chosenScoring !== null || $chosenType !== null) {
+      $cancelLink = new XA('/archive', "Reset");
+    }
+
+    $fs = new FilterFieldset();
+    $fs->add($f = $this->createForm(XForm::GET));
+    $f->add(
+      new XP(
+        array(),
+        array(
+          new FormGroup(
+            array(
+              new XSpan("Type:", array('class'=>'span_h')),
+              XSelect::fromArray('type[]', $types, $chosenType),
+            )
+          ),
+          new FormGroup(
+            array(
+              new XSpan("Scoring:", array('class'=>'span_h')),
+              XSelect::fromArray('scoring[]', $scoringOptions, $chosenScoring),
+            )
+          ),
+          new XSubmitInput('go', "Apply", array('class'=>'inline')),
+          $cancelLink,
+        )
+      )
+    );
+
+    return $fs;
+  }
 }
 ?>

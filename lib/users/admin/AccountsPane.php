@@ -1,4 +1,6 @@
 <?php
+use \ui\FilterFieldset;
+
 /*
  * This file is part of TechScore
  *
@@ -105,7 +107,7 @@ class AccountsPane extends AbstractAccountPane {
     foreach ($statuses as $key => $val)
       $stat_opts[$key] = $val;
 
-    $p->add($fs = new XFieldSet("Filter options", array('class'=>'filter')));
+    $p->add($fs = new FilterFieldset());
     $fs->add($f = $this->createForm(XForm::GET));
 
     foreach ($args as $key => $val) {
