@@ -127,7 +127,7 @@ class DB {
   }
 
   public static function removeAll(DBObject $obj, DBExpression $where = null) {
-    return DBM::remove($obj, $where);
+    return DBM::removeAll($obj, $where);
   }
 
   public static function getAll(DBObject $obj, DBExpression $where = null, $limit = null) {
