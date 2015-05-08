@@ -109,9 +109,31 @@ class Member extends DBObject implements Publishable {
    * @return FullRegatta
    */
   public function getRegattas($inc_private = false) {
-    $cond = new DBCondIn('id', DB::prepGetAll(DB::T(DB::RP_ENTRY), new DBCond('sailor', $this), array('race')));
-    return DB::getAll(($inc_private !== false) ? DB::T(DB::REGATTA) : DB::T(DB::PUBLIC_REGATTA),
-                      new DBCondIn('id', DB::prepGetAll(DB::T(DB::RACE), $cond, array('regatta'))));
+    return DB::getAll(
+      ($inc_private !== false) ? DB::T(DB::REGATTA) : DB::T(DB::PUBLIC_REGATTA),
+      new DBCondIn(
+        'id',
+        DB::prepGetAll(
+          DB::T(DB::RACE),
+          new DBCondIn(
+            'id',
+            DB::prepGetAll(
+              DB::T(DB::RP_ENTRY),
+              new DBCondIn(
+                'attendee',
+                DB::prepGetAll(
+                  DB::T(DB::ATTENDEE),
+                  new DBCond('sailor', $this),
+                  array('id')
+                )
+              ),
+              array('race')
+            )
+          ),
+          array('regatta')
+        )
+      )
+    );
   }
 
   /**

@@ -469,7 +469,7 @@ class RpManager {
     }
 
     $q = DB::createQuery(DBQuery::UPDATE);
-    $q->values(array('sailor'), array(DBQuery::A_STR), array($replace->id), DB::T(DB::RP_ENTRY)->db_name());
+    $q->values(array('sailor'), array(DBQuery::A_STR), array($replace->id), DB::T(DB::ATTENDEE)->db_name());
     $q->where(new DBCond('sailor', $key));
     DB::query($q);
 
