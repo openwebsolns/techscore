@@ -26,7 +26,7 @@ class Utils {
 
     foreach ($ranks as $rank) {
       $explanation = null;
-      if ($rank instanceof RankedTeam) {
+      if ($rank instanceof Team) {
         $explanation = $rank->dt_explanation;
       }
       elseif ($rank instanceof Rank) {
@@ -36,7 +36,7 @@ class Utils {
         $explanation = $rank->explanation;
       }
       else {
-        throw new InvalidArgumentException("Invalid object provided: " + get_class($rank));
+        throw new InvalidArgumentException("Invalid object provided: " . get_class($rank));
       }
 
       if (!empty($explanation) && !isset($tiebreakers[$explanation])) {
