@@ -4,7 +4,7 @@ namespace data;
 use \InvalidArgumentException;
 
 use \Dt_Team_Division;
-use \RankedTeam;
+use \Team;
 use \Rank;
 
 /**
