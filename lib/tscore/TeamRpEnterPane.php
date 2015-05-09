@@ -180,7 +180,7 @@ class TeamRpEnterPane extends AbstractPane {
 
       foreach ($round_races[$id] as $race) {
         $opp = $race->tr_team1;
-        if ($opp->id == $chosen_team->id)
+        if ($opp !== null && $opp->id == $chosen_team->id)
           $opp = $race->tr_team2;
         
         // To save space, only print the opponent

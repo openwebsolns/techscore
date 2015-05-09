@@ -216,7 +216,7 @@ class FleetRpValidator {
     $sailor = DB::getSailor($id);
     if ($sailor === null) {
       throw new SoterException(
-        sprintf("Invalid %s provided for %s division at position %d.", $role, $division, ($i + 1))
+        sprintf("Invalid sailor provided: %s.", $id)
       );
     }
     if ($gender !== null && $gender != $sailor->gender) {
