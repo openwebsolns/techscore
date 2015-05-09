@@ -49,14 +49,21 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
         // get teams that have participated in chosen rounds
         $teams = array();
         foreach ($this->REGATTA->getRacesInRound($round, Division::A()) as $race) {
-          $teams[$race->tr_team1->id] = $race->tr_team1;
-          $teams[$race->tr_team2->id] = $race->tr_team2;
-
-          unset($options[$race->tr_team1->id]);
-          unset($options[$race->tr_team2->id]);
+          if ($race->tr_team1 !== null) {
+            $teams[$race->tr_team1->id] = $race->tr_team1;
+            unset($options[$race->tr_team1->id]);
+          }
+          if ($race->tr_team2 !== null) {
+            $teams[$race->tr_team2->id] = $race->tr_team2;
+            unset($options[$race->tr_team2->id]);
+          }
         }
 
-        if (count($options) == 1)
+        if (count($teams) == 0) {
+          throw new SoterException(sprintf("No teams have been added to \"%s\".", $round));
+        }
+
+        if (count($options) <= 1)
           throw new SoterException("No possible teams to use as replacement.");
 
         $this->PAGE->addContent($p = new XPort(sprintf("Replace team in %s", $round)));
