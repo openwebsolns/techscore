@@ -205,7 +205,10 @@ class RegattaSearcher {
 
     $typeList = DB::$V->incList($args, 'type');
     foreach ($typeList as $i => $typeId) {
-      $params->addType(DB::$V->reqID($typeList, $i, DB::T(DB::TYPE)));
+      $type = DB::$V->incID($typeList, $i, DB::T(DB::TYPE));
+      if ($type !== null) {
+        $params->addType($type);
+      }
     }
 
     return $params;
