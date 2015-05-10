@@ -587,22 +587,6 @@ class RpManager {
   }
 
   /**
-   * Returns whether the sailor is participating in this regatta
-   *
-   * @param Sailor $sailor the sailor
-   * @deprecated 2011-05-11 use getTeam instead
-   * @return boolean true if the sailor is participating (has RP)
-   */
-  public function isParticipating(Sailor $sailor) {
-    $res = DB::getAll(DB::T(DB::RP_ENTRY),
-                      new DBBool(array(new DBCond('sailor', $sailor),
-                                       new DBCondIn('race', DB::prepGetAll(DB::T(DB::RACE), new DBCond('regatta', $this->regatta->id), array('id'))))));
-    $part = count($res) > 0;
-    unset($res);
-    return $part;
-  }
-
-  /**
    * Returns the list of teams the given sailor is participating in
    * for this regatta.
    *
@@ -620,13 +604,32 @@ class RpManager {
     $rps = array();
     foreach ($roles as $role) {
       foreach ($divs as $div) {
-        $c = new DBBool(array(new DBCond('sailor', $sailor),
-                              new DBCond('boat_role', $role),
-                              new DBCondIn('race',
-                                           DB::prepGetAll(DB::T(DB::RACE),
-                                                          new DBBool(array(new DBCond('regatta', $this->regatta->id),
-                                                                           new DBCond('division', (string)$div))),
-                                                          array('id')))));
+        $c = new DBBool(
+          array(
+            new DBCond('boat_role', $role),
+            new DBCondIn(
+              'attendee',
+              DB::prepGetAll(
+                DB::T(DB::ATTENDEE),
+                new DBCond('sailor', $sailor),
+                array('id')
+              )
+            ),
+            new DBCondIn(
+              'race',
+              DB::prepGetAll(
+                DB::T(DB::RACE),
+                new DBBool(
+                  array(
+                    new DBCond('regatta', $this->regatta->id),
+                    new DBCond('division', (string)$div)
+                  )
+                ),
+                array('id')
+              )
+            )
+          )
+        );
         $res = DB::getAll(DB::T(DB::RP_ENTRY), $c);
         if (count($res) > 0)
           $rps[] = new RP($res);
