@@ -7,8 +7,6 @@ use \tscore\utils\FleetRpValidator;
  * @package tscore
  */
 
-require_once("conf.php");
-
 /**
  * Controls the entry of RP information.
  *
