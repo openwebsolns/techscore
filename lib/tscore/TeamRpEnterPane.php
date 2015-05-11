@@ -1,4 +1,6 @@
 <?php
+use \tscore\AbstractRpPane;
+
 /*
  * This file is part of TechScore
  *
@@ -11,24 +13,14 @@
  * @author Dayan Paez
  * @version 2010-01-21
  */
-class TeamRpEnterPane extends AbstractPane {
+class TeamRpEnterPane extends AbstractRpPane {
 
   public function __construct(Account $user, Regatta $reg, $title = "Enter RP") {
     parent::__construct($title, $user, $reg);
   }
 
   protected function fillHTML(Array $args) {
-    $orgname = DB::g(STN::ORG_NAME);
-    if ($this->participant_mode) {
-      $pos_teams = array();
-      foreach ($this->getUserSchools() as $school) {
-        foreach ($this->REGATTA->getTeams($school) as $team)
-          $pos_teams[] = $team;
-      }
-    }
-    else {
-      $pos_teams = $this->REGATTA->getTeams();
-    }
+    $pos_teams = $this->getTeamOptions();
 
     $teams = array();
     $team_races = array();
@@ -58,28 +50,44 @@ class TeamRpEnterPane extends AbstractPane {
         $chosen_team = $teams[$args['chosen_team']];
     }
 
-    $rpManager = $this->REGATTA->getRpManager();
-    $divisions = $this->REGATTA->getDivisions();
+    $this->PAGE->addContent($this->getIntro());
 
-    $this->PAGE->addContent(new XP(array(),
-                                   array(sprintf("Use the form below to enter RP information. If a sailor does not appear in the selection box, it means they are not in the %s database, and they have to be manually added to a temporary list in the ", $orgname),
-                                         new XA(sprintf('/score/%s/unregistered', $this->REGATTA->id), "Unregistered form"),
-                                         ".")));
+    // ------------------------------------------------------------
+    // Change team
+    // ------------------------------------------------------------
+    $this->PAGE->addContent($this->createChooseTeamPort($teams, $chosen_team));
 
-    if (count($teams) > 1) {
-      // ------------------------------------------------------------
-      // Change team
-      // ------------------------------------------------------------
-      $this->PAGE->addContent($p = new XPort("Choose a team"));
-      $p->add($form = $this->createForm(XForm::GET));
-      $form->add(new FReqItem("Team:", $sel = XSelect::fromArray('chosen_team', $teams, $chosen_team->id)));
-      $sel->set('onchange', 'submit(this);');
-      $form->add(new XSubmitAccessible("change_team", "Get form"));
+    // ------------------------------------------------------------
+    // What's missing
+    // ------------------------------------------------------------
+    $this->PAGE->addContent($this->createMissingPort($chosen_team));
+
+    // ------------------------------------------------------------
+    // Provide option to include sailors from other schools
+    // ------------------------------------------------------------
+    $participating_schools = array();
+    $schools = array();
+    if ($this->isCrossRpAllowed()) {
+      $requested_schools = array();
+      foreach (DB::$V->incList($args, 'schools') as $id) {
+        $school = DB::getSchool($id);
+        if ($school !== null) {
+          $requested_schools[$id] = $school;
+          $schools[$id] = $school;
+        }
+      }
+
+      $this->PAGE->addContent(
+        $this->createCrossRpPort($chosen_team, $participating_schools, $requested_schools)
+      );
     }
 
     // ------------------------------------------------------------
     // RP Form
     // ------------------------------------------------------------
+    $rpManager = $this->REGATTA->getRpManager();
+    $divisions = $this->REGATTA->getDivisions();
+
     $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/teamrp.js?v=1')));
     $this->PAGE->addContent($p = new XPort(sprintf("Fill out form for %s", $chosen_team)));
     // ------------------------------------------------------------

@@ -227,26 +227,6 @@ class FleetRpValidator {
         throw new SoterException(sprintf("Sailor provided (%s) cannot sail for given school.", $sailor));
       }
     }
-    else {
-      if (!array_key_exists($sailor->school->id, $this->getSchoolsById())) {
-        throw new SoterException(sprintf("Sailor provided (%s) cannot sail for given school.", $sailor));
-      }
-    }
     return $sailor;
-  }
-
-  /**
-   * Provides access to singleton map of schools indexed by ID.
-   *
-   * @return Array schools in regatta, indexed by school ID.
-   */
-  private function getSchoolsById() {
-    if ($this->schoolsById === null) {
-      $this->schoolsById = array();
-      foreach ($this->regatta->getSchools() as $school) {
-        $this->schoolsById[$school->id] = $school;
-      }
-    }
-    return $this->schoolsById;
   }
 }

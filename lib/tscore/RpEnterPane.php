@@ -1,4 +1,5 @@
 <?php
+use \tscore\AbstractRpPane;
 use \tscore\utils\FleetRpValidator;
 
 /*
@@ -37,137 +38,54 @@ use \tscore\utils\FleetRpValidator;
  * @author Dayan Paez
  * @version 2010-01-21
  */
-class RpEnterPane extends AbstractPane {
-
-  const NO_SAILOR_OPTION = '';
-  const NO_SHOW_OPTION_GROUP = "No-show";
+class RpEnterPane extends AbstractRpPane {
 
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Enter RP", $user, $reg);
   }
 
   protected function fillHTML(Array $args) {
-    $orgname = (string)(DB::g(STN::ORG_NAME));
-    if ($this->participant_mode) {
-      $teams = array();
-      foreach ($this->getUserSchools() as $school) {
-        foreach ($this->REGATTA->getTeams($school) as $team)
-          $teams[$team->id] = $team;
-      }
-    }
-    else {
-      $teams = array();
-      foreach ($this->REGATTA->getTeams() as $team)
-        $teams[$team->id] = $team;
-    }
+    $teams = $this->getTeamOptions();
 
     if (count($teams) == 0) {
-      $this->PAGE->addContent($p = new XPort("No teams registered"));
-      if (!$this->participant_mode)
-        $p->add(new XP(array(),
-                       array("In order to register sailors, you will need to ",
-                             new XA(sprintf("score/%s/team", $this->REGATTA->id), "register teams"),
-                             " first.")));
+      $this->PAGE->addContent($this->createNoTeamPort());
       return;
     }
 
-    if (isset($args['chosen_team']) && isset($teams[$args['chosen_team']]))
-      $chosen_team = $teams[$args['chosen_team']];
-    else {
-      $keys = array_keys($teams);
-      $chosen_team = $teams[$keys[0]];
-    }
+    $params = $this->getRpPaneParams($args);
+    $chosen_team = $params->chosenTeam;
 
-    $rpManager = $this->REGATTA->getRpManager();
-    $divisions = $this->REGATTA->getDivisions();
     // Output
-    if (count($teams) > 1) {
-      // ------------------------------------------------------------
-      // Change team
-      // ------------------------------------------------------------
-      $this->PAGE->addContent($p = new XPort("Choose a team"));
-      $p->add(new XP(array(),
-                     array(sprintf("Use the form below to enter RP information. If a sailor does not appear in the selection box, it means they are not in the %s database, and they have to be manually added to a temporary list in the ", $orgname),
-                           new XA(sprintf('/score/%s/unregistered', $this->REGATTA->id), "Unregistered form"),
-                           ".")));
+    $this->PAGE->addContent($this->getIntro());
 
-      $p->add($form = $this->createForm(XForm::GET));
-      $form->add(new FReqItem("Team:", $f_sel = new XSelect("chosen_team", array("onchange"=>"submit(this)"))));
-      $team_opts = array();
-      foreach ($teams as $team) {
-        $f_sel->add($opt = new FOption($team->id, $team));
-        if ($team->id == $chosen_team->id)
-          $opt->set('selected', 'selected');
-      }
-      $form->add(new XSubmitAccessible("change_team", "Get form"));
-    }
+    // ------------------------------------------------------------
+    // Change team
+    // ------------------------------------------------------------
+    $this->PAGE->addContent($this->createChooseTeamPort($teams, $chosen_team));
 
     // ------------------------------------------------------------
     // What's missing
     // ------------------------------------------------------------
-    if ($this->REGATTA->hasFinishes()) {
-      $this->PAGE->addContent($p = new XCollapsiblePort(sprintf("What's missing from %s", $chosen_team)));
-      $p->add(new XP(array(), "This port shows what information is missing for this team. Note that only scored races are considered."));
-
-      $this->fillMissing($p, $chosen_team);
-    }
+    $this->PAGE->addContent($this->createMissingPort($chosen_team));
 
     // ------------------------------------------------------------
     // Fetch, and organize, all RPs
     // ------------------------------------------------------------
-    $schools = array($chosen_team->school->id => $chosen_team->school);
-    $rps = array();
-    $participating_sailors = array();
-    $roles = array(RP::SKIPPER, RP::CREW);
-    foreach ($divisions as $div) {
-      $d = (string)$div;
-      $rps[$d] = array();
-      foreach ($roles as $role) {
-        $lst = $rpManager->getRP($chosen_team, $div, $role);
-        foreach ($lst as $entry) {
-          if ($entry->sailor !== null) {
-            $schools[$entry->sailor->school->id] = $entry->sailor->school;
-            $participating_sailors[$entry->sailor->id] = $entry->sailor;
-          }
-        }
-        $rps[$d][$role] = $lst;
-      }
-    }
+    $rpManager = $this->REGATTA->getRpManager();
+    $divisions = $this->REGATTA->getDivisions();
 
     // ------------------------------------------------------------
     // Provide option to include sailors from other schools
     // ------------------------------------------------------------
-    if (!$this->REGATTA->isSingleHanded() && DB::g(STN::ALLOW_CROSS_RP) !== null) {
-      $lst = DB::$V->incList($args, 'schools');
-
-      $this->PAGE->addContent($p = new XCollapsiblePort("Include sailors from other schools?"));
-      $p->add($f = $this->createForm(XForm::GET));
-      $f->add(new XHiddenInput('chosen_team', $chosen_team->id));
-      $f->add(new FItem("Other schools:", $ul = new XSelectM('schools[]', array('size' => '10'))));
-      foreach (DB::getConferences() as $conf) {
-        $opts = array();
-        foreach ($this->getConferenceSchools($conf) as $school) {
-          if ($school->id == $chosen_team->school->id)
-            continue;
-
-          $opt = new FOption($school->id, $school);
-          if (array_key_exists($school->id, $schools)) {
-            $opt->set('selected', 'selected');
-            $opt->set('disabled', 'disabled');
-            $opt->set('title', "There are already sailors from this school in the RP form.");
-          }
-          elseif (in_array($school->id, $lst)) {
-            $opt->set('selected', 'selected');
-            $schools[$school->id] = $school;
-          }
-          $opts[] = $opt;
-        }
-        if (count($opts) > 0)
-          $ul->add(new FOptionGroup($conf, $opts));
-      }
-      $f->add(new XSubmitP('go', "Fetch sailors"));
+    if ($this->isCrossRpAllowed()) {
+      $this->PAGE->addContent(
+        $this->createCrossRpPort(
+          $chosen_team,
+          $params->participatingSchoolsById,
+          $params->requestedSchoolsById
+        )
+      );
     }
-
 
     // ------------------------------------------------------------
     // RP Form
@@ -176,68 +94,14 @@ class RpEnterPane extends AbstractPane {
     $this->PAGE->addContent($rpform = $this->createForm());
     $rpform->set('id', 'rpform');
     $rpform->add(new XHiddenInput('chosen_team', $chosen_team->id));
-
-    $rpManager = $this->REGATTA->getRpManager();
-
-    // ------------------------------------------------------------
-    // - Create option lists
-    //   If the regatta is in the current season, then only choose
-    //   from 'active' sailors
-    $active = 'all';
-    $cur_season = Season::forDate(DB::T(DB::NOW));
-    if ((string)$cur_season ==  (string)$this->REGATTA->getSeason())
-      $active = true;
-    $gender = ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) ?
-      Sailor::FEMALE : null;
-
     $rpform->add($p = new XPort(sprintf("Fill out form for %s", $chosen_team)));
 
     // List of sailors
-    $attendee_options = array();
-    $sailor_options = array(self::NO_SAILOR_OPTION => '');
-    foreach ($schools as $school) {
-      $key = $school->nick_name;
-      foreach ($school->getSailors($gender, $active) as $s) {
-        if (!array_key_exists($key, $sailor_options)) {
-          $sailor_options[$key] = array();
-          $attendee_options[$key] = array();
-        }
-        $sailor_options[$key][$s->id] = (string)$s;
-        $attendee_options[$key][$s->id] = (string)$s;
-      }
-      $key .= ' (Unregistered)';
-      foreach ($school->getUnregisteredSailors($gender, $active) as $s) {
-        if (!array_key_exists($key, $sailor_options)) {
-          $sailor_options[$key] = array();
-          $attendee_options[$key] = array();
-        }
-        $sailor_options[$key][$s->id] = (string)$s;
-        $attendee_options[$key][$s->id] = (string)$s;
-      }
-    }
-
-    // regardless of above settings, all currently participating
-    // sailors must also show up in the drop down list of RP entries.
-    $participating_sailors = $rpManager->getParticipatingSailors($chosen_team);
-    foreach ($participating_sailors as $s) {
-      $key = $s->school->nick_name;
-      if (!array_key_exists($key, $sailor_options)) {
-        $sailor_options[$key] = array();
-      }
-      $sailor_options[$key][$s->id] = (string)$s;
-    }
-
-    // Sort each list
-    foreach ($sailor_options as $key => $list) {
-      if (is_array($sailor_options[$key])) {
-        asort($sailor_options[$key]);
-      }
-    }
-
-    // No show option
-    $sailor_options[self::NO_SHOW_OPTION_GROUP] = array('NULL' => "No show");
+    $attendee_options = $params->attendeeOptions;
+    $sailor_options = $params->sailorOptions;
 
     // Representative
+    $rpManager = $this->REGATTA->getRpManager();
     $rep = $rpManager->getRepresentative($chosen_team);
     $rpform->add(new XP(array(),
                    array(new XStrong("Note:"),
@@ -248,6 +112,8 @@ class RpEnterPane extends AbstractPane {
     // ------------------------------------------------------------
     // - Fill out form
     // use a global counter to match corresponding sailor-races-check cells.
+    $rps = $params->rps;
+
     $ENTRY_ID = 0;
     // encode the crew participation information for the benefit of fleetrp.js
     $crews_per_division = array();
@@ -448,18 +314,7 @@ class RpEnterPane extends AbstractPane {
 
 
   public function process(Array $args) {
-    if ($this->participant_mode) {
-      $teams = array();
-      foreach ($this->getUserSchools() as $school) {
-        foreach ($this->REGATTA->getTeams($school) as $team)
-          $teams[$team->id] = $team;
-      }
-    }
-    else {
-      $teams = array();
-      foreach ($this->REGATTA->getTeams() as $team)
-        $teams[$team->id] = $team;
-    }
+    $teams = $this->getTeamOptions();
 
     // ------------------------------------------------------------
     // Choose team
@@ -536,58 +391,5 @@ class RpEnterPane extends AbstractPane {
     }
     return $list;
   }
-
-  protected function fillMissing(XPort $p, Team $chosen_team) {
-    $divisions = $this->REGATTA->getDivisions();
-    $rpManager = $this->REGATTA->getRpManager();
-
-    $header = new XTR(array(), array(new XTH(array(), "#")));
-    $rows = array();
-    foreach ($divisions as $divNumber => $div) {
-      $name = "Division " . $div;
-      $header->add(new XTH(array('colspan'=>2), $name));
-
-      foreach ($this->REGATTA->getScoredRacesForTeam($div, $chosen_team) as $race) {
-        // get missing info
-        $skip = null;
-        $crew = null;
-        if (count($rpManager->getRpEntries($chosen_team, $race, RP::SKIPPER)) == 0)
-          $skip = "Skipper";
-        $diff = $race->boat->min_crews - count($rpManager->getRpEntries($chosen_team, $race, RP::CREW));
-        if ($diff > 0) {
-          if ($race->boat->min_crews == 1)
-            $crew = "Crew";
-          else
-            $crew = sprintf("%d Crews", $diff);
-        }
-
-        if ($skip !== null || $crew !== null) {
-          if (!isset($rows[$race->number]))
-            $rows[$race->number] = array(new XTH(array(), $race->number));
-          // pad the row with previous division
-          for ($i = count($rows[$race->number]) - 1; $i < $divNumber * 2; $i += 2) {
-            $rows[$race->number][] = new XTD();
-            $rows[$race->number][] = new XTD();
-          }
-          $rows[$race->number][] = new XTD(array(), $skip);
-          $rows[$race->number][] = new XTD(array(), $crew);
-        }
-      }
-    }
-
-    if (count($rows) > 0) {
-      $p->add(new XTable(array('class'=>'missingrp-table'),
-                         array(new XTHead(array(), array($header)),
-                               $bod = new XTBody())));
-      $rowIndex = 0;
-      foreach ($rows as $row) {
-        for ($i = count($row); $i < count($divisions) * 2 + 1; $i++)
-          $row[] = new XTD();
-        $bod->add(new XTR(array('class'=>'row' . ($rowIndex++ % 2)), $row));
-      }
-    }
-    else
-      $p->add(new XValid("Information is complete."));
-  }
 }
-?>
+
