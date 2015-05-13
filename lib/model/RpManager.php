@@ -570,7 +570,7 @@ class RpManager {
   public function removeTempSailor(Sailor $sailor) {
     if ($sailor->icsa_id === null &&
         $sailor->regatta_added == $this->regatta->id &&
-        !$this->isParticipating($sailor)) {
+        count($this->getParticipation($sailor)) == 0) {
       DB::remove($sailor);
       return true;
     }
