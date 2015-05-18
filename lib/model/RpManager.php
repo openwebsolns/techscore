@@ -416,6 +416,33 @@ class RpManager {
   }
 
   /**
+   * Get the attendee entries for given sailor.
+   *
+   * @param Sailor $sailor the sailor whose attendance to fetch.
+   * @param Team $team the optional team to limit attendance to.
+   * @return Array:Attendee should be only one per team.
+   */
+  public function getAttendance(Sailor $sailor, Team $team = null) {
+    $cond = new DBBool(array(new DBCond('sailor', $sailor)));
+    if ($team !== null) {
+      $cond->add(new DBCond('team', $team));
+    }
+    else {
+      $cond->add(
+        new DBCondIn(
+          'team',
+          DB::prepGetAll(
+            DB::T(DB::TEAM),
+            new DBCond('regatta', $this->regatta),
+            array('id')
+          )
+        )
+      );
+    }
+    return DB::getAll(DB::T(DB::ATTENDEE), $cond);
+  }
+
+  /**
    * Determines whether given sailor is attending this regatta.
    *
    * @param Sailor $sailor the sailor in question.
@@ -423,14 +450,7 @@ class RpManager {
    * @return boolean true if attending.
    */
   public function isAttending(Sailor $sailor, Team $team = null) {
-    $cond = new DBBool(
-      array(
-        new DBCond('regatta', $this),
-        new DBCond('sailor', $sailor)));
-    if ($team !== null) {
-      $cond->add(new DBCond('team', $team));
-    }
-    $res = DB::getAll(DB::T(DB::ATTENDEE), $cond);
+    $res = $this->getAttendance($sailor, $team);
     return count($res) > 0;
   }
 
@@ -447,6 +467,45 @@ class RpManager {
     return $attendee;
   }
 
+  /**
+   * Replace given sailor with given replacement.
+   *
+   * @param Sailor $original the sailor to replace.
+   * @param Sailor $replacement the sailor with which to replace.
+   * @return int number of replacements made.
+   */
+  public function replaceSailor(Sailor $original, Sailor $replacement) {
+    $originalAttendance = $this->getAttendance($original);
+
+    foreach ($originalAttendance as $attendee) {
+      $replacementAttendance = $this->getAttendance($replacement, $attendee->team);
+      if (count($replacementAttendance) > 0) {
+        // If replacement is already attending for this team, transfer
+        // there should only be one, use first
+        $replacementAttendee = $replacementAttendance[0];
+        $q = DB::createQuery(DBQuery::UPDATE);
+        $q->values(
+          array('attendee'),
+          array(DBQuery::A_STR),
+          array($replacementAttendee->id),
+          DB::T(DB::RP_ENTRY)->db_name()
+        );
+        $q->where(new DBCond('attendee', $attendee));
+        $q->where(new DBCond('team', $attendee->team));
+        DB::query($q);
+
+        DB::remove($attendee);
+      }
+      else {
+        // Otherwise, update the sailor in the attendance object
+        $attendee->sailor = $replacement;
+        DB::set($attendee, true);
+      }
+    }
+
+    return count($originalAttendance);
+  }
+
   // Static variable and functions
 
   /**
@@ -461,21 +520,21 @@ class RpManager {
    */
   public static function replaceTempActual(Sailor $key, Sailor $replace, $queueUpdate = true, Array &$affected = array()) {
     foreach ($key->getRegattas() as $reg) {
-      if ($queueUpdate) {
-        require_once('public/UpdateManager.php');
-        UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_RP, $key->school);
+      $rpManager = $reg->getRpManager();
+      $replaced = $rpManager->replaceSailor($key, $replace);
+      if (count($replaced) > 0) {
+        $affected[$reg->id] = $reg;
+        if ($queueUpdate) {
+          require_once('public/UpdateManager.php');
+          UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_RP, $key->school);
+        }
       }
-      $affected[$reg->id] = $reg;
     }
 
-    $q = DB::createQuery(DBQuery::UPDATE);
-    $q->values(array('sailor'), array(DBQuery::A_STR), array($replace->id), DB::T(DB::ATTENDEE)->db_name());
-    $q->where(new DBCond('sailor', $key));
-    DB::query($q);
-
     // Delete if temporary sailor
-    if (!$key->isRegistered())
+    if (!$key->isRegistered()) {
       DB::remove($key);
+    }
   }
 
   /**
@@ -636,6 +695,10 @@ class RpManager {
       }
     }
     return $rps;
+  }
+
+  public function isParticipating(Member $sailor, $role = null, $division = null) {
+    return count($this->getParticipation($sailor, $role, $division)) > 0;
   }
 
   /**
