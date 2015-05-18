@@ -40,8 +40,9 @@ class TeamScoresGrid extends XTable {
     parent::__construct(array('class'=>'teamscores'), array($tbody = new XTBody()));
 
     $races = $regatta->getRacesInRound($round);
-    if (count($races) == 0)
+    if (count($races) == 0) {
       throw new InvalidArgumentException("No such round $round in this regatta.");
+    }
 
     // Map all the teams in this round to every other team in the
     // round. For each such pairing, track the list of races in which

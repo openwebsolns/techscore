@@ -53,9 +53,15 @@ class ScoresGridDialog extends AbstractScoresDialog {
     $cnt = 0;
     foreach ($rounds as $round) {
       if (count($round->getSeeds()) > 0) {
-        $this->PAGE->addContent($p = new XPort("Round $round"));
-        $p->add(new TeamScoresGrid($this->REGATTA, $round));
-        $cnt++;
+        try {
+          $grid = new TeamScoresGrid($this->REGATTA, $round);
+
+          $this->PAGE->addContent($p = new XPort("Round $round"));
+          $p->add($grid);
+          $cnt++;
+        } catch (InvalidArgumentException $e) {
+          Metric::publish(Metric::TEAM_SCORES_ROUND_NO_RACES);
+        }
       }
     }
 

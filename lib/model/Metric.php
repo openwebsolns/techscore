@@ -12,6 +12,7 @@ class Metric extends DBObject {
    */
   const INVALID_USERNAME = 'invalid_username';
   const INVALID_PASSWORD = 'invalid_password';
+  const TEAM_SCORES_ROUND_NO_RACES = 'team_scores_round_with_no_races';
 
   protected $published_on;
   public $metric;

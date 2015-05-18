@@ -225,8 +225,12 @@ class ReportMaker {
         array_unshift($rounds, $round);
       foreach ($rounds as $round) {
         if (count($round->getSeeds()) > 0) {
-          $this->fullPage->addSection($p = $this->newXPort($round, false));
-          $p->add(new TeamScoresGrid($reg, $round));
+          try {
+            $grid = new TeamScoresGrid($reg, $round);
+            $this->fullPage->addSection($p = $this->newXPort($round, false));
+            $p->add($grid);
+          } catch (InvalidArgumentException $e) {
+          }
         }
       }
     }
