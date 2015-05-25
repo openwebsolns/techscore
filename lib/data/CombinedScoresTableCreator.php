@@ -1,6 +1,7 @@
 <?php
 namespace data;
 
+use \DB;
 use \FullRegatta;
 use \Division;
 use \RP;
