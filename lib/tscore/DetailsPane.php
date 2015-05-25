@@ -66,7 +66,7 @@ class DetailsPane extends AbstractPane {
                                 new XStrong($value) :
                                 new XTextInput("reg_name",
                                                $value,
-                                               array("maxlength"=>35,
+                                               array("maxlength"=>50,
                                                      "size"     =>20))));
 
     // Private
@@ -256,7 +256,7 @@ class DetailsPane extends AbstractPane {
       }
 
       // Name
-      if (DB::$V->hasString($V, $args, 'reg_name', 1, 36) && $V !== $this->REGATTA->name) {
+      if (DB::$V->hasString($V, $args, 'reg_name', 1, 51) && $V !== $this->REGATTA->name) {
         $this->REGATTA->name = $V;
         $edited = true;
       }

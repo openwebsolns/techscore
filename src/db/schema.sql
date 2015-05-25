@@ -616,8 +616,8 @@ DROP TABLE IF EXISTS `regatta`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `regatta` (
   `id` int(5) NOT NULL AUTO_INCREMENT,
-  `name` varchar(40) COLLATE utf8_unicode_ci NOT NULL,
-  `nick` varchar(40) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `nick` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `start_time` datetime DEFAULT NULL COMMENT 'Date and time when regatta started',
   `end_date` date DEFAULT NULL,
   `venue` int(4) DEFAULT NULL,

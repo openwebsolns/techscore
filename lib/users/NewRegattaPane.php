@@ -52,7 +52,7 @@ class NewRegattaPane extends AbstractUserPane {
         $r[$key] = $args[$key];
     }
 
-    $f->add(new FReqItem("Name:", new XTextInput('name', $r['name'], array('maxlength'=>35))));
+    $f->add(new FReqItem("Name:", new XTextInput('name', $r['name'], array('maxlength'=>50))));
     $f->add(new FItem("Private:", new FCheckbox('private', 1, "Private regattas are not published and are temporary.", $r['private'] !== null)));
     $f->add(new FReqItem("Start date:", new XDateInput('start_date', new DateTime($r['start_date']))));
     $f->add(new FReqItem("On the water:", new XTimeInput('start_time', new DateTime($r['start_time']))));
@@ -100,7 +100,7 @@ class NewRegattaPane extends AbstractUserPane {
     if (isset($args['new-regatta'])) {
       $error = false;
       // 1. Check name
-      if (!DB::$V->hasString($name, $args, 'name', 1, 36)) {
+      if (!DB::$V->hasString($name, $args, 'name', 1, 51)) {
         Session::pa(new PA("Invalid name.", PA::E));
         $error = true;
       }
