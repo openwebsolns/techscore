@@ -30,15 +30,66 @@ class RemovePrivate extends AbstractScript {
     $this->dry_run = ($flag !== false);
   }
 
+  /**
+   * Helper method retrieves regattas that can be deleted.
+   *
+   * @return Array:FullRegatta
+   */
+  public function getRegattasToRemove() {
+    return DB::getAll(
+      DB::T(DB::FULL_REGATTA),
+      new DBBool(
+        array(
+          new DBCond('inactive', null, DBCond::NE),
+          new DBBool(
+            array(
+              new DBCond('private', null, DBCond::NE),
+              new DBCond('end_date', new DateTime('4 months ago'), DBCond::LE)
+            )
+          )
+        ),
+        DBBool::mOR)
+    );
+  }
+
+  /**
+   * Returns non-registered, non-sailing sailors with no associated regatta.
+   *
+   * @return Array:Sailor
+   */
+  public function getOrphanedSailors() {
+    return DB::getAll(
+      DB::T(DB::MEMBER),
+      new DBBool(
+        array(
+          new DBCond('icsa_id', null),
+          new DBCond('regatta_added', null),
+          new DBCondIn(
+            'id',
+            DB::prepGetAll(
+              DB::T(DB::ATTENDEE),
+              new DBCondIn(
+                'id',
+                DB::prepGetAll(
+                  DB::T(DB::RP_ENTRY),
+                  null,
+                  array('attendee')
+                )
+              ),
+              array('sailor')
+            ),
+            DBCondIn::NOT_IN
+          )
+        )
+      )
+    );
+  }
+
   public function run() {
     // ------------------------------------------------------------
     // Delete regattas
     // ------------------------------------------------------------
-    $regs = DB::getAll(DB::T(DB::FULL_REGATTA),
-                       new DBBool(array(new DBCond('inactive', null, DBCond::NE),
-                                        new DBBool(array(new DBCond('private', null, DBCond::NE),
-                                                         new DBCond('end_date', new DateTime('4 months ago'), DBCond::LE)))),
-                                  DBBool::mOR));
+    $regs = $this->getRegattasToRemove();
     foreach ($regs as $reg) {
       if (!$this->dry_run)
         DB::remove($reg);
@@ -48,10 +99,7 @@ class RemovePrivate extends AbstractScript {
     // ------------------------------------------------------------
     // Delete orphaned sailors
     // ------------------------------------------------------------
-    $cond = new DBBool(array(new DBCond('icsa_id', null),
-                             new DBCond('regatta_added', null),
-                             new DBCondIn('id', DB::prepGetAll(DB::T(DB::RP_ENTRY), new DBCond('sailor', null, DBCond::NE), array('sailor')), DBCondIn::NOT_IN)));
-    $sailors = DB::getAll(DB::T(DB::MEMBER), $cond);
+    $sailors = $this->getOrphanedSailors();
     if ($this->dry_run) {
       foreach ($sailors as $sailor)
         self::errln(sprintf("Removable: %-10s %s", $sailor->school->id, $sailor), 2);
