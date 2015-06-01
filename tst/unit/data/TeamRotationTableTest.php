@@ -1,7 +1,7 @@
 <?php
 use \data\TeamRotationTable;
 
-require_once('AbstractUnitTester.php');
+require_once(dirname(dirname(__FILE__)) . '/AbstractUnitTester.php');
 
 /**
  * Tests the TeamRotationTable creation.
