@@ -109,9 +109,9 @@ class DB {
     return self::$T[$name];
   }
 
-  public static function setConnectionParams($host, $user, $pass, $db) {
+  public static function setConnectionParams($host, $user, $pass, $db, $port = null) {
 
-    DBM::setConnectionParams($host, $user, $pass, $db);
+    DBM::setConnectionParams($host, $user, $pass, $db, $port);
 
     require_once('regatta/TSSoter.php');
     self::$V = new TSSoter();

@@ -35,6 +35,7 @@ class Conf {
   public static $SQL_USER = 'ts2';
   public static $SQL_PASS = '';
   public static $SQL_DB   = 'ts2';
+  public static $SQL_PORT = null;
 
   /**
    * @var String the salt to use for storing passwords in the database
@@ -191,7 +192,7 @@ class Conf {
     }
 
     // Database connection
-    DB::setConnectionParams(Conf::$SQL_HOST, Conf::$SQL_USER, Conf::$SQL_PASS, Conf::$SQL_DB);
+    DB::setConnectionParams(Conf::$SQL_HOST, Conf::$SQL_USER, Conf::$SQL_PASS, Conf::$SQL_DB, Conf::$SQL_PORT);
     DB::setLogfile(Conf::$LOG_QUERIES);
 
     // Start the session, if run from the web

@@ -77,6 +77,7 @@ class DBM {
   private static $__con_user;
   private static $__con_pass;
   private static $__con_name;
+  private static $__con_port;
 
   /**
    * @var MySQLi connection
@@ -114,7 +115,9 @@ class DBM {
       self::$__con = new DBConnection(self::$__con_host,
                                       self::$__con_user,
                                       self::$__con_pass,
-                                      self::$__con_name);
+                                      self::$__con_name,
+                                      self::$__con_port
+      );
     }
     return self::$__con;
   }
@@ -159,11 +162,12 @@ class DBM {
    * @param String $pass the password
    * @param String $name the name of the databse
    */
-  public static function setConnectionParams($host, $user, $pass, $name) {
+  public static function setConnectionParams($host, $user, $pass, $name, $port = null) {
     self::$__con_host = $host;
     self::$__con_user = $user;
     self::$__con_pass = $pass;
     self::$__con_name = $name;
+    self::$__con_port = $port;
 
     if (self::$__con !== null) {
       self::$__con->close();

@@ -24,8 +24,9 @@ Conf::$ADMIN_MAIL = 'admin@localhost';
 // MySQL connection
 Conf::$SQL_HOST = 'localhost';
 Conf::$SQL_USER = 'ts2';
-conf::$SQL_PASS = '';
-conf::$SQL_DB   = 'ts2';
+Conf::$SQL_PASS = '';
+Conf::$SQL_DB   = 'ts2';
+Conf::$SQL_PORT = null;
 
 Conf::$PASSWORD_SALT = 'Enter password salt here. Longer is better.';
 
