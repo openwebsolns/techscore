@@ -1,6 +1,4 @@
 <?php
-use \data\SailorRegattaTable;
-
 /*
  * This file is part of Techscore
  *
@@ -11,38 +9,24 @@ use \data\SailorRegattaTable;
 require_once('xml5/TPublicPage.php');
 
 /**
- * Public profile page for a given sailor (all seasons).
+ * Public profile page for a given sailor and season.
  *
  * @author Dayan Paez
  * @created 2015-01-20
  */
-class SailorPage extends TPublicPage {
+class SailorSeasonPage extends TPublicPage {
 
   private $sailor;
-  private $seasons;
-  /**
-   * @var Array Indexed by season ID.
-   */
-  private $regattasBySeasonId;
+  private $season;
 
   /**
    * Creates a new public page for given sailor.
    *
    */
-  public function __construct(Member $sailor) {
-    parent::__construct(sprintf("%s", $sailor));
+  public function __construct(Member $sailor, Season $season) {
+    parent::__construct(sprintf("%s | %s", $sailor, $season->fullString()));
     $this->sailor = $sailor;
-
-    $this->seasons = array();
-    $this->regattasBySeasonId = array();
-    foreach (DB::getAll(DB::T(DB::SEASON)) as $season) {
-      $participation = $season->getSailorAttendance($sailor);
-      if (count($participation) > 0) {
-        $this->seasons[] = $season;
-        $this->regattasBySeasonId[$season->id] = $participation;
-      }
-    }
-
+    $this->season = $season;
     $this->fill();
   }
 
@@ -50,28 +34,21 @@ class SailorPage extends TPublicPage {
     $this->fillHead();
     $this->fillNavigation();
     $this->fillBody();
+    $this->fillSeasonLinks();
   }
 
   private function fillHead() {
     $this->body->set('class', 'sailor-page');
     $this->setDescription(
       sprintf(
-        "Career activity for sailor %s.",
-        $this->sailor
-      )
-    );
+        "Summary of activity for sailor %s during the %s season.",
+        $this->sailor,
+        $this->season->fullString()));
 
     $this->addMetaKeyword($this->sailor->getName());
     $this->addMetaKeyword($this->sailor->school);
-    $years = array();
-    foreach ($this->seasons as $season) {
-      $years[$season->getYear()] = $season->getYear();
-      $this->addMetaKeyword($season);
-    }
-    foreach ($years as $year) {
-      $this->addMetaKeyword($year);
-
-    }
+    $this->addMetaKeyword($this->season->getSeason());
+    $this->addMetaKeyword($this->season->getYear());
     $this->addSocialPlugins(true);
 
     // Social
@@ -87,37 +64,33 @@ class SailorPage extends TPublicPage {
   private function fillNavigation() {
     $this->addMenu(new XA('/', "Home"));
     $this->addMenu(new XA('/schools/', "Schools"));
+    $this->addMenu(new XA($this->season->getUrl(), $this->season->fullString()));
     $this->addMenu(new XA($this->sailor->school->getURL(), $this->sailor->school->nick_name));
     $this->addMenu(new XA($this->sailor->getURL(), $this->sailor));
   }
 
   /**
-   * Fills the body of the page.
+   * Fills the season summary
    *
    */
   private function fillBody() {
-    foreach ($this->seasons as $season) {
-      $this->fillSeason($season);
-    }
-  }
-
-  /**
-   * Fills an individual season's summary.
-   *
-   */
-  private function fillSeason(Season $season) {
     $today = new DateTime();
     $today->setTime(0, 0);
     $tomorrow = new DateTime('tomorrow');
     $tomorrow->setTime(0, 0);
 
-    $regs = $this->regattasBySeasonId[$season->id];
+    $regs = $this->season->getSailorParticipation($this->sailor);
     $total = count($regs);
     $current = array(); // regattas happening NOW
     $past = array();    // past regattas from the current season
     $coming = array();  // upcoming schedule
     $placement = array(); // what place in which regatta, indexed by
                           // regatta ID
+
+    // get average placement
+    $overall_percentage = 0;
+    $overall_total = 0;
+    $total_races = 0;
 
     foreach ($regs as $reg) {
       if ($reg->dt_status === null || $reg->dt_status == Regatta::STAT_SCHEDULED)
@@ -135,8 +108,8 @@ class SailorPage extends TPublicPage {
       $manager = $reg->getRpManager();
       $rps = $manager->getParticipation($this->sailor);
       $team = null;
-      $placement[$reg->id] = 'N/A';
       foreach ($rps as $rp) {
+        $total_races += count($rp->races_nums);
         // If a sailor has participated in multiple teams, which
         // should not happen, merely report their place for the first
         // team encountered.
@@ -146,7 +119,11 @@ class SailorPage extends TPublicPage {
             $place = $team->dt_rank;
             $num_teams = count($reg->getTeams());
 
+            $overall_percentage += (1 - ($place - 1) / $num_teams);
+            $overall_total++;
             $placement[$reg->id] = sprintf('%d/%d', $place, $num_teams);
+          } else {
+            $placement[$reg->id] = 'N/A';
           }
         }
       }
@@ -157,10 +134,31 @@ class SailorPage extends TPublicPage {
     if (count($current) > 0) {
       usort($current, 'Regatta::cmpTypes');
       $this->addSection($p = new XPort("Sailing now", array(), array('id'=>'sailing')));
-      $p->add($tab = new SailorRegattaTable($this->sailor));
+      $p->add($tab = new XQuickTable(
+                array('class'=>'participation-table'),
+                array("Name", "Host", "Type", "Scoring", "Last race", "Place(s)")));
 
       foreach ($current as $row => $reg) {
-        $tab->addRegattaRow($reg);
+        $status = null;
+        switch ($reg->dt_status) {
+        case Regatta::STAT_READY:
+          $status = new XEm("No scores yet");
+          break;
+
+        default:
+          $status = new XStrong(ucwords($reg->dt_status));
+        }
+
+        $link = new XA($reg->getURL(), $reg->name);
+        $tab->addRow(
+          array(
+            $link,
+            $reg->getHostVenue(),
+            $reg->type,
+            $reg->getDataScoring(),
+            $status,
+            $placement[$reg->id]),
+          array('class' => 'row' . ($row % 2)));
       }
     }
     // ------------------------------------------------------------
@@ -184,15 +182,34 @@ class SailorPage extends TPublicPage {
 
     // ------------------------------------------------------------
     // SAILOR past regattas
-    $season_link = new XA($season->getURL(), $season->fullString());
+    $season_link = new XA($this->season->getURL(), $this->season->fullString());
     $this->addSection($p = new XPort(array("Season history for ", $season_link)));
     $p->set('id', 'history');
 
     if (count($past) > 0) {
-      $p->add($tab = new SailorRegattaTable($this->sailor));
+      $p->add($tab = new XQuickTable(
+                array('class'=>'participation-table'),
+                array("Name", "Host", "Type", "Scoring", "Date", "Status", "Place(s)")));
 
       foreach ($past as $row => $reg) {
-        $tab->addRegattaRow($reg);
+        $link = new XA(
+          $reg->getURL(), new XSpan($reg->name, array('itemprop'=>'name')),
+          array('itemprop'=>'url'));
+
+        $tab->addRow(
+          array(
+            $link,
+            $reg->getHostVenue(),
+            $reg->type,
+            $reg->getDataScoring(),
+            new XTime($reg->start_time, 'M d', array('itemprop'=>'startDate')),
+            ($reg->finalized === null) ? "Pending" : new XStrong("Official"),
+            $placement[$reg->id]),
+          array(
+            'class' => sprintf('row' . ($row % 2)),
+            'itemprop'=>'event',
+            'itemscope'=>'itemscope',
+            'itemtype'=>'http://schema.org/SportsEvent'));
       }
     }
     else {
@@ -220,6 +237,27 @@ class SailorPage extends TPublicPage {
       DB::g(STN::CONFERENCE_TITLE) => $conference_link,
       "Number of Regattas" => $total);
     $this->setHeader($this->sailor->getName(), $table, array('itemprop'=>'name'));
+  }
+
+  private function fillSeasonLinks() {
+    // ------------------------------------------------------------
+    // Add links to previous active seasons
+    $ul = new XUl(array('id'=>'other-seasons'));
+    $num = 0;
+    $root = $this->sailor->getURL();
+    foreach (DB::getAll(DB::T(DB::SEASON)) as $s) {
+      $regs = $s->getSailorParticipation($this->sailor);
+      if (count($regs) > 0) {
+        $num++;
+        $ul->add(new XLi(new XA($root . $s->shortString() . '/', $s->fullString())));
+      }
+    }
+    if ($num > 0)
+      $this->addSection(
+        new XDiv(
+          array('id'=>'submenu-wrapper'),
+          array(new XH3("Other seasons", array('class'=>'nav')),
+                $ul)));
   }
 }
 ?>

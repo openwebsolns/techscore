@@ -175,7 +175,7 @@ class Season extends DBObject implements Publishable {
 
   /**
    * Get a list of regattas in this season in which the given
-   * school participated. This is a convenience method.
+   * sailor participated. This is a convenience method.
    *
    * @param Member $sailor the sailor whose participation to verify
    * @param boolean $inc_private true to include private regattas
@@ -196,6 +196,49 @@ class Season extends DBObject implements Publishable {
                 'id',
                 DB::prepGetAll(
                   DB::T(DB::RP_ENTRY),
+                  new DBCondIn(
+                    'attendee',
+                    DB::prepGetAll(
+                      DB::T(DB::ATTENDEE),
+                      new DBCond('sailor', $sailor),
+                      array('id')
+                    )
+                  ),
+                  array('team')
+                )
+              ),
+              array('regatta')
+            )
+          )
+        )
+      )
+    );
+  }
+
+  /**
+   * Get a list of regattas in this season in which the given sailor attended.
+   *
+   * This includes reserves or actual participation.
+   *
+   * @param Member $sailor the sailor whose participation to verify
+   * @param boolean $inc_private true to include private regattas
+   * @return Array:Regatta
+   */
+  public function getSailorAttendance(Member $sailor, $inc_private = false) {
+    return DB::getAll(
+      ($inc_private !== false) ? DB::T(DB::REGATTA) : DB::T(DB::PUBLIC_REGATTA),
+      new DBBool(
+        array(
+          new DBCond('start_time', $this->start_date, DBCond::GE),
+          new DBCond('start_time', $this->end_date,   DBCond::LT),
+          new DBCondIn(
+            'id',
+            DB::prepGetAll(
+              DB::T(DB::TEAM),
+              new DBCondIn(
+                'id',
+                DB::prepGetAll(
+                  DB::T(DB::ATTENDEE),
                   new DBCond('sailor', $sailor),
                   array('team')
                 )

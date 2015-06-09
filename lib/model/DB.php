@@ -531,7 +531,7 @@ class DB {
    * @param Sailor if any found, regardless of public profile setting. 
    */
   public static function getSailorByUrl($url) {
-    $r = DB::getAll(DB::T(DB::MEMBER), new DBCond('url', $url));
+    $r = DB::getAll(DB::T(DB::SAILOR), new DBCond('url', $url));
     $s = (count($r) == 0) ? null : $r[0];
     unset($r);
     return $s;

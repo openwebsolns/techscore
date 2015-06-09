@@ -137,23 +137,6 @@ class Member extends DBObject implements Publishable {
   }
 
   /**
-   * Fetch list of seasons member has participated in
-   *
-   * @param boolean $inc_private by default only include public regattas
-   * @return Array:Season
-   */
-  public function getSeasonsParticipated($inc_private = false) {
-    $seasons = array();
-    foreach (DB::getAll(DB::T(DB::SEASON)) as $season) {
-      $participation = $season->getSailorParticipation($this, $inc_private);
-      if (count($participation) > 0) {
-        $seasons[] = $season;
-      }
-    }
-    return $seasons;
-  }
-
-  /**
    * Fetch list of seasons the sailor was "active" in.
    *
    * @return Array:Season

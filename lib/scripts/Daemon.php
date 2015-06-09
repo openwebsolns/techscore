@@ -357,7 +357,6 @@ class Daemon extends AbstractScript {
       // Loop through the sailor requests
       // ------------------------------------------------------------
       $sailors = array(); // map of sailors indexed by ID
-      $seasons = array(); // map of seasons to update indexed by sailor
       $to_delete = array();
 
       foreach ($pending as $i => $r) {
@@ -367,8 +366,6 @@ class Daemon extends AbstractScript {
         $requests[] = $r;
 
         $sailors[$r->sailor->id] = $r->sailor;
-        if (!isset($seasons[$r->sailor->id]))
-          $seasons[$r->sailor->id] = array();
           
         // DISPLAY
         if ($r->activity == UpdateSailorRequest::ACTIVITY_DISPLAY) {
@@ -388,7 +385,6 @@ class Daemon extends AbstractScript {
 
         // SEASON
         if ($r->activity == UpdateSailorRequest::ACTIVITY_SEASON && $r->season !== null) {
-          $seasons[$r->sailor->id][(string)$r->season] = $r->season;
         }
 
         // The following updates trigger changes across dependencies
@@ -397,9 +393,6 @@ class Daemon extends AbstractScript {
             || $r->activity == UpdateSailorRequest::ACTIVITY_NAME) {
 
           triggerDependencies($r->sailor);
-          foreach ($r->sailor->getSeasonsActive() as $season) {
-            $seasons[$r->sailor->id][(string)$season] = $season;
-          }
         }
       }
 
@@ -411,19 +404,15 @@ class Daemon extends AbstractScript {
           self::remove($root);
         }
 
-        if (count($seasons) > 0) {
+        if (count($sailors) > 0) {
           require_once('scripts/UpdateSailor.php');
           $P = new UpdateSailor();
-          foreach ($seasons as $id => $list) {
-            foreach ($list as $season) {
-              $P->run($sailors[$id], $season);
-              DB::commit();
-              self::errln(
-                sprintf(
-                  'generated sailor %s: %s/%s', $sailors[$id]->getURL(), $season, $sailors[$id]
-                )
-              );
-            }
+          foreach ($sailors as $sailor) {
+            $P->run($sailor);
+            DB::commit();
+            self::errln(
+              sprintf('generated sailor %s: %s', $sailor->getURL(), $sailor)
+            );
           }
         }
 
@@ -1418,7 +1407,7 @@ class Daemon extends AbstractScript {
  school:     perform pending school-level updates
  sailor:     perform pending sailor-level updates
  conference: perform pending conference-level updates
- file:    perform pending file-level updates';
+ file:       perform pending file-level updates';
 }
 
 // ------------------------------------------------------------
