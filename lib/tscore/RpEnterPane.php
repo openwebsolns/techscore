@@ -286,8 +286,12 @@ class RpEnterPane extends AbstractRpPane {
       $attendees = $rpManager->getAttendees($chosen_team);
       $current_attendees = array();
       foreach ($attendees as $attendee) {
-        if (!array_key_exists($attendee->sailor->id, $participating_sailors)) {
+        if (!array_key_exists($attendee->sailor->id, $params->participatingSailorsById)) {
           $current_attendees[] = $attendee->sailor->id;
+        }
+        else {
+          // participating sailors should be demoted automatically as reserves
+          $p->add(new XHiddenInput('reserves[]', $attendee->sailor->id));
         }
       }
 

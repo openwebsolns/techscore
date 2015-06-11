@@ -1,6 +1,8 @@
 <?php
 namespace tscore\utils;
 
+use \InvalidArgumentException;
+
 use \DB;
 use \Division;
 use \FullRegatta;
@@ -31,4 +33,11 @@ class RpPaneParams {
    */
   public $sailorOptions;
   public $attendeeOptions;
+
+  public function __set($name, $value) {
+    throw new InvalidArgumentException("No such property $name.");
+  }
+  public function __get($name) {
+    throw new InvalidArgumentException("No such property $name.");
+  }
 }

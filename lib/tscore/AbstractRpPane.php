@@ -138,8 +138,8 @@ abstract class AbstractRpPane extends AbstractPane {
         foreach ($lst as $entry) {
           if ($entry->sailor !== null) {
             $params->schoolsById[$entry->sailor->school->id] = $entry->sailor->school;
-            $params->participatingSchools[$entry->sailor->school->id] = $entry->sailor->school;
-            $params->participatingSailors[$entry->sailor->id] = $entry->sailor;
+            $params->participatingSchoolsById[$entry->sailor->school->id] = $entry->sailor->school;
+            $params->participatingSailorsById[$entry->sailor->id] = $entry->sailor;
           }
         }
         $params->rps[$d][$role] = $lst;
