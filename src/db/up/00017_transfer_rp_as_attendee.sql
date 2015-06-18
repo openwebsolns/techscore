@@ -17,12 +17,14 @@ INSERT INTO attendee (team, sailor)
   )
 ;
 
-UPDATE rp, team, attendee 
- SET rp.attendee = attendee.id
- WHERE rp.team = attendee.team
-   AND rp.sailor IS NOT NULL
-   AND rp.sailor = attendee.sailor
-;
+CREATE TEMPORARY TABLE temp_attendee AS (
+  SELECT rp.id AS rp, attendee.id AS attendee
+    FROM rp INNER JOIN team ON (rp.team = team.id)
+    INNER JOIN attendee ON (rp.sailor = attendee.sailor)
+    WHERE  rp.sailor IS NOT NULL AND rp.sailor = attendee.sailor
+);
+
+UPDATE rp, temp_attendee SET rp.attendee = temp_attendee.attendee WHERE rp.id = temp_attendee.rp;
 
 ALTER TABLE rp DROP FOREIGN KEY `rp_ibfk_4`, DROP COLUMN sailor;
 
