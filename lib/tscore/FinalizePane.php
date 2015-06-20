@@ -1,10 +1,9 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @version 2.0
- * @package tscore
- */
+use \data\finalize\CompleteRpCriterion;
+use \data\finalize\FinalizeStatus;
+use \data\finalize\MissingSummariesCriterion;
+use \data\finalize\Pr24Criterion;
+use \data\finalize\UnsailedMiddleRacesCriterion;
 
 require_once('tscore/AbstractPane.php');
 
@@ -16,8 +15,16 @@ require_once('tscore/AbstractPane.php');
  */
 class FinalizePane extends AbstractPane {
 
+  private $criteriaRegistry = array();
+
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Settings", $user, $reg);
+    $this->criteriaRegistry = array(
+      new UnsailedMiddleRacesCriterion(),
+      new Pr24Criterion(),
+      new MissingSummariesCriterion(),
+      new CompleteRpCriterion(),
+    );
   }
 
   protected function fillHTML(Array $args) {
@@ -31,57 +38,29 @@ class FinalizePane extends AbstractPane {
     $ERROR = new XImg(WS::link('/inc/img/e.png'), "X");
     $WARN  = new XImg(WS::link('/inc/img/i.png'), "⚠");
 
-    // Missing races
-    $list = $this->getUnsailedMiddleRaces();
-    $mess = "No middle races unscored.";
-    $icon = $VALID;
-    if (count($list) > 0) {
-      $nums = array();
-      foreach ($list as $race)
-        $nums[] = $race->number;
-      $mess = "The following races must be scored: " . DB::makeRange($nums);
-      $icon = $ERROR;
-      $can_finalize = false;
-    }
-    $tab->addRow(array($icon, $mess));
+    $ICONS = array(
+      FinalizeStatus::VALID => new XImg(WS::link('/inc/img/s.png'), "✓"),
+      FinalizeStatus::ERROR => new XImg(WS::link('/inc/img/e.png'), "X"),
+      FinalizeStatus::WARN  => new XImg(WS::link('/inc/img/i.png'), "⚠"),
+    );
 
-    // PR 24
-    if (($mess = $this->passesPR24()) !== null) {
-      $tab->addRow(array($ERROR,
-                         new XTD(array(),
-                                 new XP(array(),
-                                        array($mess,
-                                              " To delete extra finishes, use the ",
-                                              new XA($this->link('finishes'), "finishes pane"),
-                                              ".")))));
-      $can_finalize = false;
-    }
+    // Criteria
+    foreach ($this->criteriaRegistry as $criterion) {
+      if ($criterion->canApplyTo($this->REGATTA)) {
+        foreach ($criterion->getFinalizeStatuses($this->REGATTA) as $status) {
+          $type = $status->getType();
+          $message = $status->getMessage();
 
-    // Summaries
-    $list = $this->getMissingSummaries();
-    if (count($list) == 0)
-      $tab->addRow(array($VALID, "All daily summaries completed."));
-    else {
-      foreach ($list as $day) {
-        $tab->addRow(array($ERROR, new XP(array(),
-                                          array("Missing daily summary for ",
-                                                new XA($this->link('summaries', array('day'=>$day->format('Y-m-d'))),
-                                                       $day->format('l, F j')),
-                                                "."))));
+          if ($message !== null) {
+            $tab->addRow(array($ICONS[$type], $message));
+          }
+
+          if ($type !== FinalizeStatus::VALID) {
+            $can_finalize = false;
+          }
+        }
       }
-      $can_finalize = false;
     }
-
-    // RP
-    $mess = "All RP info is present.";
-    $icon = $VALID;
-    if (!$this->REGATTA->isRpComplete()) {
-      $mess = array("There is ",
-                    new XA($this->link('missing'), "missing RP"),
-                    " information. Note that this may be edited after finalization.");
-      $icon = $WARN;
-    }
-    $tab->addRow(array($icon, $mess));
 
     // ------------------------------------------------------------
     // Team racing
@@ -118,15 +97,15 @@ class FinalizePane extends AbstractPane {
       if (!$this->REGATTA->hasFinishes())
         throw new SoterException("You cannot finalize a project with no finishes.");
 
-      $list = $this->getUnsailedMiddleRaces();
-      if (count($list) > 0)
-        throw new SoterException("Cannot finalize with unsailed races: " . implode(", ", $list));
-
-      if (($mess = $this->passesPR24()) !== null)
-        throw new SoterException($mess);
-
-      if (count($this->getMissingSummaries()) > 0)
-        throw new SoterException("Missing at least one daily summary.");
+      foreach ($this->criteriaRegistry as $criterion) {
+        if ($criterion->canApplyTo($this->REGATTA)) {
+          foreach ($criterion->getFinalizeStatuses($this->REGATTA) as $status) {
+            if ($status == FinalizeStatus::ERROR) {
+              throw new SoterException($status->getMessage());
+            }
+          }
+        }
+      }
 
       if (!isset($args['approve']))
         throw new SoterException("Please check the box to finalize.");
@@ -153,65 +132,6 @@ class FinalizePane extends AbstractPane {
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_FINALIZED);
       $this->redirect('home');
     }
-  }
-
-  /**
-   * Fetch list of unsailed races
-   *
-   */
-  private function getUnsailedMiddleRaces() {
-    $divs = ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ?
-      $this->REGATTA->getDivisions() :
-      array(Division::A());
-    
-    $list = array();
-    foreach ($divs as $division) {
-      $prevNumber = 0;
-      foreach ($this->REGATTA->getScoredRaces($division) as $race) {
-        for ($i = $prevNumber + 1; $i < $race->number; $i++)
-          $list[] = $this->REGATTA->getRace($division, $i);
-        $prevNumber = $race->number;
-      }
-    }
-    return $list;
-  }
-
-  private function passesPR24() {
-    if ($this->REGATTA->scoring != Regatta::SCORING_STANDARD)
-      return null;
-    $divisions = $this->REGATTA->getDivisions();
-    if (count($divisions) < 2)
-      return null;
-
-    $max = 0;
-    $min = null;
-    foreach ($divisions as $division) {
-      $num = count($this->REGATTA->getScoredRaces($division));
-      if ($num > $max)
-        $max = $num;
-      if ($min === null || $num < $min)
-        $min = $num;
-    }
-    if ($this->REGATTA->getDuration() == 1) {
-      if ($max != $min)
-        return "PR 24b: Final regatta scores shall be based only on the scores of the races in which each division has completed an equal number.";
-      return null;
-    }
-    elseif (($max - $min) > 2)
-      return "PR 24b(i): Multi-day events: no more than two (2) additional races shall be scored in any one division more than the division with the least number of races.";
-    return null;
-  }
-
-  private function getMissingSummaries() {
-    $stime = clone $this->REGATTA->start_time;
-    $missing = array();
-    for ($i = 0; $i < $this->REGATTA->getDuration(); $i++) {
-      $comms = $this->REGATTA->getSummary($stime);
-      if (strlen($comms) == 0)
-        $missing[] = clone $stime;
-      $stime->add(new DateInterval('P1DT0H'));
-    }
-    return $missing;
   }
 }
 ?>
