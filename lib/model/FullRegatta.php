@@ -673,23 +673,66 @@ class FullRegatta extends DBObject implements Publishable {
   }
 
   /**
-   * Removes the specific race from this regatta. Note that in this
-   * version, the race is removed by regatta, division, number
-   * identifier instead of by ID. This means that it is not necessary
-   * to first serialize the race object in order to remove it from the
-   * database.
+   * Removes the given list of races.
    *
-   * It is the client code's responsibility to make sure that there
-   * aren't any empty race numbers in the middle of a division, as
-   * this could have less than humorous results in the rest of the
-   * application.
+   * Note that in this version, the race is removed by regatta,
+   * division, number identifier instead of by ID. This means that it
+   * is not necessary to first serialize the race object in order to
+   * remove it from the database.
    *
-   * @param Race $race the race to remove
+   * @param Array:Race the list of races.
+   * @throws InvalidArgumentException if list does not contain Race object.
    */
-  public function removeRace(Race $race) {
-    DB::removeAll(DB::T(DB::RACE), new DBBool(array(new DBCond('regatta', $this->id),
-                                              new DBCond('division', (string)$race->division),
-                                              new DBCond('number', $race->number))));
+  public function removeRaces($races) {
+    $divisions = array();
+    foreach ($races as $race) {
+      if (!($race instanceof Race)) {
+        throw new InvalidArgumentException("Object provided is not a race.");
+      }
+      $divisions[(string) $race->division] = $race->division;
+
+      DB::removeAll(
+        DB::T(DB::RACE),
+        new DBBool(
+          array(
+            new DBCond('regatta', $this->id),
+            new DBCond('division', (string) $race->division),
+            new DBCond('number', $race->number),
+          )
+        )
+      );
+    }
+
+    foreach ($divisions as $division) {
+      $this->fixRaceNumbers($division);
+    }
+  }
+
+  /**
+   * Fixes numbering of races, usually after a race is removed.
+   *
+   * This method is automatically called whenever a race is removed,
+   * but may be manually called in rare cases where manual reordering
+   * is necessary.
+   *
+   * @param Division $division the optional division to fix (all by default)
+   */
+  public function fixRaceNumbers(Division $division = null) {
+    if ($division == null) {
+      foreach ($this->getDivisions() as $division) {
+        $this->fixRaceNumbers($division);
+      }
+      return;
+    }
+
+    $expectedNumber = 1;
+    foreach ($this->getRaces($division) as $race) {
+      if ($race->number != $expectedNumber) {
+        $race->number = $expectedNumber;
+        DB::set($race);
+      }
+      $expectedNumber++;
+    }
   }
 
   /**

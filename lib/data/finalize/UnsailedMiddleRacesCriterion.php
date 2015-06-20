@@ -26,9 +26,8 @@ class UnsailedMiddleRacesCriterion extends FinalizeCriterion {
       $nums = array();
       foreach ($list as $race)
         $nums[] = $race->number;
-      $mess = "The following races must be scored: " . DB::makeRange($nums);
-      $type = FinalizeStatus::ERROR;
-      $can_finalize = false;
+      $mess = sprintf("The following races are not scored and will be deleted: %s.", DB::makeRange($nums));
+      $type = FinalizeStatus::WARN;
     }
     return array(new FinalizeStatus($type, $mess));
   }

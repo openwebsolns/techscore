@@ -271,16 +271,18 @@ class RacesPane extends AbstractPane {
         }
       }
 
-      // Remove (from the end, of course!)
+      // Remove
+      $toRemove = array();
       for ($i = $cur_races; $i > $num_races; $i--) {
         foreach ($cur_divisions as $div) {
           $race = new Race();
           $race->division = $div;
           $race->number = $i;
-          $this->REGATTA->removeRace($race);
+          $toRemove[] = $race;
           $removed_races = true;
         }
       }
+      $this->REGATTA->removeRaces($toRemove);
       if ($removed_races && $this->REGATTA->hasFinishes()) {
         $this->REGATTA->doScore();
         Session::pa(new PA("Re-scored regatta."));

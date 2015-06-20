@@ -45,7 +45,7 @@ class UnsailedMiddleRacesCriterionTest extends AbstractUnitTester {
     $this->assertCount(1, $list);
 
     $status = $list[0];
-    $this->assertEquals(FinalizeStatus::ERROR, $status->getType());
+    $this->assertEquals(FinalizeStatus::WARN, $status->getType());
     $this->assertNotNull($status->getMessage());
   }
 }

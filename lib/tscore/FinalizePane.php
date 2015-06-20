@@ -51,7 +51,7 @@ class FinalizePane extends AbstractPane {
             $tab->addRow(array($ICONS[$type], $message));
           }
 
-          if ($type !== FinalizeStatus::VALID) {
+          if ($type == FinalizeStatus::ERROR) {
             $can_finalize = false;
           }
         }
@@ -107,11 +107,9 @@ class FinalizePane extends AbstractPane {
         throw new SoterException("Please check the box to finalize.");
 
       $this->REGATTA->finalized = new DateTime();
-      $removed = 0;
-      foreach ($this->REGATTA->getUnscoredRaces() as $race) {
-        $this->REGATTA->removeRace($race);
-        $removed++;
-      }
+      $unscoredRaces = $this->REGATTA->getUnscoredRaces();
+      $this->REGATTA->removeRaces($unscoredRaces);
+      $removed = count($unscoredRaces);
 
       if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
         // Lock scores
@@ -123,8 +121,9 @@ class FinalizePane extends AbstractPane {
 
       $this->REGATTA->setData(); // implies update to object
       Session::pa(new PA("Regatta has been finalized."));
-      if ($removed > 0)
+      if ($removed > 0) {
         Session::pa(new PA("Removed $removed unsailed races.", PA::I));
+      }
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_FINALIZED);
       $this->redirect('home');
     }
