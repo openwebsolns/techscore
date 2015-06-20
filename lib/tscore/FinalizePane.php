@@ -34,10 +34,6 @@ class FinalizePane extends AbstractPane {
     $can_finalize = true;
     $p->add($tab = new XQuickTable(array('id'=>'finalize-issues', 'class'=>'full'), array("Status", "Issue")));
 
-    $VALID = new XImg(WS::link('/inc/img/s.png'), "✓");
-    $ERROR = new XImg(WS::link('/inc/img/e.png'), "X");
-    $WARN  = new XImg(WS::link('/inc/img/i.png'), "⚠");
-
     $ICONS = array(
       FinalizeStatus::VALID => new XImg(WS::link('/inc/img/s.png'), "✓"),
       FinalizeStatus::ERROR => new XImg(WS::link('/inc/img/e.png'), "X"),

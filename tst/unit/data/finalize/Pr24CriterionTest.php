@@ -70,6 +70,19 @@ class Pr24CriterionTest extends AbstractUnitTester {
     $regatta->scoring = Regatta::SCORING_STANDARD;
     $regatta->divisions = array(Division::A(), Division::B());
 
+    // Valid
+    $regatta->scoredRaces = array(
+      'A' => array(new Race(), new Race()),
+      'B' => array(new Race(), new Race(), new Race(), new Race()),
+    );
+
+    $statuses = $testObject->getFinalizeStatuses($regatta);
+    $this->assertCount(1, $statuses);
+
+    $status = $statuses[0];
+    $this->assertEquals(FinalizeStatus::VALID, $status->getType());
+    $this->assertNull($status->getMessage());
+
     // Invalid
     $regatta->scoredRaces = array(
       'A' => array(new Race(), new Race()),
