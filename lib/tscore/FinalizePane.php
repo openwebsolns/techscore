@@ -1,6 +1,7 @@
 <?php
 use \data\finalize\CompleteRpCriterion;
 use \data\finalize\FinalizeStatus;
+use \data\finalize\MinimumRoundCompletionCriterion;
 use \data\finalize\MissingSummariesCriterion;
 use \data\finalize\Pr24Criterion;
 use \data\finalize\UnsailedMiddleRacesCriterion;
@@ -24,6 +25,7 @@ class FinalizePane extends AbstractPane {
       new Pr24Criterion(),
       new MissingSummariesCriterion(),
       new CompleteRpCriterion(),
+      new MinimumRoundCompletionCriterion(),
     );
   }
 

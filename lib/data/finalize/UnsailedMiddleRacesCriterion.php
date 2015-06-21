@@ -14,7 +14,6 @@ use \Regatta;
 class UnsailedMiddleRacesCriterion extends FinalizeCriterion {
 
   public function canApplyTo(Regatta $regatta) {
-    // return ($regatta->scoring != Regatta::SCORING_TEAM);
     return true;
   }
 

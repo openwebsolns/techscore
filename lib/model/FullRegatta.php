@@ -795,6 +795,32 @@ class FullRegatta extends DBObject implements Publishable {
   }
 
   /**
+   * Get list of scored races in given round.
+   *
+   * @param Round $round the round in question.
+   * @return Array:Race the list of races.
+   */
+  public function getScoredRacesInRound(Round $round) {
+    return DB::getAll(
+      DB::T(DB::RACE),
+      new DBBool(
+        array(
+          new DBCond('regatta', $this->id),
+          new DBCond('round', $round->id),
+          new DBCondIn(
+            'id',
+            DB::prepGetAll(
+              DB::T(DB::FINISH),
+              null,
+              array('race')
+            )
+          ),
+        )
+      )
+    );
+  }
+
+  /**
    * Returns the rounds that have at least one scored race
    *
    * This does not include rounds for which the only scored races are
