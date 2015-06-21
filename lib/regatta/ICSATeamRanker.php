@@ -119,6 +119,12 @@ class ICSATeamRanker extends ICSARanker {
       }
     }
 
+    // Adjust records according to division penalties
+    foreach ($reg->getDivisionPenalties(null, Division::A()) as $penalty) {
+      $records[$penalty->team->id]->wins -= 2;
+      $records[$penalty->team->id]->losses += 2;
+    }
+
     $min_rank = 1;
     $all_ranks = array();
     if ($ignore_rank_groups === false) {
@@ -130,8 +136,9 @@ class ICSATeamRanker extends ICSARanker {
       }
     }
     else {
-      foreach ($this->rankGroup($reg, $teams, $records, $min_rank, $matchups, true) as $rank)
+      foreach ($this->rankGroup($reg, $teams, $records, $min_rank, $matchups, true) as $rank) {
         $all_ranks[] = $rank;
+      }
     }
     return $all_ranks;
   }

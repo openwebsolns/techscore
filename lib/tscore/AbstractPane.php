@@ -548,7 +548,7 @@ abstract class AbstractPane implements Pane {
 
     case 'SailsPane':
     case 'DivisionPenaltyPane':
-    case 'TeamDivisionPenaltyPane':
+    case 'tscore\TeamDivisionPenaltyPane':
       return $this->has_teams && $this->has_races;
 
     case 'TeamRacesPane':
@@ -734,7 +734,7 @@ abstract class AbstractPane implements Pane {
           'TeamEnterFinishPane',
           'TeamEnterPenaltyPane',
           'DropPenaltyPane',
-          // 'TeamDivisionPenaltyPane',
+          'tscore\TeamDivisionPenaltyPane',
           'TeamRacesDialog',
         ),
         "Ranks" => array(
@@ -885,7 +885,7 @@ abstract class AbstractPane implements Pane {
     'TeamOrderRoundsPane'    => '/score/%s/order-rounds',
     'TeamPartialRankPane'    => '/score/%s/partial',
     'DivisionPenaltyPane'    => '/score/%s/team-penalty',
-    'TeamDivisionPenaltyPane'=> '/score/%s/team-penalty',
+    'tscore\TeamDivisionPenaltyPane'=> '/score/%s/team-penalty',
     'TeamRacesPane'          => '/score/%s/races',
     'TeamRankGroupPane'      => '/score/%s/group',
     'TeamReplaceTeamPane'    => '/score/%s/substitute',
@@ -939,7 +939,7 @@ abstract class AbstractPane implements Pane {
     'TeamOrderRoundsPane'    => 'Order rounds',
     'TeamPartialRankPane'    => 'Partial ranking',
     'DivisionPenaltyPane'    => 'Team penalty',
-    'TeamDivisionPenaltyPane'=> 'Team penalty',
+    'tscore\TeamDivisionPenaltyPane'=> 'Team penalty',
     'TeamRacesPane'          => 'Add round',
     'TeamRankGroupPane'      => 'Rank groups',
     'TeamReplaceTeamPane'    => 'Sub team',
