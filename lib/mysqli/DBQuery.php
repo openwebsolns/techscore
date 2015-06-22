@@ -558,8 +558,9 @@ class DBCond extends DBExpression {
   const GT = ">";
   const GE = ">=";
   const LIKE = " like ";
+  const REGEXP = " regexp ";
 
-  private static $opers = array(self::EQ, self::NE, self::LT, self::LE, self::GT, self::GE, self::LIKE);
+  private static $opers = array(self::EQ, self::NE, self::LT, self::LE, self::GT, self::GE, self::LIKE, self::REGEXP);
 
   protected $field, $operator, $value;
 
