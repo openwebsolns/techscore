@@ -17,7 +17,7 @@ class UpdateSailorRequest extends AbstractUpdate {
   public function db_name() { return 'pub_update_sailor'; }
   public function db_type($field) {
     if ($field == 'sailor')
-      return DB::T(DB::MEMBER);
+      return DB::T(DB::SAILOR);
     if ($field == 'season')
       return DB::T(DB::SEASON);
     return parent::db_type($field);
