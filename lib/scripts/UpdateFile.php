@@ -24,6 +24,12 @@ class UpdateFile extends AbstractScript {
    *
    */
   public function run($filename) {
+    // Handle INIT_FILE separately
+    if ($filename == Pub_File::INIT_FILE) {
+      $this->runInitJs();
+      return;
+    }
+
     $path = Pub_File_Summary::getUrlFromFilename($filename);
 
     $obj = DB::getFile($filename);
@@ -69,22 +75,17 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
   $P = new UpdateFile();
   $opts = $P->getOpts($argv);
   $files = array();
-  $init = false;
   foreach ($opts as $opt) {
-    if ($opt == Pub_File::INIT_FILE)
-      $init = true;
-    else
-      $files[] = $opt;
+    $files[] = $opt;
   }
 
-  if (count($files) == 0 && !$init) {
+  if (count($files) == 0) {
     foreach (DB::getAll(DB::T(DB::PUB_FILE_SUMMARY)) as $file)
       $files[] = $file->id;
-    $init = true;
+    $files[] = Pub_File::INIT_FILE;
   }
-  foreach ($files as $file)
+  foreach ($files as $file) {
     $P->run($file);
-  if ($init)
-    $P->runInitJs();
+  }
 }
 ?>
