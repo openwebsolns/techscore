@@ -127,6 +127,9 @@ abstract class AbstractRpPane extends AbstractPane {
     $params->participatingSchoolsById = array();
     $params->schoolsById = array();
 
+    // Fill out the current schools
+    $params->schoolsById[$params->chosenTeam->school->id] = $params->chosenTeam->school;
+
     $roles = array(RP::SKIPPER, RP::CREW);
     $rpManager = $this->REGATTA->getRpManager();
 
@@ -175,6 +178,7 @@ abstract class AbstractRpPane extends AbstractPane {
     $params->attendeeOptions = array();
     foreach ($params->schoolsById as $school) {
       $key = $school->nick_name;
+
       foreach ($school->getSailors($gender, $active) as $s) {
         if (!array_key_exists($key, $params->sailorOptions)) {
           $params->sailorOptions[$key] = array();
