@@ -30,6 +30,7 @@ class UpdateManager {
     $obj->regatta = $reg;
     $obj->activity = $type;
     $obj->argument = $arg;
+    $obj->request_time = DB::T(DB::NOW);
     DB::set($obj);
   }
 
@@ -45,6 +46,7 @@ class UpdateManager {
     $obj->activity = $type;
     $obj->season = $season;
     $obj->argument = $arg;
+    $obj->request_time = DB::T(DB::NOW);
     DB::set($obj);
   }
 
@@ -60,6 +62,7 @@ class UpdateManager {
     $obj->activity = $type;
     $obj->season = $season;
     $obj->argument = $arg;
+    $obj->request_time = DB::T(DB::NOW);
     DB::set($obj);
   }
 
@@ -79,6 +82,7 @@ class UpdateManager {
     $obj->activity = $type;
     $obj->season = $season;
     $obj->argument = $arg;
+    $obj->request_time = DB::T(DB::NOW);
     DB::set($obj);
   }
 
@@ -92,6 +96,7 @@ class UpdateManager {
     $obj = new UpdateSeasonRequest();
     $obj->season = $season;
     $obj->activity = $type;
+    $obj->request_time = DB::T(DB::NOW);
     DB::set($obj);
   }
 
@@ -101,6 +106,7 @@ class UpdateManager {
   public static function queueFile(Pub_File_Summary $file) {
     $obj = new UpdateFileRequest();
     $obj->file = $file->id;
+    $obj->request_time = DB::T(DB::NOW);
     DB::set($obj);
   }
 
@@ -113,6 +119,7 @@ class UpdateManager {
   public static function queueInitJsFile() {
     $obj = new UpdateFileRequest();
     $obj->file = Pub_File::INIT_FILE;
+    $obj->request_time = DB::T(DB::NOW);
     DB::set($obj);
   }
 

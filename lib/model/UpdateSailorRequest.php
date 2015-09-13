@@ -28,13 +28,17 @@ class UpdateSailorRequest extends AbstractUpdate {
   const ACTIVITY_DETAILS = 'details';
   const ACTIVITY_URL = 'url';
   const ACTIVITY_DISPLAY = 'display';
+  const ACTIVITY_RP = 'rp';
 
   public static function getTypes() {
-    return array(self::ACTIVITY_NAME => self::ACTIVITY_NAME,
-                 self::ACTIVITY_DETAILS => self::ACTIVITY_DETAILS,
-                 self::ACTIVITY_URL => self::ACTIVITY_URL,
-                 self::ACTIVITY_DISPLAY => self::ACTIVITY_DISPLAY,
-                 self::ACTIVITY_SEASON => self::ACTIVITY_SEASON);
+    return array(
+      self::ACTIVITY_NAME => self::ACTIVITY_NAME,
+      self::ACTIVITY_DETAILS => self::ACTIVITY_DETAILS,
+      self::ACTIVITY_URL => self::ACTIVITY_URL,
+      self::ACTIVITY_DISPLAY => self::ACTIVITY_DISPLAY,
+      self::ACTIVITY_RP => self::ACTIVITY_RP,
+      self::ACTIVITY_SEASON => self::ACTIVITY_SEASON
+    );
   }
 
   public function hash() {

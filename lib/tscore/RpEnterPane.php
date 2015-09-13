@@ -336,6 +336,15 @@ class RpEnterPane extends AbstractRpPane {
       $validator->validate($args, $team);
       $sailors = $validator->getSailors();
 
+      // Track the sailors affected by the RP change (indexed by ID).
+      $affectedSailors = array();
+      foreach ($sailors as $sailor) {
+        $affectedSailors[$sailor->id] = $sailor;
+      }
+      foreach ($rpManager->getParticipatingSailors($team) as $sailor) {
+        $affectedSailors[$sailor->id] = $sailor;
+      }
+
       // Validation done, re-enter all RP information.
       $rpManager->reset($team);
       $rpManager->setAttendees($team, $sailors);
@@ -368,6 +377,9 @@ class RpEnterPane extends AbstractRpPane {
       // Announce
       Session::pa(new PA("RP info updated."));
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RP, $team->school->id);
+      foreach ($affectedSailors as $sailor) {
+        UpdateManager::queueSailor($sailor, UpdateSailorRequest::ACTIVITY_RP);
+      }
     }
     return;
   }
