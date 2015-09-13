@@ -1,7 +1,5 @@
 <?php
-/*
- * This file is part of TechScore
- */
+namespace mail;
 
 /**
  * An e-mail message attachment
@@ -92,6 +90,10 @@ class Attachment {
       throw new InvalidArgumentException("Empty MIME type for passed file \"$filename\"");
 
     $this->name = ($name) ? $name : basename($data['uri']);
+  }
+
+  public function geFilePath() {
+    return $this->filepath;
   }
 
   public function getMIME() {

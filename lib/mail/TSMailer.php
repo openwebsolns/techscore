@@ -1,7 +1,11 @@
 <?php
-/*
- * This file is part of TechScore
- */
+namespace mail;
+
+use \mail\senders\EmailSender;
+use \Conf;
+use \DB;
+use \Metric;
+use \STN;
 
 /**
  * Simpler PHP mailer functionality
@@ -11,10 +15,23 @@
  */
 class TSMailer {
 
+  const METRIC_NO_EMAIL_SENDER_SPECIFIED = 'TSMailer_no_email_sender_specified';
+  const METRIC_SEND_SUCCESS = 'TSMailer_send_success';
+  const METRIC_SEND_FAILURE = 'TSMailer_send_failure';
+
+  /**
+   * @var EmailSender Method by which mail can be sent.
+   */
+  private static $SENDER;
+
+  public static function setEmailSender(EmailSender $sender) {
+    self::$SENDER = $sender;
+  }
+
   /**
    * Sends a multipart (MIME) mail message to the given user with the
    * given subject, appending the correct headers (i.e., the "from"
-   * field). This method uses the standard PHP mail function
+   * field).
    *
    * @param String|Array $to the e-mail address(es) to send to
    * @param String $subject the subject
@@ -30,82 +47,57 @@ class TSMailer {
       $subject = 'DIVERTED: ' . $subject;
     }
 
-    require_once('EmailCreator.php');
-    $creator = new EmailCreator();
+    $message = new EmailMessage($subject);
 
     $extra_headers['From'] = DB::g(STN::TS_FROM_MAIL);
-    $creator->setHeaders($extra_headers);
+    $message->setHeaders($extra_headers);
 
     foreach ($parts as $mime => $part) {
-      $creator->addAlternative($part, $mime);
+      $message->addAlternative(new Alternative($part, $mime));
     }
 
     foreach ($attachments as $file) {
-      $creator->addAttachment($file);
+      $message->addAttachment($file);
     }
 
-    $email = $creator->createEmail();
-
-    $body = $email->getBody();
-    $headers = '';
-    foreach ($email->getHeaders() as $key => $val) {
-      $headers .= $key . ': ' . $val . "\n";
-    }
-
-    if (!is_array($to))
+    if (!is_array($to)) {
       $to = array($to);
-    $res = true;
-    foreach ($to as $recipient)
-      $res = $res && @mail($recipient, $subject, $body, $headers);
-    return $res;
-
-    /*
-    $segments = array();
-    foreach ($parts as $mime => $part) {
-      $segment = sprintf("Content-Type: %s\n", $mime);
-      if (substr($mime, 0, strlen('text/plain')) != 'text/plain') {
-        $segment .= "Content-Transfer-Encoding: base64\n";
-        $part = base64_encode($part);
-      }
-      $segment .= "\n";
-      $segment .= $part;
-      $segments[] = $segment;
     }
-
-    $content_type = 'multipart/alternative';
-
-    $found = true;
-    while ($found) {
-      $bdry = uniqid(rand(100, 999), true);
-      $found = false;
-      foreach ($segments as $segment) {
-        if (strstr($segment, $bdry) !== false) {
-          $found = true;
-          break;
-        }
-      }
-    }
-
-    $headers = sprintf("From: %s\nMIME-Version: 1.0\nContent-Type: %s; boundary=%s\n",
-                       DB::g(STN::TS_FROM_MAIL),
-                       $content_type,
-                       $bdry);
-
-    foreach ($extra_headers as $key => $val)
-      $headers .= sprintf("%s: %s\n", $key, $val);
-    $body = "This is a message with multiple parts in MIME format.\n";
-    foreach ($segments as $segment)
-      $body .= sprintf("--%s\n%s\n", $bdry, $segment);
-    $body .= sprintf("--%s--", $bdry);
-
-    if (!is_array($to))
-      $to = array($to);
     $res = true;
-    foreach ($to as $recipient)
-      $res = $res && @mail($recipient, $subject, $body, $headers);
+    foreach ($to as $recipient) {
+      $message->setRecipients(array($recipient));
+      $res = $res && self::send($message);
+    }
     return $res;
-    */
   }
 
+  /**
+   * Actually dispatches the message using internal strategy.
+   *
+   * @param String $recipient the e-mail address.
+   * @param String $subject the subject.
+   * @param String $body the body of the message.
+   * @param String $headers to use.
+   * @return boolean the result of sending the message.
+   */
+  private static function send(EmailMessage $email) {
+
+    if (self::$SENDER == null) {
+      $classname = Conf::$EMAIL_SENDER;
+      if ($classname == null) {
+        Metric::publish(self::METRIC_NO_EMAIL_SENDER_SPECIFIED);
+        return false;
+      }
+
+      self::setEmailSender(new $classname(Conf::$EMAIL_SENDER_PARAMS));
+    }
+
+    if (!self::$SENDER->sendEmail($email)) {
+      Metric::publish(self::METRIC_SEND_FAILURE);
+      return false;
+    }
+    Metric::publish(self::METRIC_SEND_SUCCESS);
+    return true;
+  }
 }
 ?>

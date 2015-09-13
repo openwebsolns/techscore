@@ -36,6 +36,7 @@ class Metric extends DBObject {
     $obj = new Metric();
     $obj->amount = (double)$amount;
     $obj->metric = $metric;
+    $obj->published_on = DB::T(DB::NOW);
     DB::set($obj, false);
     return $obj;
   }

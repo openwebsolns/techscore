@@ -35,3 +35,6 @@ html/
 
 # Mercurial
 .hg*
+
+cache/*.db
+cache/*.html

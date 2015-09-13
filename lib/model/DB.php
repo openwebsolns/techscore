@@ -1,4 +1,6 @@
 <?php
+use \mail\TSMailer;
+use \mail\Attachment;
 /*
  * This file is part of TechScore
  */
@@ -381,8 +383,6 @@ class DB {
    * @see TSMailer::multipartMail
    */
   public static function multipartMail($to, $subject, Array $parts, Array $extra_headers = array(), Array $attachments = array()) {
-    require_once('mail/TSMailer.php');
-    require_once('mail/Attachment.php');
     foreach ($attachments as $i => $file) {
       if (!($file instanceof Attachment))
         $attachments[$i] = new Attachment($file);

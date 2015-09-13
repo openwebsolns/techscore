@@ -46,6 +46,18 @@ class Conf {
   public static $ERROR_HANDLER = 'mail'; // 'mail' or 'print'
 
   /**
+   * @var String the full classname of the mail strategy to use. Must
+   * subclass \mail\senders\EmailSender.
+   */
+  public static $EMAIL_SENDER = '\mail\senders\PhpMailSender';
+
+  /**
+   * @var Array map of options passed to constructor of email sender
+   * specified above.
+   */
+  public static $EMAIL_SENDER_PARAMS = array();
+
+  /**
    * @var String|null Set to non-null path to log queries
    */
   public static $LOG_QUERIES = null;
