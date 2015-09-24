@@ -31,6 +31,10 @@ class UpdateSailor extends AbstractScript {
    */
   public function run(Member $sailor) {
     $dirname = $sailor->getURL();
+    if ($dirname == null) {
+      self::errln("Skipping summary for $sailor with no URL.", 2);
+      return;
+    }
 
     $filename = $dirname . 'index.html';
     $content = $this->getPage($sailor);
