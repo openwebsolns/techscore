@@ -154,7 +154,7 @@ class FleetRpValidator {
 
               // any room?
               if ($spotsPerDivision[(string)$division][$number][$role] <= 0) {
-                throw new SoterException("No room in race %s for %s.", $race, $sailor);
+                throw new SoterException(sprintf("No room in race %s for %s.", $race, $sailor));
               }
               $spotsPerDivision[(string)$division][$number][$role]--;
 
