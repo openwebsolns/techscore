@@ -425,6 +425,7 @@ class SailsPane extends AbstractPane {
       if (in_array($args[$team->id], $sails))
         throw new SoterException("Duplicate sail number in BYE team.");
       $sails[] = $args[$team->id];
+      $colors[] = DB::$V->incHexColor($args, 'color-' . $team->id);
       $tlist[] = $team;
       $divs[]  = Division::A();
     }
