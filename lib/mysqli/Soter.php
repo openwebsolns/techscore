@@ -281,7 +281,7 @@ class Soter {
     if (!isset($args[$key]))
       throw new SoterException($mes, SoterException::DATE);
     try {
-      $date = new DateTime($args[$key]);
+      $date = @(new DateTime($args[$key]));
     }
     catch (Exception $e) {
       throw new SoterException($mes, SoterException::DATE);
