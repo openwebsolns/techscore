@@ -58,7 +58,7 @@ class GlobalSettings extends AbstractSuperUserPane {
 
     $f->add(new FItem("Allow cross RP?", new FCheckbox(STN::ALLOW_CROSS_RP, 1, "RP entries may contain teams from other schools in the system.", DB::g(STN::ALLOW_CROSS_RP) !== null)));
 
-    $f->add(new FItem("Allow reserves?", new FCheckbox(STN::ALLOW_RESERVES, 1, "Prompt users for reserve/attendee information.", DB::g(STN::ALLOW_CROSS_RP) !== null)));
+    $f->add(new FItem("Allow reserves?", new FCheckbox(STN::ALLOW_RESERVES, 1, "Prompt users for reserve/attendee information.", DB::g(STN::ALLOW_RESERVES) !== null)));
 
     $f->add(new FItem("Allow Host Venue?", new FCheckbox(STN::ALLOW_HOST_VENUE, 1, "Allow scorers to manually specify the regatta host.", DB::g(STN::ALLOW_HOST_VENUE) !== null)));
 
