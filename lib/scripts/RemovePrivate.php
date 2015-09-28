@@ -100,15 +100,14 @@ class RemovePrivate extends AbstractScript {
     // Delete orphaned sailors
     // ------------------------------------------------------------
     $sailors = $this->getOrphanedSailors();
-    if ($this->dry_run) {
-      foreach ($sailors as $sailor)
-        self::errln(sprintf("Removable: %-10s %s", $sailor->school->id, $sailor), 2);
-      self::errln(sprintf("%d removable sailors", count($sailors)));
+    foreach ($sailors as $sailor) {
+      self::errln(sprintf("Removable: %-10s %s", $sailor->school->id, $sailor), 2);
+      if (!$this->dry_run) {
+        DB::remove($sailor);
+      }
     }
-    else {
-      DB::removeAll(DB::T(DB::MEMBER), $cond);
-      self::errln(sprintf("Removed %d sailors", count($sailors)));
-    }
+    self::errln(sprintf("Removed %d sailors", count($sailors)));
+
     if ($this->dry_run) {
       self::errln("DRY-RUN only");
     }
