@@ -363,7 +363,10 @@ class RpEnterPane extends AbstractRpPane {
           $rp->team = $rpInput->team;
           $rp->race = $race;
           $rp->boat_role = $rpInput->boat_role;
-          $rp->attendee = $attendees[$rpInput->sailor->id];
+          $rp->attendee = null;
+          if (array_key_exists($rpInput->sailor->id, $attendees)) {
+            $rp->attendee = $attendees[$rpInput->sailor->id];
+          }
           $rps[] = $rp;
         }
       }

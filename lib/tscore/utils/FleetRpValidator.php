@@ -21,6 +21,18 @@ use \School;
 class FleetRpValidator {
 
   /**
+   * Sailor "ID" used to indicate "no-show".
+   */
+  const NO_SHOW_ID = 'NULL';
+
+  /**
+   * Singleton instance of no show sailor.
+   *
+   * @see getNoShowSailor
+   */
+  private $noShowSailor;
+
+  /**
    * @var FullRegatta the regatta in question.
    */  
   private $regatta;
@@ -130,35 +142,45 @@ class FleetRpValidator {
           $sailorID = DB::$V->incString($entry, 'sailor', 1);
           $racesString = DB::$V->incString($entry, 'races', 1);
 
-          if ($sailorID != null && $racesString != null) {
+          if ($sailorID == null || $racesString == null) {
+            continue;
+          }
+
+          // special case: no show
+          if ($sailorID == self::NO_SHOW_ID) {
+            $sailor = $this->getNoShowSailor();
+          }
+          else {
             $sailor = $this->validateSailor($sailorID, $team->school, $gender, $cross_rp);
             if (!array_key_exists($sailor->id, $rolesBySailorAndRace)) {
               $rolesBySailorAndRace[$sailor->id] = array();
             }
+          }
 
-            $raceNums = DB::parseRange($racesString);
-            if (count($raceNums) == 0) {
+          $raceNums = DB::parseRange($racesString);
+          if (count($raceNums) == 0) {
+            throw new SoterException(
+              sprintf("Invalid races for %s in %s division at position %d.", $role, $division, ($i + 1))
+            );
+          }
+
+          $races = array();
+          foreach ($raceNums as $number) {
+            if (!array_key_exists($number, $racesPerDivision[(string)$division])) {
               throw new SoterException(
-                sprintf("Invalid races for %s in %s division at position %d.", $role, $division, ($i + 1))
+                sprintf("Invalid race number (%s) provided in %s division.", $number, $division)
               );
             }
+            $race = $racesPerDivision[(string)$division][$number];
 
-            $races = array();
-            foreach ($raceNums as $number) {
-              if (!array_key_exists($number, $racesPerDivision[(string)$division])) {
-                throw new SoterException(
-                  sprintf("Invalid race number (%s) provided in %s division.", $number, $division)
-                );
-              }
-              $race = $racesPerDivision[(string)$division][$number];
+            // any room?
+            if ($spotsPerDivision[(string)$division][$number][$role] <= 0) {
+              throw new SoterException(sprintf("No room in race %s for %s.", $race, $sailor));
+            }
+            $spotsPerDivision[(string)$division][$number][$role]--;
 
-              // any room?
-              if ($spotsPerDivision[(string)$division][$number][$role] <= 0) {
-                throw new SoterException(sprintf("No room in race %s for %s.", $race, $sailor));
-              }
-              $spotsPerDivision[(string)$division][$number][$role]--;
-
-              // multipresence?
+            // multipresence?
+            if (array_key_exists($sailor->id, $rolesBySailorAndRace)) {
               $key = (string)$race;
               if (array_key_exists($key, $rolesBySailorAndRace[$sailor->id])
                   && $rolesBySailorAndRace[$sailor->id][$key] != $role) {
@@ -171,23 +193,25 @@ class FleetRpValidator {
                 );
               }
               $rolesBySailorAndRace[$sailor->id][$key] = $role;
-
-              $races[] = $race;
             }
 
-            $rpInput = new RpInput();
-            $rpInput->setSailor($sailor);
-            $rpInput->setTeam($team);
-            $rpInput->setBoatRole($role);
-            $rpInput->setRaces($races);
+            $races[] = $race;
+          }
 
-            // do we need to merge this entry with existing one?
-            $hash = $rpInput->hash();
-            if (array_key_exists($hash, $this->rpData)) {
-              $this->rpData[$hash]->addRaces($rpInput->races);
-            }
-            else {
-              $this->rpData[$hash] = $rpInput;
+          $rpInput = new RpInput();
+          $rpInput->setSailor($sailor);
+          $rpInput->setTeam($team);
+          $rpInput->setBoatRole($role);
+          $rpInput->setRaces($races);
+
+          // do we need to merge this entry with existing one?
+          $hash = $rpInput->hash();
+          if (array_key_exists($hash, $this->rpData)) {
+            $this->rpData[$hash]->addRaces($rpInput->races);
+          }
+          else {
+            $this->rpData[$hash] = $rpInput;
+            if ($sailor->id != self::NO_SHOW_ID) {
               $this->allSailors[$sailor->id] = $sailor;
             }
           }
@@ -228,5 +252,13 @@ class FleetRpValidator {
       }
     }
     return $sailor;
+  }
+
+  private function getNoShowSailor() {
+    if ($this->noShowSailor == null) {
+      $this->noShowSailor = new Sailor();
+      $this->noShowSailor->id = self::NO_SHOW_ID;
+    }
+    return $this->noShowSailor;
   }
 }
