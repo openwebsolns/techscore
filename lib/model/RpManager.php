@@ -378,6 +378,16 @@ class RpManager {
     // Avoid deleting entries due to cascading nature of foreign
     // keys. Instead, compare the new list (newones) with the current
     // ones and add/remove accordingly.
+    //
+    // An interesting race condition is possible where the database
+    // list of attendees changes from the time that it is fetched to
+    // when the new list is committed. Of all the methods to fix the
+    // situation, the only surefire one seems to be to leverage
+    // MariaDB's "INSERT IGNORE" functionality, which will simply
+    // ignore a duplicate unique key entry if attempted.
+    //
+    // We rely heavily on this functionality, exposed as a second
+    // argument to the insertAll() method.
 
     $newones = array();
     foreach ($sailors as $sailor) {
@@ -389,15 +399,12 @@ class RpManager {
     }
 
     foreach ($this->getAttendees($team) as $attendee) {
-      if (array_key_exists($attendee->sailor->id, $newones)) {
-        unset($newones[$attendee->sailor->id]);
-      }
-      else {
+      if (!array_key_exists($attendee->sailor->id, $newones)) {
         DB::remove($attendee);
       }
     }
 
-    DB::insertAll($newones);
+    DB::insertAll($newones, true);
   }
 
   /**

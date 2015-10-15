@@ -42,6 +42,7 @@ class DBConnection extends MySQLi {
     parent::__construct($host, $user, $pass, $db, $port, $socket);
     $this->set_charset('utf8');
     $this->autocommit(false);
+    $this->begin_transaction(MYSQLI_TRANS_START_WITH_CONSISTENT_SNAPSHOT);
   }
 
   /**
@@ -391,13 +392,14 @@ class DBM {
    * DBObject. Careful! While the exception is thrown BEFORE the giant
    * insert query, it could be thrown AFTER a 'set' subquery.
    */
-  public static function insertAll($list) {
+  public static function insertAll($list, $ignore = false) {
     if (!is_array($list) && !($list instanceof ArrayIterator))
       throw new InvalidArgumentException("Argument to insertAll must be iterable.");
     if (count($list) == 0) return;
     $tmpl = null;
     $fields = array();
     $q = self::createQuery(DBQuery::INSERT);
+    $q->ignore($ignore);
     foreach ($list as $i => $obj) {
       if (!($obj instanceof DBObject))
         throw new InvalidArgumentException(sprintf("insertAll arguments must be DBObject's; %s found instead.", get_class($obj)));

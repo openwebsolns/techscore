@@ -76,6 +76,11 @@ class DBQuery {
   private $distinct;
 
   /**
+   * @var boolean set to true to add 'IGNORE' flag (for INSERT).
+   */
+  private $ignore;
+
+  /**
    * Creates a new query which selects objects by default
    *
    * @param Const $axis the selection axis, or "query type"
@@ -195,6 +200,15 @@ class DBQuery {
    */
   public function distinct($flag) {
     $this->distinct = ($flag !== false);
+  }
+
+  /**
+   * Sets whether to ignore failed rows when inserting.
+   *
+   * @param boolean $flag
+   */
+  public function ignore($flag) {
+    $this->ignore = ($flag !== false);
   }
 
   /**
@@ -383,7 +397,11 @@ class DBQuery {
    * @throws DBQueryException if multi-tables are detected
    */
   protected function prepInsert() {
-    $stmt = "insert into {$this->table} (";
+    $stmt = 'insert ';
+    if ($this->ignore) {
+      $stmt .= 'ignore ';
+    }
+    $stmt .= "into {$this->table} (";
     $hldr = '';
     foreach ($this->fields as $i => $f) {
       if ($i > 0) {

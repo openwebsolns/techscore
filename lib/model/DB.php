@@ -148,8 +148,8 @@ class DB {
     return DBM::resetCache();
   }
 
-  public static function insertAll($list) {
-    return DBM::insertAll($list);
+  public static function insertAll($list, $ignore = false) {
+    return DBM::insertAll($list, $ignore);
   }
 
   public static function set(DBObject $obj, $update = "guess") {

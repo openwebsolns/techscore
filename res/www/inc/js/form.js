@@ -196,14 +196,36 @@
             }
         }
     };
-    if (w.addEventListener)
+
+    function disableSubmits(e) {
+        var submitInputs = d.querySelectorAll("input[type=submit]");
+        for (var i = 0; i < submitInputs.length; i++) {
+            submitInputs[i].disabled = true;
+        }
+    };
+
+    if (w.addEventListener) {
         w.addEventListener('load', f, false);
+        w.addEventListener('beforeunload', function(e) {
+            disableSubmits(e);
+            return null;
+        }, false);
+    }
     else {
         var old = w.onload;
         w.onload = function(e) {
             f(e);
-            if (old)
+            if (old) {
                 old(e);
+            }
+        };
+        var old2 = w.onbeforeunload;
+        w.onbeforeunload = function(e) {
+            var retValue = disableSubmits(e);
+            if (old2) {
+                retValue = old2(e);
+            }
+            return retValue;
         };
     }
 })(window,document,"script");

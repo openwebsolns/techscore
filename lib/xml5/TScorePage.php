@@ -171,7 +171,7 @@ class TScorePage extends XPage {
       $this->head->add(new XScript('text/javascript', '/inc/js/cselect.js', null, array('id'=>'cselect-js', 'async'=>'async', 'defer'=>'defer')));
       $this->head->add(new XScript('text/javascript', '/inc/js/mselect.js', null, array('id'=>'mselect-js', 'async'=>'async', 'defer'=>'defer')));
     }
-    $this->head->add(new XScript('text/javascript', '/inc/js/form.js?v=1'));
+    $this->head->add(new XScript('text/javascript', '/inc/js/form.js?v=2'));
   }
 
   /**
