@@ -1,12 +1,4 @@
 <?php
-  /**
-   * Defines global constants. This file should remain out of view
-   * from both the web server and the development team.
-   *
-   * @author Dayan Paez
-   * @version 2009-10-04
-   */
-
 /**
  * Global configuration parameters. This is better than using global
  * constants, as those are static.
@@ -42,8 +34,12 @@ class Conf {
    */
   public static $PASSWORD_SALT = '';
 
-  // Error handler
-  public static $ERROR_HANDLER = 'mail'; // 'mail' or 'print'
+  /**
+   * @var String classname to the error handler. For backwards
+   * compatibility, the special value 'mail' may be used to use the
+   * MailHandler.
+   */
+  public static $ERROR_HANDLER = '\error\MailHandler'; // 'mail' or 'print'
 
   /**
    * @var String the full classname of the mail strategy to use. Must
@@ -190,18 +186,14 @@ class Conf {
     require_once(dirname(__FILE__) . '/conf.local.php');
 
     // Error handler: use CLI if not online
+    if (Conf::$ERROR_HANDLER == 'mail') {
+      Conf::$ERROR_HANDLER = '\error\MailHandler';
+    }
     if (PHP_SAPI == self::CLI) {
-      require_once('error/CLIHandler.php');
-      CLIHandler::registerAll(E_ALL | E_STRICT);
+      Conf::$ERROR_HANDLER = '\error\CLIHandler';
     }
-    elseif (Conf::$ERROR_HANDLER == 'mail') {
-      require_once('error/MailHandler.php');
-      MailHandler::registerAll(E_ALL | E_STRICT);
-    }
-    else {
-      require_once('error/PrintHandler.php');
-      PrintHandler::registerAll(E_ALL | E_STRICT | E_NOTICE);
-    }
+    $classname = Conf::$ERROR_HANDLER;
+    (new $classname())->registerAll(E_ALL | E_STRICT | E_NOTICE);
 
     // Database connection
     DB::setConnectionParams(Conf::$SQL_HOST, Conf::$SQL_USER, Conf::$SQL_PASS, Conf::$SQL_DB, Conf::$SQL_PORT);
@@ -239,4 +231,4 @@ class Conf {
 }
 
 Conf::init();
-?>
+

@@ -1,7 +1,16 @@
 <?php
-/*
- * This file is part of TechScore
- */
+namespace error;
+
+use \Conf;
+use \DB;
+use \Exception;
+use \TScorePage;
+use \XHeading;
+use \XLi;
+use \XPageTitle;
+use \XP;
+use \XQuickTable;
+use \XUl;
 
 /**
  * An error handler which prints the error and its backtrace directly
@@ -11,32 +20,9 @@
  * @version 2012-01-28
  * @package error
  */
-class PrintHandler {
-  public static function handleErrors($errno, $errstr, $errfile, $errline) {
-    require_once('xml5/TScorePage.php');
-    $P = new TScorePage("Error");
-    $P->addContent(new XPageTitle("Error!"));
-    $P->addContent(new XUl(array(),
-                           array(new XLi("$errno: $errstr"),
-                                 new XLi("File: $errfile"),
-                                 new XLi("Line: $errline"))));
-    $P->addContent(new XHeading("Backtrace"));
-    $P->addContent($tab = new XQuickTable(array(), array("No.", "Function", "File", "Line")));
-    $tab->addRow(array($errno, $errstr, $errfile, $errline));
-    foreach (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS) as $i => $trace) {
-      $func = (isset($trace['function'])) ? $trace['function'] : 'N/A';
-      $file = (isset($trace['file'])) ? $trace['file'] : 'N/A';
-      $line = (isset($trace['line'])) ? $trace['line'] : 'N/A';
-      $tab->addRow(array($i + 1, $func, $file, $line));
-    }
-    if (!headers_sent()) {
-      http_response_code(500);
-    }
-    $P->printXML();
-    DB::rollback();
-    exit;
-  }
-  public static function handleExceptions(Exception $e) {
+class PrintHandler extends AbstractErrorHandler {
+
+  public function handleExceptions(Exception $e) {
     require_once('xml5/TScorePage.php');
     $P = new TScorePage("Exception");
     $P->addContent(new XPageTitle("Exception!"));
@@ -59,25 +45,4 @@ class PrintHandler {
     DB::rollback();
     exit;
   }
-  public static function handleFatal() {
-    $error = error_get_last();
-    if ($error !== null) {
-      self::handleErrors($error['type'], $error['message'], $error['file'], $error['line']);
-    }
-  }
-  public static function registerErrors($errors) {
-    return set_error_handler("PrintHandler::handleErrors", $errors);
-  }
-  public static function registerExceptions() {
-    return set_exception_handler("PrintHandler::handleExceptions");
-  }
-  public static function registerFatalHandler() {
-    register_shutdown_function("PrintHandler::handleFatal");
-  }
-  public static function registerAll($errors) {
-    self::registerErrors($errors);
-    self::registerExceptions();
-    self::registerFatalHandler();
-  }
 }
-?>

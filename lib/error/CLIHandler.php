@@ -1,7 +1,8 @@
 <?php
-/*
- * This file is part of TechScore
- */
+namespace error;
+
+use \DB;
+use \Exception;
 
 /**
  * An error handler which prints the error and its backtrace directly
@@ -11,26 +12,9 @@
  * @version 2012-01-28
  * @package error
  */
-class CLIHandler {
-  public static function handleErrors($errno, $errstr, $errfile, $errline) {
-    printf("(EE) + %s\n", str_replace("\n", "\n     | ", wordwrap($errstr)));
+class CLIHandler extends AbstractErrorHandler {
 
-    $fmt = "     | %8s: %s\n";
-    printf($fmt, "Time",   date('Y-m-d H:i:s'));
-    printf($fmt, "Number", $errno);
-    printf($fmt, "File",   $errfile);
-    printf($fmt, "Line",   $errline);
-    foreach (debug_backtrace() as $list) {
-      echo "     +--------------------\n";
-      foreach (array('file', 'line', 'class', 'function') as $index) {
-        if (isset($list[$index]))
-          printf($fmt, ucfirst($index), $list[$index]);
-      }
-    }
-    DB::rollback();
-    exit;
-  }
-  public static function handleExceptions(Exception $e) {
+  public function handleExceptions(Exception $e) {
     printf("(EX) + %s\n", $e->getMessage());
     $fmt = "     | %8s: %s\n";
     printf($fmt, "Time", date('Y-m-d H:i:s'));
@@ -47,25 +31,4 @@ class CLIHandler {
     DB::rollback();
     exit;
   }
-  public static function handleFatal() {
-    $error = error_get_last();
-    if ($error !== null) {
-      self::handleErrors($error['type'], $error['message'], $error['file'], $error['line']);
-    }
-  }
-  public static function registerErrors($errors) {
-    return set_error_handler("CLIHandler::handleErrors", $errors);
-  }
-  public static function registerExceptions() {
-    return set_exception_handler("CLIHandler::handleExceptions");
-  }
-  public static function registerFatalHandler() {
-    register_shutdown_function("CLIHandler::handleFatal");
-  }
-  public static function registerAll($errors) {
-    self::registerErrors($errors);
-    self::registerExceptions();
-    self::registerFatalHandler();
-  }
 }
-?>
