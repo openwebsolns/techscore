@@ -131,7 +131,7 @@ class ReportMaker {
     else {
       $this->page->addSection($p = $this->newXPort("No scores have been entered"));
       $p->add($xp = new XP(array('class'=>'notice'), "No scores have been entered yet for this regatta."));
-      $rot = $reg->getRotation();
+      $rot = $reg->getRotationManager();
       if ($rot->isAssigned() || $reg->scoring == Regatta::SCORING_TEAM) {
         $xp->add(" ");
         $xp->add(new XA('rotations/', "View rotations."));
@@ -280,7 +280,7 @@ class ReportMaker {
       }
     }
     else {
-      foreach ($reg->getRotation()->getDivisions() as $div) {
+      foreach ($reg->getRotationManager()->getDivisions() as $div) {
         $this->rotPage->addSection($p = $this->newXPort("$div Division", $div == Division::A()));
         $p->add(new RotationTable($reg, $div, true));
       }
@@ -481,7 +481,7 @@ class ReportMaker {
 
     $page->setOpenGraphProperties($opengraph);
 
-    $rot = $reg->getRotation();
+    $rot = $reg->getRotationManager();
     if ($rot->isAssigned() || $reg->scoring == Regatta::SCORING_TEAM)
       $page->addMenu(new XA($url.'rotations/', "Rotations"));
     if ($reg->scoring == Regatta::SCORING_TEAM && $reg->hasFinishes())

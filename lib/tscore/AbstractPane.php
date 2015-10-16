@@ -1,5 +1,7 @@
 <?php
 use \ui\Pane;
+use \tscore\DeleteRotationPane;
+use \tscore\RotationPane;
 use \tscore\TeamDivisionPenaltyPane;
 
 /*
@@ -52,7 +54,7 @@ abstract class AbstractPane implements Pane {
     $this->REGATTA = $reg;
     $this->USER = $user;
 
-    $rot = $this->REGATTA->getRotation();
+    $rot = $this->REGATTA->getRotationManager();
     $this->has_races = count($this->REGATTA->getRaces());
     $this->has_teams = count($this->REGATTA->getTeams()) > 1;
     $this->has_rots = $this->has_teams && $rot->isAssigned();
@@ -106,12 +108,12 @@ abstract class AbstractPane implements Pane {
       $contextMenu['TeamRacesPane'] = null;
     }
     else {
-      $contextMenu['SailsPane'] = null;
+      $contextMenu['tscore\RotationPane'] = null;
     }
 
     $accessKeys = array(
       'EnterFinishPane' => 'f',
-      'SailsPane' => 's',
+      'tscore\RotationPane' => 's',
       'RpEnterPane' => 'r',
     );
 
@@ -151,7 +153,7 @@ abstract class AbstractPane implements Pane {
       array_keys($contextMenu),
       array('EnterFinishPane' => WS::link('/inc/img/finish.png'),
             'RpEnterPane' => WS::link('/inc/img/rp.png'),
-            'SailsPane' => WS::link('/inc/img/rot.png'),
+            'tscore\RotationPane' => WS::link('/inc/img/rot.png'),
             'TeamRacesPane' => WS::link('/inc/img/rot.png'),
             'DetailsPane' => WS::link('/inc/img/set.png'),
       )
@@ -452,8 +454,13 @@ abstract class AbstractPane implements Pane {
       if ($u->scoring == Regatta::SCORING_TEAM) {
         return null;
       }
-      require_once('tscore/SailsPane.php');
-      return new SailsPane($r, $u);
+      return new RotationPane($r, $u);
+    case 'delete-rotation':
+    case 'delete-rotations':
+      if ($u->scoring == Regatta::SCORING_TEAM) {
+        return null;
+      }
+      return new DeleteRotationPane($r, $u);
     case 'scorer':
     case 'scorers':
       require_once('tscore/ScorersPane.php');
@@ -548,8 +555,12 @@ abstract class AbstractPane implements Pane {
 
     case 'SailsPane':
     case 'DivisionPenaltyPane':
+    case 'tscore\RotationPane':
     case 'tscore\TeamDivisionPenaltyPane':
       return $this->has_teams && $this->has_races;
+
+    case 'tscore\DeleteRotationPane':
+      return $this->has_rots;
 
     case 'TeamRacesPane':
     case 'RacesPane':
@@ -793,9 +804,10 @@ abstract class AbstractPane implements Pane {
       ),
       "Teams" => $teamList,
       "Rotations" => array(
-        'SailsPane',
+        'tscore\RotationPane', // 'SailsPane',
         'TweakSailsPane',
         'ManualTweakPane',
+        'tscore\DeleteRotationPane',
         'RotationDialog',
       ),
       "RP Forms" => array(
@@ -861,6 +873,7 @@ abstract class AbstractPane implements Pane {
   private static $URLS = array(
     'AddTeamsPane'           => '/score/%s/teams',
     'DeleteRegattaPane'      => '/score/%s/delete',
+    'tscore\DeleteRotationPane' => '/score/%s/delete-rotation',
     'DeleteTeamsPane'        => '/score/%s/remove-teams',
     'DetailsPane'            => '/score/%s/settings',
     'DropPenaltyPane'        => '/score/%s/drop-penalty',
@@ -879,6 +892,7 @@ abstract class AbstractPane implements Pane {
     'SailsPane'              => '/score/%s/rotations',
     'ScorersPane'            => '/score/%s/scorers',
     'SummaryPane'            => '/score/%s/summaries',
+    'tscore\RotationPane'    => '/score/%s/rotations',
     'TeamEditRoundPane'      => '/score/%s/rounds',
     'TeamEnterFinishPane'    => '/score/%s/finishes',
     'TeamEnterPenaltyPane'   => '/score/%s/penalty',
@@ -914,6 +928,7 @@ abstract class AbstractPane implements Pane {
   private static $TITLES = array(
     'AddTeamsPane'           => 'Add team',
     'DeleteRegattaPane'      => 'Delete',
+    'tscore\DeleteRotationPane' => 'Remove rotation',
     'DeleteTeamsPane'        => 'Remove team',
     'DetailsPane'            => 'Settings',
     'DropPenaltyPane'        => 'Drop penalty',
@@ -927,6 +942,7 @@ abstract class AbstractPane implements Pane {
     'RacesPane'              => 'Add/edit races',
     'RankTeamsPane'          => 'Rank teams',
     'ReplaceTeamPane'        => 'Sub team',
+    'tscore\RotationPane'    => 'Set rotation',
     'RpEnterPane'            => 'Enter RP',
     'RpAttendeePane'         => 'Enter RP',
     'RpMissingPane'          => 'Missing RP',

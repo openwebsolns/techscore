@@ -50,7 +50,7 @@ class ResponseBody {
    * @return SimpleXMLElement
    * @throws InvalidArgumentException if unable to parse.
    */
-  public function asXml() {
+  public function asXml($autoRegisterDefaultNamespace = true) {
     if ($this->xmlVersion === null) {
       libxml_use_internal_errors(true);
       $sxe = new SimpleXMLElement($this->getRaw());
@@ -64,6 +64,11 @@ class ResponseBody {
         );
       }
       $this->xmlVersion = $sxe;
+    }
+    if ($autoRegisterDefaultNamespace !== false) {
+      $namespaces = $this->xmlVersion->getNamespaces();
+      $namespace = $namespaces[''];
+      $this->xmlVersion->registerXPathNamespace('html', $namespace);
     }
     return $this->xmlVersion;
   }

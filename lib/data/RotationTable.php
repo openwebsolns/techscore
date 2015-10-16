@@ -40,7 +40,7 @@ class RotationTable extends XTable {
       )
     );
 
-    $rotation = $regatta->getRotation();
+    $rotation = $regatta->getRotationManager();
     $races = $regatta->getRaces($div);
     $head->add(new XTH());
     $head->add(new XTH(array(), "Team"));

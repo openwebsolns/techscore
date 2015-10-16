@@ -125,7 +125,7 @@ abstract class AbstractDialog extends AbstractPane {
       case 'boats':
         if ($r->scoring != Regatta::SCORING_STANDARD && $r->scoring != Regatta::SCORING_COMBINED)
           return null;
-        $rot = $r->getRotation();
+        $rot = $r->getRotationManager();
         if (!$rot->isAssigned())
           return null;
         require_once('tscore/BoatsDialog.php');

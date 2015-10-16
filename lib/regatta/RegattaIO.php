@@ -142,7 +142,7 @@ class RegattaIO {
     //   Step once through each combination of race and team and fetch
     //   the corresponding sail and finish. When entering finishes,
     //   also track the penalties/breakdown
-    $rotation = $reg->getRotation();
+    $rotation = $reg->getRotationManager();
     $root->add($tag  = new XElem("Rotations"));
     $root->add($tag2 = new XElem("Finishes"));
     $root->add($tagP = new XElem("Penalties"));
@@ -432,7 +432,7 @@ class RegattaIO {
     // ------------------------------------------------------------
     // Rotations
     // ------------------------------------------------------------
-    $rot = $regatta->getRotation();
+    $rot = $regatta->getRotationManager();
     $rot_errors = false;
     foreach ($root->Rotations->Sail as $sail) {
       $team_id = (string)$sail['team'];

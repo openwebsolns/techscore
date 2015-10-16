@@ -25,7 +25,7 @@ class RotationDialog extends AbstractDialog {
    */
   public function __construct(Account $user, FullRegatta $reg) {
     parent::__construct("Rotation", $user, $reg);
-    $this->rotation = $this->REGATTA->getRotation();
+    $this->rotation = $this->REGATTA->getRotationManager();
   }
 
   /**

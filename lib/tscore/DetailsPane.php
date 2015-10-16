@@ -345,6 +345,23 @@ class DetailsPane extends AbstractPane {
 
               if (count($dropped_races) > 0)
                 Session::pa(new PA("Removed finishes for following races due to incompleteness: " . implode(", ", $dropped_races), PA::I));
+          }
+
+          $this->REGATTA->doScore();
+          Session::pa(new PA("Re-scored the regatta."));
+          UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
+        }
+        // Are there rotations?
+        if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED) {
+          $rot = $this->REGATTA->getRotationManager();
+          if ($rot->isAssigned()) {
+            // Remove rotation for any races for which there is a
+            // conflict in the rotation
+            if (count($rot->getDivisions()) != count($divs)) {
+              $rot->reset();
+              Session::pa(new PA("Rotations reset due to inconsistency.", PA::I));
+              UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
+>>>>>>> Introduce FleetRotation and new RotationPane
             }
           
             $this->REGATTA->doScore();

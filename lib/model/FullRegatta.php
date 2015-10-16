@@ -364,8 +364,9 @@ class FullRegatta extends DBObject implements Publishable {
    * @return list of divisions in this regatta
    */
   public function getDivisions() {
-    if ($this->scoring == Regatta::SCORING_TEAM)
+    if ($this->scoring == Regatta::SCORING_TEAM) {
       return array(Division::A(), Division::B(), Division::C());
+    }
 
     $q = DB::prepGetAll(DB::T(DB::RACE), new DBCond('regatta', $this->id), array('division'));
     $q->distinct(true);
@@ -373,9 +374,9 @@ class FullRegatta extends DBObject implements Publishable {
     $q = DB::query($q);
     $divisions = array();
     while ($row = $q->fetch_object()) {
-      $divisions[$row->division] = Division::get($row->division);
+      $divisions[] = Division::get($row->division);
     }
-    return array_values($divisions);
+    return $divisions;
   }
 
   /**
@@ -1332,11 +1333,11 @@ class FullRegatta extends DBObject implements Publishable {
   /**
    * Gets the rotation object that manages this regatta's rotation
    *
-   * @return the rotation object for this regatta
+   * @return RotationManager the rotation manager object for this regatta
    */
-  public function getRotation() {
+  public function getRotationManager() {
     if ($this->rotation === null) {
-      $this->rotation = new Rotation($this);
+      $this->rotation = new RotationManager($this);
     }
     return $this->rotation;
   }
@@ -2029,24 +2030,6 @@ class FullRegatta extends DBObject implements Publishable {
   }
 
   // ------------------------------------------------------------
-  // Used team rotation templates
-  // ------------------------------------------------------------
-
-  /**
-   * Get all the saved rotations for this regatta
-   *
-   * @return Array:Round
-   */
-  public function getTeamRotations() {
-    $list = array();
-    foreach ($this->getRounds() as $round) {
-      if ($round->rotation !== null)
-        $list[] = $round;
-    }
-    return $list;
-  }
-
-  // ------------------------------------------------------------
   // Public URL cache
   // ------------------------------------------------------------
 
@@ -2139,7 +2122,7 @@ class FullRegatta extends DBObject implements Publishable {
       }
     }
     else {
-      $rotation = $this->getRotation();
+      $rotation = $this->getRotationManager();
       if ($rotation->isAssigned())
         $list[] = $root . 'rotations/index.html';
     }
@@ -2330,25 +2313,26 @@ class FullRegatta extends DBObject implements Publishable {
   /**
    * Creates a new regatta with the given specs
    *
-   * @param String $db the database to add the regatta to, must be in
-   * the database map ($self::DB_MAP)
    * @param String $name the name of the regatta
    * @param DateTime $start_time the start time of the regatta
    * @param DateTime $end_date the end_date
    * @param Type $type one of the active regatta types
    * @param String $participant one of those listed in Regatta::getParticipantOptions()
    * @param boolean $private true to create a private regatta
-   * @return int the ID of the regatta
+   * @return Regatta the created regatta
    *
    * @throws InvalidArgumentException if unable to create nick name, etc.
    */
-  public static function createRegatta($name,
-                                       DateTime $start_time,
-                                       DateTime $end_date,
-                                       Active_Type $type,
-                                       $scoring = Regatta::SCORING_STANDARD,
-                                       $participant = Regatta::PARTICIPANT_COED,
-                                       $private = false) {
+  public static function createRegatta(
+    $name,
+    DateTime $start_time,
+    DateTime $end_date,
+    Active_Type $type,
+    $scoring = Regatta::SCORING_STANDARD,
+    $participant = Regatta::PARTICIPANT_COED,
+    $private = false
+  ) {
+
     $opts = Regatta::getScoringOptions();
     if (!isset($opts[$scoring]))
       throw new InvalidArgumentException("No such regatta scoring $scoring.");

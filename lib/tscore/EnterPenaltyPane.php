@@ -82,7 +82,7 @@ class EnterPenaltyPane extends AbstractPane {
       $form->add(new XSubmitP('c_race', "Next →"));
     }
     else {
-      $rotation = $this->REGATTA->getRotation();
+      $rotation = $this->REGATTA->getRotationManager();
 
       // ------------------------------------------------------------
       // 2. Penalty details

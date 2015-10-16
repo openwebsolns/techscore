@@ -1,9 +1,7 @@
 <?php
-/*
- * This file is part of Techscore
- */
-
-
+use \regatta\rotation\FrequentTeamSailAssigner;
+use \regatta\rotation\InfrequentTeamSailAssigner;
+use \regatta\rotation\ConstantTeamSailAssigner;
 
 /**
  * A round-robin of races, for team racing applications
@@ -29,6 +27,13 @@ class Round extends DBObject {
    */
   protected $round_group;
 
+  /**
+   * Auto-injected singleton helpers for assigning sails.
+   */
+  private $frequentAssigner;
+  private $infrequentAssigner;
+  private $constantAssigner;
+
   public function db_type($field) {
     if ($field == 'regatta')
       return DB::T(DB::REGATTA);
@@ -41,7 +46,7 @@ class Round extends DBObject {
     if ($field == 'boat')
       return DB::T(DB::BOAT);
     if ($field == 'rotation') {
-      return DB::T(DB::TEAM_ROTATION);
+      return DB::T(DB::SAILS_LIST);
     }
     return parent::db_type($field);
   }
@@ -302,8 +307,9 @@ class Round extends DBObject {
    * @param Array:String $sails
    */
   public function setSails(Array $sails = array()) {
-    if ($this->rotation === null)
-      $this->rotation = new TeamRotation();
+    if ($this->rotation === null) {
+      $this->rotation = new SailsList();
+    }
     $this->__get('rotation')->sails = $sails;
   }
 
@@ -313,13 +319,14 @@ class Round extends DBObject {
    * @param Array:String $colors
    */
   public function setColors(Array $colors = array()) {
-    if ($this->rotation === null)
-      $this->rotation = new TeamRotation();
+    if ($this->rotation === null) {
+      $this->rotation = new SailsList();
+    }
     $this->__get('rotation')->colors = $colors;
   }
 
   public function setRotation(Array $sails, Array $colors) {
-    $this->rotation = new TeamRotation();
+    $this->rotation = new SailsList();
     $this->setSails($sails);
     $this->setColors($colors);
   }
@@ -358,13 +365,40 @@ class Round extends DBObject {
    * @throws InvalidArgumentException
    */
   public function assignSails(Array $teams, Array $divisions, $frequency = null) {
-    if ($frequency === null)
+    if ($frequency === null) {
       $frequency = $this->rotation_frequency;
-    if ($frequency === null)
+    }
+    if ($frequency === null) {
       throw new InvalidArgumentException("No rotation frequency provided.");
-    if ($this->rotation === null)
+    }
+    if (!$this->hasRaceOrder()) {
       return array();
-    return $this->__get('rotation')->assignSails($this, $teams, $divisions, $frequency);
+    }
+    if ($this->rotation === null) {
+      return array();
+    }
+    $rotation = $this->__get('rotation');
+    if ($rotation->count() == 0) {
+      return array();
+    }
+    switch ($frequency) {
+    case Race_Order::FREQUENCY_FREQUENT:
+      $assigner = $this->getFrequentAssigner();
+      break;
+
+    case Race_Order::FREQUENCY_INFREQUENT:
+      $assigner = $this->getInfrequentAssigner();
+      break;
+
+    case Race_Order::FREQUENCY_NONE:
+      $assigner = $this->getConstantAssigner();
+      break;
+
+    default:
+      // TODO: should this throw an error?
+      return array();
+    }
+    return $assigner->assignSails($this, $rotation, $teams, $divisions);
   }
 
   // ------------------------------------------------------------
@@ -396,5 +430,26 @@ class Round extends DBObject {
    */
   public function getSeeds() {
     return DB::getAll(DB::T(DB::ROUND_SEED), new DBCond('round', $this));
+  }
+
+  private function getFrequentAssigner() {
+    if ($this->frequentAssigner == null) {
+      $this->frequentAssigner = new FrequentTeamSailAssigner();
+    }
+    return $this->frequentAssigner;
+  }
+
+  private function getInfrequentAssigner() {
+    if ($this->infrequentAssigner == null) {
+      $this->infrequentAssigner = new InfrequentTeamSailAssigner();
+    }
+    return $this->infrequentAssigner;
+  }
+
+  private function getConstantAssigner() {
+    if ($this->constantAssigner == null) {
+      $this->constantAssigner = new ConstantTeamSailAssigner();
+    }
+    return $this->constantAssigner;
   }
 }

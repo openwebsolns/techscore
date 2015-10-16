@@ -102,7 +102,7 @@ class RacesPane extends AbstractPane {
       $f_rac->set("disabled", "disabled");
     }
     else {
-      if ($this->REGATTA->getRotation()->isAssigned()) {
+      if ($this->REGATTA->getRotationManager()->isAssigned()) {
         $form->add(new XHeading("Existing rotations"));
         $form->add(new XP(array(), "Adding races or divisions to this regatta will require that you also edit rotations. Removing races or divisions will also remove the rotation for the removed races!"));
       }
@@ -243,7 +243,7 @@ class RacesPane extends AbstractPane {
 
       // Remove rotation?
       if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED && count($new_divs) > 0) {
-        $rot = $this->REGATTA->getRotation();
+        $rot = $this->REGATTA->getRotationManager();
         if ($rot->isAssigned()) {
           $rot->reset();
           Session::pa(new PA("Rotations reset due to new division(s).", PA::I));
@@ -293,7 +293,7 @@ class RacesPane extends AbstractPane {
       if (!$removed_races && !$added_races)
         throw new SoterException("Nothing to change.");
 
-      $rot = $this->REGATTA->getRotation();
+      $rot = $this->REGATTA->getRotationManager();
       if ($rot->isAssigned()) {
         UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
         Session::pa(new PA("Rotations altered due to new races.", PA::I));

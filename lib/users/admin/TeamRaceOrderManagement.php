@@ -161,7 +161,7 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     // Create a new one
     // ------------------------------------------------------------
-    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/tr-race-order-inputs.js', null, array('id'=>'cselect-js', 'async'=>'async', 'defer'=>'defer')));
+    $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/tr-race-order-inputs.js'), null, array('async'=>'async', 'defer'=>'defer')));
     $this->PAGE->addContent($p = new XPort("Create a new race order"));
     $p->add(new XP(array(), "Race orders are used in team racing to automatically order which teams face off in which order. Create a look-up table which will then be used if the scorer's choice of parameters match the ones specified below. Note that there can only be one table per set of parameters below."));
 

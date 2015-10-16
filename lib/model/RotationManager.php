@@ -1,19 +1,10 @@
 <?php
-/*
- * This class is part of TechScore
- *
- * @version 2.0
- * @author Dayan Paez
- * @package regatta
- */
-
-require_once('conf.php');
 
 /**
  * Encapsulates and manages a rotation
  *
  */
-class Rotation {
+class RotationManager {
 
   // Private variables
   private $regatta;
@@ -199,6 +190,23 @@ class Rotation {
     return DB::getAll(DB::T(DB::ROUND),
                       new DBBool(array(new DBCond('regatta', $this->regatta),
                                        new DBCondIn('id', $q))));
+  }
+
+  /**
+   * Retrieves the last FleetRotation associated with this regatta.
+   *
+   * @return FleetRotation or null.
+   */
+  public function getFleetRotation() {
+    $rotations = DB::getAll(DB::T(DB::FLEET_ROTATION), new DBCond('regatta', $this->regatta));
+    if (count($rotations) == 0) {
+      return null;
+    }
+    return $rotations[0];
+  }
+
+  public function removeFleetRotation() {
+    DB::removeAll(DB::T(DB::FLEET_ROTATION), new DBCond('regatta', $this->regatta));
   }
 
   /**

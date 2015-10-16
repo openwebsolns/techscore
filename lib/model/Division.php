@@ -1,9 +1,4 @@
 <?php
-/*
- * This file is part of Techscore
- */
-
-
 
 /**
  * A division, one of possibly four: A, B, C, and D. Used primarily
@@ -45,7 +40,7 @@ class Division {
     return "Mid";
   }
 
-  // Static variables
+  // Singletons
   private static $A;
   private static $B;
   private static $C;
@@ -97,6 +92,26 @@ class Division {
     }
     return self::$D;
   }
+
+  /**
+   * Returns a list of divisions of the given size.
+   *
+   * @param int $num_divisions between 1 and 4.
+   * @return Array a list of divisions, in order.
+   * @throws InvalidArgumentException if invalid number requested.
+   */
+  public static function listOfSize($num_divisions) {
+    if ($num_divisions < 1 || $num_divisions > 4) {
+      throw new InvalidArgumentException("Invalid number of divisions requested: " . $num_divisions);
+    }
+    $list = array();
+    $offset = ord('A');
+    for ($i = 0; $i < $num_divisions; $i++) {
+      $list[] = self::get(chr($offset + $i));
+    }
+    return $list;
+  }
+
   /**
    * Gets the division object with the given value
    *

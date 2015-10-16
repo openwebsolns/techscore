@@ -25,7 +25,7 @@ class BoatsDialog extends AbstractScoresDialog {
    */
   public function __construct(Account $user, FullRegatta $reg) {
     parent::__construct("Boats", $user, $reg);
-    $this->rotation = $this->REGATTA->getRotation();
+    $this->rotation = $this->REGATTA->getRotationManager();
     if (!$this->rotation->isAssigned())
       throw new InvalidArgumentException("Boats dialog only available when using rotations.");
   }

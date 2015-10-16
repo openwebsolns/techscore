@@ -294,7 +294,7 @@ abstract class AbstractRoundPane extends AbstractPane {
   }
 
   /**
-   * Creates and assigns a TeamRotation object based on arguments
+   * Creates and assigns a set of sails based on arguments.
    *
    * Assigns boats to races
    *

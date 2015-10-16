@@ -33,6 +33,7 @@ abstract class AbstractUnitTester extends PHPUnit_Framework_TestCase {
         throw new InvalidArgumentException("No super/admin user exists!");
       }
       self::$USER = $users[0];
+      Conf::$USER = self::$USER;
     }
 
     if (!self::$isCleanupRegistered) {

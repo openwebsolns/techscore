@@ -1,6 +1,8 @@
 <?php
 use \http\Response;
 
+require_once('utils/RegattaCreator.php');
+
 /**
  * Provides common facilities for integration tests, such as cURL
  * functionality.
@@ -20,14 +22,25 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
    * @see setSession
    */
   private static $session_id = null;
-
   /**
-   * Has the cleanup function been registered?
-   *
-   * @see setSession
-   * @see cleanup
+   * Cache of the CSRF token for POST requests.
    */
-  private static $isCleanupRegistered = false;
+  private static $csrf_token = null;
+  /**
+   * The singleton regatta creator to use.
+   */
+  protected static $regatta_creator = null;
+  /**
+   * Has the setup been performed?
+   */
+  private static $isSetupDone = false;
+
+  public static function setUpBeforeClass() {
+    if (!self::$isSetupDone) {
+      register_shutdown_function('AbstractTester::cleanup');
+      self::$regatta_creator = new RegattaCreator();
+    }
+  }
 
   /**
    * Records the session id for next requests...
@@ -64,11 +77,6 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
       $partial = sprintf('a:1:{s:4:"user";s:%d:"%s";}', $length, $user_id);
       $data = sprintf('data|s:%d:"%s";', strlen($partial), $partial);
       TSSessionHandler::write($sid, $data);
-
-      if (!self::$isCleanupRegistered) {
-        register_shutdown_function('AbstractTester::cleanup');
-        self::$isCleanupRegistered = true;
-      }
     }
 
     self::$session_id = $session_id;
@@ -81,6 +89,9 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
   public static function cleanup() {
     if (self::$session_id !== null) {
       TSSessionHandler::destroy(self::extractSessionId(self::$session_id));
+    }
+    if (self::$regatta_creator !== null) {
+      self::$regatta_creator->cleanup();
     }
   }
 
@@ -95,6 +106,27 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
     }
     array_shift($parts);
     return implode('=', $parts);
+  }
+
+  /**
+   * Helper method makes sure that there is a logged-in user.
+   *
+   */
+  protected function login() {
+    if (self::$session_id === null) {
+      $response = $this->getUrl('/');
+      $head = $response->getHead();
+      $cookie = $head->getHeader('Set-Cookie');
+      $cookie_parts = explode(';', $cookie);
+      self::setSession($cookie_parts[0]);
+
+      $body = $response->getBody();
+      $root = $body->asXml();
+      $tokens = $root->xpath('//html:input[@name="csrf_token"]');
+      if (count($tokens) > 0) {
+        self::$csrf_token = $tokens[0]['value'];
+      }
+    }
   }
 
   protected function fullUrl($url) {
@@ -122,6 +154,10 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
         break;
 
       case self::POST:
+        $args['csrf_token'] = (string) self::$csrf_token;
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($args));
+        break;
+
       default:
         throw new InvalidArgumentException("Don't know how to use arguments for $method.");
       }
@@ -155,6 +191,21 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
     return $this->doUrl($url, self::HEAD);
   }
 
+  protected function findInputElement(SimpleXMLElement $root, $tagName, $inputName, $message = null, $count = 1) {
+    if ($message == null) {
+      $message = sprintf("Cannot find <%s name=\"%s\">.", $tagName, $inputName);
+    }
+    $xpath = sprintf('//html:%s[@name="%s"]', $tagName, $inputName);
+    $this->autoregisterXpathNamespace($root);
+    $inputs = $root->xpath($xpath);
+    $this->assertEquals($count, count($inputs), $message);
+  }
+
+  protected function autoregisterXpathNamespace(SimpleXMLElement $element, $prefix = 'html') {
+    $namespaces = $element->getNamespaces();
+    $element->registerXPathNamespace($prefix, array_shift($namespaces));
+  }
+
   //
   // Assertions
   //
@@ -168,7 +219,16 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
    */
   protected function assertResponseStatus(Response $response, $status = 200, $message = null) {
     $head = $response->getHead();
-    $this->assertEquals($status,  $head->getStatus(), $message);
+    $actualStatus = $head->getStatus();
+    if ($message === null && self::$session_id !== null) {
+      $message = sprintf(
+        "Expected status \"%s\" but got \"%s\" instead. (Session=[%s])",
+        $status,
+        $actualStatus,
+        TSSessionHandler::read(self::$session_id)
+      );
+    }
+    $this->assertEquals($status,  $actualStatus, $message);
   }
 }
 ?>

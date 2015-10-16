@@ -24,7 +24,7 @@ class TweakSailsPane extends AbstractPane {
 
   protected function fillHTML(Array $args) {
 
-    $rotation  = $this->REGATTA->getRotation();
+    $rotation  = $this->REGATTA->getRotationManager();
     $divisions = $this->REGATTA->getDivisions();
     $exist_div = $rotation->getDivisions();
 
@@ -110,7 +110,7 @@ class TweakSailsPane extends AbstractPane {
   }
 
   public function process(Array $args) {
-    $rotation = $this->REGATTA->getRotation();
+    $rotation = $this->REGATTA->getRotationManager();
 
     // ------------------------------------------------------------
     // 0. Reset/cancel
@@ -158,7 +158,7 @@ class TweakSailsPane extends AbstractPane {
     if (isset($args['addsails'])) {
 
       // Validate amount
-      $min = Rotation::min($sails);
+      $min = RotationManager::min($sails);
       $amount = DB::$V->reqInt($args, 'addamount', 1 - $min, 1000 - $min, "Invalid amount to add to sails (sails numbers must be positive).");
       if ($amount == 0)
         throw new SoterException("It is senseless to add nothing to the sails.");

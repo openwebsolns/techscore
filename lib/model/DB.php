@@ -1,9 +1,7 @@
 <?php
 use \mail\TSMailer;
 use \mail\Attachment;
-/*
- * This file is part of TechScore
- */
+use \model\AbstractObject;
 
 require_once('mysqli/DBM.php');
 
@@ -35,6 +33,7 @@ class DB {
   const EMAIL_TOKEN = 'Email_Token';
   const FINISH = 'Finish';
   const FINISH_MODIFIER = 'FinishModifier';
+  const FLEET_ROTATION = '\model\FleetRotation';
   const FULL_REGATTA = 'FullRegatta';
   const HOST_SCHOOL = 'Host_School';
   const MEMBER = 'Member';
@@ -82,7 +81,7 @@ class DB {
   const SINGLEHANDED_TEAM = 'SinglehandedTeam';
   const SYNC_LOG = 'Sync_Log';
   const TEAM_NAME_PREFS = 'Team_Name_Prefs';
-  const TEAM_ROTATION = 'TeamRotation';
+  const SAILS_LIST = 'SailsList';
   const TEAM = 'Team';
   const TEXT_ENTRY = 'Text_Entry';
   const TYPE = 'Type';
@@ -148,10 +147,18 @@ class DB {
   }
 
   public static function insertAll($list, $ignore = false) {
+    foreach ($list as $obj) {
+      if ($obj instanceof AbstractObject) {
+        $obj->db_prep_set();
+      }
+    }
     return DBM::insertAll($list, $ignore);
   }
 
   public static function set(DBObject $obj, $update = "guess") {
+    if ($obj instanceof AbstractObject) {
+      $obj->db_prep_set();
+    }
     return DBM::set($obj, $update);
   }
 

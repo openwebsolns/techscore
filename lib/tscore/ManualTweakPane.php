@@ -23,7 +23,7 @@ class ManualTweakPane extends AbstractPane {
 
   protected function fillHTML(Array $args) {
 
-    $rotation  = $this->REGATTA->getRotation();
+    $rotation  = $this->REGATTA->getRotationManager();
     $exist_div = $this->REGATTA->getDivisions();
 
     // ------------------------------------------------------------    
@@ -100,7 +100,7 @@ class ManualTweakPane extends AbstractPane {
 
   public function process(Array $args) {
 
-    $rotation = $this->REGATTA->getRotation();
+    $rotation = $this->REGATTA->getRotationManager();
 
     // ------------------------------------------------------------
     // Boat by boat

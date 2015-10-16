@@ -136,7 +136,7 @@ class UpdateRegatta extends AbstractScript {
     $full = false;
     $notice = false;
     $notice_docs = false;
-    $rot = $reg->getRotation();
+    $rot = $reg->getRotationManager();
 
     // If any 'index.html' files were added or deleted, then all pages
     // need to be regenerated, regardless of activity, because the

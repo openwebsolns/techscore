@@ -43,7 +43,7 @@ abstract class AbstractScoresDialog extends AbstractDialog {
       foreach ($this->REGATTA->getDivisions() as $div) {
         $prog->addCompleted("$div Division", sprintf('/view/%d/scores/%s', $this->REGATTA->id, $div));
       }
-      $rot = $this->REGATTA->getRotation();
+      $rot = $this->REGATTA->getRotationManager();
       if ($rot->isAssigned()) {
         $prog->addCompleted("Boats rank", sprintf('/view/%d/boats', $this->REGATTA->id));
       }

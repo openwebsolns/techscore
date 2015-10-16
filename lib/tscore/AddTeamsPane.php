@@ -86,7 +86,7 @@ class AddTeamsPane extends AbstractTeamPane {
         $this->REGATTA->setData();
 
       if (isset($args['del-rotation'])) {
-        $rot = $this->REGATTA->getRotation();
+        $rot = $this->REGATTA->getRotationManager();
         $rot->reset();
         Session::pa(new PA("Rotation has been reset.", PA::I));
         UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);

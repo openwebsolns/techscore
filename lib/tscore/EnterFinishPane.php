@@ -39,7 +39,7 @@ class EnterFinishPane extends AbstractPane {
 
   protected function fillHTML(Array $args) {
     // Determine race to display as requested
-    $rotation = $this->REGATTA->getRotation();
+    $rotation = $this->REGATTA->getRotationManager();
     $using = DB::$V->incKey($args, 'finish_using', $this->ACTIONS, self::ROTATION);
     $race = null;
     if (isset($args['race'])) {
@@ -95,7 +95,7 @@ class EnterFinishPane extends AbstractPane {
    * entering finishes.
    *
    */
-  protected function fillFinishesPort(Race $race, Rotation $rotation = null) {
+  protected function fillFinishesPort(Race $race, RotationManager $rotation = null) {
 
     // ------------------------------------------------------------
     // Enter finishes
@@ -186,7 +186,7 @@ class EnterFinishPane extends AbstractPane {
     // ------------------------------------------------------------
     // Enter finish by rotation/teams
     // ------------------------------------------------------------
-    $rotation = $this->REGATTA->getRotation();
+    $rotation = $this->REGATTA->getRotationManager();
     if (isset($args['f_places']) || isset($args['f_teams'])) {
       $args['finish_using'] = self::ROTATION;
       $race = DB::$V->reqRace($args, 'race', $this->REGATTA, "No such race in this regatta.");

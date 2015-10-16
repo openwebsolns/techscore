@@ -38,7 +38,7 @@ class TeamEnterFinishPane extends EnterFinishPane {
       }
     }
 
-    $rotation = $this->REGATTA->getRotation();
+    $rotation = $this->REGATTA->getRotationManager();
     $using = DB::$V->incKey($args, 'finish_using', $this->ACTIONS, self::ROTATION);
     if (!$rotation->isAssigned($race)) {
       unset($this->ACTIONS[self::ROTATION]);

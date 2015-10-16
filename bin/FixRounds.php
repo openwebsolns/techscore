@@ -48,7 +48,7 @@ foreach (DB::getAll(DB::T(DB::ROUND)) as $round) {
     $round->boat = $races[0]->boat;
 
     // Re-construct the race order
-    $rotation = $round->regatta->getRotation();
+    $rotation = $round->regatta->getRotationManager();
     $order = array();
     $sails = array();
     $colors = array();

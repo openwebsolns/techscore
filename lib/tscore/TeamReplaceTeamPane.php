@@ -195,7 +195,7 @@ class TeamReplaceTeamPane extends ReplaceTeamPane {
         }
       }
 
-      $this->rotation = $this->REGATTA->getRotation();
+      $this->rotation = $this->REGATTA->getRotationManager();
       $this->rpManager = $this->REGATTA->getRpManager();
 
       $changed_races = array();

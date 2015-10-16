@@ -1,10 +1,4 @@
 <?php
-/*
- * This file is part of Techscore
- */
-
-
-
 
 /**
  * Parent class of database elements that may be inactivated from one

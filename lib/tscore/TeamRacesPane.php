@@ -549,7 +549,7 @@ window.addEventListener("load", function(e) {
     }
   }
 
-  private function fillProgress(XP $prog, $max, $step) {
+  private function fillProgress(ProgressDiv $prog, $max, $step) {
     $steps = array("Round Type",
                    "Settings",
                    "Race Order",
