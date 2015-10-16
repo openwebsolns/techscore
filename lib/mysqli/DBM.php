@@ -42,7 +42,6 @@ class DBConnection extends MySQLi {
     parent::__construct($host, $user, $pass, $db, $port, $socket);
     $this->set_charset('utf8');
     $this->autocommit(false);
-    $this->begin_transaction(MYSQLI_TRANS_START_WITH_CONSISTENT_SNAPSHOT);
   }
 
   /**

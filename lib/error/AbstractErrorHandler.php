@@ -72,7 +72,10 @@ abstract class AbstractErrorHandler {
    *
    * @param int $errors the bitmask for the error handler.
    */
-  public function registerAll($errors = E_ALL | E_STRICT | E_NOTICE) {
+  public function registerAll($errors = null) {
+    if ($errors === null) {
+      $errors = E_ALL | E_STRICT | E_NOTICE;
+    }
     $this->registerErrors($errors);
     $this->registerExceptions();
     $this->registerFatalHandler();
