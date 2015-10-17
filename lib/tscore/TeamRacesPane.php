@@ -143,13 +143,13 @@ class TeamRacesPane extends AbstractRoundPane {
         if ($ROUND->num_boats !== null)
           $num_boats = $ROUND->num_boats;
 
+        $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/tr-race-order-inputs.js', null, array('id'=>'cselect-js', 'async'=>'async', 'defer'=>'defer')));
         $this->PAGE->addContent($p = new XPort("New round settings"));
         $p->add($form = $this->createForm());
         $form->add(new FReqItem("Round name:", new XTextInput('title', $ROUND->title)));
         $form->add(new FReqItem("Number of teams:", new XNumberInput('num_teams', $num_teams, 1, $num_teams, 1)));
-
-        $form->add(new FReqItem("Number of boats:", new XNumberInput('num_boats', $num_boats, $group_size, null, $group_size)));
-        $form->add(new FReqItem("Rotation frequency:", XSelect::fromArray('rotation_frequency', Race_Order::getFrequencyTypes()), "Note: multiple fleets require \"Frequent rotation\"."));
+        $form->add(new FReqItem("Rotation frequency:", XSelect::fromArray('rotation_frequency', Race_Order::getFrequencyTypes(), $ROUND->rotation_frequency, array('id'=>'input_rotation_frequency')), "Note: multiple fleets require \"Frequent rotation\"."));
+        $form->add(new FReqItem("Number of boats:", new XNumberInput('num_boats', $num_boats, $group_size, null, $group_size, array('id'=>'input_num_boats'))));
         $form->add($p = new XSubmitP('create-settings', "Next →"));
       }
 
@@ -955,7 +955,7 @@ window.addEventListener("load", function(e) {
       $clean_rotation = true;
     }
 
-    $num_boats = $this->processNumberOfBoats($args, $round->rotation_frequency, $num_teams);
+    $num_boats = $this->processNumberOfBoats($args, $freq, $num_teams);
 
     // Are we resetting the number of boats?
     if ($num_boats != $round->num_boats) {

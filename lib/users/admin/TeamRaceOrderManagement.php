@@ -47,7 +47,7 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
     $form->add(new FReqItem("Num. of boats/team:", new XStrong($template->num_divisions)));
     $form->add(new FReqItem("Num. of boats:", new XStrong($template->num_boats)));
     $form->add(new FReqItem("Boat rotation:", new XStrong($frequencies[$template->frequency])));
-    $form->add(new FReqItem("Race order:", new XSpan("(Table below)", array('class'=>'hidden'))));
+    $form->add(new FReqItem("Race order:", $tableform = new XDiv(array('class'=>'form_b'))));
 
     $num_races = $template->num_teams * ($template->num_teams - 1) / 2;
     if ($template->master_teams !== null) {
@@ -59,8 +59,9 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
     for ($num = 0; $num < $num_races; $num++) {
       $pair = $template->getPair($num);
 
-      if ($num % $races_per_flight == 0)
-        $form->add($tab = new XQuickTable(array('class'=>'tr-order-race'), array("#", "Team A", "Team B")));
+      if ($num % $races_per_flight == 0) {
+        $tableform->add($tab = new XQuickTable(array('class'=>'tr-order-race'), array("#", "Team A", "Team B")));
+      }
       $tab->addRow(array($num + 1,
                          new XNumberInput('team1[]', $pair[0], 1, $template->num_teams, 1, array('size'=>2)),
                          new XNumberInput('team2[]', $pair[1], 1, $template->num_teams, 1, array('size'=>2))));
@@ -71,15 +72,17 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
     $form->add(new FItem("Dump template:", new XTextArea('race_order', ""), "One pairing per line, separated by whitespace"));
 
     if ($template->template === null) {
+      $teams = $template->num_teams;
+      if ($template->master_teams !== null) {
+        $teams = implode(" ", $template->master_teams);
+      }
       $form->add($xp = new XP(array('class'=>'p-submit'),
                               array(new XA(WS::link('/race-order'), "← Cancel"), " ",
                                     new XSubmitInput('create', "Create template"),
-                                    new XHiddenInput('teams', $template->num_teams),
+                                    new XHiddenInput('teams', $teams),
                                     new XHiddenInput('boats', $template->num_boats),
                                     new XHiddenInput('frequency', $template->frequency),
                                     new XHiddenInput('divs', $template->num_divisions))));
-      if ($template->master_teams !== null)
-        $xp->add(new XHiddenInput('master_teams', implode(" ", $template->master_teams)));
     }
     else {
       $form->add(new XP(array('class'=>'p-submit'),
@@ -131,40 +134,16 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     if (isset($args['create'])) {
       try {
-        $template = new Race_Order();
-        $template->num_teams = DB::$V->incInt($args, 'teams', 2, 100, 0);
-        if ($template->num_teams == 0) {
-          $master = DB::$V->reqString($args, 'master_teams', 2, 100, "Either supply number of teams, or the list of carried over teams.");
-          $master = preg_replace('/[^0-9]/', " ", $master);
-          $master = preg_replace('/ +/', " ", $master);
-          $master = explode(" ", $master);
-
-          $parts = array();
-          foreach ($master as $value) {
-            if ($value > 0) {
-              $parts[] = $value;
-              $template->num_teams += $value;
-            }
-          }
-          if (count($master) < 2)
-            throw new SoterException("Completion rounds must carry over races from at least two other rounds.");
-
-          $template->master_teams = $parts;
-        }
-
-        $template->num_boats = DB::$V->reqInt($args, 'boats', 1, 100, "Invalid number of boats specified.");
-        $template->num_divisions = DB::$V->reqInt($args, 'divs', 1, 5, "Invalid number of boats per team specified.");
-        $template->frequency = DB::$V->reqKey($args, 'frequency', $frequencies, "Invalid frequency provided.");
-
-        if ($template->num_boats % ($template->num_divisions * 2) != 0)
-          throw new SoterException("Invalid number of boats in flight given number of boats per team.");
+        $template = $this->createTemplateFromMetadata($args);
 
         $title = "Specify race order for new template";
-        $current = DB::getRaceOrder($template->num_divisions,
-                                    $template->num_teams,
-                                    $template->num_boats,
-                                    $template->frequency,
-                                    $template->master_teams);
+        $current = DB::getRaceOrder(
+          $template->num_divisions,
+          $template->num_teams,
+          $template->num_boats,
+          $template->frequency,
+          $template->master_teams
+        );
         if ($current !== null) {
           $template = $current;
           $title = "Edit existing template";
@@ -182,19 +161,16 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     // Create a new one
     // ------------------------------------------------------------
+    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/tr-race-order-inputs.js', null, array('id'=>'cselect-js', 'async'=>'async', 'defer'=>'defer')));
     $this->PAGE->addContent($p = new XPort("Create a new race order"));
     $p->add(new XP(array(), "Race orders are used in team racing to automatically order which teams face off in which order. Create a look-up table which will then be used if the scorer's choice of parameters match the ones specified below. Note that there can only be one table per set of parameters below."));
 
     $p->add($form = $this->createForm(XForm::GET));
 
-    $form->add($fi = new FItem("# of teams:", new XNumberInput('teams', "", 2, null, 1, array('size'=>2))));
-    $fi->add(" ");
-    $fi->add(new XStrong("OR"));
-
-    $form->add(new FItem("# of teams carried over:", new XTextInput('master_teams', ''), "As a comma-separated list, e.g. \"4, 4\"."));
-    $form->add(new FReqItem("# of boats/team:", new XNumberInput('divs', 3, 1, 4, 1, array('size'=>2)), "Use 3 for a \"3 on 3\" team race, for example"));
-    $form->add(new FReqItem("# of boats:", new XNumberInput('boats', "", 1, null, 1, array('size'=>2)), "Total number of boats, i.e. 18, 24"));
-    $form->add(new FReqItem("Boat rotation:", XSelect::fromArray('frequency', $frequencies)));
+    $form->add(new FReqItem("Number of boats/team:", new XNumberInput('divs', 3, 1, 4, 1, array('size'=>2)), "Use 3 for a \"3 on 3\" team race, for example"));
+    $form->add(new FReqItem("Number of teams:", new XTextInput('teams', '', array('pattern'=>'^[0-9]+([, ]+[0-9]+)*$')), "To indicate teams carried over, use a comma-separated list, e.g. \"4, 4\", or \"2, 2, 2, 2\"."));
+    $form->add(new FReqItem("Rotation frequency:", XSelect::fromArray('frequency', $frequencies, null, array('id'=>'input_rotation_frequency'))));
+    $form->add(new FReqItem("Number of boats:", new XNumberInput('boats', "", 1, null, 1, array('size'=>2, 'id'=>'input_num_boats')), "Total number of boats, i.e. 18, 24. For \"No rotation\", this must equal ([number of teams] * [number of boats/team])."));
     $form->add(new XSubmitP('create', "Create template"));
 
     // ------------------------------------------------------------
@@ -260,42 +236,18 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
     // Create new one
     // ------------------------------------------------------------
     if (isset($args['create'])) {
-      $template = new Race_Order();
-      $template->num_teams = DB::$V->reqInt($args, 'teams', 1, 100, "Invalid number of teams specified.");
+      $template = $this->createTemplateFromMetadata($args);
 
-      $master = DB::$V->incString($args, 'master_teams', 2, 100);
-      if ($master !== null) {
-        $master = preg_replace('/[^0-9]/', " ", $master);
-        $master = preg_replace('/ +/', " ", $master);
-        $master = explode(" ", $master);
-
-        $parts = array();
-        $template->num_teams = 0;
-        foreach ($master as $value) {
-          if ($value > 0) {
-            $parts[] = $value;
-            $template->num_teams += $value;
-          }
-        }
-        if (count($master) < 2)
-          throw new SoterException("Completion rounds must carry over races from at least two other rounds.");
-
-        $template->master_teams = $parts;
-      }
-
-      $template->num_boats = DB::$V->reqInt($args, 'boats', 1, 100, "Invalid number of boats specified.");
-      $template->num_divisions = DB::$V->reqInt($args, 'divs', 1, 5, "Invalid number of boats per team specified.");
-      if ($template->num_boats % ($template->num_divisions * 2) != 0)
-        throw new SoterException("Invalid number of boats in flight given number of boats per team.");
-      $template->frequency = DB::$V->reqKey($args, 'frequency', Race_Order::getFrequencyTypes(), "Invalid boat rotation frequency provided.");
-
-      $current = DB::getRaceOrder($template->num_divisions,
-                                  $template->num_teams,
-                                  $template->num_boats,
-                                  $template->frequency,
-                                  $template->master_teams);
-      if ($current !== null)
+      $current = DB::getRaceOrder(
+        $template->num_divisions,
+        $template->num_teams,
+        $template->num_boats,
+        $template->frequency,
+        $template->master_teams
+      );
+      if ($current !== null) {
         $template->id = $current->id;
+      }
 
       $template->description = DB::$V->incString($args, 'description', 1, 16000);
 
@@ -339,11 +291,59 @@ class TeamRaceOrderManagement extends AbstractAdminUserPane {
     }
   }
 
+  /**
+   * Helper method to parse template metadata arguments.
+   *
+   * @param Array $args the GET/POST request items.
+   * @return Race_Order an empty (sans races) template.
+   * @throws SoterException when bad input is encountered.
+   */
+  private function createTemplateFromMetadata(Array $args) {
+    $template = new Race_Order();
+
+    $num_teams = DB::$V->reqString($args, 'teams', 1, 100, "Number of teams required.");
+    $num_teams = preg_replace('/[^0-9]/', " ", $num_teams);
+    $num_teams = preg_replace('/ +/', " ", $num_teams);
+    $num_teams = trim($num_teams);
+    if ($num_teams == "") {
+      throw new SoterException("Invalid number of teams provided.");
+    }
+    $num_teams = explode(" ", $num_teams);
+
+    if (count($num_teams) == 1) {
+      $template->num_teams = $num_teams[0];
+    }
+    else {
+      $parts = array();
+      foreach ($num_teams as $value) {
+        if ($value > 0) {
+          $parts[] = $value;
+          $template->num_teams += $value;
+        }
+      }
+      $template->master_teams = $parts;
+    }
+
+    $template->num_divisions = DB::$V->reqInt($args, 'divs', 1, 5, "Invalid number of boats per team specified.");
+    $template->frequency = DB::$V->reqKey($args, 'frequency', Race_Order::getFrequencyTypes(), "Invalid boat rotation frequency provided.");
+    if ($template->frequency == Race_Order::FREQUENCY_NONE) {
+      $template->num_boats = $template->num_divisions * $template->num_teams;
+    }
+    else {
+      $template->num_boats = DB::$V->reqInt($args, 'boats', 1, 100, "Invalid number of boats specified.");
+      if ($template->num_boats % ($template->num_divisions * 2) != 0) {
+        throw new SoterException("Invalid number of boats in flight given number of boats per team.");
+      }
+    }
+    return $template;
+  }
+
   private function processPairings(Race_Order $template, Array $args) {
     $num_races = $template->num_teams * ($template->num_teams - 1) / 2;
     if ($template->master_teams !== null) {
-      foreach ($template->master_teams as $num)
+      foreach ($template->master_teams as $num) {
         $num_races -= ($num * ($num - 1)) / 2;
+      }
     }
 
     $dump = DB::$V->incString($args, 'race_order', 3, 16000, null);
