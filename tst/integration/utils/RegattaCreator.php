@@ -82,7 +82,7 @@ class RegattaCreator {
     }
     $startTime = new DateTime();
     $endTime = new DateTime();
-    $endTime->add(new DateInterval('P2DT0H'));
+    $endTime->add(new DateInterval('P1DT0H'));
 
     $regatta = Regatta::createRegatta(
       'Standard Test Regatta',

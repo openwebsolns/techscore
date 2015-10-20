@@ -258,6 +258,7 @@ class RotationPane extends AbstractPane {
     $validator->validateFleetRotation($rotation);
     $rotationCreator = $this->getFleetRotationCreator($rotation);
     $rotationCreator->createRotation($rotation);
+    DB::set($rotation);
 
     UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
     Session::info(

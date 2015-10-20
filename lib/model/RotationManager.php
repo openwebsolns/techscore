@@ -77,7 +77,7 @@ class RotationManager {
     $list = array();
     foreach (DB::getAll(DB::T(DB::SAIL), $cond) as $sail)
       $list[] = $sail;
-    usort($list, 'Rotation::compareSails');
+    usort($list, 'RotationManager::compareSails');
     return $list;
   }
 
@@ -110,7 +110,7 @@ class RotationManager {
       foreach ($this->getSails($race) as $num)
         $nums[(string)$num] = $num;
     }
-    usort($nums, 'Rotation::compareSails');
+    usort($nums, 'RotationManager::compareSails');
     return $nums;
   }
 
@@ -723,7 +723,7 @@ class RotationManager {
 
   /**
    * This method is now necessary to use in conjunction with
-   * Rotation::queue
+   * RotationManager::queue.
    *
    * Client code is responsible for resetting the appropriate races
    * prior to calling this function.
