@@ -27,7 +27,6 @@ class DB {
   const ATTENDEE = 'Attendee';
   const BOAT = 'Boat';
   const BURGEE = 'Burgee';
-  const COACH = 'Coach';
   const CONFERENCE = 'Conference';
   const DAILY_SUMMARY = 'Daily_Summary';
   const DIVISION_PENALTY = 'DivisionPenalty';

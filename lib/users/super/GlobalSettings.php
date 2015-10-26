@@ -40,7 +40,6 @@ class GlobalSettings extends AbstractSuperUserPane {
 
     $p->add($f = new XPort("Database Sync"));
     $f->add(new FItem("Sailor API URL:", new XUrlInput(STN::SAILOR_API_URL, DB::g(STN::SAILOR_API_URL), array('size'=>60))));
-    $f->add(new FItem("Coach API URL:", new XUrlInput(STN::COACH_API_URL, DB::g(STN::COACH_API_URL), array('size'=>60))));
     $f->add(new FItem("School API URL:", new XUrlInput(STN::SCHOOL_API_URL, DB::g(STN::SCHOOL_API_URL), array('size'=>60))));
     $f->add(new FItem("Unique sailors/season?", new FCheckbox(STN::UNIQUE_SEASON_SAILOR, 1, "Enforce unique IDs for sailors from one season to the next.", DB::g(STN::UNIQUE_SEASON_SAILOR) !== null)));
 
@@ -104,7 +103,6 @@ class GlobalSettings extends AbstractSuperUserPane {
       }
 
       foreach (array(STN::SAILOR_API_URL,
-                     STN::COACH_API_URL,
                      STN::SCHOOL_API_URL,
                      STN::HELP_HOME) as $setting) {
         $val = DB::$V->incRE($args, $setting, '_^https?://.{5,}$_', array(null));

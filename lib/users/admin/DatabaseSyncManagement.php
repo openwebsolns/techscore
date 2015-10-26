@@ -23,17 +23,15 @@ class DatabaseSyncManagement extends AbstractAdminUserPane {
   const NUM_PER_PAGE = 20;
 
   private $sailors_url;
-  private $coaches_url;
   private $schools_url;
 
   public function __construct(Account $user) {
     parent::__construct("Database sync", $user);
 
     $this->sailors_url = DB::g(STN::SAILOR_API_URL);
-    $this->coaches_url = DB::g(STN::COACH_API_URL);
     $this->schools_url = DB::g(STN::SCHOOL_API_URL);
 
-    if ($this->sailors_url === null && $this->coaches_url === null && $this->schools_url === null)
+    if ($this->sailors_url === null && $this->schools_url === null)
       throw new PaneException("No database syncing available.");
   }
 
@@ -66,15 +64,6 @@ class DatabaseSyncManagement extends AbstractAdminUserPane {
             $message->add(new XLi(array($sailor, " ", new XSpan("(" . $sailor->school . ")"))));
         }
         $p->add(new FItem("New Sailors:", $message));
-
-        $coaches = $log->getCoaches();
-        $message = new XEm("No new coaches.");
-        if (count($coaches) > 0) {
-          $message = new XUl(array('class'=>'inline-list'));
-          foreach ($coaches as $coach)
-            $message->add(new XLi(array($coach, " ", new XSpan("(" . $coach->school . ")"))));
-        }
-        $p->add(new FItem("New Coaches:", $message));
 
         return;
       }
@@ -113,10 +102,6 @@ class DatabaseSyncManagement extends AbstractAdminUserPane {
       $prefix = "Sync:";
       if ($this->sailors_url !== null) {
         $form->add(new FItem($prefix, new FCheckbox(Sync_Log::SAILORS, 1, "Sailors", true)));
-        $prefix = "";
-      }
-      if ($this->coaches_url !== null) {
-        $form->add(new FItem($prefix, new FCheckbox(Sync_Log::COACHES, 1, "Coaches", true)));
         $prefix = "";
       }
       if ($this->schools_url !== null) {
@@ -172,7 +157,7 @@ class DatabaseSyncManagement extends AbstractAdminUserPane {
           $num_schools = new XTD(array(),
                                  array($num_schools, " ",
                                        new XA($this->link(array('log' => $log->id)), "[View]")));
-        $num_sailors = count($log->getSailors()) + count($log->getCoaches());
+        $num_sailors = count($log->getSailors());
         if ($num_sailors > 0)
           $num_sailors = new XTD(array(),
                                  array($num_sailors, " ",
@@ -196,20 +181,22 @@ class DatabaseSyncManagement extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     if (isset($args['sync'])) {
       $sailors = ($this->sailors_url !== null && DB::$V->incInt($args, Sync_Log::SAILORS, 1, 2) == 1);
-      $coaches = ($this->coaches_url !== null && DB::$V->incInt($args, Sync_Log::COACHES, 1, 2) == 1);
       $schools = ($this->schools_url !== null && DB::$V->incInt($args, Sync_Log::SCHOOLS, 1, 2) == 1);
 
-      if (!$sailors && !$coaches && !$schools)
+      if (!$sailors && !$schools)
         throw new SoterException("Nothing to sync.");
       
       require_once('scripts/SyncDB.php');
       $syncer = new SyncDB();
-      $log = $syncer->run($schools, $sailors, $coaches);
+      $log = $syncer->run($schools, $sailors);
       
-      Session::pa(new PA(sprintf("Database synced: %d schools, %d sailors, %d coaches added.",
-                                 count($log->getSchools()),
-                                 count($log->getSailors()),
-                                 count($log->getCoaches()))));
+      Session::info(
+        sprintf(
+          "Database synced: %d schools and %d sailors added.",
+          count($log->getSchools()),
+          count($log->getSailors())
+        )
+      );
     }
 
     // ------------------------------------------------------------

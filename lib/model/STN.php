@@ -15,7 +15,6 @@ class STN extends DBObject {
   const APP_COPYRIGHT = 'app_copyright';
   const TS_FROM_MAIL = 'ts_from_mail';
   const SAILOR_API_URL = 'sailor_api_url';
-  const COACH_API_URL = 'coach_api_url';
   const SCHOOL_API_URL = 'school_api_url';
   const HELP_HOME = 'help_home';
   const DIVERT_MAIL = 'divert_mail';

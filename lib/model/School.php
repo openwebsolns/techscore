@@ -1,7 +1,4 @@
 <?php
-/*
- * This file is part of Techscore
- */
 
 /**
  * Schools
@@ -225,30 +222,6 @@ class School extends DBObject implements Publishable {
     if ($gender !== null)
       $cond->add(new DBCond('gender', $gender));
     return DB::getAll(DB::T(DB::SAILOR), $cond);
-  }
-
-  /**
-   * Returns a list of coaches as sailor objects for the specified
-   * school
-   *
-   * @param School $school the school object
-   *
-   * @param mixed $active default "all", returns ONLY the active ones,
-   * false to return ONLY the inactive ones, anything else for all.
-   *
-   * @param boolean $only_registered true to narrow down to registered
-   *
-   * @return Array:Coach list of coaches
-   */
-  public function getCoaches($active = 'all', $only_registered = false) {
-    $cond = new DBBool(array(new DBCond('school', $this)));
-    if ($active === true)
-      $cond->add(new DBCond('active', null, DBCond::NE));
-    elseif ($active === false)
-      $cond->add(new DBCond('active', null));
-    if ($only_registered !== false)
-      $cond->add(new DBCond('icsa_id', null, DBCond::NE));
-    return DB::getAll(DB::T(DB::COACH), $cond);
   }
 
   /**

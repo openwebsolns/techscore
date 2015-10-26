@@ -1,9 +1,4 @@
 <?php
-/*
- * This file is part of Techscore
- */
-
-
 
 /**
  * Log of every database sync process run
@@ -19,7 +14,6 @@ class Sync_Log extends DBObject {
 
   const SCHOOLS = 'schools';
   const SAILORS = 'sailors';
-  const COACHES = 'coaches';
 
   public function db_type($field) {
     switch ($field) {
@@ -54,14 +48,5 @@ class Sync_Log extends DBObject {
    */
   public function getSailors() {
     return DB::getAll(DB::T(DB::SAILOR), new DBCond('sync_log', $this));
-  }
-
-  /**
-   * Gets the coaches added in this sync process
-   *
-   * @return Array:Coach
-   */
-  public function getCoaches() {
-    return DB::getAll(DB::T(DB::COACH), new DBCond('sync_log', $this));
   }
 }

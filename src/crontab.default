@@ -17,7 +17,7 @@ MAILTO = {CRON_MAILTO}
 
 #--------------------------------
 # Update sailor information: do this every day around 4AM
-18 4 * * * /usr/bin/php {DIRECTORY}/lib/scripts/SyncDB.php --log schools sailors coaches
+18 4 * * * /usr/bin/php {DIRECTORY}/lib/scripts/SyncDB.php --log schools sailors
 27 4 * * * /usr/bin/php {DIRECTORY}/lib/scripts/MergeUnregisteredSailors.php
 
 #--------------------------------

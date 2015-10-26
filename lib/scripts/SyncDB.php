@@ -43,7 +43,7 @@ class SyncDB extends AbstractScript {
     $this->errors = array();
     $this->warnings = array();
     $this->log_activation = false;
-    $this->cli_opts = '[--log] schools | sailors | coaches';
+    $this->cli_opts = '[--log] schools | sailors';
     $this->cli_usage = "Provide at least one argument to run.
 
  --log   Save activation for each entry.
@@ -236,9 +236,9 @@ class SyncDB extends AbstractScript {
   }
 
   /**
-   * Sync sailor/coaches, depending on argument
+   * Sync sailor, depending on argument.
    *
-   * @param Member $proto one of Sailor|Coach
+   * @param Member $proto one of Sailor
    * @param Sync_Log $log the log to save as
    */
   public function updateMember(Member $proto, Sync_Log $log) {
@@ -251,12 +251,10 @@ class SyncDB extends AbstractScript {
     $src = null;
     if ($proto instanceof Sailor)
       $src = DB::g(STN::SAILOR_API_URL);
-    elseif ($proto instanceof Coach)
-      $src = DB::g(STN::COACH_API_URL);
     else
       throw new TSScriptException("I do not know how to sync that kind of member.");
 
-    $role = ($proto instanceof Sailor) ? 'sailor' : 'coach';
+    $role = 'sailor';
     if (strlen($src) == 0) {
       self::errln("No URL found for $role list.");
       return;
@@ -304,9 +302,8 @@ class SyncDB extends AbstractScript {
    *
    * @param boolean $schools true to sync schools
    * @param boolean $sailors true to sync sailors
-   * @param boolean $coaches true to sync coaches
    */
-  public function run($schools = true, $sailors = true, $coaches = true) {
+  public function run($schools = true, $sailors = true) {
     // Create log entry
     $log = new Sync_Log();
     $log->updated = array();
@@ -327,14 +324,6 @@ class SyncDB extends AbstractScript {
     if ($sailors !== false) {
       $this->updateMember(DB::T(DB::SAILOR), $log);
       $log->updated[] = Sync_Log::SAILORS;
-    }
-
-    // ------------------------------------------------------------
-    // Coaches
-    // ------------------------------------------------------------
-    if ($coaches !== false) {
-      $this->updateMember(DB::T(DB::COACH), $log);
-      $log->updated[] = Sync_Log::COACHES;
     }
 
     foreach ($this->warnings as $mes) {
@@ -359,15 +348,16 @@ if (isset($argv) && basename(__FILE__) == basename($argv[0])) {
   $opts = $P->getOpts($argv);
   if (count($opts) == 0)
     throw new TSScriptException("Missing update argument");
-  $tosync = array(Sync_Log::SCHOOLS => false,
-                  Sync_Log::SAILORS => false,
-                  Sync_Log::COACHES => false);
+  $tosync = array(
+    Sync_Log::SCHOOLS => false,
+    Sync_Log::SAILORS => false,
+  );
+
   $log = false;
   foreach ($opts as $arg) {
     switch ($arg) {
     case Sync_Log::SCHOOLS:
     case Sync_Log::SAILORS:
-    case Sync_Log::COACHES:
       $tosync[$arg] = true;
       break;
 
@@ -380,7 +370,7 @@ if (isset($argv) && basename(__FILE__) == basename($argv[0])) {
     }
   }
   $P->setLogActivation($log);
-  $P->run($tosync[Sync_Log::SCHOOLS], $tosync[Sync_Log::SAILORS], $tosync[Sync_Log::COACHES]);
+  $P->run($tosync[Sync_Log::SCHOOLS], $tosync[Sync_Log::SAILORS]);
   if ($tosync[Sync_Log::SCHOOLS]) {
     // Update the summary page for completeness
     require_once('UpdateSchoolsSummary.php');
@@ -395,4 +385,4 @@ if (isset($argv) && basename(__FILE__) == basename($argv[0])) {
       printf("  %s\n", $mes);
   }
 }
-?>
+

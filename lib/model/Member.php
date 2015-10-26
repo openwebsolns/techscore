@@ -1,10 +1,11 @@
 <?php
-/*
- * This file is part of Techscore
- */
 
 /**
- * Represents either a student or a coach as a member of a school
+ * Represents either a student as a member of a school.
+ *
+ * While this abstraction used to be more relevant when coaches were
+ * also tracked, it has been kept around for potential future
+ * development.
  *
  * @author Dayan Paez
  * @version 2012-02-07
@@ -25,7 +26,6 @@ class Member extends DBObject implements Publishable {
   const MALE = 'M';
   const FEMALE = 'F';
 
-  const COACH = 'coach';
   const STUDENT = 'student';
 
   public function db_type($field) {

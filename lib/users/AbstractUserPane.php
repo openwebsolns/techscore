@@ -140,7 +140,7 @@ abstract class AbstractUserPane implements Pane {
     );
 
     // Are database syncs allowed?
-    if (DB::g(STN::SAILOR_API_URL) || DB::g(STN::SCHOOL_API_URL) || DB::g(STN::COACH_API_URL)) {
+    if (DB::g(STN::SAILOR_API_URL) || DB::g(STN::SCHOOL_API_URL)) {
       $menus['Database'][] = 'DatabaseSyncManagement';
     }
 

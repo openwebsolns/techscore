@@ -52,11 +52,9 @@ class SailorMergePane extends AbstractPrefsPane {
 
     // Create choices
     $sailors = $this->SCHOOL->getSailors();
-    $choices = array("" => "", "Sailors"=>array(), "Coaches"=>array());
+    $choices = array("" => "");
     foreach ($sailors as $sailor)
-      $choices["Sailors"][$sailor->id] = (string)$sailor;
-    foreach ($this->SCHOOL->getCoaches('all', true) as $sailor)
-      $choices["Coaches"][$sailor->id] = (string)$sailor;
+      $choices[$sailor->id] = (string) $sailor;
 
     foreach ($temp as $sailor) {
       $tab->addRow(array($sailor, XSelect::fromArray($sailor->id, $choices)));

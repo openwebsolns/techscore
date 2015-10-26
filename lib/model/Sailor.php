@@ -1,9 +1,4 @@
 <?php
-/*
- * This file is part of Techscore
- */
-
-
 
 /**
  * Encapsulates a sailor, whether registered or not.
