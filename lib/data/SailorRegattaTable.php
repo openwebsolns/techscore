@@ -110,7 +110,7 @@ class SailorRegattaTable extends XQuickTable {
     $manager = $regatta->getRpManager();
     $rps = $manager->getParticipation($this->sailor);
 
-    $shouldDstinguishDivision = (
+    $shouldDistinguishDivision = (
       $regatta->scoring == Regatta::SCORING_STANDARD
       && count($regatta->getDivisions()) > 1
     );
@@ -121,19 +121,26 @@ class SailorRegattaTable extends XQuickTable {
     // team encountered.
     $team = null;
     $placement = array();
+    $num_teams = count($regatta->getTeams());
     foreach ($rps as $rp) {
       if ($team === null || $team->id == $rp->team->id) {
         $team = $rp->team;
-        if ($team->dt_rank !== null) {
-          $place = $team->dt_rank;
-          $num_teams = count($regatta->getTeams());
-
-          $place = sprintf('%d/%d', $place, $num_teams);
-          $link = $regatta->getURL();
-          if ($shouldDstinguishDivision) {
-            $place .= sprintf(" (%s Div)", $rp->division);
-            $link .= sprintf('%s/', $rp->division);
+        if ($shouldDistinguishDivision) {
+          $rank = $team->getRank($rp->division);
+          if ($rank !== null) {
+            $place = sprintf(
+              '%d/%d (%s Div)',
+              $rank->rank,
+              $num_teams,
+              $rp->division
+            );
+            $link = sprintf('%s%s/', $regatta->getURL(), $rp->division);
+            $placement[(string) $rp->division] = new XA($link, $place);
           }
+        }
+        elseif ($team->dt_rank !== null) {
+          $place = sprintf('%d/%d', $team->dt_rank, $num_teams);
+          $link = $regatta->getURL();
           if ($shouldLinkToFullScores) {
             $link .= sprintf('full-scores/#team-%s', $team->id);
           }
@@ -147,6 +154,7 @@ class SailorRegattaTable extends XQuickTable {
       return 'N/A';
     }
 
+    ksort($placement);
     $span = new XSpan("", array('class'=>'sailor-placement-container'));
     foreach ($placement as $place) {
       $span->add($place);
