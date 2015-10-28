@@ -361,7 +361,9 @@ class TeamRpEnterPane extends AbstractRpPane {
           $sailor = $sailors[$id];
           $chosen_sailors[$id] = $sailor;
           $config[(string)$div][RP::SKIPPER][] = $sailor;
-          $attendingSailorsById[$sailor->id] = $sailor;
+          if ($sailor instanceof Sailor) {
+            $attendingSailorsById[$id] = $sailor;
+          }
         }
 
         for ($i = 0; $i < $max_crews; $i++) {
@@ -372,7 +374,9 @@ class TeamRpEnterPane extends AbstractRpPane {
             $sailor = $sailors[$id];
             $chosen_sailors[$id] = $sailor;
             $config[(string)$div][RP::CREW][] = $sailor;
-            $attendingSailorsById[$sailor->id] = $sailor;
+            if ($sailor instanceof Sailor) {
+              $attendingSailorsById[$id] = $sailor;
+            }
           }
         }
       }
@@ -422,10 +426,15 @@ class TeamRpEnterPane extends AbstractRpPane {
   private function translateSailorsToAttendee(Array $sailors, Array $attendeesBySailorId) {
     $output = array();
     foreach ($sailors as $sailor) {
-      if (!array_key_exists($sailor->id, $attendeesBySailorId)) {
-        throw new InvalidArgumentException("Unable to find sailor $sailor in list of attendees.");
+      if ($sailor == null) {
+        $output[] = null;
       }
-      $output[] = $attendeesBySailorId[$sailor->id];
+      else {
+        if (!array_key_exists($sailor->id, $attendeesBySailorId)) {
+          throw new InvalidArgumentException("Unable to find sailor $sailor in list of attendees.");
+        }
+        $output[] = $attendeesBySailorId[$sailor->id];
+      }
     }
     return $output;
   }
