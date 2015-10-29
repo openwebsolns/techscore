@@ -17,6 +17,7 @@ use \TSScriptException;
 use \data\finalize\AggregatedFinalizeCriteria;
 use \data\finalize\FinalizeCriterion;
 use \data\finalize\FinalizeStatus;
+use \scripts\tools\AutoFinalizeEmailPreparer;
 
 require_once('AbstractScript.php');
 
@@ -65,6 +66,11 @@ class AutoFinalize extends AbstractScript {
    * @var Array list of regattas to consider. Automatically injected.
    */
   private $regattas;
+
+  /**
+   * @var String set the template to use.
+   */
+  private $mailTemplate;
 
   /**
    * Sets dry run flag
@@ -151,6 +157,21 @@ class AutoFinalize extends AbstractScript {
     return $this->regattas;
   }
 
+  public function setMailTemplate($template) {
+    $this->mailTemplate = $template;
+  }
+
+  private function getMailTemplate() {
+    if ($this->mailTemplate === null) {
+      $this->mailTemplate = DB::g(STN::MAIL_AUTO_FINALIZE_PENALIZED);
+    }
+    return $this->mailTemplate;
+  }
+
+  private function getMailSubject() {
+    return "[Techscore] Penalized teams";
+  }
+
   /**
    * Collects all regattas in the past day(s) and finalize them.
    *
@@ -162,9 +183,9 @@ class AutoFinalize extends AbstractScript {
     }
 
     $shouldAssessPenalties = $this->shouldAssessPenalties();
+    $emailPreparer = new AutoFinalizeEmailPreparer();
 
-    $regattas = $this->getRegattas();
-    foreach ($regattas as $regatta) {
+    foreach ($this->getRegattas() as $regatta) {
       if ($regatta->finalized === null) {
         self::errln(sprintf("Regatta \"%s\" is not finalized", $regatta->name));
         if (!$this->canBeFinalized($regatta)) {
@@ -172,36 +193,68 @@ class AutoFinalize extends AbstractScript {
           continue;
         }
 
-        if (!$this->dry_run) {
-          $regatta->finalized = DB::T(DB::NOW);
-          DB::set($regatta);
-        }
+        $this->finalizeRegatta($regatta);
 
         if ($shouldAssessPenalties) {
-          $shouldRerankRegatta = false;
-          // For customer obsession, re-calculate RP completeness
-          // before assessing penalties
-          $rpManager = $regatta->getRpManager();
-          foreach ($regatta->getTeams() as $team) {
-            if (!$rpManager->resetCacheComplete($team)) {
-              self::errln(sprintf("Team \"%s\" is missing RP; assessing penalty.", $team));
-              $shouldRerankRegatta = true;
-              $this->penalizeTeam($regatta, $team);
-            }
-            else {
-              self::errln(sprintf("Team \"%s\" has completed RP.", $team), 2);
-            }
-          }
-
-          if ($shouldRerankRegatta) {
-            self::errln("Reranked regatta.", 2);
-            $regatta->setRanks();
-
-            require_once('public/UpdateManager.php');
-            UpdateManager::queueRequest($regatta, UpdateRequest::ACTIVITY_SCORE);
-          }
+          $this->assessPenaltiesForRegatta($regatta, $emailPreparer);
         }
       }
+    }
+
+    // Send emails
+    $subject = $this->getMailSubject();
+    $template = $this->getMailTemplate();
+    if (!empty($template)) {
+      foreach ($emailPreparer->getAccounts() as $account) {
+        $body = $emailPreparer->getEmailBody($account);
+        $message = DB::keywordReplace(
+          $template,
+          $account,
+          $account->getFirstSchool()
+        );
+        $message = str_replace('{BODY}', $body, $message);
+
+        self::errln(sprintf("Emailing %s", $account), 2);
+        if (!$this->dry_run) {
+          DB::mail($account->email, $subject, $message);
+        }
+      }
+    }
+  }
+
+  private function finalizeRegatta(Regatta $regatta) {
+    if (!$this->dry_run) {
+      $regatta->finalized = DB::T(DB::NOW);
+      DB::set($regatta);
+    }
+  }
+
+  private function assessPenaltiesForRegatta(Regatta $regatta, AutoFinalizeEmailPreparer $emailPreparer) {
+    $shouldRerankRegatta = false;
+
+    // For customer obsession, re-calculate RP completeness
+    // before assessing penalties
+    $rpManager = $regatta->getRpManager();
+    foreach ($regatta->getTeams() as $team) {
+      if (!$rpManager->resetCacheComplete($team)) {
+        self::errln(sprintf("Team \"%s\" is missing RP; assessing penalty.", $team));
+        if (!$this->dry_run) {
+          $shouldRerankRegatta = true;
+          $this->penalizeTeam($regatta, $team);
+        }
+        $emailPreparer->addPenalizedTeam($team);
+      }
+      else {
+        self::errln(sprintf("Team \"%s\" has completed RP.", $team), 2);
+      }
+    }
+
+    if ($shouldRerankRegatta) {
+      self::errln("Reranked regatta.", 2);
+      $regatta->setRanks();
+
+      require_once('public/UpdateManager.php');
+      UpdateManager::queueRequest($regatta, UpdateRequest::ACTIVITY_SCORE);
     }
   }
 
@@ -254,6 +307,9 @@ Overriding penalties:
  --add-penalty     Assess MRP for teams with missing RP
  --no-add-penalty  Do not assess penalty
  --comment string  The penalty comment to use
+ --mail-template template
+                   The template to use when sending emails
+ --no-mail         Turn off mail sending
 
 Behavior:
 
@@ -296,6 +352,17 @@ if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__))
         throw new TSScriptException("Missing threshold argument.");
       }
       $P->setPenaltyComments(array_shift($opts));
+      break;
+
+    case '--mail-template':
+      if (count($opts) == 0) {
+        throw new TSScriptException("Missing threshold argument.");
+      }
+      $P->setMailTemplate(array_shift($opts));
+      break;
+
+    case '--no-mail':
+      $P->setMailTemplate(null);
       break;
 
     case '--regattas':
