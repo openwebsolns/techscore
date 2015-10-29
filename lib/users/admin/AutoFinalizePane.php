@@ -4,13 +4,16 @@ namespace users\admin;
 use \AbstractAdminUserPane;
 use \Account;
 use \DB;
+use \Permission;
 use \PermissionException;
 use \SoterException;
 use \STN;
 use \Session;
+use \WS;
 
 use \FItem;
 use \FReqItem;
+use \XA;
 use \XPort;
 use \XNumberInput;
 use \XSubmitP;
@@ -50,6 +53,23 @@ class AutoFinalizePane extends AbstractAdminUserPane {
 
       $form->add(new FReqItem("Auto-finalize after (days):", new XNumberInput(STN::AUTO_FINALIZE_AFTER_N_DAYS, DB::g(STN::AUTO_FINALIZE_AFTER_N_DAYS), 1)));
       $form->add(new FItem("Auto assess MRP:", new StnCheckbox(STN::AUTO_ASSESS_MRP_ON_AUTO_FINALIZE, "Add Missing RP penalty to teams when auto-finalizing.")));
+      if ($this->USER->can(Permission::EDIT_EMAIL_TEMPLATES)) {
+        $message = "Edit template";
+        if (DB::g(STN::MAIL_AUTO_FINALIZE_PENALIZED) === null) {
+          $message = "Add template";
+        }
+        $form->add(
+          new FItem(
+            "E-mail template:",
+            new XA(
+              WS::link('/email-templates', array('r' => STN::MAIL_AUTO_FINALIZE_PENALIZED)),
+              $message,
+              array('onclick' => 'this.target="new"')
+            ),
+            "Only sent if \"Auto assess MRP\" is enabled, and the e-mail template exists."
+          )
+        );
+      }
 
       $form->add(new XSubmitP(self::SUBMIT_SETTINGS, "Update"));
     }

@@ -69,6 +69,10 @@ class STN extends DBObject {
    * Sent at the end of each day of competition
    */
   const MAIL_RP_REMINDER = 'mail_rp_reminder';
+  /**
+   * If available, send e-mails in AutoFinalize script.
+   */
+  const MAIL_AUTO_FINALIZE_PENALIZED = 'mail_auto_finalize_penalized';
 
   const DEFAULT_START_TIME = 'default_start_time';
   const ALLOW_HOST_VENUE = 'allow_host_venue';

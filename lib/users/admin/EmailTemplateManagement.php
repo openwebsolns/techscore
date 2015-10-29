@@ -17,18 +17,22 @@ require_once('users/admin/AbstractAdminUserPane.php');
  */
 class EmailTemplateManagement extends AbstractAdminUserPane {
 
-  private static $TEMPLATES = array(STN::MAIL_REGISTER_USER => "Account requested",
-                                    STN::MAIL_REGISTER_ADMIN => "New user admin message",
-                                    STN::MAIL_APPROVED_USER => "Account approved",
-                                    STN::MAIL_VERIFY_EMAIL => "User's change of address verification",
-                                    STN::MAIL_RP_REMINDER => "Daily summary RP reminder",
-                                    STN::MAIL_UNFINALIZED_REMINDER => "Unfinalized regattas reminder",
-                                    STN::MAIL_MISSING_RP_REMINDER => "Missing RP reminder (participants)",
-                                    STN::MAIL_UPCOMING_REMINDER => "Upcoming regatta reminder",
-                                    );
+  private $TEMPLATES = array(
+    STN::MAIL_REGISTER_USER => "Account requested",
+    STN::MAIL_REGISTER_ADMIN => "New user admin message",
+    STN::MAIL_APPROVED_USER => "Account approved",
+    STN::MAIL_VERIFY_EMAIL => "User's change of address verification",
+    STN::MAIL_RP_REMINDER => "Daily summary RP reminder",
+    STN::MAIL_UNFINALIZED_REMINDER => "Unfinalized regattas reminder",
+    STN::MAIL_MISSING_RP_REMINDER => "Missing RP reminder (participants)",
+    STN::MAIL_UPCOMING_REMINDER => "Upcoming regatta reminder",
+  );
 
   public function __construct(Account $user) {
     parent::__construct("E-mail templates", $user);
+    if (DB::g(STN::ALLOW_AUTO_FINALIZE)) {
+      $this->TEMPLATES[STN::MAIL_AUTO_FINALIZE_PENALIZED] = "Auto-finalize penalties";
+    }
   }
 
   /**
@@ -41,7 +45,7 @@ class EmailTemplateManagement extends AbstractAdminUserPane {
     // ------------------------------------------------------------
     if (isset($args['r'])) {
       try {
-        $template = DB::$V->reqKey($args, 'r', self::$TEMPLATES, "Invalid template requested.");
+        $template = DB::$V->reqKey($args, 'r', $this->TEMPLATES, "Invalid template requested.");
         $this->fillTemplate($template);
         return;
       } catch (SoterException $e) {
@@ -57,7 +61,7 @@ class EmailTemplateManagement extends AbstractAdminUserPane {
                                    array("Name", "Current value", "Example")));
 
     $i = 0;
-    foreach (self::$TEMPLATES as $name => $title) {
+    foreach ($this->TEMPLATES as $name => $title) {
       $val = new XEm("No template set.");
       $exm = new XEm("No template set.");
       if (DB::g($name) !== null) {
@@ -71,7 +75,7 @@ class EmailTemplateManagement extends AbstractAdminUserPane {
   }
 
   private function fillTemplate($const) {
-    $this->PAGE->addContent($p = new XPort(self::$TEMPLATES[$const]));
+    $this->PAGE->addContent($p = new XPort($this->TEMPLATES[$const]));
     switch ($const) {
     case STN::MAIL_REGISTER_USER:
       $p->add(new XP(array(),
@@ -137,6 +141,20 @@ class EmailTemplateManagement extends AbstractAdminUserPane {
                            new XVar("{BODY}"),
                            " section, in which the regatta name and team(s) for that user will be inserted.")));
       break;
+
+    case STN::MAIL_AUTO_FINALIZE_PENALIZED:
+      $p->add(
+        new XP(
+          array(),
+          array(
+            "This is the message sent to accounts whose team(s) in a regatta were penalized as a result of missing RP when the system auto-finalized the event. It ",
+            new XStrong("requires"),
+            " a ",
+            new XVar("{BODY}"),
+            " section, in which the regatta name and team(s) for that user will be inserted."
+          )
+        )
+      );
     }
 
     $p->add($this->keywordReplaceTable());
@@ -150,7 +168,7 @@ class EmailTemplateManagement extends AbstractAdminUserPane {
 
   public function process(Array $args) {
     if (isset($args['edit-template'])) {
-      $templ = DB::$V->reqKey($args, 'template', self::$TEMPLATES, "Invalid mail template requested.");
+      $templ = DB::$V->reqKey($args, 'template', $this->TEMPLATES, "Invalid mail template requested.");
       $body = DB::$V->incString($args, 'content', 1, 16000);
       
       $req_content = array(STN::MAIL_REGISTER_USER,
@@ -166,6 +184,7 @@ class EmailTemplateManagement extends AbstractAdminUserPane {
                         STN::MAIL_MISSING_RP_REMINDER,
                         STN::MAIL_UPCOMING_REMINDER,
                         STN::MAIL_RP_REMINDER,
+                        STN::MAIL_AUTO_FINALIZE_PENALIZED,
                         );
       if ($body !== null && in_array($templ, $req_body) && strpos($body, '{BODY}') === false)
         throw new SoterException("Missing {BODY} element for template.");

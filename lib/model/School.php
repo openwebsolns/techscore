@@ -283,7 +283,7 @@ class School extends DBObject implements Publishable {
    * Access is either assigned directly or indirectly.
    *
    * @param String|null $status a possible Account status
-   * @param boolean $effective falase to ignore permissions and return
+   * @param boolean $effective false to ignore permissions and return
    * only assigned values
    *
    * @return Array:Account
