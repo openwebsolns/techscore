@@ -1,10 +1,5 @@
 <?php
-use \data\finalize\CompleteRpCriterion;
-use \data\finalize\FinalizeStatus;
-use \data\finalize\MinimumRoundCompletionCriterion;
-use \data\finalize\MissingSummariesCriterion;
-use \data\finalize\Pr24Criterion;
-use \data\finalize\UnsailedMiddleRacesCriterion;
+use \data\finalize\AggregatedFinalizeCriteria;
 
 require_once('tscore/AbstractPane.php');
 
@@ -20,13 +15,7 @@ class FinalizePane extends AbstractPane {
 
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Settings", $user, $reg);
-    $this->criteriaRegistry = array(
-      new UnsailedMiddleRacesCriterion(),
-      new Pr24Criterion(),
-      new MissingSummariesCriterion(),
-      new CompleteRpCriterion(),
-      new MinimumRoundCompletionCriterion(),
-    );
+    $this->criteriaRegistry = new AggregatedFinalizeCriteria();
   }
 
   protected function fillHTML(Array $args) {
@@ -43,19 +32,17 @@ class FinalizePane extends AbstractPane {
     );
 
     // Criteria
-    foreach ($this->criteriaRegistry as $criterion) {
-      if ($criterion->canApplyTo($this->REGATTA)) {
-        foreach ($criterion->getFinalizeStatuses($this->REGATTA) as $status) {
-          $type = $status->getType();
-          $message = $status->getMessage();
+    if ($this->criteriaRegistry->canApplyTo($this->REGATTA)) {
+      foreach ($this->criteriaRegistry->getFinalizeStatuses($this->REGATTA) as $status) {
+        $type = $status->getType();
+        $message = $status->getMessage();
 
-          if ($message !== null) {
-            $tab->addRow(array($ICONS[$type], $message));
-          }
+        if ($message !== null) {
+          $tab->addRow(array($ICONS[$type], $message));
+        }
 
-          if ($type == FinalizeStatus::ERROR) {
-            $can_finalize = false;
-          }
+        if ($type == FinalizeStatus::ERROR) {
+          $can_finalize = false;
         }
       }
     }
@@ -95,12 +82,10 @@ class FinalizePane extends AbstractPane {
       if (!$this->REGATTA->hasFinishes())
         throw new SoterException("You cannot finalize a project with no finishes.");
 
-      foreach ($this->criteriaRegistry as $criterion) {
-        if ($criterion->canApplyTo($this->REGATTA)) {
-          foreach ($criterion->getFinalizeStatuses($this->REGATTA) as $status) {
-            if ($status == FinalizeStatus::ERROR) {
-              throw new SoterException($status->getMessage());
-            }
+      if ($this->criteriaRegistry->canApplyTo($this->REGATTA)) {
+        foreach ($this->criteriaRegistry->getFinalizeStatuses($this->REGATTA) as $status) {
+          if ($status->getType() == FinalizeStatus::ERROR) {
+            throw new SoterException($status->getMessage());
           }
         }
       }
