@@ -893,6 +893,31 @@ class DB {
   }
 
   /**
+   * Get regattas that ended on or after given date, and started before it.
+   *
+   * @param DateTime $time cutoff time.
+   * @param boolean $inc_private true to include private events.
+   * @return Array:Regatta
+   */
+  public static function getPastRegattasThatEndedAfter(DateTime $time, $inc_private = false) {
+    $obj = ($inc_private) ? DB::T(DB::REGATTA) : DB::T(DB::PUBLIC_REGATTA);
+
+    $day = $time->format('Y-m-d');
+    $start = new DateTime($day);
+    $start->add(new DateInterval('P1DT0H'));
+    $end = new DateTime($day);
+    return DB::getAll(
+      $obj,
+      new DBBool(
+        array(
+          new DBCond('start_time', $start, DBCond::LT),
+          new DBCond('end_date', $end, DBCond::GE)
+        )
+      )
+    );
+  }
+
+  /**
    * Returns the season with the given ID or shortString, or null.
    *
    * @param String $id the ID or shortString of the season

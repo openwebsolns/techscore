@@ -1,9 +1,8 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package users-admin
- */
+namespace users\super;
+
+use \AbstractUserPane;
+use \Account;
 
 require_once('users/AbstractUserPane.php');
 
@@ -16,4 +15,3 @@ abstract class AbstractSuperUserPane extends AbstractUserPane {
     parent::__construct($title, $user);
   }
 }
-?>

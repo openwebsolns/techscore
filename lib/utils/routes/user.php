@@ -282,9 +282,9 @@ return array(
     RouteManager::PERMISSIONS => array(Permission::EDIT_VENUES)
   ),
 
-  'GlobalSettings' => array(
+  'users\super\GlobalSettings' => array(
     RouteManager::NAME => "Global conf.",
-    RouteManager::PATH => 'users/super',
+    RouteManager::PATH => null,
     RouteManager::URLS => array('conf'),
     RouteManager::PERMISSIONS => array(Permission::EDIT_GLOBAL_CONF)
   ),
@@ -294,6 +294,13 @@ return array(
     RouteManager::PATH => 'users/admin',
     RouteManager::URLS => array('permissions'),
     RouteManager::PERMISSIONS => array(Permission::DEFINE_PERMISSIONS)
+  ),
+
+  'users\admin\AutoFinalizePane' => array(
+    RouteManager::NAME => "Auto-finalize",
+    RouteManager::PATH => null,
+    RouteManager::URLS => array('auto-finalize', 'autofinalize'),
+    RouteManager::PERMISSIONS => array(Permission::EDIT_ORGANIZATION)
   ),
 
   'EditLogoPane' => array(

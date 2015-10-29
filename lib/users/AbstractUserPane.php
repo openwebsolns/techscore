@@ -86,7 +86,7 @@ abstract class AbstractUserPane implements Pane {
         'UserSeasonPane',
         'UserArchivePane',
         'NewRegattaPane',
-        'GlobalSettings',
+        'users\super\GlobalSettings',
       ),
 
       'My School' => array(
@@ -142,6 +142,11 @@ abstract class AbstractUserPane implements Pane {
     // Are database syncs allowed?
     if (DB::g(STN::SAILOR_API_URL) || DB::g(STN::SCHOOL_API_URL)) {
       $menus['Database'][] = 'DatabaseSyncManagement';
+    }
+
+    // Is auto-finalize allowed
+    if (DB::g(STN::ALLOW_AUTO_FINALIZE) !== null) {
+      $menus['Settings'][] = 'users\admin\AutoFinalizePane';
     }
 
     foreach ($menus as $title => $items) {
@@ -303,7 +308,10 @@ abstract class AbstractUserPane implements Pane {
     $pane = self::pane_from_url($base);
     if ($pane === null)
       throw new PaneException(sprintf("Invalid page requested (%s).", $base));
-    require_once(self::pane_path($pane) . '/' . $pane . '.php');
+    $path = self::pane_path($pane);
+    if ($path !== null) {
+      require_once($path . '/' . $pane . '.php');
+    }
     $obj = new $pane($u);
     if (!$obj->isPermitted())
       throw new PermissionException("No access to requested page.");

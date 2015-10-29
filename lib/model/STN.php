@@ -99,6 +99,28 @@ class STN extends DBObject {
    */
   const ALLOW_RESERVES = 'allow_reserves';
 
+  /**
+   * @var boolean allow the AutoFinalize feature.
+   */
+  const ALLOW_AUTO_FINALIZE = 'allow_auto_finalize';
+
+  /**
+   * @var boolean enable the AutoFinalize functionality.
+   */
+  const AUTO_FINALIZE_ENABLED = 'auto_finalize_enabled';
+
+  /**
+   * Auto-finalize regattas this many days AFTER the last day of the
+   * event. If null, the feature is considered turned off.
+   */
+  const AUTO_FINALIZE_AFTER_N_DAYS = 'auto_finalize_after_n_days';
+
+  /**
+   * Automatically assess a Missing RP penalty to teams when auto
+   * finalizing regattas (see AUTO_FINALIZE_AFTER_N_DAYS).
+   */
+  const AUTO_ASSESS_MRP_ON_AUTO_FINALIZE = 'auto_assess_mrp_on_auto_finalize';
+
   public $value;
   public function db_name() { return 'setting'; }
   protected function db_cache() { return true; }
@@ -150,6 +172,9 @@ class STN extends DBObject {
 
     case self::MAIL_VERIFY_EMAIL:
       return "Dear {FIRST_NAME},\n\nThis message is part of a request to change e-mail addresses associated with your account. To finish, please paste the token provided below as instructed on the site. If you did not request this message, kindly disregard this message.\n\nToken: {BODY}\n\nThank you";
+
+    case self::AUTO_FINALIZE_AFTER_N_DAYS:
+      return 2;
 
     default:
       return null;

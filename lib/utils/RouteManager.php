@@ -84,6 +84,9 @@ class RouteManager {
    * @throws InvalidArgumentException if invalid.
    */
   private function validateValue($key, $value) {
+    if ($key == self::PATH && $value === null) {
+      return $value;
+    }
     if (($key == self::NAME || $key == self::PATH) && is_string($value)) {
       return $value;
     }

@@ -1,11 +1,28 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package users-admin
- */
+namespace users\super;
 
-require_once('users/super/AbstractSuperUserPane.php');
+use \Account;
+use \DB;
+use \Regatta;
+use \Session;
+use \SoterException;
+use \STN;
+use \UpdateManager;
+use \UpdateConferenceRequest;
+use \WS;
+
+use \FCheckbox;
+use \FItem;
+use \FReqItem;
+use \XA;
+use \XEmailInput;
+use \XNumberInput;
+use \XPort;
+use \XSubmitP;
+use \XTextInput;
+use \XUrlInput;
+
+use \ui\StnCheckbox;
 
 /**
  * Manage the global settings for this installation of Techscore
@@ -35,13 +52,13 @@ class GlobalSettings extends AbstractSuperUserPane {
     $f->add(new FReqItem("Conference name:", new XTextInput(STN::CONFERENCE_TITLE, DB::g(STN::CONFERENCE_TITLE))));
     $f->add(new FReqItem("Conf. abbreviation:", new XTextInput(STN::CONFERENCE_SHORT, DB::g(STN::CONFERENCE_SHORT))));
     $f->add(new FReqItem("Conferences URL:", new XTextInput(STN::CONFERENCE_URL, DB::g(STN::CONFERENCE_URL))));
-    $f->add(new FItem("Conference Pages", new FCheckbox(STN::PUBLISH_CONFERENCE_SUMMARY, 1, "Publish conference summary pages in public site.", DB::g(STN::PUBLISH_CONFERENCE_SUMMARY) !== null)));
+    $f->add(new FItem("Conference Pages", new StnCheckbox(STN::PUBLISH_CONFERENCE_SUMMARY, "Publish conference summary pages in public site.")));
 
 
     $p->add($f = new XPort("Database Sync"));
     $f->add(new FItem("Sailor API URL:", new XUrlInput(STN::SAILOR_API_URL, DB::g(STN::SAILOR_API_URL), array('size'=>60))));
     $f->add(new FItem("School API URL:", new XUrlInput(STN::SCHOOL_API_URL, DB::g(STN::SCHOOL_API_URL), array('size'=>60))));
-    $f->add(new FItem("Unique sailors/season?", new FCheckbox(STN::UNIQUE_SEASON_SAILOR, 1, "Enforce unique IDs for sailors from one season to the next.", DB::g(STN::UNIQUE_SEASON_SAILOR) !== null)));
+    $f->add(new FItem("Unique sailors/season?", new StnCheckbox(STN::UNIQUE_SEASON_SAILOR, "Enforce unique IDs for sailors from one season to the next.")));
 
 
     $p->add($f = new XPort("Scoring Options"));
@@ -51,15 +68,14 @@ class GlobalSettings extends AbstractSuperUserPane {
     foreach (array(Regatta::SCORING_STANDARD => "Standard fleet scoring",
                    Regatta::SCORING_COMBINED => "Combined fleet scoring",
                    Regatta::SCORING_TEAM => "Team racing") as $setting => $desc) {
-      $id = 'chk-' . $setting;
       $f->add(new FItem("", new FCheckbox($n, $setting, sprintf("Allow %s", $desc), isset($lst[$setting]))));
     }
 
-    $f->add(new FItem("Allow cross RP?", new FCheckbox(STN::ALLOW_CROSS_RP, 1, "RP entries may contain teams from other schools in the system.", DB::g(STN::ALLOW_CROSS_RP) !== null)));
+    $f->add(new FItem("Allow cross RP?", new StnCheckbox(STN::ALLOW_CROSS_RP, "RP entries may contain teams from other schools in the system.")));
 
-    $f->add(new FItem("Allow reserves?", new FCheckbox(STN::ALLOW_RESERVES, 1, "Prompt users for reserve/attendee information.", DB::g(STN::ALLOW_RESERVES) !== null)));
+    $f->add(new FItem("Allow reserves?", new StnCheckbox(STN::ALLOW_RESERVES, "Prompt users for reserve/attendee information.")));
 
-    $f->add(new FItem("Allow Host Venue?", new FCheckbox(STN::ALLOW_HOST_VENUE, 1, "Allow scorers to manually specify the regatta host.", DB::g(STN::ALLOW_HOST_VENUE) !== null)));
+    $f->add(new FItem("Allow Host Venue?", new StnCheckbox(STN::ALLOW_HOST_VENUE, "Allow scorers to manually specify the regatta host.")));
 
 
     $p->add($f = new XPort("System Settings"));
@@ -67,9 +83,10 @@ class GlobalSettings extends AbstractSuperUserPane {
     $f->add(new FItem("Notice board limit:", new XNumberInput(STN::NOTICE_BOARD_SIZE, DB::g(STN::NOTICE_BOARD_SIZE), 1), "Size in bytes for each item."));
 
     $p->add($f = new XPort("Features"));
-    $f->add(new FItem("Auto-merge sailors:", new FCheckbox(STN::AUTO_MERGE_SAILORS, 1, "Auto-merge unregistered sailors on a daily basis.", DB::g(STN::AUTO_MERGE_SAILORS) !== null)));
-    $f->add(new FItem("Regatta sponsors:", new FCheckbox(STN::REGATTA_SPONSORS, 1, "Allow scorers to choose from list of sponsors at regatta level.", DB::g(STN::REGATTA_SPONSORS) !== null)));
-    $f->add(new FItem("Sailor profiles:", new FCheckbox(STN::SAILOR_PROFILES, 1, "Publish sailor profiles on public site.", DB::g(STN::SAILOR_PROFILES) !== null)));
+    $f->add(new FItem("Auto-merge sailors:", new StnCheckbox(STN::AUTO_MERGE_SAILORS, "Auto-merge unregistered sailors on a daily basis.")));
+    $f->add(new FItem("Regatta sponsors:", new StnCheckbox(STN::REGATTA_SPONSORS, "Allow scorers to choose from list of sponsors at regatta level.")));
+    $f->add(new FItem("Sailor profiles:", new StnCheckbox(STN::SAILOR_PROFILES, "Publish sailor profiles on public site.")));
+    $f->add(new FItem("Auto finalize:", new StnCheckbox(STN::ALLOW_AUTO_FINALIZE, "Enable the Auto-Finalize regatta feature."), "See the Auto-Finalize page for settings."));
 
     $p->add(new XSubmitP('set-params', "Save changes"));
   }
@@ -136,28 +153,13 @@ class GlobalSettings extends AbstractSuperUserPane {
         DB::s(STN::SCORING_OPTIONS, implode("\0", $opts));
       }
 
-      $val = DB::$V->incInt($args, STN::ALLOW_CROSS_RP, 1, 2, null);
-      if ($val != DB::g(STN::ALLOW_CROSS_RP)) {
-        $changed = true;
-        DB::s(STN::ALLOW_CROSS_RP, $val);
-      }
+      $changed = $changed || $this->processSettingCheckbox($args, STN::ALLOW_CROSS_RP);
+      $changed = $changed || $this->processSettingCheckbox($args, STN::ALLOW_RESERVES);
+      $changed = $changed || $this->processSettingCheckbox($args, STN::ALLOW_HOST_VENUE);
 
-      $val = DB::$V->incInt($args, STN::ALLOW_RESERVES, 1, 2, null);
-      if ($val != DB::g(STN::ALLOW_RESERVES)) {
+      if ($this->processSettingCheckbox($args, STN::PUBLISH_CONFERENCE_SUMMARY)) {
         $changed = true;
-        DB::s(STN::ALLOW_RESERVES, $val);
-      }
-
-      $val = DB::$V->incInt($args, STN::ALLOW_HOST_VENUE, 1, 2, null);
-      if ($val != DB::g(STN::ALLOW_HOST_VENUE)) {
-        $changed = true;
-        DB::s(STN::ALLOW_HOST_VENUE, $val);
-      }
-
-      $val = DB::$V->incInt($args, STN::PUBLISH_CONFERENCE_SUMMARY, 1, 2, null);
-      if ($val != DB::g(STN::PUBLISH_CONFERENCE_SUMMARY)) {
-        $changed = true;
-        DB::s(STN::PUBLISH_CONFERENCE_SUMMARY, $val);
+        $val = DB::g(STN::PUBLISH_CONFERENCE_SUMMARY);
 
         require_once('public/UpdateManager.php');
         foreach (DB::getConferences() as $conf) {
@@ -195,11 +197,7 @@ class GlobalSettings extends AbstractSuperUserPane {
         DB::s(STN::CONFERENCE_URL, $val);
       }
 
-      $val = DB::$V->incString($args, STN::UNIQUE_SEASON_SAILOR, 1, 2);
-      if ($val != DB::g(STN::UNIQUE_SEASON_SAILOR)) {
-        $changed = true;
-        DB::s(STN::UNIQUE_SEASON_SAILOR, $val);
-      }
+      $changed = $changed || $this->processSettingCheckbox($args, STN::UNIQUE_SEASON_SAILOR);
 
       $val = DB::$V->incString($args, STN::PDFLATEX_SOCKET, 1, 101);
       if ($val != DB::g(STN::PDFLATEX_SOCKET)) {
@@ -213,38 +211,47 @@ class GlobalSettings extends AbstractSuperUserPane {
         DB::s(STN::NOTICE_BOARD_SIZE, $val);
       }
 
-      $val = DB::$V->incInt($args, STN::AUTO_MERGE_SAILORS, 1, 2, null);
-      if ($val != DB::g(STN::AUTO_MERGE_SAILORS)) {
-        $changed = true;
-        DB::s(STN::AUTO_MERGE_SAILORS, $val);
-      }
+      $changed = $changed || $this->processSettingCheckbox($args, STN::AUTO_MERGE_SAILORS);
 
-      $val = DB::$V->incInt($args, STN::REGATTA_SPONSORS, 1, 2, null);
-      if ($val != DB::g(STN::REGATTA_SPONSORS)) {
+      if ($this->processSettingCheckbox($args, STN::REGATTA_SPONSORS)) {
         $changed = true;
-        DB::s(STN::REGATTA_SPONSORS, $val);
+        $val = DB::g(STN::REGATTA_SPONSORS);
         if ($val !== null) {
-          Session::pa(new PA(
-                        array("To make sponsors available to regattas, you will need to ",
-                              new XA(WS::link('/sponsor'), "configure the list of sponsors"),
-                              ". You may also wish to ",
-                              new XA(WS::link('/roles'), "grant the appropriate permission"),
-                              " to one or more roles."
-                        ),
-                        PA::I));
+          Session::warn(
+            array(
+              "To make sponsors available to regattas, you will need to ",
+              new XA(WS::link('/sponsor'), "configure the list of sponsors"),
+              ". You may also wish to ",
+              new XA(WS::link('/roles'), "grant the appropriate permission"),
+              " to one or more roles."
+            )
+          );
         }
       }
 
-      $val = DB::$V->incInt($args, STN::SAILOR_PROFILES, 1, 2, null);
-      if ($val != DB::g(STN::SAILOR_PROFILES)) {
-        $changed = true;
-        DB::s(STN::SAILOR_PROFILES, $val);
-      }
+      $changed = $changed || $this->processSettingCheckbox($args, STN::SAILOR_PROFILES);
+      $changed = $changed || $this->processSettingCheckbox($args, STN::ALLOW_AUTO_FINALIZE);
 
-      if (!$changed)
+      if (!$changed) {
         throw new SoterException("No changes to save.");
-      Session::pa(new PA("Saved settings."));
+      }
+      Session::info("Saved settings.");
     }
   }
+
+  /**
+   * Helper function to toggle setting-backed checkbox.
+   *
+   * @param Array $args the request params.
+   * @param Const $setting the STN constant to toggle.
+   * @return boolean true if setting was changed.
+   */
+  private function processSettingCheckbox(Array $args, $setting) {
+    $val = DB::$V->incInt($args, $setting, 1, 2, null);
+    if ($val != DB::g($setting)) {
+      DB::s($setting, $val);
+      return true;
+    }
+    return false;
+  }
 }
-?>
