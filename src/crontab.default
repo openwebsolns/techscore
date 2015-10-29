@@ -62,3 +62,4 @@ MAILTO = {CRON_MAILTO}
 0 18 * * 2 /usr/bin/php {DIRECTORY}/lib/scripts/RemindPending.php
 2 18 * * 2 /usr/bin/php {DIRECTORY}/lib/scripts/RemindMissingRP.php
 0 18 * * 4 /usr/bin/php {DIRECTORY}/lib/scripts/RemindUpcoming.php
+0 22 * * * /usr/bin/php {DIRECTORY}/lib/scripts/AutoFinalize.php
