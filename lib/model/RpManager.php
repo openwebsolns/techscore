@@ -286,41 +286,18 @@ class RpManager {
     return count($res) < (count($races) * count($this->regatta->getTeams()));
   }
 
-  /**
-   * Is every scored race-team-role combination accounted for?
-   *
-   * @param Team $team optional team to check
-   * @return boolean true if all information is present
-   */
-  public function isComplete(Team $team = null) {
-    if ($team === null)
-      $races = $this->regatta->getScoredRaces();
-    else {
-      $races = array();
-      foreach ($this->regatta->getDivisions() as $div) {
-        foreach ($this->regatta->getScoredRacesForTeam($div, $team) as $race)
-          $races[] = $race;
+  public function isCompleteForTeam(Team $team) {
+    foreach ($this->regatta->getDivisions() as $division) {
+      foreach ($this->regatta->getScoredRacesForTeam($division, $team) as $race) {
+        if (count($this->getRpEntries($team, $race, RP::SKIPPER)) == 0) {
+          return false;
+        }
+        if (count($this->getRpEntries($team, $race, RP::CREW)) < $race->boat->min_crews) {
+          return false;
+        }
       }
     }
-    if (count($races) == 0)
-      return true;
-
-    $sum = 0;
-    foreach ($races as $race)
-      $sum += $race->boat->min_crews + 1;
-    if ($team === null) {
-      if ($this->regatta->scoring == Regatta::SCORING_TEAM)
-        $sum *= 2;
-      else
-        $sum *= count($this->regatta->getTeams());
-    }
-
-    $cond = new DBCondIn('race', $races);
-    if ($team !== null)
-      $cond = new DBBool(array(new DBCond('team', $team), $cond));
-
-    $tot = DB::getAll(DB::T(DB::RP_ENTRY), $cond);
-    return (count($tot) >= $sum);
+    return true;
   }
 
   /**
@@ -331,8 +308,9 @@ class RpManager {
    */
   public function resetCacheComplete(Team $team) {
     $val = null;
-    if ($this->isComplete($team))
+    if ($this->isCompleteForTeam($team)) {
       $val = 1;
+    }
     if ($val != $team->dt_complete_rp) {
       $team->dt_complete_rp = $val;
       DB::set($team);
