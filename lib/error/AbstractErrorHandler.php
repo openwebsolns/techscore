@@ -38,7 +38,15 @@ abstract class AbstractErrorHandler {
   public function handleFatal() {
     $error = error_get_last();
     if ($error !== null) {
-      $this->handleErrors($error['type'], $error['message'], $error['file'], $error['line']);
+      $this->handleExceptions(
+        new ErrorException(
+          $error['message'],
+          0,
+          $error['type'],
+          $error['file'],
+          $error['line']
+        )
+      );
     }
   }
 

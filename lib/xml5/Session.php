@@ -81,6 +81,18 @@ class Session {
     self::$announcements[] = $pa;
   }
 
+  public static function info($message) {
+    self::pa(new PA($message, PA::S));
+  }
+
+  public static function warn($message) {
+    self::pa(new PA($message, PA::I));
+  }
+
+  public static function error($message) {
+    self::pa(new PA($message, PA::E));
+  }
+
   /**
    * Returns the announcements as a list
    *
