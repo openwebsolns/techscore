@@ -31,6 +31,15 @@ class AggregatedFleetRotationValidatorTest extends AbstractUnitTester {
       $this->assertEquals(1, $validValidator->numberTimesCalled(), "First validator was not consulted.");
     }
   }
+
+  /**
+   * @expectedException SoterException
+   */
+  public function testAutoInjection() {
+    $testObject = new AggregatedFleetRotationValidator();
+    $rotation = new FleetRotation();
+    $testObject->validateFleetRotation($rotation);
+  }
 }
 
 class AggregatedFleetRotationValidatorTestValid implements FleetRotationValidator {

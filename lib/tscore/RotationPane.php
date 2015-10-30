@@ -31,6 +31,8 @@ use \XTD;
 
 use \model\FleetRotation;
 use \rotation\FleetRotationCreatorSelector;
+use \rotation\descriptors\AggregatedRotationDescriptor;
+use \rotation\descriptors\RotationDescriptor;
 use \rotation\validators\AggregatedFleetRotationValidator;
 use \rotation\validators\FleetRotationValidator;
 use \tscore\utils\FleetRotationParser;
@@ -64,6 +66,7 @@ class RotationPane extends AbstractPane {
   private $rotationParser;
   private $rotationCreatorSelector;
   private $rotationValidator;
+  private $rotationDescriptor;
 
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Setup rotations", $user, $reg);
@@ -77,6 +80,7 @@ class RotationPane extends AbstractPane {
   protected function fillHTML(Array $args) {
     $manager = $this->REGATTA->getRotationManager();
 
+    $rotation = null;
     try {
       $rotation = $this->rotationParser->fromArgs($args);
       $this->prepareForStep2($rotation);
@@ -185,11 +189,13 @@ class RotationPane extends AbstractPane {
    *
    */
   private function fillStep2(FleetRotation $rotation, Array $args) {
+    $descriptor = $this->getRotationDescriptor();
 
     $this->addProgressDiv(2);
     $this->PAGE->addContent($p = new XPort("Enter sail numbers"));
     $p->add($form = $this->createForm());
     $form->set('id', 'rotation-form');
+    $form->add(new XP(array(), $descriptor->describe($rotation)));
 
     // Sails
     $divisions = $this->REGATTA->getDivisions();
@@ -344,6 +350,17 @@ class RotationPane extends AbstractPane {
 
   public function setFleetRotationValidator(FleetRotationValidator $validator) {
     $this->rotationValidator = $validator;
+  }
+
+  private function getRotationDescriptor() {
+    if ($this->rotationDescriptor == null) {
+      $this->rotationDescriptor = new AggregatedRotationDescriptor();
+    }
+    return $this->rotationDescriptor;
+  }
+
+  public function setRotationDescriptor(RotationDescriptor $descriptor) {
+    $this->rotationDescriptor = $descriptor;
   }
 
   private function getFleetRotationCreator(FleetRotation $rotation) {

@@ -10,6 +10,8 @@ use \data\TeamSummaryRankingTableCreator;
 use \data\TeamRacesTable;
 use \data\TeamRegistrationsTable;
 use \data\TeamScoresGrid;
+use \rotation\descriptors\AggregatedRotationDescriptor;
+use \rotation\descriptors\RotationDescriptor;
 
 /*
  * This file is part of TechScore
@@ -37,6 +39,8 @@ class ReportMaker {
   private $sailorsPage;
   private $noticesPage;
   private $divPage = array();
+
+  private $rotationDescriptor;
 
   /**
    * Creates a new report for the given regatta
@@ -280,7 +284,14 @@ class ReportMaker {
       }
     }
     else {
-      foreach ($reg->getRotationManager()->getDivisions() as $div) {
+      $rotationManager = $reg->getRotationManager();
+      $fleetRotation = $rotationManager->getFleetRotation();
+      if ($fleetRotation !== null) {
+        $descriptor = $this->getRotationDescriptor();
+        $this->rotPage->addSection($p = $this->newXPort("Description"));
+        $p->add(new XP(array(), $descriptor->describe($fleetRotation)));
+      }
+      foreach ($rotationManager->getDivisions() as $div) {
         $this->rotPage->addSection($p = $this->newXPort("$div Division", $div == Division::A()));
         $p->add(new RotationTable($reg, $div, true));
       }
@@ -591,5 +602,15 @@ class ReportMaker {
     $this->fillCombined();
     return $this->combinedPage;
   }
+
+  private function getRotationDescriptor() {
+    if ($this->rotationDescriptor == null) {
+      $this->rotationDescriptor = new AggregatedRotationDescriptor();
+    }
+    return $this->rotationDescriptor;
+  }
+
+  public function setRotationDescriptor(RotationDescriptor $descriptor) {
+    $this->rotationDescriptor = $descriptor;
+  }
 }
-?>

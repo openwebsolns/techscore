@@ -8,7 +8,7 @@
     var input_division_order = d.getElementById('input_division_order');
     var input_races_per_set = d.getElementById('input_races_per_set');
 
-    if (!input_rotation_type || !input_rotation_style) {
+    if (!input_rotation_type) {
         // nothing to do
         return;
     }
@@ -41,7 +41,9 @@
     };
 
     input_rotation_type.addEventListener('change', updateForRotationType, false);
-    input_rotation_style.addEventListener('change', updateForRotationStyle, false);
     updateForRotationType(new Event('load'));
-    updateForRotationStyle(new Event('load'));
+    if (input_rotation_style) {
+        input_rotation_style.addEventListener('change', updateForRotationStyle, false);
+        updateForRotationStyle(new Event('load'));
+    }
 })(window, document);
