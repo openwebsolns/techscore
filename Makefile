@@ -72,11 +72,21 @@ js-admin: $(subst res/www,www,$(wildcard res/www/inc/js/*.js))
 unit-test:
 	phpunit --bootstrap tst/conf.php tst/unit
 
+single-unit-test:
+	phpunit --bootstrap tst/conf.php --include-path tst/unit $(class)
+
 integration-test:
 	${PHPSERVER} & \
 	PID=$$!; \
 	echo "Server started in PID: $$PID"; \
 	phpunit --bootstrap tst/conf.php tst/integration; \
+	kill $$PID
+
+single-integration-test:
+	${PHPSERVER} & \
+	PID=$$!; \
+	echo "Server started in PID: $$PID"; \
+	phpunit --bootstrap tst/conf.php --include-path tst/integration $(class); \
 	kill $$PID
 
 tests: unit-test integration-test
