@@ -179,7 +179,8 @@ class AutoFinalize extends AbstractScript {
    */
   public function run() {
     if (!$this->isFeatureAllowed()) {
-        throw new TSScriptException("This feature is not available.");
+      self::errln("This feature is not available.");
+      return;
     }
 
     $shouldAssessPenalties = $this->shouldAssessPenalties();
