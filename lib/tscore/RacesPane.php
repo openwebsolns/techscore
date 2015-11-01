@@ -188,11 +188,12 @@ class RacesPane extends AbstractPane {
       $boat = DB::$V->incID($args, 'boat', DB::T(DB::BOAT), DB::getPreferredBoat($host));
 
       $cur_divisions = $this->REGATTA->getDivisions();
+      $min_divisions = ($this->REGATTA->scoring == Regatta::SCORING_COMBINED) ? 2 : 1;
       $new_regatta = (count($cur_divisions) == 0);
       $pos_divisions = Division::getAssoc();
       $num_races = DB::$V->reqInt($args, 'num_races', 1, 100, "Invalid number of races.");
       $num_divisions = ($this->REGATTA->scoring == Regatta::SCORING_TEAM) ? 1 :
-        DB::$V->reqInt($args, 'num_divisions', 1, count($pos_divisions) + 1, "Invalid number of divisions.");
+        DB::$V->reqInt($args, 'num_divisions', $min_divisions, count($pos_divisions) + 1, "Invalid number of divisions.");
       $pos_divisions_list = array_values($pos_divisions);
 
       // If combined division, and finishes have been entered, then

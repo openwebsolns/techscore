@@ -142,13 +142,18 @@ class DetailsPane extends AbstractPane {
     // Scoring rules
     $options = Regatta::getScoringOptions();
     $value = $this->REGATTA->scoring;
-    if ($this->REGATTA->scoring == Regatta::SCORING_TEAM)
+    if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
       $reg_form->add(new FReqItem("Scoring:", new XStrong("Team racing")));
+    }
     else {
-      if ($this->participant_mode)
+      if ($this->participant_mode) {
         $reg_form->add(new FReqItem("Scoring:", new XStrong($options[$value])));
+      }
       else {
         unset($options[Regatta::SCORING_TEAM]);
+        if (count($this->REGATTA->getDivisions()) == 1) {
+          unset($options[Regatta::SCORING_COMBINED]);
+        }
         $reg_form->add($fi = new FReqItem("Scoring:", XSelect::fromArray('scoring', $options, $value)));
         if ($this->REGATTA->scoring != Regatta::SCORING_COMBINED &&
             $this->REGATTA->hasFinishes() &&
@@ -308,63 +313,68 @@ class DetailsPane extends AbstractPane {
 
       // only allow scoring changes if NOT team racing
       if ($this->REGATTA->scoring != Regatta::SCORING_TEAM && DB::$V->hasKey($V, $args, 'scoring', Regatta::getScoringOptions()) && $V != $this->REGATTA->scoring) {
-        $this->REGATTA->setScoring($V);
-        $edited = true;
+        if (count($this->REGATTA->getDivisions()) == 1) {
+          $V = Regatta::SCORING_STANDARD;
+        }
+        if ($V != $this->REGATTA->scoring) {
+          $this->REGATTA->setScoring($V);
+          $edited = true;
 
-        $divs = $this->REGATTA->getDivisions();
-        // Are there scores?
-        if ($this->REGATTA->hasFinishes()) {
-          // If going to combined scoring, delete incomplete races
-          if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED) {
-            // list of divs organized by race number
-            $scored_divs = array();
-            foreach ($this->REGATTA->getScoredRaces() as $race) {
-              if (!isset($scored_divs[$race->number]))
-                $scored_divs[$race->number] = array();
-              $scored_divs[$race->number][(string)$race->division] = $race;
-            }
+          $divs = $this->REGATTA->getDivisions();
+          // Are there scores?
+          if ($this->REGATTA->hasFinishes()) {
+            // If going to combined scoring, delete incomplete races
+            if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED) {
+              // list of divs organized by race number
+              $scored_divs = array();
+              foreach ($this->REGATTA->getScoredRaces() as $race) {
+                if (!isset($scored_divs[$race->number]))
+                  $scored_divs[$race->number] = array();
+                $scored_divs[$race->number][(string)$race->division] = $race;
+              }
 
-            $dropped_races = array();
-            foreach ($scored_divs as $num => $list) {
-              if (count($list) != count($divs)) {
-                foreach ($list as $race) {
-                  $this->REGATTA->deleteFinishes($race);
-                  $dropped_races[] = $num;
+              $dropped_races = array();
+              foreach ($scored_divs as $num => $list) {
+                if (count($list) != count($divs)) {
+                  foreach ($list as $race) {
+                    $this->REGATTA->deleteFinishes($race);
+                    $dropped_races[] = $num;
+                  }
                 }
               }
-            }
 
-            if (count($dropped_races) > 0)
-              Session::pa(new PA("Removed finishes for following races due to incompleteness: " . implode(", ", $dropped_races), PA::I));
-          }
-          
-          $this->REGATTA->doScore();
-          Session::pa(new PA("Re-scored the regatta."));
-          UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
-        }
-        // Are there rotations?
-        if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED) {
-          $rot = $this->REGATTA->getRotation();
-          if ($rot->isAssigned()) {
-            // Remove rotation for any races for which there is a
-            // conflict in the rotation
-            if (count($rot->getDivisions()) != count($divs)) {
-              $rot->reset();
-              Session::pa(new PA("Rotations reset due to inconsistency.", PA::I));
-              UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
+              if (count($dropped_races) > 0)
+                Session::pa(new PA("Removed finishes for following races due to incompleteness: " . implode(", ", $dropped_races), PA::I));
             }
-            else {
-              $required_count = count($this->REGATTA->getTeams()) * count($divs);
-              foreach ($rot->getRaces(Division::A()) as $race) {
-                $sails = array();
-                foreach ($rot->getCombinedSails($race) as $sail)
-                  $sails[] = (string)$sail;
-                $unique = array_unique($sails);
-                if (count($unique) != $required_count) {
-                  $rot->reset();
-                  Session::pa(new PA("Rotations reset due to duplicate sails in race $race.", PA::I));
-                  UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
-                  break;
+          
+            $this->REGATTA->doScore();
+            Session::pa(new PA("Re-scored the regatta."));
+            UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
+          }
+          // Are there rotations?
+          if ($this->REGATTA->scoring == Regatta::SCORING_COMBINED) {
+            $rot = $this->REGATTA->getRotation();
+            if ($rot->isAssigned()) {
+              // Remove rotation for any races for which there is a
+              // conflict in the rotation
+              if (count($rot->getDivisions()) != count($divs)) {
+                $rot->reset();
+                Session::pa(new PA("Rotations reset due to inconsistency.", PA::I));
+                UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
+              }
+              else {
+                $required_count = count($this->REGATTA->getTeams()) * count($divs);
+                foreach ($rot->getRaces(Division::A()) as $race) {
+                  $sails = array();
+                  foreach ($rot->getCombinedSails($race) as $sail)
+                    $sails[] = (string)$sail;
+                  $unique = array_unique($sails);
+                  if (count($unique) != $required_count) {
+                    $rot->reset();
+                    Session::pa(new PA("Rotations reset due to duplicate sails in race $race.", PA::I));
+                    UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
+                    break;
+                  }
                 }
               }
             }
