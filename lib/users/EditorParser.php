@@ -1,11 +1,5 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package users
- */
-
-require_once('users/AbstractUserPane.php');
+use \users\AbstractUserPane;
 
 /**
  * Parses the given POST plain text using internal editor

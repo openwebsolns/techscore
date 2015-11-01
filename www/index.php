@@ -1,5 +1,7 @@
 <?php
 use \tscore\AbstractDownloadDialog;
+use \users\AbstractUserPane;
+use \users\PaneException;
 
 /**
  * Gateway to the program TechScore. Manage all session information
@@ -243,7 +245,6 @@ if ($URI_TOKENS[0] == 'inc') {
 // ------------------------------------------------------------
 // Regular, non-scoring panes
 // ------------------------------------------------------------
-require_once('users/AbstractUserPane.php');
 try {
   $PAGE = AbstractUserPane::getPane($URI_TOKENS, Conf::$USER);
   if (Conf::$METHOD == 'POST') {

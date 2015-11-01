@@ -1,13 +1,7 @@
 <?php
 use \ui\FilterFieldset;
-
-/*
- * This file is part of TechScore
- *
- * @package users-admin
- */
-
-require_once('users/admin/AbstractAccountPane.php');
+use \users\admin\AbstractAccountPane;
+use \xml5\PageWhiz;
 
 /**
  * Pane to edit user accounts
@@ -88,7 +82,6 @@ class AccountsPane extends AbstractAccountPane {
     }
 
     // Offer pagination
-    require_once('xml5/PageWhiz.php');
     $whiz = new PageWhiz($num_users, self::NUM_PER_PAGE, $this->link(), $args);
     $p->add($whiz->getSearchForm($qry, 'q', $empty_mes, "Search users: "));
     $users = $whiz->getSlice($users);

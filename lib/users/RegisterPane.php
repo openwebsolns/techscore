@@ -1,11 +1,6 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package users
- */
-
-require_once('users/AbstractUserPane.php');
+use \users\AbstractUserPane;
+use \users\utils\RegistrationEmailSender;
 
 /**
  * Allows for web users to petition for an account. In version 2.0 of
@@ -38,6 +33,8 @@ require_once('users/AbstractUserPane.php');
  * @version 2010-07-21
  */
 class RegisterPane extends AbstractUserPane {
+
+  private $registrationEmailSender;
 
   public function __construct() {
     parent::__construct("Registration");
@@ -198,8 +195,10 @@ class RegisterPane extends AbstractUserPane {
         throw new SoterException("Registrations are currently not allowed; please notify the administrators.");
 
       $token = $acc->createToken();
-      if (!$this->sendRegistrationEmail($token))
+      $sender = $this->getRegistrationEmailSender();
+      if (!$sender->sendRegistrationEmail($token)) {
         throw new SoterException("There was an error with your request. Please try again later.");
+      }
 
       DB::set($acc);
       $school = DB::$V->incSchool($args, 'school');
@@ -237,5 +236,15 @@ User notes:
                       $about->message);
     return $mes;
   }
+
+  public function setRegistrationEmailSender(RegistrationEmailSender $sender) {
+    $this->registrationEmailSender = $sender;
+  }
+
+  protected function getRegistrationEmailSender() {
+    if ($this->registrationEmailSender === null) {
+      $this->registrationEmailSender = new RegistrationEmailSender();
+    }
+    return $this->registrationEmailSender;
+  }
 }
-?>

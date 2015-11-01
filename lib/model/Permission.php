@@ -90,6 +90,12 @@ class Permission extends DBObject {
   const EDIT_GLOBAL_CONF = 'edit_global_conf';
   const USURP_USER = 'usurp_user';
 
+  const VIEW_CONFERENCE_LIST = 'view_conference_list';
+  const EDIT_CONFERENCE_LIST = 'edit_conference_list';
+
+  const VIEW_SCHOOL_LIST = 'view_school_list';
+  const EDIT_SCHOOL_LIST = 'edit_school_list';
+
   public static function getPossible() {
     $reflection = new ReflectionClass(DB::T(DB::PERMISSION));
     $list = array();

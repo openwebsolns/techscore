@@ -1,8 +1,19 @@
 <?php
-/*
- * This file is part of TechScore
- *
- */
+namespace xml5;
+
+use \ArrayIterator;
+use \InvalidArgumentException;
+
+use \DB;
+
+use \LinksDiv;
+use \XA;
+use \XDiv;
+use \XForm;
+use \XP;
+use \XSearchInput;
+use \XSubmitInput;
+use \XWarning;
 
 /**
  * Wizard to paginate content. This works very similar to LinksDiv.
@@ -130,4 +141,3 @@ class PageWhiz {
     return DB::$V->incInt($this->args, $this->page_variable, 1, $this->num_pages + 1, 1);
   }
 }
-?>

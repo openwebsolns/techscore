@@ -1,11 +1,5 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package tscore
- */
-
-require_once('users/AbstractUserPane.php');
+use \users\AbstractUserPane;
 
 /**
  * Welcome page

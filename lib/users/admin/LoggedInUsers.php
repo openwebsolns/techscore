@@ -1,11 +1,6 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package users-admin
- */
-
-require_once('users/admin/AbstractAdminUserPane.php');
+use \users\admin\AbstractAdminUserPane;
+use \xml5\PageWhiz;
 
 /**
  * View logged-in users, and kick them out
@@ -40,7 +35,6 @@ class LoggedInUsers extends AbstractAdminUserPane {
     $num_pages = intval($num_sessions / self::NUM_PER_PAGE) + 1;
     if ($num_pages > 1) {
       $p->add(new XWarning( sprintf("There are %d logged-in users.", $num_sessions)));
-      require_once('xml5/PageWhiz.php');
       $whiz = new PageWhiz($num_sessions, self::NUM_PER_PAGE, $this->link(), $args);
       $p->add($whiz->getPageLinks());
       $sessions = $whiz->getSlice($sessions);

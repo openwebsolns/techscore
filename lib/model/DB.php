@@ -155,6 +155,10 @@ class DB {
     return DBM::insertAll($list, $ignore);
   }
 
+  public static function reID(DBObject $obj, $newID) {
+    DBM::reID($obj, $newID);
+  }
+
   public static function set(DBObject $obj, $update = "guess") {
     if ($obj instanceof AbstractObject) {
       $obj->db_prep_set();

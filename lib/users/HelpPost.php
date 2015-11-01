@@ -1,15 +1,6 @@
 <?php
 use \mail\StringAttachment;
-
-/*
- * This file is part of TechScore
- *
- * @version 2.0
- * @package tscore
- */
-
-require_once('users/AbstractUserPane.php');
-
+use \users\AbstractUserPane;
 
 /**
  * Controller to send a help message on behalf of user

@@ -1,11 +1,7 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package users-admin
- */
-
-require_once('users/admin/AbstractAdminUserPane.php');
+use \users\admin\AbstractAdminUserPane;
+use \users\PaneException;
+use \xml5\PageWhiz;
 
 /**
  * Trigger and view database sync reports.
@@ -131,7 +127,6 @@ class DatabaseSyncManagement extends AbstractAdminUserPane {
       $this->PAGE->addContent($p = new XPort("Previous syncs"));
       $p->set('id', 'list');
 
-      require_once('xml5/PageWhiz.php');
       $whiz = new PageWhiz(count($past_syncs), self::NUM_PER_PAGE, $this->link(), $args);
       $p->add($whiz->getPageLinks('#list'));
       $past_syncs = $whiz->getSlice($past_syncs);

@@ -1,11 +1,5 @@
 <?php
-/**
- * Defines one class, the page for editing school logos.
- *
- * @package prefs
- */
-
-require_once('prefs/AbstractPrefsPane.php');
+use \prefs\AbstractPrefsPane;
 
 /**
  * EditLogoPane: an editor for a school's logo.

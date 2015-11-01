@@ -1,12 +1,11 @@
 <?php
-/*
- * This file is part of Techscore
- */
-
-
 
 /**
- * Request to updatae a conference page
+ * Request to updatae a conference page.
+ *
+ * Conference argument may be null, which implies that the conference
+ * was deleted. Another way to suggest deletion is with a URL argument
+ * that does NOT match the URL of the associated conference.
  *
  * @author Dayan Paez
  * @version 2014-06-20

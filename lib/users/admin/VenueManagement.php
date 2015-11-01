@@ -1,11 +1,6 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package users-admin
- */
-
-require_once('users/admin/AbstractAdminUserPane.php');
+use \users\admin\AbstractAdminUserPane;
+use \xml5\PageWhiz;
 
 /**
  * Pane to edit (add/edit/remove) venues. This is yet the most
@@ -82,7 +77,6 @@ class VenueManagement extends AbstractAdminUserPane {
     $p->add(new XP(array(), "Click on the venue name in the table below to edit."));
 
     // Offer pagination awesomeness
-    require_once('xml5/PageWhiz.php');
     $whiz = new PageWhiz($count, self::NUM_PER_PAGE, $this->link(), $args);
     $ldiv = $whiz->getPageLinks('#venue-port');
     $list = $whiz->getSlice($list);

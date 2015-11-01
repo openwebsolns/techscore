@@ -1,11 +1,5 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package users
- */
-
-require_once('users/AbstractUserPane.php');
+use \users\AbstractUserPane;
 
 /**
  * Manages the user's own account information

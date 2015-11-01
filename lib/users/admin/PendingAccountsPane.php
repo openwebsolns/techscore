@@ -1,11 +1,5 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package users-admin
- */
-
-require_once('users/admin/AbstractAccountPane.php');
+use \users\admin\AbstractAccountPane;
 
 /**
  * Pane to edit (approve/reject) pending accounts

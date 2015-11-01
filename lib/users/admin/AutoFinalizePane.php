@@ -1,7 +1,6 @@
 <?php
 namespace users\admin;
 
-use \AbstractAdminUserPane;
 use \Account;
 use \DB;
 use \Permission;
@@ -19,8 +18,6 @@ use \XNumberInput;
 use \XSubmitP;
 
 use \ui\StnCheckbox;
-
-require_once('users/admin/AbstractAdminUserPane.php');
 
 /**
  * Manage the settings for the auto-finalize feature, which mut be

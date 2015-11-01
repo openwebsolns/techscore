@@ -1,13 +1,5 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @author Dayan Paez
- * @version 2011-11-05
- * @package users-admin
- */
-
-require_once('users/admin/AbstractAdminUserPane.php');
+use \users\admin\AbstractAdminUserPane;
 
 /**
  * Manage the different e-mail templates for auto-generated messages.

@@ -1,11 +1,5 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package users-admin
- */
-
-require_once('users/admin/AbstractAdminUserPane.php');
+use \users\admin\AbstractAdminUserPane;
 
 /**
  * Configure organization parameters such as name, URL, etc.

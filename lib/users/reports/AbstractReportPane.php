@@ -1,11 +1,12 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package users-reports
- */
+namespace users\reports;
 
-require_once('users/AbstractUserPane.php');
+use \users\AbstractUserPane;
+use \Account;
+use \DB;
+use \Season;
+
+use \XMultipleSelect;
 
 /**
  * Common parent for all report panes
@@ -83,4 +84,3 @@ abstract class AbstractReportPane extends AbstractUserPane {
     return $ul;
   }
 }
-?>

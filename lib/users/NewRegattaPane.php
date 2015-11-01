@@ -1,14 +1,5 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @author Dayan Paez
- * @version 2
- * @version 2010-04-19
- * @package tscore
- */
-
-require_once('users/AbstractUserPane.php');
+use \users\AbstractUserPane;
 
 /**
  * Create a new regatta

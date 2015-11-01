@@ -1,11 +1,31 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package users-admin
- */
+namespace users\admin;
 
-require_once('users/admin/AbstractAdminUserPane.php');
+use \users\utils\RegistrationEmailSender;
+
+use \Account;
+use \DB;
+use \PA;
+use \Permission;
+use \STN;
+use \Session;
+use \SoterException;
+
+use \FItem;
+use \FOption;
+use \FOptionGroup;
+use \FReqItem;
+use \XA;
+use \XHiddenInput;
+use \XP;
+use \XPort;
+use \XSelect;
+use \XSelectM;
+use \XStrong;
+use \XSubmitDelete;
+use \XSubmitInput;
+use \XSubmitP;
+use \XWarning;
 
 /**
  * Common ancestor of panes that handle account information
@@ -16,6 +36,8 @@ require_once('users/admin/AbstractAdminUserPane.php');
  * @version 2014-05-10
  */
 abstract class AbstractAccountPane extends AbstractAdminUserPane {
+
+  private $registrationEmailSender;
 
   /**
    * Creates form for a specific user object
@@ -168,7 +190,8 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
       if (DB::g(STN::MAIL_REGISTER_USER) === null)
         throw new SoterException("No e-mail template exists. No message sent.");
       $token = $user->createToken();
-      if (!$this->sendRegistrationEmail($token))
+      $sender = $this->getRegistrationEmailSender();
+      if (!$sender->sendRegistrationEmail($token))
         throw new SoterException("There was a problem sending e-mails. Please notify the system administrator.");
       DB::set($user);
       Session::pa(new PA(sprintf("Resent registration email for user %s.", $user)));
@@ -238,5 +261,15 @@ abstract class AbstractAccountPane extends AbstractAdminUserPane {
 
     return array();
   }
+
+  public function setRegistrationEmailSender(RegistrationEmailSender $sender) {
+    $this->registrationEmailSender = $sender;
+  }
+
+  protected function getRegistrationEmailSender() {
+    if ($this->registrationEmailSender === null) {
+      $this->registrationEmailSender = new RegistrationEmailSender();
+    }
+    return $this->registrationEmailSender;
+  }
 }
-?>

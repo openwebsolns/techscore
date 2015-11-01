@@ -1,11 +1,5 @@
 <?php
-/**
- * Defines one class, the editor page for school's team names.
- *
- * @package prefs
- */
-
-require_once('prefs/AbstractPrefsPane.php');
+use \prefs\AbstractPrefsPane;
 
 /**
  * TeamNamePrefsPane: editing the valid school names to use

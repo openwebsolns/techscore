@@ -1,10 +1,16 @@
 <?php
-/*
- * This file is part of TechScore
- *
- */
+namespace prefs;
 
-require_once('users/AbstractUserPane.php');
+use \users\PaneException;
+use \users\AbstractUserPane;
+
+use \Account;
+use \School;
+use \Session;
+
+use \XFileForm;
+use \XForm;
+use \XHiddenInput;
 
 /**
  * Parent class for Preferences page. Makes certain that school object
@@ -52,4 +58,3 @@ abstract class AbstractPrefsPane extends AbstractUserPane {
   }
 
 }
-?>

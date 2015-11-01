@@ -1,11 +1,5 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package users
- */
-
-require_once('AbstractReportPane.php');
+use \users\reports\AbstractReportPane;
 
 /**
  * Prepare CSV file of school participations in chosen set of regattas

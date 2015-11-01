@@ -1,11 +1,6 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package users-admin
- */
-
-require_once('users/admin/AbstractAdminUserPane.php');
+use \ui\StnCheckbox;
+use \users\admin\AbstractAdminUserPane;
 
 /**
  * Manage the mailing list per regatta type and conference
@@ -21,15 +16,17 @@ class MailingListManagement extends AbstractAdminUserPane {
 
   public function fillHTML(Array $args) {
     $this->PAGE->addContent($p = new XPort("Enable summary emails"));
+    $p->set('id', 'form-enable');
     $p->add($f = $this->createForm());
     $f->add(new XP(array(), "To allow scorers to send e-mail with the daily summaries, check the box below."));
-    $f->add(new FItem("Allow mail:", new FCheckbox(STN::SEND_MAIL, 1, "Check to allow scorers to send mail with daily summaries.", (string)DB::g(STN::SEND_MAIL) == 1)));
+    $f->add(new FItem("Allow mail:", new StnCheckbox(STN::SEND_MAIL, "Check to allow scorers to send mail with daily summaries.")));
     $f->add(new XSubmitP('set-mail', "Save changes"));
 
     if (!(string)DB::g(STN::SEND_MAIL) == 1)
       return;
     
     $this->PAGE->addContent($p = new XPort("Mailing lists by regatta types"));
+    $p->set('id', 'form-regatta-types');
     $p->add(new XP(array(), "Scorers have the option of sending a summary e-mail once for each day of competition. This auto-generated message will be sent to the mailing lists associated with that regatta's type. Use the form below to specify which mailing lists to use for each regatta type."));
     $p->add(new XP(array(), "Please note that in all cases, the e-mail will be sent to the participating conferences; so there is no need to specify those below. Enter each e-mail address on a newline."));
 
@@ -49,6 +46,7 @@ class MailingListManagement extends AbstractAdminUserPane {
     $confs = DB::getConferences();
     if (count($confs) > 0) {
       $this->PAGE->addContent($p = new XPort(sprintf("%s mailing lists", DB::g(STN::CONFERENCE_TITLE))));
+      $p->set('id', 'form-' . DB::g(STN::CONFERENCE_URL));
       $p->add(new XP(array(), sprintf("For each %s, specify the e-mail addresses (one per line) which will receive the daily summary messages.", DB::g(STN::CONFERENCE_TITLE))));
 
       $p->add($f = $this->createForm());

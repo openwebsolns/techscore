@@ -1,11 +1,5 @@
 <?php
-/**
- * Defines one class, the editor page for merging sailors
- *
- * @package prefs
- */
-
-require_once('prefs/AbstractPrefsPane.php');
+use \prefs\AbstractPrefsPane;
 
 /**
  * SailorMergePane: editor pane to merge the unsorted sailors from a

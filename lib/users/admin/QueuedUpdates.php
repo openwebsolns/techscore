@@ -1,11 +1,6 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package users-admin
- */
-
-require_once('users/admin/AbstractAdminUserPane.php');
+use \users\admin\AbstractAdminUserPane;
+use \xml5\PageWhiz;
 
 /**
  * View list of pending database updates.
@@ -135,7 +130,6 @@ class QueuedUpdates extends AbstractAdminUserPane {
       return;
     }
 
-    require_once('xml5/PageWhiz.php');
     $whiz = new PageWhiz(count($pending), self::NUM_PER_PAGE, $this->link(), $args);
     $p->add($whiz->getPageLinks());
     $pending = $whiz->getSlice($pending);

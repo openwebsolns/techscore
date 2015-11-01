@@ -78,7 +78,9 @@ class UpdateManager {
       return;
 
     $obj = new UpdateConferenceRequest();
-    $obj->conference = $conf;
+    if ($conf->id !== null) {
+      $obj->conference = $conf;
+    }
     $obj->activity = $type;
     $obj->season = $season;
     $obj->argument = $arg;

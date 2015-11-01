@@ -1,15 +1,9 @@
 <?php
 use \ui\FilterFieldset;
 use \ui\UserRegattaTable;
+use \users\AbstractUserPane;
 use \utils\RegattaSearcher;
-
-/*
- * This file is part of TechScore
- *
- * @package users
- */
-
-require_once('users/AbstractUserPane.php');
+use \xml5\PageWhiz;
 
 /**
  * User's archive page, subclasses AbstractUserPane
@@ -53,7 +47,6 @@ class UserArchivePane extends AbstractUserPane {
     $this->PAGE->addContent($p = new XPort("Regattas from all seasons"));
 
     // Offer pagination awesomeness
-    require_once('xml5/PageWhiz.php');
     $whiz = new PageWhiz($num_regattas, self::NUM_PER_PAGE, $this->link(), $args);
     $p->add($whiz->getSearchForm($qry, 'q', $empty_mes, "Search by name"));
     if ($qry == null) {

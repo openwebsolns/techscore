@@ -1,11 +1,11 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package users-admin
- */
+namespace users\admin;
 
-require_once('users/AbstractUserPane.php');
+use \users\AbstractUserPane;
+use \Account;
+use \DB;
+
+use \XQuickTable;
 
 /**
  * Only for priviledged users

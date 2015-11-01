@@ -678,11 +678,22 @@ class Daemon extends AbstractScript {
       $seasons = array(); // map of seasons to update indexed by conference
       $to_delete = array();
 
+      $currentSeasons = DB::getAll(DB::T(DB::SEASON));
       foreach ($pending as $i => $r) {
         if ($i >= self::$MAX_REQUESTS_PER_CYCLE)
           break;
 
         $requests[] = $r;
+
+        // Missing conference means delete
+        if ($r->conference === null) {
+          foreach ($currentSeasons as $season) {
+            if ($r->argument !== null) {
+              $to_delete[$r->argument] = $r->argument;
+            }
+          }
+          continue;
+        }
 
         $conferences[$r->conference->id] = $r->conference;
         if (!isset($seasons[$r->conference->id]))
@@ -696,7 +707,7 @@ class Daemon extends AbstractScript {
             }
           }
           else {
-            foreach (DB::getAll(DB::T(DB::SEASON)) as $season) {
+            foreach ($currentSeasons as $season) {
               if (count($season->getConferenceParticipation($r->conference)) > 0) {
                 $seasons[$r->conference->id][(string)$season] = $season;
               }

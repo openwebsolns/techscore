@@ -1,11 +1,5 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package users
- */
-
-require_once('AbstractReportPane.php');
+use \users\reports\AbstractReportPane;
 
 /**
  * Generate the billing report.

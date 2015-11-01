@@ -1,10 +1,8 @@
 <?php
 namespace users\super;
 
-use \AbstractUserPane;
+use \users\AbstractUserPane;
 use \Account;
-
-require_once('users/AbstractUserPane.php');
 
 /**
  * Only for super users

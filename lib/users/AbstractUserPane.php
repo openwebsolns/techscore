@@ -1,17 +1,39 @@
 <?php
+namespace users;
+
 use \ui\Pane;
 use \utils\RouteManager;
 use \utils\Context;
 
-/*
- * This file is part of TechScore
- *
- * @package users
- */
+use \Account;
+use \DB;
+use \Email_Token;
+use \Permission;
+use \PermissionException;
+use \STN;
+use \School;
+use \Session;
+use \SoterException;
+use \TScorePage;
+use \WS;
+
+use \XA;
+use \XDiv;
+use \XFileForm;
+use \XForm;
+use \XH4;
+use \XHiddenInput;
+use \XImg;
+use \XLi;
+use \XLinkCSS;
+use \XOl;
+use \XP;
+use \XPageTitle;
+use \XPort;
+use \XScript;
+use \XUl;
 
 require_once('xml5/TS.php');
-
-class PaneException extends Exception {}
 
 /**
  * This is the parent class of all user's editing panes. It insures a
@@ -136,6 +158,8 @@ abstract class AbstractUserPane implements Pane {
 
       'Database' => array(
         'QueuedUpdates',
+        'users\admin\ConferencePane',
+        'users\admin\SchoolsPane',
       ),
     );
 
@@ -186,7 +210,22 @@ abstract class AbstractUserPane implements Pane {
    * @return String the link
    */
   protected function link(Array $args = array()) {
-    return WS::link('/' . $this->pane_url(), $args);
+    return $this->linkTo(null, $args);
+  }
+
+  /**
+   * Creates a link to given pane with optional GET arguments.
+   *
+   * @param String $classname null to use "this" pane.
+   * @param Array $args the optional list of parameters.
+   * @param String $anchor the page anchor (sans #).
+   * @return String the link.
+   */
+  protected function linkTo($classname = null, Array $args = array(), $anchor = null) {
+    if ($anchor !== null && $anchor[0] != '#') {
+      $anchor = '#' . $anchor;
+    }
+    return WS::link('/' . $this->pane_url($classname), $args, $anchor);
   }
 
   /**
@@ -223,30 +262,9 @@ abstract class AbstractUserPane implements Pane {
         throw new SoterException("Stale form. For your security, please try again.");
       return $this->process($args);
     } catch (SoterException $e) {
-      Session::pa(new PA($e->getMessage(), PA::E));
+      Session::error($e->getMessage());
       return array();
     }
-  }
-
-  /**
-   * Sends e-mail to user to verify account.
-   *
-   * E-mail will not be sent if no e-mail template exists
-   *
-   * @param Account $account the account to notify
-   * @return true if template exists, and message sent
-   */
-  protected function sendRegistrationEmail(Email_Token $token) {
-    if (DB::g(STN::MAIL_REGISTER_USER) === null)
-      return false;
-
-    $acc = $token->account;
-
-    $body = DB::keywordReplace(DB::g(STN::MAIL_REGISTER_USER), $acc, $acc->getFirstSchool());
-    $body = str_replace('{BODY}', sprintf('%sregister/%s', WS::alink('/'), $token), $body);
-    return DB::mail($acc->email,
-		    sprintf("[%s] New account request", DB::g(STN::APP_NAME)),
-		    $body);
   }
 
   /**
@@ -387,54 +405,6 @@ abstract class AbstractUserPane implements Pane {
     return self::getRouteManager()->getName($classname);
   }
 
-  protected function addBurgeePort(School $school) {
-    $lnk = WS::link(sprintf('/prefs/%s/logo', $school->id));
-    $this->PAGE->addContent($p = new XPort(new XA($lnk, $school->nick_name . " logo")));
-    $p->set('id', 'port-burgee');
-    if ($school->burgee === null)
-      $p->add(new XP(array('class'=>'message'),
-                     new XA($lnk, "Add one now")));
-    else
-      $p->add(new XP(array('class'=>'burgee-cell'),
-                     new XA($lnk, new XImg('data:image/png;base64,'.$school->burgee->filedata, $school->nick_name))));
-  }
-
-  protected function addUnregisteredSailorsPort(School $school) {
-    $sailors = $school->getUnregisteredSailors();
-    if (count($sailors) > 0) {
-      $lnk = WS::link(sprintf('/prefs/%s/sailor', $school->id));
-      $this->PAGE->addContent($p = new XPort(new XA($lnk, "Unreg. sailors for " . $school->nick_name)));
-      $p->set('id', 'port-unregistered');
-      $limit = 5;
-      if (count($sailors) > 5)
-        $limit = 4;
-      $p->add($ul = new XUl());
-      for ($i = 0; $i < $limit && $i < count($sailors); $i++)
-        $ul->add(new XLi($sailors[$i]));
-      if (count($sailors) > 5)
-        $ul->add(new XLi(new XEm(sprintf("%d more...", (count($sailors) - $limit)))));
-    }
-  }
-
-  protected function addTeamNamesPort(School $school) {
-    $lnk = sprintf('/prefs/%s/team', $school->id);
-    $this->PAGE->addContent($p = new XPort(new XA($lnk, "Team names for " . $school->nick_name)));
-    $p->set('id', 'port-team-names');
-    $names = $school->getTeamNames();
-    if (count($names) == 0) {
-      $p->set('id', 'port-team-names-missing');
-      $p->add(new XP(array(),
-                     array(new XStrong("Note:"), " There are no team names for your school. ",
-                           new XA(WS::link($lnk), "Add one now"),
-                           ".")));
-    }
-    else {
-      $p->add($ul = new XOl());
-      foreach ($names as $name)
-        $ul->add(new XLi($name));
-    }
-  }
-
   protected function setupTextEditors(Array $ids) {
     $this->PAGE->head->add(new XLinkCSS('text/css', WS::link('/inc/css/preview.css'), 'screen', 'stylesheet'));
     $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/DPEditor.js')));
@@ -485,4 +455,3 @@ abstract class AbstractUserPane implements Pane {
     return $this->USER->canAny($permissions);
   }
 }
-?>

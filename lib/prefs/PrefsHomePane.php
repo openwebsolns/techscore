@@ -1,11 +1,8 @@
 <?php
-/**
- * Defines one class, the home page for preferences.
- *
- * @package prefs
- */
-
-require_once('prefs/AbstractPrefsPane.php');
+use \prefs\AbstractPrefsPane;
+use \ui\BurgeePort;
+use \ui\TeamNamesPort;
+use \ui\UnregisteredSailorsPort;
 
 /**
  * PrefsHomePane: the gateway to preferences editing
@@ -38,9 +35,12 @@ class PrefsHomePane extends AbstractPrefsPane {
     $p->add(new XP(array(), "If you have any questions, send them to paez@mit.edu. Please note that this part of TechScore is still under development."));
 
     // Summary of items
-    $this->addUnregisteredSailorsPort($this->SCHOOL);
-    $this->addBurgeePort($this->SCHOOL);
-    $this->addTeamNamesPort($this->SCHOOL);
+    $sailors = $this->SCHOOL->getUnregisteredSailors();
+    if (count($sailors) > 0) {
+      $this->PAGE->addContent(new UnregisteredSailorsPort($this->SCHOOL, $sailors));
+    }
+    $this->PAGE->addContent(new BurgeePort($this->SCHOOL));
+    $this->PAGE->addContent(new TeamNamesPort($this->SCHOOL));
 
     // Allow for editing of other schools
     $schools = $this->USER->getSchools();

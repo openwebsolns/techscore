@@ -1,13 +1,9 @@
 <?php
+use \ui\BurgeePort;
+use \ui\TeamNamesPort;
+use \ui\UnregisteredSailorsPort;
 use \ui\UserRegattaTable;
-
-/*
- * This file is part of TechScore
- *
- * @package users
- */
-
-require_once('users/AbstractUserPane.php');
+use \users\AbstractUserPane;
 
 /**
  * User's home pane, which shows this season's current regattas
@@ -59,9 +55,12 @@ class HomePane extends AbstractUserPane {
         $schools = $this->USER->getSchools(null, false);
         if (count($schools) <= 3) {
           foreach ($schools as $school) {
-            $this->addUnregisteredSailorsPort($school);
-            $this->addBurgeePort($school);
-            $this->addTeamNamesPort($school);
+            $sailors = $school->getUnregisteredSailors();
+            if (count($sailors) > 0) {
+              $this->PAGE->addContent(new UnregisteredSailorsPort($school, $sailors));
+            }
+            $this->PAGE->addContent(new BurgeePort($school));
+            $this->PAGE->addContent(new TeamNamesPort($school));
           }
         }
       }

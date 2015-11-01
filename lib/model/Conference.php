@@ -75,12 +75,17 @@ class Conference extends DBObject implements Publishable {
    * The URL is built from /<STN::CONFERENCE_URL>/<url>/, where <url>
    * is the lowercase version of the ID
    *
+   * @param String $seed if null, use ID.
    * @return String the full URL
    */
-  public function createUrl() {
-    if ($this->id === null)
-      throw new InvalidArgumentException("No ID exists for this conference.");
-    return sprintf('/%s/%s/', DB::g(STN::CONFERENCE_URL), strtolower($this->id));
+  public function createUrl($seed = null) {
+    if ($seed === null) {
+      if ($this->id === null) {
+        throw new InvalidArgumentException("No ID exists for this conference.");
+      }
+      $seed = $this->id;
+    }
+    return sprintf('/%s/%s/', DB::g(STN::CONFERENCE_URL), strtolower($seed));
   }
 
   public function getURL() {

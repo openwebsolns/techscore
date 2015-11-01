@@ -1,15 +1,6 @@
 <?php
 use \ui\ProgressDiv;
-
-/*
- * This file is part of TechScore
- *
- * @author Dayan Paez
- * @version 2011-11-05
- * @package users-admin
- */
-
-require_once('users/admin/AbstractAdminUserPane.php');
+use \users\admin\AbstractAdminUserPane;
 
 /**
  * Pane for administrators to send messages to one or more users,

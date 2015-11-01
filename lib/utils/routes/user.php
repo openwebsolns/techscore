@@ -1,6 +1,8 @@
 <?php
 namespace utils;
+use \DB;
 use \Permission;
+use \STN;
 
 /*
  * The structure for the non-scoring panes.
@@ -238,6 +240,26 @@ return array(
     RouteManager::PATH => 'users/admin',
     RouteManager::URLS => array('sync'),
     RouteManager::PERMISSIONS => array(Permission::SYNC_DATABASE)
+  ),
+
+  'users\admin\ConferencePane' => array(
+    RouteManager::NAME => DB::g(STN::CONFERENCE_TITLE) . " list",
+    RouteManager::PATH => null,
+    RouteManager::URLS => array(DB::g(STN::CONFERENCE_URL) . '-edit'),
+    RouteManager::PERMISSIONS => array(
+      Permission::VIEW_CONFERENCE_LIST,
+      Permission::EDIT_CONFERENCE_LIST,
+    )
+  ),
+
+  'users\admin\SchoolsPane' => array(
+    RouteManager::NAME => "Schools",
+    RouteManager::PATH => null,
+    RouteManager::URLS => array('schools-edit'),
+    RouteManager::PERMISSIONS => array(
+      Permission::VIEW_SCHOOL_LIST,
+      Permission::EDIT_SCHOOL_LIST,
+    )
   ),
 
   'QueuedUpdates' => array(

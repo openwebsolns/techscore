@@ -1,14 +1,7 @@
 <?php
 use \ui\UserRegattaTable;
+use \users\AbstractUserPane;
 use \utils\RegattaSearcher;
-
-/*
- * This file is part of TechScore
- *
- * @package users
- */
-
-require_once('users/AbstractUserPane.php');
 
 /**
  * User's home pane, which shows this season's current regattas
