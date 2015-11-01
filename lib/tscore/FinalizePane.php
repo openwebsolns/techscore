@@ -1,5 +1,6 @@
 <?php
 use \data\finalize\AggregatedFinalizeCriteria;
+use \data\finalize\FinalizeStatus;
 
 require_once('tscore/AbstractPane.php');
 
